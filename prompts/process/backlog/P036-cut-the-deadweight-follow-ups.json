@@ -1,7 +1,7 @@
 {
   "id": "P036",
   "title": "Finish the deadweight cut: dead workflows, DIRECTION.md, the playbook, the red-team gate",
-  "status": "open",
+  "status": "in_progress",
   "owner": "agent",
   "effect": 3,
   "cost": 2,
@@ -31,5 +31,10 @@
   "source": "owner, in session 2026-10-20",
   "pr": null,
   "result": null,
-  "history": []
+  "history": [
+    {
+      "date": "2026-10-20",
+      "note": "Slice (4) done: land-your-work.md 166->156, steering.md 124-><=120 lines. Slice (7) found already fixed: byok.mjs copies match platform/llm/byok.mjs and both venture suites pass (66, 21). Remaining: (1) workflows, (2) DIRECTION.md, (3) playbook, (5) verify command, (6) owner-gated."
+    }
+  ]
 }

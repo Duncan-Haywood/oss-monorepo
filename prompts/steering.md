@@ -1,11 +1,10 @@
 # How this system is steered
 
-Set at the owner's request on 2026-10-15: "I want the process to iteratively
-be improved without over handicapping the agent's intelligence and
-intiiative. it's suggestive direction setting I think as rough idea", and
-"giving more to the agent's intelligence and discretion rather than enforcing
-hard and fast rules makes sense." This file says how instructions here are written, followed and
-changed. It binds whoever edits an instruction file, the review and process
+Set at the owner's request on 2026-10-15: improve the process iteratively
+without over-handicapping the agent's intelligence and initiative; "giving more
+to the agent's intelligence and discretion rather than enforcing hard and fast
+rules makes sense." This file says how instructions here are written, followed
+and changed. It binds whoever edits an instruction file, the review and process
 tracks above all.
 
 ## Amplification: the fact this system is built around
@@ -31,8 +30,7 @@ follow, and both are over-correction:
   results (usage, merged and working, measured) rather than its volume, and
   feel free to change course when the evidence points elsewhere.
 
-The counterweight is judgment, which is why the rest of this file leans on
-it.
+The counterweight is judgment, which the rest of this file leans on.
 
 ## Two kinds of text
 
@@ -67,9 +65,8 @@ recurs and works, the review track changes the default to match it. When one
 goes badly, the review says so and the default gets a clearer reason. Either
 way the instructions learn from judgment instead of only piling up rules.
 
-Doc friction (`doc_friction`) is for instructions that were *wrong*, and
-deviations are for instructions that were *right in general but not here*.
-Use both.
+`doc_friction` is for instructions that were *wrong*; deviations are for ones
+*right in general but not here*. Use both.
 
 ## Writing an instruction
 
@@ -82,8 +79,7 @@ Use both.
   in the commit, `docs/history/` or a post; the instruction keeps one line of
   why. `measure` reports always-read size against `INSTRUCTION_BUDGET`.
 - **Say how sure you are.** "Measured on N runs", "one incident" and "a
-  guess" are different, and a reader should be able to tell which one they are
-  looking at.
+  guess" are different; let the reader tell which.
 
 ## Cut the deadweight
 
@@ -115,8 +111,7 @@ and review tracks turn them into backlog items and better defaults.
   done. Each problem worth fixing becomes an item in
   [`process/backlog/`](process/backlog/README.md), not a paragraph in a
   report that nobody rereads.
-- **Solve**: process runs take the top open item and ship it. Any other run
-  with spare scope may do the same.
+- **Solve**: process runs ship the top open item; any run with spare scope may.
 - **Verify**: a closed item names its metric and baseline, and a later run
   checks whether the metric moved. A fix that did not help gets reverted or
   rethought, not defended.

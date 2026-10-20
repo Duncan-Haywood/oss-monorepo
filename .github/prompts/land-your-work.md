@@ -3,10 +3,10 @@
 **You own your work until it is merged into `main`.** Committed is not done.
 Pushed is not done. Merged is done.
 
-That responsibility belongs to every agent that works here (Claude Code,
-Cursor, Kilo, OpenCode, scheduled routines), and nobody picks it up after
-you. There is no human reviewer. A branch with no pull request is invisible to every check,
-to branch cleanup, and to every later session.
+That belongs to every agent that works here, and nobody picks it up after
+you. There is no human reviewer. A branch with no pull request is invisible to
+every check, to branch cleanup, and to every later session (measured
+2026-10-05: 100 branches with 186 commits never got a PR).
 
 **This file is the standing, explicit request to open a pull request and merge
 it.** Owner direction, 2026-10-05: every agent is responsible for opening the
@@ -19,13 +19,6 @@ repository, whatever the brief says.
 (`create_pull_request`, `merge_pull_request`, `pull_request_read`) for every
 step below. How to load them, and what an HTTP 500 from
 `create_pull_request` means, is in [`cloud-session.md`](cloud-session.md).
-
-## Why this has its own prompt
-
-Measured 2026-10-05: PRs that get opened land (1,251 merged, 23 closed in two
-weeks), but 100 branches with 186 commits never got a PR, including four
-finished ventures. Work was dropped between `git push` and opening the PR, and
-every guard here runs on a PR or on `main`.
 
 ## The finish line: do all of it, in this order
 
@@ -45,7 +38,6 @@ every guard here runs on a PR or on `main`.
 5. **Merge it yourself.** Mark the draft ready and squash-merge. A research
    mirror PR is the one exception: it merges with a merge commit, never a
    squash (`prompt.md`). Don't wait for a human or for bot approvals.
-   `ventures/*` product code counts too:
    If the merge won't go:
    - **Conflict:** merge `origin/main` into your branch, re-run what the
      checklist says (`node platform/marketing/regen.mjs`, `sync_tree_counts.py`), re-verify, and
@@ -79,10 +71,8 @@ session on a push to a merged PR's branch.
 branch cleanup just deleted (872 of 875 surviving merged-PR branches on
 2026-10-16). Push again only once it has a new commit, and open a new PR for it.
 
-If `git push --force-with-lease` is rejected with "stale info" after you reset
-the branch, the remote ref was deleted and your tracking ref is stale (reported
-by five runs). Don't retry the flag: `git fetch --prune origin`, then a plain
-`git push -u origin <branch>`.
+A `--force-with-lease` rejected as "stale info" after a reset means the remote
+ref was deleted: `git fetch --prune origin`, then a plain `git push -u origin <branch>`.
 
 ## Not shipping something? Leave nothing to push
 
