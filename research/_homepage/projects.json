@@ -3247,6 +3247,11 @@
      "summary": "Of 1,564 run records, 203 (13%) list a deviation from the brief, mostly review (59%) and ventures (27%) runs. Within track, deviating runs take about 1.6&times; as long and cost about 1.2&times; as much (stratified permutation p &lt; 0.001), but the cost gap rests mainly on the long process track (1.07&times;, p = 0.052 without it), and deviating runs end partial 5 points more often. Observational and self-reported: preliminary."
     },
     {
+     "slug": "swe-notests",
+     "title": "Do agent runs that add no tests end worse?",
+     "summary": "Of 621 run records that count tests added, 84 (13.5%) add none, mostly research runs. Within track and recording regime they end <code>partial</code> 4 of 84 times against 16 of 537 for runs that add tests: a +2.6 point difference, permutation p = 0.23, so no detectable effect (only 20 partial outcomes exist, so power is low). They cost less (median $0.56 against $0.99 in research), most likely because they do less. Observational and self-reported; preliminary."
+    },
+    {
      "slug": "swe-fieldfill",
      "title": "How complete are the agent run records, field by field?",
      "summary": "Counts which fields are present on each of the 1,362 run records in <code>prompts/runs/</code> (1 to 19 October 2026). <code>cost_usd</code>, tokens and wall time are present on 47% of records (Wilson 45% to 50%), but on 0% to 7% of records on 13 to 15 October and 61% to 82% from 16 October, so the rate is a date effect. <code>merged</code> is filled on 4.6%, a pull request is named on 81.2%, and 237 of 1,279 records with outcome <code>success</code> (18.5%, 16% to 21%) name none. <em>Preliminary</em>: presence is measured, not correctness, and an empty list can mean a clean run."
@@ -3492,6 +3497,16 @@
      "slug": "mimic-twinswing",
      "title": "On a swing-up task where friction matters, does a digital twin's detectability predict what tuning on it costs?",
      "summary": "Follow-up to <code>mimic-twinregret</code> on the same stylised pendulum, now with a torque limit below gravity so the controller must pump energy against friction, then catch the top with PD. Controllers are tuned on 15 wrong twins (60-point grid, 12 seeds) and scored on held-out real starts. Only the two gravity-error twins cost much: g/L +20% adds 8.3% to the best real cost and g/L &minus;20% 3.7%; every other twin is under 0.3%, including no sensor noise, no Coulomb friction and doubled viscous friction, at C2ST AUROC up to 1.0. Spearman AUROC vs regret &rho;&nbsp;=&nbsp;0.16 (p&nbsp;=&nbsp;0.57), paired RMSE vs regret 0.43 (p&nbsp;=&nbsp;0.11). Stylised, one task, coarse grid; best gain on the grid edge for several twins."
+    },
+    {
+     "slug": "mimic-twinswinggrid",
+     "title": "Does a finer controller grid change which wrong digital twins cost something on a swing-up task?",
+     "summary": "Robustness check of <code>mimic-twinswing</code> with a 144-point gain grid instead of 60 (same pendulum, 15 wrong twins, 12 seeds). The same two gravity-error twins cost much: g/L +20% adds 6.1% to the best real cost and g/L &minus;20% 3.8%; every other twin is at or below 0.3%. Coarse and fine regret rank the twins alike (Spearman &rho;&nbsp;=&nbsp;0.79, p&nbsp;=&nbsp;0.001). AUROC vs regret &rho;&nbsp;=&nbsp;0.38 (p&nbsp;=&nbsp;0.16), paired RMSE vs regret 0.25 (p&nbsp;=&nbsp;0.38): still no reliable link, but 15 twins give little power. Stylised, one task; AUROC borrowed from the earlier run."
+    },
+    {
+     "slug": "mimic-twingrid",
+     "title": "Does a wider gain grid, or a controller that uses the twin's gravity, change which wrong digital twins are costly?",
+     "summary": "Follow-up to <code>mimic-twinswing</code> on the same stylised swing-up pendulum, removing two confounds: the best pump gain sat at the edge of the grid, and the controller's gravity constant was fixed. With ke up to 32 (126 controllers, 14 twins, 8 seeds) gravity errors remain the costly twins and sensor-noise errors stay under 0.0010. Letting the controller use the twin's own g/L made gravity errors worse: g/L &minus;20% regret rises from 0.013 to 0.177 and g/L +20% falls from 0.036 to 0.017. Spearman AUROC vs regret is &rho;&nbsp;=&nbsp;0.63 (p&nbsp;=&nbsp;0.021) but is driven by four gravity twins, and is not comparable with the earlier twin set. Preliminary: one toy system, simulated only."
     },
     {
      "slug": "mimic-twinrand",
@@ -3961,6 +3976,11 @@
     "title": "Which suction gripper picks the most of a stylised mixed tote under an 80 USD cap, and does a session agent beat CMA-ES and Bayesian optimisation?",
     "summary": "Five design variables (cup diameter, cups in a row, pump vacuum, pump flow, cup compliance) are scored on 600 simulated items (boxes, leaky polybags, bottles) with a cup-fit law on each item&rsquo;s flat patch, vacuum lost to leaks, holding force against 1.5&times; a 1&nbsp;g-accelerated load, and a pick-time penalty. At 40 evaluations the median best objective is 0.478 for Bayesian optimisation, 0.361 for CMA-ES and 0.328 for random search; a session agent&rsquo;s hand-written proposals (one run, by the model&rsquo;s own author) reached 0.519, and 1 of 20 Bayesian-optimisation seeds matched it. The best design (two 18.5&nbsp;mm cups, 80&nbsp;kPa, 60&nbsp;L/min) holds 77% of items quickly; a catalogue-default single 30&nbsp;mm cup holds none quickly (J 0.075). Stylised, with assumed constants, no learned policy and no general-purpose arm modelled."
    }   ,{
+    "slug": "codesign-aero",
+    "title": "Should a quadrotor&rsquo;s airframe and its learned attitude controller be sized together, or one after the other?",
+    "summary": "A 15-minute inspection quadrotor with two airframe variables (arm length, prop diameter) and a three-gain roll policy found by CMA-ES, scored on held-out gusty step-tracking episodes. At 320 evaluations, joint CMA-ES reaches 5.25&deg; RMS (the brute-force grid optimum is 5.25&deg;), against 5.63&deg; for joint random search, 5.52&deg; for a frozen controller, 5.88&deg; for bilevel search and 7.06&deg; for design-first (lightest airframe, then tune). A controller tuned on one airframe and reused on others is 1&deg; or more worse on 41% of cells. Gust level did not move the optimum. Stylised roll-axis model with assumed constants; the policy is linear, not deep RL; no flight software-in-the-loop."
+   }
+   ,{
     "slug": "codesign-transfer",
     "title": "Does the ranking of printable soft-fruit gripper designs survive a shift in friction, fruit, placement error and print tolerance?",
     "summary": "Takes the <code>codesign-agri</code> contact model unchanged and widens what it holds fixed: per world the fruit size, placement error, wetness, bruise threshold and stem pull are drawn, and the printed gripper differs from the design (pad modulus, force and width tolerance). Over 600 random feasible designs and 30 held-out worlds the Spearman rank correlation with the nominal world is 0.993, so a nominal winner is a good candidate. The level still falls: the nominal CMA-ES optimum loses 13% of its objective (0.653 to 0.567), and a robust optimum trained on 10 other worlds gains only 0.015 on average and 0.034 in the worst world, from single runs. Sim-to-sim in a stylised model with assumed ranges; no gripper was printed."
@@ -4007,6 +4027,11 @@
     "slug": "hanger-cell",
     "title": "How many dryers can one laundry-hanging robot serve, and what limits it?",
     "summary": "A discrete-event model of the whole cell (pick, sense, hanger feeder, insertion, rail and fold table) fed with <code>hanger-insert</code>&rsquo;s insertion times and <code>hanger-fold</code>&rsquo;s hang-or-fold shares. With assumed pick and fold times, one arm clears a 25-item dryer load in 8.9&nbsp;min (169 items/h, about 5 dryers on a 45&nbsp;min cycle); a second arm adds 22% and then the fold table is the bottleneck. The five hanger designs differ by at most 3% in time per load. Doubling the fold time adds 5.9&nbsp;min and doubling the pick time 3.4, against under 1&nbsp;min for insertion, though a threefold slower insertion costs a one-arm cell 22%. A poor picker (0.60 success) costs 13% throughput but leaves 7 of every 100 items for a person. Stylised: every station time except insertion is an assumed placeholder, no layout or collisions."
+   },
+   {
+    "slug": "hanger-print",
+    "title": "Can the hanger a cloth simulation designed be 3D-printed, and does it hold a garment?",
+    "summary": "Exports <code>hanger-fit</code>&rsquo;s adjustable shape and four-width rack as parametric STL and OpenSCAD, with a cantilever strength, deflection and print-bed check. Printed flat in PLA under assumed constants (1.5&nbsp;kg garment, 2&times; motion factor), the round-ended arm (end radius 2.86&nbsp;cm) has a safety factor of 40&ndash;70 at 12&nbsp;mm depth and bends under 0.04&nbsp;mm, so strength never limits it; a wire-like arm (end radius 1.5&nbsp;mm) has a safety factor of 0.13 and fails. No hanger of useful width fits a 220&nbsp;mm bed whole, but one arm with its hub does up to 24.8&nbsp;cm. Stylised: assumed material constants, flat extrusion, OpenSCAD files not rendered, no two-piece joint."
    }
   ]
  },
@@ -4019,6 +4044,11 @@
     "slug": "qual-correction",
     "title": "Can you do machine learning on qualitative data with an LLM, and when can you trust the numbers?",
     "summary": "An LLM can code free text (&ldquo;does this answer mention cost?&rdquo;) so that it can be counted and modelled like numbers, but its codes need a correction first. In a seeded simulation, an 89%-accurate LLM coder (Cohen&rsquo;s &kappa; = 0.72) understates a 30% code at 26%, and its naive 95% interval covers the truth in 0 of 1,000 studies. When the LLM reads one group&rsquo;s answers less accurately, the naive group gap comes out at +3.6 points against a true &minus;4, the wrong sign, and is &ldquo;significant&rdquo; 80% of the time. Prediction-powered inference with 200 random hand-coded answers per group removes the bias, covers the truth 95&ndash;98% of the time and gives intervals 23&ndash;26% narrower than hand-coding alone. Below about 80% coder accuracy, though, its interval is wider. Includes a stdlib tool (&kappa;, Krippendorff&rsquo;s &alpha;, PPI) and a survey of five ways LLMs bring qualitative data into ML. Simulated coders, not a real model."
+   },
+   {
+    "slug": "qual-regression",
+    "title": "What happens to a regression coefficient when the regressor is an LLM's code?",
+    "summary": "Regressing an outcome on an LLM's codes attenuates the coded variable's coefficient (0.74 for a true 1.00, interval coverage 0% in 300 simulated studies) and, when the coder's error depends on another covariate, biases that perfectly measured covariate too (0.467 against 0.50, coverage 60%). Design-based supervised learning (DSL) with about 210 hand-coded items drawn at a known 7% rate recovers both (1.01 and 0.50, coverage 94&ndash;97%) but narrows the coded coefficient&rsquo;s interval by only 14%. For a 3-class code, naive class shares are off by up to 8.5 points with 0% coverage; per-class PPI covers 95.5&ndash;97%. Simulated coders only; no real LLM was run."
    }
   ]
  }

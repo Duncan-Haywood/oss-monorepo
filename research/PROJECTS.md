@@ -1321,7 +1321,7 @@ PyBullet, SoftGym, Blender's cloth solver, Gymnasium. Check each before citing i
 6. `hanger-cell` (done 2026-10-20; station times other than insertion are assumed placeholders: pick and fold dominate, the hanger design moves time per load by under 3%): the whole cell as a discrete-event model (dryer or loader, picker, hanger
    feeder, rail): throughput, failure and recovery rates, and the cost of each station, built
    on milestones 2 to 5.
-7. `hanger-print`: the winning hanger shapes as parametric, printable CAD (OpenSCAD or
+7. `hanger-print` (done 2026-10-20; strength never limits the round-ended designs, the print bed does: nothing useful fits 220 mm whole): the winning hanger shapes as parametric, printable CAD (OpenSCAD or
    CadQuery) with a strength check, a printable by-product people can use today.
 8. Owner steps: buying or printing hangers, building the robot, measuring real fabrics and
    garments, and any test with real laundry.
@@ -1374,7 +1374,7 @@ alpha reliability. Check each before citing it.
    in a predictive model, against embeddings and bag-of-words at the same labelling budget.
 6. `qual-hypothesis`: LLM-proposed, human-readable hypotheses about what separates two sets of
    documents, scored on held-out data, with a check for hypotheses that merely restate the label.
-7. `qual-regression`: extend the correction from means to regression coefficients (DSL, PPI++)
+7. `qual-regression` (done 2026-10-20): extend the correction from means to regression coefficients (DSL, PPI++)
    and to multi-class codes.
 
 **Applications.** Customer feedback and support-ticket analytics, open-ended survey analysis,

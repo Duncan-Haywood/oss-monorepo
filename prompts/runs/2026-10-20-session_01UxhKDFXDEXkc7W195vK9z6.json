@@ -1,0 +1,142 @@
+{
+ "date": "2026-10-20",
+ "session": "https://claude.ai/code/session_01UxhKDFXDEXkc7W195vK9z6",
+ "track": "research",
+ "prompt_version": 1,
+ "input": "how much of the research is a verifiable repeatable experiment versus a made up thing do a report and blog post and agent and human and report on that on that.",
+ "input_sha256": "f73e34d1a59444beda528f050fc8ec731e65f46e63a358b39e015ca0920e28b7",
+ "follow_up_inputs": [],
+ "model": "claude-opus-5-5",
+ "models_seen": [
+  "claude-opus-5-5"
+ ],
+ "started": "2026-10-20T08:48:54Z",
+ "ended": "2026-10-20T09:28:25Z",
+ "wall_minutes": 39.72,
+ "tokens_in": 20405529,
+ "tokens_out": 65610,
+ "cost_usd": 7.658,
+ "tool_calls": 124,
+ "task": "Reproducibility audit of research/: repeatable experiment vs made up",
+ "projects": [
+  "_audit"
+ ],
+ "pr": 8752,
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": 12,
+ "outcome": "partial",
+ "errors": [
+  "pkill -f with a pattern that also matched the calling shell killed the shell twice (exit 144)",
+  "Full alphabetical re-run reached 23 of 761 before the user asked to finish; switched to seeded random order",
+  "CI red twice from main (code ref to a file added later; feedback/ page failing check.mjs); resolved by merging main and porting PR #8779"
+ ],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": ".github/workflows/research-ci.yml",
+   "issue": "Runs only the homepage build; none of the 6,197 research tests run in CI, which the audit found by running them."
+  },
+  {
+   "file": "research/accel-gatedprice/README.md",
+   "issue": "run.py error says 'sh fetch_pdk.sh pdk (in this directory)' but the project has no fetch_pdk.sh."
+  }
+ ],
+ "deviations": [
+  {
+   "file": "research/CLAUDE.md",
+   "why": "The audit lives in research/_audit/ (not a project directory) so it does not add itself to the projects it audits; no projects.json/README bullet added."
+  }
+ ],
+ "goal": null,
+ "notes": "Hand check 40/40 headline numbers match; 10,518/11,985 README numbers (88%) found in own committed output vs 5% shuffled control; re-ran 32 projects (16 exact, 1 differs: ambient-bandit Thompson rows, numpy/LAPACK-dependent multivariate_normal; rest setup/timeouts) pooled with swe-audit: 102/103 finished reproduced; tests 220/231 pass. Input basis of 40: math 17, assumed 14, real-tool 5, repo-data 2, cited 2, external 0. Census and remaining tests left as action items in research/_audit/README.md. Handoff steps for the next agent: research/_audit/NEXT.md. Verification (CI runners slow, ~30 min queue): run_workflow_locally.py --for-changes: 8/13 workflows passed; not run: agent-cross-review (4 reviewer jobs), hetzner hcloud-scope, portfolio-pages deploy, publish-pages-branch (secrets/deploy). Pages build + check.mjs dist locally: publishable, 1305 products, 3816 pages, no dead links. Ported PR #8779's feedback/ fix after main's Pages check went red on PR #8723's page; merged main for the site-feedback.json code ref.",
+ "corrections": [],
+ "redteam": null,
+ "usage": {
+  "measured_by": "prompts/runcost.py v1",
+  "session_id": "d3d81837-4960-56aa-965c-0df7d51ac49a",
+  "transcripts": 2,
+  "first": "2026-10-20T08:48:54Z",
+  "last": "2026-10-20T09:28:37Z",
+  "primary_model": "claude-opus-5-5",
+  "models": {
+   "claude-opus-5-5": {
+    "requests": 129,
+    "input": 272,
+    "output": 65610,
+    "thinking": 15134,
+    "cache_read": 20043480,
+    "cache_write_5m": 186054,
+    "cache_write_1h": 175723,
+    "api_equivalent_usd": 7.658,
+    "fast_requests": 0
+   }
+  },
+  "totals": {
+   "requests": 129,
+   "input": 272,
+   "output": 65610,
+   "thinking": 15134,
+   "cache_read": 20043480,
+   "cache_write_5m": 186054,
+   "cache_write_1h": 175723,
+   "api_equivalent_usd": 7.658,
+   "api_equivalent_complete": true
+  },
+  "cache_hit_share": 0.982,
+  "tool_calls": 124,
+  "tools": {
+   "Bash": 107,
+   "Write": 4,
+   "ReadNotifications": 4,
+   "ToolSearch": 2,
+   "mcp__github__search_pull_requests": 1,
+   "Agent": 1,
+   "Monitor": 1,
+   "mcp__github__create_pull_request": 1,
+   "mcp__claude-code-remote__subscribe_pr_activity": 1,
+   "Read": 1,
+   "SubagentHandback": 1
+  },
+  "web_searches": 0,
+  "time": {
+   "wall_minutes": 39.72,
+   "active_minutes": 29.09,
+   "model_minutes": 14.52,
+   "tool_minutes": 14.57,
+   "waiting_on_human_minutes": 10.62,
+   "human_prompts": 10,
+   "stalls": 0,
+   "subagent_minutes": 4.66
+  },
+  "pricing": {
+   "as_of": "2026-10-06",
+   "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+  },
+  "human_equivalent": {
+   "hours": 12.0,
+   "basis": "re-running ~30 projects, hand-checking 40 READMEs, writing report and post",
+   "rate_usd_per_hour": 100.0,
+   "usd": 1200.0
+  },
+  "leverage": 156.7,
+  "certainty": {
+   "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+   "model": "high: the `model` field on each API response, not the configured model",
+   "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+   "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+   "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+  },
+  "not_counted": [
+   "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+   "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+   "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+   "CI minutes and the reviewer bots' own model calls"
+  ]
+ }
+}

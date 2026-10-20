@@ -434,6 +434,9 @@ function shipsDeployableApp(slug) {
   return hit;
 }
 
+// Tools that implement a published paper (portfolio/research-tools/README.md).
+export const RESEARCH_ALGORITHM_SLUGS = ['changepoint-detector', 'conformal-prediction-intervals', 'matrix-profile-explorer'];
+
 const CATEGORY_RULES = [
   {
     // Added 2026-10-16 (P019): the self-hosted SaaS-operations apps had been
@@ -3704,6 +3707,17 @@ const CATEGORY_RULES = [
         // `quick-pick-survey` joined 2026-10-15 when it got a landing page and the catch-all hit 6: a survey engine, one hop from the individual-decision tools above.
         'quick-pick-survey',
       ].includes(slug),
+  },
+  {
+    // Added 2026-10-20 with the first tools of "research algorithms as free
+    // tools" (portfolio/research-tools/README.md): methods from published
+    // papers run on the visitor's own data. Listed by name; add a slug here
+    // when a tool lands, as that README says.
+    id: 'research-algorithms',
+    title: 'Research algorithms & ML',
+    accent: '#5b3f8c',
+    blurb: 'Methods from published research papers, run on your own data in your browser and cited: changepoint detection, conformal prediction intervals, matrix-profile motifs and anomalies. Also callable from the command line and by AI agents.',
+    test: (slug) => RESEARCH_ALGORITHM_SLUGS.includes(slug),
   },
   {
     // Added 2026-10-19 when `hands-free-language-coach` and
@@ -7231,6 +7245,13 @@ export function renderFeedbackPage({ surfaces = [], baseUrl, feedbackUrl = SITE_
   <link rel="canonical" href="${escapeHtml(url)}">
   <link rel="icon" href="${escapeHtml(`${toRoot}favicon.svg`)}" type="image/svg+xml">
   <link rel="alternate icon" href="${escapeHtml(`${toRoot}favicon.ico`)}" sizes="16x16">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="${escapeHtml(title)}">
+  <meta property="og:description" content="${escapeHtml(snippetize(description))}">
+  <meta property="og:url" content="${escapeHtml(url)}">
+  <meta property="og:site_name" content="${escapeHtml(SITE_NAME)}">
+  <meta property="og:image" content="${escapeHtml(`${baseUrl}${SOCIAL_CARD_FILE}`)}">
+  <meta name="twitter:card" content="summary_large_image">
   <style>${CATEGORY_STYLE}${ABOUT_STYLE}${FEEDBACK_STYLE}  </style>
   ${siteStyleLink(toRoot)}
 </head>

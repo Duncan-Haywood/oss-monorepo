@@ -108,7 +108,7 @@ test("every rule id in every compiled Schematron file has a specific English fix
   let total = 0;
   for (const f of readdirSync(dir).filter((n) => n.endsWith(".sef.json"))) {
     const sef = readFileSync(new URL(f, dir), "utf8");
-    for (const m of sef.matchAll(/"val":"((?:BR|PEPPOL)[A-Za-z0-9-]*-[A-Za-z0-9-]+)"/g)) {
+    for (const m of sef.matchAll(/"val":"((?:BR|PEPPOL|DE-R)[A-Za-z0-9-]*-[A-Za-z0-9-]+)"/g)) {
       total++;
       if (!hasSpecificFix(m[1])) missing.add(m[1]);
     }
@@ -129,4 +129,22 @@ test("Peppol BIS 3 add-on runs on CII and flags a missing buyer reference (R003)
   const f = bad.findings.find((x) => x.source === "peppol-schematron" && x.rule === "PEPPOL-EN16931-R003");
   assert.ok(f, JSON.stringify(bad.findings.map((x) => x.rule)));
   assert.match(f.fix, /buyer reference/);
+});
+
+const creditReady = ready && existsSync(join(SEF_DIR, "peppol-ubl.sef.json"));
+test("the Peppol BIS 3 credit note example passes the official EN 16931 and Peppol rules", { skip: !creditReady && "run build-schematron.mjs" }, (t) => {
+  const xml = read("peppol-credit-note.xml");
+  const r = runSchematron(xml);
+  if (r.status === "unavailable") return t.skip("saxon-js not installed");
+  assert.deepEqual(r.sets, ["en16931", "peppol"]);
+  assert.deepEqual(r.findings, []);
+});
+
+test("Peppol applies the German DE-R rules to a domestic credit note and each finding has a specific fix", { skip: !creditReady && "run build-schematron.mjs" }, (t) => {
+  const xml = read("peppol-credit-note.xml").replace(/<cac:Contact>[\s\S]*?<\/cac:Contact>/, "").replace(/<cbc:PostalZone>20095<\/cbc:PostalZone>/, "");
+  const r = runSchematron(xml);
+  if (r.status === "unavailable") return t.skip("saxon-js not installed");
+  const rules = r.findings.map((f) => f.rule).sort();
+  assert.deepEqual(rules, ["DE-R-002", "DE-R-009"]);
+  assert.ok(r.findings.every((f) => f.source === "peppol-schematron" && hasSpecificFix(f.rule)));
 });
