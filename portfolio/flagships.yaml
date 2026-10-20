@@ -37,29 +37,39 @@ flagships:
       XRechnung, Peppol profiles) with a self-hosted API, Docker and Render
       deploy, ~48 test files, and a regulatory tailwind (EU e-invoicing mandates).
     next: >-
-      Run the official EN 16931 / Peppol BIS Schematron (saxon-js with
-      compiled SEF) beside the built-in rules and map each BR-xx failure to a
-      plain-language fix, so the README can drop "not a full EN 16931
-      conformance validator".
+      The official EN 16931 Schematron plus the XRechnung (UBL, CII) and Peppol
+      BIS 3 (UBL) add-ons now run in Saxon-JS (opt-in, ?schematron=1, picked by
+      BT-24) and the Docker image bakes them in. Next: show the official findings
+      on the web page (index.html, needs a server or WASM path since Saxon-JS
+      runs in Node here), and English fixes for the remaining PEPPOL and CEN
+      rules (every BR-DE rule has one now; a test fails when a new one lacks it).
+      A CII XRechnung example (examples/xrechnung-cii-invoice.xml) is tested
+      against the official rules; CII BT-24 detection is fixed.
   - venture: shift-roster-builder
     why: >-
       Simulated-annealing scheduler over a dollar cost (availability, rest,
       youth labour rules, state overtime presets, roles) with a self-host
       server, .ics feeds and availability intake.
     next: >-
-      Bound the heuristic: an exact solver (ILP or branch-and-bound) for
-      small instances that reports how far the annealing roster is from
-      optimal, then multi-week rostering that carries fairness and time off
-      across weeks (README Limits).
+      The exact check now has a coverage bound (min-cost flow over shifts,
+      person-days and weekly hours): on the 32-shift sample week it proves the
+      15 uncoverable hours and sits within ~$70 of the roster found, but the
+      proof of the cheapest roster still times out at ~12k nodes/s. Next: close
+      that last gap (a faster incremental bound or symmetry cuts between people
+      with equal availability and wage) so full weeks are proven, then
+      multi-week rostering that carries fairness and time off across weeks
+      (README Limits).
   - venture: photo-editing
     why: >-
       ShootFlow works end to end on real media: checksum-verified ingest,
       catalog, ffmpeg proxies, LUT-graded masters, reels and carousels.
     next: >-
-      Replace the deterministic analysis stand-ins in
-      src/shootflow/local_pipeline.py with real frame selection: sharpness,
-      exposure and face scores plus perceptual-hash near-duplicate grouping,
-      written to the analysis/NNNNN.json contract analysis.py already validates.
+      Sharpness, exposure, motion and dHash near-duplicate grouping now run
+      on real frames (src/shootflow/frame_analysis.py). Next: face and
+      closed-eye scores and subject framing for the story score (a small
+      on-device model, opt-in, behind the same analysis/NNNNN.json contract),
+      and RAW stills via a RAW developer so they stop falling back to the
+      sha256 stand-in.
   - venture: quick-pick-survey
     why: >-
       Next.js + Postgres app with Glicko-2 ranking, adaptive pairing and a

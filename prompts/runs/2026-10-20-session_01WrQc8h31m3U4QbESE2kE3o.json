@@ -1,0 +1,123 @@
+{
+  "date": "2026-10-20",
+  "session": "https://claude.ai/code/session_01WrQc8h31m3U4QbESE2kE3o",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "how do llm agents like having info presented to them by other agents? / make an agent report for this also human and blog post and podcast episode.",
+  "input_sha256": "89a3a0b04e7f198d0b5fcbff2b43611d934c1cb134d885fe49f7f815ed622917",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-10-20T08:02:51Z",
+  "ended": "2026-10-20T08:53:43Z",
+  "wall_minutes": 51.26,
+  "tokens_in": 3020538,
+  "tokens_out": 25176,
+  "cost_usd": 1.7767,
+  "tool_calls": 36,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/8750",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/swe-friction/src/swe_friction/friction.py",
+      "issue": "Keyword themes leave 45% of 1,232 entries as 'other'; in a 60-entry hand-coded sample 23 of 26 'other' were real failures, so theme counts undercount missing-case and cost complaints."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Owner question about agent-to-agent handoffs. Hand-coded 60 doc_friction entries; shipped agent brief, human report, blog post, podcast script with analyze.py.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "32d5735e-77e8-57ad-a671-2658954be080",
+    "transcripts": 1,
+    "first": "2026-10-20T08:02:51Z",
+    "last": "2026-10-20T08:54:07Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 28,
+        "input": 56,
+        "output": 25176,
+        "thinking": 6101,
+        "cache_read": 2934727,
+        "cache_write_5m": 0,
+        "cache_write_1h": 85755,
+        "api_equivalent_usd": 1.7767,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 28,
+      "input": 56,
+      "output": 25176,
+      "thinking": 6101,
+      "cache_read": 2934727,
+      "cache_write_5m": 0,
+      "cache_write_1h": 85755,
+      "api_equivalent_usd": 1.7767,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.972,
+    "tool_calls": 36,
+    "tools": {
+      "Bash": 25,
+      "Write": 4,
+      "ToolSearch": 2,
+      "WebSearch": 2,
+      "mcp__github__search_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__claude-code-remote__subscribe_pr_activity": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 51.26,
+      "active_minutes": 4.93,
+      "model_minutes": 4.19,
+      "tool_minutes": 0.75,
+      "waiting_on_human_minutes": 46.33,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "analyst hand-coding 60 entries plus writing four pieces",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 337.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -38,6 +38,9 @@ OFFSET = {str(p + 1): (H.CUT[p] - H.CUT[0]) / 12 for p in range(NP)}
 NUMERIC = ['relationship_years', 'mean_age', 'age_gap', 'edu_years_mean', 'edu_gap', 'hh_income_k', 'children_in_hh']
 CATEGORICAL = ['period', 'relationship_quality', 'cohabiting', 'couple_type', 'couple_race', 'prior_marriage',
                'parental_approval', 'religion_pair', 'how_met']
+# HCMST 2017 did not ask about parents' approval or the partner's religion, so the external check
+# uses an additive model without those two inputs (also usable when a person skips them).
+HARMONIZED = [c for c in CATEGORICAL if c not in ('parental_approval', 'religion_pair')]
 TIME_VARYING = ['relationship_years', 'mean_age']
 
 
@@ -104,9 +107,9 @@ def pipeline(kind):
         prep = ColumnTransformer([('num', Pipeline([('impute', SimpleImputer(strategy='median'))]), []),
                                   ('cat', cat, ['period'])])
         est = LogisticRegression(C=1e4, max_iter=5000)
-    elif kind == 'additive':
+    elif kind in ('additive', 'additive_harmonized'):
         num = Pipeline([('impute', SimpleImputer(strategy='median')), ('scale', StandardScaler())])
-        prep = ColumnTransformer([('num', num, NUMERIC), ('cat', cat, CATEGORICAL)])
+        prep = ColumnTransformer([('num', num, NUMERIC), ('cat', cat, CATEGORICAL if kind == 'additive' else HARMONIZED)])
         est = LogisticRegression(C=0.5, max_iter=5000)
     else:
         prep = ColumnTransformer([('num', Pipeline([('impute', SimpleImputer(strategy='median'))]), NUMERIC),
@@ -116,6 +119,7 @@ def pipeline(kind):
 
 
 MODELS = [('period_only', 'Follow-up period only (baseline)'), ('additive', 'Additive logistic, wave-1 inputs'),
+          ('additive_harmonized', 'Additive logistic without parental approval and religion (validated on HCMST 2017)'),
           ('tree_depth2', 'Decision tree, depth 2')]
 
 
@@ -176,6 +180,75 @@ def cumulative(un_fates, pp, by=None):
     return out
 
 
+def outcomes_2017():
+    """HCMST 2017 couples unmarried in July 2017, wave-1 inputs coded as for 2009 (via
+    ../hcmst/hcmst_data.py), and whichever came first by the 2020 and 2022 waves: marrying the
+    2017 partner, or breaking up with them. Partner deaths and couples not seen at the end of a
+    window without an earlier event are left out of that window."""
+    c, audit = H.couples_2017()
+    raw, _ = pyreadstat.read_dta(str(Path(os.environ['HCMST_RAW']) / 'hcmst2017_2022_v2.2.dta'), encoding='cp1252',
+                                 usecols=['caseid_new', 'w1_partnership_status', 'w2_married', 'w3_married', 'w2_relationship_end',
+                                          'w3_relationship_end_combo', 'w3_breakup_source', 'w2_surveyed', 'w3_surveyed',
+                                          'w3_partner_source', 'w3_when_married_yr'])
+    raw = raw.rename(columns={'caseid_new': 'id'})
+    raw['id'] = raw.id.astype(int)
+    d = c[c.married == 'No'].merge(raw, on='id')
+    assert (d.w1_partnership_status == 2).all() and len(d) == 777, len(d)
+    e2, e3 = d.w2_relationship_end, d.w3_relationship_end_combo
+    # By 2020: "Divorce" for a couple unmarried in 2017 means they married first.
+    mar20 = (d.w2_surveyed == 1) & (((d.w2_married == 1) & (e2 == 0)) | (e2 == 1))
+    brk20 = (d.w2_surveyed == 1) & (e2 == 2)
+    died20 = (d.w2_surveyed == 1) & (e2 == 3)
+    first3 = d.w3_breakup_source == 1
+    # A wedding newly reported in 2022 is dated in w3_when_married_yr; w3_partner_type (and so
+    # w3_married) was not updated for these 13 respondents, so the date plus w3_partner_source == 1
+    # (the current partner is the 2017 partner) is what marks marrying the 2017 partner.
+    same3 = d.w3_partner_source == 1
+    new_mar3 = (d.w3_surveyed == 1) & same3 & ((d.w3_married == 1) | d.w3_when_married_yr.notna())
+    mar22 = mar20 | (~brk20 & (new_mar3 | ((d.w3_surveyed == 1) & first3 & (e3 == 1))))
+    brk22 = brk20 | ((d.w3_surveyed == 1) & ~mar20 & first3 & (e3 == 2))
+    died22 = died20 | ((d.w3_surveyed == 1) & first3 & (e3 == 3) & ~mar20 & ~brk20)
+    for yr, mar, brk, died, seen in [(2020, mar20, brk20, died20, d.w2_surveyed == 1),
+                                     (2022, mar22, brk22, died22, (d.w3_surveyed == 1) | mar20 | brk20)]:
+        known = (mar | brk | seen) & ~died
+        d[f'married_by_{yr}'] = np.where(known, mar.astype(float), np.nan)
+        d[f'broke_up_by_{yr}'] = np.where(known, (brk & ~mar).astype(float), np.nan)
+    return d, audit
+
+
+def predicted_cumulative(pipes_m, pipes_b, d, n_periods):
+    """Cumulative P(married) and P(broke up first) over the first n periods, from today's inputs."""
+    s, cm, cb = np.ones(len(d)), np.zeros(len(d)), np.zeros(len(d))
+    for p in range(1, n_periods + 1):
+        x = d.copy()
+        x['period'] = str(p)
+        for c in TIME_VARYING:
+            x[c] = x[c] + OFFSET[str(p)]
+        m = proba(pipes_m, x[NUMERIC + CATEGORICAL])
+        b = proba(pipes_b, x[NUMERIC + CATEGORICAL])
+        cm += s * m
+        cb += s * b
+        s *= np.clip(1 - m - b, 0, 1)
+    return cm, cb
+
+
+def external(fitted, ext):
+    rows = []
+    for yr, n in [(2020, 2), (2022, 3)]:
+        for k in ('additive_harmonized', 'period_only', 'tree_depth2'):
+            cm, cb = predicted_cumulative(fitted['marriage'][k], fitted['breakup'][k], ext, n)
+            for target, pred in [('married', cm), ('broke_up', cb)]:
+                y = ext[f'{target}_by_{yr}']
+                ok = y.notna().to_numpy()
+                yy, pp_, ww = y[ok].to_numpy(), pred[ok], ext.weight.to_numpy()[ok]
+                rows.append(dict(window=f'2017 to {yr}', model_horizon_years=round(H.PERIODS[n - 1]['years_since_start_at_end'], 1),
+                                 outcome=target, model=k, couples=int(ok.sum()), events=int(yy.sum()),
+                                 observed_share_weighted=round(float(np.average(yy, weights=ww)), 4),
+                                 predicted_share_weighted=round(float(np.average(pp_, weights=ww)), 4),
+                                 auc=round(float(roc_auc_score(yy, pp_, sample_weight=ww)), 4) if 0 < yy.sum() < len(yy) else None))
+    return pd.DataFrame(rows)
+
+
 def main():
     un, pp, audit = build()
     fates = un.fate.value_counts().to_dict()
@@ -196,9 +269,15 @@ def main():
     held = comp.set_index(['target', 'model'])
     support = {c: [float(pp[c].quantile(0.005)), float(pp[c].quantile(0.995))] for c in NUMERIC}
     labels = dict(marriage='marries the partner', breakup='breaks up (before any wedding)')
+    fitted = {t: {k: pipeline(k).fit(X, pp[t].to_numpy(), fit__sample_weight=w) for k, _ in MODELS} for t in ('marriage', 'breakup')}
+    ext, ext_audit = outcomes_2017()
+    for c in ('parental_approval', 'religion_pair'):
+        ext[c] = 'Unknown'  # not asked in 2017; only the harmonized model is scored on these couples
+    extv = external(fitted, ext)
+    extv.to_csv(HERE / 'external_validation_hcmst2017.csv', index=False)
     for target in ('marriage', 'breakup'):
         y = pp[target].to_numpy()
-        pipes = {k: pipeline(k).fit(X, y, fit__sample_weight=w) for k, _ in MODELS}
+        pipes = fitted[target]
         lr = pipes['additive']
         names = lr.named_steps['prep'].get_feature_names_out()
         coef = lr.named_steps['fit'].coef_[0]
@@ -213,7 +292,7 @@ def main():
             source='How Couples Meet and Stay Together (HCMST) 2009-2017, Stanford University (Rosenfeld, Thomas & Falcon 2018); public version 3.04 plus wave 4-6 supplements',
             population='U.S. adults in an unmarried couple (dating or cohabiting, different-sex or same-sex) in Feb-Apr 2009; one partner reports for both',
             target=f'Probability that a couple still together and unmarried at the start of a follow-up period {labels[target]} during that period (cause-specific; periods of about 1.1, 1.1, 1.9, 1.75 and 2.6 years)',
-            outcome='probability', stage='before the wedding',
+            outcome='probability', stage='before',  # matches couple.js STAGES (#8713)
             training=dict(couples=int(pp.id.nunique()), couple_periods=len(pp), events=int(y.sum())),
             constant_probability=float(np.average(y, weights=w)),
             periods=H.PERIODS, time_offsets=OFFSET,
@@ -231,6 +310,7 @@ def main():
                 deviance_improvement_percent=round(float(held.loc[(target, k), 'logloss_improvement_percent']), 3),
                 auc=round(float(held.loc[(target, k), 'auc']), 4)), **export(pipes[k])) for k, lbl in MODELS],
             cumulative_incidence=ci[:1],
+            external_validation=json.loads(extv[extv.outcome == ('married' if target == 'marriage' else 'broke_up')].to_json(orient='records')),
             sklearn=sklearn.__version__)
         (OUT / f'{key}.json').write_text(json.dumps(bundle, separators=(',', ':')))
         rng = np.random.default_rng(SEED)
@@ -249,12 +329,18 @@ def main():
 
     summary = dict(couples_unmarried_2009=len(un), fates=fates, after_marriage=post,
                    couple_periods=len(pp), marriages=int(pp.marriage.sum()), breakups_before_marriage=int(pp.breakup.sum()),
-                   marriages_dated=int(un.marriage_dated.sum()), hcmst_counts=audit, python_sklearn=sklearn.__version__)
+                   marriages_dated=int(un.marriage_dated.sum()), hcmst_counts=audit,
+                   hcmst2017=dict(unmarried_couples=len(ext), counts=ext_audit,
+                                  known_2020=int(ext.married_by_2020.notna().sum()), married_by_2020=int(ext.married_by_2020.sum()),
+                                  broke_up_by_2020=int(ext.broke_up_by_2020.sum()), known_2022=int(ext.married_by_2022.notna().sum()),
+                                  married_by_2022=int(ext.married_by_2022.sum()), broke_up_by_2022=int(ext.broke_up_by_2022.sum())),
+                   python_sklearn=sklearn.__version__)
     (HERE / 'sample_audit.json').write_text(json.dumps(summary, indent=1, default=int) + '\n')
     print(json.dumps(summary, indent=1, default=int))
     print(events.to_string(index=False))
     print(comp.round(4).to_string(index=False))
     print(pd.DataFrame(ci).to_string(index=False))
+    print(extv.to_string(index=False))
 
 
 if __name__ == '__main__':

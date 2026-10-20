@@ -434,6 +434,80 @@ Design choices the engine reproduces exactly (`tests/prewedding.test.mjs`, 60 of
 
 Workstream C can make it the default lens: it has no form adapter yet.
 
+## Train the models yourself, in the browser (`train/`)
+
+The "Train the models yourself" panel retrains the NSFG 1995–2023 lens from survey records on
+the visitor's own device. No server is involved and nothing has to be installed.
+
+- **Data.** `train/nsfg_pooled_women.json.gz` (374 KB) holds the lens's 29,202 women's first
+  marriages and 10,529 dissolutions from eight NSFG cycles, one row per marriage. Each row has
+  the months to dissolution or interview, the event, the cycle-normalised survey weight, the
+  person-held-out fold and the 18 inputs fixed at or before the wedding. It has no cycle, no
+  design variables and nothing measured at interview. `train/tools/build_extract.py` writes it from
+  the official CDC files, with the checksums in
+  `../reproducibility/nsfg_pooled_first_marriage/SHA256SUMS`. The source files are U.S.
+  government works and not under copyright (17 U.S.C. 105). The NCHS data-use terms travel
+  with the extract and are recorded in its `licence` field: statistical use only, no attempt
+  to identify anyone, no linking to other data.
+- **Training.** `train/worker.js` is a module worker. It fetches the file, unpacks it with
+  `DecompressionStream`, builds the 249,868 marriage-years and runs the five-fold person-held-out
+  comparison from `train_pooled.py`. `train/fit.js` (plain JavaScript, no dependencies) fits
+  five models:
+  - a constant rate;
+  - the duration-only spline GLM;
+  - the additive spline Poisson GLM, solved by Newton's method with an L2 penalty and a Hessian
+    accumulated per person and per marriage year;
+  - a depth-4 Poisson tree;
+  - Poisson gradient boosting on histogram trees, with 250 rounds, depth 3 and learning rate
+    0.05 as in Python.
+
+  The worker reports progress. Cancelling terminates it, and the page's main thread is never
+  blocked: the longest gap measured in headless Chromium during a run was 68 ms. After the
+  comparison it refits the models on every marriage, so a visitor can score a profile.
+- **Results next to Python.** The panel shows held-out deviance gain, Harrell's C, O/E and
+  decile calibration for each model. Beside them it shows the shipped lens's Python numbers and
+  scikit-learn 1.7.2 refitted on this exact extract (`train/sklearn_reference.json`, written by
+  `train/tools/sklearn_reference.py`).
+
+| Model | Browser (JS) deviance gain, C | scikit-learn on the extract | Shipped lens |
+| --- | --- | --- | --- |
+| Marriage length only | 0.645%, 0.497 | 0.645%, 0.497 | 0.645% |
+| Additive spline GLM | 5.688%, 0.6947 | 5.688%, 0.6947 | 5.688%, 0.6947 |
+| Poisson tree, depth 4 | 3.333%, 0.6512 | 3.333%, 0.6512 | 3.333%, 0.6512 |
+| Poisson gradient boosting | 6.298%, 0.7029 | 6.297%, 0.7028 | 6.289%, 0.7029 |
+
+**Parallel folds (2026-10-20).** The page runs a pool of module workers, by default one per
+spare core (`navigator.hardwareConcurrency − 1`, at most five, fewer when
+`navigator.deviceMemory` reports 4 GB or less), and a visitor can pick 1–5 threads.
+
+- Each worker loads the extract once and takes tasks from a shared queue: the five held-out
+  folds first, then the refits on all marriages, biggest first.
+- When the last fold arrives, the next free worker merges the folds and computes the metrics
+  (`foldPredictions`, `mergeFolds` and `summarize` in `fit.js`), so the page's own thread only
+  routes messages.
+- Typed arrays are transferred between threads, not copied.
+
+All five models at the Python settings, in headless Chromium on a 4-core cloud machine:
+
+| Threads | Wall time | Longest main-thread stall |
+| --- | --- | --- |
+| 1 | 45.5 s | 93 ms |
+| 3 | 18.8 s | 57 ms |
+| 4 | 17.6 s | 62 ms |
+| 5 | 17.5 s | 86 ms |
+
+Every thread count gives identical metrics. `tests/train_parallel.test.mjs` computes the folds
+in scrambled order through structured cloning and checks the merged result equals the
+single-thread one to 10<sup>−12</sup>.
+
+`tests/train.test.mjs` takes about 40 s. It requires the JS GLM's coefficients to match
+scikit-learn's within 10<sup>−6</sup>; they agree to 4×10<sup>−14</sup>, on fold 0's training
+set and on all data. It also requires the held-out gains to agree within 0.001 points for the
+GLMs and the tree and within 0.15 points for boosting, whose binning and summation order differ
+slightly. A full run of all five models took 35 s in Node and 44 s in headless Chromium on a
+cloud machine. With 25 boosting rounds it took 13 s, but boosting's gain fell to 3.85%. No real
+phone has been timed yet.
+
 ## Run and test
 
 ```sh
