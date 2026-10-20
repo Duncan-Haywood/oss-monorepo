@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { placeBreaks, laborPercent, budgetCheck, dailyLabor, salesPerLaborHour, fairnessReport, hoursThresholds, tipPool, trimOptions, scheduleFlags, unsupervisedStretches, loneStretches, shortShifts,
+import { optimalityGap, placeBreaks, laborPercent, budgetCheck, dailyLabor, salesPerLaborHour, fairnessReport, hoursThresholds, tipPool, trimOptions, scheduleFlags, unsupervisedStretches, loneStretches, shortShifts,
   parseTime, parseDaySpec, parseAvailability, parseStaff, parseShifts, buildRoster, coverOptions, absencePlan, swapOptions, checkTrade, rosterCsv, hoursCsv, rosterIcs, rosterMessages, openShiftPost,
   sampleStaff, sampleShifts, fmtClock, money, money2, _internals,
 } from "./calc.mjs";
@@ -1318,4 +1318,31 @@ test("ownerValid judges a person's shifts in time order, whatever order the slot
     const ctx = _internals.buildContext(staff, slots, {});
     assert.ok(!_internals.ownerValid(ctx, [0, 0]), "overlapping shifts are invalid");
   }
+});
+
+test("optimalityGap proves the search optimal on small problems and agrees with brute force", () => {
+  const cases = [
+    ["A,12,16,0,Mon-Fri 8-18\nB,10,12,6,Mon-Wed 6-16\nC,15,40,0,any", "Mon,8,14,1\nMon,12,18,1\nTue,8,16,1\nWed,6,12,2\nThu,10,18,1\nFri,8,13,1"],
+    ["A,9,10,0,any\nB,14,40,10,Mon-Sat 6-22\nC,11,20,0,Tue-Sun 10-24", "Mon,6,14,1\nTue,10,18,1\nTue,14,22,1\nWed,8,16,1\nSat,12,20,1\nSun,10,18,1"],
+    ["A,10,8,0,any\nB,10,8,0,any\nC,20,40,0,any", "Mon,8,16,1\nMon,9,17,1\nTue,8,16,1\nTue,9,17,1\nWed,8,16,1"],
+  ];
+  for (const [st, sh] of cases) {
+    const staff = staffOf(st), slots = slotsOf(sh);
+    const opts = { balance: 30, otAfter: 12 };
+    const g = optimalityGap(staff, slots, opts);
+    assert.ok(g.ok && g.proven, "search tree fully ruled out");
+    assert.ok(Math.abs(g.bestScore - bruteForceBest(staff, slots, opts)) < 1e-6);
+    assert.equal(g.annealedOptimal, true);
+  }
+});
+
+test("optimalityGap finds a better roster when the search is starved, and respects the node limit", () => {
+  const staff = staffOf("A,10,8,0,any\nB,10,8,0,any\nC,20,40,0,any\nD,12,24,0,Mon-Fri 8-20"), slots = slotsOf("Mon,8,16,1\nMon,9,17,1\nTue,8,16,1\nTue,9,17,1\nWed,8,16,2\nThu,8,14,1");
+  const starved = optimalityGap(staff, slots, { restarts: 1, iterations: 1, balance: 40 });
+  assert.ok(starved.proven);
+  assert.ok(starved.bestScore <= starved.annealedScore + 1e-9);
+  const capped = optimalityGap(staff, slots, {}, { maxNodes: 3 });
+  assert.equal(capped.proven, false);
+  assert.match(capped.note, /without a proof/);
+  assert.ok(optimalityGap(staff, slots, { splitPremium: 20 }).error);
 });

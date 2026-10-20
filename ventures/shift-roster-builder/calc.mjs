@@ -801,6 +801,90 @@ export function buildRoster(staff, slots, options = {}) {
   };
 }
 
+// Exact check of the annealed roster: branch and bound over who takes each shift, on the same score the search minimises
+// (BIG per open hour plus every person's payroll and soft penalties). The bound adds up each person's payroll so far, their
+// tough/avoid penalties so far, and the least their hour-balance and minimum-hours penalty can be given the hours still open to
+// them, less the most prefer: bonus still available. Seeded with the annealed score, so it only explores rosters that beat it.
+// Stops at `maxNodes` and says so: `proven` is true only when the whole tree was ruled out. Split-shift premiums can fall when a
+// shift fills a gap, which breaks the payroll bound, so those setups are refused rather than answered wrongly.
+export function optimalityGap(staff, slots, options = {}, { maxNodes = 2_000_000 } = {}) {
+  const roster = buildRoster(staff, slots, options);
+  if (roster.error) return { error: roster.error };
+  const ctx = buildContext(staff, slots, options);
+  if (ctx.o.splitPremium > 0) return { error: "The exact check does not support a split-shift premium: filling a gap can lower pay, so a safe bound is not available." };
+  const { P, S, o } = ctx;
+  const annealed = roster.score;
+  const mins = slots.map((s) => (s.end - s.start) / 60);
+  const prefer = ctx.staff.map((p, k) => slots.map((s, i) => (p.prefer && ctx.elig[k][i] ? (avoidMinutes(p, s, "prefer") / 60) * o.preferValue * Math.max(p.wage, 1) : 0)));
+  // suffix[p][i]: hours / prefer bonus person p could still add from slot i on
+  const hoursLeft = Array.from({ length: P }, () => new Array(S + 1).fill(0));
+  const prefLeft = Array.from({ length: P }, () => new Array(S + 1).fill(0));
+  for (let p = 0; p < P; p++) for (let i = S - 1; i >= 0; i--) {
+    hoursLeft[p][i] = hoursLeft[p][i + 1] + (ctx.elig[p][i] ? mins[i] : 0);
+    prefLeft[p][i] = prefLeft[p][i + 1] + prefer[p][i];
+  }
+  const softHours = (p, h) => Math.max(0, ctx.staff[p].minHours - h) * o.shortfallValue + (o.balance / 100) * ctx.avgWage * 0.1 * (h - ctx.target[p]) ** 2;
+  const minSoft = (p, h0, h1) => {
+    const c = (o.balance / 100) * ctx.avgWage * 0.1;
+    const cand = [h0, h1, ctx.staff[p].minHours, ctx.target[p]];
+    if (c > 0) cand.push(ctx.target[p] - o.shortfallValue / (2 * c));
+    return Math.min(...cand.map((h) => Math.min(h1, Math.max(h0, h))).map((h) => softHours(p, h)));
+  };
+  const lists = Array.from({ length: P }, () => []);
+  const owner = new Array(S).fill(-1);
+  const same = (a, b) => a.day === b.day && a.start === b.start && a.end === b.end && a.role === b.role && a.fixed === b.fixed;
+  const key = (x) => (x < 0 ? P : x);
+  let best = annealed, bestOwner = null, nodes = 0, cut = false;
+  const lower = (i, openMin) => {
+    let t = BIG * (openMin / 60);
+    for (let p = 0; p < P; p++) {
+      const l = lists[p], h0 = hoursOf(ctx, l);
+      const h1 = Math.min(ctx.staff[p].maxHours, h0 + hoursLeft[p][i]);
+      t += payroll(ctx, p, l) + toughPenalty(ctx, p, l) + avoidPenalty(ctx, p, l) - preferBonus(ctx, p, l) - prefLeft[p][i] + minSoft(p, h0, Math.max(h0, h1));
+    }
+    return t;
+  };
+  (function rec(i, openMin) {
+    if (cut) return;
+    if (++nodes > maxNodes) { cut = true; return; }
+    if (lower(i, openMin) >= best - 1e-9) return;
+    if (i === S) {
+      const sc = scoreOwner(ctx, owner).total;
+      if (sc < best - 1e-9) { best = sc; bestOwner = owner.slice(); }
+      return;
+    }
+    const twin = i > 0 && same(slots[i], slots[i - 1]) ? key(owner[i - 1]) : -1;
+    const opts = [];
+    for (let p = 0; p < P; p++) {
+      if (!ctx.elig[p][i] || key(p) < twin) continue;
+      const nl = insertSorted(ctx, lists[p], i);
+      if (validList(ctx, p, nl)) opts.push({ p, nl, d: personScore(ctx, p, nl) - personScore(ctx, p, lists[p]) });
+    }
+    opts.sort((a, b) => a.d - b.d);
+    for (const { p, nl } of opts) {
+      const old = lists[p];
+      lists[p] = nl; owner[i] = p;
+      rec(i + 1, openMin);
+      lists[p] = old; owner[i] = -1;
+    }
+    if (P >= twin) rec(i + 1, openMin + slots[i].end - slots[i].start);
+  })(0, 0);
+  const proven = !cut;
+  const gap = Math.max(0, annealed - best);
+  const exactRoster = bestOwner ? summarise(ctx, bestOwner) : null;
+  return {
+    ok: true, proven, nodes, annealedScore: annealed, bestScore: best, gap,
+    gapPct: annealed > 0 ? (gap / annealed) * 100 : 0,
+    annealedOptimal: proven && gap < 1e-6,
+    betterOwner: bestOwner, betterCost: exactRoster ? exactRoster.cost : null, annealedCost: roster.cost,
+    annealedOpenHours: roster.unfilledHours, betterOpenHours: exactRoster ? exactRoster.unfilledHours : null,
+    note: gap > 1e-6
+      ? `A better roster exists${proven ? "" : " (found before the search stopped, not proven best)"}: ${exactRoster.unfilledHours < roster.unfilledHours - 1e-9 ? `it covers ${num(roster.unfilledHours - exactRoster.unfilledHours)} more open hours` : `it scores ${money2(gap)} lower`}.`
+      : proven ? "The roster is optimal on this setup (the whole search tree was ruled out)."
+        : `Stopped after ${nodes.toLocaleString("en-US")} nodes without a proof: no roster better than the search's was found, but one may exist.`,
+  };
+}
+
 // Why `nl` (a person's list after taking `slotIndex` onto `base`) breaks a hard rule, in the order a manager would check.
 function blockReason(ctx, staff, slots, p, base, nl, slotIndex) {
   const slot = slots[slotIndex];

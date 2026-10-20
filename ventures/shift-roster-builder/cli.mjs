@@ -18,7 +18,7 @@
 import { readFile } from "node:fs/promises";
 import process from "node:process";
 import {
-  parseStaff, parseShifts, buildRoster, rosterCsv, hoursCsv, rosterIcs, rosterMessages, openShiftPost, carryOverStaff, sampleStaff, sampleShifts,
+  parseStaff, parseShifts, buildRoster, optimalityGap, rosterCsv, hoursCsv, rosterIcs, rosterMessages, openShiftPost, carryOverStaff, sampleStaff, sampleShifts,
   DAYS, fmtClock, money, num,
 } from "./calc.mjs";
 
@@ -40,6 +40,7 @@ Options:
   --ics [--person <name>]    calendar file for the week (needs --week-start, a Monday); one person's shifts with --person
   --messages                 a paste-ready text per person
   --open-post                a group message for the shifts left open and who could take each (empty when none)
+  --exact             also check the roster against an exact branch-and-bound search and say how far from optimal it is (small weeks)
   --check             print the report; exit 1 if any shift is left open
   --example           use the built-in invented week
   -h, --help          this text
@@ -65,6 +66,7 @@ export function parseArgs(argv) {
     else if (a === "--open-post") o.mode = "open-post";
     else if (a === "--person") { o.person = argv[++i]; if (!o.person) throw new Error("--person needs a name"); }
     else if (a === "--check") o.check = true;
+    else if (a === "--exact") o.exact = true;
     else if (a === "--example") o.example = true;
     else if (a === "--last-week") { o.lastWeek = argv[++i]; if (!o.lastWeek) throw new Error("--last-week needs a CSV file"); }
     else if (a === "--week-start") {
@@ -140,6 +142,10 @@ export function run(staffText, shiftsText, opts = {}) {
   }
   if (r.warnings.length) lines.push("", ...r.warnings.map((x) => `Note: ${x}`));
   if (r.savingVsListed > 0.5) lines.push("", `Versus filling shifts in the order listed: saves ${money(r.savingVsListed)}.`);
+  if (opts.exact) {
+    const g = optimalityGap(st.staff, sh.slots, opts.options || {});
+    lines.push("", g.error ? `Exact check: ${g.error}` : `Exact check: ${g.note}${g.gap > 1e-6 ? ` The better roster pays ${money(g.betterCost)} against ${money(g.annealedCost)}.` : ""}`);
+  }
   lines.push("", "Planning aid, not legal advice. Local scheduling-notice, break and minor-labor rules are not modelled.");
   return { code, out: lines.join("\n") + "\n" };
 }

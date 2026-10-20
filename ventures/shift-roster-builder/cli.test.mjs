@@ -100,3 +100,10 @@ test("--open-post matches the library's group message for open shifts", () => {
   const none = run("name, wage, max hours, min hours, availability\nAna, 18, 40, 0, Mon-Sun 0-24", "Mon, 9am, 5pm, 1, desk", { mode: "open-post" });
   assert.equal(none.out, "");
 });
+
+test("--exact appends a proof of optimality on a small week", async () => {
+  const { run } = await import("./cli.mjs");
+  const r = run("A,12,16,0,Mon-Fri 8-18\nB,10,12,6,Mon-Wed 6-16\nC,15,40,0,any", "Mon,8,14,1\nMon,12,18,1\nTue,8,16,1\nWed,6,12,2\nThu,10,18,1\nFri,8,13,1", { exact: true });
+  assert.equal(r.code, 0);
+  assert.match(r.out, /Exact check: The roster is optimal/);
+});
