@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import {
-  PAPERS, DEFAULTS, negbinSize, poissonSeasonal, poissonTrend, countDispersion, ar1JointFit, analyze, bocpd, defaultPoissonPrior, defaultPrior, gammaPoissonLogMarginal, makeCost, lgamma, nigLogMarginal, optimalPartitioning, ar1Rho, longRunSd, prewhiten, seasonalAdjust, trendAdjust, parseSeries, peaks, pelt, robustSd,
+  PAPERS, DEFAULTS, negbinSize, poissonSeasonal, poissonTrend, countDispersion, ar1JointFit, analyze, bocpd, defaultPoissonPrior, defaultNbPrior, defaultPrior, gammaPoissonLogMarginal, makeCost, lgamma, nigLogMarginal, optimalPartitioning, ar1Rho, longRunSd, prewhiten, seasonalAdjust, trendAdjust, parseSeries, peaks, pelt, robustSd,
 } from './engine.mjs';
 
 // Seeded PRNG (mulberry32) and Box-Muller normals, so every test is reproducible.
@@ -923,4 +923,28 @@ test('negative binomial with exposures: a constant exposure matches the closed f
   assert.ok(hits >= 14, `step found on ${hits} of 15`);
   const g = analyze({ values: Array.from({ length: 140 }, (_, i) => poissons(rng(i + 9), 1, 8 * Math.exp(0.01 * i))[0]), model: 'poisson', trend: true, overdispersion: 'nb' });
   assert.ok(Array.isArray(g.pelt.changepoints));
+});
+
+test('negative-binomial BOCPD log evidence equals the closed-form Beta-NB marginal when the hazard vanishes', () => {
+  const x = [3, 12, 7, 0, 25, 9, 14, 2, 8, 19];
+  const r = 6, p = defaultNbPrior(x, r);
+  const lg = lgamma;
+  const lb = (a, b) => lgamma(a) + lgamma(b) - lgamma(a + b);
+  const exact = x.reduce((s, v) => s + lg(v + r) - lg(r) - lg(v + 1), 0) + lb(p.alpha + r * x.length, p.beta + x.reduce((a, b) => a + b, 0)) - lb(p.alpha, p.beta);
+  const b = bocpd(x, { hazardLambda: 1e15, prior: p, prune: 0, model: 'poisson', nbSize: r });
+  assert.ok(Math.abs(b.logEvidence - exact) < 1e-6, `${b.logEvidence} vs ${exact}`);
+});
+
+test('--overdispersion nb reaches the Bayesian pass: clumpy counts keep the power a tempered Poisson loses', () => {
+  let falseNb = 0, falseQ = 0, hitNb = 0, hitQ = 0;
+  for (let seed = 2000; seed < 2020; seed++) {
+    const r = rng(seed);
+    const gen = (step) => Array.from({ length: 120 }, (_, i) => poissons(r, 1, 10 * (step && i >= 60 ? 3 : 1) * Math.exp(0.35 * normals(r, 1)[0] - 0.06))[0]);
+    falseNb += analyze({ values: gen(false), model: 'poisson', overdispersion: 'nb' }).bocpd.detections.length;
+    falseQ += analyze({ values: gen(false), model: 'poisson', overdispersion: true }).bocpd.detections.length;
+    if (analyze({ values: gen(true), model: 'poisson', overdispersion: 'nb' }).bocpd.detections.some((d) => Math.abs(d.index - 60) <= 8)) hitNb++;
+    if (analyze({ values: gen(true), model: 'poisson', overdispersion: true }).bocpd.detections.some((d) => Math.abs(d.index - 60) <= 8)) hitQ++;
+  }
+  assert.ok(falseNb / 20 < 0.3, `false flags per series ${falseNb / 20}`);
+  assert.ok(hitNb >= 14 && hitNb > hitQ + 5, `NB found ${hitNb} of 20, quasi-Poisson ${hitQ}`);
 });
