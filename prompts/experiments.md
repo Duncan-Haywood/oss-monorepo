@@ -908,3 +908,17 @@ or `ventures`) until its success rate passes 80% over 20 runs?
   says a moved fact could not be found.
 - Evidence strength: a before-and-after comparison, not A/B.
 - Result: (next review)
+
+## E54: review 2026-10-20 (reduced pass, 12:xx)
+
+- Change: `verify-and-merge.md` line for `--for-changes` now says what to do
+  when it stalls (docs-only diff, or a diff reaching 100+ workflows): run the
+  reached workflows by name. Five friction reports in the window (the latest
+  three on 2026-10-20) describe the stall.
+- Metric: friction reports naming `run_workflow_locally.py --for-changes`
+  stalling, per run, over the next 40 runs (baseline 5 in 1,658).
+- Decisions: research candidate 1 kept again (116 runs, 99% vs 98% success; its
+  one integrity issue is the disclosed search-excerpt caveat the retire rule
+  counts). ventures 2 and review 2 unchanged (intervals overlap / under 10
+  runs). `derived/` regenerated. No audit or drift report (reduced pass).
+- Result: (next review)
