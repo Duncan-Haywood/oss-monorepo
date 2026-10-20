@@ -14,6 +14,9 @@ export const SETTINGS = {
   tree_depth4: { maxDepth: 4, minLeaf: 3000 },
   gradient_boosting: { maxDepth: 3, iters: 250, rate: 0.05, minLeaf: 1000, l2: 1.0, maxBins: 255 },
 };
+// Relative CPU time of each model on one fold at 250 boosting rounds (used to schedule and
+// to show progress).
+export const MODEL_COST = { constant: 0.05, duration_only: 1, additive_spline: 2.5, tree_depth4: 0.6, gradient_boosting: 30 };
 export const MODEL_LABELS = {
   constant: 'Constant rate (baseline)',
   duration_only: 'Marriage length only (spline GLM)',
@@ -684,38 +687,53 @@ export function fitKind(kind, D, R, rows, opts = {}, onIter) {
   throw new Error(`unknown model ${kind}`);
 }
 
-// Five-fold person-held-out evaluation. `progress(info)` is called often; `kinds` picks models.
-export function crossValidate(D, R, kinds, opts = {}, progress = () => {}) {
-  const folds = 5;
-  const testRows = [], testPeople = [];
-  for (let f = 0; f < folds; f++) {
-    testRows.push(rowsWhere(D, R, (x) => x === f));
-    testPeople.push(Array.from({ length: D.n }, (_, i) => i).filter((i) => D.fold[i] === f));
+// Held-out predictions for one fold: fit each model on the other four folds and predict the
+// fold's marriage-years (`pred`, aligned with `rows`) and its women's 10-year cumulative
+// hazard (`score10`, aligned with `people`). Folds are independent, so a page can run them
+// in parallel workers and merge the results with mergeFolds().
+export function foldPredictions(D, R, kinds, f, opts = {}, progress = () => {}) {
+  const rows = rowsWhere(D, R, (x) => x === f);
+  const people = Int32Array.from({ length: D.n }, (_, i) => i).filter((i) => D.fold[i] === f);
+  const train = rowsWhere(D, R, (x) => x !== f);
+  const out = {};
+  for (const kind of kinds) {
+    const t0 = Date.now();
+    progress({ fold: f, kind, phase: 'fit' });
+    const m = fitKind(kind, D, R, train, opts, (it, of) => progress({ fold: f, kind, phase: 'iter', it, of }));
+    const byPerson = new Map(), score10 = new Float64Array(people.length);
+    people.forEach((i, j) => {
+      const [nv, cv] = personInputs(D, i);
+      const ks = Array.from({ length: Math.max(10, Math.ceil(D.t[i])) }, (_, y) => y);
+      const rr = rates(m, nv, cv, ks, D);
+      score10[j] = rr.slice(0, 10).reduce((a, b) => a + b, 0);
+      byPerson.set(i, rr);
+    });
+    const pred = new Float64Array(rows.length);
+    rows.forEach((r, j) => { pred[j] = byPerson.get(R.person[r])[R.k[r]]; });
+    out[kind] = { rows, pred, people, score10, seconds: (Date.now() - t0) / 1000 };
+    progress({ fold: f, kind, phase: 'done' });
   }
+  return out;
+}
+
+// Pool the five folds' predictions into one held-out prediction per marriage-year and woman.
+export function mergeFolds(D, R, kinds, folds) {
   const pred = Object.fromEntries(kinds.map((k) => [k, new Float64Array(R.n)]));
   const score10 = Object.fromEntries(kinds.map((k) => [k, new Float64Array(D.n)]));
   const seconds = Object.fromEntries(kinds.map((k) => [k, 0]));
-  const ks10 = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
-  for (let f = 0; f < folds; f++) {
-    const train = rowsWhere(D, R, (x) => x !== f);
-    for (const kind of kinds) {
-      const t0 = Date.now();
-      progress({ fold: f, kind, phase: 'fit' });
-      const m = fitKind(kind, D, R, train, opts, (it, of) => progress({ fold: f, kind, phase: 'iter', it, of }));
-      // held-out interval predictions, from each held-out person's rates by marriage year
-      for (const i of testPeople[f]) {
-        const [nv, cv] = personInputs(D, i);
-        const ks = Array.from({ length: Math.max(10, Math.ceil(D.t[i])) }, (_, j) => j);
-        const rr = rates(m, nv, cv, ks, D);
-        score10[kind][i] = rr.slice(0, 10).reduce((a, b) => a + b, 0);
-        personRates.set(i, rr);
-      }
-      for (const r of testRows[f]) pred[kind][r] = personRates.get(R.person[r])[R.k[r]];
-      personRates.clear();
-      seconds[kind] += (Date.now() - t0) / 1000;
-      progress({ fold: f, kind, phase: 'done' });
+  for (const fold of folds) {
+    for (const k of kinds) {
+      const { rows, pred: p, people, score10: s, seconds: t } = fold[k];
+      rows.forEach((r, j) => { pred[k][r] = p[j]; });
+      people.forEach((i, j) => { score10[k][i] = s[j]; });
+      seconds[k] += t;
     }
   }
+  return { pred, score10, seconds };
+}
+
+// Held-out deviance gain over the constant rate, Harrell's C, O/E and decile calibration.
+export function summarize(D, R, kinds, { pred, score10, seconds }) {
   const all = Int32Array.from({ length: R.n }, (_, r) => r);
   const people = Array.from({ length: D.n }, (_, i) => i);
   const devs = Object.fromEntries(kinds.map((k) => [k, deviance(D, R, all, pred[k])]));
@@ -735,4 +753,9 @@ export function crossValidate(D, R, kinds, opts = {}, progress = () => {}) {
   }
   return out;
 }
-const personRates = new Map();
+
+// Five-fold person-held-out evaluation in one thread. `progress(info)` is called often.
+export function crossValidate(D, R, kinds, opts = {}, progress = () => {}) {
+  const folds = [0, 1, 2, 3, 4].map((f) => foldPredictions(D, R, kinds, f, opts, progress));
+  return summarize(D, R, kinds, mergeFolds(D, R, kinds, folds));
+}

@@ -405,8 +405,10 @@ def test_every_published_tool_is_reachable_by_slug_for() -> None:
             # what shipped, what is in progress and the direction, each a row.
             # `lab` is the experiments section (lab.mjs); every experiment
             # counts toward the one `lab` row.
+            # `feedback` is the report-a-problem page (build.mjs FEEDBACK_PATH);
+            # its row says how many visitors reached the form at all.
             | {"_hub", "c", "c/apps", "c/cli", "about", "compare", "guides", "research", "engineering", "writing",
-               "updates", "changelog", "lab", "404", "offline"}
+               "updates", "changelog", "lab", "feedback", "404", "offline"}
         )
         for page in sorted(out.rglob("*.html")):
             uri = "/" + page.relative_to(out).as_posix()

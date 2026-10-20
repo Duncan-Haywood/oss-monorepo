@@ -58,7 +58,7 @@ EUPL-1.2) for UBL and CII invoices, in Saxon-JS, with each BR-xx failure mapped
 to a plain-language fix (`schematron-fixes.mjs`). When the invoice's
 specification identifier (BT-24) names XRechnung, the KoSIT XRechnung rules
 (BR-DE-xx, Apache-2.0, UBL and CII) run too; when it names Peppol BIS Billing 3,
-the OpenPEPPOL rules (PEPPOL-EN16931-Rxxx, MPL-2.0, UBL) run. Findings carry
+the OpenPEPPOL rules (PEPPOL-EN16931-Rxxx, MPL-2.0, UBL invoices and credit notes, and CII) run. Findings carry
 the official rule ID and `source` of `en16931-schematron`, `xrechnung-schematron`
 or `peppol-schematron`; the built-in `INV-nnn` rules still run. Neither the engine nor the compiled rules ship in this folder:
 

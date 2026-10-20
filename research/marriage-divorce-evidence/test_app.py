@@ -59,6 +59,9 @@ class AppTests(unittest.TestCase):
     def test_browser_trainer_matches_sklearn(self):
         self.run_node('train.test.mjs')
 
+    def test_browser_trainer_parallel_folds(self):
+        self.run_node('train_parallel.test.mjs')
+
     def test_newlywed_bundle(self):
         self.run_node('newlywed.test.mjs')
 
@@ -88,6 +91,9 @@ class AppTests(unittest.TestCase):
 
     def test_before_the_wedding_lens_in_the_app(self):
         self.run_node('prewedding_app.test.mjs')
+
+    def test_dating_couple_chain(self):
+        self.run_node('dating.test.mjs')
 
     def test_population_comparison(self):
         self.run_node('population.test.mjs')
