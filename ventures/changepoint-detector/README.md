@@ -153,13 +153,22 @@ series, 40 each, in `engine.test.mjs`):
   -0.5 to 0.5 over the series, so g is the total log change. exp(g u) is another exposure in the Poisson
   likelihood and composes with `--period`. g starts from the median of lag-n/4 differences of log counts, then
   alternates with PELT: segment under the current exposures, one Newton step on g with each segment's rate
-  profiled out, until g moves less than 1e-5. One common growth rate only (`bend`/`bends` are refused for counts).
+  profiled out, until g moves less than 1e-5. One common growth rate only (`bend` below adds one change of growth rate; `bends` is refused for counts).
   Measured on 200 counts, rate 10 growing by e^1.2 (seeds 500..539): no step, 3.80 changes per series without
   `--trend`, 0.07 with it; a x1.6 step at 100 on top of the ramp, 4.55 -> 1.40 changes per series, the step found
   within 8 points 40/40 either way and as the only change 0/40 -> 30/40; flat series 0.03 -> 0.05 (no cost).
   With `--period 7` (210 points, factors 0.4 to 1.6, growth e^1.0, x1.5 step at 105, seeds 900..919): 4.10 -> 1.20
   changes per series, step as the only change 0/20 -> 18/20, mean fitted g 1.04. Tests: growth recovered within 0.35, flat
   series near 0, bends refused.
+- **Count trend with one bend (`--model poisson --trend bend`, added 2026-10-20).** A growth rate that changes once:
+  log rate = g u + g2 max(0, u - uk). Each knot on a grid (10 to 90% of the series, `--knot-margin`) gets both growth terms
+  by two-parameter Newton steps on the segment-profiled likelihood, alternating with PELT; the best knot by BIC is refined
+  to the point and kept only if it beats the straight trend on a BIC that charges the knot and the extra slope (2 ln n).
+  Knots are compared on that BIC, not on raw likelihood: a fit with fewer steps scores lower raw, which first put knots at 60 to 70 for a true 100.
+  Measured on 200 counts, rate 10 flat then growing by e^1.6 from point 100 (seeds 700..739): 3.78 changes per series with
+  `--trend`, 0.98 with `bend` (no change at all in 18/40); a bend is reported in 37/40 but the knot lies within 8 points of 100 in only 23/40
+  (a hinge is a soft feature at these counts); on a straight ramp (growth e^1.2) 0/40 false bends and 0.2 changes per series either way.
+  `bends` (several knots) is still refused for counts.
 - **Drifting seasonality (`--period n --drift`).** The fixed profile is wrong when the
   cycle's amplitude grows or its peak moves. With `--drift` each phase is smoothed across
   cycles by a running median (5 cycles, 3 on short series), re-centred per cycle. On 144

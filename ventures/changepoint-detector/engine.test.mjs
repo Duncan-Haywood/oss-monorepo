@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import {
-  PAPERS, DEFAULTS, poissonSeasonal, poissonTrend, ar1JointFit, analyze, bocpd, defaultPoissonPrior, defaultPrior, gammaPoissonLogMarginal, makeCost, lgamma, nigLogMarginal, optimalPartitioning, ar1Rho, longRunSd, prewhiten, seasonalAdjust, trendAdjust, parseSeries, peaks, pelt, robustSd,
+  PAPERS, DEFAULTS, poissonSeasonal, poissonTrend, poissonTrendBend, ar1JointFit, analyze, bocpd, defaultPoissonPrior, defaultPrior, gammaPoissonLogMarginal, makeCost, lgamma, nigLogMarginal, optimalPartitioning, ar1Rho, longRunSd, prewhiten, seasonalAdjust, trendAdjust, parseSeries, peaks, pelt, robustSd,
 } from './engine.mjs';
 
 // Seeded PRNG (mulberry32) and Box-Muller normals, so every test is reproducible.
@@ -793,8 +793,31 @@ test('poissonTrend recovers a log-linear growth rate and keeps a rate step out o
   assert.ok(a.pelt.changepoints.length <= 2);
 });
 
-test('count trends refuse bends, and a flat series gets a growth near zero', () => {
-  assert.throws(() => analyze({ values: [1, 2, 3, 4, 5, 6, 7, 8], model: 'poisson', trend: 'bend' }), /bends are for/);
+test('poissonTrendBend finds a growth rate that changes once, and none on a straight ramp', () => {
+  const n = 200;
+  let hit = 0, falseBend = 0, bentChanges = 0, plainChanges = 0;
+  const S = 10;
+  for (let s = 0; s < S; s++) {
+    const r = rng(700 + s);
+    const bent = [], straight = [];
+    for (let t = 0; t < n; t++) {
+      const u = t / (n - 1);
+      bent.push(poissons(r, 1, 10 * Math.exp(u > 0.5 ? 3.2 * (u - 0.5) : 0))[0]);
+      straight.push(poissons(r, 1, 10 * Math.exp(1.2 * u))[0]);
+    }
+    const f = poissonTrendBend(bent, {});
+    if (f.bent && Math.abs(f.knot - 100) <= 15) hit++;
+    if (poissonTrendBend(straight, {}).bent) falseBend++;
+    bentChanges += analyze({ values: bent, model: 'poisson', trend: 'bend' }).pelt.changepoints.length;
+    plainChanges += analyze({ values: bent, model: 'poisson', trend: true }).pelt.changepoints.length;
+  }
+  assert.ok(hit >= 7, `bend found ${hit}/${S}`);
+  assert.ok(falseBend <= 1, `false bends ${falseBend}/${S}`);
+  assert.ok(bentChanges < plainChanges / 2, `changes ${bentChanges} vs ${plainChanges}`);
+});
+
+test('count trends refuse "bends", and a flat series gets a growth near zero', () => {
+  assert.throws(() => analyze({ values: [1, 2, 3, 4, 5, 6, 7, 8], model: 'poisson', trend: 'bends' }), /bends" is for/);
   const r = rng(5);
   const a = analyze({ values: poissons(r, 150, 8), model: 'poisson', trend: true });
   assert.ok(Math.abs(a.trend.logGrowthAcrossSeries) < 0.4);
