@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   parseCsv, parseDate, parseTransactions, normalizeType, holdingTerm, matchLots, analyze, estimateTax,
-  toForm8949Csv, form8949Totals, SAMPLE_CSV, METHODS, parsePrices, harvestPlan, planSale, idRecord, donationPlan, waitPlan,
+  toForm8949Csv, toTurboTaxCsv, turboTaxSkipped, form8949Totals, SAMPLE_CSV, METHODS, parsePrices, harvestPlan, planSale, idRecord, donationPlan, waitPlan,
 } from "./calc.mjs";
 
 const close = (a, b, msg) => assert.ok(Math.abs(a - b) < 0.005, `${msg ?? ""} ${a} != ${b}`);
@@ -715,4 +715,11 @@ test("swap rows without the received coin or a value are reported, not guessed",
   const bad = parseTransactions("date,type,asset,quantity,total,to asset,to quantity\n2024-03-01,swap,ETH,1,3500,ETH,5\n2024-03-01,swap,ETH,1,3500,,\n2024-03-01,swap,ETH,1,,SOL,5\n");
   assert.equal(bad.transactions.length, 0);
   assert.equal(bad.errors.length, 3);
+test("tax-software CSV: five columns, US dates, rows with no purchase left out and counted", () => {
+  const r = analyze("date,type,asset,quantity,total\n2023-01-10,buy,BTC,1,10000\n2024-02-01,sell,BTC,1,15000\n2024-03-01,sell,ETH,1,100\n", { year: 2024 });
+  const lines = toTurboTaxCsv(r.rows).trim().split("\n");
+  assert.equal(lines[0], "Currency Name,Purchase Date,Cost Basis,Date Sold,Proceeds");
+  assert.equal(lines[1], "BTC,01/10/2023,10000.00,02/01/2024,15000.00");
+  assert.equal(lines.length, 2);
+  assert.equal(turboTaxSkipped(r.rows), 1);
 });

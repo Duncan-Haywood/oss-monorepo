@@ -893,6 +893,21 @@ export function toForm8949Csv(rows) {
   return lines.join("\n") + "\n";
 }
 
+// Tax-software import rows (the five-column crypto template that online
+// filing products document: currency, purchase date, cost basis, sale date,
+// proceeds; dates MM/DD/YYYY). Rows with no purchase on record are left out, never
+// given a basis of zero; turboTaxSkipped counts them so the caller can say so.
+const usDate = (iso) => (/^\d{4}-\d{2}-\d{2}/.test(iso || "") ? `${iso.slice(5, 7)}/${iso.slice(8, 10)}/${iso.slice(0, 4)}` : "Various");
+export function toTurboTaxCsv(rows) {
+  const lines = ["Currency Name,Purchase Date,Cost Basis,Date Sold,Proceeds"];
+  for (const r of rows) {
+    if (r.missingBasis) continue;
+    lines.push([r.asset, usDate(r.acquired), r.basis.toFixed(2), usDate(r.sold), r.proceeds.toFixed(2)].map(q).join(","));
+  }
+  return lines.join("\n") + "\n";
+}
+export const turboTaxSkipped = (rows) => rows.filter((r) => r.missingBasis).length;
+
 export const SAMPLE_CSV = `date,type,asset,quantity,total,fee,wallet
 2023-01-10,buy,BTC,0.50,10000,10,Exchange A
 2023-06-15,buy,BTC,0.50,15000,15,Exchange A
