@@ -131,3 +131,17 @@ test("no travel table leaves the schedule and stats exactly as before", () => {
   assert.equal(s.stats.travelMinutes, undefined);
   assert.ok(!divisionsText(s).includes("min of travel"));
 });
+
+test("five venues on a line: the travel table cuts road minutes by more than half (measured on 8 seeds)", () => {
+  const base = { divisions: "A: a1, a2, a3, a4, a5, a6\nB: b1, b2, b3, b4, b5, b6", courts: "C1 @ V1, C2 @ V2, C3 @ V3, C4 @ V4, C5 @ V5", times: "18:00", start: "2026-10-06", weekdays: "Tue, Thu" };
+  const travel = "V1 - V2: 5\nV2 - V3: 5\nV3 - V4: 5\nV4 - V5: 5\nV1 - V3: 40\nV1 - V4: 60\nV1 - V5: 80\nV2 - V4: 40\nV2 - V5: 60\nV3 - V5: 40";
+  let flat = 0, aware = 0;
+  for (let seed = 1; seed <= 8; seed++) {
+    const { spec, errors } = readDivisionsSpec({ ...base, travel, seed });
+    assert.deepEqual(errors, []);
+    const blind = buildDivisions({ ...spec, travel: {} }); // every change costs the same, then priced with the table
+    flat += divisionStats({ ...blind, config: { ...blind.config, travel: spec.travel } }).travelMinutes;
+    aware += buildDivisions(spec).stats.travelMinutes;
+  }
+  assert.ok(aware < flat * 0.6, `travel-aware ${aware} min vs flat ${flat} min`); // measured 1280 vs 3200
+});

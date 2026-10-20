@@ -166,5 +166,5 @@ rounds left go first, so they finish together) and which match gets which court 
   and `stats.travelMinutes` (and the text read-out) report the total. On three venues (Park-School 10, Park-Lake 60, School-Lake 55)
   summed over 8 seeds: 14,840 minutes in the naive order, 11,335 when scheduled with every change costing the same, 10,230 with
   the table (-10% against flat); the search runs 10x more moves when a table is given, which is what made that gain appear
-  (`divisions.test.mjs`). No table means the schedule is unchanged.
+  (`divisions.test.mjs`). With five venues on a line (neighbours 5 min, the ends 80) and two divisions of six, 8 seeds: 3,200 minutes flat against 1,280 with the table (-60%). No table means the schedule is unchanged.
 - **Not done yet.** Rounds are placed whole, so a night with 1 spare slot stays partly empty.
