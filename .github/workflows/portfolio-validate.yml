@@ -581,13 +581,11 @@ jobs:
       - name: Check what a merge to main can publish still matches the snapshot
         run: python3 platform/ci/publish_surface.py --check
 
-      # Backstop for the per-venture no-warranty check now wired into each
-      # venture's own CI. A venture workflow only fires on its own paths, so it
-      # cannot cover a slug whose workflow was never created -- which is
-      # exactly how carpet-install-bid-calculator reached main with no CI at
-      # all, already inside the Pages build. This walks every surface the Pages
-      # site would publish, so a new venture is covered before anyone
-      # remembers to give it a workflow.
+      # Backstop for the per-venture no-warranty check in ventures-tests.yml
+      # (`clauses.mjs --changed-since`, which names the touched venture that
+      # fails). That one checks only what a change touched; this walks every
+      # surface the Pages site would publish, so a page that went bad some
+      # other way (a renamed exemption, a widened pattern) still goes red.
       #
       # The no-SLA half is not checked here: build.mjs injects it into every
       # published page, so it holds by construction.

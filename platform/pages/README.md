@@ -1419,8 +1419,11 @@ node platform/pages/clauses.mjs                 # every surface
 node platform/pages/clauses.mjs <venture-slug>  # one venture
 ```
 
-Reading sources is what makes it cheap enough to run from a venture's own CI,
-which is where it now runs. That matters because the built-site assertion in
+Reading sources is what makes it cheap enough to run on every venture PR.
+`ventures-tests.yml` runs `node platform/pages/clauses.mjs --changed-since
+<base>` for each venture the change touched, naming the venture and
+annotating the page; until 2026-10-20 the same check was a step copied into
+281 `<slug>-ci.yml` files. That matters because the built-site assertion in
 `build.test.mjs` fires on `platform/pages/**` — so a venture that omits the
 clause merges cleanly and turns `main` red in the Pages job, naming an author
 who never saw the requirement, in a workflow they did not touch. That is how

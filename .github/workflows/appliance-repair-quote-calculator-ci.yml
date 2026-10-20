@@ -36,6 +36,3 @@ jobs:
         with:
           node-version: "22"
       - run: node --test
-      - name: Published pages carry the no-warranty clause
-        working-directory: .
-        run: node platform/pages/clauses.mjs appliance-repair-quote-calculator
