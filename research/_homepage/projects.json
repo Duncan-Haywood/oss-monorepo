@@ -2935,7 +2935,7 @@
     {
      "slug": "eda-harness",
      "title": "Can one harness check, score, cache and log candidate chip designs for any proposer?",
-     "summary": "A loop that takes a parameterised generator and a search space and runs each candidate through lint, bit- and cycle-exact RTL simulation, a gate-netlist simulation check and Yosys synthesis, caching by design hash and logging every evaluation as JSON. On <em>chip-accel</em>&rsquo;s MAC engine (40 designs) all candidates pass; synthesis and the gate-level check take 99% of the 424&nbsp;s of wall time and RTL simulation under 1%. The Pareto front matches <em>chip-accel</em>&rsquo;s. Stylised: one design family, generic-gate counts, simulation-based (not formal) equivalence, no place and route."
+     "summary": "A loop that takes a parameterised generator and a search space and runs each candidate through lint, bit- and cycle-exact RTL simulation, a gate-netlist simulation check and Yosys synthesis, caching by design hash and logging every evaluation as JSON. On <em>chip-accel</em>&rsquo;s MAC engine (40 designs) all candidates pass; synthesis and the gate-level check take 99% of the 424&nbsp;s of wall time and RTL simulation under 1%. The Pareto front matches <em>chip-accel</em>&rsquo;s. A follow-up reuses one Yosys run for the gate check and the score: identical metrics on all 40 designs and 50% less wall time (561&nbsp;s to 280&nbsp;s, single timing runs). Stylised: one design family, generic-gate counts, simulation-based (not formal) equivalence, no place and route."
     },
     {
      "slug": "eda-gridxfer",
