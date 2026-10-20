@@ -19,8 +19,8 @@
   "projects": [
     "einvoice-preflight"
   ],
-  "pr": null,
-  "repo": null,
+  "pr": 8751,
+  "repo": "duncan-haywood/oss-monorepo",
   "commits": [],
   "lines_added": null,
   "lines_removed": null,
