@@ -1,0 +1,59 @@
+A. Share of 4000 scenarios in which each technology is cheapest (%), all inputs, rate and charging price varied (seed 20261020)
+ hours     li-ion vanadium f pumped hyd compressed   hydrogen   base win
+     1        100          0          0          0          0     li-ion
+     2         96          0          1          3          0     li-ion
+     4         64          1         18         17          0     li-ion
+     6         37          1         37         25          0 compressed
+     8         18          0         45         36          1 compressed
+    10          9          0         48         42          1 compressed
+    12          4          0         48         47          1 compressed
+    24          0          0         38         61          2 compressed
+    48          0          0         21         75          3 compressed
+   100          0          0         10         81         10 compressed
+   168          0          0          5         73         22 compressed
+   500          0          0          0         31         69   hydrogen
+
+B. Same, rate fixed at 7% and charging price at $30/MWh (only technology inputs vary)
+ hours     li-ion vanadium f pumped hyd compressed   hydrogen
+     1        100          0          0          0          0
+     2         94          0          0          5          0
+     4         57          1         14         28          0
+     6         29          0         25         46          0
+     8         12          0         28         59          1
+    10          4          0         29         66          1
+    12          1          0         27         70          1
+    24          0          0         17         81          2
+    48          0          0          7         87          6
+   100          0          0          3         79         18
+   168          0          0          1         62         37
+   500          0          0          0         19         81
+
+C. Duration at which the base winner has under 50% (and under 80%) of scenarios
+  no technology above 50%: [6, 8, 10, 12] h
+  no technology above 80%: [4, 6, 8, 10, 12, 24, 48, 168, 500] h
+
+D. One-at-a-time LCOS ($/MWh) at the low and high end of each input range (others at base)
+ li-ion (LFP) at 4 h:
+   charge_price:      93 ..     198  (swing 106)
+    energy_cost:      83 ..     149  (swing 66)
+           rate:      99 ..     130  (swing 31)
+     power_cost:     113 ..     121  (swing 8)
+            rte:     118 ..     115  (swing 3)
+ pumped hydro at 8 h:
+   charge_price:      83 ..     199  (swing 115)
+     power_cost:      87 ..     152  (swing 65)
+           rate:      80 ..     134  (swing 54)
+    energy_cost:     105 ..     118  (swing 13)
+            rte:     111 ..     107  (swing 4)
+ compressed air (cavern) at 24 h:
+   charge_price:      72 ..     236  (swing 164)
+     power_cost:      94 ..     139  (swing 45)
+           rate:      89 ..     125  (swing 37)
+    energy_cost:     104 ..     118  (swing 14)
+            rte:     115 ..     101  (swing 13)
+ hydrogen (cavern) at 500 h:
+   charge_price:     183 ..     440  (swing 257)
+    energy_cost:     208 ..     304  (swing 97)
+     power_cost:     193 ..     286  (swing 93)
+           rate:     193 ..     280  (swing 87)
+            rte:     255 ..     220  (swing 35)

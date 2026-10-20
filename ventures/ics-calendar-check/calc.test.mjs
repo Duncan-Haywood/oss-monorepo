@@ -160,3 +160,14 @@ test("EXDATE/RDATE must match DTSTART's type and parse", () => {
   assert.ok(has(validate(ev("RRULE:FREQ=DAILY", "EXDATE:2026-01-06")), /bad EXDATE value/));
   assert.deepEqual(validate(ev("RRULE:FREQ=DAILY", "EXDATE:20260106T090000Z,20260107T090000Z")).findings, []);
 });
+
+test("VALARM problems are reported", () => {
+  const bad = (al) => validate(cal(vevent("DTSTART:20260106T150000Z", "DTEND:20260106T160000Z", "SUMMARY:x", "BEGIN:VALARM", ...al, "END:VALARM")));
+  assert.ok(has(bad(["TRIGGER:-PT15M"]), /no ACTION/));
+  assert.ok(has(bad(["ACTION:DISPLAY"]), /no TRIGGER/));
+  assert.ok(has(bad(["ACTION:DISPLAY", "TRIGGER:15 minutes", "DESCRIPTION:x"]), /bad VALARM TRIGGER/));
+  assert.ok(has(bad(["ACTION:DISPLAY", "TRIGGER:-PT15M"]), /no DESCRIPTION/));
+  assert.ok(has(bad(["ACTION:POPUP", "TRIGGER:-PT15M"]), /not standard/));
+  const ok = bad(["ACTION:DISPLAY", "TRIGGER:-P1DT2H", "DESCRIPTION:Reminder"]);
+  assert.equal(ok.findings.length, 0);
+});
