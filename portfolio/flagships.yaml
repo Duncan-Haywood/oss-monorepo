@@ -24,10 +24,11 @@ flagships:
       XRechnung, Peppol profiles) with a self-hosted API, Docker and Render
       deploy, ~48 test files, and a regulatory tailwind (EU e-invoicing mandates).
     next: >-
-      Run the official EN 16931 / Peppol BIS Schematron (saxon-js with
-      compiled SEF) beside the built-in rules and map each BR-xx failure to a
-      plain-language fix, so the README can drop "not a full EN 16931
-      conformance validator".
+      The official base EN 16931 Schematron now runs in Saxon-JS (opt-in,
+      ?schematron=1, schematron-cli.mjs) with plain-language fixes. Next: add
+      the XRechnung and Peppol BIS add-on Schematron the same way, bake the SEF
+      files into the Docker image and Render deploy, and show the official
+      findings on the web page.
   - venture: shift-roster-builder
     why: >-
       Simulated-annealing scheduler over a dollar cost (availability, rest,
