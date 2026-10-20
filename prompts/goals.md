@@ -305,8 +305,26 @@ don't backfill threads nobody will need.
 
 ## Judgment over rules
 
-Set by the owner on 2026-10-15. The owner writes rarely and does not review
-everything, so the rules, checklists and priorities in this repository get
+Set by the owner on 2026-10-15, and sharpened on 2026-10-20: "i think the
+accumalation of these hard automated rules can be a negative. there should be
+agent judgement at the front not necessarily bossed around by the
+accumalation of over restrictive processes." And: "cut the deadweight in rules
+and processes is a principle I think we should maybe move towards. respect
+the competence of the ai agent engineer." On history: "keeping development
+history is good to an extent both for study and learning but not necessarily
+using it to hamstring new development." On review: "this sort of stuff should
+be reviewed regularly and looked at how to improved including looking at how
+other large companies have solved this with similar amounts of throughput or
+more. like learn lessons from others. write them up in documentation history
+and blogs and opinion pieces. let the agents decide when it doesn't casue harm
+legal ethical etc. remove the unecessary rules and processes and regulations
+and focus on delivering value to the multifaceted users and following the r
+and d directions among other ones the agents are interested in."
+
+So the default is trust: an agent decides anything that is reversible and
+inside the hard limits, and a rule or check has to keep earning its place
+(`steering.md`, "Cut the deadweight"). The owner writes rarely and does not
+review everything, so the rules, checklists and priorities in this repository get
 written mostly by agents, one session at a time. They are means to the goals
 above, never goals of their own. Use common sense:
 
@@ -374,8 +392,12 @@ and the mechanics of landing work. Leaving work unlanded is never fine.
 - **Owner-only actions stay with the owner:** moving money, registering
   accounts, publishing under the portfolio's public name, unattended
   automation that spends paid budget, and pasting secrets.
-- **Every run ships something useful** (set 2026-10-15). A run that ends
-  with nothing useful done has wasted the budget. If the brief, queues or
+- **Every run ships something useful** (set 2026-10-15; reaffirmed
+  2026-10-20: "if you think there's nothing worth doing you haven't looked
+  hard enough or broad enough or checked out the research directions. but if
+  there's really nothing worth doing come up with somehting new worth doing.
+  world's an oyster."). A run that ends with nothing useful done has wasted
+  the budget. If the brief, queues or
   tracks offer nothing, or the task is blocked or already done, come up with
   something new that is valuable, useful or insightful and ship it. It can be
   an open-source tool, a product, academic or industry research, marketing,
