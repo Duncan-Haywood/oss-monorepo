@@ -112,6 +112,7 @@ const FIXES = {
   "BR-DE-28": "Write the seller contact email (BT-43) with exactly one @, at least two characters on each side of it, and no leading or trailing dot or spaces.",
   "BR-DE-31": "A direct debit (BG-19) needs the debited account identifier (BT-91), an IBAN.",
   "BR-DE-30": "A direct debit (BG-19) needs the bank-assigned creditor identifier (BT-90).",
+  "PEPPOL-EN16931-R006": "Give at most one invoiced object identifier (BT-18, type code 130) at document level.",
   "PEPPOL-EN16931-R007": "Write the business process (BT-23) as urn:fdc:peppol.eu:2017:poacc:billing:NN:1.0, where NN is the process number (01 for billing).",
   "PEPPOL-EN16931-R008": "Remove empty elements from the XML; Peppol rejects documents that contain them.",
   "PEPPOL-EN16931-R051": "Use the invoice currency (BT-5) in every currencyID attribute; only the VAT total in the accounting currency (BT-111) may differ.",
