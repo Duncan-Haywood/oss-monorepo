@@ -94,6 +94,7 @@ export const DEFAULTS = {
   ar1: false,
   // true: fit one linear trend under the steps and remove it, so a slow ramp is not read as many
   // small level changes (mean and meanvar models; applied after the seasonal adjustment).
+  // 'bend': also allow the slope to change once (knot and second slope chosen by BIC).
   trend: false,
 };
 
@@ -176,34 +177,68 @@ function driftAdjust(x, m, trend0, profile) {
  * Returns { adjusted, slope } with the slope per point; the adjusted series
  * keeps the mean level of the input.
  */
-export function trendAdjust(x, { penalty = 'bic', minSegment = 2, passes = 10, ar1 = false } = {}) {
+export function trendAdjust(x, { penalty = 'bic', minSegment = 2, passes = 10, ar1 = false, bend = false } = {}) {
   const n = x.length;
   const d = [];
   for (let i = 1; i < n; i++) d.push(x[i] - x[i - 1]);
-  let b = median(d);
-  const detrend = (b) => x.map((v, t) => v - b * (t - (n - 1) / 2));
-  for (let k = 0; k < passes; k++) {
-    const y = detrend(b);
-    // a heavier penalty while the slope is unsettled: only large steps may shape it
-    // with ar1, sticky noise widens the scale, so its wandering is not cut into steps that then bend the slope
-    const sd = robustSd(y);
-    const cps = pelt(y, { model: 'mean', penalty: 3 * penaltyValue(penalty, n, 'mean'), minSegment, sigma: ar1 ? longRunSd(sd, ar1Rho(y)) : sd }).changepoints;
-    const bounds = [0, ...cps, n];
+  const c = (n - 1) / 2;
+  // the removed line: slope b1 up to the knot, b2 after it, continuous at the knot (knot null: one slope)
+  const line = (b1, b2, knot) => (t) => (knot === null || t <= knot ? b1 * (t - c) : b1 * (knot - c) + b2 * (t - knot));
+  const detrend = (f) => x.map((v, t) => v - f(t));
+  // pooled within-segment least-squares slope over the points t in [lo, hi) of each segment
+  const pooled = (bounds, lo, hi, fallback) => {
     let sxy = 0, sxx = 0;
     for (let i = 0; i + 1 < bounds.length; i++) {
-      const a = bounds[i], e = bounds[i + 1], len = e - a;
+      const a = Math.max(bounds[i], lo), e = Math.min(bounds[i + 1], hi), len = e - a;
       if (len < 8) continue; // a short segment fits its own noise, not the slope
       let mt = 0, mx = 0;
       for (let t = a; t < e; t++) { mt += t; mx += x[t]; }
       mt /= len; mx /= len;
       for (let t = a; t < e; t++) { sxy += (t - mt) * (x[t] - mx); sxx += (t - mt) ** 2; }
     }
-    const nb = sxx > 0 ? sxy / sxx : b;
-    const done = Math.abs(nb - b) < 1e-9;
-    b = nb;
-    if (done) break;
+    return sxx > 0 ? sxy / sxx : fallback;
+  };
+  const segment = (y, mult) => {
+    const sd = robustSd(y);
+    // a heavier penalty while the slope is unsettled: only large steps may shape it
+    // with ar1, sticky noise widens the scale, so its wandering is not cut into steps that then bend the slope
+    return pelt(y, { model: 'mean', penalty: mult * penaltyValue(penalty, n, 'mean'), minSegment, sigma: ar1 ? longRunSd(sd, ar1Rho(y)) : sd }).changepoints;
+  };
+  const fit = (knot) => {
+    let b1 = median(d), b2 = b1;
+    for (let k = 0; k < passes; k++) {
+      const cps = segment(detrend(line(b1, b2, knot)), 3);
+      const bounds = [0, ...cps, n];
+      const n1 = pooled(bounds, 0, knot === null ? n : knot + 1, b1);
+      const n2 = knot === null ? n1 : pooled(bounds, knot + 1, n, b2);
+      const done = Math.abs(n1 - b1) < 1e-9 && Math.abs(n2 - b2) < 1e-9;
+      b1 = n1; b2 = n2;
+      if (done) break;
+    }
+    // BIC of steps under the final line: n ln(rss/n) plus ln n per step and per slope parameter
+    const y = detrend(line(b1, b2, knot));
+    const cps = segment(y, 1);
+    const bounds = [0, ...cps, n];
+    let rss = 0;
+    for (let i = 0; i + 1 < bounds.length; i++) {
+      let m = 0; for (let t = bounds[i]; t < bounds[i + 1]; t++) m += y[t];
+      m /= bounds[i + 1] - bounds[i];
+      for (let t = bounds[i]; t < bounds[i + 1]; t++) rss += (y[t] - m) ** 2;
+    }
+    const params = 1 + (knot === null ? 0 : 2) + 2 * cps.length;
+    return { b1, b2, knot, y, bic: n * Math.log(Math.max(rss, 1e-12) / n) + params * Math.log(n) };
+  };
+  let best = fit(null);
+  if (bend && n >= 40) {
+    const step = Math.max(1, Math.round(n / 40));
+    for (let knot = Math.ceil(0.2 * n); knot <= Math.floor(0.8 * n); knot += step) {
+      const f = fit(knot);
+      if (f.bic < best.bic) best = f;
+    }
   }
-  return { adjusted: detrend(b), slope: b };
+  const out = { adjusted: detrend(line(best.b1, best.b2, best.knot)), slope: best.b1 };
+  if (best.knot !== null) Object.assign(out, { slopeAfter: best.b2, knot: best.knot });
+  return out;
 }
 
 /**
@@ -760,10 +795,10 @@ export function analyze(input = {}) {
     if (model === 'poisson') throw new Error('The seasonal adjustment subtracts a profile, which breaks counts: use "mean" or "meanvar" with a period.');
     ({ adjusted: values, profile } = seasonalAdjust(original, period, { drift: !!o.drift }));
   }
-  let slope = null;
+  let slope = null, slopeAfter, knot;
   if (o.trend) {
     if (model === 'poisson') throw new Error('The trend removal subtracts a line, which breaks counts: use "mean" or "meanvar" with a trend.');
-    ({ adjusted: values, slope } = trendAdjust(values, { penalty: o.penalty, minSegment: Math.max(1, Math.floor(Number(o.minSegment) || (model === 'meanvar' ? 5 : 2))), ar1: !!o.ar1 && model === 'mean' }));
+    ({ adjusted: values, slope, slopeAfter, knot } = trendAdjust(values, { penalty: o.penalty, minSegment: Math.max(1, Math.floor(Number(o.minSegment) || (model === 'meanvar' ? 5 : 2))), ar1: !!o.ar1 && model === 'mean', bend: o.trend === 'bend' }));
   }
   let sigma = robustSd(values);
   let rho = null;
@@ -836,7 +871,7 @@ export function analyze(input = {}) {
     model,
     noiseSd: round(sigma),
     ...(period ? { seasonal: { period, profile: profile.map((v) => round(v)) } } : {}),
-    ...(slope !== null ? { trend: { slopePerPoint: round(slope, 6) } } : {}),
+    ...(slope !== null ? { trend: { slopePerPoint: round(slope, 6), ...(knot !== undefined ? { slopeAfter: round(slopeAfter, 6), slopeChangesAt: knot } : {}) } } : {}),
     ...(rho !== null ? { ar1: { rho: round(rho, 3) } } : {}),
     pelt: { penalty: round(p.penalty), minSegment, changepoints: changes, segments },
     bocpd: {

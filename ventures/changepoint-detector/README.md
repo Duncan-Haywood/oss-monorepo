@@ -164,6 +164,13 @@ series, 40 each, in `engine.test.mjs`):
   series without). Combined with `--period 12` (144 points, slope 0.08, amplitude 8, shift 5 at 84, seeds
   601..640): 6.6 changes per series with `--period` alone, 1.25 with `--trend`, found 40 of 40, exactly one 36
   of 40. One common slope only; a slope that itself changes is still read as steps. Not offered for counts.
+- **A slope that changes once (`--trend bend`).** `--trend` alone reads a ramp whose slope doubles as steps. `--trend bend`
+  tries every knot between 20% and 80% of the series (about 40 candidates), fits a second slope after it
+  (continuous at the knot), and keeps the bend only if BIC (n ln(rss/n), ln n per step and per slope parameter) falls.
+  On 200 points, slope 0.1 doubling to 0.2 at point 100, seeds 801..840: 4.58 changes per series with `--trend`,
+  0.48 with `--trend bend`; mean knot 100.5, mean second slope 0.195; with a step of 5 added at 150 it was found
+  in 40 of 40; on 40 straight ramps with no bend, a bend was kept in 0 of 40. One bend only; CLI and API
+  (`trend: 'bend'`), not yet the web page. Output: `trend.slopeAfter`, `trend.slopeChangesAt`.
 - **`--trend` with `--ar1`.** Sticky noise wanders, and the slope loop inside `--trend` cut that wandering into
   steps whose segments then bent the slope. With `--ar1` the loop now widens its noise scale by the same
   long-run factor. On 200 points, slope 0.1, AR(1) rho 0.5, shift 5 at point 100 (seeds 701..740): PELT gave

@@ -25,7 +25,8 @@ Options:
   --min-segment <n>         shortest segment (default: 2 for mean, 5 for meanvar)
   --period <n>              remove a seasonal cycle of n points first (12 monthly, 7 daily-weekly); mean/meanvar
   --drift                   with --period: let the seasonal shape change over time (growing amplitude, moving peak)
-  --trend                   fit one linear trend under the steps and remove it (a ramp is not read as many small changes)
+  --trend [bend]            fit one linear trend under the steps and remove it (a ramp is not read as many small changes);
+                            'bend' lets the slope change once, chosen by BIC
   --ar1 [joint]             allow for lag-1 autocorrelation (mean model): widen the noise scale, or
                             'joint' to fit the means and rho together (more power on small shifts)
   --hazard <n>              Bayesian expected points between changes (default: ${DEFAULTS.hazardLambda})
@@ -51,7 +52,7 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
     else if (a === '--json') json = true;
     else if (a === '--example') example = true;
     else if (a === '--drift') opt.drift = true;
-    else if (a === '--trend') opt.trend = true;
+    else if (a === '--trend') opt.trend = argv[i + 1] === 'bend' ? (i++, 'bend') : true;
     else if (a === '--ar1') opt.ar1 = argv[i + 1] === 'joint' ? (i++, 'joint') : true;
     else if (flags[a]) {
       if (i + 1 >= argv.length) throw new Error(`${a} needs a value`);
