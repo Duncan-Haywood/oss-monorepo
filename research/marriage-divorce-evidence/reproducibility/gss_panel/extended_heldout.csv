@@ -1,0 +1,13 @@
+horizon_years,model,gain_percent,gain_ci95_low,gain_ci95_high,diff_vs_reference_points,diff_ci95_low,diff_ci95_high,reference,inputs_added,records,respondents,events,repeats
+2,constant,0.0000,0.0000,0.0000,-8.7568,-12.7346,-4.6167,current model,,4453,2754,203,5
+2,current model,8.7568,4.6167,12.7346,0.0000,0.0000,0.0000,current model,,4453,2754,203,5
+2,"current, family at 16 as yes/no",9.1066,5.0836,12.9614,0.3499,-0.0208,0.7640,current model,intact16,4453,2754,203,5
+2,"current, family at 16 -> 5-level family of origin",8.6505,4.6274,12.5879,-0.1062,-0.3627,0.1717,current model,family_origin,4453,2754,203,5
+2,current + family of origin,7.6390,3.1327,11.7858,-1.1177,-2.1976,-0.0163,current model,"family_origin, sibs, parent_education, income_at_16, place_at_16, born_us",4453,2754,203,5
+2,current + religion detail,8.8563,4.7745,12.8169,0.0995,-0.6230,0.7990,current model,"attend9, pray, religious_strength, fundamentalism, denomination, religion_raised",4453,2754,203,5
+2,current + politics,8.9990,5.0066,12.6984,0.2422,-0.5552,0.9599,current model,"polviews, party",4453,2754,203,5
+2,current + race detail,8.6941,4.5560,12.6209,-0.0627,-0.2098,0.0851,current model,race_detail,4453,2754,203,5
+2,current + occupation,8.3731,4.1253,12.4050,-0.3836,-1.1772,0.3203,current model,"occupation_group, prestige, spouse_prestige",4453,2754,203,5
+2,current + wealth,8.5442,4.3516,12.5033,-0.2126,-0.3583,-0.0712,current model,"home, wealth_band",4453,2754,203,5
+2,current + religion detail + politics,9.2627,5.2431,13.0074,0.5060,-0.6155,1.5547,current model,"attend9, pray, religious_strength, fundamentalism, denomination, religion_raised, polviews, party",4453,2754,203,5
+2,current + all new blocks,7.3702,2.6232,11.6957,-1.3865,-2.9516,0.2440,current model,"family_origin, sibs, parent_education, income_at_16, place_at_16, born_us, attend9, pray, religious_strength, fundamentalism, denomination, religion_raised, polviews, party, race_detail, occupation_group, prestige, spouse_prestige, home, wealth_band",4453,2754,203,5

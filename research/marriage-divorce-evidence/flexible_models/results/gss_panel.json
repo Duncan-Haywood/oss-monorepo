@@ -1,0 +1,4190 @@
+{
+ "data": {
+  "rows": 4453,
+  "groups": 2754,
+  "events": 203.0,
+  "family": "binary",
+  "numeric": [
+   "age",
+   "childs",
+   "attend",
+   "sibs",
+   "parent_education",
+   "prestige",
+   "spouse_prestige"
+  ],
+  "categorical": [
+   "hapmar",
+   "happy",
+   "sex",
+   "race",
+   "degree",
+   "spouse_degree",
+   "work",
+   "spouse_work",
+   "family_income",
+   "religion",
+   "spouse_religion",
+   "same_religion",
+   "divorced_before",
+   "family_at_16",
+   "health",
+   "fefam",
+   "sexfreq",
+   "evstray",
+   "satfin",
+   "xmarsex",
+   "region",
+   "place",
+   "family_origin",
+   "income_at_16",
+   "place_at_16",
+   "born_us",
+   "attend9",
+   "pray",
+   "religious_strength",
+   "fundamentalism",
+   "denomination",
+   "religion_raised",
+   "polviews",
+   "party",
+   "race_detail",
+   "occupation_group",
+   "home",
+   "wealth_band"
+  ],
+  "duration": null,
+  "baseline": "additive L1 logistic, current inputs, C by inner grouped CV (train_models.py logistic_additive)",
+  "lens_models": [
+   "baseline_all_inputs",
+   "lens_boosting"
+  ],
+  "notes": [
+   "2-year horizon transitions; StratifiedGroupKFold by respondent, 5 folds x 5 repeats"
+  ],
+  "sample": null,
+  "metric": "log-loss gain vs constant; AUC"
+ },
+ "main": {
+  "rows": [
+   {
+    "model": "baseline",
+    "heldout_gain": 8.56497,
+    "heldout_gain_ci": [
+     4.545981,
+     12.414775
+    ],
+    "diff_vs_baseline": 0.0,
+    "diff_vs_baseline_ci": [
+     0.0,
+     0.0
+    ],
+    "heldout_gain_by_repeat": [
+     8.423484,
+     8.365727,
+     8.759358,
+     7.741183,
+     9.534778
+    ],
+    "train_gain": 17.319877,
+    "train_minus_heldout": 8.754971,
+    "observed_expected": 0.973412,
+    "calibration_slope": 0.850376,
+    "calibration_intercept": -0.437195,
+    "top_decile_lift": 3.110424,
+    "top_bottom_ratio": 94.20282,
+    "decile_observed": [
+     0.003366,
+     0.016383,
+     0.036227,
+     0.016384,
+     0.024391,
+     0.020756,
+     0.05016,
+     0.052435,
+     0.071292,
+     0.136905
+    ],
+    "decile_predicted": [
+     0.005331,
+     0.011053,
+     0.01614,
+     0.020987,
+     0.027383,
+     0.034581,
+     0.043145,
+     0.054746,
+     0.07507,
+     0.153803
+    ],
+    "discrimination": {
+     "metric": "AUC (rows)",
+     "value": 0.725637,
+     "ci": [
+      0.68567,
+      0.778362
+     ],
+     "diff_vs_baseline": 0.0,
+     "diff_ci": [
+      0.0,
+      0.0
+     ]
+    }
+   },
+   {
+    "model": "lightgbm_tuned",
+    "heldout_gain": 7.357278,
+    "heldout_gain_ci": [
+     3.275469,
+     11.411467
+    ],
+    "diff_vs_baseline": -1.207692,
+    "diff_vs_baseline_ci": [
+     -2.909803,
+     0.672192
+    ],
+    "heldout_gain_by_repeat": [
+     8.880091,
+     7.888864,
+     7.713018,
+     5.250648,
+     7.054397
+    ],
+    "train_gain": 44.464078,
+    "train_minus_heldout": 37.106674,
+    "observed_expected": 1.11915,
+    "calibration_slope": 0.760039,
+    "calibration_intercept": -0.560097,
+    "top_decile_lift": 3.14122,
+    "top_bottom_ratio": 21.245241,
+    "decile_observed": [
+     0.008703,
+     0.015922,
+     0.010733,
+     0.005504,
+     0.028462,
+     0.047532,
+     0.045723,
+     0.066391,
+     0.065687,
+     0.133675
+    ],
+    "decile_predicted": [
+     0.00402,
+     0.008232,
+     0.011864,
+     0.015748,
+     0.020347,
+     0.025934,
+     0.034358,
+     0.046365,
+     0.069373,
+     0.156573
+    ],
+    "discrimination": {
+     "metric": "AUC (rows)",
+     "value": 0.723301,
+     "ci": [
+      0.695948,
+      0.780274
+     ],
+     "diff_vs_baseline": -0.002337,
+     "diff_ci": [
+      -0.012187,
+      0.028883
+     ]
+    }
+   },
+   {
+    "model": "hgb_tuned",
+    "heldout_gain": 4.697465,
+    "heldout_gain_ci": [
+     0.248629,
+     9.369016
+    ],
+    "diff_vs_baseline": -3.867505,
+    "diff_vs_baseline_ci": [
+     -6.472986,
+     -1.149438
+    ],
+    "heldout_gain_by_repeat": [
+     8.046726,
+     7.913882,
+     1.539741,
+     3.076305,
+     2.911441
+    ],
+    "train_gain": 58.586575,
+    "train_minus_heldout": 53.888956,
+    "observed_expected": 1.292344,
+    "calibration_slope": 0.679681,
+    "calibration_intercept": -0.691195,
+    "top_decile_lift": 3.052648,
+    "top_bottom_ratio": 8.729864,
+    "decile_observed": [
+     0.012307,
+     0.014128,
+     0.00958,
+     0.021968,
+     0.021467,
+     0.056788,
+     0.046859,
+     0.037165,
+     0.05499,
+     0.152712
+    ],
+    "decile_predicted": [
+     0.00364,
+     0.007254,
+     0.01121,
+     0.014681,
+     0.018344,
+     0.022993,
+     0.029737,
+     0.039217,
+     0.058268,
+     0.142551
+    ],
+    "discrimination": {
+     "metric": "AUC (rows)",
+     "value": 0.706832,
+     "ci": [
+      0.688701,
+      0.772699
+     ],
+     "diff_vs_baseline": -0.018806,
+     "diff_ci": [
+      -0.027256,
+      0.026365
+     ]
+    }
+   },
+   {
+    "model": "random_forest_tuned",
+    "heldout_gain": 8.987227,
+    "heldout_gain_ci": [
+     5.786638,
+     12.31488
+    ],
+    "diff_vs_baseline": 0.422257,
+    "diff_vs_baseline_ci": [
+     -1.549446,
+     2.245747
+    ],
+    "heldout_gain_by_repeat": [
+     9.27648,
+     8.654178,
+     9.057553,
+     8.322922,
+     9.624976
+    ],
+    "train_gain": 34.222234,
+    "train_minus_heldout": 25.235013,
+    "observed_expected": 0.953552,
+    "calibration_slope": 0.962596,
+    "calibration_intercept": -0.152154,
+    "top_decile_lift": 3.253156,
+    "top_bottom_ratio": 43.211683,
+    "decile_observed": [
+     0.004483,
+     0.011129,
+     0.013067,
+     0.026705,
+     0.00877,
+     0.055082,
+     0.040135,
+     0.062787,
+     0.064047,
+     0.142113
+    ],
+    "decile_predicted": [
+     0.003017,
+     0.009173,
+     0.015003,
+     0.020857,
+     0.028068,
+     0.036192,
+     0.046635,
+     0.060544,
+     0.082834,
+     0.160099
+    ],
+    "discrimination": {
+     "metric": "AUC (rows)",
+     "value": 0.729556,
+     "ci": [
+      0.701807,
+      0.775399
+     ],
+     "diff_vs_baseline": 0.003919,
+     "diff_ci": [
+      -0.018674,
+      0.033755
+     ]
+    }
+   },
+   {
+    "model": "extra_trees_tuned",
+    "heldout_gain": 6.941046,
+    "heldout_gain_ci": [
+     3.501062,
+     10.421838
+    ],
+    "diff_vs_baseline": -1.623924,
+    "diff_vs_baseline_ci": [
+     -4.4112,
+     1.445488
+    ],
+    "heldout_gain_by_repeat": [
+     5.968396,
+     7.014414,
+     7.284812,
+     7.402369,
+     7.034861
+    ],
+    "train_gain": 38.306173,
+    "train_minus_heldout": 31.365202,
+    "observed_expected": 0.973634,
+    "calibration_slope": 0.812845,
+    "calibration_intercept": -0.543467,
+    "top_decile_lift": 2.84969,
+    "top_bottom_ratio": 11.152442,
+    "decile_observed": [
+     0.011695,
+     0.010843,
+     0.015041,
+     0.014702,
+     0.02253,
+     0.066666,
+     0.041319,
+     0.060568,
+     0.061055,
+     0.123773
+    ],
+    "decile_predicted": [
+     0.00322,
+     0.008863,
+     0.014652,
+     0.021097,
+     0.02739,
+     0.035018,
+     0.04444,
+     0.056941,
+     0.077604,
+     0.155552
+    ],
+    "discrimination": {
+     "metric": "AUC (rows)",
+     "value": 0.710169,
+     "ci": [
+      0.691634,
+      0.762313
+     ],
+     "diff_vs_baseline": -0.015468,
+     "diff_ci": [
+      -0.049054,
+      0.036845
+     ]
+    }
+   },
+   {
+    "model": "enet_spline_pairwise",
+    "heldout_gain": 6.198585,
+    "heldout_gain_ci": [
+     2.166154,
+     10.015044
+    ],
+    "diff_vs_baseline": -2.366386,
+    "diff_vs_baseline_ci": [
+     -3.957649,
+     -0.930845
+    ],
+    "heldout_gain_by_repeat": [
+     7.42043,
+     6.896978,
+     5.523751,
+     4.710132,
+     6.441772
+    ],
+    "train_gain": 18.467415,
+    "train_minus_heldout": 12.268802,
+    "observed_expected": 1.000659,
+    "calibration_slope": 0.863218,
+    "calibration_intercept": -0.388434,
+    "top_decile_lift": 3.069498,
+    "top_bottom_ratio": 6.983208,
+    "decile_observed": [
+     0.026797,
+     0.008014,
+     0.019726,
+     0.003761,
+     0.025281,
+     0.047983,
+     0.043886,
+     0.050103,
+     0.065394,
+     0.13722
+    ],
+    "decile_predicted": [
+     0.010126,
+     0.015912,
+     0.019982,
+     0.024406,
+     0.029051,
+     0.034172,
+     0.040098,
+     0.048045,
+     0.061462,
+     0.144796
+    ],
+    "discrimination": {
+     "metric": "AUC (rows)",
+     "value": 0.700297,
+     "ci": [
+      0.671561,
+      0.766529
+     ],
+     "diff_vs_baseline": -0.025341,
+     "diff_ci": [
+      -0.030847,
+      0.005871
+     ]
+    }
+   },
+   {
+    "model": "ebm",
+    "heldout_gain": 8.574032,
+    "heldout_gain_ci": [
+     3.866916,
+     12.516705
+    ],
+    "diff_vs_baseline": 0.009062,
+    "diff_vs_baseline_ci": [
+     -1.892939,
+     1.882934
+    ],
+    "heldout_gain_by_repeat": [
+     8.729917,
+     8.189543,
+     9.782309,
+     7.147148,
+     9.021402
+    ],
+    "train_gain": 27.125608,
+    "train_minus_heldout": 18.551544,
+    "observed_expected": 1.030184,
+    "calibration_slope": 0.862793,
+    "calibration_intercept": -0.349314,
+    "top_decile_lift": 3.11212,
+    "top_bottom_ratio": 9.340354,
+    "decile_observed": [
+     0.013817,
+     0.002289,
+     0.026456,
+     0.016844,
+     0.026239,
+     0.030211,
+     0.047795,
+     0.056236,
+     0.061139,
+     0.147364
+    ],
+    "decile_predicted": [
+     0.003257,
+     0.007652,
+     0.012122,
+     0.017027,
+     0.023003,
+     0.0297,
+     0.038713,
+     0.051629,
+     0.075148,
+     0.154738
+    ],
+    "discrimination": {
+     "metric": "AUC (rows)",
+     "value": 0.726611,
+     "ci": [
+      0.680025,
+      0.78168
+     ],
+     "diff_vs_baseline": 0.000973,
+     "diff_ci": [
+      -0.01812,
+      0.025782
+     ]
+    }
+   },
+   {
+    "model": "stack_glm_lgbm",
+    "heldout_gain": 8.105121,
+    "heldout_gain_ci": [
+     3.841379,
+     12.114256
+    ],
+    "diff_vs_baseline": -0.459849,
+    "diff_vs_baseline_ci": [
+     -1.899772,
+     1.081339
+    ],
+    "heldout_gain_by_repeat": [
+     9.127202,
+     8.99785,
+     7.621364,
+     6.498549,
+     8.280712
+    ],
+    "train_gain": 40.344778,
+    "train_minus_heldout": 32.239643,
+    "observed_expected": 1.108103,
+    "calibration_slope": 0.798291,
+    "calibration_intercept": -0.459654,
+    "top_decile_lift": 3.230714,
+    "top_bottom_ratio": 22.523087,
+    "decile_observed": [
+     0.008687,
+     0.013172,
+     0.009278,
+     0.02073,
+     0.018403,
+     0.032328,
+     0.06076,
+     0.066773,
+     0.064308,
+     0.133734
+    ],
+    "decile_predicted": [
+     0.00463,
+     0.008904,
+     0.012568,
+     0.016528,
+     0.021076,
+     0.026905,
+     0.035324,
+     0.046881,
+     0.069337,
+     0.153904
+    ],
+    "discrimination": {
+     "metric": "AUC (rows)",
+     "value": 0.727186,
+     "ci": [
+      0.701548,
+      0.786217
+     ],
+     "diff_vs_baseline": 0.001549,
+     "diff_ci": [
+      -0.004367,
+      0.028587
+     ]
+    }
+   },
+   {
+    "model": "baseline_all_inputs",
+    "heldout_gain": 7.370226,
+    "heldout_gain_ci": [
+     2.623055,
+     11.696017
+    ],
+    "diff_vs_baseline": -1.194744,
+    "diff_vs_baseline_ci": [
+     -2.745173,
+     0.389039
+    ],
+    "heldout_gain_by_repeat": [
+     7.94446,
+     6.295185,
+     9.105921,
+     4.371939,
+     9.133711
+    ],
+    "train_gain": 22.301092,
+    "train_minus_heldout": 14.930849,
+    "observed_expected": 0.978457,
+    "calibration_slope": 0.736927,
+    "calibration_intercept": -0.734753,
+    "top_decile_lift": 3.026515,
+    "top_bottom_ratio": 42.081917,
+    "decile_observed": [
+     0.001387,
+     0.016074,
+     0.026262,
+     0.016552,
+     0.009826,
+     0.03731,
+     0.054655,
+     0.066883,
+     0.070304,
+     0.129037
+    ],
+    "decile_predicted": [
+     0.003764,
+     0.007723,
+     0.011678,
+     0.016222,
+     0.021695,
+     0.029029,
+     0.038643,
+     0.052602,
+     0.076505,
+     0.176565
+    ],
+    "discrimination": {
+     "metric": "AUC (rows)",
+     "value": 0.72436,
+     "ci": [
+      0.687642,
+      0.775856
+     ],
+     "diff_vs_baseline": -0.001277,
+     "diff_ci": [
+      -0.019226,
+      0.01953
+     ]
+    }
+   },
+   {
+    "model": "lens_boosting",
+    "heldout_gain": 9.80185,
+    "heldout_gain_ci": [
+     6.590863,
+     13.048359
+    ],
+    "diff_vs_baseline": 1.23688,
+    "diff_vs_baseline_ci": [
+     -0.096682,
+     2.751855
+    ],
+    "heldout_gain_by_repeat": [
+     9.232095,
+     10.476622,
+     9.701919,
+     9.886477,
+     9.711786
+    ],
+    "train_gain": 24.142993,
+    "train_minus_heldout": 14.341213,
+    "observed_expected": 1.014539,
+    "calibration_slope": 0.963988,
+    "calibration_intercept": -0.083576,
+    "top_decile_lift": 2.97071,
+    "top_bottom_ratio": 102.272266,
+    "decile_observed": [
+     0.003366,
+     0.01124,
+     0.029884,
+     0.008469,
+     0.025028,
+     0.041966,
+     0.035376,
+     0.075919,
+     0.061693,
+     0.135255
+    ],
+    "decile_predicted": [
+     0.004944,
+     0.008479,
+     0.013282,
+     0.020225,
+     0.02716,
+     0.03477,
+     0.044088,
+     0.055455,
+     0.073861,
+     0.138556
+    ],
+    "discrimination": {
+     "metric": "AUC (rows)",
+     "value": 0.741608,
+     "ci": [
+      0.706742,
+      0.78396
+     ],
+     "diff_vs_baseline": 0.015971,
+     "diff_ci": [
+      -4.9e-05,
+      0.037459
+     ]
+    }
+   }
+  ],
+  "info": [
+   {
+    "repeat": 0,
+    "fold": 0,
+    "lightgbm_tuned": {
+     "config": {
+      "learning_rate": 0.05,
+      "num_leaves": 63,
+      "min_child_frac": 0.01,
+      "lambda_l2": 1.0,
+      "feature_fraction": 0.8,
+      "max_depth": 6
+     },
+     "rounds": 39,
+     "ranking": [
+      "age",
+      "hapmar",
+      "prestige",
+      "parent_education",
+      "spouse_prestige",
+      "sibs",
+      "family_at_16",
+      "health",
+      "divorced_before",
+      "family_income",
+      "attend",
+      "race_detail",
+      "satfin",
+      "pray",
+      "religion",
+      "work",
+      "family_origin",
+      "region",
+      "home",
+      "evstray",
+      "sexfreq",
+      "place",
+      "place_at_16",
+      "race",
+      "religion_raised",
+      "denomination",
+      "spouse_degree",
+      "spouse_work",
+      "fundamentalism",
+      "religious_strength",
+      "degree",
+      "childs",
+      "party",
+      "xmarsex",
+      "fefam",
+      "happy",
+      "occupation_group",
+      "spouse_religion",
+      "income_at_16",
+      "attend9",
+      "same_religion",
+      "sex",
+      "born_us",
+      "wealth_band",
+      "polviews"
+     ]
+    },
+    "hgb_tuned": {
+     "config": {
+      "learning_rate": 0.1,
+      "max_leaf_nodes": 7,
+      "min_leaf_frac": 0.001,
+      "l2_regularization": 0.0
+     },
+     "iters": 39
+    },
+    "random_forest_tuned": {
+     "config": {
+      "min_leaf_frac": 0.01,
+      "max_features": 0.6
+     }
+    },
+    "extra_trees_tuned": {
+     "config": {
+      "min_leaf_frac": 0.01,
+      "max_features": 0.33
+     }
+    },
+    "enet_spline_pairwise": {
+     "l1_ratio": 0.5,
+     "alpha": 0.010662,
+     "terms": 268,
+     "nonzero": 59,
+     "pairs_among": [
+      "age",
+      "hapmar",
+      "prestige",
+      "parent_education",
+      "spouse_prestige",
+      "sibs",
+      "family_at_16",
+      "health"
+     ]
+    },
+    "stack_glm_lgbm": {
+     "glm_weight": 0.0
+    }
+   },
+   {
+    "repeat": 0,
+    "fold": 1,
+    "lightgbm_tuned": {
+     "config": {
+      "learning_rate": 0.02,
+      "num_leaves": 16,
+      "min_child_frac": 0.03,
+      "lambda_l2": 1.0,
+      "feature_fraction": 0.5,
+      "max_depth": -1
+     },
+     "rounds": 262,
+     "ranking": [
+      "age",
+      "hapmar",
+      "prestige",
+      "spouse_prestige",
+      "parent_education",
+      "divorced_before",
+      "attend",
+      "family_income",
+      "sibs",
+      "religion_raised",
+      "satfin",
+      "degree",
+      "race_detail",
+      "health",
+      "spouse_degree",
+      "party",
+      "race",
+      "region",
+      "religious_strength",
+      "happy",
+      "pray",
+      "family_at_16",
+      "work",
+      "xmarsex",
+      "income_at_16",
+      "religion",
+      "sexfreq",
+      "home",
+      "denomination",
+      "family_origin",
+      "polviews",
+      "fefam",
+      "fundamentalism",
+      "childs",
+      "place",
+      "evstray",
+      "place_at_16",
+      "occupation_group",
+      "sex",
+      "spouse_work",
+      "spouse_religion",
+      "attend9",
+      "same_religion",
+      "wealth_band",
+      "born_us"
+     ]
+    },
+    "hgb_tuned": {
+     "config": {
+      "learning_rate": 0.03,
+      "max_leaf_nodes": 7,
+      "min_leaf_frac": 0.005,
+      "l2_regularization": 1.0
+     },
+     "iters": 214
+    },
+    "random_forest_tuned": {
+     "config": {
+      "min_leaf_frac": 0.01,
+      "max_features": 0.33
+     }
+    },
+    "extra_trees_tuned": {
+     "config": {
+      "min_leaf_frac": 0.01,
+      "max_features": 0.33
+     }
+    },
+    "enet_spline_pairwise": {
+     "l1_ratio": 0.5,
+     "alpha": 0.006111,
+     "terms": 246,
+     "nonzero": 92,
+     "pairs_among": [
+      "age",
+      "hapmar",
+      "prestige",
+      "spouse_prestige",
+      "parent_education",
+      "divorced_before",
+      "attend",
+      "family_income"
+     ]
+    },
+    "stack_glm_lgbm": {
+     "glm_weight": 0.5
+    }
+   },
+   {
+    "repeat": 0,
+    "fold": 2,
+    "lightgbm_tuned": {
+     "config": {
+      "learning_rate": 0.02,
+      "num_leaves": 4,
+      "min_child_frac": 0.002,
+      "lambda_l2": 0.0,
+      "feature_fraction": 1.0,
+      "max_depth": -1
+     },
+     "rounds": 346,
+     "ranking": [
+      "age",
+      "hapmar",
+      "prestige",
+      "parent_education",
+      "spouse_prestige",
+      "sibs",
+      "divorced_before",
+      "family_at_16",
+      "race_detail",
+      "spouse_degree",
+      "denomination",
+      "attend",
+      "degree",
+      "evstray",
+      "pray",
+      "work",
+      "born_us",
+      "place_at_16",
+      "family_income",
+      "region",
+      "attend9",
+      "party",
+      "religion_raised",
+      "occupation_group",
+      "happy",
+      "health",
+      "satfin",
+      "religion",
+      "income_at_16",
+      "place",
+      "wealth_band",
+      "sex",
+      "fundamentalism",
+      "sexfreq",
+      "childs",
+      "religious_strength",
+      "home",
+      "polviews",
+      "family_origin",
+      "spouse_work",
+      "fefam",
+      "spouse_religion",
+      "same_religion",
+      "xmarsex",
+      "race"
+     ]
+    },
+    "hgb_tuned": {
+     "config": {
+      "learning_rate": 0.1,
+      "max_leaf_nodes": 7,
+      "min_leaf_frac": 0.005,
+      "l2_regularization": 1.0
+     },
+     "iters": 51
+    },
+    "random_forest_tuned": {
+     "config": {
+      "min_leaf_frac": 0.0005,
+      "max_features": 0.33
+     }
+    },
+    "extra_trees_tuned": {
+     "config": {
+      "min_leaf_frac": 0.01,
+      "max_features": 0.6
+     }
+    },
+    "enet_spline_pairwise": {
+     "l1_ratio": 0.9,
+     "alpha": 0.006176,
+     "terms": 238,
+     "nonzero": 48,
+     "pairs_among": [
+      "age",
+      "hapmar",
+      "prestige",
+      "parent_education",
+      "spouse_prestige",
+      "sibs",
+      "divorced_before",
+      "family_at_16"
+     ]
+    },
+    "stack_glm_lgbm": {
+     "glm_weight": 0.0
+    }
+   },
+   {
+    "repeat": 0,
+    "fold": 3,
+    "lightgbm_tuned": {
+     "config": {
+      "learning_rate": 0.02,
+      "num_leaves": 4,
+      "min_child_frac": 0.01,
+      "lambda_l2": 100.0,
+      "feature_fraction": 1.0,
+      "max_depth": -1
+     },
+     "rounds": 1108,
+     "ranking": [
+      "age",
+      "hapmar",
+      "divorced_before",
+      "spouse_prestige",
+      "parent_education",
+      "prestige",
+      "denomination",
+      "family_income",
+      "attend9",
+      "party",
+      "polviews",
+      "family_at_16",
+      "satfin",
+      "place_at_16",
+      "region",
+      "race_detail",
+      "religion_raised",
+      "sibs",
+      "evstray",
+      "race",
+      "income_at_16",
+      "place",
+      "fundamentalism",
+      "degree",
+      "xmarsex",
+      "health",
+      "spouse_degree",
+      "sexfreq",
+      "born_us",
+      "pray",
+      "work",
+      "occupation_group",
+      "happy",
+      "attend",
+      "fefam",
+      "home",
+      "spouse_work",
+      "spouse_religion",
+      "family_origin",
+      "childs",
+      "wealth_band",
+      "religion",
+      "religious_strength",
+      "same_religion",
+      "sex"
+     ]
+    },
+    "hgb_tuned": {
+     "config": {
+      "learning_rate": 0.1,
+      "max_leaf_nodes": 31,
+      "min_leaf_frac": 0.001,
+      "l2_regularization": 1.0
+     },
+     "iters": 14
+    },
+    "random_forest_tuned": {
+     "config": {
+      "min_leaf_frac": 0.0005,
+      "max_features": 0.6
+     }
+    },
+    "extra_trees_tuned": {
+     "config": {
+      "min_leaf_frac": 0.0005,
+      "max_features": 0.33
+     }
+    },
+    "enet_spline_pairwise": {
+     "l1_ratio": 0.9,
+     "alpha": 0.01272,
+     "terms": 356,
+     "nonzero": 15,
+     "pairs_among": [
+      "age",
+      "hapmar",
+      "divorced_before",
+      "spouse_prestige",
+      "parent_education",
+      "prestige",
+      "denomination",
+      "family_income"
+     ]
+    },
+    "stack_glm_lgbm": {
+     "glm_weight": 0.0
+    }
+   },
+   {
+    "repeat": 0,
+    "fold": 4,
+    "lightgbm_tuned": {
+     "config": {
+      "learning_rate": 0.1,
+      "num_leaves": 4,
+      "min_child_frac": 0.03,
+      "lambda_l2": 1.0,
+      "feature_fraction": 0.5,
+      "max_depth": 3
+     },
+     "rounds": 208,
+     "ranking": [
+      "age",
+      "hapmar",
+      "spouse_prestige",
+      "parent_education",
+      "prestige",
+      "sibs",
+      "divorced_before",
+      "spouse_degree",
+      "denomination",
+      "attend",
+      "place",
+      "family_income",
+      "evstray",
+      "race_detail",
+      "satfin",
+      "attend9",
+      "health",
+      "family_at_16",
+      "party",
+      "home",
+      "religion_raised",
+      "pray",
+      "polviews",
+      "region",
+      "occupation_group",
+      "degree",
+      "work",
+      "family_origin",
+      "childs",
+      "sexfreq",
+      "religion",
+      "fundamentalism",
+      "income_at_16",
+      "place_at_16",
+      "xmarsex",
+      "race",
+      "happy",
+      "spouse_work",
+      "sex",
+      "fefam",
+      "spouse_religion",
+      "born_us",
+      "religious_strength",
+      "wealth_band",
+      "same_religion"
+     ]
+    },
+    "hgb_tuned": {
+     "config": {
+      "learning_rate": 0.1,
+      "max_leaf_nodes": 31,
+      "min_leaf_frac": 0.001,
+      "l2_regularization": 0.0
+     },
+     "iters": 39
+    },
+    "random_forest_tuned": {
+     "config": {
+      "min_leaf_frac": 0.0005,
+      "max_features": 0.6
+     }
+    },
+    "extra_trees_tuned": {
+     "config": {
+      "min_leaf_frac": 0.0005,
+      "max_features": 0.33
+     }
+    },
+    "enet_spline_pairwise": {
+     "l1_ratio": 0.5,
+     "alpha": 0.010015,
+     "terms": 246,
+     "nonzero": 53,
+     "pairs_among": [
+      "age",
+      "hapmar",
+      "spouse_prestige",
+      "parent_education",
+      "prestige",
+      "sibs",
+      "divorced_before",
+      "spouse_degree"
+     ]
+    },
+    "stack_glm_lgbm": {
+     "glm_weight": 0.1
+    }
+   },
+   {
+    "repeat": 1,
+    "fold": 0,
+    "lightgbm_tuned": {
+     "config": {
+      "learning_rate": 0.02,
+      "num_leaves": 63,
+      "min_child_frac": 0.01,
+      "lambda_l2": 1.0,
+      "feature_fraction": 0.5,
+      "max_depth": -1
+     },
+     "rounds": 115,
+     "ranking": [
+      "age",
+      "hapmar",
+      "spouse_prestige",
+      "prestige",
+      "parent_education",
+      "sibs",
+      "family_at_16",
+      "attend",
+      "health",
+      "family_income",
+      "race_detail",
+      "spouse_degree",
+      "place_at_16",
+      "work",
+      "region",
+      "satfin",
+      "degree",
+      "family_origin",
+      "spouse_work",
+      "home",
+      "divorced_before",
+      "sexfreq",
+      "religion_raised",
+      "spouse_religion",
+      "pray",
+      "occupation_group",
+      "religious_strength",
+      "childs",
+      "happy",
+      "xmarsex",
+      "race",
+      "income_at_16",
+      "fundamentalism",
+      "sex",
+      "place",
+      "fefam",
+      "religion",
+      "denomination",
+      "evstray",
+      "same_religion",
+      "party",
+      "attend9",
+      "born_us",
+      "polviews",
+      "wealth_band"
+     ]
+    },
+    "hgb_tuned": {
+     "config": {
+      "learning_rate": 0.03,
+      "max_leaf_nodes": 31,
+      "min_leaf_frac": 0.02,
+      "l2_regularization": 1.0
+     },
+     "iters": 114
+    },
+    "random_forest_tuned": {
+     "config": {
+      "min_leaf_frac": 0.01,
+      "max_features": 0.6
+     }
+    },
+    "extra_trees_tuned": {
+     "config": {
+      "min_leaf_frac": 0.01,
+      "max_features": 0.33
+     }
+    },
+    "enet_spline_pairwise": {
+     "l1_ratio": 0.5,
+     "alpha": 0.010216,
+     "terms": 238,
+     "nonzero": 59,
+     "pairs_among": [
+      "age",
+      "hapmar",
+      "spouse_prestige",
+      "prestige",
+      "parent_education",
+      "sibs",
+      "family_at_16",
+      "attend"
+     ]
+    },
+    "stack_glm_lgbm": {
+     "glm_weight": 0.4
+    }
+   },
+   {
+    "repeat": 1,
+    "fold": 1,
+    "lightgbm_tuned": {
+     "config": {
+      "learning_rate": 0.05,
+      "num_leaves": 4,
+      "min_child_frac": 0.0005,
+      "lambda_l2": 100.0,
+      "feature_fraction": 0.8,
+      "max_depth": 3
+     },
+     "rounds": 508,
+     "ranking": [
+      "hapmar",
+      "age",
+      "family_income",
+      "party",
+      "prestige",
+      "denomination",
+      "divorced_before",
+      "spouse_prestige",
+      "parent_education",
+      "degree",
+      "polviews",
+      "family_at_16",
+      "attend9",
+      "sibs",
+      "religion_raised",
+      "pray",
+      "satfin",
+      "region",
+      "work",
+      "family_origin",
+      "religion",
+      "fefam",
+      "spouse_degree",
+      "race_detail",
+      "born_us",
+      "sexfreq",
+      "place",
+      "spouse_religion",
+      "health",
+      "spouse_work",
+      "xmarsex",
+      "attend",
+      "home",
+      "happy",
+      "place_at_16",
+      "religious_strength",
+      "race",
+      "childs",
+      "occupation_group",
+      "wealth_band",
+      "sex",
+      "evstray",
+      "income_at_16",
+      "same_religion",
+      "fundamentalism"
+     ]
+    },
+    "hgb_tuned": {
+     "config": {
+      "learning_rate": 0.1,
+      "max_leaf_nodes": 31,
+      "min_leaf_frac": 0.005,
+      "l2_regularization": 1.0
+     },
+     "iters": 26
+    },
+    "random_forest_tuned": {
+     "config": {
+      "min_leaf_frac": 0.01,
+      "max_features": 0.6
+     }
+    },
+    "extra_trees_tuned": {
+     "config": {
+      "min_leaf_frac": 0.01,
+      "max_features": 0.33
+     }
+    },
+    "enet_spline_pairwise": {
+     "l1_ratio": 0.5,
+     "alpha": 0.010574,
+     "terms": 480,
+     "nonzero": 75,
+     "pairs_among": [
+      "hapmar",
+      "age",
+      "family_income",
+      "party",
+      "prestige",
+      "denomination",
+      "divorced_before",
+      "spouse_prestige"
+     ]
+    },
+    "stack_glm_lgbm": {
+     "glm_weight": 0.3
+    }
+   },
+   {
+    "repeat": 1,
+    "fold": 2,
+    "lightgbm_tuned": {
+     "config": {
+      "learning_rate": 0.1,
+      "num_leaves": 31,
+      "min_child_frac": 0.01,
+      "lambda_l2": 10.0,
+      "feature_fraction": 0.8,
+      "max_depth": -1
+     },
+     "rounds": 80,
+     "ranking": [
+      "age",
+      "hapmar",
+      "spouse_prestige",
+      "prestige",
+      "parent_education",
+      "divorced_before",
+      "place_at_16",
+      "attend",
+      "family_at_16",
+      "region",
+      "spouse_degree",
+      "race_detail",
+      "family_income",
+      "pray",
+      "work",
+      "health",
+      "family_origin",
+      "denomination",
+      "party",
+      "place",
+      "religion_raised",
+      "degree",
+      "income_at_16",
+      "sexfreq",
+      "sibs",
+      "polviews",
+      "occupation_group",
+      "satfin",
+      "attend9",
+      "spouse_work",
+      "fundamentalism",
+      "fefam",
+      "religious_strength",
+      "childs",
+      "religion",
+      "spouse_religion",
+      "evstray",
+      "happy",
+      "wealth_band",
+      "xmarsex",
+      "race",
+      "home",
+      "born_us",
+      "sex",
+      "same_religion"
+     ]
+    },
+    "hgb_tuned": {
+     "config": {
+      "learning_rate": 0.03,
+      "max_leaf_nodes": 31,
+      "min_leaf_frac": 0.02,
+      "l2_regularization": 1.0
+     },
+     "iters": 89
+    },
+    "random_forest_tuned": {
+     "config": {
+      "min_leaf_frac": 0.01,
+      "max_features": 0.6
+     }
+    },
+    "extra_trees_tuned": {
+     "config": {
+      "min_leaf_frac": 0.01,
+      "max_features": 0.33
+     }
+    },
+    "enet_spline_pairwise": {
+     "l1_ratio": 0.9,
+     "alpha": 0.006228,
+     "terms": 254,
+     "nonzero": 56,
+     "pairs_among": [
+      "age",
+      "hapmar",
+      "spouse_prestige",
+      "prestige",
+      "parent_education",
+      "divorced_before",
+      "place_at_16",
+      "attend"
+     ]
+    },
+    "stack_glm_lgbm": {
+     "glm_weight": 0.0
+    }
+   },
+   {
+    "repeat": 1,
+    "fold": 3,
+    "lightgbm_tuned": {
+     "config": {
+      "learning_rate": 0.05,
+      "num_leaves": 16,
+      "min_child_frac": 0.0005,
+      "lambda_l2": 10.0,
+      "feature_fraction": 1.0,
+      "max_depth": 3
+     },
+     "rounds": 226,
+     "ranking": [
+      "age",
+      "hapmar",
+      "prestige",
+      "spouse_prestige",
+      "parent_education",
+      "divorced_before",
+      "party",
+      "family_income",
+      "denomination",
+      "family_at_16",
+      "attend9",
+      "sibs",
+      "race_detail",
+      "attend",
+      "religion_raised",
+      "region",
+      "evstray",
+      "spouse_degree",
+      "health",
+      "pray",
+      "polviews",
+      "satfin",
+      "place",
+      "happy",
+      "occupation_group",
+      "home",
+      "fefam",
+      "place_at_16",
+      "income_at_16",
+      "fundamentalism",
+      "family_origin",
+      "sexfreq",
+      "religious_strength",
+      "degree",
+      "spouse_religion",
+      "born_us",
+      "sex",
+      "xmarsex",
+      "race",
+      "work",
+      "spouse_work",
+      "same_religion",
+      "childs",
+      "wealth_band",
+      "religion"
+     ]
+    },
+    "hgb_tuned": {
+     "config": {
+      "learning_rate": 0.1,
+      "max_leaf_nodes": 7,
+      "min_leaf_frac": 0.001,
+      "l2_regularization": 10.0
+     },
+     "iters": 101
+    },
+    "random_forest_tuned": {
+     "config": {
+      "min_leaf_frac": 0.01,
+      "max_features": 0.33
+     }
+    },
+    "extra_trees_tuned": {
+     "config": {
+      "min_leaf_frac": 0.01,
+      "max_features": 0.33
+     }
+    },
+    "enet_spline_pairwise": {
+     "l1_ratio": 0.9,
+     "alpha": 0.003606,
+     "terms": 312,
+     "nonzero": 104,
+     "pairs_among": [
+      "age",
+      "hapmar",
+      "prestige",
+      "spouse_prestige",
+      "parent_education",
+      "divorced_before",
+      "party",
+      "family_income"
+     ]
+    },
+    "stack_glm_lgbm": {
+     "glm_weight": 0.0
+    }
+   },
+   {
+    "repeat": 1,
+    "fold": 4,
+    "lightgbm_tuned": {
+     "config": {
+      "learning_rate": 0.05,
+      "num_leaves": 16,
+      "min_child_frac": 0.0005,
+      "lambda_l2": 10.0,
+      "feature_fraction": 0.5,
+      "max_depth": 3
+     },
+     "rounds": 185,
+     "ranking": [
+      "age",
+      "hapmar",
+      "spouse_prestige",
+      "satfin",
+      "parent_education",
+      "prestige",
+      "denomination",
+      "race_detail",
+      "family_income",
+      "religion_raised",
+      "health",
+      "divorced_before",
+      "income_at_16",
+      "attend9",
+      "attend",
+      "polviews",
+      "party",
+      "sibs",
+      "evstray",
+      "degree",
+      "spouse_degree",
+      "happy",
+      "place_at_16",
+      "sexfreq",
+      "family_origin",
+      "place",
+      "occupation_group",
+      "spouse_work",
+      "region",
+      "pray",
+      "fundamentalism",
+      "born_us",
+      "religious_strength",
+      "race",
+      "fefam",
+      "work",
+      "xmarsex",
+      "home",
+      "same_religion",
+      "religion",
+      "childs",
+      "spouse_religion",
+      "family_at_16",
+      "wealth_band",
+      "sex"
+     ]
+    },
+    "hgb_tuned": {
+     "config": {
+      "learning_rate": 0.1,
+      "max_leaf_nodes": 7,
+      "min_leaf_frac": 0.001,
+      "l2_regularization": 10.0
+     },
+     "iters": 39
+    },
+    "random_forest_tuned": {
+     "config": {
+      "min_leaf_frac": 0.01,
+      "max_features": 0.6
+     }
+    },
+    "extra_trees_tuned": {
+     "config": {
+      "min_leaf_frac": 0.01,
+      "max_features": 0.33
+     }
+    },
+    "enet_spline_pairwise": {
+     "l1_ratio": 0.5,
+     "alpha": 0.007694,
+     "terms": 373,
+     "nonzero": 94,
+     "pairs_among": [
+      "age",
+      "hapmar",
+      "spouse_prestige",
+      "satfin",
+      "parent_education",
+      "prestige",
+      "denomination",
+      "race_detail"
+     ]
+    },
+    "stack_glm_lgbm": {
+     "glm_weight": 1.0
+    }
+   },
+   {
+    "repeat": 2,
+    "fold": 0,
+    "lightgbm_tuned": {
+     "config": {
+      "learning_rate": 0.1,
+      "num_leaves": 63,
+      "min_child_frac": 0.03,
+      "lambda_l2": 1.0,
+      "feature_fraction": 0.8,
+      "max_depth": -1
+     },
+     "rounds": 18,
+     "ranking": [
+      "hapmar",
+      "age",
+      "parent_education",
+      "divorced_before",
+      "prestige",
+      "sibs",
+      "race_detail",
+      "attend",
+      "spouse_prestige",
+      "region",
+      "degree",
+      "happy",
+      "family_at_16",
+      "family_income",
+      "health",
+      "satfin",
+      "denomination",
+      "income_at_16",
+      "home",
+      "evstray",
+      "family_origin",
+      "religious_strength",
+      "polviews",
+      "same_religion",
+      "pray",
+      "place",
+      "spouse_degree",
+      "sexfreq",
+      "religion_raised",
+      "attend9",
+      "place_at_16",
+      "work",
+      "childs",
+      "born_us",
+      "religion",
+      "sex",
+      "spouse_work",
+      "fundamentalism",
+      "fefam",
+      "occupation_group",
+      "party",
+      "race",
+      "spouse_religion",
+      "wealth_band",
+      "xmarsex"
+     ]
+    },
+    "hgb_tuned": {
+     "config": {
+      "learning_rate": 0.03,
+      "max_leaf_nodes": 15,
+      "min_leaf_frac": 0.005,
+      "l2_regularization": 1.0
+     },
+     "iters": 101
+    },
+    "random_forest_tuned": {
+     "config": {
+      "min_leaf_frac": 0.01,
+      "max_features": 0.33
+     }
+    },
+    "extra_trees_tuned": {
+     "config": {
+      "min_leaf_frac": 0.01,
+      "max_features": 0.33
+     }
+    },
+    "enet_spline_pairwise": {
+     "l1_ratio": 0.9,
+     "alpha": 0.008506,
+     "terms": 246,
+     "nonzero": 29,
+     "pairs_among": [
+      "hapmar",
+      "age",
+      "parent_education",
+      "divorced_before",
+      "prestige",
+      "sibs",
+      "race_detail",
+      "attend"
+     ]
+    },
+    "stack_glm_lgbm": {
+     "glm_weight": 0.2
+    }
+   },
+   {
+    "repeat": 2,
+    "fold": 1,
+    "lightgbm_tuned": {
+     "config": {
+      "learning_rate": 0.05,
+      "num_leaves": 8,
+      "min_child_frac": 0.01,
+      "lambda_l2": 10.0,
+      "feature_fraction": 1.0,
+      "max_depth": -1
+     },
+     "rounds": 255,
+     "ranking": [
+      "hapmar",
+      "age",
+      "prestige",
+      "spouse_prestige",
+      "parent_education",
+      "denomination",
+      "party",
+      "divorced_before",
+      "family_income",
+      "spouse_degree",
+      "family_at_16",
+      "sibs",
+      "degree",
+      "attend9",
+      "health",
+      "satfin",
+      "occupation_group",
+      "place_at_16",
+      "pray",
+      "place",
+      "sexfreq",
+      "region",
+      "spouse_religion",
+      "work",
+      "race_detail",
+      "income_at_16",
+      "xmarsex",
+      "religion_raised",
+      "attend",
+      "evstray",
+      "polviews",
+      "fefam",
+      "happy",
+      "fundamentalism",
+      "religious_strength",
+      "home",
+      "childs",
+      "wealth_band",
+      "race",
+      "born_us",
+      "spouse_work",
+      "religion",
+      "sex",
+      "same_religion",
+      "family_origin"
+     ]
+    },
+    "hgb_tuned": {
+     "config": {
+      "learning_rate": 0.1,
+      "max_leaf_nodes": 15,
+      "min_leaf_frac": 0.005,
+      "l2_regularization": 0.0
+     },
+     "iters": 39
+    },
+    "random_forest_tuned": {
+     "config": {
+      "min_leaf_frac": 0.0005,
+      "max_features": 0.33
+     }
+    },
+    "extra_trees_tuned": {
+     "config": {
+      "min_leaf_frac": 0.002,
+      "max_features": 0.33
+     }
+    },
+    "enet_spline_pairwise": {
+     "l1_ratio": 0.5,
+     "alpha": 0.015094,
+     "terms": 410,
+     "nonzero": 52,
+     "pairs_among": [
+      "hapmar",
+      "age",
+      "prestige",
+      "spouse_prestige",
+      "parent_education",
+      "denomination",
+      "party",
+      "divorced_before"
+     ]
+    },
+    "stack_glm_lgbm": {
+     "glm_weight": 0.0
+    }
+   },
+   {
+    "repeat": 2,
+    "fold": 2,
+    "lightgbm_tuned": {
+     "config": {
+      "learning_rate": 0.05,
+      "num_leaves": 8,
+      "min_child_frac": 0.002,
+      "lambda_l2": 100.0,
+      "feature_fraction": 0.8,
+      "max_depth": 3
+     },
+     "rounds": 285,
+     "ranking": [
+      "age",
+      "hapmar",
+      "denomination",
+      "family_at_16",
+      "party",
+      "attend9",
+      "prestige",
+      "spouse_prestige",
+      "divorced_before",
+      "parent_education",
+      "family_income",
+      "religion_raised",
+      "region",
+      "evstray",
+      "spouse_degree",
+      "work",
+      "degree",
+      "polviews",
+      "family_origin",
+      "satfin",
+      "race_detail",
+      "home",
+      "health",
+      "sibs",
+      "race",
+      "attend",
+      "pray",
+      "sexfreq",
+      "place_at_16",
+      "religious_strength",
+      "happy",
+      "same_religion",
+      "spouse_religion",
+      "xmarsex",
+      "place",
+      "childs",
+      "spouse_work",
+      "religion",
+      "wealth_band",
+      "fundamentalism",
+      "occupation_group",
+      "income_at_16",
+      "fefam",
+      "sex",
+      "born_us"
+     ]
+    },
+    "hgb_tuned": {
+     "config": {
+      "learning_rate": 0.1,
+      "max_leaf_nodes": 31,
+      "min_leaf_frac": 0.001,
+      "l2_regularization": 10.0
+     },
+     "iters": 26
+    },
+    "random_forest_tuned": {
+     "config": {
+      "min_leaf_frac": 0.01,
+      "max_features": 0.6
+     }
+    },
+    "extra_trees_tuned": {
+     "config": {
+      "min_leaf_frac": 0.0005,
+      "max_features": 0.33
+     }
+    },
+    "enet_spline_pairwise": {
+     "l1_ratio": 0.9,
+     "alpha": 0.008769,
+     "terms": 638,
+     "nonzero": 48,
+     "pairs_among": [
+      "age",
+      "hapmar",
+      "denomination",
+      "family_at_16",
+      "party",
+      "attend9",
+      "prestige",
+      "spouse_prestige"
+     ]
+    },
+    "stack_glm_lgbm": {
+     "glm_weight": 0.3
+    }
+   },
+   {
+    "repeat": 2,
+    "fold": 3,
+    "lightgbm_tuned": {
+     "config": {
+      "learning_rate": 0.02,
+      "num_leaves": 31,
+      "min_child_frac": 0.03,
+      "lambda_l2": 1.0,
+      "feature_fraction": 0.8,
+      "max_depth": 3
+     },
+     "rounds": 210,
+     "ranking": [
+      "age",
+      "hapmar",
+      "prestige",
+      "spouse_prestige",
+      "divorced_before",
+      "parent_education",
+      "race_detail",
+      "family_income",
+      "religion_raised",
+      "satfin",
+      "home",
+      "place",
+      "religion",
+      "party",
+      "degree",
+      "sibs",
+      "race",
+      "attend",
+      "family_at_16",
+      "denomination",
+      "religious_strength",
+      "pray",
+      "health",
+      "family_origin",
+      "work",
+      "xmarsex",
+      "polviews",
+      "occupation_group",
+      "spouse_degree",
+      "income_at_16",
+      "evstray",
+      "sexfreq",
+      "region",
+      "born_us",
+      "attend9",
+      "fefam",
+      "fundamentalism",
+      "spouse_work",
+      "sex",
+      "same_religion",
+      "childs",
+      "spouse_religion",
+      "happy",
+      "place_at_16",
+      "wealth_band"
+     ]
+    },
+    "hgb_tuned": {
+     "config": {
+      "learning_rate": 0.1,
+      "max_leaf_nodes": 15,
+      "min_leaf_frac": 0.001,
+      "l2_regularization": 10.0
+     },
+     "iters": 89
+    },
+    "random_forest_tuned": {
+     "config": {
+      "min_leaf_frac": 0.01,
+      "max_features": 0.6
+     }
+    },
+    "extra_trees_tuned": {
+     "config": {
+      "min_leaf_frac": 0.01,
+      "max_features": 0.33
+     }
+    },
+    "enet_spline_pairwise": {
+     "l1_ratio": 0.5,
+     "alpha": 0.014084,
+     "terms": 280,
+     "nonzero": 39,
+     "pairs_among": [
+      "age",
+      "hapmar",
+      "prestige",
+      "spouse_prestige",
+      "divorced_before",
+      "parent_education",
+      "race_detail",
+      "family_income"
+     ]
+    },
+    "stack_glm_lgbm": {
+     "glm_weight": 0.7
+    }
+   },
+   {
+    "repeat": 2,
+    "fold": 4,
+    "lightgbm_tuned": {
+     "config": {
+      "learning_rate": 0.1,
+      "num_leaves": 31,
+      "min_child_frac": 0.03,
+      "lambda_l2": 0.0,
+      "feature_fraction": 1.0,
+      "max_depth": 6
+     },
+     "rounds": 106,
+     "ranking": [
+      "age",
+      "spouse_prestige",
+      "hapmar",
+      "prestige",
+      "parent_education",
+      "attend",
+      "sibs",
+      "pray",
+      "divorced_before",
+      "family_at_16",
+      "place",
+      "satfin",
+      "race_detail",
+      "religion_raised",
+      "work",
+      "evstray",
+      "spouse_degree",
+      "family_income",
+      "place_at_16",
+      "fefam",
+      "home",
+      "religion",
+      "health",
+      "fundamentalism",
+      "religious_strength",
+      "occupation_group",
+      "income_at_16",
+      "region",
+      "childs",
+      "party",
+      "xmarsex",
+      "happy",
+      "polviews",
+      "degree",
+      "spouse_work",
+      "spouse_religion",
+      "sexfreq",
+      "same_religion",
+      "denomination",
+      "race",
+      "sex",
+      "attend9",
+      "born_us",
+      "family_origin",
+      "wealth_band"
+     ]
+    },
+    "hgb_tuned": {
+     "config": {
+      "learning_rate": 0.03,
+      "max_leaf_nodes": 15,
+      "min_leaf_frac": 0.001,
+      "l2_regularization": 0.0
+     },
+     "iters": 489
+    },
+    "random_forest_tuned": {
+     "config": {
+      "min_leaf_frac": 0.0005,
+      "max_features": 0.33
+     }
+    },
+    "extra_trees_tuned": {
+     "config": {
+      "min_leaf_frac": 0.0005,
+      "max_features": 0.33
+     }
+    },
+    "enet_spline_pairwise": {
+     "l1_ratio": 0.9,
+     "alpha": 0.001661,
+     "terms": 254,
+     "nonzero": 138,
+     "pairs_among": [
+      "age",
+      "spouse_prestige",
+      "hapmar",
+      "prestige",
+      "parent_education",
+      "attend",
+      "sibs",
+      "pray"
+     ]
+    },
+    "stack_glm_lgbm": {
+     "glm_weight": 0.0
+    }
+   },
+   {
+    "repeat": 3,
+    "fold": 0,
+    "lightgbm_tuned": {
+     "config": {
+      "learning_rate": 0.1,
+      "num_leaves": 16,
+      "min_child_frac": 0.01,
+      "lambda_l2": 1.0,
+      "feature_fraction": 0.8,
+      "max_depth": 3
+     },
+     "rounds": 132,
+     "ranking": [
+      "age",
+      "hapmar",
+      "parent_education",
+      "spouse_prestige",
+      "prestige",
+      "divorced_before",
+      "family_income",
+      "health",
+      "attend",
+      "sibs",
+      "race_detail",
+      "region",
+      "spouse_degree",
+      "denomination",
+      "place_at_16",
+      "satfin",
+      "income_at_16",
+      "spouse_work",
+      "childs",
+      "evstray",
+      "degree",
+      "pray",
+      "race",
+      "attend9",
+      "fundamentalism",
+      "sexfreq",
+      "work",
+      "place",
+      "occupation_group",
+      "religion_raised",
+      "family_origin",
+      "party",
+      "happy",
+      "family_at_16",
+      "xmarsex",
+      "fefam",
+      "wealth_band",
+      "religion",
+      "religious_strength",
+      "polviews",
+      "spouse_religion",
+      "home",
+      "sex",
+      "same_religion",
+      "born_us"
+     ]
+    },
+    "hgb_tuned": {
+     "config": {
+      "learning_rate": 0.1,
+      "max_leaf_nodes": 7,
+      "min_leaf_frac": 0.005,
+      "l2_regularization": 0.0
+     },
+     "iters": 139
+    },
+    "random_forest_tuned": {
+     "config": {
+      "min_leaf_frac": 0.0005,
+      "max_features": 0.6
+     }
+    },
+    "extra_trees_tuned": {
+     "config": {
+      "min_leaf_frac": 0.0005,
+      "max_features": 0.33
+     }
+    },
+    "enet_spline_pairwise": {
+     "l1_ratio": 0.9,
+     "alpha": 0.003599,
+     "terms": 279,
+     "nonzero": 90,
+     "pairs_among": [
+      "age",
+      "hapmar",
+      "parent_education",
+      "spouse_prestige",
+      "prestige",
+      "divorced_before",
+      "family_income",
+      "health"
+     ]
+    },
+    "stack_glm_lgbm": {
+     "glm_weight": 0.2
+    }
+   },
+   {
+    "repeat": 3,
+    "fold": 1,
+    "lightgbm_tuned": {
+     "config": {
+      "learning_rate": 0.1,
+      "num_leaves": 63,
+      "min_child_frac": 0.002,
+      "lambda_l2": 1.0,
+      "feature_fraction": 1.0,
+      "max_depth": 3
+     },
+     "rounds": 36,
+     "ranking": [
+      "hapmar",
+      "age",
+      "parent_education",
+      "spouse_prestige",
+      "prestige",
+      "sibs",
+      "family_at_16",
+      "satfin",
+      "divorced_before",
+      "evstray",
+      "family_income",
+      "race_detail",
+      "spouse_work",
+      "spouse_degree",
+      "pray",
+      "polviews",
+      "region",
+      "religion_raised",
+      "religion",
+      "attend9",
+      "occupation_group",
+      "place",
+      "place_at_16",
+      "attend",
+      "income_at_16",
+      "degree",
+      "party",
+      "work",
+      "childs",
+      "race",
+      "health",
+      "born_us",
+      "xmarsex",
+      "family_origin",
+      "same_religion",
+      "home",
+      "denomination",
+      "spouse_religion",
+      "fefam",
+      "fundamentalism",
+      "happy",
+      "religious_strength",
+      "sex",
+      "sexfreq",
+      "wealth_band"
+     ]
+    },
+    "hgb_tuned": {
+     "config": {
+      "learning_rate": 0.03,
+      "max_leaf_nodes": 7,
+      "min_leaf_frac": 0.001,
+      "l2_regularization": 10.0
+     },
+     "iters": 139
+    },
+    "random_forest_tuned": {
+     "config": {
+      "min_leaf_frac": 0.01,
+      "max_features": 0.33
+     }
+    },
+    "extra_trees_tuned": {
+     "config": {
+      "min_leaf_frac": 0.01,
+      "max_features": 0.33
+     }
+    },
+    "enet_spline_pairwise": {
+     "l1_ratio": 0.9,
+     "alpha": 0.011903,
+     "terms": 248,
+     "nonzero": 17,
+     "pairs_among": [
+      "hapmar",
+      "age",
+      "parent_education",
+      "spouse_prestige",
+      "prestige",
+      "sibs",
+      "family_at_16",
+      "satfin"
+     ]
+    },
+    "stack_glm_lgbm": {
+     "glm_weight": 0.0
+    }
+   },
+   {
+    "repeat": 3,
+    "fold": 2,
+    "lightgbm_tuned": {
+     "config": {
+      "learning_rate": 0.05,
+      "num_leaves": 16,
+      "min_child_frac": 0.01,
+      "lambda_l2": 0.0,
+      "feature_fraction": 0.8,
+      "max_depth": -1
+     },
+     "rounds": 65,
+     "ranking": [
+      "age",
+      "hapmar",
+      "spouse_prestige",
+      "prestige",
+      "parent_education",
+      "sibs",
+      "family_at_16",
+      "attend",
+      "pray",
+      "divorced_before",
+      "spouse_degree",
+      "family_income",
+      "religion_raised",
+      "health",
+      "work",
+      "race_detail",
+      "place",
+      "fefam",
+      "satfin",
+      "home",
+      "region",
+      "sex",
+      "race",
+      "childs",
+      "sexfreq",
+      "degree",
+      "spouse_religion",
+      "religious_strength",
+      "spouse_work",
+      "denomination",
+      "happy",
+      "fundamentalism",
+      "place_at_16",
+      "xmarsex",
+      "religion",
+      "occupation_group",
+      "income_at_16",
+      "family_origin",
+      "evstray",
+      "party",
+      "same_religion",
+      "wealth_band",
+      "attend9",
+      "born_us",
+      "polviews"
+     ]
+    },
+    "hgb_tuned": {
+     "config": {
+      "learning_rate": 0.1,
+      "max_leaf_nodes": 31,
+      "min_leaf_frac": 0.001,
+      "l2_regularization": 1.0
+     },
+     "iters": 39
+    },
+    "random_forest_tuned": {
+     "config": {
+      "min_leaf_frac": 0.01,
+      "max_features": 0.33
+     }
+    },
+    "extra_trees_tuned": {
+     "config": {
+      "min_leaf_frac": 0.01,
+      "max_features": 0.33
+     }
+    },
+    "enet_spline_pairwise": {
+     "l1_ratio": 0.9,
+     "alpha": 0.003922,
+     "terms": 238,
+     "nonzero": 76,
+     "pairs_among": [
+      "age",
+      "hapmar",
+      "spouse_prestige",
+      "prestige",
+      "parent_education",
+      "sibs",
+      "family_at_16",
+      "attend"
+     ]
+    },
+    "stack_glm_lgbm": {
+     "glm_weight": 0.4
+    }
+   },
+   {
+    "repeat": 3,
+    "fold": 3,
+    "lightgbm_tuned": {
+     "config": {
+      "learning_rate": 0.02,
+      "num_leaves": 16,
+      "min_child_frac": 0.01,
+      "lambda_l2": 0.0,
+      "feature_fraction": 0.8,
+      "max_depth": 6
+     },
+     "rounds": 72,
+     "ranking": [
+      "age",
+      "hapmar",
+      "prestige",
+      "parent_education",
+      "spouse_prestige",
+      "divorced_before",
+      "attend",
+      "sibs",
+      "race_detail",
+      "work",
+      "family_at_16",
+      "region",
+      "place",
+      "satfin",
+      "pray",
+      "degree",
+      "evstray",
+      "place_at_16",
+      "religious_strength",
+      "happy",
+      "family_income",
+      "religion_raised",
+      "spouse_work",
+      "health",
+      "home",
+      "sexfreq",
+      "race",
+      "spouse_degree",
+      "denomination",
+      "family_origin",
+      "religion",
+      "party",
+      "spouse_religion",
+      "xmarsex",
+      "occupation_group",
+      "polviews",
+      "sex",
+      "fefam",
+      "fundamentalism",
+      "wealth_band",
+      "attend9",
+      "income_at_16",
+      "childs",
+      "born_us",
+      "same_religion"
+     ]
+    },
+    "hgb_tuned": {
+     "config": {
+      "learning_rate": 0.1,
+      "max_leaf_nodes": 7,
+      "min_leaf_frac": 0.001,
+      "l2_regularization": 10.0
+     },
+     "iters": 51
+    },
+    "random_forest_tuned": {
+     "config": {
+      "min_leaf_frac": 0.01,
+      "max_features": 0.33
+     }
+    },
+    "extra_trees_tuned": {
+     "config": {
+      "min_leaf_frac": 0.01,
+      "max_features": 0.33
+     }
+    },
+    "enet_spline_pairwise": {
+     "l1_ratio": 0.5,
+     "alpha": 0.022138,
+     "terms": 222,
+     "nonzero": 20,
+     "pairs_among": [
+      "age",
+      "hapmar",
+      "prestige",
+      "parent_education",
+      "spouse_prestige",
+      "divorced_before",
+      "attend",
+      "sibs"
+     ]
+    },
+    "stack_glm_lgbm": {
+     "glm_weight": 0.2
+    }
+   },
+   {
+    "repeat": 3,
+    "fold": 4,
+    "lightgbm_tuned": {
+     "config": {
+      "learning_rate": 0.02,
+      "num_leaves": 8,
+      "min_child_frac": 0.03,
+      "lambda_l2": 1.0,
+      "feature_fraction": 0.5,
+      "max_depth": -1
+     },
+     "rounds": 194,
+     "ranking": [
+      "age",
+      "prestige",
+      "hapmar",
+      "spouse_prestige",
+      "divorced_before",
+      "parent_education",
+      "attend",
+      "happy",
+      "sibs",
+      "family_at_16",
+      "degree",
+      "religion_raised",
+      "satfin",
+      "income_at_16",
+      "polviews",
+      "evstray",
+      "race_detail",
+      "fefam",
+      "health",
+      "denomination",
+      "sex",
+      "region",
+      "place_at_16",
+      "family_origin",
+      "childs",
+      "fundamentalism",
+      "home",
+      "family_income",
+      "pray",
+      "spouse_degree",
+      "party",
+      "religious_strength",
+      "religion",
+      "sexfreq",
+      "spouse_religion",
+      "xmarsex",
+      "occupation_group",
+      "work",
+      "spouse_work",
+      "born_us",
+      "place",
+      "race",
+      "attend9",
+      "same_religion",
+      "wealth_band"
+     ]
+    },
+    "hgb_tuned": {
+     "config": {
+      "learning_rate": 0.03,
+      "max_leaf_nodes": 15,
+      "min_leaf_frac": 0.02,
+      "l2_regularization": 0.0
+     },
+     "iters": 151
+    },
+    "random_forest_tuned": {
+     "config": {
+      "min_leaf_frac": 0.01,
+      "max_features": 0.33
+     }
+    },
+    "extra_trees_tuned": {
+     "config": {
+      "min_leaf_frac": 0.01,
+      "max_features": 0.6
+     }
+    },
+    "enet_spline_pairwise": {
+     "l1_ratio": 0.5,
+     "alpha": 0.013108,
+     "terms": 232,
+     "nonzero": 34,
+     "pairs_among": [
+      "age",
+      "prestige",
+      "hapmar",
+      "spouse_prestige",
+      "divorced_before",
+      "parent_education",
+      "attend",
+      "happy"
+     ]
+    },
+    "stack_glm_lgbm": {
+     "glm_weight": 0.0
+    }
+   },
+   {
+    "repeat": 4,
+    "fold": 0,
+    "lightgbm_tuned": {
+     "config": {
+      "learning_rate": 0.02,
+      "num_leaves": 16,
+      "min_child_frac": 0.002,
+      "lambda_l2": 0.0,
+      "feature_fraction": 0.8,
+      "max_depth": 3
+     },
+     "rounds": 161,
+     "ranking": [
+      "age",
+      "hapmar",
+      "prestige",
+      "spouse_prestige",
+      "parent_education",
+      "divorced_before",
+      "family_at_16",
+      "race_detail",
+      "sibs",
+      "religion_raised",
+      "religion",
+      "degree",
+      "family_income",
+      "family_origin",
+      "evstray",
+      "attend",
+      "spouse_work",
+      "happy",
+      "polviews",
+      "spouse_degree",
+      "health",
+      "pray",
+      "wealth_band",
+      "region",
+      "home",
+      "sex",
+      "place_at_16",
+      "denomination",
+      "sexfreq",
+      "satfin",
+      "childs",
+      "religious_strength",
+      "place",
+      "income_at_16",
+      "work",
+      "occupation_group",
+      "fefam",
+      "attend9",
+      "race",
+      "fundamentalism",
+      "party",
+      "same_religion",
+      "born_us",
+      "spouse_religion",
+      "xmarsex"
+     ]
+    },
+    "hgb_tuned": {
+     "config": {
+      "learning_rate": 0.1,
+      "max_leaf_nodes": 7,
+      "min_leaf_frac": 0.005,
+      "l2_regularization": 1.0
+     },
+     "iters": 89
+    },
+    "random_forest_tuned": {
+     "config": {
+      "min_leaf_frac": 0.01,
+      "max_features": 0.6
+     }
+    },
+    "extra_trees_tuned": {
+     "config": {
+      "min_leaf_frac": 0.01,
+      "max_features": 0.6
+     }
+    },
+    "enet_spline_pairwise": {
+     "l1_ratio": 0.9,
+     "alpha": 0.013363,
+     "terms": 268,
+     "nonzero": 20,
+     "pairs_among": [
+      "age",
+      "hapmar",
+      "prestige",
+      "spouse_prestige",
+      "parent_education",
+      "divorced_before",
+      "family_at_16",
+      "race_detail"
+     ]
+    },
+    "stack_glm_lgbm": {
+     "glm_weight": 0.0
+    }
+   },
+   {
+    "repeat": 4,
+    "fold": 1,
+    "lightgbm_tuned": {
+     "config": {
+      "learning_rate": 0.05,
+      "num_leaves": 16,
+      "min_child_frac": 0.0005,
+      "lambda_l2": 1.0,
+      "feature_fraction": 1.0,
+      "max_depth": -1
+     },
+     "rounds": 68,
+     "ranking": [
+      "age",
+      "hapmar",
+      "spouse_prestige",
+      "prestige",
+      "attend",
+      "parent_education",
+      "family_income",
+      "spouse_degree",
+      "divorced_before",
+      "race_detail",
+      "pray",
+      "health",
+      "sibs",
+      "family_at_16",
+      "religion_raised",
+      "sexfreq",
+      "fefam",
+      "place_at_16",
+      "fundamentalism",
+      "place",
+      "religious_strength",
+      "region",
+      "satfin",
+      "childs",
+      "occupation_group",
+      "work",
+      "spouse_work",
+      "denomination",
+      "race",
+      "spouse_religion",
+      "degree",
+      "evstray",
+      "born_us",
+      "income_at_16",
+      "happy",
+      "sex",
+      "home",
+      "xmarsex",
+      "wealth_band",
+      "religion",
+      "family_origin",
+      "attend9",
+      "party",
+      "polviews",
+      "same_religion"
+     ]
+    },
+    "hgb_tuned": {
+     "config": {
+      "learning_rate": 0.03,
+      "max_leaf_nodes": 15,
+      "min_leaf_frac": 0.02,
+      "l2_regularization": 0.0
+     },
+     "iters": 289
+    },
+    "random_forest_tuned": {
+     "config": {
+      "min_leaf_frac": 0.01,
+      "max_features": 0.33
+     }
+    },
+    "extra_trees_tuned": {
+     "config": {
+      "min_leaf_frac": 0.01,
+      "max_features": 0.33
+     }
+    },
+    "enet_spline_pairwise": {
+     "l1_ratio": 0.9,
+     "alpha": 0.008525,
+     "terms": 279,
+     "nonzero": 29,
+     "pairs_among": [
+      "age",
+      "hapmar",
+      "spouse_prestige",
+      "prestige",
+      "attend",
+      "parent_education",
+      "family_income",
+      "spouse_degree"
+     ]
+    },
+    "stack_glm_lgbm": {
+     "glm_weight": 0.4
+    }
+   },
+   {
+    "repeat": 4,
+    "fold": 2,
+    "lightgbm_tuned": {
+     "config": {
+      "learning_rate": 0.1,
+      "num_leaves": 4,
+      "min_child_frac": 0.01,
+      "lambda_l2": 1.0,
+      "feature_fraction": 0.8,
+      "max_depth": -1
+     },
+     "rounds": 515,
+     "ranking": [
+      "age",
+      "prestige",
+      "spouse_prestige",
+      "hapmar",
+      "parent_education",
+      "sibs",
+      "divorced_before",
+      "family_income",
+      "spouse_degree",
+      "degree",
+      "party",
+      "place_at_16",
+      "pray",
+      "region",
+      "denomination",
+      "health",
+      "work",
+      "place",
+      "spouse_religion",
+      "religion_raised",
+      "satfin",
+      "attend9",
+      "home",
+      "occupation_group",
+      "happy",
+      "attend",
+      "family_at_16",
+      "spouse_work",
+      "childs",
+      "income_at_16",
+      "religion",
+      "family_origin",
+      "race_detail",
+      "sexfreq",
+      "wealth_band",
+      "fundamentalism",
+      "religious_strength",
+      "polviews",
+      "evstray",
+      "sex",
+      "fefam",
+      "xmarsex",
+      "race",
+      "same_religion",
+      "born_us"
+     ]
+    },
+    "hgb_tuned": {
+     "config": {
+      "learning_rate": 0.03,
+      "max_leaf_nodes": 15,
+      "min_leaf_frac": 0.02,
+      "l2_regularization": 0.0
+     },
+     "iters": 226
+    },
+    "random_forest_tuned": {
+     "config": {
+      "min_leaf_frac": 0.01,
+      "max_features": 0.6
+     }
+    },
+    "extra_trees_tuned": {
+     "config": {
+      "min_leaf_frac": 0.01,
+      "max_features": 0.6
+     }
+    },
+    "enet_spline_pairwise": {
+     "l1_ratio": 0.9,
+     "alpha": 0.005682,
+     "terms": 246,
+     "nonzero": 57,
+     "pairs_among": [
+      "age",
+      "prestige",
+      "spouse_prestige",
+      "hapmar",
+      "parent_education",
+      "sibs",
+      "divorced_before",
+      "family_income"
+     ]
+    },
+    "stack_glm_lgbm": {
+     "glm_weight": 0.2
+    }
+   },
+   {
+    "repeat": 4,
+    "fold": 3,
+    "lightgbm_tuned": {
+     "config": {
+      "learning_rate": 0.05,
+      "num_leaves": 8,
+      "min_child_frac": 0.002,
+      "lambda_l2": 0.0,
+      "feature_fraction": 0.8,
+      "max_depth": 3
+     },
+     "rounds": 96,
+     "ranking": [
+      "age",
+      "hapmar",
+      "prestige",
+      "spouse_prestige",
+      "parent_education",
+      "sibs",
+      "divorced_before",
+      "family_at_16",
+      "attend",
+      "satfin",
+      "party",
+      "family_income",
+      "race_detail",
+      "home",
+      "religion_raised",
+      "denomination",
+      "spouse_degree",
+      "degree",
+      "sexfreq",
+      "work",
+      "wealth_band",
+      "occupation_group",
+      "born_us",
+      "race",
+      "health",
+      "childs",
+      "place_at_16",
+      "place",
+      "region",
+      "pray",
+      "happy",
+      "evstray",
+      "sex",
+      "spouse_work",
+      "family_origin",
+      "income_at_16",
+      "fefam",
+      "religious_strength",
+      "attend9",
+      "polviews",
+      "fundamentalism",
+      "religion",
+      "xmarsex",
+      "same_religion",
+      "spouse_religion"
+     ]
+    },
+    "hgb_tuned": {
+     "config": {
+      "learning_rate": 0.1,
+      "max_leaf_nodes": 31,
+      "min_leaf_frac": 0.005,
+      "l2_regularization": 10.0
+     },
+     "iters": 26
+    },
+    "random_forest_tuned": {
+     "config": {
+      "min_leaf_frac": 0.01,
+      "max_features": 0.33
+     }
+    },
+    "extra_trees_tuned": {
+     "config": {
+      "min_leaf_frac": 0.01,
+      "max_features": 0.33
+     }
+    },
+    "enet_spline_pairwise": {
+     "l1_ratio": 0.5,
+     "alpha": 0.030021,
+     "terms": 239,
+     "nonzero": 11,
+     "pairs_among": [
+      "age",
+      "hapmar",
+      "prestige",
+      "spouse_prestige",
+      "parent_education",
+      "sibs",
+      "divorced_before",
+      "family_at_16"
+     ]
+    },
+    "stack_glm_lgbm": {
+     "glm_weight": 0.0
+    }
+   },
+   {
+    "repeat": 4,
+    "fold": 4,
+    "lightgbm_tuned": {
+     "config": {
+      "learning_rate": 0.05,
+      "num_leaves": 63,
+      "min_child_frac": 0.03,
+      "lambda_l2": 1.0,
+      "feature_fraction": 1.0,
+      "max_depth": 6
+     },
+     "rounds": 80,
+     "ranking": [
+      "age",
+      "hapmar",
+      "spouse_prestige",
+      "parent_education",
+      "prestige",
+      "divorced_before",
+      "family_income",
+      "family_at_16",
+      "sibs",
+      "place",
+      "pray",
+      "spouse_degree",
+      "satfin",
+      "party",
+      "denomination",
+      "religion_raised",
+      "attend",
+      "health",
+      "race",
+      "evstray",
+      "region",
+      "income_at_16",
+      "place_at_16",
+      "degree",
+      "spouse_work",
+      "religious_strength",
+      "sexfreq",
+      "occupation_group",
+      "home",
+      "fundamentalism",
+      "same_religion",
+      "religion",
+      "childs",
+      "xmarsex",
+      "race_detail",
+      "happy",
+      "work",
+      "spouse_religion",
+      "polviews",
+      "attend9",
+      "family_origin",
+      "sex",
+      "fefam",
+      "born_us",
+      "wealth_band"
+     ]
+    },
+    "hgb_tuned": {
+     "config": {
+      "learning_rate": 0.03,
+      "max_leaf_nodes": 31,
+      "min_leaf_frac": 0.02,
+      "l2_regularization": 0.0
+     },
+     "iters": 76
+    },
+    "random_forest_tuned": {
+     "config": {
+      "min_leaf_frac": 0.002,
+      "max_features": 0.33
+     }
+    },
+    "extra_trees_tuned": {
+     "config": {
+      "min_leaf_frac": 0.01,
+      "max_features": 0.33
+     }
+    },
+    "enet_spline_pairwise": {
+     "l1_ratio": 0.9,
+     "alpha": 0.005992,
+     "terms": 268,
+     "nonzero": 64,
+     "pairs_among": [
+      "age",
+      "hapmar",
+      "spouse_prestige",
+      "parent_education",
+      "prestige",
+      "divorced_before",
+      "family_income",
+      "family_at_16"
+     ]
+    },
+    "stack_glm_lgbm": {
+     "glm_weight": 0.0
+    }
+   }
+  ],
+  "times": [
+   {
+    "repeat": 0,
+    "fold": 0,
+    "baseline": 1.809552,
+    "lightgbm_tuned": 15.501668,
+    "hgb_tuned": 53.248614,
+    "random_forest_tuned": 8.990139,
+    "extra_trees_tuned": 10.630549,
+    "enet_spline_pairwise": 12.395296,
+    "ebm": 16.513052,
+    "stack_glm_lgbm": 1.214736,
+    "baseline_all_inputs": 0.2338,
+    "lens_boosting": 0.99897
+   },
+   {
+    "repeat": 0,
+    "fold": 1,
+    "baseline": 1.489671,
+    "lightgbm_tuned": 11.568568,
+    "hgb_tuned": 24.817528,
+    "random_forest_tuned": 6.770084,
+    "extra_trees_tuned": 8.150453,
+    "enet_spline_pairwise": 5.047143,
+    "ebm": 8.250015,
+    "stack_glm_lgbm": 1.256335,
+    "baseline_all_inputs": 0.263693,
+    "lens_boosting": 3.427197
+   },
+   {
+    "repeat": 0,
+    "fold": 2,
+    "baseline": 1.498937,
+    "lightgbm_tuned": 9.304504,
+    "hgb_tuned": 31.885062,
+    "random_forest_tuned": 7.122106,
+    "extra_trees_tuned": 10.456989,
+    "enet_spline_pairwise": 3.807019,
+    "ebm": 7.621266,
+    "stack_glm_lgbm": 1.239256,
+    "baseline_all_inputs": 0.333847,
+    "lens_boosting": 0.482467
+   },
+   {
+    "repeat": 0,
+    "fold": 3,
+    "baseline": 1.302693,
+    "lightgbm_tuned": 5.907993,
+    "hgb_tuned": 41.599903,
+    "random_forest_tuned": 7.595836,
+    "extra_trees_tuned": 9.228888,
+    "enet_spline_pairwise": 11.015333,
+    "ebm": 7.795824,
+    "stack_glm_lgbm": 1.673429,
+    "baseline_all_inputs": 0.317625,
+    "lens_boosting": 0.472794
+   },
+   {
+    "repeat": 0,
+    "fold": 4,
+    "baseline": 1.361519,
+    "lightgbm_tuned": 8.103028,
+    "hgb_tuned": 22.578501,
+    "random_forest_tuned": 7.180392,
+    "extra_trees_tuned": 8.069217,
+    "enet_spline_pairwise": 4.397084,
+    "ebm": 5.656886,
+    "stack_glm_lgbm": 1.009899,
+    "baseline_all_inputs": 0.208664,
+    "lens_boosting": 0.502197
+   },
+   {
+    "repeat": 1,
+    "fold": 0,
+    "baseline": 1.484545,
+    "lightgbm_tuned": 4.292418,
+    "hgb_tuned": 31.865323,
+    "random_forest_tuned": 7.376797,
+    "extra_trees_tuned": 7.339272,
+    "enet_spline_pairwise": 3.780883,
+    "ebm": 12.423293,
+    "stack_glm_lgbm": 1.120952,
+    "baseline_all_inputs": 0.181654,
+    "lens_boosting": 0.957262
+   },
+   {
+    "repeat": 1,
+    "fold": 1,
+    "baseline": 1.355151,
+    "lightgbm_tuned": 9.705345,
+    "hgb_tuned": 34.953315,
+    "random_forest_tuned": 5.702839,
+    "extra_trees_tuned": 7.29359,
+    "enet_spline_pairwise": 26.335186,
+    "ebm": 6.194428,
+    "stack_glm_lgbm": 1.384248,
+    "baseline_all_inputs": 0.183936,
+    "lens_boosting": 0.841194
+   },
+   {
+    "repeat": 1,
+    "fold": 2,
+    "baseline": 1.365637,
+    "lightgbm_tuned": 5.524994,
+    "hgb_tuned": 34.68524,
+    "random_forest_tuned": 6.467057,
+    "extra_trees_tuned": 7.094201,
+    "enet_spline_pairwise": 4.447987,
+    "ebm": 7.215192,
+    "stack_glm_lgbm": 1.13269,
+    "baseline_all_inputs": 0.281748,
+    "lens_boosting": 0.733127
+   },
+   {
+    "repeat": 1,
+    "fold": 3,
+    "baseline": 1.557027,
+    "lightgbm_tuned": 10.389513,
+    "hgb_tuned": 42.942115,
+    "random_forest_tuned": 5.842691,
+    "extra_trees_tuned": 7.423148,
+    "enet_spline_pairwise": 8.258857,
+    "ebm": 7.247309,
+    "stack_glm_lgbm": 1.197336,
+    "baseline_all_inputs": 0.212689,
+    "lens_boosting": 0.71416
+   },
+   {
+    "repeat": 1,
+    "fold": 4,
+    "baseline": 1.148233,
+    "lightgbm_tuned": 10.185527,
+    "hgb_tuned": 39.072109,
+    "random_forest_tuned": 5.464324,
+    "extra_trees_tuned": 6.609065,
+    "enet_spline_pairwise": 11.678975,
+    "ebm": 8.387002,
+    "stack_glm_lgbm": 1.221638,
+    "baseline_all_inputs": 0.307158,
+    "lens_boosting": 1.332006
+   },
+   {
+    "repeat": 2,
+    "fold": 0,
+    "baseline": 1.207812,
+    "lightgbm_tuned": 3.704956,
+    "hgb_tuned": 33.82747,
+    "random_forest_tuned": 5.658094,
+    "extra_trees_tuned": 7.278188,
+    "enet_spline_pairwise": 4.752983,
+    "ebm": 6.924565,
+    "stack_glm_lgbm": 1.090175,
+    "baseline_all_inputs": 0.181024,
+    "lens_boosting": 0.792617
+   },
+   {
+    "repeat": 2,
+    "fold": 1,
+    "baseline": 1.315172,
+    "lightgbm_tuned": 7.860411,
+    "hgb_tuned": 37.175411,
+    "random_forest_tuned": 5.773308,
+    "extra_trees_tuned": 7.686068,
+    "enet_spline_pairwise": 14.378779,
+    "ebm": 6.058717,
+    "stack_glm_lgbm": 1.035142,
+    "baseline_all_inputs": 0.180309,
+    "lens_boosting": 0.550504
+   },
+   {
+    "repeat": 2,
+    "fold": 2,
+    "baseline": 1.159026,
+    "lightgbm_tuned": 6.800352,
+    "hgb_tuned": 28.966032,
+    "random_forest_tuned": 5.823632,
+    "extra_trees_tuned": 7.717949,
+    "enet_spline_pairwise": 21.618603,
+    "ebm": 7.250235,
+    "stack_glm_lgbm": 1.221967,
+    "baseline_all_inputs": 0.269774,
+    "lens_boosting": 0.866355
+   },
+   {
+    "repeat": 2,
+    "fold": 3,
+    "baseline": 1.306128,
+    "lightgbm_tuned": 4.860343,
+    "hgb_tuned": 38.230012,
+    "random_forest_tuned": 6.12571,
+    "extra_trees_tuned": 7.846123,
+    "enet_spline_pairwise": 5.785419,
+    "ebm": 9.446597,
+    "stack_glm_lgbm": 1.333831,
+    "baseline_all_inputs": 0.257491,
+    "lens_boosting": 0.770921
+   },
+   {
+    "repeat": 2,
+    "fold": 4,
+    "baseline": 1.486818,
+    "lightgbm_tuned": 9.038884,
+    "hgb_tuned": 41.828783,
+    "random_forest_tuned": 6.208915,
+    "extra_trees_tuned": 7.928378,
+    "enet_spline_pairwise": 5.203273,
+    "ebm": 6.390441,
+    "stack_glm_lgbm": 1.18352,
+    "baseline_all_inputs": 0.253717,
+    "lens_boosting": 0.76358
+   },
+   {
+    "repeat": 3,
+    "fold": 0,
+    "baseline": 1.068583,
+    "lightgbm_tuned": 11.838551,
+    "hgb_tuned": 25.274656,
+    "random_forest_tuned": 7.164939,
+    "extra_trees_tuned": 7.44662,
+    "enet_spline_pairwise": 5.415961,
+    "ebm": 7.712404,
+    "stack_glm_lgbm": 1.11661,
+    "baseline_all_inputs": 0.222116,
+    "lens_boosting": 0.806332
+   },
+   {
+    "repeat": 3,
+    "fold": 1,
+    "baseline": 1.156569,
+    "lightgbm_tuned": 4.314061,
+    "hgb_tuned": 66.9909,
+    "random_forest_tuned": 5.956411,
+    "extra_trees_tuned": 7.294616,
+    "enet_spline_pairwise": 5.410781,
+    "ebm": 10.03605,
+    "stack_glm_lgbm": 1.820081,
+    "baseline_all_inputs": 0.268504,
+    "lens_boosting": 1.667146
+   },
+   {
+    "repeat": 3,
+    "fold": 2,
+    "baseline": 1.766177,
+    "lightgbm_tuned": 19.482634,
+    "hgb_tuned": 34.013898,
+    "random_forest_tuned": 6.784679,
+    "extra_trees_tuned": 7.589646,
+    "enet_spline_pairwise": 3.575682,
+    "ebm": 6.268378,
+    "stack_glm_lgbm": 1.198663,
+    "baseline_all_inputs": 0.27529,
+    "lens_boosting": 0.746215
+   },
+   {
+    "repeat": 3,
+    "fold": 3,
+    "baseline": 1.411588,
+    "lightgbm_tuned": 7.102129,
+    "hgb_tuned": 23.717282,
+    "random_forest_tuned": 6.295695,
+    "extra_trees_tuned": 7.184008,
+    "enet_spline_pairwise": 9.183151,
+    "ebm": 6.53804,
+    "stack_glm_lgbm": 1.135696,
+    "baseline_all_inputs": 0.192212,
+    "lens_boosting": 0.508374
+   },
+   {
+    "repeat": 3,
+    "fold": 4,
+    "baseline": 1.737745,
+    "lightgbm_tuned": 6.579993,
+    "hgb_tuned": 38.212197,
+    "random_forest_tuned": 5.577883,
+    "extra_trees_tuned": 8.109294,
+    "enet_spline_pairwise": 3.873068,
+    "ebm": 7.875698,
+    "stack_glm_lgbm": 1.279627,
+    "baseline_all_inputs": 0.197183,
+    "lens_boosting": 0.650089
+   },
+   {
+    "repeat": 4,
+    "fold": 0,
+    "baseline": 1.477712,
+    "lightgbm_tuned": 4.362051,
+    "hgb_tuned": 32.505301,
+    "random_forest_tuned": 6.205481,
+    "extra_trees_tuned": 8.058636,
+    "enet_spline_pairwise": 5.807344,
+    "ebm": 6.910189,
+    "stack_glm_lgbm": 1.228011,
+    "baseline_all_inputs": 0.265161,
+    "lens_boosting": 0.8871
+   },
+   {
+    "repeat": 4,
+    "fold": 1,
+    "baseline": 1.185606,
+    "lightgbm_tuned": 5.499852,
+    "hgb_tuned": 26.391236,
+    "random_forest_tuned": 6.62821,
+    "extra_trees_tuned": 7.720831,
+    "enet_spline_pairwise": 6.587592,
+    "ebm": 6.891726,
+    "stack_glm_lgbm": 1.306085,
+    "baseline_all_inputs": 0.298928,
+    "lens_boosting": 9.723691
+   },
+   {
+    "repeat": 4,
+    "fold": 2,
+    "baseline": 1.6609,
+    "lightgbm_tuned": 19.885855,
+    "hgb_tuned": 47.201628,
+    "random_forest_tuned": 7.560294,
+    "extra_trees_tuned": 8.264789,
+    "enet_spline_pairwise": 4.287121,
+    "ebm": 6.958829,
+    "stack_glm_lgbm": 1.331396,
+    "baseline_all_inputs": 0.219674,
+    "lens_boosting": 0.771804
+   },
+   {
+    "repeat": 4,
+    "fold": 3,
+    "baseline": 1.276227,
+    "lightgbm_tuned": 5.980803,
+    "hgb_tuned": 38.998054,
+    "random_forest_tuned": 6.088979,
+    "extra_trees_tuned": 7.235681,
+    "enet_spline_pairwise": 3.736388,
+    "ebm": 7.989051,
+    "stack_glm_lgbm": 1.176758,
+    "baseline_all_inputs": 0.246018,
+    "lens_boosting": 0.698913
+   },
+   {
+    "repeat": 4,
+    "fold": 4,
+    "baseline": 1.202604,
+    "lightgbm_tuned": 11.773984,
+    "hgb_tuned": 55.959711,
+    "random_forest_tuned": 6.450313,
+    "extra_trees_tuned": 7.500106,
+    "enet_spline_pairwise": 4.957441,
+    "ebm": 6.670461,
+    "stack_glm_lgbm": 1.343398,
+    "baseline_all_inputs": 0.212186,
+    "lens_boosting": 0.607621
+   }
+  ],
+  "repeats": 5,
+  "minutes": 33.449357,
+  "permutation_importance_fold0": {
+   "lightgbm_tuned": {
+    "hapmar": 7.299595,
+    "age": 1.784577,
+    "parent_education": 1.232616,
+    "divorced_before": 1.074285,
+    "prestige": 1.031023,
+    "sibs": 0.854521,
+    "satfin": 0.808776,
+    "attend": 0.733938,
+    "degree": 0.609171,
+    "fundamentalism": 0.60902,
+    "region": 0.507425,
+    "race_detail": 0.467161,
+    "family_at_16": 0.446782,
+    "happy": 0.27062,
+    "place_at_16": 0.223725,
+    "spouse_degree": 0.187998,
+    "sex": 0.162275,
+    "religious_strength": 0.148074,
+    "race": 0.12259,
+    "home": 0.099485,
+    "wealth_band": 0.089342,
+    "polviews": 0.0523,
+    "religion": 0.051948,
+    "attend9": 0.027256,
+    "fefam": 0.002864,
+    "same_religion": -0.007602,
+    "spouse_prestige": -0.038266,
+    "born_us": -0.126265,
+    "pray": -0.126345,
+    "sexfreq": -0.152773,
+    "spouse_religion": -0.158374,
+    "family_origin": -0.170046,
+    "childs": -0.174572,
+    "health": -0.181592,
+    "work": -0.187323,
+    "place": -0.239495,
+    "evstray": -0.241785,
+    "occupation_group": -0.243433,
+    "income_at_16": -0.31987,
+    "xmarsex": -0.350203,
+    "family_income": -0.508437,
+    "religion_raised": -0.655564,
+    "denomination": -0.662407,
+    "spouse_work": -0.813183,
+    "party": -0.966269
+   },
+   "baseline": {
+    "age": 12.225563,
+    "hapmar": 10.167637,
+    "divorced_before": 6.287951,
+    "spouse_degree": 0.869975,
+    "family_at_16": 0.820449,
+    "race": 0.454958,
+    "degree": 0.282418,
+    "satfin": 0.218267,
+    "spouse_work": 0.133591,
+    "place": 0.108599,
+    "fefam": 0.102415,
+    "evstray": 0.084395,
+    "sibs": 0.0,
+    "parent_education": 0.0,
+    "prestige": 0.0,
+    "spouse_prestige": 0.0,
+    "happy": 0.0,
+    "same_religion": 0.0,
+    "sexfreq": 0.0,
+    "family_origin": 0.0,
+    "income_at_16": 0.0,
+    "place_at_16": 0.0,
+    "born_us": 0.0,
+    "attend9": 0.0,
+    "pray": 0.0,
+    "religious_strength": 0.0,
+    "fundamentalism": 0.0,
+    "denomination": 0.0,
+    "religion_raised": 0.0,
+    "polviews": 0.0,
+    "party": 0.0,
+    "race_detail": 0.0,
+    "occupation_group": 0.0,
+    "home": 0.0,
+    "wealth_band": 0.0,
+    "sex": -0.000351,
+    "childs": -0.011951,
+    "xmarsex": -0.174336,
+    "region": -0.234086,
+    "attend": -0.337062,
+    "spouse_religion": -0.458038,
+    "religion": -0.477414,
+    "family_income": -0.499833,
+    "work": -0.507904,
+    "health": -0.612489
+   }
+  },
+  "lightgbm_mean_abs_shap_fold0": {
+   "age": 0.315882,
+   "hapmar": 0.28318,
+   "prestige": 0.120139,
+   "divorced_before": 0.090041,
+   "parent_education": 0.073838,
+   "family_at_16": 0.07332,
+   "spouse_prestige": 0.072717,
+   "race_detail": 0.058132,
+   "satfin": 0.054081,
+   "family_origin": 0.048184,
+   "sibs": 0.046324,
+   "religion_raised": 0.04617,
+   "family_income": 0.045428,
+   "denomination": 0.043201,
+   "party": 0.040287,
+   "health": 0.038288,
+   "home": 0.036683,
+   "region": 0.029741,
+   "place": 0.024259,
+   "race": 0.023721,
+   "pray": 0.023693,
+   "attend": 0.023504,
+   "sexfreq": 0.022911,
+   "xmarsex": 0.022829,
+   "religion": 0.021391,
+   "work": 0.020406,
+   "degree": 0.019336,
+   "spouse_work": 0.017891,
+   "place_at_16": 0.016425,
+   "evstray": 0.015833,
+   "spouse_religion": 0.01553,
+   "spouse_degree": 0.014049,
+   "religious_strength": 0.011568,
+   "fundamentalism": 0.011494,
+   "fefam": 0.011485,
+   "childs": 0.010197,
+   "happy": 0.009024,
+   "attend9": 0.008852,
+   "income_at_16": 0.008371,
+   "occupation_group": 0.007647,
+   "polviews": 0.007256,
+   "wealth_band": 0.006503,
+   "born_us": 0.004855,
+   "sex": 0.003163,
+   "same_religion": 0.002718
+  },
+  "ebm_terms_fold0": [
+   [
+    "hapmar",
+    0.275249
+   ],
+   [
+    "age",
+    0.188031
+   ],
+   [
+    "divorced_before",
+    0.184816
+   ],
+   [
+    "religion_raised",
+    0.161787
+   ],
+   [
+    "work",
+    0.157393
+   ],
+   [
+    "family_income",
+    0.146595
+   ],
+   [
+    "party",
+    0.145863
+   ],
+   [
+    "denomination",
+    0.128289
+   ],
+   [
+    "family_at_16",
+    0.103048
+   ],
+   [
+    "age & attend",
+    0.086699
+   ],
+   [
+    "satfin",
+    0.085612
+   ],
+   [
+    "family_origin",
+    0.083555
+   ],
+   [
+    "prestige",
+    0.07966
+   ],
+   [
+    "race_detail",
+    0.078784
+   ],
+   [
+    "race",
+    0.077099
+   ],
+   [
+    "happy",
+    0.072774
+   ],
+   [
+    "parent_education",
+    0.072214
+   ],
+   [
+    "region",
+    0.071447
+   ],
+   [
+    "prestige & income_at_16",
+    0.070862
+   ],
+   [
+    "polviews",
+    0.06751
+   ],
+   [
+    "pray",
+    0.06732
+   ],
+   [
+    "age & prestige",
+    0.066772
+   ],
+   [
+    "age & occupation_group",
+    0.065055
+   ],
+   [
+    "evstray",
+    0.064819
+   ],
+   [
+    "degree",
+    0.060408
+   ],
+   [
+    "spouse_work",
+    0.059857
+   ],
+   [
+    "attend9",
+    0.059823
+   ],
+   [
+    "home",
+    0.05981
+   ],
+   [
+    "age & spouse_prestige",
+    0.058805
+   ],
+   [
+    "xmarsex",
+    0.0582
+   ],
+   [
+    "parent_education & prestige",
+    0.057597
+   ],
+   [
+    "age & sex",
+    0.057456
+   ],
+   [
+    "health",
+    0.053306
+   ],
+   [
+    "place",
+    0.051171
+   ],
+   [
+    "fefam",
+    0.047624
+   ],
+   [
+    "spouse_religion",
+    0.045983
+   ],
+   [
+    "fundamentalism",
+    0.041501
+   ],
+   [
+    "prestige & occupation_group",
+    0.04096
+   ],
+   [
+    "religious_strength",
+    0.040553
+   ],
+   [
+    "born_us",
+    0.040386
+   ],
+   [
+    "sex",
+    0.040231
+   ],
+   [
+    "sibs",
+    0.039947
+   ],
+   [
+    "parent_education & spouse_prestige",
+    0.039176
+   ],
+   [
+    "spouse_degree",
+    0.03678
+   ],
+   [
+    "attend",
+    0.034578
+   ],
+   [
+    "spouse_prestige",
+    0.034384
+   ],
+   [
+    "occupation_group",
+    0.031065
+   ],
+   [
+    "childs & spouse_prestige",
+    0.030828
+   ],
+   [
+    "wealth_band",
+    0.027566
+   ],
+   [
+    "income_at_16",
+    0.023052
+   ],
+   [
+    "place_at_16",
+    0.023029
+   ],
+   [
+    "sexfreq",
+    0.019855
+   ],
+   [
+    "same_religion",
+    0.018424
+   ],
+   [
+    "religion",
+    0.014249
+   ],
+   [
+    "childs",
+    0.011726
+   ]
+  ],
+  "ebm_pairs_fold0": [
+   [
+    "age & attend",
+    0.086699
+   ],
+   [
+    "prestige & income_at_16",
+    0.070862
+   ],
+   [
+    "age & prestige",
+    0.066772
+   ],
+   [
+    "age & occupation_group",
+    0.065055
+   ],
+   [
+    "age & spouse_prestige",
+    0.058805
+   ],
+   [
+    "parent_education & prestige",
+    0.057597
+   ],
+   [
+    "age & sex",
+    0.057456
+   ],
+   [
+    "prestige & occupation_group",
+    0.04096
+   ],
+   [
+    "parent_education & spouse_prestige",
+    0.039176
+   ],
+   [
+    "childs & spouse_prestige",
+    0.030828
+   ]
+  ]
+ },
+ "null_permuted_labels": {
+  "heldout_gain": {
+   "baseline": -0.394391,
+   "lightgbm_tuned": -2.063929,
+   "enet_spline_pairwise": -1.108219
+  },
+  "note": "outcomes shuffled within each fold of repeat 0; gains are on the REAL held-out outcomes"
+ },
+ "learning_curve": [
+  {
+   "fraction": 0.1,
+   "model": "baseline",
+   "heldout_gain": -0.685615
+  },
+  {
+   "fraction": 0.1,
+   "model": "lightgbm_tuned",
+   "heldout_gain": -9.920662
+  },
+  {
+   "fraction": 0.25,
+   "model": "baseline",
+   "heldout_gain": 0.741909
+  },
+  {
+   "fraction": 0.25,
+   "model": "lightgbm_tuned",
+   "heldout_gain": 0.052013
+  },
+  {
+   "fraction": 0.5,
+   "model": "baseline",
+   "heldout_gain": 6.802298
+  },
+  {
+   "fraction": 0.5,
+   "model": "lightgbm_tuned",
+   "heldout_gain": 7.089739
+  },
+  {
+   "fraction": 0.75,
+   "model": "baseline",
+   "heldout_gain": 8.546291
+  },
+  {
+   "fraction": 0.75,
+   "model": "lightgbm_tuned",
+   "heldout_gain": 8.268345
+  },
+  {
+   "fraction": 1.0,
+   "model": "baseline",
+   "heldout_gain": 8.424299
+  },
+  {
+   "fraction": 1.0,
+   "model": "lightgbm_tuned",
+   "heldout_gain": 8.824185
+  }
+ ],
+ "feature_curve": {
+  "rows": [
+   {
+    "k": 1,
+    "model": "lightgbm",
+    "heldout_gain": 1.9092
+   },
+   {
+    "k": 1,
+    "model": "additive_glm",
+    "heldout_gain": 3.216592
+   },
+   {
+    "k": 2,
+    "model": "lightgbm",
+    "heldout_gain": 6.424964
+   },
+   {
+    "k": 2,
+    "model": "additive_glm",
+    "heldout_gain": 7.829049
+   },
+   {
+    "k": 3,
+    "model": "lightgbm",
+    "heldout_gain": 4.446512
+   },
+   {
+    "k": 3,
+    "model": "additive_glm",
+    "heldout_gain": 8.104972
+   },
+   {
+    "k": 5,
+    "model": "lightgbm",
+    "heldout_gain": 7.067513
+   },
+   {
+    "k": 5,
+    "model": "additive_glm",
+    "heldout_gain": 8.049838
+   },
+   {
+    "k": 8,
+    "model": "lightgbm",
+    "heldout_gain": 7.571085
+   },
+   {
+    "k": 8,
+    "model": "additive_glm",
+    "heldout_gain": 9.457447
+   },
+   {
+    "k": 12,
+    "model": "lightgbm",
+    "heldout_gain": 8.612042
+   },
+   {
+    "k": 12,
+    "model": "additive_glm",
+    "heldout_gain": 9.339335
+   },
+   {
+    "k": 16,
+    "model": "lightgbm",
+    "heldout_gain": 6.249053
+   },
+   {
+    "k": 16,
+    "model": "additive_glm",
+    "heldout_gain": 7.297677
+   },
+   {
+    "k": 24,
+    "model": "lightgbm",
+    "heldout_gain": 6.482352
+   },
+   {
+    "k": 24,
+    "model": "additive_glm",
+    "heldout_gain": 9.185501
+   },
+   {
+    "k": 32,
+    "model": "lightgbm",
+    "heldout_gain": 7.209181
+   },
+   {
+    "k": 32,
+    "model": "additive_glm",
+    "heldout_gain": 9.032885
+   },
+   {
+    "k": 45,
+    "model": "lightgbm",
+    "heldout_gain": 8.824185
+   },
+   {
+    "k": 45,
+    "model": "additive_glm",
+    "heldout_gain": 9.515394
+   }
+  ],
+  "note": "k = number of non-duration features, ranked by each training fold's tuned LightGBM gain; duration (if any) always included; additive_glm = ridge spline GLM (glum)"
+ }
+}

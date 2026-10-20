@@ -113,6 +113,15 @@ class AppTests(unittest.TestCase):
     def test_compare_scenarios(self):
         self.run_node('scenarios.test.mjs')
 
+    def test_profile_report(self):
+        self.run_node('report.test.mjs')
+
+    def test_satisfaction_by_duration_chart(self):
+        self.run_node('satisfaction.test.mjs')
+
+    def test_dating_length_evidence(self):
+        self.run_node('dating-length.test.mjs')
+
     def test_literature_adjustment(self):
         self.run_node('literature.test.mjs')
 

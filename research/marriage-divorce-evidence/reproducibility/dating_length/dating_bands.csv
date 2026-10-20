@@ -1,0 +1,4 @@
+band,couples,breakups,weighted_breakup_by_2017,median_dating_years
+under 1 year,311,21,0.0869,0.0000
+1-2 years,891,53,0.0835,1.0000
+3+ years,697,43,0.0837,5.0000

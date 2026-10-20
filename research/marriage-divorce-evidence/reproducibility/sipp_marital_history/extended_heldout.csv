@@ -1,0 +1,7 @@
+model,gain_percent,gain_ci95_low,gain_ci95_high,diff_vs_reference_points,diff_ci95_low,diff_ci95_high,reference,couple_years,events,households
+constant,0.0000,0.0000,0.0000,-5.0255,-6.4952,-3.4244,current model (demographics + wealth),33698,312,17621
+current model (demographics + wealth),5.0255,3.4244,6.4952,0.0000,0.0000,0.0000,current model (demographics + wealth),33698,312,17621
+current + each spouse's occupation group,5.1373,3.4916,6.6083,0.1119,-0.0777,0.3040,current model (demographics + wealth),33698,312,17621
+current + husband's race-ethnicity,4.9769,3.3771,6.4281,-0.0486,-0.1348,0.0410,current model (demographics + wealth),33698,312,17621
+"current + wealth components (home equity, bank, stocks and funds, retirement, business)",4.6755,3.1876,5.9776,-0.3499,-0.8332,0.1564,current model (demographics + wealth),33698,312,17621
+current + all new blocks,4.6553,3.1471,6.0081,-0.3702,-0.8890,0.1321,current model (demographics + wealth),33698,312,17621

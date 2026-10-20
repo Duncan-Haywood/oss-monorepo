@@ -52,6 +52,23 @@ browser.
   tell apart from the top one, and how many different profiles the models put first on
   their own. It never presents one ideal person.
 
+## Profile report (decision aid)
+
+`report.js` (pure; `tests/report.test.mjs`) and `report-ui.js` add the "Profile report" tab, run
+for you and, separately, for the person you are looking at, on the selected lens:
+"date everyone" (every partner type of your sex in the lens's `partner_distribution`, pooled over
+all conditioning cells and weighted by their marriages; for women the husband's race-ethnicity
+follows all husbands, assumed independent of the other traits), "likely partners" (the cell for
+people like you, as `population.js` `justMe`), each as N in 100 with the model range and a 95%
+interval from Dirichlet resampling of the mix shares; percentiles against `population_reference`;
+the lowest-risk partner profiles from `dashboard.js` `partnerDashboard` with model disagreement;
+factor impact (spread across each trait's levels) with grades from `data/decision_evidence.json`;
+and the biggest predicted drops from `whatIfs`. Lenses without a partner distribution say so.
+`satisfaction.js` charts `data/satisfaction_by_duration.json`
+(`../reproducibility/satisfaction_by_duration/`) and `dating-length.js` shows
+`data/dating_length.json` (`../reproducibility/dating_length/`). The report adds nothing to the
+link beyond `view=report`.
+
 ## Models
 
 | Model | Held-out deviance improvement vs a constant rate |
