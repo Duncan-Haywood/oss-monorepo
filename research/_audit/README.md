@@ -104,7 +104,7 @@ Installed for this audit: numpy, scipy, matplotlib, scikit-learn, scikit-fem, sh
 
 ## Action items for a later run
 
-This session stopped before the census finished. What is left, roughly in order of value:
+This session stopped before the census finished. Step-by-step instructions for the next agent are in [`NEXT.md`](NEXT.md). What is left, roughly in order of value:
 
 1. **Finish the re-run census.** 728 projects are `not-run`. Resume with the `run` command above (same seed, 600 s, `--siblings`), appending to `runs-random-2026-10-20.jsonl`. The estimate is 3 to 5 hours on 4 cores, longest for `accel-*`, `chip-*`, `eda-*` and `simdesign-*`. Then rebuild `audit.json` and update the numbers here and in the post.
 2. **Clear the 9 setup errors:**
