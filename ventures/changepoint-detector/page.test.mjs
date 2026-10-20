@@ -98,3 +98,9 @@ test("robots, sitemap, README, LICENSE, VENTURE.yaml and data source exist", () 
   assert.match(page("VENTURE.yaml"), /^name: changepoint-detector$/m);
   assert.match(page("data/SOURCE.md"), /public domain/i);
 });
+
+test("footer links the sibling research-algorithm tools", () => {
+  const html = page("index.html");
+  assert.match(html, /href="\.\.\/conformal-prediction-intervals\/"/);
+  assert.match(html, /href="\.\.\/matrix-profile-explorer\/"/);
+});
