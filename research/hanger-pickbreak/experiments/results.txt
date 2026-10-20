@@ -1,0 +1,48 @@
+== A. Linearity check: see at t_see = 2 and 5 s against t_see = 0 on the same piles (n = 18)
+t_see   max |gap - t_see| over 300 piles
+2.0     1.78e-15
+5.0     1.78e-15
+
+== B. Defaults: break-even look time T* (s per pick; blind pinch pays no look), mean and 95% bootstrap interval over 300 paired piles
+        T*      95% interval
+default     9.24  [  8.93,   9.55]
+
+== C. T* against q_find, the chance one regrasp finds the opening (n = 18)
+q_find      T*      95% interval
+0.15       14.68  [ 14.25,  15.09]
+0.25       11.46  [ 11.07,  11.84]
+0.35        9.24  [  8.93,   9.55]
+0.50        6.91  [  6.68,   7.14]
+0.70        4.87  [  4.72,   5.01]
+0.90        3.87  [  3.78,   3.95]
+
+== D. T* against p_hidden, the share of garments with the opening hidden by the garment (n = 18)
+p_hidden    T*      95% interval
+0.00       15.34  [ 15.03,  15.64]
+0.20       12.34  [ 12.00,  12.67]
+0.40        9.24  [  8.93,   9.55]
+0.60        6.25  [  5.95,   6.53]
+0.80        3.13  [  2.89,   3.34]
+1.00        0.00  [  0.00,   0.00]
+
+== E. T* against t_regrasp, seconds per regrasp (n = 18)
+t_regrasp   T*      95% interval
+2.0         2.94  [  2.82,   3.07]
+4.0         6.09  [  5.88,   6.31]
+6.0         9.24  [  8.93,   9.55]
+9.0        13.96  [ 13.50,  14.42]
+12.0       18.68  [ 18.07,  19.29]
+
+== F. T* against pile size n (defaults)
+n           T*      95% interval
+4           9.60  [  8.92,  10.29]
+8           9.44  [  8.92,   9.93]
+18          9.24  [  8.93,   9.55]
+35          9.30  [  9.08,   9.54]
+
+== G. Can sweeping ever beat aiming? see minus sweep, seconds per garment, positive = sweeping wins (n = 18)
+t_sweep   see-sweep  95% interval
+0.0         0.40  [  0.17,   0.65]
+0.5        -0.37  [ -0.60,  -0.13]
+1.5        -1.91  [ -2.14,  -1.66]
+3.0        -4.23  [ -4.48,  -3.97]
