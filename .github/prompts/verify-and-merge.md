@@ -80,7 +80,11 @@ What the lines are for, and the traps in running them:
   `publish-branch.sh` too). Start each with `run_in_background` and read the
   result when it finishes; do not chain them. Foreground `sleep` is blocked in
   cloud sessions, so wait with Monitor and an `until` loop on the output file,
-  never `pgrep -f` (it matches its own command line and never ends).
+  never `pgrep -f` (it matches its own command line and never ends). When
+  your change reaches only a few cases of one file (`build.test.mjs` alone
+  took ~17 min), run those with `node --test --test-name-pattern='<words>'
+  <file>` and say so in the PR; run the whole file when the change is to
+  shared build code.
 - **`platform/ci` suites** import by bare module name, so run them from
   inside that directory as the line does. `python3 -m pytest platform/ci`
   from the root fails collection.
