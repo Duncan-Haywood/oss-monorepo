@@ -3247,6 +3247,11 @@
      "summary": "Of 1,564 run records, 203 (13%) list a deviation from the brief, mostly review (59%) and ventures (27%) runs. Within track, deviating runs take about 1.6&times; as long and cost about 1.2&times; as much (stratified permutation p &lt; 0.001), but the cost gap rests mainly on the long process track (1.07&times;, p = 0.052 without it), and deviating runs end partial 5 points more often. Observational and self-reported: preliminary."
     },
     {
+     "slug": "swe-callcost",
+     "title": "How well does a run's tool-call count predict what it costs?",
+     "summary": "Of 1,638 run records, 882 carry both a cost and a tool-call count. Cost per call is almost constant (median $0.031, 10th to 90th percentile $0.026 to $0.038); a log-log fit has R<sup>2</sup> 0.91 and misses held-out runs by a median of 9% (90th percentile 25%), no better than a flat cost-per-call multiplier. The pooled slope of 1.22 (1.18 to 1.26) is partly group mixing: it is 1.10 within Sonnet runs and 0.96 within Opus runs (wide interval). Cost is API-equivalent and derived from the same transcript as the call count, so the fit checks the measurement, not agent behaviour. Preliminary."
+    },
+    {
      "slug": "swe-notests",
      "title": "Do agent runs that add no tests end worse?",
      "summary": "Of 621 run records that count tests added, 84 (13.5%) add none, mostly research runs. Within track and recording regime they end <code>partial</code> 4 of 84 times against 16 of 537 for runs that add tests: a +2.6 point difference, permutation p = 0.23, so no detectable effect (only 20 partial outcomes exist, so power is low). They cost less (median $0.56 against $0.99 in research), most likely because they do less. Observational and self-reported; preliminary."
@@ -4044,6 +4049,11 @@
     "slug": "qual-correction",
     "title": "Can you do machine learning on qualitative data with an LLM, and when can you trust the numbers?",
     "summary": "An LLM can code free text (&ldquo;does this answer mention cost?&rdquo;) so that it can be counted and modelled like numbers, but its codes need a correction first. In a seeded simulation, an 89%-accurate LLM coder (Cohen&rsquo;s &kappa; = 0.72) understates a 30% code at 26%, and its naive 95% interval covers the truth in 0 of 1,000 studies. When the LLM reads one group&rsquo;s answers less accurately, the naive group gap comes out at +3.6 points against a true &minus;4, the wrong sign, and is &ldquo;significant&rdquo; 80% of the time. Prediction-powered inference with 200 random hand-coded answers per group removes the bias, covers the truth 95&ndash;98% of the time and gives intervals 23&ndash;26% narrower than hand-coding alone. Below about 80% coder accuracy, though, its interval is wider. Includes a stdlib tool (&kappa;, Krippendorff&rsquo;s &alpha;, PPI) and a survey of five ways LLMs bring qualitative data into ML. Simulated coders, not a real model."
+   },
+   {
+    "slug": "qual-regression",
+    "title": "What happens to a regression coefficient when the regressor is an LLM's code?",
+    "summary": "Regressing an outcome on an LLM's codes attenuates the coded variable's coefficient (0.74 for a true 1.00, interval coverage 0% in 300 simulated studies) and, when the coder's error depends on another covariate, biases that perfectly measured covariate too (0.467 against 0.50, coverage 60%). Design-based supervised learning (DSL) with about 210 hand-coded items drawn at a known 7% rate recovers both (1.01 and 0.50, coverage 94&ndash;97%) but narrows the coded coefficient&rsquo;s interval by only 14%. For a 3-class code, naive class shares are off by up to 8.5 points with 0% coverage; per-class PPI covers 95.5&ndash;97%. Simulated coders only; no real LLM was run."
    }
   ]
  }

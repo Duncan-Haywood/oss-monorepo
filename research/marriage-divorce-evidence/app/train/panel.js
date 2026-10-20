@@ -101,7 +101,7 @@ export function mount(root) {
     if (finalFit) kinds.map((kind) => ({ cmd: 'final', kind, boostingIters, cost: 1.25 * cost(kind) })).sort((x, y) => y.cost - x.cost).forEach((t) => tasks.push(t));
     tasks.forEach((t, i) => { t.id = i; t.frac = 0; });
     const totalCost = tasks.reduce((t, x) => t + x.cost, 0);
-    const queue = tasks.slice(), folds = [], models = {};
+    const queue = tasks.slice(), folds = [], models = {}, foldModels = {};
     const labels = new Map();
     const t0 = performance.now();
     let cvSeconds = null, pendingCv = false, finished = 0;
@@ -123,7 +123,7 @@ export function mount(root) {
       if (finished < tasks.length || pendingCv || cvSeconds === null) return;
       const total = ((performance.now() - t0) / 1000).toFixed(0);
       stop(`Done in ${total} s on ${nThreads} thread${nThreads > 1 ? 's' : ''}. Held-out results${finalFit ? ' and a profile scorer for the models you trained' : ''} are below.`);
-      if (Object.keys(models).length) renderScorer(scoreBox, meta, models, kinds);
+      if (Object.keys(models).length) renderScorer(scoreBox, meta, models, kinds, foldModels);
     };
     const onMessage = (w) => async (ev) => {
       const m = ev.data;
@@ -140,7 +140,11 @@ export function mount(root) {
       }
       if (m.type === 'fold' || m.type === 'final') {
         tasks[m.id].frac = 1; labels.delete(m.id); finished++;
-        if (m.type === 'fold') folds.push(m.result);
+        if (m.type === 'fold') {
+          // keep each fold's models for the profile range; the metrics worker needs only predictions
+          for (const k of kinds) { (foldModels[k] ||= []).push(m.result[k].model); delete m.result[k].model; }
+          folds.push(m.result);
+        }
         else models[m.kind] = m.model;
         if (m.type === 'fold' && folds.length === 5 && !pendingCv) {
           // every fold is in: the next free worker pools and scores them (off the page's thread)
@@ -209,7 +213,7 @@ function renderResults(el, kinds, cv, py, seconds, iters, threads = 1) {
     ${cal}`;
 }
 
-function renderScorer(el, meta, models, kinds) {
+function renderScorer(el, meta, models, kinds, foldModels = {}) {
   const numField = (n, j) => {
     const [lo, hi, step] = NUM_LIMITS[n] || [0, 100, 1];
     const v = meta.defaults.num[j];
@@ -234,14 +238,19 @@ function renderScorer(el, meta, models, kinds) {
     const cv = meta.catNames.map((_, j) => Number(form.elements[`c_${j}`].value));
     const missingRequired = meta.numNames.some((n, j) => Number.isNaN(nv[j]) && (n === 'wedding_year' || n === 'wife_age_at_marriage'));
     if (missingRequired) { out.innerHTML = '<p class="small">Enter the wedding year and the wife’s age at the wedding.</p>'; return; }
-    const row = (k) => {
-      const r = rates(models[k], nv, cv, ks, D);
-      const by = (h) => 100 * (1 - Math.exp(-r.slice(0, h).reduce((a, b) => a + b, 0)));
-      return `<tr><th scope="row">${esc(MODEL_LABELS[k])}</th><td class="num">${pct(by(5))}</td><td class="num">${pct(by(10))}</td><td class="num">${pct(by(20))}</td></tr>`;
+    const ended = (model, h) => {
+      const r = rates(model, nv, cv, ks, D);
+      return 100 * (1 - Math.exp(-r.slice(0, h).reduce((a, b) => a + b, 0)));
     };
-    out.innerHTML = `<div class="table-wrap"><table><thead><tr><th scope="col">Model you trained</th><th scope="col" class="num">Ended by year 5</th><th scope="col" class="num">by year 10</th><th scope="col" class="num">by year 20</th></tr></thead>
+    const row = (k) => {
+      const fm = foldModels[k] || [];
+      const spread = fm.length ? fm.map((m) => ended(m, 10)) : null;
+      const range = spread ? `${pct(Math.min(...spread))} to ${pct(Math.max(...spread))}` : '—';
+      return `<tr><th scope="row">${esc(MODEL_LABELS[k])}</th><td class="num">${pct(ended(models[k], 5))}</td><td class="num">${pct(ended(models[k], 10))}</td><td class="num">${pct(ended(models[k], 20))}</td><td class="num">${range}</td></tr>`;
+    };
+    out.innerHTML = `<div class="table-wrap"><table><thead><tr><th scope="col">Model you trained</th><th scope="col" class="num">Ended by year 5</th><th scope="col" class="num">by year 10</th><th scope="col" class="num">by year 20</th><th scope="col" class="num">Year 10, the five fold models</th></tr></thead>
       <tbody>${kinds.filter((k) => models[k]).map(row).join('')}</tbody></table></div>
-      <p class="small">Chance the marriage ends in divorce, annulment or separation, assuming both spouses live: 1 − e<sup>−(sum of the annual rates)</sup>. Unknown ages use the training median. For reference, 33.3% of these women’s first marriages had ended by year 10.</p>`;
+      <p class="small">Chance the marriage ends in divorce, annulment or separation, assuming both spouses live: 1 − e<sup>−(sum of the annual rates)</sup>. Unknown ages use the training median. For reference, 33.3% of these women’s first marriages had ended by year 10. The last column scores the same profile with the five models trained during the held-out test, each on a different four-fifths of the women: how far your number moves with the sample it learned from. It covers sampling only, not what the survey never measured.</p>`;
   };
   form.addEventListener('input', update);
   update();

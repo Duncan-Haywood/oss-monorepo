@@ -23,6 +23,10 @@ methods from published papers, run on your own data, with the papers cited.
   Exact minimum of Gaussian -2 log-likelihood plus a penalty per change, for a
   change in mean (noise sd estimated once from the median absolute difference
   of successive points) or in mean and variance (minimum segment 5 by default).
+  A third model, `poisson`, is for count series (visits, orders, incidents
+  per day): the cost is the Poisson -2 log-likelihood with one rate per
+  segment, and the Bayesian pass uses the Gamma-Poisson conjugate pair
+  (negative-binomial predictive, Gamma prior centred on the series mean).
   Penalties: BIC (default; 2 log n for mean, 3 log n for mean and variance),
   AIC, Hannan-Quinn, or a number.
 - **Bayesian online changepoint detection**: Adams, R. P. & MacKay, D. J. C.
@@ -41,7 +45,7 @@ where it departs from the paper.
 
 - **Browser:** open the live page, paste a CSV, or click the Nile example.
 - **Command line** (Node 18+, no install):
-  `node cli.mjs series.csv --column sales --model meanvar`, `--json` for
+  `node cli.mjs series.csv --column sales --model meanvar` (`--model poisson` for counts), `--json` for
   machine-readable output, `--example` for the Nile data, `--help` for all options.
 - **AI agents / MCP:** from a clone of the repository,
   `node platform/agents/tools.mjs call changepoint-detector analyze --input '{"values":[...]}'`
@@ -50,7 +54,7 @@ where it departs from the paper.
 
 ## Verification
 
-`node --test` (31 tests). What they check:
+`node --test` (38 tests). What they check:
 
 - **Against the literature:** on the Nile series (data/SOURCE.md) PELT puts
   the change at index 28, the first year of the new level being 1899: the
@@ -64,20 +68,50 @@ where it departs from the paper.
   partitioning (no pruning).
 - **BOCPD is exact:** with the hazard driven to zero, its log evidence equals
   the closed-form Normal-Inverse-Gamma marginal likelihood (to 1e-6).
+- **Poisson model:** the cost equals a hand-computed -2 log-likelihood; PELT
+  equals brute-force optimal partitioning on 15 seeded count series, three
+  penalties each; the Bayesian log evidence equals the closed-form
+  Gamma-Poisson marginal (1e-6) when the hazard vanishes; a planted rate
+  shift (4 to 12 per point) is found within 3 points; at most 3 of 20
+  constant-rate series are split; non-integer or negative input is rejected.
+  Not yet compared against R's `changepoint::cpt.meanvar(test.stat =
+  "Poisson")`: R is not available where this was built, so agreement with it
+  is unchecked.
 - **Behaviour:** planted mean shifts are recovered within 2 points; a pure
   variance change is found by the mean-and-variance model; BIC splits at most
   3 of 30 pure-noise series of length 300; the robust noise estimate ignores a
   level shift; CSV parsing handles headers, named columns, quoted thousands,
   blank rows and semicolons.
 
-Not verified: behaviour on strongly autocorrelated or seasonal series (both
-methods assume independent noise within a segment, so such series show extra
-changes).
+Not verified: R's output for the Poisson model (above).
+
+Seasonal and autocorrelated series (`--period n`, `--ar1`; seeded synthetic
+series, 40 each, in `engine.test.mjs`):
+
+- **Autocorrelation.** Both methods assume independent noise, so AR(1) noise
+  (rho 0.8, 300 points, no change at all) gave a false PELT change in 40 of 40
+  runs. With `--ar1` the noise scale becomes the long-run sd (difference-based
+  sd x sqrt(1+rho)/(1-rho), rho estimated from the lag-1 correlation of the
+  clipped first differences, which a level shift barely touches) and false-change
+  runs fall to 4 of 40. A real shift of 8 in the same noise was found exactly
+  once within 10 points of the truth in 35 of 40 runs, so the correction costs
+  some power. Mean model only. The Bayesian pass runs on the
+  AR(1)-prewhitened series (x[t] - rho x[t-1]), where the noise is independent
+  again: on the same 40 no-change series it raised a detection in 40 of 40 runs
+  uncorrected and 1 of 40 with `--ar1`. The price is power: the shift of 8 was
+  detected within 10 points in 25 of 40 runs (40 of 40 uncorrected, which
+  also fires on every no-change series), because prewhitening shrinks a
+  persistent shift by (1 - rho).
+- **Seasonality.** A level shift of 4 under a sine of amplitude 10 (period 12,
+  144 points) gave exactly one change in 0 of 40 runs without adjustment and
+  exactly one change within 1 point of the truth in 33 of 40 with `--period 12`
+  (centred moving average, per-phase median, profile centred at zero). It needs
+  two full cycles and is not offered for counts.
 
 ## Limits
 
-Steps, not trends: a gradual drift is approximated by several steps. Remove
-known seasonality first. A changepoint describes the data, not its cause.
+Steps, not trends: a gradual drift is approximated by several steps. Seasonality is
+removed with `--period` (a fixed cycle only; no trend-seasonal STL). A changepoint describes the data, not its cause.
 Up to 100,000 points; the Bayesian pass is the slow part on long series.
 
 ## Disclaimer

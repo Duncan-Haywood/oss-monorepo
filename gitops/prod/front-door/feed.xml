@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Open Tools and Research — tools on marisstella.dev</title>
-  <subtitle>The 1306 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1307 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -46,6 +46,14 @@
     <updated>2026-10-20T00:00:00Z</updated>
     <category term="Learning &amp; practice"/>
     <summary type="text">Free short science fiction about the next thousand years, stories written for AI agents, and Catholic bedtime stories about the saints. Read or listen; podcast RSS feeds; CC BY-SA 4.0.</summary>
+  </entry>
+  <entry>
+    <title>Interview to Content Calendar: Posts for Every Platform (Free)</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/interview-content-studio/"/>
+    <id>tag:marisstella.dev,2026:tool/interview-content-studio</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="Creator &amp; solo earner income"/>
+    <summary type="text">Answer one guided interview about your brand or topic and get a 4-week content calendar with drafts for LinkedIn, Instagram, TikTok, YouTube, X, newsletters, blogs and more. Free, runs in your browser, optional AI on your own key.</summary>
   </entry>
   <entry>
     <title>Matrix Profile Online — Find Repeated Patterns and Anomalies in a Time Series</title>
@@ -158,13 +166,5 @@
     <updated>2026-10-18T00:00:00Z</updated>
     <category term="Creator &amp; solo earner income"/>
     <summary type="text">Paste meeting notes or a transcript and get action items with owner and due date, decisions and open questions, plus a follow-up email. Free, private, no upload.</summary>
-  </entry>
-  <entry>
-    <title>Free On-Page SEO Audit and AI-Readiness Checker — Page SEO Audit</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/page-seo-audit/"/>
-    <id>tag:marisstella.dev,2026:tool/page-seo-audit</id>
-    <updated>2026-10-18T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste a page&#39;s HTML for a scored SEO and AI-readiness audit: title, description, headings, canonical, JSON-LD, alt text, each with its fix. Free, private.</summary>
   </entry>
 </feed>

@@ -1,0 +1,67 @@
+{
+ "respondents": 8984,
+ "first_cohabitations": 6020,
+ "skipped": {
+  "no_cohabitation": 2961,
+  "married_before_cohabiting": 3
+ },
+ "events": {
+  "split": 3481,
+  "married": 2109,
+  "censored": 430
+ },
+ "intervals": 18613,
+ "person_years": 15624.7,
+ "partner_link_missing": 3,
+ "partner_item_leakage": {
+  "partner_education": {
+   "known": 0.874,
+   "unknown": 0.474
+  },
+  "partner_married_before": {
+   "known": 0.331,
+   "unknown": 0.628
+  },
+  "partner_has_children": {
+   "known": 0.33,
+   "unknown": 0.628
+  },
+  "partner_age_gap": {
+   "present": 0.566,
+   "missing": 0.823
+  }
+ },
+ "start_years": [
+  1994,
+  2023
+ ],
+ "python_sklearn": "1.7.2"
+}
+ target           model  deviance_improvement_percent  fold_min  fold_max  observed_expected
+married        constant                         0.000     0.000     0.000              0.999
+married   duration_only                         2.786     1.938     3.643              0.999
+married additive_spline                         4.929     4.403     5.731              0.993
+married     tree_depth3                         3.911     2.370     5.000              0.997
+  split        constant                         0.000     0.000     0.000              0.999
+  split   duration_only                         4.691     3.881     5.541              0.999
+  split additive_spline                         9.270     7.640    10.370              0.993
+  split     tree_depth3                         7.568     6.096     8.703              0.994
+                                        group  couples  married  split  married_by_1y  split_by_1y  married_by_2y  split_by_2y  married_by_3y  split_by_3y  married_by_5y  split_by_5y  married_by_10y  split_by_10y
+                      All first cohabitations     6020     2109   3481         0.1313       0.2704         0.2299       0.3909         0.2943       0.4518         0.3601       0.5132          0.3909        0.5533
+                                  sex: Female     3020     1051   1808         0.1322       0.2877         0.2280       0.4101         0.2911       0.4704         0.3570       0.5338          0.3822        0.5773
+                                    sex: Male     3000     1058   1673         0.1303       0.2528         0.2319       0.3714         0.2976       0.4329         0.3631       0.4923          0.3997        0.5285
+                education_at_start: Associate      221      106     88         0.1643       0.1319         0.2885       0.2134         0.4064       0.2586         0.4902       0.3283          0.5271        0.3950
+       education_at_start: Bachelor or higher      974      571    293         0.1858       0.1166         0.3464       0.1972         0.4721       0.2320         0.5967       0.2751          0.6350        0.2992
+       education_at_start: High school or GED     3402     1153   2019         0.1274       0.2772         0.2229       0.4046         0.2759       0.4721         0.3356       0.5347          0.3682        0.5758
+education_at_start: No high school credential     1423      279   1081         0.0871       0.4136         0.1353       0.5578         0.1670       0.6264         0.1950       0.6979          0.2135        0.7417
+                           children_before: 0     4854     1806   2725         0.1341       0.2670         0.2387       0.3849         0.3074       0.4434         0.3770       0.5017          0.4077        0.5392
+                           children_before: 1      857      243    539         0.1164       0.2855         0.1911       0.4236         0.2322       0.4906         0.2825       0.5721          0.3178        0.6201
+                          children_before: 2+      309       60    217         0.1088       0.3057         0.1402       0.4324         0.1744       0.5329         0.1899       0.6058          0.2089        0.6851
+                        race_ethnicity: Black     1498      296   1097         0.0739       0.3572         0.1159       0.5293         0.1489       0.6042         0.1868       0.6824          0.2118        0.7308
+                     race_ethnicity: Hispanic     1241      384    736         0.1083       0.2576         0.1810       0.3962         0.2266       0.4596         0.2755       0.5379          0.3158        0.5970
+       race_ethnicity: Non-Black non-Hispanic     3281     1429   1648         0.1467       0.2551         0.2613       0.3621         0.3351       0.4199         0.4094       0.4750          0.4397        0.5102
+                              age_band: 20-22     1570      533    975         0.1302       0.2978         0.2330       0.4291         0.2830       0.4920         0.3481       0.5537          0.3789        0.5879
+                              age_band: 23-25     1230      528    626         0.1543       0.1853         0.2691       0.3036         0.3551       0.3647         0.4233       0.4218          0.4632        0.4632
+                              age_band: 26-29      838      386    357         0.1459       0.1328         0.2831       0.2437         0.3807       0.2960         0.4866       0.3548          0.5189        0.3905
+                                age_band: 30+      585      233    192         0.1500       0.1022         0.2774       0.1616         0.3592       0.2161         0.4433       0.2846          0.4905        0.3653
+                           age_band: under 20     1797      429   1331         0.1026       0.4281         0.1589       0.5649         0.1985       0.6290         0.2372       0.6902          0.2533        0.7240
