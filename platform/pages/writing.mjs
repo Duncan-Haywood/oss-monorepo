@@ -35,6 +35,10 @@ const DEFAULT_ROOT = path.resolve(HERE, '..', '..');
 export const WRITING_PATH = 'writing/';
 export const POSTS_DIR = 'docs/posts';
 const REPO_BLOB = 'https://github.com/Duncan-Haywood/oss-monorepo/blob/main/';
+// The live site's default address (build.mjs's DEFAULT_BASE_URL; not imported,
+// to keep this module free of an import cycle). A post may link a live tool by
+// it; under a custom domain those links follow the base URL the site is built with.
+const DEFAULT_SITE_ORIGIN = 'https://duncan-haywood.github.io/monorepo-projects/';
 const FILE_RE = /^(\d{4}-\d{2}-\d{2})-([a-z0-9][a-z0-9-]*)\.md$/;
 
 /** Parse the `---` front-matter block. Returns { meta, body }. Only the subset posts use. */
@@ -208,7 +212,13 @@ export function linkSiblings(html, posts) {
   return out;
 }
 
-export function renderPost(post, posts, { baseUrl = '', socialCard = '' } = {}) {
+export function renderPost(post, posts, opts = {}) {
+  const html = renderPostPage(post, posts, opts);
+  const { baseUrl = '' } = opts;
+  return baseUrl && baseUrl !== DEFAULT_SITE_ORIGIN ? html.split(DEFAULT_SITE_ORIGIN).join(baseUrl) : html;
+}
+
+function renderPostPage(post, posts, { baseUrl = '', socialCard = '' } = {}) {
   const canonical = baseUrl ? `${baseUrl}${WRITING_PATH}${post.slug}/` : '';
   const others = posts.filter((p) => p.slug !== post.slug).slice(0, 5);
   const tags = post.tags.map((t) => `<span class="tag">${esc(t)}</span>`).join('');
