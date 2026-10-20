@@ -178,6 +178,10 @@ series, 40 each, in `engine.test.mjs`):
   1.05 with `--trend bends`; two knots found in 40 of 40 (mean 81.6 and 161.7 for a true 80 and 160); on 40 straight
   ramps a bend was kept in 0 of 40. At most three bends, knots only between 20% and 80% of the series. Output:
   `trend.slopeChangesAtAll` and `trend.slopes` when there is more than one. About 0.5 s per 240-point series.
+  With sticky noise (AR(1) rho 0.5, same ramp, seeds 1001..1040) `--trend bends` alone gave 9.25 changes per series
+  (the wandering is cut into steps); `--ar1` brings it to 2.0, and `--ar1 --period 12` with a sine of amplitude 4
+  added to 2.25. Both knots were found in only 23 of 40 series there (against 40 of 40 with white noise): under
+  sticky noise the BIC for a second bend is often not beaten, so a flat stretch can be read as one slope.
 - **`--trend` with `--ar1`.** Sticky noise wanders, and the slope loop inside `--trend` cut that wandering into
   steps whose segments then bent the slope. With `--ar1` the loop now widens its noise scale by the same
   long-run factor. On 200 points, slope 0.1, AR(1) rho 0.5, shift 5 at point 100 (seeds 701..740): PELT gave
