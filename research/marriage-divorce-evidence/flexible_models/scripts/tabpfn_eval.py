@@ -55,9 +55,10 @@ def fit(lens):
                 g = np.unique(group[tr])
                 keep = rng.choice(g, int(len(g) * MAX_ROWS / len(tr)), replace=False)
                 tr = tr[np.isin(group[tr], keep)][:MAX_ROWS]
-            m = TabPFNClassifier(device='cpu', random_state=flex.SEED, ignore_pretraining_limits=False)
+            m = TabPFNClassifier(device='cpu', random_state=flex.SEED, n_estimators=4, memory_saving_mode=True)
             m.fit(X[tr], y[tr].astype(int))
-            P[r, te] = m.predict_proba(X[te])[:, 1]
+            for k in range(0, len(te), 500):   # predict in chunks to bound memory
+                P[r, te[k:k + 500]] = m.predict_proba(X[te[k:k + 500]])[:, 1]
             print(f'repeat {r} fold {f}: {len(tr)} train rows, {time.time() - t0:.0f}s', flush=True)
     import copy
 

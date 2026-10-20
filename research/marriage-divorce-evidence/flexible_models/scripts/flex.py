@@ -314,7 +314,10 @@ class LGBM:
     def _ds(self, L, idx, ref=None):
         import lightgbm as lgb
         X = self.tf.transform(L.df.iloc[idx])
-        return lgb.Dataset(X, label=L.y[idx], weight=L.w[idx], init_score=L.offset(idx), reference=ref,
+        # Poisson: LightGBM skips boost_from_average when an init_score is given, so the offset carries
+        # log(exposure) PLUS the training log mean rate (self.base); predictions add self.base back.
+        init = None if L.family != 'poisson' else L.offset(idx) + self.base
+        return lgb.Dataset(X, label=L.y[idx], weight=L.w[idx], init_score=init, reference=ref,
                            categorical_feature=[c for c in self.tf.cat], free_raw_data=False)
 
     def fit(self, L, idx, seed=SEED, **_):
@@ -323,6 +326,7 @@ class LGBM:
         feats = self.features or L.features
         self.tf = TreeFrame([c for c in L.num if c in feats], [c for c in L.cat if c in feats]).fit(L.df.iloc[idx])
         n = len(idx)
+        self.base = float(np.log(np.dot(L.w[idx], L.y[idx]) / np.dot(L.w[idx], L.e[idx]))) if L.family == 'poisson' else 0.0
         if self.fixed is None:
             val = inner_split(L.group[idx], seed)
             itr, iva = idx[~val], idx[val]
@@ -333,7 +337,7 @@ class LGBM:
             for c in (self.configs or sample_configs(LGB_SPACE, self.n_configs, seed)):
                 b = lgb.train(self._params(c, len(itr)), dtr, num_boost_round=4000, valid_sets=[dva],
                               callbacks=[lgb.early_stopping(100, verbose=False)])
-                pred = inv_link(L.family, b.predict(self.tf.transform(L.df.iloc[iva]), raw_score=True))
+                pred = inv_link(L.family, b.predict(self.tf.transform(L.df.iloc[iva]), raw_score=True) + self.base)
                 loss = row_loss(L.family, L.y[iva], pred, L.w[iva], None if L.e is None else L.e[iva]).sum()
                 self.trials.append(dict(c, rounds=b.best_iteration, inner_loss=float(loss)))
                 if best is None or loss < best[0]:
@@ -346,7 +350,7 @@ class LGBM:
         return self
 
     def raw(self, df):
-        return self.booster.predict(self.tf.transform(df), raw_score=True)
+        return self.booster.predict(self.tf.transform(df), raw_score=True) + self.base
 
     def predict(self, L, idx=None, df=None):
         return inv_link(L.family, self.raw(L.df.iloc[idx] if df is None else df))
@@ -421,7 +425,7 @@ class Forest:
     def __init__(self, kind='rf', n_trees=150, threads=2, configs=None):
         self.kind, self.n_trees, self.threads = kind, n_trees, threads
         self.name = 'random_forest_tuned' if kind == 'rf' else 'extra_trees_tuned'
-        self.configs = configs or [dict(min_leaf_frac=f, max_features=m) for f in (0.0005, 0.002, 0.01) for m in (0.33, 0.6)]
+        self.configs = configs or [dict(min_leaf_frac=f, max_features=m) for f in (0.0005, 0.003) for m in (0.33, 0.6)]
 
     def _est(self, c, n, trees):
         from sklearn.ensemble import ExtraTreesRegressor, RandomForestRegressor
@@ -619,7 +623,8 @@ def quick_ranking(L, idx, seed):
     tf = TreeFrame(L.num, L.cat).fit(L.df.iloc[idx])
     p = dict(objective='poisson' if L.family == 'poisson' else 'binary', learning_rate=0.05, num_leaves=15,
              min_child_samples=max(20, len(idx) // 500), verbose=-1, num_threads=2, seed=seed, lambda_l2=10.0)
-    b = lgb.train(p, lgb.Dataset(tf.transform(L.df.iloc[idx]), L.y[idx], weight=L.w[idx], init_score=L.offset(idx),
+    init = None if L.family != 'poisson' else L.offset(idx) + np.log(np.dot(L.w[idx], L.y[idx]) / np.dot(L.w[idx], L.e[idx]))
+    b = lgb.train(p, lgb.Dataset(tf.transform(L.df.iloc[idx]), L.y[idx], weight=L.w[idx], init_score=init,
                                  categorical_feature=tf.cat), 300)
     imp = b.feature_importance('gain')
     return [f for _, f in sorted(zip(-imp, tf.num + tf.cat))]

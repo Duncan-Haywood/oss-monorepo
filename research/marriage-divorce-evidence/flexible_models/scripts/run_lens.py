@@ -234,7 +234,7 @@ def stage_fc(L, args):
     info = json.loads(p.read_text())['main']['info']
     fold = L.folds[0]
     nfeat = len([c for c in L.features if c != L.dur])
-    ks = sorted({k for k in (1, 2, 3, 5, 8, 12, 16, 24, 32, 48) if k < nfeat} | {nfeat})
+    ks = sorted({k for k in (1, 2, 4, 8, 16, 32) if k < nfeat} | {nfeat})
     P = {(k, m): np.zeros(len(L.y)) for k in ks for m in ('lightgbm', 'additive_glm')}
     const = np.zeros(len(L.y))
     for f in flex.eval_folds(L, fold):
