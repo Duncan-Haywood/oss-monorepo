@@ -134,29 +134,43 @@ Remains:
 - **Conformal or bootstrap intervals on individual predictions.** Current intervals are on
   held-out skill, not on a single couple's rate.
 
-### D. In-browser training (owns `train/`, `tests/train.test.mjs`; hooks in `index.html` are one `<section id="trainPanel">` and one script tag)
+### D. In-browser training (owns `train/`, `tests/train*.test.mjs`; hooks in `index.html` are one `<section id="trainPanel">` and one script tag)
 
-Done (2026-10-20). The "Train the models yourself" panel works as follows:
+Status at 2026-10-20 (PRs #8678, #8766 and the fold-range PR):
 
-- A 374 KB gzipped public extract of the NSFG 1995–2023 women's first marriages.
-- A module worker that runs the five-fold person-held-out comparison in plain JavaScript.
-  It fits a constant rate, a duration-only GLM, the additive spline Poisson GLM, a depth-4
-  tree and Poisson boosting.
-- Results shown beside the shipped Python ones, and profile scoring with the models the
-  visitor just trained.
-- Parity with scikit-learn: GLM coefficients to 4e-14, held-out gains to 0.001 points (boosting
-  0.002).
+Done:
 
-Next:
+- **Data.** A 374 KB gzipped public extract of the NSFG 1995–2023 women's first marriages
+  (29,202 marriages, pre-wedding inputs only; U.S. government work, NCHS data-use terms
+  recorded), built by `train/tools/build_extract.py`.
+- **Models, in plain JavaScript.** A constant rate, a duration-only GLM, the additive spline
+  Poisson GLM (Newton's method), a depth-4 Poisson tree and Poisson gradient boosting.
+- **The held-out test.** The Python pipeline's person-held-out five folds, shown beside the
+  shipped Python results.
+- **Parity with scikit-learn.** GLM coefficients agree to 4e-14 and held-out gains to 0.001
+  points (boosting 0.002), checked by `tests/train.test.mjs`.
+- **Parallel folds.** A pool of workers, one per spare core by default, took a full run from
+  45.5 s on one thread to 18.8 s on three (4-core machine, headless Chromium). The page's
+  thread only routes messages: the longest stall was 57 ms. Covered by
+  `tests/train_parallel.test.mjs`.
+- **Scoring a profile.** Visitors score a profile with the models refitted on every
+  marriage, next to the range across the five fold models. For the default profile, the
+  10-year range is 18.6–22.9% for the GLM, 26.5–34.6% for the tree and 15.0–23.1% for
+  boosting.
+
+Remaining, most useful first:
 
 1. Time a run on real phones and report it. Only headless Chromium on a cloud machine has been
-   timed so far. Parallel folds (done 2026-10-20) took a full run from 45.5 s on one thread to
-   18.8 s on three, on 4 cores.
-2. Add a both-sexes extract, which would retrain `models_both_sexes`, and other lenses whose
-   terms allow person-level rows: SIPP, ACS and Statistics Canada PUMFs. Check each licence
-   first.
-3. Add person-bootstrap intervals for the browser-trained gains.
-4. Store a trained model in the URL or as a download, so a visitor can share it.
+   timed.
+2. Train on the harmonized pre-wedding features (`models/prewedding_harmonized.json`, workstream
+   B), so the trained model scores the same inputs as the default "before the wedding" lens.
+   That needs its person-level rows as a licence-checked extract, as here.
+3. Fill the scorer from the calculator's own form ("use my answers above"), through an adapter
+   agreed with workstream C. The panel has its own form today, so it never touches C's files.
+4. Add a both-sexes extract (would retrain `models_both_sexes`), and other lenses whose terms
+   allow person-level rows: SIPP, ACS and Statistics Canada PUMFs. Check each licence first.
+5. Add person-bootstrap intervals for the browser-trained gains.
+6. Let a visitor download a trained model, or share it in a link.
 
 ### C. App and write-up (owns `index.html`, `app.js`, `couple.js`, `style.css`, `../README.md`, `../LOG.md` headline)
 
@@ -211,21 +225,23 @@ Done (2026-10-19/20, PRs #8537, #8556 and the round-3 PR):
   selected before-the-wedding lens for the years after a wedding (a labelled approximation that
   joins two surveys). Shown only before the wedding; relationship questions are visible there
   and the relationship status follows the stage (`tests/dating.test.mjs`).
+- Per-partner explanations: a two-perspective lens shows one bar set per partner, each exact for
+  that perspective's rate, and states that the couple's rate is their average
+  (`tests/explain_rows.test.mjs`). Default ages follow the stage: 28 and 30 before the wedding
+  (about the recent U.S. median ages at first marriage), 36 and 38 in the married view (inside
+  NLSY79's 35–64); a typed age is never changed.
 
 Remaining:
 
-- Before the wedding, next: a default couple at typical first-wedding ages; per-model ranges
-  for the dating chain once the trees beat the period-only baseline; and a joint (not two
-  separately fitted) marry/break-up model if workstream A refits HCMST.
+- Before the wedding, next: B's per-couple uncertainty intervals for the harmonized lens
+  (#8736, still a draft) shown on the tiles once merged; a joint (not two separately fitted)
+  marry/break-up model if workstream A refits HCMST.
 - Mortality refinements. Married people's lower death rates and the correlation between
   spouses' deaths are not modelled; the app says so under the lifelong tiles. Lifelong figures
   over long horizons also lean on years outside each lens's data (the page counts them).
 - Fair's affairs lenses are listed but not scored. Their outcome is a reported affair, not
   divorce, and they need marriage-rating, religiousness and occupation inputs. If added, they
   belong in a separate "relationship quality" panel, not the divorce chart.
-- Explanations for two-perspective lenses average the per-input log contributions of the two
-  rows. That is exact for each row but only approximate for the averaged rate; show per-partner
-  bars instead.
 - Calibration plots and bootstrap intervals once workstream B ships them per bundle. Today's
   uncertainty is the spread across models only.
 - Done 2026-10-20: every lens scored (adapters in `lens-adapters.js`), per-lens OOD (the NLSY79

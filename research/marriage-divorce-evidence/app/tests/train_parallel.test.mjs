@@ -34,4 +34,17 @@ for (const fold of folds) {
 }
 assert.ok(seenRows.every((c) => c === 1), 'each marriage-year is held out once');
 assert.ok(seenPeople.every((c) => c === 1), 'each woman is held out once');
+// each fold carries its fitted model (the profile scorer's range uses them), and that model,
+// after structured cloning, reproduces the fold's own held-out predictions
+for (const fold of folds) {
+  for (const k of kinds) {
+    const { model, rows, pred } = fold[k];
+    for (const j of [0, Math.floor(rows.length / 2), rows.length - 1]) {
+      const r = rows[j];
+      const [nv, cv] = F.personInputs(D, R.person[r]);
+      const again = F.rates(model, nv, cv, [R.k[r]], D)[0];
+      assert.ok(Math.abs(again / pred[j] - 1) < 1e-12, `${k}: fold model reproduces its prediction`);
+    }
+  }
+}
 console.log(`train_parallel: 5 folds in any order merge to the single-thread result; GLM ${parallel.additive_spline.deviance_gain_percent.toFixed(3)}%, tree ${parallel.tree_depth4.deviance_gain_percent.toFixed(3)}%`);
