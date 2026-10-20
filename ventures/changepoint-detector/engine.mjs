@@ -767,6 +767,34 @@ export function makeCost(x, model = 'mean', sigma = robustSd(x), rho = 0, exposu
     // -2 [a log(mu / (mu + r)) + m r log(r / (mu + r))] with mu = a / m, the maximum-likelihood mean for any fixed r.
     // As r grows this tends to the Poisson cost.
     if (!(size > 0)) throw new Error('The negative-binomial cost needs a size r > 0.');
+    if (exposure) {
+      // Per-point exposures e (a seasonal factor, a trend): the mean at t is lam e[t], and lam has no closed form,
+      // so the segment's lam is the Poisson estimate a / sum(e) polished by two Newton steps on the NB score.
+      // The cost is O(segment length), not O(1); PELT's pruning keeps the candidate set small.
+      return (s, t) => {
+        let a = 0, E = 0;
+        for (let i = s; i < t; i++) { a += x[i]; E += exposure[i]; }
+        if (!(E > 0)) return 0;
+        let lam = a / E;
+        for (let k = 0; k < 2 && lam > 0; k++) {
+          let g = 0, h = 0;
+          for (let i = s; i < t; i++) {
+            const e = exposure[i], d = lam * e + size;
+            g += x[i] / lam - (x[i] + size) * e / d;
+            h += -x[i] / (lam * lam) + (x[i] + size) * e * e / (d * d);
+          }
+          const next = lam - g / h;
+          if (!(h < 0) || !(next > 0)) break;
+          lam = next;
+        }
+        let ll = 0;
+        for (let i = s; i < t; i++) {
+          const mu = lam * exposure[i];
+          ll += (x[i] > 0 ? x[i] * Math.log(mu / (mu + size)) : 0) + size * Math.log(size / (mu + size));
+        }
+        return -2 * ll;
+      };
+    }
     return (s, t) => {
       const m = t - s;
       const a = S1[t] - S1[s];
@@ -1093,8 +1121,6 @@ export function analyze(input = {}) {
   let nbSize = 0;
   if (o.overdispersion === 'nb') {
     if (model !== 'poisson') throw new Error('The negative-binomial cost is for counts: use model "poisson".');
-    if (o.period || o.trend) throw new Error('The negative-binomial cost does not yet combine with a seasonal period or a trend: use plain --overdispersion.');
-    nbSize = negbinSize(values);
   } else if (o.overdispersion) {
     if (model !== 'poisson') throw new Error('The dispersion correction is for counts: use model "poisson".');
     phi = typeof o.overdispersion === 'number' ? Math.max(1, o.overdispersion) : countDispersion(values, period);
@@ -1112,6 +1138,7 @@ export function analyze(input = {}) {
   }
   let slope = null, slopeAfter, knot, knots, slopes;
   let growth = null, countKnot, growthAfter;
+  const nbAfterExposure = () => { if (o.overdispersion === 'nb') nbSize = negbinSize(exposure ? original.map((v, t) => v / exposure[t]) : values); };
   if (o.trend && model === 'poisson') {
     if (o.trend !== true && o.trend !== 'bend') throw new Error('For counts, --trend takes one common growth rate under the steps, or "bend" for one change of growth rate: "bends" is for "mean" or "meanvar".');
     const fit = poissonTrend(original, { base: exposure, penalty, minSegment: Math.max(1, Math.floor(Number(o.minSegment) || 2)), bend: o.trend === 'bend', knotMargin: o.knotMargin, scale: phi ?? 1 });
@@ -1121,6 +1148,7 @@ export function analyze(input = {}) {
   } else if (o.trend) {
     ({ adjusted: values, slope, slopeAfter, knot, knots, slopes } = trendAdjust(values, { penalty: o.penalty, minSegment: Math.max(1, Math.floor(Number(o.minSegment) || (model === 'meanvar' ? 5 : 2))), ar1: !!o.ar1 && model === 'mean', bend: o.trend === 'bend' ? 1 : o.trend === 'bends' ? 3 : false, joint: !!o.jointKnots, knotMargin: o.knotMargin }));
   }
+  nbAfterExposure();
   let sigma = robustSd(values);
   let rho = null;
   const joint = o.ar1 === 'joint';
@@ -1134,7 +1162,7 @@ export function analyze(input = {}) {
   if (joint) {
     p = ar1JointFit(values, { penalty: o.penalty, minSegment });
     ({ rho, sigma } = p);
-  } else p = isFinite(nbSize) && nbSize > 0 ? pelt(values, { model: 'negbin', penalty, minSegment, size: nbSize }) : pelt(values, { model, penalty, minSegment, sigma, exposure });
+  } else p = isFinite(nbSize) && nbSize > 0 ? pelt(values, { model: 'negbin', penalty, minSegment, size: nbSize, exposure }) : pelt(values, { model, penalty, minSegment, sigma, exposure });
   const bounds = [0, ...p.changepoints, values.length];
   const segments = [];
   const lines = [];

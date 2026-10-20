@@ -196,8 +196,15 @@ series, 40 each, in `engine.test.mjs`):
   cost, 0.78 with the quasi-Poisson penalty (`--overdispersion`), 0.13 with the negative binomial. With a 1.8x step at 100 the
   step was found within 10 points on 39 of 40 with either correction, at 1.27 changes per series against 1.50. Sticky counts
   (lag-1 memory 0.6) are not helped: 6.75 false changes per series against 1.20 for the quasi-Poisson penalty, because the
-  negative binomial still treats counts as independent, so use plain `--overdispersion` there. Not yet combined with
-  `--period`, `--trend` or the Bayesian pass.
+  negative binomial still treats counts as independent, so use plain `--overdispersion` there. Combined with `--period` and
+  `--trend` below; not yet with the Bayesian pass.
+- **Clumpy counts with a season or a trend (`--overdispersion nb --period n`, `--trend`, added 2026-10-20).** The negative-binomial cost now
+  takes the seasonal factors or the fitted growth as per-point exposures (mean `lam e[t]`; `lam` per segment from the Poisson estimate
+  and two Newton steps, so the cost is O(segment length) rather than O(1)); `r` is estimated on the counts divided by the exposure.
+  210 weekly counts (factors 1.6 to 0.5), rate 10, lognormal clumping sd 0.35, seeds 1800..1839, false changes per series on a flat
+  series: Poisson 3.92, quasi-Poisson 0.42, NB 0.05; with a 1.8x step at 105 found within 10 points 40/40 each, at 7.90, 1.70 and
+  1.25 changes per series. With `--trend` on a log-linear ramp (0.4% a point): flat 10.03, 1.90, 0.78; the step is found 40/40 by Poisson,
+  21/40 by quasi-Poisson and 34/40 by NB (so NB keeps most of the power the tempered penalty loses, at 1.93 changes per series).
 - **Drifting seasonality (`--period n --drift`).** The fixed profile is wrong when the
   cycle's amplitude grows or its peak moves. With `--drift` each phase is smoothed across
   cycles by a running median (5 cycles, 3 on short series), re-centred per cycle. On 144

@@ -30,7 +30,7 @@ Options:
                             with --model poisson, a common log-linear growth rate (multiplicative, composes with --period)
   --knot-margin f          with --trend bend(s): keep this fraction of the series clear at each end when looking for knots (default 0.1 = knots at 10 to 90%; 0.2 = the old 20 to 80%)
   --joint-knots             with --trend bends: also score every pair of knots, not only the greedy search's (slower, about 2 s per 240 points)
-  --overdispersion [phi|nb] counts (nb: a negative-binomial cost for independent clumpy counts, no --period or --trend): scale the penalty by the counts' dispersion (variance over mean, estimated from block totals, or the number given), so sticky or clumped counts are not cut into many steps
+  --overdispersion [phi|nb] counts (nb: a negative-binomial cost for independent clumpy counts, also with --period and --trend): scale the penalty by the counts' dispersion (variance over mean, estimated from block totals, or the number given), so sticky or clumped counts are not cut into many steps
   --ar1 [joint]             allow for lag-1 autocorrelation (mean model): widen the noise scale, or
                             'joint' to fit the means and rho together (more power on small shifts)
   --hazard <n>              Bayesian expected points between changes (default: ${DEFAULTS.hazardLambda})
