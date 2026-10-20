@@ -74,6 +74,7 @@ beats the pattern on its own.
 | 10-19 | Mirror tree came back (6,202 files) | one more removal round | #8638 guard |
 | to 10-20 | Regression check compared each push with a later `main` tip | 77% of `main` validate runs falsely red | #8765; rule 3 |
 | to 10-20 | `main` test runs cancelled by the next merge | 44% of `main` runs gave no verdict | P038; rule 5 |
+| 10-20 | #8723 added a `feedback/` page that `check.mjs` treated as a product; the Pages build failed and nothing deployed after 08:48 | every merged post and page waited, unpublished | `feedback/` made a site-own directory (#8779, carried in #8765) |
 | 10-20 | `concurrency_tax.py` timed out in a cloud session | the measurement had to be rebuilt by hand | P041 |
 
 ## Alternatives we weighed (2026-10-20)
