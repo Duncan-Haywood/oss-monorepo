@@ -3557,6 +3557,11 @@
      "slug": "mimic-webcam",
      "title": "Can a generator imitate a person's webcam emotion signals well enough to fool a detector?",
      "summary": "Webcam, the third subject of the adversarial-imitation track, signals first: no pixels or faces. Ten-second windows of 12 facial-coding channels (Affectiva scores logged by DUX, CC-BY-4.0) from 46 people, split by person. Six fixed generators from constant to AR(1) with channel correlation, holds and spikes, and an imitator that tunes its own generator code against a 3-feature-group detector for 30 rounds (8 seeds; 4 seeds at 8&times; the budget), are all separated from held-out people by a boosted-tree reference detector the loop never saw at AUROC 0.997 or higher. Only replaying whole windows of other people gets near chance (0.61, which is the gap between people). Preliminary and stylised: one context, a fixed component library, and windows biased toward moments when the person was using the mouse or keyboard."
+    },
+    {
+     "slug": "mimic-webcam-tails",
+     "title": "Does giving a webcam-signal generator real heavy tails and bursts fool a detector?",
+     "summary": "Follow-up to <em>mimic-webcam</em> on DUX facial-coding scores of 46 people. Generators that take each channel's marginal from the training people (Gaussian copula through empirical quantiles; quiet/burst regimes) still separate from 14 held-out people at reference AUROC 1.000 (8 seeds). Matching marginals alone made level and spread easier to catch (0.99&ndash;1.00 vs 0.91 and 0.94 for the Gaussian baseline); restoring per-window level and spread brings them to 0.54 and 0.57, but extremes (0.995), holds (0.995) and autocorrelation (0.94) still give it away. Stylised: hand-built generators, one context, post-hoc final variant."
     }
    ]
   },
