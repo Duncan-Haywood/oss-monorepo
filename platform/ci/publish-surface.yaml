@@ -569,6 +569,13 @@ workflows:
 - workflow: ebs-volume-cost-advisor-ci.yml
   classification: none
   publishes: []
+- workflow: edge-deploy.yml
+  classification: gated
+  publishes:
+  - job: deploy
+    step: runs 'wrangler deploy'
+    gates:
+    - ${{ needs.gate.outputs.ready == 'true' }}
 - workflow: egress-window-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -1369,6 +1376,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: sign-language-interpreter-rate-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: site-usage-pull.yml
   classification: none
   publishes: []
 - workflow: sitemap-lastmod-freshness-check-ci.yml
