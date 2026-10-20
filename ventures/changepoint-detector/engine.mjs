@@ -92,6 +92,9 @@ export const DEFAULTS = {
   // so a drifting, sticky series is not cut into many false segments. 'joint': fit the
   // segment means and rho together on the exact AR(1) likelihood (more power on small shifts).
   ar1: false,
+  // true: fit one linear trend under the steps and remove it, so a slow ramp is not read as many
+  // small level changes (mean and meanvar models; applied after the seasonal adjustment).
+  trend: false,
 };
 
 // ---------------------------------------------------------------- pre-steps
@@ -163,6 +166,42 @@ function driftAdjust(x, m, trend0, profile) {
     for (let p = 0; p < m; p++) { const t = c * m + p; if (t < n) adjusted[t] = x[t] - (d[p][c] - centre); }
   }
   return { adjusted, profile };
+}
+
+/**
+ * A common linear trend under the steps: the series is steps plus one slope.
+ * Start from the median first difference (a step touches one difference, so it
+ * barely moves the median), segment with PELT, re-estimate the slope as the
+ * pooled within-segment least-squares slope, and repeat until it settles.
+ * Returns { adjusted, slope } with the slope per point; the adjusted series
+ * keeps the mean level of the input.
+ */
+export function trendAdjust(x, { penalty = 'bic', minSegment = 2, passes = 10 } = {}) {
+  const n = x.length;
+  const d = [];
+  for (let i = 1; i < n; i++) d.push(x[i] - x[i - 1]);
+  let b = median(d);
+  const detrend = (b) => x.map((v, t) => v - b * (t - (n - 1) / 2));
+  for (let k = 0; k < passes; k++) {
+    const y = detrend(b);
+    // a heavier penalty while the slope is unsettled: only large steps may shape it
+    const cps = pelt(y, { model: 'mean', penalty: 3 * penaltyValue(penalty, n, 'mean'), minSegment, sigma: robustSd(y) }).changepoints;
+    const bounds = [0, ...cps, n];
+    let sxy = 0, sxx = 0;
+    for (let i = 0; i + 1 < bounds.length; i++) {
+      const a = bounds[i], e = bounds[i + 1], len = e - a;
+      if (len < 8) continue; // a short segment fits its own noise, not the slope
+      let mt = 0, mx = 0;
+      for (let t = a; t < e; t++) { mt += t; mx += x[t]; }
+      mt /= len; mx /= len;
+      for (let t = a; t < e; t++) { sxy += (t - mt) * (x[t] - mx); sxx += (t - mt) ** 2; }
+    }
+    const nb = sxx > 0 ? sxy / sxx : b;
+    const done = Math.abs(nb - b) < 1e-9;
+    b = nb;
+    if (done) break;
+  }
+  return { adjusted: detrend(b), slope: b };
 }
 
 /**
@@ -719,6 +758,11 @@ export function analyze(input = {}) {
     if (model === 'poisson') throw new Error('The seasonal adjustment subtracts a profile, which breaks counts: use "mean" or "meanvar" with a period.');
     ({ adjusted: values, profile } = seasonalAdjust(original, period, { drift: !!o.drift }));
   }
+  let slope = null;
+  if (o.trend) {
+    if (model === 'poisson') throw new Error('The trend removal subtracts a line, which breaks counts: use "mean" or "meanvar" with a trend.');
+    ({ adjusted: values, slope } = trendAdjust(values, { penalty: o.penalty, minSegment: Math.max(1, Math.floor(Number(o.minSegment) || (model === 'meanvar' ? 5 : 2))) }));
+  }
   let sigma = robustSd(values);
   let rho = null;
   const joint = o.ar1 === 'joint';
@@ -790,6 +834,7 @@ export function analyze(input = {}) {
     model,
     noiseSd: round(sigma),
     ...(period ? { seasonal: { period, profile: profile.map((v) => round(v)) } } : {}),
+    ...(slope !== null ? { trend: { slopePerPoint: round(slope, 6) } } : {}),
     ...(rho !== null ? { ar1: { rho: round(rho, 3) } } : {}),
     pelt: { penalty: round(p.penalty), minSegment, changepoints: changes, segments },
     bocpd: {
@@ -802,7 +847,7 @@ export function analyze(input = {}) {
     },
     labels,
     values: original,
-    ...(period ? { adjusted: values.map((v) => round(v)) } : {}),
+    ...(period || o.trend ? { adjusted: values.map((v) => round(v)) } : {}),
     summary,
   };
 }
