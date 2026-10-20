@@ -231,14 +231,27 @@ def within(name, d, kinds, folds=5):
 
 
 def external(train_name, tr, test_name, te, kinds):
-    num, cat = usable(coverage(tr), coverage(te))
+    """Train on one dataset, test on another. Two feature sets: every shared feature, and the
+    same without wedding year (cohorts barely overlap, so a period trend must extrapolate).
+    Deviance gain is reported twice: against the TRAINING constant rate (what transports as
+    is) and after rescaling the model's rates to the test data's overall level, against the
+    test data's own constant (ranking and shape only; calibration-in-the-large removed)."""
+    num_all, cat = usable(coverage(tr), coverage(te))
     tr_iv, te_iv = intervals(tr), intervals(te)
     const = (tr_iv.weight * tr_iv.y).sum() / (tr_iv.weight * tr_iv.exposure).sum()
+    y, e, w = te_iv.y.to_numpy(), te_iv.exposure.to_numpy(), te_iv.weight.to_numpy()
+    te_const = np.dot(w, y) / np.dot(w, e)
     rows = []
-    for k in kinds:
-        m = Model(k, num, cat).fit(tr_iv)
-        r = evaluate(te, te_iv, m.rate(te_iv), m.cumhaz(te, 10), const)
-        rows.append(dict(train=train_name, test=test_name, model=k, features=';'.join(num + cat), **r))
+    for variant, num in [('all_shared', num_all), ('no_wedding_year', [c for c in num_all if c != 'wedding_year'])]:
+        for k in kinds:
+            if variant == 'no_wedding_year' and k == 'duration_only':
+                continue
+            m = Model(k, num, cat).fit(tr_iv)
+            rate = m.rate(te_iv)
+            r = evaluate(te, te_iv, rate, m.cumhaz(te, 10), const)
+            scaled = rate * np.dot(w, y) / np.dot(w, e * rate)
+            r['deviance_gain_recalibrated_percent'] = 100 * (1 - sm.deviance(y, e, w, scaled) / sm.deviance(y, e, w, np.full(len(y), te_const)))
+            rows.append(dict(train=train_name, test=test_name, variant=variant, model=k, features=';'.join(num + cat), **r))
     return rows
 
 
