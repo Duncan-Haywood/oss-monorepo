@@ -114,8 +114,10 @@ flagships:
       trip count on three venues, README). Rainouts across divisions are in
       (applyDivisionRainouts: a night, a division or named teams, optional make-up date, linked-team aware, re-validated; page step 4).
       A share link now carries the division form (#d=, round-trip tested, opened in headless Chromium).
-      Next: filling partial nights (split a round
-      across nights without breaking its balance).
+      Partial nights are filled too (splitRounds, a page box: example league
+      on 3 courts 17 -> 13 nights, README). Next: carry byes and home/away
+      balance across split parts when a rainout removes a night, or
+      multi-season carry-over of venue fairness.
   - venture: open-tennis-robots
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
