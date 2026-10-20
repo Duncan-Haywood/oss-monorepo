@@ -23,7 +23,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": true,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
@@ -32,7 +32,7 @@
   "doc_friction": [],
   "deviations": [],
   "goal": null,
-  "notes": "Owner asked for opinion pieces (three messages, quoted verbatim). Wrote two posts in docs/posts/, added 'Direction: depth over calculators' to prompts/goals.md and a pointer in PRODUCT_PLAYBOOK.md section 2. Checks: node --test writing.test.mjs writing-backlog.test.mjs 11/11 pass; writing.mjs builds 13 posts; promptctl validate ok. Counts from main 2026-10-20: ls ventures = 1309, *-calculator = 647, *-bid-calculator = 121, calc.mjs files in *-calculator = 589 averaging 258 lines; 765 research project dirs; 24 open PRs with 'calculator' in title.",
+  "notes": "Owner asked for opinion pieces (three messages, quoted verbatim). Wrote two posts in docs/posts/, added 'Direction: depth over calculators' to prompts/goals.md and a pointer in PRODUCT_PLAYBOOK.md section 2. Checks: node --test writing.test.mjs writing-backlog.test.mjs 11/11 pass; writing.mjs builds 13 posts; promptctl validate ok. Counts from main 2026-10-20: ls ventures = 1309, *-calculator = 647, *-bid-calculator = 121, calc.mjs files in *-calculator = 589 averaging 258 lines; 765 research project dirs; 24 open PRs with 'calculator' in title. CI build failed once: custom-domain.test.mjs forbids absolute github.io links in built pages; switched the two research links to ../../research/, custom-domain + writing tests 13/13 pass locally.",
   "corrections": [],
   "redteam": null
 }

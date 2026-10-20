@@ -65,7 +65,7 @@ to the user's own data, with an honest statement of how good the answer is.
   cutting and packing, scheduling with proofs of optimality or bounds.
 - **Physics and engineering:** finite-element checks, thermal and structural
   simulation, control design, the kind of models this repository's
-  [research tracks](https://duncan-haywood.github.io/monorepo-projects/research/)
+  [research tracks](../../research/)
   already build.
 - **Mechanism design and scoring:** proper scoring rules, auctions, market
   makers, again with research in this repository behind them.

@@ -53,7 +53,7 @@ rather than for people.
 Meanwhile the work that is hard and worth doing is sitting there:
 
 - **Research.** `research/` has 765 project folders across
-  [28 topics](https://duncan-haywood.github.io/monorepo-projects/research/):
+  [28 topics](../../research/):
   self-replicating manufacturing, open-source robots, LLM and algorithmic
   chip-design loops, task-specific AI accelerators, simulation-first
   mechanical design, engineered clothing, open-source house construction,
