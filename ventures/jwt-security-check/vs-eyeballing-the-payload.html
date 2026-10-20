@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>JWT Security Check vs. eyeballing the payload</title>
-  <meta name="description" content="Pasting the two segments into a base64 decoder and reading the JSON catches an obviously wrong claim value. It does not catch alg:none, an embedded jwk/jku key, a kid header shaped like a path-traversal payload, or a symmetric-vs-asymmetric algorithm-confusion risk -- none of which look wrong to a human reader. This free tool checks for the exact patterns a read-through cannot see, in your browser, with no upload.">
+  <meta name="description" content="Pasting the two segments into a base64 decoder and reading the JSON catches an obviously wrong claim value.">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="./vs-eyeballing-the-payload.html">
   <meta property="og:type" content="article">
