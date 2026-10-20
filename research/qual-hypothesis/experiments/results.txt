@@ -1,0 +1,40 @@
+GoEmotions (first file): 5313 examples; set 1 = human code negative emotion (0.247), set 0 = the rest.
+Hypothesis = 'the comment contains the word w'. Proposer: the 20 words with the largest |z| in a discovery sample (word in at least 5 discovery comments). Held-out: 3000 other comments, BH at 5% over the 20. 200 random splits per row, seeded.
+
+E1. Replication of the proposer's top hypotheses on held-out comments
+discovery_n mean_disc_effect mean_heldout_effect replicated_of_20 share_replicated_that_restate_label
+100 0.0948 0.0125 0.80 0.069
+300 0.0550 0.0119 3.55 0.363
+1000 0.0283 0.0132 10.31 0.578
+2000 0.0211 0.0141 14.65 0.590
+
+E2. Same procedure with the labels shuffled (no true effect): discoveries that replicate, and the
+discovery-sample effects that made them look worth testing
+discovery_n mean_disc_effect mean_heldout_effect replicated_of_20 share_of_splits_with_any_replicated
+100 0.0920 0.0092 0.030 0.025
+300 0.0500 0.0064 0.035 0.030
+1000 0.0224 0.0045 0.025 0.025
+2000 0.0133 0.0034 0.065 0.055
+
+E3. One full-size split (discovery 1000): the hypotheses, discovery effect, held-out effect, replicated
+word disc_effect heldout_effect p replicated restates_label
+sorry +0.060 +0.054 2.1e-21 yes yes
+fucking +0.036 +0.012 0.0015 yes no
+sad +0.031 +0.016 7.5e-09 yes yes
+worse +0.020 +0.006 0.035 no no
+hate +0.025 +0.027 4.9e-11 yes yes
+weird +0.025 +0.007 0.06 no no
+problem +0.019 +0.001 0.72 no no
+m +0.040 +0.023 0.00027 yes no
+t +0.050 +0.005 0.59 no no
+don +0.030 +0.008 0.1 no no
+stupid +0.018 +0.014 2.1e-05 yes yes
+worst +0.018 +0.013 7.5e-06 yes yes
+stand +0.015 +0.000 0.96 no no
+shit +0.022 +0.011 0.00075 yes yes
+fuck +0.019 +0.015 0.00017 yes yes
+she -0.034 -0.014 0.057 no no
+school +0.017 +0.004 0.15 no no
+damn +0.014 +0.013 0.0012 yes yes
+those +0.022 -0.000 0.96 no no
+lol -0.022 -0.024 0.00015 yes no
