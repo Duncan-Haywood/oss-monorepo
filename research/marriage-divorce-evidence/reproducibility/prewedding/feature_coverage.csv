@@ -1,6 +1,6 @@
-dataset,wife_age,husband_age,age_gap,wedding_year,wife_educ,husband_educ,wife_prior_marriage,husband_prior_marriage,wife_prior_children,husband_prior_children,cohabited_first,wife_race,husband_race,same_race,intact_family,religion_raised,respondent_sex
-canada_gss,0.6768,0.579,0.2557,1.0,0.0,0.0,0.6208,0.5041,0.5648,0.4352,0.9978,0.0,0.0,0.0,0.9986,0.0,1.0
-nlsy79,0.9495,0.9604,0.9099,1.0,0.5473,0.6067,0.4706,0.5294,0.4703,0.5276,0.9546,0.4676,0.5251,0.0,0.9981,0.9956,1.0
-nlsy97,0.9691,0.9653,0.9344,1.0,0.7147,0.6958,0.5715,0.5211,0.5715,0.5211,0.9996,0.9771,0.9716,0.9488,0.9994,0.9882,1.0
-nsfg_pooled,0.6739,0.99,0.6638,1.0,0.3779,0.1841,0.6739,0.9979,0.6732,0.8404,0.9984,0.6739,0.9398,0.6136,0.9998,0.9023,1.0
-sipp,0.5268,0.4732,0.0,1.0,0.3774,0.3418,0.5268,0.4732,0.4972,0.1753,0.0,0.5268,0.4732,0.0,0.0,0.0,1.0
+dataset,respondent_age,spouse_age,age_gap,wedding_year,respondent_educ,spouse_educ,spouse_prior_marriage,respondent_prior_children,spouse_prior_children,cohabited_first,respondent_race,spouse_race,same_race,intact_family,religion_raised,respondent_sex
+canada_gss,1.0,0.2557,0.2557,1.0,0.0,0.0,0.1249,1.0,0.0,0.9978,0.0,0.0,0.0,0.9986,0.0,1.0
+nlsy79,1.0,0.9099,0.9099,1.0,0.9954,0.1585,0.0,0.9979,0.0,0.9546,0.9928,0.0,0.0,0.9981,0.9956,1.0
+nlsy97,1.0,0.9344,0.9344,1.0,0.9982,0.4123,0.0926,1.0,0.0926,0.9996,1.0,0.9488,0.9488,0.9994,0.9882,1.0
+nsfg_pooled,1.0,0.6638,0.6638,1.0,0.562,0.0,0.6717,0.9993,0.5143,0.9984,1.0,0.6136,0.6136,0.9998,0.9023,1.0
+sipp,1.0,0.0,0.0,1.0,0.7192,0.0,0.0,0.6725,0.0,0.0,1.0,0.0,0.0,0.0,0.0,1.0
