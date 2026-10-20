@@ -1,0 +1,61 @@
+{
+  "date": "2026-10-20",
+  "session": "https://claude.ai/code/session_01SsUX22XmvNxAkkUbJLJxx3",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "Owner asked for a new long-running creative project: CC-licensed AI-written sci-fi (Catholic worldview, hopeful, realistic), stories for AI agents, and Catholic saints bedtime stories, with RSS and audio on podcast platforms; one of each today.",
+  "input_sha256": "dca0c0a0f0ca126cf5e14ad50f692a9236a8aa053efbbcd92c7b346c1829c2cf",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-20T06:31:10Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "New venture hearth-and-horizon: three CC BY-SA story collections (sci-fi, stories for AI agents, Catholic saints bedtime stories) with pages, Piper TTS audio and podcast RSS feeds; one story per collection.",
+  "projects": [
+    "ventures/hearth-and-horizon"
+  ],
+  "pr": 8683,
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First CI run failed by design: commit 1 left out generated pages, so the staleness test failed until they and the audio were committed.",
+    "pkill -f render_audio.py matched its own shell and killed the command (exit 144)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "PRODUCT_PLAYBOOK.md",
+      "issue": "The definition of done and prompts/ventures/prompt-1.md assume a tool with a self-deploy path; a content venture (stories, podcast) has none, so the one-click deploy line had to be read as not applicable."
+    },
+    {
+      "file": "platform/pages/check.mjs",
+      "issue": "SERVED_EXTENSIONS had no .mp3, so serving audio needed a platform edit; the error message did name the fix clearly."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "No one-click self-deploy for a story collection: the stories are CC BY-SA and the generator is MIT, so anyone can re-host by copying the directory. Building OpenTofu for static fiction would have been building something a sensible person would not."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "Committed ~audio MP3s (tens of MB total) to the tree so podcast enclosures resolve on GitHub Pages today; noted in the PR that audio can move to the Internet Archive or release assets later by changing one URL helper."
+    }
+  ],
+  "goal": "Ship one finished story per audience with text, audio and podcast feeds, and say what the owner must do to list the feeds on Apple Podcasts, Spotify and YouTube.",
+  "notes": "Audio rendered offline with Piper and the public-domain LJSpeech voice (no API cost). Owner asks: an owner email for itunes:owner (Spotify verification) and one-time feed submission to Apple Podcasts Connect, Spotify for Creators, YouTube Studio and Podcast Index.",
+  "corrections": [],
+  "redteam": null
+}
