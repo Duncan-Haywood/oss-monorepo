@@ -1,7 +1,7 @@
 {
   "id": "P039",
   "title": "The dead apex-mirror staleness step takes 7.5 of Portfolio validate's 10 minutes",
-  "status": "open",
+  "status": "done",
   "owner": "agent",
   "effect": 2,
   "cost": 1,
@@ -18,7 +18,7 @@
   "baseline": "~10 min, of which 7 min 36 s is this step (run 39398672489, 2026-10-20)",
   "opened": "2026-10-20",
   "source": "git-pattern re-measurement, PR #8765 (docs/parallel-agents.md, 'Re-measured 2026-10-20')",
-  "pr": null,
+  "pr": "this PR (branch claude/upbeat-ptolemy-5h04nw)",
   "result": null,
   "history": []
 }
