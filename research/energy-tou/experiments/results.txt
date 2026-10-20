@@ -1,0 +1,38 @@
+Assumed inputs: 8,000 kWh/yr load, 40N, 6% discount, battery 15 y, 90% round trip, C/2, export $0.05.
+TOU tariff (assumed): $0.15 off-peak 21-07h, $0.28 shoulder, $0.45 peak 16-21h. Flat: $0.30. Mean of 10 weather seeds.
+Load-weighted mean import price: flat 0.300, TOU 0.296
+
+A. Break-even installed battery price ($/kWh), 6 kW PV, 10 kWh, by tariff and dispatch
+tariff policy grid_charge breakeven vs_800
+flat greedy 0.0 444 does not pay
+tou greedy 0.0 553 does not pay
+tou peak 0.0 543 does not pay
+tou peak 0.5 674 does not pay
+tou peak 1.0 641 does not pay
+
+B. Break-even ($/kWh) by battery size, TOU tariff, peak dispatch with full off-peak grid charge, 6 kW PV
+batt_kwh breakeven flat_greedy_breakeven
+2.5 856 557
+5 847 516
+10 641 444
+15 427 344
+20 320 269
+
+C. Break-even ($/kWh), 10 kWh, peak dispatch with full grid charge, by PV size (0 = battery for arbitrage alone)
+pv_kw tou_breakeven flat_breakeven
+0 736 0
+2 694 91
+4 662 312
+6 641 444
+8 626 521
+
+D. Peak-to-off-peak price spread needed: peak price swept, off-peak $0.15, shoulder $0.28; 6 kW PV, 10 kWh, peak dispatch + full grid charge
+peak_price breakeven
+0.28 307
+0.35 414
+0.45 641
+0.55 868
+0.70 1208
+
+E. Annual bill ($) for 6 kW PV, 10 kWh vs 6 kW PV alone, TOU, peak dispatch + grid charge
+no_battery 1365  battery 705  saving 660
