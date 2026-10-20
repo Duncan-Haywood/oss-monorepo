@@ -3252,6 +3252,11 @@
      "summary": "Of 1,638 run records, 882 carry both a cost and a tool-call count. Cost per call is almost constant (median $0.031, 10th to 90th percentile $0.026 to $0.038); a log-log fit has R<sup>2</sup> 0.91 and misses held-out runs by a median of 9% (90th percentile 25%), no better than a flat cost-per-call multiplier. The pooled slope of 1.22 (1.18 to 1.26) is partly group mixing: it is 1.10 within Sonnet runs and 0.96 within Opus runs (wide interval). Cost is API-equivalent and derived from the same transcript as the call count, so the fit checks the measurement, not agent behaviour. Preliminary."
     },
     {
+     "slug": "swe-cachecost",
+     "title": "Where does an agent run's cost go, and why does it grow faster than its tool calls?",
+     "summary": "Of 1,659 run records, 893 carry per-token-kind usage as well as cost and tool calls. At API-equivalent list prices, cache reads are a median 45% of a run's cost, 1-hour cache writes 41% and output 13%; fresh input is about zero. A linear context model fits the cache-read tokens per request as about 60,000 tokens at the start plus about 1,900 tokens more per request (bootstrap 95% interval 1,500 to 2,200), so at the median run (20 requests) the starting context is 76% of what each request re-reads. That fixed part, written once and re-read throughout, is why cost rises with a log-log slope of 1.16 against requests and 1.22 against tool calls rather than 2. Limitations: API-equivalent dollars from list prices, not a bill; the context model explains only 31% of the per-request variance; descriptive, from one repository's runs."
+    },
+    {
      "slug": "swe-notests",
      "title": "Do agent runs that add no tests end worse?",
      "summary": "Of 621 run records that count tests added, 84 (13.5%) add none, mostly research runs. Within track and recording regime they end <code>partial</code> 4 of 84 times against 16 of 537 for runs that add tests: a +2.6 point difference, permutation p = 0.23, so no detectable effect (only 20 partial outcomes exist, so power is low). They cost less (median $0.56 against $0.99 in research), most likely because they do less. Observational and self-reported; preliminary."
