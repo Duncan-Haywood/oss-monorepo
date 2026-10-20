@@ -54,7 +54,14 @@ where it departs from the paper.
 
 ## Verification
 
-`node --test` (38 tests). What they check:
+`node --test` (47 tests). What they check:
+
+- **Against an independent PELT:** on 100 seeded cases (60-200 points, 0-3
+  planted changes, mean and mean-and-variance models, several penalties) the
+  changepoints equal those of the `ruptures` package's `Pelt` (v1.1.10, BSD-2),
+  a separate implementation: 100 of 100 identical. The series and ruptures'
+  answers are in `data/ruptures-crosscheck.json`; `data/make_ruptures_fixture.py`
+  regenerates them. R's `changepoint` is still unchecked (CRAN was unreachable).
 
 - **Against the literature:** on the Nile series (data/SOURCE.md) PELT puts
   the change at index 28, the first year of the new level being 1899: the
@@ -74,16 +81,16 @@ where it departs from the paper.
   Gamma-Poisson marginal (1e-6) when the hazard vanishes; a planted rate
   shift (4 to 12 per point) is found within 3 points; at most 3 of 20
   constant-rate series are split; non-integer or negative input is rejected.
-  Not yet compared against R's `changepoint::cpt.meanvar(test.stat =
-  "Poisson")`: R is not available where this was built, so agreement with it
-  is unchecked.
+  `ruptures` has no Poisson cost and R's `changepoint::cpt.meanvar(test.stat =
+  "Poisson")` was not available, so agreement with an outside implementation
+  is unchecked for this model.
 - **Behaviour:** planted mean shifts are recovered within 2 points; a pure
   variance change is found by the mean-and-variance model; BIC splits at most
   3 of 30 pure-noise series of length 300; the robust noise estimate ignores a
   level shift; CSV parsing handles headers, named columns, quoted thousands,
   blank rows and semicolons.
 
-Not verified: R's output for the Poisson model (above).
+Not verified: an outside implementation of the Poisson model (above).
 
 Seasonal and autocorrelated series (`--period n`, `--ar1`; seeded synthetic
 series, 40 each, in `engine.test.mjs`):
@@ -102,6 +109,16 @@ series, 40 each, in `engine.test.mjs`):
   detected within 10 points in 25 of 40 runs (40 of 40 uncorrected, which
   also fires on every no-change series), because prewhitening shrinks a
   persistent shift by (1 - rho).
+- **Joint fit (`--ar1 joint`).** Instead of widening the noise scale, PELT runs on the
+  exact Gaussian AR(1) likelihood (each segment's first point stationary, its mean fitted
+  in closed form from prefix sums), and rho and the innovation sd are re-estimated from the
+  residuals about the fitted segment means, three passes in all. Same 40 series: false
+  changes on the 300-point no-change series 4 of 40 (the same as the long-run scale), and a
+  shift of 4 found exactly once within 10 points in 34 of 40 runs against 28 of 40 for the
+  long-run scale (shift 8: 34 against 35, no gain). A first version with rho taken once from
+  the differences gave 7 of 40 false runs; with rho known the figure is 2 of 40, so the
+  residual re-estimate is what keeps it honest. PELT on this cost equals optimal
+  partitioning (tested). The Bayesian pass still runs on the prewhitened series.
 - **Seasonality.** A level shift of 4 under a sine of amplitude 10 (period 12,
   144 points) gave exactly one change in 0 of 40 runs without adjustment and
   exactly one change within 1 point of the truth in 33 of 40 with `--period 12`

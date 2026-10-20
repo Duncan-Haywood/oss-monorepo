@@ -1709,8 +1709,9 @@ const RELATIVE_SELF = relative(
 // +2: `hands-free-language-coach` and `listen-and-learn-audio` graduated.
 // +1: `persona-conversation-simulator` graduated.
 // +1: `sales-cadence-builder` graduated.
+// +1: `publish-kit` graduated.
 // +1: `saints-by-candlelight` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 1279;
+const SWITCHES_IN_THE_CATALOGUE = 1280;
 // +1: `open-tennis-robots` graduated.
 // +1: `uk-statutory-residence-test-checker` graduated.
 // +1: `llm-spend-guard` graduated.

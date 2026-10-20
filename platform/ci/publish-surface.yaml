@@ -1203,6 +1203,9 @@ workflows:
 - workflow: public-surface-check.yml
   classification: none
   publishes: []
+- workflow: publish-kit-ci.yml
+  classification: none
+  publishes: []
 - workflow: publish-pages-branch.yml
   classification: gated
   publishes:

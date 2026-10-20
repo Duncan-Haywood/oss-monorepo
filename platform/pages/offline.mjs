@@ -96,7 +96,10 @@ function encodeRaw(width, height, rgba, channels, colourType) {
   return Buffer.concat([
     Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
     chunk('IHDR', ihdr),
-    chunk('IDAT', zlib.deflateSync(raw, { level: 9 })),
+    // Level 6, not 9: on a 1200x630 share card level 9 took ~84 ms for a file
+    // 9% smaller (52.8 KB vs 57.8 KB), and the build encodes ~1,450 of them,
+    // so level 9 was two of the Pages build's three minutes.
+    chunk('IDAT', zlib.deflateSync(raw, { level: 6 })),
     chunk('IEND', Buffer.alloc(0)),
   ]);
 }

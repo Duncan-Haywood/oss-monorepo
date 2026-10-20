@@ -886,8 +886,8 @@ def _entries():
 def test_a_stale_snapshot_leads_the_reasons_ahead_of_the_verdicts_own():
     r = sg.report(_entries(), 1.0, snapshot=("stale", "built from abc1234"))
     assert r["published_snapshot"] == "stale"
-    assert "THE LIVE SITE IS BEHIND" in r["reasons"][0]
-    assert "publish-branch.sh" in r["reasons"][0]
+    assert "THE PUBLISHED SNAPSHOT IS BEHIND" in r["reasons"][0]
+    assert "NOT run `publish-branch.sh`" in r["reasons"][0]
     assert "built from abc1234" in r["reasons"][0]
 
 
@@ -978,4 +978,4 @@ def test_main_propagates_the_snapshot_reading(monkeypatch, capsys):
 
     out = capsys.readouterr().out
     assert "published snapshot ............. stale" in out
-    assert "THE LIVE SITE IS BEHIND `main`" in out
+    assert "THE PUBLISHED SNAPSHOT IS BEHIND `main`" in out
