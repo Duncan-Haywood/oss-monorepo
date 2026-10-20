@@ -77,7 +77,8 @@ def group_near_duplicates(analyses: list[AssetAnalysis]) -> list[AssetAnalysis]:
 
     for i in range(len(hashed)):
         for j in range(i + 1, len(hashed)):
-            if hamming_distance(hashed[i].perceptual_hash, hashed[j].perceptual_hash) <= NEAR_DUPLICATE_MAX_DISTANCE:
+            hash_i, hash_j = hashed[i].perceptual_hash or "", hashed[j].perceptual_hash or ""
+            if hamming_distance(hash_i, hash_j) <= NEAR_DUPLICATE_MAX_DISTANCE:
                 root_i, root_j = find(i), find(j)
                 if root_i != root_j:
                     parent[max(root_i, root_j)] = min(root_i, root_j)
