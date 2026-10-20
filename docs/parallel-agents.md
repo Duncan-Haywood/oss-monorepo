@@ -185,3 +185,7 @@ prompts/promptctl.py backlog` lists them. Put the id in your PR title.
 - [ ] **P041** *Owner setting:* turn on GitHub's merge queue for `main` with batching
       now that the shared surface is small (fix 4 above); it closes the
       tested-is-not-merged gap in item 5.
+
+The rules agents follow because of these findings, the incident timeline
+and the alternatives weighed are in
+[`.github/prompts/parallel-git.md`](../.github/prompts/parallel-git.md).

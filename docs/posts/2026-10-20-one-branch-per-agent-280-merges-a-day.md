@@ -86,3 +86,6 @@ parent" is a race.**
    and never cancel `main`'s runs.
 4. Add a merge queue only after steps 2 and 3, when conflicts are rare and CI
    tells the truth.
+
+What went wrong on the way here, and the alternatives we weighed:
+[What went wrong with sixteen AI agents on one main branch](2026-10-20-what-went-wrong-sixteen-agents-one-main.md).

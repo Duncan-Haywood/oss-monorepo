@@ -21,6 +21,9 @@ repository, whatever the brief says.
 step below. How to load them, and what an HTTP 500 from
 `create_pull_request` means, is in [`cloud-session.md`](cloud-session.md).
 
+Why each git rule here exists (shared files, CI on `main`, squash merges,
+the alternatives weighed): [`parallel-git.md`](parallel-git.md).
+
 ## Why this has its own prompt
 
 Measured 2026-10-05: PRs that get opened land (1,251 merged, 23 closed in two
