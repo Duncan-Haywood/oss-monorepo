@@ -51,9 +51,10 @@ case "$1" in
     echo '<!doctype html><title>tool</title>' > "$out/tools/example/index.html"
     ;;
   check.mjs) echo "stub: looks publishable" ;;
-  */deploy/build.mjs|*/devstats/build.mjs)
-    # The self-deploy page (platform/deploy/) and the development dashboard
-    # (platform/devstats/), both built after check.mjs.
+  */deploy/build.mjs|*/devstats/build.mjs|*/daily/build.mjs)
+    # The self-deploy page (platform/deploy/), the development dashboard
+    # (platform/devstats/) and the daily brief (platform/daily/, PR #8717),
+    # all built after check.mjs.
     for arg in "$@"; do
       case "$arg" in --out=*) mkdir -p "${arg#--out=}" ;; esac
     done

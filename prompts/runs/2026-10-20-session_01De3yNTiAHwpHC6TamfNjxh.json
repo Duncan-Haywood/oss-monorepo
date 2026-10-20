@@ -53,6 +53,10 @@
     {
       "what": "after merging main, custom-domain.test.mjs failed on main's own post research-algorithms-in-your-browser (#8747), same cause",
       "fix": "the buildWriting origin rewrite fixes it too; ported here since no fix PR was open"
+    },
+    {
+      "what": "main red, not this PR's: gitops test_publish_branch.py (17 fail; #8717 added platform/daily/build.mjs to publish-branch.sh, stub not updated), entities.test.mjs (&rho; &lceil; &rceil; from #8747), faq-visible.test.mjs (changepoint-detector JSON-LD single vs page double quotes, #8747)",
+      "fix": "no open fix PR; ported minimal fixes: stub accepts */daily/build.mjs (19 passed), three entities added, JSON-LD quote matches page (12 passed; venture's 32 tests pass; regen --verify 0)"
     }
   ],
   "integrity_issues": [],
