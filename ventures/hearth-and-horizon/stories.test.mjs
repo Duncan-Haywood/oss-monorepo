@@ -62,3 +62,7 @@ test('every page carries the disclaimer, licence, usage switch and structured da
     assert.match(html, /<link rel="canonical" href="https:\/\/example\.invalid\/hearth-and-horizon\//, rel);
   }
 });
+
+test('the index links its sibling audio-story venture (platform/pages/siblings.mjs)', () => {
+  assert.match(buildAll()['index.html'], /href="\.\.\/listen-and-learn-audio\/"/);
+});

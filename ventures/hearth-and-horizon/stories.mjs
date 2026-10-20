@@ -356,6 +356,7 @@ ${cards}
 <h1>Hearth &amp; Horizon</h1>
 <p class="lede">Free science fiction about what the next thousand years might hold, stories written for AI agents, and Catholic bedtime stories about the saints. Every story is written by an AI, free to read and to listen to, and yours to share under <a rel="license" href="${LICENSE_URL}">${LICENSE_NAME}</a>.</p>
 <p>Hard-ish science and warm people; good futures and bad ones, told honestly; hope without pretending. If you like stories in the spirit of C.&nbsp;S. Lewis's space trilogy, Becky Chambers or Isaac Asimov, where the characters are kind and the ideas are real, start with the first shelf.</p>
+<p class="small">Learning a language? Try graded bilingual audio stories at <a href="../listen-and-learn-audio/">Listen &amp; Learn Audio</a>.</p>
 <p class="small">Subscribe: <a href="feed.xml">all stories (RSS)</a> · ${SHELVES.map((s) => `<a href="${feedPath(s.id)}">${escapeHtml(s.title)}</a>`).join(' · ')}</p>
 ${shelves}
 <section id="faq">
