@@ -357,6 +357,7 @@ test('seasonal drift: a cycle whose amplitude triples leaves far fewer false cha
     found += hit(d); exact += d.length === 1 && hit(d);
   }
   // measured (seeds 401..440): changes per series fixed profile vs drift, shift found within 3 points, exactly one change
+  // with the Theil-Sen window (9 cycles) the same seeds gave 1.95 changes/series, shift found 40/40, exactly one 24/40
   console.log(`# drift: ${fixedN / N} vs ${driftN / N} changes/series; shift found ${found}/${N}; exactly one ${exact}/${N} (fixed ${foundFixed}/${N})`);
   assert.ok(driftN / N < 0.4 * (fixedN / N), `${driftN / N} vs ${fixedN / N}`);
   assert.ok(found >= 0.9 * N && exact > foundFixed, `${found}/${N} exact ${exact} vs ${foundFixed}`);

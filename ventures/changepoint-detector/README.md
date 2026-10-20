@@ -131,6 +131,11 @@ series, 40 each, in `engine.test.mjs`):
   the fixed profile gave 12.9 changes per series and never exactly one; `--drift` gave 2.9
   per series, found the shift within 3 points in 40 of 40 and exactly one change in 15 of 40.
   The extra changes are still real noise in the estimated profile; it is better, not clean.
+  From 10 cycles up each phase follows a Theil-Sen line through its 9 nearest cycles instead of a
+  running median, which does not lag a growing cycle at the ends: on the same seeds 1.95 changes per
+  series (from 2.95), shift found 40 of 40, exactly one change 24 of 40 (from 15), false changes on
+  14 of 40 no-shift series (from 27). On a steady cycle (amplitude 10) it costs a little: exactly one
+  24 of 40 against 27, false 14 against 12.
 
 ## Limits
 

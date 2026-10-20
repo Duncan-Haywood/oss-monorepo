@@ -35,7 +35,7 @@ flagships:
       seeded cases (fixture in data/). Next: a check of the Poisson model against
       R's changepoint (R and a ruptures Poisson cost were unavailable), raising the power lost to prewhitening in the Bayesian pass (the PELT side now has a
       joint mean-plus-AR(1) fit, --ar1 joint: 34/40 power at shift 4 against 28/40, same 4/40
-      false runs), and fewer false changes under --period --drift (running-median drifting seasonal shape is in: 12.9 -> 2.9 changes per series on an amplitude-tripling cycle, shift found 40/40, README).
+      false runs), and fewer false changes under --period --drift (--drift is in: 12.9 -> 2.9 changes per series on an amplitude-tripling cycle with a running median, 1.95 and exactly-one 24/40 with a Theil-Sen window from 10 cycles up, README; the window is fixed, not chosen from the data).
   - venture: einvoice-preflight
     why: >-
       Real EN 16931 validator (JSON, UBL, CII, Factur-X PDF; 54+ rules,
