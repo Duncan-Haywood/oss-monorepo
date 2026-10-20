@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Claude Code Settings Check vs. reading the settings.json by eye</title>
-<meta name="description" content="Reading a short settings.json catches an obviously empty hook command. It reliably misses a matcher regex that looks fine but fails to compile, a permission rule with one stray parenthesis, a rule duplicated across allow/deny/ask, and a rule that quietly contradicts itself between settings.json and settings.local.json -- which is what this free, no-upload checker computes exactly, every time.">
+<meta name="description" content="Reading settings.json misses a matcher regex that won't compile, a stray parenthesis, or contradictory rules. This free, no-upload checker finds them.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="./vs-reading-the-settings-json-by-eye.html">
 <meta property="og:type" content="website">

@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of the required rated cooling capacity in kBtu per hour against window solar heat gain coefficient, for the baseline and the tight envelope; both rise with SHGC and the tight envelope needs about 1.5 kBtu per hour less">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Cooling capacity the ADU needs against window SHGC (Houston, assumed inputs)</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="280.4" y2="280.4" stroke="#ddd"/><text x="58" y="284.4" text-anchor="end" font-family="sans-serif" font-size="11">2</text>
+<line x1="64" x2="624" y1="236.8" y2="236.8" stroke="#ddd"/><text x="58" y="240.8" text-anchor="end" font-family="sans-serif" font-size="11">4</text>
+<line x1="64" x2="624" y1="193.2" y2="193.2" stroke="#ddd"/><text x="58" y="197.2" text-anchor="end" font-family="sans-serif" font-size="11">6</text>
+<line x1="64" x2="624" y1="149.6" y2="149.6" stroke="#ddd"/><text x="58" y="153.6" text-anchor="end" font-family="sans-serif" font-size="11">8</text>
+<line x1="64" x2="624" y1="106.0" y2="106.0" stroke="#ddd"/><text x="58" y="110.0" text-anchor="end" font-family="sans-serif" font-size="11">10</text>
+<line x1="64" x2="624" y1="62.5" y2="62.5" stroke="#ddd"/><text x="58" y="66.5" text-anchor="end" font-family="sans-serif" font-size="11">12</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.2</text>
+<text x="204.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.3</text>
+<text x="344.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.4</text>
+<text x="484.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.5</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.6</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">window SHGC</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">required cooling capacity (kBtu/h)</text>
+<polyline points="64.0,156.2 204.0,134.4 344.0,114.8 484.0,93.0 624.0,71.2" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="156.2" r="3" fill="#c0392b"/>
+<circle cx="204.0" cy="134.4" r="3" fill="#c0392b"/>
+<circle cx="344.0" cy="114.8" r="3" fill="#c0392b"/>
+<circle cx="484.0" cy="93.0" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">baseline</text>
+<polyline points="64.0,188.9 204.0,167.1 344.0,147.5 484.0,125.7 624.0,103.9" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="188.9" r="3" fill="#1f6fb2"/>
+<circle cx="204.0" cy="167.1" r="3" fill="#1f6fb2"/>
+<circle cx="344.0" cy="147.5" r="3" fill="#1f6fb2"/>
+<circle cx="484.0" cy="125.7" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="103.9" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">tight</text>
+</svg>

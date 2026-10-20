@@ -2953,6 +2953,11 @@
      "summary": "A follow-up to <code>eda-adapt</code> on the same 133 designs in four generator families. Choosing the k adaptation designs by farthest-point spread in feature space, instead of at random, roughly halves the linear model&rsquo;s held-out median error at k&nbsp;=&nbsp;5 (5.3% against 8.5%, new-family weight 5); picking the smallest designs is worst (15.2%). Upweighting the new family&rsquo;s points helps the linear and ridge models from k&nbsp;=&nbsp;5 but hurt boosted trees. Stylised: four small clean families, a synthesis-only cell-count target, deterministic choosers scored on different remaining sets, no confidence intervals."
     },
     {
+     "slug": "eda-adaptfixed",
+     "title": "Does the farthest-point spread still beat random draws when every chooser is scored on the same held-out designs?",
+     "summary": "A check on <code>eda-adaptpick</code>, which scored each chooser on the designs it had not chosen. Here each of the four families is split five times into a pool (60%) and a fixed test set (40%); every chooser picks k pool designs from features only and all are scored on the same test set. The spread still beats random draws for the linear model at every k (4.8% against 6.0% at k&nbsp;=&nbsp;5, weight 5; 2.9% against 5.2% at k&nbsp;=&nbsp;8) but the margin is 20&ndash;45% at 5 to 8 designs, not the earlier halving, and for the linear model it wins in 50&ndash;80% of the 20 (family, split) cells rather than all. Picking the smallest designs stays worst. Stylised: 133 small designs, a Yosys cell-count target, no place and route, no significance test."
+    },
+    {
      "slug": "eda-screen",
      "title": "Does a cell-count surrogate used as a screen find a chip design&rsquo;s Pareto front with fewer syntheses than random search or TPE?",
      "summary": "On the 80-design accelerator table from <code>eda-proposers</code>, a screen that synthesises 4 spread designs, fits a log-linear cell-count model, and then synthesises designs in order of predicted Pareto rank finds 0.990 of the true front&rsquo;s hypervolume at 12 syntheses (random 0.860, TPE 0.878; 100 seeds) and the whole front on 87% of seeds by 20. The screen reads cycles and error for free, which the baselines do not: with no cell-count model that alone gives 0.908, so the surrogate adds the rest. Stylised: one small smooth space, the surrogate fitted inside one family, no place and route."
@@ -3576,6 +3581,11 @@
      "summary": "Adds the term <code>house-breakeven</code> left out: the equipment downsizing credit. The design heating load (UA &times; design temperature difference) of the <code>house-open-design</code> ADU falls about 36.5% with the tight envelope in every climate, but equipment comes in discrete sizes, so the credit is a step: with an assumed catalogue and prices it is $450 (Houston), $1,350 (Baltimore), $900 (Chicago) and $1,800 (Minneapolis) for the whole package, and it is mostly the wall switch that moves the size. Added to the energy break-even, the three costed upgrades (assumed extra cost $2,211) come within $98 to $463 of paying back in the three colder cities but not in Houston ($1,607 short). The size is sensitive to the assumed design temperature and sizing margin, which are unchecked memory, so the credit is a range of one or two catalogue steps, not a number. Stylised: no EnergyPlus, no Manual J, no sourced prices."
     },
     {
+     "slug": "house-coolsize",
+     "title": "When does cooling, not heating, set the heat pump size for a 480 sq ft backyard cottage?",
+     "summary": "Adds the summer load <code>house-hpsize</code> left out: envelope conduction, window solar gain by wall, internal gains and a humidity allowance, on the <code>house-open-design</code> ADU. Cooling governs the size only in Houston (baseline needs 9.6 kBtu/h of cooling against 7.5 of heating, so 12 kBtu/h, not 9); Baltimore, Chicago and Minneapolis are still set by heating, so their sizes and credits are unchanged. Houston&rsquo;s downsizing credit ($450 at the headline inputs) swings between $0 and $900 across window SHGC and the latent allowance. Stylised: summer design temperatures, solar factors and gains are unchecked assumptions; not Manual J."
+    },
+    {
      "slug": "house-truss",
      "title": "How much lumber does a prefabricated roof truss save over rafters and ceiling joists?",
      "summary": "A pin-jointed W-type truss solved by a small stiffness solver, with NDS chord and web checks and a search for the lightest passing 2x4 to 2x8 truss at 24 in o.c., against stick-built 16 in rafters and ceiling joists from <code>house-spans</code>. At 30 psf snow and 4/12 pitch the truss uses 40&ndash;55% less nominal lumber per sq ft of plan over 12&ndash;30 ft spans (45% at 24 ft: 1.26 against 2.30 board feet). Stylised: no connector plates, bracing or heel details, an unchecked tension value, and no comparison with a commercial truss design program."
@@ -3841,6 +3851,11 @@
     "slug": "codesign-gripper",
     "title": "Which printable two-finger gripper holds eight different objects for the least plastic, and can an agent beat CMA-ES and Bayesian optimisation at 40 simulations?",
     "summary": "A parametric 3D-printable gripper finger (length, thickness, pad width, V angle) scored in MuJoCo on eight objects with a per-design grip force. At 40 evaluations the median best objective is 0.991 for Bayesian optimisation, 0.979 for CMA-ES, 0.965 for random search and 0.963 for a session agent&rsquo;s hand-written proposals (one run; Bayesian optimisation matched or beat it in 10 of 10 seeds). The best designs are tiny flat fingers (0.5&nbsp;g), but re-scored with object offsets tripled they hold 5 of 8 objects against 6 of 8 for the agent&rsquo;s wide V. Rigid, stylised, no learned policy, nothing printed."
+   }
+   ,{
+    "slug": "codesign-ceiling",
+    "title": "Which grasp scenes can no printable two-finger gripper hold, and what limits the ceiling?",
+    "summary": "Why every method in <code>codesign-diagnose</code> plateaued near 0.85. A MuJoCo sweep of 150 feasible gripper designs over 140 grasp scenes (cylinders, spheres, boxes of 150&ndash;1500&nbsp;g) finds that 10 scenes (7%) are held by no design at any force, and all 10 are spheres where the simulated hand sits more than about 2&nbsp;mm above the sphere&rsquo;s centre height. Lowering only the hand height holds all 10 (hand at table level) or 8 of 10 (hand at sphere-centre height), so the ceiling comes from the scene geometry, not from friction, mass, force or finger strength; relaxing the finger strength limit lifts the best single design from 0.77 to 0.89 on fresh scenes. Stylised simulator; the 10-scene pattern was found after the fact and confirmed by one intervention."
    }
    ,{
     "slug": "codesign-diagnose",
