@@ -48,6 +48,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 VENTURES_DIR = REPO_ROOT / "ventures"
 LEDGER_DIR = REPO_ROOT / "portfolio" / "ledger"
 SCORES_PATH = REPO_ROOT / "portfolio" / "scoring" / "venture-scores.yaml"
+FLAGSHIPS_PATH = REPO_ROOT / "portfolio" / "flagships.yaml"
 
 # Stage at or beyond which a venture is no longer "early" for the protected
 # explore-budget split described in README.md.
@@ -76,6 +77,14 @@ class Venture:
     # Set from VENTURE.yaml `consolidated_into: <host>` once this venture's
     # calculation lives in a shared engine; the family task skips it.
     consolidated_into: Optional[str] = None
+    # Position in portfolio/flagships.yaml (0 = first) and its next deep
+    # milestone; None for every venture not on that list.
+    flagship_rank: Optional[int] = None
+    flagship_next: Optional[str] = None
+
+    @property
+    def flagship(self) -> bool:
+        return self.flagship_rank is not None
 
     @property
     def _first_untested(self) -> Optional[dict]:
@@ -121,7 +130,8 @@ class Venture:
 
     @property
     def dispatchable(self) -> bool:
-        return self.blocker is None
+        # A flagship's task is a code milestone, which no customer has to answer.
+        return self.flagship or self.blocker is None
 
     @property
     def awaits_visitors(self) -> bool:
@@ -256,13 +266,31 @@ def load_merit_scores(scores_path: Path = SCORES_PATH) -> dict[str, float]:
     }
 
 
+def load_flagships(path: Path = FLAGSHIPS_PATH) -> dict[str, tuple[int, str]]:
+    """{venture: (rank, next milestone)} from portfolio/flagships.yaml.
+
+    The flagships are the few ventures with real depth that most venture runs
+    should deepen instead of adding another small tool (owner, 2026-10-20;
+    see that file). A missing file means no flagships, not an error.
+    """
+    if not path.is_file():
+        return {}
+    out: dict[str, tuple[int, str]] = {}
+    for i, entry in enumerate(_load_yaml(path).get("flagships") or []):
+        if isinstance(entry, dict) and entry.get("venture"):
+            out[entry["venture"]] = (i, str(entry.get("next") or "").strip())
+    return out
+
+
 def load_ventures(
     ventures_dir: Path = VENTURES_DIR,
     ledger_dir: Path = LEDGER_DIR,
     scores_path: Path = SCORES_PATH,
+    flagships_path: Path = FLAGSHIPS_PATH,
 ) -> list[Venture]:
     ledger_counts = count_ledger_entries(ledger_dir)
     merit_scores = load_merit_scores(scores_path)
+    flagships = load_flagships(flagships_path)
     venture_dirs = sorted(p for p in ventures_dir.iterdir() if p.is_dir())
     names = []
     parsed = []
@@ -282,6 +310,7 @@ def load_ventures(
         economics = data.get("economics") or {}
         budget = data.get("budget") or {}
         links = data.get("links") or {}
+        flag_rank, flag_next = flagships.get(name, (None, None))
         ventures.append(
             Venture(
                 name=name,
@@ -297,6 +326,8 @@ def load_ventures(
                 portfolio_mentions=mention_counts.get(name, 0),
                 merit=merit_scores.get(name),
                 consolidated_into=data.get("consolidated_into"),
+                flagship_rank=flag_rank,
+                flagship_next=flag_next,
             )
         )
     return ventures
@@ -319,12 +350,18 @@ def rank(ventures: list[Venture]) -> list[Venture]:
          came to be ignored: separate cycles kept concluding in the ledger
          that the top-ranked task was "outside what an unattended session
          can drive", each in prose, none of it reaching the router.
-      3. Unmeasured ventures -- still owed their protected explore budget;
+      3. Flagships (portfolio/flagships.yaml), in that file's order. These
+         are the ventures with real depth; the owner asked (2026-10-20) for
+         more of the work to deepen them rather than add small tools. They
+         are exempt from the HOT_COMMITS demotion below, which exists to
+         spread effort across shallow ventures, the opposite of what a
+         flagship needs.
+      4. Unmeasured ventures -- still owed their protected explore budget;
          null MRR is "not yet measured", not "measured and failing". Among
          them, ventures with an untested hypothesis come before ones with none:
          "write a hypothesis" is a thin task, and dozens of them at the top
          hid the ventures that had a real claim to test.
-      4. Everything else: later stage before earlier stage, then ventures not
+      5. Everything else: later stage before earlier stage, then ventures not
          already folded into another (consolidated_into) before those that
          were (their Explore task has no product left to test), then ventures not
          worked heavily this week (HOT_COMMITS+ commits in 7 days) before
@@ -345,6 +382,7 @@ def rank(ventures: list[Venture]) -> list[Venture]:
         return (
             0 if v.needs_decision else 1,
             0 if v.dispatchable else 1,
+            v.flagship_rank if v.flagship_rank is not None else 1_000_000,
             1 if v.awaits_visitors else 0,
             0 if not v.measured else 1,
             0 if v.untested_hypothesis else 1,
@@ -357,7 +395,7 @@ def rank(ventures: list[Venture]) -> list[Venture]:
             v.name,
         )
 
-    return diversify(sorted(ventures, key=sort_key), tier=lambda v: sort_key(v)[:5])
+    return diversify(sorted(ventures, key=sort_key), tier=lambda v: sort_key(v)[:6])
 
 
 # ---------------------------------------------------------------------------
@@ -456,6 +494,12 @@ NO_HYPOTHESIS_ROWS = 3
 def next_task(v: Venture) -> str:
     if v.needs_decision:
         return "Review: measured at $0 MRR past revenue stage -- check against kill_criteria before further spend."
+    if v.flagship:
+        milestone = v.flagship_next or "the venture's own roadmap"
+        return (
+            f"Deepen (flagship {v.flagship_rank + 1}): {milestone} "
+            "Land a working slice, then rewrite this venture's `next:` in portfolio/flagships.yaml."
+        )
     if not v.measured:
         claim = v.untested_hypothesis
         if claim and v.blocker:
@@ -492,6 +536,7 @@ def work_queue(ventures: list[Venture]) -> list[dict]:
         f = family_of(v.name)
         if (
             not v.consolidated_into
+            and not v.flagship
             and sizes.get(f, 0) >= FAMILY_MIN
             and f not in claimed
             and not v.needs_decision
@@ -506,6 +551,7 @@ def work_queue(ventures: list[Venture]) -> list[dict]:
             "venture": v.name,
             "stage": v.stage,
             "protected": v.protected,
+            "flagship": v.flagship,
             "task": task_for(v),
             "dispatchable": v.dispatchable,
             "blocked_on": v.blocker,
@@ -666,6 +712,12 @@ def print_table(ventures: list[Venture], queue: list[dict]) -> None:
                 f"{best['venture']}, which is blocked. Merit and dispatchability "
                 f"do not agree -- see portfolio/scoring/README.md."
             )
+    flagships = [item["venture"] for item in queue if item["flagship"]]
+    if flagships:
+        print(
+            f"Flagships ({len(flagships)}, portfolio/flagships.yaml): deepen these before "
+            "adding another small tool -- owner, 2026-10-20."
+        )
     print()
     print(
         f"{'#':<3}{'venture':<32}{'stage':<12}{'cap':>6}{'merit':>7}"

@@ -87,16 +87,17 @@ class _DuplicateKeyLoader(yaml.SafeLoader):
                 continue
         return super().construct_mapping(node, deep=deep)
 
-# README.md rule 1: "Count events, never people." These substrings in a signal
-# name are the shapes that rule forbids. A signal is a count of events; none of
-# these can be one.
+# README.md rule 1: nothing personal reaches this public repository. These
+# substrings in a signal name are the shapes of a per-person record. A signal
+# is an aggregate count; none of these can be one. ("cookie" is not here: a
+# count such as `cookie_banner_dismissed` is an event, and functional cookies
+# are allowed since 2026-10-20.)
 FORBIDDEN_SIGNAL_TOKENS = (
     "ip_address",
     "email",
     "user_id",
     "device_id",
     "fingerprint",
-    "cookie",
 )
 
 
