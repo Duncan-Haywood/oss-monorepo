@@ -1,0 +1,76 @@
+== A. Hanger design and arms, learned hang-or-fold rule, load of 25 (mean of 200 loads)
+design        arms  min/load  items/h  hung  folded  aside  bottleneck  u_arms  u_feeder  u_fold
+wire             1      9.07    166.0   7.8    17.1   0.07  arms          0.90      0.02    0.79
+wire             2      7.52    202.4   7.8    17.1   0.10  fold          0.55      0.03    0.95
+wire             3      7.33    208.3   8.0    17.0   0.07  fold          0.38      0.03    0.96
+wood-shaped      1      9.08    165.8   7.8    17.1   0.07  arms          0.90      0.02    0.79
+wood-shaped      2      7.49    203.6   7.8    17.1   0.13  fold          0.56      0.03    0.94
+wood-shaped      3      7.32    208.8   8.0    17.0   0.09  fold          0.38      0.03    0.96
+custom-rigid     1      9.07    166.1   7.8    17.1   0.07  arms          0.90      0.02    0.79
+custom-rigid     2      7.53    202.4   7.7    17.2   0.12  fold          0.55      0.03    0.95
+custom-rigid     3      7.31    208.8   8.0    16.9   0.07  fold          0.38      0.03    0.96
+adjustable       1      8.89    169.3   7.9    17.1   0.07  arms          0.90      0.02    0.80
+adjustable       2      7.39    206.3   8.0    16.9   0.06  fold          0.55      0.03    0.95
+adjustable       3      7.32    209.3   8.0    16.9   0.09  fold          0.37      0.03    0.96
+collapsible      1      9.17    164.3   7.8    17.1   0.07  arms          0.90      0.02    0.78
+collapsible      2      7.49    203.8   7.9    17.0   0.10  fold          0.57      0.03    0.94
+collapsible      3      7.37    207.1   7.8    17.1   0.04  fold          0.38      0.03    0.96
+
+== B. Policy and design, one arm: does the hanger matter once more of the load is hung? (items/h)
+policy                wire   wood-shaped  custom-rigid    adjustable   collapsible
+always_fold          141.2         141.2         141.2         141.2         141.2
+learned              166.0         165.8         166.1         169.3         164.3
+always_hang          144.0         141.2         143.5         145.9         139.6
+
+== C. Load mix, one arm, adjustable hanger, learned rule
+mix            share_hung_in_mix  items/h  min/load  hung  folded  aside
+household                   0.32    169.3      8.89   7.9    17.1   0.07
+tee-heavy                   0.14    159.0      9.47   3.5    21.4   0.09
+shirt-heavy                 0.76    151.4      9.94  18.9     6.0   0.09
+
+== D. Which assumption moves the time to clear a load? One at a time, x0.5 and x2, one arm, adjustable hanger
+parameter           base   min/load_x0.5  min/load_x2  swing_min
+(baseline 8.89 min per load)
+t_fold              25.00           8.14        14.77       6.63
+t_pick               8.00           7.83        12.26       4.44
+p_pick(0.95|0.60)    0.85           8.51        10.27       1.76
+insertion_scale      1.00           8.50         9.83       1.33
+t_sense              3.00           8.50         9.81       1.31
+t_to_fold            3.00           8.65         9.42       0.77
+t_rail               3.00           8.72         9.23       0.51
+t_pick_fail          4.00           8.78         9.11       0.33
+t_feed               1.50           8.83         9.06       0.23
+t_refill            90.00           8.89         8.89       0.00
+
+== E. Pick success against throughput and what is left for a person (one arm, adjustable, learned)
+p_pick  items/h  min/load  aside_per_100  pick_fails_per_load  ins_fail_per_load
+0.50     137.8     10.94           13.1                21.87              0.020
+0.60     146.7     10.27            6.8                15.96              0.015
+0.70     156.9      9.61            2.8                10.58              0.020
+0.80     164.9      9.14            0.9                 6.29              0.020
+0.85     169.3      8.89            0.3                 4.40              0.005
+0.90     174.4      8.64            0.1                 2.67              0.015
+0.95     177.1      8.51            0.0                 1.35              0.015
+0.99     180.6      8.34            0.0                 0.26              0.020
+
+== F. Dryers one cell can serve (45 min cycle, load of 25, measured on a pile of 100 items)
+arms  items/h  dryers_served  bottleneck
+   1    176.7            5.3  arms
+   2    210.9            6.3  fold
+   3    211.1            6.3  fold
+   4    211.8            6.4  fold
+
+== G. Where the arm's time goes, one arm, per item (seconds of station time per item, learned rule)
+design        arm_s  feeder_s  fold_s
+wire           19.6      0.47    17.1
+wood-shaped    19.6      0.47    17.1
+custom-rigid   19.6      0.47    17.1
+adjustable     19.1      0.47    17.0
+collapsible    19.9      0.47    17.1
+
+== H. Slower insertion than hanger-insert models: all insertion times scaled (adjustable, learned), min per load
+scale  1_arm  2_arms
+    1   8.89    7.39
+    2   9.83    7.55
+    3  10.83    7.67
+    5  12.87    8.10
