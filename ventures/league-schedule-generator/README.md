@@ -182,5 +182,5 @@ rounds left go first, so they finish together) and which match gets which court 
   `venueImbalance`; stats gain `venueImbalance`, the mean gap between a team's most- and least-played venue). Measured on the example
   league over 3 seasons, 8 seeds, cumulative imbalance: 5.83 matches with it off, 3.11 with fairness inside each season only, 1.29 with
   history carried (`divisions.test.mjs`). On `multi-division-league-schedule.html` it is a checkbox plus a box for last season's counts; the report prints next season's history to paste back, and share links carry both. The cost is travel: 1,028 venue changes against 1,218 and 1,212 over the same runs. Off by default, and
-  the schedule is byte-identical to before when it is off. Not on the browser page yet (CLI and spec JSON only).
+  the schedule is byte-identical to before when it is off. The weight is `fairnessWeight` (form field and a box on the page; default 3 against 5 per venue change). Same 3-season, 8-seed run: weight 0 imbalance 5.83 / 1,028 venue changes (= off), 0.5 → 2.42 / 978, 1 → 1.92 / 998, 1.5 → 1.73 / 1,020, 2 → 1.63 / 1,098, 3 → 1.29 / 1,212, 5 → 1.16 / 1,406, 10 → 1.10 / 1,532, 30 → 1.55 / 1,558. So up to about 1.5 fairness costs no extra travel; past 10 it stops helping (`divisions.test.mjs`).
 - **Not done yet.** Rounds are placed whole, so a night with 1 spare slot stays partly empty.
