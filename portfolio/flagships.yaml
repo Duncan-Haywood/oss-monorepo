@@ -97,9 +97,13 @@ flagships:
       download the CSV). The /s/[slug] respondent page is in (SurveyRespondent:
       anonymous join via POST /api/surveys/[slug]/join, then the same pair
       questions and Glicko-2 answers as the main flow, resumable from
-      localStorage, retry in place). Next: the information-gain pair selector
-      (IMPROVEMENT-PLAN.md, P1), measured against the current selector on
-      seeded respondents.
+      localStorage, retry in place). An information-gain pair selector
+      (selectNextPairByInformation) is in and measured against the shipped one
+      on seeded respondents (docs/INFORMATION-GAIN-SELECTOR.md: rank accuracy
+      higher in all four cells, 70 vs 34 items under rd 150 at 300 answers on
+      220 items, but 1 vs 5 at 90 answers); not wired in. Next: add the
+      dimension-conflict bonus and active-set staging to its score, re-measure
+      rd<150 at 90 answers, then wire it in behind a survey flag.
   - venture: league-schedule-generator
     why: >-
       Circle-method round robins with minimal home/away breaks, court and slot
