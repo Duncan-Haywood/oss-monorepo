@@ -22,6 +22,13 @@ limit). When one of these changes, fix it here and nowhere else.
 - `github.io` is unreachable from a session: the egress proxy returns 403.
   Nothing here can observe the live site.
 
+## Tokens
+
+Each request re-reads the whole context (about 81,000 tokens in a median
+run), so batch independent tool calls, cap tool output (`| tail -20`) and
+read long docs by section. Measured basis and the full list:
+[`docs/reports/2026-10-20-token-flow-for-agents.md`](../../docs/reports/2026-10-20-token-flow-for-agents.md).
+
 ## Shallow clones
 
 `git merge` reports unrelated histories, and every branch seems to carry

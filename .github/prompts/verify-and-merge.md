@@ -132,26 +132,10 @@ in the environment, add `--goal "<what a user comes to do>"` and an agent
 works through the page and judges the result. In the PR, say what it
 printed.
 
-**After you merge a change that touches a served surface, refresh the
-published snapshot:**
-
-```
-python3 platform/ci/pages_state.py --require-current   # exits 1 if it is stale
-CONFIRM=publish-pages-branch PUSH=1 ./platform/pages/publish-branch.sh
-python3 platform/ci/pages_state.py --require-current   # and 0 once you have
-python3 platform/ci/pages_state.py --record            # commit only on a branch that ships work (land-your-work.md, step 7)
-python3 platform/ci/indexnow_state.py                  # and: was any of it announced?
-```
-
-The `gh-pages` branch is a committed artifact, and nothing rebuilds it when
-`main` moves. `publish-pages-branch.yml` does it automatically only once the
-owner sets `PAGES_BRANCH_PUBLISH=true` (process backlog P005). If the
-publish refuses with "publishing backwards", another session published
-first: run `git fetch origin main && git reset --hard origin/main` and
-rerun. Never use `ALLOW_REGRESSION=1` except for a deliberate rollback.
-`--record` keeps `decision_queue.py` from printing a false OUTAGE banner
-once a reading is more than three days old. Do not widen the ageing rule to
-silence the banner.
+**After you merge a change that touches a served surface:** nothing to do.
+`.github/workflows/portfolio-pages.yml` builds and deploys the site on the
+merge (gated on the owner's `PAGES_ENABLED`). The old `gh-pages` branch is no
+longer served, so do not run `publish-branch.sh` by hand.
 
 ## Reading CI (moved from `CLAUDE.md`, 2026-10-20)
 

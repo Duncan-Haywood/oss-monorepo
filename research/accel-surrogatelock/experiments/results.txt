@@ -1,0 +1,61 @@
+MLP [8, 32, 32, 1], 1377 params; Q6 (incompatible-modes) elements; reference mesh 128x16; errors are relative tip-deflection errors, medians over test designs, mean over seeds
+
+mesh 16x2: FE solve ~8262 flops (banded-Cholesky estimate, Q4 count), 19.0 nJ at 2.3 pJ/flop
+FE discretisation error vs reference: median 12.66 %
+variant | wbits | median err vs own FE % | energy (nJ) | break-even sim flops | ratio FE energy / MLP energy
+float | fp | 1.592 | 9.54 | 4150 | 2
+PTQ | 6 | 1.989 | 3.23 | 1406 | 6
+PTQ | 8 | 1.600 | 3.72 | 1617 | 5
+QAT | 6 | 1.814 | 3.23 | 1406 | 6
+QAT | 8 | 1.615 | 3.72 | 1617 | 5
+against the reference mesh: float surrogate median 12.84 %, QAT-6 surrogate median 13.37 %, FE itself 12.66 %
+design loop (1000-design pool, 15 deflection limits, judged on the reference): screen | margin | limits broken % | no pick % | extra mass over oracle %
+FE 16x2 | 0.00 | 66.7 | 0.0 | -2.04
+FE 16x2 | 0.05 | 33.3 | 0.0 | -0.62
+FE 16x2 | 0.10 | 6.7 | 0.0 | -0.03
+float surrogate | 0.00 | 64.4 | 0.0 | -2.21
+float surrogate | 0.05 | 48.9 | 0.0 | -1.40
+float surrogate | 0.10 | 24.4 | 0.0 | -0.32
+QAT-6 surrogate | 0.00 | 62.2 | 0.0 | -2.11
+QAT-6 surrogate | 0.05 | 46.7 | 0.0 | -1.14
+QAT-6 surrogate | 0.10 | 26.7 | 0.0 | 0.01
+
+mesh 32x4: FE solve ~55770 flops (banded-Cholesky estimate, Q4 count), 128.3 nJ at 2.3 pJ/flop
+FE discretisation error vs reference: median 5.98 %
+variant | wbits | median err vs own FE % | energy (nJ) | break-even sim flops | ratio FE energy / MLP energy
+float | fp | 1.972 | 9.54 | 4150 | 13
+PTQ | 6 | 2.261 | 3.23 | 1406 | 40
+PTQ | 8 | 2.092 | 3.72 | 1617 | 34
+QAT | 6 | 2.246 | 3.23 | 1406 | 40
+QAT | 8 | 2.037 | 3.72 | 1617 | 34
+against the reference mesh: float surrogate median 6.35 %, QAT-6 surrogate median 6.62 %, FE itself 5.98 %
+design loop (1000-design pool, 15 deflection limits, judged on the reference): screen | margin | limits broken % | no pick % | extra mass over oracle %
+FE 32x4 | 0.00 | 33.3 | 0.0 | -0.87
+FE 32x4 | 0.05 | 0.0 | 0.0 | 0.02
+FE 32x4 | 0.10 | 0.0 | 0.0 | 1.70
+float surrogate | 0.00 | 35.6 | 0.0 | -0.96
+float surrogate | 0.05 | 20.0 | 0.0 | -0.21
+float surrogate | 0.10 | 2.2 | 0.0 | 1.17
+QAT-6 surrogate | 0.00 | 37.8 | 0.0 | -1.16
+QAT-6 surrogate | 0.05 | 15.6 | 0.0 | -0.26
+QAT-6 surrogate | 0.10 | 0.0 | 0.0 | 1.17
+
+mesh 64x8: FE solve ~515970 flops (banded-Cholesky estimate, Q4 count), 1186.7 nJ at 2.3 pJ/flop
+FE discretisation error vs reference: median 2.31 %
+variant | wbits | median err vs own FE % | energy (nJ) | break-even sim flops | ratio FE energy / MLP energy
+float | fp | 2.367 | 9.54 | 4150 | 124
+PTQ | 6 | 2.915 | 3.23 | 1406 | 367
+PTQ | 8 | 2.358 | 3.72 | 1617 | 319
+QAT | 6 | 2.528 | 3.23 | 1406 | 367
+QAT | 8 | 2.307 | 3.72 | 1617 | 319
+against the reference mesh: float surrogate median 3.11 %, QAT-6 surrogate median 2.86 %, FE itself 2.31 %
+design loop (1000-design pool, 15 deflection limits, judged on the reference): screen | margin | limits broken % | no pick % | extra mass over oracle %
+FE 64x8 | 0.00 | 6.7 | 0.0 | -0.11
+FE 64x8 | 0.05 | 0.0 | 0.0 | 1.31
+FE 64x8 | 0.10 | 0.0 | 0.0 | 1.86
+float surrogate | 0.00 | 33.3 | 0.0 | -0.74
+float surrogate | 0.05 | 8.9 | 0.0 | 0.11
+float surrogate | 0.10 | 4.4 | 0.0 | 1.45
+QAT-6 surrogate | 0.00 | 24.4 | 0.0 | -0.84
+QAT-6 surrogate | 0.05 | 6.7 | 0.0 | 0.48
+QAT-6 surrogate | 0.10 | 2.2 | 0.0 | 1.59

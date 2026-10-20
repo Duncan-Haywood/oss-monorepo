@@ -5,8 +5,7 @@ Pushed is not done. Merged is done.
 
 That responsibility belongs to every agent that works here (Claude Code,
 Cursor, Kilo, OpenCode, scheduled routines), and nobody picks it up after
-you. There is no human reviewer. `agent-pr-auto-merge.yml` refuses anything
-under `ventures/*`. A branch with no pull request is invisible to every check,
+you. There is no human reviewer. A branch with no pull request is invisible to every check,
 to branch cleanup, and to every later session.
 
 **This file is the standing, explicit request to open a pull request and merge
@@ -47,7 +46,7 @@ every guard here runs on a PR or on `main`.
    mirror PR is the one exception: it merges with a merge commit, never a
    squash (`prompt.md`). Don't wait for a human or for bot approvals.
    `ventures/*` product code counts too:
-   `CLAUDE.md` settled that on 2026-08-25. If the merge won't go:
+   If the merge won't go:
    - **Conflict:** merge `origin/main` into your branch, re-run what the
      checklist says (`node platform/marketing/regen.mjs`, `sync_tree_counts.py`), re-verify, and
      merge. A conflict is never a reason to stop.
@@ -58,13 +57,10 @@ every guard here runs on a PR or on `main`.
 6. **Confirm it landed.** The PR shows *merged*, and
    `python3 platform/ci/unlanded_work.py` exits 0, meaning nothing on your
    branch sits outside a PR or `main`.
-7. **If the merge touched a served surface, publish.** Follow the "After you
-   merge a change that touches a served surface" block in `CLAUDE.md`.
-   Publishing pushes `gh-pages` and needs no PR. Do **not** commit a reading
-   after your merge. `pages_state.py --record`, an `infra_state.yaml` refresh
-   and an IndexNow note all write `portfolio/ledger/`, so on their own they are
-   a ledger-only change, and your branch is spent. Readings ride in a PR that
-   ships work: take them at the *start* of a session, on its work branch.
+7. **Served surfaces publish themselves.** `portfolio-pages.yml` redeploys
+   the site on the merge. Do not commit a reading after your merge: on its own
+   it is a ledger-only change on a spent branch. Readings ride in a PR that
+   ships work.
 
 Only then is the session finished. A final reply that says "pushed to branch
 X" with no merged PR is an unfinished session.

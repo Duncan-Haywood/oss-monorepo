@@ -513,6 +513,7 @@ export const SERVED_EXTENSIONS = new Map([
   ['.webmanifest', 'conf'],
   ['.csv', 'conf'],
   ['.py', 'conf'],
+  ['.gz', 'conf'],
 ]);
 
 // Where the served config lives, relative to the repo root. The build pod
