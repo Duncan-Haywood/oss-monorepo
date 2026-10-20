@@ -165,6 +165,6 @@
     <id>tag:marisstella.dev,2026:tool/jwt-security-check</id>
     <updated>2026-10-17T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste a JWT and get its header and payload decoded, plus every common security misconfiguration flagged: alg:none, embedded jwk/jku/x5u/x5c key material, symmetric-vs-asymmetric algorithm confusion, a kid header shaped like path traversal or SQL injection, missing/excessive exp, and sensitive-looking fields in the unencrypted payload. Free JWT decoder and security checker, runs entirely in your browser, nothing uploaded.</summary>
+    <summary type="text">Paste a JWT to decode it and flag misconfigurations: alg:none, embedded keys, algorithm confusion, suspicious kid, bad exp. Free, runs in your browser.</summary>
   </entry>
 </feed>
