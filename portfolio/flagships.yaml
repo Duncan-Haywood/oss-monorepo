@@ -55,7 +55,7 @@ flagships:
       on the owner's Pages copy because Saxon-JS's licence bars redistributing it from
       a site that mainly serves it; the owner could ask Saxonica for permission, or the
       rules could be ported to a plain-JS evaluator. A CII credit note (clean) and a UBL credit note with six defects are in, both pinned against the
-      official rules. A CII credit note with defects is in too (eight official rules, each with an English fix, pinned by tests). A Factur-X credit note (PDF, 381) is in too, clean under the official rules and read by both tools. A Factur-X credit note with defects is in too (PDF envelope around the defective CII credit note; same findings as the bare XML). Next: that decision, or the plain-JS port of the rules.
+      official rules. A CII credit note with defects is in too (eight official rules, each with an English fix, pinned by tests). A Factur-X credit note (PDF, 381) is in too, clean under the official rules and read by both tools. A Factur-X credit note with defects is in too (PDF envelope around the defective CII credit note; same findings as the bare XML). A Germany mandate page (germany-e-invoice-mandate.html: receive 2025, issue 2027 and 2028, which formats count, linked from the tool page and sitemap) is in for search. Next: that decision, or the plain-JS port of the rules.
   - venture: shift-roster-builder
     why: >-
       Simulated-annealing scheduler over a dollar cost (availability, rest,
