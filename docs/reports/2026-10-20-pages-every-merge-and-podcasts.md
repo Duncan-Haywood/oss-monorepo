@@ -33,6 +33,15 @@ the site. Pull-request builds keep their filter and add `docs/podcast/**`.
   The change is identical, so whichever PR lands second no-ops. Locally it
   checks clean: "publishable: 1305 products, 3816 pages, no dead links".
 
+- **`main` had two more red checks**, both fixed in this PR:
+  - `gitops`: 17 tests in `gitops/tests/test_publish_branch.py`. The stub
+    did not know the daily brief builder added by #8717.
+  - The Pages `build` job: 3 site tests from #8747. Two named entities were
+    missing from `entities.mjs` (three entities in all), the FAQ JSON-LD
+    quoting on changepoint-detector did not match the visible answer, and a
+    post linked the github.io origin. That last one is now rewritten under a
+    custom domain by `writing.mjs`.
+
 ## Why the filter had to go
 
 The list kept missing site inputs, and a missing input means a page that
