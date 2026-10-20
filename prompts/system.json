@@ -14,7 +14,7 @@
     {"path": "prompts/goals.md", "layer": "goals", "changed_by": "owner", "always_read": true,
      "answers": "Goals, guardrails and how a run is scored. Read Guardrails plus the section your task touches."},
 
-    {"path": "CLAUDE.md", "layer": "entry", "changed_by": "review", "always_read": true, "budget": 320,
+    {"path": "CLAUDE.md", "layer": "entry", "changed_by": "review", "always_read": true, "budget": 200,
      "answers": "Standing rules for every session: ship something, land your own PR, public-repo safety, merge without ceremony."},
     {"path": "prompt.md", "layer": "entry", "changed_by": "review", "always_read": true, "budget": 100,
      "answers": "The run lifecycle: route, work, record, improve."},
@@ -22,7 +22,7 @@
     {"glob": "prompts/*/prompt-*.md", "layer": "track", "changed_by": "review", "budget": 130,
      "answers": "The sub-prompt `promptctl.py route` names. Versions and weights live in prompts/routing.json."},
 
-    {"path": "AGENTS.md", "layer": "area", "changed_by": "review", "budget": 250, "for": ["ventures", "explore"],
+    {"path": "AGENTS.md", "layer": "area", "changed_by": "review", "budget": 200, "for": ["ventures", "explore"],
      "answers": "Product work: build criteria, what every user-facing product includes, graduating a venture."},
     {"path": "ventures/CLAUDE.md", "layer": "area", "changed_by": "review", "for": ["ventures"],
      "answers": "Product-first default, self-deploy, niche choice."},

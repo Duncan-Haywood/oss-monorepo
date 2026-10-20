@@ -86,6 +86,8 @@ on:
       - "gitops/tests/**"
       - "platform/pages/**"
       - "platform/agents/**"
+      - "platform/edge/**"
+      - "platform/counter/**"
       - "portfolio/router/**"
       - "portfolio/pipeline/**"
       - "portfolio/research/README.md"
@@ -129,6 +131,8 @@ on:
       - "gitops/tests/**"
       - "platform/pages/**"
       - "platform/agents/**"
+      - "platform/edge/**"
+      - "platform/counter/**"
       - "portfolio/router/**"
       - "portfolio/pipeline/**"
       - "portfolio/research/README.md"
@@ -208,6 +212,11 @@ jobs:
       # fails here. Triggered by `ventures/**/*.mjs` and `*.html` above.
       - name: Every tool stays callable from the agent CLI
         run: node --test "platform/agents/*.test.mjs"
+
+      # platform/edge is the Cloudflare Worker behind the site's feedback form
+      # and page-view counts; it shares platform/counter's rules (core.mjs).
+      - name: Site feedback Worker and visit counter
+        run: node --test "platform/edge/*.test.mjs" "platform/counter/*.test.mjs"
 
       # `MIRROR_BYTE_CEILING` is a wall with no approach lights: `buildMirror`
       # throws on it, and that throw lands in the step above -- which this
