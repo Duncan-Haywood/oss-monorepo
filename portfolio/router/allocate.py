@@ -320,7 +320,10 @@ def rank(ventures: list[Venture]) -> list[Venture]:
          that the top-ranked task was "outside what an unattended session
          can drive", each in prose, none of it reaching the router.
       3. Unmeasured ventures -- still owed their protected explore budget;
-         null MRR is "not yet measured", not "measured and failing".
+         null MRR is "not yet measured", not "measured and failing". Among
+         them, ventures with an untested hypothesis come before ones with none:
+         "write a hypothesis" is a thin task, and dozens of them at the top
+         hid the ventures that had a real claim to test.
       4. Everything else: later stage before earlier stage, then ventures not
          already folded into another (consolidated_into) before those that
          were (their Explore task has no product left to test), then ventures not
@@ -344,6 +347,7 @@ def rank(ventures: list[Venture]) -> list[Venture]:
             0 if v.dispatchable else 1,
             1 if v.awaits_visitors else 0,
             0 if not v.measured else 1,
+            0 if v.untested_hypothesis else 1,
             0 if v.later_stage else 1,
             1 if v.consolidated_into else 0,
             1 if v.recent_commits >= HOT_COMMITS else 0,
@@ -445,6 +449,10 @@ def consolidation_task(family: str, size: int) -> str:
     )
 
 
+NO_HYPOTHESIS_PREFIX = "Explore: no hypothesis recorded"
+NO_HYPOTHESIS_ROWS = 3
+
+
 def next_task(v: Venture) -> str:
     if v.needs_decision:
         return "Review: measured at $0 MRR past revenue stage -- check against kill_criteria before further spend."
@@ -460,7 +468,7 @@ def next_task(v: Venture) -> str:
             return f'Explore: test the untested hypothesis -- "{claim}"'
         if not v.hypotheses:
             return (
-                "Explore: no hypothesis recorded -- add a `hypotheses:` list to VENTURE.yaml "
+                f"{NO_HYPOTHESIS_PREFIX} -- add a `hypotheses:` list to VENTURE.yaml "
                 "(`- claim: ...`, `status: untested`; see 1099-k-threshold-checker), then test it."
             )
         return "Explore: every recorded hypothesis is settled -- write the next one in VENTURE.yaml, then test it."
@@ -664,7 +672,14 @@ def print_table(ventures: list[Venture], queue: list[dict]) -> None:
         f"{'ledger':>8}{'mentions':>10}{'7d-commits':>12}  task"
     )
     recent = recent_commits()
+    empty_shown = 0
+    empty_hidden = 0
     for i, item in enumerate(queue, 1):
+        if item["task"].startswith(NO_HYPOTHESIS_PREFIX):
+            empty_shown += 1
+            if empty_shown > NO_HYPOTHESIS_ROWS:
+                empty_hidden += 1
+                continue
         merit = f"{item['merit']:.2f}" if item["merit"] is not None else "-"
         print(
             f"{i:<3}{item['venture']:<32}{item['stage']:<12}"
@@ -672,6 +687,11 @@ def print_table(ventures: list[Venture], queue: list[dict]) -> None:
             f"{item['ledger_entries_this_period']:>8}"
             f"{item['portfolio_mentions_this_period']:>10}"
             f"{recent.get(item['venture'], 0):>12}  {item['task']}"
+        )
+    if empty_hidden:
+        print(
+            f"... and {empty_hidden} more ventures with no hypothesis recorded "
+            f"(identical task; `--json` lists them all)."
         )
 
     decisions = decisions_by_merit(ventures)

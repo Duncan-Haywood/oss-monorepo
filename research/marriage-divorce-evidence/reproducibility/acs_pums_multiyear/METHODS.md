@@ -126,6 +126,48 @@ background boosting model's predicted one-year probability. Overall: p10 3.1, me
 Subgroups: sex, age band, education, duration band, times married, race-ethnicity and nativity
 (≥200 people each).
 
+## Detail baselines: race and origin, occupation, industry, income and home ownership (2026-10-20)
+
+`extract_detail.py` re-reads the pooled years' person archives for detailed race (RAC2P, RAC3P),
+industry (INDP) and SOC occupation (SOCP), and the matching **housing** archives (`csv_hus.zip`) for
+tenure (TEN), household income (HINCP × ADJINC, converted to 2024 dollars with CPI-U) and household
+size; hashes are in `downloads_detail.json`. `detail_tables.py` joins them by SERIALNO + SPORDER
+(every person matched) and tabulates the same outcome with the same replicate-weight CIs and ≥ 200
+people per cell, plus a **direct age-standardised** rate (five age bands, standard = the pooled
+at-risk population, computed in every replicate), because these groups differ a lot in age. Labels
+come from the Census PUMS data dictionaries of each year. Output: `baselines_detail.csv.gz`, new
+cells in `app/data/acs_divorce_baselines.json` (`race_detail`, `asian_detail`, `hispanic_origin`,
+`household_income_band`, `tenure`, `owner`, and their crosses with sex, age band, education,
+nativity, times married and duration), an `age_standardised` block, and
+`app/data/acs_occupation_divorce.json` (detailed Census occupation code, SOC major group, broad
+group, industry sector and detailed industry, each with sex crosses).
+
+| Group (per 1,000, 95% CI; age-standardised) | | Group | |
+| --- | --- | --- | --- |
+| White (non-Hispanic) | 12.3 (12.1–12.4); 12.9 | Mexican | 13.7 (13.3–14.2); 12.6 |
+| Black | 23.6 (23.0–24.2); 23.3 | Puerto Rican | 20.3 (18.9–21.7); 19.5 |
+| Hispanic (any race) | 15.3 (15.0–15.6); 14.3 | Cuban | 15.5 (14.3–16.8); 15.3 |
+| Asian | 8.3 (8.0–8.6); 8.1 | Dominican | 23.1 (20.8–25.4); 22.0 |
+| American Indian or Alaska Native | 19.5 (17.8–21.2); 18.9 | Asian Indian | 5.2 (4.7–5.8); 4.9 |
+| Native Hawaiian or Pacific Islander | 12.1 (9.6–14.7); 11.9 | Chinese | 8.3 (7.6–8.9); 8.2 |
+| Multiracial | 18.9 (18.0–19.8); 17.4 | Filipino | 8.9 (8.2–9.7); 9.0 |
+| Some other race | 16.7 (14.6–18.9); 15.1 | Vietnamese | 14.4 (13.1–15.6); 14.5 |
+
+Asian subgroups with ≥ 200 people: Asian Indian, Bangladeshi, Burmese, Cambodian, Chinese,
+Filipino, Hmong, Indonesian, Japanese (7.5), Korean (8.4), Laotian, Nepalese, Pakistani (6.4), Sri
+Lankan, Taiwanese, Thai, Vietnamese and other Asian; several small ones have very wide intervals
+(Sri Lankan: 7 divorces).
+
+**Occupation, income and housing are measured at the interview, after any divorce**: a divorce can
+change a job, a household's income and whether it owns its home, so these are descriptive rates of
+who reports a divorce, not effects and not forecasts. By SOC major group: healthcare support 25.8
+(age-standardised 23.7), military 25.8 (21.3), food preparation and serving 21.5 (18.6),
+transportation and material moving 18.9 (18.0), against architecture and engineering 10.3 (9.5),
+computer and mathematical 12.0 (10.6), legal 12.0 (11.5) and education 12.4 (11.4). Household
+income under $25k: 31.7; $200k or more: 6.3 (the household is the one the person lives in after any
+divorce). Renters 29.6 against owners with a mortgage 9.7 and owners free and clear 8.4 (12.3
+age-standardised).
+
 ## Limits
 
 Cross-sectional, as above. Each spouse of a divorcing couple can be counted, and same-sex and
