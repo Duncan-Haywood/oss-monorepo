@@ -1386,3 +1386,20 @@ test("exact search runs by itself on small weeks and can be switched off", () =>
   const big = slotsOf("Mon,8,16,3\nTue,8,16,3\nWed,8,16,3\nThu,8,16,3\nFri,8,16,3");
   assert.equal(buildRoster(staff, big).optimality, null, "15 shifts is past the automatic limit");
 });
+
+test("exact search treats people who differ only by name as interchangeable: same optimum as brute force, and big twin crews are now proven", () => {
+  const twins = (n) => ["name, wage, max hours, min hours, availability", ...Array.from({ length: n }, (_, i) => `Pat${i + 1}, 15, 12, 0, Mon-Sun 6-23`)].join("\n");
+  const week = (m) => ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].flatMap((d) => [`${d},8,16,1`, `${d},12,20,1`]).slice(0, m).join("\n");
+  // equal crews, brute force over every assignment
+  const small = bruteForceBest(staffOf(twins(3)), slotsOf(week(6)), {});
+  const r3 = buildRoster(staffOf(twins(3)), slotsOf(week(6)), { exact: true });
+  assert.equal(r3.optimality.status === "optimal" || r3.optimality.status === "improved", true);
+  assert.ok(Math.abs(r3.score - small) < 1e-6, `exact ${r3.score} vs brute ${small}`);
+  // a mixed crew (two twins and one different) keeps the distinction
+  const mixed = "name, wage, max hours, min hours, availability\nA, 15, 12, 0, any\nB, 15, 12, 0, any\nC, 22, 12, 0, any";
+  const bm = bruteForceBest(staffOf(mixed), slotsOf(week(6)), { balance: 30 });
+  assert.ok(Math.abs(buildRoster(staffOf(mixed), slotsOf(week(6)), { exact: true, balance: 30 }).score - bm) < 1e-6);
+  // six interchangeable people, ten shifts: used to hit the 8 s limit, now finishes
+  const big = buildRoster(staffOf(twins(6)), slotsOf(week(10)), { exact: true });
+  assert.ok(["optimal", "improved"].includes(big.optimality.status), big.optimality.status);
+});

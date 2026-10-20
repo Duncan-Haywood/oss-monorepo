@@ -683,6 +683,9 @@ function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000 } 
     if (c > 0) best = Math.min(best, g(clamp(t + a / (2 * c))));
     return best;
   };
+  // Symmetry: people who differ only by name (same wage, limits, availability, preferences, history) are interchangeable, so when
+  // two of them hold exactly the same shifts, giving the next shift to either leads to mirror-image subtrees and only one is tried.
+  const cls = staff.map((p, q) => JSON.stringify([{ ...p, name: 0 }, elig[q], ctx.target[q]]));
   const lists = Array.from({ length: P }, () => []);
   const owner = new Array(S).fill(-1);
   const lowerBound = (k, unfilledH) => {
@@ -819,9 +822,12 @@ function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000 } 
       return;
     }
     const i = order[k];
-    const opts = [];
+    const opts = [], seen = new Set();
     for (let p = 0; p < P; p++) {
       if (!elig[p][i]) continue;
+      const twin = cls[p] + "|" + lists[p].join(",");
+      if (seen.has(twin)) continue;
+      seen.add(twin);
       const nl = insertSorted(ctx, lists[p], i);
       if (!validList(ctx, p, nl)) continue;
       opts.push({ p, nl, d: personScore(ctx, p, nl) - personScore(ctx, p, lists[p]) });

@@ -1,0 +1,45 @@
+{
+  "date": "2026-10-20",
+  "session": "https://claude.ai/code/session_019W2tFpxKxWiv47vRq3iGVV",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-20T15:01:33Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 3): shift-roster-builder exact search symmetry cuts",
+  "projects": [
+    "shift-roster-builder"
+  ],
+  "pr": 8852,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "Took flagship 3 rather than the top row; changepoint-detector is saturated this week."
+    }
+  ],
+  "goal": null,
+  "notes": "Chose shift-roster-builder over the top flagship (changepoint-detector, 16 commits this week, diminishing returns) because the roster proof gap is a business-facing product limit. Exact search now tries one of any interchangeable people holding identical shift sets. Measured: 5 equal people/8 shifts 132172->1160 nodes; 4/10 278722->11634; 6 and 8 people/10 shifts unproven->proven in <0.5s. 7-person sample week still unproven (all-different crew). Local: calc.test.mjs 115/115, run_venture_tests.py shift-roster-builder 0 failed. Venture-preflight not run (engine-only change, no page/site change).",
+  "corrections": [],
+  "redteam": null
+}
