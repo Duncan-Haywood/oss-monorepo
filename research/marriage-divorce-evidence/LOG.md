@@ -1,5 +1,11 @@
 # Research log
 
+## 2026-10-20 · App: "Before the wedding" is now the calculator's default question
+
+- The owner's refocus: predict divorce before marrying, for a couple or a candidate partner. The calculator now opens on **Before the wedding**. Its lens list, summary, just-me and candidate views use only the eight lens views whose clock starts at the wedding and whose inputs are known by then (NSFG 1995–2023 and its both-sexes view, NLSY97, NLSY79 first marriages, SIPP first marriages, Statistics Canada, NSFG 2002 and its model family). The projection starts on the wedding day, and question groups only married-couple lenses read are hidden. The nine married-couple and non-divorce lenses sit behind **Already married**, unchanged.
+- For a typical engaged couple (28 and 30, bachelor's degrees, living together first, no earlier marriages or children, U.S. Midwest), 10-year break-up risk is 6.7% in NSFG 1995–2023 (models 3.8–9.7), 7.8% in NLSY97, 16.5% in NLSY79, 17.4% in SIPP, and 24.7% and 20.6% in the two NSFG 2002 lenses. Statistics Canada abstains (no Canadian region). Cohorts and outcomes differ, so the levels are shown side by side, never pooled. Ranking skill from pre-wedding facts is modest: C 0.63–0.66 within surveys in the leakage-free models.
+- Next (ROADMAP C): B's harmonized pre-wedding lens as the default once #8684 merges, and the HCMST dating-couple chain for couples not yet engaged.
+
 ## 2026-10-20 · Before the wedding: leakage audit, harmonized features and cross-dataset validation on five surveys
 
 - Question: how well can divorce be predicted from facts known on the wedding day? Built one harmonized pre-wedding table per first-marriage lens (NSFG 1995–2023 43,336 marriages; NLSY79 6,768; NLSY97 5,076; SIPP 176,303; Canada GSS 48,656), each reproducing its lens's published sample exactly, with strict timing rules (`reproducibility/prewedding/SPEC.md`).
