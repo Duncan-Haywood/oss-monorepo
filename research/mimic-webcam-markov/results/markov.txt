@@ -1,0 +1,13 @@
+generator	population detector	profile-aware detector	(mean AUROC of 3 seeds; min..max of population)
+own markov8 centroid	1.000	1.000	1.000..1.000
+own markov8 member	1.000	1.000	1.000..1.000
+own markov32 centroid	1.000	1.000	1.000..1.000
+own markov32 member	1.000	1.000	1.000..1.000
+own markov128 centroid	1.000	1.000	1.000..1.000
+own markov128 member	1.000	1.000	1.000..1.000
+pooled markov8 centroid	1.000	1.000	1.000..1.000
+pooled markov8 member	1.000	1.000	1.000..1.000
+pooled markov32 centroid	1.000	1.000	1.000..1.000
+pooled markov32 member	1.000	1.000	1.000..1.000
+pooled markov128 centroid	1.000	1.000	1.000..1.000
+pooled markov128 member	0.999	0.999	0.998..0.999
