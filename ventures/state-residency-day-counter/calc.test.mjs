@@ -454,6 +454,7 @@ test("deviceTimelineToStays: coordinates resolve to states for the Android and i
   const open = [{ startTime: "2025-08-09T08:00:00.000-04:00", visit: { topCandidate: { placeLocation: "geo:25.7617,-80.1918" } } }];
   assert.deepEqual(deviceTimelineToStays(JSON.stringify(open), 2025, STATE_RINGS).lines, ["2025-08-09 FL"]);
   assert.equal(deviceTimelineToStays("nope", 2025, STATE_RINGS).error, "Not a JSON file.");
+  assert.deepEqual(deviceTimelineToStays("nope", 2025, STATE_RINGS), { lines: [], imported: 0, skipped: 0, nearBorder: 0, error: "Not a JSON file." });
   assert.match(deviceTimelineToStays("{}", 2025, STATE_RINGS).error, /phone/);
 });
 
