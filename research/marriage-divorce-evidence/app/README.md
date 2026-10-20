@@ -517,6 +517,23 @@ Every thread count gives identical metrics. `tests/train_parallel.test.mjs` comp
 in scrambled order through structured cloning and checks the merged result equals the
 single-thread one to 10<sup>−12</sup>.
 
+**How much a profile's score depends on the sample (2026-10-20).** Each fold returns its
+fitted model with its predictions. The scorer then shows, beside the full-data estimate, the
+year-10 range across the five fold models, each trained on a different four-fifths of the
+women. For the default profile the ranges are:
+
+| Model | Full-data estimate | Range across fold models |
+| --- | --- | --- |
+| Constant rate | 31.6% | 31.5–31.6% |
+| GLM | 21.3% | 18.6–22.9% |
+| Depth-4 tree | 34.2% | 26.5–34.6% |
+| Boosting | 18.7% | 15.0–23.1% |
+
+For a wife married at 19, the ranges are 33.9–41.7%, 41.5–51.2% and 26.1–40.7%. The flexible
+models move most. This covers sampling only, not what the survey never measured.
+`tests/train_parallel.test.mjs` checks each structured-cloned fold model reproduces its fold's
+held-out predictions to 10<sup>−12</sup>.
+
 `tests/train.test.mjs` takes about 40 s. It requires the JS GLM's coefficients to match
 scikit-learn's within 10<sup>−6</sup>; they agree to 4×10<sup>−14</sup>, on fold 0's training
 set and on all data. It also requires the held-out gains to agree within 0.001 points for the

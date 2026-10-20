@@ -710,7 +710,9 @@ export function foldPredictions(D, R, kinds, f, opts = {}, progress = () => {}) 
     });
     const pred = new Float64Array(rows.length);
     rows.forEach((r, j) => { pred[j] = byPerson.get(R.person[r])[R.k[r]]; });
-    out[kind] = { rows, pred, people, score10, seconds: (Date.now() - t0) / 1000 };
+    // the fitted model travels with its predictions, so a page can score a profile with each
+    // fold's model and show how much the estimate moves with the training sample
+    out[kind] = { rows, pred, people, score10, seconds: (Date.now() - t0) / 1000, model: m };
     progress({ fold: f, kind, phase: 'done' });
   }
   return out;

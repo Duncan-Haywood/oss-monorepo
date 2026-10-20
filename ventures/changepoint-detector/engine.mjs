@@ -81,7 +81,78 @@ export const DEFAULTS = {
   lag: 5,
   // BOCPD reports candidates whose probability reaches this.
   threshold: 0.5,
+  // Seasonal period in points (12 for monthly data with a yearly cycle, 7 for
+  // daily data with a weekly one); 0 or null for none. The per-phase median of
+  // the detrended series is subtracted before detection ('mean' and 'meanvar').
+  period: 0,
+  // true: widen the noise scale of the 'mean' model for lag-1 autocorrelation
+  // so a drifting, sticky series is not cut into many false segments.
+  ar1: false,
 };
+
+// ---------------------------------------------------------------- pre-steps
+
+/**
+ * Classical seasonal adjustment with medians. Detrend with a centred moving
+ * average of one period, take the median of each phase, centre the profile at
+ * zero and subtract it. The median keeps a level shift (which sits in the
+ * detrended series only near the shift) out of the profile.
+ * Returns { adjusted, profile } or throws when there are fewer than two cycles.
+ */
+export function seasonalAdjust(x, period) {
+  const m = Math.floor(period);
+  if (!(m >= 2)) throw new Error('The seasonal period must be a whole number of at least 2.');
+  if (x.length < 2 * m) throw new Error(`A seasonal period of ${m} needs at least ${2 * m} points (two full cycles); got ${x.length}.`);
+  const n = x.length;
+  // centred moving average of length m (2 x m for even m)
+  const trend = new Array(n).fill(null);
+  const half = Math.floor(m / 2);
+  for (let t = half; t < n - half; t++) {
+    let sum = 0;
+    if (m % 2) { for (let k = -half; k <= half; k++) sum += x[t + k]; trend[t] = sum / m; }
+    else { sum = 0.5 * x[t - half] + 0.5 * x[t + half]; for (let k = -half + 1; k < half; k++) sum += x[t + k]; trend[t] = sum / m; }
+  }
+  const phases = Array.from({ length: m }, () => []);
+  for (let t = 0; t < n; t++) if (trend[t] !== null) phases[t % m].push(x[t] - trend[t]);
+  const raw = phases.map((a) => (a.length ? median(a) : 0));
+  const centre = raw.reduce((s, v) => s + v, 0) / m;
+  const profile = raw.map((v) => v - centre);
+  return { adjusted: x.map((v, t) => v - profile[t % m]), profile };
+}
+
+/**
+ * Lag-1 autocorrelation of the noise, robust to level shifts. For AR(1) noise
+ * the first differences have lag-1 correlation -(1 - rho) / 2, and a level
+ * shift touches one difference only, which is clipped at 3 robust sds.
+ * Returns rho clipped to [0, 0.95].
+ */
+export function ar1Rho(x) {
+  const d = [];
+  for (let i = 1; i < x.length; i++) d.push(x[i] - x[i - 1]);
+  if (d.length < 10) return 0;
+  const md = median(d);
+  const mad = median(d.map((v) => Math.abs(v - md))) / 0.6744897501960817;
+  if (!(mad > 0)) return 0;
+  const c = d.map((v) => Math.max(-3 * mad, Math.min(3 * mad, v - md)));
+  let num = 0, den = 0;
+  for (let i = 0; i < c.length; i++) { den += c[i] * c[i]; if (i) num += c[i] * c[i - 1]; }
+  const rd = num / den;
+  return Math.max(0, Math.min(0.95, 1 + 2 * rd));
+}
+
+/** Long-run noise sd of AR(1) noise from the difference-based sd: sd * sqrt(1 + rho) / (1 - rho). */
+export function longRunSd(sd, rho) {
+  return sd * Math.sqrt(1 + rho) / (1 - rho);
+}
+
+/**
+ * AR(1) prewhitening: y[t] = x[t] - rho x[t-1] (y[0] = (1 - rho) x[0]). Independent noise
+ * stays independent for the Bayesian pass, and a level shift of d becomes d at the
+ * change point and d (1 - rho) after it. The change keeps its index.
+ */
+export function prewhiten(x, rho) {
+  return x.map((v, t) => (t ? v - rho * x[t - 1] : (1 - rho) * v));
+}
 
 // ---------------------------------------------------------------- input
 
@@ -499,7 +570,20 @@ export function analyze(input = {}) {
     const bad = values.findIndex((v) => v < 0 || !Number.isInteger(v));
     if (bad >= 0) throw new Error(`The Poisson model needs counts (whole numbers, 0 or more); row ${bad + 1} is ${values[bad]}.`);
   }
-  const sigma = robustSd(values);
+  const period = Math.floor(Number(o.period) || 0);
+  let profile = null;
+  const original = values;
+  if (period) {
+    if (model === 'poisson') throw new Error('The seasonal adjustment subtracts a profile, which breaks counts: use "mean" or "meanvar" with a period.');
+    ({ adjusted: values, profile } = seasonalAdjust(original, period));
+  }
+  let sigma = robustSd(values);
+  let rho = null;
+  if (o.ar1) {
+    if (model !== 'mean') throw new Error('The autocorrelation correction is for the "mean" model only.');
+    rho = ar1Rho(values);
+    sigma = longRunSd(sigma, rho);
+  }
   const minSegment = Math.max(1, Math.floor(Number(o.minSegment) || (model === 'meanvar' ? 5 : 2)));
   const p = pelt(values, { model, penalty: o.penalty, minSegment, sigma });
   const bounds = [0, ...p.changepoints, values.length];
@@ -508,7 +592,7 @@ export function analyze(input = {}) {
     const s = stats(values.slice(bounds[i], bounds[i + 1]));
     segments.push({ start: bounds[i], end: bounds[i + 1] - 1, from: labels[bounds[i]], to: labels[bounds[i + 1] - 1], n: s.n, mean: round(s.mean), sd: round(s.sd) });
   }
-  const b = bocpd(values, { hazardLambda: Number(o.hazardLambda) || 100, lag: Math.max(1, Math.floor(Number(o.lag) || 5)), model });
+  const b = bocpd(rho ? prewhiten(values, rho) : values, { hazardLambda: Number(o.hazardLambda) || 100, lag: Math.max(1, Math.floor(Number(o.lag) || 5)), model });
   const det = peaks(b.changeProb, Number(o.threshold) || 0.5);
   const changes = p.changepoints.map((i, k) => {
     const before = segments[k];
@@ -535,6 +619,8 @@ export function analyze(input = {}) {
     skipped,
     model,
     noiseSd: round(sigma),
+    ...(period ? { seasonal: { period, profile: profile.map((v) => round(v)) } } : {}),
+    ...(rho !== null ? { ar1: { rho: round(rho, 3) } } : {}),
     pelt: { penalty: round(p.penalty), minSegment, changepoints: changes, segments },
     bocpd: {
       hazardLambda: Number(o.hazardLambda) || 100,
@@ -545,7 +631,8 @@ export function analyze(input = {}) {
       mapRunLength: b.mapRun,
     },
     labels,
-    values,
+    values: original,
+    ...(period ? { adjusted: values.map((v) => round(v)) } : {}),
     summary,
   };
 }

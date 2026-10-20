@@ -19,6 +19,37 @@
 - ACS detail baselines (2019, 2021–24, replicate-weight and age-standardised CIs): one-year divorce per 1,000 by census race group (Asian 8.3, Black 23.6, AIAN 19.5, NHPI 12.1, multiracial 18.9), 18 Asian subgroups (Asian Indian 5.2, Chinese 8.3, Vietnamese 14.4) and 11 Hispanic origins (Mexican 13.7, Puerto Rican 20.3, Dominican 23.1); occupation (detailed, SOC major: healthcare support 25.8 vs architecture and engineering 10.3), industry, household income ($200k+ 6.3 vs under $25k 31.7) and tenure (renters 29.6 vs owners 8.4–9.7), all labelled as measured after any divorce (`app/data/acs_occupation_divorce.json`).
 - `app/data/race_coverage.json` says for every lens which race categories it distinguishes and how each finer form answer maps (NSFG and HCMST: Asian → Other; NLSY: Asian → non-Black non-Hispanic; GSS: Hispanic cannot be placed). Extended models ship in each bundle's `models_extended` with test vectors (new `tests/extended_models.test.mjs`, parity to 10<sup>-9</sup>); the app scores none of them until the form asks for the new inputs.
 
+## 2026-10-20 · Before the wedding, from living together: which NLSY97 couples marry, and which split (6,020 first cohabitations)
+
+- New pre-marriage lens from the NLSY97 public release (`reproducibility/nlsy97_cohabitation_to_marriage/`): every respondent's first cohabiting union (born 1980–84, moved in 1994–2023, never married before), followed in the monthly marital and cohabitation arrays. Of 6,020 couples, 2,109 married each other, 3,481 split first and 430 are censored.
+- Weighted, within 10 years of moving in: 39.1% married the partner and 55.3% split first. With a bachelor's degree or more at move-in, 63.5% married and 29.9% split; with no high-school credential, 21.4% and 74.2%. Moving in before 20: 25.3% married and 72.4% split; at 26–29: 51.9% and 39.1%.
+- Held out by person (5-fold, yearly Poisson hazards): marrying the partner, additive spline 4.9% deviance gain (folds 4.4–5.7%) against 2.8% for years together alone; splitting first, 9.3% (7.6–10.4%) against 4.7%.
+- Leakage caught: the partner section's traits (age, schooling, earlier marriage, children) are recorded in a way that depends on how the union ended. Partner schooling is known for couples who split 87% of the time, against 47% where unknown. They are excluded, which cut the split model's apparent gain from 14.9% to 9.3%.
+- Exported as `app/models/nlsy97_cohab_marriage.json` and `nlsy97_cohab_split.json` (`stage: before`), listed without an adapter. Parity is 300/300 to 10<sup>-9</sup>. ROADMAP A updated: NLSY97 cohabitation done; remaining are Add Health, OSF/Zenodo premarital studies, and PSID / Fragile Families / Understanding Society (403).
+
+## 2026-10-20 · Browser-trained models: how much your score moves with the training sample
+
+- The profile scorer in "Train the models yourself" now shows two things for each model the visitor trained: its estimate on all 29,202 marriages, and the year-10 range across the five fold models from the held-out test. Each fold model learned from a different four-fifths of the women.
+- For the default profile (the most common answers, wedding in 2020, wife aged 23), the range is narrow for the simple models and wide for the flexible ones:
+
+  | Model | Full-data estimate | Range across fold models | Width |
+  | --- | --- | --- | --- |
+  | Constant rate | 31.6% | 31.5–31.6% | 0.1 points |
+  | Duration-only GLM | 33.2% | 33.1–33.4% | 0.3 points |
+  | Additive GLM | 21.3% | 18.6–22.9% | 4.3 points |
+  | Depth-4 tree | 34.2% | 26.5–34.6% | 8.1 points |
+  | Boosting | 18.7% | 15.0–23.1% | 8.1 points |
+
+- With the wife married at 19, the additive GLM gives 38.3% (33.9–41.7%), the tree 51.0% (41.5–51.2%) and boosting 34.1% (26.1–40.7%).
+- The tree's full-data estimate sits at the top of its fold range, so its single splits are fragile. A profile's number should be read with a spread of several points even before counting what the survey does not measure.
+- `tests/train_parallel.test.mjs` checks that each fold model, after structured cloning, reproduces its fold's held-out predictions to 10<sup>−12</sup>. In headless Chromium at 1200 and 390 px: no console errors, no horizontal scroll.
+
+## 2026-10-20 · App: per-partner explanations and a default couple at first-wedding ages
+
+- Explanations for lenses that score a couple from both partners' sides (the harmonized before-the-wedding lens, NLSY79 couples and individuals) now show one bar set per partner. Each set is exact: its factors multiply (forest: add) to that partner's rate. The page says the couple's rate is the average of the two. The averaged bars they replace were only approximate for the averaged rate. A test checks exactness and the average for every additive model in those three lenses.
+- The default couple before the wedding is 28 and 30, about the recent U.S. median ages at first marriage, instead of 36 and 38. The married view still opens at 36 and 38, inside NLSY79's data, and a typed age is never changed. On the default lens that couple gets 89% no break-up by year 10. Readable labels were added for the harmonized lens's inputs.
+- Not done: B's per-couple intervals (#8736) are still a draft, so the tiles show the single model without an interval.
+
 ## 2026-10-20 · App: not engaged yet? Marry each other, or break up first
 
 - The before-the-wedding view now answers the earlier question too. For a couple who are dating or living together, workstream A's two HCMST 2009–2017 models (#8662) give the chance of marrying each other within 8.4 years and of breaking up first, chained period by period as the bundles' `how_to_combine` specifies (`app/dating.js`). The chain then hands over to the selected pre-wedding lens for the marriage itself.
