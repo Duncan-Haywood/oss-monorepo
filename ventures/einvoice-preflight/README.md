@@ -58,7 +58,7 @@ EUPL-1.2) for UBL and CII invoices, in Saxon-JS, with each BR-xx failure mapped
 to a plain-language fix (`schematron-fixes.mjs`). When the invoice's
 specification identifier (BT-24) names XRechnung, the KoSIT XRechnung rules
 (BR-DE-xx, Apache-2.0, UBL and CII) run too; when it names Peppol BIS Billing 3,
-the OpenPEPPOL rules (PEPPOL-EN16931-Rxxx, MPL-2.0, UBL) run. Findings carry
+the OpenPEPPOL rules (PEPPOL-EN16931-Rxxx, MPL-2.0, UBL invoices and credit notes, and CII) run. Findings carry
 the official rule ID and `source` of `en16931-schematron`, `xrechnung-schematron`
 or `peppol-schematron`; the built-in `INV-nnn` rules still run. Neither the engine nor the compiled rules ship in this folder:
 
@@ -75,7 +75,7 @@ the base rules, and the defects file raises BR-CO-15, BR-CO-16, BR-CO-17, BR-S-0
 and BR-61. The bundled UBL example names XRechnung 3.0 and the XRechnung rules
 find what a German public buyer would reject: no seller contact (BR-DE-2) and no
 buyer post code (BR-DE-9). The Docker image builds the rules in a first stage and
-ships them with Saxon-JS (`?schematron=1`). JSON drafts have no XML to check. The
+ships them with Saxon-JS (`?schematron=1`). JSON drafts have no XML to check. On a self-hosted copy the web page has an "Also run the official EN 16931 Schematron" box: it posts the XML to the page's own `/v1/validate?schematron=1` (`official.mjs`) and lists the official findings beside the built-in ones; on a static host with no API it says the check did not run, never a pass. The
 XRechnung messages are in German, as the KoSIT rules publish them; the `fix` line
 is English. The XRechnung CII rules are built but not yet exercised by a test
 example.

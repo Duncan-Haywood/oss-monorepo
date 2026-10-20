@@ -42,6 +42,7 @@ const addons = [
   ["xrechnung-ubl", join(xr, "src/validation/schematron/ubl/XRechnung-UBL-validation.sch")],
   ["xrechnung-cii", join(xr, "src/validation/schematron/cii/XRechnung-CII-validation.sch")],
   ["peppol-ubl", join(pe, "rules/sch/PEPPOL-EN16931-UBL.sch")],
+  ["peppol-cii", join(pe, "rules/sch/PEPPOL-EN16931-CII.sch")],
 ];
 for (const [name, sch] of addons) {
   if (!existsSync(sch)) throw new Error(`Missing ${sch}`);
