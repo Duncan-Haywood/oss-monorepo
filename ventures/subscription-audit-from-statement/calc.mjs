@@ -20,9 +20,11 @@ export const FIXED_TOLERANCE = 0.1; // charges within 10% of the median count as
 const FIT_SHARE = 0.6; // share of gaps that must sit inside the cadence window
 
 const ALIASES = {
-  date: ["transaction date", "posted date", "post date", "posting date", "date posted", "trans date", "date"],
-  desc: ["description", "transaction description", "merchant", "merchant name", "payee", "name", "details", "memo", "original description"],
+  date: ["transaction date", "posted date", "post date", "posting date", "date posted", "trans date", "trans. date", "booking date", "completed date", "started date", "clearing date", "date"],
+  desc: ["description", "transaction description", "name / description", "merchant", "merchant name", "payee", "name", "narrative", "details", "memo", "original description"],
   amount: ["amount", "transaction amount", "amt", "value"],
+  // A column that says which way a positive amount went (ING: "Debit/credit" = Debit|Credit, Dutch "Af/Bij").
+  direction: ["debit/credit", "credit/debit", "dr/cr", "cr/dr", "af/bij", "debit or credit", "credit or debit"],
   debit: ["debit", "debits", "withdrawal", "withdrawals", "money out", "paid out", "amount debit", "charge"],
   credit: ["credit", "credits", "deposit", "deposits", "money in", "paid in", "amount credit"],
 };
@@ -94,7 +96,8 @@ const usd = (n) => (n < 0 ? "-$" : "$") + money(Math.abs(n));
 const median = (xs) => { const s = [...xs].sort((a, b) => a - b); const m = s.length >> 1; return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; };
 
 export function findColumns(header, aliases) {
-  const norm = header.map((h) => h.trim().toLowerCase().replace(/\s+/g, " "));
+  // "Amount (USD)" and "Amount (EUR)" are the amount column; the currency tag is not part of the name.
+  const norm = header.map((h) => h.trim().toLowerCase().replace(/\s+/g, " ").replace(/\s*\((?:[a-z]{3}|[^)]*currency[^)]*)\)$/, ""));
   const cols = {};
   for (const [field, names] of Object.entries(aliases)) {
     for (const n of names) {
@@ -108,7 +111,7 @@ export function findColumns(header, aliases) {
 // Day number (whole days since 1970, UTC) or null. dateOrder: "mdy" | "dmy" | "auto".
 export function parseDate(s, dateOrder = "mdy") {
   const t = String(s ?? "").trim().replace(/[T ].*$/, "");
-  let y, m, d, a = t.match(/^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})$/);
+  let y, m, d, a = t.match(/^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})$/) || t.match(/^(\d{4})(\d{2})(\d{2})$/);
   if (a) { y = +a[1]; m = +a[2]; d = +a[3]; }
   else if ((a = t.match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{2,4})$/))) {
     y = +a[3]; if (y < 100) y += 2000;
@@ -158,6 +161,31 @@ export function kindOf(key) {
   return null;
 }
 
+// Some banks (Wells Fargo) export no header row. Find the date column (parses in
+// 80%+ of rows), the amount column (numeric in 80%+, mostly with a decimal
+// point or comma) and call the text column with the longest values the description.
+function guessHeaderless(table, decimalComma) {
+  const rows = table.filter((r) => r.length >= 3 && r.some((c) => String(c).trim())).slice(0, 200);
+  if (rows.length < 3) return null;
+  const width = Math.max(...rows.map((r) => r.length));
+  const share = (test, at) => rows.filter((r) => test(String(r[at] ?? "").trim())).length / rows.length;
+  let date, amount, desc, best = 0;
+  for (let c = 0; c < width; c++) if (share((v) => parseDate(v, "mdy") !== null || parseDate(v, "dmy") !== null, c) >= 0.8) { date = c; break; }
+  if (date === undefined) return null;
+  for (let c = 0; c < width; c++) {
+    if (c === date) continue;
+    if (share((v) => v !== "" && /[.,]\d{2}\)?$/.test(v) && Number.isFinite(parseNumber(v, decimalComma)), c) >= 0.8) { amount = c; break; }
+  }
+  if (amount === undefined) return null;
+  for (let c = 0; c < width; c++) {
+    if (c === date || c === amount) continue;
+    const textual = rows.filter((r) => /[A-Za-z]{3}/.test(String(r[c] ?? ""))).length / rows.length;
+    const len = rows.reduce((n, r) => n + String(r[c] ?? "").trim().length, 0) / rows.length;
+    if (textual >= 0.8 && len > best) { best = len; desc = c; }
+  }
+  return desc === undefined ? null : { date, desc, amount };
+}
+
 // Statement table -> { rows, skipped, columns, dateOrder, spendSign, error }.
 // A row is { line, day, desc, spend }: spend is positive money out.
 export function normalizeStatement(table, { decimalComma = false, dateOrder = "auto", spendSign = "auto" } = {}) {
@@ -168,15 +196,21 @@ export function normalizeStatement(table, { decimalComma = false, dateOrder = "a
     const c = findColumns(table[i], ALIASES);
     if (c.date !== undefined && c.desc !== undefined && (c.amount !== undefined || c.debit !== undefined)) { h = i; cols = c; break; }
   }
-  if (h < 0) return { ...empty, error: "No header row found. Expected columns for the date, the description and the amount (or debit and credit), as in a bank or credit-card CSV export." };
+  let headerless = false;
+  if (h < 0) {
+    const g = guessHeaderless(table, decimalComma);
+    if (g) { h = -1; cols = g; headerless = true; }
+  }
+  if (h < 0 && !headerless) return { ...empty, error: "No header row found. Expected columns for the date, the description and the amount (or debit and credit), as in a bank or credit-card CSV export." };
   const get = (line, f) => (cols[f] === undefined ? "" : (line[cols[f]] ?? "").trim());
   const columns = {};
-  for (const [f, at] of Object.entries(cols)) columns[f] = table[h][at].trim();
+  for (const [f, at] of Object.entries(cols)) columns[f] = headerless ? `column ${at + 1}` : table[h][at].trim();
   const order = dateOrder === "auto" ? guessDateOrder(table.slice(h + 1).map((r) => r[cols.date] ?? ""), decimalComma ? "dmy" : "mdy") : dateOrder;
 
   const parsed = [], skipped = [];
   for (let i = h + 1; i < table.length; i++) {
     const line = table[i], lineNo = i + 1;
+    if (line.every((c) => !String(c).trim())) continue;
     const day = parseDate(get(line, "date"), order);
     if (day === null) { skipped.push({ line: lineNo, reason: "date not readable" }); continue; }
     const desc = get(line, "desc");
@@ -191,6 +225,12 @@ export function normalizeStatement(table, { decimalComma = false, dateOrder = "a
     }
     signed = parseNumber(get(line, "amount"), decimalComma);
     if (!Number.isFinite(signed)) { skipped.push({ line: lineNo, reason: "amount not readable" }); continue; }
+    if (cols.direction !== undefined) {
+      // The amount is unsigned; this column says whether it left the account.
+      const dir = get(line, "direction").toLowerCase();
+      if (/^(debit|dr|d|af|out)$/.test(dir)) signed = -Math.abs(signed);
+      else if (/^(credit|cr|c|bij|in)$/.test(dir)) signed = Math.abs(signed);
+    }
     parsed.push({ line: lineNo, day, desc, signed });
   }
   let sign = spendSign;
