@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: No GitHub account? Use the form on the site
+    url: https://duncan-haywood.github.io/monorepo-projects/feedback/
+    about: Report a problem or suggest a feature for one of the free tools without signing in.

@@ -159,7 +159,8 @@ product PR?"
    separate disclaimer — §5f, nominative fair use plus a "not affiliated
    with" line — checked by `node platform/pages/clauses.mjs <slug>`.
 2. **Usage stats** — anonymous events only (feature used, page viewed), never
-   people: no PII, no IPs, no content, no analytics vendor. Rules and the file
+   people: no PII, no IPs, no content. A hosted service is allowed when it is
+   lawful and the privacy copy names it (owner, 2026-10-20). Rules and the file
    readings land in: [`portfolio/usage/`](portfolio/usage/README.md).
 3. **Free full access** for now — no paywalls; optional GitHub Sponsors/donate link OK.
 4. **A LICENSE and the discoverability basics** — landing copy in the user's

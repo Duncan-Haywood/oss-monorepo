@@ -1,0 +1,36 @@
+# Copies the site's daily page-load counts from platform/edge into
+# portfolio/usage/site-visits.json, so agents can read them like any other
+# committed file. Aggregates only (one number per page per day). Off until the
+# owner sets vars.SITE_USAGE_PULL to 'true' (owner request, 2026-10-20).
+name: site-usage-pull
+on:
+  schedule:
+    - cron: '23 5 * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: site-usage-pull
+  cancel-in-progress: false
+jobs:
+  pull:
+    if: ${{ vars.SITE_USAGE_PULL == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Pull counts
+        run: |
+          url=$(node -p 'require("./platform/counter/site.json").url')
+          if [ -z "$url" ]; then echo "platform/counter/site.json has no url; nothing to pull."; exit 0; fi
+          COUNTER_URL="$url" node platform/counter/pull.mjs
+      - name: Commit
+        run: |
+          git add portfolio/usage/site-visits.json 2>/dev/null || true
+          if git diff --cached --quiet; then echo "no change"; exit 0; fi
+          git -c user.name="monorepo-projects bot" -c user.email="noreply@users.noreply.github.com" \
+            commit -m "usage: daily site page-load counts from platform/edge"
+          git push origin HEAD:main
