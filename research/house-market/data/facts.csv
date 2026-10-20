@@ -1,0 +1,86 @@
+key,value,unit,period,source
+nahb_price,665298,USD,2024,nahb2024
+nahb_area,2647,sq ft,2024,nahb2024
+nahb_lot_area,20907,sq ft,2024,nahb2024
+nahb_lot,91057,USD,2024,nahb2024
+nahb_construction,428215,USD,2024,nahb2024
+nahb_financing,10220,USD,2024,nahb2024
+nahb_overhead,38248,USD,2024,nahb2024
+nahb_marketing,5633,USD,2024,nahb2024
+nahb_commission,18955,USD,2024,nahb2024
+nahb_profit,72971,USD,2024,nahb2024
+stage_site_work,32719,USD,2024,nahb2024
+stage_foundations,44748,USD,2024,nahb2024
+stage_framing,70982,USD,2024,nahb2024
+stage_exterior,57510,USD,2024,nahb2024
+stage_systems,82319,USD,2024,nahb2024
+stage_interior,103391,USD,2024,nahb2024
+stage_final,27710,USD,2024,nahb2024
+stage_other,8835,USD,2024,nahb2024
+fee_permit,7640,USD,2024,nahb2024
+fee_impact,6367,USD,2024,nahb2024
+fee_water_sewer,6260,USD,2024,nahb2024
+reg_share,0.238,share of price,2021,nahbreg2021
+census_median_price,393700,USD,Aug 2026,nrs202608
+census_avg_price,478700,USD,Aug 2026,nrs202608
+census_median_price_2025,417400,USD,2025,nrs202608
+census_avg_price_2025,523800,USD,2025,nrs202608
+census_months_supply,8.5,months,Aug 2026,nrs202608
+census_sf_starts_2025,939700,units,2025,nrc202608
+census_sf_completions_2025,1004800,units,2025,nrc202608
+census_median_sf_completed,2142,sq ft,2025,chars2025
+census_median_sf_sold,2194,sq ft,2025,chars2025
+census_median_ppsf_ex_lot,154.79,USD/sq ft,2025,charsppsf
+census_avg_ppsf_ex_lot,171.95,USD/sq ft,2025,charsppsf
+census_west_median_ppsf_ex_lot,212.50,USD/sq ft,2025,charsppsf
+share_wood_frame,0.94,share of completions,2025,chars2025
+share_concrete_frame,0.05,share of completions,2025,chars2025
+share_slab,0.75,share of completions,2025,chars2025
+share_basement,0.16,share of completions,2025,chars2025
+share_one_story,0.48,share of completions,2025,chars2025
+units_modular_2024,13000,units,2024,nahbmod2024
+units_panelized_2024,15000,units,2024,nahbmod2024
+mh_avg_price,123300,USD,2024,mhs2024
+mh_avg_sf,1460,sq ft,2024,mhs2024
+mh_ppsf,84.45,USD/sq ft,2024,mhs2024
+mh_single_ppsf,78.60,USD/sq ft,2024,mhs2024
+mh_double_ppsf,86.71,USD/sq ft,2024,mhs2024
+mh_ppsf_2023,86.62,USD/sq ft,2023,mhs2023
+sitebuilt_ppsf_ex_land_2023,165.94,USD/sq ft,2023,mhs2023
+hmi,29,index,Oct 2026,hmi202610
+builders_cutting_prices,0.43,share of builders,Oct 2026,hmi202610
+builders_incentives,0.65,share of builders,Oct 2026,hmi202610
+mortgage_30y,7.40,percent,week of 2026-10-15,pmms
+ppi_inputs_yoy,10.3,percent,Sep 2026,ppi202609
+ppi_materials_yoy,5.5,percent,Sep 2026,ppi202609
+ppi_inputs_since_feb2020,52.9,percent,Sep 2026,agcppi202609
+ppi_lumber_yoy,9.6,percent,Sep 2026,agcppi202609
+ppi_steel_yoy,27.6,percent,Sep 2026,agcppi202609
+ppi_copper_yoy,30.0,percent,Sep 2026,agcppi202609
+tariff_cost_per_home,10900,USD,Apr 2025,nahbtariff
+canada_lumber_adcvd,35.16,percent,from 2025-09-11,nahbtariff
+sec232_lumber,10,percent,from 2025-10-14,ghy232
+sec232_cabinets,25,percent,to 2026-12-31,ghy232
+labor_shortage_share,0.47,share of builders,Sep 2026,labor202610
+framing_crew_shortage,0.57,share of builders,Sep 2026,labor202610
+adc_presold_effective,11.67,percent,Q2 2026,adc2026q2
+iecc2021_cost_pnnl,2300,USD/home,2021-22,iecc2021
+iecc2021_cost_hirl,6500,USD/home,2021-22,iecc2021
+denver_cci,0.94,index (US=1),2026,csi2026
+denver_material_index,1.051,index (US=1),2026,csi2026
+denver_install_index,0.772,index (US=1),2026,csi2026
+denver_water_sewer_sdc,16930,USD (2000 sq ft home),2026,csi2026
+denver_linkage_fee,16360,USD (2000 sq ft home),2026,csi2026
+denver_permit_review,4510,USD (2000 sq ft home),2026,csi2026
+denver_materials_sales_tax,7686,USD (2000 sq ft home),2026,csi2026
+denver_review_carry,9625,USD per unit,2026,csi2026
+denver_review_days,209,days,2026,csi2026
+arvada_water_sewer_sdc,46800,USD,2026,csi2026
+lamar_water_sewer_sdc,2994,USD,2026,csi2026
+dmar_median,594495,USD,Aug 2026,dmar202608
+car_co_median,550000,USD,Aug 2026,car202608
+co_permits_total_2025,33451,units,2025,fredcobp
+co_permits_sf_2024,20139,units,2024,fredcobp
+co_permits_sf_2025,17726,units,2025,fredcobp
+co_permits_sf_2026_ytd,12128,units,Jan-Aug 2026,fredcobp
+co_construction_ahe,43.30,USD/hour,Aug 2026,fredcoahe

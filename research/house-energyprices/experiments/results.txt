@@ -1,0 +1,40 @@
+A. prices: house-energy's invented defaults (gas $1.30/therm, electricity $0.16/kWh) against EIA
+  Miami (1A)        Florida    gas $2.46/therm  electricity $0.153/kWh
+  Houston (2A)      Texas      gas $1.87/therm  electricity $0.161/kWh
+  Atlanta (3A)      Georgia    gas $1.97/therm  electricity $0.154/kWh
+  Chicago (5A)      Illinois   gas $1.08/therm  electricity $0.192/kWh
+  Minneapolis (6A)  Minnesota  gas $1.06/therm  electricity $0.163/kWh
+  Duluth (7)        Minnesota  gas $1.06/therm  electricity $0.163/kWh
+
+B. cost-optimal package (default prices -> EIA prices); saving over the baseline in NPC
+  climate           system              default saving  EIA saving  changed?  EIA optimum
+  Miami (1A)        gas furnace + AC         2,173       2,163  no      adv 2x6, attic R-30, U 0.50, 5 ACH50, slab bare
+  Miami (1A)        heat pump                2,175       2,160  no      adv 2x6, attic R-30, U 0.50, 5 ACH50, slab bare
+  Houston (2A)      gas furnace + AC         2,133       2,171  no      adv 2x6, attic R-30, U 0.50, 5 ACH50, slab bare
+  Houston (2A)      heat pump                2,164       2,166  no      adv 2x6, attic R-30, U 0.50, 5 ACH50, slab bare
+  Atlanta (3A)      gas furnace + AC         2,137       2,379  yes     adv 2x6, attic R-30, U 0.50, 3 ACH50, slab R-10
+  Atlanta (3A)      heat pump                2,289       2,257  no      adv 2x6, attic R-30, U 0.50, 5 ACH50, slab R-10
+  Chicago (5A)      gas furnace + AC         2,704       2,467  no      adv 2x6, attic R-30, U 0.50, 3 ACH50, slab R-10
+  Chicago (5A)      heat pump                3,329       3,878  no      adv 2x6, attic R-38, U 0.50, 3 ACH50, slab R-10
+  Minneapolis (6A)  gas furnace + AC         3,053       2,685  no      adv 2x6, attic R-30, U 0.50, 3 ACH50, slab R-10
+  Minneapolis (6A)  heat pump                3,877       3,928  no      adv 2x6, attic R-38, U 0.50, 3 ACH50, slab R-10
+  Duluth (7)        gas furnace + AC         3,514       3,018  yes     adv 2x6, attic R-30, U 0.50, 3 ACH50, slab R-10
+  Duluth (7)        heat pump                4,561       4,622  no      adv 2x6, attic R-38, U 0.50, 3 ACH50, slab R-10
+  optimum package changes in 2 of 12 cases
+
+C. annual heating + cooling energy bill of the EIA-optimal house, gas furnace + AC against heat pump
+  climate            gas+AC $/yr  heat pump $/yr  cheaper to run
+  Miami (1A)                 287             283       heat pump
+  Houston (2A)               338             332       heat pump
+  Atlanta (3A)               384             372       heat pump
+  Chicago (5A)               395             695             gas
+  Minneapolis (6A)           443             703             gas
+  Duluth (7)                 518             844             gas
+
+D. one upgrade at a time at EIA prices (gas): attic R-30 to R-49 and windows U 0.35 to 0.27; simple payback in years
+  Miami (1A)        attic R-49: +$745 saves $19/yr (40 y); windows U 0.27: +$1,645 saves $15/yr (107 y); 3 ACH50: +$500 saves $23/yr (22 y)
+  Houston (2A)      attic R-49: +$745 saves $19/yr (39 y); windows U 0.27: +$1,645 saves $16/yr (105 y); 3 ACH50: +$500 saves $23/yr (22 y)
+  Atlanta (3A)      attic R-49: +$745 saves $22/yr (34 y); windows U 0.27: +$1,645 saves $18/yr (92 y); 3 ACH50: +$500 saves $26/yr (19 y)
+  Chicago (5A)      attic R-49: +$745 saves $22/yr (34 y); windows U 0.27: +$1,645 saves $18/yr (92 y); 3 ACH50: +$500 saves $26/yr (19 y)
+  Minneapolis (6A)  attic R-49: +$745 saves $24/yr (31 y); windows U 0.27: +$1,645 saves $20/yr (84 y); 3 ACH50: +$500 saves $29/yr (17 y)
+  Duluth (7)        attic R-49: +$745 saves $27/yr (27 y); windows U 0.27: +$1,645 saves $22/yr (74 y); 3 ACH50: +$500 saves $33/yr (15 y)

@@ -1,0 +1,3 @@
+{"round": 3, "notes": "Round 2 read: torque below ~0.55 N m ends runs early (0.07-0.30), 0.6 and up sits at the 0.783 ceiling, and wheelbase and battery do not move J. Probe whether anything beats the ceiling: smaller wheels with the longest flipper and shortest body (tip-over and recovery path), and the torque edge between 0.45 and 0.6.",
+ "designs": [[70,120,150,2.0,5],[60,120,150,2.0,5],[80,120,150,1.5,5],[90,120,150,0.5,5],[90,120,0,0.5,5],
+             [90,130,10,0.52,5],[90,125,0,0.58,5],[85,120,150,2.0,5],[78,300,150,2.0,5],[90,320,0,0.6,5]]}

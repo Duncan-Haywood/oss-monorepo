@@ -11,6 +11,7 @@ MIT licensed, like the rest of the repository.
 
 | Directory | What it is |
 |---|---|
+| [`agents/`](agents/README.md) | **Command line and MCP server for AI agents** over every tool in `ventures/`: search, see a tool's functions and default inputs, and call its calculation engine with JSON, with no browser. Zero dependencies; 1,262 of 1,283 tools callable. |
 | [`uitest/`](uitest/README.md) | **AI agent end-to-end UI testing for any web app.** Describe what a user is trying to do in plain language; an agent drives a real Chromium browser and passes or fails the run. CLI and GitHub Action, bring your own model key, deterministic checks run without one. |
 | [`llm/`](llm/README.md) | **Bring-your-own-key LLM client** in one dependency-free file: OpenAI, Anthropic and other providers, or a local model (Ollama, LM Studio, llama.cpp) with no key. Works in a static page, Node, an edge function or a phone app. |
 | [`counter/`](counter/README.md) | **Cookieless, first-party page-view counter** for a static site, about 200 lines of Node with no analytics vendor and no dependencies. |
@@ -34,7 +35,7 @@ MIT licensed, like the rest of the repository.
 | Directory | What it does |
 |---|---|
 | [`ci/`](ci/) | Python and Node guards run by the workflows in `.github/workflows/`: README titles and live links, CI-starvation classification, Pages state, stranded-branch detection, workflow validation, and the agent cross-review layer ([`ci/agent_review/`](ci/agent_review/README.md)). Each script's docstring says what it checks and why. |
-| `agents/`, `skills/` | Placeholders for shared agent definitions and skills. |
+| `skills/` | Placeholder for shared agent skills. |
 
 [`VENTURE.template.yaml`](VENTURE.template.yaml) is the starting point for a new
 product's manifest, and [`QUALITY_CONFIG.md`](QUALITY_CONFIG.md) the shared quality
