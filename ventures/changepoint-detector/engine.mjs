@@ -685,7 +685,7 @@ export { lgamma };
  * Segment cost function over prefix sums. cost(s, t) is -2 log-likelihood of
  * x[s..t) under the model, maximised over the segment's parameters.
  */
-export function makeCost(x, model = 'mean', sigma = robustSd(x), rho = 0, exposure = null) {
+export function makeCost(x, model = 'mean', sigma = robustSd(x), rho = 0, exposure = null, size = 0) {
   const n = x.length;
   const S1 = new Float64Array(n + 1);
   const S2 = new Float64Array(n + 1);
@@ -762,7 +762,34 @@ export function makeCost(x, model = 'mean', sigma = robustSd(x), rho = 0, exposu
       return a > 0 && m > 0 ? 2 * (a - a * Math.log(a / m)) : 0;
     };
   }
-  throw new Error(`Unknown model "${model}": use "mean", "meanvar", "trend" or "poisson".`);
+  if (model === 'negbin') {
+    // Negative binomial with a known size r (variance mu + mu^2 / r) and one mean per segment, the constants dropped:
+    // -2 [a log(mu / (mu + r)) + m r log(r / (mu + r))] with mu = a / m, the maximum-likelihood mean for any fixed r.
+    // As r grows this tends to the Poisson cost.
+    if (!(size > 0)) throw new Error('The negative-binomial cost needs a size r > 0.');
+    return (s, t) => {
+      const m = t - s;
+      const a = S1[t] - S1[s];
+      const mu = a / m;
+      return -2 * ((a > 0 ? a * Math.log(mu / (mu + size)) : 0) + m * size * Math.log(size / (mu + size)));
+    };
+  }
+  throw new Error(`Unknown model "${model}": use "mean", "meanvar", "trend", "poisson" or "negbin".`);
+}
+
+/**
+ * Size r of a negative binomial (variance mu + mu^2 / r) for clumpy counts, from the series itself: the variance comes
+ * from the median of squared first differences (a step spoils one difference, so the median ignores it; for
+ * independent counts D = x_t - x_(t-1) has variance 2 var and D^2 has median 0.4549 * 2 var), the mean from the median.
+ * Returns Infinity when the counts are no more spread than a Poisson (the negative binomial then adds nothing).
+ */
+export function negbinSize(x) {
+  if (x.length < 8) return Infinity;
+  const d = [];
+  for (let t = 1; t < x.length; t++) d.push((x[t] - x[t - 1]) ** 2);
+  const v = median(d) / (2 * 0.4549);
+  const mu = x.reduce((a, b) => a + b, 0) / x.length;
+  return v > 1.05 * mu && mu > 0 ? (mu * mu) / (v - mu) : Infinity;
 }
 
 /** Penalty per extra change. Parameters added by one change: its location plus the new segment's parameters. */
@@ -782,11 +809,11 @@ export function penaltyValue(penalty, n, model) {
  * PELT. Returns change locations as indices i where a new segment starts at
  * x[i] (so 0 < i < n), sorted, plus the optimal total cost.
  */
-export function pelt(x, { model = 'mean', penalty = 'bic', minSegment = 2, sigma, rho = 0, exposure = null } = {}) {
+export function pelt(x, { model = 'mean', penalty = 'bic', minSegment = 2, sigma, rho = 0, exposure = null, size = 0 } = {}) {
   const n = x.length;
   const beta = penaltyValue(penalty, n, model);
   const minSeg = Math.max(1, Math.floor(minSegment));
-  const cost = makeCost(x, model, sigma ?? robustSd(x), rho, exposure);
+  const cost = makeCost(x, model, sigma ?? robustSd(x), rho, exposure, size);
   if (n < 2 * minSeg) return { changepoints: [], cost: n ? cost(0, n) : 0, penalty: beta };
   const F = new Float64Array(n + 1).fill(Infinity);
   const last = new Int32Array(n + 1).fill(-1);
@@ -1063,7 +1090,12 @@ export function analyze(input = {}) {
   }
   const period = Math.floor(Number(o.period) || 0);
   let phi = null, penalty = o.penalty;
-  if (o.overdispersion) {
+  let nbSize = 0;
+  if (o.overdispersion === 'nb') {
+    if (model !== 'poisson') throw new Error('The negative-binomial cost is for counts: use model "poisson".');
+    if (o.period || o.trend) throw new Error('The negative-binomial cost does not yet combine with a seasonal period or a trend: use plain --overdispersion.');
+    nbSize = negbinSize(values);
+  } else if (o.overdispersion) {
     if (model !== 'poisson') throw new Error('The dispersion correction is for counts: use model "poisson".');
     phi = typeof o.overdispersion === 'number' ? Math.max(1, o.overdispersion) : countDispersion(values, period);
     penalty = phi * penaltyValue(o.penalty ?? 'bic', values.length, 'poisson');
@@ -1102,7 +1134,7 @@ export function analyze(input = {}) {
   if (joint) {
     p = ar1JointFit(values, { penalty: o.penalty, minSegment });
     ({ rho, sigma } = p);
-  } else p = pelt(values, { model, penalty, minSegment, sigma, exposure });
+  } else p = isFinite(nbSize) && nbSize > 0 ? pelt(values, { model: 'negbin', penalty, minSegment, size: nbSize }) : pelt(values, { model, penalty, minSegment, sigma, exposure });
   const bounds = [0, ...p.changepoints, values.length];
   const segments = [];
   const lines = [];
