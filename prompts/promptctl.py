@@ -798,14 +798,31 @@ def _is_shallow() -> bool:
     return out == "true"
 
 
-def _changed_note(path: str) -> tuple[str, str]:
-    """(' (file last changed D)', D): so a reader can tell a stale complaint from a live one."""
+def _shallow_boundary() -> set[str]:
+    """Commits a shallow clone cuts history at; git shows every file as changed there."""
     try:
-        out = subprocess.run(["git", "log", "-1", "--format=%cI", "--", path], cwd=ROOT.parent,
+        out = subprocess.run(["git", "rev-parse", "--git-path", "shallow"], cwd=ROOT.parent,
+                             capture_output=True, text=True, timeout=20).stdout.strip()
+        return set((ROOT.parent / out).read_text().split())
+    except (OSError, subprocess.SubprocessError):
+        return set()
+
+
+def _changed_note(path: str) -> tuple[str, str]:
+    """(' (file last changed D)', D): so a reader can tell a stale complaint from a live one.
+    When the last change git can see is the shallow boundary, the real date is unknown: say so and
+    return '' so no report is tagged stale against it (2026-10-20: every file read "changed 10-20")."""
+    try:
+        out = subprocess.run(["git", "log", "-1", "--format=%H %cI", "--", path], cwd=ROOT.parent,
                              capture_output=True, text=True, timeout=20).stdout.strip()
     except (OSError, subprocess.SubprocessError):
         return "", ""
-    return (f" (file last changed {out[:10]})", out) if out else ("", "")
+    sha, _, when = out.partition(" ")
+    if not when:
+        return "", ""
+    if sha in _shallow_boundary():
+        return f" (file last changed on or before {when[:10]}, the shallow-clone edge)", ""
+    return f" (file last changed {when[:10]})", when
 
 
 _PATH_RE = re.compile(r"[\w./-]+\.(?:py|sh|mjs|md|json|yaml)\b")

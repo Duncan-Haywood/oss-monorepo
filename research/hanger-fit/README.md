@@ -163,9 +163,7 @@ Python 3.9+ and NumPy. The L-BFGS and CMA-ES are implemented here, so SciPy is n
 
 1. `hanger-fold` (milestone 2, done: see [`hanger-fold`](../hanger-fold)): hang or fold, with a wrinkle and stretch-set model per fabric.
    The sweater result here (14–31% shoulder stretch on the stock hangers, 17.5% on its best custom one) is the first case.
-2. `hanger-insert` (milestone 3): getting the hanger in through the neck or hem. An adjustable
-   hanger that collapses for insertion and opens to the shoulder width would serve both
-   insertion and fit.
+2. `hanger-insert` (milestone 3, done: see [`hanger-insert`](../hanger-insert)): a hanger that collapses to a 10 cm half width for insertion needs 31 cm of loop against 43–61 cm for rigid ones.
 3. Add friction and front and back panels, and check the width finding in a 3D cloth solver
    (milestone 4).
 4. Export D's adjustable shape and E's four widths as printable parametric CAD (milestone 7).

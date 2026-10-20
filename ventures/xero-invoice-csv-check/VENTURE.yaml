@@ -38,3 +38,12 @@ owner: duncan
 #
 # Liability: format checks on the user's own file, rules stated as read from memory, no warranty,
 # independent-of-Xero clause, trademark used nominatively.
+
+hypotheses:
+  - claim: >-
+      Checking invoice lines against the organisation's own chart of accounts, contacts and tax
+      rates catches faults the file alone cannot show (unknown or archived accounts, near-duplicate
+      contacts, misspelled tax rates), so a bookkeeper who pastes the lists gets fewer rejected imports.
+    status: untested
+    checked: null
+    evidence: in-repo

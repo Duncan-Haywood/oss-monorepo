@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sensing-ghostalign"
+version = "0.1.0"
+description = "Motion-compensated burst merging of a moving subject: per-pixel block alignment of each frame to the reference, with and without a rejection test, against reject-only and plain-mean merges"
+requires-python = ">=3.9"
+dependencies = ["numpy"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

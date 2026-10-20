@@ -49,6 +49,12 @@ def make(
 
 
 class RankTests(unittest.TestCase):
+    def test_real_hypothesis_ranks_before_no_hypothesis(self):
+        empty = make("aaa-empty", stage="prototype", mrr=None)
+        claimed = make("zzz-claimed", stage="prototype", mrr=None)
+        claimed.hypotheses = [{"claim": "People will use X.", "status": "untested"}]
+        self.assertEqual(rank([empty, claimed])[0].name, "zzz-claimed")
+
     def test_zero_mrr_past_revenue_stage_ranks_first(self):
         stuck = make("stuck", stage="revenue", mrr=0)
         exploring = make("exploring", stage="idea", mrr=None)
@@ -157,6 +163,13 @@ class NextTaskTests(unittest.TestCase):
     def test_unmeasured_says_explore(self):
         v = make("v", stage="idea", mrr=None)
         self.assertIn("Explore", next_task(v))
+
+    def test_unmeasured_with_no_hypotheses_says_none_recorded_not_settled(self):
+        v = make("v", stage="idea", mrr=None)
+        task = next_task(v)
+        self.assertIn("no hypothesis recorded", task)
+        self.assertIn("hypotheses:", task)
+        self.assertNotIn("settled", task)
 
     def test_unmeasured_with_untested_hypothesis_names_the_claim(self):
         v = make("v", stage="idea", mrr=None)

@@ -89,6 +89,10 @@ section your work touches:
   [`platform/llm/`](platform/llm/README.md)); every run records what it cost
   (`prompts/runcost.py attach`, step 3 of `prompt.md`); a development dashboard
   at `dev/` (`platform/devstats/`).
+- **Blog posts about the development, findings and projects** (owner,
+  2026-10-20) in `docs/posts/`, served at `writing/`. A post with real data
+  counts as useful work; `node platform/pages/writing-backlog.mjs` names the
+  research tracks nobody has written up yet.
 
 These are directions for many runs, not tasks every session must start on.
 
@@ -212,11 +216,14 @@ do not re-verify unchanged PRs.
 ## Hosting: what is actually served
 
 - **The catalogue is served by GitHub Pages** at
-  **https://duncan-haywood.github.io/monorepo-projects/**, from the
-  `gh-pages` branch that `platform/pages/publish-branch.sh` writes. GitHub's
-  managed builder deploys it without spending Actions minutes.
-  `deploy-settings` is granted. Ask `python3 platform/ci/pages_state.py`
-  rather than trusting prose, this paragraph included. No session can fetch
+  **https://duncan-haywood.github.io/monorepo-projects/**. Since 2026-10-20
+  the Pages source is "GitHub Actions": `.github/workflows/portfolio-pages.yml`
+  builds and deploys it on every merge that touches a site input and every
+  three hours, gated on `vars.PAGES_ENABLED`. The `gh-pages` branch
+  (`platform/pages/publish-branch.sh`) is no longer served and
+  `publish-pages-branch.yml` runs only by hand. `pages_state.py` still reads
+  the branch route, so its "source" and "snapshot" lines are stale until it
+  learns the Actions source. No session can fetch
   `github.io` (the egress proxy returns 403), so an unauthenticated 200 has
   not been observed; `github-pages-origin` in
   `portfolio/ledger/infra_state.yaml` stays `unknown` until the owner loads

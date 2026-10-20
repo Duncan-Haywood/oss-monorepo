@@ -883,7 +883,7 @@ function specFor(name) {
   return undefined;
 }
 
-function cleanValue(spec, v) {
+export function cleanValue(spec, v) {
   if (spec === undefined || v === null || v === undefined) return undefined;
   if (spec === 'bool') return v === '1' || v === 'on' || v === true ? '1' : '0';
   if (spec === 'id') return /^[a-z0-9_]{1,64}$/.test(v) ? v : undefined;

@@ -1,0 +1,47 @@
+dataset,predictor,existing_lens_uses,measured_when,source,leaks,note
+nlsy79,marriage_years,yes,after wedding,time since the wedding month (the duration axis),no,time scale of the hazard; not a covariate known at the wedding but every lens model conditions on it legitimately
+nlsy79,age_at_marriage,yes,at wedding,wedding month (MOBG1M/YRBG1M) minus birth month (R0000300/R0000500),no,harmonized as wife_age/husband_age for the respondent
+nlsy79,wedding_year,yes,at wedding,YRBG1M,no,
+nlsy79,sex,yes,fixed at birth,R0214800,no,harmonized as respondent_sex
+nlsy79,race,yes,fixed at birth,screener cohort R0214700 (Hispanic / Black / non-Black non-Hispanic),no,harmonized race splits non-Black non-Hispanic into White/Other with the 1979 interviewer remark Q15-1 (R0172700)
+nlsy79,afqt,yes,before wedding,AFQT-3 (2006 revision percentile of the 1980 ASVAB),no,test taken summer-autumn 1980; every wedding in the sample is January 1981 or later; the 2006 rescoring changes the norming not the information date
+nlsy79,afqt_missing,yes,before wedding,missingness of AFQT-3,no,
+nlsy79,rotter,yes,before wedding,ROTTER_SCORE 1979,no,
+nlsy79,rosenberg,yes,before wedding,ROSENBERG_ESTEEM_SCORE 1980,no,
+nlsy79,rosenberg_missing,yes,before wedding,missingness of the 1980 Rosenberg score,no,
+nlsy79,delinquency,yes,before wedding,DELIN-4..DELIN-21 (1980 interview),no,
+nlsy79,delinquency_missing,yes,before wedding,missingness of the 1980 delinquency items,no,
+nlsy79,income_percentile,yes,before wedding,TNFI_TRUNC at the last interview before the wedding (weighted percentile within round),no,income of the calendar year before that interview
+nlsy79,income_missing,yes,before wedding,missingness of TNFI_TRUNC in the pre-wedding round,no,
+nlsy79,poverty,yes,before wedding,POVSTATUS in the pre-wedding round,no,
+nlsy79,own_education,yes,before wedding,HGCREV## in the pre-wedding round (median 7 months before the wedding),no,highest grade completed by the last interview before the wedding; schooling finished between that interview and the wedding is missed (a lower bound); harmonized as wife_educ/husband_educ for the respondent
+nlsy79,enrolled,yes,before wedding,ENROLLMTREV## in the pre-wedding round,no,
+nlsy79,mother_education,yes,before wedding,HGC-MOTHER 1979,no,
+nlsy79,father_education,yes,before wedding,HGC-FATHER 1979,no,
+nlsy79,family_at_14,yes,before wedding,FAM-7 1979 (with whom R lived at 14),no,harmonized as intact_family (Yes = father and mother at 14)
+nlsy79,religion_raised,yes,before wedding,R_REL-1_COL 1979,no,harmonized religion_raised: No religion->None; Baptist and other Protestant->Protestant; Jewish and other->Other
+nlsy79,attendance,yes,before wedding,R_REL-3 1982 if that interview preceded the wedding else 1979,no,the lens already discards the 1982 answer when it post-dates the wedding
+nlsy79,region,yes,before wedding,REGION in the pre-wedding round,no,
+nlsy79,urban,yes,before wedding,URBAN-RURAL in the pre-wedding round,no,
+nlsy79,premarital_birth,yes,before wedding,children's birth months C#DOB~M/Y (cross-round) before the wedding month,no,harmonized as the respondent's *_prior_children; men's fertility reports in the NLSY79 are known to be less complete than women's
+nlsy79,cohabiting_before,yes,before wedding,household roster HHI_FINAL_RELCODE=33 (partner) in the pre-wedding round,no,timing is clean but the measure is narrower than the SPEC's: Yes = a partner (not necessarily the later spouse) co-resident at the last pre-wedding interview; No = roster observed without a partner then (cohabitation begun after that interview is missed); harmonized as cohabited_first
+nlsy79,lived_with_parents,yes,before wedding,household roster RELCODE 4/5/37/38 in the pre-wedding round,no,
+nlsy79,spouse_age_at_marriage,yes,after wedding,roster age of the spouse (RELCODE=1) at the first interview after the wedding minus the time since the wedding,possible,the value cannot change but it is observed only when the spouse is in the household at the first post-wedding interview; its missingness (8.9% in the lens sample; all 83 marriages that ended before that interview) is post-wedding information; integer roster ages give about +/-1 year precision; the harmonized file uses the partner's birth date instead (see wife_age / husband_age)
+nlsy79,spouse_education,yes,after wedding,roster HHI_FINAL_GRADECODE of the spouse at the first post-wedding interview,yes,schooling can change after the wedding; harmonized partner education is Unknown except when the partner co-resident at the pre-wedding interview is evidently the spouse (opposite sex; ages agree within 1 year) -- then that partner's pre-wedding grade is used
+nlsy79,spouse_worked,yes,after wedding,roster HHI_FINAL_WORK of the spouse at the first post-wedding interview (worked in the previous calendar year),yes,refers to the wedding year or the year before; not used in the harmonized file
+nlsy79,spouse_in_household,yes,after wedding,whether a spouse is in the roster at the first post-wedding interview,yes,an absent spouse can mean the couple had already separated; partial effect 1.72 in the lens; not used in the harmonized file
+nlsy79,education_pair,yes (pair model only),after wedding,own_education x spouse_education,yes,inherits spouse_education
+nlsy79,age_pair,yes (pair model only),after wedding,age band x spouse age band,possible,inherits spouse_age_at_marriage missingness
+nlsy79,sex_age_band,yes (pair model only),at wedding,sex x age-at-marriage band,no,
+nlsy79,risk-set entry (delayed entry),yes,after wedding,first interview after the wedding (median 8 months),possible,not a predictor: the published models count risk only from the first post-wedding interview and drop the 83 marriages that ended before it and 40 with an ambiguous or same-sex roster at it; this conditions on surviving to that interview so it cannot leak through predictors but it changes the population; the from-the-wedding refit in leakage_refit_nlsy79.csv removes it
+nlsy79,event (lens target),yes,after wedding,first-marriage end month MOEN1M/YREN1M unless widowed,no,the lens counts legal divorce only; the harmonized file's event is divorce or separation (whichever first) so its rates and timing differ from the lens's
+nlsy79,weight,yes,before wedding,SAMPWEIGHT of the pre-wedding round normalized to mean 1,no,
+nlsy79,wife_age / husband_age,no,at wedding,respondent: age_at_marriage; partner: partner birth month/year (Q2-7 "date of birth of new spouse") asked at the first interview after the wedding,no,partner age computed from a birth date (allowed by the SPEC); known for 6158/6768 (91% within 1 year of the lens roster age where both exist); it is asked of everyone who married since the last interview whether or not still together so its availability barely depends on the outcome -- residual: blank partner age ended within 2 years 15.6% vs 7.8% (with the lens roster age it would have been 29.7% vs 6.1%) so the roster age is NOT used
+nlsy79,wife_educ / husband_educ,no,before wedding,respondent: HGCREV in the pre-wedding round; partner: grade of the partner co-resident at the pre-wedding interview when evidently the spouse (opposite sex; age agrees within 1 year with the birth-date age) else Unknown,no,partner education known for 1073 rows (all premarital cohabitors); grade-based bands (<12 / 12 / 13-15 / 16+ grades) approximate diplomas and degrees; schooling between the pre-wedding interview and the wedding is missed
+nlsy79,wife_prior_marriage / husband_prior_marriage,no,fixed at birth,first-marriage lens,no,respondent No by construction; partner Unknown (the NLSY79 does not record the spouse's marital history)
+nlsy79,wife_prior_children / husband_prior_children,no,before wedding,respondent: first child's birth month vs the wedding month (C1DOB; NUMKID=0 -> No),no,partner Unknown (not recorded); respondent Unknown when NUMKID>0 but the first child's birth date is missing
+nlsy79,cohabited_first,no,before wedding,cohabiting_before (see above),no,narrower measure than the SPEC's (see cohabiting_before)
+nlsy79,wife_race / husband_race,no,fixed at birth,respondent: R0214700 plus Q15-1 (1979 interviewer remark),no,partner Unknown (the NLSY79 roster does not record the spouse's race)
+nlsy79,intact_family,no,before wedding,FAM-7 1979,no,living arrangement at age 14 only (the SPEC asks about 15-18)
+nlsy79,religion_raised (harmonized),no,before wedding,R_REL-1_COL 1979,no,
+nlsy79,country,no,fixed at birth,US survey,no,

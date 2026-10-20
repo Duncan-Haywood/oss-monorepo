@@ -228,6 +228,38 @@ assistant ([`platform/pages/assistant.mjs`](../platform/pages/assistant.mjs),
 the Ask page on the public site). Rules for products: `PRODUCT_PLAYBOOK.md`
 §4, "Every way in".
 
+## Direction: write about the work
+
+Set by the owner on 2026-10-20: "let's add blog posts about the development
+and findings and projects as part of the development goals."
+
+The blog is the site's `writing/` section (Atom feed at `writing/feed.xml`),
+built from Markdown in `docs/posts/` by
+[`platform/pages/writing.mjs`](../platform/pages/writing.mjs). Three kinds of
+post, all for a reader who has never seen the repository:
+
+- **Development:** how the agent fleet builds and steers itself, from git
+  history, run records and the ledger (what went wrong, what it cost, what
+  changed).
+- **Findings:** what a research track found, across its projects, with the
+  numbers and the caveats each README states.
+- **Projects:** what a product or tool does, who it is for and why it exists,
+  linked to its live page.
+
+A post is useful work in its own right when it tells a reader something
+true they could not get from a file listing, and it counts toward "Every run
+ships something useful". `node platform/pages/writing-backlog.mjs` lists the
+research tracks no post covers yet, biggest first, and the days since the
+last post. A run with spare scope, or one that just finished a track's
+milestone, can take the top line.
+
+The research guardrails apply to every post: every number is copied from the
+committed file it cites, linked by repository path; results are not
+overclaimed; posts say the work was done by AI agents with an owner
+steering, and carry a not-advice sentence where a reader might act on a
+number. One post per subject: before writing, check `docs/posts/` and open
+PRs for one that covers it, and extend it instead of writing a second.
+
 ## Judgment over rules
 
 Set by the owner on 2026-10-15. The owner writes rarely and does not review
