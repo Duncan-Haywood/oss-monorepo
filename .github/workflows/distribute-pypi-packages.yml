@@ -8,6 +8,11 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
+# One publish at a time: two overlapping runs could race to publish the same
+# version, and a slow older run could land last.
+concurrency:
+  group: distribute-pypi-packages
+  cancel-in-progress: false
 jobs:
   publish:
     runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
