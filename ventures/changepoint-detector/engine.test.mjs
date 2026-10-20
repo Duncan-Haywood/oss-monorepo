@@ -675,6 +675,20 @@ test('trend bend knot margin: a slope change at 12% of the series is found only 
   assert.ok(falseBends <= 1);
 });
 
+test('trend bend --knot-margin 0.1 with --ar1: an early slope change under sticky noise is still found', () => {
+  // 200 points, slope 0.05 then 0.35 from point 24, AR(1) rho 0.5, seeds 1201..1212 (README "Knot range": 25 of 40 within 6 points at 0.1, 0 of 40 at 0.2)
+  const n = 200, near = (o) => o.knot !== undefined && Math.abs(o.knot - 24) <= 6;
+  let dflt = 0, wide = 0;
+  for (let s = 1201; s <= 1212; s++) {
+    let p = 0;
+    const x = normals(rng(s), n).map((v, i) => { p = 0.5 * p + v; return 0.05 * i + 0.3 * Math.max(0, i - 24) + p; });
+    dflt += near(trendAdjust(x, { bend: 1, ar1: true, knotMargin: 0.2 }));
+    wide += near(trendAdjust(x, { bend: 1, ar1: true, knotMargin: 0.1 }));
+  }
+  console.log(`# knot margin with ar1, 12 series: knot near 24 ${dflt} at 0.2, ${wide} at 0.1`);
+  assert.ok(wide >= dflt + 5, `${wide} at 0.1 against ${dflt} at 0.2`);
+});
+
 test('trend bends --joint-knots: the least-squares pair places both knots near the truth on clean data, and invents no bend on a ramp', () => {
   // 240 points, slope 0.1, 0.2 from point 80, -0.05 from point 160, white noise, seeds 1001..1012 (README: 35 of 40 within 8 points)
   const n = 240, f = (i) => 0.1 * i + 0.1 * Math.max(0, i - 80) - 0.25 * Math.max(0, i - 160);

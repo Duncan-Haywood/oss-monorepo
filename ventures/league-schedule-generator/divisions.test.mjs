@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { parseDivisions, parseDivisionLinks, buildDivisions, validateDivisions, linkConflicts, divisionsCsv, divisionsText, readDivisionsSpec, parseTravel, divisionStats } from "./divisions.mjs";
+import { parseDivisions, parseDivisionLinks, buildDivisions, applyDivisionRainouts, validateDivisions, linkConflicts, divisionsCsv, divisionsText, readDivisionsSpec, parseTravel, divisionStats } from "./divisions.mjs";
 import { parseDate, dayIso } from "./calc.mjs";
 
 const example = JSON.parse(readFileSync(new URL("./example-divisions.json", import.meta.url), "utf8"));
@@ -144,4 +144,58 @@ test("five venues on a line: the travel table cuts road minutes by more than hal
     aware += buildDivisions(spec).stats.travelMinutes;
   }
   assert.ok(aware < flat * 0.6, `travel-aware ${aware} min vs flat ${flat} min`); // measured 1280 vs 3200
+});
+
+test("a rainout in one division moves only its matches, to a night both teams are free, and the result still validates", () => {
+  const s = build();
+  const night = s.nights[1];
+  const target = night.matches[0];
+  const before = JSON.stringify(s.nights.filter((n) => n !== night).map((n) => n.matches.filter((m) => m.division !== target.division || n.day < night.day)));
+  const r = applyDivisionRainouts(s, `${dayIso(night.day)} ${target.division}/${target.homeName}`);
+  assert.deepEqual(r.errors, []);
+  assert.equal(r.moves.length, 1);
+  assert.ok(r.moves[0].to > night.day);
+  assert.deepEqual(validateDivisions(r.schedule).errors, []);
+  assert.equal(r.schedule.stats.matches, s.stats.matches);
+  assert.equal(JSON.stringify(s.nights.filter((n) => n !== night).map((n) => n.matches.filter((m) => m.division !== target.division || n.day < night.day))), before);
+  assert.deepEqual(r.schedule.conflicts, []);
+});
+
+test("a whole-division and a whole-night rainout move every match, and a named make-up date is honoured or refused with the reason", () => {
+  const s = build();
+  const day = dayIso(s.nights[0].day);
+  const whole = applyDivisionRainouts(s, day);
+  assert.deepEqual(whole.errors, []);
+  assert.equal(whole.moves.length, s.nights[0].matches.length);
+  assert.deepEqual(validateDivisions(whole.schedule).errors, []);
+  const name = s.nights[0].matches[0].division;
+  const div = applyDivisionRainouts(s, `${day} ${name}`);
+  assert.ok(div.moves.length > 0 && div.moves.every((m) => m.division === name));
+  assert.deepEqual(validateDivisions(div.schedule).errors, []);
+  const dated = applyDivisionRainouts(s, `${day} ${name} -> 2026-12-31`);
+  assert.deepEqual(dated.errors, []);
+  assert.ok(dated.moves.every((m) => dayIso(m.to) === "2026-12-31"));
+  assert.deepEqual(validateDivisions(dated.schedule).errors, []);
+  const early = applyDivisionRainouts(s, `${day} ${name} -> ${day}`);
+  assert.equal(early.moves.length, 0);
+  assert.match(early.errors[0], /is not after/);
+  assert.equal(early.schedule.stats.matches, s.stats.matches);
+});
+
+test("bad rainout lines are named and change nothing", () => {
+  const s = build();
+  const r = applyDivisionRainouts(s, "tomorrow\n2026-10-07 U10\n2026-10-06 Nope\n2026-10-06 U10/Zebras");
+  assert.equal(r.errors.length, 4);
+  assert.equal(r.moves.length, 0);
+  assert.equal(divisionsCsv(r.schedule), divisionsCsv(s));
+});
+
+test("a rainout moved match avoids a linked team's time slot where another slot is open", () => {
+  const { spec } = readDivisionsSpec({ divisions: "A: a1, a2, a3, a4\nB: b1, b2", courts: "C1, C2", times: "18:00, 19:30", start: "2026-10-06", weekdays: "Tue", links: "A/a1, B/b1" });
+  const s = buildDivisions(spec);
+  assert.deepEqual(s.conflicts, []);
+  const r = applyDivisionRainouts(s, `${dayIso(s.nights[0].day)} A/a1`);
+  assert.deepEqual(r.errors, []);
+  assert.deepEqual(validateDivisions(r.schedule).errors, []);
+  assert.deepEqual(r.schedule.conflicts, []);
 });

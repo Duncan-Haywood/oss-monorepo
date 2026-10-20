@@ -115,4 +115,6 @@ test("the page has a switch for scoring every pair of knots and passes it to the
   const html = page("index.html");
   assert.match(html, /<input id="jointKnots" type="checkbox">/);
   assert.match(html, /jointKnots: \$\("#jointKnots"\)\.checked/);
+  assert.match(html, /<select id="knotMargin">/);
+  assert.match(html, /knotMargin: Number\(\$\("#knotMargin"\)\.value\)/);
 });

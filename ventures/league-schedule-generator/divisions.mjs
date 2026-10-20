@@ -210,10 +210,98 @@ export function buildDivisions(spec) {
     nights.push(night);
   }
   if (queues.some((q) => q.next < q.plan.length)) throw new Error("Not enough playable nights in the next few years for every division. Add weekdays, courts or time slots.");
-  const schedule = { divisions: out, nights, config: { courts, times, venues: Object.fromEntries(courts.map((c) => [c, venueOf(c)])), closures, start: spec.start, links: spec.links || [], travel: travel || {}, seed: spec.seed ?? 1 } };
+  const schedule = { divisions: out, nights, config: { weekdays: spec.weekdays, skipDays: spec.skipDays || [], courts, times, venues: Object.fromEntries(courts.map((c) => [c, venueOf(c)])), closures, start: spec.start, links: spec.links || [], travel: travel || {}, seed: spec.seed ?? 1 } };
   schedule.conflicts = linkConflicts(schedule);
   schedule.stats = divisionStats(schedule);
   return schedule;
+}
+
+/**
+ * Rainouts across divisions, one per line: "2026-10-13" (the whole night), "2026-10-13 U10" (a division) or
+ * "2026-10-13 U10/Hawks, U12/Owls" (those teams' matches), optionally ending "-> 2026-10-20" for a make-up date
+ * you agreed. Each cancelled match moves to the earliest later play night where both teams are free and a court
+ * is open, never double-booking a court or a team and, where a free slot allows it, keeping linked teams out of
+ * the same time slot; a refusal says why and leaves the match where it was. Nothing else moves.
+ * Returns { schedule, moves[{division, home, away, from, to, court, time}], errors[] }.
+ */
+export function applyDivisionRainouts(schedule, text) {
+  const s = JSON.parse(JSON.stringify(schedule));
+  const cfg = s.config;
+  const weekdays = new Set(cfg.weekdays || []), skip = new Set(cfg.skipDays || []);
+  const links = cfg.links || [];
+  const inGroup = (g, div, team) => g.some((x) => x.d === div && x.t === team);
+  const linked = (d1, t1, d2, t2) => !(d1 === d2 && t1 === t2) && links.some((g) => inGroup(g, d1, t1) && inGroup(g, d2, t2));
+  const moves = [], errors = [];
+  const nightOf = (day) => s.nights.find((n) => n.day === day);
+  for (const raw of String(text ?? "").split(/\n+/)) {
+    let line = raw.trim();
+    if (!line) continue;
+    let fixed = null;
+    const arrow = line.match(/^(.*?)\s*(?:->|=>|→)\s*(\d{4}-\d{1,2}-\d{1,2})\s*$/);
+    if (arrow) { fixed = parseDate(arrow[2]); line = arrow[1].trim(); if (fixed === null) { errors.push(`"${raw.trim()}": "${arrow[2]}" is not a real date.`); continue; } }
+    const m = line.match(/^(\d{4}-\d{1,2}-\d{1,2})\s*[:,-]?\s*(.*)$/);
+    const day = m ? parseDate(m[1]) : null;
+    if (day === null) { errors.push(`"${line}": start each line with a real date like 2026-10-13.`); continue; }
+    const night = nightOf(day);
+    if (!night || !night.matches.length) { errors.push(`${dayIso(day)}: no matches are scheduled that night.`); continue; }
+    const wantDiv = new Set(), wantTeam = new Set();
+    let bad = false;
+    for (const tok of parseNameList(m[2])) {
+      const [dn, ...tn] = tok.split("/");
+      const di = s.divisions.findIndex((d) => d.name.toLowerCase() === dn.trim().toLowerCase());
+      if (di < 0) { errors.push(`"${tok}": not a division or Division/Team in this league.`); bad = true; continue; }
+      if (!tn.length) { wantDiv.add(di); continue; }
+      const ti = s.divisions[di].teams.findIndex((t) => t.toLowerCase() === tn.join("/").trim().toLowerCase());
+      if (ti < 0) { errors.push(`"${tok}": ${s.divisions[di].name} has no such team.`); bad = true; continue; }
+      wantTeam.add(`${di}/${ti}`);
+    }
+    if (bad) continue;
+    const named = wantDiv.size || wantTeam.size;
+    const cancelled = night.matches.filter((x) => !named || wantDiv.has(x.div) || wantTeam.has(`${x.div}/${x.home}`) || wantTeam.has(`${x.div}/${x.away}`));
+    if (!cancelled.length) { errors.push(`${dayIso(day)}: none of those teams play that night.`); continue; }
+    night.matches = night.matches.filter((x) => !cancelled.includes(x));
+    for (const mt of cancelled) {
+      const label = `${mt.division} ${mt.homeName} v ${mt.awayName} (${dayIso(day)})`;
+      if (fixed !== null && fixed <= day) { errors.push(`${label}: ${dayIso(fixed)} is not after ${dayIso(day)}.`); night.matches.push(mt); continue; }
+      const cand = fixed !== null ? [fixed] : [];
+      if (fixed === null) for (let d = day + 1, g = 0; g < 400 && cand.length < 120; d++, g++) if (weekdays.has(dayOfWeek(d)) && !skip.has(d)) cand.push(d);
+      let placed = null, why = "";
+      for (const d of cand) {
+        const target = nightOf(d);
+        const there = target ? target.matches : [];
+        if (there.some((x) => x.div === mt.div && [x.home, x.away].some((t) => t === mt.home || t === mt.away))) { why = `${dayIso(d)}: a team already plays`; continue; }
+        let best = null;
+        for (let ti = 0; ti < cfg.times.length; ti++) for (const court of cfg.courts) {
+          if (there.some((x) => x.court === court && x.time === cfg.times[ti]) || courtClosedOn({ courtClosures: cfg.closures || {} }, court, d)) continue;
+          const clash = there.filter((x) => x.time === cfg.times[ti] && [x.home, x.away].some((t) => [mt.home, mt.away].some((u) => linked(mt.div, u, x.div, t)))).length;
+          const score = clash * 1000 + ti * 10 + cfg.courts.indexOf(court);
+          if (!best || score < best.score) best = { court, ti, score };
+        }
+        if (!best) { why = `${dayIso(d)}: no open court slot`; continue; }
+        placed = { d, ...best };
+        break;
+      }
+      if (!placed) { errors.push(`${label}: ${why || "no play night found"}; left where it was.`); night.matches.push(mt); continue; }
+      const rec = { ...mt, court: placed.court, time: cfg.times[placed.ti], venue: cfg.venues[placed.court] || placed.court };
+      let target = nightOf(placed.d);
+      if (!target) { target = { day: placed.d, matches: [] }; s.nights.push(target); }
+      target.matches.push(rec);
+      const dv = s.divisions[mt.div];
+      let rd = dv.rounds.find((r) => r.day === placed.d);
+      if (!rd) { rd = { day: placed.d, label: "Make-up", matches: [] }; dv.rounds.push(rd); }
+      const { div: _d, round: _r, ...plain } = rec;
+      rd.matches.push(plain);
+      const old = dv.rounds.find((r) => r.day === day);
+      if (old) old.matches = old.matches.filter((x) => !(x.home === mt.home && x.away === mt.away));
+      moves.push({ division: mt.division, home: mt.homeName, away: mt.awayName, from: day, to: placed.d, court: rec.court, time: rec.time });
+    }
+  }
+  for (const dv of s.divisions) { dv.rounds = dv.rounds.filter((r) => r.matches.length); dv.rounds.sort((a, b) => a.day - b.day); }
+  s.nights = s.nights.filter((n) => n.matches.length).sort((a, b) => a.day - b.day);
+  for (const n of s.nights) n.matches.sort((a, b) => cfg.times.indexOf(a.time) - cfg.times.indexOf(b.time) || cfg.courts.indexOf(a.court) - cfg.courts.indexOf(b.court));
+  s.conflicts = linkConflicts(s);
+  s.stats = divisionStats(s);
+  return { schedule: s, moves, errors };
 }
 
 /** Minutes between two venues; an unlisted pair counts as the longest listed (1 per change with no table). */
@@ -365,7 +453,13 @@ if (typeof process !== "undefined" && process.argv && import.meta.url === `file:
   if (!file) { console.error("usage: node divisions.mjs spec.json [--csv]"); process.exit(2); }
   const { spec, errors } = readDivisionsSpec(JSON.parse(readFileSync(file, "utf8")));
   if (errors.length) { console.error(errors.join("\n")); process.exit(1); }
-  const s = buildDivisions(spec);
+  let s = buildDivisions(spec);
+  const rainouts = JSON.parse(readFileSync(file, "utf8")).rainouts;
+  if (rainouts) {
+    const r = applyDivisionRainouts(s, rainouts);
+    for (const e of r.errors) console.error(`Rainout: ${e}`);
+    s = r.schedule;
+  }
   const v = validateDivisions(s);
   if (!v.ok) { console.error(v.errors.join("\n")); process.exit(1); }
   process.stdout.write(process.argv.includes("--csv") ? divisionsCsv(s) : divisionsText(s));
