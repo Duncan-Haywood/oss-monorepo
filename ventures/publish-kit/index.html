@@ -137,6 +137,17 @@ publish-kit init audiobook my-audiobook
 publish-kit audiobook check &amp;&amp; publish-kit audiobook m4b --run &amp;&amp; publish-kit audiobook feed</pre>
   <p>An agent skill file is included (<a href="https://github.com/duncan-haywood/oss-monorepo/blob/main/ventures/publish-kit/skill/SKILL.md">skill/SKILL.md</a>). Source and full docs: <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/publish-kit">ventures/publish-kit on GitHub</a>.</p>
 </section>
+<section class="card" id="faq">
+  <h2>Questions</h2>
+  <h3>How do I make an RSS feed for my podcast without a hosting company?</h3>
+  <p>Upload your MP3 files anywhere that serves them over HTTPS (your own site, GitHub Pages, an S3 or R2 bucket), then generate a feed that lists each file's URL, byte size, duration and publish date along with the show's title, description, cover art, category and language. This page does that from the audio files you drop in; the CLI does it from a folder. Host the feed.xml next to the audio and submit its URL to Apple Podcasts Connect and Spotify for Creators.</p>
+  <h3>What does ACX require for audiobook files?</h3>
+  <p>ACX's published audio submission requirements: each file is one chapter or section and no longer than 120 minutes; MP3 at 192 kbps or higher, constant bitrate, 44.1 kHz; all files mono or all stereo; RMS between -23 and -18 dB, peaks at or below -3 dB, and a noise floor at or below -60 dB RMS; opening and closing credits and a 1 to 5 minute retail sample as separate files; and a square cover of at least 2400 by 2400 pixels. Publish Kit checks the file-level rules and measures loudness on WAV masters.</p>
+  <h3>How wide is the spine of my KDP paperback?</h3>
+  <p>KDP multiplies the page count by a per-page paper thickness: 0.002252 inches for white paper and 0.0025 inches for cream. A 300-page book on white paper has a 0.676 inch spine, and a 6 by 9 inch book's full cover is then 12.926 by 9.25 inches including 0.125 inch bleed on each edge.</p>
+  <h3>Can an AI agent publish my podcast or book with this?</h3>
+  <p>Yes. The CLI keeps everything in one publish.json, every command accepts --json, and publish-kit plan returns what is still missing and the next command to run, so an agent such as Claude Code can loop until the project is ready. It never uploads or submits anything itself: you or your agent upload the files and submit the feed, under your own accounts.</p>
+</section>
 </main>
 
 <footer>
