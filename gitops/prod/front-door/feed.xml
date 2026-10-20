@@ -61,7 +61,7 @@
     <id>tag:marisstella.dev,2026:tool/us-substantial-presence-test-calculator</id>
     <updated>2026-10-19T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free calculator for the IRS substantial presence test: enter your days in the US and see the 183-day weighted count (this year + a third of last year + a sixth of the year before), how many more days you can spend before you become a US tax resident, and when you crossed the line. Runs in your browser; nothing is uploaded.</summary>
+    <summary type="text">Free calculator for the IRS substantial presence test: enter your days in the US and see the 183-day weighted count (this year + a third of last year + a sixth of the year before), how many more days you can spend before you become a US tax resident, and when you crossed the line.</summary>
   </entry>
   <entry>
     <title>Demand Forecast Back-Tester — safety stock and reorder points from your sales</title>

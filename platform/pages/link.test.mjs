@@ -728,7 +728,7 @@ test('the page script reports an extra form control even when it is the first on
 test('a figure that differs from the sender is a warning and is counted', () => {
   const hash = '#' + encodeBidLink({ fields: { a: '1' }, amount: '$1,800' });
   const off = runLinkModule(hash, ['a'], { hero: '$1,900' });
-  assert.match(off.note.textContent, /The sender saw \$1,800 and this page works out \$1,900/);
+  assert.match(off.note.textContent, /^Opened from a shared bid — 1 fields\. The sender saw \$1,800 and this page works out \$1,900/);
   assert.ok('data-pf-link-warn' in off.note.attrs, 'a disagreement is shown as a warning');
   assert.equal(JSON.parse(off.store['portfolio-hub-usage']).bid_link_amount_differs, 1);
   const same = runLinkModule(hash, ['a'], { hero: '$1,800' });
