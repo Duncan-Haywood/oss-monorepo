@@ -10,6 +10,9 @@
 # rewrites it to the following milestone in the same PR. The owner can
 # reorder, add or drop entries; agents may too, with the evidence in the PR.
 #
+# Why depth, argued at more length (an opinion, not a rule):
+# portfolio/opinions/2026-10-20-build-what-an-agent-would-rather-call.md
+#
 # Chosen 2026-10-20 from an audit of the largest ventures by source size,
 # keeping those whose code works today and whose next step is a hard business
 # or engineering problem. Passed over for now: local-site-studio (real
