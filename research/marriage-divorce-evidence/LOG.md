@@ -1,10 +1,26 @@
 # Research log
 
+## 2026-10-20 · Lifelong marriage needs mortality: UN WPP 2024 death rates and a competing-risks module
+
+- New data: UN World Population Prospects 2024 single-year U.S. death rates by sex (`mx1dt`, CC BY 3.0 IGO), from the `wpp2024` R data package on GitHub. SSA, CDC and the Human Mortality Database are still unreachable. Life expectancy recomputed from the rates matches the UN's published e0 within 0.02 years at 12 points from 1950 to 2023 (2023: men 76.862 against 76.864, women 81.847 against 81.849) (`reproducibility/un_wpp2024_mortality/`).
+- New `app/mortality.js` `competingRisks()` splits each marriage year exactly between divorce and the death of either partner, using constant hazards and calendar-year cohort death rates. It returns P(divorce first), P(widowhood first, i.e. lifelong) and the unresolved remainder, and stops where a lens gives no number. It reproduces the Python reference on 24 couples to within 10<sup>-9</sup>.
+- Why it matters: for a man and a woman both 30, marrying in 2025, the chance both are still alive is 93.3% after 20 years and 58.2% after 50. Even at a constant 1% divorce rate, 62.3% of such marriages end in widowhood rather than divorce (37.7% in divorce). "Chance of no divorce by year 40" therefore overstates how many marriages are still going then.
+- Limits: these are population death rates. Married people live longer and spouses' deaths are correlated; neither is modelled. Rates after 2023 are UN projections.
+- `app/ROADMAP.md` section A now lists what workstream A has delivered (four datasets, three lenses, the mortality table) and what remains blocked (later NSFG cycles, NLSY97, HCMST, GSS, Divorce Predictors Scale, CDC aggregates).
+
 ## 2026-10-20 · Out-of-distribution score so the app can abstain on unusual couples
 
 - New `tools/ood.py`: the squared Mahalanobis distance of a couple's fixed inputs from the 4,126 NSFG 2002 first marriages, turned into a percentile among held-out women (5 person folds). It ships as `ood` in `models/nsfg2002_family.json`, and `engine.oodScore()` matches Python on 68 of 68 rows to 10<sup>-9</sup>.
 - Examples: a wife 24 / husband 26 couple wed in 1995 scores the 26th percentile, a 38/40 couple wed in 2002 the 86th, a 17/45 couple the 98.8th, and a 16/60 couple 99.1, above the suggested 99th-percentile abstention line. The held-out tail is heavy because a few recorded ages are implausible, so the score complements per-input range checks rather than replacing them.
 - `app/ROADMAP.md` section B now lists what workstream B finished (individual lens, NSFG classical family, abstention score) and what remains: page wiring with C, Cox/Weibull, k-NN, OOD for NLSY79, and per-couple intervals.
+
+## 2026-10-19 · App: the NSFG lens scores young couples from the wedding day
+
+- The NSFG 2002 first-marriage bundle (workstream A) is now wired to the form through a per-lens adapter in `couple.js`, so the app can score couples NLSY79 cannot: newly-weds and wives who married at 15–39, for up to 24 years of marriage. New inputs: race-ethnicity, children from an earlier relationship, whether the wife grew up with both parents, and whether the couple lived together first.
+- Honest refusals: no number when the wife was married before (first marriages only), a wedding age is outside the data, or the wife's race-ethnicity or family of origin is missing (the model has no "unknown" group for them). The refusal links to any lens that can score the couple. Weddings after 2002 are scored as 2002 weddings, with a note on the page.
+- The duration-only curve is treated as a baseline, like the constant rate: it is shown, but not averaged into the estimate. For a 27/29 couple who lived together first, the two models give 74.8% no break-up by year 10 (74.2–75.4%), against 63.8% for all first marriages and 70.9% for wives who married at 25–29 in the survey's own weighted Kaplan–Meier curve.
+- Couple-level what-ifs (living together first, marrying 2 or 5 years later) show the model range and agreement. Not cohabiting and marrying 5 years later each add about 2 points on average, but only the additive model moves; the tree is flat.
+- Mortality: SSA, CDC and mortality.org still return HTTP 000, so "lifelong" stays labelled as no break-up through the horizon, if both partners live.
 
 ## 2026-10-19 · Classical model family on NSFG 2002: logistic hazard, naive Bayes, forest, boosting
 

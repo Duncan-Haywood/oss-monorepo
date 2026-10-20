@@ -68,11 +68,14 @@ template answers wrongly, and the job needs terms the tool does not model
 (hazard and sanitising scope, valuables found, a volume-overrun change-order
 rate). It is a follow-up; the calculator already prints the overrun rate.
 
-**`hydroseeding-job` and `lawn-aeration-overseeding`** (their `-bid-calculator`
-slugs) landed after the last adoption batch and do not adopt yet. Both are
-homeowner-facing lawn jobs, so they are candidates: each needs a `trades.json`
-entry and a check that its pricing fits the `readInput()` anchor `inspect()`
-looks for. Adopting them is a follow-up, listed here so the README stays true.
+**`hydroseeding-job`** (`hydroseeding-job-bid-calculator`) adopted on 2026-10-20. Its
+page wrapped nothing in `<main>` and had no `readInput()`, `el()` or `count()`, so
+it gained those and a throwing `calculateBid()` in `calc.mjs` (the figure is the
+job's billed price, the one on screen), then a `trades.json` entry.
+
+**`lawn-aeration-overseeding`** (`lawn-aeration-overseeding-bid-calculator`) does not
+adopt yet. It is a homeowner-facing lawn job and a candidate: it needs the same
+page conventions as hydroseeding got, plus a `trades.json` entry.
 
 The last holdout was **`home-staging`** (`home-staging-bid-calculator`,
 graduated in #3580, unblocked in the same session that added this line). It
