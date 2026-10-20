@@ -8,6 +8,12 @@
 - Limits: these are population death rates. Married people live longer and spouses' deaths are correlated; neither is modelled. Rates after 2023 are UN projections.
 - `app/ROADMAP.md` section A now lists what workstream A has delivered (four datasets, three lenses, the mortality table) and what remains blocked (later NSFG cycles, NLSY97, HCMST, GSS, Divorce Predictors Scale, CDC aggregates).
 
+## 2026-10-19 · Classical model family on NSFG 2002: logistic hazard, naive Bayes, forest, boosting
+
+- Trained four more model families on workstream A's NSFG 2002 first-marriage intervals (4,126 marriages, 1,492 dissolutions), using the same person folds. Held-out deviance gains over a constant rate: discrete-time logistic hazard 3.0% (95% person-bootstrap CI 1.9–4.1), Poisson gradient boosting 2.6% (1.6–3.7), random forest 2.3% (1.5–3.0), naive Bayes 0.2% (−1.8 to 2.1). A's additive spline Poisson gets 3.0% (2.0–4.1) and marriage length alone 0.4%.
+- Flexible models did not beat additive ones, the same pattern as the NLSY79 couple models. Naive Bayes is badly overconfident at the top: it predicts 173 dissolutions per 1,000 marriage-years in the riskiest tenth against 91 observed.
+- `engine.js` now runs logistic, naive Bayes, forest and boosted models, with exact explanations: log-odds terms, and Saabas path attributions for tree ensembles. It matches 272 of 272 scikit-learn predictions to 10<sup>-9</sup>. The bundle is listed for the app's lens selector as `models/nsfg2002_family.json`; scoring it needs workstream C's NSFG form adapter.
+
 ## 2026-10-19 · Second model lens: individual-level NLSY79 models exported to the browser
 
 - Exported the eight saved individual-level pipelines (additive Poisson, spline additive Poisson, depth-2 and depth-3 Poisson trees; currently married and including-separated populations) to `app/models/nlsy79_individuals.json` with held-out gains, person-bootstrap intervals and calibration tables. The JS engine now handles the imputer's missing-value indicator and matches 640 of 640 scikit-learn predictions to 10<sup>-9</sup>.

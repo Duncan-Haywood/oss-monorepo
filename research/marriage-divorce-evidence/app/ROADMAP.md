@@ -60,7 +60,7 @@ verify (checksum, row counts, codebook) and the licence allows it.
 **Hand-offs to C (app):**
 
 - Write the form adapters for the NSFG 2002 lens (in progress in PR #8556; workstream B's
-  extra NSFG model family is PR #8567): the wife's and husband's ages at the
+  extra NSFG model family merged in #8567): the wife's and husband's ages at the
   wedding, cohabited first, husband married before, husband has prior children,
   race-ethnicity, intact family, `marriage_years`; hold `wedding_year` at 2002 and label
   it. Abstain for a previously married wife, same-sex couples and inputs outside

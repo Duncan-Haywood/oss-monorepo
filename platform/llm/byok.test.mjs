@@ -66,6 +66,12 @@ test('gemini: a reply without usageMetadata reports zero tokens', async () => {
   assert.deepEqual([r.usage.input, r.usage.output], [0, 0]);
 });
 
+test('openai: a reply without usage reports zero tokens', async () => {
+  const f = fakeFetch({ choices: [{ message: { content: 'a' } }] });
+  const r = await complete({ provider: 'openai', apiKey: 'k', model: 'm1' }, { prompt: 'P', fetch: f });
+  assert.deepEqual([r.usage.input, r.usage.output], [0, 0]);
+});
+
 test('config: missing key, model or base URL fails before any request', () => {
   assert.throws(() => normalise({ provider: 'anthropic' }), /API key/);
   assert.throws(() => normalise({ provider: 'openai', apiKey: 'k' }), /model name/);
