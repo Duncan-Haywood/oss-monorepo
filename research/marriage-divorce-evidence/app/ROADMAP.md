@@ -166,8 +166,23 @@ Done (2026-10-19/20, PRs #8537, #8556 and the round-3 PR):
   share-card descriptions within the 160-character budget; JSON-LD; links between the app, the
   project README and the research page.
 
+- Before the wedding (2026-10-20, owner's refocus): a stage switch, "Before the wedding" by
+  default and "Already married". Before the wedding, the lens list, the summary across lenses,
+  "just me" and the candidate comparison use only lenses whose clock starts at the wedding
+  (`lensStage` in `couple.js`). The projection starts on the wedding day, ages are ages at the
+  wedding, and question groups only married lenses read are hidden. Old links to a married lens
+  open the married view. Title, meta, JSON-LD and lede now answer "will my marriage last".
+- B's harmonized before-the-wedding lens (`prewedding_harmonized`, #8684) is the default
+  pre-wedding lens: an adapter in `lens-adapters.js` (`preweddingRow`) scores both partners as
+  the surveyed spouse and averages; unanswered inputs take the survey's most common answer and
+  are named on the page; second marriages, same-sex couples and out-of-data ages are refused;
+  B's typicality score runs before any number (`tests/prewedding_app.test.mjs`).
+
 Remaining:
 
+- Before the wedding, next: chain the HCMST dating-couple lenses (marry vs break up first, with
+  `how_to_combine`) into the before-the-wedding lens for couples not yet engaged, labelled as
+  the current relationship; use a default couple at typical first-wedding ages.
 - Mortality refinements. Married people's lower death rates and the correlation between
   spouses' deaths are not modelled; the app says so under the lifelong tiles. Lifelong figures
   over long horizons also lean on years outside each lens's data (the page counts them).

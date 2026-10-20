@@ -500,6 +500,92 @@ const NSFG_POOLED = {
   nsfgPartnerDistribution: true,
 };
 
+// Before the wedding (workstream B's harmonized NSFG 1995–2023 model, prewedding_harmonized.json):
+// only facts knowable on the wedding day, from either partner's side. The survey interviewed one
+// spouse, so the couple is scored with each partner as the respondent and the two rates averaged.
+// Unknown answers take the training mode inside the engine (the bundle's unknown_policy).
+export function preweddingRow(bundle, p, q, couple, k) {
+  const husband = p.sex === 'Man' ? p : q;
+  const wife = p.sex === 'Man' ? q : p;
+  const pr = race4(p.raceEth);
+  const qr = race4(q.raceEth);
+  const yn = (v) => yesNo(v) || 'Unknown';
+  return {
+    marriage_years: ym(couple) + k,
+    respondent_age: num(p.age) - ym(couple),
+    spouse_age: num(q.age) - ym(couple),
+    age_gap: num(husband.age) - num(wife.age),
+    wedding_year: weddingYear(bundle, couple).used,
+    spouse_prior_marriage: q.priorMarriage ? 'Yes' : 'No',
+    respondent_prior_children: kidsYN(p) || 'Unknown',
+    spouse_prior_children: kidsYN(q) || 'Unknown',
+    cohabited_first: yn(couple.cohabitedFirst),
+    respondent_race: pr || 'Unknown',
+    spouse_race: qr || 'Unknown',
+    same_race: pr && qr ? (pr === qr ? 'Same' : 'Different') : 'Unknown',
+    intact_family: yn(p.intactFamily),
+    religion_raised: RAISED_NSFG[p.religionRaised] || 'Unknown',
+    respondent_sex: p.sex === 'Man' ? 'Man' : 'Woman',
+  };
+}
+const PREWED_ASKED = { respondent_prior_children: 'children born before the wedding', spouse_prior_children: 'children born before the wedding', cohabited_first: 'living together first', respondent_race: 'race-ethnicity', spouse_race: 'race-ethnicity', same_race: 'race-ethnicity', intact_family: 'lived with both parents to 18', religion_raised: 'religion raised in' };
+
+const PREWEDDING = {
+  id: 'prewedding_harmonized',
+  kind: 'rate',
+  outcome: 'In this lens, divorce means the end of a first marriage by divorce, annulment or separation, counted from the wedding day, judged only from facts knowable on the wedding day.',
+  ageNote: 'Ages here are ages on the wedding day; marrying older was linked to fewer break-ups, which is not evidence of an ideal age gap.',
+  searchText: 'Searches the partner’s age on the wedding day (±6 years), whether they were married before and whether they had a child before the wedding — facts known before marrying.',
+  uses: 'both ages on the wedding day, wedding year, living together first, each partner’s earlier marriage and children born before the wedding, both race-ethnicities, each partner’s family of origin and religion raised in, and sex',
+  questions: ['raceEth', 'kidsBefore', 'religionRaised', 'cohabitedFirst'],
+  rowLabels: () => ['Scored with you as the surveyed spouse', 'Scored with your partner as the surveyed spouse'],
+  rows: (bundle, a, b, couple, k) => [preweddingRow(bundle, a, b, couple, k), preweddingRow(bundle, b, a, couple, k)],
+  issues(bundle, a, b, couple, k) {
+    const s = bundle.support.marriage_years;
+    return ym(couple) + k > s[1] ? [`marriage year ${ym(couple) + k + 1} (data reach year ${s[1] + 1})`] : [];
+  },
+  refuse(bundle, a, b, couple) {
+    const out = basicRefusals(a, b, 'The before-the-wedding lens');
+    if (out.length) return out;
+    const s = bundle.support;
+    if (a.priorMarriage || b.priorMarriage) out.push('This lens covers first marriages only (each partner’s first), so it gives no number when either partner was married before.');
+    for (const [who, p] of [['your', a], ['your partner’s', b]]) {
+      const age = num(p.age) - ym(couple);
+      if (!(age >= s.respondent_age[0] && age <= s.respondent_age[1])) out.push(`${who[0].toUpperCase() + who.slice(1)} age on the wedding day (${Math.round(age)}) is outside the ${Math.ceil(s.respondent_age[0])}–${Math.floor(s.respondent_age[1])} the survey covers for a first marriage.`);
+    }
+    return out;
+  },
+  notes(bundle, a, b, couple) {
+    const miss = new Set();
+    for (const r of PREWEDDING.rows(bundle, a, b, couple, 0)) for (const [k, label] of Object.entries(PREWED_ASKED)) if (r[k] === 'Unknown') miss.add(label);
+    return [...heldNote(weddingYear(bundle, couple)), ...(miss.size ? [`Not answered, so scored at the survey’s most common answer: ${[...miss].join(', ')}.`] : [])];
+  },
+  changes: () => [],
+  coupleChanges(couple, a, b) {
+    const out = [];
+    const c = yesNo(couple.cohabitedFirst);
+    if (c !== 'Yes') out.push({ label: 'Live together before marrying', couple: { cohabitedFirst: 'Yes' } });
+    if (c !== 'No') out.push({ label: 'Do not live together before marrying', couple: { cohabitedFirst: 'No' } });
+    if (ym(couple) === 0) for (const d of [2, 5]) out.push({ label: `Marry ${d} years later (both ${d} years older on the wedding day)`, a: { age: num(a.age) + d }, b: { age: num(b.age) + d } });
+    return out;
+  },
+  partnerGrid(me, template) {
+    const out = [];
+    for (let gap = -6; gap <= 6; gap += 2) for (const kidsBefore of ['0', '1']) out.push({ ...template, age: num(me.age) + gap, priorMarriage: false, kidsBefore });
+    return out;
+  },
+  describePartner: (p) => `age ${p.age} at the wedding, ${p.kidsBefore === '0' ? 'no child before the wedding' : 'a child before the wedding'}`,
+  partnerKey: (p) => `${p.age}|${p.kidsBefore}`,
+  partnerTraits(me) {
+    return [
+      { key: 'age', label: me.sex === 'Woman' ? 'Age gap (partner minus you)' : 'Age gap (partner minus you)', gap: true, values: [-8, -6, -4, -2, 0, 2, 4, 6, 8] },
+      { key: 'kidsBefore', label: 'Children born before the wedding', values: ['0', '1'], show: (v) => (v === '0' ? 'no child before the wedding' : 'a child before the wedding') },
+      { key: 'intactFamily', label: 'Lived with both parents to 18', values: ['Yes', 'No'], show: (v) => (v === 'Yes' ? 'grew up with both parents' : 'did not grow up with both parents') },
+      { key: 'religionRaised', label: 'Religion raised in', values: ['None', 'Catholic', 'Other Protestant', 'Other'], show: (v) => `raised ${v === 'None' ? 'with no religion' : v}` },
+    ];
+  },
+};
+
 export function nsfgBothRow(bundle, v, couple, k) {
   const { p } = v;
   const w = weddingYear(bundle, couple);
@@ -1241,6 +1327,7 @@ const ACS = {
 };
 
 export const NEW_ADAPTERS = {
+  prewedding_harmonized: PREWEDDING,
   sipp_first_marriage: SIPP_FM,
   sipp_prospective_couples: SIPP_COUPLES,
   acs_one_year_divorce: ACS,

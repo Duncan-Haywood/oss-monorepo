@@ -47,4 +47,4 @@ hypotheses:
       suppression list (the suppression_used event over file_checked).
     status: untested
     checked: null
-    evidence: in-repo
+    evidence: customer-contact

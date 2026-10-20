@@ -1,0 +1,133 @@
+{
+  "date": "2026-10-20",
+  "session": "https://claude.ai/code/session_01KHV7BjJ5Bm1Qwm5x2r8dXW",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "on the one hand I like the thousand plus small tools, but on the other hand I want to work on deeper business and engineering problems and more of the work to be to deepening and improving existing projects that have real depth to them.",
+  "input_sha256": "910df1b0655df03b48a425b4cd993d37bf60df6f3c9c796f6e51a6b9c2e96700",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-10-20T07:01:20Z",
+  "ended": "2026-10-20T07:08:43Z",
+  "wall_minutes": 7.5,
+  "tokens_in": 4987954,
+  "tokens_out": 19987,
+  "cost_usd": 2.5325,
+  "tool_calls": 60,
+  "task": null,
+  "projects": [],
+  "pr": 8699,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "HOT_COMMITS demoted any venture worked on this week and the top 32 rows were tiny *-csv-check prototypes, contradicting the 'depth over count' text in goals.md and the ventures prompt; prose said depth, the ranking said breadth."
+    },
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "A customer-contact hypothesis on an unpublished venture marked the whole venture undispatchable, hiding code work (photo-editing, quick-pick-survey) any session could start."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Owner message in-session was a direction, not a named task; routed to the process track and changed the allocator rather than only adding prose, because the prose already said 'depth over count' and runs were not following it."
+    }
+  ],
+  "goal": null,
+  "notes": "Added portfolio/flagships.yaml (6 flagships from an audit of the largest ventures) and made allocate.py rank them first with a Deepen task.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d15fb737-939a-5780-ac13-d502929aec99",
+    "transcripts": 2,
+    "first": "2026-10-20T07:01:20Z",
+    "last": "2026-10-20T07:08:50Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 50,
+        "input": 100,
+        "output": 19987,
+        "thinking": 4192,
+        "cache_read": 4809391,
+        "cache_write_5m": 85728,
+        "cache_write_1h": 92735,
+        "api_equivalent_usd": 2.5325,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 50,
+      "input": 100,
+      "output": 19987,
+      "thinking": 4192,
+      "cache_read": 4809391,
+      "cache_write_5m": 85728,
+      "cache_write_1h": 92735,
+      "api_equivalent_usd": 2.5325,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.964,
+    "tool_calls": 60,
+    "tools": {
+      "Bash": 53,
+      "Agent": 1,
+      "Edit": 1,
+      "ToolSearch": 1,
+      "mcp__github__search_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__claude-code-remote__subscribe_pr_activity": 1,
+      "SubagentHandback": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.5,
+      "active_minutes": 7.5,
+      "model_minutes": 3.53,
+      "tool_minutes": 3.97,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 2.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "audit of 14 ventures plus allocator change and tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 118.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

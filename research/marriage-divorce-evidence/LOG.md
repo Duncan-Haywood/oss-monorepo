@@ -1,5 +1,17 @@
 # Research log
 
+## 2026-10-20 · App: the harmonized before-the-wedding model is the default lens
+
+- Workstream B's harmonized model (#8684) now scores couples in the app, and it is what "Before the wedding" opens on. It uses only facts knowable on the wedding day (NSFG 1995–2023, 43,336 first marriages; held-out C 0.661). Each partner is scored as the surveyed spouse, and the two rates are averaged. Unanswered inputs take the survey's most common answer, and the page names them.
+- A typical engaged couple (28 and 30, bachelor's degrees, living together first, no children before) gets 7.4% break-up risk by 5 years, 12.5% by 10 and 19.1% by 20. That is the 2nd percentile among NSFG's first marriages, whose median 10-year risk is 28%. A younger couple (22 and 23, a child before the wedding, not living together first) gets 22.5% by 10 years (32nd percentile). It is a single model, so the page shows no model range; the other pre-wedding lenses give the spread.
+- Next: chain the HCMST dating-couple models (marry vs break up first) into this lens for couples not yet engaged.
+
+## 2026-10-20 · App: "Before the wedding" is now the calculator's default question
+
+- The owner's refocus: predict divorce before marrying, for a couple or a candidate partner. The calculator now opens on **Before the wedding**. Its lens list, summary, just-me and candidate views use only the eight lens views whose clock starts at the wedding and whose inputs are known by then (NSFG 1995–2023 and its both-sexes view, NLSY97, NLSY79 first marriages, SIPP first marriages, Statistics Canada, NSFG 2002 and its model family). The projection starts on the wedding day, and question groups only married-couple lenses read are hidden. The nine married-couple and non-divorce lenses sit behind **Already married**, unchanged.
+- For a typical engaged couple (28 and 30, bachelor's degrees, living together first, no earlier marriages or children, U.S. Midwest), 10-year break-up risk is 6.7% in NSFG 1995–2023 (models 3.8–9.7), 7.8% in NLSY97, 16.5% in NLSY79, 17.4% in SIPP, and 24.7% and 20.6% in the two NSFG 2002 lenses. Statistics Canada abstains (no Canadian region). Cohorts and outcomes differ, so the levels are shown side by side, never pooled. Ranking skill from pre-wedding facts is modest: C 0.63–0.66 within surveys in the leakage-free models.
+- Next (ROADMAP C): B's harmonized pre-wedding lens as the default once #8684 merges, and the HCMST dating-couple chain for couples not yet engaged.
+
 ## 2026-10-20 · "Before the wedding" lens exported to the app
 
 - New bundle `app/models/prewedding_harmonized.json` (26 KB): the harmonized pre-wedding additive model fitted on 43,336 NSFG 1995–2023 first marriages, inputs from either partner's point of view and nothing measured after the wedding. Held out by person in NSFG: C 0.661, AUC at 10 years 0.656, observed/expected 1.03. Applied unchanged elsewhere: NLSY97 C 0.647 (observed/expected 0.99), NLSY79 0.621 (1.07), SIPP 0.626 (0.85), Canada 0.611 (0.58).

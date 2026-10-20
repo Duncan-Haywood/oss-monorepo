@@ -36,6 +36,8 @@ python3 -m pytest portfolio/ledger portfolio/scoring portfolio/router portfolio/
 python3 -m pytest portfolio/research/<probe> -q          # one at a time: 4 share a test_measure.py basename
 python3 -m pytest portfolio/pipeline/probes/<probe> -q   # one at a time: root pytest --ignore's this tree
 python3 -m pytest prompts -q && python3 prompts/promptctl.py validate   # prompt.md, prompts/, run records
+python3 -m unittest discover -s platform/business-template -v   # the generator: a repo per preset, each passing its own check
+d=$(mktemp -d) && python3 platform/business-template/new_business.py --name T --idea T --out "$d/b" && (cd "$d/b" && python3 -m unittest discover -s ops)  # platform/business-template/template/ops: runs in a generated copy, not in place
 (cd research/<project> && PYTHONPATH=$(ls -d ../*/src | tr '\n' :) python3 -m pytest tests -q)  # research/ changes: one project at a time
 python3 platform/ci/run_workflow_locally.py --for-changes  # the validators no pytest line reaches (>2 min: run_in_background)
 python3 platform/ci/run_workflow_locally.py --tree          # and: is main itself green right now? (>10 min: background)
