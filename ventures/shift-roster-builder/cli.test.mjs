@@ -150,3 +150,12 @@ test("--weeks carries --last-week into the first week", () => {
   assert.match(runPlan(staff, shifts, base).out, /2 weeks: payroll/);
   assert.match(runPlan(staff, shifts, { ...base, lastWeekCsv: last }).out, /Week 1[\s\S]*Shifts left open/);
 });
+
+test("an empty staff file is a usage error (exit 2) with the message, in one week and in a plan", () => {
+  const r = run("", sampleShifts(), {});
+  assert.equal(r.code, 2);
+  assert.equal(r.out, "Add at least one person.\n");
+  const p = runPlan("", sampleShifts(), { weeks: 2, weekStart: "2026-10-19" });
+  assert.equal(p.code, 2);
+  assert.equal(p.out, "Add at least one person.\n");
+});
