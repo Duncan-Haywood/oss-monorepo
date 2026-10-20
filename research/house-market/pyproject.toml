@@ -1,0 +1,13 @@
+[project]
+name = "house-market"
+version = "0.1.0"
+description = "Sourced, dated figures on what a new home costs to build in the US and Colorado in 2026: NAHB and Census price breakdowns, Denver fees, construction techniques, materials and labour trends"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
