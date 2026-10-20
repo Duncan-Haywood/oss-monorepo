@@ -309,7 +309,9 @@ def write_md(recs, grades):
         seen |= {r['id'] for r in rows}
         L += [f'## {title}', '', '| Record | Design | Population, n | Outcome | Effect | Follow-up | Source |', '|---|---|---|---|---|---|---|']
         for r in rows:
-            src = f"[{'doi:' + r['doi'] if r.get('doi') else 'report'}]({('https://doi.org/' + r['doi']) if r.get('doi') else r['url']})"
+            # Project-relative paths (this project's own reports) are written from this folder.
+            link = ('https://doi.org/' + r['doi']) if r.get('doi') else (r['url'] if '://' in r['url'] else '../../' + r['url'])
+            src = f"[{'doi:' + r['doi'] if r.get('doi') else 'report'}]({link})"
             L.append(f"| **{r['id']}**: {_cell(r['title'])} | {r['design_class']} ({r['provenance']}) | {_cell(r['population'])}; {_cell(r['n'])} | "
                      f"{_cell(r['outcome'])} | {_cell(r['effect_text'])} [{_cell(r.get('measure'))}: {_num(r)}] | {_cell(r['follow_up'])} | {src} |")
         L.append('')

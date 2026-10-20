@@ -200,3 +200,56 @@ th small { font-weight: 400; color: var(--text-muted); }
   .host-row { grid-template-columns: 1fr; }
   .est { display: block; white-space: normal; }
 }
+/* Compare scenarios: the saved list, the lens picker, the side-by-side grid and small multiples */
+.vh { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.scen-save { display: flex; flex-wrap: wrap; gap: 0 12px; align-items: end; }
+.scen-save label { flex: 1 1 240px; }
+.scen-save .actions { margin: 8px 0 0; }
+.scen-list { list-style: decimal; padding-left: 1.6em; margin: 8px 0; }
+.scen-item { background: var(--surface-1); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px 8px; margin: 0 0 8px; }
+.scen-item.base { border-color: var(--series-1); }
+.scen-head { display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: center; }
+.scen-head .scen-name { flex: 1 1 200px; margin-top: 0; }
+.scen-head label.check { margin-top: 0; }
+.scen-btns { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.scen-btns button { padding: 4px 10px; font-size: 0.88rem; }
+button:disabled { opacity: 0.45; cursor: not-allowed; }
+.lens-picks { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 2px 16px; }
+.lens-pick { display: flex; gap: 8px; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--grid); padding: 2px 0; }
+.lens-pick label { margin-top: 4px; }
+.lens-pick label.hz select { width: auto; padding: 4px 6px; }
+.scen-grid table { min-width: 560px; }
+.scen-grid th[scope="row"] { min-width: 150px; max-width: 240px; font-weight: 600; color: var(--text-primary); overflow-wrap: anywhere; }
+.scen-grid td { min-width: 170px; vertical-align: top; }
+.scen-grid td b { font-size: 1.05rem; }
+.scen-grid .flags { margin-top: 3px; }
+.tag.warn-tag { border-color: var(--warn-border); color: var(--text-primary); background: var(--warn-bg); }
+td small.up, td small.down { font-weight: 600; }
+td small.up { color: var(--good); }
+td small.down { color: var(--bad); }
+.sm-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px; }
+.sm-card { background: var(--surface-1); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; margin: 0; min-width: 0; }
+.sm-card figcaption { font-size: 0.9rem; margin-bottom: 6px; }
+.sm-row { display: grid; grid-template-columns: minmax(70px, 34%) 1fr 92px; gap: 8px; align-items: center; font-size: 0.82rem; padding: 3px 0; }
+.sm-row.base .sm-name { font-weight: 700; }
+.sm-name { overflow: hidden; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; line-height: 1.25; }
+.sm-track { position: relative; height: 16px; background: linear-gradient(var(--grid), var(--grid)) left center / 100% 1px no-repeat; }
+.sm-track.none { background: none; }
+.sm-range { position: absolute; top: 4px; height: 8px; min-width: 2px; border-radius: 4px; background: var(--band); border: 1px solid var(--series-1); box-sizing: border-box; }
+.sm-dot { position: absolute; top: 2px; width: 12px; height: 12px; margin-left: -6px; border-radius: 50%; background: var(--series-1); border: 2px solid var(--surface-1); }
+.sm-row.base .sm-dot { background: var(--text-primary); }
+.sm-row.out .sm-dot { background: var(--surface-1); border: 2px solid var(--series-1); }
+.sm-base { position: absolute; top: -3px; bottom: -3px; width: 0; border-left: 1px dashed var(--text-muted); }
+.sm-val { text-align: right; font-variant-numeric: tabular-nums; }
+.sm-val small { font-size: 0.72rem; }
+.sm-axis { padding-top: 0; }
+.sm-ticks { position: relative; height: 14px; font-size: 0.72rem; color: var(--text-muted); }
+.sm-ticks span { position: absolute; transform: translateX(-50%); white-space: nowrap; }
+.sm-ticks span:first-child { transform: none; }
+.sm-ticks span:last-child { transform: translateX(-100%); }
+#scenLinkOut { font-size: 0.8rem; }
+@media (max-width: 760px) {
+  .sm-grid { grid-template-columns: 1fr; }
+  .sm-row { grid-template-columns: minmax(60px, 30%) 1fr 78px; }
+}
+.scen-grid td small b { font-size: inherit; }

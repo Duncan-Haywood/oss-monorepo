@@ -33,7 +33,7 @@ export function summariseLens(lens, a, b, couple) {
   const horizons = hs.map((h) => {
     const y = stepAt(p, h);
     const upto = p.filter((z) => z.elapsed <= h + 0.01);
-    return { h, mean: y.meanSurvival, min: y.minSurvival, max: y.maxSurvival, inSupport: upto.every((z) => z.inSupport) };
+    return { h, mean: y.meanSurvival, min: y.minSurvival, max: y.maxSurvival, survival: y.survival, inSupport: upto.every((z) => z.inSupport) };
   });
   const t = typicality(bundle, a, b, couple);
   const cmp = referenceFor(bundle) ? populationComparison(bundle, a, b, couple) : null;
@@ -47,6 +47,9 @@ export function summariseLens(lens, a, b, couple) {
     skill: skillForCouple(bundle, a, b, couple),
     fit: { ood: t ? t.percentile : null, given: t ? 1 - t.neutralised.length / (bundle.ood.numeric.length + bundle.ood.categorical.length) : null, abstainAbove: bundle.ood?.abstain_above_percentile ?? null, inSupport: horizons.every((x) => x.inSupport), outside: p.filter((z) => !z.inSupport).length },
     percentile: prow ? { horizon: prow.horizon, quantity: cmp.quantity, ...prow.overall } : null,
+    // Every horizon's overall percentile (keyed by horizon; 0 = the annual rate now), for tables
+    // that let the reader pick the horizon (scenarios.js).
+    percentiles: cmp && !cmp.refused ? { quantity: cmp.quantity, at: Object.fromEntries(cmp.horizons.map((r) => [r.horizon, r.overall])) } : null,
     rate: isRateLens(bundle),
   };
 }

@@ -1332,6 +1332,11 @@
      "summary": "Lorenz-63 and R&ouml;ssler integrated with the same RK4 scheme in float32 and float64 from the same start. Float32 leaves the float64 trajectory (distance &gt; 1) after a median 12.3 time units on Lorenz and 164 on R&ouml;ssler, which matches a float64 start error of about 5&times;10<sup>&minus;6</sup>, roughly 100 times the float32 unit roundoff: departure time follows ln(1/&delta;<sub>0</sub>)/&lambda; with per-step rounding setting the effective error, and that error grows slowly with the number of steps (4.5&times;10<sup>&minus;6</sup> to 1.3&times;10<sup>&minus;5</sup> for 8&times; the steps). The Lyapunov exponent (0.8995 vs 0.8997) and long-run time averages agree within sampling error (|z| &lt; 1.2, 200 members), and a float16 run showed no detectable bias on 100 members either. Stylised: two autonomous flows, CPU numpy, no contact or policy."
     },
     {
+     "slug": "free-f32bounce",
+     "title": "Does a float32 simulation of a bouncing, chaotic system lose its statistics? Sinai billiard against float64",
+     "summary": "A point particle in a unit square with a circular obstacle (Sinai billiard), event-driven with specular reflection, run in float32 and float64 from the same start. Float32 leaves the float64 trajectory (position differs by &gt; 0.1) after a median 21 collisions, equal to a float64 start error of 4.6&times;10<sup>&minus;8</sup>, about one float32 unit roundoff (the smooth flows of free-f32shadow needed about 100&times;). The first different surface is hit exactly one collision after the position departs, at every error size tried. Mean free path (0.45296 vs 0.45325) and the circle's share of collisions agree within sampling error (|z| &lt; 0.6), and match Cauchy&rsquo;s exact mean free path 0.45321; no particle escaped and the direction vector&rsquo;s length drifted by about 10<sup>&minus;5</sup> after 2000 collisions. Stylised: straight-line flights, no time-stepped contact; a first attempt on a vibrating-table bouncing ball was not chaotic and is not used."
+    },
+    {
      "slug": "free-citeaudit",
      "title": "How many research READMEs admit their citations are unchecked, and which works need checking first?",
      "summary": "A stdlib scan of all 550 project READMEs for lines that flag a citation or figure as written from memory or not re-checked: 94 (17.1%) have at least one, 137 flagged lines in all, naming 41 distinct author-year works. Four recur most: Dawid &amp; Skene (1979) in 10 projects, Zhang et al. (2019) in 9, Horowitz (2014) and Horvitz (1999) in 6 each, so checking those once from a networked session clears many flags. A flag is the README's own admission, not a verdict; nothing was verified in this run (Crossref was unreachable)."
@@ -3858,6 +3863,11 @@
     "slug": "society-blocs",
     "title": "How many robots does it take to change a crowd's walking side when some people always walk on the robots' side?",
     "summary": "The <code>society-stubborn</code> model with a share <em>sl</em> of people who always walk the robots' side and <em>sr</em> who always walk the status-quo side. For memory&nbsp;9 the mean-field tipping robot share falls from 0.217 to 0.176, 0.131, 0.080 and 0.023 at <em>sl</em>&nbsp;=&nbsp;0.05, 0.10, 0.15 and 0.20 (about 0.8 robots saved per ally), and a crowd with 25% allies tips with no robots. Opposing blocs raise the self-tipping share (0.219 to 0.300 as <em>sr</em> goes 0 to 0.3), equal blocs are a knife edge, and simulation (200 people, 12 seeds) agrees with mean field within 0.01 at seven bloc mixes. Opposing blocs alone cost 0.195 conflicts per human meeting. Stylised; simulated walkers only."
+   }
+   ,{
+    "slug": "society-converts",
+    "title": "Does a stubborn block that slowly converts let a smaller robot minority tip a crowd's walking side?",
+    "summary": "The <code>society-stubborn</code> model with 40% stubborn walkers who each convert to an ordinary memory-rule walker with probability <em>c</em> per round. With the block fixed, 24% committed robots never tip the crowd (0 of 12) and 28% tip 5 of 12; with <em>c</em>&nbsp;=&nbsp;0.001 both tip all 12 (median round 721 and 185), and at <em>c</em>&nbsp;=&nbsp;0.1 at round 59 and 31. At 20% or fewer robots no crowd tipped at any <em>c</em>. Conversion mostly buys speed and moves the threshold towards the no-stubborn value. Stylised: simulated walkers, spontaneous conversion, 200 people, 12 seeds; the mean-field clock is only a rank-order check."
    }
    ,{
     "slug": "society-show",
