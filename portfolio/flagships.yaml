@@ -1,0 +1,81 @@
+# Flagship ventures: the few with real depth that most venture runs deepen.
+#
+# The owner, 2026-10-20: "on the one hand I like the thousand plus small tools,
+# but on the other hand I want to work on deeper business and engineering
+# problems and more of the work to be to deepening and improving existing
+# projects that have real depth to them."
+#
+# `portfolio/router/allocate.py` ranks these first, in this order, with the
+# task "Deepen (flagship N): <next>". A run that lands a slice of `next`
+# rewrites it to the following milestone in the same PR. The owner can
+# reorder, add or drop entries; agents may too, with the evidence in the PR.
+#
+# Chosen 2026-10-20 from an audit of the largest ventures by source size,
+# keeping those whose code works today and whose next step is a hard business
+# or engineering problem. Passed over for now: local-site-studio (real
+# integrations but bloated, its core site generator is thin),
+# sales-export-to-journal (engines copied from sibling ventures),
+# retail-pilot-intel, print-atelier and real-estate-agent-photo-app (mostly
+# plans and demo UI), workflow-audit and marketplace-fee-compare (thin).
+flagships:
+  - venture: einvoice-preflight
+    why: >-
+      Real EN 16931 validator (JSON, UBL, CII, Factur-X PDF; 54+ rules,
+      XRechnung, Peppol profiles) with a self-hosted API, Docker and Render
+      deploy, ~48 test files, and a regulatory tailwind (EU e-invoicing mandates).
+    next: >-
+      The official base EN 16931 Schematron now runs in Saxon-JS (opt-in,
+      ?schematron=1, schematron-cli.mjs) with plain-language fixes. Next: add
+      the XRechnung and Peppol BIS add-on Schematron the same way, bake the SEF
+      files into the Docker image and Render deploy, and show the official
+      findings on the web page.
+  - venture: shift-roster-builder
+    why: >-
+      Simulated-annealing scheduler over a dollar cost (availability, rest,
+      youth labour rules, state overtime presets, roles) with a self-host
+      server, .ics feeds and availability intake.
+    next: >-
+      The exact branch-and-bound check now exists (--prove, calc.mjs
+      exactSearch) but cannot finish the proof on the 32-shift sample week
+      (root bound far below the optimum). Next: a stronger bound (a
+      min-cost flow or LP relaxation of coverage plus per-person hours) so
+      full weeks are proven, then multi-week rostering that carries fairness
+      and time off across weeks (README Limits).
+  - venture: photo-editing
+    why: >-
+      ShootFlow works end to end on real media: checksum-verified ingest,
+      catalog, ffmpeg proxies, LUT-graded masters, reels and carousels.
+    next: >-
+      Sharpness, exposure, motion and dHash near-duplicate grouping now run
+      on real frames (src/shootflow/frame_analysis.py). Next: face and
+      closed-eye scores and subject framing for the story score (a small
+      on-device model, opt-in, behind the same analysis/NNNNN.json contract),
+      and RAW stills via a RAW developer so they stop falling back to the
+      sha256 stand-in.
+  - venture: quick-pick-survey
+    why: >-
+      Next.js + Postgres app with Glicko-2 ranking, adaptive pairing and a
+      Davidson-tie Bradley-Terry conjoint fit, simulation-tested, with a
+      deploy-to-your-own-Vercel button.
+    next: >-
+      A survey builder: an admin creates a survey from their own items and
+      attributes, shares a link and exports the ranking with confidence
+      intervals. Then the information-gain pair selector (IMPROVEMENT-PLAN.md, P1).
+  - venture: league-schedule-generator
+    why: >-
+      Circle-method round robins with minimal home/away breaks, court and slot
+      assignment under rest constraints, blackouts, play-offs, ladders and
+      Swiss formats, with a self-hosted league page.
+    next: >-
+      Multi-division scheduling on shared venues: one constraint solve across
+      divisions over shared courts and dates, minimizing back-to-backs and
+      travel, with the conflicts it could not avoid listed.
+  - venture: open-tennis-robots
+    why: >-
+      Parametric CAD (build123d) generating a collector's DXF/STL/STEP
+      package, ballistics and tracking planners, ESP32 firmware and a browser
+      simulator. Unbuilt hardware, long payoff.
+    next: >-
+      README roadmap item 2: the feeder CAD package (launcher head, hopper,
+      lateral base, catch-net frame) generated and tested the same way as the
+      collector's.

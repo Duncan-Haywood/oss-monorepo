@@ -27,6 +27,11 @@ which work.
   sub-prompt with `python3 prompts/promptctl.py route` and asks for a run
   record before the merge ([`prompts/README.md`](prompts/README.md)).
 
+The guidance is one system in layers (goals, entry, track, area, runbook,
+reference), mapped in [`prompts/SYSTEM.md`](prompts/SYSTEM.md);
+`python3 prompts/promptctl.py map --track <track>` lists what your run reads.
+A higher layer wins a conflict; report it as `doc_friction`.
+
 ## Every run ships something useful
 
 The owner, 2026-10-15 and 2026-10-20: a run that ends with nothing useful done
@@ -41,11 +46,17 @@ work, or a write-up that uses real data to tell a reader something new. An
 empty queue, a vague brief or a task that already landed means look wider,
 not stop. Restated blockers, ledger-only edits and re-verifying unchanged
 work do not count. Never fabricate or lower the bar to have something to
-ship.
+ship. For venture work the default is the top flagship in
+[`portfolio/flagships.yaml`](portfolio/flagships.yaml) (owner, 2026-10-20:
+deepen "existing projects that have real depth").
 
 The owner's standing directions (SEO, compliant distribution, measurement,
 the blog at `docs/posts/`, sales tools, local models) are quoted in
 `goals.md`. They are directions for many runs, not tasks every run starts on.
+One applies to every run: **files first, not the GitHub API** (owner,
+2026-10-20). What a later reader needs (verification output, decisions, why)
+goes in a file in the same PR (run record, README, `docs/history/`); a PR body
+or comment summarises it.
 
 ## Every session lands its own work
 
@@ -60,7 +71,9 @@ nobody opens a PR for is invisible to every check and every later session.
 5. end your reply with the merged PR's link.
 
 In cloud sessions `gh` is usually unauthenticated: use the GitHub MCP tools
-(`create_pull_request`, `merge_pull_request`, loaded with `ToolSearch`).
+(`create_pull_request`, `merge_pull_request`, loaded with `ToolSearch`). The
+container's other quirks are in
+[`.github/prompts/cloud-session.md`](.github/prompts/cloud-session.md).
 Details, including other sessions' stalled PRs:
 [`.github/prompts/land-your-work.md`](.github/prompts/land-your-work.md).
 
@@ -83,7 +96,8 @@ same-repo PR on two bot approvals and green CI; they assist, they are not a
 gate.
 
 Before merging: CI green (or, when runners are starved, the checks your change
-reaches, run here and named in the PR); new user-facing surfaces carry the
+reaches, run here, with the output in the run record's `notes` and a summary
+in the PR); new user-facing surfaces carry the
 disclaimer and usage tracking. `python3 platform/ci/run_workflow_locally.py
 --for-changes` runs what your diff would trigger. The full checklist and its
 traps: [`.github/prompts/verify-and-merge.md`](.github/prompts/verify-and-merge.md).
@@ -101,8 +115,9 @@ The catalogue is served by GitHub Pages at
 `.github/workflows/portfolio-pages.yml` on every merge that touches a site
 input (and every three hours). Merging is publishing; there is no branch to
 push by hand. The Hetzner/k3s route was retired on 2026-10-01: never connect
-to its old IPs, and manifests under `gitops/prod` describe a dead origin. More:
-[`portfolio/hosting/README.md`](portfolio/hosting/README.md).
+to its old IPs, and manifests under `gitops/prod` describe a dead origin. What
+is served, and which state readers are stale:
+[`portfolio/hosting/README.md`](portfolio/hosting/README.md), "What is served now".
 
 ## Duplicate PRs
 
@@ -111,7 +126,8 @@ Scheduled sessions overlap. Before opening a PR, search open PRs
 recent commits on `main`, then extend or consolidate. Before closing a PR as
 superseded, run `python3 portfolio/ledger/supersede_check.py <pr>` and check
 the survivor is still open. A conflict is not a reason to close: merge `main`
-in and resolve it.
+in and resolve it. Steps and tools:
+[`.github/prompts/duplicate-work.md`](.github/prompts/duplicate-work.md).
 
 Clones are shallow. Content reads (`git show origin/main:<path>`) are fine;
 when you need history for a merge, `git fetch --deepen=500 origin main` until
@@ -124,7 +140,7 @@ when you need history for a merge, `git fetch --deepen=500 origin main` until
   job got a runner, so the failure is real; exit 1 means starved, so verify
   locally.
 - Use check runs, not legacy statuses (`get_status` reports 0 on a PR with red
-  check runs).
+  check runs). Details: [`.github/prompts/verify-and-merge.md`](.github/prompts/verify-and-merge.md), "Reading CI".
 
 ## Small things that bite
 

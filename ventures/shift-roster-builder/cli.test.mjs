@@ -100,3 +100,14 @@ test("--open-post matches the library's group message for open shifts", () => {
   const none = run("name, wage, max hours, min hours, availability\nAna, 18, 40, 0, Mon-Sun 0-24", "Mon, 9am, 5pm, 1, desk", { mode: "open-post" });
   assert.equal(none.out, "");
 });
+
+test("--prove adds an exact-search line to the report and optimality to --json", async () => {
+  const { run, parseArgs } = await import("./cli.mjs");
+  const o = parseArgs(["--prove"]);
+  assert.equal(o.options.exact, true);
+  const staff = "A,12,40,0,any\nB,14,40,0,any", shifts = "Mon,8,16,1\nTue,8,16,1";
+  const text = run(staff, shifts, { ...o, mode: "report" });
+  assert.match(text.out, /exact search/);
+  const json = JSON.parse(run(staff, shifts, { ...o, mode: "json" }).out);
+  assert.ok(["optimal", "improved"].includes(json.optimality.status));
+});

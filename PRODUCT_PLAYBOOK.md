@@ -287,7 +287,12 @@ observation they act on ("3 of 12 checks did not pass — here is each one").
 
 ### c. A privacy line, honestly stated
 
-One short section. If everything is client-side, say so — it is a feature:
+One short section that says what the product actually does. The rules behind
+it are the law's, not stricter ones (owner, 2026-10-20;
+[`portfolio/usage/README.md`](portfolio/usage/README.md), rule 1): a cookie or
+`localStorage` entry a feature needs is fine, and is named here; an identifier
+used for analytics needs consent from EU/UK visitors first. If everything is
+client-side, say so. It is a feature:
 
 > Everything runs in your browser. Your data is never uploaded, and we don't
 > have accounts, tracking cookies, or an analytics vendor. We count anonymous
@@ -299,9 +304,10 @@ lives. Never write a privacy claim you haven't checked against the code.
 
 ### d. Usage counting
 
-Per [`portfolio/usage/README.md`](portfolio/usage/README.md). Count events,
-never people. No PII, no IPs, no content, no cross-site identifiers. Make it
-visible and switch-off-able. Then write the numbers into
+Per [`portfolio/usage/README.md`](portfolio/usage/README.md). Anonymous
+aggregate counts are on by default. Anything that identifies a returning
+browser goes behind the consent the law requires. No content, and nothing
+personal committed to the repository. Make it visible and switch-off-able. Then write the numbers into
 `portfolio/usage/usage.yaml` so the router can see which products are alive.
 
 ### e. Discoverability

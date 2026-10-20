@@ -99,7 +99,8 @@ Judgment first: these are defaults, not a ritual (`CLAUDE.md`, top).
   `python3 platform/ci/run_workflow_locally.py --for-changes`, and for a
   `ventures/**` or `platform/pages/` surface, `python3 platform/ci/browser_checks.py`
   (a missing Playwright exits 2: a skip, not a pass). Say in the PR what ran.
-- **Classify red CI before debugging:** `python3 platform/ci/ci_starvation.py --run <run_id>`.
+- **Classify red CI before debugging:** `python3 platform/ci/ci_starvation.py --run <run_id>`
+  (`.github/prompts/verify-and-merge.md`, "Reading CI").
 - **Don't re-verify** PRs `python3 portfolio/ledger/verification_status.py`
   reports unchanged, and never land ledger prose alone
   (`python3 portfolio/ledger/check_ledger_only.py`).
@@ -118,9 +119,11 @@ paid automation, secrets. Payment code on the deployer's own keys is fine
    names a specific competitor (`vs-<competitor>.html`) needs a second,
    separate disclaimer — §5f, nominative fair use plus a "not affiliated
    with" line — checked by `node platform/pages/clauses.mjs <slug>`.
-2. **Usage stats** — anonymous events only (feature used, page viewed), never
-   people: no PII, no IPs, no content, no analytics vendor. Rules and the file
-   readings land in: [`portfolio/usage/`](portfolio/usage/README.md).
+2. **Usage stats** — anonymous aggregate events (feature used, page viewed,
+   kind of referring site) on by default; anything that identifies a returning
+   browser only with the consent the law requires; nothing personal committed.
+   Follow the law, no stricter (owner, 2026-10-20): cookies a feature needs are
+   fine. Rules and the file readings land in: [`portfolio/usage/`](portfolio/usage/README.md).
 3. **Free full access** for now — no paywalls; optional GitHub Sponsors/donate link OK.
 4. **A LICENSE and the discoverability basics** — landing copy in the user's
    search words, meta description, JSON-LD, sitemap, crawlable robots.txt.
