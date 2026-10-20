@@ -18,6 +18,12 @@
 - A full run took 35 s in Node and 44 s in headless Chromium at 1200 px. At 390 px with 25 boosting rounds it took 13 s, but boosting's gain fell to 3.85%. The main thread never stalled more than 68 ms, cancelling works, there were no console errors and no horizontal scroll. No real phone has been timed yet.
 - After training, the models are refitted on every marriage, and a visitor can score a profile with the models they just trained. `tests/train.test.mjs` checks the coefficients to 10<sup>−6</sup>, the held-out gains (0.001 points; 0.15 for boosting), the C indices, O/E and the extract's sample.
 
+## 2026-10-20 · "Before the wedding" lens exported to the app
+
+- New bundle `app/models/prewedding_harmonized.json` (26 KB): the harmonized pre-wedding additive model fitted on 43,336 NSFG 1995–2023 first marriages, inputs from either partner's point of view and nothing measured after the wedding. Held out by person in NSFG: C 0.661, AUC at 10 years 0.656, observed/expected 1.03. Applied unchanged elsewhere: NLSY97 C 0.647 (observed/expected 0.99), NLSY79 0.621 (1.07), SIPP 0.626 (0.85), Canada 0.611 (0.58).
+- Cross-fitted population reference: median predicted 10-year dissolution 28% (10th–90th percentile 16–51%); out-of-distribution percentile among held-out marriages.
+- `engine.js` gains constant spline extrapolation (wedding year held at the edge, not extrapolated) and mode imputation of Unknown answers for models and the OOD score; `tests/prewedding.test.mjs` matches 60 of 60 Python predictions and distances. The lens needs workstream C's form adapter to become the default.
+
 ## 2026-10-20 · Before the wedding: leakage audit, harmonized features and cross-dataset validation on five surveys
 
 - Question: how well can divorce be predicted from facts known on the wedding day? Built one harmonized pre-wedding table per first-marriage lens (NSFG 1995–2023 43,336 marriages; NLSY79 6,768; NLSY97 5,076; SIPP 176,303; Canada GSS 48,656), each reproducing its lens's published sample exactly, with strict timing rules (`reproducibility/prewedding/SPEC.md`).

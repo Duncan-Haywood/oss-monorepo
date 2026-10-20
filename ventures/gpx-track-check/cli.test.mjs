@@ -52,3 +52,12 @@ test("fix writes a repaired copy with fewer errors; --in-place overwrites", asyn
   await main(["fix", "bad.gpx", "--in-place"], h.deps);
   assert.ok(h.written["bad.gpx"]);
 });
+
+test("thin writes a .thin.gpx with fewer points", async () => {
+  const pts = Array.from({ length: 60 }, (_, i) => `<trkpt lat="${48 + i * 0.0001}" lon="${2 + Math.sin(i / 5) * 0.001}"><time>2026-05-01T08:00:${String(i).padStart(2, "0")}Z</time></trkpt>`).join("\n");
+  const h = harness({ "r.gpx": `<gpx version="1.1" creator="t" xmlns="http://www.topografix.com/GPX/1/1"><trk><trkseg>\n${pts}\n</trkseg></trk></gpx>` });
+  assert.equal(await main(["thin", "r.gpx", "--max-points=10"], h.deps), 0);
+  assert.ok("r.thin.gpx" in h.written);
+  assert.ok(validate(h.written["r.thin.gpx"]).stats.points <= 10);
+  assert.match(h.out.join("\n"), /points kept/);
+});
