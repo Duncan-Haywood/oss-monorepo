@@ -1,0 +1,26 @@
+feature,coef
+num__marriage_years_sp_0,0.0341014
+num__marriage_years_sp_1,0.466843
+num__marriage_years_sp_2,0.552955
+num__marriage_years_sp_3,0.404109
+num__marriage_years_sp_4,0.177707
+num__age_at_marriage_sp_0,0.18823
+num__age_at_marriage_sp_1,0.539822
+num__age_at_marriage_sp_2,0.52365
+num__age_at_marriage_sp_3,0.524491
+num__age_at_marriage_sp_4,0.11403
+num__marriage_year_sp_0,-0.208708
+num__marriage_year_sp_1,-0.373239
+num__marriage_year_sp_2,-0.288969
+num__marriage_year_sp_3,-0.261198
+num__marriage_year_sp_4,-0.200654
+cat__sex_Woman,-0.101425
+cat__race_ethnicity_Black,0.734007
+cat__race_ethnicity_Hispanic,0.135845
+cat__race_ethnicity_Other,0.559531
+cat__race_ethnicity_White,0.443149
+cat__nativity_US-born,0.345024
+cat__education_at_wedding_High school,0.494522
+cat__education_at_wedding_Less than high school,0.566696
+cat__education_at_wedding_Some college,0.414422
+cat__education_at_wedding_Unknown,0.550178

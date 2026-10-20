@@ -38,6 +38,12 @@ class AppTests(unittest.TestCase):
     def test_ood_score_matches_python(self):
         self.run_node('ood.test.mjs')
 
+    def test_sipp_bundles(self):
+        self.run_node('sipp.test.mjs')
+
+    def test_acs_bundle(self):
+        self.run_node('acs.test.mjs')
+
     def test_nsfg_pooled_bundle(self):
         self.run_node('nsfg_pooled.test.mjs')
 

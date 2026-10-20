@@ -1,0 +1,34 @@
+variable,value,couple_years,events,weighted_rate_per_1000
+net_worth_band,$0-49k,4231,84,18.79
+net_worth_band,$1M+,8377,30,4.931
+net_worth_band,$250k-999k,11144,72,8.776
+net_worth_band,$50k-249k,7801,76,11.77
+net_worth_band,Negative,2145,50,24.42
+duration_band,0-2 years,1937,35,17.56
+duration_band,11-20 years,5721,57,12.56
+duration_band,21+ years,16401,77,6.055
+duration_band,3-5 years,2037,33,15.58
+duration_band,6-10 years,3298,38,11.79
+home_owner,No,5621,118,19.45
+home_owner,Yes,28077,194,8.904
+wife_education,Associate,3422,35,13.15
+wife_education,Bachelor,8448,64,8.907
+wife_education,Graduate or professional,6214,45,9.782
+wife_education,High school,7852,78,11.68
+wife_education,Less than high school,2704,37,17.47
+wife_education,Some college,5058,53,11.26
+husband_education,Associate,2894,23,9.026
+husband_education,Bachelor,8084,44,6.755
+husband_education,Graduate or professional,6505,37,8.126
+husband_education,High school,8058,104,16.46
+husband_education,Less than high school,3059,50,17.26
+husband_education,Some college,5098,54,11.84
+wife_times_married,Once,25772,183,9.021
+wife_times_married,Three or more,1665,31,24.63
+wife_times_married,Twice,6259,97,17.3
+wife_times_married,Unknown,2,1,762
+wife_race_ethnicity,Asian,2557,17,7.099
+wife_race_ethnicity,Black,1774,24,18.92
+wife_race_ethnicity,Hispanic,4649,71,14.8
+wife_race_ethnicity,Other,706,17,28.5
+wife_race_ethnicity,White,24012,183,9.495
