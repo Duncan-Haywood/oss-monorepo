@@ -1180,6 +1180,7 @@ workflows:
   - job: publish
     step: runs 'publish-branch.sh'
     gates:
+    - github.event_name == 'workflow_dispatch' || vars.PAGES_BRANCH_PUBLISH == 'true'
     - vars.PAGES_BRANCH_PUBLISH == 'true'
 - workflow: pwa-installability-check-ci.yml
   classification: none
