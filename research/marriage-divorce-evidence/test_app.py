@@ -26,8 +26,14 @@ class AppTests(unittest.TestCase):
     def test_nsfg2002_bundle_matches_sklearn(self):
         self.run_node('nsfg2002.test.mjs')
 
+    def test_nsfg2002_family_matches_sklearn(self):
+        self.run_node('nsfg2002_family.test.mjs')
+
     def test_fair_bundles_match_sklearn(self):
         self.run_node('fair.test.mjs')
+
+    def test_ood_score_matches_python(self):
+        self.run_node('ood.test.mjs')
 
     def test_lenses_and_scenarios(self):
         self.run_node('lenses.test.mjs')

@@ -98,6 +98,58 @@ who are not separated, the trees do not reliably beat a constant rate, and the a
 models gain about 2%. The large gain in the second population comes from already being
 separated, which is part of a breakdown already under way, not a trait to choose a partner by.
 
+## Classical model family on NSFG 2002 first marriages
+
+`tools/train_nsfg2002_family.py` reuses the marriage-year intervals, person folds and
+deviance from `../reproducibility/nsfg2002_first_marriage/train_models.py` (4,126 first
+marriages, 1,492 dissolutions, 30,341 marriage-years). It fits four more model families and
+compares everything held out by person against a constant rate. The intervals resample
+women 1,000 times over the saved cross-fitted losses, with folds held fixed
+(`../reproducibility/nsfg2002_first_marriage/family_heldout_comparison.csv`,
+`family_heldout_calibration.csv`; bundle `models/nsfg2002_family.json`).
+
+| Model | Held-out deviance gain vs constant (95% CI) | Observed / expected |
+| --- | --- | --- |
+| Marriage length only (A's baseline curve) | 0.4% (−0.1 to 0.9) | 1.00 |
+| Additive spline Poisson (A's bundle) | 3.0% (2.0 to 4.1) | 0.99 |
+| Discrete-time logistic hazard | 3.0% (1.9 to 4.1) | 1.02 |
+| Poisson gradient boosting, 60 trees of depth 3 | 2.6% (1.6 to 3.7) | 0.97 |
+| Random forest, 40 Poisson trees of depth 4 | 2.3% (1.5 to 3.0) | 0.98 |
+| Categorical naive Bayes | 0.2% (−1.8 to 2.1) | 0.89 |
+
+Flexible models do not beat the additive ones here, which matches the NLSY79 result.
+Naive Bayes ranks marriages about as well as the others, but its independence assumption
+makes it overconfident: in the top tenth of predicted risk it predicts 173 dissolutions per
+1,000 marriage-years against 91 observed. The app should show it with that warning or leave
+it out of averages.
+
+Every family is explained exactly in `engine.js`:
+
+- logistic and naive Bayes: per-input log-odds that sum, with the intercept, to the year's
+  log-odds;
+- forest and boosting: Saabas path attributions, where each split's change in node value is
+  credited to the split's input. These sum exactly to the prediction, in rate units for the
+  forest and log-rate units for boosting.
+
+`contributions()` returns a `scale` field, and `rateFromContributions()` inverts it.
+`tests/nsfg2002_family.test.mjs` matches 272 of 272 scikit-learn predictions to 10<sup>-9</sup>
+and checks that every explanation reproduces its prediction to 10<sup>-12</sup>. Not yet
+done: Cox/Weibull survival models (they need a survival library beyond scikit-learn) and
+k-NN.
+
+### Abstaining on couples unlike anyone in the data
+
+Range checks catch one input at a time. `tools/ood.py` adds a joint check: the squared
+Mahalanobis distance of a couple's fixed inputs (ages at marriage, wedding year, the six
+categorical inputs) from the 4,126 NSFG marriages. `engine.oodScore(bundle.ood, row)` turns
+that distance into a percentile among held-out women, so 99 means only 1% of real held-out
+couples were as unusual. Above `abstain_above_percentile` (99) the app should give no
+number. Examples: a typical couple (wife 24, husband 26, wed 1995) scores the 26th
+percentile; a 38/40 couple wed in 2002, the 86th; a 17/45 couple, the 98.8th; a 16/60
+couple, 99.1 (abstain). The quantiles are in
+`../reproducibility/nsfg2002_first_marriage/family_ood_heldout_quantiles.csv`, and
+`tests/ood.test.mjs` matches Python's distances on 68 rows to 10<sup>-9</sup>.
+
 ## Run and test
 
 ```sh

@@ -482,6 +482,25 @@ export function stayInPrices(spec, res) {
 }
 
 /**
+ * What it costs to lose a food: for each food the plan uses, re-solve with that food removed (a floor you set on it is
+ * dropped too) and report the new daily cost and the extra against today's plan. `cost` is null when no plan meets the
+ * bounds without it, so the food is one the targets depend on. Answers "I am sick of lentils, what does that cost me".
+ * Biggest extra first; "not possible" rows last.
+ */
+export function dropCosts(spec, res) {
+  if (res.status !== "optimal") return [];
+  const out = [];
+  spec.foods.forEach((f, i) => {
+    if (res.servings[i] <= 1e-6) return;
+    const foods = spec.foods.map((g, j) => (j === i ? { ...g, max: 0, min: 0 } : g));
+    const r = solve({ ...spec, foods });
+    const cost = r.status === "optimal" ? r.cost : null;
+    out.push({ index: i, name: f.name, cost, extra: cost === null ? null : Math.max(0, cost - res.cost) });
+  });
+  return out.sort((x, y) => (x.cost === null) - (y.cost === null) || (y.extra ?? 0) - (x.extra ?? 0));
+}
+
+/**
  * Sticker-price ranking of the foods you listed: dollars per 100 g of protein and per 1,000 kcal, cheapest protein
  * first, with whether the plan uses the food. It ignores every other bound, so it answers "what does protein cost
  * here" and not "what should I eat" (the plan does that). Foods with no protein get `per100gProtein: null`.

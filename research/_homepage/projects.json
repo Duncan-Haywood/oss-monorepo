@@ -2948,6 +2948,11 @@
      "summary": "On the 80-design accelerator table from <code>eda-proposers</code>, a screen that synthesises 4 spread designs, fits a log-linear cell-count model, and then synthesises designs in order of predicted Pareto rank finds 0.990 of the true front&rsquo;s hypervolume at 12 syntheses (random 0.860, TPE 0.878; 100 seeds) and the whole front on 87% of seeds by 20. The screen reads cycles and error for free, which the baselines do not: with no cell-count model that alone gives 0.908, so the surrogate adds the rest. Stylised: one small smooth space, the surrogate fitted inside one family, no place and route."
     },
     {
+     "slug": "eda-noisy",
+     "title": "How much error in a cheap objective can design-search proposers tolerate before they stop beating random search?",
+     "summary": "The proposers of <code>eda-proposers</code> are shown objectives with Gaussian error (sigma 0 to 0.8 of each objective&rsquo;s range, fixed per design) and scored on the true objectives, 100 paired seeds. At budget 30 TPE&rsquo;s gain over random falls from +0.037 to +0.022 (sigma 0.2), +0.013 (0.4) and +0.006 (0.8, interval includes 0). NSGA-II and the genetic method are no better than random from sigma 0.1; annealing is worse than random at every sigma. Stylised: synthetic independent noise, one 80-design table, generic-gate cell counts, no place and route."
+    },
+    {
      "slug": "eda-refpoint",
      "title": "Does the ranking of design-search proposers survive a change of hypervolume reference point or quality indicator?",
      "summary": "The 100-seed proposer runs of <code>eda-proposers</code> re-scored under five hypervolume reference points, front recall, IGD+, an epsilon indicator and log-scaled cell counts. The winner (TPE at budgets 16 and 30) is the same under all of them, but its lead over random at budget 30 shrinks from +0.045 (reference 1.01) to +0.002 (reference 5.0), while recall shows +0.279. At budget 8 the order is decided by annealing and flips with the indicator. Stylised: one 80-design space, generic-gate counts, no place and route."
@@ -3705,6 +3710,11 @@
     "slug": "energy-lcos",
     "title": "Which energy-storage technology is cheapest per MWh delivered at 1 hour, 1 day and 3 weeks?",
     "summary": "Levelised cost of storage for lithium-ion, vanadium flow, pumped hydro, cavern compressed air and cavern hydrogen, from capital cost, round-trip efficiency, life, fade and charging power. With round assumed inputs Li-ion is cheapest to about 4 hours ($116/MWh at 4 h) and costs about 3&times; a cavern store at 24 hours ($337 vs $109); cavern hydrogen beats Li-ion above 11 hours but cavern compressed air only above 308 hours. Li-ion would need an energy cost of $43/kWh instead of $200 to win at 24 hours. The 8&ndash;10 hour winner flips with the discount rate and charging price. Stylised: every input is assumed and unsourced, caverns need geology, one fixed use pattern."
+    },
+    {
+    "slug": "energy-cell",
+    "title": "How much better can a lithium-ion cell get by redesigning its electrodes, and does a smarter search help?",
+    "summary": "A PyBaMM single-particle model with electrolyte of an NMC811 / graphite-SiOx cell, scored on discharge energy per kilogram of electrode stack after 100 cycles at a fixed current. Four design numbers (positive thickness, two porosities, negative-to-positive capacity ratio) are searched with 30 evaluations by random search, Gaussian-process Bayesian optimisation (5 seeds each) and the session agent proposing by hand (one run). The reference cell scores 109 Wh/kg; all three reach 141&ndash;143 (+30%) with a thicker, more porous positive electrode and about 30% more negative capacity, and their seed ranges overlap, so no proposer is shown to be better. Limits: one aggressively ageing parameter set, constant-current charge only, stack not finished cell, optimum at the search bounds. Stylised and simulated, not a tested cell."
     }
    ]
   },
@@ -3743,6 +3753,11 @@
     "slug": "society-twinfidelity",
     "title": "Does the robots-in-a-corridor conclusion survive a more humanlike crowd?",
     "summary": "The <code>society-plaza</code> corridor rerun with four crowds of simulated people: varied speeds and sideways-push weights, a 0.4&nbsp;s reaction delay, 30% stubborn walkers, and all three (10 seeds per cell). Adaptive robots stay free and committed robots never flip the crowd (at most 58% prefer their side) in every crowd. The size of the slowdown (a loss of 0.17 to 0.49 of desired speed at 30% robots) and of personal-space intrusions (0.03 to 0.36 of agent time; reaction delay alone gives 0.087 with no robots) depends strongly on the crowd. Hand-chosen perturbations, not fitted to data; simulated walkers only."
+   }
+   ,{
+    "slug": "society-stubborn",
+    "title": "How many robots does it take to change a crowd's walking side when some people never adapt?",
+    "summary": "The <code>society-robotnorms</code> committed-robot model with a share <em>s</em> of stubborn people who always walk right. The mean-field tipping share for memory&nbsp;9 rises from 0.217 (<em>s</em>&nbsp;=&nbsp;0) to 0.240, 0.283 and 0.329 at <em>s</em>&nbsp;=&nbsp;0.2, 0.4 and 0.5, and memory&nbsp;5 and&nbsp;9 coincide from <em>s</em>&nbsp;=&nbsp;0.4. Simulation (200 people, 12 seeds) agrees within 0.02 at every <em>s</em> when &ldquo;tipped&rdquo; means a majority of adaptive people on the robots' side. Conflict costs of committed and adaptive robots are unchanged by stubborn people. Stylised; simulated walkers only."
    }
    ,{
     "slug": "society-show",
