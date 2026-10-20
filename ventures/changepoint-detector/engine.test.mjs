@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import {
-  PAPERS, DEFAULTS, ar1JointFit, analyze, bocpd, defaultPoissonPrior, defaultPrior, gammaPoissonLogMarginal, makeCost, lgamma, nigLogMarginal, optimalPartitioning, ar1Rho, longRunSd, prewhiten, seasonalAdjust, trendAdjust, parseSeries, peaks, pelt, robustSd,
+  PAPERS, DEFAULTS, ar1JointFit, analyze, bocpd, defaultPoissonPrior, defaultPrior, gammaPoissonLogMarginal, makeCost, lgamma, nigLogMarginal, optimalPartitioning, ar1Rho, longRunSd, prewhiten, seasonalAdjust, trendAdjust, parseSeries, peaks, pelt, poissonSeasonalFactors, robustSd,
 } from './engine.mjs';
 
 // Seeded PRNG (mulberry32) and Box-Muller normals, so every test is reproducible.
@@ -316,7 +316,7 @@ test('seasonal period: a level shift hidden by a strong cycle is found once, nea
 
 test('seasonal period and ar1 reject inputs they cannot handle', () => {
   assert.throws(() => analyze({ values: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], period: 12 }), /two full cycles/);
-  assert.throws(() => analyze({ values: Array(40).fill(3), period: 7, model: 'poisson' }), /counts/);
+  assert.throws(() => analyze({ values: Array(40).fill(3), trend: true, model: 'poisson' }), /counts/);
   assert.throws(() => analyze({ values: [1, 2, 3, 4, 5, 6, 7, 8], ar1: true, model: 'meanvar' }), /"mean" model only/);
   const r = analyze({ values: ar1Series(1, 0.8, 100), ar1: true });
   assert.ok(r.ar1.rho > 0.5);
@@ -702,4 +702,68 @@ test('trend bends --joint-knots: the least-squares pair places both knots near t
   }
   assert.ok(near >= 8, `${near} of 12 within 8 points`);
   assert.ok(falseBend <= 1, `${falseBend} false bends`);
+});
+
+// ---- seasonal counts: factors enter the Poisson model as an exposure (seeded)
+
+const WEEK = [0.4, 0.9, 1.1, 1.2, 1.3, 1.6, 0.5]; // mean 1
+function seasonalCounts(seed, n, rate1, rate2 = rate1, at = n) {
+  const r = rng(seed);
+  return Array.from({ length: n }, (_, t) => poissons(r, 1, (t < at ? rate1 : rate2) * WEEK[t % 7])[0]);
+}
+
+test('Poisson cost with an exposure of 1 is the plain cost, and PELT equals brute force with a real exposure', () => {
+  const x = [2, 4, 6, 1, 0, 3, 5, 9, 12];
+  const plain = makeCost(x, 'poisson'), ones = makeCost(x, 'poisson', 1, 0, x.map(() => 1));
+  assert.equal(plain(1, 7), ones(1, 7));
+  const r = rng(31);
+  for (let k = 0; k < 5; k++) {
+    const e = Array.from({ length: 60 }, (_, t) => WEEK[t % 7]);
+    const y = seasonalCounts(300 + k, 60, 4, 10, 30);
+    for (const penalty of ['bic', 'aic']) {
+      assert.deepEqual(pelt(y, { model: 'poisson', penalty, exposure: e }).changepoints, optimalPartitioning(y, { model: 'poisson', penalty, exposure: e }).changepoints);
+    }
+  }
+  void r;
+});
+
+test('Poisson BOCPD evidence with an exposure equals the closed-form marginal when the hazard vanishes', () => {
+  const x = seasonalCounts(11, 42, 6);
+  const e = x.map((_, t) => WEEK[t % 7]);
+  const prior = defaultPoissonPrior(x);
+  const b = bocpd(x, { hazardLambda: 1e15, prior, prune: 0, model: 'poisson', exposure: e });
+  assert.ok(Math.abs(b.logEvidence - gammaPoissonLogMarginal(x, prior, e)) < 1e-6);
+});
+
+test('seasonal factors for counts recover a planted weekly shape and average 1', () => {
+  const { factors } = poissonSeasonalFactors(seasonalCounts(5, 700, 20), 7);
+  assert.ok(Math.abs(factors.reduce((a, v) => a + v, 0) / 7 - 1) < 1e-9);
+  factors.forEach((f, i) => assert.ok(Math.abs(f - WEEK[i]) < 0.12, `phase ${i}: ${f} vs ${WEEK[i]}`));
+  assert.throws(() => poissonSeasonalFactors([1, 2, 3], 7), /two full cycles/);
+});
+
+test('--period on counts: finds a rate shift under a weekly cycle and is not fooled by the cycle (40 seeded series each)', () => {
+  let falsePlain = 0, falsePeriod = 0, hitPlain = 0, hitPeriod = 0;
+  for (let seed = 400; seed < 440; seed++) {
+    if (analyze({ values: seasonalCounts(seed, 168, 8), model: 'poisson' }).pelt.changepoints.length) falsePlain++;
+    if (analyze({ values: seasonalCounts(seed, 168, 8), model: 'poisson', period: 7 }).pelt.changepoints.length) falsePeriod++;
+    const y = seasonalCounts(seed + 1000, 168, 8, 12, 84);
+    const near = (res) => res.pelt.changepoints.some((c) => Math.abs(c.index - 84) <= 7);
+    if (near(analyze({ values: y, model: 'poisson' }))) hitPlain++;
+    const withP = analyze({ values: y, model: 'poisson', period: 7 });
+    if (near(withP)) hitPeriod++;
+  }
+  console.log(`counts + period: false runs ${falsePlain} -> ${falsePeriod} of 40; shift found ${hitPlain} -> ${hitPeriod} of 40`);
+  assert.ok(falsePeriod <= 6, `false runs with period: ${falsePeriod}`);
+  assert.ok(falsePeriod < falsePlain);
+  assert.ok(hitPeriod >= 36);
+});
+
+test('counts with --period keep the counts and report multiplicative factors; --drift is refused', () => {
+  const y = seasonalCounts(7, 140, 8, 14, 70);
+  const r = analyze({ values: y, model: 'poisson', period: 7 });
+  assert.equal(r.seasonal.kind, 'multiplicative');
+  assert.deepEqual(r.values, y);
+  assert.equal(r.adjusted, undefined);
+  assert.throws(() => analyze({ values: y, model: 'poisson', period: 7, drift: true }), /drifting/);
 });

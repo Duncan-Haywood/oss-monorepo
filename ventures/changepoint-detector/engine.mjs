@@ -133,6 +133,31 @@ export function seasonalAdjust(x, period, opts = {}) {
 }
 
 /**
+ * Multiplicative seasonal factors for counts, the Poisson counterpart of seasonalAdjust. The ratio of each point to
+ * a centred moving average of one period, the median ratio per phase, scaled to mean 1 and floored at 0.05 so a
+ * phase that is nearly always empty cannot make the exposure vanish. The counts stay whole numbers: the factors go
+ * to the Poisson model as an exposure (expected count = rate x factor), not subtracted from the data.
+ * Returns { factors } (one per phase) or throws when there are fewer than two cycles.
+ */
+export function poissonSeasonalFactors(x, period) {
+  const m = Math.floor(period);
+  if (!(m >= 2)) throw new Error('The seasonal period must be a whole number of at least 2.');
+  if (x.length < 2 * m) throw new Error(`A seasonal period of ${m} needs at least ${2 * m} points (two full cycles); got ${x.length}.`);
+  const n = x.length, half = Math.floor(m / 2);
+  const phases = Array.from({ length: m }, () => []);
+  for (let t = half; t < n - half; t++) {
+    let sum = 0;
+    if (m % 2) { for (let k = -half; k <= half; k++) sum += x[t + k]; }
+    else { sum = 0.5 * x[t - half] + 0.5 * x[t + half]; for (let k = -half + 1; k < half; k++) sum += x[t + k]; }
+    const avg = sum / m;
+    if (avg > 0) phases[t % m].push(x[t] / avg);
+  }
+  const raw = phases.map((a) => (a.length ? Math.max(0.05, median(a)) : 1));
+  const mean = raw.reduce((s, v) => s + v, 0) / m;
+  return { factors: raw.map((v) => v / mean) };
+}
+
+/**
  * Drifting seasonal shape: each phase's detrended values are smoothed across
  * cycles: a Theil-Sen line through up to 9 cycles on series of 10 or more cycles,
  * a running median of 5 (3 when there are fewer than 6) on shorter ones, so a cycle whose amplitude grows or whose peak moves is followed instead
@@ -525,7 +550,7 @@ export { lgamma };
  * Segment cost function over prefix sums. cost(s, t) is -2 log-likelihood of
  * x[s..t) under the model, maximised over the segment's parameters.
  */
-export function makeCost(x, model = 'mean', sigma = robustSd(x), rho = 0) {
+export function makeCost(x, model = 'mean', sigma = robustSd(x), rho = 0, exposure = null) {
   const n = x.length;
   const S1 = new Float64Array(n + 1);
   const S2 = new Float64Array(n + 1);
@@ -592,8 +617,15 @@ export function makeCost(x, model = 'mean', sigma = robustSd(x), rho = 0) {
   if (model === 'poisson') {
     // -2 log-likelihood of counts with one rate per segment, the constant sum(log x!) dropped:
     // 2 * (a - a log(a / m)), where a is the segment total and m its length (0 when a = 0).
+    // With an exposure (seasonal factors f, mean 1) the rate is per unit of exposure: m becomes the
+    // segment's summed exposure E, and the dropped constant also holds sum(x log f), the same for every segmentation.
+    let E = null;
+    if (exposure) {
+      E = new Float64Array(n + 1);
+      for (let i = 0; i < n; i++) E[i + 1] = E[i] + exposure[i];
+    }
     return (s, t) => {
-      const m = t - s;
+      const m = E ? E[t] - E[s] : t - s;
       const a = S1[t] - S1[s];
       return a > 0 ? 2 * (a - a * Math.log(a / m)) : 0;
     };
@@ -618,11 +650,11 @@ export function penaltyValue(penalty, n, model) {
  * PELT. Returns change locations as indices i where a new segment starts at
  * x[i] (so 0 < i < n), sorted, plus the optimal total cost.
  */
-export function pelt(x, { model = 'mean', penalty = 'bic', minSegment = 2, sigma, rho = 0 } = {}) {
+export function pelt(x, { model = 'mean', penalty = 'bic', minSegment = 2, sigma, rho = 0, exposure = null } = {}) {
   const n = x.length;
   const beta = penaltyValue(penalty, n, model);
   const minSeg = Math.max(1, Math.floor(minSegment));
-  const cost = makeCost(x, model, sigma ?? robustSd(x), rho);
+  const cost = makeCost(x, model, sigma ?? robustSd(x), rho, exposure);
   if (n < 2 * minSeg) return { changepoints: [], cost: n ? cost(0, n) : 0, penalty: beta };
   const F = new Float64Array(n + 1).fill(Infinity);
   const last = new Int32Array(n + 1).fill(-1);
@@ -653,10 +685,10 @@ export function pelt(x, { model = 'mean', penalty = 'bic', minSegment = 2, sigma
 }
 
 /** O(n^2) optimal partitioning with no pruning: the reference PELT must match (tests). */
-export function optimalPartitioning(x, { model = 'mean', penalty = 'bic', minSegment = 2, sigma, rho = 0 } = {}) {
+export function optimalPartitioning(x, { model = 'mean', penalty = 'bic', minSegment = 2, sigma, rho = 0, exposure = null } = {}) {
   const n = x.length;
   const beta = penaltyValue(penalty, n, model);
-  const cost = makeCost(x, model, sigma ?? robustSd(x), rho);
+  const cost = makeCost(x, model, sigma ?? robustSd(x), rho, exposure);
   const F = new Float64Array(n + 1).fill(Infinity);
   const last = new Int32Array(n + 1).fill(-1);
   F[0] = -beta;
@@ -683,7 +715,7 @@ export function optimalPartitioning(x, { model = 'mean', penalty = 'bic', minSeg
  * `changeProb[i]`: the posterior probability, given x[0..i+lag], that a new
  * segment started at x[i]. Also returns the log evidence sum log p(x_t | x_<t).
  */
-export function bocpd(x, { hazardLambda = 100, lag = 5, prior, prune = 1e-10, model = 'mean', rho = 0 } = {}) {
+export function bocpd(x, { hazardLambda = 100, lag = 5, prior, prune = 1e-10, model = 'mean', rho = 0, exposure = null } = {}) {
   const n = x.length;
   const H = 1 / Math.max(1, hazardLambda);
   const pois = model === 'poisson';
@@ -713,7 +745,7 @@ export function bocpd(x, { hazardLambda = 100, lag = 5, prior, prune = 1e-10, mo
     const zAt = (i) => (rl[i] === 0 ? xt * a0 : t ? xt - rho * x[t - 1] : (1 - rho) * xt);
     const aAt = (i) => (rl[i] === 0 ? a0 : 1 - rho);
     for (let i = 0; i < m; i++) {
-      if (pois) logPred[i] = gammaPoissonLogPmf(xt, alpha[i], beta[i]);
+      if (pois) logPred[i] = gammaPoissonLogPmf(xt, alpha[i], beta[i], exposure ? exposure[t] : 1);
       else if (!rho) logPred[i] = studentLogPdf(xt, mu[i], kappa[i], alpha[i], beta[i]);
       else logPred[i] = studentLogPdfReg(zAt(i), aAt(i), mu[i], kappa[i], alpha[i], beta[i]) + (rl[i] === 0 ? Math.log(a0) : 0);
     }
@@ -743,7 +775,7 @@ export function bocpd(x, { hazardLambda = 100, lag = 5, prior, prune = 1e-10, mo
       nk.push(k1);
       if (pois) {
         na.push(alpha[i] + xt);
-        nb.push(beta[i] + 1);
+        nb.push(beta[i] + (exposure ? exposure[t] : 1));
       } else {
         na.push(alpha[i] + 0.5);
         nb.push(beta[i] + (kappa[i] * (xt - mu[i]) ** 2) / (2 * k1));
@@ -801,15 +833,17 @@ export function defaultPoissonPrior(x) {
 }
 
 /** log P(k) for a Poisson count whose rate has a Gamma(alpha, beta) posterior: negative binomial. */
-function gammaPoissonLogPmf(k, alpha, beta) {
-  return lgamma(k + alpha) - lgamma(alpha) - lgamma(k + 1) + alpha * Math.log(beta / (beta + 1)) - k * Math.log(beta + 1);
+function gammaPoissonLogPmf(k, alpha, beta, e = 1) {
+  return lgamma(k + alpha) - lgamma(alpha) - lgamma(k + 1) + alpha * Math.log(beta / (beta + e)) + k * Math.log(e / (beta + e));
 }
 
 /** Closed-form log marginal likelihood of counts under one Gamma-Poisson segment (test reference for hazard -> 0). */
-export function gammaPoissonLogMarginal(x, { alpha, beta }) {
+export function gammaPoissonLogMarginal(x, { alpha, beta }, exposure = null) {
   const a = x.reduce((s, v) => s + v, 0);
   const logFact = x.reduce((s, v) => s + lgamma(v + 1), 0);
-  return alpha * Math.log(beta) - lgamma(alpha) + lgamma(alpha + a) - (alpha + a) * Math.log(beta + x.length) - logFact;
+  const E = exposure ? exposure.reduce((s, v) => s + v, 0) : x.length;
+  const logE = exposure ? x.reduce((s, v, i) => s + v * Math.log(exposure[i]), 0) : 0;
+  return alpha * Math.log(beta) - lgamma(alpha) + lgamma(alpha + a) - (alpha + a) * Math.log(beta + E) - logFact + logE;
 }
 
 function studentLogPdf(x, mu, kappa, alpha, beta) {
@@ -893,11 +927,14 @@ export function analyze(input = {}) {
     if (bad >= 0) throw new Error(`The Poisson model needs counts (whole numbers, 0 or more); row ${bad + 1} is ${values[bad]}.`);
   }
   const period = Math.floor(Number(o.period) || 0);
-  let profile = null;
+  let profile = null, exposure = null;
   const original = values;
   if (period) {
-    if (model === 'poisson') throw new Error('The seasonal adjustment subtracts a profile, which breaks counts: use "mean" or "meanvar" with a period.');
-    ({ adjusted: values, profile } = seasonalAdjust(original, period, { drift: !!o.drift }));
+    if (model === 'poisson') {
+      if (o.drift) throw new Error('A drifting seasonal shape is not available for counts: drop --drift, or use "mean" or "meanvar".');
+      profile = poissonSeasonalFactors(original, period).factors;
+      exposure = values.map((_, t) => profile[t % period]);
+    } else ({ adjusted: values, profile } = seasonalAdjust(original, period, { drift: !!o.drift }));
   }
   let slope = null, slopeAfter, knot, knots, slopes;
   if (o.trend) {
@@ -917,12 +954,13 @@ export function analyze(input = {}) {
   if (joint) {
     p = ar1JointFit(values, { penalty: o.penalty, minSegment });
     ({ rho, sigma } = p);
-  } else p = pelt(values, { model, penalty: o.penalty, minSegment, sigma });
+  } else p = pelt(values, { model, penalty: o.penalty, minSegment, sigma, exposure });
   const bounds = [0, ...p.changepoints, values.length];
   const segments = [];
   const lines = [];
   for (let i = 0; i + 1 < bounds.length; i++) {
-    const s = stats(values.slice(bounds[i], bounds[i + 1]));
+    // With seasonal factors the Poisson rate is counts per unit of exposure, and the spread is of the deseasonalised counts.
+    const s = stats(exposure ? values.slice(bounds[i], bounds[i + 1]).map((v, k) => v / exposure[bounds[i] + k]) : values.slice(bounds[i], bounds[i + 1]));
     const seg = { start: bounds[i], end: bounds[i + 1] - 1, from: labels[bounds[i]], to: labels[bounds[i + 1] - 1], n: s.n, mean: round(s.mean), sd: round(s.sd) };
     if (model === 'trend') {
       const f = lineFit(values, bounds[i], bounds[i + 1]);
@@ -940,7 +978,7 @@ export function analyze(input = {}) {
     const slope = median(values.slice(1).map((v, i) => v - values[i]));
     bvals = values.map((v, i) => v - slope * i);
   }
-  const b = bocpd(bvals, { ...(rho ? { rho, prior: { ...defaultPrior(prewhiten(values, rho)), mu: median(values) } } : {}), hazardLambda: Number(o.hazardLambda) || 100, lag: Math.max(1, Math.floor(Number(o.lag) || 5)), model: model === 'trend' ? 'mean' : model });
+  const b = bocpd(bvals, { ...(rho ? { rho, prior: { ...defaultPrior(prewhiten(values, rho)), mu: median(values) } } : {}), hazardLambda: Number(o.hazardLambda) || 100, lag: Math.max(1, Math.floor(Number(o.lag) || 5)), model: model === 'trend' ? 'mean' : model, exposure });
   const det = peaks(b.changeProb, Number(o.threshold) || 0.5);
   const changes = p.changepoints.map((i, k) => {
     const before = segments[k];
@@ -974,7 +1012,7 @@ export function analyze(input = {}) {
     skipped,
     model,
     noiseSd: round(sigma),
-    ...(period ? { seasonal: { period, profile: profile.map((v) => round(v)) } } : {}),
+    ...(period ? { seasonal: { period, ...(exposure ? { kind: 'multiplicative' } : {}), profile: profile.map((v) => round(v)) } } : {}),
     ...(slope !== null ? { trend: { slopePerPoint: round(slope, 6), ...(knot !== undefined ? { slopeAfter: round(slopeAfter, 6), slopeChangesAt: knot, ...(knots.length > 1 ? { slopeChangesAtAll: knots, slopes: slopes.map((v) => round(v, 6)) } : {}) } : {}) } } : {}),
     ...(rho !== null ? { ar1: { rho: round(rho, 3) } } : {}),
     pelt: { penalty: round(p.penalty), minSegment, changepoints: changes, segments },
@@ -988,7 +1026,7 @@ export function analyze(input = {}) {
     },
     labels,
     values: original,
-    ...(period || o.trend ? { adjusted: values.map((v) => round(v)) } : {}),
+    ...(!exposure && (period || o.trend) ? { adjusted: values.map((v) => round(v)) } : {}),
     summary,
   };
 }
