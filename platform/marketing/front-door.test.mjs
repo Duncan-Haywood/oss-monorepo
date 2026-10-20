@@ -1031,8 +1031,8 @@ test('the committed category pages match what this generator produces', async ()
   // `SUBCATEGORY_RULES` behind `groupBySubcategory`. Editing a category's copy
   // there is an edit to seven published pages that names none of them, and the
   // only thing standing between that and a stale deploy is this assertion.
-  // `hetzner-gitops-ci.yml` already triggers on `platform/pages/build.mjs`, so
-  // such an edit runs this test.
+  // `portfolio-validate.yml` triggers on `platform/pages/**`, so such an edit
+  // runs this test.
   const { categoryPages } = await buildFrontDoor();
   for (const page of categoryPages) {
     // Compared after inflating rather than by re-gzipping and matching bytes,

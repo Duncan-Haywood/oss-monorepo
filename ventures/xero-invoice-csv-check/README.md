@@ -29,6 +29,9 @@ numbers and two-digit years; due date before invoice date; quantity, unit amount
 formats; account code and tax type shape; invoice number and contact spelling variants; Excel
 damage; currency codes; email; tracking pairs; encoding; file length.
 
+The report also prints control totals (net before tax, per currency, with invoice counts) so a
+bookkeeper can reconcile the file against the source system before importing.
+
 ## Safe fixes and splitting
 
 `repair()` changes only things with one reasonable reading and lists every change. It never edits a
