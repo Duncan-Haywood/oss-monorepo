@@ -53,8 +53,8 @@ case "$1" in
   check.mjs) echo "stub: looks publishable" ;;
   */deploy/build.mjs|*/devstats/build.mjs|*/daily/build.mjs)
     # The self-deploy page (platform/deploy/), the development dashboard
-    # (platform/devstats/) and the daily brief (platform/daily/, PR #8717),
-    # all built after check.mjs.
+    # (platform/devstats/) and the daily brief (platform/daily/), all built
+    # after check.mjs.
     for arg in "$@"; do
       case "$arg" in --out=*) mkdir -p "${arg#--out=}" ;; esac
     done

@@ -81,7 +81,110 @@ export const DEFAULTS = {
   lag: 5,
   // BOCPD reports candidates whose probability reaches this.
   threshold: 0.5,
+  // Seasonal period in points (12 for monthly data with a yearly cycle, 7 for
+  // daily data with a weekly one); 0 or null for none. The per-phase median of
+  // the detrended series is subtracted before detection ('mean' and 'meanvar').
+  period: 0,
+  // true: widen the noise scale of the 'mean' model for lag-1 autocorrelation
+  // so a drifting, sticky series is not cut into many false segments. 'joint': fit the
+  // segment means and rho together on the exact AR(1) likelihood (more power on small shifts).
+  ar1: false,
 };
+
+// ---------------------------------------------------------------- pre-steps
+
+/**
+ * Classical seasonal adjustment with medians. Detrend with a centred moving
+ * average of one period, take the median of each phase, centre the profile at
+ * zero and subtract it. The median keeps a level shift (which sits in the
+ * detrended series only near the shift) out of the profile.
+ * Returns { adjusted, profile } or throws when there are fewer than two cycles.
+ */
+export function seasonalAdjust(x, period) {
+  const m = Math.floor(period);
+  if (!(m >= 2)) throw new Error('The seasonal period must be a whole number of at least 2.');
+  if (x.length < 2 * m) throw new Error(`A seasonal period of ${m} needs at least ${2 * m} points (two full cycles); got ${x.length}.`);
+  const n = x.length;
+  // centred moving average of length m (2 x m for even m)
+  const trend = new Array(n).fill(null);
+  const half = Math.floor(m / 2);
+  for (let t = half; t < n - half; t++) {
+    let sum = 0;
+    if (m % 2) { for (let k = -half; k <= half; k++) sum += x[t + k]; trend[t] = sum / m; }
+    else { sum = 0.5 * x[t - half] + 0.5 * x[t + half]; for (let k = -half + 1; k < half; k++) sum += x[t + k]; trend[t] = sum / m; }
+  }
+  const phases = Array.from({ length: m }, () => []);
+  for (let t = 0; t < n; t++) if (trend[t] !== null) phases[t % m].push(x[t] - trend[t]);
+  const raw = phases.map((a) => (a.length ? median(a) : 0));
+  const centre = raw.reduce((s, v) => s + v, 0) / m;
+  const profile = raw.map((v) => v - centre);
+  return { adjusted: x.map((v, t) => v - profile[t % m]), profile };
+}
+
+/**
+ * Lag-1 autocorrelation of the noise, robust to level shifts. For AR(1) noise
+ * the first differences have lag-1 correlation -(1 - rho) / 2, and a level
+ * shift touches one difference only, which is clipped at 3 robust sds.
+ * Returns rho clipped to [0, 0.95].
+ */
+export function ar1Rho(x) {
+  const d = [];
+  for (let i = 1; i < x.length; i++) d.push(x[i] - x[i - 1]);
+  if (d.length < 10) return 0;
+  const md = median(d);
+  const mad = median(d.map((v) => Math.abs(v - md))) / 0.6744897501960817;
+  if (!(mad > 0)) return 0;
+  const c = d.map((v) => Math.max(-3 * mad, Math.min(3 * mad, v - md)));
+  let num = 0, den = 0;
+  for (let i = 0; i < c.length; i++) { den += c[i] * c[i]; if (i) num += c[i] * c[i - 1]; }
+  const rd = num / den;
+  return Math.max(0, Math.min(0.95, 1 + 2 * rd));
+}
+
+/** Long-run noise sd of AR(1) noise from the difference-based sd: sd * sqrt(1 + rho) / (1 - rho). */
+export function longRunSd(sd, rho) {
+  return sd * Math.sqrt(1 + rho) / (1 - rho);
+}
+
+/**
+ * AR(1) prewhitening: y[t] = x[t] - rho x[t-1] (y[0] = (1 - rho) x[0]). Independent noise
+ * stays independent for the Bayesian pass, and a level shift of d becomes d at the
+ * change point and d (1 - rho) after it. The change keeps its index.
+ */
+export function prewhiten(x, rho) {
+  return x.map((v, t) => (t ? v - rho * x[t - 1] : (1 - rho) * v));
+}
+
+/**
+ * Joint mean-plus-AR(1) fit: PELT on the exact AR(1) likelihood ('ar1mean'), then rho and the
+ * innovation sd are re-estimated from the residuals about the fitted segment means (which a level
+ * shift no longer pollutes) and PELT is run again, three passes in all.
+ * Returns { changepoints, rho, sigma (innovation sd), penalty }.
+ */
+export function ar1JointFit(x, { penalty = 'bic', minSegment = 2, passes = 3 } = {}) {
+  let rho = ar1Rho(x);
+  let sigma = robustSd(x) * Math.sqrt(1 + rho);
+  let p;
+  for (let it = 0; it < passes; it++) {
+    p = pelt(x, { model: 'ar1mean', penalty, minSegment, sigma, rho });
+    if (it === passes - 1) break;
+    const b = [0, ...p.changepoints, x.length];
+    const res = new Array(x.length);
+    for (let k = 0; k + 1 < b.length; k++) {
+      let m = 0;
+      for (let i = b[k]; i < b[k + 1]; i++) m += x[i];
+      m /= b[k + 1] - b[k];
+      for (let i = b[k]; i < b[k + 1]; i++) res[i] = x[i] - m;
+    }
+    let num = 0, den = 0;
+    for (let i = 1; i < x.length; i++) { num += res[i] * res[i - 1]; den += res[i - 1] ** 2; }
+    rho = den > 0 ? Math.max(0, Math.min(0.95, num / den)) : 0;
+    let ss = 0;
+    for (let i = 1; i < x.length; i++) ss += (res[i] - rho * res[i - 1]) ** 2;
+    sigma = Math.sqrt(ss / (x.length - 1)) || sigma;
+  }
+  return { ...p, rho, sigma };
+}
 
 // ---------------------------------------------------------------- input
 
@@ -198,7 +301,7 @@ export { lgamma };
  * Segment cost function over prefix sums. cost(s, t) is -2 log-likelihood of
  * x[s..t) under the model, maximised over the segment's parameters.
  */
-export function makeCost(x, model = 'mean', sigma = robustSd(x)) {
+export function makeCost(x, model = 'mean', sigma = robustSd(x), rho = 0) {
   const n = x.length;
   const S1 = new Float64Array(n + 1);
   const S2 = new Float64Array(n + 1);
@@ -210,6 +313,26 @@ export function makeCost(x, model = 'mean', sigma = robustSd(x)) {
       const m = t - s;
       const a = S1[t] - S1[s];
       return Math.max(0, S2[t] - S2[s] - (a * a) / m) / s2;
+    };
+  }
+  if (model === 'ar1mean') {
+    // Segment means with AR(1) noise of known rho and innovation sd sigma, conditional on
+    // the segment start being a stationary draw: u[i] = x[i] - rho x[i-1] has mean (1-rho) mu,
+    // x[s] has precision weight 1-rho^2. Minimising over mu is a quadratic with prefix sums.
+    const U1 = new Float64Array(n + 1);
+    const U2 = new Float64Array(n + 1);
+    for (let i = 0; i < n; i++) {
+      const u = i ? x[i] - rho * x[i - 1] : 0;
+      U1[i + 1] = U1[i] + u; U2[i + 1] = U2[i] + u * u;
+    }
+    const c = 1 - rho, w0 = 1 - rho * rho, s2 = sigma * sigma;
+    return (s, t) => {
+      const m = t - s;
+      const su = U1[t] - U1[s + 1], suu = U2[t] - U2[s + 1];
+      const A = w0 + (m - 1) * c * c;
+      const B = w0 * x[s] + c * su;
+      const C = w0 * x[s] * x[s] + suu;
+      return Math.max(0, C - (B * B) / A) / s2 - Math.log(w0);
     };
   }
   if (model === 'meanvar') {
@@ -251,11 +374,11 @@ export function penaltyValue(penalty, n, model) {
  * PELT. Returns change locations as indices i where a new segment starts at
  * x[i] (so 0 < i < n), sorted, plus the optimal total cost.
  */
-export function pelt(x, { model = 'mean', penalty = 'bic', minSegment = 2, sigma } = {}) {
+export function pelt(x, { model = 'mean', penalty = 'bic', minSegment = 2, sigma, rho = 0 } = {}) {
   const n = x.length;
   const beta = penaltyValue(penalty, n, model);
   const minSeg = Math.max(1, Math.floor(minSegment));
-  const cost = makeCost(x, model, sigma ?? robustSd(x));
+  const cost = makeCost(x, model, sigma ?? robustSd(x), rho);
   if (n < 2 * minSeg) return { changepoints: [], cost: n ? cost(0, n) : 0, penalty: beta };
   const F = new Float64Array(n + 1).fill(Infinity);
   const last = new Int32Array(n + 1).fill(-1);
@@ -286,10 +409,10 @@ export function pelt(x, { model = 'mean', penalty = 'bic', minSegment = 2, sigma
 }
 
 /** O(n^2) optimal partitioning with no pruning: the reference PELT must match (tests). */
-export function optimalPartitioning(x, { model = 'mean', penalty = 'bic', minSegment = 2, sigma } = {}) {
+export function optimalPartitioning(x, { model = 'mean', penalty = 'bic', minSegment = 2, sigma, rho = 0 } = {}) {
   const n = x.length;
   const beta = penaltyValue(penalty, n, model);
-  const cost = makeCost(x, model, sigma ?? robustSd(x));
+  const cost = makeCost(x, model, sigma ?? robustSd(x), rho);
   const F = new Float64Array(n + 1).fill(Infinity);
   const last = new Int32Array(n + 1).fill(-1);
   F[0] = -beta;
@@ -499,16 +622,34 @@ export function analyze(input = {}) {
     const bad = values.findIndex((v) => v < 0 || !Number.isInteger(v));
     if (bad >= 0) throw new Error(`The Poisson model needs counts (whole numbers, 0 or more); row ${bad + 1} is ${values[bad]}.`);
   }
-  const sigma = robustSd(values);
+  const period = Math.floor(Number(o.period) || 0);
+  let profile = null;
+  const original = values;
+  if (period) {
+    if (model === 'poisson') throw new Error('The seasonal adjustment subtracts a profile, which breaks counts: use "mean" or "meanvar" with a period.');
+    ({ adjusted: values, profile } = seasonalAdjust(original, period));
+  }
+  let sigma = robustSd(values);
+  let rho = null;
+  const joint = o.ar1 === 'joint';
+  if (o.ar1) {
+    if (model !== 'mean') throw new Error('The autocorrelation correction is for the "mean" model only.');
+    rho = ar1Rho(values);
+    if (!joint) sigma = longRunSd(sigma, rho);
+  }
   const minSegment = Math.max(1, Math.floor(Number(o.minSegment) || (model === 'meanvar' ? 5 : 2)));
-  const p = pelt(values, { model, penalty: o.penalty, minSegment, sigma });
+  let p;
+  if (joint) {
+    p = ar1JointFit(values, { penalty: o.penalty, minSegment });
+    ({ rho, sigma } = p);
+  } else p = pelt(values, { model, penalty: o.penalty, minSegment, sigma });
   const bounds = [0, ...p.changepoints, values.length];
   const segments = [];
   for (let i = 0; i + 1 < bounds.length; i++) {
     const s = stats(values.slice(bounds[i], bounds[i + 1]));
     segments.push({ start: bounds[i], end: bounds[i + 1] - 1, from: labels[bounds[i]], to: labels[bounds[i + 1] - 1], n: s.n, mean: round(s.mean), sd: round(s.sd) });
   }
-  const b = bocpd(values, { hazardLambda: Number(o.hazardLambda) || 100, lag: Math.max(1, Math.floor(Number(o.lag) || 5)), model });
+  const b = bocpd(rho ? prewhiten(values, rho) : values, { hazardLambda: Number(o.hazardLambda) || 100, lag: Math.max(1, Math.floor(Number(o.lag) || 5)), model });
   const det = peaks(b.changeProb, Number(o.threshold) || 0.5);
   const changes = p.changepoints.map((i, k) => {
     const before = segments[k];
@@ -522,7 +663,7 @@ export function analyze(input = {}) {
       meanBefore: before.mean,
       meanAfter: after.mean,
       shift: round(after.mean - before.mean),
-      shiftInNoiseSd: round((after.mean - before.mean) / sigma, 3),
+      shiftInNoiseSd: round((after.mean - before.mean) / (joint ? longRunSd(sigma / Math.sqrt(1 + rho), rho) : sigma), 3),
       sdBefore: before.sd,
       sdAfter: after.sd,
       bocpdProbWithin3: round(near, 3),
@@ -535,6 +676,8 @@ export function analyze(input = {}) {
     skipped,
     model,
     noiseSd: round(sigma),
+    ...(period ? { seasonal: { period, profile: profile.map((v) => round(v)) } } : {}),
+    ...(rho !== null ? { ar1: { rho: round(rho, 3) } } : {}),
     pelt: { penalty: round(p.penalty), minSegment, changepoints: changes, segments },
     bocpd: {
       hazardLambda: Number(o.hazardLambda) || 100,
@@ -545,7 +688,8 @@ export function analyze(input = {}) {
       mapRunLength: b.mapRun,
     },
     labels,
-    values,
+    values: original,
+    ...(period ? { adjusted: values.map((v) => round(v)) } : {}),
     summary,
   };
 }

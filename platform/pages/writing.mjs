@@ -36,6 +36,11 @@ export const WRITING_PATH = 'writing/';
 export const POSTS_DIR = 'docs/posts';
 const REPO_BLOB = 'https://github.com/Duncan-Haywood/oss-monorepo/blob/main/';
 const FILE_RE = /^(\d{4}-\d{2}-\d{2})-([a-z0-9][a-z0-9-]*)\.md$/;
+// Posts link live tools by their full Pages URL so the Markdown reads right on
+// GitHub. On the site those links become root-relative, so a build under a
+// custom domain does not point readers (or canonical signals) at the old origin.
+const PUBLISHED_ORIGIN = 'https://duncan-haywood.github.io/monorepo-projects/';
+export const relinkSite = (html, toRoot) => html.split(`href="${PUBLISHED_ORIGIN}`).join(`href="${toRoot}`);
 
 /** Parse the `---` front-matter block. Returns { meta, body }. Only the subset posts use. */
 export function parseFrontMatter(src) {
@@ -235,7 +240,7 @@ export function renderPost(post, posts, { baseUrl = '', socialCard = '' } = {}) 
 <p class="dek">${esc(post.description)}</p>
 <p class="meta"><time datetime="${post.date}">${longDate(post.date)}</time> · ${post.minutes} min read ·
 <a href="${REPO_BLOB}${esc(post.source)}">Source</a>${tags ? `<br>${tags}` : ''}</p>
-${linkSiblings(renderMarkdown(post.body, { fromPath: post.source, dropTitle: true }), posts)}
+${relinkSite(linkSiblings(renderMarkdown(post.body, { fromPath: post.source, dropTitle: true }), posts), '../../')}
 </article>
 <section class="more" aria-label="More writing">
 <p><strong>More writing</strong></p>

@@ -3669,6 +3669,8 @@ const CATEGORY_RULES = [
         'freelance-editor-quote-calculator',
         'gig-driver-net-pay-calculator',
         'influencer-media-kit-generator',
+        // `interview-content-studio` joined 2026-10-20: a creator or small business planning and drafting its own posts across platforms is one person building their own audience, beside the media kit and sponsorship-rate tools.
+        'interview-content-studio',
         'newsletter-sponsorship-rate-calculator',
         'overtime-pay-calculator',
         'personal-trainer-package-pricing-calculator',

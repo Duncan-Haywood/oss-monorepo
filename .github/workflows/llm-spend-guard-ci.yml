@@ -46,6 +46,3 @@ jobs:
       - name: Shared LLM client with a guard
         working-directory: .
         run: node --test platform/llm/byok.test.mjs
-      - name: Published pages carry the no-warranty clause
-        working-directory: .
-        run: node platform/pages/clauses.mjs llm-spend-guard

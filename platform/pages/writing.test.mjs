@@ -107,3 +107,9 @@ test('every committed post parses', () => {
   assert.ok(posts.length >= 1);
   for (const p of posts) assert.ok(p.title && p.description && /^\d{4}-\d{2}-\d{2}$/.test(p.date));
 });
+
+test('links to the published catalogue become root-relative on the site', async () => {
+  const { relinkSite } = await import('./writing.mjs');
+  const html = '<a href="https://duncan-haywood.github.io/monorepo-projects/changepoint-detector/">x</a> <a href="https://example.com/">y</a>';
+  assert.equal(relinkSite(html, '../../'), '<a href="../../changepoint-detector/">x</a> <a href="https://example.com/">y</a>');
+});

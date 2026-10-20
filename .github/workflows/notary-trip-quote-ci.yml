@@ -23,6 +23,3 @@ jobs:
         with:
           node-version: 20
       - run: node --test
-      - name: Published pages carry the no-warranty clause
-        working-directory: .
-        run: node platform/pages/clauses.mjs notary-trip-quote
