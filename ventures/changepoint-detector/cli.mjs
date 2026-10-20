@@ -24,7 +24,8 @@ Options:
   --penalty bic|aic|hannan-quinn|<number>   PELT penalty per change (default: bic)
   --min-segment <n>         shortest segment (default: 2 for mean, 5 for meanvar)
   --period <n>              remove a seasonal cycle of n points first (12 monthly, 7 daily-weekly); mean/meanvar
-  --ar1                     widen the noise scale for lag-1 autocorrelation (mean model)
+  --ar1 [joint]             allow for lag-1 autocorrelation (mean model): widen the noise scale, or
+                            'joint' to fit the means and rho together (more power on small shifts)
   --hazard <n>              Bayesian expected points between changes (default: ${DEFAULTS.hazardLambda})
   --threshold <p>           report Bayesian changes at or above p (default: ${DEFAULTS.threshold})
   --example                 run on the bundled Nile river flow series
@@ -47,7 +48,7 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
     if (a === '-h' || a === '--help') { out(USAGE + '\n'); return 0; }
     else if (a === '--json') json = true;
     else if (a === '--example') example = true;
-    else if (a === '--ar1') opt.ar1 = true;
+    else if (a === '--ar1') opt.ar1 = argv[i + 1] === 'joint' ? (i++, 'joint') : true;
     else if (flags[a]) {
       if (i + 1 >= argv.length) throw new Error(`${a} needs a value`);
       opt[flags[a]] = argv[++i];

@@ -32,8 +32,9 @@ flagships:
       synthetic series (README Verification), and --ar1 now prewhitens the Bayesian
       pass too (false detections 40/40 -> 1/40, power 25/40). Next: a check of all
       three models against R's changepoint package output (R was not available),
-      raising the power lost to prewhitening (e.g. a joint mean-plus-AR(1)
-      likelihood), and an STL step for a drifting seasonal shape.
+      raising the power lost to prewhitening in the Bayesian pass (the PELT side now has a
+      joint mean-plus-AR(1) fit, --ar1 joint: 34/40 power at shift 4 against 28/40, same 4/40
+      false runs), and an STL step for a drifting seasonal shape.
   - venture: einvoice-preflight
     why: >-
       Real EN 16931 validator (JSON, UBL, CII, Factur-X PDF; 54+ rules,
