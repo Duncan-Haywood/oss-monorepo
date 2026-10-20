@@ -3922,6 +3922,11 @@
     "summary": "An hourly simulation of rooftop solar plus a battery on an 8,000 kWh/yr home, over 20 seeded synthetic weather years (Haurwitz clear sky, a three-state cloud chain, an invented load) with assumed round-number prices. A 6 kW array alone meets 35% of the load; 5, 10 and 15 kWh of battery lift that to 49%, 59% and 62%, then returns diminish fast. With import at $0.30 and export at $0.05 per kWh a 10 kWh battery pays only below about $451/kWh installed (assumed $800), $143 at $0.20 export, and never when export is paid at the import price. Stylised: synthetic weather, flat tariff, no incentives or degradation; not installation advice."
    },
    {
+    "slug": "energy-tou",
+    "title": "Does time-of-use pricing make a home battery pay, and which size?",
+    "summary": "Adds an hourly time-of-use import price to <code>energy-home</code>'s solar-plus-battery model (10 seeded synthetic weather years, assumed three-band tariff with the same $0.296 average as a flat $0.30). A 10 kWh battery behind 6 kW of PV breaks even at $641/kWh installed with peak-only discharge and off-peak grid charging, against $444 on the flat tariff, still under the assumed $800. Only small batteries clear $800 ($856 at 2.5 kWh, $847 at 5 kWh); 15 and 20 kWh fall to $427 and $320. Half-filling from the grid ($674) beats a full fill ($641). Break-even tracks the peak price ($307, $641, $1,208 at $0.28, $0.45, $0.70). Stylised: assumed tariff, synthetic weather, fixed dispatch rule, no degradation."
+   },
+   {
     "slug": "energy-mix",
     "title": "What is the cheapest mix of solar, wind, gas and storage that cuts a power system's emissions, and what does the last 5% cost?",
     "summary": "A single-node PyPSA model of Germany's 2019 hourly demand (ENTSO-E data via Open Power System Data) with solar, wind, gas, a battery and hydrogen storage sized together under an emissions cap. Gas alone costs $79/MWh; a 50% cut adds $5.6 using wind only; 80%, 90%, 95% and 100% cuts cost $113, $131, $144 and $177/MWh, the last needing 10.6 TWh of hydrogen storage. Implied abatement cost rises from $30/t to $1,765/t for the last 5%. At zero emissions the hydrogen tank price moves the answer from $152 to $254/MWh; without hydrogen, batteries alone give $287. Stylised: assumed costs, one weather year, one node, no grid."

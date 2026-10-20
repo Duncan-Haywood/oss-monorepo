@@ -1,0 +1,13 @@
+[project]
+name = "energy-tou"
+version = "0.1.0"
+description = "Does time-of-use pricing lift a home battery's break-even installed price above a flat tariff's? Builds on energy-home"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "../energy-home/src"]
