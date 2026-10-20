@@ -250,6 +250,19 @@ export function trendAdjust(x, { penalty = 'bic', minSegment = 2, passes = 10, a
       if (!found) break;
       best = found;
     }
+    // the grid is coarse on long series (every 6th point at 240): a knot a few points off leaves a small kink that PELT cuts, so refine each knot at every point
+    if (step > 1) {
+      for (let j = 0; j < best.knots.length; j++) {
+        const k0 = best.knots[j];
+        for (let knot = k0 - step + 1; knot < k0 + step; knot++) {
+          if (knot === k0 || knot < Math.ceil(0.2 * n) || knot > Math.floor(0.8 * n)) continue;
+          const ks = best.knots.map((k, i) => (i === j ? knot : k)).sort((p, q) => p - q);
+          if (ks.some((k, i) => i && k - ks[i - 1] < gap)) continue;
+          const f = fit(ks);
+          if (f.bic < best.bic) best = f;
+        }
+      }
+    }
   }
   const out = { adjusted: detrend(line(best.s, best.knots)), slope: best.s[0] };
   if (best.knots.length) Object.assign(out, { slopeAfter: best.s[1], knot: best.knots[0], knots: best.knots, slopes: best.s });

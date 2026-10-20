@@ -178,6 +178,17 @@ series, 40 each, in `engine.test.mjs`):
   1.05 with `--trend bends`; two knots found in 40 of 40 (mean 81.6 and 161.7 for a true 80 and 160); on 40 straight
   ramps a bend was kept in 0 of 40. At most three bends, knots only between 20% and 80% of the series. Output:
   `trend.slopeChangesAtAll` and `trend.slopes` when there is more than one. About 0.5 s per 240-point series.
+- **`--trend bends` with `--period` and `--ar1`, and knots refined to the point.** The knot search stepped every
+  6th point on 240-point series, so a knot a few points off left a small kink that PELT then cut. After the greedy
+  search each knot is now tried at every point within one step of it (BIC, same rule). Measured on 240 points, slope
+  0.1 then 0.2 from point 80 then -0.05 from 160, a 12-point cycle of amplitude 6, no shift (seeds 3001..3040) and a
+  shift of 5 at 180 (4001..4040), `--period 12 --trend bends`, white noise: changes per series with no shift 9.40
+  with `--trend` alone, 1.10 on the 6-point grid, 0.72 refined; series with any false change 34/40 -> 23/40; shift
+  found 40/40, exactly one change 14/40 -> 21/40; mean knot error 4.9 -> 4.4 points. With AR(1) noise (rho 0.5)
+  and `--ar1` it is still weak: 5.20 changes per series with `--trend`, 2.23 -> 2.20 with `--trend bends`, shift
+  found 37/40 but exactly one change only 2/40, mean knot error 12 points (the wandering looks like a slope).
+  Re-estimating the seasonal profile from the series minus the fitted trend (backfitting, one and two rounds) was
+  tried and changed nothing (17/20 false runs either way), so it was not kept.
 - **`--trend` with `--ar1`.** Sticky noise wanders, and the slope loop inside `--trend` cut that wandering into
   steps whose segments then bent the slope. With `--ar1` the loop now widens its noise scale by the same
   long-run factor. On 200 points, slope 0.1, AR(1) rho 0.5, shift 5 at point 100 (seeds 701..740): PELT gave

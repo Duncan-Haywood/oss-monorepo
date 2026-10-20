@@ -584,3 +584,23 @@ test('trend bends: a ramp with two slope changes is lines with two knots, not st
   assert.ok(many / N < 0.5 * (one / N));
   assert.ok(two >= 0.8 * N && Math.abs(k1 / two - 80) < 5 && Math.abs(k2 / two - 160) < 5 && falseBend <= 0.15 * N);
 });
+
+test('trend bends with a seasonal cycle: the knots are refined to the point, and the shift is found', () => {
+  const N = 20;
+  let found = 0, exact = 0, within = 0;
+  for (let s = 1; s <= N; s++) {
+    const z = normals(rng(s + 4000), 240);
+    const x = z.map((e, i) => {
+      const ramp = i < 80 ? 0.1 * i : i < 160 ? 8 + 0.2 * (i - 80) : 24 - 0.05 * (i - 160);
+      return ramp + 6 * Math.sin((2 * Math.PI * i) / 12) + e + (i >= 180 ? 5 : 0);
+    });
+    const r = analyze({ values: x, period: 12, trend: 'bends' });
+    const c = r.pelt.changepoints.map((p) => p.index);
+    found += c.some((p) => Math.abs(p - 180) <= 4);
+    exact += c.length === 1 && Math.abs(c[0] - 180) <= 4;
+    const k = r.trend.slopeChangesAtAll || [];
+    within += k.length >= 2 && Math.abs(k[0] - 80) <= 10 && Math.abs(k[1] - 160) <= 10;
+  }
+  console.log(`# bends + period: found ${found}/${N}, exactly one ${exact}/${N}, both knots within 10 points ${within}/${N}`);
+  assert.ok(found >= 0.9 * N && within >= 0.8 * N);
+});
