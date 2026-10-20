@@ -358,7 +358,7 @@ def summary(out):
             continue
         print(f'  {c:24s} unknown/blank {100 * share:5.1f}%  dissolved if unknown '
               f'{out.event[(out[c] == "Unknown") | out[c].isna()].mean() if share else float("nan"):.3f}')
-    for c in COLUMNS[11:21]:
+    for c in COLUMNS[10:21]:
         print(' ', c, out[c].value_counts().to_dict())
 
 
