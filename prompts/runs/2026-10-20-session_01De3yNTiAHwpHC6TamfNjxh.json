@@ -32,7 +32,7 @@
   "merged": null,
   "ci_failures_before_green": 2,
   "review_findings": null,
-  "tests_added": 0,
+  "tests_added": 1,
   "outcome": "success",
   "errors": [
     {
@@ -47,8 +47,12 @@
     },
     {
       "what": "build (Pages suite) red: custom-domain.test.mjs found duncan-haywood.github.io in the new post's page",
-      "fix": "link the catalogue as ../../ like other posts; reproduced the failure with the old link, then passed",
+      "fix": "first tried a relative ../../ link, but in posts relative paths render as GitHub repo links, so it pointed at the repo. Real fix: buildWriting rewrites the default origin to the build's base URL (as rewriteOrigin does for venture pages); both posts keep absolute links",
       "cause": "hard-coded the default origin in a post"
+    },
+    {
+      "what": "after merging main, custom-domain.test.mjs failed on main's own post research-algorithms-in-your-browser (#8747), same cause",
+      "fix": "the buildWriting origin rewrite fixes it too; ported here since no fix PR was open"
     }
   ],
   "integrity_issues": [],
@@ -59,7 +63,7 @@
     },
     {
       "file": "platform/pages/writing.mjs",
-      "issue": "the post header comment shows how to link sibling posts but not that absolute links to the site's own origin are forbidden (custom-domain.test.mjs)"
+      "issue": "writing.mjs said nothing about how a post should link to the site's own tools; full URLs broke custom-domain builds and relative ones became GitHub links. Now documented at buildWriting"
     }
   ],
   "deviations": [

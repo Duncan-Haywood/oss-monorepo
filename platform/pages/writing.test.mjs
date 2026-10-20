@@ -82,6 +82,22 @@ test('a link to a sibling post file becomes a link to its page', async () => {
   assert.match(page, /data-pf-to="hub"/);
 });
 
+test('a full link to the default origin follows the address the site is built for', async () => {
+  const alias = 'https://default.test/site/';
+  const root = repoWith({
+    '2026-10-01-first.md': post('First', '2026-10-01').replace('Body text', `Try [the tool](${alias}some-tool/). Body text`),
+  });
+  const out = mkdtempSync(path.join(os.tmpdir(), 'writing-origin-'));
+  await buildWriting(out, BASE, { root, originAlias: alias });
+  const page = await fs.readFile(path.join(out, WRITING_PATH, 'first/index.html'), 'utf8');
+  assert.match(page, new RegExp(`<a href="${BASE.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&')}some-tool/">the tool</a>`));
+  assert.ok(!page.includes(alias), 'the default origin must not survive a build under another address');
+
+  const same = mkdtempSync(path.join(os.tmpdir(), 'writing-origin-same-'));
+  await buildWriting(same, alias, { root, originAlias: alias });
+  assert.match(await fs.readFile(path.join(same, WRITING_PATH, 'first/index.html'), 'utf8'), /default\.test\/site\/some-tool\//);
+});
+
 test('feed is valid-shaped with no posts', () => {
   assert.match(renderFeed([], { baseUrl: BASE }), /<feed xmlns="http:\/\/www\.w3\.org\/2005\/Atom">/);
 });

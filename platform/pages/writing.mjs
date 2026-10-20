@@ -272,15 +272,21 @@ ${entries}
 }
 
 /** Write `writing/` into outDir. Returns the posts, so the caller can list them in the sitemap. */
-export async function buildWriting(outDir, baseUrl = '', { root = DEFAULT_ROOT, socialCard = '' } = {}) {
+// `originAlias` is the site's default address (build.mjs passes its
+// DEFAULT_BASE_URL). A post that links to a tool by its full URL then follows
+// the address the site is actually built for, the way rewriteOrigin in
+// build.mjs treats venture pages. A relative link cannot do this: in a post,
+// relative paths are repository paths and render as GitHub links.
+export async function buildWriting(outDir, baseUrl = '', { root = DEFAULT_ROOT, socialCard = '', originAlias = '' } = {}) {
   const posts = loadPosts(root);
   const dir = path.join(outDir, WRITING_PATH);
+  const rebase = (html) => (originAlias && baseUrl && originAlias !== baseUrl ? html.split(originAlias).join(baseUrl) : html);
   await fs.mkdir(dir, { recursive: true });
-  await fs.writeFile(path.join(dir, 'index.html'), renderIndex(posts, { baseUrl, socialCard }));
-  await fs.writeFile(path.join(dir, 'feed.xml'), renderFeed(posts, { baseUrl }));
+  await fs.writeFile(path.join(dir, 'index.html'), rebase(renderIndex(posts, { baseUrl, socialCard })));
+  await fs.writeFile(path.join(dir, 'feed.xml'), rebase(renderFeed(posts, { baseUrl })));
   for (const post of posts) {
     await fs.mkdir(path.join(dir, post.slug), { recursive: true });
-    await fs.writeFile(path.join(dir, post.slug, 'index.html'), renderPost(post, posts, { baseUrl, socialCard }));
+    await fs.writeFile(path.join(dir, post.slug, 'index.html'), rebase(renderPost(post, posts, { baseUrl, socialCard })));
   }
   return posts;
 }
