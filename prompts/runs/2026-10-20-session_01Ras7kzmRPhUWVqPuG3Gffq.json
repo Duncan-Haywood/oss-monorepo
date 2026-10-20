@@ -1,0 +1,77 @@
+{
+  "date": "2026-10-20",
+  "session": "https://claude.ai/code/session_01Ras7kzmRPhUWVqPuG3Gffq",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "Owner brief (direct, not routed): move into in-browser ML/research-grade algorithm tools from open papers, cited, licence-respecting, agent-accessible; then also distribute beyond the web (iOS, Android, desktop, CLIs, MCP).",
+  "input_sha256": "48bca6db628f6df8183050fa51a22fc443095f7add37d46929426d1accff361f",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-20T09:12:33Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "New direction: research algorithms as free tools. Shipped changepoint-detector, conformal-prediction-intervals, matrix-profile-explorer, the spec, a site section and PAPERS in agent describe.",
+  "projects": [
+    "changepoint-detector",
+    "conformal-prediction-intervals",
+    "matrix-profile-explorer"
+  ],
+  "pr": 8747,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": 5,
+  "review_findings": null,
+  "tests_added": 117,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First push linked sibling tools before they were committed; check, build and sibling-links went red",
+      "fix": "Landed the tools in the next push"
+    },
+    {
+      "what": "New site category broke front-door-tools WHY_CATEGORY_WORD test and staled the generated mirror",
+      "fix": "Added the category word; ran node platform/marketing/regen.mjs"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Adding a site category needs build.mjs, build.test.mjs count, platform/marketing/front-door-tools.mjs WHY_CATEGORY_WORD and a regen; no single place lists them, CI found them one at a time."
+    },
+    {
+      "file": "platform/pages/build.test.mjs",
+      "issue": "Full suite exceeded 15 minutes locally and was killed by timeout; one cache-name test failed in that run while the tree was being edited concurrently."
+    },
+    {
+      "file": "platform/marketing/front-door-tools.mjs",
+      "issue": "Its usage comment says --write output in gitops/prod/front-door-tools/ is committed, but main does not track that directory; it leaves ~6,000 untracked files."
+    },
+    {
+      "file": "platform/marketing/regen.mjs",
+      "issue": "regen reported the surface current while 00-mirror-alias.conf was stale; only front-door-tools.mjs --write fixed it."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Session started from a direct owner brief, not promptctl route; recorded under ventures/1 as the closest track."
+    },
+    {
+      "file": "portfolio/research-tools/README.md",
+      "why": "Diabetes example data (Efron et al. 2004) has no explicit open licence; used it as redistributed by scikit-learn (BSD-3) and said so in data/SOURCE.md rather than claim CC0."
+    }
+  ],
+  "goal": null,
+  "notes": "Two tools were built by subagents in parallel to a spec written first, then reviewed: all three venture suites pass (run_venture_tests.py), headless Chromium at 390px shows no console errors, no external requests and no horizontal scroll (one overflow fixed on the conformal page). Verification numbers are in each venture README. Desktop app packaging (macOS/Windows/Linux) is the open distribution gap; queued as a suggested task for the owner. Report and handoff steps: docs/history/research-tools-2026-10-20.md; blog post docs/posts/2026-10-20-research-algorithms-in-your-browser.md. Also synced a stale runs-on count in gitops/ci/README.md that was red on main. Verification after merging main (pushes after the first triggered no workflows, so checked locally per verify-and-merge.md): agents, privacy+webcheck, distribution node suites 0 fail; prompts pytest 86 passed; run_venture_tests --changed 3 suites 0 failed; checklist_coverage, check_md_links, siblings --check, router/validate.py, regen --verify all ok; marketing suite 275/275 before the merge and the alias/mirror tests 7/7 after; build.test targeted (cache name, categories, share cards) 30/30 (the earlier full run's one cache-name failure came from editing the tree mid-run); gitops/tests 17 failures, all also failing on clean origin/main 8e277907 (test_publish_branch stub lacks platform/daily/build.mjs; test_ci_runner setup check), none from this PR.",
+  "corrections": [],
+  "redteam": null
+}

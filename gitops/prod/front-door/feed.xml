@@ -1,12 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Open Tools and Research — tools on marisstella.dev</title>
-  <subtitle>The 1302 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1306 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
   <updated>2026-10-20T00:00:00Z</updated>
   <rights>Tools are MIT-licensed. They are estimates and records to act on, not professional advice.</rights>
+  <entry>
+    <title>Changepoint Detector — find when a time series changed (PELT + Bayesian)</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/changepoint-detector/"/>
+    <id>tag:marisstella.dev,2026:tool/changepoint-detector</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="Research algorithms &amp; ML"/>
+    <summary type="text">Free changepoint detection for any time series. Paste a CSV and see when the level or volatility changed, with exact PELT segmentation and Bayesian online changepoint probabilities (Adams &amp; MacKay 2007; Killick et al. 2012). Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Conformal Prediction Intervals Calculator — distribution-free prediction intervals online</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/conformal-prediction-intervals/"/>
+    <id>tag:marisstella.dev,2026:tool/conformal-prediction-intervals</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="Research algorithms &amp; ML"/>
+    <summary type="text">Free conformal prediction intervals calculator. Paste a CSV, pick the column to predict and a coverage level, and get distribution-free prediction intervals with a finite-sample guarantee: split conformal, locally weighted conformal and conformalized quantile regression (CQR), checked on held-out rows. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
   <entry>
     <title>CSV to SEPA Payment File (pain.001) — Free Bulk Credit Transfer Converter</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/csv-to-sepa-pain001/"/>
@@ -32,12 +48,28 @@
     <summary type="text">Free short science fiction about the next thousand years, stories written for AI agents, and Catholic bedtime stories about the saints. Read or listen; podcast RSS feeds; CC BY-SA 4.0.</summary>
   </entry>
   <entry>
+    <title>Matrix Profile Online — Find Repeated Patterns and Anomalies in a Time Series</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/matrix-profile-explorer/"/>
+    <id>tag:marisstella.dev,2026:tool/matrix-profile-explorer</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="Research algorithms &amp; ML"/>
+    <summary type="text">Free matrix profile tool for time series anomaly detection and motif discovery. Paste or upload a CSV and find repeated patterns (motifs) and the most unusual stretches (discords) with the exact STOMP algorithm. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
     <title>Personality Conversation Simulator: Fictional Characters (Free)</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/persona-conversation-simulator/"/>
     <id>tag:marisstella.dev,2026:tool/persona-conversation-simulator</id>
     <updated>2026-10-20T00:00:00Z</updated>
     <category term="More free tools"/>
     <summary type="text">Build fictional characters with Big Five personalities and simulate negotiations, team meetings and arguments between them. Free, private, runs in your browser.</summary>
+  </entry>
+  <entry>
+    <title>Saints by Candlelight: a free bedtime podcast of saints, angels and Bible stories</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/saints-by-candlelight/"/>
+    <id>tag:marisstella.dev,2026:tool/saints-by-candlelight</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">Free bedtime story podcast of Catholic and Orthodox saints, angels and patriarchs: lighthearted, faithful, 30 to 60 minute episodes with full scripts and an honest note on what is history and what is legend.</summary>
   </entry>
   <entry>
     <title>Sales Cadence Builder — plan email, call, LinkedIn and letter outreach, free</title>
@@ -134,37 +166,5 @@
     <updated>2026-10-18T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste a page&#39;s HTML for a scored SEO and AI-readiness audit: title, description, headings, canonical, JSON-LD, alt text, each with its fix. Free, private.</summary>
-  </entry>
-  <entry>
-    <title>Free Price Drop and Back-in-Stock Alerts (Self-Hosted)</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/price-drop-watcher/"/>
-    <id>tag:marisstella.dev,2026:tool/price-drop-watcher</id>
-    <updated>2026-10-18T00:00:00Z</updated>
-    <category term="More free tools"/>
-    <summary type="text">Get price drop and back-in-stock alerts for any product page, free. Runs on your own GitHub Actions, alerts your phone, no account or tracking. Test a page in your browser first.</summary>
-  </entry>
-  <entry>
-    <title>TCGplayer Fee Calculator — What You Keep After 10.75% Commission and the $0.30 Order Fee</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/tcgplayer-fee-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/tcgplayer-fee-calculator</id>
-    <updated>2026-10-18T00:00:00Z</updated>
-    <category term="Marketplace seller tools"/>
-    <summary type="text">Free TCGplayer seller fee calculator: 10.75% marketplace commission (capped at $75 per product, charged on cards plus shipping) and 2.5% + $0.30 per-order transaction fee. See your payout, profit per order, the price for a target profit, and Pro or pre-February-2026 rates side by side. Nothing leaves your browser.</summary>
-  </entry>
-  <entry>
-    <title>UK Crypto CGT Calculator — Section 104 pool, same-day and 30-day rules, in your browser</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/uk-crypto-cgt-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/uk-crypto-cgt-calculator</id>
-    <updated>2026-10-18T00:00:00Z</updated>
-    <category term="UK tax, pay &amp; benefits"/>
-    <summary type="text">Free UK crypto capital gains calculator. Paste your buys, sales, swaps and staking income as a CSV and it applies HMRC&#39;s same-day, 30-day and Section 104 pooling rules, works out each tax year&#39;s gain, exempt amount and estimated CGT, and exports the working. Nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>UK Statutory Residence Test Checker — Days, Ties and Automatic Tests</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/uk-statutory-residence-test-checker/"/>
-    <id>tag:marisstella.dev,2026:tool/uk-statutory-residence-test-checker</id>
-    <updated>2026-10-18T00:00:00Z</updated>
-    <category term="UK tax, pay &amp; benefits"/>
-    <summary type="text">Free UK Statutory Residence Test checker: enter your UK stays and ties to see which test decides, whether you are UK resident, and how many more days you can spend in the UK before that changes. Runs in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>
