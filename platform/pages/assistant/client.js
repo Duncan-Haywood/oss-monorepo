@@ -134,7 +134,9 @@ export function readFields(scope = document.querySelector('main') || document.bo
       field.type = 'select';
       field.options = [...el.options].map((o) => ({ value: o.value, text: textOf(o) }));
     } else if (type === 'checkbox') field.type = 'checkbox';
-    else if (type === 'number' || type === 'range') {
+    // 219 calculators here take numbers in text inputs with inputmode="decimal"
+    // (so a phone shows a number pad without the browser's spinner rules).
+    else if (type === 'number' || type === 'range' || /^(decimal|numeric)$/.test(el.getAttribute('inputmode') || '')) {
       field.type = 'number';
       for (const a of ['min', 'max', 'step']) if (el.getAttribute(a) !== null) field[a] = el.getAttribute(a);
     } else if (type === 'date') field.type = 'date';

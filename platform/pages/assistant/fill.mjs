@@ -40,11 +40,16 @@ export const STOPWORDS = new Set(
 const SYNONYMS = {
   feet: 'ft', foot: 'ft', square: 'sq', pounds: 'lb', pound: 'lb', lbs: 'lb', hours: 'hr', hour: 'hr', hrs: 'hr',
   percent: 'pct', percentage: 'pct', pct: 'pct', miles: 'mi', mile: 'mi', qty: 'quantity', amount: 'amount',
-  dollars: '', dollar: '', bucks: '', usd: '',
+  dollars: '', dollar: '', bucks: '', usd: '', hourly: 'hr',
 };
 // What someone sells a thing for is its price. Folded in what people say only,
 // never in labels: a field called "Items already sold" is not a price.
-const SPOKEN_SYNONYMS = { sell: 'price', sells: 'price', selling: 'price' };
+const SPOKEN_SYNONYMS = {
+  sell: 'price', sells: 'price', selling: 'price',
+  weigh: 'weight', weighs: 'weight', weighing: 'weight',
+  labor: 'wage', labour: 'wage',
+};
+const DIMENSIONS = [/\b(length|long|depth|deep)\b/i, /\b(width|wide)\b/i, /\b(height|high|tall|thickness)\b/i];
 const PERCENT_WORDS = new Set(['percent', 'percentage', 'pct']);
 const MONEY_WORDS = new Set(['dollars', 'dollar', 'bucks', 'usd']);
 const YES = new Set(['yes', 'on', 'include', 'including', 'with', 'add', 'enable', 'enabled', 'check', 'true', 'turn']);
@@ -125,6 +130,9 @@ export function tokenize(text) {
       if (raw[j] === 'and' && raw[j + 1] === 'a' && raw[j + 2] === 'half') { value += 0.5; j += 3; }
       tokens.push({ kind: 'num', value, text: text2.trim() });
       i = j - 1;
+    } else if (t === 'half' && !(raw[i - 1] === 'a' && raw[i - 2] === 'and')) {
+      // "half a pound": a lone half is a number. ("two and a half" is read above.)
+      tokens.push({ kind: 'num', value: 0.5, text: 'half' });
     } else if (/^[,;!?.]$/.test(t)) {
       tokens.push({ kind: 'sep' });
     } else if (t === '$' || t === '%' || t === '/') {
@@ -278,7 +286,32 @@ export function parseUtterance(text, fields) {
     if (!nums.length) continue;
     // "price 40" (words first) or "40 dollar price" (number first): which side
     // of each number its name is on is decided once per clause.
-    const before = wordsOf(clause.slice(0, nums[0][1])).length > 0;
+    // Words before the first number count only if they name something on the
+    // form: in "aim for a 25 percent margin" the name comes after.
+    const lead = wordsOf(clause.slice(0, nums[0][1]));
+    const before = lead.length > 0 && numeric.some((p) => scoreField(p, lead, weight) > 0);
+    // "12 by 9 by 4 inches": a run of numbers joined by "by" or "x" is a set
+    // of dimensions, written length, width, height, when the form has them.
+    const chain = [];
+    for (let i = 0; i < clause.length; i++) {
+      if (clause[i].kind !== 'num') continue;
+      const run = [i];
+      while (clause[run[run.length - 1] + 1]?.kind === 'word' && /^(by|x)$/.test(clause[run[run.length - 1] + 1].w) && clause[run[run.length - 1] + 2]?.kind === 'num') run.push(run[run.length - 1] + 2);
+      if (run.length > 1) { chain.push(...run); break; }
+    }
+    if (chain.length) {
+      const dims = DIMENSIONS.map((re) => prepared.find((p) => p.field.type === 'number' && re.test(p.field.label) && !taken.has(p.field.key)));
+      if (dims.slice(0, chain.length).every(Boolean)) {
+        chain.forEach((at, k) => {
+          const p = dims[k];
+          const checked = checkValue(p.field, clause[at].value);
+          if (checked.ok) { taken.add(p.field.key); fills.push({ key: p.field.key, label: p.field.label, value: checked.value, from: `${clause[at].text} (${['length', 'width', 'height'][k]})` }); }
+          else skipped.push({ text: clause[at].text, reason: `${p.field.label}: ${checked.reason}` });
+        });
+        for (let k = nums.length - 1; k >= 0; k--) if (chain.includes(nums[k][1])) nums.splice(k, 1);
+        if (!nums.length) continue;
+      }
+    }
     nums.forEach(([num, at], k) => {
       const start = before ? (k === 0 ? 0 : nums[k - 1][1] + 1) : at + 1;
       const end = before ? at : (k + 1 < nums.length ? nums[k + 1][1] : clause.length);
@@ -311,6 +344,13 @@ export function parseUtterance(text, fields) {
       if (toggled.some((set) => o.tokens.every((t) => set.includes(t)))) continue;
       const s = o.tokens.length * 2 + labelScore;
       if (!best || s > best.s) best = { o, s };
+    }
+    if (!best) {
+      // "in clothing" for "Clothing & accessories": one word that only this
+      // choice has, and that is long enough not to be a common filler, is enough.
+      const distinctive = p.options.filter((o) => o.tokens.some((t) => t.length >= 4 && everyWord.includes(t)
+        && !p.options.some((other) => other !== o && other.tokens.includes(t))));
+      if (distinctive.length === 1 && !toggled.some((set) => distinctive[0].tokens.every((t) => set.includes(t)))) best = { o: distinctive[0] };
     }
     if (best) {
       taken.add(p.field.key);

@@ -1,5 +1,5 @@
 {
- "about": "Sentences a person might say or type to a calculator, and the fields they mean. Forms are copied from the live pages named in `source` (labels, ids, ranges, choices). Scored by assistant.test.mjs; the Ask page prints the score the build measured. A case passes only if every expected field gets exactly the expected value and nothing else is written. Add a case whenever a real sentence fails: the score is only worth what the cases are. Cases marked `tuned` were written alongside the rules and pass by construction; `held-out` cases were written afterwards and scored without changing the rules to fit them, so their score is the honest estimate.",
+ "about": "Sentences a person might say or type to a calculator, and the fields they mean. Forms are copied from the live pages named in `source` (labels, ids, ranges, choices). Scored by assistant.test.mjs; the Ask page prints the score the build measured. A case passes only if every expected field gets exactly the expected value and nothing else is written. Add a case whenever a real sentence fails: the score is only worth what the cases are. Cases marked `tuned` were written alongside the rules and pass by construction; `held-out` cases were written afterwards and scored without changing the rules to fit them, so their score is the honest estimate. When the rules are changed to fix held-out cases, those cases become `tuned` and a new held-out set is written before the new rules are scored (round 2, 2026-10-20: two calculators the rules had never seen).",
  "forms": {
   "ebay": {
    "source": "ventures/ebay-fee-calculator/index.html",
@@ -323,6 +323,111 @@
      "step": "0.1"
     }
    ]
+  },
+  "cleaning": {
+   "source": "ventures/house-cleaning-quote-calculator/index.html (inputmode=\"decimal\" text inputs, read as numbers)",
+   "fields": [
+    {
+     "key": "homeSqft",
+     "label": "Home size (sq ft)",
+     "type": "number"
+    },
+    {
+     "key": "bathrooms",
+     "label": "Bathrooms",
+     "type": "number"
+    },
+    {
+     "key": "minutesPerBathroom",
+     "label": "Extra minutes per bathroom (person-minutes)",
+     "type": "number"
+    },
+    {
+     "key": "sqftPerLaborHour",
+     "label": "Your sq ft cleaned per person per hour",
+     "type": "number"
+    },
+    {
+     "key": "crewSize",
+     "label": "Cleaners on the job",
+     "type": "number"
+    },
+    {
+     "key": "wagePerHour",
+     "label": "Hourly wage per cleaner ($)",
+     "type": "number"
+    },
+    {
+     "key": "burdenPct",
+     "label": "Payroll burden (% on top of wage)",
+     "type": "number"
+    },
+    {
+     "key": "suppliesPerVisit",
+     "label": "Supplies per visit ($)",
+     "type": "number"
+    },
+    {
+     "key": "driveMinutesOneWay",
+     "label": "Paid drive minutes, one way",
+     "type": "number"
+    },
+    {
+     "key": "milesRoundTrip",
+     "label": "Miles round trip",
+     "type": "number"
+    },
+    {
+     "key": "costPerMile",
+     "label": "Vehicle cost per mile ($)",
+     "type": "number"
+    },
+    {
+     "key": "cardFeePct",
+     "label": "Payment fee (% of price)",
+     "type": "number"
+    },
+    {
+     "key": "targetMarginPct",
+     "label": "Target margin (% of price)",
+     "type": "number"
+    },
+    {
+     "key": "basePrice",
+     "label": "Your list price for a one-time clean ($)",
+     "type": "number"
+    }
+   ]
+  },
+  "mileage": {
+   "source": "ventures/mileage-deduction-calculator/index.html",
+   "fields": [
+    {
+     "key": "miles-h1",
+     "label": "Business miles, Jan 1 – Jun 30, 2026",
+     "type": "number"
+    },
+    {
+     "key": "miles-h2",
+     "label": "Business miles, Jul 1 – Dec 31, 2026",
+     "type": "number"
+    },
+    {
+     "key": "parking-tolls",
+     "label": "Business parking and tolls ($)",
+     "type": "number"
+    },
+    {
+     "key": "total-miles",
+     "label": "Total miles driven in 2026, all uses",
+     "type": "number"
+    },
+    {
+     "key": "vehicle-expenses",
+     "label": "Total vehicle costs for the year ($)",
+     "type": "number"
+    }
+   ]
   }
  },
  "cases": [
@@ -333,7 +438,7 @@
     "price": "55",
     "shippingCharged": "8"
    },
-   "set": "tuned"
+   "round": 0
   },
   {
    "form": "ebay",
@@ -342,7 +447,7 @@
     "price": "40",
     "costOfGoods": "12"
    },
-   "set": "tuned"
+   "round": 0
   },
   {
    "form": "ebay",
@@ -350,7 +455,7 @@
    "expect": {
     "price": "1250"
    },
-   "set": "tuned"
+   "round": 0
   },
   {
    "form": "ebay",
@@ -358,7 +463,7 @@
    "expect": {
     "promotedRate": "5"
    },
-   "set": "tuned"
+   "round": 0
   },
   {
    "form": "ebay",
@@ -367,7 +472,7 @@
     "finalValueRate": "13.6",
     "fixedFee": "0.4"
    },
-   "set": "tuned"
+   "round": 0
   },
   {
    "form": "ebay",
@@ -376,7 +481,7 @@
     "shippingCost": "7.5",
     "packagingCost": "1"
    },
-   "set": "tuned"
+   "round": 0
   },
   {
    "form": "ebay",
@@ -384,7 +489,7 @@
    "expect": {
     "quantity": "10"
    },
-   "set": "tuned"
+   "round": 0
   },
   {
    "form": "ebay",
@@ -392,13 +497,13 @@
    "expect": {
     "targetMargin": "25"
    },
-   "set": "tuned"
+   "round": 0
   },
   {
    "form": "ebay",
    "say": "return rate 150 percent",
    "expect": {},
-   "set": "tuned"
+   "round": 0
   },
   {
    "form": "ebay",
@@ -406,7 +511,7 @@
    "expect": {
     "price": "30"
    },
-   "set": "tuned"
+   "round": 0
   },
   {
    "form": "roofing",
@@ -416,7 +521,7 @@
     "s1-pitch": "8",
     "s1-layers": "2"
    },
-   "set": "tuned"
+   "round": 0
   },
   {
    "form": "roofing",
@@ -425,7 +530,7 @@
     "s1-foot": "2400",
     "s1-pitch": "8"
    },
-   "set": "tuned"
+   "round": 0
   },
   {
    "form": "roofing",
@@ -434,7 +539,7 @@
     "wastePercent": "12",
     "materialPerSquare": "145"
    },
-   "set": "tuned"
+   "round": 0
   },
   {
    "form": "roofing",
@@ -443,7 +548,7 @@
     "hourlyWage": "38.5",
     "burdenRate": "28"
    },
-   "set": "tuned"
+   "round": 0
   },
   {
    "form": "roofing",
@@ -452,7 +557,7 @@
     "dumpsterFee": "500",
     "permitFee": "300"
    },
-   "set": "tuned"
+   "round": 0
   },
   {
    "form": "roofing",
@@ -461,7 +566,7 @@
     "depositPercent": "30",
     "validDays": "45"
    },
-   "set": "tuned"
+   "round": 0
   },
   {
    "form": "roofing",
@@ -469,13 +574,13 @@
    "expect": {
     "targetMargin": "22.5"
    },
-   "set": "tuned"
+   "round": 0
   },
   {
    "form": "roofing",
    "say": "seven layers",
    "expect": {},
-   "set": "tuned"
+   "round": 0
   },
   {
    "form": "fba",
@@ -484,7 +589,7 @@
     "category": "electronics",
     "salePrice": "24.99"
    },
-   "set": "tuned"
+   "round": 0
   },
   {
    "form": "fba",
@@ -495,7 +600,7 @@
     "height": "3",
     "weightLb": "1.2"
    },
-   "set": "tuned"
+   "round": 0
   },
   {
    "form": "fba",
@@ -503,7 +608,7 @@
    "expect": {
     "fulfillmentMethod": "fbm"
    },
-   "set": "tuned"
+   "round": 0
   },
   {
    "form": "fba",
@@ -511,7 +616,7 @@
    "expect": {
     "lowPriceEligible": false
    },
-   "set": "tuned"
+   "round": 0
   },
   {
    "form": "fba",
@@ -521,7 +626,7 @@
     "costOfGoods": "6",
     "couponPercent": "10"
    },
-   "set": "tuned"
+   "round": 0
   },
   {
    "form": "fba",
@@ -529,7 +634,7 @@
    "expect": {
     "monthsInStorage": "3"
    },
-   "set": "tuned"
+   "round": 0
   },
   {
    "form": "ebay",
@@ -537,7 +642,7 @@
    "expect": {
     "shippingCharged": "9.95"
    },
-   "set": "held-out"
+   "round": 1
   },
   {
    "form": "ebay",
@@ -545,7 +650,7 @@
    "expect": {
     "costOfGoods": "8"
    },
-   "set": "held-out"
+   "round": 1
   },
   {
    "form": "ebay",
@@ -553,7 +658,7 @@
    "expect": {
     "quantity": "25"
    },
-   "set": "held-out"
+   "round": 1
   },
   {
    "form": "ebay",
@@ -563,7 +668,7 @@
     "shippingCost": "4.2",
     "price": "32"
    },
-   "set": "held-out"
+   "round": 1
   },
   {
    "form": "ebay",
@@ -571,7 +676,7 @@
    "expect": {
     "returnRatePercent": "8"
    },
-   "set": "held-out"
+   "round": 1
   },
   {
    "form": "roofing",
@@ -579,7 +684,7 @@
    "expect": {
     "s1-foot": "3200"
    },
-   "set": "held-out"
+   "round": 1
   },
   {
    "form": "roofing",
@@ -587,7 +692,7 @@
    "expect": {
     "s1-pitch": "6"
    },
-   "set": "held-out"
+   "round": 1
   },
   {
    "form": "roofing",
@@ -595,7 +700,7 @@
    "expect": {
     "hourlyWage": "42"
    },
-   "set": "held-out"
+   "round": 1
   },
   {
    "form": "roofing",
@@ -604,7 +709,7 @@
     "targetMargin": "25",
     "wastePercent": "10"
    },
-   "set": "held-out"
+   "round": 1
   },
   {
    "form": "fba",
@@ -613,7 +718,7 @@
     "category": "jewelry",
     "weightLb": "0.5"
    },
-   "set": "held-out"
+   "round": 1
   },
   {
    "form": "fba",
@@ -623,7 +728,7 @@
     "width": "9",
     "height": "4"
    },
-   "set": "held-out"
+   "round": 1
   },
   {
    "form": "fba",
@@ -632,7 +737,146 @@
     "salePrice": "19.99",
     "category": "clothing"
    },
-   "set": "held-out"
+   "round": 1
+  },
+  {
+   "form": "cleaning",
+   "say": "the house is 2,200 square feet with 3 bathrooms",
+   "expect": {
+    "homeSqft": "2200",
+    "bathrooms": "3"
+   },
+   "round": 2
+  },
+  {
+   "form": "cleaning",
+   "say": "two cleaners at 18 an hour",
+   "expect": {
+    "crewSize": "2",
+    "wagePerHour": "18"
+   },
+   "round": 2
+  },
+  {
+   "form": "cleaning",
+   "say": "supplies are about 6 dollars a visit, 25 minutes drive each way",
+   "expect": {
+    "suppliesPerVisit": "6",
+    "driveMinutesOneWay": "25"
+   },
+   "round": 2
+  },
+  {
+   "form": "cleaning",
+   "say": "card fee 2.9 percent and I want a 35% margin",
+   "expect": {
+    "cardFeePct": "2.9",
+    "targetMarginPct": "35"
+   },
+   "round": 2
+  },
+  {
+   "form": "cleaning",
+   "say": "I charge 180 for a one time clean",
+   "expect": {
+    "basePrice": "180"
+   },
+   "round": 2
+  },
+  {
+   "form": "cleaning",
+   "say": "round trip is 14 miles at 67 cents a mile",
+   "expect": {
+    "milesRoundTrip": "14",
+    "costPerMile": "0.67"
+   },
+   "round": 2
+  },
+  {
+   "form": "mileage",
+   "say": "total miles this year 18,000 and vehicle costs 7,400",
+   "expect": {
+    "total-miles": "18000",
+    "vehicle-expenses": "7400"
+   },
+   "round": 2
+  },
+  {
+   "form": "mileage",
+   "say": "parking and tolls were 320 dollars",
+   "expect": {
+    "parking-tolls": "320"
+   },
+   "round": 2
+  },
+  {
+   "form": "ebay",
+   "say": "the buyer pays twelve fifty shipping",
+   "expect": {
+    "shippingCharged": "12.5"
+   },
+   "round": 2
+  },
+  {
+   "form": "ebay",
+   "say": "I bought it for 3 and I'm listing it at 19",
+   "expect": {
+    "costOfGoods": "3",
+    "price": "19"
+   },
+   "round": 2
+  },
+  {
+   "form": "roofing",
+   "say": "permit is going to be 175 and the dumpster 425",
+   "expect": {
+    "permitFee": "175",
+    "dumpsterFee": "425"
+   },
+   "round": 2
+  },
+  {
+   "form": "roofing",
+   "say": "set waste to 15%",
+   "expect": {
+    "wastePercent": "15"
+   },
+   "round": 2
+  },
+  {
+   "form": "fba",
+   "say": "weight 2 lbs, height 5 inches",
+   "expect": {
+    "weightLb": "2",
+    "height": "5"
+   },
+   "round": 2
+  },
+  {
+   "form": "fba",
+   "say": "grocery, price 8.49",
+   "expect": {
+    "category": "grocery",
+    "salePrice": "8.49"
+   },
+   "round": 2
+  },
+  {
+   "form": "fba",
+   "say": "keep it in storage two months, and I paid 4.10",
+   "expect": {
+    "monthsInStorage": "2",
+    "costOfGoods": "4.1"
+   },
+   "round": 2
+  },
+  {
+   "form": "cleaning",
+   "say": "burden 12 percent",
+   "expect": {
+    "burdenPct": "12"
+   },
+   "round": 2
   }
  ]
 }

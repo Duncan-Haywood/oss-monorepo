@@ -57,7 +57,7 @@ export function renderAssistantFiles({ searchVariants, searchScore }) {
  * own document-level click handler.
  *
  * The calculator button appears only where the page has a real form (two or
- * more number inputs in <main>, or the body where there is no <main>) and is not framed in someone else's page.
+ * more number inputs, by type or by inputmode in <main>, or the body where there is no <main>) and is not framed in someone else's page.
  */
 export const ASSISTANT_LAUNCHER_JS = `
 (function(){
@@ -82,7 +82,7 @@ export const ASSISTANT_LAUNCHER_JS = `
     addEventListener('pointerover',warm,true);
     var ready=function(){
       var main=document.querySelector('main')||document.body;
-      if(window.top===window&&main&&main.querySelectorAll('input[type=number]').length>1&&!document.querySelector('.pf-ask-voice')){
+      if(window.top===window&&main&&main.querySelectorAll('input[type=number],input[inputmode=decimal],input[inputmode=numeric]').length>1&&!document.querySelector('.pf-ask-voice')){
         var b=document.createElement('button');
         b.type='button';b.className='pf-ask-voice';
         b.setAttribute('aria-label','Fill this calculator by voice or chat');
