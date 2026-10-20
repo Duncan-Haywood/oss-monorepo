@@ -137,6 +137,13 @@ class T(unittest.TestCase):
         self.assertTrue(pyenv.imports(sys.executable, ["json"]))
         self.assertFalse(pyenv.imports(sys.executable, ["no_such_module_xyz"]))
 
+    def test_pip_names_map_to_import_names(self):
+        self.assertEqual(pyenv.import_name("scikit-learn"), "sklearn")
+        self.assertEqual(pyenv.import_name("pyyaml"), "yaml")
+        self.assertEqual(pyenv.import_name("scikit-fem"), "skfem")
+        self.assertEqual(pyenv.import_name("numpy"), "numpy")
+        self.assertEqual(pyenv.import_name("my-mod"), "my_mod")
+
 
 if __name__ == "__main__":
     unittest.main()
