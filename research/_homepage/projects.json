@@ -3247,6 +3247,11 @@
      "summary": "Of 1,564 run records, 203 (13%) list a deviation from the brief, mostly review (59%) and ventures (27%) runs. Within track, deviating runs take about 1.6&times; as long and cost about 1.2&times; as much (stratified permutation p &lt; 0.001), but the cost gap rests mainly on the long process track (1.07&times;, p = 0.052 without it), and deviating runs end partial 5 points more often. Observational and self-reported: preliminary."
     },
     {
+     "slug": "swe-callcost",
+     "title": "How well does a run's tool-call count predict what it costs?",
+     "summary": "Of 1,638 run records, 882 carry both a cost and a tool-call count. Cost per call is almost constant (median $0.031, 10th to 90th percentile $0.026 to $0.038); a log-log fit has R<sup>2</sup> 0.91 and misses held-out runs by a median of 9% (90th percentile 25%), no better than a flat cost-per-call multiplier. The pooled slope of 1.22 (1.18 to 1.26) is partly group mixing: it is 1.10 within Sonnet runs and 0.96 within Opus runs (wide interval). Cost is API-equivalent and derived from the same transcript as the call count, so the fit checks the measurement, not agent behaviour. Preliminary."
+    },
+    {
      "slug": "swe-notests",
      "title": "Do agent runs that add no tests end worse?",
      "summary": "Of 621 run records that count tests added, 84 (13.5%) add none, mostly research runs. Within track and recording regime they end <code>partial</code> 4 of 84 times against 16 of 537 for runs that add tests: a +2.6 point difference, permutation p = 0.23, so no detectable effect (only 20 partial outcomes exist, so power is low). They cost less (median $0.56 against $0.99 in research), most likely because they do less. Observational and self-reported; preliminary."
@@ -3815,6 +3820,11 @@
    "summary": "Still camera, one disc moving across a synthetic burst (Poisson shot noise, Gaussian read noise, a large sensor with 4&times; the pixel area). A per-pixel sub-pixel alignment to the reference frame, followed by a rejection test, reaches 37.0&nbsp;dB inside the disc at 8 frames and 1&nbsp;px per frame, against 31.5&nbsp;dB for reject-only merging and 32.8&nbsp;dB for the large frame. Over the whole image it is no better than rejecting (31.7 against 31.8&nbsp;dB at 8 frames, 34.4 against 35.6 at 24) because the aligner moves 10&ndash;31% of static pixels on noise, and in the ring where the background is covered and revealed no variant gets within 4&nbsp;dB of the large frame. Stylised: synthetic scenes, one flat rigid disc, translation only."
    },
    {
+   "slug": "sensing-superres",
+   "title": "Can a burst of hand-shaken low-resolution frames recover detail that merging and upsampling cannot?",
+   "summary": "Synthetic 32&times;32 frames from a box-averaging sensor (Poisson shot noise, 3&nbsp;e<sup>&minus;</sup> read noise), shifted by up to two pixels, reconstructed on a 2&times; grid by regularised least squares. In bright light it reaches 29.5&nbsp;dB at 16 frames and 30.7&nbsp;dB at 32, against 24.0&nbsp;dB for register, average and bilinear upsample and 26.6&nbsp;dB for register, average and deconvolve: 2.6&nbsp;dB of the gain is deblurring the pixel box and 2.9&nbsp;dB (4.0 at 32 frames) is sub-pixel information. In dim light that part is within &plusmn;0.3&nbsp;dB; registration error of 0.27 LR pixel erases it. Against a sensor with 2&times; the linear resolution and the same total light the burst wins at 2 frames and loses from about 4; at 3&times; it ties at 16 frames and at 4&times; it wins. Synthetic scenes, translation only, no mosaic or lens blur; the reconstruction is plain Tikhonov, not a published method."
+   },
+   {
     "slug": "sensing-timesync",
     "title": "How many milliseconds of camera-to-gyro time offset double a fused attitude error, and can online calibration recover it?",
     "summary": "Single-axis simulation: a 200&nbsp;Hz biased gyro and a 30&nbsp;Hz camera whose timestamps are late by <em>t<sub>d</sub></em>, fused by a complementary filter. At 30&nbsp;deg/s motion the error doubles at 12&ndash;14&nbsp;ms; the doubling offset is 32&ndash;34&nbsp;ms at 10&nbsp;deg/s and 8&ndash;10&nbsp;ms at 90&nbsp;deg/s, and grows with camera noise. A gyro-integral alignment fit recovers the offset to about 1&nbsp;ms rms and restores the zero-offset error, but fails on a nearly still platform. Stylised: one axis, constant offset, angle measurements only, synthetic noise."
@@ -4032,6 +4042,11 @@
     "slug": "hanger-print",
     "title": "Can the hanger a cloth simulation designed be 3D-printed, and does it hold a garment?",
     "summary": "Exports <code>hanger-fit</code>&rsquo;s adjustable shape and four-width rack as parametric STL and OpenSCAD, with a cantilever strength, deflection and print-bed check. Printed flat in PLA under assumed constants (1.5&nbsp;kg garment, 2&times; motion factor), the round-ended arm (end radius 2.86&nbsp;cm) has a safety factor of 40&ndash;70 at 12&nbsp;mm depth and bends under 0.04&nbsp;mm, so strength never limits it; a wire-like arm (end radius 1.5&nbsp;mm) has a safety factor of 0.13 and fails. No hanger of useful width fits a 220&nbsp;mm bed whole, but one arm with its hub does up to 24.8&nbsp;cm. Stylised: assumed material constants, flat extrusion, OpenSCAD files not rendered, no two-piece joint."
+   },
+   {
+    "slug": "hanger-pick",
+    "title": "How should a laundry robot pick one garment out of a tangled dryer load?",
+    "summary": "A stylised 2D pile of overlapping disc garments, 40% with the opening hidden by the garment itself, emptied by three scripted policies with assumed times. Aiming at a visible neck or waistband takes 13.4 s per garment against 22.7 s for pinching the top and regrasping; pushing garments aside first is slower (17.7 s) because neighbours rarely hide every opening, the garments themselves do. In <code>hanger-cell</code> the policies give 151, 110 and 127 items an hour for one arm, against 169 for its placeholder pick. Stylised: assumed times, disc cloth, not a measurement of a robot."
    }
   ]
  },

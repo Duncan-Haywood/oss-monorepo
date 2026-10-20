@@ -258,7 +258,7 @@ def load_merit_scores(scores_path: Path = SCORES_PATH) -> dict[str, float]:
     """
     if not scores_path.is_file():
         return {}
-    doc = yaml.safe_load(scores_path.read_text()) or {}
+    doc = _load_yaml(scores_path)
     return {
         v["slug"]: float(v["composite"])
         for v in doc.get("ventures") or []

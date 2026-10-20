@@ -1,8 +1,11 @@
-// Browser-side bridge to the official Schematron. Saxon-JS and the compiled
-// rules run in Node, so the page asks the server it was served from
-// (POST ./v1/validate?schematron=1) and merges only the Schematron findings
-// into the local result. The built-in rules still run in the browser. A static
-// host has no API, which is reported as "unavailable", never as a pass.
+// Browser-side bridge to the official Schematron. Two routes, tried in order:
+// 1. in the page, when `node build-browser.mjs` put Saxon-JS and the rules in
+//    ./browser/ (official-browser.mjs): no server, the invoice stays local;
+// 2. the server the page was served from (POST ./v1/validate?schematron=1).
+// Only the Schematron findings are merged into the local result; the built-in
+// rules still run in the browser. A host with neither is reported as
+// "unavailable", never as a pass.
+import { loadBrowserRunner } from "./official-browser.mjs";
 
 const isOfficial = (finding) => typeof finding?.source === "string" && finding.source.endsWith("-schematron");
 
@@ -10,12 +13,26 @@ function textOrBytes(source) {
   return typeof source === "string" ? new TextEncoder().encode(source) : source;
 }
 
-export async function addOfficialFindings(result, inputs, { profile = "", fetchFn = globalThis.fetch, base = "" } = {}) {
+export async function addOfficialFindings(result, inputs, { profile = "", fetchFn = globalThis.fetch, base = "", runner } = {}) {
+  if (runner === undefined) runner = await loadBrowserRunner({ base, fetchFn });
   const byName = new Map(inputs.map((i) => [i.name, i]));
   for (const report of result.reports) {
     const input = byName.get(report.file);
     report.schematron = "unavailable";
     if (!input || /\.json$/i.test(report.file)) continue;
+    if (runner) {
+      try {
+        const local = await runner(typeof input.source === "string" ? input.source : new TextDecoder().decode(input.source));
+        if (local.status === "ok") {
+          report.schematron = "ok";
+          report.schematronWhere = "browser";
+          report.errors.push(...local.findings);
+          continue;
+        }
+      } catch {
+        // fall through to the server route
+      }
+    }
     try {
       const query = new URLSearchParams({ schematron: "1", name: report.file });
       if (profile) query.set("profile", profile);
@@ -34,7 +51,7 @@ export async function addOfficialFindings(result, inputs, { profile = "", fetchF
 }
 
 export function officialNote(report) {
-  if (report.schematron === "ok") return "Official EN 16931 Schematron: run, findings listed below.";
-  if (report.schematron === "unavailable") return "Official Schematron not run: it needs the self-hosted server with the rules built (see README).";
+  if (report.schematron === "ok") return report.schematronWhere === "browser" ? "Official EN 16931 Schematron: run in your browser, the file did not leave this page; findings listed below." : "Official EN 16931 Schematron: run, findings listed below.";
+  if (report.schematron === "unavailable") return "Official Schematron not run: it needs either the ./browser/ folder (node build-browser.mjs) or the self-hosted server with the rules built (see README).";
   return "";
 }

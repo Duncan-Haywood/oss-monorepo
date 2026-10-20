@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Free Podcast RSS Feed Generator, Markdown to EPUB &amp; Audiobook Checker — Publish Kit</title>
+  <meta name="description" content="Free podcast RSS feed generator, Markdown to EPUB converter, ACX audiobook checker and KDP spine calculator. Runs in your browser, or as a CLI for AI agents.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Publish Kit — podcast feeds, EPUBs, audiobooks and paperback covers">
+  <meta property="og:description" content="Free, open-source publishing tools: podcast RSS feed generator, Markdown to EPUB, ACX audiobook checker, KDP spine and cover calculator. Browser page plus a zero-dependency CLI an AI agent can drive.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Publish Kit","applicationCategory":"MultimediaApplication","operatingSystem":"Any modern browser; CLI needs Node.js 18+, no dependencies","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"license":"https://opensource.org/licenses/MIT","description":"Free tools for self-publishing podcasts, audiobooks, ebooks and paperbacks: a podcast RSS feed generator with iTunes and Podcasting 2.0 tags, a Markdown to EPUB 3 converter, an ACX/Audible audiobook file checker, an M4B chapter builder, and a KDP paperback spine and cover-size calculator. Works in the browser, and as a zero-dependency command-line tool with JSON output for AI agents.","featureList":["Podcast RSS feed generator: itunes and podcast namespace tags, podcast:guid, RFC 822 dates, stable episode guids","Reads MP3, M4A, M4B and WAV duration, bitrate and size in the browser, with no upload","Markdown to EPUB 3 with table of contents, cover and NCX, passing W3C EPUBCheck","ACX audiobook checks: MP3 192 kbps CBR, 44.1 kHz, 120-minute files, mono/stereo consistency, RMS/peak/noise floor for WAV masters","Chaptered M4B audiobook: FFmpeg chapter metadata and command","KDP paperback spine width and full-wrap cover size","Print-ready interior PDF from Markdown via Chromium","CLI with --json and a plan command for AI agents"]}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I make an RSS feed for my podcast without a hosting company?","acceptedAnswer":{"@type":"Answer","text":"Upload your MP3 files anywhere that serves them over HTTPS (your own site, GitHub Pages, an S3 or R2 bucket), then generate a feed that lists each file's URL, byte size, duration and publish date along with the show's title, description, cover art, category and language. This page does that from the audio files you drop in; the CLI does it from a folder. Host the feed.xml next to the audio and submit its URL to Apple Podcasts Connect and Spotify for Creators."}},{"@type":"Question","name":"What does ACX require for audiobook files?","acceptedAnswer":{"@type":"Answer","text":"ACX's published audio submission requirements: each file is one chapter or section and no longer than 120 minutes; MP3 at 192 kbps or higher, constant bitrate, 44.1 kHz; all files mono or all stereo; RMS between -23 and -18 dB, peaks at or below -3 dB, and a noise floor at or below -60 dB RMS; opening and closing credits and a 1 to 5 minute retail sample as separate files; and a square cover of at least 2400 by 2400 pixels. Publish Kit checks the file-level rules and measures loudness on WAV masters."}},{"@type":"Question","name":"How wide is the spine of my KDP paperback?","acceptedAnswer":{"@type":"Answer","text":"KDP multiplies the page count by a per-page paper thickness: 0.002252 inches for white paper and 0.0025 inches for cream. A 300-page book on white paper has a 0.676 inch spine, and a 6 by 9 inch book's full cover is then 12.926 by 9.25 inches including 0.125 inch bleed on each edge."}},{"@type":"Question","name":"Can an AI agent publish my podcast or book with this?","acceptedAnswer":{"@type":"Answer","text":"Yes. The CLI keeps everything in one publish.json, every command accepts --json, and publish-kit plan returns what is still missing and the next command to run, so an agent such as Claude Code can loop until the project is ready. It never uploads or submits anything itself: you or your agent upload the files and submit the feed, under your own accounts."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1c1d24; background: #f5f3ef; }
+    body { max-width: 1000px; margin: auto; padding: 24px; }
+    h1 { font-size: clamp(1.7rem, 4.6vw, 2.5rem); line-height: 1.1; margin: 0 0 12px; color: #2b2147; }
+    h2 { font-size: 1.2rem; margin: 0 0 10px; color: #2b2147; }
+    h3 { font-size: 1rem; margin: 16px 0 6px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #5a5d6b; }
+    .card { background: #fff; border: 1px solid #ddd8ce; border-radius: 14px; padding: 20px; margin: 18px 0; box-shadow: 0 6px 20px #2b214710; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0 16px; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; font-size: .92rem; }
+    input, select, textarea { width: 100%; box-sizing: border-box; padding: 8px 9px; border: 1px solid #aaa49a; border-radius: 7px; font: inherit; }
+    textarea { min-height: 120px; font: 13px/1.5 ui-monospace, monospace; }
+    button { border: 0; border-radius: 8px; padding: 10px 14px; background: #4a3a8c; color: #fff; font-weight: 700; cursor: pointer; margin: 10px 8px 0 0; }
+    button.secondary { background: #ebe7f6; color: #2b2147; }
+    nav.tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
+    nav.tabs a { padding: 8px 12px; border-radius: 999px; background: #ebe7f6; color: #2b2147; text-decoration: none; font-weight: 600; }
+    table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+    th, td { text-align: left; padding: 6px; border-bottom: 1px solid #eee9df; vertical-align: top; }
+    td input { padding: 5px 6px; }
+    pre { background: #f7f6f2; padding: 12px; border-radius: 8px; font-size: .84rem; overflow-x: auto; }
+    .finding { border-left: 4px solid #b42318; padding: 4px 0 4px 10px; margin: 6px 0; }
+    .finding.notice { border-left-color: #b8860b; }
+    .ok { color: #166534; font-weight: 600; }
+    .out { font-weight: 700; font-size: 1.05rem; }
+    footer { margin-top: 28px; border-top: 1px solid #ddd8ce; padding-top: 14px; }
+  </style>
+</head>
+<body>
+<header>
+  <p class="note">PUBLISH KIT · FREE · OPEN SOURCE · NOTHING UPLOADED</p>
+  <h1>Publish your podcast, audiobook or book yourself</h1>
+  <p>Make a <strong>podcast RSS feed</strong> Apple Podcasts and Spotify accept, turn <strong>Markdown into an EPUB</strong> for Kindle, Apple Books and Kobo, check <strong>audiobook files against ACX</strong>, and size a <strong>paperback cover</strong>. Each tool runs in this page, and the same tools come as a <a href="#cli">command-line kit an AI agent can drive</a>.</p>
+  <nav class="tabs"><a href="#podcast">Podcast RSS feed</a><a href="#ebook">Markdown → EPUB</a><a href="#paperback">Paperback spine &amp; cover</a><a href="#audiobook">Audiobook (ACX) check</a><a href="#cli">CLI &amp; AI agents</a></nav>
+</header>
+
+<main>
+<section class="card" id="podcast">
+  <h2>Podcast RSS feed generator</h2>
+  <p>Fill in the show, drop your episode audio in, and download <code>feed.xml</code>. The page reads each file's size and duration on your device. Upload the audio to any HTTPS host, put the feed next to it, and submit the feed URL to Apple Podcasts Connect and Spotify for Creators.</p>
+  <div class="grid">
+    <div><label for="p-title">Show title</label><input id="p-title" value="My Show"></div>
+    <div><label for="p-author">Author / host</label><input id="p-author"></div>
+    <div><label for="p-email">Owner email (for directory verification)</label><input id="p-email" type="email"></div>
+    <div><label for="p-lang">Language</label><input id="p-lang" value="en"></div>
+    <div><label for="p-link">Show website</label><input id="p-link" placeholder="https://example.com/podcast/"></div>
+    <div><label for="p-feed">Feed URL (where feed.xml will live)</label><input id="p-feed" placeholder="https://example.com/podcast/feed.xml"></div>
+    <div><label for="p-base">Audio folder URL</label><input id="p-base" placeholder="https://example.com/podcast/audio/"></div>
+    <div><label for="p-image">Cover art URL (1400–3000 px square)</label><input id="p-image" placeholder="https://example.com/podcast/cover.jpg"></div>
+    <div><label for="p-cat">Category</label><select id="p-cat"></select></div>
+    <div><label for="p-type">Show type</label><select id="p-type"><option value="episodic">Episodic (newest first)</option><option value="serial">Serial (in order)</option></select></div>
+    <div><label for="p-explicit">Explicit content</label><select id="p-explicit"><option value="false">No</option><option value="true">Yes</option></select></div>
+  </div>
+  <label for="p-desc">Show description</label><textarea id="p-desc" style="min-height:70px;font:inherit"></textarea>
+  <label for="p-files">Episode audio (MP3, M4A, M4B or WAV), read on your device and never uploaded</label>
+  <input id="p-files" type="file" accept="audio/*,.mp3,.m4a,.m4b,.wav" multiple>
+  <div style="overflow-x:auto"><table id="p-eps"><thead><tr><th>Title</th><th>File</th><th>Duration</th><th>Publish date</th></tr></thead><tbody></tbody></table></div>
+  <button id="p-build" type="button">Build feed</button><button id="p-download" class="secondary" type="button" disabled>Download feed.xml</button>
+  <div id="p-findings" aria-live="polite"></div>
+  <pre id="p-out" hidden></pre>
+  <p class="note">Episode guids are random UUIDs made once in this page. If you rebuild later, keep the old feed's guids (or use the CLI, which saves them in <code>publish.json</code>). A changed guid makes apps show the episode as new. Check the result with the <a href="../podcast-feed-check/">Podcast Feed Validator</a>.</p>
+</section>
+
+<section class="card" id="ebook">
+  <h2>Markdown to EPUB</h2>
+  <p>Paste your manuscript in Markdown. Each <code># Heading</code> starts a new chapter. You get an EPUB 3 file with a cover, a title page and a table of contents, ready for KDP, Apple Books, Kobo, Google Play Books and Draft2Digital. Files from the CLI pass W3C EPUBCheck.</p>
+  <div class="grid">
+    <div><label for="e-title">Title</label><input id="e-title" value="My Book"></div>
+    <div><label for="e-author">Author</label><input id="e-author"></div>
+    <div><label for="e-lang">Language</label><input id="e-lang" value="en"></div>
+    <div><label for="e-isbn">ISBN (optional)</label><input id="e-isbn" placeholder="978…"></div>
+    <div><label for="e-cover">Cover image (JPEG/PNG, ideally 1600×2560)</label><input id="e-cover" type="file" accept="image/jpeg,image/png"></div>
+  </div>
+  <label for="e-desc">Description</label><input id="e-desc">
+  <label for="e-md">Manuscript (Markdown)</label>
+  <textarea id="e-md" style="min-height:200px"># Chapter One
+
+It was a **bright** cold day in April.
+
+* * *
+
+# Chapter Two
+
+Write the rest here.</textarea>
+  <button id="e-build" type="button">Build EPUB</button>
+  <div id="e-findings" aria-live="polite"></div>
+</section>
+
+<section class="card" id="paperback">
+  <h2>Paperback spine width and cover size (KDP Print)</h2>
+  <div class="grid">
+    <div><label for="c-pages">Page count</label><input id="c-pages" type="number" min="1" max="1000" step="1" value="300"></div>
+    <div><label for="c-trim">Trim size (inches)</label><select id="c-trim"><option>5x8</option><option>5.25x8</option><option>5.5x8.5</option><option selected>6x9</option><option>7x10</option><option>8.5x11</option></select></div>
+    <div><label for="c-paper">Paper</label><select id="c-paper"><option value="white">White (black ink)</option><option value="cream">Cream (black ink)</option><option value="standard-color">Standard colour</option><option value="premium-color">Premium colour</option></select></div>
+  </div>
+  <div id="c-out" aria-live="polite"></div>
+</section>
+
+<section class="card" id="audiobook">
+  <h2>Audiobook file check (ACX / Audible)</h2>
+  <p>Choose your chapter files in reading order. Each one is checked against ACX's published requirements: MP3, 192 kbps or higher, constant bitrate, 44.1 kHz, at most 120 minutes, and all mono or all stereo. For 16-bit WAV masters it also measures RMS, peak and noise floor. Files stay on your device.</p>
+  <label for="a-files">Chapter files</label><input id="a-files" type="file" accept="audio/*,.mp3,.wav" multiple>
+  <div id="a-out" aria-live="polite"></div>
+  <p class="note">More detail: <a href="./acx-audiobook-requirements.html">ACX audiobook requirements, and how to check your files</a>.</p>
+</section>
+
+<section class="card" id="cli">
+  <h2>The command-line kit, for you or your AI agent</h2>
+  <p>The same code as a zero-dependency Node.js CLI. One <code>publish.json</code> per project. Every command takes <code>--json</code>, and <code>plan</code> lists what is still missing and the next command to run, so Claude Code, Cursor or any agent can take a folder of audio or Markdown to a finished feed, EPUB, M4B or print PDF.</p>
+<pre>git clone --depth 1 https://github.com/duncan-haywood/oss-monorepo
+alias publish-kit="node $PWD/oss-monorepo/ventures/publish-kit/cli.mjs"
+
+publish-kit init podcast my-show &amp;&amp; cd my-show
+publish-kit podcast add ep1.mp3 --title "Pilot" --description "Show notes"
+publish-kit plan --json          # what's missing, what to run next
+publish-kit podcast build        # dist/feed.xml + dist/index.html, validated
+
+publish-kit init ebook my-book   # chapters/*.md → EPUB, print PDF, cover size
+publish-kit ebook build &amp;&amp; publish-kit print interior --pdf &amp;&amp; publish-kit print cover --pdf dist/my-book-print.pdf
+
+publish-kit init audiobook my-audiobook
+publish-kit audiobook check &amp;&amp; publish-kit audiobook m4b --run &amp;&amp; publish-kit audiobook feed</pre>
+  <p>An agent skill file is included (<a href="https://github.com/duncan-haywood/oss-monorepo/blob/main/ventures/publish-kit/skill/SKILL.md">skill/SKILL.md</a>). Source and full docs: <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/publish-kit">ventures/publish-kit on GitHub</a>.</p>
+</section>
+<section class="card" id="faq">
+  <h2>Questions</h2>
+  <h3>How do I make an RSS feed for my podcast without a hosting company?</h3>
+  <p>Upload your MP3 files anywhere that serves them over HTTPS (your own site, GitHub Pages, an S3 or R2 bucket), then generate a feed that lists each file's URL, byte size, duration and publish date along with the show's title, description, cover art, category and language. This page does that from the audio files you drop in; the CLI does it from a folder. Host the feed.xml next to the audio and submit its URL to Apple Podcasts Connect and Spotify for Creators.</p>
+  <h3>What does ACX require for audiobook files?</h3>
+  <p>ACX's published audio submission requirements: each file is one chapter or section and no longer than 120 minutes; MP3 at 192 kbps or higher, constant bitrate, 44.1 kHz; all files mono or all stereo; RMS between -23 and -18 dB, peaks at or below -3 dB, and a noise floor at or below -60 dB RMS; opening and closing credits and a 1 to 5 minute retail sample as separate files; and a square cover of at least 2400 by 2400 pixels. Publish Kit checks the file-level rules and measures loudness on WAV masters.</p>
+  <h3>How wide is the spine of my KDP paperback?</h3>
+  <p>KDP multiplies the page count by a per-page paper thickness: 0.002252 inches for white paper and 0.0025 inches for cream. A 300-page book on white paper has a 0.676 inch spine, and a 6 by 9 inch book's full cover is then 12.926 by 9.25 inches including 0.125 inch bleed on each edge.</p>
+  <h3>Can an AI agent publish my podcast or book with this?</h3>
+  <p>Yes. The CLI keeps everything in one publish.json, every command accepts --json, and publish-kit plan returns what is still missing and the next command to run, so an agent such as Claude Code can loop until the project is ready. It never uploads or submits anything itself: you or your agent upload the files and submit the feed, under your own accounts.</p>
+</section>
+</main>
+
+<footer>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal or publishing-contract advice, and it does not replace a qualified professional. Platform requirements (Apple Podcasts, ACX, KDP and others) are as they were published when this tool was built, and platforms revise them, so a clean result is not a promise that any store or directory will accept your work. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+  <p><strong>Privacy.</strong> Everything runs in your browser. Your audio, manuscript and cover are never uploaded, and we don't have accounts, tracking cookies, or an analytics vendor. We keep anonymous counts of which tool was used, in your own browser's storage only.</p>
+  <p><label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label></p>
+  <p>Related: <a href="../podcast-feed-check/">Podcast Feed Validator</a> checks any podcast feed; <a href="../kdp-royalty-calculator/">KDP Royalty Calculator</a> works out what each book earns.</p>
+  <p>Free and MIT-licensed. If it saved you time, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>.</p>
+</footer>
+
+<script type="module">
+  import { probe, hhmmss, measureWavLoudness } from './media.mjs';
+  import { lintPodcast, buildPodcastFeed, APPLE_CATEGORIES } from './podcast.mjs';
+  import { buildEpub, checkCover, paperbackCover, lintBook } from './book.mjs';
+  import { checkAcx } from './audiobook.mjs';
+  import { uuidv4 } from './util.mjs';
+  import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const count = (event) => recordUsage(localStorage, $('usageOptOut')?.checked ?? false, event);
+  const showFindings = (el, findings, okText) => {
+    el.innerHTML = findings.length
+      ? findings.map((f) => `<div class="finding ${f.severity}"><strong>${esc(f.field)}</strong>: ${esc(f.message)}${f.fix ? `<br><small>→ ${esc(f.fix)}</small>` : ''}</div>`).join('')
+      : `<p class="ok">${esc(okText)}</p>`;
+  };
+  const download = (name, data, type) => {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([data], { type }));
+    a.download = name;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  };
+  const readBytes = async (file) => new Uint8Array(await file.arrayBuffer());
+
+  // Podcast
+  for (const [top, subs] of Object.entries(APPLE_CATEGORIES)) {
+    $('p-cat').add(new Option(top, top));
+    for (const s of subs) $('p-cat').add(new Option(`${top} › ${s}`, `${top} > ${s}`));
+  }
+  $('p-cat').value = 'Technology';
+  /** @type {any[]} */
+  let episodes = [];
+  const renderEpisodes = () => {
+    $('p-eps').tBodies[0].innerHTML = episodes.map((e, i) => `<tr><td><input data-i="${i}" data-k="title" value="${esc(e.title)}" aria-label="Episode ${i + 1} title"></td><td>${esc(e.file)}<br><small>${(e.bytes / 1e6).toFixed(1)} MB</small></td><td>${hhmmss(e.duration)}</td><td><input data-i="${i}" data-k="pubDate" type="date" value="${e.pubDate.slice(0, 10)}" aria-label="Episode ${i + 1} date"></td></tr>`).join('');
+  };
+  $('p-eps').addEventListener('input', (ev) => {
+    const t = ev.target;
+    if (!t.dataset.k) return;
+    episodes[Number(t.dataset.i)][t.dataset.k] = t.dataset.k === 'pubDate' ? new Date(`${t.value}T09:00:00Z`).toISOString() : t.value;
+  });
+  $('p-files').addEventListener('change', async () => {
+    const today = Date.now();
+    for (const file of $('p-files').files) {
+      const info = probe(await readBytes(file));
+      if (info.error) { alert(`${file.name}: ${info.error}`); continue; }
+      episodes.push({ title: file.name.replace(/\.[^.]+$/, ''), file: file.name, bytes: info.bytes, duration: info.duration, mime: info.mime, pubDate: new Date(today + episodes.length * 60000).toISOString(), guid: uuidv4(), episode: episodes.length + 1, episodeType: 'full' });
+    }
+    renderEpisodes();
+    count('podcast_audio_read');
+  });
+  let lastFeed = '';
+  $('p-build').addEventListener('click', () => {
+    const project = {
+      show: {
+        title: $('p-title').value, description: $('p-desc').value, author: $('p-author').value,
+        owner: { name: $('p-author').value, email: $('p-email').value }, language: $('p-lang').value,
+        link: $('p-link').value, feedUrl: $('p-feed').value, baseUrl: $('p-base').value, image: $('p-image').value,
+        categories: [$('p-cat').value], explicit: $('p-explicit').value === 'true', type: $('p-type').value,
+      },
+      episodes,
+    };
+    const findings = lintPodcast(project);
+    showFindings($('p-findings'), findings, 'Nothing missing. Download the feed and host it at your feed URL.');
+    try {
+      lastFeed = buildPodcastFeed(project, { generator: 'Publish Kit (browser)' });
+      $('p-out').textContent = lastFeed;
+      $('p-out').hidden = false;
+      $('p-download').disabled = false;
+    } catch (e) { $('p-findings').insertAdjacentHTML('beforeend', `<div class="finding">${esc(e.message)}</div>`); }
+    count('podcast_feed_built');
+  });
+  $('p-download').addEventListener('click', () => download('feed.xml', lastFeed, 'application/rss+xml'));
+
+  // EPUB
+  $('e-build').addEventListener('click', async () => {
+    const md = $('e-md').value;
+    const chapters = md.split(/\n(?=# )/).map((markdown) => ({ markdown })).filter((c) => c.markdown.trim());
+    const book = { title: $('e-title').value, author: $('e-author').value, language: $('e-lang').value, identifier: $('e-isbn').value.trim() || undefined, description: $('e-desc').value };
+    const findings = lintBook({ book, chapters: chapters.map((_, i) => String(i)) }).filter((f) => f.field !== 'book.identifier' && f.field !== 'book.cover');
+    let cover;
+    const coverFile = $('e-cover').files[0];
+    if (coverFile) {
+      const data = await readBytes(coverFile);
+      const info = probe(data);
+      findings.push(...checkCover(info, 'ebook'));
+      if (!info.error) cover = { data, mime: info.mime };
+    }
+    if (findings.some((f) => f.severity === 'danger')) { showFindings($('e-findings'), findings, ''); return; }
+    const { epub, chapters: toc, missingImages } = buildEpub({ book, chapters, cover });
+    for (const src of missingImages) findings.push({ severity: 'notice', field: 'images', message: `"${src}" is a local image; the browser version cannot bundle it. Use a full https:// URL or the CLI.` });
+    showFindings($('e-findings'), findings, `Built ${toc.length} chapter(s): ${toc.map((t) => t.title).join(', ')}.`);
+    download(`${book.title.replace(/[^\w-]+/g, '-').toLowerCase() || 'book'}.epub`, epub, 'application/epub+zip');
+    count('epub_built');
+  });
+
+  // Paperback
+  const renderCover = () => {
+    try {
+      const c = paperbackCover({ pages: Number($('c-pages').value), trim: $('c-trim').value, paper: $('c-paper').value });
+      $('c-out').innerHTML = `<p class="out">Spine ${c.spineIn}" · full cover ${c.widthIn}" × ${c.heightIn}" (${c.widthPx} × ${c.heightPx} px at 300 DPI)</p>
+        <p>Includes 0.125" bleed on every outside edge. The front panel starts ${c.frontStartsAtIn}" from the left edge. Inside (gutter) margin: at least ${c.gutterIn}".</p>
+        <ul>${c.notes.map((n) => `<li>${esc(n)}</li>`).join('')}</ul>`;
+    } catch (e) { $('c-out').innerHTML = `<div class="finding">${esc(e.message)}</div>`; }
+  };
+  for (const id of ['c-pages', 'c-trim', 'c-paper']) $(id).addEventListener('input', () => { renderCover(); count('spine_calculated'); });
+  renderCover();
+
+  // Audiobook
+  $('a-files').addEventListener('change', async () => {
+    const tracks = [];
+    for (const file of $('a-files').files) {
+      const data = await readBytes(file);
+      const info = probe(data);
+      tracks.push({ file: file.name, info, ...(info.format === 'wav' ? { loudness: measureWavLoudness(data) } : {}) });
+    }
+    const r = checkAcx(tracks);
+    $('a-out').innerHTML = `<table><thead><tr><th></th><th>File</th><th>Length</th><th>Format</th></tr></thead><tbody>${tracks.map((t, i) => `<tr><td>${r.files[i].ok ? '✓' : '✗'}</td><td>${esc(t.file)}</td><td>${r.files[i].duration}</td><td>${esc(String(t.info.format).toUpperCase())} ${t.info.bitrateKbps ?? ''} kbps ${t.info.sampleRate ?? ''} Hz${t.loudness && !t.loudness.error ? ` · RMS ${t.loudness.rmsDb} dB, peak ${t.loudness.peakDb} dB` : ''}</td></tr>`).join('')}</tbody></table><p>Total ${hhmmss(r.totalSeconds)}.</p><div id="a-f"></div>`;
+    showFindings($('a-f'), r.findings, 'No problems found in the checked rules.');
+    count('acx_checked');
+  });
+
+  const usageControl = $('usageOptOut');
+  usageControl.checked = readOptOut(localStorage);
+  usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+</script>
+</body>
+</html>

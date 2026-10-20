@@ -29,10 +29,13 @@ flagships:
     next: >-
       A Poisson cost for counts, a seasonal adjustment (--period n) and an
       AR(1)-aware noise scale (--ar1) are in, each measured on seeded
-      synthetic series (README Verification). Next: a check of all three models
-      against R's changepoint package output (R was not available), correcting
-      the Bayesian pass for autocorrelation, and an STL step for a drifting
-      seasonal shape.
+      synthetic series (README Verification), and --ar1 now prewhitens the Bayesian
+      pass too (false detections 40/40 -> 1/40, power 25/40). The mean and
+      mean-and-variance PELT match the independent ruptures package on 100 of 100
+      seeded cases (fixture in data/). Next: a check of the Poisson model against
+      R's changepoint (R and a ruptures Poisson cost were unavailable), raising the power lost to prewhitening in the Bayesian pass (the PELT side now has a
+      joint mean-plus-AR(1) fit, --ar1 joint: 34/40 power at shift 4 against 28/40, same 4/40
+      false runs), and an STL step for a drifting seasonal shape.
   - venture: einvoice-preflight
     why: >-
       Real EN 16931 validator (JSON, UBL, CII, Factur-X PDF; 54+ rules,
@@ -46,10 +49,12 @@ flagships:
       the self-hosted API and lists the findings (official.mjs). The Peppol
       credit-note and XRechnung CII examples now pass the official rules in
       tests, and the 30 DE-R rules Peppol applies to German invoices have
-      English fixes. Next: a WASM/in-browser path so the static Pages copy can
-      run it too without a server (Saxon-JS in the page, SEF files built in CI
-      and served as static assets), then CreditNote and CII credit-note
-      defect examples.
+      English fixes. An in-browser path is in (node build-browser.mjs writes ./browser/ with Saxon-JS's
+      browser runtime and the SEFs; checked in headless Chromium, no server). It is not
+      on the owner's Pages copy because Saxon-JS's licence bars redistributing it from
+      a site that mainly serves it; the owner could ask Saxonica for permission, or the
+      rules could be ported to a plain-JS evaluator. Next: that decision, then
+      CreditNote and CII credit-note defect examples.
   - venture: shift-roster-builder
     why: >-
       Simulated-annealing scheduler over a dollar cost (availability, rest,
@@ -93,8 +98,9 @@ flagships:
       Multi-division scheduling on shared venues is in (divisions.mjs, and now
       a browser page, multi-division-league-schedule.html, linked from the
       index and sitemap; venue changes -25% against the naive order on the
-      example, unavoidable clashes listed). Next: venue-to-venue travel times
-      instead of a flat trip count, filling partial nights (split a round
+      example, unavoidable clashes listed). Venue-to-venue travel times are in
+      (`travel` field, minutes per venue pair; -10% road minutes against a flat
+      trip count on three venues, README). Next: filling partial nights (split a round
       across nights without breaking its balance), rainout moves that work
       across divisions, and a share link that carries the division form.
   - venture: open-tennis-robots

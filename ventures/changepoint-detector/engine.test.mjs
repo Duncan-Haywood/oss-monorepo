@@ -1,7 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import {
-  PAPERS, DEFAULTS, analyze, bocpd, defaultPoissonPrior, defaultPrior, gammaPoissonLogMarginal, makeCost, lgamma, nigLogMarginal, optimalPartitioning, ar1Rho, longRunSd, seasonalAdjust, parseSeries, peaks, pelt, robustSd,
+  PAPERS, DEFAULTS, ar1JointFit, analyze, bocpd, defaultPoissonPrior, defaultPrior, gammaPoissonLogMarginal, makeCost, lgamma, nigLogMarginal, optimalPartitioning, ar1Rho, longRunSd, prewhiten, seasonalAdjust, parseSeries, peaks, pelt, robustSd,
 } from './engine.mjs';
 
 // Seeded PRNG (mulberry32) and Box-Muller normals, so every test is reproducible.
@@ -258,6 +259,24 @@ test('ar1 correction still finds a real shift in autocorrelated noise', () => {
   assert.ok(hit >= 0.8 * N, `found once near 150 in ${hit}/${N}`); // measured 35/40
 });
 
+test('ar1 correction reaches the Bayesian pass (prewhitening)', () => {
+  assert.deepEqual(prewhiten([5, 7, 3], 0.5), [2.5, 4.5, -0.5]);
+  let plain = 0, fixed = 0, hitPlain = 0, hitFixed = 0;
+  const N = 40;
+  const near = (a) => a.bocpd.detections.some((d) => Math.abs(d.index - 150) <= 10);
+  for (let s = 1; s <= N; s++) {
+    const x = ar1Series(s, 0.8, 300);
+    plain += analyze({ values: x }).bocpd.detections.length > 0;
+    fixed += analyze({ values: x, ar1: true }).bocpd.detections.length > 0;
+    const y = ar1Series(s + 100, 0.8, 300, 150, 8);
+    hitPlain += near(analyze({ values: y }));
+    hitFixed += near(analyze({ values: y, ar1: true }));
+  }
+  assert.ok(plain >= 0.9 * N, `uncorrected false Bayesian runs ${plain}/${N}`); // measured 40/40
+  assert.ok(fixed <= 0.1 * N, `corrected false Bayesian runs ${fixed}/${N}`);   // measured 1/40
+  assert.ok(hitFixed >= 0.5 * N, `corrected hits ${hitFixed}/${N}`);            // measured 25/40 (uncorrected ${hitPlain} = 40)
+});
+
 test('seasonalAdjust removes a seasonal cycle and centres the profile', () => {
   const x = Array.from({ length: 48 }, (_, i) => 10 * Math.sin((2 * Math.PI * i) / 12) + 5);
   const { adjusted, profile } = seasonalAdjust(x, 12);
@@ -287,4 +306,39 @@ test('seasonal period and ar1 reject inputs they cannot handle', () => {
   assert.throws(() => analyze({ values: [1, 2, 3, 4, 5, 6, 7, 8], ar1: true, model: 'meanvar' }), /"mean" model only/);
   const r = analyze({ values: ar1Series(1, 0.8, 100), ar1: true });
   assert.ok(r.ar1.rho > 0.5);
+});
+
+test('joint AR(1) fit: exact against brute force, and more power on small shifts', () => {
+  // PELT on the AR(1) likelihood equals optimal partitioning on the same cost.
+  const y = ar1Series(7, 0.6, 80, 40, 5);
+  const opt = { model: 'ar1mean', penalty: 'bic', sigma: 1, rho: 0.6 };
+  assert.deepEqual(pelt(y, opt).changepoints, optimalPartitioning(y, opt).changepoints);
+  const N = 40;
+  let fp = 0, longHit = 0, jointHit = 0;
+  const once = (c) => c.length === 1 && Math.abs(c[0].index - 150) <= 10;
+  for (let s = 1; s <= N; s++) {
+    fp += analyze({ values: ar1Series(s, 0.8, 300), ar1: 'joint' }).pelt.changepoints.length > 0;
+    const z = ar1Series(s + 100, 0.8, 300, 150, 4);
+    longHit += once(analyze({ values: z, ar1: true }).pelt.changepoints);
+    const j = analyze({ values: z, ar1: 'joint' });
+    jointHit += once(j.pelt.changepoints);
+    assert.ok(j.ar1.rho > 0.5);
+  }
+  assert.ok(fp <= 0.15 * N, `false runs ${fp}/${N}`);                 // measured 4/40
+  assert.ok(jointHit >= longHit, `joint ${jointHit} vs long-run ${longHit}`); // measured 34 vs 28 at shift 4
+  assert.ok(jointHit >= 0.75 * N);
+});
+
+test('PELT agrees with an independent implementation (ruptures) on 100 seeded cases', () => {
+  // data/ruptures-crosscheck.json holds series and the changepoints ruptures'
+  // Pelt (CostL2 for mean, CostNormal for meanvar) returns at the same numeric
+  // penalty; data/make_ruptures_fixture.py regenerates it. sigma = 1 matches the
+  // unit-noise L2 cost.
+  const fixture = JSON.parse(readFileSync(new URL('./data/ruptures-crosscheck.json', import.meta.url), 'utf8'));
+  assert.equal(fixture.cases.length, 100);
+  assert.ok(fixture.cases.filter((c) => c.changepoints.length > 0).length >= 50);
+  for (const c of fixture.cases) {
+    const got = pelt(c.values, { model: c.model, penalty: c.penalty, minSegment: c.minSegment, sigma: 1 });
+    assert.deepEqual(got.changepoints, c.changepoints, `${c.model} penalty ${c.penalty} n=${c.values.length}`);
+  }
 });
