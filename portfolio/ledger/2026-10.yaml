@@ -4111,3 +4111,22 @@ entries:
         mechanism, ~118 balls) after the ramp geometry could not drop balls into a hopper reliably.
         Feeder CAD is next.
     mrr_end: 0
+  - venture: saints-by-candlelight
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Built saints-by-candlelight at the owner's request (2026-10-20): a free bedtime podcast of
+        Catholic and Orthodox stories of saints, angels and patriarchs in a lighthearted
+        myths-and-legends storytelling style. Three episodes with full scripts and audio: the Book of
+        Tobit and the Archangel Raphael (53 min), Saint Gerasimus and the lion (41 min), Saint Nicholas
+        and the three bags of gold (45 min). Audio is rendered offline with Kokoro (Apache 2.0,
+        voice bm_george), 40 kbps mono MP3, about 40 MB for the three; a tiny Whisper model
+        transcribed a 45-second clip of episode 1 nearly word for word. PRODUCTION.md is the series
+        bible (episode shape, fixed AI disclosure, doctrine and honesty rules, the next 17 subjects);
+        generate.mjs builds episode pages with "what's true / legend / invented" notes, an RSS feed with
+        itunes and podcast namespace tags, and a sitemap, and --check-script lints scripts for the ear.
+        A weekly scheduled session writes, records and merges the next episode. Directory listing
+        (Apple Podcasts, Spotify, YouTube, Podcast Index) and a public owner email for the feed are
+        owner steps, named in the README.
+    mrr_end: 0
