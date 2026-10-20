@@ -262,6 +262,8 @@
   </details>
 </section>
 
+<!-- In-browser training panel: all of its code is in train/; this section and the train/panel.js script tag are its only hooks. -->
+<section id="trainPanel" class="train" aria-labelledby="trainHead"></section>
 <section class="limits">
   <h2>How it works and what it cannot tell you</h2>
   <ul>
@@ -282,5 +284,6 @@
 </main>
 <div id="tip" class="tip" role="tooltip" hidden></div>
 <script type="module" src="app.js"></script>
+<script type="module" src="train/panel.js"></script>
 </body>
 </html>

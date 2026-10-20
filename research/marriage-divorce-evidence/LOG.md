@@ -13,6 +13,24 @@
 - ACS detail baselines (2019, 2021–24, replicate-weight and age-standardised CIs): one-year divorce per 1,000 by census race group (Asian 8.3, Black 23.6, AIAN 19.5, NHPI 12.1, multiracial 18.9), 18 Asian subgroups (Asian Indian 5.2, Chinese 8.3, Vietnamese 14.4) and 11 Hispanic origins (Mexican 13.7, Puerto Rican 20.3, Dominican 23.1); occupation (detailed, SOC major: healthcare support 25.8 vs architecture and engineering 10.3), industry, household income ($200k+ 6.3 vs under $25k 31.7) and tenure (renters 29.6 vs owners 8.4–9.7), all labelled as measured after any divorce (`app/data/acs_occupation_divorce.json`).
 - `app/data/race_coverage.json` says for every lens which race categories it distinguishes and how each finer form answer maps (NSFG and HCMST: Asian → Other; NLSY: Asian → non-Black non-Hispanic; GSS: Hispanic cannot be placed). Extended models ship in each bundle's `models_extended` with test vectors (new `tests/extended_models.test.mjs`, parity to 10<sup>-9</sup>); the app scores none of them until the form asks for the new inputs.
 
+## 2026-10-20 · Train the models yourself: the NSFG 1995–2023 lens retrained in the browser, matching scikit-learn
+
+- The app has a new "Train the models yourself" panel. A background worker downloads a 374 KB public extract of the NSFG 1995–2023 women's first marriages: 29,202 marriages, 10,529 dissolutions and 249,868 marriage-years. It contains only inputs fixed at or before the wedding. The worker then refits the lens in plain JavaScript with the Python pipeline's person-held-out five folds.
+- The NSFG files are U.S. government works and not under copyright, so the extract can be published. The NCHS data-use terms are recorded in the file: statistical use only, no attempt to identify anyone, no linkage.
+- Held out, the browser reproduces scikit-learn 1.7.2 on the same extract:
+
+  | Model | Browser | scikit-learn |
+  | --- | --- | --- |
+  | Duration-only GLM | 0.645% | 0.645% |
+  | Additive spline Poisson GLM | 5.688%, C 0.6947 | 5.688%, C 0.6947 |
+  | Depth-4 Poisson tree | 3.333%, C 0.6512 | 3.333%, C 0.6512 |
+  | Poisson gradient boosting (250 rounds) | 6.298%, C 0.7029 | 6.297%, C 0.7028 |
+
+  scikit-learn on the extract also matches the shipped lens's 5.688% and 6.289%, which confirms the extract.
+- The JS GLM's coefficients equal scikit-learn's within 4×10<sup>−14</sup>. It uses Newton's method with the Hessian accumulated per person and per marriage year, so a fit takes 0.7 s. Gradient boosting fits histogram trees with per-person runs and child-histogram subtraction, at about 21 ms per round.
+- A full run took 35 s in Node and 44 s in headless Chromium at 1200 px. At 390 px with 25 boosting rounds it took 13 s, but boosting's gain fell to 3.85%. The main thread never stalled more than 68 ms, cancelling works, there were no console errors and no horizontal scroll. No real phone has been timed yet.
+- After training, the models are refitted on every marriage, and a visitor can score a profile with the models they just trained. `tests/train.test.mjs` checks the coefficients to 10<sup>−6</sup>, the held-out gains (0.001 points; 0.15 for boosting), the C indices, O/E and the extract's sample.
+
 ## 2026-10-20 · Before the wedding, checked on a later cohort: 2009 dating models predict 2017 couples
 
 - The two HCMST before-the-wedding models (marry the partner, or break up first) were trained on couples unmarried in 2009. They were scored, without refitting, on the 777 couples unmarried in HCMST's fresh 2017 sample, using a harmonized variant without parents' view or religion (not asked in 2017).
