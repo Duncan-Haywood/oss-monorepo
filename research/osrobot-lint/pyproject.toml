@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "osrobot-lint"
+version = "0.1.0"
+description = "A stdlib static linter for Opentrons Python API v2 scripts: reused tips, tips left on, sub-minimum volumes, declared-volume overdraws, carry-over"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
