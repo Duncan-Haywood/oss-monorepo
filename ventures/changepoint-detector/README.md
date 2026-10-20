@@ -83,14 +83,30 @@ where it departs from the paper.
   level shift; CSV parsing handles headers, named columns, quoted thousands,
   blank rows and semicolons.
 
-Not verified: R's output for the Poisson model (above), and behaviour on strongly autocorrelated or seasonal series (both
-methods assume independent noise within a segment, so such series show extra
-changes).
+Not verified: R's output for the Poisson model (above).
+
+Seasonal and autocorrelated series (`--period n`, `--ar1`; seeded synthetic
+series, 40 each, in `engine.test.mjs`):
+
+- **Autocorrelation.** Both methods assume independent noise, so AR(1) noise
+  (rho 0.8, 300 points, no change at all) gave a false PELT change in 40 of 40
+  runs. With `--ar1` the noise scale becomes the long-run sd (difference-based
+  sd x sqrt(1+rho)/(1-rho), rho estimated from the lag-1 correlation of the
+  clipped first differences, which a level shift barely touches) and false-change
+  runs fall to 4 of 40. A real shift of 8 in the same noise was found exactly
+  once within 10 points of the truth in 35 of 40 runs, so the correction costs
+  some power. Mean model only; the Bayesian pass is not corrected and still
+  over-reports on such series.
+- **Seasonality.** A level shift of 4 under a sine of amplitude 10 (period 12,
+  144 points) gave exactly one change in 0 of 40 runs without adjustment and
+  exactly one change within 1 point of the truth in 33 of 40 with `--period 12`
+  (centred moving average, per-phase median, profile centred at zero). It needs
+  two full cycles and is not offered for counts.
 
 ## Limits
 
-Steps, not trends: a gradual drift is approximated by several steps. Remove
-known seasonality first. A changepoint describes the data, not its cause.
+Steps, not trends: a gradual drift is approximated by several steps. Seasonality is
+removed with `--period` (a fixed cycle only; no trend-seasonal STL). A changepoint describes the data, not its cause.
 Up to 100,000 points; the Bayesian pass is the slow part on long series.
 
 ## Disclaimer

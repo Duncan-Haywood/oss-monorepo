@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  PAPERS, DEFAULTS, analyze, bocpd, defaultPoissonPrior, defaultPrior, gammaPoissonLogMarginal, makeCost, lgamma, nigLogMarginal, optimalPartitioning, parseSeries, peaks, pelt, robustSd,
+  PAPERS, DEFAULTS, analyze, bocpd, defaultPoissonPrior, defaultPrior, gammaPoissonLogMarginal, makeCost, lgamma, nigLogMarginal, optimalPartitioning, ar1Rho, longRunSd, seasonalAdjust, parseSeries, peaks, pelt, robustSd,
 } from './engine.mjs';
 
 // Seeded PRNG (mulberry32) and Box-Muller normals, so every test is reproducible.
@@ -209,4 +209,82 @@ test('Poisson BOCPD log evidence equals the closed-form Gamma-Poisson marginal w
 test('Poisson model rejects values that are not counts', () => {
   assert.throws(() => analyze({ values: [1, 2, 3.5, 4, 5], model: 'poisson' }), /needs counts/);
   assert.throws(() => analyze({ values: [1, 2, -3, 4, 5], model: 'poisson' }), /needs counts/);
+});
+
+// ---- seasonal adjustment and autocorrelation (measured on seeded synthetic series)
+
+function ar1Series(seed, rho, n, shiftAt = null, shift = 0) {
+  const r = rng(seed);
+  const z = normals(r, n);
+  const x = [];
+  let e = 0;
+  for (let i = 0; i < n; i++) { e = rho * e + z[i]; x.push(e + (shiftAt !== null && i >= shiftAt ? shift : 0)); }
+  return x;
+}
+
+test('ar1Rho recovers the autocorrelation of AR(1) noise, with and without a level shift', () => {
+  for (const rho of [0, 0.5, 0.8]) {
+    const est = [];
+    for (let s = 1; s <= 20; s++) est.push(ar1Rho(ar1Series(s, rho, 400, 200, 6)));
+    const mean = est.reduce((a, b) => a + b, 0) / est.length;
+    assert.ok(Math.abs(mean - rho) < 0.1, `rho ${rho}: mean estimate ${mean}`);
+  }
+});
+
+test('longRunSd is the identity at rho 0 and grows with rho', () => {
+  assert.equal(longRunSd(2, 0), 2);
+  assert.ok(longRunSd(2, 0.8) > longRunSd(2, 0.5));
+});
+
+test('ar1 correction: no-change AR(1) series stop showing false changes', () => {
+  let plain = 0, fixed = 0;
+  const N = 40;
+  for (let s = 1; s <= N; s++) {
+    const x = ar1Series(s, 0.8, 300);
+    plain += analyze({ values: x }).pelt.changepoints.length > 0;
+    fixed += analyze({ values: x, ar1: true }).pelt.changepoints.length > 0;
+  }
+  assert.ok(plain >= 0.9 * N, `uncorrected false-change runs ${plain}/${N}`); // measured 40/40
+  assert.ok(fixed <= 0.2 * N, `corrected false-change runs ${fixed}/${N}`);   // measured 4/40
+});
+
+test('ar1 correction still finds a real shift in autocorrelated noise', () => {
+  let hit = 0;
+  const N = 40;
+  for (let s = 1; s <= N; s++) {
+    const c = analyze({ values: ar1Series(s + 100, 0.8, 300, 150, 8), ar1: true }).pelt.changepoints;
+    if (c.length === 1 && Math.abs(c[0].index - 150) <= 10) hit++;
+  }
+  assert.ok(hit >= 0.8 * N, `found once near 150 in ${hit}/${N}`); // measured 35/40
+});
+
+test('seasonalAdjust removes a seasonal cycle and centres the profile', () => {
+  const x = Array.from({ length: 48 }, (_, i) => 10 * Math.sin((2 * Math.PI * i) / 12) + 5);
+  const { adjusted, profile } = seasonalAdjust(x, 12);
+  assert.ok(Math.abs(profile.reduce((a, b) => a + b, 0)) < 1e-9);
+  const mid = adjusted.slice(12, 36);
+  assert.ok(Math.max(...mid) - Math.min(...mid) < 1e-6, 'a pure cycle adjusts to a flat line');
+});
+
+test('seasonal period: a level shift hidden by a strong cycle is found once, near the right place', () => {
+  let plain = 0, adj = 0;
+  const N = 40;
+  for (let s = 1; s <= N; s++) {
+    const r = rng(s + 200);
+    const z = normals(r, 144);
+    const x = z.map((e, i) => 10 * Math.sin((2 * Math.PI * i) / 12) + (i >= 84 ? 4 : 0) + e);
+    plain += analyze({ values: x }).pelt.changepoints.length === 1;
+    const c = analyze({ values: x, period: 12 }).pelt.changepoints;
+    adj += c.length === 1 && Math.abs(c[0].index - 84) <= 1;
+  }
+  assert.equal(plain, 0);               // measured 0/40 without the adjustment
+  assert.ok(adj >= 0.75 * N, `${adj}/${N}`); // measured 33/40
+});
+
+test('seasonal period and ar1 reject inputs they cannot handle', () => {
+  assert.throws(() => analyze({ values: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], period: 12 }), /two full cycles/);
+  assert.throws(() => analyze({ values: Array(40).fill(3), period: 7, model: 'poisson' }), /counts/);
+  assert.throws(() => analyze({ values: [1, 2, 3, 4, 5, 6, 7, 8], ar1: true, model: 'meanvar' }), /"mean" model only/);
+  const r = analyze({ values: ar1Series(1, 0.8, 100), ar1: true });
+  assert.ok(r.ar1.rho > 0.5);
 });
