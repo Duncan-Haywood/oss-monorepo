@@ -149,6 +149,12 @@ Done (2026-10-19/20, PRs #8537, #8556 and the round-3 PR):
   `competingRisks()` (UN WPP 2024 U.S. death rates) once per scoring model and shows divorce,
   widowhood (the lifelong marriage) and still-married-both-alive shares, each with the model
   range. A test checks that zero mortality reproduces the no-divorce projection exactly.
+- Population comparison, "just me", candidates, batch CSV and a dashboard with
+  non-negotiables (`population.js`, `batch.js`, `dashboard.js`, `compare-ui.js`): percentiles
+  among each lens's own held-out predictions overall and by subgroup (NSFG 2002 lenses, built by
+  `tools/population_reference.py`; NLSY79 lenses have none until their extracts are restored),
+  per-lens candidate ranking with overlap tiers, client-side CSV scoring with downloadable
+  results, partner-trait search and what-ifs that respect locked and excluded values.
 - Phone layout (390px) and dark mode with no horizontal scroll; focus outlines; titles, meta and
   share-card descriptions within the 160-character budget; JSON-LD; links between the app, the
   project README and the research page.
