@@ -349,6 +349,12 @@ for ref in "refs/remotes/origin/$BRANCH" "refs/heads/$BRANCH"; do
 done
 node "$repo_root/platform/devstats/build.mjs" --out="$dist/dev" --previous="$prev_stats" >/dev/null
 
+# The engineering brief and The Merge Report (platform/daily/), after the
+# dashboard so the newest edition carries its CI snapshot.
+echo "Building the daily brief..."
+python3 "$repo_root/portfolio/ledger/decision_queue.py" --json > "$scratch/asks.json" 2>/dev/null || rm -f "$scratch/asks.json"
+node "$repo_root/platform/daily/build.mjs" --out="$dist/dev/daily" --stats="$dist/dev/stats.json" --asks="$scratch/asks.json" >/dev/null
+
 # GitHub reads the custom domain back out of this file on every deploy, so it
 # has to be in every tree this script writes, not only the one where it was
 # first set. Written after `check.mjs` for the same reason `.nojekyll` is:
