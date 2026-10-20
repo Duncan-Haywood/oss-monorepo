@@ -3497,6 +3497,11 @@
      "slug": "mimic-dialogue",
      "title": "Does a second turn make a plainly prompted LLM easier to spot in dialogue?",
      "summary": "Qwen2.5-0.5B-Instruct, given only a plain prompt, writes a user's second and third message in 400 real OpenAssistant threads. A prompt-free character and word n-gram detector (5-fold cross-validation grouped by thread) gets AUROC 0.93 on a single turn and 0.98 on the two turns together (paired accuracy 0.98); length alone gets 0.65 and 0.71. A quarter of the imitations read like assistant replies; dropping those threads leaves 0.95 for the thread. Limits: volunteer prompter turns, one 0.5B imitator and prompt, one seed, teacher-forced turns, no group-level false-positive rates. Stylised baseline; no prompt is optimised."
+    },
+    {
+     "slug": "mimic-cursor",
+     "title": "Can an imitator that changes its own code fool a human-vs-bot cursor detector, and does shared feedback help either side?",
+     "summary": "Browser use, the first subject of the adversarial-imitation track beyond writing. Cursor strokes of 46 people from DUX (CC-BY-4.0) against an imitator built from code components and a detector that picks 3 of 11 feature functions, 4 feedback conditions &times; 8 seeds &times; 30 rounds at equal budget. A reference detector the loop never saw catches every final imitator at AUROC 0.99 to 1.00; detector explanations and shared imitator code did not make a better imitator. Detectors trained with two-way sharing did best against other runs&rsquo; imitators (cross-play AUROC 0.81 vs 0.70 blind), but the paired interval includes zero. An 8&times; larger search ends at 0.88, no better than replaying a real stroke, so the component library is the limit. Preliminary: one web form, 8 seeds, no model-written code."
     }
    ]
   },
@@ -3921,6 +3926,11 @@
     "slug": "codesign-sar",
     "title": "Which cheap wheel-legged rover covers the most stylised rubble under a 120 USD parts cap, and does a session agent beat CMA-ES and Bayesian optimisation?",
     "summary": "Five design variables (wheel radius, wheelbase, flipper length, drive torque, battery) are scored on twelve held-out random-rubble terrains with Gamma-patchy friction, each design with its own evolution-strategies speed-and-flipper policy (not PPO). Wheel radius at its 90&nbsp;mm bound with torque of about 0.5&nbsp;N&nbsp;m reaches the ceiling J&nbsp;=&nbsp;0.783 (16 of 20&nbsp;m) at 69&nbsp;USD. Median best J at 40 evaluations: Bayesian optimisation 0.782, CMA-ES 0.782, session agent 0.783, random search 0.716; the gaps at the top are within policy-search noise. Falls were zero throughout, so the tip-over and recovery path is untested. Stylised statics, assumed unsourced prices, one agent run with a calibration-time prior."
+   }
+   ,{
+    "slug": "codesign-agri",
+    "title": "Which three-finger pad design picks the most unbruised strawberry-like fruit under a 60 USD cap, and does a session agent beat CMA-ES and Bayesian optimisation?",
+    "summary": "Five design variables (pad width, pad length, pad modulus, grip force, finger count) are scored on 600 simulated fruit with ripeness-dependent bruise thresholds, wet and dry friction and placement error, using closed-form line-contact pressure, friction hold and a capture-and-clutter law. At 40 evaluations the median best objective is 0.635 for Bayesian optimisation, 0.618 for a session agent&rsquo;s hand-written proposals (one run, by the model&rsquo;s own author), 0.611 for CMA-ES and 0.574 for random search; all 20 Bayesian-optimisation seeds matched or beat the agent. The best design (25&nbsp;mm pads, 0.19&nbsp;MPa, 8&nbsp;N, three fingers) picks 74% clean; about 20% of fruit are lost to clutter collisions that no pad setting can change. Stylised, with assumed constants and no learned policy."
    }
    ,{
     "slug": "codesign-ceiling",
