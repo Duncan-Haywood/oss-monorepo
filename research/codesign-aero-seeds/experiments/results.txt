@@ -1,0 +1,27 @@
+6 independent replicates (CMA-ES seed, training seed and 64-episode held-out seed all differ); 50 feasible airframes; 96 evaluations of 16 training episodes per tuning
+
+held-out RMS roll error (deg) of every airframe, mean over replicates; range of the per-replicate median and best:
+  gains|plant nominal|nominal median-cell  6.19 (replicate range 5.63-6.57); best-cell  5.07 (range 4.60-5.33)
+  gains|plant nominal|wide    median-cell  7.97 (replicate range 7.01-8.52); best-cell  5.82 (range 5.40-6.20)
+  gains|plant wide|nominal    median-cell  6.49 (replicate range 5.95-6.85); best-cell  5.16 (range 4.67-5.46)
+  gains|plant wide|wide       median-cell  7.11 (replicate range 6.44-7.54); best-cell  5.67 (range 5.15-6.00)
+
+ranking reliability: Spearman between pairs of independent replicates (15 pairs):
+  nominal|nominal mean 0.99, min 0.98, max 0.99
+  nominal|wide    mean 0.84, min 0.70, max 0.89
+  wide|nominal    mean 0.98, min 0.97, max 0.98
+  wide|wide       mean 0.99, min 0.99, max 1.00
+
+nominal vs wide ranking inside a replicate (nominal-tuned gains): Spearman mean 0.85, range 0.75-0.93  (codesign-aero-robust's single run: 0.75)
+
+which airframe wins (lowest held-out error) per replicate:
+  nominal|nominal L 0.135 D 0.101 x6
+  nominal|wide    L 0.190 D 0.101 x3; L 0.135 D 0.101 x2; L 0.162 D 0.101 x1
+  wide|wide       L 0.135 D 0.101 x5; L 0.107 D 0.101 x1
+  nominal|wide    top-5 overlap between replicate pairs: mean 4.1/5, min 3/5; cells in every replicate's top 5: 3
+  wide|wide       top-5 overlap between replicate pairs: mean 5.0/5, min 5/5; cells in every replicate's top 5: 5
+  rank on the wide plant (wide-tuned gains) of each replicate's own nominal-optimum airframe: [3, 1, 1, 1, 1, 1] of 50
+
+median-airframe gain from tuning gains on the wide plant (deg): mean +0.88, per replicate +0.91, +0.70, +0.40, +0.70, +1.29, +1.26
+airframes statistically indistinguishable from the best mean (paired, within 2 SE, n=6), nominal|wide: 4/50
+airframes statistically indistinguishable from the best mean (paired, within 2 SE, n=6), wide|wide: 3/50
