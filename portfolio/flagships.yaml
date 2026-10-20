@@ -124,8 +124,9 @@ flagships:
       balance option trims them 12% at +5 days of delay (README), off by default. Home/away flip of moved matches is in
       (`flip: true`, a final pass, no delay: 345 -> 333 breaks on 7 seeds, README; small because teams sit at
       +/-1 home games). Swapping pairs of moved matches was measured and dropped (40 seeds: 1996 -> 1934 with
-      single flips, no change from pairs; README). Next: multi-season carry-over of venue fairness, or moving a match
-      to another night when that removes a break at no delay cost.
+      single flips, no change from pairs; README). Moving a make-up to an earlier night already on the calendar is in
+      (relocate: true; 345 -> 345 alone, 300 -> 296 breaks with balance, no delay, README). Next: multi-season
+      carry-over of venue fairness, or letting a relocation swap two make-ups' nights.
   - venture: open-tennis-robots
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
