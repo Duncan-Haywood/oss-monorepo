@@ -498,6 +498,8 @@ export const SERVED_EXTENSIONS = new Map([
   ['.svg', 'stock'],
   ['.ico', 'stock'],
   ['.pdf', 'stock'],
+  // Podcast audio (hearth-and-horizon); nginx's mime.types lists audio/mpeg mp3.
+  ['.mp3', 'stock'],
   ['.mjs', 'conf'],
   ['.webmanifest', 'conf'],
   ['.csv', 'conf'],
