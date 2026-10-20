@@ -113,6 +113,12 @@ jobs:
         with:
           node-version: "22"
 
+      # "Build the daily brief" runs decision_queue.py, so this job needs
+      # Python of its own (gitops/tests/test_ci_runner.py).
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
       # A glob, not a list. The list named build and check only, so
       # `clauses.test.mjs` had never run here — a suite can be added beside the
       # thing it tests and silently not be CI's problem, which is the one way a
