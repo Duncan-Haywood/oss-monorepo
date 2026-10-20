@@ -1,5 +1,22 @@
 # Research log
 
+## 2026-10-20 · In-browser training runs the five folds in parallel: 45.5 s → 18.8 s
+
+- The "Train the models yourself" panel now runs a pool of workers, by default one per spare core: at most five, and fewer on devices reporting 4 GB of memory or less. Visitors can choose 1–5 threads.
+- Each worker loads the NSFG extract once and takes tasks from a shared queue: the five held-out folds, then the refits on all marriages. When the last fold arrives, the next free worker merges the folds and computes the metrics. Arrays move between threads by transfer, not copy, and the page's own thread only routes messages.
+- All five models at the Python settings, in headless Chromium on a 4-core cloud machine:
+
+  | Threads | Wall time | Longest main-thread stall |
+  | --- | --- | --- |
+  | 1 | 45.5 s | 93 ms |
+  | 3 (the default here) | 18.8 s | 57 ms |
+  | 4 | 17.6 s | 62 ms |
+  | 5 | 17.5 s | 86 ms |
+
+  A 390 px run with 25 boosting rounds on 3 threads took 6.9 s.
+- The metrics are identical at every thread count: GLM 5.688%, tree 3.333%, boosting 6.30%, C 0.695 / 0.651 / 0.703. Merging folds in the page took stalls to 177 ms at 5 threads, so the merge moved into a worker.
+- Cancel stops every worker. There were no console errors and no horizontal scroll. `tests/train_parallel.test.mjs` computes the folds in scrambled order through structured cloning and matches the single-thread result to 10<sup>−12</sup>. No real phone has been timed yet.
+
 ## 2026-10-20 · Train the models yourself: the NSFG 1995–2023 lens retrained in the browser, matching scikit-learn
 
 - The app has a new "Train the models yourself" panel. A background worker downloads a 374 KB public extract of the NSFG 1995–2023 women's first marriages: 29,202 marriages, 10,529 dissolutions and 249,868 marriage-years. It contains only inputs fixed at or before the wedding. The worker then refits the lens in plain JavaScript with the Python pipeline's person-held-out five folds.
