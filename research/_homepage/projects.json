@@ -3705,6 +3705,11 @@
     "slug": "energy-lcos",
     "title": "Which energy-storage technology is cheapest per MWh delivered at 1 hour, 1 day and 3 weeks?",
     "summary": "Levelised cost of storage for lithium-ion, vanadium flow, pumped hydro, cavern compressed air and cavern hydrogen, from capital cost, round-trip efficiency, life, fade and charging power. With round assumed inputs Li-ion is cheapest to about 4 hours ($116/MWh at 4 h) and costs about 3&times; a cavern store at 24 hours ($337 vs $109); cavern hydrogen beats Li-ion above 11 hours but cavern compressed air only above 308 hours. Li-ion would need an energy cost of $43/kWh instead of $200 to win at 24 hours. The 8&ndash;10 hour winner flips with the discount rate and charging price. Stylised: every input is assumed and unsourced, caverns need geology, one fixed use pattern."
+    },
+    {
+    "slug": "energy-cell",
+    "title": "How much better can a lithium-ion cell get by redesigning its electrodes, and does a smarter search help?",
+    "summary": "A PyBaMM single-particle model with electrolyte of an NMC811 / graphite-SiOx cell, scored on discharge energy per kilogram of electrode stack after 100 cycles at a fixed current. Four design numbers (positive thickness, two porosities, negative-to-positive capacity ratio) are searched with 30 evaluations by random search, Gaussian-process Bayesian optimisation (5 seeds each) and the session agent proposing by hand (one run). The reference cell scores 109 Wh/kg; all three reach 141&ndash;143 (+30%) with a thicker, more porous positive electrode and about 30% more negative capacity, and their seed ranges overlap, so no proposer is shown to be better. Limits: one aggressively ageing parameter set, constant-current charge only, stack not finished cell, optimum at the search bounds. Stylised and simulated, not a tested cell."
     }
    ]
   },
