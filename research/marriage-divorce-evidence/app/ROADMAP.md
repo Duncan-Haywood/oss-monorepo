@@ -161,7 +161,7 @@ Done (2026-10-19/20, PRs #8537, #8556 and the round-3 PR):
   per-lens candidate ranking with overlap tiers, client-side CSV scoring with downloadable
   results, partner-trait search and what-ifs that respect locked and excluded values.
 - Published-evidence layer (2026-10-20): optional questions for factors no lens measures (`literature.js`, `literature-ui.js`), applied as a labelled literature-based adjustment from 9 verified primary records with intervals, citations and refusals; factors a lens already models are not asked. Plus a CDC/NCHS population-baseline table and a Gottman base-rate explainer (`../reproducibility/literature_evidence/EVIDENCE.md`).
-- Compare options, i.e. scenarios (2026-10-20, `scenarios.js`, `scenarios-ui.js`): up to 50 saved form states, vary-one-thing copies, a per-lens grid and small multiples against "your current plan" (out of 100 couples like you, difference ranges, an explicit "cannot tell apart" when model ranges overlap) with model agreement, JSON/CSV export and import, and a share link without sensitive answers.
+- Compare options, i.e. scenarios (2026-10-20, `scenarios.js`, `scenarios-ui.js`): up to 50 saved form states, vary-one-thing copies, a per-lens grid and small multiples against "your current plan" (out of 100 couples like you, difference ranges, a paired per-model verdict: agree, most agree, or cannot tell apart with the reason) with model agreement, JSON/CSV export and import, and a share link without sensitive answers.
 - Phone layout (390px) and dark mode with no horizontal scroll; focus outlines; titles, meta and
   share-card descriptions within the 160-character budget; JSON-LD; links between the app, the
   project README and the research page.
@@ -185,5 +185,9 @@ Remaining:
   bundles ship no spec); a GSS 4-year model export (the bundle has its reference but not the
   model); a validated satisfaction mapping for the newlywed lens (all 8 items on one scale now);
   joint partner profiles for NLSY97 just-me (the bundle publishes one trait at a time).
+- The candidates view's "indistinguishable from the top" flag and the dashboard's top tier still
+  use overlap of model ranges (`rankPartners` in `couple.js`, shared by the partner search,
+  dashboard tiers and their tests). Moving them to the paired rule `scenarios.js` uses is a
+  separate change.
 - A screen-reader pass with a real assistive technology. Only keyboard focus and contrast have
   been checked.
