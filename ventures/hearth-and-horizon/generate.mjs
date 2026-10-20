@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Regenerates the site from stories/*.md and audio/manifest.json.
 //
-//   node generate.mjs            write index.html, stories/*.html, feeds, sitemap
+//   node generate.mjs            write index.html, <slug>.html, feeds, sitemap
 //   node generate.mjs --check    exit 1 if any generated file is stale
 //   node generate.mjs --speech <slug>   print the text render_audio.py reads aloud
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
@@ -41,7 +41,7 @@ export function buildAll(root = ROOT) {
     'feed.xml': renderAllFeed(stories, audio),
     'sitemap.xml': renderSitemap(stories),
   };
-  for (const story of stories) files[`stories/${story.slug}.html`] = renderStoryPage(story, audio);
+  for (const story of stories) files[`${story.slug}.html`] = renderStoryPage(story, audio);
   for (const shelf of SHELVES) files[feedPath(shelf.id)] = renderFeed(shelf, stories, audio, podcast);
   return files;
 }

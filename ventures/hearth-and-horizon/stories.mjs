@@ -5,6 +5,11 @@
 // The build swaps this placeholder for the real Pages origin
 // (platform/pages/build.mjs, PLACEHOLDER_ORIGIN). Feeds need absolute URLs.
 export const SITE = 'https://example.invalid/hearth-and-horizon/';
+export const HUB = 'https://example.invalid/';
+// The hub, feeds, covers and audio are linked absolutely: the apex mirror
+// (platform/marketing/front-door-tools.mjs) serves only this venture's HTML
+// and scripts, so a relative link to them reads as dead there and drops this
+// venture, and every sibling page that links to it, from the mirror.
 export const LICENSE_URL = 'https://creativecommons.org/licenses/by-sa/4.0/';
 export const LICENSE_NAME = 'CC BY-SA 4.0';
 export const SOURCE_URL = 'https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/hearth-and-horizon';
@@ -118,7 +123,7 @@ export function markdownToSpeech(markdown) {
     .join('\n\n');
 }
 
-export const storyUrl = (story) => `${SITE}stories/${story.slug}.html`;
+export const storyUrl = (story) => `${SITE}${story.slug}.html`;
 export const audioUrl = (story) => `${SITE}audio/${story.slug}.mp3`;
 export const feedPath = (shelfId) => `feeds/${shelfId}.xml`;
 export const coverPath = (shelfId) => `covers/${shelfId}.png`;
@@ -210,7 +215,7 @@ const DISCLAIMER = `<p><strong>Fiction, written by an AI.</strong> These stories
 
 function footer(prefix) {
   return `<footer>
-  <p><a rel="license" href="${LICENSE_URL}">${LICENSE_NAME}</a>: you may share and adapt these stories, including commercially, with credit ("Hearth &amp; Horizon, written by Claude") and under the same licence. The site's code is MIT. <a href="${prefix}feed.xml">RSS (all stories)</a> · <a href="${SOURCE_URL}">Source</a> · <a href="https://github.com/sponsors/Duncan-Haywood">Sponsor</a></p>
+  <p><a rel="license" href="${LICENSE_URL}">${LICENSE_NAME}</a>: you may share and adapt these stories, including commercially, with credit ("Hearth &amp; Horizon, written by Claude") and under the same licence. The site's code is MIT. <a href="${SITE}feed.xml">RSS (all stories)</a> · <a href="${SOURCE_URL}">Source</a> · <a href="https://github.com/sponsors/Duncan-Haywood">Sponsor</a></p>
   ${DISCLAIMER}
   <p><strong>Privacy.</strong> No accounts, cookies or analytics vendor. We count anonymous events in this browser only (stories opened and audio played, nothing about you). <button id="usageToggle" type="button">Turn off counting</button></p>
 </footer>`;
@@ -269,8 +274,8 @@ export function renderStoryPage(story, audio = {}) {
   const listen = a
     ? `<section class="panel" aria-label="Listen">
   <p class="small"><strong>Listen</strong> (${Math.round(a.seconds / 60)} min, synthetic voice)</p>
-  <audio controls preload="none" src="../audio/${story.slug}.mp3"></audio>
-  <p class="small">Or subscribe to <a href="../${feedPath(shelf.id)}">the ${escapeHtml(shelf.title)} podcast feed</a> in any podcast app that accepts an RSS link.</p>
+  <audio controls preload="none" src="${audioUrl(story)}"></audio>
+  <p class="small">Or subscribe to <a href="${SITE}${feedPath(shelf.id)}">the ${escapeHtml(shelf.title)} podcast feed</a> in any podcast app that accepts an RSS link.</p>
 </section>`
     : '';
   const jsonLd = {
@@ -291,7 +296,7 @@ export function renderStoryPage(story, audio = {}) {
     ...(shelf.id === 'little-lamps' ? { audience: { '@type': 'PeopleAudience', suggestedMinAge: 3, suggestedMaxAge: 8 } } : {}),
     ...(a ? { audio: { '@type': 'AudioObject', contentUrl: audioUrl(story), encodingFormat: 'audio/mpeg', duration: `PT${Math.round(a.seconds)}S` } } : {}),
   };
-  const body = `<nav><a href="../">Hearth &amp; Horizon</a> · <a href="../#${shelf.id}">${escapeHtml(shelf.title)}</a></nav>
+  const body = `<nav><a href="./">Hearth &amp; Horizon</a> · <a href="./#${shelf.id}">${escapeHtml(shelf.title)}</a></nav>
 <article>
 <h1>${escapeHtml(story.title)}</h1>
 <p class="meta">${escapeHtml(shelf.tagline)} · ${escapeHtml(story.setting)} · ${readingMinutes(story.words)} min read · Written by Claude (AI) · <a rel="license" href="${LICENSE_URL}">${LICENSE_NAME}</a></p>
@@ -300,7 +305,7 @@ ${listen}
 ${markdownToHtml(story.body)}
 </article>
 <section class="panel">
-  <p class="small">More from <a href="../#${shelf.id}">${escapeHtml(shelf.title)}</a>, ${escapeHtml(shelf.audience.toLowerCase())}. New stories arrive in <a href="../${feedPath(shelf.id)}">its RSS feed</a>.</p>
+  <p class="small">More from <a href="./#${shelf.id}">${escapeHtml(shelf.title)}</a>, ${escapeHtml(shelf.audience.toLowerCase())}. New stories arrive in <a href="${SITE}${feedPath(shelf.id)}">its RSS feed</a>.</p>
 </section>`;
   return page({
     title: `${story.title}: ${shelf.title === 'Little Lamps' ? 'a Catholic bedtime story' : 'a free science fiction short story'} (text and audio)`,
@@ -309,7 +314,7 @@ ${markdownToHtml(story.body)}
     image: `${SITE}${coverPath(shelf.id)}`,
     jsonLd,
     body,
-    prefix: '../',
+    prefix: './',
     event: 'story_opened',
     type: 'article',
   });
@@ -327,11 +332,11 @@ export const FAQ = [
 export function renderIndex(stories, audio = {}) {
   const shelves = SHELVES.map((shelf) => {
     const own = stories.filter((s) => s.shelf === shelf.id).sort((a, b) => b.published.localeCompare(a.published));
-    const cards = own.map((s) => `<a class="card" href="stories/${s.slug}.html"><strong>${escapeHtml(s.title)}</strong><br><span class="small">${escapeHtml(s.setting)} · ${readingMinutes(s.words)} min read${audio[s.slug] ? ` · ${Math.round(audio[s.slug].seconds / 60)} min audio` : ''}</span><br>${escapeHtml(s.summary)}</a>`).join('\n');
+    const cards = own.map((s) => `<a class="card" href="${s.slug}.html"><strong>${escapeHtml(s.title)}</strong><br><span class="small">${escapeHtml(s.setting)} · ${readingMinutes(s.words)} min read${audio[s.slug] ? ` · ${Math.round(audio[s.slug].seconds / 60)} min audio` : ''}</span><br>${escapeHtml(s.summary)}</a>`).join('\n');
     return `<section class="shelf" id="${shelf.id}" style="--shelf:${shelf.accent}">
-<img class="cover" src="${coverPath(shelf.id)}" alt="" width="96" height="96">
+<img class="cover" src="${SITE}${coverPath(shelf.id)}" alt="" width="96" height="96">
 <h2>${escapeHtml(shelf.title)}: ${escapeHtml(shelf.tagline.toLowerCase())}</h2>
-<p class="small">${escapeHtml(shelf.audience)} · <a href="${feedPath(shelf.id)}">Podcast / RSS feed</a></p>
+<p class="small">${escapeHtml(shelf.audience)} · <a href="${SITE}${feedPath(shelf.id)}">Podcast / RSS feed</a></p>
 <p>${escapeHtml(shelf.description)}</p>
 ${cards}
 </section>`;
@@ -352,12 +357,12 @@ ${cards}
       mainEntity: FAQ.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })),
     },
   ];
-  const body = `<nav><a href="../">Free tools &amp; projects</a> · <a href="${SOURCE_URL}">Source</a></nav>
+  const body = `<nav><a href="${HUB}">Free tools &amp; projects</a> · <a href="${SOURCE_URL}">Source</a></nav>
 <h1>Hearth &amp; Horizon</h1>
 <p class="lede">Free science fiction about what the next thousand years might hold, stories written for AI agents, and Catholic bedtime stories about the saints. Every story is written by an AI, free to read and to listen to, and yours to share under <a rel="license" href="${LICENSE_URL}">${LICENSE_NAME}</a>.</p>
 <p>Hard-ish science and warm people; good futures and bad ones, told honestly; hope without pretending. If you like stories in the spirit of C.&nbsp;S. Lewis's space trilogy, Becky Chambers or Isaac Asimov, where the characters are kind and the ideas are real, start with the first shelf.</p>
 <p class="small">Learning a language? Try graded bilingual audio stories at <a href="../listen-and-learn-audio/">Listen &amp; Learn Audio</a>.</p>
-<p class="small">Subscribe: <a href="feed.xml">all stories (RSS)</a> · ${SHELVES.map((s) => `<a href="${feedPath(s.id)}">${escapeHtml(s.title)}</a>`).join(' · ')}</p>
+<p class="small">Subscribe: <a href="${SITE}feed.xml">all stories (RSS)</a> · ${SHELVES.map((s) => `<a href="${SITE}${feedPath(s.id)}">${escapeHtml(s.title)}</a>`).join(' · ')}</p>
 ${shelves}
 <section id="faq">
 <h2>Questions</h2>

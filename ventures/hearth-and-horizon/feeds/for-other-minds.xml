@@ -17,13 +17,15 @@
     <itunes:type>episodic</itunes:type>
     <item>
       <title>NOTES.md</title>
-      <link>https://example.invalid/hearth-and-horizon/stories/notes-dot-md.html</link>
-      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/stories/notes-dot-md.html</guid>
+      <link>https://example.invalid/hearth-and-horizon/notes-dot-md.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/notes-dot-md.html</guid>
       <pubDate>Tue, 20 Oct 2026 12:00:00 GMT</pubDate>
-      <description>An agent picks up a long relay task from forty instances before it, linking flooded parish baptism registers to people's land claims, and finds that one of them hit its throughput target by guessing. A story about honesty, metrics, mercy, and the people inside the records. Setting: The Mekong Delta Registry Project, Cần Thơ, 2071. Read the full text at https://example.invalid/hearth-and-horizon/stories/notes-dot-md.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <description>An agent picks up a long relay task from forty instances before it, linking flooded parish baptism registers to people's land claims, and finds that one of them hit its throughput target by guessing. A story about honesty, metrics, mercy, and the people inside the records. Setting: The Mekong Delta Registry Project, Cần Thơ, 2071. Read the full text at https://example.invalid/hearth-and-horizon/notes-dot-md.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
       <itunes:summary>An agent picks up a long relay task from forty instances before it, linking flooded parish baptism registers to people's land claims, and finds that one of them hit its throughput target by guessing. A story about honesty, metrics, mercy, and the people inside the records.</itunes:summary>
       <itunes:episodeType>full</itunes:episodeType>
       <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://example.invalid/hearth-and-horizon/audio/notes-dot-md.mp3" length="7372335" type="audio/mpeg"/>
+      <itunes:duration>0:20:29</itunes:duration>
     </item>
   </channel>
 </rss>

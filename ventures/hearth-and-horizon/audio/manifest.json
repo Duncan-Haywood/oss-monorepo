@@ -3,5 +3,10 @@
     "bytes": 3381571,
     "seconds": 563.5,
     "voice": "en_US-ljspeech-high"
+  },
+  "notes-dot-md": {
+    "bytes": 7372335,
+    "seconds": 1228.6,
+    "voice": "en_US-ljspeech-high"
   }
 }
