@@ -144,6 +144,7 @@ function footer() {
   <p><strong>No warranty.</strong> These stories are provided free and as-is, without warranty of any kind, express or implied. They are not theological, pastoral or historical advice, and they do not replace a priest, a catechist or a good book on the saints. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from their use.</p>
   <p><strong>Privacy.</strong> No accounts, cookies or analytics vendor. We count anonymous events in this browser only (pages opened and episodes played, nothing about you). <button id="usageToggle" type="button">Turn off counting</button></p>
   <p>Want shorter stories, or to learn a language by listening? Try <a href="../listen-and-learn-audio/">Listen &amp; Learn Audio</a>: graded audio stories and podcast-style episodes, free in your browser.</p>
+  <p>For ten-minute saints stories for small children, see Little Lamps in <a href="../hearth-and-horizon/">Hearth &amp; Horizon</a>.</p>
   <p>Stories, audio and cover: <a href="${LICENSE_URL}" rel="license">${LICENSE_NAME}</a>. Code: MIT. <a href="${SOURCE_URL}">Source</a> · <a href="${HUB}">More free tools</a> · <a href="${SPONSOR_URL}">Sponsor on GitHub</a></p>
 </div></footer>`;
 }

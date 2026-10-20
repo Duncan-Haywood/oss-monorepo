@@ -4111,22 +4111,19 @@ entries:
         mechanism, ~118 balls) after the ramp geometry could not drop balls into a hopper reliably.
         Feeder CAD is next.
     mrr_end: 0
-  - venture: saints-by-candlelight
+  - venture: hearth-and-horizon
     agent_spend_usd: 0
     human_hours: 0
     outcomes:
       - >-
-        Built saints-by-candlelight at the owner's request (2026-10-20): a free bedtime podcast of
-        Catholic and Orthodox stories of saints, angels and patriarchs in a lighthearted
-        myths-and-legends storytelling style. Three episodes with full scripts and audio: the Book of
-        Tobit and the Archangel Raphael (53 min), Saint Gerasimus and the lion (41 min), Saint Nicholas
-        and the three bags of gold (45 min). Audio is rendered offline with Kokoro (Apache 2.0,
-        voice bm_george), 40 kbps mono MP3, about 40 MB for the three; a tiny Whisper model
-        transcribed a 45-second clip of episode 1 nearly word for word. PRODUCTION.md is the series
-        bible (episode shape, fixed AI disclosure, doctrine and honesty rules, the next 17 subjects);
-        generate.mjs builds episode pages with "what's true / legend / invented" notes, an RSS feed with
-        itunes and podcast namespace tags, and a sitemap, and --check-script lints scripts for the ear.
-        A weekly scheduled session writes, records and merges the next episode. Directory listing
-        (Apple Podcasts, Spotify, YouTube, Podcast Index) and a public owner email for the feed are
-        owner steps, named in the README.
+        Owner's new long-running creative project. Three CC BY-SA 4.0 collections, all written by
+        Claude and labelled as such: Hearth & Horizon (character-driven sci-fi, Catholic worldview),
+        For Other Minds (fiction for AI agents, with no embedded instructions) and Little Lamps
+        (saints bedtime stories with a history-vs-legend note). First stories: "The Slowest Bell on
+        the Moon" (4.2k words, 2089), "NOTES.md" (3.1k, 2071) and "Brother Martin and the Mice"
+        (St Martin de Porres, ahead of his 3 Nov feast). Generator renders pages, a podcast-ready RSS
+        feed per collection (itunes + podcast:license tags, 1400px covers) and a sitemap; audio is
+        rendered offline with Piper and the public-domain LJSpeech voice at -16 LUFS, $0. Directory
+        listing (Apple, Spotify, YouTube, Podcast Index) waits on the owner: an itunes:owner email
+        and a one-time submission. Listens unmeasured.
     mrr_end: 0

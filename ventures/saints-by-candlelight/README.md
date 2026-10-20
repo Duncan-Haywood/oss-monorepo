@@ -19,6 +19,9 @@ history, what is legend, and what we made up.
 New episodes are added over time; [`PRODUCTION.md`](PRODUCTION.md) lists
 what's next.
 
+For ten-minute saints stories for small children, see Little Lamps in
+[Hearth & Horizon](../hearth-and-horizon/).
+
 ## What makes it different
 
 - **Catholic and Orthodox together.** It tells the stories both traditions
