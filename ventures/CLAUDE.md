@@ -20,10 +20,9 @@ Coffee exception: `../PRODUCT_PLAYBOOK.md` §2, "Rule of thumb: anyone can
 deploy it themselves".
 
 **Deploy-first.** Products already on `main` with no public URL outrank new
-candidates. Prepare a GitHub Pages artifact or a Hetzner product-box
-deploy; do not clone another undeployed calculator. The host is decided
-([`portfolio/hosting/`](../portfolio/hosting/README.md)). The owner flip is
-`deploy-settings` — do not add a second ask. See `../portfolio/DIRECTION.md`.
+candidates: give them a GitHub Pages surface (the Hetzner box was retired on
+2026-10-01) rather than cloning another undeployed calculator
+([`portfolio/hosting/`](../portfolio/hosting/README.md)).
 
 Target super-niches where users have money and a real problem — especially
 tools that help them earn more. Low variable cost, traditional software, AI

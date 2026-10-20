@@ -655,8 +655,9 @@ function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000 } 
   const cheapest = slots.map((s, i) => {
     let m = Infinity;
     for (let p = 0; p < P; p++) if (elig[p][i]) m = Math.min(m, burden * staff[p].wage * mFloor * paidMinutes(o, s) / 60);
-    return Math.min(BIG * len[i], m);
+    return m === Infinity ? 0 : m; // nobody can take it: it stays open, which the coverage bound already charges
   });
+  const maxRate = Math.max(0, ...cheapest.map((c, i) => c / len[i]));
   const order = [...Array(S).keys()].sort((a, b) => {
     const ea = elig.reduce((t, r) => t + (r[a] ? 1 : 0), 0), eb = elig.reduce((t, r) => t + (r[b] ? 1 : 0), 0);
     return ea - eb || slots[a].start - slots[b].start;
@@ -698,11 +699,107 @@ function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000 } 
       }
       lb += lo;
       capacity += Math.max(0, Math.min(staff[p].maxHours, h + sufHours[k][p]) - h);
+      hoursLeft[p] = Math.max(0, staff[p].maxHours - h);
     }
     // Weekly hour limits can force hours open: whatever the people still free cannot absorb costs BIG, which dwarfs any pay.
+    // Counting only total capacity ignores who can work which shift; a max flow from the undecided shifts (their hours) to the
+    // people (the weekly hours they have left), along who is available, is the most that could still be covered.
     let demand = 0;
     for (let j = k; j < S; j++) demand += len[order[j]];
-    return lb + Math.max(sufCheap[k], BIG * Math.max(0, demand - capacity));
+    const cov = coverableHours(k, hoursLeft);
+    const open = Math.max(0, demand - capacity, demand - cov.flow);
+    // The shifts that have to stay open are not paid for, so take back at most the dearest rate per hour for each forced open hour.
+    return lb + BIG * open + Math.max(0, sufCheap[k] - open * maxRate, cov.cost);
+  };
+  const days = [...new Set(slots.map((x) => x.day))].sort((x, y) => x - y);
+  const dayAt = new Map(days.map((d, j) => [d, j]));
+  const D = days.length;
+  const quarter = len.every((h) => Math.abs(h * 4 - Math.round(h * 4)) < 1e-9);
+  const pairOk = Array.from({ length: P }, () => new Map()); // person -> "i,j" -> can one person hold both
+  const compatible = (p, i, j) => {
+    const key = i < j ? i * S + j : j * S + i;
+    let v = pairOk[p].get(key);
+    if (v === undefined) { v = validList(ctx, p, [i, j].sort((x, y) => slots[x].start - slots[y].start || x - y)); pairOk[p].set(key, v); }
+    return v;
+  };
+  // Heaviest set of shifts on one day that one person could hold together (no two overlap or break the rest rule), in hours.
+  const bestDay = (p, items) => {
+    let best = 0;
+    const go = (from, chosen, hours) => {
+      if (hours > best) best = hours;
+      for (let x = from; x < items.length; x++) {
+        if (chosen.every((c) => compatible(p, c, items[x]))) { chosen.push(items[x]); go(x + 1, chosen, hours + len[items[x]]); chosen.pop(); }
+      }
+    };
+    go(0, [], 0);
+    return best;
+  };
+  // Most hours of shifts order[k..] that could still be covered, ignoring everything but who is available, what is left of each
+  // person's week and which shifts can sit together: a max flow (Edmonds-Karp) from the undecided shifts through each person-day
+  // (capped by the heaviest compatible set that person could hold that day) to each person (capped by the best whole-shift subset
+  // that fits in their remaining weekly hours). A person gets an edge only if the shift is still a valid addition to what they
+  // hold, so overlaps and rest gaps with decided shifts count. Every cap is an upper bound, so the result never undercounts.
+  const rate = (p, i) => burden * staff[p].wage * mFloor * paidMinutes(o, slots[i]) / 60 / len[i]; // cheapest pay per hour of the shift
+  const hoursLeft = new Array(P).fill(0);
+  const coverableHours = (k, left) => {
+    const n = S - k, N = n + P * D + P + 2, src = N - 2, snk = N - 1, eps = 1e-9;
+    const pd = (p, j) => n + p * D + j, pn = (p) => n + P * D + p;
+    const cap = Array.from({ length: N }, () => new Array(N).fill(0));
+    const cst = Array.from({ length: N }, () => new Array(N).fill(0));
+    const edge = Array.from({ length: P }, () => []);
+    const byDay = Array.from({ length: P }, () => Array.from({ length: D }, () => []));
+    for (let a = 0; a < n; a++) {
+      const i = order[k + a];
+      cap[src][a] = len[i];
+      for (let p = 0; p < P; p++) {
+        if (!elig[p][i] || left[p] <= eps || !validList(ctx, p, insertSorted(ctx, lists[p], i))) continue;
+        const j = dayAt.get(slots[i].day);
+        cap[a][pd(p, j)] = len[i];
+        cst[a][pd(p, j)] = rate(p, i); cst[pd(p, j)][a] = -rate(p, i);
+        edge[p].push(i);
+        byDay[p][j].push(i);
+      }
+    }
+    for (let p = 0; p < P; p++) {
+      for (let j = 0; j < D; j++) if (byDay[p][j].length) cap[pd(p, j)][pn(p)] = bestDay(p, byDay[p][j]);
+      let room = left[p];
+      if (quarter) {
+        const r = Math.floor(left[p] * 4 + 1e-6);
+        const fits = new Uint8Array(r + 1);
+        fits[0] = 1;
+        for (const i of edge[p]) {
+          const w = Math.round(len[i] * 4);
+          for (let x = r; x >= w; x--) if (fits[x - w]) fits[x] = 1;
+        }
+        room = 0;
+        for (let x = r; x > 0; x--) if (fits[x]) { room = x / 4; break; }
+      }
+      cap[pn(p)][snk] = room;
+    }
+    // Successive cheapest augmenting paths (Bellman-Ford): the most hours that can be covered, and the least straight-time pay for them.
+    let flow = 0, cost = 0;
+    for (;;) {
+      const dist = new Array(N).fill(Infinity), prev = new Array(N).fill(-1), inQ = new Array(N).fill(false);
+      dist[src] = 0;
+      const q = [src];
+      inQ[src] = true;
+      for (let h = 0; h < q.length; h++) {
+        const u = q[h];
+        inQ[u] = false;
+        for (let v = 0; v < N; v++) {
+          if (cap[u][v] > eps && dist[u] + cst[u][v] < dist[v] - 1e-12) {
+            dist[v] = dist[u] + cst[u][v]; prev[v] = u;
+            if (!inQ[v]) { inQ[v] = true; q.push(v); }
+          }
+        }
+      }
+      if (prev[snk] < 0) return { flow, cost };
+      let f = Infinity;
+      for (let v = snk; v !== src; v = prev[v]) f = Math.min(f, cap[prev[v]][v]);
+      for (let v = snk; v !== src; v = prev[v]) { cap[prev[v]][v] -= f; cap[v][prev[v]] += f; }
+      flow += f;
+      cost += f * dist[snk];
+    }
   };
   const rootBound = lowerBound(0, 0);
   let best = incumbent, bestOwner = null, nodes = 0, aborted = false;
@@ -819,6 +916,10 @@ export function optimalityText(opt) {
   if (!opt) return "";
   if (opt.status === "optimal") return "Checked against an exact search: no roster under your rules scores better than this one.";
   if (opt.status === "improved") return `Checked against an exact search: the quick search was ${num(opt.gapPct)}% off the best possible, so this roster is the better one the exact search found (proven best).`;
+  if (opt.gap < BIG && opt.coverageProven) {
+    const h = opt.forcedOpenHours;
+    return `Exact search ran out of time before it could prove the cheapest roster, but it did prove the coverage: ${h > 0 ? `${num(h)} hour${h === 1 ? "" : "s"} of shifts cannot be covered under your rules, however the week is arranged` : "every shift can be covered"}, and this roster covers all the rest. The cheapest way to do that could still save at most ${money(opt.gap)} in the score (pay plus penalties).`;
+  }
   return `Exact search ran out of time before it could prove anything. The best roster it found is shown; the true best could still be better by up to ${num(opt.gapPct)}% of the score by a loose bound, so treat this as a good roster, not a proven one.`;
 }
 
@@ -845,6 +946,8 @@ export function buildRoster(staff, slots, options = {}) {
     optimality = {
       status: ex.proven ? (gap > 1e-6 ? "improved" : "optimal") : "bounded",
       annealScore, bestScore: best.score, lowerBound: ex.proven ? best.score : ex.rootBound,
+      forcedOpenHours: Math.floor((ex.proven ? best.score : ex.rootBound) / BIG + 1e-9),
+      coverageProven: ex.proven || Math.abs(Math.floor(ex.rootBound / BIG + 1e-9) - Math.floor(best.score / BIG + 1e-9)) === 0,
       gap: Math.max(0, gap), gapPct: annealScore > 0 ? (Math.max(0, gap) / annealScore) * 100 : 0, nodes: ex.nodes,
     };
   }
