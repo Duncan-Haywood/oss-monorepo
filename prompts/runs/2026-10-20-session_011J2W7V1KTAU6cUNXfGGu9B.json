@@ -42,7 +42,7 @@
     }
   ],
   "goal": null,
-  "notes": "User asked why the GitHub Pages site doesn't refresh more often. Cause: deploy job was gated on an unset var until PR #8776. Discussed on-merge vs cron (on-merge self-debounces via concurrency; kept). Retired the unserved gh-pages route: publish-pages-branch.yml (all runs skipped) and pages-freshness-ci.yml (red on every venture merge). Local checks: validate_workflows OK (544), publish_surface --check OK, test_pages_state/test_run_workflow_locally/test_publish_surface/test_indexnow_state OK; test_dogfood_workflows fails on main too (ig-media-pipeline-ci.yml).",
+  "notes": "User asked why the GitHub Pages site doesn't refresh more often. Cause: deploy job was gated on an unset var until PR #8776. Discussed on-merge vs cron (on-merge self-debounces via concurrency; kept). Retired the unserved gh-pages route: publish-pages-branch.yml (all runs skipped) and pages-freshness-ci.yml (red on every venture merge). Local checks: validate_workflows OK (544), publish_surface --check OK, test_pages_state/test_run_workflow_locally/test_publish_surface/test_indexnow_state OK; test_dogfood_workflows fails on main too (ig-media-pipeline-ci.yml). CI round 1: agent-permission-harness results file listed the deleted workflow's R5 finding; regenerated with check_results_current.py --write (now exits 0).",
   "corrections": [],
   "redteam": null
 }
