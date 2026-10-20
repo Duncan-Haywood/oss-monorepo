@@ -1,5 +1,5 @@
 """Snapshot the reference graph from git history.  python experiments/collect.py   (needs full history of main)
-Writes data/projects.tsv (slug, created, nbytes) and data/refs.tsv (citer, cited), both sorted."""
+Writes data/projects.tsv (slug, created (UTC epoch seconds of the commit that added README.md), nbytes) and data/refs.tsv (citer, cited), both sorted."""
 import subprocess
 import sys
 from pathlib import Path
@@ -10,7 +10,7 @@ from swe_reuse import mentions  # noqa: E402
 
 slugs = sorted(p.name for p in ROOT.iterdir() if p.is_dir() and not p.name.startswith(("_", ".")) and (p / "README.md").exists())
 first = {}
-out = subprocess.run(["git", "log", "--diff-filter=A", "--format=@%aI", "--name-only", "--", "research/*/README.md"],
+out = subprocess.run(["git", "log", "--diff-filter=A", "--format=@%at", "--name-only", "--", "research/*/README.md"],
                      cwd=ROOT.parent, capture_output=True, text=True, check=True).stdout
 when = None
 for line in out.splitlines():
@@ -18,7 +18,7 @@ for line in out.splitlines():
         when = line[1:]
     elif line.startswith("research/") and line.count("/") == 2:
         s = line.split("/")[1]
-        if s in slugs and (s not in first or when < first[s]):
+        if s in slugs and (s not in first or int(when) < int(first[s])):
             first[s] = when
 proj, refs = [], []
 for s in slugs:

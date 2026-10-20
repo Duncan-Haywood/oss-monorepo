@@ -3320,6 +3320,11 @@
      "slug": "swe-nullrate",
      "title": "How often does this portfolio report a negative or mixed result?",
      "summary": "A hand-labelled census of 80 randomly sampled project summaries (of 711): 51% descriptive, 20% positive, 18% mixed and 11% negative. Among the 39 that test a claim against an alternative, 59% (Wilson 95% 43&ndash;73%) report a negative or mixed result, so the portfolio is not a list of wins. A keyword rule for negative or mixed has precision 0.60 and recall 0.65 in-sample and should not be used for by-theme shares. Preliminary: one labeller, one pass, rubric fixed while labelling, summaries truncated when long, no inter-rater agreement."
+    },
+    {
+     "slug": "swe-reuse",
+     "title": "Do later projects build on earlier ones?",
+     "summary": "A reference graph of 723 research READMEs, from slug mentions and git creation times: 61.7% of projects (Wilson 95% 58&ndash;65%) are named by at least one later project, but inbound counts are very uneven (Gini 0.69; the most-named is named by 50) and 71% of references stay within a track. Preliminary: a README naming a project does not show it was reused, so this is an upper bound on &ldquo;built on&rdquo;; one snapshot, no hand-checked sample of edges."
     }
    ]
   },

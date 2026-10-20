@@ -37,6 +37,13 @@ class T(unittest.TestCase):
         self.assertAlmostEqual(gini([1, 1, 1, 1]), 0.0)
         self.assertAlmostEqual(gini([0, 0, 0, 4]), 0.75)
 
+    def test_snapshot_is_consistent(self):
+        proj = [l.split("\t") for l in (HERE / "data" / "projects.tsv").read_text().splitlines()[1:]]
+        slugs = {r[0] for r in proj}
+        refs = [l.split("\t") for l in (HERE / "data" / "refs.tsv").read_text().splitlines()[1:]]
+        self.assertTrue(all(a in slugs and b in slugs and a != b for a, b in refs))
+        self.assertEqual(len(refs), len(set(map(tuple, refs))))
+
 
 if __name__ == "__main__":
     unittest.main()
