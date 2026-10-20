@@ -156,7 +156,7 @@ rounds left go first, so they finish together) and which match gets which court 
 - **Run it.** `node divisions.mjs example-divisions.json` prints the nights; add `--csv` for the sheet. `example-divisions.json`
   holds the form fields (divisions, courts, times, weekdays, skip dates, closures, links).
 - **Checked.** `validateDivisions` re-checks every pair meets once (twice for a double), home/away stays balanced, no court is
-  booked twice, no closed court is used and the conflict list matches a recount. `node --test divisions.test.mjs` (14 tests).
+  booked twice, no closed court is used and the conflict list matches a recount. `node --test divisions.test.mjs` (19 tests).
 - **Measured.** On the example (three divisions of 6, 8 and 6 teams, four courts at two venues, two time slots, three links),
   summed over 8 seeds, the optimiser makes 322 venue changes against 432 for the naive order (-25%). Both give 0 linked clashes here,
   so the example does not show the clash handling beating the naive order; the one-slot test shows an unavoidable clash being listed.
@@ -167,4 +167,10 @@ rounds left go first, so they finish together) and which match gets which court 
   summed over 8 seeds: 14,840 minutes in the naive order, 11,335 when scheduled with every change costing the same, 10,230 with
   the table (-10% against flat); the search runs 10x more moves when a table is given, which is what made that gain appear
   (`divisions.test.mjs`). With five venues on a line (neighbours 5 min, the ends 80) and two divisions of six, 8 seeds: 3,200 minutes flat against 1,280 with the table (-60%). No table means the schedule is unchanged.
+- **Rainouts across divisions** (`applyDivisionRainouts`; a `rainouts` field in the spec JSON, or the page's step 4). One line per rainout:
+  `2026-10-13` cancels the whole night, `2026-10-13 U10` one division, `2026-10-13 U10/Hawks, U12/Owls` those teams' matches, and
+  `-> 2026-12-01` at the end names the make-up night. Each cancelled match goes to the earliest later play night where both teams
+  are free and a court is open (skip dates and court closures respected), taking a slot where no linked team plays at the same
+  time when one exists; nothing else moves, a refusal says why and leaves the match where it was, and the result is re-validated.
+  Tested on the example league for a team, a division, a night, a named date and bad lines (`divisions.test.mjs`).
 - **Not done yet.** Rounds are placed whole, so a night with 1 spare slot stays partly empty.
