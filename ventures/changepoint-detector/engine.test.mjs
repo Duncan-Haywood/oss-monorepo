@@ -342,3 +342,23 @@ test('PELT agrees with an independent implementation (ruptures) on 100 seeded ca
     assert.deepEqual(got.changepoints, c.changepoints, `${c.model} penalty ${c.penalty} n=${c.values.length}`);
   }
 });
+
+test('seasonal drift: a cycle whose amplitude triples leaves far fewer false changes, and a real shift is still found', () => {
+  let fixedN = 0, driftN = 0, found = 0, foundFixed = 0, exact = 0;
+  const N = 40;
+  for (let s = 1; s <= N; s++) {
+    const z = normals(rng(s + 400), 144);
+    const x = z.map((e, i) => (4 + (8 * i) / 144) * Math.sin((2 * Math.PI * i) / 12) + (i >= 84 ? 5 : 0) + e);
+    const hit = (c) => c.some((p) => Math.abs(p.index - 84) <= 3);
+    const f = analyze({ values: x, period: 12 }).pelt.changepoints;
+    const d = analyze({ values: x, period: 12, drift: true }).pelt.changepoints;
+    fixedN += f.length; driftN += d.length;
+    foundFixed += f.length === 1 && hit(f);
+    found += hit(d); exact += d.length === 1 && hit(d);
+  }
+  // measured (seeds 401..440): changes per series fixed profile vs drift, shift found within 3 points, exactly one change
+  // with the Theil-Sen window (9 cycles) the same seeds gave 1.95 changes/series, shift found 40/40, exactly one 24/40
+  console.log(`# drift: ${fixedN / N} vs ${driftN / N} changes/series; shift found ${found}/${N}; exactly one ${exact}/${N} (fixed ${foundFixed}/${N})`);
+  assert.ok(driftN / N < 0.4 * (fixedN / N), `${driftN / N} vs ${fixedN / N}`);
+  assert.ok(found >= 0.9 * N && exact > foundFixed, `${found}/${N} exact ${exact} vs ${foundFixed}`);
+});

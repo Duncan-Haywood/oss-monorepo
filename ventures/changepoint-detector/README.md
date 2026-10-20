@@ -124,11 +124,23 @@ series, 40 each, in `engine.test.mjs`):
   exactly one change within 1 point of the truth in 33 of 40 with `--period 12`
   (centred moving average, per-phase median, profile centred at zero). It needs
   two full cycles and is not offered for counts.
+- **Drifting seasonality (`--period n --drift`).** The fixed profile is wrong when the
+  cycle's amplitude grows or its peak moves. With `--drift` each phase is smoothed across
+  cycles by a running median (5 cycles, 3 on short series), re-centred per cycle. On 144
+  points with the amplitude growing from 4 to 12 and a shift of 5 at point 84 (seeds 401..440):
+  the fixed profile gave 12.9 changes per series and never exactly one; `--drift` gave 2.9
+  per series, found the shift within 3 points in 40 of 40 and exactly one change in 15 of 40.
+  The extra changes are still real noise in the estimated profile; it is better, not clean.
+  From 10 cycles up each phase follows a Theil-Sen line through its 9 nearest cycles instead of a
+  running median, which does not lag a growing cycle at the ends: on the same seeds 1.95 changes per
+  series (from 2.95), shift found 40 of 40, exactly one change 24 of 40 (from 15), false changes on
+  14 of 40 no-shift series (from 27). On a steady cycle (amplitude 10) it costs a little: exactly one
+  24 of 40 against 27, false 14 against 12.
 
 ## Limits
 
 Steps, not trends: a gradual drift is approximated by several steps. Seasonality is
-removed with `--period` (a fixed cycle only; no trend-seasonal STL). A changepoint describes the data, not its cause.
+removed with `--period` (`--drift` follows a changing shape with a running median; no full STL). A changepoint describes the data, not its cause.
 Up to 100,000 points; the Bayesian pass is the slow part on long series.
 
 ## Disclaimer
