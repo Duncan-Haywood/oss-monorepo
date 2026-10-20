@@ -1,21 +1,34 @@
 // UI for the couple divorce-odds calculator. All computation is local (couple.js, engine.js).
-import { renderPopulation, renderJustMe, renderCandidates, renderDashboard, initCandidates, initBatch, initDashboard, readHashExtras, hashExtras, currentView, setView, syncConstraintControls } from './compare-ui.js';
-import { populationComparison } from './population.js';
+import { renderPopulation, renderJustMe, renderCandidates, renderDashboard, initCandidates, initBatch, initDashboard, readHashExtras, hashExtras, currentView, setView, syncConstraintControls, renderAcsBaselines } from './compare-ui.js';
 import { encodeLiterature, decodeLiterature, renderLiteratureQuestions, readLiteratureInputs, renderLiteratureResult, renderNchs } from './literature-ui.js';
-import { SCHOOL, DEGREE, WORK, RELIGION, RACE_ETH, refusals, lensNotes, adapterFor, scoringModels, isBaseline, excludeReason, project, lifelong, constantSurvival, explain, groupedTerms, selfChanges, coupleChanges, idealPartners, lensSummary, lensView, shareOod, encodeScenario, decodeScenario } from './couple.js';
+import { SCHOOL, DEGREE, WORK, RELIGION, RACE_ETH, SAT_SCALE_KEYS, refusals, lensNotes, adapterFor, scoringModels, referenceOnlyModels, excludeReason, project, lifelong, constantSurvival, explain, groupedTerms, selfChanges, coupleChanges, idealPartners, lensSummary, lensView, expandLens, shareOod, encodeScenario, decodeScenario, rowLabels, lensHorizons, primaryHorizon, isRateLens, stepAt, fmtYears, modelSkill } from './couple.js';
+import { QUALITY, HAPMAR, PARTY, PARENTS_VIEW, COUNT3, RELIGION_RAISED, MOTHER_EDU, MOTHER_AGE, ATTEND_DETAIL, OFTEN, STATUS, HOW_MET, PLACE, STATES, YESNO, MARRIAGES_BEFORE, SAT_ITEMS, SAT_SCALE, HOSTILE_ITEMS, HOSTILE_SCALE, QUESTION_LENSES, satisfactionSum, hostilitySum } from './lens-adapters.js';
+import { summariseAll, shortName } from './summary.js';
 
 const $ = (s) => document.querySelector(s);
 const pct = (x, d = 0) => (100 * x).toFixed(d) + '%';
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+const yrs = (h) => `${fmtYears(h)} year${h === 1 ? '' : 's'}`;
 
+// The demo couple (illustrative, not data). Every question has "Prefer not to say".
 const DEFAULTS = {
-  a: { sex: 'Woman', age: 36, school: '16–17 years', degree: 'Bachelor', wages: 55000, work: '2,000+ hours', religion: 'Less than weekly', priorMarriage: false, raceEth: '', priorChildren: 'No', intactFamily: 'Yes' },
-  b: { sex: 'Man', age: 38, school: '13–15 years', degree: 'Some college', wages: 60000, work: '2,000+ hours', religion: 'Never', priorMarriage: false, raceEth: '', priorChildren: 'No', intactFamily: 'Yes' },
+  a: { sex: 'Woman', age: 36, school: '16–17 years', degree: 'Bachelor', wages: 55000, work: '2,000+ hours', religion: 'Less than weekly', priorMarriage: false, raceEth: 'White', priorChildren: 'No', intactFamily: 'Yes',
+    bornUS: 'Yes', quality: 'Excellent', hapmar: 'Very happy', party: 'Democrat', parentsView: 'Approve', kidsBefore: '0', priorPartners: '0', enrolled: 'No', religionRaised: 'Catholic', attendDetail: 'Less than monthly', motherEdu: 'Some college', motherAgeFirst: '20–24', sat: Array(8).fill('Very satisfied') },
+  b: { sex: 'Man', age: 38, school: '13–15 years', degree: 'Some college', wages: 60000, work: '2,000+ hours', religion: 'Never', priorMarriage: false, raceEth: 'White', priorChildren: 'No', intactFamily: 'Yes',
+    bornUS: 'Yes', quality: 'Good', hapmar: 'Very happy', party: 'Independent, other or no preference', parentsView: 'Approve', kidsBefore: '0', priorPartners: '1', enrolled: 'No', religionRaised: 'Other Protestant', attendDetail: 'Never', motherEdu: 'High school', motherAgeFirst: '18–19', sat: ['Very satisfied', 'Very satisfied', 'Somewhat satisfied', 'Somewhat satisfied', 'Very satisfied', 'Somewhat satisfied', 'Very satisfied', 'Very satisfied'] },
 };
+const PERSON_NEW = ['bornUS', 'marriagesBefore', 'quality', 'hapmar', 'party', 'parentsView', 'kidsBefore', 'priorPartners', 'enrolled', 'religionRaised', 'attendDetail', 'motherEdu', 'motherAgeFirst', 'obsPos', 'obsNeg', 'obsEff', 'substance', 'ace', 'abuse', 'lowMood'];
+const COUPLE_NEW = ['status', 'yearsTogether', 'howMet', 'childrenHome', 'place', 'state', 'expecting', 'cohabMonths', 'netWorth', 'debt', 'unsecuredDebt', 'homeOwner'];
+
+const lensIds = (keys) => [...new Set(keys.flatMap((k) => QUESTION_LENSES[k] || []))];
+let lensNameOf = (id) => id;
+const usedBy = (keys) => `<small class="used">Used by: ${lensIds(keys).map((id) => esc(lensNameOf(id))).join(', ')}</small>`;
+const opt = (list, v) => list.map((x) => `<option${x === v ? ' selected' : ''}>${esc(x)}</option>`).join('');
+const sel = (name, label, list, v, note = '') => `<label>${label} <select name="${name}"><option value="">Prefer not to say</option>${opt(list, v)}</select>${note}</label>`;
 
 function personFields(who) {
   const d = DEFAULTS[who];
-  const opt = (list, v) => list.map((x) => `<option${x === v ? ' selected' : ''}>${esc(x)}</option>`).join('');
+  const you = who === 'a';
   return `
     <label>Sex <select name="${who}.sex">${opt(['Woman', 'Man'], d.sex)}</select></label>
     <label>Age today <input name="${who}.age" type="number" min="16" max="100" value="${d.age}"></label>
@@ -28,20 +41,64 @@ function personFields(who) {
     <label>Age at first marriage <input name="${who}.firstMarriageAge" type="number" min="13" max="80" placeholder="this marriage if first"></label>
     <label>Children from an earlier relationship <select name="${who}.priorChildren">${opt(['No', 'Yes'], d.priorChildren)}</select></label>
     <label>Lived with both parents from birth to 18 <select name="${who}.intactFamily">${opt(['Yes', 'No'], d.intactFamily)}</select></label>
-    <label>Race-ethnicity <select name="${who}.raceEth"><option value="">Prefer not to say</option>${opt(RACE_ETH, d.raceEth)}</select><small>Only the NSFG lens uses it (the wife’s is required there)</small></label>`;
+    <label>Race-ethnicity <select name="${who}.raceEth"><option value="">Prefer not to say</option>${opt(RACE_ETH, d.raceEth)}</select><small>Hispanic of any race; several lenses have no “unknown” group for it</small></label>
+    <details class="qgroup"><summary>The relationship, in ${you ? 'your' : 'your partner’s'} words</summary>${usedBy(['quality', 'hapmar', 'party', 'parentsView'])}
+      ${sel(`${who}.quality`, 'How would you describe the quality of your relationship?', QUALITY, d.quality)}
+      ${sel(`${who}.hapmar`, 'Taken all together, how would you describe your marriage?', HAPMAR, d.hapmar, '<small>Only if married</small>')}
+      ${sel(`${who}.party`, 'Party preference', PARTY, d.party)}
+      ${sel(`${who}.parentsView`, 'Your parents’ view of your partner', PARENTS_VIEW, d.parentsView)}
+    </details>
+    <details class="qgroup"><summary>Background and life before this marriage</summary>${usedBy(['bornUS', 'marriagesBefore', 'kidsBefore', 'priorPartners', 'enrolled', 'religionRaised', 'attendDetail', 'motherEdu', 'motherAgeFirst'])}
+      ${sel(`${who}.bornUS`, 'Born in the U.S.', YESNO, d.bornUS)}
+      ${sel(`${who}.marriagesBefore`, 'If married before: how many earlier marriages', MARRIAGES_BEFORE, d.marriagesBefore)}
+      ${sel(`${who}.kidsBefore`, 'Children born before the wedding (with anyone, including this partner)', COUNT3, d.kidsBefore)}
+      ${sel(`${who}.priorPartners`, 'Earlier live-in partners, not counting this one', COUNT3, d.priorPartners)}
+      ${sel(`${who}.enrolled`, 'In school or college at the wedding (or now, if not yet married)', YESNO, d.enrolled)}
+      ${sel(`${who}.religionRaised`, 'Religion raised in', RELIGION_RAISED, d.religionRaised)}
+      ${sel(`${who}.attendDetail`, 'Religious attendance, in more detail', ATTEND_DETAIL, d.attendDetail)}
+      ${sel(`${who}.motherEdu`, 'Mother’s schooling', MOTHER_EDU, d.motherEdu)}
+      ${sel(`${who}.motherAgeFirst`, 'Mother’s age at her first birth', MOTHER_AGE, d.motherAgeFirst)}
+    </details>
+    <details class="qgroup"><summary>Newlywed study questions (optional)</summary>${usedBy(['satisfaction', 'observed', 'vulnerabilities', 'hostility'])}
+      <fieldset class="sub"><legend>${you ? 'Your' : 'Your partner’s'} satisfaction with…</legend>
+        ${SAT_ITEMS.map((it, i) => sel(`${who}.sat${i + 1}`, esc(it), SAT_SCALE, d.sat?.[i])).join('')}
+        <small>The study used 4- and 5-point answers summed to 8–37; here all 8 use one 5-point scale and the sum is rescaled (an approximation).</small>
+      </fieldset>
+      <fieldset class="sub"><legend>When you two discuss a disagreement, how often ${you ? 'are you' : 'is your partner'}…</legend>
+        ${sel(`${who}.obsPos`, 'warm, humorous, affectionate or attentive?', OFTEN, d.obsPos)}
+        ${sel(`${who}.obsNeg`, 'hostile, critical, contemptuous, defensive or domineering?', OFTEN, d.obsNeg)}
+        ${sel(`${who}.obsEff`, 'clear and calm, considering the other’s view, proposing realistic solutions?', OFTEN, d.obsEff)}
+        <small>APPROXIMATION: the study’s model used trained observers’ codes of a videotaped discussion, not self-ratings. Each answer is mapped to a percentile of the observed codes; that mapping is unvalidated.</small>
+      </fieldset>
+      <fieldset class="sub"><legend>${you ? 'You' : 'Your partner'}, in the past months</legend>
+        ${sel(`${who}.substance`, 'Problem drinking or drug use (past 9 months)', YESNO, '')}
+        ${sel(`${who}.lowMood`, 'Often sad, hopeless, restless or nervous (last 30 days)', YESNO, '')}
+        ${sel(`${who}.ace`, 'Adverse experiences in childhood', YESNO, '')}
+        ${sel(`${who}.abuse`, 'Ever abused or assaulted (childhood family violence, sexual assault, a former partner)', YESNO, '')}
+      </fieldset>
+      <fieldset class="sub"><legend>Hostility in the past 9 months</legend>
+        <p class="small">If any of this is happening, your safety comes first. In the U.S., the National Domestic Violence Hotline is 1-800-799-7233. These answers are never put in the shareable link.</p>
+        <div class="host">${HOSTILE_ITEMS.map((it, i) => `<div class="host-row"><span>${esc(it)}</span>${sel(`${who}.hostTo${i + 1}`, 'done to you by your partner', HOSTILE_SCALE, '')}${sel(`${who}.hostBy${i + 1}`, 'done by you', HOSTILE_SCALE, '')}</div>`).join('')}</div>
+      </fieldset>
+    </details>`;
 }
 
 function readForm() {
   const f = new FormData($('#form'));
   const person = (w) => {
     const p = {};
-    for (const k of ['sex', 'age', 'school', 'degree', 'wages', 'work', 'religion', 'firstMarriageAge', 'raceEth', 'priorChildren', 'intactFamily']) p[k] = f.get(`${w}.${k}`);
+    for (const k of ['sex', 'age', 'school', 'degree', 'wages', 'work', 'religion', 'firstMarriageAge', 'raceEth', 'priorChildren', 'intactFamily', ...PERSON_NEW]) p[k] = f.get(`${w}.${k}`) ?? '';
     p.age = Number(p.age);
     p.wages = p.wages === '' ? NaN : Number(p.wages);
     p.priorMarriage = f.get(`${w}.priorMarriage`) === 'on';
+    const s = satisfactionSum(SAT_SCALE_KEYS.map((k) => f.get(`${w}.${k}`)));
+    p.satSum = s === null ? '' : s;
+    const h = hostilitySum(HOSTILE_ITEMS.map((_, i) => f.get(`${w}.hostTo${i + 1}`)), HOSTILE_ITEMS.map((_, i) => f.get(`${w}.hostBy${i + 1}`)));
+    p.hostSum = h === null ? '' : h;
     return p;
   };
   const couple = { yearsMarried: Number(f.get('yearsMarried') || 0), familyIncome: f.get('familyIncome'), cohabitedFirst: f.get('cohabitedFirst') || 'Unknown', currentYear: new Date().getFullYear() };
+  for (const k of COUPLE_NEW) couple[k] = f.get(k) ?? '';
   const a = person('a');
   const b = person('b');
   // A first marriage started at (age - years married).
@@ -58,6 +115,7 @@ let lenses = []; // [{ entry, bundle, summary }]
 let mortality = null; // UN WPP 2024 U.S. death rates (data/us_mortality_wpp2024.json)
 let evidence = null; // verified published hazard ratios (data/literature_evidence.json)
 let nchs = null; // CDC/NCHS disruption life tables (data/nchs_disruption_tables.json)
+let acs = null; // ACS one-year divorce baselines (data/acs_divorce_baselines.json)
 let litAnswers = {}; // answers to the literature questions, mirrored in the # fragment
 
 const fmtN = (x) => (Number.isFinite(x) ? Math.round(x).toLocaleString('en-US') : '—');
@@ -89,19 +147,27 @@ function saveHash() {
   if (h !== location.hash) history.replaceState(null, '', h === '#' ? location.pathname + location.search : h);
 }
 
+function skillText(s) {
+  const sk = s.skill;
+  if (!sk) return `${s.models} models; see the bundle for held-out metrics`;
+  const ci = sk.gainCi ? ` (${sk.gainCi[0].toFixed(1)} to ${sk.gainCi[1].toFixed(1)})` : '';
+  return `best scoring model (${esc(sk.label)}) beats a constant rate by ${sk.gain.toFixed(1)}%${ci} held out${Number.isFinite(sk.c) ? `; C-index ${sk.c.toFixed(2)}` : ''}${Number.isFinite(sk.auc) ? `; ${esc(sk.aucLabel)} ${sk.auc.toFixed(2)}` : ''}`;
+}
+
 function renderLens() {
   const cur = lenses.find((l) => l.summary.id === $('#lensSel').value) || lenses[0];
   const s = cur.summary;
   const t = s.training;
+  const people = t.respondents || t.couples || t.people || t.train_people || t.couple_years;
   $('#lensCard').innerHTML = `<dl class="facts">
       <dt>Population</dt><dd>${esc(s.population)}</dd>
       <dt>Target</dt><dd>${esc(s.target)}</dd>
-      <dt>Training data</dt><dd>${[t.respondents && fmtN(t.respondents) + ' people', t.intervals && fmtN(t.intervals) + ' intervals', t.events && fmtN(t.events) + ' divorces'].filter(Boolean).join(' · ') || 'not stated'}</dd>
-      <dt>Held-out skill</dt><dd>${s.best ? `best of ${s.models} models (${esc(s.best.label)}) beats a constant rate by ${s.best.improvement.toFixed(1)}% in held-out deviance` : `${s.models} models; see the bundle for held-out metrics`}</dd>
-      ${s.scorable ? `<dt>Uses from the form</dt><dd>${esc(adapterFor(cur.bundle).uses)}</dd>` : ''}
-    </dl>${s.scorable ? '' : '<p class="note">This lens’s inputs do not map onto the form yet, so it shows what it covers but gives no number.</p>'}`;
+      <dt>Training data</dt><dd>${[people && fmtN(people) + (t.couples ? ' couples' : ' people'), t.intervals && fmtN(t.intervals) + ' intervals', (t.events || t.train_divorces) && fmtN(t.events || t.train_divorces) + ' break-ups'].filter(Boolean).join(' · ') || 'not stated'}</dd>
+      <dt>Held-out skill</dt><dd>${skillText(s)}</dd>
+      ${s.scorable ? `<dt>Horizons</dt><dd>${isRateLens(cur.bundle) ? 'year by year (tiles at 5, 10, 20 … years)' : lensHorizons(cur.bundle).map(yrs).join(', ') + ' only: the lens’s own follow-up, never extrapolated'}</dd><dt>Uses from the form</dt><dd>${esc(adapterFor(cur.bundle).uses)}</dd>` : ''}
+    </dl>${s.scorable ? '' : '<p class="note">This lens’s inputs do not map onto the form, or its outcome is not divorce, so it shows what it covers but gives no number.</p>'}`;
   $('#lensTable').innerHTML = '<thead><tr><th>Lens</th><th>Target</th><th class="num">Models</th><th class="num">Best held-out gain</th><th>In the calculator</th></tr></thead><tbody>'
-    + lenses.map(({ summary: z }) => `<tr><td>${esc(z.label)}</td><td>${esc(z.target)}</td><td class="num">${z.models}</td><td class="num">${z.best ? z.best.improvement.toFixed(1) + '%' : '—'}</td><td>${z.scorable ? 'yes' : 'listed only'}</td></tr>`).join('') + '</tbody>';
+    + lenses.map(({ summary: z }) => `<tr><td>${esc(z.label)}</td><td>${esc(z.target)}</td><td class="num">${z.models}</td><td class="num">${z.best ? z.best.improvement.toFixed(1) + '%' : '—'}</td><td>${z.scorable ? 'scored' : 'listed only'}</td></tr>`).join('') + '</tbody>';
   return cur;
 }
 
@@ -119,6 +185,7 @@ function applyView() {
   $('fieldset[data-who="b"] legend').textContent = v === 'dashboard' ? 'Reference partner (the profile searches start from)' : 'Your partner';
   $('.share').hidden = v === 'batch';
   for (const [id, view] of [['justMe', 'justme'], ['candidates', 'candidates'], ['dashboard', 'dashboard'], ['batch', 'batch']]) $('#' + id).hidden = v !== view;
+  $('#summaryBox').hidden = v !== 'couple';
   if (v !== 'couple') { $('#results').hidden = true; $('#refuse').hidden = true; }
 }
 
@@ -127,8 +194,8 @@ function render() {
   saveHash();
   applyView();
   const v = currentView();
+  const f = readForm();
   if (v !== 'couple') {
-    const f = readForm();
     if (v === 'justme') renderJustMe({ lenses, a: f.a, couple: f.couple });
     else if (v === 'candidates') renderCandidates({ lenses, a: f.a, couple: f.couple, mortality });
     else if (v === 'dashboard') {
@@ -137,14 +204,15 @@ function render() {
     }
     return;
   }
+  renderSummary(cur, f.a, f.b, f.couple);
   if (!cur.summary.scorable) {
     $('#refuse').hidden = false;
     $('#results').hidden = true;
-    $('#refuse').innerHTML = `<strong>No estimate from this lens.</strong> ${esc(cur.summary.label)} uses inputs the form does not collect yet. Pick another lens to score a couple.`;
+    $('#refuse').innerHTML = `<strong>No estimate from this lens.</strong> ${esc(cur.summary.label)} uses inputs the form does not collect, or an outcome that is not divorce. Pick another lens to score a couple.`;
     return;
   }
   bundle = cur.bundle;
-  const { a, b, couple, horizon } = readForm();
+  const { a, b, couple, horizon } = f;
   const why = refusals(bundle, a, b, couple);
   $('#refuse').hidden = why.length === 0;
   $('#results').hidden = why.length > 0;
@@ -154,10 +222,12 @@ function render() {
       + (others ? ` Another lens can score this couple: ${others}.` : '');
     return;
   }
-  const years = project(bundle, a, b, couple, horizon);
+  const H = isRateLens(bundle) ? horizon : Math.max(...lensHorizons(bundle));
+  const years = project(bundle, a, b, couple, H);
   state = { a, b, couple, years };
   renderTiles(years, couple);
   renderPopulation($('#popPanel'), bundle, a, b, couple);
+  renderAcsBaselines($('#acsPanel'), acs, a, b, couple);
   renderLifelong(a, b, couple, horizon);
   renderNchs($('#nchsPanel'), nchs, { a, b, couple, years, lensLabel: cur.summary.label });
   renderLiterature(cur, a, b, couple, years);
@@ -166,65 +236,64 @@ function render() {
   renderModels(years);
   renderExplain();
   renderChanges(a, b, couple);
-  renderCompare(a, b, couple);
 }
 
 // The published-evidence layer: questions for factors this lens does not model, and the
-// adjusted curve. Labelled literature-based; it never replaces the lens's own estimate.
+// adjusted curve. Labelled literature-based; it never replaces the lens's own estimate. It works
+// on a year-by-year curve, so short-horizon lenses do not get it.
 function renderLiterature(cur, a, b, couple, years) {
   renderLiteratureQuestions($('#literature'), cur.summary.id, evidence, litAnswers);
+  if (!isRateLens(cur.bundle)) {
+    $('#litOut').innerHTML = `<p class="note">The literature-based adjustment shifts a year-by-year curve to 5, 10 and 20 years; this lens covers only ${lensHorizons(cur.bundle).map(yrs).join(', ')}, so no adjustment is applied here. Pick a lens with a year-by-year projection to see it.</p>`;
+    return;
+  }
   renderLiteratureResult($('#litOut'), { lens: cur.summary.id, evidence, litAnswers, a, b, years, yearsMarried: couple.yearsMarried });
 }
 
-// Each lens's own 10-year estimate for this couple, or why it gives none. Never pooled.
-function renderCompare(a, b, couple) {
-  const rows = lenses.map((l) => {
-    const name = esc(l.summary.label);
-    if (!l.summary.scorable) return `<tr class="out"><td>${name}</td><td colspan="4">listed only: inputs not on the form, or a different outcome</td></tr>`;
-    const why = refusals(l.bundle, a, b, couple);
-    if (why.length) return `<tr class="out"><td>${name}</td><td colspan="4">no number: ${esc(why[0])}</td></tr>`;
-    const cmp = populationComparison(l.bundle, a, b, couple);
-    const o = cmp?.horizons?.find((h) => h.horizon === 10)?.overall;
-    const pc = !cmp ? 'no reference' : !o ? '—' : o.below ? 'below p1' : o.above ? 'above p99' : 'p' + Math.round(o.percentile);
-    const p = project(l.bundle, a, b, couple, 10);
-    const y = p[p.length - 1];
-    const inData = p.every((z) => z.inSupport);
-    const here = l.bundle === bundle ? ' <small>(shown above)</small>' : ` <button type="button" class="link" data-lens="${esc(l.summary.id)}">view</button>`;
-    return `<tr${inData ? '' : ' class="out"'}><td>${name}${here}</td><td class="num">${pct(y.meanSurvival, 1)}</td><td class="num">${pct(y.minSurvival, 1)}–${pct(y.maxSurvival, 1)}</td><td class="num">${pc}</td><td>${inData ? 'inside the data' : 'extrapolated: ' + esc(p.find((z) => !z.inSupport).issues[0])}</td></tr>`;
+// Summary across lenses: each scorable lens's own estimate at the horizons it supports, its
+// held-out skill and how well this couple fits its data, then a synthesis that pools nothing.
+function renderSummary(cur, a, b, couple) {
+  const s = summariseAll(lenses, a, b, couple);
+  const rows = s.rows.map((r) => {
+    const name = `${esc(r.label)}${r.id === cur.summary.id ? ' <small>(selected)</small>' : ` <button type="button" class="link" data-lens="${esc(r.id)}">view</button>`}`;
+    if (r.status !== 'ok') return `<tr class="out"><td>${name}</td><td colspan="4">${r.status === 'abstain' ? 'no number: ' : ''}${esc(r.reason)}</td></tr>`;
+    const est = r.horizons.map((h) => `<span class="est"><b>${pct(1 - h.mean, 1)}</b> by ${yrs(h.h)}<small>models ${pct(1 - h.max, 1)}–${pct(1 - h.min, 1)}${h.inSupport ? '' : '; extrapolated'}</small></span>`).join('');
+    const sk = r.skill;
+    const skill = sk ? `gain ${sk.gain.toFixed(1)}%${sk.gainCi ? ` (${sk.gainCi[0].toFixed(1)}–${sk.gainCi[1].toFixed(1)})` : ''}${Number.isFinite(sk.c) ? `<small>C-index ${sk.c.toFixed(2)}</small>` : ''}${Number.isFinite(sk.auc) ? `<small>${esc(sk.aucLabel)} ${sk.auc.toFixed(2)}</small>` : ''}` : '—';
+    const fit = `${r.fit.inSupport ? 'inside its data' : `${r.fit.outside} step${r.fit.outside > 1 ? 's' : ''} outside its data`}<small>${Number.isFinite(r.fit.ood) ? `more unusual than ${Math.round(r.fit.ood)}% of its people (abstains above ${r.fit.abstainAbove})` : 'no typicality check in this lens'}</small>`;
+    const pc = r.percentile ? `${r.percentile.below || r.percentile.above ? esc(r.percentile.label) : 'p' + Math.round(r.percentile.percentile)}<small>${r.percentile.quantity === 'annual_rate' ? 'annual rate now' : `risk by ${yrs(r.percentile.horizon)}`}</small>` : '<small>no reference</small>';
+    return `<tr${r.fit.inSupport ? '' : ' class="out"'}><td>${name}<small>${esc(r.outcome)}</small></td><td class="ests">${est}</td><td class="num">${pc}</td><td>${skill}</td><td>${fit}</td></tr>`;
   });
-  $('#compareTable').innerHTML = '<thead><tr><th>Lens</th><th class="num">No divorce by year 10</th><th class="num">Model range</th><th class="num">Population percentile (10-year risk)</th><th>Data support</th></tr></thead><tbody>' + rows.join('') + '</tbody>';
+  $('#summaryTable').innerHTML = '<thead><tr><th scope="col">Lens and its outcome</th><th scope="col">Chance of a break-up (model range)</th><th class="num" scope="col">Population percentile</th><th scope="col">Held-out skill</th><th scope="col">How well you fit its data</th></tr></thead><tbody>' + rows.join('') + '</tbody>';
+  $('#synthesis').innerHTML = s.synthesis.lines.map((l) => `<p>${esc(l)}</p>`).join('');
 }
 
 // Links to the other lenses that can score this couple, inside their own data range.
 function otherLenses(cur, a, b, couple) {
   const ok = lenses.filter((l) => l !== cur && l.summary.scorable && !refusals(l.bundle, a, b, couple).length
-    && project(l.bundle, a, b, couple, 10).every((y) => y.inSupport));
-  return ok.map((l) => `<button type="button" class="link" data-lens="${esc(l.summary.id)}">${esc(l.summary.label)}</button>`).join(', ');
-}
-
-function at(years, couple, n) {
-  return years.find((y) => y.year === couple.yearsMarried + n);
+    && project(l.bundle, a, b, couple, primaryHorizon(l.bundle)).every((y) => y.inSupport));
+  return ok.map((l) => `<button type="button" class="link" data-lens="${esc(l.summary.id)}">${esc(shortName(l.summary.label, l.summary.id))}</button>`).join(', ');
 }
 
 function renderTiles(years, couple) {
-  const marks = [5, 10, 20, 30, years.length].filter((n, i, arr) => n <= years.length && arr.indexOf(n) === i);
+  const rate = isRateLens(bundle);
+  const marks = rate ? [5, 10, 20, 30, years.length].filter((n, i, arr) => n <= years.length && arr.indexOf(n) === i) : lensHorizons(bundle);
+  const last = years[years.length - 1].elapsed;
   $('#tiles').innerHTML = marks.map((n) => {
-    const y = at(years, couple, n);
-    const all = years.slice(0, n).every((z) => z.inSupport);
-    const label = n === years.length ? `Through year ${y.year} (if both partners live)` : `Through year ${y.year}`;
+    const y = stepAt(years, n);
+    const all = years.filter((z) => z.elapsed <= n + 0.01).every((z) => z.inSupport);
+    const label = rate ? (n === last ? `Through year ${y.year} (if both partners live)` : `Through year ${y.year}`) : `No break-up within ${yrs(n)} from ${adapterFor(bundle).referenceAt === 'now' ? 'today' : 'the wedding'}`;
     return `<div class="tile${all ? '' : ' out'}"><div class="k">${label}</div><div class="v">${pct(y.meanSurvival)}</div>
       <div class="r">models: ${pct(y.minSurvival)}–${pct(y.maxSurvival)}</div>${all ? '' : '<div class="flag">includes years outside the data</div>'}</div>`;
   }).join('');
   const outside = years.filter((y) => !y.inSupport);
   const avg = constantSurvival(bundle, 10);
   $('#support').innerHTML = (outside.length
-    ? `<strong>${outside.length} of ${years.length} projected years are outside the training data</strong> (${esc(outside[0].issues[0])}${outside[0].issues.length > 1 ? ', …' : ''}); treat those as extrapolation. `
-    : 'Every projected year is inside the range of ages and marriage lengths the models were trained on. ')
-    + `For reference, the average training rate alone gives ${pct(avg)} no divorce over 10 years.`
+    ? `<strong>${outside.length} of ${years.length} projected steps are outside the training data</strong> (${esc(outside[0].issues[0])}${outside[0].issues.length > 1 ? ', …' : ''}); treat those as extrapolation. `
+    : 'Every projected step is inside the range the models were trained on. ')
+    + (rate ? `For reference, the average training rate alone gives ${pct(avg)} no divorce over 10 years.` : `This lens covers ${lensHorizons(bundle).map(yrs).join(', ')} only and is never projected further.`)
     + observedReference()
-    + lensNotes(bundle, state.a, state.b, couple).map((n) => ' ' + esc(n)).join('')
-    + (years.slice(0, 10).some((y) => !y.inSupport) && otherLenses(lenses.find((l) => l.bundle === bundle), state.a, state.b, couple)
-      ? ` The first 10 years of this couple are inside the data of another lens: ${otherLenses(lenses.find((l) => l.bundle === bundle), state.a, state.b, couple)}.` : '');
+    + lensNotes(bundle, state.a, state.b, couple).map((n) => ' ' + esc(n)).join('');
   $('#outcomeNote').textContent = adapterFor(bundle).outcome || '';
 }
 
@@ -236,7 +305,7 @@ function observedReference() {
   const wife = state.a.sex === 'Woman' ? state.a : state.b;
   const age = wife.age - state.couple.yearsMarried;
   const band = age < 20 ? 'Wife married under 20' : age < 25 ? 'Wife married 20-24' : age < 30 ? 'Wife married 25-29' : 'Wife married 30+';
-  const all = ws.find((g) => g.group === 'All first marriages');
+  const all = ws.find((g) => /^All first marriages/.test(g.group));
   const grp = ws.find((g) => g.group === band);
   const fmt = (g) => (g && Number.isFinite(g.still_married_10y) ? pct(g.still_married_10y) : null);
   if (!fmt(all)) return '';
@@ -250,6 +319,10 @@ function renderLifelong(a, b, couple, horizon) {
     return;
   }
   const L = lifelong(bundle, mortality, a, b, couple, horizon);
+  if (!L) {
+    $('#lifelong').innerHTML = `<p class="note">This lens covers only ${lensHorizons(bundle).map(yrs).join(', ')}, so it gives no lifelong figure; projecting it further would be extrapolation.</p>`;
+    return;
+  }
   const tile = (k, s, note) => `<div class="tile"><div class="k">${k}</div><div class="v">${pct(s.mean)}</div><div class="r">models: ${pct(s.min)}–${pct(s.max)}</div>${note ? `<div class="flag">${note}</div>` : ''}</div>`;
   $('#lifelong').innerHTML = `<div class="tiles three">${tile('Lifelong: ends only when a partner dies', L.widowhood)}${tile('Ends in divorce', L.divorce)}${tile(`Still married, both alive, after year ${L.lastYear}`, L.stillMarried)}</div>`
     + `<p class="small">Each year, the lens’s divorce rate competes with the death of either partner (UN World Population Prospects 2024 U.S. death rates by age, sex and calendar year, CC BY 3.0 IGO). The three shares add to 100%. These are population death rates: married people live longer than average and spouses’ deaths are linked, neither of which is modelled.${L.extrapolated ? ` ${L.extrapolated} of the ${L.horizon} years use divorce rates outside the lens’s data.` : ''}</p>`;
@@ -257,24 +330,25 @@ function renderLifelong(a, b, couple, horizon) {
 
 function renderChart(years, couple) {
   const W = 900, H = 340, L = 44, R = 16, T = 12, B = 34;
-  const n = years.length;
+  const span = years[years.length - 1].elapsed;
   const x0 = couple.yearsMarried;
-  const xs = (yr) => L + ((yr - x0) / n) * (W - L - R);
+  const xs = (t) => L + (t / span) * (W - L - R);
   const minS = Math.min(...years.map((y) => y.minSurvival));
   const lo = Math.max(0, Math.floor((minS - 0.05) * 10) / 10);
   const ys = (v) => T + (1 - (v - lo) / (1 - lo)) * (H - T - B);
-  const pts = [{ year: x0, meanSurvival: 1, minSurvival: 1, maxSurvival: 1, survival: Object.fromEntries(scoringModels(bundle).map((m) => [m.key, 1])) }, ...years];
-  const line = (f) => pts.map((p, i) => `${i ? 'L' : 'M'}${xs(p.year).toFixed(1)},${ys(f(p)).toFixed(1)}`).join('');
-  const band = line((p) => p.maxSurvival) + pts.slice().reverse().map((p) => `L${xs(p.year).toFixed(1)},${ys(p.minSurvival).toFixed(1)}`).join('') + 'Z';
+  const pts = [{ elapsed: 0, meanSurvival: 1, minSurvival: 1, maxSurvival: 1, survival: Object.fromEntries(scoringModels(bundle).map((m) => [m.key, 1])) }, ...years];
+  const line = (f) => pts.map((p, i) => `${i ? 'L' : 'M'}${xs(p.elapsed).toFixed(1)},${ys(f(p)).toFixed(1)}`).join('');
+  const band = line((p) => p.maxSurvival) + pts.slice().reverse().map((p) => `L${xs(p.elapsed).toFixed(1)},${ys(p.minSurvival).toFixed(1)}`).join('') + 'Z';
   let shade = '';
-  for (const y of years) if (!y.inSupport) shade += `<rect x="${xs(y.year - 1)}" y="${T}" width="${xs(y.year) - xs(y.year - 1) + 0.5}" height="${H - T - B}" fill="var(--outside)"/>`;
+  for (const y of years) if (!y.inSupport) shade += `<rect x="${xs(y.start)}" y="${T}" width="${xs(y.elapsed) - xs(y.start) + 0.5}" height="${H - T - B}" fill="var(--outside)"/>`;
   let grid = '';
   for (let v = lo; v <= 1.0001; v += (1 - lo) / 5) grid += `<line x1="${L}" x2="${W - R}" y1="${ys(v)}" y2="${ys(v)}" stroke="var(--grid)"/><text x="${L - 6}" y="${ys(v) + 4}" text-anchor="end">${pct(v)}</text>`;
-  const step = n > 30 ? 10 : 5;
-  for (let yr = x0; yr <= x0 + n; yr += step) grid += `<text x="${xs(yr)}" y="${H - 12}" text-anchor="middle">${yr}</text>`;
-  grid += `<text x="${(W + L) / 2}" y="${H}" text-anchor="middle">year of marriage</text>`;
+  const rate = isRateLens(bundle);
+  const step = span > 30 ? 10 : span > 12 ? 5 : span > 4 ? 2 : 1;
+  for (let t = 0; t <= span + 1e-9; t += step) grid += `<text x="${xs(t)}" y="${H - 12}" text-anchor="middle">${rate ? x0 + t : t}</text>`;
+  grid += `<text x="${(W + L) / 2}" y="${H}" text-anchor="middle">${rate ? 'year of marriage' : `years from ${adapterFor(bundle).referenceAt === 'now' ? 'today' : 'the wedding'}`}</text>`;
   const models = scoringModels(bundle).map((m) => `<path d="${line((p) => p.survival[m.key])}" fill="none" stroke="var(--model-line)" stroke-width="1"/>`).join('');
-  $('#chart').innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Chance of no divorce by year of marriage">
+  $('#chart').innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Chance of no break-up over time">
     ${shade}${grid}<path d="${band}" fill="var(--band)"/>${models}
     <path d="${line((p) => p.meanSurvival)}" fill="none" stroke="var(--series-1)" stroke-width="2.5"/>
     <line id="cross" y1="${T}" y2="${H - B}" stroke="var(--text-muted)" stroke-dasharray="3 3" visibility="hidden"/>
@@ -285,13 +359,12 @@ function renderChart(years, couple) {
   const tip = $('#tip');
   $('#hit').addEventListener('pointermove', (ev) => {
     const r = svg.getBoundingClientRect();
-    const sx = ((ev.clientX - r.left) / r.width) * W;
-    const yr = Math.min(x0 + n, Math.max(x0 + 1, Math.round(x0 + ((sx - L) / (W - L - R)) * n)));
-    const y = years.find((z) => z.year === yr);
-    $('#cross').setAttribute('x1', xs(yr)); $('#cross').setAttribute('x2', xs(yr)); $('#cross').setAttribute('visibility', 'visible');
-    $('#dot').setAttribute('cx', xs(yr)); $('#dot').setAttribute('cy', ys(y.meanSurvival)); $('#dot').setAttribute('visibility', 'visible');
+    const t = (((ev.clientX - r.left) / r.width) * W - L) / (W - L - R) * span;
+    const y = years.reduce((best, z) => (Math.abs(z.elapsed - t) < Math.abs(best.elapsed - t) ? z : best));
+    $('#cross').setAttribute('x1', xs(y.elapsed)); $('#cross').setAttribute('x2', xs(y.elapsed)); $('#cross').setAttribute('visibility', 'visible');
+    $('#dot').setAttribute('cx', xs(y.elapsed)); $('#dot').setAttribute('cy', ys(y.meanSurvival)); $('#dot').setAttribute('visibility', 'visible');
     tip.hidden = false;
-    tip.innerHTML = `<b>Year ${yr}</b>${y.inSupport ? '' : ' · outside data'}<br>No divorce so far: <b>${pct(y.meanSurvival, 1)}</b> (${pct(y.minSurvival, 1)}–${pct(y.maxSurvival, 1)})<br>Divorce in this year: ${pct(y.meanYearProb, 2)}<br>`
+    tip.innerHTML = `<b>${rate ? `Year ${y.year}` : `By ${yrs(y.elapsed)}`}</b>${y.inSupport ? '' : ' · outside data'}<br>No break-up so far: <b>${pct(y.meanSurvival, 1)}</b> (${pct(y.minSurvival, 1)}–${pct(y.maxSurvival, 1)})<br>Break-up in this ${rate ? 'year' : 'period'}: ${pct(y.meanYearProb, 2)}<br>`
       + scoringModels(bundle).map((m) => `${esc(m.label)}: ${pct(y.survival[m.key], 1)}`).join('<br>');
     tip.style.left = Math.min(window.innerWidth - 300, ev.clientX + 14) + 'px';
     tip.style.top = ev.clientY + 14 + 'px';
@@ -300,23 +373,30 @@ function renderChart(years, couple) {
 }
 
 function renderYearTable(years) {
-  $('#yearTable').innerHTML = '<thead><tr><th>Year of marriage</th><th class="num">Divorce in that year</th><th class="num">Range across models</th><th class="num">No divorce by end of year</th><th>Data support</th></tr></thead><tbody>'
+  const rate = isRateLens(bundle);
+  $('#yearTable').innerHTML = `<thead><tr><th>${rate ? 'Year of marriage' : 'Period'}</th><th class="num">Break-up in that ${rate ? 'year' : 'period'}</th><th class="num">Range across models</th><th class="num">No break-up by its end</th><th>Data support</th></tr></thead><tbody>`
     + years.map((y) => {
       const v = Object.values(y.yearProb);
-      return `<tr class="${y.inSupport ? '' : 'out'}"><td>${y.year}</td><td class="num">${pct(y.meanYearProb, 2)}</td><td class="num">${pct(Math.min(...v), 2)}–${pct(Math.max(...v), 2)}</td><td class="num">${pct(y.meanSurvival, 1)}</td><td>${y.inSupport ? 'in range' : esc(y.issues.join('; '))}</td></tr>`;
+      return `<tr class="${y.inSupport ? '' : 'out'}"><td>${rate ? y.year : `${esc(y.label || '')}: ${fmtYears(y.start)}–${fmtYears(y.elapsed)} years`}</td><td class="num">${pct(y.meanYearProb, 2)}</td><td class="num">${pct(Math.min(...v), 2)}–${pct(Math.max(...v), 2)}</td><td class="num">${pct(y.meanSurvival, 1)}</td><td>${y.inSupport ? 'in range' : esc(y.issues.join('; '))}</td></tr>`;
     }).join('') + '</tbody>';
 }
 
 function renderModels(years) {
-  const y10 = years[Math.min(9, years.length - 1)];
+  const rate = isRateLens(bundle);
+  const ph = primaryHorizon(bundle);
+  const yM = stepAt(years, ph) || years[years.length - 1];
   const last = years[years.length - 1];
-  $('#modelTable').innerHTML = `<thead><tr><th>Model</th><th class="num">Held-out improvement vs average rate</th><th class="num">Divorce rate, first year</th><th class="num">No divorce, year ${y10.year}</th><th class="num">No divorce, year ${last.year}</th></tr></thead><tbody>`
-    + scoringModels(bundle).map((m) => `<tr><td>${esc(m.label)}</td><td class="num">${m.heldout.deviance_improvement_percent.toFixed(1)}%</td><td class="num">${(1000 * years[0].rates[m.key]).toFixed(1)} per 1,000</td><td class="num">${pct(y10.survival[m.key], 1)}</td><td class="num">${pct(last.survival[m.key], 1)}</td></tr>`).join('')
-    + bundle.models.filter(isBaseline).map((m) => {
-      const p = project(bundle, state.a, state.b, state.couple, years.length, [m]);
-      return `<tr class="out"><td>${esc(m.label)} — ${esc(excludeReason(m))}</td><td class="num">${m.heldout.deviance_improvement_percent.toFixed(1)}%</td><td class="num">${(1000 * p[0].rates[m.key]).toFixed(1)} per 1,000</td><td class="num">${pct(p[Math.min(9, p.length - 1)].survival[m.key], 1)}</td><td class="num">${pct(p[p.length - 1].survival[m.key], 1)}</td></tr>`;
+  const gain = (m) => { const g = modelSkill(m).gain; return Number.isFinite(g) ? g.toFixed(1) + '%' : '—'; };
+  const first = (v) => (rate ? `${(1000 * v).toFixed(1)} per 1,000` : pct(v, 2));
+  const col = rate ? 'Divorce rate, first year' : `Break-up chance, first period (${fmtYears(years[0].elapsed)} y)`;
+  $('#modelTable').innerHTML = `<thead><tr><th>Model</th><th class="num">Held-out improvement vs a constant</th><th class="num">${col}</th><th class="num">No break-up, ${rate ? 'year ' + yM.year : yrs(yM.elapsed)}</th><th class="num">No break-up, ${rate ? 'year ' + last.year : yrs(last.elapsed)}</th></tr></thead><tbody>`
+    + scoringModels(bundle).map((m) => `<tr><td>${esc(m.label)}</td><td class="num">${gain(m)}</td><td class="num">${first(rate ? years[0].rates[m.key] : years[0].yearProb[m.key])}</td><td class="num">${pct(yM.survival[m.key], 1)}</td><td class="num">${pct(last.survival[m.key], 1)}</td></tr>`).join('')
+    + referenceOnlyModels(bundle).map((m) => {
+      const p = project(bundle, state.a, state.b, state.couple, rate ? years.length : last.elapsed, [m]);
+      const pm = stepAt(p, yM.elapsed);
+      return `<tr class="out"><td>${esc(m.label)} — ${esc(excludeReason(m, bundle))}</td><td class="num">${gain(m)}</td><td class="num">${first(rate ? p[0].rates[m.key] : p[0].yearProb[m.key])}</td><td class="num">${pct(pm.survival[m.key], 1)}</td><td class="num">${pct(p[p.length - 1].survival[m.key], 1)}</td></tr>`;
     }).join('')
-    + `<tr><td>Average training rate (no inputs)</td><td class="num">0%</td><td class="num">${(1000 * bundle.constant_rate).toFixed(1)} per 1,000</td><td class="num">${pct(constantSurvival(bundle, 10), 1)}</td><td class="num">${pct(constantSurvival(bundle, years.length), 1)}</td></tr></tbody>`;
+    + (rate ? `<tr><td>Average training rate (no inputs)</td><td class="num">0%</td><td class="num">${(1000 * bundle.constant_rate).toFixed(1)} per 1,000</td><td class="num">${pct(constantSurvival(bundle, 10), 1)}</td><td class="num">${pct(constantSurvival(bundle, years.length), 1)}</td></tr>` : '') + '</tbody>';
 }
 
 function renderExplain() {
@@ -328,12 +408,14 @@ function renderExplain() {
   }
   const m = bundle.models.find((z) => z.key === sel.value);
   const { a, b, couple } = state;
-  $('#explainYear').textContent = couple.yearsMarried + 1;
+  const rate = isRateLens(bundle);
+  $('#explainYear').textContent = rate ? `marriage year ${couple.yearsMarried + 1}` : `the first period (${fmtYears(state.years[0].start)}–${fmtYears(state.years[0].elapsed)} years)`;
   const e = explain(bundle, m, a, b, couple, 0);
   if (e.tree) {
     const describe = (t) => t.steps.map((s) => `<li><code>${esc(s.feature.replace(/^(num|cat)__/, ''))}</code> ${s.left ? '≤' : '>'} ${s.threshold.toFixed(2)} (value ${s.value.toFixed(2)})</li>`).join('');
-    const labels = adapterFor(bundle).rowLabels;
-    $('#explain').innerHTML = `<div class="two path">${e.tree.map((t, i) => `<div><h3>${esc(labels[i] || '')}</h3><ol>${describe(t)}</ol><p>Leaf rate ${(1000 * t.rate).toFixed(1)} per 1,000 per year (${t.leafSamples.toLocaleString('en-US')} training intervals)</p></div>`).join('')}</div>`;
+    const labels = rowLabels(bundle, a, b, couple);
+    const leaf = (t) => (!rate && !/poisson/i.test(m.label) ? `Leaf: ${pct(t.rate, 2)} chance in the period` : `Leaf rate ${(1000 * t.rate).toFixed(1)} per 1,000 per year`);
+    $('#explain').innerHTML = `<div class="two path">${e.tree.map((t, i) => `<div><h3>${esc(labels[i] || '')}</h3><ol>${describe(t)}</ol><p>${leaf(t)} (${t.leafSamples.toLocaleString('en-US')} training rows)</p></div>`).join('')}</div>`;
     return;
   }
   // Forest attributions are in rate units; every other model's are logs (rate or odds).
@@ -341,15 +423,17 @@ function renderExplain() {
   const rows = groupedTerms(e.terms).filter(([, v]) => Math.abs(rateScale ? 1000 * v : v) > 0.005);
   const maxAbs = Math.max(rateScale ? 0.0001 : 0.1, ...rows.map(([, v]) => Math.abs(v)));
   const fmtVal = (v) => (rateScale ? `${v >= 0 ? '+' : '−'}${(1000 * Math.abs(v)).toFixed(1)}/1,000` : `×${Math.exp(v).toFixed(2)}`);
-  const unit = { rate: 'Values are changes in the annual rate per 1,000 couples (path attributions summed over the forest’s trees).', hazard_log_odds: 'Values multiply the odds of a break-up in the year.', log_rate: 'Values multiply the annual rate.' }[e.scale] || '';
+  const unit = { rate: 'Values are changes in the annual rate per 1,000 couples (path attributions summed over the forest’s trees).', hazard_log_odds: 'Values multiply the odds of a break-up in the year.', log_odds: 'Values multiply the odds of a break-up in the period.', log_rate: 'Values multiply the rate.' }[e.scale] || '';
   $('#explain').innerHTML = `<div class="bars">${rows.map(([k, v]) => {
     const w = (Math.abs(v) / maxAbs) * 50;
     const left = v < 0 ? 50 - w : 50;
     return `<div>${esc(k)}</div><div class="track"><div class="axis"></div><div class="bar" style="left:${left}%;width:${w}%;opacity:${v < 0 ? 0.55 : 1}"></div></div><div class="val">${fmtVal(v)}</div>`;
-  }).join('')}</div><p class="small">Bars right of the line raise the model’s rate; left lower it. ${unit}${e.scale === 'log_rate' ? ` Reference rate ${(1000 * Math.exp(e.intercept)).toFixed(1)} per 1,000 per year.` : ''}</p>`;
+  }).join('')}</div><p class="small">Bars right of the line raise the model’s risk; left lower it. ${unit}${e.scale === 'log_rate' ? ` Reference rate ${(1000 * Math.exp(e.intercept)).toFixed(1)} per 1,000 per year.` : ''}${Object.keys(e.terms).length > 1 && rowLabels(bundle, a, b, couple).length > 1 ? ' Averaged over the perspectives this lens scores.' : ''}</p>`;
 }
 
 function renderChanges(a, b, couple) {
+  const n = primaryHorizon(bundle);
+  $('#changesHorizon').textContent = yrs(n);
   const pts = (x) => `${x >= 0 ? '+' : '−'}${(100 * Math.abs(x)).toFixed(1)}`;
   const list = (opts) => opts.slice(0, 6).map((o) => {
     const cls = o.delta > 0 ? 'up' : 'down';
@@ -364,10 +448,21 @@ function renderChanges(a, b, couple) {
   $('#changesB').innerHTML = none(cb) + list(cb);
   $('#changesCouple').hidden = !cc.length;
   $('#changesC').innerHTML = none(cc) + list(cc);
+  const ad = adapterFor(bundle);
+  $('#idealSearch').textContent = ad.searchText || '';
+  if (!ad.partnerGrid(a, b).length) {
+    $('#idealNote').innerHTML = '<strong>No partner search in this lens.</strong> Its models do not take the partner’s traits.';
+    $('#idealTable').innerHTML = '';
+    return;
+  }
   const ideal = idealPartners(bundle, a, b, couple);
   const k = ideal.models;
-  $('#idealSearch').textContent = adapterFor(bundle).searchText || '';
-  $('#idealTable').innerHTML = `<thead><tr><th>Partner profile</th><th class="num">No divorce by year 10</th><th class="num">Model range</th><th class="num">Models scoring it above your partner as entered</th><th>Data support</th></tr></thead><tbody>`
+  if (!ideal.current || !ideal.best.length) {
+    $('#idealNote').innerHTML = '<strong>No partner profile could be scored here.</strong>';
+    $('#idealTable').innerHTML = '';
+    return;
+  }
+  $('#idealTable').innerHTML = `<thead><tr><th>Partner profile</th><th class="num">No break-up by ${yrs(n)}</th><th class="num">Model range</th><th class="num">Models scoring it above your partner as entered</th><th>Data support</th></tr></thead><tbody>`
     + `<tr class="ref"><td>Your partner as entered</td><td class="num">${pct(ideal.current.meanSurvival, 1)}</td><td class="num">${pct(ideal.current.minSurvival, 1)}–${pct(ideal.current.maxSurvival, 1)}</td><td class="num">—</td><td></td></tr>`
     + ideal.best.map((r) => `<tr><td>${esc(r.description)}</td><td class="num">${pct(r.meanSurvival, 1)}</td><td class="num">${pct(r.minSurvival, 1)}–${pct(r.maxSurvival, 1)}</td><td class="num">${r.beats} of ${k}</td><td>${r.inSupport ? 'in range' : 'extrapolated'}</td></tr>`).join('')
     + `<tr class="out"><td>Lowest-scoring of ${ideal.considered} profiles searched: ${esc(ideal.worst.description)}</td><td class="num">${pct(ideal.worst.meanSurvival, 1)}</td><td class="num">${pct(ideal.worst.minSurvival, 1)}–${pct(ideal.worst.maxSurvival, 1)}</td><td class="num">${ideal.worst.beats} of ${k}</td><td></td></tr></tbody>`;
@@ -375,7 +470,7 @@ function renderChanges(a, b, couple) {
     ? `${ideal.tied} of ${ideal.considered} searched profiles have a model range that overlaps the top profile’s, so the models cannot tell them apart.`
     : `The top profile’s model range does not overlap any other of the ${ideal.considered} searched.`;
   const topsText = ideal.distinctTops === 1 ? `All ${k} models put the same profile first on their own.` : `On their own, the ${k} models put ${ideal.distinctTops} different profiles first.`;
-  $('#idealNote').innerHTML = `<strong>No single ideal partner.</strong> ${tiedText} ${topsText} ${esc(adapterFor(bundle).ageNote || '')}`;
+  $('#idealNote').innerHTML = `<strong>No single ideal partner.</strong> ${tiedText} ${topsText} ${esc(ad.ageNote || '')}`;
 }
 
 async function loadLenses() {
@@ -387,20 +482,22 @@ async function loadLenses() {
   }
   const loaded = await Promise.all(entries.map(async (entry) => {
     try {
-      const b = lensView(await (await fetch('models/' + encodeURIComponent(entry.file))).json());
-      return { entry, bundle: b, summary: lensSummary(b, entry) };
+      const views = expandLens(lensView(await (await fetch('models/' + encodeURIComponent(entry.file))).json()));
+      return views.map((b) => ({ entry, bundle: b, summary: lensSummary(b, b.view_of ? {} : entry) }));
     } catch {
-      return null; // a lens that fails to load is skipped, not fatal
+      return []; // a lens that fails to load is skipped, not fatal
     }
   }));
-  return loaded.filter(Boolean);
+  return loaded.flat();
 }
 
 async function main() {
+  const json = (f) => fetch(f).then((r) => (r.ok ? r.json() : null)).catch(() => null);
+  [lenses, mortality, evidence, nchs, acs] = await Promise.all([loadLenses(), json('data/us_mortality_wpp2024.json'), json('data/literature_evidence.json'), json('data/nchs_disruption_tables.json'), json('data/acs_divorce_baselines.json')]);
+  lensNameOf = (id) => shortName(lenses.find((l) => l.summary.id === id)?.summary.label || id, id);
   $('fieldset[data-who="a"]').insertAdjacentHTML('beforeend', personFields('a'));
   $('fieldset[data-who="b"]').insertAdjacentHTML('beforeend', personFields('b'));
-  const json = (f) => fetch(f).then((r) => (r.ok ? r.json() : null)).catch(() => null);
-  [lenses, mortality, evidence, nchs] = await Promise.all([loadLenses(), json('data/us_mortality_wpp2024.json'), json('data/literature_evidence.json'), json('data/nchs_disruption_tables.json')]);
+  $('#coupleExtra').innerHTML = coupleFields();
   shareOod(lenses.map((l) => l.bundle));
   const scorableFirst = lenses.slice().sort((x, y) => Number(y.summary.scorable) - Number(x.summary.scorable));
   $('#lensSel').innerHTML = scorableFirst.map((l) => `<option value="${esc(l.summary.id)}">${esc(l.summary.label)}${l.summary.scorable ? '' : ' (listed only)'}</option>`).join('');
@@ -445,7 +542,40 @@ async function main() {
     try { await navigator.clipboard.writeText(location.href); ok = true; } catch { /* clipboard blocked */ }
     $('#shareStatus').textContent = ok ? 'Link copied.' : 'Copy the address bar to share this scenario.';
   });
-  window.addEventListener('hashchange', () => { readHashExtras(location.hash); litAnswers = decodeLiterature(location.hash); syncConstraintControls(); applyFields(decodeScenario(location.hash)); render(); });
+  window.addEventListener('hashchange', () => {
+    readHashExtras(location.hash);
+    litAnswers = decodeLiterature(location.hash);
+    syncConstraintControls();
+    const h = decodeScenario(location.hash);
+    applyFields(h);
+    if (h.lens && lenses.some((l) => l.summary.id === h.lens)) $('#lensSel').value = h.lens;
+    render();
+  });
   render();
 }
+
+// The relationship and household questions the newer lenses use, grouped so the page stays
+// usable on a phone; each group says which lenses read it.
+function coupleFields() {
+  return `
+    <details class="qgroup"><summary>The relationship now</summary>${usedBy(['status', 'yearsTogether', 'howMet', 'childrenHome'])}
+      ${sel('status', 'Relationship now', STATUS, 'Married, living together')}
+      <label>Years together (since the relationship began) <input name="yearsTogether" type="number" min="0" max="80" step="0.5" value="3"></label>
+      ${sel('howMet', 'How you met', HOW_MET, 'Through friends')}
+      <label>Children under 18 living with you <input name="childrenHome" type="number" min="0" max="15" step="1" value="0"></label>
+    </details>
+    <details class="qgroup"><summary>Where you live</summary>${usedBy(['place', 'state'])}
+      ${sel('place', 'Region', PLACE, 'U.S. — Midwest')}
+      ${sel('state', 'U.S. state (sets the U.S. region)', STATES, '')}
+    </details>
+    <details class="qgroup"><summary>The wedding and money</summary>${usedBy(['expecting', 'cohabMonths', 'netWorth', 'debt', 'unsecuredDebt', 'homeOwner'])}
+      ${sel('expecting', 'A baby expected at the wedding (born within 7 months after)', YESNO, 'No')}
+      <label>Months lived together before the wedding <input name="cohabMonths" type="number" min="0" max="240" step="1" placeholder="if you did"></label>
+      <label>Household net worth, $ <input name="netWorth" type="number" step="1000" placeholder="optional"></label>
+      <label>Household debt, $ <input name="debt" type="number" min="0" step="1000" placeholder="optional"></label>
+      <label>Of which unsecured (cards, personal loans), $ <input name="unsecuredDebt" type="number" min="0" step="500" placeholder="optional"></label>
+      ${sel('homeOwner', 'Own your home (or buying it)', YESNO, 'No')}
+    </details>`;
+}
+
 main();

@@ -21,7 +21,7 @@ export const emptyConstraints = () => ({ locks: [], exclude: {}, gapMax: null })
 function fieldSpec(name) {
   const [who, k] = name.split('.');
   if ((who === 'a' || who === 'b') && k in PERSON_SPEC) return PERSON_SPEC[k];
-  if (who === 'couple' && k === 'cohabitedFirst') return COUPLE_SPEC.cohabitedFirst;
+  if (who === 'couple' && ['cohabitedFirst', 'status', 'homeOwner'].includes(k)) return COUPLE_SPEC[k];
   return undefined;
 }
 const enumerated = (spec) => Array.isArray(spec) && typeof spec[0] === 'string';

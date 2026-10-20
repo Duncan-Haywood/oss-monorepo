@@ -111,6 +111,13 @@ export const LENS_MODELS = {
   // HCMST models religion_pair and self-rated relationship_quality; quality absorbs much of
   // what destructive conflict predicts, so conflict is refused too (conservative).
   hcmst_couples: ['nonreligious_spouse', 'religiosity_match', 'destructive_conflict_wife', 'destructive_conflict_husband'],
+  // Marriage happiness absorbs much of what conflict predicts (as relationship quality does).
+  gss_panel_marriages: ['nonreligious_spouse', 'religiosity_match', 'parental_divorce_wife', 'parental_divorce_husband', 'destructive_conflict_wife', 'destructive_conflict_husband'],
+  nlsy79_first_marriage: ['nonreligious_spouse', 'religiosity_match', 'parental_divorce_wife', 'parental_divorce_husband'],
+  nlsy97_first_marriage: ['nonreligious_spouse', 'religiosity_match', 'parental_divorce_wife', 'parental_divorce_husband', 'prior_cohabitations_other_partners'],
+  nsfg_pooled_first_marriage: ['nonreligious_spouse', 'religiosity_match', 'parental_divorce_wife'],
+  nsfg_pooled_both_sexes: ['nonreligious_spouse', 'religiosity_match', 'parental_divorce_wife', 'parental_divorce_husband'],
+  canada_gss_first_marriage: ['prior_cohabitations_other_partners', 'parental_divorce_wife', 'parental_divorce_husband'],
 };
 
 // For a bundle not in LENS_MODELS: infer from its input column names (conservatively).

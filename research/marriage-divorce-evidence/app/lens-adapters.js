@@ -973,7 +973,7 @@ const NEWLYWED = {
   notes(bundle, a, b, couple) {
     const out = ['A sample of 368 couples: percentiles beyond p5–p95 rest on a handful of couples, and these couples are not U.S. couples in general.'];
     if (!married(couple)) out.push('You are not married yet: scored as if you married now (the study began in the first months of marriage).');
-    if (proxiesUsed(a, b)) out.push(`APPROXIMATION: ${bundle.inputs.H_Positivity.self_report_proxy.caveat}`);
+    if (proxiesUsed(a, b)) out.push(bundle.inputs.H_Positivity.self_report_proxy.caveat);
     out.push('Satisfaction: the study used 4- and 5-point items summed to 8–37; the form asks all 8 on a 5-point scale and rescales the sum, so treat it as approximate. Unanswered inputs (and neighbourhood, unemployment and financial strain, which are not asked) are scored at the study’s median, as its pipeline does.');
     return out;
   },

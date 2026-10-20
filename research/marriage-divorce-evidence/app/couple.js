@@ -433,13 +433,13 @@ export function refusals(bundle, a, b, couple = {}) {
   const out = adapterFor(bundle).refuse(bundle, a, b, couple);
   if (out.length) return out;
   const o = typicality(bundle, a, b, couple);
-  if (o && o.abstain) out.push(`This couple is more unusual than ${o.percentile.toFixed(2)}% of the surveyed ${bundle.ood.unit ? 'couple-years' : 'marriages'} (distance from the training data, above the ${bundle.ood.abstain_above_percentile}th-percentile line), so the lens abstains.`);
+  if (o && o.abstain) out.push(`This couple is more unusual than ${o.percentile.toFixed(2)}% of the surveyed ${bundle.ood.unit ? 'couple-years' : 'people'} (distance from the training data, above the ${bundle.ood.abstain_above_percentile}th-percentile line), so the lens abstains.`);
   return out;
 }
 export function lensNotes(bundle, a, b, couple = {}) {
   const out = adapterFor(bundle).notes(bundle, a, b, couple);
   const o = typicality(bundle, a, b, couple);
-  if (o) out.push(`Typicality: this couple is more unusual than ${o.percentile.toFixed(0)}% of the surveyed ${bundle.ood.unit ? 'couple-years' : 'marriages'} (the lens abstains above ${bundle.ood.abstain_above_percentile}%)${o.perspectives > 1 ? `; the more unusual of ${o.perspectives} perspectives` : ''}.`);
+  if (o) out.push(`Typicality: this couple is more unusual than ${o.percentile.toFixed(0)}% of the surveyed ${bundle.ood.unit ? 'couple-years' : 'people'} (the lens abstains above ${bundle.ood.abstain_above_percentile}%)${o.perspectives > 1 ? `; the more unusual of ${o.perspectives} perspectives` : ''}.`);
   return out;
 }
 // The perspective labels this lens averages over for this couple.
@@ -787,7 +787,10 @@ export const FORM_ADAPTERS = Object.keys(ADAPTERS);
 export function modelSkill(m) {
   const h = m.heldout || {};
   const gain = Number.isFinite(h.deviance_improvement_percent) ? h.deviance_improvement_percent : Number.isFinite(h.logloss_improvement_percent) ? h.logloss_improvement_percent : null;
-  const gainCi = h.ci95 || h.logloss_improvement_ci || h.logloss_improvement_ci95 || null;
+  let gainCi = h.ci95 || h.logloss_improvement_ci || h.logloss_improvement_ci95 || null;
+  // NLSY79 individuals publish the interval per person-year; rescale it to percent.
+  if (gainCi && Number.isFinite(h.deviance_improvement_per_person_year) && h.deviance_improvement_per_person_year > 0) gainCi = gainCi.map((x) => (x * gain) / h.deviance_improvement_per_person_year);
+  if (gainCi && !(gainCi[0] <= gain + 1e-9 && gain <= gainCi[1] + 1e-9)) gainCi = null;
   const cKey = ['harrell_c', 'c_index', 'c_index_10y'].find((k) => Number.isFinite(h[k]));
   const aucKey = ['auc10', 'auc_10y', 'auc', 'auc_breakup_by_2011', 'auc_2.3y', 'auc5', 'auc_5y'].find((k) => Number.isFinite(h[k]));
   return {
@@ -819,6 +822,7 @@ export function lensSummary(raw, entry = {}) {
     best: best ? { label: best.label, improvement: best.deviance_improvement_percent } : null,
     metrics,
     scorable: FORM_ADAPTERS.includes(adapter) && Array.isArray(bundle.models) && bundle.models.length > 0,
+    skill: Array.isArray(bundle.models) && FORM_ADAPTERS.includes(adapter) ? lensSkill(bundle) : null,
   };
 }
 
