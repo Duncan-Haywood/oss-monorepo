@@ -205,12 +205,18 @@ Done (2026-10-19/20, PRs #8537, #8556 and the round-3 PR):
   the surveyed spouse and averages; unanswered inputs take the survey's most common answer and
   are named on the page; second marriages, same-sex couples and out-of-data ages are refused;
   B's typicality score runs before any number (`tests/prewedding_app.test.mjs`).
+- Not engaged yet: `dating.js` chains A's two HCMST dating-couple models (marry each other vs
+  break up first) by the bundles' `how_to_combine`, per partner rating, for both additive models
+  (the full one and the harmonized one A checked on the 2017 cohort) with their range, and hands over to the
+  selected before-the-wedding lens for the years after a wedding (a labelled approximation that
+  joins two surveys). Shown only before the wedding; relationship questions are visible there
+  and the relationship status follows the stage (`tests/dating.test.mjs`).
 
 Remaining:
 
-- Before the wedding, next: chain the HCMST dating-couple lenses (marry vs break up first, with
-  `how_to_combine`) into the before-the-wedding lens for couples not yet engaged, labelled as
-  the current relationship; use a default couple at typical first-wedding ages.
+- Before the wedding, next: a default couple at typical first-wedding ages; per-model ranges
+  for the dating chain once the trees beat the period-only baseline; and a joint (not two
+  separately fitted) marry/break-up model if workstream A refits HCMST.
 - Mortality refinements. Married people's lower death rates and the correlation between
   spouses' deaths are not modelled; the app says so under the lifelong tiles. Lifelong figures
   over long horizons also lean on years outside each lens's data (the page counts them).

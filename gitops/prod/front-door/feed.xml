@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Open Tools and Research — tools on marisstella.dev</title>
-  <subtitle>The 1305 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1306 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -62,6 +62,14 @@
     <updated>2026-10-20T00:00:00Z</updated>
     <category term="More free tools"/>
     <summary type="text">Build fictional characters with Big Five personalities and simulate negotiations, team meetings and arguments between them. Free, private, runs in your browser.</summary>
+  </entry>
+  <entry>
+    <title>Saints by Candlelight: a free bedtime podcast of saints, angels and Bible stories</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/saints-by-candlelight/"/>
+    <id>tag:marisstella.dev,2026:tool/saints-by-candlelight</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">Free bedtime story podcast of Catholic and Orthodox saints, angels and patriarchs: lighthearted, faithful, 30 to 60 minute episodes with full scripts and an honest note on what is history and what is legend.</summary>
   </entry>
   <entry>
     <title>Sales Cadence Builder — plan email, call, LinkedIn and letter outreach, free</title>
@@ -158,13 +166,5 @@
     <updated>2026-10-18T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste a page&#39;s HTML for a scored SEO and AI-readiness audit: title, description, headings, canonical, JSON-LD, alt text, each with its fix. Free, private.</summary>
-  </entry>
-  <entry>
-    <title>Free Price Drop and Back-in-Stock Alerts (Self-Hosted)</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/price-drop-watcher/"/>
-    <id>tag:marisstella.dev,2026:tool/price-drop-watcher</id>
-    <updated>2026-10-18T00:00:00Z</updated>
-    <category term="More free tools"/>
-    <summary type="text">Get price drop and back-in-stock alerts for any product page, free. Runs on your own GitHub Actions, alerts your phone, no account or tracking. Test a page in your browser first.</summary>
   </entry>
 </feed>

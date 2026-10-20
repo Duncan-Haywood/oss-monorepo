@@ -38,13 +38,13 @@ flagships:
       deploy, ~48 test files, and a regulatory tailwind (EU e-invoicing mandates).
     next: >-
       The official EN 16931 Schematron plus the XRechnung (UBL, CII) and Peppol
-      BIS 3 (UBL) add-ons now run in Saxon-JS (opt-in, ?schematron=1, picked by
-      BT-24) and the Docker image bakes them in. Next: show the official findings
-      on the web page (index.html, needs a server or WASM path since Saxon-JS
-      runs in Node here), and English fixes for the remaining PEPPOL and CEN
-      rules (every BR-DE rule has one now; a test fails when a new one lacks it).
-      A CII XRechnung example (examples/xrechnung-cii-invoice.xml) is tested
-      against the official rules; CII BT-24 detection is fixed.
+      BIS 3 (UBL and CII) add-ons run in Saxon-JS (opt-in, ?schematron=1, picked by
+      BT-24); the Docker image bakes them in; all 342 rule ids have an English
+      fix; and the web page has an "official Schematron" box that posts XML to
+      the self-hosted API and lists the findings (official.mjs). Next: a
+      WASM/in-browser path so the static Pages copy can run it too without a
+      server, then examples that exercise the Peppol credit-note and XRechnung
+      CII paths.
   - venture: shift-roster-builder
     why: >-
       Simulated-annealing scheduler over a dollar cost (availability, rest,
@@ -54,7 +54,7 @@ flagships:
       The exact check now has a coverage bound (min-cost flow over shifts,
       person-days and weekly hours): on the 32-shift sample week it proves the
       15 uncoverable hours and sits within ~$70 of the roster found, but the
-      proof of the cheapest roster still times out at ~12k nodes/s. Next: close
+      proof of the cheapest roster still times out (the coverage flow now runs on a sparse graph, 1.7x more nodes in the same 8 s, ~11k nodes/s here, ~94k nodes vs 57k). Next: close
       that last gap (a faster incremental bound or symmetry cuts between people
       with equal availability and wage) so full weeks are proven, then
       multi-week rostering that carries fairness and time off across weeks
