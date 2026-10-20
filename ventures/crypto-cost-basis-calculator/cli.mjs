@@ -14,7 +14,7 @@
 
 import { readFile, writeFile } from "node:fs/promises";
 import process from "node:process";
-import { analyze, planSale, idRecord, donationPlan, parsePrices, parse1099da, reconcile1099da, harvestPlan, waitPlan, toForm8949Csv, toIncomeCsv, form8949Totals, form8949BoxTotals, METHODS, METHOD_LABELS, NIIT_THRESHOLDS, SAMPLE_CSV } from "./calc.mjs";
+import { analyze, planSale, idRecord, donationPlan, parsePrices, parse1099da, reconcile1099da, harvestPlan, waitPlan, toForm8949Csv, toTurboTaxCsv, turboTaxSkipped, toIncomeCsv, form8949Totals, form8949BoxTotals, METHODS, METHOD_LABELS, NIIT_THRESHOLDS, SAMPLE_CSV } from "./calc.mjs";
 import { convertMany, FORMAT_LABELS } from "./importers.mjs";
 
 const USAGE = `Crypto cost basis from exchange CSVs: lot matching, method comparison, Form 8949 style rows.
@@ -44,6 +44,7 @@ Options:
   --sale-date <date>  date of the planned sale or price check (default: today)
   --prices <list>     prices you type, e.g. "BTC=65000,ETH=3200": adds tax-loss harvesting and wait-for-long-term (90 days) views of the lots you still hold
   --form8949 <file>   also write Form 8949 style rows to this file
+  --tax-software <file> also write the sales as a Currency/Purchase Date/Cost Basis/Date Sold/Proceeds CSV for tax-software import (rows with no purchase on record are left out and counted)
   --income-csv <file> also write the year's staking/mining/airdrop income by coin to this file
   --reconcile <file>  compare each coin with the proceeds and basis your broker reported on Form 1099-DA (CSV: asset,proceeds,basis)
   --json              print the full analysis as JSON
@@ -57,7 +58,7 @@ prices, and rows an export gives no USD value for are flagged, never zero.
 `;
 
 export function parseArgs(argv) {
-  const opts = { files: [], method: "FIFO", year: null, perWallet: false, shortRate: 0.24, longRate: 0.15, form8949: null, incomeCsv: null, carryShort: 0, carryLong: 0, lossLimit: 3000, json: false, example: false, help: false };
+  const opts = { files: [], method: "FIFO", year: null, perWallet: false, shortRate: 0.24, longRate: 0.15, form8949: null, taxSoftware: null, incomeCsv: null, carryShort: 0, carryLong: 0, lossLimit: 3000, json: false, example: false, help: false };
   const need = (i, arg) => { if (i >= argv.length) throw new Error(`${arg} needs a value`); return argv[i]; };
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
@@ -112,6 +113,7 @@ export function parseArgs(argv) {
     }
     else if (arg === "--reconcile") opts.reconcile = need(++i, arg);
     else if (arg === "--form8949") opts.form8949 = need(++i, arg);
+    else if (arg === "--tax-software") opts.taxSoftware = need(++i, arg);
     else if (arg === "--income-csv") opts.incomeCsv = need(++i, arg);
     else if (arg.startsWith("-") && arg !== "-") throw new Error(`unknown option: ${arg}`);
     else opts.files.push(arg);
@@ -237,6 +239,11 @@ export async function main(argv) {
   if (opts.donate && (!opts.price || !opts.qty)) { process.stderr.write("--donate needs --price and --qty\n"); return 2; }
   if (opts.incomeCsv) await writeFile(opts.incomeCsv, toIncomeCsv(r.result.incomeReport));
   if (opts.form8949) await writeFile(opts.form8949, toForm8949Csv(r.result.rows));
+  if (opts.taxSoftware) {
+    await writeFile(opts.taxSoftware, toTurboTaxCsv(r.result.rows));
+    const n = turboTaxSkipped(r.result.rows);
+    if (n) process.stderr.write(`--tax-software: ${n} sale row(s) with no purchase on record were left out\n`);
+  }
   let rec = null;
   if (opts.reconcile) {
     let bt;

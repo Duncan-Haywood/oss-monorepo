@@ -1,7 +1,7 @@
 # Priority projects
 
-The owner's priority projects, set on 2026-10-12, with tracks 7 to 11 added on 2026-10-14, track 12 on 2026-10-16 tracks 13 to 15 on 2026-10-19 and tracks 16 and 17 on 2026-10-19. Runs
-started from `prompt.md` take their new work from here. There are seventeen tracks. Each one is
+The owner's priority projects, set on 2026-10-12, with tracks 7 to 11 added on 2026-10-14, track 12 on 2026-10-16 tracks 13 to 15 on 2026-10-19, tracks 16 and 17 on 2026-10-19 and track 18 on 2026-10-19. Runs
+started from `prompt.md` take their new work from here. There are eighteen tracks. Each one is
 open-ended: its milestones are a starting order, not a checklist, so follow the results. Every
 project a track produces is a normal `research/<slug>/` project. It needs a README, tests, a
 README bullet, a `_homepage/projects.json` entry, a home page on the Pages site (milestone 9 below)
@@ -74,7 +74,7 @@ deleted; its pull requests, review threads and old Pages site stay there.
 ## Picking work
 
 1. **Pick a track at random:** `python3 research/_shared/pick_track.py` (below 0.05 is a
-   free-choice run; otherwise it maps the draw onto tracks 1-17, redraws any track with 40+ projects, and lists the track's newest projects). Four runs start in the same
+   free-choice run; otherwise it maps the draw onto tracks 1-18, redraws any track with 40+ projects, and lists the track's newest projects). Four runs start in the same
    minute, and a random pick spreads them out.
 
    **Free choice (about 5% of runs).** In the spirit of Google's "20% time", about one run in
@@ -115,6 +115,7 @@ deleted; its pull requests, review threads and old Pages site stay there.
 | 15. Sensor fusion, imaging and 3D from real captures | `sensing` |
 | 16. Energy supply and dense energy storage | `energy` |
 | 17. Societies of AI agents in robots among people | `society` |
+| 18. Laundry-hanging robots and custom hangers | `hanger` |
 | Free choice (about 5% of runs) | `free` |
 
 ## Rules for every track
@@ -939,7 +940,7 @@ ArduPilot (track 9).
 5. `capture-edit`: the automated edit. An open pipeline from multi-camera raw footage to a reel
    (sync, shot detection, reframing, angle selection, a film-look grade), scored on openly
    licensed footage against a fixed-cut baseline.
-6. `capture-bystander`: filming in public without harm. Automatic blurring of bystanders' faces
+6. `capture-bystander` (done 2026-10-19): filming in public without harm. Automatic blurring of bystanders' faces
    and plates, and how conspicuous each platform is; a design input, not a way to hide filming.
 7. Owner steps: build the best kit from open hardware, with a priced bill of materials, and test
    it on a trip.
@@ -1230,9 +1231,67 @@ Factors*. Open tools: Mesa, PettingZoo, Gymnasium, and a browser canvas for repl
 - *Lab tags.* Milestones 1 to 4 may build on HIRO (social intelligence) and CAIRO (human-robot
   collaboration, simulated human models). Say so only where the project actually does.
 
+## 18. Laundry-hanging robots and custom hangers (`hanger`)
+
+Added on 2026-10-19 at the owner's request, as a long-term robotics project.
+
+**Goal.** A robot that takes clothes out of a dryer, or from a loader that a person or a
+washer-dryer fills, and puts every item on a hanger, so laundry comes out hung and needs
+little or no pressing. "Every item" is the hard part: tees, shirts, trousers, dresses,
+children's clothes and knits all differ in size, opening and how they want to hang. So the
+hangers are part of the design. They can be custom shapes, a small rack of sizes, or an
+adjustable hanger the robot sets per garment, and they are designed in a simulation feedback
+loop: a cloth model scores how well a hanger holds a garment in its worn, pressed shape, a
+proposer changes the hanger, and the cycle repeats. The robot also decides, per item, whether
+hanging will leave it better pressed than folding (a heavy knit can stretch on any hanger),
+and folds or sets aside what should not hang.
+
+**Prior work.** Maitin-Shepard, Cusumano-Towner, Lei and Abbeel (2010), towel folding with a
+PR2, ICRA. Doumanoglou et al. (2016), garment unfolding and recognition, *IEEE T-RO*.
+Seita et al. (2019–2021), fabric smoothing and VisuoSpatial Foresight, RSS. Ha and Song
+(2022), FlingBot, CoRL. Avigal et al. (2022), SpeedFolding, IROS. Chi et al. (2023), diffusion
+policy, RSS. Kawabata (1980), the KES-FB fabric measurement system. Baraff and Witkin (1998),
+large steps in cloth simulation, SIGGRAPH, and Bergou et al. (2008), discrete elastic rods,
+SIGGRAPH. Hansen (2016), the CMA evolution strategy tutorial. Commercial folding machines
+(FoldiMate, Laundroid) are context, not sources of data. Open tools: NumPy, MuJoCo,
+PyBullet, SoftGym, Blender's cloth solver, Gymnasium. Check each before citing it.
+
+**Milestones.**
+1. `hanger-fit`: a hanger designed in a sim loop. A 2D drape model of a garment's shoulder
+   line and sleeve over a hanger arm scores how far the garment hangs from its worn shape and
+   how sharply it is bent (the cause of shoulder bumps). Compare stock hangers, a custom hanger
+   per garment, one universal hanger, an adjustable-width hanger and a rack of k sizes, with
+   CMA-ES against random search at the same budget.
+2. `hanger-fold`: hang or fold? Add a wrinkle and stretch-set model per fabric and the folded
+   alternative, and learn the decision rule a robot can apply from what it can sense (size,
+   weight, stretch when lifted).
+3. `hanger-insert`: getting the hanger in. Simulate inserting a rigid, collapsible or
+   adjustable hanger through the neck or hem of a garment held by one or two grippers. Score
+   success, neck stretch and time, and feed the result back into the hanger design.
+4. `hanger-3d`: the drape in 3D with an open cloth solver (front and back panels, sleeves,
+   collars), checked against milestone 1 on the cases both can run.
+5. `hanger-pick`: picking one garment out of a tangled dryer load and finding its neck or
+   waistband, on simulated cloth, with a scripted baseline before any learned policy.
+6. `hanger-cell`: the whole cell as a discrete-event model (dryer or loader, picker, hanger
+   feeder, rail): throughput, failure and recovery rates, and the cost of each station, built
+   on milestones 2 to 5.
+7. `hanger-print`: the winning hanger shapes as parametric, printable CAD (OpenSCAD or
+   CadQuery) with a strength check, a printable by-product people can use today.
+8. Owner steps: buying or printing hangers, building the robot, measuring real fabrics and
+   garments, and any test with real laundry.
+
+**Guardrails.**
+- *Simulated cloth is not cloth.* Fabric constants are assumed until an owner step measures
+  them; say which result depends on which assumption, and keep simulated hanging quality apart
+  from any claim about real garments.
+- *Safety.* A real cell has pinch points, heat from the dryer and moving rails near people;
+  every hardware design lists the hazards and a stop, and no run builds or powers hardware.
+- *Lab tags.* This track may build on track 9's purpose-built robots and track 14's co-design
+  loop; say so only where a project actually does.
+
 ## References
 
-Tracks 1 to 6 were checked on 2026-10-12, tracks 7 to 11 on 2026-10-14 track 12 on 2026-10-16 and track 13 on 2026-10-19; tracks 14 and 15, added on 2026-10-19, are not yet checked; track 16's were not all re-checked (`energy-density`'s README marks which it checked); track 17's were checked when it was added on 2026-10-19. Check them again before
+Tracks 1 to 6 were checked on 2026-10-12, tracks 7 to 11 on 2026-10-14 track 12 on 2026-10-16 and track 13 on 2026-10-19; tracks 14 and 15, added on 2026-10-19, are not yet checked; track 16's were not all re-checked (`energy-density`'s README marks which it checked); track 17's were checked when it was added on 2026-10-19; track 18's, added on 2026-10-19, are not yet checked. Check them again before
 citing one, as `prompt.md` requires.
 
 **Track 1.**

@@ -1,0 +1,17 @@
+feature,coef_standardized,odds_ratio_per_unit_or_vs_reference
+num__rate_marriage,-0.6820,0.4919
+num__age,-0.4122,0.9416
+num__yrs_married,0.7778,1.1128
+num__children,0.0238,1.0167
+num__religious,-0.3292,0.6874
+num__educ,-0.0037,0.9983
+cat__occupation_Managerial or business,0.6509,1.9172
+cat__occupation_Professional with advanced degree,0.6748,1.9637
+cat__occupation_Student,-0.2820,0.7543
+"cat__occupation_Teacher, nurse, artist, technician, skilled",0.0736,1.0764
+cat__occupation_White-collar,0.3073,1.3598
+cat__occupation_husb_Managerial or business,0.0063,1.0063
+cat__occupation_husb_Professional with advanced degree,0.0201,1.0203
+cat__occupation_husb_Student,-0.1531,0.8580
+"cat__occupation_husb_Teacher, nurse, artist, technician, skilled",-0.0237,0.9765
+cat__occupation_husb_White-collar,0.1137,1.1205

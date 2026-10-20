@@ -9,7 +9,7 @@ const out = fileURLToPath(new URL("./www", import.meta.url));
 
 export function webFiles(dir = src) {
   return readdirSync(dir, { withFileTypes: true })
-    .filter((e) => (e.isFile() && KEEP.test(e.name) && !/\.test\.mjs$/.test(e.name) && !/^build-|^link-/.test(e.name))
+    .filter((e) => (e.isFile() && KEEP.test(e.name) && !/\.test\.mjs$/.test(e.name) && !/^build-/.test(e.name))
       || (e.isDirectory() && e.name === "icons"))
     .map((e) => e.name);
 }

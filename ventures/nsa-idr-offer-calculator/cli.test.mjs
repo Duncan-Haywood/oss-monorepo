@@ -41,3 +41,18 @@ test("--example needs no file and --help prints usage", async () => {
   assert.equal((await main(["--example"])).code, 0);
   assert.match((await main(["-h"])).out, /Usage:/);
 });
+
+test("--outcomes fits the win chances and uses them", async () => {
+  const { sampleOutcomes } = await import("./calc.mjs");
+  const files = { "c.csv": "ER,3200,980,640\nCT,2850,720,380", "o.csv": sampleOutcomes() };
+  const io = { read: async (f) => files[f], stdin: async () => "" };
+  const base = await main(["c.csv", "--admin-fee", "100", "--entity-fee", "500", "--json"], io);
+  const fitted = await main(["c.csv", "--admin-fee", "100", "--entity-fee", "500", "--outcomes", "o.csv", "--json"], io);
+  assert.equal(fitted.code, 0);
+  const j = JSON.parse(fitted.out);
+  assert.equal(j.fit.n, 12);
+  assert.notEqual(j.options.pWinAtQpa, JSON.parse(base.out).options.pWinAtQpa);
+  assert.ok(j.warnings.some((w) => /fitted to 12 past dispute/.test(w)));
+  const bad = await main(["c.csv", "--outcomes", "missing.csv"], { read: async (f) => { if (!files[f]) throw new Error("nope"); return files[f]; } });
+  assert.equal(bad.code, 2);
+});

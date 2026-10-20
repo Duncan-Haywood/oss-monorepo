@@ -54,6 +54,8 @@ zero dependencies, one JSON file on a disk you own.
   recomputed by the test suite.
 - `how-to-handle-late-wedding-rsvps-and-drop-outs.html` - third guide (late RSVPs and drop-outs: a fresh run moves 9 of 22 returning guests, a re-seat moves 1), recomputed by the tests.
 - `how-to-seat-a-kids-table-and-a-head-table-at-a-wedding.html` - fifth guide (a pinned kids table and a smaller head table via different-sized tables: list order meets 2 of 6 wishes, a search meets 6), recomputed by the tests.
+- `how-to-mix-bride-and-groom-sides-at-wedding-tables.html` - sixth guide (Groups set to Spread: list order puts 8 of one side at a table, Spread puts 4 and 4 and still meets all 7 wishes), recomputed by the tests.
+- `how-to-seat-a-company-dinner-or-gala-so-departments-mix.html` - seventh guide, for company dinners and galas (departments set to Spread and the host pinned: list order puts 6 of one team at a table and meets 2 of 7 wishes, Spread puts 2 of each team at every table and meets all 7), recomputed by the tests.
 - `how-to-seat-divorced-parents-at-a-wedding.html` - second guide (divorced
   parents, new partners, a never-together pair), also recomputed by the tests.
 

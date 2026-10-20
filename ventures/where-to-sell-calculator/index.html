@@ -6,16 +6,16 @@
   <title>Where to Sell Calculator — eBay vs Etsy vs Amazon</title>
   <meta name="description" content="Free marketplace fee comparison calculator: enter one item once and see net profit after fees, after returns, per day of wait, and per month of shelf time on eBay, Etsy, Amazon, Mercari, Reverb, Poshmark, Depop, Grailed, StockX, Whatnot, TikTok Shop, Walmart, TCGplayer, Discogs, Facebook Marketplace, your own store, and a local sale.">
   <meta name="robots" content="index, follow">
-  <link rel="canonical" href=".">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%234b32a8'/%3E%3Cg fill='%23fff'%3E%3Crect x='7' y='18' width='4' height='7' rx='1'/%3E%3Crect x='14' y='13' width='4' height='12' rx='1'/%3E%3Crect x='21' y='7' width='4' height='18' rx='1'/%3E%3C/g%3E%3C/svg%3E">
-  <meta property="og:title" content="Where to Sell Calculator — compare marketplace fees on one item">
-  <meta property="og:description" content="One item, every channel. See what eBay, Etsy, Amazon, Mercari, Reverb, your own store, and a direct sale each leave you after fees and returns — what you keep per day if one channel sells faster, and what a listing is worth per month of shelf.">
-  <meta property="og:type" content="website">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
   <meta name="theme-color" content="#4b32a8">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Where to Sell">
+  <link rel="canonical" href=".">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%234b32a8'/%3E%3Cg fill='%23fff'%3E%3Crect x='7' y='18' width='4' height='7' rx='1'/%3E%3Crect x='14' y='13' width='4' height='12' rx='1'/%3E%3Crect x='21' y='7' width='4' height='18' rx='1'/%3E%3C/g%3E%3C/svg%3E">
+  <meta property="og:title" content="Where to Sell Calculator — compare marketplace fees on one item">
+  <meta property="og:description" content="One item, every channel. See what eBay, Etsy, Amazon, Mercari, Reverb, your own store, and a direct sale each leave you after fees and returns — what you keep per day if one channel sells faster, and what a listing is worth per month of shelf.">
+  <meta property="og:type" content="website">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -548,6 +548,7 @@
     <p>Free and open source. If it stopped you listing in the wrong place, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does. MIT licensed.</p>
     <p>More seller arithmetic: <a href="../ebay-fee-calculator/">eBay fee calculator</a> · <a href="../etsy-profit-calculator/">Etsy profit calculator</a> · <a href="../amazon-fba-calculator/">Amazon FBA vs FBM calculator</a> · <a href="../reverb-fee-calculator/">Reverb fee calculator</a> · <a href="../shopify-fee-calculator/">Shopify fee calculator</a> · <a href="../tiktok-shop-fee-calculator/">TikTok Shop fee calculator</a> · <a href="../whatnot-seller-payout/">Whatnot seller payout calculator</a> · <a href="../poshmark-fee-calculator/">Poshmark fee calculator</a> · <a href="../stockx-seller-payout-calculator/">StockX seller payout calculator</a> · <a href="../mercari-fee-calculator/">Mercari fee calculator</a> · <a href="../depop-fee-calculator/">Depop fee calculator</a> · <a href="../grailed-fee-calculator/">Grailed fee calculator</a> · <a href="../facebook-marketplace-fee-calculator/">Facebook Marketplace fee calculator</a> · <a href="../walmart-marketplace-calculator/">Walmart Marketplace calculator</a> · <a href="../tcgplayer-fee-calculator/">TCGplayer fee calculator</a> · <a href="../discogs-fee-calculator/">Discogs fee calculator</a>.</p>
     <p>Comparing headline fees across channels that include Walmart and TikTok Shop first? The <a id="quickCompareLink" href="../marketplace-fee-compare/">marketplace fee compare</a> (it opens with the item above) ranks those six channels from one set of inputs, then points at the deeper per-channel calculators.</p>
+    <p><strong>Install it:</strong> in Chrome or Safari choose "Add to Home Screen" (Android: "Install app") and it opens full screen and works with no signal, for checking an item at the thrift store or estate sale before you buy it. Building a store app from the same files: <a href="https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/where-to-sell-calculator/mobile">mobile/ README</a>.</p>
   </footer>
 
   <style>
@@ -556,10 +557,7 @@
     .rank-by label { font-size: .88rem; font-weight: 600; }
     .speed-note { margin-top: 10px; padding: 10px 12px; border-radius: 8px; background: #fff5e2; border: 1px solid #d9a441; color: #5d4108; }
   </style>
-  <script>
-  if ("serviceWorker" in navigator) addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
-</script>
-<script type="module">
+  <script type="module">
     import { CHANNEL_PRESETS, compareChannels } from "./calc.mjs";
     import { maxBuyPrices } from "./sourcing.mjs";
     import { comparisonCsv } from "./export.mjs";
@@ -1109,5 +1107,8 @@
     renderPanels();
     update();
   </script>
+<script>
+  if ("serviceWorker" in navigator) addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
+</script>
 </body>
 </html>

@@ -3,10 +3,17 @@
 const CACHE = "where-to-sell-v1";
 const SHELL = [
   "./", "./index.html", "./calc.mjs", "./export.mjs", "./handoff.mjs", "./share.mjs", "./sourcing.mjs", "./usage.mjs",
+  "./does-it-actually-sell-there.html",
+  "./etsy-vs-ebay-fees.html",
+  "./returns-change-the-ranking.html",
+  "./reverb-vs-ebay-for-gear.html",
+  "./vs-crosslist.html",
+  "./vs-each-marketplaces-own-calculator.html",
+  "./vs-list-perfectly.html",
+  "./vs-vendoo.html",
   "./manifest.webmanifest",
   "./icons/icon-192.png", "./icons/icon-512.png", "./icons/apple-touch-icon.png",
 ];
-
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting()));
 });

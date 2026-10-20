@@ -35,5 +35,5 @@ test("worker precaches only files that exist and stays same-origin", () => {
 test("the mobile bundle ships the app but not tests or build scripts", () => {
   const f = webFiles();
   for (const need of ["index.html", "calc.mjs", "sw.js", "manifest.webmanifest", "icons"]) assert.ok(f.includes(need), need);
-  assert.ok(!f.some((n) => /\.test\.mjs$|^build-|^link-/.test(n)));
+  assert.ok(!f.some((n) => /\.test\.mjs$|^build-/.test(n)));
 });

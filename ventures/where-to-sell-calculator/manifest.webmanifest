@@ -1,13 +1,13 @@
 {
   "name": "Where to Sell Calculator",
   "short_name": "Where to Sell",
-  "description": "Put one item through eBay, Etsy, Amazon, Mercari and more and see where it nets the most, and the most you can pay for it. Works offline; nothing leaves your device.",
+  "description": "One item, every marketplace: net profit after fees and returns, and which channel to list on. Works offline; nothing leaves your device.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#f5f4ef",
+  "background_color": "#f6f4fc",
   "theme_color": "#4b32a8",
-  "categories": ["business", "productivity", "finance"],
+  "categories": ["business", "finance", "shopping"],
   "icons": [
     { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
     { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },

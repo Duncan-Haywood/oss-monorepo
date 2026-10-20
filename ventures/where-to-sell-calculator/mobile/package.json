@@ -1,5 +1,5 @@
 {
-  "name": "where-to-sell-calculator-mobile",
+  "name": "where-to-sell-mobile",
   "version": "0.1.0",
   "private": true,
   "description": "Capacitor wrapper that packages Where to Sell Calculator as an Android and iOS app. Build it in your own developer accounts.",

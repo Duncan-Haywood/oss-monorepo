@@ -482,6 +482,25 @@ export function stayInPrices(spec, res) {
 }
 
 /**
+ * What it costs to lose a food: for each food the plan uses, re-solve with that food removed (a floor you set on it is
+ * dropped too) and report the new daily cost and the extra against today's plan. `cost` is null when no plan meets the
+ * bounds without it, so the food is one the targets depend on. Answers "I am sick of lentils, what does that cost me".
+ * Biggest extra first; "not possible" rows last.
+ */
+export function dropCosts(spec, res) {
+  if (res.status !== "optimal") return [];
+  const out = [];
+  spec.foods.forEach((f, i) => {
+    if (res.servings[i] <= 1e-6) return;
+    const foods = spec.foods.map((g, j) => (j === i ? { ...g, max: 0, min: 0 } : g));
+    const r = solve({ ...spec, foods });
+    const cost = r.status === "optimal" ? r.cost : null;
+    out.push({ index: i, name: f.name, cost, extra: cost === null ? null : Math.max(0, cost - res.cost) });
+  });
+  return out.sort((x, y) => (x.cost === null) - (y.cost === null) || (y.extra ?? 0) - (x.extra ?? 0));
+}
+
+/**
  * Sticker-price ranking of the foods you listed: dollars per 100 g of protein and per 1,000 kcal, cheapest protein
  * first, with whether the plan uses the food. It ignores every other bound, so it answers "what does protein cost
  * here" and not "what should I eat" (the plan does that). Foods with no protein get `per100gProtein: null`.
@@ -539,6 +558,42 @@ export function groceryText(spec, res) {
   const lines = gl.lines.map((l) => (l.packs === null ? `${l.name}: ${fmt(l.servings, 1)} servings` : `${l.name}: ${l.packs} x ${fmt(l.pack, 1)}-serving pack`));
   const people = Number(spec.people) >= 2 ? ` for ${Math.min(Math.floor(Number(spec.people)), 20)} people` : "";
   return `Shopping list (one week${people})\n${lines.join("\n")}\nEstimated total: ${money2(gl.spend)}\n`;
+}
+
+/**
+ * "What you eat now": lines like `Rice 3` or `Eggs, 2.5` (food name, then servings per day) are matched to the listed foods
+ * by exact name, else by a name that starts with or contains the text when only one food does. Returns the day's cost, its
+ * nutrition, which bounds it misses, and how much cheaper the solved plan is. Unmatched lines are reported, never guessed.
+ */
+export function comparePlan(spec, res, text) {
+  const servings = spec.foods.map(() => 0);
+  const unmatched = [];
+  const names = spec.foods.map((f) => f.name.toLowerCase());
+  String(text || "").split(/\r?\n/).forEach((raw) => {
+    const line = raw.trim();
+    if (!line || line.startsWith("#")) return;
+    const m = line.match(/^(.*?)[\s,|:=x×]*([0-9]*\.?[0-9]+)\s*$/i);
+    const q = m ? m[1].trim().replace(/[,|:=]+$/, "").trim().toLowerCase() : "";
+    const n = m ? Number(m[2]) : NaN;
+    if (!q || !Number.isFinite(n) || n < 0 || n > 100) { unmatched.push(line); return; }
+    let hits = names.flatMap((nm, i) => (nm === q ? [i] : []));
+    if (!hits.length) hits = names.flatMap((nm, i) => (nm.startsWith(q) ? [i] : []));
+    if (!hits.length) hits = names.flatMap((nm, i) => (nm.includes(q) ? [i] : []));
+    if (hits.length !== 1) { unmatched.push(line); return; }
+    servings[hits[0]] += n;
+  });
+  const used = servings.some((x) => x > 0);
+  const totals = nutrition(spec, servings);
+  const cost = planCost(spec, servings);
+  const b = bounds(spec);
+  const misses = [];
+  NUTRIENTS.forEach((k, ki) => {
+    const [mn, mx] = b[k];
+    if (mn !== null && totals[ki] < mn - 1e-6) misses.push({ k, kind: "below", value: totals[ki], bound: mn });
+    if (mx !== null && totals[ki] > mx + 1e-6) misses.push({ k, kind: "above", value: totals[ki], bound: mx });
+  });
+  const saving = used && res && res.status === "optimal" ? cost - res.cost : null;
+  return { servings, used, unmatched, cost, weekly: cost * (Number(spec.daysPerWeek) > 0 ? Number(spec.daysPerWeek) : 7), totals, misses, meets: used && misses.length === 0, saving };
 }
 
 export function planCsv(spec, res) {

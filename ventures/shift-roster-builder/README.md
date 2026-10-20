@@ -82,7 +82,7 @@ zero dependencies, one JSON file on a disk you own.
 - Labor %: add projected sales and a target labor percentage to see payroll as a share of sales and the dollars under or over target (`laborPercent` in `calc.mjs`).
 - Payroll budget: type a weekly dollar budget and the summary says how far payroll sits under it, or how far over and roughly how many paid hours at the average hourly cost would close the gap (`budgetCheck` in `calc.mjs`). A guide; use "trim" options to see whose hours to cut.
 - Sales per labor hour: with sales by day and a target sales per labor hour, a table shows the hours each day's sales call for against the hours scheduled, and which days run heavy or light (`salesPerLaborHour` in `calc.mjs`). A guide only; the builder fills the shifts you list.
-- What-if: when shifts stay open, rebuilds with one extra person free at any time (average wage, 40 h) and reports the hours it would cover and the payroll it adds.
+- What-if: when shifts stay open, rebuilds with one extra person free at any time (average wage, 40 h) and reports the hours it would cover and the payroll it adds, plus the exact shifts that hire would work, as the availability to ask for in a job post (`hireTest.windows`).
 
 - Carry over last week: choose last week's roster CSV and every person who worked gets a `prev:` cell with when their last shift ended (overnight closes written as `Sun 25:00`), so the rest rule holds across Monday (`carryOverStaff`).
 
@@ -90,7 +90,7 @@ zero dependencies, one JSON file on a disk you own.
 
 - Returning each week: people, shifts and settings are remembered in this browser's local storage only ("Forget saved data" removes them), and can be saved to or loaded from a `roster-setup.json` file to move between devices.
 
-Guide pages, each with figures a test re-derives from the engine: [how to make an employee schedule](how-to-make-an-employee-schedule.html), [clopening](how-to-avoid-clopening.html), [rotating closes and weekends](how-to-rotate-closing-and-weekend-shifts-fairly.html), [14 and 15 year olds](scheduling-14-and-15-year-olds.html), [overtime](how-to-reduce-overtime-in-a-schedule.html), [labor cost by day](labor-cost-percentage-by-day.html), [hiring test](do-i-need-to-hire-another-employee.html) and [covering a call-out](how-to-cover-a-shift-when-someone-calls-out.html).
+Guide pages, each with figures a test re-derives from the engine: [how to make an employee schedule](how-to-make-an-employee-schedule.html), [clopening](how-to-avoid-clopening.html), [rotating closes and weekends](how-to-rotate-closing-and-weekend-shifts-fairly.html), [14 and 15 year olds](scheduling-14-and-15-year-olds.html), [overtime](how-to-reduce-overtime-in-a-schedule.html), [labor cost by day](labor-cost-percentage-by-day.html), [hiring test](do-i-need-to-hire-another-employee.html) [covering a call-out](how-to-cover-a-shift-when-someone-calls-out.html) [time-off requests](how-to-handle-time-off-requests.html) and [whose availability is worth widening](whose-availability-is-worth-widening.html).
 
 ## What you use today, and what this does differently
 

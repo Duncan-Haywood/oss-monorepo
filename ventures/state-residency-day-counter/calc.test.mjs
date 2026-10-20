@@ -619,3 +619,15 @@ test("New York City: a city word on a non-New-York line is an error", () => {
   assert.equal(stays.length, 0);
   assert.equal(errors.length, 1);
 });
+
+test("North Dakota seven-month test needs an abode and crosses at 211 days", () => {
+  assert.equal(RULES.ND.limit, 210);
+  assert.equal(RULES.ND.requiresAbode, true);
+  assert.equal(RULES.ND.kind, "statutory");
+  for (const [days, over] of [[210, false], [211, true]]) {
+    const end = dayIso(toDay(Y, 1, 1) + days - 1);
+    const nd = by(analyze(spec([`ND ${Y}-01-01 to ${end}`], { homeState: "FL", abode: { ND: true } })), "ND");
+    assert.equal(nd.days, days);
+    assert.equal(nd.status === "over", over, `${days} days`);
+  }
+});
