@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { validate, repair, checkSyntax, suggestDomain, aliasKey, isRoleLocal, isDisposable, parseCsv, toCsv, decodeBuffer, findingsCsv, sampleFile, sampleBrokenFile, PLATFORMS } from "./calc.mjs";
+import { validate, repair, checkSyntax, suggestDomain, aliasKey, isRoleLocal, isDisposable, parseCsv, toCsv, decodeBuffer, findingsCsv, sampleFile, sampleBrokenFile, PLATFORMS, isPlaceholder, unwrapEmail, punycodeAddress } from "./calc.mjs";
 
 const file = (...rows) => ["Email,First Name,Status", ...rows].join("\n") + "\n";
 const has = (r, code) => r.findings.some((f) => f.code === code);
@@ -204,4 +204,37 @@ test("findings CSV defuses spreadsheet formulas", () => {
 test("empty input", () => {
   assert.ok(has(validate("  \n"), "empty"));
   assert.match(repair("").error, /empty/);
+});
+
+test("placeholder addresses are flagged, real ones are not", () => {
+  for (const p of ["test@test.com", "none@none.com", "noemail@gmail.com".replace("gmail.com", "noemail.com"), "a@b.invalid", "no@email.com", "asdf@example.com"]) assert.equal(isPlaceholder(p), true, p);
+  for (const p of ["maria@example.com", "test@gmail.com", "jo@acme.com", "info@acme.com"]) assert.equal(isPlaceholder(p), false, p);
+  const r = validate(file("test@test.com,Pat,subscribed", "jo@acme.com,Jo,subscribed"));
+  assert.equal(of(r, "placeholder").length, 1);
+  assert.equal(r.summary.counts.placeholders, 1);
+});
+
+test("wrapped addresses are rescued by repair, not rejected", () => {
+  assert.equal(unwrapEmail("mailto:a@b.com"), "a@b.com");
+  assert.equal(unwrapEmail("Jo Lee <jo@b.com>"), "jo@b.com");
+  assert.equal(unwrapEmail("<jo@b.com>"), "jo@b.com");
+  assert.equal(unwrapEmail("jo@b.com."), "jo@b.com");
+  assert.equal(unwrapEmail("a@b.com;c@d.com"), null);
+  assert.equal(unwrapEmail("jo@b.com"), null);
+  const src = file('"Jo Lee <jo@b.com>",Jo,subscribed', "mailto:al@b.com,Al,subscribed", "plainaddress,Bo,subscribed");
+  assert.equal(of(validate(src), "wrapped").length, 2);
+  const out = repair(src);
+  assert.equal(out.kept, 2);
+  assert.equal(out.rejected, 1);
+  assert.match(out.text, /jo@b\.com/);
+  assert.match(out.text, /al@b\.com/);
+});
+
+test("internationalised domains get a punycode form", () => {
+  assert.equal(punycodeAddress("info@bücher.de"), "info@xn--bcher-kva.de");
+  assert.equal(punycodeAddress("jo@acme.com"), null);
+  assert.equal(punycodeAddress("josé@bücher.de"), null);
+  const src = file("info@bücher.de,Anna,subscribed");
+  assert.match(of(validate(src), "non-ascii")[0].detail, /xn--bcher-kva\.de/);
+  assert.match(repair(src).text, /info@xn--bcher-kva\.de/);
 });
