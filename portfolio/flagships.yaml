@@ -125,8 +125,10 @@ flagships:
       (`flip: true`, a final pass, no delay: 345 -> 333 breaks on 7 seeds, README; small because teams sit at
       +/-1 home games). Swapping pairs of moved matches was measured and dropped (40 seeds: 1996 -> 1934 with
       single flips, no change from pairs; README). Moving a make-up to an earlier night already on the calendar is in
-      (relocate: true; 345 -> 345 alone, 300 -> 296 breaks with balance, no delay, README). Next: multi-season
-      carry-over of venue fairness, or letting a relocation swap two make-ups' nights.
+      (relocate: true; 345 -> 345 alone, 300 -> 296 breaks with balance, no delay, README). Venue fairness
+      with multi-season carry-over is in (venueFairness, venueHistory, CLI --history; 3-season imbalance
+      5.83 -> 1.29 matches, at +18% venue changes; README). Next: a page field for it and a weight between
+      fairness and travel, or letting a relocation swap two make-ups' nights.
   - venture: open-tennis-robots
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
