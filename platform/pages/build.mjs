@@ -7247,6 +7247,7 @@ export function renderFeedbackPage({ surfaces = [], baseUrl, feedbackUrl = SITE_
   <link rel="alternate icon" href="${escapeHtml(`${toRoot}favicon.ico`)}" sizes="16x16">
   <meta property="og:type" content="website">
   <meta property="og:title" content="${escapeHtml(title)}">
+  <meta property="og:description" content="${escapeHtml(snippetize(description))}">
   <meta property="og:url" content="${escapeHtml(url)}">
   <meta property="og:site_name" content="${escapeHtml(SITE_NAME)}">
   <meta property="og:image" content="${escapeHtml(`${baseUrl}${SOCIAL_CARD_FILE}`)}">
