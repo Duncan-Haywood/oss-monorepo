@@ -259,3 +259,40 @@ export function explainTree(model, row) {
     })),
   };
 }
+
+// Distance-to-training-data score (tools/ood.py): squared Mahalanobis distance of a
+// profile's fixed inputs from the training people, and its percentile among held-out
+// people. `abstain` is true above the bundle's threshold. An unseen category scores as the
+// reference level and is reported in `unseen`.
+export function oodScore(spec, row) {
+  const x = [];
+  const unseen = [];
+  for (const c of spec.numeric) {
+    const v = row[c];
+    x.push(v === null || v === undefined || Number.isNaN(Number(v)) ? spec.medians[c] : Number(v));
+  }
+  for (const c of spec.categorical) {
+    const lv = spec.levels[c];
+    const v = row[c] === null || row[c] === undefined ? 'Unknown' : String(row[c]);
+    if (!lv.includes(v)) unseen.push(c);
+    for (let k = 1; k < lv.length; k++) x.push(lv[k] === v ? 1 : 0);
+  }
+  const z = x.map((v, i) => v - spec.mean[i]);
+  let d2 = 0;
+  for (let i = 0; i < z.length; i++) {
+    let s = 0;
+    for (let j = 0; j < z.length; j++) s += spec.precision[i][j] * z[j];
+    d2 += z[i] * s;
+  }
+  const { p, d2: q } = spec.heldout_quantiles;
+  let percentile;
+  if (d2 <= q[0]) percentile = 0;
+  else if (d2 >= q[q.length - 1]) percentile = 100;
+  else {
+    let k = 1;
+    while (q[k] < d2) k++;
+    const t = q[k] === q[k - 1] ? 1 : (d2 - q[k - 1]) / (q[k] - q[k - 1]);
+    percentile = 100 * (p[k - 1] + t * (p[k] - p[k - 1]));
+  }
+  return { d2, percentile, abstain: percentile > spec.abstain_above_percentile, unseen };
+}

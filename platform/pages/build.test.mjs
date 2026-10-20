@@ -24,6 +24,7 @@ import {
   DOWNLOADABLE_CLI_FILES,
   collectPageTitles,
   copyTree,
+  clampMetaDescription,
   injectFavicon,
   discoverSurfaces,
   surfaceKind,
@@ -5571,4 +5572,25 @@ test('surfaceKind reads the files a venture ships', async () => {
   assert.equal(surfaceKind(await make('c', ['index.html', 'cli.mjs'])), 'cli');
   assert.equal(surfaceKind(await make('d', ['index.html'])), 'browser');
   assert.equal(surfaceKind(path.join(dir, 'pinned-actions-check'), 'pinned-actions-check'), 'cli');
+});
+
+test('clampMetaDescription ends long descriptions at a sentence, leaves short ones alone', () => {
+  const sentence = 'This checker reads one header and reports what the browser enforces. ';
+  const long = sentence.repeat(8).trim();
+  const html = `<head><meta name="description" content="${long}"><meta property="og:description" content="${long}"></head>`;
+  const out = clampMetaDescription(html);
+  const got = out.match(/name="description" content="([^"]*)"/)[1];
+  assert.ok(got.length <= 320);
+  assert.ok(got.endsWith('.'));
+  assert.ok(long.startsWith(got));
+  assert.ok(out.includes(`og:description" content="${long}"`), 'og:description is untouched');
+  const short = '<meta name="description" content="Short and fine.">';
+  assert.equal(clampMetaDescription(short), short);
+});
+
+test('clampMetaDescription cuts at a word with an ellipsis when no sentence fits', () => {
+  const long = 'word '.repeat(100).trim();
+  const out = clampMetaDescription(`<meta name="description" content="${long}">`);
+  const got = out.match(/content="([^"]*)"/)[1];
+  assert.ok(got.length <= 320 && got.endsWith('word\u2026'));
 });

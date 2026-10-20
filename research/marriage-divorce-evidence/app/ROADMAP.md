@@ -85,17 +85,45 @@ verify (checksum, row counts, codebook) and the licence allows it.
 
 ### B. Models (owns `tools/`, `engine.js`, `tests/`, model sections of `README.md`)
 
-- Export `../reproducibility/ml_individuals` models (individual-level, NLSY79) as a second
-  lens.
-- For every new dataset: a family of classical models with a shared, person-held-out
-  protocol: constant baseline; logistic / discrete-time hazard; Poisson GLM; Cox PH and
-  Weibull AFT; stratified Kaplan–Meier; naive Bayes; k-NN; shallow decision trees; random
-  forest and gradient boosting with small exported trees; an additive spline (GAM/EBM-style)
-  model. Exact per-feature contributions for additive models; path or SHAP-style
-  attributions for trees.
-- Calibration plots and uncertainty (bootstrap or conformal intervals) shipped as JSON.
-- Out-of-distribution scoring beyond range checks (e.g. Mahalanobis or k-NN distance to the
-  training data) so the app can abstain.
+Status at 2026-10-20 (three workstream-B rounds: PRs #8536, #8567 and the out-of-distribution PR).
+
+Done:
+
+- **NLSY79 individual lens** (#8536). Eight saved `ml_individuals` pipelines (additive and
+  spline Poisson, depth-2/3 trees, two populations) are exported to
+  `models/nlsy79_individuals.json` with held-out gains, person-bootstrap CIs and calibration.
+  `individuals.js` scores both partners. The engine gained the imputer's missing indicator
+  and raw-unit tree thresholds. Parity: 640/640.
+- **Classical family on NSFG 2002** (#8567). Discrete-time logistic hazard, categorical naive
+  Bayes, random forest and Poisson gradient boosting, compared held out by person (A's folds)
+  against a constant rate, with person-bootstrap CIs and decile calibration
+  (`models/nsfg2002_family.json`, `tools/train_nsfg2002_family.py`). Every family has exact
+  explanations: log-odds terms, and Saabas path attributions for ensembles.
+  `contributions()` reports its `scale`. Parity: 272/272.
+- **Out-of-distribution score** (third round). `tools/ood.py` computes a squared Mahalanobis
+  distance on a couple's fixed inputs, as a percentile among held-out people. It ships as
+  `ood` in the NSFG family bundle, and `engine.oodScore()` matches Python on 68/68 rows.
+  The suggested rule is to abstain above the 99th percentile. It complements the per-input
+  range checks and does not replace them: an ellipsoid misses holes inside the range.
+
+Remains:
+
+- **Wire into the page (needs C).** Show the individual lens through `individuals.js`, give
+  the NSFG family bundle the `nsfg2002_first_marriage` adapter from #8556 (same inputs), and
+  call `oodScore()` before showing a number. Treat `scale` when rendering forest
+  (rate-unit) and boosted (log-rate) attributions. Keep naive Bayes out of averages or label
+  it overconfident.
+- **Cox PH / Weibull AFT and stratified Kaplan–Meier exports.** These need `lifelines` or
+  `scikit-survival` pinned beside scikit-learn 1.7.2. The duration spline already plays the
+  baseline-hazard role.
+- **k-NN models and k-NN distance.** Both need person-level rows in the browser. NSFG
+  public-use data allows it, but weigh page size and re-identification first.
+- **OOD for the NLSY79 lenses.** The person-level extracts are not in git, so only range
+  checks apply until they are restored (`scripts/restore_inputs.py`).
+- **The family protocol for every new bundle A lands** (Fair, and later NSFG cycles). Run
+  `tools/train_nsfg2002_family.py`'s pattern on each.
+- **Conformal or bootstrap intervals on individual predictions.** Current intervals are on
+  held-out skill, not on a single couple's rate.
 
 ### C. App and write-up (owns `index.html`, `app.js`, `couple.js`, `style.css`, `../README.md`, `../LOG.md` headline)
 

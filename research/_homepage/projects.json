@@ -3683,6 +3683,11 @@
     "slug": "sensing-thermalfuse",
     "title": "Does a low-resolution thermal camera find people in darkness and smoke, and what does misalignment cost?",
     "summary": "Synthetic 64&times;64 scenes with people, cold clutter and warm non-person decoys, seen by a grey RGB camera (shot and read noise, smoke airlight) and a 16&times;16 thermal camera (0.3&nbsp;K noise, 10% of the visible smoke extinction assumed). At 10% false alarms per image, RGB alone finds 36% of people in bright clear light, 13% at smoke transmittance 0.4 and none in the dark or dense smoke; thermal alone finds 65% in every condition, capped by the decoys; fusing them gives 94% in bright light and falls back to the thermal level otherwise. A thermal camera displaced by 2&nbsp;px costs the fused detector 7 points, 4&nbsp;px (one thermal pixel) 19, and 6&nbsp;px leaves it below RGB alone (0.12 vs 0.37); training with displacement jitter keeps 0.54 at 6&nbsp;px but loses 9 points when aligned. Stylised: synthetic scenes, logistic-regression detectors on local contrast, sideways shift only, no real data."
+   },
+   {
+    "slug": "sensing-vio",
+    "title": "Which upgrade buys the most visual-inertial accuracy: a sharper camera or a better IMU?",
+    "summary": "A planar synthetic visual-inertial smoother (bearing landmarks, 100&nbsp;Hz gyro and accelerometer) on 12&nbsp;s paths, 8 paired seeds. Camera resolution moved drift: 1.18&nbsp;% of path rms at 1280&nbsp;px against 1.65&nbsp;% at 640&nbsp;px and 8.9&nbsp;% at 320&nbsp;px. Scaling IMU noise 0.25&times; to 4&times; changed it by under 10&nbsp;%, inside the noise. Limitations: the smoother has no marginalisation and diverged on 30&nbsp;s paths, so the IMU result is for short runs only; planar, synthetic, not EuRoC."
    }
   ]
  },
@@ -3753,6 +3758,11 @@
     "slug": "society-twinfidelity",
     "title": "Does the robots-in-a-corridor conclusion survive a more humanlike crowd?",
     "summary": "The <code>society-plaza</code> corridor rerun with four crowds of simulated people: varied speeds and sideways-push weights, a 0.4&nbsp;s reaction delay, 30% stubborn walkers, and all three (10 seeds per cell). Adaptive robots stay free and committed robots never flip the crowd (at most 58% prefer their side) in every crowd. The size of the slowdown (a loss of 0.17 to 0.49 of desired speed at 30% robots) and of personal-space intrusions (0.03 to 0.36 of agent time; reaction delay alone gives 0.087 with no robots) depends strongly on the crowd. Hand-chosen perturbations, not fitted to data; simulated walkers only."
+   }
+   ,{
+    "slug": "society-stubborn",
+    "title": "How many robots does it take to change a crowd's walking side when some people never adapt?",
+    "summary": "The <code>society-robotnorms</code> committed-robot model with a share <em>s</em> of stubborn people who always walk right. The mean-field tipping share for memory&nbsp;9 rises from 0.217 (<em>s</em>&nbsp;=&nbsp;0) to 0.240, 0.283 and 0.329 at <em>s</em>&nbsp;=&nbsp;0.2, 0.4 and 0.5, and memory&nbsp;5 and&nbsp;9 coincide from <em>s</em>&nbsp;=&nbsp;0.4. Simulation (200 people, 12 seeds) agrees within 0.02 at every <em>s</em> when &ldquo;tipped&rdquo; means a majority of adaptive people on the robots' side. Conflict costs of committed and adaptive robots are unchanged by stubborn people. Stylised; simulated walkers only."
    }
    ,{
     "slug": "society-show",
