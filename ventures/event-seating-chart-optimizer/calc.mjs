@@ -45,6 +45,17 @@ export function parseRules(text, guests) {
     const m = OP.exec(line);
     if (!m) { errors.push(`Rule line ${i + 1} ("${line}") needs two names and one of + ++ ! !! @ between spaces.`); return; }
     const [, a, op, b] = m;
+    // "group Kids @ 5" pins every guest whose group column is Kids to table 5 (a kids' or head table).
+    const gm = op === "@" && /^group\s*:?\s+(.+)$/i.exec(a.trim());
+    if (gm) {
+      const t = Number(b.trim());
+      if (!Number.isInteger(t) || t < 1) { errors.push(`Rule line ${i + 1}: "${b.trim()}" is not a table number.`); return; }
+      const key = gm[1].trim().replace(/\s+/g, " ").toLowerCase();
+      const members = guests.map((g, gi) => (g.group && g.group.trim().replace(/\s+/g, " ").toLowerCase() === key ? gi : -1)).filter((gi) => gi >= 0);
+      if (!members.length) { errors.push(`Rule line ${i + 1}: no guest has the group "${gm[1].trim()}" (third column of the guest list).`); return; }
+      for (const gi of members) rules.push({ kind: "pin", a: gi, table: t - 1, line: i + 1 });
+      return;
+    }
     const ai = index.get(a.trim().replace(/\s+/g, " ").toLowerCase());
     if (ai === undefined) { errors.push(`Rule line ${i + 1}: "${a.trim()}" is not in the guest list.`); return; }
     if (op === "@" && ACCESS_WORD.test(b.trim())) { rules.push({ kind: "access", a: ai, line: i + 1 }); return; }

@@ -64,7 +64,7 @@
       <div>
         <label for="rules">Wishes, one per line</label>
         <textarea id="rules" spellcheck="false" placeholder="Priya Nair + Tom Whitfield&#10;Uncle Ray ! Aunt Linda&#10;Maya Okafor @ 1"></textarea>
-        <p class="note"><code>A + B</code> sit together · <code>A ++ B</code> really together · <code>A ! B</code> keep apart · <code>A !! B</code> never at one table · <code>A @ 3</code> pin to table 3</p>
+        <p class="note"><code>A + B</code> sit together · <code>A ++ B</code> really together · <code>A ! B</code> keep apart · <code>A !! B</code> never at one table · <code>A @ 3</code> pin to table 3 · <code>group Kids @ 5</code> pin everyone whose group (third column) is Kids to table 5</p>
       </div>
     </div>
     <h2 style="margin-top:18px">2. Tables</h2>
@@ -136,7 +136,7 @@
     <h2>How it works</h2>
     <p><strong>Scoring:</strong> every pair of guests that shares a table adds to a score. Members of the same party add 6, a <code>+</code> adds 3, a <code>++</code> adds 12, a <code>!</code> takes away 6 and a <code>!!</code> takes away 200. The plan with the highest total wins, so a feud is separated even if it splits a friendship.</p>
     <p><strong>Search:</strong> simulated annealing moves and swaps guests between tables, accepting some worse moves early so it does not get stuck, restarted six times; a hill-climbing pass then applies any move or swap that still helps. Table capacity and pinned tables are never broken. The same list gives the same plan until you ask for another arrangement. On small events the answer is checked against trying every possible arrangement.</p>
-    <p><strong>Seat order:</strong> each table's guests are listed in order around the table (the last seat touches the first), so a party and wanted pairs sit side by side and avoided pairs do not touch; it assumes a round table. <strong>Not modelled:</strong> a head table's row, couples at a head table sitting in a row, wheelchair access or room layout, grouping guests by dietary need (a fourth column only tallies meals for the caterer), which tables are near the stage or the door, children's tables as a rule, and how much one person dislikes another beyond the four strengths. Unverified against a real event: tested against exhaustive search on hundreds of small random lists and on a 200-guest list.</p>
+    <p><strong>Seat order:</strong> each table's guests are listed in order around the table (the last seat touches the first), so a party and wanted pairs sit side by side and avoided pairs do not touch; it assumes a round table. <strong>Not modelled:</strong> a head table's row, couples at a head table sitting in a row, wheelchair access or room layout, grouping guests by dietary need (a fourth column only tallies meals for the caterer), which tables are near the stage or the door, children's tables as a row of seats (a whole group can be pinned to one table with <code>group Kids @ 5</code>), and how much one person dislikes another beyond the four strengths. Unverified against a real event: tested against exhaustive search on hundreds of small random lists and on a 200-guest list.</p>
   </section>
 
   <section class="card">
