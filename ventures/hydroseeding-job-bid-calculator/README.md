@@ -11,5 +11,7 @@ After using this, you can now **bid a hydroseeding job knowing what it costs and
 1. Open `index.html`, enter the job and your costs, then click Work out the bid.
 2. Pure logic is in `calc.mjs` (`plan()`, `jobLine()`, `seasonResult()`, `fixedCosts()`, `encodeShare()`); tests: `node --test`.
 
+The page also prints a one-page customer proposal (business name, scope, deposit, terms) from the job's billed price, with none of your costs on it; the code is the shared `platform/proposal` module (`proposal.mjs`).
+
 Modelled: seed, mulch, fertilizer/tackifier and water per 1,000 sq ft, tank loads from slurry gallons, crew hours (setup, spraying, refills) at loaded pay, travel, a minimum charge, a steep-slope premium, the hydroseeder spread over its years plus overhead, a target-margin price, a job-size table, a break-even job count, a volume table, a share link. Not modelled: the owner's own pay, sales tax, permits and bonds, seed warranties and callbacks, card fees, income tax.
 Not legal, tax or financial advice. No warranty; see the page footer. MIT licensed (`LICENSE`).

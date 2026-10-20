@@ -109,6 +109,15 @@ export function plan(input) {
   return { error: null, input: v, season: res, table, seasonTable, advice };
 }
 
+// The figure on the customer's proposal: what this job bills (price per 1,000 sq ft, or the minimum charge),
+// and the size facts its scope lines quote. Throws on a bad figure so a proposal is never printed from one.
+export function calculateBid(input) {
+  const { v, error } = readInput(input);
+  if (error) throw new Error(error);
+  const j = jobLine(v);
+  return { price: j.revenue, areaSqft: v.areaSqft, loads: j.loads, minApplies: j.minApplies };
+}
+
 export function sampleInput() {
   return {
     areaSqft: "20000", jobsPerSeason: "60", seedLbPer1k: "4", seedCostLb: "2.5", mulchLbPer1k: "70", mulchCostBale: "17", extraPer1k: "1.5", waterGalPer1k: "90",
