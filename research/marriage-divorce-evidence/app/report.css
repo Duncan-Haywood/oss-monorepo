@@ -26,3 +26,4 @@
 :root { --sat-2: #c2571a; --sat-3: #2a78d6; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --sat-2: #f08a4b; --sat-3: #3987e5; } }
 :root[data-theme="dark"] { --sat-2: #f08a4b; --sat-3: #3987e5; }
+.rep-table tr.mine th, .rep-table tr.mine td { font-weight: 600; background: var(--band); }

@@ -5,6 +5,7 @@ import { profileReport, mixAcrossLenses, inHundred, aboveBelow } from './report.
 import { fmtYears } from './couple.js';
 import { shortName } from './summary.js';
 import { renderSatisfaction } from './satisfaction.js';
+import { renderDating } from './dating.js';
 
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 const fmtN = (x) => Math.round(x).toLocaleString('en-US');
@@ -32,6 +33,18 @@ function drawSatisfaction(couple) {
   const ym = Number(couple.yearsMarried);
   renderSatisfaction(el, satData, { group: satGroup, yearsMarried: ym > 0 ? ym : null });
   el.querySelector('#satGroup')?.addEventListener('change', (ev) => { satGroup = ev.target.value; drawSatisfaction(couple); });
+}
+let datingData = null;
+let datingLoad = null;
+function drawDating(couple) {
+  const el = document.getElementById('datingOut');
+  if (!el) return;
+  if (!datingLoad) {
+    datingLoad = fetch('data/dating_length.json').then((r) => (r.ok ? r.json() : null)).catch(() => null)
+      .then((d) => { datingData = d; drawDating(couple); });
+    return;
+  }
+  renderDating(el, datingData, couple);
 }
 let timer = null;
 let lastKey = '';
@@ -83,8 +96,12 @@ function draw({ el, lens, lenses, a, b, couple }) {
     ${acrossTable(lenses, a, b, couple)}
     <h3>Marital satisfaction at different numbers of years married</h3>
     <p class="sub">What surveyed married people said about their marriage at each length of marriage. Not a prediction for your marriage, and not from the lens above.</p>
-    <div id="satOut" aria-live="polite"></div>`;
+    <div id="satOut" aria-live="polite"></div>
+    <h3>How long you dated before marrying</h3>
+    <p class="sub">Whether a longer courtship goes with fewer divorces: what one survey shows, a held-out test, and the published estimate, with its evidence grade.</p>
+    <div id="datingOut" aria-live="polite"></div>`;
   drawSatisfaction(couple);
+  drawDating(couple);
 }
 
 function bar(risk, lo, hi, max) {

@@ -1,5 +1,11 @@
 # Research log
 
+## 2026-10-20 · Profile report, marital satisfaction by years married, and dating length
+
+- New "Profile report" tab in the app (`app/report.js`, `app/report-ui.js`): for you and for the person you are looking at, one lens at a time, the 10-year break-up chance with that person, averaged over the partners people like you marry (`partner_distribution`) and over every partner type of your sex in the survey ("dating everyone"), with model ranges, Dirichlet-resampling intervals on the mix and population percentiles; lowest-risk partner profiles with model disagreement; factor impact (spread across levels) with evidence grades from `decision_evidence.json`; and the changes with the biggest predicted drop, labelled associations unless graded experimental. Demo couple (woman 36, man 38), NSFG 1995–2023 lens: 5 in 100 with this partner, 6 in 100 (models 3–9) with likely partners, 5 in 100 (3–8) dating everyone; NLSY79 first marriages: 17, 16 and 17 in 100.
+- `reproducibility/satisfaction_by_duration/`: GSS 1973–1994 first marriages (13,959): 75% "very happy" at 0–2 years (72–78%), 61% at 16–20 (58–64%), 68% at 41+; unchanged after adjusting for survey year, sex and age at marriage. HCMST 2009→2013 within the same 1,045 couples: −0.14 on a 1–5 rating (−0.19 to −0.09), −0.38 in the first two years. Survivor bias measured: 71% "excellent" among couples who stayed together against 17% among the 102 who broke up by 2015.
+- `reproducibility/dating_length/`: HCMST 2009 married couples (118 break-ups): break-up by 2017 8.7%, 8.3%, 8.4% after dating under 1, 1–2, 3+ years; adding dating length to the HCMST lens changes held-out gain by −0.12 points (−0.90 to +0.72) and C by −0.001. Not added as an input; shown with the verified Francis-Tan & Mialon (2015) HRs (0.92, 0.76), which the evidence review already marks not usable in the app.
+
 ## 2026-10-20 · Before the wedding: leakage audit, harmonized features and cross-dataset validation on five surveys
 
 - Question: how well can divorce be predicted from facts known on the wedding day? Built one harmonized pre-wedding table per first-marriage lens (NSFG 1995–2023 43,336 marriages; NLSY79 6,768; NLSY97 5,076; SIPP 176,303; Canada GSS 48,656), each reproducing its lens's published sample exactly, with strict timing rules (`reproducibility/prewedding/SPEC.md`).
