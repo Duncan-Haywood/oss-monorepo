@@ -192,7 +192,7 @@ export function poissonSeasonal(x, period, { penalty = 'bic', minSegment = 2, pa
  * on g with each segment's rate profiled out, until g moves less than 1e-5.
  * Returns { g, exposure, passes }.
  */
-export function poissonTrend(x, { base = null, penalty = 'bic', minSegment = 2, passes = 12, bend = false, knotMargin = 0.1 } = {}) {
+export function poissonTrend(x, { base = null, penalty = 'bic', minSegment = 2, passes = 12, bend = false, knotMargin = 0.1, scale = 1 } = {}) {
   const n = x.length;
   const u = Array.from({ length: n }, (_, t) => (t - (n - 1) / 2) / Math.max(1, n - 1));
   const b = (t) => (base ? base[t] : 1);
@@ -268,7 +268,7 @@ export function poissonTrend(x, { base = null, penalty = 'bic', minSegment = 2, 
   for (let kt = lo; kt <= hi; kt += step) tryKnot(kt);
   if (!best) return out(plain);
   for (let kt = Math.max(lo, best.knot - step + 1); kt < Math.min(hi, best.knot + step); kt++) if (kt !== best.knot) tryKnot(kt);
-  if (!(best.cost + 3 * Math.log(n) < plain.cost)) return out(plain);
+  if (!(best.cost + 3 * Math.log(n) * scale < plain.cost)) return out(plain);
   return out(best, { knot: best.knot, slopeAfter: best.g[0] + best.g[1] });
 }
 
@@ -1040,10 +1040,16 @@ export function analyze(input = {}) {
   const period = Math.floor(Number(o.period) || 0);
   let profile = null, exposure = null;
   const original = values;
+  // Overdispersed counts (--dispersion): the variance is phi times the mean, so every likelihood gain counts 1/phi as much.
+  // 'auto' fits once at phi = 1, estimates phi from the Pearson residuals and refits; a number fixes phi. Quasi-Poisson:
+  // the penalty (and the bend threshold) are multiplied by phi, which is the same as dividing the log-likelihood by it.
+  const phi = model === 'poisson' && o.dispersion ? (Number(o.dispersion) >= 1 ? Number(o.dispersion) : 1) : 1;
+  if (o.dispersion && model !== 'poisson') throw new Error('--dispersion is for counts (--model poisson).');
+  const pen = phi > 1 ? phi * penaltyValue(o.penalty, values.length, 'poisson') : o.penalty;
   if (period) {
     if (model === 'poisson') {
       if (o.drift) throw new Error('A drifting seasonal shape is not available for counts: leave out drift, or use "mean" or "meanvar".');
-      const fit = poissonSeasonal(original, period, { penalty: o.penalty, minSegment: Math.max(1, Math.floor(Number(o.minSegment) || 2)) });
+      const fit = poissonSeasonal(original, period, { penalty: pen, minSegment: Math.max(1, Math.floor(Number(o.minSegment) || 2)) });
       exposure = fit.exposure;
       profile = fit.factors;
     } else ({ adjusted: values, profile } = seasonalAdjust(original, period, { drift: !!o.drift }));
@@ -1052,7 +1058,7 @@ export function analyze(input = {}) {
   let growth = null, countKnot, growthAfter;
   if (o.trend && model === 'poisson') {
     if (o.trend !== true && o.trend !== 'bend') throw new Error('For counts, --trend takes one common growth rate under the steps, or "bend" for one change of growth rate: "bends" is for "mean" or "meanvar".');
-    const fit = poissonTrend(original, { base: exposure, penalty: o.penalty, minSegment: Math.max(1, Math.floor(Number(o.minSegment) || 2)), bend: o.trend === 'bend', knotMargin: o.knotMargin });
+    const fit = poissonTrend(original, { base: exposure, scale: phi, penalty: pen, minSegment: Math.max(1, Math.floor(Number(o.minSegment) || 2)), bend: o.trend === 'bend', knotMargin: o.knotMargin });
     exposure = fit.exposure;
     growth = fit.g;
     if (fit.knot !== undefined) { countKnot = fit.knot; growthAfter = fit.slopeAfter; }
@@ -1072,7 +1078,23 @@ export function analyze(input = {}) {
   if (joint) {
     p = ar1JointFit(values, { penalty: o.penalty, minSegment });
     ({ rho, sigma } = p);
-  } else p = pelt(values, { model, penalty: o.penalty, minSegment, sigma, exposure });
+  } else p = pelt(values, { model, penalty: model === 'poisson' ? pen : o.penalty, minSegment, sigma, exposure });
+  if (model === 'poisson' && (o.dispersion === 'auto' || o._auto)) {
+    // Pearson chi-square over its degrees of freedom, with the fitted segment rates, seasonal factors and trend as parameters
+    const cuts = [0, ...p.changepoints, values.length];
+    let chi = 0;
+    for (let i = 0; i + 1 < cuts.length; i++) {
+      let a = 0, E = 0;
+      for (let t = cuts[i]; t < cuts[i + 1]; t++) { a += values[t]; E += exposure ? exposure[t] : 1; }
+      const rate = a / E;
+      for (let t = cuts[i]; t < cuts[i + 1]; t++) { const mu = rate * (exposure ? exposure[t] : 1); if (mu > 0) chi += (values[t] - mu) ** 2 / mu; }
+    }
+    const df = values.length - cuts.length + 1 - (period ? period - 1 : 0) - (growth !== null ? 1 : 0) - (countKnot !== undefined ? 1 : 0) - 1;
+    const est = df > 5 ? chi / df : 1;
+    // each refit has fewer spurious segments, so the next estimate is higher; stop when it settles (at most 6 refits)
+    const tries = o._auto || 0;
+    if (est > 1.25 && est > phi * 1.1 && tries < 6) return analyze({ ...input, dispersion: est, _auto: tries + 1 });
+  }
   const bounds = [0, ...p.changepoints, values.length];
   const segments = [];
   const lines = [];
@@ -1135,6 +1157,7 @@ export function analyze(input = {}) {
     ...(slope !== null ? { trend: { slopePerPoint: round(slope, 6), ...(knot !== undefined ? { slopeAfter: round(slopeAfter, 6), slopeChangesAt: knot, ...(knots.length > 1 ? { slopeChangesAtAll: knots, slopes: slopes.map((v) => round(v, 6)) } : {}) } : {}) } } : {}),
     ...(growth !== null ? { trend: { logGrowthAcrossSeries: round(growth, 4), growthFactorAcrossSeries: round(Math.exp(growth), 4), multiplicative: true, ...(countKnot !== undefined ? { growthChangesAt: countKnot, logGrowthAcrossSeriesAfter: round(growthAfter, 4) } : {}) } } : {}),
     ...(rho !== null ? { ar1: { rho: round(rho, 3) } } : {}),
+    ...(phi > 1 ? { dispersion: round(phi, 3) } : {}),
     pelt: { penalty: round(p.penalty), minSegment, changepoints: changes, segments },
     bocpd: {
       hazardLambda: Number(o.hazardLambda) || 100,

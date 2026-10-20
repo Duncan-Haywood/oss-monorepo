@@ -29,6 +29,7 @@ Options:
                             'bend' lets the slope change once, 'bends' up to three times, chosen by BIC (counts, --model poisson: 'bend' only, a change of growth rate);
                             with --model poisson, a common log-linear growth rate (multiplicative, composes with --period)
   --knot-margin f          with --trend bend(s): keep this fraction of the series clear at each end when looking for knots (default 0.1 = knots at 10 to 90%; 0.2 = the old 20 to 80%)
+  --dispersion x|auto      with --model poisson: counts vary more than Poisson (variance = x times the mean); 'auto' estimates x from the first fit and refits, so wobble is not read as changes
   --joint-knots             with --trend bends: also score every pair of knots, not only the greedy search's (slower, about 2 s per 240 points)
   --ar1 [joint]             allow for lag-1 autocorrelation (mean model): widen the noise scale, or
                             'joint' to fit the means and rho together (more power on small shifts)
@@ -56,6 +57,7 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
     else if (a === '--example') example = true;
     else if (a === '--drift') opt.drift = true;
     else if (a === '--joint-knots') opt.jointKnots = true;
+    else if (a === '--dispersion') { const v = argv[++i]; opt.dispersion = v === 'auto' ? 'auto' : Number(v); }
     else if (a === '--trend') opt.trend = argv[i + 1] === 'bend' || argv[i + 1] === 'bends' ? argv[++i] : true;
     else if (a === '--ar1') opt.ar1 = argv[i + 1] === 'joint' ? (i++, 'joint') : true;
     else if (flags[a]) {

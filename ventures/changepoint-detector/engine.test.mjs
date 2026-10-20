@@ -806,6 +806,21 @@ test('a count trend can bend once: the knot is found and a straight trend gets n
   assert.equal(analyze({ values: straight, model: 'poisson', trend: 'bend' }).trend.growthChangesAt, undefined);
 });
 
+test('overdispersed counts: --dispersion auto stops wobble being read as changes, and clean Poisson is left alone', () => {
+  const n = 210;
+  const gauss = (r) => Math.sqrt(-2 * Math.log(r() + 1e-12)) * Math.cos(2 * Math.PI * r());
+  const r = rng(1800);
+  const wobbly = Array.from({ length: n }, (_, t) => poissons(r, 1, 10 * Math.exp(0.8 * t / (n - 1) + 0.35 * gauss(r) - 0.06))[0]);
+  const plain = analyze({ values: wobbly, model: 'poisson', trend: true });
+  const fixed = analyze({ values: wobbly, model: 'poisson', trend: true, dispersion: 'auto' });
+  assert.ok(plain.pelt.changepoints.length >= 5, `plain ${plain.pelt.changepoints.length}`);
+  assert.ok(fixed.pelt.changepoints.length <= 2, `fixed ${fixed.pelt.changepoints.length}`);
+  assert.ok(fixed.dispersion > 2.5, `dispersion ${fixed.dispersion}`);
+  const clean = analyze({ values: poissons(rng(1801), 150, 8), model: 'poisson', dispersion: 'auto' });
+  assert.equal(clean.dispersion, undefined);
+  assert.throws(() => analyze({ values: [1, 2, 3, 4, 5, 6], dispersion: 'auto' }), /counts/);
+});
+
 test('count trends refuse bends, and a flat series gets a growth near zero', () => {
   assert.throws(() => analyze({ values: [1, 2, 3, 4, 5, 6, 7, 8], model: 'poisson', trend: 'bends' }), /is for/);
   const r = rng(5);

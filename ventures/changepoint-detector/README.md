@@ -170,7 +170,26 @@ series, 40 each, in `engine.test.mjs`):
   rising 0.8 over the first half and 3.2 per series length after (seeds 1600..1639): changes per series 3.38 with
   `--trend`, 0.17 with `--trend bend`; the knot within 15 points of the true 100 on 36 of 40; on 40 straight log-linear
   series (seeds 1600..1639) a bend was kept on 0 of 40 and changes per series stayed 0.03. Not yet measured with
-  `--period`; a second knot is not offered for counts.
+  `--period` (measured below); a second knot is not offered for counts.
+- **Count bends with a weekly cycle, and overdispersed counts (`--dispersion`, added 2026-10-20).** 210 counts, period 7
+  (factors 0.4 to 1.6), rate 10, log rate rising 0.8 over the first half and 3.2 per series length after (seeds 1700..1739;
+  straight comparison seeds 1800..1839), `--model poisson --trend bend --period 7`: the knot within 15 points of the true 105
+  on 38 of 40, 0.15 changes per series, a bend kept on 0 of 40 straight log-linear series (0.33 changes per series). Without
+  `--period` the cycle is read as steps (26.8 changes per series). That is for true Poisson noise. Real counts are
+  usually *overdispersed* (variance above the mean), and the Poisson likelihood then counts every wobble as evidence: the same
+  series with a log-normal factor on every rate (sd 0.35, so variance about mean + 0.13 mean squared) gave 14.6 changes per
+  series on the bent series and 8.5 on the straight ones (31.4 and 14 of 40 false bends without `--period`). `--dispersion x`
+  treats the variance as x times the mean (quasi-Poisson: the penalty and the bend threshold are multiplied by x, the same as
+  dividing the log-likelihood by x), and `--dispersion auto` fits at x = 1, takes x from the Pearson chi-square over its
+  degrees of freedom and refits, repeating while the estimate rises more than 10% (at most six refits: a fit that
+  has cut the wobble into segments underestimates x, so one pass settles on 2.4 where 4 to 5 is needed). Same overdispersed
+  series, `--dispersion auto`: changes per series 14.6 -> 1.85 (bent) and 8.47 -> 0.28 (straight) with `--period 7`;
+  31.4 -> 0.17 (straight) and 40.3 -> 1.63 (bent) without. Bends kept on straight series 1 of 40 with the cycle, 0 of 40 without
+  (14 of 40 before). The honest limit: the knot is found within 15 points on only 12 of 40 bent overdispersed series
+  (8 of 40 without the cycle), because the noise really is large; the method stops inventing changes, it does not
+  recover power. On true Poisson counts `--dispersion auto` leaves everything alone (the estimate stays under 1.25, same
+  output on all 40 bent series, 38 of 40 knots both ways). A constant x is a simplification (the simulated variance grows with the mean); BOCPD
+  still uses the Poisson-gamma model, so its probabilities are not corrected. Web page: not yet.
 - **Drifting seasonality (`--period n --drift`).** The fixed profile is wrong when the
   cycle's amplitude grows or its peak moves. With `--drift` each phase is smoothed across
   cycles by a running median (5 cycles, 3 on short series), re-centred per cycle. On 144
