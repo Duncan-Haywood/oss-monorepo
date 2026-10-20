@@ -11,10 +11,11 @@ What is knowable on the wedding day here (SIPP histories are retrospective, aske
 - respondent's education BY THE WEDDING only where the 2001-2008 modules date the diploma,
   first college enrolment and bachelor's degree (the lens's rule; audited as `possible`);
   the 2021/2025 files have only interview education -> Unknown;
-- respondent's children born before the wedding: 2001-2008 women 15-64 from Census's recode
-  RPREMAR (first child born before first marriage); anyone with no children ever by the
-  interview (TMOMCHL/TFRCHL = 0, or TCEB = 0 in 2021/2025) -> No; 2021/2025 year of first
-  birth TYEAR_FB before / after the wedding year -> Yes / No (same year -> Unknown);
+- respondent's children born before the wedding: no children ever by the interview
+  (TMOMCHL/TFRCHL = 0, or TCEB = 0 in 2021/2025) -> No; first-birth year (TFBRTHYR, women
+  15-64 in 2001-2008; TYEAR_FB, both sexes, 2021/2025) before / after the wedding year ->
+  Yes / No; same year -> Census's recode RPREMAR (2001-2008) or Unknown (2021/2025); men and
+  women 65+ with children in 2001-2008 have no birth date -> Unknown (prior_children_tm2);
 - the first spouse's traits are never observed (the files describe only the current spouse)
   -> Unknown; no religion, family-structure or premarital-cohabitation items -> Unknown.
 
@@ -46,7 +47,7 @@ EVENT_DEF = ('first dissolution of the first marriage: separation (year of separ
 EDU_MAP = {'Less than high school': 'Less than high school', 'High school': 'High school',
            'Some college': 'Some college', 'Bachelor or higher': 'Bachelor+'}
 RACE_MAP = {'Hispanic': 'Hispanic', 'White': 'White', 'Black': 'Black', 'Asian': 'Other', 'Other': 'Other'}
-FERT_TM2 = ['SSUID', 'EPPPNUM', 'TMOMCHL', 'TFRCHL', 'RPREMAR']
+FERT_TM2 = ['SSUID', 'EPPPNUM', 'ESEX', 'TAGE', 'TMOMCHL', 'TFRCHL', 'TFBRTHYR', 'RPREMAR']
 
 
 def fertility_tm2(raw):
@@ -64,9 +65,20 @@ def fertility_tm2(raw):
         d['pid'] = f'{panel}-' + d.SSUID + '-' + d.EPPPNUM.astype(int).astype(str)
         out.append(d)
     d = pd.concat(out, ignore_index=True)
-    kids = np.where(d.TMOMCHL >= 0, d.TMOMCHL, d.TFRCHL)  # women / men; -1 = not in universe
-    pc = np.select([d.RPREMAR == 1, d.RPREMAR == 2, kids == 0], ['Yes', 'No', 'No'], 'Unknown')
-    return pd.Series(pc, index=d.pid, name='prior_children')
+    d['kids'] = np.where(d.ESEX == 2, d.TMOMCHL, d.TFRCHL)  # children ever born / fathered by the interview
+    return d.set_index('pid')[['ESEX', 'TAGE', 'kids', 'TFBRTHYR', 'RPREMAR']]
+
+
+def prior_children_tm2(f, wed):
+    """No children ever by the interview -> No. Women 15-64 with children (the universe of TFBRTHYR and
+    RPREMAR): first-birth year before / after the wedding year -> Yes / No; same year -> Census's recode
+    RPREMAR (first child born before the first marriage, from unsuppressed months). RPREMAR is coded 2
+    outside its universe (all men, childless women), so it is never read there. Men and women 65+ with
+    children: no birth date -> Unknown."""
+    univ = (f.ESEX == 2) & f.TAGE.between(15, 64) & (f.kids >= 1) & (f.TFBRTHYR > 0)
+    fb = f.TFBRTHYR.to_numpy()
+    return np.select([f.kids == 0, univ & (fb < wed), univ & (fb > wed), univ & (f.RPREMAR == 1), univ & (f.RPREMAR == 2)],
+                     ['No', 'Yes', 'No', 'Yes', 'No'], 'Unknown')
 
 
 def fertility_pu(pu_dir, years):
@@ -81,7 +93,7 @@ def fertility_pu(pu_dir, years):
 def harmonize(m, fert_tm2, fert_pu):
     pc = pd.Series('Unknown', index=m.index)
     tm2 = m.tm2 == 1
-    pc[tm2] = m.loc[tm2, 'pid'].map(fert_tm2).fillna('Unknown')
+    pc[tm2] = prior_children_tm2(fert_tm2.reindex(m.loc[tm2, 'pid']), m.loc[tm2, 'marriage_year'].to_numpy())
     f = fert_pu.reindex(m.loc[~tm2, 'pid'])
     fb, ceb, wy = f.TYEAR_FB.to_numpy(), f.TCEB.to_numpy(), m.loc[~tm2, 'marriage_year'].to_numpy()
     pc[~tm2] = np.select([ceb == 0, (fb > 0) & (fb < wy), (fb > 0) & (fb > wy)], ['No', 'Yes', 'No'], 'Unknown')
@@ -142,9 +154,10 @@ LEAKAGE = [  # predictor, existing_lens_uses, measured_when, source, leaks, note
      'respondent No by construction (first marriage); spouse Unknown'),
     ('wife_prior_children / husband_prior_children', 'no', 'before wedding',
      'RPREMAR, TMOMCHL, TFRCHL (2001-2008); TCEB, TYEAR_FB (2021/2025)', 'no',
-     "respondent's slot: Yes if Census's RPREMAR says the first child was born before the first marriage (women "
-     '15-64, 2001-2008) or the first birth year precedes the wedding year (2021/2025); No if no children ever by '
-     'the interview or the first birth came later; same-year births and men 2001-2008 with children Unknown; spouse Unknown'),
+     "respondent's slot: No if no children ever born/fathered by the interview; else Yes / No if the first birth "
+     'year (TFBRTHYR, women 15-64, 2001-2008; TYEAR_FB, both sexes, 2021/2025) is before / after the wedding year; '
+     "same year: Census's month-based recode RPREMAR (2001-2008, agrees with the years in ~99% of women whose years "
+     'differ) or Unknown (2021/2025); men and women 65+ with children in 2001-2008 Unknown (no birth date); spouse Unknown'),
     ('cohabited_first', 'no', 'before wedding', 'not collected', 'no', 'Unknown for everyone'),
     ('wife_race / husband_race', 'yes', 'fixed at birth', 'race_ethnicity', 'no',
      "respondent's slot (Asian -> Other); spouse Unknown"),
