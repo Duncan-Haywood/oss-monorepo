@@ -74,6 +74,11 @@ The best source is our own research. A result that took a research track
 weeks to reach, wrapped in a tool a practitioner can use, is a product nobody
 can copy in an afternoon.
 
+The first tools built this way are already out: changepoint detection,
+conformal prediction intervals and matrix profiles, each on the visitor's own
+data with the paper cited
+([Research algorithms in your browser](2026-10-20-research-algorithms-in-your-browser.md)).
+
 ## What this means for a run
 
 Before building a calculator, write down the engine in one sentence. If the

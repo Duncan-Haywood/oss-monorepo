@@ -154,3 +154,8 @@ test('the what\'s-checked table on the index page lists the duplicate-guid check
   const html = await read('index.html');
   assert.match(html, /Duplicate item guid/);
 });
+
+// Closest sibling: Publish Kit generates the feeds this tool validates.
+test('index links one hop to the publish-kit sibling', async () => {
+  assert.match(await read('index.html'), /href="\.\.\/publish-kit\/"/);
+});

@@ -1,0 +1,87 @@
+target,input,value,rate_ratio
+married,cohab_years,0,1.0000
+married,cohab_years,1,1.2308
+married,cohab_years,2,1.3441
+married,cohab_years,3,1.1799
+married,cohab_years,5,0.7511
+married,cohab_years,8,0.4224
+married,age_at_start,18,0.9376
+married,age_at_start,20,1.0364
+married,age_at_start,22,1.0149
+married,age_at_start,25,0.9833
+married,age_at_start,28,0.9807
+married,age_at_start,32,1.0219
+married,afqt_percentile,10,0.9331
+married,afqt_percentile,30,0.9412
+married,afqt_percentile,50,1.0900
+married,afqt_percentile,70,1.1542
+married,afqt_percentile,90,1.0092
+married,start_year,1998,1.3313
+married,start_year,2004,1.0127
+married,start_year,2010,0.8027
+married,start_year,2016,0.6777
+married,sex,Female,1.0000
+married,sex,Male,1.0140
+married,race_ethnicity,Black,1.0000
+married,race_ethnicity,Hispanic,1.2315
+married,race_ethnicity,Non-Black non-Hispanic,1.7041
+married,education_at_start,Associate,1.0000
+married,education_at_start,Bachelor or higher,1.2774
+married,education_at_start,High school or GED,0.8328
+married,education_at_start,No high school credential,0.6052
+married,children_before,0,1.0000
+married,children_before,1,0.9924
+married,children_before,2+,0.7897
+married,family_at_12,Biological parent and step or other parent,1.0000
+married,family_at_12,Both biological parents,1.1086
+married,family_at_12,Other arrangement,1.0590
+married,family_at_12,Single biological parent,0.8645
+married,family_at_12,Unknown,0.8818
+married,religion_raised,Catholic,1.0000
+married,religion_raised,None,0.9704
+married,religion_raised,Other,0.8349
+married,religion_raised,Protestant,1.1884
+married,religion_raised,Unknown,0.9811
+split,cohab_years,0,1.0000
+split,cohab_years,1,0.7810
+split,cohab_years,2,0.6630
+split,cohab_years,3,0.5583
+split,cohab_years,5,0.3991
+split,cohab_years,8,0.2559
+split,age_at_start,18,1.2154
+split,age_at_start,20,1.2045
+split,age_at_start,22,1.0778
+split,age_at_start,25,0.8617
+split,age_at_start,28,0.6912
+split,age_at_start,32,0.5750
+split,afqt_percentile,10,1.0490
+split,afqt_percentile,30,1.0172
+split,afqt_percentile,50,1.0082
+split,afqt_percentile,70,1.0414
+split,afqt_percentile,90,1.0809
+split,start_year,1998,1.6343
+split,start_year,2004,1.0559
+split,start_year,2010,1.0523
+split,start_year,2016,0.9772
+split,sex,Female,1.0000
+split,sex,Male,0.9673
+split,race_ethnicity,Black,1.0000
+split,race_ethnicity,Hispanic,0.6908
+split,race_ethnicity,Non-Black non-Hispanic,0.7134
+split,education_at_start,Associate,1.0000
+split,education_at_start,Bachelor or higher,0.8737
+split,education_at_start,High school or GED,1.3042
+split,education_at_start,No high school credential,1.4553
+split,children_before,0,1.0000
+split,children_before,1,0.9892
+split,children_before,2+,1.1181
+split,family_at_12,Biological parent and step or other parent,1.0000
+split,family_at_12,Both biological parents,0.8052
+split,family_at_12,Other arrangement,0.8542
+split,family_at_12,Single biological parent,0.8772
+split,family_at_12,Unknown,0.8119
+split,religion_raised,Catholic,1.0000
+split,religion_raised,None,1.1326
+split,religion_raised,Other,1.0392
+split,religion_raised,Protestant,1.0572
+split,religion_raised,Unknown,0.8371

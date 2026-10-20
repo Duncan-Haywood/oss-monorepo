@@ -122,6 +122,7 @@ import {
   siteStyleLink,
   writeResearchChrome,
 } from './site-nav.mjs';
+import { ASK_PATH, ASSISTANT_LAUNCHER_JS, renderAskPage, renderAssistantFiles } from './assistant.mjs';
 import {
   HERO_BACKDROP_HTML,
   HOME_MOTION_CSS,
@@ -433,6 +434,9 @@ function shipsDeployableApp(slug) {
   }
   return hit;
 }
+
+// Tools that implement a published paper (portfolio/research-tools/README.md).
+export const RESEARCH_ALGORITHM_SLUGS = ['changepoint-detector', 'conformal-prediction-intervals', 'matrix-profile-explorer'];
 
 const CATEGORY_RULES = [
   {
@@ -3666,11 +3670,15 @@ const CATEGORY_RULES = [
         'freelance-editor-quote-calculator',
         'gig-driver-net-pay-calculator',
         'influencer-media-kit-generator',
+        // `interview-content-studio` joined 2026-10-20: a creator or small business planning and drafting its own posts across platforms is one person building their own audience, beside the media kit and sponsorship-rate tools.
+        'interview-content-studio',
         'newsletter-sponsorship-rate-calculator',
         'overtime-pay-calculator',
         'personal-trainer-package-pricing-calculator',
         'podcast-feed-check',
         'podcast-sponsorship-rate-calculator',
+        // `publish-kit` joined 2026-10-20 beside its sibling `podcast-feed-check`: a podcaster or author building their own feed, EPUB or audiobook is one creator publishing their own work (it had landed in the catch-all, tripping its bound of 5).
+        'publish-kit',
         // `youtube-sponsorship-rate-calculator` joined 2026-10-15 on its first commit: a creator pricing their own sponsored video is one person working out their own income.
         'youtube-sponsorship-rate-calculator',
         'sponsor-ready',
@@ -3704,6 +3712,17 @@ const CATEGORY_RULES = [
         // `quick-pick-survey` joined 2026-10-15 when it got a landing page and the catch-all hit 6: a survey engine, one hop from the individual-decision tools above.
         'quick-pick-survey',
       ].includes(slug),
+  },
+  {
+    // Added 2026-10-20 with the first tools of "research algorithms as free
+    // tools" (portfolio/research-tools/README.md): methods from published
+    // papers run on the visitor's own data. Listed by name; add a slug here
+    // when a tool lands, as that README says.
+    id: 'research-algorithms',
+    title: 'Research algorithms & ML',
+    accent: '#5b3f8c',
+    blurb: 'Methods from published research papers, run on your own data in your browser and cited: changepoint detection, conformal prediction intervals, matrix-profile motifs and anomalies. Also callable from the command line and by AI agents.',
+    test: (slug) => RESEARCH_ALGORITHM_SLUGS.includes(slug),
   },
   {
     // Added 2026-10-19 when `hands-free-language-coach` and
@@ -7231,6 +7250,13 @@ export function renderFeedbackPage({ surfaces = [], baseUrl, feedbackUrl = SITE_
   <link rel="canonical" href="${escapeHtml(url)}">
   <link rel="icon" href="${escapeHtml(`${toRoot}favicon.svg`)}" type="image/svg+xml">
   <link rel="alternate icon" href="${escapeHtml(`${toRoot}favicon.ico`)}" sizes="16x16">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="${escapeHtml(title)}">
+  <meta property="og:description" content="${escapeHtml(snippetize(description))}">
+  <meta property="og:url" content="${escapeHtml(url)}">
+  <meta property="og:site_name" content="${escapeHtml(SITE_NAME)}">
+  <meta property="og:image" content="${escapeHtml(`${baseUrl}${SOCIAL_CARD_FILE}`)}">
+  <meta name="twitter:card" content="summary_large_image">
   <style>${CATEGORY_STYLE}${ABOUT_STYLE}${FEEDBACK_STYLE}  </style>
   ${siteStyleLink(toRoot)}
 </head>
@@ -9029,7 +9055,7 @@ export const CHROME_MODULE_FILE = 'pf-site.js';
 
 /** The contents of that file. Written once by the build, at the site root. */
 export function renderChromeModule({ counterUrl = SITE_COUNTER_URL } = {}) {
-  return `${stripForInjection(CHROME_SCRIPT({ counterUrl }))}\n${stripForInjection(SCROLL_A11Y_SCRIPT)}\n`;
+  return `${stripForInjection(CHROME_SCRIPT({ counterUrl }))}\n${stripForInjection(SCROLL_A11Y_SCRIPT)}\n${stripForInjection(ASSISTANT_LAUNCHER_JS)}\n`;
 }
 
 // ---------------------------------------------------------------------------
@@ -9938,6 +9964,8 @@ export function renderHubSitemap(baseUrl, categoryIds = [], compareProductKeys =
     // here or in no sitemap at all — and an unlisted page is one a crawler
     // reaches only by following a footer link on a page it happened to find.
     .concat([`  <url><loc>${baseUrl}${ABOUT_PATH}</loc></url>`])
+    // The assistant's page, on the same terms: hub-level, so listed here or nowhere.
+    .concat([`  <url><loc>${baseUrl}${ASK_PATH}</loc></url>`])
     // And the comparison index, on exactly the same terms: a hub-level page
     // this build writes, so it is listed here or nowhere.
     .concat([`  <url><loc>${baseUrl}${COMPARE_PATH}</loc></url>`])
@@ -10135,6 +10163,7 @@ export function renderLlmsTxt(surfaces, baseUrl, compareProductGroups = [], guid
     '## Optional',
     '',
     `- [About and press kit](${baseUrl}${ABOUT_PATH}): what this site is, how visitor data is handled (${counterOn() ? 'inputs never leave the browser; a cookieless per-page daily tally, with the kind of referring site, goes to a first-party counter' : 'it never leaves the browser'}${exceptions.length ? ', with a documented exception listed there' : ''}), the licence, and pre-written boilerplate for citing or linking to these tools.`,
+    `- [Ask](${baseUrl}${ASK_PATH}): fill any calculator here by voice or a typed sentence, find a tool, or hear a result read back; in browsers with WebMCP every page also offers \`search_site_tools\`, \`read_page_results\` and (on calculators) \`fill_form\` to an agent. Runs in the browser; no model unless the visitor switches one on. The page states the measured accuracy and the limitations.`,
     `- [Research](${baseUrl}${RESEARCH_PATH}): the open research portfolio built in the same repository — white papers with reproducible code on mechanism design for verifiable decentralised ML, and digital twins and sim-to-real gaps.`,
     `- [Updates and roadmap](${baseUrl}${UPDATES_PATH}): what shipped this week, what is in progress, the owner's direction for the project and how AI agents build it; and the [changelog](${baseUrl}${CHANGELOG_PATH}) of every change merged, by day.`,
     `- [Comparisons](${baseUrl}${COMPARE_PATH}): every page on this site that compares one of these tools with a named commercial product, grouped by product. Useful for answering "is there a free alternative to X?" with a page that says what the free tool does *not* do as well as what it does.`,
@@ -10660,6 +10689,30 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
   await fs.mkdir(feedbackDir, { recursive: true });
   await fs.writeFile(path.join(feedbackDir, 'index.html'), renderFeedbackPage({ surfaces, baseUrl: base }));
 
+  // The assistant's own page, and the files every page lazy-loads it from.
+  const askDir = path.join(outDir, ASK_PATH);
+  await fs.mkdir(askDir, { recursive: true });
+  await fs.writeFile(
+    path.join(askDir, 'index.html'),
+    renderAskPage({
+      baseUrl: base,
+      siteName: SITE_NAME,
+      toolCount: surfaces.length,
+      chrome: {
+        style: `${CATEGORY_STYLE}${ABOUT_STYLE}`,
+        styleLink: siteStyleLink('../'),
+        header: renderSiteHeader({ toRoot: '../', current: 'ask', crumbs: [{ label: 'Ask' }] }),
+        disclaimer: disclaimerHtml('../', surfaces),
+        footerNav: renderSiteFooterNav({ toRoot: '../' }),
+        script: `<script src="../${CHROME_MODULE_FILE}" ${CHROME_SLUG_ATTR}="ask" defer></script>`,
+        ogImage: `${base}${SOCIAL_CARD_FILE}`,
+      },
+    }),
+  );
+  for (const [name, contents] of Object.entries(renderAssistantFiles({ searchVariants, searchScore }))) {
+    await fs.writeFile(path.join(outDir, name), contents);
+  }
+
   await buildResearchPage(outDir, base);
   const researchSlugs = [];
   for (const entry of await fs.readdir(path.join(outDir, RESEARCH_PATH), { withFileTypes: true })) {
@@ -10688,7 +10741,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
 
   // Essays and write-ups from `docs/posts/` (see `writing.mjs`). Indexed, so
   // each post is listed in the hub sitemap below.
-  const posts = await buildWriting(outDir, base, { socialCard: `${base}${SOCIAL_CARD_FILE}` });
+  const posts = await buildWriting(outDir, base, { socialCard: `${base}${SOCIAL_CARD_FILE}`, originAlias: DEFAULT_BASE_URL });
 
   // The lab (see `lab.mjs`): contained, `noindex` experiments in what the
   // site can be. Its handoff page reads catalog.json in the browser.
