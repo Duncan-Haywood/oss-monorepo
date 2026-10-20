@@ -9,6 +9,9 @@ person against a constant rate, with person-bootstrap intervals and calibration:
 - random forest of shallow Poisson trees, exact path attributions (Saabas) in rate units;
 - Poisson gradient boosting with small trees, exact path attributions in log-rate units.
 
+It also fits the bundle's distance-to-training-data score (tools/ood.py) so the app can
+abstain on couples unlike anyone in the data.
+
 Writes app/models/nsfg2002_family.json (+ test vectors) and
 reproducibility/nsfg2002_first_marriage/family_*.csv. Needs scikit-learn 1.7.2 and the raw
 NSFG file: `sh ../../reproducibility/nsfg2002_first_marriage/download.sh` first.
@@ -32,6 +35,8 @@ SRC = ROOT / 'reproducibility' / 'nsfg2002_first_marriage'
 OUT = HERE.parent / 'models'
 sys.path.insert(0, str(SRC))
 import train_models as tm  # noqa: E402  (the dataset's own builder: intervals, folds, deviance)
+sys.path.insert(0, str(HERE))
+import ood  # noqa: E402
 
 assert sklearn.__version__ == '1.7.2', 'use scikit-learn 1.7.2 (reproducibility/nsfg2002_first_marriage/requirements.txt)'
 NUMERIC, CATEGORICAL, SEED = tm.NUMERIC, tm.CATEGORICAL, tm.SEED
@@ -256,6 +261,13 @@ def main():
     cal.to_csv(SRC / 'family_heldout_calibration.csv', index=False, float_format='%.6g')
 
     finals = {k: make(k, levels).fit(iv) for k, _ in FAMILY}
+
+    # Out-of-distribution score on the couple's fixed inputs (marriage length is the
+    # projection axis and has its own support range).
+    OOD_NUM = ['wife_age_at_marriage', 'husband_age_at_marriage', 'wedding_year']
+    ood_spec, ood_held, ood_fit = ood.build(m, m.id.map(fold_of).to_numpy(), OOD_NUM, CATEGORICAL, levels)
+    pd.DataFrame(dict(percentile=ood_spec['heldout_quantiles']['p'], heldout_d2=ood_spec['heldout_quantiles']['d2'])).to_csv(
+        SRC / 'family_ood_heldout_quantiles.csv', index=False, float_format='%.6g')
     held = comp.set_index('model')
     lens = json.loads((OUT / 'nsfg2002_first_marriage.json').read_text())
     bundle = dict(
@@ -272,6 +284,7 @@ def main():
                                   observed_expected_ratio=round(float(held.loc[k, 'observed_expected_ratio']), 4),
                                   calibration=cal[cal.model == k].drop(columns='model').round(6).to_dict(orient='records')),
                      **export(k, finals[k])) for k, lbl in FAMILY],
+        ood=ood_spec,
         sklearn=sklearn.__version__)
     (OUT / 'nsfg2002_family.json').write_text(json.dumps(bundle, separators=(',', ':')))
 
@@ -291,9 +304,20 @@ def main():
     df = pd.DataFrame(rows)
     df['husband_age_at_marriage'] = df.husband_age_at_marriage.astype(float)
     vectors = dict(rows=json.loads(df.replace({np.nan: None}).to_json(orient='records')),
-                   predictions={k: finals[k].predict(df).tolist() for k in finals})
+                   predictions={k: finals[k].predict(df).tolist() for k in finals},
+                   ood_d2=ood.score(ood_fit, df, OOD_NUM, CATEGORICAL, levels).tolist())
     (OUT / 'nsfg2002_family_testvectors.json').write_text(json.dumps(vectors))
     print(comp.round(4).to_string(index=False))
+    examples = pd.DataFrame([
+        dict(name='typical: wife 24, husband 26, 1995, no prior marriage', wife_age_at_marriage=24, husband_age_at_marriage=26, wedding_year=1995),
+        dict(name='wife 17, husband 45, 1995', wife_age_at_marriage=17, husband_age_at_marriage=45, wedding_year=1995),
+        dict(name='wife 38, husband 40, 2002', wife_age_at_marriage=38, husband_age_at_marriage=40, wedding_year=2002),
+        dict(name='wife 30, husband 31, wedding 2024', wife_age_at_marriage=30, husband_age_at_marriage=31, wedding_year=2024)])
+    for c in CATEGORICAL:
+        examples[c] = {'wife_race_ethnicity': 'White', 'same_race_ethnicity': 'Same'}.get(c, 'No')
+    q = ood_spec['heldout_quantiles']
+    for name, d2 in zip(examples.name, ood.score(ood_fit, examples, OOD_NUM, CATEGORICAL, levels)):
+        print(f'OOD {name}: d2 {d2:.1f}, held-out percentile {100 * np.interp(d2, q["d2"], q["p"]):.1f}')
 
 
 if __name__ == '__main__':

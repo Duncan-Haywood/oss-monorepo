@@ -128,8 +128,21 @@ Every family is explained exactly in `engine.js`:
 `contributions()` returns a `scale` field, and `rateFromContributions()` inverts it.
 `tests/nsfg2002_family.test.mjs` matches 272 of 272 scikit-learn predictions to 10<sup>-9</sup>
 and checks that every explanation reproduces its prediction to 10<sup>-12</sup>. Not yet
-done: Cox/Weibull survival models (they need a survival library beyond scikit-learn), k-NN,
-and a distance-to-training-data abstention score.
+done: Cox/Weibull survival models (they need a survival library beyond scikit-learn) and
+k-NN.
+
+### Abstaining on couples unlike anyone in the data
+
+Range checks catch one input at a time. `tools/ood.py` adds a joint check: the squared
+Mahalanobis distance of a couple's fixed inputs (ages at marriage, wedding year, the six
+categorical inputs) from the 4,126 NSFG marriages. `engine.oodScore(bundle.ood, row)` turns
+that distance into a percentile among held-out women, so 99 means only 1% of real held-out
+couples were as unusual. Above `abstain_above_percentile` (99) the app should give no
+number. Examples: a typical couple (wife 24, husband 26, wed 1995) scores the 26th
+percentile; a 38/40 couple wed in 2002, the 86th; a 17/45 couple, the 98.8th; a 16/60
+couple, 99.1 (abstain). The quantiles are in
+`../reproducibility/nsfg2002_first_marriage/family_ood_heldout_quantiles.csv`, and
+`tests/ood.test.mjs` matches Python's distances on 68 rows to 10<sup>-9</sup>.
 
 ## Run and test
 

@@ -32,6 +32,9 @@ class AppTests(unittest.TestCase):
     def test_fair_bundles_match_sklearn(self):
         self.run_node('fair.test.mjs')
 
+    def test_ood_score_matches_python(self):
+        self.run_node('ood.test.mjs')
+
     def test_lenses_and_scenarios(self):
         self.run_node('lenses.test.mjs')
 
