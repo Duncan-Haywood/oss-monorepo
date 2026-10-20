@@ -177,8 +177,6 @@ function page({ title, description, canonical, jsonLd, body, event, type = 'webs
 <meta property="og:title" content="${escapeHtml(title)}">
 <meta property="og:description" content="${escapeHtml(description)}">
 <meta property="og:url" content="${canonical}">
-<meta property="og:image" content="${COVER}">
-<meta name="twitter:card" content="summary_large_image">
 <script type="application/ld+json">${JSON.stringify(jsonLd)}</script>
 <style>${CSS}</style>
 </head>
