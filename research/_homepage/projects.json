@@ -3760,6 +3760,11 @@
     "slug": "energy-cell",
     "title": "How much better can a lithium-ion cell get by redesigning its electrodes, and does a smarter search help?",
     "summary": "A PyBaMM single-particle model with electrolyte of an NMC811 / graphite-SiOx cell, scored on discharge energy per kilogram of electrode stack after 100 cycles at a fixed current. Four design numbers (positive thickness, two porosities, negative-to-positive capacity ratio) are searched with 30 evaluations by random search, Gaussian-process Bayesian optimisation (5 seeds each) and the session agent proposing by hand (one run). The reference cell scores 109 Wh/kg; all three reach 141&ndash;143 (+30%) with a thicker, more porous positive electrode and about 30% more negative capacity, and their seed ranges overlap, so no proposer is shown to be better. Limits: one aggressively ageing parameter set, constant-current charge only, stack not finished cell, optimum at the search bounds. Stylised and simulated, not a tested cell."
+    },
+    {
+    "slug": "energy-lcos-mc",
+    "title": "How robust is the cheapest energy-storage technology at each duration when costs are uncertain?",
+    "summary": "A Monte Carlo over the <code>energy-lcos</code> model: 4,000 scenarios draw each technology's energy cost, power cost and efficiency from assumed ranges, plus the discount rate (3&ndash;10%) and charging price ($10&ndash;100/MWh), and count how often each is cheapest. Lithium-ion wins 96% of scenarios at 2 hours, 64% at 4 and 18% at 8; between 6 and 12 hours no technology wins more than 48%, so the point-estimate winner is a coin toss there. Caverns win most scenarios from 24 hours (compressed air 61% at 24 h, 81% at 100 h) and hydrogen 69% at 500 hours. Charging price is the largest single swing in cost. Stylised: every range is assumed, draws are independent and uniform, and the use pattern is fixed."
     }
    ]
   },
