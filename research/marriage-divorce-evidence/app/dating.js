@@ -1,39 +1,109 @@
-// Dating length before marriage (data/dating_length.json, built by
-// reproducibility/dating_length/). Shown as evidence next to the lenses, never applied to a
-// lens number: HCMST shows no held-out gain from it, and the only verified hazard ratios come
-// from an opt-in online retrospective survey the evidence review marks not usable in the app.
+// Before an engagement: will this dating couple marry each other, or break up first?
+// Two HCMST 2009–2017 models (workstream A, #8662), one per outcome, each a probability per
+// follow-up period for couples still together and unmarried at its start, combined as the
+// bundles' own `how_to_combine` says: still-dating S_k = S_{k-1}(1 - m_k - b_k), married by
+// period k = sum S_{j-1} m_j, broke up first = sum S_{j-1} b_j. The two models were fitted
+// separately, so the split is approximate. After a wedding, a marriage lens takes over.
+// Pure functions; no DOM. tests/dating.test.mjs covers it.
+import { predict } from './engine.js';
+import { hcmstRow, QUALITY, STATUS } from './lens-adapters.js';
 
-const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
-const pct = (x, d = 1) => (Number.isFinite(x) ? (100 * x).toFixed(d) + '%' : '—');
+// The two additive models are scored (the full one, and the harmonized one A checked on the
+// 2017 cohort, #8727, which drops parents' view and religion); the chain is run per model and
+// its range shown. Period-only is a baseline and the depth-2 trees did worse than it held out
+// (marriage log-loss gain −1.6%), so neither is used.
+export const DATING_MODELS = ['additive', 'additive_harmonized'];
+export const DATING_MODEL = DATING_MODELS[0];
+
 const num = (v) => (v === '' || v === null || v === undefined ? NaN : Number(v));
+const has = (v) => v !== '' && v !== null && v !== undefined;
 
-// Years dated before the wedding from the form: years together minus years married. Null when
-// either is missing or the result is negative.
-export function datingYears(couple = {}) {
-  const t = num(couple.yearsTogether);
-  const m = num(couple.yearsMarried);
-  if (!Number.isFinite(t) || !Number.isFinite(m)) return null;
-  const d = t - m;
-  return d >= 0 ? d : null;
-}
-export function datingBand(years) {
-  if (!Number.isFinite(years)) return null;
-  return years < 1 ? 'under 1 year' : years < 3 ? '1-2 years' : '3+ years';
+// Each partner who rated the relationship is a perspective (as in the HCMST couples lens).
+export function datingViews(a, b) {
+  return [{ who: 'a', p: a }, { who: 'b', p: b }].filter((v) => QUALITY.includes(v.p.quality));
 }
 
-export function renderDating(el, data, couple = {}) {
-  if (!data) { el.innerHTML = '<p class="note">The dating-length evidence did not load.</p>'; return; }
-  const d = datingYears(couple);
-  const band = datingBand(d);
-  const core = data.heldout.find((r) => r.model === 'core');
-  const plus = data.heldout.find((r) => r.model === 'core+dating');
-  const lit = Object.fromEntries(data.literature.map((r) => [r.id, r]));
-  const rows = data.hcmst_bands.filter((b) => b.band !== 'Unknown').map((b) => `<tr${b.band === band ? ' class="mine"' : ''}><th scope="row">${esc(b.band.replace('-', '–'))}${b.band === band ? ' <small>you</small>' : ''}</th><td class="num">${b.couples}</td><td class="num">${b.breakups}</td><td class="num">${pct(b.weighted_breakup_by_2017)}</td></tr>`).join('');
-  const hr = (id) => (lit[id] ? `HR ${lit[id].estimate.toFixed(2)} (95% CI ${lit[id].ci_low.toFixed(2)}–${lit[id].ci_high.toFixed(2)})` : '—');
-  el.innerHTML = `
-    <p class="rep-stand">${d === null ? 'Enter “Years together” and “Years married so far” (under “The relationship now”) to see your own dating length.' : `From the form, you dated about <strong>${d.toFixed(d % 1 ? 1 : 0)} year${d === 1 ? '' : 's'}</strong> before marrying (years together minus years married): the <strong>${esc(band.replace('-', '–'))}</strong> band.`}</p>
-    <div class="table-wrap"><table class="rep-table"><thead><tr><th scope="col">Dated before the wedding</th><th class="num" scope="col">Married couples</th><th class="num" scope="col">Break-ups</th><th class="num" scope="col">Broke up by 2017 (weighted)</th></tr></thead><tbody>${rows}</tbody></table></div>
-    <p class="small">HCMST 2009 married couples followed to 2017 (Stanford). Dating length = age at marriage minus age when the romance began, accurate to about a year.</p>
-    ${core && plus ? `<p class="rep-stand"><strong>Held-out test:</strong> adding dating length to the HCMST lens’s inputs for married couples changed held-out log-loss gain by ${plus.delta_gain_vs_constant_pct >= 0 ? '+' : '−'}${Math.abs(plus.delta_gain_vs_constant_pct).toFixed(2)} points (95% CI ${plus.delta_gain_vs_constant_pct_lo.toFixed(2)} to ${plus.delta_gain_vs_constant_pct_hi.toFixed(2)}) and the C-index by ${plus.delta_c_index >= 0 ? '+' : '−'}${Math.abs(plus.delta_c_index).toFixed(3)} (${plus.delta_c_index_lo.toFixed(3)} to ${plus.delta_c_index_hi.toFixed(3)}), with ${data.audit.breakups} break-ups. It adds no predictive skill here, so no lens uses it.</p>` : ''}
-    <p class="small"><strong>Published evidence:</strong> Francis-Tan &amp; Mialon (2015), an online survey of 3,151 ever-married U.S. adults, report dating 1–2 years before the proposal at ${hr('FTM2015_dated1to2')} and 3+ years at ${hr('FTM2015_dated3plus')} against under a year, adjusted for many traits. Evidence grade: <span class="tag">${esc(data.grade.label)}</span>. ${esc(data.grade.reason)}</p>`;
+// Reasons the dating models cannot speak to this couple (no number rather than a guess).
+export function datingRefusals(a, b, couple) {
+  const out = [];
+  if (!a.sex || !b.sex) out.push('Choose both partners’ sex.');
+  if (num(a.age) < 18 || num(b.age) < 18) out.push('HCMST covers adults: both partners must be 18 or older.');
+  if (String(couple.status || '').startsWith('Married')) out.push('You are already married, so the question is no longer whether you marry.');
+  else if (!STATUS.includes(couple.status)) out.push('Say whether you live together (“Relationship now”).');
+  if (!datingViews(a, b).length) out.push('Rate the relationship (“How would you describe the quality of your relationship?”) for at least one of you: it is the models’ main input.');
+  if (!has(couple.yearsTogether)) out.push('Say how many years you have been together.');
+  return out;
+}
+
+// Inputs outside the HCMST data, per period (shown, not refused, as in the other lenses).
+export function datingIssues(bundle, a, b, couple, k) {
+  const v = datingViews(a, b)[0];
+  if (!v) return [];
+  const r = hcmstRow(bundle, v, a, b, couple, k);
+  const s = bundle.support;
+  const out = [];
+  for (const [name, x] of [['mean age', r.mean_age], ['years together', r.relationship_years], ['age gap', r.age_gap]]) {
+    const range = s[{ 'mean age': 'mean_age', 'years together': 'relationship_years', 'age gap': 'age_gap' }[name]];
+    if (Number.isFinite(x) && range && (x < range[0] || x > range[1])) out.push(`${name} ${Math.round(x * 10) / 10} (data: ${Math.round(range[0] * 10) / 10}–${Math.round(range[1] * 10) / 10})`);
+  }
+  return out;
+}
+
+// The period probability of one outcome from one model, averaged over the couple's perspectives.
+function periodProb(bundle, a, b, couple, k, key = DATING_MODEL) {
+  const model = bundle.models.find((m) => m.key === key);
+  const views = datingViews(a, b);
+  return views.reduce((s, v) => s + predict(model, hcmstRow(bundle, v, a, b, couple, k)), 0) / views.length;
+}
+
+// Cumulative chances by the end of each follow-up period, from today, for one model pair.
+export function datingChain(mBundle, bBundle, a, b, couple, key = DATING_MODEL) {
+  const periods = mBundle.periods;
+  let still = 1;
+  let married = 0;
+  let broke = 0;
+  const steps = [];
+  for (let k = 0; k < periods.length; k++) {
+    const m = periodProb(mBundle, a, b, couple, k, key);
+    const br = periodProb(bBundle, a, b, couple, k, key);
+    // Separately fitted: if the two would exceed 1, share the period out in proportion.
+    const tot = m + br;
+    const sc = tot > 1 ? 1 / tot : 1;
+    married += still * m * sc;
+    broke += still * br * sc;
+    still *= 1 - tot * sc;
+    steps.push({ period: periods[k].period, years: periods[k].years_since_start_at_end, m, b: br, married, brokeUp: broke, stillTogether: still, issues: datingIssues(mBundle, a, b, couple, k) });
+  }
+  return { steps, married, brokeUp: broke, stillTogether: still, years: periods[periods.length - 1].years_since_start_at_end, perspectives: datingViews(a, b).length };
+}
+
+// The chain for every scored model pair the bundles carry: mean and range of each share.
+export function datingRange(mBundle, bBundle, a, b, couple) {
+  const keys = DATING_MODELS.filter((k) => mBundle.models.some((m) => m.key === k) && bBundle.models.some((m) => m.key === k));
+  const per = Object.fromEntries(keys.map((k) => [k, datingChain(mBundle, bBundle, a, b, couple, k)]));
+  const stat = (f) => {
+    const v = keys.map((k) => per[k][f]);
+    return { mean: v.reduce((x, y) => x + y, 0) / v.length, min: Math.min(...v), max: Math.max(...v) };
+  };
+  return { per, models: keys.length, married: stat('married'), brokeUp: stat('brokeUp'), stillTogether: stat('stillTogether'), years: per[keys[0]].years, perspectives: per[keys[0]].perspectives, issues: per[keys[0]].steps.some((z) => z.issues.length) };
+}
+
+// A's out-of-sample check on HCMST's 2017 cohort (#8727): AUC of the harmonized models.
+export function datingExternal(bundle, outcome) {
+  const rows = (bundle.external_validation || []).filter((r) => r.model === 'additive_harmonized' && r.outcome === outcome);
+  return rows.length ? rows[rows.length - 1] : null;
+}
+
+// The observed reference: what happened to all 939 couples (weighted), no model.
+export function datingObserved(mBundle) {
+  const g = (mBundle.cumulative_incidence || []).find((x) => x.group === 'All unmarried couples');
+  return g ? { married: g['married_by_8.4y'], brokeUp: g['broke_up_by_8.4y'], couples: g.couples } : null;
+}
+
+// Hand-over to a marriage lens: of couples like this, the share who marry within the follow-up
+// and are still married `afterYears` after the wedding. It multiplies two estimates from different
+// surveys as if independent, so it is an approximation and labelled so.
+export function handover(chain, survivalAfterWedding) {
+  const m = typeof chain.married === 'number' ? chain.married : chain.married.mean;
+  return Number.isFinite(survivalAfterWedding) ? m * survivalAfterWedding : null;
 }

@@ -5,7 +5,7 @@ import { profileReport, mixAcrossLenses, inHundred, aboveBelow } from './report.
 import { fmtYears } from './couple.js';
 import { shortName } from './summary.js';
 import { renderSatisfaction } from './satisfaction.js';
-import { renderDating } from './dating.js';
+import { renderDating } from './dating-length.js';
 
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 const fmtN = (x) => Math.round(x).toLocaleString('en-US');

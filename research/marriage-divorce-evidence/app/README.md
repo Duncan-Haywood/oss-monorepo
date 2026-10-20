@@ -65,7 +65,7 @@ the lowest-risk partner profiles from `dashboard.js` `partnerDashboard` with mod
 factor impact (spread across each trait's levels) with grades from `data/decision_evidence.json`;
 and the biggest predicted drops from `whatIfs`. Lenses without a partner distribution say so.
 `satisfaction.js` charts `data/satisfaction_by_duration.json`
-(`../reproducibility/satisfaction_by_duration/`) and `dating.js` shows
+(`../reproducibility/satisfaction_by_duration/`) and `dating-length.js` shows
 `data/dating_length.json` (`../reproducibility/dating_length/`). The report adds nothing to the
 link beyond `view=report`.
 
