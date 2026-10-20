@@ -585,6 +585,20 @@ test('trend bends: a ramp with two slope changes is lines with two knots, not st
   assert.ok(two >= 0.8 * N && Math.abs(k1 / two - 80) < 5 && Math.abs(k2 / two - 160) < 5 && falseBend <= 0.15 * N);
 });
 
+test('trend bends: knots are refined to the point on long series, not left on the n/40 grid', () => {
+  // 288 points: the grid step is 7, so before refinement a knot sat up to 3 points (often 6) from the truth.
+  // Slope 0.05, then 0.15 from point 96, then -0.03 from point 192; seeds 1101..1108.
+  let near = 0;
+  for (let seed = 1101; seed <= 1108; seed++) {
+    const r = rng(seed);
+    let level = 0;
+    const x = normals(r, 288).map((e, i) => { if (i > 0) level += i < 96 ? 0.05 : i < 192 ? 0.15 : -0.03; return level + e; });
+    const { knots } = trendAdjust(x, { bend: 3 });
+    if (knots.length === 2 && Math.abs(knots[1] - 192) <= 3) near++;
+  }
+  assert.ok(near >= 6, `second knot within 3 points on ${near} of 8`);
+});
+
 test('trend bends with sticky noise: --ar1 keeps the wandering from being cut into steps', () => {
   const N = 40, n = 240;
   const f = (i) => 0.1 * i + 0.1 * Math.max(0, i - 80) - 0.25 * Math.max(0, i - 160);
