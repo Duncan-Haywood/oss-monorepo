@@ -875,3 +875,16 @@ or `ventures`) until its success rate passes 80% over 20 runs?
 - Candidates: unchanged (review/2 has 8 runs; ventures 2 / research 1 intervals
   overlap). Reduced pass: no audit or drift report (hours-old report).
 - Result: (next review)
+
+## E52: review 2026-10-20 (second)
+
+- Change: `prompt.md` step 1 says which track an owner request that fits none
+  takes (`prompt.md`/`routing.json` friction: 3 reports of forcing a track with
+  no rule).
+- Metric: "no track fits owner task" friction reports on `prompt.md`, next 20 runs.
+- Candidates: research/1 vs 0: `measure` says retire (1 integrity issue in 110
+  runs vs 4 in 618), but the one issue is a self-disclosed caveat (search-excerpt
+  figures marked in the data and README), not a violation; success is 100% vs
+  98%. Kept, 0.2 share. ventures 2 / review 2 unchanged (overlap, under 10 runs).
+  Reduced pass: no audit, drift report or `derived/` regeneration.
+- Result: (next review)
