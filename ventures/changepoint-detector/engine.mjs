@@ -85,6 +85,8 @@ export const DEFAULTS = {
   // daily data with a weekly one); 0 or null for none. The per-phase median of
   // the detrended series is subtracted before detection ('mean' and 'meanvar').
   period: 0,
+  // true: let the seasonal shape drift (running median across cycles) instead of one fixed profile.
+  drift: false,
   // true: widen the noise scale of the 'mean' model for lag-1 autocorrelation
   // so a drifting, sticky series is not cut into many false segments. 'joint': fit the
   // segment means and rho together on the exact AR(1) likelihood (more power on small shifts).
@@ -100,7 +102,7 @@ export const DEFAULTS = {
  * detrended series only near the shift) out of the profile.
  * Returns { adjusted, profile } or throws when there are fewer than two cycles.
  */
-export function seasonalAdjust(x, period) {
+export function seasonalAdjust(x, period, opts = {}) {
   const m = Math.floor(period);
   if (!(m >= 2)) throw new Error('The seasonal period must be a whole number of at least 2.');
   if (x.length < 2 * m) throw new Error(`A seasonal period of ${m} needs at least ${2 * m} points (two full cycles); got ${x.length}.`);
@@ -118,7 +120,42 @@ export function seasonalAdjust(x, period) {
   const raw = phases.map((a) => (a.length ? median(a) : 0));
   const centre = raw.reduce((s, v) => s + v, 0) / m;
   const profile = raw.map((v) => v - centre);
+  if (opts.drift) return driftAdjust(x, m, trend, profile);
   return { adjusted: x.map((v, t) => v - profile[t % m]), profile };
+}
+
+/**
+ * Drifting seasonal shape: each phase's detrended values are smoothed across
+ * cycles with a running median of up to 5 cycles (3 when there are fewer than
+ * 6), so a cycle whose amplitude grows or whose peak moves is followed instead
+ * of averaged away. Each cycle's profile is re-centred at zero. Returns the
+ * mean profile too, for display.
+ */
+function driftAdjust(x, m, trend0, profile) {
+  let trend = trend0;
+  const n = x.length;
+  const cycles = Math.ceil(n / m);
+  const w = cycles >= 6 ? 2 : 1; // half-width in cycles
+  // the moving average is missing half a period at each end: hold its nearest value so the end cycles keep their own shape
+  const first = trend.findIndex((v) => v !== null), last = n - 1 - [...trend].reverse().findIndex((v) => v !== null);
+  trend = trend.map((v, t) => (v !== null ? v : trend[t < first ? first : last]));
+  const d = Array.from({ length: m }, (_, p) => {
+    const col = [];
+    for (let c = 0; c < cycles; c++) { const t = c * m + p; col.push(t < n && trend[t] !== null ? x[t] - trend[t] : null); }
+    return col.map((_, c) => {
+      const win = [];
+      for (let k = Math.max(0, c - w); k <= Math.min(cycles - 1, c + w); k++) if (col[k] !== null) win.push(col[k]);
+      return win.length ? median(win) : profile[p];
+    });
+  });
+  const adjusted = new Array(n);
+  for (let c = 0; c < cycles; c++) {
+    let centre = 0;
+    for (let p = 0; p < m; p++) centre += d[p][c];
+    centre /= m;
+    for (let p = 0; p < m; p++) { const t = c * m + p; if (t < n) adjusted[t] = x[t] - (d[p][c] - centre); }
+  }
+  return { adjusted, profile };
 }
 
 /**
@@ -627,7 +664,7 @@ export function analyze(input = {}) {
   const original = values;
   if (period) {
     if (model === 'poisson') throw new Error('The seasonal adjustment subtracts a profile, which breaks counts: use "mean" or "meanvar" with a period.');
-    ({ adjusted: values, profile } = seasonalAdjust(original, period));
+    ({ adjusted: values, profile } = seasonalAdjust(original, period, { drift: !!o.drift }));
   }
   let sigma = robustSd(values);
   let rho = null;
