@@ -86,9 +86,14 @@ flagships:
       Davidson-tie Bradley-Terry conjoint fit, simulation-tested, with a
       deploy-to-your-own-Vercel button.
     next: >-
-      A survey builder: an admin creates a survey from their own items and
-      attributes, shares a link and exports the ranking with confidence
-      intervals. Then the information-gain pair selector (IMPROVEMENT-PLAN.md, P1).
+      The survey builder's back end is in: POST /api/admin/surveys creates a
+      survey from an admin's own options (validated in surveyBuilder.ts), and
+      GET /api/admin/surveys/[slug]/ranking[?format=csv] returns the pooled
+      ranking with random-effects 95% intervals and rank ranges (groupRanking.ts,
+      coverage checked on seeded data). Next: an admin form on /admin that
+      calls them and shows the intervals, a /s/[slug] respondent page for
+      admin-made surveys, then the information-gain pair selector
+      (IMPROVEMENT-PLAN.md, P1).
   - venture: league-schedule-generator
     why: >-
       Circle-method round robins with minimal home/away breaks, court and slot
