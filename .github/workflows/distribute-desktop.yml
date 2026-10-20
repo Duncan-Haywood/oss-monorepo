@@ -72,6 +72,7 @@ jobs:
 
   release:
     needs: build
+    if: vars.DISTRIBUTE_DESKTOP == 'true'
     runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     timeout-minutes: 15
     permissions:
