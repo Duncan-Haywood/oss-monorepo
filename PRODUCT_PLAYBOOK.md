@@ -58,17 +58,17 @@ a product in an existing template family, extend or consolidate the family.
    niches, and it makes the repo page the landing page.
 3. **Generator / checker that runs in the user's own CI.** A GitHub Action or a
    script they schedule. Their compute, their secrets, their data.
-4. **Small service on the Hetzner product box.** Only when the product
-   genuinely cannot be any of the above. Keep it stateless, keep the data
-   the user's, and include the no-SLA clause in §5b. Never host a public
-   product on the agent box. Details: [`portfolio/hosting/README.md`](portfolio/hosting/README.md).
+4. **A small service the deployer hosts.** Only when the product genuinely
+   cannot be any of the above. We run no product servers (the Hetzner box was
+   retired on 2026-10-01), so ship it as a one-click self-deploy (below):
+   stateless, the data the user's, the no-SLA clause in §5b. Details:
+   [`portfolio/hosting/README.md`](portfolio/hosting/README.md).
 
 Rules that keep the cost floor at zero: no per-user paid API on our account, no
 per-user database we pay for, no per-user human step, no account system unless
 the product is useless without one (and if you need one, prefer "bring your own
 GitHub login" over storing credentials). Do not add Cloudflare or Vercel as
-the way a new product goes live — GitHub Pages and the existing Hetzner
-boxes are the host.
+the way a new product goes live — GitHub Pages is the host.
 
 ### Rule of thumb: anyone can deploy it themselves (owner, 2026-10-15)
 
@@ -252,8 +252,8 @@ first-run notice). Copy this, adjusting only the bracketed part:
 > working. Do not use this as a system of record. If a tool needs to
 > survive, export your inputs and run it yourself.
 
-The no-SLA paragraph is required on every hosted surface (GitHub Pages or
-Hetzner). It covers availability. It does **not** let us store personal
+The no-SLA paragraph is required on every hosted surface (GitHub Pages or a
+self-deployed copy). It covers availability. It does **not** let us store personal
 data on a box and call that fine — if anything leaves the browser, the
 privacy line in §5c has to name it.
 
@@ -491,11 +491,9 @@ Ship when every line is true:
 - [ ] CI green, merged, one ledger line in `portfolio/ledger/YYYY-MM.yaml`.
 - [ ] A stranger can reach it without cloning this repo — a public URL or an
       install command. Merged-to-`main` is not deployed. Static products go
-      to GitHub Pages; processes go to the Hetzner product box
-      ([`portfolio/hosting/`](portfolio/hosting/README.md)). If Pages is
-      still gated, the next session prepares that deploy and points at
-      `deploy-settings`; it does not start a sibling product and does not
-      add Cloudflare or Vercel.
+      to GitHub Pages; processes ship as a self-deploy the user runs
+      ([`portfolio/hosting/`](portfolio/hosting/README.md)). Do not add
+      Cloudflare or Vercel.
 
 ## 8. After it ships
 

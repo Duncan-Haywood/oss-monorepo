@@ -629,7 +629,7 @@ Actions secrets. They cannot mint servers or raise an OpenAI hard limit.
   `.github/workflows/agent-cross-review.yml` /
   `agent-pr-auto-merge.yml` to `main` — four reviewer GitHub-App
   identities (GH, Kilo, Cursor, Claude) that review each other's PRs and
-  squash-merge an internal (non-`ventures/*`) PR once two approve and CI
+  squash-merge a same-repo PR once two approve and CI
   is green. It ships fail-closed: every review job checks its own
   `AGENT_REVIEWER_*_APP_ID`/`_PRIVATE_KEY` secrets first and skips in a
   few seconds when they are unset, so today it runs, does nothing, and

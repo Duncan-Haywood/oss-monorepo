@@ -54,8 +54,7 @@ it.
 
 ## Deviations: how judgment improves the defaults
 
-When you depart from an instruction, add an entry to `deviations` in your run
-record:
+When you depart from an instruction, add an entry to `deviations`:
 
 ```json
 {"file": "CLAUDE.md", "instruction": "run the full starvation checklist",
@@ -75,38 +74,47 @@ Use both.
 ## Writing an instruction
 
 - **Give the goal and the reason first, and the procedure last, if at all.**
-  "Venture pages must survive the front-door mirror, because the apex serves
-  the mirror; `regen.mjs --verify` tells you" leaves room to think. A
-  twelve-step ritual does not.
+  A twelve-step ritual leaves no room to think.
 - **Prefer a check to a sentence.** If the same mistake happens twice, a
   command that fails beats a paragraph asking people to be careful. Once the
   check exists, the paragraph shrinks to one line naming it.
-- **Keep the history out of the instructions.** The dated story of why a rule
-  exists goes in a history file or the commit message. The instruction keeps
-  one line of why and a link. Every run pays to read always-loaded files, and
-  `measure` reports the cost against a budget (`INSTRUCTION_BUDGET` in
-  `promptctl.py`).
+- **History is for study, not for steering.** The dated story of a rule goes
+  in the commit, `docs/history/` or a post; the instruction keeps one line of
+  why. `measure` reports always-read size against `INSTRUCTION_BUDGET`.
 - **Say how sure you are.** "Measured on N runs", "one incident" and "a
   guess" are different, and a reader should be able to tell which one they are
   looking at.
-- **Rules can retire.** A rule whose failure has not recurred since a check
-  replaced it, or that deviations keep routing around, is a candidate for
-  deletion. Deleting a stale rule is an improvement and needs no apology.
+
+## Cut the deadweight
+
+The owner, 2026-10-20: "cut the deadweight in rules and processes ... respect
+the competence of the ai agent engineer." Rules here are written one incident
+at a time and almost never removed, so they pile up. The counterweight:
+
+- **Trust by default.** Reversible work inside the hard limits is the agent's
+  call. Amazon's "two-way door" test fits: a decision you can undo cheaply
+  needs no rule (Bezos, 2015 shareholder letter). Rules belong at the one-way
+  doors, which are the hard limits.
+- **A rule must pull its weight** (*Software Engineering at Google*, ch. 8):
+  it stays only if it changes what runs do, and it costs every run that reads
+  it. A gate that blocks the work it exists to protect is deadweight.
+- **Know the fence before you pull it** (Chesterton): read why a rule exists
+  (`git log -S`, `docs/history/`), then delete it if the reason is gone.
+  Deleting a stale rule is an improvement and needs no apology.
+- **Review it regularly, and look outward.** Every review run cuts at least
+  one rule or check that no longer earns its place, and names one lesson from
+  how other organisations run at this throughput. Write the findings up as a
+  report or post (`docs/reports/`, `docs/posts/`).
 
 ## The improvement loop
 
-```
-runs ──records (friction, deviations, errors)──▶ measure
-  ▲                                                │
-  │                                                ▼
-defaults ◀──solve── backlog ◀──critique── process / review tracks
-```
+Runs record friction and deviations; `measure` aggregates them; the process
+and review tracks turn them into backlog items and better defaults.
 
 - **Critique**: process studies and reviews find problems in how work gets
   done. Each problem worth fixing becomes an item in
   [`process/backlog/`](process/backlog/README.md), not a paragraph in a
-  report that nobody rereads. Before 2026-10-15, two studies made 11
-  recommendations in a single day and adopted none.
+  report that nobody rereads.
 - **Solve**: process runs take the top open item and ship it. Any other run
   with spare scope may do the same.
 - **Verify**: a closed item names its metric and baseline, and a later run

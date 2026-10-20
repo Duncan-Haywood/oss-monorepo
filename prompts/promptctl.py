@@ -107,8 +107,8 @@ INSTRUCTION_FILES = (
 INSTRUCTION_BUDGET = {
     "prompt.md": 100,
     "prompts/steering.md": 120,
-    "CLAUDE.md": 500,
-    "AGENTS.md": 250,
+    "CLAUDE.md": 200,
+    "AGENTS.md": 200,
     ".github/prompts/land-your-work.md": 160,
 }
 SUBPROMPT_BUDGET = 130
