@@ -150,7 +150,8 @@ Done (2026-10-20). The "Train the models yourself" panel works as follows:
 Next:
 
 1. Time a run on real phones and report it. Only headless Chromium on a cloud machine has been
-   timed so far.
+   timed so far. Parallel folds (done 2026-10-20) took a full run from 45.5 s on one thread to
+   18.8 s on three, on 4 cores.
 2. Add a both-sexes extract, which would retrain `models_both_sexes`, and other lenses whose
    terms allow person-level rows: SIPP, ACS and Statistics Canada PUMFs. Check each licence
    first.

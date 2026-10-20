@@ -151,3 +151,12 @@ test("the CII example is readable by the browser tool", async () => {
   assert.deepEqual(checkInvoice(invoice), []);
   assert.deepEqual(checkInvoice(await parseInvoiceSource("cii-invoice.xml", xml)), []);
 });
+
+test("the XRechnung CII example is readable, internally consistent and passes the built-in rules", async () => {
+  const xml = example("xrechnung-cii-invoice.xml");
+  assert.equal(looksLikeXml("xrechnung-cii-invoice.xml", xml), true);
+  const invoice = parseCiiInvoice(xml);
+  assert.equal(invoice.invoice_number, "RE-2026-0107");
+  assert.deepEqual(checkInvoice(invoice), []);
+  assert.deepEqual(checkInvoice(await parseInvoiceSource("xrechnung-cii-invoice.xml", xml)), []);
+});
