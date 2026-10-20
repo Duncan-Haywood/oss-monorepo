@@ -28,10 +28,13 @@ flagships:
       BIS 3 (UBL and CII) add-ons run in Saxon-JS (opt-in, ?schematron=1, picked by
       BT-24); the Docker image bakes them in; all 342 rule ids have an English
       fix; and the web page has an "official Schematron" box that posts XML to
-      the self-hosted API and lists the findings (official.mjs). Next: a
-      WASM/in-browser path so the static Pages copy can run it too without a
-      server, then examples that exercise the Peppol credit-note and XRechnung
-      CII paths.
+      the self-hosted API and lists the findings (official.mjs). The Peppol
+      credit-note and XRechnung CII examples now pass the official rules in
+      tests, and the 30 DE-R rules Peppol applies to German invoices have
+      English fixes. Next: a WASM/in-browser path so the static Pages copy can
+      run it too without a server (Saxon-JS in the page, SEF files built in CI
+      and served as static assets), then CreditNote and CII credit-note
+      defect examples.
   - venture: shift-roster-builder
     why: >-
       Simulated-annealing scheduler over a dollar cost (availability, rest,
