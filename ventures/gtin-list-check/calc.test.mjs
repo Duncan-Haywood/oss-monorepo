@@ -159,3 +159,14 @@ test("classify cleans invisible, full-width and labelled cells, and only when th
   assert.equal(classify("UPC: 036000291453").kind, "bad");
   assert.equal(classify("ABC123").kind, "bad");
 });
+
+test("a GTIN-14 case code is linked to the item code it wraps when both are listed", () => {
+  const inner = "4006381333931";
+  const pack = "1" + inner.slice(0, 12) + computeCheck("1" + inner.slice(0, 12));
+  const r = validate(`sku,gtin\nA,${inner}\nB,${pack}\n`);
+  const f = r.findings.find((x) => x.title === "Case-pack code of another row");
+  assert.ok(f && f.line === 3 && f.severity === "info" && f.detail.includes("line 2"), JSON.stringify(r.findings));
+  assert.ok(checkDigitOk(pack));
+  const alone = validate(`sku,gtin\nB,${pack}\n`);
+  assert.ok(!alone.findings.some((x) => x.title === "Case-pack code of another row"));
+});

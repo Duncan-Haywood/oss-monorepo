@@ -211,6 +211,16 @@ export function validate(text, options = {}) {
     else if (c.why === "too long") add("error", r.line, "Too many digits", c.detail);
     else add("error", r.line, `Not a barcode: ${c.why}`, c.detail || `"${String(raw).slice(0, 40)}"`);
   }
+  // A GTIN-14 with a non-zero indicator digit is a case or inner pack of the GTIN-13 made from its middle 12 digits.
+  // When that item code is also in the list, say so: marketplaces treat the pack code as a different product.
+  const lineOf = new Map(items.filter((i) => i.result.kind === "ok").map((i) => [i.result.value.padStart(14, "0"), i.line]));
+  for (const it of items) {
+    const v = it.result.kind === "ok" ? it.result.value : "";
+    if (v.length !== 14 || v[0] === "0") continue;
+    const inner = "0" + v.slice(1, 13) + computeCheck(v.slice(1, 13));
+    const at = lineOf.get(inner);
+    if (at !== undefined) add("info", it.line, "Case-pack code of another row", `${v} has indicator digit ${v[0]} and wraps the item code ${inner.slice(1)} on line ${at}. If this row is the single sellable item, use the item code; a pack code is a different product to most marketplaces.`);
+  }
   if (blanks) add("warning", 0, `${blanks} blank code${blanks === 1 ? "" : "s"}`, "Rows with an empty barcode cell; some marketplaces need a GTIN or an explicit exemption.");
   if (lengths.size > 1) add("info", 0, "Mixed code lengths", [...lengths.entries()].sort((a, b) => a[0] - b[0]).map(([n, k]) => `${k} × ${n}-digit`).join(", ") + ". Mixing is legal; some importers want one length, and 12-digit UPC-A can be written as 13-digit EAN-13 with a leading 0.");
   const total = body.length - blanks;
