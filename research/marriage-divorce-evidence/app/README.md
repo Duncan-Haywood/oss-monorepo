@@ -398,6 +398,42 @@ Data files: `data/literature_evidence.json` (the 10 records the layer can read, 
 `tests/literature.test.mjs` (the adjustment) and `tests/literature_ui.test.mjs` (fragment
 round-trip and validation, lens-modelled factors never asked, NCHS matching and "*" cells).
 
+## Before the wedding: the harmonized pre-wedding lens (`models/prewedding_harmonized.json`)
+
+The model behind the question "how likely is this marriage to end, judged only from facts
+knowable on the wedding day?". `tools/export_prewedding.py` fits the additive spline Poisson
+model on the harmonized pre-wedding features of 43,336 NSFG 1995–2023 first marriages (see
+`../reproducibility/prewedding/README.md`). Its inputs are both partners' ages at the
+wedding and the age gap, wedding year, whether the other partner was married before, children
+before the wedding, living together first, race/ethnicity, intact family and religion raised,
+all from the scored partner's point of view. Score both partners and average them. The
+bundle is 26 KB.
+
+| Tested on | C | AUC 10y | Observed / expected 10y |
+| --- | --- | --- | --- |
+| NSFG, held out by person | 0.661 | 0.656 | 1.03 |
+| NLSY97 (born 1980–84) | 0.647 | 0.643 | 0.99 |
+| NLSY79 (born 1957–64) | 0.621 | 0.659 | 1.07 |
+| SIPP 2001–2025 | 0.626 | 0.656 | 0.85 |
+| Statistics Canada GSS | 0.611 | 0.622 | 0.58 |
+
+Design choices the engine reproduces exactly (`tests/prewedding.test.mjs`, 60 of 60 rows to
+10<sup>-9</sup>, explanations to 10<sup>-12</sup>, out-of-distribution distances to
+10<sup>-9</sup>):
+
+- An Unknown answer takes the training mode (`categorical.impute`) and a missing number the
+  training median. No input has an Unknown level, because in these surveys whether a spouse
+  trait is known can depend on how the marriage went.
+- Splines are constant beyond the training range (`extrapolation: 'constant'`), so a
+  wedding year after 2021 is held at the edge rather than extrapolated. Extrapolating
+  wedding year cost one model 31–38% of its skill on other cohorts.
+- `ood` gives a percentile among held-out NSFG marriages, `population_reference` gives
+  cross-fitted 5/10/20-year dissolution quantiles (median 28% by year 10), and `external`
+  gives the four rows above. The predicted level is U.S. survey-specific: in Canada,
+  observed divorce is about 0.58 times the prediction.
+
+Workstream C can make it the default lens: it has no form adapter yet.
+
 ## Run and test
 
 ```sh
