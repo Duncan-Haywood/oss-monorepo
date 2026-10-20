@@ -1,0 +1,50 @@
+{
+  "date": "2026-10-20",
+  "session": "https://claude.ai/code/session_0166JVq6qYXaUgkWYz1nJTJ4",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-20T13:42:34Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/8833",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "pkill -f with the script name killed my own shell; pip numpy mixed with apt numpy broke python3 (used pyenv.py -> python3.13)"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "apt-get install yosys iverilog fails without apt-get update first; the doc omits it"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/PROJECTS.md",
+      "why": "track 7 chain is micro-variants; took the harness's own listed next step (shared netlist) as a tool improvement instead"
+    }
+  ],
+  "goal": null,
+  "notes": "eda-harness reuse_netlist: 0 metric diffs over 40 designs, wall 561.4s -> 280.0s (single timing runs). Tests 4 OK, build.py ok, md links ok. Downloaded the unvetted pip 'openroad' wheel to look, never installed/ran it, deleted.",
+  "corrections": [],
+  "redteam": null
+}
