@@ -1,6 +1,7 @@
 // UI for the couple divorce-odds calculator. All computation is local (couple.js, engine.js).
 import { renderPopulation, renderJustMe, renderCandidates, renderDashboard, initCandidates, initBatch, initDashboard, readHashExtras, hashExtras, currentView, setView, syncConstraintControls } from './compare-ui.js';
 import { populationComparison } from './population.js';
+import { encodeLiterature, decodeLiterature, renderLiteratureQuestions, readLiteratureInputs, renderLiteratureResult, renderNchs } from './literature-ui.js';
 import { SCHOOL, DEGREE, WORK, RELIGION, RACE_ETH, refusals, lensNotes, adapterFor, scoringModels, isBaseline, excludeReason, project, lifelong, constantSurvival, explain, groupedTerms, selfChanges, coupleChanges, idealPartners, lensSummary, lensView, shareOod, encodeScenario, decodeScenario } from './couple.js';
 
 const $ = (s) => document.querySelector(s);
@@ -55,6 +56,9 @@ let bundle;
 let state;
 let lenses = []; // [{ entry, bundle, summary }]
 let mortality = null; // UN WPP 2024 U.S. death rates (data/us_mortality_wpp2024.json)
+let evidence = null; // verified published hazard ratios (data/literature_evidence.json)
+let nchs = null; // CDC/NCHS disruption life tables (data/nchs_disruption_tables.json)
+let litAnswers = {}; // answers to the literature questions, mirrored in the # fragment
 
 const fmtN = (x) => (Number.isFinite(x) ? Math.round(x).toLocaleString('en-US') : '—');
 
@@ -79,7 +83,7 @@ function applyFields(fields) {
 }
 
 function saveHash() {
-  const extra = hashExtras();
+  const extra = [hashExtras(), encodeLiterature(litAnswers)].filter(Boolean).join('&');
   const base = encodeScenario(formFields());
   const h = extra ? (base === '#' ? '#' + extra : base + '&' + extra) : base;
   if (h !== location.hash) history.replaceState(null, '', h === '#' ? location.pathname + location.search : h);
@@ -155,12 +159,21 @@ function render() {
   renderTiles(years, couple);
   renderPopulation($('#popPanel'), bundle, a, b, couple);
   renderLifelong(a, b, couple, horizon);
+  renderNchs($('#nchsPanel'), nchs, { a, b, couple, years, lensLabel: cur.summary.label });
+  renderLiterature(cur, a, b, couple, years);
   renderChart(years, couple);
   renderYearTable(years);
   renderModels(years);
   renderExplain();
   renderChanges(a, b, couple);
   renderCompare(a, b, couple);
+}
+
+// The published-evidence layer: questions for factors this lens does not model, and the
+// adjusted curve. Labelled literature-based; it never replaces the lens's own estimate.
+function renderLiterature(cur, a, b, couple, years) {
+  renderLiteratureQuestions($('#literature'), cur.summary.id, evidence, litAnswers);
+  renderLiteratureResult($('#litOut'), { lens: cur.summary.id, evidence, litAnswers, a, b, years, yearsMarried: couple.yearsMarried });
 }
 
 // Each lens's own 10-year estimate for this couple, or why it gives none. Never pooled.
@@ -386,12 +399,14 @@ async function loadLenses() {
 async function main() {
   $('fieldset[data-who="a"]').insertAdjacentHTML('beforeend', personFields('a'));
   $('fieldset[data-who="b"]').insertAdjacentHTML('beforeend', personFields('b'));
-  [lenses, mortality] = await Promise.all([loadLenses(), fetch('data/us_mortality_wpp2024.json').then((r) => r.json()).catch(() => null)]);
+  const json = (f) => fetch(f).then((r) => (r.ok ? r.json() : null)).catch(() => null);
+  [lenses, mortality, evidence, nchs] = await Promise.all([loadLenses(), json('data/us_mortality_wpp2024.json'), json('data/literature_evidence.json'), json('data/nchs_disruption_tables.json')]);
   shareOod(lenses.map((l) => l.bundle));
   const scorableFirst = lenses.slice().sort((x, y) => Number(y.summary.scorable) - Number(x.summary.scorable));
   $('#lensSel').innerHTML = scorableFirst.map((l) => `<option value="${esc(l.summary.id)}">${esc(l.summary.label)}${l.summary.scorable ? '' : ' (listed only)'}</option>`).join('');
   const fromHash = decodeScenario(location.hash);
   readHashExtras(location.hash);
+  litAnswers = decodeLiterature(location.hash);
   applyFields(fromHash);
   if (fromHash.lens && lenses.some((l) => l.summary.id === fromHash.lens)) $('#lensSel').value = fromHash.lens;
   $('#form').addEventListener('input', render);
@@ -402,6 +417,11 @@ async function main() {
     if (id) { $('#lensSel').value = id; render(); $('#lensSel').focus(); }
   });
   $('#explainModel').addEventListener('change', renderExplain);
+  $('#literature').addEventListener('change', (ev) => {
+    if (!ev.target.matches('[data-lit]')) return;
+    litAnswers = readLiteratureInputs($('#literature'));
+    render();
+  });
   // Views (tabs): click, or arrow keys between tabs.
   const tabs = [...document.querySelectorAll('[role="tab"]')];
   for (const t of tabs) {
@@ -425,7 +445,7 @@ async function main() {
     try { await navigator.clipboard.writeText(location.href); ok = true; } catch { /* clipboard blocked */ }
     $('#shareStatus').textContent = ok ? 'Link copied.' : 'Copy the address bar to share this scenario.';
   });
-  window.addEventListener('hashchange', () => { readHashExtras(location.hash); syncConstraintControls(); applyFields(decodeScenario(location.hash)); render(); });
+  window.addEventListener('hashchange', () => { readHashExtras(location.hash); litAnswers = decodeLiterature(location.hash); syncConstraintControls(); applyFields(decodeScenario(location.hash)); render(); });
   render();
 }
 main();

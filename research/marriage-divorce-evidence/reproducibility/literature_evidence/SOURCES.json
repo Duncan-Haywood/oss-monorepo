@@ -1,0 +1,713 @@
+{
+ "about": "Where each evidence record's quote is checked. Source texts are not committed (copyright); rebuild them into source_cache/ with the `how` line, then run scripts/verify_quotes.py. cache_files are tried in order; a quote passes if it is found in any of them.",
+ "sources": {
+  "pdf_sr23_022": {
+   "title": "Bramlett & Mosher (2002), Vital Health Stat 23(22)",
+   "url": "https://www.cdc.gov/nchs/data/series/sr_23/sr23_022.pdf",
+   "kind": "pdf",
+   "pdf_sha256": "24ffa48c4f205b16e9be50e17b4213a3097e6157cead354999323b02137a4ecf",
+   "license": "public domain (U.S. federal government work)",
+   "cache_files": [
+    "pdf_sr23_022.layout.txt",
+    "pdf_sr23_022.raw.txt"
+   ],
+   "how": "curl the URL (re-downloaded 2026-10-20: byte-identical to the first-pass copy, except roberts2007 which has no recorded URL), then `pdftotext -layout X.pdf pdf_sr23_022.layout.txt` and `pdftotext X.pdf pdf_sr23_022.raw.txt` (poppler)."
+  },
+  "pdf_nhsr049": {
+   "title": "Copen, Daniels, Vespa & Mosher (2012), NHSR 49",
+   "url": "https://www.cdc.gov/nchs/data/nhsr/nhsr049.pdf",
+   "kind": "pdf",
+   "pdf_sha256": "5b424c20b90c01c00323ad45814fbd4bcf96efc1115bce8563a497248435280b",
+   "license": "public domain (U.S. federal government work)",
+   "cache_files": [
+    "pdf_nhsr049.layout.txt",
+    "pdf_nhsr049.raw.txt"
+   ],
+   "how": "curl the URL (re-downloaded 2026-10-20: byte-identical to the first-pass copy, except roberts2007 which has no recorded URL), then `pdftotext -layout X.pdf pdf_nhsr049.layout.txt` and `pdftotext X.pdf pdf_nhsr049.raw.txt` (poppler)."
+  },
+  "pdf_15-20": {
+   "title": "Martin (2006), Demographic Research 15(20)",
+   "url": "https://www.demographic-research.org/volumes/vol15/20/15-20.pdf",
+   "kind": "pdf",
+   "pdf_sha256": "d40d907a321012e331daf3292a0dfee84e19554b8ca2b994f698890fa7b8b958",
+   "license": "open access (Demographic Research; CC BY-NC 2.0 DE)",
+   "cache_files": [
+    "pdf_15-20.layout.txt",
+    "pdf_15-20.raw.txt"
+   ],
+   "how": "curl the URL (re-downloaded 2026-10-20: byte-identical to the first-pass copy, except roberts2007 which has no recorded URL), then `pdftotext -layout X.pdf pdf_15-20.layout.txt` and `pdftotext X.pdf pdf_15-20.raw.txt` (poppler)."
+  },
+  "pdf_8-8": {
+   "title": "Raley & Bumpass (2003), Demographic Research 8(8)",
+   "url": "https://www.demographic-research.org/volumes/vol8/8/8-8.pdf",
+   "kind": "pdf",
+   "pdf_sha256": "e573d999be943d6ae1af2e94280d6bacc2a175fa4f912689dc7ff337c32322b5",
+   "license": "open access (Demographic Research)",
+   "cache_files": [
+    "pdf_8-8.layout.txt",
+    "pdf_8-8.raw.txt"
+   ],
+   "how": "curl the URL (re-downloaded 2026-10-20: byte-identical to the first-pass copy, except roberts2007 which has no recorded URL), then `pdftotext -layout X.pdf pdf_8-8.layout.txt` and `pdftotext X.pdf pdf_8-8.raw.txt` (poppler)."
+  },
+  "pdf_bk2008": {
+   "title": "Bratter & King (2008), Family Relations 57(2)",
+   "url": "https://www.healthymarriageinfo.org/wp-content/uploads/2017/12/But-Will-It-Last--Marital.pdf",
+   "kind": "pdf",
+   "pdf_sha256": "7975830e914bcea128dbdc54ff053bff1daca2c7db114244841adb9af6737c5f",
+   "license": "copyright NCFR; hosted copy; short quotes only",
+   "cache_files": [
+    "pdf_bk2008.layout.txt",
+    "pdf_bk2008.raw.txt"
+   ],
+   "how": "curl the URL (re-downloaded 2026-10-20: byte-identical to the first-pass copy, except roberts2007 which has no recorded URL), then `pdftotext -layout X.pdf pdf_bk2008.layout.txt` and `pdftotext X.pdf pdf_bk2008.raw.txt` (poppler)."
+  },
+  "pdf_fowers1986": {
+   "title": "Fowers & Olson (1986), J Marital Fam Ther 12(4)",
+   "url": "https://www.prepare-enrich.com/wp-content/uploads/2020/12/Fowers-Olson-1986-Predicting-Marital-Success-With-PREPARE.pdf",
+   "kind": "pdf",
+   "pdf_sha256": "76fa0563125a8f9538632632ea0fab5ec34281afd07abee1cf75453915839833",
+   "license": "copyright; hosted by an interested party (PREPARE/ENRICH); short quotes only",
+   "cache_files": [
+    "pdf_fowers1986.layout.txt",
+    "pdf_fowers1986.raw.txt"
+   ],
+   "how": "curl the URL (re-downloaded 2026-10-20: byte-identical to the first-pass copy, except roberts2007 which has no recorded URL), then `pdftotext -layout X.pdf pdf_fowers1986.layout.txt` and `pdftotext X.pdf pdf_fowers1986.raw.txt` (poppler)."
+  },
+  "pdf_ftm": {
+   "title": "Francis-Tan & Mialon (2015), Economic Inquiry 53(4)",
+   "url": "https://www.csus.edu/faculty/m/fred.molitor/docs/wedding%20expenses%20and%20marriage%20duration1.pdf",
+   "kind": "pdf",
+   "pdf_sha256": "5cfcb19a67b30950c4fb80f8794a2f038a4098974e21730313f9d150c55388d4",
+   "license": "copyright; course-hosted copy; short quotes only",
+   "cache_files": [
+    "pdf_ftm.layout.txt",
+    "pdf_ftm.raw.txt"
+   ],
+   "how": "curl the URL (re-downloaded 2026-10-20: byte-identical to the first-pass copy, except roberts2007 which has no recorded URL), then `pdftotext -layout X.pdf pdf_ftm.layout.txt` and `pdftotext X.pdf pdf_ftm.raw.txt` (poppler)."
+  },
+  "pdf_killewald": {
+   "title": "Killewald (2016), American Sociological Review 81(4)",
+   "url": "https://www.asanet.org/wp-content/uploads/attach/journals/aug16asrfeature.pdf",
+   "kind": "pdf",
+   "pdf_sha256": "04905cdbecb084196e4a9fb570b7006c093e9efed72c81b71abfae3221ce528c",
+   "license": "copyright ASA; publisher-hosted; short quotes only",
+   "cache_files": [
+    "pdf_killewald.layout.txt",
+    "pdf_killewald.raw.txt"
+   ],
+   "how": "curl the URL (re-downloaded 2026-10-20: byte-identical to the first-pass copy, except roberts2007 which has no recorded URL), then `pdftotext -layout X.pdf pdf_killewald.layout.txt` and `pdftotext X.pdf pdf_killewald.raw.txt` (poppler)."
+  },
+  "pdf_rebound": {
+   "title": "Gottman & Levenson (1999), Family Process 38(2)",
+   "url": "https://bpl.studentorg.berkeley.edu/docs/99-%20Rebound%20from%20marital%20conflict%20and%20divorce%20prediction.pdf",
+   "kind": "pdf",
+   "pdf_sha256": "9add321057205dfeaf910717fe06ead96101b31a87d0cdcb1775a91a35924fbf",
+   "license": "copyright; lab-hosted copy; short quotes only",
+   "cache_files": [
+    "pdf_rebound.layout.txt",
+    "pdf_rebound.raw.txt"
+   ],
+   "how": "curl the URL (re-downloaded 2026-10-20: byte-identical to the first-pass copy, except roberts2007 which has no recorded URL), then `pdftotext -layout X.pdf pdf_rebound.layout.txt` and `pdftotext X.pdf pdf_rebound.raw.txt` (poppler)."
+  },
+  "pdf_rr2019": {
+   "title": "Rosenfeld & Roesler (2019), J Marriage Fam 81(1) — author manuscript",
+   "url": "https://web.stanford.edu/~mrosenfe/Rosenfeld_and_Roesler_Cohabitation_Experience_NSFG.pdf",
+   "kind": "pdf",
+   "pdf_sha256": "650879d4dac67927e4a08544e2006d1a6b3817c0c4ecabbcc50a22ca09cab042",
+   "license": "author-posted manuscript; short quotes only",
+   "cache_files": [
+    "pdf_rr2019.layout.txt",
+    "pdf_rr2019.raw.txt"
+   ],
+   "how": "curl the URL (re-downloaded 2026-10-20: byte-identical to the first-pass copy, except roberts2007 which has no recorded URL), then `pdftotext -layout X.pdf pdf_rr2019.layout.txt` and `pdftotext X.pdf pdf_rr2019.raw.txt` (poppler)."
+  },
+  "pdf_roberts2007": {
+   "title": "Roberts, Kuncel, Shiner, Caspi & Goldberg (2007), Perspect Psychol Sci 2(4) — publisher PDF",
+   "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4499872/",
+   "kind": "pdf",
+   "pdf_sha256": "61cd5cf75d3d98a45a9a0256d228c21847086c7c567f22658a41d876eb9dae63",
+   "license": "copyright; publisher PDF (DOI in PDF metadata); retrieval URL of the PDF was not recorded by the first pass; short quotes only",
+   "cache_files": [
+    "pdf_roberts2007.layout.txt",
+    "pdf_roberts2007.raw.txt"
+   ],
+   "how": "curl the URL (re-downloaded 2026-10-20: byte-identical to the first-pass copy, except roberts2007 which has no recorded URL), then `pdftotext -layout X.pdf pdf_roberts2007.layout.txt` and `pdftotext X.pdf pdf_roberts2007.raw.txt` (poppler). The PDF font maps the minus sign to U+0001 and \"=\" to \"5\"; glyph_fixes undo exactly those two substitutions before matching.",
+   "glyph_fixes": [
+    [
+     "\u0001",
+     "-"
+    ],
+    [
+     "CIs 5 ",
+     "CIs = "
+    ]
+   ]
+  },
+  "web_gottman_faq": {
+   "title": "Gottman Institute, Research FAQ",
+   "url": "https://www.gottman.com/about/research/faq/",
+   "kind": "web page",
+   "cache_files": [
+    "web_gottman_faq.txt"
+   ],
+   "license": "copyright; short quotes only",
+   "how": "curl -L the URL, strip scripts/styles/navigation and tags (scripts/fetch_sources.py html2text). Re-fetched 2026-10-20 and compared."
+  },
+  "web_gottman_ohi": {
+   "title": "Gottman Institute blog, \"The Research: Predicting Divorce from an Oral History Interview\"",
+   "url": "https://www.gottman.com/blog/the-research-predicting-divorce-from-an-oral-history-interview/",
+   "kind": "web page",
+   "cache_files": [
+    "web_gottman_ohi.txt"
+   ],
+   "license": "copyright; short quotes only",
+   "how": "curl -L the URL, strip scripts/styles/navigation and tags (scripts/fetch_sources.py html2text). Re-fetched 2026-10-20 and compared."
+  },
+  "web_ifs_age": {
+   "title": "Wolfinger (2015), IFS blog \"Want to Avoid Divorce? Wait to Get Married, But Not Too Long\"",
+   "url": "https://ifstudies.org/blog/want-to-avoid-divorce-wait-to-get-married-but-not-too-long",
+   "kind": "web page",
+   "cache_files": [
+    "web_ifs_age.txt"
+   ],
+   "license": "copyright; short quotes only",
+   "how": "curl -L the URL, strip scripts/styles/navigation and tags (scripts/fetch_sources.py html2text). Re-fetched 2026-10-20 and compared."
+  },
+  "web_ifs_ps": {
+   "title": "Wolfinger (2016), IFS blog \"Counterintuitive Trends in the Link Between Premarital Sex and Marital Stability\"",
+   "url": "https://ifstudies.org/blog/counterintuitive-trends-in-the-link-between-premarital-sex-and-marital-stability",
+   "kind": "web page",
+   "cache_files": [
+    "web_ifs_ps.txt"
+   ],
+   "license": "copyright; short quotes only",
+   "how": "curl -L the URL, strip scripts/styles/navigation and tags (scripts/fetch_sources.py html2text). Re-fetched 2026-10-20 and compared."
+  },
+  "web_mormonr": {
+   "title": "mormonr.org transcription of Lehrer & Chiswick (1993)",
+   "url": "https://mormonr.org/records/nqh19b-7XIPwb",
+   "kind": "web page",
+   "cache_files": [
+    "web_mormonr.txt"
+   ],
+   "license": "copyright; short quotes only",
+   "how": "curl -L the URL, strip scripts/styles/navigation and tags (scripts/fetch_sources.py html2text). Re-fetched 2026-10-20 and compared."
+  },
+  "web_uw1999": {
+   "title": "UW News (1999-09-27), first three minutes of conflict predictive of divorce",
+   "url": "https://washington.edu/news/1999/09/27/first-three-minutes-of-discussion-about-on-going-area-of-marital-conflict-are-predictive-of-divorce-for-newlyweds",
+   "kind": "web page",
+   "cache_files": [
+    "web_uw1999.txt"
+   ],
+   "license": "copyright; short quotes only",
+   "how": "curl -L the URL, strip scripts/styles/navigation and tags (scripts/fetch_sources.py html2text). Re-fetched 2026-10-20 and compared."
+  },
+  "web_uw2000": {
+   "title": "UW News (2000-03-27), newlywed divorce prediction with 87 percent accuracy",
+   "url": "https://www.washington.edu/news/2000/03/27/uw-researchers-can-predict-newlywed-divorce-marital-stability-with-87-percent-accuracy/",
+   "kind": "web page",
+   "cache_files": [
+    "web_uw2000.txt"
+   ],
+   "license": "copyright; short quotes only",
+   "how": "curl -L the URL, strip scripts/styles/navigation and tags (scripts/fetch_sources.py html2text). Re-fetched 2026-10-20 and compared."
+  },
+  "web_chinadaily_404": {
+   "title": "China Daily report on Cacioppo et al. (2013)",
+   "url": "https://language.chinadaily.com.cn/2013-06/05/content_16568963.htm",
+   "kind": "web page",
+   "cache_files": [],
+   "note": "HTTP 404 on 2026-10-20; nothing can be verified from it"
+  },
+  "pmc_PMC1622921": {
+   "title": "PubMed Central PMC1622921 (NCBI E-utilities efetch XML; paragraphs and table rows, cells joined by \" | \")",
+   "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1622921/",
+   "kind": "PMC record (abstract only: publisher does not allow full-text XML)",
+   "cache_files": [
+    "pmc_PMC1622921.txt"
+   ],
+   "license": "copyright (PMC author manuscript / OA); short quotes only",
+   "how": "python3 scripts/fetch_sources.py pmc PMC1622921"
+  },
+  "pmc_PMC1828692": {
+   "title": "PubMed Central PMC1828692 (NCBI E-utilities efetch XML; paragraphs and table rows, cells joined by \" | \")",
+   "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1828692/",
+   "kind": "PMC record (abstract only: publisher does not allow full-text XML)",
+   "cache_files": [
+    "pmc_PMC1828692.txt"
+   ],
+   "license": "copyright (PMC author manuscript / OA); short quotes only",
+   "how": "python3 scripts/fetch_sources.py pmc PMC1828692"
+  },
+  "pmc_PMC3487709": {
+   "title": "PubMed Central PMC3487709 (NCBI E-utilities efetch XML; paragraphs and table rows, cells joined by \" | \")",
+   "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3487709/",
+   "kind": "PMC full text (XML)",
+   "cache_files": [
+    "pmc_PMC3487709.txt"
+   ],
+   "license": "copyright (PMC author manuscript / OA); short quotes only",
+   "how": "python3 scripts/fetch_sources.py pmc PMC3487709"
+  },
+  "pmc_PMC3525794": {
+   "title": "PubMed Central PMC3525794 (NCBI E-utilities efetch XML; paragraphs and table rows, cells joined by \" | \")",
+   "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3525794/",
+   "kind": "PMC full text (XML)",
+   "cache_files": [
+    "pmc_PMC3525794.txt"
+   ],
+   "license": "copyright (PMC author manuscript / OA); short quotes only",
+   "how": "python3 scripts/fetch_sources.py pmc PMC3525794"
+  },
+  "pmc_PMC3690854": {
+   "title": "PubMed Central PMC3690854 (NCBI E-utilities efetch XML; paragraphs and table rows, cells joined by \" | \")",
+   "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3690854/",
+   "kind": "PMC record (abstract only: publisher does not allow full-text XML)",
+   "cache_files": [
+    "pmc_PMC3690854.txt"
+   ],
+   "license": "copyright (PMC author manuscript / OA); short quotes only",
+   "how": "python3 scripts/fetch_sources.py pmc PMC3690854"
+  },
+  "pmc_PMC3777640": {
+   "title": "PubMed Central PMC3777640 (NCBI E-utilities efetch XML; paragraphs and table rows, cells joined by \" | \")",
+   "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3777640/",
+   "kind": "PMC full text (XML)",
+   "cache_files": [
+    "pmc_PMC3777640.txt"
+   ],
+   "license": "copyright (PMC author manuscript / OA); short quotes only",
+   "how": "python3 scripts/fetch_sources.py pmc PMC3777640"
+  },
+  "pmc_PMC3972308": {
+   "title": "PubMed Central PMC3972308 (NCBI E-utilities efetch XML; paragraphs and table rows, cells joined by \" | \")",
+   "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3972308/",
+   "kind": "PMC full text (XML)",
+   "cache_files": [
+    "pmc_PMC3972308.txt"
+   ],
+   "license": "copyright (PMC author manuscript / OA); short quotes only",
+   "how": "python3 scripts/fetch_sources.py pmc PMC3972308"
+  },
+  "pmc_PMC4011132": {
+   "title": "PubMed Central PMC4011132 (NCBI E-utilities efetch XML; paragraphs and table rows, cells joined by \" | \")",
+   "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4011132/",
+   "kind": "PMC full text (XML)",
+   "cache_files": [
+    "pmc_PMC4011132.txt"
+   ],
+   "license": "copyright (PMC author manuscript / OA); short quotes only",
+   "how": "python3 scripts/fetch_sources.py pmc PMC4011132"
+  },
+  "pmc_PMC4298140": {
+   "title": "PubMed Central PMC4298140 (NCBI E-utilities efetch XML; paragraphs and table rows, cells joined by \" | \")",
+   "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4298140/",
+   "kind": "PMC full text (XML)",
+   "cache_files": [
+    "pmc_PMC4298140.txt"
+   ],
+   "license": "copyright (PMC author manuscript / OA); short quotes only",
+   "how": "python3 scripts/fetch_sources.py pmc PMC4298140"
+  },
+  "pmc_PMC4499872": {
+   "title": "PubMed Central PMC4499872 (NCBI E-utilities efetch XML; paragraphs and table rows, cells joined by \" | \")",
+   "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4499872/",
+   "kind": "PMC record (abstract only: publisher does not allow full-text XML)",
+   "cache_files": [
+    "pmc_PMC4499872.txt"
+   ],
+   "license": "copyright (PMC author manuscript / OA); short quotes only",
+   "how": "python3 scripts/fetch_sources.py pmc PMC4499872"
+  },
+  "pmc_PMC5644348": {
+   "title": "PubMed Central PMC5644348 (NCBI E-utilities efetch XML; paragraphs and table rows, cells joined by \" | \")",
+   "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5644348/",
+   "kind": "PMC full text (XML)",
+   "cache_files": [
+    "pmc_PMC5644348.txt"
+   ],
+   "license": "copyright (PMC author manuscript / OA); short quotes only",
+   "how": "python3 scripts/fetch_sources.py pmc PMC5644348"
+  },
+  "pmc_PMC5854499": {
+   "title": "PubMed Central PMC5854499 (NCBI E-utilities efetch XML; paragraphs and table rows, cells joined by \" | \")",
+   "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5854499/",
+   "kind": "PMC record (abstract only: publisher does not allow full-text XML)",
+   "cache_files": [
+    "pmc_PMC5854499.txt"
+   ],
+   "license": "copyright (PMC author manuscript / OA); short quotes only",
+   "how": "python3 scripts/fetch_sources.py pmc PMC5854499"
+  },
+  "pmc_PMC5956907": {
+   "title": "PubMed Central PMC5956907 (NCBI E-utilities efetch XML; paragraphs and table rows, cells joined by \" | \")",
+   "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5956907/",
+   "kind": "PMC full text (XML)",
+   "cache_files": [
+    "pmc_PMC5956907.txt"
+   ],
+   "license": "copyright (PMC author manuscript / OA); short quotes only",
+   "how": "python3 scripts/fetch_sources.py pmc PMC5956907"
+  },
+  "pmc_PMC7102923": {
+   "title": "PubMed Central PMC7102923 (NCBI E-utilities efetch XML; paragraphs and table rows, cells joined by \" | \")",
+   "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7102923/",
+   "kind": "PMC full text (XML)",
+   "cache_files": [
+    "pmc_PMC7102923.txt"
+   ],
+   "license": "copyright (PMC author manuscript / OA); short quotes only",
+   "how": "python3 scripts/fetch_sources.py pmc PMC7102923"
+  },
+  "pmc_PMC7431040": {
+   "title": "PubMed Central PMC7431040 (NCBI E-utilities efetch XML; paragraphs and table rows, cells joined by \" | \")",
+   "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7431040/",
+   "kind": "PMC record (abstract only: publisher does not allow full-text XML)",
+   "cache_files": [
+    "pmc_PMC7431040.txt"
+   ],
+   "license": "copyright (PMC author manuscript / OA); short quotes only",
+   "how": "python3 scripts/fetch_sources.py pmc PMC7431040"
+  },
+  "pmc_PMC8186435": {
+   "title": "PubMed Central PMC8186435 (NCBI E-utilities efetch XML; paragraphs and table rows, cells joined by \" | \")",
+   "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8186435/",
+   "kind": "PMC full text (XML)",
+   "cache_files": [
+    "pmc_PMC8186435.txt"
+   ],
+   "license": "copyright (PMC author manuscript / OA); short quotes only",
+   "how": "python3 scripts/fetch_sources.py pmc PMC8186435"
+  },
+  "pmc_PMC8310661": {
+   "title": "PubMed Central PMC8310661 (NCBI E-utilities efetch XML; paragraphs and table rows, cells joined by \" | \")",
+   "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8310661/",
+   "kind": "PMC full text (XML)",
+   "cache_files": [
+    "pmc_PMC8310661.txt"
+   ],
+   "license": "copyright (PMC author manuscript / OA); short quotes only",
+   "how": "python3 scripts/fetch_sources.py pmc PMC8310661"
+  },
+  "pmc_PMC8310662": {
+   "title": "PubMed Central PMC8310662 (NCBI E-utilities efetch XML; paragraphs and table rows, cells joined by \" | \")",
+   "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8310662/",
+   "kind": "PMC full text (XML)",
+   "cache_files": [
+    "pmc_PMC8310662.txt"
+   ],
+   "license": "copyright (PMC author manuscript / OA); short quotes only",
+   "how": "python3 scripts/fetch_sources.py pmc PMC8310662"
+  },
+  "pubmed_10369054": {
+   "title": "PubMed abstract PMID 10369054",
+   "url": "https://pubmed.ncbi.nlm.nih.gov/10369054/",
+   "kind": "abstract",
+   "cache_files": [
+    "pubmed_10369054.txt"
+   ],
+   "license": "abstract; short quotes only",
+   "how": "python3 scripts/fetch_sources.py pubmed 10369054"
+  },
+  "pubmed_10740681": {
+   "title": "PubMed abstract PMID 10740681",
+   "url": "https://pubmed.ncbi.nlm.nih.gov/10740681/",
+   "kind": "abstract",
+   "cache_files": [
+    "pubmed_10740681.txt"
+   ],
+   "license": "abstract; short quotes only",
+   "how": "python3 scripts/fetch_sources.py pubmed 10740681"
+  },
+  "pubmed_11924092": {
+   "title": "PubMed abstract PMID 11924092",
+   "url": "https://pubmed.ncbi.nlm.nih.gov/11924092/",
+   "kind": "abstract",
+   "cache_files": [
+    "pubmed_11924092.txt"
+   ],
+   "license": "abstract; short quotes only",
+   "how": "python3 scripts/fetch_sources.py pubmed 11924092"
+  },
+  "pubmed_1403613": {
+   "title": "PubMed abstract PMID 1403613",
+   "url": "https://pubmed.ncbi.nlm.nih.gov/1403613/",
+   "kind": "abstract",
+   "cache_files": [
+    "pubmed_1403613.txt"
+   ],
+   "license": "abstract; short quotes only",
+   "how": "python3 scripts/fetch_sources.py pubmed 1403613"
+  },
+  "pubmed_17372624": {
+   "title": "PubMed abstract PMID 17372624",
+   "url": "https://pubmed.ncbi.nlm.nih.gov/17372624/",
+   "kind": "abstract",
+   "cache_files": [
+    "pubmed_17372624.txt"
+   ],
+   "license": "abstract; short quotes only",
+   "how": "python3 scripts/fetch_sources.py pubmed 17372624"
+  },
+  "pubmed_20545402": {
+   "title": "PubMed abstract PMID 20545402",
+   "url": "https://pubmed.ncbi.nlm.nih.gov/20545402/",
+   "kind": "abstract",
+   "cache_files": [
+    "pubmed_20545402.txt"
+   ],
+   "license": "abstract; short quotes only",
+   "how": "python3 scripts/fetch_sources.py pubmed 20545402"
+  },
+  "pubmed_21553964": {
+   "title": "PubMed abstract PMID 21553964",
+   "url": "https://pubmed.ncbi.nlm.nih.gov/21553964/",
+   "kind": "abstract",
+   "cache_files": [
+    "pubmed_21553964.txt"
+   ],
+   "license": "abstract; short quotes only",
+   "how": "python3 scripts/fetch_sources.py pubmed 21553964"
+  },
+  "pubmed_23384147": {
+   "title": "PubMed abstract PMID 23384147",
+   "url": "https://pubmed.ncbi.nlm.nih.gov/23384147/",
+   "kind": "abstract",
+   "cache_files": [
+    "pubmed_23384147.txt"
+   ],
+   "license": "abstract; short quotes only",
+   "how": "python3 scripts/fetch_sources.py pubmed 23384147"
+  },
+  "pubmed_7644604": {
+   "title": "PubMed abstract PMID 7644604",
+   "url": "https://pubmed.ncbi.nlm.nih.gov/7644604/",
+   "kind": "abstract",
+   "cache_files": [
+    "pubmed_7644604.txt"
+   ],
+   "license": "abstract; short quotes only",
+   "how": "python3 scripts/fetch_sources.py pubmed 7644604"
+  },
+  "pubmed_8405605": {
+   "title": "PubMed abstract PMID 8405605",
+   "url": "https://pubmed.ncbi.nlm.nih.gov/8405605/",
+   "kind": "abstract",
+   "cache_files": [
+    "pubmed_8405605.txt"
+   ],
+   "license": "abstract; short quotes only",
+   "how": "python3 scripts/fetch_sources.py pubmed 8405605"
+  },
+  "pubmed_8450108": {
+   "title": "PubMed abstract PMID 8450108",
+   "url": "https://pubmed.ncbi.nlm.nih.gov/8450108/",
+   "kind": "abstract",
+   "cache_files": [
+    "pubmed_8450108.txt"
+   ],
+   "license": "abstract; short quotes only",
+   "how": "python3 scripts/fetch_sources.py pubmed 8450108"
+  },
+  "pubmed_8765483": {
+   "title": "PubMed abstract PMID 8765483",
+   "url": "https://pubmed.ncbi.nlm.nih.gov/8765483/",
+   "kind": "abstract",
+   "cache_files": [
+    "pubmed_8765483.txt"
+   ],
+   "license": "abstract; short quotes only",
+   "how": "python3 scripts/fetch_sources.py pubmed 8765483"
+  },
+  "doi_10_1037_0893_3200_5_3_4_295": {
+   "title": "Abstract of doi:10.1037/0893-3200.5.3-4.295 (Crossref, OpenAlex, Europe PMC REST)",
+   "url": "https://doi.org/10.1037/0893-3200.5.3-4.295",
+   "kind": "none (no abstract registered)",
+   "cache_files": [],
+   "license": "abstract; short quotes only",
+   "how": "python3 scripts/fetch_sources.py doi 10.1037/0893-3200.5.3-4.295",
+   "note": "no abstract registered at Crossref/OpenAlex/Europe PMC"
+  },
+  "doi_10_1073_pnas_1222447110": {
+   "title": "Abstract of doi:10.1073/pnas.1222447110 (Crossref, OpenAlex, Europe PMC REST)",
+   "url": "https://doi.org/10.1073/pnas.1222447110",
+   "kind": "abstract",
+   "cache_files": [
+    "doi_10_1073_pnas_1222447110.txt"
+   ],
+   "license": "abstract; short quotes only",
+   "how": "python3 scripts/fetch_sources.py doi 10.1073/pnas.1222447110"
+  },
+  "doi_10_1073_pnas_1917036117": {
+   "title": "Abstract of doi:10.1073/pnas.1917036117 (Crossref, OpenAlex, Europe PMC REST)",
+   "url": "https://doi.org/10.1073/pnas.1917036117",
+   "kind": "abstract",
+   "cache_files": [
+    "doi_10_1073_pnas_1917036117.txt"
+   ],
+   "license": "abstract; short quotes only",
+   "how": "python3 scripts/fetch_sources.py doi 10.1073/pnas.1917036117"
+  },
+  "doi_10_1111_acer_12029": {
+   "title": "Abstract of doi:10.1111/acer.12029 (Crossref, OpenAlex, Europe PMC REST)",
+   "url": "https://doi.org/10.1111/acer.12029",
+   "kind": "abstract",
+   "cache_files": [
+    "doi_10_1111_acer_12029.txt"
+   ],
+   "license": "abstract; short quotes only",
+   "how": "python3 scripts/fetch_sources.py doi 10.1111/acer.12029"
+  },
+  "doi_10_1111_j_1545_5300_1999_00293_x": {
+   "title": "Abstract of doi:10.1111/j.1545-5300.1999.00293.x (Crossref, OpenAlex, Europe PMC REST)",
+   "url": "https://doi.org/10.1111/j.1545-5300.1999.00293.x",
+   "kind": "abstract",
+   "cache_files": [
+    "doi_10_1111_j_1545_5300_1999_00293_x.txt"
+   ],
+   "license": "abstract; short quotes only",
+   "how": "python3 scripts/fetch_sources.py doi 10.1111/j.1545-5300.1999.00293.x"
+  },
+  "doi_10_1111_j_1741_3737_2000_00737_x": {
+   "title": "Abstract of doi:10.1111/j.1741-3737.2000.00737.x (Crossref, OpenAlex, Europe PMC REST)",
+   "url": "https://doi.org/10.1111/j.1741-3737.2000.00737.x",
+   "kind": "abstract",
+   "cache_files": [
+    "doi_10_1111_j_1741_3737_2000_00737_x.txt"
+   ],
+   "license": "abstract; short quotes only",
+   "how": "python3 scripts/fetch_sources.py doi 10.1111/j.1741-3737.2000.00737.x"
+  },
+  "doi_10_1111_j_1741_3737_2001_00473_x": {
+   "title": "Abstract of doi:10.1111/j.1741-3737.2001.00473.x (Crossref, OpenAlex, Europe PMC REST)",
+   "url": "https://doi.org/10.1111/j.1741-3737.2001.00473.x",
+   "kind": "abstract",
+   "cache_files": [
+    "doi_10_1111_j_1741_3737_2001_00473_x.txt"
+   ],
+   "license": "abstract; short quotes only",
+   "how": "python3 scripts/fetch_sources.py doi 10.1111/j.1741-3737.2001.00473.x"
+  },
+  "doi_10_1111_j_1741_3737_2001_01038_x": {
+   "title": "Abstract of doi:10.1111/j.1741-3737.2001.01038.x (Crossref, OpenAlex, Europe PMC REST)",
+   "url": "https://doi.org/10.1111/j.1741-3737.2001.01038.x",
+   "kind": "abstract",
+   "cache_files": [
+    "doi_10_1111_j_1741_3737_2001_01038_x.txt"
+   ],
+   "license": "abstract; short quotes only",
+   "how": "python3 scripts/fetch_sources.py doi 10.1111/j.1741-3737.2001.01038.x"
+  },
+  "doi_10_1111_j_1741_3737_2006_00287_x": {
+   "title": "Abstract of doi:10.1111/j.1741-3737.2006.00287.x (Crossref, OpenAlex, Europe PMC REST)",
+   "url": "https://doi.org/10.1111/j.1741-3737.2006.00287.x",
+   "kind": "abstract",
+   "cache_files": [
+    "doi_10_1111_j_1741_3737_2006_00287_x.txt"
+   ],
+   "license": "abstract; short quotes only",
+   "how": "python3 scripts/fetch_sources.py doi 10.1111/j.1741-3737.2006.00287.x"
+  },
+  "doi_10_1111_j_1741_3737_2008_00582_x": {
+   "title": "Abstract of doi:10.1111/j.1741-3737.2008.00582.x (Crossref, OpenAlex, Europe PMC REST)",
+   "url": "https://doi.org/10.1111/j.1741-3737.2008.00582.x",
+   "kind": "abstract",
+   "cache_files": [
+    "doi_10_1111_j_1741_3737_2008_00582_x.txt"
+   ],
+   "license": "abstract; short quotes only",
+   "how": "python3 scripts/fetch_sources.py doi 10.1111/j.1741-3737.2008.00582.x"
+  },
+  "doi_10_1111_j_1741_3737_2009_00644_x": {
+   "title": "Abstract of doi:10.1111/j.1741-3737.2009.00644.x (Crossref, OpenAlex, Europe PMC REST)",
+   "url": "https://doi.org/10.1111/j.1741-3737.2009.00644.x",
+   "kind": "abstract",
+   "cache_files": [
+    "doi_10_1111_j_1741_3737_2009_00644_x.txt"
+   ],
+   "license": "abstract; short quotes only",
+   "how": "python3 scripts/fetch_sources.py doi 10.1111/j.1741-3737.2009.00644.x"
+  },
+  "doi_10_1111_j_1741_3737_2010_00757_x": {
+   "title": "Abstract of doi:10.1111/j.1741-3737.2010.00757.x (Crossref, OpenAlex, Europe PMC REST)",
+   "url": "https://doi.org/10.1111/j.1741-3737.2010.00757.x",
+   "kind": "abstract",
+   "cache_files": [
+    "doi_10_1111_j_1741_3737_2010_00757_x.txt"
+   ],
+   "license": "abstract; short quotes only",
+   "how": "python3 scripts/fetch_sources.py doi 10.1111/j.1741-3737.2010.00757.x"
+  },
+  "doi_10_1111_j_1741_3737_2010_00758_x": {
+   "title": "Abstract of doi:10.1111/j.1741-3737.2010.00758.x (Crossref, OpenAlex, Europe PMC REST)",
+   "url": "https://doi.org/10.1111/j.1741-3737.2010.00758.x",
+   "kind": "abstract",
+   "cache_files": [
+    "doi_10_1111_j_1741_3737_2010_00758_x.txt"
+   ],
+   "license": "abstract; short quotes only",
+   "how": "python3 scripts/fetch_sources.py doi 10.1111/j.1741-3737.2010.00758.x"
+  },
+  "doi_10_1111_j_1752_0606_1996_tb00190_x": {
+   "title": "Abstract of doi:10.1111/j.1752-0606.1996.tb00190.x (Crossref, OpenAlex, Europe PMC REST)",
+   "url": "https://doi.org/10.1111/j.1752-0606.1996.tb00190.x",
+   "kind": "abstract",
+   "cache_files": [
+    "doi_10_1111_j_1752_0606_1996_tb00190_x.txt"
+   ],
+   "license": "abstract; short quotes only",
+   "how": "python3 scripts/fetch_sources.py doi 10.1111/j.1752-0606.1996.tb00190.x"
+  },
+  "doi_10_1111_jomf_12092": {
+   "title": "Abstract of doi:10.1111/jomf.12092 (Crossref, OpenAlex, Europe PMC REST)",
+   "url": "https://doi.org/10.1111/jomf.12092",
+   "kind": "abstract",
+   "cache_files": [
+    "doi_10_1111_jomf_12092.txt"
+   ],
+   "license": "abstract; short quotes only",
+   "how": "python3 scripts/fetch_sources.py doi 10.1111/jomf.12092"
+  },
+  "doi_10_1177_0265407504041384": {
+   "title": "Abstract of doi:10.1177/0265407504041384 (Crossref, OpenAlex, Europe PMC REST)",
+   "url": "https://doi.org/10.1177/0265407504041384",
+   "kind": "abstract",
+   "cache_files": [
+    "doi_10_1177_0265407504041384.txt"
+   ],
+   "license": "abstract; short quotes only",
+   "how": "python3 scripts/fetch_sources.py doi 10.1177/0265407504041384"
+  },
+  "doi_10_1177_0956797617734864": {
+   "title": "Abstract of doi:10.1177/0956797617734864 (Crossref, OpenAlex, Europe PMC REST)",
+   "url": "https://doi.org/10.1177/0956797617734864",
+   "kind": "abstract",
+   "cache_files": [
+    "doi_10_1177_0956797617734864.txt"
+   ],
+   "license": "abstract; short quotes only",
+   "how": "python3 scripts/fetch_sources.py doi 10.1177/0956797617734864"
+  },
+  "doi_10_1257_jep_21_2_27": {
+   "title": "Abstract of doi:10.1257/jep.21.2.27 (Crossref, OpenAlex, Europe PMC REST)",
+   "url": "https://doi.org/10.1257/jep.21.2.27",
+   "kind": "abstract",
+   "cache_files": [
+    "doi_10_1257_jep_21_2_27.txt"
+   ],
+   "license": "abstract; short quotes only",
+   "how": "python3 scripts/fetch_sources.py doi 10.1257/jep.21.2.27"
+  },
+  "doi_10_2307_353438": {
+   "title": "Abstract of doi:10.2307/353438 (Crossref, OpenAlex, Europe PMC REST)",
+   "url": "https://doi.org/10.2307/353438",
+   "kind": "abstract",
+   "cache_files": [
+    "doi_10_2307_353438.txt"
+   ],
+   "license": "abstract; short quotes only",
+   "how": "python3 scripts/fetch_sources.py doi 10.2307/353438"
+  }
+ }
+}
