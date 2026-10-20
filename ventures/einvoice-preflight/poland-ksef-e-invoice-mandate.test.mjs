@@ -12,11 +12,13 @@ test("carries the no-warranty disclaimer and licence line", () => {
   assert.match(html, /Free and open source/);
 });
 
-test("states the date, the fines and the format", () => {
+test("states the dates, the penalty figures and the format", () => {
   assert.match(html, /1 Feb 2026/);
   assert.match(html, /1 Apr 2026/);
   assert.match(html, /1 Jan 2027/);
+  assert.match(html, /100% of the VAT/);
   assert.match(html, /FA\(3\)/);
+  assert.match(html, /does not validate FA\(3\)/);
 });
 
 test("makes no price claim", () => {
