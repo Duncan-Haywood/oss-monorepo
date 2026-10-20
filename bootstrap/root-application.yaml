@@ -10,7 +10,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/Duncan-Haywood/oss-monorepo.git
+    repoURL: https://github.com/Duncan-Haywood/monorepo-projects.git
     targetRevision: main
     path: gitops/apps
   destination:

@@ -273,7 +273,7 @@ switch_note="${switch_sentence:-most workflows already read the switch}"
 
 cat <<NEXT
     1. Confirm the runner registered:
-         https://github.com/Duncan-Haywood/oss-monorepo/settings/actions/runners
+         https://github.com/Duncan-Haywood/monorepo-projects/settings/actions/runners
        Expect one named hetzner-<hostname>, labels: self-hosted, linux, x64, hetzner
 
     2. Flip every workflow to it ($switch_note):

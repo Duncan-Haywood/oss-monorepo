@@ -390,6 +390,6 @@ cat <<NEXT
          ssh $TARGET 'journalctl -u portfolio-site-refresh.service -f'
 
     This route is independent of the gh-pages one. The catalogue stays served
-    at https://duncan-haywood.github.io/oss-monorepo/ either way; what
+    at https://duncan-haywood.github.io/monorepo-projects/ either way; what
     this adds is the portfolio's own name.
 NEXT
