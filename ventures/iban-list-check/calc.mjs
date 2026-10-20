@@ -37,6 +37,29 @@ export const checkOk = (iban) => /^[A-Z]{2}\d{2}[A-Z0-9]+$/.test(iban) && mod97(
 export function computeCheckDigits(country, bban) {
   return String(98 - mod97(`${country}00${bban}`)).padStart(2, "0");
 }
+// National check digits inside the BBAN. The ISO mod-97 only proves the IBAN is self-consistent: a number generator
+// that recomputes the IBAN check digits for a made-up or mistyped account passes it. Where the country's own domestic
+// check is simple and well documented (BE, ES, FR, IT) it is verified too. Returns true, false, or null (not covered).
+const ES_W = [1, 2, 4, 8, 5, 10, 9, 7, 3, 6];
+const esDigit = (digits) => { const r = 11 - (digits.split("").reduce((a, d, i) => a + Number(d) * ES_W[i], 0) % 11); return r === 11 ? 0 : r === 10 ? 1 : r; };
+const IT_ODD = [1, 0, 5, 7, 9, 13, 15, 17, 19, 21, 2, 4, 18, 20, 11, 3, 6, 8, 12, 14, 16, 10, 22, 25, 24, 23];
+const itVal = (ch, odd) => { const n = /\d/.test(ch) ? Number(ch) : ch.charCodeAt(0) - 65; return odd ? IT_ODD[n] : n; };
+export function nationalCheck(iban) {
+  const cc = iban.slice(0, 2), b = iban.slice(4);
+  if (cc === "BE" && /^\d{12}$/.test(b)) { const r = Number(b.slice(0, 10)) % 97; return (r === 0 ? 97 : r) === Number(b.slice(10)); }
+  if (cc === "ES" && /^\d{20}$/.test(b)) return String(esDigit("00" + b.slice(0, 8))) + String(esDigit(b.slice(10))) === b.slice(8, 10);
+  if (cc === "FR" && /^\d{10}[A-Z0-9]{11}\d{2}$/.test(b)) {
+    const acct = b.slice(10, 21).replace(/[A-Z]/g, (c) => { const n = c.charCodeAt(0) - 64; return String(n <= 9 ? n : n <= 18 ? n - 9 : n - 17); });
+    const r = (89n * BigInt(b.slice(0, 5)) + 15n * BigInt(b.slice(5, 10)) + 3n * BigInt(acct)) % 97n;
+    return String(97n - r).padStart(2, "0") === b.slice(21);
+  }
+  if (cc === "IT" && /^[A-Z]\d{10}[A-Z0-9]{12}$/.test(b)) {
+    const body = b.slice(1);
+    const sum = body.split("").reduce((a, ch, i) => a + itVal(ch, i % 2 === 0), 0);
+    return String.fromCharCode(65 + (sum % 26)) === b[0];
+  }
+  return null;
+}
 export const printFormat = (iban) => iban.replace(/(.{4})/g, "$1 ").trim();
 
 export function decodeBuffer(buf) {
@@ -145,6 +168,7 @@ export function validate(text, options = {}) {
     if (c.kind === "ok") {
       c.fixed ? fixable++ : valid++;
       if (c.fixed) add("info", r.line, `Fixable: ${c.notes.join("; ")}`, `"${String(raw).trim()}" becomes ${c.value}.`);
+      if (nationalCheck(c.value) === false) add("warning", r.line, "National check digits do not match", `${c.value} passes the IBAN check but the ${c.value.slice(0, 2)} domestic check digits inside it do not, so the account number was probably mistyped and the IBAN check digits recomputed afterwards (as some online IBAN generators do). Confirm it with the account holder.`);
       countries.set(c.value.slice(0, 2), (countries.get(c.value.slice(0, 2)) || 0) + 1);
       if (seen.has(c.value)) add("warning", r.line, "Duplicate IBAN", `${c.value} already appears on line ${seen.get(c.value)}. A repeated account is a common sign of a double payment or a duplicated supplier record.`);
       else seen.set(c.value, r.line);
