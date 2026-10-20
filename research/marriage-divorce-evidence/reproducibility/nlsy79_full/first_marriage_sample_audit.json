@@ -1,0 +1,27 @@
+{
+ "respondents": 12686,
+ "never_married": 2526,
+ "first_marriages_from_1981": 6768,
+ "wedding_before_1981": 2836,
+ "no_dated_first_marriage": 275,
+ "first_marriage_end_date_missing": 278,
+ "no_interview_after_wedding": 3,
+ "with_delayed_entry": 6685,
+ "ended_before_first_post_wedding_interview": 83,
+ "end_month_imputed": 74,
+ "events_from_wedding": 2810,
+ "widowed_from_wedding": 279,
+ "events_after_entry": 2738,
+ "wedding_years": [
+  1981,
+  2022
+ ],
+ "months_from_pre_round_to_wedding_median": 7.0,
+ "months_from_wedding_to_entry_median": 8.0,
+ "spouse_in_household": {
+  "Yes": 6105,
+  "No": 622,
+  "Same-sex or unconfirmed": 35,
+  "Ambiguous roster": 6
+ }
+}

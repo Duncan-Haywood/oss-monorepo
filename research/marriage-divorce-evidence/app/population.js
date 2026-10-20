@@ -17,7 +17,13 @@
 import { adapterFor, refusals, project, scoringModels, RACE_ETH } from './couple.js';
 
 const num = (v) => (v === '' || v === null || v === undefined ? NaN : Number(v));
-export const referenceFor = (bundle) => bundle?.population_reference || null;
+// Only the shape above is read. Bundles that publish a reference in another shape (the NLSY79
+// lenses' `cells` lists, or annual rates rather than from-the-wedding horizons) count as having
+// none until they are converted, so a percentile is never read off the wrong quantity.
+export const referenceFor = (bundle) => {
+  const ref = bundle?.population_reference;
+  return ref && ref.overall && Array.isArray(ref.horizons) ? ref : null;
+};
 
 // The 99 quantile values (p1..p99) of one cell at one horizon, or null.
 export function quantilesAt(cell, horizon, horizons = []) {
