@@ -31,7 +31,7 @@ it needs no network after the clone.
 | Command | Prints |
 | --- | --- |
 | `search <words...> [--limit N]` | JSON `{ total, tools: [{ slug, title, description, url }] }`. Every word must match. |
-| `describe <slug>` | JSON: each engine module's exported functions with their parameter lists and doc comments, its constants (`DEFAULTS` holds the page's default inputs, plus any sample inputs), the live page URL and source, and the tool's own CLI if it has one. |
+| `describe <slug>` | JSON: each engine module's exported functions with their parameter lists and doc comments, its constants (`DEFAULTS` holds the page's default inputs, plus any sample inputs), the live page URL and source, the tool's own CLI if it has one, and `papers`: the full citation of each method a [research-algorithm tool](../../portfolio/research-tools/README.md) implements. |
 | `call <slug> <function> [--input JSON] [--args JSON] [--stdin] [--module FILE]` | JSON `{ module, function, args, result }`. `--input` is one object laid over the module's `DEFAULTS`, which is what the page does with its form, so you pass only what differs. `--args` is a JSON array of positional arguments. `--stdin` passes pasted text or CSV as the first argument. |
 | `run <slug> -- <args>` | Runs the tool's own `cli.mjs`, for the ~170 tools that have one. |
 | `mcp` | A stdio MCP server with `search_tools`, `describe_tool`, `call_tool` and `run_cli`. |
