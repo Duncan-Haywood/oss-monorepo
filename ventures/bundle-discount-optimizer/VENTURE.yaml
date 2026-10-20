@@ -63,5 +63,5 @@ kill_criteria:
   - A user reports a profit change, break-even or pairing count that the stated inputs do not reproduce.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/bundle-discount-optimizer/
+  production: https://duncan-haywood.github.io/oss-monorepo/bundle-discount-optimizer/
   analytics: null

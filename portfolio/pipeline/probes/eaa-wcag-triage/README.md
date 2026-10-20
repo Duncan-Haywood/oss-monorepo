@@ -217,8 +217,8 @@ row moved from `unimplemented` to `partial` rather than to `automated`.
 Two independent scheduled sessions implemented 1.4.1 within an hour of each
 other on 2026-08-22 — the duplicate-work pattern `CLAUDE.md` documents, this
 time on the same criterion in the same file.
-[#622](https://github.com/Duncan-Haywood/monorepo-projects/pull/622) merged
-first; [#621](https://github.com/Duncan-Haywood/monorepo-projects/pull/621) had
+[#622](https://github.com/Duncan-Haywood/oss-monorepo/pull/622) merged
+first; [#621](https://github.com/Duncan-Haywood/oss-monorepo/pull/621) had
 run the 118-page corpus and the browser cross-check, and consolidated after.
 
 What settled it was not the argument, it was the corpus. Run over the same 118

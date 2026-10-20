@@ -51,5 +51,5 @@ kill_criteria:
   - A user reports a runway or burn figure that disagrees with the definition on the page by more than rounding.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/investor-update-builder/
+  production: https://duncan-haywood.github.io/oss-monorepo/investor-update-builder/
   analytics: null

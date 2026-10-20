@@ -12,7 +12,7 @@ hallucinate; the next developer who copies an AI's install suggestion gets
 the attacker's package instead of an install error. This is now called
 **slopsquatting**.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/slopsquatting-check/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/slopsquatting-check/
 
 **What it is not:** a malware scanner, a security audit, or a verdict on
 any specific package. A flagged name is a prompt to read that package

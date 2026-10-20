@@ -52,5 +52,5 @@ kill_criteria:
   - A user reports a wrong bracket, minimum or deadline rule, at which point the model needs revisiting before it is promoted.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/inherited-ira-10-year-withdrawal-planner/
+  production: https://duncan-haywood.github.io/oss-monorepo/inherited-ira-10-year-withdrawal-planner/
   analytics: null

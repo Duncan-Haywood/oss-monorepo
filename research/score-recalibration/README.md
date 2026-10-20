@@ -2,7 +2,7 @@
 
 Stdlib-only Python. A verifier whose probability reports are a monotone distortion `r = expit(aL+b)` of the true posterior is scored on the raw proper score and pays for its miscalibration; a principal can undo the distortion from labelled history. This quantifies the overpayment, when raw scores mis-rank verifiers, and what recalibrating costs in samples. See `paper/whitepaper.md`.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/score-recalibration/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/score-recalibration/
 
 ```bash
 cd research/score-recalibration

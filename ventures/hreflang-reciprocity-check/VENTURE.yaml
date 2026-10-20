@@ -104,5 +104,5 @@ kill_criteria:
     core tested independently of the network layer) no longer holds.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/hreflang-reciprocity-check/
+  production: https://duncan-haywood.github.io/oss-monorepo/hreflang-reciprocity-check/
   analytics: null

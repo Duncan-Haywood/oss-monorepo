@@ -61,5 +61,5 @@ kill_criteria:
   - A user reports a schedule that leaves an open hour short, or a cost the stated rules do not reproduce.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/shift-cover-optimizer/
+  production: https://duncan-haywood.github.io/oss-monorepo/shift-cover-optimizer/
   analytics: null

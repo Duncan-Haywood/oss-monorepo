@@ -8,7 +8,7 @@ labor hour or unit of demand (the dual values from the same solution), compares 
 with sorting by profit per bed-foot, and runs a seeded simulation of yield and price
 swings. Nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/market-garden-bed-planner/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/market-garden-bed-planner/
 
 Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 

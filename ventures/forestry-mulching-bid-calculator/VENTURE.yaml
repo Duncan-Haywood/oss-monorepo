@@ -54,5 +54,5 @@ kill_criteria:
   - Operators report that the density-versus-flat-quote comparison does not change a bid, because the objection they meet is about the total rather than about what the total is made of.
   - The production-rate model is reported as too far from measured output to be worth correcting, rather than as a starting point to overwrite.
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/forestry-mulching-bid-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/forestry-mulching-bid-calculator/
   analytics: null

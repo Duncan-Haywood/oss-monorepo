@@ -322,14 +322,14 @@ def render_sarif(findings, root):
                 "tool": {
                     "driver": {
                         "name": "actions-injection-check",
-                        "informationUri": "https://duncan-haywood.github.io/monorepo-projects/actions-injection-check/",
+                        "informationUri": "https://duncan-haywood.github.io/oss-monorepo/actions-injection-check/",
                         "rules": [
                             {
                                 "id": rule_id,
                                 "name": rule["name"],
                                 "shortDescription": {"text": rule["short"]},
                                 "fullDescription": {"text": rule["text"]},
-                                "helpUri": "https://duncan-haywood.github.io/monorepo-projects/actions-injection-check/what-is-a-pwn-request-in-github-actions.html",
+                                "helpUri": "https://duncan-haywood.github.io/oss-monorepo/actions-injection-check/what-is-a-pwn-request-in-github-actions.html",
                             }
                             for rule_id, rule in _SARIF_RULES.items()
                         ],

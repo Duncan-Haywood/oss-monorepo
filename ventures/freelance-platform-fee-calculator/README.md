@@ -8,7 +8,7 @@ backwards: pick a platform and a take-home goal, and it reports the price
 needed to clear it after that platform's fee, an optional withdrawal fee,
 and a tax reserve.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/freelance-platform-fee-calculator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/freelance-platform-fee-calculator/
 
 **Open [`index.html`](index.html) directly in a browser**, or serve this
 directory statically. It is a self-contained, zero-dependency page: no build

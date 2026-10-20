@@ -47,5 +47,5 @@ kill_criteria:
   - No external repository is found using cli.mjs or webhook.mjs within 90 days.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/webhook-signature-debugger/
+  production: https://duncan-haywood.github.io/oss-monorepo/webhook-signature-debugger/
   analytics: null

@@ -230,7 +230,7 @@ class UrlRewriting(unittest.TestCase):
         """Four sitemaps guessed a `/ventures/<slug>/` layout; the build
         publishes `<slug>/`. Both must normalise to the same URL."""
         out = bp.rewrite_base_urls(
-            "<loc>https://duncan-haywood.github.io/monorepo-projects/ventures/widget/</loc>",
+            "<loc>https://duncan-haywood.github.io/oss-monorepo/ventures/widget/</loc>",
             "https://host.example.com/repo",
             "widget",
         )

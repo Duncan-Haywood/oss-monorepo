@@ -287,7 +287,7 @@ def render_sarif(findings):
             "id": f["rule"],
             "name": f["rule"],
             "shortDescription": {"text": f"{f['check']}: {f['rule']}"},
-            "helpUri": "https://duncan-haywood.github.io/monorepo-projects/workflow-audit/",
+            "helpUri": "https://duncan-haywood.github.io/oss-monorepo/workflow-audit/",
         })
     level = {"high": "error", "medium": "warning", "low": "note"}
     results = [{

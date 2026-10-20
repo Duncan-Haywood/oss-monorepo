@@ -3,7 +3,7 @@
 A free tool that scans GitHub Actions workflow files for two documented
 "artifact poisoning" patterns in `workflow_run`-triggered jobs:
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/actions-artifact-poisoning-check/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/actions-artifact-poisoning-check/
 
 1. **An artifact is executed after being downloaded** — a `workflow_run` job
    downloads an artifact (`actions/download-artifact` or the third-party

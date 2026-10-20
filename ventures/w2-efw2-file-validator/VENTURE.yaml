@@ -73,5 +73,5 @@ kill_criteria:
   - A user reports SSA rejecting a file this tool passed, or this tool failing a file SSA accepted, at which point the rules need revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/w2-efw2-file-validator/
+  production: https://duncan-haywood.github.io/oss-monorepo/w2-efw2-file-validator/
   analytics: null

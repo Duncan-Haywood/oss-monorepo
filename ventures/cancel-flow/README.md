@@ -7,7 +7,7 @@ tells you which reasons you are actually winning. That used to mean paying a
 retention service a monthly fee that grows with your revenue and handing it
 your customer list.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/cancel-flow/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/cancel-flow/
 
 Two parts, both free and MIT:
 

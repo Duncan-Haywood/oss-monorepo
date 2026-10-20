@@ -16,7 +16,7 @@ import { request as httpsRequest } from 'node:https';
 
 const DEFAULT_TIMEOUT_MS = 10_000;
 const USER_AGENT =
-  'referrer-permissions-policy-check/1 (+https://duncan-haywood.github.io/monorepo-projects/referrer-permissions-policy-check/)';
+  'referrer-permissions-policy-check/1 (+https://duncan-haywood.github.io/oss-monorepo/referrer-permissions-policy-check/)';
 
 const HEADER_NAMES = ['referrer-policy', 'permissions-policy', 'feature-policy'];
 

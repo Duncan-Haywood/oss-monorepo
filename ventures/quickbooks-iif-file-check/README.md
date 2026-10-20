@@ -8,7 +8,7 @@ marks, dates that are year-first or day-first, unknown account types, accounts u
 the file's own !ACCNT list, and transactions repeated. It gives a line number for each and writes a
 repaired file. The file is read locally and never uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/quickbooks-iif-file-check/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/quickbooks-iif-file-check/
 
 ## Run it
 

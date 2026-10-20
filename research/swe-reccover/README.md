@@ -2,7 +2,7 @@
 
 Pure Python standard library. A new question for track 10 (the software-engineering loop), not a variation of an earlier result: `swe-fieldfill` measured whether record fields are *present*, and said "present is not correct". This project checks two claims the records make against `git log origin/main`, which no run writes: that a pull request they name landed, and that every session that lands work leaves a record. Produced with AI assistance (Claude). **Preliminary: seven days of records, and git is itself only a proxy for "landed".**
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/swe-reccover/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/swe-reccover/
 
 All numbers are from `experiments/results.txt` (13,314 commits on `origin/main`, 1,473 records, read 2026-10-19; Wilson 95% intervals).
 

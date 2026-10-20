@@ -53,5 +53,5 @@ kill_criteria:
   - A user reports a split whose rents do not add up to the entered total, or a split where someone would clearly prefer another room at its price.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/roommate-rent-splitter/
+  production: https://duncan-haywood.github.io/oss-monorepo/roommate-rent-splitter/
   analytics: null

@@ -2,7 +2,7 @@
 
 Milestone 1 (`mimic-contexts`) of track 11, adversarial human imitation. The track will let two frozen LLMs play an imitation game by rewriting only their own prompts. Before any game, it needs a context suite and detectors that use no prompt, to anchor every later number. This project builds both. **It does not run the game, and it does not generate text with a local imitator.** The "plain-prompt imitators" here are chat-model generations already in RAID.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/mimic-contexts/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/mimic-contexts/
 
 Numbers come from `results.txt` and `artifacts.txt`.
 

@@ -56,5 +56,5 @@ kill_criteria:
   - An attorney or contractor reports a plain waiver the rules mis-read, at which point the rule needs revisiting before more usage is sought.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/lien-waiver-checker/
+  production: https://duncan-haywood.github.io/oss-monorepo/lien-waiver-checker/
   analytics: null

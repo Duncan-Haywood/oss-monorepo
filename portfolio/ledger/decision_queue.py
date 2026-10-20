@@ -104,7 +104,7 @@ REQUIRED = {
 # them" — singular, because the repo still carried a one-surface model. #3199
 # had just established there are two independent public origins: the k3s
 # cluster behind `marisstella.dev`, and GitHub Pages at
-# `duncan-haywood.github.io/monorepo-projects/`, which needs no cluster, no SSH
+# `duncan-haywood.github.io/oss-monorepo/`, which needs no cluster, no SSH
 # key and no sealed Secret. `Public surface check` run 33912053750 measured
 # both dark in the same sweep — the three cluster hostnames refusing
 # connections on 443, and the Pages origin returning 404.
@@ -153,7 +153,7 @@ OUTAGE = "outage"
 PUBLIC_ORIGINS = {
     "github-pages-branch-route": (
         "GitHub Pages (the gh-pages branch, "
-        "duncan-haywood.github.io/monorepo-projects/)"
+        "duncan-haywood.github.io/oss-monorepo/)"
     ),
 }
 

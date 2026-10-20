@@ -6,7 +6,7 @@ redundant or invalid, how much disk dropping them frees, and
 `DROP INDEX CONCURRENTLY` statements to review.** It never connects to your
 database and the pasted text is not uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/postgres-index-auditor/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/postgres-index-auditor/
 
 After using this, you can now **cut write amplification and disk by removing the
 indexes nothing reads**, without installing an extension or giving a SaaS

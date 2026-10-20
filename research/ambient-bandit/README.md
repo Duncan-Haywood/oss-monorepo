@@ -2,7 +2,7 @@
 
 Track 2 (ambient AI assistant), follow-up to `ambient-interject`. A simulated assistant decides, window by window, whether to speak. It learns only from what the user does when it *does* speak (accept or dismiss); silence gives no label. I compare greedy, epsilon-greedy and Thompson-sampling versions of an online logistic policy with an offline oracle. Produced with AI assistance. **Stylised, simulated results only**: every distribution is chosen by me and nothing is a claim about a real user, device or product. Most of the headline results here are negative or conditional (see below).
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/ambient-bandit/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/ambient-bandit/
 
 ## Motivation
 

@@ -2,7 +2,7 @@
 
 Track 3 (LLM chip-design loops, `PROJECTS.md`). The earlier chip projects score "written structures" and treat the text as the only thing a proposer changes. This asks a prior question: if two Verilog texts are provably equivalent and differ only cosmetically, does the flow give the same netlist size? If not, a rewrite proposer's "win" can be noise from the text, and a sweep can pick up free gains. Chosen over another script-sweep variant because that chain (`chip-abc-sweep` to `chip-ppa-script` to `chip-logic-script`) had become micro-variants of one result. Produced with AI assistance (Claude). Preliminary and small: two designs, one tool version, a generic-gate library.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/chip-abc-order/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/chip-abc-order/
 
 **Builds on.** `chip-abc-sweep` (same author, MIT): its generators, flow wrapper, five-script setup and `add16`/`mul6` reference designs are copied unchanged. Yosys and its integrated ABC (Brayton and Mishchenko, CAV 2010, LNCS 6174:24-40, <https://doi.org/10.1007/978-3-642-14295-6_5>, as cited in `chip-abc-sweep`; not re-read here). No connection to the CU Boulder groups in `prompt.md` is claimed.
 

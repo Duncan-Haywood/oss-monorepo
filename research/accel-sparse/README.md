@@ -2,7 +2,7 @@
 
 Fifth milestone of track 8 (task-specific AI accelerators) in `PROJECTS.md`. A small MLP is pruned, quantised to 4 or 8 bits, or made ternary or binary, and each variant's accuracy is set against a modelled energy per inference for a serial engine. The question is whether the accuracy slack lets the engine drop multipliers altogether. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/accel-sparse/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/accel-sparse/
 
 **Substitute task, said up front.** The milestone is written for the keyword-spotting task of `accel-kws`. Speech Commands could not be downloaded in this run (the dataset host returned HTTP 403 through the sandbox proxy), so the sweep runs on scikit-learn's bundled 8x8 handwritten-digit set instead (1,797 images, 10 classes, 4-bit pixels; the UCI Optical Recognition of Handwritten Digits test set of Alpaydin and Kaynak, as shipped with scikit-learn). It is a toy stand-in: the numbers say nothing about keyword spotting. The method and cost model carry over, and the sweep can be re-run on `accel-kws` features once the data is reachable.
 

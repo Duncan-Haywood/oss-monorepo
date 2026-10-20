@@ -57,5 +57,5 @@ kill_criteria:
   - A user reports an approved plan that drops a role below a minimum they typed in.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/time-off-request-planner/
+  production: https://duncan-haywood.github.io/oss-monorepo/time-off-request-planner/
   analytics: null

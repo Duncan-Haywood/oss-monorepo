@@ -2,7 +2,7 @@
 
 Stdlib-only Python. Hedge (= LMSR market) routing of experts when the loss of each round only becomes usable after a device-dependent delay. See `paper/whitepaper.md`.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/delayed-routing/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/delayed-routing/
 
 ```bash
 cd research/delayed-routing

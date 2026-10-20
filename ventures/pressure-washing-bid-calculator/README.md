@@ -6,7 +6,7 @@ its own production rate, plus the drive and the setup a flat per-square-foot
 quote cannot see — and shows the after-travel hourly before the price goes
 out.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/pressure-washing-bid-calculator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/pressure-washing-bid-calculator/
 
 **After using this, you can now send a bid that includes travel, setup, and
 the house-siding hours hiding behind a driveway call**, which used to take a
@@ -111,5 +111,5 @@ loss or damage arising from its use.
 
 MIT licensed — see [`LICENSE`](LICENSE).
 
-Optional support via the [GitHub repository](https://github.com/Duncan-Haywood/monorepo-projects)
+Optional support via the [GitHub repository](https://github.com/Duncan-Haywood/oss-monorepo)
 never changes what the tool does.

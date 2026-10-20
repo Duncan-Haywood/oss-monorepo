@@ -51,5 +51,5 @@ kill_criteria:
   - A user reports a custodian RMD figure the tool contradicts on a point of arithmetic, at which point the table or start-age handling needs revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/rmd-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/rmd-calculator/
   analytics: null

@@ -59,5 +59,5 @@ kill_criteria:
   - A user reports a wrong deduction from this tool's output despite the disclaimers, at which point the wording or the formula needs revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/self-employment-tax-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/self-employment-tax-calculator/
   analytics: null

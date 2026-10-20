@@ -52,5 +52,5 @@ kill_criteria:
   - A user reports a weight, cap or draw order that differs from the published rule, at which point the model needs revisiting before the next season.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/h1b-weighted-lottery-odds-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/h1b-weighted-lottery-odds-calculator/
   analytics: null

@@ -2,7 +2,7 @@
 
 Choosing a supplier discount, subcontractor rate, or equipment lease? Compare the real monthly cost at your expected job volume and see when the switch pays back. Everything runs in your browser; no account or API key is needed.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/vendor-rate-break-even/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/vendor-rate-break-even/
 
 ## Use it
 

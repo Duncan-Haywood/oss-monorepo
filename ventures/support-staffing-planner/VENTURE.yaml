@@ -43,5 +43,5 @@ kill_criteria:
   - No team lead reports changing a headcount or shift plan because of what the tool showed within 90 days.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/support-staffing-planner/
+  production: https://duncan-haywood.github.io/oss-monorepo/support-staffing-planner/
   analytics: null

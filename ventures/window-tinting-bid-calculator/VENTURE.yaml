@@ -28,5 +28,5 @@ kill_criteria:
   - No unsolicited feedback, star, fork, or referral within 90 days of publishing.
   - Installers report the pane-count/film-tier/removal distinction is not news -- the trade already prices it that way -- and the flat-per-vehicle framing this tool argues against is not what real bids look like.
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/window-tinting-bid-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/window-tinting-bid-calculator/
   analytics: null

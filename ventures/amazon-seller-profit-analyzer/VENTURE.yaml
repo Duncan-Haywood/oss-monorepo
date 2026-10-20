@@ -62,5 +62,5 @@ kill_criteria:
   - A user reports a materially wrong per-SKU figure from a real Transaction report, at which point the column mapping or classification needs revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/amazon-seller-profit-analyzer/
+  production: https://duncan-haywood.github.io/oss-monorepo/amazon-seller-profit-analyzer/
   analytics: null

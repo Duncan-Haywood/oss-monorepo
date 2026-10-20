@@ -2,7 +2,7 @@
 
 Track 2 (ambient AI assistant), the first "next step" of `ambient-gatefw`: build its C gate for Cortex-M4. Produced with AI assistance. **Stylised, synthetic results only, and no hardware.** The audio is `ambient-gateroc`'s generated audio. Cortex-M4 here means clang 18 targeting `thumbv7em` with soft float, run in the Unicorn emulator, which counts executed instructions and has no pipeline, wait-state or flash-cache model. Instructions are not cycles, and no cycle figure is claimed. `arm-none-eabi-gcc` is not installed in the session, so this is clang, not the toolchain a vendor SDK would use.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/ambient-gatem4/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/ambient-gatem4/
 
 ## Question
 

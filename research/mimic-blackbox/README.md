@@ -1,6 +1,6 @@
 # How many detector queries does an imitator need to evade a human-vs-machine text detector it cannot read?
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/mimic-blackbox/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/mimic-blackbox/
 
 Track 11 (adversarial human imitation), the black-box follow-up that `mimic-whitebox` listed under "Next steps". It is a new question, not a new seed: the white-box result assumed the imitator reads the detector's weights, which a deployed detector does not expose. **Preliminary, stylised: a scripted attack on a linear detector, one seed, held-out poetry, reviews and wiki only, and the edited text is not checked for fluency or meaning.** Produced with AI assistance (Claude). No LLM was run and no text was written by the session agent.
 

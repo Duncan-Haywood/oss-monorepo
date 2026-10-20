@@ -45,5 +45,5 @@ kill_criteria:
   - A user reports a payout rule listed here that is wrong for their state.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/pto-accrual-liability-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/pto-accrual-liability-calculator/
   analytics: null

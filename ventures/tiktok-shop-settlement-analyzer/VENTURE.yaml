@@ -62,5 +62,5 @@ kill_criteria:
   - A user reports a materially wrong take-home figure, or a real export the tool cannot read, at which point the parser needs revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/tiktok-shop-settlement-analyzer/
+  production: https://duncan-haywood.github.io/oss-monorepo/tiktok-shop-settlement-analyzer/
   analytics: null

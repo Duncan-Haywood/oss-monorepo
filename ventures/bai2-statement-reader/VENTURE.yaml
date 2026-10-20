@@ -72,5 +72,5 @@ kill_criteria:
   - A user reports a real BAI2 file that this tool reads differently from the bank or the importing system, at which point the rules need revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/bai2-statement-reader/
+  production: https://duncan-haywood.github.io/oss-monorepo/bai2-statement-reader/
   analytics: null

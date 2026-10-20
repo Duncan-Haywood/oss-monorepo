@@ -61,5 +61,5 @@ kill_criteria:
   - A user reports a plan that earns less than a plan they found by hand on the same inputs.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/production-mix-optimizer/
+  production: https://duncan-haywood.github.io/oss-monorepo/production-mix-optimizer/
   analytics: null

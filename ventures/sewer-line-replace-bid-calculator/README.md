@@ -6,7 +6,7 @@ versus pipe bursting versus CIPP lining, bury depth, laterals, and the
 surface you have to put back — and shows the margin before the price goes
 out.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/sewer-line-replace-bid-calculator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/sewer-line-replace-bid-calculator/
 
 **After using this, you can now** send a replacement bid that names the
 method, the restore, and the walk-away number, **which used to take**

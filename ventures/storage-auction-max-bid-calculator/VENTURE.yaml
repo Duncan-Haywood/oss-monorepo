@@ -28,5 +28,5 @@ kill_criteria:
   - No unsolicited feedback, star, fork, or referral within 90 days of publishing.
   - Bidders report the break-even/target-margin split never changes a bid they had already decided on, because they already track the buyer's premium and cost stack by habit.
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/storage-auction-max-bid-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/storage-auction-max-bid-calculator/
   analytics: null

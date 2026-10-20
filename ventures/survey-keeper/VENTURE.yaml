@@ -47,5 +47,5 @@ kill_criteria:
   - A report of script injection through a survey title, question or answer, a response stored from a closed survey, or an admin action accepted without the key.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/survey-keeper/
+  production: https://duncan-haywood.github.io/oss-monorepo/survey-keeper/
   analytics: null

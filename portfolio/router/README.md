@@ -15,7 +15,7 @@ production: null` as of this session — including the 186 whose static page
 `platform/pages/build.mjs` has been building into the GitHub Pages artifact
 for weeks, and which `portfolio/DIRECTION.md` and
 `python3 platform/ci/pages_state.py` already confirm are live at
-`https://duncan-haywood.github.io/monorepo-projects/<slug>/`. This tool reads
+`https://duncan-haywood.github.io/oss-monorepo/<slug>/`. This tool reads
 `links.production` as the one signal that decides whether a
 `customer-contact` hypothesis is `BLOCKED` (see "Dispatchable vs. blocked"
 below), so a null field that should have said "published two weeks ago" was

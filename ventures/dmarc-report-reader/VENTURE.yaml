@@ -55,5 +55,5 @@ kill_criteria:
   - A user reports a report format (a provider's XML variant) the parser misreads, at which point the parser needs fixture-driven fixes before anything else.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/dmarc-report-reader/
+  production: https://duncan-haywood.github.io/oss-monorepo/dmarc-report-reader/
   analytics: null

@@ -2,7 +2,7 @@
 
 Project of track 12, open-source residential construction (`PROJECTS.md`, milestone 8). `house-schedule` found that ordering windows, cabinets and HVAC equipment on day 0 cuts 63 working days, but it treated early ordering as free and named that as its main limitation. This project prices it: material that arrives before its task sits on site and costs money, so there is a best order time, and it moves with the cost of holding. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/house-orderlead/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/house-orderlead/
 
 **Headline (stylised, every cost is my assumption).** **Ordering about two lead times ahead of the planned start beats both the baseline rule and ordering everything on day 0.** With default holding costs it takes the build from 214 to 182 working days and cuts interest plus holding cost from 3.34% to 2.91% of the price. Ordering on day 0 saves more days (151) but its holding cost (1.9% of price) makes the total 4.00%, *worse* than the baseline. When holding is free the best order time is three lead times ahead (total 2.40%); when it is expensive (storage 50%/yr, damage 100%/yr) it is 1.5 (3.65%). So the 63 days in `house-schedule` is the days saved by an extreme policy, not its net benefit. The finding I would defend is the shape: the total has an interior minimum, and it shifts earlier as holding gets cheaper.
 

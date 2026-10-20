@@ -2,7 +2,7 @@
 
 Why it seemed worth doing: `eda-surrogate` found that a word-level cell-count surrogate is unusable as an estimator on a family it never saw (median error 11% to 210%) but still ranks well. Its own next-steps list asked for "a small adaptation step ... and the break-even number of syntheses". That is the practical question for a search loop: when the design family changes, how many expensive evaluations must be spent before the cheap model can be trusted again? Produced with AI assistance (Claude). **Stylised and preliminary:** 133 small designs, a synthesis-only target, no place and route.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/eda-adapt/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/eda-adapt/
 
 **Builds on.** `research/eda-surrogate` (the 133-design dataset is copied unchanged from it, with its models, which are original code here: non-negative least squares, ridge, gradient boosting through scikit-learn, Pedregosa et al., 2011, *JMLR* 12:2825-2830). Tools behind the dataset: Yosys (Wolf, Glaser and Kepler, 2013, Austrochip) and ABC (Brayton and Mishchenko, 2010, CAV). Context on learning for EDA: Huang et al. (2021), a survey of machine learning for EDA, *ACM TODAES*. The few-shot framing is the ordinary transfer-learning comparison of fine-tuning against training from scratch; no specific paper is reproduced. No CU Boulder lab's work is built on and no affiliation is implied.
 

@@ -28,5 +28,5 @@ kill_criteria:
   - No unsolicited feedback, star, fork, or referral within 90 days of publishing.
   - Feedback indicates existing paid certified-payroll software already answers this well enough for anyone willing to pay, with no gap for a free one-off check.
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/certified-payroll-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/certified-payroll-calculator/
   analytics: null

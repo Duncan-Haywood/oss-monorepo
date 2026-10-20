@@ -2,7 +2,7 @@
 
 Track 2 (ambient AI assistant), follow-up to `ambient-bandit`. In that project the assistant refit its model only on windows where it had spoken, a non-random sample. Here the policy speaks with a *known* probability in every window, and each labelled window is weighted by 1/probability. Produced with AI assistance. **Stylised, simulated results only**: every distribution is chosen by me and nothing is a claim about a real user, device or product. The main results are negative or conditional.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/ambient-ips/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/ambient-ips/
 
 ## Motivation
 

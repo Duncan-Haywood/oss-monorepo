@@ -55,5 +55,5 @@ kill_criteria:
   - A user reports a result that disagrees with the statute or wage order for the preset, and the preset is not corrected within a week.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/ca-meal-rest-break-premium-checker/
+  production: https://duncan-haywood.github.io/oss-monorepo/ca-meal-rest-break-premium-checker/
   analytics: null

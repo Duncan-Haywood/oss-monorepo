@@ -44,7 +44,7 @@ repos:
   # a human has actually provisioned a box, logged the codex CLI in
   # interactively, and watched a few dry runs behave. Flipping either is
   # an owner action, not something this entry does by itself.
-  - repo: "Duncan-Haywood/monorepo-projects"
+  - repo: "Duncan-Haywood/oss-monorepo"
     tool: codex
     trigger_label: agent
     base_branch: main

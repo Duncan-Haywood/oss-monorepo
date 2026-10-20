@@ -63,5 +63,5 @@ kill_criteria:
   - A user reports a materially wrong deductible total, a miscategorised import applied without review, or lost entries to browser storage clearing, at which point the maths or the backup prompting needs revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/expense-tracker/
+  production: https://duncan-haywood.github.io/oss-monorepo/expense-tracker/
   analytics: null

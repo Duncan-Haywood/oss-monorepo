@@ -57,5 +57,5 @@ kill_criteria:
   - Users report that real distributor exports cannot be read and the column mapping cannot be fixed cheaply.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/supplier-price-creep-checker/
+  production: https://duncan-haywood.github.io/oss-monorepo/supplier-price-creep-checker/
   analytics: null

@@ -37,5 +37,5 @@ kill_criteria:
   - No producer reports changing feed, culling or marketing because of what the tool showed within 90 days.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/cow-calf-breakeven-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/cow-calf-breakeven-calculator/
   analytics: null

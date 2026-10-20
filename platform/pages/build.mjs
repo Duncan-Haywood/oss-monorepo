@@ -127,7 +127,7 @@ export const REPO_ROOT = path.resolve(HERE, '..', '..');
 
 // Owner-overridable at build time; this default is where GitHub serves a
 // project Pages site for this repository.
-export const DEFAULT_BASE_URL = 'https://duncan-haywood.github.io/monorepo-projects/';
+export const DEFAULT_BASE_URL = 'https://duncan-haywood.github.io/oss-monorepo/';
 
 // IndexNow (api.indexnow.org) proves ownership of a set of URLs with a key
 // file hosted at a location the submitter names in each request -- it does
@@ -5311,7 +5311,7 @@ export function isPublishable(name) {
  * reasoning that a browser fetches `/favicon.ico` on its own for every page.
  * That is true of the **origin** root — and this is a GitHub *project* site, so
  * the origin root is `duncan-haywood.github.io/`, not the tree at
- * `.../monorepo-projects/`. The automatic request lands outside this repository
+ * `.../oss-monorepo/`. The automatic request lands outside this repository
  * and the generated icon is never reached. Writing the link in is what closes
  * that gap.
  *
@@ -5406,7 +5406,7 @@ export async function copyTree(from, to, baseUrl) {
 // Link repair
 // ---------------------------------------------------------------------------
 
-export const SOURCE_URL_PREFIX = 'https://github.com/Duncan-Haywood/monorepo-projects/blob/main/';
+export const SOURCE_URL_PREFIX = 'https://github.com/Duncan-Haywood/oss-monorepo/blob/main/';
 
 /**
  * Every venture page was written assuming its own directory was the site root,
@@ -9778,7 +9778,7 @@ export function pageUrlPath(slug, relativePath) {
  * those verbatim published two defects at once. They go stale — a venture
  * grows a landing page and nobody edits the sitemap, so 70 of the 186 pages
  * on this site were in no sitemap at all. And several were written against
- * `…/monorepo-projects/ventures/<slug>/`, a path this site does not serve
+ * `…/oss-monorepo/ventures/<slug>/`, a path this site does not serve
  * (products are mounted at `/<slug>/`), so every URL they advertised was a
  * 404 — the worst possible thing to hand a crawler, since organic search is
  * how these tools are meant to be found.

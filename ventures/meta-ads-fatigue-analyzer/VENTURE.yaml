@@ -76,5 +76,5 @@ kill_criteria:
   - A user reports a materially wrong figure, or a fatigue or scale flag that contradicts a real export, at which point the model needs revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/meta-ads-fatigue-analyzer/
+  production: https://duncan-haywood.github.io/oss-monorepo/meta-ads-fatigue-analyzer/
   analytics: null

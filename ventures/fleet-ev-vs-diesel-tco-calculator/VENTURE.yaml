@@ -53,5 +53,5 @@ kill_criteria:
   - A fleet manager reports that the cost arithmetic disagrees with their own worked example.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/fleet-ev-vs-diesel-tco-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/fleet-ev-vs-diesel-tco-calculator/
   analytics: null

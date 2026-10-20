@@ -47,5 +47,5 @@ kill_criteria:
   - A user reports the clock or rounding rule this tool applies as wrong for their contract.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/truck-detention-pay-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/truck-detention-pay-calculator/
   analytics: null

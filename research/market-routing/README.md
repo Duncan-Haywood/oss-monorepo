@@ -2,7 +2,7 @@
 
 Small, dependency-free (stdlib only) research code linking
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/market-routing/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/market-routing/
 
 - **algorithmic economics** — cost-function prediction markets and their
   equivalence to no-regret learning (Chen & Vaughan 2010; Abernethy, Chen &

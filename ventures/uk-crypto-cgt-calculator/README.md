@@ -6,7 +6,7 @@ HMRC's **same-day rule, 30-day rule and Section 104 pool** to every disposal, sh
 which rule matched each one and against which purchase, and estimates each tax
 year's capital gains tax after the annual exempt amount. Nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/uk-crypto-cgt-calculator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/uk-crypto-cgt-calculator/
 
 Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 

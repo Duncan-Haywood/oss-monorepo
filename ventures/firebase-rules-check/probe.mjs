@@ -31,7 +31,7 @@
 
 const DEFAULT_TIMEOUT_MS = 10_000;
 const USER_AGENT =
-  'firebase-rules-check/1 (+https://duncan-haywood.github.io/monorepo-projects/firebase-rules-check/)';
+  'firebase-rules-check/1 (+https://duncan-haywood.github.io/oss-monorepo/firebase-rules-check/)';
 
 function normalizeDatabaseUrl(databaseUrl) {
   const trimmed = String(databaseUrl || '').trim().replace(/\/+$/, '');

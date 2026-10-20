@@ -66,5 +66,5 @@ kill_criteria:
   - A store changes its headline terms and a developer reports a payout that does not match, at which point the constants need revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/indie-game-payout-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/indie-game-payout-calculator/
   analytics: null

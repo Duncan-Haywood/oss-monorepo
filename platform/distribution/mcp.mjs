@@ -82,7 +82,7 @@ export function manifest({ name = DEFAULT_NAME, version = VERSION, count }) {
     files: ['server.mjs', 'tools.json', 'tools', 'LICENSE', 'README.md', 'server.json'],
     engines: { node: '>=18' },
     license: 'MIT',
-    homepage: 'https://duncan-haywood.github.io/monorepo-projects/',
+    homepage: 'https://duncan-haywood.github.io/oss-monorepo/',
     repository: { type: 'git', url: `git+${REPO_URL}.git`, directory: 'platform/distribution' },
     bugs: { url: `${REPO_URL}/issues` },
     keywords: ['mcp', 'model-context-protocol', 'mcp-server', 'calculator', 'free', 'open-source'],
@@ -104,7 +104,7 @@ export function registryManifest({ name = DEFAULT_NAME, version = VERSION, count
 
 const readmeText = (name, count) => `# ${name}
 
-An [MCP](https://modelcontextprotocol.io) server that lets an AI assistant search and run **${count} free, open-source command-line tools** (calculators, estimators and checkers) from the [monorepo-projects](https://duncan-haywood.github.io/monorepo-projects/) portfolio.
+An [MCP](https://modelcontextprotocol.io) server that lets an AI assistant search and run **${count} free, open-source command-line tools** (calculators, estimators and checkers) from the [monorepo-projects](https://duncan-haywood.github.io/oss-monorepo/) portfolio.
 
 Everything runs locally on your machine. The bundled tools import no network or process modules, the server sends nothing anywhere, and there is no account or API key.
 

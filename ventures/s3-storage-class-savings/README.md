@@ -4,7 +4,7 @@ Will an S3 lifecycle rule actually save money? Reads an **S3 Inventory** CSV and
 **net 12-month saving** of each transition after the costs people forget. Browser page or
 zero-dependency CLI.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/s3-storage-class-savings/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/s3-storage-class-savings/
 
 ```
 node cli.mjs analyze inventory.csv

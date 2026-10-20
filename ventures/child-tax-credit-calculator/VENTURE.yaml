@@ -103,5 +103,5 @@ kill_criteria:
     within 90 days of that filing season closing.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/child-tax-credit-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/child-tax-credit-calculator/
   analytics: null

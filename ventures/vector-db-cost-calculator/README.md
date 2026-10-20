@@ -9,7 +9,7 @@ dimension into a storage figure by hand.
 **Browser tool** (no install, nothing uploaded): open
 [`index.html`](index.html) directly in a browser, or serve this directory
 statically. It is live at
-[`vector-db-cost-calculator`](https://duncan-haywood.github.io/monorepo-projects/vector-db-cost-calculator/)
+[`vector-db-cost-calculator`](https://duncan-haywood.github.io/oss-monorepo/vector-db-cost-calculator/)
 in the portfolio's GitHub Pages catalogue — see `VENTURE.yaml`'s
 `links.production`. The static surface includes crawlable `robots.txt` and
 `sitemap.xml` files, a [comparison against Pinecone's own pricing

@@ -5,7 +5,7 @@ GraphQL endpoint URL you choose and reports whether introspection is
 **enabled** — exposing every query, mutation, and subscription field name,
 and every named type, whether or not any real client links to it.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/graphql-introspection-exposure-check/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/graphql-introspection-exposure-check/
 
 Introspection (`__schema`, `__type`) is essential during development and
 defaults to **on** in most GraphQL server libraries — a default nobody has

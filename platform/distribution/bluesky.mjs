@@ -20,7 +20,7 @@ import { tagUrl } from './attribution.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(HERE, '..', '..');
-export const BASE_URL = 'https://duncan-haywood.github.io/monorepo-projects/';
+export const BASE_URL = 'https://duncan-haywood.github.io/oss-monorepo/';
 export const WINDOW_DAYS = 3;
 export const MAX_PER_RUN = 3;
 export const MAX_GRAPHEMES = 300;

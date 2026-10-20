@@ -5,7 +5,7 @@ quantities that are text, fractions or have a thousands comma, tenfold jumps, du
 rows, malformed handles, locations spelled two ways and Excel-damaged SKUs, each with its line number, plus a
 safe-fixes pass that only touches formatting and never a quantity's value.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/shopify-inventory-csv-check/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/shopify-inventory-csv-check/
 
 - Static ES modules, no build step, no dependencies. Open `index.html` or run `node --test`.
 - `calc.mjs` is pure (no DOM, no network); `usage.mjs` keeps opt-out, local-only event counts.

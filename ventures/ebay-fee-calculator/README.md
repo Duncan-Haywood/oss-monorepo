@@ -156,7 +156,7 @@ less than the $5 eBay label; the postage-only path keeps
 $0.14 more.
 [Should I buy eBay shipping labels or use Pirate Ship?](should-i-buy-ebay-shipping-labels.html).
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/ebay-fee-calculator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/ebay-fee-calculator/
 
 **After using the authenticity page, you can now see whether a 3% fee
 and an $8 hub label still beat skip-AG on that SKU** — which used to
@@ -485,7 +485,7 @@ invalid old data, the calculator continues to work and simply skips that count.
 ## Support
 
 The tool is free and full-featured. The
-[project lives on GitHub](https://github.com/Duncan-Haywood/monorepo-projects);
+[project lives on GitHub](https://github.com/Duncan-Haywood/oss-monorepo);
 [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood) is entirely
 voluntary and never changes what the tool does.
 

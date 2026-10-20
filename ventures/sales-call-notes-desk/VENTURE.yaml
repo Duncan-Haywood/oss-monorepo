@@ -64,5 +64,5 @@ kill_criteria:
   - A user reports a follow-up email the checker passed that stated a price, discount or commitment that was not in their notes.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/sales-call-notes-desk/
+  production: https://duncan-haywood.github.io/oss-monorepo/sales-call-notes-desk/
   analytics: null

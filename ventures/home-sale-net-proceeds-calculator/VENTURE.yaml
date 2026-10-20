@@ -53,5 +53,5 @@ kill_criteria:
   - A user reports a closing-cash figure that disagrees with their closing disclosure by more than the costs they left blank.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/home-sale-net-proceeds-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/home-sale-net-proceeds-calculator/
   analytics: null

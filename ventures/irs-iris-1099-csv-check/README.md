@@ -5,7 +5,7 @@ A free browser tool for bookkeepers, tax preparers and small filers moving from 
 number before you upload, then download a cleaned copy.** The file is read in the browser;
 nothing is uploaded and no login or API key is needed. Independent of the IRS.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/irs-iris-1099-csv-check/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/irs-iris-1099-csv-check/
 
 After using this, you can now **find the row with a TIN that lost its leading zero, the SSN in
 a never-issued range, the state written out as "Texas", the amount that says `$4,200.00`, the

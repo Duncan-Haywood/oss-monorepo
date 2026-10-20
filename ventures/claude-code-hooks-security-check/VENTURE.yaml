@@ -129,7 +129,7 @@ kill_criteria:
   - A finding's category is wrong (a false positive rate high enough to make the tool not worth using, or a documented dangerous shape it misses on a real, reported hooks config) and cannot be fixed by tightening a pattern.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/claude-code-hooks-security-check/
+  production: https://duncan-haywood.github.io/oss-monorepo/claude-code-hooks-security-check/
   analytics: null
 
 channel_notes: >-

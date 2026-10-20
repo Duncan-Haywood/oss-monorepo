@@ -2,7 +2,7 @@
 
 **Question.** Designer coats are often defended as "cheaper per wear". With the cost model of `garment-teardown` (reported retail price against a modelled replica cost), how many times longer must the designer coat last than the replica before it wins on cost per wear, and how likely is that when lifetimes are uncertain? **Headline (modelled, all lifetimes, care costs and resale values assumed).** With no resale and equal care, the $2,850 trench must last about 46 times as many wears as the $56 replica (about 52 times for the $3,850 coat against its $68 replica). At a replica life of 60 wears that is roughly 2,700 wears; with lognormal lifetimes (log-sd 0.5) the designer coat needs a *median* life near 3,100 wears to win half the time, and wins only about 6% of the time at 1,000 median wears. Dry-cleaning-level care of $1 per wear against $0.10 for the replica pushes the needed median to about 73,000 wears. Stylised: this measures how demanding the claim is, not how long real coats last.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/garment-costperwear/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/garment-costperwear/
 
 **Why this question.** The track-6 chain had become many variants of the comfort and wardrobe models. This project asks a different question of the cost side: it uses only `garment-teardown`'s outputs and a durability layer, and its answer is a break-even, not another optimisation. It builds on none of the CU Boulder groups in `prompt.md`; it relates to the digital-twin theme only in that the cost model is a model of a physical system used for a decision.
 

@@ -2,7 +2,7 @@
 
 Fourth milestone of track 8 (task-specific AI accelerators) in `PROJECTS.md`: an accelerator for a small control network inside an arm loop, where the constraint is a deadline at the control rate, compared with a microcontroller whose cycles are estimated. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/accel-policy/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/accel-policy/
 
 **Why it seemed worth asking.** The earlier `accel-*` projects measured energy and cycles but never tied them to a closed-loop requirement. A control network has a hard deadline (inference must finish within the control period), and a late result is a delayed torque. I wanted to know at which control rates the hardware choice starts to matter, and whether it matters before the network itself fails.
 

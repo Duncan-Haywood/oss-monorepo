@@ -52,5 +52,5 @@ kill_criteria:
   - A user reports a result that differs from their broker or preparer on a plain same-ticker case, at which point the matching needs revisiting before the next December.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/wash-sale-checker/
+  production: https://duncan-haywood.github.io/oss-monorepo/wash-sale-checker/
   analytics: null

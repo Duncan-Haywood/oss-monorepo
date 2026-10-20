@@ -44,5 +44,5 @@ kill_criteria:
   - The wrapped checks drift faster than the drift tests can be kept green for two consecutive months.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/devsec-toolkit/
+  production: https://duncan-haywood.github.io/oss-monorepo/devsec-toolkit/
   analytics: null

@@ -2,7 +2,7 @@
 
 A stylised, simulation-only follow-up to `research/robofab-cell-ctmc` (track `robofab`, milestone 4's next steps: "an approximation that matches the exact rate without enumerating states, tested against this reference"). That project showed that mean value analysis (MVA) of a cell (one arm, P printers held through load and unload, one inspection station) errs by up to 20% because of the cell's *structure*, not print-time variability. Here I ask whether a classical repair, Norton's theorem / flow-equivalent-server (FES) decomposition, fixes it. This is a new question, not another seed or size: it tests a different approximation against the same noise-free reference. All numbers are from `experiments/results.txt`; one job class, times illustrative and not measured (load 2 min, unload 2 min, inspect 3 min, print 20 or 60 min, 15% of parts fail and re-enter the loop).
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/robofab-cell-fesc/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/robofab-cell-fesc/
 
 - **The decomposition is within 1.6% of the exact chain in all 42 settings** (mean absolute error 0.32%), against 6.8% (up to 20.3%) for plain MVA and 4.3% (up to 12.2%) for MVA with the printer held through load and unload. The same 42 settings and print-time variability levels (Erlang-1, 4, 9; cv 1 to 0.33) as `robofab-cell-ctmc`.
 - **It is good where each MVA variant is bad.** Mean absolute error 0.12% at work in process N = P (where plain MVA is also fine, 0.09%, and held MVA is 7.9% off), 0.77% at N = P+2 (plain 7.7%, held 1.0%), 0.23% at N = 2P (plain 12.8%, held 2.8%).

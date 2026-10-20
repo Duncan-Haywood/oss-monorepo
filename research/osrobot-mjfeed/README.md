@@ -2,7 +2,7 @@
 
 Follow-up to `osrobot-assist` (track 9, open-source purpose-built robots), taking the first "Next steps" item that chain left open: **run the same sweeps in MuJoCo.** In the direction of the CAIRO Lab interest in assistive robotics; nothing here is affiliated with or endorsed by it. Produced with AI assistance (Claude). Needs `pip install mujoco` (3.16.0 used). **Every constant (tip mass, gains, contact stiffness and damping, mouth size, sway, 2 N comfort limit) is an assumed round number, not a measurement, and no robot was built or tested with anyone.** All numbers are from `experiments/results.txt`. Simulation only; a stylised, preliminary study. **Assistive Gym and its human model were not used** (not installed): the lips are two rigid boxes moved along the prescribed sway, not a face.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/osrobot-mjfeed/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/osrobot-mjfeed/
 
 ![Contact force of a blocked arm against approach speed](experiments/blocked_push.svg)
 

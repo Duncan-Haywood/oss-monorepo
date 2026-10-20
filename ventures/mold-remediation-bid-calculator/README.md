@@ -7,7 +7,7 @@ demo squares, equipment days, HVAC cleaning, a dumpster, occupied-home
 access, and a third-party clearance as their own hours — and shows the
 margin before the price goes out.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/mold-remediation-bid-calculator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/mold-remediation-bid-calculator/
 
 **Open [`index.html`](index.html) directly in a browser**, or serve this
 directory statically. It is a self-contained, zero-dependency page: no build

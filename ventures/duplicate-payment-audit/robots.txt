@@ -1,3 +1,3 @@
 User-agent: *
 Allow: /
-Sitemap: https://duncan-haywood.github.io/monorepo-projects/duplicate-payment-audit/sitemap.xml
+Sitemap: https://duncan-haywood.github.io/oss-monorepo/duplicate-payment-audit/sitemap.xml

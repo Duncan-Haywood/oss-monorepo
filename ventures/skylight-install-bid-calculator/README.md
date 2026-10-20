@@ -6,7 +6,7 @@ sun tunnel in an existing chase versus a solar-venting glass unit with
 a new cut-in, tile flashing, and a drywall light shaft — and shows the
 margin before the price goes out.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/skylight-install-bid-calculator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/skylight-install-bid-calculator/
 
 **After using this, you can now** send a walk-away skylight price that
 sees the unit and the opening, **which used to take** matching a

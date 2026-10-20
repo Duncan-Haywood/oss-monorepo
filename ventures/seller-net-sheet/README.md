@@ -6,7 +6,7 @@ buyer-broker compensation, other concessions, title, transfer tax, and
 prorations — then compares **two offers on the same house** and solves for
 the sale price that hits a target net.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/seller-net-sheet/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/seller-net-sheet/
 
 Open [`index.html`](index.html) in a browser. The calculation is local and
 works without an account, network request, or API key. It is arithmetic, not
@@ -69,7 +69,7 @@ Control setting.
 ## Support
 
 The tool is free and full-featured. The
-[project lives on GitHub](https://github.com/Duncan-Haywood/monorepo-projects);
+[project lives on GitHub](https://github.com/Duncan-Haywood/oss-monorepo);
 [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood) is entirely
 optional and never changes what the tool does.
 

@@ -28,5 +28,5 @@ kill_criteria:
   - No unsolicited feedback, star, fork, or referral within 90 days of publishing.
   - Technicians report that separating decon-cycle PPE and container-rounded disposal from a flat day-rate-plus-hazmat-fee guess is more work than it is worth, without changing the price they would have quoted.
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/biohazard-cleanup-bid-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/biohazard-cleanup-bid-calculator/
   analytics: null

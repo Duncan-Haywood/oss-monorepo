@@ -56,5 +56,5 @@ kill_criteria:
   - A user reports a basis figure that disagrees with a hand computation in the Form 7203 order for the numbers they typed.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/s-corp-basis-tracker/
+  production: https://duncan-haywood.github.io/oss-monorepo/s-corp-basis-tracker/
   analytics: null

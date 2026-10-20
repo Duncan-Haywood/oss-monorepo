@@ -126,11 +126,11 @@ It also found this portfolio shipping 965 real AA contrast failures on its own
 built pages — including on `local-site-studio`, the venture this candidate is
 supposed to ship inside. `print-atelier`'s 611 (internal-only, no deploy
 workflow) were fixed and merged the same day
-([#542](https://github.com/Duncan-Haywood/monorepo-projects/pull/542)). The
+([#542](https://github.com/Duncan-Haywood/oss-monorepo/pull/542)). The
 remaining 354, on `local-site-studio` and `ai-first-markets`, are fixed and
 re-verified by rebuild on the branch that measured them, proposed for merge in
-[#523](https://github.com/Duncan-Haywood/monorepo-projects/pull/523) /
-[#531](https://github.com/Duncan-Haywood/monorepo-projects/pull/531) and
+[#523](https://github.com/Duncan-Haywood/oss-monorepo/pull/523) /
+[#531](https://github.com/Duncan-Haywood/oss-monorepo/pull/531) and
 awaiting the account owner's sign-off (colour-token edits to deployable
 `ventures/*` code) — `main` carries 354 open AA contrast failures now, not
 965. A portfolio selling accessibility evidence should not be shipping the

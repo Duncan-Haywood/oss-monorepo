@@ -57,5 +57,5 @@ kill_criteria:
   - A professional cook or baker reports that a worked cost disagrees with their own hand calculation.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/recipe-costing-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/recipe-costing-calculator/
   analytics: null

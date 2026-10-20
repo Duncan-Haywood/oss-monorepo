@@ -39,5 +39,5 @@ kill_criteria:
   - A report that a federal rate or wage base differs from the IRS or SSA figure for the stated year.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/employer-payroll-tax-cost-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/employer-payroll-tax-cost-calculator/
   analytics: null

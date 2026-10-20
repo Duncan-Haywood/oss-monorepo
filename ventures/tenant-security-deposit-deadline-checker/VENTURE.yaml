@@ -53,5 +53,5 @@ kill_criteria:
   - A user reports a wrong deadline for a covered state, at which point the statute table needs re-checking against current text.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/tenant-security-deposit-deadline-checker/
+  production: https://duncan-haywood.github.io/oss-monorepo/tenant-security-deposit-deadline-checker/
   analytics: null

@@ -68,5 +68,5 @@ kill_criteria:
   - A user reports a ranking or accuracy figure that is wrong given their data (a held-out row leaking into its own score, a mislabelled outcome); the validation path comes before any new feature.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/icp-lens/
+  production: https://duncan-haywood.github.io/oss-monorepo/icp-lens/
   analytics: null

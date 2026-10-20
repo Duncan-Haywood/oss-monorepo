@@ -1,0 +1,136 @@
+{
+  "date": "2026-10-20",
+  "session": "https://claude.ai/code/session_01XaXJbpWbJo9BxuwfF9vUXz",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "um the repo is called oss-monorepo",
+  "input_sha256": "9d07453ffa623fa1f9d99230fc98f2c229261921b181aeb416e6885b7427d09f",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-10-19T19:32:38Z",
+  "ended": "2026-10-20T02:44:32Z",
+  "wall_minutes": 431.88,
+  "tokens_in": 53229356,
+  "tokens_out": 91784,
+  "cost_usd": 16.9515,
+  "tool_calls": 232,
+  "task": null,
+  "projects": [],
+  "pr": 8592,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "Earlier in the session I quoted the site URL from CLAUDE.md (monorepo-projects) without checking it against the repository name; the user caught it.",
+    "First pass rewrote platform/ci/publish_surface.py, which matches the retired gitops manifests; reverted after its tests failed.",
+    "Also renamed bootstrap/ (retired cluster scripts paired with gitops/ tests); reverted after the gitops job failed. Pages added on main after branching carried the old URL and needed the rename re-applied after merging main."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "'Hosting: what is actually served' stated the Pages URL as duncan-haywood.github.io/monorepo-projects/, the repository's pre-rename name; build.mjs DEFAULT_BASE_URL carried the same stale value into every canonical tag and sitemap <loc>. Fixed in this PR."
+    },
+    {
+      "file": "platform/marketing/regen.mjs",
+      "issue": "Does not rewrite gitops/prod/front-door-tools/00-mirror-alias.conf; front-door-tools.mjs --write is needed too, or 'the committed alias map matches' fails."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Repo was renamed monorepo-projects -> oss-monorepo; GitHub does not redirect a renamed repo's Pages URL, so every canonical/og:url/sitemap/share/live-page link pointed at a 404. Replaced in ~3,550 files (records, gitops/, package names, user agents and the saved-bids backup id left alone). Also added concurrency groups to four registry publish workflows that deploy-concurrency-check's self-scan flagged.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "07ae89bf-04d5-5079-a182-515df0ffc649",
+    "transcripts": 1,
+    "first": "2026-10-19T19:32:38Z",
+    "last": "2026-10-20T02:44:31Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 218,
+        "input": 457,
+        "output": 91784,
+        "thinking": 21899,
+        "cache_read": 52656053,
+        "cache_write_5m": 0,
+        "cache_write_1h": 572846,
+        "api_equivalent_usd": 16.9515,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 218,
+      "input": 457,
+      "output": 91784,
+      "thinking": 21899,
+      "cache_read": 52656053,
+      "cache_write_5m": 0,
+      "cache_write_1h": 572846,
+      "api_equivalent_usd": 16.9515,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.989,
+    "tool_calls": 232,
+    "tools": {
+      "Bash": 172,
+      "Edit": 16,
+      "Read": 9,
+      "ReadNotifications": 8,
+      "mcp__github__get_job_logs": 7,
+      "ToolSearch": 6,
+      "mcp__github__pull_request_read": 5,
+      "mcp__github__search_pull_requests": 2,
+      "mcp__github__create_pull_request": 2,
+      "mcp__claude-code-remote__subscribe_pr_activity": 2,
+      "mcp__github__update_pull_request": 2,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 431.88,
+      "active_minutes": 148.14,
+      "model_minutes": 16.55,
+      "tool_minutes": 131.59,
+      "waiting_on_human_minutes": 283.74,
+      "human_prompts": 15,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "find stale base URL, scoped replacement across repo, fix fallout, verify suites",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 17.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

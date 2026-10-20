@@ -9,6 +9,12 @@ on:
 permissions:
   contents: read
   id-token: write
+# One publish at a time per registry, queued rather than cancelled, so an
+# older run can never finish last and publish over a newer one.
+concurrency:
+  group: distribute-npm
+  cancel-in-progress: false
+
 jobs:
   publish:
     permissions:

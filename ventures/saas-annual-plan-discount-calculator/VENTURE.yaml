@@ -62,5 +62,5 @@ kill_criteria:
   - A user reports a materially wrong break-even from this tool's output despite the disclaimers, at which point the model or its wording needs revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/saas-annual-plan-discount-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/saas-annual-plan-discount-calculator/
   analytics: null

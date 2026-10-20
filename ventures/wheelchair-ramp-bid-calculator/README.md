@@ -5,7 +5,7 @@ residential wheelchair ramp from the rise, the landings a lineal-foot special
 cannot see, both-side handrails, surface, demo, and permit — and shows the
 margin before the price goes out.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/wheelchair-ramp-bid-calculator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/wheelchair-ramp-bid-calculator/
 
 **After using this, you can now send a ramp price that includes the landings,
 rails, and footings**, which used to take a spreadsheet that still started from

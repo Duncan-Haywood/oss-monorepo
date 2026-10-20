@@ -53,5 +53,5 @@ kill_criteria:
   - A user reports relying on the tool's hiring count instead of their own forecast and finance review, despite the disclaimer -- at that point the wording needs revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/sales-quota-capacity-planner/
+  production: https://duncan-haywood.github.io/oss-monorepo/sales-quota-capacity-planner/
   analytics: null

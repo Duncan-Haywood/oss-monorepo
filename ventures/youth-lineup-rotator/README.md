@@ -4,7 +4,7 @@ Free, browser-only lineup planner for volunteer youth-sports coaches. Type the
 roster and the positions on the field; get a period-by-period lineup with fair
 playing time and the substitutions spelled out. No sign-up, nothing uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/youth-lineup-rotator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/youth-lineup-rotator/
 
 - **Fair time:** bench turns are spread so nobody plays more than one period more
   than anybody else (when no one is absent or restricted), nobody sits two periods

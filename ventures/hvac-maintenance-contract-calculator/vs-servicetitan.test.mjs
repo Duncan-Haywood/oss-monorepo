@@ -36,7 +36,7 @@ test('no unverifiable price is claimed for ServiceTitan', () => {
 test('the canonical tag names this file', () => {
   assert.match(
     html,
-    /<link rel="canonical" href="https:\/\/duncan-haywood\.github\.io\/monorepo-projects\/hvac-maintenance-contract-calculator\/vs-servicetitan\.html">/,
+    /<link rel="canonical" href="https:\/\/duncan-haywood\.github\.io\/oss-monorepo\/hvac-maintenance-contract-calculator\/vs-servicetitan\.html">/,
   );
 });
 

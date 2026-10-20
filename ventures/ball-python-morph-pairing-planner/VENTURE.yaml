@@ -60,5 +60,5 @@ kill_criteria:
   - A breeder reports a gene type or an odds result that disagrees with the accepted inheritance of a common morph.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/ball-python-morph-pairing-planner/
+  production: https://duncan-haywood.github.io/oss-monorepo/ball-python-morph-pairing-planner/
   analytics: null

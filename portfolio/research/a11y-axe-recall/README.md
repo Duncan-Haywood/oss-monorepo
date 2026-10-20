@@ -224,8 +224,8 @@ did not author them.
 ## 2026-08-22 (second pass) — 1.4.1 became a rule, the claim widened, and the run answered it
 
 Two independent scheduled sessions implemented SC 1.4.1 within an hour of each
-other ([#622](https://github.com/Duncan-Haywood/monorepo-projects/pull/622) and
-[#621](https://github.com/Duncan-Haywood/monorepo-projects/pull/621)), and this
+other ([#622](https://github.com/Duncan-Haywood/oss-monorepo/pull/622) and
+[#621](https://github.com/Duncan-Haywood/oss-monorepo/pull/621)), and this
 directory got both halves of a lesson it already knew.
 
 **First, the claim widened without a measurement.** `measure.checked_criteria()`

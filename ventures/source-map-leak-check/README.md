@@ -6,7 +6,7 @@ inline `data:` URI), and names which scripts have a **publicly readable producti
 and whether that map embeds **full original source text** (`sourcesContent`) or only file/folder
 paths.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/source-map-leak-check/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/source-map-leak-check/
 
 A source map is meant for a developer's own devtools session. Left reachable on a live production
 deployment, it hands the same readable code to anyone who requests the URL — internal comments,

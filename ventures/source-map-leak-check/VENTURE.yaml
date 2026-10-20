@@ -73,5 +73,5 @@ kill_criteria:
     by default rather than one teams commonly still ship.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/source-map-leak-check/
+  production: https://duncan-haywood.github.io/oss-monorepo/source-map-leak-check/
   analytics: null

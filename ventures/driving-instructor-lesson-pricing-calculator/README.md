@@ -6,7 +6,7 @@ lesson, break-even price, the price that reaches a take-home target, and the
 effect of a block-booking discount, after fuel, wear, fixed car costs,
 unpaid gaps and cancellations. Entirely client-side; nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/driving-instructor-lesson-pricing-calculator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/driving-instructor-lesson-pricing-calculator/
 
 ## Why this exists
 

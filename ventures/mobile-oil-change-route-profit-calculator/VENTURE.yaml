@@ -41,5 +41,5 @@ kill_criteria:
   - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/mobile-oil-change-route-profit-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/mobile-oil-change-route-profit-calculator/
   analytics: null

@@ -67,7 +67,7 @@ export function toSarif(findings) {
     $schema: "https://json.schemastore.org/sarif-2.1.0.json",
     version: "2.1.0",
     runs: [{
-      tool: { driver: { name: "regex-redos-check", informationUri: "https://duncan-haywood.github.io/monorepo-projects/regex-redos-check/", rules: rules.map((id) => ({ id, shortDescription: { text: id }, help: { text: FIXES[id] || id } })) } },
+      tool: { driver: { name: "regex-redos-check", informationUri: "https://duncan-haywood.github.io/oss-monorepo/regex-redos-check/", rules: rules.map((id) => ({ id, shortDescription: { text: id }, help: { text: FIXES[id] || id } })) } },
       results: findings.map((f) => ({
         ruleId: f.rule,
         level: SARIF_LEVEL[f.severity] || "note",

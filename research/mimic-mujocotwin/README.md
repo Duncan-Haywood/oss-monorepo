@@ -2,7 +2,7 @@
 
 A side project of track 11 (adversarial human imitation). It applies the classifier two-sample test (C2ST) of `mimic-twinc2st`, a detector's AUROC used as a fidelity score for a simulator, to a pendulum simulated in MuJoCo instead of a hand-written RK4. It was chosen because `mimic-loop` needs local LLM weights that this container cannot reach, and MuJoCo (pip) was the named next step of `mimic-twinc2st`. **No LLM is used and no text is generated.** Stylised and simulated only; builds on none of the labs in `prompt.md`.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/mimic-mujocotwin/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/mimic-mujocotwin/
 
 Numbers come from `experiments/results.txt` (800 real + 800 twin trajectories, 3 seeds).
 

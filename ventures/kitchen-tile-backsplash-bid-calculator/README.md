@@ -8,7 +8,7 @@ versus large-format, you-supply versus a customer-supplied box, then
 outlet cuts, a cooktop cutout, and Schluter — and shows the margin
 before the price goes out.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/kitchen-tile-backsplash-bid-calculator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/kitchen-tile-backsplash-bid-calculator/
 
 **After using this, you can now** send a walk-away kitchen-backsplash
 price that sees the wall and the pattern, **which used to take**

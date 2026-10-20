@@ -146,5 +146,5 @@ kill_criteria:
     stops describing a real hazard.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/sql-migration-lock-check/
+  production: https://duncan-haywood.github.io/oss-monorepo/sql-migration-lock-check/
   analytics: null

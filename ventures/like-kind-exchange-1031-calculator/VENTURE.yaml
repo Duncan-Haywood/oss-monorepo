@@ -56,5 +56,5 @@ kill_criteria:
   - A user reports a materially wrong figure, at which point the boot or basis logic needs review.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/like-kind-exchange-1031-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/like-kind-exchange-1031-calculator/
   analytics: null

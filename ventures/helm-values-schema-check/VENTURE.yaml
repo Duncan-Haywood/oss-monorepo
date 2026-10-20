@@ -129,5 +129,5 @@ kill_criteria:
   - No external repository is found wiring cli.mjs into its own CI/release pipeline within 90 days.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/helm-values-schema-check/
+  production: https://duncan-haywood.github.io/oss-monorepo/helm-values-schema-check/
   analytics: null

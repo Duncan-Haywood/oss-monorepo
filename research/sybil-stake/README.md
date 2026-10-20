@@ -2,7 +2,7 @@
 
 Stdlib-only Python. Does splitting stake across identities pay? See `paper/whitepaper.md`.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/sybil-stake/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/sybil-stake/
 
 ```bash
 cd research/sybil-stake

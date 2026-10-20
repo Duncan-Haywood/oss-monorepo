@@ -36,5 +36,5 @@ kill_criteria:
   - No seller reports changing a price or delivery radius because of what the tool showed within 90 days.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/backyard-egg-profit-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/backyard-egg-profit-calculator/
   analytics: null

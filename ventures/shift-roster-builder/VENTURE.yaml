@@ -56,5 +56,5 @@ kill_criteria:
   - A user reports a roster that breaks an availability, rest or hour-limit rule they typed in.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/shift-roster-builder/
+  production: https://duncan-haywood.github.io/oss-monorepo/shift-roster-builder/
   analytics: null

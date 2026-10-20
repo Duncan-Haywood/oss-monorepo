@@ -2,7 +2,7 @@
 
 Track 11 (adversarial human imitation), the "Next steps" item of `mimic-threshold`. **Preliminary, stylised: RAID plain-prompt text only, one detector type (the `mimic-contexts` n-gram logistic regression), 8 families, 300 human texts each, 500 random calibration draws per cell. No LLM was run.** Produced with AI assistance (Claude). Why it seemed worth doing: `mimic-threshold` showed that a threshold set on other families gives a false-positive rate (FPR) of 0.00 to 0.54 instead of 5%, and said to re-set it per context from a sample of human text. This measures how big that sample must be, and what the cheap way of choosing the cut-off costs.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/mimic-recalib/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/mimic-recalib/
 
 Numbers come from `results.txt` and `results.json`; the figure is `experiments/figure.svg`.
 

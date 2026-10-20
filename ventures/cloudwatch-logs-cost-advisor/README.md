@@ -5,7 +5,7 @@ storage each cost, which groups never expire, which are dead, which are Infreque
 and the `aws logs put-retention-policy` command for each retention worth changing. Browser page or
 zero-dependency CLI.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/cloudwatch-logs-cost-advisor/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/cloudwatch-logs-cost-advisor/
 
 ```
 node cli.mjs analyze groups.csv

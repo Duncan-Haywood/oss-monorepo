@@ -49,5 +49,5 @@ kill_criteria:
   - A user reports a materially wrong metric from this tool's output despite the disclaimers, at which point the formula or its wording needs revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/saas-efficiency-metrics-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/saas-efficiency-metrics-calculator/
   analytics: null

@@ -24,7 +24,7 @@ const DEFAULT_TIMEOUT_MS = 10_000;
 const MAX_REDIRECTS = 5;
 const MAX_BODY_BYTES = 2_000_000; // only <head> matters; no real page needs more to find it
 const USER_AGENT =
-  'canonical-tag-check/1 (+https://duncan-haywood.github.io/monorepo-projects/canonical-tag-check/)';
+  'canonical-tag-check/1 (+https://duncan-haywood.github.io/oss-monorepo/canonical-tag-check/)';
 
 function headerValue(headers, name) {
   const value = headers[name.toLowerCase()];

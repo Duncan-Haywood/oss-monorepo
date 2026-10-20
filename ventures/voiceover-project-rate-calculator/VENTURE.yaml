@@ -85,5 +85,5 @@ kill_criteria:
   - No organic search or subreddit-referred traffic detectable within 90 days once a free, owner-approved traffic signal exists (see portfolio/usage/README.md).
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/voiceover-project-rate-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/voiceover-project-rate-calculator/
   analytics: null

@@ -36,7 +36,7 @@ test('names no competitor product or company', () => {
 test('the canonical tag names this file at the real GitHub Pages origin', () => {
   assert.match(
     html,
-    /<link rel="canonical" href="https:\/\/duncan-haywood\.github\.io\/monorepo-projects\/vehicle-wrap-bid-calculator\/vs-quoting-from-bare-vehicle-surface-area\.html">/,
+    /<link rel="canonical" href="https:\/\/duncan-haywood\.github\.io\/oss-monorepo\/vehicle-wrap-bid-calculator\/vs-quoting-from-bare-vehicle-surface-area\.html">/,
   );
 });
 

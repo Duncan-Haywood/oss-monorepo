@@ -9,7 +9,7 @@ venue fee to ask for to hit a profit target, a half/75%/125% attendance
 sensitivity, a keep / on-the-way / drop verdict per date, and each member's
 share. Exports CSV and plain text. Nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/band-tour-profit-planner/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/band-tour-profit-planner/
 
 Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 

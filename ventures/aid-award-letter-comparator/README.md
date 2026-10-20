@@ -9,8 +9,8 @@ borrowing you do not need, and works out the **extra grant per year that would
 make a dearer offer match the cheapest one**, the number to bring to a financial
 aid appeal. Nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/aid-award-letter-comparator/
-**Guide:** [how to compare financial aid offers](https://duncan-haywood.github.io/monorepo-projects/aid-award-letter-comparator/how-to-compare-financial-aid-offers.html)
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/aid-award-letter-comparator/
+**Guide:** [how to compare financial aid offers](https://duncan-haywood.github.io/oss-monorepo/aid-award-letter-comparator/how-to-compare-financial-aid-offers.html)
 
 Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 

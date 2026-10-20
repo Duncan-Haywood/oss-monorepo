@@ -52,5 +52,5 @@ kill_criteria:
   - A user reports a verdict that contradicts the FSF or OSI published position it cites.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/license-compat-check/
+  production: https://duncan-haywood.github.io/oss-monorepo/license-compat-check/
   analytics: null

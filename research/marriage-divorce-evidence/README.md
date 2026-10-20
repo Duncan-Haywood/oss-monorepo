@@ -2,11 +2,11 @@
 
 **Headline:** in original public U.S. microdata, interpretable models identify broad associations but modest prediction gains among intact marriages. The enriched additive couple model reduced respondent-held-out Poisson loss by about **3.4%** versus a constant rate; more flexible trees/interactions did not improve on it. Higher schooling is associated with lower incidence, but no validated personal matchmaking optimum or safe anniversary cutoff is established.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/marriage-divorce-evidence/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/marriage-divorce-evidence/
 
 **Live page:** https://marriage-divorce-evidence.duncan1921.chatgpt.site/?view=1
 
-**Try it:** the [divorce odds calculator for couples](app/) ([live](https://duncan-haywood.github.io/monorepo-projects/research/marriage-divorce-evidence/app/)) runs these models in your browser. Enter two profiles to see:
+**Try it:** the [divorce odds calculator for couples](app/) ([live](https://duncan-haywood.github.io/oss-monorepo/research/marriage-divorce-evidence/app/)) runs these models in your browser. Enter two profiles to see:
 
 - year-by-year divorce odds and the chance of no divorce by year 40, from four evidence lenses side by side (two datasets each seen through two model families);
 - per-input explanations;

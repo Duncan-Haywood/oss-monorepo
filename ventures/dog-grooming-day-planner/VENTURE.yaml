@@ -43,5 +43,5 @@ kill_criteria:
   - No groomer reports changing a quote or a day's bookings because of what the tool showed within 90 days.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/dog-grooming-day-planner/
+  production: https://duncan-haywood.github.io/oss-monorepo/dog-grooming-day-planner/
   analytics: null

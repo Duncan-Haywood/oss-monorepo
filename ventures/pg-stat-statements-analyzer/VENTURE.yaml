@@ -51,5 +51,5 @@ kill_criteria:
   - A user reports a flag that sent them to the wrong query repeatedly, at which point the thresholds need revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/pg-stat-statements-analyzer/
+  production: https://duncan-haywood.github.io/oss-monorepo/pg-stat-statements-analyzer/
   analytics: null

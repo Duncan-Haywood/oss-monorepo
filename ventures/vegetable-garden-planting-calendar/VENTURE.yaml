@@ -63,5 +63,5 @@ kill_criteria:
   - A user reports a plan that puts a frost-tender crop out before the entered last frost, or a planting that cannot mature before the entered first frost.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/vegetable-garden-planting-calendar/
+  production: https://duncan-haywood.github.io/oss-monorepo/vegetable-garden-planting-calendar/
   analytics: null

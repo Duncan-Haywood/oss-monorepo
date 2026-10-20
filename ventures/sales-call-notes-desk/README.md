@@ -8,7 +8,7 @@ MEDDIC gaps with the question to ask next, deal-risk flags, a CRM-ready CSV
 row, and a recap email checked against your notes. Every item shows the
 sentence it came from; a field with no evidence stays blank.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/sales-call-notes-desk/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/sales-call-notes-desk/
 
 Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 

@@ -2,7 +2,7 @@
 
 Follow-up to `selfrep-growth` (track 1, `PROJECTS.md`). That project found a gap it called "a modelling difference": a fluid model doubles in 34.7 h, its discrete-event model in about 53 h, because a printer finishes a whole copy before the fleet grows. This project tests that explanation by letting printers share the copy's real part list. It is a new question rather than another sweep of the rod results the track's last milestones chained. Produced with AI assistance (Claude). Computed only; no printer was built or timed.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/selfrep-partpool/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/selfrep-partpool/
 
 **Builds on.** `selfrep-growth` (fleet model, inputs, 1 to 64 horizon) and `selfrep-closure` (the 44 printed parts of the RepRap Prusa Mendel and the vitamin cost per copy), both imported, not copied. RepRap: Jones et al., *Robotica* 29(1), 2011, <https://doi.org/10.1017/S026357471000069X>. It builds on none of the labs in `prompt.md`.
 

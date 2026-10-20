@@ -53,5 +53,5 @@ kill_criteria:
   - A user reports a tier or surcharge that differs from their SSA notice for the same MAGI, at which point the table needs revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/medicare-irmaa-cliff-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/medicare-irmaa-cliff-calculator/
   analytics: null

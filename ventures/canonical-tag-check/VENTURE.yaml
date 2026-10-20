@@ -63,5 +63,5 @@ kill_criteria:
     core tested independently of the network layer) no longer holds.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/canonical-tag-check/
+  production: https://duncan-haywood.github.io/oss-monorepo/canonical-tag-check/
   analytics: null

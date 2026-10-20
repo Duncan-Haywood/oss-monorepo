@@ -39,5 +39,5 @@ kill_criteria:
   - A report that a threshold or deadline differs from the cited law on the same inputs.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/dac7-seller-reporting-checker/
+  production: https://duncan-haywood.github.io/oss-monorepo/dac7-seller-reporting-checker/
   analytics: null

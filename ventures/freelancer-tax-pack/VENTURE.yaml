@@ -69,5 +69,5 @@ kill_criteria:
   - A user reports a materially wrong net profit, SE tax or quarterly figure, at which point the maths or the 2026 constants need revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/freelancer-tax-pack/
+  production: https://duncan-haywood.github.io/oss-monorepo/freelancer-tax-pack/
   analytics: null

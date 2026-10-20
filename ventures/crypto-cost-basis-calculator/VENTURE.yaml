@@ -64,5 +64,5 @@ kill_criteria:
   - A user reports a gain that differs from a hand calculation on the same rows and the difference is a bug in lot matching.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/crypto-cost-basis-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/crypto-cost-basis-calculator/
   analytics: null

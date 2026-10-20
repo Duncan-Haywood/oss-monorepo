@@ -5,7 +5,7 @@ the storage fees and aged-inventory surcharge you will pay, and whether holding,
 or removing the stock earns more.** The file is read in the browser; nothing is uploaded and no
 Seller Central access is needed.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/fba-aged-inventory-fee-analyzer/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/fba-aged-inventory-fee-analyzer/
 
 After using this, you can now **see, per SKU, what holding costs over the next months and which of
 hold / mark down / remove the aged units / remove everything has the best projected profit**, which

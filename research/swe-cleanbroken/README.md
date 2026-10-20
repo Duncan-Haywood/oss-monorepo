@@ -2,7 +2,7 @@
 
 Pure Python standard library plus `git` 2.38 or later. A follow-up to `swe-sharedfiles`, whose next steps asked whether textually clean merges of the shared index files are still wrong. Part of milestone 5 of track 10 (the software-engineering loop). Produced with AI assistance (Claude). **Preliminary: one 3-day window, and a replay that approximates real pull-request lifetimes.** All numbers are from `experiments/results.txt`.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/swe-cleanbroken/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/swe-cleanbroken/
 
 - **No clean-but-broken merge turned up.** Of 129 pairs of index-file merges landing within 60 min of each other, 37 (28.7%) conflicted textually and the other 92 merged cleanly with no new breakage. Within 30 min: 64 pairs, 11 conflicts (17.2%), 53 clean, 0 broken. Within 10 min: 18 pairs, 1 conflict, 17 clean, 0 broken. "Broken" means the merged tree fails a check the homepage build enforces (below) that neither original commit failed. Pairs overlap, so this is not 92 independent trials; with zero events, a rough 95% upper bound on the rate is about 3% (3 / 92) if they were independent, and the real bound is looser.
 - **So the cost of a collision is the conflict, not a silent error.** Of the failures `research/CLAUDE.md` guards against (a project missing from `projects.json` or `README.md`, a listed project that does not exist, a slug listed twice), none appeared in a replayed merge. A conflict is loud; a clean merge was safe in this sample.

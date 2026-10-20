@@ -38,5 +38,5 @@ kill_criteria:
   - A report that a formula (NOI, cap-rate value, DSCR, loan payment) gives a wrong figure for stated inputs.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/commercial-property-cap-rate-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/commercial-property-cap-rate-calculator/
   analytics: null

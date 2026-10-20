@@ -50,5 +50,5 @@ kill_criteria:
   - A user or adviser reports that a worked break-even or return on points disagrees with the same inputs done by hand.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/mortgage-points-break-even-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/mortgage-points-break-even-calculator/
   analytics: null

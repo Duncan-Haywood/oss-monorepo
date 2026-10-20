@@ -40,5 +40,5 @@ kill_criteria:
   - No grower reports changing a crop mix, a harvest day or a price because of what the tool showed within 90 days.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/microgreens-tray-planner/
+  production: https://duncan-haywood.github.io/oss-monorepo/microgreens-tray-planner/
   analytics: null

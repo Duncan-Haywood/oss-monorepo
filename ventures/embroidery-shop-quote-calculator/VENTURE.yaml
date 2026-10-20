@@ -45,5 +45,5 @@ kill_criteria:
   - No embroidery shop reports changing a quote, a minimum charge or declining a job because of what the tool showed within 90 days.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/embroidery-shop-quote-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/embroidery-shop-quote-calculator/
   analytics: null

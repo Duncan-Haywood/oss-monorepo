@@ -2,7 +2,7 @@
 
 Follow-up to `chip-macp32cells` (track 3, `PROJECTS.md`), whose next step was "inspect which cells of the extra lanes survive". That project showed the 32-lane MAC engine has fewer generic-gate cells than the 16-lane one at identical cycles (16 hidden units, so lanes 16 to 31 do no work) and that the sign flips with the abc flow. This one asks *where in the flow* the gap is created. Produced with AI assistance (Claude). Preliminary and small: F = 16, three model seeds, Yosys 0.33, no LLM in the loop.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/chip-p32netlist/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/chip-p32netlist/
 
 **Builds on.** Nothing from the CU Boulder groups in `prompt.md`; no connection is claimed. `model.py` and `baseline_gen.py` are copied unchanged (MIT, same author) from `research/chip-macp32cells`; `flow.py` and `experiments/run.py` are new.
 

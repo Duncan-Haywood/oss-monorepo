@@ -56,5 +56,5 @@ kill_criteria:
   - A user reports buying a challenge or sizing trades on the strength of the output -- at that point the wording needs revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/prop-firm-challenge-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/prop-firm-challenge-calculator/
   analytics: null

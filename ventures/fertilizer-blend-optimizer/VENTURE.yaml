@@ -64,5 +64,5 @@ kill_criteria:
   - A user reports a blend that misses a stated nutrient target or product maximum, or that is dearer than a simple alternative the solver should have found.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/fertilizer-blend-optimizer/
+  production: https://duncan-haywood.github.io/oss-monorepo/fertilizer-blend-optimizer/
   analytics: null

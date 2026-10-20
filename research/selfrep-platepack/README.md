@@ -2,7 +2,7 @@
 
 Follow-up to `selfrep-partpool` (track 1, `PROJECTS.md`), taking the first item of its "Next steps": plate packing. Real part masses are not available (the `selfrep-closure` bill of materials has only assumed placeholders), so this project does not invent them; it tests packing with the uniform parts instead. It asks a new question about the shop, not another sweep of earlier results. Produced with AI assistance (Claude). Computed only; no printer was built or timed.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/selfrep-platepack/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/selfrep-platepack/
 
 **Builds on.** `selfrep-partpool` (simulator, policies, inputs), `selfrep-growth` and `selfrep-closure` (the 44 printed parts of the RepRap Prusa Mendel), all imported by relative path, not copied. RepRap: Jones et al., *Robotica* 29(1), 2011, <https://doi.org/10.1017/S026357471000069X>. It builds on none of the labs in `prompt.md`.
 

@@ -88,5 +88,5 @@ kill_criteria:
   - No external repository is found using cli.mjs or engine.mjs within 90 days.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/branch-protection-drift-check/
+  production: https://duncan-haywood.github.io/oss-monorepo/branch-protection-drift-check/
   analytics: null

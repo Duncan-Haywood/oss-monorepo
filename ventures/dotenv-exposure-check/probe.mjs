@@ -24,7 +24,7 @@
 
 const DEFAULT_TIMEOUT_MS = 10_000;
 const USER_AGENT =
-  'dotenv-exposure-check/1 (+https://duncan-haywood.github.io/monorepo-projects/dotenv-exposure-check/)';
+  'dotenv-exposure-check/1 (+https://duncan-haywood.github.io/oss-monorepo/dotenv-exposure-check/)';
 // A real dotenv file is normally a handful of short lines. This cap is
 // generous enough to still classify a real exposure while bounding what this
 // tool ever holds in memory or could be made to download on repeat.

@@ -3,7 +3,7 @@
 A free browser tool: **type a nanny's rate and hours and see what employing them really costs, what they
 take home, and the gross rate behind a take-home number.** Nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/nanny-tax-calculator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/nanny-tax-calculator/
 
 After using this, you can **budget the true hourly cost of a household employee and agree a pay rate**
 instead of discovering the payroll taxes at filing time.

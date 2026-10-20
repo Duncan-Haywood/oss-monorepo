@@ -24,7 +24,7 @@ test('names no vendor, competing calculator, or business-management platform', (
 });
 
 test('the canonical tag names this file', () => {
-  assert.match(html, /<link rel="canonical" href="https:\/\/duncan-haywood\.github\.io\/monorepo-projects\/freelance-retainer-calculator\/vs-pricing-from-income-goal-alone\.html">/);
+  assert.match(html, /<link rel="canonical" href="https:\/\/duncan-haywood\.github\.io\/oss-monorepo\/freelance-retainer-calculator\/vs-pricing-from-income-goal-alone\.html">/);
 });
 
 test('the FAQPage schema is valid JSON and matches the visible FAQ headings', () => {

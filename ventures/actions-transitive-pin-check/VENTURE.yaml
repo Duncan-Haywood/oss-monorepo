@@ -63,5 +63,5 @@ kill_criteria:
   - No external repository is found using check.mjs within 90 days.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/actions-transitive-pin-check/
+  production: https://duncan-haywood.github.io/oss-monorepo/actions-transitive-pin-check/
   analytics: null

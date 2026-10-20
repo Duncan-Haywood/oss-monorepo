@@ -2,7 +2,7 @@
 
 Track 11 (adversarial human imitation), side project, a follow-up to `mimic-twinregret`. That project found that a classifier two-sample test (C2ST) at 800 vs 800 trajectories separates many twins that cost a controller nothing. A real user has far fewer than 800 real trajectories, so this one asks the practical version: at what sample size does the test start to flag each twin, and does it flag the costly ones first? **No LLM is used and no text is generated.** Stylised and simulated only. **Preliminary: one toy pendulum, one task, 20 replicates per cell.** Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/mimic-twinpower/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/mimic-twinpower/
 
 Numbers come from `experiments/results.txt` and `results.json`; the figure is `experiments/power_vs_n.svg`.
 

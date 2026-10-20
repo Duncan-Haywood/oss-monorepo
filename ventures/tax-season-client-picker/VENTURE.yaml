@@ -42,5 +42,5 @@ kill_criteria:
   - No preparer reports changing a client they accept or a fee they quote with because of what the tool showed within 90 days.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/tax-season-client-picker/
+  production: https://duncan-haywood.github.io/oss-monorepo/tax-season-client-picker/
   analytics: null

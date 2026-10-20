@@ -2,7 +2,7 @@
 
 A follow-up in the `robofab` track to `research/robofab-insert` (which varied the clearance of one peg-in-hole from 0.2 to 0.6 mm without asking where the number comes from). A printed base carries two pins and a printed cover has two holes. Every pin and hole centre has a random position error and every diameter a random size error, and the cover may translate (not rotate) to find the pins. How much nominal clearance gives 99% or 99.9% assembly yield, and how far off is the textbook worst-case stack? All numbers come from `experiments/results.txt`. Pure Python, no dependencies, simulation only.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/robofab-tolstack/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/robofab-tolstack/
 
 - **With exact sizes the yield has a closed form, and simulation matches it.** The pin-to-hole offsets of the two pairs differ by a vector with per-axis sd `2 sp`, so its length is Rayleigh and yield `= 1 − exp(−c² / (8 sp²))` for nominal diametral clearance `c`. At `sp = 0.10 mm` that gives 0.394 at `c = 0.2 mm` (Monte Carlo 0.393) and 0.956 at 0.5 mm (0.956); a test checks it.
 - **Position error, not size error, sets the clearance.** At `sp = 0.10 mm`, adding a 0.05 mm diameter sd moves the 99% requirement from 0.607 mm (closed form) to 0.622 mm, and 0.10 mm of size sd to 0.671 mm. Raising `sp` from 0.05 to 0.20 mm raises it from 0.34 to 1.22 mm.

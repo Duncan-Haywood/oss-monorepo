@@ -25,7 +25,7 @@ serial = ["pyserial"]
 tennisbots = "tennisbots.cli:main"
 
 [project.urls]
-Homepage = "https://duncan-haywood.github.io/monorepo-projects/open-tennis-robots/"
+Homepage = "https://duncan-haywood.github.io/oss-monorepo/open-tennis-robots/"
 Source = "https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/open-tennis-robots"
 
 [tool.setuptools.packages.find]

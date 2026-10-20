@@ -51,5 +51,5 @@ kill_criteria:
   - A park owner or broker reports that a worked NOI, value or break-even move-out count disagrees with the same inputs done by hand.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/mobile-home-park-valuation-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/mobile-home-park-valuation-calculator/
   analytics: null

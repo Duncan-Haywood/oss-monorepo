@@ -32,7 +32,7 @@ test('no unverifiable price is claimed for JobTread', () => {
 test('the canonical tag names this file at the real GitHub Pages origin', () => {
   assert.match(
     html,
-    /<link rel="canonical" href="https:\/\/duncan-haywood\.github\.io\/monorepo-projects\/contractor-bid-readiness\/vs-jobtread\.html">/,
+    /<link rel="canonical" href="https:\/\/duncan-haywood\.github\.io\/oss-monorepo\/contractor-bid-readiness\/vs-jobtread\.html">/,
   );
 });
 

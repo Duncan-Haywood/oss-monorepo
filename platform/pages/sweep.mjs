@@ -23,7 +23,7 @@
 //   node platform/pages/sweep.mjs
 //
 //   # or against production once the owner flip lands:
-//   BASE_URL=https://duncan-haywood.github.io/monorepo-projects node platform/pages/sweep.mjs
+//   BASE_URL=https://duncan-haywood.github.io/oss-monorepo node platform/pages/sweep.mjs
 //
 // **Check what is answering before you believe the result.** A server left
 // running by an earlier build keeps the port, the second `http.server` exits

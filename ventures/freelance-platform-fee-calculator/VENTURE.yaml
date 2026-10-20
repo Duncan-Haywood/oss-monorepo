@@ -28,5 +28,5 @@ kill_criteria:
   - Freelancers report that Upwork's and Fiverr's own dashboards already answer this well enough, without changing which platform they list a job on.
   - No unsolicited feedback, star, fork, or referral within 90 days of publishing.
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/freelance-platform-fee-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/freelance-platform-fee-calculator/
   analytics: null

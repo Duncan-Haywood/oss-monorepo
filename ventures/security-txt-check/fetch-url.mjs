@@ -18,7 +18,7 @@ const MAX_REDIRECTS = 5;
 // error page, and reading all of it helps nobody.
 const MAX_BYTES = 256 * 1024;
 const USER_AGENT =
-  'security-txt-check/1 (+https://duncan-haywood.github.io/monorepo-projects/security-txt-check/)';
+  'security-txt-check/1 (+https://duncan-haywood.github.io/oss-monorepo/security-txt-check/)';
 
 /**
  * Turns whatever the user typed into the two URLs RFC 9116 says to look at,

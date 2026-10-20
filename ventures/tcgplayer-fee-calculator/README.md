@@ -9,7 +9,7 @@ hits a target profit, and the same order as a Pro seller and at last year's
 10.25% rate. Nothing is uploaded; the arithmetic runs on the visitor's own
 device.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/tcgplayer-fee-calculator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/tcgplayer-fee-calculator/
 
 ```
 cd ventures/tcgplayer-fee-calculator && node --test

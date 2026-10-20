@@ -5,7 +5,7 @@ not built, not installed and not run.** What is verified is a small pure-Kotlin 
 re-framing, an energy-gate voice detector, an utterance segmenter and a headset route policy.
 No lab from `prompt.md` is built on; there is no lab tag.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/ambient-android/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/ambient-android/
 
 ## Motivation
 

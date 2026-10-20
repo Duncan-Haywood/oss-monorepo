@@ -55,5 +55,5 @@ kill_criteria:
   - A property manager reports that the revenue or hiring arithmetic disagrees with their own worked example.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/property-management-profit-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/property-management-profit-calculator/
   analytics: null

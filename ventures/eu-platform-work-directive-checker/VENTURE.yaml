@@ -40,5 +40,5 @@ kill_criteria:
   - A report that a date or rule differs from the cited Directive on the same inputs.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/eu-platform-work-directive-checker/
+  production: https://duncan-haywood.github.io/oss-monorepo/eu-platform-work-directive-checker/
   analytics: null

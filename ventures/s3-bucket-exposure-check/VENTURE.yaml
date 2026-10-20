@@ -85,5 +85,5 @@ kill_criteria:
     observed this way rather than one many accounts still carry.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/s3-bucket-exposure-check/
+  production: https://duncan-haywood.github.io/oss-monorepo/s3-bucket-exposure-check/
   analytics: null

@@ -2,7 +2,7 @@
 
 Track 2 (ambient AI assistant), follow-up to `ambient-fullinfo`, whose first two "next steps" were a label-matched control and clipped or self-normalised weights. Produced with AI assistance. **Stylised, simulated results only**: every distribution is chosen by me and nothing is a claim about a real user, device or product.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/ambient-labelmatch/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/ambient-labelmatch/
 
 ## Motivation
 

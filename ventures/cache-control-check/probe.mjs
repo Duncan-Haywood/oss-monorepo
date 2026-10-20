@@ -15,7 +15,7 @@ import { request as httpsRequest } from 'node:https';
 
 const DEFAULT_TIMEOUT_MS = 10_000;
 const USER_AGENT =
-  'cache-control-check/1 (+https://duncan-haywood.github.io/monorepo-projects/cache-control-check/)';
+  'cache-control-check/1 (+https://duncan-haywood.github.io/oss-monorepo/cache-control-check/)';
 
 const HEADER_NAMES = [
   'cache-control',

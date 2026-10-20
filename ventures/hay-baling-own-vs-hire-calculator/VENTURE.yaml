@@ -53,5 +53,5 @@ kill_criteria:
   - A producer reports that the break-even arithmetic disagrees with their own worked example.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/hay-baling-own-vs-hire-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/hay-baling-own-vs-hire-calculator/
   analytics: null

@@ -5,7 +5,7 @@ shifts that covers them? Paste contacts per interval for a typical week, set a s
 answered within 20 seconds), shrinkage, an occupancy cap, the shift lengths you allow and an hourly cost.
 Browser page or zero-dependency CLI.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/support-staffing-planner/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/support-staffing-planner/
 
 ```
 node cli.mjs plan demand.csv --sl 80 --answer 20 --shrinkage 30 --shifts 8,4 --wage 22 --json

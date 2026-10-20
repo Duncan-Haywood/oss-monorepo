@@ -2,7 +2,7 @@
 
 Free, private browser tool: choose your role (provider, deployer, importer, distributor) and tick what your AI system does to see whether Regulation (EU) 2024/1689 makes it a prohibited practice, a high-risk system, or a transparency case, which Article the call rests on, your duties by role, and the dates.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/eu-ai-act-risk-checker/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/eu-ai-act-risk-checker/
 
 After using this, you know which tier to plan for, which duties land on you, and what to put to counsel or your national authority.
 

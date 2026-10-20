@@ -22,7 +22,7 @@
 
 const DEFAULT_TIMEOUT_MS = 10_000;
 const USER_AGENT =
-  'subdomain-takeover-check/1 (+https://duncan-haywood.github.io/monorepo-projects/subdomain-takeover-check/)';
+  'subdomain-takeover-check/1 (+https://duncan-haywood.github.io/oss-monorepo/subdomain-takeover-check/)';
 // A provider's "unclaimed" page is normally small. Generous enough to still
 // see the fingerprint text while bounding what this tool ever holds in
 // memory or could be made to download on repeat.

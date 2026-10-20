@@ -4,7 +4,7 @@ A free browser tool for small online sellers: **load your orders export and a st
 see what to reorder, how many, and which stock is dead cash.** Files are read in the browser;
 nothing is uploaded and no app install or store login is needed.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/shopify-inventory-reorder-planner/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/shopify-inventory-reorder-planner/
 
 After using this, you can now **get a per-SKU reorder point with safety stock, an order quantity
 and cost, days of cover, revenue at risk from stock-outs and the cash tied up in overstock and

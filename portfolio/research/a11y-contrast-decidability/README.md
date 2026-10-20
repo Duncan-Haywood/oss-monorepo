@@ -102,7 +102,7 @@ mid-grey and the background goes dark, and the ratio collapses. `print-atelier`
 did this 384 times; the same file showed the correct pattern
 (`text-gray-500 dark:text-gray-400`) one component above, so this was a lapse
 that repeated, not a decision — and, being internal-only venture code, it was
-fixed the same day ([#542](https://github.com/Duncan-Haywood/monorepo-projects/pull/542),
+fixed the same day ([#542](https://github.com/Duncan-Haywood/oss-monorepo/pull/542),
 Finding 4 below): `main` now has **0** dark-only failures, all in this class.
 
 ## Finding 3 — gradients are decidable, and the bound is exact
@@ -134,7 +134,7 @@ below). Not marginal ones: `text-zinc-400` on white is **2.62:1** against a
 required 4.5:1.
 
 **Since then, `print-atelier`'s 611 have been fixed and merged**
-([#542](https://github.com/Duncan-Haywood/monorepo-projects/pull/542),
+([#542](https://github.com/Duncan-Haywood/oss-monorepo/pull/542),
 2026-08-21, same day) — internal-only remediation, agent-decidable because
 that venture has no deploy workflow. `local-site-studio`'s 21 and
 `ai-first-markets`'s 333 remain open on `main`, still held for the account
@@ -142,9 +142,9 @@ owner:
 
 | Venture | Failures on `main` | Diagnosed remediation | Held in |
 |---|---:|---|---|
-| `local-site-studio` | 21 | `text-zinc-400` → `text-zinc-500` on light panels; one ternary in `page.tsx` has its two branches the wrong way round, putting the lighter grey on the white card and the darker on the near-black one, so both sides fail | [#523](https://github.com/Duncan-Haywood/monorepo-projects/pull/523) |
-| `ai-first-markets` | 333 | `text-zinc-500` → `text-zinc-400` throughout (the site is dark-themed, so the muted step is one shade too dark); three residual near-misses in `AppNav` | [#523](https://github.com/Duncan-Haywood/monorepo-projects/pull/523) |
-| `print-atelier` | 0 — **fixed** | 73 component-level colour decisions, 384 of them the missing-`dark:`-variant pattern | [#542](https://github.com/Duncan-Haywood/monorepo-projects/pull/542), merged |
+| `local-site-studio` | 21 | `text-zinc-400` → `text-zinc-500` on light panels; one ternary in `page.tsx` has its two branches the wrong way round, putting the lighter grey on the white card and the darker on the near-black one, so both sides fail | [#523](https://github.com/Duncan-Haywood/oss-monorepo/pull/523) |
+| `ai-first-markets` | 333 | `text-zinc-500` → `text-zinc-400` throughout (the site is dark-themed, so the muted step is one shade too dark); three residual near-misses in `AppNav` | [#523](https://github.com/Duncan-Haywood/oss-monorepo/pull/523) |
+| `print-atelier` | 0 — **fixed** | 73 component-level colour decisions, 384 of them the missing-`dark:`-variant pattern | [#542](https://github.com/Duncan-Haywood/oss-monorepo/pull/542), merged |
 
 `local-site-studio`'s and `ai-first-markets`'s fixes are written and verified
 by rebuild: 62 lines of Tailwind class-name substitution across 11 files, each
@@ -163,11 +163,11 @@ hit and fixed the same day.
 
 This directory, the resolver behind it and the two venture colour fixes were
 built as one pass and opened as
-[#523](https://github.com/Duncan-Haywood/monorepo-projects/pull/523). Bundling
+[#523](https://github.com/Duncan-Haywood/oss-monorepo/pull/523). Bundling
 the fixes put the whole 4,542-line diff in the human-gated class — engine,
 tests and measurement included, none of which touch a live site — so #523
 offered to split, and
-[#524](https://github.com/Duncan-Haywood/monorepo-projects/pull/524) took the
+[#524](https://github.com/Duncan-Haywood/oss-monorepo/pull/524) took the
 split and landed the internal half.
 
 What #524 carried across unchanged was **#523's results file**, and that file is

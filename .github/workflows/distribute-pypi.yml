@@ -8,6 +8,12 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
+# One publish at a time per registry, queued rather than cancelled, so an
+# older run can never finish last and publish over a newer one.
+concurrency:
+  group: distribute-pypi
+  cancel-in-progress: false
+
 jobs:
   publish:
     permissions:

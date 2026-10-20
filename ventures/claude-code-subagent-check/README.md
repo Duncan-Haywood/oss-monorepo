@@ -8,7 +8,7 @@ matched against), a `tools` entry that's empty, duplicated, or unrecognized, a
 `model` alias this tool doesn't know, and a missing or near-empty system
 prompt.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/claude-code-subagent-check/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/claude-code-subagent-check/
 
 After using this, you can now **catch a subagent that will never get
 delegated to, before you find out the hard way** — which used to mean

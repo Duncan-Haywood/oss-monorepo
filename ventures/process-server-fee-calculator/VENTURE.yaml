@@ -27,5 +27,5 @@ kill_criteria:
   - Fewer than three qualified independent process servers use the calculator twice within 90 days of public distribution.
   - Users say their invoicing software's own per-job total or a mental rate already produces the same accept/decline decision just as fast.
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/process-server-fee-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/process-server-fee-calculator/
   analytics: null

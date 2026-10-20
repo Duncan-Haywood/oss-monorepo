@@ -33,7 +33,7 @@
 
 const DEFAULT_TIMEOUT_MS = 10_000;
 const USER_AGENT =
-  'backup-file-exposure-check/1 (+https://duncan-haywood.github.io/monorepo-projects/backup-file-exposure-check/)';
+  'backup-file-exposure-check/1 (+https://duncan-haywood.github.io/oss-monorepo/backup-file-exposure-check/)';
 // A real archive's magic bytes live in the first handful of bytes, and a
 // mysqldump/pg_dump/phpMyAdmin header comment lives in the first few lines.
 // This cap is generous enough to classify a real exposure while bounding

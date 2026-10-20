@@ -9,7 +9,7 @@ break-even listing price, the price that hits a target margin or a target
 dollar profit, and whether
 Basic, Grow, Advanced, or Plus leaves more at your monthly volume.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/shopify-fee-calculator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/shopify-fee-calculator/
 
 Open [`index.html`](index.html) in a browser. The calculation is local and
 works without an account, network request, or API key. It is arithmetic, not
@@ -246,7 +246,7 @@ truncated or mangled falls back to this page's example numbers and says so.
 ## Support
 
 The tool is free and full-featured. The
-[project lives on GitHub](https://github.com/Duncan-Haywood/monorepo-projects);
+[project lives on GitHub](https://github.com/Duncan-Haywood/oss-monorepo);
 [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood) is entirely
 optional and never changes what the tool does.
 

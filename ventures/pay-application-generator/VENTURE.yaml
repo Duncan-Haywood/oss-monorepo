@@ -59,5 +59,5 @@ kill_criteria:
   - A contractor reports a retainage or stored-material calculation that differs from their owner's certified figure by more than rounding.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/pay-application-generator/
+  production: https://duncan-haywood.github.io/oss-monorepo/pay-application-generator/
   analytics: null

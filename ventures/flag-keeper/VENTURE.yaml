@@ -62,5 +62,5 @@ kill_criteria:
   - A user reports a flag serving a different variant to the same user across restarts or config edits that did not change their rule, or a client key reading rules; the bucketing and key-scope paths come before any new feature.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/flag-keeper/
+  production: https://duncan-haywood.github.io/oss-monorepo/flag-keeper/
   analytics: null

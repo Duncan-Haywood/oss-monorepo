@@ -37,5 +37,5 @@ kill_criteria:
   - No grant writer reports changing a budget or an indirect request because of what the tool showed within 90 days.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/grant-indirect-cost-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/grant-indirect-cost-calculator/
   analytics: null

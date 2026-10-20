@@ -8,7 +8,7 @@ cost, the listing price that hits a target profit, and the **$120 cliff** that
 most fee calculators still miss. Nothing is uploaded; the arithmetic runs on
 the visitor's own device.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/grailed-fee-calculator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/grailed-fee-calculator/
 
 ```
 cd ventures/grailed-fee-calculator && node --test

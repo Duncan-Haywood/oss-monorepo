@@ -269,7 +269,7 @@ for the whole time it was wrong. The two files that entered the closure are
 `portfolio/research/a11y-axe-recall/package.json` and
 `portfolio/research/a11y-delivered-contrast/package.json` — both present in the
 repository since 2026-08-21, neither in the closure until 2026-08-24. What
-changed is that [#699](https://github.com/Duncan-Haywood/monorepo-projects/pull/699)
+changed is that [#699](https://github.com/Duncan-Haywood/oss-monorepo/pull/699)
 added a row to `portfolio/research/README.md` — a depth-2 document — whose prose
 reads *"all 18 `package.json` files set `\"private\": true\"`"*. The walker resolved
 that bare spec against the naming document's own tree and found exactly those
@@ -307,9 +307,9 @@ it is the pattern `CLAUDE.md` documents landing on one number in one hour.
 **Four sessions, none able to see the others, each fixed a different piece of
 this.** One changed a workflow's `permissions:`, tripped the old trigger, and
 regenerated `results-2026-08-23.md` in place
-([#701](https://github.com/Duncan-Haywood/monorepo-projects/pull/701)); two more
-([#702](https://github.com/Duncan-Haywood/monorepo-projects/pull/702),
-[#704](https://github.com/Duncan-Haywood/monorepo-projects/pull/704)) then
+([#701](https://github.com/Duncan-Haywood/oss-monorepo/pull/701)); two more
+([#702](https://github.com/Duncan-Haywood/oss-monorepo/pull/702),
+[#704](https://github.com/Duncan-Haywood/oss-monorepo/pull/704)) then
 chased the `115`/`35` prose the regeneration had left behind, the second
 catching what the first missed. Their work is what is on `main` and this pass
 keeps it, dropping its own re-dated copy of the artifact rather than leaving two.
@@ -326,7 +326,7 @@ trigger rather than the figure.
 
 **It did it again the same night, and this time the widened trigger caught it.**
 `117` became **118** when
-[#708](https://github.com/Duncan-Haywood/monorepo-projects/pull/708) added
+[#708](https://github.com/Duncan-Haywood/oss-monorepo/pull/708) added
 `portfolio/ledger/asks.yaml` and named it from `portfolio/ledger/README.md` — a
 depth-2 document in the closure, in a pull request about the owner's decision
 queue that had nothing to do with security. Same mechanism as #699's
@@ -379,7 +379,7 @@ now names one more path. Four instances in four days, three different authors,
 one direction.
 
 Corrected in the same pull request that moved the number, per the discipline
-[#708](https://github.com/Duncan-Haywood/monorepo-projects/pull/708)
+[#708](https://github.com/Duncan-Haywood/oss-monorepo/pull/708)
 established. The depth table above also had a stale row that this pass
 repaired: it read `55` at depth 2 while the committed results file read `56`,
 so the four rows summed to 119 against a headline of 120. Nothing checks a

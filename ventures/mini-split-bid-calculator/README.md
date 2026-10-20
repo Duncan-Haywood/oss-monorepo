@@ -5,7 +5,7 @@ mini-split job the way the trade actually loses money — heads, then a
 head-type and story factor, then line-set and electrical extras that a
 per-head quote cannot see — and shows the margin before the price goes out.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/mini-split-bid-calculator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/mini-split-bid-calculator/
 
 **After using this, you can now price a second-story cassette with a 50 ft
 line-set, a condensate pump, and a new 240 V circuit as a different job from
@@ -116,4 +116,4 @@ for any loss or damage arising from its use.
 MIT licensed — see [`LICENSE`](LICENSE).
 
 Free support is optional and never required:
-[the project on GitHub](https://github.com/Duncan-Haywood/monorepo-projects).
+[the project on GitHub](https://github.com/Duncan-Haywood/oss-monorepo).

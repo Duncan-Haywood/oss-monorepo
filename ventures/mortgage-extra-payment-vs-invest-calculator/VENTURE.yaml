@@ -50,5 +50,5 @@ kill_criteria:
   - A user reports that a worked figure disagrees with a standard amortisation of the same inputs.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/mortgage-extra-payment-vs-invest-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/mortgage-extra-payment-vs-invest-calculator/
   analytics: null

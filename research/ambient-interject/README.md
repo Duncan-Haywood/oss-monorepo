@@ -7,7 +7,7 @@ false interruptions per hour. Produced with AI assistance. **Stylised, simulated
 every distribution below is chosen by me, nothing is fitted to real conversations, and nothing
 is a claim about a real user, device or product.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/ambient-interject/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/ambient-interject/
 
 ## Motivation
 

@@ -101,5 +101,5 @@ kill_criteria:
     here no longer maps to a real review cause.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/obsidian-plugin-review-check/
+  production: https://duncan-haywood.github.io/oss-monorepo/obsidian-plugin-review-check/
   analytics: null

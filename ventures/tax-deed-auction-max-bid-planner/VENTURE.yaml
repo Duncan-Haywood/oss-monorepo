@@ -48,5 +48,5 @@ kill_criteria:
   - A user reports a profit at the maximum bid that does not equal their stated target, or a cost the tool double-counts.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/tax-deed-auction-max-bid-planner/
+  production: https://duncan-haywood.github.io/oss-monorepo/tax-deed-auction-max-bid-planner/
   analytics: null

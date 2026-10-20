@@ -33,5 +33,5 @@ kill_criteria:
   - A report that a cap or rule differs from GOV.UK guidance.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/uk-unfair-dismissal-compensation-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/uk-unfair-dismissal-compensation-calculator/
   analytics: null

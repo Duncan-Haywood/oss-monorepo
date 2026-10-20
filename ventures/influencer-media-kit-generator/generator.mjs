@@ -272,7 +272,7 @@ export function buildMediaKitHtml(data) {
   </section>
 
   <footer>
-    <p>Media kit${generatedLabel ? ` generated ${generatedLabel}` : ""}. Built with the free, no-signup <a href="https://duncan-haywood.github.io/monorepo-projects/influencer-media-kit-generator/" rel="noopener">Media Kit Generator</a> — nothing in it was uploaded to build this page; it runs entirely in the browser that made it.</p>
+    <p>Media kit${generatedLabel ? ` generated ${generatedLabel}` : ""}. Built with the free, no-signup <a href="https://duncan-haywood.github.io/oss-monorepo/influencer-media-kit-generator/" rel="noopener">Media Kit Generator</a> — nothing in it was uploaded to build this page; it runs entirely in the browser that made it.</p>
   </footer>
 </body>
 </html>

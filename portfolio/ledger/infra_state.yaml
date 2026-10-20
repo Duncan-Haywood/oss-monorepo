@@ -681,7 +681,7 @@ readings:
     # Distinct from `github-pages-plan` above, and the distinction is the whole
     # point of this row. That one asks whether the account *could* serve a
     # private repository's Pages site. This one asks whether
-    # `duncan-haywood.github.io/monorepo-projects/` **is serving one right
+    # `duncan-haywood.github.io/oss-monorepo/` **is serving one right
     # now** — confirmed 2026-09-23 by a direct, credential-free curl from a
     # session with open egress. See the dated note below for the reading.
     verdict: up
@@ -700,7 +700,7 @@ readings:
       above is flapping.
       Third route, added 2026-09-07 and usable from a session: ask a search
       engine for pages on the host (`WebSearch` for the exact string
-      `duncan-haywood.github.io/monorepo-projects`). This is deliberately
+      `duncan-haywood.github.io/oss-monorepo`). This is deliberately
       asymmetric and only one direction of it is a proof. **Any** indexed
       page from that host settles the row `up` outright — a crawler is an
       anonymous stranger, and it could not have read a member-only site.
@@ -744,7 +744,7 @@ readings:
       token these sessions carry. Worth knowing before reaching for it again.
       Third, and it is a *negative* reading, so read the asymmetry above
       before using it: a `WebSearch` for the exact string
-      `duncan-haywood.github.io/monorepo-projects` returned zero pages from
+      `duncan-haywood.github.io/oss-monorepo` returned zero pages from
       that host. **This is not evidence the site is restricted.** The URL is
       about a day old, and — the part that matters more — the repository is
       private, so there is no public page anywhere linking to it. A crawler
@@ -765,7 +765,7 @@ readings:
       it is not behind the restrictive allowlist proxy, so a plain
       unauthenticated `curl` could finally ask the question this row has
       been unable to answer since 2026-09-05. `curl -sI
-      https://duncan-haywood.github.io/monorepo-projects/` returned a real
+      https://duncan-haywood.github.io/oss-monorepo/` returned a real
       `HTTP/2 200` from `server: GitHub.com`, `last-modified: Wed, 23 Sep
       2026 07:19:27 GMT` (matching this session's own
       `publish-branch.sh` push seconds earlier), with real page content

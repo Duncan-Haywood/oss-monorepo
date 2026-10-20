@@ -54,5 +54,5 @@ kill_criteria:
   - A user reports a theme or release finding that does not match the reviews in their own file, at which point the keyword lists or the regression rule need revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/app-review-insights/
+  production: https://duncan-haywood.github.io/oss-monorepo/app-review-insights/
   analytics: null

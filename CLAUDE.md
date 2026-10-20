@@ -212,7 +212,7 @@ do not re-verify unchanged PRs.
 ## Hosting: what is actually served
 
 - **The catalogue is served by GitHub Pages** at
-  **https://duncan-haywood.github.io/monorepo-projects/**, from the
+  **https://duncan-haywood.github.io/oss-monorepo/**, from the
   `gh-pages` branch that `platform/pages/publish-branch.sh` writes. GitHub's
   managed builder deploys it without spending Actions minutes.
   `deploy-settings` is granted. Ask `python3 platform/ci/pages_state.py`

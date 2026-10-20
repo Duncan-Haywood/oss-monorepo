@@ -119,7 +119,7 @@ answers nothing.
 
 The `gh-pages` branch route (`platform/pages/publish-branch.sh`) is the only
 delivery path here that is downstream of neither a runner nor the cluster. Its
-one gap was that it published to `duncan-haywood.github.io/monorepo-projects/`
+one gap was that it published to `duncan-haywood.github.io/oss-monorepo/`
 and had no way to serve the portfolio's own name — so the flip restored the
 *catalogue* while leaving the *domain* dark.
 
@@ -244,7 +244,7 @@ Two things the builder owns, so no venture should hand-maintain them:
 
 - **The public base URL.** Ventures used to hard-code a guessed origin —
   most said `https://example.invalid/<slug>/`, four said
-  `.../monorepo-projects/ventures/<slug>/`. The build rewrites every `<loc>`
+  `.../oss-monorepo/ventures/<slug>/`. The build rewrites every `<loc>`
   and `Sitemap:` line to where it actually deploys. Do not hand-edit a
   sitemap to "fix" its domain; it will be rewritten anyway.
 - **Where a product lives.** The layout is `<base>/<slug>/`. Products are not

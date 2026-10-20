@@ -1,6 +1,6 @@
 # Can the swe-errors keyword rules be improved on 30 hand labels and still help on the other 30? (preliminary, small)
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/swe-errfix/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/swe-errfix/
 
 Pure Python standard library. Track 10 (the software-engineering loop), a follow-up that `swe-errlabel` listed under its next steps: refit the `swe-errors` keyword rules without tuning them on their own test set. Produced with AI assistance (Claude). **Preliminary: one labeller, 60 entries, and a refit this small mostly shows how little 30 labels can teach a keyword list.**
 

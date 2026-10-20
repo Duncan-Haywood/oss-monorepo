@@ -65,5 +65,5 @@ kill_criteria:
   - A report that visitors can be re-identified from the state file or across days; privacy claims come before any new feature.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/visit-keeper/
+  production: https://duncan-haywood.github.io/oss-monorepo/visit-keeper/
   analytics: null

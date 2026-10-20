@@ -89,5 +89,5 @@ kill_criteria:
     holds.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/codeowners-shadow-check/
+  production: https://duncan-haywood.github.io/oss-monorepo/codeowners-shadow-check/
   analytics: null

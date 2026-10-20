@@ -7,7 +7,7 @@ student, break-even enrolment, the highest award at which one more student still
 adds money, and what a tuition increase really brings in when aid is held in
 dollars or grows with the price, with a lost-families assumption.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/private-school-tuition-discount-calculator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/private-school-tuition-discount-calculator/
 
 Open `index.html` over any static server (ES module page). No build step, no
 dependencies. `node --test *.test.mjs` runs the suite.

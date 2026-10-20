@@ -31,7 +31,7 @@ import { request as httpsRequest } from 'node:https';
 const DEFAULT_TIMEOUT_MS = 10_000;
 const BODY_CAP_BYTES = 8192;
 const USER_AGENT =
-  'git-exposure-check/1 (+https://duncan-haywood.github.io/monorepo-projects/git-exposure-check/)';
+  'git-exposure-check/1 (+https://duncan-haywood.github.io/oss-monorepo/git-exposure-check/)';
 
 /** The two paths this check probes, relative to the base URL a caller gives
  * it. Exported so the CLI and tests can name them without repeating the

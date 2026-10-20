@@ -4,7 +4,7 @@ From an SLO to Prometheus alert rules that can actually fire — error budget,
 multi-window multi-burn-rate thresholds (Google SRE Workbook method), detection
 time per alert, and lint, before the pager teaches you the hard way.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/slo-burn-rate-alerts/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/slo-burn-rate-alerts/
 
 ```
 node cli.mjs plan --slo 99.9 --rps 40

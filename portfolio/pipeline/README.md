@@ -688,7 +688,7 @@ Actions runs were failing before any job started (`startup_failure`, a
 broken workflow file elsewhere in the repo reporting as `path: "BuildFailed"`
 on every push — tracked separately in issue #139 section 3, alongside #144
 and #146). **Update 2026-08-19 ~15:55 UTC:** run
-[`32266714656`](https://github.com/Duncan-Haywood/monorepo-projects/actions/runs/32266714656)
+[`32266714656`](https://github.com/Duncan-Haywood/oss-monorepo/actions/runs/32266714656)
 completed with `conclusion: success` — the workflow's first recorded success,
 triggered by the #79 merge commit (`42ebd981`, which touched
 `portfolio/router/README.md` and so matched this workflow's path filter).

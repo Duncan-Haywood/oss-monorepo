@@ -68,5 +68,5 @@ kill_criteria:
   - A user reports a file that QuickBooks or Quicken rejects, at which point the output layout needs revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/bank-csv-to-qbo-converter/
+  production: https://duncan-haywood.github.io/oss-monorepo/bank-csv-to-qbo-converter/
   analytics: null

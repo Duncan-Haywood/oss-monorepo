@@ -207,7 +207,7 @@ node --test platform/pages/updates.test.mjs
   ventures' own were copied verbatim until 2026-08-26, and three things were
   wrong with them at once: some listed relative `<loc>` values, which the
   sitemaps protocol does not allow and crawlers reject; two were written
-  against `…/monorepo-projects/ventures/<slug>/`, a path this site does not
+  against `…/oss-monorepo/ventures/<slug>/`, a path this site does not
   serve, so all 11 of their URLs were 404s; and most were simply stale, leaving
   70 of 186 pages in no sitemap at all. Generating from the output makes all
   three impossible: a page is listed because it shipped, at the URL it shipped
@@ -1427,7 +1427,7 @@ python3 -m http.server 8793 --directory dist &
 node platform/pages/journey.mjs
 
 # or against the live site, once publishing is on:
-BASE_URL=https://duncan-haywood.github.io/monorepo-projects node platform/pages/journey.mjs
+BASE_URL=https://duncan-haywood.github.io/oss-monorepo node platform/pages/journey.mjs
 ```
 
 It covers the hub and its grouping, search (narrowing, the empty state, and
@@ -1462,18 +1462,18 @@ s.ThreadingTCPServer(('', 8793), lambda *a: h.SimpleHTTPRequestHandler(*a, direc
 A *reproducible* resource error is still a real defect and this does not excuse
 one — the favicon gap below was exactly that, and it shipped for months.
 
-**Serve it under a `/monorepo-projects/` prefix too.** Some defects exist only at
+**Serve it under a `/oss-monorepo/` prefix too.** Some defects exist only at
 a path, and served from `/` they are invisible:
 
 ```bash
-mkdir -p sp && cp -r dist sp/monorepo-projects
+mkdir -p sp && cp -r dist sp/oss-monorepo
 python3 -m http.server 8793 --directory sp &
-BASE_URL=http://localhost:8793/monorepo-projects node platform/pages/journey.mjs
+BASE_URL=http://localhost:8793/oss-monorepo node platform/pages/journey.mjs
 ```
 
 A browser with no declared icon asks the **origin** root for `/favicon.ico`.
 Served from `/`, the `favicon.ico` this build writes answers that request and
-masks a missing `<link rel="icon">`; served from `/monorepo-projects/`, which is
+masks a missing `<link rel="icon">`; served from `/oss-monorepo/`, which is
 the shape GitHub Pages actually serves, it does not and the page 404s. That gap
 is how every page shipped with a failing favicon request until #1746. Run both.
 

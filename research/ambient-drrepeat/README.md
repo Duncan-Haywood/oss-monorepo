@@ -2,7 +2,7 @@
 
 Track 2 (ambient AI assistant), follow-up to `ambient-drablate`, whose first next step was "repeated random splits (e.g. 5 assignments averaged)". Produced with AI assistance. **Stylised, simulated results only**: every distribution is chosen by me and nothing is a claim about a real user, device or product. **Mixed / preliminary**: averaging 5 fold assignments helps clearly in one cell (&epsilon; = 0.02, IPS score) and not at all in the others; every selector stays far below the label-matched control.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/ambient-drrepeat/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/ambient-drrepeat/
 
 ## Motivation
 

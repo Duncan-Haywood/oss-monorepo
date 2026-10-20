@@ -2,7 +2,7 @@
 
 Follow-up to `osrobot-lean` (track 9, open-source purpose-built robots), taking the first "Next steps" item there: **noisy and delayed anticipation**. In the direction of the CAIRO Lab interest in human-robot collaboration; nothing here is affiliated with or endorsed by it. Produced with AI assistance (Claude). Pure Python standard library. **Every constant is an assumed round number (ASSUMED in `model.py`), including the lean speed, perception delay and misjudgement size, which are swept rather than measured from any person. No robot was built and nobody was tested.** All numbers are from `experiments/results.txt`. Simulation only; a stylised, preliminary study.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/osrobot-leannoise/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/osrobot-leannoise/
 
 ![Share of feeds with peak lip force at most 2 N against the user's misjudgement of the spoon position](experiments/bias_safe.svg)
 

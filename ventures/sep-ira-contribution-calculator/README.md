@@ -3,7 +3,7 @@
 A free browser calculator for the 2026 SEP-IRA contribution limit for a sole
 proprietor or single-member LLC. Entirely client-side; nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/sep-ira-contribution-calculator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/sep-ira-contribution-calculator/
 
 After using this, you can now **see your maximum 2026 SEP-IRA contribution
 and how it compares with a Solo 401(k)** — which used to mean working

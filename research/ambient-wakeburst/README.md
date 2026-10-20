@@ -2,7 +2,7 @@
 
 Track 2 (ambient AI assistant), a follow-up to [`ambient-falsewake`](../ambient-falsewake), which computed the *expected* false wakes per day and listed the day-to-day spread as a next step. Produced with AI assistance. **Stylised**: the detector score is a Gaussian AR(1) process, not the output of a real wake-word model, and no audio was used.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/ambient-wakeburst/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/ambient-wakeburst/
 
 ## Question
 

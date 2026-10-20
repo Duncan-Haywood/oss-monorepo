@@ -2,7 +2,7 @@
 
 Pure Python standard library. A follow-up to `swe-runcost`, whose next steps asked for cost to be joined to merged outcome. Part of track 10 (the software-engineering loop). Produced with AI assistance (Claude). **Preliminary: five days, one model, and the join only sees runs whose record names a pull request.**
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/swe-costpermerge/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/swe-costpermerge/
 
 - **Of 366 priced runs, 273 (75%, Wilson 70% to 79%) name a pull request that is on `main`; 1 names one that is not; 92 name none.** All numbers are from `experiments/results.txt`.
 - **A merged run costs $1.26 on average (bootstrap 1.08 to 1.49), against $0.94 per priced run.** That is total spend ($344) over merged runs, so it charges the 19% of spend that sits on runs without a merged PR on record to the ones that have one. It is an upper bound: runs with no PR on record may have landed.

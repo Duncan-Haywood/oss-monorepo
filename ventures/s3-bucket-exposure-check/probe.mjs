@@ -26,7 +26,7 @@
 
 const DEFAULT_TIMEOUT_MS = 10_000;
 const USER_AGENT =
-  's3-bucket-exposure-check/1 (+https://duncan-haywood.github.io/monorepo-projects/s3-bucket-exposure-check/)';
+  's3-bucket-exposure-check/1 (+https://duncan-haywood.github.io/oss-monorepo/s3-bucket-exposure-check/)';
 // A bucket listing or ACL document is normally a few KB of XML. This cap is
 // generous enough to still classify a real response while bounding what this
 // tool ever holds in memory.

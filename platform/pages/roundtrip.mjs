@@ -33,7 +33,7 @@
 //   node platform/pages/roundtrip.mjs
 //
 //   # or against production once the owner flip lands:
-//   BASE_URL=https://duncan-haywood.github.io/monorepo-projects node platform/pages/roundtrip.mjs
+//   BASE_URL=https://duncan-haywood.github.io/oss-monorepo node platform/pages/roundtrip.mjs
 //
 //   node platform/pages/roundtrip.mjs shopify-fee-calculator etsy-profit-calculator
 //

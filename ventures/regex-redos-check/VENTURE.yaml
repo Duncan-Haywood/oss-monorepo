@@ -46,5 +46,5 @@ kill_criteria:
   - No external repository is found wiring cli.mjs into its own CI within 90 days.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/regex-redos-check/
+  production: https://duncan-haywood.github.io/oss-monorepo/regex-redos-check/
   analytics: null

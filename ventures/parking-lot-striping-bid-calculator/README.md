@@ -5,7 +5,7 @@ contractors. It prices a lot the way the trade actually loses money — stall
 lines, ADA hash aisles, arrows, coats, and new-layout hours — and shows the
 margin before the price goes out.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/parking-lot-striping-bid-calculator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/parking-lot-striping-bid-calculator/
 
 **Open [`index.html`](index.html) directly in a browser**, or serve this
 directory statically. It is a self-contained, zero-dependency page: no build
@@ -118,7 +118,7 @@ use this as a system of record. If a tool needs to survive, export your inputs
 and run it yourself.
 
 MIT licensed — see [`LICENSE`](LICENSE). Support via the
-[project on GitHub](https://github.com/Duncan-Haywood/monorepo-projects) is
+[project on GitHub](https://github.com/Duncan-Haywood/oss-monorepo) is
 entirely optional and never changes what the tool does.
 
 ## Saving and sharing a bid

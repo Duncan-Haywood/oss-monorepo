@@ -2,7 +2,7 @@
 
 Pure Python standard library. A follow-up to `swe-reccover`, taking the first item from its "Next steps": that project found that 79.6% of ventures sessions that land commits have a run record against 92.2% for research, and asked why. This one splits the ventures sessions by what could plausibly matter (prompt version, scope, size, kind, day) and reads the prompt files. Produced with AI assistance (Claude). **Preliminary and observational: six days, 515 ventures sessions, no experiment, and no way to see sessions that wrote no record and landed nothing.**
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/swe-ventgap/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/swe-ventgap/
 
 All numbers are from `experiments/results.txt` (13,316 commits on `origin/main`, 1,471 records, read 2026-10-19; Wilson 95% intervals in brackets).
 

@@ -39,5 +39,5 @@ kill_criteria:
   - A report that a rule, time limit or exemption differs from the cited Directive on the same inputs.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/eu-product-liability-directive-checker/
+  production: https://duncan-haywood.github.io/oss-monorepo/eu-product-liability-directive-checker/
   analytics: null

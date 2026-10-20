@@ -56,5 +56,5 @@ kill_criteria:
   - A user reports a Publication 523 worksheet figure the tool contradicts on a point of arithmetic, at which point the exclusion handling needs revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/home-sale-exclusion-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/home-sale-exclusion-calculator/
   analytics: null

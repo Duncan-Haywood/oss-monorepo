@@ -38,5 +38,5 @@ kill_criteria:
   - A report that a credit rule or cap differs from IRS Form 8881 instructions for the stated year.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/retirement-plan-startup-credit-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/retirement-plan-startup-credit-calculator/
   analytics: null

@@ -76,5 +76,5 @@ kill_criteria:
   - A user reports IRIS rejecting a file this tool passed, or this tool failing a file IRIS accepted, at which point the rules need revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/irs-iris-1099-csv-check/
+  production: https://duncan-haywood.github.io/oss-monorepo/irs-iris-1099-csv-check/
   analytics: null

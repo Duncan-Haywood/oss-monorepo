@@ -2,7 +2,7 @@
 
 **Why this was worth doing.** The research guardrails say every citation must be checked, but this session cannot reach any bibliographic service (Crossref returned HTTP 403 through the egress proxy), so earlier runs wrote "from memory, not re-verified" and moved on. Nobody had counted how much of the portfolio that covers. **Result:** of 550 project READMEs, 94 (17.1%) have at least one line that flags a citation or figure as unverified (137 flagged lines); 41 distinct author-year works appear on those lines, and a handful recur: Dawid and Skene (1979) in 10 projects, Zhang et al. (2019) in 9, Horowitz (2014) and Horvitz (1999) in 6 each. Checking those four works once, from a session with network access, would clear the flag in a large share of the affected projects. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/free-citeaudit/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/free-citeaudit/
 
 **Builds on.** Nothing external; no CU Boulder group's work is built on or implied. This audits the repository's own READMEs.
 

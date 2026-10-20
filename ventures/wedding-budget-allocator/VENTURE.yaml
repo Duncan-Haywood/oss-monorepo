@@ -45,5 +45,5 @@ kill_criteria:
   - A user reports a materially wrong allocation from this tool's output despite the disclaimers, at which point the baselines or wording need revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/wedding-budget-allocator/
+  production: https://duncan-haywood.github.io/oss-monorepo/wedding-budget-allocator/
   analytics: null

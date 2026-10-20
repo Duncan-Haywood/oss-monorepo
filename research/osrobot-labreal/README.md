@@ -2,7 +2,7 @@
 
 Follow-up to `osrobot-lab` (track 9, open-source purpose-built robots), in the direction of the HIRO Group's robots in chemistry labs. It takes that project's first listed next step: run the same checks through the real Opentrons simulator and compare. Produced with AI assistance (Claude). Python standard library plus, for the real-simulator half only, `opentrons==8.0.0` (Apache-2.0). **Stylised and preliminary:** the 522 faults were written for the twin by the same author, so the comparison is on a fault set that favours the twin; nothing here is a claim about a physical robot.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/osrobot-labreal/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/osrobot-labreal/
 
 ![Share of seeded faults flagged per fault kind, twin against real simulator](experiments/detection.svg)
 
