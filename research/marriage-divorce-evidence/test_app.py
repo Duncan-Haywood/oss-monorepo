@@ -41,6 +41,9 @@ class AppTests(unittest.TestCase):
     def test_nsfg_pooled_bundle(self):
         self.run_node('nsfg_pooled.test.mjs')
 
+    def test_newlywed_bundle(self):
+        self.run_node('newlywed.test.mjs')
+
     def test_nlsy97_bundle(self):
         self.run_node('nlsy97.test.mjs')
 
