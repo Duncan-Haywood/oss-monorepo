@@ -83,6 +83,9 @@ class AppTests(unittest.TestCase):
     def test_hcmst_dating_bundles_match_sklearn(self):
         self.run_node('hcmst_dating.test.mjs')
 
+    def test_nlsy97_cohab_bundles_match_sklearn(self):
+        self.run_node('nlsy97_cohab.test.mjs')
+
     def test_lenses_and_scenarios(self):
         self.run_node('lenses.test.mjs')
 
@@ -233,6 +236,19 @@ class RelationshipDatasetTests(unittest.TestCase):
             yr = r['window'][-4:]
             key = ('married_by_' if r['outcome'] == 'married' else 'broke_up_by_') + yr
             self.assertEqual(int(r['events']), audit[key])
+
+    def test_nlsy97_cohabitation_audit(self):
+        import csv, json
+        src = self.SRC / 'nlsy97_cohabitation_to_marriage'
+        audit = json.loads((src / 'sample_audit.json').read_text())
+        self.assertEqual(audit['respondents'], 8984)  # NLSY97 round-1 sample
+        self.assertEqual(sum(audit['events'].values()), audit['first_cohabitations'])
+        for t, key in (('married', 'nlsy97_cohab_marriage'), ('split', 'nlsy97_cohab_split')):
+            b = json.loads((APP / 'models' / f'{key}.json').read_text())
+            self.assertEqual(b['training']['events'], audit['events'][t])
+            self.assertEqual(b['stage'], 'before')
+        allc = next(r for r in csv.DictReader(open(src / 'cumulative_incidence.csv')) if r['group'] == 'All first cohabitations')
+        self.assertLess(float(allc['married_by_10y']) + float(allc['split_by_10y']), 1)
 
     def test_presex_odds_ratios(self):
         import csv
