@@ -3649,6 +3649,11 @@
      "slug": "house-market",
      "title": "What does a new home cost to build in the US and Colorado in 2026, and where does the money go?",
      "summary": "A sourced, dated market report. The median new US home sold for $393,700 in August 2026 (&minus;5.8% y/y) while inputs to residential construction rose 10.3%, mortgage rates reached 7.4% and builder sentiment hit its lowest since 2012. On NAHB&rsquo;s 2024 breakdown, construction is 64.4% of price and foundations, framing and exterior 26%, so a 20% cheaper structural system moves the price only 5.2%; HUD-code manufactured homes cost about 52% of site-built per sq ft by building the whole house in a factory. In Denver, itemised fees and a 209-day plan review are about 12% of a modelled $462,000 home before land, against 3.5% nationally. Technique cost studies are old and often industry-funded; several figures are search excerpts, marked in the data."
+    },
+    {
+     "slug": "house-energyprices",
+     "title": "Does the cost-optimal home envelope change when invented fuel prices are replaced by EIA state prices?",
+     "summary": "Re-runs <code>house-energy</code>'s exhaustive 640-package search in six climates with EIA state residential prices (2025 gas, Jan&ndash;Jul 2026 electricity) instead of invented ones. The optimum is unchanged in 10 of 12 cases; the 30-year saving over the baseline moves by &minus;$496 to +$549; advanced 2x6 walls still win, and R-49 attics (27&ndash;40 y) and U&nbsp;0.27 windows (74&ndash;107 y) still do not pay. Only fuel prices are sourced; component costs are still invented. Stylised."
     }
    ]
   },
