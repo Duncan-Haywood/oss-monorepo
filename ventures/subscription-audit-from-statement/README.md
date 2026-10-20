@@ -17,6 +17,8 @@ a subscription-manager app.
   Six months is the least that works well; twelve also catches yearly charges.
 - Purchases negative or positive, and month-first or day-first dates, are detected and can be set by hand.
 
+**Layouts covered by tests** (written from each bank's published export format, not from a live account): Chase, Amex, Capital One, Citi, Bank of America, US Bank, PNC, Discover, Apple Card, Mint, Monzo, Revolut, and ING-style files that give an unsigned amount plus a Debit/Credit column. Files with **no header row** (Wells Fargo) are read by column shape: the date column, the numeric amount column and the longest text column; the page names the columns it picked so you can check them.
+
 **Column names are matched by alias and unverified against real bank exports.** Comma, semicolon and
 tab files, UTF-16, `$` signs, parentheses and thousands separators are read.
 

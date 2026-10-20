@@ -321,3 +321,44 @@ test("monthlyTimeline: sums detected recurring charges per calendar month and fl
   assert.equal(tl[3].partial, true);
   assert.equal(tl[1].partial, false);
 });
+
+// Real-world export layouts. Headers are written from the banks' published
+// formats and are unverified against a live account (README, "Input").
+test("bank layouts: Apple Card, Revolut, ING, and header-less Wells Fargo style files all read", () => {
+  const cases = {
+    apple: ["Transaction Date,Clearing Date,Description,Merchant,Category,Type,Amount (USD)", "01/05/2026,01/06/2026,NETFLIX,Netflix,Entertainment,Purchase,15.49"],
+    revolut: ["Type,Product,Started Date,Completed Date,Description,Amount,Fee,Currency,State,Balance", "CARD_PAYMENT,Current,2026-01-05 10:00:00,2026-01-06 10:00:00,Netflix,-15.49,0.00,GBP,COMPLETED,100"],
+    citi: ["Status,Date,Description,Debit,Credit", "Cleared,01/05/2026,NETFLIX,15.49,"],
+  };
+  for (const [k, lines] of Object.entries(cases)) {
+    const r = read(lines.join("\n"));
+    assert.ok(!r.error, k + ": " + r.error);
+    assert.equal(r.rows[0].spend, 15.49, k);
+  }
+});
+
+test("an unsigned amount with a Debit/Credit direction column (ING) is read as money out and money in", () => {
+  const r = read("Date;Name / Description;Debit/credit;Amount (EUR)\n20260105;Netflix;Debit;\"15,49\"\n20260110;Refund;Credit;\"5,00\"\n");
+  assert.ok(!r.error, r.error);
+  assert.equal(r.rows.length, 1);
+  assert.equal(r.rows[0].spend, 15.49);
+  assert.equal(r.credits, 1);
+  assert.equal(isoDay(r.rows[0].day), "2026-01-05");
+});
+
+test("a file with no header row (Wells Fargo) is read by column shape, and says so", () => {
+  const text = [1, 2, 3, 4].map((m) => `"0${m}/05/2026","-15.49","*","","NETFLIX.COM 866-579-7172 CA"`).join("\n") + "\n";
+  const r = read(text);
+  assert.ok(!r.error, r.error);
+  assert.equal(r.rows.length, 4);
+  assert.equal(r.rows[0].desc, "NETFLIX.COM 866-579-7172 CA");
+  assert.equal(r.rows[0].line, 1);
+  assert.equal(r.columns.desc, "column 5");
+  const a = analyze(r.rows);
+  assert.equal(a.active.length, 1);
+});
+
+test("a header-less file that is not a statement still gets the header error", () => {
+  const r = read("hello,world\nfoo,bar\nbaz,qux\n");
+  assert.match(r.error, /No header row/);
+});
