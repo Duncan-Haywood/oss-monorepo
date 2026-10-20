@@ -177,13 +177,29 @@ function driftAdjust(x, m, trend0, profile) {
  * Returns { adjusted, slope } with the slope per point; the adjusted series
  * keeps the mean level of the input.
  */
+/** `trend` option to a bend budget: 'bend' is one, 'bend:3' or 3 is up to three, anything else none. */
+function bendCount(trend) {
+  if (trend === 'bend') return 1;
+  const m = /^bend:(\d)$/.exec(String(trend));
+  return m ? Number(m[1]) : 0;
+}
+
 export function trendAdjust(x, { penalty = 'bic', minSegment = 2, passes = 10, ar1 = false, bend = false } = {}) {
   const n = x.length;
+  const maxBends = bend === true ? 1 : Math.max(0, Math.min(4, Math.floor(Number(bend)) || 0));
   const d = [];
   for (let i = 1; i < n; i++) d.push(x[i] - x[i - 1]);
   const c = (n - 1) / 2;
-  // the removed line: slope b1 up to the knot, b2 after it, continuous at the knot (knot null: one slope)
-  const line = (b1, b2, knot) => (t) => (knot === null || t <= knot ? b1 * (t - c) : b1 * (knot - c) + b2 * (t - knot));
+  // the removed line: slopes[0] up to knots[0], slopes[1] up to knots[1], ..., continuous at every knot (no knots: one slope)
+  const line = (slopes, knots) => (t) => {
+    let v = slopes[0] * (Math.min(t, knots.length ? knots[0] : t) - c), from = knots.length ? knots[0] : t;
+    for (let j = 0; j < knots.length && t > knots[j]; j++) {
+      const to = j + 1 < knots.length ? Math.min(t, knots[j + 1]) : t;
+      v += slopes[j + 1] * (to - from);
+      from = to;
+    }
+    return v;
+  };
   const detrend = (f) => x.map((v, t) => v - f(t));
   // pooled within-segment least-squares slope over the points t in [lo, hi) of each segment
   const pooled = (bounds, lo, hi, fallback) => {
@@ -204,19 +220,18 @@ export function trendAdjust(x, { penalty = 'bic', minSegment = 2, passes = 10, a
     // with ar1, sticky noise widens the scale, so its wandering is not cut into steps that then bend the slope
     return pelt(y, { model: 'mean', penalty: mult * penaltyValue(penalty, n, 'mean'), minSegment, sigma: ar1 ? longRunSd(sd, ar1Rho(y)) : sd }).changepoints;
   };
-  const fit = (knot) => {
-    let b1 = median(d), b2 = b1;
+  const fit = (knots) => {
+    let slopes = new Array(knots.length + 1).fill(median(d));
+    const edges = [0, ...knots.map((k) => k + 1), n];
     for (let k = 0; k < passes; k++) {
-      const cps = segment(detrend(line(b1, b2, knot)), 3);
-      const bounds = [0, ...cps, n];
-      const n1 = pooled(bounds, 0, knot === null ? n : knot + 1, b1);
-      const n2 = knot === null ? n1 : pooled(bounds, knot + 1, n, b2);
-      const done = Math.abs(n1 - b1) < 1e-9 && Math.abs(n2 - b2) < 1e-9;
-      b1 = n1; b2 = n2;
+      const bounds = [0, ...segment(detrend(line(slopes, knots)), 3), n];
+      const next = slopes.map((b, j) => pooled(bounds, edges[j], edges[j + 1], b));
+      const done = next.every((b, j) => Math.abs(b - slopes[j]) < 1e-9);
+      slopes = next;
       if (done) break;
     }
     // BIC of steps under the final line: n ln(rss/n) plus ln n per step and per slope parameter
-    const y = detrend(line(b1, b2, knot));
+    const y = detrend(line(slopes, knots));
     const cps = segment(y, 1);
     const bounds = [0, ...cps, n];
     let rss = 0;
@@ -225,19 +240,27 @@ export function trendAdjust(x, { penalty = 'bic', minSegment = 2, passes = 10, a
       m /= bounds[i + 1] - bounds[i];
       for (let t = bounds[i]; t < bounds[i + 1]; t++) rss += (y[t] - m) ** 2;
     }
-    const params = 1 + (knot === null ? 0 : 2) + 2 * cps.length;
-    return { b1, b2, knot, y, bic: n * Math.log(Math.max(rss, 1e-12) / n) + params * Math.log(n) };
+    const params = 1 + 2 * knots.length + 2 * cps.length;
+    return { slopes, knots, bic: n * Math.log(Math.max(rss, 1e-12) / n) + params * Math.log(n) };
   };
-  let best = fit(null);
-  if (bend && n >= 40) {
-    const step = Math.max(1, Math.round(n / 40));
-    for (let knot = Math.ceil(0.2 * n); knot <= Math.floor(0.8 * n); knot += step) {
-      const f = fit(knot);
-      if (f.bic < best.bic) best = f;
+  let best = fit([]);
+  if (maxBends && n >= 40) {
+    const step = Math.max(1, Math.round(n / 40)), gap = Math.ceil(0.15 * n);
+    // greedy: add the knot that lowers BIC most, keep going while one still does
+    for (let b = 0; b < maxBends; b++) {
+      let found = null;
+      for (let knot = Math.ceil(0.2 * n); knot <= Math.floor(0.8 * n); knot += step) {
+        if (best.knots.some((k) => Math.abs(k - knot) < gap)) continue;
+        const f = fit([...best.knots, knot].sort((p, q) => p - q));
+        if (f.bic < (found || best).bic) found = f;
+      }
+      if (!found) break;
+      best = found;
     }
   }
-  const out = { adjusted: detrend(line(best.b1, best.b2, best.knot)), slope: best.b1 };
-  if (best.knot !== null) Object.assign(out, { slopeAfter: best.b2, knot: best.knot });
+  const out = { adjusted: detrend(line(best.slopes, best.knots)), slope: best.slopes[0] };
+  if (best.knots.length) Object.assign(out, { slopeAfter: best.slopes[1], knot: best.knots[0] });
+  if (best.knots.length > 1) Object.assign(out, { slopes: best.slopes, knots: best.knots });
   return out;
 }
 
@@ -795,10 +818,10 @@ export function analyze(input = {}) {
     if (model === 'poisson') throw new Error('The seasonal adjustment subtracts a profile, which breaks counts: use "mean" or "meanvar" with a period.');
     ({ adjusted: values, profile } = seasonalAdjust(original, period, { drift: !!o.drift }));
   }
-  let slope = null, slopeAfter, knot;
+  let slope = null, slopeAfter, knot, slopes, knots;
   if (o.trend) {
     if (model === 'poisson') throw new Error('The trend removal subtracts a line, which breaks counts: use "mean" or "meanvar" with a trend.');
-    ({ adjusted: values, slope, slopeAfter, knot } = trendAdjust(values, { penalty: o.penalty, minSegment: Math.max(1, Math.floor(Number(o.minSegment) || (model === 'meanvar' ? 5 : 2))), ar1: !!o.ar1 && model === 'mean', bend: o.trend === 'bend' }));
+    ({ adjusted: values, slope, slopeAfter, knot, slopes, knots } = trendAdjust(values, { penalty: o.penalty, minSegment: Math.max(1, Math.floor(Number(o.minSegment) || (model === 'meanvar' ? 5 : 2))), ar1: !!o.ar1 && model === 'mean', bend: bendCount(o.trend) }));
   }
   let sigma = robustSd(values);
   let rho = null;
@@ -871,7 +894,7 @@ export function analyze(input = {}) {
     model,
     noiseSd: round(sigma),
     ...(period ? { seasonal: { period, profile: profile.map((v) => round(v)) } } : {}),
-    ...(slope !== null ? { trend: { slopePerPoint: round(slope, 6), ...(knot !== undefined ? { slopeAfter: round(slopeAfter, 6), slopeChangesAt: knot } : {}) } } : {}),
+    ...(slope !== null ? { trend: { slopePerPoint: round(slope, 6), ...(knot !== undefined ? { slopeAfter: round(slopeAfter, 6), slopeChangesAt: knot } : {}), ...(knots ? { slopes: slopes.map((v) => round(v, 6)), slopeChangesAtAll: knots } : {}) } } : {}),
     ...(rho !== null ? { ar1: { rho: round(rho, 3) } } : {}),
     pelt: { penalty: round(p.penalty), minSegment, changepoints: changes, segments },
     bocpd: {

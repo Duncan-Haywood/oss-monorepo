@@ -564,3 +564,22 @@ test('trend bend: a ramp whose slope doubles is one line with a bend, not a step
   assert.ok(bent / N < 0.5 * (plain / N));
   assert.ok(found >= 0.85 * N && falseBend <= 0.15 * N);
 });
+
+test('trend bend:3: a three-slope ramp is found with two knots, and one bend alone is not enough', () => {
+  const N = 40, n = 300;
+  let one = 0, two = 0, both = 0, falseMore = 0, k1 = 0, k2 = 0;
+  const ramp = (seed) => normals(rng(seed), n).map((e, i) => 0.1 * i + 0.15 * Math.max(0, i - 100) - 0.3 * Math.max(0, i - 200) + e);
+  for (let s = 901; s <= 900 + N; s++) {
+    const x = ramp(s);
+    one += analyze({ values: x, trend: 'bend' }).pelt.changepoints.length;
+    const r = analyze({ values: x, trend: 'bend:3' });
+    two += r.pelt.changepoints.length;
+    const ks = r.trend.slopeChangesAtAll || [];
+    if (ks.length >= 2 && Math.abs(ks[0] - 100) <= 8 && Math.abs(ks[1] - 200) <= 8) { both++; k1 += ks[0]; k2 += ks[1]; }
+    const straight = normals(rng(s + 100), n).map((e, i) => 0.1 * i + e);
+    const q = analyze({ values: straight, trend: 'bend:3' }).trend;
+    falseMore += q.slopeChangesAt !== undefined;
+  }
+  console.log(`# bend:3 on a three-slope ramp: ${one / N} changes/series with one bend, ${two / N} with up to three; both knots within 8 in ${both}/${N} (mean ${(k1 / both).toFixed(1)}, ${(k2 / both).toFixed(1)}); false bend on straight ramps ${falseMore}/${N}`);
+  assert.ok(both >= 0.7 * N && falseMore <= 0.15 * N && two < one);
+});

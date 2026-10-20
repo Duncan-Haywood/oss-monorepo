@@ -171,6 +171,14 @@ series, 40 each, in `engine.test.mjs`):
   0.48 with `--trend bend`; mean knot 100.5, mean second slope 0.195; with a step of 5 added at 150 it was found
   in 40 of 40; on 40 straight ramps with no bend, a bend was kept in 0 of 40. One bend only; CLI, API
   (`trend: 'bend'`) and the web page (the "Trend under the steps" box). Output: `trend.slopeAfter`, `trend.slopeChangesAt`.
+- **More than one bend (`--trend bend:3`).** `bend:N` (N up to 4) adds knots greedily: after the first bend it tries
+  every other knot at least 15% of the series away, keeps the one that lowers BIC most, and repeats until none does
+  or N bends are used. On 300 points with slopes 0.1, 0.25 and -0.05 (knots at 100 and 200), seeds 901..940: 6.7
+  changes per series with `--trend bend` (one knot), 1.65 with `bend:3`; both knots within 8 points of the truth in
+  31 of 40 (mean 99.0 and 201.4); a bend on 40 straight ramps in 0 of 40. It is not perfect: 9 of 40 series kept one
+  knot or placed one off. Greedy search can miss two bends that only pay off together. Output adds
+  `trend.slopes` and `trend.slopeChangesAtAll` when there are two or more. CLI `--trend bend:3`, API
+  `trend: 'bend:3'`, web page select.
 - **`--trend` with `--ar1`.** Sticky noise wanders, and the slope loop inside `--trend` cut that wandering into
   steps whose segments then bent the slope. With `--ar1` the loop now widens its noise scale by the same
   long-run factor. On 200 points, slope 0.1, AR(1) rho 0.5, shift 5 at point 100 (seeds 701..740): PELT gave
