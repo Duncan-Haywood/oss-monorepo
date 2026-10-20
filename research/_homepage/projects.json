@@ -4035,6 +4035,12 @@
     "title": "Does the best quadrotor airframe stay best when motor strength, mass and motor lag are randomised?",
     "summary": "Robustness follow-up to <code>codesign-aero</code>: 50 feasible airframes, each with roll gains tuned on the nominal, a narrow or a wide randomised plant (torque 0.7&ndash;1.0&times;, inertia 0.9&ndash;1.3&times;, motor lag 1&ndash;2&times;, assumed). With nominal-tuned gains the nominal and wide rankings have Spearman 0.75 and the same top five; the nominal optimum is 2nd of 50 on the wide plant, 0.17&deg; behind the best. Tuning gains on the wide plant helps the median airframe by 0.91&deg;. One tuning run per cell, so neighbouring ranks are within noise. Stylised, roll axis only, simulation only."
    }
+   
+   ,{
+    "slug": "codesign-aero-joint",
+    "title": "Should a quadrotor&rsquo;s airframe and controller gains be searched jointly when the plant is uncertain?",
+    "summary": "Follow-up to <code>codesign-aero-robust</code>: joint CMA-ES over arm length, prop diameter and three roll gains, trained on the wide randomised plant, against uniform random search at equal budget and against grid-then-tune. On held-out episodes the median CMA-ES winner reaches 5.75&deg; at 960 evaluations (8 seeds, 5.70&ndash;5.87&deg;) and 5.74&deg; at 4800, random search 6.17&deg; and 5.96&deg;, and the grid&rsquo;s best cell (4800 evaluations, picked on the held-out set) 6.00&deg;. Stylised: assumed constants and ranges, roll axis only, five parameters, coarse grid reference."
+   }
    ,{
     "slug": "codesign-transfer",
     "title": "Does the ranking of printable soft-fruit gripper designs survive a shift in friction, fruit, placement error and print tolerance?",
