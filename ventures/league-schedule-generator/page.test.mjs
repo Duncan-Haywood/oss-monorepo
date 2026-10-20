@@ -778,3 +778,24 @@ test("the cornhole guide's 8-team schedule with a skipped week matches buildSche
   assert.match(page("sitemap.xml"), new RegExp(name));
   assert.match(page("index.html"), new RegExp(`href="\\./${name}"`));
 });
+
+test("multi-division page: disclaimer, imports, element ids, sitemap and link from the index", () => {
+  const html = page("multi-division-league-schedule.html");
+  assert.match(html, /No warranty/);
+  assert.match(html, /not legal or financial advice/i);
+  assert.match(html, /never uploaded/);
+  assert.match(html, /id="optout"/);
+  assert.match(html, /<link rel="canonical" href="\.\/multi-division-league-schedule\.html">/);
+  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./calc.mjs", "./divisions.mjs", "./usage.mjs"]);
+  const ids = new Set([...html.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]));
+  for (const m of html.matchAll(/\$\("#([\w-]+)"\)/g)) assert.ok(ids.has(m[1]), m[1]);
+  const blocks = [...html.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/gs)].map((m) => JSON.parse(m[1]));
+  const faq = blocks.find((b) => b["@type"] === "FAQPage");
+  for (const q of faq.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`) && html.includes(`<p>${q.acceptedAnswer.text}</p>`), q.name);
+  assert.match(page("sitemap.xml"), /multi-division-league-schedule\.html/);
+  assert.match(page("index.html"), /href="\.\/multi-division-league-schedule\.html"/);
+});
+
+test("divisions.mjs guards its command-line entry so it loads in a browser", () => {
+  assert.match(page("divisions.mjs"), /typeof process !== "undefined"/);
+});
