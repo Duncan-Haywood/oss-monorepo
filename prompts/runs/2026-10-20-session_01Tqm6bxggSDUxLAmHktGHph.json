@@ -1,0 +1,45 @@
+{
+  "date": "2026-10-20",
+  "session": "https://claude.ai/code/session_01Tqm6bxggSDUxLAmHktGHph",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-20T18:21:23Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "changepoint-detector: count-trend bend (flagship 1)",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Says 'python3 platform/ci/run_venture_tests.py --changed' but a bare node --test over the venture dir reported 0 pass/1 fail; naming the slug worked."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Local: run_venture_tests.py changepoint-detector 0 failed. Measured 240 counts seeds 700..739: bent series 5.35 -> 1.40 changes/series, bend found 39/40, none on 0/40 straight. PR number and merge filled by PR body; runcost not attached (no transcript tooling run).",
+  "corrections": [],
+  "redteam": null
+}
