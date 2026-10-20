@@ -261,7 +261,7 @@ def scan_one(slug: str, base: Path = RESEARCH) -> dict:
     claims = claim_numbers(readme)
     return {
         "slug": slug,
-        "tests": tests,
+        "tests_defined": tests,
         "claim_numbers": len(claims),
         "claim_traced": traced(claims, corpus),
         "has_data_dir": (d / "data").is_dir(),
@@ -359,21 +359,69 @@ def _load(path: str) -> dict[str, dict]:
     return {r["slug"]: r for r in map(json.loads, Path(path).read_text().splitlines()) if r}
 
 
+def wilson(k: int, n: int, z: float = 1.96) -> tuple[float, float]:
+    if n == 0:
+        return (0.0, 1.0)
+    p = k / n
+    den = 1 + z * z / n
+    mid = (p + z * z / (2 * n)) / den
+    half = z * ((p * (1 - p) / n + z * z / (4 * n * n)) ** 0.5) / den
+    return (max(0.0, mid - half), min(1.0, mid + half))
+
+
+REPRODUCED = {"exact", "numeric", "timing"}
+UNRUN = {"error", "timeout", "missing-dep", "no-runner", "no-results", "ran-nothing-to-compare"}
+
+
+def merge_runs(paths: list[str]) -> dict[str, dict]:
+    """Later passes override earlier ones, but only where they reached a comparison."""
+    out: dict[str, dict] = {}
+    for i, path in enumerate(paths):
+        for slug, r in _load(path).items():
+            if i == 0 or slug not in out or out[slug]["outcome"] not in REPRODUCED | {"differs"}:
+                out[slug] = dict(r, passes=i + 1)
+    return out
+
+
 def cmd_report(args) -> None:
-    runs, scan = _load(args.runs), _load(args.scan)
     from collections import Counter
-    c = Counter(r["outcome"] for r in runs.values())
-    n = len(scan)
-    print(f"projects {n}; rerun outcomes:")
-    for k, v in c.most_common():
-        print(f"  {k:12s} {v:4d}  {100 * v / n:5.1f}%")
-    b = Counter(s["input_basis"] for s in scan.values())
-    print("input basis:", dict(b))
-    cross = Counter((scan[s]["input_basis"], runs.get(s, {}).get("outcome", "?")) for s in scan)
-    for k, v in sorted(cross.items()):
-        print(f"  {k[0]:9s} {k[1]:12s} {v}")
-    deps = Counter(r.get("dep") for r in runs.values() if r["outcome"] == "missing-dep")
-    print("missing deps:", dict(deps))
+    runs, scan = merge_runs(args.runs), _load(args.scan)
+    tests = _load(args.tests) if args.tests else {}
+    rows = []
+    for slug, s in sorted(scan.items()):
+        r = runs.get(slug, {"outcome": "not-run"})
+        rows.append({"slug": slug, "outcome": r["outcome"], "runner": r.get("runner"),
+                     "seconds": r.get("seconds"), "dep": r.get("dep"), "stderr": r.get("stderr"),
+                     "first_diff": r.get("first_diff"), "tests": tests.get(slug, {}).get("tests"),
+                     "tests_summary": tests.get(slug, {}).get("summary"),
+                     **{k: s[k] for k in ("input_basis", "tests_defined", "claim_numbers",
+                                          "claim_traced", "data_kb", "assumed_words",
+                                          "has_limitations", "ai_note") if k in s}})
+    n = len(rows)
+    oc = Counter(r["outcome"] for r in rows)
+    compared = [r for r in rows if r["outcome"] in REPRODUCED | {"differs"}]
+    rep = sum(r["outcome"] in REPRODUCED for r in compared)
+    summary = {
+        "projects": n, "outcomes": dict(oc.most_common()),
+        "compared": len(compared), "reproduced": rep,
+        "reproduced_of_compared_wilson": wilson(rep, len(compared)),
+        "reproduced_of_all_wilson": wilson(rep, n),
+        "tests": dict(Counter(r["tests"] for r in rows).most_common()),
+        "input_basis": dict(Counter(r["input_basis"] for r in rows).most_common()),
+        "claims": sum(r["claim_numbers"] for r in rows),
+        "claims_traced": sum(r["claim_traced"] for r in rows),
+        "missing_deps": dict(Counter(r["dep"] for r in rows if r["outcome"] == "missing-dep").most_common()),
+        "by_track": {},
+    }
+    tracks: dict[str, Counter] = {}
+    for r in rows:
+        t = r["slug"].split("-")[0] if "-" in r["slug"] else r["slug"]
+        t = "twin" if r["slug"].endswith("-twin") or r["slug"].startswith("twin-") else t
+        tracks.setdefault(t, Counter())[r["outcome"]] += 1
+    for t, c in sorted(tracks.items(), key=lambda kv: -sum(kv[1].values())):
+        summary["by_track"][t] = dict(c)
+    Path(args.out).write_text(json.dumps({"summary": summary, "projects": rows}, indent=1) + "\n")
+    print(json.dumps(summary, indent=1))
 
 
 def main(argv=None) -> None:
@@ -399,8 +447,10 @@ def main(argv=None) -> None:
     s = sub.add_parser("scan")
     s.add_argument("--out", required=True)
     p = sub.add_parser("report")
-    p.add_argument("--runs", required=True)
+    p.add_argument("--runs", required=True, nargs="+", help="run passes, earliest first")
     p.add_argument("--scan", required=True)
+    p.add_argument("--tests")
+    p.add_argument("--out", required=True)
     args = ap.parse_args(argv)
     {"run": cmd_run, "tests": cmd_tests, "scan": cmd_scan, "report": cmd_report}[args.cmd](args)
 
