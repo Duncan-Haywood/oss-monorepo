@@ -349,3 +349,29 @@ test("a share link carries the venue-fairness switch and last season's history",
   assert.equal(spec.venueFairness, true);
   assert.ok(buildDivisions(spec).config.venueFairness);
 });
+
+test("fairnessWeight: 0 matches fairness off, a low weight evens venues for no extra travel, a bad value is named (8 seeds, 3 seasons)", () => {
+  const run = (w) => {
+    let imb = 0, trips = 0;
+    for (let seed = 1; seed <= 8; seed++) {
+      let hist = {};
+      const all = {};
+      for (let y = 0; y < 3; y++) {
+        const s = build({ seed: seed * 10 + y, venueFairness: true, venueHistory: hist, fairnessWeight: w });
+        trips += s.stats.trips;
+        const one = carryVenueHistory({ ...s, config: { ...s.config, venueHistory: {} } });
+        for (const k of Object.keys(one)) { all[k] ||= {}; for (const v of Object.keys(one[k])) all[k][v] = (all[k][v] || 0) + one[k][v]; }
+        hist = carryVenueHistory(s);
+      }
+      imb += venueImbalance(all) / 8;
+    }
+    return { imb, trips };
+  };
+  const off = run(0), low = run(1.5), dflt = run(undefined);
+  assert.ok(low.imb < off.imb / 2, `imbalance ${low.imb} vs ${off.imb}`); // measured 1.73 against 5.83 (README)
+  assert.ok(low.trips <= off.trips * 1.05, `venue changes ${low.trips} vs ${off.trips}`); // measured 1020 against 1028
+  assert.ok(dflt.trips > low.trips); // the default weight of 3 buys a little more evenness with more travel
+  const bad = readDivisionsSpec({ ...example, fairnessWeight: "lots" });
+  assert.ok(bad.errors.some((e) => /fairness weight/.test(e)));
+  assert.equal(readDivisionsSpec({ ...example, fairnessWeight: "1.5" }).spec.fairnessWeight, 1.5);
+});

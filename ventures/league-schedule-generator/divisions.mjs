@@ -97,6 +97,7 @@ function playDays(start, weekdays, skip) {
  * `venueFairness: true` (or any `venueHistory`) also weighs how often each team has played at each venue, so a team that
  * had the far or poor venue most of last season gets the other one this season. `venueHistory` carries earlier seasons in
  * (`carryVenueHistory` builds it from a finished schedule); with fairness on and no history it evens out within the season.
+ * `fairnessWeight` (default 3, against 5 per venue change) sets how hard fairness pulls against travel: 0 ignores it, 10 puts it first.
  * `optimize: false` is the naive baseline (matches take cells in the order they come), kept so the
  * gain can be measured. Returns { divisions[{name, teams, rounds[{day, label, matches[]}]}], nights[], conflicts[], stats, config }.
  */
@@ -133,6 +134,7 @@ export function buildDivisions(spec) {
   const venueList = [...new Set(courts.map(venueOf))];
   const history = spec.venueHistory && typeof spec.venueHistory === "object" ? spec.venueHistory : null;
   const fair = venueList.length > 1 && Boolean(spec.venueFairness || (history && Object.keys(history).length));
+  const wFair = Number.isFinite(Number(spec.fairnessWeight)) && Number(spec.fairnessWeight) >= 0 ? Number(spec.fairnessWeight) : W_FAIR;
   const tally = new Map(); // "d/t" -> {venue: matches played there, earlier seasons included}
   const tallyOf = (k) => { let o = tally.get(k); if (!o) { o = Object.fromEntries(venueList.map((v) => [v, 0])); tally.set(k, o); } return o; };
   if (fair && history) divs.forEach((d, di) => d.teams.forEach((name, ti) => { const h = history[`${d.name}/${name}`]; if (h) for (const v of venueList) tallyOf(`${di}/${ti}`)[v] += Number(h[v]) || 0; }));
@@ -202,7 +204,7 @@ export function buildDivisions(spec) {
       }
       return s;
     };
-    const total = (cells) => cells.reduce((s, c, k) => s + W_TRIP * trip(ms[k], c) + W_FAIR * unfair(ms[k], c) + clashCost(k, c, cells) / 2, 0);
+    const total = (cells) => cells.reduce((s, c, k) => s + W_TRIP * trip(ms[k], c) + wFair * unfair(ms[k], c) + clashCost(k, c, cells) / 2, 0);
     if (optimize) {
       let cur = total(cellOf);
       const iters = (travel ? 6000 : 600) + 40 * ms.length; // a travel table has more to gain from search (measured in divisions.test.mjs)
@@ -621,7 +623,9 @@ export function readDivisionsSpec(f) {
     if (venueHistory && (typeof venueHistory !== "object" || Array.isArray(venueHistory))) { errors.push("Venue history must be an object of Division/Team to venue counts."); venueHistory = undefined; }
   }
   const venueFairness = f.venueFairness === true || /^(1|true|yes|on)$/i.test(String(f.venueFairness || ""));
-  return { errors, spec: { venueFairness, venueHistory, divisions: d.divisions, courts: names, venues, times: t.times, start, weekdays: w.weekdays, skipDays: skip.days, courtClosures: cc.closures, links: l.groups, travel: tr.travel, seed: Number.isFinite(Number(f.seed)) ? Math.trunc(Number(f.seed)) : 1, splitRounds: f.split === true || /^(1|true|yes|on)$/i.test(String(f.split || "")) } };
+  const fw = String(f.fairnessWeight ?? "").trim();
+  if (fw !== "" && !(Number.isFinite(Number(fw)) && Number(fw) >= 0 && Number(fw) <= 100)) errors.push("The fairness weight is a number from 0 to 100 (default 3).");
+  return { errors, spec: { venueFairness, venueHistory, ...(fw !== "" && Number.isFinite(Number(fw)) ? { fairnessWeight: Number(fw) } : {}), divisions: d.divisions, courts: names, venues, times: t.times, start, weekdays: w.weekdays, skipDays: skip.days, courtClosures: cc.closures, links: l.groups, travel: tr.travel, seed: Number.isFinite(Number(f.seed)) ? Math.trunc(Number(f.seed)) : 1, splitRounds: f.split === true || /^(1|true|yes|on)$/i.test(String(f.split || "")) } };
 }
 
 // node divisions.mjs spec.json  ->  text read-out (add --csv for the CSV, or --history for next season's venueHistory). spec.json holds the form fields.
@@ -646,7 +650,7 @@ if (typeof process !== "undefined" && process.argv && import.meta.url === `file:
 
 // ---------------------------------------------------------------- share link
 
-const SHARE_FIELDS = ["divisions", "courts", "times", "start", "weekdays", "skip", "courtClosures", "travel", "links", "rainouts", "split", "venueFairness", "venueHistory", "seed"];
+const SHARE_FIELDS = ["divisions", "courts", "times", "start", "weekdays", "skip", "courtClosures", "travel", "links", "rainouts", "split", "venueFairness", "venueHistory", "fairnessWeight", "seed"];
 
 /** Form fields -> URL-safe text for the `#` part of a link (`#d=...`). The fragment is never sent to a server. */
 export function encodeDivisionFields(f) {

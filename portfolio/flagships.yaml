@@ -131,7 +131,7 @@ flagships:
       with multi-season carry-over is in (venueFairness, venueHistory, CLI --history; 3-season imbalance
       5.83 -> 1.29 matches, at +18% venue changes; README). The page has the switch and a box for last season's
       counts, prints next season's history to paste back, and share links carry both (checked in headless
-      Chromium). Next: a weight between fairness and travel, or letting a relocation swap two make-ups' nights.
+      Chromium). The weight between fairness and travel is in (fairnessWeight, a box on the page; weight 1.5 cuts 3-season imbalance 5.83 -> 1.73 at 1,020 venue changes against 1,028 with fairness off, README). Next: letting a relocation swap two make-ups' nights, or choosing the weight from the league's own travel times.
   - venture: open-tennis-robots
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
