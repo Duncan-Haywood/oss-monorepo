@@ -123,8 +123,9 @@ flagships:
       now counted (stats.homeAwayBreaks: 176 -> 395 on 8 seeded leagues) and a
       balance option trims them 12% at +5 days of delay (README), off by default. Home/away flip of moved matches is in
       (`flip: true`, a final pass, no delay: 345 -> 333 breaks on 7 seeds, README; small because teams sit at
-      +/-1 home games). Next: swap pairs of moved matches between two teams so totals stay even (a single flip
-      needs an opposite-signed partner), or multi-season carry-over of venue fairness.
+      +/-1 home games). Swapping pairs of moved matches was measured and dropped (40 seeds: 1996 -> 1934 with
+      single flips, no change from pairs; README). Next: multi-season carry-over of venue fairness, or moving a match
+      to another night when that removes a break at no delay cost.
   - venture: open-tennis-robots
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
