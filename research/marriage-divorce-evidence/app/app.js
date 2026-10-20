@@ -1,5 +1,5 @@
 // UI for the couple divorce-odds calculator. All computation is local (couple.js, engine.js).
-import { SCHOOL, DEGREE, WORK, RELIGION, RACE_ETH, refusals, lensNotes, adapterFor, scoringModels, isBaseline, project, constantSurvival, explain, groupedTerms, selfChanges, coupleChanges, idealPartners, lensSummary, encodeScenario, decodeScenario } from './couple.js';
+import { SCHOOL, DEGREE, WORK, RELIGION, RACE_ETH, refusals, lensNotes, adapterFor, scoringModels, isBaseline, excludeReason, project, lifelong, constantSurvival, explain, groupedTerms, selfChanges, coupleChanges, idealPartners, lensSummary, lensView, shareOod, encodeScenario, decodeScenario } from './couple.js';
 
 const $ = (s) => document.querySelector(s);
 const pct = (x, d = 0) => (100 * x).toFixed(d) + '%';
@@ -52,6 +52,7 @@ function readForm() {
 let bundle;
 let state;
 let lenses = []; // [{ entry, bundle, summary }]
+let mortality = null; // UN WPP 2024 U.S. death rates (data/us_mortality_wpp2024.json)
 
 const fmtN = (x) => (Number.isFinite(x) ? Math.round(x).toLocaleString('en-US') : '—');
 
@@ -119,11 +120,29 @@ function render() {
   const years = project(bundle, a, b, couple, horizon);
   state = { a, b, couple, years };
   renderTiles(years, couple);
+  renderLifelong(a, b, couple, horizon);
   renderChart(years, couple);
   renderYearTable(years);
   renderModels(years);
   renderExplain();
   renderChanges(a, b, couple);
+  renderCompare(a, b, couple);
+}
+
+// Each lens's own 10-year estimate for this couple, or why it gives none. Never pooled.
+function renderCompare(a, b, couple) {
+  const rows = lenses.map((l) => {
+    const name = esc(l.summary.label);
+    if (!l.summary.scorable) return `<tr class="out"><td>${name}</td><td colspan="3">listed only: inputs not on the form, or a different outcome</td></tr>`;
+    const why = refusals(l.bundle, a, b, couple);
+    if (why.length) return `<tr class="out"><td>${name}</td><td colspan="3">no number: ${esc(why[0])}</td></tr>`;
+    const p = project(l.bundle, a, b, couple, 10);
+    const y = p[p.length - 1];
+    const inData = p.every((z) => z.inSupport);
+    const here = l.bundle === bundle ? ' <small>(shown above)</small>' : ` <button type="button" class="link" data-lens="${esc(l.summary.id)}">view</button>`;
+    return `<tr${inData ? '' : ' class="out"'}><td>${name}${here}</td><td class="num">${pct(y.meanSurvival, 1)}</td><td class="num">${pct(y.minSurvival, 1)}–${pct(y.maxSurvival, 1)}</td><td>${inData ? 'inside the data' : 'extrapolated: ' + esc(p.find((z) => !z.inSupport).issues[0])}</td></tr>`;
+  });
+  $('#compareTable').innerHTML = '<thead><tr><th>Lens</th><th class="num">No divorce by year 10</th><th class="num">Model range</th><th>Data support</th></tr></thead><tbody>' + rows.join('') + '</tbody>';
 }
 
 // Links to the other lenses that can score this couple, inside their own data range.
@@ -142,7 +161,7 @@ function renderTiles(years, couple) {
   $('#tiles').innerHTML = marks.map((n) => {
     const y = at(years, couple, n);
     const all = years.slice(0, n).every((z) => z.inSupport);
-    const label = n === years.length ? `Through year ${y.year} (“lifelong” proxy)` : `Through year ${y.year}`;
+    const label = n === years.length ? `Through year ${y.year} (if both partners live)` : `Through year ${y.year}`;
     return `<div class="tile${all ? '' : ' out'}"><div class="k">${label}</div><div class="v">${pct(y.meanSurvival)}</div>
       <div class="r">models: ${pct(y.minSurvival)}–${pct(y.maxSurvival)}</div>${all ? '' : '<div class="flag">includes years outside the data</div>'}</div>`;
   }).join('');
@@ -172,6 +191,18 @@ function observedReference() {
   const fmt = (g) => (g && Number.isFinite(g.still_married_10y) ? pct(g.still_married_10y) : null);
   if (!fmt(all)) return '';
   return ` Observed in the survey (weighted Kaplan–Meier, no model): ${fmt(all)} of all first marriages were intact at 10 years${fmt(grp) ? `, and ${fmt(grp)} where the ${band.toLowerCase()}` : ''}.`;
+}
+
+// The lifelong estimate with competing mortality; the tiles above assume both partners live.
+function renderLifelong(a, b, couple, horizon) {
+  if (!mortality) {
+    $('#lifelong').innerHTML = '<p class="note">The mortality table did not load, so the lifelong split is not shown; the tiles above assume both partners live.</p>';
+    return;
+  }
+  const L = lifelong(bundle, mortality, a, b, couple, horizon);
+  const tile = (k, s, note) => `<div class="tile"><div class="k">${k}</div><div class="v">${pct(s.mean)}</div><div class="r">models: ${pct(s.min)}–${pct(s.max)}</div>${note ? `<div class="flag">${note}</div>` : ''}</div>`;
+  $('#lifelong').innerHTML = `<div class="tiles three">${tile('Lifelong: ends only when a partner dies', L.widowhood)}${tile('Ends in divorce', L.divorce)}${tile(`Still married, both alive, after year ${L.lastYear}`, L.stillMarried)}</div>`
+    + `<p class="small">Each year, the lens’s divorce rate competes with the death of either partner (UN World Population Prospects 2024 U.S. death rates by age, sex and calendar year, CC BY 3.0 IGO). The three shares add to 100%. These are population death rates: married people live longer than average and spouses’ deaths are linked, neither of which is modelled.${L.extrapolated ? ` ${L.extrapolated} of the ${L.horizon} years use divorce rates outside the lens’s data.` : ''}</p>`;
 }
 
 function renderChart(years, couple) {
@@ -233,7 +264,7 @@ function renderModels(years) {
     + scoringModels(bundle).map((m) => `<tr><td>${esc(m.label)}</td><td class="num">${m.heldout.deviance_improvement_percent.toFixed(1)}%</td><td class="num">${(1000 * years[0].rates[m.key]).toFixed(1)} per 1,000</td><td class="num">${pct(y10.survival[m.key], 1)}</td><td class="num">${pct(last.survival[m.key], 1)}</td></tr>`).join('')
     + bundle.models.filter(isBaseline).map((m) => {
       const p = project(bundle, state.a, state.b, state.couple, years.length, [m]);
-      return `<tr class="out"><td>${esc(m.label)} — baseline, ignores the couple; not averaged</td><td class="num">${m.heldout.deviance_improvement_percent.toFixed(1)}%</td><td class="num">${(1000 * p[0].rates[m.key]).toFixed(1)} per 1,000</td><td class="num">${pct(p[Math.min(9, p.length - 1)].survival[m.key], 1)}</td><td class="num">${pct(p[p.length - 1].survival[m.key], 1)}</td></tr>`;
+      return `<tr class="out"><td>${esc(m.label)} — ${esc(excludeReason(m))}</td><td class="num">${m.heldout.deviance_improvement_percent.toFixed(1)}%</td><td class="num">${(1000 * p[0].rates[m.key]).toFixed(1)} per 1,000</td><td class="num">${pct(p[Math.min(9, p.length - 1)].survival[m.key], 1)}</td><td class="num">${pct(p[p.length - 1].survival[m.key], 1)}</td></tr>`;
     }).join('')
     + `<tr><td>Average training rate (no inputs)</td><td class="num">0%</td><td class="num">${(1000 * bundle.constant_rate).toFixed(1)} per 1,000</td><td class="num">${pct(constantSurvival(bundle, 10), 1)}</td><td class="num">${pct(constantSurvival(bundle, years.length), 1)}</td></tr></tbody>`;
 }
@@ -255,13 +286,17 @@ function renderExplain() {
     $('#explain').innerHTML = `<div class="two path">${e.tree.map((t, i) => `<div><h3>${esc(labels[i] || '')}</h3><ol>${describe(t)}</ol><p>Leaf rate ${(1000 * t.rate).toFixed(1)} per 1,000 per year (${t.leafSamples.toLocaleString('en-US')} training intervals)</p></div>`).join('')}</div>`;
     return;
   }
-  const rows = groupedTerms(e.terms).filter(([, v]) => Math.abs(v) > 0.005);
-  const maxAbs = Math.max(0.1, ...rows.map(([, v]) => Math.abs(v)));
+  // Forest attributions are in rate units; every other model's are logs (rate or odds).
+  const rateScale = e.scale === 'rate';
+  const rows = groupedTerms(e.terms).filter(([, v]) => Math.abs(rateScale ? 1000 * v : v) > 0.005);
+  const maxAbs = Math.max(rateScale ? 0.0001 : 0.1, ...rows.map(([, v]) => Math.abs(v)));
+  const fmtVal = (v) => (rateScale ? `${v >= 0 ? '+' : '−'}${(1000 * Math.abs(v)).toFixed(1)}/1,000` : `×${Math.exp(v).toFixed(2)}`);
+  const unit = { rate: 'Values are changes in the annual rate per 1,000 couples (path attributions summed over the forest’s trees).', hazard_log_odds: 'Values multiply the odds of a break-up in the year.', log_rate: 'Values multiply the annual rate.' }[e.scale] || '';
   $('#explain').innerHTML = `<div class="bars">${rows.map(([k, v]) => {
     const w = (Math.abs(v) / maxAbs) * 50;
     const left = v < 0 ? 50 - w : 50;
-    return `<div>${esc(k)}</div><div class="track"><div class="axis"></div><div class="bar" style="left:${left}%;width:${w}%;opacity:${v < 0 ? 0.55 : 1}"></div></div><div class="val">×${Math.exp(v).toFixed(2)}</div>`;
-  }).join('')}</div><p class="small">Bars right of the line raise the model’s rate; left lower it. Reference rate ${(1000 * Math.exp(e.intercept)).toFixed(1)} per 1,000 per year.</p>`;
+    return `<div>${esc(k)}</div><div class="track"><div class="axis"></div><div class="bar" style="left:${left}%;width:${w}%;opacity:${v < 0 ? 0.55 : 1}"></div></div><div class="val">${fmtVal(v)}</div>`;
+  }).join('')}</div><p class="small">Bars right of the line raise the model’s rate; left lower it. ${unit}${e.scale === 'log_rate' ? ` Reference rate ${(1000 * Math.exp(e.intercept)).toFixed(1)} per 1,000 per year.` : ''}</p>`;
 }
 
 function renderChanges(a, b, couple) {
@@ -302,7 +337,7 @@ async function loadLenses() {
   }
   const loaded = await Promise.all(entries.map(async (entry) => {
     try {
-      const b = await (await fetch('models/' + encodeURIComponent(entry.file))).json();
+      const b = lensView(await (await fetch('models/' + encodeURIComponent(entry.file))).json());
       return { entry, bundle: b, summary: lensSummary(b, entry) };
     } catch {
       return null; // a lens that fails to load is skipped, not fatal
@@ -314,7 +349,8 @@ async function loadLenses() {
 async function main() {
   $('fieldset[data-who="a"]').insertAdjacentHTML('beforeend', personFields('a'));
   $('fieldset[data-who="b"]').insertAdjacentHTML('beforeend', personFields('b'));
-  lenses = await loadLenses();
+  [lenses, mortality] = await Promise.all([loadLenses(), fetch('data/us_mortality_wpp2024.json').then((r) => r.json()).catch(() => null)]);
+  shareOod(lenses.map((l) => l.bundle));
   const scorableFirst = lenses.slice().sort((x, y) => Number(y.summary.scorable) - Number(x.summary.scorable));
   $('#lensSel').innerHTML = scorableFirst.map((l) => `<option value="${esc(l.summary.id)}">${esc(l.summary.label)}${l.summary.scorable ? '' : ' (listed only)'}</option>`).join('');
   const fromHash = decodeScenario(location.hash);

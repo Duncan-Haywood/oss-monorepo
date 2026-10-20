@@ -575,3 +575,20 @@ test("applyMoves applies a suggested fix, re-verifies, and refuses a move that b
   const acc = specFrom("A\nB\nC\nD", "A @ accessible", { seatsPerTable: 3, tableCount: 2, accessTables: [0] });
   assert.match(applyMoves(acc, optimize(acc), [{ guest: "A", to: 2 }]).errors.join(" "), /accessible/);
 });
+
+test("parseRules: 'group Kids @ 2' pins every guest in that group, and the plan honours it", () => {
+  const spec = specFrom("Ann | | Adults\nBo | | Kids\nCy | | Kids\nDee | | Adults\nEd | | Kids\nFay | | Adults\nGus | | Adults\nHal | | Adults",
+    "group Kids @ 2\nGroup: adults @ 1", { seatsPerTable: 5, tableCount: 2, balance: false });
+  assert.equal(spec.rules.filter((r) => r.kind === "pin").length, 8);
+  assert.deepEqual(validateSpec(spec), []);
+  const res = optimize(spec);
+  spec.guests.forEach((g, i) => assert.equal(res.table[i], g.group === "Kids" ? 1 : 0, g.name));
+  assert.deepEqual(verifyPlan(spec, res), []);
+});
+
+test("parseRules: group pin reports an unknown group and a bad table number", () => {
+  const { guests } = parseGuests("Ann | | Adults\nBo | | Kids");
+  const { errors } = parseRules("group Teens @ 2\ngroup Kids @ x", guests);
+  assert.equal(errors.length, 2);
+  assert.match(errors[0], /no guest has the group "Teens"/);
+});

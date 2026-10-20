@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync, existsSync } from "node:fs";
-import { buildSchedule, readSpec, teamSchedule, roundRobin, countBreaks, validateSchedule, dayLabel } from "./calc.mjs";
+import { buildSchedule, readSpec, teamSchedule, roundRobin, countBreaks, validateSchedule, dayLabel, parseDate } from "./calc.mjs";
 
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
 const GUIDE = "how-to-make-a-round-robin-schedule.html";
@@ -752,6 +752,29 @@ test("the chess club guide's 7-player round robin matches buildSchedule() with o
     assert.ok(html.includes(row), row);
   });
   assert.ok(teams.every((t) => byes[t] === 1 && white[t] === 3));
+  assert.match(page("sitemap.xml"), new RegExp(name));
+  assert.match(page("index.html"), new RegExp(`href="\\./${name}"`));
+});
+
+test("the cornhole guide's 8-team schedule with a skipped week matches buildSchedule() and is linked and in the sitemap", () => {
+  const name = "cornhole-league-schedule.html";
+  const html = page(name);
+  assert.match(html, /No warranty/);
+  assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.ok(html.includes(`<link rel="canonical" href="./${name}">`));
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`) && html.includes(`<p>${q.acceptedAnswer.text}</p>`), q.name);
+  const teams = ["Bag Daddies", "Hole Punchers", "Toss Bosses", "Sack Attack", "Board Meeting", "Corn Stars", "Slide Rules", "Airmailers"];
+  const { errors, spec } = readSpec({ teams: teams.join("\n"), start: "2026-06-03", weekdays: ["Wed"], skip: "2026-07-01", courts: "Lane 1\nLane 2", times: "18:30\n19:30" });
+  assert.deepEqual(errors, []);
+  const s = buildSchedule(spec);
+  assert.ok(validateSchedule(s).ok);
+  assert.equal(s.rounds.length, 7);
+  assert.ok(s.rounds.every((r) => dayLabel(r.day) !== dayLabel(parseDate("2026-07-01"))));
+  s.rounds.forEach((r) => {
+    const row = `<tr><td>${r.label}</td><td>${dayLabel(r.day)}</td><td>${r.matches.map((m) => `${m.homeName} v ${m.awayName} (${m.court}${m.time ? " " + m.time : ""})`).join(", ")}</td></tr>`;
+    assert.ok(html.includes(row), row);
+  });
   assert.match(page("sitemap.xml"), new RegExp(name));
   assert.match(page("index.html"), new RegExp(`href="\\./${name}"`));
 });

@@ -195,6 +195,17 @@ class NextTaskTests(unittest.TestCase):
         self.assertFalse(v.dispatchable)
         self.assertIn("BLOCKED", next_task(v))
 
+    def test_published_customer_contact_claim_ranks_behind_in_repo_work(self):
+        pub = make("pub", stage="idea", mrr=None)
+        pub.hypotheses = [{"claim": "Sellers return.", "status": "untested", "evidence": "customer-contact"}]
+        pub.production_url = "https://example.invalid/"
+        code = make("code", stage="idea", mrr=None)
+        code.hypotheses = [{"claim": "Engine matches.", "status": "untested", "evidence": "in-repo"}]
+        self.assertTrue(pub.awaits_visitors)
+        self.assertFalse(code.awaits_visitors)
+        self.assertEqual([v.name for v in rank([pub, code])], ["code", "pub"])
+        self.assertIn("awaiting visitors", next_task(pub))
+
     def test_publishing_unblocks_a_customer_contact_claim(self):
         v = make("v", stage="idea", mrr=None)
         v.hypotheses = [

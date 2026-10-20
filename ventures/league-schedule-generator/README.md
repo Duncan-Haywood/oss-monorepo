@@ -67,6 +67,7 @@ Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 - Results grid: under the standings, a team-by-team grid of every score so far (row team's goals first), in table order, so an organiser sees at a glance who has not yet met (`crossTable` in `calc.mjs`).
 - Result check: a warning when a pair has more typed results than meetings in the schedule (a duplicated line that would count twice in the table) or a result for a pair that never meets (`resultsCheck` in `calc.mjs`).
 - Results to chase: once results are typed, a warning lists matches dated before today that have no result yet (a pair's results are matched to its meetings earliest first), so a missing score is named rather than silently counted as unplayed (`overdueResults` in `calc.mjs`).
+- Season grid: "Download season grid CSV" writes one row per team and one column per date, each cell `v Opponent` (home), `@ Opponent` (away) or `BYE`, so a coach or the clubhouse wall sees a whole season on one sheet (`seasonGrid`, `seasonGridCsv` in `calc.mjs`).
 - Standings CSV: once results are typed, "Download standings CSV" saves the ranked table (`standingsCsv` in `calc.mjs`).
 - Rest report: the fairness note shows the shortest and longest days between each team's games and counts games that follow within a day (`restReport` in `calc.mjs`).
 - Home/away runs: the fairness note flags any team stuck with three or more home or away games in a row and names it (`homeAwayReport` in `calc.mjs`).
@@ -85,6 +86,7 @@ Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 - `how-to-run-a-mexicano-tournament.html` - guide to Mexicano draws (1 & 4 against 2 & 3 from the table) with a worked 8-player, 2-court example that the test suite recomputes from `mexicanoNextRound`.
 - `rec-basketball-league-schedule.html` - guide to a 10-team, 2-court, 3-tip-off-time Wednesday league with a worked table that the test suite recomputes from `buildSchedule`.
 - `volleyball-league-schedule.html` - guide to a 6-team, 2-gym Thursday league where Gym 2 is closed two nights, with a worked table (overflow games moved to makeup nights) that the test suite recomputes from `buildSchedule`.
+- `cornhole-league-schedule.html` - guide to an 8-team, 2-lane, 2-start-time Wednesday league with a skipped holiday week; the table is recomputed by the test suite from `buildSchedule()`.
 - `darts-league-schedule.html` - guide to a 6-pub, home-and-away double round robin over 10 Thursdays (5 home, 5 away each), table recomputed by the test suite.
 - `chess-club-round-robin-schedule.html` - guide to a 7-player club round robin on 3 boards with one bye each, table recomputed by the test suite.
 - `how-to-run-a-double-elimination-tournament.html` - guide to winners/losers brackets, byes and the grand final reset with a worked 6-team example that the test suite recomputes from `doubleEliminationBracket`.
