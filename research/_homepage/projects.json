@@ -4042,6 +4042,11 @@
     "summary": "Follow-up to <code>codesign-aero-robust</code>: joint CMA-ES over arm length, prop diameter and three roll gains, trained on the wide randomised plant, against uniform random search at equal budget and against grid-then-tune. On held-out episodes the median CMA-ES winner reaches 5.75&deg; at 960 evaluations (8 seeds, 5.70&ndash;5.87&deg;) and 5.74&deg; at 4800, random search 6.17&deg; and 5.96&deg;, and the grid&rsquo;s best cell (4800 evaluations, picked on the held-out set) 6.00&deg;. Stylised: assumed constants and ranges, roll axis only, five parameters, coarse grid reference."
    }
    ,{
+    "slug": "codesign-aero-seeds",
+    "title": "Is the quadrotor airframe ranking from one tuning run reproducible, or is it tuning noise?",
+    "summary": "Seed-repeat follow-up to <code>codesign-aero-robust</code>: the 50-airframe grid is re-tuned and re-scored six times with independent CMA-ES, training and held-out seeds. With gains tuned on the wide randomised plant the ranking is highly reproducible (Spearman 0.99 between replicates, same top five every time); with nominal-tuned gains it is noisier (0.84, winner varies in arm length), so the earlier &ldquo;rank 2, 0.17&deg; regret&rdquo; was inside the noise. Retuning for the wide plant helps the median airframe by 0.88&deg; on average. Stylised (assumed constants, roll axis only, six replicates)."
+   }
+   ,{
     "slug": "codesign-transfer",
     "title": "Does the ranking of printable soft-fruit gripper designs survive a shift in friction, fruit, placement error and print tolerance?",
     "summary": "Takes the <code>codesign-agri</code> contact model unchanged and widens what it holds fixed: per world the fruit size, placement error, wetness, bruise threshold and stem pull are drawn, and the printed gripper differs from the design (pad modulus, force and width tolerance). Over 600 random feasible designs and 30 held-out worlds the Spearman rank correlation with the nominal world is 0.993, so a nominal winner is a good candidate. The level still falls: the nominal CMA-ES optimum loses 13% of its objective (0.653 to 0.567), and a robust optimum trained on 10 other worlds gains only 0.015 on average and 0.034 in the worst world, from single runs. Sim-to-sim in a stylised model with assumed ranges; no gripper was printed."
