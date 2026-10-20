@@ -86,6 +86,7 @@
     <textarea id="courtClosures" rows="2" placeholder="Gym A: 2026-12-03"></textarea>
     <label for="travel">Travel minutes between venues (optional, one per line)</label>
     <textarea id="travel" rows="2" placeholder="Park - School: 25"></textarea>
+    <label style="font-weight:normal"><input type="checkbox" id="split" style="width:auto"> Fill every slot: when a division's round does not fit the courts left tonight, play part of it now and the rest next night (shorter season; each team still plays once a night)</label>
     <h2 style="margin-top:18px">3. Teams that share a coach or players (optional)</h2>
     <label for="links">One group per line, written Division/Team</label>
     <textarea id="links" rows="3" placeholder="U10/Hawks, U12/Hawks"></textarea>
@@ -151,8 +152,8 @@
     const STORE = "league-schedule-generator-divisions";
     let last = null;
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-    const read = () => Object.fromEntries(FIELDS.map((f) => [f, $("#" + f).value]).concat([["seed", $("#seed").value]]));
-    const fill = (o) => FIELDS.forEach((f) => { $("#" + f).value = o[f] || ""; });
+    const read = () => Object.fromEntries(FIELDS.map((f) => [f, $("#" + f).value]).concat([["seed", $("#seed").value], ["split", $("#split").checked ? "1" : ""]]));
+    const fill = (o) => { FIELDS.forEach((f) => { $("#" + f).value = o[f] || ""; }); $("#split").checked = Boolean(o.split); };
     function download(name, text, type) {
       const a = document.createElement("a");
       a.href = URL.createObjectURL(new Blob([text], { type }));
