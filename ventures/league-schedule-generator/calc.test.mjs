@@ -1980,6 +1980,7 @@ test("oneDayTimetable minRest: every pair meets once, no team twice in a slot, r
   assert.equal(oneDayTimetable(names(5), { double: true, minRest: 1 }).games, 20);
   assert.throws(() => oneDayTimetable(names(4), { minRest: 9 }), /Rest slots/);
   assert.match(oneDayText(oneDayTimetable(names(8), { courts: 2, minRest: 1 })), /Every team rests at least 1 slot/);
+});
 
 test("season grid has one cell per team per round and agrees with the schedule", () => {
   for (const n of [4, 5, 7]) {
