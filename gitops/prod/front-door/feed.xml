@@ -12,7 +12,7 @@
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/csv-to-sepa-pain001/"/>
     <id>tag:marisstella.dev,2026:tool/csv-to-sepa-pain001</id>
     <updated>2026-10-20T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free CSV to SEPA converter: turn a spreadsheet of supplier or payroll payments into a pain.001 XML file for your bank&#39;s bulk upload. Checks every IBAN and amount first, writes exact control totals, and never uploads your list.</summary>
   </entry>
   <entry>
@@ -20,7 +20,7 @@
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/csv-to-sepa-pain008/"/>
     <id>tag:marisstella.dev,2026:tool/csv-to-sepa-pain008</id>
     <updated>2026-10-20T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free CSV to SEPA direct debit converter: turn a spreadsheet of member or customer collections into a pain.008 XML file for your bank. Checks every IBAN, mandate and your creditor identifier first, groups FRST/RCUR/OOFF/FNAL batches, and never uploads your list.</summary>
   </entry>
   <entry>
