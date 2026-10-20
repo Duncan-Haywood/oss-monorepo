@@ -715,6 +715,8 @@ test("swap rows without the received coin or a value are reported, not guessed",
   const bad = parseTransactions("date,type,asset,quantity,total,to asset,to quantity\n2024-03-01,swap,ETH,1,3500,ETH,5\n2024-03-01,swap,ETH,1,3500,,\n2024-03-01,swap,ETH,1,,SOL,5\n");
   assert.equal(bad.transactions.length, 0);
   assert.equal(bad.errors.length, 3);
+});
+
 test("tax-software CSV: five columns, US dates, rows with no purchase left out and counted", () => {
   const r = analyze("date,type,asset,quantity,total\n2023-01-10,buy,BTC,1,10000\n2024-02-01,sell,BTC,1,15000\n2024-03-01,sell,ETH,1,100\n", { year: 2024 });
   const lines = toTurboTaxCsv(r.rows).trim().split("\n");
