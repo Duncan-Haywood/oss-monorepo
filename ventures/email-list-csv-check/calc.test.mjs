@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { validate, repair, checkSyntax, suggestDomain, aliasKey, isRoleLocal, isDisposable, parseCsv, toCsv, decodeBuffer, findingsCsv, sampleFile, sampleBrokenFile, PLATFORMS } from "./calc.mjs";
+import { validate, repair, checkSyntax, suggestDomain, aliasKey, isRoleLocal, isDisposable, parseCsv, toCsv, decodeBuffer, findingsCsv, sampleFile, sampleBrokenFile, PLATFORMS, parseSuppression, suppressedBy } from "./calc.mjs";
 
 const file = (...rows) => ["Email,First Name,Status", ...rows].join("\n") + "\n";
 const has = (r, code) => r.findings.some((f) => f.code === code);
@@ -204,4 +204,33 @@ test("findings CSV defuses spreadsheet formulas", () => {
 test("empty input", () => {
   assert.ok(has(validate("  \n"), "empty"));
   assert.match(repair("").error, /empty/);
+});
+
+test("do-not-email list: exact and domain matches are rejected, alias matches only flagged", () => {
+  const list = file("Ann@Example.org,Ann,subscribed", "b.o@gmail.com,Bo,subscribed", "x@spam.example,X,subscribed", "keep@example.org,Kay,subscribed");
+  const suppress = "ann@example.org\nbo@gmail.com\n@spam.example\n";
+  const r = validate(list, { suppress });
+  assert.equal(r.summary.counts.suppressed, 2);
+  assert.equal(r.summary.counts.suppressedAlias, 1);
+  assert.equal(r.summary.suppressionLoaded, true);
+  const fixed = repair(list, { suppress });
+  assert.equal(fixed.kept, 2);
+  assert.match(fixed.rejectedText, /On the do-not-email list/);
+  assert.match(fixed.rejectedText, /Domain is on the do-not-email list/);
+  assert.ok(fixed.changes.some((c) => /do-not-email/.test(c)));
+});
+
+test("do-not-email list: Gmail alias of a suppressed address is flagged, not removed", () => {
+  const list = file("b.o+news@gmail.com,Bo,subscribed");
+  const r = validate(list, { suppress: "bo@gmail.com" });
+  assert.ok(has(r, "suppressed-alias"));
+  assert.equal(repair(list, { suppress: "bo@gmail.com" }).kept, 1);
+});
+
+test("do-not-email list parsing: any export format, junk ignored", () => {
+  assert.equal(parseSuppression("hello\n\n"), null);
+  const s = parseSuppression('﻿Email,Reason\n"A@x.com",unsub\nnot-an-email\n@y.example');
+  assert.ok(s.emails.has("a@x.com") && s.domains.has("y.example"));
+  assert.equal(suppressedBy(s, "a@X.com"), "exact");
+  assert.equal(suppressedBy(null, "a@x.com"), "");
 });
