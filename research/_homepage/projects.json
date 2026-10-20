@@ -3681,6 +3681,11 @@
      "summary": "Instead of inventing equipment prices, reports the break-even premium at which a heat pump and a gas furnace + AC tie on 30-year net present cost, each with its own cost-optimal envelope, at EIA state prices. In Miami, Houston and Atlanta the heat pump may cost at most $84, $132 and $735 more; in Chicago, Minneapolis and Duluth it would have to cost $5,399 to $6,698 <em>less</em>, across 1&ndash;6% discount rates. The southern result flips with gas 25% cheaper. Constant COP flatters the heat pump in the cold; no equipment sizing or incentives. Stylised."
     },
     {
+     "slug": "house-coldcop",
+     "title": "Does a temperature-dependent heat-pump COP change how much more a heat pump can cost than gas before gas wins?",
+     "summary": "Fits an hourly temperature distribution to each climate's degree days and lets heating COP fall with temperature (an assumed curve, floored at 1), then reruns the break-even premium of <code>house-hvacnpc</code>. Seasonal COP is 4.01 in Miami to 2.30 in Duluth, so the constant 2.5 understated the heat pump in the South: the break-even premium rises to $156, $952 and $1,979 in Miami, Houston and Atlanta and falls to &minus;$8,050 in Duluth. Signs do not change; Duluth spans &minus;$1,961 to &minus;$16,661 across nine curves. The curve is assumed, not sourced, and the normal temperature model is crude. Stylised."
+    },
+    {
      "slug": "house-adufees",
      "title": "What does Denver Water's 2026 tap fee cost a 480 sq ft backyard cottage (ADU) against a house?",
      "summary": "From Denver Water&rsquo;s own 2026 schedule: an ADU pays a flat $2,170 inside Denver from 1 July 2026 ($2,055 before), against $5,400 for a house charged on 2,000 sq ft, 60% less. Per floor sq ft the ADU is dearer ($4.52 against $2.70). Denver Water&rsquo;s share is small beside <code>house-market</code>&rsquo;s $16,930 &ldquo;water and sewer SDC&rdquo;, leaving about $12,000 for sewer and other items that this project could not read. One fee only; the page does not say whether the rate applies to lot or floor area."

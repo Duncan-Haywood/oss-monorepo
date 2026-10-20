@@ -38,6 +38,8 @@ hypotheses:
       from barcodes") and will run a free in-browser bulk checker that names
       each bad line and fixes only what the check digit proves.
     status: untested
+    checked: null
+    evidence: customer-contact
     test: >-
       Needs a privacy-respecting visitor count on the live page; read
       portfolio/usage/usage.yaml once the first reading exists.
@@ -48,7 +50,7 @@ hypotheses:
       "non-digit characters" false alarm.
     status: untested
     checked: null
-    evidence: usage-counters
+    evidence: customer-contact
     measure: >-
       share of rejected rows in real visitor files that have "non-digit
       characters"; needs a reading from real visitors, none yet.

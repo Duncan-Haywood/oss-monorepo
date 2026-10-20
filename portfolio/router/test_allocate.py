@@ -49,6 +49,12 @@ def make(
 
 
 class RankTests(unittest.TestCase):
+    def test_real_hypothesis_ranks_before_no_hypothesis(self):
+        empty = make("aaa-empty", stage="prototype", mrr=None)
+        claimed = make("zzz-claimed", stage="prototype", mrr=None)
+        claimed.hypotheses = [{"claim": "People will use X.", "status": "untested"}]
+        self.assertEqual(rank([empty, claimed])[0].name, "zzz-claimed")
+
     def test_zero_mrr_past_revenue_stage_ranks_first(self):
         stuck = make("stuck", stage="revenue", mrr=0)
         exploring = make("exploring", stage="idea", mrr=None)
