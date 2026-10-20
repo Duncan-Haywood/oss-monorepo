@@ -23,7 +23,10 @@ permissions:
 
 concurrency:
   group: ventures-tests-${{ github.ref }}
-  cancel-in-progress: true
+  # PR branches drop superseded runs; on main a run in flight finishes, so each
+  # merge does not cancel the last one's verdict (P038). GitHub still keeps
+  # only the newest pending run per group.
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
   changed-ventures:
