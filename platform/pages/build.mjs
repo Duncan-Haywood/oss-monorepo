@@ -3669,6 +3669,8 @@ const CATEGORY_RULES = [
         'freelance-editor-quote-calculator',
         'gig-driver-net-pay-calculator',
         'influencer-media-kit-generator',
+        // `interview-content-studio` joined 2026-10-20: a creator or small business planning and drafting its own posts across platforms is one person building their own audience, beside the media kit and sponsorship-rate tools.
+        'interview-content-studio',
         'newsletter-sponsorship-rate-calculator',
         'overtime-pay-calculator',
         'personal-trainer-package-pricing-calculator',
@@ -7247,6 +7249,13 @@ export function renderFeedbackPage({ surfaces = [], baseUrl, feedbackUrl = SITE_
   <link rel="canonical" href="${escapeHtml(url)}">
   <link rel="icon" href="${escapeHtml(`${toRoot}favicon.svg`)}" type="image/svg+xml">
   <link rel="alternate icon" href="${escapeHtml(`${toRoot}favicon.ico`)}" sizes="16x16">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="${escapeHtml(title)}">
+  <meta property="og:description" content="${escapeHtml(snippetize(description))}">
+  <meta property="og:url" content="${escapeHtml(url)}">
+  <meta property="og:site_name" content="${escapeHtml(SITE_NAME)}">
+  <meta property="og:image" content="${escapeHtml(`${baseUrl}${SOCIAL_CARD_FILE}`)}">
+  <meta name="twitter:card" content="summary_large_image">
   <style>${CATEGORY_STYLE}${ABOUT_STYLE}${FEEDBACK_STYLE}  </style>
   ${siteStyleLink(toRoot)}
 </head>
@@ -10704,7 +10713,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
 
   // Essays and write-ups from `docs/posts/` (see `writing.mjs`). Indexed, so
   // each post is listed in the hub sitemap below.
-  const posts = await buildWriting(outDir, base, { socialCard: `${base}${SOCIAL_CARD_FILE}` });
+  const posts = await buildWriting(outDir, base, { socialCard: `${base}${SOCIAL_CARD_FILE}`, originAlias: DEFAULT_BASE_URL });
 
   // The lab (see `lab.mjs`): contained, `noindex` experiments in what the
   // site can be. Its handoff page reads catalog.json in the browser.

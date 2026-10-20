@@ -272,10 +272,13 @@ venture, not just `index.html`:
 node platform/pages/clauses.mjs <venture-slug>
 ```
 
-Your venture's CI runs exactly that, so it fails on the PR. Do not rely on
-the Pages suite for it: bot PRs authored with `GITHUB_TOKEN` do not trigger
-Actions here, so that one first runs *after* the merge, on `main`, where it
-turns the Pages build red in a workflow you never touched. Six pages across
+`ventures-tests.yml` runs it for every venture a PR touches
+(`clauses.mjs --changed-since <base>`), so it fails on your PR, names your
+venture and annotates the page in the diff. You do not add it to a
+`<slug>-ci.yml`; until 2026-10-20 each of those carried a copy. Do not rely
+on the Pages suite for it, which runs only on `platform/pages/**` and so
+first catches the page *after* the merge, on `main`, red in a workflow you
+never touched. Six pages across
 three ventures reached `main` that way before the clause was injected — all
 of them copied a sibling's footer instead of this file.
 
@@ -477,8 +480,9 @@ Ship when every line is true:
 - [ ] The §5b **no-warranty** clause is on every page the venture publishes,
       not just the calculator, and any `vs-<competitor>.html` page carries the
       §5f **not-affiliated** trademark disclaimer — `node
-      platform/pages/clauses.mjs <slug>` checks both. The venture's own CI runs
-      this, so it fails on the PR rather than on `main`. (The no-SLA clause is
+      platform/pages/clauses.mjs <slug>` checks both. `ventures-tests.yml` runs
+      it for every venture a PR touches, so it fails on the PR rather than on
+      `main`. (The no-SLA clause is
       injected by the Pages build and is not yours to carry; see §5b.)
 - [ ] `VENTURE.yaml` exists (or the slug is under `product_lines` in its host
       venture's) so the router can see it — `python3 portfolio/router/validate.py`.

@@ -1,7 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import {
-  PAPERS, DEFAULTS, analyze, bocpd, defaultPrior, lgamma, nigLogMarginal, optimalPartitioning, parseSeries, peaks, pelt, robustSd,
+  PAPERS, DEFAULTS, ar1JointFit, analyze, bocpd, defaultPoissonPrior, defaultPrior, gammaPoissonLogMarginal, makeCost, lgamma, nigLogMarginal, optimalPartitioning, ar1Rho, longRunSd, prewhiten, seasonalAdjust, parseSeries, peaks, pelt, robustSd,
 } from './engine.mjs';
 
 // Seeded PRNG (mulberry32) and Box-Muller normals, so every test is reproducible.
@@ -151,4 +152,193 @@ test('every paper is cited with a URL and BibTeX', () => {
     assert.ok(p.implemented.length > 40 && p.deviations.length > 20);
   }
   assert.match(DEFAULTS.csv, /^year,volume\n1871,1120/);
+});
+
+// Poisson counts: Knuth's multiplication sampler on the seeded generator.
+function poissons(r, n, lambda) {
+  const out = [];
+  for (let i = 0; i < n; i++) {
+    const L = Math.exp(-lambda);
+    let k = 0, p = 1;
+    do { k++; p *= r(); } while (p > L);
+    out.push(k - 1);
+  }
+  return out;
+}
+
+test('Poisson cost matches a hand-computed -2 log-likelihood (constant dropped)', () => {
+  // x = [2, 4, 6]: rate 4; -2 sum(x log 4 - 4) = -2 * (12 log 4 - 12) = 24 - 24 log 4.
+  const c = makeCost([2, 4, 6], 'poisson');
+  assert.ok(Math.abs(c(0, 3) - (24 - 24 * Math.log(4))) < 1e-12);
+  assert.equal(makeCost([0, 0, 0], 'poisson')(0, 3), 0);
+});
+
+test('Poisson PELT equals brute-force optimal partitioning', () => {
+  for (let seed = 40; seed < 55; seed++) {
+    const r = rng(seed);
+    const x = [...poissons(r, 25, 3), ...poissons(r, 20, 9), ...poissons(r, 25, 2)];
+    for (const penalty of ['bic', 'aic', 6]) {
+      const a = pelt(x, { model: 'poisson', penalty });
+      const b = optimalPartitioning(x, { model: 'poisson', penalty });
+      assert.deepEqual(a.changepoints, b.changepoints, `seed ${seed} ${penalty}`);
+      assert.ok(Math.abs(a.cost - b.cost) < 1e-8);
+    }
+  }
+});
+
+test('Poisson model recovers a planted rate shift and stays quiet on a constant rate', () => {
+  const r = rng(5);
+  const x = [...poissons(r, 80, 4), ...poissons(r, 70, 12)];
+  const res = analyze({ values: x, model: 'poisson' });
+  assert.equal(res.pelt.changepoints.length, 1);
+  assert.ok(Math.abs(res.pelt.changepoints[0].index - 80) <= 3, String(res.pelt.changepoints[0].index));
+  assert.ok(res.bocpd.detections.some((d) => Math.abs(d.index - 80) <= 4));
+  assert.match(res.summary, /change in rate/);
+  let fp = 0;
+  for (let seed = 200; seed < 220; seed++) if (pelt(poissons(rng(seed), 200, 5), { model: 'poisson' }).changepoints.length) fp++;
+  assert.ok(fp <= 3, String(fp));
+});
+
+test('Poisson BOCPD log evidence equals the closed-form Gamma-Poisson marginal when the hazard vanishes', () => {
+  const x = poissons(rng(9), 40, 6);
+  const prior = defaultPoissonPrior(x);
+  const b = bocpd(x, { hazardLambda: 1e15, prior, prune: 0, model: 'poisson' });
+  const exact = gammaPoissonLogMarginal(x, prior);
+  assert.ok(Math.abs(b.logEvidence - exact) < 1e-6, `${b.logEvidence} vs ${exact}`);
+});
+
+test('Poisson model rejects values that are not counts', () => {
+  assert.throws(() => analyze({ values: [1, 2, 3.5, 4, 5], model: 'poisson' }), /needs counts/);
+  assert.throws(() => analyze({ values: [1, 2, -3, 4, 5], model: 'poisson' }), /needs counts/);
+});
+
+// ---- seasonal adjustment and autocorrelation (measured on seeded synthetic series)
+
+function ar1Series(seed, rho, n, shiftAt = null, shift = 0) {
+  const r = rng(seed);
+  const z = normals(r, n);
+  const x = [];
+  let e = 0;
+  for (let i = 0; i < n; i++) { e = rho * e + z[i]; x.push(e + (shiftAt !== null && i >= shiftAt ? shift : 0)); }
+  return x;
+}
+
+test('ar1Rho recovers the autocorrelation of AR(1) noise, with and without a level shift', () => {
+  for (const rho of [0, 0.5, 0.8]) {
+    const est = [];
+    for (let s = 1; s <= 20; s++) est.push(ar1Rho(ar1Series(s, rho, 400, 200, 6)));
+    const mean = est.reduce((a, b) => a + b, 0) / est.length;
+    assert.ok(Math.abs(mean - rho) < 0.1, `rho ${rho}: mean estimate ${mean}`);
+  }
+});
+
+test('longRunSd is the identity at rho 0 and grows with rho', () => {
+  assert.equal(longRunSd(2, 0), 2);
+  assert.ok(longRunSd(2, 0.8) > longRunSd(2, 0.5));
+});
+
+test('ar1 correction: no-change AR(1) series stop showing false changes', () => {
+  let plain = 0, fixed = 0;
+  const N = 40;
+  for (let s = 1; s <= N; s++) {
+    const x = ar1Series(s, 0.8, 300);
+    plain += analyze({ values: x }).pelt.changepoints.length > 0;
+    fixed += analyze({ values: x, ar1: true }).pelt.changepoints.length > 0;
+  }
+  assert.ok(plain >= 0.9 * N, `uncorrected false-change runs ${plain}/${N}`); // measured 40/40
+  assert.ok(fixed <= 0.2 * N, `corrected false-change runs ${fixed}/${N}`);   // measured 4/40
+});
+
+test('ar1 correction still finds a real shift in autocorrelated noise', () => {
+  let hit = 0;
+  const N = 40;
+  for (let s = 1; s <= N; s++) {
+    const c = analyze({ values: ar1Series(s + 100, 0.8, 300, 150, 8), ar1: true }).pelt.changepoints;
+    if (c.length === 1 && Math.abs(c[0].index - 150) <= 10) hit++;
+  }
+  assert.ok(hit >= 0.8 * N, `found once near 150 in ${hit}/${N}`); // measured 35/40
+});
+
+test('ar1 correction reaches the Bayesian pass (prewhitening)', () => {
+  assert.deepEqual(prewhiten([5, 7, 3], 0.5), [2.5, 4.5, -0.5]);
+  let plain = 0, fixed = 0, hitPlain = 0, hitFixed = 0;
+  const N = 40;
+  const near = (a) => a.bocpd.detections.some((d) => Math.abs(d.index - 150) <= 10);
+  for (let s = 1; s <= N; s++) {
+    const x = ar1Series(s, 0.8, 300);
+    plain += analyze({ values: x }).bocpd.detections.length > 0;
+    fixed += analyze({ values: x, ar1: true }).bocpd.detections.length > 0;
+    const y = ar1Series(s + 100, 0.8, 300, 150, 8);
+    hitPlain += near(analyze({ values: y }));
+    hitFixed += near(analyze({ values: y, ar1: true }));
+  }
+  assert.ok(plain >= 0.9 * N, `uncorrected false Bayesian runs ${plain}/${N}`); // measured 40/40
+  assert.ok(fixed <= 0.1 * N, `corrected false Bayesian runs ${fixed}/${N}`);   // measured 1/40
+  assert.ok(hitFixed >= 0.5 * N, `corrected hits ${hitFixed}/${N}`);            // measured 25/40 (uncorrected ${hitPlain} = 40)
+});
+
+test('seasonalAdjust removes a seasonal cycle and centres the profile', () => {
+  const x = Array.from({ length: 48 }, (_, i) => 10 * Math.sin((2 * Math.PI * i) / 12) + 5);
+  const { adjusted, profile } = seasonalAdjust(x, 12);
+  assert.ok(Math.abs(profile.reduce((a, b) => a + b, 0)) < 1e-9);
+  const mid = adjusted.slice(12, 36);
+  assert.ok(Math.max(...mid) - Math.min(...mid) < 1e-6, 'a pure cycle adjusts to a flat line');
+});
+
+test('seasonal period: a level shift hidden by a strong cycle is found once, near the right place', () => {
+  let plain = 0, adj = 0;
+  const N = 40;
+  for (let s = 1; s <= N; s++) {
+    const r = rng(s + 200);
+    const z = normals(r, 144);
+    const x = z.map((e, i) => 10 * Math.sin((2 * Math.PI * i) / 12) + (i >= 84 ? 4 : 0) + e);
+    plain += analyze({ values: x }).pelt.changepoints.length === 1;
+    const c = analyze({ values: x, period: 12 }).pelt.changepoints;
+    adj += c.length === 1 && Math.abs(c[0].index - 84) <= 1;
+  }
+  assert.equal(plain, 0);               // measured 0/40 without the adjustment
+  assert.ok(adj >= 0.75 * N, `${adj}/${N}`); // measured 33/40
+});
+
+test('seasonal period and ar1 reject inputs they cannot handle', () => {
+  assert.throws(() => analyze({ values: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], period: 12 }), /two full cycles/);
+  assert.throws(() => analyze({ values: Array(40).fill(3), period: 7, model: 'poisson' }), /counts/);
+  assert.throws(() => analyze({ values: [1, 2, 3, 4, 5, 6, 7, 8], ar1: true, model: 'meanvar' }), /"mean" model only/);
+  const r = analyze({ values: ar1Series(1, 0.8, 100), ar1: true });
+  assert.ok(r.ar1.rho > 0.5);
+});
+
+test('joint AR(1) fit: exact against brute force, and more power on small shifts', () => {
+  // PELT on the AR(1) likelihood equals optimal partitioning on the same cost.
+  const y = ar1Series(7, 0.6, 80, 40, 5);
+  const opt = { model: 'ar1mean', penalty: 'bic', sigma: 1, rho: 0.6 };
+  assert.deepEqual(pelt(y, opt).changepoints, optimalPartitioning(y, opt).changepoints);
+  const N = 40;
+  let fp = 0, longHit = 0, jointHit = 0;
+  const once = (c) => c.length === 1 && Math.abs(c[0].index - 150) <= 10;
+  for (let s = 1; s <= N; s++) {
+    fp += analyze({ values: ar1Series(s, 0.8, 300), ar1: 'joint' }).pelt.changepoints.length > 0;
+    const z = ar1Series(s + 100, 0.8, 300, 150, 4);
+    longHit += once(analyze({ values: z, ar1: true }).pelt.changepoints);
+    const j = analyze({ values: z, ar1: 'joint' });
+    jointHit += once(j.pelt.changepoints);
+    assert.ok(j.ar1.rho > 0.5);
+  }
+  assert.ok(fp <= 0.15 * N, `false runs ${fp}/${N}`);                 // measured 4/40
+  assert.ok(jointHit >= longHit, `joint ${jointHit} vs long-run ${longHit}`); // measured 34 vs 28 at shift 4
+  assert.ok(jointHit >= 0.75 * N);
+});
+
+test('PELT agrees with an independent implementation (ruptures) on 100 seeded cases', () => {
+  // data/ruptures-crosscheck.json holds series and the changepoints ruptures'
+  // Pelt (CostL2 for mean, CostNormal for meanvar) returns at the same numeric
+  // penalty; data/make_ruptures_fixture.py regenerates it. sigma = 1 matches the
+  // unit-noise L2 cost.
+  const fixture = JSON.parse(readFileSync(new URL('./data/ruptures-crosscheck.json', import.meta.url), 'utf8'));
+  assert.equal(fixture.cases.length, 100);
+  assert.ok(fixture.cases.filter((c) => c.changepoints.length > 0).length >= 50);
+  for (const c of fixture.cases) {
+    const got = pelt(c.values, { model: c.model, penalty: c.penalty, minSegment: c.minSegment, sigma: 1 });
+    assert.deepEqual(got.changepoints, c.changepoints, `${c.model} penalty ${c.penalty} n=${c.values.length}`);
+  }
 });

@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hanger-pick"
+version = "0.1.0"
+description = "Picking one garment out of a tangled dryer load: a stylised 2D pile model with three scripted pick policies (pinch the top, grasp a visible opening, sweep cover aside then grasp)"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+dependencies = []
+
+[tool.setuptools.packages.find]
+where = ["src"]

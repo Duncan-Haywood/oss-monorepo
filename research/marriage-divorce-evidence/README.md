@@ -22,10 +22,10 @@
 
 In either view, enter two profiles to see:
 
-- a **summary across 15 evidence lenses**: each lens’s chance of divorce or break-up at the horizons its own data support (5/10/20 years for the from-the-wedding lenses; 2 years for GSS; 2.2/4.1/8.4 years for HCMST; 2.3–12 years for the Los Angeles newlyweds; 1 year for SIPP couples and ACS), with the range across its models, its held-out skill (gain, C-index, AUC), how typical the couple is of its data, its population percentile, and a plain-language synthesis of where the lenses agree or disagree and which is most relevant — never a pooled number;
+- a **summary across the evidence lenses for your stage** (9 scorable before the wedding, 7 when already married): each lens’s chance of divorce or break-up at the horizons its own data support (5/10/20 years for the from-the-wedding lenses; 2 years for GSS; 2.2/4.1/8.4 years for HCMST; 2.3–12 years for the Los Angeles newlyweds; 1 year for SIPP couples and ACS), with the range across its models, its held-out skill (gain, C-index, AUC), how typical the couple is of its data, its population percentile, and a plain-language synthesis of where the lenses agree or disagree and which is most relevant — never a pooled number;
 - lenses that ask about the relationship itself: relationship quality (HCMST, for married and unmarried, same-sex and different-sex couples), marriage happiness (GSS panels), and newlywed satisfaction, self-reported hostility and conflict behaviour (an approximation of trained observers’ codes, labelled as such);
 - year-by-year divorce odds and the chance of no divorce by year 40 for the year-by-year lenses;
-- per-input explanations;
+- per-input explanations, one set per partner where a lens scores the couple from both sides (each exact for that partner; the couple's rate is their average);
 - how much the models agree;
 - which changes the models link to lower risk.
 - where the couple sits among each lens’s surveyed population, overall and within their own subgroups (percentiles of held-out predictions, at the reference’s own quantity: cumulative risk, or the annual rate for NLSY79 couples), plus the observed ACS one-year divorce rates for people like each partner, with 95% intervals;

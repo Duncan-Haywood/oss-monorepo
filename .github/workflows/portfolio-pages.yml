@@ -113,8 +113,8 @@ jobs:
         with:
           node-version: "22"
 
-      # The decision-queue step below runs python3; pin it rather than rely on
-      # the runner image happening to ship one (gitops/tests/test_ci_runner.py).
+      # The build step runs portfolio/ledger/decision_queue.py; pin the
+      # interpreter rather than rely on the runner image having python3.
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"

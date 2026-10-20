@@ -88,9 +88,6 @@ jobs:
         run: python3 -m unittest test_devsec -v
       - name: Report viewer and page
         run: node --test viewer.test.mjs page.test.mjs
-      - name: Disclaimer clauses on every page
-        working-directory: .
-        run: node platform/pages/clauses.mjs devsec-toolkit
       - name: Scan the vulnerable fixture (smoke test of the CLI as users run it)
         run: |
           python3 devsec.py scan tests/fixtures/vulnerable-repo --format markdown >> "$GITHUB_STEP_SUMMARY"

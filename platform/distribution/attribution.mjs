@@ -57,6 +57,20 @@ export const CHANNEL_REFS = Object.freeze({
   'wordpress-plugin': 'wordpress',
   'android-play-store': 'android',
   'ios-app-store': 'ios',
+  'desktop-apps': 'desktop',
+  // The distribution hub (platform/distribution/hub.mjs), one row per platform it writes for.
+  'hub-threads': 'threads',
+  'hub-facebook': 'facebook',
+  'hub-instagram': 'instagram',
+  'hub-email': 'email',
+  'hub-x-drafts': 'x',
+  'hub-linkedin-drafts': 'linkedin',
+  'hub-substack-drafts': 'substack',
+  'hub-medium-drafts': 'medium',
+  'hub-tiktok-drafts': 'tiktok',
+  'hub-youtube-drafts': 'youtube',
+  'hub-reddit-drafts': 'reddit',
+  'hub-hn-drafts': 'hn',
 });
 
 
