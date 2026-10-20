@@ -40,6 +40,7 @@ Options:
   --ics [--person <name>]    calendar file for the week (needs --week-start, a Monday); one person's shifts with --person
   --messages                 a paste-ready text per person
   --open-post                a group message for the shifts left open and who could take each (empty when none)
+  --no-prove          skip the exact search (it runs by itself on weeks of up to 14 shifts)
   --prove             also run an exact search (small weeks) and say whether the roster is provably the best, or how far off
   --check             print the report; exit 1 if any shift is left open
   --example           use the built-in invented week
@@ -67,6 +68,7 @@ export function parseArgs(argv) {
     else if (a === "--person") { o.person = argv[++i]; if (!o.person) throw new Error("--person needs a name"); }
     else if (a === "--check") o.check = true;
     else if (a === "--prove") o.options.exact = true;
+    else if (a === "--no-prove") o.options.exact = false;
     else if (a === "--example") o.example = true;
     else if (a === "--last-week") { o.lastWeek = argv[++i]; if (!o.lastWeek) throw new Error("--last-week needs a CSV file"); }
     else if (a === "--week-start") {
