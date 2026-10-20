@@ -16,6 +16,23 @@ on `main` used to carry a `paths:` filter, a hand-kept list of the site's
 inputs. That filter is gone. Every merge to `main` now rebuilds and deploys
 the site. Pull-request builds keep their filter and add `docs/podcast/**`.
 
+## Two more things found while landing it
+
+- **The deploy has been skipped on every run.** The `deploy` job is gated on
+  `vars.PAGES_ENABLED == 'true'`. PR #8776, another session's, found that the
+  variable was never set: today's two green runs on `main`, 39392058290 and
+  39396110224, both show `deploy: skipped`. So no trigger change alone puts
+  anything live. #8776 flips the gate to opt-out (`!= 'false'`) and moves the
+  13–15 minute test suites into a parallel job, so the deploy waits only on
+  build and check. The owner can also just set `PAGES_ENABLED=true` under
+  Settings → Secrets and variables → Actions → Variables.
+- **`main`'s site build was red.** The feedback page from #8723 was held to a
+  product's contract by `check.mjs`, which reported 7 problems and blocked
+  both publishing routes. This PR carries the same fix as PR #8779:
+  `feedback/` joins `SITE_OWN_DIRS`, and the page gets og and twitter tags.
+  The change is identical, so whichever PR lands second no-ops. Locally it
+  checks clean: "publishable: 1305 products, 3816 pages, no dead links".
+
 ## Why the filter had to go
 
 The list kept missing site inputs, and a missing input means a page that
@@ -76,6 +93,12 @@ ventures above, so the site's checker publishes the audio.
 
 ## Next steps for a later agent
 
+0. **Make the deploy actually run.** Land PR #8776, or have the owner set
+   `PAGES_ENABLED=true`. Then confirm in the next `Portfolio Pages` run on
+   `main` that `deploy` ran rather than being skipped. #8776 keeps a push
+   `paths:` list and this PR removes it. When merging `main` into #8776,
+   keep the trigger with no filter, which is the owner's request, and keep
+   its gate and parallel-test changes.
 1. **Land #8711** if it is still open. Merge `main` into
    `claude/jolly-planck-pfieac` (a merge commit, never a rebase: the branch
    is another session's). Conflicts so far were in the extension list in
