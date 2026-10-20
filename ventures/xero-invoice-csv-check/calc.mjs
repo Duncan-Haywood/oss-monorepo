@@ -343,6 +343,10 @@ export function validate(input) {
       else lineSeen.set(sig, L);
     }
 
+    for (const n of ["ContactName", "InvoiceNumber", "Reference", "Description"]) {
+      const v = get(r, n).trim();
+      if (/^[=@]/.test(v) || /^[+-]\s*[A-Za-z(]/.test(v)) add("warning", L, `${n} "${v.slice(0, 30)}" starts like a spreadsheet formula`, "A cell beginning with =, @, + or - is run as a formula when the file is opened in Excel or Sheets, which is how CSV injection works, and Excel may already have mangled it. Prefix it with an apostrophe or reword it.");
+    }
     const desc = get(r, "Description");
     if (desc.length > 4000) add("warning", L, `Description is ${desc.length} characters`, "Xero limits a line description to about 4,000 characters (from memory of its help pages).");
 
@@ -366,6 +370,7 @@ export function validate(input) {
     for (const n of [1, 2]) { const a = get(r, `TrackingName${n}`).trim(), b = get(r, `TrackingOption${n}`).trim(); if ((a && !b) || (!a && b)) add("warning", L, `Tracking ${n} has a ${a ? "name but no option" : "option but no name"}`, "Both halves are needed for Xero to tag the line."); }
   }
 
+  for (const g of groups.values()) if (g.lines && Math.round(g.net * 100) <= 0 && g.net === g.net) add("warning", g.line, g.net < 0 ? `Invoice ${g.number} totals ${g.net.toFixed(2)}` : `Invoice ${g.number} totals zero`, g.net < 0 ? "A negative invoice is a credit note, which Xero imports from its own template, not the sales invoice one. Check the signs on the quantity and unit amount." : "Every line nets to nothing, so the invoice would post as zero. Check for a missing unit amount or quantity.");
   for (const [, m] of contactsByLower) if (m.size > 1) add("warning", [...m.values()][0], `Contact spelled ${m.size} ways: ${[...m.keys()].map((k) => `"${k}"`).join(", ")}`, "Xero matches contacts by exact name, so each spelling can create its own contact. Pick one.");
   for (const [, s] of invoiceLower) if (s.size > 1) add("warning", 0, `Invoice numbers differ only by case: ${[...s].join(", ")}`, "Xero treats invoice numbers as the same regardless of case, so these collide.");
   if (taxTypes.size) add("info", 0, `Tax types used: ${[...taxTypes].map(([k, v]) => `${k} (${v})`).join(", ")}`, "Each must match a tax rate name in your Xero organisation exactly, including capitals and brackets. This tool cannot see your tax rates.");
