@@ -631,3 +631,21 @@ test("North Dakota seven-month test needs an abode and crosses at 211 days", () 
     assert.equal(nd.status === "over", over, `${days} days`);
   }
 });
+
+test("daily log marks Monday to Friday as weekday work and Sunday and Saturday as not", () => {
+  const log = dailyLog(spec(["NY 2025-01-01 to 2025-01-31"]));
+  const byDate = Object.fromEntries(log.map((r) => [r.date, r]));
+  // 2025-01-06 is a Monday, 2025-01-11 a Saturday, 2025-01-12 a Sunday.
+  assert.deepEqual(["2025-01-06", "2025-01-07", "2025-01-10"].map((d) => byDate[d].weekdayWork), [true, true, true]);
+  assert.deepEqual(["2025-01-11", "2025-01-12"].map((d) => byDate[d].weekdayWork), [false, false]);
+  assert.equal(byDate["2025-01-06"].weekday, "Mon");
+});
+
+test("stateAt finds a point whose polygon sits where longitude exceeds latitude", async () => {
+  const { stateAt } = await import("./calc.mjs");
+  // A square at lon 100..110, lat 10..20: the bounding box must use the
+  // latitude values, not the next longitude, or the point is skipped.
+  const rings = { ZZ: [[100, 10, 110, 10, 110, 20, 100, 20]] };
+  assert.equal(stateAt(105, 12, rings), "ZZ");
+  assert.equal(stateAt(105, 25, rings), "");
+});
