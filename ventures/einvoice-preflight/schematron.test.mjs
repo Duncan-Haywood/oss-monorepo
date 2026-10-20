@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { parseSvrl, detectSyntax, runSchematron, schematronAvailable, addonsFor, SEF_DIR } from "./schematron.mjs";
 import { plainFix, hasSpecificFix } from "./schematron-fixes.mjs";
@@ -26,7 +26,10 @@ test("parseSvrl reads rule id, severity, message and a readable path", () => {
 test("plainFix: specific, family and generic fallbacks", () => {
   assert.ok(hasSpecificFix("BR-CO-15"));
   assert.match(plainFix("BR-E-10"), /exemption reason/);
-  assert.match(plainFix("BR-CL-23"), /code list/);
+  assert.match(plainFix("BR-CL-23"), /unit of measure/);
+  assert.match(plainFix("BR-CL-99"), /code list/);
+  assert.match(plainFix("BR-S-05"), /above 0/);
+  assert.match(plainFix("BR-O-11"), /Category O/);
   assert.match(plainFix("PEPPOL-EN16931-R003"), /buyer reference/);
   assert.match(plainFix("ZZ-1"), /re-run/);
 });
@@ -97,4 +100,19 @@ test("every BR-DE rule in the compiled XRechnung add-on has a specific English f
   const ids = [...new Set([...sef.matchAll(/"val":"(BR-DE-\d+(?:-[ab])?|BR-DE-TMP-32)"/g)].map((m) => m[1]))];
   assert.ok(ids.length > 20, `found ${ids.length} ids`);
   assert.deepEqual(ids.filter((id) => !hasSpecificFix(id)), []);
+});
+
+test("every rule id in every compiled Schematron file has a specific English fix", { skip: !existsSync(xrSef) && "run build-schematron.mjs" }, () => {
+  const dir = new URL("./schematron/", import.meta.url);
+  const missing = new Set();
+  let total = 0;
+  for (const f of readdirSync(dir).filter((n) => n.endsWith(".sef.json"))) {
+    const sef = readFileSync(new URL(f, dir), "utf8");
+    for (const m of sef.matchAll(/"val":"((?:BR|PEPPOL)[A-Za-z0-9-]*-[A-Za-z0-9-]+)"/g)) {
+      total++;
+      if (!hasSpecificFix(m[1])) missing.add(m[1]);
+    }
+  }
+  assert.ok(total > 300, `found ${total} ids`);
+  assert.deepEqual([...missing], []);
 });
