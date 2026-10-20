@@ -477,6 +477,31 @@ class ManagedPagesBuilder(unittest.TestCase):
         self.assertIn("never got a runner", cs.render(rows))
 
 
+class RenderCounts(unittest.TestCase):
+    def test_clean_verdict_counts_only_jobs_that_ran(self):
+        rows = cs.report([job(), job(id=3), {"id": 2, "name": "preflight", "status": "completed", "conclusion": "skipped"}])
+        out = cs.render(rows)
+        self.assertIn("All 2 job(s) that ran", out)
+        self.assertIn("(1 skipped by the workflow.)", out)
+
+
+class GhApi(unittest.TestCase):
+    def completed(self, code, out="", err=""):
+        return unittest.mock.Mock(returncode=code, stdout=out, stderr=err)
+
+    def test_returns_decoded_json(self):
+        with unittest.mock.patch("subprocess.run", return_value=self.completed(0, '{"a": 1}')):
+            self.assertEqual(cs.gh_api("repos/o/n"), {"a": 1})
+
+    def test_failure_raises_runtime_error_with_stderr(self):
+        with unittest.mock.patch("subprocess.run", return_value=self.completed(1, "", "bad token")) as run:
+            with self.assertRaises(RuntimeError) as ctx:
+                cs.gh_api("repos/o/n")
+        self.assertIn("bad token", str(ctx.exception))
+        self.assertFalse(run.call_args.kwargs.get("check"))
+        self.assertTrue(run.call_args.kwargs.get("capture_output"))
+
+
 def argparse_ns(**kwargs):
     return argparse.Namespace(**kwargs)
 

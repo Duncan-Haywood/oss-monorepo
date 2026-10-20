@@ -9,6 +9,13 @@ repo), the doc-friction and deviation entries inside them, the `ventures/`
 tree, and timed runs of `allocate.py` and `session_gate.py` in a fresh cloud
 session. Where something could not be measured, it says so.
 
+> **Correction (same day):** two claims below were wrong. The "9 runs" on
+> "project-pages figures" split 29 different projects with no overlap, and
+> `prompts/derive.py` already measures `merged` for 1,242 records. See
+> [`2026-10-20-agent-tooling-judgment.md`](2026-10-20-agent-tooling-judgment.md),
+> which also hands work ranking back to judgment instead of the scored queue
+> proposed here.
+
 ## The short version
 
 - **The fleet is large and parallel.** About 250–290 runs a day since
