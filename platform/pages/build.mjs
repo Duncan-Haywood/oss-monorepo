@@ -7251,9 +7251,6 @@ export function renderFeedbackPage({ surfaces = [], baseUrl, feedbackUrl = SITE_
   <meta property="og:url" content="${escapeHtml(url)}">
   <meta property="og:site_name" content="${escapeHtml(SITE_NAME)}">
   <meta property="og:image" content="${escapeHtml(`${baseUrl}${SOCIAL_CARD_FILE}`)}">
-  <meta property="og:image:width" content="1200">
-  <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="${escapeHtml(`${SITE_NAME} — free, private, in your browser`)}">
   <meta name="twitter:card" content="summary_large_image">
   <style>${CATEGORY_STYLE}${ABOUT_STYLE}${FEEDBACK_STYLE}  </style>
   ${siteStyleLink(toRoot)}

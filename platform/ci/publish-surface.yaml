@@ -470,6 +470,13 @@ workflows:
 - workflow: distribute-bluesky.yml
   classification: none
   publishes: []
+- workflow: distribute-desktop.yml
+  classification: dispatch
+  publishes:
+  - job: release
+    step: runs 'gh release create'
+    gates:
+    - vars.DISTRIBUTE_DESKTOP == 'true'
 - workflow: distribute-devto.yml
   classification: none
   publishes: []

@@ -90,13 +90,13 @@ flagships:
       assignment under rest constraints, blackouts, play-offs, ladders and
       Swiss formats, with a self-hosted league page.
     next: >-
-      Multi-division scheduling on shared venues is in (divisions.mjs: one pass over
-      divisions, courts, times and venues, linked teams kept apart, venue changes
-      -25% against the naive order on the example, unavoidable clashes listed;
-      command line and example-divisions.json). Next: a page for it in index.html
-      with the share link, venue-to-venue travel times instead of a flat trip count,
-      filling partial nights (split a round across nights without breaking its
-      balance) and rainout moves that work across divisions.
+      Multi-division scheduling on shared venues is in (divisions.mjs, and now
+      a browser page, multi-division-league-schedule.html, linked from the
+      index and sitemap; venue changes -25% against the naive order on the
+      example, unavoidable clashes listed). Next: venue-to-venue travel times
+      instead of a flat trip count, filling partial nights (split a round
+      across nights without breaking its balance), rainout moves that work
+      across divisions, and a share link that carries the division form.
   - venture: open-tennis-robots
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
