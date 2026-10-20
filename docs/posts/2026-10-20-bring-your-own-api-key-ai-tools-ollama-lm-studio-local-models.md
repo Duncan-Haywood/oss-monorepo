@@ -86,7 +86,8 @@ README is specific about the three things that decide whether that works,
 and pages are meant to say them:
 
 - **CORS.** Ollama accepts only its own local origins by default. Start it
-  with `OLLAMA_ORIGINS=https://duncan-haywood.github.io`. LM Studio has a CORS
+  with `OLLAMA_ORIGINS` set to the origin of the page you are using (its
+  scheme and host, such as `https://example.github.io`). LM Studio has a CORS
   switch in its server settings. `llama-server` answers cross-origin requests
   by default.
 - **Local network permission.** Recent Chrome versions ask the visitor before
