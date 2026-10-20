@@ -254,3 +254,65 @@ test("an invoice that nets to a negative or zero amount is flagged", () => {
   assert.ok(has(r, /Invoice INV-2 totals zero/));
   assert.ok(!has(r, /INV-3 totals/));
 });
+
+import { parseChart, parseContactList, parseLines, crossCheck, mapAccountNames } from "./calc.mjs";
+
+const CHART = "*Code,*Name,*Type,*Tax Code,Status\n200,Sales,Revenue,20% (VAT on Income),Active\n260,Other Revenue,Revenue,,Active\n300,Purchases,Direct Costs,,Active\n210,Old Sales,Revenue,,Archived\n";
+const lists = () => ({ accounts: parseChart(CHART).accounts, contacts: parseContactList("*ContactName,Email\nHarbour Coffee Roasters Ltd,a@x.example\nBrightside Dental,b@x.example\n"), taxRates: parseLines("20% (VAT on Income)\nTax Exempt\n") });
+
+test("parseChart reads code, name, type and archived status", () => {
+  const { accounts } = parseChart(CHART);
+  assert.equal(accounts.length, 4);
+  assert.equal(accounts[3].archived, true);
+  assert.match(parseChart("Foo,Bar\n1,2\n").error, /Code column/);
+});
+
+test("crossCheck flags unknown, named, near, archived and non-revenue accounts", () => {
+  const r = crossCheck(file(
+    "Brightside Dental,1,01/10/2026,31/10/2026,a,1,5,,999,Tax Exempt,",
+    "Brightside Dental,1,01/10/2026,31/10/2026,b,1,5,,Sales,Tax Exempt,",
+    "Brightside Dental,1,01/10/2026,31/10/2026,c,1,5,,201,Tax Exempt,",
+    "Brightside Dental,1,01/10/2026,31/10/2026,d,1,5,,210,Tax Exempt,",
+    "Brightside Dental,1,01/10/2026,31/10/2026,e,1,5,,300,Tax Exempt,",
+    "Brightside Dental,1,01/10/2026,31/10/2026,f,1,5,,200.0,Tax Exempt,"), lists());
+  const t = titles(r);
+  assert.ok(t.includes('AccountCode "999" is not in your chart of accounts'));
+  assert.match(r.findings.find((f) => /"Sales"/.test(f.title)).detail, /code 200/);
+  assert.match(r.findings.find((f) => /"201"/.test(f.title)).detail, /Did you mean 200|Did you mean 210/);
+  assert.ok(has(r, /Account 210 .* is archived/));
+  assert.ok(has(r, /Account 300 .*Direct Costs/));
+  assert.ok(!has(r, /"200.0"/));
+});
+
+test("crossCheck spots contacts that would duplicate an existing one", () => {
+  const r = crossCheck(file(
+    "Harbour Coffee Roasters,1,01/10/2026,31/10/2026,a,1,5,,200,Tax Exempt,",
+    "brightside dental,2,01/10/2026,31/10/2026,a,1,5,,200,Tax Exempt,",
+    "Brand New Client,3,01/10/2026,31/10/2026,a,1,5,,200,Tax Exempt,",
+    "Brightside Dental,4,01/10/2026,31/10/2026,a,1,5,,200,Tax Exempt,"), lists());
+  assert.match(r.findings.find((f) => /Harbour/.test(f.title)).title, /but "Harbour Coffee Roasters Ltd" is/);
+  assert.ok(has(r, /"brightside dental" differs from "Brightside Dental" only in case/));
+  assert.equal(r.findings.find((f) => /Brand New/.test(f.title)).severity, "info");
+  assert.ok(!has(r, /Contact "Brightside Dental"/));
+});
+
+test("crossCheck requires tax rate names to match exactly", () => {
+  const r = crossCheck(file("A,1,01/10/2026,31/10/2026,a,1,5,,200,tax exempt,", "A,1,01/10/2026,31/10/2026,a,1,5,,200,20% VAT,"), lists());
+  assert.equal(r.findings.filter((f) => f.severity === "error" && /TaxType/.test(f.title)).length, 2);
+  assert.match(r.findings.find((f) => /tax exempt/.test(f.title)).detail, /"Tax Exempt"/);
+});
+
+test("crossCheck does nothing for a list that was not supplied", () => {
+  const r = crossCheck(file("A,1,01/10/2026,31/10/2026,a,1,5,,999,T,"), {});
+  assert.deepEqual(r.findings, []);
+  assert.deepEqual(r.summary.checked, []);
+});
+
+test("mapAccountNames swaps an exact account name for its code and nothing else", () => {
+  const src = file("A,1,01/10/2026,31/10/2026,a,1,5,,Sales,T,", "A,1,01/10/2026,31/10/2026,b,1,5,,Mystery,T,", "A,1,01/10/2026,31/10/2026,c,1,5,,200,T,");
+  const out = mapAccountNames(src, lists().accounts);
+  assert.equal(out.changes.length, 1);
+  assert.match(out.text, /,200,T,/);
+  assert.match(out.text, /Mystery/);
+  assert.doesNotMatch(out.text, /,Sales,/);
+});
