@@ -1,0 +1,2 @@
+{"round": 3, "notes": "Round 2: slip fell to 3-10% but missed (mostly collision) sits at 19-30% and is now the loss; cost is 47-59 USD against the 60 cap. Collision is 1-exp(-n*l/400), so two fingers should cut it, at the price of the caging bonus. Try n=2 with 8 N, a few lengths and pad moduli, plus n=3 at lower force to save cost.",
+ "designs": [[25,26,0.4,8,2],[25,30,0.4,8,2],[25,22,0.4,8,2],[25,26,0.3,7,2],[25,26,0.6,8,2],[22,26,0.4,8,2],[25,26,0.4,6,3],[25,26,0.4,7,3],[25,18,0.4,8,2],[25,34,0.4,8,2]]}
