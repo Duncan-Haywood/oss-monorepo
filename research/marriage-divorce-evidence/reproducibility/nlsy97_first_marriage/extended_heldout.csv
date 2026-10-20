@@ -1,0 +1,11 @@
+model,gain_percent,gain_ci95_low,gain_ci95_high,diff_vs_reference_points,diff_ci95_low,diff_ci95_high,reference,inputs_added,inputs_removed,marriages,dissolutions,intervals,repeats
+constant,0.0000,0.0000,0.0000,-4.8233,-5.6102,-4.0652,current model,,,5076,1906,53140,3
+current model,4.8233,4.0652,5.6102,0.0000,0.0000,0.0000,current model,,,5076,1906,53140,3
+current + race detail (replaces race_ethnicity),4.8197,4.0413,5.6170,-0.0036,-0.0214,0.0147,current model,race_detail,race_ethnicity,5076,1906,53140,3
+"current + family of origin, 6 levels (replaces family_at_12)",4.8083,4.0445,5.6091,-0.0149,-0.0640,0.0340,current model,family_origin,family_at_12,5076,1906,53140,3
+"current + religion detail (8-level attendance replaces the 4-level band; beliefs, importance, parent religiosity)",4.7026,3.9353,5.5112,-0.1207,-0.2173,-0.0336,current model,"attend8, prays_often, obey_teachings, asks_god, no_need_religion, faith_importance, parent_religiosity",attendance_before,5076,1906,53140,3
+current + political interest,4.8030,4.0532,5.6163,-0.0203,-0.0802,0.0369,current model,political_interest,,5076,1906,53140,3
+current + occupation before the wedding,4.8045,4.0444,5.5899,-0.0188,-0.0662,0.0275,current model,occupation_group,,5076,1906,53140,3
+"current + wealth components (financial assets, debts, home owner)",4.7497,3.9792,5.5317,-0.0736,-0.1718,0.0332,current model,"financial_assets_k, debts_k, home_owner",,5076,1906,53140,3
+current + all new blocks,4.5646,3.7668,5.3518,-0.2587,-0.4306,-0.0931,current model,"race_detail, family_origin, attend8, prays_often, obey_teachings, asks_god, no_need_religion, faith_importance, parent_religiosity, political_interest, occupation_group, financial_assets_k, debts_k, home_owner","family_at_12, race_ethnicity, attendance_before",5076,1906,53140,3
+"current, family at 12 as yes/no",4.7925,4.0132,5.5862,-0.0308,-0.0944,0.0320,current model,intact12,family_at_12,5076,1906,53140,3

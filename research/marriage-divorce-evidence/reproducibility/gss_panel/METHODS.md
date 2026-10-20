@@ -280,4 +280,55 @@ GSS_RAW=raw python3 train_models.py # ~15-30 min on 4 cores; GSS_JOBS sets worke
                                     # GSS_CV_CACHE=/path/outside/repo caches out-of-fold predictions
 GSS_RAW=raw python3 cross_section.py
 node --test ../../app/tests/gss_panel.test.mjs
+GSS_RAW=raw python3 extended_predictors.py   # the 2026-10-20 extension below (~10 min)
 ```
+
+## 2026-10-20 extension: family of origin, religion, politics, race, occupation and wealth (`extended_predictors.py`)
+
+Every candidate is answered at wave *t*, before the outcome (family of origin and religion raised are
+retrospective but fixed). Same 2-year sample (4,453 follow-ups, 2,754 people, 203 dissolutions),
+weights and respondent-grouped folds as above; every variant is the additive L1 logistic at C = 0.3
+(the inner CV's usual choice), 5 folds × 5 seeds, and the paired respondent-cluster bootstrap
+(1,000) of each variant's difference from the current model (`../extended_eval.py`).
+
+New inputs: `family_origin` (FAMILY16 + FAMDIF16: both parents / parents divorced or separated /
+a parent died / stepfamily / other — the GSS cannot separate a never-married single parent, which
+falls in "other"), siblings, parents' schooling, family income at 16, place at 16, born in the U.S.;
+attendance with all nine ATTEND answers (so "more than once a week" is its own level), PRAY,
+strength of affiliation (RELITEN), FUND, denomination families (RELIG × DENOM), religion raised
+(RELIG16); POLVIEWS (7 points) and PARTYID (7 points + other); race and Hispanic origin from
+RACECEN1-2 and HISPANIC (White, Black, Hispanic, Asian, AIAN, NHPI, multiracial, other); occupation
+group (OCC10), own and spouse's occupational prestige; home ownership (DWELOWN) and household
+wealth band (WEALTH, asked in 2006 and 2016-18 only).
+
+| Variant (held out, 2 years) | Log-loss gain % (95% CI) | Minus current model, points (95% CI) |
+| --- | --- | --- |
+| Current model (same C, seeds) | 8.76 (4.62–12.74) | — |
+| Family at 16 as yes/no instead of 4 levels | 9.11 (5.08–12.96) | +0.35 (−0.02 to +0.76) |
+| Family of origin, 5 levels instead of 4 | 8.65 (4.63–12.59) | −0.11 (−0.36 to +0.17) |
+| + all family-of-origin items | 7.64 (3.13–11.79) | −1.12 (−2.20 to −0.02) |
+| + religion detail | 8.86 (4.77–12.82) | +0.10 (−0.62 to +0.80) |
+| + politics | 9.00 (5.01–12.70) | +0.24 (−0.56 to +0.96) |
+| + religion detail + politics | 9.26 (5.24–13.01) | +0.51 (−0.62 to +1.56) |
+| + race detail | 8.69 (4.56–12.62) | −0.06 (−0.21 to +0.09) |
+| + occupation and prestige | 8.37 (4.13–12.41) | −0.38 (−1.18 to +0.32) |
+| + home ownership and wealth | 8.54 (4.35–12.50) | −0.21 (−0.36 to −0.07) |
+| + all new blocks | 7.37 (2.62–11.70) | −1.39 (−2.95 to +0.24) |
+
+**No block adds held-out skill whose interval excludes zero.** With 203 dissolutions the richer
+inputs mostly add noise; family of origin as plain yes/no does at least as well as any finer coding.
+Adjusted odds ratios (`extended_odds_ratios.csv`; near-unpenalised logistic with every current
+input, a finer input replacing the coarser one it refines; 300 respondent-cluster refits) are
+imprecise: parents divorced or separated 1.70 (0.91–3.26), a parent died 1.79 (0.61–5.19),
+stepfamily 1.16 (0.63–2.48) vs both parents; Black 1.97 (1.02–3.57), multiracial 1.93
+(0.93–3.97), Asian 1.17 (0.01–2.62) vs White; raised Catholic 0.31 (0.13–0.52) vs raised
+Protestant; strong Democrats 2.01 (0.92–4.23) vs independents; each sibling 1.11 (1.01–1.18);
+each prestige point 0.98 (0.96–1.00). Observed 2-year rates by level, with CIs, are in
+`extended_rates.csv`. The bundle gains `models_extended` (current + religion detail + politics,
+and current + all blocks) with `extended` test vectors, for transparency; the app does not score
+them until the form asks for these inputs.
+
+Other pre-outcome items the panels have and no model uses yet: WORDSUM (vocabulary), parents'
+degrees, mother working when R was young (MAWRKGRW, where asked), BIBLE, REBORN, RELPERSN/SPRTPRSN
+(religious and spiritual self-ratings), SEXFREQ and EVSTRAY are already in the model. They were not
+tested here: with 203 events, the blocks above show the panels cannot support many more inputs.
