@@ -51,3 +51,22 @@ test('CSV quotes commas and neutralises formula cells', () => {
   const row = csv.split('\n')[1];
   assert.ok(row.includes(`"'=HYPERLINK(""x""),dash"`));
 });
+
+import { byWeekday, extremes } from './log.mjs';
+
+test('byWeekday groups total-over-total and sorts best first', () => {
+  const e = (date, netProfit, hoursActive) => ({ date, netProfit, hoursActive, grossPay: netProfit, milesDriven: 1, vehicleCost: 0, taxReserve: 0 });
+  // 2026-10-12 and 2026-10-19 are Mondays; 2026-10-13 is a Tuesday.
+  const days = byWeekday([e('2026-10-12', 30, 2), e('2026-10-19', 10, 2), e('2026-10-13', 40, 2)]);
+  assert.deepEqual(days.map((d) => d.day), ['Tue', 'Mon']);
+  assert.equal(days[1].sessions, 2);
+  assert.equal(days[1].netPerHour, 10);
+});
+
+test('extremes picks best and worst by rate and skips zero-hour sessions', () => {
+  const e = (date, netProfit, hoursActive) => ({ date, netProfit, hoursActive });
+  const { best, worst } = extremes([e('2026-10-12', 30, 2), e('2026-10-13', 5, 1), e('2026-10-14', 99, 0)]);
+  assert.equal(best.entry.date, '2026-10-12');
+  assert.equal(worst.entry.date, '2026-10-13');
+  assert.deepEqual(extremes([]), { best: null, worst: null });
+});

@@ -159,6 +159,11 @@
       <thead><tr><th>Week of</th><th>Sessions</th><th>Hours</th><th>Miles</th><th>Gross/hr</th><th>Net/hr</th><th>Net/mi</th><th>Car ate</th><th>Net profit</th></tr></thead>
       <tbody></tbody>
     </table>
+    <p id="logInsight" class="note" hidden></p>
+    <table id="logDays" hidden>
+      <thead><tr><th>Weekday</th><th>Sessions</th><th>Hours</th><th>Net/hr</th></tr></thead>
+      <tbody></tbody>
+    </table>
     <p id="logEmpty" class="note">No saved sessions yet.</p>
   </section>
 
@@ -199,7 +204,7 @@
     import { calculateSession } from './calc.mjs';
     import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
     import { encodeInputs, decodeInputs } from './share.mjs';
-    import { toLogEntry, byWeek, parseLog, toCsv } from './log.mjs';
+    import { toLogEntry, byWeek, byWeekday, extremes, parseLog, toCsv } from './log.mjs';
 
     const FIELD_IDS = [
       'grossPay', 'milesDriven', 'hoursActive', 'mpg', 'gasPrice',
@@ -428,6 +433,17 @@
             .forEach(text => { row.insertCell().textContent = text; });
         }
         el('logWeeks').hidden = memory.length === 0;
+        const days = byWeekday(memory);
+        const dayBody = el('logDays').querySelector('tbody');
+        dayBody.replaceChildren();
+        for (const d of days) {
+          const row = dayBody.insertRow();
+          [d.day, String(d.sessions), d.hoursActive.toFixed(2), perHour(d.netPerHour)].forEach(text => { row.insertCell().textContent = text; });
+        }
+        el('logDays').hidden = days.length < 2;
+        const { best, worst } = extremes(memory);
+        el('logInsight').hidden = !best || memory.length < 2;
+        if (best) el('logInsight').textContent = `Best session ${best.entry.date}: ${perHour(best.netPerHour)} net. Worst ${worst.entry.date}: ${perHour(worst.netPerHour)} net.`;
         el('logEmpty').hidden = memory.length > 0;
       }
 

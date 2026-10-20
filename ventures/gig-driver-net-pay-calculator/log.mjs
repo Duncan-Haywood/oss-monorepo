@@ -90,3 +90,28 @@ export function toCsv(entries) {
   };
   return [cols.join(','), ...entries.map((entry) => cols.map((col) => cell(entry[col])).join(','))].join('\n');
 }
+
+const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+/** One rollup per weekday, best net per hour first; weekdays with no hours sort last. */
+export function byWeekday(entries) {
+  const groups = new Map();
+  for (const entry of entries) {
+    const day = WEEKDAYS[new Date(`${entry.date}T12:00:00Z`).getUTCDay()];
+    if (!groups.has(day)) groups.set(day, []);
+    groups.get(day).push(entry);
+  }
+  return [...groups.entries()]
+    .map(([day, items]) => ({ day, ...rollup(items) }))
+    .sort((a, b) => (b.netPerHour ?? -Infinity) - (a.netPerHour ?? -Infinity));
+}
+
+/** The best and worst session by net per hour (sessions with no hours are skipped). */
+export function extremes(entries) {
+  const rated = entries.filter((e) => finite(e.hoursActive) > 0)
+    .map((e) => ({ entry: e, netPerHour: finite(e.netProfit) / finite(e.hoursActive) }));
+  if (rated.length === 0) return { best: null, worst: null };
+  const best = rated.reduce((a, b) => (b.netPerHour > a.netPerHour ? b : a));
+  const worst = rated.reduce((a, b) => (b.netPerHour < a.netPerHour ? b : a));
+  return { best, worst };
+}
