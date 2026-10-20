@@ -125,6 +125,15 @@ def main():
         w("== I. Fixed generators for scale (baselines.py)")
         for k, v in json.load(open(base)).items():
             w(f"{k}: " + ", ".join(f"{a} {b:.3f}" for a, b in v.items()))
+    ceil = os.path.join(run.RES, "ceiling.json")
+    if os.path.exists(ceil):
+        w("")
+        w("== J. Ceiling: a (1+4) evolution strategy against a logistic regression on every feature (ceiling.py)")
+        for o in json.load(open(ceil)):
+            g = o["genome"]
+            w(f"restart {o['restart']}: {o['evaluations']} evaluations, reference {o['reference']:.3f}, "
+              f"copy rate {o['copy_rate']:.3f}, path {g['path']['kind']}, clock {g['clock']['kind']}, "
+              f"dur {g['dur']['kind']}")
     with open(os.path.join(run.RES, "crossplay.json"), "w") as f:
         json.dump({"detectors": [[c, s] for c, s, _ in dets], "imitators": [[c, s] for c, s, _ in ims],
                    "auroc": M.round(4).tolist()}, f)
