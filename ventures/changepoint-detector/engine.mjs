@@ -67,6 +67,7 @@ export const DEFAULTS = {
   // Label column (years, dates) by name or index; null uses the first column if it is not the value column.
   labelColumn: null,
   // 'mean': change in level only. 'meanvar': change in level and/or volatility.
+  // 'poisson': change in the rate of a count series (whole numbers, 0 or more).
   model: 'mean',
   // 'bic', 'aic', 'hannan-quinn', or a number (the cost of one extra change).
   penalty: 'bic',
@@ -221,14 +222,23 @@ export function makeCost(x, model = 'mean', sigma = robustSd(x)) {
       return m * (Math.log(2 * Math.PI * v) + 1);
     };
   }
-  throw new Error(`Unknown model "${model}": use "mean" or "meanvar".`);
+  if (model === 'poisson') {
+    // -2 log-likelihood of counts with one rate per segment, the constant sum(log x!) dropped:
+    // 2 * (a - a log(a / m)), where a is the segment total and m its length (0 when a = 0).
+    return (s, t) => {
+      const m = t - s;
+      const a = S1[t] - S1[s];
+      return a > 0 ? 2 * (a - a * Math.log(a / m)) : 0;
+    };
+  }
+  throw new Error(`Unknown model "${model}": use "mean", "meanvar" or "poisson".`);
 }
 
 /** Penalty per extra change. Parameters added by one change: its location plus the new segment's parameters. */
 export function penaltyValue(penalty, n, model) {
   if (typeof penalty === 'number' && Number.isFinite(penalty) && penalty >= 0) return penalty;
   if (typeof penalty === 'string' && /^\d+(\.\d+)?$/.test(penalty.trim())) return Number(penalty);
-  const k = model === 'meanvar' ? 3 : 2;
+  const k = model === 'meanvar' ? 3 : 2;  // poisson, like mean: location plus one rate
   switch (String(penalty).toLowerCase()) {
     case 'bic': return k * Math.log(n);
     case 'aic': return 2 * k;
@@ -306,10 +316,12 @@ export function optimalPartitioning(x, { model = 'mean', penalty = 'bic', minSeg
  * `changeProb[i]`: the posterior probability, given x[0..i+lag], that a new
  * segment started at x[i]. Also returns the log evidence sum log p(x_t | x_<t).
  */
-export function bocpd(x, { hazardLambda = 100, lag = 5, prior, prune = 1e-10 } = {}) {
+export function bocpd(x, { hazardLambda = 100, lag = 5, prior, prune = 1e-10, model = 'mean' } = {}) {
   const n = x.length;
   const H = 1 / Math.max(1, hazardLambda);
-  const p0 = prior ?? defaultPrior(x);
+  const pois = model === 'poisson';
+  // Poisson counts: Gamma(alpha, beta) rate prior, negative-binomial predictive; mu and kappa are unused.
+  const p0 = prior ?? (pois ? defaultPoissonPrior(x) : defaultPrior(x));
   // Parallel arrays over current run lengths r = 0..R-1 (index = run length, possibly pruned to a tail).
   let mu = [p0.mu];
   let kappa = [p0.kappa];
@@ -327,7 +339,7 @@ export function bocpd(x, { hazardLambda = 100, lag = 5, prior, prune = 1e-10 } =
     const xt = x[t];
     const m = rl.length;
     const logPred = new Float64Array(m);
-    for (let i = 0; i < m; i++) logPred[i] = studentLogPdf(xt, mu[i], kappa[i], alpha[i], beta[i]);
+    for (let i = 0; i < m; i++) logPred[i] = pois ? gammaPoissonLogPmf(xt, alpha[i], beta[i]) : studentLogPdf(xt, mu[i], kappa[i], alpha[i], beta[i]);
     // Growth and changepoint masses (log space).
     const grow = new Float64Array(m);
     let cpTerms = -Infinity;
@@ -344,8 +356,13 @@ export function bocpd(x, { hazardLambda = 100, lag = 5, prior, prune = 1e-10 } =
       const k1 = kappa[i] + 1;
       nmu.push((kappa[i] * mu[i] + xt) / k1);
       nk.push(k1);
-      na.push(alpha[i] + 0.5);
-      nb.push(beta[i] + (kappa[i] * (xt - mu[i]) ** 2) / (2 * k1));
+      if (pois) {
+        na.push(alpha[i] + xt);
+        nb.push(beta[i] + 1);
+      } else {
+        na.push(alpha[i] + 0.5);
+        nb.push(beta[i] + (kappa[i] * (xt - mu[i]) ** 2) / (2 * k1));
+      }
     }
     let z = -Infinity;
     for (const v of nlog) z = logAdd(z, v);
@@ -389,6 +406,25 @@ export function bocpd(x, { hazardLambda = 100, lag = 5, prior, prune = 1e-10 } =
 export function defaultPrior(x) {
   const sd = robustSd(x);
   return { mu: x.length ? median(x) : 0, kappa: 0.1, alpha: 1, beta: sd * sd };
+}
+
+/** Weak Gamma prior on the rate, centred on the series mean (prior weight of 1 observation). */
+export function defaultPoissonPrior(x) {
+  const mean = x.length ? x.reduce((s, v) => s + v, 0) / x.length : 1;
+  const m = Math.max(mean, 1e-3);
+  return { mu: 0, kappa: 1, alpha: m, beta: 1 };
+}
+
+/** log P(k) for a Poisson count whose rate has a Gamma(alpha, beta) posterior: negative binomial. */
+function gammaPoissonLogPmf(k, alpha, beta) {
+  return lgamma(k + alpha) - lgamma(alpha) - lgamma(k + 1) + alpha * Math.log(beta / (beta + 1)) - k * Math.log(beta + 1);
+}
+
+/** Closed-form log marginal likelihood of counts under one Gamma-Poisson segment (test reference for hazard -> 0). */
+export function gammaPoissonLogMarginal(x, { alpha, beta }) {
+  const a = x.reduce((s, v) => s + v, 0);
+  const logFact = x.reduce((s, v) => s + lgamma(v + 1), 0);
+  return alpha * Math.log(beta) - lgamma(alpha) + lgamma(alpha + a) - (alpha + a) * Math.log(beta + x.length) - logFact;
 }
 
 function studentLogPdf(x, mu, kappa, alpha, beta) {
@@ -458,7 +494,11 @@ export function analyze(input = {}) {
   }
   if (values.length < 4) throw new Error(`Need at least 4 numbers; got ${values.length}.`);
   if (values.length > 100000) throw new Error('More than 100,000 points: aggregate the series first.');
-  const model = o.model === 'meanvar' ? 'meanvar' : 'mean';
+  const model = o.model === 'meanvar' || o.model === 'poisson' ? o.model : 'mean';
+  if (model === 'poisson') {
+    const bad = values.findIndex((v) => v < 0 || !Number.isInteger(v));
+    if (bad >= 0) throw new Error(`The Poisson model needs counts (whole numbers, 0 or more); row ${bad + 1} is ${values[bad]}.`);
+  }
   const sigma = robustSd(values);
   const minSegment = Math.max(1, Math.floor(Number(o.minSegment) || (model === 'meanvar' ? 5 : 2)));
   const p = pelt(values, { model, penalty: o.penalty, minSegment, sigma });
@@ -468,7 +508,7 @@ export function analyze(input = {}) {
     const s = stats(values.slice(bounds[i], bounds[i + 1]));
     segments.push({ start: bounds[i], end: bounds[i + 1] - 1, from: labels[bounds[i]], to: labels[bounds[i + 1] - 1], n: s.n, mean: round(s.mean), sd: round(s.sd) });
   }
-  const b = bocpd(values, { hazardLambda: Number(o.hazardLambda) || 100, lag: Math.max(1, Math.floor(Number(o.lag) || 5)) });
+  const b = bocpd(values, { hazardLambda: Number(o.hazardLambda) || 100, lag: Math.max(1, Math.floor(Number(o.lag) || 5)), model });
   const det = peaks(b.changeProb, Number(o.threshold) || 0.5);
   const changes = p.changepoints.map((i, k) => {
     const before = segments[k];
@@ -511,7 +551,7 @@ export function analyze(input = {}) {
 }
 
 function summarize({ n, column, model, changes, det, labels, skipped }) {
-  const what = model === 'meanvar' ? 'level or volatility' : 'level';
+  const what = model === 'meanvar' ? 'level or volatility' : model === 'poisson' ? 'rate' : 'level';
   const lines = [];
   if (!changes.length) {
     lines.push(`PELT finds no change in ${what} across the ${n} points of ${column}: one segment explains the data better than any split, after the penalty.`);

@@ -27,10 +27,12 @@ flagships:
       against brute force and a closed-form evidence check, reproducing the
       published Nile 1898 change; page, CLI and agent engine.
     next: >-
-      Models for real-world series the README lists as limits: a Poisson
-      cost for counts, a seasonal-difference or STL pre-step for seasonal
-      data, and an AR(1)-aware cost so autocorrelated series stop showing
-      false changes, each checked against R's changepoint package output.
+      A Poisson cost for counts is in (PELT exact against brute force, Gamma-
+      Poisson BOCPD exact against its closed form; --model poisson). Next: a
+      seasonal-difference or STL pre-step for seasonal data and an AR(1)-aware
+      cost so autocorrelated series stop showing false changes, and a check of
+      all three models against R's changepoint package output (R was not
+      available for the Poisson one).
   - venture: einvoice-preflight
     why: >-
       Real EN 16931 validator (JSON, UBL, CII, Factur-X PDF; 54+ rules,
@@ -41,10 +43,13 @@ flagships:
       BIS 3 (UBL and CII) add-ons run in Saxon-JS (opt-in, ?schematron=1, picked by
       BT-24); the Docker image bakes them in; all 342 rule ids have an English
       fix; and the web page has an "official Schematron" box that posts XML to
-      the self-hosted API and lists the findings (official.mjs). Next: a
-      WASM/in-browser path so the static Pages copy can run it too without a
-      server, then examples that exercise the Peppol credit-note and XRechnung
-      CII paths.
+      the self-hosted API and lists the findings (official.mjs). The Peppol
+      credit-note and XRechnung CII examples now pass the official rules in
+      tests, and the 30 DE-R rules Peppol applies to German invoices have
+      English fixes. Next: a WASM/in-browser path so the static Pages copy can
+      run it too without a server (Saxon-JS in the page, SEF files built in CI
+      and served as static assets), then CreditNote and CII credit-note
+      defect examples.
   - venture: shift-roster-builder
     why: >-
       Simulated-annealing scheduler over a dollar cost (availability, rest,
@@ -85,9 +90,13 @@ flagships:
       assignment under rest constraints, blackouts, play-offs, ladders and
       Swiss formats, with a self-hosted league page.
     next: >-
-      Multi-division scheduling on shared venues: one constraint solve across
-      divisions over shared courts and dates, minimizing back-to-backs and
-      travel, with the conflicts it could not avoid listed.
+      Multi-division scheduling on shared venues is in (divisions.mjs: one pass over
+      divisions, courts, times and venues, linked teams kept apart, venue changes
+      -25% against the naive order on the example, unavoidable clashes listed;
+      command line and example-divisions.json). Next: a page for it in index.html
+      with the share link, venue-to-venue travel times instead of a flat trip count,
+      filling partial nights (split a round across nights without breaking its
+      balance) and rainout moves that work across divisions.
   - venture: open-tennis-robots
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
