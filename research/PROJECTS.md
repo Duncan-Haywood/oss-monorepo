@@ -1136,7 +1136,7 @@ tools: PyBaMM, PyPSA, HiGHS, CoolProp, Cantera, pymatgen.
 4. `energy-lcos` (first version done 2026-10-19, assumed inputs): levelised cost of storage. Cost per kWh delivered over a lifetime for each
    technology and duration (hours to weeks), from capital cost, efficiency, cycle life and
    degradation, every price sourced and dated. Which technology wins at which duration?
-5. `energy-mix`: supply design. The least-cost mix of solar, wind, firm supply and storage that
+5. `energy-mix` (first version done 2026-10-20, assumed costs, Germany 2019): supply design. The least-cost mix of solar, wind, firm supply and storage that
    meets a year of hourly demand in an open dataset, in PyPSA, and how sensitive it is to the
    cost and duration of storage.
 6. `energy-thermal`: heat storage designed. A sand or rock store as a transient model (charging,
