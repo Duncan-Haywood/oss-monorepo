@@ -128,6 +128,26 @@ From this directory run `python3 -m http.server 8080`, then open `http://localho
 
 Use Node 22.12+ or a compatible newer Node version. Run `cd report-app`, `npm ci`, then `npm run dev -- --host 127.0.0.1`. The report body is in `src/content/report/ReportContent.jsx`, scoped CSS in its adjacent file, and reviewed results/source metadata in `src/data.json`. Preserve the stable artifact ID and source definitions. `npm run build` runs protected-runtime verification before compiling. Do not bypass a failed integrity check. See the app’s AGENTS.md for the supported editing boundaries. The portable config is restored to its original unbound template; it does not carry the live Site project identity or any credentials.
 
+## Flexible models and a pooled multi-survey model
+
+Two 2026-10-20 tests of "more flexible models" and "pool every survey":
+
+- **Flexible models** ([flexible_models/](flexible_models/README.md)): tuned LightGBM,
+  gradient boosting, forests, extra trees, an EBM, an elastic-net GLM with pairwise
+  interactions, and a stack. On five lenses, none beat the lens's best additive model with a
+  95% interval above zero. Tree models overfit the small surveys: calibration slopes ran
+  0.55–0.81. Learning curves flatten after about three-quarters of the data, and 2–8 inputs
+  carry most of the skill.
+- **Pooled multi-survey Bayesian hazard model**
+  ([reproducibility/unified_model/](reproducibility/unified_model/README.md)): nine surveys,
+  321,121 units and 44 inputs, with chained-equation imputation of inputs a survey never asked.
+  Held out by person, it beats the single-survey models in HCMST (+4.8 points, 1.9–7.8) and the
+  LA newlyweds (+1.8, 0.6–3.2), and loses slightly in NSFG, NLSY79 and Canada. It is not in the
+  calculator yet.
+
+The large-lens flexible runs, the pooled model's export and the rest are listed in
+[NEXT.md](NEXT.md).
+
 ## Reproduce the research
 
 Use Python 3.11: `python3 -m venv .venv`, activate it, then `python3 -m pip install -r requirements.txt`. Analysis code/results live under `reproducibility/`. Raw sources, selected inputs, versions and caveats are documented in each folder.

@@ -1,5 +1,11 @@
 # Research log
 
+## 2026-10-20 · Flexible models and a pooled nine-survey model: neither beats the single-lens additive models where data are large
+
+- Flexible models were tuned with nested, grouped cross-validation on five lenses: LightGBM, boosting, forests, an EBM, an elastic net with pairs, and a stack. None beat the lens's best GLM with a 95% interval above zero. GSS: random forest +0.42 points (−1.55 to 2.25). HCMST: stack +0.65 (−0.11 to 1.43). Tree models fit training folds far better than held-out ones; on GSS, LightGBM scored 44.5% on training folds against 7.4% held out. Shuffled outcomes scored at or below zero for every model. Six large lenses were not run (see NEXT.md).
+- The pooled Bayesian hazard model covers nine surveys, 321,121 units and 44 inputs, with survey-specific baselines and chained-equation imputation. Held out by person, it beats the single-survey models in HCMST (+4.81 points, 1.88–7.79) and the LA newlyweds (+1.78, 0.60–3.16) and loses in NSFG (−0.85), NLSY79 (−0.50) and Canada (−0.40). Leaving one survey out shows that the effects carry across surveys and the baselines do not. 90% intervals covered 85% of held-out groups. It has not been exported to the app.
+- [NEXT.md](NEXT.md) lists the action items for later runs: the form inputs, the guided decision flow, the large-lens model runs, the pooled-model export, and the owner asks.
+
 ## 2026-10-20 · Profile report, marital satisfaction by years married, and dating length
 
 - New "Profile report" tab in the app (`app/report.js`, `app/report-ui.js`): for you and for the person you are looking at, one lens at a time, the 10-year break-up chance with that person, averaged over the partners people like you marry (`partner_distribution`) and over every partner type of your sex in the survey ("dating everyone"), with model ranges, Dirichlet-resampling intervals on the mix and population percentiles; lowest-risk partner profiles with model disagreement; factor impact (spread across levels) with evidence grades from `decision_evidence.json`; and the changes with the biggest predicted drop, labelled associations unless graded experimental. Demo couple (woman 36, man 38), NSFG 1995–2023 lens: 5 in 100 with this partner, 6 in 100 (models 3–9) with likely partners, 5 in 100 (3–8) dating everyone; NLSY79 first marriages: 17, 16 and 17 in 100.
