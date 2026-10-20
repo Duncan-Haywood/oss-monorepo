@@ -16,7 +16,7 @@ Here is what the measurements showed.
 
 ## The build that makes the public site
 
-The [catalogue site](https://duncan-haywood.github.io/monorepo-projects/) is
+The [catalogue site](../../) is
 built by one Node script, `platform/pages/build.mjs`. It uses only Node
 builtins. It writes about 3,000 pages and 1,450 share-card images, one per
 tool and category, which is what you see when someone pastes a link into a
