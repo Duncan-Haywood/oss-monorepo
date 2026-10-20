@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 554" font-family="sans-serif" font-size="12">
+<title>Share of 522 seeded protocol faults flagged by the twin, the static linter and the real Opentrons simulator</title>
+<rect width="760" height="554" fill="#fff"/>
+<text x="12" y="20" font-size="14" font-weight="bold">Share of seeded faults flagged, by fault kind</text>
+<rect x="220" y="32" width="12" height="10" fill="#1f6fb2"/><text x="236" y="41">twin (osrobot-lab)</text>
+<rect x="380" y="32" width="12" height="10" fill="#2a9d5c"/><text x="396" y="41">this linter</text>
+<rect x="540" y="32" width="12" height="10" fill="#d9822b"/><text x="556" y="41">real simulator 8.0.0</text>
+<text x="242" y="76" text-anchor="end">typo labware (50)</text>
+<rect x="250" y="58" width="400.0" height="10" fill="#1f6fb2"/><text x="654.0" y="67" font-size="10">100%</text>
+<rect x="250" y="70" width="400.0" height="10" fill="#2a9d5c"/><text x="654.0" y="79" font-size="10">100%</text>
+<rect x="250" y="82" width="400.0" height="10" fill="#d9822b"/><text x="654.0" y="91" font-size="10">100%</text>
+<text x="242" y="120" text-anchor="end">well off plate (50)</text>
+<rect x="250" y="102" width="400.0" height="10" fill="#1f6fb2"/><text x="654.0" y="111" font-size="10">100%</text>
+<rect x="250" y="114" width="400.0" height="10" fill="#2a9d5c"/><text x="654.0" y="123" font-size="10">100%</text>
+<rect x="250" y="126" width="400.0" height="10" fill="#d9822b"/><text x="654.0" y="135" font-size="10">100%</text>
+<text x="242" y="164" text-anchor="end">drop pick_up_tip (35)</text>
+<rect x="250" y="146" width="400.0" height="10" fill="#1f6fb2"/><text x="654.0" y="155" font-size="10">100%</text>
+<rect x="250" y="158" width="400.0" height="10" fill="#2a9d5c"/><text x="654.0" y="167" font-size="10">100%</text>
+<rect x="250" y="170" width="400.0" height="10" fill="#d9822b"/><text x="654.0" y="179" font-size="10">100%</text>
+<text x="242" y="208" text-anchor="end">second pick_up_tip (35)</text>
+<rect x="250" y="190" width="400.0" height="10" fill="#1f6fb2"/><text x="654.0" y="199" font-size="10">100%</text>
+<rect x="250" y="202" width="400.0" height="10" fill="#2a9d5c"/><text x="654.0" y="211" font-size="10">100%</text>
+<rect x="250" y="214" width="400.0" height="10" fill="#d9822b"/><text x="654.0" y="223" font-size="10">100%</text>
+<text x="242" y="252" text-anchor="end">reuse a used tip (32)</text>
+<rect x="250" y="234" width="400.0" height="10" fill="#1f6fb2"/><text x="654.0" y="243" font-size="10">100%</text>
+<rect x="250" y="246" width="400.0" height="10" fill="#2a9d5c"/><text x="654.0" y="255" font-size="10">100%</text>
+<rect x="250" y="258" width="0.0" height="10" fill="#d9822b"/><text x="254.0" y="267" font-size="10">0%</text>
+<text x="242" y="296" text-anchor="end">drop the last drop_tip (3)</text>
+<rect x="250" y="278" width="400.0" height="10" fill="#1f6fb2"/><text x="654.0" y="287" font-size="10">100%</text>
+<rect x="250" y="290" width="400.0" height="10" fill="#2a9d5c"/><text x="654.0" y="299" font-size="10">100%</text>
+<rect x="250" y="302" width="0.0" height="10" fill="#d9822b"/><text x="254.0" y="311" font-size="10">0%</text>
+<text x="242" y="340" text-anchor="end">volume 350 uL (50)</text>
+<rect x="250" y="322" width="400.0" height="10" fill="#1f6fb2"/><text x="654.0" y="331" font-size="10">100%</text>
+<rect x="250" y="334" width="400.0" height="10" fill="#2a9d5c"/><text x="654.0" y="343" font-size="10">100%</text>
+<rect x="250" y="346" width="400.0" height="10" fill="#d9822b"/><text x="654.0" y="355" font-size="10">100%</text>
+<text x="242" y="384" text-anchor="end">volume 5 uL (50)</text>
+<rect x="250" y="366" width="400.0" height="10" fill="#1f6fb2"/><text x="654.0" y="375" font-size="10">100%</text>
+<rect x="250" y="378" width="400.0" height="10" fill="#2a9d5c"/><text x="654.0" y="387" font-size="10">100%</text>
+<rect x="250" y="390" width="0.0" height="10" fill="#d9822b"/><text x="254.0" y="399" font-size="10">0%</text>
+<text x="242" y="428" text-anchor="end">overdraw source (5000 uL) (50)</text>
+<rect x="250" y="410" width="400.0" height="10" fill="#1f6fb2"/><text x="654.0" y="419" font-size="10">100%</text>
+<rect x="250" y="422" width="400.0" height="10" fill="#2a9d5c"/><text x="654.0" y="431" font-size="10">100%</text>
+<rect x="250" y="434" width="400.0" height="10" fill="#d9822b"/><text x="654.0" y="443" font-size="10">100%</text>
+<text x="242" y="472" text-anchor="end">skip tip change between samples (32)</text>
+<rect x="250" y="454" width="87.5" height="10" fill="#1f6fb2"/><text x="341.5" y="463" font-size="10">22%</text>
+<rect x="250" y="466" width="87.5" height="10" fill="#2a9d5c"/><text x="341.5" y="475" font-size="10">22%</text>
+<rect x="250" y="478" width="0.0" height="10" fill="#d9822b"/><text x="254.0" y="487" font-size="10">0%</text>
+<text x="242" y="516" text-anchor="end">low travel (30 mm) (135)</text>
+<rect x="250" y="498" width="11.9" height="10" fill="#1f6fb2"/><text x="265.9" y="507" font-size="10">3%</text>
+<rect x="250" y="510" width="0.0" height="10" fill="#2a9d5c"/><text x="254.0" y="519" font-size="10">0%</text>
+<rect x="250" y="522" width="0.0" height="10" fill="#d9822b"/><text x="254.0" y="531" font-size="10">0%</text>
+<line x1="250" y1="50" x2="250" y2="546" stroke="#888"/>
+</svg>
