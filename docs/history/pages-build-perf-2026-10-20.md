@@ -94,7 +94,11 @@ cheaply than the items below.
 Each item is independent. Before starting one, search open PRs for its
 keywords, as CLAUDE.md "Duplicate PRs" requires.
 
-### A. Share full builds across the build.test.mjs tests (biggest remaining win)
+### A. Share full builds across the build.test.mjs tests (done, 2026-10-20)
+
+**Outcome.** Done in a follow-up session the same day. See "Item A: result" at
+the end of this file for the measurements. The steps below are kept as the
+record of what was asked.
 
 In the 2026-10-20 run, after fix 1, these four tests in
 `platform/pages/build.test.mjs` took most of the suite's 8m54s:
@@ -163,3 +167,83 @@ portfolio/router/allocate.py | head -40` before changing anything.
   mean replacing a Node-builtins-only build that ~1,159 tests cover.
 - Lower deflate levels or `Z_RLE`. These save a few more seconds but make
   cards 36% to 1,600% larger.
+
+## Item A: result
+
+Done on 2026-10-20 in session
+`https://claude.ai/code/session_01EVCTBGxxTBZs7onco53Z3A`.
+
+`build.test.mjs` called `buildSite(` six times. Two calls build small fixture
+venture directories (`/compare/`, `/guides/`) and take under a second each, so
+they were left alone. Of the four full builds:
+
+- **an identical build produces an identical cache name** now compares the
+  shared build from `site()` with one independent build in a fresh temp
+  directory. It still compares two separate builds in two different paths
+  (it now also asserts the paths differ), so the claim "the hash does not
+  depend on build order or paths" is tested as before. The second build's
+  directory is removed afterwards.
+- **changing the worker itself changes the cache name** used to build the
+  site again only to run `addOfflineSupport` over it with a different
+  `codeVersion`. `addOfflineSupport` rewrites every page in place, so the test
+  now runs it on an `fs.cp` copy of the shared build, which leaves the build
+  the other tests read untouched. The assertion is unchanged.
+- **no test payload, CLI source, or repo bookkeeping is published** never had
+  a build of its own. It is the first test that calls `site()`, so the shared
+  build is charged to it. Its time is the suite's one shared build and cannot
+  be removed by sharing.
+- **the worker can be withdrawn from devices that already have it** builds
+  with `disableWorker: true`. That option reaches `addOfflineSupport` from
+  inside `buildSiteInner`, so testing it on a copy would test a different code
+  path from the real build. It keeps its own build. No other full build uses
+  the same options, so there is nothing for it to share with.
+
+No assertion was removed or loosened.
+
+Measured on the same 4-core cloud container, Node v22.22.0,
+`node --test --test-reporter=tap platform/pages/*.test.mjs`, one run each,
+before and after the change:
+
+| | before | after |
+|---|---|---|
+| suite wall time | 593.2s (9m53s) | **417.7s (6m58s)** |
+| tests / pass / fail | 1162 / 1161 / 1* | 1162 / 1162 / 0 |
+
+\* The one failure before was unrelated to this change. It was
+`custom-domain.test.mjs`, "a custom-domain build leaves no reference to the
+default origin". The post `docs/posts/2026-10-20-we-almost-rewrote-it-in-rust.md`
+linked the catalogue by its literal `github.io` address, which the custom-domain
+build then published. The link was removed in the same PR as this change.
+
+Per-test `duration_ms`:
+
+| Test | 2026-10-20, first run | before | after |
+|---|---|---|---|
+| an identical build produces an identical cache name | 181,593 | 196,599 | **103,176** |
+| changing the worker itself changes the cache name | 99,263 | 110,056 | **26,734** |
+| no test payload, CLI source, or repo bookkeeping is published | 90,452 | 102,301 | 98,807 (the shared build) |
+| the worker can be withdrawn from devices that already have it | 88,093 | 99,513 | 105,308 (own build, kept) |
+
+The "first run" column is the original measurement above. This container ran
+about 10% slower than that one. The suite's test files run in parallel, so
+`build.test.mjs` is the critical path and its savings show up almost one for
+one in wall time: about 177s saved by the two tests, and 176s off the total.
+
+What is left: the two builds that remain are the shared one and the
+`disableWorker` one. Removing either would mean changing `buildSite` itself,
+for example letting a test run the offline step on its own. That is a design
+change, not test plumbing.
+
+### Main was red when this landed
+
+On the first merge of `main`, CI on PR #8789 failed on checks that also
+failed on `main`: `custom-domain.test.mjs` (posts linking live tools by their
+`github.io` address), `entities.test.mjs` (`&rho;`, `&lceil;`, `&rceil;`),
+`faq-visible.test.mjs` (`changepoint-detector`'s FAQ JSON-LD quotes) and the
+`platform/marketing` staleness tests. This PR fixed them. Before it merged,
+`main` landed its own fixes for all of them, and PR #8767 merged on its own.
+On the second merge this branch took `main`'s versions, so the PR's final diff
+is item A only: `build.test.mjs`, this section and the run record.
+
+Final check, on the tree with `main` at `f56d696e1` merged in: `node --test
+platform/pages/*.test.mjs` passes 1182/1182 in 412.7s.
