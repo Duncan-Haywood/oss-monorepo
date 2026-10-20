@@ -19,8 +19,8 @@
   "projects": [
     "changepoint-detector"
   ],
-  "pr": null,
-  "repo": null,
+  "pr": 8939,
+  "repo": "duncan-haywood/oss-monorepo",
   "commits": [],
   "lines_added": null,
   "lines_removed": null,
