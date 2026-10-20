@@ -22,9 +22,11 @@ What is knowable on the wedding day here:
   linked through PARTNERS_ID / PARTNERS_UID). The lens's post-wedding roster schooling (median 7
   months after) and the partner-section schooling (asked only of partners no longer current, i.e.
   mostly already separated) are NOT used -> Unknown;
-- spouse prior marriage / prior children: YMAR-4310 / 4315 are asked only of partners who are not
-  the current spouse/partner at the interview where they are first listed (codebook universe), so
-  a known value mostly means the couple had already split -> Unknown for every spouse;
+- spouse prior marriage / prior children: YMAR-4310 / 4315 (asked of partners first listed in 2011
+  or later, at the interview where they are first listed; in practice 99% of such spouses have an
+  answer, so availability does not depend on the outcome) are kept only when that listing
+  interview precedes the wedding month (a cohabiting partner listed before the wedding). Listed
+  after the wedding, or before 2011 -> Unknown;
 - intact family: CV_YTH_REL_HH_AGE_12 (1997) and CV_YTH_REL_HH_CURRENT at every round 1997-2003
   that precedes the wedding and the respondent's 19th birthday;
 - religion raised: own religious preference in 1997 (ages 12-16), the lens's proxy.
@@ -241,7 +243,16 @@ def build(work):
         sp_age = r.spouse_age_at_marriage if r.spouse_age_at_marriage == r.spouse_age_at_marriage else np.nan
         own_kids = 'Yes' if r.children_before > 0 else 'No'
         own_side = dict(age=r.age_at_marriage, educ=own, prior_marriage='No', prior_children=own_kids, race=own_race)
-        sp_side = dict(age=sp_age, educ=sp_educ, prior_marriage='Unknown', prior_children='Unknown', race=sp_race)
+        # Spouse prior marriage / children: only when the partner-section listing preceded the wedding.
+        sp_pm = sp_pc = 'Unknown'
+        if link == link and 1 <= int(link) // 100 <= len(R):
+            li = IV[i, int(link) // 100 - 1]
+            if li == li and li < w:
+                yn = {1.0: 'Yes', 0.0: 'No'}
+                sp_pm = yn.get(r.spouse_prior_marriage, 'Unknown')
+                sp_pc = yn.get(r.spouse_prior_children, 'Unknown')
+        audit['spouse_prior_pre_listing'] = audit.get('spouse_prior_pre_listing', 0) + (sp_pm != 'Unknown')
+        sp_side = dict(age=sp_age, educ=sp_educ, prior_marriage=sp_pm, prior_children=sp_pc, race=sp_race)
         wife, husb = (own_side, sp_side) if sex == 'Woman' else (sp_side, own_side)
         recs.append(dict(dataset='nlsy97', id=f'nlsy97:{int(r.id)}', weight=r.weight97, duration_years=r.years,
                          event=int(r.event), event_definition=EVENT_DEF, wedding_year=int(r.wedding_year),

@@ -21,8 +21,8 @@ nsfg_pooled,respondent_sex,yes,fixed at birth,file (women/men),no,both-sexes mod
 nsfg_pooled,education_at_interview (HIEDUC),no,at interview,HIEDUC,yes,the lens excludes it on purpose; here used only as an upper bound for education by the wedding
 nsfg_pooled,harmonized:wife_age,no,at wedding,women: wife_age_at_marriage; men: not harmonised (blank),no,
 nsfg_pooled,harmonized:husband_age,no,at wedding,women: husband_age_at_marriage (2022-23 band mid-points); men: own age at marriage,no,
-nsfg_pooled,harmonized:wife_educ,no,before wedding,women: dated BA/HS items + HIEDUC as upper bound; men: Unknown,no,same-year (year-only cycles) and undated degrees -> Unknown; Some college is never datable -> Unknown
-nsfg_pooled,harmonized:husband_educ,no,before wedding,men: dated BA/HS items + HIEDUC as upper bound; women: Unknown (husband education undated),no,as wife_educ
+nsfg_pooled,harmonized:wife_educ,no,before wedding,women: dated BA/HS items + HIEDUC as upper bound; men: Unknown,possible,"every known level is dated on or before the wedding (same-year and undated degrees -> Unknown; Some college is never datable). But the Unknown level is not uninformative: among respondents it collects those whose INTERVIEW education exceeds what can be dated (college or a BA after the wedding, undated BA), so a model that treats Unknown as its own level reads post-wedding education; treat it as missing (or use it only across datasets where it means the same)"
+nsfg_pooled,harmonized:husband_educ,no,before wedding,men: dated BA/HS items + HIEDUC as upper bound; women: Unknown (husband education undated),possible,as wife_educ
 nsfg_pooled,harmonized:wife_prior_marriage,no,before wedding,women: No by construction; men: Unknown (first wife not harmonised),no,
 nsfg_pooled,harmonized:husband_prior_marriage,no,before wedding,women: MARBEFHX; men: No by construction,no,
 nsfg_pooled,harmonized:wife_prior_children,no,before wedding,"women: B1PREMAR raw codes (1995 BABY1MO vs wedding, same month Unknown); men: Unknown",no,
