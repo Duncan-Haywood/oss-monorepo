@@ -37,12 +37,20 @@
     {
       "file": "platform/ci/concurrency_tax.py",
       "issue": "did not finish within 10 minutes in a cloud session (probe refresh); re-measured with the same arithmetic over refs/pull/* fetched with --filter=blob:none (38 s)"
+    },
+    {
+      "file": "prompts/promptctl.py",
+      "issue": "validate reports an unregistered runbook on stdout; piped through tail its failure did not stop the commit chain. Registered parallel-git.md in prompts/system.json."
     }
   ],
   "deviations": [
     {
       "file": "CLAUDE.md",
       "why": "owner asked a question about the git pattern; answered with a re-measurement plus the one fix it exposed (false-red main validate) and left the remaining fixes as action items, per the owner's follow-up"
+    },
+    {
+      "file": ".github/prompts/land-your-work.md",
+      "why": "did not link parallel-git.md from it: system.json marks it changed_by review and it is over its 160-line budget; the doc is registered in system.json and linked from docs/parallel-agents.md instead"
     }
   ],
   "goal": null,
