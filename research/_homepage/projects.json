@@ -3800,6 +3800,11 @@
     "summary": "The <code>society-robotnorms</code> committed-robot model with a share <em>s</em> of stubborn people who always walk right. The mean-field tipping share for memory&nbsp;9 rises from 0.217 (<em>s</em>&nbsp;=&nbsp;0) to 0.240, 0.283 and 0.329 at <em>s</em>&nbsp;=&nbsp;0.2, 0.4 and 0.5, and memory&nbsp;5 and&nbsp;9 coincide from <em>s</em>&nbsp;=&nbsp;0.4. Simulation (200 people, 12 seeds) agrees within 0.02 at every <em>s</em> when &ldquo;tipped&rdquo; means a majority of adaptive people on the robots' side. Conflict costs of committed and adaptive robots are unchanged by stubborn people. Stylised; simulated walkers only."
    }
    ,{
+    "slug": "society-blocs",
+    "title": "How many robots does it take to change a crowd's walking side when some people always walk on the robots' side?",
+    "summary": "The <code>society-stubborn</code> model with a share <em>sl</em> of people who always walk the robots' side and <em>sr</em> who always walk the status-quo side. For memory&nbsp;9 the mean-field tipping robot share falls from 0.217 to 0.176, 0.131, 0.080 and 0.023 at <em>sl</em>&nbsp;=&nbsp;0.05, 0.10, 0.15 and 0.20 (about 0.8 robots saved per ally), and a crowd with 25% allies tips with no robots. Opposing blocs raise the self-tipping share (0.219 to 0.300 as <em>sr</em> goes 0 to 0.3), equal blocs are a knife edge, and simulation (200 people, 12 seeds) agrees with mean field within 0.01 at seven bloc mixes. Opposing blocs alone cost 0.195 conflicts per human meeting. Stylised; simulated walkers only."
+   }
+   ,{
     "slug": "society-show",
     "title": "Can a simulation run be turned into a watchable, honest episode?",
     "summary": "Five seeded, clearly labelled fictional episodes of a robot town, built on <code>society-trust</code>: 48 invented townspeople, a trust-coloured grid, turning points found by code from the recorded data and a narration whose numbers all come from that record. Even-handed gossip recovers 46 rounds after the fix; gossip that weighs bad news 4&times; locks the town out (48 of 48 avoid working robots at round 399); robots that explain failures recover in 29 rounds with nobody avoiding; and at 2&times; the same settings recover on seed 0 and lock out on seed 1. Episodes are single illustrative runs, not statistics; stylised model, no viewer study."
