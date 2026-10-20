@@ -470,6 +470,13 @@ workflows:
 - workflow: distribute-bluesky.yml
   classification: none
   publishes: []
+- workflow: distribute-desktop.yml
+  classification: dispatch
+  publishes:
+  - job: release
+    step: runs 'gh release create'
+    gates:
+    - vars.DISTRIBUTE_DESKTOP == 'true'
 - workflow: distribute-devto.yml
   classification: none
   publishes: []
@@ -480,6 +487,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: distribute-homebrew.yml
+  classification: none
+  publishes: []
+- workflow: distribute-hub.yml
   classification: none
   publishes: []
 - workflow: distribute-mastodon.yml
@@ -569,6 +579,13 @@ workflows:
 - workflow: ebs-volume-cost-advisor-ci.yml
   classification: none
   publishes: []
+- workflow: edge-deploy.yml
+  classification: gated
+  publishes:
+  - job: deploy
+    step: runs 'wrangler deploy'
+    gates:
+    - ${{ needs.gate.outputs.ready == 'true' }}
 - workflow: egress-window-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -743,6 +760,9 @@ workflows:
 - workflow: hardwood-refinishing-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: hearth-and-horizon-ci.yml
+  classification: none
+  publishes: []
 - workflow: helm-values-schema-check-ci.yml
   classification: none
   publishes: []
@@ -785,6 +805,9 @@ workflows:
 - workflow: ice-dam-removal-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: ig-media-pipeline-ci.yml
+  classification: none
+  publishes: []
 - workflow: import-landed-cost-calculator-ci.yml
   classification: none
   publishes: []
@@ -795,6 +818,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: interior-door-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: interview-content-studio-ci.yml
   classification: none
   publishes: []
 - workflow: invoice-payment-terms-calculator-ci.yml
@@ -1022,9 +1048,6 @@ workflows:
 - workflow: osha-trir-dart-calculator-ci.yml
   classification: none
   publishes: []
-- workflow: outage-triage.yml
-  classification: none
-  publishes: []
 - workflow: overtime-pay-calculator-ci.yml
   classification: none
   publishes: []
@@ -1177,6 +1200,9 @@ workflows:
 - workflow: public-surface-check.yml
   classification: none
   publishes: []
+- workflow: publish-kit-ci.yml
+  classification: none
+  publishes: []
 - workflow: publish-pages-branch.yml
   classification: gated
   publishes:
@@ -1302,6 +1328,9 @@ workflows:
 - workflow: saas-seat-true-up-ci.yml
   classification: none
   publishes: []
+- workflow: saints-by-candlelight-ci.yml
+  classification: none
+  publishes: []
 - workflow: salary-range-posting-check-ci.yml
   classification: none
   publishes: []
@@ -1360,6 +1389,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: sign-language-interpreter-rate-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: site-usage-pull.yml
   classification: none
   publishes: []
 - workflow: sitemap-lastmod-freshness-check-ci.yml

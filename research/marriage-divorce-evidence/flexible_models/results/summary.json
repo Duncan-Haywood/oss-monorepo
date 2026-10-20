@@ -1,0 +1,2305 @@
+{
+ "gss_panel": {
+  "rows": 4453,
+  "events": 203.0,
+  "baseline": {
+   "model": "baseline",
+   "heldout_gain": 8.56497,
+   "heldout_gain_ci": [
+    4.545981,
+    12.414775
+   ],
+   "diff_vs_baseline": 0.0,
+   "diff_vs_baseline_ci": [
+    0.0,
+    0.0
+   ],
+   "heldout_gain_by_repeat": [
+    8.423484,
+    8.365727,
+    8.759358,
+    7.741183,
+    9.534778
+   ],
+   "train_gain": 17.319877,
+   "train_minus_heldout": 8.754971,
+   "observed_expected": 0.973412,
+   "calibration_slope": 0.850376,
+   "calibration_intercept": -0.437195,
+   "top_decile_lift": 3.110424,
+   "top_bottom_ratio": 94.20282,
+   "decile_observed": [
+    0.003366,
+    0.016383,
+    0.036227,
+    0.016384,
+    0.024391,
+    0.020756,
+    0.05016,
+    0.052435,
+    0.071292,
+    0.136905
+   ],
+   "decile_predicted": [
+    0.005331,
+    0.011053,
+    0.01614,
+    0.020987,
+    0.027383,
+    0.034581,
+    0.043145,
+    0.054746,
+    0.07507,
+    0.153803
+   ],
+   "discrimination": {
+    "metric": "AUC (rows)",
+    "value": 0.725637,
+    "ci": [
+     0.68567,
+     0.778362
+    ],
+    "diff_vs_baseline": 0.0,
+    "diff_ci": [
+     0.0,
+     0.0
+    ]
+   }
+  },
+  "best": {
+   "model": "random_forest_tuned",
+   "heldout_gain": 8.987227,
+   "heldout_gain_ci": [
+    5.786638,
+    12.31488
+   ],
+   "diff_vs_baseline": 0.422257,
+   "diff_vs_baseline_ci": [
+    -1.549446,
+    2.245747
+   ],
+   "heldout_gain_by_repeat": [
+    9.27648,
+    8.654178,
+    9.057553,
+    8.322922,
+    9.624976
+   ],
+   "train_gain": 34.222234,
+   "train_minus_heldout": 25.235013,
+   "observed_expected": 0.953552,
+   "calibration_slope": 0.962596,
+   "calibration_intercept": -0.152154,
+   "top_decile_lift": 3.253156,
+   "top_bottom_ratio": 43.211683,
+   "decile_observed": [
+    0.004483,
+    0.011129,
+    0.013067,
+    0.026705,
+    0.00877,
+    0.055082,
+    0.040135,
+    0.062787,
+    0.064047,
+    0.142113
+   ],
+   "decile_predicted": [
+    0.003017,
+    0.009173,
+    0.015003,
+    0.020857,
+    0.028068,
+    0.036192,
+    0.046635,
+    0.060544,
+    0.082834,
+    0.160099
+   ],
+   "discrimination": {
+    "metric": "AUC (rows)",
+    "value": 0.729556,
+    "ci": [
+     0.701807,
+     0.775399
+    ],
+    "diff_vs_baseline": 0.003919,
+    "diff_ci": [
+     -0.018674,
+     0.033755
+    ]
+   }
+  },
+  "winners": [],
+  "null": {
+   "baseline": -0.394391,
+   "lightgbm_tuned": -2.063929,
+   "enet_spline_pairwise": -1.108219
+  },
+  "learning_curve": [
+   {
+    "fraction": 0.1,
+    "model": "baseline",
+    "heldout_gain": -0.685615
+   },
+   {
+    "fraction": 0.1,
+    "model": "lightgbm_tuned",
+    "heldout_gain": -9.920662
+   },
+   {
+    "fraction": 0.25,
+    "model": "baseline",
+    "heldout_gain": 0.741909
+   },
+   {
+    "fraction": 0.25,
+    "model": "lightgbm_tuned",
+    "heldout_gain": 0.052013
+   },
+   {
+    "fraction": 0.5,
+    "model": "baseline",
+    "heldout_gain": 6.802298
+   },
+   {
+    "fraction": 0.5,
+    "model": "lightgbm_tuned",
+    "heldout_gain": 7.089739
+   },
+   {
+    "fraction": 0.75,
+    "model": "baseline",
+    "heldout_gain": 8.546291
+   },
+   {
+    "fraction": 0.75,
+    "model": "lightgbm_tuned",
+    "heldout_gain": 8.268345
+   },
+   {
+    "fraction": 1.0,
+    "model": "baseline",
+    "heldout_gain": 8.424299
+   },
+   {
+    "fraction": 1.0,
+    "model": "lightgbm_tuned",
+    "heldout_gain": 8.824185
+   }
+  ],
+  "feature_curve": [
+   {
+    "k": 1,
+    "model": "lightgbm",
+    "heldout_gain": 1.9092
+   },
+   {
+    "k": 1,
+    "model": "additive_glm",
+    "heldout_gain": 3.216592
+   },
+   {
+    "k": 2,
+    "model": "lightgbm",
+    "heldout_gain": 6.424964
+   },
+   {
+    "k": 2,
+    "model": "additive_glm",
+    "heldout_gain": 7.829049
+   },
+   {
+    "k": 3,
+    "model": "lightgbm",
+    "heldout_gain": 4.446512
+   },
+   {
+    "k": 3,
+    "model": "additive_glm",
+    "heldout_gain": 8.104972
+   },
+   {
+    "k": 5,
+    "model": "lightgbm",
+    "heldout_gain": 7.067513
+   },
+   {
+    "k": 5,
+    "model": "additive_glm",
+    "heldout_gain": 8.049838
+   },
+   {
+    "k": 8,
+    "model": "lightgbm",
+    "heldout_gain": 7.571085
+   },
+   {
+    "k": 8,
+    "model": "additive_glm",
+    "heldout_gain": 9.457447
+   },
+   {
+    "k": 12,
+    "model": "lightgbm",
+    "heldout_gain": 8.612042
+   },
+   {
+    "k": 12,
+    "model": "additive_glm",
+    "heldout_gain": 9.339335
+   },
+   {
+    "k": 16,
+    "model": "lightgbm",
+    "heldout_gain": 6.249053
+   },
+   {
+    "k": 16,
+    "model": "additive_glm",
+    "heldout_gain": 7.297677
+   },
+   {
+    "k": 24,
+    "model": "lightgbm",
+    "heldout_gain": 6.482352
+   },
+   {
+    "k": 24,
+    "model": "additive_glm",
+    "heldout_gain": 9.185501
+   },
+   {
+    "k": 32,
+    "model": "lightgbm",
+    "heldout_gain": 7.209181
+   },
+   {
+    "k": 32,
+    "model": "additive_glm",
+    "heldout_gain": 9.032885
+   },
+   {
+    "k": 45,
+    "model": "lightgbm",
+    "heldout_gain": 8.824185
+   },
+   {
+    "k": 45,
+    "model": "additive_glm",
+    "heldout_gain": 9.515394
+   }
+  ],
+  "oot": null,
+  "tabpfn": null,
+  "survival_native": null,
+  "cure": null,
+  "competing": null,
+  "other": {
+   "baseline_all_inputs": {
+    "model": "baseline_all_inputs",
+    "heldout_gain": 7.370226,
+    "heldout_gain_ci": [
+     2.623055,
+     11.696017
+    ],
+    "diff_vs_baseline": -1.194744,
+    "diff_vs_baseline_ci": [
+     -2.745173,
+     0.389039
+    ],
+    "heldout_gain_by_repeat": [
+     7.94446,
+     6.295185,
+     9.105921,
+     4.371939,
+     9.133711
+    ],
+    "train_gain": 22.301092,
+    "train_minus_heldout": 14.930849,
+    "observed_expected": 0.978457,
+    "calibration_slope": 0.736927,
+    "calibration_intercept": -0.734753,
+    "top_decile_lift": 3.026515,
+    "top_bottom_ratio": 42.081917,
+    "decile_observed": [
+     0.001387,
+     0.016074,
+     0.026262,
+     0.016552,
+     0.009826,
+     0.03731,
+     0.054655,
+     0.066883,
+     0.070304,
+     0.129037
+    ],
+    "decile_predicted": [
+     0.003764,
+     0.007723,
+     0.011678,
+     0.016222,
+     0.021695,
+     0.029029,
+     0.038643,
+     0.052602,
+     0.076505,
+     0.176565
+    ],
+    "discrimination": {
+     "metric": "AUC (rows)",
+     "value": 0.72436,
+     "ci": [
+      0.687642,
+      0.775856
+     ],
+     "diff_vs_baseline": -0.001277,
+     "diff_ci": [
+      -0.019226,
+      0.01953
+     ]
+    }
+   },
+   "lens_boosting": {
+    "model": "lens_boosting",
+    "heldout_gain": 9.80185,
+    "heldout_gain_ci": [
+     6.590863,
+     13.048359
+    ],
+    "diff_vs_baseline": 1.23688,
+    "diff_vs_baseline_ci": [
+     -0.096682,
+     2.751855
+    ],
+    "heldout_gain_by_repeat": [
+     9.232095,
+     10.476622,
+     9.701919,
+     9.886477,
+     9.711786
+    ],
+    "train_gain": 24.142993,
+    "train_minus_heldout": 14.341213,
+    "observed_expected": 1.014539,
+    "calibration_slope": 0.963988,
+    "calibration_intercept": -0.083576,
+    "top_decile_lift": 2.97071,
+    "top_bottom_ratio": 102.272266,
+    "decile_observed": [
+     0.003366,
+     0.01124,
+     0.029884,
+     0.008469,
+     0.025028,
+     0.041966,
+     0.035376,
+     0.075919,
+     0.061693,
+     0.135255
+    ],
+    "decile_predicted": [
+     0.004944,
+     0.008479,
+     0.013282,
+     0.020225,
+     0.02716,
+     0.03477,
+     0.044088,
+     0.055455,
+     0.073861,
+     0.138556
+    ],
+    "discrimination": {
+     "metric": "AUC (rows)",
+     "value": 0.741608,
+     "ci": [
+      0.706742,
+      0.78396
+     ],
+     "diff_vs_baseline": 0.015971,
+     "diff_ci": [
+      -4.9e-05,
+      0.037459
+     ]
+    }
+   }
+  }
+ },
+ "hcmst": {
+  "rows": 8046,
+  "events": 527.0,
+  "baseline": {
+   "model": "baseline",
+   "heldout_gain": 27.00073,
+   "heldout_gain_ci": [
+    24.197795,
+    29.772651
+   ],
+   "diff_vs_baseline": 0.0,
+   "diff_vs_baseline_ci": [
+    0.0,
+    0.0
+   ],
+   "heldout_gain_by_repeat": [
+    26.673491,
+    27.324826,
+    27.003875
+   ],
+   "train_gain": 30.403833,
+   "train_minus_heldout": 3.403102,
+   "observed_expected": 0.984398,
+   "calibration_slope": 0.968447,
+   "calibration_intercept": -0.080461,
+   "top_decile_lift": 5.17137,
+   "top_bottom_ratio": null,
+   "decile_observed": [
+    0.0,
+    0.006211,
+    0.007463,
+    0.008696,
+    0.016169,
+    0.017391,
+    0.039752,
+    0.078358,
+    0.147826,
+    0.332919
+   ],
+   "decile_predicted": [
+    0.003335,
+    0.006741,
+    0.009826,
+    0.013234,
+    0.017905,
+    0.024715,
+    0.035618,
+    0.060284,
+    0.123794,
+    0.374742
+   ],
+   "discrimination": {
+    "metric": "discrete-time C-index (cumulative break-up risk over 5 periods)",
+    "value": 0.878189,
+    "ci": [
+     0.866251,
+     0.893486
+    ],
+    "diff_vs_baseline": 0.0,
+    "diff_ci": [
+     0.0,
+     0.0
+    ]
+   }
+  },
+  "best": {
+   "model": "stack_glm_lgbm",
+   "heldout_gain": 27.649669,
+   "heldout_gain_ci": [
+    24.827943,
+    30.35145
+   ],
+   "diff_vs_baseline": 0.648938,
+   "diff_vs_baseline_ci": [
+    -0.106863,
+    1.434546
+   ],
+   "heldout_gain_by_repeat": [
+    27.313014,
+    28.190246,
+    27.445787
+   ],
+   "train_gain": 40.034553,
+   "train_minus_heldout": 12.38487,
+   "observed_expected": 0.99036,
+   "calibration_slope": 1.002414,
+   "calibration_intercept": -0.008601,
+   "top_decile_lift": 5.266199,
+   "top_bottom_ratio": 271.162733,
+   "decile_observed": [
+    0.001244,
+    0.001242,
+    0.011194,
+    0.008696,
+    0.012438,
+    0.02236,
+    0.032298,
+    0.077114,
+    0.152795,
+    0.335404
+   ],
+   "decile_predicted": [
+    0.004057,
+    0.006697,
+    0.009425,
+    0.012445,
+    0.01629,
+    0.023433,
+    0.03715,
+    0.063837,
+    0.135508,
+    0.357961
+   ],
+   "discrimination": {
+    "metric": "discrete-time C-index (cumulative break-up risk over 5 periods)",
+    "value": 0.879274,
+    "ci": [
+     0.867697,
+     0.896259
+    ],
+    "diff_vs_baseline": 0.001084,
+    "diff_ci": [
+     -0.001722,
+     0.00622
+    ]
+   }
+  },
+  "winners": [],
+  "null": {
+   "baseline": -2.855791,
+   "lightgbm_tuned": -1.864424,
+   "enet_spline_pairwise": -0.413271
+  },
+  "learning_curve": [
+   {
+    "fraction": 0.1,
+    "model": "baseline",
+    "heldout_gain": 19.550007
+   },
+   {
+    "fraction": 0.1,
+    "model": "lightgbm_tuned",
+    "heldout_gain": 16.70323
+   },
+   {
+    "fraction": 0.25,
+    "model": "baseline",
+    "heldout_gain": 22.264517
+   },
+   {
+    "fraction": 0.25,
+    "model": "lightgbm_tuned",
+    "heldout_gain": 22.737424
+   },
+   {
+    "fraction": 0.5,
+    "model": "baseline",
+    "heldout_gain": 25.004868
+   },
+   {
+    "fraction": 0.5,
+    "model": "lightgbm_tuned",
+    "heldout_gain": 25.031676
+   },
+   {
+    "fraction": 0.75,
+    "model": "baseline",
+    "heldout_gain": 26.660255
+   },
+   {
+    "fraction": 0.75,
+    "model": "lightgbm_tuned",
+    "heldout_gain": 26.989872
+   },
+   {
+    "fraction": 1.0,
+    "model": "baseline",
+    "heldout_gain": 26.673491
+   },
+   {
+    "fraction": 1.0,
+    "model": "lightgbm_tuned",
+    "heldout_gain": 26.925262
+   }
+  ],
+  "feature_curve": [
+   {
+    "k": 1,
+    "model": "lightgbm",
+    "heldout_gain": 16.200862
+   },
+   {
+    "k": 1,
+    "model": "additive_glm",
+    "heldout_gain": 15.958551
+   },
+   {
+    "k": 2,
+    "model": "lightgbm",
+    "heldout_gain": 19.320239
+   },
+   {
+    "k": 2,
+    "model": "additive_glm",
+    "heldout_gain": 19.226335
+   },
+   {
+    "k": 4,
+    "model": "lightgbm",
+    "heldout_gain": 26.820474
+   },
+   {
+    "k": 4,
+    "model": "additive_glm",
+    "heldout_gain": 26.340169
+   },
+   {
+    "k": 8,
+    "model": "lightgbm",
+    "heldout_gain": 26.908863
+   },
+   {
+    "k": 8,
+    "model": "additive_glm",
+    "heldout_gain": 26.623614
+   },
+   {
+    "k": 16,
+    "model": "lightgbm",
+    "heldout_gain": 26.909015
+   },
+   {
+    "k": 16,
+    "model": "additive_glm",
+    "heldout_gain": 26.82869
+   },
+   {
+    "k": 32,
+    "model": "lightgbm",
+    "heldout_gain": 26.735163
+   },
+   {
+    "k": 32,
+    "model": "additive_glm",
+    "heldout_gain": 26.238597
+   },
+   {
+    "k": 49,
+    "model": "lightgbm",
+    "heldout_gain": 26.925262
+   },
+   {
+    "k": 49,
+    "model": "additive_glm",
+    "heldout_gain": 25.561276
+   }
+  ],
+  "oot": null,
+  "tabpfn": null,
+  "survival_native": null,
+  "cure": null,
+  "competing": null,
+  "other": {
+   "lens_boosting": {
+    "model": "lens_boosting",
+    "heldout_gain": 28.009092,
+    "heldout_gain_ci": [
+     25.337958,
+     30.658416
+    ],
+    "diff_vs_baseline": 1.008362,
+    "diff_vs_baseline_ci": [
+     0.027515,
+     1.987648
+    ],
+    "heldout_gain_by_repeat": [
+     27.751731,
+     28.493495,
+     27.782095
+    ],
+    "train_gain": 35.719179,
+    "train_minus_heldout": 7.710072,
+    "observed_expected": 0.978373,
+    "calibration_slope": 1.029069,
+    "calibration_intercept": 0.023599,
+    "top_decile_lift": 5.304131,
+    "top_bottom_ratio": 282.648447,
+    "decile_observed": [
+     0.0,
+     0.002484,
+     0.008706,
+     0.014907,
+     0.013682,
+     0.016149,
+     0.037267,
+     0.068408,
+     0.151553,
+     0.341615
+    ],
+    "decile_predicted": [
+     0.003111,
+     0.005659,
+     0.009507,
+     0.0139,
+     0.017939,
+     0.024231,
+     0.038059,
+     0.064763,
+     0.13952,
+     0.356341
+    ],
+    "discrimination": {
+     "metric": "discrete-time C-index (cumulative break-up risk over 5 periods)",
+     "value": 0.882308,
+     "ci": [
+      0.872319,
+      0.898981
+     ],
+     "diff_vs_baseline": 0.004119,
+     "diff_ci": [
+      0.000867,
+      0.010922
+     ]
+    }
+   },
+   "dyad_separate_glm": {
+    "model": "dyad_separate_glm",
+    "heldout_gain": 25.980509,
+    "heldout_gain_ci": [
+     23.173544,
+     28.72561
+    ],
+    "diff_vs_baseline": -1.020221,
+    "diff_vs_baseline_ci": [
+     -1.758565,
+     -0.289246
+    ],
+    "heldout_gain_by_repeat": [
+     26.071251,
+     25.891704,
+     25.978574
+    ],
+    "train_gain": 30.291334,
+    "train_minus_heldout": 4.310825,
+    "observed_expected": 0.976911,
+    "calibration_slope": 0.970401,
+    "calibration_intercept": -0.08728,
+    "top_decile_lift": 5.13976,
+    "top_bottom_ratio": 270.163975,
+    "decile_observed": [
+     0.0,
+     0.003727,
+     0.00995,
+     0.009938,
+     0.016169,
+     0.024845,
+     0.034783,
+     0.084577,
+     0.132919,
+     0.337888
+    ],
+    "decile_predicted": [
+     0.004139,
+     0.007964,
+     0.011353,
+     0.015034,
+     0.019594,
+     0.026312,
+     0.037993,
+     0.061847,
+     0.124628,
+     0.363263
+    ],
+    "discrimination": {
+     "metric": "discrete-time C-index (cumulative break-up risk over 5 periods)",
+     "value": 0.870611,
+     "ci": [
+      0.857863,
+      0.888181
+     ],
+     "diff_vs_baseline": -0.007579,
+     "diff_ci": [
+      -0.011435,
+      -0.002574
+     ]
+    }
+   },
+   "dyad_apim_glm": {
+    "model": "dyad_apim_glm",
+    "heldout_gain": 25.567475,
+    "heldout_gain_ci": [
+     22.824582,
+     28.258282
+    ],
+    "diff_vs_baseline": -1.433255,
+    "diff_vs_baseline_ci": [
+     -2.169424,
+     -0.726352
+    ],
+    "heldout_gain_by_repeat": [
+     25.669359,
+     25.679755,
+     25.353352
+    ],
+    "train_gain": 30.264881,
+    "train_minus_heldout": 4.697392,
+    "observed_expected": 0.977102,
+    "calibration_slope": 0.967018,
+    "calibration_intercept": -0.093833,
+    "top_decile_lift": 5.063896,
+    "top_bottom_ratio": 135.831056,
+    "decile_observed": [
+     0.0,
+     0.006211,
+     0.007463,
+     0.012422,
+     0.016169,
+     0.023602,
+     0.03354,
+     0.077114,
+     0.146584,
+     0.331677
+    ],
+    "decile_predicted": [
+     0.003979,
+     0.007721,
+     0.011103,
+     0.014842,
+     0.019597,
+     0.026369,
+     0.037866,
+     0.061573,
+     0.125068,
+     0.365964
+    ],
+    "discrimination": {
+     "metric": "discrete-time C-index (cumulative break-up risk over 5 periods)",
+     "value": 0.869142,
+     "ci": [
+      0.855903,
+      0.886642
+     ],
+     "diff_vs_baseline": -0.009047,
+     "diff_ci": [
+      -0.013322,
+      -0.003735
+     ]
+    }
+   },
+   "baseline_all_inputs": {
+    "model": "baseline_all_inputs",
+    "heldout_gain": 24.066727,
+    "heldout_gain_ci": [
+     21.253075,
+     26.892599
+    ],
+    "diff_vs_baseline": -2.934004,
+    "diff_vs_baseline_ci": [
+     -4.291624,
+     -1.705262
+    ],
+    "heldout_gain_by_repeat": [
+     24.653626,
+     23.293245,
+     24.253271
+    ],
+    "train_gain": 31.615912,
+    "train_minus_heldout": 7.549198,
+    "observed_expected": 0.965904,
+    "calibration_slope": 0.92102,
+    "calibration_intercept": -0.195191,
+    "top_decile_lift": 4.962745,
+    "top_bottom_ratio": 108.614907,
+    "decile_observed": [
+     0.0,
+     0.007453,
+     0.007463,
+     0.014907,
+     0.022388,
+     0.017391,
+     0.042236,
+     0.070896,
+     0.145342,
+     0.326708
+    ],
+    "decile_predicted": [
+     0.002896,
+     0.006423,
+     0.010138,
+     0.013959,
+     0.018791,
+     0.025826,
+     0.037411,
+     0.061817,
+     0.129399,
+     0.373315
+    ],
+    "discrimination": {
+     "metric": "discrete-time C-index (cumulative break-up risk over 5 periods)",
+     "value": 0.859251,
+     "ci": [
+      0.846479,
+      0.877711
+     ],
+     "diff_vs_baseline": -0.018938,
+     "diff_ci": [
+      -0.028154,
+      -0.010033
+     ]
+    }
+   }
+  }
+ },
+ "newlywed_la": {
+  "rows": 2671,
+  "events": 145.0,
+  "baseline": {
+   "model": "baseline",
+   "heldout_gain": 9.619681,
+   "heldout_gain_ci": [
+    5.970834,
+    13.223985
+   ],
+   "diff_vs_baseline": 0.0,
+   "diff_vs_baseline_ci": [
+    0.0,
+    0.0
+   ],
+   "heldout_gain_by_repeat": [
+    9.619681
+   ],
+   "train_gain": 14.123945,
+   "train_minus_heldout": 4.504265,
+   "observed_expected": 0.992839,
+   "calibration_slope": 0.938501,
+   "calibration_intercept": -0.162065,
+   "top_decile_lift": 3.574164,
+   "top_bottom_ratio": 10.361194,
+   "decile_observed": [
+    0.018727,
+    0.037453,
+    0.018727,
+    0.033708,
+    0.022472,
+    0.037453,
+    0.029963,
+    0.048689,
+    0.101124,
+    0.19403
+   ],
+   "decile_predicted": [
+    0.011529,
+    0.016907,
+    0.021206,
+    0.026081,
+    0.031218,
+    0.037451,
+    0.046433,
+    0.059622,
+    0.094578,
+    0.20121
+   ],
+   "discrimination": {
+    "metric": "Harrell's C (cumulative divorce risk to ~12 years, discrete periods)",
+    "value": 0.634717,
+    "ci": [
+     0.608917,
+     0.681955
+    ],
+    "diff_vs_baseline": 0.0,
+    "diff_ci": [
+     0.0,
+     0.0
+    ]
+   }
+  },
+  "best": {
+   "model": "enet_spline_pairwise",
+   "heldout_gain": 11.770284,
+   "heldout_gain_ci": [
+    7.182651,
+    15.262161
+   ],
+   "diff_vs_baseline": 2.150604,
+   "diff_vs_baseline_ci": [
+    -1.910708,
+    5.450662
+   ],
+   "heldout_gain_by_repeat": [
+    11.770284
+   ],
+   "train_gain": 19.004475,
+   "train_minus_heldout": 7.234191,
+   "observed_expected": 0.947673,
+   "calibration_slope": 0.96011,
+   "calibration_intercept": -0.159624,
+   "top_decile_lift": 3.849099,
+   "top_bottom_ratio": 9.298507,
+   "decile_observed": [
+    0.022472,
+    0.007491,
+    0.003745,
+    0.014981,
+    0.026217,
+    0.037453,
+    0.037453,
+    0.059925,
+    0.123596,
+    0.208955
+   ],
+   "decile_predicted": [
+    0.015664,
+    0.02024,
+    0.023595,
+    0.026427,
+    0.029747,
+    0.035033,
+    0.042627,
+    0.057501,
+    0.097462,
+    0.223922
+   ],
+   "discrimination": {
+    "metric": "Harrell's C (cumulative divorce risk to ~12 years, discrete periods)",
+    "value": 0.701767,
+    "ci": [
+     0.664695,
+     0.734269
+    ],
+    "diff_vs_baseline": 0.067051,
+    "diff_ci": [
+     0.028503,
+     0.098855
+    ]
+   }
+  },
+  "winners": [],
+  "null": {
+   "baseline": 0.267438,
+   "lightgbm_tuned": -0.045348,
+   "enet_spline_pairwise": -0.306815
+  },
+  "learning_curve": [
+   {
+    "fraction": 0.1,
+    "model": "baseline",
+    "heldout_gain": -2.213272
+   },
+   {
+    "fraction": 0.1,
+    "model": "lightgbm_tuned",
+    "heldout_gain": 4.524324
+   },
+   {
+    "fraction": 0.25,
+    "model": "baseline",
+    "heldout_gain": 3.066931
+   },
+   {
+    "fraction": 0.25,
+    "model": "lightgbm_tuned",
+    "heldout_gain": 0.219009
+   },
+   {
+    "fraction": 0.5,
+    "model": "baseline",
+    "heldout_gain": 7.175154
+   },
+   {
+    "fraction": 0.5,
+    "model": "lightgbm_tuned",
+    "heldout_gain": 5.993981
+   },
+   {
+    "fraction": 0.75,
+    "model": "baseline",
+    "heldout_gain": 8.982049
+   },
+   {
+    "fraction": 0.75,
+    "model": "lightgbm_tuned",
+    "heldout_gain": 8.865564
+   },
+   {
+    "fraction": 1.0,
+    "model": "baseline",
+    "heldout_gain": 9.619681
+   },
+   {
+    "fraction": 1.0,
+    "model": "lightgbm_tuned",
+    "heldout_gain": 8.969311
+   }
+  ],
+  "feature_curve": [
+   {
+    "k": 1,
+    "model": "lightgbm",
+    "heldout_gain": 7.077407
+   },
+   {
+    "k": 1,
+    "model": "additive_glm",
+    "heldout_gain": 6.89935
+   },
+   {
+    "k": 2,
+    "model": "lightgbm",
+    "heldout_gain": 9.891687
+   },
+   {
+    "k": 2,
+    "model": "additive_glm",
+    "heldout_gain": 9.478269
+   },
+   {
+    "k": 4,
+    "model": "lightgbm",
+    "heldout_gain": 9.458478
+   },
+   {
+    "k": 4,
+    "model": "additive_glm",
+    "heldout_gain": 9.657978
+   },
+   {
+    "k": 8,
+    "model": "lightgbm",
+    "heldout_gain": 8.113973
+   },
+   {
+    "k": 8,
+    "model": "additive_glm",
+    "heldout_gain": 9.034763
+   },
+   {
+    "k": 16,
+    "model": "lightgbm",
+    "heldout_gain": 9.965722
+   },
+   {
+    "k": 16,
+    "model": "additive_glm",
+    "heldout_gain": 12.228738
+   },
+   {
+    "k": 32,
+    "model": "lightgbm",
+    "heldout_gain": 8.130129
+   },
+   {
+    "k": 32,
+    "model": "additive_glm",
+    "heldout_gain": 11.379444
+   },
+   {
+    "k": 52,
+    "model": "lightgbm",
+    "heldout_gain": 8.969311
+   },
+   {
+    "k": 52,
+    "model": "additive_glm",
+    "heldout_gain": 10.938477
+   }
+  ],
+  "oot": null,
+  "tabpfn": null,
+  "survival_native": null,
+  "cure": null,
+  "competing": null,
+  "other": {
+   "dyad_apim_glm": {
+    "model": "dyad_apim_glm",
+    "heldout_gain": 9.78716,
+    "heldout_gain_ci": [
+     5.884013,
+     12.838128
+    ],
+    "diff_vs_baseline": 0.167479,
+    "diff_vs_baseline_ci": [
+     -0.484401,
+     0.751728
+    ],
+    "heldout_gain_by_repeat": [
+     9.78716
+    ],
+    "train_gain": 14.833008,
+    "train_minus_heldout": 5.045849,
+    "observed_expected": 0.980021,
+    "calibration_slope": 0.929694,
+    "calibration_intercept": -0.197356,
+    "top_decile_lift": 3.436696,
+    "top_bottom_ratio": 9.962687,
+    "decile_observed": [
+     0.018727,
+     0.022472,
+     0.029963,
+     0.022472,
+     0.022472,
+     0.037453,
+     0.033708,
+     0.067416,
+     0.101124,
+     0.186567
+    ],
+    "decile_predicted": [
+     0.011606,
+     0.016748,
+     0.021067,
+     0.025771,
+     0.030787,
+     0.037131,
+     0.046086,
+     0.060937,
+     0.097846,
+     0.205393
+    ],
+    "discrimination": {
+     "metric": "Harrell's C (cumulative divorce risk to ~12 years, discrete periods)",
+     "value": 0.639984,
+     "ci": [
+      0.616201,
+      0.678284
+     ],
+     "diff_vs_baseline": 0.005268,
+     "diff_ci": [
+      -0.005477,
+      0.017453
+     ]
+    }
+   },
+   "dyad_summary_glm": {
+    "model": "dyad_summary_glm",
+    "heldout_gain": 10.184437,
+    "heldout_gain_ci": [
+     6.376934,
+     13.216318
+    ],
+    "diff_vs_baseline": 0.564756,
+    "diff_vs_baseline_ci": [
+     -0.141723,
+     1.385314
+    ],
+    "heldout_gain_by_repeat": [
+     10.184437
+    ],
+    "train_gain": 13.990303,
+    "train_minus_heldout": 3.805867,
+    "observed_expected": 0.999713,
+    "calibration_slope": 0.963975,
+    "calibration_intercept": -0.090492,
+    "top_decile_lift": 3.711631,
+    "top_bottom_ratio": 13.449627,
+    "decile_observed": [
+     0.014981,
+     0.026217,
+     0.029963,
+     0.026217,
+     0.022472,
+     0.041199,
+     0.029963,
+     0.044944,
+     0.104869,
+     0.201493
+    ],
+    "decile_predicted": [
+     0.011468,
+     0.016877,
+     0.021433,
+     0.02587,
+     0.030676,
+     0.036722,
+     0.045384,
+     0.059621,
+     0.09506,
+     0.19937
+    ],
+    "discrimination": {
+     "metric": "Harrell's C (cumulative divorce risk to ~12 years, discrete periods)",
+     "value": 0.644686,
+     "ci": [
+      0.614826,
+      0.691299
+     ],
+     "diff_vs_baseline": 0.009969,
+     "diff_ci": [
+      -0.017061,
+      0.036207
+     ]
+    }
+   },
+   "baseline_all_inputs": {
+    "model": "baseline_all_inputs",
+    "heldout_gain": 8.377328,
+    "heldout_gain_ci": [
+     4.574897,
+     11.891331
+    ],
+    "diff_vs_baseline": -1.242352,
+    "diff_vs_baseline_ci": [
+     -2.099821,
+     -0.314016
+    ],
+    "heldout_gain_by_repeat": [
+     8.377328
+    ],
+    "train_gain": 14.362027,
+    "train_minus_heldout": 5.984699,
+    "observed_expected": 0.987837,
+    "calibration_slope": 0.889982,
+    "calibration_intercept": -0.29122,
+    "top_decile_lift": 3.780365,
+    "top_bottom_ratio": 10.958955,
+    "decile_observed": [
+     0.018727,
+     0.037453,
+     0.037453,
+     0.026217,
+     0.022472,
+     0.022472,
+     0.037453,
+     0.06367,
+     0.071161,
+     0.205224
+    ],
+    "decile_predicted": [
+     0.011895,
+     0.017325,
+     0.021883,
+     0.026645,
+     0.032262,
+     0.038491,
+     0.04648,
+     0.058194,
+     0.093829,
+     0.201997
+    ],
+    "discrimination": {
+     "metric": "Harrell's C (cumulative divorce risk to ~12 years, discrete periods)",
+     "value": 0.621055,
+     "ci": [
+      0.581148,
+      0.666577
+     ],
+     "diff_vs_baseline": -0.013661,
+     "diff_ci": [
+      -0.03111,
+      0.000383
+     ]
+    }
+   }
+  }
+ },
+ "sipp_couples": {
+  "rows": 33698,
+  "events": 312.0,
+  "baseline": {
+   "model": "baseline",
+   "heldout_gain": 5.770132,
+   "heldout_gain_ci": [
+    3.973755,
+    8.267598
+   ],
+   "diff_vs_baseline": 0.0,
+   "diff_vs_baseline_ci": [
+    0.0,
+    0.0
+   ],
+   "heldout_gain_by_repeat": [
+    5.770132
+   ],
+   "train_gain": 8.99735,
+   "train_minus_heldout": 3.227218,
+   "observed_expected": 1.011865,
+   "calibration_slope": 0.882455,
+   "calibration_intercept": -0.478787,
+   "top_decile_lift": 2.761163,
+   "top_bottom_ratio": 46.521797,
+   "decile_observed": [
+    0.00066,
+    0.003946,
+    0.005846,
+    0.00721,
+    0.00694,
+    0.012518,
+    0.011629,
+    0.016385,
+    0.015367,
+    0.030709
+   ],
+   "decile_predicted": [
+    0.000657,
+    0.002231,
+    0.00452,
+    0.006348,
+    0.007855,
+    0.009536,
+    0.011548,
+    0.014268,
+    0.018571,
+    0.034367
+   ],
+   "discrimination": {
+    "metric": "AUC (rows)",
+    "value": 0.69468,
+    "ci": [
+     0.667244,
+     0.704843
+    ],
+    "diff_vs_baseline": 0.0,
+    "diff_ci": [
+     0.0,
+     0.0
+    ]
+   }
+  },
+  "best": {
+   "model": "ebm",
+   "heldout_gain": 6.777887,
+   "heldout_gain_ci": [
+    5.045402,
+    9.515943
+   ],
+   "diff_vs_baseline": 1.007755,
+   "diff_vs_baseline_ci": [
+    -0.520234,
+    2.954003
+   ],
+   "heldout_gain_by_repeat": [
+    6.777887
+   ],
+   "train_gain": 14.077685,
+   "train_minus_heldout": 7.299798,
+   "observed_expected": 1.005757,
+   "calibration_slope": 0.955916,
+   "calibration_intercept": -0.177064,
+   "top_decile_lift": 3.290658,
+   "top_bottom_ratio": 35.358445,
+   "decile_observed": [
+    0.001035,
+    0.003478,
+    0.003916,
+    0.011072,
+    0.005473,
+    0.008579,
+    0.00983,
+    0.016775,
+    0.014434,
+    0.036598
+   ],
+   "decile_predicted": [
+    0.00107,
+    0.002542,
+    0.004097,
+    0.005715,
+    0.007437,
+    0.009321,
+    0.011609,
+    0.014521,
+    0.019055,
+    0.035192
+   ],
+   "discrimination": {
+    "metric": "AUC (rows)",
+    "value": 0.709776,
+    "ci": [
+     0.687923,
+     0.732802
+    ],
+    "diff_vs_baseline": 0.015096,
+    "diff_ci": [
+     0.012273,
+     0.043955
+    ]
+   }
+  },
+  "winners": [],
+  "null": {
+   "baseline": -0.379971,
+   "lightgbm_tuned": -0.571462,
+   "enet_spline_pairwise": -0.132183
+  },
+  "learning_curve": [
+   {
+    "fraction": 0.1,
+    "model": "baseline",
+    "heldout_gain": -0.394039
+   },
+   {
+    "fraction": 0.1,
+    "model": "lightgbm_tuned",
+    "heldout_gain": -8.146336
+   },
+   {
+    "fraction": 0.25,
+    "model": "baseline",
+    "heldout_gain": 0.9285
+   },
+   {
+    "fraction": 0.25,
+    "model": "lightgbm_tuned",
+    "heldout_gain": -0.629476
+   },
+   {
+    "fraction": 0.5,
+    "model": "baseline",
+    "heldout_gain": 3.605973
+   },
+   {
+    "fraction": 0.5,
+    "model": "lightgbm_tuned",
+    "heldout_gain": 2.817046
+   },
+   {
+    "fraction": 0.75,
+    "model": "baseline",
+    "heldout_gain": 3.74699
+   },
+   {
+    "fraction": 0.75,
+    "model": "lightgbm_tuned",
+    "heldout_gain": 3.079395
+   },
+   {
+    "fraction": 1.0,
+    "model": "baseline",
+    "heldout_gain": 5.770132
+   },
+   {
+    "fraction": 1.0,
+    "model": "lightgbm_tuned",
+    "heldout_gain": 4.704722
+   }
+  ],
+  "feature_curve": [
+   {
+    "k": 1,
+    "model": "lightgbm",
+    "heldout_gain": 1.294849
+   },
+   {
+    "k": 1,
+    "model": "additive_glm",
+    "heldout_gain": 1.97606
+   },
+   {
+    "k": 2,
+    "model": "lightgbm",
+    "heldout_gain": 2.007863
+   },
+   {
+    "k": 2,
+    "model": "additive_glm",
+    "heldout_gain": 2.522635
+   },
+   {
+    "k": 4,
+    "model": "lightgbm",
+    "heldout_gain": 1.898018
+   },
+   {
+    "k": 4,
+    "model": "additive_glm",
+    "heldout_gain": 3.631559
+   },
+   {
+    "k": 8,
+    "model": "lightgbm",
+    "heldout_gain": 3.206287
+   },
+   {
+    "k": 8,
+    "model": "additive_glm",
+    "heldout_gain": 3.781275
+   },
+   {
+    "k": 16,
+    "model": "lightgbm",
+    "heldout_gain": 4.926846
+   },
+   {
+    "k": 16,
+    "model": "additive_glm",
+    "heldout_gain": 4.187627
+   },
+   {
+    "k": 29,
+    "model": "lightgbm",
+    "heldout_gain": 4.704722
+   },
+   {
+    "k": 29,
+    "model": "additive_glm",
+    "heldout_gain": 4.857836
+   }
+  ],
+  "oot": null,
+  "tabpfn": null,
+  "survival_native": null,
+  "cure": null,
+  "competing": null,
+  "other": {
+   "lens_glm_demographics_wealth": {
+    "model": "lens_glm_demographics_wealth",
+    "heldout_gain": 5.025451,
+    "heldout_gain_ci": [
+     3.538414,
+     6.455175
+    ],
+    "diff_vs_baseline": -0.744681,
+    "diff_vs_baseline_ci": [
+     -2.602403,
+     0.300142
+    ],
+    "heldout_gain_by_repeat": [
+     5.025451
+    ],
+    "train_gain": 7.492914,
+    "train_minus_heldout": 2.467463,
+    "observed_expected": 1.002758,
+    "calibration_slope": 1.065279,
+    "calibration_intercept": 0.279849,
+    "top_decile_lift": 2.525803,
+    "top_bottom_ratio": 18.864811,
+    "decile_observed": [
+     0.001489,
+     0.002139,
+     0.006636,
+     0.007568,
+     0.006606,
+     0.010906,
+     0.013822,
+     0.015001,
+     0.01895,
+     0.028092
+    ],
+    "decile_predicted": [
+     0.001675,
+     0.003373,
+     0.005276,
+     0.00709,
+     0.008811,
+     0.010595,
+     0.012591,
+     0.014976,
+     0.018486,
+     0.028026
+    ],
+    "discrimination": {
+     "metric": "AUC (rows)",
+     "value": 0.695053,
+     "ci": [
+      0.683685,
+      0.715307
+     ],
+     "diff_vs_baseline": 0.000373,
+     "diff_ci": [
+      -0.007865,
+      0.01978
+     ]
+    }
+   },
+   "baseline_all_inputs": {
+    "model": "baseline_all_inputs",
+    "heldout_gain": 4.655293,
+    "heldout_gain_ci": [
+     3.203776,
+     5.971294
+    ],
+    "diff_vs_baseline": -1.114838,
+    "diff_vs_baseline_ci": [
+     -3.241723,
+     0.076372
+    ],
+    "heldout_gain_by_repeat": [
+     4.655293
+    ],
+    "train_gain": 7.771436,
+    "train_minus_heldout": 3.116142,
+    "observed_expected": 1.005676,
+    "calibration_slope": 1.026773,
+    "calibration_intercept": 0.119795,
+    "top_decile_lift": 2.444841,
+    "top_bottom_ratio": 54.735658,
+    "decile_observed": [
+     0.000497,
+     0.004175,
+     0.004549,
+     0.006154,
+     0.009639,
+     0.009933,
+     0.018887,
+     0.010647,
+     0.019541,
+     0.027191
+    ],
+    "decile_predicted": [
+     0.001692,
+     0.003502,
+     0.005265,
+     0.007074,
+     0.00886,
+     0.010734,
+     0.012738,
+     0.014921,
+     0.018156,
+     0.027642
+    ],
+    "discrimination": {
+     "metric": "AUC (rows)",
+     "value": 0.690124,
+     "ci": [
+      0.676525,
+      0.715772
+     ],
+     "diff_vs_baseline": -0.004556,
+     "diff_ci": [
+      -0.009427,
+      0.01952
+     ]
+    }
+   },
+   "lens_boosting": {
+    "model": "lens_boosting",
+    "heldout_gain": 4.344331,
+    "heldout_gain_ci": [
+     3.053393,
+     5.453628
+    ],
+    "diff_vs_baseline": -1.425801,
+    "diff_vs_baseline_ci": [
+     -3.175667,
+     -0.289461
+    ],
+    "heldout_gain_by_repeat": [
+     4.344331
+    ],
+    "train_gain": 9.935752,
+    "train_minus_heldout": 5.591421,
+    "observed_expected": 1.00837,
+    "calibration_slope": 1.015798,
+    "calibration_intercept": 0.07604,
+    "top_decile_lift": 2.347399,
+    "top_bottom_ratio": 43.339111,
+    "decile_observed": [
+     0.000602,
+     0.002581,
+     0.006568,
+     0.008474,
+     0.012919,
+     0.00707,
+     0.01317,
+     0.012205,
+     0.021509,
+     0.026107
+    ],
+    "decile_predicted": [
+     0.001989,
+     0.003149,
+     0.005497,
+     0.007557,
+     0.00914,
+     0.010715,
+     0.012493,
+     0.014709,
+     0.017908,
+     0.027127
+    ],
+    "discrimination": {
+     "metric": "AUC (rows)",
+     "value": 0.6808,
+     "ci": [
+      0.679456,
+      0.69626
+     ],
+     "diff_vs_baseline": -0.013881,
+     "diff_ci": [
+      -0.015615,
+      0.02026
+     ]
+    }
+   }
+  }
+ },
+ "nlsy79_couples": {
+  "rows": 40818,
+  "events": 726.0,
+  "baseline": {
+   "model": "baseline",
+   "heldout_gain": 3.398831,
+   "heldout_gain_ci": [
+    1.888448,
+    4.793604
+   ],
+   "diff_vs_baseline": 0.0,
+   "diff_vs_baseline_ci": [
+    0.0,
+    0.0
+   ],
+   "heldout_gain_by_repeat": [
+    3.398831
+   ],
+   "train_gain": 6.182132,
+   "train_minus_heldout": 2.7833,
+   "observed_expected": 0.995743,
+   "calibration_slope": 0.790268,
+   "calibration_intercept": -0.963658,
+   "top_decile_lift": 2.286329,
+   "top_bottom_ratio": 7.311402,
+   "decile_observed": [
+    0.002602,
+    0.0026,
+    0.005265,
+    0.005145,
+    0.006746,
+    0.007642,
+    0.008619,
+    0.013298,
+    0.012113,
+    0.019027
+   ],
+   "decile_predicted": [
+    0.001612,
+    0.002714,
+    0.00371,
+    0.004774,
+    0.005923,
+    0.007224,
+    0.008817,
+    0.010946,
+    0.01425,
+    0.023388
+   ],
+   "discrimination": {
+    "metric": "AUC (rows)",
+    "value": 0.666274,
+    "ci": [
+     0.6527,
+     0.681969
+    ],
+    "diff_vs_baseline": 0.0,
+    "diff_ci": [
+     0.0,
+     0.0
+    ]
+   }
+  },
+  "best": {
+   "model": "stack_glm_lgbm",
+   "heldout_gain": 3.527013,
+   "heldout_gain_ci": [
+    2.215543,
+    4.837413
+   ],
+   "diff_vs_baseline": 0.128181,
+   "diff_vs_baseline_ci": [
+    -0.104445,
+    0.375052
+   ],
+   "heldout_gain_by_repeat": [
+    3.527013
+   ],
+   "train_gain": 7.351691,
+   "train_minus_heldout": 3.824678,
+   "observed_expected": 1.007744,
+   "calibration_slope": 0.883641,
+   "calibration_intercept": -0.52862,
+   "top_decile_lift": 2.182636,
+   "top_bottom_ratio": 7.498095,
+   "decile_observed": [
+    0.002423,
+    0.00253,
+    0.005539,
+    0.005234,
+    0.006042,
+    0.008276,
+    0.008886,
+    0.012589,
+    0.013459,
+    0.018164
+   ],
+   "decile_predicted": [
+    0.002076,
+    0.003155,
+    0.004098,
+    0.005119,
+    0.006176,
+    0.007359,
+    0.008831,
+    0.010732,
+    0.013666,
+    0.021281
+   ],
+   "discrimination": {
+    "metric": "AUC (rows)",
+    "value": 0.665427,
+    "ci": [
+     0.649554,
+     0.681707
+    ],
+    "diff_vs_baseline": -0.000847,
+    "diff_ci": [
+     -0.004397,
+     0.005128
+    ]
+   }
+  },
+  "winners": [],
+  "null": {
+   "baseline": -1.836443,
+   "lightgbm_tuned": -0.351984,
+   "enet_spline_pairwise": -0.419315
+  },
+  "learning_curve": [
+   {
+    "fraction": 0.1,
+    "model": "baseline",
+    "heldout_gain": -6.946588
+   },
+   {
+    "fraction": 0.1,
+    "model": "lightgbm_tuned",
+    "heldout_gain": 0.711287
+   },
+   {
+    "fraction": 0.25,
+    "model": "baseline",
+    "heldout_gain": 1.26901
+   },
+   {
+    "fraction": 0.25,
+    "model": "lightgbm_tuned",
+    "heldout_gain": 1.034352
+   },
+   {
+    "fraction": 0.5,
+    "model": "baseline",
+    "heldout_gain": 2.561911
+   },
+   {
+    "fraction": 0.5,
+    "model": "lightgbm_tuned",
+    "heldout_gain": 1.477258
+   },
+   {
+    "fraction": 0.75,
+    "model": "baseline",
+    "heldout_gain": 3.045331
+   },
+   {
+    "fraction": 0.75,
+    "model": "lightgbm_tuned",
+    "heldout_gain": 2.315976
+   },
+   {
+    "fraction": 1.0,
+    "model": "baseline",
+    "heldout_gain": 3.398831
+   },
+   {
+    "fraction": 1.0,
+    "model": "lightgbm_tuned",
+    "heldout_gain": 2.793657
+   }
+  ],
+  "feature_curve": [
+   {
+    "k": 1,
+    "model": "lightgbm",
+    "heldout_gain": 2.163811
+   },
+   {
+    "k": 1,
+    "model": "additive_glm",
+    "heldout_gain": 2.938337
+   },
+   {
+    "k": 2,
+    "model": "lightgbm",
+    "heldout_gain": 1.939093
+   },
+   {
+    "k": 2,
+    "model": "additive_glm",
+    "heldout_gain": 2.643333
+   },
+   {
+    "k": 4,
+    "model": "lightgbm",
+    "heldout_gain": 2.107816
+   },
+   {
+    "k": 4,
+    "model": "additive_glm",
+    "heldout_gain": 2.808063
+   },
+   {
+    "k": 8,
+    "model": "lightgbm",
+    "heldout_gain": 2.490909
+   },
+   {
+    "k": 8,
+    "model": "additive_glm",
+    "heldout_gain": 3.183709
+   },
+   {
+    "k": 16,
+    "model": "lightgbm",
+    "heldout_gain": 2.676927
+   },
+   {
+    "k": 16,
+    "model": "additive_glm",
+    "heldout_gain": 3.60307
+   },
+   {
+    "k": 18,
+    "model": "lightgbm",
+    "heldout_gain": 2.793657
+   },
+   {
+    "k": 18,
+    "model": "additive_glm",
+    "heldout_gain": 3.584235
+   }
+  ],
+  "oot": null,
+  "tabpfn": null,
+  "survival_native": null,
+  "cure": null,
+  "competing": null,
+  "other": {
+   "dyad_separate_glm": {
+    "model": "dyad_separate_glm",
+    "heldout_gain": 3.164499,
+    "heldout_gain_ci": [
+     1.581201,
+     4.533206
+    ],
+    "diff_vs_baseline": -0.234332,
+    "diff_vs_baseline_ci": [
+     -0.615266,
+     0.248193
+    ],
+    "heldout_gain_by_repeat": [
+     3.164499
+    ],
+    "train_gain": 5.910598,
+    "train_minus_heldout": 2.746099,
+    "observed_expected": 0.997303,
+    "calibration_slope": 0.772916,
+    "calibration_intercept": -1.043765,
+    "top_decile_lift": 2.071481,
+    "top_bottom_ratio": 11.631772,
+    "decile_observed": [
+     0.001482,
+     0.003963,
+     0.005297,
+     0.004727,
+     0.00686,
+     0.008503,
+     0.009406,
+     0.011061,
+     0.014511,
+     0.017239
+    ],
+    "decile_predicted": [
+     0.001632,
+     0.002664,
+     0.003623,
+     0.004733,
+     0.00596,
+     0.007345,
+     0.009011,
+     0.01118,
+     0.014407,
+     0.022655
+    ],
+    "discrimination": {
+     "metric": "AUC (rows)",
+     "value": 0.663414,
+     "ci": [
+      0.647596,
+      0.677418
+     ],
+     "diff_vs_baseline": -0.00286,
+     "diff_ci": [
+      -0.005814,
+      0.002586
+     ]
+    }
+   },
+   "dyad_apim_glm": {
+    "model": "dyad_apim_glm",
+    "heldout_gain": 3.201607,
+    "heldout_gain_ci": [
+     1.720991,
+     4.562555
+    ],
+    "diff_vs_baseline": -0.197224,
+    "diff_vs_baseline_ci": [
+     -0.470907,
+     0.257334
+    ],
+    "heldout_gain_by_repeat": [
+     3.201607
+    ],
+    "train_gain": 6.399455,
+    "train_minus_heldout": 3.197847,
+    "observed_expected": 0.994159,
+    "calibration_slope": 0.753741,
+    "calibration_intercept": -1.131207,
+    "top_decile_lift": 2.312117,
+    "top_bottom_ratio": 10.115755,
+    "decile_observed": [
+     0.001902,
+     0.003018,
+     0.005502,
+     0.005323,
+     0.006375,
+     0.009283,
+     0.009357,
+     0.010727,
+     0.012304,
+     0.019242
+    ],
+    "decile_predicted": [
+     0.001505,
+     0.002554,
+     0.003519,
+     0.004584,
+     0.005803,
+     0.007203,
+     0.008913,
+     0.011185,
+     0.01458,
+     0.02364
+    ],
+    "discrimination": {
+     "metric": "AUC (rows)",
+     "value": 0.66374,
+     "ci": [
+      0.647105,
+      0.675717
+     ],
+     "diff_vs_baseline": -0.002535,
+     "diff_ci": [
+      -0.007553,
+      0.002211
+     ]
+    }
+   },
+   "dyad_summary_glm": {
+    "model": "dyad_summary_glm",
+    "heldout_gain": 3.171725,
+    "heldout_gain_ci": [
+     1.946376,
+     4.549154
+    ],
+    "diff_vs_baseline": -0.227106,
+    "diff_vs_baseline_ci": [
+     -0.656246,
+     0.229718
+    ],
+    "heldout_gain_by_repeat": [
+     3.171725
+    ],
+    "train_gain": 5.60438,
+    "train_minus_heldout": 2.432655,
+    "observed_expected": 0.997818,
+    "calibration_slope": 0.789992,
+    "calibration_intercept": -0.96627,
+    "top_decile_lift": 1.992641,
+    "top_bottom_ratio": 8.669575,
+    "decile_observed": [
+     0.001913,
+     0.003938,
+     0.003529,
+     0.005986,
+     0.00823,
+     0.007327,
+     0.007876,
+     0.013874,
+     0.01383,
+     0.016583
+    ],
+    "decile_predicted": [
+     0.001767,
+     0.002751,
+     0.003743,
+     0.004865,
+     0.006062,
+     0.007381,
+     0.009015,
+     0.011066,
+     0.014148,
+     0.02239
+    ],
+    "discrimination": {
+     "metric": "AUC (rows)",
+     "value": 0.661494,
+     "ci": [
+      0.641786,
+      0.677136
+     ],
+     "diff_vs_baseline": -0.004781,
+     "diff_ci": [
+      -0.011606,
+      0.002586
+     ]
+    }
+   },
+   "baseline_all_inputs": {
+    "model": "baseline_all_inputs",
+    "heldout_gain": 3.057427,
+    "heldout_gain_ci": [
+     1.533706,
+     4.383085
+    ],
+    "diff_vs_baseline": -0.341404,
+    "diff_vs_baseline_ci": [
+     -0.72681,
+     0.171297
+    ],
+    "heldout_gain_by_repeat": [
+     3.057427
+    ],
+    "train_gain": 6.254996,
+    "train_minus_heldout": 3.197569,
+    "observed_expected": 0.994708,
+    "calibration_slope": 0.747416,
+    "calibration_intercept": -1.161352,
+    "top_decile_lift": 2.063889,
+    "top_bottom_ratio": 8.446441,
+    "decile_observed": [
+     0.002034,
+     0.002962,
+     0.005244,
+     0.005481,
+     0.006434,
+     0.008723,
+     0.009969,
+     0.01047,
+     0.014576,
+     0.017176
+    ],
+    "decile_predicted": [
+     0.001548,
+     0.002596,
+     0.003553,
+     0.004616,
+     0.005825,
+     0.007236,
+     0.00894,
+     0.011225,
+     0.014546,
+     0.023375
+    ],
+    "discrimination": {
+     "metric": "AUC (rows)",
+     "value": 0.662598,
+     "ci": [
+      0.645638,
+      0.674642
+     ],
+     "diff_vs_baseline": -0.003676,
+     "diff_ci": [
+      -0.008055,
+      -0.000284
+     ]
+    }
+   }
+  }
+ }
+}

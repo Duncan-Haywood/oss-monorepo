@@ -1,0 +1,28 @@
+# Cloudflare Worker for the GitHub Pages site: page-view counts and the
+# feedback form. Setup steps: platform/edge/README.md.
+name = "monorepo-projects-edge"
+main = "worker.mjs"
+compatibility_date = "2025-09-01"
+# Free plan only. With no paid plan on the account, going over a daily limit
+# makes requests fail; it never creates a charge.
+
+[vars]
+# The only origin whose pages may post feedback (scheme + host, no path).
+ALLOWED_ORIGIN = "https://duncan-haywood.github.io"
+# At most this many feedback messages a day, site-wide, whatever the source.
+FEEDBACK_DAILY_CAP = "50"
+MAX_PER_SLUG_PER_DAY = "20000"
+# No secrets: the Worker holds no GitHub credential. Feedback and counts are
+# pulled into the repository by .github/workflows/site-usage-pull.yml.
+
+[[d1_databases]]
+binding = "DB"
+database_name = "monorepo-projects-edge"
+# Printed by `npx wrangler d1 create monorepo-projects-edge`; paste it here.
+database_id = "00000000-0000-0000-0000-000000000000"
+
+# At most 3 feedback posts a minute from one sender.
+[[ratelimits]]
+name = "FEEDBACK_LIMITER"
+namespace_id = "1001"
+simple = { limit = 3, period = 60 }

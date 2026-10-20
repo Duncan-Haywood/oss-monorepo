@@ -14,7 +14,7 @@
     {"path": "prompts/goals.md", "layer": "goals", "changed_by": "owner", "always_read": true,
      "answers": "Goals, guardrails and how a run is scored. Read Guardrails plus the section your task touches."},
 
-    {"path": "CLAUDE.md", "layer": "entry", "changed_by": "review", "always_read": true, "budget": 320,
+    {"path": "CLAUDE.md", "layer": "entry", "changed_by": "review", "always_read": true, "budget": 200,
      "answers": "Standing rules for every session: ship something, land your own PR, public-repo safety, merge without ceremony."},
     {"path": "prompt.md", "layer": "entry", "changed_by": "review", "always_read": true, "budget": 100,
      "answers": "The run lifecycle: route, work, record, improve."},
@@ -22,7 +22,7 @@
     {"glob": "prompts/*/prompt-*.md", "layer": "track", "changed_by": "review", "budget": 130,
      "answers": "The sub-prompt `promptctl.py route` names. Versions and weights live in prompts/routing.json."},
 
-    {"path": "AGENTS.md", "layer": "area", "changed_by": "review", "budget": 250, "for": ["ventures", "explore"],
+    {"path": "AGENTS.md", "layer": "area", "changed_by": "review", "budget": 200, "for": ["ventures", "explore"],
      "answers": "Product work: build criteria, what every user-facing product includes, graduating a venture."},
     {"path": "ventures/CLAUDE.md", "layer": "area", "changed_by": "review", "for": ["ventures"],
      "answers": "Product-first default, self-deploy, niche choice."},
@@ -41,6 +41,8 @@
      "answers": "Open the PR, merge it, leave nothing stranded."},
     {"path": ".github/prompts/cloud-session.md", "layer": "runbook", "changed_by": "any", "budget": 80,
      "answers": "The cloud container: gh vs the GitHub MCP tools, shallow clones, pytest, long commands."},
+    {"path": ".github/prompts/parallel-git.md", "layer": "runbook", "changed_by": "any", "budget": 110,
+     "answers": "Git with 16 agents on one main: why each rule exists, what went wrong, alternatives weighed."},
     {"path": ".github/prompts/duplicate-work.md", "layer": "runbook", "changed_by": "any", "budget": 60,
      "answers": "Is someone already doing this? Open-PR search, supersede checks, closing safely."},
     {"path": ".github/prompts/verify-and-merge.md", "layer": "runbook", "changed_by": "any",

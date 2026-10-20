@@ -363,3 +363,40 @@ node --test ../../app/tests/canada_gss.test.mjs
 Needs numpy, pandas and scikit-learn 1.7.2 (`requirements.txt`). Run `tables.py` before
 `train_models.py`: the bundle embeds `weighted_survival.csv` and `canada_vs_us_survival.csv`.
 Set `OMP_NUM_THREADS=1` on a shared machine. `--jobs=N` sets the number of parallel CV folds.
+
+## 2026-10-20 extension: family of origin in detail, and religion (`extended_predictors.py`)
+
+`CANADA_WORK=<dir with first_marriages.pkl> CANADA_RAW=raw python3 extended_predictors.py`.
+
+**Family of origin** (before the wedding). The 2017 cycle is the richest family-of-origin source in
+the project: besides "always lived with both parents to 15" (GU_120) it gives the respondent's age
+when the parents separated or divorced (APARSEPC/APARDIVC), when each parent died
+(AMDIEDC/AFDIEDC), and whether the parents were ever married to each other (GU_190/GU_210). Levels:
+both parents to 15 / parents divorced or separated before 15 / a parent died before 15 /
+never-married parents / not intact, reason not known (2006 and 2011 ask only GU_Q120/190/210) /
+unknown (incl. 1995). Adjusted rate ratios vs both parents (every current input and a
+marriage-length spline, 60 person-bootstrap refits; `extended_rate_ratios.csv`), 2017 cycle
+(12,836 marriages): **never-married parents 1.59 (1.31–2.13), parents divorced or separated 1.30
+(1.11–1.57), a parent died 1.01 (0.80–1.29)**; 2006–2017 pooled: never-married parents 1.81
+(1.48–2.02), not intact for another or unknown reason 1.25 (1.14–1.33). So the reason matters — a
+parent's death is not associated with the respondent's own separation, a parental split and
+never-married parents are — but held out it adds nothing over the yes/no input: −0.00 points
+(−0.02 to +0.02) on all cycles, +0.02 (−0.04 to +0.06) on 2017 alone.
+
+**Religion** — attendance (5 levels), importance, private religious practice (REE_03, 2017: prayer,
+meditation and the like) and affiliation — is asked **at the interview**, years after many
+dissolutions. It improves held-out deviance by +0.51 points (0.41–0.60), but that is not a valid
+prospective gain: attendance at least weekly goes with 0.41 (0.34–0.51) times the rate, private
+practice daily with 1.48 (1.30–1.67), and people who separate change their religious life
+afterwards. It is reported only; the bundle's `models_extended` holds the family-of-origin model
+alone.
+
+| Cycles | Variant | Deviance gain % (95% CI) | Minus current, points (95% CI) |
+| --- | --- | --- | --- |
+| all (48,656 marriages) | current model | 3.18 (2.95–3.42) | — |
+| | family of origin, detailed | 3.18 (2.95–3.42) | −0.00 (−0.02 to +0.02) |
+| | + religion at interview (not prospective) | 3.69 (3.44–3.96) | +0.51 (+0.41 to +0.60) |
+| 2017 only | family of origin, detailed | 2.73 (2.28–3.17) | +0.02 (−0.04 to +0.06) |
+
+Race is not on the PUMF beyond a visible-minority flag, so this lens has no race input
+(`app/data/race_coverage.json`).

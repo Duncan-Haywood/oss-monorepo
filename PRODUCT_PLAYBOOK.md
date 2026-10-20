@@ -47,7 +47,10 @@ build next** (2026-10-16): read as a recipe, it produced 121 near-identical
 ([`docs/reports/2026-10-16-calculator-glut.md`](docs/reports/2026-10-16-calculator-glut.md)).
 A CLI, library, desktop app or extension (shape 2) costs nothing to serve
 either, and the owner wants that track run alongside web tools. Before adding
-a product in an existing template family, extend or consolidate the family.
+a product in an existing template family, extend or consolidate the family. A calculator
+needs an engine a chatbot can't reproduce in one reply and a maths graduate
+can't follow at a glance (owner, 2026-10-20; `prompts/goals.md`, "Depth over
+calculators").
 
 1. **Static site / browser app.** All computation client-side, state in
    `localStorage` or a file the user downloads. GitHub Pages hosts it. Zero
@@ -58,17 +61,17 @@ a product in an existing template family, extend or consolidate the family.
    niches, and it makes the repo page the landing page.
 3. **Generator / checker that runs in the user's own CI.** A GitHub Action or a
    script they schedule. Their compute, their secrets, their data.
-4. **Small service on the Hetzner product box.** Only when the product
-   genuinely cannot be any of the above. Keep it stateless, keep the data
-   the user's, and include the no-SLA clause in §5b. Never host a public
-   product on the agent box. Details: [`portfolio/hosting/README.md`](portfolio/hosting/README.md).
+4. **A small service the deployer hosts.** Only when the product genuinely
+   cannot be any of the above. We run no product servers (the Hetzner box was
+   retired on 2026-10-01), so ship it as a one-click self-deploy (below):
+   stateless, the data the user's, the no-SLA clause in §5b. Details:
+   [`portfolio/hosting/README.md`](portfolio/hosting/README.md).
 
 Rules that keep the cost floor at zero: no per-user paid API on our account, no
 per-user database we pay for, no per-user human step, no account system unless
 the product is useless without one (and if you need one, prefer "bring your own
 GitHub login" over storing credentials). Do not add Cloudflare or Vercel as
-the way a new product goes live — GitHub Pages and the existing Hetzner
-boxes are the host.
+the way a new product goes live — GitHub Pages is the host.
 
 ### Rule of thumb: anyone can deploy it themselves (owner, 2026-10-15)
 
@@ -197,6 +200,38 @@ One session should produce something usable. Concretely:
   execute the action. If you can't run it, you can't say it ships.
 - **Leave `main` working.**
 
+### Rule of thumb: every way in: see, type, speak, delegate (owner, 2026-10-20)
+
+People would often rather say "2,400 square feet, 8/12 pitch" than click
+through twenty fields, and an AI agent should be able to use a tool as
+easily as a person. So voice, chat and agent use are primary interfaces, not
+add-ons (`prompts/goals.md`, "Direction: voice, chat and agents"). For a
+browser tool on the Pages site most of this comes free from the site
+assistant (`platform/pages/assistant.mjs`): the header's Ask link, a
+"Speak or type" button on every calculator, voice-only mode, and WebMCP
+tools for agents. A product's part is:
+
+- **Keep the form readable by machines.** Every control has a real
+  `<label>` that names it in a user's words ("Shipping label cost", not
+  "Cost 2"), a `type="number"` with honest `min`/`max`/`step` where it is a
+  number, and real `<option>` text. The reader matches what people say to
+  these labels, and agents get them as a JSON Schema.
+- **Put the result where it can be read aloud**: an `aria-live` region, an
+  `<output>`, or an element with id `results`/`summary`. A result announced
+  to a screen reader is one the assistant can speak.
+- **Recompute on `input`/`change`**, so a value written by voice or by an
+  agent updates the result the same way typing does.
+- **Opt in to anything heavy.** A model, a speech recogniser, a voice: none
+  of these loads until the person clicks something that names the download
+  size and where their words go. The page without any of it stays fast and
+  fully usable. Never use cloud speech recognition silently. It sends audio
+  to a third party.
+- **Show your work.** Every value written by voice, chat or an agent is listed
+  with its source words and an Undo. Every reply names the engine that made
+  it. Accuracy is measured on real sentences (`platform/pages/assistant/evals.json`),
+  and the measured score is published beside the limitations. When a real
+  sentence fails, add it there.
+
 ### Rule of thumb: plain JavaScript, checked by TypeScript (2026-10-16)
 
 Venture code stays build-free `.mjs`, served as committed. TypeScript is used
@@ -252,8 +287,8 @@ first-run notice). Copy this, adjusting only the bracketed part:
 > working. Do not use this as a system of record. If a tool needs to
 > survive, export your inputs and run it yourself.
 
-The no-SLA paragraph is required on every hosted surface (GitHub Pages or
-Hetzner). It covers availability. It does **not** let us store personal
+The no-SLA paragraph is required on every hosted surface (GitHub Pages or a
+self-deployed copy). It covers availability. It does **not** let us store personal
 data on a box and call that fine — if anything leaves the browser, the
 privacy line in §5c has to name it.
 
@@ -272,10 +307,13 @@ venture, not just `index.html`:
 node platform/pages/clauses.mjs <venture-slug>
 ```
 
-Your venture's CI runs exactly that, so it fails on the PR. Do not rely on
-the Pages suite for it: bot PRs authored with `GITHUB_TOKEN` do not trigger
-Actions here, so that one first runs *after* the merge, on `main`, where it
-turns the Pages build red in a workflow you never touched. Six pages across
+`ventures-tests.yml` runs it for every venture a PR touches
+(`clauses.mjs --changed-since <base>`), so it fails on your PR, names your
+venture and annotates the page in the diff. You do not add it to a
+`<slug>-ci.yml`; until 2026-10-20 each of those carried a copy. Do not rely
+on the Pages suite for it, which runs only on `platform/pages/**` and so
+first catches the page *after* the merge, on `main`, red in a workflow you
+never touched. Six pages across
 three ventures reached `main` that way before the clause was injected — all
 of them copied a sibling's footer instead of this file.
 
@@ -477,8 +515,9 @@ Ship when every line is true:
 - [ ] The §5b **no-warranty** clause is on every page the venture publishes,
       not just the calculator, and any `vs-<competitor>.html` page carries the
       §5f **not-affiliated** trademark disclaimer — `node
-      platform/pages/clauses.mjs <slug>` checks both. The venture's own CI runs
-      this, so it fails on the PR rather than on `main`. (The no-SLA clause is
+      platform/pages/clauses.mjs <slug>` checks both. `ventures-tests.yml` runs
+      it for every venture a PR touches, so it fails on the PR rather than on
+      `main`. (The no-SLA clause is
       injected by the Pages build and is not yours to carry; see §5b.)
 - [ ] `VENTURE.yaml` exists (or the slug is under `product_lines` in its host
       venture's) so the router can see it — `python3 portfolio/router/validate.py`.
@@ -497,11 +536,9 @@ Ship when every line is true:
 - [ ] CI green, merged, one ledger line in `portfolio/ledger/YYYY-MM.yaml`.
 - [ ] A stranger can reach it without cloning this repo — a public URL or an
       install command. Merged-to-`main` is not deployed. Static products go
-      to GitHub Pages; processes go to the Hetzner product box
-      ([`portfolio/hosting/`](portfolio/hosting/README.md)). If Pages is
-      still gated, the next session prepares that deploy and points at
-      `deploy-settings`; it does not start a sibling product and does not
-      add Cloudflare or Vercel.
+      to GitHub Pages; processes ship as a self-deploy the user runs
+      ([`portfolio/hosting/`](portfolio/hosting/README.md)). Do not add
+      Cloudflare or Vercel.
 
 ## 8. After it ships
 

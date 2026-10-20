@@ -14,4 +14,6 @@ ZIP="$WORK/nlsy97_all_1997-2023.zip"
 python3 -I select_vars.py "$ZIP" "$WORK"
 python3 -I extract.py "$ZIP" "$WORK/vars.txt" "$WORK/extract.csv"
 python3 -I extract.py "$ZIP" "$WORK/vars_hhi.txt" "$WORK/extract_hhi.csv"
-echo "now: NLSY97_WORK=$WORK python3 train_models.py"
+python3 -I select_vars_ext.py "$ZIP" "$WORK"            # 2026-10-20 extension columns
+python3 -I extract.py "$ZIP" "$WORK/vars_ext.txt" "$WORK/extract_ext.csv"
+echo "now: NLSY97_WORK=$WORK python3 train_models.py  (then extended_predictors.py)"

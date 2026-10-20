@@ -13,6 +13,7 @@
 </script>
 <link rel="icon" href="data:,">
 <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="report.css">
 </head>
 <body>
 <header class="wrap">
@@ -47,6 +48,7 @@
     <button type="button" role="tab" id="tab-justme" data-view="justme" aria-controls="justMe">Just me</button>
     <button type="button" role="tab" id="tab-candidates" data-view="candidates" aria-controls="candidates">Me + many people</button>
     <button type="button" role="tab" id="tab-dashboard" data-view="dashboard" aria-controls="dashboard">Your dashboard</button>
+    <button type="button" role="tab" id="tab-report" data-view="report" aria-controls="report">Profile report</button>
     <button type="button" role="tab" id="tab-batch" data-view="batch" aria-controls="batch">Many couples (CSV)</button>
     <button type="button" role="tab" id="tab-scenarios" data-view="scenarios" aria-controls="scenarios">Compare options</button>
   </div>
@@ -64,6 +66,12 @@
   </fieldset>
 </form>
 <p class="share"><button type="button" id="share">Copy link to this scenario</button> <span id="shareStatus" role="status"></span><small>The profiles are stored only in the link’s <code>#</code> fragment, which browsers do not send to any server. Anyone you share the link with sees them.</small></p>
+
+<section id="datingBox" class="summary" aria-labelledby="datingHead">
+  <h2 id="datingHead">Not engaged yet? Will you marry each other, or break up first?</h2>
+  <p class="sub">For a couple who are dating or living together: from your ratings of the relationship, how long you have been together, living together, your parents’ view, how you met, ages and schooling. It answers a different question from the lenses below: whether this relationship becomes a marriage at all. Associations in one survey, not a forecast.</p>
+  <div id="datingOut" aria-live="polite"></div>
+</section>
 
 <section id="summaryBox" class="summary" aria-labelledby="summaryHead">
   <h2 id="summaryHead">Summary across lenses</h2>
@@ -192,6 +200,13 @@
   <div id="dashOut" aria-live="polite"></div>
 </section>
 
+<section id="report" class="view" role="tabpanel" aria-labelledby="tab-report" hidden>
+  <h2>Profile report: who you would be lowest-risk with, and what moves it</h2>
+  <p class="sub">A decision aid, not a verdict. For you and, separately, for the person you are looking at: the predicted break-ups if you married that person, the partners people like you actually marry, or anyone at all; whether that is above or below average; which partner profiles the lens scores lowest; which factors move the risk most for your profile; and the changes with the biggest predicted drop. One lens at a time (switch it at the top); lenses are never pooled.</p>
+  <p class="warn" role="note">These are associations in past surveys of other people’s marriages. A lower number for a type of partner is not a reason to choose or reject a person, and most of what predicts divorce is not in any survey. Only changes graded “randomised trials” or “natural experiments” have evidence that changing them changes the outcome.</p>
+  <div id="reportOut" aria-live="polite"></div>
+</section>
+
 <section id="batch" class="view" role="tabpanel" aria-labelledby="tab-batch" hidden>
   <h2>Many couples from a CSV</h2>
   <p class="sub"><strong>Nothing is uploaded.</strong> The file is read and scored in this browser tab; results download from your own browser. Batch data are never put in the link. Up to <span id="batchCap">10,000</span> couples per file.</p>
@@ -253,6 +268,8 @@
   </details>
 </section>
 
+<!-- In-browser training panel: all of its code is in train/; this section and the train/panel.js script tag are its only hooks. -->
+<section id="trainPanel" class="train" aria-labelledby="trainHead"></section>
 <section class="limits">
   <h2>How it works and what it cannot tell you</h2>
   <ul>
@@ -263,7 +280,7 @@
     <li><strong>Exact in the browser.</strong> Every model was trained in scikit-learn, exported to JSON and runs here in a small JavaScript engine that reproduces scikit-learn’s predictions to 10<sup>−9</sup> (tested).</li>
     <li><strong>Per year.</strong> Each model gives an annual divorce <em>rate</em> for the couple at each marriage year (ages and duration advance; everything else stays as entered). A year’s divorce probability is 1 − e<sup>−rate</sup>, and the chance of still being married multiplies those years together.</li>
     <li><strong>Couple.</strong> Most surveys interviewed one spouse. Lenses built on one respondent score the couple from each partner’s point of view (where that partner fits the lens) and average them; the NSFG lenses use the wife’s report, as the survey did; the newlywed study measured both spouses. Same-sex couples get numbers only from the lenses whose data include them (HCMST, SIPP first marriages, ACS); the others show no number rather than guess.</li>
-    <li><strong>Outside the data.</strong> Years outside what a lens saw (NLSY79: ages under 35 or over 64; NSFG: beyond year 24 of marriage) are shaded, and the numbers there are extrapolation. A couple a lens cannot speak to at all (for NSFG: a wife married before, or a wedding age outside the data) gets no number from that lens. Wealth, occupation and relationship quality are not covered.</li>
+    <li><strong>Outside the data.</strong> Years outside what a lens saw (NLSY79: ages under 35 or over 64; NSFG: beyond year 24 of marriage) are shaded, and the numbers there are extrapolation. A couple a lens cannot speak to at all (for NSFG: a wife married before, or a wedding age outside the data) gets no number from that lens. Wealth is scored only by the SIPP couples lens and occupation by none (it appears as ACS baselines); relationship quality is scored only by HCMST, the GSS panels (marriage happiness) and the newlyweds.</li>
     <li><strong>Population comparison.</strong> For the NSFG 2002 lenses, every surveyed woman’s first marriage was scored at its wedding by models fitted on the other four-fifths of women (the same held-out folds as the skill numbers), and the app stores only survey-weighted percentiles of those predictions, overall and in groups of at least 100 marriages. Your percentile is read off those, interpolated, and capped at “below p1” and “above p99”. The NLSY79 lenses have no reference yet (their person-level data are not in the repository).</li>
     <li><strong>Published evidence (lower confidence).</strong> The optional questions under “What the surveys don’t measure” apply hazard ratios from 9 published records (Birditt et al. 2010, Breslau et al. 2011, Roberts et al. 2007, Rosenfeld &amp; Roesler 2019, Manning &amp; Cohen 2012, Killewald 2016), each quote and number checked against the full text. Every hazard ratio is drawn from its published interval plus a between-study spread, stacked adjustments are shrunk for overlap, and the result is labelled literature-based. Full appraisal of 286 records: <a href="https://github.com/duncan-haywood/oss-monorepo/blob/main/research/marriage-divorce-evidence/reproducibility/literature_evidence/EVIDENCE.md">EVIDENCE.md</a>.</li>
     <li><strong>Not causal, not personal.</strong> Coefficients describe who divorced in one cohort. No validated “ideal partner”, safe anniversary or personal forecast is established. Full methods: <a href="https://github.com/duncan-haywood/oss-monorepo/blob/main/research/marriage-divorce-evidence/reproducibility/ml_couples/METHODS.md">ml_couples/METHODS.md</a> and the <a href="https://github.com/duncan-haywood/oss-monorepo/blob/main/research/marriage-divorce-evidence/MODEL_CARD.md">model card</a>.</li>
@@ -273,5 +290,6 @@
 </main>
 <div id="tip" class="tip" role="tooltip" hidden></div>
 <script type="module" src="app.js"></script>
+<script type="module" src="train/panel.js"></script>
 </body>
 </html>

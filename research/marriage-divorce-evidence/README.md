@@ -15,22 +15,24 @@
   - **Alongside it:** NSFG 1995–2023 pooled, NLSY97, NLSY79 first marriages, SIPP first marriages, Statistics Canada GSS and NSFG 2002.
   - **Example, typical engaged couple** (28 and 30, bachelor's degrees, living together first, no children before): 7.4% break-up risk by 5 years, 12.5% by 10, 19.1% by 20. That is the 2nd percentile of NSFG's first marriages, whose median 10-year risk is 28%.
   - **Example, younger couple** (22 and 23, a child before the wedding, not living together first): 22.5% by 10 years, the 32nd percentile.
+- **Not engaged yet?** For a dating or cohabiting couple (different- or same-sex), two HCMST 2009–2017 models estimate the chance of marrying each other within 8.4 years against breaking up first. The inputs are your ratings of the relationship, years together, living together, parents' view, how you met, ages and schooling. Held-out AUC is 0.73 for marrying and 0.71 for breaking up; on HCMST's later 2017 cohort, never used in training, it is 0.79 and 0.85 by 2022. Then the pre-wedding lens takes over. Two additive models are run, so the page shows their range. A couple living together for 3 years who rate the relationship excellent and good: 60% marry each other within 8.4 years (models 51–70%) and 32% break up first (22–42%). The same couple rating it fair and living apart: 9% (7–12%) and 87% (82–92%). Across the survey, 22% married and 54% broke up first.
 - Lenses that score marriages already under way sit behind **Already married**: NLSY79 couples and individuals, GSS panels, HCMST couples, the Los Angeles newlyweds, SIPP couples and ACS.
 - How well can divorce be predicted before the wedding? Modestly. The leakage-free models in [`reproducibility/prewedding/`](reproducibility/prewedding/) rank who divorces first at a C-index of 0.63–0.66 within each survey and 0.61–0.66 across U.S. surveys. That is better than chance, far from certain.
 - The lenses disagree on levels. For a typical engaged couple (28 and 30, both with a bachelor's degree, living together first, no earlier marriages or children), the chance of a break-up within 10 years runs from 6.7% (NSFG 1995–2023, models 3.8–9.7%) to 24.7% (NSFG 2002, which also counts separations and holds weddings at 2002). The app shows every lens side by side and never pools them.
 
 In either view, enter two profiles to see:
 
-- a **summary across 15 evidence lenses**: each lens’s chance of divorce or break-up at the horizons its own data support (5/10/20 years for the from-the-wedding lenses; 2 years for GSS; 2.2/4.1/8.4 years for HCMST; 2.3–12 years for the Los Angeles newlyweds; 1 year for SIPP couples and ACS), with the range across its models, its held-out skill (gain, C-index, AUC), how typical the couple is of its data, its population percentile, and a plain-language synthesis of where the lenses agree or disagree and which is most relevant — never a pooled number;
+- a **summary across the evidence lenses for your stage** (9 scorable before the wedding, 7 when already married): each lens’s chance of divorce or break-up at the horizons its own data support (5/10/20 years for the from-the-wedding lenses; 2 years for GSS; 2.2/4.1/8.4 years for HCMST; 2.3–12 years for the Los Angeles newlyweds; 1 year for SIPP couples and ACS), with the range across its models, its held-out skill (gain, C-index, AUC), how typical the couple is of its data, its population percentile, and a plain-language synthesis of where the lenses agree or disagree and which is most relevant — never a pooled number;
 - lenses that ask about the relationship itself: relationship quality (HCMST, for married and unmarried, same-sex and different-sex couples), marriage happiness (GSS panels), and newlywed satisfaction, self-reported hostility and conflict behaviour (an approximation of trained observers’ codes, labelled as such);
 - year-by-year divorce odds and the chance of no divorce by year 40 for the year-by-year lenses;
-- per-input explanations;
+- per-input explanations, one set per partner where a lens scores the couple from both sides (each exact for that partner; the couple's rate is their average);
 - how much the models agree;
 - which changes the models link to lower risk.
 - where the couple sits among each lens’s surveyed population, overall and within their own subgroups (percentiles of held-out predictions, at the reference’s own quantity: cumulative risk, or the annual rate for NLSY79 couples), plus the observed ACS one-year divorce rates for people like each partner, with 95% intervals;
 - a "just me" estimate averaged over the partners people like you actually married;
 - a ranked table for several candidate partners, grouping those the models cannot tell apart;
 - a dashboard of partner traits and what-ifs, with non-negotiables you lock or exclude;
+- a **profile report** for you and for the person you are looking at: the predicted break-ups if you married them, averaged over the partners people like you actually marry, and if you "dated everyone" (every partner type in the survey, weighted by how common it is), as N in 100 with model ranges and intervals; whether that is above or below average; the lowest-risk partner profiles and where the models disagree; which factors move the risk most for your profile, with their evidence grade; and the changes with the biggest predicted drop. It also charts [marital satisfaction by years married](reproducibility/satisfaction_by_duration/README.md) (GSS: 75% of newlyweds "very happy", 61–64% at 3–30 years; the same HCMST couples rated their relationship 0.14 points lower four years on) and shows that [dating length before marriage](reproducibility/dating_length/README.md) adds no held-out skill in HCMST (−0.12 points, 95% CI −0.90 to +0.72);
 - batch scoring of a CSV of couples, entirely in the browser, with a downloadable results file;
 - **compare options**: save the whole form as named options (up to 50), make "vary one thing" copies (age at the wedding, education, living together first, relationship quality, marriage happiness and more), and see every chosen lens side by side against your current plan: break-ups out of 100 couples like you with the model range, the change in points (with its spread across models) and as a ratio, how many models agree on the direction, a paired verdict from each model's own difference ("models agree", "most models agree", or "cannot tell apart" because the models disagree on the direction or the change is under 1 point), the population percentile and out-of-data flags, plus a small chart per lens; export JSON or CSV, or share a link that never carries sensitive answers;
 - optional questions on what the surveys do not measure (destructive conflict, depression, alcohol problems, neuroticism, earlier cohabitations), applied as a clearly labelled, lower-confidence literature-based adjustment from verified published hazard ratios, next to official CDC/NCHS first-marriage disruption tables for the couple's characteristics.
@@ -100,6 +102,8 @@ What each lens adds:
 
 - **SIPP and ACS (Census)** add scale and money. SIPP's 176,303 retrospective first marriages give the same picture as NSFG with five times the marriages (74.0% still together at 10 years; 59.1% if married under 20, 86.2% with a bachelor's by the wedding, 82.5% for 2010s weddings against 70.8% for 1970s ones). Its one-year couple panel is the project's only wealth data: negative net worth goes with 24.4 separations per 1,000 a year against 4.9 at $1M+, renters 19.5 against owners 8.9, but once both spouses' demographics and education are known, earnings, income, net worth, debt and home ownership add nothing measurable held out (−0.79 points, 95% CI −2.82 to +0.91; 312 events, so a modest effect is not ruled out). ACS 2008–2024 gives one-year divorce incidence for 12,760 subgroups with replicate-weight CIs: 13.6 per 1,000 married people a year (2019, 2021–24), down from 19.3 in 2008; highest at 6–10 years of marriage (20.8) and for people married three or more times (23.6).
 
+**More predictors: race detail, family of origin, religion, politics, occupation and wealth (2026-10-20).** Every lens was refitted with the richer inputs its data hold, and each addition was tested held out against the current model (paired person-bootstrap CIs; `reproducibility/*/extended_heldout.csv`). **None adds held-out skill whose interval excludes zero** in a prospective lens: GSS panels (finer family of origin −0.11 points; religion detail incl. prayer, strength, fundamentalism, denomination +0.10; politics +0.24; race detail −0.06; occupation −0.38; wealth −0.21), NLSY97 (all six blocks within ±0.12), NLSY79 (within ±0.05), NSFG 1995–2023 (within ±0.03), Statistics Canada family of origin (−0.00) and SIPP couples (occupations +0.11, −0.08 to +0.30; wealth components −0.35). Several still sort risk on their own and are listed with CIs in [`app/data/predictor_atlas.json`](app/data/predictor_atlas.json): in the Canadian 2017 cycle, parents who never married each other (1.59 times the separation rate) and parents who separated before 15 (1.30) matter, a parent's death does not (1.01); NSFG stepfamilies 1.52. ACS adds observed one-year divorce rates for every census race group and for Asian and Hispanic origin subgroups (Asian Indian 5.2 per 1,000, Black 23.6), and for 25 occupation groups, 20 industries, household income and home ownership — all measured after any divorce (`app/data/acs_occupation_divorce.json`). `app/data/race_coverage.json` says which race categories each lens can distinguish (NSFG and HCMST score Asian as "Other"; NLSY as "non-Black non-Hispanic"). The extended models ship in each bundle's `models_extended`, tested to 10<sup>-9</sup>, but are not scored until the form asks for their inputs.
+
 No lens covers wealth prospectively beyond SIPP's one-year panel. The targets differ (legal divorce at ages 35–64 versus any break-up of a first marriage from the wedding day), so the app shows them side by side and never pools them.
 
 **Lifelong, counting mortality.** The app runs workstream A's competing-risks module, using UN World Population Prospects 2024 U.S. death rates, once per model. Each year the divorce rate competes with the death of either partner.
@@ -124,6 +128,26 @@ From this directory run `python3 -m http.server 8080`, then open `http://localho
 ## Edit the website
 
 Use Node 22.12+ or a compatible newer Node version. Run `cd report-app`, `npm ci`, then `npm run dev -- --host 127.0.0.1`. The report body is in `src/content/report/ReportContent.jsx`, scoped CSS in its adjacent file, and reviewed results/source metadata in `src/data.json`. Preserve the stable artifact ID and source definitions. `npm run build` runs protected-runtime verification before compiling. Do not bypass a failed integrity check. See the app’s AGENTS.md for the supported editing boundaries. The portable config is restored to its original unbound template; it does not carry the live Site project identity or any credentials.
+
+## Flexible models and a pooled multi-survey model
+
+Two 2026-10-20 tests of "more flexible models" and "pool every survey":
+
+- **Flexible models** ([flexible_models/](flexible_models/README.md)): tuned LightGBM,
+  gradient boosting, forests, extra trees, an EBM, an elastic-net GLM with pairwise
+  interactions, and a stack. On five lenses, none beat the lens's best additive model with a
+  95% interval above zero. Tree models overfit the small surveys: calibration slopes ran
+  0.55–0.81. Learning curves flatten after about three-quarters of the data, and 2–8 inputs
+  carry most of the skill.
+- **Pooled multi-survey Bayesian hazard model**
+  ([reproducibility/unified_model/](reproducibility/unified_model/README.md)): nine surveys,
+  321,121 units and 44 inputs, with chained-equation imputation of inputs a survey never asked.
+  Held out by person, it beats the single-survey models in HCMST (+4.8 points, 1.9–7.8) and the
+  LA newlyweds (+1.8, 0.6–3.2), and loses slightly in NSFG, NLSY79 and Canada. It is not in the
+  calculator yet.
+
+The large-lens flexible runs, the pooled model's export and the rest are listed in
+[NEXT.md](NEXT.md).
 
 ## Reproduce the research
 

@@ -1,0 +1,23 @@
+Real system: {'visc': 0.1, 'coul': 0.3, 'sd': 0.02, 'kind': 'student3', 'glo': 9.81}. Grid of 126 controllers (ke, kp, kd, cap), ke up to 32; tuned on 150 twin starts, scored on 600 held-out real starts.
+Regret = real cost of the twin-tuned controller minus the best of the grid on the real system with the true gravity. Mean over 8 tuning seeds.
+fixed = controller energy estimate uses g/L = 9.81; aware = it uses the twin's own g/L. AUROC: boosted trees, 800 vs 800, mean over 3 seeds.
+
+twin                      AUROC     RMSE     fixed       sd     aware       sd  fixed picks ke (modal)
+exact twin (null)         0.513   0.0000   0.00008  0.00009   0.00008  0.00009  8.0
+coul -33%                 0.960   0.0186   0.00009  0.00008   0.00009  0.00008  8.0
+coul = 0                  0.999   0.0571   0.00137  0.00230   0.00137  0.00230  4.0
+visc x2                   0.959   0.0445   0.00018  0.00019   0.00018  0.00019  8.0
+visc x0.5                 0.911   0.0253   0.00004  0.00007   0.00004  0.00007  4.0
+g/L +10%                  0.997   0.1180   0.00136  0.00019  -0.00085  0.00268  8.0
+g/L -10%                  0.997   0.1243   0.00424  0.00247   0.02320  0.00555  4.0
+g/L +20%                  0.998   0.2274   0.03570  0.04553   0.01742  0.00451  32.0
+g/L -20%                  0.999   0.2511   0.01325  0.00280   0.17673  0.01421  2.0
+gauss noise, same sd      0.922   0.0000   0.00063  0.00026   0.00063  0.00026  4.0
+noise sd x0.5             0.992   0.0000   0.00010  0.00009   0.00010  0.00009  8.0
+noise sd x1.5             0.941   0.0000   0.00089  0.00024   0.00089  0.00024  4.0
+noise sd x2               0.993   0.0000   0.00099  0.00034   0.00099  0.00034  4.0
+noise sd x0 (no noise)    1.000   0.0000   0.00024  0.00014   0.00024  0.00014  12.0
+Spearman(auroc, regret), fixed, over 13 wrong twins: rho=0.63, p=0.021
+Spearman(rmse, regret), fixed, over 13 wrong twins: rho=0.64, p=0.017
+Spearman(auroc, regret), aware, over 13 wrong twins: rho=0.51, p=0.078
+Spearman(rmse, regret), aware, over 13 wrong twins: rho=0.40, p=0.181

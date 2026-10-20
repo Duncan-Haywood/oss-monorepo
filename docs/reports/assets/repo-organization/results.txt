@@ -1,0 +1,58 @@
+== Commits per month (all parents) ==
+2026-05 429
+2026-06 315
+2026-07 2255
+2026-08 2700
+2026-09 3435
+2026-10 4380
+
+== Snapshots (first-parent tree at the start of each date) ==
+2026-07-29 {'files': 1191, 'root': 6, 'guidance': 8, 'ventures': 11, 'research': 0, 'claude_md': 0}
+2026-08-02 {'files': 1191, 'root': 6, 'guidance': 8, 'ventures': 11, 'research': 0, 'claude_md': 0}
+2026-08-25 {'files': 2351, 'root': 14, 'guidance': 11, 'ventures': 31, 'research': 0, 'claude_md': 174}
+2026-09-15 {'files': 9830, 'root': 18, 'guidance': 13, 'ventures': 282, 'research': 0, 'claude_md': 1265}
+2026-10-01 {'files': 15719, 'root': 19, 'guidance': 14, 'ventures': 558, 'research': 0, 'claude_md': 1522}
+2026-10-14 {'files': 25747, 'root': 19, 'guidance': 15, 'ventures': 1206, 'research': 0, 'claude_md': 1566}
+2026-10-15 {'files': 30705, 'root': 23, 'guidance': 41, 'ventures': 1243, 'research': 414, 'claude_md': 453}
+2026-10-17 {'files': 27918, 'root': 25, 'guidance': 59, 'ventures': 1280, 'research': 523, 'claude_md': 337}
+2026-10-21 {'files': 33403, 'root': 27, 'guidance': 78, 'ventures': 1307, 'research': 765, 'claude_md': 155}
+
+== Top-level paths: first commit that touched them ==
+ventures                 2026-07-29 a2baec41b Merge local-site-studio into ventures/
+platform                 2026-07-29 eab5fc485 scaffold: ventures/platform/portfolio layout, VENTURE.yaml contract
+portfolio                2026-07-29 eab5fc485 scaffold: ventures/platform/portfolio layout, VENTURE.yaml contract
+.github/prompts          2026-08-18 f16fca552 Add high-throughput OpenCode portfolio agent (20 parallel workers per hour)
+CLAUDE.md                2026-08-19 85b15ee0e Implement portfolio router v1 and add a duplicate-work guardrail (#31)
+AGENTS.md                2026-08-24 bc149db9b Docs: product-first company direction — ship value, not admin (#851)
+PRODUCT_PLAYBOOK.md      2026-08-24 9b81c85f9 Product playbook and usage spec: make the shipped direction actionable (#868)
+DEVELOPMENT_QUALITY.md   2026-08-21 ab81715b0 docs: establish product quality and completeness framework (#559)
+gitops                   2026-08-25 28a60f056 Adopt hel1 cpx52/cpx22 into OpenTofu + Argo GitOps (#1486)
+infra                    2026-08-25 28a60f056 Adopt hel1 cpx52/cpx22 into OpenTofu + Argo GitOps (#1486)
+bootstrap                2026-08-25 28a60f056 Adopt hel1 cpx52/cpx22 into OpenTofu + Argo GitOps (#1486)
+prompt.md                2026-10-01 235de46c0 shipping-box-size-optimizer: new venture, which carton sizes to stock (browser-
+research/README.md       2026-10-14 6aad81af4 One repo: fold in the research portfolio, plus a self-improving master prompt s
+prompts/README.md        2026-10-14 6aad81af4 One repo: fold in the research portfolio, plus a self-improving master prompt s
+docs/posts               2026-10-15 47fb8117a Merge pull request #7268 from Duncan-Haywood/claude/beautiful-hawking-59ot0y
+flake.nix                2026-10-17 034084d15 distribution: nix-flake channel, 19 venture linters runnable with nix run (#785
+
+== Last commit to always-shipped root docs and retired infra ==
+DEVELOPMENT_QUALITY.md       2026-08-25
+QUALITY_QUICK_START.md       2026-08-24
+VENTURE_QUALITY_STATUS.md    2026-08-25
+platform/QUALITY_CONFIG.md   2026-08-21
+bootstrap                    2026-10-01
+infra/servers.tf             2026-08-25
+gitops/prod                  2026-10-20
+
+== Files per venture (current tree) ==
+n=1307 p10=11 median=12 p90=22 max=658
+largest: [('local-site-studio', 658), ('print-atelier', 203), ('photo-editing', 191), ('quick-pick-survey', 178), ('trade-bid-studio', 150), ('retail-pilot-intel', 144)]
+
+== Run-record doc_friction mentioning layout themes ==
+records=1622 with_friction=1020
+hosting/gitops/infra/k3s/hetzner         runs=47
+DIRECTION.md                             runs=3
+where-is/could-not-find                  runs=11
+stale/out of date                        runs=95
+contradict/conflict between docs         runs=12
+portfolio/research vs research/          runs=1

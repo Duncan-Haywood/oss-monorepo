@@ -33,6 +33,7 @@ export const SITE_NAV = Object.freeze([
   Object.freeze({ id: 'research', label: 'Research', href: 'research/' }),
   Object.freeze({ id: 'writing', label: 'Writing', href: 'writing/' }),
   Object.freeze({ id: 'updates', label: 'Updates', href: 'updates/' }),
+  Object.freeze({ id: 'ask', label: 'Ask', href: 'ask/' }),
   Object.freeze({ id: 'deploy', label: 'Deploy your own', href: 'deploy/' }),
   Object.freeze({ id: 'about', label: 'About', href: 'about/' }),
 ]);
@@ -126,8 +127,10 @@ export function renderSiteFooterNav({ toRoot = '' } = {}) {
     ['deploy/', 'Deploy your own copy'],
     ['about/', 'About &amp; press kit'],
     ['lab/', 'Lab'],
+    ['feedback/', 'Report a problem or suggest a feature'],
     ['engineering/', 'Engineering status'],
     ['dev/', 'Development dashboard'],
+    ['dev/daily/', 'Daily brief &amp; The Merge Report'],
     ['catalog.json', 'Machine-readable catalog'],
     ['llms.txt', 'llms.txt'],
     ['sitemap.xml', 'Sitemap'],

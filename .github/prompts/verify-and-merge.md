@@ -22,7 +22,9 @@ node --test platform/deploy/*.test.mjs
 node --test platform/distribution/*.test.mjs
 node --test platform/llm/*.test.mjs
 node --test platform/devstats/*.test.mjs
+node --test platform/daily/*.test.mjs
 node --test platform/counter/*.test.mjs
+node --test platform/edge/*.test.mjs           # the site's feedback/counts Worker (platform/edge)
 node --test platform/uitest/*.test.mjs        # browser half skips unless PLAYWRIGHT=/opt/node-tools/node_modules/playwright/index.js
 node --test 'ventures/<slug>/**/*.test.mjs'   # quote it: 21 ventures keep suites in a subdirectory
 node --test research/marriage-divorce-evidence/app/tests/*.test.mjs
@@ -38,7 +40,7 @@ python3 -m pytest prompts -q && python3 prompts/promptctl.py validate   # prompt
 python3 -m unittest discover -s platform/business-template -v   # the generator: a repo per preset, each passing its own check
 d=$(mktemp -d) && python3 platform/business-template/new_business.py --name T --idea T --out "$d/b" && (cd "$d/b" && python3 -m unittest discover -s ops)  # platform/business-template/template/ops: runs in a generated copy, not in place
 (cd research/<project> && PYTHONPATH=$(ls -d ../*/src | tr '\n' :) python3 -m pytest tests -q)  # research/ changes: one project at a time
-python3 platform/ci/run_workflow_locally.py --for-changes  # the validators no pytest line reaches (>2 min: run_in_background)
+python3 platform/ci/run_workflow_locally.py --for-changes  # the validators no pytest line reaches (>2 min: run_in_background; docs-only diff or 100+ workflows reached: it stalls on site-builder tests, so name the reached workflows: `run_workflow_locally.py <file>.yml`, `--list` shows steps)
 python3 platform/ci/run_workflow_locally.py --tree          # and: is main itself green right now? (>10 min: background)
 ```
 
@@ -131,26 +133,10 @@ in the environment, add `--goal "<what a user comes to do>"` and an agent
 works through the page and judges the result. In the PR, say what it
 printed.
 
-**After you merge a change that touches a served surface, refresh the
-published snapshot:**
-
-```
-python3 platform/ci/pages_state.py --require-current   # exits 1 if it is stale
-CONFIRM=publish-pages-branch PUSH=1 ./platform/pages/publish-branch.sh
-python3 platform/ci/pages_state.py --require-current   # and 0 once you have
-python3 platform/ci/pages_state.py --record            # commit only on a branch that ships work (land-your-work.md, step 7)
-python3 platform/ci/indexnow_state.py                  # and: was any of it announced?
-```
-
-The `gh-pages` branch is a committed artifact, and nothing rebuilds it when
-`main` moves. `publish-pages-branch.yml` does it automatically only once the
-owner sets `PAGES_BRANCH_PUBLISH=true` (process backlog P005). If the
-publish refuses with "publishing backwards", another session published
-first: run `git fetch origin main && git reset --hard origin/main` and
-rerun. Never use `ALLOW_REGRESSION=1` except for a deliberate rollback.
-`--record` keeps `decision_queue.py` from printing a false OUTAGE banner
-once a reading is more than three days old. Do not widen the ageing rule to
-silence the banner.
+**After you merge a change that touches a served surface:** nothing to do.
+`.github/workflows/portfolio-pages.yml` builds and deploys the site on the
+merge (gated on the owner's `PAGES_ENABLED`). The old `gh-pages` branch is no
+longer served, so do not run `publish-branch.sh` by hand.
 
 ## Reading CI (moved from `CLAUDE.md`, 2026-10-20)
 

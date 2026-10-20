@@ -165,3 +165,151 @@ class Collector:
 
 
 DEFAULT = Collector()
+
+
+@dataclass(frozen=True)
+class Feeder:
+    """Feeder + moving catch net, in millimetres.
+
+    Frame: origin on the ground at the middle of the net plane, x toward the
+    player, y along the net (the base rolls along y), z up. The net hangs in
+    the plane x = 0..25. The launcher head pivots about a y axis (elevation) on
+    a turntable (azimuth) behind the net.
+    """
+    ball_d: float = 67.0
+    plate_t: float = 5.0
+
+    # Base: 2040 extrusion (20 wide x 40 tall) rectangle on four wheels, plus the
+    # 3 m net beam as its front member.
+    beam_len: float = 3000.0
+    base_depth: float = 700.0     # x extent, rear edge to net plane
+    base_half_w: float = 450.0    # side rails' outer faces
+    rail_w: float = 20.0
+    rail_h: float = 40.0
+    rail_z: float = 155.0         # underside of the rails
+    wheel_d: float = 150.0
+    wheel_w: float = 40.0
+    wheel_x: tuple[float, float] = (-100.0, -600.0)
+    gearmotor_d: float = 37.0
+    gearmotor_len: float = 100.0
+    bracket_t: float = 5.0
+
+    # Mast: four posts and a turntable.
+    post_dx: float = 80.0         # posts at head_x +- this
+    post_half_y: float = 130.0
+    mast_top_z: float = 640.0     # underside of the fixed mast plate
+    bearing_h: float = 10.0       # lazy-susan bearing
+    bearing_d: float = 150.0
+
+    # Launcher head (local frame: origin between the wheels, x to the player).
+    wheel_head_d: float = 150.0
+    wheel_head_w: float = 45.0
+    wheel_gap: float = 54.0       # ball squeezed ~13 mm
+    plate_half_y: float = 40.0    # inner face of the head plates: room for a 67 mm ball
+    motor_d: float = 63.0
+    motor_len: float = 70.0
+    motor_pitch: float = 25.0     # M4 square
+    head_x0: float = -110.0       # plate rear edge, relative to the wheel centres
+    head_x1: float = 110.0
+    head_z0: float = -225.0
+    head_z1: float = 190.0
+    pivot_z_rel: float = -200.0   # elevation axis below the ball path
+    head_x: float = -110.0        # world x of the wheel centres (muzzle ends at the net plane)
+    launch_z: float = 1000.0      # ball path height
+    elev_min: float = -15.0
+    elev_max: float = 45.0
+
+    # Cheeks that hold the head's pivot bolt.
+    cheek_x_half: float = 60.0
+    cheek_gap: float = 2.5
+
+    # Net frame.
+    pole_d: float = 25.0
+    net_w: float = 3000.0
+    net_h: float = 2500.0
+    camera_bar_len: float = 800.0
+
+    # Wind check
+    net_solidity: float = 0.2     # fraction of the net area that is twine
+    drag_coeff: float = 1.2
+    design_wind: float = 8.0      # m/s steady (Beaufort 5)
+    foot_half_y: float = 1450.0
+
+    # ---- derived -----------------------------------------------------------
+    @property
+    def rail_top(self) -> float:
+        return self.rail_z + self.rail_h
+
+    @property
+    def pivot_z(self) -> float:
+        return self.launch_z + self.pivot_z_rel
+
+    @property
+    def head_gap_axis(self) -> float:
+        """Wheel centre height above/below the ball path."""
+        return self.wheel_head_d / 2 + self.wheel_gap / 2
+
+    @property
+    def mast_plate_z(self) -> float:
+        return self.mast_top_z
+
+    @property
+    def turntable_top(self) -> float:
+        return self.mast_top_z + self.plate_t + self.bearing_h + self.plate_t
+
+    @property
+    def net_top(self) -> float:
+        return self.rail_top + self.net_h
+
+    @property
+    def pole_top(self) -> float:
+        return self.net_top - 15.0
+
+    @property
+    def wheel_y(self) -> float:
+        return self.base_half_w + self.bracket_t + 2.0 + self.wheel_w / 2
+
+    @property
+    def net_area(self) -> float:
+        return self.net_w * self.net_h / 1e6
+
+    @property
+    def wind_force_n(self) -> float:
+        """Steady drag on the net at design_wind (N): 0.5 rho Cd A solidity v^2."""
+        return 0.5 * 1.2 * self.drag_coeff * self.net_area * self.net_solidity * self.design_wind ** 2
+
+    def ballast_kg(self, structure_kg: float) -> float:
+        """Ballast, centred between the wheel lines, so the design wind cannot tip the base.
+
+        The wind pushes at the net's mid-height. The base tips about the near
+        wheel line from either direction; the weight acts midway between the
+        two wheel lines. Conservative: it ignores the feet and the net's own
+        flex.
+        """
+        h = (self.rail_top + self.net_top) / 2 / 1000
+        arm = abs(self.wheel_x[0] - self.wheel_x[1]) / 2 / 1000
+        need = self.wind_force_n * h / (9.81 * arm)
+        return max(0.0, need - structure_kg)
+
+    def check(self) -> list[str]:
+        bad = []
+        if not 0.80 * self.ball_d <= self.wheel_gap <= 0.90 * self.ball_d:
+            bad.append(f"launcher wheel gap {self.wheel_gap:g} mm should squeeze a {self.ball_d:g} mm ball by 10-20%")
+        if self.plate_half_y < self.ball_d / 2 + 5:
+            bad.append("head plates are too close to the ball path")
+        if self.wheel_head_w / 2 + 5 > self.plate_half_y:
+            bad.append("launcher wheel touches the head plates")
+        if self.rail_z < self.wheel_d / 2 + self.gearmotor_d / 2 + 4:
+            bad.append("rails too low for the drive motors")
+        if self.turntable_top - self.pivot_z > -60:
+            bad.append("pivot is less than 60 mm above the turntable")
+        if self.head_x1 + self.head_x < -5 or self.head_x1 + self.head_x > 60:
+            bad.append("muzzle is not at the net plane (0 to 60 mm through it)")
+        if abs(self.foot_half_y) * 2 > self.beam_len:
+            bad.append("feet are beyond the ends of the net beam")
+        if self.cheek_x_half > self.head_x1:
+            bad.append("cheeks reach past the muzzle")
+        return bad
+
+
+DEFAULT_FEEDER = Feeder()

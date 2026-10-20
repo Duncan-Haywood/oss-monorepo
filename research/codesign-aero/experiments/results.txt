@@ -1,0 +1,22 @@
+grid 11x11 (inner CMA-ES 192 evals per cell, held-out 64 episodes, gust sd 4 m/s): best J=-5.25 deg RMS at L=0.146 m, D=0.097 m; feasible cells 76/121
+grid median J=-6.52, worst feasible J=-7.85
+reference airframe L=0.146 D=0.139 with tuned gains: J=-5.91
+reference gains reused unchanged on all feasible airframes: median J=-7.23 vs -6.52 retuned; share of cells where the reused controller is worse by >1 deg: 0.41; unstable (>40 deg RMS) 0.00
+
+pipelines at equal budget (320 candidate evaluations of 8 training episodes), 10 seeds, J = held-out RMS roll error in deg (lower is better, shown as positive):
+  joint CMA-ES                                                   mean   5.25  median   5.25  worst   5.43  best   5.14
+  joint random search                                            mean   5.63  median   5.60  worst   5.96  best   5.16
+  design-first (lightest) + tuned controller                     mean   7.06  median   7.03  worst   7.35  best   6.88
+  frozen controller (tuned on reference, airframe searched)      mean   5.52  median   5.54  worst   5.85  best   5.23
+  bilevel (outer airframe CMA, inner gains CMA)                  mean   5.88  median   5.74  worst   6.75  best   5.36
+  gap to grid optimum (5.25): joint CMA-ES -0.00, joint random search +0.37, design-first +1.80, frozen controller +0.27, bilevel +0.62
+  paired over seeds: joint CMA-ES beats joint random search in 9/10 seeds
+  paired over seeds: joint CMA-ES beats design-first in 10/10 seeds
+  paired over seeds: joint CMA-ES beats frozen controller in 9/10 seeds
+  paired over seeds: joint CMA-ES beats bilevel in 10/10 seeds
+
+gust sweep (grid optimum per gust level, 9x9 grid):
+  gust sd 0 m/s: best RMS error 5.36 deg at L=0.107 m, D=0.101 m
+  gust sd 2 m/s: best RMS error 5.36 deg at L=0.135 m, D=0.101 m
+  gust sd 4 m/s: best RMS error 5.33 deg at L=0.107 m, D=0.101 m
+  gust sd 6 m/s: best RMS error 5.44 deg at L=0.162 m, D=0.101 m

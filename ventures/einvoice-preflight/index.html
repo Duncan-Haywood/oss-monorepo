@@ -192,6 +192,7 @@
     <label><input id="xrechnung" type="checkbox" style="width:auto"> Also apply the German XRechnung rules (BR-DE, Leitweg-ID check digits) &mdash; for invoices to German public bodies</label><br>
     <label><input id="peppol" type="checkbox" style="width:auto"> Also apply the Peppol BIS Billing 3.0 rules (business process, specification id, electronic addresses) &mdash; for invoices sent through a Peppol access point</label><br>
     <label><input id="france" type="checkbox" style="width:auto"> Also apply the French rules (SIREN/SIRET check digits, late-penalty, 40&nbsp;&euro; recovery indemnity and early-payment-discount mentions) &mdash; for invoices to French buyers under the 2026 e-invoicing reform</label><br>
+    <label><input id="official" type="checkbox" style="width:auto"> Also run the official EN 16931 Schematron (and the XRechnung / Peppol add-ons for the chosen profile) &mdash; XML invoices only; runs in your browser when this copy was built with <code>node build-browser.mjs</code> (the file stays on your machine); otherwise <strong>sends the file to the server this page is served from</strong>, so it works only on a self-hosted copy</label><br>
     <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or accounting advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, export your inputs and run it yourself.</p>
@@ -202,6 +203,7 @@
   </footer>
   <script type="module">
     import { preflightDocuments, buildChecklist, buildMarkdown, buildJsonReport, buildRemediationCsv, summarizePreflight } from "./report.mjs";
+    import { addOfficialFindings, officialNote } from "./official.mjs";
     import { recordUsage, readOptOut, writeOptOut } from "./usage.mjs";
 
     const VALID_EXAMPLE = {
@@ -367,9 +369,8 @@
       ].map(([value, label]) => `<div class="metric"><strong>${value}</strong><span>${label}</span></div>`).join("");
 
       const articles = result.reports.map((report) => {
-        const envelope = report.envelope
-          ? `<p class="note">${escapeHtml(report.envelope)}</p>`
-          : "";
+        const envelope = (report.envelope ? `<p class="note">${escapeHtml(report.envelope)}</p>` : "")
+          + (report.schematron ? `<p class="note">${escapeHtml(officialNote(report))}</p>` : "");
         if (!report.errors.length) {
           return `<article><h3><code>${escapeHtml(report.file)}</code></h3>${envelope}<p class="pass">PASS — no supported defects found.</p></article>`;
         }
@@ -423,7 +424,9 @@
         downloadRemediationCsv.disabled = true;
         return;
       }
-      const result = await preflightDocuments(inputs, { profile: document.getElementById("xrechnung").checked ? "xrechnung" : document.getElementById("peppol").checked ? "peppol" : document.getElementById("france").checked ? "france" : "" });
+      const profile = document.getElementById("xrechnung").checked ? "xrechnung" : document.getElementById("peppol").checked ? "peppol" : document.getElementById("france").checked ? "france" : "";
+      const result = await preflightDocuments(inputs, { profile });
+      if (document.getElementById("official").checked) await addOfficialFindings(result, inputs, { profile });
       render(result);
       for (const report of result.reports) {
         recordUsage(localStorage, optedOut(), "invoice_preflight_checked");

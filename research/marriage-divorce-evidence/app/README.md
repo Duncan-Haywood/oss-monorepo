@@ -52,6 +52,23 @@ browser.
   tell apart from the top one, and how many different profiles the models put first on
   their own. It never presents one ideal person.
 
+## Profile report (decision aid)
+
+`report.js` (pure; `tests/report.test.mjs`) and `report-ui.js` add the "Profile report" tab, run
+for you and, separately, for the person you are looking at, on the selected lens:
+"date everyone" (every partner type of your sex in the lens's `partner_distribution`, pooled over
+all conditioning cells and weighted by their marriages; for women the husband's race-ethnicity
+follows all husbands, assumed independent of the other traits), "likely partners" (the cell for
+people like you, as `population.js` `justMe`), each as N in 100 with the model range and a 95%
+interval from Dirichlet resampling of the mix shares; percentiles against `population_reference`;
+the lowest-risk partner profiles from `dashboard.js` `partnerDashboard` with model disagreement;
+factor impact (spread across each trait's levels) with grades from `data/decision_evidence.json`;
+and the biggest predicted drops from `whatIfs`. Lenses without a partner distribution say so.
+`satisfaction.js` charts `data/satisfaction_by_duration.json`
+(`../reproducibility/satisfaction_by_duration/`) and `dating-length.js` shows
+`data/dating_length.json` (`../reproducibility/dating_length/`). The report adds nothing to the
+link beyond `view=report`.
+
 ## Models
 
 | Model | Held-out deviance improvement vs a constant rate |
@@ -432,7 +449,108 @@ Design choices the engine reproduces exactly (`tests/prewedding.test.mjs`, 60 of
   gives the four rows above. The predicted level is U.S. survey-specific: in Canada,
   observed divorce is about 0.58 times the prediction.
 
-Workstream C can make it the default lens: it has no form adapter yet.
+**Per-couple uncertainty.** `models[0].bootstrap` holds 50 person-bootstrap refits of the
+coefficients (spline knots and scaling held at the full fit). `engine.cumulativeRisk(model,
+rowAt, horizon)` returns the point estimate and a 95% interval for the chance the marriage has
+ended by `horizon` years. Across 2,000 sampled NSFG marriages the 10-year interval is 5.2
+points wide at the median (9.4 at the 90th percentile). It is the
+model's sampling uncertainty. It does not include the chance element in one marriage (which
+an individual probability already is) or the error of applying a U.S. survey model elsewhere,
+which is larger: the observed/expected ratio is 0.85–1.07 on the other U.S. surveys. The
+bundle is now 48 KB.
+
+Workstream C can make it the default lens (#8713 prefers it once an adapter exists).
+
+## Train the models yourself, in the browser (`train/`)
+
+The "Train the models yourself" panel retrains the NSFG 1995–2023 lens from survey records on
+the visitor's own device. No server is involved and nothing has to be installed.
+
+- **Data.** `train/nsfg_pooled_women.json.gz` (374 KB) holds the lens's 29,202 women's first
+  marriages and 10,529 dissolutions from eight NSFG cycles, one row per marriage. Each row has
+  the months to dissolution or interview, the event, the cycle-normalised survey weight, the
+  person-held-out fold and the 18 inputs fixed at or before the wedding. It has no cycle, no
+  design variables and nothing measured at interview. `train/tools/build_extract.py` writes it from
+  the official CDC files, with the checksums in
+  `../reproducibility/nsfg_pooled_first_marriage/SHA256SUMS`. The source files are U.S.
+  government works and not under copyright (17 U.S.C. 105). The NCHS data-use terms travel
+  with the extract and are recorded in its `licence` field: statistical use only, no attempt
+  to identify anyone, no linking to other data.
+- **Training.** `train/worker.js` is a module worker. It fetches the file, unpacks it with
+  `DecompressionStream`, builds the 249,868 marriage-years and runs the five-fold person-held-out
+  comparison from `train_pooled.py`. `train/fit.js` (plain JavaScript, no dependencies) fits
+  five models:
+  - a constant rate;
+  - the duration-only spline GLM;
+  - the additive spline Poisson GLM, solved by Newton's method with an L2 penalty and a Hessian
+    accumulated per person and per marriage year;
+  - a depth-4 Poisson tree;
+  - Poisson gradient boosting on histogram trees, with 250 rounds, depth 3 and learning rate
+    0.05 as in Python.
+
+  The worker reports progress. Cancelling terminates it, and the page's main thread is never
+  blocked: the longest gap measured in headless Chromium during a run was 68 ms. After the
+  comparison it refits the models on every marriage, so a visitor can score a profile.
+- **Results next to Python.** The panel shows held-out deviance gain, Harrell's C, O/E and
+  decile calibration for each model. Beside them it shows the shipped lens's Python numbers and
+  scikit-learn 1.7.2 refitted on this exact extract (`train/sklearn_reference.json`, written by
+  `train/tools/sklearn_reference.py`).
+
+| Model | Browser (JS) deviance gain, C | scikit-learn on the extract | Shipped lens |
+| --- | --- | --- | --- |
+| Marriage length only | 0.645%, 0.497 | 0.645%, 0.497 | 0.645% |
+| Additive spline GLM | 5.688%, 0.6947 | 5.688%, 0.6947 | 5.688%, 0.6947 |
+| Poisson tree, depth 4 | 3.333%, 0.6512 | 3.333%, 0.6512 | 3.333%, 0.6512 |
+| Poisson gradient boosting | 6.298%, 0.7029 | 6.297%, 0.7028 | 6.289%, 0.7029 |
+
+**Parallel folds (2026-10-20).** The page runs a pool of module workers, by default one per
+spare core (`navigator.hardwareConcurrency − 1`, at most five, fewer when
+`navigator.deviceMemory` reports 4 GB or less), and a visitor can pick 1–5 threads.
+
+- Each worker loads the extract once and takes tasks from a shared queue: the five held-out
+  folds first, then the refits on all marriages, biggest first.
+- When the last fold arrives, the next free worker merges the folds and computes the metrics
+  (`foldPredictions`, `mergeFolds` and `summarize` in `fit.js`), so the page's own thread only
+  routes messages.
+- Typed arrays are transferred between threads, not copied.
+
+All five models at the Python settings, in headless Chromium on a 4-core cloud machine:
+
+| Threads | Wall time | Longest main-thread stall |
+| --- | --- | --- |
+| 1 | 45.5 s | 93 ms |
+| 3 | 18.8 s | 57 ms |
+| 4 | 17.6 s | 62 ms |
+| 5 | 17.5 s | 86 ms |
+
+Every thread count gives identical metrics. `tests/train_parallel.test.mjs` computes the folds
+in scrambled order through structured cloning and checks the merged result equals the
+single-thread one to 10<sup>−12</sup>.
+
+**How much a profile's score depends on the sample (2026-10-20).** Each fold returns its
+fitted model with its predictions. The scorer then shows, beside the full-data estimate, the
+year-10 range across the five fold models, each trained on a different four-fifths of the
+women. For the default profile the ranges are:
+
+| Model | Full-data estimate | Range across fold models |
+| --- | --- | --- |
+| Constant rate | 31.6% | 31.5–31.6% |
+| GLM | 21.3% | 18.6–22.9% |
+| Depth-4 tree | 34.2% | 26.5–34.6% |
+| Boosting | 18.7% | 15.0–23.1% |
+
+For a wife married at 19, the ranges are 33.9–41.7%, 41.5–51.2% and 26.1–40.7%. The flexible
+models move most. This covers sampling only, not what the survey never measured.
+`tests/train_parallel.test.mjs` checks each structured-cloned fold model reproduces its fold's
+held-out predictions to 10<sup>−12</sup>.
+
+`tests/train.test.mjs` takes about 40 s. It requires the JS GLM's coefficients to match
+scikit-learn's within 10<sup>−6</sup>; they agree to 4×10<sup>−14</sup>, on fold 0's training
+set and on all data. It also requires the held-out gains to agree within 0.001 points for the
+GLMs and the tree and within 0.15 points for boosting, whose binning and summation order differ
+slightly. A full run of all five models took 35 s in Node and 44 s in headless Chromium on a
+cloud machine. With 25 boosting rounds it took 13 s, but boosting's gain fell to 3.85%. No real
+phone has been timed yet.
 
 ## Run and test
 

@@ -591,6 +591,27 @@ wrong heading in `llms.txt`. Five tools were filed in "More free tools" until
 2026-08-27 for want of a keyword, `tiktok-shop-fee-calculator` among them: a
 marketplace tool a seller would only have found by searching for it by name.
 
+## The hub's motion and showcase
+
+The front page's hero, moving tool shelf and "See it working" section live in
+`showcase.mjs`, apart from the hub's search and saved-bid code in `build.mjs`.
+
+- **Hero:** a dark backdrop (in both colour schemes, with its own tokens so the
+  search and stats keep their contrast), drifting colour, a canvas of points
+  that lean toward the pointer, a rotating "Built for …" line taken from the
+  audience pages, and stats that count up once seen.
+- **Shelf:** two rows of tool names from every section, scrolling in opposite
+  directions; the loop copy is `aria-hidden` and out of the tab order.
+- **Showcase:** a muted screen recording of real tools loading their own worked
+  examples, and a strip of stills that each link to the tool. The files are in
+  `showcase/`, made by `node showcase/capture.mjs` against a locally built site
+  (instructions at the top of that file). Rerun it when a tool's look changes.
+  The hub drops any still whose tool is no longer published.
+
+Every effect is added by script to markup that is already complete, so the page
+works without JavaScript. Under `prefers-reduced-motion: reduce` nothing moves
+and the video waits for a click. The video is not fetched until it is on screen.
+
 ## Shop rates, carried between tools
 
 `rates.mjs` injects a small bar under the site nav on every **trade bid
@@ -1398,8 +1419,11 @@ node platform/pages/clauses.mjs                 # every surface
 node platform/pages/clauses.mjs <venture-slug>  # one venture
 ```
 
-Reading sources is what makes it cheap enough to run from a venture's own CI,
-which is where it now runs. That matters because the built-site assertion in
+Reading sources is what makes it cheap enough to run on every venture PR.
+`ventures-tests.yml` runs `node platform/pages/clauses.mjs --changed-since
+<base>` for each venture the change touched, naming the venture and
+annotating the page; until 2026-10-20 the same check was a step copied into
+281 `<slug>-ci.yml` files. That matters because the built-site assertion in
 `build.test.mjs` fires on `platform/pages/**` — so a venture that omits the
 clause merges cleanly and turns `main` red in the Pages job, naming an author
 who never saw the requirement, in a workflow they did not touch. That is how

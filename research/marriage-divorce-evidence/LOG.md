@@ -1,5 +1,104 @@
 # Research log
 
+## 2026-10-20 · Flexible models and a pooled nine-survey model: neither beats the single-lens additive models where data are large
+
+- Flexible models were tuned with nested, grouped cross-validation on five lenses: LightGBM, boosting, forests, an EBM, an elastic net with pairs, and a stack. None beat the lens's best GLM with a 95% interval above zero. GSS: random forest +0.42 points (−1.55 to 2.25). HCMST: stack +0.65 (−0.11 to 1.43). Tree models fit training folds far better than held-out ones; on GSS, LightGBM scored 44.5% on training folds against 7.4% held out. Shuffled outcomes scored at or below zero for every model. Six large lenses were not run (see NEXT.md).
+- The pooled Bayesian hazard model covers nine surveys, 321,121 units and 44 inputs, with survey-specific baselines and chained-equation imputation. Held out by person, it beats the single-survey models in HCMST (+4.81 points, 1.88–7.79) and the LA newlyweds (+1.78, 0.60–3.16) and loses in NSFG (−0.85), NLSY79 (−0.50) and Canada (−0.40). Leaving one survey out shows that the effects carry across surveys and the baselines do not. 90% intervals covered 85% of held-out groups. It has not been exported to the app.
+- [NEXT.md](NEXT.md) lists the action items for later runs: the form inputs, the guided decision flow, the large-lens model runs, the pooled-model export, and the owner asks.
+
+## 2026-10-20 · Profile report, marital satisfaction by years married, and dating length
+
+- New "Profile report" tab in the app (`app/report.js`, `app/report-ui.js`): for you and for the person you are looking at, one lens at a time, the 10-year break-up chance with that person, averaged over the partners people like you marry (`partner_distribution`) and over every partner type of your sex in the survey ("dating everyone"), with model ranges, Dirichlet-resampling intervals on the mix and population percentiles; lowest-risk partner profiles with model disagreement; factor impact (spread across levels) with evidence grades from `decision_evidence.json`; and the changes with the biggest predicted drop, labelled associations unless graded experimental. Demo couple (woman 36, man 38), NSFG 1995–2023 lens: 5 in 100 with this partner, 6 in 100 (models 3–9) with likely partners, 5 in 100 (3–8) dating everyone; NLSY79 first marriages: 17, 16 and 17 in 100.
+- `reproducibility/satisfaction_by_duration/`: GSS 1973–1994 first marriages (13,959): 75% "very happy" at 0–2 years (72–78%), 61% at 16–20 (58–64%), 68% at 41+; unchanged after adjusting for survey year, sex and age at marriage. HCMST 2009→2013 within the same 1,045 couples: −0.14 on a 1–5 rating (−0.19 to −0.09), −0.38 in the first two years. Survivor bias measured: 71% "excellent" among couples who stayed together against 17% among the 102 who broke up by 2015.
+- `reproducibility/dating_length/`: HCMST 2009 married couples (118 break-ups): break-up by 2017 8.7%, 8.3%, 8.4% after dating under 1, 1–2, 3+ years; adding dating length to the HCMST lens changes held-out gain by −0.12 points (−0.90 to +0.72) and C by −0.001. Not added as an input; shown with the verified Francis-Tan & Mialon (2015) HRs (0.92, 0.76), which the evidence review already marks not usable in the app.
+
+## 2026-10-20 · Race detail, family of origin, religion, politics, occupation and wealth: they sort risk but add no held-out skill
+
+- Seven lenses refitted with every richer pre-outcome input their data hold, each compared held out with the current model on the same folds (paired person-bootstrap CIs, `reproducibility/extended_eval.py`, `*/extended_heldout.csv`). No block's gain has a CI above zero in any prospective lens: GSS panels (family of origin, attendance at all 9 levels, prayer, strength, fundamentalism, denomination, religion raised, political views and party, race detail, occupation and prestige, wealth: −1.39 to +0.51 points), NLSY97 (−0.26 to 0.00), NLSY79 (−0.04 to +0.04), NSFG 1995–2023 (−0.05 to 0.00), Statistics Canada family of origin (−0.00) and SIPP couples (occupations +0.11, −0.08 to +0.30; wealth components −0.35). Family of origin as plain yes/no does as well as any finer coding. Canada's religion at the interview "helps" (+0.51) only because it is measured after many separations.
+- The finer variables do sort risk: Canadian 2017 respondents whose parents never married each other separate at 1.59 times the rate of those raised by both parents, after a parental split 1.30, after a parent's death 1.01; NSFG stepfamilies 1.52, never-married parents 1.20; NLSY79 each sibling 0.96, $100k more pre-wedding wealth 0.90, attending more than weekly 0.83. Every estimate with its CI, source file and row is in the new `app/data/predictor_atlas.json` (1,159 entries in 18 families, lenses plus verified primary literature; `test_predictor_atlas.py` traces each to its source).
+- ACS detail baselines (2019, 2021–24, replicate-weight and age-standardised CIs): one-year divorce per 1,000 by census race group (Asian 8.3, Black 23.6, AIAN 19.5, NHPI 12.1, multiracial 18.9), 18 Asian subgroups (Asian Indian 5.2, Chinese 8.3, Vietnamese 14.4) and 11 Hispanic origins (Mexican 13.7, Puerto Rican 20.3, Dominican 23.1); occupation (detailed, SOC major: healthcare support 25.8 vs architecture and engineering 10.3), industry, household income ($200k+ 6.3 vs under $25k 31.7) and tenure (renters 29.6 vs owners 8.4–9.7), all labelled as measured after any divorce (`app/data/acs_occupation_divorce.json`).
+- `app/data/race_coverage.json` says for every lens which race categories it distinguishes and how each finer form answer maps (NSFG and HCMST: Asian → Other; NLSY: Asian → non-Black non-Hispanic; GSS: Hispanic cannot be placed). Extended models ship in each bundle's `models_extended` with test vectors (new `tests/extended_models.test.mjs`, parity to 10<sup>-9</sup>); the app scores none of them until the form asks for the new inputs.
+
+## 2026-10-20 · Per-couple uncertainty for the "before the wedding" lens
+
+- The pre-wedding bundle now carries 50 person-bootstrap refits of its coefficients, with the spline knots and scaling held at the full fit, and `engine.cumulativeRisk()` returns a point estimate and a 95% interval for the chance a marriage has ended by any horizon. Across 2,000 sampled NSFG first marriages the 10-year interval is 5.2 points wide at the median (9.4 at the 90th percentile).
+- This is the model's sampling uncertainty only. Transport error between surveys is larger (observed/expected 0.85–1.07 on other U.S. surveys, 0.58 in Canada), and the app should say so next to the interval.
+- Parity: JavaScript reproduces Python's point estimates and interval ends at 5, 10 and 20 years for 20 test couples to 10<sup>-9</sup>; the bundle grew from 26 KB to 48 KB. ROADMAP B now lists what is done and what remains (intervals for other lenses, a pooled multi-survey model, recalibration to a target population).
+
+## 2026-10-20 · Before the wedding, from living together: which NLSY97 couples marry, and which split (6,020 first cohabitations)
+
+- New pre-marriage lens from the NLSY97 public release (`reproducibility/nlsy97_cohabitation_to_marriage/`): every respondent's first cohabiting union (born 1980–84, moved in 1994–2023, never married before), followed in the monthly marital and cohabitation arrays. Of 6,020 couples, 2,109 married each other, 3,481 split first and 430 are censored.
+- Weighted, within 10 years of moving in: 39.1% married the partner and 55.3% split first. With a bachelor's degree or more at move-in, 63.5% married and 29.9% split; with no high-school credential, 21.4% and 74.2%. Moving in before 20: 25.3% married and 72.4% split; at 26–29: 51.9% and 39.1%.
+- Held out by person (5-fold, yearly Poisson hazards): marrying the partner, additive spline 4.9% deviance gain (folds 4.4–5.7%) against 2.8% for years together alone; splitting first, 9.3% (7.6–10.4%) against 4.7%.
+- Leakage caught: the partner section's traits (age, schooling, earlier marriage, children) are recorded in a way that depends on how the union ended. Partner schooling is known for couples who split 87% of the time, against 47% where unknown. They are excluded, which cut the split model's apparent gain from 14.9% to 9.3%.
+- Exported as `app/models/nlsy97_cohab_marriage.json` and `nlsy97_cohab_split.json` (`stage: before`), listed without an adapter. Parity is 300/300 to 10<sup>-9</sup>. ROADMAP A updated: NLSY97 cohabitation done; remaining are Add Health, OSF/Zenodo premarital studies, and PSID / Fragile Families / Understanding Society (403).
+
+## 2026-10-20 · Browser-trained models: how much your score moves with the training sample
+
+- The profile scorer in "Train the models yourself" now shows two things for each model the visitor trained: its estimate on all 29,202 marriages, and the year-10 range across the five fold models from the held-out test. Each fold model learned from a different four-fifths of the women.
+- For the default profile (the most common answers, wedding in 2020, wife aged 23), the range is narrow for the simple models and wide for the flexible ones:
+
+  | Model | Full-data estimate | Range across fold models | Width |
+  | --- | --- | --- | --- |
+  | Constant rate | 31.6% | 31.5–31.6% | 0.1 points |
+  | Duration-only GLM | 33.2% | 33.1–33.4% | 0.3 points |
+  | Additive GLM | 21.3% | 18.6–22.9% | 4.3 points |
+  | Depth-4 tree | 34.2% | 26.5–34.6% | 8.1 points |
+  | Boosting | 18.7% | 15.0–23.1% | 8.1 points |
+
+- With the wife married at 19, the additive GLM gives 38.3% (33.9–41.7%), the tree 51.0% (41.5–51.2%) and boosting 34.1% (26.1–40.7%).
+- The tree's full-data estimate sits at the top of its fold range, so its single splits are fragile. A profile's number should be read with a spread of several points even before counting what the survey does not measure.
+- `tests/train_parallel.test.mjs` checks that each fold model, after structured cloning, reproduces its fold's held-out predictions to 10<sup>−12</sup>. In headless Chromium at 1200 and 390 px: no console errors, no horizontal scroll.
+
+## 2026-10-20 · App: per-partner explanations and a default couple at first-wedding ages
+
+- Explanations for lenses that score a couple from both partners' sides (the harmonized before-the-wedding lens, NLSY79 couples and individuals) now show one bar set per partner. Each set is exact: its factors multiply (forest: add) to that partner's rate. The page says the couple's rate is the average of the two. The averaged bars they replace were only approximate for the averaged rate. A test checks exactness and the average for every additive model in those three lenses.
+- The default couple before the wedding is 28 and 30, about the recent U.S. median ages at first marriage, instead of 36 and 38. The married view still opens at 36 and 38, inside NLSY79's data, and a typed age is never changed. On the default lens that couple gets 89% no break-up by year 10. Readable labels were added for the harmonized lens's inputs.
+- Not done: B's per-couple intervals (#8736) are still a draft, so the tiles show the single model without an interval.
+
+## 2026-10-20 · App: not engaged yet? Marry each other, or break up first
+
+- The before-the-wedding view now answers the earlier question too. For a couple who are dating or living together, workstream A's two HCMST 2009–2017 models (#8662) give the chance of marrying each other within 8.4 years and of breaking up first, chained period by period as the bundles' `how_to_combine` specifies (`app/dating.js`). The chain then hands over to the selected pre-wedding lens for the marriage itself.
+- Two additive models are run: the full one, and the harmonized one A checked on HCMST's 2017 cohort (#8727; AUC 0.79 for marrying and 0.85 for breaking up by 2022). The page shows their range.
+- A couple living together for 3 years (27 and 29, bachelor's degrees, parents approve, rating the relationship excellent and good): 60.4% marry each other within 8.4 years (models 50.9–70.0), 31.7% break up first (21.9–41.6), and 7.9% are still together and unmarried. The same couple rating it fair and living apart: 9.2% marry (6.5–11.9) and 86.9% break up first (81.9–91.9). Across all 939 couples, 21.9% married and 54.0% broke up first.
+- The two outcomes were modelled separately, so the split is approximate, and the page says so.
+- The hand-over multiplies two estimates from different surveys (marrying within 8.4 years, times no break-up in the first 10 years of marriage) and is labelled as an approximation.
+
+## 2026-10-20 · In-browser training runs the five folds in parallel: 45.5 s → 18.8 s
+
+- The "Train the models yourself" panel now runs a pool of workers, by default one per spare core: at most five, and fewer on devices reporting 4 GB of memory or less. Visitors can choose 1–5 threads.
+- Each worker loads the NSFG extract once and takes tasks from a shared queue: the five held-out folds, then the refits on all marriages. When the last fold arrives, the next free worker merges the folds and computes the metrics. Arrays move between threads by transfer, not copy, and the page's own thread only routes messages.
+- All five models at the Python settings, in headless Chromium on a 4-core cloud machine:
+
+  | Threads | Wall time | Longest main-thread stall |
+  | --- | --- | --- |
+  | 1 | 45.5 s | 93 ms |
+  | 3 (the default here) | 18.8 s | 57 ms |
+  | 4 | 17.6 s | 62 ms |
+  | 5 | 17.5 s | 86 ms |
+
+  A 390 px run with 25 boosting rounds on 3 threads took 6.9 s.
+- The metrics are identical at every thread count: GLM 5.688%, tree 3.333%, boosting 6.30%, C 0.695 / 0.651 / 0.703. Merging folds in the page took stalls to 177 ms at 5 threads, so the merge moved into a worker.
+- Cancel stops every worker. There were no console errors and no horizontal scroll. `tests/train_parallel.test.mjs` computes the folds in scrambled order through structured cloning and matches the single-thread result to 10<sup>−12</sup>. No real phone has been timed yet.
+
+## 2026-10-20 · Train the models yourself: the NSFG 1995–2023 lens retrained in the browser, matching scikit-learn
+
+- The app has a new "Train the models yourself" panel. A background worker downloads a 374 KB public extract of the NSFG 1995–2023 women's first marriages: 29,202 marriages, 10,529 dissolutions and 249,868 marriage-years. It contains only inputs fixed at or before the wedding. The worker then refits the lens in plain JavaScript with the Python pipeline's person-held-out five folds.
+- The NSFG files are U.S. government works and not under copyright, so the extract can be published. The NCHS data-use terms are recorded in the file: statistical use only, no attempt to identify anyone, no linkage.
+- Held out, the browser reproduces scikit-learn 1.7.2 on the same extract:
+
+  | Model | Browser | scikit-learn |
+  | --- | --- | --- |
+  | Duration-only GLM | 0.645% | 0.645% |
+  | Additive spline Poisson GLM | 5.688%, C 0.6947 | 5.688%, C 0.6947 |
+  | Depth-4 Poisson tree | 3.333%, C 0.6512 | 3.333%, C 0.6512 |
+  | Poisson gradient boosting (250 rounds) | 6.298%, C 0.7029 | 6.297%, C 0.7028 |
+
+  scikit-learn on the extract also matches the shipped lens's 5.688% and 6.289%, which confirms the extract.
+- The JS GLM's coefficients equal scikit-learn's within 4×10<sup>−14</sup>. It uses Newton's method with the Hessian accumulated per person and per marriage year, so a fit takes 0.7 s. Gradient boosting fits histogram trees with per-person runs and child-histogram subtraction, at about 21 ms per round.
+- A full run took 35 s in Node and 44 s in headless Chromium at 1200 px. At 390 px with 25 boosting rounds it took 13 s, but boosting's gain fell to 3.85%. The main thread never stalled more than 68 ms, cancelling works, there were no console errors and no horizontal scroll. No real phone has been timed yet.
+- After training, the models are refitted on every marriage, and a visitor can score a profile with the models they just trained. `tests/train.test.mjs` checks the coefficients to 10<sup>−6</sup>, the held-out gains (0.001 points; 0.15 for boosting), the C indices, O/E and the extract's sample.
+
 ## 2026-10-20 · Before the wedding, checked on a later cohort: 2009 dating models predict 2017 couples
 
 - The two HCMST before-the-wedding models (marry the partner, or break up first) were trained on couples unmarried in 2009. They were scored, without refitting, on the 777 couples unmarried in HCMST's fresh 2017 sample, using a harmonized variant without parents' view or religion (not asked in 2017).

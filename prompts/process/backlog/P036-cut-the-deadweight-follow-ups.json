@@ -1,0 +1,44 @@
+{
+  "id": "P036",
+  "title": "Finish the deadweight cut: dead workflows, DIRECTION.md, the playbook, the red-team gate",
+  "status": "in_progress",
+  "owner": "agent",
+  "effect": 3,
+  "cost": 2,
+  "problem": "PR #8733 cut CLAUDE.md from 352 to 155 lines and removed stale rules (gh-pages hand publish, Hetzner deploys, the ventures/* auto-merge refusal), but left the largest steering files and some automation untouched. The owner, 2026-10-20: 'cut the deadweight in rules and processes ... respect the competence of the ai agent engineer', and 'what you don't complete leave as an action item for a later run.'",
+  "evidence": [
+    "docs/reports/2026-10-20-rules-deadweight.md, 'Candidates for the next cut'",
+    "13 files under .github/workflows/ name the retired cluster's IPs, HETZNER, k3s or self-hosted runners (grep -lE, 2026-10-20)",
+    "portfolio/DIRECTION.md: 873 lines, 49 dated references; PRODUCT_PLAYBOOK.md: 42 never/must/do-not words",
+    "land-your-work.md 166 lines against a 160 budget; steering.md 124 against 120 (promptctl.py measure)",
+    "promptctl.py validate fails CI when the redteam routing share leaves 5-10%; the change to a reported default was reverted pending the owner's explicit yes"
+  ],
+  "change": "(1) Delete or disarm the workflows that only served the retired cluster, after reading what each still does. (2) Cut portfolio/DIRECTION.md to what is true now, moving history to docs/history/. (3) Strip incident stories from PRODUCT_PLAYBOOK.md's definition of done. (4) Bring land-your-work.md and steering.md under budget. (5) Make run_workflow_locally.py --for-changes the one verify command and verify-and-merge.md's list a reference. (6) Only if the owner says yes: make the red-team 5-10% band a reported default in promptctl.py instead of a validate failure. (7) Fix the drifted byok.mjs copies in ventures/ats-resume-checker and ventures/persona-conversation-simulator (their tests fail on main).",
+  "touches": [
+    ".github/workflows/",
+    "portfolio/DIRECTION.md",
+    "PRODUCT_PLAYBOOK.md",
+    ".github/prompts/land-your-work.md",
+    ".github/prompts/verify-and-merge.md",
+    "prompts/steering.md",
+    "prompts/promptctl.py",
+    "ventures/ats-resume-checker/byok.mjs",
+    "ventures/persona-conversation-simulator/byok.mjs"
+  ],
+  "metric": "total bytes of the twelve steering files listed in docs/reports/2026-10-20-rules-deadweight.md",
+  "baseline": "170,362 bytes after PR #8733's first commit (2026-10-20)",
+  "opened": "2026-10-20",
+  "source": "owner, in session 2026-10-20",
+  "pr": null,
+  "result": null,
+  "history": [
+    {
+      "date": "2026-10-20",
+      "note": "Parts (4) and (7) done: land-your-work.md 166->158 lines and steering.md 124->120 (both at/under budget); byok.mjs copies already identical on main and tests pass (ats-resume-checker 66, persona-conversation-simulator 21). Parts 1,2,3,5,6 remain; split before the next run."
+    },
+    {
+      "date": "2026-10-20",
+      "note": "Part 1 started: removed outage-triage.yml (dispatch-only, probed deleted Hetzner servers) with outage_triage.py, its test and the references. Still open in part 1: hetzner-gitops-ci.yml, public-surface-check.yml (its Hetzner half). Parts 2,3,5,6 remain."
+    }
+  ]
+}
