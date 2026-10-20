@@ -722,5 +722,23 @@ def main(argv: Optional[list[str]] = None) -> int:
     return 0
 
 
+def _reexec_with_libyaml() -> None:
+    """Run as a script under an interpreter with libyaml: ~2s instead of ~35s of YAML parsing."""
+    import os
+    import shutil
+    if getattr(yaml, "CSafeLoader", None) or os.environ.get("ALLOCATE_NO_REEXEC"):
+        return
+    for name in ("python3.13", "python3.12", "python3.11", "python3.14", "python3"):
+        exe = shutil.which(name)
+        if not exe or os.path.realpath(exe) == os.path.realpath(sys.executable):
+            continue
+        probe = subprocess.run([exe, "-c", "import yaml,sys; sys.exit(0 if hasattr(yaml,'CSafeLoader') else 1)"],
+                               capture_output=True)
+        if probe.returncode == 0:
+            os.environ["ALLOCATE_NO_REEXEC"] = "1"
+            os.execv(exe, [exe, *sys.argv])
+
+
 if __name__ == "__main__":
+    _reexec_with_libyaml()
     sys.exit(main())
