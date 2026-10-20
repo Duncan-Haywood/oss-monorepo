@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { toLength, checkDigitOk, computeCheck, classify, validate, repair, parseTable, isbn10Ok, isbn10To13, findingsCsv, sampleFile, sampleBrokenFile, decodeBuffer } from "./calc.mjs";
+import { toLength, checkDigitOk, computeCheck, classify, validate, repair, parseTable, isbn10Ok, isbn10To13, upcEToUpcA, findingsCsv, sampleFile, sampleBrokenFile, decodeBuffer } from "./calc.mjs";
 
 test("check digit: known real codes validate and a changed digit does not", () => {
   for (const g of ["036000291452", "4006381333931", "9780306406157", "96385074", "00012345678905"]) assert.ok(checkDigitOk(g), g);
@@ -129,4 +129,22 @@ test("repair can write every valid code at one length, and refuses to drop a sig
   assert.equal(toLength("0036000291452", 12), "036000291452");
   assert.equal(toLength("036000291452", 14), "00036000291452");
   assert.equal(toLength("4006381333931", 12), null);
+});
+
+test("UPC-E expands to UPC-A for every suppression pattern, and only when the check digit agrees", () => {
+  assert.equal(upcEToUpcA("04252614"), "042100005264");
+  assert.equal(upcEToUpcA("01234565"), "012345000065");
+  assert.equal(upcEToUpcA("01234531"), "012300000451");
+  assert.equal(upcEToUpcA("01234589"), "012345000089");
+  assert.equal(upcEToUpcA("04252615"), null);
+  assert.equal(upcEToUpcA("24252614"), null);
+});
+
+test("an 8-digit UPC-E that fails GTIN-8 is expanded; a valid GTIN-8 is left alone", () => {
+  const r = classify("04252614");
+  assert.equal(r.kind, "ok");
+  assert.equal(r.value, "042100005264");
+  assert.ok(r.fixed);
+  assert.equal(classify("96385074").value, "96385074");
+  assert.equal(classify("04252615").kind, "bad");
 });

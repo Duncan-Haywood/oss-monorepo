@@ -16,9 +16,14 @@
 - a "just me" estimate averaged over the partners people like you actually married;
 - a ranked table for several candidate partners, grouping those the models cannot tell apart;
 - a dashboard of partner traits and what-ifs, with non-negotiables you lock or exclude;
-- batch scoring of a CSV of couples, entirely in the browser, with a downloadable results file.
+- batch scoring of a CSV of couples, entirely in the browser, with a downloadable results file;
+- optional questions on what the surveys do not measure (destructive conflict, depression, alcohol problems, neuroticism, earlier cohabitations), applied as a clearly labelled, lower-confidence literature-based adjustment from verified published hazard ratios, next to official CDC/NCHS first-marriage disruption tables for the couple's characteristics.
 
 A couple a lens cannot speak to gets no number from it. Scenarios can be shared as a link; the profiles stay in the link's `#` fragment and are never sent to a server.
+
+## Published evidence
+
+[`reproducibility/literature_evidence/EVIDENCE.md`](reproducibility/literature_evidence/EVIDENCE.md) collects 286 published estimates of divorce predictors (hazard and odds ratios, life-table probabilities, correlations, prediction accuracies), each with a verbatim quote mechanically checked against its source and a DOI checked at Crossref. It says which predictors are robust (age at marriage, education, premarital birth, premarital mental disorders, parents' marriage, neuroticism) and which are fragile (wedding spending, meeting online, interracial pairings). It also reads Gottman's "90%+ accuracy" claims against the base rate: they are in-sample, and predicting that nobody divorces scores 66–88% on the same samples (above one of the claims). The app uses 9 of the records, and only for factors the chosen lens does not already model. The NCHS life tables (Bramlett & Mosher 2002; Copen et al. 2012) are in `app/data/nchs_disruption_tables.json`.
 
 ## What the calculator uses (evidence lenses)
 

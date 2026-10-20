@@ -259,6 +259,41 @@ passthrough, ranking and overlap flag, no pooling) and `tests/dashboard.test.mjs
 (constraints and URL round-trip, locked or excluded fields never vary, the cap, tiers,
 what-if signs and order).
 
+## Published evidence and population baselines (couple view)
+
+- **What the surveys don't measure** (`literature.js`, `literature-ui.js`). Optional questions
+  for factors no lens's survey has: the wife's destructive conflict (1–4), depression and
+  alcohol abuse before marriage, each partner's neuroticism (−2 to +2 SD), the wife's earlier
+  cohabiting partners, and at least one spouse having no religion. Each has "prefer not to say".
+  Whether each partner grew up with both parents is taken from the profile, not asked again.
+  `questionsFor(lens)` drops factors the selected lens already models (listed as "already in
+  this lens"); the husband's destructive conflict (record withheld: its hazard ratio varies
+  over time in the published model) and religious mismatch (no verified primary number) are
+  listed with the reason. `adjust()` shifts the lens's mean curve by published hazard ratios
+  (S<sup>HR</sup>), drawing each log HR from its published interval plus a transport SD of 0.10
+  and shrinking stacked adjustments for overlap, over 4,000 seeded draws. The page shows the
+  5/10/20-year chance of no divorce from the lens next to the literature-based median and 95%
+  interval, then each applied adjustment with citation, DOI link, locator, verbatim quote and
+  how its uncertainty was set, and everything refused or skipped with the reason. Answers live
+  in the `#` fragment as `lit.<factor>=<value>`, decoded against a whitelist of factors and
+  allowed values (`encodeLiterature` / `decodeLiterature`).
+- **About Gottman's accuracy claims**: a collapsible explainer with the base-rate table from
+  `../reproducibility/literature_evidence/EVIDENCE.md`.
+- **Population baselines (CDC/NCHS)** (`renderNchs`, `nchsMatches`): the official life-table
+  rows that match the couple (wife's age at marriage, race-ethnicity, education, family of
+  origin, living together first, age gap, race difference, the spouse's earlier marriage and
+  children; men's rows for the husband), with 5/10/15/20-year disruption and SEs as printed,
+  labelled by survey (NSFG 1995, NSFG 2006–2010). A previously married wife gets the
+  second-marriage table. A newly-wed couple also sees this lens's own from-the-wedding figures
+  in the same table.
+
+Data files: `data/literature_evidence.json` (the 10 records the layer can read, exported by
+`../reproducibility/literature_evidence/scripts/export_app_evidence.py`; 9 usable) and
+`data/nchs_disruption_tables.json` (Bramlett & Mosher 2002 Tables 21, 22, 41; Copen et al.
+2012 Tables 5–7; public domain; built by `parse_nchs_tables.py`). Tests:
+`tests/literature.test.mjs` (the adjustment) and `tests/literature_ui.test.mjs` (fragment
+round-trip and validation, lens-modelled factors never asked, NCHS matching and "*" cells).
+
 ## Run and test
 
 ```sh
