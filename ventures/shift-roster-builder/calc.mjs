@@ -357,7 +357,7 @@ const DEFAULTS = {
   splitPremium: 0, splitGap: 1, // split-shift premium: dollars owed on each day a person's shifts have a gap over splitGap hours (0 = off)
   diffWhen: "", diffPerHour: 0, diffPct: 0, // pay differential: extra $/hour and/or % of wage for hours inside the diffWhen windows ("Sat-Sun; 10pm-6am"; none = off)
   burdenPct: 0, otAfter: 40, otMult: 1.5, dailyOtAfter: 0, dailyDtAfter: 0, dtMult: 2, minRestHours: 10, maxConsecDays: 6, maxDailyHours: 0,
-  exact: false, exactNodes: 400000, exactMs: 8000, balance: 25, toughBalance: 0, shortfallValue: 8, avoidValue: 0.5, preferValue: 0.25, seed: 1, restarts: 4, iterations: 0,
+  exact: "auto", exactNodes: 400000, exactMs: 8000, balance: 25, toughBalance: 0, shortfallValue: 8, avoidValue: 0.5, preferValue: 0.25, seed: 1, restarts: 4, iterations: 0,
 };
 
 function qualified(person, slot) {
@@ -643,6 +643,9 @@ function search(ctx, restarts, iterations, first = 0) {
 // hours, balance) can reach. Hard rules are monotone (a superset of a broken list is broken), so a branch that breaks one is cut.
 // Seeded with the annealed score as the incumbent. `proven` is true only when the tree was exhausted inside the node and time
 // limits, so the result is then the true optimum and the annealing gap is exact; otherwise `rootBound` is the bound at the root.
+// "auto" runs the exact search by itself on weeks this small, where it finishes in well under a second; 150 random 5-10 shift weeks
+// had the quick search beaten in 38 (each by covering more hours) before this was on by default.
+const EXACT_AUTO_SLOTS = 14;
 function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000 } = {}) {
   const { P, S, slots, staff, o, elig } = ctx;
   const mono = o.otMult >= 1 && o.dtMult >= 1;
@@ -834,7 +837,7 @@ export function buildRoster(staff, slots, options = {}) {
   }
   // Optional proof: for small problems search exhaustively (with pruning) and say how far the annealed roster is from the best possible.
   let optimality = null;
-  if (o.exact) {
+  if (o.exact === true || (o.exact === "auto" && ctx.S <= EXACT_AUTO_SLOTS)) {
     const ex = exactSearch(ctx, best.score, { nodeLimit: o.exactNodes, timeLimitMs: o.exactMs });
     const annealScore = best.score;
     if (ex.owner && ex.score < best.score - 1e-9) best = { owner: ex.owner, score: ex.score };
