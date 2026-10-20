@@ -135,13 +135,20 @@ def odds_ratios(d, add, block):
     cat, num = split(add)
     lv = {c: sorted(d[c].astype(str).unique(), key=lambda v: (v not in ('Management, business, science and arts', 'White'), v)) for c in cat}
 
+    from sklearn.preprocessing import StandardScaler
+
     def coefs(x):
-        prep = ColumnTransformer([('num', SimpleImputer(strategy='median'), num),
+        # numerics are standardised for the solver (money is in dollars); coefficients are mapped
+        # back to the original units below
+        prep = ColumnTransformer([('num', Pipeline([('impute', SimpleImputer(strategy='median')),
+                                                    ('scale', StandardScaler())]), num),
                                   ('cat', OneHotEncoder(categories=[lv[c] for c in cat], drop='first', handle_unknown='ignore',
                                                         sparse_output=False), cat)])
         p = Pipeline([('prep', prep), ('fit', LogisticRegression(C=1e4, max_iter=20000))])
         p.fit(x, x.event, fit__sample_weight=x.weight / x.weight.mean())
-        return p.named_steps['fit'].coef_[0], p.named_steps['prep'].get_feature_names_out()
+        c = p.named_steps['fit'].coef_[0].copy()
+        c[:len(num)] /= p.named_steps['prep'].named_transformers_['num'].named_steps['scale'].scale_
+        return c, p.named_steps['prep'].get_feature_names_out()
     point, names = coefs(d)
     groups = d.groupby('SSUID').indices
     keys = list(groups)
@@ -233,15 +240,18 @@ def main(work):
             cat, num = split(add)
             out[k] = fit(cat, num, tr)[0].predict_proba(te)[:, 1]
         return te.index.to_numpy(), out
-    P = {k: np.zeros(len(d)) for k in ['constant'] + list(V)}
-    for ix, out in Parallel(n_jobs=JOBS)(delayed(one_fold)(f) for f in range(5)):
-        for k, v in out.items():
-            P[k][ix] = v
-    y, w = d.event.to_numpy(), d.weight.to_numpy() / d.weight.mean()
-    losses = {k: logloss_rows(y, P[k], w) for k in P}
-    tab = cluster_gain_table(d.SSUID, losses, reference='current model (demographics + wealth)', reps=BOOT, seed=SEED)
-    tab['couple_years'], tab['events'], tab['households'] = len(d), int(d.event.sum()), len(hh)
-    tab.to_csv(HERE / 'extended_heldout.csv', index=False, float_format='%.4f')
+    if os.environ.get('SIPP_REUSE_HELDOUT') and (HERE / 'extended_heldout.csv').exists():
+        tab = pd.read_csv(HERE / 'extended_heldout.csv')   # same seeds and folds: reuse the held-out table
+    else:
+        P = {k: np.zeros(len(d)) for k in ['constant'] + list(V)}
+        for ix, out in Parallel(n_jobs=JOBS)(delayed(one_fold)(f) for f in range(5)):
+            for k, v in out.items():
+                P[k][ix] = v
+        y, w = d.event.to_numpy(), d.weight.to_numpy() / d.weight.mean()
+        losses = {k: logloss_rows(y, P[k], w) for k in P}
+        tab = cluster_gain_table(d.SSUID, losses, reference='current model (demographics + wealth)', reps=BOOT, seed=SEED)
+        tab['couple_years'], tab['events'], tab['households'] = len(d), int(d.event.sum()), len(hh)
+        tab.to_csv(HERE / 'extended_heldout.csv', index=False, float_format='%.4f')
     print(tab.round(3).to_string(index=False), flush=True)
 
     rr = []
