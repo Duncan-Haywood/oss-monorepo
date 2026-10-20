@@ -26,6 +26,14 @@ with a document about what should be built.
 Research is a peer portfolio, not part of this file's scope: work under
 `research/` follows [`research/CLAUDE.md`](research/CLAUDE.md).
 
+## Using the tools themselves
+
+To get a number from one of the tools (to check your own change, or because
+the task needs one), call its engine instead of driving a browser:
+`node platform/agents/tools.mjs search <words>`, then `describe <slug>`, then
+`call <slug> <function> --input '{...}'`. See
+[`platform/agents/README.md`](platform/agents/README.md).
+
 ## Before you start
 
 1. Read `README.md` for repo layout (`ventures/`, `research/`, `platform/`, `portfolio/`).
