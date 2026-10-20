@@ -102,6 +102,7 @@ PYTHONPATH=src python3 -m einvoice_preflight examples/valid-credit-note.json
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-mixed-rate.json
 PYTHONPATH=src python3 -m einvoice_preflight examples/cii-invoice.xml
 PYTHONPATH=src python3 -m einvoice_preflight examples/factur-x-invoice.pdf
+# examples/factur-x-credit-note.pdf: a Factur-X (EN 16931) credit note, type 381; its XML passes the official rules. Both readers now take BT-25 (the invoice a CII credit note reverses) from the settlement header; before, every CII or Factur-X credit note drew a false INV-033.
 PYTHONPATH=src python3 -m einvoice_preflight examples/ubl-invoice.xml
 PYTHONPATH=src python3 -m einvoice_preflight examples/peppol-credit-note.xml
 # The one example that is meant to fail: six planted defects, annotated at the
