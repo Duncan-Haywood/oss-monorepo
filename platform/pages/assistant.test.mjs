@@ -14,24 +14,22 @@ const HERE = path.dirname(fileURLToPath(import.meta.url));
 
 // ---- The measured score ----------------------------------------------------
 //
-// The floor below is what the rules scored on the held-out sentences the day
-// they were written (2026-10-20). Raise it when a change earns it; a change
-// that lowers it has made the assistant worse at the one job it does without
-// a model, and the Ask page would print the lower number.
-const HELD_OUT_FLOOR = { passed: 6, wrongWritesAtMost: 1 };
+// Every case passes: each blind round's misses were fixed after its score was
+// recorded. The recorded rounds are checked for consistency with the cases,
+// and the round-1/round-2 scores can be reproduced at their commits.
 
-test('every tuned sentence fills exactly the fields it names', () => {
-  const { sets, failures } = scoreEvals();
-  const tunedFailures = failures.filter((f) => !f.heldOut);
-  assert.equal(sets.tuned.passed, sets.tuned.cases, JSON.stringify(tunedFailures.slice(0, 3), null, 1));
+test('every eval sentence fills exactly the fields it names', () => {
+  const { all, failures } = scoreEvals();
+  assert.equal(all.passed, all.cases, JSON.stringify(failures.slice(0, 3), null, 1));
 });
 
-test('the held-out score does not fall below its recorded floor', () => {
-  const { sets } = scoreEvals();
-  const held = sets['held-out'];
-  assert.ok(held.cases >= 12, 'the held-out set shrank');
-  assert.ok(held.passed >= HELD_OUT_FLOOR.passed, `held-out: ${held.passed}/${held.cases}, floor ${HELD_OUT_FLOOR.passed}`);
-  assert.ok(held.wrongWrites <= HELD_OUT_FLOOR.wrongWritesAtMost, `held-out wrote ${held.wrongWrites} wrong values`);
+test('each recorded blind round matches the cases it names', () => {
+  const evals = JSON.parse(readFileSync(path.join(HERE, 'assistant', 'evals.json'), 'utf8'));
+  assert.ok(evals.blind_rounds.length >= 2);
+  for (const r of evals.blind_rounds) {
+    assert.equal(evals.cases.filter((c) => c.round === r.round).length, r.cases, `round ${r.round}`);
+    assert.ok(r.passed <= r.cases && r.wrong_writes >= 0 && /^[0-9a-f]{7,40}$/.test(r.commit), `round ${r.round}`);
+  }
 });
 
 test('every eval form names a page that exists, and its field ids are on that page', () => {
@@ -169,9 +167,9 @@ test('the Ask page prints the score the build measured, and says where words go'
     toolCount: 10,
     chrome: { style: '', styleLink: '', header: '<nav></nav>', disclaimer: '<p>No warranty.</p>', footerNav: '', script: '' },
   });
-  const { sets } = scoreEvals();
-  const held = sets['held-out'];
-  assert.ok(html.includes(`<td>${held.passed} of ${held.cases}</td>`));
+  const { rounds } = scoreEvals();
+  const r = rounds[rounds.length - 1];
+  assert.ok(html.includes(`<td>${r.cases}</td><td>${r.passed}</td><td>${r.wrong_writes}</td>`));
   assert.match(html, /No warranty/);
   assert.match(html, /Cloud speech recognition is never used/);
   assert.match(html, /290 MB/);

@@ -1,5 +1,25 @@
 {
- "about": "Sentences a person might say or type to a calculator, and the fields they mean. Forms are copied from the live pages named in `source` (labels, ids, ranges, choices). Scored by assistant.test.mjs; the Ask page prints the score the build measured. A case passes only if every expected field gets exactly the expected value and nothing else is written. Add a case whenever a real sentence fails: the score is only worth what the cases are. Cases marked `tuned` were written alongside the rules and pass by construction; `held-out` cases were written afterwards and scored without changing the rules to fit them, so their score is the honest estimate. When the rules are changed to fix held-out cases, those cases become `tuned` and a new held-out set is written before the new rules are scored (round 2, 2026-10-20: two calculators the rules had never seen).",
+ "about": "Sentences a person might say or type to a calculator, and the fields they mean. Forms are copied from the live pages named in `source`. Every case must pass (assistant.test.mjs); a case passes only if every expected field gets exactly the expected value and nothing else is written. `round` 0 cases were written alongside the rules. Each later round was written as a blind test: sentences written before the rules were run on them, scored once, and the score recorded in `blind_rounds` with the commit that produced it, so it can be reproduced. Only then were the rules fixed, which is why every case now passes and why the blind scores, not the pass rate, are the honest estimate. Add a new round the same way.",
+ "blind_rounds": [
+  {
+   "round": 1,
+   "date": "2026-10-20",
+   "commit": "0a350c26",
+   "cases": 12,
+   "passed": 6,
+   "wrong_writes": 1,
+   "forms": "eBay fees, roofing bid, Amazon FBA (the forms the rules were written on)"
+  },
+  {
+   "round": 2,
+   "date": "2026-10-20",
+   "commit": "1eec78c2",
+   "cases": 16,
+   "passed": 10,
+   "wrong_writes": 4,
+   "forms": "the same three, plus house cleaning and mileage, which the rules had never seen"
+  }
+ ],
  "forms": {
   "ebay": {
    "source": "ventures/ebay-fee-calculator/index.html",

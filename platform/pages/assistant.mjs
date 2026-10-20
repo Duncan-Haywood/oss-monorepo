@@ -102,22 +102,24 @@ export const ASSISTANT_LAUNCHER_JS = `
 })();
 `;
 
-/** Score the eval set: per set, cases fully right, and fields written with a wrong value. */
+/**
+ * Score the eval set as it stands (every case should pass), and return the
+ * recorded blind rounds: the honest estimate, measured before the rules were
+ * fixed to pass them (see evals.json, "about").
+ */
 export function scoreEvals(evals = JSON.parse(readFileSync(path.join(HERE, 'assistant', 'evals.json'), 'utf8'))) {
-  const sets = {};
+  const all = { cases: 0, passed: 0, wrongWrites: 0, missed: 0 };
   const failures = [];
   for (const c of evals.cases) {
-    const fields = evals.forms[c.form].fields;
-    const { fills } = parseUtterance(c.say, fields);
+    const { fills } = parseUtterance(c.say, evals.forms[c.form].fields);
     const got = Object.fromEntries(fills.map((f) => [f.key, f.value]));
-    const s = (sets[c.set || 'tuned'] ||= { cases: 0, passed: 0, wrongWrites: 0, missed: 0 });
-    s.cases++;
+    all.cases++;
     let ok = true;
-    for (const [k, v] of Object.entries(got)) if (c.expect[k] !== v) { s.wrongWrites++; ok = false; }
-    for (const [k, v] of Object.entries(c.expect)) if (got[k] !== v && !(k in got)) { s.missed++; ok = false; }
-    if (ok) s.passed++; else failures.push({ say: c.say, form: c.form, expect: c.expect, got });
+    for (const [k, v] of Object.entries(got)) if (c.expect[k] !== v) { all.wrongWrites++; ok = false; }
+    for (const k of Object.keys(c.expect)) if (!(k in got)) { all.missed++; ok = false; }
+    if (ok) all.passed++; else failures.push({ say: c.say, form: c.form, expect: c.expect, got });
   }
-  return { sets, failures };
+  return { all, failures, rounds: evals.blind_rounds || [], formCount: Object.keys(evals.forms).length };
 }
 
 const esc = (value) =>
@@ -135,14 +137,13 @@ export function renderAskPage({ baseUrl, siteName, chrome, toolCount }) {
   const toRoot = '../';
   const title = 'Ask: a private assistant for every tool, by voice or chat';
   const description = `Fill any of ${toolCount} free calculators by voice or a typed sentence, find the right tool, hear the result. Private, in your browser.`;
-  const { sets } = scoreEvals();
-  const tuned = sets.tuned || { cases: 0, passed: 0, wrongWrites: 0 };
-  const held = sets['held-out'] || { cases: 0, passed: 0, wrongWrites: 0 };
+  const { all, rounds, formCount } = scoreEvals();
+  const latest = rounds[rounds.length - 1] || { cases: 0, passed: 0, wrong_writes: 0 };
   const faq = [
     ['Can I fill in a calculator by voice?', `Yes. On any calculator press "Speak or type" (or "Ask" in the header) and say your numbers, for example "2,400 square feet, 8/12 pitch, waste ten percent". The assistant writes them into the matching fields, lists every change with an Undo, and can read the result back. Voice mode keeps listening, filling and speaking until you say "stop".`],
     ['Does what I say or type leave my device?', 'Not unless you choose a provider that runs elsewhere. With no model (the default), the built-in browser model or the on-device model, everything runs in your browser. Speech recognition is the browser\'s on-device recogniser or Whisper running in your browser; cloud speech recognition is never used. If you enter your own API key, what you type goes from your browser to that provider and nowhere else.'],
     ['Do I need an AI model or an API key?', 'No. Without any model, a rule-based reader fills forms and the site search finds tools. A model adds open-ended answers and reads looser sentences; you can use your browser\'s built-in one, download one that runs on your device, or bring your own key.'],
-    ['How accurate is it?', `The rule-based reader is scored on every build against real sentences and real calculator forms. On sentences written after the rules were (the honest estimate) it got ${held.passed} of ${held.cases} fully right and wrote a wrong value ${held.wrongWrites} time${held.wrongWrites === 1 ? '' : 's'}. Always check the fields: every value it writes is listed with an Undo.`],
+    ['How accurate is it?', `The rule-based reader is scored on every build against real sentences and real calculator forms. In its latest blind test (sentences written before the rules were run on them, ${latest.forms ? `on ${latest.forms}` : ''}) it got ${latest.passed} of ${latest.cases} fully right and wrote a wrong value ${latest.wrong_writes} time${latest.wrong_writes === 1 ? '' : 's'}; those mistakes were then fixed, and the next blind round will measure the fixes. Always check the fields: every value it writes is listed with an Undo.`],
     ['Can an AI agent use these tools?', 'Yes. In a browser that supports WebMCP, every page offers search_site_tools, read_page_results and, on calculators, fill_form with a JSON Schema of its fields, so an agent fills the same form a person sees and every value is checked against the field first.'],
   ];
   const ld = [
@@ -229,15 +230,14 @@ export function renderAskPage({ baseUrl, siteName, chrome, toolCount }) {
       <p>A model never writes into a form directly. It proposes values as JSON, constrained to the form’s own fields where the engine supports it. Every value is checked against the field’s type, range and choices before it is written, and anything refused is listed. The rule-based reader is the floor: when a model finds fewer values than the rules do, the rules’ reading is used.</p>
 
       <h2 id="quality">How well it is measured to work</h2>
-      <p>The rule-based reader is scored on every build against ${tuned.cases + held.cases} sentences on three real calculators (eBay fees, roofing bid, Amazon FBA). The sentences are in ${src('platform/pages/assistant/evals.json')}, and the test is ${src('platform/pages/assistant.test.mjs')}.</p>
+      <p>The rule-based reader is tested on ${all.cases} sentences against ${formCount} real calculator forms. The sentences are in ${src('platform/pages/assistant/evals.json')} and the test is ${src('platform/pages/assistant.test.mjs')}. Today it gets ${all.passed} of ${all.cases} fully right. That number is not an estimate of how it does on your sentences, because every mistake found was fixed. The estimate is the <strong>blind rounds</strong>: new sentences written before the rules were run on them, scored once, and recorded with the commit that produced the score, so anyone can reproduce it.</p>
       <div class="tablewrap"><table>
-        <thead><tr><th>Sentences</th><th>Fully right</th><th>Wrong value written</th></tr></thead>
+        <thead><tr><th>Blind round</th><th>Sentences</th><th>Fully right</th><th>Wrong value written</th><th>Reproduce at</th></tr></thead>
         <tbody>
-          <tr><td>Written with the rules (they pass by construction)</td><td>${tuned.passed} of ${tuned.cases}</td><td>${tuned.wrongWrites}</td></tr>
-          <tr><td>Held out: written afterwards, rules not changed to fit</td><td>${held.passed} of ${held.cases}</td><td>${held.wrongWrites}</td></tr>
+          ${rounds.map((r) => `<tr><td>${r.round} (${esc(r.date)}): ${esc(r.forms)}</td><td>${r.cases}</td><td>${r.passed}</td><td>${r.wrong_writes}</td><td><a href="${esc(`https://github.com/Duncan-Haywood/oss-monorepo/tree/${r.commit}/platform/pages/assistant`)}"><code>${esc(r.commit)}</code></a></td></tr>`).join('\n          ')}
         </tbody>
       </table></div>
-      <p>The held-out row is the honest estimate, and it is a small sample. Model engines are not scored here yet; how they do depends on the model you pick.</p>
+      <p>The samples are small, and a wrong value written is the mistake that matters most, which is why every change the assistant makes is listed with an Undo. Model engines are not scored here yet; how they do depends on the model you pick.</p>
 
       <h2 id="limits">Limitations</h2>
       <ul>

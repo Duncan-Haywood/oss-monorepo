@@ -48,12 +48,16 @@ const SPOKEN_SYNONYMS = {
   sell: 'price', sells: 'price', selling: 'price',
   weigh: 'weight', weighs: 'weight', weighing: 'weight',
   labor: 'wage', labour: 'wage',
+  house: 'home', bought: 'paid', buy: 'paid',
 };
 const DIMENSIONS = [/\b(length|long|depth|deep)\b/i, /\b(width|wide)\b/i, /\b(height|high|tall|thickness)\b/i];
 const PERCENT_WORDS = new Set(['percent', 'percentage', 'pct']);
 const MONEY_WORDS = new Set(['dollars', 'dollar', 'bucks', 'usd']);
 const YES = new Set(['yes', 'on', 'include', 'including', 'with', 'add', 'enable', 'enabled', 'check', 'true', 'turn']);
 const NO = new Set(['no', 'off', 'without', 'exclude', 'excluding', 'remove', 'disable', 'disabled', 'uncheck', 'false', 'dont', 'not', 'none', 'skip']);
+// Units that, said right after a number, belong to that number ("2,200 square feet").
+const UNIT_WORDS = new Set(('square feet foot ft sq pounds pound lbs lb miles mile mi hours hour hrs hr minutes minute mins '
+  + 'days day weeks week months month years year inches inch percent').split(' '));
 const CLAUSE_WORDS = new Set(['and', 'then', 'also', 'plus', 'next']);
 
 /** A crude English stemmer: enough that "fees" meets "fee" and "pitches" meets "pitch". */
@@ -95,13 +99,18 @@ export function tokenize(text) {
     .replace(/(\d),(?=\d{3}\b)/g, '$1')
     .replace(/([a-z])-([a-z])/gi, '$1 $2')
     .replace(/['’]/g, '')
-    .toLowerCase();
+    .toLowerCase()
+    // "listing it at 19" is a price, not the "Promoted listings" field.
+    .replace(/\blist(?:ing|ed)?\s+(?:it\s+)?(?:at|for)\b/g, 'price');
   const raw = s.match(/\d+(?:\.\d+)?|[a-z]+|[$%/]|[,;!?]|\.(?!\d)/g) || [];
   const tokens = [];
   for (let i = 0; i < raw.length; i++) {
     const t = raw[i];
     if (/^\d/.test(t)) {
       tokens.push({ kind: 'num', value: Number(t), text: t });
+    } else if (t === 'one' && /^(time|off|way)$/.test(raw[i + 1] || '')) {
+      // "a one-time clean" names a kind of job, not a quantity.
+      tokens.push({ kind: 'word', w: t });
     } else if (SMALL[t] !== undefined || TENS[t] !== undefined || ((t === 'a' || t === 'one') && /^(hundred|thousand|million)$/.test(raw[i + 1] || ''))) {
       // A run of number words. "and" is allowed inside it ("two hundred and
       // fifty"), "point" starts decimals, "and a half" ends it.
@@ -110,8 +119,21 @@ export function tokenize(text) {
       let text2 = '';
       let j = i;
       let decimals = '';
+      let pair = null;
       for (; j < raw.length; j++) {
         const w = raw[j];
+        // "twelve fifty": two spoken groups with no "hundred" between them.
+        // As money that is 12.50; as anything else, 1250. Adding them (62)
+        // is right in no reading, so the pair is kept for the field to decide.
+        if (!total && current >= 10 && current < 100 && raw[j - 1] !== 'hundred' && ((SMALL[w] ?? 0) >= 10 || TENS[w] !== undefined)) {
+          let second = SMALL[w] ?? TENS[w];
+          text2 += `${w} `;
+          if (TENS[w] !== undefined && SMALL[raw[j + 1]] !== undefined && SMALL[raw[j + 1]] < 10) { j++; second += SMALL[raw[j]]; text2 += `${raw[j]} `; }
+          pair = [current, second];
+          current = current * 100 + second;
+          j++;
+          break;
+        }
         if (SMALL[w] !== undefined) current += SMALL[w];
         else if (TENS[w] !== undefined) current += TENS[w];
         else if (w === 'a' && /^(hundred|thousand|million)$/.test(raw[j + 1] || '')) current += 1;
@@ -128,7 +150,7 @@ export function tokenize(text) {
       let value = total + current;
       if (decimals) value = Number(`${value}.${decimals}`);
       if (raw[j] === 'and' && raw[j + 1] === 'a' && raw[j + 2] === 'half') { value += 0.5; j += 3; }
-      tokens.push({ kind: 'num', value, text: text2.trim() });
+      tokens.push({ kind: 'num', value, text: text2.trim(), ...(pair ? { pair } : {}) });
       i = j - 1;
     } else if (t === 'half' && !(raw[i - 1] === 'a' && raw[i - 2] === 'and')) {
       // "half a pound": a lone half is a number. ("two and a half" is read above.)
@@ -165,6 +187,7 @@ export function tokenize(text) {
     if (after?.kind === 'sym' && after.s === '%') { t.percent = true; i++; }
     else if (after?.kind === 'word' && PERCENT_WORDS.has(after.w)) { t.percent = true; i++; }
     else if (after?.kind === 'word' && MONEY_WORDS.has(after.w)) { t.money = true; i++; }
+    else if (after?.kind === 'word' && (after.w === 'cents' || after.w === 'cent')) { t.value /= 100; t.money = true; i++; }
     out.push(t);
   }
   return out;
@@ -184,6 +207,7 @@ function prepare(fields) {
     // "(row 2)" tells repeated rows apart for people; for matching, the rows are one field said again.
     tokens: [...new Set([...contentTokens(String(field.label || '').replace(/\s*\(row \d+\)$/, '')), ...contentTokens(field.key || '')])],
     same: String(field.label || '').replace(/\s*\(row \d+\)$/, '').toLowerCase(),
+    labelTokens: new Set(contentTokens(String(field.label || '').replace(/\s*\(row \d+\)$/, ''))),
     unit: unitOf(field.label || ''),
     perTwelve: /\b12\b/.test(field.label || ''),
     options: (field.options || []).map((o) => {
@@ -203,8 +227,12 @@ function prepare(fields) {
 
 function scoreField(p, words, weight) {
   let score = 0;
-  for (const w of new Set(words)) if (p.tokens.includes(w)) score += weight(w);
-  return score;
+  let hit = 0;
+  for (const w of new Set(words)) if (p.tokens.includes(w)) { score += weight(w); if (p.labelTokens.has(w)) hit++; }
+  // Between two labels that share the words said, the one those words cover
+  // more of: "3 bathrooms" is "Bathrooms", not "Extra minutes per bathroom".
+  // Measured on the label only; an id like crewSize is not something said.
+  return score > 0 ? score + (0.3 * hit) / (p.labelTokens.size || 1) : 0;
 }
 
 /** Group tokens into clauses at punctuation and "and"/"then". A clause with no number or choice in it joins the next one. */
@@ -286,10 +314,6 @@ export function parseUtterance(text, fields) {
     if (!nums.length) continue;
     // "price 40" (words first) or "40 dollar price" (number first): which side
     // of each number its name is on is decided once per clause.
-    // Words before the first number count only if they name something on the
-    // form: in "aim for a 25 percent margin" the name comes after.
-    const lead = wordsOf(clause.slice(0, nums[0][1]));
-    const before = lead.length > 0 && numeric.some((p) => scoreField(p, lead, weight) > 0);
     // "12 by 9 by 4 inches": a run of numbers joined by "by" or "x" is a set
     // of dimensions, written length, width, height, when the form has them.
     const chain = [];
@@ -312,12 +336,26 @@ export function parseUtterance(text, fields) {
         if (!nums.length) continue;
       }
     }
-    nums.forEach(([num, at], k) => {
-      const start = before ? (k === 0 ? 0 : nums[k - 1][1] + 1) : at + 1;
+    // "price 40, shipping 6" names each number before it; "2,200 square feet
+    // with 3 bathrooms" names it after. Both readings are scored, and the one
+    // that matches more of the form, more strongly, is kept. A tie goes to
+    // name-first, the way forms are usually read aloud.
+    // Where each number's unit words end: "2,200 square feet" keeps "square feet".
+    const unitEnd = nums.map(([, at]) => {
+      let e = at + 1;
+      while (clause[e]?.kind === 'word' && UNIT_WORDS.has(clause[e].w)) e++;
+      return e;
+    });
+    const reading = (before) => nums.map(([num, at], k) => {
+      // Name-first, a number's context starts after the previous number's
+      // unit words, and its own unit words count with it.
+      const start = before ? (k === 0 ? 0 : unitEnd[k - 1]) : at + 1;
       const end = before ? at : (k + 1 < nums.length ? nums[k + 1][1] : clause.length);
-      const ctx = clause.slice(start, end);
+      const ctx = before ? [...clause.slice(start, end), ...clause.slice(at + 1, unitEnd[k])] : clause.slice(start, end);
       const words = wordsOf(ctx);
-      const from = [...ctx.filter((t) => t.kind === 'word').map((t) => t.w), num.text].join(' ');
+      const from = before
+        ? [...ctx.filter((t) => t.kind === 'word').map((t) => t.w), num.text].join(' ')
+        : [num.text, ...ctx.filter((t) => t.kind === 'word').map((t) => t.w)].join(' ');
       const scores = numeric.map((p) => {
         let s = scoreField(p, words, weight);
         if (s > 0 && num.percent && p.unit === 'percent') s += 0.5;
@@ -326,8 +364,22 @@ export function parseUtterance(text, fields) {
         if (s > 0 && num.ratio && p.perTwelve) s += 0.5;
         return { p, s };
       });
-      candidates.push({ num, from, words, scores });
+      return { num, from, words, scores };
     });
+    // How many numbers a reading places, then how strongly.
+    const strength = (cands) => {
+      const seen = new Set();
+      let placed = 0;
+      let total = 0;
+      for (const c of cands) {
+        const best = c.scores.filter((x) => !seen.has(x.p.field.key)).sort((a, b) => b.s - a.s)[0];
+        if (best && best.s > 0) { seen.add(best.p.field.key); placed++; total += best.s; }
+      }
+      return placed * 1000 + total;
+    };
+    const first = reading(true);
+    const after = reading(false);
+    candidates.push(...(strength(after) > strength(first) ? after : first));
   }
 
   // Choices are read from the whole sentence, not one clause: "beauty and
@@ -376,6 +428,7 @@ export function parseUtterance(text, fields) {
       continue;
     }
     let value = c.num.value;
+    if (c.num.pair && p.unit === 'money') value = c.num.pair[0] + c.num.pair[1] / 100;
     if (c.num.ratio) value = p.perTwelve && c.num.ratio[1] === 12 ? c.num.ratio[0] : c.num.ratio[0] / c.num.ratio[1];
     if (p.field.type === 'select') {
       const opt = p.options.find((o) => o.num === value);
