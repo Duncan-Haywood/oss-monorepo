@@ -176,7 +176,7 @@ function driftAdjust(x, m, trend0, profile) {
  * Returns { adjusted, slope } with the slope per point; the adjusted series
  * keeps the mean level of the input.
  */
-export function trendAdjust(x, { penalty = 'bic', minSegment = 2, passes = 10 } = {}) {
+export function trendAdjust(x, { penalty = 'bic', minSegment = 2, passes = 10, ar1 = false } = {}) {
   const n = x.length;
   const d = [];
   for (let i = 1; i < n; i++) d.push(x[i] - x[i - 1]);
@@ -185,7 +185,9 @@ export function trendAdjust(x, { penalty = 'bic', minSegment = 2, passes = 10 } 
   for (let k = 0; k < passes; k++) {
     const y = detrend(b);
     // a heavier penalty while the slope is unsettled: only large steps may shape it
-    const cps = pelt(y, { model: 'mean', penalty: 3 * penaltyValue(penalty, n, 'mean'), minSegment, sigma: robustSd(y) }).changepoints;
+    // with ar1, sticky noise widens the scale, so its wandering is not cut into steps that then bend the slope
+    const sd = robustSd(y);
+    const cps = pelt(y, { model: 'mean', penalty: 3 * penaltyValue(penalty, n, 'mean'), minSegment, sigma: ar1 ? longRunSd(sd, ar1Rho(y)) : sd }).changepoints;
     const bounds = [0, ...cps, n];
     let sxy = 0, sxx = 0;
     for (let i = 0; i + 1 < bounds.length; i++) {
@@ -761,7 +763,7 @@ export function analyze(input = {}) {
   let slope = null;
   if (o.trend) {
     if (model === 'poisson') throw new Error('The trend removal subtracts a line, which breaks counts: use "mean" or "meanvar" with a trend.');
-    ({ adjusted: values, slope } = trendAdjust(values, { penalty: o.penalty, minSegment: Math.max(1, Math.floor(Number(o.minSegment) || (model === 'meanvar' ? 5 : 2))) }));
+    ({ adjusted: values, slope } = trendAdjust(values, { penalty: o.penalty, minSegment: Math.max(1, Math.floor(Number(o.minSegment) || (model === 'meanvar' ? 5 : 2))), ar1: !!o.ar1 && model === 'mean' }));
   }
   let sigma = robustSd(values);
   let rho = null;

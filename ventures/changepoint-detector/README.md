@@ -164,6 +164,13 @@ series, 40 each, in `engine.test.mjs`):
   series without). Combined with `--period 12` (144 points, slope 0.08, amplitude 8, shift 5 at 84, seeds
   601..640): 6.6 changes per series with `--period` alone, 1.25 with `--trend`, found 40 of 40, exactly one 36
   of 40. One common slope only; a slope that itself changes is still read as steps. Not offered for counts.
+- **`--trend` with `--ar1`.** Sticky noise wanders, and the slope loop inside `--trend` cut that wandering into
+  steps whose segments then bent the slope. With `--ar1` the loop now widens its noise scale by the same
+  long-run factor. On 200 points, slope 0.1, AR(1) rho 0.5, shift 5 at point 100 (seeds 701..740): PELT gave
+  8.68 changes per series with `--trend` alone and 1.38 with `--trend --ar1`; false changes on the 40 no-shift
+  series fell from 39 to 3 (PELT) and 30 to 0 (Bayesian pass); the shift was found in 36 of 40, and the Bayesian
+  pass reported exactly one change near it in 34 of 40. Before the loop was made AR(1)-aware, `--trend --ar1`
+  still gave a false PELT change on 28 of 40 series. `--ar1 joint` is close (Bayesian exactly one 35 of 40, false 1).
 - **Choosing the drift window from the data: tried, not kept.** Picking the half-width (1 to 6 cycles) by
   leave-one-out prediction error, with and without a 10% margin over the fixed default, was worse than
   the fixed rule in all five series shapes tried (growing, steady, fast-growing, 72-point and a

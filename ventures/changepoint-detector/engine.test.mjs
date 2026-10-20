@@ -490,6 +490,36 @@ test('trend: a ramp under one step leaves one change, not ten, and the slope is 
   assert.ok(found >= 0.95 * N && exact >= 0.8 * N && falseRuns <= 0.2 * N);
 });
 
+test('trend with ar1: sticky noise over a ramp with one step is not cut into extra changes', () => {
+  const N = 40, n = 200, rho = 0.5;
+  let plainCh = 0, ar = 0, found = 0, falsePelt = 0, falsePlain = 0, falseBayes = 0, exactBayes = 0;
+  const gen = (seed, step) => {
+    const z = normals(rng(seed), n);
+    let e = 0;
+    return z.map((v, i) => { e = rho * e + v; return 0.1 * i + e + (step && i >= 100 ? 5 : 0); });
+  };
+  for (let s = 701; s <= 700 + N; s++) {
+    const x = gen(s, true), base = gen(s, false);
+    plainCh += analyze({ values: x, trend: true }).pelt.changepoints.length;
+    const r = analyze({ values: x, trend: true, ar1: true });
+    const c = r.pelt.changepoints;
+    ar += c.length;
+    found += c.some((p) => Math.abs(p.index - 100) <= 3);
+    const d = r.bocpd.detections;
+    exactBayes += d.length === 1 && Math.abs(d[0].index - 100) <= 3;
+    falsePlain += analyze({ values: base, trend: true }).pelt.changepoints.length > 0;
+    const q = analyze({ values: base, trend: true, ar1: true });
+    falsePelt += q.pelt.changepoints.length > 0;
+    falseBayes += q.bocpd.detections.length > 0;
+  }
+  // measured (seeds 701..740, 200 points, slope 0.1, AR(1) rho 0.5, shift 5 at 100): PELT changes/series 8.68 with
+  // --trend, 1.38 with --trend --ar1; false runs on no-shift series 39 -> 3 (PELT), Bayesian 30 -> 0; shift found 36/40,
+  // Bayesian exactly one change near it 34/40. Before the ar1-aware slope loop: PELT false 28/40, Bayesian 5/40.
+  console.log(`# trend+ar1: ${plainCh / N} vs ${ar / N} changes/series; found ${found}/${N}; false pelt ${falsePlain} -> ${falsePelt}, bayes ${falseBayes}; bayes exact ${exactBayes}`);
+  assert.ok(ar / N < 0.3 * (plainCh / N));
+  assert.ok(found >= 0.85 * N && falsePelt <= 0.15 * N && falseBayes <= 0.1 * N && exactBayes >= 0.75 * N);
+});
+
 test('trend with a seasonal cycle, and counts are refused', () => {
   const N = 40;
   let plain = 0, tr = 0, found = 0;
