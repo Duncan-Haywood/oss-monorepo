@@ -148,6 +148,20 @@ series, 40 each, in `engine.test.mjs`):
   gave a false change on 15 of 20 runs without `--period 7` and 0 of 20 with it; a rate going 10 to 15 at
   point 105 gave exactly one change within 8 points of it on 20 of 20 runs with `--period 7`. Fitted factors are
   within 0.12 of the true ones on a 280-point series whose rate doubles midway. `--drift` is not available for counts.
+- **Count trends (`--model poisson --trend`, added 2026-10-20).** A steady climb in a count rate reads as a
+  staircase of rate changes. `--trend` fits one log-linear growth b under the steps: the rate at point t is
+  (segment rate) x exp(b (t - centre)), and the growth enters as an exposure beside the seasonal factors, so
+  it composes with `--period n` (the fit alternates PELT, Newton steps on the profile log-likelihood
+  sum x d - sum a_s log(sum e), and the factors). It starts from the one-segment fit: starting at b = 0 let the
+  steps soak up part of the climb first (growth 0.0073 against a true 0.0100, 1.65 false changes per series),
+  starting from the global fit gives 0.0102. Test: the Newton b equals a grid search of the profile
+  likelihood. Measured on 210 counts, rate 8 x exp(0.01 (t - 105)), seeds 500..519: without `--trend` 4.25
+  changes per series and a false change on 20 of 20; with it 0 changes and 0 of 20 (period 7 with factors
+  0.5 to 1.5: 4.2 to 0). A flat rate of 8 gets a growth of 0.0001 and no change. With a real rate step of x1.6
+  at point 105 on top of the growth: 5.15 -> 1.35 changes per series (1.25 with period 7), exactly one change
+  within 8 points of 105 on 13 of 20 runs (15 of 20 with period 7). The step is found but extra
+  changes remain: the global starting fit leans a little toward the step. Output: `trend.growthPerPoint`
+  (0.0102 = 1.02% per point). Bends (`--trend bend(s)`) are not available for counts.
 - **Drifting seasonality (`--period n --drift`).** The fixed profile is wrong when the
   cycle's amplitude grows or its peak moves. With `--drift` each phase is smoothed across
   cycles by a running median (5 cycles, 3 on short series), re-centred per cycle. On 144

@@ -181,6 +181,76 @@ export function poissonSeasonal(x, period, { penalty = 'bic', minSegment = 2, pa
   return { factors: f, exposure: Array.from({ length: n }, (_, t) => f[t % m]), passes: done };
 }
 
+/** Newton steps for the growth b maximising the profile Poisson log-likelihood given segment bounds and seasonal factors f (or null). */
+function newtonGrowth(x, bounds, f, m, g, centre) {
+  const n = x.length;
+  for (let it = 0; it < 25; it++) {
+    let grad = 0, hess = 0;
+    for (let t = 0; t < n; t++) grad += x[t] * (t - centre);
+    for (let i = 0; i + 1 < bounds.length; i++) {
+      let a = 0, E = 0, D = 0, D2 = 0;
+      for (let t = bounds[i]; t < bounds[i + 1]; t++) {
+        const w = (f ? f[t % m] : 1) * Math.exp(g * (t - centre)), d = t - centre;
+        a += x[t]; E += w; D += w * d; D2 += w * d * d;
+      }
+      if (E <= 0) continue;
+      grad -= a * D / E;
+      hess -= a * (D2 / E - (D / E) ** 2);
+    }
+    if (!(hess < 0)) break;
+    const step = Math.max(-1 / n, Math.min(1 / n, -grad / hess));  // at most a factor e across the series per step
+    g += step;
+    if (Math.abs(step) < 1e-10) break;
+  }
+  return g;
+}
+
+/**
+ * A common log-linear growth under the steps for counts (the Poisson analogue of --trend).
+ * The rate at point t is (segment rate) x exp(b (t - centre)) x f[t mod period], so the growth and
+ * the seasonal factors are exposures, like poissonSeasonal's. Alternate: PELT under the current
+ * exposures, then b by Newton steps on the profile log-likelihood
+ * sum x_t d_t - sum_segments a_s log(sum e_t), and the factors as in poissonSeasonal. A rate shift
+ * stays in the segments; a steady climb goes to b instead of a staircase of small changes.
+ * Returns { growth (b per point), exposure, factors (or null), passes }.
+ */
+export function poissonTrend(x, { period = 0, penalty = 'bic', minSegment = 2, passes = 10 } = {}) {
+  const n = x.length;
+  const m = Math.floor(period) || 0;
+  const centre = (n - 1) / 2;
+  let f = m ? poissonSeasonal(x, m, { penalty, minSegment }).factors : null;
+  // start from the one-segment fit: starting at 0 lets the steps soak up part of the climb first
+  let b = newtonGrowth(x, [0, n], f, m, 0, centre);
+  const expo = () => Array.from({ length: n }, (_, t) => (f ? f[t % m] : 1) * Math.exp(b * (t - centre)));
+  let done = 0;
+  for (; done < passes; done++) {
+    const e = expo();
+    const b0 = b;
+    const { changepoints } = pelt(x, { model: 'poisson', penalty, minSegment, exposure: e });
+    const bounds = [0, ...changepoints, n];
+    const nb = newtonGrowth(x, bounds, f, m, b, centre);
+    let nf = f;
+    if (f) {
+      b = nb;
+      const pnum = new Array(m).fill(0), pden = new Array(m).fill(0);
+      for (let i = 0; i + 1 < bounds.length; i++) {
+        let a = 0, E = 0;
+        for (let t = bounds[i]; t < bounds[i + 1]; t++) { a += x[t]; E += f[t % m] * Math.exp(b * (t - centre)); }
+        const rate = E > 0 ? a / E : 0;
+        for (let t = bounds[i]; t < bounds[i + 1]; t++) { pnum[t % m] += x[t]; pden[t % m] += rate * Math.exp(b * (t - centre)); }
+      }
+      const g = pnum.map((v, p) => (pden[p] > 0 ? v / pden[p] : f[p]));
+      const c = g.reduce((s, v) => s + v, 0) / m;
+      nf = g.map((v) => Math.max(0.01, v / c));
+    }
+    const move = Math.abs(nb - b0) * n + (f ? Math.max(...nf.map((v, p) => Math.abs(v - f[p]))) : 0);
+    b = nb;
+    f = nf;
+    if (move < 1e-4) { done++; break; }
+  }
+  return { growth: b, exposure: expo(), factors: f, passes: done };
+}
+
 /**
  * Drifting seasonal shape: each phase's detrended values are smoothed across
  * cycles: a Theil-Sen line through up to 9 cycles on series of 10 or more cycles,
@@ -952,14 +1022,21 @@ export function analyze(input = {}) {
   if (period) {
     if (model === 'poisson') {
       if (o.drift) throw new Error('A drifting seasonal shape is not available for counts: leave out drift, or use "mean" or "meanvar".');
-      const fit = poissonSeasonal(original, period, { penalty: o.penalty, minSegment: Math.max(1, Math.floor(Number(o.minSegment) || 2)) });
-      exposure = fit.exposure;
-      profile = fit.factors;
+      if (!o.trend) {  // with a trend the seasonal factors are fitted together with it below
+        const fit = poissonSeasonal(original, period, { penalty: o.penalty, minSegment: Math.max(1, Math.floor(Number(o.minSegment) || 2)) });
+        exposure = fit.exposure;
+        profile = fit.factors;
+      }
     } else ({ adjusted: values, profile } = seasonalAdjust(original, period, { drift: !!o.drift }));
   }
-  let slope = null, slopeAfter, knot, knots, slopes;
-  if (o.trend) {
-    if (model === 'poisson') throw new Error('The trend removal subtracts a line, which breaks counts: use "mean" or "meanvar" with a trend.');
+  let slope = null, slopeAfter, knot, knots, slopes, growth = null;
+  if (o.trend && model === 'poisson') {
+    if (o.trend === 'bend' || o.trend === 'bends') throw new Error('Bends in the trend are not available for counts: use --trend alone (one common growth rate), or "mean" or "meanvar".');
+    const fit = poissonTrend(original, { period, penalty: o.penalty, minSegment: Math.max(1, Math.floor(Number(o.minSegment) || 2)) });
+    exposure = fit.exposure;
+    growth = fit.growth;
+    if (fit.factors) profile = fit.factors;
+  } else if (o.trend) {
     ({ adjusted: values, slope, slopeAfter, knot, knots, slopes } = trendAdjust(values, { penalty: o.penalty, minSegment: Math.max(1, Math.floor(Number(o.minSegment) || (model === 'meanvar' ? 5 : 2))), ar1: !!o.ar1 && model === 'mean', bend: o.trend === 'bend' ? 1 : o.trend === 'bends' ? 3 : false, joint: !!o.jointKnots, knotMargin: o.knotMargin }));
   }
   let sigma = robustSd(values);
@@ -1035,6 +1112,7 @@ export function analyze(input = {}) {
     model,
     noiseSd: round(sigma),
     ...(period ? { seasonal: { period, profile: profile.map((v) => round(v, exposure ? 3 : undefined)), ...(exposure ? { multiplicative: true } : {}) } } : {}),
+    ...(growth !== null ? { trend: { growthPerPoint: round(Math.exp(growth) - 1, 6) } } : {}),
     ...(slope !== null ? { trend: { slopePerPoint: round(slope, 6), ...(knot !== undefined ? { slopeAfter: round(slopeAfter, 6), slopeChangesAt: knot, ...(knots.length > 1 ? { slopeChangesAtAll: knots, slopes: slopes.map((v) => round(v, 6)) } : {}) } : {}) } } : {}),
     ...(rho !== null ? { ar1: { rho: round(rho, 3) } } : {}),
     pelt: { penalty: round(p.penalty), minSegment, changepoints: changes, segments },
