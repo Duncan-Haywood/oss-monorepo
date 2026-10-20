@@ -16,6 +16,18 @@ Redirect lines or an nginx map. The file is read locally and never uploaded.
 Open `index.html` in a browser. There is no build step, no account and no API
 key; the work happens in your browser and nothing you paste is uploaded.
 
+## Check a map from the command line or CI
+
+```
+node cli.mjs redirects.csv --new-urls new-site-urls.txt --format netlify --out _redirects
+```
+
+Prints each finding with its line number and exits 1 if any is an error (`--fail-on warning`
+also fails on warnings, `--fail-on never` never fails), so a bad map can block a deploy. `--json`
+and `--csv` print machine-readable results; `--old-urls`, `--site` and `--case-sensitive` match
+the page's options; `-` reads stdin. Nothing is uploaded. Exit code 2 means bad usage or an
+unreadable file.
+
 To run the tests (Node 20 or newer):
 
 ```
@@ -25,6 +37,7 @@ node --test ventures/redirect-map-check/
 ## Files
 
 - `index.html`: the tool's page.
+- `cli.mjs`: the command-line wrapper for CI.
 - `calc.mjs`: the logic, kept separate from the page so it can be tested.
 - `usage.mjs`: anonymous, opt-in-only usage counters (off by default; see
   `portfolio/usage/README.md` in the monorepo).
