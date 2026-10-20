@@ -1,5 +1,14 @@
 # Research log
 
+## 2026-10-20 · App: four scorable lenses side by side; NLSY79 individuals and the NSFG classical family wired in; abstention on unusual couples
+
+- Workstream B's NLSY79 individual-level models (#8536) now score couples in the app. Each partner is rated from their own traits and the two rates are averaged. The adapter reuses `individuals.js`'s row mapping, and a test checks the app's projection matches B's own `project()` to 10<sup>-15</sup> in every year and model. The app uses the currently-married population (best held-out gain 1.9%); the including-separated population's 12.6% reflects people already separated.
+- New "every lens, side by side" table. It shows each lens's 10-year estimate for the same couple, the reason when a lens gives no number, and whether the estimate is inside that lens's data. It never pools them.
+- What it shows: for the default 36/38 couple the two NLSY79 lenses agree (88.6%, models 84.9–92.4%; and 89.6%, 88.8–90.6%). For a 27/29 couple both NLSY79 lenses extrapolate below age 35 and give about 86%, while NSFG, inside its data, gives 74.8%. The gap shows how much extrapolation can hide; part of it is NSFG's broader outcome, which includes separation.
+- Workstream B's NSFG classical family (#8567) now scores through the same NSFG adapter (same data and inputs). The logistic hazard, forest and boosting are averaged. Naive Bayes is shown but kept out, with the reason (held out, it predicted 173 against 91 observed per 1,000 in the riskiest tenth). For the 27/29 couple the family gives 78.6% (75.8–82.2%), against 74.8% from A's models. Explanations now use each model's scale: odds multipliers for the logistic hazard, rate changes per 1,000 for the forest.
+- Abstention: B's out-of-distribution score (#8573) runs before any NSFG number. The page shows how unusual the couple is, and gives no number above the 99th percentile. A 17/50 couple passes every per-input range check but scores 99.0 and is refused. The first-marriage bundle borrows the family's spec, because they share data, inputs and folds.
+- `app/ROADMAP.md` section C now lists what is done and what remains. Mortality is still not modelled (SSA, CDC and mortality.org unreachable). Fair's affairs lenses stay listed only, because their outcome is not divorce. Explanations for two-perspective lenses are approximate.
+
 ## 2026-10-20 · Out-of-distribution score so the app can abstain on unusual couples
 
 - New `tools/ood.py`: the squared Mahalanobis distance of a couple's fixed inputs from the 4,126 NSFG 2002 first marriages, turned into a percentile among held-out women (5 person folds). It ships as `ood` in `models/nsfg2002_family.json`, and `engine.oodScore()` matches Python on 68 of 68 rows to 10<sup>-9</sup>.

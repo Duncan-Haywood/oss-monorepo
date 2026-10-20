@@ -2,7 +2,8 @@
 // adapter per lens), projects year-by-year divorce hazards, flags out-of-support inputs and
 // refuses unsupported couples, and ranks what-if changes.
 // Pure functions; no DOM. tests/couple.test.mjs covers it.
-import { predict, contributions, explainTree } from './engine.js';
+import { predict, contributions, explainTree, oodScore } from './engine.js';
+import { personRow, familyIncome, supportIssues as personIssues } from './individuals.js';
 
 export const SCHOOL = ['<12 years', '12 years', '13–15 years', '16–17 years', '18+ years'];
 export const DEGREE = ['Less than high school', 'High school', 'Some college', 'Associate', 'Bachelor', 'Master', 'PhD', 'Professional'];
@@ -192,14 +193,19 @@ const NSFG2002 = {
     if (r.husband_age_at_marriage < s.husband_age_at_marriage[0] || r.husband_age_at_marriage > s.husband_age_at_marriage[1]) out.push(`The husband’s age on the wedding day (${r.husband_age_at_marriage.toFixed(0)}) is outside the ${s.husband_age_at_marriage[0]}–${s.husband_age_at_marriage[1]} in the data.`);
     if (!r.wife_race_ethnicity) out.push('This lens needs the wife’s race-ethnicity: the model has no “unknown” group for it, and guessing would change the number.');
     if (!r.wife_intact_family) out.push('This lens needs to know whether the wife lived with both parents until 18: the model has no “unknown” group for it.');
+    const o = typicality(bundle, a, b, couple);
+    if (!out.length && o && o.abstain) out.push(`This couple is more unusual than ${o.percentile.toFixed(2)}% of the surveyed marriages (distance from the training data, above the ${bundle.ood.abstain_above_percentile}th-percentile line), so the lens abstains.`);
     return out;
   },
   notes(bundle, a, b, couple) {
     const cy = Number.isFinite(num(couple.currentYear)) ? num(couple.currentYear) : new Date().getUTCFullYear();
     const wy = cy - (num(couple.yearsMarried) || 0);
-    return wy > bundle.support.wedding_year[1]
+    const out = wy > bundle.support.wedding_year[1]
       ? [`Wedding year ${wy} is after the latest in the data, so the models score it as a ${bundle.support.wedding_year[1]} wedding; newer marriages may differ.`]
       : [];
+    const o = typicality(bundle, a, b, couple);
+    if (o) out.push(`Typicality: this couple is more unusual than ${o.percentile.toFixed(0)}% of the surveyed marriages (the lens abstains above ${bundle.ood.abstain_above_percentile}%).`);
+    return out;
   },
   changes(who, person, other) {
     // Only the husband's history and the wife's family of origin enter this model, and
@@ -228,11 +234,93 @@ const NSFG2002 = {
   partnerKey: (p) => `${p.age}|${p.priorMarriage}|${p.priorChildren}`,
 };
 
-export const ADAPTERS = { nlsy79_couples: NLSY79, nsfg2002_first_marriage: NSFG2002 };
+// NLSY79 individual models: each partner scored from their own traits only (the spouse's
+// traits are not inputs), using individuals.js's row mapping; the couple rate averages the two.
+const IND_DEGREES = [['High school', '12 years'], ['Some college', '13–15 years'], ['Bachelor', '16–17 years'], ['Master', '18+ years']];
+const NLSY79_IND = {
+  id: 'nlsy79_individuals',
+  rowLabels: ['You, from your own traits only', 'Your partner, from their own traits only'],
+  outcome: 'Divorce here means legal divorce. Each partner is scored from their own traits only, and the two rates are averaged.',
+  ageNote: 'Partner age enters these models as that person’s own age, and older people divorced less in these data; it is not evidence of an ideal age gap.',
+  searchText: 'Searches partner age (±6 years), degree and work hours, holding everything else fixed. In this lens a partner’s traits only enter through their own rate.',
+  uses: 'each partner’s own age, age at first marriage, sex, degree (graduate degrees pooled), work hours and religious attendance, plus family income',
+  rows: (bundle, a, b, couple, k) => {
+    const inc = familyIncome(a, b, couple);
+    return [personRow(bundle, a, inc, k), personRow(bundle, b, inc, k)];
+  },
+  issues: (bundle, a, b, couple, k) => NLSY79_IND.rows(bundle, a, b, couple, k).flatMap((r) => personIssues(bundle, r)),
+  refuse: (bundle, a, b) => unsupported(a, b).map((x) => x.replace('in the NLSY79', 'in this lens')),
+  notes: () => [],
+  changes(who, person) {
+    const out = [];
+    for (const w of WORK) if (w !== person.work) out.push({ label: `Work hours: ${w}`, [who]: { work: w } });
+    for (const r of RELIGION) if (r !== person.religion) out.push({ label: `Religious attendance: ${r}`, [who]: { religion: r } });
+    const order = ['Less than high school', 'High school', 'Some college', 'Associate', 'Bachelor', 'Master'];
+    const cur = order.indexOf(['PhD', 'Professional'].includes(person.degree) ? 'Master' : person.degree);
+    for (const d of order.slice(Math.max(cur + 1, 0))) out.push({ label: d === 'Master' ? 'Complete a graduate degree' : `Complete a ${d.toLowerCase()} degree`, [who]: { degree: d } });
+    return out;
+  },
+  coupleChanges(couple, a, b) {
+    const inc = familyIncome(a, b, couple);
+    if (!(Number.isFinite(inc) && inc > 0)) return [];
+    return [
+      { label: 'Family income +25%', couple: { familyIncome: Math.round(inc * 1.25) } },
+      { label: 'Family income −25%', couple: { familyIncome: Math.round(inc * 0.75) } },
+    ];
+  },
+  partnerGrid(me, template) {
+    const out = [];
+    for (let gap = -6; gap <= 6; gap += 3) {
+      for (const [degree, school] of IND_DEGREES) for (const work of WORK) out.push({ ...template, age: num(me.age) + gap, degree, school, work });
+    }
+    return out;
+  },
+  describePartner: (p) => `age ${p.age}, ${p.degree.toLowerCase()}, ${p.work.toLowerCase()}`,
+  partnerKey: (p) => `${p.age}|${p.degree}|${p.work}`,
+};
+
+// The NSFG classical-family bundle (workstream B) shares the first-marriage bundle's data,
+// inputs, folds and target, so it uses the same adapter.
+export const ADAPTERS = { nlsy79_couples: NLSY79, nsfg2002_first_marriage: NSFG2002, nsfg2002_family: NSFG2002, nlsy79_individuals: NLSY79_IND };
+
+// Distance of the couple's fixed inputs from the training people (engine.oodScore), when
+// the bundle ships an `ood` spec; null otherwise.
+// Bundles of the same survey, inputs and folds share one out-of-distribution spec: give it to
+// every NSFG-adapter bundle that lacks one (returns the bundles, changed in place).
+export function shareOod(bundles) {
+  const spec = bundles.find((b) => adapterFor(b) === NSFG2002 && b.ood)?.ood;
+  if (spec) for (const b of bundles) if (adapterFor(b) === NSFG2002 && !b.ood) b.ood = spec;
+  return bundles;
+}
+
+export function typicality(bundle, a, b, couple) {
+  if (!bundle.ood) return null;
+  return oodScore(bundle.ood, nsfgRow(bundle, a, b, couple, 0));
+}
+
+// A bundle with several training populations (nlsy79_individuals) is viewed through one of
+// them, so every lens has top-level models, support, training and constant_rate. The app uses
+// the currently-married population: it is the one that matches an intact couple. (The
+// including-separated population scores far better held out, but only because people already
+// separated are about to divorce.)
+export const LENS_POPULATION = { nlsy79_individuals: 'currently_married_only' };
+export function lensView(bundle) {
+  if (!Array.isArray(bundle.populations) || Array.isArray(bundle.models)) return bundle;
+  const key = LENS_POPULATION[bundle.id] || bundle.populations[0].key;
+  const pop = bundle.populations.find((p) => p.key === key) || bundle.populations[0];
+  return { ...bundle, population_key: pop.key, population_label: pop.label, models: pop.models, support: pop.support, training: pop.training, constant_rate: pop.constant_rate, categories: pop.categories };
+}
 
 // A baseline model ignores the couple (e.g. a duration-only curve). It is shown as a
 // reference, like the constant rate, and kept out of averages, ranges and agreement counts.
-export const isBaseline = (m) => m.baseline === true || m.key === 'duration_only';
+// Naive Bayes is kept out for the same reason as a baseline: on held-out people it predicted
+// 173 dissolutions per 1,000 marriage-years in the riskiest tenth against 91 observed.
+export function excludeReason(m) {
+  if (m.baseline === true || m.key === 'duration_only') return 'baseline, ignores the couple; not averaged';
+  if (m.kind === 'naive_bayes') return 'overconfident at the top on held-out people (173 predicted vs 91 observed per 1,000 in the riskiest tenth); not averaged';
+  return null;
+}
+export const isBaseline = (m) => excludeReason(m) !== null;
 export const scoringModels = (bundle) => bundle.models.filter((m) => !isBaseline(m));
 export const adapterFor = (bundle) => ADAPTERS[bundle.adapter || bundle.id] || NLSY79;
 
@@ -297,7 +385,8 @@ export function explain(bundle, model, a, b, couple, years = 0) {
   for (const k of new Set(cs.flatMap((c) => Object.keys(c.terms)))) {
     terms[k] = cs.reduce((s, c) => s + (c.terms[k] || 0), 0) / cs.length;
   }
-  return { intercept: cs[0].intercept, terms };
+  // scale: log_rate (GLMs, boosting), hazard_log_odds (logistic hazard, naive Bayes) or rate (forest).
+  return { intercept: cs[0].intercept, terms, scale: cs[0].scale || 'log_rate' };
 }
 
 // Group raw model columns into what a person would recognise.
@@ -335,6 +424,11 @@ export const TERM_LABELS = {
   wife_race_ethnicity: 'Wife’s race-ethnicity',
   same_race_ethnicity: 'Same race-ethnicity',
   wife_intact_family: 'Wife grew up with both parents',
+  income_quartile: 'Family income',
+  education_model: 'Own highest degree',
+  religion_2000: 'Own religious attendance (as reported in 2000)',
+  start_wave: 'Survey year',
+  baseline_status: 'Already separated',
 };
 
 export function groupedTerms(terms) {
@@ -442,7 +536,8 @@ export function idealPartners(bundle, me, partnerTemplate, couple, { n = 10, top
 // with its population, target and skill, but gives no number.
 export const FORM_ADAPTERS = Object.keys(ADAPTERS);
 
-export function lensSummary(bundle, entry = {}) {
+export function lensSummary(raw, entry = {}) {
+  const bundle = lensView(raw);
   const metrics = (bundle.models || []).map((m) => ({ key: m.key, label: m.label, ...(m.heldout || {}) }));
   const dev = metrics.filter((m) => Number.isFinite(m.deviance_improvement_percent));
   const best = dev.length ? dev.reduce((x, y) => (y.deviance_improvement_percent > x.deviance_improvement_percent ? y : x)) : null;
@@ -450,7 +545,7 @@ export function lensSummary(bundle, entry = {}) {
   return {
     id: bundle.id || entry.file,
     label: entry.label || bundle.label || bundle.id,
-    population: bundle.source || bundle.population || 'not stated',
+    population: (bundle.source || bundle.population || 'not stated') + (bundle.population_label ? `; population used here: ${bundle.population_label.toLowerCase()}` : ''),
     target: bundle.target || 'not stated',
     training: bundle.training || {},
     models: metrics.length,

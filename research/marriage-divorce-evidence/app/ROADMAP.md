@@ -110,12 +110,43 @@ Remains:
 
 ### C. App and write-up (owns `index.html`, `app.js`, `couple.js`, `style.css`, `../README.md`, `../LOG.md` headline)
 
-- Dataset/lens selector; show each lens's population, target and held-out skill.
-- "Lifelong" estimate with competing mortality from an official life table (SSA or CDC/NCHS)
-  once one is sourced; until then the app says mortality is not modelled.
-- Shareable scenarios via the URL hash (no server; nothing stored).
-- Partner-profile and self-change search: constrain to realistic changes, show uncertainty
-  and model agreement, never present a single "ideal" person.
-- Accessibility, phone layout, SEO (title, description, JSON-LD, links from the research
-  page and README).
-- A research write-up section in `../README.md` summarising what each dataset adds.
+Done (2026-10-19/20, PRs #8537, #8556 and the round-3 PR):
+
+- Lens selector over every bundle in `models/index.json`, showing population, target, training
+  size and best held-out gain. A test fails if a bundle is missing from the manifest.
+- Per-lens adapters in `couple.js`, so one projection, explanation, what-if and partner-search
+  path serves every lens. Three lenses are scorable: NLSY79 couples, NLSY79 individuals (parity
+  with `individuals.js` to 1e-15), NSFG 2002 first marriages, and B's NSFG classical family
+  through the same adapter. Baseline models (duration-only) and naive Bayes (overconfident)
+  are shown with the reason but kept out of averages. Explanations use each model's own scale.
+- Abstention on unusual couples: B's `oodScore()` runs before any NSFG number, the page
+  shows the couple's typicality percentile, and it refuses above the 99th.
+- Refusals with reasons (same-sex couples; for NSFG a previously married wife, wedding ages
+  outside the data, missing required inputs), and links to a lens that can score the couple
+  inside its data. An "every lens, side by side" table, never pooled.
+- Shareable scenarios in the URL fragment, decoded against a whitelist.
+- Self-change, couple-level (cohabitation, wedding timing, family income) and partner-profile
+  searches. Each shows the model range, direction agreement, ties with the top profile and each
+  model's own top pick; the app never presents a single ideal partner.
+- Phone layout (390px) and dark mode with no horizontal scroll; focus outlines; titles, meta and
+  share-card descriptions within the 160-character budget; JSON-LD; links between the app, the
+  project README and the research page.
+
+Remaining:
+
+- Lifelong estimate with competing mortality: SSA, CDC/NCHS and mortality.org were unreachable
+  (HTTP 000) on every check on 2026-10-19/20. The app keeps the "mortality not modelled" label.
+  Once a life table is reachable, multiply each year's no-divorce chance by both partners' joint
+  survival, and test that it reduces to today's numbers when mortality is zero.
+- Fair's affairs lenses are listed but not scored. Their outcome is a reported affair, not
+  divorce, and they need marriage-rating, religiousness and occupation inputs. If added, they
+  belong in a separate "relationship quality" panel, not the divorce chart.
+- Explanations for two-perspective lenses average the per-input log contributions of the two
+  rows. That is exact for each row but only approximate for the averaged rate; show per-partner
+  bars instead.
+- Calibration plots and bootstrap intervals once workstream B ships them per bundle. Today's
+  uncertainty is the spread across models only.
+- Out-of-distribution abstention for the NLSY79 lenses, once B can compute a spec (the
+  person-level extracts are not in git); today they use per-input range checks only.
+- A screen-reader pass with a real assistive technology. Only keyboard focus and contrast have
+  been checked.

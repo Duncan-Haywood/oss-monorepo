@@ -6,7 +6,14 @@
 
 **Live page:** https://marriage-divorce-evidence.duncan1921.chatgpt.site/?view=1
 
-**Try it:** the [divorce odds calculator for couples](app/) ([live](https://duncan-haywood.github.io/monorepo-projects/research/marriage-divorce-evidence/app/)) runs these models in your browser: enter two profiles to see year-by-year divorce odds, the chance of no divorce by year 40, per-input explanations, model agreement and which changes the models link to lower risk. Scenarios can be shared as a link; the profiles stay in the link's `#` fragment and are never sent to a server.
+**Try it:** the [divorce odds calculator for couples](app/) ([live](https://duncan-haywood.github.io/monorepo-projects/research/marriage-divorce-evidence/app/)) runs these models in your browser. Enter two profiles to see:
+
+- year-by-year divorce odds and the chance of no divorce by year 40, from four evidence lenses side by side (two datasets each seen through two model families);
+- per-input explanations;
+- how much the models agree;
+- which changes the models link to lower risk.
+
+A couple a lens cannot speak to gets no number from it. Scenarios can be shared as a link; the profiles stay in the link's `#` fragment and are never sent to a server.
 
 ## What the calculator uses (evidence lenses)
 
@@ -15,14 +22,20 @@ The app treats each dataset as its own **evidence lens** with its own population
 | Lens | Population | Outcome predicted | Data | Models | Best held-out gain vs a constant rate |
 | --- | --- | --- | --- | --- | --- |
 | NLSY79 married couples | U.S., born 1957–64, married, observed 2000–2022 | Annual legal-divorce rate | 40,818 two-year intervals, 5,735 people, 726 divorces | 2 additive Poisson GLMs, 1 spline + pair-interaction GLM, 2 Poisson trees | 3.4% (additive enriched); others 2.3–3.1% |
+| NLSY79 married individuals | Same cohort, currently married (not separated) | Annual legal-divorce rate from one person's own traits | 42,259 intervals, 5,899 people, 854 divorces | additive and spline additive Poisson GLMs, 2 Poisson trees | 1.9% (additive; 95% CI 1.2–2.7%); trees 0.4–0.7% |
 | NSFG 2002 first marriages | U.S. women 15–44 in 2002–03, first marriages from the wedding day | Annual rate of first-marriage dissolution (divorce, annulment or separation) | 32,460 marriage-years, 4,126 women, 1,492 dissolutions | additive spline Poisson GLM, depth-3 Poisson tree, duration-only baseline | 3.0% (additive spline); tree 0.9%; baseline 0.4% |
+| NSFG 2002 classical family | Same data, inputs and folds as the row above | Same | Same | discrete-time logistic hazard, random forest (40 trees), Poisson gradient boosting (60 trees); naive Bayes shown but not averaged (overconfident) | 3.0% (logistic hazard); boosting 2.6%; forest 2.3%; naive Bayes 0.2% |
+| Fair's affairs surveys (listed only) | *Redbook* 1974 (6,366 married women) and *Psychology Today* 1969 (601 people) | Reported extramarital affair, not divorce | cross-sectional | logistic models | shown in the app's lens list; not scored, because the outcome is not divorce and the form does not ask for marriage ratings |
 
 What each lens adds:
 
-- **NLSY79** adds both spouses' schooling, degree, wages, work hours and earnings roles, own religious attendance, marriage order and duration. It cannot say anything reliable about couples under 35.
-- **NSFG 2002** covers what NLSY79 cannot: young couples and newly-weds, counted from the wedding day (wives married at 15–39, marriages up to 24 years). It adds ages on the wedding day, living together first, the husband's earlier marriage and children, race-ethnicity and the wife's family of origin. It knows nothing about income or schooling. It covers only a woman's first marriage, so a previously married wife gets no number. Weddings after 2002 are scored as 2002 weddings, and the app says so.
+- **NLSY79 individuals** scores each partner from their own traits only, so the spouse's traits never enter, and averages the two rates. It is a second, independently fitted view of the same outcome. The app uses its currently-married population. The population that includes already-separated people scores 12.6% held out, but only because separated people are about to divorce.
+- **NLSY79 couples** adds both spouses' schooling, degree, wages, work hours and earnings roles, own religious attendance, marriage order and duration. It cannot say anything reliable about couples under 35.
+- **NSFG 2002** (two lenses: A's additive spline and tree, and B's classical family) covers what NLSY79 cannot: young couples and newly-weds, counted from the wedding day (wives married at 15–39, marriages up to 24 years). It adds ages on the wedding day, living together first, the husband's earlier marriage and children, race-ethnicity and the wife's family of origin. It knows nothing about income or schooling. It covers only a woman's first marriage, so a previously married wife gets no number. Both NSFG lenses also abstain when the couple's inputs taken together are more unusual than 99% of the surveyed marriages (B's Mahalanobis distance score; a 17-year-old bride and 50-year-old groom score 99.0, a 27/29 couple 21). Each input can still be inside its own range when this happens. Weddings after 2002 are scored as 2002 weddings, and the app says so.
 
-Neither lens covers same-sex couples, relationship quality or wealth. The two targets differ (legal divorce at ages 35–64 versus any break-up of a first marriage from the wedding day), so the app shows them side by side and never pools them. More lenses (HCMST, GSS, small relationship-attitude datasets) are planned in [`app/ROADMAP.md`](app/ROADMAP.md).
+No lens covers same-sex couples, relationship quality or wealth. The targets differ (legal divorce at ages 35–64 versus any break-up of a first marriage from the wedding day), so the app shows them side by side and never pools them.
+
+**Why the side-by-side view matters.** For the 27/29 couple below, both NLSY79 lenses extrapolate below their trained age of 35. They give 86.1% (couples) and 86.0% (individuals) no divorce by year 10. NSFG, inside its data, gives 74.8% (A's models) and 78.6% (B's family, models 75.8–82.2%). Part of the gap is the different outcome, which includes separation. Part is what extrapolation hides. For the default 36/38 couple, both NLSY79 lenses are inside their data and close: 88.6% (couples, models 84.9–92.4%) and 89.6% (individuals, 88.8–90.6%). More lenses (HCMST, GSS, small relationship-attitude datasets) are planned in [`app/ROADMAP.md`](app/ROADMAP.md).
 
 **A young couple on the NSFG lens.** Take a woman of 27 and a man of 29, both White, marrying now after living together, where she grew up with both parents and he has no earlier marriage or children. The two models give 74.8% no break-up by year 10 (range 74.2–75.4%). The survey's own weighted Kaplan–Meier curve, with no model, shows 63.8% of all first marriages intact at 10 years and 70.9% where the wife married at 25–29. Two of the couple-level what-ifs move the additive model up: not living together first (+4.3 points) and marrying five years later (+3.8). The tree does not split on either, so the average is about +2 and only 1 of 2 models agrees. These are associations; couples who cohabit or marry young differ in ways the survey does not measure.
 

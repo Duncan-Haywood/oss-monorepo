@@ -1,7 +1,8 @@
 // Lens manifest, lens summaries, shareable-scenario encoding and suggestion uncertainty.
 import { readFileSync, readdirSync } from 'node:fs';
 import { strict as assert } from 'node:assert';
-import { lensSummary, encodeScenario, decodeScenario, selfChanges, idealPartners, explain, nsfgRow, refusals, lensNotes, project as proj2, coupleChanges, scoringModels, isBaseline, coupleRate, adapterFor } from '../couple.js';
+import { lensSummary, encodeScenario, decodeScenario, selfChanges, idealPartners, explain, nsfgRow, refusals, lensNotes, project as proj2, coupleChanges, scoringModels, isBaseline, coupleRate, adapterFor, lensView, LENS_POPULATION, excludeReason, shareOod, typicality } from '../couple.js';
+import { project as indProject, personRow } from '../individuals.js';
 import { predict } from '../engine.js';
 
 const dir = new URL('../models/', import.meta.url);
@@ -146,3 +147,75 @@ assert.ok(idealPartners(nsfg, { ...w, age: 21 }, h, c0).considered < 28, 'partne
 const sc = decodeScenario(encodeScenario({ 'a.raceEth': 'Black', 'b.priorChildren': 'Yes', 'a.intactFamily': 'No', cohabitedFirst: 'No', 'a.raceEth2': 'x' }));
 assert.deepEqual(sc, { 'a.raceEth': 'Black', 'b.priorChildren': 'Yes', 'a.intactFamily': 'No', cohabitedFirst: 'No' });
 console.log(`nsfg lens ok; 27/29 couple, cohabited, husband married before with children: ${(100 * pn[9].meanSurvival).toFixed(1)}% no break-up by year 10 (models ${(100 * pn[9].minSurvival).toFixed(1)}–${(100 * pn[9].maxSurvival).toFixed(1)}%)`);
+
+// ---- NLSY79 individuals lens: each partner's own traits, via individuals.js ----
+const indRaw = JSON.parse(readFileSync(new URL('nlsy79_individuals.json', dir)));
+const ind = lensView(indRaw);
+assert.equal(ind.population_key, LENS_POPULATION.nlsy79_individuals);
+assert.equal(ind.population_key, 'currently_married_only');
+assert.ok(Array.isArray(ind.models) && ind.models.length === 4 && ind.constant_rate > 0);
+assert.equal(lensView(bundle), bundle, 'single-population bundles pass through');
+const indSum = lensSummary(indRaw, manifest.lenses.find((l) => l.file === 'nlsy79_individuals.json'));
+assert.equal(indSum.scorable, true);
+assert.equal(indSum.training.events, 854);
+assert.equal(indSum.best.improvement, 1.945); // additive Poisson, currently married, ml_individuals
+assert.ok(indSum.population.includes('currently married'));
+// Parity with workstream B's own projection in individuals.js, model by model and year by year.
+const pi = proj2(ind, a, b, couple, 30);
+const pb = indProject(indRaw, a, b, couple, { horizon: 30 });
+for (let k = 0; k < 30; k++) {
+  for (const m of ind.models) {
+    assert.ok(Math.abs(pi[k].rates[m.key] - pb[k].rates[m.key]) < 1e-15, `rate ${m.key} year ${k}`);
+    assert.ok(Math.abs(pi[k].survival[m.key] - pb[k].survival[m.key]) < 1e-12);
+  }
+  assert.equal(pi[k].inSupport, pb[k].inSupport);
+}
+assert.equal(coupleRate(ind, ind.models[0], a, b, couple, 0), (predict(ind.models[0], personRow(indRaw, a, 110000, 0)) + predict(ind.models[0], personRow(indRaw, b, 110000, 0))) / 2);
+assert.ok(refusals(ind, a, { ...b, sex: 'Man' }, couple).length > 0);
+assert.equal(refusals(ind, a, b, couple).length, 0);
+const ich = selfChanges(ind, 'a', a, b, couple);
+assert.ok(ich.some((o) => o.label === 'Complete a graduate degree'));
+assert.ok(ich.every((o) => o.models === 4));
+const icc = coupleChanges(ind, a, b, couple);
+assert.deepEqual(icc.map((o) => o.label).sort(), ['Family income +25%', 'Family income −25%']);
+const iip = idealPartners(ind, a, b, couple);
+assert.equal(iip.considered, 5 * 4 * 3);
+assert.equal(explain(ind, ind.models.find((m) => m.kind === 'tree'), a, b, couple).tree.length, 2);
+console.log(`individuals lens ok; default test couple ${(100 * pi[9].meanSurvival).toFixed(1)}% no divorce by year 10 (models ${(100 * pi[9].minSurvival).toFixed(1)}–${(100 * pi[9].maxSurvival).toFixed(1)}%); ${iip.tied} of ${iip.considered} partner profiles tie with the top`);
+
+// ---- NSFG classical family (workstream B) through the NSFG adapter, and abstention ----
+const famRaw = JSON.parse(readFileSync(new URL('nsfg2002_family.json', dir)));
+const fam = lensView(famRaw);
+assert.equal(adapterFor(fam).id, 'nsfg2002_first_marriage');
+assert.equal(lensSummary(fam, manifest.lenses.find((l) => l.file === 'nsfg2002_family.json')).scorable, true);
+// Naive Bayes is kept out of averages with a reason; the other three families are averaged.
+assert.deepEqual(scoringModels(fam).map((m) => m.key), ['logistic_hazard', 'random_forest', 'gradient_boosting']);
+assert.ok(excludeReason(fam.models.find((m) => m.kind === 'naive_bayes')).includes('overconfident'));
+assert.equal(excludeReason(scoringModels(fam)[0]), null);
+const pf = proj2(fam, w, h, c0, 10);
+for (const m of scoringModels(fam)) assert.ok(pf[9].survival[m.key] > 0 && pf[9].survival[m.key] < 1);
+// The family and the first-marriage bundle agree to within a few points on the same couple.
+assert.ok(Math.abs(pf[9].meanSurvival - pn[9].meanSurvival) < 0.1);
+// Explanations carry each model's scale.
+assert.equal(explain(fam, fam.models.find((m) => m.kind === 'forest'), w, h, c0).scale, 'rate');
+assert.equal(explain(fam, fam.models.find((m) => m.kind === 'logistic_hazard'), w, h, c0).scale, 'hazard_log_odds');
+assert.equal(explain(nsfg, m0, w, h, c0).scale, 'log_rate');
+
+// Abstention: B's out-of-distribution percentile, shared with the first-marriage bundle.
+const shared = shareOod([{ ...nsfg }, fam, { ...bundle }]);
+assert.equal(shared[0].ood, fam.ood, 'first-marriage bundle borrows the family OOD spec');
+assert.equal(shared[2].ood, undefined, 'NLSY79 bundles do not');
+const nsfgO = shared[0];
+const typical = typicality(nsfgO, w, h, c0);
+assert.ok(typical.percentile < 99 && !typical.abstain);
+assert.ok(lensNotes(nsfgO, w, h, c0).some((n) => n.startsWith('Typicality')));
+assert.equal(refusals(nsfgO, w, h, c0).length, 0);
+// A wife of 17 and husband of 50 on the wedding day are each inside the per-input ranges,
+// but together unusual enough that the lens abstains.
+const odd = [{ ...w, age: 17 }, { ...h, age: 50 }];
+assert.equal(refusals(nsfg, ...odd, c0).length, 0, 'range checks alone accept it');
+const t2 = typicality(nsfgO, ...odd, c0);
+assert.ok(t2.abstain, `percentile ${t2.percentile}`);
+assert.ok(refusals(nsfgO, ...odd, c0).some((x) => x.includes('abstains')));
+assert.equal(typicality(bundle, a, b, couple), null);
+console.log(`nsfg family ok: ${(100 * pf[9].meanSurvival).toFixed(1)}% vs ${(100 * pn[9].meanSurvival).toFixed(1)}% (first-marriage bundle) by year 10; typical couple at the ${typical.percentile.toFixed(0)}th percentile, 17/50 at the ${t2.percentile.toFixed(1)}th (abstains)`);

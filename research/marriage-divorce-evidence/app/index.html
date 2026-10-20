@@ -17,7 +17,7 @@
 <header class="wrap">
   <p class="crumb"><a href="../">Marriage &amp; divorce research</a> · <a href="../../">Research home</a></p>
   <h1>Divorce odds calculator for couples</h1>
-  <p class="lede">Enter two profiles to see what explainable machine-learning models, trained on U.S. survey data, estimate for your odds of divorce in each year of marriage — and which changes they associate with lower risk. Two evidence lenses: NLSY79 married couples (ages 35–64) and NSFG 2002 first marriages counted from the wedding day (wives married at 15–39). Everything runs in your browser; nothing you type is sent anywhere.</p>
+  <p class="lede">Enter two profiles to see what explainable machine-learning models, trained on U.S. survey data, estimate for your odds of divorce in each year of marriage — and which changes they associate with lower risk. Four evidence lenses, shown side by side: NLSY79 married couples and NLSY79 individuals (ages 35–64), and two model families on NSFG 2002 first marriages counted from the wedding day (wives married at 15–39). Everything runs in your browser; nothing you type is sent anywhere.</p>
   <p class="warn" role="note"><strong>Read this first.</strong> These are statistical associations in past U.S. surveys (NLSY79: people born 1957–1964, observed 2000–2022; NSFG: first marriages begun up to 2002), not a forecast for you and not causes. The best models beat a flat average rate by only about 3% on held-out people. Relationship quality, conflict, fidelity and commitment — which matter a great deal — are not in the data. Use it to explore the evidence, not to choose or judge a partner.</p>
 </header>
 
@@ -52,6 +52,11 @@
   <p class="sub">Average of the lens’s models; the range shows how much they disagree. Assumes both partners live through each year (mortality is not modelled). <span id="outcomeNote"></span></p>
   <div id="tiles" class="tiles"></div>
   <p id="support" class="support"></p>
+  <details id="compareBox" open>
+    <summary>Every lens, side by side</summary>
+    <p class="sub">The same couple through each dataset that can score them. The outcomes differ (legal divorce at ages 35–64 versus any break-up of a first marriage from the wedding day), so read the rows next to each other, never as one number.</p>
+    <div class="table-wrap"><table id="compareTable"></table></div>
+  </details>
 
   <figure class="chart-card">
     <figcaption><strong>Still married (no divorce), by year of marriage</strong></figcaption>
@@ -91,7 +96,8 @@
   <h2>How it works and what it cannot tell you</h2>
   <ul>
     <li><strong>NLSY79 lens.</strong> National Longitudinal Survey of Youth 1979 (U.S. Bureau of Labor Statistics): 40,818 two-year intervals from 5,735 married respondents and 726 legal divorces, survey-weighted. Respondents were 35–64; marriages up to 49 years long. Two additive Poisson regressions, a spline model with schooling-pair and earnings-role interactions, and two shallow Poisson decision trees.</li>
-    <li><strong>NSFG 2002 lens.</strong> National Survey of Family Growth, Cycle 6 (NCHS): 4,126 women’s first marriages followed from the wedding day, 1,492 ending in divorce, annulment or separation, 30,341 person-years. An additive spline Poisson model and a depth-3 Poisson tree, with a duration-only curve as the baseline. It covers newly-weds and young couples; it knows nothing about income or schooling.</li>
+    <li><strong>NLSY79 individuals lens.</strong> The same survey, but each partner is scored from their own traits only (age, age at first marriage, sex, degree, work hours, religious attendance, family income) and the two rates are averaged: 42,259 intervals, 5,899 currently married people, 854 divorces. Additive and spline Poisson models and two Poisson trees; the best beats a flat rate by 1.9% held out.</li>
+    <li><strong>NSFG 2002 lens.</strong> National Survey of Family Growth, Cycle 6 (NCHS): 4,126 women’s first marriages followed from the wedding day, 1,492 ending in divorce, annulment or separation, 30,341 person-years. An additive spline Poisson model and a depth-3 Poisson tree, with a duration-only curve as the baseline; a second lens runs a discrete-time logistic hazard, a random forest and gradient boosting on the same data (naive Bayes is shown but not averaged: it is overconfident at the top). It covers newly-weds and young couples; it knows nothing about income or schooling. A couple whose combination of inputs is more unusual than 99% of the surveyed marriages (distance from the training data) gets no number.</li>
     <li><strong>Exact in the browser.</strong> Every model was trained in scikit-learn, exported to JSON and runs here in a small JavaScript engine that reproduces scikit-learn’s predictions to 10<sup>−9</sup> (tested).</li>
     <li><strong>Per year.</strong> Each model gives an annual divorce <em>rate</em> for the couple at each marriage year (ages and duration advance; everything else stays as entered). A year’s divorce probability is 1 − e<sup>−rate</sup>, and the chance of still being married multiplies those years together.</li>
     <li><strong>Couple.</strong> Each survey interviewed one spouse. The NLSY79 lens scores the couple from both partners’ points of view and averages them; the NSFG lens uses the wife’s report, as the survey did. Same-sex couples were not in either survey, so the app shows no number for them rather than guessing.</li>

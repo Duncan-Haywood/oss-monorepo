@@ -36,8 +36,10 @@ browser.
   line.
 - **Adapters.** `couple.js` has one adapter per lens: it maps the form onto that bundle's
   rows, lists the perspectives averaged, the refusals, the what-ifs and the partner search
-  grid. NLSY79 averages both partners as survey respondent; NSFG 2002 uses the wife's
-  report. A model marked as a baseline (the NSFG duration-only curve) is shown as a reference
+  grid. NLSY79 couples averages both partners as survey respondent; NLSY79 individuals
+  averages each partner's own-trait rate (rows from `individuals.js`, currently-married
+  population via `lensView`); NSFG 2002 uses the wife's report. "Every lens, side by side"
+  shows each scorable lens's 10-year estimate for the same couple, never pooled. A model marked as a baseline (the NSFG duration-only curve) is shown as a reference
   row and kept out of averages, ranges and agreement counts. A couple a lens cannot speak to
   gets no number from that lens and a link to any lens that can.
 - **Shareable scenarios.** Every input (and the lens) is mirrored into the URL fragment, e.g.
