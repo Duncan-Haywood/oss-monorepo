@@ -208,7 +208,17 @@ export function linkSiblings(html, posts) {
   return out;
 }
 
-export function renderPost(post, posts, { baseUrl = '', socialCard = '' } = {}) {
+/**
+ * Links a post writes against the default published origin (to a live tool,
+ * say) point at the origin this build serves instead, so a build under a
+ * custom domain does not send readers, or crawlers, back to the old one.
+ */
+export function rebase(html, from, to) {
+  if (!from || !to || from === to) return html;
+  return html.split(`href="${esc(from)}`).join(`href="${esc(to)}`);
+}
+
+export function renderPost(post, posts, { baseUrl = '', socialCard = '', defaultBase = '' } = {}) {
   const canonical = baseUrl ? `${baseUrl}${WRITING_PATH}${post.slug}/` : '';
   const others = posts.filter((p) => p.slug !== post.slug).slice(0, 5);
   const tags = post.tags.map((t) => `<span class="tag">${esc(t)}</span>`).join('');
@@ -235,7 +245,7 @@ export function renderPost(post, posts, { baseUrl = '', socialCard = '' } = {}) 
 <p class="dek">${esc(post.description)}</p>
 <p class="meta"><time datetime="${post.date}">${longDate(post.date)}</time> · ${post.minutes} min read ·
 <a href="${REPO_BLOB}${esc(post.source)}">Source</a>${tags ? `<br>${tags}` : ''}</p>
-${linkSiblings(renderMarkdown(post.body, { fromPath: post.source, dropTitle: true }), posts)}
+${linkSiblings(rebase(renderMarkdown(post.body, { fromPath: post.source, dropTitle: true }), defaultBase, baseUrl), posts)}
 </article>
 <section class="more" aria-label="More writing">
 <p><strong>More writing</strong></p>
@@ -272,7 +282,7 @@ ${entries}
 }
 
 /** Write `writing/` into outDir. Returns the posts, so the caller can list them in the sitemap. */
-export async function buildWriting(outDir, baseUrl = '', { root = DEFAULT_ROOT, socialCard = '' } = {}) {
+export async function buildWriting(outDir, baseUrl = '', { root = DEFAULT_ROOT, socialCard = '', defaultBase = '' } = {}) {
   const posts = loadPosts(root);
   const dir = path.join(outDir, WRITING_PATH);
   await fs.mkdir(dir, { recursive: true });
@@ -280,7 +290,7 @@ export async function buildWriting(outDir, baseUrl = '', { root = DEFAULT_ROOT, 
   await fs.writeFile(path.join(dir, 'feed.xml'), renderFeed(posts, { baseUrl }));
   for (const post of posts) {
     await fs.mkdir(path.join(dir, post.slug), { recursive: true });
-    await fs.writeFile(path.join(dir, post.slug, 'index.html'), renderPost(post, posts, { baseUrl, socialCard }));
+    await fs.writeFile(path.join(dir, post.slug, 'index.html'), renderPost(post, posts, { baseUrl, socialCard, defaultBase }));
   }
   return posts;
 }

@@ -19,7 +19,9 @@
   "tool_calls": 35,
   "task": "Item A of pages-build-perf-2026-10-20: share the full build across build.test.mjs",
   "projects": [
-    "platform/pages"
+    "platform/pages",
+    "platform/marketing",
+    "ventures/changepoint-detector"
   ],
   "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/8789",
   "repo": null,
@@ -29,7 +31,7 @@
   "merged": null,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": 0,
+  "tests_added": 1,
   "outcome": "success",
   "errors": [],
   "integrity_issues": [],
@@ -47,10 +49,14 @@
     {
       "file": "docs/posts/2026-10-20-we-almost-rewrote-it-in-rust.md",
       "why": "Edited another session's unmerged post: its literal github.io link failed custom-domain.test.mjs, and the 'done' bar needed the suite green."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "Fixed main's red Pages checks (content from other PRs) in this PR rather than a separate one, because no open PR fixed them and this PR could not go green without them."
     }
   ],
   "goal": null,
-  "notes": "node --test --test-reporter=tap platform/pages/*.test.mjs, same 4-core container, Node v22.22.0. Before: wall 593.2s, 1162 tests, 1161 pass, 1 fail (custom-domain default-origin, from PR 8767's post). After: wall 417.7s, 1162/1162 pass. Per-test duration_ms before -> after: identical-build cache name 196,599 -> 103,176; worker change changes cache name 110,056 -> 26,734; no test payload published 102,301 -> 98,807 (first site() caller, pays the shared build); worker withdrawn (disableWorker, own build kept) 99,513 -> 105,308. Two fixture-dir buildSite calls (/compare/, /guides/) left as is (<1s). No assertion weakened; the identical-build test now also asserts distinct outDirs.",
+  "notes": "node --test --test-reporter=tap platform/pages/*.test.mjs, same 4-core container, Node v22.22.0. Before: wall 593.2s, 1162 tests, 1161 pass, 1 fail (custom-domain default-origin, from PR 8767's post). After: wall 417.7s, 1162/1162 pass. Per-test duration_ms before -> after: identical-build cache name 196,599 -> 103,176; worker change changes cache name 110,056 -> 26,734; no test payload published 102,301 -> 98,807 (first site() caller, pays the shared build); worker withdrawn (disableWorker, own build kept) 99,513 -> 105,308. Two fixture-dir buildSite calls (/compare/, /guides/) left as is (<1s). No assertion weakened; the identical-build test now also asserts distinct outDirs. After merging main (which was red), fixed in this PR: writing.mjs rebase() rewrites DEFAULT_BASE_URL links in posts to the build base (custom-domain.test.mjs; new test in writing.test.mjs); entities.mjs gains rho/lceil/rceil; changepoint-detector FAQ JSON-LD quotes match the page; platform/marketing/regen.mjs re-run (share card, sitemap, catalog). Final, merged tree: pages 1163/1163 in 422.8s; marketing 275/275; changepoint-detector 44/44; writing.test 9/9.",
   "corrections": [],
   "redteam": null,
   "usage": {

@@ -225,3 +225,26 @@ What is left: the two builds that remain are the shared one and the
 `disableWorker` one. Removing either would mean changing `buildSite` itself,
 for example letting a test run the offline step on its own. That is a design
 change, not test plumbing.
+
+### Main was red when this landed; fixed in the same PR
+
+After `main` was merged into this branch, CI on PR #8789 failed on checks that
+also fail on `main` at that point. Neither this change nor PR #8767 caused
+them. No open PR fixed them, so they were fixed here:
+
+- `custom-domain.test.mjs`: the post `2026-10-20-research-algorithms-in-your-browser`
+  links each live tool by its `github.io` address. The writing build now
+  rewrites links that point at `DEFAULT_BASE_URL` to the base it is building
+  for (`rebase` in `writing.mjs`, with a test in `writing.test.mjs`), so any
+  post can link a live tool without breaking a custom-domain build.
+- `entities.test.mjs`: added `&rho;`, `&lceil;` and `&rceil;` to `NAMED_ENTITIES`.
+- `faq-visible.test.mjs`: the `changepoint-detector` FAQ JSON-LD used single
+  quotes where the visible answer uses double quotes. The JSON-LD now matches
+  the page.
+- `platform/marketing` staleness tests: re-ran `node platform/marketing/regen.mjs`
+  (the share card changed with PR #8767's deflate level; the sitemap and
+  catalog changed with the new ventures on `main`).
+
+After those fixes, on the tree with `main` merged in: `node --test
+platform/pages/*.test.mjs` passes 1163/1163 in 422.8s, and `node --test
+"platform/marketing/*.test.mjs"` passes 275/275.

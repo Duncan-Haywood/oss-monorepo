@@ -10709,7 +10709,10 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
 
   // Essays and write-ups from `docs/posts/` (see `writing.mjs`). Indexed, so
   // each post is listed in the hub sitemap below.
-  const posts = await buildWriting(outDir, base, { socialCard: `${base}${SOCIAL_CARD_FILE}` });
+  const posts = await buildWriting(outDir, base, {
+    socialCard: `${base}${SOCIAL_CARD_FILE}`,
+    defaultBase: DEFAULT_BASE_URL,
+  });
 
   // The lab (see `lab.mjs`): contained, `noindex` experiments in what the
   // site can be. Its handoff page reads catalog.json in the browser.

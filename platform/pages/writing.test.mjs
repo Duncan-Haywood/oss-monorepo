@@ -82,6 +82,21 @@ test('a link to a sibling post file becomes a link to its page', async () => {
   assert.match(page, /data-pf-to="hub"/);
 });
 
+test('a link to the default origin points at the origin the site is built for', async () => {
+  const root = repoWith({
+    '2026-10-01-first.md': post('First', '2026-10-01').replace(
+      'Body text',
+      '[Live tool](https://old.example/tools/calc/) and [elsewhere](https://other.example/calc/). Body text',
+    ),
+  });
+  const out = mkdtempSync(path.join(os.tmpdir(), 'writing-rebase-'));
+  await buildWriting(out, BASE, { root, defaultBase: 'https://old.example/tools/' });
+  const page = await fs.readFile(path.join(out, WRITING_PATH, 'first/index.html'), 'utf8');
+  assert.ok(page.includes(`href="${BASE}calc/"`), 'the live-tool link follows the build origin');
+  assert.ok(!page.includes('old.example'), 'nothing names the default origin');
+  assert.ok(page.includes('href="https://other.example/calc/"'), 'other origins are left alone');
+});
+
 test('feed is valid-shaped with no posts', () => {
   assert.match(renderFeed([], { baseUrl: BASE }), /<feed xmlns="http:\/\/www\.w3\.org\/2005\/Atom">/);
 });
