@@ -8,14 +8,14 @@ per model, and the GLM's fitted parameters on fold 0's training set and on all d
 knots, scaler, categories, intercept, coefficients). tests/train.test.mjs compares the JS
 trainer against it.
 
-    python3 research/marriage-divorce-evidence/app/train/sklearn_reference.py   # ~2 minutes
+    python3 research/marriage-divorce-evidence/app/train/tools/sklearn_reference.py   # ~2 minutes
 Needs numpy, pandas, scikit-learn 1.7.2.
 """
 from pathlib import Path
 import gzip, json, sys
 import numpy as np, pandas as pd
 
-HERE = Path(__file__).resolve().parent
+HERE = Path(__file__).resolve().parent.parent          # app/train
 LENS = HERE.parent.parent / 'reproducibility' / 'nsfg_pooled_first_marriage'
 sys.path.insert(0, str(LENS))
 import train_pooled as T  # noqa: E402

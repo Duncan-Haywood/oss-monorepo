@@ -15,14 +15,14 @@ source: statistical reporting and analysis only, no attempt to identify anyone, 
 other data. Written into the file's `licence` field.
 
 Run from the repository root after the lens's `sh download.sh` (raw files in $NSFG_RAW):
-    NSFG_RAW=... python3 research/marriage-divorce-evidence/app/train/build_extract.py
+    NSFG_RAW=... python3 research/marriage-divorce-evidence/app/train/tools/build_extract.py
 Needs numpy, pandas, scikit-learn 1.7.2 (imported by train_pooled.py).
 """
 from pathlib import Path
 import gzip, hashlib, json, sys
 import numpy as np
 
-HERE = Path(__file__).resolve().parent
+HERE = Path(__file__).resolve().parent.parent          # app/train
 LENS = HERE.parent.parent / 'reproducibility' / 'nsfg_pooled_first_marriage'
 sys.path.insert(0, str(LENS))
 import train_pooled as T  # noqa: E402

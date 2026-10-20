@@ -333,7 +333,7 @@ the visitor's own device. No server is involved and nothing has to be installed.
   marriages and 10,529 dissolutions from eight NSFG cycles, one row per marriage. Each row has
   the months to dissolution or interview, the event, the cycle-normalised survey weight, the
   person-held-out fold and the 18 inputs fixed at or before the wedding. It has no cycle, no
-  design variables and nothing measured at interview. `train/build_extract.py` writes it from
+  design variables and nothing measured at interview. `train/tools/build_extract.py` writes it from
   the official CDC files, with the checksums in
   `../reproducibility/nsfg_pooled_first_marriage/SHA256SUMS`. The source files are U.S.
   government works and not under copyright (17 U.S.C. 105). The NCHS data-use terms travel
@@ -357,7 +357,7 @@ the visitor's own device. No server is involved and nothing has to be installed.
 - **Results next to Python.** The panel shows held-out deviance gain, Harrell's C, O/E and
   decile calibration for each model. Beside them it shows the shipped lens's Python numbers and
   scikit-learn 1.7.2 refitted on this exact extract (`train/sklearn_reference.json`, written by
-  `train/sklearn_reference.py`).
+  `train/tools/sklearn_reference.py`).
 
 | Model | Browser (JS) deviance gain, C | scikit-learn on the extract | Shipped lens |
 | --- | --- | --- | --- |

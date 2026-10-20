@@ -1,5 +1,5 @@
 // In-browser trainer (train/fit.js) against scikit-learn 1.7.2 on the same extract and folds
-// (train/sklearn_reference.json, written by train/sklearn_reference.py). Takes ~40 s: it runs
+// (train/sklearn_reference.json, written by train/tools/sklearn_reference.py). Takes ~40 s: it runs
 // the full five-fold comparison, boosting at the Python setting of 250 rounds.
 import { readFileSync } from 'node:fs';
 import { gunzipSync } from 'node:zlib';
