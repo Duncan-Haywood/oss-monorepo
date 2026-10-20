@@ -145,7 +145,7 @@ jobs:
         if: github.event_name != 'pull_request'
         env:
           GITHUB_TOKEN: ${{ github.token }}
-          SITE_URL: ${{ vars.PAGES_BASE_URL || 'https://duncan-haywood.github.io/monorepo-projects/' }}
+          SITE_URL: ${{ vars.PAGES_BASE_URL || format('https://{0}.github.io/{1}/', github.repository_owner, github.event.repository.name) }}
         run: |
           prev="${RUNNER_TEMP}/prev-stats.json"
           curl -fsS --retry 3 "${SITE_URL%/}/dev/stats.json" -o "$prev" || rm -f "$prev"
