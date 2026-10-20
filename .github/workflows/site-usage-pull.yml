@@ -9,7 +9,7 @@ on:
     - cron: '23 5 * * *'
   workflow_dispatch:
 permissions:
-  contents: write
+  contents: read
 concurrency:
   group: site-usage-pull
   cancel-in-progress: false
@@ -17,6 +17,9 @@ jobs:
   pull:
     runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     timeout-minutes: 10
+    # The one job, and it commits the pulled files to main.
+    permissions:
+      contents: write
     steps:
       # The token is not left in .git/config while the pull scripts run; only
       # the push step below sees it.
