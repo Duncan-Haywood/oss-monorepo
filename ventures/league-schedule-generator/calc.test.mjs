@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   applyRainouts, changeNotices, dayLabel, applyPinnedMatches, applyWithdrawals, applyLateTeams, toDay, dayIso, dayOfWeek, parseDate, parseDateList, parseWeekdays, parseTime, parseTeams, parseBlackouts, parseTimes,
-  readSpec, roundRobin, countBreaks, mulberry32, buildSchedule, validateSchedule, teamSchedule, scheduleCsv, standingsCsv, scheduleIcs,
+  readSpec, roundRobin, countBreaks, mulberry32, buildSchedule, validateSchedule, teamSchedule, scheduleCsv, seasonGrid, seasonGridCsv, standingsCsv, scheduleIcs,
   scheduleText, teamMessages, officialMessages, leaguePageHtml, scoreSheetsHtml, parseTimeLimits, parseCourtLimits, parseCourtClosures, parseResults, standings, seedOrder, playoffBracket, doubleEliminationBracket, bracketText, sampleFields, encodeFields, decodeFields,
   weeklyUpdate, splitPools, clubPairsInPools, buildPoolPlay, poolAdvancers, parseOfficials, assignOfficials, validateOfficials, playoffRace, playoffOdds, remainingFixtures, resultsCheck, overdueResults, gamesLeft, scheduleStrength, raceText, restReport, byeReport, homeAwayReport, rematchReport, seasonCost, deadlineCheck, slotFairness, oneDayTimetable, oneDayText, parseGrounds, groundClashes, applyGroundSharing, parseLinkedTeams, linkedClashes, separateLinkedTeams,
 } from "./calc.mjs";
@@ -1980,4 +1980,23 @@ test("oneDayTimetable minRest: every pair meets once, no team twice in a slot, r
   assert.equal(oneDayTimetable(names(5), { double: true, minRest: 1 }).games, 20);
   assert.throws(() => oneDayTimetable(names(4), { minRest: 9 }), /Rest slots/);
   assert.match(oneDayText(oneDayTimetable(names(8), { courts: 2, minRest: 1 })), /Every team rests at least 1 slot/);
+
+test("season grid has one cell per team per round and agrees with the schedule", () => {
+  for (const n of [4, 5, 7]) {
+    const sched = buildSchedule(baseSpec(n, { double: true }));
+    const { header, rows } = seasonGrid(sched);
+    assert.equal(header.length, sched.rounds.length + 1);
+    assert.equal(rows.length, n);
+    sched.rounds.forEach((r, ri) => {
+      for (const m of r.matches) {
+        assert.equal(rows[m.home][ri + 1], `v ${m.awayName}`);
+        assert.equal(rows[m.away][ri + 1], `@ ${m.homeName}`);
+      }
+      if (r.bye !== null && r.bye !== undefined) assert.equal(rows[r.bye][ri + 1], "BYE");
+    });
+    // every team's non-blank cells equal its game count plus byes
+    rows.forEach((row, i) => assert.equal(row.slice(1).filter(Boolean).length, teamSchedule(sched, i).length));
+  }
+  const csv = seasonGridCsv(buildSchedule(baseSpec(4)));
+  assert.equal(csv.split("\r\n")[0].split(",")[0], "Team");
 });
