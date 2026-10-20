@@ -598,11 +598,26 @@ export function explain(bundle, model, a, b, couple, years = 0) {
     terms[k] = cs.reduce((s, c) => s + (c.terms[k] || 0), 0) / cs.length;
   }
   // scale: log_rate (GLMs, boosting), hazard_log_odds (logistic hazard, naive Bayes) or rate (forest).
-  return { intercept: cs[0].intercept, terms, scale: cs[0].scale || 'log_rate' };
+  // `perRow` keeps each perspective's own exact contributions (they reproduce that row's rate);
+  // `terms` averages them, which is only approximate for the averaged rate.
+  return { intercept: cs[0].intercept, terms, scale: cs[0].scale || 'log_rate', perRow: cs.map((c) => ({ intercept: c.intercept, terms: c.terms, scale: c.scale || 'log_rate' })) };
 }
 
 // Group raw model columns into what a person would recognise.
 export const TERM_LABELS = {
+  // The harmonized before-the-wedding lens (scored from each partner's side).
+  respondent_age: 'This partner’s age on the wedding day',
+  spouse_age: 'The other partner’s age on the wedding day',
+  spouse_prior_marriage: 'Other partner married before',
+  respondent_prior_children: 'This partner’s child before the wedding',
+  spouse_prior_children: 'Other partner’s child before the wedding',
+  respondent_race: 'This partner’s race-ethnicity',
+  spouse_race: 'Other partner’s race-ethnicity',
+  same_race: 'Same race-ethnicity',
+  intact_family: 'Grew up with both parents',
+  religion_raised: 'Religion raised in',
+  respondent_sex: 'Sex of the surveyed spouse (survey design)',
+  age_gap: 'Age gap',
   age: 'Age',
   age_missing: 'Age',
   current_marriage_years: 'Years married',
