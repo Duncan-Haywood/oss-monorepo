@@ -71,6 +71,9 @@ class AppTests(unittest.TestCase):
     def test_hcmst_bundle_matches_sklearn(self):
         self.run_node('hcmst.test.mjs')
 
+    def test_hcmst_dating_bundles_match_sklearn(self):
+        self.run_node('hcmst_dating.test.mjs')
+
     def test_lenses_and_scenarios(self):
         self.run_node('lenses.test.mjs')
 
@@ -173,6 +176,24 @@ class RelationshipDatasetTests(unittest.TestCase):
         table = json.loads((APP / 'data' / 'us_mortality_wpp2024.json').read_text())
         self.assertEqual(len(table['mxM']), len(table['years']))
         self.assertEqual(len(table['mxF'][0]), len(table['ages']))
+
+    def test_hcmst_dating_audit_and_incidence(self):
+        import csv, json
+        src = self.SRC / 'hcmst_dating_to_marriage'
+        audit = json.loads((src / 'sample_audit.json').read_text())
+        self.assertEqual(audit['couples_unmarried_2009'], 1081)
+        self.assertEqual(sum(audit['fates'].values()), 1081)
+        self.assertEqual(audit['fates']['married'], audit['marriages'])
+        self.assertEqual(sum(audit['after_marriage'].values()), audit['marriages'])
+        for t in ('marriage', 'breakup'):
+            b = json.loads((APP / 'models' / f'hcmst_dating_{t}.json').read_text())
+            self.assertEqual(b['training']['couple_periods'], audit['couple_periods'])
+            self.assertEqual(b['stage'], 'before the wedding')
+        rows = {r['group']: r for r in csv.DictReader(open(src / 'cumulative_incidence.csv'))}
+        allc = rows['All unmarried couples']
+        self.assertLess(float(allc['married_by_8.4y']) + float(allc['broke_up_by_8.4y']), 1)
+        self.assertGreater(float(rows['relationship_quality: Excellent']['married_by_8.4y']),
+                           float(rows['relationship_quality: Fair']['married_by_8.4y']))
 
     def test_presex_odds_ratios(self):
         import csv
