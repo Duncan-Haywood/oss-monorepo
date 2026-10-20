@@ -55,6 +55,8 @@ What the change does buy:
   failure. It is outside the loop that needs `*.test.mjs` files. The
   workflow fires on any `ventures/**` change, on PRs and on pushes to `main`.
 - The step and its comment were removed from all 281 `<slug>-ci.yml` files.
+  One more copy (`interview-content-studio-ci.yml`) arrived on `main` while
+  this PR was open; it was removed by the same script after merging `main`.
   In `backup-verification-evidence-ci.yml` the lint job's `setup-node` (and
   the comment justifying it) existed only for that step, so they went too.
 - `portfolio-validate.yml` keeps its unscoped run as the portfolio-wide
