@@ -1,0 +1,37 @@
+dataset,predictor,existing_lens_uses,measured_when,source,leaks,note
+canada_gss,marriage_years,yes,after wedding,derived (time since wedding),no,"the time axis of the Poisson model, not a covariate; every model has it"
+canada_gss,age_at_marriage,yes,at wedding,1995 M1AGERES; 2006 AGE_MA0C/AGE_MA1; 2011 AGE_MA0C/AGE_MA1C; 2017 AGEMA0C/AGEMA1C,no,retrospective report of a wedding-day fact
+canada_gss,wedding_year,yes,at wedding,derived: survey mid-year - age at interview + age at marriage,no,fixed fact; uses age at interview only to date the wedding
+canada_gss,respondent_sex,yes,fixed at birth,1995 DVSEX; 2006-2017 SEX,no,
+canada_gss,cohabited_first,yes,before wedding,1995 M1CLRSSP; 2006 MA0_Q150 / AGE_CL_MA1; 2011-2017 MA0/MA1 Q150,no,"pre-wedding fact; in 2006 ended marriages are coded from the presence of AGE_CL_MA1, current ones from MA0_Q150 (wording differs by marriage status)"
+canada_gss,prior_union,yes,before wedding,union rank of the first marriage; fallback to start ages of common-law unions not followed by marriage,no,"the PUMF rank is ""not stated"" when ANY union date is unknown (more common after a dissolution); the lens uses the age fallback so there is no Unknown level"
+canada_gss,premarital_birth,yes,before wedding,1995 child file DVD21; 2006 AGE_CHDBORN_k; 2011 AGE_CHDBORN_kC; 2017 ACHBkC,no,birth child born before the wedding (from dated birth histories); unknown birth age counts as No
+canada_gss,intact_family_15,yes,before wedding,1995 A2/A3; 2006-2011 GU_Q110/120; 2017 GU_110/120,no,childhood living arrangement to age 15
+canada_gss,born_outside_canada,yes,fixed at birth,1995 DVR17; 2006-2011 BRTHREGC; 2017 BRTHCAN,no,
+canada_gss,first_language,yes,before wedding,1995 DVR25; 2006-2011 LANCH; 2017 LANMT,no,language first learned in childhood (2017 mother tongue)
+canada_gss,region,yes,at interview,1995 PROV; 2006-2017 REGION,yes,"region of residence at interview; people move after a separation, so it can postdate and follow the outcome"
+canada_gss,survey_cycle,yes,at interview,cycle of the survey (1995/2006/2011/2017),possible,"not a trait of the couple: a design term that, with wedding year, encodes time to interview and survivor/recall selection; the app fixes it at 2017"
+canada_gss,education_at_interview,no,at interview,1995 DVL30CO; 2006-2011 EDU5; 2017 EHG3_01B,yes,lens sensitivity only; highest level at interview; harmonized education columns are Unknown
+canada_gss,religion_at_interview,no,at interview,1995 DVR27; 2006 RELIG6; 2011 RELIG6C; 2017 RELIGFLG,yes,lens sensitivity only; current affiliation is not religion raised; religion_raised is Unknown
+canada_gss,attendance_at_interview,no,at interview,1995 R28; 2006-2011 RELIGATT; 2017 REE_02,yes,lens sensitivity only; can change with a divorce
+canada_gss,partner_age_gap,no,at wedding,1995 M1ASPDIF; 2011 AGEDIFGR; 2017 AGEMA vs APRMA,possible,lens sensitivity only; a wedding-day fact but missing far more often for dissolved marriages (missingness_by_outcome.csv)
+canada_gss,partner_prev_married,no,before wedding,1995 M1MSSPOU,no,lens 1995-only sensitivity; harmonized as spouse prior marriage for 1995 only
+canada_gss,parents_ever_separated,no,before wedding,1995 DVA75; 2017 APARSEPC/APARDIVC,possible,lens 1995-only sensitivity; 2017 dates of parental separation can fall after the wedding
+canada_gss,harmonized:duration_years,yes,after wedding,"lens t (wedding to separation/divorce, spouse death or interview)",no,outcome; not capped at 30 years here (the lens caps follow-up at 30 when it models)
+canada_gss,harmonized:event,yes,after wedding,lens event,no,outcome
+canada_gss,harmonized:weight,yes,at interview,"WGHTFNL / WGHT_PER, mean 1 within cycle",no,design weight
+canada_gss,harmonized:wedding_year,yes,at wedding,floor of the lens wedding_year,no,can be off by up to one year
+canada_gss,harmonized:respondent_sex,yes,fixed at birth,lens respondent_sex,no,
+canada_gss,harmonized:wife_age,yes,at wedding,respondent: lens age_at_marriage; spouse: 2017 APRMA0C/APRMA1C,possible,"spouse age only in 2017 (APRMA0C/APRMA1C, spouse age at the start of the marriage); blank in 1995/2006/2011 (grouped gap or current marriage only). In 2017 it is missing for 6.8% of dissolved vs 1.5% of intact marriages, so its missingness encodes the outcome; the respondent own age is the lens age_at_marriage"
+canada_gss,harmonized:husband_age,yes,at wedding,respondent: lens age_at_marriage; spouse: 2017 APRMA0C/APRMA1C,possible,"spouse age only in 2017 (APRMA0C/APRMA1C, spouse age at the start of the marriage); blank in 1995/2006/2011 (grouped gap or current marriage only). In 2017 it is missing for 6.8% of dissolved vs 1.5% of intact marriages, so its missingness encodes the outcome; the respondent own age is the lens age_at_marriage"
+canada_gss,harmonized:wife_educ,no,at interview,none dated before the wedding,no,all Unknown: education is measured only at interview
+canada_gss,harmonized:husband_educ,no,at interview,none dated before the wedding,no,all Unknown: education is measured only at interview
+canada_gss,harmonized:wife_prior_marriage,no,before wedding,respondent No by construction; spouse 1995 M1MSSPOU,no,"spouse value known only in 1995 (all first marriages asked; Unknown 0.1% dissolved vs 0.1% intact); 2006/2011 MA0_Q120 asks only current marriages, so Unknown"
+canada_gss,harmonized:husband_prior_marriage,no,before wedding,respondent No by construction; spouse 1995 M1MSSPOU,no,spouse value known only in 1995 (Unknown 0.1% dissolved vs 0.1% intact); other cycles Unknown
+canada_gss,harmonized:wife_prior_children,yes,before wedding,respondent: lens premarital_birth; spouse not asked,no,respondent own birth children; spouse rows Unknown
+canada_gss,harmonized:husband_prior_children,yes,before wedding,respondent: lens premarital_birth; spouse not asked,no,respondent own birth children; spouse rows Unknown
+canada_gss,harmonized:cohabited_first,yes,before wedding,lens cohabited_first,no,see the lens predictor row
+canada_gss,harmonized:wife_race,no,at interview,VISMIN/ETHNIC (not mapped),no,all Unknown: visible-minority status does not map onto the US categories
+canada_gss,harmonized:husband_race,no,at interview,VISMIN/ETHNIC (not mapped),no,all Unknown
+canada_gss,harmonized:intact_family,yes,before wedding,lens intact_family_15,no,"both parents to age 15 (2017 ""mostly"")"
+canada_gss,harmonized:religion_raised,no,before wedding,not asked in any cycle,no,all Unknown; current religion is not used

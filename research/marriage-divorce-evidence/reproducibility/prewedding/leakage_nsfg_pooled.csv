@@ -1,0 +1,37 @@
+dataset,predictor,existing_lens_uses,measured_when,source,leaks,note
+nsfg_pooled,marriage_years,yes,after wedding,derived (time since wedding),no,"the time axis of the Poisson model, not a covariate; every model has it"
+nsfg_pooled,wife_age_at_marriage,yes,at wedding,(MARDAT01-CMBIRTH)/12; FMAR1AGE+0.5; 2015-17 men AGER + imputed wedding month,no,retrospective report of a wedding-day fact (respondent age in the both-sexes model)
+nsfg_pooled,husband_age_at_marriage,yes,at wedding,HXAGEMAR (1995 H1BORN/CHBORN; 2022-23 5-year bands -> mid-points),no,"husband age at the wedding, reported later but fixed. Missing more often for dissolved marriages (women 1995 0.7% vs 8.0%; other cycles 0.2-1.0% vs 0.9-4.4%, printed by --refit), but the lens imputes the training median with no missing indicator, so missingness itself is not a model input"
+nsfg_pooled,wedding_year,yes,at wedding,MARDAT01,no,cohort term
+nsfg_pooled,wife_premarital_sex_years,yes,before wedding,VRY1STAG vs age at marriage,no,"years sexually active before the wedding, floored at 0; first sex after the wedding gives 0, so nothing later enters"
+nsfg_pooled,cohabited_first,yes,before wedding,LVTOGHX (1995 LVTOGH1/LVTOGCH; men PREMARW1),no,lived together before marrying this spouse
+nsfg_pooled,husband_married_before,yes,before wedding,MARBEFHX (1995 H1MARBEF/CHMARBEF),no,whether the first husband had been married before; true on the wedding day
+nsfg_pooled,husband_prior_children,yes,before wedding,KIDSHX,no,"CB-13 ""did he have kids from a prior relationship"" about the first husband; not asked 1995"
+nsfg_pooled,wife_race_ethnicity,yes,fixed at birth,HISPRACE / HISPRACE2,no,
+nsfg_pooled,same_race_ethnicity,yes,fixed at birth,"husband race (HISPHX/RACEHX1, HSBHRACE1, HSBNRACE1, 1995 H1/CH items) vs wife",no,race-ethnicity cannot change; 2022-23 husband race not published
+nsfg_pooled,wife_intact_family,yes,before wedding,INTACT18 (1995 INTCTFAM),no,"birth to 18: for the 5.4% of respondents married before 18 the window runs past the wedding, but it describes the parental household; SPEC defines intact_family as through about 15-18"
+nsfg_pooled,wife_premarital_birth,yes,before wedding,B1PREMAR (1995 BABY1MO < MARDAT01),no,first live birth before the first marriage; the lens maps every non-1 code to No (refused/don't know would be No; none observed: 1/2)
+nsfg_pooled,wife_premarital_partners,yes,before wedding,PTSB4MAR (1995 PTSB4MAL),no,male partners before the first marriage
+nsfg_pooled,wife_ba_by_wedding,yes,before wedding,"CMBAGRAD, EARNBA_Y, WHENEAR1 vs wedding",possible,"year-only cycles (2015+) count a degree in the SAME calendar year as the wedding as by the wedding (267 marriages), so some are after it; separately 887 respondents with a bachelor's at interview but no degree date are coded No (misclassification, not leakage)"
+nsfg_pooled,wife_mother_education,yes,before wedding,EDUCMOM,no,"mother's education, fixed before the wedding"
+nsfg_pooled,wife_mother_age_first_birth,yes,fixed at birth,AGEMOMB1,no,
+nsfg_pooled,wife_religion_raised,yes,before wedding,RELRAISD,no,religion raised in; 2022-23 not asked
+nsfg_pooled,wife_born_outside_us,yes,fixed at birth,BRNOUT,no,
+nsfg_pooled,respondent_sex,yes,fixed at birth,file (women/men),no,both-sexes model only
+nsfg_pooled,education_at_interview (HIEDUC),no,at interview,HIEDUC,yes,the lens excludes it on purpose; here used only as an upper bound for education by the wedding
+nsfg_pooled,harmonized:wife_age,no,at wedding,women: wife_age_at_marriage; men: not harmonised (blank),no,
+nsfg_pooled,harmonized:husband_age,no,at wedding,women: husband_age_at_marriage (2022-23 band mid-points); men: own age at marriage,no,
+nsfg_pooled,harmonized:wife_educ,no,before wedding,women: dated BA/HS items + HIEDUC as upper bound; men: Unknown,possible,"every known level is dated on or before the wedding (same-year and undated degrees -> Unknown; Some college is never datable). But the Unknown level is not uninformative: among respondents it collects those whose INTERVIEW education exceeds what can be dated (college or a BA after the wedding, undated BA), so a model that treats Unknown as its own level reads post-wedding education; treat it as missing (or use it only across datasets where it means the same)"
+nsfg_pooled,harmonized:husband_educ,no,before wedding,men: dated BA/HS items + HIEDUC as upper bound; women: Unknown (husband education undated),possible,as wife_educ
+nsfg_pooled,harmonized:wife_prior_marriage,no,before wedding,women: No by construction; men: Unknown (first wife not harmonised),no,
+nsfg_pooled,harmonized:husband_prior_marriage,no,before wedding,women: MARBEFHX; men: No by construction,no,
+nsfg_pooled,harmonized:wife_prior_children,no,before wedding,"women: B1PREMAR raw codes (1995 BABY1MO vs wedding, same month Unknown); men: Unknown",no,
+nsfg_pooled,harmonized:husband_prior_children,no,before wedding,women: KIDSHX; men: B1PREMAR (first biological child before first marriage),no,
+nsfg_pooled,harmonized:cohabited_first,no,before wedding,LVTOGHX / PREMARW1,no,
+nsfg_pooled,harmonized:wife_race,no,fixed at birth,women: HISPRACE/HISPRACE2; men: Unknown,no,
+nsfg_pooled,harmonized:husband_race,no,fixed at birth,women: husband race items (2022-23 Unknown); men: own HISPRACE/HISPRACE2,no,
+nsfg_pooled,harmonized:intact_family,no,before wedding,INTACT18 / INTCTFAM (respondent),no,see wife_intact_family
+nsfg_pooled,harmonized:religion_raised,no,before wedding,RELRAISD (respondent; 2022-23 Unknown),no,
+nsfg_pooled,harmonized:wedding_year,no,at wedding,MARDAT01,no,
+nsfg_pooled,harmonized:respondent_sex,no,fixed at birth,file,no,
+nsfg_pooled,harmonized:duration_years,no,after wedding,"MAR1DISS (months, mid-month); year-only cycles imputed months",no,"outcome timing, not a predictor"
