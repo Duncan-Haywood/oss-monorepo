@@ -319,6 +319,23 @@ export function validate(input) {
     }
     if (g_ok(qty, unit) && key) { const g = groups.get(key); const dn = discRaw.trim() ? +discRaw.trim().replace(/%$/, "").replace(",", ".") || 0 : 0; g.net += qty * unit * (1 - dn / 100); }
 
+    // Total and TaxAmount, when present, should agree with quantity x unit amount and the tax rate named in TaxType.
+    if (g_ok(qty, unit) && (get(r, "Total").trim() || get(r, "TaxAmount").trim())) {
+      const dn = discRaw.trim() ? +discRaw.trim().replace(/%$/, "").replace(",", ".") || 0 : 0;
+      const net = qty * unit * (1 - dn / 100);
+      const totC = get(r, "Total").trim() ? cleanNumber(get(r, "Total")) : null;
+      const taxC = get(r, "TaxAmount").trim() ? cleanNumber(get(r, "TaxAmount")) : null;
+      const rate = /^(\d+(?:\.\d+)?)%/.exec(get(r, "TaxType").trim());
+      if (totC && !totC.ok) add("error", L, `Total "${get(r, "Total").trim()}" is not a number`, "Total is digits and a decimal point only.");
+      if (taxC && !taxC.ok) add("error", L, `TaxAmount "${get(r, "TaxAmount").trim()}" is not a number`, "TaxAmount is digits and a decimal point only.");
+      if (taxC?.ok && rate && Math.abs(+taxC.value - net * (+rate[1] / 100)) > 0.015) add("warning", L, `TaxAmount ${taxC.value} does not match ${rate[1]}% of ${net.toFixed(2)}`, `Quantity x UnitAmount less discount is ${net.toFixed(2)}, so ${rate[1]}% tax is ${(net * +rate[1] / 100).toFixed(2)}. Xero recalculates tax from the tax rate; a different figure usually means a wrong rate or a pasted total.`);
+      if (totC?.ok) {
+        const exTax = Math.abs(+totC.value - net) <= 0.015;
+        const withTax = taxC?.ok ? Math.abs(+totC.value - (net + +taxC.value)) <= 0.015 : rate ? Math.abs(+totC.value - net * (1 + +rate[1] / 100)) <= 0.015 : false;
+        if (!exTax && !withTax) add("warning", L, `Total ${totC.value} does not match the line amount ${net.toFixed(2)}`, "Total should equal quantity x unit amount less discount (plus tax if your export includes it). A mismatch usually means a stale formula, a rounded unit price or a shifted column.");
+      }
+    }
+
     // identical line repeated
     if (key) {
       const sig = [key, get(r, "Description").trim(), qtyRaw.trim(), unitRaw.trim(), get(r, "AccountCode").trim()].join("|");
