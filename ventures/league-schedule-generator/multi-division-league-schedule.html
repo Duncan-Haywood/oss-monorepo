@@ -84,6 +84,8 @@
     <input id="skip" placeholder="2026-11-26, 2026-12-24 to 2027-01-02">
     <label for="courtClosures">Court closures (optional, one per line)</label>
     <textarea id="courtClosures" rows="2" placeholder="Gym A: 2026-12-03"></textarea>
+    <label for="travel">Travel minutes between venues (optional, one per line)</label>
+    <textarea id="travel" rows="2" placeholder="Park - School: 25"></textarea>
     <h2 style="margin-top:18px">3. Teams that share a coach or players (optional)</h2>
     <label for="links">One group per line, written Division/Team</label>
     <textarea id="links" rows="3" placeholder="U10/Hawks, U12/Hawks"></textarea>
@@ -136,11 +138,11 @@
     import { dayIso } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
     const $ = (s) => document.querySelector(s);
-    const FIELDS = ["divisions", "courts", "times", "start", "weekdays", "skip", "courtClosures", "links"];
+    const FIELDS = ["divisions", "courts", "times", "start", "weekdays", "skip", "courtClosures", "travel", "links"];
     const EXAMPLE = {
       divisions: "U10: Hawks, Owls, Lynx, Otters, Foxes, Wolves\nU12: Hawks, Owls, Lynx, Otters, Foxes, Wolves, Bears, Eagles\nAdult: Rams, Kings, Stars, Comets, Pilots, Bolts (double)",
       courts: "Field 1 @ Park, Field 2 @ Park, Gym A @ School, Gym B @ School", times: "18:00, 19:30", start: "2026-10-06", weekdays: "Tue, Thu",
-      skip: "2026-11-26", courtClosures: "Gym A: 2026-12-03", links: "U10/Hawks, U12/Hawks\nU10/Owls, U12/Owls\nU12/Bears, Adult/Rams"
+      skip: "2026-11-26", courtClosures: "Gym A: 2026-12-03", travel: "Park - School: 25", links: "U10/Hawks, U12/Hawks\nU10/Owls, U12/Owls\nU12/Bears, Adult/Rams"
     };
     const STORE = "league-schedule-generator-divisions";
     let last = null;
@@ -166,7 +168,7 @@
       last = s;
       const st = s.stats;
       status.textContent = "Built.";
-      $("#big").innerHTML = [[st.matches, "matches"], [st.nights, "nights"], [st.trips, "venue changes"], [st.clashes, "linked-team clashes"], [Math.round(st.utilisation * 100) + "%", "court slots used"]]
+      $("#big").innerHTML = [[st.matches, "matches"], [st.nights, "nights"], [st.trips, "venue changes"], ...(st.travelMinutes !== undefined ? [[st.travelMinutes, "minutes of travel"]] : []), [st.clashes, "linked-team clashes"], [Math.round(st.utilisation * 100) + "%", "court slots used"]]
         .map(([n, l]) => `<div><strong>${n}</strong>${l}</div>`).join("");
       $("#notices").innerHTML = s.conflicts.length ? `<div class="warn"><strong>Conflicts that could not be avoided:</strong><ul>${s.conflicts.map((c) => `<li>${esc(c)}</li>`).join("")}</ul></div>` : "";
       $("#check-line").innerHTML = v.ok ? '<span class="pill good">checked</span> Every pair meets the right number of times, home and away is balanced, and no court is booked twice.' : `<span class="pill high">problem</span> ${v.errors.map(esc).join(" ")}`;

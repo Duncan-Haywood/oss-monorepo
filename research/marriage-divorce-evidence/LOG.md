@@ -1,5 +1,13 @@
 # Research log
 
+## 2026-10-20 · Before the wedding, from living together: which NLSY97 couples marry, and which split (6,020 first cohabitations)
+
+- New pre-marriage lens from the NLSY97 public release (`reproducibility/nlsy97_cohabitation_to_marriage/`): every respondent's first cohabiting union (born 1980–84, moved in 1994–2023, never married before), followed in the monthly marital and cohabitation arrays. Of 6,020 couples, 2,109 married each other, 3,481 split first and 430 are censored.
+- Weighted, within 10 years of moving in: 39.1% married the partner and 55.3% split first. With a bachelor's degree or more at move-in, 63.5% married and 29.9% split; with no high-school credential, 21.4% and 74.2%. Moving in before 20: 25.3% married and 72.4% split; at 26–29: 51.9% and 39.1%.
+- Held out by person (5-fold, yearly Poisson hazards): marrying the partner, additive spline 4.9% deviance gain (folds 4.4–5.7%) against 2.8% for years together alone; splitting first, 9.3% (7.6–10.4%) against 4.7%.
+- Leakage caught: the partner section's traits (age, schooling, earlier marriage, children) are recorded in a way that depends on how the union ended. Partner schooling is known for couples who split 87% of the time, against 47% where unknown. They are excluded, which cut the split model's apparent gain from 14.9% to 9.3%.
+- Exported as `app/models/nlsy97_cohab_marriage.json` and `nlsy97_cohab_split.json` (`stage: before`), listed without an adapter. Parity is 300/300 to 10<sup>-9</sup>. ROADMAP A updated: NLSY97 cohabitation done; remaining are Add Health, OSF/Zenodo premarital studies, and PSID / Fragile Families / Understanding Society (403).
+
 ## 2026-10-20 · Browser-trained models: how much your score moves with the training sample
 
 - The profile scorer in "Train the models yourself" now shows two things for each model the visitor trained: its estimate on all 29,202 marriages, and the year-10 range across the five fold models from the held-out test. Each fold model learned from a different four-fifths of the women.

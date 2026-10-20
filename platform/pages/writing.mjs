@@ -36,6 +36,11 @@ export const WRITING_PATH = 'writing/';
 export const POSTS_DIR = 'docs/posts';
 const REPO_BLOB = 'https://github.com/Duncan-Haywood/oss-monorepo/blob/main/';
 const FILE_RE = /^(\d{4}-\d{2}-\d{2})-([a-z0-9][a-z0-9-]*)\.md$/;
+// Posts link live tools by their full Pages URL so the Markdown reads right on
+// GitHub. On the site those links become root-relative, so a build under a
+// custom domain does not point readers (or canonical signals) at the old origin.
+const PUBLISHED_ORIGIN = 'https://duncan-haywood.github.io/monorepo-projects/';
+export const relinkSite = (html, toRoot) => html.split(`href="${PUBLISHED_ORIGIN}`).join(`href="${toRoot}`);
 
 /** Parse the `---` front-matter block. Returns { meta, body }. Only the subset posts use. */
 export function parseFrontMatter(src) {
@@ -208,16 +213,6 @@ export function linkSiblings(html, posts) {
   return out;
 }
 
-// The published catalogue. A post that links a live tool by its full URL gets
-// a page-relative link instead, so a build under another domain (a custom
-// domain, a preview) points at its own copy of the tool, not the default origin.
-export const LIVE_SITE = 'https://duncan-haywood.github.io/monorepo-projects/';
-
-/** Point full links to the live site at the same page relative to a post (two levels below the root). */
-export function linkSite(html) {
-  return html.split(`href="${LIVE_SITE}`).join('href="../../');
-}
-
 export function renderPost(post, posts, { baseUrl = '', socialCard = '' } = {}) {
   const canonical = baseUrl ? `${baseUrl}${WRITING_PATH}${post.slug}/` : '';
   const others = posts.filter((p) => p.slug !== post.slug).slice(0, 5);
@@ -245,7 +240,7 @@ export function renderPost(post, posts, { baseUrl = '', socialCard = '' } = {}) 
 <p class="dek">${esc(post.description)}</p>
 <p class="meta"><time datetime="${post.date}">${longDate(post.date)}</time> · ${post.minutes} min read ·
 <a href="${REPO_BLOB}${esc(post.source)}">Source</a>${tags ? `<br>${tags}` : ''}</p>
-${linkSite(linkSiblings(renderMarkdown(post.body, { fromPath: post.source, dropTitle: true }), posts))}
+${relinkSite(linkSiblings(renderMarkdown(post.body, { fromPath: post.source, dropTitle: true }), posts), '../../')}
 </article>
 <section class="more" aria-label="More writing">
 <p><strong>More writing</strong></p>
@@ -282,15 +277,21 @@ ${entries}
 }
 
 /** Write `writing/` into outDir. Returns the posts, so the caller can list them in the sitemap. */
-export async function buildWriting(outDir, baseUrl = '', { root = DEFAULT_ROOT, socialCard = '' } = {}) {
+// `originAlias` is the site's default address (build.mjs passes its
+// DEFAULT_BASE_URL). A post that links to a tool by its full URL then follows
+// the address the site is actually built for, the way rewriteOrigin in
+// build.mjs treats venture pages. A relative link cannot do this: in a post,
+// relative paths are repository paths and render as GitHub links.
+export async function buildWriting(outDir, baseUrl = '', { root = DEFAULT_ROOT, socialCard = '', originAlias = '' } = {}) {
   const posts = loadPosts(root);
   const dir = path.join(outDir, WRITING_PATH);
+  const rebase = (html) => (originAlias && baseUrl && originAlias !== baseUrl ? html.split(originAlias).join(baseUrl) : html);
   await fs.mkdir(dir, { recursive: true });
-  await fs.writeFile(path.join(dir, 'index.html'), renderIndex(posts, { baseUrl, socialCard }));
-  await fs.writeFile(path.join(dir, 'feed.xml'), renderFeed(posts, { baseUrl }));
+  await fs.writeFile(path.join(dir, 'index.html'), rebase(renderIndex(posts, { baseUrl, socialCard })));
+  await fs.writeFile(path.join(dir, 'feed.xml'), rebase(renderFeed(posts, { baseUrl })));
   for (const post of posts) {
     await fs.mkdir(path.join(dir, post.slug), { recursive: true });
-    await fs.writeFile(path.join(dir, post.slug, 'index.html'), renderPost(post, posts, { baseUrl, socialCard }));
+    await fs.writeFile(path.join(dir, post.slug, 'index.html'), rebase(renderPost(post, posts, { baseUrl, socialCard })));
   }
   return posts;
 }

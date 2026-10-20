@@ -3669,6 +3669,8 @@ const CATEGORY_RULES = [
         'freelance-editor-quote-calculator',
         'gig-driver-net-pay-calculator',
         'influencer-media-kit-generator',
+        // `interview-content-studio` joined 2026-10-20: a creator or small business planning and drafting its own posts across platforms is one person building their own audience, beside the media kit and sponsorship-rate tools.
+        'interview-content-studio',
         'newsletter-sponsorship-rate-calculator',
         'overtime-pay-calculator',
         'personal-trainer-package-pricing-calculator',
@@ -10709,7 +10711,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
 
   // Essays and write-ups from `docs/posts/` (see `writing.mjs`). Indexed, so
   // each post is listed in the hub sitemap below.
-  const posts = await buildWriting(outDir, base, { socialCard: `${base}${SOCIAL_CARD_FILE}` });
+  const posts = await buildWriting(outDir, base, { socialCard: `${base}${SOCIAL_CARD_FILE}`, originAlias: DEFAULT_BASE_URL });
 
   // The lab (see `lab.mjs`): contained, `noindex` experiments in what the
   // site can be. Its handoff page reads catalog.json in the browser.

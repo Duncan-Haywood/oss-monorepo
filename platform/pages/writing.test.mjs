@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { promises as fs, mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { buildWriting, linkSite, LIVE_SITE, loadPosts, parseFrontMatter, renderFeed, WRITING_PATH } from './writing.mjs';
+import { buildWriting, loadPosts, parseFrontMatter, renderFeed, WRITING_PATH } from './writing.mjs';
 
 const BASE = 'https://example.test/site/';
 
@@ -82,6 +82,22 @@ test('a link to a sibling post file becomes a link to its page', async () => {
   assert.match(page, /data-pf-to="hub"/);
 });
 
+test('a full link to the default origin follows the address the site is built for', async () => {
+  const alias = 'https://default.test/site/';
+  const root = repoWith({
+    '2026-10-01-first.md': post('First', '2026-10-01').replace('Body text', `Try [the tool](${alias}some-tool/). Body text`),
+  });
+  const out = mkdtempSync(path.join(os.tmpdir(), 'writing-origin-'));
+  await buildWriting(out, BASE, { root, originAlias: alias });
+  const page = await fs.readFile(path.join(out, WRITING_PATH, 'first/index.html'), 'utf8');
+  assert.match(page, new RegExp(`<a href="${BASE.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&')}some-tool/">the tool</a>`));
+  assert.ok(!page.includes(alias), 'the default origin must not survive a build under another address');
+
+  const same = mkdtempSync(path.join(os.tmpdir(), 'writing-origin-same-'));
+  await buildWriting(same, alias, { root, originAlias: alias });
+  assert.match(await fs.readFile(path.join(same, WRITING_PATH, 'first/index.html'), 'utf8'), /default\.test\/site\/some-tool\//);
+});
+
 test('feed is valid-shaped with no posts', () => {
   assert.match(renderFeed([], { baseUrl: BASE }), /<feed xmlns="http:\/\/www\.w3\.org\/2005\/Atom">/);
 });
@@ -92,7 +108,8 @@ test('every committed post parses', () => {
   for (const p of posts) assert.ok(p.title && p.description && /^\d{4}-\d{2}-\d{2}$/.test(p.date));
 });
 
-test('a full link to the live site becomes page-relative, so other domains keep it', () => {
-  const html = `<a href="${LIVE_SITE}changepoint-detector/">Live tool</a> <a href="https://example.org/">x</a>`;
-  assert.equal(linkSite(html), '<a href="../../changepoint-detector/">Live tool</a> <a href="https://example.org/">x</a>');
+test('links to the published catalogue become root-relative on the site', async () => {
+  const { relinkSite } = await import('./writing.mjs');
+  const html = '<a href="https://duncan-haywood.github.io/monorepo-projects/changepoint-detector/">x</a> <a href="https://example.com/">y</a>';
+  assert.equal(relinkSite(html, '../../'), '<a href="../../changepoint-detector/">x</a> <a href="https://example.com/">y</a>');
 });

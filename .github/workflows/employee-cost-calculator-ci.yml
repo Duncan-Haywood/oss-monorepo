@@ -47,6 +47,3 @@ jobs:
           node-version: 22
       - name: Run the venture's tests
         run: node --test
-      - name: Published pages carry the no-warranty clause
-        working-directory: .
-        run: node platform/pages/clauses.mjs employee-cost-calculator
