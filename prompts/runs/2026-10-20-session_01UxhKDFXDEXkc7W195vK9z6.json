@@ -33,7 +33,8 @@
  "outcome": "partial",
  "errors": [
   "pkill -f with a pattern that also matched the calling shell killed the shell twice (exit 144)",
-  "Full alphabetical re-run reached 23 of 761 before the user asked to finish; switched to seeded random order"
+  "Full alphabetical re-run reached 23 of 761 before the user asked to finish; switched to seeded random order",
+  "CI red twice from main (code ref to a file added later; feedback/ page failing check.mjs); resolved by merging main and porting PR #8779"
  ],
  "integrity_issues": [],
  "doc_friction": [
@@ -53,7 +54,7 @@
   }
  ],
  "goal": null,
- "notes": "Hand check 40/40 headline numbers match; 10,518/11,985 README numbers (88%) found in own committed output vs 5% shuffled control; re-ran 32 projects (16 exact, 1 differs: ambient-bandit Thompson rows, numpy/LAPACK-dependent multivariate_normal; rest setup/timeouts) pooled with swe-audit: 102/103 finished reproduced; tests 220/231 pass. Input basis of 40: math 17, assumed 14, real-tool 5, repo-data 2, cited 2, external 0. Census and remaining tests left as action items in research/_audit/README.md. Handoff steps for the next agent: research/_audit/NEXT.md.",
+ "notes": "Hand check 40/40 headline numbers match; 10,518/11,985 README numbers (88%) found in own committed output vs 5% shuffled control; re-ran 32 projects (16 exact, 1 differs: ambient-bandit Thompson rows, numpy/LAPACK-dependent multivariate_normal; rest setup/timeouts) pooled with swe-audit: 102/103 finished reproduced; tests 220/231 pass. Input basis of 40: math 17, assumed 14, real-tool 5, repo-data 2, cited 2, external 0. Census and remaining tests left as action items in research/_audit/README.md. Handoff steps for the next agent: research/_audit/NEXT.md. Verification (CI runners slow, ~30 min queue): run_workflow_locally.py --for-changes: 8/13 workflows passed; not run: agent-cross-review (4 reviewer jobs), hetzner hcloud-scope, portfolio-pages deploy, publish-pages-branch (secrets/deploy). Pages build + check.mjs dist locally: publishable, 1305 products, 3816 pages, no dead links. Ported PR #8779's feedback/ fix after main's Pages check went red on PR #8723's page; merged main for the site-feedback.json code ref.",
  "corrections": [],
  "redteam": null,
  "usage": {
