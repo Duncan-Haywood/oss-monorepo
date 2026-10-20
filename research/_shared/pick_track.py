@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Draw a research track the way research/PROJECTS.md "Picking work" says.
 
-r < 0.05 is a free-choice run; otherwise track = 1 + floor((r - 0.05) / 0.95 * 18).
+r < 0.05 is a free-choice run; otherwise track = 1 + floor((r - 0.05) / 0.95 * 19).
 Pass a number to map a draw you already have: pick_track.py 0.11
 
 A track with SATURATED or more projects is redrawn automatically among the
@@ -20,7 +20,7 @@ from pathlib import Path
 
 PREFIX = ["selfrep", "ambient", "chip", "robofab", "simdesign", "garment",
           "eda", "accel", "osrobot", "swe", "mimic", "house", "capture",
-          "codesign", "sensing", "energy", "society", "hanger"]
+          "codesign", "sensing", "energy", "society", "hanger", "qual"]
 SATURATED = 40
 RESEARCH = Path(__file__).resolve().parents[1]
 
@@ -28,7 +28,7 @@ RESEARCH = Path(__file__).resolve().parents[1]
 def pick(r):
     if r < 0.05:
         return "free"
-    return min(18, 1 + math.floor((r - 0.05) / 0.95 * 18))
+    return min(19, 1 + math.floor((r - 0.05) / 0.95 * 19))
 
 
 def projects(prefix, limit=5):

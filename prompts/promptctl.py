@@ -5,6 +5,7 @@
     python3 prompts/promptctl.py record --track T --version N --session URL
     python3 prompts/promptctl.py measure            # scores per track, version and model
     python3 prompts/promptctl.py backlog            # open process improvements, ranked
+    python3 prompts/promptctl.py map [--track T]    # the guidance files, by layer
     python3 prompts/promptctl.py validate           # what CI runs
 
 `prompt.md` at the repository root is the master prompt and tells a session
@@ -89,29 +90,50 @@ RECORD_FIELDS: dict[str, Any] = {
 REQUIRED = ("date", "session", "track", "prompt_version", "outcome",
             "errors", "integrity_issues", "doc_friction")
 
-# Instruction files whose length `measure` reports: what a run reads before it
-# can start work is a cost the review track is asked to keep down.
-INSTRUCTION_FILES = (
-    "prompt.md",
-    "prompts/goals.md",
-    "prompts/steering.md",
-    "CLAUDE.md",
-    "AGENTS.md",
-    "research/CLAUDE.md",
-    ".github/prompts/land-your-work.md",
-)
+# Every agent-guidance file, its layer and its line budget, live in
+# prompts/system.json (prompts/SYSTEM.md explains the layers). `measure`
+# reports the length of the always-read ones against their budget: what a run
+# reads before it can start work is a cost the review track is asked to keep
+# down. Nothing fails on a budget, because cutting a file well takes judgment
+# a check cannot make; `validate` fails only on a file the map does not know.
 
-# Line budgets for always-read files (prompts/steering.md). `measure` reports
-# overruns; nothing fails on them, because cutting a file well takes judgment
-# a check cannot make. Sub-prompts share SUBPROMPT_BUDGET.
-INSTRUCTION_BUDGET = {
-    "prompt.md": 100,
-    "prompts/steering.md": 120,
-    "CLAUDE.md": 500,
-    "AGENTS.md": 250,
-    ".github/prompts/land-your-work.md": 160,
-}
-SUBPROMPT_BUDGET = 130
+
+def load_system(root: Path = ROOT) -> dict[str, Any]:
+    path = root / "system.json"
+    return json.loads(path.read_text()) if path.is_file() else {"layers": [], "docs": []}
+
+
+def glob_re(pattern: str) -> re.Pattern[str]:
+    """`*` stays inside one directory; `**/` spans any number of them, a bare `**` anything."""
+    out, i = "", 0
+    while i < len(pattern):
+        if pattern.startswith("**/", i):
+            out, i = out + "(?:.*/)?", i + 3
+        elif pattern.startswith("**", i):
+            out, i = out + ".*", i + 2
+        elif pattern[i] == "*":
+            out, i = out + "[^/]*", i + 1
+        else:
+            out, i = out + re.escape(pattern[i]), i + 1
+    return re.compile(out + r"\Z")
+
+
+def doc_for(rel: str, system: dict[str, Any]) -> dict[str, Any] | None:
+    """The map entry covering `rel`: an exact path first, then the first glob."""
+    for doc in system.get("docs", []):
+        if doc.get("path") == rel:
+            return doc
+    for doc in system.get("docs", []):
+        if "glob" in doc and glob_re(doc["glob"]).match(rel):
+            return doc
+    return None
+
+
+_SYSTEM = load_system()
+INSTRUCTION_FILES = tuple(d["path"] for d in _SYSTEM["docs"] if d.get("always_read") and "path" in d)
+INSTRUCTION_BUDGET = {d["path"]: d["budget"] for d in _SYSTEM["docs"] if "path" in d and "budget" in d}
+SUBPROMPT_BUDGET = next((d["budget"] for d in _SYSTEM["docs"]
+                         if d.get("glob") == "prompts/*/prompt-*.md" and "budget" in d), 130)
 
 # prompts/process/backlog/: one improvement per file (prompts/steering.md).
 BACKLOG_STATUSES = ("open", "in_progress", "done", "dropped")
@@ -547,7 +569,98 @@ def validate(root: Path = ROOT) -> list[str]:
                 errors.append(f"prompts/process/backlog/{path.name}: id {item['id']} is also "
                               f"used by {seen[item['id']]}; take the next free number")
             seen[item["id"]] = path.name
+    errors.extend(validate_system(root))
     return errors
+
+
+def tracked_files(repo: Path) -> list[str]:
+    try:
+        out = subprocess.run(["git", "ls-files"], cwd=repo, capture_output=True, text=True, check=True)
+        files = out.stdout.splitlines()
+        if files:
+            return files
+    except (OSError, subprocess.CalledProcessError):
+        pass
+    return [str(p.relative_to(repo)) for p in repo.rglob("*.md")
+            if p.is_file() and "node_modules" not in p.parts and ".git" not in p.parts]
+
+
+def validate_system(root: Path = ROOT) -> list[str]:
+    """prompts/system.json must know every guidance file, and only real ones."""
+    if not (root / "system.json").is_file():
+        return []
+    where = "prompts/system.json"
+    try:
+        system = load_system(root)
+    except json.JSONDecodeError as exc:
+        return [f"{where}: invalid JSON ({exc})"]
+    errors: list[str] = []
+    layers = [layer.get("id") for layer in system.get("layers", [])]
+    changers = set(system.get("changed_by", []))
+    repo = root.parent
+    seen: set[str] = set()
+    for doc in system.get("docs", []):
+        key = doc.get("path") or doc.get("glob")
+        if not key or ("path" in doc) == ("glob" in doc):
+            errors.append(f"{where}: each doc names exactly one of path or glob ({doc})")
+            continue
+        if key in seen:
+            errors.append(f"{where}: {key} is listed twice")
+        seen.add(key)
+        if doc.get("layer") not in layers:
+            errors.append(f"{where}: {key} has layer {doc.get('layer')!r}; layers are {layers}")
+        if doc.get("changed_by") not in changers:
+            errors.append(f"{where}: {key} has changed_by {doc.get('changed_by')!r}; one of {sorted(changers)}")
+        if not doc.get("answers"):
+            errors.append(f"{where}: {key} must say which question it answers")
+        if "path" in doc and not (repo / key).is_file():
+            errors.append(f"{where}: {key} does not exist; remove it or fix the path")
+        budget = doc.get("budget")
+        if budget is not None and (not isinstance(budget, int) or isinstance(budget, bool) or budget < 1):
+            errors.append(f"{where}: {key} budget must be a positive integer of lines")
+    if any(d.get("layer") == "goals" and d.get("changed_by") != "owner" for d in system.get("docs", [])):
+        errors.append(f"{where}: the goals layer belongs to the owner (changed_by: owner)")
+
+    patterns = [glob_re(g) for g in system.get("guidance_patterns", [])]
+    ignored = [glob_re(g) for g in system.get("ignore", [])]
+    for rel in tracked_files(repo):
+        if not any(p.match(rel) for p in patterns) or any(p.match(rel) for p in ignored):
+            continue
+        if doc_for(rel, system) is None:
+            errors.append(f"{rel}: agent guidance with no entry in {where}; add it with its "
+                          "layer and the question it answers (prompts/SYSTEM.md, \"Where new guidance goes\")")
+    return errors
+
+
+def print_map(root: Path = ROOT, track: str | None = None) -> None:
+    """The guidance a run reads, by layer, highest precedence first."""
+    system = load_system(root)
+    repo = root.parent
+    print("# Guidance map (prompts/SYSTEM.md); a higher layer wins a conflict\n")
+    for layer in system.get("layers", []):
+        docs = [d for d in system.get("docs", []) if d.get("layer") == layer["id"]
+                and (track is None or not d.get("for") or track in d["for"])]
+        if not docs:
+            continue
+        print(f"## {layer['id']}: {layer['question']}\n")
+        for d in docs:
+            key = d.get("path") or d.get("glob")
+            if track and "glob" in d and d["glob"] == "prompts/*/prompt-*.md":
+                cfg = load_routing(root)["tracks"].get(track)
+                if cfg:
+                    key = f"prompts/{track}/prompt-{cfg['champion']}.md"
+            tags = []
+            if d.get("always_read"):
+                tags.append("always read")
+            path = repo / key
+            if path.is_file():
+                lines = len(path.read_text().splitlines())
+                budget = d.get("budget")
+                tags.append(f"{lines} lines" + (f" / budget {budget}" if budget else "")
+                            + (" OVER" if budget and lines > budget else ""))
+            tags.append(f"changed by {d['changed_by']}")
+            print(f"- `{key}` ({', '.join(tags)}): {d['answers']}")
+        print()
 
 
 # --------------------------------------------------------------------------
@@ -930,7 +1043,9 @@ def main(argv: list[str] | None = None) -> int:
     sub.add_parser("backlog", help="list open process improvements, best first")
     p = sub.add_parser("backfill-pr", help="fill empty `pr` in run records from the merge commit subject")
     p.add_argument("--dry-run", action="store_true")
-    sub.add_parser("validate", help="check routing, prompts, run records and the backlog")
+    sub.add_parser("validate", help="check routing, prompts, run records, the backlog and the guidance map")
+    p = sub.add_parser("map", help="the guidance files, by layer and precedence (prompts/SYSTEM.md)")
+    p.add_argument("--track", help="only what this track reads")
     args = parser.parse_args(argv)
 
     if args.cmd == "route":
@@ -958,6 +1073,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.cmd == "backlog":
         print_backlog(ROOT)
+        return 0
+    if args.cmd == "map":
+        print_map(ROOT, args.track)
         return 0
     errors = validate(ROOT)
     for err in errors:

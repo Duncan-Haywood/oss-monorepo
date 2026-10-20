@@ -3995,6 +3995,18 @@
     "summary": "A swept-section geometry model passes a hanger through a garment&rsquo;s neck or hem loop: the loop must reach round the hull of the hanger&rsquo;s cross-section, and a planner finds the path of least stretch. A rigid hanger needs 43&ndash;61&nbsp;cm of loop (a whole arm), which stretches a tee&rsquo;s neck by up to 33% against an assumed 35% limit, and a buttoned woven collar cannot take it, so every shirt goes in at the hem and has its hook threaded out blind (about 10&nbsp;s against 6&nbsp;s). A telescoping hanger collapsed to a 10&nbsp;cm half width needs 31&nbsp;cm and passes five of seven shirt sizes; folding the arms down 60&deg; needs 37&ndash;40&nbsp;cm. The 2&ndash;3&nbsp;cm round end that <code>hanger-fit</code> needs adds only about 3&nbsp;cm of loop, so insertion changes the width design, not the end. Stylised: planar hanger, perimeter bound rather than cloth, assumed stretch limits and robot constants."
    }
   ]
+ },
+ {
+  "id": "qual",
+  "name": "Machine learning on qualitative data",
+  "blurb": "What LLMs make possible with interviews, open-ended survey answers, reviews and tickets, and when counts built from an LLM's codes can be trusted.",
+  "projects": [
+   {
+    "slug": "qual-correction",
+    "title": "Can you do machine learning on qualitative data with an LLM, and when can you trust the numbers?",
+    "summary": "An LLM can code free text (&ldquo;does this answer mention cost?&rdquo;) so that it can be counted and modelled like numbers, but its codes need a correction first. In a seeded simulation, an 89%-accurate LLM coder (Cohen&rsquo;s &kappa; = 0.72) understates a 30% code at 26%, and its naive 95% interval covers the truth in 0 of 1,000 studies. When the LLM reads one group&rsquo;s answers less accurately, the naive group gap comes out at +3.6 points against a true &minus;4, the wrong sign, and is &ldquo;significant&rdquo; 80% of the time. Prediction-powered inference with 200 random hand-coded answers per group removes the bias, covers the truth 95&ndash;98% of the time and gives intervals 23&ndash;26% narrower than hand-coding alone. Below about 80% coder accuracy, though, its interval is wider. Includes a stdlib tool (&kappa;, Krippendorff&rsquo;s &alpha;, PPI) and a survey of five ways LLMs bring qualitative data into ML. Simulated coders, not a real model."
+   }
+  ]
  }
  ],
  "featured": [

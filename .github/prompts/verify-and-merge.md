@@ -22,6 +22,7 @@ node --test platform/deploy/*.test.mjs
 node --test platform/distribution/*.test.mjs
 node --test platform/llm/*.test.mjs
 node --test platform/devstats/*.test.mjs
+node --test platform/daily/*.test.mjs
 node --test platform/counter/*.test.mjs
 node --test platform/uitest/*.test.mjs        # browser half skips unless PLAYWRIGHT=/opt/node-tools/node_modules/playwright/index.js
 node --test 'ventures/<slug>/**/*.test.mjs'   # quote it: 21 ventures keep suites in a subdirectory
@@ -151,3 +152,25 @@ rerun. Never use `ALLOW_REGRESSION=1` except for a deliberate rollback.
 `--record` keeps `decision_queue.py` from printing a false OUTAGE banner
 once a reading is more than three days old. Do not widen the ageing rule to
 silence the banner.
+
+## Reading CI (moved from `CLAUDE.md`, 2026-10-20)
+
+- **Absent CI is not failed CI, and red is not always real.** Agent PRs
+  authenticate with a PAT and do trigger workflows, so a blank check list is
+  something to verify, not the default.
+- **Classify before you debug:** `python3 platform/ci/ci_starvation.py --run
+  <run_id>` (or a job id, or `--from-json <file>`; it needs no `gh`). It
+  votes only on `runner_id`, because a starved job has `runner_id: 0` and
+  no steps. Exit 0: every job got a runner, so a failure is real and yours.
+  Exit 1: starved, so verify locally and say what you ran. Exit 2: the run
+  cannot answer. GitHub's managed `pages build and deployment` runs through
+  starvation and says nothing about Actions, so classify a `.github/`
+  workflow run.
+- **Starvation cycles** with the metered Actions allowance (it lifted on the
+  1st of the month in September). Its sub-cause cannot be known from a
+  session, and the run-timing API's `total_ms` of 0 is not a measurement.
+  `CI_RUNNER=self-hosted` needed the retired cluster, so it is not a
+  fallback now.
+- **Use check runs, not statuses.** `/commits/<sha>/status` and the MCP
+  `get_status` show only legacy statuses and report 0 on a PR with red check
+  runs. Use `/commits/<sha>/check-runs` or the PR's checks tab.

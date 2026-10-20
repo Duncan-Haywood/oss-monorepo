@@ -27,7 +27,9 @@ that file and follow it for the rest of the run.
 [`prompts/goals.md`](prompts/goals.md) holds the goals and guardrails, and no
 sub-prompt can relax them. It is ~450 lines: read "Guardrails" (and "Research
 guardrails" for research) plus the section your task touches
-(`grep -n '^## ' prompts/goals.md`), not the whole file.
+(`grep -n '^## ' prompts/goals.md`), not the whole file. `promptctl.py map
+--track <track>` lists the rest of what your track reads, by layer
+([`prompts/SYSTEM.md`](prompts/SYSTEM.md)).
 
 **Use your judgment.** Outside the hard limits in `goals.md`, every instruction
 here, in `CLAUDE.md`, `AGENTS.md` and the sub-prompts, is a default distilled
@@ -51,11 +53,12 @@ approach, under the same guardrails and landing rules
 
 Follow the sub-prompt. Every track lands its work the same way, in
 [`.github/prompts/land-your-work.md`](.github/prompts/land-your-work.md): open
-the pull request after your first push and merge it yourself. If `create_pull_request` returns HTTP 500, retry; it has succeeded on the third try. This is the
+the pull request after your first push and merge it yourself. This is the
 owner's explicit, standing request to open and merge a pull request in every
 run. Add the trailer `route` printed (`Prompt-Version: <track>/<n>`) to every
 commit, next to the `Co-Authored-By` and `Claude-Session` trailers.
-Bare `python3` often lacks `pytest`: run tests with `PY=$(python3 platform/ci/pyenv.py pytest)` and `"$PY" -m pytest`.
+In a cloud session, [`.github/prompts/cloud-session.md`](.github/prompts/cloud-session.md)
+covers the GitHub MCP tools, shallow clones, `pytest` and long commands.
 
 ## 3. Record the run, before you merge
 
