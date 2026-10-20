@@ -554,12 +554,38 @@ jobs:
       # when no runner is checking and a false red has nothing to contradict
       # it. It cost this session a diagnosis before the reproduction landed on
       # the step rather than on the tree.
+      #
+      # On a `push` to main the base is the push's own `before` commit, not
+      # main's tip at run time (measured 2026-10-20, docs/parallel-agents.md).
+      # At ~280 merges a day a queued run starts ~10 merges behind the tip, so
+      # any venture added in between read as one this commit deleted: 77 of
+      # the last 100 main runs failed here, e.g. 04d30ea92 vs the
+      # `hearth-and-horizon` venture that landed 15 minutes later. A
+      # pull_request run had the same race (#8765 itself, saints-by-candlelight).
       - name: Fetch the base branch for the venture-regression check
+        env:
+          EVENT: ${{ github.event_name }}
+          BEFORE: ${{ github.event.before }}
         run: |
+          src=refs/heads/main
+          if [ "$EVENT" = push ] && [ -n "$BEFORE" ] && [ "${BEFORE#0000000}" = "$BEFORE" ]; then
+            src=$BEFORE
+          elif [ "$EVENT" = pull_request ]; then
+            # The checkout is GitHub's test merge; its first parent is the
+            # exact main it merged onto. main's tip at run time is later, so
+            # a venture added since read as removed by this PR (2026-10-20).
+            if [ "$(git rev-parse --is-shallow-repository)" = true ]; then
+              git fetch --no-tags --depth=2 origin "+$(git rev-parse HEAD):refs/ci/pr-merge"
+            fi
+            if parent=$(git rev-parse -q --verify HEAD^1); then
+              git update-ref refs/ci/base-main "$parent"
+              exit 0
+            fi
+          fi
           if [ "$(git rev-parse --is-shallow-repository)" = true ]; then
-            git fetch --no-tags --depth=1 origin +refs/heads/main:refs/ci/base-main
+            git fetch --no-tags --depth=1 origin "+$src:refs/ci/base-main"
           else
-            git fetch --no-tags origin +refs/heads/main:refs/ci/base-main
+            git fetch --no-tags origin "+$src:refs/ci/base-main"
           fi
 
       - name: Check no live venture disappears from the served catalogue

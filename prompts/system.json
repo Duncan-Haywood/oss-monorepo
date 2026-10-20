@@ -41,6 +41,8 @@
      "answers": "Open the PR, merge it, leave nothing stranded."},
     {"path": ".github/prompts/cloud-session.md", "layer": "runbook", "changed_by": "any", "budget": 80,
      "answers": "The cloud container: gh vs the GitHub MCP tools, shallow clones, pytest, long commands."},
+    {"path": ".github/prompts/parallel-git.md", "layer": "runbook", "changed_by": "any", "budget": 110,
+     "answers": "Git with 16 agents on one main: why each rule exists, what went wrong, alternatives weighed."},
     {"path": ".github/prompts/duplicate-work.md", "layer": "runbook", "changed_by": "any", "budget": 60,
      "answers": "Is someone already doing this? Open-PR search, supersede checks, closing safely."},
     {"path": ".github/prompts/verify-and-merge.md", "layer": "runbook", "changed_by": "any",
