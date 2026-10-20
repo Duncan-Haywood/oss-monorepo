@@ -80,6 +80,7 @@ on:
       # The development dashboard reads run records and its own code.
       - "prompts/runs/**"
       - "platform/devstats/**"
+      - "platform/daily/**"
   # The dashboard's CI, review and branch numbers move without a merge to
   # these paths; refresh them every three hours. Publishing is still gated on
   # vars.PAGES_BRANCH_PUBLISH below.

@@ -56,6 +56,9 @@ class AppTests(unittest.TestCase):
     def test_nsfg_pooled_bundle(self):
         self.run_node('nsfg_pooled.test.mjs')
 
+    def test_browser_trainer_matches_sklearn(self):
+        self.run_node('train.test.mjs')
+
     def test_newlywed_bundle(self):
         self.run_node('newlywed.test.mjs')
 
