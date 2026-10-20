@@ -30,3 +30,27 @@ owner: duncan
 #
 # Liability: format checks on the user's own file, no warranty, independent-of-GS1-and-every-marketplace
 # clause, trademarks used nominatively, no acceptance promise.
+
+hypotheses:
+  - claim: >-
+      Sellers whose marketplace upload was rejected for "invalid GTIN" search
+      plain phrases ("UPC check digit validator", "Excel removed leading zeros
+      from barcodes") and will run a free in-browser bulk checker that names
+      each bad line and fixes only what the check digit proves.
+    status: untested
+    checked: null
+    evidence: customer-contact
+    test: >-
+      Needs a privacy-respecting visitor count on the live page; read
+      portfolio/usage/usage.yaml once the first reading exists.
+  - claim: >-
+      Catalogue managers paste codes copied from GS1 Digital Link URLs, (01)
+      element strings and scanner output as often as plain digits, so
+      unwrapping those formats (added 2026-10-20) removes a common
+      "non-digit characters" false alarm.
+    status: untested
+    checked: null
+    evidence: customer-contact
+    measure: >-
+      share of rejected rows in real visitor files that have "non-digit
+      characters"; needs a reading from real visitors, none yet.
