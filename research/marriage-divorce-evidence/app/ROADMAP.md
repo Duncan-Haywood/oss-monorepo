@@ -68,7 +68,9 @@ licences):**
   `literature_evidence/`.
 - **Mortality:** `un_wpp2024_mortality/` (`mortality.js` `competingRisks`).
 
-**Hand-offs to C (app):** adapters for the two HCMST before-the-wedding lenses. They ask for
+**Hand-offs to C (app):** adapters for the two HCMST before-the-wedding lenses (#8713 already
+places them under "Before the wedding"). Prefer each bundle's `additive_harmonized` model when
+parents' view or religion is not given: it is the one checked on the 2017 cohort. They ask for
 the 2009 HCMST inputs: relationship quality, living together, parents' view, couple type, ages,
 schooling and how the couple met. Chain them into a marriage lens after the wedding, as
 `how_to_combine` in each bundle describes.
@@ -81,8 +83,10 @@ schooling and how the couple met. Chain them into a marriage lens after the wedd
 2. **Add Health public-use waves I–V** (addhealth.cpc.unc.edu reachable): adolescents measured
    long before they marry. Check whether the public-use files and relationship histories can be
    downloaded without a contract.
-3. **HCMST 2017–2022 unmarried couples** (Stanford reachable): a second, more recent
-   before-the-wedding cohort, and an external check for the 2009 lenses.
+3. ~~HCMST 2017–2022 unmarried couples~~ **Done 2026-10-20:** the 2009-trained harmonized
+   dating models, scored on 777 unmarried 2017 couples, reach AUC 0.77–0.79 for marrying and
+   0.84–0.85 for breaking up first by 2020 and 2022, with shares within 1.5 points
+   (`hcmst_dating_to_marriage/external_validation_hcmst2017.csv`).
 4. **Pre-marital relationship-quality studies** with open data on OSF or Zenodo (both
    reachable), for example engaged-couple or premarital-inventory studies.
 5. **PSID, Fragile Families / Future of Families and Understanding Society**: their hosts
@@ -129,6 +133,29 @@ Remains:
   `tools/train_nsfg2002_family.py`'s pattern on each.
 - **Conformal or bootstrap intervals on individual predictions.** Current intervals are on
   held-out skill, not on a single couple's rate.
+
+### D. In-browser training (owns `train/`, `tests/train.test.mjs`; hooks in `index.html` are one `<section id="trainPanel">` and one script tag)
+
+Done (2026-10-20). The "Train the models yourself" panel works as follows:
+
+- A 374 KB gzipped public extract of the NSFG 1995–2023 women's first marriages.
+- A module worker that runs the five-fold person-held-out comparison in plain JavaScript.
+  It fits a constant rate, a duration-only GLM, the additive spline Poisson GLM, a depth-4
+  tree and Poisson boosting.
+- Results shown beside the shipped Python ones, and profile scoring with the models the
+  visitor just trained.
+- Parity with scikit-learn: GLM coefficients to 4e-14, held-out gains to 0.001 points (boosting
+  0.002).
+
+Next:
+
+1. Time a run on real phones and report it. Only headless Chromium on a cloud machine has been
+   timed so far.
+2. Add a both-sexes extract, which would retrain `models_both_sexes`, and other lenses whose
+   terms allow person-level rows: SIPP, ACS and Statistics Canada PUMFs. Check each licence
+   first.
+3. Add person-bootstrap intervals for the browser-trained gains.
+4. Store a trained model in the URL or as a download, so a visitor can share it.
 
 ### C. App and write-up (owns `index.html`, `app.js`, `couple.js`, `style.css`, `../README.md`, `../LOG.md` headline)
 

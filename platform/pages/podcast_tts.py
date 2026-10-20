@@ -63,9 +63,14 @@ def load_manifest() -> dict:
     return json.loads(MANIFEST.read_text()) if MANIFEST.exists() else {}
 
 
+def scripts() -> list[Path]:
+    """Scripts this pipeline voices: those with front matter (a script without it is hand-written)."""
+    return [s for s in sorted(PODCAST.glob("*.md")) if split_script(s.read_text())[0]]
+
+
 def stale(manifest: dict) -> list[Path]:
     out = []
-    for script in sorted(PODCAST.glob("*.md")):
+    for script in scripts():
         entry = manifest.get(script.stem)
         if not entry or entry.get("script_sha256") != sha256(script.read_bytes()) or not (AUDIO / f"{script.stem}.mp3").exists():
             out.append(script)
@@ -104,9 +109,9 @@ def main(argv: list[str] | None = None) -> int:
     args = ap.parse_args(argv)
 
     manifest = load_manifest()
-    todo = sorted(PODCAST.glob("*.md")) if args.force else stale(manifest)
+    todo = scripts() if args.force else stale(manifest)
     if args.only:
-        todo = [s for s in sorted(PODCAST.glob("*.md")) if s.stem in args.only]
+        todo = [s for s in scripts() if s.stem in args.only]
     if args.check:
         for s in todo:
             print(f"needs audio: {s.relative_to(ROOT)}")
@@ -120,7 +125,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"voiced {script.stem}: {e['seconds']:.0f} s, {e['bytes'] / 1e6:.1f} MB")
         MANIFEST.write_text(json.dumps(dict(sorted(manifest.items())), indent=2) + "\n")
     # Drop entries whose script is gone, so the manifest never names audio nobody publishes.
-    live = {s.stem for s in PODCAST.glob("*.md")}
+    live = {s.stem for s in scripts()}
     manifest = {k: v for k, v in manifest.items() if k in live}
     MANIFEST.write_text(json.dumps(dict(sorted(manifest.items())), indent=2) + "\n")
     return 0

@@ -9,6 +9,7 @@
  *   docs/podcast/audio/<YYYY-MM-DD>-<slug>.mp3
  *   docs/podcast/audio/manifest.json        { "<file stem>": { bytes, seconds, sha256, voice } }
  *
+ * A script without front matter is a hand-written one this pipeline leaves alone.
  * A script's front matter names the post it reads (`post: <slug>`); the post
  * page gets a player and the episode links back to the post for sources.
  * `podcast_tts.py` turns scripts into audio offline with Piper and writes the
@@ -48,6 +49,9 @@ export function loadEpisodes(root = DEFAULT_ROOT, postSlugs = null) {
     const fm = FILE_RE.exec(name);
     if (!fm) throw new Error(`${PODCAST_DIR}/${name}: name must be <YYYY-MM-DD>-<slug>.md`);
     const { meta, body } = parseFrontMatter(readFileSync(path.join(dir, name), 'utf8'));
+    // No front matter: a hand-written script (such as a two-host conversation) kept
+    // beside the voiced ones, not part of this pipeline. Anything with front matter is held to it.
+    if (!Object.keys(meta).length) continue;
     for (const key of ['title', 'description', 'post']) {
       if (!meta[key]) throw new Error(`${PODCAST_DIR}/${name}: front matter needs "${key}"`);
     }

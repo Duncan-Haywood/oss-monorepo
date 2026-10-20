@@ -1,5 +1,30 @@
 # Research log
 
+## 2026-10-20 · Train the models yourself: the NSFG 1995–2023 lens retrained in the browser, matching scikit-learn
+
+- The app has a new "Train the models yourself" panel. A background worker downloads a 374 KB public extract of the NSFG 1995–2023 women's first marriages: 29,202 marriages, 10,529 dissolutions and 249,868 marriage-years. It contains only inputs fixed at or before the wedding. The worker then refits the lens in plain JavaScript with the Python pipeline's person-held-out five folds.
+- The NSFG files are U.S. government works and not under copyright, so the extract can be published. The NCHS data-use terms are recorded in the file: statistical use only, no attempt to identify anyone, no linkage.
+- Held out, the browser reproduces scikit-learn 1.7.2 on the same extract:
+
+  | Model | Browser | scikit-learn |
+  | --- | --- | --- |
+  | Duration-only GLM | 0.645% | 0.645% |
+  | Additive spline Poisson GLM | 5.688%, C 0.6947 | 5.688%, C 0.6947 |
+  | Depth-4 Poisson tree | 3.333%, C 0.6512 | 3.333%, C 0.6512 |
+  | Poisson gradient boosting (250 rounds) | 6.298%, C 0.7029 | 6.297%, C 0.7028 |
+
+  scikit-learn on the extract also matches the shipped lens's 5.688% and 6.289%, which confirms the extract.
+- The JS GLM's coefficients equal scikit-learn's within 4×10<sup>−14</sup>. It uses Newton's method with the Hessian accumulated per person and per marriage year, so a fit takes 0.7 s. Gradient boosting fits histogram trees with per-person runs and child-histogram subtraction, at about 21 ms per round.
+- A full run took 35 s in Node and 44 s in headless Chromium at 1200 px. At 390 px with 25 boosting rounds it took 13 s, but boosting's gain fell to 3.85%. The main thread never stalled more than 68 ms, cancelling works, there were no console errors and no horizontal scroll. No real phone has been timed yet.
+- After training, the models are refitted on every marriage, and a visitor can score a profile with the models they just trained. `tests/train.test.mjs` checks the coefficients to 10<sup>−6</sup>, the held-out gains (0.001 points; 0.15 for boosting), the C indices, O/E and the extract's sample.
+
+## 2026-10-20 · Before the wedding, checked on a later cohort: 2009 dating models predict 2017 couples
+
+- The two HCMST before-the-wedding models (marry the partner, or break up first) were trained on couples unmarried in 2009. They were scored, without refitting, on the 777 couples unmarried in HCMST's fresh 2017 sample, using a harmonized variant without parents' view or religion (not asked in 2017).
+- By 2020: marrying AUC 0.767 (16.5% observed, 15.8% predicted); breaking up first AUC 0.838 (33.1% vs 34.4%). By 2022: marrying AUC 0.786 (21.7% vs 21.6%); breaking up first AUC 0.847 (43.8% vs 44.9%). That is at least as good as the 2009 held-out AUCs (0.72 and 0.70). This is one later cohort of the same survey, not a different population.
+- Data fix: 8 weddings to the 2017 partner newly reported in 2022 show up only in `w3_when_married_yr` plus `w3_partner_source`, because the derived `w3_partner_type` was not updated. Counting them raises 2022 marriages from 65 to 73.
+- The bundles now carry the harmonized model, the external results and `stage: before` (the convention in `couple.js`, #8713). Parity is 320/320 to 10<sup>-9</sup>. ROADMAP A item 3 is done.
+
 ## 2026-10-20 · App: the harmonized before-the-wedding model is the default lens
 
 - Workstream B's harmonized model (#8684) now scores couples in the app, and it is what "Before the wedding" opens on. It uses only facts knowable on the wedding day (NSFG 1995–2023, 43,336 first marriages; held-out C 0.661). Each partner is scored as the surveyed spouse, and the two rates are averaged. Unanswered inputs take the survey's most common answer, and the page names them.

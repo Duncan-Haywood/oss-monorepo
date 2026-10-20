@@ -45,6 +45,11 @@ test('a script with markup a voice would read out fails the build', () => {
   }
 });
 
+test('a script with no front matter is hand-written and left out, not a build failure', () => {
+  const root = repo({ scripts: { '2026-10-20-two-hosts.md': '# Episode 1\n\n**ADA:** Hello.\n' } });
+  assert.deepEqual(loadEpisodes(root), []);
+});
+
 test('a script must name a post that exists', () => {
   const root = repo({ scripts: { '2026-10-20-a.md': script('A', '2026-10-20', 'missing') } });
   assert.throws(() => loadEpisodes(root, new Set(['a'])), /not in docs\/posts/);

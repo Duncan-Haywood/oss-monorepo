@@ -23,5 +23,20 @@
   "wave5_completed": 1127,
   "wave6_records": 640
  },
+ "hcmst2017": {
+  "unmarried_couples": 777,
+  "counts": {
+   "respondents": 3510,
+   "partnered_2017": 2862,
+   "surveyed_2020": 2107,
+   "surveyed_2022": 1722
+  },
+  "known_2020": 400,
+  "married_by_2020": 65,
+  "broke_up_by_2020": 131,
+  "known_2022": 352,
+  "married_by_2022": 73,
+  "broke_up_by_2022": 151
+ },
  "python_sklearn": "1.7.2"
 }

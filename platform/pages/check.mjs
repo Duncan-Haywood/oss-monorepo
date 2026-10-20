@@ -136,7 +136,11 @@ export const DEPLOY_DIR = 'deploy';
 // check on the same terms as the deploy page.
 export const DEV_DIR = 'dev';
 
-export const SITE_OWN_DIRS = new Set([CATEGORY_DIR, ABOUT_DIR, COMPARE_DIR, GUIDES_DIR, RESEARCH_DIR, ENGINEERING_DIR, WRITING_DIR, UPDATES_DIR, CHANGELOG_DIR, LAB_DIR]);
+// The hub's stills and screen recording of real tools (showcase.mjs): media,
+// not a product, so it carries no index.html of its own.
+export const SHOWCASE_DIR = 'showcase';
+
+export const SITE_OWN_DIRS = new Set([CATEGORY_DIR, ABOUT_DIR, COMPARE_DIR, GUIDES_DIR, RESEARCH_DIR, ENGINEERING_DIR, WRITING_DIR, UPDATES_DIR, CHANGELOG_DIR, LAB_DIR, SHOWCASE_DIR]);
 
 // Every user-facing surface here carries a liability disclaimer
 // (PRODUCT_PLAYBOOK.md §5b). This is the marker phrase they share. A product
@@ -500,12 +504,16 @@ export const SERVED_EXTENSIONS = new Map([
   ['.svg', 'stock'],
   ['.ico', 'stock'],
   ['.pdf', 'stock'],
+  ['.webp', 'stock'],
+  ['.mp4', 'stock'],
+  ['.webm', 'stock'],
   // Podcast episodes (podcast.mjs); nginx's mime.types maps mp3 to audio/mpeg.
   ['.mp3', 'stock'],
   ['.mjs', 'conf'],
   ['.webmanifest', 'conf'],
   ['.csv', 'conf'],
   ['.py', 'conf'],
+  ['.gz', 'conf'],
 ]);
 
 // Where the served config lives, relative to the repo root. The build pod
