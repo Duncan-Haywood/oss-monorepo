@@ -3232,6 +3232,11 @@
      "summary": "An Opus run costs about 8&ndash;9&times; a Sonnet run in the same track (process 7.9&times;, bootstrap 6.7&ndash;11.7; research 9.1&times;, 3.7&ndash;12.1 on only 3 Opus runs). The ledger holds 12 priced Opus runs against 342 Sonnet runs, confounded with date and task, so value per dollar cannot be compared yet: detecting a 50% difference in projects per run needs about 129 runs per arm. Preliminary; cost only."
     },
     {
+     "slug": "swe-deviations",
+     "title": "Do agent runs that record a deviation from the brief cost more or end worse?",
+     "summary": "Of 1,564 run records, 203 (13%) list a deviation from the brief, mostly review (59%) and ventures (27%) runs. Within track, deviating runs take about 1.6&times; as long and cost about 1.2&times; as much (stratified permutation p &lt; 0.001), but the cost gap rests mainly on the long process track (1.07&times;, p = 0.052 without it), and deviating runs end partial 5 points more often. Observational and self-reported: preliminary."
+    },
+    {
      "slug": "swe-fieldfill",
      "title": "How complete are the agent run records, field by field?",
      "summary": "Counts which fields are present on each of the 1,362 run records in <code>prompts/runs/</code> (1 to 19 October 2026). <code>cost_usd</code>, tokens and wall time are present on 47% of records (Wilson 45% to 50%), but on 0% to 7% of records on 13 to 15 October and 61% to 82% from 16 October, so the rate is a date effect. <code>merged</code> is filled on 4.6%, a pull request is named on 81.2%, and 237 of 1,279 records with outcome <code>success</code> (18.5%, 16% to 21%) name none. <em>Preliminary</em>: presence is measured, not correctness, and an empty list can mean a clean run."
@@ -3750,6 +3755,11 @@
    "summary": "Still camera, one disc moving across a synthetic burst (Poisson shot noise, Gaussian read noise, a large sensor with 4&times; the pixel area). A plain mean merge ghosts at every speed tested and gets <em>worse</em> as frames are added (30.5&nbsp;dB at 8 frames, 25.0&nbsp;dB at 48 for 0.25&nbsp;px per frame, against 30.8&nbsp;dB for one large-sensor frame); median and sigma-clip merges do no better because a slow subject covers each pixel in most frames. A reference-guided merge (add a frame only where it agrees with frame&nbsp;0) keeps improving, to 37.6&nbsp;dB at 48 frames, and ties the large frame at about 6 frames; with nothing moving it costs 0.1&nbsp;dB against the mean, the median 1.3&nbsp;dB. Stylised: synthetic images, one translating disc, a still camera, untuned thresholds, no real raw files."
    },
    {
+   "slug": "sensing-ghostalign",
+   "title": "Can aligning a moving subject, instead of rejecting it, rescue a burst merge?",
+   "summary": "Still camera, one disc moving across a synthetic burst (Poisson shot noise, Gaussian read noise, a large sensor with 4&times; the pixel area). A per-pixel sub-pixel alignment to the reference frame, followed by a rejection test, reaches 37.0&nbsp;dB inside the disc at 8 frames and 1&nbsp;px per frame, against 31.5&nbsp;dB for reject-only merging and 32.8&nbsp;dB for the large frame. Over the whole image it is no better than rejecting (31.7 against 31.8&nbsp;dB at 8 frames, 34.4 against 35.6 at 24) because the aligner moves 10&ndash;31% of static pixels on noise, and in the ring where the background is covered and revealed no variant gets within 4&nbsp;dB of the large frame. Stylised: synthetic scenes, one flat rigid disc, translation only."
+   },
+   {
     "slug": "sensing-timesync",
     "title": "How many milliseconds of camera-to-gyro time offset double a fused attitude error, and can online calibration recover it?",
     "summary": "Single-axis simulation: a 200&nbsp;Hz biased gyro and a 30&nbsp;Hz camera whose timestamps are late by <em>t<sub>d</sub></em>, fused by a complementary filter. At 30&nbsp;deg/s motion the error doubles at 12&ndash;14&nbsp;ms; the doubling offset is 32&ndash;34&nbsp;ms at 10&nbsp;deg/s and 8&ndash;10&nbsp;ms at 90&nbsp;deg/s, and grows with camera noise. A gyro-integral alignment fit recovers the offset to about 1&nbsp;ms rms and restores the zero-offset error, but fails on a nearly still platform. Stylised: one axis, constant offset, angle measurements only, synthetic noise."
@@ -3933,6 +3943,11 @@
     "slug": "hanger-fold",
     "title": "Should a laundry robot hang a garment or fold it, and what can it sense to tell?",
     "summary": "Adds a stretch-set model for hanging (permanent shoulder lengthening from <code>hanger-fit</code>&rsquo;s drape) and a crease-set model for folding to five fabric archetypes, prices both in cm of departure from the pressed shape, and learns a rule on 600 simulated garments. Woven shirts and linen are better hung, t-shirts, fleece and heavy knits better folded. Shoulder width, mass and stretch when lifted choose the better action for 89&ndash;91% of garments in 5-fold cross-validation (always fold: 59%; adding the fabric class: 94%); width alone adds nothing. The split is driven by the assumed crease model: a 6&nbsp;h stack instead of 48&nbsp;h moves the share better hung from 41% to 8%, while a hundredfold change in the stretch penalty moves it from 48% to 37%. Stylised: every fabric constant is assumed, the population is synthetic, no motion."
+   },
+   {
+    "slug": "hanger-insert",
+    "title": "How does a laundry robot get a hanger into a garment, and what does it cost the neck?",
+    "summary": "A swept-section geometry model passes a hanger through a garment&rsquo;s neck or hem loop: the loop must reach round the hull of the hanger&rsquo;s cross-section, and a planner finds the path of least stretch. A rigid hanger needs 43&ndash;61&nbsp;cm of loop (a whole arm), which stretches a tee&rsquo;s neck by up to 33% against an assumed 35% limit, and a buttoned woven collar cannot take it, so every shirt goes in at the hem and has its hook threaded out blind (about 10&nbsp;s against 6&nbsp;s). A telescoping hanger collapsed to a 10&nbsp;cm half width needs 31&nbsp;cm and passes five of seven shirt sizes; folding the arms down 60&deg; needs 37&ndash;40&nbsp;cm. The 2&ndash;3&nbsp;cm round end that <code>hanger-fit</code> needs adds only about 3&nbsp;cm of loop, so insertion changes the width design, not the end. Stylised: planar hanger, perimeter bound rather than cloth, assumed stretch limits and robot constants."
    }
   ]
  }
