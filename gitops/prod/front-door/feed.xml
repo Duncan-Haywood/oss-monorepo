@@ -8,6 +8,22 @@
   <updated>2026-10-20T00:00:00Z</updated>
   <rights>Tools are MIT-licensed. They are estimates and records to act on, not professional advice.</rights>
   <entry>
+    <title>Changepoint Detector — find when a time series changed (PELT + Bayesian)</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/changepoint-detector/"/>
+    <id>tag:marisstella.dev,2026:tool/changepoint-detector</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="Research algorithms &amp; ML"/>
+    <summary type="text">Free changepoint detection for any time series. Paste a CSV and see when the level or volatility changed, with exact PELT segmentation and Bayesian online changepoint probabilities (Adams &amp; MacKay 2007; Killick et al. 2012). Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Conformal Prediction Intervals Calculator — distribution-free prediction intervals online</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/conformal-prediction-intervals/"/>
+    <id>tag:marisstella.dev,2026:tool/conformal-prediction-intervals</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="Research algorithms &amp; ML"/>
+    <summary type="text">Free conformal prediction intervals calculator. Paste a CSV, pick the column to predict and a coverage level, and get distribution-free prediction intervals with a finite-sample guarantee: split conformal, locally weighted conformal and conformalized quantile regression (CQR), checked on held-out rows. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
     <title>CSV to SEPA Payment File (pain.001) — Free Bulk Credit Transfer Converter</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/csv-to-sepa-pain001/"/>
     <id>tag:marisstella.dev,2026:tool/csv-to-sepa-pain001</id>
@@ -22,6 +38,14 @@
     <updated>2026-10-20T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free CSV to SEPA direct debit converter: turn a spreadsheet of member or customer collections into a pain.008 XML file for your bank. Checks every IBAN, mandate and your creditor identifier first, groups FRST/RCUR/OOFF/FNAL batches, and never uploads your list.</summary>
+  </entry>
+  <entry>
+    <title>Matrix Profile Online — Find Repeated Patterns and Anomalies in a Time Series</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/matrix-profile-explorer/"/>
+    <id>tag:marisstella.dev,2026:tool/matrix-profile-explorer</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="Research algorithms &amp; ML"/>
+    <summary type="text">Free matrix profile tool for time series anomaly detection and motif discovery. Paste or upload a CSV and find repeated patterns (motifs) and the most unusual stretches (discords) with the exact STOMP algorithm. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>Personality Conversation Simulator: Fictional Characters (Free)</title>
@@ -142,29 +166,5 @@
     <updated>2026-10-18T00:00:00Z</updated>
     <category term="UK tax, pay &amp; benefits"/>
     <summary type="text">Free UK crypto capital gains calculator. Paste your buys, sales, swaps and staking income as a CSV and it applies HMRC&#39;s same-day, 30-day and Section 104 pooling rules, works out each tax year&#39;s gain, exempt amount and estimated CGT, and exports the working. Nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>UK Statutory Residence Test Checker — Days, Ties and Automatic Tests</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/uk-statutory-residence-test-checker/"/>
-    <id>tag:marisstella.dev,2026:tool/uk-statutory-residence-test-checker</id>
-    <updated>2026-10-18T00:00:00Z</updated>
-    <category term="UK tax, pay &amp; benefits"/>
-    <summary type="text">Free UK Statutory Residence Test checker: enter your UK stays and ties to see which test decides, whether you are UK resident, and how many more days you can spend in the UK before that changes. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Youth Lineup Rotator — fair playing time for every kid, free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/youth-lineup-rotator/"/>
-    <id>tag:marisstella.dev,2026:tool/youth-lineup-rotator</id>
-    <updated>2026-10-18T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free youth sports lineup generator for volunteer coaches. Equal playing time, nobody benched twice in a row, goalkeeper turns shared, subs planned per period. Soccer, basketball, hockey and more. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>GitHub Actions Schedule Cron Check — Invalid, Too-Frequent and Top-of-Hour Crons</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/actions-schedule-check/"/>
-    <id>tag:marisstella.dev,2026:tool/actions-schedule-check</id>
-    <updated>2026-10-17T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste your GitHub Actions workflow YAML and find every schedule cron that is invalid, faster than GitHub&#39;s 5-minute minimum, or pinned to the top of the hour where scheduled runs get delayed. Free, runs in your browser, nothing uploaded.</summary>
   </entry>
 </feed>
