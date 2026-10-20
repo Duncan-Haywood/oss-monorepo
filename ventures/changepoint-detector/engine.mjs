@@ -172,6 +172,40 @@ function driftAdjust(x, m, trend0, profile) {
   return { adjusted, profile };
 }
 
+/** Two knots of the continuous piecewise-linear least-squares line, searched at every point in [lo, hi] at least gap apart. */
+function lsKnots(x, lo, hi, gap) {
+  const n = x.length;
+  let best = null;
+  for (let a = lo; a <= hi; a++) {
+    for (let b = a + gap; b <= hi; b++) {
+      const rss = lineRss(x, [a, b]);
+      if (!best || rss < best.rss) best = { rss, knots: [a, b] };
+    }
+  }
+  return best && best.knots;
+}
+
+// residual sum of squares of x on [1, t, (t-k)+ ...] by the normal equations
+function lineRss(x, ks) {
+  const n = x.length, p = 2 + ks.length;
+  const A = Array.from({ length: p }, () => new Array(p + 1).fill(0));
+  const row = (t) => [1, t, ...ks.map((k) => Math.max(0, t - k))];
+  for (let t = 0; t < n; t++) {
+    const r = row(t);
+    for (let i = 0; i < p; i++) { for (let j = 0; j < p; j++) A[i][j] += r[i] * r[j]; A[i][p] += r[i] * x[t]; }
+  }
+  for (let i = 0; i < p; i++) {
+    let m = i;
+    for (let r = i + 1; r < p; r++) if (Math.abs(A[r][i]) > Math.abs(A[m][i])) m = r;
+    [A[i], A[m]] = [A[m], A[i]];
+    for (let r = 0; r < p; r++) if (r !== i) { const q = A[r][i] / A[i][i]; for (let c = i; c <= p; c++) A[r][c] -= q * A[i][c]; }
+  }
+  const b = A.map((r, i) => r[p] / r[i]);
+  let s = 0;
+  for (let t = 0; t < n; t++) { const r = row(t); let v = 0; for (let i = 0; i < p; i++) v += b[i] * r[i]; s += (x[t] - v) ** 2; }
+  return s;
+}
+
 /**
  * A common linear trend under the steps: the series is steps plus one slope.
  * Start from the median first difference (a step touches one difference, so it
@@ -292,6 +326,13 @@ export function trendAdjust(x, { penalty = 'bic', minSegment = 2, passes = 10, a
           const f = fit([grid[a], grid[b]]);
           if (f.bic < (pair || { bic: Infinity }).bic) pair = f;
         }
+      }
+      // the BIC lets its steps soak up a kink, so its surface is flat near the knots; an unpenalised least-squares line with two
+      // knots, searched at every point, sits nearer the truth on clean data. It is offered as one more candidate for the same BIC.
+      const ls = lsKnots(x, Math.ceil(margin * n), Math.floor((1 - margin) * n), gap);
+      if (ls) {
+        const f = fit(ls);
+        if (!pair || f.bic < pair.bic) pair = f;
       }
       if (pair) {
         pair = refine(pair);

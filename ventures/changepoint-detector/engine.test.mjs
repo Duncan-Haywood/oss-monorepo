@@ -673,3 +673,18 @@ test('trend bend --knot-margin 0.1: a slope change at 12% of the series is found
   assert.ok(wide >= dflt + 6, `${wide} at 0.1 against ${dflt} at 0.2`);
   assert.ok(falseBends <= 1);
 });
+
+test('trend bends --joint-knots: the least-squares pair places both knots near the truth on clean data, and invents no bend on a ramp', () => {
+  // 240 points, slope 0.1, 0.2 from point 80, -0.05 from point 160, white noise, seeds 1001..1012 (README: 35 of 40 within 8 points)
+  const n = 240, f = (i) => 0.1 * i + 0.1 * Math.max(0, i - 80) - 0.25 * Math.max(0, i - 160);
+  let near = 0, falseBend = 0;
+  for (let s = 1001; s <= 1012; s++) {
+    const x = normals(rng(s), n).map((v, i) => f(i) + v);
+    const k = trendAdjust(x, { bend: 3, joint: true }).knots || [];
+    near += k.length === 2 && Math.abs(k[0] - 80) <= 8 && Math.abs(k[1] - 160) <= 8;
+    const ramp = normals(rng(s + 100), n).map((v, i) => 0.1 * i + v);
+    falseBend += (trendAdjust(ramp, { bend: 3, joint: true }).knots || []).length > 0;
+  }
+  assert.ok(near >= 8, `${near} of 12 within 8 points`);
+  assert.ok(falseBend <= 1, `${falseBend} false bends`);
+});
