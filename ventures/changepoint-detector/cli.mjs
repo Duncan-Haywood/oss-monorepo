@@ -20,7 +20,7 @@ Usage:
 Options:
   --column <name|index>     value column (default: last numeric column)
   --label-column <name|i>   label/date column (default: first column)
-  --model mean|meanvar|poisson  change in level, in level and volatility, or in the rate of counts (default: mean)
+  --model mean|meanvar|trend|poisson  change in level, in level and volatility, in level or slope of a trending series, or in the rate of counts (default: mean)
   --penalty bic|aic|hannan-quinn|<number>   PELT penalty per change (default: bic)
   --min-segment <n>         shortest segment (default: 2 for mean, 5 for meanvar)
   --period <n>              remove a seasonal cycle of n points first (12 monthly, 7 daily-weekly); mean/meanvar
@@ -70,7 +70,7 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
   if (json) { out(JSON.stringify(r, null, 2) + '\n'); return 0; }
   const lines = [r.summary, ''];
   lines.push('Segments (PELT):');
-  for (const s of r.pelt.segments) lines.push(`  ${s.from} – ${s.to}  n=${s.n}  mean=${s.mean}  sd=${s.sd}`);
+  for (const s of r.pelt.segments) lines.push(`  ${s.from} – ${s.to}  n=${s.n}  mean=${s.mean}  ${s.slope !== undefined ? `slope=${s.slope}  ` : ''}sd=${s.sd}`);
   if (r.bocpd.detections.length) {
     lines.push('', `Bayesian changes (probability >= ${r.bocpd.threshold}):`);
     for (const d of r.bocpd.detections) lines.push(`  ${d.label}  ${(d.probability * 100).toFixed(0)}%`);

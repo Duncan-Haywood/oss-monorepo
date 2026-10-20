@@ -160,9 +160,22 @@ series, 40 each, in `engine.test.mjs`):
   and gave 32 changes per series against 3.3. The held-out error rewards narrow windows that follow noise,
   so it is not a proxy for clean detection. The fixed rule stays.
 
+- **Trending series (`--model trend`).** The level model reads a steady climb as a staircase. The `trend`
+  model fits one straight line per segment (cost: residual sum of squares about the segment's least-squares
+  line, from prefix sums; BIC charges 3 log n per change for location, level and slope; minimum segment 4),
+  so it finds both jumps and changes of slope. Exact: PELT equals optimal partitioning and the cost equals a
+  direct regression (tested). Seeded synthetic series, 120 points, noise sd 1, seeds 1..40, level model
+  against trend model: a pure ramp of slope 0.1 with no change gave 5.5 against 0.15 changes per series;
+  a slope break at point 60 (0.1 to 0.4) gave 10.4 against 1.1, with the break found within 5 points in
+  30 of 40 and exactly one change near it in 27 of 40; a ramp with a jump of 5 at point 60 gave exactly one
+  change near it in 38 of 40. The Bayesian pass stays a level-change detector: it runs on the series minus a
+  line whose slope is the median first difference (a level shift touches one difference, so it does not
+  bend the slope), so it does not flag pure slope changes, which only PELT reports. Not combined with
+  `--ar1` and not offered for counts; with `--period` the profile is removed first.
+
 ## Limits
 
-Steps, not trends: a gradual drift is approximated by several steps. Seasonality is
+Steps by default: a gradual drift is approximated by several steps unless you choose `--model trend` (a line per segment, no curvature). Seasonality is
 removed with `--period` (`--drift` follows a changing shape with a running median; no full STL). A changepoint describes the data, not its cause.
 Up to 100,000 points; the Bayesian pass is the slow part on long series.
 

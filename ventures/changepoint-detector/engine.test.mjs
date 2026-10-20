@@ -411,3 +411,58 @@ test('seasonal drift with --ar1: sticky noise on a growing cycle stays one chang
   assert.ok(ar / N < 0.3 * (plain / N), `${ar / N} vs ${plain / N}`);
   assert.ok(found >= 0.9 * N && exact >= 0.6 * N && falseRuns <= 0.4 * N);
 });
+
+test('trend model: the segment cost equals a direct least-squares fit, and PELT equals optimal partitioning', () => {
+  const x = normals(rng(77), 60).map((e, i) => 0.2 * i + (i >= 30 ? 6 : 0) + e);
+  const cost = makeCost(x, 'trend', 1);
+  for (const [s, t] of [[0, 60], [0, 30], [30, 60], [10, 25]]) {
+    const m = t - s;
+    const tb = (s + t - 1) / 2, xb = x.slice(s, t).reduce((a, v) => a + v, 0) / m;
+    let sxx = 0, sxy = 0;
+    for (let i = s; i < t; i++) { sxx += (i - tb) ** 2; sxy += (i - tb) * (x[i] - xb); }
+    let rss = 0;
+    for (let i = s; i < t; i++) rss += (x[i] - xb - (sxy / sxx) * (i - tb)) ** 2;
+    assert.ok(Math.abs(cost(s, t) - rss) < 1e-8, `${s}..${t}: ${cost(s, t)} vs ${rss}`);
+  }
+  for (const penalty of ['bic', 'aic', 5]) {
+    const a = pelt(x, { model: 'trend', penalty, minSegment: 4, sigma: 1 });
+    const b = optimalPartitioning(x, { model: 'trend', penalty, minSegment: 4, sigma: 1 });
+    assert.deepEqual(a.changepoints, b.changepoints);
+  }
+});
+
+test('trend model: a steady ramp is not cut into steps, and a slope break or a jump on a ramp is found', () => {
+  const N = 40, n = 120;
+  const tally = { rampMean: 0, rampTrend: 0, brkMean: 0, brkTrend: 0, brkHit: 0, brkExact: 0, jumpExact: 0 };
+  for (let s = 1; s <= N; s++) {
+    const ramp = normals(rng(s), n).map((e, i) => 0.1 * i + e);
+    tally.rampMean += analyze({ values: ramp }).pelt.changepoints.length;
+    tally.rampTrend += analyze({ values: ramp, model: 'trend' }).pelt.changepoints.length;
+    const brk = normals(rng(s + 100), n).map((e, i) => 0.1 * i + (i > 60 ? 0.3 * (i - 60) : 0) + e);
+    tally.brkMean += analyze({ values: brk }).pelt.changepoints.length;
+    const bt = analyze({ values: brk, model: 'trend' }).pelt.changepoints;
+    tally.brkTrend += bt.length;
+    tally.brkHit += bt.some((c) => Math.abs(c.index - 60) <= 5);
+    tally.brkExact += bt.length === 1 && Math.abs(bt[0].index - 60) <= 5;
+    const jump = normals(rng(s + 200), n).map((e, i) => 0.1 * i + (i >= 60 ? 5 : 0) + e);
+    const jt = analyze({ values: jump, model: 'trend' }).pelt.changepoints;
+    tally.jumpExact += jt.length === 1 && Math.abs(jt[0].index - 60) <= 5;
+  }
+  // measured (seeds 1..40, 120 points, noise sd 1): changes per series on a pure ramp of slope 0.1, level model vs
+  // trend model 5.5 vs 0.15; on a slope break at 60 (0.1 -> 0.4) 10.4 vs 1.1, break found within 5 points 30/40,
+  // exactly one change near it 27/40; ramp plus a jump of 5 at 60: exactly one change near it 38/40
+  console.log(`# trend: ${JSON.stringify(tally)}`);
+  assert.ok(tally.rampTrend / N < 0.5 && tally.rampMean / N > 3, JSON.stringify(tally));
+  assert.ok(tally.brkTrend / N < 0.25 * (tally.brkMean / N) && tally.brkHit >= 0.7 * N, JSON.stringify(tally));
+  assert.ok(tally.jumpExact >= 0.85 * N, JSON.stringify(tally));
+});
+
+test('trend model: reports the jump and the slope on each side, and the summary says so', () => {
+  const x = normals(rng(5), 120).map((e, i) => 0.1 * i + (i > 60 ? 0.3 * (i - 60) : 0) + e);
+  const r = analyze({ values: x, model: 'trend' });
+  const c = r.pelt.changepoints[0];
+  assert.ok(Math.abs(c.slopeBefore - 0.1) < 0.1 && Math.abs(c.slopeAfter - 0.4) < 0.15, JSON.stringify(c));
+  assert.ok(r.pelt.segments.every((sg) => typeof sg.slope === 'number'));
+  assert.match(r.summary, /slope goes from/);
+  assert.equal(r.bocpd.changeProb.length, 120);
+});

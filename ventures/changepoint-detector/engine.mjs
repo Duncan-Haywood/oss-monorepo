@@ -68,6 +68,7 @@ export const DEFAULTS = {
   labelColumn: null,
   // 'mean': change in level only. 'meanvar': change in level and/or volatility.
   // 'poisson': change in the rate of a count series (whole numbers, 0 or more).
+  // 'trend': change in level or slope, a straight line per segment (a series that climbs or falls).
   model: 'mean',
   // 'bic', 'aic', 'hannan-quinn', or a number (the cost of one extra change).
   penalty: 'bic',
@@ -388,6 +389,26 @@ export function makeCost(x, model = 'mean', sigma = robustSd(x), rho = 0) {
       return m * (Math.log(2 * Math.PI * v) + 1);
     };
   }
+  if (model === 'trend') {
+    // One straight line per segment, noise sd sigma: the cost is the segment's residual sum of squares
+    // about its least-squares line over sigma^2, from prefix sums of x, t, t^2, t x. t is scaled to [0, 1]
+    // so the cancellation in the sums stays small on long series.
+    const T1 = new Float64Array(n + 1), T2 = new Float64Array(n + 1), TX = new Float64Array(n + 1);
+    const sc = 1 / Math.max(1, n - 1);
+    for (let i = 0; i < n; i++) {
+      const u = i * sc;
+      T1[i + 1] = T1[i] + u; T2[i + 1] = T2[i] + u * u; TX[i + 1] = TX[i] + u * x[i];
+    }
+    const s2 = sigma * sigma;
+    return (s, t) => {
+      const m = t - s;
+      const st = T1[t] - T1[s], sx = S1[t] - S1[s];
+      const sxx = (T2[t] - T2[s]) - (st * st) / m;
+      const sxy = (TX[t] - TX[s]) - (st * sx) / m;
+      const syy = (S2[t] - S2[s]) - (sx * sx) / m;
+      return Math.max(0, sxx > 1e-12 ? syy - (sxy * sxy) / sxx : syy) / s2;
+    };
+  }
   if (model === 'poisson') {
     // -2 log-likelihood of counts with one rate per segment, the constant sum(log x!) dropped:
     // 2 * (a - a log(a / m)), where a is the segment total and m its length (0 when a = 0).
@@ -397,14 +418,14 @@ export function makeCost(x, model = 'mean', sigma = robustSd(x), rho = 0) {
       return a > 0 ? 2 * (a - a * Math.log(a / m)) : 0;
     };
   }
-  throw new Error(`Unknown model "${model}": use "mean", "meanvar" or "poisson".`);
+  throw new Error(`Unknown model "${model}": use "mean", "meanvar", "trend" or "poisson".`);
 }
 
 /** Penalty per extra change. Parameters added by one change: its location plus the new segment's parameters. */
 export function penaltyValue(penalty, n, model) {
   if (typeof penalty === 'number' && Number.isFinite(penalty) && penalty >= 0) return penalty;
   if (typeof penalty === 'string' && /^\d+(\.\d+)?$/.test(penalty.trim())) return Number(penalty);
-  const k = model === 'meanvar' ? 3 : 2;  // poisson, like mean: location plus one rate
+  const k = model === 'meanvar' || model === 'trend' ? 3 : 2;  // trend: location plus a level and a slope; poisson, like mean: location plus one rate
   switch (String(penalty).toLowerCase()) {
     case 'bic': return k * Math.log(n);
     case 'aic': return 2 * k;
@@ -686,7 +707,7 @@ export function analyze(input = {}) {
   }
   if (values.length < 4) throw new Error(`Need at least 4 numbers; got ${values.length}.`);
   if (values.length > 100000) throw new Error('More than 100,000 points: aggregate the series first.');
-  const model = o.model === 'meanvar' || o.model === 'poisson' ? o.model : 'mean';
+  const model = o.model === 'meanvar' || o.model === 'poisson' || o.model === 'trend' ? o.model : 'mean';
   if (model === 'poisson') {
     const bad = values.findIndex((v) => v < 0 || !Number.isInteger(v));
     if (bad >= 0) throw new Error(`The Poisson model needs counts (whole numbers, 0 or more); row ${bad + 1} is ${values[bad]}.`);
@@ -706,7 +727,7 @@ export function analyze(input = {}) {
     rho = ar1Rho(values);
     if (!joint) sigma = longRunSd(sigma, rho);
   }
-  const minSegment = Math.max(1, Math.floor(Number(o.minSegment) || (model === 'meanvar' ? 5 : 2)));
+  const minSegment = Math.max(1, Math.floor(Number(o.minSegment) || (model === 'meanvar' ? 5 : model === 'trend' ? 4 : 2)));
   let p;
   if (joint) {
     p = ar1JointFit(values, { penalty: o.penalty, minSegment });
@@ -714,27 +735,48 @@ export function analyze(input = {}) {
   } else p = pelt(values, { model, penalty: o.penalty, minSegment, sigma });
   const bounds = [0, ...p.changepoints, values.length];
   const segments = [];
+  const lines = [];
   for (let i = 0; i + 1 < bounds.length; i++) {
     const s = stats(values.slice(bounds[i], bounds[i + 1]));
-    segments.push({ start: bounds[i], end: bounds[i + 1] - 1, from: labels[bounds[i]], to: labels[bounds[i + 1] - 1], n: s.n, mean: round(s.mean), sd: round(s.sd) });
+    const seg = { start: bounds[i], end: bounds[i + 1] - 1, from: labels[bounds[i]], to: labels[bounds[i + 1] - 1], n: s.n, mean: round(s.mean), sd: round(s.sd) };
+    if (model === 'trend') {
+      const f = lineFit(values, bounds[i], bounds[i + 1]);
+      lines.push(f);
+      Object.assign(seg, { slope: round(f.slope, 4), sd: round(f.sd) });
+    }
+    segments.push(seg);
   }
   // With --ar1 the Bayesian pass uses the conditional AR(1) likelihood on the original series (rho fixed),
   // not the prewhitened one: prewhitening turns a shift into a spike plus a (1 - rho)-sized step.
-  const b = bocpd(values, { ...(rho ? { rho, prior: { ...defaultPrior(prewhiten(values, rho)), mu: median(values) } } : {}), hazardLambda: Number(o.hazardLambda) || 100, lag: Math.max(1, Math.floor(Number(o.lag) || 5)), model });
+  // The trend model's Bayesian pass runs the level model on the series minus a straight line whose slope is the
+  // median first difference: a level shift touches one difference only, so the slope estimate ignores it.
+  let bvals = values;
+  if (model === 'trend') {
+    const slope = median(values.slice(1).map((v, i) => v - values[i]));
+    bvals = values.map((v, i) => v - slope * i);
+  }
+  const b = bocpd(bvals, { ...(rho ? { rho, prior: { ...defaultPrior(prewhiten(values, rho)), mu: median(values) } } : {}), hazardLambda: Number(o.hazardLambda) || 100, lag: Math.max(1, Math.floor(Number(o.lag) || 5)), model: model === 'trend' ? 'mean' : model });
   const det = peaks(b.changeProb, Number(o.threshold) || 0.5);
   const changes = p.changepoints.map((i, k) => {
     const before = segments[k];
     const after = segments[k + 1];
     let near = 0;
     for (let j = Math.max(1, i - 3); j <= Math.min(values.length - 1, i + 3); j++) near = Math.max(near, b.changeProb[j]);
+    const trend = model === 'trend' ? {
+      // the jump between the two fitted lines at the change, and the slope on each side
+      jump: round(lines[k + 1].at(i) - lines[k].at(i)),
+      slopeBefore: before.slope,
+      slopeAfter: after.slope,
+    } : null;
     return {
       index: i,
       label: labels[i],
       lastBefore: labels[i - 1],
       meanBefore: before.mean,
       meanAfter: after.mean,
-      shift: round(after.mean - before.mean),
-      shiftInNoiseSd: round((after.mean - before.mean) / (joint ? longRunSd(sigma / Math.sqrt(1 + rho), rho) : sigma), 3),
+      shift: trend ? trend.jump : round(after.mean - before.mean),
+      ...(trend ? { jump: trend.jump, slopeBefore: trend.slopeBefore, slopeAfter: trend.slopeAfter } : {}),
+      shiftInNoiseSd: round((trend ? trend.jump : after.mean - before.mean) / (joint ? longRunSd(sigma / Math.sqrt(1 + rho), rho) : sigma), 3),
       sdBefore: before.sd,
       sdAfter: after.sd,
       bocpdProbWithin3: round(near, 3),
@@ -765,8 +807,22 @@ export function analyze(input = {}) {
   };
 }
 
+/** Least-squares line through x[s..t): slope per index, residual sd, and the fitted value at any index. */
+function lineFit(x, s, t) {
+  const m = t - s;
+  let st = 0, sx = 0;
+  for (let i = s; i < t; i++) { st += i; sx += x[i]; }
+  const tb = st / m, xb = sx / m;
+  let sxx = 0, sxy = 0;
+  for (let i = s; i < t; i++) { sxx += (i - tb) ** 2; sxy += (i - tb) * (x[i] - xb); }
+  const slope = sxx > 0 ? sxy / sxx : 0;
+  let rss = 0;
+  for (let i = s; i < t; i++) rss += (x[i] - xb - slope * (i - tb)) ** 2;
+  return { slope, sd: Math.sqrt(rss / Math.max(1, m - 2)), at: (i) => xb + slope * (i - tb) };
+}
+
 function summarize({ n, column, model, changes, det, labels, skipped }) {
-  const what = model === 'meanvar' ? 'level or volatility' : model === 'poisson' ? 'rate' : 'level';
+  const what = model === 'meanvar' ? 'level or volatility' : model === 'poisson' ? 'rate' : model === 'trend' ? 'level or slope' : 'level';
   const lines = [];
   if (!changes.length) {
     lines.push(`PELT finds no change in ${what} across the ${n} points of ${column}: one segment explains the data better than any split, after the penalty.`);
@@ -774,6 +830,10 @@ function summarize({ n, column, model, changes, det, labels, skipped }) {
     lines.push(`PELT splits the ${n} points of ${column} into ${changes.length + 1} segments (${changes.length} change${changes.length > 1 ? 's' : ''} in ${what}).`);
     for (const c of changes) {
       const dir = c.shift > 0 ? 'up' : 'down';
+      if (model === 'trend') {
+        lines.push(`From ${c.label} (after ${c.lastBefore}) the line jumps ${c.jump > 0 ? 'up' : 'down'} by ${fmt(Math.abs(c.jump))} and its slope goes from ${fmt(c.slopeBefore)} to ${fmt(c.slopeAfter)} per point; the Bayesian method (level changes only, on the series minus its median slope) puts ${Math.round(c.bocpdProbWithin3 * 100)}% probability on a change within 3 points of it.`);
+        continue;
+      }
       lines.push(`From ${c.label} (after ${c.lastBefore}) the mean moves ${dir} from ${fmt(c.meanBefore)} to ${fmt(c.meanAfter)}, ${fmt(Math.abs(c.shiftInNoiseSd))} noise standard deviations; the Bayesian method puts ${Math.round(c.bocpdProbWithin3 * 100)}% probability on a change within 3 points of it.`);
     }
   }
