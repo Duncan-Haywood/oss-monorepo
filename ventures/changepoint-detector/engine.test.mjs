@@ -1,5 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import {
   PAPERS, DEFAULTS, ar1JointFit, analyze, bocpd, defaultPoissonPrior, defaultPrior, gammaPoissonLogMarginal, makeCost, lgamma, nigLogMarginal, optimalPartitioning, ar1Rho, longRunSd, prewhiten, seasonalAdjust, parseSeries, peaks, pelt, robustSd,
 } from './engine.mjs';
@@ -326,4 +327,18 @@ test('joint AR(1) fit: exact against brute force, and more power on small shifts
   assert.ok(fp <= 0.15 * N, `false runs ${fp}/${N}`);                 // measured 4/40
   assert.ok(jointHit >= longHit, `joint ${jointHit} vs long-run ${longHit}`); // measured 34 vs 28 at shift 4
   assert.ok(jointHit >= 0.75 * N);
+});
+
+test('PELT agrees with an independent implementation (ruptures) on 100 seeded cases', () => {
+  // data/ruptures-crosscheck.json holds series and the changepoints ruptures'
+  // Pelt (CostL2 for mean, CostNormal for meanvar) returns at the same numeric
+  // penalty; data/make_ruptures_fixture.py regenerates it. sigma = 1 matches the
+  // unit-noise L2 cost.
+  const fixture = JSON.parse(readFileSync(new URL('./data/ruptures-crosscheck.json', import.meta.url), 'utf8'));
+  assert.equal(fixture.cases.length, 100);
+  assert.ok(fixture.cases.filter((c) => c.changepoints.length > 0).length >= 50);
+  for (const c of fixture.cases) {
+    const got = pelt(c.values, { model: c.model, penalty: c.penalty, minSegment: c.minSegment, sigma: 1 });
+    assert.deepEqual(got.changepoints, c.changepoints, `${c.model} penalty ${c.penalty} n=${c.values.length}`);
+  }
 });
