@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import {
-  PAPERS, DEFAULTS, poissonSeasonal, poissonTrend, countDispersion, ar1JointFit, analyze, bocpd, defaultPoissonPrior, defaultPrior, gammaPoissonLogMarginal, makeCost, lgamma, nigLogMarginal, optimalPartitioning, ar1Rho, longRunSd, prewhiten, seasonalAdjust, trendAdjust, parseSeries, peaks, pelt, robustSd,
+  PAPERS, DEFAULTS, negbinSize, poissonSeasonal, poissonTrend, countDispersion, ar1JointFit, analyze, bocpd, defaultPoissonPrior, defaultPrior, gammaPoissonLogMarginal, makeCost, lgamma, nigLogMarginal, optimalPartitioning, ar1Rho, longRunSd, prewhiten, seasonalAdjust, trendAdjust, parseSeries, peaks, pelt, robustSd,
 } from './engine.mjs';
 
 // Seeded PRNG (mulberry32) and Box-Muller normals, so every test is reproducible.
@@ -856,4 +856,52 @@ test('overdispersion tempers the Bayesian pass too: wandering counts stop raisin
   const x = [...poissons(rng(7), 60, 3), ...poissons(rng(8), 60, 12)];
   assert.deepEqual(bocpd(x, { model: 'poisson', dispersion: 1 }).changeProb, bocpd(x, { model: 'poisson' }).changeProb);
   assert.ok(bocpd(x, { model: 'poisson', dispersion: 4 }).changeProb[60] < bocpd(x, { model: 'poisson' }).changeProb[60]);
+});
+
+// ---- negative-binomial cost for independent clumpy counts
+test('negative-binomial cost matches a hand-computed -2 log-likelihood and tends to Poisson for a large size', () => {
+  // x = [2, 4, 6], mu = 4, r = 4: -2 [12 log(4/8) + 3 * 4 * log(4/8)] = -48 log(0.5).
+  const c = makeCost([2, 4, 6], 'negbin', 1, 0, null, 4);
+  assert.ok(Math.abs(c(0, 3) - -48 * Math.log(0.5)) < 1e-12);
+  // The difference between two segmentations tends to the Poisson difference as r grows.
+  const x = [1, 3, 2, 9, 11, 8];
+  const big = makeCost(x, 'negbin', 1, 0, null, 1e7), p = makeCost(x, 'poisson');
+  assert.ok(Math.abs((big(0, 3) + big(3, 6) - big(0, 6)) - (p(0, 3) + p(3, 6) - p(0, 6))) < 1e-4);
+});
+
+test('negbinSize finds r from independent clumpy counts and ignores Poisson counts', () => {
+  const r = rng(77);
+  const clumpy = [];
+  for (let i = 0; i < 400; i++) {
+    const g = Math.exp(0.5 * normals(r, 1)[0] - 0.125);
+    clumpy.push(poissons(r, 1, 10 * g)[0]);
+  }
+  const size = negbinSize(clumpy);   // true: variance 10 + 100 (e^0.25 - 1) = 38.4, so r = 100 / 28.4 = 3.5
+  assert.ok(size > 2 && size < 6, `size ${size}`);
+  assert.equal(negbinSize(poissons(rng(78), 400, 10)), Infinity);
+});
+
+test('negative binomial PELT: independent clumpy counts, 40 seeded series (README "Independent clumpy counts")', () => {
+  let poisFalse = 0, nbFalse = 0, hits = 0;
+  for (let seed = 1700; seed < 1740; seed++) {
+    const r = rng(seed);
+    const gen = (n, rate) => Array.from({ length: n }, () => poissons(r, 1, rate * Math.exp(0.35 * normals(r, 1)[0] - 0.06))[0]);
+    const flat = gen(200, 10);
+    poisFalse += pelt(flat, { model: 'poisson' }).changepoints.length;
+    nbFalse += pelt(flat, { model: 'negbin', size: negbinSize(flat) }).changepoints.length;
+    const stepped = [...gen(100, 10), ...gen(100, 18)];
+    const cp = pelt(stepped, { model: 'negbin', size: negbinSize(stepped) }).changepoints;
+    if (cp.some((c) => Math.abs(c - 100) <= 10)) hits++;
+  }
+  assert.ok(poisFalse / 40 > 2, `Poisson false changes per series ${poisFalse / 40}`);
+  assert.ok(nbFalse / 40 < 0.5, `negbin false changes per series ${nbFalse / 40}`);
+  assert.ok(hits >= 36, `step found on ${hits} of 40`);
+});
+
+test('analyze --overdispersion nb uses the negative-binomial cost and refuses a period or trend', () => {
+  const r = rng(5);
+  const x = Array.from({ length: 120 }, (_, i) => poissons(r, 1, (i < 60 ? 10 : 25) * Math.exp(0.35 * normals(r, 1)[0]))[0]);
+  const res = analyze({ csv: x.join('\n'), model: 'poisson', overdispersion: 'nb' });
+  assert.ok(res.pelt.changepoints.some((c) => Math.abs((c.index ?? c.start ?? c) - 60) <= 8), JSON.stringify(res.pelt.changepoints));
+  assert.throws(() => analyze({ csv: x.join('\n'), model: 'poisson', overdispersion: 'nb', period: 7 }), /does not yet combine/);
 });

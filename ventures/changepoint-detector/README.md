@@ -189,6 +189,15 @@ series, 40 each, in `engine.test.mjs`):
   Bayesian pass was within 7 points on 22 of 40 series before (while flagging 6.4 other points per series) and 0 of 40
   now; at 3x it is 34 to 2 of 40, at 5x 35 to 9 of 40. So on wandering counts treat PELT as the detector and the
   Bayesian pass as a check that no longer cries wolf; a negative-binomial cost might recover power. Page: "Counts are clumpy or sticky".
+- **Independent clumpy counts (`--overdispersion nb`, added 2026-10-20).** A negative-binomial cost (`makeCost(..., 'negbin')`,
+  variance mu + mu^2 / r, one mean per segment, PELT still exact) with r estimated from the series (`negbinSize`: the median
+  of squared first differences gives a variance that a step does not spoil). 200 counts, rate 10, each count drawn at a
+  lognormal rate (sd 0.35) independently, seeds 1700..1739: false changes per series on a flat series 3.55 with the Poisson
+  cost, 0.78 with the quasi-Poisson penalty (`--overdispersion`), 0.13 with the negative binomial. With a 1.8x step at 100 the
+  step was found within 10 points on 39 of 40 with either correction, at 1.27 changes per series against 1.50. Sticky counts
+  (lag-1 memory 0.6) are not helped: 6.75 false changes per series against 1.20 for the quasi-Poisson penalty, because the
+  negative binomial still treats counts as independent, so use plain `--overdispersion` there. Not yet combined with
+  `--period`, `--trend` or the Bayesian pass.
 - **Drifting seasonality (`--period n --drift`).** The fixed profile is wrong when the
   cycle's amplitude grows or its peak moves. With `--drift` each phase is smoothed across
   cycles by a running median (5 cycles, 3 on short series), re-centred per cycle. On 144
