@@ -1,0 +1,7 @@
+model,marriages,deviance_gain_percent,harrell_c,auc_10y
+duration_only,4342,0.648064,0.491926,0.497339
+additive_spline,4342,4.52474,0.669389,0.66965
+spline_pairs,4342,4.40435,0.668052,0.667931
+tree_depth3,4342,2.34992,0.630638,0.637937
+tree_depth5,4342,2.32043,0.641794,0.643168
+gradient_boosting,4342,4.82889,0.674026,0.678149

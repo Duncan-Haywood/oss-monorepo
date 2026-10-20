@@ -1,0 +1,22 @@
+|--- cat__spouse_education_16+ years <= 0.5000
+|   |--- cat__spouse_education_13-15 years <= 0.5000
+|   |   |--- num__marriage_years <= 8.5000
+|   |   |   |--- value: [0.0605]
+|   |   |--- num__marriage_years >  8.5000
+|   |   |   |--- value: [0.0403]
+|   |--- cat__spouse_education_13-15 years >  0.5000
+|   |   |--- num__spouse_age_gap <= 3.4583
+|   |   |   |--- value: [0.0292]
+|   |   |--- num__spouse_age_gap >  3.4583
+|   |   |   |--- value: [0.0502]
+|--- cat__spouse_education_16+ years >  0.5000
+|   |--- cat__family_at_12_Both biological parents <= 0.5000
+|   |   |--- num__earnings_year_before_k <= 32.5000
+|   |   |   |--- value: [0.0276]
+|   |   |--- num__earnings_year_before_k >  32.5000
+|   |   |   |--- value: [0.0146]
+|   |--- cat__family_at_12_Both biological parents >  0.5000
+|   |   |--- cat__education_at_marriage_Bachelor <= 0.5000
+|   |   |   |--- value: [0.0177]
+|   |   |--- cat__education_at_marriage_Bachelor >  0.5000
+|   |   |   |--- value: [0.0087]
