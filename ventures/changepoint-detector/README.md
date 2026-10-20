@@ -205,20 +205,14 @@ series, 40 each, in `engine.test.mjs`):
   BIC, then refines as before. 240 points, slope 0.1, 0.2 from point 80, -0.05 from point 160, seeds 1001..1040, `--ar1`:
   with AR(1) rho 0.5, two knots found 20 of 40 greedy, 36 of 40 joint, both within 8 points of the truth 17 of 40 and 28 of 40,
   and a bend invented on 1 of 40 straight ramps both ways. With white noise, two knots 39 and 40 of 40 but both within 8 points
-  30 and 24 of 40: **the pair search is slightly worse at placing the knots on clean data** (the grid step is 6 and the BIC
-  surface is flat near the optimum), so use it when a bend is being missed, not by default. Cost: about 2 s per 240-point
+  30 and 24 of 40 at first: the pair search was worse at placing the knots on clean data, because the coarse pair (grid step 6) was
+  compared with the already-refined greedy fit. The best pair is now refined to the point too before the two are compared. Re-measured
+  with this repository's test generator (seeds 1001..1040, a different noise stream from the figures above, so only compare within this
+  sentence): white noise, both knots within 8 points 27 of 40 before the change, 33 of 40 after, against 33 of 40 for the greedy search;
+  sticky noise 30 of 38 before and 31 of 38 after (two knots found 38 of 40 joint, 25 of 40 greedy). Use `--joint-knots` when a bend is being
+  missed; on clean data it now places knots as well as the default. Cost: about 2 s per 240-point
   series against 0.4 s. An exhaustive pair search on the grid is the exact optimum for two knots (the continuous-slope constraint
-  couples neighbouring knots, so a plain segment DP does not apply); a third knot comes only from the greedy search (a winning pair is not extended). The web page has the switch ("Score every pair of slope changes").
-  **Least-squares pair added.** A finer grid around the winning pair was tried first (every offset combination within a grid step):
-  it moved white-noise placement from 24 to 24 of 40 within 8 points (11 to 14 within 3) and sticky from 28 to 30, at 1.8x the time, so it was
-  dropped. The cause is the objective, not the search: an exhaustive unpenalised least-squares line with two knots, searched at every
-  point, puts both knots within 8 points on 40 of 40 of the same white-noise series (30 of 40 within 3), because the BIC lets its
-  steps soak up a kink and goes flat near the knots. `--joint-knots` now also offers that least-squares pair (`lsKnots`) to the same BIC
-  and keeps it when it wins. Same 40 series, `--ar1` on the sticky ones: white noise 24 to **34** of 40 within 8 points (11 to 22 within 3),
-  two knots 40 of 40 both times; AR(1) rho 0.5 two knots 36 to **38** of 40, within 8 points 28 to **32**, within 3 10 to 8 (noise);
-  false bends on straight 240-point ramps 0 of 40 (white) and 1 of 40 (rho 0.5), as before. Time about 1.7 s per series against 1.2 s.
-  Caveat: the least-squares search ignores steps, so a large level shift can pull a knot; it is only a candidate, and the BIC still judges it.
-  Next: a 10 to 90% knot range, and the least-squares pair computed after the steps are removed.
+  couples neighbouring knots, so a plain segment DP does not apply); a third knot comes only from the greedy search (a winning pair is not extended). The web page has the switch ("Score every pair of slope changes"). **Least-squares pair added.** An exhaustive unpenalised least-squares line with two knots, searched at every point, puts both knots within 8 points on 40 of 40 of the 240-point white-noise series (30 of 40 within 3), because the BIC lets its steps soak up a kink and goes flat near the knots. `--joint-knots` now offers that pair (`lsKnots`) as one more candidate to the same BIC, refined like the rest. Against the version just before it (seeds 1001..1040 from a standalone script, `--ar1` on the sticky ones): white noise both knots within 8 points 32 to **35** of 40 (within 3: 19 to 23), two knots found 40 of 40 both; AR(1) rho 0.5 within 8 points 30 to **33**, two knots found 38 of 40 both (within 3: 12 to 9, noise). False bends on straight ramps 0 of 40 (white), 1 of 40 (rho 0.5). Time about 1.7 s per series against 1.2 s. Caveat: the least-squares search ignores steps, so a large level shift can pull a knot; it is only a candidate and the BIC judges it. Next: a 10 to 90% knot range, and the least-squares pair computed after the steps are removed.
 - **`--trend` with `--ar1`.** Sticky noise wanders, and the slope loop inside `--trend` cut that wandering into
   steps whose segments then bent the slope. With `--ar1` the loop now widens its noise scale by the same
   long-run factor. On 200 points, slope 0.1, AR(1) rho 0.5, shift 5 at point 100 (seeds 701..740): PELT gave

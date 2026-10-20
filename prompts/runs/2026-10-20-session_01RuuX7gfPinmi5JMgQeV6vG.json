@@ -41,7 +41,7 @@
   ],
   "deviations": [],
   "goal": null,
-  "notes": "Finer pair grid measured and dropped (24->24/40). Exhaustive LS knot pair offered to BIC: white-noise within-8 24->34/40, sticky two knots 36->38/40, false bends 0/40 and 1/40. Local: node --test engine/cli/page 60 pass. CI starved/unchecked here; PR checks to confirm.",
+  "notes": "Finer pair grid measured and dropped (24->24/40). Exhaustive LS knot pair offered to BIC: white-noise within-8 24->34/40, sticky two knots 36->38/40, false bends 0/40 and 1/40. Local: node --test engine/cli/page 60 pass. CI starved/unchecked here; PR checks to confirm. Merge conflict: another session landed #8861 (refine pair) first; rebuilt on it, re-measured: white within-8 32->35, sticky 30->33.",
   "corrections": [],
   "redteam": null,
   "usage": {
