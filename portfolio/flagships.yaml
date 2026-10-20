@@ -18,6 +18,19 @@
 # retail-pilot-intel, print-atelier and real-estate-agent-photo-app (mostly
 # plans and demo UI), workflow-audit and marketplace-fee-compare (thin).
 flagships:
+  # Added 2026-10-20 first, on the owner's direction that day for research
+  # algorithms as tools (prompts/goals.md). New tools of that kind follow
+  # portfolio/research-tools/README.md; this entry deepens the first one.
+  - venture: changepoint-detector
+    why: >-
+      PELT and Bayesian online changepoint detection from the papers, exact
+      against brute force and a closed-form evidence check, reproducing the
+      published Nile 1898 change; page, CLI and agent engine.
+    next: >-
+      Models for real-world series the README lists as limits: a Poisson
+      cost for counts, a seasonal-difference or STL pre-step for seasonal
+      data, and an AR(1)-aware cost so autocorrelated series stop showing
+      false changes, each checked against R's changepoint package output.
   - venture: einvoice-preflight
     why: >-
       Real EN 16931 validator (JSON, UBL, CII, Factur-X PDF; 54+ rules,
@@ -26,12 +39,15 @@ flagships:
     next: >-
       The official EN 16931 Schematron plus the XRechnung (UBL, CII) and Peppol
       BIS 3 (UBL and CII) add-ons run in Saxon-JS (opt-in, ?schematron=1, picked by
-      BT-24) and the Docker image bakes them in. Every rule id in every compiled
-      file (342 of them: BR, BR-CO, BR-CL, BR-DEC, the VAT categories, BR-DE,
-      PEPPOL) now has an English fix, and a test fails when a rebuild adds one
-      without it. Next: show the official findings on the web page (index.html,
-      needs a server or WASM path since Saxon-JS runs in Node here), then
-      examples that exercise the Peppol credit-note and XRechnung CII paths.
+      BT-24); the Docker image bakes them in; all 342 rule ids have an English
+      fix; and the web page has an "official Schematron" box that posts XML to
+      the self-hosted API and lists the findings (official.mjs). The Peppol
+      credit-note and XRechnung CII examples now pass the official rules in
+      tests, and the 30 DE-R rules Peppol applies to German invoices have
+      English fixes. Next: a WASM/in-browser path so the static Pages copy can
+      run it too without a server (Saxon-JS in the page, SEF files built in CI
+      and served as static assets), then CreditNote and CII credit-note
+      defect examples.
   - venture: shift-roster-builder
     why: >-
       Simulated-annealing scheduler over a dollar cost (availability, rest,
@@ -41,7 +57,7 @@ flagships:
       The exact check now has a coverage bound (min-cost flow over shifts,
       person-days and weekly hours): on the 32-shift sample week it proves the
       15 uncoverable hours and sits within ~$70 of the roster found, but the
-      proof of the cheapest roster still times out at ~12k nodes/s. Next: close
+      proof of the cheapest roster still times out (the coverage flow now runs on a sparse graph, 1.7x more nodes in the same 8 s, ~11k nodes/s here, ~94k nodes vs 57k). Next: close
       that last gap (a faster incremental bound or symmetry cuts between people
       with equal availability and wage) so full weeks are proven, then
       multi-week rostering that carries fairness and time off across weeks
