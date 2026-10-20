@@ -1,0 +1,63 @@
+{
+ "respondents_in_release": 8984,
+ "weighted_round1_population_millions": 19.38,
+ "ever_married_created_variable": 5252,
+ "first_marriage_date_known": 5148,
+ "dropped_inconsistent_dates": 10,
+ "dropped_same_sex": 62,
+ "first_marriages": 5076,
+ "dissolutions": 1906,
+ "dissolutions_by_first_status": {
+  "divorced": 1237,
+  "separated": 665,
+  "divorced (created variable only)": 4
+ },
+ "widowed_censored": 42,
+ "intervals": 53140,
+ "person_years": 50592.2,
+ "wedding_years": [
+  1995,
+  2024
+ ],
+ "age_at_marriage_range": [
+  12.67,
+  43.42
+ ],
+ "spouse_traits_observed": 4342,
+ "spouse_source": {
+  "household roster": 4502,
+  "partner section": 342,
+  "none": 232
+ },
+ "missing_share": {
+  "age_at_marriage": 0.0,
+  "cohab_months_before": 0.0,
+  "parent_max_grade": 0.0355,
+  "poverty_ratio_1997": 0.2559,
+  "afqt_percentile": 0.1887,
+  "delinquency_1997": 0.0014,
+  "substance_1997": 0.002,
+  "mhi5_before": 0.0837,
+  "hours_year_before": 0.0347,
+  "earnings_year_before_k": 0.1816,
+  "net_worth_before_k": 0.2019,
+  "spouse_age_gap": 0.0
+ },
+ "imputation": {
+  "spouse_education_mode_by_own_education": {
+   "Associate": "13-15 years",
+   "Bachelor": "16+ years",
+   "Graduate degree": "16+ years",
+   "High school or GED": "12 years",
+   "No high school credential": "12 years"
+  },
+  "spouse_age_gap_median_by_sex": {
+   "Female": 1.583,
+   "Male": -1.083
+  }
+ },
+ "glm_ridge_alpha": 0.001,
+ "folds": "5 folds by respondent, 3 seeded repeats; hyperparameters fixed in advance",
+ "bootstrap_replicates": 400,
+ "python_sklearn": "1.7.2"
+}
