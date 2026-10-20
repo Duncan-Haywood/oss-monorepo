@@ -489,6 +489,7 @@ def consolidation_task(family: str, size: int) -> str:
 
 NO_HYPOTHESIS_PREFIX = "Explore: no hypothesis recorded"
 NO_HYPOTHESIS_ROWS = 3
+FLAGSHIP_NEXT_CHARS = 500
 
 
 def next_task(v: Venture) -> str:
@@ -496,6 +497,9 @@ def next_task(v: Venture) -> str:
         return "Review: measured at $0 MRR past revenue stage -- check against kill_criteria before further spend."
     if v.flagship:
         milestone = v.flagship_next or "the venture's own roadmap"
+        if len(milestone) > FLAGSHIP_NEXT_CHARS:
+            # The full history is in flagships.yaml; the queue prints the head.
+            milestone = milestone[:FLAGSHIP_NEXT_CHARS].rstrip() + " ... (full `next:` in portfolio/flagships.yaml)"
         return (
             f"Deepen (flagship {v.flagship_rank + 1}): {milestone} "
             "Land a working slice, then rewrite this venture's `next:` in portfolio/flagships.yaml."

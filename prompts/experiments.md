@@ -936,3 +936,17 @@ or `ventures`) until its success rate passes 80% over 20 runs?
   review 2 unchanged (overlap / under 10 runs). No audit or drift report
   (reduced pass).
 - Result: (next review)
+
+## E56: review 2026-10-20 (reduced pass, night)
+
+- Change: `portfolio/router/allocate.py` prints the first 500 characters of a
+  flagship's `next:` in the work queue and points at `flagships.yaml` for the
+  rest (84 friction reports on the file, mostly the multi-KB blob per row).
+  `test_allocate.py` passes (73 tests). `derived/` regenerated.
+- Metric: friction reports naming allocate.py output size, per run, over the
+  next 40 runs (baseline 84 in 1,770, most of them the blob).
+- Decisions: research candidate 1: the verdict says retire on one integrity
+  issue (the disclosed search-excerpt caveat); kept, as in E54/E55, and the
+  `verdict` fix remains a proposal for the owner (E55). ventures 2 and review 2
+  unchanged (overlap / under 10 runs). No audit or drift report (reduced pass).
+- Result: (next review)
