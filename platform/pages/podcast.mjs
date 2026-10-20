@@ -31,7 +31,7 @@ export const PODCAST_DIR = 'docs/podcast';
 export const PODCAST_PATH = 'writing/podcast/';
 export const SHOW_TITLE = `${SITE_NAME} podcast`;
 export const SHOW_DESCRIPTION =
-  'Short audio episodes on what an open repository of free tools and research, built mostly by unattended AI coding agents, is doing and finding. Each episode reads a post from the Writing section in a synthetic voice.';
+  'Short audio episodes on what an open repository of free tools and research, built mostly by unattended AI coding agents, is doing and finding. Each episode is a spoken version of a post from the Writing section, in a synthetic voice.';
 const FILE_RE = /^(\d{4}-\d{2}-\d{2})-([a-z0-9][a-z0-9-]*)\.md$/;
 // Markup a listener cannot hear: a script with any of it was written for the eye.
 const UNSPEAKABLE = /[#*`|<>[\]]|https?:/;

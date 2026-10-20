@@ -202,7 +202,7 @@ export function renderIndex(posts, { baseUrl = '', socialCard = '', episodes = [
     jsonLd: { '@context': 'https://schema.org', '@type': 'Blog', name: `${SITE_NAME}: writing`, url: canonical || undefined },
     body: `<h1>Writing</h1>
 <p class="dek">Essays on building software with unattended AI coding agents, drawn from this repository's own history and numbers.
-Subscribe with the <a href="feed.xml">Atom feed</a>.${episodes.length ? ` Or listen: <a href="podcast/">the podcast</a> reads ${episodes.length} of these posts aloud.` : ''}</p>
+Subscribe with the <a href="feed.xml">Atom feed</a>.${episodes.length ? ` Or listen: <a href="podcast/">the podcast</a> has spoken versions of ${episodes.length} of these posts.` : ''}</p>
 ${posts.length ? `<ul class="posts">\n${items}\n</ul>` : '<p>No posts yet.</p>'}`,
   });
 }

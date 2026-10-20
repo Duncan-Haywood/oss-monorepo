@@ -498,6 +498,8 @@ export const SERVED_EXTENSIONS = new Map([
   ['.svg', 'stock'],
   ['.ico', 'stock'],
   ['.pdf', 'stock'],
+  // Podcast episodes (podcast.mjs); nginx's mime.types maps mp3 to audio/mpeg.
+  ['.mp3', 'stock'],
   ['.mjs', 'conf'],
   ['.webmanifest', 'conf'],
   ['.csv', 'conf'],
