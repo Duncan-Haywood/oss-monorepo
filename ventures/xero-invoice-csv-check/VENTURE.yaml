@@ -46,4 +46,4 @@ hypotheses:
       contacts, misspelled tax rates), so a bookkeeper who pastes the lists gets fewer rejected imports.
     status: untested
     checked: null
-    evidence: code
+    evidence: in-repo
