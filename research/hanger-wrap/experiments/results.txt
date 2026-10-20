@@ -1,0 +1,43 @@
+hanger-wrap results: 3D sheet drape vs the 2D chain of hanger-fit. err = seam-row RMS shape error (cm),
+crease = sharpest bend along the seam (deg/cm), cross = sharpest bend across the arm (deg/cm).
+
+== A. Stock hangers, size M: 2D chain vs 3D sheet
+hanger fabric   err2D  err3D  crease2D crease3D  cross3D  drift
+plastic     tee        3.10   3.41  64.73  59.73 226.43   0.06
+plastic     shirt      3.23   3.45  62.77  51.16 300.80   0.03
+plastic     sweater    5.63  17.83  64.61   7.03 104.06   0.08
+wood-shaped tee        0.38   0.62  28.81  29.18  48.88   0.01
+wood-shaped shirt      0.36   0.43  28.69  29.54  55.09   0.03
+wood-shaped sweater    3.11   6.22  33.03  43.41  40.33   0.15
+
+== B. Arm half-width sweep, size M tee, r = 2 cm: 2D vs 3D
+w_cm   err2D  err3D  crease2D crease3D
+ 18.0   4.37   4.16  28.95  28.60
+ 19.0   3.45   3.45  28.91  28.19
+ 20.0   2.54   2.43  28.89  28.90
+ 21.0   1.65   1.70  28.85  28.80
+ 22.0   0.79   0.91  28.82  29.05
+ 22.8   0.19   0.63  28.80  30.10
+ 24.0   0.91   1.15  28.78  29.37
+ 25.0   1.68   1.97  28.77  29.42
+ 26.0   2.43   2.71  28.76  29.15
+argmin w: 2D 22.8  3D 22.8; correlation of err across w: 0.994
+
+== C. Arm radius, size M tee, w = 22.8 cm: bend across the arm
+r_cm   err2D  err3D  crease2D crease3D  cross3D
+  0.5   0.31   0.71  63.42  46.09 119.45
+  1.0   0.27   0.69  56.58  43.38  58.74
+  1.5   0.22   0.56  38.41  38.54  42.27
+  2.0   0.19   0.63  28.80  30.10  34.35
+  3.0   0.18   0.59  19.19  20.04  34.68
+
+== D. Sizes on the wood-shaped stock hanger, tee: 2D vs 3D
+size   err2D  err3D  crease2D crease3D
+child    5.30   5.63  28.81  24.33
+S        0.54   0.99  28.83  29.98
+M        0.38   0.62  28.81  29.18
+XXL      3.00   2.89  28.98  29.90
+
+== E. Grid resolution, size M tee, wood-shaped: 1 cm vs 0.5 cm spacing
+ds 1.0 cm  err3D 1.19  crease3D 16.3  cross3D 29.1  iters 2000
+ds 0.5 cm  err3D 0.62  crease3D 29.2  cross3D 48.9  iters 2000
