@@ -104,3 +104,17 @@ test("footer links the sibling research-algorithm tools", () => {
   assert.match(html, /href="\.\.\/conformal-prediction-intervals\/"/);
   assert.match(html, /href="\.\.\/matrix-profile-explorer\/"/);
 });
+
+test("the trend box offers one bend and several, and passes the choice to the engine", () => {
+  const html = page("index.html");
+  assert.match(html, /<select id="trend">[^]*?<option value="bend">[^]*?<option value="bends">/);
+  assert.match(html, /trend: \$\("#trend"\)\.value === "1" \? true : \$\("#trend"\)\.value \|\| false/);
+});
+
+test("the page has a switch for scoring every pair of knots and passes it to the engine", () => {
+  const html = page("index.html");
+  assert.match(html, /<input id="jointKnots" type="checkbox">/);
+  assert.match(html, /jointKnots: \$\("#jointKnots"\)\.checked/);
+  assert.match(html, /<select id="knotMargin">/);
+  assert.match(html, /knotMargin: Number\(\$\("#knotMargin"\)\.value\)/);
+});

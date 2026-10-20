@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "swe-cachecost"
+version = "0.1.0"
+description = "Where does a run's cost go? Cache reads, cache writes, output, and why cost grows faster than tool calls"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

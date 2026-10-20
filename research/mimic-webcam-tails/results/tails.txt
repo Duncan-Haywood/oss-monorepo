@@ -1,0 +1,8 @@
+generator	all groups	level	spread	extremes	roughness	autocorr	holds	floor	cross	(mean of 8 seeds)
+G0 L5 (Gaussian, from mimic-webcam)	1.000	0.907	0.937	1.000	0.936	0.954	0.995	0.914	0.772
+G1 copula (empirical marginals)	1.000	0.991	0.989	0.999	1.000	0.998	1.000	0.970	0.968
+G2 copula + holds	1.000	0.989	0.984	0.999	0.997	0.981	0.995	0.964	0.952
+G3 regime (quiet/burst pools)	1.000	0.999	0.999	1.000	1.000	1.000	1.000	0.999	0.990
+G4 regime + holds	1.000	0.998	0.997	1.000	0.999	1.000	0.994	0.997	0.986
+G5 copula + window level/spread + holds	1.000	0.539	0.567	0.995	0.720	0.942	0.995	0.823	0.823
+G6 copula ranks through a real window's values + holds	0.998	0.456	0.447	0.445	0.750	0.886	0.999	0.464	0.828

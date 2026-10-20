@@ -1,0 +1,10 @@
+model,gain_percent,gain_ci95_low,gain_ci95_high,diff_vs_reference_points,diff_ci95_low,diff_ci95_high,reference,inputs_added,inputs_removed,marriages,divorces,intervals,repeats
+constant,0.0000,0.0000,0.0000,-5.0727,-5.7822,-4.3355,current model,,,6645,2727,116985,3
+current model,5.0727,4.3355,5.7822,0.0000,0.0000,0.0000,current model,,,6645,2727,116985,3
+current + race detail (replaces race),5.0573,4.3241,5.7630,-0.0155,-0.0300,-0.0017,current model,race_detail,race,6645,2727,116985,3
+"current + family at 14, full detail (replaces the 4-level version)",5.0848,4.3302,5.7960,0.0121,-0.0225,0.0447,current model,family_at_14_detail,family_at_14,6645,2727,116985,3
+current + siblings,5.1113,4.3556,5.8298,0.0386,-0.0552,0.1370,current model,siblings,,6645,2727,116985,3
+current + religion detail (6-level attendance replaces the 4-level; affiliation in 1979),5.0432,4.2960,5.7619,-0.0296,-0.0802,0.0189,current model,"attendance6, religion_1979",attendance,6645,2727,116985,3
+current + occupation before the wedding,5.0286,4.2914,5.7573,-0.0442,-0.1017,0.0168,current model,occupation_group,,6645,2727,116985,3
+current + family net wealth before the wedding,5.0902,4.3599,5.8111,0.0175,-0.0759,0.1046,current model,"net_worth_before_k, net_worth_measured",,6645,2727,116985,3
+current + all new blocks,5.0654,4.3084,5.8482,-0.0073,-0.1605,0.1533,current model,"race_detail, family_at_14_detail, siblings, attendance6, religion_1979, occupation_group, net_worth_before_k, net_worth_measured","attendance, race, family_at_14",6645,2727,116985,3

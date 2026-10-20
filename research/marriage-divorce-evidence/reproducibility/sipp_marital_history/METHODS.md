@@ -191,3 +191,37 @@ unmarried couples are excluded.
 Run: `sh download.sh WORK`, `python3 -I build_retro.py WORK/raw WORK/pu WORK/retro.parquet
 2021 2025`, `python3 -I train_retro.py WORK`, `python3 -I train_prospective.py WORK`
 (scikit-learn 1.7.2; about 1.5 GB of memory each).
+
+## 2026-10-20 extension of the prospective couple model (`extract_ext.py`, `extended_predictors.py`)
+
+`python3 -I extract_ext.py WORK/pu 2018 … 2025` re-reads the annual files (hashes in
+`downloads_ext.json`) for each person's job-1 occupation and industry and the household's wealth
+components in December; `python3 -I extended_predictors.py WORK` tests them on the same 33,698
+couple-years (312 separations or divorces), household folds and in-fold penalty choice as
+`train_prospective.py`, with a paired household bootstrap (1,000). All new inputs are measured in the
+baseline December, before the outcome year:
+
+- each spouse's occupation (TJB1_OCC, 2018 Census codes, major group; "No job" when job 1 is not
+  reported, which includes retired spouses);
+- the husband's race-ethnicity (the model had only the wife's and same/different). SIPP's public
+  ERACE is White alone / Black alone / Asian alone / residual, so AIAN, NHPI and multiracial
+  people are one "Other" group (`app/data/race_coverage.json`);
+- home equity, bank accounts, stocks and mutual funds, retirement accounts and business equity
+  (household; clipped to the weighted 1st–99th percentiles), beyond the net worth, debt and home
+  ownership already in the model.
+
+| Variant | Log-loss gain % (95% CI) | Minus current, points (95% CI) |
+| --- | --- | --- |
+| current (demographics + wealth) | 5.03 (3.42–6.50) | — |
+| + each spouse's occupation | 5.14 (3.49–6.61) | +0.11 (−0.08 to +0.30) |
+| + husband's race-ethnicity | 4.98 (3.38–6.43) | −0.05 (−0.14 to +0.04) |
+| + wealth components | 4.68 (3.19–5.98) | −0.35 (−0.83 to +0.16) |
+| + all | 4.66 (3.15–6.01) | −0.37 (−0.89 to +0.13) |
+
+**Nothing adds held-out skill.** Adjusted odds ratios (near-unpenalised logistic with every current
+input, 150 household-bootstrap refits; `extended_rate_ratios.csv`): $100,000 more in bank accounts
+0.82 (0.60–1.00); home equity 0.97 (0.88–1.05) per $100,000; no occupation group of either spouse
+differs clearly from management and professional jobs (wives with no job 1.52, 0.87–2.64). A
+husband reported as Asian has 3.87 (1.35–9.77) times the odds given the wife's group and whether
+they match — 18 events, so this is fragile. `models_extended` (all blocks) and its test vectors
+are in `app/models/sipp_prospective_couples.json` for transparency.

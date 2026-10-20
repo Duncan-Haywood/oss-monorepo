@@ -75,9 +75,11 @@ the base rules, and the defects file raises BR-CO-15, BR-CO-16, BR-CO-17, BR-S-0
 and BR-61. The bundled UBL example names XRechnung 3.0 and the XRechnung rules
 find what a German public buyer would reject: no seller contact (BR-DE-2) and no
 buyer post code (BR-DE-9). The Docker image builds the rules in a first stage and
-ships them with Saxon-JS (`?schematron=1`). JSON drafts have no XML to check. On a self-hosted copy the web page has an "Also run the official EN 16931 Schematron" box: it posts the XML to the page's own `/v1/validate?schematron=1` (`official.mjs`) and lists the official findings beside the built-in ones; on a static host with no API it says the check did not run, never a pass. The
+ships them with Saxon-JS (`?schematron=1`). JSON drafts have no XML to check. On a self-hosted copy the web page has an "Also run the official EN 16931 Schematron" box: it posts the XML to the page's own `/v1/validate?schematron=1` (`official.mjs`) and lists the official findings beside the built-in ones; on a static host with no API it says the check did not run, never a pass.
+
+**No server needed (in-browser).** `node build-schematron.mjs && node build-browser.mjs` writes `./browser/` (Saxon-JS's browser runtime fetched from saxonica.com, the compiled rules, a manifest). Serve it beside `index.html` on any static host and the same box runs the official rules in the visitor's browser (`official-browser.mjs`): the invoice never leaves the page, and the note says so. Checked in headless Chromium on `ubl-invoice-with-defects.xml`: BR-CO-15, BR-61, BR-CO-16, BR-S-09 and the XRechnung BR-DE-2, zero POST requests. The folder is git-ignored and not on the owner's Pages copy on purpose: Saxon-JS's licence does not allow copying it to a site whose main purpose is to serve it to third parties, so each deployer builds their own (`official-browser.test.mjs` runs the real runtime when it exists). The
 XRechnung messages are in German, as the KoSIT rules publish them; the `fix` line
-is English. `examples/xrechnung-cii-invoice.xml` and `examples/peppol-credit-note.xml` (Peppol BIS 3 UBL credit note) pass the official rules and are pinned by tests. Peppol also applies its German `DE-R-nnn` rules to a domestic German invoice (seller contact, buyer post code, payment groups); each has an English fix.
+is English. `examples/xrechnung-cii-invoice.xml`, `examples/xrechnung-cii-credit-note.xml` (CII credit note, type 381, with its BT-25 invoice reference) and `examples/peppol-credit-note.xml` (Peppol BIS 3 UBL credit note) pass the official rules (the CII ones with one information-level note, BR-DE-TMP-32) and are pinned by tests. `examples/ubl-credit-note-with-defects.xml` is a credit note with six faults (a 380 type code, no buyer reference, a VAT total that disagrees with its subtotal, a German seller without a contact); the official rules report BR-CL-01, BR-CO-14, BR-CO-15, DE-R-015, PEPPOL-EN16931-P0101 and PEPPOL-EN16931-R003, each with a specific English fix, pinned by tests. `examples/xrechnung-cii-credit-note-with-defects.xml` is the clean CII credit note with four faults (no buyer reference, no seller contact, a VAT amount that is not 19% of its basis, a type code outside UNTDID 1001); the official EN 16931 and XRechnung rules report BR-CL-01, BR-CO-14, BR-CO-17, BR-DE-15, BR-DE-17, BR-DE-2, BR-DE-TMP-32 and BR-S-09, each with a specific English fix, pinned by tests. Peppol also applies its German `DE-R-nnn` rules to a domestic German invoice (seller contact, buyer post code, payment groups); each has an English fix.
 
 ```sh
 cd ventures/einvoice-preflight
@@ -100,6 +102,7 @@ PYTHONPATH=src python3 -m einvoice_preflight examples/valid-credit-note.json
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-mixed-rate.json
 PYTHONPATH=src python3 -m einvoice_preflight examples/cii-invoice.xml
 PYTHONPATH=src python3 -m einvoice_preflight examples/factur-x-invoice.pdf
+# examples/factur-x-credit-note.pdf: a Factur-X (EN 16931) credit note, type 381; its XML passes the official rules. Both readers now take BT-25 (the invoice a CII credit note reverses) from the settlement header; before, every CII or Factur-X credit note drew a false INV-033.
 PYTHONPATH=src python3 -m einvoice_preflight examples/ubl-invoice.xml
 PYTHONPATH=src python3 -m einvoice_preflight examples/peppol-credit-note.xml
 # The one example that is meant to fail: six planted defects, annotated at the
@@ -606,3 +609,5 @@ IBAN is present and, when it looks like an RF creditor reference, is
 checked with the published ISO 11649 checksum only. The tool never
 contacts a bank, never stores the account number, BIC, or remittance,
 and never claims funds can be received or allocated there.
+
+`examples/factur-x-credit-note-with-defects.pdf` wraps the defective CII credit note in a Factur-X envelope: the built-in rules report INV-032 (unknown type code) and INV-038 (tax amount), identical to the bare XML (`facturx.test.mjs`); the official-rule findings for the same XML are pinned in `schematron.test.mjs`.

@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { parseDivisions, parseDivisionLinks, buildDivisions, validateDivisions, linkConflicts, divisionsCsv, divisionsText, readDivisionsSpec } from "./divisions.mjs";
+import { parseDivisions, parseDivisionLinks, buildDivisions, applyDivisionRainouts, validateDivisions, linkConflicts, divisionsCsv, divisionsText, readDivisionsSpec, parseTravel, divisionStats, carryVenueHistory, venueImbalance, encodeDivisionFields, decodeDivisionFields } from "./divisions.mjs";
 import { parseDate, dayIso } from "./calc.mjs";
 
 const example = JSON.parse(readFileSync(new URL("./example-divisions.json", import.meta.url), "utf8"));
@@ -97,4 +97,255 @@ test("a double round robin hosts each pair once each way", () => {
   assert.deepEqual(validateDivisions(s).errors, []);
   assert.equal(s.stats.matches, 12);
   assert.equal(dayIso(parseDate("2026-10-06")), "2026-10-06");
+});
+
+test("parseTravel reads minutes in either direction and names venues it does not know", () => {
+  const r = parseTravel("Park - School: 25\nschool to Mall: 10\nPark - Park: 5\nPark - Mall: 0\nPark - Mall: 55 min", ["Park", "School", "Mall"]);
+  assert.deepEqual(r.travel, { "Park|School": 25, "Mall|Park": 55 });
+  assert.equal(r.errors.length, 3);
+});
+
+test("with a travel table the optimiser cuts minutes on the road, not just venue changes (measured on 8 seeds)", () => {
+  const travelText = "Park - School: 10\nPark - Lake: 60\nSchool - Lake: 55";
+  const f = { ...example, courts: "Field 1 @ Park, Field 2 @ Park, Gym A @ School, Gym B @ Lake", courtClosures: "", travel: travelText };
+  const { spec, errors } = readDivisionsSpec(f);
+  assert.deepEqual(errors, []);
+  let flat = 0, aware = 0, naive = 0;
+  for (let seed = 1; seed <= 8; seed++) {
+    const withTable = buildDivisions({ ...spec, seed });
+    assert.deepEqual(validateDivisions(withTable).errors, []);
+    aware += withTable.stats.travelMinutes;
+    // the same league scheduled as if every change cost the same, then priced with the table
+    const blind = buildDivisions({ ...spec, travel: {}, seed });
+    flat += divisionStats({ ...blind, config: { ...blind.config, travel: spec.travel } }).travelMinutes;
+    const base = buildDivisions({ ...spec, optimize: false, seed });
+    naive += base.stats.travelMinutes;
+  }
+  assert.ok(aware < flat, `travel-aware ${aware} min vs flat ${flat} min`);
+  assert.ok(aware < naive, `travel-aware ${aware} min vs naive ${naive} min`);
+  console.log(`travel minutes over 8 seeds: naive ${naive}, flat-cost optimiser ${flat}, travel-aware ${aware}`);
+});
+
+test("no travel table leaves the schedule and stats exactly as before", () => {
+  const s = build();
+  assert.equal(s.stats.travelMinutes, undefined);
+  assert.ok(!divisionsText(s).includes("min of travel"));
+});
+
+test("five venues on a line: the travel table cuts road minutes by more than half (measured on 8 seeds)", () => {
+  const base = { divisions: "A: a1, a2, a3, a4, a5, a6\nB: b1, b2, b3, b4, b5, b6", courts: "C1 @ V1, C2 @ V2, C3 @ V3, C4 @ V4, C5 @ V5", times: "18:00", start: "2026-10-06", weekdays: "Tue, Thu" };
+  const travel = "V1 - V2: 5\nV2 - V3: 5\nV3 - V4: 5\nV4 - V5: 5\nV1 - V3: 40\nV1 - V4: 60\nV1 - V5: 80\nV2 - V4: 40\nV2 - V5: 60\nV3 - V5: 40";
+  let flat = 0, aware = 0;
+  for (let seed = 1; seed <= 8; seed++) {
+    const { spec, errors } = readDivisionsSpec({ ...base, travel, seed });
+    assert.deepEqual(errors, []);
+    const blind = buildDivisions({ ...spec, travel: {} }); // every change costs the same, then priced with the table
+    flat += divisionStats({ ...blind, config: { ...blind.config, travel: spec.travel } }).travelMinutes;
+    aware += buildDivisions(spec).stats.travelMinutes;
+  }
+  assert.ok(aware < flat * 0.6, `travel-aware ${aware} min vs flat ${flat} min`); // measured 1280 vs 3200
+});
+
+test("a rainout in one division moves only its matches, to a night both teams are free, and the result still validates", () => {
+  const s = build();
+  const night = s.nights[1];
+  const target = night.matches[0];
+  const before = JSON.stringify(s.nights.filter((n) => n !== night).map((n) => n.matches.filter((m) => m.division !== target.division || n.day < night.day)));
+  const r = applyDivisionRainouts(s, `${dayIso(night.day)} ${target.division}/${target.homeName}`);
+  assert.deepEqual(r.errors, []);
+  assert.equal(r.moves.length, 1);
+  assert.ok(r.moves[0].to > night.day);
+  assert.deepEqual(validateDivisions(r.schedule).errors, []);
+  assert.equal(r.schedule.stats.matches, s.stats.matches);
+  assert.equal(JSON.stringify(s.nights.filter((n) => n !== night).map((n) => n.matches.filter((m) => m.division !== target.division || n.day < night.day))), before);
+  assert.deepEqual(r.schedule.conflicts, []);
+});
+
+test("a whole-division and a whole-night rainout move every match, and a named make-up date is honoured or refused with the reason", () => {
+  const s = build();
+  const day = dayIso(s.nights[0].day);
+  const whole = applyDivisionRainouts(s, day);
+  assert.deepEqual(whole.errors, []);
+  assert.equal(whole.moves.length, s.nights[0].matches.length);
+  assert.deepEqual(validateDivisions(whole.schedule).errors, []);
+  const name = s.nights[0].matches[0].division;
+  const div = applyDivisionRainouts(s, `${day} ${name}`);
+  assert.ok(div.moves.length > 0 && div.moves.every((m) => m.division === name));
+  assert.deepEqual(validateDivisions(div.schedule).errors, []);
+  const dated = applyDivisionRainouts(s, `${day} ${name} -> 2026-12-31`);
+  assert.deepEqual(dated.errors, []);
+  assert.ok(dated.moves.every((m) => dayIso(m.to) === "2026-12-31"));
+  assert.deepEqual(validateDivisions(dated.schedule).errors, []);
+  const early = applyDivisionRainouts(s, `${day} ${name} -> ${day}`);
+  assert.equal(early.moves.length, 0);
+  assert.match(early.errors[0], /is not after/);
+  assert.equal(early.schedule.stats.matches, s.stats.matches);
+});
+
+test("bad rainout lines are named and change nothing", () => {
+  const s = build();
+  const r = applyDivisionRainouts(s, "tomorrow\n2026-10-07 U10\n2026-10-06 Nope\n2026-10-06 U10/Zebras");
+  assert.equal(r.errors.length, 4);
+  assert.equal(r.moves.length, 0);
+  assert.equal(divisionsCsv(r.schedule), divisionsCsv(s));
+});
+
+test("a rainout moved match avoids a linked team's time slot where another slot is open", () => {
+  const { spec } = readDivisionsSpec({ divisions: "A: a1, a2, a3, a4\nB: b1, b2", courts: "C1, C2", times: "18:00, 19:30", start: "2026-10-06", weekdays: "Tue", links: "A/a1, B/b1" });
+  const s = buildDivisions(spec);
+  assert.deepEqual(s.conflicts, []);
+  const r = applyDivisionRainouts(s, `${dayIso(s.nights[0].day)} A/a1`);
+  assert.deepEqual(r.errors, []);
+  assert.deepEqual(validateDivisions(r.schedule).errors, []);
+  assert.deepEqual(r.schedule.conflicts, []);
+});
+
+test("division share link round-trips the whole form and rejects junk", async () => {
+  const { encodeDivisionFields, decodeDivisionFields } = await import("./divisions.mjs");
+  const f = { ...example, divisions: "U10: Hawks, Owls — café\nAdult: Rams, Kings (double)", seed: 3 };
+  const frag = encodeDivisionFields(f);
+  assert.match(frag, /^[A-Za-z0-9_-]+$/);
+  const back = decodeDivisionFields("#d=" + frag);
+  for (const k of ["divisions", "courts", "times", "start", "weekdays", "skip", "courtClosures", "travel", "links", "rainouts"]) assert.equal(back[k], example[k] === undefined || k === "divisions" ? (k === "divisions" ? f.divisions : "") : String(example[k]), k);
+  assert.equal(back.seed, "3");
+  const a = buildDivisions(readDivisionsSpec(back).spec);
+  const b = buildDivisions(readDivisionsSpec({ ...f, seed: 3 }).spec);
+  assert.deepEqual(a.stats, b.stats);
+  for (const bad of ["", "#", "#s=" + frag, "#d=", "#d=!!!", "#d=" + "A".repeat(20001), "#d=" + btoa("[1]")]) assert.equal(decodeDivisionFields(bad), null, bad);
+});
+
+test("splitRounds fills partial nights: fewer nights, still valid, each team once a night, parts in order", () => {
+  const { spec } = readDivisionsSpec({ ...example, courts: "Field 1 @ Park, Field 2 @ Park, Gym A @ School" });
+  const whole = buildDivisions(spec);
+  const split = buildDivisions({ ...spec, splitRounds: true });
+  assert.deepEqual(validateDivisions(split).errors, []);
+  assert.ok(split.stats.nights < whole.stats.nights, `${split.stats.nights} nights against ${whole.stats.nights}`);
+  assert.equal(split.stats.matches, whole.stats.matches);
+  assert.ok(split.divisions.some((d) => d.rounds.some((r) => /part 2/.test(r.label))));
+  assert.ok(split.stats.utilisation > whole.stats.utilisation);
+});
+
+test("without splitRounds a round bigger than the slots is refused; with it the round spreads over nights", () => {
+  const spec = { divisions: [{ name: "A", teams: ["a", "b", "c", "d", "e", "f", "g", "h"], double: false }], courts: ["C1", "C2"], times: [""], start: parseDate("2026-10-06"), weekdays: [2], seed: 1 };
+  assert.throws(() => buildDivisions(spec), /needs 4 court slots/);
+  const s = buildDivisions({ ...spec, splitRounds: true });
+  assert.deepEqual(validateDivisions(s).errors, []);
+  assert.equal(s.stats.matches, 28);
+  assert.equal(s.stats.nights, 14);
+});
+
+test("the split form field is read and shared", async () => {
+  const { encodeDivisionFields, decodeDivisionFields } = await import("./divisions.mjs");
+  assert.equal(readDivisionsSpec({ ...example, split: "1" }).spec.splitRounds, true);
+  assert.equal(readDivisionsSpec(example).spec.splitRounds, false);
+  assert.equal(decodeDivisionFields("#d=" + encodeDivisionFields({ ...example, split: "1" })).split, "1");
+});
+
+test("stats count home/away breaks, and rainouts with balance:true add fewer of them than the earliest-night default", () => {
+  const { spec } = readDivisionsSpec({ ...example, courts: "Field 1 @ Park, Field 2 @ Park, Gym A @ School" });
+  let plain = 0, balanced = 0;
+  for (let seed = 1; seed <= 4; seed++) {
+    const s = buildDivisions({ ...spec, seed });
+    assert.equal(typeof s.stats.homeAwayBreaks, "number");
+    const text = s.nights.filter((_, i) => i % 4 === 1).map((n) => dayIso(n.day)).join("\n");
+    const a = applyDivisionRainouts(s, text);
+    const b = applyDivisionRainouts(s, text, { balance: true });
+    assert.deepEqual(b.errors, []);
+    assert.deepEqual(validateDivisions(b.schedule).errors, []);
+    assert.equal(b.schedule.stats.matches, s.stats.matches);
+    plain += a.schedule.stats.homeAwayBreaks; balanced += b.schedule.stats.homeAwayBreaks;
+  }
+  assert.ok(balanced < plain, `balanced ${balanced} against ${plain}`); // measured 8 seeds: 395 -> 347 (README), 4 seeds here
+});
+
+test("rainouts with flip:true swap home and away of moved matches: fewer breaks, same nights, still valid", () => {
+  const { spec } = readDivisionsSpec({ ...example, courts: "Field 1 @ Park, Field 2 @ Park, Gym A @ School" });
+  let plain = 0, flipped = 0, swaps = 0;
+  for (const seed of [1, 2, 3, 4, 5, 6, 8]) {
+    const s = buildDivisions({ ...spec, seed });
+    const text = s.nights.filter((_, i) => i % 4 === 1).map((n) => dayIso(n.day)).join("\n");
+    const a = applyDivisionRainouts(s, text);
+    const f = applyDivisionRainouts(s, text, { flip: true });
+    assert.deepEqual(f.errors, []);
+    assert.deepEqual(validateDivisions(f.schedule).errors, []);
+    assert.deepEqual(f.moves.map((m) => m.to), a.moves.map((m) => m.to)); // no match changes night
+    assert.equal(f.schedule.stats.lastDay, a.schedule.stats.lastDay);
+    assert.ok(f.schedule.stats.homeAwayBreaks <= a.schedule.stats.homeAwayBreaks);
+    plain += a.schedule.stats.homeAwayBreaks; flipped += f.schedule.stats.homeAwayBreaks;
+    swaps += f.moves.filter((m) => m.flipped).length;
+  }
+  assert.ok(swaps > 0 && flipped < plain, `${swaps} swaps, ${flipped} against ${plain}`); // measured 7 seeds: 345 -> 333 (README)
+});
+
+test("rainouts with relocate:true move make-ups to earlier nights already on the calendar: fewer breaks, no later, still valid", () => {
+  const { spec } = readDivisionsSpec({ ...example, courts: "Field 1 @ Park, Field 2 @ Park, Gym A @ School" });
+  let plain = 0, moved = 0, relocated = 0;
+  for (const seed of [1, 2, 3, 4, 5, 6, 8]) {
+    const s = buildDivisions({ ...spec, seed });
+    const text = s.nights.filter((_, i) => i % 4 === 1).map((n) => dayIso(n.day)).join("\n");
+    const a = applyDivisionRainouts(s, text, { balance: true });
+    const r = applyDivisionRainouts(s, text, { balance: true, relocate: true });
+    assert.deepEqual(r.errors, []);
+    assert.deepEqual(validateDivisions(r.schedule).errors, []);
+    assert.equal(r.schedule.stats.matches, s.stats.matches);
+    assert.ok(r.schedule.stats.lastDay <= a.schedule.stats.lastDay);
+    r.moves.forEach((m, i) => assert.ok(m.to <= a.moves[i].to && m.to > m.from));
+    assert.ok(r.schedule.stats.homeAwayBreaks <= a.schedule.stats.homeAwayBreaks);
+    plain += a.schedule.stats.homeAwayBreaks; moved += r.schedule.stats.homeAwayBreaks;
+    relocated += r.moves.filter((m) => m.relocated).length;
+  }
+  assert.ok(relocated > 0 && moved < plain, `${relocated} moved, ${moved} against ${plain}`); // measured 7 seeds with balance: 300 -> 296 (README)
+});
+
+test("linked teams in back-to-back slots are not sent to different venues when another slot is free (30 seeds)", () => {
+  const slots = ["18:00", "19:00", "20:00"];
+  for (const links of ["A/a1, B/b1", "A/a1, B/b1\nA/a2, B/b2"]) for (let seed = 1; seed <= 30; seed++) {
+    const { spec, errors } = readDivisionsSpec({ divisions: "A: a1, a2\nB: b1, b2", courts: "P1 @ Park, P2 @ Park, S1 @ School, S2 @ School", times: slots.join(", "), start: "2026-10-06", weekdays: "Tue", links, seed });
+    assert.deepEqual(errors, []);
+    const [x, y] = buildDivisions(spec).nights[0].matches;
+    const gap = Math.abs(slots.indexOf(x.time) - slots.indexOf(y.time));
+    assert.ok(!(gap === 1 && x.venue !== y.venue), `seed ${seed}: ${x.time} ${x.venue} then ${y.time} ${y.venue}`);
+  }
+});
+
+test("venue fairness carries across seasons: three seasons end more even than within-season fairness or none (8 seeds)", () => {
+  const sums = { off: 0, season: 0, carry: 0 };
+  for (let seed = 1; seed <= 8; seed++) {
+    for (const mode of Object.keys(sums)) {
+      let hist = {};
+      const all = {};
+      for (let y = 0; y < 3; y++) {
+        const s = build({ seed: seed * 10 + y, venueFairness: mode !== "off", venueHistory: mode === "carry" ? hist : undefined });
+        assert.ok(validateDivisions(s).ok);
+        const one = carryVenueHistory({ ...s, config: { ...s.config, venueHistory: {} } });
+        for (const k of Object.keys(one)) { all[k] ||= {}; for (const v of Object.keys(one[k])) all[k][v] = (all[k][v] || 0) + one[k][v]; }
+        hist = carryVenueHistory(s);
+      }
+      sums[mode] += venueImbalance(all) / 8;
+    }
+  }
+  assert.ok(sums.season < sums.off, `season ${sums.season} vs off ${sums.off}`);
+  assert.ok(sums.carry < sums.season, `carry ${sums.carry} vs season ${sums.season}`);
+});
+
+test("fairness off leaves the schedule untouched; history counts add up and a bad history is named", () => {
+  const a = build({ seed: 3 }), b = build({ seed: 3, venueFairness: false });
+  assert.deepEqual(a.nights, b.nights);
+  assert.equal(a.stats.venueImbalance, undefined);
+  const h = carryVenueHistory(build({ seed: 3, venueFairness: true }));
+  const played = Object.values(h).reduce((n, o) => n + Object.values(o).reduce((x, y) => x + y, 0), 0);
+  assert.equal(played, 2 * build({ seed: 3 }).stats.matches);
+  assert.ok(readDivisionsSpec({ ...example, venueHistory: "{nope" }).errors.some((e) => /Venue history/.test(e)));
+  assert.deepEqual(readDivisionsSpec({ ...example, venueHistory: JSON.stringify(h), venueFairness: "yes" }).errors, []);
+});
+
+test("a share link carries the venue-fairness switch and last season's history", () => {
+  const h = JSON.stringify(carryVenueHistory(build({ seed: 3, venueFairness: true })));
+  const back = decodeDivisionFields("#d=" + encodeDivisionFields({ ...example, venueFairness: "1", venueHistory: h }));
+  assert.equal(back.venueFairness, "1");
+  assert.equal(back.venueHistory, h);
+  const { spec, errors } = readDivisionsSpec(back);
+  assert.deepEqual(errors, []);
+  assert.equal(spec.venueFairness, true);
+  assert.ok(buildDivisions(spec).config.venueFairness);
 });

@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of garments hung or folded per hour against the opening detector look time in seconds, one line for each share of garments with a hidden opening: output falls from about 185 per hour with no look and no hidden openings to about 100 with a 6 second look and 80 percent hidden">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">How much does a slower look cost a one-arm laundry cell?</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="255.9" y2="255.9" stroke="#ddd"/><text x="58" y="259.9" text-anchor="end" font-family="sans-serif" font-size="11">50</text>
+<line x1="64" x2="624" y1="187.7" y2="187.7" stroke="#ddd"/><text x="58" y="191.7" text-anchor="end" font-family="sans-serif" font-size="11">100</text>
+<line x1="64" x2="624" y1="119.6" y2="119.6" stroke="#ddd"/><text x="58" y="123.6" text-anchor="end" font-family="sans-serif" font-size="11">150</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0</text>
+<text x="157.3" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1</text>
+<text x="344.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">3</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">6</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">look time before each aimed grasp (s, assumed)</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">garments hung or folded per hour (one arm)</text>
+<polyline points="64.0,71.2 157.3,77.4 344.0,89.6 624.0,112.1" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="71.2" r="3" fill="#c0392b"/>
+<circle cx="157.3" cy="77.4" r="3" fill="#c0392b"/>
+<circle cx="344.0" cy="89.6" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="112.1" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">0% hidden</text>
+<polyline points="64.0,92.7 157.3,99.4 344.0,113.3 624.0,134.7" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="92.7" r="3" fill="#1f6fb2"/>
+<circle cx="157.3" cy="99.4" r="3" fill="#1f6fb2"/>
+<circle cx="344.0" cy="113.3" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="134.7" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">20% hidden</text>
+<polyline points="64.0,116.4 157.3,123.9 344.0,137.0 624.0,155.3" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="116.4" r="3" fill="#2e8b57"/>
+<circle cx="157.3" cy="123.9" r="3" fill="#2e8b57"/>
+<circle cx="344.0" cy="137.0" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="155.3" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">40% hidden</text>
+<polyline points="64.0,139.2 157.3,145.3 344.0,157.4 624.0,172.7" fill="none" stroke="#8e44ad" stroke-width="2"/>
+<circle cx="64.0" cy="139.2" r="3" fill="#8e44ad"/>
+<circle cx="157.3" cy="145.3" r="3" fill="#8e44ad"/>
+<circle cx="344.0" cy="157.4" r="3" fill="#8e44ad"/>
+<circle cx="624.0" cy="172.7" r="3" fill="#8e44ad"/>
+<rect x="574" y="32" width="14" height="10" fill="#8e44ad"/><text x="594" y="41" font-family="sans-serif" font-size="11">60% hidden</text>
+<polyline points="64.0,159.6 157.3,164.9 344.0,174.8 624.0,187.4" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="159.6" r="3" fill="#c0392b"/>
+<circle cx="157.3" cy="164.9" r="3" fill="#c0392b"/>
+<circle cx="344.0" cy="174.8" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="187.4" r="3" fill="#c0392b"/>
+<rect x="744" y="32" width="14" height="10" fill="#c0392b"/><text x="764" y="41" font-family="sans-serif" font-size="11">80% hidden</text>
+</svg>

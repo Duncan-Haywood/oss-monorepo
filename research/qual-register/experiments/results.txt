@@ -1,0 +1,26 @@
+GoEmotions (first file): 5313 examples; 2125 train the coder, 3188 evaluated.
+code = majority of raters marked a negative emotion; group = register (formal: starts with a capital and ends in . ! or ?; informal: otherwise).
+human prevalence: all 0.2528, formal 0.2587 (n=1886), informal 0.2442 (n=1302); gap informal-formal -0.0145
+
+E1. The coders against human labels, by register
+coder group sens spec acc error_rate
+naive-bayes formal 0.246 0.883 0.718 0.2821
+naive-bayes informal 0.182 0.917 0.737 0.2627
+naive-bayes error_rate_difference(informal-formal) -0.0194
+lexicon formal 0.381 0.930 0.788 0.2121
+lexicon informal 0.365 0.925 0.788 0.2120
+lexicon error_rate_difference(informal-formal) -0.0001
+
+E2. Gap in negative-emotion share, informal minus formal, 200 hand-coded items, 500 draws (true -0.0145)
+coder estimator mean_est bias coverage width
+naive-bayes naive -0.0431 -0.0285 0.000 0.0466
+naive-bayes human -0.0142 +0.0003 0.958 0.2441
+naive-bayes ppi -0.0124 +0.0021 0.956 0.2878
+lexicon naive -0.0047 +0.0099 1.000 0.0501
+lexicon human -0.0156 -0.0011 0.956 0.2449
+lexicon ppi -0.0161 -0.0016 0.968 0.2582
+
+E3. Share of 200 random hand-coded samples whose z test (5%) finds the coder's error rate differs by register
+coder n=50 n=100 n=200 n=400 n=800
+naive-bayes 0.060 0.065 0.060 0.065 0.045
+lexicon 0.045 0.065 0.025 0.030 0.025

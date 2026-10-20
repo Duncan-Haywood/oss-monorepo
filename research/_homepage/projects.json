@@ -1360,6 +1360,16 @@
      "slug": "free-secretarymargin",
      "title": "With noisy scores, does a \"beat the record by a margin\" rule pick the best candidate more often than the best cutoff?",
      "summary": "Simulation (<em>n</em> = 50 candidates, parameters tuned on 8,000 training trials, scored on 60,000 fresh paired trials) of a two-parameter margin rule: skip <em>r</em>&minus;1 candidates, then take the first whose noisy score beats the earlier maximum by at least <em>d</em>. P(pick the true best) rises from 0.2334 to 0.2444 at noise 0.5 (+0.0111, se 0.0014) and from 0.1429 to 0.1491 at noise 1 (+0.0062, se 0.0015); at noise 2 the gain (+0.0018, se 0.0011) is not distinguishable from zero, and with no noise the tuning picks the plain cutoff. One setting, one seed pair, a coarse grid; the Bayes-optimal policy is not computed."
+    },
+    {
+     "slug": "free-jittertwin",
+     "title": "Does a sampled-data loop tuned on a fixed-period twin survive random sampling intervals?",
+     "summary": "Unstable scalar plant <em>x&prime;</em> = 3<em>x</em>, gain tuned so the fixed-period twin contracts by 0.5 per sample. Uniform jitter up to &plusmn;100% of the period never destabilises it (exact quadrature), but missed samples do: with a sample missed (period doubled) with probability <em>q</em>, the loop is almost-surely stable up to <em>q</em> = 0.556 yet mean-square stable only up to 0.270. Between the two, the mean-square twin metric says &ldquo;unstable&rdquo; while 2000 simulated runs at <em>q</em> = 0.4 all converge; past 0.556 they blow up (70% at 0.6). A deadbeat-tuned loop (contraction 0) is fragile: mean-square limit 0.05. Stylised scalar model."
+    },
+    {
+     "slug": "free-retunegain",
+     "title": "Does retuning the gain on the sampling-interval law, instead of the fixed-period twin, remove the missed-sample penalty?",
+     "summary": "Follow-up to <em>free-jittertwin</em> on the same unstable scalar plant <em>x&prime;</em> = 3<em>x</em>. The gain minimising <em>E g</em><sup>2</sup> over the miss law (period <em>h</em><sub>0</sub>, or 2<em>h</em><sub>0</sub> with probability <em>q</em>) is closed form and mean-square stable for every <em>q</em> (worst <em>E g</em><sup>2</sup> = 0.478, versus a twin-gain limit of <em>q</em> = 0.270). The price is a slower nominal loop (0.63&ndash;0.82 per on-time sample). A gain designed for <em>q</em> = 0.3 stays mean-square stable at every true <em>q</em>. Stylised scalar model; one plant; iid misses."
     }
    ]
   },
@@ -1427,6 +1437,11 @@
      "slug": "chip-abc-order",
      "title": "Does the order or naming of equivalent Verilog change what Yosys and ABC synthesise?",
      "summary": "Provably equivalent rewrites of generated adder and multiplier RTL (random wire names, shuffled statements, shuffled order of added operands; 864 scored variants, every text proved equivalent to its reference) are scored under three ABC scripts. Names and statement order never change cells&times;depth. Operand order changes one carry-select adder by up to 1.43&times; within a script, and its best variant under <code>dch</code> is 17% better than the best adder <code>chip-abc-sweep</code> reported, so that earlier best was one draw from a distribution the text controls. Five other structures are unaffected. Stylised: two designs, one Yosys version, 12 seeds, generic-gate counts, cause not yet traced."
+    },
+    {
+     "slug": "chip-abc-orderblocks",
+     "title": "Do the blocks of a carry-select adder share a + b independently when every chain gets its own operand order?",
+     "summary": "A follow-up to <code>chip-abc-orderpass</code>, which only ran uniform orders. 400 random mixed variants of a 16-bit carry-select adder (each of the 7 <code>a + b + const</code> chains in its own random operand order; all proved equivalent to the reference) are scored under three ABC scripts. The set of blocks whose two chains both start with <em>a</em>, <em>b</em> predicts the Yosys adder count after <code>opt</code> in 400 of 400 variants and fixes the cells &times; depth: all 8 possible sets occurred, and each had exactly one score per script. The effect is not additive: sharing only block 1 costs 1.38&times; under <code>dch_map</code>, only block 3 costs 1.00&times;. Stylised: one adder, Yosys 0.33, a generic-gate library, no place and route."
     },
     {
      "slug": "chip-abc-orderpass",
@@ -2871,6 +2886,11 @@
      "summary": "The output-stationary (OS) and reduction-tree (RT, RTp) engines of <em>accel-plane</em> for the 64&times;70 layer, 4-bit weights, at 1 to 32 lanes, through Yosys and nextpnr-ice40 on an iCE40 UP5K (5,280 logic cells, 8 DSP blocks), 3 seeds, with and without DSP mapping. OS at 16 lanes is the fastest design that fits: 10.2&nbsp;&micro;s per product, 2,942 cells, 27&nbsp;MHz, against 12.0&nbsp;&micro;s for RTp at 32 lanes (3,708 cells). Adder trees clock 1.5 to 2&times; slower than OS, and OS at 32 lanes does not fit. Letting Yosys use the DSP blocks cuts logic by 13 to 41&nbsp;% but fails to place beyond 8 lanes, as it does not fall back to logic. <strong>Stylised:</strong> synthesis and place-and-route only, operands from a shift register (no weight memory), no power, no board."
     },
     {
+     "slug": "accel-surrogateloop",
+     "title": "Does a quantised surrogate make a design search cheaper in finite-element solves than searching with the simulator alone?",
+     "summary": "Minimum-mass design of the 2D Q6 cantilever of <em>accel-surrogatelock</em> under a tip-deflection limit, with the 64&times;8 FE solve as the expensive evaluator and 150 evaluations per run (8 seeds, two limits). Gap to a best-known design at 150 evaluations: random search 14&ndash;20&nbsp;%, an FE-only evolution strategy 6&ndash;8&nbsp;%, a surrogate-assisted loop 2.3&ndash;2.8&nbsp;% with either a float or a 6-bit QAT MLP (not distinguishable at 8 seeds). At 100 evaluations the assisted loops already match the FE-only strategy at 150. 15&ndash;21&nbsp;% of the surrogate's picks broke the limit when the FE solve checked them. Stylised: one 8-variable problem, a weak ES baseline (no CMA-ES or Bayesian optimisation), no confidence intervals."
+    },
+    {
      "slug": "accel-surrogatelock",
      "title": "With a locking-free finite-element simulator, how much surrogate error can a design loop tolerate?",
      "summary": "The 2D cantilever of <em>accel-surrogate2d</em> with a locking-free Q6 (incompatible-modes) element, which is within 0.6&nbsp;% of Timoshenko theory on a 16&times;2 mesh where Q4 gives half the deflection. An 8-32-32-1 MLP (float, 6 and 8 bits) imitates it at three mesh sizes. At 64&times;8 the surrogate adds about 0.5 to 0.8 points to the FE's own 2.3&nbsp;% error. In a minimum-mass search over 1,000 designs and 15 limits, a screen with no safety margin breaks the limit in 24 to 33&nbsp;% of cases (FE alone 6.7&nbsp;%); a 5 to 10&nbsp;% margin cuts this to 2 to 9&nbsp;% for about 0.5 to 1.6&nbsp;% extra mass. Stylised, random-pool screen, 3 seeds, modelled energy."
@@ -2935,7 +2955,7 @@
     {
      "slug": "eda-harness",
      "title": "Can one harness check, score, cache and log candidate chip designs for any proposer?",
-     "summary": "A loop that takes a parameterised generator and a search space and runs each candidate through lint, bit- and cycle-exact RTL simulation, a gate-netlist simulation check and Yosys synthesis, caching by design hash and logging every evaluation as JSON. On <em>chip-accel</em>&rsquo;s MAC engine (40 designs) all candidates pass; synthesis and the gate-level check take 99% of the 424&nbsp;s of wall time and RTL simulation under 1%. The Pareto front matches <em>chip-accel</em>&rsquo;s. Stylised: one design family, generic-gate counts, simulation-based (not formal) equivalence, no place and route."
+     "summary": "A loop that takes a parameterised generator and a search space and runs each candidate through lint, bit- and cycle-exact RTL simulation, a gate-netlist simulation check and Yosys synthesis, caching by design hash and logging every evaluation as JSON. On <em>chip-accel</em>&rsquo;s MAC engine (40 designs) all candidates pass; synthesis and the gate-level check take 99% of the 424&nbsp;s of wall time and RTL simulation under 1%. The Pareto front matches <em>chip-accel</em>&rsquo;s. A follow-up reuses one Yosys run for the gate check and the score: identical metrics on all 40 designs and 50% less wall time (561&nbsp;s to 280&nbsp;s, single timing runs). Stylised: one design family, generic-gate counts, simulation-based (not formal) equivalence, no place and route."
     },
     {
      "slug": "eda-gridxfer",
@@ -3247,9 +3267,24 @@
      "summary": "Of 1,564 run records, 203 (13%) list a deviation from the brief, mostly review (59%) and ventures (27%) runs. Within track, deviating runs take about 1.6&times; as long and cost about 1.2&times; as much (stratified permutation p &lt; 0.001), but the cost gap rests mainly on the long process track (1.07&times;, p = 0.052 without it), and deviating runs end partial 5 points more often. Observational and self-reported: preliminary."
     },
     {
+     "slug": "swe-callcost",
+     "title": "How well does a run's tool-call count predict what it costs?",
+     "summary": "Of 1,638 run records, 882 carry both a cost and a tool-call count. Cost per call is almost constant (median $0.031, 10th to 90th percentile $0.026 to $0.038); a log-log fit has R<sup>2</sup> 0.91 and misses held-out runs by a median of 9% (90th percentile 25%), no better than a flat cost-per-call multiplier. The pooled slope of 1.22 (1.18 to 1.26) is partly group mixing: it is 1.10 within Sonnet runs and 0.96 within Opus runs (wide interval). Cost is API-equivalent and derived from the same transcript as the call count, so the fit checks the measurement, not agent behaviour. Preliminary."
+    },
+    {
+     "slug": "swe-cachecost",
+     "title": "Where does an agent run's cost go, and why does it grow faster than its tool calls?",
+     "summary": "Of 1,659 run records, 893 carry per-token-kind usage as well as cost and tool calls. At API-equivalent list prices, cache reads are a median 45% of a run's cost, 1-hour cache writes 41% and output 13%; fresh input is about zero. A linear context model fits the cache-read tokens per request as about 60,000 tokens at the start plus about 1,900 tokens more per request (bootstrap 95% interval 1,500 to 2,200), so at the median run (20 requests) the starting context is 76% of what each request re-reads. That fixed part, written once and re-read throughout, is why cost rises with a log-log slope of 1.16 against requests and 1.22 against tool calls rather than 2. Limitations: API-equivalent dollars from list prices, not a bill; the context model explains only 31% of the per-request variance; descriptive, from one repository's runs."
+    },
+    {
      "slug": "swe-notests",
      "title": "Do agent runs that add no tests end worse?",
      "summary": "Of 621 run records that count tests added, 84 (13.5%) add none, mostly research runs. Within track and recording regime they end <code>partial</code> 4 of 84 times against 16 of 537 for runs that add tests: a +2.6 point difference, permutation p = 0.23, so no detectable effect (only 20 partial outcomes exist, so power is low). They cost less (median $0.56 against $0.99 in research), most likely because they do less. Observational and self-reported; preliminary."
+    },
+    {
+     "slug": "swe-devkinds",
+     "title": "Which kind of recorded deviation from the brief predicts a partial outcome?",
+     "summary": "Of 1,606 run records, 213 list a deviation. Classifying each by fixed keyword rules, runs whose deviation is a tooling failure end <code>partial</code> 22.6 points more often than runs with no deviation within track (permutation p = 0.001, 24 runs in usable strata); skipped steps (+1.3 points, p = 0.67) and switched tasks (+1.3 points, p = 0.63) show no difference. Keyword classes are crude and the data observational: preliminary."
     },
     {
      "slug": "swe-fieldfill",
@@ -3532,6 +3567,16 @@
      "slug": "mimic-cursor",
      "title": "Can an imitator that changes its own code fool a human-vs-bot cursor detector, and does shared feedback help either side?",
      "summary": "Browser use, the first subject of the adversarial-imitation track beyond writing. Cursor strokes of 46 people from DUX (CC-BY-4.0) against an imitator built from code components and a detector that picks 3 of 11 feature functions, 4 feedback conditions &times; 8 seeds &times; 30 rounds at equal budget. A reference detector the loop never saw catches every final imitator at AUROC 0.99 to 1.00; detector explanations and shared imitator code did not make a better imitator. Detectors trained with two-way sharing did best against other runs&rsquo; imitators (cross-play AUROC 0.81 vs 0.70 blind), but the paired interval includes zero. An 8&times; larger search ends at 0.88, no better than replaying a real stroke, so the component library is the limit. Preliminary: one web form, 8 seeds, no model-written code."
+    },
+    {
+     "slug": "mimic-webcam",
+     "title": "Can a generator imitate a person's webcam emotion signals well enough to fool a detector?",
+     "summary": "Webcam, the third subject of the adversarial-imitation track, signals first: no pixels or faces. Ten-second windows of 12 facial-coding channels (Affectiva scores logged by DUX, CC-BY-4.0) from 46 people, split by person. Six fixed generators from constant to AR(1) with channel correlation, holds and spikes, and an imitator that tunes its own generator code against a 3-feature-group detector for 30 rounds (8 seeds; 4 seeds at 8&times; the budget), are all separated from held-out people by a boosted-tree reference detector the loop never saw at AUROC 0.997 or higher. Only replaying whole windows of other people gets near chance (0.61, which is the gap between people). Preliminary and stylised: one context, a fixed component library, and windows biased toward moments when the person was using the mouse or keyboard."
+    },
+    {
+     "slug": "mimic-webcam-tails",
+     "title": "Does giving a webcam-signal generator real heavy tails and bursts fool a detector?",
+     "summary": "Follow-up to <em>mimic-webcam</em> on DUX facial-coding scores of 46 people. Generators that take each channel's marginal from the training people (Gaussian copula through empirical quantiles; quiet/burst regimes) still separate from 14 held-out people at reference AUROC 1.000 (8 seeds). Matching marginals alone made level and spread easier to catch (0.99&ndash;1.00 vs 0.91 and 0.94 for the Gaussian baseline); restoring per-window level and spread brings them to 0.54 and 0.57, but extremes (0.995), holds (0.995) and autocorrelation (0.94) still give it away. A sixth generator that copies a real window&rsquo;s whole value set puts level, spread, extremes and floor at chance (0.44&ndash;0.46), yet all-groups AUROC stays 0.998: holds, autocorrelation, roughness and cross-channel structure carry it. Stylised: hand-built generators, one context, post-hoc final variants."
     }
    ]
   },
@@ -3653,7 +3698,7 @@
     {
      "slug": "house-offsite",
      "title": "When does building a house's wall shell in a factory beat building it on site?",
-     "summary": "Splits the exterior walls of the <code>house-framing</code> house into panels, nests the sheathing, loads the trailers and runs a Monte Carlo of the shell crew's days with weather. Panelised took 2.17 calendar days against 1.96 on site and cost 38% more at assumed rates; factory productivity does not change the days because the factory runs behind the foundation, and panelised is faster only from about 58 ft long (78 with no weather, 44 at 30% loss). Factory nesting saved 1 sheet in 33 (bound 26): a 97 in wall on a 108 in sheet wastes the same strip either way. Stylised: wall shell only, every labour rate and price is my assumption."
+     "summary": "Splits the exterior walls of the <code>house-framing</code> house into panels, nests the sheathing, loads the trailers and runs a Monte Carlo of the shell crew's days with weather. Panelised took 2.17 calendar days against 1.96 on site and cost 38% more at assumed rates; factory productivity does not change the days because the factory runs behind the foundation, and panelised is faster only from about 58 ft long (78 with no weather, 44 at 30% loss). Factory nesting saved 1 sheet in 33 (bound 26): a 97 in wall on a 108 in sheet wastes the same strip either way. A closed-panel variant (wrap, insulation, wiring and window setting built in the factory) flips the cost result: at a factory labour ratio of 0.45 or better panelising is within 1% of site cost and 0.3 beats it by 10%, and it saves about a day (2.16 against 3.18 d with weather); at 0.6 it still costs 12% more. Stylised: wall shell only, every labour rate and price is my assumption."
     },
     {
      "slug": "house-foundation",
@@ -3728,7 +3773,7 @@
     {
      "slug": "house-adufees",
      "title": "What does Denver Water's 2026 tap fee cost a 480 sq ft backyard cottage (ADU) against a house?",
-     "summary": "From Denver Water&rsquo;s own 2026 schedule: an ADU pays a flat $2,170 inside Denver from 1 July 2026 ($2,055 before), against $5,400 for a house charged on 2,000 sq ft, 60% less. Per floor sq ft the ADU is dearer ($4.52 against $2.70). Denver Water&rsquo;s share is small beside <code>house-market</code>&rsquo;s $16,930 &ldquo;water and sewer SDC&rdquo;, leaving about $12,000 for sewer and other items that this project could not read. One fee only; the page does not say whether the rate applies to lot or floor area."
+     "summary": "From Denver Water&rsquo;s own 2026 schedule: an ADU pays a flat $2,170 inside Denver from 1 July 2026 ($2,055 before), against $5,400 for a house charged on 2,000 sq ft, 60% less. Per floor sq ft the ADU is dearer ($4.52 against $2.70). Denver Water&rsquo;s share is small beside <code>house-market</code>&rsquo;s $16,930 &ldquo;water and sewer SDC&rdquo;, leaving about $12,000 for sewer and other items. Denver DOTI&rsquo;s own 2026 sewer schedule ($6,480 per residential unit, plus $575 application and inspection) puts an ADU that shares the house&rsquo;s water tap at about $2,745 for water and sewer permits together, and one needing its own tap at up to $9,225 (an upper-bound reading: DOTI publishes no ADU amount); about $5,500 of <code>house-market</code>&rsquo;s figure stays unexplained. Two utilities only; the page does not say whether the rate applies to lot or floor area."
     }
    ]
   },
@@ -3756,6 +3801,16 @@
     "slug": "capture-novelview",
     "title": "How far apart can cameras be before a reel editor can no longer synthesise the angle between them?",
     "summary": "A ray-traced toy scene, two ring cameras, a depth-based warp to the midpoint, scored against the ray-traced truth. With exact depth, synthesis beats cutting to the nearest camera only up to a gap of about 30&deg; (24.8 against 23.6 dB); at 45&deg; it is worse (19.3 against 23.1 dB) because 8% of the target is a hole neither camera saw, though pixels it does fill stay near 29&ndash;30 dB. A bystander pulls the crossover in to about 15&deg;, and depth error on the sources costs about 1.4 dB per percent at first (27.5 dB exact, 22.0 dB at 10%). Toy scene with smooth textures and oracle depth: read the ordering, not the decibels."
+   },
+   {
+    "slug": "capture-stereodepth",
+    "title": "Is the depth a camera rig can actually measure good enough for the in-between angle?",
+    "summary": "capture-novelview assumed independent depth noise of 2&ndash;5%. Here depth is measured instead: block-matching stereo on a rendered rectified pair, fed into the same two-view warp and scored against ray-traced truth at a 15&deg; gap. Mean depth error falls from 14.9% at a 3 cm baseline to 2.7% at 50 cm, but coverage peaks at 91% near 20 cm (stereo cannot match occluded or flat pixels), and the synthesised view never beats cutting to the nearest camera: best 22.3 dB at 20 cm against 24.8 dB, with exact depth at 27.3 dB. Independent noise with the same mean error is optimistic by 1optimistic by 1&ndash;5 dBndash;7 dB, because real errors are correlated and missing depth leaves holes. Sensor noise of 3% already costs 3 dB. Toy scene, smooth textures, a classic matcher with no learned prior or hole filler."
+   },
+   {
+    "slug": "capture-hybrid",
+    "title": "Can the holes and correlated errors of measured stereo depth be repaired so the in-between view beats cutting to the nearest camera?",
+    "summary": "capture-stereodepth found that synthesis from block-matching stereo depth never beat cutting to the nearest camera (22.3 against 24.8 dB at a 15&deg; gap). Here the same holey, correlated depth is repaired two ways: filling holes with the farther of the nearest valid row neighbours (27.4 dB), and a gate that needs no ground truth, where the two warped sources disagree or a hole remains, falls back to the raw nearest camera (29.2 dB, 4.4 dB above cutting; the same on three held-out noise seeds). Gains hold from 8&deg; to 30&deg; gaps and at 6&ndash;50 cm baselines, shrink to nothing at 6% sensor noise, and with a bystander the gate loses to plain hole filling (26.1 against 26.3 dB). A per-pixel oracle at 32.0 dB bounds what any confidence rule could reach. Stylised toy scene; read the ordering, not the decibels."
    },
    {
     "slug": "capture-follow",
@@ -3800,6 +3855,11 @@
     "summary": "Single-axis gyro model with angle random walk and rate random walk (Allan-variance terms) and a fraction <em>&rho;</em> of each shared between units. With independent errors an array of <em>n</em> cheap units ties a unit <em>k</em> times quieter only when the price ratio exceeds <em>k</em><sup>2</sup> (9 for <em>k</em>&nbsp;=&nbsp;3, 100 for <em>k</em>&nbsp;=&nbsp;10); shared error above 1/<em>k</em><sup>2</sup> means no array size ties (<em>k</em>&nbsp;=&nbsp;10, <em>&rho;</em>&nbsp;&ge;&nbsp;0.01). If the better unit improves white noise 10&times; but bias walk only 3&times;, the number of units needed falls from 100 at 1&nbsp;s to 10 beyond 300&nbsp;s, so the answer depends on integration time. Monte Carlo matches the closed form within 0.03. Stylised: illustrative grades, not datasheets; no real IMU data; no prices claimed."
    },
    {
+    "slug": "sensing-imutemp",
+    "title": "Does a shared temperature coefficient put a floor under an array of cheap gyros?",
+    "summary": "Follow-up to <em>sensing-imuarray</em>. Each gyro has a temperature coefficient <em>c</em><sub>i</sub> = <em>&mu;</em> + <em>s&middot;e</em><sub>i</sub>; under a temperature ramp the shared mean <em>&mu;</em> leaves an angle-error floor <em>&mu;rT</em><sup>2</sup>/2 that no array size removes. In the illustrative case (100&nbsp;s) a 3&times; better unit can be matched at 10&ndash;15 units up to 0.1&nbsp;&deg;C/min but at no size from 0.3&nbsp;&deg;C/min; a 10&times; better one at none from 0.1&nbsp;&deg;C/min. Compensating both grades equally brings the array size back near <em>k</em><sup>2</sup> only at about 2% residual tempco. Monte Carlo matches the closed form within 1%. Stylised: assumed tempcos, no real IMU data, no prices claimed."
+   },
+   {
     "slug": "sensing-burst",
     "title": "How many frames from a small sensor, merged, match one frame from a bigger one?",
     "summary": "Synthetic scenes with Poisson shot noise, Gaussian read noise and a full-well clip. A burst of <em>N</em> small-sensor frames (each at the large frame's exposure time) ties a sensor with <em>A</em>&times; the pixel area at <em>N</em>* = <em>A</em>&sup2;(<em>sx</em>+<em>r</em>&sup2;)/(<em>Asx</em>+<em>r</em>&sup2;): <em>A</em> frames when shot noise dominates, up to <em>A</em>&sup2; in the dark or at high read noise (simulation, <em>A</em>=4: 4.0 frames in bright light, 14.4 in dim light with 8 e<sup>&minus;</sup> read noise). Splitting the <em>same</em> total exposure into frames never ties: the burst has more variance than the large frame at every <em>N</em>. With hand shake and Fourier-shift registration, shifts are recovered to 0.09&ndash;0.8 px RMS in good light but fail in the dimmest case tested (3.1 px), and the registration blur means <em>A</em>=4 needs about 21 frames in bright light. A bracketed burst recovers clipped highlights (42 dB against 22 dB for one frame). Stylised: synthetic images, global translation only, no real raw files."
@@ -3813,6 +3873,11 @@
    "slug": "sensing-ghostalign",
    "title": "Can aligning a moving subject, instead of rejecting it, rescue a burst merge?",
    "summary": "Still camera, one disc moving across a synthetic burst (Poisson shot noise, Gaussian read noise, a large sensor with 4&times; the pixel area). A per-pixel sub-pixel alignment to the reference frame, followed by a rejection test, reaches 37.0&nbsp;dB inside the disc at 8 frames and 1&nbsp;px per frame, against 31.5&nbsp;dB for reject-only merging and 32.8&nbsp;dB for the large frame. Over the whole image it is no better than rejecting (31.7 against 31.8&nbsp;dB at 8 frames, 34.4 against 35.6 at 24) because the aligner moves 10&ndash;31% of static pixels on noise, and in the ring where the background is covered and revealed no variant gets within 4&nbsp;dB of the large frame. Stylised: synthetic scenes, one flat rigid disc, translation only."
+   },
+   {
+   "slug": "sensing-superres",
+   "title": "Can a burst of hand-shaken low-resolution frames recover detail that merging and upsampling cannot?",
+   "summary": "Synthetic 32&times;32 frames from a box-averaging sensor (Poisson shot noise, 3&nbsp;e<sup>&minus;</sup> read noise), shifted by up to two pixels, reconstructed on a 2&times; grid by regularised least squares. In bright light it reaches 29.5&nbsp;dB at 16 frames and 30.7&nbsp;dB at 32, against 24.0&nbsp;dB for register, average and bilinear upsample and 26.6&nbsp;dB for register, average and deconvolve: 2.6&nbsp;dB of the gain is deblurring the pixel box and 2.9&nbsp;dB (4.0 at 32 frames) is sub-pixel information. In dim light that part is within &plusmn;0.3&nbsp;dB; registration error of 0.27 LR pixel erases it. Against a sensor with 2&times; the linear resolution and the same total light the burst wins at 2 frames and loses from about 4; at 3&times; it ties at 16 frames and at 4&times; it wins. Synthetic scenes, translation only, no mosaic or lens blur; the reconstruction is plain Tikhonov, not a published method."
    },
    {
     "slug": "sensing-timesync",
@@ -3857,6 +3922,11 @@
     "summary": "An hourly simulation of rooftop solar plus a battery on an 8,000 kWh/yr home, over 20 seeded synthetic weather years (Haurwitz clear sky, a three-state cloud chain, an invented load) with assumed round-number prices. A 6 kW array alone meets 35% of the load; 5, 10 and 15 kWh of battery lift that to 49%, 59% and 62%, then returns diminish fast. With import at $0.30 and export at $0.05 per kWh a 10 kWh battery pays only below about $451/kWh installed (assumed $800), $143 at $0.20 export, and never when export is paid at the import price. Stylised: synthetic weather, flat tariff, no incentives or degradation; not installation advice."
    },
    {
+    "slug": "energy-tou",
+    "title": "Does time-of-use pricing make a home battery pay, and which size?",
+    "summary": "Adds an hourly time-of-use import price to <code>energy-home</code>'s solar-plus-battery model (10 seeded synthetic weather years, assumed three-band tariff with the same $0.296 average as a flat $0.30). A 10 kWh battery behind 6 kW of PV breaks even at $641/kWh installed with peak-only discharge and off-peak grid charging, against $444 on the flat tariff, still under the assumed $800. Only small batteries clear $800 ($856 at 2.5 kWh, $847 at 5 kWh); 15 and 20 kWh fall to $427 and $320. Half-filling from the grid ($674) beats a full fill ($641). Break-even tracks the peak price ($307, $641, $1,208 at $0.28, $0.45, $0.70). Stylised: assumed tariff, synthetic weather, fixed dispatch rule, no degradation."
+   },
+   {
     "slug": "energy-mix",
     "title": "What is the cheapest mix of solar, wind, gas and storage that cuts a power system's emissions, and what does the last 5% cost?",
     "summary": "A single-node PyPSA model of Germany's 2019 hourly demand (ENTSO-E data via Open Power System Data) with solar, wind, gas, a battery and hydrogen storage sized together under an emissions cap. Gas alone costs $79/MWh; a 50% cut adds $5.6 using wind only; 80%, 90%, 95% and 100% cuts cost $113, $131, $144 and $177/MWh, the last needing 10.6 TWh of hydrogen storage. Implied abatement cost rises from $30/t to $1,765/t for the last 5%. At zero emissions the hydrogen tank price moves the answer from $152 to $254/MWh; without hydrogen, batteries alone give $287. Stylised: assumed costs, one weather year, one node, no grid."
@@ -3865,6 +3935,11 @@
     "slug": "energy-density",
     "title": "How much energy can each storage technology hold per kilogram, at the most?",
     "summary": "Theoretical ceilings from first principles for batteries, hydrogen, flywheels, pumped hydro and heat, reproducing five published values to within 0.3% (lead-acid 170, Zn-air 1,086, Li-S 2,567, Li-O<sub>2</sub> 3,458 Wh/kg; Al-air 8,100 on Al). No battery couple releases more than 1.65 eV per reactant atom, so the spread comes from atomic mass: Wh/kg = 26,801 &times; eV per atom / mean g/mol. A carbon-fibre flywheel holds at most 756 Wh/kg (0.34 eV per atom), sand at 500 &deg;C 107 Wh/kg of heat (41% recoverable as electricity) and water lifted 300 m 0.82 Wh/kg. Ceilings for the active material only, with some voltages and material properties assumed."
+    },
+    {
+    "slug": "energy-volumetric",
+    "title": "How much energy can each storage chemistry hold per litre, and does the ranking by weight survive?",
+    "summary": "Volumetric ceilings (Wh/L) for the couples of <em>energy-density</em>, from the sum of reactant mass over assumed handbook density. With oxygen taken from air, zinc-air reaches 9,659 Wh/L, lithium-oxygen 6,104 and aluminium-air 5,887, against 1,382 for graphite/LiCoO<sub>2</sub> and 724 for lead-acid. The ranking changes with the basis: lithium-sulfur beats graphite/LiCoO<sub>2</sub> by 6.8 times per kg but only 2.1 times per litre (lithium is light and bulky), while zinc-air beats lead-acid by 6.4 times per kg and 13 times per litre. Hydrogen holds 1,314 Wh/L at 700 bar and 2,314 as a 20 K liquid. Sand at 500 &deg;C holds 171 Wh/L as heat. Active material only; densities are assumed, not checked."
     },
     {
     "slug": "energy-practical",
@@ -3981,6 +4056,22 @@
     "summary": "A 15-minute inspection quadrotor with two airframe variables (arm length, prop diameter) and a three-gain roll policy found by CMA-ES, scored on held-out gusty step-tracking episodes. At 320 evaluations, joint CMA-ES reaches 5.25&deg; RMS (the brute-force grid optimum is 5.25&deg;), against 5.63&deg; for joint random search, 5.52&deg; for a frozen controller, 5.88&deg; for bilevel search and 7.06&deg; for design-first (lightest airframe, then tune). A controller tuned on one airframe and reused on others is 1&deg; or more worse on 41% of cells. Gust level did not move the optimum. Stylised roll-axis model with assumed constants; the policy is linear, not deep RL; no flight software-in-the-loop."
    }
    ,{
+    "slug": "codesign-aero-robust",
+    "title": "Does the best quadrotor airframe stay best when motor strength, mass and motor lag are randomised?",
+    "summary": "Robustness follow-up to <code>codesign-aero</code>: 50 feasible airframes, each with roll gains tuned on the nominal, a narrow or a wide randomised plant (torque 0.7&ndash;1.0&times;, inertia 0.9&ndash;1.3&times;, motor lag 1&ndash;2&times;, assumed). With nominal-tuned gains the nominal and wide rankings have Spearman 0.75 and the same top five; the nominal optimum is 2nd of 50 on the wide plant, 0.17&deg; behind the best. Tuning gains on the wide plant helps the median airframe by 0.91&deg;. One tuning run per cell, so neighbouring ranks are within noise. Stylised, roll axis only, simulation only."
+   }
+   
+   ,{
+    "slug": "codesign-aero-joint",
+    "title": "Should a quadrotor&rsquo;s airframe and controller gains be searched jointly when the plant is uncertain?",
+    "summary": "Follow-up to <code>codesign-aero-robust</code>: joint CMA-ES over arm length, prop diameter and three roll gains, trained on the wide randomised plant, against uniform random search at equal budget and against grid-then-tune. On held-out episodes the median CMA-ES winner reaches 5.75&deg; at 960 evaluations (8 seeds, 5.70&ndash;5.87&deg;) and 5.74&deg; at 4800, random search 6.17&deg; and 5.96&deg;, and the grid&rsquo;s best cell (4800 evaluations, picked on the held-out set) 6.00&deg;. Stylised: assumed constants and ranges, roll axis only, five parameters, coarse grid reference."
+   }
+   ,{
+    "slug": "codesign-aero-seeds",
+    "title": "Is the quadrotor airframe ranking from one tuning run reproducible, or is it tuning noise?",
+    "summary": "Seed-repeat follow-up to <code>codesign-aero-robust</code>: the 50-airframe grid is re-tuned and re-scored six times with independent CMA-ES, training and held-out seeds. With gains tuned on the wide randomised plant the ranking is highly reproducible (Spearman 0.99 between replicates, same top five every time); with nominal-tuned gains it is noisier (0.84, winner varies in arm length), so the earlier &ldquo;rank 2, 0.17&deg; regret&rdquo; was inside the noise. Retuning for the wide plant helps the median airframe by 0.88&deg; on average. Stylised (assumed constants, roll axis only, six replicates)."
+   }
+   ,{
     "slug": "codesign-transfer",
     "title": "Does the ranking of printable soft-fruit gripper designs survive a shift in friction, fruit, placement error and print tolerance?",
     "summary": "Takes the <code>codesign-agri</code> contact model unchanged and widens what it holds fixed: per world the fruit size, placement error, wetness, bruise threshold and stem pull are drawn, and the printed gripper differs from the design (pad modulus, force and width tolerance). Over 600 random feasible designs and 30 held-out worlds the Spearman rank correlation with the nominal world is 0.993, so a nominal winner is a good candidate. The level still falls: the nominal CMA-ES optimum loses 13% of its objective (0.653 to 0.567), and a robust optimum trained on 10 other worlds gains only 0.015 on average and 0.034 in the worst world, from single runs. Sim-to-sim in a stylised model with assumed ranges; no gripper was printed."
@@ -4032,6 +4123,21 @@
     "slug": "hanger-print",
     "title": "Can the hanger a cloth simulation designed be 3D-printed, and does it hold a garment?",
     "summary": "Exports <code>hanger-fit</code>&rsquo;s adjustable shape and four-width rack as parametric STL and OpenSCAD, with a cantilever strength, deflection and print-bed check. Printed flat in PLA under assumed constants (1.5&nbsp;kg garment, 2&times; motion factor), the round-ended arm (end radius 2.86&nbsp;cm) has a safety factor of 40&ndash;70 at 12&nbsp;mm depth and bends under 0.04&nbsp;mm, so strength never limits it; a wire-like arm (end radius 1.5&nbsp;mm) has a safety factor of 0.13 and fails. No hanger of useful width fits a 220&nbsp;mm bed whole, but one arm with its hub does up to 24.8&nbsp;cm. Stylised: assumed material constants, flat extrusion, OpenSCAD files not rendered, no two-piece joint."
+   },
+   {
+    "slug": "hanger-pick",
+    "title": "How should a laundry robot pick one garment out of a tangled dryer load?",
+    "summary": "A stylised 2D pile of overlapping disc garments, 40% with the opening hidden by the garment itself, emptied by three scripted policies with assumed times. Aiming at a visible neck or waistband takes 13.4 s per garment against 22.7 s for pinching the top and regrasping; pushing garments aside first is slower (17.7 s) because neighbours rarely hide every opening, the garments themselves do. In <code>hanger-cell</code> the policies give 151, 110 and 127 items an hour for one arm, against 169 for its placeholder pick. Stylised: assumed times, disc cloth, not a measurement of a robot."
+   },
+   {
+    "slug": "hanger-pickbreak",
+    "title": "How long may a laundry robot spend finding a garment's opening before blind pinching is faster?",
+    "summary": "On paired piles in the stylised hanger-pick model, aiming at a visible opening beats a blind pinch only if finding the opening costs under 9.2 s per pick (95% interval 8.9 to 9.6, assumed times). The threshold grows with the time of a regrasp (2.9 s to 18.7 s for 2 to 12 s), shrinks as regrasps succeed more often (14.7 s to 3.9 s) and as more openings are hidden (15.3 s to 0), and does not depend on pile size. Sweeping garments aside first beats aiming only when a sweep costs under half a second. Stylised: every time is an assumed placeholder."
+   },
+   {
+    "slug": "hanger-misaim",
+    "title": "How often may a laundry robot's opening detector aim wrong before blind pinching is faster?",
+    "summary": "In the stylised hanger-pick model a wrong aim costs one wasted grasp and then the same regrasp hunt as a blind pinch. The look-time budget of the detector falls almost linearly with its error: 9.2 s per pick when perfect, 6.3 s at 30% wrong, 4.5 s at 50%, about 0 when always wrong (300 paired piles, assumed times). At a 1 s look aiming still wins until about 88% of aims are wrong; at 5 s the limit is 43%, at 9 s 3%, and an 11 s look loses even when perfect. Stylised: every time and probability is an assumed placeholder; error is independent per pick."
    }
   ]
  },
@@ -4049,6 +4155,11 @@
     "slug": "qual-regression",
     "title": "What happens to a regression coefficient when the regressor is an LLM's code?",
     "summary": "Regressing an outcome on an LLM's codes attenuates the coded variable's coefficient (0.74 for a true 1.00, interval coverage 0% in 300 simulated studies) and, when the coder's error depends on another covariate, biases that perfectly measured covariate too (0.467 against 0.50, coverage 60%). Design-based supervised learning (DSL) with about 210 hand-coded items drawn at a known 7% rate recovers both (1.01 and 0.50, coverage 94&ndash;97%) but narrows the coded coefficient&rsquo;s interval by only 14%. For a 3-class code, naive class shares are off by up to 8.5 points with 0% coverage; per-class PPI covers 95.5&ndash;97%. Simulated coders only; no real LLM was run."
+   },
+   {
+    "slug": "qual-real",
+    "title": "Does the prediction-powered correction work on real hand-coded text?",
+    "summary": "On 3,188 real Reddit comments with human emotion labels (GoEmotions), a naive-Bayes coder (kappa 0.14) reports 13.3% negative emotion against a human 25.3% (coverage 0 of 500 draws) and a short-versus-long gap of &minus;0.170 against a true &minus;0.028, because it misses 94% of negative emotion in short comments but 70% in long ones. PPI with 200 hand-coded items recovers both (coverage 0.94&ndash;0.97) but is 6&ndash;19% wider than using the hand-coded items alone, since the coders are weak. The coders are a trained classifier and a word list, not an LLM (no API key)."
    }
   ]
  }

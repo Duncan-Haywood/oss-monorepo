@@ -24,8 +24,7 @@ full). Each comes with a real public dataset as its example.
 
 ## 1. When did this series change? Changepoint detector
 
-[Tool and source](../../ventures/changepoint-detector/) ·
-[source](/ventures/changepoint-detector/README.md)
+[Live tool and source](/ventures/changepoint-detector/README.md)
 
 Two methods run side by side:
 
@@ -55,8 +54,7 @@ BIC penalty still invents a change in about one series in ten.
 
 ## 2. How wide must a prediction interval be? Conformal prediction intervals
 
-[Tool and source](../../ventures/conformal-prediction-intervals/) ·
-[source](/ventures/conformal-prediction-intervals/README.md)
+[Live tool and source](/ventures/conformal-prediction-intervals/README.md)
 
 Conformal prediction gives intervals that cover a chosen share of new cases,
 with a finite-sample guarantee and no assumption about the error
@@ -75,8 +73,7 @@ promises: correct on average over splits, noisy on any one split.
 
 ## 3. What repeats, and what is unlike anything else? Matrix profile explorer
 
-[Tool and source](../../ventures/matrix-profile-explorer/) ·
-[source](/ventures/matrix-profile-explorer/README.md)
+[Live tool and source](/ventures/matrix-profile-explorer/README.md)
 
 The matrix profile (Yeh et al. 2016; Zhu et al. 2016, both ICDM) gives, for
 every window of a series, the distance to its closest match elsewhere in the

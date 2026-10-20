@@ -1,0 +1,5 @@
+{
+ "theme": "hanger",
+ "title": "Does a second 3D cloth model, wrapped over the hanger arm, agree with the 2D hanger drape?",
+ "summary": "An independent 3D mass-spring sheet that wraps over a round-ended arm (cross-check of <code>hanger-3d</code>), draped on the hangers of <code>hanger-fit</code> with the same fabric constants and mass. It picks the same best arm width as the 2D chain (22.8 cm for a size M tee; error correlation 0.994 over a width sweep), with error 0.1&ndash;0.4 cm higher near the optimum, and adds the bend across the arm: 119 deg/cm over a 0.5 cm arm against 34 over a 2 cm one. It disagrees for a heavy knit on a thin arm (17.8 cm against 5.6 cm error) and is not grid-converged (1.19 against 0.62 cm at 1 and 0.5 cm spacing). Stylised, assumed fabric constants."
+}

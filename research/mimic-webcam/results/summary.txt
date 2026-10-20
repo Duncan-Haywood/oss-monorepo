@@ -1,0 +1,16 @@
+4 candidates per side per round: seeds=8 final reference AUROC 1.000 (1.000 to 1.000); best reference at any logged round (mean of per-seed min) 0.999; final loop-detector AUROC 0.999 (0.998 to 1.000); min over all seeds/rounds of reference 0.997
+  final dyn: ar1=5, iid=3
+  final level: global=2, window=6
+  final amp_src: global=3, window=5
+  final cross: False=1, True=7
+  final hold: 0.25=3, 0.5=3, 0.65=1, 0.8=1
+  final spike: 0.0=5, 0.01=2, 0.03=1
+  final decimals: 2=3, None=5
+32 candidates per side per round: seeds=4 final reference AUROC 1.000 (1.000 to 1.000); best reference at any logged round (mean of per-seed min) 1.000; final loop-detector AUROC 0.996 (0.992 to 0.999); min over all seeds/rounds of reference 0.999
+  final dyn: ar1=4
+  final level: window=4
+  final amp_src: window=4
+  final cross: False=3, True=1
+  final hold: 0.5=3, 0.65=1
+  final spike: 0.0=3, 0.08=1
+  final decimals: None=4

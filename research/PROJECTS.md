@@ -1314,9 +1314,9 @@ PyBullet, SoftGym, Blender's cloth solver, Gymnasium. Check each before citing i
 3. `hanger-insert` (done 2026-10-20; a perimeter-bound model, not cloth: rigid hangers need 43–61 cm of loop, a collapsing one 31 cm): getting the hanger in. Simulate inserting a rigid, collapsible or
    adjustable hanger through the neck or hem of a garment held by one or two grippers. Score
    success, neck stretch and time, and feed the result back into the hanger design.
-4. `hanger-3d`: the drape in 3D with an open cloth solver (front and back panels, sleeves,
+4. `hanger-3d` (done 2026-10-20; one 20 cm strip, assumed constants: matches the 2D chain on a deep arm, and arm depth drives the 3D error): the drape in 3D with an open cloth solver (front and back panels, sleeves,
    collars), checked against milestone 1 on the cases both can run.
-5. `hanger-pick`: picking one garment out of a tangled dryer load and finding its neck or
+5. `hanger-pick` (done 2026-10-20; stylised disc pile with assumed times: aiming at a visible opening takes 13.4 s per garment, pinching and regrasping 22.7 s, and blind sweeping is slower than aiming): picking one garment out of a tangled dryer load and finding its neck or
    waistband, on simulated cloth, with a scripted baseline before any learned policy.
 6. `hanger-cell` (done 2026-10-20; station times other than insertion are assumed placeholders: pick and fold dominate, the hanger design moves time per load by under 3%): the whole cell as a discrete-event model (dryer or loader, picker, hanger
    feeder, rail): throughput, failure and recovery rates, and the cost of each station, built
@@ -1372,7 +1372,7 @@ alpha reliability. Check each before citing it.
    a human codebook on the same corpus: coverage, redundancy, and agreement when each is applied.
 5. `qual-features`: qualitative codes and LLM-scored dimensions as features next to numeric ones
    in a predictive model, against embeddings and bag-of-words at the same labelling budget.
-6. `qual-hypothesis`: LLM-proposed, human-readable hypotheses about what separates two sets of
+6. `qual-hypothesis` (done 2026-10-20): LLM-proposed, human-readable hypotheses about what separates two sets of
    documents, scored on held-out data, with a check for hypotheses that merely restate the label.
 7. `qual-regression` (done 2026-10-20): extend the correction from means to regression coefficients (DSL, PPI++)
    and to multi-class codes.

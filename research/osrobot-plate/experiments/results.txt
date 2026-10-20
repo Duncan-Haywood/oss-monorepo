@@ -1,0 +1,43 @@
+# Sweep 1: seconds per plate against volume per well (uL), serpentine order
+   uL  gantry_1ch  gantry_8ch   arm_1ch   arm_8ch
+    5        69.7         9.5      66.7       9.0
+   10        69.7         9.5      66.7       9.0
+   25        85.5        11.8      79.9      10.9
+   50       112.5        14.0     102.2      12.7
+  100       166.5        20.7     146.9      18.3
+  200       274.5        34.0     236.4      29.4
+
+# Sweep 2: well order, 1 channel, 10 uL per well (seconds per plate)
+order         gantry     arm
+row             71.4    68.2
+serpentine      69.7    66.7
+column          71.4    66.7
+
+# Sweep 3: capital cost per plate/hour (USD), 10 uL per well, serpentine
+robot      ch  cap_USD  plate_s  USD_per_plate_h
+gantry      1     1500     69.7             29.1
+gantry      8     3000      9.5              8.0
+arm         1     1800     66.7             33.3
+arm         8     3300      9.0              8.3
+
+# Sweep 4: how the gantry speed and acceleration change its time per plate (1 channel, 10 uL; arm is 66.7 s)
+ v_m/s  a_m/s2  gantry_s  gantry_8ch_s
+  0.20     1.5      79.3          11.1
+  0.40     3.0      69.7           9.5
+  0.60     4.5      66.1           9.0
+  0.80     6.0      64.1           8.7
+  1.20     9.0      61.9           8.3
+
+# Sweep 5: arm joint speed scale (1 channel, 10 uL; gantry is 69.7 s)
+w_rad/s  alpha   arm_s  arm_8ch_s
+    0.5    3.0    84.9       12.0
+    1.0    6.0    73.5       10.1
+    2.0   12.0    66.7        9.0
+    4.0   24.0    62.5        8.4
+
+# Sweep 6: chance the whole plate is dispensed within 1.5 mm of every well centre
+robot      ch  hit_prob_per_dispense_min  whole_plate
+gantry      1                   1.000000       1.0000
+gantry      8                   1.000000       1.0000
+arm         1                   0.920512       0.0053
+arm         8                   0.924563       0.5230

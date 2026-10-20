@@ -1,0 +1,16 @@
+== A. deep random draw: 26 survivors of 64-vector random testing x 20000 vectors each (one shared vector stream)
+formal=equivalent clean: 16
+formal=undecided clean: 9
+formal=undecided truncated: 1
+real mismatches found: 0
+truncated runs (fewer output rows than vectors): [('del@122:delete', 1990)]
+
+== B. per-vector detection probability that the clean vectors still allow (95% upper bound), per clean survivor
+clean_vectors bound
+1280 0.002338
+3280 0.000913
+6280 0.000477
+11280 0.000266
+21280 0.000141
+
+clean survivors: 25; clean vectors each: 21280; bound 1.41e-04

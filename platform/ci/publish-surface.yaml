@@ -489,6 +489,9 @@ workflows:
 - workflow: distribute-homebrew.yml
   classification: none
   publishes: []
+- workflow: distribute-hub.yml
+  classification: none
+  publishes: []
 - workflow: distribute-mastodon.yml
   classification: none
   publishes: []
@@ -817,6 +820,9 @@ workflows:
 - workflow: interior-door-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: interview-content-studio-ci.yml
+  classification: none
+  publishes: []
 - workflow: invoice-payment-terms-calculator-ci.yml
   classification: none
   publishes: []
@@ -1042,9 +1048,6 @@ workflows:
 - workflow: osha-trir-dart-calculator-ci.yml
   classification: none
   publishes: []
-- workflow: outage-triage.yml
-  classification: none
-  publishes: []
 - workflow: overtime-pay-calculator-ci.yml
   classification: none
   publishes: []
@@ -1195,6 +1198,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: public-surface-check.yml
+  classification: none
+  publishes: []
+- workflow: publish-kit-ci.yml
   classification: none
   publishes: []
 - workflow: publish-pages-branch.yml

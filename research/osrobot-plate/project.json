@@ -1,0 +1,5 @@
+{
+ "theme": "osrobot",
+ "title": "How fast can a purpose-built robot fill a 96-well plate, and does the robot or the number of channels matter more?",
+ "summary": "A stdlib model times a 96-well plate fill on an XY gantry and a two-link arm with 1 or 8 channels. At 10&nbsp;&micro;L per well one channel takes 69.7&nbsp;s (gantry) or 66.7&nbsp;s (arm); eight channels take 9.5 and 9.0&nbsp;s. Channel count cuts the time by 86&ndash;88%; robot type moves it by 4&ndash;14%, because 76&ndash;79% of the time is fixed aspirate and dispense actions, so well order saves only about 2%. Which robot is faster flips with the assumed speeds; the 8-channel gantry is cheapest per plate-hour by a small margin. With assumed joint noise the arm misses the 1.5&nbsp;mm well radius often enough to hit all 96 wells with probability 0.005. Stylised: every speed, price and accuracy figure is assumed."
+}

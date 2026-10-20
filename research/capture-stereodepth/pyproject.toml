@@ -1,0 +1,13 @@
+[project]
+name = "capture-stereodepth"
+version = "0.1.0"
+description = "Block-matching stereo depth on rendered pairs, fed into two-view novel-view synthesis and scored against ray-traced truth"
+requires-python = ">=3.9"
+dependencies = ["numpy"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]

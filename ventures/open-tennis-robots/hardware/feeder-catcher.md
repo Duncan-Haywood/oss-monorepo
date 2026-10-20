@@ -10,6 +10,11 @@ Status: **design v0.1, not yet built.** Every dimension below is a starting
 point chosen by calculation and simulation (`tennisbots catch-study`), not
 a tested build. Open an issue with what you change and why.
 
+A first CAD package (plates, mast, base, net frame, with an elevation-sweep
+collision check and a wind-ballast figure) is in
+[`../manufacturing/feeder/`](../manufacturing/feeder/); see
+[`../cad/README.md`](../cad/README.md) for what it does not model yet.
+
 ![Side view](diagrams/feeder-side.svg)
 
 ## How it works

@@ -1,0 +1,47 @@
+# sensing-imutemp: n cheap gyros vs one better gyro under a temperature ramp (single axis, stylised)
+cheap grade: N = 0.005, K = 8.660e-05, shared tempco mu = 0.002, spread s = 0.004 (deg/s per degC)
+horizon T = 100 s; better grade: every term (incl. tempco) k times lower; price ratio c => n = c
+
+## A. Smallest n that ties the better unit vs ramp rate r (degC/min), uncompensated
+r_degC_per_min  k=3_n  k=3_floor_rms_deg  k=10_n  k=10_floor_rms_deg  single_cheap_rms_deg
+0                     9  0.00000     100  0.00000  0.07071
+0.01                 10  0.00167     106  0.00167  0.07081
+0.03                 10  0.00500     195  0.00500  0.07159
+0.1                  15  0.01667   never  0.01667  0.07993
+0.3               never  0.05000   never  0.05000  0.13229
+0.6               never  0.10000   never  0.10000  0.23452
+1.0               never  0.16667   never  0.16667  0.37933
+2.0               never  0.33333   never  0.33333  0.74870
+
+## B. Largest ramp (degC/min) at which n fused cheap units still tie, uncompensated, T = 100 s
+k  n  max_ramp_degC_per_min
+3  9  0.000
+3  18  0.122
+3  45  0.173
+3  90  0.192
+10  100  0.000
+10  200  0.030
+10  500  0.039
+10  1000  0.041
+
+## C. Compensation: cheap units compensated to residual fraction f, better unit not, k = 3, ramp 1 degC/min
+f  n_needed  floor_rms_deg
+1.0  never  0.16667
+0.5  4  0.08333
+0.3  2  0.05000
+0.2  1  0.03333
+0.1  1  0.01667
+0.05  1  0.00833
+
+## D. Same, but both grades compensated to the same f (k = 3, ramp 1 degC/min)
+f  n_needed
+1.0  never
+0.5  never
+0.1  15
+0.02  10
+
+## E. Monte Carlo against the closed form (T = 100 s, ramp 0.12 degC/min, 8,000 trials)
+n  mc_rms_deg  formula_rms_deg
+1  0.08357  0.08367
+4  0.04498  0.04528
+16  0.02850  0.02850

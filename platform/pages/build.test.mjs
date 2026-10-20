@@ -747,11 +747,11 @@ test('llms.txt keeps each tool on one line, so no description leaks into prose',
   const { surfaces } = await site();
   const bullets = (await read('llms.txt')).split('\n').filter((line) => line.startsWith('- ['));
 
-  // Nine trailing bullets under "Optional" describe the site's own surfaces
-  // rather than a tool — About, the research portfolio, updates and the
+  // Ten trailing bullets under "Optional" describe the site's own surfaces
+  // rather than a tool — About, Ask, the research portfolio, updates and the
   // changelog, the comparison index, the guides index, catalog.json, the agent
   // CLI, the sitemap and the Atom feed — so the count is tools plus those.
-  assert.equal(bullets.length, surfaces.length + 9);
+  assert.equal(bullets.length, surfaces.length + 10);
   for (const bullet of bullets) {
     assert.match(bullet, /^- \[[^\]]+\]\(https?:\/\/[^)]+\): \S/, `malformed bullet: ${bullet}`);
   }
@@ -3131,11 +3131,15 @@ test('the cache name carries the build, so a deploy cannot serve a stale mix', a
 });
 
 test('an identical build produces an identical cache name', async () => {
-  const first = await fs.mkdtemp(path.join(os.tmpdir(), 'pages-sw-a-'));
+  // One independent build compared with the suite's shared one: two builds in
+  // different temp directories, which is all the old pair of fresh builds
+  // proved, at the cost of one full build instead of two.
+  const a = await site();
   const second = await fs.mkdtemp(path.join(os.tmpdir(), 'pages-sw-b-'));
-  const a = await buildSite({ outDir: first, baseUrl: BASE });
   const b = await buildSite({ outDir: second, baseUrl: BASE });
+  assert.notEqual(a.outDir, b.outDir);
   assert.equal(a.offline.cacheName, b.offline.cacheName, 'the hash must not depend on build order or paths');
+  await fs.rm(second, { recursive: true, force: true });
 });
 
 test('the worker only ever touches same-origin GETs', async () => {
@@ -3370,8 +3374,12 @@ test('changing the worker itself changes the cache name', async () => {
   // Otherwise a fix to the worker's own logic ships under the old cache name,
   // no old cache is deleted, and every existing visitor keeps being served the
   // previous behaviour from cache indefinitely.
+  //
+  // addOfflineSupport rewrites every page in place, so it runs on a copy of
+  // the shared build rather than on the build the other tests read.
+  const built = await site();
   const outDir = await fs.mkdtemp(path.join(os.tmpdir(), 'pages-version-'));
-  const built = await buildSite({ outDir, baseUrl: BASE });
+  await fs.cp(built.outDir, outDir, { recursive: true });
   const rebuilt = await addOfflineSupport({
     outDir,
     base: BASE,
@@ -3379,6 +3387,7 @@ test('changing the worker itself changes the cache name', async () => {
     codeVersion: 'pretend the worker was edited',
   });
   assert.notEqual(rebuilt.cacheName, built.offline.cacheName);
+  await fs.rm(outDir, { recursive: true, force: true });
 });
 
 // ---------------------------------------------------------------------------
@@ -3738,7 +3747,9 @@ test('every stylesheet and script this build injects is one file, at the right d
       const html = await fs.readFile(file, 'utf8');
       const rel = path.relative(outDir, file);
       if (rel === 'index.html' || rel === '404.html') continue; // the hub is its own document
-      if (!html.includes('pf-chrome')) continue;               // not a page this build wraps
+      // The chrome's own markup, not the bare word: the changelog quotes commit
+      // subjects, and one that names pf-chrome.css is not a wrapped page.
+      if (!html.includes('class="pf-chrome')) continue;       // not a page this build wraps
       if (!gate(html)) continue;
       carrying += 1;
       const pattern = attr === 'link'
@@ -4559,7 +4570,7 @@ test('the About page documents the embed feature that #2561 shipped, not just th
   assert.match(about, new RegExp(`min-height:${DEFAULT_EMBED_HEIGHT}px`));
 });
 
-test('the hub sitemap holds the hub, the Tools index, the categories, About, /compare/, /research/, updates, the changelog and /guides/, and nothing else', () => {
+test('the hub sitemap holds the hub, the Tools index, the categories, About, Ask, /compare/, /research/, updates, the changelog and /guides/, and nothing else', () => {
   const xml = renderHubSitemap(BASE, ['marketplace', 'trades']);
   const locs = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
   // About, the comparison index and the guides index are hub-level pages
@@ -4571,6 +4582,7 @@ test('the hub sitemap holds the hub, the Tools index, the categories, About, /co
     `${BASE}c/marketplace/`,
     `${BASE}c/trades/`,
     `${BASE}about/`,
+    `${BASE}ask/`,
     `${BASE}${COMPARE_PATH}`,
     `${BASE}${RESEARCH_PATH}`,
     `${BASE}updates/`,

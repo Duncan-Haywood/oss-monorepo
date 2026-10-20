@@ -20,6 +20,13 @@ class T(unittest.TestCase):
         lines = open(os.path.join(d, "log.jsonl")).read().splitlines()
         self.assertEqual(len(lines), 2); self.assertIn("stage_seconds", json.loads(lines[0]))
 
+    def test_reused_netlist_gives_the_same_metrics(self):
+        d = tempfile.mkdtemp()
+        r = {f: H.Harness(self.prob, os.path.join(d, "l.jsonl"), os.path.join(d, f"c{f}"), reuse_netlist=f).evaluate({"p": 2, "wb": 4})
+             for f in (False, True)}
+        for k in ("passed", "gate_match", "cells", "ff", "depth", "cycles"):
+            self.assertEqual(r[False][k], r[True][k], k)
+
     def test_broken_rtl_is_caught(self):
         h, _ = self.mk()
         orig = self.prob.verilog

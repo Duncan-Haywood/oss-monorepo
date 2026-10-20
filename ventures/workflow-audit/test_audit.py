@@ -117,6 +117,16 @@ jobs:
         self.assertTrue(res and all(r["locations"][0]["physicalLocation"]["region"]["startLine"] >= 1 for r in res))
         self.assertEqual(audit.main(["/nonexistent-dir-xyz"]), 1)
 
+    def test_fingerprint_separates_scopes_and_sarif_is_two_space_indented(self):
+        base = {"file": "a.yml", "rule": "r", "scope": None}
+        scoped = dict(base, scope="job-b")
+        other = dict(base, scope="job-c")
+        fps = {audit.fingerprint(f, "x") for f in (base, scoped, other)}
+        self.assertEqual(len(fps), 3)
+        with repo(BAD) as d:
+            text = audit.render_sarif(audit.audit(d)[0])
+        self.assertTrue(text.startswith('{\n  "$schema"'))
+
     def test_deploy_without_concurrency_is_flagged(self):
         d = repo("on: push\npermissions:\n  contents: read\njobs:\n  deploy:\n    runs-on: ubuntu-latest\n    timeout-minutes: 5\n    steps:\n      - run: echo ship\n")
         findings, errors = audit.audit(Path(d.name))

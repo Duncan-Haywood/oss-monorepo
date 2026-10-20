@@ -1,0 +1,39 @@
+house-panellift: handling the wall panels of house-offsite (28 x 40 ft house, advanced 2x6 @24, 24 ft limit)
+Densities, glazing weight, impact factor and drag coefficient are assumptions of this project.
+
+A. Panel weights and two-pick lifts (picks placed to minimise the plate moment; impact factor 1.5)
+panel        len ft  open lb closed lb    picks (in)  plate fb/allow  pick lb  door cut at max moment
+front 0        20.0      546       791     [48, 180]            0.10      409  False
+front 240      20.0      559       751    [288, 426]            0.12      419  False
+rear 0         20.0      518       877     [48, 174]            0.10      388  False
+rear 240       20.0      559       751    [288, 426]            0.12      419  False
+gable L 0      11.6      343       376     [30, 108]            0.04      257  False
+gable L 139    15.5      442       554    [181, 283]            0.06      332  False
+gable R 0      11.6      343       376     [30, 108]            0.04      257  False
+gable R 139    15.5      442       554    [181, 283]            0.06      332  False
+
+Shell total 3753 lb open, 5031 lb closed; heaviest panel 559 / 877 lb
+
+B. Longest solid panel whose top-plate bending stays within the allowable (lower bound: sheathing ignored)
+ picks  open ft  closed ft
+     1       28         28
+     2       60         56
+     3       60         60
+(search stops at 60 ft; searched in 4 ft steps)
+
+C. People needed to hand-carry each panel at the NIOSH 51 lb recommended limit per person (best case, ideal grip and posture)
+  open   : heaviest panel 559 lb -> 11 people; lightest (343 lb) -> 7
+  closed : heaviest panel 877 lb -> 18 people; lightest (376 lb) -> 8
+
+D. Wind speed (mph) at which a 20 ft front-wall panel hangs off the vertical by the swing angle, broad face to the wind
+ swing   Cd    open  closed
+    5d  1.2     9.8    11.8
+    5d  1.5     8.8    10.6
+    5d  2.0     7.6     9.1
+   10d  1.2    13.9    16.7
+   10d  1.5    12.4    15.0
+   10d  2.0    10.8    13.0
+   15d  1.2    17.2    20.6
+   15d  1.5    15.3    18.5
+   15d  2.0    13.3    16.0
+(front-wall panel 0-240 in: 162 ft2 of face, 546 lb open, 791 lb closed)

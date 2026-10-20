@@ -1,0 +1,54 @@
+{
+ "coverage": {
+  "groups": 450,
+  "share_in_90": 0.8533,
+  "share_in_50": 0.5756,
+  "by_survey": {
+   "canada_gss": {
+    "groups": 50,
+    "in90": 0.88,
+    "in50": 0.66
+   },
+   "gss_panel": {
+    "groups": 50,
+    "in90": 0.94,
+    "in50": 0.74
+   },
+   "hcmst": {
+    "groups": 50,
+    "in90": 0.96,
+    "in50": 0.6
+   },
+   "la_newlyweds": {
+    "groups": 50,
+    "in90": 0.96,
+    "in50": 0.74
+   },
+   "nlsy79": {
+    "groups": 50,
+    "in90": 0.84,
+    "in50": 0.54
+   },
+   "nlsy97": {
+    "groups": 50,
+    "in90": 0.92,
+    "in50": 0.58
+   },
+   "nsfg": {
+    "groups": 50,
+    "in90": 0.64,
+    "in50": 0.32
+   },
+   "sipp_couples": {
+    "groups": 50,
+    "in90": 0.92,
+    "in50": 0.68
+   },
+   "sipp_retro": {
+    "groups": 50,
+    "in90": 0.62,
+    "in50": 0.32
+   }
+  }
+ }
+}

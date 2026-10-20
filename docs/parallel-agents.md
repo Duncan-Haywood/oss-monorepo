@@ -110,3 +110,82 @@ stops telling anyone anything, and it trains every agent to merge on red.
 
 Items 2 and 3 are ordinary platform code that any session can do. Item 1
 needs the owner's yes.
+
+## Re-measured 2026-10-20: the shared-file fix worked, `main`'s CI is next
+
+Windows are by merge date on `main`. Per-PR numbers are taken from each
+PR's own `refs/pull/<n>/head` against the commit it merged onto, and imports
+over 50 commits are skipped, the same method as `concurrency_tax.py`.
+`concurrency_tax.py` itself did not finish inside 10 minutes in a cloud
+session (its probe refresh), so this pass ran the same arithmetic over
+`git fetch --filter=blob:none origin '+refs/pull/*/head:refs/pull/*/head'`
+(38 seconds, 8,350 refs).
+
+| | 10-02 to 10-13 | 10-14 to 10-16 | 10-17 to 10-20 |
+|---|---:|---:|---:|
+| merges to `main` a day | 55 | 196 | 280 |
+| PRs that merged `main` back in | 66% | 39% | **22%** |
+| concurrency tax (merge-main + housekeeping commits) | 53% | 36% | **20%** |
+| files per PR, median / p90 | 2,339 / 2,654 | 8 / 2,756 | **6 / 16** |
+| first commit to merge, median / p90 | 17 / 50 min | 4 / 48 min | **1 / 30 min** |
+| PR refs not on `main` (closed or open), #6800-7299 vs #7800-8300 | 10% | | 2% |
+
+Dropping the dead origin's mirror from PRs (P024, #8638) and the earlier
+registry work did what this document predicted: the hottest file went from
+95% of PRs (`gitops/prod/front-door-tools/kustomization.yaml`) to 24%, and
+the tax fell by more than half while throughput rose five-fold. Branch per
+session, squash merge and fix forward is the right pattern for this
+repository; the remaining costs are in what surrounds it.
+
+**What is still expensive:**
+
+1. **A new registry hotspot.** `research/_homepage/projects.json` (24% of
+   PRs) and `research/README.md` (23%) are now the top two files, the same
+   shared-list shape that `launched.json` and `build.mjs` had. Fix 3 above
+   applies: derive both from each project's own directory.
+2. **`main`'s CI was red for a reason that was not a regression.**
+   `Portfolio validate` failed on 77 of the last 100 pushes to `main`, all
+   at "Check no live venture disappears". On a push it compared the commit
+   against `main`'s tip *when the runner started*. At 280 merges a day a
+   run starts about 10 merges late, so a venture added in between read as
+   deleted. Reproduced: run 39398672489 checked 04d30ea92 against a tip
+   that already had `hearth-and-horizon`; against its own parent
+   (251913f0e) the same check prints OK. Fixed in this PR: on `push` the
+   base is `github.event.before`.
+3. **The dead mirror still costs CI time.** "Check the apex tool mirror is
+   not stale" took 7 min 36 s of the 10-minute `validate` job in that run.
+   It guards `gitops/prod/front-door*`, which serves nothing.
+4. **Most `main` runs never finish.** `ventures tests` has
+   `cancel-in-progress` per ref, so on `main` 44 of the last 100 runs were
+   cancelled by the next merge. That is fine for a PR branch and wrong for
+   `main`: no commit gets a full verdict, and a break is found only by
+   whichever run happens to survive.
+5. **What merges is rarely what was tested.** The PR head was a median of 1
+   and a p90 of 5 commits behind `main` at merge (924 PRs, 10-17 to
+   10-20); 34% were exactly on the tip. Small diffs keep that cheap, but it
+   is the gap a merge queue closes.
+
+**Action items for a later run** (ordinary platform code unless marked).
+Each one is a backlog item with exact steps, a metric and a baseline in
+[`prompts/process/backlog/`](../prompts/process/backlog/README.md); `python3
+prompts/promptctl.py backlog` lists them. Put the id in your PR title.
+
+- [ ] **P040** Derive `research/_homepage/projects.json` and the `research/README.md`
+      project list from per-project files, so research PRs stop sharing them.
+- [ ] **P039** Take the apex-mirror staleness step out of `Portfolio validate`, or run
+      it only when `gitops/prod/` or its generator changes (saves ~7.5 min
+      a run).
+- [ ] **P038** On `main`, give `ventures tests` (and any workflow with a per-ref
+      `cancel-in-progress`) a per-SHA group, or `cancel-in-progress: false`
+      for `refs/heads/main`, so every merge gets a verdict.
+- [ ] **P037** Re-read after a day of runs: `Portfolio validate` on `main` pushes
+      should be mostly green; any remaining red is a real finding.
+- [x] **P041** Make `concurrency_tax.py` usable in a cloud session (reuse locally
+      fetched `refs/pull/*` instead of refreshing its probe clone).
+- [ ] **P042** *Owner setting:* turn on GitHub's merge queue for `main` with batching
+      now that the shared surface is small (fix 4 above); it closes the
+      tested-is-not-merged gap in item 5.
+
+The rules agents follow because of these findings, the incident timeline
+and the alternatives weighed are in
+[`.github/prompts/parallel-git.md`](../.github/prompts/parallel-git.md).

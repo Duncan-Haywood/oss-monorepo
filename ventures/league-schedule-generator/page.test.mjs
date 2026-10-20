@@ -799,3 +799,9 @@ test("multi-division page: disclaimer, imports, element ids, sitemap and link fr
 test("divisions.mjs guards its command-line entry so it loads in a browser", () => {
   assert.match(page("divisions.mjs"), /typeof process !== "undefined"/);
 });
+
+test("the multi-division page offers venue fairness and prints next season's history", () => {
+  const html = page("multi-division-league-schedule.html");
+  for (const id of ['id="venueFairness"', 'id="venueHistory"', 'id="next-history"']) assert.ok(html.includes(id), id);
+  assert.match(html, /carryVenueHistory\(s\)/);
+});

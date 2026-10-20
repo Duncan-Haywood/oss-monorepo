@@ -1,0 +1,3 @@
+{"theme": "osrobot",
+ "title": "Can a stdlib static linter catch the lab-protocol faults the Opentrons simulator accepts?",
+ "summary": "A stdlib linter for Opentrons Python API scripts follows tip state, used tip wells, declared well volumes and the liquid in the tip without running the script. On the 522 seeded faults of <code>osrobot-lab</code> it flags 362, against 270 raised by the real simulator and 366 flagged by the twin, adding reused tips, tips left on, sub-minimum volumes and carry-over; it cannot see the travel-height collisions. Agreement with the twin is partly circular (same author, same fault set), and every limit is an assumed value. Stylised."}

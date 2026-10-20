@@ -35,6 +35,7 @@ import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { REPO_URL, withSiteHeader } from './site-nav.mjs';
+import { loadResearchRegistry } from './research-registry.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const DEFAULT_ROOT = path.resolve(HERE, '..', '..');
@@ -167,7 +168,7 @@ function loadVentures(root) {
 }
 
 function loadResearch(root) {
-  const data = readJson(path.join(root, 'research', '_homepage', 'projects.json'));
+  const data = loadResearchRegistry(root);
   const themes = (data?.themes ?? []).map((t) => ({ name: t.name, count: (t.projects ?? []).length }));
   const logs = [];
   const dir = path.join(root, 'research');

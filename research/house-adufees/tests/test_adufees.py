@@ -34,3 +34,23 @@ def test_increase_positive_and_discount_in_range():
 
 def test_residual_is_sewer_sized():
     assert m.residual() == pytest.approx(16930 - 4925)
+
+
+def test_sewer_components_add_up():
+    s = m.sewer()
+    assert s["safe_per_unit"] + s["metro_per_unit"] == s["total_per_unit"] == 6480
+
+
+def test_shared_tap_cheaper_than_separate_by_unit_fee():
+    assert m.sewer_permit_fees(True) - m.sewer_permit_fees(False) == 6480
+    assert m.sewer_permit_fees(False) == 575
+
+
+def test_adu_totals():
+    assert m.adu_water_sewer_total(False) == 2170 + 575
+    assert m.adu_water_sewer_total(True) == 2170 + 575 + 6480
+    assert m.adu_water_sewer_total(True) < m.house_water_sewer_total()
+
+
+def test_unexplained_remainder():
+    assert m.unexplained_after_sewer() == pytest.approx(16930 - 4925 - 6480)

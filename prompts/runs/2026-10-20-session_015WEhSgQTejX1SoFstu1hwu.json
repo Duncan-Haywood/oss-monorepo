@@ -1,0 +1,239 @@
+{
+  "date": "2026-10-20",
+  "session": "https://claude.ai/code/session_015WEhSgQTejX1SoFstu1hwu",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-20T14:12:20Z",
+  "ended": "2026-10-20T14:12:30Z",
+  "wall_minutes": 0.76,
+  "tokens_in": 799630,
+  "tokens_out": 3685,
+  "cost_usd": 0.3369,
+  "tool_calls": 14,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/8844",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "goal": null,
+  "notes": "Campaign on platform/ci/serp_snippets.py: 6/8 caught; 1 gap closed (default title_max), 1 equivalent. Added a tie-order test anyway.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "platform/ci/serp_snippets.py",
+        "test": "/usr/local/bin/python3 -m unittest test_serp_snippets  (in platform/ci)",
+        "seed": 19566599,
+        "commit": "d4d46d0b",
+        "sites": 34,
+        "baseline_seconds": 0.1,
+        "mutants": [
+          {
+            "file": "platform/ci/serp_snippets.py",
+            "line": 55,
+            "col": 38,
+            "operator": "const-plus-one",
+            "before": "if not NAME_RE.search(m.group(0)):",
+            "after": "if not NAME_RE.search(m.group(1)):",
+            "line_text": "        if not NAME_RE.search(m.group(0)):",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/serp_snippets.py",
+            "line": 59,
+            "col": 48,
+            "operator": "const-plus-one",
+            "before": "desc = _clean(c.group(2) if c.group(2) is not None else c.group(3))",
+            "after": "desc = _clean(c.group(2) if c.group(3) is not None else c.group(3))",
+            "line_text": "            desc = _clean(c.group(2) if c.group(2) is not None else c.group(3))",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/serp_snippets.py",
+            "line": 61,
+            "col": 31,
+            "operator": "or-to-and",
+            "before": "return title or None, desc or None",
+            "after": "return title or None, desc and None",
+            "line_text": "    return title or None, desc or None",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/serp_snippets.py",
+            "line": 64,
+            "col": 39,
+            "operator": "const-plus-one",
+            "before": "def audit(root: Path, title_max: int = 60, desc_max: int = 160) -> dict:",
+            "after": "def audit(root: Path, title_max: int = 61, desc_max: int = 160) -> dict:",
+            "line_text": "def audit(root: Path, title_max: int = 60, desc_max: int = 160) -> dict:",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "test_default_title_limit_is_60"
+          },
+          {
+            "file": "platform/ci/serp_snippets.py",
+            "line": 75,
+            "col": 17,
+            "operator": "const-plus-one",
+            "before": "pages += 1",
+            "after": "pages += 2",
+            "line_text": "        pages += 1",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/serp_snippets.py",
+            "line": 81,
+            "col": 53,
+            "operator": "gt-to-ge",
+            "before": "over = (len(title) > title_max) + (len(desc) > desc_max)",
+            "after": "over = (len(title) > title_max) + (len(desc) >= desc_max)",
+            "line_text": "        over = (len(title) > title_max) + (len(desc) > desc_max)",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/serp_snippets.py",
+            "line": 82,
+            "col": 33,
+            "operator": "gt-to-ge",
+            "before": "long_title += len(title) > title_max",
+            "after": "long_title += len(title) >= title_max",
+            "line_text": "        long_title += len(title) > title_max",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/serp_snippets.py",
+            "line": 92,
+            "col": 73,
+            "operator": "const-plus-one",
+            "before": "\"worst_ventures\": sorted(per.items(), key=lambda kv: (-kv[1], kv[0])),",
+            "after": "\"worst_ventures\": sorted(per.items(), key=lambda kv: (-kv[1], kv[1])),",
+            "line_text": "        \"worst_ventures\": sorted(per.items(), key=lambda kv: (-kv[1], kv[0])),",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "equivalent",
+            "caught_after_fix": false,
+            "note": "ventures are inserted in sorted(Path) order, which compares by path parts = directory-name order, and sorted() is stable, so the name tiebreak never reorders. Tried a-b/a/c ties; no test can fail."
+          }
+        ]
+      }
+    ],
+    "real_defects": []
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "363afb83-b5b2-5084-aa45-ce035bc51e5d",
+    "transcripts": 1,
+    "first": "2026-10-20T14:12:20Z",
+    "last": "2026-10-20T14:13:05Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 13,
+        "input": 26,
+        "output": 3685,
+        "thinking": 463,
+        "cache_read": 762747,
+        "cache_write_5m": 0,
+        "cache_write_1h": 36857,
+        "api_equivalent_usd": 0.3369,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 13,
+      "input": 26,
+      "output": 3685,
+      "thinking": 463,
+      "cache_read": 762747,
+      "cache_write_5m": 0,
+      "cache_write_1h": 36857,
+      "api_equivalent_usd": 0.3369,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.954,
+    "tool_calls": 14,
+    "tools": {
+      "Bash": 12,
+      "Read": 2
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 0.76,
+      "active_minutes": 0.76,
+      "model_minutes": 0.56,
+      "tool_minutes": 0.2,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 0.5,
+      "basis": "small mutation campaign and two tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 50.0
+    },
+    "leverage": 148.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -1,0 +1,40 @@
+{
+ "gss": {
+  "records_in_file": 75699,
+  "married": 38959,
+  "married_agewed_asked_and_known": 18922,
+  "first_marriage_never_divorced": 15562,
+  "analysed": 13959,
+  "survey_years": [
+   1973,
+   1974,
+   1975,
+   1976,
+   1977,
+   1978,
+   1980,
+   1982,
+   1983,
+   1984,
+   1985,
+   1986,
+   1987,
+   1988,
+   1989,
+   1990,
+   1991,
+   1993,
+   1994
+  ]
+ },
+ "hcmst": {
+  "respondents": 4002,
+  "married_at_wave1": 1928,
+  "analysed_wave1": 1901,
+  "rerated_wave4": 1045,
+  "broke_up_by_2015": 102
+ },
+ "bootstrap": 500,
+ "seed": 20261020,
+ "min_cell": 50
+}

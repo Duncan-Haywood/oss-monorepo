@@ -1,0 +1,45 @@
+{
+ "date": "2026-10-20",
+ "session": "https://claude.ai/code/session_011uhzZLfNrfPu7qvLTdrw6d",
+ "track": "research",
+ "prompt_version": 0,
+ "input": "read ./prompt.md and follow the instructions there (scheduled routine)",
+ "input_sha256": "a6a4cbde3a8ae3e1ab5d2e28da941c9c5bc4a128b1f75087cee1b6d8d8eb85d8",
+ "follow_up_inputs": [],
+ "model": "claude-sonnet-5-5",
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-10-20T14:06:18Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": "research/mimic-webcam (track 11, milestone 10)",
+ "projects": [
+  "mimic-webcam"
+ ],
+ "pr": 8831,
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": null,
+ "outcome": "success",
+ "errors": [],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "research/PROJECTS.md",
+   "issue": "Milestone 10 says DUX logs webcam scores per event, but not that frames exist only while the person is generating events (40-70% of a session has none); had to discover this and bias windows to activity."
+  }
+ ],
+ "deviations": [],
+ "goal": null,
+ "notes": "Negative result: all fixed generators and loop imitators caught at reference AUROC >=0.997 on held-out people; replay ceiling 0.61. Local checks: 8 unit tests, research homepage build ok, md links ok.",
+ "corrections": [],
+ "redteam": null
+}
