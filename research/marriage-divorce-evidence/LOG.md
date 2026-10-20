@@ -8,6 +8,21 @@
 - Couple-level what-ifs (living together first, marrying 2 or 5 years later) show the model range and agreement. Not cohabiting and marrying 5 years later each add about 2 points on average, but only the additive model moves; the tree is flat.
 - Mortality: SSA, CDC and mortality.org still return HTTP 000, so "lifelong" stays labelled as no break-up through the horizon, if both partners live.
 
+## 2026-10-19 · Second model lens: individual-level NLSY79 models exported to the browser
+
+- Exported the eight saved individual-level pipelines (additive Poisson, spline additive Poisson, depth-2 and depth-3 Poisson trees; currently married and including-separated populations) to `app/models/nlsy79_individuals.json` with held-out gains, person-bootstrap intervals and calibration tables. The JS engine now handles the imputer's missing-value indicator and matches 640 of 640 scikit-learn predictions to 10<sup>-9</sup>.
+- New `app/individuals.js` scores both partners from their own traits, averages the rates, and gives exact explanations (tree splits now shown in years, e.g. age 49.5 and 52.5, with each leaf's training support) and what-if changes with model agreement. For a 40/38-year-old couple married 5 years it gives 90.7% no divorce over the next 10 years (model range 89.5–92.1%), close to the couple models' 90.1%.
+- Held out by person, among currently married people the additive models beat a constant rate by 1.9% (95% CI 1.2–2.7%) and the trees by 0.4–0.7%, with intervals that include zero. Including already-separated people lifts every model to 12.6–13.1%, which reflects separation, not partner traits. Next: wire the lens into the page (workstream C) and an out-of-distribution score.
+
+## 2026-10-19 · Relationship-quality lenses: Fair's affairs surveys and Thornes & Collard
+
+- New data: Ray Fair's two affairs surveys, *Redbook* 1974 (6,366 married women, 2,053 reporting an affair) and *Psychology Today* 1969 (601 men and women, 150). They come from statsmodels v0.14.4 on GitHub. The 601-person file matches an independent R (AER) copy row by row. They add the input the government surveys lack: self-rated marriage happiness. The outcome is a reported affair, not divorce (`reproducibility/fair_affairs/`).
+- Redbook, share reporting an affair by marriage rating: 74.7% "very poor", 55.1% "fair", 18.1% "very good". Held out (5×5-fold): rating alone gives AUC 0.687 (8.6% log-loss gain); the additive logistic on all inputs AUC 0.744 (13.2%); a depth-3 tree 0.722 (11.3%). Psychology Today is weaker and noisy: additive logistic AUC 0.691, fold gains −3% to +15%.
+- Odds ratios (associations, cross-sectional, direction unknown): 0.49 per rating point and 0.69 per religiousness point in Redbook; 1.30 for men and 1.46 with children in Psychology Today.
+- Thornes & Collard (1979, 1,036 British people, via `vcd::PreSex`): odds of being divorced rather than married are 2.88 (2.10–3.96) with premarital sex and 5.73 (3.55–9.24) with extramarital sex, gender-adjusted. The sample is case-control-style (48% divorced), so it gives odds ratios only and no app number (`reproducibility/thornes_collard_presex/`).
+- Engine: added a `logistic_glm` model kind (probability output; contributions on the log-odds scale). Both Fair bundles are listed in `models/index.json` without an adapter. Parity: 300 of 300 Python predictions are reproduced to 10<sup>-9</sup> (`app/tests/fair.test.mjs`). The exporter moved to `reproducibility/bundle_export.py`; the NSFG bundle regenerates byte-identical.
+- Still blocked today: CDC, UCI, GSS, NLS and Stanford HCMST (HTTP 000).
+
 ## 2026-10-19 · NSFG 2002 lens: first-marriage dissolution from the wedding day
 
 - New dataset: NSFG 2002 (Cycle 6) women's first marriages. These are 4,126 ever-married women aged 15–44 with month-exact wedding and dissolution dates, 1,492 divorces, annulments or separations, and 30,341 person-years. CDC is still blocked, so the file comes from Allen Downey's ThinkStats2 copy on GitHub, checked against the official record count (7,643) and weighted total (61.56 million) (`reproducibility/nsfg2002_first_marriage/`).

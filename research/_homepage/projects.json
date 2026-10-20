@@ -3085,6 +3085,11 @@
      "summary": "A stdlib planar model gives 2 to 6 joint feeding arms an operational-space tip mass (servo, link and spoon masses plus each servo's rotor inertia reflected through a 345:1 gearbox) and feeds it to <code>osrobot-assist</code>'s lip-contact trials (200 paired trials per row, 30&nbsp;mm sway, camera arm). The tip mass falls only from 0.63 to 0.50&nbsp;kg from 2 to 6 joints; the worst peak lip force is identical (2.0&nbsp;N at 0.10&nbsp;m/s, 4.0&nbsp;N at 0.20) and the safe share at 0.20&nbsp;m/s is 0.60 to 0.65, within sampling error. Servo cost alone triples, from $52&ndash;98 to $156&ndash;295 (two retailers' listings, 2026-10-19). Most of the mass is the geared-up rotor. Stylised: planar, one pose, position-only task, assumed constants, so the real reasons for more joints (spoon orientation, 3-D motion) are not tested."
     },
     {
+     "slug": "osrobot-mjfeed",
+     "title": "Does the stylised feeding-arm lip-force result survive real contact physics? osrobot-assist re-run in MuJoCo",
+     "summary": "The <code>osrobot-assist</code> spoon-feeding trial rebuilt in MuJoCo (a sphere on two slide joints, two box lips that follow the mouth's sway, MuJoCo soft contact), with the same controller and 200 paired seeds per row. With the arm blocked, the steady contact force equals the controller identity KP&times;LEAD&times;speed (2.00&nbsp;N at 0.10&nbsp;m/s) but the impact peak is 1.84&times; higher at every speed (3.68&nbsp;N), and falls with more contact damping. With a swaying mouth the share fed at most 2&nbsp;N drops from the stylised 1.00 to 0.45 at 0.10&nbsp;m/s (30&nbsp;mm sway, camera arm), with peaks of 11 to 23&nbsp;N because the kinematic lips sweep into the tip, a contact the stylised model leaves out. Feeding time agrees within 4&nbsp;% in all but one row. Stylised and preliminary: rigid lips that cannot yield, assumed contact damping, no human model."
+    },
+    {
      "slug": "osrobot-lipsweep",
      "title": "Is the peak force of a feeding arm on the lips set by the lips' stiffness, the arm's force loop, or its approach lead?",
      "summary": "A stdlib sweep of <code>osrobot-assist</code>'s feeding-arm twin over lip stiffness, loop stiffness and forward lead (200 paired trials per row, 30&nbsp;mm sway, camera arm at 0.20&nbsp;m/s). Mean peak lip force rises from 0.32&nbsp;N at 100&nbsp;N/m to 1.15&nbsp;N at 800 and 2.02&nbsp;N at 6400; the worst trial reaches 6.7&nbsp;N, above the controller's 4.0&nbsp;N stall push, so that push is a ceiling only for soft and medium lips. At 0.05&nbsp;m/s every stiffness stays under 2&nbsp;N. Stylised: assumed constants, a point mass and a passive user."
@@ -3766,6 +3771,18 @@
     "slug": "codesign-forcefresh",
     "title": "How much of a best-of-40 gripper design's score is selection noise when every design gets its own trained grasp force?",
     "summary": "Companion to <code>codesign-gripper</code> with a different objective and a searched grasp force. Five parameters of a 3D-printable two-finger gripper (width, thickness, length, V-groove depth, TPU pad) are searched under a print-time cap; for each design a grasp force is tuned in MuJoCo and the design is scored on 40 held-out scenes (cylinders, spheres, boxes of 100&ndash;900&nbsp;g). With 40 designs each, the best seeds of all three baselines reach 0.93&ndash;0.95 test success (medians 0.875, 0.887, 0.900 over 8 seeds) and one session-agent trajectory (n&nbsp;=&nbsp;1, hand-written proposals) reaches 0.95 after 20 designs. On 100 fresh scenes every method&rsquo;s best design drops 0.06&ndash;0.07 on average and the agent&rsquo;s falls to 0.81, level with the baseline median: the task is nearly saturated and the ranking is within noise (standard error about 0.05). Stylised: assumed costs and strengths, rigid fingers, grid-plus-refine policy search rather than deep RL, nothing printed."
+   }
+  ]
+ },
+ {
+  "id": "hanger",
+  "name": "Laundry-hanging robots",
+  "blurb": "A robot that takes clothes from a dryer or a loader and hangs every item, with hangers designed in a simulation feedback loop: drape models, hanger shapes, hang-or-fold decisions and the robot cell.",
+  "projects": [
+   {
+    "slug": "hanger-fit",
+    "title": "What hanger shape keeps a shirt in shape, and can one hanger fit every size?",
+    "summary": "A 2D cloth-drape model (discrete elastic chain with penalty contact, solved by L-BFGS) scores how far a garment hangs from its worn shape, and CMA-ES designs the hanger. Over seven sizes from a child&rsquo;s tee to XXL, the best single fixed hanger averages 2.1&nbsp;cm RMS shape error (5.4&nbsp;cm worst). One adjustable-width hanger set per garment averages 0.18&nbsp;cm (0.22 worst), 12&times; better, and a rack of four widths keeps every size within 1&nbsp;cm. Wire and plastic hangers fold the cloth at the tip (about 65&deg;/cm against 14&deg; worn); a 2&ndash;3&nbsp;cm round end removes it, but a loop scored on shape alone converges on wire-thin ends. CMA-ES beats random search (0.19 vs 0.44&nbsp;cm at 150 drapes). Stylised: 2D, no friction, assumed fabric constants."
    }
   ]
  }

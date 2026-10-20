@@ -18,7 +18,7 @@ test("index page carries the disclaimer, privacy line, and sponsor link", () => 
 });
 
 test("JSON-LD blocks parse and every FAQ question is on the page", () => {
-  for (const name of ["index.html", "183-day-rule-by-state.html", "remote-work-convenience-of-the-employer-rule.html", "snowbird-days-in-new-york.html", "maryland-utah-182-day-limit.html", "nyc-resident-tax-183-day-test.html", "georgia-new-mexico-louisiana-days-only-residency.html", "six-month-residency-nebraska-colorado-arkansas-kansas.html", "ohio-212-contact-period-safe-harbor.html"]) {
+  for (const name of ["index.html", "183-day-rule-by-state.html", "remote-work-convenience-of-the-employer-rule.html", "snowbird-days-in-new-york.html", "maryland-utah-182-day-limit.html", "nyc-resident-tax-183-day-test.html", "georgia-new-mexico-louisiana-days-only-residency.html", "six-month-residency-nebraska-colorado-arkansas-kansas.html", "over-200-day-residency-oregon-hawaii-idaho.html", "ohio-212-contact-period-safe-harbor.html"]) {
     const html = page(name);
     const blocks = [...html.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/gs)].map((m) => JSON.parse(m[1]));
     const faq = blocks.find((b) => b["@type"] === "FAQPage");
@@ -97,7 +97,7 @@ test("robots, sitemap, README, LICENSE and VENTURE.yaml exist", () => {
 });
 
 test("related-tool links point at ventures that exist", () => {
-  for (const name of ["index.html", "183-day-rule-by-state.html", "remote-work-convenience-of-the-employer-rule.html", "snowbird-days-in-new-york.html", "maryland-utah-182-day-limit.html", "nyc-resident-tax-183-day-test.html", "georgia-new-mexico-louisiana-days-only-residency.html", "six-month-residency-nebraska-colorado-arkansas-kansas.html", "ohio-212-contact-period-safe-harbor.html"]) {
+  for (const name of ["index.html", "183-day-rule-by-state.html", "remote-work-convenience-of-the-employer-rule.html", "snowbird-days-in-new-york.html", "maryland-utah-182-day-limit.html", "nyc-resident-tax-183-day-test.html", "georgia-new-mexico-louisiana-days-only-residency.html", "six-month-residency-nebraska-colorado-arkansas-kansas.html", "over-200-day-residency-oregon-hawaii-idaho.html", "ohio-212-contact-period-safe-harbor.html"]) {
     for (const m of page(name).matchAll(/href="\.\.\/([a-z0-9-]+)\/"/g)) assert.ok(existsSync(new URL(`../${m[1]}/index.html`, import.meta.url)), m[1]);
   }
 });
@@ -289,4 +289,25 @@ test("the six-month guide's figures match the counter", async () => {
   assert.match(guide, /No warranty/);
   assert.match(page("index.html"), /href="\.\/six-month-residency-nebraska-colorado-arkansas-kansas\.html"/);
   assert.match(page("sitemap.xml"), /six-month-residency-nebraska-colorado-arkansas-kansas\.html/);
+});
+
+test("the 200/270-day guide's figures match the counter", async () => {
+  const { analyze, parseStays, toDay, RULES } = await import("./calc.mjs");
+  const guide = page("over-200-day-residency-oregon-hawaii-idaho.html");
+  const run = (text, code) => {
+    const stays = parseStays(text, 2025);
+    return analyze({ year: 2025, stays: stays.stays ?? stays, homeState: "TX", abode: { TX: true, OR: true, ID: true, HI: false }, asOf: toDay(2025, 12, 31), convention: "inclusive", wages: 0, overrides: {}, homeWorks: true }).states.find((x) => x.code === code);
+  };
+  assert.equal(RULES.OR.limit, 200);
+  assert.equal(RULES.HI.limit, 200);
+  assert.equal(RULES.ID.limit, 270);
+  const room = (r) => (r.room > 0 ? `${r.room} day${r.room === 1 ? "" : "s"} of room` : r.room === 0 ? "No room left" : `Over by ${-r.room}`);
+  for (const [text, code] of [["2025-01-01 to 2025-07-18 OR", "OR"], ["2025-01-01 to 2025-07-19 OR", "OR"], ["2025-01-01 to 2025-07-20 HI", "HI"], ["2025-01-01 to 2025-09-27 ID", "ID"], ["2025-01-01 to 2025-09-28 ID", "ID"]]) {
+    const r = run(text, code);
+    assert.ok(guide.includes(`<td class="n">${r.days}</td><td>${room(r)}</td>`), text);
+  }
+  assert.match(guide, /<link rel="canonical" href="\.\/over-200-day-residency-oregon-hawaii-idaho\.html">/);
+  assert.match(guide, /No warranty/);
+  assert.match(page("index.html"), /href="\.\/over-200-day-residency-oregon-hawaii-idaho\.html"/);
+  assert.match(page("sitemap.xml"), /over-200-day-residency-oregon-hawaii-idaho\.html/);
 });

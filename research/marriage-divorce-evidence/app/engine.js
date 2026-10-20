@@ -1,7 +1,7 @@
 // In-browser inference for the exported scikit-learn pipelines (no dependencies).
-// Reproduces SimpleImputer(median) -> [SplineTransformer] -> [StandardScaler] for numeric
+// Reproduces SimpleImputer(median[, add_indicator]) -> [SplineTransformer] -> [StandardScaler] for numeric
 // columns and OneHotEncoder(drop='first', handle_unknown='ignore') for categorical columns,
-// then a PoissonRegressor (log link) or a Poisson DecisionTreeRegressor.
+// then a PoissonRegressor (log link), a binary LogisticRegression or a DecisionTreeRegressor.
 // tests/engine.test.mjs checks every model against predictions computed in Python.
 
 // Basis values B_i(x) and first derivatives for a B-spline with knot vector t and degree d,
@@ -69,13 +69,27 @@ export function prepare(model, row) {
   const values = [];
   const owners = [];
   const num = model.numeric;
-  num.columns.forEach((col, j) => {
+  // SimpleImputer: medians, then (add_indicator=True) a 0/1 "was missing" column for each
+  // input that had missing values in training. Splines and scaling act on all of them.
+  const base = [];
+  const baseOwners = [];
+  const missing = num.columns.map((col) => {
     const raw = row[col];
-    const x = raw === null || raw === undefined || Number.isNaN(raw) ? num.impute[j] : Number(raw);
+    return raw === null || raw === undefined || Number.isNaN(raw);
+  });
+  num.columns.forEach((col, j) => {
+    base.push(missing[j] ? num.impute[j] : Number(row[col]));
+    baseOwners.push(col);
+  });
+  for (const j of num.indicator || []) {
+    base.push(missing[j] ? 1 : 0);
+    baseOwners.push(num.columns[j]);
+  }
+  base.forEach((x, j) => {
     const feats = num.spline ? splineFeatures(num.spline, j, x) : [x];
     feats.forEach((v) => {
       values.push(v);
-      owners.push(col);
+      owners.push(baseOwners[j]);
     });
   });
   if (num.scale) {
@@ -110,25 +124,35 @@ export function treeLeaf(tree, x) {
 
 export function predict(model, row) {
   const { values } = prepare(model, row);
-  if (model.kind === 'poisson_glm') {
+  if (model.kind === 'poisson_glm' || model.kind === 'logistic_glm') {
     let eta = model.intercept;
     for (let i = 0; i < values.length; i++) eta += model.coef[i] * values[i];
-    return Math.exp(eta);
+    // logistic_glm (binary LogisticRegression) returns a probability, not a rate.
+    return model.kind === 'logistic_glm' ? 1 / (1 + Math.exp(-eta)) : Math.exp(eta);
   }
   return model.tree.value[treeLeaf(model.tree, values).node];
 }
 
 // Additive (log-rate) contribution of each raw input column, relative to the model's
 // reference point (all standardized numerics at their training mean, first category).
-// exp(sum of contributions + intercept) equals predict().
+// exp(sum of contributions + intercept) equals predict(); for logistic_glm the terms are on
+// the log-odds scale and the logistic of that sum equals predict().
 export function contributions(model, row) {
-  if (model.kind !== 'poisson_glm') return null;
+  if (model.kind !== 'poisson_glm' && model.kind !== 'logistic_glm') return null;
   const { values, owners } = prepare(model, row);
   const out = {};
   for (let i = 0; i < values.length; i++) {
     out[owners[i]] = (out[owners[i]] || 0) + model.coef[i] * values[i];
   }
   return { intercept: model.intercept, terms: out };
+}
+
+// A split on a standardized (not spline-expanded) numeric input, in the input's own units;
+// null for one-hot, indicator and spline features.
+export function rawThreshold(model, f, threshold) {
+  const num = model.numeric;
+  if (num.spline || f >= num.columns.length) return null;
+  return num.scale ? threshold * num.scale.scale[f] + num.scale.mean[f] : threshold;
 }
 
 export function explainTree(model, row) {
@@ -138,9 +162,11 @@ export function explainTree(model, row) {
   return {
     rate: model.tree.value[node],
     leafSamples: model.tree.n_node_samples[node],
+    leaf: node,
     steps: path.map((p) => ({
       feature: model.feature_names[p.feature],
       threshold: p.threshold,
+      rawThreshold: rawThreshold(model, p.feature, p.threshold),
       left: p.left,
       value: values[p.feature],
     })),
