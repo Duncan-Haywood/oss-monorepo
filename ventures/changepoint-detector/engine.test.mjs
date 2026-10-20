@@ -656,6 +656,24 @@ test('trend bends --joint-knots: the refined pair places knots as well as the gr
   assert.ok(joint >= greedy - 1, `${joint} joint against ${greedy} greedy`); // 40 series: 33 and 33 (was 27 joint before the pair was refined)
 });
 
+test('trend bend --knot-margin 0.1: a slope change at 12% of the series is found only when the knot range reaches it', () => {
+  // 200 points, slope 0.05 then 0.35 from point 24, seeds 1201..1212 (README "Knot range": 34 of 40 within 6 points at 0.1, 0 of 40 at the default 0.2)
+  const n = 200, near = (o) => o.knot !== undefined && Math.abs(o.knot - 24) <= 6;
+  let dflt = 0, wide = 0, falseBends = 0;
+  for (let s = 1201; s <= 1212; s++) {
+    const x = normals(rng(s), n).map((v, i) => 0.05 * i + 0.3 * Math.max(0, i - 24) + v);
+    dflt += near(trendAdjust(x, { bend: 1 }));
+    wide += near(trendAdjust(x, { bend: 1, knotMargin: 0.1 }));
+  }
+  for (let s = 1301; s <= 1312; s++) {
+    const x = normals(rng(s), n).map((v, i) => 0.1 * i + v);
+    falseBends += trendAdjust(x, { bend: 3, knotMargin: 0.1 }).knot !== undefined;
+  }
+  console.log(`# knot margin, 12 series: knot near 24 ${dflt} at 0.2, ${wide} at 0.1; false bends on straight ramps ${falseBends}`);
+  assert.ok(wide >= dflt + 6, `${wide} at 0.1 against ${dflt} at 0.2`);
+  assert.ok(falseBends <= 1);
+});
+
 test('trend bends --joint-knots: the least-squares pair places both knots near the truth on clean data, and invents no bend on a ramp', () => {
   // 240 points, slope 0.1, 0.2 from point 80, -0.05 from point 160, white noise, seeds 1001..1012 (README: 35 of 40 within 8 points)
   const n = 240, f = (i) => 0.1 * i + 0.1 * Math.max(0, i - 80) - 0.25 * Math.max(0, i - 160);

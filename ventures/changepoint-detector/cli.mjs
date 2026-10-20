@@ -27,6 +27,7 @@ Options:
   --drift                   with --period: let the seasonal shape change over time (growing amplitude, moving peak)
   --trend [bend|bends]          fit one linear trend under the steps and remove it (a ramp is not read as many small changes);
                             'bend' lets the slope change once, 'bends' up to three times, chosen by BIC
+  --knot-margin f          with --trend bend(s): keep this fraction of the series clear at each end when looking for knots (default 0.2; 0.1 = 10 to 90%)
   --joint-knots             with --trend bends: also score every pair of knots, not only the greedy search's (slower, about 2 s per 240 points)
   --ar1 [joint]             allow for lag-1 autocorrelation (mean model): widen the noise scale, or
                             'joint' to fit the means and rho together (more power on small shifts)
@@ -46,7 +47,7 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
   let file = null;
   let json = false;
   let example = false;
-  const flags = { '--column': 'column', '--label-column': 'labelColumn', '--model': 'model', '--penalty': 'penalty', '--min-segment': 'minSegment', '--hazard': 'hazardLambda', '--threshold': 'threshold', '--period': 'period' };
+  const flags = { '--column': 'column', '--label-column': 'labelColumn', '--model': 'model', '--penalty': 'penalty', '--min-segment': 'minSegment', '--hazard': 'hazardLambda', '--threshold': 'threshold', '--period': 'period', '--knot-margin': 'knotMargin' };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === '-h' || a === '--help') { out(USAGE + '\n'); return 0; }
@@ -62,7 +63,7 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
     } else if (a.startsWith('-')) throw new Error(`Unknown option ${a}. Try --help.`);
     else file = a;
   }
-  for (const k of ['minSegment', 'hazardLambda', 'threshold', 'period']) if (opt[k] != null) opt[k] = Number(opt[k]);
+  for (const k of ['minSegment', 'hazardLambda', 'threshold', 'period', 'knotMargin']) if (opt[k] != null) opt[k] = Number(opt[k]);
   if (!example) {
     if (file) opt.csv = await readFile(file, 'utf8');
     else {
