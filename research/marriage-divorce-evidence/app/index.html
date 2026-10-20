@@ -9,7 +9,7 @@
 <meta property="og:description" content="Year-by-year divorce odds from explainable models trained on U.S. surveys (NLSY79 couples, NSFG first marriages), with model disagreement and limits.">
 <meta property="og:type" content="website">
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"WebApplication","name":"Divorce odds calculator for couples","applicationCategory":"ResearchApplication","operatingSystem":"Any (runs in the browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"isAccessibleForFree":true,"description":"Model-estimated divorce odds per year of marriage for a couple, from explainable models (additive and spline Poisson regressions and Poisson decision trees) trained on two U.S. surveys: NLSY79 married couples and NSFG 2002 first marriages from the wedding day. Runs entirely in the browser.","featureList":["Divorce odds for each year of marriage","Chance of no divorce by year 5 to 50","Per-input model explanations","Model agreement and held-out skill for every evidence lens","Shareable scenarios stored only in the link"],"license":"https://opensource.org/licenses/MIT"}
+{"@context":"https://schema.org","@type":"WebApplication","name":"Divorce odds calculator for couples","applicationCategory":"ResearchApplication","operatingSystem":"Any (runs in the browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"isAccessibleForFree":true,"description":"Model-estimated divorce odds per year of marriage for a couple, from explainable models (additive and spline Poisson regressions and Poisson decision trees) trained on two U.S. surveys: NLSY79 married couples and NSFG 2002 first marriages from the wedding day. Runs entirely in the browser.","featureList":["Divorce odds for each year of marriage","Chance of no divorce by year 5 to 50","Lifelong marriage estimate counting mortality (UN WPP 2024 U.S. death rates)","Per-input model explanations","Model agreement and held-out skill for every evidence lens","Shareable scenarios stored only in the link"],"license":"https://opensource.org/licenses/MIT"}
 </script>
 <link rel="stylesheet" href="style.css">
 </head>
@@ -49,9 +49,12 @@
 
 <section id="results" aria-live="polite">
   <h2>Chance of no divorce</h2>
-  <p class="sub">Average of the lens’s models; the range shows how much they disagree. Assumes both partners live through each year (mortality is not modelled). <span id="outcomeNote"></span></p>
+  <p class="sub">Average of the lens’s models; the range shows how much they disagree. Assumes both partners live through each year; the lifelong split below adds mortality. <span id="outcomeNote"></span></p>
   <div id="tiles" class="tiles"></div>
   <p id="support" class="support"></p>
+  <h2>Lifelong marriage, counting mortality</h2>
+  <p class="sub">How the marriage ends over the projection horizon, if it ends: in divorce, or only when one partner dies.</p>
+  <div id="lifelong"></div>
   <details id="compareBox" open>
     <summary>Every lens, side by side</summary>
     <p class="sub">The same couple through each dataset that can score them. The outcomes differ (legal divorce at ages 35–64 versus any break-up of a first marriage from the wedding day), so read the rows next to each other, never as one number.</p>

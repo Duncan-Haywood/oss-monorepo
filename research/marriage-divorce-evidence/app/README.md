@@ -163,5 +163,6 @@ python3 test_app.py           # the same tests via unittest
 ## Limits
 
 An older U.S. cohort (born 1957–1964, observed 2000–2022); associations, not causes; no
-relationship quality, fidelity, children, wealth or occupation; mortality not modelled. See
+relationship quality, fidelity, children, wealth or occupation; mortality uses U.S.
+population death rates (married people live longer, and spouses' deaths are correlated). See
 `../MODEL_CARD.md` and `ROADMAP.md` for what comes next (more datasets and model families).

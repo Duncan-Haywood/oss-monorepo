@@ -49,6 +49,11 @@
     .note { font-size: .82rem; opacity: .84; }
     .verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .87rem; background: #ffffff1a; }
     .verdict.bad { background: #7d2317; }
+    .log { max-width: 1100px; margin: 24px auto; padding: 0 15px; }
+    .log table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+    .log th, .log td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d5dde6; }
+    .log .log-form { display: flex; gap: 8px; flex-wrap: wrap; align-items: end; margin: 10px 0; }
+    .log .log-form label { display: flex; flex-direction: column; font-size: 0.9rem; }
     .summary-actions { display: flex; gap: 8px; align-items: center; margin-top: 14px; flex-wrap: wrap; }
     .summary-status { font-size: .8rem; color: #cfe3f7; }
     footer { margin-top: 25px; font-size: .82rem; color: #4f5967; }
@@ -139,6 +144,29 @@
     </section>
   </main>
 
+  <section class="log" aria-labelledby="log-heading">
+    <h2 id="log-heading">Session log and weekly total</h2>
+    <p class="hint">One shift rarely tells you whether the week was worth it. Save each session as you enter it and see the week as total net over total hours, so a short lucky dash cannot hide a long bad one. The log stays in this browser only; export it as a CSV any time.</p>
+    <div class="log-form">
+      <label>Date <input id="logDate" type="date"></label>
+      <label>Note (optional) <input id="logLabel" type="text" maxlength="60" placeholder="e.g. Friday dinner"></label>
+      <button type="button" id="logSave">Save this session</button>
+      <button type="button" id="logExport">Export CSV</button>
+      <button type="button" id="logClear">Clear log</button>
+      <span id="logStatus" class="summary-status" role="status" aria-live="polite"></span>
+    </div>
+    <table id="logWeeks" hidden>
+      <thead><tr><th>Week of</th><th>Sessions</th><th>Hours</th><th>Miles</th><th>Gross/hr</th><th>Net/hr</th><th>Net/mi</th><th>Car ate</th><th>Net profit</th></tr></thead>
+      <tbody></tbody>
+    </table>
+    <p id="logInsight" class="note" hidden></p>
+    <table id="logDays" hidden>
+      <thead><tr><th>Weekday</th><th>Sessions</th><th>Hours</th><th>Net/hr</th></tr></thead>
+      <tbody></tbody>
+    </table>
+    <p id="logEmpty" class="note">No saved sessions yet.</p>
+  </section>
+
   <section class="faq" aria-labelledby="faq-heading">
     <h2 id="faq-heading">What this checks</h2>
     <p>Every delivery and rideshare app shows gross pay per hour or per trip. None of them subtract the car. The decision a driver actually faces is whether <strong>this session, after gas and wear</strong>, still cleared what it looked like it cleared on the app screen &mdash; and what is left once a tax reserve comes out too. <a href="how-much-should-i-set-aside-for-gig-driving-taxes.html">How much to set aside for gig-driving taxes</a> walks through the reserve in search-query words.</p>
@@ -176,6 +204,7 @@
     import { calculateSession } from './calc.mjs';
     import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
     import { encodeInputs, decodeInputs } from './share.mjs';
+    import { toLogEntry, byWeek, byWeekday, extremes, parseLog, toCsv } from './log.mjs';
 
     const FIELD_IDS = [
       'grossPay', 'milesDriven', 'hoursActive', 'mpg', 'gasPrice',
@@ -383,6 +412,67 @@
         usageControl.checked = readOptOut(localStorage);
         usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
       }
+    }
+
+    // Session log: saved in this browser only, never transmitted. Entries keep
+    // the session's results and a date, not the vehicle or insurance inputs.
+    {
+      const LOG_KEY = 'gig-driver-net-pay-log';
+      const readLog = () => { try { return parseLog(localStorage.getItem(LOG_KEY)); } catch { return []; } };
+      const writeLog = (entries) => { try { localStorage.setItem(LOG_KEY, JSON.stringify(entries)); return true; } catch { return false; } };
+      const pct = value => value === null ? 'n/a' : `${(value * 100).toFixed(0)}%`;
+      let memory = readLog();
+      el('logDate').value = new Date().toISOString().slice(0, 10);
+
+      function renderLog() {
+        const body = el('logWeeks').querySelector('tbody');
+        body.replaceChildren();
+        for (const week of byWeek(memory)) {
+          const row = body.insertRow();
+          [week.week, String(week.sessions), week.hoursActive.toFixed(2), week.milesDriven.toFixed(0), perHour(week.grossPerHour), perHour(week.netPerHour), perMile(week.netPerMile), pct(week.vehicleShareOfGross), money(week.netProfit)]
+            .forEach(text => { row.insertCell().textContent = text; });
+        }
+        el('logWeeks').hidden = memory.length === 0;
+        const days = byWeekday(memory);
+        const dayBody = el('logDays').querySelector('tbody');
+        dayBody.replaceChildren();
+        for (const d of days) {
+          const row = dayBody.insertRow();
+          [d.day, String(d.sessions), d.hoursActive.toFixed(2), perHour(d.netPerHour)].forEach(text => { row.insertCell().textContent = text; });
+        }
+        el('logDays').hidden = days.length < 2;
+        const { best, worst } = extremes(memory);
+        el('logInsight').hidden = !best || memory.length < 2;
+        if (best) el('logInsight').textContent = `Best session ${best.entry.date}: ${perHour(best.netPerHour)} net. Worst ${worst.entry.date}: ${perHour(worst.netPerHour)} net.`;
+        el('logEmpty').hidden = memory.length > 0;
+      }
+
+      el('logSave').addEventListener('click', () => {
+        try {
+          const entry = toLogEntry(calculateSession(readInput()), { date: el('logDate').value, label: el('logLabel').value });
+          memory = [...memory, entry];
+          el('logStatus').textContent = writeLog(memory) ? 'Saved on this device.' : 'Storage is blocked here; the log lasts until you close the tab.';
+          el('logLabel').value = '';
+          renderLog();
+        } catch (error) {
+          el('logStatus').textContent = error.message;
+        }
+      });
+      el('logClear').addEventListener('click', () => {
+        if (memory.length > 0 && !window.confirm('Delete every saved session from this browser?')) return;
+        memory = [];
+        writeLog(memory);
+        el('logStatus').textContent = 'Log cleared.';
+        renderLog();
+      });
+      el('logExport').addEventListener('click', () => {
+        if (memory.length === 0) { el('logStatus').textContent = 'Nothing to export yet.'; return; }
+        const url = URL.createObjectURL(new Blob([toCsv(memory)], { type: 'text/csv' }));
+        const link = Object.assign(document.createElement('a'), { href: url, download: 'gig-session-log.csv' });
+        link.click();
+        URL.revokeObjectURL(url);
+      });
+      renderLog();
     }
   </script>
 </body>

@@ -4,6 +4,7 @@
 // Pure functions; no DOM. tests/couple.test.mjs covers it.
 import { predict, contributions, explainTree, oodScore } from './engine.js';
 import { personRow, familyIncome, supportIssues as personIssues } from './individuals.js';
+import { competingRisks } from './mortality.js';
 
 export const SCHOOL = ['<12 years', '12 years', '13–15 years', '16–17 years', '18+ years'];
 export const DEGREE = ['Less than high school', 'High school', 'Some college', 'Associate', 'Bachelor', 'Master', 'PhD', 'Professional'];
@@ -368,6 +369,35 @@ export function project(bundle, a, b, couple, horizon = 40, models = scoringMode
     });
   }
   return years;
+}
+
+// "Lifelong" with mortality: each scoring model's divorce rates compete with the death of
+// either partner (UN WPP 2024 U.S. rates, mortality.js), from today's ages and calendar
+// year over `horizon` marriage years. Returns, per model and as mean and range: the chance
+// the marriage ends in divorce, ends in a partner's death while still married (lifelong),
+// or is still going with both alive at the horizon. Population death rates: married people
+// live longer and spouses' deaths are correlated, neither of which is modelled.
+export function lifelong(bundle, table, a, b, couple, horizon = 40) {
+  const sx = (p) => (p.sex === 'Man' ? 'M' : 'F');
+  const years = project(bundle, a, b, couple, horizon);
+  const start = Number.isFinite(num(couple.currentYear)) ? num(couple.currentYear) : new Date().getUTCFullYear();
+  const per = {};
+  for (const m of scoringModels(bundle)) {
+    per[m.key] = competingRisks(table, { sex: sx(a), age: num(a.age) }, { sex: sx(b), age: num(b.age) }, start, years.map((y) => y.rates[m.key]), horizon);
+  }
+  const stat = (k) => {
+    const v = Object.values(per).map((r) => r[k]);
+    return { mean: v.reduce((x, y) => x + y, 0) / v.length, min: Math.min(...v), max: Math.max(...v) };
+  };
+  return {
+    per,
+    divorce: stat('p_divorce'),
+    widowhood: stat('p_widowhood'),
+    stillMarried: stat('p_still_married'),
+    horizon,
+    lastYear: num(couple.yearsMarried) + horizon,
+    extrapolated: years.filter((y) => !y.inSupport).length,
+  };
 }
 
 // Survival under the training-average (constant) rate, for comparison with the models.

@@ -67,6 +67,7 @@ const labelsFrom = (source) =>
 // Shelf-time headers carry data-table="shelf"; the keep table's do not.
 const headersFor = (table) =>
   [...markup.matchAll(/<th scope="col"([^>]*)>([\s\S]*?)<\/th>/g)]
+    .filter((match) => !match[1].includes('data-table="sourcing"'))
     .filter((match) => (table === 'shelf') === match[1].includes('data-table="shelf"'))
     .map((match) => match[2].replace(/\s+/g, ' ').trim());
 

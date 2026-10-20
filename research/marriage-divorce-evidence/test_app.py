@@ -32,6 +32,9 @@ class AppTests(unittest.TestCase):
     def test_fair_bundles_match_sklearn(self):
         self.run_node('fair.test.mjs')
 
+    def test_mortality_competing_risks(self):
+        self.run_node('mortality.test.mjs')
+
     def test_ood_score_matches_python(self):
         self.run_node('ood.test.mjs')
 
@@ -68,6 +71,15 @@ class RelationshipDatasetTests(unittest.TestCase):
             self.assertGreater(shares[0], shares[-1])  # very poor rating above very good
             best = max(m['heldout']['logloss_improvement_percent'] for m in bundle['models'])
             self.assertGreater(best, 0)
+
+    def test_mortality_table_matches_un_e0(self):
+        import csv, json
+        rows = list(csv.DictReader(open(self.SRC / 'un_wpp2024_mortality' / 'e0_check.csv')))
+        self.assertEqual(len(rows), 24)
+        self.assertLess(max(abs(float(r['difference'])) for r in rows), 0.05)
+        table = json.loads((APP / 'data' / 'us_mortality_wpp2024.json').read_text())
+        self.assertEqual(len(table['mxM']), len(table['years']))
+        self.assertEqual(len(table['mxF'][0]), len(table['ages']))
 
     def test_presex_odds_ratios(self):
         import csv

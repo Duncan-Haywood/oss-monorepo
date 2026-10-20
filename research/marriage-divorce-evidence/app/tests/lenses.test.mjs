@@ -1,7 +1,7 @@
 // Lens manifest, lens summaries, shareable-scenario encoding and suggestion uncertainty.
 import { readFileSync, readdirSync } from 'node:fs';
 import { strict as assert } from 'node:assert';
-import { lensSummary, encodeScenario, decodeScenario, selfChanges, idealPartners, explain, nsfgRow, refusals, lensNotes, project as proj2, coupleChanges, scoringModels, isBaseline, coupleRate, adapterFor, lensView, LENS_POPULATION, excludeReason, shareOod, typicality } from '../couple.js';
+import { lensSummary, encodeScenario, decodeScenario, selfChanges, idealPartners, explain, nsfgRow, refusals, lensNotes, project as proj2, coupleChanges, scoringModels, isBaseline, coupleRate, adapterFor, lensView, LENS_POPULATION, excludeReason, shareOod, typicality, lifelong } from '../couple.js';
 import { project as indProject, personRow } from '../individuals.js';
 import { predict } from '../engine.js';
 
@@ -219,3 +219,27 @@ assert.ok(t2.abstain, `percentile ${t2.percentile}`);
 assert.ok(refusals(nsfgO, ...odd, c0).some((x) => x.includes('abstains')));
 assert.equal(typicality(bundle, a, b, couple), null);
 console.log(`nsfg family ok: ${(100 * pf[9].meanSurvival).toFixed(1)}% vs ${(100 * pn[9].meanSurvival).toFixed(1)}% (first-marriage bundle) by year 10; typical couple at the ${typical.percentile.toFixed(0)}th percentile, 17/50 at the ${t2.percentile.toFixed(1)}th (abstains)`);
+
+// ---- Lifelong estimate with competing mortality (workstream A's mortality.js) ----
+const mtable = JSON.parse(readFileSync(new URL('../data/us_mortality_wpp2024.json', import.meta.url)));
+const cy = { ...couple, currentYear: 2026 };
+const life = lifelong(bundle, mtable, a, b, cy, 40);
+assert.deepEqual(Object.keys(life.per).sort(), scoringModels(bundle).map((m) => m.key).sort());
+for (const r of Object.values(life.per)) {
+  assert.equal(r.years, 40);
+  assert.ok(Math.abs(r.p_divorce + r.p_widowhood + r.p_still_married - 1) < 1e-12, 'the three ends add to 1');
+}
+for (const k of ['divorce', 'widowhood', 'stillMarried']) assert.ok(life[k].min <= life[k].mean && life[k].mean <= life[k].max);
+// With zero mortality it reduces exactly to today's no-divorce projection.
+const zero = { ...mtable, mxM: mtable.mxM.map((r) => r.map(() => 0)), mxF: mtable.mxF.map((r) => r.map(() => 0)) };
+const z = lifelong(bundle, zero, a, b, cy, 40);
+const p40 = proj2(bundle, a, b, cy, 40)[39];
+for (const m of scoringModels(bundle)) {
+  assert.ok(Math.abs(z.per[m.key].p_still_married - p40.survival[m.key]) < 1e-12);
+  assert.equal(z.per[m.key].p_widowhood, 0);
+}
+// Mortality only takes away from "still married"; it can only lower the divorce share.
+assert.ok(life.divorce.mean < z.divorce.mean && life.stillMarried.mean < z.stillMarried.mean);
+// Same machinery for every scorable lens.
+assert.equal(Object.keys(lifelong(nsfgO, mtable, w, h, c0, 30).per).length, 2);
+console.log(`lifelong ok: default couple over 40 years: ${(100 * life.widowhood.mean).toFixed(1)}% end only at a death (models ${(100 * life.widowhood.min).toFixed(1)}–${(100 * life.widowhood.max).toFixed(1)}), ${(100 * life.divorce.mean).toFixed(1)}% in divorce, ${(100 * life.stillMarried.mean).toFixed(1)}% still married with both alive`);

@@ -34,12 +34,12 @@ Version 1 (this directory) runs five NLSY79 couple models exported from
   `CLAUDE.md`, "Every session lands its own work"). Check open PRs touching
   `research/marriage-divorce-evidence` first and build on them instead of duplicating.
 
-## Network note (checked 2026-10-19)
+## Network note (checked 2026-10-19 and 2026-10-20)
 
 From cloud sessions, `www.cdc.gov`, `ftp.cdc.gov`, `nlsinfo.org`, ICPSR, Harvard Dataverse,
 Zenodo, Kaggle, UCI, Hugging Face and `gss.norc.org` were blocked by the environment's
 network policy; `github.com`, `raw.githubusercontent.com`, `api.github.com` (partly),
-PyPI and npm were reachable. Re-check at the start of each run
+PyPI and npm were reachable. On 2026-10-20 SSA, CDC, UCI, GSS, NLS, Stanford and mortality.org were still blocked (HTTP 000). Re-check at the start of each run
 (`curl -s -o /dev/null -w '%{http_code}' -m 15 <url>`): the owner may widen the allowlist.
 Public mirrors on GitHub are acceptable only when they reproduce an official file you can
 verify (checksum, row counts, codebook) and the licence allows it.
@@ -48,23 +48,40 @@ verify (checksum, row counts, codebook) and the licence allows it.
 
 ### A. Datasets (owns `../reproducibility/<new dataset>/`, `../DATA_SOURCES.md`, new `models/<id>.json` bundles)
 
-Candidates, highest value first:
+**Done (2026-10-19/20; details in each folder's `METHODS.md` and `../LOG.md`):**
 
-1. **NSFG 2006–2010 / 2011–2013 / 2013–2015 / 2015–2017 / 2017–2019 / 2022–2023** respondent
-   files: marriage histories from the wedding date for ages 15–49. This is the dataset that
-   lets the app speak to young and newly married couples (per-year first-marriage survival
-   by age at marriage, education, cohabitation before marriage, religion, parents'
-   marital history, etc.). CDC hosts it; look for verifiable mirrors if blocked.
-2. **NLSY97** (younger cohort, born 1980–84): partner histories. nlsinfo.org.
-3. **HCMST 2017–2022** (How Couples Meet and Stay Together, Stanford): couple-level data
-   including unmarried and same-sex couples with follow-up breakup outcomes.
-4. **GSS 1972–2022**: ever-divorced status with rich attitudes (cross-sectional; label it so).
-5. **Fair's extramarital affairs data** (Rdatasets mirror on GitHub; 601 rows) and the
-   **Divorce Predictors Scale** (Yöntem et al. 2019, UCI, CC BY 4.0; 170 couples, 54
-   relationship-attitude items). Small and non-representative, but they add the
-   relationship-quality dimension the surveys lack. Label populations plainly.
-6. Official aggregate rates (CDC/NCHS marriage and divorce rates by year and state;
-   ACS marital events) for calibration and context, not person-level training.
+| Dataset | Folder | What the app gets |
+| --- | --- | --- |
+| NSFG 2002 (Cycle 6) women's first marriages, 4,126 marriages and 1,492 dissolutions from the wedding day | `nsfg2002_first_marriage/` | Lens `models/nsfg2002_first_marriage.json`: duration-only, additive spline Poisson (held-out deviance gain 3.0%) and a depth-3 tree. Listed in `index.json` with **no form adapter yet** |
+| Fair (1978) affairs surveys: Redbook 1974 (6,366 women) and Psychology Today 1969 (601 people) | `fair_affairs/` | Lenses `models/fair_redbook1974.json` and `fair_pt1969.json` (logistic AUC 0.744 and 0.691). The target is a reported affair, not divorce. **No adapter yet** |
+| Thornes & Collard (1979) pre- and extramarital sex by divorce, 1,036 people | `thornes_collard_presex/` | Odds ratios only (case-control); no app number by design |
+| UN WPP 2024 U.S. single-year death rates by sex, 2024–2100 | `un_wpp2024_mortality/` | `data/us_mortality_wpp2024.json` and `mortality.js` (`competingRisks`): divorce versus widowhood each year, for the lifelong estimate. **Not yet wired into the UI** |
+
+**Hand-offs to C (app):**
+
+- Write the form adapters for the NSFG 2002 lens (in progress in PR #8556; workstream B's
+  extra NSFG model family merged in #8567): the wife's and husband's ages at the
+  wedding, cohabited first, husband married before, husband has prior children,
+  race-ethnicity, intact family, `marriage_years`; hold `wedding_year` at 2002 and label
+  it. Abstain for a previously married wife, same-sex couples and inputs outside
+  `support`.
+- Write the adapters for the Fair lenses, which need a new "rate your marriage" input. Show
+  them as affair risk, never as divorce odds.
+- Replace "mortality not modelled" with `competingRisks()`: P(divorce first), P(widowhood
+  first, the lifelong marriage) and the unresolved remainder past each lens's support.
+
+**Remaining, highest value first:**
+
+1. **More NSFG cycles** (2006–2010 through 2022–2023): bigger samples and recent weddings.
+   Still blocked at CDC. The NSFG files on GitHub that were checked are 2002 only (the
+   MarriageNSFG repository purged its raw data). Use a verifiable mirror if one appears.
+2. **NLSY97** partner histories (nlsinfo.org blocked).
+3. **HCMST 2017–2022** (Stanford, blocked): unmarried and same-sex couples with breakup
+   follow-up, the only route to a number for same-sex couples.
+4. **GSS 1972–2022** ever-divorced status (gss.norc.org blocked; cross-sectional).
+5. **Divorce Predictors Scale** (Yöntem et al. 2019; UCI blocked). Not attempted from
+   unofficial copies: none could be checked against UCI.
+6. Official aggregate divorce rates (CDC/NCHS) for calibration (blocked).
 
 ### B. Models (owns `tools/`, `engine.js`, `tests/`, model sections of `README.md`)
 
@@ -128,16 +145,19 @@ Done (2026-10-19/20, PRs #8537, #8556 and the round-3 PR):
 - Self-change, couple-level (cohabitation, wedding timing, family income) and partner-profile
   searches. Each shows the model range, direction agreement, ties with the top profile and each
   model's own top pick; the app never presents a single ideal partner.
+- Lifelong estimate with competing mortality: `lifelong()` in `couple.js` runs A's
+  `competingRisks()` (UN WPP 2024 U.S. death rates) once per scoring model and shows divorce,
+  widowhood (the lifelong marriage) and still-married-both-alive shares, each with the model
+  range. A test checks that zero mortality reproduces the no-divorce projection exactly.
 - Phone layout (390px) and dark mode with no horizontal scroll; focus outlines; titles, meta and
   share-card descriptions within the 160-character budget; JSON-LD; links between the app, the
   project README and the research page.
 
 Remaining:
 
-- Lifelong estimate with competing mortality: SSA, CDC/NCHS and mortality.org were unreachable
-  (HTTP 000) on every check on 2026-10-19/20. The app keeps the "mortality not modelled" label.
-  Once a life table is reachable, multiply each year's no-divorce chance by both partners' joint
-  survival, and test that it reduces to today's numbers when mortality is zero.
+- Mortality refinements. Married people's lower death rates and the correlation between
+  spouses' deaths are not modelled; the app says so under the lifelong tiles. Lifelong figures
+  over long horizons also lean on years outside each lens's data (the page counts them).
 - Fair's affairs lenses are listed but not scored. Their outcome is a reported affair, not
   divorce, and they need marriage-rating, religiousness and occupation inputs. If added, they
   belong in a separate "relationship quality" panel, not the divorce chart.

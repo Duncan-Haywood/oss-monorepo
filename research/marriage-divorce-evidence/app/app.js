@@ -1,5 +1,5 @@
 // UI for the couple divorce-odds calculator. All computation is local (couple.js, engine.js).
-import { SCHOOL, DEGREE, WORK, RELIGION, RACE_ETH, refusals, lensNotes, adapterFor, scoringModels, isBaseline, excludeReason, project, constantSurvival, explain, groupedTerms, selfChanges, coupleChanges, idealPartners, lensSummary, lensView, shareOod, encodeScenario, decodeScenario } from './couple.js';
+import { SCHOOL, DEGREE, WORK, RELIGION, RACE_ETH, refusals, lensNotes, adapterFor, scoringModels, isBaseline, excludeReason, project, lifelong, constantSurvival, explain, groupedTerms, selfChanges, coupleChanges, idealPartners, lensSummary, lensView, shareOod, encodeScenario, decodeScenario } from './couple.js';
 
 const $ = (s) => document.querySelector(s);
 const pct = (x, d = 0) => (100 * x).toFixed(d) + '%';
@@ -52,6 +52,7 @@ function readForm() {
 let bundle;
 let state;
 let lenses = []; // [{ entry, bundle, summary }]
+let mortality = null; // UN WPP 2024 U.S. death rates (data/us_mortality_wpp2024.json)
 
 const fmtN = (x) => (Number.isFinite(x) ? Math.round(x).toLocaleString('en-US') : '—');
 
@@ -119,6 +120,7 @@ function render() {
   const years = project(bundle, a, b, couple, horizon);
   state = { a, b, couple, years };
   renderTiles(years, couple);
+  renderLifelong(a, b, couple, horizon);
   renderChart(years, couple);
   renderYearTable(years);
   renderModels(years);
@@ -159,7 +161,7 @@ function renderTiles(years, couple) {
   $('#tiles').innerHTML = marks.map((n) => {
     const y = at(years, couple, n);
     const all = years.slice(0, n).every((z) => z.inSupport);
-    const label = n === years.length ? `Through year ${y.year} (“lifelong” proxy)` : `Through year ${y.year}`;
+    const label = n === years.length ? `Through year ${y.year} (if both partners live)` : `Through year ${y.year}`;
     return `<div class="tile${all ? '' : ' out'}"><div class="k">${label}</div><div class="v">${pct(y.meanSurvival)}</div>
       <div class="r">models: ${pct(y.minSurvival)}–${pct(y.maxSurvival)}</div>${all ? '' : '<div class="flag">includes years outside the data</div>'}</div>`;
   }).join('');
@@ -189,6 +191,18 @@ function observedReference() {
   const fmt = (g) => (g && Number.isFinite(g.still_married_10y) ? pct(g.still_married_10y) : null);
   if (!fmt(all)) return '';
   return ` Observed in the survey (weighted Kaplan–Meier, no model): ${fmt(all)} of all first marriages were intact at 10 years${fmt(grp) ? `, and ${fmt(grp)} where the ${band.toLowerCase()}` : ''}.`;
+}
+
+// The lifelong estimate with competing mortality; the tiles above assume both partners live.
+function renderLifelong(a, b, couple, horizon) {
+  if (!mortality) {
+    $('#lifelong').innerHTML = '<p class="note">The mortality table did not load, so the lifelong split is not shown; the tiles above assume both partners live.</p>';
+    return;
+  }
+  const L = lifelong(bundle, mortality, a, b, couple, horizon);
+  const tile = (k, s, note) => `<div class="tile"><div class="k">${k}</div><div class="v">${pct(s.mean)}</div><div class="r">models: ${pct(s.min)}–${pct(s.max)}</div>${note ? `<div class="flag">${note}</div>` : ''}</div>`;
+  $('#lifelong').innerHTML = `<div class="tiles three">${tile('Lifelong: ends only when a partner dies', L.widowhood)}${tile('Ends in divorce', L.divorce)}${tile(`Still married, both alive, after year ${L.lastYear}`, L.stillMarried)}</div>`
+    + `<p class="small">Each year, the lens’s divorce rate competes with the death of either partner (UN World Population Prospects 2024 U.S. death rates by age, sex and calendar year, CC BY 3.0 IGO). The three shares add to 100%. These are population death rates: married people live longer than average and spouses’ deaths are linked, neither of which is modelled.${L.extrapolated ? ` ${L.extrapolated} of the ${L.horizon} years use divorce rates outside the lens’s data.` : ''}</p>`;
 }
 
 function renderChart(years, couple) {
@@ -335,7 +349,7 @@ async function loadLenses() {
 async function main() {
   $('fieldset[data-who="a"]').insertAdjacentHTML('beforeend', personFields('a'));
   $('fieldset[data-who="b"]').insertAdjacentHTML('beforeend', personFields('b'));
-  lenses = await loadLenses();
+  [lenses, mortality] = await Promise.all([loadLenses(), fetch('data/us_mortality_wpp2024.json').then((r) => r.json()).catch(() => null)]);
   shareOod(lenses.map((l) => l.bundle));
   const scorableFirst = lenses.slice().sort((x, y) => Number(y.summary.scorable) - Number(x.summary.scorable));
   $('#lensSel').innerHTML = scorableFirst.map((l) => `<option value="${esc(l.summary.id)}">${esc(l.summary.label)}${l.summary.scorable ? '' : ' (listed only)'}</option>`).join('');

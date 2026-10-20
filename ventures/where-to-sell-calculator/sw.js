@@ -2,7 +2,7 @@
 // there are no third-party requests and nothing is sent anywhere.
 const CACHE = "where-to-sell-v1";
 const SHELL = [
-  "./", "./index.html", "./calc.mjs", "./export.mjs", "./handoff.mjs", "./share.mjs", "./usage.mjs",
+  "./", "./index.html", "./calc.mjs", "./export.mjs", "./handoff.mjs", "./sourcing.mjs", "./share.mjs", "./usage.mjs",
   "./does-it-actually-sell-there.html",
   "./etsy-vs-ebay-fees.html",
   "./returns-change-the-ranking.html",

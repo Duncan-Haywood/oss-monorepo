@@ -75,6 +75,12 @@ shows the self-employment tax, total tax and quarterly payment under each
 Security wage base and your marginal income-tax rate are inputs; state tax
 and credits are not modelled.
 
+**Session log.** Save each session with a date and the page rolls them up by
+week as total net over total hours and miles (not an average of per-session
+rates), plus the share of gross the car ate ([`log.mjs`](log.mjs),
+[`log.test.mjs`](log.test.mjs)). Stored in your browser only; export a CSV
+any time. It also lists net per hour by weekday and the best and worst session.
+
 **Copy session summary** turns the result into plain text. **Copy share
 link** puts the same inputs in a URL fragment so a partner or future-you can
 reopen the exact session — nothing is sent to a server either way.
@@ -135,7 +141,10 @@ You do not need the author's site. Fork the repository and run your own:
   other income, or quarterly-estimate schedule, and it does not tell you what
   to reserve. A losing session reserves nothing rather than implying a
   refund. Ask a tax preparer for your number.
-- **One session at a time.** Multi-app stacking (driving for two platforms at
+- **The log is local and basic.** Saved sessions (see "Session log" above)
+  live in this browser's storage only, so clearing site data or switching
+  browsers loses them; export the CSV to keep a copy.
+- **One session is costed at a time.** Multi-app stacking (driving for two platforms at
   once) is not modeled separately — combine gross pay across apps and use the
   same miles and hours.
 - No standard mileage rate is built in, and none is asserted as current —
