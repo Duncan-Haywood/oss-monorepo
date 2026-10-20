@@ -231,6 +231,13 @@ research tracks no post covers yet, biggest first, and the days since the
 last post. A run with spare scope, or one that just finished a track's
 milestone, can take the top line.
 
+Posts can have a podcast episode (owner, 2026-10-20: "fifteen blog posts plus
+podcast episodes"): a spoken script in `docs/podcast/` with the post's slug,
+voiced offline by `python3 platform/pages/podcast_tts.py` (Piper, a voice
+trained on public-domain recordings) and served at `writing/podcast/` with an
+RSS feed. The episode says it is a synthetic voice reading an AI-written
+script, and carries nothing the post does not.
+
 The research guardrails apply to every post: every number is copied from the
 committed file it cites, linked by repository path; results are not
 overclaimed; posts say the work was done by AI agents with an owner

@@ -28,6 +28,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { esc, renderMarkdown } from '../devlog/markdown.mjs';
 import { SITE_NAME, withSiteHeader } from './site-nav.mjs';
+import { loadEpisodes, renderPlayer, renderPodcastBody, writePodcastAssets, PODCAST_PATH, SHOW_DESCRIPTION, SHOW_TITLE } from './podcast.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const DEFAULT_ROOT = path.resolve(HERE, '..', '..');
@@ -137,10 +138,14 @@ const STYLE = `
   .posts h2 a:hover { color:var(--accent); }
   .posts p { margin:.3em 0; color:var(--muted); font-size:.95rem; }
   .more { margin-top:3em; padding-top:1.4em; border-top:1px solid var(--line); font-size:.95rem; }
+  .episode { margin:0 0 2em; padding:12px 14px; background:var(--panel); border:1px solid var(--line); border-radius:12px; }
+  .episode figcaption { font-size:.85rem; color:var(--muted); margin:0 0 8px; }
+  audio { width:100%; display:block; margin:.4em 0; }
+  details summary { cursor:pointer; color:var(--accent); font-size:.9rem; margin:.4em 0; }
   footer { margin-top:3em; font-size:.8rem; color:var(--muted); }
 `;
 
-function shell({ title, description, canonical, toRoot, crumbs, body, jsonLd, feedHref, socialCard }) {
+function shell({ title, description, canonical, toRoot, crumbs, body, jsonLd, feedHref, socialCard, podcastFeedHref }) {
   // The site's shared header (site-nav.mjs) above this section's own breadcrumb.
   return withSiteHeader(`<!doctype html>
 <html lang="en">
@@ -150,7 +155,7 @@ function shell({ title, description, canonical, toRoot, crumbs, body, jsonLd, fe
 <title>${esc(title)}</title>
 <meta name="description" content="${esc(description)}">
 ${canonical ? `<link rel="canonical" href="${esc(canonical)}">\n` : ''}<link rel="alternate" type="application/atom+xml" title="${esc(SITE_NAME)}: writing" href="${esc(feedHref)}">
-<meta property="og:title" content="${esc(title)}">
+${podcastFeedHref ? `<link rel="alternate" type="application/rss+xml" title="${esc(SHOW_TITLE)}" href="${esc(podcastFeedHref)}">\n` : ''}<meta property="og:title" content="${esc(title)}">
 <meta property="og:description" content="${esc(description)}">
 <meta property="og:type" content="${jsonLd['@type'] === 'BlogPosting' ? 'article' : 'website'}">
 ${canonical ? `<meta property="og:url" content="${esc(canonical)}">\n` : ''}${socialCard ? `<meta property="og:image" content="${esc(socialCard)}">\n<meta property="og:image:width" content="1200">\n<meta property="og:image:height" content="630">\n` : ''}<meta name="twitter:card" content="${socialCard ? 'summary_large_image' : 'summary'}">
@@ -174,7 +179,7 @@ ${body}
 `, { toRoot, current: 'writing' });
 }
 
-export function renderIndex(posts, { baseUrl = '', socialCard = '' } = {}) {
+export function renderIndex(posts, { baseUrl = '', socialCard = '', episodes = [] } = {}) {
   const canonical = baseUrl ? `${baseUrl}${WRITING_PATH}` : '';
   const items = posts
     .map(
@@ -193,10 +198,11 @@ export function renderIndex(posts, { baseUrl = '', socialCard = '' } = {}) {
     toRoot: '../',
     crumbs: 'Writing',
     feedHref: 'feed.xml',
+    podcastFeedHref: episodes.length ? 'podcast/feed.xml' : '',
     jsonLd: { '@context': 'https://schema.org', '@type': 'Blog', name: `${SITE_NAME}: writing`, url: canonical || undefined },
     body: `<h1>Writing</h1>
 <p class="dek">Essays on building software with unattended AI coding agents, drawn from this repository's own history and numbers.
-Subscribe with the <a href="feed.xml">Atom feed</a>.</p>
+Subscribe with the <a href="feed.xml">Atom feed</a>.${episodes.length ? ` Or listen: <a href="podcast/">the podcast</a> reads ${episodes.length} of these posts aloud.` : ''}</p>
 ${posts.length ? `<ul class="posts">\n${items}\n</ul>` : '<p>No posts yet.</p>'}`,
   });
 }
@@ -208,7 +214,7 @@ export function linkSiblings(html, posts) {
   return out;
 }
 
-export function renderPost(post, posts, { baseUrl = '', socialCard = '' } = {}) {
+export function renderPost(post, posts, { baseUrl = '', socialCard = '', episode = null } = {}) {
   const canonical = baseUrl ? `${baseUrl}${WRITING_PATH}${post.slug}/` : '';
   const others = posts.filter((p) => p.slug !== post.slug).slice(0, 5);
   const tags = post.tags.map((t) => `<span class="tag">${esc(t)}</span>`).join('');
@@ -229,13 +235,16 @@ export function renderPost(post, posts, { baseUrl = '', socialCard = '' } = {}) 
       url: canonical || undefined,
       keywords: post.tags.join(', ') || undefined,
       wordCount: post.words,
+      ...(episode && baseUrl
+        ? { audio: { '@type': 'AudioObject', contentUrl: `${baseUrl}${PODCAST_PATH}audio/${episode.audioFile}`, encodingFormat: 'audio/mpeg', duration: `PT${Math.round(episode.seconds)}S` } }
+        : {}),
     },
     body: `<article>
 <h1>${esc(post.title)}</h1>
 <p class="dek">${esc(post.description)}</p>
 <p class="meta"><time datetime="${post.date}">${longDate(post.date)}</time> · ${post.minutes} min read ·
 <a href="${REPO_BLOB}${esc(post.source)}">Source</a>${tags ? `<br>${tags}` : ''}</p>
-${linkSiblings(renderMarkdown(post.body, { fromPath: post.source, dropTitle: true }), posts)}
+${episode ? `${renderPlayer(episode, '../podcast/')}\n` : ''}${linkSiblings(renderMarkdown(post.body, { fromPath: post.source, dropTitle: true }), posts)}
 </article>
 <section class="more" aria-label="More writing">
 <p><strong>More writing</strong></p>
@@ -271,24 +280,51 @@ ${entries}
 `;
 }
 
-/** Write `writing/` into outDir. Returns the posts, so the caller can list them in the sitemap. */
+/** The podcast's page, in this section's shell (the same header, breadcrumb and disclaimer). */
+export function renderPodcastIndex(episodes, { baseUrl = '', socialCard = '' } = {}) {
+  const canonical = baseUrl ? `${baseUrl}${PODCAST_PATH}` : '';
+  return shell({
+    title: `Podcast · ${SITE_NAME}`,
+    description: SHOW_DESCRIPTION.slice(0, 160).replace(/\s+\S*$/, ''),
+    canonical,
+    socialCard,
+    toRoot: '../../',
+    crumbs: `<a href="../">Writing</a> › Podcast`,
+    feedHref: '../feed.xml',
+    podcastFeedHref: 'feed.xml',
+    jsonLd: { '@context': 'https://schema.org', '@type': 'PodcastSeries', name: SHOW_TITLE, url: canonical || undefined, webFeed: canonical ? `${canonical}feed.xml` : undefined },
+    body: renderPodcastBody(episodes),
+  });
+}
+
+/**
+ * Write `writing/` into outDir, with the podcast at `writing/podcast/` when an
+ * episode's audio is committed. Returns the page slugs under `writing/` for the sitemap.
+ */
 export async function buildWriting(outDir, baseUrl = '', { root = DEFAULT_ROOT, socialCard = '' } = {}) {
   const posts = loadPosts(root);
+  const episodes = loadEpisodes(root, new Set(posts.map((p) => p.slug)));
+  const byPost = new Map(episodes.map((ep) => [ep.post, ep]));
   const dir = path.join(outDir, WRITING_PATH);
   await fs.mkdir(dir, { recursive: true });
-  await fs.writeFile(path.join(dir, 'index.html'), renderIndex(posts, { baseUrl, socialCard }));
+  await fs.writeFile(path.join(dir, 'index.html'), renderIndex(posts, { baseUrl, socialCard, episodes }));
   await fs.writeFile(path.join(dir, 'feed.xml'), renderFeed(posts, { baseUrl }));
   for (const post of posts) {
     await fs.mkdir(path.join(dir, post.slug), { recursive: true });
-    await fs.writeFile(path.join(dir, post.slug, 'index.html'), renderPost(post, posts, { baseUrl, socialCard }));
+    await fs.writeFile(path.join(dir, post.slug, 'index.html'), renderPost(post, posts, { baseUrl, socialCard, episode: byPost.get(post.slug) }));
   }
-  return posts;
+  if (episodes.length) {
+    await writePodcastAssets(outDir, episodes, { root, baseUrl, image: socialCard });
+    await fs.writeFile(path.join(outDir, PODCAST_PATH, 'index.html'), renderPodcastIndex(episodes, { baseUrl, socialCard }));
+  }
+  const slugs = posts.map((p) => p.slug);
+  return episodes.length ? [...slugs, 'podcast'] : slugs;
 }
 
 const invokedDirectly = process.argv[1] && import.meta.url.endsWith(path.basename(process.argv[1]));
 if (invokedDirectly) {
   const arg = (name) => process.argv.find((a) => a.startsWith(`--${name}=`))?.split('=')[1];
   const out = arg('out') ?? path.join(HERE, 'dist');
-  const posts = await buildWriting(out, arg('base-url') ?? '');
-  console.log(`writing: wrote ${path.join(out, WRITING_PATH)} (${posts.length} posts)`);
+  const pages = await buildWriting(out, arg('base-url') ?? '');
+  console.log(`writing: wrote ${path.join(out, WRITING_PATH)} (${pages.length} pages)`);
 }

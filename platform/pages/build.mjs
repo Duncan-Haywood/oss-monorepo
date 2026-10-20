@@ -10466,7 +10466,8 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
 
   // Essays and write-ups from `docs/posts/` (see `writing.mjs`). Indexed, so
   // each post is listed in the hub sitemap below.
-  const posts = await buildWriting(outDir, base, { socialCard: `${base}${SOCIAL_CARD_FILE}` });
+  // Page slugs under writing/: each post, and `podcast` when episodes have audio.
+  const writingPages = await buildWriting(outDir, base, { socialCard: `${base}${SOCIAL_CARD_FILE}` });
 
   // The open book (see `updates.mjs`): what shipped, what is in progress, the
   // owner's direction and the process, plus the changelog of every merge.
@@ -10531,7 +10532,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
       ],
       compareProducts.map((group) => group.key),
       [...researchSlugs, ...researchTopics, ...researchApps],
-      posts.map((post) => post.slug),
+      writingPages,
     ),
   );
   await fs.writeFile(path.join(outDir, 'catalog.json'), renderCatalog(surfaces, base, launched));
