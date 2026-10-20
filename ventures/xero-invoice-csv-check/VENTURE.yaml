@@ -43,7 +43,7 @@ hypotheses:
   - claim: >-
       Checking invoice lines against the organisation's own chart of accounts, contacts and tax
       rates catches faults the file alone cannot show (unknown or archived accounts, near-duplicate
-      contacts, misspelled tax rates), so a bookkeeper who pastes the lists gets fewer rejected imports.
+      contacts, misspelled tax rates), so a bookkeeper who pastes the lists gets fewer rejected imports. Measured as the share of file_checked events that also record lists_used (added 2026-10-20; local counters only, no reading yet).
     status: untested
     checked: null
     evidence: in-repo
