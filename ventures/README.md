@@ -1,6 +1,6 @@
 # Free business calculators, CSV checkers and self-hosted apps: the full catalogue
 
-Every tool in this folder (1298 when this list was last generated), grouped the way the live site
+Every tool in this folder (1300 when this list was last generated), grouped the way the live site
 groups them. Each line links to the **free web version**, which needs no account and, for all but the
 self-hosted apps, runs entirely in your browser, and to its **source code** here, MIT licensed, so you
 can run, fork or self-host your own copy.
@@ -19,11 +19,11 @@ free tools for each one (roofers, Etsy sellers, landlords, freelancers and more)
 - [Logistics, freight & cloud cost](#logistics-freight--cloud-cost) (36)
 - [Compliance checks & evidence records](#compliance-checks--evidence-records) (117)
 - [UK tax, pay & benefits](#uk-tax-pay--benefits) (56)
-- [Back-office money & contracts](#back-office-money--contracts) (214)
+- [Back-office money & contracts](#back-office-money--contracts) (216)
 - [CI checks & developer gates](#ci-checks--developer-gates) (175)
-- [Creator & solo earner income](#creator--solo-earner-income) (91)
+- [Creator & solo earner income](#creator--solo-earner-income) (92)
 - [Learning & practice](#learning--practice) (3)
-- [More free tools](#more-free-tools) (5)
+- [More free tools](#more-free-tools) (4)
 - [Other directories](#other-directories) (4)
 
 ## Self-hosted business apps
@@ -929,6 +929,8 @@ Cash timing, contract terms, and the break-even behind a price change — the ar
 - [Cottage Food Pricing Calculator — free, private, in your browser](https://duncan-haywood.github.io/monorepo-projects/cottage-food-pricing-calculator/) · [code](cottage-food-pricing-calculator/)
 - [Crypto Cost Basis Calculator — free, private, in your browser](https://duncan-haywood.github.io/monorepo-projects/crypto-cost-basis-calculator/) · [code](crypto-cost-basis-calculator/)
 - [What should a CSA share cost?](https://duncan-haywood.github.io/monorepo-projects/csa-share-pricing-calculator/) · [code](csa-share-pricing-calculator/)
+- [CSV to SEPA pain.001 — free, private, in your browser](https://duncan-haywood.github.io/monorepo-projects/csv-to-sepa-pain001/) · [code](csv-to-sepa-pain001/)
+- [CSV to SEPA pain.008 direct debit — free, private, in your browser](https://duncan-haywood.github.io/monorepo-projects/csv-to-sepa-pain008/) · [code](csv-to-sepa-pain008/)
 - [Customer Lifetime Value Predictor — free, private, in your browser](https://duncan-haywood.github.io/monorepo-projects/customer-lifetime-value-predictor/) · [code](customer-lifetime-value-predictor/)
 - [Germany Freelancer Tax Set-Aside Calculator. Free, private](https://duncan-haywood.github.io/monorepo-projects/de-freiberufler-tax-set-aside-calculator/) · [code](de-freiberufler-tax-set-aside-calculator/)
 - [Dental Associate Pay Calculator — free, private, in your browser](https://duncan-haywood.github.io/monorepo-projects/dental-associate-pay-calculator/) · [code](dental-associate-pay-calculator/)
@@ -1349,6 +1351,7 @@ What one person actually earns from their own work — a print, an ad slot, a de
 - [Retreat and workshop profit calculator](https://duncan-haywood.github.io/monorepo-projects/retreat-profit-pricing-calculator/) · [code](retreat-profit-pricing-calculator/)
 - [Roommate Rent Splitter — fair rent for unequal rooms](https://duncan-haywood.github.io/monorepo-projects/roommate-rent-splitter/) · [code](roommate-rent-splitter/)
 - [Rush job sequencer](https://duncan-haywood.github.io/monorepo-projects/rush-job-sequencer/) · [code](rush-job-sequencer/)
+- [Sales Cadence Builder — a prospecting sequence for every lead, checked before you send](https://duncan-haywood.github.io/monorepo-projects/sales-cadence-builder/) · [code](sales-cadence-builder/)
 - [Schengen 90/180 day calculator: days left and last exit date. Free, private](https://duncan-haywood.github.io/monorepo-projects/schengen-90-180-day-calculator/) · [code](schengen-90-180-day-calculator/)
 - [Section 1256 60/40 futures tax calculator — free, private](https://duncan-haywood.github.io/monorepo-projects/section-1256-futures-tax-calculator/) · [code](section-1256-futures-tax-calculator/)
 - [SEP-IRA Contribution Calculator — free, 2026](https://duncan-haywood.github.io/monorepo-projects/sep-ira-contribution-calculator/) · [code](sep-ira-contribution-calculator/)
@@ -1383,7 +1386,6 @@ Learn a language or a technical skill by doing it: hands-free speaking drills, g
 
 Everything else that runs entirely in your browser. [Browse this section on the site →](https://duncan-haywood.github.io/monorepo-projects/c/more/)
 
-- [CSV to SEPA pain.001 — free, private, in your browser](https://duncan-haywood.github.io/monorepo-projects/csv-to-sepa-pain001/) · [code](csv-to-sepa-pain001/)
 - [Open Tennis Robots — DIY tennis ball machine + ball collecting robot](https://duncan-haywood.github.io/monorepo-projects/open-tennis-robots/) · [code](open-tennis-robots/)
 - [Simulate conversations between fictional personalities](https://duncan-haywood.github.io/monorepo-projects/persona-conversation-simulator/) · [code](persona-conversation-simulator/)
 - [Price drop alerts for any shop, on your own GitHub](https://duncan-haywood.github.io/monorepo-projects/price-drop-watcher/) · [code](price-drop-watcher/)

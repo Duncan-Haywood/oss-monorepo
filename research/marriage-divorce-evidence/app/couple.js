@@ -786,7 +786,7 @@ export const FORM_ADAPTERS = Object.keys(ADAPTERS);
 // (deviance or log loss, with its interval), the concordance (Harrell's C) and an AUC.
 export function modelSkill(m) {
   const h = m.heldout || {};
-  const gain = Number.isFinite(h.deviance_improvement_percent) ? h.deviance_improvement_percent : Number.isFinite(h.logloss_improvement_percent) ? h.logloss_improvement_percent : null;
+  const gain = Number.isFinite(h.deviance_improvement_percent) ? h.deviance_improvement_percent : Number.isFinite(h.deviance_gain_percent) ? h.deviance_gain_percent : Number.isFinite(h.logloss_improvement_percent) ? h.logloss_improvement_percent : null;
   let gainCi = h.ci95 || h.logloss_improvement_ci || h.logloss_improvement_ci95 || null;
   // NLSY79 individuals publish the interval per person-year; rescale it to percent.
   if (gainCi && Number.isFinite(h.deviance_improvement_per_person_year) && h.deviance_improvement_per_person_year > 0) gainCi = gainCi.map((x) => (x * gain) / h.deviance_improvement_per_person_year);

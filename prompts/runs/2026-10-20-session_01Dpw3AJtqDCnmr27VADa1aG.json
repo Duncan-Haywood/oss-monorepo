@@ -50,7 +50,7 @@
     }
   ],
   "goal": null,
-  "notes": "Verified: promptctl validate ok; unittest discover -s prompts 86 OK; check_md_links, check_code_refs, usage_state --require-honest, checklist_coverage, validate_workflows exit 0; pytest gitops/tests/test_manifests.py + checklist_coverage + usage_state + md_links + session_gate tests: 233 passed. Friction baseline in experiments.md E52.",
+  "notes": "Verified: promptctl validate ok; unittest discover -s prompts 86 OK; check_md_links, check_code_refs, usage_state --require-honest, checklist_coverage, validate_workflows exit 0; pytest gitops/tests/test_manifests.py + checklist_coverage + usage_state + md_links + session_gate tests: 233 passed. Friction baseline in experiments.md E53.",
   "corrections": [],
   "redteam": null,
   "usage": {
