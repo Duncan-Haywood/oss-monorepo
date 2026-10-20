@@ -95,3 +95,26 @@ for label, kw in (("baseline", {}), ("no plant overhead", {"plant_overhead": 0.0
                   ("factory wage = site wage", {"factory_rate": 55.0}), ("trip cost x3", {"trip_cost": 2700.0})):
     rr = compare(replace(p, **kw), draws=500)
     print(f"{label:>26}: {rr['off_cost'] - rr['site_cost']:+9,.0f}")
+
+print("\nH. Closed panels: wrap, insulation, wiring and window/door setting built in the factory (1.2 min/ft2 + 90 min/opening on site)")
+print(f"{'ratio':>6} {'weather':>8} {'site d':>7} {'panel d':>8} {'site $':>8} {'panel $':>8} {'diff %':>7}")
+for x in (0.3, 0.45, 0.6, 0.8):
+    for w in (0.0, 0.15):
+        rr = compare(replace(p, closed=True, factory_ratio=x, weather_loss=w), draws=DRAWS)
+        print(f"{x:>6} {w:>8.2f} {rr['site_days']:>7.2f} {rr['off_days']:>8.2f} {rr['site_cost']:>8,.0f} "
+              f"{rr['off_cost']:>8,.0f} {100 * (rr['off_cost'] / rr['site_cost'] - 1):>+7.1f}")
+
+print("\nI. Closed panels, shortest house length (ft, step 2) at which panelising is cheaper, by factory ratio and crane-day cost")
+print(f"{'ratio':>6} " + " ".join(f"{'crane $' + str(c):>14}" for c in (0, 750, 1500)))
+for x in (0.3, 0.45, 0.6, 0.8):
+    cells = []
+    for c in (0, 750, 1500):
+        win = next((L for L in range(24, 201, 2) if (lambda r: r['off_cost'] < r['site_cost'])(
+            compare(replace(p, closed=True, factory_ratio=x, crane_day_cost=c), house=House(length_ft=L), draws=50))), None)
+        cells.append("none to 200" if win is None else str(win))
+    print(f"{x:>6} " + " ".join(f"{c:>14}" for c in cells))
+
+print("\nJ. Closed panels at the baseline house: labour hours and calendar days")
+rr = compare(replace(p, closed=True), draws=DRAWS)
+sh, fh = labour_hours(rr["q"], replace(p, closed=True), rr["site_sheets"], rr["fac_sheets"])
+print(f"closed: site labour {sh:.0f} h, factory labour {fh:.0f} h; days site {rr['site_days']:.2f}, panelised {rr['off_days']:.2f}")
