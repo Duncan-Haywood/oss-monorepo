@@ -133,6 +133,10 @@ paperback cover calculator and the ACX check. Nothing is uploaded.
 Tests: `node --test` in this folder. They build synthetic MP3, WAV, M4A, PNG
 and JPEG bytes, so they need no FFmpeg.
 
+## What is next
+
+Unfinished work, with what done looks like for each, is in [`NEXT.md`](NEXT.md).
+
 ## Limits
 
 - Platform requirements are as published when this was built: Apple
