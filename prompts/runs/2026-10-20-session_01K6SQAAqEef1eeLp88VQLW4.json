@@ -1,0 +1,135 @@
+{
+  "date": "2026-10-20",
+  "session": "https://claude.ai/code/session_01K6SQAAqEef1eeLp88VQLW4",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-20T21:07:28Z",
+  "ended": "2026-10-20T21:26:17Z",
+  "wall_minutes": 19.0,
+  "tokens_in": 8978567,
+  "tokens_out": 49626,
+  "cost_usd": 2.7749,
+  "tool_calls": 71,
+  "task": "track 18 milestone 4 (duplicated by hanger-3d #8933; kept as hanger-wrap cross-check)",
+  "projects": [
+    "research/hanger-wrap"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/8936",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    "pkill -f with a pattern matching my own command line killed the shell twice",
+    "first 3D neck pin (single node) overstretched the cloth; fixed by pinning the neck row"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/_shared/linefig.py",
+      "issue": "table() takes a list of lines, not a string; passing read_text() gives a confusing 'no rows parsed' error"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/PROJECTS.md",
+      "why": "Claim check passed at the start but another run landed research/hanger-3d (#8933) before I merged; my draft PR opened late in the run. I renamed mine hanger-wrap and framed it as an independent cross-check instead of closing it."
+    }
+  ],
+  "goal": null,
+  "notes": "CI not checked locally beyond: unit tests, research/_homepage/build.py ok, research_live_links, check_md_links. Disagreements (plastic-arm sweater, grid convergence) reported as unexplained in README. Lesson: open the claim PR within minutes, before building (my draft PR came after ~1h of work).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d0b02313-c022-5243-b665-3d4d6db7fd2e",
+    "transcripts": 1,
+    "first": "2026-10-20T21:07:28Z",
+    "last": "2026-10-20T21:27:35Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 85,
+        "input": 183,
+        "output": 54643,
+        "thinking": 18462,
+        "cache_read": 10133519,
+        "cache_write_5m": 0,
+        "cache_write_1h": 135653,
+        "api_equivalent_usd": 3.1161,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 85,
+      "input": 183,
+      "output": 54643,
+      "thinking": 18462,
+      "cache_read": 10133519,
+      "cache_write_5m": 0,
+      "cache_write_1h": 135653,
+      "api_equivalent_usd": 3.1161,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 80,
+    "tools": {
+      "Bash": 56,
+      "Monitor": 15,
+      "Read": 2,
+      "ToolSearch": 2,
+      "mcp__github__search_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 20.12,
+      "active_minutes": 14.33,
+      "model_minutes": 8.77,
+      "tool_minutes": 5.56,
+      "waiting_on_human_minutes": 5.79,
+      "human_prompts": 9,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "writing a 3D cloth solver, validating it against a 2D model and writing it up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 385.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
