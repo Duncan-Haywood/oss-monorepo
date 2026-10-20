@@ -10,6 +10,8 @@ node platform/pages/check.mjs                    # check that artifact (--dist=D
 cd platform/pages && node --test "*.test.mjs"   # what CI runs
 ```
 
+The site's experiments live in the lab (`lab/`, built by `lab.mjs`); its charter, roadmap and log are in [`LAB.md`](LAB.md).
+
 Then, in a browser, the seven checks CI cannot run — `journey.mjs` (the customer
 journey), `sweep.mjs` (does every tool still compute), `contrast.mjs` (can
 every page be read and reached), `roundtrip.mjs` (does a shared bid arrive as

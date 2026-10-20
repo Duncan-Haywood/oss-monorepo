@@ -83,6 +83,9 @@ class AppTests(unittest.TestCase):
     def test_before_the_wedding_stage(self):
         self.run_node('stage.test.mjs')
 
+    def test_before_the_wedding_lens_in_the_app(self):
+        self.run_node('prewedding_app.test.mjs')
+
     def test_population_comparison(self):
         self.run_node('population.test.mjs')
 
@@ -197,12 +200,27 @@ class RelationshipDatasetTests(unittest.TestCase):
         for t in ('marriage', 'breakup'):
             b = json.loads((APP / 'models' / f'hcmst_dating_{t}.json').read_text())
             self.assertEqual(b['training']['couple_periods'], audit['couple_periods'])
-            self.assertEqual(b['stage'], 'before the wedding')
+            self.assertEqual(b['stage'], 'before')
         rows = {r['group']: r for r in csv.DictReader(open(src / 'cumulative_incidence.csv'))}
         allc = rows['All unmarried couples']
         self.assertLess(float(allc['married_by_8.4y']) + float(allc['broke_up_by_8.4y']), 1)
         self.assertGreater(float(rows['relationship_quality: Excellent']['married_by_8.4y']),
                            float(rows['relationship_quality: Fair']['married_by_8.4y']))
+
+    def test_hcmst_dating_external_validation_2017(self):
+        import csv, json
+        src = self.SRC / 'hcmst_dating_to_marriage'
+        rows = list(csv.DictReader(open(src / 'external_validation_hcmst2017.csv')))
+        self.assertEqual(len(rows), 12)  # 2 windows x 2 outcomes x 3 models
+        audit = json.loads((src / 'sample_audit.json').read_text())['hcmst2017']
+        self.assertEqual(audit['unmarried_couples'], 777)
+        for r in rows:
+            if r['model'] == 'additive_harmonized':
+                self.assertGreater(float(r['auc']), 0.7, r)  # the 2009 model ranks 2017 couples
+                self.assertLess(abs(float(r['observed_share_weighted']) - float(r['predicted_share_weighted'])), 0.05, r)
+            yr = r['window'][-4:]
+            key = ('married_by_' if r['outcome'] == 'married' else 'broke_up_by_') + yr
+            self.assertEqual(int(r['events']), audit[key])
 
     def test_presex_odds_ratios(self):
         import csv

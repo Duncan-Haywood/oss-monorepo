@@ -9,32 +9,27 @@ research in `research/`. Their job is to ship products people use and research
 people can build on, not to debate policy, re-verify old PRs, or maintain admin
 queues. `README.md` ("Finding your way") says which guide covers which work.
 
-**For product work, read [`AGENTS.md`](AGENTS.md) first.**
-[`portfolio/DIRECTION.md`](portfolio/DIRECTION.md) is a ~1,000-line reference
-(~15k tokens), and `goals.md` wins where they differ: run
-`grep -n '^## ' portfolio/DIRECTION.md` and read only the sections your task
-touches, not the whole file.
+## How the guidance fits together
 
-[`PRODUCT_PLAYBOOK.md`](PRODUCT_PLAYBOOK.md) is how to build one: niche
-selection, product shapes with ~$0 marginal cost, the API-key switch, the
-disclaimer text, the SEO/AI-discovery checklist, and the definition of done.
-Usage — the metric while everything is free — is specified in
-[`portfolio/usage/`](portfolio/usage/README.md).
+The guidance is one system in layers, mapped in
+[`prompts/SYSTEM.md`](prompts/SYSTEM.md) (`python3 prompts/promptctl.py map
+--track <track>` lists what your run reads). **A higher layer wins a
+conflict**; report the conflict as `doc_friction` in your run record.
 
-`README.md` covers repo layout.
+| Layer | Answers | Files |
+|---|---|---|
+| goals | What must never happen, and what the work is for | [`prompts/goals.md`](prompts/goals.md) (owner's) |
+| entry | What every run does, start to finish | this file, [`prompt.md`](prompt.md) (routes the run) |
+| track | What this run works on | `prompts/<track>/prompt-<n>.md`, named by `promptctl.py route` |
+| area | How work is done in a directory | product: [`AGENTS.md`](AGENTS.md), [`ventures/CLAUDE.md`](ventures/CLAUDE.md); research: [`research/CLAUDE.md`](research/CLAUDE.md) |
+| runbook | The exact steps of a procedure | [`.github/prompts/`](.github/prompts/): landing, duplicates, verifying, the cloud container |
+| reference | What is true now, and why | [`portfolio/DIRECTION.md`](portfolio/DIRECTION.md) (grep its headings, never read it whole), [`PRODUCT_PLAYBOOK.md`](PRODUCT_PLAYBOOK.md) (how to build one product), [`portfolio/usage/`](portfolio/usage/README.md) (usage, the metric while everything is free), [`portfolio/hosting/`](portfolio/hosting/README.md), [`README.md`](README.md) |
 
-**For research work, read [`research/CLAUDE.md`](research/CLAUDE.md).** Research
-lands here (the `oss-research-monorepo` mirror was cut over on 2026-10-16 and
-that repository is archived). Its brief, not the product rules below, governs
-work inside `research/`; the public-repository and landing rules apply
-everywhere.
-
-**[`prompt.md`](prompt.md) is the master prompt.** It routes each run to a
-sub-prompt in `prompts/` (ventures, research, process, or the review track) with
-`python3 prompts/promptctl.py route`, and asks for a run record before the
-merge. The goals and guardrails in [`prompts/goals.md`](prompts/goals.md)
-are the owner's; the review track improves everything else, this file
-included, from what the records measure ([`prompts/README.md`](prompts/README.md)).
+Research lands here (the `oss-research-monorepo` mirror was cut over on
+2026-10-16). Its brief, not the product rules below, governs work inside
+`research/`. The public-repository and landing rules apply everywhere. The
+review track improves every layer but goals from what the run records
+measure ([`prompts/README.md`](prompts/README.md)).
 
 Four agent families (GitHub Actions, Kilo, Cursor, Claude) also run an
 automated cross-review layer — see `.github/prompts/review-open-prs-first.md`
@@ -126,10 +121,11 @@ The finish line, every session:
 4. confirm `python3 platform/ci/unlanded_work.py` exits 0;
 5. end your reply with the merged PR's link.
 
-In cloud sessions `gh` may be installed but its token is invalid
-(`gh auth status` fails), so treat it as absent: open and merge with the GitHub MCP tools
-(`create_pull_request`, `merge_pull_request`; they start deferred, so load
-them with `ToolSearch` `select:` first). The full protocol is
+In cloud sessions use the GitHub MCP tools, not `gh` (its token is invalid);
+they start deferred, so load them with `ToolSearch` first. That and the
+container's other quirks (shallow clones, `pytest`, long commands) are in
+[`.github/prompts/cloud-session.md`](.github/prompts/cloud-session.md). The full
+landing protocol is
 [`.github/prompts/land-your-work.md`](.github/prompts/land-your-work.md). It
 covers what is and is not a reason to stop short of merging, follow-up work
 after a merge (that needs a new PR), and other sessions' stalled PRs and
@@ -224,18 +220,10 @@ do not re-verify unchanged PRs.
 ## Hosting: what is actually served
 
 - **The catalogue is served by GitHub Pages** at
-  **https://duncan-haywood.github.io/monorepo-projects/**. Since 2026-10-20
-  the Pages source is "GitHub Actions": `.github/workflows/portfolio-pages.yml`
-  builds and deploys it on every merge that touches a site input and every
-  three hours, gated on `vars.PAGES_ENABLED`. The `gh-pages` branch
-  (`platform/pages/publish-branch.sh`) is no longer served and
-  `publish-pages-branch.yml` runs only by hand. `pages_state.py` still reads
-  the branch route, so its "source" and "snapshot" lines are stale until it
-  learns the Actions source. No session can fetch
-  `github.io` (the egress proxy returns 403), so an unauthenticated 200 has
-  not been observed; `github-pages-origin` in
-  `portfolio/ledger/infra_state.yaml` stays `unknown` until the owner loads
-  it logged out.
+  **https://duncan-haywood.github.io/monorepo-projects/**, built and deployed
+  by `.github/workflows/portfolio-pages.yml`. The `gh-pages` branch is no
+  longer served. What is served, and which state readers are stale, is in
+  [`portfolio/hosting/README.md`](portfolio/hosting/README.md), "What is served now".
 - **The Hetzner/k3s route was retired on 2026-10-01**, when the owner
   deleted the servers. Do not ask for `HETZNERSSHKEY`, do not dispatch
   anything that connects to 89.167.29.39 or 157.180.80.188 (a released IP
@@ -256,65 +244,23 @@ candidate `session_gate.py` names, or graduate a niche not in
 
 ## Duplicate PRs
 
-Scheduled sessions overlap. Before opening a PR, check open PRs (with
-`search_pull_requests`, `minimal_output` and a slug or keyword `in:title`;
-`list_pull_requests` returns ~60KB of unrelated PRs) and recent
-commits on `main`, then extend or consolidate instead of duplicating. If the
-backlog is large, merge the strongest and close the rest with a pointer. An
-open-PR check cannot see a sibling that merged ten minutes ago, but the tree
-can:
-
-```
-node platform/pages/surface-budget.mjs --for <slug>   # marketing pages a venture already has
-python3 portfolio/ledger/supersede_check.py <pr>      # before closing a PR as "already on main"
-```
-
-- **Before closing a PR in favour of another, check the survivor is still
-  open, immediately before and after.** Two sessions once closed each
-  other's PRs 38 seconds apart and shipped neither. If the one you deferred
-  to is closed, reopen one rather than writing a third.
-- **`supersede_check.py` exit 0** means the branch adds nothing `main`
-  lacks. Exit 1 prints what a close would destroy. Its **RENAME SUSPECTED**
-  section (the feature is on `main` under other names) and **STALE DRAFT
-  SUSPECTED** section (`main` has a later draft of these very lines) are
-  evidence to read, not licences to close: read the pairs and decide.
-- **Overlap is not supersession, and a conflict is not a reason to close.**
-  Merge `main` into the branch and resolve it. A conflict means the work is
-  still wanted where others are editing.
-- **Shallow clones lie about history.** `git merge` reports unrelated
-  histories and every branch seems to carry thousands of commits. Content
-  reads (`git show origin/main:<path>`) are unaffected, and most sessions need
-  nothing more: when the two disagree, trust the content. Fetch history only
-  for a step that needs it (merging `main` into a branch, dating a change).
-  Try `git fetch --deepen=500 origin main` first, and repeat until
-  `git merge-base HEAD origin/main` answers. A full `git fetch --unshallow
-  origin main` took 2-15 min and up to ~5 GB in recent runs, and two
-  `Monitor` waits expired at 20 min before one finished, so run it with
-  `run_in_background` only when you need it all (name the ref, because a bare
-  `--unshallow` skips a ref you fetched by name), then check
-  `git rev-list --count origin/main` is in the thousands, not 1.
+Scheduled sessions overlap. Before opening a PR, search open PRs
+(`search_pull_requests`, `minimal_output`, a slug or keyword `in:title`) and
+recent commits on `main`, then extend or consolidate instead of duplicating.
+**Overlap is not supersession, and a conflict is not a reason to close**:
+merge `main` in and resolve it. Before closing a PR in favour of another,
+check the survivor is still open, immediately before and after. The steps
+and the tools (`supersede_check.py`, `surface-budget.mjs`) are in
+[`.github/prompts/duplicate-work.md`](.github/prompts/duplicate-work.md).
 
 ## Reading CI
 
-- **Absent CI is not failed CI, and red is not always real.** Agent PRs
-  authenticate with a PAT and do trigger workflows, so a blank check list is
-  something to verify, not the default.
-- **Classify before you debug:** `python3 platform/ci/ci_starvation.py --run
-  <run_id>` (or a job id, or `--from-json <file>`; it needs no `gh`). It
-  votes only on `runner_id`, because a starved job has `runner_id: 0` and
-  no steps. Exit 0: every job got a runner, so a failure is real and yours.
-  Exit 1: starved, so verify locally and say what you ran. Exit 2: the run
-  cannot answer. GitHub's managed `pages build and deployment` runs through
-  starvation and says nothing about Actions, so classify a `.github/`
-  workflow run.
-- **Starvation cycles** with the metered Actions allowance (it lifted on the
-  1st of the month in September). Its sub-cause cannot be known from a
-  session, and the run-timing API's `total_ms` of 0 is not a measurement.
-  `CI_RUNNER=self-hosted` needed the retired cluster, so it is not a
-  fallback now.
-- **Use check runs, not statuses.** `/commits/<sha>/status` and the MCP
-  `get_status` show only legacy statuses and report 0 on a PR with red check
-  runs. Use `/commits/<sha>/check-runs` or the PR's checks tab.
+**Absent CI is not failed CI, and red is not always real.** Classify a run
+before you debug it: `python3 platform/ci/ci_starvation.py --run <run_id>`
+(exit 0: real and yours; 1: starved, verify locally; 2: cannot tell). Read
+check runs, not statuses. The details are in
+[`.github/prompts/verify-and-merge.md`](.github/prompts/verify-and-merge.md),
+"Reading CI".
 
 ## Ledger (minimal)
 

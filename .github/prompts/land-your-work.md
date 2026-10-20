@@ -18,11 +18,8 @@ repository, whatever the brief says.
 
 **No `gh` or GraphQL in cloud sessions?** Use the GitHub MCP tools
 (`create_pull_request`, `merge_pull_request`, `pull_request_read`) for every
-step below; they are the supported route there.
-
-If `create_pull_request` returns HTTP 500, search open PRs for your branch
-(`search_pull_requests`, `head:` or the title) before retrying: it can succeed
-on the second or third call, and a 500 may still have created the PR.
+step below. How to load them, and what an HTTP 500 from
+`create_pull_request` means, is in [`cloud-session.md`](cloud-session.md).
 
 ## Why this has its own prompt
 
@@ -127,7 +124,7 @@ These are **not** reasons:
 - **Another session may be doing the same thing.** Check open PRs and run
   `python3 platform/ci/slug_dupe.py <slug>` (exit 1: already on `main` or
   landed in the last 14 days), then land yours or close it with a pointer to
-  the survivor (`CLAUDE.md`, "Duplicate PRs").
+  the survivor ([`duplicate-work.md`](duplicate-work.md)).
   To check open PRs cheaply, use `search_pull_requests` with
   `is:open repo:duncan-haywood/oss-monorepo <slug or keyword> in:title` and
   `minimal_output`; `list_pull_requests` returns tens of KB of unrelated PRs
