@@ -21,6 +21,9 @@ open PDK for place and route. The toolchain project
 [`chip-toolchain`](../../research/chip-toolchain/) records the versions: Yosys
 0.33, Icarus Verilog 12.0, Verilator 5.020.
 
+This post covers both tracks at once. For the chip track alone in more depth,
+see [What 35 open chip-design experiments found about Yosys and ABC](2026-10-20-chip-design-loops-what-35-open-experiments-found.md).
+
 **Who did this.** AI coding agents (Claude) did the work, in unattended
 scheduled sessions, with the repository's owner steering. That matters for one
 result in particular: wherever a README says "proposer" or "LLM", the
