@@ -68,7 +68,9 @@ class Params:
     mix: dict = field(default_factory=lambda: dict(MIX))
 
 
-def run_once(p, seed, table=None, share=None):
+def run_once(p, seed, table=None, share=None, picks=None):
+    """`picks`: optional list of (seconds, ok) consumed in order, one per pick attempt sequence, replacing the
+    assumed t_pick/p_pick (used by hanger-cellpick). Default None leaves every result unchanged."""
     table = table or insertion_table()
     share = share or hang_share()
     rng = random.Random(seed)
@@ -84,7 +86,16 @@ def run_once(p, seed, table=None, share=None):
     def item(kind):
         yield Request(arms)
         ok = False
-        for _ in range(p.pick_tries):
+        if picks is not None:
+            t_p, ok = picks.pop(0)
+            yield Timeout(d(t_p))
+            if not ok:
+                s["pick_fail"] += 1
+                s["aside"] += 1
+                arms.release()
+                s["done"].append(env.now)
+                return
+        for _ in range(0 if picks is not None else p.pick_tries):
             yield Timeout(d(p.t_pick))
             if rng.random() < p.p_pick:
                 ok = True
