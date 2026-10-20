@@ -1,0 +1,43 @@
+{
+  "date": "2026-10-20",
+  "session": "https://claude.ai/code/session_01DPxCfUv3xApNrpPUBMDzFK",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled: continue work on revenue-generating products, merge when done",
+  "input_sha256": "6abd0844830fd5993772f1509f47a83eaed2d670f3622875925e0c27f0a6fecf",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-20T06:04:19Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/8671",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Router said Explore for xero-invoice-csv-check but the venture had no hypotheses block; had to read allocate.py to learn the format."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Added crossCheck against pasted chart of accounts/contacts/tax rates to xero-invoice-csv-check; 55 tests pass; added a code-evidence hypothesis.",
+  "corrections": [],
+  "redteam": null
+}
