@@ -28,6 +28,9 @@ on:
     paths:
       - "ventures/**"
       - "platform/pages/**"
+      # The writing section (platform/pages/writing.mjs) renders docs/posts/,
+      # and loadPosts throws on a malformed post, so a post-only PR is a build input.
+      - "docs/posts/**"
       - "research/_homepage/**"
       - "research/README.md"
       - "research/*/app/**"
@@ -36,6 +39,9 @@ on:
     paths:
       - "ventures/**"
       - "platform/pages/**"
+      # The writing section (platform/pages/writing.mjs) renders docs/posts/,
+      # and loadPosts throws on a malformed post, so a post-only PR is a build input.
+      - "docs/posts/**"
       - "research/_homepage/**"
       - "research/README.md"
       - "research/*/app/**"
