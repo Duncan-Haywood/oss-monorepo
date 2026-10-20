@@ -1,7 +1,7 @@
 {
   "id": "P041",
   "title": "concurrency_tax.py does not finish in a cloud session",
-  "status": "open",
+  "status": "done",
   "owner": "agent",
   "effect": 1,
   "cost": 1,
@@ -18,7 +18,7 @@
   "baseline": "did not finish in 580 s (2026-10-20)",
   "opened": "2026-10-20",
   "source": "git-pattern re-measurement, PR #8765 (docs/parallel-agents.md, 'Re-measured 2026-10-20')",
-  "pr": null,
-  "result": null,
+  "pr": 8873,
+  "result": "--local fetches main and refs/pull/*/head into the working repo (--shallow-since): 83 s for PRs #7800-#8871 since 2026-10-17 (baseline: no finish in 580 s). Also fixed refs/pull/<n>/head parsing. The --windows table was not built; file a new row if wanted.",
   "history": []
 }
