@@ -1,6 +1,6 @@
 # Does a finer controller grid change which wrong digital twins cost something on a swing-up task?
 
-Track 11 (adversarial human imitation), side project: the first "Next step" of `mimic-twinswing` was to widen its 60-point gain grid, because several twins picked gains on the grid's edge and a coarse grid could hide or create regret. This is a robustness check of that result, not a new question: **if the answer is unchanged, the earlier finding stands on a firmer base.** **No LLM is used and no text is generated.** Stylised and simulated only. **Preliminary: one toy pendulum, one task, a 144-point grid, 12 tuning seeds.** Produced with AI assistance.
+Track 11 (adversarial human imitation), side project: the first "Next step" of `mimic-twinswing` was to widen its 60-point gain grid, because several twins picked gains on the grid's edge and a coarse grid could hide or create regret. This is a robustness check of that result, not a new question: **if the answer is unchanged, the earlier finding stands on a firmer base.** A parallel run, `mimic-twingrid`, also widened the grid (to ke 32) but on a different twin set (14 twins, four of them gravity errors), where AUROC vs regret reached ρ = 0.63 (p = 0.021). This run holds the original 15-twin set fixed, so it separates a grid effect from a twin-set effect. **No LLM is used and no text is generated.** Stylised and simulated only. **Preliminary: one toy pendulum, one task, a 144-point grid, 12 tuning seeds.** Produced with AI assistance.
 
 **Live page:** https://duncan-haywood.github.io/monorepo-projects/research/mimic-twinswinggrid/
 
@@ -11,6 +11,7 @@ Numbers come from `experiments/results.txt` and `results.json`; the figure is `e
 - **Everything else is at or below 0.0011 (0.3%)**: noise-sd ×2 0.0011, no Coulomb friction 0.0010, noise-sd ×0.75 0.0010 (median 0; a few seeds drive the mean), ×1.5 0.0010, Gaussian noise 0.0009; Coulomb −67% 0.00016, doubled viscous friction 0.00022. The exact twin's own regret is 0.00011.
 - **Ranking is stable.** Spearman between coarse-grid and fine-grid regret over the 15 wrong twins: ρ = 0.79 (p = 0.001).
 - **Detectability still does not predict cost reliably.** AUROC vs regret ρ = 0.38 (p = 0.16, was 0.16); paired RMSE vs regret ρ = 0.25 (p = 0.38, was 0.43). The positive point estimate is not significant with 15 twins, and noise-only twins at AUROC 0.99 to 1.0 stay cheap (sd ×0.5: 0.00005).
+- **Versus `mimic-twingrid`.** With the twin set held fixed, the finer grid moves ρ from 0.16 to 0.38 (p = 0.16), not to a significant value, which is consistent with `mimic-twingrid`'s higher ρ coming mostly from having more gravity-error twins rather than from its grid.
 - **Reading.** The grid was not driving the result: the costly twins are the ones with wrong gravity, friction errors stay cheap, and a two-sample test flags both. The ρ for AUROC moved up from 0.16 to 0.38 though stays inside noise, so a power analysis would be needed to say anything about a weak positive link.
 
 ```bash

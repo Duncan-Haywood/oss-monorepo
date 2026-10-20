@@ -62,14 +62,12 @@ When you depart from an instruction, add an entry to `deviations`:
  "result": "CI green after merge"}
 ```
 
-`promptctl.py measure` groups deviations by file. When the same deviation
-recurs and works, the review track changes the default to match it. When one
-goes badly, the review says so and the default gets a clearer reason. Either
-way the instructions learn from judgment instead of only piling up rules.
+`promptctl.py measure` groups deviations by file. A deviation that recurs and
+works becomes the new default; one that goes badly gets the default a clearer
+reason.
 
-Doc friction (`doc_friction`) is for instructions that were *wrong*, and
-deviations are for instructions that were *right in general but not here*.
-Use both.
+`doc_friction` is for instructions that were *wrong*; deviations are for ones
+*right in general but not here*. Use both.
 
 ## Writing an instruction
 
@@ -81,9 +79,8 @@ Use both.
 - **History is for study, not for steering.** The dated story of a rule goes
   in the commit, `docs/history/` or a post; the instruction keeps one line of
   why. `measure` reports always-read size against `INSTRUCTION_BUDGET`.
-- **Say how sure you are.** "Measured on N runs", "one incident" and "a
-  guess" are different, and a reader should be able to tell which one they are
-  looking at.
+- **Say how sure you are**: "measured on N runs", "one incident" and "a
+  guess" differ.
 
 ## Cut the deadweight
 
@@ -102,9 +99,8 @@ at a time and almost never removed, so they pile up. The counterweight:
   (`git log -S`, `docs/history/`), then delete it if the reason is gone.
   Deleting a stale rule is an improvement and needs no apology.
 - **Review it regularly, and look outward.** Every review run cuts at least
-  one rule or check that no longer earns its place, and names one lesson from
-  how other organisations run at this throughput. Write the findings up as a
-  report or post (`docs/reports/`, `docs/posts/`).
+  one rule or check that no longer earns its place, names one lesson from
+  other organisations, and writes both up in `docs/reports/` or `docs/posts/`.
 
 ## The improvement loop
 
@@ -121,4 +117,4 @@ and review tracks turn them into backlog items and better defaults.
   checks whether the metric moved. A fix that did not help gets reverted or
   rethought, not defended.
 
-`python3 prompts/promptctl.py backlog` lists the open items, ranked.
+`python3 prompts/promptctl.py backlog` ranks the open items.
