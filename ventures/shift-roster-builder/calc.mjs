@@ -688,7 +688,7 @@ function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000 } 
   const cls = staff.map((p, q) => JSON.stringify([{ ...p, name: 0 }, elig[q], ctx.target[q]]));
   const lists = Array.from({ length: P }, () => []);
   const owner = new Array(S).fill(-1);
-  const lowerBound = (k, unfilledH) => {
+  const lowerBound = (k, unfilledH, cutoff = Infinity) => {
     let lb = BIG * unfilledH, capacity = 0;
     for (let p = 0; p < P; p++) {
       const L = lists[p], h = hoursOf(ctx, L);
@@ -709,6 +709,10 @@ function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000 } 
     // people (the weekly hours they have left), along who is available, is the most that could still be covered.
     let demand = 0;
     for (let j = k; j < S; j++) demand += len[order[j]];
+    // The flow is the dear part of a node. The bound without it (open hours from total capacity alone) is already a valid bound,
+    // so when it reaches the cutoff the branch is cut without building the graph.
+    const openCap = Math.max(0, demand - capacity);
+    if (lb + BIG * openCap + Math.max(0, sufCheap[k] - openCap * maxRate) >= cutoff) return Infinity;
     const cov = coverableHours(k, hoursLeft);
     const open = Math.max(0, demand - capacity, demand - cov.flow);
     // The shifts that have to stay open are not paid for, so take back at most the dearest rate per hour for each forced open hour.
@@ -815,7 +819,7 @@ function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000 } 
   const rec = (k, unfilledH) => {
     if (aborted) return;
     if (++nodes > nodeLimit || ((nodes & 1023) === 0 && Date.now() - t0 > timeLimitMs)) { aborted = true; return; }
-    if (lowerBound(k, unfilledH) >= best - 1e-9) return;
+    if (lowerBound(k, unfilledH, best - 1e-9) >= best - 1e-9) return;
     if (k === S) {
       const total = scoreOwner(ctx, owner).total;
       if (total < best - 1e-9) { best = total; bestOwner = owner.slice(); }
