@@ -34,8 +34,9 @@ test("missing and malformed settings fail", () => {
 test("going live needs https, mail settings, and warns about state location", () => {
   const l = levels(checkEnv({ ...good, PUBLIC_URL: "http://x.test", DRY_RUN: "false" }));
   assert.equal(l.PUBLIC_URL, "fail");
-  assert.equal(l["RESEND_API_KEY / MAIL_FROM"], "fail");
+  assert.equal(l["mail (resend)"], "fail");
   assert.equal(l.STATE, "warn");
+  assert.equal(levels(checkEnv({ ...good, DRY_RUN: "false", MAIL_PROVIDER: "postmark", POSTMARK_SERVER_TOKEN: "t", MAIL_FROM: "a@b.co" }))["mail (postmark)"], "ok");
   assert.equal(levels(checkEnv({ ...good, DRY_RUN: "false", RESEND_API_KEY: "re_1", MAIL_FROM: "a@b.co", STATE: "/data/state.json", COMPANY_ADDRESS: "1 Main" })).STATE, undefined);
 });
 

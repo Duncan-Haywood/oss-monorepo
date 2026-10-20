@@ -28,3 +28,24 @@ owner: duncan
 #
 # Liability: format checks on the user's own file, no warranty, independent-of-every-vendor clause,
 # trademarks used nominatively, no acceptance promise.
+
+hypotheses:
+  - claim: >-
+      People whose bank download "won't import into QuickBooks" will find a
+      free checker through plain-language searches ("QFX file won't import
+      QuickBooks", "OFX invalid date") and, in most visits that check a file,
+      go on to download or copy the repaired file, because the repair (not
+      the diagnosis) is what they came for.
+    status: untested
+    checked: null
+    evidence: usage-counters
+    measure: >-
+      ratio of fixes_applied to file_checked in the opt-in local counters
+      (usage.mjs); needs a reading from real visitors, none yet.
+  - claim: >-
+      Bookkeepers who clean several clients' exports will use the bulk CLI
+      (cli.mjs) rather than the page, so the CLI is the feature that earns
+      repeat use.
+    status: untested
+    checked: null
+    evidence: customer-contact
