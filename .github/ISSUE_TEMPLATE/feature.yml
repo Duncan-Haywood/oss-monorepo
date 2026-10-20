@@ -1,0 +1,19 @@
+name: Suggest a feature or a new tool
+description: Something a tool should do, or a calculator or check you wish existed.
+title: "[idea] "
+labels: ["enhancement", "site-feedback"]
+body:
+  - type: input
+    id: tool
+    attributes:
+      label: Which tool? (leave empty for a new tool)
+  - type: textarea
+    id: idea
+    attributes:
+      label: What would you like it to do?
+      description: Tell us about the job you are doing and where the tool falls short. Who would use it?
+    validations:
+      required: true
+  - type: markdown
+    attributes:
+      value: Issues here are public. Please leave out names, addresses and anything else private.

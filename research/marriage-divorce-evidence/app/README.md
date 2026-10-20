@@ -493,6 +493,30 @@ the visitor's own device. No server is involved and nothing has to be installed.
 | Poisson tree, depth 4 | 3.333%, 0.6512 | 3.333%, 0.6512 | 3.333%, 0.6512 |
 | Poisson gradient boosting | 6.298%, 0.7029 | 6.297%, 0.7028 | 6.289%, 0.7029 |
 
+**Parallel folds (2026-10-20).** The page runs a pool of module workers, by default one per
+spare core (`navigator.hardwareConcurrency − 1`, at most five, fewer when
+`navigator.deviceMemory` reports 4 GB or less), and a visitor can pick 1–5 threads.
+
+- Each worker loads the extract once and takes tasks from a shared queue: the five held-out
+  folds first, then the refits on all marriages, biggest first.
+- When the last fold arrives, the next free worker merges the folds and computes the metrics
+  (`foldPredictions`, `mergeFolds` and `summarize` in `fit.js`), so the page's own thread only
+  routes messages.
+- Typed arrays are transferred between threads, not copied.
+
+All five models at the Python settings, in headless Chromium on a 4-core cloud machine:
+
+| Threads | Wall time | Longest main-thread stall |
+| --- | --- | --- |
+| 1 | 45.5 s | 93 ms |
+| 3 | 18.8 s | 57 ms |
+| 4 | 17.6 s | 62 ms |
+| 5 | 17.5 s | 86 ms |
+
+Every thread count gives identical metrics. `tests/train_parallel.test.mjs` computes the folds
+in scrambled order through structured cloning and checks the merged result equals the
+single-thread one to 10<sup>−12</sup>.
+
 `tests/train.test.mjs` takes about 40 s. It requires the JS GLM's coefficients to match
 scikit-learn's within 10<sup>−6</sup>; they agree to 4×10<sup>−14</sup>, on fold 0's training
 set and on all data. It also requires the held-out gains to agree within 0.001 points for the
