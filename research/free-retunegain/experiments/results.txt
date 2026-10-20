@@ -1,0 +1,45 @@
+plant x' = 3.0 x, nominal interval h0 = 0.5; kappa = k/a, g(h) = e^(a h) - kappa (e^(a h) - 1)
+
+Missed samples (h = h0 w.p. 1-q, 2 h0 w.p. q): largest q with E g^2 < 1
+twin rho0 | q_ms with twin gain | q_ms with ms-retuned gain | retuned g(h0) at that q
+   0.0     |              0.050   |                     1.000  | +0.818
+   0.3     |              0.114   |                     1.000  | +0.818
+   0.5     |              0.270   |                     1.000  | +0.818
+   0.7     |              1.000   |                     1.000  | +0.818
+
+Gains at fixed miss probability q (twin gain: rho0 = 0.5)
+q      kappa_twin  Eg2_twin   kappa_ms  Eg2_ms   g(h0)_ms  g(2h0)_ms  kappa_as  Elng_as  Elng_twin
+0.0      1.1436    0.2500     1.2872   0.0000   +0.0000   -4.4817    1.2872 -31.3993   -0.6931
+0.1      1.1436    0.5281     1.1065   0.4629   +0.6291   -1.0329    1.2872 -28.1093   -0.5684
+0.2      1.1436    0.8061     1.0800   0.4719   +0.7215   -0.5265    1.2872 -24.8194   -0.4436
+0.3      1.1436    1.0842     1.0693   0.4342   +0.7587   -0.3229    1.2872 -21.5295   -0.3189
+0.4      1.1436    1.3622     1.0636   0.3820   +0.7787   -0.2131    1.2872 -18.2396   -0.1941
+0.5      1.1436    1.6403     1.0600   0.3234   +0.7912   -0.1443    1.0524 -14.7606   -0.0694
+0.6      1.1436    1.9183     1.0575   0.2616   +0.7998   -0.0973    1.0524 -17.6725    0.0554
+
+Uniform jitter h ~ U[h0(1-j), h0(1+j)]: E g^2 at j = 0.999 (widest allowed)
+twin rho0 | Eg2 twin gain | Eg2 ms-retuned | kappa_twin | kappa_ms | retuned g(h0)
+   0.0     |        2.4778 |         0.4802 |    1.2872  |   1.0970 | +0.6622
+   0.3     |        1.0778 |         0.4802 |    1.2011  |   1.0970 | +0.6622
+   0.5     |        0.6000 |         0.4802 |    1.1436  |   1.0970 | +0.6622
+
+Monte Carlo: 2000 runs x 300 samples, miss law, blow = |x| > 1e6 |x0|
+q    gain               E g^2    E ln|g|   blow-up frac   median log-rate/step
+0.4  twin rho0=0.5     1.3622  -0.1941         0.0000      -0.1941
+0.4  ms-retuned        0.3820  -0.7685         0.0000      -0.7685
+0.4  as-retuned        8.0342 -18.2396         0.0000     -18.2396
+0.6  twin rho0=0.5     1.9183   0.0554         0.7180       0.0466
+0.6  ms-retuned        0.2616  -1.4875         0.0000      -1.4875
+0.6  as-retuned        0.2674 -17.6725         0.0000     -17.6725
+0.8  twin rho0=0.5     2.4744   0.3049         1.0000       0.0467
+0.8  ms-retuned        0.1326  -2.6799         0.0000      -2.6799
+0.8  as-retuned        0.1337 -23.4961         0.0000     -23.4961
+
+Misspecified law: ms-gain designed for q_design, evaluated at the true q (E g^2; < 1 is mean-square stable). 'twin' = rho0 0.5 gain
+q_design \ true q       0.0     0.1     0.2     0.3     0.5     0.7     0.9     1.0
+           0.1      0.396   0.463   0.530   0.597   0.731   0.866   1.000   1.067
+           0.3      0.576   0.528   0.481   0.434   0.340   0.246   0.151   0.104
+           0.5      0.626   0.566   0.505   0.444   0.323   0.202   0.081   0.021
+           0.9      0.664   0.597   0.531   0.465   0.332   0.199   0.067   0.000
+          twin      0.250   0.528   0.806   1.084   1.640   2.196   2.752   3.031
+worst case over true q = design q of the retuned E g^2: 0.4781

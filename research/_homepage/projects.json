@@ -1365,6 +1365,11 @@
      "slug": "free-jittertwin",
      "title": "Does a sampled-data loop tuned on a fixed-period twin survive random sampling intervals?",
      "summary": "Unstable scalar plant <em>x&prime;</em> = 3<em>x</em>, gain tuned so the fixed-period twin contracts by 0.5 per sample. Uniform jitter up to &plusmn;100% of the period never destabilises it (exact quadrature), but missed samples do: with a sample missed (period doubled) with probability <em>q</em>, the loop is almost-surely stable up to <em>q</em> = 0.556 yet mean-square stable only up to 0.270. Between the two, the mean-square twin metric says &ldquo;unstable&rdquo; while 2000 simulated runs at <em>q</em> = 0.4 all converge; past 0.556 they blow up (70% at 0.6). A deadbeat-tuned loop (contraction 0) is fragile: mean-square limit 0.05. Stylised scalar model."
+    },
+    {
+     "slug": "free-retunegain",
+     "title": "Does retuning the gain on the sampling-interval law, instead of the fixed-period twin, remove the missed-sample penalty?",
+     "summary": "Follow-up to <em>free-jittertwin</em> on the same unstable scalar plant <em>x&prime;</em> = 3<em>x</em>. The gain minimising <em>E g</em><sup>2</sup> over the miss law (period <em>h</em><sub>0</sub>, or 2<em>h</em><sub>0</sub> with probability <em>q</em>) is closed form and mean-square stable for every <em>q</em> (worst <em>E g</em><sup>2</sup> = 0.478, versus a twin-gain limit of <em>q</em> = 0.270). The price is a slower nominal loop (0.63&ndash;0.82 per on-time sample). A gain designed for <em>q</em> = 0.3 stays mean-square stable at every true <em>q</em>. Stylised scalar model; one plant; iid misses."
     }
    ]
   },
