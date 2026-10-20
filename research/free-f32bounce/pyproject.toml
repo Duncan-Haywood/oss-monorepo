@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "free-f32bounce"
+version = "0.1.0"
+description = "Does a float32 bouncing-ball (contact) simulation keep its long-run statistics? Departure time and impact statistics against float64."
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

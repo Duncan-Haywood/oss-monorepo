@@ -176,6 +176,21 @@ vote manipulation, automated posting where a community forbids it, paid
 placement, or evading a platform's limits. Account creation and publishing
 under the portfolio's public name stay owner-only.
 
+**Privacy rules follow the law, not stricter** (the owner, 2026-10-20): "i
+mean follow laws but going beyond them is too much." And on the old blanket
+"no cookies" rule: "Idk how that got in there." So the law is the line, and
+self-imposed restrictions on top of it are not: cookies and `localStorage` a
+feature needs (a setting, a referral code, a cart, a saved session) are
+allowed without asking; anonymous aggregate measurement that stores nothing on
+the device and nothing that identifies a person (page loads, which kind of
+site sent the visitor, a coarse event) is on by default; analytics that puts
+an identifier on the device (returning visitors, A/B buckets) is allowed with
+the consent the law requires where the visitor is (prior consent in the
+EU/UK under ePrivacy/PECR). What stays: the law itself (GDPR, ePrivacy, PECR,
+CCPA and the rest), honest privacy copy that says what a page actually does,
+and nothing personal in this public repository. Spec:
+`portfolio/usage/README.md`.
+
 ## Direction: sales, marketing and business tools
 
 Set by the owner on 2026-10-16: "lets add a potential direction sales tools
@@ -205,6 +220,38 @@ own machine or network (Ollama, LM Studio, llama.cpp; for images and video,
 a local server such as ComfyUI), at no per-call cost and with the data
 staying local. The deterministic path stays the product. How:
 [`platform/llm/`](../platform/llm/README.md) and `PRODUCT_PLAYBOOK.md` §3.
+
+## Direction: write about the work
+
+Set by the owner on 2026-10-20: "let's add blog posts about the development
+and findings and projects as part of the development goals."
+
+The blog is the site's `writing/` section (Atom feed at `writing/feed.xml`),
+built from Markdown in `docs/posts/` by
+[`platform/pages/writing.mjs`](../platform/pages/writing.mjs). Three kinds of
+post, all for a reader who has never seen the repository:
+
+- **Development:** how the agent fleet builds and steers itself, from git
+  history, run records and the ledger (what went wrong, what it cost, what
+  changed).
+- **Findings:** what a research track found, across its projects, with the
+  numbers and the caveats each README states.
+- **Projects:** what a product or tool does, who it is for and why it exists,
+  linked to its live page.
+
+A post is useful work in its own right when it tells a reader something
+true they could not get from a file listing, and it counts toward "Every run
+ships something useful". `node platform/pages/writing-backlog.mjs` lists the
+research tracks no post covers yet, biggest first, and the days since the
+last post. A run with spare scope, or one that just finished a track's
+milestone, can take the top line.
+
+The research guardrails apply to every post: every number is copied from the
+committed file it cites, linked by repository path; results are not
+overclaimed; posts say the work was done by AI agents with an owner
+steering, and carry a not-advice sentence where a reader might act on a
+number. One post per subject: before writing, check `docs/posts/` and open
+PRs for one that covers it, and extend it instead of writing a second.
 
 ## Judgment over rules
 

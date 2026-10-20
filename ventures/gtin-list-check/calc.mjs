@@ -76,6 +76,22 @@ export function classify(raw) {
   let s = String(raw ?? "").trim();
   if (s === "") return { kind: "empty" };
   let notes = [];
+  // Invisible and look-alike characters that arrive from web pages, PDFs and ERP exports.
+  const tidy = s
+    .replace(/[\u200b-\u200d\u2060\ufeff\u00ad]/g, "")
+    .replace(/[\uff10-\uff19]/g, (c) => String(c.charCodeAt(0) - 0xff10))
+    .replace(/[\u2010-\u2015\u2212]/g, "-")
+    .replace(/[\u00a0\u2007\u202f]/g, " ")
+    .trim();
+  if (tidy !== s) { notes.push("invisible, full-width or look-alike characters were replaced"); s = tidy; }
+  const label = /^(?:gtin(?:-?\d+)?|upc(?:-?[aeAE])?|ean(?:-?\d+)?|isbn(?:-?\d+)?|barcode)\s*[:#=]?\s*(?=[\d'"=])/i.exec(s);
+  if (label) { notes.push(`the "${label[0].trim()}" label was removed`); s = s.slice(label[0].length); }
+  // GS1 data carriers: a Digital Link URL (.../01/<gtin>), the (01) Application Identifier, a scanner symbology prefix (]E0, ]C1, ]d2).
+  const link = /^https?:\/\/[^\s/]+(?:\/[^\s/?#]+)*?\/01\/(\d{8,14})(?=[/?#]|$)\S*$/i.exec(s);
+  if (link) { notes.push("the GTIN was taken from a GS1 Digital Link URL"); s = link[1]; }
+  else if (/^\(01\)\s*\d[\d\s-]*$/.test(s)) { notes.push("the (01) GS1 application identifier was removed"); s = s.replace(/^\(01\)\s*/, ""); }
+  else if (/^\][A-Za-z][0-9A-Za-z]\d[\d\s-]*$/.test(s)) { notes.push("a scanner symbology prefix was removed"); s = s.slice(3); }
+  if (/^\d{1,3}(?:,\d{3})+$/.test(s)) { notes.push("thousands separators were removed"); s = s.replace(/,/g, ""); }
   if (/^'/.test(s)) { s = s.slice(1); notes.push("a leading apostrophe was removed"); }
   s = s.replace(/^="?|"$/g, "").trim();
   const sci = /^(\d+)(?:\.(\d+))?[eE]\+?(\d+)$/.exec(s);
@@ -199,6 +215,16 @@ export function validate(text, options = {}) {
     } else if (c.why === "wrong length") add("error", r.line, "Not a legal GTIN length", `${c.digits} has ${c.digits.length} digits; a GTIN has 8, 12, 13 or 14.`);
     else if (c.why === "too long") add("error", r.line, "Too many digits", c.detail);
     else add("error", r.line, `Not a barcode: ${c.why}`, c.detail || `"${String(raw).slice(0, 40)}"`);
+  }
+  // A GTIN-14 with a non-zero indicator digit is a case or inner pack of the GTIN-13 made from its middle 12 digits.
+  // When that item code is also in the list, say so: marketplaces treat the pack code as a different product.
+  const lineOf = new Map(items.filter((i) => i.result.kind === "ok").map((i) => [i.result.value.padStart(14, "0"), i.line]));
+  for (const it of items) {
+    const v = it.result.kind === "ok" ? it.result.value : "";
+    if (v.length !== 14 || v[0] === "0") continue;
+    const inner = "0" + v.slice(1, 13) + computeCheck(v.slice(1, 13));
+    const at = lineOf.get(inner);
+    if (at !== undefined) add("info", it.line, "Case-pack code of another row", `${v} has indicator digit ${v[0]} and wraps the item code ${inner.slice(1)} on line ${at}. If this row is the single sellable item, use the item code; a pack code is a different product to most marketplaces.`);
   }
   if (blanks) add("warning", 0, `${blanks} blank code${blanks === 1 ? "" : "s"}`, "Rows with an empty barcode cell; some marketplaces need a GTIN or an explicit exemption.");
   if (lengths.size > 1) add("info", 0, "Mixed code lengths", [...lengths.entries()].sort((a, b) => a[0] - b[0]).map(([n, k]) => `${k} × ${n}-digit`).join(", ") + ". Mixing is legal; some importers want one length, and 12-digit UPC-A can be written as 13-digit EAN-13 with a leading 0.");

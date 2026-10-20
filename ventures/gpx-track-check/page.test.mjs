@@ -42,7 +42,7 @@ test("robots and sitemap let crawlers find the page", () => {
 
 test("usage events named on the page are the ones the code records", () => {
   const html = page("index.html");
-  for (const e of ["file_checked", "example_loaded", "fixes_applied"]) {
+  for (const e of ["file_checked", "example_loaded", "fixes_applied", "track_thinned"]) {
     assert.match(html, new RegExp(`record\\("${e}"\\)`));
     assert.match(html, new RegExp(`<code>${e}</code>`));
   }
@@ -56,5 +56,5 @@ test("related-tool links point at ventures that exist", () => {
 
 test("page offers sample-data buttons and a downloadable fixed file", () => {
   const html = page("index.html");
-  for (const id of ["load-example", "load-broken", "download-fixed", "optout"]) assert.match(html, new RegExp(`id="${id}"`));
+  for (const id of ["load-example", "load-broken", "download-fixed", "thin-run", "download-thin", "optout"]) assert.match(html, new RegExp(`id="${id}"`));
 });

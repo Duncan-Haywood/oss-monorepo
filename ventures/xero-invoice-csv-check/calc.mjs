@@ -190,7 +190,7 @@ export function validate(input) {
   const findings = [];
   const add = (severity, line, title, detail) => findings.push({ severity, line, title, detail });
   const { text, delim, parsed, rows } = prepare(input);
-  const empty = { findings, summary: { rows: 0, lines: 0, invoices: 0, columns: 0, delimiter: delim, groups: [] } };
+  const empty = { findings, summary: { rows: 0, lines: 0, invoices: 0, columns: 0, delimiter: delim, groups: [], totals: [] } };
   if (!text.trim()) { add("error", 0, "The file is empty", "There is nothing to check."); return empty; }
   if (parsed.unterminated) add("error", parsed.unterminated, "A quoted cell is never closed", `A quote opened on line ${parsed.unterminated} has no closing quote, so everything after it reads as one cell. Usually a description containing a stray " mark.`);
   if (delim !== ",") add("warning", 1, `The file is ${delim === ";" ? "semicolon" : "tab"}-separated`, "Xero expects commas. Excel in many locales saves CSV with semicolons because the comma is the decimal separator. Apply safe fixes rewrites it with commas.");
@@ -379,7 +379,10 @@ export function validate(input) {
   const rank = { error: 0, warning: 1, info: 2 };
   findings.sort((a, b) => rank[a.severity] - rank[b.severity] || a.line - b.line);
   const gl = [...groups.values()].map((g) => ({ number: g.number, line: g.line, contact: g.contact, invoiceDate: g.invoiceDate, dueDate: g.dueDate, lines: g.lines, net: Math.round(g.net * 100) / 100, currency: g.currency }));
-  return { findings, summary: { rows: data.length, lines: data.length, invoices: groups.size, columns: header.length, delimiter: delim, order, groups: gl } };
+  const byCur = new Map();
+  for (const g of gl) { const k = (g.currency || "").toUpperCase(); const t = byCur.get(k) || { currency: k, invoices: 0, lines: 0, net: 0 }; t.invoices++; t.lines += g.lines; if (g.net === g.net) t.net += g.net; byCur.set(k, t); }
+  const totals = [...byCur.values()].map((t) => ({ ...t, net: Math.round(t.net * 100) / 100 }));
+  return { findings, summary: { rows: data.length, lines: data.length, invoices: groups.size, columns: header.length, delimiter: delim, order, groups: gl, totals } };
 }
 const g_ok = (q, u) => Number.isFinite(q) && Number.isFinite(u);
 
@@ -504,4 +507,143 @@ export function sampleBrokenFile() {
     "Harbour Coffee Roasters;accounts@harbourcoffee.example;1.00E+12;46300;2026-10-31;Hosting;1;25.00;;200;20% (VAT on Income);GBP",
     "",
   ].join("\n");
+}
+
+// ---------- cross-check against the organisation's own lists ----------
+// The file alone cannot say whether account code 200 exists or "Acme Ltd" is already a contact. These
+// functions take the exports a bookkeeper can already download from Xero (chart of accounts, contact
+// list) and a pasted list of tax rate names, and compare. Headings are matched loosely because the
+// export layouts were read from memory.
+const norm = (s) => String(s || "").toLowerCase().replace(/&/g, " and ").replace(/[^a-z0-9]+/g, " ").trim();
+const SUFFIX = /\s(limited|ltd|llc|inc|incorporated|corp|corporation|co|company|pty|plc|gmbh|the)$/;
+const coreName = (s) => { let n = norm(s).replace(/^the /, ""); while (SUFFIX.test(n)) n = n.replace(SUFFIX, ""); return n; };
+const REVENUE_TYPES = /revenue|sales|income|other income/i;
+
+function table(text) {
+  const { rows } = prepare(text);
+  if (!rows.length) return { head: [], body: [] };
+  return { head: rows[0].cells.map((h) => norm(h.replace(/^\*/, ""))), body: rows.slice(1).map((r) => r.cells) };
+}
+const col = (head, ...names) => { for (const n of names) { const i = head.indexOf(norm(n)); if (i >= 0) return i; } return -1; };
+
+// Chart of accounts export: Code, Name, Type (and optionally Status). Returns { accounts, error }.
+export function parseChart(text) {
+  const { head, body } = table(text);
+  const ci = col(head, "code", "account code"), ni = col(head, "name", "account name", "account"), ti = col(head, "type", "account type"), si = col(head, "status");
+  if (ci < 0 || ni < 0) return { accounts: [], error: "The chart of accounts needs a Code column and a Name column." };
+  const accounts = body.filter((c) => (c[ci] || "").trim()).map((c) => ({ code: c[ci].trim(), name: (c[ni] || "").trim(), type: ti >= 0 ? (c[ti] || "").trim() : "", archived: si >= 0 && /archiv/i.test(c[si] || "") }));
+  return { accounts, error: accounts.length ? null : "No accounts found under the heading." };
+}
+
+// Contact export (a ContactName/Name column) or a plain list with one name per line.
+export function parseContactList(text) {
+  const { head, body } = table(text);
+  const ni = col(head, "contactname", "contact name", "name");
+  if (ni >= 0) return body.map((c) => (c[ni] || "").trim()).filter(Boolean);
+  const { rows } = prepare(text);
+  return rows.map((r) => r.cells[0].trim()).filter(Boolean);
+}
+
+export function parseLines(text) { return String(text || "").split(/\r?\n/).map((s) => s.trim()).filter(Boolean); }
+
+function nearest(value, options, maxD) {
+  const v = norm(value);
+  let best = null, bd = 99;
+  for (const o of options) { const d = distance(v, norm(o)); if (d < bd) { bd = d; best = o; } }
+  return bd <= maxD ? best : null;
+}
+
+export function crossCheck(input, lists = {}) {
+  const findings = [];
+  const add = (severity, line, title, detail) => findings.push({ severity, line, title, detail });
+  const { rows } = prepare(input);
+  if (!rows.length) return { findings, summary: { checked: [] } };
+  const header = rows[0].cells.map((h) => h.trim());
+  const { idx } = columnMap(header);
+  const get = (r, n) => (n in idx && idx[n] < r.cells.length ? r.cells[idx[n]].trim() : "");
+  const data = rows.slice(1);
+  const checked = [];
+
+  const accounts = lists.accounts || [];
+  if (accounts.length && "AccountCode" in idx) {
+    checked.push("account codes");
+    const byCode = new Map(accounts.map((a) => [a.code.toLowerCase(), a]));
+    const byName = new Map(accounts.map((a) => [norm(a.name), a]));
+    const seen = new Map();
+    for (const r of data) {
+      const raw = get(r, "AccountCode");
+      if (!raw) continue;
+      const code = raw.replace(/\.0+$/, "");
+      const hit = byCode.get(code.toLowerCase());
+      if (!hit) {
+        const named = byName.get(norm(raw));
+        const near = nearest(code, accounts.map((a) => a.code), 1);
+        add("error", r.line, `AccountCode "${raw}" is not in your chart of accounts`, named ? `That is the name of account ${named.code}. Use the code ${named.code}.` : near ? `No account has that code. Did you mean ${near} (${byCode.get(near.toLowerCase()).name})?` : "No account has that code or name. Add the account in Xero or correct the code.");
+      } else {
+        const k = hit.code;
+        if (!seen.has(k)) seen.set(k, r.line);
+        if (hit.archived) add("error", r.line, `Account ${hit.code} (${hit.name}) is archived`, "Xero will not post new invoice lines to an archived account. Restore it or choose another.");
+        else if (hit.type && !REVENUE_TYPES.test(hit.type) && seen.get(k) === r.line) add("warning", r.line, `Account ${hit.code} (${hit.name}) is type "${hit.type}"`, "Sales invoice lines normally post to a Revenue, Sales or Other Income account. Check this is not an expense or balance sheet account picked by mistake.");
+      }
+    }
+  }
+
+  const contacts = lists.contacts || [];
+  if (contacts.length && "ContactName" in idx) {
+    checked.push("contacts");
+    const exact = new Set(contacts);
+    const exactLower = new Map(contacts.map((c) => [c.toLowerCase(), c]));
+    const byNorm = new Map(); for (const c of contacts) if (!byNorm.has(norm(c))) byNorm.set(norm(c), c);
+    const byCore = new Map(); for (const c of contacts) if (!byCore.has(coreName(c))) byCore.set(coreName(c), c);
+    const done = new Set();
+    for (const r of data) {
+      const name = get(r, "ContactName");
+      if (!name || done.has(name) || exact.has(name)) continue;
+      done.add(name);
+      const same = exactLower.get(name.toLowerCase()) || byNorm.get(norm(name));
+      const alike = byCore.get(coreName(name)) || nearest(name, contacts, Math.max(1, Math.floor(norm(name).length / 8)));
+      if (same) add("warning", r.line, `Contact "${name}" differs from "${same}" only in case or punctuation`, "Xero matches contacts by name, so this may create a second contact. Use the existing spelling.");
+      else if (alike) add("warning", r.line, `Contact "${name}" is not in your list but "${alike}" is`, "If they are the same customer, Xero will create a duplicate contact. Rename the line to match, or keep it if it really is someone new.");
+      else add("info", r.line, `Contact "${name}" is new`, "Not in the contact list you gave. Xero will create it on import.");
+    }
+  }
+
+  const rates = lists.taxRates || [];
+  if (rates.length && "TaxType" in idx) {
+    checked.push("tax rates");
+    const set = new Set(rates), lower = new Map(rates.map((t) => [t.toLowerCase(), t]));
+    const done = new Set();
+    for (const r of data) {
+      const t = get(r, "TaxType");
+      if (!t || set.has(t) || done.has(t)) continue;
+      done.add(t);
+      const m = lower.get(t.toLowerCase()) || nearest(t, rates, 3);
+      add("error", r.line, `TaxType "${t}" is not one of your tax rates`, m ? `Closest rate in your list: "${m}". Xero needs the name spelled exactly.` : "No tax rate in your list has that name.");
+    }
+  }
+  const rank = { error: 0, warning: 1, info: 2 };
+  findings.sort((a, b) => rank[a.severity] - rank[b.severity] || a.line - b.line);
+  return { findings, summary: { checked } };
+}
+
+// Rewrites an AccountCode cell that holds an account's exact name to that account's code. One reading only:
+// the name must match one account and no account code. Returns { text, changes }.
+export function mapAccountNames(input, accounts) {
+  const { delim, parsed, rows } = prepare(input);
+  const changes = [];
+  if (parsed.unterminated || !rows.length || !accounts.length) return { text: "", changes };
+  const { idx } = columnMap(rows[0].cells.map((h) => h.trim()));
+  if (!("AccountCode" in idx)) return { text: "", changes };
+  const codes = new Set(accounts.map((a) => a.code.toLowerCase()));
+  const names = new Map();
+  for (const a of accounts) { const k = norm(a.name); names.set(k, names.has(k) ? null : a); }
+  const out = rows.map((r, i) => {
+    if (i === 0 || idx.AccountCode >= r.cells.length) return r.cells;
+    const v = r.cells[idx.AccountCode].trim();
+    const a = v && !codes.has(v.toLowerCase()) ? names.get(norm(v)) : null;
+    if (!a) return r.cells;
+    changes.push(`Line ${r.line}: AccountCode "${v}" → ${a.code}`);
+    const cells = r.cells.slice(); cells[idx.AccountCode] = a.code; return cells;
+  });
+  return { text: changes.length ? toCsv(out, delim) : "", changes };
 }

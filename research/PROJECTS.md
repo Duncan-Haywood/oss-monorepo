@@ -1265,7 +1265,7 @@ PyBullet, SoftGym, Blender's cloth solver, Gymnasium. Check each before citing i
 2. `hanger-fold` (done 2026-10-20; the fold side is a one-line crease model and drives the result): hang or fold? Add a wrinkle and stretch-set model per fabric and the folded
    alternative, and learn the decision rule a robot can apply from what it can sense (size,
    weight, stretch when lifted).
-3. `hanger-insert`: getting the hanger in. Simulate inserting a rigid, collapsible or
+3. `hanger-insert` (done 2026-10-20; a perimeter-bound model, not cloth: rigid hangers need 43–61 cm of loop, a collapsing one 31 cm): getting the hanger in. Simulate inserting a rigid, collapsible or
    adjustable hanger through the neck or hem of a garment held by one or two grippers. Score
    success, neck stretch and time, and feed the result back into the hanger design.
 4. `hanger-3d`: the drape in 3D with an open cloth solver (front and back panels, sleeves,

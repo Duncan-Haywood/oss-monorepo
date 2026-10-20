@@ -63,3 +63,9 @@ test("every column the page lists as checked is a column the code knows", async 
     assert.ok(html.includes(c), c);
   }
 });
+
+test("page offers the optional cross-check lists with labels", () => {
+  const html = page("index.html");
+  for (const id of ["chart", "contacts", "taxrates"]) assert.match(html, new RegExp(`<label for="${id}">`));
+  assert.match(html, /crossCheck/);
+});

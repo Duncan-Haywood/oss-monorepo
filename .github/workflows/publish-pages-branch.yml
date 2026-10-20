@@ -106,6 +106,14 @@ permissions:
 
 jobs:
   publish:
+    # Since 2026-10-20 the Pages source is "GitHub Actions", so
+    # `portfolio-pages.yml` builds and deploys the live site on every merge and
+    # `gh-pages` is not served. Building here as well spent ~5 metered runner
+    # minutes per merge on an artifact nobody serves, and the IndexNow step
+    # below announced that stale branch. So the job runs only when someone
+    # asks for it by hand, or when the owner sets `PAGES_BRANCH_PUBLISH` to go
+    # back to the branch route (switch the Pages source back to `gh-pages` too).
+    if: github.event_name == 'workflow_dispatch' || vars.PAGES_BRANCH_PUBLISH == 'true'
     runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     # The build is ~2000 files and `check.mjs` crawls the whole artifact for
     # dead links; it takes a couple of minutes on a warm runner. Fifteen is

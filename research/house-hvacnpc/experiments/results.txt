@@ -1,0 +1,26 @@
+A. break-even premium at EIA prices, 3% real rate, 30 years: the heat pump may cost this much more than gas furnace + AC (negative: must cost less)
+  climate             gas $/yr   HP $/yr  premium $
+  Miami (1A)               287       283         84
+  Houston (2A)             338       332        132
+  Atlanta (3A)             384       372        735
+  Chicago (5A)             395       695     -6,206
+  Minneapolis (6A)         443       703     -5,399
+  Duluth (7)               518       844     -6,698
+
+B. the same premium at 1%, 3% and 6% real discount rates
+  climate                  1%       3%       6%
+  Miami (1A)              105       84       66
+  Houston (2A)            164      132      103
+  Atlanta (3A)            933      735      646
+  Chicago (5A)         -8,046   -6,206   -4,606
+  Minneapolis (6A)     -7,002   -5,399   -3,962
+  Duluth (7)           -8,569   -6,698   -4,845
+
+C. the same premium if the gas price were 25% lower and 25% higher than the EIA state price
+  climate             gas -25%      EIA  gas +25%
+  Miami (1A)                16       84       153
+  Houston (2A)            -601      132       864
+  Atlanta (3A)            -706      735     2,108
+  Chicago (5A)          -7,911   -6,206    -4,588
+  Minneapolis (6A)      -7,390   -5,399    -3,464
+  Duluth (7)            -9,123   -6,698    -4,320

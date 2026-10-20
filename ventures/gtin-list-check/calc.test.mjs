@@ -148,3 +148,34 @@ test("an 8-digit UPC-E that fails GTIN-8 is expanded; a valid GTIN-8 is left alo
   assert.equal(classify("96385074").value, "96385074");
   assert.equal(classify("04252615").kind, "bad");
 });
+
+test("classify cleans invisible, full-width and labelled cells, and only when the check digit proves it", () => {
+  assert.equal(classify("036000291452​").value, "036000291452");
+  assert.equal(classify("０３６０００２９１４５２").value, "036000291452");
+  assert.equal(classify("36,000,291,452").value, "036000291452");
+  assert.equal(classify("UPC: 036000291452").value, "036000291452");
+  assert.equal(classify("ISBN 0-306-40615-2").value, "9780306406157");
+  assert.equal(classify("036000291452​").fixed, true);
+  assert.equal(classify("UPC: 036000291453").kind, "bad");
+  assert.equal(classify("ABC123").kind, "bad");
+});
+
+test("GS1 Digital Link URLs, the (01) identifier and scanner symbology prefixes are unwrapped, then still check-digit validated", () => {
+  assert.equal(classify("https://id.gs1.org/01/09506000134352").value, "09506000134352");
+  assert.equal(classify("https://example.com/p/01/09506000134352/10/LOT7?x=1").value, "09506000134352");
+  assert.equal(classify("(01) 0 9506000 13435 2").value, "09506000134352");
+  assert.equal(classify("]E0036000291452").value, "036000291452");
+  assert.equal(classify("(01)09506000134353").kind, "bad");
+  assert.equal(classify("https://x.com/01/12345").kind, "bad");
+});
+
+test("a GTIN-14 case code is linked to the item code it wraps when both are listed", () => {
+  const inner = "4006381333931";
+  const pack = "1" + inner.slice(0, 12) + computeCheck("1" + inner.slice(0, 12));
+  const r = validate(`sku,gtin\nA,${inner}\nB,${pack}\n`);
+  const f = r.findings.find((x) => x.title === "Case-pack code of another row");
+  assert.ok(f && f.line === 3 && f.severity === "info" && f.detail.includes("line 2"), JSON.stringify(r.findings));
+  assert.ok(checkDigitOk(pack));
+  const alone = validate(`sku,gtin\nB,${pack}\n`);
+  assert.ok(!alone.findings.some((x) => x.title === "Case-pack code of another row"));
+});

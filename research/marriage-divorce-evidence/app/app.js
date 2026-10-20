@@ -1,9 +1,11 @@
 // UI for the couple divorce-odds calculator. All computation is local (couple.js, engine.js).
 import { renderPopulation, renderJustMe, renderCandidates, renderDashboard, initCandidates, initBatch, initDashboard, readHashExtras, hashExtras, currentView, setView, syncConstraintControls, renderAcsBaselines } from './compare-ui.js';
 import { encodeLiterature, decodeLiterature, renderLiteratureQuestions, readLiteratureInputs, renderLiteratureResult, renderNchs } from './literature-ui.js';
-import { SCHOOL, DEGREE, WORK, RELIGION, RACE_ETH, SAT_SCALE_KEYS, refusals, lensNotes, adapterFor, scoringModels, referenceOnlyModels, excludeReason, project, lifelong, constantSurvival, explain, groupedTerms, selfChanges, coupleChanges, idealPartners, lensSummary, lensView, expandLens, shareOod, encodeScenario, decodeScenario, rowLabels, lensHorizons, primaryHorizon, isRateLens, stepAt, fmtYears, modelSkill } from './couple.js';
-import { QUALITY, HAPMAR, PARTY, PARENTS_VIEW, COUNT3, RELIGION_RAISED, MOTHER_EDU, MOTHER_AGE, ATTEND_DETAIL, OFTEN, STATUS, HOW_MET, PLACE, STATES, YESNO, MARRIAGES_BEFORE, SAT_ITEMS, SAT_SCALE, HOSTILE_ITEMS, HOSTILE_SCALE, QUESTION_LENSES, satisfactionSum, hostilitySum } from './lens-adapters.js';
+import { SCHOOL, DEGREE, WORK, RELIGION, RACE_ETH, refusals, lensNotes, adapterFor, scoringModels, referenceOnlyModels, excludeReason, project, lifelong, constantSurvival, explain, groupedTerms, selfChanges, coupleChanges, idealPartners, lensSummary, lensView, expandLens, shareOod, encodeScenario, decodeScenario, rowLabels, lensHorizons, primaryHorizon, isRateLens, stepAt, fmtYears, modelSkill } from './couple.js';
+import { QUALITY, HAPMAR, PARTY, PARENTS_VIEW, COUNT3, RELIGION_RAISED, MOTHER_EDU, MOTHER_AGE, ATTEND_DETAIL, OFTEN, STATUS, HOW_MET, PLACE, STATES, YESNO, MARRIAGES_BEFORE, SAT_ITEMS, SAT_SCALE, HOSTILE_ITEMS, HOSTILE_SCALE, QUESTION_LENSES } from './lens-adapters.js';
 import { summariseAll, shortName } from './summary.js';
+import { inputsFromFields } from './scenarios.js';
+import { initScenarios, renderScenarios, importScenariosFromHash } from './scenarios-ui.js';
 
 const $ = (s) => document.querySelector(s);
 const pct = (x, d = 0) => (100 * x).toFixed(d) + '%';
@@ -17,8 +19,6 @@ const DEFAULTS = {
   b: { sex: 'Man', age: 38, school: '13–15 years', degree: 'Some college', wages: 60000, work: '2,000+ hours', religion: 'Never', priorMarriage: false, raceEth: 'White', priorChildren: 'No', intactFamily: 'Yes',
     bornUS: 'Yes', quality: 'Good', hapmar: 'Very happy', party: 'Independent, other or no preference', parentsView: 'Approve', kidsBefore: '0', priorPartners: '1', enrolled: 'No', religionRaised: 'Other Protestant', attendDetail: 'Never', motherEdu: 'High school', motherAgeFirst: '18–19', sat: ['Very satisfied', 'Very satisfied', 'Somewhat satisfied', 'Somewhat satisfied', 'Very satisfied', 'Somewhat satisfied', 'Very satisfied', 'Very satisfied'] },
 };
-const PERSON_NEW = ['bornUS', 'marriagesBefore', 'quality', 'hapmar', 'party', 'parentsView', 'kidsBefore', 'priorPartners', 'enrolled', 'religionRaised', 'attendDetail', 'motherEdu', 'motherAgeFirst', 'obsPos', 'obsNeg', 'obsEff', 'substance', 'ace', 'abuse', 'lowMood'];
-const COUPLE_NEW = ['status', 'yearsTogether', 'howMet', 'childrenHome', 'place', 'state', 'expecting', 'cohabMonths', 'netWorth', 'debt', 'unsecuredDebt', 'homeOwner'];
 
 const lensIds = (keys) => [...new Set(keys.flatMap((k) => QUESTION_LENSES[k] || []))];
 let lensNameOf = (id) => id;
@@ -83,30 +83,9 @@ function personFields(who) {
     </details>`;
 }
 
+// The form's answers as model inputs (scenarios.js holds the one mapping, shared with saved scenarios).
 function readForm() {
-  const f = new FormData($('#form'));
-  const person = (w) => {
-    const p = {};
-    for (const k of ['sex', 'age', 'school', 'degree', 'wages', 'work', 'religion', 'firstMarriageAge', 'raceEth', 'priorChildren', 'intactFamily', ...PERSON_NEW]) p[k] = f.get(`${w}.${k}`) ?? '';
-    p.age = Number(p.age);
-    p.wages = p.wages === '' ? NaN : Number(p.wages);
-    p.priorMarriage = f.get(`${w}.priorMarriage`) === 'on';
-    const s = satisfactionSum(SAT_SCALE_KEYS.map((k) => f.get(`${w}.${k}`)));
-    p.satSum = s === null ? '' : s;
-    const h = hostilitySum(HOSTILE_ITEMS.map((_, i) => f.get(`${w}.hostTo${i + 1}`)), HOSTILE_ITEMS.map((_, i) => f.get(`${w}.hostBy${i + 1}`)));
-    p.hostSum = h === null ? '' : h;
-    return p;
-  };
-  const couple = { yearsMarried: Number(f.get('yearsMarried') || 0), familyIncome: f.get('familyIncome'), cohabitedFirst: f.get('cohabitedFirst') || 'Unknown', currentYear: new Date().getFullYear() };
-  for (const k of COUPLE_NEW) couple[k] = f.get(k) ?? '';
-  const a = person('a');
-  const b = person('b');
-  // A first marriage started at (age - years married).
-  for (const p of [a, b]) {
-    if (p.firstMarriageAge === '' || p.firstMarriageAge === null) p.firstMarriageAge = p.priorMarriage ? null : p.age - couple.yearsMarried;
-    else p.firstMarriageAge = Number(p.firstMarriageAge);
-  }
-  return { a, b, couple, horizon: Number(f.get('horizon')) };
+  return inputsFromFields(formFields(), { currentYear: new Date().getFullYear() });
 }
 
 let bundle;
@@ -138,6 +117,19 @@ function applyFields(fields) {
     if (el.type === 'checkbox') el.checked = v === '1';
     else el.value = v;
   }
+}
+
+// Put a saved scenario back into the form, every field (a blank answer clears the field), and its
+// published-evidence answers; the comparison view stays open for editing and re-saving.
+function loadScenario(sc) {
+  for (const el of $('#form').elements) {
+    if (!el.name) continue;
+    const v = sc.fields[el.name];
+    if (el.type === 'checkbox') el.checked = v === '1';
+    else el.value = v ?? '';
+  }
+  litAnswers = { ...(sc.lit || {}) };
+  render();
 }
 
 function saveHash() {
@@ -184,7 +176,7 @@ function applyView() {
   $('fieldset[data-who="b"]').hidden = v === 'justme' || v === 'candidates';
   $('fieldset[data-who="b"] legend').textContent = v === 'dashboard' ? 'Reference partner (the profile searches start from)' : 'Your partner';
   $('.share').hidden = v === 'batch';
-  for (const [id, view] of [['justMe', 'justme'], ['candidates', 'candidates'], ['dashboard', 'dashboard'], ['batch', 'batch']]) $('#' + id).hidden = v !== view;
+  for (const [id, view] of [['justMe', 'justme'], ['candidates', 'candidates'], ['dashboard', 'dashboard'], ['batch', 'batch'], ['scenarios', 'scenarios']]) $('#' + id).hidden = v !== view;
   $('#summaryBox').hidden = v !== 'couple';
   if (v !== 'couple') { $('#results').hidden = true; $('#refuse').hidden = true; }
 }
@@ -198,6 +190,7 @@ function render() {
   if (v !== 'couple') {
     if (v === 'justme') renderJustMe({ lenses, a: f.a, couple: f.couple });
     else if (v === 'candidates') renderCandidates({ lenses, a: f.a, couple: f.couple, mortality });
+    else if (v === 'scenarios') renderScenarios();
     else if (v === 'dashboard') {
       if (!cur.summary.scorable) $('#dashOut').innerHTML = '<p class="note">This lens gives no numbers; pick a scorable lens at the top.</p>';
       else renderDashboard({ bundle: cur.bundle, a: f.a, b: f.b, couple: f.couple, label: cur.summary.label });
@@ -501,6 +494,8 @@ async function main() {
   shareOod(lenses.map((l) => l.bundle));
   const scorableFirst = lenses.slice().sort((x, y) => Number(y.summary.scorable) - Number(x.summary.scorable));
   $('#lensSel').innerHTML = scorableFirst.map((l) => `<option value="${esc(l.summary.id)}">${esc(l.summary.label)}${l.summary.scorable ? '' : ' (listed only)'}</option>`).join('');
+  initScenarios({ lenses: () => lenses, capture: () => ({ fields: formFields(), lit: { ...litAnswers } }), load: loadScenario, rerender: () => render() });
+  importScenariosFromHash(location.hash);
   const fromHash = decodeScenario(location.hash);
   readHashExtras(location.hash);
   litAnswers = decodeLiterature(location.hash);
@@ -543,6 +538,7 @@ async function main() {
     $('#shareStatus').textContent = ok ? 'Link copied.' : 'Copy the address bar to share this scenario.';
   });
   window.addEventListener('hashchange', () => {
+    importScenariosFromHash(location.hash);
     readHashExtras(location.hash);
     litAnswers = decodeLiterature(location.hash);
     syncConstraintControls();

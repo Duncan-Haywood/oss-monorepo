@@ -26,6 +26,14 @@ with a document about what should be built.
 Research is a peer portfolio, not part of this file's scope: work under
 `research/` follows [`research/CLAUDE.md`](research/CLAUDE.md).
 
+## Using the tools themselves
+
+To get a number from one of the tools (to check your own change, or because
+the task needs one), call its engine instead of driving a browser:
+`node platform/agents/tools.mjs search <words>`, then `describe <slug>`, then
+`call <slug> <function> --input '{...}'`. See
+[`platform/agents/README.md`](platform/agents/README.md).
+
 ## Before you start
 
 1. Read `README.md` for repo layout (`ventures/`, `research/`, `platform/`, `portfolio/`).
@@ -150,9 +158,11 @@ product PR?"
    names a specific competitor (`vs-<competitor>.html`) needs a second,
    separate disclaimer — §5f, nominative fair use plus a "not affiliated
    with" line — checked by `node platform/pages/clauses.mjs <slug>`.
-2. **Usage stats** — anonymous events only (feature used, page viewed), never
-   people: no PII, no IPs, no content, no analytics vendor. Rules and the file
-   readings land in: [`portfolio/usage/`](portfolio/usage/README.md).
+2. **Usage stats** — anonymous aggregate events (feature used, page viewed,
+   kind of referring site) on by default; anything that identifies a returning
+   browser only with the consent the law requires; nothing personal committed.
+   Follow the law, no stricter (owner, 2026-10-20): cookies a feature needs are
+   fine. Rules and the file readings land in: [`portfolio/usage/`](portfolio/usage/README.md).
 3. **Free full access** for now — no paywalls; optional GitHub Sponsors/donate link OK.
 4. **A LICENSE and the discoverability basics** — landing copy in the user's
    search words, meta description, JSON-LD, sitemap, crawlable robots.txt.

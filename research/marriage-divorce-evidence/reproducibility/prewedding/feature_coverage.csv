@@ -1,0 +1,6 @@
+dataset,respondent_age,spouse_age,age_gap,wedding_year,respondent_educ,spouse_educ,spouse_prior_marriage,respondent_prior_children,spouse_prior_children,cohabited_first,respondent_race,spouse_race,same_race,intact_family,religion_raised,respondent_sex
+canada_gss,1.0,0.2557,0.2557,1.0,0.0,0.0,0.1249,1.0,0.0,0.9978,0.0,0.0,0.0,0.9986,0.0,1.0
+nlsy79,1.0,0.9099,0.9099,1.0,0.9954,0.1585,0.0,0.9979,0.0,0.9546,0.9928,0.0,0.0,0.9981,0.9956,1.0
+nlsy97,1.0,0.9344,0.9344,1.0,0.9982,0.4123,0.0926,1.0,0.0926,0.9996,1.0,0.9488,0.9488,0.9994,0.9882,1.0
+nsfg_pooled,1.0,0.6638,0.6638,1.0,0.562,0.0,0.6717,0.9993,0.5143,0.9984,1.0,0.6136,0.6136,0.9998,0.9023,1.0
+sipp,1.0,0.0,0.0,1.0,0.7192,0.0,0.0,0.6725,0.0,0.0,1.0,0.0,0.0,0.0,0.0,1.0
