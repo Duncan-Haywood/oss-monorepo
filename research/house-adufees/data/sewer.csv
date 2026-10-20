@@ -1,0 +1,6 @@
+item,usd,note
+safe_per_unit,410,SAFE fee per unit (residential: SFR duplex; 2026-01-01)
+metro_per_unit,6070,METRO fee per unit (residential)
+total_per_unit,6480,total sewer connection fee per residential unit
+application,425,SUDP application fee per application
+inspection,150,per sewer service connection inspection
