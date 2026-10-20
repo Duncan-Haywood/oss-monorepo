@@ -153,13 +153,24 @@ series, 40 each, in `engine.test.mjs`):
   -0.5 to 0.5 over the series, so g is the total log change. exp(g u) is another exposure in the Poisson
   likelihood and composes with `--period`. g starts from the median of lag-n/4 differences of log counts, then
   alternates with PELT: segment under the current exposures, one Newton step on g with each segment's rate
-  profiled out, until g moves less than 1e-5. One common growth rate only (`bend`/`bends` are refused for counts).
+  profiled out, until g moves less than 1e-5. One common growth rate by default; `--trend bend` lets it change once (below).
   Measured on 200 counts, rate 10 growing by e^1.2 (seeds 500..539): no step, 3.80 changes per series without
   `--trend`, 0.07 with it; a x1.6 step at 100 on top of the ramp, 4.55 -> 1.40 changes per series, the step found
   within 8 points 40/40 either way and as the only change 0/40 -> 30/40; flat series 0.03 -> 0.05 (no cost).
   With `--period 7` (210 points, factors 0.4 to 1.6, growth e^1.0, x1.5 step at 105, seeds 900..919): 4.10 -> 1.20
   changes per series, step as the only change 0/20 -> 18/20, mean fitted g 1.04. Tests: growth recovered within 0.35, flat
   series near 0, bends refused.
+- **Bends in the count trend (`--model poisson --trend bend`, added 2026-10-20).** The growth rate may change once:
+  the log rate follows g u up to a knot and g + h after it. Knots are scanned on a grid of n/40 points between 10% and
+  90% (`--knot-margin`), then refined point by point; each candidate starts from the Theil-Sen slope on either side of
+  the knot and runs the same PELT / Newton alternation, now with a 2 by 2 Newton step. Candidates are compared by
+  PELT's penalised cost plus the term `sum x log(exposure)` that PELT's cost leaves out (without it the comparison
+  across exposures was wrong: knots landed at the ends and 12 of 20 straight series got a bend). A bend is kept
+  only if it lowers the cost by 3 log n (the knot and the slope change, plus the scan). 200 counts, rate 10, log rate
+  rising 0.8 over the first half and 3.2 per series length after (seeds 1600..1639): changes per series 3.38 with
+  `--trend`, 0.17 with `--trend bend`; the knot within 15 points of the true 100 on 36 of 40; on 40 straight log-linear
+  series (seeds 1600..1639) a bend was kept on 0 of 40 and changes per series stayed 0.03. Not yet measured with
+  `--period`; a second knot is not offered for counts.
 - **Drifting seasonality (`--period n --drift`).** The fixed profile is wrong when the
   cycle's amplitude grows or its peak moves. With `--drift` each phase is smoothed across
   cycles by a running median (5 cycles, 3 on short series), re-centred per cycle. On 144

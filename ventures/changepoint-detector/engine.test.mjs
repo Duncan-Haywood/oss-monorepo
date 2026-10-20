@@ -793,8 +793,21 @@ test('poissonTrend recovers a log-linear growth rate and keeps a rate step out o
   assert.ok(a.pelt.changepoints.length <= 2);
 });
 
+test('a count trend can bend once: the knot is found and a straight trend gets no bend', () => {
+  const n = 200;
+  const rb = rng(1602);
+  const bent = Array.from({ length: n }, (_, t) => { const v = t / (n - 1); return poissons(rb, 1, 10 * Math.exp(v < 0.5 ? 0.8 * v : 0.4 + (v - 0.5) * 3.2))[0]; });
+  const a = analyze({ values: bent, model: 'poisson', trend: 'bend' });
+  assert.ok(Math.abs(a.trend.growthChangesAt - 100) <= 15, `knot ${a.trend.growthChangesAt}`);
+  assert.ok(a.trend.logGrowthAcrossSeriesAfter > a.trend.logGrowthAcrossSeries + 1.5);
+  assert.ok(a.pelt.changepoints.length <= 1);
+  const r = rng(1603);
+  const straight = Array.from({ length: n }, (_, t) => poissons(r, 1, 10 * Math.exp(0.8 * t / (n - 1)))[0]);
+  assert.equal(analyze({ values: straight, model: 'poisson', trend: 'bend' }).trend.growthChangesAt, undefined);
+});
+
 test('count trends refuse bends, and a flat series gets a growth near zero', () => {
-  assert.throws(() => analyze({ values: [1, 2, 3, 4, 5, 6, 7, 8], model: 'poisson', trend: 'bend' }), /bends are for/);
+  assert.throws(() => analyze({ values: [1, 2, 3, 4, 5, 6, 7, 8], model: 'poisson', trend: 'bends' }), /is for/);
   const r = rng(5);
   const a = analyze({ values: poissons(r, 150, 8), model: 'poisson', trend: true });
   assert.ok(Math.abs(a.trend.logGrowthAcrossSeries) < 0.4);
