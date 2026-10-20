@@ -1,0 +1,2 @@
+{"round": 2, "notes": "Round 1: slow holds (pick time over 1.2 s) cost most designs 60-75% of their value, and the three fastest (t 0.7-1.1 s: 15 mm x3 at 70 kPa/50 L/min, 10 mm x4, 12 mm x4) led. 30-45% of items are too heavy for the force. So raise flow Q to 50-60 and vacuum to 70-80, keep cups 12-18 mm, vary cup count 3-4.",
+ "designs": [[15,3,75,60,0.5],[14,4,75,55,0.5],[16,3,80,60,0.4],[13,4,80,50,0.6],[18,3,80,60,0.5],[15,4,70,55,0.3],[12,4,80,60,0.5],[17,2,80,60,0.5],[14,3,70,60,0.7],[16,4,80,50,0.5]]}

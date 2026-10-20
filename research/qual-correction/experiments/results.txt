@@ -1,0 +1,25 @@
+qual-correction results (seeded; regenerate with python3 experiments/run.py)
+
+E1. Prevalence of one code. N=5000 answers, true share 0.3, LLM coder sens 0.75 spec 0.95 (accuracy 0.890), 1000 simulated studies per row
+n_gold  naive_bias naive_cov naive_width  human_bias human_cov human_width  ppi_bias ppi_cov ppi_width  kappa  ppi_effective_n
+    50  -0.0403 0.000 0.0243  -0.0015 0.939 0.2531  +0.0006 0.951 0.1802  0.721  130
+   100  -0.0397 0.000 0.0243  -0.0014 0.942 0.1792  +0.0007 0.948 0.1310  0.720  199
+   200  -0.0402 0.000 0.0243  +0.0016 0.947 0.1272  -0.0009 0.960 0.0942  0.726  374
+   400  -0.0398 0.000 0.0243  +0.0002 0.949 0.0898  -0.0005 0.976 0.0688  0.728  689
+   800  -0.0400 0.000 0.0243  -0.0002 0.970 0.0635  -0.0001 0.979 0.0516  0.727  1214
+
+E2. Gap between two groups (A - B). 2500 answers each, true shares A 0.3 B 0.34 (true gap -0.04); LLM sens A 0.85 B 0.65, spec 0.95 both; 200 hand-coded per group; 1000 studies
+estimator  mean_gap  bias  coverage  width  share_significant_wrong_sign
+naive      +0.0358  +0.0762  0.000  0.0493  0.804
+human      -0.0392  +0.0012  0.965  0.1828  0.005
+ppi        -0.0391  +0.0013  0.973  0.1402  0.000
+
+E3. Coder quality sweep. N=5000, true share 0.3, sens = spec = accuracy, 200 hand-coded, 500 studies
+accuracy  naive_cov  human_width  ppi_width  ppi_cov  ppi_effective_n
+0.70  0.000  0.1272  0.1506  0.958  144
+0.75  0.000  0.1271  0.1384  0.958  170
+0.80  0.000  0.1269  0.1247  0.966  210
+0.85  0.000  0.1270  0.1093  0.946  275
+0.90  0.000  0.1270  0.0902  0.968  409
+0.95  0.014  0.1272  0.0665  0.976  781
+0.98  0.994  0.1270  0.0456  0.980  1757

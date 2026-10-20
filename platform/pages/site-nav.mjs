@@ -128,6 +128,7 @@ export function renderSiteFooterNav({ toRoot = '' } = {}) {
     ['lab/', 'Lab'],
     ['engineering/', 'Engineering status'],
     ['dev/', 'Development dashboard'],
+    ['dev/daily/', 'Daily brief &amp; The Merge Report'],
     ['catalog.json', 'Machine-readable catalog'],
     ['llms.txt', 'llms.txt'],
     ['sitemap.xml', 'Sitemap'],
