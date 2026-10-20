@@ -1,5 +1,11 @@
 # Research log
 
+## 2026-10-20 · Out-of-distribution score so the app can abstain on unusual couples
+
+- New `tools/ood.py`: the squared Mahalanobis distance of a couple's fixed inputs from the 4,126 NSFG 2002 first marriages, turned into a percentile among held-out women (5 person folds). It ships as `ood` in `models/nsfg2002_family.json`, and `engine.oodScore()` matches Python on 68 of 68 rows to 10<sup>-9</sup>.
+- Examples: a wife 24 / husband 26 couple wed in 1995 scores the 26th percentile, a 38/40 couple wed in 2002 the 86th, a 17/45 couple the 98.8th, and a 16/60 couple 99.1, above the suggested 99th-percentile abstention line. The held-out tail is heavy because a few recorded ages are implausible, so the score complements per-input range checks rather than replacing them.
+- `app/ROADMAP.md` section B now lists what workstream B finished (individual lens, NSFG classical family, abstention score) and what remains: page wiring with C, Cox/Weibull, k-NN, OOD for NLSY79, and per-couple intervals.
+
 ## 2026-10-19 · Classical model family on NSFG 2002: logistic hazard, naive Bayes, forest, boosting
 
 - Trained four more model families on workstream A's NSFG 2002 first-marriage intervals (4,126 marriages, 1,492 dissolutions), using the same person folds. Held-out deviance gains over a constant rate: discrete-time logistic hazard 3.0% (95% person-bootstrap CI 1.9–4.1), Poisson gradient boosting 2.6% (1.6–3.7), random forest 2.3% (1.5–3.0), naive Bayes 0.2% (−1.8 to 2.1). A's additive spline Poisson gets 3.0% (2.0–4.1) and marriage length alone 0.4%.
