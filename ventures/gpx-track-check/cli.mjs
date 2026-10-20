@@ -6,28 +6,31 @@
 //   node cli.mjs check routes/            # every .gpx under a directory
 //   node cli.mjs check ride.gpx --json
 //   node cli.mjs check ride.gpx --strict  # warnings fail the run too
+//   node cli.mjs thin ride.gpx --max-points=500   # write ride.thin.gpx
 //   node cli.mjs fix ride.gpx             # write ride.fixed.gpx; --in-place overwrites
 //
 // Exit codes: 0 clean, 1 findings at the failing level, 2 usage or read error.
 
 import fs from "node:fs/promises";
 import path from "node:path";
-import { decodeBuffer, validate, repair } from "./calc.mjs";
+import { decodeBuffer, validate, repair, thin } from "./calc.mjs";
 
 const IGNORE_DIRS = new Set(["node_modules", ".git"]);
 const HELP = `gpx-track-check: check GPX track files
 
   check <file|dir>...   report problems (errors fail; --strict makes warnings fail)
   fix <file>...         write <name>.fixed.gpx with provable fixes (--in-place overwrites)
+  thin <file>...        write <name>.thin.gpx with at most --max-points points (default 1000)
   --json                machine-readable output
 `;
 
 export function parseArgs(argv) {
-  const a = { json: false, strict: false, inPlace: false, positional: [] };
+  const a = { json: false, maxPoints: 1000, strict: false, inPlace: false, positional: [] };
   for (const x of argv) {
     if (x === "--json") a.json = true;
     else if (x === "--strict") a.strict = true;
     else if (x === "--in-place") a.inPlace = true;
+    else if (x.startsWith("--max-points=")) { a.maxPoints = Number(x.slice(13)); if (!(a.maxPoints >= 2)) a.unknown = x; }
     else if (x === "-h" || x === "--help") a.help = true;
     else if (x.startsWith("-")) a.unknown = x;
     else if (!a.sub) a.sub = x;
@@ -69,8 +72,8 @@ export async function main(argv, overrides = {}) {
   const deps = { ...defaults, ...overrides };
   const a = parseArgs(argv);
   if (a.help || !a.sub) { deps.out(HELP); return a.help ? 0 : 2; }
-  if (a.unknown || !["check", "fix"].includes(a.sub) || !a.positional.length) {
-    deps.err(a.unknown ? `unknown option ${a.unknown}` : "usage: check|fix <file|dir>...");
+  if (a.unknown || !["check", "fix", "thin"].includes(a.sub) || !a.positional.length) {
+    deps.err(a.unknown ? `unknown option ${a.unknown}` : "usage: check|fix|thin <file|dir>...");
     return 2;
   }
   let files;
@@ -82,7 +85,12 @@ export async function main(argv, overrides = {}) {
   for (const f of files) {
     let text;
     try { text = decodeBuffer(await deps.readFile(f)); } catch (e) { deps.err(`${f}: ${e.message}`); return 2; }
-    if (a.sub === "fix") {
+    if (a.sub === "thin") {
+      const t = thin(text, a.maxPoints);
+      const dest = a.inPlace ? f : f.replace(/(\.gpx)?$/i, ".thin.gpx");
+      await deps.writeFile(dest, t.text);
+      report.push({ file: f, wrote: dest, kept: t.kept, removed: t.removed, toleranceM: t.toleranceM, changes: [] });
+    } else if (a.sub === "fix") {
       const { text: fixed, changes } = repair(text);
       const dest = a.inPlace ? f : f.replace(/(\.gpx)?$/i, ".fixed.gpx");
       await deps.writeFile(dest, fixed);
@@ -97,6 +105,7 @@ export async function main(argv, overrides = {}) {
   }
   if (a.json) deps.out(JSON.stringify(report, null, 2));
   else for (const r of report) {
+    if (r.wrote && r.kept !== undefined) { deps.out(`${r.file}: wrote ${r.wrote} (${r.kept} points kept, ${r.removed} removed, within ~${r.toleranceM} m)`); continue; }
     if (r.wrote) { deps.out(`${r.file}: wrote ${r.wrote} (${r.changes.length} fixes, ${r.remainingErrors} errors and ${r.remainingWarnings} warnings remain)`); continue; }
     deps.out(`${r.file}: ${r.summary.points} points, ${r.summary.errors} errors, ${r.summary.warnings} warnings`);
     for (const x of r.findings) deps.out(`  ${x.severity.padEnd(7)} line ${x.line || "-"}: ${x.message}`);
