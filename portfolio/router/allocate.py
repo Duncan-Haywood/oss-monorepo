@@ -458,6 +458,11 @@ def next_task(v: Venture) -> str:
             )
         if claim:
             return f'Explore: test the untested hypothesis -- "{claim}"'
+        if not v.hypotheses:
+            return (
+                "Explore: no hypothesis recorded -- add a `hypotheses:` list to VENTURE.yaml "
+                "(`- claim: ...`, `status: untested`; see 1099-k-threshold-checker), then test it."
+            )
         return "Explore: every recorded hypothesis is settled -- write the next one in VENTURE.yaml, then test it."
     if v.mrr is not None and v.monthly_cost is not None and v.mrr < v.monthly_cost:
         return "Review: monthly_cost exceeds mrr -- check against kill_criteria."

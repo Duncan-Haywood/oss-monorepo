@@ -71,6 +71,9 @@ class AppTests(unittest.TestCase):
     def test_hcmst_bundle_matches_sklearn(self):
         self.run_node('hcmst.test.mjs')
 
+    def test_hcmst_dating_bundles_match_sklearn(self):
+        self.run_node('hcmst_dating.test.mjs')
+
     def test_lenses_and_scenarios(self):
         self.run_node('lenses.test.mjs')
 
@@ -177,6 +180,24 @@ class RelationshipDatasetTests(unittest.TestCase):
         self.assertEqual(len(table['mxM']), len(table['years']))
         self.assertEqual(len(table['mxF'][0]), len(table['ages']))
 
+    def test_hcmst_dating_audit_and_incidence(self):
+        import csv, json
+        src = self.SRC / 'hcmst_dating_to_marriage'
+        audit = json.loads((src / 'sample_audit.json').read_text())
+        self.assertEqual(audit['couples_unmarried_2009'], 1081)
+        self.assertEqual(sum(audit['fates'].values()), 1081)
+        self.assertEqual(audit['fates']['married'], audit['marriages'])
+        self.assertEqual(sum(audit['after_marriage'].values()), audit['marriages'])
+        for t in ('marriage', 'breakup'):
+            b = json.loads((APP / 'models' / f'hcmst_dating_{t}.json').read_text())
+            self.assertEqual(b['training']['couple_periods'], audit['couple_periods'])
+            self.assertEqual(b['stage'], 'before the wedding')
+        rows = {r['group']: r for r in csv.DictReader(open(src / 'cumulative_incidence.csv'))}
+        allc = rows['All unmarried couples']
+        self.assertLess(float(allc['married_by_8.4y']) + float(allc['broke_up_by_8.4y']), 1)
+        self.assertGreater(float(rows['relationship_quality: Excellent']['married_by_8.4y']),
+                           float(rows['relationship_quality: Fair']['married_by_8.4y']))
+
     def test_presex_odds_ratios(self):
         import csv
         rows = list(csv.DictReader(open(self.SRC / 'thornes_collard_presex' / 'odds_ratios.csv')))
@@ -216,6 +237,75 @@ class GssPanelBundleTests(unittest.TestCase):
         for cells in bundle['population_reference']['horizon_2']['subgroups'].values():
             for cell in cells.values():
                 self.assertGreaterEqual(cell['respondents'], 100)
+
+
+class DecisionEvidenceTests(unittest.TestCase):
+    """app/data/decision_evidence.json traces to verified, quoted records whose numbers re-check
+    mechanically (quotes against cached source texts when present; repo sources always)."""
+    DIR = APP.parent / 'reproducibility' / 'decision_evidence'
+
+    @classmethod
+    def setUpClass(cls):
+        import importlib.util, json
+        spec = importlib.util.spec_from_file_location('decision_build', cls.DIR / 'scripts' / 'build.py')
+        cls.build = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(cls.build)
+        cls.app = json.loads((APP / 'data' / 'decision_evidence.json').read_text())
+        cls.ev = {r['id']: r for r in json.loads((cls.DIR / 'evidence.json').read_text())['records']}
+        cls.lit = {r['id']: r for r in json.loads((APP.parent / 'reproducibility' / 'literature_evidence' / 'evidence.json').read_text())['records']}
+        cls.dois = json.loads((cls.DIR / 'doi_check.json').read_text())
+
+    def test_app_records_trace_to_verified_quoted_evidence(self):
+        recs = self.app['interventions'] + self.app['design_standards']
+        self.assertGreaterEqual(len(self.app['interventions']), 30)
+        for r in recs:
+            src = self.ev[r['id']]
+            self.assertTrue(src['verified'], r['id'])
+            self.assertTrue(r['quote'] and r['quote'] == src['quote'], r['id'])
+            self.assertIn(r['provenance'], {'primary', 'abstract', 'secondhand', 'project_analysis'})
+            for k in ('estimate', 'ci_low', 'ci_high', 'range_low', 'range_high'):
+                self.assertEqual(r.get(k), src.get(k), (r['id'], k))
+            if r.get('doi'):
+                self.assertEqual(self.dois[r['doi']]['status'], 'ok', r['id'])
+
+    def test_numbers_recheck_mechanically(self):
+        srcs = self.build.sources_for()
+        checked_quotes = 0
+        for r in self.ev.values():
+            res = self.build.check(r, srcs)
+            self.assertEqual(res['values'], 'ok', (r['id'], res['problems']))
+            if srcs[r['source']].available:
+                checked_quotes += 1
+                self.assertEqual((res['quote'], res['numbers']), ('ok', 'ok'), (r['id'], res['problems']))
+                self.assertNotIn('fail', res['extra_quotes'], (r['id'], res['problems']))
+            if r['provenance'] == 'project_analysis':   # repo sources are always available
+                self.assertTrue(srcs[r['source']].available, r['id'])
+        self.assertGreaterEqual(checked_quotes, 5)
+
+    def test_factor_grades_cover_app_factors_and_copy_verified_numbers(self):
+        need = {'age_at_marriage', 'education_completion', 'cohabitation_before_marriage', 'premarital_birth_timing', 'religious_attendance',
+                'income_employment', 'debt_finances', 'relationship_education', 'counselling_therapy', 'conflict_behaviour'}
+        grades = {g['factor']: g for g in self.app['factor_grades']}
+        self.assertEqual(set(grades), need)
+        order = ['experimental', 'quasi_experimental', 'prospective_observational_adjusted', 'cross_sectional']
+        for g in grades.values():
+            self.assertIn(g['strongest_design'], order)
+            self.assertTrue(g['evidence'])
+            for e in g['evidence']:
+                kind, rid = e['ref'].split(':', 1)
+                src = (self.ev if kind == 'decision' else self.lit)[rid]
+                self.assertTrue(src['verified'], e['ref'])
+                self.assertEqual(e['quote'], src['quote'], e['ref'])
+                self.assertEqual(e.get('estimate'), src.get('estimate'), e['ref'])
+        self.assertEqual(grades['relationship_education']['strongest_design'], 'experimental')
+        self.assertEqual(grades['cohabitation_before_marriage']['strongest_design'], 'prospective_observational_adjusted')
+
+    def test_design_md_cites_existing_records(self):
+        import re
+        text = (self.DIR / 'DESIGN.md').read_text()
+        cited = set(re.findall(r'\b([A-Z][A-Za-z]+\d{4}_[A-Za-z0-9_]+)', text))
+        self.assertGreaterEqual(len(cited), 10)
+        self.assertFalse(cited - set(self.ev), cited - set(self.ev))
 
 
 if __name__ == '__main__':

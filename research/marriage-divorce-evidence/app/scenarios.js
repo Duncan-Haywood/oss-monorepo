@@ -12,7 +12,7 @@
 // only when the user ticks "include sensitive answers".
 import { PERSON_SPEC, COUPLE_SPEC, SENSITIVE, SAT_SCALE_KEYS, cleanValue, encodeScenario, decodeScenario, lensHorizons, primaryHorizon, fmtYears, scoringModels } from './couple.js';
 import { HOSTILE_ITEMS, HOSTILE_SCALE, satisfactionSum, hostilitySum } from './lens-adapters.js';
-import { encodeLiterature, decodeLiterature } from './literature-ui.js';
+import { encodeLiterature, decodeLiterature, LIT_SENSITIVE } from './literature-ui.js';
 import { summariseLens, summariseAll } from './summary.js';
 import { toCsv } from './batch.js';
 
@@ -70,10 +70,13 @@ export function cleanFields(fields, { includeSensitive = true, strict = false } 
 }
 
 // Literature answers through the link's own whitelist; strict lists what it dropped.
-export function cleanLit(lit, { strict = false } = {}) {
+// Sensitive literature answers (LIT_SENSITIVE) are kept unless includeSensitive is false.
+export function cleanLit(lit, { strict = false, includeSensitive = true } = {}) {
   if (lit === undefined || lit === null) return { lit: {}, errors: [] };
   if (typeof lit !== 'object' || Array.isArray(lit)) return { lit: {}, errors: ['literature must be an object'] };
-  const kept = decodeLiterature('#' + encodeLiterature(lit));
+  const o = { includeSensitive: true };
+  const kept = decodeLiterature('#' + encodeLiterature(lit, o), o);
+  if (!includeSensitive) for (const k of LIT_SENSITIVE) delete kept[k];
   const errors = strict ? Object.keys(lit).filter((k) => kept[k] === undefined || kept[k] !== String(lit[k])).map((k) => `literature answer “${k}”: not an allowed factor or value`) : [];
   return { lit: kept, errors };
 }
@@ -279,6 +282,8 @@ export function cellAt(summary, h) {
     riskMin: 1 - z.max,
     riskMax: 1 - z.min,
     perModel: Object.fromEntries(Object.entries(z.survival || {}).map(([k, s]) => [k, 1 - s])),
+    // Posterior draws of the risk, when a lens publishes them (none does yet): plugs into probLower.
+    draws: Array.isArray(z.draws) ? z.draws.map((s) => 1 - s) : null,
     inSupport: z.inSupport,
     outside: summary.fit.outside,
     ood: summary.fit.ood,
@@ -287,25 +292,71 @@ export function cellAt(summary, h) {
   };
 }
 
-// The change from the baseline within ONE lens: risk points, the ratio of risks, and how many of
-// the lens's scoring models move the same way as its mean (models with no change counted apart).
+// The change from the baseline within ONE lens, judged PAIRED: each scoring model's own
+// difference (option − current plan) at the horizon, so a model that scores both higher counts
+// once, however much the models disagree on the level. Verdicts (MATTERS = 1 point):
+//   agree    every model moves the same way and the smallest move is at least 1 point;
+//   majority a strict majority move the same way and their median move is at least 1 point;
+//   split    no strict majority on the direction ("models disagree on the direction");
+//   tiny     every move is under 1 point, or the majority's median is ("too small to matter").
+// Only split and tiny mean the models cannot tell the two apart. When a lens publishes posterior
+// draws (cell.draws: risks per draw, aligned between options), probLower is the share of draws
+// in which the option's risk is lower than the current plan's; null otherwise.
+export const MATTERS = 0.01;
+const median = (xs) => { const v = xs.slice().sort((a, b) => a - b); const m = v.length >> 1; return v.length % 2 ? v[m] : (v[m - 1] + v[m]) / 2; };
+export function pairedVerdict(ds, matters = MATTERS) {
+  const eps = 1e-12;
+  const n = ds.length;
+  const up = ds.filter((d) => d > eps);
+  const down = ds.filter((d) => d < -eps);
+  const abs = ds.map(Math.abs);
+  if (!n || abs.every((x) => x < matters)) return { verdict: 'tiny', direction: 0, k: 0, n, none: abs.every((x) => x < eps) };
+  const side = up.length > down.length ? up : down;
+  const direction = up.length > down.length ? 1 : -1;
+  const k = side.length;
+  if (k * 2 <= n) return { verdict: 'split', direction: 0, k, n, up: up.length, down: down.length };
+  const mags = side.map(Math.abs);
+  const range = [Math.min(...mags), Math.max(...mags)];
+  if (k === n && range[0] >= matters) return { verdict: 'agree', direction, k, n, range };
+  if (median(mags) >= matters) return { verdict: 'majority', direction, k, n, range, flat: n - up.length - down.length, against: direction > 0 ? down.length : up.length };
+  return { verdict: 'tiny', direction: 0, k, n, mostlySmall: true };
+}
+export function probLowerFromDraws(cellDraws, baseDraws) {
+  if (!Array.isArray(cellDraws) || !Array.isArray(baseDraws) || !cellDraws.length || cellDraws.length !== baseDraws.length) return null;
+  return cellDraws.reduce((t, x, i) => t + (x < baseDraws[i] ? 1 : 0), 0) / cellDraws.length;
+}
 export function diffVsBaseline(cell, base) {
   if (!cell || !base || cell.status !== 'ok' || base.status !== 'ok') return null;
   const points = cell.risk - base.risk;
   const keys = Object.keys(cell.perModel).filter((k) => k in base.perModel);
   const eps = 1e-12;
-  const dir = Math.abs(points) < eps ? 0 : Math.sign(points);
   const ds = keys.map((k) => cell.perModel[k] - base.perModel[k]);
   const flat = ds.filter((d) => Math.abs(d) < eps).length;
-  const same = dir === 0 ? flat : ds.filter((d) => Math.abs(d) >= eps && Math.sign(d) === dir).length;
-  // Uncertainty of the difference: the smallest to largest change across the lens's own models.
-  // `overlap`: the two model ranges overlap, so the models cannot tell the options apart.
-  const lo = ds.length ? Math.min(...ds) : points;
-  const hi = ds.length ? Math.max(...ds) : points;
-  const overlap = cell.riskMax >= base.riskMin && base.riskMax >= cell.riskMin;
-  return { points, lo, hi, overlap, ratio: base.risk > 0 ? cell.risk / base.risk : null, direction: dir, agree: same, flat, models: keys.length };
+  const v = pairedVerdict(ds);
+  return {
+    points,
+    lo: ds.length ? Math.min(...ds) : points,
+    hi: ds.length ? Math.max(...ds) : points,
+    ratio: base.risk > 0 ? cell.risk / base.risk : null,
+    ...v,
+    perModel: Object.fromEntries(keys.map((k, i) => [k, ds[i]])),
+    flat,
+    models: keys.length,
+    cannotTell: v.verdict === 'split' || v.verdict === 'tiny',
+    probLower: probLowerFromDraws(cell.draws, base.draws),
+  };
 }
 
+// The paired verdict in words (scenarios.js pairedVerdict).
+export function verdictText(d) {
+  const by = (rg) => `${(100 * rg[0]).toFixed(1)}–${(100 * rg[1]).toFixed(1)} points`;
+  const way = d.direction > 0 ? 'higher' : 'lower';
+  if (d.verdict === 'agree') return `Models agree: ${way} risk by ${by(d.range)} (${d.k} of ${d.n})`;
+  if (d.verdict === 'majority') return `Most models agree (${d.k} of ${d.n}): ${way} risk by ${by(d.range)}${d.flat ? `; ${d.flat} do${d.flat === 1 ? 'es' : ''} not move` : ''}${d.against ? `; ${d.against} move${d.against === 1 ? 's' : ''} the other way` : ''}`;
+  if (d.verdict === 'split') return `Cannot tell apart: models disagree on the direction (${d.up} higher, ${d.down} lower, of ${d.n})`;
+  if (d.none) return `No difference: none of the ${d.n} models move`;
+  return `Cannot tell apart: too small to matter (under 1 point${d.mostlySmall ? ' for most models' : ''})`;
+}
 // The table for one lens at one horizon: one row per scenario, each with its diff vs baseline.
 export function lensComparison(lens, summaries, scenarios, { horizon, baselineId } = {}) {
   const h = horizon ?? primaryHorizon(lens.bundle);
@@ -336,7 +387,7 @@ export const horizonsOf = (lens) => lensHorizons(lens.bundle);
 
 // ---- CSV: one row per scenario, lens and horizon ---------------------------------------------
 // No input answers are written (only the scenario's name), so nothing sensitive can leak.
-export const CSV_HEADER = ['scenario', 'is_baseline', 'lens', 'horizon_years', 'status', 'breakup_chance', 'model_min', 'model_max', 'population_percentile', 'percentile_of', 'outside_data_steps', 'typicality_percentile', 'abstain_reason', 'diff_points_vs_baseline', 'diff_min_points', 'diff_max_points', 'ratio_vs_baseline', 'models_same_direction', 'models', 'ranges_overlap_baseline'];
+export const CSV_HEADER = ['scenario', 'is_baseline', 'lens', 'horizon_years', 'status', 'breakup_chance', 'model_min', 'model_max', 'population_percentile', 'percentile_of', 'outside_data_steps', 'typicality_percentile', 'abstain_reason', 'diff_points_vs_baseline', 'diff_min_points', 'diff_max_points', 'ratio_vs_baseline', 'verdict', 'models_same_direction', 'models', 'prob_lower'];
 export function comparisonCsv(lenses, scenarios, summaries, { baselineId, lensIds = Object.keys(summaries) } = {}) {
   const f = (x, d = 4) => (Number.isFinite(x) ? x.toFixed(d) : '');
   const rows = [CSV_HEADER];
@@ -350,7 +401,7 @@ export function comparisonCsv(lenses, scenarios, summaries, { baselineId, lensId
         if (r.status !== 'ok') { rows.push([r.name, r.baseline ? 'yes' : 'no', id, hy, r.status === 'not_scorable' ? 'not_scorable' : 'abstain', '', '', '', '', '', '', '', r.reason, '', '', '', '', '', '', '']); continue; }
         const pc = r.percentile;
         rows.push([r.name, r.baseline ? 'yes' : 'no', id, hy, 'ok', f(r.risk), f(r.riskMin), f(r.riskMax), pc ? (pc.below || pc.above ? pc.label : pc.percentile.toFixed(1)) : '', pc ? pc.of : '', r.outside, f(r.ood, 1), '',
-          r.diff ? f(r.diff.points * 100, 2) : '', r.diff ? f(r.diff.lo * 100, 2) : '', r.diff ? f(r.diff.hi * 100, 2) : '', r.diff && Number.isFinite(r.diff.ratio) ? f(r.diff.ratio, 3) : '', r.diff ? r.diff.agree : '', r.diff ? r.diff.models : '', r.diff ? (r.diff.overlap ? 'yes' : 'no') : '']);
+          r.diff ? f(r.diff.points * 100, 2) : '', r.diff ? f(r.diff.lo * 100, 2) : '', r.diff ? f(r.diff.hi * 100, 2) : '', r.diff && Number.isFinite(r.diff.ratio) ? f(r.diff.ratio, 3) : '', r.diff ? r.diff.verdict : '', r.diff ? r.diff.k : '', r.diff ? r.diff.models : '', r.diff && r.diff.probLower !== null ? f(r.diff.probLower, 3) : '']);
       }
     }
   }
@@ -365,7 +416,7 @@ export function exportJson(scenarios, baselineId, { includeSensitive = false, se
     version: 1,
     includes_sensitive_answers: !!includeSensitive,
     baseline: bi < 0 ? 0 : bi,
-    scenarios: scenarios.map((s) => ({ name: s.name, fields: cleanFields(s.fields, { includeSensitive }).fields, literature: cleanLit(s.lit).lit })),
+    scenarios: scenarios.map((s) => ({ name: s.name, fields: cleanFields(s.fields, { includeSensitive }).fields, literature: cleanLit(s.lit, { includeSensitive }).lit })),
   };
   if (selection) doc.selection = selection;
   return doc;

@@ -9957,6 +9957,11 @@ export function renderLlmsTxt(surfaces, baseUrl, compareProductGroups = [], guid
         ]
       : []),
     `- [Machine-readable catalog](${baseUrl}catalog.json): the same tool list as JSON, with categories and page counts.`,
+    // For an agent acting on someone's behalf, which wants the numbers rather
+    // than a page to send a person to. Every tool's arithmetic is a pure module
+    // beside its page; platform/agents/tools.mjs calls those modules from a
+    // clone, from the command line or as an MCP server, with no browser.
+    `- [Command line and MCP server for agents](${REPO_URL}/tree/main/platform/agents): call any of these tools' calculation engines directly with JSON inputs from a clone of the open-source repository — \`node platform/agents/tools.mjs search|describe|call\`, or the same as a local stdio MCP server. No browser, no network, no account.`,
     `- [Sitemap](${baseUrl}sitemap.xml): every published page, including the worked-example and decision pages inside each tool.`,
     `- [Atom feed](${baseUrl}${FEED_FILE}): new tools as they are published, newest first. Poll this rather than re-reading the whole catalogue to find out what is new.`,
     '',
