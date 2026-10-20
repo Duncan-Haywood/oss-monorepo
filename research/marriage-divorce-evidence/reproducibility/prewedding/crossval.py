@@ -41,7 +41,7 @@ MIN_KNOWN = 0.5  # a feature is used only where at least half the rows know it
 
 
 def load(path):
-    d = pd.read_csv(path, dtype=str)
+    d = pd.read_csv(path, dtype=str, keep_default_na=False)  # 'None' is a religion level
     for c in ['weight', 'duration_years', 'event', 'wedding_year', 'wife_age', 'husband_age']:
         d[c] = pd.to_numeric(d[c], errors='coerce')
     d['age_gap'] = d.husband_age - d.wife_age
@@ -77,7 +77,11 @@ def intervals(d):
 
 
 def make(kind, num, cat):
-    onehot = OneHotEncoder(drop='first', handle_unknown='ignore', sparse_output=False)
+    # "Unknown" is imputed with the most common known level rather than given its own column:
+    # in several datasets whether a spouse trait is known depends on how the marriage went
+    # (NLSY97 spouses are recorded after the wedding, so couples who split early go unrecorded).
+    onehot = Pipeline([('impute', SimpleImputer(missing_values='Unknown', strategy='most_frequent')),
+                       ('onehot', OneHotEncoder(drop='first', handle_unknown='ignore', sparse_output=False))])
     if kind == 'duration_only':
         prep = ColumnTransformer([('num', Pipeline([('spline', SplineTransformer(n_knots=5, degree=2, knots='quantile', include_bias=False, extrapolation='linear')), ('scale', StandardScaler())]), ['marriage_years'])])
         return Pipeline([('prep', prep), ('fit', PoissonRegressor(alpha=1e-6, max_iter=3000, solver='newton-cholesky'))])
