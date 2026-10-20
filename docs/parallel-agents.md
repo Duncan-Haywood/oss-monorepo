@@ -180,7 +180,7 @@ prompts/promptctl.py backlog` lists them. Put the id in your PR title.
       for `refs/heads/main`, so every merge gets a verdict.
 - [ ] **P037** Re-read after a day of runs: `Portfolio validate` on `main` pushes
       should be mostly green; any remaining red is a real finding.
-- [ ] **P041** Make `concurrency_tax.py` usable in a cloud session (reuse locally
+- [x] **P041** Make `concurrency_tax.py` usable in a cloud session (reuse locally
       fetched `refs/pull/*` instead of refreshing its probe clone).
 - [ ] **P042** *Owner setting:* turn on GitHub's merge queue for `main` with batching
       now that the shared surface is small (fix 4 above); it closes the
