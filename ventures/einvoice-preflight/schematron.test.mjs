@@ -148,3 +148,19 @@ test("Peppol applies the German DE-R rules to a domestic credit note and each fi
   assert.deepEqual(rules, ["DE-R-002", "DE-R-009"]);
   assert.ok(r.findings.every((f) => f.source === "peppol-schematron" && hasSpecificFix(f.rule)));
 });
+
+test("the XRechnung CII credit note example (type 381) passes the official rules apart from the information-level note", { skip: !ciiXrReady && "run build-schematron.mjs" }, (t) => {
+  const r = runSchematron(read("xrechnung-cii-credit-note.xml"));
+  if (r.status === "unavailable") return t.skip("saxon-js not installed");
+  assert.deepEqual(r.sets, ["en16931", "xrechnung"]);
+  assert.deepEqual(r.findings.map((f) => f.rule), ["BR-DE-TMP-32"]);
+  assert.equal(r.findings[0].severity, "information");
+});
+
+test("a UBL credit note with defects reports each official rule with a specific fix", { skip: !creditReady && "run build-schematron.mjs" }, (t) => {
+  const r = runSchematron(read("ubl-credit-note-with-defects.xml"));
+  if (r.status === "unavailable") return t.skip("saxon-js not installed");
+  const rules = r.findings.map((f) => f.rule).sort();
+  assert.deepEqual(rules, ["BR-CL-01", "BR-CO-14", "BR-CO-15", "DE-R-015", "PEPPOL-EN16931-P0101", "PEPPOL-EN16931-R003"]);
+  assert.ok(r.findings.every((f) => hasSpecificFix(f.rule)), "every finding has a rule-specific English fix");
+});
