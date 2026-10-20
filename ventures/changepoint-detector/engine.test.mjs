@@ -131,6 +131,10 @@ test('parseSeries: header detection, named columns, skipped rows, errors', () =>
   assert.deepEqual(b.values, [1, 2, 3]);
   assert.deepEqual(b.labels, ['1', '2', '3']);
   assert.deepEqual(parseSeries('t;v\n1;5\n2;6').values, [5, 6]);
+  // Excel in a comma-decimal locale: semicolon-separated, 1,5 means 1.5 (was read as the column 5).
+  const eu = parseSeries('t;v\n1;1,5\n2;2,25\n3;\"1.200,5\"');
+  assert.deepEqual(eu.values, [1.5, 2.25, 1200.5]);
+  assert.equal(eu.skipped, 0);
   assert.throws(() => parseSeries(''), /No data/);
   assert.throws(() => parseSeries('a,b\n1,2', 'zzz'), /No column named/);
   assert.throws(() => parseSeries('a\nx\ny'), /No numeric column/);
