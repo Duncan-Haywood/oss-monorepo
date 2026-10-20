@@ -182,9 +182,9 @@ couple, 99.1 (abstain). The quantiles are in
   to the link (`SENSITIVE` in `couple.js`). Batch CSV accepts the new answers as optional columns
   (`satisfaction` and `hostility` as the study's sums).
 
-## Compare with the population, just me, many people, many couples, and a dashboard
+## Compare with the population, just me, many people, many couples, a dashboard and scenarios
 
-Five views sit above the form (tabs; arrow keys move between them). Every view scores each
+Six views sit above the form (tabs; arrow keys move between them). Every view scores each
 lens separately through its own adapter and never pools lenses.
 
 - **Me + one person** (the couple view) gains a population panel: where the couple's predicted
@@ -215,6 +215,78 @@ lens separately through its own adapter and never pools lenses.
   row-level errors and a preview, and downloads a results CSV. **Nothing is uploaded**: the
   file is read with the File API and results download from a local Blob. Batch data never go
   in the URL; only single-couple scenarios do.
+
+### Compare options (`scenarios.js`, `scenarios-ui.js`)
+
+The sixth tab, "Compare options", saves full form states (scenarios, called options on the
+page) and compares them lens by lens against the one marked "your current plan" (the baseline). A scenario is
+`{ name, fields, lit }`: `fields` uses the form's own field names (`a.age`, `b.quality`,
+`yearsMarried`, `a.hostTo3`, …) with cleaned string values, blanks left out, and `lit` holds the
+published-evidence answers. `inputsFromFields()` is the single mapping from fields to the
+`{ a, b, couple }` every adapter scores (the live form uses it too), and every number comes from
+`summary.js` `summariseLens()`, so there is no second scoring path.
+
+- **Actions.** Save the form (named, or "Scenario N"), rename in place, duplicate, delete, move
+  up or down, load into the form and "Save changes", and **vary one thing** (`VARY_FIELDS`):
+  copies of a scenario (or of the form, saved first) with one answer changed to each other
+  allowed value, at most 12 per click; the starting scenario becomes the baseline. Age at the
+  wedding moves the age today with years married fixed; years married moves both ages so the
+  wedding ages stay put. Sensitive answers are never varied. Age, timing and family background (`fixed` in
+  `VARY_FIELDS`) are listed apart as "to understand the models, not to change"; race, sex and age
+  today are never varied. At most 50 scenarios.
+- **Comparison.** Pick lenses and a horizon for each (defaults: the three most relevant to the
+  baseline by `relevance()`); every option is shown at that one horizon. Per lens and option:
+  break-ups out of 100 couples like you and the chance of a break-up (1 − the lens's mean
+  survival) with the model range, change from the current plan in points (with the smallest to
+  largest change across the models) and as a ratio, and a **paired verdict** (`pairedVerdict`,
+  `diffVsBaseline`) from each scoring model's own difference (option minus current plan) at the
+  horizon: `agree` when every model moves the same way and the smallest move is at least 1 point;
+  `majority` when a strict majority do and their median move is at least 1 point; `split` ("cannot
+  tell apart: models disagree on the direction") when no strict majority agrees; `tiny` ("cannot
+  tell apart: too small to matter") when every move, or the majority's median, is under 1 point.
+  Overlap of the min–max ranges is not used: it measures how much the models disagree on the
+  level, not uncertainty about the difference. When a lens's horizon carries posterior `draws`
+  (none does yet), `probLower` is the share of draws in which the option's risk is lower. Also: the overall population percentile at that horizon (or of the annual rate now),
+  "outside its data" when a projected step is outside the training range, and "unusual" when the
+  couple is more unusual than 90% of the lens's people. A lens that refuses gives the reason.
+  Small multiples draw each lens on its own scale. Numbers are never summed or averaged across
+  lenses.
+- **Where they live.** In memory; in `localStorage` (`divorce-odds-scenarios-v1`, wrapped in
+  try/catch, without the sensitive answers; the page works without it); in files; and in a share
+  link `#view=scenarios&sc=…&sc=…&scb=<baseline>`. Each `sc` is a query string `n=<name>` plus the
+  fields `encodeScenario` allows and the non-sensitive `lit.*` answers; scenarios after the first carry only
+  what differs from the first (an empty value removes an answer). Decoding goes through
+  `decodeScenario` and `decodeLiterature`, so hostility, abuse, substance use, low mood,
+  childhood adversity and the sensitive published-evidence answers can never arrive by link, and the link is removed from the address after
+  import.
+
+JSON file (`divorce_odds_scenarios.json`):
+
+```json
+{"format": "divorce-odds-scenarios", "version": 1, "includes_sensitive_answers": false,
+ "baseline": 0,
+ "scenarios": [{"name": "Us today", "fields": {"a.sex": "Woman", "a.age": "28", "cohabitedFirst": "Yes"},
+                "literature": {"prior_cohabitations_other_partners": "1"}}],
+ "selection": {"lenses": ["hcmst_couples"], "horizons": {"hcmst_couples": 8.4}}}
+```
+
+Sensitive fields (`a.substance`, `a.lowMood`, `a.ace`, `a.abuse`, `a.hostTo1`–`7`,
+`a.hostBy1`–`7`, and the same for `b.`) and the sensitive published-evidence answers
+(`LIT_SENSITIVE` in `literature-ui.js`: `depression`, `alcohol_problem`,
+`destructive_conflict_wife`, `destructive_conflict_husband`, `neuroticism_wife`,
+`neuroticism_husband`) are written only when "include sensitive answers" is ticked; browser
+storage never holds them. On import, any unknown key, field name, value outside the form's allowed values, or
+unknown literature factor rejects the whole file with a list of problems; a file with more
+scenarios than the room left imports up to the cap and says how many were not imported.
+
+CSV file (`divorce_odds_scenarios.csv`), one row per scenario × chosen lens × each horizon the
+lens supports: `scenario, is_baseline, lens, horizon_years, status (ok | abstain |
+not_scorable), breakup_chance, model_min, model_max, population_percentile, percentile_of,
+outside_data_steps, typicality_percentile, abstain_reason, diff_points_vs_baseline,
+diff_min_points, diff_max_points, ratio_vs_baseline, verdict (agree | majority | split |
+tiny), models_same_direction, models, prob_lower` (blank until a lens publishes draws). It contains no answers, only names and
+results; cells that start with `=`, `+`, `-` or `@` are prefixed with `'`. Tests:
+`tests/scenarios.test.mjs`.
 
 ### Population reference (`population.js`, `tools/population_reference.py`)
 
@@ -305,8 +377,10 @@ what-if signs and order).
   5/10/20-year chance of no divorce from the lens next to the literature-based median and 95%
   interval, then each applied adjustment with citation, DOI link, locator, verbatim quote and
   how its uncertainty was set, and everything refused or skipped with the reason. Answers live
-  in the `#` fragment as `lit.<factor>=<value>`, decoded against a whitelist of factors and
-  allowed values (`encodeLiterature` / `decodeLiterature`).
+  in the page; the `#` fragment carries only the non-sensitive ones (earlier cohabitations, no
+  religion) as `lit.<factor>=<value>`, decoded against a whitelist of factors and allowed values
+  (`encodeLiterature` / `decodeLiterature`). Conflict, depression, alcohol and neuroticism
+  answers (`LIT_SENSITIVE`) are never written to or read from a link.
 - **About Gottman's accuracy claims**: a collapsible explainer with the base-rate table from
   `../reproducibility/literature_evidence/EVIDENCE.md`.
 - **Population baselines (CDC/NCHS)** (`renderNchs`, `nchsMatches`): the official life-table

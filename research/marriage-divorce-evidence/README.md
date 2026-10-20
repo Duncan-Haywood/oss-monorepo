@@ -19,13 +19,34 @@
 - a ranked table for several candidate partners, grouping those the models cannot tell apart;
 - a dashboard of partner traits and what-ifs, with non-negotiables you lock or exclude;
 - batch scoring of a CSV of couples, entirely in the browser, with a downloadable results file;
+- **compare options**: save the whole form as named options (up to 50), make "vary one thing" copies (age at the wedding, education, living together first, relationship quality, marriage happiness and more), and see every chosen lens side by side against your current plan: break-ups out of 100 couples like you with the model range, the change in points (with its spread across models) and as a ratio, how many models agree on the direction, a paired verdict from each model's own difference ("models agree", "most models agree", or "cannot tell apart" because the models disagree on the direction or the change is under 1 point), the population percentile and out-of-data flags, plus a small chart per lens; export JSON or CSV, or share a link that never carries sensitive answers;
 - optional questions on what the surveys do not measure (destructive conflict, depression, alcohol problems, neuroticism, earlier cohabitations), applied as a clearly labelled, lower-confidence literature-based adjustment from verified published hazard ratios, next to official CDC/NCHS first-marriage disruption tables for the couple's characteristics.
 
 A couple a lens cannot speak to gets no number from it. Scenarios can be shared as a link; the profiles stay in the link's `#` fragment and are never sent to a server.
 
+## Can divorce be predicted before the wedding?
+
+Modestly, and about equally well in five national surveys (about 280,000 first marriages in
+NSFG 1995–2023, NLSY79, NLSY97, SIPP and Statistics Canada's GSS), using only facts knowable
+on the wedding day: ages, education by the wedding, earlier children, living together first,
+race/ethnicity, family of origin, religion raised and wedding year. Held out by person, the
+best model ranks a couple who will divorce above one who will not 63–66% of the time
+(C 0.634–0.664; AUC at 10 years 0.66–0.68), well calibrated within each survey. Trained on
+one U.S. survey and tested on another, it keeps most of that ranking (C 0.61–0.66), but the
+predicted level can be off by up to a third, and in Canada U.S. models predict 1.5–2.2 times
+the divorce observed. A leakage audit found post-wedding information in four existing lenses
+(spouse traits recorded after the wedding, a degree earned in the wedding year, region at
+interview); removing it costs 0.1–1.1 points of held-out gain, and boosting's edge over an
+additive model disappears. Details, tables and caveats:
+[`reproducibility/prewedding/README.md`](reproducibility/prewedding/README.md).
+
 ## Published evidence
 
 [`reproducibility/literature_evidence/EVIDENCE.md`](reproducibility/literature_evidence/EVIDENCE.md) collects 286 published estimates of divorce predictors (hazard and odds ratios, life-table probabilities, correlations, prediction accuracies), each with a verbatim quote mechanically checked against its source and a DOI checked at Crossref. It says which predictors are robust (age at marriage, education, premarital birth, premarital mental disorders, parents' marriage, neuroticism) and which are fragile (wedding spending, meeting online, interracial pairings). It also reads Gottman's "90%+ accuracy" claims against the base rate: they are in-sample, and predicting that nobody divorces scores 66–88% on the same samples (above one of the claims). The app uses 9 of the records, and only for factors the chosen lens does not already model. The NCHS life tables (Bramlett & Mosher 2002; Copen et al. 2012) are in `app/data/nchs_disruption_tables.json`.
+
+## Evidence for decisions
+
+To support decisions rather than only estimate risk, [`reproducibility/decision_evidence/`](reproducibility/decision_evidence/EVIDENCE.md) collects 46 verified records: randomised trials of relationship education and couple therapy, natural experiments on causes of divorce, and decision-aid standards. The Army PREP trial cut divorce at 2 years (7.6% vs 11.9%, driven by one site), but the two largest federal trials found no effect on staying together (Building Strong Families 57.4% vs 60.5%; Supporting Healthy Marriage 81.5% vs 81.5%). [FACTORS.md](reproducibility/decision_evidence/FACTORS.md) grades the evidence for every input the app can change: only relationship education, couple therapy (for satisfaction, not divorce) and income support have experimental evidence; age at marriage, education, cohabiting first, premarital births, religious attendance, debt and conflict rest on adjusted observational data. [DESIGN.md](reproducibility/decision_evidence/DESIGN.md) turns IPDAS decision-aid standards and risk-communication trials into a 14-item checklist for the app (absolute risks with time frames, one denominator, icon arrays, uncertainty, values clarification). The app-ready file is `app/data/decision_evidence.json`.
 
 ## What the calculator uses (evidence lenses)
 

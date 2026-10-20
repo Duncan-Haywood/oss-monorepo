@@ -34,12 +34,12 @@ Version 1 (this directory) runs five NLSY79 couple models exported from
   `CLAUDE.md`, "Every session lands its own work"). Check open PRs touching
   `research/marriage-divorce-evidence` first and build on them instead of duplicating.
 
-## Network note (checked 2026-10-19 and 2026-10-20)
+## Network note (checked 2026-10-19 and 2026-10-20; widened 2026-10-20)
 
 From cloud sessions, `www.cdc.gov`, `ftp.cdc.gov`, `nlsinfo.org`, ICPSR, Harvard Dataverse,
 Zenodo, Kaggle, UCI, Hugging Face and `gss.norc.org` were blocked by the environment's
 network policy; `github.com`, `raw.githubusercontent.com`, `api.github.com` (partly),
-PyPI and npm were reachable. On 2026-10-20 SSA, CDC, UCI, GSS, NLS, Stanford and mortality.org were still blocked (HTTP 000). Re-check at the start of each run
+PyPI and npm were reachable. Early on 2026-10-20 SSA, CDC, UCI, GSS, NLS, Stanford and mortality.org were still blocked (HTTP 000). **Later on 2026-10-20 the allowlist was widened**: CDC, NLS, GSS, Stanford, UCI, Kaggle, OSF, Zenodo and Add Health returned 200, while ICPSR, PSID, Fragile Families, Understanding Society and SSA returned 403. Re-check at the start of each run
 (`curl -s -o /dev/null -w '%{http_code}' -m 15 <url>`): the owner may widen the allowlist.
 Public mirrors on GitHub are acceptable only when they reproduce an official file you can
 verify (checksum, row counts, codebook) and the licence allows it.
@@ -48,40 +48,45 @@ verify (checksum, row counts, codebook) and the licence allows it.
 
 ### A. Datasets (owns `../reproducibility/<new dataset>/`, `../DATA_SOURCES.md`, new `models/<id>.json` bundles)
 
-**Done (2026-10-19/20; details in each folder's `METHODS.md` and `../LOG.md`):**
+**Direction from 2026-10-20: before the wedding.** The owner wants divorce risk *before*
+marrying, for a couple or a potential partner. Datasets that measure people or couples before
+they marry, and follow them into marriage, now rank first.
 
-| Dataset | Folder | What the app gets |
-| --- | --- | --- |
-| NSFG 2002 (Cycle 6) women's first marriages, 4,126 marriages and 1,492 dissolutions from the wedding day | `nsfg2002_first_marriage/` | Lens `models/nsfg2002_first_marriage.json`: duration-only, additive spline Poisson (held-out deviance gain 3.0%) and a depth-3 tree. Listed in `index.json` with **no form adapter yet** |
-| Fair (1978) affairs surveys: Redbook 1974 (6,366 women) and Psychology Today 1969 (601 people) | `fair_affairs/` | Lenses `models/fair_redbook1974.json` and `fair_pt1969.json` (logistic AUC 0.744 and 0.691). The target is a reported affair, not divorce. **No adapter yet** |
-| Thornes & Collard (1979) pre- and extramarital sex by divorce, 1,036 people | `thornes_collard_presex/` | Odds ratios only (case-control); no app number by design |
-| UN WPP 2024 U.S. single-year death rates by sex, 2024–2100 | `un_wpp2024_mortality/` | `data/us_mortality_wpp2024.json` and `mortality.js` (`competingRisks`): divorce versus widowhood each year, for the lifelong estimate. **Not yet wired into the UI** |
+**On `main` (each folder's `METHODS.md` has the details; `../DATA_SOURCES.md` has sources and
+licences):**
 
-**Hand-offs to C (app):**
+- **Before the wedding:** `hcmst_dating_to_marriage/` follows 1,081 unmarried 2009 HCMST couples
+  (dating or cohabiting, incl. same-sex) to 2017, with marriage versus break-up per period
+  (lenses `hcmst_dating_marriage`, `hcmst_dating_breakup`).
+- **From the wedding:** `nsfg2002_first_marriage/`, `nsfg_pooled_first_marriage/`,
+  `nlsy79_full/`, `nlsy97_first_marriage/`, `sipp_marital_history/` and
+  `canada_gss_family/`.
+- **Married couples:** `ml_couples/`, `ml_individuals/`, `hcmst/`, `gss_panel/` and
+  `newlywed_la_karney/`.
+- **Relationship quality and context:** `fair_affairs/` (affairs, not divorce),
+  `thornes_collard_presex/` (odds ratios only), `acs_pums_multiyear/` (subgroup baselines) and
+  `literature_evidence/`.
+- **Mortality:** `un_wpp2024_mortality/` (`mortality.js` `competingRisks`).
 
-- Write the form adapters for the NSFG 2002 lens (in progress in PR #8556; workstream B's
-  extra NSFG model family merged in #8567): the wife's and husband's ages at the
-  wedding, cohabited first, husband married before, husband has prior children,
-  race-ethnicity, intact family, `marriage_years`; hold `wedding_year` at 2002 and label
-  it. Abstain for a previously married wife, same-sex couples and inputs outside
-  `support`.
-- Write the adapters for the Fair lenses, which need a new "rate your marriage" input. Show
-  them as affair risk, never as divorce odds.
-- Replace "mortality not modelled" with `competingRisks()`: P(divorce first), P(widowhood
-  first, the lifelong marriage) and the unresolved remainder past each lens's support.
+**Hand-offs to C (app):** adapters for the two HCMST before-the-wedding lenses. They ask for
+the 2009 HCMST inputs: relationship quality, living together, parents' view, couple type, ages,
+schooling and how the couple met. Chain them into a marriage lens after the wedding, as
+`how_to_combine` in each bundle describes.
 
-**Remaining, highest value first:**
+**Remaining, highest value first (reachability checked 2026-10-20):**
 
-1. **More NSFG cycles** (2006–2010 through 2022–2023): bigger samples and recent weddings.
-   Still blocked at CDC. The NSFG files on GitHub that were checked are 2002 only (the
-   MarriageNSFG repository purged its raw data). Use a verifiable mirror if one appears.
-2. **NLSY97** partner histories (nlsinfo.org blocked).
-3. **HCMST 2017–2022** (Stanford, blocked): unmarried and same-sex couples with breakup
-   follow-up, the only route to a number for same-sex couples.
-4. **GSS 1972–2022** ever-divorced status (gss.norc.org blocked; cross-sectional).
-5. **Divorce Predictors Scale** (Yöntem et al. 2019; UCI blocked). Not attempted from
-   unofficial copies: none could be checked against UCI.
-6. Official aggregate divorce rates (CDC/NCHS) for calibration (blocked).
+1. **NLSY97 dating and cohabitation histories** (nlsinfo.org reachable): partners measured
+   before marriage, with the step from cohabitation to marriage to divorce. Extends the existing
+   `nlsy97_first_marriage/` back before the wedding.
+2. **Add Health public-use waves I–V** (addhealth.cpc.unc.edu reachable): adolescents measured
+   long before they marry. Check whether the public-use files and relationship histories can be
+   downloaded without a contract.
+3. **HCMST 2017–2022 unmarried couples** (Stanford reachable): a second, more recent
+   before-the-wedding cohort, and an external check for the 2009 lenses.
+4. **Pre-marital relationship-quality studies** with open data on OSF or Zenodo (both
+   reachable), for example engaged-couple or premarital-inventory studies.
+5. **PSID, Fragile Families / Future of Families and Understanding Society**: their hosts
+   returned 403 on 2026-10-20. ICPSR also returned 403.
 
 ### B. Models (owns `tools/`, `engine.js`, `tests/`, model sections of `README.md`)
 
@@ -179,6 +184,7 @@ Done (2026-10-19/20, PRs #8537, #8556 and the round-3 PR):
   per-lens candidate ranking with overlap tiers, client-side CSV scoring with downloadable
   results, partner-trait search and what-ifs that respect locked and excluded values.
 - Published-evidence layer (2026-10-20): optional questions for factors no lens measures (`literature.js`, `literature-ui.js`), applied as a labelled literature-based adjustment from 9 verified primary records with intervals, citations and refusals; factors a lens already models are not asked. Plus a CDC/NCHS population-baseline table and a Gottman base-rate explainer (`../reproducibility/literature_evidence/EVIDENCE.md`).
+- Compare options, i.e. scenarios (2026-10-20, `scenarios.js`, `scenarios-ui.js`): up to 50 saved form states, vary-one-thing copies, a per-lens grid and small multiples against "your current plan" (out of 100 couples like you, difference ranges, a paired per-model verdict: agree, most agree, or cannot tell apart with the reason) with model agreement, JSON/CSV export and import, and a share link without sensitive answers.
 - Phone layout (390px) and dark mode with no horizontal scroll; focus outlines; titles, meta and
   share-card descriptions within the 160-character budget; JSON-LD; links between the app, the
   project README and the research page.
@@ -202,5 +208,9 @@ Remaining:
   bundles ship no spec); a GSS 4-year model export (the bundle has its reference but not the
   model); a validated satisfaction mapping for the newlywed lens (all 8 items on one scale now);
   joint partner profiles for NLSY97 just-me (the bundle publishes one trait at a time).
+- The candidates view's "indistinguishable from the top" flag and the dashboard's top tier still
+  use overlap of model ranges (`rankPartners` in `couple.js`, shared by the partner search,
+  dashboard tiers and their tests). Moving them to the paired rule `scenarios.js` uses is a
+  separate change.
 - A screen-reader pass with a real assistive technology. Only keyboard focus and contrast have
   been checked.

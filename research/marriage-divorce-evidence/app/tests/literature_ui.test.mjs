@@ -4,7 +4,7 @@ import { test } from 'node:test';
 import { readFileSync } from 'node:fs';
 import { strict as assert } from 'node:assert';
 import { FACTORS, LENS_MODELS, adjust } from '../literature.js';
-import { encodeLiterature, decodeLiterature, literatureQuestions, answersFor, baseFromYears, nchsMatches, disruption, LIT_CHOICES } from '../literature-ui.js';
+import { encodeLiterature, decodeLiterature, LIT_SENSITIVE, literatureQuestions, answersFor, baseFromYears, nchsMatches, disruption, LIT_CHOICES } from '../literature-ui.js';
 import { decodeScenario } from '../couple.js';
 import { readHashExtras } from '../compare-ui.js';
 
@@ -17,11 +17,16 @@ const husband = { sex: 'Man', age: 29, degree: 'Some college', raceEth: 'White',
 
 test('fragment round-trip keeps known, valid answers in a canonical form', () => {
   const answers = { depression: 'yes', neuroticism_wife: '0.5', destructive_conflict_wife: '2.5', prior_cohabitations_other_partners: '2', alcohol_problem: 'no' };
-  const enc = encodeLiterature(answers);
+  const all = { includeSensitive: true };
+  const enc = encodeLiterature(answers, all);
   assert.match(enc, /^lit\./);
-  assert.deepEqual(decodeLiterature('#' + enc), answers);
+  assert.deepEqual(decodeLiterature('#' + enc, all), answers);
   // equal numeric spellings are canonicalised
-  assert.deepEqual(decodeLiterature('#lit.neuroticism_wife=0.50&lit.destructive_conflict_wife=3.0'), { neuroticism_wife: '0.5', destructive_conflict_wife: '3' });
+  assert.deepEqual(decodeLiterature('#lit.neuroticism_wife=0.50&lit.destructive_conflict_wife=3.0', all), { neuroticism_wife: '0.5', destructive_conflict_wife: '3' });
+  // Conflict, depression, alcohol and neuroticism never go into, or come out of, a link.
+  assert.equal(encodeLiterature(answers), 'lit.prior_cohabitations_other_partners=2');
+  assert.deepEqual(decodeLiterature('#' + enc), { prior_cohabitations_other_partners: '2' });
+  for (const k of LIT_SENSITIVE) assert.ok(!encodeLiterature({ [k]: answers[k] ?? '1' }).includes(k), k);
 });
 
 test('decoding drops unknown keys, out-of-range or malformed values and profile-derived factors', () => {
@@ -34,12 +39,12 @@ test('decoding drops unknown keys, out-of-range or malformed values and profile-
 });
 
 test('literature answers share the fragment without disturbing the scenario or the view', () => {
-  const hash = '#a.sex=Woman&a.age=27&lens=nsfg2002_first_marriage&view=dashboard&' + encodeLiterature({ depression: 'yes' });
+  const hash = '#a.sex=Woman&a.age=27&lens=nsfg2002_first_marriage&view=dashboard&' + encodeLiterature({ prior_cohabitations_other_partners: '1', depression: 'yes' });
   const sc = decodeScenario(hash);
   assert.equal(sc['a.age'], '27');
   assert.ok(!Object.keys(sc).some((k) => k.startsWith('lit.')));
   assert.equal(readHashExtras(hash), 'dashboard');
-  assert.deepEqual(decodeLiterature(hash), { depression: 'yes' });
+  assert.deepEqual(decodeLiterature(hash), { prior_cohabitations_other_partners: '1' });
 });
 
 test('every allowed choice is inside the factor range literature.js validates', () => {

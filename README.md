@@ -18,6 +18,11 @@ yourself, inside your own product, or as a business of your own.
   self-hosted business apps), each linked to its live page and its source.
   It includes CSV import checkers for Shopify, Etsy, Mailchimp, Klaviyo,
   Salesforce and more.
+- **[Use them from an AI agent or the command line](platform/agents/README.md)**:
+  `node platform/agents/tools.mjs search|describe|call` runs any tool's
+  calculation engine with JSON inputs and no browser. The same commands run as
+  a local MCP server (see [`.mcp.json`](.mcp.json)) for Claude Code, Cursor and
+  other MCP clients.
 - **Self-hosted business apps**: open-source alternatives to paid SaaS you run
   on your own server, such as Stripe failed-payment recovery, cancellation
   flows, status pages, cookie-free analytics and license keys

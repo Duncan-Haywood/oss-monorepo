@@ -148,3 +148,14 @@ test("an 8-digit UPC-E that fails GTIN-8 is expanded; a valid GTIN-8 is left alo
   assert.equal(classify("96385074").value, "96385074");
   assert.equal(classify("04252615").kind, "bad");
 });
+
+test("classify cleans invisible, full-width and labelled cells, and only when the check digit proves it", () => {
+  assert.equal(classify("036000291452​").value, "036000291452");
+  assert.equal(classify("０３６０００２９１４５２").value, "036000291452");
+  assert.equal(classify("36,000,291,452").value, "036000291452");
+  assert.equal(classify("UPC: 036000291452").value, "036000291452");
+  assert.equal(classify("ISBN 0-306-40615-2").value, "9780306406157");
+  assert.equal(classify("036000291452​").fixed, true);
+  assert.equal(classify("UPC: 036000291453").kind, "bad");
+  assert.equal(classify("ABC123").kind, "bad");
+});

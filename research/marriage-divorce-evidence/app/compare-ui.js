@@ -16,7 +16,7 @@ const pts = (x) => `${x >= 0 ? '+' : '−'}${(100 * Math.abs(x)).toFixed(1)}`;
 const fmtN = (x) => Math.round(x).toLocaleString('en-US');
 const yrs = (h) => `${fmtYears(h)} y`;
 
-export const VIEWS = ['couple', 'justme', 'candidates', 'batch', 'dashboard'];
+export const VIEWS = ['couple', 'justme', 'candidates', 'batch', 'dashboard', 'scenarios'];
 let constraints = emptyConstraints();
 let view = 'couple';
 
@@ -258,8 +258,8 @@ function errorList(errors) {
   return `<details open><summary>${fmtN(errors.length)} problem${errors.length > 1 ? 's' : ''} found; those rows are skipped${errors.length > 50 ? ' (first 50 shown)' : ''}</summary><div class="table-wrap"><table><thead><tr><th class="num" scope="col">Line</th><th scope="col">Column</th><th scope="col">Value</th><th scope="col">Problem</th></tr></thead><tbody>${rows}</tbody></table></div></details>`;
 }
 
-function download(name, text) {
-  const url = URL.createObjectURL(new Blob([text], { type: 'text/csv;charset=utf-8' }));
+export function download(name, text, type = 'text/csv;charset=utf-8') {
+  const url = URL.createObjectURL(new Blob([text], { type }));
   const a = document.createElement('a');
   a.href = url;
   a.download = name;
