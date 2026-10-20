@@ -32,11 +32,11 @@ flagships:
     next: >-
       A Poisson cost for counts, a seasonal adjustment (--period n) and an
       AR(1)-aware noise scale (--ar1) are in, each measured on seeded
-      synthetic series (README Verification), and --ar1 now prewhitens the Bayesian
-      pass too (false detections 40/40 -> 1/40, power 25/40). The mean and
+      synthetic series (README Verification), and --ar1 gives the Bayesian pass a conditional AR(1)
+      likelihood (false detections 40/40 -> 0/40, power 40/40 at shift 8, up from 25/40 with prewhitening). The mean and
       mean-and-variance PELT match the independent ruptures package on 100 of 100
       seeded cases (fixture in data/). The Poisson model matches ruptures' PELT with a scipy
-      Poisson cost on 90 of 90 seeded cases (fixture in data/). Next: raising the power lost to prewhitening in the Bayesian pass (the PELT side now has a
+      Poisson cost on 90 of 90 seeded cases (fixture in data/). Next: re-estimating rho in the Bayesian pass from the PELT residuals as the joint fit does (the PELT side now has a
       joint mean-plus-AR(1) fit, --ar1 joint: 34/40 power at shift 4 against 28/40, same 4/40
       false runs), and fewer false changes under --period --drift (--drift is in: 12.9 -> 2.9 changes per series on an amplitude-tripling cycle with a running median, 1.95 and exactly-one 24/40 with a Theil-Sen window from 10 cycles up, README; the window is fixed, not chosen from the data).
   - venture: einvoice-preflight

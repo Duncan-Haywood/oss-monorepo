@@ -259,7 +259,21 @@ test('ar1 correction still finds a real shift in autocorrelated noise', () => {
   assert.ok(hit >= 0.8 * N, `found once near 150 in ${hit}/${N}`); // measured 35/40
 });
 
-test('ar1 correction reaches the Bayesian pass (prewhitening)', () => {
+test('bocpd with rho: evidence matches the closed form for a stationary AR(1) segment', () => {
+  const rho = 0.7, x = ar1Series(3, rho, 40);
+  const p = { mu: 0.5, kappa: 0.3, alpha: 2, beta: 1.5 };
+  const b = bocpd(x, { hazardLambda: 1e12, prior: p, rho, prune: 0 });
+  const a0 = Math.sqrt(1 - rho * rho);
+  const a = x.map((_, t) => (t ? 1 - rho : a0));
+  const z = x.map((v, t) => (t ? v - rho * x[t - 1] : v * a0));
+  const n = x.length, saz = z.reduce((s, v, i) => s + a[i] * v, 0), sa2 = a.reduce((s, v) => s + v * v, 0), sz2 = z.reduce((s, v) => s + v * v, 0);
+  const kn = p.kappa + sa2, mn = (p.kappa * p.mu + saz) / kn, an = p.alpha + n / 2;
+  const bn = p.beta + (sz2 + p.kappa * p.mu ** 2 - kn * mn ** 2) / 2;
+  const ref = lgamma(an) - lgamma(p.alpha) + p.alpha * Math.log(p.beta) - an * Math.log(bn) + 0.5 * (Math.log(p.kappa) - Math.log(kn)) - (n / 2) * Math.log(2 * Math.PI) + Math.log(a0);
+  assert.ok(Math.abs(b.logEvidence - ref) < 1e-6, `${b.logEvidence} vs ${ref}`);
+});
+
+test('ar1 correction reaches the Bayesian pass (conditional AR(1) likelihood)', () => {
   assert.deepEqual(prewhiten([5, 7, 3], 0.5), [2.5, 4.5, -0.5]);
   let plain = 0, fixed = 0, hitPlain = 0, hitFixed = 0;
   const N = 40;
@@ -274,7 +288,7 @@ test('ar1 correction reaches the Bayesian pass (prewhitening)', () => {
   }
   assert.ok(plain >= 0.9 * N, `uncorrected false Bayesian runs ${plain}/${N}`); // measured 40/40
   assert.ok(fixed <= 0.1 * N, `corrected false Bayesian runs ${fixed}/${N}`);   // measured 1/40
-  assert.ok(hitFixed >= 0.5 * N, `corrected hits ${hitFixed}/${N}`);            // measured 25/40 (uncorrected ${hitPlain} = 40)
+  assert.ok(hitFixed >= 0.9 * N, `corrected hits ${hitFixed}/${N}`);            // measured 40/40 (prewhitening gave 25/40; uncorrected ${hitPlain} = 40)
 });
 
 test('seasonalAdjust removes a seasonal cycle and centres the profile', () => {

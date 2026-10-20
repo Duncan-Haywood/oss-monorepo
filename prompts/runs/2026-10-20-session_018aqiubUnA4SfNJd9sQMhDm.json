@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-20",
+  "session": "https://claude.ai/code/session_018aqiubUnA4SfNJd9sQMhDm",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-20T12:12:09Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/new",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/process/prompt-1.md",
+      "issue": "Backlog had only in-progress agent rows; had to read P036 history to find which parts were still open."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/runs",
+      "why": "Skipped runcost attach: no human-hours basis in a scheduled run."
+    }
+  ],
+  "goal": null,
+  "notes": "P036 part 1 (outage-triage removal). Ran test_host_routes_state, test_publish_surface, test_run_workflow_locally, test_sync_tree_counts (OK), promptctl validate, unittest discover -s prompts (OK). Item stays in_progress.",
+  "corrections": [],
+  "redteam": null
+}
