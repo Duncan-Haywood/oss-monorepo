@@ -19,8 +19,8 @@
   "projects": [
     "quick-pick-survey"
   ],
-  "pr": null,
-  "repo": null,
+  "pr": 8954,
+  "repo": "duncan-haywood/oss-monorepo",
   "commits": [],
   "lines_added": null,
   "lines_removed": null,
