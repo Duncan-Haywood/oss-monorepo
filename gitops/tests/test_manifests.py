@@ -3564,11 +3564,16 @@ def test_portfolio_site_types_es_modules_as_javascript() -> None:
     #
     # `.py` is the fourth: 18 ventures' own pages offer a specific CLI as a
     # same-origin download (`DOWNLOADABLE_CLI_FILES` in `build.mjs`).
+    #
+    # `.gz` is the fifth: research/marriage-divorce-evidence's in-browser
+    # trainer fetches its data as .json.gz and unpacks it with
+    # DecompressionStream, so it must arrive as application/gzip.
     for suffix, mime in (
         (r"\.mjs$", "text/javascript"),
         (r"\.webmanifest$", "application/manifest+json"),
         (r"\.csv$", "text/csv"),
         (r"\.py$", "text/plain"),
+        (r"\.gz$", "application/gzip"),
     ):
         block = f"location ~ {suffix} {{\n    types {{ }}\n    default_type {mime};"
         assert block in conf, f"missing or reordered: {suffix} -> {mime}"
@@ -3602,15 +3607,16 @@ def test_portfolio_site_repeats_security_headers_in_every_location() -> None:
     # hole while closing one.
     #
     # The count is pinned so a *new* location cannot be added without someone
-    # reading this: 8 today (.mjs, .webmanifest, .csv, .py, /feed.xml, /sw.js,
+    # reading this: 9 today (.mjs, .webmanifest, .csv, .py, .gz, /feed.xml, /sw.js,
     # /buildinfo.txt, /). Bumping the number is the reminder to restate the
     # headers in the block being added, which is the whole point of the loop
     # below — and it has worked twice now: /buildinfo.txt and /feed.xml were
     # both written with their three headers because this test refused the
     # block without them. `.py` (added when 18 ventures' own pages started
-    # offering a same-origin CLI download) is the third.
+    # offering a same-origin CLI download) is the third, and `.gz` (gzipped
+    # data a research app unpacks itself in the browser) the fourth.
     blocks = [b for b in _location_blocks(_portfolio_site()["ConfigMap"]["data"]["default.conf"]) if "add_header" in b]
-    assert len(blocks) == 8, [b.splitlines()[0] for b in blocks]
+    assert len(blocks) == 9, [b.splitlines()[0] for b in blocks]
     for block in blocks:
         assert "X-Content-Type-Options nosniff" in block, block.splitlines()[0]
 
