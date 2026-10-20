@@ -24,6 +24,22 @@
 
 A couple a lens cannot speak to gets no number from it. Scenarios can be shared as a link; the profiles stay in the link's `#` fragment and are never sent to a server.
 
+## Can divorce be predicted before the wedding?
+
+Modestly, and about equally well in five national surveys (about 280,000 first marriages in
+NSFG 1995–2023, NLSY79, NLSY97, SIPP and Statistics Canada's GSS), using only facts knowable
+on the wedding day: ages, education by the wedding, earlier children, living together first,
+race/ethnicity, family of origin, religion raised and wedding year. Held out by person, the
+best model ranks a couple who will divorce above one who will not 63–66% of the time
+(C 0.634–0.664; AUC at 10 years 0.66–0.68), well calibrated within each survey. Trained on
+one U.S. survey and tested on another, it keeps most of that ranking (C 0.61–0.66), but the
+predicted level can be off by up to a third, and in Canada U.S. models predict 1.5–2.2 times
+the divorce observed. A leakage audit found post-wedding information in four existing lenses
+(spouse traits recorded after the wedding, a degree earned in the wedding year, region at
+interview); removing it costs 0.1–1.1 points of held-out gain, and boosting's edge over an
+additive model disappears. Details, tables and caveats:
+[`reproducibility/prewedding/README.md`](reproducibility/prewedding/README.md).
+
 ## Published evidence
 
 [`reproducibility/literature_evidence/EVIDENCE.md`](reproducibility/literature_evidence/EVIDENCE.md) collects 286 published estimates of divorce predictors (hazard and odds ratios, life-table probabilities, correlations, prediction accuracies), each with a verbatim quote mechanically checked against its source and a DOI checked at Crossref. It says which predictors are robust (age at marriage, education, premarital birth, premarital mental disorders, parents' marriage, neuroticism) and which are fragile (wedding spending, meeting online, interracial pairings). It also reads Gottman's "90%+ accuracy" claims against the base rate: they are in-sample, and predicting that nobody divorces scores 66–88% on the same samples (above one of the claims). The app uses 9 of the records, and only for factors the chosen lens does not already model. The NCHS life tables (Bramlett & Mosher 2002; Copen et al. 2012) are in `app/data/nchs_disruption_tables.json`.
