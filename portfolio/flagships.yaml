@@ -91,8 +91,9 @@ flagships:
       survey from an admin's own options (validated in surveyBuilder.ts), and
       GET /api/admin/surveys/[slug]/ranking[?format=csv] returns the pooled
       ranking with random-effects 95% intervals and rank ranges (groupRanking.ts,
-      coverage checked on seeded data). Next: an admin form on /admin that
-      calls them and shows the intervals, a /s/[slug] respondent page for
+      coverage checked on seeded data). The admin form is in (SurveyBuilder on /admin: create a
+      survey, copy its link, read the ranking with intervals and rank ranges,
+      download the CSV). Next: a /s/[slug] respondent page for
       admin-made surveys, then the information-gain pair selector
       (IMPROVEMENT-PLAN.md, P1).
   - venture: league-schedule-generator
