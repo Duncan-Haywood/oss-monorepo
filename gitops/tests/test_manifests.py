@@ -4035,3 +4035,20 @@ def test_portfolio_site_build_uses_flags_the_build_scripts_accept() -> None:
     # dependency-free: there is no npm install step in the pod, and adding one
     # would need network egress the NetworkPolicy does not grant this pod.
     assert "npm install" not in script and "npm ci" not in script
+
+
+def test_the_generated_front_door_tools_mirror_is_not_committed() -> None:
+    # P024: the tree fed the k3s origin retired on 2026-10-01 and the tests
+    # build it into a temp dir. Venture PRs kept re-adding thousands of its
+    # files (6,202 on 2026-10-20) by running `front-door-tools.mjs --write`
+    # with no `--out`; pass `--out <dir>` if you need to inspect it.
+    import subprocess
+
+    tracked = subprocess.run(
+        ["git", "ls-files", "gitops/prod/front-door-tools"],
+        cwd=REPO, capture_output=True, text=True, check=True,
+    ).stdout.split()
+    assert not tracked, (
+        f"{len(tracked)} files are tracked under gitops/prod/front-door-tools/; "
+        "`git rm -r` it. It is generated and no longer committed."
+    )

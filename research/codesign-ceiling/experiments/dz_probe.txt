@@ -1,0 +1,4 @@
+10 scenes not held by any of 150 designs; probe with the best 25 designs, all allowed forces
+  hand height as drawn  : 0 of 10 scenes now held by at least one design
+  hand height dz = 0    : 10 of 10 scenes now held by at least one design
+  hand height dz = radius: 8 of 10 scenes now held by at least one design

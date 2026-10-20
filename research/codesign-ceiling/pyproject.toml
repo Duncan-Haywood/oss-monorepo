@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "codesign-ceiling"
+version = "0.1.0"
+description = "Which grasp scenes can no printable two-finger gripper hold, and what limits the ceiling: friction, force or finger strength?"
+requires-python = ">=3.9"
+dependencies = ["numpy", "scipy", "cma", "mujoco", "matplotlib"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
