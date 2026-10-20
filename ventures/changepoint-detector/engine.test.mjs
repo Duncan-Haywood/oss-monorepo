@@ -389,3 +389,25 @@ test('seasonal drift: a cycle whose amplitude triples leaves far fewer false cha
   assert.ok(driftN / N < 0.4 * (fixedN / N), `${driftN / N} vs ${fixedN / N}`);
   assert.ok(found >= 0.9 * N && exact > foundFixed, `${found}/${N} exact ${exact} vs ${foundFixed}`);
 });
+
+test('seasonal drift with --ar1: sticky noise on a growing cycle stays one change, not nine', () => {
+  const N = 40, n = 144, rho = 0.5;
+  let plain = 0, ar = 0, found = 0, exact = 0, falseRuns = 0;
+  for (let s = 1; s <= N; s++) {
+    const z = normals(rng(s + 400), n);
+    const e = [z[0]];
+    for (let i = 1; i < n; i++) e.push(rho * e[i - 1] + Math.sqrt(1 - rho * rho) * z[i]);
+    const base = e.map((v, i) => (4 + (8 * i) / n) * Math.sin((2 * Math.PI * i) / 12) + v);
+    const x = base.map((v, i) => v + (i >= 84 ? 5 : 0));
+    const p = analyze({ values: x, period: 12, drift: true }).pelt.changepoints;
+    const a = analyze({ values: x, period: 12, drift: true, ar1: true }).pelt.changepoints;
+    plain += p.length; ar += a.length;
+    const hit = a.some((c) => Math.abs(c.index - 84) <= 3);
+    found += hit; exact += a.length === 1 && hit;
+    falseRuns += analyze({ values: base, period: 12, drift: true, ar1: true }).pelt.changepoints.length > 0;
+  }
+  // measured (seeds 401..440): without --ar1 9.47 changes/series, with it 1.30; shift found 39/40, exactly one 33/40, false runs 9/40
+  console.log(`# period+drift+ar1: ${plain / N} vs ${ar / N} changes/series; found ${found}/${N}; exactly one ${exact}/${N}; false ${falseRuns}/${N}`);
+  assert.ok(ar / N < 0.3 * (plain / N), `${ar / N} vs ${plain / N}`);
+  assert.ok(found >= 0.9 * N && exact >= 0.6 * N && falseRuns <= 0.4 * N);
+});

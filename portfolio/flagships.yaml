@@ -36,7 +36,7 @@ flagships:
       likelihood (false detections 40/40 -> 0/40, power 40/40 at shift 8, up from 25/40 with prewhitening). The mean and
       mean-and-variance PELT match the independent ruptures package on 100 of 100
       seeded cases (fixture in data/). The Poisson model matches ruptures' PELT with a scipy
-      Poisson cost on 90 of 90 seeded cases (fixture in data/). Re-estimating rho for the Bayesian pass from PELT residuals was measured and dropped (27 to 29 of 40 hits, inside noise; README). The PELT side has a joint mean-plus-AR(1) fit (--ar1 joint: 34/40 power at shift 4 against 28/40, same 4/40 false runs). Next: choose the --drift window from the data (it is fixed now: a running median, or Theil-Sen from 10 cycles up; --drift cut changes per series 12.9 -> 1.95 on an amplitude-tripling cycle, README) and check --period --drift with --ar1 together.
+      Poisson cost on 90 of 90 seeded cases (fixture in data/). Re-estimating rho for the Bayesian pass from PELT residuals was measured and dropped (27 to 29 of 40 hits, inside noise; README). The PELT side has a joint mean-plus-AR(1) fit (--ar1 joint: 34/40 power at shift 4 against 28/40, same 4/40 false runs). --period --drift --ar1 together is measured (sticky noise: 9.5 -> 1.3 changes per series, README) and choosing the --drift window by leave-one-out error was tried and dropped (worse on all five shapes, README). Next: a trend-aware seasonal adjustment (a changing level under --period currently reads as steps) or a drift window chosen by a rule that rewards clean detection rather than prediction, e.g. minimum PELT segment count on the series itself.
   - venture: einvoice-preflight
     why: >-
       Real EN 16931 validator (JSON, UBL, CII, Factur-X PDF; 54+ rules,
