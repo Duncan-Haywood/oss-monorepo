@@ -15,10 +15,14 @@ concurrency:
   cancel-in-progress: false
 jobs:
   pull:
-    runs-on: ubuntu-latest
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     timeout-minutes: 10
     steps:
+      # The token is not left in .git/config while the pull scripts run; only
+      # the push step below sees it.
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -33,9 +37,12 @@ jobs:
           if [ -z "$url" ]; then echo "platform/edge/site.json has no url; nothing to pull."; exit 0; fi
           EDGE_URL="$url" node platform/edge/pull-feedback.mjs
       - name: Commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
         run: |
           for f in portfolio/usage/site-visits.json portfolio/usage/site-feedback.json; do if [ -f "$f" ]; then git add "$f"; fi; done
           if git diff --cached --quiet; then echo "no change"; exit 0; fi
           git -c user.name="monorepo-projects bot" -c user.email="noreply@users.noreply.github.com" \
             commit -m "usage: daily site page-load counts and feedback from platform/edge"
-          git push origin HEAD:main
+          git push "https://x-access-token:${GH_TOKEN}@github.com/${REPO}.git" HEAD:main

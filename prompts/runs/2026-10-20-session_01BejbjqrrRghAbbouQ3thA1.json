@@ -47,6 +47,10 @@
     {
       "file": "portfolio/ledger/check_ledger_only.py",
       "issue": "Printed 'git failed' with an empty message on this clone and exited 0, so the guard silently did nothing."
+    },
+    {
+      "file": ".github/prompts/verify-and-merge.md",
+      "issue": "The checklist caught five real issues CI would have (runner switch, publish surface, dogfood, coverage, site_usage known pages); none of these rules is mentioned where new workflows or top-level pages are added."
     }
   ],
   "deviations": [
@@ -56,7 +60,7 @@
     }
   ],
   "goal": null,
-  "notes": "Owner asked for site bug reports, feedback and usage stats into the repo. Shipped issue forms, a feedback page linked from every tool, a Cloudflare Worker (feedback->issues, counts in D1) verified in wrangler dev, two off-by-default workflows, and the owner's new privacy rule. Owner must create the Cloudflare account and tokens. Pre-existing faq-visible failure (xero-invoice-csv-check) also fails on main. Revised on owner request: no-account feedback is stored in D1 and committed daily to portfolio/usage/site-feedback.json instead of opening issues, so the Worker holds no GitHub credential.",
+  "notes": "Owner asked for site bug reports, feedback and usage stats into the repo. Shipped issue forms, a feedback page linked from every tool, a Cloudflare Worker (feedback->issues, counts in D1) verified in wrangler dev, two off-by-default workflows, and the owner's new privacy rule. Owner must create the Cloudflare account and tokens. Pre-existing faq-visible failure (xero-invoice-csv-check) also fails on main. Revised on owner request: no-account feedback is stored in D1 and committed daily to portfolio/usage/site-feedback.json instead of opening issues, so the Worker holds no GitHub credential. CI queued with no runner, so the verify-and-merge checklist was run locally before merging: pages suite 1162/1162, gitops 603 after fixes, platform/ci unit tests; fixed checkout credential persistence, runner switch, publish-surface classification, checklist coverage and the site_usage known-page list that the checklist caught.",
   "corrections": [],
   "redteam": null,
   "usage": {
