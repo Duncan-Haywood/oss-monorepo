@@ -63,6 +63,7 @@
       <div><label for="penaltyValue">Custom penalty</label><input id="penaltyValue" type="number" min="0" step="any" value="10" disabled></div>
       <div><label for="trend">Trend under the steps</label><select id="trend"><option value="">None</option><option value="1">One straight slope</option><option value="bend">Slope changes once</option><option value="bends">Slope changes up to three times</option></select></div>
       <div><label for="jointKnots"><input id="jointKnots" type="checkbox"> Score every pair of slope changes (slower; with "up to three times")</label></div>
+      <div><label for="knotMargin">Where slope changes may sit</label><select id="knotMargin"><option value="0.2">Middle 60% of the series (default)</option><option value="0.1">Middle 80% (finds early or late bends)</option></select></div>
       <div><label for="drift"><input id="drift" type="checkbox"> Seasonal shape drifts (needs a period)</label></div>
       <div><label for="period">Seasonal period in points (0 = none)</label><input id="period" type="number" min="0" step="1" value="0"></div>
       <div><label for="ar1">Autocorrelated noise (level model)</label><select id="ar1"><option value="">Assume independent</option><option value="1">Allow for it</option><option value="joint">Allow for it (joint fit)</option></select></div>
@@ -174,7 +175,7 @@
       $("#error").textContent = "";
       const penalty = $("#penalty").value === "custom" ? Number($("#penaltyValue").value) : $("#penalty").value;
       try {
-        last = analyze({ csv: $("#csv").value, column: $("#column").value.trim() || null, model: $("#model").value, period: Number($("#period").value) || 0, drift: $("#drift").checked, jointKnots: $("#jointKnots").checked, trend: $("#trend").value === "1" ? true : $("#trend").value || false, ar1: $("#ar1").value === "joint" ? "joint" : $("#ar1").value === "1", penalty, hazardLambda: Number($("#hazard").value), threshold: Number($("#threshold").value) });
+        last = analyze({ csv: $("#csv").value, column: $("#column").value.trim() || null, model: $("#model").value, period: Number($("#period").value) || 0, drift: $("#drift").checked, jointKnots: $("#jointKnots").checked, knotMargin: Number($("#knotMargin").value), trend: $("#trend").value === "1" ? true : $("#trend").value || false, ar1: $("#ar1").value === "joint" ? "joint" : $("#ar1").value === "1", penalty, hazardLambda: Number($("#hazard").value), threshold: Number($("#threshold").value) });
       } catch (e) { $("#results").hidden = true; $("#error").textContent = e.message; return; }
       const r = last;
       $("#summary").textContent = r.summary;
