@@ -39,10 +39,18 @@ async function siteWith(files = {}) {
     // The hub links About from its footer rather than as a tool card, which is
     // how the real hub does it — `data-tool` is for products.
     'index.html':
-      '<a href="tool/" data-tool="tool">Tool</a><footer><a href="about/">About</a> '
+      '<a href="tool/" data-tool="tool">Tool</a><nav><a href="ask/">Ask</a></nav><footer><a href="about/">About</a> '
       + '<a href="guides/">Guides</a> '
       + '<a href="compare/">Comparisons</a> No warranty.</footer>',
     'about/index.html': '<p>About</p><footer>No warranty.</footer>',
+    // The assistant's page and the files every page lazy-loads it from: the
+    // header links Ask on every page, so a build without them ships a dead link.
+    'ask/index.html': '<p>Ask</p><footer>No warranty.</footer>',
+    'pf-assistant.js': '',
+    'pf-fill.js': '',
+    'pf-search.js': '',
+    'pf-ai-worker.js': '',
+    'pf-byok.js': '',
     // The comparison index, on the same footing as About: a hub-level page the
     // build writes, linked from the hub's footer rather than as a tool card. It
     // must list at least one `vs-` page or the check calls it an empty index.
@@ -60,7 +68,7 @@ async function siteWith(files = {}) {
     'sitemap.xml': sitemapIndex('sitemap-hub.xml', 'tool/sitemap.xml'),
     // About is a hub-level page, so the hub sitemap is the only one that can
     // carry it — the real `renderHubSitemap` lists it here for the same reason.
-    'sitemap-hub.xml': urlset('', 'about/', 'compare/', 'guides/'),
+    'sitemap-hub.xml': urlset('', 'about/', 'ask/', 'compare/', 'guides/'),
     'llms.txt': `# Tools\n\n> One tool.\n\n## Section\n\n- [Tool](${url('tool/')}): does a thing.\n`,
     // The feed and the catalogue are a pair: the feed is the "what's new"
     // door, and the catalogue is where the check reads every tool's launch
@@ -445,7 +453,7 @@ test('a data-tool literal inside a script is not read as a hub link', async () =
   // check failed on a perfectly healthy site.
   const problems = await problemsFor({
     'index.html':
-      '<a href="tool/" data-tool="tool">Tool</a>' +
+      '<a href="tool/" data-tool="tool">Tool</a><a href="ask/">Ask</a>' +
       '<script>const card = (slug) => `<a data-tool="` + slug + `">x</a>`;</script>' +
       '<footer><a href="about/">About</a> <a href="guides/">Guides</a> '
       + '<a href="compare/">Comparisons</a> No warranty.</footer>',
@@ -678,11 +686,11 @@ test('one control of either kind is fine, and a non-button id is not a control',
 
 const CATEGORY_SITE = {
   'index.html':
-    '<a href="tool/" data-tool="tool">Tool</a>'
+    '<a href="tool/" data-tool="tool">Tool</a><a href="ask/">Ask</a>'
     + '<h2><a href="c/trades/" data-category="trades">Trades</a></h2>'
     + '<footer><a href="about/">About</a> <a href="guides/">Guides</a> '
     + '<a href="compare/">Comparisons</a> No warranty.</footer>',
-  'sitemap-hub.xml': urlset('', 'c/trades/', 'about/', 'compare/', 'guides/'),
+  'sitemap-hub.xml': urlset('', 'c/trades/', 'about/', 'ask/', 'compare/', 'guides/'),
   'c/trades/index.html':
     '<a href="../../tool/" data-tool="tool">Tool</a><footer>No warranty.</footer>',
 };
