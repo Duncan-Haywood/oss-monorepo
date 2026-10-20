@@ -1,7 +1,8 @@
 // UI for "Compare scenarios" (the DOM side of scenarios.js). Scenarios live in memory, in this
 // browser's storage when it allows it (never the sensitive answers), in JSON/CSV files the user
 // downloads, and in a share link that carries only the link-safe fields. Nothing is uploaded.
-import { MAX_SCENARIOS, STORAGE_KEY, VARY_FIELDS, varyValues, cleanFields, addScenario, duplicateScenario, renameScenario, deleteScenario, moveScenario, updateScenario, baselineOf, autoName, varyOne, summariseScenarios, lensComparison, defaultLenses, horizonsOf, comparisonCsv, exportJson, importJson, encodeScenarioLink, decodeScenarioLink, capMessage, isSensitive } from './scenarios.js';
+import { MAX_SCENARIOS, STORAGE_KEY, VARY_FIELDS, varyValues, cleanFields, addScenario, duplicateScenario, renameScenario, deleteScenario, moveScenario, updateScenario, baselineOf, autoName, varyOne, summariseScenarios, lensComparison, defaultLenses, horizonsOf, comparisonCsv, exportJson, importJson, encodeScenarioLink, decodeScenarioLink, capMessage, isSensitive, verdictText } from './scenarios.js';
+import { LIT_SENSITIVE } from './literature-ui.js';
 import { primaryHorizon, fmtYears } from './couple.js';
 import { shortName } from './summary.js';
 import { download } from './compare-ui.js';
@@ -145,7 +146,7 @@ function saveCurrent() {
   editingId = r.scenario.id;
   $('#scenName').value = '';
   persist();
-  status(`Saved “${r.scenario.name}” (${list.length} of ${MAX_SCENARIOS}).${c.errors.length ? ` Left blank because they were outside the allowed range: ${c.errors.join('; ')}.` : ''}${hasSensitive(c.fields) ? ' Its sensitive answers stay in this tab only: they are not saved in this browser, put in links or exported unless you ask.' : ''}`);
+  status(`Saved “${r.scenario.name}” (${list.length} of ${MAX_SCENARIOS}).${c.errors.length ? ` Left blank because they were outside the allowed range: ${c.errors.join('; ')}.` : ''}${hasSensitive(c.fields, c.lit) ? ' Its sensitive answers stay in this tab only: they are not saved in this browser, put in links or exported unless you ask.' : ''}`);
   draw();
 }
 function saveEdits() {
@@ -157,7 +158,7 @@ function saveEdits() {
   status(`Saved the form into “${s.name}”.`);
   draw();
 }
-const hasSensitive = (fields) => Object.keys(fields).some(isSensitive);
+const hasSensitive = (fields, lit = {}) => Object.keys(fields).some(isSensitive) || Object.keys(lit || {}).some((k) => LIT_SENSITIVE.has(k));
 
 function makeVariations() {
   const key = $('#varyField').value;
@@ -331,7 +332,7 @@ function drawOutput() {
   const head = `<tr><th scope="col">Option</th>${tables.map(({ lens, c }) => `<th scope="col">${esc(shortName(lens.summary.label, lens.summary.id))}<small>break-up within ${yrs(c.horizon)}; ${c.models} model${c.models === 1 ? '' : 's'}</small></th>`).join('')}</tr>`;
   const body = list.map((s, i) => `<tr${s.id === baselineId ? ' class="ref"' : ''}><th scope="row">${i + 1}. ${esc(s.name)}${s.id === baselineId ? ' <span class="tag">current plan</span>' : ''}</th>${tables.map(({ c }) => cellHtml(c.rows[i])).join('')}</tr>`).join('');
   $('#scenOut').innerHTML = `<h3>Side by side</h3>
-    <p class="small">Each column is one lens, with every option at the same horizon: how many of 100 couples like you the lens expects to break up, with the range across its models; the difference from your current plan in percentage points with the smallest-to-largest change across its models; how many of its models move the same way; and where the couple sits in that lens’s surveyed population. When an option’s model range overlaps your current plan’s, the lens cannot tell them apart. Lenses measure different outcomes, so a row is never summed or averaged across columns. These are associations in past surveys, not advice.</p>
+    <p class="small">Each column is one lens, with every option at the same horizon: how many of 100 couples like you the lens expects to break up, with the range across its models; the difference from your current plan, judged model by model (each model compares the option with your current plan by itself): “models agree” when every model moves the same way by at least 1 point, “most models agree” when most do, and “cannot tell apart” when the models disagree on the direction or every change is under 1 point; and where the couple sits in that lens’s surveyed population. Lenses measure different outcomes, so a row is never summed or averaged across columns. These are associations in past surveys, not advice.</p>
     <div class="table-wrap scen-grid"><table><thead>${head}</thead><tbody>${body}</tbody></table></div>
     <h3>Each lens on its own scale</h3>
     <p class="small">Dot: average of the lens’s models. Bar: smallest to largest model. Dashed line: your current plan. The numbers are repeated as text on the right.</p>
@@ -340,15 +341,16 @@ function drawOutput() {
 
 function cellHtml(r) {
   if (r.status !== 'ok') return `<td class="out-cell">no number<small>${esc(r.reason)}</small></td>`;
-  const d = r.diff;
-  const diff = r.baseline ? '<small>your current plan</small>'
-    : d ? `<small class="${d.direction > 0 ? 'down' : d.direction < 0 ? 'up' : ''}">${d.direction === 0 ? 'no change from your current plan' : `${signed(d.points)} pts vs your current plan (${d.direction > 0 ? 'higher' : 'lower'} risk${Number.isFinite(d.ratio) ? `, ×${d.ratio.toFixed(2)}` : ''})`}</small>`
-      + (d.direction === 0 ? `<small>${d.flat} of ${d.models} models unchanged</small>` : `<small>models: ${signed(d.lo)} to ${signed(d.hi)} pts; ${d.agree} of ${d.models} agree${d.flat ? `, ${d.flat} unchanged` : ''}</small>`)
-      + (d.direction !== 0 && d.overlap ? '<small><b>The models cannot tell this apart from your current plan</b> (their ranges overlap).</small>' : '')
-    : '<small>no comparison: your current plan has no number in this lens</small>';
+  const diff = r.baseline ? '<small>your current plan</small>' : r.diff ? diffHtml(r.diff) : '<small>no comparison: your current plan has no number in this lens</small>';
   const pc = r.percentile ? `<small>${esc(r.percentile.below || r.percentile.above ? r.percentile.label : 'p' + Math.round(r.percentile.percentile))} of its population (${esc(r.percentile.of)})</small>` : '';
-  const flags = [!r.inSupport ? `<span class="tag warn-tag">outside its data</span>` : '', Number.isFinite(r.ood) && r.ood >= 90 ? `<span class="tag warn-tag">unusual: ${Math.round(r.ood)}th pct</span>` : ''].filter(Boolean).join(' ');
+  const flags = [!r.inSupport ? `<span class="tag warn-tag">outside its data</span>` : '', Number.isFinite(r.ood) && r.ood >= 90 ? `<span class="tag warn-tag">unusual: more than ${Math.round(r.ood)}% of its people</span>` : ''].filter(Boolean).join(' ');
   return `<td><b>${in100(r.risk)} in 100</b> couples like you <small>${pct(r.risk)}; models ${pct(r.riskMin)}–${pct(r.riskMax)} (${in100(r.riskMin)}–${in100(r.riskMax)} in 100)</small>${diff}${pc}${flags ? `<div class="flags">${flags}</div>` : ''}</td>`;
+}
+
+function diffHtml(d) {
+  const cls = d.cannotTell ? '' : d.direction > 0 ? 'down' : 'up';
+  const avg = Math.abs(d.points) < 1e-12 ? 'no change on average' : `${signed(d.points)} pts on average${Number.isFinite(d.ratio) ? `, ×${d.ratio.toFixed(2)}` : ''}`;
+  return `<small class="${cls}"><b>${esc(verdictText(d))}</b></small><small>${avg} vs your current plan${d.probLower !== null ? `; lower in ${Math.round(100 * d.probLower)}% of posterior draws` : ''}</small>`;
 }
 
 const NICE = [0.01, 0.02, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.8, 1];
