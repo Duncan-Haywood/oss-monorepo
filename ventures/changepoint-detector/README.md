@@ -169,8 +169,20 @@ series, 40 each, in `engine.test.mjs`):
   only if it lowers the cost by 3 log n (the knot and the slope change, plus the scan). 200 counts, rate 10, log rate
   rising 0.8 over the first half and 3.2 per series length after (seeds 1600..1639): changes per series 3.38 with
   `--trend`, 0.17 with `--trend bend`; the knot within 15 points of the true 100 on 36 of 40; on 40 straight log-linear
-  series (seeds 1600..1639) a bend was kept on 0 of 40 and changes per series stayed 0.03. Not yet measured with
-  `--period`; a second knot is not offered for counts.
+  series (seeds 1600..1639) a bend was kept on 0 of 40 and changes per series stayed 0.03. With `--period 7` (210 points, weekly factors 0.5 to 1.6, rate 10, same bend, seeds 1700..1739): changes per series
+  5.83 with `--period` alone, 3.17 with `--trend`, 0.23 with `--trend bend`, a bend kept on 38 of 40 and the knot within
+  15 points of the true 105 on 35; on 40 straight series 0.05 changes and no bend. A second knot is not offered for counts.
+- **Clumpy or sticky counts (`--overdispersion`, added 2026-10-20).** The Poisson cost assumes the variance equals the mean.
+  Counts whose rate wanders (a lognormal rate with lag-1 memory 0.6, sd 0.35, on the same weekly series, seeds 1700..1739)
+  break it: 24 changes per series with `--period 7` alone and 23 with `--trend bend`, 18 on series with no change at all.
+  `--overdispersion` estimates a quasi-Poisson dispersion phi (`countDispersion`: block totals over whole cycles, each
+  compared with its neighbours by a second difference, so a straight trend cancels and a rate step is ignored by the
+  median) and multiplies PELT's penalty and the bend's `3 log n` threshold by it, or takes phi from `--overdispersion 4`.
+  Mean phi was 1.5 on Poisson counts and about 20 and 14 on the wandering ones; changes per series fell 23.1 to 1.4 (bent
+  series) and 18.0 to 0.6 (straight), and on independent counts the cost is small (bend kept 38 to 39 of 40, knot within
+  15 points 35 to 36). The cost on wandering counts is real: the planted bend is then found on 1 of 40 series, because
+  a growth change of that size is hard to tell from the noise at phi 20; the false alarms are gone, the power is not.
+  The Bayesian pass stays Poisson, so it still flags extra points on such series. Page: "Counts are clumpy or sticky".
 - **Drifting seasonality (`--period n --drift`).** The fixed profile is wrong when the
   cycle's amplitude grows or its peak moves. With `--drift` each phase is smoothed across
   cycles by a running median (5 cycles, 3 on short series), re-centred per cycle. On 144

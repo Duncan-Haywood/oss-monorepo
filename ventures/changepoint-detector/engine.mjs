@@ -133,16 +133,31 @@ export function seasonalAdjust(x, period, opts = {}) {
 }
 
 /**
- * Multiplicative seasonal factors for counts. A Poisson count in phase p of a
- * cycle has rate (segment rate) x f[p], with the factors averaging 1, so the
- * factors are exposures in the Poisson likelihood rather than a subtraction
- * (which would break the counts). Start from phase totals over a centred
- * moving average, then alternate: segment with PELT under the current
- * exposures, re-estimate each factor as phase total over the total the
- * segment rates predict for that phase, until the factors stop moving. A rate
- * shift therefore sits in the segments, not in the factors.
- * Returns { factors, exposure, passes }.
+ * Quasi-Poisson dispersion of counts: how many times the variance of a block total exceeds its mean.
+ * Blocks of b points (a whole number of seasonal cycles, at least 10 points) are compared with their
+ * neighbours: D = S_i - (S_(i-1) + S_(i+1)) / 2 has variance phi (S_i + (S_(i-1) + S_(i+1)) / 4) under a Poisson
+ * with dispersion phi, and the second difference cancels a straight trend in the totals (first differences
+ * counted growth as noise: 6.4 for plain Poisson counts on a bend). The median of D^2 over that variance is
+ * 0.455 phi (chi-square, one degree of freedom), so a rate step, which spoils two blocks, is ignored, and blocks
+ * long compared with the noise's memory make it the long-run dispersion, so sticky counts count.
+ * Returns 1 when there are fewer than 9 blocks; never below 1.
  */
+export function countDispersion(x, period = 0) {
+  const p = Math.max(1, Math.floor(period) || 1);
+  const b = p * Math.ceil(10 / p);
+  const m = Math.floor(x.length / b);
+  if (m < 9) return 1;
+  const S = [];
+  for (let i = 0; i < m; i++) { let a = 0; for (let t = i * b; t < (i + 1) * b; t++) a += x[t]; S.push(a); }
+  const d = [];
+  for (let i = 1; i + 1 < m; i++) {
+    const v = S[i] + (S[i - 1] + S[i + 1]) / 4;
+    if (v > 0) d.push((S[i] - (S[i - 1] + S[i + 1]) / 2) ** 2 / v);
+  }
+  if (d.length < 7) return 1;
+  return Math.max(1, median(d) / 0.4549);
+}
+
 export function poissonSeasonal(x, period, { penalty = 'bic', minSegment = 2, passes = 8 } = {}) {
   const m = Math.floor(period);
   if (!(m >= 2)) throw new Error('The seasonal period must be a whole number of at least 2.');
@@ -192,7 +207,7 @@ export function poissonSeasonal(x, period, { penalty = 'bic', minSegment = 2, pa
  * on g with each segment's rate profiled out, until g moves less than 1e-5.
  * Returns { g, exposure, passes }.
  */
-export function poissonTrend(x, { base = null, penalty = 'bic', minSegment = 2, passes = 12, bend = false, knotMargin = 0.1 } = {}) {
+export function poissonTrend(x, { base = null, penalty = 'bic', minSegment = 2, passes = 12, bend = false, knotMargin = 0.1, scale = 1 } = {}) {
   const n = x.length;
   const u = Array.from({ length: n }, (_, t) => (t - (n - 1) / 2) / Math.max(1, n - 1));
   const b = (t) => (base ? base[t] : 1);
@@ -268,7 +283,7 @@ export function poissonTrend(x, { base = null, penalty = 'bic', minSegment = 2, 
   for (let kt = lo; kt <= hi; kt += step) tryKnot(kt);
   if (!best) return out(plain);
   for (let kt = Math.max(lo, best.knot - step + 1); kt < Math.min(hi, best.knot + step); kt++) if (kt !== best.knot) tryKnot(kt);
-  if (!(best.cost + 3 * Math.log(n) < plain.cost)) return out(plain);
+  if (!(best.cost + 3 * Math.log(n) * scale < plain.cost)) return out(plain);
   return out(best, { knot: best.knot, slopeAfter: best.g[0] + best.g[1] });
 }
 
@@ -1038,12 +1053,18 @@ export function analyze(input = {}) {
     if (bad >= 0) throw new Error(`The Poisson model needs counts (whole numbers, 0 or more); row ${bad + 1} is ${values[bad]}.`);
   }
   const period = Math.floor(Number(o.period) || 0);
+  let phi = null, penalty = o.penalty;
+  if (o.overdispersion) {
+    if (model !== 'poisson') throw new Error('The dispersion correction is for counts: use model "poisson".');
+    phi = typeof o.overdispersion === 'number' ? Math.max(1, o.overdispersion) : countDispersion(values, period);
+    penalty = phi * penaltyValue(o.penalty ?? 'bic', values.length, 'poisson');
+  }
   let profile = null, exposure = null;
   const original = values;
   if (period) {
     if (model === 'poisson') {
       if (o.drift) throw new Error('A drifting seasonal shape is not available for counts: leave out drift, or use "mean" or "meanvar".');
-      const fit = poissonSeasonal(original, period, { penalty: o.penalty, minSegment: Math.max(1, Math.floor(Number(o.minSegment) || 2)) });
+      const fit = poissonSeasonal(original, period, { penalty, minSegment: Math.max(1, Math.floor(Number(o.minSegment) || 2)) });
       exposure = fit.exposure;
       profile = fit.factors;
     } else ({ adjusted: values, profile } = seasonalAdjust(original, period, { drift: !!o.drift }));
@@ -1052,7 +1073,7 @@ export function analyze(input = {}) {
   let growth = null, countKnot, growthAfter;
   if (o.trend && model === 'poisson') {
     if (o.trend !== true && o.trend !== 'bend') throw new Error('For counts, --trend takes one common growth rate under the steps, or "bend" for one change of growth rate: "bends" is for "mean" or "meanvar".');
-    const fit = poissonTrend(original, { base: exposure, penalty: o.penalty, minSegment: Math.max(1, Math.floor(Number(o.minSegment) || 2)), bend: o.trend === 'bend', knotMargin: o.knotMargin });
+    const fit = poissonTrend(original, { base: exposure, penalty, minSegment: Math.max(1, Math.floor(Number(o.minSegment) || 2)), bend: o.trend === 'bend', knotMargin: o.knotMargin, scale: phi ?? 1 });
     exposure = fit.exposure;
     growth = fit.g;
     if (fit.knot !== undefined) { countKnot = fit.knot; growthAfter = fit.slopeAfter; }
@@ -1072,7 +1093,7 @@ export function analyze(input = {}) {
   if (joint) {
     p = ar1JointFit(values, { penalty: o.penalty, minSegment });
     ({ rho, sigma } = p);
-  } else p = pelt(values, { model, penalty: o.penalty, minSegment, sigma, exposure });
+  } else p = pelt(values, { model, penalty, minSegment, sigma, exposure });
   const bounds = [0, ...p.changepoints, values.length];
   const segments = [];
   const lines = [];
@@ -1135,6 +1156,7 @@ export function analyze(input = {}) {
     ...(slope !== null ? { trend: { slopePerPoint: round(slope, 6), ...(knot !== undefined ? { slopeAfter: round(slopeAfter, 6), slopeChangesAt: knot, ...(knots.length > 1 ? { slopeChangesAtAll: knots, slopes: slopes.map((v) => round(v, 6)) } : {}) } : {}) } } : {}),
     ...(growth !== null ? { trend: { logGrowthAcrossSeries: round(growth, 4), growthFactorAcrossSeries: round(Math.exp(growth), 4), multiplicative: true, ...(countKnot !== undefined ? { growthChangesAt: countKnot, logGrowthAcrossSeriesAfter: round(growthAfter, 4) } : {}) } } : {}),
     ...(rho !== null ? { ar1: { rho: round(rho, 3) } } : {}),
+    ...(phi !== null ? { dispersion: round(phi, 3) } : {}),
     pelt: { penalty: round(p.penalty), minSegment, changepoints: changes, segments },
     bocpd: {
       hazardLambda: Number(o.hazardLambda) || 100,
