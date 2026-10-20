@@ -119,9 +119,11 @@ flagships:
       (applyDivisionRainouts: a night, a division or named teams, optional make-up date, linked-team aware, re-validated; page step 4).
       A share link now carries the division form (#d=, round-trip tested, opened in headless Chromium).
       Partial nights are filled too (splitRounds, a page box: example league
-      on 3 courts 17 -> 13 nights, README). Next: carry byes and home/away
-      balance across split parts when a rainout removes a night, or
-      multi-season carry-over of venue fairness.
+      on 3 courts 17 -> 13 nights, README). Home/away breaks after rainouts are
+      now counted (stats.homeAwayBreaks: 176 -> 395 on 8 seeded leagues) and a
+      balance option trims them 12% at +5 days of delay (README), off by default. Next: flip home/away of a moved
+      match when the totals allow (the real fix, nothing changes with split
+      rounds today), or multi-season carry-over of venue fairness.
   - venture: open-tennis-robots
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
