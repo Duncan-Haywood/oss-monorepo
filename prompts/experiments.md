@@ -864,3 +864,14 @@ or `ventures`) until its success rate passes 80% over 20 runs?
 - Candidates: unchanged (review/2 has 8 runs; ventures 2 / research 1 overlap).
   Reduced pass: no audit or drift report (hours-old report).
 - Result: (next review)
+
+## E51: review 2026-10-20
+
+- Change: `research/CLAUDE.md` intro names the root `CLAUDE.md` rules that still
+  apply to research (public-repository and landing rules), not only the ones that
+  do not (`prompt.md` friction: took a read to reconcile). `derived/` regenerated
+  (1513 runs).
+- Metric: "root CLAUDE.md reconcile" friction reports on `prompt.md`/`research/CLAUDE.md`, next 20 research runs.
+- Candidates: unchanged (review/2 has 8 runs; ventures 2 / research 1 intervals
+  overlap). Reduced pass: no audit or drift report (hours-old report).
+- Result: (next review)
