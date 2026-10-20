@@ -793,6 +793,39 @@ agents. Pillutla et al. (2021), MAUVE, compares model and human text as distribu
    from updating weights, as in RADAR, does prompt-only adaptation reach? Fine-tuning on a GPU
    is an owner step.
 
+**Owner direction, 2026-10-20: three subjects, code as a free parameter, shared feedback.**
+The owner asked for browser use and webcam to be subjects alongside writing, for code (not only
+the prompt) to be something either side may change, and for the detector and imitator agents
+to share feedback. This widens "what is free" above:
+- *Subjects.* Writing (milestones 1 to 6), browser use (how a person moves a cursor, types and
+  scrolls in a web page) and webcam (how a person's face and head behave on camera, as signals
+  such as expression, head pose and blinks). Each needs licence-checked human references.
+- *Code is free too.* Either side's program may change, not only its prompt: an imitator's
+  generator (for a cursor, its path, speed profile, event clock and noise components), a
+  detector's feature functions. Say whether the code comes from a fixed component library, a
+  search over it, or a model that writes code, because those are different claims.
+- *Shared feedback.* Besides the blind game, run conditions where the detector tells the
+  imitator why it caught it (which features, how far apart), and where the imitator shares its
+  program with the detector. Hold the evaluation budget equal across conditions and report
+  which channel helps which side, on a detector neither side saw.
+
+9. `mimic-cursor`: browser use, code as the free parameter, with and without shared feedback.
+   Human cursor strokes from DUX (Bieber et al. 2023, CC-BY-4.0: 46 people filling in a web
+   form), split by person. The imitator is a stroke generator built from code components;
+   the detector picks feature functions. Four feedback conditions at equal budget, scored by a
+   reference detector the loop never sees, with a memorization check on any component that
+   draws on human examples. Keystroke timing and scrolling from the same corpus come next.
+10. `mimic-webcam`: webcam signals, signals first. Start from derived per-frame signals, not
+   pixels: DUX also logs webcam emotion scores from a facial-coding tool for each event, and
+   open face-landmark or head-pose corpora with a known licence are candidates. The imitator
+   writes the signal sequence for a context (filling in a form, reading an error message); the
+   detector tells it from a person's. Rendering faces is out of scope until the guardrails
+   below are met. Time any vision model on the CPU first, as in milestone 7.
+11. `mimic-codeloop`: code written by a model. Replace the component search with an open
+   code model that reads the detector's feedback and rewrites the generator or the feature
+   functions, at the same budget as the component search, so the two can be compared. Size the
+   model to the CPU and give a GPU's priced cost as an owner step if it does not fit.
+
 **Guardrails: research on detection, not an evasion service.**
 - *Both sides ship.* Every imitator result ships with the detector prompts and the cross-play
   results that answer it. The detector is a deliverable, not a foil.
@@ -821,6 +854,14 @@ agents. Pillutla et al. (2021), MAUVE, compares model and human text as distribu
 - *Synthetic media.* Before generated audio, images or video leave the repository, check the
   disclosure duties that apply, such as Article 50 of the EU AI Act, which applies from 2 August
   2026.
+- *Browser use stays in the lab.* Generated cursor, keyboard and scroll input is scored only
+  offline by detectors built here. It is never replayed in a live site, a CAPTCHA, a login or
+  a platform's bot filter, and the generators are not packaged as plug-ins for browser
+  automation tools. Every generator ships with the detector that answers it.
+- *Webcam is signals, not faces.* Use derived signals (expression scores, landmarks, head pose)
+  from licence-checked corpora. Never render, synthesise or alter video of a real or
+  identifiable person, and never capture anyone's webcam: recording people is an owner step,
+  as for human judges above.
 - *Lab tags.* Milestones that use the imitator as a simulated partner build on CAIRO's and
   HIRO's directions in `prompt.md`, simulated human models and social intelligence. The others
   build on none of the groups, so say so.
