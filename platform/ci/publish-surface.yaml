@@ -479,6 +479,9 @@ workflows:
 - workflow: distribute-homebrew.yml
   classification: none
   publishes: []
+- workflow: distribute-hub.yml
+  classification: none
+  publishes: []
 - workflow: distribute-mastodon.yml
   classification: none
   publishes: []
