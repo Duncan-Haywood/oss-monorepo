@@ -95,6 +95,9 @@ class AppTests(unittest.TestCase):
     def test_dating_couple_chain(self):
         self.run_node('dating.test.mjs')
 
+    def test_per_partner_explanations(self):
+        self.run_node('explain_rows.test.mjs')
+
     def test_population_comparison(self):
         self.run_node('population.test.mjs')
 
