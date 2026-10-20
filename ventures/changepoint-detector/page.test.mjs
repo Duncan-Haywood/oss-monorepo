@@ -105,8 +105,8 @@ test("footer links the sibling research-algorithm tools", () => {
   assert.match(html, /href="\.\.\/matrix-profile-explorer\/"/);
 });
 
-test("the trend box offers a single bend and passes it to the engine", () => {
+test("the trend box offers one bend and several, and passes the choice to the engine", () => {
   const html = page("index.html");
-  assert.match(html, /<select id="trend">[^]*?<option value="bend">/);
-  assert.match(html, /trend: \$\("#trend"\)\.value === "bend" \? "bend"/);
+  assert.match(html, /<select id="trend">[^]*?<option value="bend">[^]*?<option value="bends">/);
+  assert.match(html, /trend: \$\("#trend"\)\.value === "1" \? true : \$\("#trend"\)\.value \|\| false/);
 });
