@@ -412,9 +412,10 @@ def main(argv: list[str] | None = None) -> int:
         p = sub.add_parser(name)
         if name == "attach":
             p.add_argument("record", type=Path)
-            p.add_argument("--human-hours", type=float, required=True,
-                           help="your estimate of a competent person's active hours for the same work")
-            p.add_argument("--human-basis", required=True, help="one line on how you estimated it")
+            p.add_argument("--human-hours", type=float,
+                           help="your estimate of a competent person's active hours for the same work "
+                                "(optional: omit it when you cannot estimate; tokens and dollars still attach)")
+            p.add_argument("--human-basis", help="one line on how you estimated it (required with --human-hours)")
         p.add_argument("--session", help="session id (default: $CLAUDE_CODE_SESSION_ID)")
         p.add_argument("--transcript", type=Path, action="append",
                        help="read these files instead of finding the session's (repeatable)")
@@ -437,7 +438,8 @@ def main(argv: list[str] | None = None) -> int:
     pricing = load_pricing()
     usage = measure(paths, pricing, parse_ts(args.since), parse_ts(args.until))
     if args.cmd == "attach":
-        human_equivalent(usage, args.human_hours, args.human_basis, pricing)
+        if args.human_hours is not None:
+            human_equivalent(usage, args.human_hours, args.human_basis or "", pricing)
         attach(args.record, usage)
         print(f"wrote usage into {args.record}")
     print(json.dumps(usage, indent=2)) if args.json else print_measure(usage)

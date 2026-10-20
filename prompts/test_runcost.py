@@ -176,6 +176,14 @@ class AttachAndReportTest(unittest.TestCase):
         # the one pre-tool record (no measured_by) is left alone
         self.assertEqual(promptctl.validate_usage("r", {"input_tokens": 1, "cost_usd": 0.1}), [])
 
+    def test_usage_without_a_human_estimate_validates(self) -> None:
+        t = Transcript([_user("2026-10-16T00:00:00Z", "go"), _assistant("2026-10-16T00:01:00Z", "m")])
+        try:
+            usage = runcost.measure(t.paths, PRICING)
+        finally:
+            t.close()
+        self.assertEqual(promptctl.validate_usage("r", usage), [])
+
     def test_estimate_needs_a_basis(self) -> None:
         with self.assertRaises(SystemExit):
             runcost.human_equivalent({"totals": {}}, 1, "  ", PRICING)
