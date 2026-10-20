@@ -111,10 +111,11 @@ export function buildDivisions(spec) {
   const cfg = { courts, times, closures };
   const rng = mulberry32(spec.seed ?? 1);
   const optimize = spec.optimize !== false;
+  const split = Boolean(spec.splitRounds);
 
-  const queues = divs.map((d) => ({ plan: roundRobin(d.teams.length, { double: Boolean(d.double) }), next: 0 }));
+  const queues = divs.map((d) => ({ plan: roundRobin(d.teams.length, { double: Boolean(d.double) }), next: 0, rem: null, part: 0 }));
   const biggest = Math.max(...queues.flatMap((q) => q.plan.map((r) => r.matches.length)));
-  if (biggest > courts.length * times.length) throw new Error(`A round of ${biggest} matches needs ${biggest} court slots, but ${courts.length} court(s) x ${times.length} time(s) give ${courts.length * times.length}.`);
+  if (!split && biggest > courts.length * times.length) throw new Error(`A round of ${biggest} matches needs ${biggest} court slots, but ${courts.length} court(s) x ${times.length} time(s) give ${courts.length * times.length}.`);
 
   // team id -> [division, team]; linked partners per team
   const linkOf = new Map();
@@ -139,11 +140,20 @@ export function buildDivisions(spec) {
     const todo = [];
     let left = open.length;
     for (const i of order) {
-      const r = queues[i].plan[queues[i].next];
-      if (r.matches.length <= left) { left -= r.matches.length; todo.push({ i, r, idx: queues[i].next }); queues[i].next++; }
+      const q = queues[i];
+      const mine = q.rem || q.plan[q.next].matches;
+      if (mine.length <= left) {
+        left -= mine.length;
+        todo.push({ i, matches: mine, idx: q.next, part: q.rem ? q.part + 1 : 0, last: Boolean(q.rem) });
+        q.next++; q.rem = null; q.part = 0;
+      } else if (split && left > 0) {
+        // a round that does not fit the slots still free tonight: play part of it now, the rest on the next night
+        todo.push({ i, matches: mine.slice(0, left), idx: q.next, part: q.part + 1, last: false });
+        q.rem = mine.slice(left); q.part++; left = 0;
+      }
     }
     if (!todo.length) continue;
-    const ms = todo.flatMap(({ i, r, idx }) => r.matches.map(([h, a]) => ({ div: i, home: h, away: a, round: idx })));
+    const ms = todo.flatMap(({ i, matches, idx }) => matches.map(([h, a]) => ({ div: i, home: h, away: a, round: idx })));
 
     // assignment: ms[k] -> open[cellOf[k]]
     const cellOf = ms.map((_, k) => k);
@@ -196,7 +206,7 @@ export function buildDivisions(spec) {
       }
     }
     const night = { day, matches: [] };
-    for (const { i, r, idx } of todo) out[i].rounds.push({ day, label: `Round ${idx + 1}`, matches: [] });
+    for (const { i, idx, part, last } of todo) out[i].rounds.push({ day, label: part || last ? `Round ${idx + 1} (part ${part})` : `Round ${idx + 1}`, matches: [] });
     ms.forEach((m, k) => {
       const cell = open[cellOf[k]];
       const court = courts[cell.ci];
@@ -443,7 +453,7 @@ export function readDivisionsSpec(f) {
   errors.push(...tr.errors);
   const cc = parseCourtClosures(f.courtClosures, names.length ? names : null);
   errors.push(...cc.errors);
-  return { errors, spec: { divisions: d.divisions, courts: names, venues, times: t.times, start, weekdays: w.weekdays, skipDays: skip.days, courtClosures: cc.closures, links: l.groups, travel: tr.travel, seed: Number.isFinite(Number(f.seed)) ? Math.trunc(Number(f.seed)) : 1 } };
+  return { errors, spec: { divisions: d.divisions, courts: names, venues, times: t.times, start, weekdays: w.weekdays, skipDays: skip.days, courtClosures: cc.closures, links: l.groups, travel: tr.travel, seed: Number.isFinite(Number(f.seed)) ? Math.trunc(Number(f.seed)) : 1, splitRounds: f.split === true || /^(1|true|yes|on)$/i.test(String(f.split || "")) } };
 }
 
 // node divisions.mjs spec.json  ->  text read-out (add --csv for the CSV). spec.json holds the form fields.
@@ -467,7 +477,7 @@ if (typeof process !== "undefined" && process.argv && import.meta.url === `file:
 
 // ---------------------------------------------------------------- share link
 
-const SHARE_FIELDS = ["divisions", "courts", "times", "start", "weekdays", "skip", "courtClosures", "travel", "links", "rainouts", "seed"];
+const SHARE_FIELDS = ["divisions", "courts", "times", "start", "weekdays", "skip", "courtClosures", "travel", "links", "rainouts", "split", "seed"];
 
 /** Form fields -> URL-safe text for the `#` part of a link (`#d=...`). The fragment is never sent to a server. */
 export function encodeDivisionFields(f) {

@@ -213,3 +213,30 @@ test("division share link round-trips the whole form and rejects junk", async ()
   assert.deepEqual(a.stats, b.stats);
   for (const bad of ["", "#", "#s=" + frag, "#d=", "#d=!!!", "#d=" + "A".repeat(20001), "#d=" + btoa("[1]")]) assert.equal(decodeDivisionFields(bad), null, bad);
 });
+
+test("splitRounds fills partial nights: fewer nights, still valid, each team once a night, parts in order", () => {
+  const { spec } = readDivisionsSpec({ ...example, courts: "Field 1 @ Park, Field 2 @ Park, Gym A @ School" });
+  const whole = buildDivisions(spec);
+  const split = buildDivisions({ ...spec, splitRounds: true });
+  assert.deepEqual(validateDivisions(split).errors, []);
+  assert.ok(split.stats.nights < whole.stats.nights, `${split.stats.nights} nights against ${whole.stats.nights}`);
+  assert.equal(split.stats.matches, whole.stats.matches);
+  assert.ok(split.divisions.some((d) => d.rounds.some((r) => /part 2/.test(r.label))));
+  assert.ok(split.stats.utilisation > whole.stats.utilisation);
+});
+
+test("without splitRounds a round bigger than the slots is refused; with it the round spreads over nights", () => {
+  const spec = { divisions: [{ name: "A", teams: ["a", "b", "c", "d", "e", "f", "g", "h"], double: false }], courts: ["C1", "C2"], times: [""], start: parseDate("2026-10-06"), weekdays: [2], seed: 1 };
+  assert.throws(() => buildDivisions(spec), /needs 4 court slots/);
+  const s = buildDivisions({ ...spec, splitRounds: true });
+  assert.deepEqual(validateDivisions(s).errors, []);
+  assert.equal(s.stats.matches, 28);
+  assert.equal(s.stats.nights, 14);
+});
+
+test("the split form field is read and shared", async () => {
+  const { encodeDivisionFields, decodeDivisionFields } = await import("./divisions.mjs");
+  assert.equal(readDivisionsSpec({ ...example, split: "1" }).spec.splitRounds, true);
+  assert.equal(readDivisionsSpec(example).spec.splitRounds, false);
+  assert.equal(decodeDivisionFields("#d=" + encodeDivisionFields({ ...example, split: "1" })).split, "1");
+});
