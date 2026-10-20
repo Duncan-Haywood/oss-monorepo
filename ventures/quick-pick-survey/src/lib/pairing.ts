@@ -308,6 +308,66 @@ export function selectNextPair({
   return [first.id, second.id];
 }
 
+/**
+ * Expected-information pair selection, an alternative to `selectNextPair`.
+ *
+ * Scores every candidate pair by how much one answer is expected to shrink the
+ * two items' rating variance under the Glicko model: an answer carries
+ * Fisher information `g(phi_opp)^2 * p * (1 - p)` for each side, so a pair
+ * gains most when both ratings are uncertain and the outcome is close to a
+ * coin flip. The pair with the largest summed variance reduction wins; ties and
+ * a just-shown pair are handled by `repeatPenalty`. Deterministic given the
+ * state, apart from the optional `rand` tie-breaker.
+ *
+ * Measured against `selectNextPair` in `infoGainPairing.simulation.test.ts`.
+ */
+const GLICKO_SCALE = 173.7178;
+
+function glickoG(phi: number): number {
+  return 1 / Math.sqrt(1 + (3 * phi * phi) / (Math.PI * Math.PI));
+}
+
+/** Expected total drop in squared rating deviation (Glicko scale) from one answer. */
+export function expectedVarianceReduction(a: PairItem, b: PairItem): number {
+  const phiA = a.rd / GLICKO_SCALE;
+  const phiB = b.rd / GLICKO_SCALE;
+  const mu = (a.rating - b.rating) / GLICKO_SCALE;
+  const p = 1 / (1 + Math.exp(-glickoG(Math.hypot(phiA, phiB) / Math.SQRT2) * mu));
+  const spread = p * (1 - p);
+  const drop = (phi: number, phiOpp: number) => {
+    const gain = glickoG(phiOpp) ** 2 * spread;
+    return phi * phi - 1 / (1 / (phi * phi) + gain);
+  };
+  return (drop(phiA, phiB) + drop(phiB, phiA)) * GLICKO_SCALE * GLICKO_SCALE;
+}
+
+export function selectNextPairByInformation({
+  items,
+  timesShown,
+  recentPairKeys,
+  answeredCount = 0,
+  rand = Math.random,
+}: PairingInput): [string, string] {
+  if (items.length < 2) throw new Error("Need at least 2 items to pair");
+  const pool = activeItems(items, answeredCount, timesShown);
+
+  let best: [string, string] | null = null;
+  let bestScore = -Infinity;
+  for (let i = 0; i < pool.length; i++) {
+    for (let j = i + 1; j < pool.length; j++) {
+      const repeatPenalty = recentPairKeys.has(pairKey(pool[i].id, pool[j].id)) ? 0.05 : 1;
+      // A sliver of noise breaks exact ties (all-default start) without
+      // reordering pairs whose scores differ.
+      const score = expectedVarianceReduction(pool[i], pool[j]) * repeatPenalty * (1 + rand() * 1e-6);
+      if (score > bestScore) {
+        bestScore = score;
+        best = [pool[i].id, pool[j].id];
+      }
+    }
+  }
+  return best!;
+}
+
 /** Picks two distinct identity items for a CONJOINED-survey trial, favoring under-shown items. */
 export function selectIdentityPair(
   items: PairItem[],
