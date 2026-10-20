@@ -34,10 +34,12 @@ flagships:
       youth labour rules, state overtime presets, roles) with a self-host
       server, .ics feeds and availability intake.
     next: >-
-      Bound the heuristic: an exact solver (ILP or branch-and-bound) for
-      small instances that reports how far the annealing roster is from
-      optimal, then multi-week rostering that carries fairness and time off
-      across weeks (README Limits).
+      The exact branch-and-bound check now exists (--prove, calc.mjs
+      exactSearch) but cannot finish the proof on the 32-shift sample week
+      (root bound far below the optimum). Next: a stronger bound (a
+      min-cost flow or LP relaxation of coverage plus per-person hours) so
+      full weeks are proven, then multi-week rostering that carries fairness
+      and time off across weeks (README Limits).
   - venture: photo-editing
     why: >-
       ShootFlow works end to end on real media: checksum-verified ingest,
