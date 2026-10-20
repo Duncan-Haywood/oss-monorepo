@@ -182,6 +182,11 @@ series, 40 each, in `engine.test.mjs`):
   (the wandering is cut into steps); `--ar1` brings it to 2.0, and `--ar1 --period 12` with a sine of amplitude 4
   added to 2.25. Both knots were found in only 23 of 40 series there (against 40 of 40 with white noise): under
   sticky noise the BIC for a second bend is often not beaten, so a flat stretch can be read as one slope.
+- **An AR(1)-aware BIC for the knot search (`--trend bends --ar1`).** The BIC counted every point as independent evidence, so
+  sticky noise made a wandering stretch look like a slope change. With `--ar1` the fit gain is now divided by the variance
+  inflation of the mean (long-run over marginal variance, rho from the residuals). Same generator, seeds 1001..1040: on a
+  straight ramp with rho 0.5 noise a bend was kept in 11 of 40 before and 0 of 40 after; on the two-bend ramp, 1.98 changes per series before
+  and 0.55 after. Both knots are still found in 23 of 40 there (unchanged), so that number is not solved.
 - **Knots refined to the point (`--trend bends`).** The knot search steps over a grid of n/40 points (7 on 288 points), so a
   knot could sit up to 3 points off, and the small kink left behind was read as a step. After the greedy search each knot now
   slides one point at a time within a grid step and moves if BIC falls. Same generator before and after, 240 points,
@@ -193,7 +198,7 @@ series, 40 each, in `engine.test.mjs`):
   after (`--ar1` added: 13 of 20 and 7 of 20). **Still not solved:** with AR(1) noise of rho 0.5 the same series gave a false change on
   18 to 20 of 20 and no run with exactly one change, with or without `--ar1`, so bends, seasonality and sticky noise together are
   not reliable yet. The first knot of a mild bend (slope change 0.1 against noise 1) is often 5 or more points off, and the cause is still being
-  worked out. Next: a dynamic-programming knot search, which would also remove the 20 to 80% limit.
+  worked out. Next: a dynamic-programming knot search, which would also remove the 20 to 80% limit, aimed at the 23 of 40.
 - **`--trend` with `--ar1`.** Sticky noise wanders, and the slope loop inside `--trend` cut that wandering into
   steps whose segments then bent the slope. With `--ar1` the loop now widens its noise scale by the same
   long-run factor. On 200 points, slope 0.1, AR(1) rho 0.5, shift 5 at point 100 (seeds 701..740): PELT gave

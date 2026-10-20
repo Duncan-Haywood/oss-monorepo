@@ -233,7 +233,10 @@ export function trendAdjust(x, { penalty = 'bic', minSegment = 2, passes = 10, a
       for (let t = bounds[i]; t < bounds[i + 1]; t++) rss += (y[t] - m) ** 2;
     }
     const params = 1 + 2 * knots.length + 2 * cps.length;
-    return { s, knots, y, bic: n * Math.log(Math.max(rss, 1e-12) / n) + params * Math.log(n) };
+    // with ar1, sticky noise makes neighbouring points carry less than one point of evidence each: the fit gain is divided by the
+    // variance inflation of the mean (long-run over marginal), so a knot must beat the wandering, not just the white-noise count
+    const infl = ar1 ? longRunSd(1, ar1Rho(y)) ** 2 : 1;
+    return { s, knots, y, bic: (n * Math.log(Math.max(rss, 1e-12) / n)) / infl + params * Math.log(n) };
   };
   let best = fit([]);
   if (maxBends && n >= 40) {
