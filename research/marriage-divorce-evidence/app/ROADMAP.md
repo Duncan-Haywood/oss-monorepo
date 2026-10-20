@@ -55,9 +55,15 @@ they marry, and follow them into marriage, now rank first.
 **On `main` (each folder's `METHODS.md` has the details; `../DATA_SOURCES.md` has sources and
 licences):**
 
-- **Before the wedding:** `hcmst_dating_to_marriage/` follows 1,081 unmarried 2009 HCMST couples
-  (dating or cohabiting, incl. same-sex) to 2017, with marriage versus break-up per period
-  (lenses `hcmst_dating_marriage`, `hcmst_dating_breakup`).
+- **Before the wedding:**
+  - `hcmst_dating_to_marriage/` follows 1,081 unmarried 2009 HCMST couples (dating or
+    cohabiting, incl. same-sex) to 2017, with marriage versus break-up per period (lenses
+    `hcmst_dating_marriage`, `hcmst_dating_breakup`). It is externally checked on 777 unmarried
+    2017 couples (AUC 0.77–0.85).
+  - `nlsy97_cohabitation_to_marriage/` follows 6,020 first cohabiting unions, moved in 1994–2023,
+    to marrying the partner versus splitting (lenses `nlsy97_cohab_marriage`,
+    `nlsy97_cohab_split`).
+  - Workstream B's `prewedding/` is the harmonized wedding-day model.
 - **From the wedding:** `nsfg2002_first_marriage/`, `nsfg_pooled_first_marriage/`,
   `nlsy79_full/`, `nlsy97_first_marriage/`, `sipp_marital_history/` and
   `canada_gss_family/`.
@@ -68,7 +74,10 @@ licences):**
   `literature_evidence/`.
 - **Mortality:** `un_wpp2024_mortality/` (`mortality.js` `competingRisks`).
 
-**Hand-offs to C (app):** adapters for the two HCMST before-the-wedding lenses (#8713 already
+**Hand-offs to C (app):** adapters for the NLSY97 cohabitation lenses (inputs: age and
+credential at move-in, sex, race-ethnicity, prior children, family at 12, parents' schooling,
+AFQT, religion raised, move-in year, years together). Chain each into `nlsy97_first_marriage`
+after the wedding. Also adapters for the two HCMST before-the-wedding lenses (#8713 already
 places them under "Before the wedding"). Prefer each bundle's `additive_harmonized` model when
 parents' view or religion is not given: it is the one checked on the 2017 cohort. They ask for
 the 2009 HCMST inputs: relationship quality, living together, parents' view, couple type, ages,
@@ -77,9 +86,11 @@ schooling and how the couple met. Chain them into a marriage lens after the wedd
 
 **Remaining, highest value first (reachability checked 2026-10-20):**
 
-1. **NLSY97 dating and cohabitation histories** (nlsinfo.org reachable): partners measured
-   before marriage, with the step from cohabitation to marriage to divorce. Extends the existing
-   `nlsy97_first_marriage/` back before the wedding.
+1. ~~NLSY97 cohabitation histories~~ **Done 2026-10-20:** `nlsy97_cohabitation_to_marriage/`
+   follows 6,020 first cohabiting unions to marrying the partner (2,109) or splitting first
+   (3,481), with held-out deviance gains of 4.9% (marriage) and 9.3% (split). Partner-section
+   traits are excluded because their recording depends on the outcome. Still open: dating
+   relationships that never moved in together, which these monthly arrays do not cover.
 2. **Add Health public-use waves I–V** (addhealth.cpc.unc.edu reachable): adolescents measured
    long before they marry. Check whether the public-use files and relationship histories can be
    downloaded without a contract.
