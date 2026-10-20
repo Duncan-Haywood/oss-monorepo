@@ -123,6 +123,18 @@ class Venture:
         return self.blocker is None
 
     @property
+    def awaits_visitors(self) -> bool:
+        """The next hypothesis needs a response from visitors, and the venture is published.
+
+        Code cannot settle it: the surface is built and live, so the next
+        unit of work is distribution or measurement, not another feature.
+        Run records (2026-10-19/20) say the top Explore rows kept sending
+        sessions to products whose handoff was already shipped.
+        """
+        h = self._first_untested
+        return bool(h and h.get("evidence") == "customer-contact" and self.production_url)
+
+    @property
     def measured(self) -> bool:
         return self.mrr is not None
 
@@ -329,6 +341,7 @@ def rank(ventures: list[Venture]) -> list[Venture]:
         return (
             0 if v.needs_decision else 1,
             0 if v.dispatchable else 1,
+            1 if v.awaits_visitors else 0,
             0 if not v.measured else 1,
             0 if v.later_stage else 1,
             1 if v.consolidated_into else 0,
@@ -339,7 +352,7 @@ def rank(ventures: list[Venture]) -> list[Venture]:
             v.name,
         )
 
-    return diversify(sorted(ventures, key=sort_key), tier=lambda v: sort_key(v)[:4])
+    return diversify(sorted(ventures, key=sort_key), tier=lambda v: sort_key(v)[:5])
 
 
 # ---------------------------------------------------------------------------
@@ -438,6 +451,10 @@ def next_task(v: Venture) -> str:
         claim = v.untested_hypothesis
         if claim and v.blocker:
             return f'BLOCKED (unpublished) -- "{claim}"'
+        if claim and v.awaits_visitors:
+            return (
+                f'Explore (awaiting visitors; needs distribution or a usage reading, not more features): "{claim}"'
+            )
         if claim:
             return f'Explore: test the untested hypothesis -- "{claim}"'
         return "Explore: every recorded hypothesis is settled -- write the next one in VENTURE.yaml, then test it."
