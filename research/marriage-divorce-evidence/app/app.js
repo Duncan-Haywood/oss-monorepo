@@ -2,6 +2,7 @@
 import { renderPopulation, renderJustMe, renderCandidates, renderDashboard, initCandidates, initBatch, initDashboard, readHashExtras, hashExtras, currentView, setView, syncConstraintControls, renderAcsBaselines } from './compare-ui.js';
 import { encodeLiterature, decodeLiterature, renderLiteratureQuestions, readLiteratureInputs, renderLiteratureResult, renderNchs } from './literature-ui.js';
 import { SCHOOL, DEGREE, WORK, RELIGION, RACE_ETH, refusals, lensNotes, adapterFor, scoringModels, referenceOnlyModels, excludeReason, project, lifelong, constantSurvival, explain, groupedTerms, selfChanges, coupleChanges, idealPartners, lensSummary, lensView, expandLens, shareOod, encodeScenario, decodeScenario, rowLabels, lensHorizons, primaryHorizon, isRateLens, stepAt, fmtYears, modelSkill, STAGES, lensStage, lensesForStage, defaultLens } from './couple.js';
+import { valueFromContributions } from './engine.js';
 import { QUALITY, HAPMAR, PARTY, PARENTS_VIEW, COUNT3, RELIGION_RAISED, MOTHER_EDU, MOTHER_AGE, ATTEND_DETAIL, OFTEN, STATUS, HOW_MET, PLACE, STATES, YESNO, MARRIAGES_BEFORE, SAT_ITEMS, SAT_SCALE, HOSTILE_ITEMS, HOSTILE_SCALE, QUESTION_LENSES } from './lens-adapters.js';
 import { summariseAll, shortName } from './summary.js';
 import { datingRefusals, datingRange, datingExternal, datingObserved, handover } from './dating.js';
@@ -14,10 +15,13 @@ const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&l
 const yrs = (h) => `${fmtYears(h)} year${h === 1 ? '' : 's'}`;
 
 // The demo couple (illustrative, not data). Every question has "Prefer not to say".
+// Default ages by stage: about the recent U.S. median ages at first marriage before the
+// wedding; inside the NLSY79 couples' 35–64 for an existing marriage.
+const STAGE_AGES = { before: { a: 28, b: 30 }, married: { a: 36, b: 38 } };
 const DEFAULTS = {
-  a: { sex: 'Woman', age: 36, school: '16–17 years', degree: 'Bachelor', wages: 55000, work: '2,000+ hours', religion: 'Less than weekly', priorMarriage: false, raceEth: 'White', priorChildren: 'No', intactFamily: 'Yes',
+  a: { sex: 'Woman', age: STAGE_AGES.before.a, school: '16–17 years', degree: 'Bachelor', wages: 55000, work: '2,000+ hours', religion: 'Less than weekly', priorMarriage: false, raceEth: 'White', priorChildren: 'No', intactFamily: 'Yes',
     bornUS: 'Yes', quality: 'Excellent', hapmar: 'Very happy', party: 'Democrat', parentsView: 'Approve', kidsBefore: '0', priorPartners: '0', enrolled: 'No', religionRaised: 'Catholic', attendDetail: 'Less than monthly', motherEdu: 'Some college', motherAgeFirst: '20–24', sat: Array(8).fill('Very satisfied') },
-  b: { sex: 'Man', age: 38, school: '13–15 years', degree: 'Some college', wages: 60000, work: '2,000+ hours', religion: 'Never', priorMarriage: false, raceEth: 'White', priorChildren: 'No', intactFamily: 'Yes',
+  b: { sex: 'Man', age: STAGE_AGES.before.b, school: '13–15 years', degree: 'Some college', wages: 60000, work: '2,000+ hours', religion: 'Never', priorMarriage: false, raceEth: 'White', priorChildren: 'No', intactFamily: 'Yes',
     bornUS: 'Yes', quality: 'Good', hapmar: 'Very happy', party: 'Independent, other or no preference', parentsView: 'Approve', kidsBefore: '0', priorPartners: '1', enrolled: 'No', religionRaised: 'Other Protestant', attendDetail: 'Never', motherEdu: 'High school', motherAgeFirst: '18–19', sat: ['Very satisfied', 'Very satisfied', 'Somewhat satisfied', 'Somewhat satisfied', 'Very satisfied', 'Somewhat satisfied', 'Very satisfied', 'Very satisfied'] },
 };
 
@@ -158,6 +162,11 @@ function setStage(next) {
   $('#lensSel').innerHTML = list.map((l) => `<option value="${esc(l.summary.id)}">${esc(l.summary.label)}${l.summary.scorable ? '' : ' (listed only)'}</option>`).join('');
   $('#lensSel').value = list.some((l) => l.summary.id === keep) ? keep : defaultLens(lenses, stage).summary.id;
   const before = stage === 'before';
+  // Untouched default ages follow the stage (a typed age is never changed).
+  const ea = $('#form').elements['a.age'];
+  const eb = $('#form').elements['b.age'];
+  const other = STAGE_AGES[before ? 'married' : 'before'];
+  if (ea && eb && Number(ea.value) === other.a && Number(eb.value) === other.b) { ea.value = STAGE_AGES[stage].a; eb.value = STAGE_AGES[stage].b; }
   $('#yearsMarriedField').hidden = before;
   $('fieldset.couple legend').textContent = before ? 'Your planned wedding' : 'Your marriage';
   for (const el of document.querySelectorAll('.age-label')) el.textContent = before ? 'Age at the wedding' : 'Age today';
@@ -484,15 +493,29 @@ function renderExplain() {
   }
   // Forest attributions are in rate units; every other model's are logs (rate or odds).
   const rateScale = e.scale === 'rate';
-  const rows = groupedTerms(e.terms).filter(([, v]) => Math.abs(rateScale ? 1000 * v : v) > 0.005);
-  const maxAbs = Math.max(rateScale ? 0.0001 : 0.1, ...rows.map(([, v]) => Math.abs(v)));
   const fmtVal = (v) => (rateScale ? `${v >= 0 ? '+' : '−'}${(1000 * Math.abs(v)).toFixed(1)}/1,000` : `×${Math.exp(v).toFixed(2)}`);
   const unit = { rate: 'Values are changes in the annual rate per 1,000 couples (path attributions summed over the forest’s trees).', hazard_log_odds: 'Values multiply the odds of a break-up in the year.', log_odds: 'Values multiply the odds of a break-up in the period.', log_rate: 'Values multiply the rate.' }[e.scale] || '';
-  $('#explain').innerHTML = `<div class="bars">${rows.map(([k, v]) => {
+  const parts = e.perRow || [e];
+  const grouped = parts.map((p) => groupedTerms(p.terms).filter(([, v]) => Math.abs(rateScale ? 1000 * v : v) > 0.005));
+  // One scale across the perspectives, so their bars compare.
+  const maxAbs = Math.max(rateScale ? 0.0001 : 0.1, ...grouped.flat().map(([, v]) => Math.abs(v)));
+  const bars = (rows) => `<div class="bars">${rows.map(([k, v]) => {
     const w = (Math.abs(v) / maxAbs) * 50;
     const left = v < 0 ? 50 - w : 50;
     return `<div>${esc(k)}</div><div class="track"><div class="axis"></div><div class="bar" style="left:${left}%;width:${w}%;opacity:${v < 0 ? 0.55 : 1}"></div></div><div class="val">${fmtVal(v)}</div>`;
-  }).join('')}</div><p class="small">Bars right of the line raise the model’s risk; left lower it. ${unit}${e.scale === 'log_rate' ? ` Reference rate ${(1000 * Math.exp(e.intercept)).toFixed(1)} per 1,000 per year.` : ''}${Object.keys(e.terms).length > 1 && rowLabels(bundle, a, b, couple).length > 1 ? ' Averaged over the perspectives this lens scores.' : ''}</p>`;
+  }).join('')}</div>`;
+  const value = (p) => valueFromContributions(p);
+  const show = (x) => (e.scale === 'log_odds' ? `${pct(x, 1)} chance in the period` : `${(1000 * x).toFixed(1)} per 1,000 per year`);
+  const ref = e.scale === 'log_rate' ? ` Reference rate ${(1000 * Math.exp(e.intercept)).toFixed(1)} per 1,000 per year.` : '';
+  if (parts.length > 1) {
+    const labels = rowLabels(bundle, a, b, couple);
+    const vals = parts.map(value);
+    const mean = vals.reduce((x, y) => x + y, 0) / vals.length;
+    $('#explain').innerHTML = `<div class="two">${parts.map((p, i) => `<div><h3>${esc(labels[i] || `Perspective ${i + 1}`)}</h3>${bars(grouped[i])}<p class="small">This perspective: ${show(vals[i])}. Its bars ${rateScale ? 'add up' : 'multiply'} exactly to it.</p></div>`).join('')}</div>`
+      + `<p class="small">Bars right of the line raise the model’s risk; left lower it. ${unit}${ref} The couple’s estimate is the average of the ${parts.length} perspectives: ${show(mean)}.</p>`;
+    return;
+  }
+  $('#explain').innerHTML = `${bars(grouped[0])}<p class="small">Bars right of the line raise the model’s risk; left lower it. ${unit}${ref}</p>`;
 }
 
 function renderChanges(a, b, couple) {
