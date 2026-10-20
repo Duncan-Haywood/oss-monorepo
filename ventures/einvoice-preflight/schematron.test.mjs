@@ -51,3 +51,25 @@ test("official rules flag the planted defects and pass the clean invoice", { ski
   const good = runSchematron(readFileSync(new URL("./examples/ubl-invoice.xml", import.meta.url), "utf8"));
   assert.deepEqual(good.findings, []);
 });
+
+const xrReady = schematronAvailable("ubl", "xrechnung");
+test("XRechnung add-on rules run for a declared XRechnung invoice and flag a missing payment block", { skip: !xrReady && "run build-schematron.mjs" }, (t) => {
+  const clean = readFileSync(new URL("./examples/ubl-invoice.xml", import.meta.url), "utf8");
+  if (runSchematron(clean).status === "unavailable") return t.skip("saxon-js not installed");
+  const ok = runSchematron(clean);
+  assert.deepEqual(ok.rulesets, ["base", "xrechnung"]);
+  assert.deepEqual(ok.findings, []);
+  const bad = runSchematron(clean.replace(/<cac:PaymentMeans>[\s\S]*?<\/cac:PaymentMeans>/, ""));
+  const de1 = bad.findings.find((f) => f.rule === "BR-DE-1");
+  assert.ok(de1);
+  assert.equal(de1.source, "xrechnung-schematron");
+  assert.match(de1.fix, /payment means code/);
+  assert.equal(de1.path, "/Invoice[1]");
+});
+
+test("a plain EN 16931 invoice skips the add-on unless forced", { skip: !xrReady && "run build-schematron.mjs" }, (t) => {
+  const plain = readFileSync(new URL("./examples/ubl-invoice.xml", import.meta.url), "utf8").replace(/#urn:xeinkauf[^<]*/, "");
+  if (runSchematron(plain).status === "unavailable") return t.skip("saxon-js not installed");
+  assert.deepEqual(runSchematron(plain).rulesets, ["base"]);
+  assert.deepEqual(runSchematron(plain, { xrechnung: true }).rulesets, ["base", "xrechnung"]);
+});

@@ -6,7 +6,9 @@
 //     add ?profile=xrechnung to also apply the German BR-DE rules (XR-nnn),
 //     or ?profile=peppol for the Peppol BIS Billing 3.0 rules (PP-nnn),
 //     or ?profile=france for the French SIREN and payment-mention rules (FR-nnn)
-//     add ?schematron=1 to also run the official EN 16931 Schematron (BR-xx) when
+//     add ?schematron=1 to also run the official EN 16931 Schematron (BR-xx), plus the
+//     XRechnung/Peppol add-on set when the invoice declares XRechnung (?schematron=xrechnung
+//     forces it), when
 //     build-schematron.mjs has been run; the report says "unavailable" otherwise.
 //   POST /v1/validate/batch  {"documents":[{"name","content","encoding"?}]}
 //                            encoding "base64" is for PDFs; default is text.
@@ -41,6 +43,12 @@ function intEnv(env, key, fallback) {
 function profileFrom(url) {
   const profile = url.searchParams.get("profile");
   return profile === "xrechnung" || profile === "peppol" || profile === "france" ? profile : "";
+}
+
+// ?schematron=1 runs the official rules; ?schematron=xrechnung also forces the XRechnung add-on set.
+function schematronFrom(url) {
+  const v = url.searchParams.get("schematron");
+  return v === "xrechnung" ? "xrechnung" : v === "1";
 }
 
 export function loadConfig(env = process.env) {
@@ -174,7 +182,7 @@ export function createApp(config = loadConfig()) {
       if (!body.length) throw new HttpError(400, "Empty body.");
       const name = nameFor(req.headers["content-type"], url.searchParams.get("name"));
       const source = name.toLowerCase().endsWith(".pdf") ? new Uint8Array(body) : body.toString("utf8");
-      const result = await preflightDocuments([{ name, source }], { maxBytes: config.maxBytes, maxFiles: 1, profile: profileFrom(url), schematron: url.searchParams.get("schematron") === "1" });
+      const result = await preflightDocuments([{ name, source }], { maxBytes: config.maxBytes, maxFiles: 1, profile: profileFrom(url), schematron: schematronFrom(url) });
       const report = buildJsonReport(result);
       send(res, 200, { ...report, disclaimer: DISCLAIMER });
       return;
@@ -198,7 +206,7 @@ export function createApp(config = loadConfig()) {
         const source = d.encoding === "base64" ? new Uint8Array(Buffer.from(d.content, "base64")) : d.content;
         return { name: d.name ? name : `invoice-${i}.json`, source };
       });
-      const result = await preflightDocuments(inputs, { maxBytes: config.maxBytes, maxFiles: config.maxBatch, profile: profileFrom(url), schematron: url.searchParams.get("schematron") === "1" });
+      const result = await preflightDocuments(inputs, { maxBytes: config.maxBytes, maxFiles: config.maxBatch, profile: profileFrom(url), schematron: schematronFrom(url) });
       send(res, 200, { ...buildJsonReport(result), disclaimer: DISCLAIMER });
       return;
     }

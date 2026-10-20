@@ -70,13 +70,15 @@ export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES,
       if (profile === "peppol") errors.push(...inspectPeppolProfile(invoice));
       if (profile === "france") errors.push(...inspectFrenchProfile(invoice));
       let schematronStatus = "";
+      let schematronSets = [];
       if (schematron) {
         // The official rules, beside the built-in ones. JSON drafts have no XML to check.
-        const official = xml ? runSchematron(xml) : { status: "unavailable", findings: [] };
+        const official = xml ? runSchematron(xml, { xrechnung: schematron === "xrechnung" }) : { status: "unavailable", rulesets: [], findings: [] };
         schematronStatus = official.status;
+        schematronSets = official.rulesets;
         errors.push(...official.findings);
       }
-      reports.push({ file: name, errors, envelope, ...(schematron ? { schematron: schematronStatus } : {}) });
+      reports.push({ file: name, errors, envelope, ...(schematron ? { schematron: schematronStatus, schematronRulesets: schematronSets } : {}) });
       parsed.push({ name, invoice });
     } catch (error) {
       readErrors.push({
@@ -237,7 +239,7 @@ export function buildJsonReport({ reports, readErrors }) {
     reports: reports.map((report) => ({
       file: report.file,
       status: report.errors.length ? "fail" : "pass",
-      ...(report.schematron ? { schematron: report.schematron } : {}),
+      ...(report.schematron ? { schematron: report.schematron, schematron_rulesets: report.schematronRulesets } : {}),
       observations: report.errors.length,
       errors: report.errors,
     })),

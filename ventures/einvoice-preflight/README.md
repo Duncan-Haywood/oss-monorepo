@@ -62,16 +62,24 @@ run. Neither the engine nor the compiled rules ship in this folder:
 ```sh
 cd ventures/einvoice-preflight
 npm i --no-save saxon-js xslt3     # Saxon-JS is Saxonica's, free to use, not MIT
-node build-schematron.mjs          # clones the artefacts, compiles ./schematron/*.sef.json (~1 min)
-node schematron-cli.mjs examples/ubl-invoice-with-defects.xml   # or --json
-# API: POST /v1/validate?schematron=1 (report.reports[].schematron is "ok" or "unavailable")
+node build-schematron.mjs          # clones the artefacts, compiles ./schematron/*.sef.json (~2 min)
+node schematron-cli.mjs examples/ubl-invoice-with-defects.xml   # or --json, --xrechnung
+# API: POST /v1/validate?schematron=1 (report.reports[].schematron is "ok" or "unavailable",
+# schematron_rulesets lists the sets that ran: "base", and "xrechnung" when added)
 ```
 
 Checked on the bundled examples: the clean UBL, CII and Factur-X invoices pass,
 and the defects file raises BR-CO-15, BR-CO-16, BR-CO-17, BR-S-09 and BR-61.
-It runs the base EN 16931 rules only, not the XRechnung or Peppol add-on
-Schematron, JSON drafts have no XML to check, and the Docker image does not
-include it yet.
+When the invoice's specification identifier names an XRechnung CIUS (or you pass
+`--xrechnung` / `?schematron=xrechnung`), the KoSIT XRechnung 3.0.2 Schematron
+(xrechnung-schematron 2.6.0, Apache-2.0, with the Peppol BIS Billing 3.0 rules
+merged in) runs as a second set: BR-DE-*, PEPPOL-EN16931-* and the XRechnung
+CVD rules, labelled `source: "xrechnung-schematron"`. Its messages are the
+official German text; the fix line is English. Running it showed the bundled
+"clean" XRechnung example was missing a seller contact, buyer post code,
+delivery date and business process id, which the example now has. JSON drafts
+have no XML to check. The Docker image (and so the Render deploy) now compiles
+both sets at build time, so `?schematron=1` works there out of the box.
 
 ```sh
 cd ventures/einvoice-preflight
