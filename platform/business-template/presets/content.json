@@ -1,0 +1,22 @@
+{
+  "label": "Content or media business (newsletter, course, directory, niche site)",
+  "default_stack": "Static site with an RSS feed, sitemap and structured data on GitHub Pages; newsletter on a free tier the owner signs up for (Buttondown, beehiiv); paid tier or course sales through Gumroad or Stripe, off until the owner adds a key.",
+  "weights": {
+    "build":  {"product": 0.50, "marketing": 0.25, "sales": 0.05, "finance": 0.05, "legal": 0.10, "support": 0.00, "review": 0.05},
+    "launch": {"product": 0.40, "marketing": 0.35, "sales": 0.05, "finance": 0.05, "legal": 0.05, "support": 0.05, "review": 0.05},
+    "grow":   {"product": 0.40, "marketing": 0.30, "sales": 0.10, "finance": 0.10, "legal": 0.00, "support": 0.05, "review": 0.05}
+  },
+  "questions": [
+    {"id": "reader", "ask": "Who reads it, and what decision does it help them make?", "default": "The narrowest audience the idea names; the agent writes a one-line reader promise."},
+    {"id": "voice", "ask": "Whose name goes on it, and should it sound like you?", "default": "Published under the business name; plain, sourced, no hype."},
+    {"id": "cadence", "ask": "How often should something new go out?", "default": "One sourced article or issue a week."},
+    {"id": "money", "ask": "How should it earn: sponsors, a paid tier, a course, affiliate links?", "default": "Free first; a sponsor or donation link; affiliate links only with a disclosure on every page."},
+    {"id": "review", "ask": "Do you want to approve each piece before it publishes?", "default": "Yes for the first ten, then only pieces flagged as sensitive."}
+  ],
+  "owner_setup": [
+    {"id": "newsletter", "what": "Create the newsletter account and add its API key as a secret.", "why": "Sending mail to subscribers is in your name."},
+    {"id": "domain", "what": "Buy the domain the agent proposes in BUSINESS.md.", "why": "Needs a card."},
+    {"id": "payments", "what": "Create the payment or sponsorship account if you chose a paid tier.", "why": "Takes money into your account."},
+    {"id": "entity", "what": "Decide whether to trade as yourself or register a company once it earns.", "why": "Liability and tax."}
+  ]
+}

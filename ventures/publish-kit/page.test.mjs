@@ -38,3 +38,9 @@ test('sitemap lists every page', () => {
   const sitemap = read('sitemap.xml');
   for (const page of PAGES) assert.match(sitemap, new RegExp(`<loc>\\./${page}</loc>`));
 });
+
+test('index links one hop to its siblings, the feed validator and KDP royalty calculator', () => {
+  const html = read('index.html');
+  assert.match(html, /href="\.\.\/podcast-feed-check\/"/);
+  assert.match(html, /href="\.\.\/kdp-royalty-calculator\/"/);
+});

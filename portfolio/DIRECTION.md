@@ -169,8 +169,9 @@ document.
    quantity alone (see the visitor-channel requirement just above, which
    does not depend on this counter), and it is not a problem for a session
    to go solve with a new script: every free option left (a hit-counter
-   badge, a third-party analytics tag) is exactly the "no analytics vendor"
-   line `usage/README.md` already forbids, and Search Console-style
+   badge, a third-party analytics tag) was forbidden by a "no analytics
+   vendor" line that the owner dropped on 2026-10-20 (`usage/README.md`, rule
+   1: follow the law, prefer our own `platform/counter/`), and Search Console-style
    ownership verification ties a real Google identity to the repo, which
    reads as an account decision for the owner, not a build task — raise it
    on the decision queue if a session wants to pursue it, don't wire it
@@ -860,8 +861,9 @@ count, decision-queue rows) unless it directly unblocks a product.
 Write the readings down in [`usage/usage.yaml`](usage/usage.yaml) — a number
 that only ever existed in a running process is not a signal, and a reading of
 zero after a fair run is a result worth recording, not a failure to hide.
-[`usage/README.md`](usage/README.md) has the rules: count events, never people;
-no PII, no IPs, no content, no analytics vendor; prefer free signals that
+[`usage/README.md`](usage/README.md) has the rules: follow the law and go no
+stricter (owner, 2026-10-20); anonymous aggregate counts by default, consent
+where the law requires it, nothing personal committed; prefer free signals that
 already exist (release downloads, package downloads, repo traffic) over
 instrumenting anything new.
 

@@ -71,9 +71,13 @@ How it stays fast and safe:
 
 Current limits, stated plainly: RAW stills (`.CR3`, `.ARW`, `.NEF`, …) and
 camera-raw video are not decoded, so convert them to JPEG/TIFF first or they
-are listed for review. The analysis, scene and look stages are still
-deterministic stand-ins, not a vision model, so *which* shots land in the reel
-is not taste-based yet. The grade is your LUT, or no color change if you have
+are listed for review. The analysis stage now measures each photo and clip
+from decoded frames (sharpness, exposure, contrast, motion) and groups
+near-identical shots by perceptual hash, so a burst or repeated take
+contributes one frame to the reel, the best-scoring one. It cannot see faces,
+eyes or subject, and `story_score` is only a blend of the measured scores, so
+*which* shot wins is technical, not taste-based. The scene and look stages are
+still deterministic stand-ins. The grade is your LUT, or no color change if you have
 none. Every asset is graded before selection; grading only the selected
 shots is the next throughput step.
 

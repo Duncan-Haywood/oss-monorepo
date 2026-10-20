@@ -253,3 +253,9 @@ td small.down { color: var(--bad); }
   .sm-row { grid-template-columns: minmax(60px, 30%) 1fr 78px; }
 }
 .scen-grid td small b { font-size: inherit; }
+.stage { display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: baseline; margin-top: 16px; }
+.stage legend { font-weight: 600; }
+.stage label { display: flex; gap: 6px; align-items: baseline; margin: 0; color: var(--text-primary); font-size: 1rem; }
+.stage label input { width: auto; display: inline; margin: 0; }
+.stage label small { display: inline; }
+.stage p { flex-basis: 100%; margin: 4px 0 0; }

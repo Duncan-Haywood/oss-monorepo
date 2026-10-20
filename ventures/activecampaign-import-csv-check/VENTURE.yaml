@@ -37,3 +37,14 @@ owner: duncan
 #
 # Liability: format checks on the user's own file, rules stated as read from memory, no warranty,
 # independent-of-ActiveCampaign clause, trademark used nominatively, no consent or compliance advice.
+
+hypotheses:
+  - claim: >-
+      People moving lists into ActiveCampaign will paste their unsubscribe and
+      bounce export into the optional do-not-email box (added 2026-10-20) and
+      drop those contacts before the import, because an import otherwise
+      re-subscribes them; measured as the share of file checks that supply a
+      suppression list (the suppression_used event over file_checked).
+    status: untested
+    checked: null
+    evidence: customer-contact
