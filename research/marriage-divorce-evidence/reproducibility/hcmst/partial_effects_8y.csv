@@ -1,0 +1,99 @@
+model,input,value,cumulative_breakup_8y,difference_points
+quality_only,(reference couple),,0.1386,0.0000
+quality_only,relationship_quality,Fair,0.5802,44.1600
+quality_only,relationship_quality,Good,0.3603,22.1717
+quality_only,relationship_quality,Poor or very poor,0.6977,55.9151
+additive_core,(reference couple),,0.0701,0.0000
+additive_core,relationship_quality,Fair,0.2671,19.7044
+additive_core,relationship_quality,Good,0.1556,8.5489
+additive_core,relationship_quality,Poor or very poor,0.3925,32.2453
+additive_core,married,No,0.1343,6.4247
+additive_core,cohabiting,No,0.2229,15.2875
+additive_core,couple_type,Two men,0.0854,1.5351
+additive_core,couple_type,Two women,0.1452,7.5143
+additive_core,how_met,Bar or restaurant,0.0636,-0.6433
+additive_core,how_met,Church,0.0452,-2.4884
+additive_core,how_met,Online,0.0674,-0.2640
+additive_core,how_met,Other,0.0543,-1.5764
+additive_core,how_met,School or college,0.0538,-1.6309
+additive_core,how_met,Through family,0.0779,0.7819
+additive_core,how_met,Work or coworkers,0.0569,-1.3207
+additive_core,party_pair,Both Republicans,0.0563,-1.3759
+additive_core,party_pair,"One Republican, one Democrat",0.0716,0.1551
+additive_core,party_pair,Other or independent,0.0550,-1.5102
+additive_core,prior_marriage,Yes,0.1020,3.1945
+additive_core,couple_race,Both Black,0.0888,1.8735
+additive_core,couple_race,Both Hispanic,0.0806,1.0521
+additive_core,couple_race,Both Other,0.0488,-2.1250
+additive_core,couple_race,Interracial,0.0778,0.7693
+additive_core,mean_age,25,0.0880,1.7947
+additive_core,mean_age,35,0.0797,0.9598
+additive_core,mean_age,55,0.0512,-1.8892
+additive_core,mean_age,70,0.0370,-3.3056
+additive_core,age_gap,0,0.0778,0.7748
+additive_core,age_gap,10,0.0780,0.7895
+additive_core,age_gap,20,0.0945,2.4421
+additive_core,relationship_years,1,0.1564,8.6300
+additive_core,relationship_years,3,0.1139,4.3799
+additive_core,relationship_years,6,0.0841,1.4074
+additive_core,relationship_years,25,0.0532,-1.6826
+additive_core,relationship_years,40,0.0410,-2.9090
+additive_core,edu_years_mean,12,0.0816,1.1524
+additive_core,edu_years_mean,16,0.0475,-2.2591
+additive_core,edu_years_mean,18,0.0470,-2.3120
+additive_core,hh_income_k,20,0.0797,0.9667
+additive_core,hh_income_k,40,0.0693,-0.0751
+additive_core,hh_income_k,100,0.0778,0.7709
+additive_core,hh_income_k,150,0.0732,0.3147
+additive_core,children_in_hh,1,0.0734,0.3354
+additive_core,children_in_hh,2,0.0783,0.8182
+additive_full,(reference couple),,0.0643,0.0000
+additive_full,relationship_quality,Fair,0.2312,16.6922
+additive_full,relationship_quality,Good,0.1397,7.5410
+additive_full,relationship_quality,Poor or very poor,0.3516,28.7372
+additive_full,married,No,0.1221,5.7848
+additive_full,cohabiting,No,0.2005,13.6248
+additive_full,couple_type,Two men,0.0743,1.0005
+additive_full,couple_type,Two women,0.1319,6.7681
+additive_full,how_met,Bar or restaurant,0.0584,-0.5874
+additive_full,how_met,Church,0.0425,-2.1794
+additive_full,how_met,Online,0.0612,-0.3018
+additive_full,how_met,Other,0.0512,-1.3049
+additive_full,how_met,School or college,0.0494,-1.4823
+additive_full,how_met,Through family,0.0738,0.9527
+additive_full,how_met,Work or coworkers,0.0539,-1.0380
+additive_full,party_pair,Both Republicans,0.0526,-1.1689
+additive_full,party_pair,"One Republican, one Democrat",0.0662,0.1924
+additive_full,party_pair,Other or independent,0.0498,-1.4413
+additive_full,prior_marriage,Yes,0.0910,2.6733
+additive_full,religion_pair,Both no religion,0.0624,-0.1856
+additive_full,religion_pair,Different religions,0.0730,0.8719
+additive_full,religion_pair,One no religion,0.0671,0.2820
+additive_full,parental_approval,Disapprove,0.0560,-0.8301
+additive_full,parental_approval,Neutral or unsure,0.0927,2.8477
+additive_full,parental_approval,Not asked (no living parent),0.0878,2.3500
+additive_full,couple_race,Both Black,0.0800,1.5766
+additive_full,couple_race,Both Hispanic,0.0719,0.7641
+additive_full,couple_race,Both Other,0.0451,-1.9115
+additive_full,couple_race,Interracial,0.0701,0.5806
+additive_full,mean_age,25,0.0836,1.9382
+additive_full,mean_age,35,0.0740,0.9748
+additive_full,mean_age,55,0.0439,-2.0398
+additive_full,mean_age,70,0.0293,-3.4928
+additive_full,age_gap,0,0.0709,0.6637
+additive_full,age_gap,10,0.0705,0.6239
+additive_full,age_gap,20,0.0839,1.9672
+additive_full,relationship_years,1,0.1397,7.5470
+additive_full,relationship_years,3,0.1037,3.9489
+additive_full,relationship_years,6,0.0778,1.3582
+additive_full,relationship_years,25,0.0483,-1.5970
+additive_full,relationship_years,40,0.0370,-2.7302
+additive_full,edu_years_mean,12,0.0748,1.0586
+additive_full,edu_years_mean,16,0.0435,-2.0735
+additive_full,edu_years_mean,18,0.0435,-2.0724
+additive_full,hh_income_k,20,0.0705,0.6246
+additive_full,hh_income_k,40,0.0616,-0.2618
+additive_full,hh_income_k,100,0.0704,0.6135
+additive_full,hh_income_k,150,0.0650,0.0731
+additive_full,children_in_hh,1,0.0674,0.3112
+additive_full,children_in_hh,2,0.0720,0.7702
