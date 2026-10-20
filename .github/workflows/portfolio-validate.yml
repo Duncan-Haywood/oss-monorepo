@@ -85,6 +85,7 @@ on:
       - "gitops/prod/**"
       - "gitops/tests/**"
       - "platform/pages/**"
+      - "platform/agents/**"
       - "portfolio/router/**"
       - "portfolio/pipeline/**"
       - "portfolio/research/README.md"
@@ -127,6 +128,7 @@ on:
       - "gitops/prod/**"
       - "gitops/tests/**"
       - "platform/pages/**"
+      - "platform/agents/**"
       - "portfolio/router/**"
       - "portfolio/pipeline/**"
       - "portfolio/research/README.md"
@@ -199,6 +201,13 @@ jobs:
       # 2026-10-20 when it pushed that job past its timeout.
       - name: Check the apex tool mirror is not stale
         run: node --test "platform/marketing/*.test.mjs"
+
+      # platform/agents/tools.mjs lets an agent call any tool's engine with no
+      # browser. Its suite imports every venture's engine module, so a module
+      # that touches `document` at import time (and so stops being callable)
+      # fails here. Triggered by `ventures/**/*.mjs` and `*.html` above.
+      - name: Every tool stays callable from the agent CLI
+        run: node --test "platform/agents/*.test.mjs"
 
       # `MIRROR_BYTE_CEILING` is a wall with no approach lights: `buildMirror`
       # throws on it, and that throw lands in the step above -- which this
