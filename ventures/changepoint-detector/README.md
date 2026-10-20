@@ -208,7 +208,7 @@ series, 40 each, in `engine.test.mjs`):
   30 and 24 of 40: **the pair search is slightly worse at placing the knots on clean data** (the grid step is 6 and the BIC
   surface is flat near the optimum), so use it when a bend is being missed, not by default. Cost: about 2 s per 240-point
   series against 0.4 s. An exhaustive pair search on the grid is the exact optimum for two knots (the continuous-slope constraint
-  couples neighbouring knots, so a plain segment DP does not apply); a third knot comes only from the greedy search (a winning pair is not extended). Next: place the pair
+  couples neighbouring knots, so a plain segment DP does not apply); a third knot comes only from the greedy search (a winning pair is not extended). The web page has the switch ("Score every pair of slope changes"). Next: place the pair
   by a finer grid around the best coarse pair (to recover the white-noise placement), and a 10 to 90% knot range.
 - **`--trend` with `--ar1`.** Sticky noise wanders, and the slope loop inside `--trend` cut that wandering into
   steps whose segments then bent the slope. With `--ar1` the loop now widens its noise scale by the same
