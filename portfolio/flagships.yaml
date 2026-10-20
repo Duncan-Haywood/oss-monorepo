@@ -25,12 +25,13 @@ flagships:
       deploy, ~48 test files, and a regulatory tailwind (EU e-invoicing mandates).
     next: >-
       The official EN 16931 Schematron plus the XRechnung (UBL, CII) and Peppol
-      BIS 3 (UBL) add-ons run in Saxon-JS (opt-in, ?schematron=1, picked by
+      BIS 3 (UBL and CII) add-ons run in Saxon-JS (opt-in, ?schematron=1, picked by
       BT-24); the Docker image bakes them in; all 342 rule ids have an English
       fix; and the web page has an "official Schematron" box that posts XML to
       the self-hosted API and lists the findings (official.mjs). Next: a
       WASM/in-browser path so the static Pages copy can run it too without a
-      server, then a Peppol BIS 3 add-on for credit notes and CII.
+      server, then examples that exercise the Peppol credit-note and XRechnung
+      CII paths.
   - venture: shift-roster-builder
     why: >-
       Simulated-annealing scheduler over a dollar cost (availability, rest,
