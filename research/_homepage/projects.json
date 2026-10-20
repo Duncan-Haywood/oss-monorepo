@@ -1360,6 +1360,11 @@
      "slug": "free-secretarymargin",
      "title": "With noisy scores, does a \"beat the record by a margin\" rule pick the best candidate more often than the best cutoff?",
      "summary": "Simulation (<em>n</em> = 50 candidates, parameters tuned on 8,000 training trials, scored on 60,000 fresh paired trials) of a two-parameter margin rule: skip <em>r</em>&minus;1 candidates, then take the first whose noisy score beats the earlier maximum by at least <em>d</em>. P(pick the true best) rises from 0.2334 to 0.2444 at noise 0.5 (+0.0111, se 0.0014) and from 0.1429 to 0.1491 at noise 1 (+0.0062, se 0.0015); at noise 2 the gain (+0.0018, se 0.0011) is not distinguishable from zero, and with no noise the tuning picks the plain cutoff. One setting, one seed pair, a coarse grid; the Bayes-optimal policy is not computed."
+    },
+    {
+     "slug": "free-jittertwin",
+     "title": "Does a sampled-data loop tuned on a fixed-period twin survive random sampling intervals?",
+     "summary": "Unstable scalar plant <em>x&prime;</em> = 3<em>x</em>, gain tuned so the fixed-period twin contracts by 0.5 per sample. Uniform jitter up to &plusmn;100% of the period never destabilises it (exact quadrature), but missed samples do: with a sample missed (period doubled) with probability <em>q</em>, the loop is almost-surely stable up to <em>q</em> = 0.556 yet mean-square stable only up to 0.270. Between the two, the mean-square twin metric says &ldquo;unstable&rdquo; while 2000 simulated runs at <em>q</em> = 0.4 all converge; past 0.556 they blow up (70% at 0.6). A deadbeat-tuned loop (contraction 0) is fragile: mean-square limit 0.05. Stylised scalar model."
     }
    ]
   },
