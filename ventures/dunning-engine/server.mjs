@@ -3,6 +3,7 @@
 //   STRIPE_SECRET_KEY=rk_... STRIPE_WEBHOOK_SECRET=whsec_... ADMIN_KEY=... \
 //   LINK_SECRET=... PUBLIC_URL=https://dunning.example.com RESEND_API_KEY=... \
 //   MAIL_FROM="Billing <billing@example.com>" COMPANY_NAME=Acme node server.mjs
+// Email goes through Resend by default; MAIL_PROVIDER=postmark|sendgrid|mailgun switches (mail.mjs).
 // DRY_RUN defaults to true: it records and logs what it would do and touches
 // neither Stripe nor your customers until you set DRY_RUN=false.
 import http from "node:http";
@@ -11,6 +12,7 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 import { verifySignature, createStripe } from "./stripe.mjs";
 import { ADMIN_HTML, ADMIN_CSP } from "./admin.mjs";
 import { clampPct } from "./holdout.mjs";
+import { createMailer, mailProblems } from "./mail.mjs";
 import { applyEvent, stopCase, tick, scanExpiring, summary, newState } from "./engine.mjs";
 
 const env = process.env;
@@ -94,14 +96,6 @@ function readJson(path, fallback) {
   try { return JSON.parse(fs.readFileSync(path, "utf8")); } catch (e) { if (e.code === "ENOENT") return fallback; throw e; }
 }
 
-async function sendResend(msg) {
-  const res = await fetch("https://api.resend.com/emails", {
-    method: "POST", headers: { authorization: `Bearer ${env.RESEND_API_KEY}`, "content-type": "application/json" },
-    body: JSON.stringify({ from: env.MAIL_FROM, to: [msg.to], subject: msg.subject, text: msg.text }),
-  });
-  if (!res.ok) throw new Error(`resend ${res.status}`);
-}
-
 async function alert(text) {
   console.log(text);
   if (env.ALERT_WEBHOOK_URL) await fetch(env.ALERT_WEBHOOK_URL, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ text, content: text }) }).catch(() => {});
@@ -118,12 +112,13 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   const policy = env.POLICY_JSON ? JSON.parse(env.POLICY_JSON) : {};
   const publicUrl = (env.PUBLIC_URL || "").replace(/\/$/, "");
   const deps = {
-    stripe, policy, dryRun, alert, sendEmail: sendResend, company: env.COMPANY_NAME, address: env.COMPANY_ADDRESS,
+    stripe, policy, dryRun, alert, sendEmail: createMailer(env), company: env.COMPANY_NAME, address: env.COMPANY_ADDRESS,
     cancelOnExpire: env.CANCEL_ON_EXPIRE === "true", digestTo: env.DIGEST_TO || null,
     expiryNotices: env.EXPIRY_NOTICES !== "false", expiryDays: Number(env.EXPIRY_DAYS || 30),
     updateUrl: (c) => (publicUrl ? `${publicUrl}/update/${linkToken(env.LINK_SECRET, c.customer)}` : c.hostedUrl || ""),
   };
-  if (!dryRun && (!env.RESEND_API_KEY || !env.MAIL_FROM)) { console.error("DRY_RUN=false needs RESEND_API_KEY and MAIL_FROM"); process.exit(1); }
+  const mailMissing = mailProblems(env);
+  if (!dryRun && mailMissing.length) { console.error(`DRY_RUN=false needs: ${mailMissing.join(", ")}`); process.exit(1); }
   setInterval(async () => { try { const now = Date.now();
     const log = [...await tick(state, now, deps), ...await scanExpiring(state, now, deps).catch((e) => [`expiry scan failed: ${e.message}`])]; log.forEach((l) => console.log(l)); if (log.length) save(); } catch (e) { console.error("tick failed:", e.message); } }, 60000).unref?.();
   const cfg = { state, save, stripe, webhookSecret: env.STRIPE_WEBHOOK_SECRET, linkSecret: env.LINK_SECRET, adminKey: env.ADMIN_KEY, publicUrl, policy, dryRun, holdoutPct: clampPct(env.HOLDOUT_PCT) };

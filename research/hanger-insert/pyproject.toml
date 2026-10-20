@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hanger-insert"
+version = "0.1.0"
+description = "Getting the hanger in: a swept-section model of passing rigid, collapsible and adjustable hangers through a garment's neck or hem, scored on success, neck stretch and time, and fed back into hanger-fit's end radius"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+dependencies = ["numpy"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
