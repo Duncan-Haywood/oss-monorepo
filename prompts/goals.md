@@ -270,6 +270,28 @@ steering, and carry a not-advice sentence where a reader might act on a
 number. One post per subject: before writing, check `docs/posts/` and open
 PRs for one that covers it, and extend it instead of writing a second.
 
+## Direction: depth over calculators
+
+Set by the owner on 2026-10-20: "we are still shipping all sorts of stupid
+calculators. I think we can move more of that effort into cooler projects
+like the ones I've suggested for example. a lot to work on there. also
+dedicating effort to actual research and research adjacent things is better
+than all these stupid caluclators." And on any calculator that does get
+built: "make calculators that take some effort and are actually hard to
+replicate. something inaccessible algorithms from research papers and
+whatnot", and "I better not be able to understand the math behind it at a
+glance with my ba in mathematics."
+
+So a run with a free choice picks research, a research-adjacent tool or a
+flagship milestone before a new small product. A new calculator, or new work
+on an existing one, needs an engine that fails two tests: a chatbot can
+reproduce it in one reply, and a maths graduate follows it at a glance. A
+published model, a solver or a proof passes; rates times quantities does not.
+Comparison pages on arithmetic calculators are not progress. The posts:
+[`docs/posts/2026-10-20-fewer-calculators-harder-problems.md`](../docs/posts/2026-10-20-fewer-calculators-harder-problems.md)
+and
+[`docs/posts/2026-10-20-if-its-a-calculator-make-it-hard.md`](../docs/posts/2026-10-20-if-its-a-calculator-make-it-hard.md).
+
 ## Direction: files first, not the GitHub API
 
 Set by the owner on 2026-10-20: "lets make a rule of thumb that things should

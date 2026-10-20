@@ -47,7 +47,10 @@ build next** (2026-10-16): read as a recipe, it produced 121 near-identical
 ([`docs/reports/2026-10-16-calculator-glut.md`](docs/reports/2026-10-16-calculator-glut.md)).
 A CLI, library, desktop app or extension (shape 2) costs nothing to serve
 either, and the owner wants that track run alongside web tools. Before adding
-a product in an existing template family, extend or consolidate the family.
+a product in an existing template family, extend or consolidate the family. A calculator
+needs an engine a chatbot can't reproduce in one reply and a maths graduate
+can't follow at a glance (owner, 2026-10-20; `prompts/goals.md`, "Depth over
+calculators").
 
 1. **Static site / browser app.** All computation client-side, state in
    `localStorage` or a file the user downloads. GitHub Pages hosts it. Zero
