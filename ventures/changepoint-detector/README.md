@@ -124,6 +124,12 @@ series, 40 each, in `engine.test.mjs`):
   the differences gave 7 of 40 false runs; with rho known the figure is 2 of 40, so the
   residual re-estimate is what keeps it honest. PELT on this cost equals optimal
   partitioning (tested). The Bayesian pass uses the conditional AR(1) likelihood above, with the same rho.
+  Tried and not kept: under plain `--ar1`, re-estimating rho for the Bayesian pass from the
+  residuals about PELT's segment means instead of the clipped differences. On the same series
+  (300 points, shift at 150, seeds 1..40) the difference estimate is already close (mean rho
+  0.813 at true 0.8, 0.528 at 0.5, with a shift of 4; the joint fit gives 0.772 and 0.479).
+  Detections within 10 points of a shift of 4 went 27 to 29 of 40 (rho 0.8) and 37 to 38 (rho 0.5),
+  with one more false-detection run each (0 to 1, 1 to 2), so the gain is inside noise and the code was dropped.
 - **Seasonality.** A level shift of 4 under a sine of amplitude 10 (period 12,
   144 points) gave exactly one change in 0 of 40 runs without adjustment and
   exactly one change within 1 point of the truth in 33 of 40 with `--period 12`
