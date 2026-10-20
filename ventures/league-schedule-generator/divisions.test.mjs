@@ -199,3 +199,17 @@ test("a rainout moved match avoids a linked team's time slot where another slot 
   assert.deepEqual(validateDivisions(r.schedule).errors, []);
   assert.deepEqual(r.schedule.conflicts, []);
 });
+
+test("division share link round-trips the whole form and rejects junk", async () => {
+  const { encodeDivisionFields, decodeDivisionFields } = await import("./divisions.mjs");
+  const f = { ...example, divisions: "U10: Hawks, Owls — café\nAdult: Rams, Kings (double)", seed: 3 };
+  const frag = encodeDivisionFields(f);
+  assert.match(frag, /^[A-Za-z0-9_-]+$/);
+  const back = decodeDivisionFields("#d=" + frag);
+  for (const k of ["divisions", "courts", "times", "start", "weekdays", "skip", "courtClosures", "travel", "links", "rainouts"]) assert.equal(back[k], example[k] === undefined || k === "divisions" ? (k === "divisions" ? f.divisions : "") : String(example[k]), k);
+  assert.equal(back.seed, "3");
+  const a = buildDivisions(readDivisionsSpec(back).spec);
+  const b = buildDivisions(readDivisionsSpec({ ...f, seed: 3 }).spec);
+  assert.deepEqual(a.stats, b.stats);
+  for (const bad of ["", "#", "#s=" + frag, "#d=", "#d=!!!", "#d=" + "A".repeat(20001), "#d=" + btoa("[1]")]) assert.equal(decodeDivisionFields(bad), null, bad);
+});

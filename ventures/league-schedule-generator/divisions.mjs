@@ -464,3 +464,32 @@ if (typeof process !== "undefined" && process.argv && import.meta.url === `file:
   if (!v.ok) { console.error(v.errors.join("\n")); process.exit(1); }
   process.stdout.write(process.argv.includes("--csv") ? divisionsCsv(s) : divisionsText(s));
 }
+
+// ---------------------------------------------------------------- share link
+
+const SHARE_FIELDS = ["divisions", "courts", "times", "start", "weekdays", "skip", "courtClosures", "travel", "links", "rainouts", "seed"];
+
+/** Form fields -> URL-safe text for the `#` part of a link (`#d=...`). The fragment is never sent to a server. */
+export function encodeDivisionFields(f) {
+  const o = {};
+  for (const k of SHARE_FIELDS) if (typeof f[k] === "string" ? f[k].trim() !== "" : f[k] !== undefined && f[k] !== null && f[k] !== "") o[k] = String(f[k]);
+  const bytes = new TextEncoder().encode(JSON.stringify(o));
+  let bin = "";
+  for (const b of bytes) bin += String.fromCharCode(b);
+  return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+
+/** Inverse of encodeDivisionFields. Takes `location.hash`; null for anything that is not a division share fragment. */
+export function decodeDivisionFields(text) {
+  try {
+    const t = String(text || "").replace(/^#?d=/, "");
+    if (!String(text || "").match(/^#?d=/) || !t || t.length > 20000 || !/^[A-Za-z0-9_-]+$/.test(t)) return null;
+    const bin = atob(t.replace(/-/g, "+").replace(/_/g, "/"));
+    const o = JSON.parse(new TextDecoder().decode(Uint8Array.from(bin, (c) => c.charCodeAt(0))));
+    if (!o || typeof o !== "object" || Array.isArray(o)) return null;
+    const out = {};
+    for (const k of SHARE_FIELDS) out[k] = typeof o[k] === "string" ? o[k] : "";
+    if (!out.seed) out.seed = "1";
+    return out;
+  } catch { return null; }
+}
