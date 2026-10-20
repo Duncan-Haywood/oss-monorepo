@@ -2,6 +2,7 @@
   "about": "Evidence lenses the app loads. One entry per model bundle in this directory (test-vector files excluded); tests/lenses.test.mjs fails if a bundle is missing here. 'adapter' says which form mapping scores it (see FORM_ADAPTERS in couple.js); a lens without one is listed with its population, target and skill but gives no number.",
   "lenses": [
     {"file": "nlsy79_couples.json", "label": "NLSY79 married couples (U.S., born 1957–64, observed 2000–2022)", "adapter": "nlsy79_couples"},
+    {"file": "nlsy79_individuals.json", "label": "NLSY79 married individuals, each partner's own traits (U.S., born 1957–64, observed 2000–2022)"},
     {"file": "nsfg2002_first_marriage.json", "label": "NSFG 2002 women's first marriages (U.S., weddings 1972–2002, from the wedding day)"},
     {"file": "fair_redbook1974.json", "label": "Fair's Redbook survey: affairs reported by 6,366 married women (U.S., 1974; not divorce)"},
     {"file": "fair_pt1969.json", "label": "Fair's Psychology Today survey: affairs reported by 601 married men and women (U.S., 1969; not divorce)"}

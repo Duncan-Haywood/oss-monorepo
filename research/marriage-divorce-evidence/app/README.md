@@ -58,6 +58,40 @@ Five-fold respondent-held-out Poisson deviance on 40,818 intervals, 5,735 respon
 divorces (`../reproducibility/ml_couples/heldout_model_comparison.csv`). The gains are
 small: most of what predicts divorce is not in these data.
 
+## Second lens: individual-level NLSY79 models (engine and layer ready; UI wiring next)
+
+`tools/export_nlsy79_individuals.py` exports the eight saved pipelines in
+`../reproducibility/ml_individuals/` (four models × two populations) to
+`models/nlsy79_individuals.json`, with each model's held-out deviance gain, its paired
+person-bootstrap 95% interval and its five-group calibration table. These models score one
+married person from their own traits (age, age at first marriage, sex, degree, work hours,
+family-income quartile, religious attendance reported in 2000); the spouse's traits are not
+inputs. `individuals.js` maps the same profile fields `couple.js` uses, scores both partners,
+averages the two rates, and gives exact explanations (additive contributions, or the tree
+path in years plus the leaf's training support) and what-if changes with model agreement.
+`engine.js` gained the one new transform these pipelines use, the imputer's missing-value
+indicator; `tests/individuals_engine.test.mjs` matches 640 of 640 Python predictions to
+10<sup>-9</sup>, including ages outside training (spline extrapolation), missing first-marriage
+ages and an unseen category.
+
+| Population | Model | Held-out deviance gain vs constant (95% CI) |
+| --- | --- | --- |
+| Currently married (5,899 people, 854 divorces) | Additive Poisson | 1.9% (1.2 to 2.7) |
+| | Spline additive Poisson | 1.9% (1.1 to 2.6) |
+| | Poisson tree, depth 2 | 0.7% (−0.1 to 1.4) |
+| | Poisson tree, depth 3 | 0.4% (−0.5 to 1.2) |
+| Including already separated (6,238 people, 1,463 divorces) | Additive Poisson | 12.6% (11.2 to 14.1) |
+| | Spline additive Poisson | 12.6% (11.2 to 14.1) |
+| | Poisson tree, depth 2 | 13.1% (11.3 to 14.9) |
+| | Poisson tree, depth 3 | 12.9% (11.1 to 14.8) |
+
+Five-fold respondent-held-out survey-weighted Poisson deviance
+(`../reproducibility/ml_individuals/heldout_metrics.csv`, `heldout_improvement.csv`; the
+interval resamples people over saved cross-fitted losses with folds held fixed). For couples
+who are not separated, the trees do not reliably beat a constant rate, and the additive
+models gain about 2%. The large gain in the second population comes from already being
+separated, which is part of a breakdown already under way, not a trait to choose a partner by.
+
 ## Run and test
 
 ```sh

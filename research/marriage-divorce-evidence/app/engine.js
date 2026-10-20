@@ -1,5 +1,5 @@
 // In-browser inference for the exported scikit-learn pipelines (no dependencies).
-// Reproduces SimpleImputer(median) -> [SplineTransformer] -> [StandardScaler] for numeric
+// Reproduces SimpleImputer(median[, add_indicator]) -> [SplineTransformer] -> [StandardScaler] for numeric
 // columns and OneHotEncoder(drop='first', handle_unknown='ignore') for categorical columns,
 // then a PoissonRegressor (log link), a binary LogisticRegression or a DecisionTreeRegressor.
 // tests/engine.test.mjs checks every model against predictions computed in Python.
@@ -69,13 +69,27 @@ export function prepare(model, row) {
   const values = [];
   const owners = [];
   const num = model.numeric;
-  num.columns.forEach((col, j) => {
+  // SimpleImputer: medians, then (add_indicator=True) a 0/1 "was missing" column for each
+  // input that had missing values in training. Splines and scaling act on all of them.
+  const base = [];
+  const baseOwners = [];
+  const missing = num.columns.map((col) => {
     const raw = row[col];
-    const x = raw === null || raw === undefined || Number.isNaN(raw) ? num.impute[j] : Number(raw);
+    return raw === null || raw === undefined || Number.isNaN(raw);
+  });
+  num.columns.forEach((col, j) => {
+    base.push(missing[j] ? num.impute[j] : Number(row[col]));
+    baseOwners.push(col);
+  });
+  for (const j of num.indicator || []) {
+    base.push(missing[j] ? 1 : 0);
+    baseOwners.push(num.columns[j]);
+  }
+  base.forEach((x, j) => {
     const feats = num.spline ? splineFeatures(num.spline, j, x) : [x];
     feats.forEach((v) => {
       values.push(v);
-      owners.push(col);
+      owners.push(baseOwners[j]);
     });
   });
   if (num.scale) {
@@ -133,6 +147,14 @@ export function contributions(model, row) {
   return { intercept: model.intercept, terms: out };
 }
 
+// A split on a standardized (not spline-expanded) numeric input, in the input's own units;
+// null for one-hot, indicator and spline features.
+export function rawThreshold(model, f, threshold) {
+  const num = model.numeric;
+  if (num.spline || f >= num.columns.length) return null;
+  return num.scale ? threshold * num.scale.scale[f] + num.scale.mean[f] : threshold;
+}
+
 export function explainTree(model, row) {
   if (model.kind !== 'tree') return null;
   const { values } = prepare(model, row);
@@ -140,9 +162,11 @@ export function explainTree(model, row) {
   return {
     rate: model.tree.value[node],
     leafSamples: model.tree.n_node_samples[node],
+    leaf: node,
     steps: path.map((p) => ({
       feature: model.feature_names[p.feature],
       threshold: p.threshold,
+      rawThreshold: rawThreshold(model, p.feature, p.threshold),
       left: p.left,
       value: values[p.feature],
     })),
