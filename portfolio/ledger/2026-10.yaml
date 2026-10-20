@@ -4127,3 +4127,17 @@ entries:
         listing (Apple, Spotify, YouTube, Podcast Index) waits on the owner: an itunes:owner email
         and a one-time submission. Listens unmeasured.
     mrr_end: 0
+  - venture: publish-kit
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Owner-requested agent-drivable publishing kit (PR #8726): zero-dependency CLI plus browser
+        page for podcast RSS feeds (iTunes + Podcasting 2.0, permanent guids, re-validated by
+        podcast-feed-check), Markdown to EPUB 3 (W3C EPUBCheck 5.1.0: 0 errors / 0 warnings),
+        print interior PDF via Chromium, KDP spine/cover size, ACX audiobook file checks, chaptered
+        M4B and a private serial feed. --json everywhere, `plan` returns the next command.
+        50 tests on synthetic media. Report docs/reports/2026-10-20-publish-kit.md; follow-ups in
+        ventures/publish-kit/NEXT.md (move hearth-and-horizon and the writing podcast onto it,
+        keeping their guids). Usage unmeasured.
+    mrr_end: 0

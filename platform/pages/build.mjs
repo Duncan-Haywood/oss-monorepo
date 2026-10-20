@@ -3676,6 +3676,8 @@ const CATEGORY_RULES = [
         'personal-trainer-package-pricing-calculator',
         'podcast-feed-check',
         'podcast-sponsorship-rate-calculator',
+        // `publish-kit` joined 2026-10-20 beside its sibling `podcast-feed-check`: a podcaster or author building their own feed, EPUB or audiobook is one creator publishing their own work (it had landed in the catch-all, tripping its bound of 5).
+        'publish-kit',
         // `youtube-sponsorship-rate-calculator` joined 2026-10-15 on its first commit: a creator pricing their own sponsored video is one person working out their own income.
         'youtube-sponsorship-rate-calculator',
         'sponsor-ready',
