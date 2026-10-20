@@ -55,13 +55,21 @@ jobs:
             echo "::group::$s"
             # shellcheck disable=SC2086
             node --test $files || { echo "FAILED $s"; rc=1; }
-            # PRODUCT_PLAYBOOK.md 5b: every published page carries a no-warranty
-            # clause. Run per touched venture so the one that needs it goes red
-            # before the merge (formerly a step in each <slug>-ci.yml).
-            node platform/pages/clauses.mjs "$s" || { echo "FAILED clauses $s"; rc=1; }
             echo "::endgroup::"
           done
           exit $rc
+      # PRODUCT_PLAYBOOK.md 5b/5f: every published page carries the no-warranty
+      # clause, and a vs-<competitor> page the not-affiliated one. Runs for
+      # every venture the change touched, tests or not, so the PR that breaks a
+      # page goes red before the merge, names the venture, and annotates the
+      # file in its diff. This replaced a step copied into 281 <slug>-ci.yml
+      # files (docs/history/venture-clause-check-2026-10-20.md); the
+      # unscoped run in portfolio-validate.yml is the portfolio-wide backstop.
+      - name: Published pages carry the no-warranty clause (each touched venture)
+        if: ${{ !cancelled() }}
+        env:
+          BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: node platform/pages/clauses.mjs --changed-since "$BASE"
       - name: tsc over each touched venture's // @ts-check files
         env:
           BASE: ${{ github.event.pull_request.base.sha || github.event.before }}

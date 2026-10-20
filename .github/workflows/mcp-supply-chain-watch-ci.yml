@@ -55,9 +55,3 @@ jobs:
         with:
           node-version: "22"
       - run: node --test
-      # PRODUCT_PLAYBOOK.md 5b requires a no-warranty clause on every published
-      # page. Checked here so this venture goes red on its own PR, not on the
-      # Pages job after the merge.
-      - name: Published pages carry the no-warranty clause
-        working-directory: .
-        run: node platform/pages/clauses.mjs mcp-supply-chain-watch
