@@ -22,7 +22,9 @@ node --test platform/deploy/*.test.mjs
 node --test platform/distribution/*.test.mjs
 node --test platform/llm/*.test.mjs
 node --test platform/devstats/*.test.mjs
+node --test platform/daily/*.test.mjs
 node --test platform/counter/*.test.mjs
+node --test platform/edge/*.test.mjs           # the site's feedback/counts Worker (platform/edge)
 node --test platform/uitest/*.test.mjs        # browser half skips unless PLAYWRIGHT=/opt/node-tools/node_modules/playwright/index.js
 node --test 'ventures/<slug>/**/*.test.mjs'   # quote it: 21 ventures keep suites in a subdirectory
 node --test research/marriage-divorce-evidence/app/tests/*.test.mjs
@@ -131,23 +133,29 @@ in the environment, add `--goal "<what a user comes to do>"` and an agent
 works through the page and judges the result. In the PR, say what it
 printed.
 
-**After you merge a change that touches a served surface, refresh the
-published snapshot:**
+**After you merge a change that touches a served surface:** nothing to do.
+`.github/workflows/portfolio-pages.yml` builds and deploys the site on the
+merge (gated on the owner's `PAGES_ENABLED`). The old `gh-pages` branch is no
+longer served, so do not run `publish-branch.sh` by hand.
 
-```
-python3 platform/ci/pages_state.py --require-current   # exits 1 if it is stale
-CONFIRM=publish-pages-branch PUSH=1 ./platform/pages/publish-branch.sh
-python3 platform/ci/pages_state.py --require-current   # and 0 once you have
-python3 platform/ci/pages_state.py --record            # commit only on a branch that ships work (land-your-work.md, step 7)
-python3 platform/ci/indexnow_state.py                  # and: was any of it announced?
-```
+## Reading CI (moved from `CLAUDE.md`, 2026-10-20)
 
-The `gh-pages` branch is a committed artifact, and nothing rebuilds it when
-`main` moves. `publish-pages-branch.yml` does it automatically only once the
-owner sets `PAGES_BRANCH_PUBLISH=true` (process backlog P005). If the
-publish refuses with "publishing backwards", another session published
-first: run `git fetch origin main && git reset --hard origin/main` and
-rerun. Never use `ALLOW_REGRESSION=1` except for a deliberate rollback.
-`--record` keeps `decision_queue.py` from printing a false OUTAGE banner
-once a reading is more than three days old. Do not widen the ageing rule to
-silence the banner.
+- **Absent CI is not failed CI, and red is not always real.** Agent PRs
+  authenticate with a PAT and do trigger workflows, so a blank check list is
+  something to verify, not the default.
+- **Classify before you debug:** `python3 platform/ci/ci_starvation.py --run
+  <run_id>` (or a job id, or `--from-json <file>`; it needs no `gh`). It
+  votes only on `runner_id`, because a starved job has `runner_id: 0` and
+  no steps. Exit 0: every job got a runner, so a failure is real and yours.
+  Exit 1: starved, so verify locally and say what you ran. Exit 2: the run
+  cannot answer. GitHub's managed `pages build and deployment` runs through
+  starvation and says nothing about Actions, so classify a `.github/`
+  workflow run.
+- **Starvation cycles** with the metered Actions allowance (it lifted on the
+  1st of the month in September). Its sub-cause cannot be known from a
+  session, and the run-timing API's `total_ms` of 0 is not a measurement.
+  `CI_RUNNER=self-hosted` needed the retired cluster, so it is not a
+  fallback now.
+- **Use check runs, not statuses.** `/commits/<sha>/status` and the MCP
+  `get_status` show only legacy statuses and report 0 on a PR with red check
+  runs. Use `/commits/<sha>/check-runs` or the PR's checks tab.

@@ -1,0 +1,45 @@
+{
+  "date": "2026-10-20",
+  "session": "https://claude.ai/code/session_016Qk6qGi4yXkPv9dCHpX1u5",
+  "track": "ventures",
+  "prompt_version": 0,
+  "input": "scheduled: continue revenue-product work",
+  "input_sha256": "933f619f23e002a1e6471c5855af5f62ef9bb1eb442678c0e03e16c83b5a8378",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-20T09:58:35Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 1): einvoice-preflight Peppol BIS 3 CII add-on",
+  "projects": [
+    "einvoice-preflight"
+  ],
+  "pr": 8775,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "The router drew the research track, but the scheduled prompt asked for revenue-generating products, so I did venture work on the top flagship."
+    }
+  ],
+  "goal": null,
+  "notes": "Added peppol-cii.sef.json (OpenPEPPOL PEPPOL-EN16931-CII.sch) to build-schematron.mjs and the add-on table; the rule-coverage test found PEPPOL-EN16931-R006 without an English fix, added it. New test checks the CII add-on runs on a Peppol BT-24 and flags a missing buyer reference (R003). Ran locally: node --test in ventures/einvoice-preflight, 311 pass, 0 fail, after a real build-schematron.mjs (all six SEF files built). Not done: showing official findings on the web page.",
+  "corrections": [],
+  "redteam": null
+}

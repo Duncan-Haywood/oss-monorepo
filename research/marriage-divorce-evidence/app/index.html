@@ -65,6 +65,12 @@
 </form>
 <p class="share"><button type="button" id="share">Copy link to this scenario</button> <span id="shareStatus" role="status"></span><small>The profiles are stored only in the link’s <code>#</code> fragment, which browsers do not send to any server. Anyone you share the link with sees them.</small></p>
 
+<section id="datingBox" class="summary" aria-labelledby="datingHead">
+  <h2 id="datingHead">Not engaged yet? Will you marry each other, or break up first?</h2>
+  <p class="sub">For a couple who are dating or living together: from your ratings of the relationship, how long you have been together, living together, your parents’ view, how you met, ages and schooling. It answers a different question from the lenses below: whether this relationship becomes a marriage at all. Associations in one survey, not a forecast.</p>
+  <div id="datingOut" aria-live="polite"></div>
+</section>
+
 <section id="summaryBox" class="summary" aria-labelledby="summaryHead">
   <h2 id="summaryHead">Summary across lenses</h2>
   <p class="sub">Every lens that can score this couple, at the horizons its own data support: the chance of a break-up with the range across its models, where you sit in its surveyed population, how well it predicted people it never saw, and how well you fit its data. The outcomes differ, so the numbers are never averaged together.</p>
@@ -253,6 +259,8 @@
   </details>
 </section>
 
+<!-- In-browser training panel: all of its code is in train/; this section and the train/panel.js script tag are its only hooks. -->
+<section id="trainPanel" class="train" aria-labelledby="trainHead"></section>
 <section class="limits">
   <h2>How it works and what it cannot tell you</h2>
   <ul>
@@ -273,5 +281,6 @@
 </main>
 <div id="tip" class="tip" role="tooltip" hidden></div>
 <script type="module" src="app.js"></script>
+<script type="module" src="train/panel.js"></script>
 </body>
 </html>
