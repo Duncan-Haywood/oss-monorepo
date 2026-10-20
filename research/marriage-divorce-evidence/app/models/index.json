@@ -9,6 +9,7 @@
     {"file": "gss_panel_marriages.json", "label": "GSS panels 2006–2020: married adults, divorced or separated 2 years later (U.S., prospective; includes marriage happiness)"},
     {"file": "hcmst_couples.json", "label": "HCMST couples, married and unmarried, incl. same-sex (U.S., 2009–2017; break-up per follow-up period)"},
     {"file": "newlywed_la_couples.json", "label": "Los Angeles newlyweds: observed conflict, satisfaction and divorce over 12 years (368 couples, 2009–2022)"},
+    {"file": "canada_gss_first_marriage.json", "label": "Statistics Canada GSS Families 1995–2017: first marriages from the wedding, one partner's report (Canada, weddings 1951–2016; separation or divorce)"},
     {"file": "fair_redbook1974.json", "label": "Fair's Redbook survey: affairs reported by 6,366 married women (U.S., 1974; not divorce)"},
     {"file": "fair_pt1969.json", "label": "Fair's Psychology Today survey: affairs reported by 601 married men and women (U.S., 1969; not divorce)"}
   ]
