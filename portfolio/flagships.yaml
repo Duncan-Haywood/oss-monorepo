@@ -24,11 +24,12 @@ flagships:
       XRechnung, Peppol profiles) with a self-hosted API, Docker and Render
       deploy, ~48 test files, and a regulatory tailwind (EU e-invoicing mandates).
     next: >-
-      The official base EN 16931 Schematron now runs in Saxon-JS (opt-in,
-      ?schematron=1, schematron-cli.mjs) with plain-language fixes. Next: add
-      the XRechnung and Peppol BIS add-on Schematron the same way, bake the SEF
-      files into the Docker image and Render deploy, and show the official
-      findings on the web page.
+      The official EN 16931 Schematron plus the XRechnung (UBL, CII) and Peppol
+      BIS 3 (UBL) add-ons now run in Saxon-JS (opt-in, ?schematron=1, picked by
+      BT-24) and the Docker image bakes them in. Next: show the official findings
+      on the web page (index.html, needs a server or WASM path since Saxon-JS
+      runs in Node here), add a CII XRechnung example with a test, and English
+      fixes for more BR-DE and PEPPOL rules.
   - venture: shift-roster-builder
     why: >-
       Simulated-annealing scheduler over a dollar cost (availability, rest,
