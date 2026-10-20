@@ -346,6 +346,20 @@ find such engines: "Research algorithms as tools" above. The posts:
 and
 [`docs/posts/2026-10-20-if-its-a-calculator-make-it-hard.md`](../docs/posts/2026-10-20-if-its-a-calculator-make-it-hard.md).
 
+## Direction: Rust where it is essential
+
+Set by the owner on 2026-10-20: "I want to do more projects in rust go java
+or similar more heavy duty languages. things that require it. not just
+because of arbitrary reasons, but for projects where it's actually
+essential", narrowed to "specifically rust."
+
+So prefer projects whose heavy core needs Rust: our own inner loop is the
+measured bottleneck, there is no room for a runtime (firmware, real-time
+control), or one engine must ship to WASM, CLI, Python and crates.io. Never
+port light work or a wrapper around an existing C library. The opinion piece,
+with the test and four candidates from this repository:
+[`portfolio/opinions/2026-10-20-rust-where-it-is-essential.md`](../portfolio/opinions/2026-10-20-rust-where-it-is-essential.md).
+
 ## Direction: files first, not the GitHub API
 
 Set by the owner on 2026-10-20: "lets make a rule of thumb that things should
