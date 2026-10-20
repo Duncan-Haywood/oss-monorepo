@@ -256,6 +256,8 @@ def main():
                 ext += external(a, data[a], b, data[b], kinds)
                 print('  external', a, '->', b, flush=True)
     ext = pd.DataFrame(ext)
+    if ext.empty:
+        return
     ext.to_csv(HERE / 'external_validation.csv', index=False, float_format='%.5g')
     print(ext.drop(columns='features').round(4).to_string(index=False))
     (HERE / 'run_audit.json').write_text(json.dumps(dict(sklearn=sklearn.__version__, seed=SEED, max_years=MAX_YEARS,
