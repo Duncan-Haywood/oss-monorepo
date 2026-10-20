@@ -343,6 +343,19 @@ test('PELT agrees with an independent implementation (ruptures) on 100 seeded ca
   }
 });
 
+test('Poisson PELT agrees with an independent implementation (ruptures + scipy cost) on 90 seeded cases', () => {
+  // data/poisson-crosscheck.json: ruptures' Pelt with a custom cost built from
+  // scipy.stats.poisson.logpmf at each segment's maximum-likelihood rate;
+  // data/make_poisson_fixture.py regenerates it.
+  const fixture = JSON.parse(readFileSync(new URL('./data/poisson-crosscheck.json', import.meta.url), 'utf8'));
+  assert.equal(fixture.cases.length, 90);
+  assert.ok(fixture.cases.filter((c) => c.changepoints.length > 0).length >= 40);
+  for (const c of fixture.cases) {
+    const got = pelt(c.values, { model: 'poisson', penalty: c.penalty, minSegment: c.minSegment });
+    assert.deepEqual(got.changepoints, c.changepoints, `poisson penalty ${c.penalty} n=${c.values.length}`);
+  }
+});
+
 test('seasonal drift: a cycle whose amplitude triples leaves far fewer false changes, and a real shift is still found', () => {
   let fixedN = 0, driftN = 0, found = 0, foundFixed = 0, exact = 0;
   const N = 40;
