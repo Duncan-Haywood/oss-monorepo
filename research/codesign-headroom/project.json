@@ -1,0 +1,5 @@
+{
+ "theme": "codesign",
+ "title": "Does diagnostic feedback help a gripper design loop once the task has headroom?",
+ "summary": "Re-runs the <code>codesign-diagnose</code> ablation after fixing the scene generator that <code>codesign-ceiling</code> blamed for the 0.85 plateau (hand height capped at the object&rsquo;s centre). Three rule-based readers (score only, failure summary, full rollout logs) and random search, CMA-ES and Bayesian optimisation, 8 seeds &times; 40 designs in MuJoCo. Every method gains only 0.00&ndash;0.05 (median best test success 0.85&ndash;0.90) and the ranking is not resolved at 40 test scenes (standard error about 0.05); feedback still does not beat blind search, and the best designs still lose 0.05&ndash;0.06 on fresh scenes. Stylised; readers are rules, not an LLM."
+}
