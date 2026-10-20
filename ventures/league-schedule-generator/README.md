@@ -176,4 +176,11 @@ rounds left go first, so they finish together) and which match gets which court 
   are free and a court is open (skip dates and court closures respected), taking a slot where no linked team plays at the same
   time when one exists; nothing else moves, a refusal says why and leaves the match where it was, and the result is re-validated.
   Tested on the example league for a team, a division, a night, a named date and bad lines (`divisions.test.mjs`).
+- **Venue fairness across seasons.** `venueFairness: true` (form field `venueFairness`) also weighs how often each team has played at each venue,
+  so the team that had the far venue all autumn gets the near one next time. `node divisions.mjs spec.json --history` prints each team's
+  matches per venue; paste that JSON into next season's `venueHistory` field and the new season starts from it (`carryVenueHistory`,
+  `venueImbalance`; stats gain `venueImbalance`, the mean gap between a team's most- and least-played venue). Measured on the example
+  league over 3 seasons, 8 seeds, cumulative imbalance: 5.83 matches with it off, 3.11 with fairness inside each season only, 1.29 with
+  history carried (`divisions.test.mjs`). The cost is travel: 1,028 venue changes against 1,218 and 1,212 over the same runs. Off by default, and
+  the schedule is byte-identical to before when it is off. Not on the browser page yet (CLI and spec JSON only).
 - **Not done yet.** Rounds are placed whole, so a night with 1 spare slot stays partly empty.

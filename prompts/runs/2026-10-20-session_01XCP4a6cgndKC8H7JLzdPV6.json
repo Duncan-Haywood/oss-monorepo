@@ -1,0 +1,45 @@
+{
+  "date": "2026-10-20",
+  "session": "https://claude.ai/code/session_01XCP4a6cgndKC8H7JLzdPV6",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-20T21:20:44Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship 6 (league-schedule-generator): venue fairness with multi-season carry-over",
+  "projects": [
+    "league-schedule-generator"
+  ],
+  "pr": 8937,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "next: text is hard-wrapped, so grepping for the sentence quoted by allocate.py missed; had to read the lines."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "divisions.test.mjs 29/29, page.test.mjs+calc.test.mjs 213/213 run locally. Measured: 3-season venue imbalance 5.83 (off) / 3.11 (season) / 1.29 (carry), venue changes 1028/1218/1212. Not on the browser page yet. runcost attach not run.",
+  "corrections": [],
+  "redteam": null
+}

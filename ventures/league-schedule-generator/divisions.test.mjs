@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { parseDivisions, parseDivisionLinks, buildDivisions, applyDivisionRainouts, validateDivisions, linkConflicts, divisionsCsv, divisionsText, readDivisionsSpec, parseTravel, divisionStats } from "./divisions.mjs";
+import { parseDivisions, parseDivisionLinks, buildDivisions, applyDivisionRainouts, validateDivisions, linkConflicts, divisionsCsv, divisionsText, readDivisionsSpec, parseTravel, divisionStats, carryVenueHistory, venueImbalance } from "./divisions.mjs";
 import { parseDate, dayIso } from "./calc.mjs";
 
 const example = JSON.parse(readFileSync(new URL("./example-divisions.json", import.meta.url), "utf8"));
@@ -306,4 +306,35 @@ test("linked teams in back-to-back slots are not sent to different venues when a
     const gap = Math.abs(slots.indexOf(x.time) - slots.indexOf(y.time));
     assert.ok(!(gap === 1 && x.venue !== y.venue), `seed ${seed}: ${x.time} ${x.venue} then ${y.time} ${y.venue}`);
   }
+});
+
+test("venue fairness carries across seasons: three seasons end more even than within-season fairness or none (8 seeds)", () => {
+  const sums = { off: 0, season: 0, carry: 0 };
+  for (let seed = 1; seed <= 8; seed++) {
+    for (const mode of Object.keys(sums)) {
+      let hist = {};
+      const all = {};
+      for (let y = 0; y < 3; y++) {
+        const s = build({ seed: seed * 10 + y, venueFairness: mode !== "off", venueHistory: mode === "carry" ? hist : undefined });
+        assert.ok(validateDivisions(s).ok);
+        const one = carryVenueHistory({ ...s, config: { ...s.config, venueHistory: {} } });
+        for (const k of Object.keys(one)) { all[k] ||= {}; for (const v of Object.keys(one[k])) all[k][v] = (all[k][v] || 0) + one[k][v]; }
+        hist = carryVenueHistory(s);
+      }
+      sums[mode] += venueImbalance(all) / 8;
+    }
+  }
+  assert.ok(sums.season < sums.off, `season ${sums.season} vs off ${sums.off}`);
+  assert.ok(sums.carry < sums.season, `carry ${sums.carry} vs season ${sums.season}`);
+});
+
+test("fairness off leaves the schedule untouched; history counts add up and a bad history is named", () => {
+  const a = build({ seed: 3 }), b = build({ seed: 3, venueFairness: false });
+  assert.deepEqual(a.nights, b.nights);
+  assert.equal(a.stats.venueImbalance, undefined);
+  const h = carryVenueHistory(build({ seed: 3, venueFairness: true }));
+  const played = Object.values(h).reduce((n, o) => n + Object.values(o).reduce((x, y) => x + y, 0), 0);
+  assert.equal(played, 2 * build({ seed: 3 }).stats.matches);
+  assert.ok(readDivisionsSpec({ ...example, venueHistory: "{nope" }).errors.some((e) => /Venue history/.test(e)));
+  assert.deepEqual(readDivisionsSpec({ ...example, venueHistory: JSON.stringify(h), venueFairness: "yes" }).errors, []);
 });
