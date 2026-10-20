@@ -32,6 +32,7 @@ import { decodeEntities } from './entities.mjs';
 import { REFS as CHANNEL_REFS, SOURCE_HOSTS, SOURCE_LABELS, sourceOf } from '../counter/counter.mjs';
 import { buildEngineeringPage, ENGINEERING_PATH, REPO_URL } from './engineering.mjs';
 import { buildWriting, WRITING_PATH } from './writing.mjs';
+import { buildLab } from './lab.mjs';
 import { buildUpdates, CHANGELOG_PATH, UPDATES_PATH } from './updates.mjs';
 import { audienceGroups, audiencePageId, audiencesFor } from './audiences.mjs';
 import {
@@ -10479,6 +10480,10 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
   // Essays and write-ups from `docs/posts/` (see `writing.mjs`). Indexed, so
   // each post is listed in the hub sitemap below.
   const posts = await buildWriting(outDir, base, { socialCard: `${base}${SOCIAL_CARD_FILE}` });
+
+  // The lab (see `lab.mjs`): contained, `noindex` experiments in what the
+  // site can be. Its handoff page reads catalog.json in the browser.
+  await buildLab(outDir);
 
   // The open book (see `updates.mjs`): what shipped, what is in progress, the
   // owner's direction and the process, plus the changelog of every merge.
