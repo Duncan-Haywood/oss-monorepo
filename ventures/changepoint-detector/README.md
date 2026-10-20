@@ -102,6 +102,16 @@ series, 40 each, in `engine.test.mjs`):
   detected within 10 points in 25 of 40 runs (40 of 40 uncorrected, which
   also fires on every no-change series), because prewhitening shrinks a
   persistent shift by (1 - rho).
+- **Joint fit (`--ar1 joint`).** Instead of widening the noise scale, PELT runs on the
+  exact Gaussian AR(1) likelihood (each segment's first point stationary, its mean fitted
+  in closed form from prefix sums), and rho and the innovation sd are re-estimated from the
+  residuals about the fitted segment means, three passes in all. Same 40 series: false
+  changes on the 300-point no-change series 4 of 40 (the same as the long-run scale), and a
+  shift of 4 found exactly once within 10 points in 34 of 40 runs against 28 of 40 for the
+  long-run scale (shift 8: 34 against 35, no gain). A first version with rho taken once from
+  the differences gave 7 of 40 false runs; with rho known the figure is 2 of 40, so the
+  residual re-estimate is what keeps it honest. PELT on this cost equals optimal
+  partitioning (tested). The Bayesian pass still runs on the prewhitened series.
 - **Seasonality.** A level shift of 4 under a sine of amplitude 10 (period 12,
   144 points) gave exactly one change in 0 of 40 runs without adjustment and
   exactly one change within 1 point of the truth in 33 of 40 with `--period 12`

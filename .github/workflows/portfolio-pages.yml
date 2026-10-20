@@ -113,8 +113,8 @@ jobs:
         with:
           node-version: "22"
 
-      # "Build the daily brief" runs decision_queue.py, so this job needs
-      # Python of its own (gitops/tests/test_ci_runner.py).
+      # The build step runs portfolio/ledger/decision_queue.py; pin the
+      # interpreter rather than rely on the runner image having python3.
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
