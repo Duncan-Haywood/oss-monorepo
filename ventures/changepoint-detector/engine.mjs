@@ -145,6 +145,15 @@ export function longRunSd(sd, rho) {
   return sd * Math.sqrt(1 + rho) / (1 - rho);
 }
 
+/**
+ * AR(1) prewhitening: y[t] = x[t] - rho x[t-1] (y[0] = (1 - rho) x[0]). Independent noise
+ * stays independent for the Bayesian pass, and a level shift of d becomes d at the
+ * change point and d (1 - rho) after it. The change keeps its index.
+ */
+export function prewhiten(x, rho) {
+  return x.map((v, t) => (t ? v - rho * x[t - 1] : (1 - rho) * v));
+}
+
 // ---------------------------------------------------------------- input
 
 /** Split one CSV line, honouring double quotes. */
@@ -583,7 +592,7 @@ export function analyze(input = {}) {
     const s = stats(values.slice(bounds[i], bounds[i + 1]));
     segments.push({ start: bounds[i], end: bounds[i + 1] - 1, from: labels[bounds[i]], to: labels[bounds[i + 1] - 1], n: s.n, mean: round(s.mean), sd: round(s.sd) });
   }
-  const b = bocpd(values, { hazardLambda: Number(o.hazardLambda) || 100, lag: Math.max(1, Math.floor(Number(o.lag) || 5)), model });
+  const b = bocpd(rho ? prewhiten(values, rho) : values, { hazardLambda: Number(o.hazardLambda) || 100, lag: Math.max(1, Math.floor(Number(o.lag) || 5)), model });
   const det = peaks(b.changeProb, Number(o.threshold) || 0.5);
   const changes = p.changepoints.map((i, k) => {
     const before = segments[k];
