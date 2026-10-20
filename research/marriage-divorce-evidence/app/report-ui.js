@@ -4,6 +4,7 @@
 import { profileReport, mixAcrossLenses, inHundred, aboveBelow } from './report.js';
 import { fmtYears } from './couple.js';
 import { shortName } from './summary.js';
+import { renderSatisfaction } from './satisfaction.js';
 
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 const fmtN = (x) => Math.round(x).toLocaleString('en-US');
@@ -16,6 +17,22 @@ const pctl = (s) => {
   return 'p' + (s.percentile < 10 ? s.percentile.toFixed(1) : Math.round(s.percentile));
 };
 
+let satData = null;
+let satLoad = null;
+let satGroup = 'All';
+function drawSatisfaction(couple) {
+  const el = document.getElementById('satOut');
+  if (!el) return;
+  if (!satLoad) {
+    satLoad = fetch('data/satisfaction_by_duration.json').then((r) => (r.ok ? r.json() : null)).catch(() => null)
+      .then((d) => { satData = d; drawSatisfaction(couple); });
+    return;
+  }
+  if (!satData) { el.innerHTML = '<p class="note">Loading the satisfaction data…</p>'; return; }
+  const ym = Number(couple.yearsMarried);
+  renderSatisfaction(el, satData, { group: satGroup, yearsMarried: ym > 0 ? ym : null });
+  el.querySelector('#satGroup')?.addEventListener('change', (ev) => { satGroup = ev.target.value; drawSatisfaction(couple); });
+}
 let timer = null;
 let lastKey = '';
 let evidence = null;
@@ -63,7 +80,11 @@ function draw({ el, lens, lenses, a, b, couple }) {
     </div>
     <h3>Every lens with a partner distribution</h3>
     <p class="sub">Each lens’s own number, never pooled: “dating everyone” against “partners people like you marry”, for each of you.</p>
-    ${acrossTable(lenses, a, b, couple)}`;
+    ${acrossTable(lenses, a, b, couple)}
+    <h3>Marital satisfaction at different numbers of years married</h3>
+    <p class="sub">What surveyed married people said about their marriage at each length of marriage. Not a prediction for your marriage, and not from the lens above.</p>
+    <div id="satOut" aria-live="polite"></div>`;
+  drawSatisfaction(couple);
 }
 
 function bar(risk, lo, hi, max) {
@@ -129,7 +150,7 @@ function factorBlock(p) {
   if (!p.factors.length) return '<h4>Which factors matter most</h4><p class="small">This lens has no partner traits or changes to vary for this profile.</p>';
   const max = Math.max(0.005, ...p.factors.map((f) => f.spread));
   const rows = p.factors.map((f) => `<tr><th scope="row">${esc(f.label)}<small>${f.kind === 'partner' ? 'partner trait' : 'your side'} · ${esc(f.changeable)}</small></th>
-    <td class="num">${pts(f.spread)}<small>points</small></td><td><span class="rep-imp" style="width:${(100 * f.spread) / max}%"></span></td>
+    <td class="num">${pts(f.spread)}<small>points</small></td><td class="rep-impcell"><span class="rep-imp" style="width:${(100 * f.spread) / max}%"></span></td>
     <td>${f.spread < 0.0005 ? '<small>no difference in this lens</small>' : `${esc(f.best)}${f.kind === 'partner' ? ` <small>${n100(f.bestRisk)} vs ${n100(f.worstRisk)} at ${esc(f.worst)}</small>` : ''}`}</td><td>${gradeText(f.grade)}</td></tr>`).join('');
   return `<h4>Which factors matter most, for this profile</h4>
     <p class="small">Each row varies one thing across its levels, holding everything else as entered; the size is the gap between its highest- and lowest-risk level, in break-ups per 100. Evidence is the strongest study design behind that factor (reproducibility/decision_evidence/FACTORS.md).</p>
@@ -137,7 +158,7 @@ function factorBlock(p) {
 }
 
 function changesBlock(p) {
-  const items = p.changes || [];
+  const items = (p.changes || []).filter((c) => c.riskDrop >= 0.0005);
   const head = '<h4>The changes with the biggest predicted drop</h4>';
   if (!items.length) return `${head}<p class="small">No change this lens models lowers the predicted risk for this profile (its other inputs are history and background).</p>`;
   const list = items.map((c) => `<li>${esc(c.label)}: <b>${inHundred(c.riskDrop) ? `${inHundred(c.riskDrop)} fewer in 100` : 'under 1 in 100'}</b> <small>models ${pts(c.lo)}–${pts(c.hi)} points; ${c.agree} of ${c.models} agree${c.unchanged ? `; ${c.unchanged} do not move` : ''} · ${esc(c.changeability)} · ${c.grade ? `${esc(c.grade.designLabel)}${c.grade.causal ? '' : ', so an association, not a shown cause'}` : 'no graded evidence, an association'}</small></li>`).join('');
