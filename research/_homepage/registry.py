@@ -20,7 +20,7 @@ def load(research=None):
     """projects.json as a dict, with every research/<slug>/project.json card merged in."""
     research = Path(research) if research else HERE.parent
     data = json.loads((research / "_homepage" / "projects.json").read_text())
-    themes = {t["id"]: t for t in data["themes"]}
+    themes = {t.get("id"): t for t in data["themes"]}
     listed = {p["slug"] for t in data["themes"] for p in t["projects"]}
     data["registry_errors"] = errors = []
     for f in sorted(research.glob("*/project.json")):

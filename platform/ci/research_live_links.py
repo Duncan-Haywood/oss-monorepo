@@ -64,7 +64,7 @@ def with_topics(text, block):
 
 
 def load_registry(root):
-    sys.path.insert(0, str(root / "research" / "_homepage"))
+    sys.path.insert(0, str(ROOT / "research" / "_homepage"))
     import registry
     return registry.load(root / "research")
 

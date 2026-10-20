@@ -42,7 +42,7 @@ def research_titles(root):
     f = root / "research" / "_homepage" / "projects.json"
     if not f.exists():
         return {}
-    sys.path.insert(0, str(root / "research" / "_homepage"))
+    sys.path.insert(0, str(ROOT / "research" / "_homepage"))
     import registry
     data = registry.load(root / "research")
     return {p["slug"]: " ".join(html.unescape(re.sub(r"<[^>]+>", "", p["title"])).split())
