@@ -1,16 +1,24 @@
 #!/bin/sh
 # NSFG 2002 (Cycle 6) female respondent public-use file and its Stata dictionary.
-# The official host (ftp.cdc.gov/pub/Health_Statistics/NCHS/Datasets/NSFG/) was blocked from
-# the cloud session that built this; these are byte copies kept by Allen Downey for Think Stats
-# (MIT-licensed code repository; the data remain NCHS public-use data). Checksums below were
-# recorded on 2026-10-19; METHODS.md says how the copy was checked against official counts.
-# The official equivalents are 2002FemResp.dat and stata/2002FemResp.dct under the NCHS path.
+# Preferred: the official NCHS copies at ftp.cdc.gov (reachable from cloud sessions since
+# 2026-10-20). Fallback: the byte copies Allen Downey keeps for Think Stats (MIT-licensed code
+# repository; the data remain NCHS public-use data), used when CDC was blocked on 2026-10-19.
+# On 2026-10-20 the official 2002FemResp.dat had SHA-256 d63bc948..., identical to the
+# decompressed mirror 2002FemResp.dat.gz, and the official stata/2002FemResp.dct was
+# byte-identical to the mirror's. SHA256SUMS records all three files; train_models.py reads
+# whichever data file is present.
 set -eu
 cd "$(dirname "$0")"
 mkdir -p raw
-base='https://raw.githubusercontent.com/AllenDowney/ThinkStats2/master/code'
-for f in 2002FemResp.dat.gz 2002FemResp.dct; do
-  [ -f "raw/$f" ] || curl --fail -sSL "$base/$f" -o "raw/$f"
-done
+cdc='https://ftp.cdc.gov/pub/Health_Statistics/NCHS/Datasets/NSFG'
+mirror='https://raw.githubusercontent.com/AllenDowney/ThinkStats2/master/code'
+if [ ! -f raw/2002FemResp.dat ] && [ ! -f raw/2002FemResp.dat.gz ]; then
+  curl --fail -sSL "$cdc/2002FemResp.dat" -o raw/2002FemResp.dat \
+    || { rm -f raw/2002FemResp.dat; curl --fail -sSL "$mirror/2002FemResp.dat.gz" -o raw/2002FemResp.dat.gz; }
+fi
+if [ ! -f raw/2002FemResp.dct ]; then
+  curl --fail -sSL "$cdc/stata/2002FemResp.dct" -o raw/2002FemResp.dct \
+    || curl --fail -sSL "$mirror/2002FemResp.dct" -o raw/2002FemResp.dct
+fi
 cd raw
-sha256sum -c ../SHA256SUMS
+sha256sum -c --ignore-missing ../SHA256SUMS

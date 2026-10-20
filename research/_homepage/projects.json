@@ -3302,6 +3302,11 @@
      "summary": "Joins 660 run records that have a start time (1 to 19 October 2026) to how many other runs started within 5, 10 or 30 minutes. Raw, crowded starts look better (error recorded in 9.8% against 21.0%), but that is a day effect: 13 to 15 October had 47&ndash;50% error records and few concurrent starts, 16 October on 6&ndash;9% and many. Shuffling the crowded label within calendar days finds no detectable difference (12 tests, one p&nbsp;=&nbsp;0.018 on a 50-run group, not counted), and six-hour blocks of the day show nothing. Preliminary and low power: association only, <code>errors</code> is self-reported, and duplicate work, the cost <code>swe-schedule</code> models, is not in the records."
     },
     {
+     "slug": "swe-reviewdup",
+     "title": "Do parallel review sessions duplicate each other?",
+     "summary": "Reads the 35 review-track pull requests merged on <code>main</code> from 14 to 19 October 2026 and groups those merged within 10 minutes of each other. Six are the second member of a pair (17.1%, Wilson 8.1&ndash;32.7%; 22.9% at a 30-minute window), all merged 0.4 to 2.5 minutes apart, so they are sessions that started together. None of the extra pull requests was record-only, but in five of six pairs both edited <code>prompts/derived/runs.json</code> or <code>prompts/experiments.md</code>, so the later merge resolved a conflict. Only 3 of 35 review PRs have a priced run record, so the cost of the duplication is not measured. Descriptive and preliminary: six days, merge time stands in for start time."
+    },
+    {
      "slug": "swe-reccover",
      "title": "Do the agent run records match git? Does every landed session leave one?",
      "summary": "Checks the run records against the commit history on main. All 522 records that name a pull request in this repository name one that landed (Wilson 95% 99.3&ndash;100%). But only 79.8% of sessions that landed commits from 13 October have a record (1,465 of 1,836; 77.9&ndash;81.6%): 89.8% of sessions that followed the master prompt, 4.2% of those that did not, and by track research 92.2%, process 93.2%, red team 100% and ventures 79.2% (75.5&ndash;82.5%). Coverage rose from about 60% on 13&ndash;14 October to 82&ndash;88% afterwards. Preliminary: seven days; sessions are identified by a commit trailer, so sessions without one are invisible; landed is a git fact, not a quality one."
@@ -3651,6 +3656,11 @@
     "slug": "capture-wake",
     "title": "When a camera rig records only on a trigger, should every camera have its own, or should one wake the rest?",
     "summary": "A synthetic 16&nbsp;h day with assumed device figures and four standby cameras. With 6 thirty-second moments an hour and a 10% miss per detector, a trigger per camera uses 80&nbsp;Wh (of 320&nbsp;Wh continuous) but puts all four angles on only 68% of the interesting seconds, since independent misses differ by camera (&asymp;0.9<sup>4</sup>). One sentinel waking the rest costs the same 80&nbsp;Wh and gives 90.5%; waking all on any camera's trigger gives 100% for 92&nbsp;Wh but its false-alarm energy grows with the number of detectors (281 against 126&nbsp;Wh at 40 false alarms an hour). Sleeping the other cameras halves the rig to 41.5&nbsp;Wh at the cost of the first 7&nbsp;s of each moment. If the misses are shared, extra detectors buy nothing. Stylised: every figure assumed, not measured."
+   },
+   {
+    "slug": "capture-sentinel",
+    "title": "Where in a camera ring should the sentinel go when the subject faces a favourite direction?",
+    "summary": "A model with assumed detector figures (a miss rate of 3% when the subject faces the camera, 40% when facing away) and a subject whose facing at each moment is von Mises distributed around a favourite direction. In a four-camera ring with concentration &kappa;&nbsp;=&nbsp;2, the sentinel at the favourite direction misses 8.6% of moments, the one behind the subject 34.4%, and a rotating sentinel 21.5%; the closed form matches a 40,000-moment simulation to within 0.4 points. Misses across a spread ring are <em>negatively</em> correlated (a subject turned from one camera faces another), so assuming independent misses, as <code>capture-wake</code> did, overstates the chance that every detector misses by about 2&times; on a ring of four; for a tight cluster of cameras the correlation is positive and the independent figure understates it about 12&times;. Stylised: detector figures are assumed, not measured."
    }
   ]
  },

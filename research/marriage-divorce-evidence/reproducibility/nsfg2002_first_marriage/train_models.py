@@ -45,7 +45,10 @@ def husband_group(r):
 
 
 def marriages():
-    rows = nsfgdct.read(HERE / 'raw' / '2002FemResp.dat.gz', HERE / 'raw' / '2002FemResp.dct', VARS)
+    dat = HERE / 'raw' / '2002FemResp.dat'  # official NCHS copy; the mirror ships it gzipped
+    if not dat.exists():
+        dat = HERE / 'raw' / '2002FemResp.dat.gz'
+    rows = nsfgdct.read(dat, HERE / 'raw' / '2002FemResp.dct', VARS)
     assert len(rows) == 7643, len(rows)
     out = []
     for r in rows:

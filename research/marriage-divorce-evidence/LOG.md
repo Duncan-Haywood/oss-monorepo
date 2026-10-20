@@ -1,5 +1,14 @@
 # Research log
 
+## 2026-10-20 · App: compare with the population, "just me", candidate partners, batch CSV and a dashboard
+
+- New `app/tools/population_reference.py` refits each NSFG 2002 lens's models on the published five folds (reproducing the held-out gains: additive 3.024%, tree 0.914%, logistic 2.982%, forest 2.262%, boosting 2.588%) and writes survey-weighted quantiles of every woman's held-out 5/10/20-year dissolution risk at her wedding, overall and by seven subgroups (cells of at least 100 marriages, nothing person-level). The median predicted 10-year dissolution is 33.7%, against the survey's own Kaplan–Meier 36.2%. The official CDC file is byte-identical to the mirror copy used before.
+- `population.js` places a couple at a percentile overall and within each subgroup it belongs to. NLSY79 lenses say they have no reference, because their person-level extracts are not in the repository.
+- "Just me" averages one person's risk over a partner distribution (weighted spouse-trait frequencies, cells of at least 30). It is shown only when the publishable cells cover at least half of that person's group's marriages, and says why otherwise.
+- Candidate partners (`batch.js`) are ranked per lens, with an "indistinguishable from the top" flag when model ranges overlap; nobody is called ideal. Batch CSV scoring validates every row, caps at 10,000, and downloads one row per couple, lens and horizon. Nothing leaves the browser and batch data never go in the URL.
+- The dashboard (`dashboard.js`) ranks partner profiles for a given person, groups those overlapping the best into one tier, shows one trait at a time, and ranks what-ifs with model agreement. Non-negotiables (locked or excluded values, a maximum age gap) live in the link's `#` fragment.
+- Tests: 32 app test files and 18 `test_app.py` tests pass; browser checks at 1200 and 390 px in light and dark showed no horizontal scroll and no unlabelled inputs.
+
 ## 2026-10-20 · App: four lenses side by side, abstention on unusual couples, and a lifelong estimate that counts mortality
 
 - Workstream B's NLSY79 individual-level models (#8536) now score couples in the app. Each partner is rated from their own traits and the two rates are averaged. The adapter reuses `individuals.js`'s row mapping, and a test checks the app's projection matches B's own `project()` to 10<sup>-15</sup> in every year and model. The app uses the currently-married population (best held-out gain 1.9%); the including-separated population's 12.6% reflects people already separated.

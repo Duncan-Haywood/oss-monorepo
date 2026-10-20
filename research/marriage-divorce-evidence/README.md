@@ -12,6 +12,11 @@
 - per-input explanations;
 - how much the models agree;
 - which changes the models link to lower risk.
+- where the couple sits among the surveyed population, overall and within their own subgroups (NSFG lenses; percentiles of held-out predictions, cells of 100+ marriages);
+- a "just me" estimate averaged over the partners people like you actually married;
+- a ranked table for several candidate partners, grouping those the models cannot tell apart;
+- a dashboard of partner traits and what-ifs, with non-negotiables you lock or exclude;
+- batch scoring of a CSV of couples, entirely in the browser, with a downloadable results file.
 
 A couple a lens cannot speak to gets no number from it. Scenarios can be shared as a link; the profiles stay in the link's `#` fragment and are never sent to a server.
 

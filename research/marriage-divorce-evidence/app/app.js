@@ -1,4 +1,6 @@
 // UI for the couple divorce-odds calculator. All computation is local (couple.js, engine.js).
+import { renderPopulation, renderJustMe, renderCandidates, renderDashboard, initCandidates, initBatch, initDashboard, readHashExtras, hashExtras, currentView, setView, syncConstraintControls } from './compare-ui.js';
+import { populationComparison } from './population.js';
 import { SCHOOL, DEGREE, WORK, RELIGION, RACE_ETH, refusals, lensNotes, adapterFor, scoringModels, isBaseline, excludeReason, project, lifelong, constantSurvival, explain, groupedTerms, selfChanges, coupleChanges, idealPartners, lensSummary, lensView, shareOod, encodeScenario, decodeScenario } from './couple.js';
 
 const $ = (s) => document.querySelector(s);
@@ -77,7 +79,9 @@ function applyFields(fields) {
 }
 
 function saveHash() {
-  const h = encodeScenario(formFields());
+  const extra = hashExtras();
+  const base = encodeScenario(formFields());
+  const h = extra ? (base === '#' ? '#' + extra : base + '&' + extra) : base;
   if (h !== location.hash) history.replaceState(null, '', h === '#' ? location.pathname + location.search : h);
 }
 
@@ -97,9 +101,38 @@ function renderLens() {
   return cur;
 }
 
+// Which panels each view shows. The form's partner is the reference profile on the
+// dashboard and is hidden where only your own profile is used.
+function applyView() {
+  const v = currentView();
+  for (const t of document.querySelectorAll('[role="tab"]')) {
+    const on = t.dataset.view === v;
+    t.setAttribute('aria-selected', String(on));
+    t.tabIndex = on ? 0 : -1;
+  }
+  $('#form').hidden = v === 'batch';
+  $('fieldset[data-who="b"]').hidden = v === 'justme' || v === 'candidates';
+  $('fieldset[data-who="b"] legend').textContent = v === 'dashboard' ? 'Reference partner (the profile searches start from)' : 'Your partner';
+  $('.share').hidden = v === 'batch';
+  for (const [id, view] of [['justMe', 'justme'], ['candidates', 'candidates'], ['dashboard', 'dashboard'], ['batch', 'batch']]) $('#' + id).hidden = v !== view;
+  if (v !== 'couple') { $('#results').hidden = true; $('#refuse').hidden = true; }
+}
+
 function render() {
   const cur = renderLens();
   saveHash();
+  applyView();
+  const v = currentView();
+  if (v !== 'couple') {
+    const f = readForm();
+    if (v === 'justme') renderJustMe({ lenses, a: f.a, couple: f.couple });
+    else if (v === 'candidates') renderCandidates({ lenses, a: f.a, couple: f.couple, mortality });
+    else if (v === 'dashboard') {
+      if (!cur.summary.scorable) $('#dashOut').innerHTML = '<p class="note">This lens gives no numbers; pick a scorable lens at the top.</p>';
+      else renderDashboard({ bundle: cur.bundle, a: f.a, b: f.b, couple: f.couple, label: cur.summary.label });
+    }
+    return;
+  }
   if (!cur.summary.scorable) {
     $('#refuse').hidden = false;
     $('#results').hidden = true;
@@ -120,6 +153,7 @@ function render() {
   const years = project(bundle, a, b, couple, horizon);
   state = { a, b, couple, years };
   renderTiles(years, couple);
+  renderPopulation($('#popPanel'), bundle, a, b, couple);
   renderLifelong(a, b, couple, horizon);
   renderChart(years, couple);
   renderYearTable(years);
@@ -133,16 +167,19 @@ function render() {
 function renderCompare(a, b, couple) {
   const rows = lenses.map((l) => {
     const name = esc(l.summary.label);
-    if (!l.summary.scorable) return `<tr class="out"><td>${name}</td><td colspan="3">listed only: inputs not on the form, or a different outcome</td></tr>`;
+    if (!l.summary.scorable) return `<tr class="out"><td>${name}</td><td colspan="4">listed only: inputs not on the form, or a different outcome</td></tr>`;
     const why = refusals(l.bundle, a, b, couple);
-    if (why.length) return `<tr class="out"><td>${name}</td><td colspan="3">no number: ${esc(why[0])}</td></tr>`;
+    if (why.length) return `<tr class="out"><td>${name}</td><td colspan="4">no number: ${esc(why[0])}</td></tr>`;
+    const cmp = populationComparison(l.bundle, a, b, couple);
+    const o = cmp?.horizons?.find((h) => h.horizon === 10)?.overall;
+    const pc = !cmp ? 'no reference' : !o ? '—' : o.below ? 'below p1' : o.above ? 'above p99' : 'p' + Math.round(o.percentile);
     const p = project(l.bundle, a, b, couple, 10);
     const y = p[p.length - 1];
     const inData = p.every((z) => z.inSupport);
     const here = l.bundle === bundle ? ' <small>(shown above)</small>' : ` <button type="button" class="link" data-lens="${esc(l.summary.id)}">view</button>`;
-    return `<tr${inData ? '' : ' class="out"'}><td>${name}${here}</td><td class="num">${pct(y.meanSurvival, 1)}</td><td class="num">${pct(y.minSurvival, 1)}–${pct(y.maxSurvival, 1)}</td><td>${inData ? 'inside the data' : 'extrapolated: ' + esc(p.find((z) => !z.inSupport).issues[0])}</td></tr>`;
+    return `<tr${inData ? '' : ' class="out"'}><td>${name}${here}</td><td class="num">${pct(y.meanSurvival, 1)}</td><td class="num">${pct(y.minSurvival, 1)}–${pct(y.maxSurvival, 1)}</td><td class="num">${pc}</td><td>${inData ? 'inside the data' : 'extrapolated: ' + esc(p.find((z) => !z.inSupport).issues[0])}</td></tr>`;
   });
-  $('#compareTable').innerHTML = '<thead><tr><th>Lens</th><th class="num">No divorce by year 10</th><th class="num">Model range</th><th>Data support</th></tr></thead><tbody>' + rows.join('') + '</tbody>';
+  $('#compareTable').innerHTML = '<thead><tr><th>Lens</th><th class="num">No divorce by year 10</th><th class="num">Model range</th><th class="num">Population percentile (10-year risk)</th><th>Data support</th></tr></thead><tbody>' + rows.join('') + '</tbody>';
 }
 
 // Links to the other lenses that can score this couple, inside their own data range.
@@ -354,6 +391,7 @@ async function main() {
   const scorableFirst = lenses.slice().sort((x, y) => Number(y.summary.scorable) - Number(x.summary.scorable));
   $('#lensSel').innerHTML = scorableFirst.map((l) => `<option value="${esc(l.summary.id)}">${esc(l.summary.label)}${l.summary.scorable ? '' : ' (listed only)'}</option>`).join('');
   const fromHash = decodeScenario(location.hash);
+  readHashExtras(location.hash);
   applyFields(fromHash);
   if (fromHash.lens && lenses.some((l) => l.summary.id === fromHash.lens)) $('#lensSel').value = fromHash.lens;
   $('#form').addEventListener('input', render);
@@ -364,13 +402,30 @@ async function main() {
     if (id) { $('#lensSel').value = id; render(); $('#lensSel').focus(); }
   });
   $('#explainModel').addEventListener('change', renderExplain);
+  // Views (tabs): click, or arrow keys between tabs.
+  const tabs = [...document.querySelectorAll('[role="tab"]')];
+  for (const t of tabs) {
+    t.addEventListener('click', () => { setView(t.dataset.view); render(); });
+    t.addEventListener('keydown', (ev) => {
+      const k = { ArrowRight: 1, ArrowLeft: -1 }[ev.key];
+      if (!k) return;
+      const next = tabs[(tabs.indexOf(t) + k + tabs.length) % tabs.length];
+      next.focus();
+      next.click();
+      ev.preventDefault();
+    });
+  }
+  const formCtx = () => readForm();
+  initCandidates(formCtx, render);
+  initBatch(() => ({ lenses }));
+  initDashboard(render);
   $('#share').addEventListener('click', async () => {
     saveHash();
     let ok = false;
     try { await navigator.clipboard.writeText(location.href); ok = true; } catch { /* clipboard blocked */ }
     $('#shareStatus').textContent = ok ? 'Link copied.' : 'Copy the address bar to share this scenario.';
   });
-  window.addEventListener('hashchange', () => { applyFields(decodeScenario(location.hash)); render(); });
+  window.addEventListener('hashchange', () => { readHashExtras(location.hash); syncConstraintControls(); applyFields(decodeScenario(location.hash)); render(); });
   render();
 }
 main();

@@ -55,9 +55,12 @@ export const TYPO_DOMAINS = {
   "outlool.com": "outlook.com", "otlook.com": "outlook.com", "outlook.co": "outlook.com", "outlookcom": "outlook.com",
   "iclod.com": "icloud.com", "iclud.com": "icloud.com", "icoud.com": "icloud.com", "icloude.com": "icloud.com", "icloud.co": "icloud.com", "icloudcom": "icloud.com",
   "aol.con": "aol.com", "comcsat.net": "comcast.net", "comast.net": "comcast.net", "protonmal.com": "protonmail.com", "protonmial.com": "protonmail.com",
+  "sbcgobal.net": "sbcglobal.net", "sbcglobl.net": "sbcglobal.net", "bellsouth.nt": "bellsouth.net", "belsouth.net": "bellsouth.net",
+  "verzon.net": "verizon.net", "verizon.nt": "verizon.net", "att.nt": "att.net", "msn.con": "msn.com", "live.con": "live.com", "gmx.con": "gmx.com",
+  "icloud.con": "icloud.com", "me.con": "me.com", "yahoo.con": "yahoo.com", "proton.mr": "proton.me",
 };
 const TLD_TYPOS = { con: "com", coom: "com", cmo: "com", vom: "com", comm: "com", cim: "com", ocm: "com", xom: "com", cpm: "com", nett: "net", ogr: "org", orgg: "org" };
-const PROVIDERS = ["gmail.com", "yahoo.com", "hotmail.com", "outlook.com", "icloud.com", "comcast.net"];
+const PROVIDERS = ["gmail.com", "yahoo.com", "hotmail.com", "outlook.com", "icloud.com", "comcast.net", "sbcglobal.net", "bellsouth.net", "verizon.net", "protonmail.com"];
 const PLUS_PROVIDERS = new Set(["gmail.com", "googlemail.com", "outlook.com", "hotmail.com", "live.com", "icloud.com", "me.com", "fastmail.com", "protonmail.com", "proton.me", "pm.me"]);
 const GMAIL = new Set(["gmail.com", "googlemail.com"]);
 

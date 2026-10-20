@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Docker Cache Order Check — Is Your Dockerfile Busting Its Own Build Cache?</title>
-  <meta name="description" content="Paste a Dockerfile and see whether its instruction order defeats Docker's own layer cache: a dependency manifest copied and installed after the whole build context, an install command with no isolated manifest COPY at all, and an apt-get update run without install in the same layer. Free, deterministic, runs entirely in your browser.">
+  <meta name="description" content="Paste a Dockerfile and see whether its instruction order defeats Docker's layer cache, from late dependency installs to a lone apt-get update. Runs in your browser.">
   <meta property="og:title" content="Is your Dockerfile busting its own build cache?">
   <meta property="og:description" content="A deterministic Dockerfile instruction-order checker: catches the COPY . . before package.json mistake, an install with no isolated manifest copy, and a split apt-get update / apt-get install layer. No account, no upload.">
   <link rel="canonical" href="./index.html">
