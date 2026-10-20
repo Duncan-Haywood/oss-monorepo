@@ -152,9 +152,39 @@ couple, 99.1 (abstain). The quantiles are in
 `../reproducibility/nsfg2002_first_marriage/family_ood_heldout_quantiles.csv`, and
 `tests/ood.test.mjs` matches Python's distances on 68 rows to 10<sup>-9</sup>.
 
-## Compare with the population, just me, many people, many couples, and a dashboard
+## Every lens scored: adapters, horizons and the summary across lenses (2026-10-20)
 
-Five views sit above the form (tabs; arrow keys move between them). Every view scores each
+- **Adapters for the newer lenses** live in `lens-adapters.js` (merged into `couple.js`'s
+  `ADAPTERS`): HCMST couples, GSS panels, NLSY79 and NLSY97 first marriages, NSFG 1995–2023
+  (wife's report, and the both-sexes models as a second view of the same bundle via
+  `expandLens`), Statistics Canada GSS, the Los Angeles newlyweds, SIPP first marriages, SIPP
+  couples and ACS. Each maps the form onto its bundle's `inputs` exactly; an input with no
+  "unknown" level that is left blank means no number from that lens, with the question named;
+  documented imputations are listed in the lens notes.
+- **Time.** `kind: 'rate'` lenses project year by year; `'periods'` lenses (HCMST, newlyweds)
+  multiply per-period probabilities, advancing ages and years together by `time_offsets`;
+  `'fixed'` lenses (GSS 2 years, SIPP couples and ACS 1 year) give one window. `lensHorizons()`,
+  `primaryHorizon()` and `stepAt()` drive every table; nothing is shown beyond a lens's follow-up,
+  and short lenses have no lifelong figure and no literature adjustment.
+- **Out of distribution.** `typicality()` scores the adapter's own rows (every perspective; the
+  most unusual counts) with the bundle's `ood` spec. Inputs not given are set to the training
+  mode or median for the distance only, and listed.
+- **Population references** in every published shape are converted by `referenceFor()` in
+  `population.js` (see its header); the couple is compared on the reference's own model and
+  quantity, from the wedding or from today as the reference counts.
+- **Summary across lenses** (`summary.js`): per lens, the estimate at each supported horizon
+  with the model range, the population percentile, held-out skill (`modelSkill`, `lensSkill`) and
+  data fit; then a synthesis of agreement on relative risk and the most relevant lens. No number
+  is pooled. **ACS baselines** (`baselines.js`): the published cells each partner matches, most
+  specific first, with 95% intervals.
+- **Form.** New questions are grouped in collapsible sections, each listing the lenses it feeds.
+  Hostility, abuse, substance use, low mood and adverse childhood experiences are never written
+  to the link (`SENSITIVE` in `couple.js`). Batch CSV accepts the new answers as optional columns
+  (`satisfaction` and `hostility` as the study's sums).
+
+## Compare with the population, just me, many people, many couples, a dashboard and scenarios
+
+Six views sit above the form (tabs; arrow keys move between them). Every view scores each
 lens separately through its own adapter and never pools lenses.
 
 - **Me + one person** (the couple view) gains a population panel: where the couple's predicted
@@ -185,6 +215,70 @@ lens separately through its own adapter and never pools lenses.
   row-level errors and a preview, and downloads a results CSV. **Nothing is uploaded**: the
   file is read with the File API and results download from a local Blob. Batch data never go
   in the URL; only single-couple scenarios do.
+
+### Compare options (`scenarios.js`, `scenarios-ui.js`)
+
+The sixth tab, "Compare options", saves full form states (scenarios, called options on the
+page) and compares them lens by lens against the one marked "your current plan" (the baseline). A scenario is
+`{ name, fields, lit }`: `fields` uses the form's own field names (`a.age`, `b.quality`,
+`yearsMarried`, `a.hostTo3`, …) with cleaned string values, blanks left out, and `lit` holds the
+published-evidence answers. `inputsFromFields()` is the single mapping from fields to the
+`{ a, b, couple }` every adapter scores (the live form uses it too), and every number comes from
+`summary.js` `summariseLens()`, so there is no second scoring path.
+
+- **Actions.** Save the form (named, or "Scenario N"), rename in place, duplicate, delete, move
+  up or down, load into the form and "Save changes", and **vary one thing** (`VARY_FIELDS`):
+  copies of a scenario (or of the form, saved first) with one answer changed to each other
+  allowed value, at most 12 per click; the starting scenario becomes the baseline. Age at the
+  wedding moves the age today with years married fixed; years married moves both ages so the
+  wedding ages stay put. Sensitive answers are never varied. Age, timing and family background (`fixed` in
+  `VARY_FIELDS`) are listed apart as "to understand the models, not to change"; race, sex and age
+  today are never varied. At most 50 scenarios.
+- **Comparison.** Pick lenses and a horizon for each (defaults: the three most relevant to the
+  baseline by `relevance()`); every option is shown at that one horizon. Per lens and option:
+  break-ups out of 100 couples like you and the chance of a break-up (1 − the lens's mean
+  survival) with the model range, change from the current plan in points (with the smallest to
+  largest change across the models) and as a ratio, "the models cannot tell this apart from your
+  current plan" when the two model ranges overlap, how many of
+  the lens's scoring models move in the same direction (`diffVsBaseline`, unchanged models
+  counted apart), the overall population percentile at that horizon (or of the annual rate now),
+  "outside its data" when a projected step is outside the training range, and "unusual" when the
+  couple is more unusual than 90% of the lens's people. A lens that refuses gives the reason.
+  Small multiples draw each lens on its own scale. Numbers are never summed or averaged across
+  lenses.
+- **Where they live.** In memory; in `localStorage` (`divorce-odds-scenarios-v1`, wrapped in
+  try/catch, without the sensitive answers; the page works without it); in files; and in a share
+  link `#view=scenarios&sc=…&sc=…&scb=<baseline>`. Each `sc` is a query string `n=<name>` plus the
+  fields `encodeScenario` allows and the `lit.*` answers; scenarios after the first carry only
+  what differs from the first (an empty value removes an answer). Decoding goes through
+  `decodeScenario` and `decodeLiterature`, so hostility, abuse, substance use, low mood and
+  childhood adversity can never arrive by link, and the link is removed from the address after
+  import.
+
+JSON file (`divorce_odds_scenarios.json`):
+
+```json
+{"format": "divorce-odds-scenarios", "version": 1, "includes_sensitive_answers": false,
+ "baseline": 0,
+ "scenarios": [{"name": "Us today", "fields": {"a.sex": "Woman", "a.age": "28", "cohabitedFirst": "Yes"},
+                "literature": {"depression": "no"}}],
+ "selection": {"lenses": ["hcmst_couples"], "horizons": {"hcmst_couples": 8.4}}}
+```
+
+Sensitive fields (`a.substance`, `a.lowMood`, `a.ace`, `a.abuse`, `a.hostTo1`–`7`,
+`a.hostBy1`–`7`, and the same for `b.`) are written only when "include sensitive answers" is
+ticked. On import, any unknown key, field name, value outside the form's allowed values, or
+unknown literature factor rejects the whole file with a list of problems; a file with more
+scenarios than the room left imports up to the cap and says how many were not imported.
+
+CSV file (`divorce_odds_scenarios.csv`), one row per scenario × chosen lens × each horizon the
+lens supports: `scenario, is_baseline, lens, horizon_years, status (ok | abstain |
+not_scorable), breakup_chance, model_min, model_max, population_percentile, percentile_of,
+outside_data_steps, typicality_percentile, abstain_reason, diff_points_vs_baseline,
+diff_min_points, diff_max_points, ratio_vs_baseline, models_same_direction, models,
+ranges_overlap_baseline`. It contains no answers, only names and
+results; cells that start with `=`, `+`, `-` or `@` are prefixed with `'`. Tests:
+`tests/scenarios.test.mjs`.
 
 ### Population reference (`population.js`, `tools/population_reference.py`)
 

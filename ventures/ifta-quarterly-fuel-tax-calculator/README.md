@@ -1,4 +1,4 @@
-# ifta-quarterly-fuel-tax-calculator
+# IFTA Quarterly Fuel Tax Calculator | Fleet MPG, Net Taxable Gallons and Surcharge
 
 A browser worksheet for small motor carriers and owner-operators who file their
 own **IFTA quarterly fuel tax return**. It works the jurisdiction schedule the

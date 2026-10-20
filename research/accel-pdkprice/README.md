@@ -1,4 +1,4 @@
-# accel-pdkprice
+# At SKY130's own energy prices, does register-file weight-stationary scheduling beat output-stationary?
 
 Seventh step of track 8 (task-specific AI accelerators) in `PROJECTS.md`, and the "source flop clock energy and SRAM read energy from an open PDK" next step of `accel-fetchprice`. That project solved for the breakeven price ratios at which register-file weight-stationary (WS) scheduling beats output-stationary (OS) on energy, and deliberately used no energy constants. This project supplies two sets from the open SKY130 libraries: the clock energy of an idle `dfxtp_1` flop from the standard-cell liberty file, and the per-access energy of the four OpenRAM SRAM macros shipped with OpenROAD-flow-scripts. The question: at SKY130's own prices, which side of each breakeven does a real design land on, and does packing 4-bit weights into wide SRAM words change the answer?
 

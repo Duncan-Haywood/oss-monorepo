@@ -1,4 +1,4 @@
-# tip-pool-compliance-calculator
+# Tip Pool Compliance Calculator | Who Can Legally Be in a Mandatory Tip Pool
 
 A browser calculator for restaurant and bar owners that checks a mandatory
 **tip pool** against the two federal FLSA rules that govern who can legally

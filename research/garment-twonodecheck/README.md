@@ -1,4 +1,4 @@
-# garment-twonodecheck
+# How far is the repository's two-node thermal model from an open-source implementation of the Gagge model?
 
 Follow-up to [`garment-thermal`](../garment-thermal) (track 6, `PROJECTS.md`), taking the next step "check the two-node constants against ... `pythermalcomfort`'s two-node output". That project's two-node model used control constants written from memory and was labelled qualitative. Here its `two_node` function (copied unchanged into `src/`, so this project stays self-contained) is run against the open-source `pythermalcomfort` implementation of the Gagge two-node model over a grid of conditions. Everything is a model on a CPU; no person was measured. Produced with AI assistance (Claude).
 

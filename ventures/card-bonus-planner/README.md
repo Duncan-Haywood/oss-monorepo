@@ -1,4 +1,4 @@
-# card-bonus-planner
+# Card Bonus Planner — Sign-Up Bonus Tracker, 5/24 and Spend Scheduler
 
 After using this, you can now **plan credit card sign-up bonuses around your
 real monthly spending** and know the date your 5/24 count drops and the

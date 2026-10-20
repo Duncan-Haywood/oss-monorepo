@@ -1,4 +1,4 @@
-# cancel-flow
+# Cancel Flow — Free Self-Hosted Stripe Cancellation Flow
 
 After using this, you can now **put a smart exit flow between "Cancel
 subscription" and Stripe, on your own server**: it asks why, offers the save

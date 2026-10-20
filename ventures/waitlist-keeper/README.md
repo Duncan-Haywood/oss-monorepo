@@ -1,4 +1,4 @@
-# waitlist-keeper
+# Waitlist Keeper — Free Self-Hosted Referral Waitlist
 
 After using this, you can now **run a pre-launch waitlist where confirmed
 referrals move people up the line, with the signup list in your own account**,

@@ -1,4 +1,4 @@
-# parcel-dim-weight-calculator
+# Dimensional Weight Calculator | What Your Parcel Actually Bills At
 
 What a parcel actually bills at, before you buy the cartons.
 

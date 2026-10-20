@@ -93,7 +93,8 @@ test('per-lens scoring: abstention passes through, numbers match the projection,
   }
   // NLSY79 lenses extrapolate below 35 and have no reference; NSFG lenses have percentiles.
   assert.ok(by.nlsy79_couples.extrapolatedYears > 0);
-  assert.equal(by.nlsy79_couples.percentileNote, 'no population reference for this lens');
+  assert.equal(by.nlsy79_individuals.percentileNote, 'no population reference for this lens');
+  assert.equal(by.nlsy79_couples.percentileOf, 'annual rate now', 'the NLSY79 couples reference is an annual rate');
   assert.ok(Number.isFinite(by.nsfg2002_first_marriage.percentile[10].percentile));
   // A wife married before: NSFG lenses abstain with the reason; NLSY79 still scores.
   const prior = lenses.map((l) => scoreLens(l, { ...wife, priorMarriage: true, firstMarriageAge: 22 }, husband, couple));
@@ -114,18 +115,25 @@ test('batch scoring with progress, and the long-format results CSV', async () =>
   const res = await scoreBatch(lenses, v.couples, { onProgress: (d, t) => seen.push([d, t]), chunk: 1, yieldFn: async () => {} });
   assert.deepEqual(seen, [[1, 2], [2, 2]]);
   const csv = parseCsv(resultsCsv(res));
-  assert.deepEqual(csv[0], ['id', 'lens', 'horizon_years', 'no_divorce', 'model_min', 'model_max', 'population_percentile', 'status', 'abstain_reason', 'years_outside_data']);
-  assert.equal(csv.length - 1, 2 * lenses.length * 3, 'one row per couple, lens and horizon');
+  assert.deepEqual(csv[0], ['id', 'lens', 'horizon_years', 'no_divorce', 'model_min', 'model_max', 'population_percentile', 'percentile_of', 'status', 'abstain_reason', 'years_outside_data']);
+  const expected = res.reduce((t, r) => t + r.lenses.reduce((u, l) => u + (l.status === 'ok' ? l.horizons.length : 3), 0), 0);
+  assert.equal(csv.length - 1, expected, 'one row per couple, lens and horizon the lens supports');
+  // Short-horizon lenses report only their own horizons, never 5/10/20 years.
+  for (const x of csv.slice(1).filter((z) => z[1] === 'gss_panel_marriages' && z[8] === 'ok')) assert.equal(x[2], '2');
+  for (const x of csv.slice(1).filter((z) => z[1] === 'hcmst_couples' && z[8] === 'ok')) assert.ok(['2.17', '4.08', '8.42'].includes(x[2]));
   assert.ok(!csv[0].some((h) => /pooled|average_of_lenses/.test(h)));
   const r = csv.find((x) => x[0] === 'example-1' && x[1] === 'nsfg2002_first_marriage' && x[2] === '10');
-  assert.equal(r[7], 'ok');
+  assert.equal(r[8], 'ok');
   assert.ok(Number(r[3]) > 0 && Number(r[3]) < 1);
   assert.ok(Number(r[4]) <= Number(r[3]) && Number(r[3]) <= Number(r[5]));
   assert.ok(r[6] !== '');
   // example-2 has no race-ethnicity: NSFG abstains, with the reason in the file.
   const ab = csv.find((x) => x[0] === 'example-2' && x[1] === 'nsfg2002_first_marriage');
-  assert.equal(ab[7], 'abstain');
-  assert.match(ab[8], /race-ethnicity/);
+  assert.equal(ab[8], 'abstain');
+  assert.match(ab[9], /race-ethnicity/);
+  // example-1 fills the newer lenses' questions: HCMST and GSS score it.
+  assert.ok(csv.some((x) => x[0] === 'example-1' && x[1] === 'hcmst_couples' && x[8] === 'ok'));
+  assert.ok(csv.some((x) => x[0] === 'example-1' && x[1] === 'gss_panel_marriages' && x[8] === 'ok'));
 });
 
 test('candidates: ranked per lens, overlap flag, abstained last, never pooled', () => {
@@ -136,8 +144,14 @@ test('candidates: ranked per lens, overlap flag, abstained last, never pooled', 
     { ...wife, name: 'Same sex' },
   ];
   const out = rankCandidates(lenses, wife, cands, couple, { mortality });
-  assert.deepEqual(out.map((o) => o.lens).sort(), ['nlsy79_couples', 'nlsy79_individuals', 'nsfg2002_family', 'nsfg2002_first_marriage']);
-  for (const o of out) {
+  for (const id of ['nlsy79_couples', 'nlsy79_individuals', 'nsfg2002_family', 'nsfg2002_first_marriage']) assert.ok(out.some((o) => o.lens === id), id);
+  assert.ok(!out.some((o) => o.lens.startsWith('fair_')), 'listed-only lenses are not ranked');
+  for (const o of out.filter((z) => z.ranked.length)) {
+    for (let i = 1; i < o.ranked.length; i++) assert.ok(o.ranked[i].meanSurvival <= o.ranked[i - 1].meanSurvival);
+    for (const r of o.ranked) assert.equal(r.indistinguishable, r.maxSurvival >= o.ranked[0].minSurvival);
+    for (const r of o.ranked) for (const h of o.horizons) assert.ok(r.at[h], `${o.lens} at ${h}`);
+  }
+  for (const o of out.filter((z) => ['nlsy79_couples', 'nlsy79_individuals', 'nsfg2002_family', 'nsfg2002_first_marriage'].includes(z.lens))) {
     for (let i = 1; i < o.ranked.length; i++) assert.ok(o.ranked[i].meanSurvival <= o.ranked[i - 1].meanSurvival);
     const top = o.ranked[0];
     assert.equal(top.indistinguishable, true);
@@ -145,9 +159,9 @@ test('candidates: ranked per lens, overlap flag, abstained last, never pooled', 
     assert.equal(o.tied, o.ranked.filter((r) => r.indistinguishable).length);
     assert.deepEqual(o.refused.map((r) => r.description), ['Same sex']);
     for (const r of o.ranked) assert.ok(r.lifelong && r.at[5] && r.at[20]);
-    if (o.hasReference) for (const r of o.ranked) assert.ok(r.percentile[10]);
+    if (o.hasReference) for (const r of o.ranked) assert.ok(r.percentile[10] || r.percentile[0]);
   }
   // Different lenses can rank differently; each table stands alone.
   const ids = out.map((o) => o.ranked.map((r) => r.description).join('>'));
-  assert.equal(ids.length, 4);
+  assert.equal(ids.length, out.length);
 });

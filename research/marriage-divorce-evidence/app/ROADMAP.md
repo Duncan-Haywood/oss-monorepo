@@ -156,6 +156,7 @@ Done (2026-10-19/20, PRs #8537, #8556 and the round-3 PR):
   per-lens candidate ranking with overlap tiers, client-side CSV scoring with downloadable
   results, partner-trait search and what-ifs that respect locked and excluded values.
 - Published-evidence layer (2026-10-20): optional questions for factors no lens measures (`literature.js`, `literature-ui.js`), applied as a labelled literature-based adjustment from 9 verified primary records with intervals, citations and refusals; factors a lens already models are not asked. Plus a CDC/NCHS population-baseline table and a Gottman base-rate explainer (`../reproducibility/literature_evidence/EVIDENCE.md`).
+- Compare options, i.e. scenarios (2026-10-20, `scenarios.js`, `scenarios-ui.js`): up to 50 saved form states, vary-one-thing copies, a per-lens grid and small multiples against "your current plan" (out of 100 couples like you, difference ranges, an explicit "cannot tell apart" when model ranges overlap) with model agreement, JSON/CSV export and import, and a share link without sensitive answers.
 - Phone layout (390px) and dark mode with no horizontal scroll; focus outlines; titles, meta and
   share-card descriptions within the 160-character budget; JSON-LD; links between the app, the
   project README and the research page.
@@ -173,7 +174,11 @@ Remaining:
   bars instead.
 - Calibration plots and bootstrap intervals once workstream B ships them per bundle. Today's
   uncertainty is the spread across models only.
-- Out-of-distribution abstention for the NLSY79 lenses, once B can compute a spec (the
-  person-level extracts are not in git); today they use per-input range checks only.
+- Done 2026-10-20: every lens scored (adapters in `lens-adapters.js`), per-lens OOD (the NLSY79
+  couples spec from `tools/nlsy79_reference.py`), reference conversion for every published shape,
+  and the summary across lenses. Still open: OOD for NLSY79 individuals, GSS, SIPP and ACS (their
+  bundles ship no spec); a GSS 4-year model export (the bundle has its reference but not the
+  model); a validated satisfaction mapping for the newlywed lens (all 8 items on one scale now);
+  joint partner profiles for NLSY97 just-me (the bundle publishes one trait at a time).
 - A screen-reader pass with a real assistive technology. Only keyboard focus and contrast have
   been checked.

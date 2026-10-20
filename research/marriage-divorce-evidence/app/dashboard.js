@@ -3,8 +3,9 @@
 // values) that the searches respect. Builds on couple.js (adapters' partnerTraits and
 // changes, rankPartners, project) instead of re-implementing them. One lens at a time; lenses
 // are never pooled. Pure functions (no DOM); tests/dashboard.test.mjs.
-import { PERSON_SPEC, COUPLE_SPEC, adapterFor, refusals, project, rankPartners, scoringModels } from './couple.js';
-import { referenceFor, atWedding, referenceAttrs, percentileFromSurvival } from './population.js';
+import { PERSON_SPEC, COUPLE_SPEC, adapterFor, refusals, project, rankPartners, scoringModels, stepAt, lensHorizons, primaryHorizon } from './couple.js';
+import { couplePercentile } from './population.js';
+export { couplePercentile };
 
 export const SEARCH_CAP = 600; // partner profiles scored per lens; more traits are held fixed
 export const HORIZONS = [5, 10, 20];
@@ -20,7 +21,7 @@ export const emptyConstraints = () => ({ locks: [], exclude: {}, gapMax: null })
 function fieldSpec(name) {
   const [who, k] = name.split('.');
   if ((who === 'a' || who === 'b') && k in PERSON_SPEC) return PERSON_SPEC[k];
-  if (who === 'couple' && k === 'cohabitedFirst') return COUPLE_SPEC.cohabitedFirst;
+  if (who === 'couple' && ['cohabitedFirst', 'status', 'homeOwner'].includes(k)) return COUPLE_SPEC[k];
   return undefined;
 }
 const enumerated = (spec) => Array.isArray(spec) && typeof spec[0] === 'string';
@@ -132,21 +133,10 @@ export function topTier(ranked) {
   return { count: tier.length, of: ranked.length, meanLo: Math.min(...means), meanHi: Math.max(...means), lo: Math.min(...tier.map((r) => r.minSurvival)), hi: Math.max(...tier.map((r) => r.maxSurvival)) };
 }
 
-// Population percentile (wedding-day risk at the reference's horizons) for one couple.
-export function couplePercentile(bundle, a, b, couple) {
-  const ref = referenceFor(bundle);
-  if (!ref) return null;
-  const w = atWedding(a, b, couple);
-  if (refusals(bundle, w.a, w.b, w.couple).length) return null;
-  const p = project(bundle, w.a, w.b, w.couple, Math.max(...ref.horizons));
-  const cmp = percentileFromSurvival(bundle, referenceAttrs(bundle, w.a, w.b, w.couple), Object.fromEntries(ref.horizons.map((h) => [h, p[h - 1].meanSurvival])));
-  return Object.fromEntries(cmp.horizons.map((r) => [r.horizon, r.overall]));
-}
-
 // Partner ranking plus a per-trait view for one lens. The per-trait view varies one trait at a
 // time, holding the others at the partner profile in the form (the reference), and reports the
 // change against that reference with the model range and agreement.
-export function partnerDashboard(bundle, me, partnerRef, couple, constraints = emptyConstraints(), { cap = SEARCH_CAP, horizons = HORIZONS, rankAt = 10, show = 12 } = {}) {
+export function partnerDashboard(bundle, me, partnerRef, couple, constraints = emptyConstraints(), { cap = SEARCH_CAP, horizons = lensHorizons(bundle), rankAt = primaryHorizon(bundle), show = 12 } = {}) {
   const hs = [rankAt, ...horizons.filter((h) => h !== rankAt)];
   const space = partnerSpace(bundle, me, partnerRef, couple, constraints, { cap });
   const r = rankPartners(bundle, me, couple, space.list, { horizons: hs, current: partnerRef, describe: (p) => describeTraits(space, p, me) });
@@ -164,9 +154,10 @@ export function partnerDashboard(bundle, me, partnerRef, couple, constraints = e
       const label = t.gap ? `${v > 0 ? '+' : v < 0 ? '−' : '±'}${Math.abs(v)} years (age ${p.age})` : t.show ? t.show(v) : t.key === 'wages' ? `$${Number(v).toLocaleString('en-US')}` : String(v);
       if (why.length) return { value: v, label, refused: why[0] };
       const proj = project(bundle, me, p, couple, rankAt);
-      const y = proj[rankAt - 1];
-      const deltas = refProj ? models.map((m) => y.survival[m.key] - refProj[rankAt - 1].survival[m.key]) : [];
-      const delta = refProj ? y.meanSurvival - refProj[rankAt - 1].meanSurvival : null;
+      const y = stepAt(proj, rankAt);
+      const r0 = refProj ? stepAt(refProj, rankAt) : null;
+      const deltas = r0 ? models.map((m) => y.survival[m.key] - r0.survival[m.key]) : [];
+      const delta = r0 ? y.meanSurvival - r0.meanSurvival : null;
       return {
         value: v, label, meanSurvival: y.meanSurvival, minSurvival: y.minSurvival, maxSurvival: y.maxSurvival,
         delta, agree: refProj ? deltas.filter((d) => (delta >= 0 ? d > 0 : d < 0)).length : null,
@@ -180,8 +171,9 @@ export function partnerDashboard(bundle, me, partnerRef, couple, constraints = e
     ranking: r,
     tier: topTier(r.ranked),
     perTrait,
-    reference: refProj ? { meanSurvival: refProj[rankAt - 1].meanSurvival, minSurvival: refProj[rankAt - 1].minSurvival, maxSurvival: refProj[rankAt - 1].maxSurvival } : null,
+    reference: refProj ? (({ meanSurvival, minSurvival, maxSurvival }) => ({ meanSurvival, minSurvival, maxSurvival }))(stepAt(refProj, rankAt)) : null,
     rankAt,
+    horizons: hs,
     models: models.length,
   };
 }
@@ -190,6 +182,7 @@ export function partnerDashboard(bundle, me, partnerRef, couple, constraints = e
 const CHANGEABILITY = {
   degree: 'changeable, over years', school: 'changeable, over years', work: 'changeable', wages: 'changeable',
   religion: 'changeable', familyIncome: 'changeable', cohabitedFirst: 'only before the wedding', age: 'only before the wedding (timing)',
+  quality: 'how the relationship feels; not a switch', obsNeg: 'a behaviour (approximation of observer codes)', obsPos: 'a behaviour (approximation of observer codes)', status: 'a decision you make together', homeOwner: 'changeable, with money',
 };
 export const FIXED_TRAITS = ['sex', 'race-ethnicity', 'family of origin', 'earlier marriages and children', 'age today'];
 const TREE_KINDS = new Set(['tree', 'forest', 'boosted']);
@@ -202,7 +195,7 @@ function patchKeys(ch) {
 // constraint forbids, each scored at every horizon: mean change in the chance of no divorce,
 // the model range, how many models agree on the direction, and how many do not move at all
 // (often trees that never split on that input). Ranked by the change at `rankAt` years.
-export function whatIfs(bundle, a, b, couple, constraints = emptyConstraints(), { horizons = HORIZONS, rankAt = 10 } = {}) {
+export function whatIfs(bundle, a, b, couple, constraints = emptyConstraints(), { horizons = lensHorizons(bundle), rankAt = primaryHorizon(bundle) } = {}) {
   const c = cleanConstraints(constraints);
   const ad = adapterFor(bundle);
   const models = scoringModels(bundle);
@@ -226,12 +219,12 @@ export function whatIfs(bundle, a, b, couple, constraints = emptyConstraints(), 
     const p = project(bundle, a2, b2, c2, H);
     const at = {};
     for (const h of new Set([...horizons, rankAt])) {
-      const deltas = models.map((m) => p[h - 1].survival[m.key] - base[h - 1].survival[m.key]);
-      const delta = p[h - 1].meanSurvival - base[h - 1].meanSurvival;
+      const deltas = models.map((m) => stepAt(p, h).survival[m.key] - stepAt(base, h).survival[m.key]);
+      const delta = stepAt(p, h).meanSurvival - stepAt(base, h).meanSurvival;
       at[h] = { delta, lo: Math.min(...deltas), hi: Math.max(...deltas), agree: deltas.filter((d) => (delta >= 0 ? d > 0 : d < 0)).length, deltas };
     }
     const still = models.filter((m, i) => Math.abs(at[rankAt].deltas[i]) < 1e-12);
-    return { at, unchanged: still.length, unchangedTrees: still.length > 0 && still.every((m) => TREE_KINDS.has(m.kind)), inSupport: p.slice(0, rankAt).every((y) => y.inSupport) };
+    return { at, unchanged: still.length, unchangedTrees: still.length > 0 && still.every((m) => TREE_KINDS.has(m.kind)), inSupport: p.filter((y) => y.elapsed <= rankAt + 0.01).every((y) => y.inSupport) };
   };
   const items = [];
   for (const ch of allowed) {
@@ -262,7 +255,7 @@ export function whatIfs(bundle, a, b, couple, constraints = emptyConstraints(), 
     if (s) combined = { labels: picked.map((it) => it.label), models: models.length, ...s };
   }
   return {
-    base: Object.fromEntries(horizons.map((h) => [h, { meanSurvival: base[h - 1].meanSurvival, minSurvival: base[h - 1].minSurvival, maxSurvival: base[h - 1].maxSurvival }])),
+    base: Object.fromEntries(horizons.map((h) => [h, { meanSurvival: stepAt(base, h).meanSurvival, minSurvival: stepAt(base, h).minSurvival, maxSurvival: stepAt(base, h).maxSurvival }])),
     items, combined, blocked, rankAt, horizons, fixed: FIXED_TRAITS,
   };
 }

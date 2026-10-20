@@ -1,4 +1,4 @@
-# amazon-inventory-loader-check
+# Amazon Inventory Loader Check — Find Flat File Errors Before You Upload
 
 Checks an Amazon Seller Central inventory file in the browser before it is uploaded: tab-delimited
 format, SKUs, product ids with UPC/EAN/ISBN check digits, prices, quantities, add-delete codes,

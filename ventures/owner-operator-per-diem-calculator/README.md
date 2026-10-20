@@ -1,4 +1,4 @@
-# owner-operator-per-diem-calculator
+# Owner Operator Per Diem Calculator — Per Diem vs Receipts and Tax Saved
 
 A private, in-browser calculator for self-employed (owner-operator) over-the-road truck drivers.
 Enter full days and travel days away from home and the M&IE per diem rate; the page applies the

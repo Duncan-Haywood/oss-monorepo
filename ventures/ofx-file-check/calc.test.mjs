@@ -7,7 +7,7 @@ const trn = (o = {}) => {
   const f = { TRNTYPE: "DEBIT", DTPOSTED: "20240304", TRNAMT: "-10.00", FITID: "A1", NAME: "SHOP", ...o };
   return "<STMTTRN>\n" + Object.entries(f).filter(([, v]) => v !== null).map(([k, v]) => `<${k}>${v}`).join("\n") + "\n</STMTTRN>\n";
 };
-const doc = ({ header = HDR, trns = [trn()], acct = "<BANKID>123456789\n<ACCTID>999\n<ACCTTYPE>CHECKING\n", start = "20240301", end = "20240331", ledger = "<LEDGERBAL>\n<BALAMT>100.00\n<DTASOF>20240331\n</LEDGERBAL>\n" } = {}) =>
+const doc = ({ header = HDR, trns = [trn()], acct = "<BANKID>021000021\n<ACCTID>999\n<ACCTTYPE>CHECKING\n", start = "20240301", end = "20240331", ledger = "<LEDGERBAL>\n<BALAMT>100.00\n<DTASOF>20240331\n</LEDGERBAL>\n" } = {}) =>
   header + `<OFX>\n<SIGNONMSGSRSV1>\n<SONRS>\n<STATUS>\n<CODE>0\n<SEVERITY>INFO\n</STATUS>\n<DTSERVER>20240331\n<LANGUAGE>ENG\n</SONRS>\n</SIGNONMSGSRSV1>\n<BANKMSGSRSV1>\n<STMTTRNRS>\n<TRNUID>1\n<STATUS>\n<CODE>0\n<SEVERITY>INFO\n</STATUS>\n<STMTRS>\n<CURDEF>USD\n<BANKACCTFROM>\n${acct}</BANKACCTFROM>\n<BANKTRANLIST>\n<DTSTART>${start}\n<DTEND>${end}\n${trns.join("")}</BANKTRANLIST>\n${ledger}</STMTRS>\n</STMTTRNRS>\n</BANKMSGSRSV1>\n</OFX>\n`;
 const titles = (r) => r.findings.map((f) => f.title);
 const has = (r, re) => r.findings.some((f) => re.test(f.title));
@@ -162,7 +162,7 @@ test("account block: missing and blank BANKID/ACCTID/ACCTTYPE, bad type, credit 
   assert.ok(has(validate(doc({ acct: "<BANKID>1\n<ACCTID>   \n<ACCTTYPE>CHECKING\n" })), /ACCTID is blank/));
   assert.ok(has(validate(doc({ acct: "<BANKID>1\n<ACCTID>2\n<ACCTTYPE>CURRENT\n" })), /Invalid ACCTTYPE/));
   assert.ok(has(validate(doc({ acct: "<BANKID>1\n<ACCTID>" + "9".repeat(30) + "\n<ACCTTYPE>SAVINGS\n" })), /ACCTID longer than 22/));
-  const cc = doc().replace(/BANKMSGSRSV1/g, "CREDITCARDMSGSRSV1").replace(/STMTTRNRS/g, "CCSTMTTRNRS").replace(/STMTRS/g, "CCSTMTRS").replace(/BANKACCTFROM/g, "CCACCTFROM").replace("<BANKID>123456789\n", "").replace("<ACCTTYPE>CHECKING\n", "");
+  const cc = doc().replace(/BANKMSGSRSV1/g, "CREDITCARDMSGSRSV1").replace(/STMTTRNRS/g, "CCSTMTTRNRS").replace(/STMTRS/g, "CCSTMTRS").replace(/BANKACCTFROM/g, "CCACCTFROM").replace("<BANKID>021000021\n", "").replace("<ACCTTYPE>CHECKING\n", "");
   const r = validate(cc);
   assert.equal(r.summary.accounts, 1);
   assert.ok(!has(r, /BANKID|ACCTTYPE/), titles(r).join());
@@ -255,4 +255,16 @@ test("findingsCsv quotes fields and flags auto-fixable rows", () => {
 test("summary uses exact decimal sums", () => {
   const r = validate(doc({ trns: [trn({ FITID: "1", TRNAMT: "0.10", TRNTYPE: "OTHER" }), trn({ FITID: "2", TRNAMT: "0.20", TRNTYPE: "OTHER" })] }));
   assert.equal(r.summary.total, "0.30");
+});
+
+test("flags a non-ISO CURDEF, a bad ABA routing checksum and a CHECK with no CHECKNUM", () => {
+  assert.ok(has(validate(doc().replace("<CURDEF>USD", "<CURDEF>usd")), /CURDEF is not an ISO/));
+  assert.ok(!has(validate(doc()), /CURDEF/));
+  const bad = validate(doc({ acct: "<BANKID>123456789\n<ACCTID>999\n<ACCTTYPE>CHECKING\n" }));
+  assert.ok(has(bad, /ABA routing/));
+  const ok = validate(doc({ acct: "<BANKID>021000021\n<ACCTID>999\n<ACCTTYPE>CHECKING\n" }));
+  assert.ok(!has(ok, /ABA routing/));
+  assert.ok(!has(validate(doc({ acct: "<BANKID>ABCDEFGHI\n<ACCTID>999\n<ACCTTYPE>CHECKING\n" })), /ABA routing/));
+  assert.ok(has(validate(doc({ trns: [trn({ TRNTYPE: "CHECK" })] })), /no CHECKNUM/));
+  assert.ok(!has(validate(doc({ trns: [trn({ TRNTYPE: "CHECK", CHECKNUM: "1001" })] })), /CHECKNUM/));
 });
