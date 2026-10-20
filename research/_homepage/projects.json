@@ -3237,6 +3237,11 @@
      "summary": "Counts which fields are present on each of the 1,362 run records in <code>prompts/runs/</code> (1 to 19 October 2026). <code>cost_usd</code>, tokens and wall time are present on 47% of records (Wilson 45% to 50%), but on 0% to 7% of records on 13 to 15 October and 61% to 82% from 16 October, so the rate is a date effect. <code>merged</code> is filled on 4.6%, a pull request is named on 81.2%, and 237 of 1,279 records with outcome <code>success</code> (18.5%, 16% to 21%) name none. <em>Preliminary</em>: presence is measured, not correctness, and an empty list can mean a clean run."
     },
     {
+     "slug": "swe-spendoutput",
+     "title": "Does a bigger agent run buy more output?",
+     "summary": "Joins cost to tests added across the 157 priced run records that report adding tests (14 to 20 October 2026). Pooled, the two rank together (Spearman &rho; +0.57, bootstrap 95% interval +0.44 to +0.68), but inside a track the link is weak for research runs (&rho; +0.19, &minus;0.02 to +0.39; log-log slope +0.33, so doubling cost adds about 26% more tests) and imprecise for ventures (&rho; +0.39; slope +1.19, interval +0.48 to +1.88). The dearest third of runs yields the fewest tests per dollar (3.7, against 5.4 and 6.0). Preliminary: tests added is a crude, self-reported output proxy that only 21% of priced records fill in, and the pooled figure partly reflects the track mix."
+    },
+    {
      "slug": "swe-costpermerge",
      "title": "What does an agent run cost per merged pull request?",
      "summary": "Joins the 366 run records (14 to 18 October 2026) that carry an API-equivalent <code>cost_usd</code> to the pull-request numbers in the subject lines of <code>main</code>&#39;s first-parent history. 273 (75%, Wilson 70% to 79%) name a merged pull request, 1 names one not on <code>main</code> and 92 name none. A merged run costs $1.26 on average (bootstrap 1.08 to 1.49) against $0.94 per priced run, because 19% of spend sits on runs with no merged PR on record; process runs cost about 2.4 times a research run per merged run. All 34 red-team records omit their PR although red-team PRs are on <code>main</code>, so their 0% is a recording gap. <em>Preliminary</em>: five days, one model, API-equivalent cost, and cost per merge is not value per merge."
