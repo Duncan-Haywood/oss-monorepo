@@ -130,6 +130,19 @@ test('describe and call work on a fixture with DEFAULTS', async () => {
   assert.deepEqual((await catalogue(root)).map((t) => t.slug), ['sum-tool']);
 });
 
+test('describe prints a tool\'s PAPERS in full as papers, not as a summarised constant', async () => {
+  const long = 'x'.repeat(2000);
+  const root = await fixtureRoot({
+    'ventures/paper-tool/index.html': page('Paper', 'd', 'import { analyze } from "./engine.mjs";'),
+    'ventures/paper-tool/engine.mjs': `export const PAPERS = [{ title: 'A Method', year: 2001, url: 'https://doi.org/10.1/x', bibtex: '${long}' }];\nexport const analyze = () => 1;\n`,
+  });
+  const d = await describe('paper-tool', root);
+  assert.equal(d.papers.length, 1);
+  assert.equal(d.papers[0].title, 'A Method');
+  assert.equal(d.papers[0].bibtex.length, 2000);
+  assert.deepEqual(d.engines[0].constants, {});
+});
+
 test('call runs a real catalogue tool', async () => {
   const r = await call(REAL, 'payment', { args: [20000, 8.5, 5] });
   assert.equal(r.module, 'calc.mjs');

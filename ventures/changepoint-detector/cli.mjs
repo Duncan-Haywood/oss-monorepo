@@ -1,0 +1,79 @@
+#!/usr/bin/env node
+// Find changepoints in a time series from the command line.
+//
+//   node cli.mjs series.csv                       # last numeric column, change in level
+//   node cli.mjs series.csv --column sales --model meanvar
+//   cat series.csv | node cli.mjs --json          # machine-readable
+//   node cli.mjs --example                        # Nile river flow, 1871-1970
+//
+// Zero dependencies, no network. Same engine as the web page.
+
+import { readFile } from 'node:fs/promises';
+import process from 'node:process';
+import { analyze, DEFAULTS, PAPERS } from './engine.mjs';
+
+const USAGE = `Find when a time series changed level or volatility (PELT + Bayesian online changepoint detection).
+
+Usage:
+  node cli.mjs [options] [file.csv]      (reads stdin when no file is given)
+
+Options:
+  --column <name|index>     value column (default: last numeric column)
+  --label-column <name|i>   label/date column (default: first column)
+  --model mean|meanvar|poisson  change in level, in level and volatility, or in the rate of counts (default: mean)
+  --penalty bic|aic|hannan-quinn|<number>   PELT penalty per change (default: bic)
+  --min-segment <n>         shortest segment (default: 2 for mean, 5 for meanvar)
+  --hazard <n>              Bayesian expected points between changes (default: ${DEFAULTS.hazardLambda})
+  --threshold <p>           report Bayesian changes at or above p (default: ${DEFAULTS.threshold})
+  --example                 run on the bundled Nile river flow series
+  --json                    print the full result as JSON
+  -h, --help                this help
+
+Methods (please cite them if you use the results):
+${PAPERS.map((p) => `  ${p.authors} (${p.year}). ${p.title}. ${p.venue}. ${p.url}`).join('\n')}
+
+Statistical analysis of data you supply, not advice. MIT licence.`;
+
+export async function main(argv, { stdin = process.stdin, out = (s) => process.stdout.write(s) } = {}) {
+  const opt = {};
+  let file = null;
+  let json = false;
+  let example = false;
+  const flags = { '--column': 'column', '--label-column': 'labelColumn', '--model': 'model', '--penalty': 'penalty', '--min-segment': 'minSegment', '--hazard': 'hazardLambda', '--threshold': 'threshold' };
+  for (let i = 0; i < argv.length; i++) {
+    const a = argv[i];
+    if (a === '-h' || a === '--help') { out(USAGE + '\n'); return 0; }
+    else if (a === '--json') json = true;
+    else if (a === '--example') example = true;
+    else if (flags[a]) {
+      if (i + 1 >= argv.length) throw new Error(`${a} needs a value`);
+      opt[flags[a]] = argv[++i];
+    } else if (a.startsWith('-')) throw new Error(`Unknown option ${a}. Try --help.`);
+    else file = a;
+  }
+  for (const k of ['minSegment', 'hazardLambda', 'threshold']) if (opt[k] != null) opt[k] = Number(opt[k]);
+  if (!example) {
+    if (file) opt.csv = await readFile(file, 'utf8');
+    else {
+      let s = '';
+      for await (const chunk of stdin) s += chunk;
+      opt.csv = s;
+    }
+  }
+  const r = analyze(opt);
+  if (json) { out(JSON.stringify(r, null, 2) + '\n'); return 0; }
+  const lines = [r.summary, ''];
+  lines.push('Segments (PELT):');
+  for (const s of r.pelt.segments) lines.push(`  ${s.from} – ${s.to}  n=${s.n}  mean=${s.mean}  sd=${s.sd}`);
+  if (r.bocpd.detections.length) {
+    lines.push('', `Bayesian changes (probability >= ${r.bocpd.threshold}):`);
+    for (const d of r.bocpd.detections) lines.push(`  ${d.label}  ${(d.probability * 100).toFixed(0)}%`);
+  }
+  out(lines.join('\n') + '\n');
+  return 0;
+}
+
+const invoked = process.argv[1] && import.meta.url === new URL(`file://${process.argv[1]}`).href;
+if (invoked) {
+  main(process.argv.slice(2)).then((code) => process.exit(code), (e) => { process.stderr.write(`error: ${e.message}\n`); process.exit(2); });
+}

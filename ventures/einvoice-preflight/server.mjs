@@ -147,6 +147,15 @@ export function createApp(config = loadConfig()) {
       }
       return;
     }
+    // The pages import their own ES modules; without these they load blank.
+    if (req.method === "GET" && config.serveUi && /^\/[a-z0-9-]+\.mjs$/.test(path) && !/(\.test|-cli)\.mjs$|^\/(server|build-schematron)\.mjs$/.test(path)) {
+      try {
+        send(res, 200, await readFile(join(HERE, path.slice(1)), "utf8"), { "content-type": "text/javascript; charset=utf-8" });
+      } catch {
+        send(res, 404, { error: "Not found." });
+      }
+      return;
+    }
     if (!path.startsWith("/v1/")) {
       send(res, 404, { error: "Not found." });
       return;
