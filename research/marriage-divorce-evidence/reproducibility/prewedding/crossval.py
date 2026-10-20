@@ -183,8 +183,15 @@ def evaluate(people, iv, rate, h10, train_const):
     return out
 
 
+# Education is "Unknown" whenever it cannot be dated before the wedding, and that group
+# over-represents people who studied after it (NSFG audit), so an Unknown level would carry
+# post-wedding information. Education is used only where nearly everyone's is dated.
+EDU_MIN_KNOWN = 0.9
+
+
 def usable(cov_a, cov_b=None):
-    ok = lambda c: cov_a[c] >= MIN_KNOWN and (cov_b is None or cov_b[c] >= MIN_KNOWN)
+    need = lambda c: EDU_MIN_KNOWN if c.endswith('_educ') else MIN_KNOWN
+    ok = lambda c: cov_a[c] >= need(c) and (cov_b is None or cov_b[c] >= need(c))
     return [c for c in NUMERIC if ok(c)], [c for c in CATEGORICAL if ok(c)]
 
 
