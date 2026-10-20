@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "codesign-aero-joint"
+version = "0.1.0"
+description = "Does joint CMA-ES over airframe and gains, trained on a randomised plant, beat grid-then-tune and random search at equal budget? A follow-up to codesign-aero-robust."
+requires-python = ">=3.9"
+dependencies = ["numpy", "cma", "matplotlib"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
