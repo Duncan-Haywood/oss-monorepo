@@ -54,7 +54,7 @@ The table stops at H = 64 for area, so larger models in `accel-kws` (H = 128, 0.
 - Pin counts and timing of the streaming interface were not checked against Tiny Tapeout's current rules.
 
 ## Next steps
-Run one geometry (H = 16, 8-bit) through a full open flow (OpenROAD, as in `chip-pnr`) to replace the utilisation guess with a measured packed area and a timing check; retrain a model with the 16-bit bias and 20-bit accumulator limits and confirm the accuracy; price the off-chip weight stream (a small SPI flash or an RP2040) against the on-chip option.
+Run one geometry (H = 16, 8-bit) through a full open flow (OpenROAD, as in `chip-pnr`) to replace the utilisation guess with a measured packed area and a timing check; (the limits check is done: [`accel-ttretrain`](../accel-ttretrain) retrained 96 models and all fit); price the off-chip weight stream (a small SPI flash or an RP2040) against the on-chip option.
 
 ## Owner steps
 Submitting to a Tiny Tapeout shuttle and paying for a tile; a microcontroller or FPGA board to stream the weights, with a priced bill of materials (not done here: no prices were looked up).

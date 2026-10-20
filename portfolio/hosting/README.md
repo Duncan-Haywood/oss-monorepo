@@ -339,7 +339,9 @@ that name.
   **https://duncan-haywood.github.io/monorepo-projects/**. Since 2026-10-20
   the Pages source is "GitHub Actions": `.github/workflows/portfolio-pages.yml`
   builds and deploys it on every merge that touches a site input and every
-  three hours, gated on `vars.PAGES_ENABLED`. The `gh-pages` branch
+  three hours. Deploying is on by default; `vars.PAGES_ENABLED=false` pauses
+  it. (Until 2026-10-20 the gate was opt-in and never set, so no deploy ran
+  between the source switch and that fix.) The `gh-pages` branch
   (`platform/pages/publish-branch.sh`) is no longer served and
   `publish-pages-branch.yml` runs only by hand. `pages_state.py` still reads
   the branch route, so its "source" and "snapshot" lines are stale until it

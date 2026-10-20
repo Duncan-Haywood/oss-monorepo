@@ -1,0 +1,48 @@
+house-liftnails: nail load path of the hung wall panels of house-panellift (impact factor 1.5)
+Nail strength is the NDS yield-limit set written out here; 8d common nails, OSB G 0.50, SPF G 0.42, Fyb 100 ksi: all assumptions.
+
+A. Lateral strength of one 8d common nail through 7/16 OSB into SPF (lb, before the 1.25 duration factor)
+  Im 413  Is 121  II 145  IIIm 153  IIIs 67  IV 89
+  governs: mode IIIs; Z' with duration factor 1.25 = 84 lb
+
+B. Sheathing-to-top-plate nails at 6 in, all sharing the load equally
+panel        closed below lb nails lb/nail  ratio
+front 0          no      482    40    18.1   0.21
+front 0         yes      727    40    27.3   0.32
+front 240        no      495    40    18.6   0.22
+front 240       yes      687    40    25.8   0.31
+rear 0           no      453    40    17.0   0.20
+rear 0          yes      813    40    30.5   0.36
+rear 240         no      495    40    18.6   0.22
+rear 240        yes      687    40    25.8   0.31
+gable L 0        no      306    23    20.0   0.24
+gable L 0       yes      339    23    22.1   0.26
+gable L 139      no      393    31    19.0   0.23
+gable L 139     yes      504    31    24.4   0.29
+gable R 0        no      306    23    20.0   0.24
+gable R 0       yes      339    23    22.1   0.26
+gable R 139      no      393    31    19.0   0.23
+gable R 139     yes      504    31    24.4   0.29
+worst ratio 0.24 open, 0.36 closed
+
+C. Fraction of the top-row nails that must share the load (the rest slipping or missing), heaviest closed and open panel
+== C. share of nails effective vs demand/capacity
+ effective    open  closed
+      1.00    0.24    0.36
+      0.75    0.32    0.48
+      0.50    0.47    0.72
+      0.40    0.59    0.90
+      0.30    0.79    1.21
+      0.25    0.95    1.45
+      0.20    1.18    1.81
+      0.15    1.58    2.41
+      0.10    2.37    3.62
+(heaviest per nail: open gable L 0, closed rear 0)
+
+D. Stud to sheathing field nails at 12 in, one stud and its bottom-plate share, 16 in vs 24 in studs
+  2x6 @24: 15.8 lb per stud, 7 nails, 3.4 lb/nail, ratio 0.04
+  2x6 @16: 14.7 lb per stud, 7 nails, 3.2 lb/nail, ratio 0.04
+
+E. Bare frame hung by the top plate (no sheathing): stud end nails are in end-grain withdrawal
+  demand 23.7 lb per stud (with impact); NDS design value for end-grain withdrawal: none, credited 0 lb
+  for scale only, side-grain withdrawal of a 16d common (0.162 x 3.5 in) with 1.5 in in the plate and 2.0 in in the stud: 51 lb

@@ -4,7 +4,11 @@ A project can declare its own card in research/<slug>/project.json, so adding a
 project touches only its own directory instead of the shared projects.json
 (which most concurrent research PRs would otherwise conflict on):
 
-    {"theme": "scoring", "title": "Question the project answers?", "summary": "Abstract (HTML)."}
+    {"theme": "scoring", "title": "Question the project answers?", "summary": "Abstract (HTML).",
+     "lede": "One-line summary for research/README.md."}
+
+The lede becomes the project's bullet in research/README.md, generated between the
+`<!-- projects:start -->` markers by platform/ci/research_live_links.py --write.
 
 Projects listed in projects.json keep their place; per-project cards are
 appended to their theme, sorted by slug. A slug in both is reported by
@@ -38,5 +42,6 @@ def load(research=None):
             errors.append(f"research/{slug}/project.json: theme {card.get('theme')!r} is not a theme id in projects.json")
         else:
             themes[card["theme"]]["projects"].append(
-                {"slug": slug, "title": card.get("title", ""), "summary": card.get("summary", "")})
+                {"slug": slug, "title": card.get("title", ""), "summary": card.get("summary", ""),
+                 "lede": card.get("lede", "")})
     return data

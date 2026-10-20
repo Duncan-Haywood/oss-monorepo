@@ -69,3 +69,22 @@ class Topics(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class Projects(unittest.TestCase):
+    DATA = {"themes": [{"projects": [
+        {"slug": "zeta", "lede": "last."}, {"slug": "old", "lede": ""}, {"slug": "alpha", "lede": "first."}]}]}
+
+    def test_block_lists_ledes_sorted_by_slug(self):
+        block = r.projects_block(self.DATA)
+        self.assertLess(block.index("research/alpha"), block.index("research/zeta"))
+        self.assertNotIn("research/old", block)
+
+    def test_appended_then_replaced_in_place(self):
+        once = r.with_projects("# T\n\n- x\n", r.projects_block(self.DATA))
+        self.assertTrue(once.startswith("# T\n\n- x\n<!-- projects:start -->"))
+        data = {"themes": [{"projects": [{"slug": "beta", "lede": "b."}]}]}
+        twice = r.with_projects(once, r.projects_block(data))
+        self.assertIn("research/beta", twice)
+        self.assertNotIn("research/alpha", twice)
+        self.assertEqual(twice.count("projects:start"), 1)
