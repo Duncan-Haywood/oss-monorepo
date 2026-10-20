@@ -116,3 +116,17 @@ test("every rule id in every compiled Schematron file has a specific English fix
   assert.ok(total > 300, `found ${total} ids`);
   assert.deepEqual([...missing], []);
 });
+
+const peppolCiiReady = ready && existsSync(join(SEF_DIR, "peppol-cii.sef.json"));
+test("Peppol BIS 3 add-on runs on CII and flags a missing buyer reference (R003)", { skip: !peppolCiiReady && "run build-schematron.mjs" }, (t) => {
+  const pep = "urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0";
+  const base = read("xrechnung-cii-invoice.xml").replace(/urn:cen\.eu:en16931:2017#compliant#urn:xeinkauf\.de:kosit:xrechnung_3\.0/, pep);
+  const r = runSchematron(base);
+  if (r.status === "unavailable") return t.skip("saxon-js not installed");
+  assert.deepEqual(r.sets, ["en16931", "peppol"]);
+  assert.ok(r.findings.every((f) => f.source !== "xrechnung-schematron"));
+  const bad = runSchematron(base.replace(/<ram:BuyerReference>[\s\S]*?<\/ram:BuyerReference>/, "").replace(/<ram:BuyerOrderReferencedDocument>[\s\S]*?<\/ram:BuyerOrderReferencedDocument>/, ""));
+  const f = bad.findings.find((x) => x.source === "peppol-schematron" && x.rule === "PEPPOL-EN16931-R003");
+  assert.ok(f, JSON.stringify(bad.findings.map((x) => x.rule)));
+  assert.match(f.fix, /buyer reference/);
+});
