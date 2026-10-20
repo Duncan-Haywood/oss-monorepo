@@ -71,6 +71,12 @@
     <input type="file" id="file" accept=".csv,.txt,text/csv,text/plain">
     <label for="paste">…or paste the CSV text</label>
     <textarea id="paste" spellcheck="false" wrap="off" placeholder="Email Address,First Name,Last Name&#10;maria@example.com,Maria,Lopez"></textarea>
+    <details class="note">
+      <summary>Optional: a do-not-email list (unsubscribes, bounces, complaints)</summary>
+      <p class="note">Paste or choose addresses you must not email again: one per line, or any export that contains them. A line like <code>@example.com</code> blocks a whole domain. Matching rows move to the rejected file so the import cannot re-subscribe them. Read here in your browser, like the list.</p>
+      <input type="file" id="suppress-file" accept=".csv,.txt,text/csv,text/plain" aria-label="Do-not-email list file">
+      <textarea id="suppress" spellcheck="false" wrap="off" aria-label="Do-not-email addresses" placeholder="unsubscribed@example.com&#10;@spamtrap.example"></textarea>
+    </details>
     <div class="opts">
       <div><label for="platform">Importing into</label>
         <select id="platform"><option value="">Any (just check the list)</option><option value="mailchimp">Mailchimp</option><option value="hubspot">HubSpot</option><option value="klaviyo">Klaviyo</option><option value="brevo">Brevo</option><option value="constantcontact">Constant Contact</option></select></div>
@@ -136,20 +142,20 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. It does not verify that any email address is deliverable, and it does not establish that anyone consented to receive email: compliance with CAN-SPAM, GDPR, CASL and your email platform's terms is your responsibility. Results depend entirely on the file you provide. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including by importing a small sample first, and a clean result is not a promise that an import will succeed or that mail will arrive.</p>
     <p><strong>Not affiliated with Mailchimp, HubSpot, Klaviyo, Brevo or Constant Contact.</strong> This tool is independent and is not sponsored, endorsed or connected to any email, CRM or marketing vendor. Those names are trademarks of their owners, used here only to say which import formats the tool reads. The heading names and rules are read from memory of public sources and may be out of date or miss a variant; check them against each platform's current import documentation.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
-    <p>Everything runs in your browser. Your list is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>file_checked</code>, <code>example_loaded</code>, <code>fixes_applied</code>, <code>rejected_downloaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p>Everything runs in your browser. Your list is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>file_checked</code>, <code>example_loaded</code>, <code>fixes_applied</code>, <code>rejected_downloaded</code>, <code>suppression_used</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Related tools: the <a href="../mailchimp-audience-csv-check/">Mailchimp audience CSV check</a> prepares the same list for Mailchimp, the <a href="../gbp-bulk-location-check/">Google Business Profile bulk-location check</a> does the same for a multi-location spreadsheet, the <a href="../email-auth-check/">email auth check</a> looks at the SPF, DKIM and DMARC records that decide whether your sending domain's mail is trusted, the <a href="../substack-subscriber-export-analyzer/">Substack subscriber export analyzer</a> reads a subscriber export for churn and growth, the <a href="../email-api-pricing-calculator/">email API pricing calculator</a> prices the sending side, the <a href="../xero-invoice-csv-check/">Xero invoice CSV check</a> does the same pre-flight for invoice import files, and the <a href="../hubspot-contacts-csv-check/">HubSpot contacts CSV check</a> covers a contacts or companies list going into HubSpot, and the <a href="../ics-calendar-check/">ICS calendar check</a> finds why a calendar file will not import.</p>
     <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 
   <script type="module">
-    import { validate, repair, findingsCsv, sampleFile, sampleBrokenFile, decodeBuffer } from "./calc.mjs";
+    import { validate, repair, findingsCsv, sampleFile, sampleBrokenFile, decodeBuffer, parseSuppression } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
     const status = $("#form-status"), report = $("#report");
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-    let lastResult = null, fix = null, lastText = "";
+    let lastResult = null, fix = null, lastText = "", suppressText = "";
 
     function download(name, body, type) {
       const a = document.createElement("a");
@@ -158,17 +164,22 @@
       a.click();
     }
 
+    async function loadSuppress() {
+      const f = $("#suppress-file").files[0];
+      suppressText = f ? decodeBuffer(await f.arrayBuffer()) : $("#suppress").value;
+    }
+
     function run(text) {
       lastText = text;
       const platform = $("#platform").value;
-      const r = validate(text, { platform });
+      const r = validate(text, { platform, suppress: suppressText });
       lastResult = r;
       const s = r.summary, c = s.counts;
       const errs = r.findings.filter((x) => x.severity === "error").length, warns = r.findings.filter((x) => x.severity === "warning").length;
-      $("#report-stats").innerHTML = `<strong>${errs} error${errs === 1 ? "" : "s"}</strong>, ${warns} warning${warns === 1 ? "" : "s"} · ${s.rows} row${s.rows === 1 ? "" : "s"}, ${s.columns} columns${s.emailColumn ? `, email column "${esc(s.emailColumn)}"` : ""}<br>${c.valid || 0} well-formed · ${c.invalid || 0} invalid · ${c.blank || 0} blank · ${c.duplicates || 0} duplicate · ${c.aliasDuplicates || 0} likely duplicate · ${c.typos || 0} typo domain · ${c.roles || 0} role · ${c.disposable || 0} disposable · ${c.placeholders || 0} placeholder`;
+      $("#report-stats").innerHTML = `<strong>${errs} error${errs === 1 ? "" : "s"}</strong>, ${warns} warning${warns === 1 ? "" : "s"} · ${s.rows} row${s.rows === 1 ? "" : "s"}, ${s.columns} columns${s.emailColumn ? `, email column "${esc(s.emailColumn)}"` : ""}<br>${c.valid || 0} well-formed · ${c.invalid || 0} invalid · ${c.blank || 0} blank · ${c.duplicates || 0} duplicate · ${c.aliasDuplicates || 0} likely duplicate · ${c.typos || 0} typo domain · ${c.roles || 0} role · ${c.disposable || 0} disposable · ${c.placeholders || 0} placeholder${s.suppressionLoaded ? ` · ${c.suppressed || 0} on your do-not-email list` : ""}`;
       $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity === "error" ? "high" : f.severity === "warning" ? "medium" : "info"}">${f.severity}</span>${f.line ? `Line ${f.line}: ` : ""}${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("") || `<p>Nothing flagged.</p>`;
       $("#platforms").innerHTML = s.platforms.map((p) => `<tr><td>${esc(p.name)}</td><td><code>${esc(p.emailHeader)}</code></td><td>${p.emailExact ? "matches" : p.emailFound ? "found under another name" : "no email column found"}</td><td>${p.renames.filter((x) => x.concept !== "email").map((x) => `${esc(x.from)} → ${esc(x.to)}`).join(", ") || "none"}</td></tr>`).join("");
-      fix = repair(text, { platform, fixTypos: $("#fixtypos").checked });
+      fix = repair(text, { platform, fixTypos: $("#fixtypos").checked, suppress: suppressText });
       $("#fix-box").hidden = false;
       $("#download-fixed").hidden = !fix.text;
       $("#download-rejected").hidden = !fix.rejectedText;
@@ -184,9 +195,11 @@
       const f = $("#file").files[0];
       const text = f ? decodeBuffer(await f.arrayBuffer()) : $("#paste").value;
       if (!text.trim()) { status.textContent = "Choose a file or paste the text first."; return; }
-      if (run(text)) record("file_checked");
+      await loadSuppress();
+      if (run(text)) { record("file_checked"); if (parseSuppression(suppressText)) record("suppression_used"); }
     });
     for (const id of ["#platform", "#fixtypos"]) $(id).addEventListener("change", () => { if (lastText) run(lastText); });
+    for (const id of ["#suppress", "#suppress-file"]) $(id).addEventListener("change", async () => { await loadSuppress(); if (lastText) run(lastText); });
     $("#load-example").addEventListener("click", () => {
       $("#paste").value = sampleFile(); $("#file").value = "";
       if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: three made-up contacts, not real people."; }
