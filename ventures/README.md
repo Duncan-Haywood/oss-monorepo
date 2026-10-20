@@ -1,6 +1,6 @@
 # Free business calculators, CSV checkers and self-hosted apps: the full catalogue
 
-Every tool in this folder (1300 when this list was last generated), grouped the way the live site
+Every tool in this folder (1302 when this list was last generated), grouped the way the live site
 groups them. Each line links to the **free web version**, which needs no account and, for all but the
 self-hosted apps, runs entirely in your browser, and to its **source code** here, MIT licensed, so you
 can run, fork or self-host your own copy.
@@ -22,9 +22,9 @@ free tools for each one (roofers, Etsy sellers, landlords, freelancers and more)
 - [Back-office money & contracts](#back-office-money--contracts) (216)
 - [CI checks & developer gates](#ci-checks--developer-gates) (175)
 - [Creator & solo earner income](#creator--solo-earner-income) (92)
-- [Learning & practice](#learning--practice) (3)
-- [More free tools](#more-free-tools) (4)
-- [Other directories](#other-directories) (4)
+- [Learning & practice](#learning--practice) (4)
+- [More free tools](#more-free-tools) (5)
+- [Other directories](#other-directories) (5)
 
 ## Self-hosted business apps
 
@@ -1376,10 +1376,11 @@ What one person actually earns from their own work — a print, an ad slot, a de
 
 ## Learning & practice
 
-Learn a language or a technical skill by doing it: hands-free speaking drills, graded audio stories, and project-first engineering lessons, free in your browser. [Browse this section on the site →](https://duncan-haywood.github.io/monorepo-projects/c/learning/)
+Learn a language or a technical skill by doing it: hands-free speaking drills, graded audio stories, and project-first engineering lessons, free in your browser. Plus free stories to read or listen to. [Browse this section on the site →](https://duncan-haywood.github.io/monorepo-projects/c/learning/)
 
 - [Free Electronics Calculators](https://duncan-haywood.github.io/monorepo-projects/ai-engineering-academy/) · [code](ai-engineering-academy/)
 - [Hands-Free Language Coach](https://duncan-haywood.github.io/monorepo-projects/hands-free-language-coach/) · [code](hands-free-language-coach/)
+- [Hearth & Horizon: free AI-written science fiction and Catholic bedtime stories, with audio](https://duncan-haywood.github.io/monorepo-projects/hearth-and-horizon/) · [code](hearth-and-horizon/)
 - [Listen & Learn Audio](https://duncan-haywood.github.io/monorepo-projects/listen-and-learn-audio/) · [code](listen-and-learn-audio/)
 
 ## More free tools
@@ -1389,6 +1390,7 @@ Everything else that runs entirely in your browser. [Browse this section on the 
 - [Open Tennis Robots — DIY tennis ball machine + ball collecting robot](https://duncan-haywood.github.io/monorepo-projects/open-tennis-robots/) · [code](open-tennis-robots/)
 - [Simulate conversations between fictional personalities](https://duncan-haywood.github.io/monorepo-projects/persona-conversation-simulator/) · [code](persona-conversation-simulator/)
 - [Price drop alerts for any shop, on your own GitHub](https://duncan-haywood.github.io/monorepo-projects/price-drop-watcher/) · [code](price-drop-watcher/)
+- [Saints by Candlelight: a free bedtime podcast of saints, angels and Bible stories](https://duncan-haywood.github.io/monorepo-projects/saints-by-candlelight/) · [code](saints-by-candlelight/)
 - [What time is it there — and are they awake?](https://duncan-haywood.github.io/monorepo-projects/world-clock-widget/) · [code](world-clock-widget/)
 
 ## Other directories
@@ -1396,6 +1398,7 @@ Everything else that runs entirely in your browser. [Browse this section on the 
 Projects here without a page of their own on the site (servers, infrastructure, the portfolio's own tooling):
 
 - [`ai-first-markets`](ai-first-markets/)
+- [`ig-media-pipeline`](ig-media-pipeline/)
 - [`local-site-studio`](local-site-studio/)
 - [`retail-pilot-intel`](retail-pilot-intel/)
 - [`ubuntu-agent-server`](ubuntu-agent-server/)

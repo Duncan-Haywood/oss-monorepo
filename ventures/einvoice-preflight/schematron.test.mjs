@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { parseSvrl, detectSyntax, runSchematron, schematronAvailable, addonsFor, SEF_DIR } from "./schematron.mjs";
 import { plainFix, hasSpecificFix } from "./schematron-fixes.mjs";
@@ -26,7 +26,10 @@ test("parseSvrl reads rule id, severity, message and a readable path", () => {
 test("plainFix: specific, family and generic fallbacks", () => {
   assert.ok(hasSpecificFix("BR-CO-15"));
   assert.match(plainFix("BR-E-10"), /exemption reason/);
-  assert.match(plainFix("BR-CL-23"), /code list/);
+  assert.match(plainFix("BR-CL-23"), /unit of measure/);
+  assert.match(plainFix("BR-CL-99"), /code list/);
+  assert.match(plainFix("BR-S-05"), /above 0/);
+  assert.match(plainFix("BR-O-11"), /Category O/);
   assert.match(plainFix("PEPPOL-EN16931-R003"), /buyer reference/);
   assert.match(plainFix("ZZ-1"), /re-run/);
 });
@@ -89,4 +92,41 @@ test("XRechnung CII add-on flags a missing seller contact (BR-DE-2)", { skip: !c
   const r = runSchematron(xml);
   if (r.status === "unavailable") return t.skip("saxon-js not installed");
   assert.ok(r.findings.some((f) => f.source === "xrechnung-schematron" && f.rule === "BR-DE-2"));
+});
+
+const xrSef = new URL("./schematron/xrechnung-ubl.sef.json", import.meta.url);
+test("every BR-DE rule in the compiled XRechnung add-on has a specific English fix", { skip: !existsSync(xrSef) && "run build-schematron.mjs" }, () => {
+  const sef = readFileSync(xrSef, "utf8");
+  const ids = [...new Set([...sef.matchAll(/"val":"(BR-DE-\d+(?:-[ab])?|BR-DE-TMP-32)"/g)].map((m) => m[1]))];
+  assert.ok(ids.length > 20, `found ${ids.length} ids`);
+  assert.deepEqual(ids.filter((id) => !hasSpecificFix(id)), []);
+});
+
+test("every rule id in every compiled Schematron file has a specific English fix", { skip: !existsSync(xrSef) && "run build-schematron.mjs" }, () => {
+  const dir = new URL("./schematron/", import.meta.url);
+  const missing = new Set();
+  let total = 0;
+  for (const f of readdirSync(dir).filter((n) => n.endsWith(".sef.json"))) {
+    const sef = readFileSync(new URL(f, dir), "utf8");
+    for (const m of sef.matchAll(/"val":"((?:BR|PEPPOL)[A-Za-z0-9-]*-[A-Za-z0-9-]+)"/g)) {
+      total++;
+      if (!hasSpecificFix(m[1])) missing.add(m[1]);
+    }
+  }
+  assert.ok(total > 300, `found ${total} ids`);
+  assert.deepEqual([...missing], []);
+});
+
+const peppolCiiReady = ready && existsSync(join(SEF_DIR, "peppol-cii.sef.json"));
+test("Peppol BIS 3 add-on runs on CII and flags a missing buyer reference (R003)", { skip: !peppolCiiReady && "run build-schematron.mjs" }, (t) => {
+  const pep = "urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0";
+  const base = read("xrechnung-cii-invoice.xml").replace(/urn:cen\.eu:en16931:2017#compliant#urn:xeinkauf\.de:kosit:xrechnung_3\.0/, pep);
+  const r = runSchematron(base);
+  if (r.status === "unavailable") return t.skip("saxon-js not installed");
+  assert.deepEqual(r.sets, ["en16931", "peppol"]);
+  assert.ok(r.findings.every((f) => f.source !== "xrechnung-schematron"));
+  const bad = runSchematron(base.replace(/<ram:BuyerReference>[\s\S]*?<\/ram:BuyerReference>/, "").replace(/<ram:BuyerOrderReferencedDocument>[\s\S]*?<\/ram:BuyerOrderReferencedDocument>/, ""));
+  const f = bad.findings.find((x) => x.source === "peppol-schematron" && x.rule === "PEPPOL-EN16931-R003");
+  assert.ok(f, JSON.stringify(bad.findings.map((x) => x.rule)));
+  assert.match(f.fix, /buyer reference/);
 });
