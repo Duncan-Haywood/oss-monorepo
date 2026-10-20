@@ -1,0 +1,90 @@
+runs with a measured usage block (one per session): 856, 2026-10-16 to 2026-10-20
+models: {'claude-sonnet-5-5': 826, 'claude-opus-5-5': 29, 'redacted': 1}
+tracks: {'research': 358, 'ventures': 243, 'process': 104, 'redteam': 81, 'explore': 46, 'review': 24}
+
+## 1. Token categories, all runs pooled
+category                  tokens  % tokens    API-eq $     % $
+cache_read         1,779,838,811    96.04%      350.59   47.8%
+cache_write_5m         1,499,625     0.08%        5.83    0.8%
+cache_write_1h        61,453,580     3.32%      260.65   35.5%
+input                     39,709     0.00%        0.09    0.0%
+output                10,398,273     0.56%      116.90   15.9%
+total              1,853,229,998   100.00%      734.06  100.0%
+thinking (inside output): 1,886,010 = 18.1% of output tokens
+tokens the model reads per token it writes: 177
+
+## 2. Per-run distributions (median [p10, p90])
+requests per run                           median 19 [p10 12, p90 34]  95% CI of median 19 to 20
+tool calls per run                         median 22 [p10 14, p90 37]  95% CI of median 21 to 22
+tokens read per run (context, all requests) median 1,570,605 [p10 864,188, p90 3,225,627]  95% CI of median 1,506,978 to 1,642,796
+mean context per request                   median 81,200 [p10 67,537, p90 98,949]  95% CI of median 80,277 to 82,173
+output tokens per run                      median 8,561 [p10 3,758, p90 22,517]  95% CI of median 8,042 to 9,211
+output tokens per request                  median 418 [p10 268, p90 777]  95% CI of median 405 to 437
+API-equivalent $ per run                   median 0.67 [p10 0.39, p90 1.22]  95% CI of median 0.64 to 0.70
+cache_read share of run $ (%)              median 45.2 [p10 38.3, p90 53.5]  95% CI of median 44.7 to 45.6
+cache_write share of run $ (%)             median 40.9 [p10 31.4, p90 49.8]  95% CI of median 40.0 to 41.3
+output share of run $ (%)                  median 12.4 [p10 9.0, p90 20.5]  95% CI of median 12.0 to 12.9
+
+## 3. Context growth: mean context per request = P + g * requests / 2
+OLS over 856 runs: P (context at request 1) = 64,616 tokens; g (growth per request) = 1,668 tokens
+bootstrap 95%: P 60,089 to 69,082; g 1,227 to 2,110
+share of all tokens read that is the fixed prefix re-read each request (P x requests): 68.9%
+share that is accumulated work (tool results, prior turns) re-read: 31.1%
+  requests   1-25   runs  626  median context/request    77,694  output share of tokens 0.60%  median $ per 1k output tokens 0.086
+  requests  25-50   runs  201  median context/request    93,068  output share of tokens 0.62%  median $ per 1k output tokens 0.064
+  requests  50-100  runs   21  median context/request   123,024  output share of tokens 0.49%  median $ per 1k output tokens 0.080
+  requests 100-200  runs    7  median context/request   150,069  output share of tokens 0.34%  median $ per 1k output tokens 0.105
+  requests 200-     runs    1  median context/request   308,096  output share of tokens 0.13%  median $ per 1k output tokens 0.206
+
+## 4. Where the API-equivalent $ goes, by run size quartile (requests)
+  Q1: requests 9-15, 214 runs, 12.5% of $
+  Q2: requests 15-19, 214 runs, 17.4% of $
+  Q3: requests 19-25, 214 runs, 22.7% of $
+  Q4: requests 25-239, 214 runs, 47.3% of $
+
+## 5. Tool calls: share of all calls
+  Bash                                             17,206   79.1%
+  Read                                              1,426    6.6%
+  ToolSearch                                          673    3.1%
+  mcp__github__create_pull_request                    654    3.0%
+  mcp__github__search_pull_requests                   252    1.2%
+  mcp__github__list_pull_requests                     235    1.1%
+  WebSearch                                           224    1.0%
+  Monitor                                             210    1.0%
+  mcp__github__pull_request_read                      201    0.9%
+  Write                                               128    0.6%
+  bash                                                120    0.6%
+  WebFetch                                             90    0.4%
+  Edit                                                 86    0.4%
+  ReadNotifications                                    55    0.3%
+  mcp__github__get_job_logs                            25    0.1%
+  all mcp__github__* tools: 1,424 (6.5%); ToolSearch: 673 (3.1%)
+  requests per tool call (pooled): 0.90 (below 1 means calls were batched in parallel)
+
+## 6. Time (pooled minutes)
+  model 1,556 (33% of active), tools 3,104 (67% of active), waiting on a person 1,440
+
+## 7. Subagents (runs with more than one transcript)
+  no subagent     runs  849  median requests    19  median context/request   81,061  median $ 0.67
+  with subagents  runs    7  median requests   124  median context/request  102,888  median $ 4.26
+
+## 8. By track (median)
+  research     runs  358  requests   22  context/request   87,303  output/request    636  $ 0.85
+  ventures     runs  243  requests   19  context/request   79,792  output/request    393  $ 0.64
+  process      runs  104  requests   16  context/request   70,398  output/request    287  $ 0.46
+  redteam      runs   81  requests   14  context/request   67,041  output/request    292  $ 0.40
+  explore      runs   46  requests   20  context/request   73,691  output/request    377  $ 0.59
+  review       runs   24  requests   14  context/request   71,793  output/request    308  $ 0.46
+
+## 9. Levers, for a median claude-sonnet-5-5 run (N=19 requests, P=66,614, g=1,417, first-write W0=42,935, output 8,268)
+  modelled run: $0.644, 1,516,288 tokens processed (measured median $ 0.658)
+  run length with the lowest modelled $ per request: N* = 35 requests ($0.0304/request vs $0.0339 at the median N, 10% dearer)
+  prefix 10k tokens smaller (always-read docs)         $  11.8% less   tokens  12.5% less
+  20% fewer requests, same work (batch calls)          $   9.7% less   tokens  20.1% less
+  growth per request halved (trim tool output)         $  11.3% less   tokens   8.0% less
+  5-minute instead of 1-hour cache writes (harness)    $  15.9% less   tokens   0.0% less
+
+## Transcript (this report's own session, first 16 requests)
+first request context: 75,941 tokens (cache read 47,778, written 28,161)
+tool results: 14 calls, 50,234 characters (~12,558 tokens at 4 chars/token)
+  Bash                                      14 calls    50,234 chars 100.0%

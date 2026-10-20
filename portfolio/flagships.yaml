@@ -18,35 +18,61 @@
 # retail-pilot-intel, print-atelier and real-estate-agent-photo-app (mostly
 # plans and demo UI), workflow-audit and marketplace-fee-compare (thin).
 flagships:
+  # Added 2026-10-20 first, on the owner's direction that day for research
+  # algorithms as tools (prompts/goals.md). New tools of that kind follow
+  # portfolio/research-tools/README.md; this entry deepens the first one.
+  - venture: changepoint-detector
+    why: >-
+      PELT and Bayesian online changepoint detection from the papers, exact
+      against brute force and a closed-form evidence check, reproducing the
+      published Nile 1898 change; page, CLI and agent engine.
+    next: >-
+      Models for real-world series the README lists as limits: a Poisson
+      cost for counts, a seasonal-difference or STL pre-step for seasonal
+      data, and an AR(1)-aware cost so autocorrelated series stop showing
+      false changes, each checked against R's changepoint package output.
   - venture: einvoice-preflight
     why: >-
       Real EN 16931 validator (JSON, UBL, CII, Factur-X PDF; 54+ rules,
       XRechnung, Peppol profiles) with a self-hosted API, Docker and Render
       deploy, ~48 test files, and a regulatory tailwind (EU e-invoicing mandates).
     next: >-
-      Run the official EN 16931 / Peppol BIS Schematron (saxon-js with
-      compiled SEF) beside the built-in rules and map each BR-xx failure to a
-      plain-language fix, so the README can drop "not a full EN 16931
-      conformance validator".
+      The official EN 16931 Schematron plus the XRechnung (UBL, CII) and Peppol
+      BIS 3 (UBL and CII) add-ons run in Saxon-JS (opt-in, ?schematron=1, picked by
+      BT-24); the Docker image bakes them in; all 342 rule ids have an English
+      fix; and the web page has an "official Schematron" box that posts XML to
+      the self-hosted API and lists the findings (official.mjs). The Peppol
+      credit-note and XRechnung CII examples now pass the official rules in
+      tests, and the 30 DE-R rules Peppol applies to German invoices have
+      English fixes. Next: a WASM/in-browser path so the static Pages copy can
+      run it too without a server (Saxon-JS in the page, SEF files built in CI
+      and served as static assets), then CreditNote and CII credit-note
+      defect examples.
   - venture: shift-roster-builder
     why: >-
       Simulated-annealing scheduler over a dollar cost (availability, rest,
       youth labour rules, state overtime presets, roles) with a self-host
       server, .ics feeds and availability intake.
     next: >-
-      Bound the heuristic: an exact solver (ILP or branch-and-bound) for
-      small instances that reports how far the annealing roster is from
-      optimal, then multi-week rostering that carries fairness and time off
-      across weeks (README Limits).
+      The exact check now has a coverage bound (min-cost flow over shifts,
+      person-days and weekly hours): on the 32-shift sample week it proves the
+      15 uncoverable hours and sits within ~$70 of the roster found, but the
+      proof of the cheapest roster still times out (the coverage flow now runs on a sparse graph, 1.7x more nodes in the same 8 s, ~11k nodes/s here, ~94k nodes vs 57k). Next: close
+      that last gap (a faster incremental bound or symmetry cuts between people
+      with equal availability and wage) so full weeks are proven, then
+      multi-week rostering that carries fairness and time off across weeks
+      (README Limits).
   - venture: photo-editing
     why: >-
       ShootFlow works end to end on real media: checksum-verified ingest,
       catalog, ffmpeg proxies, LUT-graded masters, reels and carousels.
     next: >-
-      Replace the deterministic analysis stand-ins in
-      src/shootflow/local_pipeline.py with real frame selection: sharpness,
-      exposure and face scores plus perceptual-hash near-duplicate grouping,
-      written to the analysis/NNNNN.json contract analysis.py already validates.
+      Sharpness, exposure, motion and dHash near-duplicate grouping now run
+      on real frames (src/shootflow/frame_analysis.py). Next: face and
+      closed-eye scores and subject framing for the story score (a small
+      on-device model, opt-in, behind the same analysis/NNNNN.json contract),
+      and RAW stills via a RAW developer so they stop falling back to the
+      sha256 stand-in.
   - venture: quick-pick-survey
     why: >-
       Next.js + Postgres app with Glicko-2 ranking, adaptive pairing and a
@@ -62,9 +88,13 @@ flagships:
       assignment under rest constraints, blackouts, play-offs, ladders and
       Swiss formats, with a self-hosted league page.
     next: >-
-      Multi-division scheduling on shared venues: one constraint solve across
-      divisions over shared courts and dates, minimizing back-to-backs and
-      travel, with the conflicts it could not avoid listed.
+      Multi-division scheduling on shared venues is in (divisions.mjs: one pass over
+      divisions, courts, times and venues, linked teams kept apart, venue changes
+      -25% against the naive order on the example, unavoidable clashes listed;
+      command line and example-divisions.json). Next: a page for it in index.html
+      with the share link, venue-to-venue travel times instead of a flat trip count,
+      filling partial nights (split a round across nights without breaking its
+      balance) and rainout moves that work across divisions.
   - venture: open-tennis-robots
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP

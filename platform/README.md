@@ -16,6 +16,7 @@ MIT licensed, like the rest of the repository.
 | [`llm/`](llm/README.md) | **Bring-your-own-key LLM client** in one dependency-free file: OpenAI, Anthropic and other providers, or a local model (Ollama, LM Studio, llama.cpp) with no key. Works in a static page, Node, an edge function or a phone app. |
 | [`counter/`](counter/README.md) | **Cookieless, first-party page-view counter** for a static site, about 200 lines of Node with no analytics vendor and no dependencies. |
 | [`deploy/`](deploy/README.md) | **One-click self-deploy**: turns a product into a deploy-your-own-copy bundle (Docker, Fly.io, Render, OpenTofu) so anyone can run it in their own account. |
+| [`business-template/`](business-template/README.md) | **AI-run business repository template.** Describe a business idea; get a repository that hourly Claude Code runs build and operate (product, marketing, sales, books, legal drafts, support), with one checklist for the steps only the owner may take. |
 | [`proposal/`](proposal/README.md) | **Printable customer proposal** for the bid calculators: turns a finished quote into a one-page document to print or save as PDF, in the browser. |
 
 ## The tools site and its checks
@@ -28,6 +29,7 @@ MIT licensed, like the rest of the repository.
 | [`marketing/`](marketing/README.md) | Distribution surfaces that sit outside the tools site: the front-door mirror's page, category pages, feed, sitemap and `llms.txt`, regenerated with `regen.mjs`. |
 | [`distribution/`](distribution/) | Packagers and announcers for registries and stores (npm, PyPI, Homebrew, VS Code, browser extensions, MCP, GitHub Actions, citation metadata). Each is off by default with a dry run; the rules are in [`portfolio/distribution/`](../portfolio/distribution/README.md). |
 | [`devstats/`](devstats/README.md) | Public development dashboard at [`/dev/`](https://duncan-haywood.github.io/monorepo-projects/dev/): merges, lead time, CI pass/fail, agent run cost. |
+| [`daily/`](daily/README.md) | Daily [engineering brief](https://duncan-haywood.github.io/monorepo-projects/dev/daily/) (~15 min) and [The Merge Report](https://duncan-haywood.github.io/monorepo-projects/dev/daily/show/) for the public, to read or listen to (browser speech). |
 | [`devlog/`](devlog/README.md) | Development analyses at `/dev/analyses/`: what the agents building this portfolio tried, measured and tripped on. |
 
 ## CI and repository automation

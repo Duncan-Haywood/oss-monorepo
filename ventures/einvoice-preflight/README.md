@@ -52,6 +52,33 @@ capture the party legal identifier and the invoice and payment-terms notes.
 Off by default, JS only, and an offline observation, not a certified
 platform's validator or legal advice. Findings never echo the number.
 
+**Official Schematron (optional).** Beside the built-in rules you can
+run the CEN EN 16931 validation artefacts (ConnectingEurope/eInvoicing-EN16931,
+EUPL-1.2) for UBL and CII invoices, in Saxon-JS, with each BR-xx failure mapped
+to a plain-language fix (`schematron-fixes.mjs`). When the invoice's
+specification identifier (BT-24) names XRechnung, the KoSIT XRechnung rules
+(BR-DE-xx, Apache-2.0, UBL and CII) run too; when it names Peppol BIS Billing 3,
+the OpenPEPPOL rules (PEPPOL-EN16931-Rxxx, MPL-2.0, UBL invoices and credit notes, and CII) run. Findings carry
+the official rule ID and `source` of `en16931-schematron`, `xrechnung-schematron`
+or `peppol-schematron`; the built-in `INV-nnn` rules still run. Neither the engine nor the compiled rules ship in this folder:
+
+```sh
+cd ventures/einvoice-preflight
+npm i --no-save saxon-js xslt3     # Saxon-JS is Saxonica's, free to use, not MIT
+node build-schematron.mjs          # clones the artefacts (needs git, curl, unzip), compiles ./schematron/*.sef.json (~2 min)
+node schematron-cli.mjs examples/ubl-invoice-with-defects.xml   # or --json
+# API: POST /v1/validate?schematron=1 (report.reports[].schematron is "ok" or "unavailable")
+```
+
+Checked on the bundled examples: the clean UBL, CII and Factur-X invoices pass
+the base rules, and the defects file raises BR-CO-15, BR-CO-16, BR-CO-17, BR-S-09
+and BR-61. The bundled UBL example names XRechnung 3.0 and the XRechnung rules
+find what a German public buyer would reject: no seller contact (BR-DE-2) and no
+buyer post code (BR-DE-9). The Docker image builds the rules in a first stage and
+ships them with Saxon-JS (`?schematron=1`). JSON drafts have no XML to check. On a self-hosted copy the web page has an "Also run the official EN 16931 Schematron" box: it posts the XML to the page's own `/v1/validate?schematron=1` (`official.mjs`) and lists the official findings beside the built-in ones; on a static host with no API it says the check did not run, never a pass. The
+XRechnung messages are in German, as the KoSIT rules publish them; the `fix` line
+is English. `examples/xrechnung-cii-invoice.xml` and `examples/peppol-credit-note.xml` (Peppol BIS 3 UBL credit note) pass the official rules and are pinned by tests. Peppol also applies its German `DE-R-nnn` rules to a domestic German invoice (seller contact, buyer post code, payment groups); each has an English fix.
+
 ```sh
 cd ventures/einvoice-preflight
 # Browser: open index.html, or `python3 -m http.server 8765` and visit
@@ -74,6 +101,7 @@ PYTHONPATH=src python3 -m einvoice_preflight examples/valid-mixed-rate.json
 PYTHONPATH=src python3 -m einvoice_preflight examples/cii-invoice.xml
 PYTHONPATH=src python3 -m einvoice_preflight examples/factur-x-invoice.pdf
 PYTHONPATH=src python3 -m einvoice_preflight examples/ubl-invoice.xml
+PYTHONPATH=src python3 -m einvoice_preflight examples/peppol-credit-note.xml
 # The one example that is meant to fail: six planted defects, annotated at the
 # top of the file and pinned by tests/test_examples.py. Exits 1.
 PYTHONPATH=src python3 -m einvoice_preflight examples/ubl-invoice-with-defects.xml

@@ -51,3 +51,6 @@ infra/*.tfvars
 # than globbed -- a pattern like *-tmp would start hiding real files.
 .bash-test-tmp
 platform/deploy/dist/
+
+# einvoice-preflight: compiled official Schematron (build-schematron.mjs)
+ventures/einvoice-preflight/schematron/*.sef.json

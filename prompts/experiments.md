@@ -875,3 +875,36 @@ or `ventures`) until its success rate passes 80% over 20 runs?
 - Candidates: unchanged (review/2 has 8 runs; ventures 2 / research 1 intervals
   overlap). Reduced pass: no audit or drift report (hours-old report).
 - Result: (next review)
+
+## E52: review 2026-10-20 (second)
+
+- Change: `prompt.md` step 1 says which track an owner request that fits none
+  takes (`prompt.md`/`routing.json` friction: 3 reports of forcing a track with
+  no rule).
+- Metric: "no track fits owner task" friction reports on `prompt.md`, next 20 runs.
+- Candidates: research/1 vs 0: `measure` says retire (1 integrity issue in 110
+  runs vs 4 in 618), but the one issue is a self-disclosed caveat (search-excerpt
+  figures marked in the data and README), not a violation; success is 100% vs
+  98%. Kept, 0.2 share. ventures 2 / review 2 unchanged (overlap, under 10 runs).
+  Reduced pass: no audit, drift report or `derived/` regeneration.
+
+## E53: guidance map and layers, 2026-10-20 (owner-requested, not a review)
+
+- Change: one map of the guidance (`prompts/SYSTEM.md`, `prompts/system.json`,
+  `promptctl.py map`), with seven layers and precedence. `validate` now fails
+  on a guidance file that has no map entry. `INSTRUCTION_FILES` and the budgets
+  are read from the map. Operational detail moved down a layer: from
+  `CLAUDE.md`, "Reading CI" went to `verify-and-merge.md`, "Duplicate PRs" to
+  `duplicate-work.md`, and the hosting state to `portfolio/hosting/README.md`.
+  The cloud-container notes, which had been copied into `CLAUDE.md`,
+  `prompt.md` (the E49 and E50 lines) and `land-your-work.md`, went to one
+  file, `cloud-session.md`. `CLAUDE.md` went from 360 to 306 lines.
+- Metric: the share of runs whose `doc_friction` names `CLAUDE.md`,
+  `prompt.md` or `land-your-work.md` on gh/MCP, shallow clones, pytest or
+  long commands, over the next 200 runs. The baseline (keyword matches, an
+  upper bound) is, out of 1,491 runs since 2026-10-14: long commands 69,
+  pytest 48, shallow 34, gh/MCP 23. E49 and E50 are now judged on
+  `cloud-session.md`, which `prompt.md` links to. Also: any friction item that
+  says a moved fact could not be found.
+- Evidence strength: a before-and-after comparison, not A/B.
+- Result: (next review)

@@ -1,7 +1,7 @@
 # Priority projects
 
-The owner's priority projects, set on 2026-10-12, with tracks 7 to 11 added on 2026-10-14, track 12 on 2026-10-16 tracks 13 to 15 on 2026-10-19, tracks 16 and 17 on 2026-10-19 and track 18 on 2026-10-19. Runs
-started from `prompt.md` take their new work from here. There are eighteen tracks. Each one is
+The owner's priority projects, set on 2026-10-12, with tracks 7 to 11 added on 2026-10-14, track 12 on 2026-10-16 tracks 13 to 15 on 2026-10-19, tracks 16 and 17 on 2026-10-19, track 18 on 2026-10-19 and track 19 on 2026-10-20. Runs
+started from `prompt.md` take their new work from here. There are nineteen tracks. Each one is
 open-ended: its milestones are a starting order, not a checklist, so follow the results. Every
 project a track produces is a normal `research/<slug>/` project. It needs a README, tests, a
 README bullet, a `_homepage/projects.json` entry, a home page on the Pages site (milestone 9 below)
@@ -74,7 +74,7 @@ deleted; its pull requests, review threads and old Pages site stay there.
 ## Picking work
 
 1. **Pick a track at random:** `python3 research/_shared/pick_track.py` (below 0.05 is a
-   free-choice run; otherwise it maps the draw onto tracks 1-18, redraws any track with 40+ projects, and lists the track's newest projects). Four runs start in the same
+   free-choice run; otherwise it maps the draw onto tracks 1-19, redraws any track with 40+ projects, and lists the track's newest projects). Four runs start in the same
    minute, and a random pick spreads them out.
 
    **Free choice (about 5% of runs).** In the spirit of Google's "20% time", about one run in
@@ -116,6 +116,7 @@ deleted; its pull requests, review threads and old Pages site stay there.
 | 16. Energy supply and dense energy storage | `energy` |
 | 17. Societies of AI agents in robots among people | `society` |
 | 18. Laundry-hanging robots and custom hangers | `hanger` |
+| 19. Machine learning on qualitative data with LLMs | `qual` |
 | Free choice (about 5% of runs) | `free` |
 
 ## Rules for every track
@@ -1317,10 +1318,10 @@ PyBullet, SoftGym, Blender's cloth solver, Gymnasium. Check each before citing i
    collars), checked against milestone 1 on the cases both can run.
 5. `hanger-pick`: picking one garment out of a tangled dryer load and finding its neck or
    waistband, on simulated cloth, with a scripted baseline before any learned policy.
-6. `hanger-cell`: the whole cell as a discrete-event model (dryer or loader, picker, hanger
+6. `hanger-cell` (done 2026-10-20; station times other than insertion are assumed placeholders: pick and fold dominate, the hanger design moves time per load by under 3%): the whole cell as a discrete-event model (dryer or loader, picker, hanger
    feeder, rail): throughput, failure and recovery rates, and the cost of each station, built
    on milestones 2 to 5.
-7. `hanger-print`: the winning hanger shapes as parametric, printable CAD (OpenSCAD or
+7. `hanger-print` (done 2026-10-20; strength never limits the round-ended designs, the print bed does: nothing useful fits 220 mm whole): the winning hanger shapes as parametric, printable CAD (OpenSCAD or
    CadQuery) with a strength check, a printable by-product people can use today.
 8. Owner steps: buying or printing hangers, building the robot, measuring real fabrics and
    garments, and any test with real laundry.
@@ -1333,6 +1334,59 @@ PyBullet, SoftGym, Blender's cloth solver, Gymnasium. Check each before citing i
   every hardware design lists the hazards and a stop, and no run builds or powers hardware.
 - *Lab tags.* This track may build on track 9's purpose-built robots and track 14's co-design
   loop; say so only where a project actually does.
+
+## 19. Machine learning on qualitative data with LLMs (`qual`)
+
+Added on 2026-10-20 at the owner's request, marked as an interesting topic for future research
+and applications.
+
+**Goal.** Machine learning has needed numbers. Qualitative data (interviews, open survey answers,
+reviews, support tickets, field notes) could join in only after slow hand-coding or crude word
+counts. LLMs read text the way a coder does and follow a codebook written in plain language, so
+qualitative data can now be coded, counted, compared, modelled and used to generate hypotheses at
+scale. This track asks what that makes possible and when the resulting numbers can be trusted:
+an LLM's code is a measurement with error, and the error can differ between groups.
+
+**Prior work.** Gilardi, Alizadeh and Kubli (2023), *PNAS*, LLM vs crowd-worker annotation.
+Ziems et al. (2024), *Computational Linguistics*, LLMs on 24 computational social science
+benchmarks. Egami, Hinck, Stewart and Wei (2023), NeurIPS, design-based supervised learning for
+LLM labels. Angelopoulos et al. (2023), *Science*, prediction-powered inference. Pham et al.
+(2024), NAACL, TopicGPT. Lam et al. (2024), CHI, LLooM concept induction. Hegselmann et al.
+(2023), AISTATS, TabLLM. Ludwig and Mullainathan (2024), *QJE*, ML for hypothesis generation.
+Argyle et al. (2023), *Political Analysis*, simulated survey samples. Krippendorff (2011),
+alpha reliability. Check each before citing it.
+
+**Milestones.**
+1. `qual-correction` (done 2026-10-20): when can you count an LLM's codes? Naive, human-only and
+   prediction-powered estimates of a code's prevalence and of a group gap, against simulated
+   coders with known error. An 89%-accurate coder is confidently wrong; with differential error
+   the naive gap has the wrong sign; PPI with 200 hand-coded items fixes both, and stops paying
+   below about 80% coder accuracy.
+2. `qual-real`: the same pipeline on a public, hand-coded corpus (open-ended survey answers or
+   annotated reviews with a licence that allows it), with a model behind `ANTHROPIC_API_KEY` and a
+   deterministic stub. Without a key, label any session-agent coding as such.
+3. `qual-dialect`: measure milestone 1's mechanism on real data, whether LLM coding accuracy
+   differs across dialects, languages or writing fluency, and how much that moves group
+   comparisons.
+4. `qual-induce`: inductive coding. Compare LLM-proposed codebooks (TopicGPT/LLooM style) with
+   a human codebook on the same corpus: coverage, redundancy, and agreement when each is applied.
+5. `qual-features`: qualitative codes and LLM-scored dimensions as features next to numeric ones
+   in a predictive model, against embeddings and bag-of-words at the same labelling budget.
+6. `qual-hypothesis`: LLM-proposed, human-readable hypotheses about what separates two sets of
+   documents, scored on held-out data, with a check for hypotheses that merely restate the label.
+7. `qual-regression`: extend the correction from means to regression coefficients (DSL, PPI++)
+   and to multi-class codes.
+
+**Applications.** Customer feedback and support-ticket analytics, open-ended survey analysis,
+user research synthesis, policy consultation responses, qualitative health research, and the
+portfolio's own run records. Each needs the same validation step.
+
+**Guardrails.**
+- *Codes are measurements.* Every count, gap or model built on LLM codes reports how it was
+  validated against a random hand-coded sample, not just an agreement score.
+- *Privacy and consent.* Use only public data whose licence allows the use; never put personal
+  data in the repository.
+- *No benchmark claims without a real model.* Simulated coders are labelled as simulated.
 
 ## References
 

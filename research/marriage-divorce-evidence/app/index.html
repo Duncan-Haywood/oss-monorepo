@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Divorce Odds Calculator for Couples — Explainable ML in Your Browser</title>
-<meta name="description" content="Estimate your chance of divorce with 15 explainable models from U.S. and Canadian surveys: ranges, population percentiles and partner what-ifs.">
-<meta property="og:title" content="Divorce odds calculator for couples (explainable, in-browser)">
-<meta property="og:description" content="Divorce odds for a couple from 15 survey lenses (NLSY, NSFG, GSS, HCMST, SIPP, ACS, Statistics Canada), side by side and never pooled, with model ranges.">
+<title>Will My Marriage Last? Divorce Risk Calculator Before You Marry</title>
+<meta name="description" content="Divorce risk calculator for engaged couples: before you marry, estimate the odds your marriage lasts from facts known by the wedding day, with model ranges.">
+<meta property="og:title" content="Will my marriage last? A divorce risk calculator for before you marry">
+<meta property="og:description" content="Divorce odds per year from the wedding day, for a couple or a candidate partner, from survey models that use only facts known before the wedding.">
 <meta property="og:type" content="website">
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"WebApplication","name":"Divorce odds calculator for couples","applicationCategory":"ResearchApplication","operatingSystem":"Any (runs in the browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"isAccessibleForFree":true,"description":"Model-estimated divorce and break-up odds for a couple from explainable models trained on U.S. and Canadian surveys (NLSY79, NLSY97, NSFG 2002 and 1995–2023, GSS panels, HCMST, SIPP, ACS, Statistics Canada GSS, a Los Angeles newlywed study), each lens at the horizons it supports, with a summary across lenses that never pools them. Runs entirely in the browser.","featureList":["Summary across 15 evidence lenses with held-out skill and data fit","Relationship quality, marriage happiness and newlywed satisfaction lenses","Same-sex and unmarried couples (HCMST lens)","ACS one-year divorce rates for people like you","Divorce odds for each year of marriage","Chance of no divorce by year 5 to 50","Lifelong marriage estimate counting mortality (UN WPP 2024 U.S. death rates)","Per-input model explanations","Model agreement and held-out skill for every evidence lens","Shareable scenarios stored only in the link","Population percentile overall and within subgroups","Just-me estimate averaged over realistic partners","Rank several candidate partners per lens","Batch CSV scoring in the browser with downloadable results","Dashboard of partner traits and what-ifs with non-negotiables","Compare many saved options lens by lens against your current plan, out of 100 couples like you, with model ranges and agreement, vary-one-thing copies, charts and JSON/CSV export","Optional literature-based adjustment for conflict, depression, alcohol problems, neuroticism and earlier cohabitations, from verified published hazard ratios","CDC/NCHS population baselines of first-marriage disruption by matching characteristics"],"license":"https://opensource.org/licenses/MIT"}
+{"@context":"https://schema.org","@type":"WebApplication","name":"Will my marriage last? Divorce risk calculator before you marry","applicationCategory":"ResearchApplication","operatingSystem":"Any (runs in the browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"isAccessibleForFree":true,"description":"Before the wedding: model-estimated divorce odds for each year from the wedding day for an engaged couple or a candidate partner, from survey lenses whose inputs are known by the wedding day (NSFG 1995–2023, NLSY97, NLSY79, SIPP, Statistics Canada GSS); already married couples get a separate view. Model-estimated divorce and break-up odds for a couple from explainable models trained on U.S. and Canadian surveys (NLSY79, NLSY97, NSFG 2002 and 1995–2023, GSS panels, HCMST, SIPP, ACS, Statistics Canada GSS, a Los Angeles newlywed study), each lens at the horizons it supports, with a summary across lenses that never pools them. Runs entirely in the browser.","featureList":["Before-the-wedding view: divorce odds from the wedding day using only facts known by then","Compare candidate partners on pre-wedding traits","Already-married view kept separate","Summary across 15 evidence lenses with held-out skill and data fit","Relationship quality, marriage happiness and newlywed satisfaction lenses","Same-sex and unmarried couples (HCMST lens)","ACS one-year divorce rates for people like you","Divorce odds for each year of marriage","Chance of no divorce by year 5 to 50","Lifelong marriage estimate counting mortality (UN WPP 2024 U.S. death rates)","Per-input model explanations","Model agreement and held-out skill for every evidence lens","Shareable scenarios stored only in the link","Population percentile overall and within subgroups","Just-me estimate averaged over realistic partners","Rank several candidate partners per lens","Batch CSV scoring in the browser with downloadable results","Dashboard of partner traits and what-ifs with non-negotiables","Compare many saved options lens by lens against your current plan, out of 100 couples like you, with model ranges and agreement, vary-one-thing copies, charts and JSON/CSV export","Optional literature-based adjustment for conflict, depression, alcohol problems, neuroticism and earlier cohabitations, from verified published hazard ratios","CDC/NCHS population baselines of first-marriage disruption by matching characteristics"],"license":"https://opensource.org/licenses/MIT"}
 </script>
 <link rel="icon" href="data:,">
 <link rel="stylesheet" href="style.css">
@@ -17,12 +17,19 @@
 <body>
 <header class="wrap">
   <p class="crumb"><a href="../">Marriage &amp; divorce research</a> · <a href="../../">Research home</a></p>
-  <h1>Divorce odds calculator for couples</h1>
-  <p class="lede">Enter two profiles to see what explainable machine-learning models, trained on survey data, estimate for your chance of divorce or break-up — with each lens’s model range, where you sit in its population, and which changes it links to lower risk. Fifteen evidence lenses: NLSY79 and NLSY97, NSFG 2002 and 1995–2023, GSS panels (marriage happiness), HCMST (relationship quality; married or not, same-sex or not), SIPP and ACS (Census), Statistics Canada, and a Los Angeles newlywed study. Each speaks only to the horizons its data support, and they are shown side by side, never pooled. Everything runs in your browser; nothing you type is sent anywhere.</p>
+  <h1>Will your marriage last? A divorce risk calculator for before you marry</h1>
+  <p class="lede">Thinking of marrying someone, or comparing possible partners? Enter what you will both know on the wedding day — ages, schooling, family background, earlier marriages and children, living together first, religion — and see what explainable models trained on U.S. and Canadian surveys estimate for the chance of divorce in each year from the wedding, the chance of a lifelong marriage counting mortality, and which pre-wedding traits they link to lower risk. Already married? Switch to the “Already married” view. Everything runs in your browser; nothing you type is sent anywhere.</p>
   <p class="warn" role="note"><strong>Read this first.</strong> These are statistical associations in past surveys, not a forecast for you and not causes. Most lenses beat a flat average rate by only 3–9% on held-out people; the one that asks about relationship quality (HCMST) does far better, because how a relationship feels now says a lot about the next few years. Fidelity, commitment and much else are not in any of the data. Use it to explore the evidence, not to choose or judge a partner.</p>
 </header>
 
 <main class="wrap">
+<fieldset class="stage" id="stagePick">
+  <legend>Your situation</legend>
+  <label><input type="radio" name="stagePick" value="before" checked> Before the wedding <small>engaged, dating, or comparing partners</small></label>
+  <label><input type="radio" name="stagePick" value="married"> Already married</label>
+  <p class="small" id="stageNote"></p>
+</fieldset>
+
 <section class="lens" aria-labelledby="lensHead">
   <h2 id="lensHead">Evidence lens</h2>
   <p class="sub">Each lens is one dataset with its own population and outcome. Lenses are never pooled: their targets differ.</p>
@@ -49,7 +56,7 @@
   <fieldset data-who="a"><legend>You</legend></fieldset>
   <fieldset data-who="b"><legend>Your partner</legend></fieldset>
   <fieldset class="couple"><legend>Your marriage</legend>
-    <label>Years married so far <input name="yearsMarried" type="number" min="0" max="60" step="1" value="0"><small>0 if engaged, dating or just married</small></label>
+    <label id="yearsMarriedField" hidden>Years married so far <input name="yearsMarried" type="number" min="0" max="60" step="1" value="0"><small>0 if just married</small></label>
     <label>Household income per year, $ <input name="familyIncome" type="number" min="0" step="1000" placeholder="defaults to both wages"></label>
     <label>Lived together before marrying <select name="cohabitedFirst"><option value="">Not sure</option><option>Yes</option><option>No</option></select></label>
     <label>Projection horizon (year-by-year lenses) <select name="horizon"><option>20</option><option>30</option><option selected>40</option><option>50</option></select></label>
@@ -57,6 +64,12 @@
   </fieldset>
 </form>
 <p class="share"><button type="button" id="share">Copy link to this scenario</button> <span id="shareStatus" role="status"></span><small>The profiles are stored only in the link’s <code>#</code> fragment, which browsers do not send to any server. Anyone you share the link with sees them.</small></p>
+
+<section id="datingBox" class="summary" aria-labelledby="datingHead">
+  <h2 id="datingHead">Not engaged yet? Will you marry each other, or break up first?</h2>
+  <p class="sub">For a couple who are dating or living together: from your ratings of the relationship, how long you have been together, living together, your parents’ view, how you met, ages and schooling. It answers a different question from the lenses below: whether this relationship becomes a marriage at all. Associations in one survey, not a forecast.</p>
+  <div id="datingOut" aria-live="polite"></div>
+</section>
 
 <section id="summaryBox" class="summary" aria-labelledby="summaryHead">
   <h2 id="summaryHead">Summary across lenses</h2>
@@ -246,6 +259,8 @@
   </details>
 </section>
 
+<!-- In-browser training panel: all of its code is in train/; this section and the train/panel.js script tag are its only hooks. -->
+<section id="trainPanel" class="train" aria-labelledby="trainHead"></section>
 <section class="limits">
   <h2>How it works and what it cannot tell you</h2>
   <ul>
@@ -266,5 +281,6 @@
 </main>
 <div id="tip" class="tip" role="tooltip" hidden></div>
 <script type="module" src="app.js"></script>
+<script type="module" src="train/panel.js"></script>
 </body>
 </html>

@@ -3086,9 +3086,10 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `devsec-toolkit` graduated (one zero-dependency command running 22 devsec checks, SARIF/JSON/Markdown, baselines, local report viewer page).
     # +1: `s-corp-basis-tracker` graduated (browser S corporation stock and debt basis roll-forward in Form 7203 order, suspended losses and excess distributions).
     # +1: `uk-crypto-cgt-calculator` graduated (browser + CLI UK crypto capital gains: HMRC same-day, 30-day and Section 104 pool matching, per-tax-year estimate, working CSV).
-    total = 1300  # `infra/OWNER_CHECKLIST.md`'s own "N of the 1300 tools" wording.
+    total = 1306  # `infra/OWNER_CHECKLIST.md`'s own "N of the 1306 tools" wording.
     # +1: `open-tennis-robots` graduated (open-source tennis ball machine with a moving catch net and a ball-collecting rover: shot planner, catch simulation, route planner, ESP32 firmware, seller listing tool, collector manufacturing package).
     # +1: `sales-call-notes-desk` graduated (browser sales call notes reader: CRM fields, BANT/MEDDIC gaps, dated next steps, a follow-up email checked against the notes, optional own-key AI).
+    # +1: `sales-cadence-builder` graduated (browser and CLI multi-channel prospecting cadence: email, call with voicemail, LinkedIn note and letter on business days, calls in the prospect's local 9-5, suppression and CASL/EU consent gating, CSV and .ics export, optional own-key AI).
     # +1: `actions-schedule-check` graduated (browser + CLI lint of GitHub Actions schedule crons: invalid, faster than 5 minutes, minute 0).
     # +1: `liability-audit` graduated (zero-dependency repository scanner for legal and financial exposure: consent, auto-renewal, disclosures, leaked keys, open LLM endpoints, cloud budgets; CLI, SARIF, monorepo sweep, browser page, agent playbook).
     # +1: `llm-spend-guard` graduated (self-hosted proxy and zero-dependency library: hard per-user/feature/run LLM budgets with worst-case holds, loop breakers, browser log-replay simulator).
@@ -3126,6 +3127,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `us-substantial-presence-test-calculator` graduated (browser IRS substantial presence test: 183-day weighted count, days left this year, crossing date, planned-trip what-if).
     # +1: `discogs-fee-calculator` graduated (browser Discogs seller fee calculator: 9% on item plus shipping with the $0.10/$150 limits, editable processing, target-profit price, fee ladder).
     # +1: `tutoring-group-schedule-optimizer` graduated (browser exact timetable for weekly small-group sessions: min-cost-flow seating inside a search over which slots to run).
+    # +1: `hearth-and-horizon` graduated (free CC BY-SA AI-written stories: sci-fi, stories for AI agents, Catholic saints bedtime stories; pages, podcast RSS feeds and Piper audio).
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
@@ -3564,11 +3566,16 @@ def test_portfolio_site_types_es_modules_as_javascript() -> None:
     #
     # `.py` is the fourth: 18 ventures' own pages offer a specific CLI as a
     # same-origin download (`DOWNLOADABLE_CLI_FILES` in `build.mjs`).
+    #
+    # `.gz` is the fifth: research/marriage-divorce-evidence's in-browser
+    # trainer fetches its data as .json.gz and unpacks it with
+    # DecompressionStream, so it must arrive as application/gzip.
     for suffix, mime in (
         (r"\.mjs$", "text/javascript"),
         (r"\.webmanifest$", "application/manifest+json"),
         (r"\.csv$", "text/csv"),
         (r"\.py$", "text/plain"),
+        (r"\.gz$", "application/gzip"),
     ):
         block = f"location ~ {suffix} {{\n    types {{ }}\n    default_type {mime};"
         assert block in conf, f"missing or reordered: {suffix} -> {mime}"
@@ -3602,15 +3609,16 @@ def test_portfolio_site_repeats_security_headers_in_every_location() -> None:
     # hole while closing one.
     #
     # The count is pinned so a *new* location cannot be added without someone
-    # reading this: 8 today (.mjs, .webmanifest, .csv, .py, /feed.xml, /sw.js,
+    # reading this: 9 today (.mjs, .webmanifest, .csv, .py, .gz, /feed.xml, /sw.js,
     # /buildinfo.txt, /). Bumping the number is the reminder to restate the
     # headers in the block being added, which is the whole point of the loop
     # below — and it has worked twice now: /buildinfo.txt and /feed.xml were
     # both written with their three headers because this test refused the
     # block without them. `.py` (added when 18 ventures' own pages started
-    # offering a same-origin CLI download) is the third.
+    # offering a same-origin CLI download) is the third, and `.gz` (gzipped
+    # data a research app unpacks itself in the browser) the fourth.
     blocks = [b for b in _location_blocks(_portfolio_site()["ConfigMap"]["data"]["default.conf"]) if "add_header" in b]
-    assert len(blocks) == 8, [b.splitlines()[0] for b in blocks]
+    assert len(blocks) == 9, [b.splitlines()[0] for b in blocks]
     for block in blocks:
         assert "X-Content-Type-Options nosniff" in block, block.splitlines()[0]
 

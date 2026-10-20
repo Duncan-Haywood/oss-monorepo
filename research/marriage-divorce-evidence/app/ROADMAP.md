@@ -68,7 +68,9 @@ licences):**
   `literature_evidence/`.
 - **Mortality:** `un_wpp2024_mortality/` (`mortality.js` `competingRisks`).
 
-**Hand-offs to C (app):** adapters for the two HCMST before-the-wedding lenses. They ask for
+**Hand-offs to C (app):** adapters for the two HCMST before-the-wedding lenses (#8713 already
+places them under "Before the wedding"). Prefer each bundle's `additive_harmonized` model when
+parents' view or religion is not given: it is the one checked on the 2017 cohort. They ask for
 the 2009 HCMST inputs: relationship quality, living together, parents' view, couple type, ages,
 schooling and how the couple met. Chain them into a marriage lens after the wedding, as
 `how_to_combine` in each bundle describes.
@@ -81,8 +83,10 @@ schooling and how the couple met. Chain them into a marriage lens after the wedd
 2. **Add Health public-use waves I–V** (addhealth.cpc.unc.edu reachable): adolescents measured
    long before they marry. Check whether the public-use files and relationship histories can be
    downloaded without a contract.
-3. **HCMST 2017–2022 unmarried couples** (Stanford reachable): a second, more recent
-   before-the-wedding cohort, and an external check for the 2009 lenses.
+3. ~~HCMST 2017–2022 unmarried couples~~ **Done 2026-10-20:** the 2009-trained harmonized
+   dating models, scored on 777 unmarried 2017 couples, reach AUC 0.77–0.79 for marrying and
+   0.84–0.85 for breaking up first by 2020 and 2022, with shares within 1.5 points
+   (`hcmst_dating_to_marriage/external_validation_hcmst2017.csv`).
 4. **Pre-marital relationship-quality studies** with open data on OSF or Zenodo (both
    reachable), for example engaged-couple or premarital-inventory studies.
 5. **PSID, Fragile Families / Future of Families and Understanding Society**: their hosts
@@ -146,6 +150,30 @@ Remains:
 - **Recalibration to a target population.** U.S. models put Canada's level 1.5–2.2 times too
   high. A per-country intercept from official tables would fix the level but not the ranking.
 
+### D. In-browser training (owns `train/`, `tests/train.test.mjs`; hooks in `index.html` are one `<section id="trainPanel">` and one script tag)
+
+Done (2026-10-20). The "Train the models yourself" panel works as follows:
+
+- A 374 KB gzipped public extract of the NSFG 1995–2023 women's first marriages.
+- A module worker that runs the five-fold person-held-out comparison in plain JavaScript.
+  It fits a constant rate, a duration-only GLM, the additive spline Poisson GLM, a depth-4
+  tree and Poisson boosting.
+- Results shown beside the shipped Python ones, and profile scoring with the models the
+  visitor just trained.
+- Parity with scikit-learn: GLM coefficients to 4e-14, held-out gains to 0.001 points (boosting
+  0.002).
+
+Next:
+
+1. Time a run on real phones and report it. Only headless Chromium on a cloud machine has been
+   timed so far. Parallel folds (done 2026-10-20) took a full run from 45.5 s on one thread to
+   18.8 s on three, on 4 cores.
+2. Add a both-sexes extract, which would retrain `models_both_sexes`, and other lenses whose
+   terms allow person-level rows: SIPP, ACS and Statistics Canada PUMFs. Check each licence
+   first.
+3. Add person-bootstrap intervals for the browser-trained gains.
+4. Store a trained model in the URL or as a download, so a visitor can share it.
+
 ### C. App and write-up (owns `index.html`, `app.js`, `couple.js`, `style.css`, `../README.md`, `../LOG.md` headline)
 
 Done (2026-10-19/20, PRs #8537, #8556 and the round-3 PR):
@@ -182,8 +210,29 @@ Done (2026-10-19/20, PRs #8537, #8556 and the round-3 PR):
   share-card descriptions within the 160-character budget; JSON-LD; links between the app, the
   project README and the research page.
 
+- Before the wedding (2026-10-20, owner's refocus): a stage switch, "Before the wedding" by
+  default and "Already married". Before the wedding, the lens list, the summary across lenses,
+  "just me" and the candidate comparison use only lenses whose clock starts at the wedding
+  (`lensStage` in `couple.js`). The projection starts on the wedding day, ages are ages at the
+  wedding, and question groups only married lenses read are hidden. Old links to a married lens
+  open the married view. Title, meta, JSON-LD and lede now answer "will my marriage last".
+- B's harmonized before-the-wedding lens (`prewedding_harmonized`, #8684) is the default
+  pre-wedding lens: an adapter in `lens-adapters.js` (`preweddingRow`) scores both partners as
+  the surveyed spouse and averages; unanswered inputs take the survey's most common answer and
+  are named on the page; second marriages, same-sex couples and out-of-data ages are refused;
+  B's typicality score runs before any number (`tests/prewedding_app.test.mjs`).
+- Not engaged yet: `dating.js` chains A's two HCMST dating-couple models (marry each other vs
+  break up first) by the bundles' `how_to_combine`, per partner rating, for both additive models
+  (the full one and the harmonized one A checked on the 2017 cohort) with their range, and hands over to the
+  selected before-the-wedding lens for the years after a wedding (a labelled approximation that
+  joins two surveys). Shown only before the wedding; relationship questions are visible there
+  and the relationship status follows the stage (`tests/dating.test.mjs`).
+
 Remaining:
 
+- Before the wedding, next: a default couple at typical first-wedding ages; per-model ranges
+  for the dating chain once the trees beat the period-only baseline; and a joint (not two
+  separately fitted) marry/break-up model if workstream A refits HCMST.
 - Mortality refinements. Married people's lower death rates and the correlation between
   spouses' deaths are not modelled; the app says so under the lifelong tiles. Lifelong figures
   over long horizons also lean on years outside each lens's data (the page counts them).

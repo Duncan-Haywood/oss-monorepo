@@ -10,6 +10,8 @@ node platform/pages/check.mjs                    # check that artifact (--dist=D
 cd platform/pages && node --test "*.test.mjs"   # what CI runs
 ```
 
+The site's experiments live in the lab (`lab/`, built by `lab.mjs`); its charter, roadmap and log are in [`LAB.md`](LAB.md).
+
 Then, in a browser, the seven checks CI cannot run — `journey.mjs` (the customer
 journey), `sweep.mjs` (does every tool still compute), `contrast.mjs` (can
 every page be read and reached), `roundtrip.mjs` (does a shared bid arrive as
@@ -588,6 +590,27 @@ visitor at the foot of every sibling page, and described to assistants under the
 wrong heading in `llms.txt`. Five tools were filed in "More free tools" until
 2026-08-27 for want of a keyword, `tiktok-shop-fee-calculator` among them: a
 marketplace tool a seller would only have found by searching for it by name.
+
+## The hub's motion and showcase
+
+The front page's hero, moving tool shelf and "See it working" section live in
+`showcase.mjs`, apart from the hub's search and saved-bid code in `build.mjs`.
+
+- **Hero:** a dark backdrop (in both colour schemes, with its own tokens so the
+  search and stats keep their contrast), drifting colour, a canvas of points
+  that lean toward the pointer, a rotating "Built for …" line taken from the
+  audience pages, and stats that count up once seen.
+- **Shelf:** two rows of tool names from every section, scrolling in opposite
+  directions; the loop copy is `aria-hidden` and out of the tab order.
+- **Showcase:** a muted screen recording of real tools loading their own worked
+  examples, and a strip of stills that each link to the tool. The files are in
+  `showcase/`, made by `node showcase/capture.mjs` against a locally built site
+  (instructions at the top of that file). Rerun it when a tool's look changes.
+  The hub drops any still whose tool is no longer published.
+
+Every effect is added by script to markup that is already complete, so the page
+works without JavaScript. Under `prefers-reduced-motion: reduce` nothing moves
+and the video waits for a click. The video is not fetched until it is on screen.
 
 ## Shop rates, carried between tools
 

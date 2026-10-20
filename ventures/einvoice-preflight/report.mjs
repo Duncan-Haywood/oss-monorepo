@@ -22,19 +22,21 @@ export async function inspectInvoiceSource(name, source) {
   }
   const text = typeof payload === "string" ? payload : new TextDecoder().decode(payload);
   let invoice;
+  let xml = "";
   if (looksLikeXml(name, text) || looksLikeCii(text)) {
+    xml = text;
     invoice = looksLikeCii(text) ? parseCiiInvoice(text) : parseUblInvoice(text);
   } else {
     invoice = JSON.parse(text);
   }
-  return { invoice, envelope };
+  return { invoice, envelope, xml };
 }
 
 export async function parseInvoiceSource(name, source) {
   return (await inspectInvoiceSource(name, source)).invoice;
 }
 
-export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES, maxFiles = DEFAULT_MAX_FILES, profile = "" } = {}) {
+export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES, maxFiles = DEFAULT_MAX_FILES, profile = "", schematron = false } = {}) {
   const reports = [];
   const readErrors = [];
   const parsed = [];
@@ -61,12 +63,21 @@ export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES,
       continue;
     }
     try {
-      const { invoice, envelope } = await inspectInvoiceSource(name, source);
+      const { invoice, envelope, xml } = await inspectInvoiceSource(name, source);
       const errors = checkInvoice(invoice);
       if (profile === "xrechnung") errors.push(...inspectXrechnungProfile(invoice));
       if (profile === "peppol") errors.push(...inspectPeppolProfile(invoice));
       if (profile === "france") errors.push(...inspectFrenchProfile(invoice));
-      reports.push({ file: name, errors, envelope });
+      let schematronStatus = "";
+      if (schematron) {
+        // The official rules, beside the built-in ones. JSON drafts have no XML to check.
+        // Loaded on demand: schematron.mjs needs node:fs, which a browser page cannot import.
+        const { runSchematron } = await import("./schematron.mjs");
+        const official = xml ? runSchematron(xml) : { status: "unavailable", findings: [] };
+        schematronStatus = official.status;
+        errors.push(...official.findings);
+      }
+      reports.push({ file: name, errors, envelope, ...(schematron ? { schematron: schematronStatus } : {}) });
       parsed.push({ name, invoice });
     } catch (error) {
       readErrors.push({
@@ -227,6 +238,7 @@ export function buildJsonReport({ reports, readErrors }) {
     reports: reports.map((report) => ({
       file: report.file,
       status: report.errors.length ? "fail" : "pass",
+      ...(report.schematron ? { schematron: report.schematron } : {}),
       observations: report.errors.length,
       errors: report.errors,
     })),

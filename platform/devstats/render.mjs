@@ -182,6 +182,7 @@ export function renderDashboard(stats, { title = 'How this is built' } = {}) {
 <div class="wrap">
   <h1>${esc(title)}</h1>
   <p class="lede">This repository is built mostly by automated agent runs, merged without human review once CI passes. These are the numbers we steer by: how fast work lands, how often CI catches it, what each run costs, and what is left lying around. Built ${esc(stats.generated_at.slice(0, 16).replace('T', ' '))} UTC from <code>${esc((stats.source_commit ?? '').slice(0, 10))}</code>.</p>
+  <p class="lede">The same numbers as words, every day: the <a href="daily/">engineering brief</a>, about fifteen minutes to read or listen to, and <a href="daily/show/">The Merge Report</a>, a few lighter minutes for everyone else.</p>
 
   <div class="tiles">
 ${tiles}

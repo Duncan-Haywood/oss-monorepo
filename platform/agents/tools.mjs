@@ -190,7 +190,7 @@ function summariseValue(v) {
   return `${s.slice(0, 200)}…`;
 }
 
-/** What an agent needs to call a tool: page facts, each engine's functions and constants, and its CLI if any. */
+/** What an agent needs to call a tool: page facts, each engine's functions and constants, its CLI if any, and the papers it implements. */
 export async function describe(slug, root = REPO_ROOT) {
   if (!SLUG_RE.test(slug)) throw new Error(`bad slug "${slug}"`);
   const dir = ventureDir(slug, root);
@@ -211,6 +211,10 @@ export async function describe(slug, root = REPO_ROOT) {
       if (typeof v === 'function') {
         const doc = commentFor(src, name);
         functions.push({ name: `${name}(${paramsOf(v)})`, ...(doc ? { doc } : {}) });
+      } else if (name === 'PAPERS' && Array.isArray(v)) {
+        // Research-algorithm tools cite their papers here (portfolio/research-tools/):
+        // printed in full, never summarised, so an agent can credit the method.
+        out.papers = [...(out.papers ?? []), ...JSON.parse(toJson(v, 0))];
       } else constants[name] = summariseValue(v);
     }
     out.engines.push({ module: e.module, about: commentFor(src, null), functions, constants });

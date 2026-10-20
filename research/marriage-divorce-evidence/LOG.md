@@ -6,6 +6,68 @@
 - This is the model's sampling uncertainty only. Transport error between surveys is larger (observed/expected 0.85–1.07 on other U.S. surveys, 0.58 in Canada), and the app should say so next to the interval.
 - Parity: JavaScript reproduces Python's point estimates and interval ends at 5, 10 and 20 years for 20 test couples to 10<sup>-9</sup>; the bundle grew from 26 KB to 48 KB. ROADMAP B now lists what is done and what remains (intervals for other lenses, a pooled multi-survey model, recalibration to a target population).
 
+## 2026-10-20 · App: not engaged yet? Marry each other, or break up first
+
+- The before-the-wedding view now answers the earlier question too. For a couple who are dating or living together, workstream A's two HCMST 2009–2017 models (#8662) give the chance of marrying each other within 8.4 years and of breaking up first, chained period by period as the bundles' `how_to_combine` specifies (`app/dating.js`). The chain then hands over to the selected pre-wedding lens for the marriage itself.
+- Two additive models are run: the full one, and the harmonized one A checked on HCMST's 2017 cohort (#8727; AUC 0.79 for marrying and 0.85 for breaking up by 2022). The page shows their range.
+- A couple living together for 3 years (27 and 29, bachelor's degrees, parents approve, rating the relationship excellent and good): 60.4% marry each other within 8.4 years (models 50.9–70.0), 31.7% break up first (21.9–41.6), and 7.9% are still together and unmarried. The same couple rating it fair and living apart: 9.2% marry (6.5–11.9) and 86.9% break up first (81.9–91.9). Across all 939 couples, 21.9% married and 54.0% broke up first.
+- The two outcomes were modelled separately, so the split is approximate, and the page says so.
+- The hand-over multiplies two estimates from different surveys (marrying within 8.4 years, times no break-up in the first 10 years of marriage) and is labelled as an approximation.
+
+## 2026-10-20 · In-browser training runs the five folds in parallel: 45.5 s → 18.8 s
+
+- The "Train the models yourself" panel now runs a pool of workers, by default one per spare core: at most five, and fewer on devices reporting 4 GB of memory or less. Visitors can choose 1–5 threads.
+- Each worker loads the NSFG extract once and takes tasks from a shared queue: the five held-out folds, then the refits on all marriages. When the last fold arrives, the next free worker merges the folds and computes the metrics. Arrays move between threads by transfer, not copy, and the page's own thread only routes messages.
+- All five models at the Python settings, in headless Chromium on a 4-core cloud machine:
+
+  | Threads | Wall time | Longest main-thread stall |
+  | --- | --- | --- |
+  | 1 | 45.5 s | 93 ms |
+  | 3 (the default here) | 18.8 s | 57 ms |
+  | 4 | 17.6 s | 62 ms |
+  | 5 | 17.5 s | 86 ms |
+
+  A 390 px run with 25 boosting rounds on 3 threads took 6.9 s.
+- The metrics are identical at every thread count: GLM 5.688%, tree 3.333%, boosting 6.30%, C 0.695 / 0.651 / 0.703. Merging folds in the page took stalls to 177 ms at 5 threads, so the merge moved into a worker.
+- Cancel stops every worker. There were no console errors and no horizontal scroll. `tests/train_parallel.test.mjs` computes the folds in scrambled order through structured cloning and matches the single-thread result to 10<sup>−12</sup>. No real phone has been timed yet.
+
+## 2026-10-20 · Train the models yourself: the NSFG 1995–2023 lens retrained in the browser, matching scikit-learn
+
+- The app has a new "Train the models yourself" panel. A background worker downloads a 374 KB public extract of the NSFG 1995–2023 women's first marriages: 29,202 marriages, 10,529 dissolutions and 249,868 marriage-years. It contains only inputs fixed at or before the wedding. The worker then refits the lens in plain JavaScript with the Python pipeline's person-held-out five folds.
+- The NSFG files are U.S. government works and not under copyright, so the extract can be published. The NCHS data-use terms are recorded in the file: statistical use only, no attempt to identify anyone, no linkage.
+- Held out, the browser reproduces scikit-learn 1.7.2 on the same extract:
+
+  | Model | Browser | scikit-learn |
+  | --- | --- | --- |
+  | Duration-only GLM | 0.645% | 0.645% |
+  | Additive spline Poisson GLM | 5.688%, C 0.6947 | 5.688%, C 0.6947 |
+  | Depth-4 Poisson tree | 3.333%, C 0.6512 | 3.333%, C 0.6512 |
+  | Poisson gradient boosting (250 rounds) | 6.298%, C 0.7029 | 6.297%, C 0.7028 |
+
+  scikit-learn on the extract also matches the shipped lens's 5.688% and 6.289%, which confirms the extract.
+- The JS GLM's coefficients equal scikit-learn's within 4×10<sup>−14</sup>. It uses Newton's method with the Hessian accumulated per person and per marriage year, so a fit takes 0.7 s. Gradient boosting fits histogram trees with per-person runs and child-histogram subtraction, at about 21 ms per round.
+- A full run took 35 s in Node and 44 s in headless Chromium at 1200 px. At 390 px with 25 boosting rounds it took 13 s, but boosting's gain fell to 3.85%. The main thread never stalled more than 68 ms, cancelling works, there were no console errors and no horizontal scroll. No real phone has been timed yet.
+- After training, the models are refitted on every marriage, and a visitor can score a profile with the models they just trained. `tests/train.test.mjs` checks the coefficients to 10<sup>−6</sup>, the held-out gains (0.001 points; 0.15 for boosting), the C indices, O/E and the extract's sample.
+
+## 2026-10-20 · Before the wedding, checked on a later cohort: 2009 dating models predict 2017 couples
+
+- The two HCMST before-the-wedding models (marry the partner, or break up first) were trained on couples unmarried in 2009. They were scored, without refitting, on the 777 couples unmarried in HCMST's fresh 2017 sample, using a harmonized variant without parents' view or religion (not asked in 2017).
+- By 2020: marrying AUC 0.767 (16.5% observed, 15.8% predicted); breaking up first AUC 0.838 (33.1% vs 34.4%). By 2022: marrying AUC 0.786 (21.7% vs 21.6%); breaking up first AUC 0.847 (43.8% vs 44.9%). That is at least as good as the 2009 held-out AUCs (0.72 and 0.70). This is one later cohort of the same survey, not a different population.
+- Data fix: 8 weddings to the 2017 partner newly reported in 2022 show up only in `w3_when_married_yr` plus `w3_partner_source`, because the derived `w3_partner_type` was not updated. Counting them raises 2022 marriages from 65 to 73.
+- The bundles now carry the harmonized model, the external results and `stage: before` (the convention in `couple.js`, #8713). Parity is 320/320 to 10<sup>-9</sup>. ROADMAP A item 3 is done.
+
+## 2026-10-20 · App: the harmonized before-the-wedding model is the default lens
+
+- Workstream B's harmonized model (#8684) now scores couples in the app, and it is what "Before the wedding" opens on. It uses only facts knowable on the wedding day (NSFG 1995–2023, 43,336 first marriages; held-out C 0.661). Each partner is scored as the surveyed spouse, and the two rates are averaged. Unanswered inputs take the survey's most common answer, and the page names them.
+- A typical engaged couple (28 and 30, bachelor's degrees, living together first, no children before) gets 7.4% break-up risk by 5 years, 12.5% by 10 and 19.1% by 20. That is the 2nd percentile among NSFG's first marriages, whose median 10-year risk is 28%. A younger couple (22 and 23, a child before the wedding, not living together first) gets 22.5% by 10 years (32nd percentile). It is a single model, so the page shows no model range; the other pre-wedding lenses give the spread.
+- Next: chain the HCMST dating-couple models (marry vs break up first) into this lens for couples not yet engaged.
+
+## 2026-10-20 · App: "Before the wedding" is now the calculator's default question
+
+- The owner's refocus: predict divorce before marrying, for a couple or a candidate partner. The calculator now opens on **Before the wedding**. Its lens list, summary, just-me and candidate views use only the eight lens views whose clock starts at the wedding and whose inputs are known by then (NSFG 1995–2023 and its both-sexes view, NLSY97, NLSY79 first marriages, SIPP first marriages, Statistics Canada, NSFG 2002 and its model family). The projection starts on the wedding day, and question groups only married-couple lenses read are hidden. The nine married-couple and non-divorce lenses sit behind **Already married**, unchanged.
+- For a typical engaged couple (28 and 30, bachelor's degrees, living together first, no earlier marriages or children, U.S. Midwest), 10-year break-up risk is 6.7% in NSFG 1995–2023 (models 3.8–9.7), 7.8% in NLSY97, 16.5% in NLSY79, 17.4% in SIPP, and 24.7% and 20.6% in the two NSFG 2002 lenses. Statistics Canada abstains (no Canadian region). Cohorts and outcomes differ, so the levels are shown side by side, never pooled. Ranking skill from pre-wedding facts is modest: C 0.63–0.66 within surveys in the leakage-free models.
+- Next (ROADMAP C): B's harmonized pre-wedding lens as the default once #8684 merges, and the HCMST dating-couple chain for couples not yet engaged.
+
 ## 2026-10-20 · "Before the wedding" lens exported to the app
 
 - New bundle `app/models/prewedding_harmonized.json` (26 KB): the harmonized pre-wedding additive model fitted on 43,336 NSFG 1995–2023 first marriages, inputs from either partner's point of view and nothing measured after the wedding. Held out by person in NSFG: C 0.661, AUC at 10 years 0.656, observed/expected 1.03. Applied unchanged elsewhere: NLSY97 C 0.647 (observed/expected 0.99), NLSY79 0.621 (1.07), SIPP 0.626 (0.85), Canada 0.611 (0.58).
