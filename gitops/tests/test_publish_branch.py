@@ -58,8 +58,9 @@ case "$1" in
       case "$arg" in --out=*) mkdir -p "${arg#--out=}" ;; esac
     done
     ;;
-  */devlog/build.mjs)
-    # The development analyses (platform/devlog/), built after check.mjs.
+  */devlog/build.mjs|*/daily/build.mjs)
+    # The development analyses (platform/devlog/) and the daily brief
+    # (platform/daily/), both built after check.mjs.
     for arg in "$@"; do
       case "$arg" in --out=*) mkdir -p "${arg#--out=}" ;; esac
     done
