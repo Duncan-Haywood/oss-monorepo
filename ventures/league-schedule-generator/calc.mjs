@@ -1625,6 +1625,26 @@ export function officialMessages(schedule) {
   }));
 }
 
+// Teams down the side, dates across the top: one cell per team per round, "v Opp" at
+// home, "@ Opp" away, "BYE" for a bye, blank when the team has no game that round.
+export function seasonGrid(schedule) {
+  const header = ["Team", ...schedule.rounds.map((r) => `${r.label} ${dayIso(r.day)}`)];
+  const rows = schedule.teams.map((name, i) => {
+    const cells = schedule.rounds.map((r) => {
+      const m = r.matches.find((x) => x.home === i || x.away === i);
+      if (m) return m.home === i ? `v ${m.awayName}` : `@ ${m.homeName}`;
+      return r.bye === i ? "BYE" : "";
+    });
+    return [name, ...cells];
+  });
+  return { header, rows };
+}
+
+export function seasonGridCsv(schedule) {
+  const { header, rows } = seasonGrid(schedule);
+  return [header, ...rows].map((r) => r.map(csvCell).join(",")).join("\r\n") + "\r\n";
+}
+
 export function scheduleText(schedule, bracket = null) {
   const n = schedule.teams.length;
   const lines = [`${n}-team ${schedule.config.double ? "double" : "single"} round robin`, ""];
