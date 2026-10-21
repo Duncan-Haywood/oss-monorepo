@@ -488,6 +488,9 @@ Many bookkeeping products (Dext, Hubdoc, Expensify) do this with image OCR and
 a subscription; this does the matching and the missing-receipt list on your
 own machine from text you already have.
 
+
+On the page, each matched receipt that lists items has a "Split by items" button: it previews the accounts and amounts (an account picker appears for items the categorizer cannot place), and a second button posts the split. Checked by `eval/browser-click.mjs` on the example books, where both items land in one account, so only the file-everything path was clicked through.
+
 ## Budget against actual
 
 `node cli.mjs --books books.json budget 6130 200` sets a monthly budget of $200

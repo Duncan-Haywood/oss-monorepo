@@ -301,7 +301,7 @@
     import { setOpeningBalances, clearOpeningBalances } from "./opening.mjs";
     import { detectRecurring, forecastCash } from "./recurring.mjs";
     import { setBudget, budgetVsActual } from "./budget.mjs";
-    import { addReceipts, receiptReport, taxOnReceipts } from "./receipts.mjs";
+    import { addReceipts, receiptReport, taxOnReceipts, planReceiptSplit, splitFromReceipt } from "./receipts.mjs";
     import { aiSuggest } from "./ai.mjs";
     import { detectLocal, isLocal } from "./byok.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
@@ -421,12 +421,37 @@
         table(["Account", "Budget", "Actual", "Variance", "Status"], rows, [["Net profit", fmt(b.net.budget), fmt(b.net.actual), fmt(b.net.variance), ""]]));
     }
 
+    // Matched receipts with line items: preview how the bank line would split (each item to the account its words suggest, tax shared out), then post it.
+    function splitList(matched) {
+      const open = matched.filter((m) => m.items?.length && m.line.status !== "split" && !m.splitDone);
+      if (!open.length) return [];
+      const status = el("p", { class: "note", role: "status", id: "split-status" });
+      const rows = open.map((m) => {
+        const box = el("td", {});
+        const b = el("button", { type: "button", class: "secondary", "aria-label": `Split ${m.merchant} receipt by its items`, text: "Split by items" });
+        b.addEventListener("click", () => {
+          let plan; try { plan = planReceiptSplit(books, m.id); } catch (e) { status.textContent = e.message; return; }
+          const lines = plan.parts.map((p) => `${name(p.account)} ${fmt(Math.abs(p.cents))}`).join(", ");
+          const sel = el("select", { "aria-label": "Account for items with no match" }, el("option", { value: "", text: "Choose an account" }), ...books.accounts.filter((a) => a.type === "expense").map((a) => el("option", { value: a.code, text: `${a.code} ${a.name}` })));
+          const go = el("button", { type: "button", text: plan.single ? `File all to ${name(plan.single)}` : "Post split" });
+          const post = () => {
+            try { const r = splitFromReceipt(books, m.id, { other: sel.value || null }); books = categorize({ ...r.books, receipts: r.books.receipts.map((x) => (x.id === m.id ? { ...x, splitDone: true } : x)) }, opts()); record("receipt_split"); render(); $("#receipts-status").textContent = `Split ${m.merchant}: ${r.plan.single ? `all to ${name(r.plan.single)}` : r.plan.parts.length + " accounts"}.`; } catch (e) { status.textContent = e.message; }
+          };
+          go.addEventListener("click", post);
+          box.replaceChildren(el("span", { class: "note", text: plan.parts.length ? `${lines}${plan.unfiled.length ? "; " : ""}` : "" }), ...(plan.unfiled.length ? [el("span", { class: "note", text: `${plan.unfiled.length} item${plan.unfiled.length === 1 ? "" : "s"} with no account: ` }), sel, " "] : []), go);
+        });
+        return el("tr", {}, el("th", { scope: "row", text: m.merchant }), el("td", { class: "n", text: fmt(m.cents) }), el("td", { class: "n", text: `${m.items.length} items` }), el("td", {}, b), box);
+      });
+      return [el("p", { class: "note", text: "These receipts list items. Preview a split of the bank line by item (tax shared out in proportion); nothing posts until you press the second button:" }), el("table", {}, el("thead", {}, el("tr", {}, ...["Receipt", "Total", "Items", "", "Plan"].map((h) => el("th", { scope: "col", text: h })))), el("tbody", {}, ...rows)), status];
+    }
+
     function renderReceipts() {
       if (!(books.receipts ?? []).length && !$("#receipts-text").value.trim()) { $("#receipts").replaceChildren(); return; }
       const min = parseCents($("#receipts-min").value || "75");
       const rep = receiptReport(books, { minCents: Number.isFinite(min) && min > 0 ? min : 7500, from: $("#from").value || null, to: $("#to").value || null });
       const out = [el("p", { class: "note", text: `${rep.receipts} receipt${rep.receipts === 1 ? "" : "s"} on file: ${rep.matched.length} matched, ${rep.unmatched.length} without a bank line. ${fmt(rep.coveredCents)} of ${fmt(rep.spendCents)} spending is covered by a receipt.` })];
       if (rep.matched.length) out.push(table(["Receipt", "Date", "Total", "Bank line", ""], rep.matched.map((m) => [m.merchant, m.date, fmt(m.cents), `${m.line.date} ${m.line.desc}`, [m.tipCents ? `+${fmt(m.tipCents)} tip` : "", m.payeeAgrees === false ? "name differs: check" : ""].filter(Boolean).join(", ")])));
+      out.push(...splitList(rep.matched));
       if (rep.unmatched.length) out.push(el("p", { class: "note", text: "No bank line found (paid another way, or not imported yet):" }), table(["Receipt", "Date", "Total"], rep.unmatched.map((u) => [u.merchant, u.date, fmt(u.cents)])));
       out.push(el("p", { class: "note", text: `${rep.missing.length} line${rep.missing.length === 1 ? "" : "s"} of ${fmt(rep.minCents)} or more with no receipt (${fmt(rep.missingCents)}). Wages, owner draws and transfers are left out.` }));
       if (rep.missing.length) out.push(table(["Date", "Bank line", "Amount"], rep.missing.slice(0, 200).map((t) => [t.date, t.desc, fmt(t.cents)])));

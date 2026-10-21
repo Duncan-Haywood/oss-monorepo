@@ -115,11 +115,20 @@ await page.click("#budget-set");
 check(/Budget set: 50.00 a month/.test(await page.locator("#budget-status").textContent()), "a monthly budget is set");
 const btext = await page.locator("#budget").textContent();
 // Receipts: paste two receipts onto the example books, one of which has a bank line.
-await page.fill("#receipts-text", "Hiscox Insurance\n2026-01-01\nTotal 48.00\n---\nCorner Cafe\n01/03/2026\nTotal 12.40");
+await page.fill("#receipts-text", "Hiscox Insurance\n2026-01-01\nOffice paper 20.00\nLiability insurance premium 28.00\nTotal 48.00\n---\nCorner Cafe\n01/03/2026\nTotal 12.40");
 await page.click("#receipts-read");
 const rtext = await page.locator("#receipts").textContent();
 check(/2 receipts on file: 1 matched, 1 without a bank line/.test(rtext), "receipts are read and one is paired with its bank line");
 check(/HISCOX/.test(rtext) && /Corner Cafe/.test(rtext) && /with no receipt/.test(rtext), "the receipt tables and the missing-receipt list show");
+// Split the matched receipt by its items from the page.
+const splitBtn = page.locator('button[aria-label^="Split"]');
+check(await splitBtn.count() === 1, "a matched receipt with items gets a split button");
+await splitBtn.first().click();
+const plan = await page.locator("#receipts table").nth(1).textContent();
+console.log("     plan:", plan.replace(/\s+/g, " "));
+await page.locator("#receipts table").nth(1).locator("button").last().click();
+check(/Split Hiscox/.test(await page.locator("#receipts-status").textContent()), "posting the split reports it");
+check(await splitBtn.count() === 0, "the split button is gone once the line is split");
 check(/Net profit/.test(btext) && /(better|worse|on budget)/.test(btext), "the budget table shows a status and the net line");
 check(errors.length === 0, `no page errors ${errors.join("; ")}`);
 await browser.close();
