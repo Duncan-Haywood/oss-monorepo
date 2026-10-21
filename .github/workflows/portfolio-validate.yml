@@ -223,7 +223,14 @@ jobs:
           fi
           run=true
           if [ -n "$base" ] && changed=$(git diff --name-only "$base" HEAD 2>/dev/null); then
-            if ! printf '%s\n' "$changed" | grep -qE '^(gitops/prod/|platform/marketing/|\.github/workflows/portfolio-validate\.yml$)'; then
+            # A PR is gated on the generator and this workflow only. Main's
+            # committed mirror drifts from merges that never ran this step, and
+            # failing the next PR that touches gitops/prod/ for that drift
+            # (P043) made authors regenerate files for the retired apex. Push
+            # runs still check gitops/prod/, so drift surfaces on main.
+            paths='^(platform/marketing/|\.github/workflows/portfolio-validate\.yml$)'
+            [ "$EVENT" = pull_request ] || paths='^(gitops/prod/|platform/marketing/|\.github/workflows/portfolio-validate\.yml$)'
+            if ! printf '%s\n' "$changed" | grep -qE "$paths"; then
               run=false
             fi
           fi
