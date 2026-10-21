@@ -1,0 +1,139 @@
+{
+ "raw": {
+  "cost_usd": {
+   "opus": {
+    "n": 46,
+    "median": 3.7511
+   },
+   "sonnet": {
+    "n": 958,
+    "median": 0.6743
+   }
+  },
+  "tool_calls": {
+   "opus": {
+    "n": 44,
+    "median": 61.5
+   },
+   "sonnet": {
+    "n": 958,
+    "median": 22.0
+   }
+  },
+  "wall_minutes": {
+   "opus": {
+    "n": 45,
+    "median": 19.53
+   },
+   "sonnet": {
+    "n": 958,
+    "median": 3.22
+   }
+  },
+  "cost_per_call": {
+   "opus": {
+    "n": 44,
+    "median": 0.05725684302036761
+   },
+   "sonnet": {
+    "n": 958,
+    "median": 0.03061590909090909
+   }
+  },
+  "cache_read_per_call": {
+   "opus": {
+    "n": 44,
+    "median": 119411.97941495125
+   },
+   "sonnet": {
+    "n": 958,
+    "median": 68653.96118012423
+   }
+  },
+  "human_hours": {
+   "opus": {
+    "n": 42,
+    "median": 7.0
+   },
+   "sonnet": {
+    "n": 928,
+    "median": 3.0
+   }
+  },
+  "cost_per_human_hour": {
+   "opus": {
+    "n": 42,
+    "median": 0.5381458333333333
+   },
+   "sonnet": {
+    "n": 928,
+    "median": 0.30676666666666663
+   }
+  }
+ },
+ "matched": [
+  {
+   "metric": "cost_usd",
+   "strata": 11,
+   "n_opus": 44,
+   "n_sonnet": 477,
+   "ratio": 6.309233348757322,
+   "lo": 4.691347895939396,
+   "hi": 8.005610006547442
+  },
+  {
+   "metric": "tool_calls",
+   "strata": 11,
+   "n_opus": 44,
+   "n_sonnet": 477,
+   "ratio": 3.1516215302859774,
+   "lo": 2.3855882405921798,
+   "hi": 3.9001502835550386
+  },
+  {
+   "metric": "wall_minutes",
+   "strata": 11,
+   "n_opus": 44,
+   "n_sonnet": 477,
+   "ratio": 6.320085099827679,
+   "lo": 4.219902390055535,
+   "hi": 9.169318070579497
+  },
+  {
+   "metric": "cost_per_call",
+   "strata": 11,
+   "n_opus": 44,
+   "n_sonnet": 477,
+   "ratio": 1.9987797647094352,
+   "lo": 1.793130822757952,
+   "hi": 2.1946594643832036
+  },
+  {
+   "metric": "cache_read_per_call",
+   "strata": 11,
+   "n_opus": 44,
+   "n_sonnet": 477,
+   "ratio": 1.9132427976814752,
+   "lo": 1.6512145272582681,
+   "hi": 2.364707932998597
+  },
+  {
+   "metric": "human_hours",
+   "strata": 10,
+   "n_opus": 42,
+   "n_sonnet": 474,
+   "ratio": 3.624165559775224,
+   "lo": 3.034029190349038,
+   "hi": 5.232189262249157
+  },
+  {
+   "metric": "cost_per_human_hour",
+   "strata": 10,
+   "n_opus": 42,
+   "n_sonnet": 474,
+   "ratio": 1.4281845973333265,
+   "lo": 1.1057433412705266,
+   "hi": 1.7212420805527322
+  }
+ ]
+}
