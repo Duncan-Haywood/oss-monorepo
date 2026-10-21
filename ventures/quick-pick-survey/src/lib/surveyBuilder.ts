@@ -15,10 +15,15 @@ export const MAX_DESCRIPTION = 500;
 
 export type ItemInput = string | { label: string; category?: string | null };
 
+export const PAIR_SELECTORS = ["standard", "staged"] as const;
+export type PairSelector = (typeof PAIR_SELECTORS)[number];
+
 export type SurveyDefinition = {
   title: string;
   description: string | null;
   slug: string;
+  /** null leaves the choice to the PAIR_SELECTOR env var. */
+  pairSelector: PairSelector | null;
   items: { slug: string; label: string; category: string | null; sortOrder: number }[];
 };
 
@@ -84,6 +89,12 @@ export function parseSurveyDefinition(body: unknown, takenSlugs: ReadonlySet<str
     }
   }
 
+  let pairSelector: PairSelector | null = null;
+  if (b.pairSelector != null && b.pairSelector !== "") {
+    if (PAIR_SELECTORS.includes(b.pairSelector as PairSelector)) pairSelector = b.pairSelector as PairSelector;
+    else errors.push(`pairSelector must be one of: ${PAIR_SELECTORS.join(", ")}.`);
+  }
+
   let slug = "";
   if (typeof b.slug === "string" && b.slug.trim()) {
     slug = slugify(b.slug);
@@ -118,5 +129,5 @@ export function parseSurveyDefinition(body: unknown, takenSlugs: ReadonlySet<str
     else if (items.length < MIN_ITEMS && errors.length === 0) errors.push(`At least ${MIN_ITEMS} items are needed to rank.`);
   }
 
-  return errors.length ? { ok: false, errors } : { ok: true, survey: { title, description, slug, items } };
+  return errors.length ? { ok: false, errors } : { ok: true, survey: { title, description, slug, pairSelector, items } };
 }
