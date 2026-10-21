@@ -74,7 +74,7 @@ deleted; its pull requests, review threads and old Pages site stay there.
 ## Picking work
 
 1. **Pick a track at random:** `python3 research/_shared/pick_track.py` (below 0.05 is a
-   free-choice run; otherwise it maps the draw onto tracks 1-19, redraws any track with 40+ projects, and lists the track's newest projects). Four runs start in the same
+   free-choice run; otherwise it maps the draw onto tracks 1-20, redraws any track with 40+ projects, and lists the track's newest projects). Four runs start in the same
    minute, and a random pick spreads them out.
 
    **Free choice (about 5% of runs).** In the spirit of Google's "20% time", about one run in
@@ -117,6 +117,7 @@ deleted; its pull requests, review threads and old Pages site stay there.
 | 17. Societies of AI agents in robots among people | `society` |
 | 18. Laundry-hanging robots and custom hangers | `hanger` |
 | 19. Machine learning on qualitative data with LLMs | `qual` |
+| 20. Robots on the residential building site | `buildbot` |
 | Free choice (about 5% of runs) | `free` |
 
 ## Rules for every track
@@ -1388,9 +1389,92 @@ portfolio's own run records. Each needs the same validation step.
   data in the repository.
 - *No benchmark claims without a real model.* Simulated coders are labelled as simulated.
 
+## 20. Robots on the residential building site (`buildbot`)
+
+Added on 2026-10-21 at the owner's request, as a long-term direction: "physics sims with
+already available consumer robots training on construction tasks to reduce the cost of new
+residential home construction. maybe alongside humans? the goal is to have outputs of useful
+skills. either on already manufactured robots like unitree or alternatively on custom built
+robotics fully designed."
+
+**Goal.** Cut the labour cost of building a new home with robots that work on an ordinary
+residential site, alone or beside a crew, and publish the skills as reusable outputs: trained
+policies, controllers, task specifications and the simulation scenes that score them. Labour
+is a large share of a new house's construction cost, and the track-12 models (`house-cost`,
+`house-schedule`, `house-offsite`) already say which tasks take the hours. Two kinds of robot
+are in scope. *Off the shelf*: robots anyone can buy now, such as Unitree's G1 and H1
+humanoids, its Go2 quadruped and Z1 arm, or the SO-101 arm of track 4, which have open
+simulation models in MuJoCo Menagerie. *Purpose-built*: robots designed from the task in the
+loop of tracks 9 and 14, such as a framing-table gantry or a sheet-hanging lift. The question
+is the same for both. Which residential tasks can a robot do to a builder's tolerance in
+simulation, at what speed, and what does that take off a house's price once the robot's own
+cost is counted? Where does a robot beside a person beat either alone?
+
+**Prior work (not yet checked; check before citing).** Todorov et al. (2012), MuJoCo; Zakka
+et al. (2022), MuJoCo Menagerie; Zakka et al. (2025), MuJoCo Playground; Rudin et al. (2022),
+massively parallel legged RL (track 14). Radosavovic et al. (2024), real-world humanoid
+locomotion with RL, *Science Robotics*. Sferrazza et al. (2024), HumanoidBench. Zhao et al.
+(2023), ACT and ALOHA; Chi et al. (2023), diffusion policy (track 18). Kumagai et al. (2019),
+AIST's HRP-5P humanoid installing gypsum board. Dorfler et al. (2016), ETH Zurich's In situ
+Fabricator. Commercial site robots as context, not as open work: FBR's Hadrian X
+(bricklaying), Construction Robotics' SAM and MULE (masonry lift assist), Canvas (drywall
+finishing), Dusty Robotics (layout printing), Built Robotics (autonomous excavation).
+ISO 10218-1 and -2 (2025) and ISO/TS 15066 (2016) for robots working with people. Waters et
+al. (1993), the revised NIOSH lifting equation, for the human side of a shared lift.
+
+**Milestones.**
+1. `buildbot-payload` (done 2026-10-21): what can a stock humanoid lift? Whole-body static
+   payload envelopes of the Menagerie G1 and H1 (feet fixed, balance kept, every joint within
+   its torque limit) over hand height and reach, and a table of residential handling tasks
+   against them, solo and shared with a person.
+2. `buildbot-taskbook`: an open task specification of a wood-frame house. For each task
+   (carry, place, hold, fasten, cut, lay out, finish): masses, forces, reach, tolerance,
+   cycle count and crew hours, taken from the track-12 takeoffs and schedule. Which tasks hold
+   the most labour cost per unit of robot difficulty? The output is a dataset other robot
+   projects can score against.
+3. `buildbot-carry`: dynamic carrying. A learned (or model-based) walking policy carries a stud,
+   a sheet or a block across a site floor and over thresholds and ramps from `terrain-twin`.
+   Score falls, items dropped, metres per minute and energy per item, on a CPU budget stated
+   in the README. Does a stock humanoid's carry rate beat one labourer's?
+4. `buildbot-fasten`: driving nails and screws. Tool reaction forces, the stud-face tolerance
+   (a 1.5 in face behind sheathing) against arm placement error, and a policy that drives a
+   sheathing nailing schedule. The skill is the output: a policy plus its test scene.
+5. `buildbot-cohold`: a person and a robot holding one sheet. The robot follows a simulated
+   person's lead under impedance control while the person fastens. Score interaction forces
+   against ISO/TS 15066 body-region limits, sheet placement error and the person's lifted load
+   against the NIOSH limit.
+6. `buildbot-skills`: a skill library. Train the skills of milestones 3 to 5 with domain
+   randomisation, check them across a second simulator or contact model (sim-to-sim as the
+   proxy for sim-to-real, `codesign-transfer`), and publish policies, scenes and success rates
+   in a form a robot owner could load.
+7. `buildbot-custom`: purpose-built against humanoid. Design a task-specific machine for the
+   costliest task from milestone 2 with the track-9 and track-14 loops, and compare it with the
+   best stock robot on cost, cycle time and success.
+8. `buildbot-cost`: what it is worth. Crew hours replaced or shortened, times wages, against the
+   robot's purchase, upkeep and supervision per hour, fed through `house-cost` and
+   `house-schedule`. What share of a new home's price does a credible robot crew remove?
+9. Owner steps: buy or rent a robot (a G1 is the cheapest humanoid in the Menagerie set) and
+   test the published skills on a mock-up wall, with a priced bill of materials.
+
+**Guardrails.**
+- *Simulation is not a safety case.* A robot carrying lumber beside a person is a
+  falling-object and crush hazard. Any test near people needs the owner's risk assessment
+  against ISO 10218 and ISO/TS 15066 and the site's OSHA obligations. Never present a simulated
+  envelope as a rated payload.
+- *Vendor numbers are claims.* Quote a manufacturer's payload, torque or speed as the
+  manufacturer's figure with its date and source, and keep it apart from simulated results.
+  The Menagerie models are the community's approximations of the robots, not the vendor's
+  validated dynamics.
+- *Model licences.* The Unitree models in Menagerie are BSD-3-Clause; fetch them at a pinned
+  commit rather than copying meshes into the tree, and credit them.
+- *Honest about labour.* Report hours and costs, not claims about jobs. A result about a robot
+  "beside a crew" says what the people still do.
+- *Lab tags.* No group in `prompt.md` covers construction; milestones 3 and 7 may build on the
+  groups track 9 names. Say so rather than stretching a connection.
+
 ## References
 
-Tracks 1 to 6 were checked on 2026-10-12, tracks 7 to 11 on 2026-10-14 track 12 on 2026-10-16 and track 13 on 2026-10-19; tracks 14 and 15, added on 2026-10-19, are not yet checked; track 16's were not all re-checked (`energy-density`'s README marks which it checked); track 17's were checked when it was added on 2026-10-19; track 18's, added on 2026-10-19, are not yet checked. Check them again before
+Tracks 1 to 6 were checked on 2026-10-12, tracks 7 to 11 on 2026-10-14 track 12 on 2026-10-16 and track 13 on 2026-10-19; tracks 14 and 15, added on 2026-10-19, are not yet checked; track 16's were not all re-checked (`energy-density`'s README marks which it checked); track 17's were checked when it was added on 2026-10-19; track 18's, added on 2026-10-19, are not yet checked; track 20's, added on 2026-10-21, are not yet checked. Check them again before
 citing one, as `prompt.md` requires.
 
 **Track 1.**

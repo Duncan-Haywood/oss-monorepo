@@ -458,6 +458,18 @@ twenty estimated human hours; 92% of runs took under fifteen active minutes
 ([the post](../docs/posts/2026-10-21-work-that-takes-more-than-twenty-hours.md)).
 `runcost.py report` tracks it.
 
+**Beat asking a chatbot** (owner, 2026-10-21, on finding a day-count adder
+at the front of the site): "the tools need to justify their existence by
+being more useful or significantly cheaper than the alt of for example
+asking ai ... tools should have sufficient work required that it's not
+replaceable by chatgpt in less than a minute or two at least if not 20
+minutes of chatgpt working as a better rule of thumb." Before building or
+deepening a tool, write what a chatbot does with the same input in two
+minutes and in twenty, and what this tool does that neither does. If
+nothing, pick other work; rule rows, guide pages and links on such a tool
+are upkeep, not depth. Why the old ways missed it and what to build next:
+[`docs/reports/2026-10-21-flagship-front-door.md`](../docs/reports/2026-10-21-flagship-front-door.md).
+
 ## Direction: language is a judgment call
 
 Set by the owner on 2026-10-21: "I want freedom of judgement on language

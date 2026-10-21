@@ -40,6 +40,7 @@ import {
   relatedTools,
   upToRoot,
   renderHub,
+  flagshipSlugs,
   pageUrlPath,
   renderFavicon,
   renderFaviconSvg,
@@ -5676,4 +5677,21 @@ test('clampMetaDescription cuts at a word with an ellipsis when no sentence fits
   const out = clampMetaDescription(`<meta name="description" content="${long}">`);
   const got = out.match(/content="([^"]*)"/)[1];
   assert.ok(got.length <= 320 && got.endsWith('word\u2026'));
+});
+
+// Ranking by page count alone put a day-count adder with ten explainer pages
+// at the front of the featured row (2026-10-21). Flagships lead it now.
+test('the featured row leads with the flagships, then fills by page count', () => {
+  const surfaces = [
+    { slug: 'state-residency-day-counter', title: 'State residency day counter', description: 'Days.', kind: 'browser', pageCount: 11 },
+    { slug: 'changepoint-detector', title: 'Changepoint detector', description: 'PELT.', kind: 'browser', pageCount: 2 },
+    { slug: 'einvoice-preflight', title: 'E-invoice preflight', description: 'EN 16931.', kind: 'browser', pageCount: 19 },
+  ];
+  const featuredRow = (hub) => hub.slice(hub.indexOf('id="featured"')).match(/data-tool="([^"]+)"/g).map((m) => m.slice(11, -1));
+  const hub = renderHub(surfaces, 'https://example.test/', { flagships: ['changepoint-detector', 'einvoice-preflight', 'not-a-surface'] });
+  const row = featuredRow(hub);
+  assert.deepEqual(row.slice(0, 2), ['changepoint-detector', 'einvoice-preflight']);
+  assert.equal(new Set(row).size, row.length, 'no tool twice');
+  assert.ok(row.includes('state-residency-day-counter'), 'room left is filled by page count');
+  assert.ok(flagshipSlugs().includes('changepoint-detector'), 'the real file parses');
 });

@@ -29,12 +29,21 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    {
+      "what": "Merged PR 9033 with the Pages 'build' check red: the post's front-matter description was 208 characters, over writing.mjs's 160 limit. The get_check_runs listing read before merging did not include the build job, so it looked green.",
+      "fix": "Follow-up PR shortens the description to 137 characters; loadPosts() and the full site build verified locally."
+    }
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
       "file": "portfolio/scoring/venture-scores.yaml",
       "issue": "No per-venture domain/category field anywhere in portfolio/, so counting coverage by domain had to fall back to name keywords (docs/reports/assets/agent-domains/count.py)."
+    },
+    {
+      "file": "prompts/goals.md",
+      "issue": "The 160-character post description limit lives only in platform/pages/writing.mjs; nothing in the writing guidance (goals.md 'Write about the work') states it, and get_check_runs on the PR did not show the Pages build job before merge."
     }
   ],
   "deviations": [
@@ -52,7 +61,7 @@
     "docs/reports/2026-10-21-agent-dependent-domains-for-agents.md"
   ],
   "goal": null,
-  "notes": "Owner asked which industries agents depend on/benefit from vs humans, then for a post and agent doc as domains for future projects. Sources checked via web search 2026-10-21: IEA Energy and AI (415 TWh 2024, ~945 TWh 2030; Key Questions update ~950) and Anthropic Economic Index (37.2% computer/math vs 3.4% of US workforce). iea.org news page returned 403 to WebFetch; figures taken from the IEA executive summary via search results. Repo coverage counted by name keywords (results.txt). Checks: promptctl validate; links in both docs resolve to existing files.",
+  "notes": "Owner asked which industries agents depend on/benefit from vs humans, then for a post and agent doc as domains for future projects. Sources checked via web search 2026-10-21: IEA Energy and AI (415 TWh 2024, ~945 TWh 2030; Key Questions update ~950) and Anthropic Economic Index (37.2% computer/math vs 3.4% of US workforce). iea.org news page returned 403 to WebFetch; figures taken from the IEA executive summary via search results. Repo coverage counted by name keywords (results.txt). Checks: promptctl validate; links in both docs resolve to existing files. Follow-up PR 9034 also rewords docs/posts/2026-10-21-thirteen-publishers-zero-posts.md (merged in PR 9030), whose bare 'duncan-haywood.github.io' host failed custom-domain.test.mjs on main; custom-domain + writing tests 15/15 locally, full site build + check.mjs pass.",
   "corrections": [],
   "redteam": null
 }
