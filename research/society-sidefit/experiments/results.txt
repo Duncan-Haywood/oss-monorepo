@@ -1,0 +1,39 @@
+society-sidefit results. Model of society-blocs; observable = share of L (left) choices in a head-on meeting of a crowd in the status-quo (R) convention with no robots. Cells are sl/rho_c unless stated.
+
+== A. Measured side preference, read from Moussaid et al. 2009 Fig. 4 (bar heights, see data/)
+condition 3 (two walkers head on): left 0.182, right 0.854, sum 1.036; left share of the two 0.175
+condition 2 (static obstacle):     left 0.372, right 0.565, sum 0.938; left share of the two 0.397
+central value used below: ell = 0.17 (0.175 read, rounded down; 0.14 to 0.20 swept)
+
+== B. Fit at ell = 0.17, sr = 0: stubborn-L share sl and mean-field tipping share rho_c, by error rate eps
+eps   M5            M9            M17         
+0.02  0.131/0.033   0.155/0.075   0.163/0.133 
+0.05  0.120/0.035   0.144/0.077   0.152/0.135 
+0.1   0.100/0.039   0.125/0.080   0.133/0.137 
+0.15  0.077/0.043   0.103/0.084   0.111/0.140 
+0.2   0.052/0.048   0.079/0.087   0.087/0.142 
+0.25  0.023/0.053   0.051/0.092   0.059/0.145 
+0.3   none          0.019/0.096   0.028/0.149 
+
+== C. Same, M = 9, eps = 0.02 and 0.20, by measured left share ell (sr = 0)
+ell   eps0.02       eps0.20       unbiased-crowd
+0.1   0.091/0.139   none          0.217
+0.14  0.129/0.102   0.046/0.114   0.217
+0.17  0.155/0.075   0.079/0.087   0.217
+0.2   0.178/0.049   0.108/0.062   0.217
+0.25  0.206/0.016   0.146/0.026   0.217
+0.3   0.219/0.000   0.168/0.004   0.217
+0.4   0.219/0.000   0.172/0.000   0.217
+
+== D. Same, ell = 0.17, M = 9, with a stubborn-R share sr (sl re-fitted)
+sr    eps0.02       eps0.10       eps0.20
+0.0   0.155/0.075   0.125/0.080   0.079/0.087  
+0.1   0.156/0.089   0.126/0.094   0.079/0.102  
+0.2   0.157/0.107   0.127/0.113   0.080/0.121  
+0.3   0.158/0.135   0.128/0.142   0.081/0.151  
+
+== E. Simulation check (M = 9, ell = 0.17, sr = 0): human L share at rho = 0, and share of crowds tipped, N=200, 500 rounds, 12 seeds
+eps   sl     mf_Lshare  sim_Lshare  rho_c(mf)  rho_below  tipped  rho_above  tipped
+0.02  0.155  0.170      0.171       0.075      0.03       0.00    0.11       1.00
+0.1   0.125  0.170      0.171       0.080      0.04       0.00    0.12       1.00
+0.2   0.079  0.170      0.170       0.087      0.05       0.00    0.13       1.00
