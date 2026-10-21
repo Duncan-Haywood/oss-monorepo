@@ -129,19 +129,28 @@ layer's share (an ablation), and any real bank export.
 - CLI: import, a second import of the same file (0 added, 87 already in the
   books), review, accept, report, checks and `export qbo`.
 
+## Split lines
+
+One bank line can post to several accounts. Parts are signed like the line and
+must add to it exactly: a +970.00 Stripe payout is `4000:1000.00,6010:-30.00`
+(sales and fees), a -1500.00 loan payment is `2200:-1200.00,6040:-300.00`
+(principal and interest). `confirm(books, { id: [{account, cents}, ...] })` in
+the engine, `cli.mjs confirm ID=4000:1000.00,6010:-30.00`, and the Split button
+on the page. A part list that does not sum to the line is refused. Splits post
+as one balanced entry, show as `SPLIT` in the lines export, and are not learned
+from (each payout differs). Tests: engine.test.mjs, "split line".
+
 ## Not modelled
 
 Accruals (unpaid invoices and bills), depreciation, inventory, payroll and
-sales tax filings, multiple currencies, splitting one bank line across accounts,
-locking a closed period, and receipts. It is cash-basis bookkeeping from bank
+sales tax filings, multiple currencies, locking a closed period, and receipts. It is cash-basis bookkeeping from bank
 lines.
 
 ## Next
 
 - One real bank export of each major US shape (Chase, Bank of America, Wells
   Fargo, Amex, Capital One), each as a fixture with its quirks handled.
-- Split lines (a Stripe payout as sales minus fees; a loan payment as principal
-  plus interest), then accruals from an invoice and bill list.
+- Accruals from an invoice and bill list.
 - Measure the AI layer with a local model on the synthetic year's review
   queue, and run the per-layer ablation.
 - Payee rules suggested from your corrections ("you filed 'ZOOM.US' as Software

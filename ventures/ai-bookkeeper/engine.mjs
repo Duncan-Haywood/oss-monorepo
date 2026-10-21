@@ -126,19 +126,58 @@ export function pairTransfers(books, days = DEFAULTS.transferDays) {
 }
 
 // Confirm (or correct) lines: { [id]: accountCode }. Each one is learned from.
+// A choice may also be a split: [{ account, cents }, ...], each amount signed
+// like the bank line (a +970.00 Stripe payout is sales +1000.00 and fees -30.00;
+// a -1500.00 loan payment is principal -1200.00 and interest -300.00), summing
+// to the line. Splits are not learned from: one payee's split differs each time.
 export function confirm(booksIn, choices) {
   const books = clone(booksIn);
   const codes = new Set(books.accounts.map((a) => a.code));
   for (const t of books.transactions) {
     const c = choices[t.id];
     if (c === undefined) continue;
-    if (!codes.has(c)) throw new Error(`No account ${c} in the chart of accounts.`);
+    const splits = Array.isArray(c) ? c.map((x) => ({ account: String(x.account), cents: x.cents })) : null;
+    if (splits) {
+      const bad = splitProblems(splits, t.cents, codes);
+      if (bad.length) throw new Error(`Split for ${t.id}: ${bad.join("; ")}.`);
+    } else if (!codes.has(c)) throw new Error(`No account ${c} in the chart of accounts.`);
     if (t.status === "transfer") unpair(books, t);
     t.status = "confirmed";
-    t.posted = c;
-    books.history.push(historyRecord(t, c));
+    delete t.splits;
+    if (splits) {
+      t.splits = splits;
+      t.posted = splits.reduce((m, x) => (Math.abs(x.cents) > Math.abs(m.cents) ? x : m)).account;
+    } else {
+      t.posted = c;
+      books.history.push(historyRecord(t, c));
+    }
   }
   return categorize(books);
+}
+
+// -> list of problems; empty means the split can be posted.
+export function splitProblems(splits, total, codes) {
+  const bad = [];
+  if (splits.length < 2) bad.push("a split needs at least two parts");
+  let sum = 0;
+  for (const x of splits) {
+    if (!codes.has(x.account)) bad.push(`no account ${x.account} in the chart of accounts`);
+    if (!Number.isInteger(x.cents) || x.cents === 0) bad.push("each part must be a non-zero whole number of cents");
+    else sum += x.cents;
+  }
+  if (!bad.length && sum !== total) bad.push(`the parts add to ${fmt(sum)} but the line is ${fmt(total)}`);
+  return bad;
+}
+
+// "4000:1000.00,6010:-30.00" -> [{ account, cents }] (CLI and page text form).
+export function parseSplit(text) {
+  return String(text).split(/[,+;]\s*(?=[^,+;]*:)/).map((p) => {
+    const [account, amt] = p.trim().split(":");
+    const m = /^(-?)\$?([\d,]*\.?\d+)$/.exec((amt ?? "").trim());
+    if (!account || !m) throw new Error(`Cannot read split part "${p}": use ACCOUNT:AMOUNT.`);
+    const cents = Math.round(parseFloat(m[2].replace(/,/g, "")) * 100);
+    return { account: account.trim(), cents: m[1] ? -cents : cents };
+  });
 }
 
 // Accept every suggestion at or above a confidence, as if confirmed one by one.
@@ -173,6 +212,14 @@ export function journal(books) {
     seen.add(t.id);
     if (t.status === "transfer") seen.add(t.pair);
     const amt = Math.abs(t.cents);
+    if (t.splits) {
+      // The bank side takes the whole line. Parts sum to the line, so a positive
+      // part is a credit and a negative one a debit, whichever way the line went.
+      const lines = [{ account: t.account, debit: t.cents > 0 ? amt : 0, credit: t.cents < 0 ? amt : 0 }];
+      for (const x of t.splits) { const credit = x.cents > 0 ? x.cents : 0, debit = x.cents < 0 ? -x.cents : 0; lines.push({ account: x.account, debit, credit }); }
+      entries.push({ id: t.id, date: t.date, memo: t.desc, source: "split", lines });
+      continue;
+    }
     const into = t.cents > 0 ? t.account : t.posted;
     const from = t.cents > 0 ? t.posted : t.account;
     entries.push({ id: t.id, date: t.date, memo: t.desc, source: t.status, lines: [{ account: into, debit: amt, credit: 0 }, { account: from, debit: 0, credit: amt }] });
@@ -213,7 +260,7 @@ export function closeChecks(books, opts = {}) {
   for (const t of books.transactions) {
     const a = map.get(t.posted);
     // Only accounts where a long-lived purchase hides: supplies, office, repairs, tools.
-    if (t.cents < 0 && a?.type === "expense" && CAPEX_LIKELY.test(a.name) && -t.cents >= o.capitalizeOver) out.push({ severity: "low", check: "capitalize", message: `${t.date}: ${fmt(-t.cents)} to ${a.name} (${t.desc}). If it is equipment that lasts more than a year, it may belong in an asset account and be depreciated; ask your accountant.`, ids: [t.id] });
+    if (!t.splits && t.cents < 0 && a?.type === "expense" && CAPEX_LIKELY.test(a.name) && -t.cents >= o.capitalizeOver) out.push({ severity: "low", check: "capitalize", message: `${t.date}: ${fmt(-t.cents)} to ${a.name} (${t.desc}). If it is equipment that lasts more than a year, it may belong in an asset account and be depreciated; ask your accountant.`, ids: [t.id] });
   }
 
   // Ledger vs. the bank's own closing balance, when the statement printed one.
@@ -288,7 +335,7 @@ export function exportLines(books) {
   const rows = [csvRow(["date", "bank_account", "description", "amount", "status", "account_code", "account_name", "suggested", "confidence", "source", "reason"])];
   for (const t of [...books.transactions].sort((a, b) => a.date.localeCompare(b.date))) {
     const s = t.suggestion ?? {};
-    rows.push(csvRow([t.date, map.get(t.account)?.name ?? t.account, t.desc, dollars(t.cents), t.status, t.posted ?? "", map.get(t.posted)?.name ?? "", s.account ?? "", s.confidence !== undefined ? s.confidence.toFixed(2) : "", s.source ?? "", s.reason ?? (t.status === "transfer" ? "paired with an equal and opposite line in another account" : "")]));
+    rows.push(csvRow([t.date, map.get(t.account)?.name ?? t.account, t.desc, dollars(t.cents), t.status, t.splits ? "SPLIT" : t.posted ?? "", t.splits ? t.splits.map((x) => `${map.get(x.account)?.name ?? x.account} ${dollars(x.cents)}`).join("; ") : map.get(t.posted)?.name ?? "", s.account ?? "", s.confidence !== undefined ? s.confidence.toFixed(2) : "", s.source ?? "", s.reason ?? (t.status === "transfer" ? "paired with an equal and opposite line in another account" : "")]));
   }
   return rows.join("\n") + "\n";
 }

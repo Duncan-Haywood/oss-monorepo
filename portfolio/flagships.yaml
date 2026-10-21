@@ -34,9 +34,8 @@ flagships:
       IIF journals; page, CLI and agent engine. Learning curve measured on
       synthetic data (README Verification).
     next: >-
-      Split lines are next: a Stripe payout as gross sales minus fees, and a loan
-      payment as principal plus interest, with a split editor on the page and
-      in confirm(). After that: real bank exports as fixtures (Chase, Bank of
+      Split lines are in (confirm() takes a list of signed parts, CLI ID=ACCT:AMT,..
+      and a Split button on the page). Next: real bank exports as fixtures (Chase, Bank of
       America, Wells Fargo, Amex, Capital One), the AI layer measured with a
       local model on the synthetic review queue, a per-layer ablation, rules
       suggested from repeated corrections, and accruals from an invoice and

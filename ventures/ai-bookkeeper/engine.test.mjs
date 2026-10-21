@@ -1,5 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { parseSplit } from "./engine.mjs";
 import { newBooks, importStatement, confirm, acceptSuggestions, journal, reports, closeChecks, exportJournal, exportLines, status, analyze } from "./engine.mjs";
 import { parseCents, parseDate, readStatement, checkRunningBalance } from "./bank.mjs";
 import { validateEntry, DEFAULT_ACCOUNTS, parseAccounts } from "./ledger.mjs";
@@ -166,4 +167,37 @@ test("the guide's worked example figures", () => {
   const c = closeChecks(b);
   assert.ok(c.some((x) => x.check === "reconcile" && x.severity === "ok" && /10,947\.46/.test(x.message)));
   assert.deepEqual(c.filter((x) => x.check === "liability").map((x) => x.message.match(/is (-[\d,.]+)/)[1]), ["-1,197.16", "-1,230.00"]);
+});
+
+const SPLITCSV = `Date,Description,Amount,Balance
+2026-02-01,STRIPE PAYOUT 8841,970.00,970.00
+2026-02-05,SBA LOAN PAYMENT,-1500.00,-530.00
+`;
+
+test("a split line posts a Stripe payout as sales less fees and a loan payment as principal plus interest", () => {
+  let b = importStatement(newBooks(), SPLITCSV, "1000").books;
+  const [p, l] = b.transactions;
+  b = confirm(b, { [p.id]: [{ account: "4000", cents: 100000 }, { account: "6010", cents: -3000 }], [l.id]: [{ account: "2200", cents: -120000 }, { account: "6040", cents: -30000 }] });
+  const j = journal(b);
+  assert.equal(j.length, 2);
+  for (const e of j) assert.deepEqual(validateEntry(e, b.accounts), []);
+  const r = reports(b);
+  assert.equal(r.profitAndLoss.totalIncome, 100000);
+  assert.equal(r.profitAndLoss.totalExpense, 33000);
+  assert.equal(r.trialBalance.balanced, true);
+  assert.equal(b.history.length, 0, "splits are not learned from");
+  assert.match(exportLines(b), /SPLIT/);
+});
+
+test("a split that does not add up to the line is refused, and a plain choice replaces a split", () => {
+  let b = importStatement(newBooks(), SPLITCSV, "1000").books;
+  const p = b.transactions[0];
+  assert.throws(() => confirm(b, { [p.id]: [{ account: "4000", cents: 100000 }, { account: "6010", cents: -2000 }] }), /add to/);
+  assert.throws(() => confirm(b, { [p.id]: [{ account: "4000", cents: 97000 }] }), /two parts/);
+  b = confirm(b, { [p.id]: parseSplit("4000:1000.00,6010:-30.00") });
+  assert.equal(b.transactions[0].splits.length, 2);
+  b = confirm(b, { [p.id]: "4000" });
+  assert.equal(b.transactions[0].splits, undefined);
+  assert.equal(journal(b)[0].lines.length, 2);
+  assert.deepEqual(parseSplit("2200:-1,200.00+6040:-300"), [{ account: "2200", cents: -120000 }, { account: "6040", cents: -30000 }]);
 });

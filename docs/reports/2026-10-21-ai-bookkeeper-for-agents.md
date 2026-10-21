@@ -46,6 +46,16 @@ fail if the page, the README and the guide drift from them.
   same pattern on real books, a liability paid below zero, is what the
   `liability` close check reports.
 
+## Split lines (later the same day)
+
+A bank line can now post to several accounts. The sign convention was the only
+real design choice: parts are signed like the line, so a +970.00 Stripe payout
+is sales +1000.00 and fees -30.00, and a -1500.00 loan payment is principal
+-1200.00 and interest -300.00. Every part then maps to one rule (positive is a
+credit, negative a debit) whichever way the money moved, and "parts sum to the
+line" is a single integer check. Splits are not fed to the learner, since one
+payee's split differs each time; learning a fee ratio is a later question.
+
 ## Limits
 
 No real bank export has been tested, and the AI layer is unmeasured. The page

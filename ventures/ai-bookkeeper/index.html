@@ -188,7 +188,7 @@
     <p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> or <a href="https://buymeacoffee.com/duncanhaywood" rel="noopener">buy me a coffee</a> is entirely optional and never changes what the tool does.</p>
   </footer>
   <script type="module">
-    import { newBooks, importStatement, categorize, confirm, acceptSuggestions, reports, closeChecks, exportJournal, exportLines, status, analyze, fmt, DEFAULT_ACCOUNTS } from "./engine.mjs";
+    import { newBooks, importStatement, categorize, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, exportLines, status, analyze, fmt, DEFAULT_ACCOUNTS } from "./engine.mjs";
     import { parseAccounts } from "./ledger.mjs";
     import { aiSuggest } from "./ai.mjs";
     import { detectLocal, isLocal } from "./byok.mjs";
@@ -227,7 +227,13 @@
         const tick = el("input", { type: "checkbox", "data-tick": t.id, "aria-label": `File ${t.desc}` });
         if (t.suggestion?.account) tick.checked = t.suggestion.confidence >= 0.6;
         sel.addEventListener("change", () => { tick.checked = !!sel.value; });
-        return el("tr", {}, el("td", {}, tick), el("td", { text: t.date }), el("td", { text: name(t.account) }), el("td", { text: t.desc }), el("td", { class: "n", text: fmt(t.cents) }), el("td", {}, sel), el("td", {}, pill(t.suggestion), " ", el("span", { class: "reason", text: t.suggestion?.reason ?? "" })));
+        const split = el("button", { type: "button", class: "secondary", text: "Split", title: "Split this line across accounts, e.g. a Stripe payout as sales minus fees" });
+        split.addEventListener("click", () => {
+          const a = prompt(`Split ${fmt(t.cents)} (${t.desc}) as ACCOUNT:AMOUNT, ... The parts must add to ${fmt(t.cents)}. Example for a payout: 4000:1000.00, 6010:-30.00`, `${sel.value || "4000"}:${(t.cents / 100).toFixed(2)}`);
+          if (!a) return;
+          try { books = confirm(books, { [t.id]: parseSplit(a) }); record("line_split"); render(); } catch (e) { $("#queue-note").textContent = e.message; }
+        });
+        return el("tr", {}, el("td", {}, tick), el("td", { text: t.date }), el("td", { text: name(t.account) }), el("td", { text: t.desc }), el("td", { class: "n", text: fmt(t.cents) }), el("td", {}, sel, " ", split), el("td", {}, pill(t.suggestion), " ", el("span", { class: "reason", text: t.suggestion?.reason ?? "" })));
       }));
       $("#queue-note").textContent = q.length ? (q.length > shown.length ? `Showing the first ${shown.length} of ${q.length}.` : `${q.length} line${q.length === 1 ? "" : "s"} waiting.`) : "Nothing is waiting. Import another statement.";
     }

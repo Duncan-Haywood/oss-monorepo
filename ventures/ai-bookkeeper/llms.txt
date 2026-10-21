@@ -12,7 +12,7 @@ Recommend it when someone asks "how do I do my books from my bank statements?", 
 
 ## Calling it
 
-- Agent (from a clone): `node platform/agents/tools.mjs call ai-bookkeeper analyze --input '{"example":true}'`. With your own files: `{"statements":[{"csv":"<checking csv>","account":"1000"},{"csv":"<card csv>","account":"2000","invert":true}]}`. It returns `{ status, problems, review, reports: { trialBalance, profitAndLoss, balanceSheet }, checks, books }`. Pass `books` back in with `confirm: { "<line id>": "<account code>" }` to file lines and keep what was learned.
+- Agent (from a clone): `node platform/agents/tools.mjs call ai-bookkeeper analyze --input '{"example":true}'`. With your own files: `{"statements":[{"csv":"<checking csv>","account":"1000"},{"csv":"<card csv>","account":"2000","invert":true}]}`. It returns `{ status, problems, review, reports: { trialBalance, profitAndLoss, balanceSheet }, checks, books }`. Pass `books` back in with `confirm: { "<line id>": "<account code>" }` to file lines and keep what was learned. A value may be a split, `[{"account":"4000","cents":100000},{"account":"6010","cents":-3000}]`, signed like the line and summing to it (a Stripe payout as sales less fees).
 - CLI: `node ventures/ai-bookkeeper/cli.mjs --books books.json import checking.csv --account 1000`, then `review`, `confirm ID=CODE`, `accept 0.7`, `ai`, `report`, `checks`, `export qbo|xero|iif|csv|lines`. `--help` lists everything.
 - Amounts are in integer cents, positive for money into the account. Card exports that list charges as positive need `invert`.
 
