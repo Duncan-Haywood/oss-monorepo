@@ -1,0 +1,30 @@
+ops per frame: {'mul': 7532, 'add': 11009, 'mem': 15620, 'lut': 80}
+mel nonzero weights: 247  classifier MACs: 5184
+front end 46.8 nJ/frame (arith only 6.8), classifier 10.86 nJ/inference
+stream: each frame computed once              assumed constants  fe 2.3384 uW  clf 0.0434 uW  ratio 53.8
+stream: each frame computed once              arithmetic only    fe 0.3390 uW  clf 0.0434 uW  ratio 7.8
+stream: each frame computed once              multiply x1/3      fe 2.1375 uW  clf 0.0434 uW  ratio 49.2
+stream: each frame computed once              memory x3          fe 6.3371 uW  clf 0.0434 uW  ratio 145.9
+stream: each frame computed once              memory x1/3        fe 1.0055 uW  clf 0.0434 uW  ratio 23.1
+naive: 49 frames recomputed per inference     assumed constants  fe 9.1665 uW  clf 0.0434 uW  ratio 211.0
+naive: 49 frames recomputed per inference     arithmetic only    fe 1.3290 uW  clf 0.0434 uW  ratio 30.6
+naive: 49 frames recomputed per inference     multiply x1/3      fe 8.3792 uW  clf 0.0434 uW  ratio 192.9
+naive: 49 frames recomputed per inference     memory x3          fe 24.8415 uW  clf 0.0434 uW  ratio 571.8
+naive: 49 frames recomputed per inference     memory x1/3        fe 3.9415 uW  clf 0.0434 uW  ratio 90.7
+decimate: {'fft_mul_512': 4096, 'fft_mul_256': 1792, 'saved_mul_per_s': 115200.0, 'breakeven_macs_per_output_sample': 14.4}
+cepstral spread (synthetic voiced, -20 dBFS): 9.83
+1 shift per stage (8)       -50 dBFS  err 6.678 (0.68 of spread)  peak 306 (10 bits)
+1 shift per stage (8)       -40 dBFS  err 5.449 (0.55 of spread)  peak 699 (11 bits)
+1 shift per stage (8)       -30 dBFS  err 3.706 (0.38 of spread)  peak 2135 (13 bits)
+1 shift per stage (8)       -20 dBFS  err 1.844 (0.19 of spread)  peak 6846 (14 bits)
+1 shift per stage (8)       -10 dBFS  err 1.144 (0.12 of spread)  peak 21745 (16 bits)
+4 shifts (stages 1-4)       -50 dBFS  err 4.017 (0.41 of spread)  peak 628 (11 bits)
+4 shifts (stages 1-4)       -40 dBFS  err 3.046 (0.31 of spread)  peak 1963 (12 bits)
+4 shifts (stages 1-4)       -30 dBFS  err 1.556 (0.16 of spread)  peak 6187 (14 bits)
+4 shifts (stages 1-4)       -20 dBFS  err 0.642 (0.07 of spread)  peak 19559 (16 bits)
+4 shifts (stages 1-4)       -10 dBFS  err 0.219 (0.02 of spread)  peak 61889 (17 bits)
+2 shifts (stages 1-2)       -50 dBFS  err 2.051 (0.21 of spread)  peak 2512 (13 bits)
+2 shifts (stages 1-2)       -40 dBFS  err 1.354 (0.14 of spread)  peak 7856 (14 bits)
+2 shifts (stages 1-2)       -30 dBFS  err 0.572 (0.06 of spread)  peak 24762 (16 bits)
+2 shifts (stages 1-2)       -20 dBFS  err 0.154 (0.02 of spread)  peak 78235 (18 bits)
+2 shifts (stages 1-2)       -10 dBFS  err 0.043 (0.00 of spread)  peak 247541 (19 bits)

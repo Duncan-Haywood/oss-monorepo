@@ -1,0 +1,215 @@
+{
+ "ops_per_frame": {
+  "mul": 7532,
+  "add": 11009,
+  "mem": 15620,
+  "lut": 80
+ },
+ "cep_spread": 9.826289294860736,
+ "mel_macs": 247,
+ "clf_macs": 5184,
+ "clf_nj": 10.86048,
+ "fe_frame_nj": 46.76805000000001,
+ "fe_frame_nj_arith_only": 6.78085,
+ "power": [
+  {
+   "scheme": "stream: each frame computed once",
+   "constants": "assumed constants",
+   "fe_uW": 2.3384025000000004,
+   "clf_uW": 0.04344192,
+   "ratio": 53.828249303898176
+  },
+  {
+   "scheme": "stream: each frame computed once",
+   "constants": "arithmetic only",
+   "fe_uW": 0.33904249999999997,
+   "clf_uW": 0.04344192,
+   "ratio": 7.804500813960339
+  },
+  {
+   "scheme": "stream: each frame computed once",
+   "constants": "multiply x1/3",
+   "fe_uW": 2.137549166666667,
+   "clf_uW": 0.04344192,
+   "ratio": 49.20475813837572
+  },
+  {
+   "scheme": "stream: each frame computed once",
+   "constants": "memory x3",
+   "fe_uW": 6.3371225,
+   "clf_uW": 0.04344192,
+   "ratio": 145.87574628377382
+  },
+  {
+   "scheme": "stream: each frame computed once",
+   "constants": "memory x1/3",
+   "fe_uW": 1.0054958333333333,
+   "clf_uW": 0.04344192,
+   "ratio": 23.14575031060628
+  },
+  {
+   "scheme": "naive: 49 frames recomputed per inference",
+   "constants": "assumed constants",
+   "fe_uW": 9.166537800000002,
+   "clf_uW": 0.04344192,
+   "ratio": 211.00673727128085
+  },
+  {
+   "scheme": "naive: 49 frames recomputed per inference",
+   "constants": "arithmetic only",
+   "fe_uW": 1.3290466,
+   "clf_uW": 0.04344192,
+   "ratio": 30.593643190724535
+  },
+  {
+   "scheme": "naive: 49 frames recomputed per inference",
+   "constants": "multiply x1/3",
+   "fe_uW": 8.379192733333333,
+   "clf_uW": 0.04344192,
+   "ratio": 192.8826519024328
+  },
+  {
+   "scheme": "naive: 49 frames recomputed per inference",
+   "constants": "memory x3",
+   "fe_uW": 24.8415202,
+   "clf_uW": 0.04344192,
+   "ratio": 571.8329254323934
+  },
+  {
+   "scheme": "naive: 49 frames recomputed per inference",
+   "constants": "memory x1/3",
+   "fe_uW": 3.941543666666667,
+   "clf_uW": 0.04344192,
+   "ratio": 90.73134121757664
+  }
+ ],
+ "decimate": {
+  "fft_mul_512": 4096,
+  "fft_mul_256": 1792,
+  "saved_mul_per_s": 115200.0,
+  "breakeven_macs_per_output_sample": 14.4
+ },
+ "fidelity": [
+  {
+   "schedule": "1 shift per stage (8)",
+   "level_dbfs": -50,
+   "rms_cep_error": 6.677749146498836,
+   "rel_to_spread": 0.6795799458083711,
+   "peak": 306,
+   "bits": 10
+  },
+  {
+   "schedule": "1 shift per stage (8)",
+   "level_dbfs": -40,
+   "rms_cep_error": 5.448616563232024,
+   "rel_to_spread": 0.5544938073502186,
+   "peak": 699,
+   "bits": 11
+  },
+  {
+   "schedule": "1 shift per stage (8)",
+   "level_dbfs": -30,
+   "rms_cep_error": 3.70618860431885,
+   "rel_to_spread": 0.3771707195978069,
+   "peak": 2135,
+   "bits": 13
+  },
+  {
+   "schedule": "1 shift per stage (8)",
+   "level_dbfs": -20,
+   "rms_cep_error": 1.8443718994205316,
+   "rel_to_spread": 0.1876976999227124,
+   "peak": 6846,
+   "bits": 14
+  },
+  {
+   "schedule": "1 shift per stage (8)",
+   "level_dbfs": -10,
+   "rms_cep_error": 1.1440032823035065,
+   "rel_to_spread": 0.11642271542949927,
+   "peak": 21745,
+   "bits": 16
+  },
+  {
+   "schedule": "4 shifts (stages 1-4)",
+   "level_dbfs": -50,
+   "rms_cep_error": 4.016725225476585,
+   "rel_to_spread": 0.40877335329190634,
+   "peak": 628,
+   "bits": 11
+  },
+  {
+   "schedule": "4 shifts (stages 1-4)",
+   "level_dbfs": -40,
+   "rms_cep_error": 3.046208254383817,
+   "rel_to_spread": 0.3100059608439393,
+   "peak": 1963,
+   "bits": 12
+  },
+  {
+   "schedule": "4 shifts (stages 1-4)",
+   "level_dbfs": -30,
+   "rms_cep_error": 1.556037457078481,
+   "rel_to_spread": 0.158354533475043,
+   "peak": 6187,
+   "bits": 14
+  },
+  {
+   "schedule": "4 shifts (stages 1-4)",
+   "level_dbfs": -20,
+   "rms_cep_error": 0.6423849307618715,
+   "rel_to_spread": 0.06537411137466168,
+   "peak": 19559,
+   "bits": 16
+  },
+  {
+   "schedule": "4 shifts (stages 1-4)",
+   "level_dbfs": -10,
+   "rms_cep_error": 0.2190887702849625,
+   "rel_to_spread": 0.022296185641465745,
+   "peak": 61889,
+   "bits": 17
+  },
+  {
+   "schedule": "2 shifts (stages 1-2)",
+   "level_dbfs": -50,
+   "rms_cep_error": 2.0505727292226354,
+   "rel_to_spread": 0.2086823080097091,
+   "peak": 2512,
+   "bits": 13
+  },
+  {
+   "schedule": "2 shifts (stages 1-2)",
+   "level_dbfs": -40,
+   "rms_cep_error": 1.354055031178262,
+   "rel_to_spread": 0.1377992231397511,
+   "peak": 7856,
+   "bits": 14
+  },
+  {
+   "schedule": "2 shifts (stages 1-2)",
+   "level_dbfs": -30,
+   "rms_cep_error": 0.5723876751765132,
+   "rel_to_spread": 0.05825064355431492,
+   "peak": 24762,
+   "bits": 16
+  },
+  {
+   "schedule": "2 shifts (stages 1-2)",
+   "level_dbfs": -20,
+   "rms_cep_error": 0.1541452541841578,
+   "rel_to_spread": 0.0156870258506207,
+   "peak": 78235,
+   "bits": 18
+  },
+  {
+   "schedule": "2 shifts (stages 1-2)",
+   "level_dbfs": -10,
+   "rms_cep_error": 0.04296095261249107,
+   "rel_to_spread": 0.004372042316621001,
+   "peak": 247541,
+   "bits": 19
+  }
+ ],
+ "fft_butterflies": 1024
+}
