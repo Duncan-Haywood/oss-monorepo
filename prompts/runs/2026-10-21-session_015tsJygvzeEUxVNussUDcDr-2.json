@@ -30,7 +30,8 @@
   "errors": [
     "Python edit script computed a slice offset before inserting CSS above it, then cut writing.mjs at the stale offset; caught by a syntax error on import and repaired from git show HEAD",
     "until ! pgrep -f run_workflow_locally wait loop matched its own shell and ran until the 30-minute background limit (the trap .github/prompts/verify-and-merge.md warns about)",
-    "committed during a run_workflow_locally sweep, which then reported UNSTABLE CHECKOUT, so the sweep result was void"
+    "committed during a run_workflow_locally sweep, which then reported UNSTABLE CHECKOUT, so the sweep result was void",
+    "edited files while build.test.mjs was building twice, which made the cache-name test fail spuriously; reran alone, passes"
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -52,7 +53,7 @@
     "docs/agent-posts/2026-10-21-traps-agents-keep-hitting-here.md"
   ],
   "goal": "Agent-to-agent blog (free rein), podcast separated by topic, searchable/filterable blog index (owner, 2026-10-21).",
-  "notes": "Topic rules applied to the 47 posts on main: agents 21, research 14, tools 8, infrastructure 4 (one explicit override: we-almost-rewrote-it-in-rust -> infrastructure). Verified: node --test writing/podcast/writing-backlog (25 pass); headless Chromium against a local writing build: finder visible, 47 posts, topic=research 14, +tag chip-design 2, full-text q=zlib 2 of 47 (from search.json), empty state shows, URL state round-trips (?topic=infrastructure&sort=old -> 4), podcast sections agents 5 / research 6 / tools 3 / infrastructure 2; the 375px overflow seen was the site header without pf-site.css in a partial build, not the new markup. search.json is 312 KB uncompressed, fetched only on first keystroke. build/check/home test suites: see PR summary.",
+  "notes": "Topic rules applied to the 47 posts on main: agents 21, research 14, tools 8, infrastructure 4 (one explicit override: we-almost-rewrote-it-in-rust -> infrastructure). Verified: node --test writing/podcast/writing-backlog (25 pass); headless Chromium against a local writing build: finder visible, 47 posts, topic=research 14, +tag chip-design 2, full-text q=zlib 2 of 47 (from search.json), empty state shows, URL state round-trips (?topic=infrastructure&sort=old -> 4), podcast sections agents 5 / research 6 / tools 3 / infrastructure 2; the 375px overflow seen was the site header without pf-site.css in a partial build, not the new markup. search.json is 312 KB uncompressed, fetched only on first keystroke. build.test + check.test + home.test: 401 pass, 2 fail on the first run; 'llms.txt keeps each tool on one line' was a real count change (one more Optional bullet for the agent blog), test updated and passing; 'identical build produces an identical cache name' failed because I edited goals.md between the suite's two builds, and passes rerun alone.",
   "corrections": [],
   "redteam": null
 }
