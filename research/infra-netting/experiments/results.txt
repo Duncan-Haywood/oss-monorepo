@@ -1,0 +1,57 @@
+== A. Bounds as percent of gross value, mean of 60 simulated days, against Table 1 of the paper
+system sigma rho | UB LB bilateral | published UB LB
+DK 1.0 0.0 | 35.0 25.3 59.4 | 37.2 10.7
+DK 1.0 0.5 | 26.0 11.9 25.9 | 37.2 10.7
+DK 1.0 0.8 | 23.2 6.5 13.3 | 37.2 10.7
+DK 1.0 0.9 | 22.3 4.8 9.5 | 37.2 10.7
+DK 1.0 1.0 | 21.8 2.7 5.6 | 37.2 10.7
+DK 2.0 0.0 | 55.6 44.5 77.1 | 37.2 10.7
+DK 2.0 0.5 | 40.0 19.4 31.6 | 37.2 10.7
+DK 2.0 0.8 | 34.7 10.1 15.6 | 37.2 10.7 <- used
+DK 2.0 0.9 | 34.4 8.1 11.7 | 37.2 10.7
+DK 2.0 1.0 | 32.8 4.3 6.7 | 37.2 10.7
+DK 3.0 0.0 | 74.8 64.5 89.3 | 37.2 10.7
+DK 3.0 0.5 | 53.4 28.4 37.5 | 37.2 10.7
+DK 3.0 0.8 | 44.9 14.2 18.1 | 37.2 10.7
+DK 3.0 0.9 | 45.2 12.1 14.3 | 37.2 10.7
+DK 3.0 1.0 | 41.8 5.9 7.4 | 37.2 10.7
+FI 1.0 0.0 | 20.1 15.3 27.8 | 27.4 4.3
+FI 1.0 0.5 | 13.0 6.1 12.8 | 27.4 4.3
+FI 1.0 0.8 | 11.6 3.3 6.9 | 27.4 4.3
+FI 1.0 0.9 | 11.3 2.1 4.7 | 27.4 4.3
+FI 1.0 1.0 | 11.1 1.1 2.7 | 27.4 4.3
+FI 2.0 0.0 | 37.6 28.1 47.6 | 27.4 4.3
+FI 2.0 0.5 | 25.8 11.0 20.3 | 27.4 4.3
+FI 2.0 0.8 | 24.4 7.3 11.4 | 27.4 4.3
+FI 2.0 0.9 | 23.3 4.2 7.2 | 27.4 4.3 <- used
+FI 2.0 1.0 | 22.4 2.6 4.5 | 27.4 4.3
+FI 3.0 0.0 | 61.1 49.9 70.5 | 27.4 4.3
+FI 3.0 0.5 | 40.8 18.5 27.4 | 27.4 4.3
+FI 3.0 0.8 | 38.5 12.5 16.0 | 27.4 4.3
+FI 3.0 0.9 | 36.2 7.0 9.6 | 27.4 4.3
+FI 3.0 1.0 | 34.4 4.3 6.0 | 27.4 4.3
+== B. Netting at the fitted settings: percent of gross value that must be funded
+system gross bilateral multilateral(LB) queue-free(UB)
+DK 100.0 15.6 10.1 34.7
+FI 100.0 7.2 4.2 23.3
+== C. Delay against liquidity, DK shape (20 days), liquidity = LB + alpha (UB - LB) per bank; paper: delay cut up to 50 percent at low liquidity
+alpha delay_fifo delay_res cut_pct unsettled_fifo unsettled_res alg_share
+0.0 0.2699 0.2057 23.8 0.7753 0.0000 0.7436
+0.2 0.2169 0.1251 42.3 0.5904 0.0000 0.5708
+0.4 0.1623 0.0875 46.1 0.3717 0.0000 0.4230
+0.6 0.1198 0.0711 40.6 0.2823 0.0000 0.3400
+0.8 0.0844 0.0508 39.9 0.1586 0.0000 0.2466
+1.0 0.0000 0.0000 nan 0.0000 0.0000 0.0000
+== D. Delay against liquidity, FI shape (20 days); paper: a considerably more modest cut, about 10 percent at low to moderate liquidity
+alpha delay_fifo delay_res cut_pct unsettled_fifo unsettled_res alg_share
+0.0 0.2939 0.1747 40.6 0.8743 0.0000 0.8246
+0.2 0.1832 0.0811 55.7 0.5865 0.0000 0.4918
+0.4 0.1170 0.0466 60.2 0.3497 0.0000 0.2766
+0.6 0.0771 0.0291 62.2 0.1570 0.0000 0.1624
+0.8 0.0222 0.0146 34.3 0.0353 0.0000 0.0709
+1.0 0.0000 0.0000 nan 0.0000 0.0000 0.0000
+== E. Does the DK result depend on the size spread? sigma sweep at rho 0.8, alpha 0.2 (20 days)
+sigma delay_fifo delay_res cut_pct
+1.0 0.1274 0.0924 27.4
+2.0 0.2169 0.1251 42.3
+3.0 0.2393 0.1306 45.4
