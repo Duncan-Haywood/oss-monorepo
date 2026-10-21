@@ -431,21 +431,61 @@ function driftAdjust(x, m, trend0, profile) {
   return { adjusted, profile };
 }
 
-/** Two knots of the continuous piecewise-linear least-squares line, searched at every point in [lo, hi] at least gap apart. */
-function lsKnots(x, lo, hi, gap) {
+/**
+ * Two knots of the continuous piecewise-linear least-squares line, searched at every point in [lo, hi] at least gap apart.
+ * Every normal-equation entry for the basis [1, t, (t-a)+, (t-b)+] is a closed form in prefix sums of 1, t, t^2, x and t*x, so a
+ * pair costs a 4x4 solve instead of a pass over the series (n^2 pairs, not n^3 work; 85 s became under a second at 1,200 points).
+ * The values are centred first so the subtraction at the end does not lose the residual to rounding.
+ */
+export function lsKnots(x, lo, hi, gap) {
   const n = x.length;
+  const mx = x.reduce((a, v) => a + v, 0) / n, mt = (n - 1) / 2;
+  // prefix[i] sums over t < i of 1, u, u^2, y, u*y with u = t - mt, y = x - mx
+  const P = Array.from({ length: 5 }, () => new Float64Array(n + 1));
+  for (let t = 0; t < n; t++) {
+    const u = t - mt, y = x[t] - mx;
+    const v = [1, u, u * u, y, u * y];
+    for (let q = 0; q < 5; q++) P[q][t + 1] = P[q][t] + v[q];
+  }
+  const tail = (q, k) => P[q][n] - P[q][k + 1]; // sum over t > k
+  const yy = x.reduce((a, v) => a + (v - mx) ** 2, 0);
   let best = null;
+  const A = Array.from({ length: 4 }, () => new Float64Array(5));
   for (let a = lo; a <= hi; a++) {
+    const ua = a - mt;
     for (let b = a + gap; b <= hi; b++) {
-      const rss = lineRss(x, [a, b]);
+      const ub = b - mt;
+      // hinge (t-k)+ = (u - uk) for t > k
+      const h0a = tail(1, a) - ua * tail(0, a), h0b = tail(1, b) - ub * tail(0, b); // sums of the hinges
+      const m = [
+        [n, P[1][n], h0a, h0b],
+        [0, P[2][n], tail(2, a) - ua * tail(1, a), tail(2, b) - ub * tail(1, b)],
+        [0, 0, tail(2, a) - 2 * ua * tail(1, a) + ua * ua * tail(0, a), tail(2, b) - (ua + ub) * tail(1, b) + ua * ub * tail(0, b)],
+        [0, 0, 0, tail(2, b) - 2 * ub * tail(1, b) + ub * ub * tail(0, b)],
+      ];
+      const rhs = [P[3][n], P[4][n], tail(4, a) - ua * tail(3, a), tail(4, b) - ub * tail(3, b)];
+      for (let i = 0; i < 4; i++) { for (let j = 0; j < 4; j++) A[i][j] = j >= i ? m[i][j] : m[j][i]; A[i][4] = rhs[i]; }
+      // Gauss-Jordan with partial pivoting
+      let ok = true;
+      for (let i = 0; i < 4 && ok; i++) {
+        let piv = i;
+        for (let r = i + 1; r < 4; r++) if (Math.abs(A[r][i]) > Math.abs(A[piv][i])) piv = r;
+        if (!(Math.abs(A[piv][i]) > 1e-12)) { ok = false; break; }
+        if (piv !== i) { const tmp = A[i]; A[i] = A[piv]; A[piv] = tmp; }
+        for (let r = 0; r < 4; r++) if (r !== i) { const q = A[r][i] / A[i][i]; for (let c = i; c < 5; c++) A[r][c] -= q * A[i][c]; }
+      }
+      if (!ok) continue;
+      let fit = 0;
+      for (let i = 0; i < 4; i++) fit += (A[i][4] / A[i][i]) * rhs[i];
+      const rss = yy - fit;
       if (!best || rss < best.rss) best = { rss, knots: [a, b] };
     }
   }
   return best && best.knots;
 }
 
-// residual sum of squares of x on [1, t, (t-k)+ ...] by the normal equations
-function lineRss(x, ks) {
+// residual sum of squares of x on [1, t, (t-k)+ ...] by the normal equations (one pass over the series; the reference lsKnots is tested against)
+export function lineRss(x, ks) {
   const n = x.length, p = 2 + ks.length;
   const A = Array.from({ length: p }, () => new Array(p + 1).fill(0));
   const row = (t) => [1, t, ...ks.map((k) => Math.max(0, t - k))];
