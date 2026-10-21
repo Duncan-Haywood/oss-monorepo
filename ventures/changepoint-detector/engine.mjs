@@ -159,7 +159,8 @@ export function countDispersion(x, period = 0) {
 }
 
 // skip: point indices (known holidays) held out of the seasonal factors, so a holiday that always lands on one phase does not leak into it
-export function poissonSeasonal(x, period, { penalty = 'bic', minSegment = 2, passes = 8, skip = null } = {}) {
+// extra: a per-point exposure (fitted holiday factors) the PELT pass multiplies in, so the steps are not asked to explain holiday dips
+export function poissonSeasonal(x, period, { penalty = 'bic', minSegment = 2, passes = 8, skip = null, extra = null } = {}) {
   const m = Math.floor(period);
   if (!(m >= 2)) throw new Error('The seasonal period must be a whole number of at least 2.');
   const n = x.length;
@@ -179,7 +180,7 @@ export function poissonSeasonal(x, period, { penalty = 'bic', minSegment = 2, pa
   let f = normalise(num.map((v, p) => (den[p] > 0 ? v / den[p] : 1)));
   let done = 0;
   for (; done < passes; done++) {
-    const e = Array.from({ length: n }, (_, t) => f[t % m]);
+    const e = Array.from({ length: n }, (_, t) => f[t % m] * (extra ? extra[t] : 1));
     const { changepoints } = pelt(x, { model: 'poisson', penalty, minSegment, exposure: e });
     const bounds = [0, ...changepoints, n];
     const pnum = new Array(m).fill(0), pden = new Array(m).fill(0);
@@ -1374,8 +1375,17 @@ export function analyze(input = {}) {
   }
   let holidayFit = null;
   if (holIdx) {
-    holidayFit = poissonHolidays(original, holIdx, { base: exposure, penalty, minSegment: Math.max(1, Math.floor(Number(o.minSegment) || 2)), kinds: holKinds });
+    const ms = Math.max(1, Math.floor(Number(o.minSegment) || 2));
+    holidayFit = poissonHolidays(original, holIdx, { base: exposure, penalty, minSegment: ms, kinds: holKinds });
     exposure = holidayFit.exposure;
+    // alternate: the seasonal PELT pass sees the holiday exposure, then the holidays are refitted on the new seasonal factors
+    for (let round = 0; period && round < 2 && !o.noHolidayAlternation; round++) {
+      const hx = exposure.map((v, t) => v / profile[t % period]);
+      const fit = poissonSeasonal(original, period, { penalty, minSegment: ms, skip: new Set(holIdx), extra: hx });
+      profile = fit.factors;
+      holidayFit = poissonHolidays(original, holIdx, { base: fit.exposure, penalty, minSegment: ms, kinds: holKinds });
+      exposure = holidayFit.exposure;
+    }
   }
   let slope = null, slopeAfter, knot, knots, slopes;
   let growth = null, countKnot, growthAfter, countKnots, countRates;
