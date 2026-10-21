@@ -1,0 +1,43 @@
+{
+ "date": "2026-10-21",
+ "session": "https://claude.ai/code/session_015FeSZUbBajcxSgF7ZCeJrq",
+ "track": "ventures",
+ "prompt_version": 1,
+ "input": "the updates on the ghp site look great. let's keep vamping that up significantly. (+ follow-ups: sub-pages across the board; link previews and icons, be thorough about the public presentation; upgrade home graphics, organization, SEO, marketing)",
+ "input_sha256": "a807a1f14f2b7434b25f43f538c7f470e3505b84a483d85a6f98ba90da877ad0",
+ "follow_up_inputs": [],
+ "model": "claude-opus-5-5",
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-10-21T00:49:14Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": null,
+ "projects": [],
+ "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/8981",
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": null,
+ "outcome": "partial",
+ "errors": [],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "platform/pages/offline.mjs",
+   "issue": "renderSocialCard's docs claimed no font rasteriser could exist in a dependency-free build; a TrueType reader is ~300 lines of builtins."
+  }
+ ],
+ "deviations": [],
+ "goal": null,
+ "notes": "Share cards for every page in Inter (fontraster.mjs, sharecard.mjs, share.mjs), indexed PNG ~50 KB each, one brand mark across favicon/app icons/cards, complete og:/twitter: tags. Local: 884+13 tests pass, check.mjs publishable (3894 pages, no dead links); build.test.mjs in progress at record time. Sub-page and homepage visual work run in parallel sessions/PRs. Outcome set to partial until the PR is merged; update on merge.",
+ "corrections": [],
+ "redteam": null
+}
