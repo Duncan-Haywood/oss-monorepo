@@ -177,3 +177,34 @@ export function receiptReport(books, { minCents = 7500, from = null, to = null }
     missingCents: missing.reduce((s, t) => s - t.cents, 0),
   };
 }
+
+// Tax printed on receipts, by month and by the account the paid line was filed
+// to. Only receipts with a tax line count; `noTax` lists the rest so a gap is
+// visible rather than read as zero. `rate` is tax over the pre-tax amount, so a
+// rate far from the others at one merchant is a misread worth a look. Tip is
+// left out of the base. Not a return: a prompt for who to ask.
+export function taxOnReceipts(books, { from = null, to = null } = {}) {
+  const byTxn = new Map(books.transactions.map((t) => [t.id, t]));
+  const names = accountMap(books.accounts);
+  const inRange = (d) => (!from || d >= from) && (!to || d <= to);
+  const months = new Map(), accounts = new Map(), rows = [], noTax = [];
+  for (const r of books.receipts ?? []) {
+    if (!inRange(r.date)) continue;
+    if (!r.taxCents) { noTax.push({ id: r.id, date: r.date, merchant: r.merchant, cents: r.cents }); continue; }
+    const base = r.cents - r.taxCents;
+    const line = r.matched ? byTxn.get(r.matched) : null;
+    const code = line?.posted ?? null;
+    rows.push({ id: r.id, date: r.date, merchant: r.merchant, cents: r.cents, taxCents: r.taxCents, rate: base > 0 ? r.taxCents / base : null, account: code });
+    const m = r.date.slice(0, 7), a = code ?? "unfiled";
+    const add = (map, k) => { const x = map.get(k) ?? { taxCents: 0, baseCents: 0, receipts: 0 }; x.taxCents += r.taxCents; x.baseCents += base; x.receipts++; map.set(k, x); };
+    add(months, m); add(accounts, a);
+  }
+  const out = (map, label) => [...map].sort(([x], [y]) => x.localeCompare(y)).map(([k, v]) => ({ ...label(k), ...v }));
+  const taxCents = rows.reduce((s, r) => s + r.taxCents, 0);
+  return {
+    receipts: rows.length, taxCents,
+    byMonth: out(months, (month) => ({ month })),
+    byAccount: out(accounts, (code) => ({ code, name: names.get(code)?.name ?? (code === "unfiled" ? "Not matched, or line not filed yet" : code) })),
+    rows, noTax,
+  };
+}

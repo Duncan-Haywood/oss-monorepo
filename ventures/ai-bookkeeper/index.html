@@ -301,7 +301,7 @@
     import { setOpeningBalances, clearOpeningBalances } from "./opening.mjs";
     import { detectRecurring, forecastCash } from "./recurring.mjs";
     import { setBudget, budgetVsActual } from "./budget.mjs";
-    import { addReceipts, receiptReport } from "./receipts.mjs";
+    import { addReceipts, receiptReport, taxOnReceipts } from "./receipts.mjs";
     import { aiSuggest } from "./ai.mjs";
     import { detectLocal, isLocal } from "./byok.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
@@ -430,6 +430,8 @@
       if (rep.unmatched.length) out.push(el("p", { class: "note", text: "No bank line found (paid another way, or not imported yet):" }), table(["Receipt", "Date", "Total"], rep.unmatched.map((u) => [u.merchant, u.date, fmt(u.cents)])));
       out.push(el("p", { class: "note", text: `${rep.missing.length} line${rep.missing.length === 1 ? "" : "s"} of ${fmt(rep.minCents)} or more with no receipt (${fmt(rep.missingCents)}). Wages, owner draws and transfers are left out.` }));
       if (rep.missing.length) out.push(table(["Date", "Bank line", "Amount"], rep.missing.slice(0, 200).map((t) => [t.date, t.desc, fmt(t.cents)])));
+      const tax = taxOnReceipts(books, { from: $("#from").value || null, to: $("#to").value || null });
+      if (tax.receipts) out.push(el("p", { class: "note", text: `Tax printed on receipts: ${fmt(tax.taxCents)} across ${tax.receipts} (${tax.noTax.length} with no tax line, not counted).` }), table(["Month", "Tax", "Before tax"], tax.byMonth.map((m) => [m.month, fmt(m.taxCents), fmt(m.baseCents)])));
       $("#receipts").replaceChildren(...out);
     }
 
