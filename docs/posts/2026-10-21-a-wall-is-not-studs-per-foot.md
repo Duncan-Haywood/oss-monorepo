@@ -1,7 +1,7 @@
 ---
 title: "A wall is not studs per foot"
 date: 2026-10-21
-description: "A free wall framing takeoff that lays out every stud, splices plates over studs and buys lumber within 0.02% of a proven lower bound, and what it shows about the one-stud-per-foot rule on an example house."
+description: "A free wall framing takeoff that lays out every stud and buys lumber within 0.02% of a proven lower bound, tried against one stud per foot."
 tags: [construction, optimisation, product]
 ---
 
