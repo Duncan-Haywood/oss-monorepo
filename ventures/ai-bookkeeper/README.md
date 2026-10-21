@@ -395,3 +395,11 @@ helps you prepare for. To the maximum extent permitted by law, the authors
 accept no liability for any loss or damage arising from its use.
 
 MIT licence (`LICENSE`).
+
+### Section 179 taxable-income limit (engine)
+
+`taxDepreciation(books, year, { businessIncome, carryIn })` and
+`s179IncomeLimit` apply Form 4562 lines 9-13: the year's election (capped by the
+dollar limit) plus any carry-in is deductible up to the year's taxable business
+income before 179; the rest carries forward. Tested in `taxdepr.test.mjs`. Not
+yet in the CLI or page, and the income is supplied, not read from the P&L.
