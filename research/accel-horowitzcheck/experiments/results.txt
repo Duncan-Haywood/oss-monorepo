@@ -1,0 +1,45 @@
+Fig. 1.1.9 fits (log-log slope): add_int_width_exponent=0.87, mult_int_width_exponent=1.98, sram_size_exponent_8k_32k=0.50, sram_size_exponent_8k_1m=0.47
+constants found in research/accel-*/src (value / paper):
+  accel-dataflow     E_MULT_8X8_PJ      0.2     paper 0.2  ratio 1.0
+  accel-dataflow     E_ADD_32_PJ        0.1     paper 0.1  ratio 1.0
+  accel-dataflow     E_SRAM_PJ_PER_BIT  0.16    paper 0.1562  ratio 1.024
+  accel-kws          E_MULT_8X8_PJ      0.2     paper 0.2  ratio 1.0
+  accel-kws          E_ADD_32_PJ        0.1     paper 0.1  ratio 1.0
+  accel-kws          E_SRAM_PJ_PER_BIT  0.16    paper 0.1562  ratio 1.024
+  accel-lut          E_MULT_8X8_PJ      0.2     paper 0.2  ratio 1.0
+  accel-lut          E_ADD_PJ_24        0.075   paper 0.0779  ratio 0.963
+  accel-lut          E_READ_PJ_PER_BIT  0.16    paper 0.1562  ratio 1.024
+  accel-lutft        E_MULT_8X8_PJ      0.2     paper 0.2  ratio 1.0
+  accel-lutft        E_ADD_PJ_24        0.075   paper 0.0779  ratio 0.963
+  accel-lutft        E_READ_PJ_PER_BIT  0.16    paper 0.1562  ratio 1.024
+  accel-lutwide      E_MULT_8X8_PJ      0.2     paper 0.2  ratio 1.0
+  accel-lutwide      E_ADD_PJ_24        0.075   paper 0.0779  ratio 0.963
+  accel-lutwide      E_READ_PJ_PER_BIT  0.16    paper 0.1562  ratio 1.024
+  accel-sparse       E_MULT_8X8_PJ      0.2     paper 0.2  ratio 1.0
+  accel-sparse       E_ADD_PJ_24        0.075   paper 0.0779  ratio 0.963
+  accel-sparse       E_READ_PJ_PER_BIT  0.16    paper 0.1562  ratio 1.024
+  accel-sparse       E_NEG_PJ           0.01    paper None  ratio None
+  accel-surrogate    E_MULT_8X8_PJ      0.2     paper 0.2  ratio 1.0
+  accel-surrogate    E_ADD_PJ_24        0.075   paper 0.0779  ratio 0.963
+  accel-surrogate    E_READ_PJ_PER_BIT  0.16    paper 0.1562  ratio 1.024
+  accel-surrogate    E_FP32_FLOP_PJ     2.3     paper 2.3  ratio 1.0
+  accel-surrogate2d  E_MULT_8X8_PJ      0.2     paper 0.2  ratio 1.0
+  accel-surrogate2d  E_ADD_PJ_24        0.075   paper 0.0779  ratio 0.963
+  accel-surrogate2d  E_READ_PJ_PER_BIT  0.16    paper 0.1562  ratio 1.024
+  accel-surrogate2d  E_FP32_FLOP_PJ     2.3     paper 2.3  ratio 1.0
+  accel-surrogatelock E_MULT_8X8_PJ      0.2     paper 0.2  ratio 1.0
+  accel-surrogatelock E_ADD_PJ_24        0.075   paper 0.0779  ratio 0.963
+  accel-surrogatelock E_READ_PJ_PER_BIT  0.16    paper 0.1562  ratio 1.024
+  accel-surrogatelock E_FP32_FLOP_PJ     2.3     paper 2.3  ratio 1.0
+  accel-surrogateloop E_MULT_8X8_PJ      0.2     paper 0.2  ratio 1.0
+  accel-surrogateloop E_ADD_PJ_24        0.075   paper 0.0779  ratio 0.963
+  accel-surrogateloop E_READ_PJ_PER_BIT  0.16    paper 0.1562  ratio 1.024
+  accel-surrogateloop E_FP32_FLOP_PJ     2.3     paper 2.3  ratio 1.0
+scaling rule: 16-bit add = 0.1 pJ x 16/32 (accel-frontend): used 0.05 pJ, Fig. 1.1.9 interpolation 0.0548 pJ
+scaling rule: 16x16 multiply = 0.2 pJ x (16*16)/64 (accel-frontend): used 0.8 pJ, Fig. 1.1.9 interpolation 0.7874 pJ
+scaling rule: 24-bit add = 0.1 pJ x 24/32 (accel-kws): used 0.075 pJ, Fig. 1.1.9 interpolation 0.0779 pJ
+as-built model reproduces accel-kws energies to within 7.11e-15 nJ over 40 designs
+largest weight array 16.8 KB; 4 designs exceed 8 KB
+as_built  energy/as-built 1.00..1.00  read share 0.90..0.93  front 18 (overlap 18)  spearman 1.000
+floor     energy/as-built 0.98..1.18  read share 0.90..0.93  front 18 (overlap 18)  spearman 1.000
+paper     energy/as-built 0.23..0.81  read share 0.67..0.88  front 17 (overlap 17)  spearman 0.991
