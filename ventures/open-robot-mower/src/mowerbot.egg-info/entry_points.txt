@@ -1,2 +1,0 @@
-[console_scripts]
-mowerbot = mowerbot.cli:main
