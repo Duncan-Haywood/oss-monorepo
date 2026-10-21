@@ -31,7 +31,7 @@ import zlib from 'node:zlib';
 import { decodeEntities } from './entities.mjs';
 import { REFS as CHANNEL_REFS, SOURCE_HOSTS, SOURCE_LABELS, sourceOf } from '../counter/counter.mjs';
 import { buildEngineeringPage, ENGINEERING_PATH, REPO_URL } from './engineering.mjs';
-import { buildWriting, WRITING_PATH } from './writing.mjs';
+import { buildWriting, loadPosts, WRITING_PATH } from './writing.mjs';
 import { buildLab } from './lab.mjs';
 import { buildUpdates, CHANGELOG_PATH, UPDATES_PATH } from './updates.mjs';
 import { audienceGroups, audiencePageId, audiencesFor } from './audiences.mjs';
@@ -133,6 +133,16 @@ import {
   renderMarquee,
   renderShowcaseSection,
 } from './showcase.mjs';
+import {
+  HOME_SECTIONS_CSS,
+  cardName,
+  icon,
+  renderCategoryCard,
+  renderHowItWorks,
+  renderLatestWriting,
+  renderResearchBand,
+  siteStructuredData,
+} from './home.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 export const REPO_ROOT = path.resolve(HERE, '..', '..');
@@ -3836,6 +3846,8 @@ export const ABOUT_PATH = 'about/';
  * copied-constant mistake CLAUDE.md records twice as having cost live product.
  */
 export const SPONSORS_URL = 'https://github.com/sponsors/Duncan-Haywood';
+// The repository the site is built from, named in the hub's Organization data.
+export const REPO_WEB_URL = 'https://github.com/Duncan-Haywood/oss-monorepo';
 
 /**
  * The one usage event name that is fleet-standard rather than per-product.
@@ -5667,8 +5679,13 @@ const CATEGORY_STYLE = `
     .subgroup-count { font-weight: 600; color: var(--soft); letter-spacing: 0; }
     .cards { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px;
              grid-template-columns: repeat(auto-fill, minmax(268px, 1fr)); }
-    .card { background: var(--panel); border: 1px solid var(--line); border-radius: 13px;
-            padding: 17px 18px; }
+    .card { position: relative; background: var(--panel); border: 1px solid var(--line); border-radius: 13px;
+            padding: 17px 18px; transition: transform .18s, box-shadow .18s, border-color .18s; }
+    .card::before { content: ""; position: absolute; left: -1px; top: 14px; bottom: 14px; width: 3px;
+                    border-radius: 0 3px 3px 0; background: var(--pf-cat, var(--accent)); opacity: .85; }
+    .card:hover, .card:focus-within { transform: translateY(-2px); border-color: var(--pf-cat, var(--accent));
+                                      box-shadow: 0 10px 28px rgba(20, 30, 60, .10); }
+    @media (prefers-reduced-motion: reduce) { .card, .cat { transition: none; } .card:hover, .cat:hover { transform: none; } }
     .card h3 { margin: 0 0 7px; font-size: 1.03rem; line-height: 1.25; }
     .card a { color: inherit; text-decoration: none; }
     .card a:hover h3, .card a:focus-visible h3 { color: var(--accent); text-decoration: underline; }
@@ -5903,8 +5920,8 @@ ${otherAudiences
 </head>
 <body>
   ${renderSiteHeader({ toRoot, current: 'tools', crumbs: [{ label: 'Tools', href: `${toRoot}${CATEGORY_PATH_PREFIX}/` }, { label: category.title }] })}
-  <div class="wrap">
-    <header>
+  <div class="wrap"${category.accent ? ` style="--pf-cat:${escapeHtml(category.accent)}"` : ''}>
+    <header class="pf-hero">
       <p class="eyebrow">${escapeHtml(category.title)}</p>
       <h1>${escapeHtml(copy.title)}</h1>
       <p class="lede">${escapeHtml(copy.intro)}</p>${
@@ -6088,7 +6105,9 @@ export function renderToolsIndexPage({ groups, kindPages = [], audiencePages = [
   const description = `Every free tool on ${SITE_NAME}, filed by the job it does: ${groups
     .map(({ category }) => category.title.toLowerCase())
     .join(', ')}. Runs in your browser; no account.`;
-  const section = (id, heading, blurb, count, subs) => `      <section class="cat" id="${escapeHtml(id)}">
+  const section = (id, heading, blurb, count, subs, accent) => `      <section class="cat" id="${escapeHtml(id)}"${
+    accent ? ` style="--pf-cat:${escapeHtml(accent)}"` : ''
+  }>
         <h2><a href="${escapeHtml(`${id}/`)}" data-category="${escapeHtml(id)}">${escapeHtml(heading)}</a> <span>${count}</span></h2>
         <p>${escapeHtml(snippetize(blurb, 170))}</p>${
           subs.length
@@ -6107,11 +6126,12 @@ export function renderToolsIndexPage({ groups, kindPages = [], audiencePages = [
         category.blurb,
         items.length,
         groupBySubcategory(category.id, items).filter((g) => g.subcategory),
+        category.accent,
       ),
     )
     .join('\n');
   const kinds = kindPages
-    .map(({ page, items, subgroups }) => section(page.id, page.title, page.blurb, items.length, subgroups))
+    .map(({ page, items, subgroups }) => section(page.id, page.title, page.blurb, items.length, subgroups, page.accent))
     .join('\n');
   const itemList = {
     '@context': 'https://schema.org',
@@ -6155,7 +6175,7 @@ export function renderToolsIndexPage({ groups, kindPages = [], audiencePages = [
 <body>
   ${renderSiteHeader({ toRoot, current: 'tools', crumbs: [{ label: 'Tools' }] })}
   <div class="wrap">
-    <header>
+    <header class="pf-hero">
       <p class="eyebrow">Tools</p>
       <h1>${escapeHtml(title)}</h1>
       <p class="lede">Each section has its own page with every tool in it. Know what you need? <a href="${escapeHtml(`${toRoot}#${SEARCH_ANCHOR}`)}">Search all ${total} tools</a> instead.</p>
@@ -6197,7 +6217,12 @@ const TOOLS_INDEX_STYLE = `
     .band { font-size: .82rem; text-transform: uppercase; letter-spacing: .07em; color: var(--muted);
             margin: 34px 0 12px; padding-bottom: 7px; border-bottom: 1px solid var(--line); }
     .cats { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
-    .cat { background: var(--panel); border: 1px solid var(--line); border-radius: 13px; padding: 17px 18px; }
+    .cats { align-items: start; }
+    .cat { position: relative; background: var(--panel); border: 1px solid var(--line); border-radius: 13px; padding: 17px 18px;
+           transition: transform .18s, box-shadow .18s, border-color .18s; }
+    .cat { border-top: 3px solid var(--pf-cat, #1fb68f); }
+    .cat:hover, .cat:focus-within { transform: translateY(-2px); border-color: var(--pf-cat, var(--accent));
+                                    box-shadow: 0 10px 28px rgba(20, 30, 60, .10); }
     .cat h2 { font-size: 1.1rem; margin: 0 0 6px; letter-spacing: -.01em; }
     .cat h2 a { color: inherit; text-decoration: none; }
     .cat h2 a:hover, .cat h2 a:focus-visible { color: var(--accent); text-decoration: underline; }
@@ -6385,7 +6410,7 @@ ${group.items.map(renderCard).join('\n')}
 <body>
   ${renderSiteHeader({ toRoot, current: 'tools', crumbs: [{ label: 'Tools', href: `${toRoot}${CATEGORY_PATH_PREFIX}/` }, { label: 'Comparisons' }] })}
   <div class="wrap">
-    <header>
+    <header class="pf-hero">
       <p class="eyebrow">Comparisons</p>
       <h1>What each free tool here does that the paid product does not — and what it does not do</h1>
       <p class="lede">Every tool on this site that overlaps with a commercial product has a page saying so plainly: what the product does, what the free tool does, and when the paid one is the right answer. They are written by the tool's author, cite the product's own public documentation, and are not affiliated with, endorsed by, or reviewed by any product named here.</p>
@@ -6599,7 +6624,7 @@ export function renderCompareProductPage({
 <body>
   ${renderSiteHeader({ toRoot, current: 'tools', crumbs: [{ label: 'Tools', href: `${toRoot}${CATEGORY_PATH_PREFIX}/` }, { label: 'Comparisons', href: `${toRoot}${COMPARE_PATH}` }, { label: subject }] })}
   <div class="wrap">
-    <header>
+    <header class="pf-hero">
       <p class="eyebrow">Compared with ${escapeHtml(subject)}</p>
       <h1>${escapeHtml(`${n} free tools here have a page comparing themselves with ${subject}`)}</h1>
       <p class="lede">${escapeHtml(
@@ -6817,7 +6842,7 @@ ${tools.map(renderTool).join('\n')}
 <body>
   ${renderSiteHeader({ toRoot, current: 'tools', crumbs: [{ label: 'Tools', href: `${toRoot}${CATEGORY_PATH_PREFIX}/` }, { label: 'Guides' }] })}
   <div class="wrap">
-    <header>
+    <header class="pf-hero">
       <p class="eyebrow">Guides</p>
       <h1>The question people ask before they know a calculator exists</h1>
       <p class="lede">Every tool on this site ships pages beside the calculator: how a price is actually built up, when one option beats another, what a fee schedule does to a payout, and what to do with the number once you have it. They are written by the tool's author, in plain English, and the calculator that answers the same question with your own figures is one click away from each one.</p>
@@ -6867,6 +6892,9 @@ ${categoryLinks}
 }
 
 const ABOUT_STYLE = `
+    .exceptions { margin: 14px 0 0; max-width: 68ch; font-size: .92rem; color: var(--muted); }
+    .exceptions summary { cursor: pointer; font-weight: 650; color: var(--accent); }
+    .exceptions p { margin: 8px 0 0; line-height: 1.6; }
     .prose { max-width: 720px; }
     .prose h2 { font-size: 1.25rem; letter-spacing: -.02em; margin: 38px 0 12px; }
     .prose h3 { font-size: 1rem; margin: 24px 0 6px; }
@@ -6998,10 +7026,22 @@ export function renderAboutPage({ surfaces, groups, baseUrl }) {
 <body>
   ${renderSiteHeader({ toRoot, current: 'about', crumbs: [{ label: 'About' }] })}
   <div class="wrap">
-    <header>
+    <header class="pf-hero">
       <p class="eyebrow">About</p>
       <h1>${escapeHtml(title)}</h1>
-      <p class="lede">${total} free calculators and checks for people who run a small business. They run in your browser, they cost nothing, and ${deviceClaim}.</p>
+      <p class="lede">${total} free calculators and checks for people who run a small business. They run in your browser and they cost nothing. ${
+        exceptions.length
+          ? `The numbers you type never leave your device, except on the ${exceptions.length} lookup tools listed below, where the one thing you paste goes to the public API that tool checks.`
+          : 'The numbers you type never leave your device.'
+      }</p>${
+        exceptions.length
+          ? `
+      <details class="exceptions">
+        <summary>The ${exceptions.length} lookup tools that call a public API</summary>
+        <p>${deviceClaim.replace(/^the numbers a user types never leave their device, /, 'The numbers a user types never leave their device, ')}.</p>
+      </details>`
+          : ''
+      }
     </header>
 
     <main class="prose">
@@ -7274,7 +7314,7 @@ export function renderFeedbackPage({ surfaces = [], baseUrl, feedbackUrl = SITE_
 <body>
   ${renderSiteHeader({ toRoot, current: 'about', crumbs: [{ label: 'Feedback' }] })}
   <div class="wrap">
-    <header>
+    <header class="pf-hero">
       <p class="eyebrow">Feedback</p>
       <h1>${escapeHtml(title)}</h1>
       <p class="lede">Found a wrong number, a broken page, or a tool that almost does what you need? Tell us. Every report is read.</p>
@@ -7391,51 +7431,16 @@ export function renderSearchIndex(surfaces, research = []) {
 }
 
 /** One category's card on the front door: what it is for, how big, and a taste. */
-function renderCategoryTile({ id, title, blurb, count, examples, note = '' }) {
-  return `        <li class="cat">
-          <h3><a href="${escapeHtml(categoryPagePath(id))}" data-category="${escapeHtml(id)}">${escapeHtml(title)}</a></h3>
-          <p class="cat-blurb">${escapeHtml(snippetize(blurb, 140))}</p>
-          <ul class="cat-examples">
-${examples
-  .map((s) => `            <li><a href="${escapeHtml(s.slug)}/" data-tool="${escapeHtml(s.slug)}">${escapeHtml(s.title.split(' — ')[0])}</a></li>`)
-  .join('\n')}
-          </ul>
-          <a class="cat-all" href="${escapeHtml(categoryPagePath(id))}">${note || `All ${count} tools`} →</a>
-        </li>`;
-}
-
-/**
- * The research block on the hub: the research homepage's featured projects and
- * its themes, each linking into `research/`.
- */
-function renderResearchSection({ featured = [], themes = [] } = {}, researchCount = 0) {
-  if (!researchCount) return '';
-  const featuredHtml = featured.length
-    ? `      <ul class="research-featured">
-${featured
-  .slice(0, 6)
-  .map((p) => `        <li><a href="${escapeHtml(`${RESEARCH_PATH}${p.slug}/`)}">${escapeHtml(decodeEntities(p.title))}</a></li>`)
-  .join('\n')}
-      </ul>`
-    : '';
-  const themesHtml = themes.length
-    ? `      <p class="research-themes">${themes
-        .map((t) => `<a href="${escapeHtml(`${RESEARCH_PATH}${RESEARCH_TOPICS_DIR}/${t.id}/`)}">${escapeHtml(decodeEntities(t.name))} <span>${t.count}</span></a>`)
-        .join(' ')}</p>`
-    : '';
-  return `    <section class="band" id="research" aria-labelledby="research-h">
-      <p class="section-eyebrow">Open research</p>
-      <h2 id="research-h">${researchCount} reproducible research projects</h2>
-      <p class="band-lede">Verification markets, scoring rules, decentralised training, chip design and robotics, each with runnable code, tests and a written result. <a href="${RESEARCH_PATH}">Browse all research →</a></p>
-${featuredHtml}
-${themesHtml}
-    </section>`;
+function renderCategoryTile({ id, title, blurb, count, examples, note = '', accent }) {
+  return renderCategoryCard({
+    id, href: categoryPagePath(id), title, blurb: snippetize(blurb, 140), count, examples, note, accent,
+  });
 }
 
 export function renderHub(
   surfaces,
   baseUrl,
-  { researchCount = 0, research = { featured: [], themes: [] }, showcase = { shots: [], reel: null } } = {},
+  { researchCount = 0, research = { featured: [], themes: [] }, showcase = { shots: [], reel: null }, posts = [] } = {},
 ) {
   const groups = groupByCategory(surfaces);
   const audiencePages = audienceGroups(surfaces);
@@ -7477,6 +7482,7 @@ export function renderHub(
         blurb: category.blurb,
         count: items.length,
         examples: exampleTools(items, 4),
+        accent: category.accent,
       }),
     )
     .join('\n');
@@ -7489,6 +7495,7 @@ export function renderHub(
         count: items.length,
         examples: exampleTools(items, 4),
         note: `All ${items.length} ${page.kind === 'app' ? 'apps' : 'command-line tools'}`,
+        accent: page.accent,
       }),
     )
     .join('\n');
@@ -7504,7 +7511,7 @@ export function renderHub(
 
   // The moving shelf under the hero: a few tools from every section, split
   // across two rows so neither repeats a section back to back.
-  const shortName = (s) => s.title.split(' — ')[0];
+  const shortName = (s) => cardName(s.title);
   const shelf = groups.flatMap(({ items }) => exampleTools(items, 5)).map((s) => ({ slug: s.slug, name: shortName(s) }));
   const marqueeRows = [shelf.filter((_, i) => i % 2 === 0), shelf.filter((_, i) => i % 2 === 1)];
   const titles = new Map(surfaces.map((s) => [s.slug, shortName(s)]));
@@ -7539,6 +7546,13 @@ export function renderHub(
   <meta property="og:image:alt" content="${escapeHtml(`${SITE_NAME} — free, private, in your browser`)}">
   <meta name="twitter:card" content="summary_large_image">
   <script type="application/ld+json">${jsonLd(itemList)}</script>
+  <script type="application/ld+json">${jsonLd(siteStructuredData({
+    baseUrl,
+    siteName: SITE_NAME,
+    description: 'Free, open-source browser tools, self-hostable business apps and reproducible research.',
+    repoUrl: REPO_WEB_URL,
+    logo: `${baseUrl}icon-512.png`,
+  }))}</script>
   ${siteStyleLink('')}
   <style>
     :root {
@@ -7657,12 +7671,6 @@ export function renderHub(
     .principles { list-style: none; padding: 0; margin: 18px 0 0; display: flex; flex-wrap: wrap; gap: 8px 22px;
                   font-size: .9rem; color: var(--muted); }
     .principles li::before { content: "✓"; color: var(--accent); font-weight: 800; margin-right: 8px; }
-    .research-featured { list-style: none; padding: 0; margin: 18px 0 0; display: grid; gap: 10px;
-                         grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
-    .research-featured li { background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
-                            padding: 12px 14px; font-weight: 600; line-height: 1.4; }
-    .research-featured a { color: var(--ink); text-decoration: none; }
-    .research-featured a:hover { color: var(--accent); text-decoration: underline; }
     .research-themes { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 0; }
     .research-themes a { padding: 5px 12px; border: 1px solid var(--line); border-radius: 999px; font-size: .83rem;
                          text-decoration: none; color: var(--ink); background: var(--panel); }
@@ -7768,6 +7776,7 @@ export function renderHub(
     @media print { .backup { display: none; } }
     :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 ${HOME_MOTION_CSS}
+${HOME_SECTIONS_CSS}
   </style>
 </head>
 <body>
@@ -7863,11 +7872,6 @@ ${renderMarquee(marqueeRows)}
       <p class="bid-more" id="bidsMore" hidden></p>
     </section>
 
-    <!-- Directly under the list it backs up, and deliberately still drawn when
-         that list is empty: the browser with no saved bids is exactly the one
-         where "restore from a backup" is the only thing that helps. -->
-${BACKUP_WIDGET_HTML}
-
     <!-- Filled in by script from counts held on this device; a visitor with no
          history, no storage, or an opt-out never sees it. -->
     <section class="yours" id="yours" hidden>
@@ -7880,22 +7884,13 @@ ${BACKUP_WIDGET_HTML}
       <ul id="yoursList"></ul>
     </section>
 
-${renderShowcaseSection(showcase, (slug) => titles.get(slug) ?? slug)}
-
-    <section class="band" id="browse" aria-labelledby="browse-h">
-      <p class="section-eyebrow">Browse</p>
-      <h2 id="browse-h">Tools by the job they do</h2>
-      <p class="band-lede">${surfaces.length} free tools in ${groups.length} sections. Each section's page lists every tool in it, grouped and filterable. <a href="${CATEGORY_PATH_PREFIX}/">See every section →</a></p>
-      <ul class="cats">
-${categoryTiles}
-      </ul>
-    </section>
+${renderHowItWorks({ toolCount: browserCount, appCount: apps.length })}
 
 ${
   audiencePages.length
     ? `    <section class="band" id="for" aria-labelledby="for-h">
-      <p class="section-eyebrow">By trade or business</p>
-      <h2 id="for-h">Free tools for your trade or business</h2>
+      <p class="section-eyebrow">Who it is for</p>
+      <h2 id="for-h">Find the tools for your trade or business</h2>
       <p class="band-lede">The same tools, filed by who they are for. Each page lists the calculators that kind of business uses, and what to price first if you are just starting one.</p>
       <ul class="for-list">
 ${audiencePages
@@ -7911,7 +7906,17 @@ ${audiencePages
 
 `
     : ''
-}    <section class="band" id="types" aria-labelledby="types-h">
+}
+    <section class="band" id="browse" aria-labelledby="browse-h">
+      <p class="section-eyebrow">Browse</p>
+      <h2 id="browse-h">Tools by the job they do</h2>
+      <p class="band-lede">${surfaces.length} free tools in ${groups.length} sections. Each section's page lists every tool in it, grouped and filterable. <a href="${CATEGORY_PATH_PREFIX}/">See every section →</a></p>
+      <ul class="cats">
+${categoryTiles}
+      </ul>
+    </section>
+
+    <section class="band" id="types" aria-labelledby="types-h">
       <p class="section-eyebrow">By type</p>
       <h2 id="types-h">Apps you run yourself, and checks for your terminal</h2>
       <ul class="cats">
@@ -7919,35 +7924,43 @@ ${kindTiles}
       </ul>
     </section>
 
+${renderShowcaseSection(showcase, (slug) => titles.get(slug) ?? slug)}
+
     <section class="band" id="featured" aria-labelledby="featured-h">
       <p class="section-eyebrow">Featured</p>
       <h2 id="featured-h">The fullest tool in each of the largest sections</h2>
+      <p class="band-lede">Each one goes deep: worked examples, edge cases and the explainers written beside it.</p>
       <ul class="featured">
 ${featured
   .map(
-    (s) => `        <li><a href="${escapeHtml(s.slug)}/" data-tool="${escapeHtml(s.slug)}">${escapeHtml(s.title)}</a><span class="f-cat">${escapeHtml(categoryFor(s.slug).title)}</span><p>${escapeHtml(s.description ?? '')}</p></li>`,
+    (s) => `        <li style="--feat:${escapeHtml(categoryFor(s.slug).accent)}"><a href="${escapeHtml(s.slug)}/" data-tool="${escapeHtml(s.slug)}">${escapeHtml(cardName(s.title))}</a><span class="f-cat">${escapeHtml(categoryFor(s.slug).title)}</span><p>${escapeHtml(s.description ?? '')}</p></li>`,
   )
   .join('\n')}
       </ul>
     </section>
 
-${renderResearchSection(research, researchCount)}
+${renderResearchBand(research, researchCount, { researchPath: RESEARCH_PATH, topicsDir: RESEARCH_TOPICS_DIR })}
+
+${renderLatestWriting(posts, { writingPath: WRITING_PATH })}
 
     <section class="band" id="more" aria-labelledby="more-h">
       <p class="section-eyebrow">Also here</p>
       <h2 id="more-h">Run your own copy, read the guides, follow the work</h2>
       <div class="pillar-grid">
         <a class="pillar" href="deploy/">
+          <span class="pillar-ico">${icon('deploy')}</span>
           <h3>Deploy your own copy</h3>
           <p>Every app and tool is MIT licensed. Pick one, paste your own cloud credentials, and get a running copy in your own account. Nothing of ours sits in between.</p>
           <span class="pillar-more">Deploy your own →</span>
         </a>
         <a class="pillar" href="${GUIDES_PATH}">
+          <span class="pillar-ico">${icon('guide')}</span>
           <h3>Guides and comparisons</h3>
           <p>The explainers written beside each tool, and products compared side by side, filed by trade.</p>
           <span class="pillar-more">Read the guides →</span>
         </a>
         <a class="pillar" href="${UPDATES_PATH}">
+          <span class="pillar-ico">${icon('pulse')}</span>
           <h3>Built in public</h3>
           <p>What shipped this week, what is in progress, where the project is going and how AI agents build it, from the repository's own records.</p>
           <span class="pillar-more">Updates and roadmap →</span>
@@ -7960,6 +7973,12 @@ ${renderResearchSection(research, researchCount)}
         <li>Every change in the <a href="${CHANGELOG_PATH}">public changelog</a></li>
       </ul>
     </section>
+
+<!-- With the other "your data on this device" panel rather than at the top:
+     it is still drawn when no bids are saved (the browser with none is exactly
+     the one where restoring a backup helps), but a first-time visitor should
+     meet the tools before a file picker. Tool pages link here by #backup-box. -->
+${BACKUP_WIDGET_HTML}
 
 ${renderOfflineWidgetHtml(offlineBuckets(surfaces))}
 
@@ -10603,7 +10622,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
   log(`Published ${await copyShowcase(outDir, showcase)} showcase file(s).`);
   await fs.writeFile(
     path.join(outDir, 'index.html'),
-    renderHub(surfaces, base, { researchCount: researchProjectCount(), research, showcase }),
+    renderHub(surfaces, base, { researchCount: researchProjectCount(), research, showcase, posts: loadPosts() }),
   );
   // The index the hub's search fetches, and the stylesheet every site-owned
   // page links for the shared header (site-nav.mjs).

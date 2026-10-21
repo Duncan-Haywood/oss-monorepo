@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { pairKey, selectNextPair, surveyConfidence } from "@/lib/pairing";
+import { pairKey, selectNextPair, selectNextPairHybrid, surveyConfidence } from "@/lib/pairing";
 import { loadRatedItems } from "@/lib/participantRatings";
 
 const RECENT_TRIALS_TO_AVOID = 10;
@@ -96,7 +96,10 @@ export async function POST(req: NextRequest) {
 
     const recentPairKeys = new Set(recentTrials.map((t) => pairKey(t.itemAId, t.itemBId)));
 
-    const [pickedA, pickedB] = selectNextPair({
+    // PAIR_SELECTOR=staged: shipped selector for the first 120 answers, then
+    // the information score (docs/INFORMATION-GAIN-SELECTOR.md). Off by default.
+    const choosePair = process.env.PAIR_SELECTOR === "staged" ? selectNextPairHybrid : selectNextPair;
+    const [pickedA, pickedB] = choosePair({
       items: items.map((i) => ({ id: i.id, rating: i.rating, rd: i.rd, category: i.category, dimensions: i.dimensions })),
       timesShown,
       recentPairKeys,

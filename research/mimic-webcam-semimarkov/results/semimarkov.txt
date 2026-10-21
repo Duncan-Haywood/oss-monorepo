@@ -1,0 +1,17 @@
+generator	population detector	profile-aware detector	(mean AUROC of 3 seeds; min..max of population)
+own semi8 centroid	1.000	1.000	1.000..1.000
+own semi8 member	1.000	1.000	1.000..1.000
+own semi32 centroid	1.000	1.000	1.000..1.000
+own semi32 member	0.999	0.999	0.999..1.000
+own order28 centroid	1.000	1.000	1.000..1.000
+own order28 member	1.000	1.000	1.000..1.000
+own order232 centroid	1.000	1.000	1.000..1.000
+own order232 member	1.000	1.000	0.999..1.000
+pooled semi8 centroid	1.000	1.000	1.000..1.000
+pooled semi8 member	1.000	1.000	1.000..1.000
+pooled semi32 centroid	1.000	1.000	1.000..1.000
+pooled semi32 member	1.000	1.000	0.999..1.000
+pooled order28 centroid	1.000	1.000	1.000..1.000
+pooled order28 member	1.000	1.000	1.000..1.000
+pooled order232 centroid	1.000	1.000	1.000..1.000
+pooled order232 member	1.000	1.000	0.999..1.000

@@ -198,7 +198,7 @@ export function renderAskPage({ baseUrl, siteName, chrome, toolCount }) {
 <body>
   ${chrome.header}
   <div class="wrap">
-    <header>
+    <header class="pf-hero">
       <p class="eyebrow">Ask</p>
       <h1>${esc(title)}</h1>
       <p class="lede">Say or type what you know, like “price 40, shipping 6”, and it goes into the right fields of the calculator you are on, with the result read back. Ask which tool fits a job, or what a page means. It runs in your browser, and no model downloads unless you switch one on.</p>

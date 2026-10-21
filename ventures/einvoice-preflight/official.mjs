@@ -1,5 +1,6 @@
 // Browser-side bridge to the official Schematron. Two routes, tried in order:
-// 1. in the page, when `node build-browser.mjs` put Saxon-JS and the rules in
+// 1. in the page: the shipped ./plain/ rules run by fontoxpath, or, when
+//    `node build-browser.mjs` put Saxon-JS and the SEF rules in
 //    ./browser/ (official-browser.mjs): no server, the invoice stays local;
 // 2. the server the page was served from (POST ./v1/validate?schematron=1).
 // Only the Schematron findings are merged into the local result; the built-in
@@ -26,6 +27,7 @@ export async function addOfficialFindings(result, inputs, { profile = "", fetchF
         if (local.status === "ok") {
           report.schematron = "ok";
           report.schematronWhere = "browser";
+          if (local.skipped?.length) report.schematronSkipped = local.skipped;
           report.errors.push(...local.findings);
           continue;
         }
@@ -51,7 +53,10 @@ export async function addOfficialFindings(result, inputs, { profile = "", fetchF
 }
 
 export function officialNote(report) {
-  if (report.schematron === "ok") return report.schematronWhere === "browser" ? "Official EN 16931 Schematron: run in your browser, the file did not leave this page; findings listed below." : "Official EN 16931 Schematron: run, findings listed below.";
-  if (report.schematron === "unavailable") return "Official Schematron not run: it needs either the ./browser/ folder (node build-browser.mjs) or the self-hosted server with the rules built (see README).";
+  if (report.schematron === "ok") {
+    const skipped = report.schematronSkipped?.length ? ` ${report.schematronSkipped.length} rule(s) could not be evaluated in the browser and were NOT checked: ${report.schematronSkipped.join(", ")}.` : "";
+    return (report.schematronWhere === "browser" ? "Official EN 16931 Schematron: run in your browser, the file did not leave this page; findings listed below." : "Official EN 16931 Schematron: run, findings listed below.") + skipped;
+  }
+  if (report.schematron === "unavailable") return "Official Schematron not run: this copy has neither the ./plain/ rules (node build-plain-rules.mjs) nor a server with the rules built (see README).";
   return "";
 }

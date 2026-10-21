@@ -4457,8 +4457,13 @@ test('the About page lede states the device-privacy claim honestly, with any doc
   // make the unconditional claim regardless, which is the drift this guards.
   const { surfaces } = await site();
   const about = await read('about', 'index.html');
-  const [, lede] = about.match(/<p class="lede">([^<]+)<\/p>/) ?? [];
-  assert.ok(lede, 'About page has no .lede paragraph to check');
+  const [, ledeOnly] = about.match(/<p class="lede">([^<]+)<\/p>/) ?? [];
+  assert.ok(ledeOnly, 'About page has no .lede paragraph to check');
+  // The lede itself stays short; the named exceptions sit directly under it,
+  // in the hero, in a disclosure the lede points at. Both are read together:
+  // the claim and its exceptions must still be in the first thing a visitor sees.
+  const [, disclosure = ''] = about.match(/<details class="exceptions">([\s\S]*?)<\/details>/) ?? [];
+  const lede = `${ledeOnly} ${disclosure}`;
 
   const exceptions = externalCallExceptions(surfaces);
   assert.ok(!lede.includes('nothing you type into them is uploaded anywhere'), 'lede still makes the old unconditional claim');

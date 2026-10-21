@@ -379,6 +379,24 @@ export function selectNextPairByInformation(
   return best!;
 }
 
+/**
+ * Staged hybrid: the shipped selector while `answeredCount` is below
+ * `switchAt`, the information selector after. The shipped one finishes more
+ * items early (the bar the couple screen needs); the information one wins on
+ * rank accuracy and on items under rd 150 once there are enough answers.
+ * Measured in `infoGainPairing.simulation.test.ts`.
+ */
+export const HYBRID_SWITCH_ANSWERS = 120;
+
+export function selectNextPairHybrid(
+  input: PairingInput,
+  { switchAt = HYBRID_SWITCH_ANSWERS, ...options }: InformationOptions & { switchAt?: number } = {}
+): [string, string] {
+  return (input.answeredCount ?? 0) < switchAt
+    ? selectNextPair(input)
+    : selectNextPairByInformation(input, options);
+}
+
 /** Picks two distinct identity items for a CONJOINED-survey trial, favoring under-shown items. */
 export function selectIdentityPair(
   items: PairItem[],

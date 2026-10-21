@@ -10,6 +10,7 @@ import {
   pairKey,
   selectNextPair,
   selectNextPairByInformation,
+  selectNextPairHybrid,
   type InformationOptions,
   type PairItem,
 } from "@/lib/pairing";
@@ -115,6 +116,9 @@ function compare(itemCount: number, budget: number, n = 10) {
     info: run(selectNextPairByInformation),
     conflict: run(tuned({ conflictBonus: 1.5 })),
     coverage: run(tuned({ conflictBonus: 1.5, coverageWeight: 0.5 })),
+    hybrid: run((input) => selectNextPairHybrid(input)),
+    hybrid60: run((input) => selectNextPairHybrid(input, { switchAt: 60 })),
+    hybrid200: run((input) => selectNextPairHybrid(input, { switchAt: 200 })),
   };
 }
 
@@ -135,10 +139,13 @@ describe("expectedVarianceReduction", () => {
 describe("information-gain selector vs the shipped selector", () => {
   for (const [items, budget] of [[41, 90], [41, 300], [220, 90], [220, 300]] as const) {
     it(`${items} items, ${budget} answers`, () => {
-      const { shipped, info, conflict, coverage } = compare(items, budget);
-      console.log(`MEASURE ${items} items ${budget} answers`, JSON.stringify({ shipped, info, conflict, coverage }));
+      const { shipped, info, conflict, coverage, hybrid, hybrid60, hybrid200 } = compare(items, budget);
+      console.log(`MEASURE ${items} items ${budget} answers`, JSON.stringify({ shipped, info, conflict, coverage, hybrid, hybrid60, hybrid200 }));
       // Measured 2026-10-20 (docs/INFORMATION-GAIN-SELECTOR.md): rank accuracy is higher at every cell.
       expect(info.rank).toBeGreaterThan(shipped.rank);
+      // Measured 2026-10-21: the hybrid (switch at 120 answers) never does worse than shipped on rank or rd<150.
+      expect(hybrid.rank).toBeGreaterThanOrEqual(shipped.rank);
+      expect(hybrid.under150).toBeGreaterThanOrEqual(shipped.under150);
     }, 120_000);
   }
 });

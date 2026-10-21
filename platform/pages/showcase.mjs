@@ -54,13 +54,15 @@ export async function copyShowcase(outDir, showcase, source = SHOWCASE_SOURCE) {
 /**
  * Two rows of tool names drifting in opposite directions. The second copy of
  * each row exists only to make the loop seamless, so it is hidden from
- * assistive technology and taken out of the tab order.
+ * assistive technology and carries no links: a crawler reading the page sees
+ * each tool linked once, not twice with the same anchor text.
  */
 export function renderMarquee(rows) {
   const filled = rows.filter((row) => row.length);
   if (!filled.length) return '';
-  const pill = (s, hidden) =>
-    `<li><a href="${esc(s.slug)}/"${hidden ? ' tabindex="-1"' : ` data-tool="${esc(s.slug)}"`}>${esc(s.name)}</a></li>`;
+  const pill = (s, hidden) => (hidden
+    ? `<li><span>${esc(s.name)}</span></li>`
+    : `<li><a href="${esc(s.slug)}/" data-tool="${esc(s.slug)}">${esc(s.name)}</a></li>`);
   return `    <section class="marquee" aria-label="A sample of the tools">
 ${filled
   .map(
@@ -164,7 +166,7 @@ export const HOME_MOTION_CSS = `
                        mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); }
     .marquee-row { display: flex; width: max-content; }
     .marquee-track { list-style: none; margin: 0; padding: 0 10px 0 0; display: flex; gap: 10px; }
-    .marquee-track a { display: inline-block; white-space: nowrap; padding: 8px 15px; border-radius: 999px;
+    .marquee-track a, .marquee-track span { display: inline-block; white-space: nowrap; padding: 8px 15px; border-radius: 999px;
                        border: 1px solid var(--line); background: var(--bg); color: var(--ink);
                        text-decoration: none; font-weight: 600; font-size: .9rem; transition: border-color .2s, color .2s, transform .2s; }
     .marquee-track a:hover, .marquee-track a:focus-visible { border-color: var(--accent); color: var(--accent); transform: translateY(-2px); }
@@ -201,12 +203,12 @@ export const HOME_MOTION_CSS = `
     .shot-cap { display: block; padding: 4px 14px 14px; font-size: .86rem; color: var(--muted); line-height: 1.45; }
 
     /* A soft light that follows the pointer across a card. */
-    .cat, .pillar, .featured li, .research-featured li { position: relative; }
-    .cat::before, .pillar::before, .featured li::before, .research-featured li::before {
+    .cat, .pillar, .featured li, .step { position: relative; }
+    .cat::before, .pillar::before, .featured li::before, .step::before {
       content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; opacity: 0;
       background: radial-gradient(360px circle at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, var(--accent) 16%, transparent), transparent 60%);
       transition: opacity .3s; }
-    .cat:hover::before, .pillar:hover::before, .featured li:hover::before, .research-featured li:hover::before { opacity: 1; }
+    .cat:hover::before, .pillar:hover::before, .featured li:hover::before, .step:hover::before { opacity: 1; }
     .cat, .featured li { transition: border-color .2s, transform .25s, box-shadow .25s; }
     .cat:hover, .featured li:hover { transform: translateY(-3px); box-shadow: 0 18px 40px -26px rgba(20, 40, 120, .45); }
 
@@ -343,9 +345,16 @@ export const HOME_MOTION_SCRIPT = `
       }
 
       // ---- Reveal sections and cards as they scroll in ----------------------
+      // Only what starts below the fold is hidden, and never for long: a
+      // reader who does not scroll (a full-page capture, a link-preview
+      // renderer, a search engine's renderer, print) would otherwise see a page
+      // of empty bands. Everything still hidden after a few seconds, or when
+      // the page is printed, is shown.
       if (!still && 'IntersectionObserver' in window) {
         root.classList.add('motion');
-        const targets = document.querySelectorAll('.band > h2, .band > .band-lede, .cats > li, .featured > li, .pillar, .research-featured > li, .shot, .reel');
+        const fold = innerHeight;
+        const targets = [...document.querySelectorAll('.band > h2, .band > .band-lede, .cats > li, .featured > li, .pillar, .step, .rcard, .posts > li, .shot, .reel')]
+          .filter((el) => el.getBoundingClientRect().top > fold);
         targets.forEach((el) => {
           el.classList.add('reveal');
           const index = [...el.parentElement.children].indexOf(el);
@@ -355,11 +364,14 @@ export const HOME_MOTION_SCRIPT = `
           for (const e of entries) if (e.isIntersecting) { e.target.classList.add('in'); reveal.unobserve(e.target); }
         }, { rootMargin: '0px 0px -8% 0px' });
         targets.forEach((el) => reveal.observe(el));
+        const showAll = () => { targets.forEach((el) => el.classList.add('in')); reveal.disconnect(); };
+        setTimeout(showAll, 4000);
+        addEventListener('beforeprint', showAll);
       }
 
       // ---- Pointer light on cards -------------------------------------------
       document.addEventListener('pointermove', (e) => {
-        const card = e.target.closest && e.target.closest('.cat, .pillar, .featured li, .research-featured li');
+        const card = e.target.closest && e.target.closest('.cat, .pillar, .featured li, .step');
         if (!card) return;
         const box = card.getBoundingClientRect();
         card.style.setProperty('--mx', (e.clientX - box.left) + 'px');
