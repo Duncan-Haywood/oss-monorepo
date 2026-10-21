@@ -81,3 +81,8 @@ test("sitemap lists every page and robots allows crawling", () => {
   assert.match(sm, /<loc>\.\/how-many-studs-for-a-wall\.html<\/loc>/);
   assert.match(page("robots.txt"), /Allow: \//);
 });
+
+test("the footer links the cut list optimizer, and it links back", () => {
+  assert.match(page("index.html"), /<a href="\.\.\/cut-list-optimizer\/">/);
+  assert.match(readFileSync(new URL("../cut-list-optimizer/index.html", import.meta.url), "utf8"), /<a href="\.\.\/wall-framing-takeoff\/">/);
+});
