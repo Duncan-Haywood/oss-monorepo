@@ -1,0 +1,27 @@
+{
+  "id": "P043",
+  "title": "Retire the dead apex mirror's staleness gate: it still fails PRs for drift they did not cause",
+  "status": "open",
+  "owner": "agent",
+  "effect": 2,
+  "cost": 2,
+  "problem": "P039 gated the mirror check to PRs touching gitops/prod/, platform/marketing/ or portfolio-validate.yml, which made it fast but not harmless. Main's committed mirror (catalog.json.gz, sitemap.xml.gz, social-card.png) drifts because pages/venture merges change the generator inputs without running the check, so the first PR that does touch the gated paths goes red for someone else's drift and its author regenerates files for an origin retired on 2026-10-01 (portfolio/hosting/README.md).",
+  "evidence": [
+    "mcp actions_list portfolio-validate.yml event=pull_request, newest 30 (2026-10-21T02:31Z-03:05Z): 10 conclusion=failure, 6 of them on branches whose commit subjects are mirror regens (e.g. 'Regenerate the apex mirror (stale on main)', 'Regenerate the front-door mirror after merging main', 'Regenerate the mirror alias map for wall-framing-takeoff'); runs 39533528804, 39533572911, 39533709872, 39533831025. The failure reasons were not read from job logs, so the share caused by the mirror check is unconfirmed.",
+    "commit 'Wire ci_profile tests through their own workflow, leave the mirror alone' (branch claude/lucid-cori-3n1pre): an author moved a test to another workflow to avoid touching portfolio-validate.yml and the mirror check."
+  ],
+  "change": "Read the job logs of the failed runs above to confirm how many were the mirror step. If most were, stop gating PRs on the mirror: delete the 'Check the apex tool mirror is not stale' step and the marketing/*.test.mjs staleness tests that only guard gitops/prod/front-door*, keep the generator, and update verify-and-merge.md's regen.mjs lines and platform/ci/checklist_coverage.py. Alternatively run regen.mjs --verify on main on a schedule and not on PRs. Part of P036 part 1 (retired-cluster cleanup).",
+  "touches": [
+    ".github/workflows/portfolio-validate.yml",
+    ".github/prompts/verify-and-merge.md",
+    "platform/ci/checklist_coverage.py",
+    "platform/marketing/"
+  ],
+  "metric": "share of the last 100 completed Portfolio validate pull_request runs that fail",
+  "baseline": "10 of the newest 30 (2026-10-21), cause unconfirmed",
+  "opened": "2026-10-21",
+  "source": "Verify of P039, process run 2026-10-21",
+  "pr": null,
+  "result": null,
+  "history": []
+}
