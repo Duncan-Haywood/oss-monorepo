@@ -53,7 +53,7 @@ flagships:
       layouts; they still need trying on real exports. OFX/QFX (SGML and XML) and
       QIF files read too (2026-10-21, hand-written fixtures; page file picker takes
       .ofx/.qfx/.qif); multi-account OFX files split per account in the engine and CLI (`--map OFXID=CODE`,
-      2026-10-21); the page now shows one account picker per account in a multi-account OFX file (2026-10-21; tested by markup checks, not yet clicked through in a browser).
+      2026-10-21); the page now shows one account picker per account in a multi-account OFX file (2026-10-21; clicked through in headless Chromium with `node eval/browser-click.mjs`: two pickers, import across 2 accounts, example load, no page errors).
   # Added 2026-10-21 second, on the owner's direction that day: "I want to make
   # tools that can automate part of the new home construction process in the
   # us. to drop prices and increase efficiency this is a long standing project
