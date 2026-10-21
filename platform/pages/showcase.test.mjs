@@ -51,11 +51,24 @@ test('the showcase links each still to its tool and escapes captions', () => {
   assert.match(html, /<video class="reel-video" muted loop playsinline preload="none"/);
 });
 
-test("the marquee's loop copy is hidden from assistive technology and the tab order", () => {
+test("the marquee's loop copy is hidden from assistive technology and carries no links", () => {
   const html = renderMarquee([[{ slug: 'a', name: 'A' }], [{ slug: 'b', name: 'B' }]]);
   assert.equal((html.match(/data-tool=/g) || []).length, 2, 'each tool is counted as a hub link once');
+  // One link per tool: the copy that makes the loop seamless is plain text, so
+  // neither a crawler nor the tab order meets each name twice.
+  assert.equal((html.match(/<a\b/g) || []).length, 2);
   assert.equal((html.match(/aria-hidden="true"/g) || []).length, 2);
-  assert.equal((html.match(/tabindex="-1"/g) || []).length, 2);
+  const hidden = [...html.matchAll(/<ul class="marquee-track" aria-hidden="true">([\s\S]*?)<\/ul>/g)].map((m) => m[1]);
+  assert.equal(hidden.length, 2);
+  for (const copy of hidden) assert.doesNotMatch(copy, /<a\b/);
+});
+
+test('scroll reveals hide only what starts below the fold, and never for good', () => {
+  // A reader that does not scroll (a full-page capture, a link-preview or
+  // search-engine renderer, print) must not be left with empty sections.
+  assert.match(HOME_MOTION_SCRIPT, /getBoundingClientRect\(\)\.top > fold/);
+  assert.match(HOME_MOTION_SCRIPT, /setTimeout\(showAll, \d+\)/);
+  assert.match(HOME_MOTION_SCRIPT, /addEventListener\('beforeprint', showAll\)/);
 });
 
 test('the motion script parses and honours reduced motion', () => {
