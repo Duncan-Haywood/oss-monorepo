@@ -1,0 +1,59 @@
+Menagerie commit cda5236f98383f6fbaa4820c6b18dba892cd087f; hands at [0.3, 0.6] m (reach, height); step grid L=[0.1, 0.15, 0.2, 0.25, 0.3, 0.4] T=[0.4, 0.5, 0.6, 0.8, 1.0, 1.5]
+
+A. Standing payload at the carry pose (buildbot-payload, both feet down):
+  g1: 4.6 kg (waist_pitch_joint)
+  h1: 18.8 kg (right_elbow)
+
+B. Flat floor: fastest feasible step per payload (speed = L / T, no double support: an upper bound)
+  g1    0 kg: 0.25 m/s (L 0.2 m, T 0.8 s), torque ratio 0.62 waist_pitch_joint, cop margin 2 mm, mu 0.15, work 26 J/step; 13/36 feasible
+  g1    1 kg: 0.25 m/s (L 0.2 m, T 0.8 s), torque ratio 0.75 waist_pitch_joint, cop margin 3 mm, mu 0.15, work 28 J/step; 13/36 feasible
+  g1    2 kg: 0.25 m/s (L 0.2 m, T 0.8 s), torque ratio 0.89 waist_pitch_joint, cop margin 3 mm, mu 0.15, work 31 J/step; 12/36 feasible
+  g1    3 kg: 0.20 m/s (L 0.2 m, T 1.0 s), torque ratio 0.96 waist_pitch_joint, cop margin 13 mm, mu 0.16, work 34 J/step; 10/36 feasible
+  g1    4 kg: 0.10 m/s (L 0.1 m, T 1.0 s), torque ratio 0.99 waist_pitch_joint, cop margin 24 mm, mu 0.08, work 23 J/step; 3/36 feasible
+  g1    5 kg: none feasible (0/36); gentlest case L 0.1 T 1.5: ratio 1.07 waist_pitch_joint, cop margin 29 mm, ik residual 0.000
+  h1    0 kg: 0.15 m/s (L 0.15 m, T 1.0 s), torque ratio 0.57 left_ankle, cop margin 1 mm, mu 0.09, work 29 J/step; 4/36 feasible
+  h1    5 kg: 0.15 m/s (L 0.15 m, T 1.0 s), torque ratio 0.63 left_ankle, cop margin 1 mm, mu 0.09, work 34 J/step; 4/36 feasible
+  h1   10 kg: 0.10 m/s (L 0.1 m, T 1.0 s), torque ratio 0.76 left_hip_pitch, cop margin 4 mm, mu 0.06, work 32 J/step; 3/36 feasible
+  h1   14 kg: 0.07 m/s (L 0.1 m, T 1.5 s), torque ratio 0.99 left_hip_pitch, cop margin 0 mm, mu 0.07, work 38 J/step; 1/36 feasible
+  h1   18 kg: none feasible (0/36); gentlest case L 0.1 T 1.5: ratio 1.04 left_hip_pitch, cop margin 5 mm, ik residual 0.000
+  h1   23 kg: none feasible (0/36); gentlest case L 0.1 T 1.5: ratio 1.54 left_elbow, cop margin 2 mm, ik residual 0.000
+
+C. Ramps (fastest feasible step on the coarse grid L 0.1-0.3, T 0.6-1.5)
+  g1    0 kg: 0.0 deg: 0.20 m/s; 4.8 deg: 0.20 m/s; 7.1 deg: 0.07 m/s
+  g1    2 kg: 0.0 deg: 0.20 m/s; 4.8 deg: 0.20 m/s; 7.1 deg: 0.07 m/s
+  g1    3 kg: 0.0 deg: 0.20 m/s; 4.8 deg: 0.20 m/s; 7.1 deg: 0.07 m/s
+  h1    0 kg: 0.0 deg: 0.10 m/s; 4.8 deg: none; 7.1 deg: none
+  h1   10 kg: 0.0 deg: 0.10 m/s; 4.8 deg: none; 7.1 deg: none
+  h1   14 kg: 0.0 deg: 0.07 m/s; 4.8 deg: none; 7.1 deg: none
+
+D. Step-up (swing foot lands higher; L 0.1-0.2 m, T 1.0-1.5 s; feasible cells of 4)
+  g1    0 kg: 0 cm: 4/4; 5 cm: 4/4; 10 cm: 4/4; 15 cm: 1/4; 20 cm: 0/4
+  g1    2 kg: 0 cm: 4/4; 5 cm: 4/4; 10 cm: 4/4; 15 cm: 1/4; 20 cm: 0/4
+  g1    3 kg: 0 cm: 4/4; 5 cm: 2/4; 10 cm: 3/4; 15 cm: 1/4; 20 cm: 0/4
+  h1    0 kg: 0 cm: 2/4; 5 cm: 0/4; 10 cm: 0/4; 15 cm: 0/4; 20 cm: 0/4
+  h1   10 kg: 0 cm: 2/4; 5 cm: 0/4; 10 cm: 0/4; 15 cm: 0/4; 20 cm: 0/4
+  h1   14 kg: 0 cm: 1/4; 5 cm: 0/4; 10 cm: 0/4; 15 cm: 0/4; 20 cm: 0/4
+
+E. Why cases fail (flat floor, all payloads): worst joint at the peak, and which limit binds
+  g1: 216 cases; IK cannot reach 1; torque over the limit 140; centre of pressure off the sole 140; feasible 51
+  h1: 216 cases; IK cannot reach 124; torque over the limit 181; centre of pressure off the sole 202; feasible 12
+
+F. Carry rate against one labourer (taskbook framing piece, pieces per hour; see src/buildbot_carryphase/rate.py)
+  G1 holds 3 kg (a light piece), loaded 0.20 / empty 0.25 m/s, 10 m: pp 6s: robot 38/h vs person 138-532/h; pp 12s: robot 35/h vs person 112-411/h; pp 24s: robot 32/h vs person 82-282/h
+  G1 holds 3 kg (a light piece), loaded 0.20 / empty 0.25 m/s, 20 m: pp 6s: robot 19/h vs person 78-312/h; pp 12s: robot 19/h vs person 69-266/h; pp 24s: robot 18/h vs person 56-205/h
+  G1 holds 3 kg (a light piece), loaded 0.20 / empty 0.25 m/s, 40 m: pp 6s: robot 10/h vs person 42-171/h; pp 12s: robot 10/h vs person 39-156/h; pp 24s: robot 9/h vs person 35-133/h
+  H1 holds 5 kg, loaded 0.15 / empty 0.15 m/s, 10 m: pp 6s: robot 26/h vs person 138-532/h; pp 12s: robot 25/h vs person 112-411/h; pp 24s: robot 23/h vs person 82-282/h
+  H1 holds 5 kg, loaded 0.15 / empty 0.15 m/s, 20 m: pp 6s: robot 13/h vs person 78-312/h; pp 12s: robot 13/h vs person 69-266/h; pp 24s: robot 12/h vs person 56-205/h
+  H1 holds 5 kg, loaded 0.15 / empty 0.15 m/s, 40 m: pp 6s: robot 7/h vs person 42-171/h; pp 12s: robot 7/h vs person 39-156/h; pp 24s: robot 6/h vs person 35-133/h
+  H1 holds 10 kg, loaded 0.10 / empty 0.15 m/s, 10 m: pp 6s: robot 21/h vs person 138-532/h; pp 12s: robot 20/h vs person 112-411/h; pp 24s: robot 19/h vs person 82-282/h
+  H1 holds 10 kg, loaded 0.10 / empty 0.15 m/s, 20 m: pp 6s: robot 11/h vs person 78-312/h; pp 12s: robot 10/h vs person 69-266/h; pp 24s: robot 10/h vs person 56-205/h
+  H1 holds 10 kg, loaded 0.10 / empty 0.15 m/s, 40 m: pp 6s: robot 5/h vs person 42-171/h; pp 12s: robot 5/h vs person 39-156/h; pp 24s: robot 5/h vs person 35-133/h
+
+G. Break-even: the walking speed (loaded and empty alike) at which one piece per trip matches a person at 1.2 m/s
+   (the vendor's quoted top speed for the G1 is about 2 m/s, from reseller pages, unverified)
+  person 1 piece(s) per trip at 1.2 m/s, 10 m: robot with one piece per trip must walk pp 6s: 1.20 m/s; pp 12s: 1.20 m/s; pp 24s: 1.20 m/s
+  person 1 piece(s) per trip at 1.2 m/s, 20 m: robot with one piece per trip must walk pp 6s: 1.20 m/s; pp 12s: 1.20 m/s; pp 24s: 1.20 m/s
+  person 1 piece(s) per trip at 1.2 m/s, 40 m: robot with one piece per trip must walk pp 6s: 1.20 m/s; pp 12s: 1.20 m/s; pp 24s: 1.20 m/s
+  person 3 piece(s) per trip at 1.2 m/s, 10 m: robot with one piece per trip must walk pp 6s: 12.86 m/s; pp 12s: inf m/s; pp 24s: inf m/s
+  person 3 piece(s) per trip at 1.2 m/s, 20 m: robot with one piece per trip must walk pp 6s: 5.62 m/s; pp 12s: 12.86 m/s; pp 24s: inf m/s
+  person 3 piece(s) per trip at 1.2 m/s, 40 m: robot with one piece per trip must walk pp 6s: 4.39 m/s; pp 12s: 5.62 m/s; pp 24s: 12.86 m/s
