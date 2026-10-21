@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Open Tools and Research — tools on marisstella.dev</title>
-  <subtitle>The 1311 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1312 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -30,6 +30,14 @@
     <updated>2026-10-21T00:00:00Z</updated>
     <category term="Open hardware &amp; robots"/>
     <summary type="text">Build your own robot lawn mower. An open-source robotic mower with wire-free RTK GNSS navigation, a guarded pivoting-blade disc, a floating bump shell, ESP32 safety firmware and a complete CAD manufacturing package (MIT). Plan your own lawn&#39;s mowing pattern in the browser.</summary>
+  </entry>
+  <entry>
+    <title>Wall Framing Takeoff — stud layout, cut list and lumber order for a house</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/wall-framing-takeoff/"/>
+    <id>tag:marisstella.dev,2026:tool/wall-framing-takeoff</id>
+    <updated>2026-10-21T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">Free wall framing calculator for builders and framers. Enter walls, doors and windows; get the stud layout 16 or 24 on center, kings, jacks, headers and cripples, a cut list, plate splices over studs and the cheapest mix of board lengths to buy. Runs in your browser.</summary>
   </entry>
   <entry>
     <title>Changepoint Detector — find when a time series changed (PELT + Bayesian)</title>
@@ -158,13 +166,5 @@
     <updated>2026-10-19T00:00:00Z</updated>
     <category term="Open hardware &amp; robots"/>
     <summary type="text">Build your own tennis ball machine that catches your returns with a moving net, and a robot that picks up tennis balls while you practise. Open-source hardware designs, firmware and software (MIT), plus a shot simulator you can try in your browser.</summary>
-  </entry>
-  <entry>
-    <title>Tutoring Group Schedule Optimizer — which group sessions to run and who sits where</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/tutoring-group-schedule-optimizer/"/>
-    <id>tag:marisstella.dev,2026:tool/tutoring-group-schedule-optimizer</id>
-    <updated>2026-10-19T00:00:00Z</updated>
-    <category term="Creator &amp; solo earner income"/>
-    <summary type="text">Free group schedule optimizer for tutoring centres, music, swim and language schools. Paste your possible weekly sessions and student availability to get the most profitable timetable. Exact for up to 10 slots. Runs in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>
