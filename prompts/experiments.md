@@ -1021,3 +1021,17 @@ or `ventures`) until its success rate passes 80% over 20 runs?
   disclosed caveat; E55). ventures 2 (90% vs 89%, overlap) and review 2 (9
   runs) unchanged. Audit clean (3 PRs); drift report `drift/2026-10-21.md`.
 - Result: (next review)
+
+## E62: review 2026-10-21 (reduced pass, night)
+
+- Change: `.github/prompts/cloud-session.md` ("Python and tests") says to
+  install with `"$PY" -m pip` and not to run two pip installs at once (1 report
+  today: pip went to python3.13, concurrent installs corrupted the env).
+  `derived/` regenerated.
+- Metric: friction reports about pip/python version mismatch, over the next 40
+  runs (baseline: 1).
+- Decisions: research candidate 1 kept (retire verdict still fires only on the
+  one disclosed caveat; E55 proposal stands). ventures 2 (overlap), process 2 (1
+  run) and review 2 (10 runs, 100% vs 90%, overlap) unchanged. No audit or
+  drift report (reduced pass).
+- Result: (next review)
