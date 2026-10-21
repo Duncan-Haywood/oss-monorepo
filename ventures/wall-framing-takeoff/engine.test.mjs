@@ -503,3 +503,21 @@ test("horizontal sheathing is chosen from the listed sheets by cost and is off b
   const costs = defaultSheathing().sheets.map((sh) => horiz(plan, { sheets: [sh] }).s.summary.cost);
   assert.ok(Math.abs(s.summary.cost - Math.min(...costs)) < 1e-6);
 });
+
+// ---- corner overhang ----
+test("corner overhang: the earlier wall's sheathing runs past its end by the next wall's depth, checks pass", () => {
+  const plan = { ...samplePlan(), plateLaps: true };
+  const r = takeoff(plan);
+  const off = sheathe({ ...plan, sheathing: defaultSheathing() }, r);
+  const on = sheathe({ ...plan, sheathing: { ...defaultSheathing(), overhang: true } }, r);
+  assert.equal(on.ok, true);
+  for (const w of on.walls) {
+    assert.deepEqual(w.check, [], `${w.id}: ${w.check}`);
+    const wall = r.walls.find((x) => x.id === w.id);
+    const end = w.panels.filter((p) => p.course === 0).at(-1).x1;
+    assert.equal(end, wall.length + w.overhang);
+  }
+  assert.ok(on.walls.some((w) => w.overhang === 3.5));
+  assert.ok(on.summary.areaCovered > off.summary.areaCovered);
+  assert.ok(off.walls.every((w) => !w.overhang));
+});

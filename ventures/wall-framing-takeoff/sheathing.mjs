@@ -17,6 +17,21 @@
 // strip's remainder is the offcut the next wall's strip is cut from.
 import { THICK, EPS, DEPTH, optimizeStock, formatInches } from "./engine.mjs";
 
+/**
+ * Sheathing past a wall's end at a corner (`sheathing.overhang`). The walls are
+ * read as in `plateLaps`: a wall with `corner: true` meets the end of the wall
+ * before it, so the earlier wall's sheathing runs on past its end by the later
+ * wall's depth and covers that wall's end stud; the later wall's sheathing
+ * starts at its own first stud. Returns the inches added at this wall's end.
+ */
+export function cornerOverhang(plan, wall) {
+  const walls = plan.walls || [];
+  const i = walls.indexOf(wall);
+  if (i < 0 || walls.length < 2) return 0;
+  const next = walls[(i + 1) % walls.length];
+  return next.corner && next.sheathed !== false ? DEPTH[next.stud || "2x4"] ?? 3.5 : 0;
+}
+
 export const SHEET_WIDTH = 48;
 
 /**
@@ -33,6 +48,8 @@ export function defaultSheathing() {
     minStrip: 12,
     // A wall taller than every sheet goes in two courses; the upper one is at least this high.
     minCourse: 12,
+    // Run each wall's sheathing past its end at a corner to cover the next wall's end stud.
+    overhang: false,
   };
 }
 
@@ -180,6 +197,7 @@ export function sheathe(plan, result) {
   if (!sheets.length) return { ok: false, errors: ["List at least one sheet size for sheathing."] };
   const wallHeight = result.walls[0]?.height ?? 0;
   const cover = cfg.coverHeight > 0 ? cfg.coverHeight : wallHeight;
+  if (cfg.orientation === "horizontal" && cfg.overhang) notes.push("Corner overhang is for vertical sheets; the horizontal layout ignores it.");
   if (cfg.orientation === "horizontal") return sheatheHorizontal(plan, result, cfg, sheets, cover);
   const courses = chooseCourses(sheets, cover, cfg.minCourse, 0.125);
   if (!courses) {
@@ -197,7 +215,9 @@ export function sheathe(plan, result) {
     if (plan.walls.find((x) => x.id === w.id)?.sheathed === false) continue; // interior walls
     const ops = (plan.walls.find((x) => x.id === w.id)?.openings || []).slice().sort((a, b) => a.offset - b.offset);
     const centres = bearingCentres(plan, w, ops, cover);
-    const found = panelBreaks(w.length, centres, width, cfg.minStrip, ops.map((o) => [o.offset, o.offset + o.width]));
+    const over = cfg.overhang ? cornerOverhang(plan, plan.walls.find((x) => x.id === w.id)) : 0;
+    const len = w.length + over;
+    const found = panelBreaks(len, centres, width, cfg.minStrip, ops.map((o) => [o.offset, o.offset + o.width]));
     if (!found) {
       notes.push(`${w.id}: no framing within ${formatInches(width)} of a panel edge; sheathe this wall by hand.`);
       continue;
@@ -236,8 +256,9 @@ export function sheathe(plan, result) {
       jointBlocks = jb.blocks;
       if (jb.existing) notes.push(`${w.id}: ${jb.existing} bay${jb.existing > 1 ? "s" : ""} already have a blocking row at the joint (${formatInches(jointY)}); the joint rests on it.`);
     }
-    walls.push({ id: w.id, panels, joints: breaks.slice(1).map(([a]) => a), nailers, nailerPieces, jointBlocks, check: checkWall(w, panels, [...centres, ...nailers], width, cover, ops, plan, courses, jointBlocks) });
+    walls.push({ id: w.id, panels, joints: breaks.slice(1).map(([a]) => a), overhang: over, nailers, nailerPieces, jointBlocks, check: checkWall(w, panels, [...centres, ...nailers], width, cover, ops, plan, courses, jointBlocks, len) });
   }
+  for (const w of walls) if (w.overhang > EPS) notes.push(`${w.id}: sheathing runs ${formatInches(w.overhang)} past the wall end to cover the next wall's end stud.`);
   for (const w of walls) for (const p of w.panels) if (p.width < cfg.minStrip - EPS) notes.push(`${p.id} is only ${formatInches(p.width)} wide: a sliver to cut and nail; consider moving a stud or a joint.`);
 
   const area = (w, h) => (w * h) / 144;
@@ -494,13 +515,13 @@ function nailerOrder(walls, plan) {
 }
 
 /** Self-check one wall's panels. Returns a list of problems; empty means it passes. */
-function checkWall(w, panels, centres, width, cover, ops, plan, courses, jointBlocks) {
+function checkWall(w, panels, centres, width, cover, ops, plan, courses, jointBlocks, len = w.length) {
   const bad = [];
   let at = 0;
   let course = 0;
   for (const p of panels) {
     if (p.course !== course) {
-      if (Math.abs(at - w.length) > EPS) bad.push("panels do not reach the wall end");
+      if (Math.abs(at - len) > EPS) bad.push("panels do not reach the wall end");
       course = p.course;
       at = 0;
     }
@@ -508,15 +529,15 @@ function checkWall(w, panels, centres, width, cover, ops, plan, courses, jointBl
     at = p.x1;
     if (p.width > width + EPS) bad.push(`${p.id} is wider than a sheet`);
     for (const e of [p.x0, p.x1]) {
-      if (e < EPS || e > w.length - EPS) continue;
+      if (e < EPS || e > len - EPS) continue;
       if (!centres.some((c) => Math.abs(c - e) < EPS)) bad.push(`${p.id} has an edge at ${formatInches(e)} with no framing under it that runs the panel's height`);
     }
     for (const c of p.cutouts) if (c.x0 < -EPS || c.x1 > p.width + EPS || c.y0 < -EPS || c.y1 > cover + EPS) bad.push(`${p.id}: cutout ${c.label} leaves the panel`);
   }
-  if (Math.abs(at - w.length) > EPS) bad.push("panels do not reach the wall end");
+  if (Math.abs(at - len) > EPS) bad.push("panels do not reach the wall end");
   courses.forEach((course, ci) => {
     const mine = panels.filter((p) => p.course === ci);
-    if (Math.abs(mine.reduce((t, p) => t + p.width, 0) - w.length) > 1e-6) bad.push(`course ${ci + 1} does not span the wall`);
+    if (Math.abs(mine.reduce((t, p) => t + p.width, 0) - len) > 1e-6) bad.push(`course ${ci + 1} does not span the wall`);
     const open = ops.reduce((t, op) => {
       const hh = op.headerHeight ?? plan.defaultHeaderHeight;
       return t + (courses.length > 1 && Math.min(course.y1, hh) - Math.max(course.y0, hh - op.height) <= EPS ? 0 : op.width);

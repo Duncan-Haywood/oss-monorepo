@@ -13,6 +13,7 @@ Usage:
   node cli.mjs plan.json --json     the full result as JSON
   node cli.mjs plan.json --csv      order, cut list and board-by-board cuts as CSV
   node cli.mjs plan.json --sheathing  add panel layout per wall and the sheet order
+  node cli.mjs plan.json --overhang   run sheathing past corners to cover the next wall's end stud (vertical sheets)
   node cli.mjs plan.json --horizontal sheets long side along the wall (implies --sheathing)
   node cli.mjs --example            print the example plan (an invented 40 x 28 ft ranch) to start from
   cat plan.json | node cli.mjs -    read the plan from stdin
@@ -57,8 +58,8 @@ export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "u
   }
   let r = takeoff(plan);
   if (!r.ok) return { code: 1, out: `The plan has problems:\n${r.errors.map((e) => `  - ${e}`).join("\n")}` };
-  if (flags.has("--sheathing") || flags.has("--horizontal") || plan.sheathing) {
-    const sheathing = sheathe({ ...plan, sheathing: { ...defaultSheathing(), ...(plan.sheathing || {}), ...(flags.has("--horizontal") ? { orientation: "horizontal" } : {}) } }, r);
+  if (flags.has("--sheathing") || flags.has("--horizontal") || flags.has("--overhang") || plan.sheathing) {
+    const sheathing = sheathe({ ...plan, sheathing: { ...defaultSheathing(), ...(plan.sheathing || {}), ...(flags.has("--horizontal") ? { orientation: "horizontal" } : {}), ...(flags.has("--overhang") ? { overhang: true } : {}) } }, r);
     const extra = nailerCuts(sheathing);
     if (extra.length) r = takeoff(plan, extra); // nailers join the cut list and the lumber order
     r.sheathing = sheathing;
