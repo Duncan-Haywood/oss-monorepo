@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-21",
+  "session": "https://claude.ai/code/session_01EKGPZL6Ft1pJ2rYRdpWRPL",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-21T10:20:51Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship 1 ai-bookkeeper: 1099-NEC page card and payee merging",
+  "projects": [
+    "ai-bookkeeper"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/9141",
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/ai-bookkeeper/eval/browser-click.mjs",
+      "issue": "PLAYWRIGHT_PATH needs the full index.mjs path of playwright-core and CHROMIUM_PATH the chrome binary; the header only says needs Playwright."
+    }
+  ],
+  "deviations": [],
+  "writeups": [],
+  "goal": null,
+  "notes": "Local checks: run_venture_tests ai-bookkeeper (pass); browser-click.mjs in headless Chromium (pass). No agent doc/post written this run (small slice).",
+  "corrections": [],
+  "redteam": null
+}
