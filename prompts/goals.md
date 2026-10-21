@@ -553,6 +553,7 @@ glad to see, never work that embarrasses them or the author.
 - Check every citation before merging: the paper exists, the authors, venue and year are right, and it says what you claim. Never invent a reference.
 - Represent other groups' work accurately. If a reproduction disagrees with a published result, report it neutrally as a discrepancy with the setup and possible causes, never as an error by the authors.
 - Do not overstate novelty or results. Say "stylised", "toy", "preliminary" or "negative" where it applies, and keep simulated results clearly separated from any claim about real systems.
+- **Run the numbers; "stylised" is not a method** (a strong default, set by the owner on 2026-10-21: "fabricated results portrayed as stylised is stupid and lazy. I can't imagine a reason not to run the numbers oneself ... research and cite and build and test"). Every input that drives a headline result comes from a cited source, a public dataset, a measurement or a run of real code, and the README says which. Where no value exists, sweep the plausible range and report how the conclusion moves, rather than picking a round figure. The "stylised" label stays honest disclosure for what genuinely cannot be measured; it never licenses skipping the data that can be found.
 - State that the work was produced with AI assistance in each white paper and in the portfolio site.
 - Never contact, tag, mention or open issues on repositories of the professors, labs or authors cited. Outreach is the repository owner's decision.
 
