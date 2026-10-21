@@ -88,3 +88,9 @@ test("links to the FIFO pick evidence tool", () => {
 test("links to the EU VAT OSS calculator", () => {
   assert.match(page, /href="\.\.\/eu-vat-oss-calculator\/"/, "the OSS sibling-tool link is missing");
 });
+
+test("browser page offers the arithmetic repair", () => {
+  assert.match(page, /id="repair"/);
+  assert.match(page, /from "\.\/repair\.mjs"/);
+  assert.match(page, /repairInvoice\(invoice\)/);
+});
