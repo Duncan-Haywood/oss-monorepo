@@ -67,3 +67,7 @@ test("the invoice and bill loader and rule suggestions are wired to controls tha
   assert.match(script(), /addDocuments\(books/);
   assert.match(script(), /suggestRules\(books\)/);
 });
+
+test("the page offers a write-off button for open invoices", () => {
+  assert.match(script(), /writeOff\(books, o\.id\)/);
+});
