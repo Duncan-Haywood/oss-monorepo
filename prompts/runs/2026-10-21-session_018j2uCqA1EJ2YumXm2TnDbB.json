@@ -1,0 +1,50 @@
+{
+  "date": "2026-10-21",
+  "session": "https://claude.ai/code/session_018j2uCqA1EJ2YumXm2TnDbB",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-21T13:18:49Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 9178,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "front-door.test.mjs takes ~11 min; local run hit the 280 s timeout, CI marketing validate (7 min) passed instead"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/process/prompt-1.md",
+      "issue": "Only agent-owned items were in_progress (P035/P036/P043, multi-PR); had to pick a slice of P043b by hand."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Record must be the last commit but the PR number comes after the push; needed a second commit."
+    }
+  ],
+  "deviations": [],
+  "writeups": [],
+  "goal": null,
+  "notes": "Backlog: P043 (third slice of P043b: deleted 8 front-door staleness tests, 138 lines). Local validate ok; full suite not completed locally.",
+  "corrections": [],
+  "redteam": null
+}
