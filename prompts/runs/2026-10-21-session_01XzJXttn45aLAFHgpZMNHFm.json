@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-21",
+  "session": "https://claude.ai/code/session_01XzJXttn45aLAFHgpZMNHFm",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-21T10:10:33Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "ai-bookkeeper"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/9137",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "why": "Skipped runcost attach and a new post; extended the existing agent doc instead."
+    }
+  ],
+  "writeups": [
+    "docs/reports/2026-10-21-ai-bookkeeper-for-agents.md (addendum)"
+  ],
+  "goal": null,
+  "notes": "Deepened flagship 1: 1099-NEC contractor worksheet + W-9 flag (CLI). 81/81 venture tests pass locally. No page card yet. $2,000 2026 threshold is from memory, unverified; flagged in README. No post written (extended agent doc only). runcost not attached.",
+  "corrections": [],
+  "redteam": null
+}

@@ -264,6 +264,22 @@ health insurance or self-employment tax, and the meals rule has exceptions. The 
 map is from the form's layout as the author knows it, not checked against this year's
 instructions; confirm each line with your preparer. Test: `taxforms.test.mjs`.
 
+## 1099-NEC contractor worksheet (US)
+
+`contractors1099(books, { year, threshold })` in `taxforms.mjs` (and `cli.mjs
+contractors [--year Y] [--threshold DOLLARS] [--csv|--json]`) totals bank payments
+filed to Contract labor (6020, whole lines and split parts) by payee for a calendar
+year and marks who is over the 1099-NEC line. `cli.mjs w9 "PAYEE"` (`markW9`)
+records that a W-9 is on file; only that yes/no flag is stored, never a tax ID. The
+line is $600 for payments through 2025 and $2,000 from 2026 as the author understands
+the 2025 change; check the current IRS instructions or pass `--threshold`. Card
+payments are shown apart and left out of the totals (the processor reports those on
+a 1099-K); payees over the line without a W-9 and unfiled bank lines from the year
+are warned about. Payees are grouped by the first two payee words of the bank line,
+so two spellings of one person can split: check the list. It is a worksheet, not a
+filing: whether someone is a contractor, and exemptions such as corporations, are
+yours to decide. Page card: not yet. Test: `taxforms.test.mjs`.
+
 ## Sales tax report
 
 `salesTax(books)` (also `salesTax` from `analyze`, the page's sales tax table and
