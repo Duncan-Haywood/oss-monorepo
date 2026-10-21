@@ -488,13 +488,13 @@ class DeviationTest(PromptTestCase):
 class WriteupTest(PromptTestCase):
     def test_writeups_are_checked_and_counted_from_the_start_date(self):
         ups = ["docs/reports/2026-10-21-x-for-agents.md", "docs/posts/2026-10-21-x.md"]
-        self.fx.run("2026-10-20-a.json", _record(date="2026-10-20", writeups=ups))
-        self.fx.run("2026-10-21-b.json", _record(date="2026-10-21", writeups=ups))
-        self.fx.run("2026-10-21-c.json", _record(date="2026-10-21", writeups=ups[1:]))
+        self.fx.run("2026-10-20-a.json", _record(date="2026-10-20", pr="1", writeups=ups))
+        self.fx.run("2026-10-21-b.json", _record(date="2026-10-21", pr="1", writeups=ups))
+        self.fx.run("2026-10-21-c.json", _record(date="2026-10-21", pr="1", writeups=ups[1:]))
         self.assertEqual(promptctl.validate(self.fx.root), [])
         self.assertEqual(promptctl.measure(self.fx.root)["writeups"],
                          {"runs": 2, "agent_doc": 1, "post": 2})
-        self.fx.run("2026-10-21-c.json", _record(date="2026-10-21", writeups="docs/posts/x.md"))
+        self.fx.run("2026-10-21-c.json", _record(date="2026-10-21", pr="1", writeups="docs/posts/x.md"))
         self.assertTrue(any("writeups must" in e for e in promptctl.validate(self.fx.root)))
 
 
