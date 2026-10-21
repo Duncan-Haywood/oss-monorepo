@@ -449,3 +449,57 @@ test("two-course sheathing, 300 seeded walls: every course tiles the wall, the j
   }
   assert.ok(two > 200, `only ${two} two-course walls`);
 });
+
+// ---- horizontal sheathing ----
+const horiz = (plan, over = {}) => { const r = takeoff(plan); return { r, s: sheathe({ ...plan, sheathing: { ...defaultSheathing(), orientation: "horizontal", ...over } }, r) }; };
+
+test("horizontal sheathing: courses, staggered end joints on framing, blocked course joints, self-check passes", () => {
+  const plan = tallPlan(300, 105, [{ kind: "window", label: "W", offset: 60, width: 36, height: 48, header: "2x10" }]);
+  const { r, s } = horiz(plan);
+  assert.ok(s.ok, JSON.stringify(s.errors));
+  assert.equal(s.orientation, "horizontal");
+  const w = s.walls[0];
+  assert.deepEqual(w.check, []);
+  const heights = [...new Set(w.panels.map((p) => p.course))].map((c) => w.panels.find((p) => p.course === c).height);
+  assert.ok(Math.abs(heights.reduce((t, h) => t + h, 0) - s.cover) < 1e-9);
+  assert.ok(heights.every((h) => h >= 12 - 1e-9));
+  // stagger: consecutive courses share no interior joint
+  const joints = (c) => w.panels.filter((p) => p.course === c).map((p) => p.x1).filter((x) => x < 300 - 1e-9);
+  for (let c = 0; c + 1 < heights.length; c++) assert.ok(joints(c).every((x) => !joints(c + 1).includes(x)), `course ${c} and ${c + 1}`);
+  assert.equal(w.jointBlocks.length > 0, heights.length > 1);
+  assert.ok(s.summary.areaBought >= s.summary.areaCovered);
+  assert.ok(s.summary.cost >= s.summary.bound - 1e-6);
+  const rows = nailerCuts(s);
+  assert.equal(rows.filter((c) => c.kind === "sheathing joint block").reduce((t, c) => t + c.qty, 0), w.jointBlocks.length);
+  assert.ok(r.ok);
+});
+
+test("horizontal sheathing: every panel edge has framing, 200 seeded walls, no sliver courses", () => {
+  let seed = 7;
+  const rnd = () => ((seed = (seed * 1664525 + 1013904223) >>> 0) / 2 ** 32);
+  for (let i = 0; i < 200; i++) {
+    const studLength = 92 + Math.floor(rnd() * 60);
+    const len = 120 + Math.floor(rnd() * 360);
+    const off = 12 + Math.floor(rnd() * (len - 100));
+    const plan = tallPlan(len, studLength, rnd() < 0.7 ? [{ kind: "window", label: "W", offset: off, width: 36, height: 36 + Math.floor(rnd() * 24), header: "2x10" }] : []);
+    const { r, s } = horiz(plan);
+    if (!r.ok || !s.ok) continue;
+    for (const w of s.walls) {
+      assert.deepEqual(w.check, [], `case ${i}`);
+      for (const c of new Set(w.panels.map((p) => p.course))) {
+        const row = w.panels.filter((p) => p.course === c);
+        assert.ok(Math.abs(row.reduce((t, p) => t + p.width, 0) - len) < 1e-6);
+        assert.ok(row[0].height >= 12 - 1e-9);
+      }
+    }
+  }
+});
+
+test("horizontal sheathing is chosen from the listed sheets by cost and is off by default", () => {
+  const plan = tallPlan(240, 105);
+  const r = takeoff(plan);
+  assert.equal(sheathe({ ...plan, sheathing: defaultSheathing() }, r).orientation, undefined);
+  const s = horiz(plan).s;
+  const costs = defaultSheathing().sheets.map((sh) => horiz(plan, { sheets: [sh] }).s.summary.cost);
+  assert.ok(Math.abs(s.summary.cost - Math.min(...costs)) < 1e-6);
+});

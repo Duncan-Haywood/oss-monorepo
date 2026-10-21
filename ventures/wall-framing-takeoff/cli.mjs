@@ -13,6 +13,7 @@ Usage:
   node cli.mjs plan.json --json     the full result as JSON
   node cli.mjs plan.json --csv      order, cut list and board-by-board cuts as CSV
   node cli.mjs plan.json --sheathing  add panel layout per wall and the sheet order
+  node cli.mjs plan.json --horizontal sheets long side along the wall (implies --sheathing)
   node cli.mjs --example            print the example plan (an invented 40 x 28 ft ranch) to start from
   cat plan.json | node cli.mjs -    read the plan from stdin
 
@@ -56,8 +57,8 @@ export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "u
   }
   let r = takeoff(plan);
   if (!r.ok) return { code: 1, out: `The plan has problems:\n${r.errors.map((e) => `  - ${e}`).join("\n")}` };
-  if (flags.has("--sheathing") || plan.sheathing) {
-    const sheathing = sheathe({ ...plan, sheathing: { ...defaultSheathing(), ...(plan.sheathing || {}) } }, r);
+  if (flags.has("--sheathing") || flags.has("--horizontal") || plan.sheathing) {
+    const sheathing = sheathe({ ...plan, sheathing: { ...defaultSheathing(), ...(plan.sheathing || {}), ...(flags.has("--horizontal") ? { orientation: "horizontal" } : {}) } }, r);
     const extra = nailerCuts(sheathing);
     if (extra.length) r = takeoff(plan, extra); // nailers join the cut list and the lumber order
     r.sheathing = sheathing;
@@ -82,7 +83,7 @@ export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "u
     lines.push(`  ${w.id} (${formatLength(w.length)}): ${marks.map((m) => `${formatInches(m.x)}${m.kind === "stud" ? "" : ` ${m.kind[0].toUpperCase()}`}`).join(", ")}`);
   }
   lines.push("  K = king, C = corner backing, T = tee backing; jacks sit inside the kings.");
-  if (r.sheathing) lines.push("", "SHEATHING (panels run vertically from the wall start; widths left to right)", ...sheathingText(r.sheathing));
+  if (r.sheathing) lines.push("", `SHEATHING (panels run ${r.sheathing.orientation === "horizontal" ? "horizontally, course by course from the floor" : "vertically from the wall start"}; lengths left to right)`, ...sheathingText(r.sheathing));
   if (r.notes.length) lines.push("", "NOTES", ...r.notes.map((n) => `  - ${n}`));
   lines.push("", "Header sizes and jack counts are your inputs and are not checked against a span table or code.");
   return { code: 0, out: lines.join("\n") };

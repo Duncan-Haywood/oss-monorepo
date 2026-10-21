@@ -53,7 +53,7 @@ Ticked items are on `main`.
       the sheet length chosen from the wall height, and the sheet order as a
       cutting-stock problem over 48 in strips pooled across walls, with its LP
       bound. Two courses (blocked horizontal joint) for walls taller
-      than the longest sheet landed 2026-10-21. Not yet: horizontal panel orientation, a 2D reuse of
+      than the longest sheet landed 2026-10-21. Horizontal panel orientation landed 2026-10-21 (courses, staggered end joints, blocked course joints). Not yet: a 2D reuse of
       opening cut-outs, corner overhang and the rim board.
 - [x] **Blocking and fire blocking** (2026-10-21, `blockingRows` in `engine.mjs`):
       plan `blocking: {rows, fire}` adds evenly spaced flat-2x rows between
