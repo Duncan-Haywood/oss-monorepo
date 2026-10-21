@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Saudi Arabia e-invoicing: ZATCA Fatoora waves, XML and a free pre-send check | E-invoice Preflight</title>
+<meta name="description" content="Saudi Arabia's ZATCA e-invoicing (Fatoora) has applied to every VAT-registered business since December 2021, with the integration phase rolled out in waves by revenue; wave 25 starts 1 February 2027. Dates, formats, and what a free local checker covers.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/einvoice-preflight/saudi-zatca-e-invoice-mandate.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Saudi Arabia e-invoicing: ZATCA Fatoora waves, XML and a free pre-send check">
+<meta property="og:description" content="Saudi Arabia's ZATCA e-invoicing (Fatoora) has applied to every VAT-registered business since December 2021, with the integration phase rolled out in waves by revenue; wave 25 starts 1 February 2027. Dates, formats, and what a free local checker covers.">
+<meta property="og:url" content="https://example.invalid/einvoice-preflight/saudi-zatca-e-invoice-mandate.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"When does Saudi e-invoicing apply to me?","acceptedAnswer":{"@type":"Answer","text":"Phase 1 (generation) has applied since 4 December 2021: VAT-registered businesses issue structured electronic invoices with a QR code, not handwritten or word-processor ones. Phase 2 (integration with ZATCA's Fatoora platform) is rolled out in waves chosen by revenue, announced about six months ahead. As reported by EY and adviser sites: wave 23 was 1 January to 31 March 2026, wave 24 was due by 30 June 2026 and wave 25 starts on 1 February 2027 and is the first to use calendar-year 2025 revenue. Find your wave in your ZATCA notification and confirm with ZATCA or your accountant; this page is a summary, not advice."}},{"@type":"Question","name":"What is the difference between clearance and reporting?","acceptedAnswer":{"@type":"Answer","text":"Under phase 2, standard (business-to-business and business-to-government) tax invoices are cleared: they are sent to ZATCA for validation and stamping before they go to the buyer. Simplified invoices (sales to consumers) are reported to ZATCA, within 24 hours of issue. Both carry a QR code and a cryptographic stamp."}},{"@type":"Question","name":"What format does ZATCA use?","acceptedAnswer":{"@type":"Answer","text":"Structured XML based on UBL 2.1, with ZATCA's own data elements and validation rules, signed and submitted through a Fatoora-integrated system. It is not plain EN 16931 and not Peppol, so a clean result in a generic EN 16931 checker does not mean ZATCA will accept the file."}},{"@type":"Question","name":"Can this checker validate a Saudi invoice?","acceptedAnswer":{"@type":"Answer","text":"Partly. It reads UBL and JSON and applies EN 16931 style arithmetic, tax breakdown, mandatory-field and identifier checks, plus IBAN and BIC typo catches, each with a rule ID and a fix. It does not apply ZATCA's rules, QR code, signature or clearance checks, so a clean result is an offline observation, not approval. ZATCA's own validation remains the authority."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch}.lede{font-size:1.05rem;max-width:64ch;color:#3d4f5f}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #15202b10;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #d3dbe4;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#3d4f5f}.fine,.note{font-size:.88rem;color:#3d4f5f}footer{color:#3d4f5f;font-size:.86rem}footer p{margin:.6rem 0}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; E-invoice Preflight</a></p>
+<header>
+<h1>Saudi Arabia e-invoicing: ZATCA waves and what to check first</h1>
+<p class="lede">Saudi e-invoicing (Fatoora) has applied to every VAT-registered business since 4 December 2021. Its integration phase reaches businesses in waves by revenue, and wave 25 starts on 1 February 2027. Below: the phases, how clearance differs from reporting, and what a free local checker covers.</p>
+</header>
+<section>
+<h2>Phases and waves</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Date</th><th scope="col">What happens</th></tr></thead>
+<tbody>
+<tr><td>4 Dec 2021</td><td>Phase 1 (generation): structured electronic invoices with a QR code for VAT-registered businesses.</td></tr>
+<tr><td>1 Jan 2023</td><td>Phase 2 (integration) begins with wave 1, businesses with 2021 revenue above SAR 3 billion; later waves step the revenue threshold down.</td></tr>
+<tr><td>1 Jan to 31 Mar 2026</td><td>Wave 23, as reported: businesses above SAR 750,000 in the test year.</td></tr>
+<tr><td>By 30 Jun 2026</td><td>Wave 24, as reported: businesses roughly between SAR 375,000 and 750,000.</td></tr>
+<tr><td>1 Feb 2027</td><td>Wave 25, per a ZATCA Governor decision published in the Official Gazette in July 2026; the first to use calendar-year 2025 revenue.</td></tr>
+</tbody>
+</table>
+</div>
+<p class="fine">Dates come from EY tax alerts and adviser sites, not from ZATCA's own notices, and they disagree on the revenue test for wave 24 (the years counted and the bracket). Each business is told its wave by ZATCA, usually about six months ahead, and must integrate by the end of the window. Penalty amounts are set in the e-invoicing regulations and are not stated here; check ZATCA. This is a summary, not tax advice.</p>
+</section>
+<section>
+<h2>Which file counts, and how it travels</h2>
+<p>Invoices are structured XML on <strong>UBL 2.1</strong> with ZATCA's own fields and rules, carrying a QR code and a cryptographic stamp. <strong>Standard</strong> invoices (to businesses and government) are <strong>cleared</strong>: ZATCA validates and stamps them before you give them to the buyer. <strong>Simplified</strong> invoices (to consumers) are <strong>reported</strong> within 24 hours. A PDF alone is not the tax invoice. ZATCA's validation is the one that decides.</p>
+</section>
+<section>
+<h2>Test a file before you send it</h2>
+<p>Open the <a href="./">checker</a> and drop your XML. It flags totals and tax breakdowns that do not add up, a missing tax reason on a 0% or exempt line, malformed identifiers, and IBAN and BIC typos, each with a rule ID and a fix (<a href="what-does-this-e-invoice-error-code-mean.html">the rule reference</a>). It does <strong>not</strong> apply ZATCA's rules, QR code, signature or clearance checks. No account, nothing uploaded.</p>
+<p>No invoice yet? The <a href="create.html">e-invoice creator</a> turns a form into UBL or CII XML and checks it. Other countries: <a href="germany-e-invoice-mandate.html">Germany</a>, <a href="france-e-invoice-mandate.html">France</a>, <a href="belgium-e-invoice-mandate.html">Belgium</a>, <a href="poland-ksef-e-invoice-mandate.html">Poland</a>, <a href="croatia-e-invoice-mandate.html">Croatia</a>, <a href="greece-mydata-e-invoice-mandate.html">Greece</a>, <a href="italy-sdi-e-invoice-mandate.html">Italy</a>, <a href="romania-e-factura-e-invoice-mandate.html">Romania</a>, <a href="bulgaria-e-invoice-mandate.html">Bulgaria</a>, <a href="portugal-e-invoice-mandate.html">Portugal</a>, <a href="spain-verifactu-e-invoice-mandate.html">Spain</a>, <a href="netherlands-e-invoice-mandate.html">the Netherlands</a>, <a href="uae-e-invoice-mandate.html">the UAE</a>, or the <a href="../eu-einvoicing-mandate-checker/">EU e-invoicing mandate checker</a>.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>When does Saudi e-invoicing apply to me?</h3>
+<p>Phase 1 (generation) has applied since 4 December 2021: VAT-registered businesses issue structured electronic invoices with a QR code, not handwritten or word-processor ones. Phase 2 (integration with ZATCA's Fatoora platform) is rolled out in waves chosen by revenue, announced about six months ahead. As reported by EY and adviser sites: wave 23 was 1 January to 31 March 2026, wave 24 was due by 30 June 2026 and wave 25 starts on 1 February 2027 and is the first to use calendar-year 2025 revenue. Find your wave in your ZATCA notification and confirm with ZATCA or your accountant; this page is a summary, not advice.</p>
+<h3>What is the difference between clearance and reporting?</h3>
+<p>Under phase 2, standard (business-to-business and business-to-government) tax invoices are cleared: they are sent to ZATCA for validation and stamping before they go to the buyer. Simplified invoices (sales to consumers) are reported to ZATCA, within 24 hours of issue. Both carry a QR code and a cryptographic stamp.</p>
+<h3>What format does ZATCA use?</h3>
+<p>Structured XML based on UBL 2.1, with ZATCA's own data elements and validation rules, signed and submitted through a Fatoora-integrated system. It is not plain EN 16931 and not Peppol, so a clean result in a generic EN 16931 checker does not mean ZATCA will accept the file.</p>
+<h3>Can this checker validate a Saudi invoice?</h3>
+<p>Partly. It reads UBL and JSON and applies EN 16931 style arithmetic, tax breakdown, mandatory-field and identifier checks, plus IBAN and BIC typo catches, each with a rule ID and a fix. It does not apply ZATCA's rules, QR code, signature or clearance checks, so a clean result is an offline observation, not approval. ZATCA's own validation remains the authority.</p>
+<p class="note">Open the <a href="./">E-invoice Preflight</a> checker to validate your own invoice file.</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or accounting advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every check runs locally. This page is static and summarises the Saudi mandate as publicly reported; dates, penalties and rules can change, so check ZATCA guidance (zatca.gov.sa) before relying on them.</p>
+<p class="support">Free and open source. If it caught a defect before a rejection, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+</footer>
+</main>
+</body></html>
