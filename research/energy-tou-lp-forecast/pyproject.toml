@@ -1,0 +1,13 @@
+[project]
+name = "energy-tou-lp-forecast"
+version = "0.1.0"
+description = "How much of an optimal home-battery controller's gain survives a realistic forecast? Rolling LP with persistence and seasonal forecasts"
+requires-python = ">=3.9"
+dependencies = ["numpy", "scipy"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "../energy-tou-lp/src", "../energy-tou/src", "../energy-home/src"]

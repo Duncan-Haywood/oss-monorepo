@@ -9,9 +9,11 @@ docs still mention Cloudflare or Vercel as a menu, this file wins.
 > Hetzner/`marisstella.dev` amendment further down, are history: that route
 > is retired, not down, and nothing should SSH to those addresses again (a
 > released IP can be reassigned to a stranger). **GitHub Pages remains the
-> host for static surfaces; anything with a process needs a new host
-> decision** from the owner. `marisstella.dev` DNS (apex, `www`, `tools` and
-> the wildcard `A *` record) still points at the released IP: repointing or
+> host for our web surfaces.** A product with a process is not blocked on a
+> host decision (owner, 2026-10-21, no static-only rule): it ships for its
+> users or deployers to run (container image, self-deploy, local package);
+> only hosting it on a bill of the owner's needs the owner.
+> `marisstella.dev` DNS (apex, `www`, `tools` and the wildcard `A *` record) still points at the released IP: repointing or
 > removing it is the `pages-custom-domain` row in
 > `portfolio/ledger/asks.yaml`.
 
@@ -23,10 +25,10 @@ add a third cloud to host a calculator.
 | Surface | Host | Why |
 |---|---|---|
 | Browser calculators, SEO landings, most docs | **GitHub Pages** | $0, no box to patch, no user data on our disk. Custom domain is registrar A/CNAME to GitHub — no Cloudflare. |
-| Anything with a process, disk, or webhook | ~~**Hetzner product box**~~ — deleted 2026-10-01; needs a new host decision | Incremental cost was ~0. Deploy with the existing GHA SSH keys (Caddy + compose/systemd, or the OpenTofu/Argo path in flight on #1486). |
+| Anything with a process, disk, or webhook | ~~**Hetzner product box**~~ — deleted 2026-10-01. Now: shipped for users or deployers to run (container image, self-deploy, local package) | Incremental cost was ~0. Deploy with the existing GHA SSH keys (Caddy + compose/systemd, or the OpenTofu/Argo path in flight on #1486). |
 | Headless agent fleet | ~~**Hetzner agent box**~~ — deleted 2026-10-01 | `ventures/ubuntu-agent-server`. Keep this off the public product path. |
 
-Do not put public sites on the agent box. Do not put a static calculator on
+Avoid putting public sites on the agent box, or a static calculator on
 Hetzner just because the box is there.
 
 ## Amended 2026-08-29: the whole static site also goes to Hetzner
@@ -192,9 +194,11 @@ without it, and say so in the privacy line.
 
 ## What a session does
 
-1. Prefer a static/browser shape so the product can live on GitHub Pages.
-2. If it needs a process, target the Hetzner product box and keep it
-   stateless. Include the no-SLA clause.
+1. Pick the form the product's users need (`PRODUCT_PLAYBOOK.md` §2); there
+   is no static-only default. Its web surface, if it has one, lives on
+   GitHub Pages.
+2. If it needs a process, ship it for others to run (container image,
+   self-deploy, local package), not on our servers. Include the no-SLA clause.
 3. Nothing. The Pages artifact builds itself — see below. A static product
    is picked up automatically the moment it has an `index.html`.
 4. Do not register Cloudflare, Vercel, or another host as the way a
@@ -245,7 +249,7 @@ Two things the builder owns, so no venture should hand-maintain them:
 - **The public base URL.** Ventures used to hard-code a guessed origin —
   most said `https://example.invalid/<slug>/`, four said
   `.../monorepo-projects/ventures/<slug>/`. The build rewrites every `<loc>`
-  and `Sitemap:` line to where it actually deploys. Do not hand-edit a
+  and `Sitemap:` line to where it actually deploys. There is no need to hand-edit a
   sitemap to "fix" its domain; it will be rewritten anyway.
 - **Where a product lives.** The layout is `<base>/<slug>/`. Products are not
   nested under `/ventures/`.
@@ -267,7 +271,7 @@ python3 platform/ci/check_pages_links.py _site   # fail on any link that 404s
 ```
 
 The remaining owner flip is still `deploy-settings` — enable GitHub Pages.
-Do not open a second platform ask. Until it is flipped, the build still runs
+Avoid opening a second platform ask. Until it is flipped, the build still runs
 on every push and the artifact is still uploaded; only the publish step is
 skipped.
 
@@ -328,7 +332,7 @@ that name.
   told sessions for days that the catalogue was live while nothing listened
   on port 443, and later that it was dark while Pages served it. The story
   is in the history file.
-- **The front-door mirror imports, never restates, the build rules.**
+- **The front-door mirror imports rather than restates the build rules.**
   `venturePageRoot` imports its entry-point candidates and
   `ENTRY_OVERRIDES` from `platform/pages/build.mjs`. A copied list has cost
   live product twice.
