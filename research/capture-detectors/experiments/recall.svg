@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of recall against face width in pixels for YuNet at three score thresholds, a Haar cascade and the assumed curve; YuNet at 0.6 reaches full recall at 16 pixels, where the assumed curve is at 0.29">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Face detector recall against face width, measured</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="273.4" y2="273.4" stroke="#ddd"/><text x="58" y="277.4" text-anchor="end" font-family="sans-serif" font-size="11">0.2</text>
+<line x1="64" x2="624" y1="222.9" y2="222.9" stroke="#ddd"/><text x="58" y="226.9" text-anchor="end" font-family="sans-serif" font-size="11">0.4</text>
+<line x1="64" x2="624" y1="172.3" y2="172.3" stroke="#ddd"/><text x="58" y="176.3" text-anchor="end" font-family="sans-serif" font-size="11">0.6</text>
+<line x1="64" x2="624" y1="121.7" y2="121.7" stroke="#ddd"/><text x="58" y="125.7" text-anchor="end" font-family="sans-serif" font-size="11">0.8</text>
+<line x1="64" x2="624" y1="71.2" y2="71.2" stroke="#ddd"/><text x="58" y="75.2" text-anchor="end" font-family="sans-serif" font-size="11">1</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">6.9</text>
+<text x="140.3" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">9.8</text>
+<text x="216.4" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">13.9</text>
+<text x="291.1" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">19.6</text>
+<text x="366.4" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">27.7</text>
+<text x="442.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">39.2</text>
+<text x="517.2" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">55.4</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">90.5</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">face width (px, log scale)</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">recall</text>
+<polyline points="64.0,183.4 140.3,111.6 216.4,71.2 291.1,71.2 366.4,71.2 442.0,71.2 517.2,71.2 624.0,71.2" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="183.4" r="3" fill="#c0392b"/>
+<circle cx="140.3" cy="111.6" r="3" fill="#c0392b"/>
+<circle cx="216.4" cy="71.2" r="3" fill="#c0392b"/>
+<circle cx="291.1" cy="71.2" r="3" fill="#c0392b"/>
+<circle cx="366.4" cy="71.2" r="3" fill="#c0392b"/>
+<circle cx="442.0" cy="71.2" r="3" fill="#c0392b"/>
+<circle cx="517.2" cy="71.2" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">YuNet, score 0.3</text>
+<polyline points="64.0,267.9 140.3,182.4 216.4,97.7 291.1,71.2 366.4,71.2 442.0,71.2 517.2,71.2 624.0,71.2" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="267.9" r="3" fill="#1f6fb2"/>
+<circle cx="140.3" cy="182.4" r="3" fill="#1f6fb2"/>
+<circle cx="216.4" cy="97.7" r="3" fill="#1f6fb2"/>
+<circle cx="291.1" cy="71.2" r="3" fill="#1f6fb2"/>
+<circle cx="366.4" cy="71.2" r="3" fill="#1f6fb2"/>
+<circle cx="442.0" cy="71.2" r="3" fill="#1f6fb2"/>
+<circle cx="517.2" cy="71.2" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">YuNet, score 0.6</text>
+<polyline points="64.0,324.0 140.3,324.0 216.4,324.0 291.1,273.4 366.4,177.6 442.0,99.2 517.2,71.2 624.0,71.2" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="324.0" r="3" fill="#2e8b57"/>
+<circle cx="140.3" cy="324.0" r="3" fill="#2e8b57"/>
+<circle cx="216.4" cy="324.0" r="3" fill="#2e8b57"/>
+<circle cx="291.1" cy="273.4" r="3" fill="#2e8b57"/>
+<circle cx="366.4" cy="177.6" r="3" fill="#2e8b57"/>
+<circle cx="442.0" cy="99.2" r="3" fill="#2e8b57"/>
+<circle cx="517.2" cy="71.2" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">YuNet, score 0.9</text>
+<polyline points="64.0,324.0 140.3,324.0 216.4,310.6 291.1,162.2 366.4,151.1 442.0,141.5 517.2,140.2 624.0,130.6" fill="none" stroke="#8e44ad" stroke-width="2"/>
+<circle cx="64.0" cy="324.0" r="3" fill="#8e44ad"/>
+<circle cx="140.3" cy="324.0" r="3" fill="#8e44ad"/>
+<circle cx="216.4" cy="310.6" r="3" fill="#8e44ad"/>
+<circle cx="291.1" cy="162.2" r="3" fill="#8e44ad"/>
+<circle cx="366.4" cy="151.1" r="3" fill="#8e44ad"/>
+<circle cx="442.0" cy="141.5" r="3" fill="#8e44ad"/>
+<circle cx="517.2" cy="140.2" r="3" fill="#8e44ad"/>
+<circle cx="624.0" cy="130.6" r="3" fill="#8e44ad"/>
+<rect x="574" y="32" width="14" height="10" fill="#8e44ad"/><text x="594" y="41" font-family="sans-serif" font-size="11">Haar frontal</text>
+<polyline points="64.0,320.5 140.3,310.3 216.4,276.7 291.1,202.6 366.4,125.0 442.0,87.4 517.2,75.5 624.0,71.7" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="320.5" r="3" fill="#c0392b"/>
+<circle cx="140.3" cy="310.3" r="3" fill="#c0392b"/>
+<circle cx="216.4" cy="276.7" r="3" fill="#c0392b"/>
+<circle cx="291.1" cy="202.6" r="3" fill="#c0392b"/>
+<circle cx="366.4" cy="125.0" r="3" fill="#c0392b"/>
+<circle cx="442.0" cy="87.4" r="3" fill="#c0392b"/>
+<circle cx="517.2" cy="75.5" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="71.7" r="3" fill="#c0392b"/>
+<rect x="744" y="32" width="14" height="10" fill="#c0392b"/><text x="764" y="41" font-family="sans-serif" font-size="11">assumed (capture-bystander)</text>
+</svg>
