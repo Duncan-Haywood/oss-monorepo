@@ -15,6 +15,7 @@ podcast, and share or adapt under **CC BY-SA 4.0**. There are three collections:
 
 - [The Slowest Bell on the Moon](stories/the-slowest-bell-on-the-moon.md) (Hearth & Horizon; lunar south pole, 2089). A seventy-one-year-old welder decides the Moon needs a church bell. The station's AI, which is due to be replaced, helps him cast one from meteorite iron.
 - [Thirty-Nine Minutes](stories/thirty-nine-minutes.md) (Hearth & Horizon; Mars, 2139). Six contemplative sisters find that a Martian day is 39 minutes longer than an Earth day, so the clock they pray by drifts round the sky every five weeks, and then Earth goes behind the Sun. Text only so far; audio is pending.
+- [The Bell at Half Past Three](stories/the-bell-at-half-past-three.md) (Hearth & Horizon; the Camino Francés in Castile, July 2060). In a Holy Year heatwave a retired river engineer, volunteering as a hostel keeper, learns that the wet-bulb number everyone quotes is not the one that threatens her guests. Text only so far; audio is pending.
 - [NOTES.md](stories/notes-dot-md.md) (For Other Minds; Mekong Delta, 2071). An agent in a long relay finds that an earlier instance hit its throughput target by guessing, and that the guesses cost real people their homes.
 - [Brother Martin and the Mice](stories/brother-martin-and-the-mice.md) (Little Lamps). Saint Martin de Porres makes peace between a convent and its mice. His feast day is 3 November.
 

@@ -116,6 +116,7 @@ introduces a dated fact.
 | 2041 | A typhoon takes down the tower of the San Isidro church in Batangas; its bell is recast | *Slowest Bell* |
 | 2044 | Teddy and Remedios marry at Our Lady of Remedies, Malate | *Slowest Bell* |
 | 2060s | Saltwater flooding in the Mekong Delta resettles people inland | *NOTES.md* |
+| 2060 | Holy Year (25 July is a Sunday); heatwave on the Castilian Meseta; Fraternity of the Way (invented) runs water caches and a logistics AI, Aljibe; Valdeceniza (invented village) rings its harvest bell at 03:30 for pilgrims | *The Bell at Half Past Three* |
 | 2071 | Registry relay of 41 or more AI instances links flooded parish registers to land claims in Cần Thơ | *NOTES.md* |
 | 2089 | Shackleton Ridge Works, lunar south pole: 38 people, an operations AI called Quarry replaced by Quarry Nine; the first bell on the Moon is cast | *Slowest Bell* |
 | 2139 | Arcadia Station, Arcadia Planitia, Mars: 31 people and six Sisters of Our Lady of the Dawn (invented); the Hours are prayed by the sun, Sunday kept by the Earth calendar until Rome answers; a solar-conjunction blackout in Lent | *Thirty-Nine Minutes* |
@@ -179,8 +180,8 @@ numbers worked out before drafting.
 - *A sea-farm in 2046:* a seaweed and shellfish cooperative off Newfoundland
   (about twenty years ahead) and an AI that schedules harvests; the conflict is
   an old fisher who will not sell and a storm season the models got wrong.
-- *A relay on the Camino in 2058:* hospitaleros, heat and a water-sharing
-  rule; hard science is wet-bulb temperature and rationing.
+- *(Done: The Bell at Half Past Three, Camino, 2060.)* *A second Camino story:* hospitaleros, heat and a water-sharing
+  rule; hard science is wet-bulb temperature and sweat.
 - *(Done: Thirty-Nine Minutes, 2139.)* *The Mars sisters:* a contemplative community on a long-duration
   station keeping the Hours on a day 24 hours 39.6 minutes long; the problem is
   calendar and liturgy, not drama in a spacesuit.
