@@ -386,14 +386,17 @@ export function layoutWall(plan, wall) {
     }
   }
   const studStock = stockFor(stud);
-  const topJoints = splitPlate(0, L, centres, studStock, []);
-  const capJoints = topJoints ? splitPlate(0, L, centres, studStock, topJoints.map((j) => [j - plan.topPlateLap, j + plan.topPlateLap])) : null;
+  const lap = plateLaps(plan, wall);
+  const [topA, topB] = [lap.topStart, L + lap.topEnd];
+  const [capA, capB] = [lap.capStart, L + lap.capEnd];
+  const topJoints = splitPlate(topA, topB, centres, studStock, []);
+  const capJoints = topJoints ? splitPlate(capA, capB, centres, studStock, topJoints.map((j) => [j - plan.topPlateLap, j + plan.topPlateLap])) : null;
   if (!topJoints || !capJoints) notes.push(`Top plates: no way to splice them over studs with joints ${formatInches(plan.topPlateLap)} apart using the boards listed; shown as one piece each.`);
   /** @type {[number[], number, string][]} */
-  const upper = [[topJoints || [], top, "top plate"], [capJoints || [], top + THICK, "cap plate"]];
-  for (const [joints, y, label] of upper) {
-    let p = 0;
-    for (const j of [...joints, L]) {
+  const upper = [[topJoints || [], top, "top plate", topA, topB], [capJoints || [], top + THICK, "cap plate", capA, capB]];
+  for (const [joints, y, label, from, to] of upper) {
+    let p = from;
+    for (const j of [...joints, to]) {
       add("plate", p, y, j - p, THICK, stud, "h", label);
       p = j;
     }
@@ -420,7 +423,7 @@ export function layoutWall(plan, wall) {
   if (shortCripples.length) notes.push(`short top cripples over ${shortCripples.join(", ")}. Header sizes are yours to check.`);
   if (shimGaps.length) notes.push(`a gap too small for cripples between header and top plate over ${shimGaps.join(", ")}: shim or fill it.`);
   if (spacers.length) notes.push(`header spacers not in the takeoff: ${spacers.join(", ")}.`);
-  return { id: wall.id, length: L, height, stud, members, notes, layout, joints: { bottom: bottomJoints, top: topJoints || [], cap: capJoints || [] } };
+  return { id: wall.id, length: L, height, stud, members, notes, layout, lapped: !!plan.plateLaps, joints: { bottom: bottomJoints, top: topJoints || [], cap: capJoints || [] } };
 }
 
 /** Rows of blocking: the asked-for count, or what fire blocking needs so no stud run exceeds 10 ft. */
@@ -428,6 +431,36 @@ export function blockingRows(plan) {
   const b = plan.blocking || {};
   const fire = b.fire ? Math.max(0, Math.ceil((plan.studLength + 2 * THICK) / 120 - EPS) - 1) : 0;
   return Math.max(Math.floor(b.rows || 0), fire);
+}
+
+/**
+ * Corner plate laps (plan.plateLaps). The walls are read as a closed loop in
+ * the order listed: a wall with `corner: true` meets the end of the wall
+ * before it (the first wall meets the last). At each such corner the top plate
+ * of the earlier wall runs through, past its end by the later wall's depth,
+ * and the later wall's top plate stops short of its start by the earlier
+ * wall's depth; the cap plate laps the other way. Lengths shift, totals do not.
+ * Offsets are signed inches from the wall's start and end (end offsets are
+ * added to the wall length).
+ */
+export function plateLaps(plan, wall) {
+  const none = { topStart: 0, topEnd: 0, capStart: 0, capEnd: 0 };
+  const walls = plan.walls || [];
+  const i = walls.indexOf(wall);
+  if (!plan.plateLaps || i < 0 || walls.length < 2) return none;
+  const depthOf = (w) => DEPTH[w.stud || "2x4"] ?? 3.5;
+  const prev = walls[(i - 1 + walls.length) % walls.length];
+  const next = walls[(i + 1) % walls.length];
+  const lap = { ...none };
+  if (wall.corner) {
+    lap.topStart = depthOf(prev);
+    lap.capStart = -depthOf(prev);
+  }
+  if (next.corner) {
+    lap.topEnd = depthOf(next);
+    lap.capEnd = -depthOf(next);
+  }
+  return lap;
 }
 
 /**
@@ -486,7 +519,8 @@ export function verifyWall(w, wall) {
   const problems = [];
   const ms = w.members;
   for (const m of ms) {
-    if (m.x < -EPS || m.x + m.w > w.length + EPS || m.y < -EPS || m.y + m.h > w.height + EPS) problems.push(`${m.label} at ${formatLength(m.x)} leaves the wall`);
+    const lapOK = m.kind === "plate" && w.lapped; // laid-out plates may pass the wall ends at a lapped corner
+    if ((!lapOK && (m.x < -EPS || m.x + m.w > w.length + EPS)) || m.y < -EPS || m.y + m.h > w.height + EPS) problems.push(`${m.label} at ${formatLength(m.x)} leaves the wall`);
     if (!(m.length > 0)) problems.push(`${m.label} at ${formatLength(m.x)} has no length`);
   }
   for (let i = 0; i < ms.length; i++) {

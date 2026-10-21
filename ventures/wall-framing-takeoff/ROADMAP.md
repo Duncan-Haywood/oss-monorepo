@@ -60,8 +60,9 @@ Ticked items are on `main`.
       neighbouring full-height studs, skips openings, and `fire` adds enough
       rows that no stud run passes 10 ft; they join the cut list and order.
       The page has the controls (rows, fire blocking; 2026-10-21, saved in plan files). Not yet: staggered blocks, nailers for horizontal sheets.
-- [ ] **Corner and tee plate laps**: the cap plate laps into the intersecting
-      wall; piece lengths, not totals, change.
+- [x] **Corner plate laps** (2026-10-21, `plateLaps` in `engine.mjs`): top plate
+      through one way, cap the other, piece lengths change, totals do not. Tee
+      laps not yet.
 - [ ] **Advanced framing options** (2-stud corners, ladder blocking at tees,
       single top plate where framing stacks, right-sized headers from a
       user-supplied table) and a measured comparison on example houses.

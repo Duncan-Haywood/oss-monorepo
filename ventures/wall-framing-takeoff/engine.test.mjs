@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   parseLength, formatLength, formatInches, layoutWall, verifyWall, validatePlan, takeoff, samplePlan,
-  optimizeStock, exactStock, simplexMaxLE, boundedKnapsack, cutList, toCsv, PRECUT, defaultStock,
+  plateLaps, optimizeStock, exactStock, simplexMaxLE, boundedKnapsack, cutList, toCsv, PRECUT, defaultStock,
 } from "./engine.mjs";
 
 const base = () => ({ ...samplePlan(), walls: [] });
@@ -339,4 +339,19 @@ test("sheathing nailers join the cut list and the lumber order", () => {
   assert.equal(t.summary.pieces, r.summary.pieces + n);
   assert.ok(t.summary.neededFeet > r.summary.neededFeet);
   assert.deepEqual(nailerCuts(null), []);
+});
+
+test("corner plate laps move piece lengths but not the plate totals", () => {
+  const plain = takeoff(samplePlan());
+  const p = { ...samplePlan(), plateLaps: true };
+  const lapped = takeoff(p);
+  assert.ok(lapped.ok);
+  const sum = (r, re) => r.walls.reduce((s, w) => s + w.members.filter((m) => m.kind === "plate" && re.test(m.label)).reduce((a, m) => a + m.length, 0), 0);
+  for (const re of [/top/, /cap/, /bottom/]) assert.ok(Math.abs(sum(plain, re) - sum(lapped, re)) < 1e-6);
+  lapped.walls.forEach((w, i) => assert.deepEqual(verifyWall(w, p.walls[i]), []));
+  const f = lapped.walls[0];
+  const first = (label) => f.members.filter((m) => m.label === label).sort((a, b) => a.x - b.x)[0];
+  assert.equal(first("top plate").x, 3.5); // butts against the last wall
+  assert.equal(first("cap plate").x, -3.5); // runs through over it
+  assert.deepEqual(plateLaps({ walls: [] }, {}), { topStart: 0, topEnd: 0, capStart: 0, capEnd: 0 });
 });
