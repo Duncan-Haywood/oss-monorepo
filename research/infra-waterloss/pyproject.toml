@@ -1,0 +1,13 @@
+[project]
+name = "infra-waterloss"
+version = "0.1.0"
+description = "Finding leaks from pressure residuals on EPANET's Net3 with WNTR: threshold, CUSUM and PELT detectors at a fixed false-alarm budget"
+requires-python = ">=3.9"
+dependencies = ["numpy", "wntr"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
