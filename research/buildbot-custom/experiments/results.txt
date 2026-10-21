@@ -31,17 +31,17 @@ C. positioning budget (95% of sheets with every nail inside its window): total t
    total scatter 3.0 mm -> 0.1% of sheets all in window
 
 D. what the gantry saves: hand nailing hours of the taskbook (A); wall sheathing S4 rescaled to 62 nails a sheet, roof deck R3 as booked
-   wall 3.31 h (32 sheets), roof 6.62 h (46 sheets); roof counts only if roofs are sheathed as flat cassettes on the table
-   at the loaded hour $37.86 the wall nailing is worth $125 a house, wall + roof $376
+   wall 3.31 h (32 sheets), roof 5.70 h (46 sheets); roof counts only if roofs are sheathed as flat cassettes on the table
+   at the loaded hour $37.86 the wall nailing is worth $125 a house, wall + roof $341
 
    houses a year needed to break even (0 interest, 10 y, upkeep 5%, operator keeps 0.2 of the hours), by machine price
-   wall       $50k:    75   $100k:   150   $200k:   300   $400k:   599
-   wall+roof  $50k:    25   $100k:    50   $200k:   100   $400k:   200
+   wall       $50k:    75   $100k:   150   $200k:   299   $400k:   599
+   wall+roof  $50k:    27   $100k:    55   $200k:   110   $400k:   220
    one machine nails ~653 houses a year at 2,000 machine-hours (3.1 h a house): volume, not capacity, is the limit
 
 E. sweep (4000 draws, seed 1): price $40k-600k (log), life 7-20 y, interest 4-10%, upkeep 3-12%, wage $25-35, burden 1.0-1.6, operator keeps 0-50% of the hours
-   wall       houses a year to break even: 5% 85, median 327, 95% 1250
-   wall+roof  houses a year to break even: 5% 28, median 109, 95% 416
+   wall       houses a year to break even: 5% 85, median 326, 95% 1249
+   wall+roof  houses a year to break even: 5% 31, median 120, 95% 459
 
 F. the stock humanoids on the same wall-nailing hours (buildbot-cost model, 4000 draws; H1 passes the payload test for S4, G1 does not)
    H1: eligible 3.31 h, P(saves money) 0.004, median $-356 a house, best draw $23

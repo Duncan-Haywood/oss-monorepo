@@ -128,12 +128,12 @@ def load_tasks(path=TASKBOOK):
 
 
 def nailing_hours(tasks, recount=True):
-    """Crew-hours of hand nailing of wall (S4) and roof (R3) sheathing. The wall count is rescaled from the taskbook's 72 nails a
-    sheet to the 62 of buildbot-fasten when recount is true."""
+    """Crew-hours of hand nailing of wall (S4) and roof (R3) sheathing. The taskbook now books 62 nails a sheet, the count of
+    buildbot-fasten, so recount (kept for old callers) is a no-op."""
     wall = next(t for t in tasks if t["id"] == "S4")
     roof = next(t for t in tasks if t["id"] == "R3")
-    hw = wall["crew_hours_mid_A"] * (62 / 72 if recount else 1.0)
-    return {"wall": hw, "roof": roof["crew_hours_mid_A"], "wall_sheets": wall["cycles"] / 72, "roof_sheets": roof["cycles"] / 72}
+    hw = wall["crew_hours_mid_A"]
+    return {"wall": hw, "roof": roof["crew_hours_mid_A"], "wall_sheets": wall["cycles"] / 62, "roof_sheets": roof["cycles"] / 62}
 
 
 def annual_cost(price, life_y, rate, upkeep):

@@ -27,7 +27,7 @@ CEILING_Z = 2.44                         # 8 ft ceiling
 ROOF_Z = 3.0                             # hand height of a worker on the roof deck, above the floor of the robot's stance
 WASTE = 0.10                             # sheet waste, same as the lumber waste in house-framing
 NAILS_PER_PIECE = 4                      # two end nails at each end; my reading of the usual schedule, unchecked
-SHEATH_NAILS = 72                        # 6 in on the 4 edges (48) plus 12 in on 3 interior studs (24), per 4x8
+SHEATH_NAILS = 62                        # 6 in on edges and 12 in on the 2 interior studs of a 4 ft sheet, per 4x8 (buildbot-fasten's schedule)
 DRYWALL_SCREWS = 32                      # about 12 in on the field of a sheet; my assumption
 STUD_FACE_MM = 1.5 * 25.4                # a 2x member's face is 1.5 in wide: the target a fastener must hit
 

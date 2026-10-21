@@ -13,9 +13,9 @@ Third project of track 20, robots on the residential building site (`PROJECTS.md
 **Not a quote, not a safety case.** Research code. Prices are launch prices from press reports, wages are a national median; nothing here was reviewed by a builder or a robot vendor. A robot handling lumber beside people needs the owner's risk assessment (ISO 10218, ISO/TS 15066, OSHA) first. The report is about hours and dollars, not jobs: what the supervising person still does is the `supervision` term.
 
 ## Model (`src/buildbot_cost/model.py`)
-- A robot may take a task only if the taskbook's payload test passes for it (hand tasks; force, accuracy and vision untested). H1: 32.7 of 47.9 hours (scenario A) or 67.6 of 94.9 (B); G1: 5.9 or 16.1.
+- A robot may take a task only if the taskbook's payload test passes for it (hand tasks; force, accuracy and vision untested). H1: 32.1 of 46.4 hours (scenario A) or 67.1 of 93.4 (B); G1: 5.9 or 16.1.
 - Per crew-hour replaced the saving is `loaded_wage - slowdown x (rate + supervision x loaded_wage)`, where `rate = price x (1/life_h + upkeep_per_year / used_h_per_year)`. Zero at `s* = loaded_wage / (rate + supervision x loaded_wage)`, which does not depend on the number of hours. Success (share of eligible hours the robot completes; the rest stay with people) scales the hours.
-- Scenario **C** is crude and flagged as such: the taskbook covers 25 hours of framing, sheathing and roof, while NAHB's 16.6% framing stage share of $428,215 with `house-cost`'s assumed 45% materials share implies about 1,033 labour hours for an average (2,000 ft<sup>2</sup>, two-storey) house. C scales every task by 41.6 so that the framing-type rows match it. That mixes two different houses and one assumption of `house-cost`; it is an order-of-magnitude upper scope, not a result.
+- Scenario **C** is crude and flagged as such: the taskbook covers 23 hours of framing, sheathing and roof, while NAHB's 16.6% framing stage share of $428,215 with `house-cost`'s assumed 45% materials share implies about 1,033 labour hours for an average (2,000 ft<sup>2</sup>, two-storey) house. C scales every task by 44.1 so that the framing-type rows match it. That mixes two different houses and one assumption of `house-cost`; it is an order-of-magnitude upper scope, not a result.
 
 ## Inputs
 | input | value | source |
@@ -41,14 +41,14 @@ python experiments/figure.py                        # experiments/figure.png
 | scenario | robot | eligible crew-h | ceiling (share of price) | P(saves money) | median net | best draw |
 |---|---|---|---|---|---|---|
 | A, taskbook minutes | G1 | 5.9 | $223 (0.03%) | 0.151 | $-170 | $175 |
-| A | H1 | 32.7 | $1,237 (0.19%) | 0.004 | $-3,516 | $226 |
+| A | H1 | 32.1 | $1,217 (0.18%) | 0.004 | $-3,459 | $222 |
 | B, framing at the norm | G1 | 16.1 | $608 (0.09%) | 0.151 | $-465 | $476 |
-| B | H1 | 67.6 | $2,559 (0.38%) | 0.004 | $-7,272 | $467 |
-| C, cost-scaled (crude) | G1 | 245 | $9,267 (1.4%) | 0.151 | $-7,085 | $7,255 |
-| C | H1 | 1,358 | $51,415 (7.7%) | 0.004 | $-146,106 | $9,374 |
+| B | H1 | 67.1 | $2,539 (0.38%) | 0.004 | $-7,215 | $463 |
+| C, cost-scaled (crude) | G1 | 260 | $9,841 (1.5%) | 0.151 | $-7,524 | $7,705 |
+| C | H1 | 1,419 | $53,715 (8.1%) | 0.004 | $-152,643 | $9,794 |
 
 - **The H1 is the wrong price for this work.** Its ownership cost is about $24 an hour against a $38 loaded wage, so any slowdown or supervision wipes out the saving (s* 1.6 with no supervision, 0.6 with a person for every robot-hour). The G1 costs $4 an hour, so it has room (s* 8.9 unsupervised), but passes the payload test for few hours.
-- **The ceiling is small for this scope** and large only if the scope is scaled to a whole house (scenario C: up to 7.7% of the price for a perfect H1). The gap between the ceiling and the best draw (1.4% in C) is the cost of being slower, supervised and owned.
+- **The ceiling is small for this scope** and large only if the scope is scaled to a whole house (scenario C: up to 8.1% of the price for a perfect H1). The gap between the ceiling and the best draw (1.5% in C) is the cost of being slower, supervised and owned.
 - **Where a robot could win:** lower ownership cost per hour (longer life, more hours of use), near-human speed and little supervision. The sweep's best draws are all the cheap, fast, lightly supervised corner.
 
 ## Limitations

@@ -9,8 +9,8 @@ class T(unittest.TestCase):
         cls.tasks = M.load_tasks()
 
     def test_taskbook_totals_match_its_readme(self):
-        self.assertAlmostEqual(M.total_hours(self.tasks, "A"), 48, delta=1)
-        self.assertAlmostEqual(M.total_hours(self.tasks, "B"), 95, delta=1)
+        self.assertAlmostEqual(M.total_hours(self.tasks, "A"), 46, delta=1)
+        self.assertAlmostEqual(M.total_hours(self.tasks, "B"), 93, delta=1)
 
     def test_eligible_never_exceeds_total_and_h1_beats_g1(self):
         for sc in "AB":
