@@ -128,3 +128,19 @@ test("payroll and owner draws are not asked for a receipt", async () => {
   b = confirm(b, { [b.transactions[0].id]: "3100", [b.transactions[1].id]: "6150", [b.transactions[2].id]: "6070" });
   assert.deepEqual(receiptReport(b).missing.map((t) => t.desc), ["OFFICE DEPOT"]);
 });
+
+test("tax on receipts is summed by month and by the account the line was filed to", async () => {
+  const { taxOnReceipts } = await import("./receipts.mjs");
+  const b0 = books([["2026-03-14", "BLUE BOTTLE COFFEE", "-10.62"], ["2026-04-02", "HARDWARE HANK", "-43.20"]]);
+  const text = `${CAFE}\n---\nHardware Hank\n2026-04-02\nSubtotal 40.00\nTax 3.20\nTotal 43.20\n---\nNo Tax Diner\n2026-04-05\nTotal 20.00`;
+  let { books: b } = addReceipts(b0, text);
+  b = { ...b, transactions: b.transactions.map((t) => /HANK/.test(t.desc) ? { ...t, posted: "6060" } : t) };
+  const t = taxOnReceipts(b);
+  assert.equal(t.receipts, 2);
+  assert.equal(t.taxCents, 87 + 320);
+  assert.deepEqual(t.byMonth.map((m) => [m.month, m.taxCents]), [["2026-03", 87], ["2026-04", 320]]);
+  assert.equal(t.byAccount.find((a) => a.code === "6060").taxCents, 320);
+  assert.equal(t.rows.find((r) => r.merchant === "Hardware Hank").rate, 0.08);
+  assert.equal(t.noTax.length, 1);
+  assert.equal(taxOnReceipts(b, { from: "2026-04-01" }).taxCents, 320);
+});
