@@ -120,6 +120,13 @@ await page.click("#receipts-read");
 const rtext = await page.locator("#receipts").textContent();
 check(/2 receipts on file: 1 matched, 1 without a bank line/.test(rtext), "receipts are read and one is paired with its bank line");
 check(/HISCOX/.test(rtext) && /Corner Cafe/.test(rtext) && /with no receipt/.test(rtext), "the receipt tables and the missing-receipt list show");
+// Split a matched receipt by its items: Hiscox on 2026-01-01 is a 48.00 insurance line; a second receipt with two kinds of item is added.
+await page.click("#receipts-clear");
+await page.fill("#receipts-text", "Hiscox Insurance\n2026-01-01\nLiability policy insurance 40.00\nCafe lunch 8.00\nTotal 48.00");
+await page.click("#receipts-read");
+const splitBtn = page.getByRole("button", { name: /Split Hiscox.* by items/ });
+check((await splitBtn.count()) === 1, "a matched receipt with items of two kinds offers a split");
+if (await splitBtn.count()) { await splitBtn.click(); check(/Split Hiscox/.test(await page.locator("#receipts-status").textContent()), "the split button posts the split"); }
 check(/Net profit/.test(btext) && /(better|worse|on budget)/.test(btext), "the budget table shows a status and the net line");
 check(errors.length === 0, `no page errors ${errors.join("; ")}`);
 await browser.close();
