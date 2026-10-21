@@ -111,9 +111,12 @@ flagships:
       A per-survey `pairSelector` (null follows PAIR_SELECTOR, "standard" or
       "staged"; prisma column, validated in surveyBuilder.ts, a "Question order"
       menu on the admin form, read by /api/trials/next) is in.
-      Next: a live check that pair requests stay fast at 220 items, then
-      show the admin per-item answer counts so they can see when a list is
-      too long for their respondent count.
+      The admin ranking now shows raters per option and a coverage note
+      (groupRanking.coverage names options rated by fewer than 3 people and
+      suggests waiting or shortening a long list; unit-tested).
+      Next: a live check that pair requests stay fast at 220 items, then feed
+      measured answers-per-respondent into the shorten-the-list suggestion (it
+      now uses median reach).
   - venture: league-schedule-generator
     why: >-
       Circle-method round robins with minimal home/away breaks, court and slot
