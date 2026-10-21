@@ -15,10 +15,20 @@ function honorsBrowserSignal() {
   }
 }
 
+// Reading the `localStorage` global itself throws SecurityError when the
+// visitor blocks site data, so even `typeof localStorage` needs a guard.
+function noStorage() {
+  try {
+    return typeof localStorage === "undefined";
+  } catch {
+    return true;
+  }
+}
+
 function usageOptedOut() {
   if (globalThis.__usageOptOut) return true;
   try {
-    return typeof localStorage !== "undefined" && localStorage.getItem(OPT_OUT) === "1";
+    return !noStorage() && localStorage.getItem(OPT_OUT) === "1";
   } catch {
     // A blocked or full store must never be read as consent.
     return false;
@@ -26,7 +36,7 @@ function usageOptedOut() {
 }
 
 export function record(event) {
-  if (typeof localStorage === "undefined" || usageOptedOut() || honorsBrowserSignal()) return;
+  if (noStorage() || usageOptedOut() || honorsBrowserSignal()) return;
   let current;
   try { current = JSON.parse(localStorage.getItem(KEY) || "{}"); } catch { current = {}; }
   if (!current || typeof current !== "object" || Array.isArray(current)) current = {};
@@ -36,7 +46,7 @@ export function record(event) {
 export function setUsageOptOut(value) {
   const off = Boolean(value);
   globalThis.__usageOptOut = off;
-  if (typeof localStorage === "undefined") return;
+  if (noStorage()) return;
   // Separate try blocks, counters first. Sharing one try means a
   // setItem that throws on a full quota skips the delete entirely,
   // and the visitor gets neither half of what the switch promised.

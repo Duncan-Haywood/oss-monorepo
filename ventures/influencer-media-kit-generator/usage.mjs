@@ -7,6 +7,16 @@ const KEY = "influencer-media-kit-generator-usage";
 // act it records.
 const OPT_OUT = "influencer-media-kit-generator-usage-opt-out";
 
+// Reading the `localStorage` global itself throws SecurityError when the
+// visitor blocks site data, so even `typeof localStorage` needs a guard.
+function noStorage() {
+  try {
+    return typeof localStorage === "undefined";
+  } catch {
+    return true;
+  }
+}
+
 // The in-memory flag is only a same-page fast path. `globalThis` is a
 // fresh realm on every page load, so without the stored key the switch
 // silently stops working on the visitor's next visit -- and they do not
@@ -14,7 +24,7 @@ const OPT_OUT = "influencer-media-kit-generator-usage-opt-out";
 function usageOptedOut() {
   if (globalThis.__usageOptOut) return true;
   try {
-    return typeof localStorage !== "undefined" && localStorage.getItem(OPT_OUT) === "1";
+    return !noStorage() && localStorage.getItem(OPT_OUT) === "1";
   } catch {
     // A blocked or full store must never be read as consent.
     return false;
@@ -32,7 +42,7 @@ function usageBlocked() {
 }
 
 export function record(event) {
-  if (typeof localStorage === "undefined" || usageBlocked()) return;
+  if (noStorage() || usageBlocked()) return;
   let current;
   try {
     current = JSON.parse(localStorage.getItem(KEY) || "{}");
@@ -49,7 +59,7 @@ export function record(event) {
 }
 
 export function readUsage() {
-  if (typeof localStorage === "undefined") return {};
+  if (noStorage()) return {};
   try {
     const parsed = JSON.parse(localStorage.getItem(KEY) || "{}");
     return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : {};
@@ -61,7 +71,7 @@ export function readUsage() {
 export function setUsageOptOut(value) {
   const off = Boolean(value);
   globalThis.__usageOptOut = off;
-  if (typeof localStorage === "undefined") return;
+  if (noStorage()) return;
   if (off) {
     try { localStorage.removeItem(KEY); } catch { /* storage is optional */ }
     try { localStorage.setItem(OPT_OUT, "1"); } catch { /* storage is optional */ }
