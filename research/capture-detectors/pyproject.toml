@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "capture-detectors"
+version = "0.1.0"
+description = "How small can a face or a person be before a real detector stops finding it? Measured recall curves for YuNet, Haar and YOLOX on COCO photos, replacing the assumed curve in capture-bystander"
+requires-python = ">=3.9"
+dependencies = ["numpy", "opencv-python-headless>=4.8,<5"]
+license = { text = "MIT" }
+
+[project.optional-dependencies]
+figure = ["matplotlib"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]

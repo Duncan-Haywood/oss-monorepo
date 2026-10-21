@@ -124,6 +124,8 @@ import {
   SITE_NAV,
   SITE_HEADER_CSS,
   SITE_STYLE_FILE,
+  VENTURE_CHROME_CSS,
+  VENTURE_CHROME_JS,
   SEARCH_ANCHOR,
   renderSiteHeader,
   renderSiteFooterNav,
@@ -9056,10 +9058,10 @@ export const CHROME_STYLE_FILE = 'pf-chrome.css';
  * one bar — the visitor those rules exist for. See `reflow.mjs`.
  */
 export function renderChromeStyle() {
-  // The site header's layout rules ride along (see site-nav.mjs). They carry
-  // no colour of their own, so on a venture page the header takes the host's
-  // palette exactly as the footer does.
-  return `${CHROME_CSS.trimStart()}${SITE_HEADER_CSS}${REFLOW_CSS}`;
+  // The site header's layout rules ride along (see site-nav.mjs), then
+  // `VENTURE_CHROME_CSS`, which gives the venture header and footer the site's
+  // own palette so every tool page carries the same bar as the rest of the site.
+  return `${CHROME_CSS.trimStart()}${SITE_HEADER_CSS}${VENTURE_CHROME_CSS}${REFLOW_CSS}`;
 }
 
 // The same anonymous, local-only convention the hub uses: which tool slugs were
@@ -9238,7 +9240,7 @@ export const CHROME_MODULE_FILE = 'pf-site.js';
 
 /** The contents of that file. Written once by the build, at the site root. */
 export function renderChromeModule({ counterUrl = SITE_COUNTER_URL } = {}) {
-  return `${stripForInjection(CHROME_SCRIPT({ counterUrl }))}\n${stripForInjection(SCROLL_A11Y_SCRIPT)}\n${stripForInjection(ASSISTANT_LAUNCHER_JS)}\n`;
+  return `${stripForInjection(CHROME_SCRIPT({ counterUrl }))}\n${stripForInjection(VENTURE_CHROME_JS)}\n${stripForInjection(SCROLL_A11Y_SCRIPT)}\n${stripForInjection(ASSISTANT_LAUNCHER_JS)}\n`;
 }
 
 // ---------------------------------------------------------------------------

@@ -120,3 +120,24 @@ The milestones are plans, chosen for open benchmarks and CPU-minute runtimes,
 not ranked by measured value. Nothing here measures demand from people in
 these industries. A venture built on a track 21 result still needs the usual
 check that someone wants it (`PRODUCT_PLAYBOOK.md`).
+
+## First result from track 21: transformer ageing (`infra-transformer`)
+
+For an agent picking the next `infra` milestone: milestone 2 landed as
+[`research/infra-transformer`](../../research/infra-transformer/README.md).
+What it found, and what it could not source:
+
+- An hourly C57.91-form thermal model, driven by 10 homes (BDEW H0 profile,
+  TMY weather, a heat pump with temperature-dependent COP, EV charging), puts
+  loss of life under 0.01 %/yr until about half the homes have both a heat pump
+  and an EV, then 5.6 %/yr at 100 % with uncoordinated charging against
+  1.07 %/yr with overnight valley-fill (transformer at 0.5 per unit baseline
+  loading, Greensboro weather).
+- Smart charging fully removes an EV-only load but not coincident heat-pump
+  cold-snap peaks.
+- **Friction worth knowing.** The standard's table values are paywalled and the
+  sandbox reaches only PyPI and raw GitHub (arXiv, NREL, UCI and open-meteo
+  are refused), so the constants are swept and flagged unverified. Public
+  hourly load and weather came from packages that bundle them (`pvlib` TMY
+  files, `demandlib` BDEW profiles). A next run with the standard's text
+  should replace the swept constants first.
