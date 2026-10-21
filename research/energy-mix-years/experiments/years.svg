@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot: cost of a zero-emission one-node German system for each weather year 2015 to 2019, with a steel hydrogen tank and with caverns; the tank case swings by about EUR 68/MWh between years, the cavern case by about EUR 14">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Zero-emission system cost by weather year, Germany 2015 to 2019 (EUR/MWh)</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="277.4" y2="277.4" stroke="#ddd"/><text x="58" y="281.4" text-anchor="end" font-family="sans-serif" font-size="11">50</text>
+<line x1="64" x2="624" y1="230.8" y2="230.8" stroke="#ddd"/><text x="58" y="234.8" text-anchor="end" font-family="sans-serif" font-size="11">100</text>
+<line x1="64" x2="624" y1="184.3" y2="184.3" stroke="#ddd"/><text x="58" y="188.3" text-anchor="end" font-family="sans-serif" font-size="11">150</text>
+<line x1="64" x2="624" y1="137.7" y2="137.7" stroke="#ddd"/><text x="58" y="141.7" text-anchor="end" font-family="sans-serif" font-size="11">200</text>
+<line x1="64" x2="624" y1="91.1" y2="91.1" stroke="#ddd"/><text x="58" y="95.1" text-anchor="end" font-family="sans-serif" font-size="11">250</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">2015</text>
+<text x="204.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">2016</text>
+<text x="344.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">2017</text>
+<text x="484.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">2018</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">2019</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">weather year</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">EUR/MWh</text>
+<polyline points="64.0,71.6 204.0,119.6 344.0,71.2 484.0,135.0 624.0,116.7" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="71.6" r="3" fill="#c0392b"/>
+<circle cx="204.0" cy="119.6" r="3" fill="#c0392b"/>
+<circle cx="344.0" cy="71.2" r="3" fill="#c0392b"/>
+<circle cx="484.0" cy="135.0" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="116.7" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">steel hydrogen tank</text>
+<polyline points="64.0,186.8 204.0,180.4 344.0,179.8 484.0,192.9 624.0,189.5" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="186.8" r="3" fill="#1f6fb2"/>
+<circle cx="204.0" cy="180.4" r="3" fill="#1f6fb2"/>
+<circle cx="344.0" cy="179.8" r="3" fill="#1f6fb2"/>
+<circle cx="484.0" cy="192.9" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="189.5" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">underground (cavern) hydrogen</text>
+</svg>
