@@ -256,7 +256,7 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
   const rep = receiptReport(books, { minCents: min, from, to });
   if (json) { console.log(JSON.stringify(rep, null, 2)); process.exit(0); }
   console.log(`RECEIPTS ${rep.receipts} on file: ${rep.matched.length} matched, ${rep.unmatched.length} not. ${fmt(rep.coveredCents)} of ${fmt(rep.spendCents)} spending is covered.`);
-  for (const m of rep.matched) console.log(`  ${m.id}  ${m.date}  ${fmt(m.cents).padStart(10)}  ${m.merchant.slice(0, 26).padEnd(26)} -> ${m.line.date} ${m.line.desc.slice(0, 28)}${m.tipCents ? ` (+${fmt(m.tipCents)} tip)` : ""}${m.payeeAgrees === false ? " (name differs: check)" : ""}`);
+  for (const m of rep.matched) console.log(`  ${m.id}  ${m.date}  ${fmt(m.cents).padStart(10)}${m.currency ? ` ${m.currency}` : ""}  ${m.merchant.slice(0, 26).padEnd(26)} -> ${m.line.date} ${m.line.desc.slice(0, 28)}${m.fxRate ? ` (paid ${fmt(-m.line.cents)}, rate ${m.fxRate.toFixed(4)}${m.rateSource?.startsWith("implied") ? ", from this pair only: check" : ""})` : ""}${m.tipCents ? ` (+${fmt(m.tipCents)} tip)` : ""}${m.payeeAgrees === false ? " (name differs: check)" : ""}`);
   for (const u of rep.unmatched) console.log(`  ${u.id}  ${u.date}  ${fmt(u.cents).padStart(10)}  ${u.merchant.slice(0, 26).padEnd(26)} NO BANK LINE (paid another way, or not imported)`);
   console.log(`${rep.missing.length} line${rep.missing.length === 1 ? "" : "s"} of ${fmt(min)} or more with no receipt, ${fmt(rep.missingCents)} in all:`);
   for (const t of rep.missing) console.log(`  ${t.id}  ${t.date}  ${fmt(t.cents).padStart(11)}  ${t.desc.slice(0, 40)}`);
