@@ -219,6 +219,7 @@ export function sheathe(plan, result) {
   const piecesBy = courses.map(() => []);
   for (const w of result.walls) {
     if (plan.walls.find((x) => x.id === w.id)?.sheathed === false) continue; // interior walls
+    if (plan.walls.find((x) => x.id === w.id)?.gable) { notes.push(`${w.id}: gable wall; sheathe it by hand (its triangle is not in the sheet order).`); continue; }
     const ops = (plan.walls.find((x) => x.id === w.id)?.openings || []).slice().sort((a, b) => a.offset - b.offset);
     const centres = bearingCentres(plan, w, ops, cover);
     const over = cfg.overhang ? cornerOverhang(plan, plan.walls.find((x) => x.id === w.id)) : 0;
@@ -365,7 +366,7 @@ function sheatheHorizontal(plan, result, cfg, sheets, cover) {
     const piecesBy = courses.map(() => []);
     for (const w of result.walls) {
       const pw = plan.walls.find((x) => x.id === w.id);
-      if (pw?.sheathed === false) continue;
+      if (pw?.sheathed === false || pw?.gable) continue;
       const ops = (pw?.openings || []).slice().sort((a, b) => a.offset - b.offset);
       const centres = bearingCentres(plan, w, ops, cover);
       const even = panelBreaks(w.length, centres, sheet.length, cfg.minStrip, [], 0);

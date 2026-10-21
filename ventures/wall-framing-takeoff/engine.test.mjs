@@ -522,6 +522,34 @@ test("corner overhang: the earlier wall's sheathing runs past its end by the nex
   assert.ok(off.walls.every((w) => !w.overhang));
 });
 
+test("a gable wall: studs rise with the roof, plates run along the slope, the layout verifies", () => {
+  const plan = { ...base(), walls: [{ id: "G", length: 240, gable: { pitch: 6 } }] };
+  assert.deepEqual(validatePlan(plan), []);
+  const w = layoutWall(plan, plan.walls[0]);
+  assert.deepEqual(verifyWall(w, plan.walls[0]), []);
+  const studs = w.members.filter((m) => m.orient === "v").sort((a, b) => a.x - b.x);
+  assert.equal(studs[0].length, plan.studLength + 0.5 * 1.5); // eave end: long point is the inner edge
+  const mid = studs.reduce((best, m) => (Math.abs(m.x + 0.75 - 120) < Math.abs(best.x + 0.75 - 120) ? m : best));
+  assert.ok(Math.abs(mid.length - (plan.studLength + 0.5 * 120)) < 6, "the stud at the peak is about 60 in taller");
+  assert.ok(Math.abs(studs[studs.length - 1].length - studs[0].length) < 1e-9, "symmetric");
+  // the two top plate runs are longer than their run by 1/cos
+  const sec = Math.sqrt(1.25);
+  const top = w.members.filter((m) => m.label === "top plate");
+  assert.ok(Math.abs(top.reduce((s, m) => s + m.length, 0) - 240 * sec) < 1e-6);
+  assert.equal(w.gable.peakRise, 60);
+  // a taller stud costs more board: the takeoff goes through
+  const r = takeoff(plan);
+  assert.ok(r.ok, JSON.stringify(r.errors));
+  assert.ok(r.cuts.some((c) => c.kind === "stud" && c.length > plan.studLength + 50));
+});
+
+test("gable walls reject openings and a flat pitch", () => {
+  const op = { kind: "window", offset: 60, width: 36, height: 36 };
+  const plan = { ...base(), walls: [{ id: "G", length: 240, gable: { pitch: 0 }, openings: [op] }] };
+  const errs = validatePlan(plan);
+  assert.ok(errs.some((e) => e.includes("pitch")) && errs.some((e) => e.includes("gable wall")));
+});
+
 // ---- rim lap ----
 test("rim lap: sheathing runs below the bottom plate to cover the rim board, checks pass, sheet grows", () => {
   const plan = samplePlan();
