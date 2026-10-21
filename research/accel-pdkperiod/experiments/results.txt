@@ -1,0 +1,16 @@
+64 cells = 8 (shape, B) x 4 macros x {unpacked, packed}. Register-file WS beats OS iff T x file_value / (weights per access) > threshold.
+Cells where register-file WS wins, by assumed cycle period T (ns; per-edge = half the energy):
+  T ns   all  unpacked  packed  all, per-edge
+   0.1     8         8       0              4
+   0.5    22        22       0             15
+     1    29        27       2             22
+     2    37        31       6             29
+     3    42        32      10             33
+     5    49        32      17             40
+    10    57        32      25             49
+    20    61        32      29             57
+
+Flip period (the T at which a cell changes verdict): min 0.025 ns, median 1.26 ns, max 30.9 ns.
+  unpacked: min 0.025 ns, median 0.285 ns, max 2.51 ns
+  packed: min 0.786 ns, median 4.75 ns, max 30.9 ns
+Partial sums in SRAM: e_psum / e_weight is a ratio of two accesses of the same macro, so the scale cancels; every verdict is unchanged for any T.
