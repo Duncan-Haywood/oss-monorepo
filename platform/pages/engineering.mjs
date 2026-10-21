@@ -8,9 +8,8 @@
  *   node platform/pages/engineering.mjs --out=dist --today=2026-10-16
  *
  * `build.mjs` calls `buildEngineeringPage` on every site build, so the page is
- * exactly as current as the published snapshot: every `publish-branch.sh` run
- * (by hand, or by `publish-pages-branch.yml` once the owner turns it on)
- * rebuilds it from `main`.
+ * exactly as current as the deployed site: `portfolio-pages.yml` rebuilds it
+ * from `main` on every merge.
  *
  * Every number is read from something committed, never typed:
  *

@@ -1,0 +1,6 @@
+{
+ "theme": "society",
+ "title": "When robots always yield at a door, do people learn to walk through first, and who pays?",
+ "summary": "A go-or-yield (Chicken) game at a door: people respond to their last 9 partners' actions, robots go with a fixed probability. Always-yielding robots raise the share of people who go from 0.388 to 0.595 at 50% robots and lower the crowd's mean cost per encounter from 1.064 to 0.968; always-going robots at 50% leave only 0.113 of people going and raise the crowd's cost to 1.373. Yielding is also the individually best robot rule in this payoff set. Mean field and simulation agree within 0.003. Stylised: random pairing, fixed costs, no geometry.",
+ "lede": "when robots always yield at a door, do people learn to walk through first, and who pays? Always-yielding robots raise the share of people who go from 0.388 to 0.595 at 50% robots and cut the crowd's cost (1.064 to 0.968); always-going robots raise it to 1.373. Mean field and simulation agree within 0.003."
+}
