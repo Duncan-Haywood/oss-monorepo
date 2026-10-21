@@ -204,7 +204,7 @@ numbers worked out before drafting.
 **Little Lamps** (check each feast day against the General Roman Calendar and
 the sources, and mark legend as legend)
 
-- Saint Francis and the wolf of Gubbio (4 October; legend from the *Fioretti*).
+- *(Done: Francis and the Wolf of Gubbio.)* Saint Francis and the wolf of Gubbio (4 October; legend from the *Fioretti*).
 - Saint Brigid and her cloak (1 February; tradition, late sources).
 - Saint Kevin and the blackbird (3 June; legend).
 - Saint Isidore the Farmer and the angels who ploughed (15 May; tradition).

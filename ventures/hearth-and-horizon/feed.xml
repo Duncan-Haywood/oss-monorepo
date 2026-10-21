@@ -16,6 +16,18 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>Francis and the Wolf of Gubbio</title>
+      <link>https://example.invalid/hearth-and-horizon/francis-and-the-wolf-of-gubbio.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/francis-and-the-wolf-of-gubbio.html</guid>
+      <pubDate>Wed, 21 Oct 2026 12:00:00 GMT</pubDate>
+      <description>A bedtime story about Saint Francis of Assisi and the hungry wolf that frightened the town of Gubbio, told the way the old Little Flowers of Saint Francis tells it, with a note for grown-ups on what is history and what is legend. For ages 3 to 8, about ten minutes read aloud. His feast day is the 4th of October. Setting: Gubbio, in the hills of Umbria, Italy, in the time of Saint Francis (an old story). Read the full text at https://example.invalid/hearth-and-horizon/francis-and-the-wolf-of-gubbio.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A bedtime story about Saint Francis of Assisi and the hungry wolf that frightened the town of Gubbio, told the way the old Little Flowers of Saint Francis tells it, with a note for grown-ups on what is history and what is legend. For ages 3 to 8, about ten minutes read aloud. His feast day is the 4th of October.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://example.invalid/hearth-and-horizon/audio/francis-and-the-wolf-of-gubbio.mp3" length="4063213" type="audio/mpeg"/>
+      <itunes:duration>0:11:17</itunes:duration>
+    </item>
+    <item>
       <title>The Bell at Half Past Three</title>
       <link>https://example.invalid/hearth-and-horizon/the-bell-at-half-past-three.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-bell-at-half-past-three.html</guid>
