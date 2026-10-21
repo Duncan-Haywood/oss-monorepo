@@ -189,6 +189,12 @@
     <div id="forecast"></div>
   </section>
 
+  <section class="card" aria-labelledby="h-vat">
+    <h2 id="h-vat">Optional: UK VAT return worksheet</h2>
+    <p class="note">The nine boxes of the UK VAT return from invoices and bills dated inside the From and To dates above (invoice basis; VAT on sales in account 2100, VAT on purchases in 1300). Boxes 2, 8 and 9 (EU) stay 0. Flat-rate, cash accounting and partial exemption are not modelled. A worksheet to check a return against, not a filing.</p>
+    <div class="scroll" id="vat"></div>
+  </section>
+
   <section class="card" aria-labelledby="h-checks">
     <h2 id="h-checks">5. Close checks</h2>
     <p class="note">Reconciles each account to the statement's own closing balance (when the file has a running balance), and checks for lines left in review, money in the uncategorized account, duplicates, charges far above a payee's usual, and purchases that may be equipment.</p>
@@ -259,7 +265,7 @@
   <script type="module">
     import { sniffFormat, splitOfx } from "./bank.mjs";
     import { scheduleC, scheduleCCsv, contractors1099, contractors1099Csv, nec1099FilingCsv, markW9, mergePayees } from "./taxforms.mjs";
-    import { newBooks, importStatement, importOfxAccounts, categorize, suggestRules, addRules, addDocuments, writeOff, aging, addAsset, disposeAsset, register, salesTax, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, exportLines, status, analyze, fmt, DEFAULT_ACCOUNTS, taxableBusinessIncome } from "./engine.mjs";
+    import { newBooks, importStatement, importOfxAccounts, categorize, suggestRules, addRules, addDocuments, writeOff, aging, addAsset, disposeAsset, register, salesTax, vatReturn, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, exportLines, status, analyze, fmt, DEFAULT_ACCOUNTS, taxableBusinessIncome } from "./engine.mjs";
     import { parseCents } from "./bank.mjs";
     import { setTaxTreatment, taxDepreciation, taxDepreciationCsv } from "./taxdepr.mjs";
     import { parseAccounts } from "./ledger.mjs";
@@ -449,6 +455,13 @@
       $("#salestax").replaceChildren(el("p", { class: "note", text: `Sales tax (account ${t.account}): collected on invoices, taken off by credit notes, paid over by bank lines. ${fmt(t.owed)} is still owed to the tax authority.` }), table(["Month", "Sales", "Collected", "Credited", "Paid over", "Owed"], [...t.months.map((m) => r(m.month, m)), r("Total", t.totals)]));
     }
 
+    function renderVat() {
+      const v = vatReturn(books, { from: $("#from").value || null, to: $("#to").value || null });
+      if (!Object.values(v.boxes).some((x) => x) && !v.paid) { $("#vat").replaceChildren(el("p", { class: "note", text: "No VAT on any invoice or bill in this period yet." })); return; }
+      const label = { 1: "VAT due on sales", 2: "VAT due on EU acquisitions", 3: "Total VAT due", 4: "VAT reclaimed on purchases", 5: v.payable === "pay" ? "Net VAT to pay" : "Net VAT to reclaim", 6: "Sales ex VAT (whole pounds)", 7: "Purchases ex VAT (whole pounds)", 8: "EU supplies ex VAT", 9: "EU acquisitions ex VAT" };
+      $("#vat").replaceChildren(table(["Box", "Description", "Amount"], Object.keys(v.boxes).map((k) => [k, label[k], k >= 6 ? String(v.boxes[k]) : fmt(Math.abs(v.boxes[k]))])), el("p", { class: "note", text: `VAT already paid over by bank lines in the period: ${fmt(v.paid)}.` }), ...v.warnings.map((w) => el("p", { class: "note", text: w })));
+    }
+
     function renderScheduleC() {
       const dates = { from: $("#from").value || null, to: $("#to").value || null };
       const sc = scheduleC(books, dates);
@@ -482,7 +495,7 @@
 
     $("#nec-filing-csv").addEventListener("click", () => { record("contractors_filing_downloaded"); download(nec1099FilingCsv(contractors1099(books, { year: necYear() })), "contractors-1099-nec-filing-prep.csv", "text/csv"); });
 
-    function render() { fillSetup(); renderScheduleC(); renderNec(); renderStatus(); renderQueue(); renderReports(); renderRuleSuggestions(); renderAging(); renderRecurring(); renderAssets(); renderTaxDepr(); renderSalesTax(); persist(); }
+    function render() { fillSetup(); renderScheduleC(); renderNec(); renderStatus(); renderQueue(); renderReports(); renderRuleSuggestions(); renderAging(); renderRecurring(); renderVat(); renderAssets(); renderTaxDepr(); renderSalesTax(); persist(); }
 
     $("#docs-load").addEventListener("click", async () => {
       const f = $("#docs-file").files[0];
@@ -600,8 +613,8 @@
       render();
     });
 
-    $("#from").addEventListener("change", () => { renderReports(); renderScheduleC(); });
-    $("#to").addEventListener("change", () => { renderReports(); renderScheduleC(); });
+    $("#from").addEventListener("change", () => { renderReports(); renderScheduleC(); renderVat(); });
+    $("#to").addEventListener("change", () => { renderReports(); renderScheduleC(); renderVat(); });
 
     const download = (text, file, type) => { const a = el("a", { href: URL.createObjectURL(new Blob([text], { type })), download: file }); document.body.append(a); a.click(); a.remove(); };
     for (const b of document.querySelectorAll("[data-export]")) b.addEventListener("click", () => {
