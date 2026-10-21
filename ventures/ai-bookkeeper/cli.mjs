@@ -26,6 +26,7 @@ import { findAnomalies } from "./anomalies.mjs";
 import { compareProfit } from "./compare.mjs";
 import { setBudget, budgetVsActual } from "./budget.mjs";
 import { setTaxTreatment, taxDepreciation } from "./taxdepr.mjs";
+import { renderInvoice, setProfile, PROFILE_KEYS } from "./invoice.mjs";
 
 const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that learn from your corrections.
 
@@ -55,6 +56,8 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
   asset tax ID --class 5 [--s179 N] [--bonus PCT]  set the asset's US tax treatment (MACRS class 3/5/7/10/15/20 years, half-year)
   taxdepr YEAR [--income books|N] [--carry-in N] [--json]  tax depreciation worksheet beside the book depreciation, with what it cannot check
   assets FILE|[--as-of D] load a CSV (name,date,cost,life_months[,salvage,method]), or list the register: cost, accumulated depreciation, net book value
+  profile [KEY VALUE]     your details for invoices (name, address, email, taxId, payTo, terms); no arguments lists them
+  invoice ID [--out FILE] [--as-of D]  a printable invoice or credit note (HTML; print to PDF) with payments, balance due and overdue days
   writeoff ID [--date D]  write off an invoice's unpaid balance to bad debts (6900)
   recurring [--as-of D] [--json]  payees that repeat on a steady interval: cost per year, next date, and which went overdue, lapsed or changed amount
   forecast [--as-of D] [--days N] [--json]  expected cash day by day from the bank balance, recurring items and open invoices and bills; the lowest point
@@ -190,6 +193,17 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
     for (const a of g.rows) console.log(`  ${a.id.padEnd(6)} ${a.name.slice(0, 28).padEnd(28)} ${a.date}  cost ${fmt(a.cost).padStart(11)}  depreciated ${fmt(a.accumulated).padStart(11)}  net ${fmt(a.netBookValue).padStart(11)}${a.disposed ? "  disposed " + a.disposed.date : a.fullyDepreciated ? "  fully depreciated" : ""}`);
     console.log(`  Total (not disposed): cost ${fmt(g.cost)}, depreciated ${fmt(g.accumulated)}, net ${fmt(g.netBookValue)}`);
   }
+} else if (cmd === "profile") {
+  if (!rest[0]) { for (const k of PROFILE_KEYS) console.log(`${k.padEnd(8)} ${(books.profile?.[k] ?? "").replace(/\n/g, " / ")}`); }
+  else if (rest.length < 2) { console.error(`profile needs a key and a value (keys: ${PROFILE_KEYS.join(", ")})`); process.exit(2); }
+  else { try { books = setProfile(books, rest[0], rest.slice(1).join(" ").replace(/\\n/g, "\n")); save(); console.log(`Set ${rest[0]}.`); } catch (e) { console.error(e.message); process.exit(2); } }
+} else if (cmd === "invoice") {
+  if (!rest[0]) { console.error("invoice needs an invoice number or id"); process.exit(2); }
+  try {
+    const r = renderInvoice(books, rest[0], { asOf: asOf ?? null });
+    const out = flag("--out");
+    if (out) { writeFileSync(out, r.html); console.log(`Wrote ${out}: ${r.id}, ${r.status}${r.balance ? `, balance ${fmt(r.balance)}` : ""}.`); } else process.stdout.write(r.html);
+  } catch (e) { console.error(e.message); process.exit(1); }
 } else if (cmd === "writeoff") {
   if (!rest[0]) { console.error("writeoff needs an invoice id or number"); process.exit(2); }
   try { const r = writeOff(books, rest[0], { date: flag("--date") ?? undefined }); books = r.books; save(); console.log(`Wrote off ${fmt(r.cents)} of ${rest[0]} to bad debts.`); } catch (e) { console.error(e.message); process.exit(1); }
