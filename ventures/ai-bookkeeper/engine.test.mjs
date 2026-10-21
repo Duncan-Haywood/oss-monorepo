@@ -511,3 +511,29 @@ test("writing off an invoice moves its balance to bad debts and out of aging", (
   assert.throws(() => writeOff(books, "4001"), /nothing owing/);
   assert.throws(() => writeOff(books, "C9"), /only an invoice/);
 });
+
+test("the five major US export shapes read to the same rows, signs and balances", async () => {
+  const { readFileSync } = await import("node:fs");
+  const read = (f, o) => readStatement(readFileSync(new URL(`./fixtures/${f}`, import.meta.url), "utf8"), o);
+  const checking = { "chase-checking.csv": "chase-checking", "bofa-checking.csv": "bank-of-america", "wells-fargo-checking.csv": "wells-fargo" };
+  for (const [f, bank] of Object.entries(checking)) {
+    const r = read(f);
+    assert.equal(r.bank, bank, f);
+    assert.deepEqual(r.problems, [], f);
+    assert.deepEqual(r.rows.map((x) => x.cents), [420000, -5999, -85000, ...(bank === "chase-checking" ? [-30000] : [])], f);
+    assert.equal(r.rows[0].date, "2026-03-02", f);
+  }
+  // Chase and Bank of America print a running balance; both reconcile, and BofA's "Beginning balance" row is not a transaction.
+  assert.deepEqual(checkRunningBalance(read("chase-checking.csv").rows).breaks, []);
+  const bofa = checkRunningBalance(read("bofa-checking.csv").rows);
+  assert.equal(bofa.breaks.length, 0);
+  assert.equal(bofa.closing, 829001);
+  // Cards: Amex lists charges positive, Chase negative, Capital One in Debit/Credit columns; all read to the same signs.
+  const cards = ["amex-card.csv", "chase-card.csv", "capital-one-card.csv"].map((f) => read(f));
+  assert.deepEqual(cards.map((c) => c.bank), ["amex", "chase-card", "capital-one"]);
+  for (const c of cards) assert.deepEqual(c.rows.map((x) => x.cents), [30000, -5999, -2340], c.bank);
+  assert.ok(cards[0].inferred, "Amex flip is reported");
+  assert.equal(cards[1].inferred, null);
+  // An explicit invert still wins over inference.
+  assert.deepEqual(read("amex-card.csv", { invert: false }).rows.map((x) => x.cents), [-30000, 5999, 2340]);
+});

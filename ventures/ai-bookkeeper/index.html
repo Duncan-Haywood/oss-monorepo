@@ -213,7 +213,7 @@
     const load = () => { try { const s = localStorage.getItem(STORE); return s ? JSON.parse(s) : null; } catch { return null; } };
     let books = load() ?? newBooks();
     const persist = () => { try { localStorage.setItem(STORE, JSON.stringify(books)); } catch { $("#save-status").textContent = "This browser would not save the books (private window or storage full). Download the books file to keep them."; } };
-    const opts = () => ({ autoPost: Math.min(1, Math.max(0.5, parseFloat($("#auto").value) || 0.85)), invert: $("#invert").checked, dayFirst: $("#dayfirst").checked });
+    const opts = () => ({ autoPost: Math.min(1, Math.max(0.5, parseFloat($("#auto").value) || 0.85)), invert: $("#invert").checked || undefined, dayFirst: $("#dayfirst").checked });
     const name = (c) => books.accounts.find((a) => a.code === c)?.name ?? c;
 
     function fillSetup() {

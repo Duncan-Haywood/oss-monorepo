@@ -253,6 +253,14 @@ unpaid balance to Bad debts (6900, added if missing): debit bad debts, credit
 receivable, on the date given. Invoices only. Tests: "Refunding a credit note,
 and writing off a bad debt".
 
+## Bank export shapes
+
+`bank.mjs` reads the CSV layouts of Chase (checking and card), Bank of America
+(summary block above the header, a "Beginning balance" row), Wells Fargo (no
+header row at all), Amex (charges positive) and Capital One (Debit and Credit
+columns). The sign of a card file is inferred from its payment rows unless you
+pass `--invert`. See `fixtures/` and the last test in `engine.test.mjs`.
+
 ## Not modelled
 
 Writing off a bill, depreciation, inventory,
@@ -261,8 +269,11 @@ and receipts.
 
 ## Next
 
-- One real bank export of each major US shape (Chase, Bank of America, Wells
-  Fargo, Amex, Capital One), each as a fixture with its quirks handled.
+- Check the five importers against real exports. `fixtures/` holds one file per
+  shape (Chase checking and card, Bank of America, Wells Fargo, Amex, Capital
+  One), written by hand from the layouts those banks document, with made-up
+  rows. They are not real statements, so a bank changing its layout, or a quirk
+  that only real data shows, is not covered until a real export is tried.
 - Measure the AI layer with a local model on the synthetic year's review
   queue.
 

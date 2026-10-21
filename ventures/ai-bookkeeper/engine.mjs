@@ -46,7 +46,8 @@ export function importStatement(booksIn, csv, account, opts = {}) {
   const books = clone(booksIn);
   const acct = accountMap(books.accounts).get(account);
   if (!acct) return { books, added: 0, skipped: 0, problems: [`No account ${account} in the chart of accounts.`], balanceCheck: null };
-  const { rows, problems } = readStatement(csv, opts);
+  const { rows, problems, inferred } = readStatement(csv, opts);
+  if (inferred) problems.push(inferred);
   const ids = rowIds(rows, account);
   const have = new Set(books.transactions.map((t) => t.id));
   let added = 0, skipped = 0;
@@ -465,7 +466,7 @@ export function analyze(input = {}) {
   const statements = input.example ? [{ csv: SAMPLE_CHECKING, account: "1000" }, { csv: SAMPLE_CARD, account: "2000", invert: true }] : input.statements ?? (input.csv ? [{ csv: input.csv, account: input.account ?? "1000", invert: input.invert }] : []);
   const problems = [];
   for (const s of statements) {
-    const r = importStatement(books, s.csv, s.account ?? "1000", { ...opts, invert: !!s.invert });
+    const r = importStatement(books, s.csv, s.account ?? "1000", { ...opts, invert: s.invert });
     books = r.books;
     problems.push(...r.problems);
   }
