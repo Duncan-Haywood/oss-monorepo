@@ -15,7 +15,7 @@
 //   node cli.mjs --books books.json export qbo|xero|iif|csv|lines > journal.csv
 //   node cli.mjs --example report
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
-import { newBooks, importStatement, lockPeriod, categorize, suggestRules, addRules, addDocuments, writeOff, aging, salesTax, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, exportLines, status, analyze, fmt } from "./engine.mjs";
+import { newBooks, importStatement, importOfxAccounts, lockPeriod, categorize, suggestRules, addRules, addDocuments, writeOff, aging, salesTax, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, exportLines, status, analyze, fmt } from "./engine.mjs";
 import { accountMap } from "./ledger.mjs";
 
 const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that learn from your corrections.
@@ -23,6 +23,7 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
   --books FILE           the books (JSON); created on first import
   --example              start from the synthetic three-month example instead
   import FILE --account CODE [--invert] [--day-first] [--decimal-comma] [--auto 0.85]
+  import FILE --map ACCTID=CODE,...   a multi-account OFX file: one bank account per ACCTID
   review                 list lines waiting for an account
   confirm ID=CODE ...    file lines (and learn from them)
   confirm ID=CODE:AMT,CODE[:AMT] ...
@@ -52,7 +53,7 @@ if (has("--help") || has("-h") || !argv.length) { console.log(HELP); process.exi
 const file = flag("--books");
 const json = has("--json"), example = has("--example"), invert = has("--invert") ? true : undefined, dayFirst = has("--day-first"), decimalComma = has("--decimal-comma");
 const asOf = flag("--as-of");
-const account = flag("--account"), from = flag("--from"), to = flag("--to"), auto = flag("--auto");
+const acctMap = flag("--map"), account = flag("--account"), from = flag("--from"), to = flag("--to"), auto = flag("--auto");
 let books = example ? analyze({ example: true }).books : file && existsSync(file) ? JSON.parse(readFileSync(file, "utf8")) : newBooks();
 const save = () => { if (file) writeFileSync(file, JSON.stringify(books, null, 1)); };
 const opts = { invert, dayFirst, decimalComma, ...(auto ? { autoPost: +auto } : {}) };
@@ -61,8 +62,9 @@ const map = accountMap(books.accounts);
 const name = (c) => (c ? `${c} ${map.get(c)?.name ?? ""}` : "-");
 
 if (cmd === "import") {
-  if (!rest[0] || !account) { console.error("import needs a CSV file and --account CODE"); process.exit(2); }
-  const r = importStatement(books, readFileSync(rest[0], "utf8"), account, opts);
+  if (!rest[0] || (!account && !acctMap)) { console.error("import needs a file and --account CODE (or --map ACCTID=CODE,... for a multi-account OFX file)"); process.exit(2); }
+  const text = readFileSync(rest[0], "utf8");
+  const r = acctMap ? importOfxAccounts(books, text, Object.fromEntries(acctMap.split(",").map((x) => x.split("="))), opts) : importStatement(books, text, account, opts);
   books = r.books;
   save();
   for (const p of r.problems) console.error(p);

@@ -149,7 +149,23 @@ function ofxTag(block, tag) {
   return m ? m[1].trim().replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">") : "";
 }
 
+// A bank can put several accounts in one OFX file (one STMTRS or CCSTMTRS per
+// account). -> [{ acctId, type, text }], each `text` a one-account file that
+// readOfx reads on its own. A file with one or no statement comes back as is.
+export function splitOfx(text) {
+  const re = /<(STMTRS|CCSTMTRS)>[\s\S]*?<\/\1>/gi;
+  const parts = text.match(re) ?? [];
+  if (parts.length < 2) return [{ acctId: ofxTag(text, "ACCTID") || null, type: ofxTag(text, "ACCTTYPE") || null, text }];
+  return parts.map((p) => ({ acctId: ofxTag(p, "ACCTID") || null, type: ofxTag(p, "ACCTTYPE") || (/^<CCSTMTRS>/i.test(p) ? "CREDITCARD" : null), text: `<OFX>${p}</OFX>` }));
+}
+
 export function readOfx(text) {
+  const parts = splitOfx(text);
+  if (parts.length > 1) {
+    const rs = parts.map((p) => readOfx(p.text));
+    const rows = rs.flatMap((r) => r.rows);
+    return { rows, problems: [`The file holds ${parts.length} accounts (${parts.map((p) => p.acctId ?? "?").join(", ")}); all their lines were read into this one. Split it by account (CLI: --map ACCTID=CODE,...) to keep them apart.`, ...rs.flatMap((r) => r.problems)], columns: null, bank: "ofx", inferred: null, statement: null };
+  }
   const problems = [];
   const out = [];
   const blocks = text.split(/<STMTTRN>/i).slice(1);

@@ -12,7 +12,7 @@
 // same input gives the same output in the page, the CLI and
 // platform/agents/tools.mjs.
 
-import { readStatement, rowIds, checkRunningBalance, parseCents } from "./bank.mjs";
+import { readStatement, splitOfx, sniffFormat, rowIds, checkRunningBalance, parseCents } from "./bank.mjs";
 import { DEFAULT_ACCOUNTS, accountMap, validateEntry, trialBalance, profitAndLoss, balanceSheet, balances, natural, fmt, dollars } from "./ledger.mjs";
 import { suggest, trainClassifier, buildMemory, parseRules, historyRecord, payeeKey } from "./categorize.mjs";
 import { addDocuments, writeOff, settle, aging, documentEntries, AR, AP } from "./accruals.mjs";
@@ -86,6 +86,23 @@ export function importStatement(booksIn, csv, account, opts = {}) {
   // OFX, MT940 and CAMT files print no running balance per line, only the closing one: keep it for the reconcile check.
   if (!balanceCheck.checked && statement) books.statements = { ...(books.statements ?? {}), [account]: { closing: statement.cents, closingDate: statement.date } };
   return { books: categorize(books, opts), added, skipped, problems, balanceCheck };
+}
+
+// A multi-account OFX file: `map` is { ACCTID: chart code }. Each account's
+// statement goes to its own bank account; an ACCTID with no mapping is left out
+// and said so. Card statements (CCSTMTRS) keep the sign the file prints.
+export function importOfxAccounts(booksIn, text, map, opts = {}) {
+  let books = booksIn, added = 0, skipped = 0;
+  const problems = [];
+  if (sniffFormat(text) !== "ofx") return { books, added, skipped, problems: ["Not an OFX file."] };
+  for (const p of splitOfx(text)) {
+    const code = map[p.acctId];
+    if (!code) { problems.push(`Account ${p.acctId ?? "?"} has no mapping, left out.`); continue; }
+    const r = importStatement(books, p.text, code, opts);
+    books = r.books; added += r.added; skipped += r.skipped;
+    problems.push(...r.problems.map((x) => `${p.acctId}: ${x}`));
+  }
+  return { books, added, skipped, problems };
 }
 
 // Suggest an account for every open line, pair transfers, and auto-post what

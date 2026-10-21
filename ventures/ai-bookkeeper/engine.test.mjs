@@ -1,7 +1,8 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { writeOff, lockPeriod, newBooks, importStatement, confirm, parseSplit, suggestRules, addRules, acceptSuggestions, journal, reports, closeChecks, exportJournal, exportLines, status, analyze } from "./engine.mjs";
-import { parseCents, parseDate, readStatement, checkRunningBalance } from "./bank.mjs";
+import { readFileSync } from "node:fs";
+import { writeOff, lockPeriod, newBooks, importStatement, importOfxAccounts, confirm, parseSplit, suggestRules, addRules, acceptSuggestions, journal, reports, closeChecks, exportJournal, exportLines, status, analyze } from "./engine.mjs";
+import { parseCents, parseDate, readStatement, splitOfx, checkRunningBalance } from "./bank.mjs";
 import { validateEntry, DEFAULT_ACCOUNTS, parseAccounts } from "./ledger.mjs";
 import { payeeKey, suggest, parseRules } from "./categorize.mjs";
 import { generateYear, toCsv } from "./eval/synth.mjs";
@@ -619,4 +620,24 @@ test("MT940 and CAMT.053 read to the same rows and signs, with the closing balan
   // An OFX file's LEDGERBAL is kept the same way.
   const o = importStatement(b, f("checking.ofx"), "1000");
   assert.ok(o.books.statements["1000"].closingDate);
+});
+
+test("a multi-account OFX file splits per account", () => {
+  const t = readFileSync(new URL("./fixtures/two-accounts.ofx", import.meta.url), "utf8");
+  const parts = splitOfx(t);
+  assert.deepEqual(parts.map((p) => p.acctId), ["123456789", "4111000011112222"]);
+  assert.equal(parts[1].type, "CREDITCARD");
+  const merged = readStatement(t);
+  assert.match(merged.problems[0], /2 accounts/);
+  assert.equal(merged.rows.length, 4);
+  let b = newBooks();
+  const r = importOfxAccounts(b, t, { 123456789: "1000", 4111000011112222: "2000" });
+  assert.equal(r.added, 4);
+  assert.deepEqual(r.books.transactions.filter((x) => x.account === "2000").map((x) => x.cents), [-4210, 10000]);
+  assert.deepEqual(r.books.statements["1000"], { closing: 241001, closingDate: "2026-01-31" });
+  assert.deepEqual(r.books.statements["2000"], { closing: -5790, closingDate: "2026-01-31" });
+  assert.equal(importOfxAccounts(r.books, t, { 123456789: "1000", 4111000011112222: "2000" }).added, 0);
+  const part = importOfxAccounts(b, t, { 123456789: "1000" });
+  assert.equal(part.added, 2);
+  assert.match(part.problems[0], /no mapping/);
 });
