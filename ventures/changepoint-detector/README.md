@@ -431,3 +431,27 @@ With `--period`, the holidays are now left out of the seasonal factors (they no 
 ## Holidays and the seasonal PELT pass
 
 The seasonal PELT pass now sees the fitted holiday exposure: with `--period` and `--holidays`, the engine alternates (seasonal factors with the holidays as an exposure, then the holidays refitted on the new factors) for two extra rounds. `node eval/holiday-alternate.mjs` runs the check on 40 seeded 224-day weekly series (every 28th day a 0.3x holiday on the busiest weekday; half the series carry a 1.5x step at 120): planted step found 20/20 both ways, no extra changes either way, holiday factor error 0.022 -> 0.021, largest seasonal-factor error 0.052 -> 0.045. A small gain on synthetic data, not measured on real holiday series; the previous behaviour is behind the engine option `noHolidayAlternation`.
+
+## Holidays on a real daily series
+
+Everything above about holidays is on seeded synthetic counts. As a first
+reading on real data, `eval/holiday-real.mjs` runs `--model poisson --period 7
+--overdispersion nb` on 731 daily English Wikipedia pageview counts of the
+article "Payroll" (2023-2024, `data/payroll-views.csv`, source in
+`data/SOURCE.md`), with the 18 US federal holidays that fall on a weekday
+listed.
+
+| | changes | holiday factor |
+|---|---|---|
+| no holidays | 47 | |
+| 18 holidays | 45 | 0.957 |
+
+This is a negative result for the feature on this series. Holiday views are
+only 8% under a normal weekday (median 366 against 397), so there is little dip
+for the factor to absorb, and the 45 changes that remain are bursts (single
+days at 2 to 6 times the usual level, likely automated traffic that the "user"
+agent filter lets through), not holidays. What this series needs is an outlier
+or burst rule, not a holiday list. One series only; a second article was
+refused by the Wikimedia API's rate limit (429) and not retried. A series with
+a real holiday closure (a shop's or office's daily counts) is still the test
+that would show the factor earning its place.

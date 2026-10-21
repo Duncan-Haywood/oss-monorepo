@@ -14,3 +14,14 @@ Cobb (1978), who found the level dropped after 1898.
   doi:10.1093/biomet/65.2.243.
 
 `../example-data.mjs` embeds the same rows so the static page can load them.
+
+# Example data: English Wikipedia pageviews of "Payroll", 2023-2024
+
+`payroll-views.csv`: daily views (agent `user`, all access) of the article
+"Payroll", 731 days from 2023-01-01 to 2024-12-31.
+
+- **Retrieved:** 2026-10-21 from the Wikimedia REST API,
+  `https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/all-access/user/Payroll/daily/20230101/20241231`.
+- **Licence:** Wikimedia pageview data is released under CC0 (Wikimedia
+  Foundation Terms of Use for the Analytics datasets).
+- **Used by:** `eval/holiday-real.mjs`.

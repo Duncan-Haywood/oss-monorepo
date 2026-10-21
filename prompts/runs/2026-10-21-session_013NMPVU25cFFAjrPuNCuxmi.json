@@ -1,0 +1,51 @@
+{
+  "date": "2026-10-21",
+  "session": "https://claude.ai/code/session_013NMPVU25cFFAjrPuNCuxmi",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-21T22:13:07Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 9294,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [
+    "Wikimedia API rate-limited (429) after the first article; piped >64KB CLI JSON truncated, used files"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "ai-bookkeeper next: is one enormous paragraph; its only open item needs a local OCR model, so the top row was not actionable in a cloud session"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Skipped flagship 1 (needs a model/OCR unavailable here) and took flagship 3, changepoint-detector; landed a measured negative result rather than a feature"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Full node --test suite was still running in background at merge; engine untouched (data, eval script, README, flagships.yaml only). No post/agent doc written.",
+  "corrections": [],
+  "redteam": null
+}
