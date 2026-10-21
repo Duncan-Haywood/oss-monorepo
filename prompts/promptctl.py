@@ -478,6 +478,13 @@ def print_backlog(root: Path = ROOT) -> None:
     print("|---|---|---|---|---|")
     for i in ranked:
         print(f"| {i['id']} | {i['owner']} | {i['effect']}/{i['cost']} | {i['status']} | {i['title']} |")
+    started = [i for i in ranked if i["status"] == "in_progress" and i.get("history")]
+    if started:
+        print("\nIn progress, latest history line (what is left):")
+        for i in started:
+            last = i["history"][-1]
+            last = last.get("note", "") if isinstance(last, dict) else last
+            print(f"- {i['id']}: {last[:300]}")
     if s["done_unverified"]:
         print(f"\nDone but metric not yet checked: {', '.join(s['done_unverified'])}")
 

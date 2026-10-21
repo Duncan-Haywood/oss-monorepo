@@ -29,6 +29,7 @@
     "2026-10-21: P043b first slice: AGENTS.md and verify-and-merge.md stop telling venture edits to run regen.mjs --verify. Test/line deletion remains (P036 part 1).",
     "2026-10-21: P043b second slice: deleted the front-door embed staleness test (front-door.test.mjs); regen.mjs --verify still guards the files. Remaining staleness tests: P036 part 1.",
     "2026-10-21: P043b third slice: deleted the eight 'committed X matches the generator' staleness tests in front-door.test.mjs (page, share card, tab mark, robots/sitemap, category pages, feed, llms.txt, catalog.json; 138 lines). Remaining: front-door-tools.test.mjs shard staleness (P036 part 1).",
-    "2026-10-21: P043b fourth slice: deleted the four remaining committed-vs-generator staleness tests in front-door-tools.test.mjs (written mirror, mirror directory, alias map, kustomization; 52 lines); 98/98 pass, suite 495 s locally. regen.mjs --verify still guards the files. Staleness tests are done; P043 left in_progress only to measure the metric."
+    "2026-10-21: P043b fourth slice: deleted the four remaining committed-vs-generator staleness tests in front-door-tools.test.mjs (written mirror, mirror directory, alias map, kustomization; 52 lines); 98/98 pass, suite 495 s locally. regen.mjs --verify still guards the files. Staleness tests are done; P043 left in_progress only to measure the metric.",
+    "2026-10-21: promptctl backlog now prints the latest history line of each in_progress item, so the remaining slice is visible without opening the JSON (doc_friction on prompt-1.md, 3 reports)."
   ]
 }
