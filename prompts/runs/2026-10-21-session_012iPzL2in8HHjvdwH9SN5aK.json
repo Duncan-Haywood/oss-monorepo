@@ -17,7 +17,7 @@
   "tool_calls": null,
   "task": "Remove the static-site-only/static-first default from the guidance",
   "projects": [],
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/9011",
   "repo": null,
   "commits": [],
   "lines_added": null,
