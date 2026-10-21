@@ -25,18 +25,23 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 46,
   "outcome": "success",
   "errors": [
-    "A bare `cat > file` with no heredoc in a compound Bash command hung on stdin until the 120 s timeout; the recovery `pkill -f cat` killed the shell. Rewrote the file with the Write tool."
+    "A bare `cat > file` with no heredoc in a compound Bash command hung on stdin until the 120 s timeout; the recovery `pkill -f cat` killed the shell. Rewrote the file with the Write tool.",
+    "link-contrast CI failed: platform/pages/ink.mjs hoists @media (prefers-color-scheme: dark) rules, so the light link colour was judged on the dark background; removed the dark overrides from the two static pages."
   ],
   "integrity_issues": [],
   "doc_friction": [
     {
       "file": "platform/pages/venture-preflight.mjs",
       "issue": "The first preflight failed on another session's post (description over 160 characters) that main had already fixed; a stale base makes the 5-minute build fail for reasons outside the venture. Merging main first would have saved a run."
+    },
+    {
+      "file": "platform/pages/ink.mjs",
+      "issue": "Screen media queries are hoisted, so any page with a prefers-color-scheme dark block fails the link audit unless its links pass on both backgrounds; nothing in the venture docs says static pages should not ship a dark mode."
     }
   ],
   "deviations": [
