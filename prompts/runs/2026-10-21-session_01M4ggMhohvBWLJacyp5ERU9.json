@@ -38,7 +38,7 @@
   ],
   "writeups": [],
   "goal": null,
-  "notes": "Off-centre gable peak. engine.test.mjs 37 pass, cli+page tests 19 pass. venture-preflight and CI not run locally.",
+  "notes": "Off-centre gable peak. engine.test.mjs 37 pass, cli+page tests 19 pass. venture-preflight and CI not run locally. The PR's head did not follow the record push (GitHub kept the first commit; merge 409), so a second record commit was pushed to resync.",
   "corrections": [],
   "redteam": null
 }
