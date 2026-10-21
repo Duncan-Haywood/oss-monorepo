@@ -12,7 +12,7 @@
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/open-floor-robots/"/>
     <id>tag:marisstella.dev,2026:tool/open-floor-robots</id>
     <updated>2026-10-21T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="Open hardware &amp; robots"/>
     <summary type="text">DIY robot vacuum, robot mop and robot vacuum-mop combo: open-source hardware (MIT) with laser-cut and 3D-printed parts, ESP32 firmware, a coverage path planner, and a cleaning simulator you can try in your browser on your own room.</summary>
   </entry>
   <entry>
@@ -20,7 +20,7 @@
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/open-robot-mower/"/>
     <id>tag:marisstella.dev,2026:tool/open-robot-mower</id>
     <updated>2026-10-21T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="Open hardware &amp; robots"/>
     <summary type="text">Build your own robot lawn mower. An open-source robotic mower with wire-free RTK GNSS navigation, a guarded pivoting-blade disc, a floating bump shell, ESP32 safety firmware and a complete CAD manufacturing package (MIT). Plan your own lawn&#39;s mowing pattern in the browser.</summary>
   </entry>
   <entry>
@@ -148,7 +148,7 @@
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/open-tennis-robots/"/>
     <id>tag:marisstella.dev,2026:tool/open-tennis-robots</id>
     <updated>2026-10-19T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="Open hardware &amp; robots"/>
     <summary type="text">Build your own tennis ball machine that catches your returns with a moving net, and a robot that picks up tennis balls while you practise. Open-source hardware designs, firmware and software (MIT), plus a shot simulator you can try in your browser.</summary>
   </entry>
   <entry>

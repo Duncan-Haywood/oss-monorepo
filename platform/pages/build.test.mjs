@@ -1354,10 +1354,13 @@ test('categories route each slug shape somewhere sensible', () => {
   assert.equal(categoryFor('einvoice-preflight').id, 'evidence');
   assert.equal(categoryFor('something-brand-new').id, 'more');
   assert.equal(categoryFor('changepoint-detector').id, 'research-algorithms');
+  for (const slug of ['open-floor-robots', 'open-robot-mower', 'open-tennis-robots']) {
+    assert.equal(categoryFor(slug).id, 'open-hardware');
+  }
 });
 
 test('every category names a distinct share-card file and accent colour', () => {
-  assert.equal(ALL_CATEGORIES.length, 14, 'the thirteen named sections plus the catch-all');
+  assert.equal(ALL_CATEGORIES.length, 15, 'the fourteen named sections plus the catch-all');
   const files = ALL_CATEGORIES.map((category) => socialCardFileFor(category.id));
   assert.equal(new Set(files).size, files.length, 'no two categories share a card file');
   const accents = ALL_CATEGORIES.map((category) => category.accent);
