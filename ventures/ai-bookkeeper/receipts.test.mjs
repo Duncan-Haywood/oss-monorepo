@@ -212,3 +212,44 @@ test("items you place by hand are learned, so the next receipt needs no flag", a
   assert.deepEqual(next.parts.map((p) => p.account).sort(), ["6100", "6130"]);
   assert.equal(splitFromReceipt(b, "r1", { fix: { widget: "6100" }, learn: false }).taught.length, 0);
 });
+
+const EUR_RECEIPT = `Cafe Central Wien
+Herrengasse 14, Wien
+2026-05-04
+Melange     4.80
+Sachertorte 6.40
+Total EUR  11.20`;
+
+test("a euro receipt pairs with a dollar card line by payee, and the rate is read off the pair", () => {
+  const b = books([["2026-05-05", "CAFE CENTRAL WIEN", "-12.10"], ["2026-05-05", "UNRELATED SHOP", "-12.10"]]);
+  const r = addReceipts(b, EUR_RECEIPT);
+  assert.equal(r.added[0].currency, "EUR");
+  const rc = r.books.receipts[0];
+  assert.equal(rc.matched, r.books.transactions[0].id);
+  assert.equal(rc.paidCents, 1210);
+  assert.ok(Math.abs(rc.fxRate - 1.080357) < 1e-5);
+});
+
+test("a foreign receipt is never matched on amount alone, and a rate on file bounds the paid amount", () => {
+  const noName = addReceipts(books([["2026-05-05", "SOME SHOP", "-12.10"]]), EUR_RECEIPT).books;
+  assert.equal(noName.receipts[0].matched, null);
+  const far = { ...books([["2026-05-05", "CAFE CENTRAL WIEN", "-20.00"]]), rates: { EUR: 1.08 } };
+  assert.equal(addReceipts(far, EUR_RECEIPT).books.receipts[0].matched, null, "20.00 is 1.79/EUR against 1.08");
+  const ok = { ...books([["2026-05-05", "CAFE CENTRAL WIEN", "-12.30"]]), rates: { EUR: 1.08 } };
+  assert.equal(addReceipts(ok, EUR_RECEIPT).books.receipts[0].matched, ok.transactions?.[0]?.id ?? addReceipts(ok, EUR_RECEIPT).books.transactions[0].id);
+});
+
+test("setRate validates; tax and splits on a foreign receipt use the bank amount", async () => {
+  const { setRate, taxOnReceipts, planReceiptSplit } = await import("./receipts.mjs");
+  assert.throws(() => setRate(newBooks(), "euro", 1.1), /three-letter/);
+  assert.throws(() => setRate(newBooks(), "EUR", -1), /positive/);
+  const text = "Cafe Central Wien\n2026-05-04\nStarbucks coffee 6.00\nUSPS stamps 4.00\nVAT 1.00\nTotal EUR 11.00";
+  const b = addReceipts(books([["2026-05-05", "CAFE CENTRAL WIEN", "-12.10"]]), text).books;
+  assert.equal(b.receipts[0].matched, b.transactions[0].id);
+  const t = taxOnReceipts(b);
+  assert.equal(t.taxCents, 110, "1.00 EUR at 1.10 is 1.10");
+  const plan = planReceiptSplit(b, "r1");
+  assert.equal(-plan.parts.reduce((a, p) => a + p.cents, 0), 1210, "parts add to the bank line");
+  const lone = addReceipts(books([]), text).books;
+  assert.equal(taxOnReceipts(lone).noTax[0].currency, "EUR");
+});

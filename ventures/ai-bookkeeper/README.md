@@ -475,15 +475,14 @@ words (your rules and past filings, then the built-in keywords), else to
 `--other`, else to the account the merchant's name suggests; sales tax is shared
 over the accounts in proportion (largest remainder, cents add up) and a tip
 joins the biggest one. `--apply` posts it as a split (one account for
-everything is filed plainly). `--fix WORD=CODE` (repeatable) places any item whose words contain WORD; items placed by `--fix` or `--other` are learned under their own words on `--apply`, so the next receipt with them needs no flag (hand-written receipts only; CLI, not the page). The page shows a "Split by items" button under the matched table when a receipt's items fall in two or more accounts (clicked through in headless Chromium). Tried on hand-written receipts only, no real ones,
-no foreign currency. Engine: `receipts.mjs`; kept in the books
+everything is filed plainly). `--fix WORD=CODE` (repeatable) places any item whose words contain WORD; items placed by `--fix` or `--other` are learned under their own words on `--apply`, so the next receipt with them needs no flag (hand-written receipts only; CLI, not the page). The page shows a "Split by items" button under the matched table when a receipt's items fall in two or more accounts (clicked through in headless Chromium). Foreign-currency receipts (an ISO code or €/£ on the receipt, differing from the books' currency) pair by payee words within 3 days, never on amount alone; `receipts rate EUR 1.08` files a rate that bounds the paid amount to 5%, and without one the pair's implied rate is recorded. Tax totals and item splits use the bank amount (CLI and engine, hand-written receipts, not on the page; JPY-style zero-decimal currencies are not handled). Tried on hand-written receipts only, no real ones. Engine: `receipts.mjs`; kept in the books
 file, never in the journal. The page has a card for it (paste, read, tables;
 clicked through in headless Chromium with `eval/browser-click.mjs`). Receipts
 are read with regular expressions: a total is the last "total / amount due"
 line that is not a subtotal, tip or change line, else the largest amount (and
 the note says so). Checked by node tests on hand-written receipts in US/UK
 layouts only, not on real receipts or OCR output, which will have misread
-characters; foreign currency and receipts for several bank lines are not handled.
+characters; receipts for several bank lines are not handled.
 Many bookkeeping products (Dext, Hubdoc, Expensify) do this with image OCR and
 a subscription; this does the matching and the missing-receipt list on your
 own machine from text you already have.
