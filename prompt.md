@@ -75,8 +75,10 @@ plus anything else you can observe. Then measure what the run cost, from its own
 `--human-hours` is optional, drop both flags if you cannot estimate). With no
 `--session` it reads the newest transcript in `~/.claude/projects`, yours in a cloud session. Take the model from the session's metadata, not from memory. Write
 `null` for anything you cannot see, and redact secrets and personal data from
-`input`. Commit the record as the last commit on your work branch, so it lands
-in the same pull request as the work. A run with nothing to merge commits no
+`input`. Open the pull request first (step 2), so you know its number, then commit
+the record as a final commit on your work branch and push it, so it lands in
+the same pull request as the work (a second push after the PR exists is
+expected, not a mistake). A run with nothing to merge commits no
 record and says so in its final message.
 
 **`doc_friction` is how the documentation improves.** List every instruction

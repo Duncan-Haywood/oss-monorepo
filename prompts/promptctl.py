@@ -1078,8 +1078,8 @@ def main(argv: list[str] | None = None) -> int:
     if args.cmd == "record":
         path = record(ROOT, args.track, args.version, args.session, args.model, args.input, args.date, args.repo)
         print(f"Wrote {path.relative_to(ROOT.parent)}. Fill in outcome, pr, errors, "
-              "integrity_issues and doc_friction, then commit it as the last commit on your "
-              "work branch, before merging.\n"
+              "integrity_issues and doc_friction, then commit it as a final commit on your "
+              "work branch (after the PR is open, so `pr` is known) and push, before merging.\n"
               f"Shapes the validator enforces: outcome is one of {', '.join(OUTCOMES)} "
               "(a bare word, not a sentence; put the story in notes); doc_friction is a list of "
               '{"file": ..., "issue": ...}; deviations a list of {"file": ..., "why": ...}. '
