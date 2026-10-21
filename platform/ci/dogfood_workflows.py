@@ -43,8 +43,6 @@ CHECKERS = (
 ACCEPTED = {
     ("actions-checkout-credentials-check", ".github/workflows/distribute-homebrew.yml", "checkout-persists-credentials"):
         "the tap checkout carries HOMEBREW_TAP_TOKEN on purpose; the job's `git push` needs it",
-    ("actions-checkout-credentials-check", ".github/workflows/publish-pages-branch.yml", "checkout-persists-credentials"):
-        "publish-branch.sh pushes gh-pages with the checkout's credential",
     ("actions-checkout-credentials-check", ".github/workflows/research-archive.yml", "checkout-persists-credentials"):
         "the job pushes archive/* branches with the checkout's credential",
 }

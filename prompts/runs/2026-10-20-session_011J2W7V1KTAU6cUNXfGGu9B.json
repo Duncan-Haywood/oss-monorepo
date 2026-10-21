@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-20",
+  "session": "https://claude.ai/code/session_011J2W7V1KTAU6cUNXfGGu9B",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "why doesn't the ghp reload more frequently? ... do both (retire the unserved gh-pages branch route)",
+  "input_sha256": "25191063a718f8a26c90a8697f1f6d59d664c8c8a500e3a16ad33068ad681a75",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-20T23:14:11Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 8962,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/hosting/README.md",
+      "issue": "Said publish-pages-branch.yml runs only by hand; it triggered on every matching push (skipped at the job gate)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/hosting/README.md",
+      "why": "Earlier told the user the branch workflow cost a runner per merge; its runs were skipped. Corrected in chat; pages-freshness-ci was the runner-using piece."
+    }
+  ],
+  "goal": null,
+  "notes": "User asked why the GitHub Pages site doesn't refresh more often. Cause: deploy job was gated on an unset var until PR #8776. Discussed on-merge vs cron (on-merge self-debounces via concurrency; kept). Retired the unserved gh-pages route: publish-pages-branch.yml (all runs skipped) and pages-freshness-ci.yml (red on every venture merge). Local checks: validate_workflows OK (544), publish_surface --check OK, test_pages_state/test_run_workflow_locally/test_publish_surface/test_indexnow_state OK; test_dogfood_workflows fails on main too (ig-media-pipeline-ci.yml). CI round 1: agent-permission-harness results file listed the deleted workflow's R5 finding; regenerated with check_results_current.py --write (now exits 0).",
+  "corrections": [],
+  "redteam": null
+}

@@ -88,6 +88,8 @@
     <textarea id="travel" rows="2" placeholder="Park - School: 25"></textarea>
     <label style="font-weight:normal"><input type="checkbox" id="split" style="width:auto"> Fill every slot: when a division's round does not fit the courts left tonight, play part of it now and the rest next night (shorter season; each team still plays once a night)</label>
     <label style="font-weight:normal"><input type="checkbox" id="venueFairness" style="width:auto"> Share venues fairly: a team that has played at the far or poor venue more often gets the other one (needs two or more venues)</label>
+    <label for="fairnessWeight">How hard fairness pulls against travel (optional, 0 to 100; default 3, about 1.5 costs no extra venue changes on the example league)</label>
+    <input id="fairnessWeight" inputmode="decimal" placeholder="3">
     <label for="venueHistory">Last season's venue counts (optional; paste what "Next season's venue history" printed)</label>
     <textarea id="venueHistory" class="mono" rows="2" placeholder='{"U10/Hawks": {"Park": 9, "School": 3}}'></textarea>
     <h2 style="margin-top:18px">3. Teams that share a coach or players (optional)</h2>
@@ -147,7 +149,7 @@
     import { dayIso } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
     const $ = (s) => document.querySelector(s);
-    const FIELDS = ["divisions", "courts", "times", "start", "weekdays", "skip", "courtClosures", "travel", "links", "rainouts", "venueHistory"];
+    const FIELDS = ["divisions", "courts", "times", "start", "weekdays", "skip", "courtClosures", "travel", "links", "rainouts", "venueHistory", "fairnessWeight"];
     const EXAMPLE = {
       divisions: "U10: Hawks, Owls, Lynx, Otters, Foxes, Wolves\nU12: Hawks, Owls, Lynx, Otters, Foxes, Wolves, Bears, Eagles\nAdult: Rams, Kings, Stars, Comets, Pilots, Bolts (double)",
       courts: "Field 1 @ Park, Field 2 @ Park, Gym A @ School, Gym B @ School", times: "18:00, 19:30", start: "2026-10-06", weekdays: "Tue, Thu",
