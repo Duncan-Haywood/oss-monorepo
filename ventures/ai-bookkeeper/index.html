@@ -151,6 +151,16 @@
     <textarea id="docs-paste" placeholder="type,number,date,due,party,amount,account&#10;invoice,INV-101,2026-01-05,2026-02-04,Acme Corp,1200.00,4000"></textarea>
     <button type="button" id="docs-load">Load invoices and bills</button>
     <p id="docs-status" class="note" role="status" aria-live="polite"></p>
+    <details id="profile"><summary>Your details for printed invoices</summary>
+      <p class="note">Shown at the top of an invoice or credit note. Kept in your books file only; nothing is sent anywhere.</p>
+      <label for="pf-name">Business name</label><input id="pf-name" autocomplete="organization">
+      <label for="pf-address">Address</label><textarea id="pf-address" rows="2"></textarea>
+      <label for="pf-email">Email</label><input id="pf-email" type="email">
+      <label for="pf-taxId">Tax or VAT number</label><input id="pf-taxId">
+      <label for="pf-payTo">How to pay you (bank details, payment link)</label><textarea id="pf-payTo" rows="2"></textarea>
+      <label for="pf-terms">Terms</label><input id="pf-terms" placeholder="Payment due within 30 days">
+      <button type="button" id="pf-save" class="secondary">Save details</button>
+    </details>
     <div class="scroll" id="aging"></div>
     <div class="scroll" id="salestax"></div>
   </section>
@@ -302,6 +312,7 @@
     import { detectRecurring, forecastCash } from "./recurring.mjs";
     import { setBudget, budgetVsActual } from "./budget.mjs";
     import { addReceipts, receiptReport, taxOnReceipts, planReceiptSplit, splitFromReceipt } from "./receipts.mjs";
+    import { renderInvoice, setProfile, PROFILE_KEYS } from "./invoice.mjs";
     import { aiSuggest } from "./ai.mjs";
     import { detectLocal, isLocal } from "./byok.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
@@ -460,9 +471,17 @@
         b.addEventListener("click", () => {
           try { const r = writeOff(books, o.id); books = categorize(r.books, opts()); record("invoice_written_off"); render(); $("#docs-status").textContent = `Wrote off ${fmt(r.cents)} of ${o.id} to bad debts (6900).`; } catch (e) { $("#docs-status").textContent = e.message; }
         });
-        return el("tr", {}, el("td", { text: o.id }), el("td", { text: o.party }), el("td", { class: "n", text: o.due ?? o.date }), el("td", { class: "n", text: `${o.daysLate} days` }), el("td", { class: "n", text: fmt(o.total) }), el("td", {}, b));
+        const pr = el("button", { type: "button", class: "secondary", "aria-label": `Print invoice ${o.id}`, text: "Print" });
+        pr.addEventListener("click", () => {
+          try {
+            const html = renderInvoice(books, o.id).html, url = URL.createObjectURL(new Blob([html], { type: "text/html" }));
+            if (!window.open(url, "_blank")) { const a = el("a", { href: url, download: `invoice-${o.id}.html` }); document.body.append(a); a.click(); a.remove(); }
+            record("invoice_printed"); $("#docs-status").textContent = `Invoice ${o.id} opened; use your browser's Print and choose Save as PDF.`;
+          } catch (e) { $("#docs-status").textContent = e.message; }
+        });
+        return el("tr", {}, el("td", { text: o.id }), el("td", { text: o.party }), el("td", { class: "n", text: o.due ?? o.date }), el("td", { class: "n", text: `${o.daysLate} days` }), el("td", { class: "n", text: fmt(o.total) }), el("td", {}, pr, b));
       });
-      return el("div", {}, el("p", { class: "note", text: "Open invoices. Write off one that will not be paid; its unpaid balance goes to bad debts and it leaves the aging table:" }), el("table", {}, el("thead", {}, el("tr", {}, ...["Invoice", "Customer", "Due", "Late", "Owed", ""].map((h) => el("th", { scope: "col", text: h })))), el("tbody", {}, ...rows)));
+      return el("div", {}, el("p", { class: "note", text: "Open invoices. Print one to send (your details are under Your details above), or write off one that will not be paid; its unpaid balance goes to bad debts and it leaves the aging table:" }), el("table", {}, el("thead", {}, el("tr", {}, ...["Invoice", "Customer", "Due", "Late", "Owed", ""].map((h) => el("th", { scope: "col", text: h })))), el("tbody", {}, ...rows)));
     }
 
     function renderAssets() {
@@ -587,6 +606,10 @@
       try { books = categorize(clearOpeningBalances(books), opts()); record("opening_cleared"); render(); $("#open-status").textContent = "Opening balances removed."; } catch (e) { $("#open-status").textContent = e.message; }
     });
 
+    $("#pf-save").addEventListener("click", () => {
+      for (const k of PROFILE_KEYS) books = setProfile(books, k, $(`#pf-${k}`).value.trim());
+      $("#docs-status").textContent = "Details saved for printed invoices.";
+    });
     $("#docs-load").addEventListener("click", async () => {
       const f = $("#docs-file").files[0];
       const text = f ? await f.text() : $("#docs-paste").value;
