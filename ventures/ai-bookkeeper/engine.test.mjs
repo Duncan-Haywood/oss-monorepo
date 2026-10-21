@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { writeOff, newBooks, importStatement, confirm, parseSplit, suggestRules, addRules, acceptSuggestions, journal, reports, closeChecks, exportJournal, exportLines, status, analyze } from "./engine.mjs";
+import { writeOff, lockPeriod, newBooks, importStatement, confirm, parseSplit, suggestRules, addRules, acceptSuggestions, journal, reports, closeChecks, exportJournal, exportLines, status, analyze } from "./engine.mjs";
 import { parseCents, parseDate, readStatement, checkRunningBalance } from "./bank.mjs";
 import { validateEntry, DEFAULT_ACCOUNTS, parseAccounts } from "./ledger.mjs";
 import { payeeKey, suggest, parseRules } from "./categorize.mjs";
@@ -536,4 +536,28 @@ test("the five major US export shapes read to the same rows, signs and balances"
   assert.equal(cards[1].inferred, null);
   // An explicit invert still wins over inference.
   assert.deepEqual(read("amex-card.csv", { invert: false }).rows.map((x) => x.cents), [-30000, 5999, 2340]);
+});
+
+test("a locked period refuses imports, re-filing, documents and write-offs", () => {
+  const csv = "Date,Description,Amount\n2026-01-05,ACME SUPPLIES,-40.00\n2026-02-05,ACME SUPPLIES,-50.00\n";
+  let b = importStatement(newBooks(), csv, "1000").books;
+  assert.throws(() => lockPeriod(b, "2026-01-31"), /still need an account/);
+  b = confirm(b, Object.fromEntries(b.transactions.map((t) => [t.id, "6010"])));
+  assert.throws(() => lockPeriod(b, "Jan 31"), /YYYY-MM-DD/);
+  b = lockPeriod(b, "2026-01-31");
+  assert.equal(b.lockedThrough, "2026-01-31");
+  assert.throws(() => lockPeriod(b, "2026-01-15"), /unlock first/);
+  const jan = b.transactions.find((t) => t.date === "2026-01-05");
+  assert.throws(() => confirm(b, { [jan.id]: "6020" }), /locked through 2026-01-31/);
+  const feb = b.transactions.find((t) => t.date === "2026-02-05");
+  assert.doesNotThrow(() => confirm(b, { [feb.id]: "6020" }));
+  const again = importStatement(newBooks({}), csv, "1000").books;
+  const r = importStatement({ ...again, transactions: [], lockedThrough: "2026-01-31" }, csv, "1000");
+  assert.equal(r.added, 1);
+  assert.ok(r.problems.some((p) => /locked/.test(p)));
+  const docs = addDocuments(b, "type,number,date,due,party,amount,account\ninvoice,1,2026-01-10,2026-02-10,Acme,100.00,4000\ninvoice,2,2026-02-10,2026-03-10,Acme,100.00,4000\n");
+  assert.equal(docs.added, 1);
+  assert.ok(docs.problems.some((p) => /locked/.test(p)));
+  assert.throws(() => writeOff(docs.books, "2", { date: "2026-01-20" }), /locked/);
+  assert.equal(lockPeriod(b, null).lockedThrough, undefined);
 });

@@ -81,6 +81,7 @@ export function addDocuments(booksIn, text, opts = {}) {
     const bad = d.lines.find((l) => !codes.has(l.account));
     if (bad) { problems.push(`${d.id}: no account ${bad.account} in the chart of accounts.`); continue; }
     if (have.has(d.id)) { skipped++; continue; }
+    if (books.lockedThrough && d.date <= books.lockedThrough) { problems.push(`${d.id}: dated ${d.date}, in the period locked through ${books.lockedThrough}.`); continue; }
     books.documents.push(d);
     have.add(d.id);
     added++;
@@ -122,6 +123,7 @@ export function writeOff(booksIn, id, { date, account = BAD_DEBT } = {}) {
   if (!books.accounts.some((a) => a.code === account)) books.accounts.push({ code: account, name: "Bad debts", type: "expense" });
   books.accounts.sort((a, b) => a.code.localeCompare(b.code));
   const day = date ?? [...books.transactions.map((t) => t.date), d.date].sort().at(-1);
+  if (books.lockedThrough && day <= books.lockedThrough) throw new Error(`The write-off date ${day} is in the period locked through ${books.lockedThrough}.`);
   if (day < d.date) throw new Error(`The write-off date ${day} is before the invoice date ${d.date}.`);
   d.writtenOff = { date: day, cents, account };
   return { books: settle(books), cents };
