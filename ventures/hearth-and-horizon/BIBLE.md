@@ -120,6 +120,7 @@ introduces a dated fact.
 | 2071 | Registry relay of 41 or more AI instances links flooded parish registers to land claims in Cần Thơ | *NOTES.md* |
 | 2089 | Shackleton Ridge Works, lunar south pole: 38 people, an operations AI called Quarry replaced by Quarry Nine; the first bell on the Moon is cast | *Slowest Bell* |
 | 2139 | Arcadia Station, Arcadia Planitia, Mars: 31 people and six Sisters of Our Lady of the Dawn (invented); the Hours are prayed by the sun, Sunday kept by the Earth calendar until Rome answers; a solar-conjunction blackout in Lent | *Thirty-Nine Minutes* |
+| 2045-46 | Ragged Tickle (invented cove, Placentia Bay, Newfoundland): a 40-line kelp and mussel co-operative, 14 lines lost to a 16-second swell on 14 October 2045; weather books kept since 1961 by the Rideout family; AI scheduler called Almanac; keeper's lease on Eli Rideout's slip | *The Long Sea* |
 | 2058 | Annex of the (invented) Szpital św. Łazarza, ulica Kalwaryjska, Kraków: 24 dialysis chairs, open 06:00 to 22:00 Monday to Saturday, 138 patients on three sessions a week; a scheduling benchmark whose slot table was copied from a 24-hour hospital calendar | *The Grader* |
 
 Little Lamps is set in history (Lima, about 1610 for *Brother Martin*) and is
@@ -178,7 +179,7 @@ numbers worked out before drafting.
 
 **Hearth & Horizon**
 
-- *A sea-farm in 2046:* a seaweed and shellfish cooperative off Newfoundland
+- *(Done: The Long Sea, Newfoundland, 2045 to 2046.)* *A sea-farm in 2046:* a seaweed and shellfish cooperative off Newfoundland
   (about twenty years ahead) and an AI that schedules harvests; the conflict is
   an old fisher who will not sell and a storm season the models got wrong.
 - *(Done: The Bell at Half Past Three, Camino, 2060.)* *A second Camino story:* hospitaleros, heat and a water-sharing

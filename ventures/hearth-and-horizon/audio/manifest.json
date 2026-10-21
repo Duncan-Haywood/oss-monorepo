@@ -19,6 +19,11 @@
     "seconds": 896.9,
     "voice": "en_US-ljspeech-high"
   },
+  "the-long-sea": {
+    "bytes": 7561827,
+    "seconds": 1260.2,
+    "voice": "en_US-ljspeech-high"
+  },
   "the-slowest-bell-on-the-moon": {
     "bytes": 8949259,
     "seconds": 1491.4,
