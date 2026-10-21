@@ -118,3 +118,9 @@ test("the page has a switch for scoring every pair of knots and passes it to the
   assert.match(html, /<select id="knotMargin">/);
   assert.match(html, /knotMargin: Number\(\$\("#knotMargin"\)\.value\)/);
 });
+
+test("the counts box offers the negative-binomial cost and passes 'nb' to the engine", () => {
+  const html = page("index.html");
+  assert.match(html, /<select id="overdispersion">[^]*?<option value="1">[^]*?<option value="nb">/);
+  assert.match(html, /overdispersion: \$\("#overdispersion"\)\.value === "nb" \? "nb" : \$\("#overdispersion"\)\.value === "1"/);
+});

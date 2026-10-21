@@ -26,7 +26,7 @@ Retain the intended movable blocks and owner-only Edit behavior. Use `sortable-l
 
 Use Classic for unstyled new apps; preserve existing or requested themes.
 
-Standard dashboards have one shell-owned 1440px usable column with 32px desktop / 16px mobile gutters; do not add nested page gutters. Preserve custom full-width/viewport layouts. Full-bleed sections use `--data-app-layout-intent: full-bleed`, retaining aligned inner content. For an explicit custom width/gutter, set `--data-app-layout-intent: user-requested` and `--data-app-content-width` on the authored page. Report defaults and its content-only width option are in the report API.
+Standard dashboards have one shell-owned 1440px usable column with 32px desktop / 16px mobile gutters; avoid adding nested page gutters. Preserve custom full-width/viewport layouts. Full-bleed sections use `--data-app-layout-intent: full-bleed`, retaining aligned inner content. For an explicit custom width/gutter, set `--data-app-layout-intent: user-requested` and `--data-app-content-width` on the authored page. Report defaults and its content-only width option are in the report API.
 
 The protected top bar and tabs remain full-viewport regardless of content width. For app-wide restyling, update the existing `:root` palette in `src/theme.css`, including surfaces, controls, text, borders, and chart colors; never scope the whole palette to a content page. Set `--data-app-chrome-background` and `--data-app-chrome-text` to the desired theme tokens without changing chrome layout or functionality.
 
@@ -60,7 +60,7 @@ After authoring, build:
 "<codex-node>" "<data-plugin-root>/scripts/data-app.mjs" build --project-dir "<app-project>" --separate-data
 ```
 
-Ordinary builds verify the installed prebuilt runtime and authored ownership boundary without network, dependency installation, npm, or project `node_modules`. Use `--separate-data` for future apps: `dist/index.html` contains the compiled application, a content-addressed JSON sidecar contains every reviewed row and field, and `dist/data-app-build.json` binds their identities. Serve the whole `dist` directory for local HTTP preview; the app loads the complete sidecar before creating authored content. Keep older copied protected files intact; do not rewrite locks, recover old caches, request runtime-upgrade confirmation, or repeat preparation/copied starter tests merely to build content. An optional `.data-plugin-version` is informational, not a compatibility or authorization gate.
+Ordinary builds verify the installed prebuilt runtime and authored ownership boundary without network, dependency installation, npm, or project `node_modules`. Use `--separate-data` for future apps: `dist/index.html` contains the compiled application, a content-addressed JSON sidecar contains every reviewed row and field, and `dist/data-app-build.json` binds their identities. Serve the whole `dist` directory for local HTTP preview; the app loads the complete sidecar before creating authored content. Keep older copied protected files intact; there is no need to rewrite locks, recover old caches, request runtime-upgrade confirmation, or repeat preparation/copied starter tests merely to build content. An optional `.data-plugin-version` is informational, not a compatibility or authorization gate.
 
 For a portable single-file offline HTML, export the verified split build without recompiling:
 
@@ -74,7 +74,7 @@ After publication, export uses the preserved verified bundle under `.data-app-of
 
 Static local JS/JSX/TS/TSX/MJS/MTS imports, re-exports, cycles, JSON/assets, and ordinary CSS/PCSS/PostCSS without plugins are supported. Dynamic imports, top-level await, unsupported `import.meta`, CSS modules, and CommonJS need a supported source shape or an explicitly justified source build; never silently switch builds or change semantics.
 
-For measured expensive computation, local `?worker&inline` modules support static local graphs. Send reviewed data once, track request IDs, ignore stale responses, provide failure fallback, and terminate unused workers. Do not introduce workers preemptively. `async-data.md` in the resolved component reference covers loading and error presentation.
+For measured expensive computation, local `?worker&inline` modules support static local graphs. Send reviewed data once, track request IDs, ignore stale responses, provide failure fallback, and terminate unused workers. Avoid introducing workers preemptively. `async-data.md` in the resolved component reference covers loading and error presentation.
 
 Add `--source` only for authorized protected changes or explicitly needed source-build features/unbundled packages. It compiles copied infrastructure and runs its verifier, requiring compatible local Vite dependencies already installed. Never automatically fall back, install dependencies, or substitute prebuilt behavior for an authorized source change. Report missing requirements; restore protected files or complete scoped authorization when verification fails. Do not fork the renderer, replace the app with static HTML, or weaken copied tests to accommodate custom content.
 

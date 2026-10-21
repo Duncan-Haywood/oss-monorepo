@@ -37,17 +37,17 @@ runs on a PR or on `main`.
    The body says what you verified and how (a CI run, or the local checklist
    output). For a user-facing surface, the body also says where the
    disclaimer and the usage tracking are.
-4. **Verify.** CI must be green on the current head. If
+4. **Verify.** CI should be green on the current head. If
    `python3 platform/ci/ci_starvation.py --run <id>` says runners are starved,
    run the local checklist in `CLAUDE.md` ("Ship without review ceremony")
    instead and paste its results into the PR.
 5. **Merge it yourself.** Mark the draft ready and squash-merge. A research
-   mirror PR is the one exception: it merges with a merge commit, never a
-   squash (`prompt.md`). Don't wait for a human or for bot approvals.
+   mirror PR is the one exception: it merges with a merge commit, not a
+   squash (`prompt.md`). No need to wait for a human or for bot approvals.
    If the merge won't go:
    - **Conflict:** merge `origin/main` into your branch, re-run what the
      checklist says (`node platform/marketing/regen.mjs`, `sync_tree_counts.py`), re-verify, and
-     merge. A conflict is never a reason to stop.
+     merge. A conflict on its own is not a reason to stop.
    - **A check your change turned red:** fix forward on the same PR.
    - **A check that is red on `main` too:** it isn't yours. If a fix exists,
      port it. If not, name the failure in the PR. Landing the fix on `main`
@@ -56,7 +56,7 @@ runs on a PR or on `main`.
    `python3 platform/ci/unlanded_work.py` exits 0, meaning nothing on your
    branch sits outside a PR or `main`.
 7. **Served surfaces publish themselves.** `portfolio-pages.yml` redeploys
-   the site on the merge. Do not commit a reading after your merge: on its own
+   the site on the merge. Avoid committing a reading after your merge: on its own
    it is a ledger-only change on a spent branch. Readings ride in a PR that
    ships work.
 
@@ -69,10 +69,10 @@ Commits you push to a branch after its PR merged or closed reach no one. The
 old PR doesn't show them. `platform/ci/branch_cleanup.py` leaves the branch
 alone because it has moved. No check runs on it. If you keep working after
 your PR merges, open a **new** PR for the follow-up. Reusing the same branch
-is fine, and `unlanded_work.py` names the old PR and tells you to. Never end a
-session on a push to a merged PR's branch.
+is fine, and `unlanded_work.py` names the old PR and tells you to. Avoid ending a
+session on a push to a merged PR's branch: no one will see it.
 
-**Never push a branch that holds nothing beyond `main`.** Resetting to
+**Avoid pushing a branch that holds nothing beyond `main`.** Resetting to
 `origin/main` after the merge is fine locally, but pushing it recreates the
 branch cleanup just deleted (872 of 875 surviving merged-PR branches on
 2026-10-16). Push again only once it has a new commit, and open a new PR for it.
@@ -89,7 +89,7 @@ stop and say in your reply what you dropped. Examples: ledger prose that
 experiment.
 - Discard uncommitted edits with `git restore <paths>`.
 - Drop your own unshipped commits, for example `git reset --keep HEAD~1` for
-  the last one. Never drop commits that are in a PR or on `main`.
+  the last one. Leave commits that are in a PR or on `main` alone.
 
 A tip that says "parked" or "not for merge" is still a deliberate exception.
 
@@ -129,7 +129,7 @@ Merging is every agent's job, not only the author's:
   for scope, disclaimers and usage tracking, then merge it. Leave it alone if
   its body or comments name a blocker or say it is waiting on the owner, or if
   it touches an owner-only item above. Left open on purpose is not stalled.
-  Never merge a draft: a draft means the author is still working. A draft
+  By default, don't merge a draft: a draft means the author is still working. A draft
   whose branch hasn't moved in 24 hours is an orphan: mark it ready, verify
   it, and merge it, or close it with a reason.
 - **Stranded branches.** Before claiming new work, run

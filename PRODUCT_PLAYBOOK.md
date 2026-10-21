@@ -127,7 +127,7 @@ When someone builds it, these rules apply:
   own copy.
 - **One platform feature, not 1,200 per-venture ones.** Build it once under
   `platform/deploy/`. Derive the list of apps from `discoverSurfaces()` in
-  `platform/pages/build.mjs`. Do not keep a second list. Giving each venture
+  `platform/pages/build.mjs`. Avoid keeping a second list. Giving each venture
   its own deploy button is the fleet-parity trap.
 - **Credentials never touch anything of ours.** Nothing we run or log ever
   sees them. The page states exactly where they go: GitHub, encrypted, and
@@ -259,7 +259,7 @@ JavaScript, TypeScript's checker is cheap insurance:
   as `''` misleads the next session.
 - **A file you edit gets the pragma too, if it already passes.**
   `node platform/pages/typecheck.mjs --candidates <slug>` lists which of the
-  venture's files pass today. Do not retrofit files that fail, and do not add
+  venture's files pass today. Prefer not to retrofit files that fail or add
   `--checkJs` across the tree.
 - **CI keeps opted-in files clean.** `node platform/pages/typecheck.mjs <slug>`
   runs in `ventures-tests` on every venture a PR touches. It exits 1 on any
@@ -324,8 +324,8 @@ node platform/pages/clauses.mjs <venture-slug>
 
 `ventures-tests.yml` runs it for every venture a PR touches
 (`clauses.mjs --changed-since <base>`), so it fails on your PR, names your
-venture and annotates the page in the diff. You do not add it to a
-`<slug>-ci.yml`; until 2026-10-20 each of those carried a copy. Do not rely
+venture and annotates the page in the diff. You needn't add it to a
+`<slug>-ci.yml`; until 2026-10-20 each of those carried a copy. Avoid relying
 on the Pages suite for it, which runs only on `platform/pages/**` and so
 first catches the page *after* the merge, on `main`, red in a workflow you
 never touched. Six pages across
@@ -452,7 +452,7 @@ okay with me"). Build it so that:
 The owner's own instances (the GitHub Pages site) take donations only: the
 GitHub Sponsors link below, and the one approved Buy Me a Coffee link.
 
-**Two separate things exist here — do not conflate them:**
+**Two separate things exist here — keep them apart:**
 
 1. **A per-product `github.com/sponsors/<owner>` link in the footer or about
    section.** This is agent-decidable, needs no owner action, and now ships
@@ -465,7 +465,7 @@ GitHub Sponsors link below, and the one approved Buy Me a Coffee link.
 2. **The native repo-level GitHub "Sponsor this project" button**, via
    `.github/FUNDING.yml`, which is a separate, owner-only account-ownership
    decision (queued as `funding-sponsors-live`, PR #839 — read the queue with
-   `python3 portfolio/ledger/decision_queue.py`; do not open a second one). It
+   `python3 portfolio/ledger/decision_queue.py`; there is no need to open a second one). It
    was merged once and reverted the same day (#862), so the safe state on
    `main` today is no `FUNDING.yml`. This only adds a second entry point on
    top of links that already work — it is not what turns donations on.
@@ -482,7 +482,7 @@ already load counts a click into `portfolio-hub-usage` under the literal event
 [`portfolio/usage/README.md`](portfolio/usage/README.md) "Wired the same day,
 on the published site, in one place rather than 186."
 
-**Do not hand-wire a second listener into a venture's own `usage.mjs` for
+**Avoid hand-wiring a second listener into a venture's own `usage.mjs` for
 this** — the build already covers the published site, and adding one anyway
 is the fleet-parity trap described in `portfolio/DIRECTION.md`, not new
 signal. The one legitimate reason to wire it in a venture's own code: that
