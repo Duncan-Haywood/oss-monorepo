@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { newBooks } from "./engine.mjs";
 import { addAsset, disposeAsset } from "./assets.mjs";
-import { MACRS_MID_QUARTER, usesMidQuarter, MACRS_HALF_YEAR, setTaxTreatment, assetTaxYear, taxDepreciation, maxBonusPct, s179Check } from "./taxdepr.mjs";
+import { MACRS_MID_QUARTER, usesMidQuarter, MACRS_HALF_YEAR, setTaxTreatment, assetTaxYear, taxDepreciation, maxBonusPct, s179Check, s179IncomeLimit } from "./taxdepr.mjs";
 
 const with1 = (cost, date, tax, life = 60) => {
   let b = addAsset(newBooks(), { name: "Machine", date, cost, lifeMonths: life }).books;
@@ -179,4 +179,18 @@ test("bonus above the year's maximum is flagged; 2025 asks about the acquisition
   assert.ok(!ok.warnings.some((x) => /is above the/.test(x)));
   const y25 = taxDepreciation(with1("10000", "2025-05-01", { macrsClass: 5, bonusPct: 100 }), 2025);
   assert.ok(y25.warnings.some((x) => /acquired after 19 January 2025/.test(x)));
+});
+
+test("179 taxable-income limit defers the excess and carries it forward", () => {
+  const b = { assets: [{ id: "A1", name: "Press", date: "2026-03-01", cents: 3000000, tax: { macrsClass: 7, s179: 3000000, bonusPct: 0 } }] };
+  assert.equal(s179IncomeLimit(b, 2026), null);
+  const r = s179IncomeLimit(b, 2026, { businessIncome: 1200000 });
+  assert.deepEqual([r.dollarLimited, r.deductible, r.carryOut], [3000000, 1200000, 1800000]);
+  const loss = s179IncomeLimit(b, 2026, { businessIncome: -50000 });
+  assert.deepEqual([loss.deductible, loss.carryOut], [0, 3000000]);
+  const next = s179IncomeLimit({ assets: [] }, 2027, { businessIncome: 5000000, carryIn: 1800000 });
+  assert.deepEqual([next.deductible, next.carryOut], [1800000, 0]);
+  const w = taxDepreciation(b, 2026, { businessIncome: 1200000 });
+  assert.equal(w.s179Income.carryOut, 1800000);
+  assert.ok(w.warnings.some((x) => /carries to 2027/.test(x)));
 });
