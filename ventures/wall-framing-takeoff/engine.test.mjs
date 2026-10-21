@@ -353,7 +353,26 @@ test("corner plate laps move piece lengths but not the plate totals", () => {
   const first = (label) => f.members.filter((m) => m.label === label).sort((a, b) => a.x - b.x)[0];
   assert.equal(first("top plate").x, 3.5); // butts against the last wall
   assert.equal(first("cap plate").x, -3.5); // runs through over it
-  assert.deepEqual(plateLaps({ walls: [] }, {}), { topStart: 0, topEnd: 0, capStart: 0, capEnd: 0 });
+  assert.deepEqual(plateLaps({ walls: [] }, {}), { topStart: 0, topEnd: 0, capStart: 0, capEnd: 0, capGaps: [] });
+});
+
+test("tee laps: the partition's cap runs over the through wall, whose cap is cut for it", () => {
+  const p = samplePlan();
+  p.plateLaps = true;
+  const hall = p.walls.find((w) => w.id === "Hall");
+  hall.tee = { wall: "Front", at: 168, end: "start" };
+  const plain = takeoff({ ...p, walls: p.walls.map((w) => ({ ...w, tee: undefined })) });
+  const r = takeoff(p);
+  assert.ok(r.ok);
+  r.walls.forEach((w, i) => assert.deepEqual(verifyWall(w, p.walls[i]), []));
+  const caps = (res, id) => res.walls.find((w) => w.id === id).members.filter((m) => m.label === "cap plate");
+  const total = (a) => a.reduce((s, m) => s + m.length, 0);
+  assert.ok(Math.abs(total(caps(r, "Hall")) - total(caps(plain, "Hall")) - 3.5) < 1e-6); // runs 3.5 in over the Front wall
+  assert.ok(Math.abs(total(caps(plain, "Front")) - total(caps(r, "Front")) - 3.5) < 1e-6); // cut 3.5 in for the partition
+  assert.ok(caps(r, "Front").every((m) => m.x + m.length <= 168 - 1.75 + 1e-6 || m.x >= 168 + 1.75 - 1e-6));
+  assert.deepEqual(plateLaps(p, p.walls.find((w) => w.id === "Front")).capGaps, [[166.25, 169.75]]);
+  const bad = takeoff({ ...p, walls: p.walls.map((w) => (w.id === "Hall" ? { ...w, tee: { wall: "Nope", at: 5 } } : w)) });
+  assert.ok(!bad.ok);
 });
 
 // ---- two-course sheathing ----

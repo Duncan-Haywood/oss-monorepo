@@ -149,6 +149,13 @@ depth; the cap plate laps the other way, tying the corner. Piece lengths and the
 splice points change, and so can the board order; plate totals do not (the test
 checks it). Splices still sit over full studs.
 
+**Tee laps (2026-10-21).** A partition can say where it butts a through wall:
+`"tee": {"wall": "Front", "at": "14'", "end": "start"}` (`end` is `start` or
+`end`; `at` is the partition's centre along the through wall). With `plateLaps` on,
+the partition's cap plate runs over the through wall by its depth and the through
+wall's cap is cut for the partition's depth, each run spliced on its own. Unlike
+corners, the cap total changes (by the through wall's depth minus the partition's). JSON and CLI only; the page has no field yet.
+
 ## Limits
 
 - **No structural checks.** Header size, plies, jack count, stud size and
@@ -159,7 +166,7 @@ checks it). Splices still sit over full studs.
   structural bracing, header spacers (listed in the notes), hardware and
   fasteners, gable and rake walls, walls that change height, multiple storeys,
   window and door rough openings given by unit size (enter rough openings), and
-  plates lapping at tees and at corners that do not close a loop (`plateLaps` reads the walls as a
+  plates lapping at corners that do not close a loop (`plateLaps` reads the walls as a
   closed loop in the order listed).
 - **Openings within 1-1/2" plus their kings and jacks of a wall end** are
   rejected rather than framed: frame those ends by hand.
