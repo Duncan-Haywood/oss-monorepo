@@ -3,8 +3,12 @@
 // `node build-browser.mjs` puts next to the page on YOUR host. Neither ships in
 // the repository: Saxon-JS's licence forbids copying it to a site whose main
 // purpose is to hand it to third parties, so each deployer fetches their own.
-// Without ./browser/ every call returns "unavailable", never a pass.
+// Without ./browser/ the page falls back to ./plain/ (plain-schematron.mjs): the
+// same rules as JSON, run by fontoxpath (MIT), which does ship in the
+// repository and so works on any static host, this one included. With neither,
+// every call returns "unavailable", never a pass.
 import { FILES, detectSyntax, matchingAddons, parseSvrl } from "./schematron-core.mjs";
+import { PLAIN_DIR, createPlainRunner } from "./plain-schematron.mjs";
 
 export const BROWSER_DIR = "browser/";
 
@@ -18,19 +22,47 @@ function loadScript(src) {
   });
 }
 
-// Resolves to an async (xml) => { status, syntax, findings, sets } runner, or
-// null when this host has no ./browser/ folder.
-export async function loadBrowserRunner({ base = "", fetchFn = globalThis.fetch, load = loadScript, saxon = () => globalThis.SaxonJS } = {}) {
-  let manifest;
+// The shipped plain-JS route: rules from ./plain/, fontoxpath imported from there.
+// `parseXml` and `importFn` are injectable for tests.
+export async function loadPlainRunner({ base = "", fetchFn = globalThis.fetch, importFn = (url) => import(url), parseXml = defaultParse } = {}) {
+  let runner;
   try {
-    const res = await fetchFn(`${base}${BROWSER_DIR}manifest.json`);
+    const res = await fetchFn(`${base}${PLAIN_DIR}manifest.json`);
     if (!res.ok) return null;
-    manifest = await res.json();
-    if (!saxon()) await load(`${base}${BROWSER_DIR}SaxonJS2.rt.js`);
+    const fontoxpath = await importFn(new URL(`${base}${PLAIN_DIR}fontoxpath.esm.js`, globalThis.location?.href ?? "file:///").href);
+    runner = createPlainRunner({ fontoxpath, parseXml });
   } catch {
     return null;
   }
-  if (!saxon()) return null;
+  const cache = new Map();
+  const load = (file) => {
+    if (!cache.has(file)) {
+      cache.set(file, fetchFn(`${base}${PLAIN_DIR}${file}`).then((r) => (r.ok ? r.json() : null)).catch(() => null));
+    }
+    return cache.get(file);
+  };
+  return (xml) => runner.run(xml, load);
+}
+
+function defaultParse(xml) {
+  const doc = new DOMParser().parseFromString(xml, "application/xml");
+  if (doc.getElementsByTagName("parsererror").length) throw new Error("not well-formed XML");
+  return doc;
+}
+
+// Resolves to an async (xml) => { status, syntax, findings, sets } runner, or
+// null when this host has neither a ./browser/ folder nor ./plain/.
+export async function loadBrowserRunner({ base = "", fetchFn = globalThis.fetch, load = loadScript, saxon = () => globalThis.SaxonJS, plain = true } = {}) {
+  let manifest;
+  try {
+    const res = await fetchFn(`${base}${BROWSER_DIR}manifest.json`);
+    if (!res.ok) return plain ? loadPlainRunner({ base, fetchFn }) : null;
+    manifest = await res.json();
+    if (!saxon()) await load(`${base}${BROWSER_DIR}SaxonJS2.rt.js`);
+  } catch {
+    return plain ? loadPlainRunner({ base, fetchFn }) : null;
+  }
+  if (!saxon()) return plain ? loadPlainRunner({ base, fetchFn }) : null;
   const has = (file) => manifest.files?.includes(file);
 
   const transform = async (file, xml, source) => {
