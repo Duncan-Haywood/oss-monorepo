@@ -1,0 +1,328 @@
+{
+ "versions": {
+  "yosys": "Yosys 0.33 (git sha1 2584903a060)",
+  "iverilog": "Icarus Verilog version 12.0 (stable) ()"
+ },
+ "rows": [
+  {
+   "inputs": 70,
+   "hidden": 8,
+   "wbits": 2,
+   "cycles": 687,
+   "rtl_exact": true,
+   "cells": 661,
+   "flops": 124,
+   "area_um2": 6299.8
+  },
+  {
+   "inputs": 70,
+   "hidden": 8,
+   "wbits": 3,
+   "cycles": 687,
+   "rtl_exact": true,
+   "cells": 734,
+   "flops": 124,
+   "area_um2": 6970.4
+  },
+  {
+   "inputs": 70,
+   "hidden": 8,
+   "wbits": 4,
+   "cycles": 687,
+   "rtl_exact": true,
+   "cells": 810,
+   "flops": 124,
+   "area_um2": 7460.9
+  },
+  {
+   "inputs": 70,
+   "hidden": 8,
+   "wbits": 8,
+   "cycles": 687,
+   "rtl_exact": true,
+   "cells": 1187,
+   "flops": 124,
+   "area_um2": 10443.8
+  },
+  {
+   "inputs": 70,
+   "hidden": 16,
+   "wbits": 2,
+   "cycles": 1351,
+   "rtl_exact": true,
+   "cells": 784,
+   "flops": 188,
+   "area_um2": 8211.6
+  },
+  {
+   "inputs": 70,
+   "hidden": 16,
+   "wbits": 3,
+   "cycles": 1351,
+   "rtl_exact": true,
+   "cells": 865,
+   "flops": 188,
+   "area_um2": 8901.0
+  },
+  {
+   "inputs": 70,
+   "hidden": 16,
+   "wbits": 4,
+   "cycles": 1351,
+   "rtl_exact": true,
+   "cells": 945,
+   "flops": 188,
+   "area_um2": 9611.7
+  },
+  {
+   "inputs": 70,
+   "hidden": 16,
+   "wbits": 8,
+   "cycles": 1351,
+   "rtl_exact": true,
+   "cells": 1330,
+   "flops": 188,
+   "area_um2": 12607.1
+  },
+  {
+   "inputs": 70,
+   "hidden": 32,
+   "wbits": 2,
+   "cycles": 2679,
+   "rtl_exact": true,
+   "cells": 1064,
+   "flops": 317,
+   "area_um2": 12388.1
+  },
+  {
+   "inputs": 70,
+   "hidden": 32,
+   "wbits": 3,
+   "cycles": 2679,
+   "rtl_exact": true,
+   "cells": 1142,
+   "flops": 317,
+   "area_um2": 12926.1
+  },
+  {
+   "inputs": 70,
+   "hidden": 32,
+   "wbits": 4,
+   "cycles": 2679,
+   "rtl_exact": true,
+   "cells": 1194,
+   "flops": 317,
+   "area_um2": 13513.0
+  },
+  {
+   "inputs": 70,
+   "hidden": 32,
+   "wbits": 8,
+   "cycles": 2679,
+   "rtl_exact": true,
+   "cells": 1591,
+   "flops": 317,
+   "area_um2": 16429.5
+  },
+  {
+   "inputs": 70,
+   "hidden": 64,
+   "wbits": 2,
+   "cycles": 5335,
+   "rtl_exact": true,
+   "cells": 1581,
+   "flops": 574,
+   "area_um2": 20415.8
+  },
+  {
+   "inputs": 70,
+   "hidden": 64,
+   "wbits": 3,
+   "cycles": 5335,
+   "rtl_exact": true,
+   "cells": 1659,
+   "flops": 574,
+   "area_um2": 21013.9
+  },
+  {
+   "inputs": 70,
+   "hidden": 64,
+   "wbits": 4,
+   "cycles": 5335,
+   "rtl_exact": true,
+   "cells": 1724,
+   "flops": 574,
+   "area_um2": 21535.7
+  },
+  {
+   "inputs": 70,
+   "hidden": 64,
+   "wbits": 8,
+   "cycles": 5335,
+   "rtl_exact": true,
+   "cells": 2090,
+   "flops": 574,
+   "area_um2": 24537.3
+  },
+  {
+   "inputs": 120,
+   "hidden": 8,
+   "wbits": 2,
+   "cycles": 1087,
+   "rtl_exact": true,
+   "cells": 686,
+   "flops": 124,
+   "area_um2": 6426.2
+  },
+  {
+   "inputs": 120,
+   "hidden": 8,
+   "wbits": 3,
+   "cycles": 1087,
+   "rtl_exact": true,
+   "cells": 741,
+   "flops": 124,
+   "area_um2": 6916.6
+  },
+  {
+   "inputs": 120,
+   "hidden": 8,
+   "wbits": 4,
+   "cycles": 1087,
+   "rtl_exact": true,
+   "cells": 830,
+   "flops": 124,
+   "area_um2": 7693.6
+  },
+  {
+   "inputs": 120,
+   "hidden": 8,
+   "wbits": 8,
+   "cycles": 1087,
+   "rtl_exact": true,
+   "cells": 1168,
+   "flops": 124,
+   "area_um2": 10776.6
+  },
+  {
+   "inputs": 120,
+   "hidden": 16,
+   "wbits": 2,
+   "cycles": 2151,
+   "rtl_exact": true,
+   "cells": 783,
+   "flops": 188,
+   "area_um2": 8216.6
+  },
+  {
+   "inputs": 120,
+   "hidden": 16,
+   "wbits": 3,
+   "cycles": 2151,
+   "rtl_exact": true,
+   "cells": 868,
+   "flops": 188,
+   "area_um2": 8833.5
+  },
+  {
+   "inputs": 120,
+   "hidden": 16,
+   "wbits": 4,
+   "cycles": 2151,
+   "rtl_exact": true,
+   "cells": 954,
+   "flops": 188,
+   "area_um2": 9603.0
+  },
+  {
+   "inputs": 120,
+   "hidden": 16,
+   "wbits": 8,
+   "cycles": 2151,
+   "rtl_exact": true,
+   "cells": 1333,
+   "flops": 188,
+   "area_um2": 12597.1
+  },
+  {
+   "inputs": 120,
+   "hidden": 32,
+   "wbits": 2,
+   "cycles": 4279,
+   "rtl_exact": true,
+   "cells": 1070,
+   "flops": 317,
+   "area_um2": 12425.7
+  },
+  {
+   "inputs": 120,
+   "hidden": 32,
+   "wbits": 3,
+   "cycles": 4279,
+   "rtl_exact": true,
+   "cells": 1142,
+   "flops": 317,
+   "area_um2": 12924.9
+  },
+  {
+   "inputs": 120,
+   "hidden": 32,
+   "wbits": 4,
+   "cycles": 4279,
+   "rtl_exact": true,
+   "cells": 1192,
+   "flops": 317,
+   "area_um2": 13506.7
+  },
+  {
+   "inputs": 120,
+   "hidden": 32,
+   "wbits": 8,
+   "cycles": 4279,
+   "rtl_exact": true,
+   "cells": 1589,
+   "flops": 317,
+   "area_um2": 16602.2
+  },
+  {
+   "inputs": 120,
+   "hidden": 64,
+   "wbits": 2,
+   "cycles": 8535,
+   "rtl_exact": true,
+   "cells": 1576,
+   "flops": 574,
+   "area_um2": 20308.2
+  },
+  {
+   "inputs": 120,
+   "hidden": 64,
+   "wbits": 3,
+   "cycles": 8535,
+   "rtl_exact": true,
+   "cells": 1652,
+   "flops": 574,
+   "area_um2": 20908.8
+  },
+  {
+   "inputs": 120,
+   "hidden": 64,
+   "wbits": 4,
+   "cycles": 8535,
+   "rtl_exact": true,
+   "cells": 1712,
+   "flops": 574,
+   "area_um2": 21416.8
+  },
+  {
+   "inputs": 120,
+   "hidden": 64,
+   "wbits": 8,
+   "cycles": 8535,
+   "rtl_exact": true,
+   "cells": 2081,
+   "flops": 574,
+   "area_um2": 24222.0
+  }
+ ]
+}
