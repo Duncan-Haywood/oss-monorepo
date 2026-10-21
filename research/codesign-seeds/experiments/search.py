@@ -1,4 +1,4 @@
-"""Run 16 NEW seeds (8..23) of the six `codesign-headroom` methods, 40 designs each, protocol unchanged. About 75 minutes
+"""Run 16 NEW seeds (8..23) of the six `codesign-headroom` methods, 40 designs each, protocol unchanged. About 40 minutes
 on 4 cores. Writes search.json with each run's evaluated designs (x, feasible, 40-scene test success, trained force)."""
 import json, os, sys, time
 os.environ.setdefault("OMP_NUM_THREADS", "1"); os.environ.setdefault("OPENBLAS_NUM_THREADS", "1")

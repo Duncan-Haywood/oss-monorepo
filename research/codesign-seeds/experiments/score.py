@@ -54,7 +54,7 @@ if __name__ == "__main__":
     json.dump(dict(n_scenes=N_SCENES, scene_seed=SCENE_SEED, records=recs), open(os.path.join(HERE, "results.json"), "w"))
     get = lambda m, src=None: np.array([r["true"] for r in recs if r["method"] == m and (src is None or r["source"] == src)])
     L = ["Final designs after 40 evaluations, 600-scene success (scene seed %d); 8 original runs (seeds 0-7), 16 new (seeds 8-23)." % SCENE_SEED,
-         "mean [95%% bootstrap interval over runs]; SD is the run-to-run standard deviation of the final design's true success.", "",
+         "mean [95% bootstrap interval over runs]; SD is the run-to-run standard deviation of the final design's true success.", "",
          "%-30s%6s%24s%8s%26s%24s" % ("method", "runs", "all runs", "SD", "original 8 only", "new 16 only")]
     for m in methods:
         a, o, n = get(m), get(m, "headroom"), get(m, "new")
