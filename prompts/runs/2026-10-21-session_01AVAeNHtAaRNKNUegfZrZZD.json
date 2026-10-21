@@ -15,9 +15,11 @@
   "tokens_out": null,
   "cost_usd": null,
   "tool_calls": null,
-  "task": null,
-  "projects": [],
-  "pr": null,
+  "task": "Start a long-running program of tools that automate parts of US new-home construction; ship its first tool.",
+  "projects": [
+    "ventures/wall-framing-takeoff"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/9029",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -25,15 +27,25 @@
   "merged": null,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": null,
-  "outcome": null,
+  "tests_added": 34,
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
-  "doc_friction": [],
-  "deviations": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "run_workflow_locally.py --for-changes without a base diffed against a stale origin/main in this shallow clone and selected 26 workflows (749 files); merging main first and passing origin/main explicitly was needed. Worth a line in the landing steps."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "Put the new venture first instead of deepening the existing flagship 1, because the owner's message this session names this as a standing, continual project; the entry quotes it so the owner can reorder."
+    }
+  ],
   "writeups": [],
-  "goal": null,
-  "notes": "",
+  "goal": "Tools that automate part of US new-home construction to drop prices and increase efficiency (owner, 2026-10-21).",
+  "notes": "New venture wall-framing-takeoff: layout engine with a per-wall self-check, Gilmore-Gomory cutting-stock order with an LP bound and an exact DP for small groups; page, CLI, agent engine, SEO page, ROADMAP.md for the program, flagship 1. node --test 34/34; bench.mjs: LP rounding exact on 85% of small seeded cases vs 29-65% for FFD, whole-house gap to LP bound 0.002-0.02%. Page checked in headless Chromium (1200px, 390px): no console errors, no horizontal scroll, recompute on input. typecheck 0 diagnostics, clauses.mjs pass, tools.test.mjs pass, router validate pass, regen --verify 0.",
   "corrections": [],
   "redteam": null
 }
