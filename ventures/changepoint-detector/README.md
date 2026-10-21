@@ -345,6 +345,15 @@ series, 40 each, in `engine.test.mjs`):
   bend the slope), so it does not flag pure slope changes, which only PELT reports. Not combined with
   `--ar1` and not offered for counts (a line subtracted from counts is not a count; a Poisson trend is the open item); with `--period` the profile is removed first.
 
+- **Speed: the negative-binomial cost with a season (per-class prefix sums).** With `--overdispersion nb`
+  and exposures, the segment cost used to loop over every point of the segment, twice per Newton step. A season
+  has only a few distinct exposures, and the score and likelihood depend on a point only through its exposure
+  class, so the cost now keeps prefix sums of count and total per class (up to 64 classes; a continuous trend
+  exposure falls back to the point loop). Same costs and same changes, tested against the point loop
+  (`negative-binomial cost with a season matches...`). Weekly clumpy counts with one step, size 3, one seeded
+  series on this container: 600 points 109 -> 47 ms, 3000 points 2623 -> 172 ms (identical changes and cost).
+  Exposures from `--trend` are continuous, so they are not sped up; that is the open part.
+
 ## Limits
 
 Steps by default: a gradual drift is approximated by several steps unless you choose `--model trend` (a line per segment, no curvature). Seasonality is
