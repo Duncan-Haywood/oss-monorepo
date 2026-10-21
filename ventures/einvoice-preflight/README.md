@@ -619,3 +619,15 @@ contacts a bank, never stores the account number, BIC, or remittance,
 and never claims funds can be received or allocated there.
 
 `examples/factur-x-credit-note-with-defects.pdf` wraps the defective CII credit note in a Factur-X envelope: the built-in rules report INV-032 (unknown type code) and INV-038 (tax amount), identical to the bare XML (`facturx.test.mjs`); the official-rule findings for the same XML are pinned in `schematron.test.mjs`.
+
+## Repair a JSON invoice's arithmetic
+
+`node repair-cli.mjs invoice.json -o fixed.json` (or `POST /v1/repair`)
+recomputes line nets, the net, tax, gross and amount-due totals from the
+invoice's own quantities, unit prices, tax percents and header adjustments,
+and upper-cases a lower-case currency code. It logs each change (path, old
+value, new value, reason), re-runs the checks on the result and lists what is
+left. It never chooses a tax rate, date, identifier, bank detail or party:
+those findings stay for a person (exit 1 while any remain). If a line's
+quantity, price or tax percent is invalid, no totals are touched. Tests in
+`repair.test.mjs` and `server.test.mjs`. Not yet in the web page.

@@ -127,3 +127,19 @@ test("serves the ES modules the page imports, but not tests, CLIs or the server"
   }
   await s.close();
 });
+
+test("POST /v1/repair fixes totals and lists what is left", async () => {
+  const s = await start();
+  const inv = JSON.parse(await ex("valid-invoice.json"));
+  inv.totals.gross = 1;
+  inv.issue_date = "bad";
+  const r = await fetch(`${s.base}/v1/repair`, { method: "POST", body: JSON.stringify(inv) });
+  const j = await r.json();
+  assert.equal(r.status, 200);
+  assert.equal(j.repaired, true);
+  assert.equal(j.invoice.totals.gross, 238);
+  assert.deepEqual(j.remaining.map((e) => e.rule), ["INV-003"]);
+  const bad = await fetch(`${s.base}/v1/repair`, { method: "POST", body: "nope" });
+  assert.equal(bad.status, 400);
+  await s.close();
+});
