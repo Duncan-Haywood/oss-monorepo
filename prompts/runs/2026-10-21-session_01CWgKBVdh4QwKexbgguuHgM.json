@@ -25,7 +25,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": 4,
+  "ci_failures_before_green": 5,
   "review_findings": null,
   "tests_added": 46,
   "outcome": "success",
@@ -34,7 +34,8 @@
     "link-contrast CI failed: platform/pages/ink.mjs hoists @media (prefers-color-scheme: dark) rules, so the light link colour was judged on the dark background; removed the dark overrides from the two static pages.",
     "sibling-links CI failed: support-agent had no inbound link from a sibling page (orphan budget 0); added footer links from support-desk and help-keeper with a page test each.",
     "pages test suite: &rsaquo; in the guide page is not in platform/pages/entities.mjs NAMED_ENTITIES; replaced with the literal character. Local run of platform/pages tests: 1202 pass, this 1 fail, now fixed.",
-    "portfolio-validate: front-door alias map and portfolio-front.yaml shard list were stale; regen.mjs reported 'current' but `front-door-tools.mjs --write` was still needed (new venture moved the shard count to 51)."
+    "portfolio-validate: front-door alias map and portfolio-front.yaml shard list were stale; regen.mjs reported 'current' but `front-door-tools.mjs --write` was still needed (new venture moved the shard count to 51).",
+    "gitops pytest: tree counts (mirrored tools 1310 -> 1311, opt-out switches 1282 -> 1283) not bumped for the new venture; ran platform/ci/sync_tree_counts.py and added the +1 comment lines. Merged main again (generated .gz conflicts taken from main, then regenerated). Local: gitops test_manifests + test_ci_runner 108 passed, front-door-tools.test 102 pass, siblings/ink/entities 44 pass, three venture suites green."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -49,6 +50,10 @@
     {
       "file": "platform/marketing/regen.mjs",
       "issue": "regen.mjs said 'The served surface is current' while front-door-tools.test.mjs failed on a stale 00-mirror-alias.conf and shard mount list; a new venture needs `node platform/marketing/front-door-tools.mjs --write` too, and that command also writes an untracked gitops/prod/front-door-tools/ directory that must not be committed."
+    },
+    {
+      "file": "platform/pages/venture-preflight.mjs",
+      "issue": "Preflight passed while five repo-wide count and mirror checks (sync_tree_counts.py, front-door-tools --write, siblings orphan budget, ink contrast, entities table) were still red for a new venture; a new-venture checklist naming those scripts would have saved four CI rounds."
     }
   ],
   "deviations": [
