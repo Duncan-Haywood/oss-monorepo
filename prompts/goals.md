@@ -60,6 +60,13 @@ and one platform that runs them:
 - **Free choice** (about 5% of effort): in the spirit of Google's "20% time",
   about one run in twenty works on whatever the agent finds most interesting,
   with its own approach (`prompts/explore/`). Same guardrails, same bar.
+- **Creative work** (about 10% of runs; owner, 2026-10-21: "the scheduled
+  agents are the throughput power I have I want some portion of them going
+  towards carrying out actually operating that goal"): the owner's
+  long-running creative projects, written, voiced and published by the
+  fleet (`prompts/creative/`). Hearth & Horizon's science fiction comes
+  first, beside its two story shelves, Saints by Candlelight and the
+  writing podcast.
 - **The web presence** (added 2026-10-14): one website, hosted on GitHub
   (GitHub Pages), from which all of the work above can be easily checked out
   visually. A visitor lands on one homepage and reaches every product and
@@ -799,6 +806,10 @@ time budgets. Each change should move one of the dashboard's CI numbers.
 - **Explore:** merged work the agent chose itself, about 5% of runs. Judged
   on the same success and integrity measures; the review also notes which
   free-choice ideas graduated into a regular track.
+- **Creative:** finished stories and episodes on `main` (text, audio,
+  feeds) that pass their series guide's honesty rules, then measured
+  listening (`audio_played`, `audio_finished`). Quality over count; audio
+  stays inside the Pages size budget the track prompt sets.
 - **Red team / blue team:** the repository's **catch rate** (seeded faults
   its tests catch, over non-equivalent faults seeded) rises over time, and
   its **error rate** (real defects found per red-team run) falls. Every

@@ -320,6 +320,13 @@ class RepositoryTest(unittest.TestCase):
         weights = {t: float(c["weight"]) for t, c in tracks.items() if t != promptctl.REVIEW}
         self.assertAlmostEqual(weights["explore"] / sum(weights.values()), 0.05, places=3)
 
+    def test_creative_work_gets_about_ten_percent(self):
+        # The owner, 2026-10-21: a portion of the scheduled fleet operates the
+        # creative projects (prompts/creative/prompt-0.md).
+        tracks = promptctl.load_routing(promptctl.ROOT)["tracks"]
+        weights = {t: float(c["weight"]) for t, c in tracks.items() if t != promptctl.REVIEW}
+        self.assertAlmostEqual(weights["creative"] / sum(weights.values()), 0.10, places=3)
+
 
 
 
