@@ -21,7 +21,7 @@ deploy it themselves".
 
 **Deploy-first.** Products already on `main` with no public URL outrank new
 candidates: give them a GitHub Pages surface (the Hetzner box was retired on
-2026-10-01) rather than cloning another undeployed calculator
+2026-10-01) rather than starting another product
 ([`portfolio/hosting/`](../portfolio/hosting/README.md)).
 
 Target super-niches where users have money and a real problem — especially
@@ -29,8 +29,9 @@ tools that help them earn more. Low variable cost, traditional software, AI
 only where it clearly helps. Payment code is allowed only off by default and on
 the deployer's own keys, never the owner's accounts (`../prompts/goals.md`,
 "Payments: never the owner's"); the owner's own instances take GitHub Sponsors
-donations only. Prefer higher-value work to another single-page calculator: a
-principle, not a ban (owner, 2026-10-16; `../prompts/ventures/prompt-1.md`).
+donations only. No calculator work: no new calculators, and existing ones get
+fixes only when broken (owner, 2026-10-21; `../prompts/goals.md`, "Direction:
+depth over calculators").
 
 Running venture tests: `python3 platform/ci/run_venture_tests.py --changed`
 (or named slugs; no args runs all, in minutes). Do not loop `node --test` serially.

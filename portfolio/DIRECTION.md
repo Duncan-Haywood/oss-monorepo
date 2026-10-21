@@ -8,7 +8,8 @@ ledger, or session notes that still treat policy compliance as the primary job.
 (`prompts/ventures/prompt-1.md`) win over this document where they differ.
 That covers the business model (one-click self-deployed copies with a donate
 link), payments (allowed on the deployer's own keys, never the owner's), and
-a preference for higher-value work over more single-page calculators. Several sections below say "the owner's own
+no calculator work: no new calculators, and fixes only for existing ones
+(owner, 2026-10-21). Several sections below say "the owner's own
 framing, relayed" without quoting the owner. Read them as an agent's
 interpretation (`goals.md`, "Judgment over rules").
 
@@ -97,8 +98,8 @@ document.
    > "new ventures first" is how 121 near-identical `*-bid-calculator` ventures and
    > 521 other calculators were built while none was ever measured. A new venture
    > is welcome when it is a genuinely different product (web or not), never another
-   > copy of an existing template family; distribution, measurement and the
-   > router's `Consolidate:` task rank ahead of it.
+   > copy of an existing template family and never a calculator (owner,
+   > 2026-10-21); distribution, measurement and the flagships rank ahead of it.
 
 2. **New ventures get first call, right now, not the leftover slot — and the
    owner has a standing special interest in them, so raise the bar rather
@@ -148,10 +149,10 @@ document.
    ranks these above the browser calculator on cost grounds; this is the
    same ranking, argued from zero traffic across 141 tries).
    `ventures/actions-runner-starvation-check` is a fresh instance of that
-   alternative shape, not another calculator. A specific niche with an
-   unusually strong, named channel is still worth building regardless of
-   shape — this doesn't forbid the archetype, it raises the bar for
-   choosing it by default. See `pipeline/README.md`'s "archetype itself"
+   alternative shape, not another calculator. **Superseded 2026-10-21:** the
+   owner dropped calculator work outright, so the archetype is no longer
+   weighed; it is not built (`prompts/goals.md`, "Direction: depth over
+   calculators"). See `pipeline/README.md`'s "archetype itself"
    section for the full measurement; this paragraph exists so the same
    finding is visible from the file a session actually opens first.
 
@@ -417,7 +418,7 @@ beats another build**:
 
 1. Get a live URL (or install command) in front of a niche user.
 2. Record a usage reading that is not `null`.
-3. Only then graduate a new candidate or clone another bid calculator.
+3. Only then graduate a new candidate (never a calculator: owner, 2026-10-21).
 
 The host is decided: GitHub Pages for static products. The Hetzner boxes
 for processes were deleted 2026-10-01, so processes need a new host
@@ -533,7 +534,7 @@ changes what "the next task" means. In order:
    idea as a `build-now` candidate from the queue — screen it against
    `screened-out.md`, score it honestly (the gates are not negotiable; the
    composite is not a formality), and graduate it the same day. What still
-   isn't wanted is a niche calculator that duplicates an existing venture's
+   isn't wanted (and since 2026-10-21 is not built at all) is a niche calculator that duplicates an existing venture's
    shape with no new mechanism and no evidence anyone asked for it — that is
    the "176th" this item warns against, not novelty itself.
 5. **Every live product should carry a working, honest donation ask.** See

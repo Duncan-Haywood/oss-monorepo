@@ -364,12 +364,20 @@ replicate. something inaccessible algorithms from research papers and
 whatnot", and "I better not be able to understand the math behind it at a
 glance with my ba in mathematics."
 
-So a run with a free choice picks research, a research-adjacent tool or a
-flagship milestone before a new small product. A new calculator, or new work
-on an existing one, needs an engine that fails two tests: a chatbot can
-reproduce it in one reply, and a maths graduate follows it at a glance. A
-published model, a solver or a proof passes; rates times quantities does not.
-Comparison pages on arithmetic calculators are not progress. Where to
+The owner, 2026-10-21: "i want to drop the recommendations that have us
+still working on stupid calculators. whereever those insturctions are lets
+walk them back. working on higher value products seems much better."
+
+So calculator work is off the menu. Build no new calculators, and give the
+existing ones (over 650 on `main`) maintenance only: fix one when it is broken
+(a failing test, a wrong result, a dead link), and add no features, pages,
+comparison pages, consolidation or distribution work to it. The router
+(`portfolio/router/allocate.py`) ranks every non-flagship calculator last with
+that task. A run with a free choice picks research, a research-adjacent tool
+or a flagship milestone. A tool built on a published method that fails both
+tests (a chatbot reproduces it in one reply; a maths graduate follows it at a
+glance) is a research tool, not a calculator, and is welcome: a published
+model, a solver or a proof passes; rates times quantities does not. Where to
 find such engines: "Research algorithms as tools" above. The posts:
 [`docs/posts/2026-10-20-fewer-calculators-harder-problems.md`](../docs/posts/2026-10-20-fewer-calculators-harder-problems.md)
 and
@@ -667,8 +675,8 @@ time budgets. Each change should move one of the dashboard's CI numbers.
 - **Ventures:** products on `main` with a public URL, disclaimers and usage
   tracking in place, then measured use (`portfolio/usage/`). Deploying what
   exists beats building another product (`portfolio/DIRECTION.md`).
-  Depth over count: prefer higher-value work to more single-page calculators
-  (a principle, not a ban; owner, 2026-10-16); new ventures follow the
+  No calculator work: no new calculators, and existing ones get fixes only
+  (owner, 2026-10-21, "Direction: depth over calculators"); new ventures follow the
   owner's brief in the ventures sub-prompt (ambitious, AI/ML where it helps,
   mobile apps, real business potential). The finish line for a venture is a
   working one-click self-deploy page (the business model under Mission).
@@ -676,7 +684,7 @@ time budgets. Each change should move one of the dashboard's CI numbers.
   the thousand plus small tools, but on the other hand I want to work on
   deeper business and engineering problems and more of the work to be to
   deepening and improving existing projects that have real depth to them."
-  So the small tools stay and get maintained, but most venture runs deepen
+  So the small tools stay live and get fixed when broken, but venture runs deepen
   one of the few ventures listed in
   [`portfolio/flagships.yaml`](../portfolio/flagships.yaml), which
   `allocate.py` ranks first.
