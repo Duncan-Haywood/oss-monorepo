@@ -1,0 +1,13 @@
+[project]
+name = "infra-chatter"
+version = "0.1.0"
+description = "Milling chatter stability lobes: zero-order approximation against semi-discretisation and time-domain simulation"
+requires-python = ">=3.9"
+dependencies = ["numpy", "scipy"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]

@@ -1541,7 +1541,7 @@ Annals*). Payments: gridlock resolution and liquidity-saving mechanisms (Bech an
 7. `infra-grind`: comminution circuits. A population-balance ball-mill and classifier model
    against Bond's law; the energy saved by circuit choices (cut size, recirculation load) at
    the same product size, set against published plant figures.
-8. `infra-chatter`: stability lobes for milling. The Altintas-Budak zero-order solution against
+8. `infra-chatter` (done 2026-10-21; one benchmark mode, no measured FRF): stability lobes for milling. The Altintas-Budak zero-order solution against
    time-domain simulation, then the spindle speeds that maximise metal removal rate for a
    measured tool tip FRF from a public dataset.
 9. `infra-yield` (done 2026-10-21; wafer prices and D0 are 2020 secondary-source snapshots, packaging assumed and swept): cost per good die. Poisson, Murphy and negative-binomial yield models against
