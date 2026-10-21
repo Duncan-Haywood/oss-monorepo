@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { newBooks } from "./engine.mjs";
 import { addAsset, disposeAsset } from "./assets.mjs";
-import { MACRS_MID_QUARTER, usesMidQuarter, MACRS_HALF_YEAR, setTaxTreatment, assetTaxYear, taxDepreciation } from "./taxdepr.mjs";
+import { MACRS_MID_QUARTER, usesMidQuarter, MACRS_HALF_YEAR, setTaxTreatment, assetTaxYear, taxDepreciation, s179Check } from "./taxdepr.mjs";
 
 const with1 = (cost, date, tax, life = 60) => {
   let b = addAsset(newBooks(), { name: "Machine", date, cost, lifeMonths: life }).books;
@@ -57,7 +57,7 @@ test("worksheet compares with book depreciation and flags what it cannot check",
   assert.equal(w.rows[0].total, 100000 + 180000);
   assert.ok(w.rows[0].book > 0);
   assert.equal(w.rows[0].difference, w.rows[0].total - w.rows[0].book);
-  assert.ok(w.warnings.some((x) => /Section 179 dollar limits/.test(x)));
+  assert.ok(w.warnings.some((x) => /Section 179 limits are typed from memory/.test(x)));
 });
 
 test("mid-quarter test warning when over 40% lands in Q4; untreated assets are listed", () => {
@@ -147,4 +147,26 @@ test("exactly 40 percent in Q4 stays on the half-year tables", () => {
   b = addAsset(b, { name: "B", date: "2026-11-01", cost: "4000", lifeMonths: 60 }).books;
   b = setTaxTreatment(setTaxTreatment(b, "FA-1", { macrsClass: 5 }).books, "FA-2", { macrsClass: 5 }).books;
   assert.equal(usesMidQuarter(b, 2026), false);
+});
+
+test("179 over the dollar limit is flagged with the excess", () => {
+  const b = with1("3000000", "2026-03-10", { macrsClass: 7, s179: "3000000" });
+  const c = s179Check(b, 2026);
+  assert.equal(c.allowed, 256000000);
+  assert.equal(c.excess, 44000000);
+  assert.ok(taxDepreciation(b, 2026).warnings.some((x) => /is over and is not allowed/.test(x)));
+});
+
+test("179 limit falls dollar for dollar above the investment threshold", () => {
+  const b = with1("5000000", "2026-03-10", { macrsClass: 7, s179: "1000000" });
+  const c = s179Check(b, 2026);
+  assert.equal(c.allowed, 256000000 - (500000000 - 409000000)); // 1,650,000.00
+  assert.equal(c.excess, 0);
+  assert.ok(!taxDepreciation(b, 2026).warnings.some((x) => /is over/.test(x)));
+});
+
+test("a year with no limits on file says so", () => {
+  const b = with1("10000", "2031-03-10", { macrsClass: 5, s179: "1000" });
+  assert.equal(s179Check(b, 2031), null);
+  assert.ok(taxDepreciation(b, 2031).warnings.some((x) => /No Section 179 limits on file for 2031/.test(x)));
 });
