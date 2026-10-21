@@ -284,6 +284,8 @@ test("single point of failure is found", () => {
   const r = buildRoster(staffOf("Ann,10,40,0,any\nBo,10,40,0,Mon 9-10"), slotsOf("Mon,9,17,1\nTue,9,17,1"));
   assert.equal(r.critical[0].name, "Ann");
   assert.ok(r.critical[0].extraUnfilledHours >= 8);
+  // Losing Ann leaves most shifts empty, so the paid cost falls: extraCost is the without-her cost minus the with-her cost.
+  assert.ok(r.critical[0].extraCost < 0);
   assert.ok(r.onlyOne.length >= 1);
 });
 
@@ -1321,6 +1323,10 @@ test("age: 15 applies the federal youth-hour limits as hard rules", () => {
 });
 
 import { parseTimeOffRequest, addTimeOff } from "./calc.mjs";
+test("parseTimeOffRequest allows 60 calendar days inclusive, as its message says, and no more", () => {
+  assert.deepEqual(parseTimeOffRequest("2026-01-01", "2026-03-01"), { entry: "2026-01-01..2026-03-01" }); // 60 days
+  assert.ok(parseTimeOffRequest("2026-01-01", "2026-03-02").error); // 61 days
+});
 test("parseTimeOffRequest and addTimeOff build an off: entry", () => {
   assert.deepEqual(parseTimeOffRequest("2026-11-04"), { entry: "2026-11-04" });
   assert.deepEqual(parseTimeOffRequest("2026-11-04", "2026-11-06"), { entry: "2026-11-04..2026-11-06" });
