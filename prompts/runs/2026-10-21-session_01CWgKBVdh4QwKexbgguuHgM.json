@@ -36,7 +36,8 @@
     "pages test suite: &rsaquo; in the guide page is not in platform/pages/entities.mjs NAMED_ENTITIES; replaced with the literal character. Local run of platform/pages tests: 1202 pass, this 1 fail, now fixed.",
     "portfolio-validate: front-door alias map and portfolio-front.yaml shard list were stale; regen.mjs reported 'current' but `front-door-tools.mjs --write` was still needed (new venture moved the shard count to 51).",
     "gitops pytest: tree counts (mirrored tools 1310 -> 1311, opt-out switches 1282 -> 1283) not bumped for the new venture; ran platform/ci/sync_tree_counts.py and added the +1 comment lines. Merged main again (generated .gz conflicts taken from main, then regenerated). Local: gitops test_manifests + test_ci_runner 108 passed, front-door-tools.test 102 pass, siblings/ink/entities 44 pass, three venture suites green.",
-    "pages test (faq-visible) red on the merge with main: einvoice-preflight/italy-sdi-e-invoice-mandate.html (from #9059) had FAQ JSON-LD text that differs from the visible answer. Not this PR's change; reproduced on main, no open fix PR, ported a one-line fix (visible answer now matches the JSON-LD) because this session may only push its own branch."
+    "pages test (faq-visible) red on the merge with main: einvoice-preflight/italy-sdi-e-invoice-mandate.html (from #9059) had FAQ JSON-LD text that differs from the visible answer. Not this PR's change; reproduced on main, no open fix PR, ported a one-line fix (visible answer now matches the JSON-LD) because this session may only push its own branch.",
+    "No CI ran on 77c410c for 30 minutes: the branch conflicted with main (another venture graduated and bumped the same counts and mirror files). Merged main taking its side of every generated/count conflict, re-ran launched/regen/front-door-tools/sync_tree_counts and re-added the support-agent +1 lines."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -55,6 +56,10 @@
     {
       "file": "platform/pages/venture-preflight.mjs",
       "issue": "Preflight passed while five repo-wide count and mirror checks (sync_tree_counts.py, front-door-tools --write, siblings orphan budget, ink contrast, entities table) were still red for a new venture; a new-venture checklist naming those scripts would have saved four CI rounds."
+    },
+    {
+      "file": ".github/prompts/land-your-work.md",
+      "issue": "On a busy main, a new-venture PR conflicts on every hand-written count and mirror file whenever another venture lands; a conflicted PR silently gets no CI. Taking main's side then re-running the sync scripts is the recipe, and it is not written down."
     }
   ],
   "deviations": [
