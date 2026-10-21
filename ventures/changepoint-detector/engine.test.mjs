@@ -1117,3 +1117,18 @@ test('known holidays: a factor per kind recovers two different dips', () => {
   assert.ok(Math.abs(f.sale - 1.8) < 0.3, `sale ${f.sale}`);
   assert.throws(() => analyze({ values: x, model: 'poisson', holidays: ['3=a', '9=a', '12=b'] }), /kind "b"/);
 });
+
+test('known holidays with a season: alternating keeps the planted step, adds no changes, and tracks the weekly shape at least as well', () => {
+  const week = [1.3, 1.0, 1.0, 0.9, 1.1, 0.8, 0.9], n = 224;
+  const rng = (() => { let s = 11; return () => { s = (s * 1664525 + 1013904223) % 4294967296; return s / 4294967296; }; })();
+  const hol = []; for (let i = 14; i < n; i += 28) hol.push(i);
+  const x = Array.from({ length: n }, (_, t) => { let u = 0; for (let i = 0; i < 12; i++) u += rng(); const l = 40 * week[t % 7] * (hol.includes(t) ? 0.3 : 1) * (t >= 120 ? 1.5 : 1); return Math.max(0, Math.round(l + Math.sqrt(l) * (u - 6))); });
+  const run = (extra) => analyze({ values: x, model: 'poisson', period: 7, holidays: hol.map((h) => h + 1), ...extra });
+  const on = run({}), off = run({ noHolidayAlternation: true });
+  assert.equal(on.pelt.changepoints.length, 1);
+  assert.ok(Math.abs(on.pelt.changepoints[0].index - 120) <= 4);
+  assert.ok(Math.abs(on.holidays.factor - 0.3) < 0.08, `factor ${on.holidays.factor}`);
+  const mean = week.reduce((a, b) => a + b) / 7;
+  const err = (r) => Math.max(...week.map((w, i) => Math.abs(r.seasonal.profile[i] - w / mean)));
+  assert.ok(err(on) <= err(off) + 0.01, `alternating ${err(on)} vs ${err(off)}`);
+});
