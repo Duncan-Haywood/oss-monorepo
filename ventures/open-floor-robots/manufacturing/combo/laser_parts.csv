@@ -1,0 +1,3 @@
+file,part,qty,material,thickness_mm,width_mm,height_mm,area_cm2,cut_length_mm,holes_and_cutouts,notes
+base_plate__aluminium_3mm.dxf,base_plate,1,aluminium 5052,3.0,300.0,300.0,572.5,2758,62,All holes are clearance holes; no tapping.
+top_deck__acrylic_3mm.dxf,top_deck,1,cast acrylic,3.0,326.0,326.0,754.3,1804,16,Cast (not extruded) acrylic cuts clean; 3 mm aluminium also works.

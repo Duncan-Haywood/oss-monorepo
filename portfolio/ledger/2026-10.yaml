@@ -4141,3 +4141,33 @@ entries:
         ventures/publish-kit/NEXT.md (move hearth-and-horizon and the writing podcast onto it,
         keeping their guids). Usage unmeasured.
     mrr_end: 0
+  - venture: open-robot-mower
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Built at the owner's request (2026-10-20): MIT open-hardware robotic lawn mower, design
+        v0.1, unbuilt. mowerbot (stdlib): lawns with holes, stripe planner with perimeter and
+        obstacle loops, closed-loop simulation with GNSS noise and RTK fix loss, runtime and
+        charging sessions, blade stop time and energy, slope limits, serial protocol and CLI.
+        MicroPython blade interlock with latching stops on lift, tilt, stop button and bump, and a
+        watchdog. build123d package for mower and dock (DXF/STL/STEP/BOM/drawings) checked for
+        collisions at all 7 cut heights, blade-guard clearance and print-bed fit. Browser lawn
+        planner matches Python on 216 plans. Model outputs (not measurements): back-yard example
+        52 min, 99.96% planned coverage; blade stops in 0.46 s braked. BOM ~$1,050 + ~$300 RTK base
+        (estimates). Usage unmeasured.
+    mrr_end: 0
+  - venture: open-floor-robots
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Built at the owner's request (2026-10-20): MIT open-hardware robot vacuum, robot mop and
+        vacuum-mop combo on one chassis, design v0.1, unbuilt. floorbots (stdlib): room grids,
+        edge pass plus boustrophedon coverage, noisy closed-loop simulation, runtime and return to
+        dock, fan sizing, mop water dosing, protocol and CLI. ESP32 firmware with cliff back-off,
+        wheel-drop, bin interlock and pump-only-while-moving; speed capped at 350 mm/s so stopping
+        distance stays inside the 52 mm cliff-sensor lead. build123d packages for all three
+        builds. Simulation (living-room example): vacuum coverage 95.5% at 0 cm pose error, 86.6%
+        at 10 cm. BOMs ~$424 / ~$405 / ~$468 (estimates). Usage unmeasured.
+    mrr_end: 0

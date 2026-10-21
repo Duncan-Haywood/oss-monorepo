@@ -3757,6 +3757,17 @@ const CATEGORY_RULES = [
     // podcast feeds, the same read-and-listen axis as the graded stories.
     test: (slug) => ['ai-engineering-academy', 'hands-free-language-coach', 'listen-and-learn-audio', 'hearth-and-horizon'].includes(slug),
   },
+  {
+    // Added 2026-10-21 when `open-floor-robots` and `open-robot-mower` took
+    // the catch-all to 7. Listing it put `open-tennis-robots` on the same
+    // axis: a machine to build, with CAD, firmware and a fabrication package,
+    // rather than a calculation about money or a check on a file.
+    id: 'open-hardware',
+    title: 'Open hardware & robots',
+    accent: '#7a4a12',
+    blurb: 'Robots you can build, change and sell: MIT-licensed CAD with laser-cut and 3D-print files, firmware, bills of materials and a browser simulator for each. A robot vacuum and mop, a robotic lawn mower, and tennis ball robots.',
+    test: (slug) => ['open-floor-robots', 'open-robot-mower', 'open-tennis-robots'].includes(slug),
+  },
 ];
 
 const FALLBACK_CATEGORY = {

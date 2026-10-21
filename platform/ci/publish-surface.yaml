@@ -1036,6 +1036,12 @@ workflows:
 - workflow: oidc-trust-policy-check-ci.yml
   classification: none
   publishes: []
+- workflow: open-floor-robots-ci.yml
+  classification: none
+  publishes: []
+- workflow: open-robot-mower-ci.yml
+  classification: none
+  publishes: []
 - workflow: open-tennis-robots-ci.yml
   classification: none
   publishes: []
