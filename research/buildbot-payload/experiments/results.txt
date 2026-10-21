@@ -41,21 +41,23 @@ A. h1 palm: max load (kg) by hand height (rows, m) and reach forward of the feet
    reachable cells 43/50; median 14.2 kg, min 3.0, max 36.4
 
 B. Tasks (robot carries the stated mass; human reference: NIOSH load constant 23.1 kg)
-   carry an 8 ft 2x4 stud: 3.7 kg at z 0.6 m, x 0.3 m [1.5x3.5 in x 96 in at 28 lb/ft3 (house-framing's SPF density)]
+   carry an 8 ft 2x4 stud: 3.8 kg at z 0.6 m, x 0.3 m [SPF at 28.5 lb/ft3 from NDS G = 0.42]
       g1-palm yes (4.6 kg, waist_pitch_joint); g1-cradle no (2.7 kg, waist_pitch_joint); h1-palm yes (18.8 kg, right_elbow)
-   carry an 8 ft 2x6: 5.8 kg at z 0.6 m, x 0.3 m [1.5x5.5 in x 96 in at 28 lb/ft3]
+   carry an 8 ft 2x6: 5.9 kg at z 0.6 m, x 0.3 m [as above]
       g1-palm no (4.6 kg, waist_pitch_joint); g1-cradle no (2.7 kg, waist_pitch_joint); h1-palm yes (18.8 kg, right_elbow)
-   hold a framing nailer at stud height: 3.6 kg at z 1.0 m, x 0.4 m [about 8 lb, my assumption]
+   hold a framing nailer at stud height: 3.4 kg at z 1.0 m, x 0.4 m [Metabo HPT NR90AES1, 7.5 lb (maker's listing)]
       g1-palm yes (4.7 kg, waist_pitch_joint); g1-cradle no (0.5 kg, reach); h1-palm yes (12.8 kg, right_elbow)
-   carry a 4x8 OSB sheet alone: 20.3 kg at z 0.6 m, x 0.3 m [7/16 in OSB at 1.4 lb/ft2 (house-panellift)]
+   carry a 4x8 OSB sheet alone: 20.3-23.2 kg at z 0.6 m, x 0.3 m [7/16 in OSB, 1.4-1.6 lb/ft2]
       g1-palm no (4.6 kg, waist_pitch_joint); g1-cradle no (2.7 kg, waist_pitch_joint); h1-palm no (18.8 kg, right_elbow)
-   carry one end of a 4x8 OSB sheet with a person: 10.2 kg at z 0.6 m, x 0.3 m [half the sheet]
+   carry one end of a 4x8 OSB sheet with a person: 10.2-11.6 kg at z 0.6 m, x 0.3 m [half the sheet]
       g1-palm no (4.6 kg, waist_pitch_joint); g1-cradle no (2.7 kg, waist_pitch_joint); h1-palm yes (18.8 kg, right_elbow)
-   set a concrete block on the 3rd course: 15.9 kg at z 0.6 m, x 0.4 m [8x8x16 in CMU about 35 lb, my assumption]
+   set a lightweight concrete block on the 3rd course: 11.8 kg at z 0.6 m, x 0.4 m [8x8x16 in lightweight CMU, average 26 lb (TMS journal survey)]
+      g1-palm no (2.8 kg, waist_pitch_joint); g1-cradle no (1.2 kg, waist_pitch_joint); h1-palm yes (15.5 kg, right_elbow)
+   set a normal-weight concrete block on the 3rd course: 16.8 kg at z 0.6 m, x 0.4 m [8x8x16 in normal-weight CMU, average 37 lb (same survey)]
       g1-palm no (2.8 kg, waist_pitch_joint); g1-cradle no (1.2 kg, waist_pitch_joint); h1-palm no (15.5 kg, right_elbow)
    lift a 60 lb bag of concrete mix: 27.2 kg at z 0.4 m, x 0.3 m [labelled bag mass]
       g1-palm no (3.8 kg, waist_pitch_joint); g1-cradle no (2.9 kg, waist_pitch_joint); h1-palm no (22.7 kg, reach)
-   hold one end of a 1/2 in drywall sheet at wall mid-height with a person: 11.6 kg at z 1.2 m, x 0.3 m [4x8 sheet about 1.6 lb/ft2 (51 lb), my assumption; half of it]
+   hold one end of a 1/2 in drywall sheet at wall mid-height with a person: 11.6 kg at z 1.2 m, x 0.3 m [4x8 sheet at 1.6 lb/ft2 (51 lb); half of it]
       g1-palm no (8.7 kg, left_wrist_pitch_joint); g1-cradle no (1.8 kg, reach); h1-palm yes (12.4 kg, left_elbow)
    hold a drywall sheet up to an 8 ft ceiling with a person: 11.6 kg at z 2.3 m, x 0.2 m [as above; hands near 2.3 m]
       g1-palm out of reach (- kg, reach); g1-cradle out of reach (- kg, reach); h1-palm out of reach (- kg, reach)

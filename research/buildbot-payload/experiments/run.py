@@ -15,18 +15,30 @@ REACH = [0.2, 0.3, 0.4, 0.5, 0.6]
 HEIGHT = {"g1": [0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4], "h1": [0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0]}
 CASES = [("g1", "palm"), ("g1", "cradle"), ("h1", "palm")]
 
-# (task, mass kg, hand height m, reach m, where the mass comes from)
+# (task, (low, high) mass kg, hand height m, reach m, source). A task with a range passes only if the
+# robot holds the high end, fails if it cannot hold the low end, and "depends" in between.
+# Lumber: NDS specific gravity 0.42 for SPF (oven-dry basis) at 15% moisture, through the Wood
+# Handbook (FPL-GTR-282) relation G_m = G0 / (1 + 0.265 a G0), a = (30 - MC) / 30, gives 28.5 lb/ft3.
+SPF_PCF = 0.42 / (1 + 0.265 * 0.5 * 0.42) * 62.4 * 1.15
+STUD_KG = 1.5 * 3.5 * 96 / 1728 * SPF_PCF * LB
+TWO_BY_SIX_KG = 1.5 * 5.5 * 96 / 1728 * SPF_PCF * LB
+OSB_KG = (1.4 * 32 * LB, 1.6 * 32 * LB)      # 45-51 lb a 4x8 sheet of 7/16 in OSB (retail listings; no mill data)
+DRYWALL_KG = 1.6 * 32 * LB                    # 1/2 in regular gypsum board, 1.6 lb/ft2 (USG product comparison)
 TASKS = [
-    ("carry an 8 ft 2x4 stud", 3.7, 0.6, 0.3, "1.5x3.5 in x 96 in at 28 lb/ft3 (house-framing's SPF density)"),
-    ("carry an 8 ft 2x6", 5.8, 0.6, 0.3, "1.5x5.5 in x 96 in at 28 lb/ft3"),
-    ("hold a framing nailer at stud height", 3.6, 1.0, 0.4, "about 8 lb, my assumption"),
-    ("carry a 4x8 OSB sheet alone", 20.3, 0.6, 0.3, "7/16 in OSB at 1.4 lb/ft2 (house-panellift)"),
-    ("carry one end of a 4x8 OSB sheet with a person", 10.2, 0.6, 0.3, "half the sheet"),
-    ("set a concrete block on the 3rd course", 15.9, 0.6, 0.4, "8x8x16 in CMU about 35 lb, my assumption"),
-    ("lift a 60 lb bag of concrete mix", 27.2, 0.4, 0.3, "labelled bag mass"),
-    ("hold one end of a 1/2 in drywall sheet at wall mid-height with a person", 11.6, 1.2, 0.3,
-     "4x8 sheet about 1.6 lb/ft2 (51 lb), my assumption; half of it"),
-    ("hold a drywall sheet up to an 8 ft ceiling with a person", 11.6, 2.3, 0.2, "as above; hands near 2.3 m"),
+    ("carry an 8 ft 2x4 stud", (STUD_KG, STUD_KG), 0.6, 0.3, "SPF at 28.5 lb/ft3 from NDS G = 0.42"),
+    ("carry an 8 ft 2x6", (TWO_BY_SIX_KG, TWO_BY_SIX_KG), 0.6, 0.3, "as above"),
+    ("hold a framing nailer at stud height", (7.5 * LB, 7.5 * LB), 1.0, 0.4, "Metabo HPT NR90AES1, 7.5 lb (maker's listing)"),
+    ("carry a 4x8 OSB sheet alone", OSB_KG, 0.6, 0.3, "7/16 in OSB, 1.4-1.6 lb/ft2"),
+    ("carry one end of a 4x8 OSB sheet with a person", tuple(k / 2 for k in OSB_KG), 0.6, 0.3, "half the sheet"),
+    ("set a lightweight concrete block on the 3rd course", (26 * LB, 26 * LB), 0.6, 0.4,
+     "8x8x16 in lightweight CMU, average 26 lb (TMS journal survey)"),
+    ("set a normal-weight concrete block on the 3rd course", (37 * LB, 37 * LB), 0.6, 0.4,
+     "8x8x16 in normal-weight CMU, average 37 lb (same survey)"),
+    ("lift a 60 lb bag of concrete mix", (60 * LB, 60 * LB), 0.4, 0.3, "labelled bag mass"),
+    ("hold one end of a 1/2 in drywall sheet at wall mid-height with a person", (DRYWALL_KG / 2, DRYWALL_KG / 2), 1.2, 0.3,
+     "4x8 sheet at 1.6 lb/ft2 (51 lb); half of it"),
+    ("hold a drywall sheet up to an 8 ft ceiling with a person", (DRYWALL_KG / 2, DRYWALL_KG / 2), 2.3, 0.2,
+     "as above; hands near 2.3 m"),
 ]
 
 
@@ -67,15 +79,17 @@ def main():
               f"min {min(reach):.1f}, max {max(reach):.1f}")
         print()
     print(f"B. Tasks (robot carries the stated mass; human reference: NIOSH load constant {NIOSH_KG:.1f} kg)")
-    for task, kg, z, x, src in TASKS:
-        row = {"task": task, "kg": kg, "z": z, "x": x, "source": src}
+    for task, (lo, hi), z, x, src in TASKS:
+        row = {"task": task, "kg": [round(lo, 2), round(hi, 2)], "z": z, "x": x, "source": src}
         cells = []
         for n, grip in CASES:
             cap, worst = M.max_payload(robots[n], d0[n], (x, z), grip)
-            verdict = "out of reach" if cap is None else ("yes" if cap >= kg else "no")
+            verdict = ("out of reach" if cap is None else "yes" if cap >= hi
+                       else "no" if cap < lo else "depends")
             row[f"{n}-{grip}"] = {"cap": cap, "limit": worst, "verdict": verdict}
             cells.append(f"{n}-{grip} {verdict} ({'-' if cap is None else format(cap, '.1f')} kg, {worst})")
         out["tasks"].append(row)
+        kg = f"{lo:.1f}" if hi - lo < 0.05 else f"{lo:.1f}-{hi:.1f}"
         print(f"   {task}: {kg} kg at z {z} m, x {x} m [{src}]")
         print("      " + "; ".join(cells))
     Path(__file__).with_name("results.json").write_text(json.dumps(out, indent=1))

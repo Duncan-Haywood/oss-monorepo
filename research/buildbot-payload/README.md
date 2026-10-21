@@ -4,7 +4,7 @@ First project of track 20, robots on the residential building site (`PROJECTS.md
 
 **Live page:** https://duncan-haywood.github.io/monorepo-projects/research/buildbot-payload/
 
-**Headline.** The **G1** (33 kg) can hold a median **4.5 kg** in its palms over its reachable grid. That is 1.5 to 4.7 kg at 0.4 to 0.5 m in front of its feet and up to 12 kg tucked close to the body. This agrees with Unitree's own posture-dependent arm rating of 2 kg (3 kg for the EDU). Its **waist pitch motor (50 N·m)** is the limit in 16 of 28 cells and its 5 N·m wrists in 5 more. The **H1** (51 kg) holds a median **14.2 kg** (12 to 15 kg over most of a 0.4 to 2.0 m by 0.2 to 0.6 m grid), and its **18 N·m elbows** set the limit. On the tasks, the G1 can carry an 8 ft 2x4 (3.7 kg) and hold a framing nailer, but not a 2x6 (5.8 kg against 4.6) or its half of an OSB sheet. The H1 can carry studs and 2x6s and take one end of a 4x8 OSB or drywall sheet with a person. It cannot carry a whole OSB sheet alone (20.3 kg against 18.8), set a concrete block (15.9 against 15.5) or lift a 60 lb bag. Neither robot reaches an 8 ft ceiling. So with today's stock arms, a humanoid on a house site is a helper for light handling and "the other end" of a sheet, while people and lifts keep the heavy pieces. The motors a purpose-built robot would upgrade first are the waist and the elbows.
+**Headline.** The **G1** (33 kg) can hold a median **4.5 kg** in its palms over its reachable grid. That is 1.5 to 4.7 kg at 0.4 to 0.5 m in front of its feet and up to 12 kg tucked close to the body. This agrees with Unitree's own posture-dependent arm rating of 2 kg (3 kg for the EDU). Its **waist pitch motor (50 N·m)** is the limit in 16 of 28 cells and its 5 N·m wrists in 5 more. The **H1** (51 kg) holds a median **14.2 kg** (12 to 15 kg over most of a 0.4 to 2.0 m by 0.2 to 0.6 m grid), and its **18 N·m elbows** set the limit. On the tasks, the G1 can carry an 8 ft 2x4 (3.8 kg) and hold a framing nailer, but not a 2x6 (5.9 kg against 4.6) or its half of an OSB sheet. The H1 can carry studs and 2x6s, take one end of a 4x8 OSB or drywall sheet with a person, and set a lightweight concrete block (11.8 kg). It cannot carry a whole OSB sheet alone (20.3 to 23.2 kg against 18.8), set a normal-weight block (16.8 against 15.5) or lift a 60 lb bag. Neither robot reaches an 8 ft ceiling. So with today's stock arms, a humanoid on a house site is a helper for light handling and "the other end" of a sheet, while people and lifts keep the heavy pieces. The motors a purpose-built robot would upgrade first are the waist and the elbows.
 
 ![Payload envelopes](experiments/figure.png)
 
@@ -16,7 +16,19 @@ First project of track 20, robots on the residential building site (`PROJECTS.md
 - **Torques** (`torques`). The static generalised forces are gravity on every link plus half the load at each hand point. Ground wrenches at the two sole points balance the six floating-base equations (the minimum-norm split between the feet), and the joint torques are what remains. The tests check this against MuJoCo's forward dynamics: with these torques, wrenches and loads applied, every joint's acceleration is below 10<sup>−6</sup>.
 - **Payload** (`max_payload`). The load is bisected to 0.1 kg (re-solving the pose at each mass) up to the heaviest one where the pose converges, every joint is inside its limit and both feet still press down. "Reach" means the pose could not be solved: out of the arms' range, or the robot cannot lean far enough to balance.
 - **Grips.** On the G1, "palm" puts the load 8 cm out from the wrist yaw joint, in the rubber hand. "Cradle" hangs it on the forearm end before the wrist joints, which spares the wrists but shortens the reach. The H1 carries at the end of its forearm.
-- **Tasks.** Masses are listed with their sources in `experiments/run.py`. Lumber uses house-framing's 28 lb/ft<sup>3</sup> and OSB uses house-panellift's 1.4 lb/ft<sup>2</sup>. Drywall at 1.6 lb/ft<sup>2</sup>, a concrete block at 35 lb and a nailer at 8 lb are my assumptions. The bag is its labelled 60 lb. The human reference is the NIOSH lifting equation's 51 lb (23.1 kg) load constant (Waters et al. 1993).
+- **Tasks.** Every mass is computed or sourced in `experiments/run.py`:
+
+| Input | Value | Source |
+|---|---|---|
+| SPF lumber | 28.5 lb/ft<sup>3</sup> | NDS specific gravity 0.42 at 15% moisture, Wood Handbook (FPL-GTR-282) moisture relation |
+| 7/16 in OSB, 4x8 | 1.4 to 1.6 lb/ft<sup>2</sup> (45 to 51 lb), swept | retail listings; no mill data found, so the verdict must hold at both ends |
+| 1/2 in regular drywall | 1.6 lb/ft<sup>2</sup> (51 lb a sheet) | USG product comparison tool |
+| 8x8x16 in CMU | 26 lb lightweight, 37 lb normal weight | averages in a survey in *The Masonry Society Journal* |
+| Framing nailer | 7.5 lb | Metabo HPT NR90AES1 listing |
+| Bag of concrete mix | 60 lb | labelled mass |
+| Person's limit | 51 lb (23.1 kg) | NIOSH lifting equation load constant (Waters et al. 1993) |
+
+  A task passes only if the robot holds the top of its mass range.
 
 ## Reproduce
 ```bash
@@ -36,12 +48,13 @@ Set `BUILDBOT_MENAGERIE` to an existing Menagerie checkout to skip the clone. Th
 
 | Task (hand height, reach) | Mass | G1 palm | H1 |
 |---|---|---|---|
-| Carry an 8 ft 2x4 (0.6, 0.3 m) | 3.7 kg | yes (4.6) | yes (18.8) |
-| Carry an 8 ft 2x6 (0.6, 0.3) | 5.8 kg | no (4.6) | yes (18.8) |
-| Hold a framing nailer (1.0, 0.4) | 3.6 kg | yes (4.7) | yes (12.8) |
-| Carry a 4x8 OSB sheet alone (0.6, 0.3) | 20.3 kg | no | no (18.8) |
-| One end of a 4x8 OSB sheet, with a person | 10.2 kg | no | yes |
-| Set a concrete block (0.6, 0.4) | 15.9 kg | no (2.8) | no (15.5) |
+| Carry an 8 ft 2x4 (0.6, 0.3 m) | 3.8 kg | yes (4.6) | yes (18.8) |
+| Carry an 8 ft 2x6 (0.6, 0.3) | 5.9 kg | no (4.6) | yes (18.8) |
+| Hold a framing nailer (1.0, 0.4) | 3.4 kg | yes (4.7) | yes (12.8) |
+| Carry a 4x8 OSB sheet alone (0.6, 0.3) | 20.3&ndash;23.2 kg | no | no (18.8) |
+| One end of a 4x8 OSB sheet, with a person | 10.2&ndash;11.6 kg | no | yes |
+| Set a lightweight concrete block (0.6, 0.4) | 11.8 kg | no (2.8) | yes (15.5) |
+| Set a normal-weight concrete block (0.6, 0.4) | 16.8 kg | no (2.8) | no (15.5) |
 | Lift a 60 lb bag (0.4, 0.3) | 27.2 kg | no (3.8) | no (22.7, balance) |
 | One end of a drywall sheet at 1.2 m, with a person | 11.6 kg | no (8.7) | yes (12.4) |
 | Drywall up to an 8 ft ceiling, with a person (2.3 m) | 11.6 kg | out of reach | out of reach |
@@ -62,4 +75,4 @@ Make the posture torque-aware (optimise for the payload, not for distance from h
 None needed for this project. A hardware check would mean measuring a G1's or H1's held load at a few of these poses under supervision. That needs a robot (a purchase or a rental) and a risk assessment.
 
 ## Outside dependencies (vitamins)
-MuJoCo (Apache-2.0), NumPy, Matplotlib (figure) and pytest. The Unitree G1 and H1 models come from MuJoCo Menagerie (BSD-3-Clause, © Unitree Robotics), fetched at a pinned commit. Unitree's arm rating is from its G1 product page (<https://www.unitree.com/en/mobile/g1>, read 2026-10-21) and is the vendor's claim. No group in `prompt.md` covers construction, and none is claimed.
+MuJoCo (Apache-2.0), NumPy, Matplotlib (figure) and pytest. The Unitree G1 and H1 models come from MuJoCo Menagerie (BSD-3-Clause, © Unitree Robotics), fetched at a pinned commit. Unitree's arm rating is from its G1 product page (<https://www.unitree.com/en/mobile/g1>, read 2026-10-21) and is the vendor's claim. Task-mass sources, read 2026-10-21: USG's product comparison tool (<https://assemblies-tools.usg.com/content/usgcom/en/resource-center/tools/product-comparison-tool/product-comparison-page.141134.1400.CertainTeed.html>), the CMU survey in *The Masonry Society Journal* (<https://journal.masonrysociety.org/article/140517.pdf>), and Metabo HPT's NR90AES1 page (<https://metabo-hpt.com/products/product/plastic-collated-framing-nailer-metabo-hpt-nr90aes1>). No group in `prompt.md` covers construction, and none is claimed.

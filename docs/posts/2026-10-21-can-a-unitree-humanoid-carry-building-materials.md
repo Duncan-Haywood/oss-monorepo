@@ -40,9 +40,11 @@ dynamics: with the computed torques applied, nothing accelerates.
   and its **18 N·m elbows** are the limit.
 - **On real tasks.** The G1 can carry an 8 ft 2x4 or hold a framing nailer,
   but not a 2x6. The H1 can carry studs and take one end of a 4x8 sheet of OSB
-  or drywall while a person takes the other. Neither can carry a whole sheet
-  alone, set a concrete block or lift a 60 lb bag, and neither reaches an
-  8 ft ceiling.
+  or drywall while a person takes the other, and it can set a lightweight
+  concrete block. Neither can carry a whole sheet alone, set a normal-weight
+  block or lift a 60 lb bag, and neither reaches an 8 ft ceiling. The task
+  masses come from maker and standards data: USG for drywall, the NDS for
+  lumber, a masonry survey for blocks, and a nailer's listing.
 
 So a stock humanoid today is a helper for light handling and a second pair
 of hands on a shared sheet. The person's half of that sheet, 10 to 12 kg, is
