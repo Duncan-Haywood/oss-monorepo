@@ -139,6 +139,16 @@ LP bound, so there is almost nothing left for a better integer method to find
 there; the gap that matters is against planning by hand (the "each piece alone"
 column is the extreme case: 22% more board).
 
+## Corner plate laps
+
+Set `"plateLaps": true` in the plan (or pick it on the page). A wall with
+`corner: true` meets the end of the wall listed before it (the first wall meets
+the last). At each corner the earlier wall's top plate runs through by the later
+wall's depth while the later wall's top plate stops short by the earlier wall's
+depth; the cap plate laps the other way, tying the corner. Piece lengths and the
+splice points change, and so can the board order; plate totals do not (the test
+checks it). Splices still sit over full studs.
+
 ## Limits
 
 - **No structural checks.** Header size, plies, jack count, stud size and
@@ -148,8 +158,8 @@ column is the extreme case: 22% more board).
   structural bracing, header spacers (listed in the notes), hardware and
   fasteners, gable and rake walls, walls that change height, multiple storeys,
   window and door rough openings given by unit size (enter rough openings), and
-  plates lapping into the intersecting wall at corners (the totals are the same;
-  the piece lengths shift by the wall thickness).
+  plates lapping at tees and at corners that do not close a loop (`plateLaps` reads the walls as a
+  closed loop in the order listed).
 - **Openings within 1-1/2" plus their kings and jacks of a wall end** are
   rejected rather than framed: frame those ends by hand.
 - **Prices default to 1 per foot of board**, so the default order minimises
