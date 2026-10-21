@@ -59,6 +59,22 @@ await page.click("#example");
 await page.waitForFunction(() => /synthetic months/.test(document.querySelector("#import-status").textContent), null, { timeout: 5000 }).catch(() => {});
 check(/synthetic months/.test(await page.locator("#import-status").textContent()), "example books load by click");
 
+// 1099-NEC card: two spellings of one contractor, merged by a click, then the W-9 flag.
+await page.reload();
+await page.fill("#rules", "lopez => 6020");
+await page.fill("#paste", "Date,Description,Amount\n2026-01-10,UPWORK PAYMENT ANNA LOPEZ,-1200.00\n2026-02-10,ZELLE A LOPEZ,-900.00\n2026-03-01,ZELLE BEN OKAFOR,-100.00");
+await page.click("#import");
+await page.waitForFunction(() => /added/.test(document.querySelector("#import-status").textContent), null, { timeout: 5000 }).catch(() => {});
+await page.fill("#nec-year", "2026");
+await page.dispatchEvent("#nec-year", "change");
+const mergeBtn = page.getByRole("button", { name: /^Merge "/ });
+check((await mergeBtn.count()) === 1, "a merge is suggested for the two Lopez spellings");
+check(!/REPORT/.test(await page.locator("#nec").textContent()), "neither spelling is over the 2026 line alone");
+await mergeBtn.click();
+check(/REPORT/.test(await page.locator("#nec").textContent()), "merged, the contractor is over the line");
+await page.getByRole("button", { name: /^Mark W-9/ }).first().click();
+check(/W-9 on file \(clear\)/.test(await page.locator("#nec").textContent()), "the W-9 flag shows after a click");
+
 check(errors.length === 0, `no page errors ${errors.join("; ")}`);
 await browser.close();
 server.close();

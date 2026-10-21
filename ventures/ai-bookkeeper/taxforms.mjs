@@ -6,7 +6,7 @@
 // health-insurance figures that are not in a bank feed.
 
 import { journal } from "./engine.mjs";
-import { payeeKey } from "./categorize.mjs";
+import { payeeKey, payeeTokens } from "./categorize.mjs";
 import { accountMap, profitAndLoss } from "./ledger.mjs";
 
 // Line labels are the form's own wording, shortened. "27a" is "Other expenses",
@@ -133,6 +133,16 @@ export function contractors1099(books, { year, threshold, codes = CONTRACT_CODES
     p.count++;
   }
   const vendors = books.vendors ?? {};
+  // Payees merged by the user (mergePayees) fold into their target before totals and the threshold.
+  for (const [key, p] of [...byKey]) {
+    const into = resolvePayee(books, key);
+    if (into === key) continue;
+    const t = byKey.get(into) ?? { key: into, names: new Map(), cents: 0, count: 0, cardCents: 0 };
+    byKey.set(into, t);
+    for (const [n, c] of p.names) t.names.set(n, (t.names.get(n) ?? 0) + c);
+    t.cents += p.cents; t.count += p.count; t.cardCents += p.cardCents;
+    byKey.delete(key);
+  }
   const payees = [...byKey.values()].map((p) => ({
     key: p.key, name: [...p.names.entries()].sort((a, b) => b[1] - a[1])[0][0], cents: p.cents, count: p.count, cardCents: p.cardCents,
     over: p.cents >= threshold, w9: !!vendors[p.key]?.w9,
@@ -147,13 +157,72 @@ export function contractors1099(books, { year, threshold, codes = CONTRACT_CODES
   return { year, threshold, payees, reportable, missingW9, warnings };
 }
 
+// A payee's key after merges: vendors[key].mergedInto, followed to the end (cycles stop).
+function resolvePayee(books, key) {
+  const seen = new Set();
+  while (books.vendors?.[key]?.mergedInto && !seen.has(key)) { seen.add(key); key = books.vendors[key].mergedInto; }
+  return key;
+}
+const keyOf = (books, payee) => {
+  const key = payeeKey(payee) || payee.toLowerCase();
+  if (!books.transactions.some((t) => (payeeKey(t.desc) || t.desc.toLowerCase()) === key) && !books.vendors?.[key]) throw new Error(`No bank line matches the payee "${payee}".`);
+  return key;
+};
+
+// One person paid under two spellings ("ANNA LOPEZ", "A LOPEZ", "ANNA LOPES") is
+// one payee for the 1099-NEC line: fold `from` into `into`. Stored as a pointer in
+// books.vendors, so the bank lines are untouched and `unmergePayee` undoes it.
+export function mergePayees(books, from, into) {
+  const next = JSON.parse(JSON.stringify(books));
+  const a = keyOf(next, from), b = resolvePayee(next, keyOf(next, into));
+  if (a === b) throw new Error("Those are already the same payee.");
+  next.vendors = next.vendors ?? {};
+  next.vendors[a] = { ...next.vendors[a], mergedInto: b };
+  return next;
+}
+export function unmergePayee(books, payee) {
+  const next = JSON.parse(JSON.stringify(books));
+  const a = keyOf(next, payee);
+  if (next.vendors?.[a]) { delete next.vendors[a].mergedInto; if (!Object.keys(next.vendors[a]).length) delete next.vendors[a]; }
+  return next;
+}
+
+const editDistance = (a, b) => {
+  const d = Array.from({ length: a.length + 1 }, (_, i) => [i, ...Array(b.length).fill(0)]);
+  for (let j = 1; j <= b.length; j++) d[0][j] = j;
+  for (let i = 1; i <= a.length; i++) for (let j = 1; j <= b.length; j++) d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+  return d[a.length][b.length];
+};
+
+// Words that say how a payment moved, not who got it, so "UPWORK PAYMENT ANNA LOPEZ"
+// and "ZELLE A LOPEZ" compare as "anna lopez" and "lopez".
+const RAIL = new Set("upwork zelle paypal venmo cash app cashapp wise payment pay payout transfer ach wire check chk deposit online bank fiverr stripe gusto".split(" "));
+const whoTokens = (name) => payeeTokens(name).filter((t) => !RAIL.has(t));
+
+// Pairs of payees in a contractors1099 result that look like one person once the
+// payment rail is ignored: one name's words are inside the other's ("lopez" /
+// "anna lopez"), or the names are one letter apart ("anna lopez" / "anna lopes").
+// Suggestions only; nothing merges itself.
+export function suggestPayeeMerges(r) {
+  const out = [];
+  for (let i = 0; i < r.payees.length; i++) for (let j = i + 1; j < r.payees.length; j++) {
+    const a = r.payees[i], b = r.payees[j];
+    const ta = whoTokens(a.name), tb = whoTokens(b.name);
+    if (!ta.length || !tb.length) continue;
+    const subset = (x, y) => x.every((w) => y.includes(w)) && x.join(" ").length >= 4;
+    const ja = ta.join(" "), jb = tb.join(" ");
+    if (subset(ta, tb) || subset(tb, ta) || (ja.length >= 6 && editDistance(ja, jb) <= 1)) out.push({ from: b.name, into: a.name, fromKey: b.key, intoKey: a.key, cents: a.cents + b.cents });
+  }
+  return out;
+}
+
 // Record that a W-9 is (or is no longer) on file for a payee. Only a flag is kept.
 export function markW9(books, payee, on = true) {
   const next = JSON.parse(JSON.stringify(books));
-  const key = payeeKey(payee) || payee.toLowerCase();
-  if (!next.transactions.some((t) => (payeeKey(t.desc) || t.desc.toLowerCase()) === key)) throw new Error(`No bank line matches the payee "${payee}".`);
+  const key = resolvePayee(next, keyOf(next, payee));
   next.vendors = next.vendors ?? {};
-  if (on) next.vendors[key] = { ...next.vendors[key], w9: true }; else delete next.vendors[key];
+  if (on) next.vendors[key] = { ...next.vendors[key], w9: true };
+  else if (next.vendors[key]) { delete next.vendors[key].w9; if (!Object.keys(next.vendors[key]).length) delete next.vendors[key]; }
   return next;
 }
 
@@ -161,5 +230,16 @@ export function contractors1099Csv(r) {
   const d = (c) => (c / 100).toFixed(2);
   const rows = ["Payee,Paid by bank,Payments,Paid by card (not 1099-NEC),Reportable,W-9 on file"];
   for (const p of r.payees) rows.push([q(p.name), d(p.cents), p.count, d(p.cardCents), p.over ? "yes" : "no", p.w9 ? "yes" : "no"].join(","));
+  return rows.join("\n") + "\n";
+}
+
+// The recipient list a 1099 filing service imports: one row per reportable payee,
+// Box 1 (nonemployee compensation) in dollars. Name only: the tax ID, address and
+// email are left blank on purpose, because this tool keeps none. Fill them from the
+// W-9 before uploading. Column names follow the common import layouts; check them
+// against your service's template.
+export function contractors1099NecCsv(r) {
+  const rows = ["Recipient name,Recipient TIN,Address,City,State,ZIP,Box 1 Nonemployee compensation,Box 4 Federal tax withheld"];
+  for (const p of r.reportable) rows.push([q(p.name), "", "", "", "", "", (p.cents / 100).toFixed(2), "0.00"].join(","));
   return rows.join("\n") + "\n";
 }

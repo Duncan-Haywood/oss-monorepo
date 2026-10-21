@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { newBooks, importStatement, confirm, parseSplit } from "./engine.mjs";
-import { scheduleC, scheduleCCsv, contractors1099, contractors1099Csv, markW9, NEC_THRESHOLD } from "./taxforms.mjs";
+import { scheduleC, scheduleCCsv, contractors1099, contractors1099Csv, markW9, NEC_THRESHOLD, mergePayees, unmergePayee, suggestPayeeMerges, contractors1099NecCsv } from "./taxforms.mjs";
 
 const CSV = `Date,Description,Amount
 2026-01-05,CLIENT PAYMENT ACME,5000.00
@@ -131,4 +131,48 @@ test("1099-NEC: card payments are left out, split parts count, unfiled lines are
   assert.ok(r.warnings.some((w) => /1099-K/.test(w)));
   assert.ok(r.warnings.some((w) => /still waiting/.test(w)));
   assert.equal(contractors1099Csv(r).split("\n")[0], "Payee,Paid by bank,Payments,Paid by card (not 1099-NEC),Reportable,W-9 on file");
+});
+
+const SPELLINGS = `Date,Description,Amount
+2026-01-10,UPWORK PAYMENT ANNA LOPEZ,-1200.00
+2026-02-10,ZELLE A LOPEZ,-900.00
+2026-03-10,UPWORK PAYMENT ANNA LOPES,-300.00
+2026-02-02,ZELLE BEN OKAFOR,-1200.00
+`;
+function spellingBooks() {
+  const { books } = importStatement(newBooks(), SPELLINGS, "1000");
+  return confirm(books, Object.fromEntries(books.transactions.map((t) => [t.id, "6020"])));
+}
+
+test("1099-NEC: spelling variants of one person are suggested, and merging them crosses the line", () => {
+  const books = spellingBooks();
+  const r = contractors1099(books, { year: 2026 });
+  assert.equal(r.reportable.length, 0, "ANNA LOPEZ and ANNA LOPES already share a key; with A LOPEZ apart, $1,500 each way");
+  const sugg = suggestPayeeMerges(r);
+  assert.equal(sugg.length, 1, "A LOPEZ matches ANNA LOPEZ; Ben matches nobody");
+  assert.ok(!/BEN/.test(sugg[0].from + sugg[0].into));
+  const merged = mergePayees(books, "ZELLE A LOPEZ", "UPWORK PAYMENT ANNA LOPEZ");
+  const m = contractors1099(merged, { year: 2026 });
+  assert.equal(m.payees.length, 2);
+  assert.equal(m.payees[0].cents, 240000);
+  assert.equal(m.payees[0].count, 3, "three bank lines under two spellings");
+  assert.equal(m.payees[0].over, true);
+  assert.equal(m.reportable.length, 1);
+  assert.equal(books.vendors, undefined, "merging returns new books and leaves the bank lines alone");
+  assert.equal(contractors1099(unmergePayee(merged, "ZELLE A LOPEZ"), { year: 2026 }).payees.length, 3);
+  assert.throws(() => mergePayees(books, "ZELLE A LOPEZ", "ZELLE A LOPEZ"), /already the same/);
+  assert.throws(() => mergePayees(books, "NOBODY AT ALL", "ZELLE A LOPEZ"), /No bank line/);
+});
+
+test("1099-NEC: a W-9 flag follows a merge, and the filing CSV lists reportable payees with blank tax fields", () => {
+  let books = mergePayees(spellingBooks(), "ZELLE A LOPEZ", "UPWORK PAYMENT ANNA LOPEZ");
+  books = markW9(books, "ZELLE A LOPEZ");
+  assert.deepEqual(books.vendors, { "zelle lopez": { mergedInto: "upwork anna" }, "upwork anna": { w9: true } }, "the flag lands on the merge target");
+  const r = contractors1099(books, { year: 2026, threshold: 200000 });
+  assert.equal(r.reportable.length, 1);
+  assert.equal(r.reportable[0].w9, true);
+  const rows = contractors1099NecCsv(r).trim().split("\n");
+  assert.equal(rows.length, 2);
+  assert.match(rows[0], /^Recipient name,Recipient TIN,/);
+  assert.match(rows[1], /,,,,,2400\.00,0\.00$/);
 });

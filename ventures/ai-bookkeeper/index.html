@@ -139,6 +139,12 @@
     <p class="note">For a US sole proprietor or single-member LLC: the profit and loss regrouped onto the lines of Schedule C, with meals cut to 50%. A worksheet for you or your preparer, not a filing; it leaves out depreciation, home office, mileage and self-employment tax.</p>
     <div class="scroll" id="schedc"></div>
     <button type="button" id="schedc-csv" class="secondary">Download Schedule C worksheet (CSV)</button>
+    <h3>1099-NEC contractors</h3>
+    <p class="note">Contract labor paid by bank (account 6020) per payee for one calendar year, against the reporting line ($600 to 2025, $2,000 from 2026; check the current IRS instructions). Card payments are left out because the card processor reports them. Only a yes/no "W-9 on file" is kept, never a tax ID. A worksheet, not a filing; whether someone is a contractor, and any exemption, is for you or your preparer.</p>
+    <div class="row"><div><label for="nec-year">Year</label><input id="nec-year" type="number" min="2000" max="2100" step="1"></div></div>
+    <div class="scroll" id="nec"></div>
+    <button type="button" id="nec-csv" class="secondary">Download contractor worksheet (CSV)</button>
+    <button type="button" id="nec-filing" class="secondary">Download 1099-NEC recipient list (CSV)</button>
   </section>
 
   <section class="card" aria-labelledby="h-checks">
@@ -210,7 +216,7 @@
   </footer>
   <script type="module">
     import { sniffFormat, splitOfx } from "./bank.mjs";
-    import { scheduleC, scheduleCCsv } from "./taxforms.mjs";
+    import { scheduleC, scheduleCCsv, contractors1099, contractors1099Csv, contractors1099NecCsv, markW9, mergePayees, suggestPayeeMerges } from "./taxforms.mjs";
     import { newBooks, importStatement, importOfxAccounts, categorize, suggestRules, addRules, addDocuments, writeOff, aging, salesTax, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, exportLines, status, analyze, fmt, DEFAULT_ACCOUNTS } from "./engine.mjs";
     import { parseAccounts } from "./ledger.mjs";
     import { aiSuggest } from "./ai.mjs";
@@ -344,7 +350,30 @@
     }
     $("#schedc-csv").addEventListener("click", () => { record("schedule_c_downloaded"); download(scheduleCCsv(scheduleC(books, { from: $("#from").value || null, to: $("#to").value || null })), "schedule-c-worksheet.csv", "text/csv"); });
 
-    function render() { fillSetup(); renderScheduleC(); renderStatus(); renderQueue(); renderReports(); renderRuleSuggestions(); renderAging(); renderSalesTax(); persist(); }
+    $("#nec-year").value = new Date().getFullYear();
+    const necYear = () => +$("#nec-year").value || new Date().getFullYear();
+    function renderNec() {
+      const r = contractors1099(books, { year: necYear() });
+      const sugg = suggestPayeeMerges(r);
+      const rows = r.payees.map((p) => {
+        const b = el("button", { type: "button", class: "secondary", "aria-label": `${p.w9 ? "Clear" : "Mark"} W-9 for ${p.name}`, text: p.w9 ? "W-9 on file (clear)" : "Mark W-9 on file" });
+        b.addEventListener("click", () => { books = markW9(books, p.name, !p.w9); record("w9_flag_changed"); render(); });
+        return { p, b };
+      });
+      const t = table(["Payee", "Paid by bank", "Payments", "Over the line", "W-9"], rows.map(({ p }) => [p.name, fmt(p.cents), String(p.count), p.over ? "REPORT" : "under", ""]));
+      [...t.querySelectorAll("tbody tr")].forEach((tr, i) => tr.lastChild.append(rows[i].b));
+      const merges = sugg.map((m) => {
+        const b = el("button", { type: "button", class: "secondary", text: `Merge "${m.from}" into "${m.into}"` });
+        b.addEventListener("click", () => { books = mergePayees(books, m.from, m.into); record("payees_merged"); render(); });
+        return el("p", { class: "note" }, b);
+      });
+      $("#nec").replaceChildren(...(r.payees.length ? [t] : []), ...merges, ...r.warnings.map((w) => el("p", { class: "note", text: w })));
+    }
+    $("#nec-year").addEventListener("change", renderNec);
+    $("#nec-csv").addEventListener("click", () => { record("contractors_downloaded"); download(contractors1099Csv(contractors1099(books, { year: necYear() })), `contractors-${necYear()}.csv`, "text/csv"); });
+    $("#nec-filing").addEventListener("click", () => { record("nec_recipients_downloaded"); download(contractors1099NecCsv(contractors1099(books, { year: necYear() })), `1099-nec-recipients-${necYear()}.csv`, "text/csv"); });
+
+    function render() { fillSetup(); renderScheduleC(); renderNec(); renderStatus(); renderQueue(); renderReports(); renderRuleSuggestions(); renderAging(); renderSalesTax(); persist(); }
 
     $("#docs-load").addEventListener("click", async () => {
       const f = $("#docs-file").files[0];

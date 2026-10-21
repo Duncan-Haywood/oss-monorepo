@@ -276,9 +276,19 @@ the 2025 change; check the current IRS instructions or pass `--threshold`. Card
 payments are shown apart and left out of the totals (the processor reports those on
 a 1099-K); payees over the line without a W-9 and unfiled bank lines from the year
 are warned about. Payees are grouped by the first two payee words of the bank line,
-so two spellings of one person can split: check the list. It is a worksheet, not a
+so two spellings of one person can split. `suggestPayeeMerges` lists likely pairs
+(payment-rail words such as Zelle or Upwork are ignored, so "ZELLE A LOPEZ" meets
+"UPWORK PAYMENT ANNA LOPEZ"), and `mergePayees` / `cli.mjs merge-payee "FROM" "INTO"`
+(`--undo` splits again) folds one into the other before the totals and the line;
+it stores only a pointer, not a change to any bank line. `--filing-csv` /
+`contractors1099NecCsv` writes the recipient list a 1099 filing service imports
+(name and Box 1 filled; tax ID and address columns blank on purpose, since none is
+kept; the column names follow common import layouts and are unchecked against any
+one service's template). The page has the same card (year, table, merge buttons, W-9
+toggle, two CSV downloads), clicked through in headless Chromium by
+`eval/browser-click.mjs`. It is a worksheet, not a
 filing: whether someone is a contractor, and exemptions such as corporations, are
-yours to decide. Page card: not yet. Test: `taxforms.test.mjs`.
+yours to decide. Test: `taxforms.test.mjs`.
 
 ## Sales tax report
 
