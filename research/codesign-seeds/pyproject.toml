@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "codesign-seeds"
+version = "0.1.0"
+description = "Do 24 runs per method rank gripper co-design methods that 8 runs could not?"
+requires-python = ">=3.9"
+dependencies = ["numpy", "scipy", "cma", "mujoco", "matplotlib"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
