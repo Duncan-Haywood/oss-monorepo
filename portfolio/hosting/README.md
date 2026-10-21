@@ -9,9 +9,11 @@ docs still mention Cloudflare or Vercel as a menu, this file wins.
 > Hetzner/`marisstella.dev` amendment further down, are history: that route
 > is retired, not down, and nothing should SSH to those addresses again (a
 > released IP can be reassigned to a stranger). **GitHub Pages remains the
-> host for static surfaces; anything with a process needs a new host
-> decision** from the owner. `marisstella.dev` DNS (apex, `www`, `tools` and
-> the wildcard `A *` record) still points at the released IP: repointing or
+> host for our web surfaces.** A product with a process is not blocked on a
+> host decision (owner, 2026-10-21, no static-only rule): it ships for its
+> users or deployers to run (container image, self-deploy, local package);
+> only hosting it on a bill of the owner's needs the owner.
+> `marisstella.dev` DNS (apex, `www`, `tools` and the wildcard `A *` record) still points at the released IP: repointing or
 > removing it is the `pages-custom-domain` row in
 > `portfolio/ledger/asks.yaml`.
 
@@ -23,7 +25,7 @@ add a third cloud to host a calculator.
 | Surface | Host | Why |
 |---|---|---|
 | Browser calculators, SEO landings, most docs | **GitHub Pages** | $0, no box to patch, no user data on our disk. Custom domain is registrar A/CNAME to GitHub — no Cloudflare. |
-| Anything with a process, disk, or webhook | ~~**Hetzner product box**~~ — deleted 2026-10-01; needs a new host decision | Incremental cost was ~0. Deploy with the existing GHA SSH keys (Caddy + compose/systemd, or the OpenTofu/Argo path in flight on #1486). |
+| Anything with a process, disk, or webhook | ~~**Hetzner product box**~~ — deleted 2026-10-01. Now: shipped for users or deployers to run (container image, self-deploy, local package) | Incremental cost was ~0. Deploy with the existing GHA SSH keys (Caddy + compose/systemd, or the OpenTofu/Argo path in flight on #1486). |
 | Headless agent fleet | ~~**Hetzner agent box**~~ — deleted 2026-10-01 | `ventures/ubuntu-agent-server`. Keep this off the public product path. |
 
 Avoid putting public sites on the agent box, or a static calculator on
@@ -192,9 +194,11 @@ without it, and say so in the privacy line.
 
 ## What a session does
 
-1. Prefer a static/browser shape so the product can live on GitHub Pages.
-2. If it needs a process, target the Hetzner product box and keep it
-   stateless. Include the no-SLA clause.
+1. Pick the form the product's users need (`PRODUCT_PLAYBOOK.md` §2); there
+   is no static-only default. Its web surface, if it has one, lives on
+   GitHub Pages.
+2. If it needs a process, ship it for others to run (container image,
+   self-deploy, local package), not on our servers. Include the no-SLA clause.
 3. Nothing. The Pages artifact builds itself — see below. A static product
    is picked up automatically the moment it has an `index.html`.
 4. Do not register Cloudflare, Vercel, or another host as the way a
