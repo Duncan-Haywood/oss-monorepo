@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot: kg CO2 per tonne of cement of an LC3 cement at the lowest clinker content that keeps class 42.5, against the 28-day strength of the OPC reference in MPa">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">CO2 saving of LC3 that keeps strength class 42.5</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="283.4" y2="283.4" stroke="#ddd"/><text x="58" y="287.4" text-anchor="end" font-family="sans-serif" font-size="11">100</text>
+<line x1="64" x2="624" y1="242.8" y2="242.8" stroke="#ddd"/><text x="58" y="246.8" text-anchor="end" font-family="sans-serif" font-size="11">200</text>
+<line x1="64" x2="624" y1="202.3" y2="202.3" stroke="#ddd"/><text x="58" y="206.3" text-anchor="end" font-family="sans-serif" font-size="11">300</text>
+<line x1="64" x2="624" y1="161.7" y2="161.7" stroke="#ddd"/><text x="58" y="165.7" text-anchor="end" font-family="sans-serif" font-size="11">400</text>
+<line x1="64" x2="624" y1="121.1" y2="121.1" stroke="#ddd"/><text x="58" y="125.1" text-anchor="end" font-family="sans-serif" font-size="11">500</text>
+<line x1="64" x2="624" y1="80.5" y2="80.5" stroke="#ddd"/><text x="58" y="84.5" text-anchor="end" font-family="sans-serif" font-size="11">600</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">45</text>
+<text x="204.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">50</text>
+<text x="344.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">55</text>
+<text x="484.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">60</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">65</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">28-day strength of the OPC reference, MPa</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">kg CO2 per tonne of cement</text>
+<polyline points="64.0,71.2 204.0,112.6 344.0,124.7 484.0,124.7 624.0,124.7" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="71.2" r="3" fill="#c0392b"/>
+<circle cx="204.0" cy="112.6" r="3" fill="#c0392b"/>
+<circle cx="344.0" cy="124.7" r="3" fill="#c0392b"/>
+<circle cx="484.0" cy="124.7" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="124.7" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">LC3 at lowest clinker keeping 42.5</text>
+</svg>
