@@ -149,17 +149,51 @@ layer's share (an ablation), and any real bank export.
 `payee => code` lines; `addRules` appends them to the books' rules. Test:
 engine.test.mjs, "offered as rules".
 
+## Invoices and bills (accruals)
+
+Bank lines alone give cash-basis books: a sale counts the day the deposit
+lands. Load an invoice and bill list and the books go accrual for those
+documents. `accruals.mjs`; CLI `documents FILE`, `aging [--as-of D]`; agents
+pass `documents: [{ "csv": "..." }]` to `analyze` and get `aging` back.
+
+The CSV has a header `type,number,date,due,party,amount,account`. `type` is
+`invoice` or `bill`. Rows that share a type and number are one document with a
+line per row (an invoice's sales line to `4000`, its tax line to `2100`). A
+document journals on its own date: an invoice debits Accounts receivable
+(1100) and credits its lines; a bill credits Accounts payable (2050, added to
+the chart if it is missing) and debits its lines. Loading a number twice adds
+nothing.
+
+A bank line clears a document when it has the **exact amount**, falls 0 to 180
+days after the document date, and carries the **invoice number or the party's
+name** in its description. It is then `settled` and posts to receivable or
+payable instead of income, so revenue is counted once, in the month invoiced.
+An amount match with nothing else (one open document of that amount) is only a
+0.60 suggestion in the review queue. Nothing is guessed across amounts: a
+part-payment or a bundled payment stays in review, and you file it yourself.
+Matches are rebuilt on every pass, so filing a settled line elsewhere reopens
+its document.
+
+Close checks add: receivable or payable in the ledger that differs from the
+open documents (a line filed to 1100 or 2050 with no document behind it), and
+invoices or bills more than 30 days past due. `aging` buckets what is open as
+current, 1-30, 31-60, 61-90 and 90+ days past due.
+
+Tests: engine.test.mjs, "Accruals". Not measured on real invoice exports (the
+tests use a four-row list); the matching thresholds are a first guess.
+
 ## Not modelled
 
-Accruals (unpaid invoices and bills), depreciation, inventory, payroll and
-sales tax filings, multiple currencies, locking a closed period, and receipts. It is cash-basis bookkeeping from bank
-lines.
+Part-payments and credit notes against a document, depreciation, inventory,
+payroll and sales tax filings, multiple currencies, locking a closed period,
+and receipts. The page does not take an invoice list yet (engine, CLI and
+agents do).
 
 ## Next
 
 - One real bank export of each major US shape (Chase, Bank of America, Wells
   Fargo, Amex, Capital One), each as a fixture with its quirks handled.
-- Accruals from an invoice and bill list.
+- Invoice and bill list on the page; part-payments and credit notes.
 - Measure the AI layer with a local model on the synthetic year's review
   queue, and run the per-layer ablation.
 

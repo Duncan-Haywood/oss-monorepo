@@ -15,9 +15,10 @@
 import { readStatement, rowIds, checkRunningBalance, parseCents } from "./bank.mjs";
 import { DEFAULT_ACCOUNTS, accountMap, validateEntry, trialBalance, profitAndLoss, balanceSheet, balances, natural, fmt, dollars } from "./ledger.mjs";
 import { suggest, trainClassifier, buildMemory, parseRules, historyRecord, payeeKey } from "./categorize.mjs";
+import { addDocuments, settle, aging, documentEntries, AR, AP } from "./accruals.mjs";
 import { SAMPLE_CHECKING, SAMPLE_CARD } from "./example-data.mjs";
 
-export { DEFAULT_ACCOUNTS, fmt, dollars, payeeKey };
+export { DEFAULT_ACCOUNTS, fmt, dollars, payeeKey, addDocuments, aging };
 
 export const VERSION = 1;
 const CAPEX_LIKELY = /suppl|office|repair|equipment|tool|computer|furniture|material|uncategori/i;
@@ -74,6 +75,8 @@ export function categorize(booksIn, opts = {}) {
   const o = { ...DEFAULTS, ...opts };
   const model = modelFor(books);
   const map = accountMap(books.accounts);
+  // Lines matched to an invoice or bill are re-matched at the end of every pass.
+  for (const t of books.transactions) if (t.status === "settled") { t.status = "new"; delete t.posted; delete t.doc; }
   pairTransfers(books, o.transferDays);
   for (const t of books.transactions) {
     if (t.status === "confirmed" || t.status === "transfer" || t.status === "split") continue;
@@ -95,7 +98,7 @@ export function categorize(booksIn, opts = {}) {
       delete t.posted;
     }
   }
-  return books;
+  return books.documents?.length ? settle(books) : books;
 }
 
 // Two lines in different bank accounts, equal and opposite, within `days`:
@@ -147,7 +150,7 @@ export function confirm(booksIn, choices) {
     }
     if (!codes.has(c)) throw new Error(`No account ${c} in the chart of accounts.`);
     if (t.status === "transfer") unpair(books, t);
-    delete t.split;
+    delete t.split; delete t.doc;
     t.status = "confirmed";
     t.posted = c;
     books.history.push(historyRecord(t, c));
@@ -217,6 +220,7 @@ export function journal(books) {
     const deb = cents > 0;
     entries.push({ id: `OPEN-${code}`, date, memo: `Opening balance, ${map.get(code).name}`, source: "opening", lines: [{ account: code, debit: deb ? cents : 0, credit: deb ? 0 : -cents }, { account: "3000", debit: deb ? 0 : -cents, credit: deb ? cents : 0 }] });
   }
+  entries.push(...documentEntries(books));
   const seen = new Set();
   for (const t of books.transactions) {
     if (!t.posted || t.status === "review" || t.status === "new" || seen.has(t.id)) continue;
@@ -288,6 +292,20 @@ export function closeChecks(books, opts = {}) {
   for (const a of books.accounts.filter((x) => x.type === "liability" && !x.bank)) {
     const v = natural(a, bs.get(a.code) ?? 0);
     if (v < 0) out.push({ severity: "medium", check: "liability", message: `${a.name} is ${fmt(v)}: more was paid out of it than was ever recorded owing. If it is tax you collected, part of your sales deposits belongs here; if it is a loan, enter the balance it started with.`, ids: books.transactions.filter((t) => legsOf(t).some((l) => l.account === a.code)).map((t) => t.id) });
+  }
+
+  // Receivable and payable: the ledger should equal the open documents. A
+  // difference is a line filed to the control account with no document behind it.
+  if (books.documents?.length) {
+    const ag = aging(books, opts.asOf ?? null);
+    for (const [code, side, label] of [[AR, ag.receivable, "Accounts receivable"], [AP, ag.payable, "Accounts payable"]]) {
+      const a = map.get(code);
+      if (!a) continue;
+      const ledger = natural(a, bs.get(code) ?? 0);
+      if (ledger !== side.total) out.push({ severity: "medium", check: "control", message: `${label} is ${fmt(ledger)} in the ledger but the open documents add up to ${fmt(side.total)}. A line was filed to ${code} with no invoice or bill behind it, or a document is missing.`, ids: books.transactions.filter((t) => legsOf(t).some((l) => l.account === code) && !t.doc).map((t) => t.id) });
+    }
+    const late = ag.open.filter((d) => d.daysLate > 30);
+    for (const d of late) out.push({ severity: d.kind === "invoice" ? "medium" : "low", check: d.kind === "invoice" ? "overdue" : "bill-overdue", message: `${d.kind === "invoice" ? "Invoice" : "Bill"} ${d.id.replace(/^[A-Z]+-/, "")} from ${d.party} for ${fmt(d.total)} is ${d.daysLate} days past due as of ${ag.asOf}.${d.kind === "invoice" ? " Chase it, or write it off." : " Pay it, or confirm it is disputed."}`, ids: [d.id] });
   }
 
   // An account with lines still in review is already reported above; its
@@ -392,14 +410,15 @@ export function addRules(booksIn, ruleLines) {
 }
 
 export function status(books) {
-  const c = { new: 0, review: 0, auto: 0, confirmed: 0, split: 0, transfer: 0 };
+  const c = { new: 0, review: 0, auto: 0, confirmed: 0, split: 0, transfer: 0, settled: 0 };
   for (const t of books.transactions) c[t.status] = (c[t.status] ?? 0) + 1;
   return { lines: books.transactions.length, ...c, learnedFrom: books.history.length };
 }
 
 // The one call agents and the CLI use. Input:
 //   { statements: [{ csv, account }], books?, confirm?: {id: code}, rules?,
-//     accounts? (CSV text), from?, to?, autoPost?, example? }
+//     accounts? (CSV text), documents? ([{ csv }] invoice and bill lists), asOf?,
+//     from?, to?, autoPost?, example? }
 // -> { status, review: [...], reports, checks, books }
 export function analyze(input = {}) {
   let books = input.books ? clone(input.books) : newBooks({ name: input.name });
@@ -412,6 +431,11 @@ export function analyze(input = {}) {
     books = r.books;
     problems.push(...r.problems);
   }
+  for (const d of input.documents ? [].concat(input.documents) : []) {
+    const r = addDocuments(books, d.csv ?? d, opts);
+    books = r.books;
+    problems.push(...r.problems);
+  }
   books = categorize(books, opts);
   if (input.confirm) books = confirm(books, input.confirm);
   const map = accountMap(books.accounts);
@@ -421,6 +445,7 @@ export function analyze(input = {}) {
     review: books.transactions.filter((t) => t.status === "review").map((t) => ({ id: t.id, date: t.date, account: map.get(t.account)?.name, desc: t.desc, amount: dollars(t.cents), suggested: t.suggestion?.account ?? null, suggestedName: map.get(t.suggestion?.account)?.name ?? null, confidence: t.suggestion?.confidence ?? 0, reason: t.suggestion?.reason })),
     reports: reports(books, { from: input.from, to: input.to }),
     ruleSuggestions: suggestRules(books),
+    aging: books.documents?.length ? aging(books, input.asOf) : null,
     checks: closeChecks(books, opts),
     books,
   };
