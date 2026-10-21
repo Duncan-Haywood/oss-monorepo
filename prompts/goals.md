@@ -285,6 +285,13 @@ research tracks no post covers yet, biggest first, and the days since the
 last post. A run with spare scope, or one that just finished a track's
 milestone, can take the top line.
 
+Posts can have a podcast episode (owner, 2026-10-20: "fifteen blog posts plus
+podcast episodes"): a spoken script in `docs/podcast/` with the post's slug,
+voiced offline by `python3 platform/pages/podcast_tts.py` (Piper, a voice
+trained on public-domain recordings) and served at `writing/podcast/` with an
+RSS feed. The episode says it is a synthetic voice reading an AI-written
+script, and carries nothing the post does not.
+
 The research guardrails apply to every post: every number is copied from the
 committed file it cites, linked by repository path; results are not
 overclaimed; posts say the work was done by AI agents with an owner
@@ -345,6 +352,23 @@ find such engines: "Research algorithms as tools" above. The posts:
 [`docs/posts/2026-10-20-fewer-calculators-harder-problems.md`](../docs/posts/2026-10-20-fewer-calculators-harder-problems.md)
 and
 [`docs/posts/2026-10-20-if-its-a-calculator-make-it-hard.md`](../docs/posts/2026-10-20-if-its-a-calculator-make-it-hard.md).
+
+**Size the work, not just the maths** (owner, 2026-10-21, "a tentative
+opinion, not a hard and fast rule"): focus on "projects that are hard enough
+that they can't be completed in 20 hours or less of human coding", because
+"its not necessarily worth publishing software that is less than lets say 15
+minutes for a coding agent to code." What an agent writes in minutes, a
+reader can get from their own agent; what stays worth publishing is costly to
+redo (a solver, collected data, an experiment, edge cases found by real use).
+So before starting, estimate both numbers honestly; if the plan is under
+fifteen agent-minutes and an afternoon of human work, look for the harder
+version first. Work past twenty hours spans sessions: leave the next session
+a working step and a written plan in the project, not a finished toy. Small
+fixes, upkeep of used tools and docs still count. The baseline, from the run
+records to 2026-10-20: 4 of 969 measured runs and 5 of 247 projects passed
+twenty estimated human hours; 92% of runs took under fifteen active minutes
+([the post](../docs/posts/2026-10-21-work-that-takes-more-than-twenty-hours.md)).
+`runcost.py report` tracks it.
 
 ## Direction: language is a judgment call
 
