@@ -1,0 +1,6 @@
+Statement for March 2026
+Date        Description                  Amount     Balance
+Mar 2   Opening balance                           1,000.00
+Mar 3   RENT PAYMENT                      400.00    600.00
+Mar 4   CLIENT PAYMENT BETA               900.00  1,500.00
+Mar 9   COMCAST                            80.00  1,420.00

@@ -367,6 +367,32 @@ header row at all), Amex (charges positive) and Capital One (Debit and Credit
 columns). The sign of a card file is inferred from its payment rows unless you
 pass `--invert`. See `fixtures/` and the last test in `engine.test.mjs`.
 
+### Statement text pasted from a PDF
+
+Many banks give a small business a PDF and nothing else. Open the PDF, select
+all, copy, paste into a `.txt` file and import that (page file picker, or
+`import statement.txt --account 1000`); `statementtext.mjs` reads it when the
+file has no CSV header. A transaction is a line that starts with a date
+(`03/09`, `Mar 9`, `9 Mar 2026`, `2026-03-09`; a second posting date is skipped)
+and ends with an amount, optionally followed by a running balance. Lines that
+wrap are joined, and page footers, totals and beginning/ending balance lines are
+left out. The year comes from the statement period printed above the rows (or a
+year range that crosses New Year), and a file with no year anywhere is reported,
+not guessed. The direction of an amount comes from, in order: its own sign,
+parentheses, trailing `-` or `CR`/`DR`; the change in the running balance; the
+section heading above it ("Deposits", "Withdrawals", "Purchases", "Payments and
+credits"). A row with none of those is read as money out and the import says so.
+Card statements follow the account's own convention (a purchase is negative).
+
+Verification: `fixtures/pasted-*.txt` are hand-written to look like these
+statements (made-up rows, not a real bank's PDF). `node eval/pasted-roundtrip.mjs`
+renders the synthetic studio's checking lines as pasted text with unsigned
+amounts and a running balance (the hardest case) and reads them back: 5 seeds,
+1,094 rows, 0 wrong in cents, date or description. That checks the parser
+against the author's own rendering, not against a bank's real layouts; PDF text
+from a two-column statement, or one where the extractor reorders columns, is not
+covered. Scanned (image) PDFs have no text to copy.
+
 ## Fixed assets and depreciation
 
 `assets.mjs` is a register for equipment. You file the purchase to Equipment
@@ -421,7 +447,7 @@ That checks the typed digits, not the publication itself: check them before fili
 ## Not modelled
 
 Writing off a bill, the 179 taxable-income limit, inventory,
-payroll and sales tax filings, multiple currencies (the VAT worksheet is UK-layout, invoice basis), and receipts.
+payroll and sales tax filings, multiple currencies (the VAT worksheet is UK-layout, invoice basis), reading a PDF file itself (paste its text instead), and receipts.
 
 ## Anomalies
 

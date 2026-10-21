@@ -29,6 +29,7 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
   --books FILE           the books (JSON); created on first import
   --example              start from the synthetic three-month example instead
   import FILE --account CODE [--invert] [--day-first] [--decimal-comma] [--auto 0.85]
+  import FILE.txt                             statement text copied from a PDF (date, description, amount per line)
   import FILE.ofx --map OFXID=CODE,OFXID=CODE   a multi-account OFX file, one chart code per account
   review                 list lines waiting for an account
   confirm ID=CODE ...    file lines (and learn from them)
