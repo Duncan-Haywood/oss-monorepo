@@ -463,7 +463,16 @@ amount, closer date); a pair with no shared words needs an exact amount within
 with no bank line and the spending at or over `--min` (default 75) with no
 receipt, leaving out lines filed to wages, owner draws and transfers.
 `receipts attach RID LINEID`, `detach RID` and `remove RID` fix a pair by hand;
-the same receipt twice is kept once. Engine: `receipts.mjs`; kept in the books
+the same receipt twice is kept once. `receipts split RID [--base CODE] [--apply]`
+reads the receipt's item lines and proposes a split of its bank line: each item
+goes to the account its words suggest (coffee and sandwiches to Meals, lumber
+and screws to Supplies, paper and stamps to Office), else to the base account
+(the line's own, or the payee rules' guess, or `--base`); tax is shared in
+proportion to the items, and a tip or anything the items do not explain stays
+with the base account. It refuses when the items and tax exceed what was paid,
+and when every item lands in one account. `--apply` posts it as an ordinary
+split. The item word list is short and hand-written, tried on hand-written
+receipts only; the CLI does it, the page does not yet. Engine: `receipts.mjs`; kept in the books
 file, never in the journal. The page has a card for it (paste, read, tables;
 clicked through in headless Chromium with `eval/browser-click.mjs`). Receipts
 are read with regular expressions: a total is the last "total / amount due"

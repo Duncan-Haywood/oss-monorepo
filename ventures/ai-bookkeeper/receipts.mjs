@@ -8,11 +8,16 @@
 // Integer cents. Receipts are kept in books.receipts and never change the
 // journal. A heuristic: text is read with regular expressions, so the output
 // says what it read and a person confirms. `attach` pins a pair by hand.
+// `receiptSplit` reads the item lines and proposes how to split the matched
+// bank line across accounts (a hardware run that was half supplies, half
+// meals); `applySplit` posts it as an ordinary split.
 // Not a statement of what any tax authority requires you to keep.
 
 import { parseCents, parseDate } from "./bank.mjs";
 import { payeeTokens } from "./categorize.mjs";
-import { accountMap } from "./ledger.mjs";
+import { accountMap, fmt } from "./ledger.mjs";
+import { BUILT_IN } from "./categorize.mjs";
+import { confirm } from "./engine.mjs";
 
 const day = (d) => Math.floor(Date.parse(`${d}T00:00:00Z`) / 86400000);
 const MONEY = /(?:[$£€]\s*)?(\d{1,3}(?:,\d{3})+\.\d{2}|\d+\.\d{2})(?!\d)/g;
@@ -33,6 +38,22 @@ const amountsIn = (line) => [...line.matchAll(MONEY)].map((m) => parseCents(m[1]
 // underscores, or by a form feed. One receipt with no separator is fine.
 export function splitReceipts(text) {
   return String(text ?? "").split(/^\s*(?:[-=_]{3,}|\f)\s*$/m).map((b) => b.trim()).filter(Boolean);
+}
+
+// Item lines: words, then an amount at the end of the line. Totals, tax, tip,
+// payment and discount lines are not items. "2 x Latte 11.00" keeps the whole
+// line amount; the quantity stays in the description.
+const NOT_ITEM_RE = /sub\s*-?total|\btotal\b|\btax\b|\bvat\b|\bgst\b|\bhst\b|\bpst\b|\btip\b|gratuity|change\b|cash\b|visa|master ?card|amex|debit|credit|balance|amount\s+(?:due|paid)|discount|coupon|savings|\bsaved\b|points|rounding|auth|approv|card\b/i;
+export function parseItems(lines, skip = null) {
+  const items = [];
+  for (const l of lines) {
+    if (l === skip || NOT_ITEM_RE.test(l) || DATE_RES.some((re) => re.test(l))) continue;
+    const m = l.match(/^(.*?[a-z]{2}.*?)\s+(?:[$£€]\s*)?(\d{1,3}(?:,\d{3})+\.\d{2}|\d+\.\d{2})\s*[A-Za-z]?$/i);
+    if (!m) continue;
+    const cents = parseCents(m[2]);
+    if (Number.isInteger(cents) && cents > 0) items.push({ desc: m[1].trim().slice(0, 60), cents });
+  }
+  return items;
 }
 
 export function parseReceipt(block) {
@@ -65,7 +86,8 @@ export function parseReceipt(block) {
   let taxCents = null;
   for (const l of lines) if (TAX_RE.test(l) && !TOTAL_RE.test(l) && !/subtotal/i.test(l)) { const a = amountsIn(l); if (a.length) taxCents = a[a.length - 1]; }
   if (taxCents !== null && cents !== null && taxCents >= cents) taxCents = null;
-  return { date, merchant, cents, taxCents, ok: !!(date && merchant && cents), notes, totalLine: from, text: lines.join("\n").slice(0, 400) };
+  const items = parseItems(lines, merchantLine);
+  return { date, merchant, cents, taxCents, items, ok: !!(date && merchant && cents), notes, totalLine: from, text: lines.join("\n").slice(0, 400) };
 }
 
 const sameReceipt = (a, b) => a.date === b.date && a.cents === b.cents && (a.merchant ?? "").toLowerCase() === (b.merchant ?? "").toLowerCase();
@@ -81,7 +103,7 @@ export function addReceipts(books, text) {
     if (!p.ok) { skipped.push({ text: p.text.split("\n")[0], notes: p.notes }); continue; }
     const dup = kept.find((r) => sameReceipt(r, p));
     if (dup) { duplicates.push({ id: dup.id, merchant: p.merchant, date: p.date, cents: p.cents }); continue; }
-    const r = { id: `r${++n}`, date: p.date, merchant: p.merchant, cents: p.cents, taxCents: p.taxCents, matched: null, note: p.notes.join("; ") || undefined, text: p.text };
+    const r = { id: `r${++n}`, date: p.date, merchant: p.merchant, cents: p.cents, taxCents: p.taxCents, items: p.items.length ? p.items : undefined, matched: null, note: p.notes.join("; ") || undefined, text: p.text };
     kept.push(r); added.push(r);
   }
   return { books: matchReceipts({ ...books, receipts: kept }), added, skipped, duplicates };
@@ -176,4 +198,80 @@ export function receiptReport(books, { minCents = 7500, from = null, to = null }
     spendCents: spend.reduce((s, t) => s - t.cents, 0),
     missingCents: missing.reduce((s, t) => s - t.cents, 0),
   };
+}
+
+// What an item is, by its own words. Narrower than the payee rules: a hardware
+// store sells supplies and also coffee, so the item decides, the store only
+// fills in what the items do not say.
+const ITEM_RULES = [
+  ["6130", /coffee|latte|espresso|tea\b|sandwich|burger|pizza|salad|lunch|dinner|breakfast|meal|snack|pastry|croissant|bagel|soda|juice|beer|wine|cocktail|entree|combo/i],
+  ["6070", /paper|toner|ink\b|cartridge|\bpens?\b|pencil|stapl|envelope|folder|binder|notebook|label|post-?it|sticky|postage|stamp/i],
+  ["6180", /shipping|freight|delivery|courier|parcel/i],
+  ["6160", /unleaded|diesel|premium fuel|\bgas\b|fuel|car wash|toll|parking/i],
+  ["6060", /subscription|licen[cs]e|software|saas|\bplan\b|hosting|domain|renewal/i],
+  ["6120", /flight|airfare|hotel|lodging|room charge|taxi|rideshare|baggage/i],
+  ["6090", /repair|service call|labor|maintenance|replacement part/i],
+  ["6100", /lumber|screw|nail|bolt|fastener|paint|primer|tape|adhesive|glue|caulk|drywall|plywood|pipe|fitting|wire\b|bulb|filter|hose|gloves|tarp|sandpaper|supplies/i],
+];
+const itemAccount = (desc) => (ITEM_RULES.find(([, re]) => re.test(desc)) ?? [null])[0];
+
+// Largest-remainder shares of `total` cents over `weights`, summing exactly.
+function shares(total, weights) {
+  const w = weights.reduce((a, b) => a + b, 0);
+  if (!w) return weights.map(() => 0);
+  const raw = weights.map((x) => (total * x) / w), out = raw.map(Math.floor);
+  let left = total - out.reduce((a, b) => a + b, 0);
+  raw.map((r, i) => [r - out[i], i]).sort((a, b) => b[0] - a[0] || a[1] - b[1]).forEach(([, i]) => { if (left-- > 0) out[i]++; });
+  return out;
+}
+
+// Propose a split of a receipt's bank line. Each item goes to the account its
+// words suggest, else to the "base" account: the one the line is already posted
+// to, or the payee rules' guess. Tax is shared out in proportion to the items,
+// and whatever the items and tax do not explain (a tip, an unlisted item,
+// rounding) stays with the base account. Returns null when it cannot say why a
+// split would help; `notes` says what it checked.
+export function receiptSplit(books, receiptId, { base = null } = {}) {
+  const r = (books.receipts ?? []).find((x) => x.id === receiptId);
+  if (!r) throw new Error(`no receipt ${receiptId}`);
+  const t = r.matched && books.transactions.find((x) => x.id === r.matched);
+  if (!t) return { receipt: r.id, parts: null, notes: ["the receipt is not matched to a bank line"] };
+  const items = r.items ?? [];
+  if (!items.length) return { receipt: r.id, line: t.id, parts: null, notes: ["no item lines were read from this receipt"] };
+  const codes = new Set(books.accounts.map((a) => a.code));
+  const text = `${r.merchant} ${t.desc}`.toLowerCase();
+  const guess = BUILT_IN.find(([a, d, re]) => a !== "transfer" && d !== "in" && codes.has(a) && re.test(text));
+  const baseAccount = base ?? (t.status === "confirmed" || t.status === "auto" ? t.posted : null) ?? t.suggestion?.account ?? guess?.[0] ?? null;
+  const notes = [];
+  const paid = -t.cents;
+  const itemSum = items.reduce((a, i) => a + i.cents, 0);
+  const tax = r.taxCents ?? 0;
+  if (itemSum + tax > paid) return { receipt: r.id, line: t.id, parts: null, notes: [`the items and tax (${fmt(itemSum + tax)}) add to more than the ${fmt(paid)} paid; a discount line is probably missing`] };
+  const rows = items.map((i) => ({ ...i, account: itemAccount(i.desc) ?? baseAccount }));
+  if (rows.some((i) => !i.account)) {
+    for (const i of rows.filter((x) => !x.account)) notes.push(`"${i.desc}" has no account: pass one as the base`);
+    return { receipt: r.id, line: t.id, parts: null, items: rows, notes };
+  }
+  const accounts = [...new Set(rows.map((i) => i.account))];
+  const sums = accounts.map((a) => rows.filter((i) => i.account === a).reduce((s, i) => s + i.cents, 0));
+  const taxShare = shares(tax, sums);
+  const cents = sums.map((s, k) => s + taxShare[k]);
+  const rest = paid - cents.reduce((a, b) => a + b, 0);
+  if (rest > 0) {
+    const home = accounts.indexOf(baseAccount);
+    const k = home >= 0 ? home : cents.indexOf(Math.max(...cents));
+    cents[k] += rest;
+    notes.push(`${fmt(rest)} not explained by the items and tax (tip, unlisted item or rounding) stays with ${accounts[k]}`);
+  }
+  if (r.taxCents == null) notes.push("no tax line read; tax is inside the item amounts or in the leftover");
+  if (accounts.length < 2) return { receipt: r.id, line: t.id, parts: null, items: rows, notes: [...notes, `every item belongs to ${accounts[0]}: nothing to split`] };
+  const parts = accounts.map((account, k) => ({ account, cents: -cents[k] }));
+  return { receipt: r.id, line: t.id, parts, items: rows, notes };
+}
+
+// Post the proposal (or `parts` the person edited) as a split on the bank line.
+export function applySplit(books, receiptId, parts = null) {
+  const p = parts ? { parts, line: (books.receipts ?? []).find((x) => x.id === receiptId)?.matched } : receiptSplit(books, receiptId);
+  if (!p.parts) throw new Error(p.notes?.join("; ") || `no split for ${receiptId}`);
+  return confirm(books, { [p.line]: p.parts });
 }

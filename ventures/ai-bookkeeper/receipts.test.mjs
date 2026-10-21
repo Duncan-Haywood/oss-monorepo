@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { newBooks, importStatement } from "./engine.mjs";
-import { parseReceipt, splitReceipts, addReceipts, matchReceipts, attachReceipt, removeReceipt, receiptReport } from "./receipts.mjs";
+import { parseReceipt, splitReceipts, addReceipts, matchReceipts, attachReceipt, removeReceipt, receiptReport, receiptSplit, applySplit } from "./receipts.mjs";
 
 const books = (rows) => importStatement(newBooks(), "Date,Description,Amount\n" + rows.map(([d, n, a]) => `${d},${n},${a}`).join("\n") + "\n", "1000").books;
 
@@ -127,4 +127,60 @@ test("payroll and owner draws are not asked for a receipt", async () => {
   let b = books([["2026-03-14", "OWNER DRAW", "-900.00"], ["2026-03-15", "GUSTO NET PAY", "-900.00"], ["2026-03-16", "OFFICE DEPOT", "-900.00"]]);
   b = confirm(b, { [b.transactions[0].id]: "3100", [b.transactions[1].id]: "6150", [b.transactions[2].id]: "6070" });
   assert.deepEqual(receiptReport(b).missing.map((t) => t.desc), ["OFFICE DEPOT"]);
+});
+
+const HARDWARE = `Home Depot
+2026-04-02
+Lumber 2x4        40.00
+Wood screws       10.00
+Latte              5.00
+Sandwich          15.00
+Subtotal          70.00
+Sales Tax          5.60
+Total             75.60
+Visa ****1234`;
+
+test("item lines are read; totals, tax and payment lines are not items", () => {
+  const r = parseReceipt(HARDWARE);
+  assert.deepEqual(r.items.map((i) => [i.desc, i.cents]), [["Lumber 2x4", 4000], ["Wood screws", 1000], ["Latte", 500], ["Sandwich", 1500]]);
+  assert.deepEqual(parseReceipt(CAFE).items.map((i) => i.desc), ["Latte", "Croissant"]);
+});
+
+test("a hardware run splits into supplies and meals, tax shared, and posts as a split", async () => {
+  const { journal } = await import("./engine.mjs");
+  let b = addReceipts(books([["2026-04-02", "HOME DEPOT #123", "-75.60"]]), HARDWARE).books;
+  const p = receiptSplit(b, b.receipts[0].id);
+  assert.deepEqual(p.parts.map((x) => x.account).sort(), ["6100", "6130"]);
+  assert.equal(p.parts.reduce((s, x) => s + x.cents, 0), -7560);
+  assert.equal(p.parts.find((x) => x.account === "6130").cents, -2160); // 20.00 + 8% tax 1.60
+  b = applySplit(b, b.receipts[0].id);
+  const t = b.transactions[0];
+  assert.equal(t.status, "split");
+  const e = journal(b).find((x) => x.lines?.some((l) => l.account === "6130") || JSON.stringify(x).includes("6130"));
+  assert.ok(e);
+});
+
+test("a tip or unlisted amount stays with the base account; one-account receipts have nothing to split", () => {
+  const tipped = HARDWARE.replace("Visa ****1234", "Visa ****1234");
+  let b = addReceipts(books([["2026-04-02", "HOME DEPOT #123", "-80.60"]]), tipped).books;
+  const p = receiptSplit(b, b.receipts[0].id);
+  assert.equal(p.parts.reduce((s, x) => s + x.cents, 0), -8060);
+  assert.equal(p.parts.find((x) => x.account === "6100").cents, -(5000 + 400 + 500));
+  assert.ok(p.notes.some((n) => /not explained/.test(n)));
+  const one = addReceipts(books([["2026-03-14", "BLUE BOTTLE", "-10.62"]]), CAFE).books;
+  assert.equal(receiptSplit(one, one.receipts[0].id).parts, null);
+});
+
+test("items that add to more than was paid, an unmatched receipt and unknown items give no split", () => {
+  let over = addReceipts(books([["2026-04-02", "HOME DEPOT #123", "-60.00"]]), HARDWARE).books;
+  over = attachReceipt(over, over.receipts[0].id, over.transactions[0].id);
+  assert.match(receiptSplit(over, over.receipts[0].id).notes[0], /more than/);
+  const none = addReceipts(books([["2026-09-01", "OTHER", "-1.00"]]), HARDWARE).books;
+  assert.match(receiptSplit(none, none.receipts[0].id).notes[0], /not matched/);
+  const odd = addReceipts(books([["2026-04-02", "ZZZ", "-12.00"]]), "Zed Corp\n2026-04-02\nWidget 10.00\nTotal 12.00");
+  const p = receiptSplit(odd.books, odd.books.receipts[0].id);
+  assert.equal(p.parts, null);
+  assert.ok(p.notes[0].includes("no account"));
+  assert.equal(receiptSplit(odd.books, odd.books.receipts[0].id, { base: "6100" }).parts, null); // single account
+  assert.throws(() => applySplit(odd.books, odd.books.receipts[0].id), /no account|nothing to split/);
 });
