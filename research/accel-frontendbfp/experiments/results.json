@@ -1,0 +1,242 @@
+{
+ "spread": 9.826289294860736,
+ "n_frames": 40,
+ "rows": [
+  {
+   "scheme": "fixed, 1 shift per stage (8)",
+   "level_dbfs": -60,
+   "rel_err": 0.714866855022986,
+   "peak_bits": 9,
+   "net_shift_mean": null,
+   "max_stored": null
+  },
+  {
+   "scheme": "fixed, 4 shifts",
+   "level_dbfs": -60,
+   "rel_err": 0.4558313936833639,
+   "peak_bits": 9,
+   "net_shift_mean": null,
+   "max_stored": null
+  },
+  {
+   "scheme": "fixed, 2 shifts",
+   "level_dbfs": -60,
+   "rel_err": 0.23559154493485282,
+   "peak_bits": 11,
+   "net_shift_mean": null,
+   "max_stored": null
+  },
+  {
+   "scheme": "block floating point",
+   "level_dbfs": -60,
+   "rel_err": 0.0810975049818874,
+   "peak_bits": 17,
+   "net_shift_mean": -2.925,
+   "max_stored": 25964
+  },
+  {
+   "scheme": "fixed, 1 shift per stage (8)",
+   "level_dbfs": -50,
+   "rel_err": 0.6618316867811244,
+   "peak_bits": 10,
+   "net_shift_mean": null,
+   "max_stored": null
+  },
+  {
+   "scheme": "fixed, 4 shifts",
+   "level_dbfs": -50,
+   "rel_err": 0.4045378517670515,
+   "peak_bits": 11,
+   "net_shift_mean": null,
+   "max_stored": null
+  },
+  {
+   "scheme": "fixed, 2 shifts",
+   "level_dbfs": -50,
+   "rel_err": 0.19811091438075826,
+   "peak_bits": 13,
+   "net_shift_mean": null,
+   "max_stored": null
+  },
+  {
+   "scheme": "block floating point",
+   "level_dbfs": -50,
+   "rel_err": 0.05981155354562086,
+   "peak_bits": 17,
+   "net_shift_mean": -1.45,
+   "max_stored": 27770
+  },
+  {
+   "scheme": "fixed, 1 shift per stage (8)",
+   "level_dbfs": -40,
+   "rel_err": 0.5328111887732304,
+   "peak_bits": 11,
+   "net_shift_mean": null,
+   "max_stored": null
+  },
+  {
+   "scheme": "fixed, 4 shifts",
+   "level_dbfs": -40,
+   "rel_err": 0.2924869156110314,
+   "peak_bits": 12,
+   "net_shift_mean": null,
+   "max_stored": null
+  },
+  {
+   "scheme": "fixed, 2 shifts",
+   "level_dbfs": -40,
+   "rel_err": 0.12020856448794826,
+   "peak_bits": 14,
+   "net_shift_mean": null,
+   "max_stored": null
+  },
+  {
+   "scheme": "block floating point",
+   "level_dbfs": -40,
+   "rel_err": 0.03196390061504909,
+   "peak_bits": 17,
+   "net_shift_mean": 0.075,
+   "max_stored": 26878
+  },
+  {
+   "scheme": "fixed, 1 shift per stage (8)",
+   "level_dbfs": -30,
+   "rel_err": 0.3511696550933763,
+   "peak_bits": 13,
+   "net_shift_mean": null,
+   "max_stored": null
+  },
+  {
+   "scheme": "fixed, 4 shifts",
+   "level_dbfs": -30,
+   "rel_err": 0.14659223091094714,
+   "peak_bits": 14,
+   "net_shift_mean": null,
+   "max_stored": null
+  },
+  {
+   "scheme": "fixed, 2 shifts",
+   "level_dbfs": -30,
+   "rel_err": 0.05087881599672832,
+   "peak_bits": 16,
+   "net_shift_mean": null,
+   "max_stored": null
+  },
+  {
+   "scheme": "block floating point",
+   "level_dbfs": -30,
+   "rel_err": 0.01609793332103396,
+   "peak_bits": 17,
+   "net_shift_mean": 1.875,
+   "max_stored": 27057
+  },
+  {
+   "scheme": "fixed, 1 shift per stage (8)",
+   "level_dbfs": -20,
+   "rel_err": 0.17337956919729977,
+   "peak_bits": 14,
+   "net_shift_mean": null,
+   "max_stored": null
+  },
+  {
+   "scheme": "fixed, 4 shifts",
+   "level_dbfs": -20,
+   "rel_err": 0.06267677806488108,
+   "peak_bits": 16,
+   "net_shift_mean": null,
+   "max_stored": null
+  },
+  {
+   "scheme": "fixed, 2 shifts",
+   "level_dbfs": -20,
+   "rel_err": 0.01386804707669946,
+   "peak_bits": 18,
+   "net_shift_mean": null,
+   "max_stored": null
+  },
+  {
+   "scheme": "block floating point",
+   "level_dbfs": -20,
+   "rel_err": 0.01336811380933683,
+   "peak_bits": 17,
+   "net_shift_mean": 3.425,
+   "max_stored": 27017
+  },
+  {
+   "scheme": "fixed, 1 shift per stage (8)",
+   "level_dbfs": -10,
+   "rel_err": 0.09565919817331216,
+   "peak_bits": 16,
+   "net_shift_mean": null,
+   "max_stored": null
+  },
+  {
+   "scheme": "fixed, 4 shifts",
+   "level_dbfs": -10,
+   "rel_err": 0.02288010211669214,
+   "peak_bits": 17,
+   "net_shift_mean": null,
+   "max_stored": null
+  },
+  {
+   "scheme": "fixed, 2 shifts",
+   "level_dbfs": -10,
+   "rel_err": 0.0038159167606871556,
+   "peak_bits": 19,
+   "net_shift_mean": null,
+   "max_stored": null
+  },
+  {
+   "scheme": "block floating point",
+   "level_dbfs": -10,
+   "rel_err": 0.017091689176571598,
+   "peak_bits": 17,
+   "net_shift_mean": 5.075,
+   "max_stored": 27025
+  },
+  {
+   "scheme": "fixed, 1 shift per stage (8)",
+   "level_dbfs": -3,
+   "rel_err": 0.046063705822524025,
+   "peak_bits": 17,
+   "net_shift_mean": null,
+   "max_stored": null
+  },
+  {
+   "scheme": "fixed, 4 shifts",
+   "level_dbfs": -3,
+   "rel_err": 0.009375705548877686,
+   "peak_bits": 18,
+   "net_shift_mean": null,
+   "max_stored": null
+  },
+  {
+   "scheme": "fixed, 2 shifts",
+   "level_dbfs": -3,
+   "rel_err": 0.002107752175484165,
+   "peak_bits": 20,
+   "net_shift_mean": null,
+   "max_stored": null
+  },
+  {
+   "scheme": "block floating point",
+   "level_dbfs": -3,
+   "rel_err": 0.012375452926876527,
+   "peak_bits": 17,
+   "net_shift_mean": 6.075,
+   "max_stored": 25749
+  }
+ ],
+ "ops_fixed": {
+  "mul": 7532,
+  "add": 11009,
+  "mem": 15620,
+  "lut": 80
+ },
+ "ops_bfp": {
+  "mul": 7532,
+  "add": 15617,
+  "mem": 15620,
+  "lut": 80
+ }
+}
