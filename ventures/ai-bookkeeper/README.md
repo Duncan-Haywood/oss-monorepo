@@ -218,6 +218,8 @@ earlier activity into a brought-forward line. The closing balance is tested
 against the aging table. Node tests on hand-written ledgers; the page button was
 not clicked through (playwright is not installed in the 2026-10-21 cloud session).
 
+**Writing off.** `writeoff ID` takes an invoice's unpaid balance to Bad debts (6900); on a bill it records the supplier forgiving the balance: payable debited, Other income (4100, "Debts forgiven") credited. Either leaves aging. Node test on a hand-written bill (engine.test.mjs, 2026-10-21). Forgiven debt can be taxable income; ask your accountant.
+
 A bank line clears a document when it has the **exact amount**, falls 0 to 180
 days after the document date, and carries the **invoice number or the party's
 name** in its description. It is then `settled` and posts to receivable or
@@ -491,7 +493,7 @@ only: a fiscal year ending in another month is not modelled. The page has a "yea
 
 ## Not modelled
 
-Writing off a bill, the 179 taxable-income limit, inventory,
+The 179 taxable-income limit, inventory,
 payroll and sales tax filings, multiple currencies (the VAT worksheet is UK-layout, invoice basis), reading a PDF file itself (paste its text instead), and reading a receipt image (paste the text; any OCR tool will give you that).
 
 ## Receipts matched to bank lines

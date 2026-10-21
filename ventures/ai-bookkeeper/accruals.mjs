@@ -110,26 +110,35 @@ export function documentEntries(books) {
 }
 
 // Write off what a customer will not pay: debits bad debts, credits receivable,
-// for the invoice's balance on `date`. Only invoices (a bill you will not pay is
-// not a loss). The invoice leaves aging; a later payment is not matched to it.
+// for the invoice's balance on `date`. A bill a supplier forgives is the mirror
+// image: debits payable, credits other income (4100). Credit notes cannot be
+// written off. The document leaves aging; a later payment is not matched to it.
 // -> { books, cents } or throws.
 export const BAD_DEBT = "6900";
-export function writeOff(booksIn, id, { date, account = BAD_DEBT } = {}) {
+export const FORGIVEN = "4100";
+export function writeOff(booksIn, id, { date, account } = {}) {
   const books = settle(JSON.parse(JSON.stringify(booksIn)));
   const d = (books.documents ?? []).find((x) => x.id === id || x.number === id);
   if (!d) throw new Error(`No document ${id}.`);
-  if (d.kind !== "invoice" || d.credit) throw new Error(`${d.id} is not an invoice; only an invoice can be written off.`);
+  if (d.credit) throw new Error(`${d.id} is a credit note; only an invoice or a bill can be written off.`);
+  const isBill = d.kind !== "invoice";
+  account ??= isBill ? FORGIVEN : BAD_DEBT;
   const cents = balance(d);
   if (cents <= 0) throw new Error(`${d.id} has nothing owing.`);
-  if (!books.accounts.some((a) => a.code === account)) books.accounts.push({ code: account, name: "Bad debts", type: "expense" });
+  if (!books.accounts.some((a) => a.code === account)) books.accounts.push(isBill ? { code: account, name: "Debts forgiven", type: "income" } : { code: account, name: "Bad debts", type: "expense" });
   books.accounts.sort((a, b) => a.code.localeCompare(b.code));
   const day = date ?? [...books.transactions.map((t) => t.date), d.date].sort().at(-1);
   if (books.lockedThrough && day <= books.lockedThrough) throw new Error(`The write-off date ${day} is in the period locked through ${books.lockedThrough}.`);
-  if (day < d.date) throw new Error(`The write-off date ${day} is before the invoice date ${d.date}.`);
+  if (day < d.date) throw new Error(`The write-off date ${day} is before the ${isBill ? "bill" : "invoice"} date ${d.date}.`);
   d.writtenOff = { date: day, cents, account };
   return { books: settle(books), cents };
 }
-const writeOffEntries = (books) => (books.documents ?? []).filter((d) => d.writtenOff).map((d) => ({ id: `WO-${d.id}`, date: d.writtenOff.date, memo: `Write-off of invoice ${d.number}, ${d.party}`, source: "writeoff", lines: [{ account: d.writtenOff.account, debit: d.writtenOff.cents, credit: 0 }, { account: AR, debit: 0, credit: d.writtenOff.cents }] }));
+const writeOffEntries = (books) => (books.documents ?? []).filter((d) => d.writtenOff).map((d) => {
+  const bill = d.kind !== "invoice", w = d.writtenOff;
+  return { id: `WO-${d.id}`, date: w.date, memo: `${bill ? "Bill forgiven" : "Write-off of invoice"} ${d.number}, ${d.party}`, source: "writeoff", lines: bill
+    ? [{ account: AP, debit: w.cents, credit: 0 }, { account: w.account, debit: 0, credit: w.cents }]
+    : [{ account: w.account, debit: w.cents, credit: 0 }, { account: AR, debit: 0, credit: w.cents }] };
+});
 
 const dayNum = (iso) => Date.UTC(+iso.slice(0, 4), +iso.slice(5, 7) - 1, +iso.slice(8, 10)) / 86400000;
 const hasNumber = (desc, number) => new RegExp(`(^|[^0-9a-z])${number.replace(/[^0-9a-z]/gi, "")}($|[^0-9a-z])`, "i").test(desc.replace(/[#\-_/]/g, ""));

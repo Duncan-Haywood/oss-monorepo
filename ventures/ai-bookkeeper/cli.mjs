@@ -65,7 +65,7 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
   profile [KEY VALUE]     your details for invoices (name, address, email, taxId, payTo, terms); no arguments lists them
   invoice ID [--out FILE] [--as-of D]  a printable invoice or credit note (HTML; print to PDF) with payments, balance due and overdue days
   statement [CUSTOMER] [--from D] [--out FILE]  a printable statement of account (HTML) with running balance and what is past due; no customer lists who owes what
-  writeoff ID [--date D]  write off an invoice's unpaid balance to bad debts (6900)
+  writeoff ID [--date D]  write off an invoice's unpaid balance to bad debts (6900), or record a bill the supplier forgave as other income (4100)
   recurring [--as-of D] [--json]  payees that repeat on a steady interval: cost per year, next date, and which went overdue, lapsed or changed amount
   forecast [--as-of D] [--days N] [--json]  expected cash day by day from the bank balance, recurring items and open invoices and bills; the lowest point
   anomalies [--json]     lines worth a second look: double charges, amounts far above a payee's usual, large first-time payees (candidates with a reason, not an audit)
@@ -238,8 +238,8 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
     if (out) { writeFileSync(out, r.html); console.log(`Wrote ${out}: ${r.party}, ${r.rows.length} lines, closing ${fmt(r.closing)}${r.overdue ? `, ${fmt(r.overdue)} past due` : ""}.`); } else process.stdout.write(r.html);
   } catch (e) { console.error(e.message); process.exit(1); }
 } else if (cmd === "writeoff") {
-  if (!rest[0]) { console.error("writeoff needs an invoice id or number"); process.exit(2); }
-  try { const r = writeOff(books, rest[0], { date: flag("--date") ?? undefined }); books = r.books; save(); console.log(`Wrote off ${fmt(r.cents)} of ${rest[0]} to bad debts.`); } catch (e) { console.error(e.message); process.exit(1); }
+  if (!rest[0]) { console.error("writeoff needs an invoice or bill id or number"); process.exit(2); }
+  try { const r = writeOff(books, rest[0], { date: flag("--date") ?? undefined }); books = r.books; save(); console.log(`Wrote off ${fmt(r.cents)} of ${rest[0]} to ${r.books.documents.find((x) => x.id === rest[0] || x.number === rest[0])?.kind === 'bill' ? 'other income (bill forgiven)' : 'bad debts'}.`); } catch (e) { console.error(e.message); process.exit(1); }
 } else if (cmd === "recurring") {
   const r = detectRecurring(books, { asOf });
   if (json) { console.log(JSON.stringify(r, null, 2)); process.exit(0); }

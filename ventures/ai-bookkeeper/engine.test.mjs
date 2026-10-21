@@ -519,7 +519,21 @@ test("writing off an invoice moves its balance to bad debts and out of aging", (
   assert.equal(reports(books).profitAndLoss.totalExpense, 60000 - 8000); // 600.00 bad debt less the 80.00 vendor credit
   assert.equal(closeChecks(books).filter((c) => c.check === "control").length, 0);
   assert.throws(() => writeOff(books, "4001"), /nothing owing/);
-  assert.throws(() => writeOff(books, "C9"), /only an invoice/);
+  assert.throws(() => writeOff(books, "C9"), /credit note/);
+});
+
+test("a bill the supplier forgives moves its balance to other income and out of aging", () => {
+  const b = addDocuments(newBooks(), `type,number,date,due,party,amount,account\nbill,B7,2026-02-01,2026-03-01,Paper Supply Inc,400.00,6100\n`).books;
+  const { books, cents } = writeOff(b, "B7", { date: "2026-04-15" });
+  assert.equal(cents, 40000);
+  assert.equal(aging(books, "2026-04-30").open.length, 0);
+  const pl = reports(books).profitAndLoss;
+  assert.equal(pl.totalExpense, 40000);
+  assert.equal(pl.totalIncome, 40000);
+  assert.equal(books.accounts.find((a) => a.code === "4100").type, "income");
+  assert.equal(closeChecks(books).filter((c) => c.check === "control").length, 0);
+  assert.throws(() => writeOff(books, "B7"), /nothing owing/);
+  assert.throws(() => writeOff(b, "B7", { date: "2026-01-01" }), /before the bill date/);
 });
 
 test("the five major US export shapes read to the same rows, signs and balances", async () => {
