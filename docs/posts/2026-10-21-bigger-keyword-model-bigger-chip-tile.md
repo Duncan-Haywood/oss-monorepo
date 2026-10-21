@@ -1,7 +1,7 @@
 ---
 title: "A bigger keyword-spotting model costs twice the chip tile for 1.5 points"
 date: 2026-10-21
-description: "Synthesising a keyword-spotting accelerator at 96 to 256 hidden units against Tiny Tapeout's real tile sizes: area is about 250 µm² per unit, and the next accuracy step doubles the tile."
+description: "Keyword-spotting accelerators at 96 to 256 hidden units on Tiny Tapeout tiles: about 250 µm² per unit, and the next accuracy step doubles the tile."
 tags: [research, chip-design, tiny-tapeout, keyword-spotting]
 ---
 
