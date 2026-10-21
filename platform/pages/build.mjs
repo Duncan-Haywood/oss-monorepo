@@ -3769,11 +3769,14 @@ const CATEGORY_RULES = [
     // the catch-all to 7. Listing it put `open-tennis-robots` on the same
     // axis: a machine to build, with CAD, firmware and a fabrication package,
     // rather than a calculation about money or a check on a file.
+    // `open-house-plans` joined 2026-10-21 on its first commit, which took the
+    // catch-all to 6: on the same axis, a thing to build from open files
+    // (public-domain plan sets with DXF, IFC and a bill of materials).
     id: 'open-hardware',
-    title: 'Open hardware & robots',
+    title: 'Open hardware, robots & house plans',
     accent: '#7a4a12',
-    blurb: 'Robots you can build, change and sell: MIT-licensed CAD with laser-cut and 3D-print files, firmware, bills of materials and a browser simulator for each. A robot vacuum and mop, a robotic lawn mower, and tennis ball robots.',
-    test: (slug) => ['open-floor-robots', 'open-robot-mower', 'open-tennis-robots'].includes(slug),
+    blurb: 'Things you can build, change and sell: MIT-licensed robot CAD with laser-cut and 3D-print files, firmware, bills of materials and a browser simulator for each (a robot vacuum and mop, a robotic lawn mower, tennis ball robots), and a generator of public-domain house plans with drawings, IFC and DXF.',
+    test: (slug) => ['open-floor-robots', 'open-robot-mower', 'open-tennis-robots', 'open-house-plans'].includes(slug),
   },
 ];
 
