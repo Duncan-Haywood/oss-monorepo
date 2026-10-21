@@ -1522,7 +1522,7 @@ Annals*). Payments: gridlock resolution and liquidity-saving mechanisms (Bech an
    published leak schedule: the competition's best methods as baselines, and the repo's
    `changepoint-detector` (PELT, Bayesian online) applied to residuals, scored by detection
    delay and false alarms.
-4. `infra-propulsion`: energy per tonne-km by mode from first principles (rolling resistance,
+4. `infra-propulsion` (done 2026-10-21; floors only, most inputs assumed and swept): energy per tonne-km by mode from first principles (rolling resistance,
    aerodynamic and hull drag, lift), reproducing published figures, then the range and payload
    each storage technology from `energy-density` and `energy-practical` gives a truck, train,
    ship and aircraft. Which modes can electrify directly, and which need a fuel?
