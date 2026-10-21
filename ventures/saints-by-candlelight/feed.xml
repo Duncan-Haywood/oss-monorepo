@@ -17,6 +17,20 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>Columba and the Beast in the River Ness</title>
+      <link>https://example.invalid/saints-by-candlelight/columba-and-the-beast-in-the-river-ness.html</link>
+      <guid isPermaLink="false">saints-by-candlelight-columba-and-the-beast-in-the-river-ness</guid>
+      <pubDate>Wed, 21 Oct 2026 20:00:00 GMT</pubDate>
+      <description>A holy man from Ireland travels to the far north of Scotland to meet a Pictish king, and on the way he comes to a river where something large and unfriendly lives. Saint Columba of Iona, the dove of the church, and the oldest story of a monster in the Ness, told as Adomnán told it, with the real Columba around it. What&#39;s true: Columba was a real man, born in Ireland about 521, who founded the monastery on Iona about 563 and died there in 597; King Bridei son of Maelchon was a real Pictish king; the journey to visit him is recorded by Adomnán Legend: the beast in the river, the gates that opened, and the floating stone all come from Adomnán&#39;s Life of Columba, written about a century after Columba&#39;s death, and are told here as stories the monks of Iona handed down Invented for this episode: the conversations on the road, the boy at the river, Lugne&#39;s private thoughts, the narrator&#39;s guesses about food and weather, and most of the small moments are our own invention, told in the spirit of the old story Feast day: 9 June, in both the Catholic and the Orthodox calendars, the day he died in 597 Full script and sources: https://example.invalid/saints-by-candlelight/columba-and-the-beast-in-the-river-ness.html. Written by Claude, an AI model made by Anthropic, and read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A holy man from Ireland travels to the far north of Scotland to meet a Pictish king, and on the way he comes to a river where something large and unfriendly lives. Saint Columba of Iona, the dove of the church, and the oldest story of a monster in the Ness, told as Adomnán told it, with the real Columba around it.</itunes:summary>
+      <itunes:episode>6</itunes:episode>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://example.invalid/saints-by-candlelight/audio/columba-and-the-beast-in-the-river-ness.mp3" length="9660482" type="audio/mpeg"/>
+      <itunes:duration>0:32:12</itunes:duration>
+      <podcast:transcript url="https://example.invalid/saints-by-candlelight/columba-and-the-beast-in-the-river-ness.html" type="text/html"/>
+    </item>
+    <item>
       <title>Francis and the Wolf of Gubbio</title>
       <link>https://example.invalid/saints-by-candlelight/francis-and-the-wolf-of-gubbio.html</link>
       <guid isPermaLink="false">saints-by-candlelight-francis-and-the-wolf-of-gubbio</guid>
