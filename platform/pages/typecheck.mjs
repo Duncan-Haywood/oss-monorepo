@@ -1,7 +1,7 @@
 // Type-checks the venture JavaScript files that opt in with `// @ts-check`.
 //
-// The rule of thumb is in PRODUCT_PLAYBOOK.md section 4: venture JS stays
-// plain, build-free .mjs, and TypeScript is used only as a checker. A file
+// PRODUCT_PLAYBOOK.md section 4 suggests it for ventures written in plain
+// .mjs (since 2026-10-21 the language itself is a free choice). A file
 // opts in by starting with `// @ts-check`; JSDoc comments carry any types it
 // needs. This script runs `tsc --noEmit` over the opted-in files of the
 // ventures named on the command line (or of every venture), so a file that

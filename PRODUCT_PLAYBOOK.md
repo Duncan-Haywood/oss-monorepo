@@ -232,12 +232,27 @@ tools for agents. A product's part is:
   and the measured score is published beside the limitations. When a real
   sentence fails, add it there.
 
-### Rule of thumb: plain JavaScript, checked by TypeScript (2026-10-16)
+### Language: pick what fits the product (2026-10-21)
 
-Venture code stays build-free `.mjs`, served as committed. TypeScript is used
-only as a checker, never as a build step:
+There is no required language or file format for venture code. The owner,
+2026-10-21, lifted the 2026-10-16 rule that venture code must be build-free
+`.mjs`: choose the language and tooling that make the product best, the way a
+competent engineer would. What still holds is physical, not a style rule:
 
-- **Start every new `.mjs` file with `// @ts-check`.** Add JSDoc types only
+- **The site serves committed files.** `platform/pages/build.mjs` copies a
+  venture's files as they are and drops source-only extensions (`.ts`,
+  `.tsx`, `.py`, …; `NON_WEB_EXTENSIONS`). Whatever the browser loads has to
+  be in the tree, or produced by a step you add to the Pages build in the
+  same PR. A compile step nobody runs means a broken page.
+- **The $0-marginal-cost shapes and the five things in §5 apply whatever the
+  language.**
+
+Plain `.mjs` is still what most of the portfolio is written in and what the
+shared tooling (tests, `clauses.mjs`, `regen.mjs`) is most used to, so it is
+the easy path for a small calculator, not an obligation. If you write plain
+JavaScript, TypeScript's checker is cheap insurance:
+
+- **Start new `.mjs` files with `// @ts-check`.** Add JSDoc types only
   where tsc asks for them (`/** @type {HTMLFormElement} */` on a
   `querySelector`, a `@typedef` for an object that is built up after its
   literal). Keep the JSDoc true: a `@param {number}` the form actually passes

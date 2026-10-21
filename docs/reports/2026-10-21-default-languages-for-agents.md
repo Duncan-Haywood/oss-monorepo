@@ -61,8 +61,8 @@ in `docs/reports/assets/ai-default-languages/`. Outputs: `results.txt`,
 
 - **This repository** (`census.py`, 16,148 source files, most agent-written):
   research is 91% Python files (807/818 projects mainly Python); products
-  are 85% JavaScript because `PRODUCT_PLAYBOOK.md` requires build-free
-  `.mjs` (rule of 2026-10-16). Every other language is forced by the
+  are 85% JavaScript because `PRODUCT_PLAYBOOK.md` required build-free
+  `.mjs` (rule of 2026-10-16, lifted 2026-10-21). Every other language is forced by the
   domain: Verilog (28 projects), C firmware (4), Kotlin (1), OpenSCAD (2),
   Swift (1). Zero Rust or Go files.
 
@@ -86,8 +86,8 @@ in `docs/reports/assets/ai-default-languages/`. Outputs: `results.txt`,
 ## Rules for choosing a language
 
 1. **The repository's language and written rules come first.** Read the
-   nearest guide (here: `PRODUCT_PLAYBOOK.md` for `ventures/`, plain `.mjs`
-   with `// @ts-check`; `research/CLAUDE.md` for `research/`, Python and
+   nearest guide (here: `PRODUCT_PLAYBOOK.md` for `ventures/`, any language
+   that fits, plain `.mjs` with `// @ts-check` as the easy path; `research/CLAUDE.md` for `research/`, Python and
    its shared helpers). Do not introduce a new language into an area that
    has one without a measured reason.
 2. **No rule and no existing code: the default is fine** for scripts, data
