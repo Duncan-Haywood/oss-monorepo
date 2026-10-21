@@ -50,6 +50,9 @@ export function defaultSheathing() {
     minCourse: 12,
     // Run each wall's sheathing past its end at a corner to cover the next wall's end stud.
     overhang: false,
+    // Inches the sheathing runs down past the underside of the bottom plate to cover the rim (band) board
+    // of the floor below, tying wall to floor. Vertical sheets; the sheet is chosen for wall height plus this.
+    rimLap: 0,
   };
 }
 
@@ -199,10 +202,13 @@ export function sheathe(plan, result) {
   const cover = cfg.coverHeight > 0 ? cfg.coverHeight : wallHeight;
   if (cfg.orientation === "horizontal" && cfg.overhang) notes.push("Corner overhang is for vertical sheets; the horizontal layout ignores it.");
   if (cfg.orientation === "horizontal") return sheatheHorizontal(plan, result, cfg, sheets, cover);
-  const courses = chooseCourses(sheets, cover, cfg.minCourse, 0.125);
+  const lap = cfg.rimLap > 0 ? cfg.rimLap : 0;
+  if (cfg.orientation === "horizontal" && lap) notes.push("The rim lap is for vertical sheets; the horizontal layout ignores it.");
+  const courses = chooseCourses(sheets, cover + lap, cfg.minCourse, 0.125);
+  if (courses && lap) for (const c of courses) { c.y0 -= lap; c.y1 -= lap; }
   if (!courses) {
     const longest = Math.max(...sheets.map((s) => s.length));
-    return { ok: false, errors: [`No sheet is long enough: the walls need ${formatInches(cover)} and the longest listed is ${formatInches(longest)}. List a longer sheet, or a second sheet that leaves an upper course of at least ${formatInches(cfg.minCourse)} (two courses with a blocked joint).`] };
+    return { ok: false, errors: [`No sheet is long enough: the walls need ${formatInches(cover + lap)} and the longest listed is ${formatInches(longest)}. List a longer sheet, or a second sheet that leaves an upper course of at least ${formatInches(cfg.minCourse)} (two courses with a blocked joint).`] };
   }
   const two = courses.length === 2;
   const sheet = courses[0].sheet;
@@ -290,12 +296,14 @@ export function sheathe(plan, result) {
   const cutoutArea = panelAll.reduce((t, p) => t + p.cutouts.reduce((u, c) => u + area(c.x1 - c.x0, c.y1 - c.y0), 0), 0);
   const panelArea = panelAll.reduce((t, p) => t + area(p.width, p.height), 0) - cutoutArea;
   const stripArea = panelArea + cutoutArea;
-  if (two) notes.push(`Walls are ${formatInches(cover)} to cover and no sheet is that long: two courses, a ${formatInches(courses[0].y1)} lower sheet and a ${formatInches(cover - courses[0].y1)} upper course, with the horizontal joint at ${formatInches(jointY)} on blocking set on edge between the studs.`);
+  if (two) notes.push(`Walls are ${formatInches(cover + lap)} to cover and no sheet is that long: two courses, a ${formatInches(courses[0].sheet.length)} lower sheet and a ${formatInches(cover - courses[0].y1)} upper course, with the horizontal joint at ${formatInches(jointY)} on blocking set on edge between the studs.`);
+  if (lap) notes.push(`Sheathing runs ${formatInches(lap)} below the bottom plate to cover the rim board; nail it to the rim as well as the plate.`);
   const nailerLumber = nailerOrder(walls, plan);
   return {
     ok: true,
     sheet,
     cover,
+    rimLap: lap,
     courses: courses.map((c, i) => ({ y0: c.y0, y1: c.y1, sheet: c.sheet, perSheet: c.perSheet, order: orders[i] })),
     jointY,
     walls,

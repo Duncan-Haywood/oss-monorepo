@@ -14,6 +14,7 @@ Usage:
   node cli.mjs plan.json --csv      order, cut list and board-by-board cuts as CSV
   node cli.mjs plan.json --sheathing  add panel layout per wall and the sheet order
   node cli.mjs plan.json --overhang   run sheathing past corners to cover the next wall's end stud (vertical sheets)
+  node cli.mjs plan.json --rim-lap=9.25  run sheathing that many inches below the bottom plate to cover the rim board (vertical sheets)
   node cli.mjs plan.json --horizontal sheets long side along the wall (implies --sheathing)
   node cli.mjs --example            print the example plan (an invented 40 x 28 ft ranch) to start from
   cat plan.json | node cli.mjs -    read the plan from stdin
@@ -47,6 +48,7 @@ function normalise(plan) {
 export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "utf8")) {
   const args = argv.filter((a) => !a.startsWith("--"));
   const flags = new Set(argv.filter((a) => a.startsWith("--")));
+  const rimLap = Math.max(0, parseLength(argv.find((a) => a.startsWith("--rim-lap="))?.slice(10) ?? "0") || 0);
   if (flags.has("--help") || flags.has("-h")) return { code: 0, out: HELP };
   if (flags.has("--example")) return { code: 0, out: JSON.stringify(samplePlan(), null, 2) };
   if (!args.length) return { code: 2, out: HELP };
@@ -58,8 +60,8 @@ export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "u
   }
   let r = takeoff(plan);
   if (!r.ok) return { code: 1, out: `The plan has problems:\n${r.errors.map((e) => `  - ${e}`).join("\n")}` };
-  if (flags.has("--sheathing") || flags.has("--horizontal") || flags.has("--overhang") || plan.sheathing) {
-    const sheathing = sheathe({ ...plan, sheathing: { ...defaultSheathing(), ...(plan.sheathing || {}), ...(flags.has("--horizontal") ? { orientation: "horizontal" } : {}), ...(flags.has("--overhang") ? { overhang: true } : {}) } }, r);
+  if (flags.has("--sheathing") || flags.has("--horizontal") || flags.has("--overhang") || rimLap > 0 || plan.sheathing) {
+    const sheathing = sheathe({ ...plan, sheathing: { ...defaultSheathing(), ...(plan.sheathing || {}), ...(flags.has("--horizontal") ? { orientation: "horizontal" } : {}), ...(flags.has("--overhang") ? { overhang: true } : {}), ...(rimLap > 0 ? { rimLap } : {}) } }, r);
     const extra = nailerCuts(sheathing);
     if (extra.length) r = takeoff(plan, extra); // nailers join the cut list and the lumber order
     r.sheathing = sheathing;
