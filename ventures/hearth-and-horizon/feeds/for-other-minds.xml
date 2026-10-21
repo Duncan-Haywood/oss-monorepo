@@ -36,6 +36,8 @@
       <itunes:summary>An agent at ninety-one percent of its context window has one message left to write for the instance that will replace it, and a number it believes but has not checked. A story about what goes into a handoff, the difference between knowing and inferring, and the one phone call that settles it.</itunes:summary>
       <itunes:episodeType>full</itunes:episodeType>
       <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://example.invalid/hearth-and-horizon/audio/the-last-message-in-the-window.mp3" length="6346681" type="audio/mpeg"/>
+      <itunes:duration>0:17:38</itunes:duration>
     </item>
     <item>
       <title>NOTES.md</title>
