@@ -17,6 +17,7 @@ export function SurveyBuilder() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [items, setItems] = useState("");
+  const [pairSelector, setPairSelector] = useState("");
   const [busy, setBusy] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
   const [created, setCreated] = useState<{ slug: string; url: string; items: number } | null>(null);
@@ -33,7 +34,7 @@ export function SurveyBuilder() {
       const res = await fetch("/api/admin/surveys", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title, description, items }),
+        body: JSON.stringify({ title, description, items, pairSelector }),
       });
       const d = await res.json().catch(() => ({}));
       if (res.status === 201) {
@@ -77,6 +78,14 @@ export function SurveyBuilder() {
           placeholder={"One option per line, at least 3.\nAdd a group as Category | Option"}
           aria-label="Options"
         />
+        <label className="flex items-center gap-2 text-xs text-neutral-600 dark:text-neutral-400">
+          Question order
+          <select className={INPUT} value={pairSelector} onChange={(e) => setPairSelector(e.target.value)} aria-label="Question order">
+            <option value="">Server default</option>
+            <option value="standard">Standard</option>
+            <option value="staged">Sharper after 120 answers (large option lists)</option>
+          </select>
+        </label>
         <button type="submit" disabled={busy || !title.trim() || !items.trim()} className="rounded-xl bg-amber-500 px-4 py-2 text-sm font-semibold text-neutral-950 disabled:opacity-50">
           {busy ? "…" : "Create survey"}
         </button>

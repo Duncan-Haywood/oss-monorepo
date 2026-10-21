@@ -108,9 +108,12 @@ flagships:
       information score after) is in and measured: it equals the shipped one at
       90 answers and keeps 66 of the 70 settled items and the rank gain at 300
       answers on 220 items (docs/INFORMATION-GAIN-SELECTOR.md); not wired in.
-      Next: a per-survey `pairSelector` flag (prisma field, admin toggle, used
-      by the answer route), then a live check that pair requests stay fast at
-      220 items.
+      A per-survey `pairSelector` (null follows PAIR_SELECTOR, "standard" or
+      "staged"; prisma column, validated in surveyBuilder.ts, a "Question order"
+      menu on the admin form, read by /api/trials/next) is in.
+      Next: a live check that pair requests stay fast at 220 items, then
+      show the admin per-item answer counts so they can see when a list is
+      too long for their respondent count.
   - venture: league-schedule-generator
     why: >-
       Circle-method round robins with minimal home/away breaks, court and slot
