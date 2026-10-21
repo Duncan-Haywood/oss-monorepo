@@ -138,9 +138,26 @@ export function s179Check(books, placedYear, limits = S179_LIMITS) {
   return { year: placedYear, limit: lim.limit, threshold: lim.threshold, placedCost, allowed, elected, excess: Math.max(0, elected - allowed) };
 }
 
+// The Section 179 taxable-income limit for one tax year: the deduction cannot
+// exceed taxable income from the active conduct of a trade or business computed
+// before the 179 deduction, and what is cut carries forward. The claimable
+// amount is the year's election (capped by the dollar limit after phase-out)
+// plus any carryforward from earlier years. `businessIncome` is in cents and
+// may be negative. Returns null when no income is given and nothing is claimable.
+// -> { elected, dollarAllowed, carryIn, claimable, income, allowed, carryOut }
+export function s179IncomeLimit(books, year, { limits = S179_LIMITS, businessIncome = null, carryIn = 0 } = {}) {
+  const c = s179Check(books, year, limits);
+  const elected = (books.assets ?? []).filter((a) => a.tax && +a.date.slice(0, 4) === year).reduce((s, a) => s + a.tax.s179, 0);
+  const dollarAllowed = c ? Math.min(elected, c.allowed) : elected;
+  const claimable = dollarAllowed + carryIn;
+  if (businessIncome === null || claimable === 0) return businessIncome === null && claimable === 0 ? null : { year, elected, dollarAllowed, carryIn, claimable, income: businessIncome, allowed: claimable, carryOut: 0 };
+  const allowed = Math.min(claimable, Math.max(0, businessIncome));
+  return { year, elected, dollarAllowed, carryIn, claimable, income: businessIncome, allowed, carryOut: claimable - allowed };
+}
+
 // The worksheet for a tax year: a row per asset with a tax treatment, the book
 // depreciation for the same year for comparison, and warnings.
-export function taxDepreciation(books, year, { limits = S179_LIMITS } = {}) {
+export function taxDepreciation(books, year, { limits = S179_LIMITS, businessIncome = null, s179CarryIn = 0 } = {}) {
   const through = booksThrough(books);
   const rows = [];
   const warnings = [];
@@ -161,7 +178,9 @@ export function taxDepreciation(books, year, { limits = S179_LIMITS } = {}) {
     if (!c) warnings.push(`No Section 179 limits on file for ${y}; the dollar limit and phase-out are not checked.`);
     else if (c.excess) warnings.push(`Section 179 elected for ${y} is ${money(c.elected)} but the limit after the investment phase-out is ${money(c.allowed)} (limit ${money(c.limit)}, ${money(c.placedCost)} placed in service against a ${money(c.threshold)} threshold); ${money(c.excess)} is over and is not allowed. The worksheet still shows what you entered.`);
   }
-  if (rows.some((r) => r.s179)) warnings.push("Section 179 limits are typed from memory and unchecked against the IRS; the taxable-income limit and carryforward are not modelled.");
+  const s179Limit = s179IncomeLimit(books, year, { limits, businessIncome, carryIn: s179CarryIn });
+  if (s179Limit?.carryOut > 0) warnings.push(`Section 179 is limited to business taxable income: ${money(s179Limit.allowed)} of ${money(s179Limit.claimable)} can be deducted for ${year}; ${money(s179Limit.carryOut)} carries forward to the next year (enter it there as the carryforward). The worksheet still shows what you entered.`);
+  if (rows.some((r) => r.s179) || s179CarryIn) warnings.push(businessIncome === null ? "Section 179 limits are typed from memory and unchecked against the IRS; pass the year's business taxable income (before 179) to apply the taxable-income limit and carryforward." : "Section 179 limits are typed from memory and unchecked against the IRS; the taxable-income limit uses the business income you entered and ignores wages and other rules for combining income.");
   for (const r of rows) {
     const bp = (books.assets ?? []).find((a) => a.id === r.id)?.tax?.bonusPct ?? 0;
     const py = +r.placed.slice(0, 4);
@@ -171,7 +190,7 @@ export function taxDepreciation(books, year, { limits = S179_LIMITS } = {}) {
   if (rows.some((r) => a_bonus(books, r.id))) warnings.push("Bonus depreciation is applied at the percent you entered; the checks above cover only the year's maximum, not an election out by class.");
   warnings.push("Business-use share, listed property and the placed-in-service date's own rules are not modelled.");
   const sum = (k) => rows.reduce((s, r) => s + r[k], 0);
-  return { year, rows, totals: { s179: sum("s179"), bonus: sum("bonus"), macrs: sum("macrs"), total: sum("total"), book: sum("book"), difference: sum("difference") }, warnings };
+  return { year, rows, s179Limit, totals: { s179: sum("s179"), bonus: sum("bonus"), macrs: sum("macrs"), total: sum("total"), book: sum("book"), difference: sum("difference") }, warnings };
 }
 // Highest bonus depreciation percent for property placed in service in a year:
 // 100 to 2022, then the 2017 act's phase-down (80, 60), and 100 again for

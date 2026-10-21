@@ -180,3 +180,21 @@ test("bonus above the year's maximum is flagged; 2025 asks about the acquisition
   const y25 = taxDepreciation(with1("10000", "2025-05-01", { macrsClass: 5, bonusPct: 100 }), 2025);
   assert.ok(y25.warnings.some((x) => /acquired after 19 January 2025/.test(x)));
 });
+
+test("179 is capped at business income and the rest carries forward", async () => {
+  const { s179IncomeLimit } = await import("./taxdepr.mjs");
+  const b = with1("20000", "2026-03-10", { macrsClass: 7, s179: "20000" });
+  const l = s179IncomeLimit(b, 2026, { businessIncome: 7500000 });
+  assert.deepEqual([l.claimable, l.allowed, l.carryOut], [2000000, 2000000, 0]);
+  const cut = s179IncomeLimit(b, 2026, { businessIncome: 500000 });
+  assert.deepEqual([cut.allowed, cut.carryOut], [500000, 1500000]);
+  const loss = s179IncomeLimit(b, 2026, { businessIncome: -100000 });
+  assert.deepEqual([loss.allowed, loss.carryOut], [0, 2000000]);
+  const next = s179IncomeLimit(newBooks(), 2027, { businessIncome: 800000, carryIn: 1500000 });
+  assert.deepEqual([next.allowed, next.carryOut], [800000, 700000]);
+  assert.equal(s179IncomeLimit(newBooks(), 2027), null);
+  const w = taxDepreciation(b, 2026, { businessIncome: 500000 });
+  assert.equal(w.s179Limit.carryOut, 1500000);
+  assert.ok(w.warnings.some((x) => /carries forward/.test(x)));
+  assert.ok(!taxDepreciation(b, 2026, { businessIncome: 9000000 }).warnings.some((x) => /carries forward/.test(x)));
+});

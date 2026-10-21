@@ -43,7 +43,7 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
   asset add NAME --cost 1800 --date D [--life MONTHS] [--salvage 0] [--expense]  register equipment; depreciation is booked monthly (default 60 months, straight-line)
   asset dispose ID --date D [--proceeds 0] [--into 1000]  sell or scrap it; books the gain or loss
   asset tax ID --class 5 [--s179 N] [--bonus PCT]  set the asset's US tax treatment (MACRS class 3/5/7/10/15/20 years, half-year)
-  taxdepr YEAR [--json]  tax depreciation worksheet beside the book depreciation, with what it cannot check
+  taxdepr YEAR [--income DOLLARS] [--carry DOLLARS] [--json]  tax depreciation worksheet beside the book depreciation, with what it cannot check
   assets FILE|[--as-of D] load a CSV (name,date,cost,life_months[,salvage,method]), or list the register: cost, accumulated depreciation, net book value
   writeoff ID [--date D]  write off an invoice's unpaid balance to bad debts (6900)
   aging [--as-of D]      what customers owe you and what you owe, by days past due
@@ -135,11 +135,14 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
 } else if (cmd === "taxdepr") {
   const year = +rest[0];
   if (!(year >= 1990 && year <= 2100)) { console.error("taxdepr needs a year, e.g. taxdepr 2026"); process.exit(2); }
-  const w = taxDepreciation(books, year);
+  const inc = flag("--income"), carry = flag("--carry");
+  const cents = (v) => Math.round(parseFloat(String(v).replace(/[$,]/g, "")) * 100);
+  const w = taxDepreciation(books, year, { businessIncome: inc === null ? null : cents(inc), s179CarryIn: carry === null ? 0 : cents(carry) });
   if (json) { console.log(JSON.stringify(w, null, 2)); process.exit(0); }
   console.log(`TAX DEPRECIATION ${year} (MACRS, half-year)`);
   for (const r of w.rows) console.log(`  ${r.id.padEnd(6)} ${r.name.slice(0, 24).padEnd(24)} ${r.class}-yr  179 ${fmt(r.s179).padStart(10)}  bonus ${fmt(r.bonus).padStart(10)}  MACRS ${fmt(r.macrs).padStart(10)}  tax ${fmt(r.total).padStart(11)}  book ${fmt(r.book).padStart(10)}`);
   console.log(`  Total: tax ${fmt(w.totals.total)}, book ${fmt(w.totals.book)}, difference ${fmt(w.totals.difference)}`);
+  if (w.s179Limit && w.s179Limit.income !== null) console.log(`  Section 179: claimable ${fmt(w.s179Limit.claimable)}, business income ${fmt(w.s179Limit.income)}, deductible ${fmt(w.s179Limit.allowed)}, carried forward ${fmt(w.s179Limit.carryOut)}`);
   for (const x of w.warnings) console.log(`  Note: ${x}`);
 } else if (cmd === "assets") {
   if (rest[0]) {
