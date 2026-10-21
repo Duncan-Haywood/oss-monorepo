@@ -5668,8 +5668,13 @@ const CATEGORY_STYLE = `
     .subgroup-count { font-weight: 600; color: var(--soft); letter-spacing: 0; }
     .cards { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px;
              grid-template-columns: repeat(auto-fill, minmax(268px, 1fr)); }
-    .card { background: var(--panel); border: 1px solid var(--line); border-radius: 13px;
-            padding: 17px 18px; }
+    .card { position: relative; background: var(--panel); border: 1px solid var(--line); border-radius: 13px;
+            padding: 17px 18px; transition: transform .18s, box-shadow .18s, border-color .18s; }
+    .card::before { content: ""; position: absolute; left: -1px; top: 14px; bottom: 14px; width: 3px;
+                    border-radius: 0 3px 3px 0; background: var(--pf-cat, var(--accent)); opacity: .85; }
+    .card:hover, .card:focus-within { transform: translateY(-2px); border-color: var(--pf-cat, var(--accent));
+                                      box-shadow: 0 10px 28px rgba(20, 30, 60, .10); }
+    @media (prefers-reduced-motion: reduce) { .card, .cat { transition: none; } .card:hover, .cat:hover { transform: none; } }
     .card h3 { margin: 0 0 7px; font-size: 1.03rem; line-height: 1.25; }
     .card a { color: inherit; text-decoration: none; }
     .card a:hover h3, .card a:focus-visible h3 { color: var(--accent); text-decoration: underline; }
@@ -5904,8 +5909,8 @@ ${otherAudiences
 </head>
 <body>
   ${renderSiteHeader({ toRoot, current: 'tools', crumbs: [{ label: 'Tools', href: `${toRoot}${CATEGORY_PATH_PREFIX}/` }, { label: category.title }] })}
-  <div class="wrap">
-    <header>
+  <div class="wrap"${category.accent ? ` style="--pf-cat:${escapeHtml(category.accent)}"` : ''}>
+    <header class="pf-hero">
       <p class="eyebrow">${escapeHtml(category.title)}</p>
       <h1>${escapeHtml(copy.title)}</h1>
       <p class="lede">${escapeHtml(copy.intro)}</p>${
@@ -6089,7 +6094,9 @@ export function renderToolsIndexPage({ groups, kindPages = [], audiencePages = [
   const description = `Every free tool on ${SITE_NAME}, filed by the job it does: ${groups
     .map(({ category }) => category.title.toLowerCase())
     .join(', ')}. Runs in your browser; no account.`;
-  const section = (id, heading, blurb, count, subs) => `      <section class="cat" id="${escapeHtml(id)}">
+  const section = (id, heading, blurb, count, subs, accent) => `      <section class="cat" id="${escapeHtml(id)}"${
+    accent ? ` style="--pf-cat:${escapeHtml(accent)}"` : ''
+  }>
         <h2><a href="${escapeHtml(`${id}/`)}" data-category="${escapeHtml(id)}">${escapeHtml(heading)}</a> <span>${count}</span></h2>
         <p>${escapeHtml(snippetize(blurb, 170))}</p>${
           subs.length
@@ -6108,11 +6115,12 @@ export function renderToolsIndexPage({ groups, kindPages = [], audiencePages = [
         category.blurb,
         items.length,
         groupBySubcategory(category.id, items).filter((g) => g.subcategory),
+        category.accent,
       ),
     )
     .join('\n');
   const kinds = kindPages
-    .map(({ page, items, subgroups }) => section(page.id, page.title, page.blurb, items.length, subgroups))
+    .map(({ page, items, subgroups }) => section(page.id, page.title, page.blurb, items.length, subgroups, page.accent))
     .join('\n');
   const itemList = {
     '@context': 'https://schema.org',
@@ -6156,7 +6164,7 @@ export function renderToolsIndexPage({ groups, kindPages = [], audiencePages = [
 <body>
   ${renderSiteHeader({ toRoot, current: 'tools', crumbs: [{ label: 'Tools' }] })}
   <div class="wrap">
-    <header>
+    <header class="pf-hero">
       <p class="eyebrow">Tools</p>
       <h1>${escapeHtml(title)}</h1>
       <p class="lede">Each section has its own page with every tool in it. Know what you need? <a href="${escapeHtml(`${toRoot}#${SEARCH_ANCHOR}`)}">Search all ${total} tools</a> instead.</p>
@@ -6198,7 +6206,12 @@ const TOOLS_INDEX_STYLE = `
     .band { font-size: .82rem; text-transform: uppercase; letter-spacing: .07em; color: var(--muted);
             margin: 34px 0 12px; padding-bottom: 7px; border-bottom: 1px solid var(--line); }
     .cats { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
-    .cat { background: var(--panel); border: 1px solid var(--line); border-radius: 13px; padding: 17px 18px; }
+    .cats { align-items: start; }
+    .cat { position: relative; background: var(--panel); border: 1px solid var(--line); border-radius: 13px; padding: 17px 18px;
+           transition: transform .18s, box-shadow .18s, border-color .18s; }
+    .cat { border-top: 3px solid var(--pf-cat, #1fb68f); }
+    .cat:hover, .cat:focus-within { transform: translateY(-2px); border-color: var(--pf-cat, var(--accent));
+                                    box-shadow: 0 10px 28px rgba(20, 30, 60, .10); }
     .cat h2 { font-size: 1.1rem; margin: 0 0 6px; letter-spacing: -.01em; }
     .cat h2 a { color: inherit; text-decoration: none; }
     .cat h2 a:hover, .cat h2 a:focus-visible { color: var(--accent); text-decoration: underline; }
@@ -6386,7 +6399,7 @@ ${group.items.map(renderCard).join('\n')}
 <body>
   ${renderSiteHeader({ toRoot, current: 'tools', crumbs: [{ label: 'Tools', href: `${toRoot}${CATEGORY_PATH_PREFIX}/` }, { label: 'Comparisons' }] })}
   <div class="wrap">
-    <header>
+    <header class="pf-hero">
       <p class="eyebrow">Comparisons</p>
       <h1>What each free tool here does that the paid product does not — and what it does not do</h1>
       <p class="lede">Every tool on this site that overlaps with a commercial product has a page saying so plainly: what the product does, what the free tool does, and when the paid one is the right answer. They are written by the tool's author, cite the product's own public documentation, and are not affiliated with, endorsed by, or reviewed by any product named here.</p>
@@ -6600,7 +6613,7 @@ export function renderCompareProductPage({
 <body>
   ${renderSiteHeader({ toRoot, current: 'tools', crumbs: [{ label: 'Tools', href: `${toRoot}${CATEGORY_PATH_PREFIX}/` }, { label: 'Comparisons', href: `${toRoot}${COMPARE_PATH}` }, { label: subject }] })}
   <div class="wrap">
-    <header>
+    <header class="pf-hero">
       <p class="eyebrow">Compared with ${escapeHtml(subject)}</p>
       <h1>${escapeHtml(`${n} free tools here have a page comparing themselves with ${subject}`)}</h1>
       <p class="lede">${escapeHtml(
@@ -6818,7 +6831,7 @@ ${tools.map(renderTool).join('\n')}
 <body>
   ${renderSiteHeader({ toRoot, current: 'tools', crumbs: [{ label: 'Tools', href: `${toRoot}${CATEGORY_PATH_PREFIX}/` }, { label: 'Guides' }] })}
   <div class="wrap">
-    <header>
+    <header class="pf-hero">
       <p class="eyebrow">Guides</p>
       <h1>The question people ask before they know a calculator exists</h1>
       <p class="lede">Every tool on this site ships pages beside the calculator: how a price is actually built up, when one option beats another, what a fee schedule does to a payout, and what to do with the number once you have it. They are written by the tool's author, in plain English, and the calculator that answers the same question with your own figures is one click away from each one.</p>
@@ -6868,6 +6881,9 @@ ${categoryLinks}
 }
 
 const ABOUT_STYLE = `
+    .exceptions { margin: 14px 0 0; max-width: 68ch; font-size: .92rem; color: var(--muted); }
+    .exceptions summary { cursor: pointer; font-weight: 650; color: var(--accent); }
+    .exceptions p { margin: 8px 0 0; line-height: 1.6; }
     .prose { max-width: 720px; }
     .prose h2 { font-size: 1.25rem; letter-spacing: -.02em; margin: 38px 0 12px; }
     .prose h3 { font-size: 1rem; margin: 24px 0 6px; }
@@ -6999,10 +7015,22 @@ export function renderAboutPage({ surfaces, groups, baseUrl }) {
 <body>
   ${renderSiteHeader({ toRoot, current: 'about', crumbs: [{ label: 'About' }] })}
   <div class="wrap">
-    <header>
+    <header class="pf-hero">
       <p class="eyebrow">About</p>
       <h1>${escapeHtml(title)}</h1>
-      <p class="lede">${total} free calculators and checks for people who run a small business. They run in your browser, they cost nothing, and ${deviceClaim}.</p>
+      <p class="lede">${total} free calculators and checks for people who run a small business. They run in your browser and they cost nothing. ${
+        exceptions.length
+          ? `The numbers you type never leave your device, except on the ${exceptions.length} lookup tools listed below, where the one thing you paste goes to the public API that tool checks.`
+          : 'The numbers you type never leave your device.'
+      }</p>${
+        exceptions.length
+          ? `
+      <details class="exceptions">
+        <summary>The ${exceptions.length} lookup tools that call a public API</summary>
+        <p>${deviceClaim.replace(/^the numbers a user types never leave their device, /, 'The numbers a user types never leave their device, ')}.</p>
+      </details>`
+          : ''
+      }
     </header>
 
     <main class="prose">
@@ -7275,7 +7303,7 @@ export function renderFeedbackPage({ surfaces = [], baseUrl, feedbackUrl = SITE_
 <body>
   ${renderSiteHeader({ toRoot, current: 'about', crumbs: [{ label: 'Feedback' }] })}
   <div class="wrap">
-    <header>
+    <header class="pf-hero">
       <p class="eyebrow">Feedback</p>
       <h1>${escapeHtml(title)}</h1>
       <p class="lede">Found a wrong number, a broken page, or a tool that almost does what you need? Tell us. Every report is read.</p>
