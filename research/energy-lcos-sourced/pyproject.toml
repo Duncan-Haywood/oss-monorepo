@@ -1,0 +1,13 @@
+[project]
+name = "energy-lcos-sourced"
+version = "0.1.0"
+description = "Cheapest storage technology by duration, with every cost read from PyPSA technology-data and NREL ATB 2024 instead of assumed"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "../energy-lcos/src"]
