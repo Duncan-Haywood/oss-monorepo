@@ -1,7 +1,7 @@
 ---
 title: "Can you 3D print a robot? Where the money goes in a printed robot arm"
 date: 2026-10-21
-description: "We measured an open-source 3D-printed robot arm: the plastic is about 6% of the parts cost and the servos about 70%. What an automated robot factory would really need."
+description: "We measured an open 3D-printed robot arm: plastic is about 6% of the parts cost, servos about 70%. What an automated robot factory would need."
 tags: [research, robotics, 3d-printing, manufacturing, automation]
 ---
 
