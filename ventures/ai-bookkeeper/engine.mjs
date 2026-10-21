@@ -16,6 +16,7 @@ import { readStatement, splitOfx, sniffFormat, rowIds, checkRunningBalance, pars
 import { DEFAULT_ACCOUNTS, accountMap, validateEntry, trialBalance, profitAndLoss, balanceSheet, cashFlow, balances, natural, fmt, dollars } from "./ledger.mjs";
 import { suggest, trainClassifier, buildMemory, parseRules, historyRecord, payeeKey } from "./categorize.mjs";
 import { addDocuments, writeOff, settle, aging, documentEntries, AR, AP } from "./accruals.mjs";
+import { taxDepreciation } from "./taxdepr.mjs";
 import { assetEntries, register, addAsset, disposeAsset, addAssetsCsv, ASSET_ACCOUNT } from "./assets.mjs";
 import { SAMPLE_CHECKING, SAMPLE_CARD } from "./example-data.mjs";
 
@@ -419,6 +420,20 @@ export function exportLines(books) {
 export function reports(books, { from = null, to = null } = {}) {
   const entries = journal(books);
   return { trialBalance: trialBalance(entries, books.accounts, { to }), profitAndLoss: profitAndLoss(entries, books.accounts, { from, to }), balanceSheet: balanceSheet(entries, books.accounts, { to }), cashFlow: cashFlow(entries, books.accounts, { from, to }) };
+}
+
+// The year's business income before the Section 179 deduction, for the
+// taxable-income limit (Form 4562 line 11): the books' net profit for the year
+// with the book depreciation on assets that have a tax treatment put back and
+// their MACRS and bonus depreciation taken instead. Not modelled: other
+// adjustments (self-employment tax deduction, gains on disposal, other
+// businesses' income), so a preparer should confirm it.
+// -> cents (may be negative)
+export function taxableBusinessIncome(books, year) {
+  const entries = journal(books);
+  const net = profitAndLoss(entries, books.accounts, { from: `${year}-01-01`, to: `${year}-12-31` }).net;
+  const t = taxDepreciation(books, year).totals;
+  return net + t.book - (t.macrs + t.bonus);
 }
 
 // Payees you have filed the same way again and again, offered as rules. A rule
