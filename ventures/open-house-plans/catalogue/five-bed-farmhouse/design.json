@@ -1,0 +1,2247 @@
+{
+ "generator": {
+  "name": "Open House Plans",
+  "version": "1.0.0",
+  "license": "CC0 1.0 Universal (public domain dedication)"
+ },
+ "brief": {
+  "name": "Five-bedroom farmhouse",
+  "beds": 5,
+  "baths": 3.5,
+  "area": 2300,
+  "style": "farmhouse",
+  "priority": "balanced",
+  "garage": 2,
+  "porch": "auto",
+  "foundation": "slab",
+  "frame": "advanced",
+  "accessible": false,
+  "split": "auto",
+  "maxWidth": null,
+  "maxDepth": null,
+  "lot": null,
+  "snow": 30,
+  "wind": 115,
+  "finish": "standard",
+  "region": 1,
+  "ceiling": null,
+  "variant": 0
+ },
+ "notes": [],
+ "summary": {
+  "id": "farmhouse-5bed-3p5bath-98x30-2car",
+  "title": "Modern farmhouse, 5 bed / 3.5 bath, 2,280 sq ft",
+  "style": {
+   "key": "farmhouse",
+   "label": "Modern farmhouse",
+   "roof": "gable",
+   "pitch": "9:12",
+   "cladding": "board-and-batten"
+  },
+  "footprint": {
+   "width": 98,
+   "depth": 30,
+   "conditioned": 2280,
+   "garage": 660,
+   "porch": 608,
+   "arrangement": "linear"
+  },
+  "heights": {
+   "floor": 0.7,
+   "ceiling": 9,
+   "plate": 10,
+   "ridge": 21.9
+  },
+  "rooms": [
+   {
+    "name": "Garage",
+    "kind": "garage",
+    "area": 660,
+    "clear": "21'-3\" x 28'-11\"",
+    "w": 21.3,
+    "d": 28.9
+   },
+   {
+    "name": "Mudroom / laundry",
+    "kind": "mud",
+    "area": 94.5,
+    "clear": "6'-8\" x 12'-9\"",
+    "w": 6.6,
+    "d": 12.8
+   },
+   {
+    "name": "Living",
+    "kind": "living",
+    "area": 495,
+    "clear": "29'-10\" x 16'-0\"",
+    "w": 29.8,
+    "d": 16
+   },
+   {
+    "name": "Kitchen",
+    "kind": "kitchen",
+    "area": 162,
+    "clear": "11'-10\" x 13'-0\"",
+    "w": 11.8,
+    "d": 13
+   },
+   {
+    "name": "Dining",
+    "kind": "dining",
+    "area": 148.5,
+    "clear": "10'-10\" x 13'-0\"",
+    "w": 10.8,
+    "d": 13
+   },
+   {
+    "name": "Hall",
+    "kind": "hall",
+    "area": 113.8,
+    "clear": "32'-4\" x 3'-2\"",
+    "w": 32.3,
+    "d": 3.1
+   },
+   {
+    "name": "Bath 1",
+    "kind": "bath",
+    "area": 68.8,
+    "clear": "5'-2\" x 11'-9\"",
+    "w": 5.1,
+    "d": 11.8
+   },
+   {
+    "name": "Bedroom 2",
+    "kind": "bed",
+    "area": 154.8,
+    "clear": "13'-2\" x 11'-9\"",
+    "w": 13.1,
+    "d": 11.8
+   },
+   {
+    "name": "Clo.",
+    "kind": "closet",
+    "area": 14,
+    "clear": "6'-8\" x 1'-8\"",
+    "w": 6.6,
+    "d": 1.6
+   },
+   {
+    "name": "Bedroom 3",
+    "kind": "bed",
+    "area": 154.8,
+    "clear": "13'-2\" x 11'-9\"",
+    "w": 13.1,
+    "d": 11.8
+   },
+   {
+    "name": "Clo.",
+    "kind": "closet",
+    "area": 14,
+    "clear": "6'-8\" x 1'-8\"",
+    "w": 6.6,
+    "d": 1.6
+   },
+   {
+    "name": "Powder",
+    "kind": "half",
+    "area": 56,
+    "clear": "3'-8\" x 13'-3\"",
+    "w": 3.6,
+    "d": 13.3
+   },
+   {
+    "name": "Bath 2",
+    "kind": "bath",
+    "area": 77,
+    "clear": "5'-2\" x 13'-3\"",
+    "w": 5.1,
+    "d": 13.3
+   },
+   {
+    "name": "Bedroom 4",
+    "kind": "bed",
+    "area": 147,
+    "clear": "11'-2\" x 13'-3\"",
+    "w": 11.1,
+    "d": 13.3
+   },
+   {
+    "name": "Clo.",
+    "kind": "closet",
+    "area": 14,
+    "clear": "6'-8\" x 1'-8\"",
+    "w": 6.6,
+    "d": 1.6
+   },
+   {
+    "name": "Bedroom 5",
+    "kind": "bed",
+    "area": 147,
+    "clear": "11'-2\" x 13'-3\"",
+    "w": 11.1,
+    "d": 13.3
+   },
+   {
+    "name": "Clo.",
+    "kind": "closet",
+    "area": 14,
+    "clear": "6'-8\" x 1'-8\"",
+    "w": 6.6,
+    "d": 1.6
+   },
+   {
+    "name": "Primary bedroom",
+    "kind": "primary",
+    "area": 216,
+    "clear": "12'-9\" x 15'-3\"",
+    "w": 12.8,
+    "d": 15.3
+   },
+   {
+    "name": "Walk-in closet",
+    "kind": "wic",
+    "area": 77,
+    "clear": "5'-2\" x 13'-3\"",
+    "w": 5.1,
+    "d": 13.3
+   },
+   {
+    "name": "Primary bath",
+    "kind": "ensuite",
+    "area": 112,
+    "clear": "7'-3\" x 13'-3\"",
+    "w": 7.3,
+    "d": 13.3
+   }
+  ],
+  "cost": {
+   "total": 468838,
+   "perSqFt": 206,
+   "priceExLot": 628272,
+   "stages": {
+    "site_work": 40701,
+    "foundations": 56492,
+    "framing": 64722,
+    "exterior_finishes": 59735,
+    "rough_ins": 82210,
+    "interior_finishes": 97947,
+    "final_steps": 29778,
+    "other": 7746,
+    "porch": 29508
+   },
+   "basis": "NAHB, Cost of Constructing a Home in 2024 (Eye on Housing, 2025-01-23), 2024 dollars: $428,215 for 2,647 sq ft, scaled by this design's geometry with assumed drivers (cost.mjs). Not a quote."
+  },
+  "framing": {
+   "scheme": "Advanced framing, 2x6 at 24 in",
+   "wallLumberBf": 4347,
+   "wallLumberBfPerSqFt": 1.91,
+   "extWallNet": 1891,
+   "roofArea": 3980,
+   "openingsArea": 497,
+   "partitionLf": 303
+  },
+  "structure": {
+   "headers": [
+    {
+     "opening": "o17",
+     "kind": "entry",
+     "width": 3,
+     "wall": "front",
+     "bearing": true,
+     "size": "2x6",
+     "plies": 2,
+     "jacks": 1,
+     "ratio": 0.93
+    },
+    {
+     "opening": "o19",
+     "kind": "garage",
+     "width": 16,
+     "wall": "front",
+     "bearing": true,
+     "size": "LVL",
+     "plies": 1,
+     "jacks": 2,
+     "ratio": null,
+     "engineered": true
+    },
+    {
+     "opening": "o24",
+     "kind": "window",
+     "width": 3,
+     "wall": "front",
+     "bearing": true,
+     "size": "2x6",
+     "plies": 2,
+     "jacks": 1,
+     "ratio": 0.93
+    },
+    {
+     "opening": "o25",
+     "kind": "window",
+     "width": 3,
+     "wall": "front",
+     "bearing": true,
+     "size": "2x6",
+     "plies": 2,
+     "jacks": 1,
+     "ratio": 0.93
+    },
+    {
+     "opening": "o26",
+     "kind": "window",
+     "width": 3,
+     "wall": "front",
+     "bearing": true,
+     "size": "2x6",
+     "plies": 2,
+     "jacks": 1,
+     "ratio": 0.93
+    },
+    {
+     "opening": "o28",
+     "kind": "window",
+     "width": 2.5,
+     "wall": "front",
+     "bearing": true,
+     "size": "2x6",
+     "plies": 2,
+     "jacks": 1,
+     "ratio": 0.79
+    },
+    {
+     "opening": "o29",
+     "kind": "window",
+     "width": 3,
+     "wall": "front",
+     "bearing": true,
+     "size": "2x6",
+     "plies": 2,
+     "jacks": 1,
+     "ratio": 0.93
+    },
+    {
+     "opening": "o30",
+     "kind": "window",
+     "width": 3,
+     "wall": "front",
+     "bearing": true,
+     "size": "2x6",
+     "plies": 2,
+     "jacks": 1,
+     "ratio": 0.93
+    },
+    {
+     "opening": "o31",
+     "kind": "window",
+     "width": 3,
+     "wall": "front",
+     "bearing": true,
+     "size": "2x6",
+     "plies": 2,
+     "jacks": 1,
+     "ratio": 0.93
+    },
+    {
+     "opening": "o32",
+     "kind": "window",
+     "width": 3,
+     "wall": "front",
+     "bearing": true,
+     "size": "2x6",
+     "plies": 2,
+     "jacks": 1,
+     "ratio": 0.93
+    },
+    {
+     "opening": "o39",
+     "kind": "window",
+     "width": 3,
+     "wall": "front",
+     "bearing": true,
+     "size": "2x6",
+     "plies": 2,
+     "jacks": 1,
+     "ratio": 0.93
+    },
+    {
+     "opening": "o40",
+     "kind": "window",
+     "width": 3,
+     "wall": "front",
+     "bearing": true,
+     "size": "2x6",
+     "plies": 2,
+     "jacks": 1,
+     "ratio": 0.93
+    },
+    {
+     "opening": "o18",
+     "kind": "slider",
+     "width": 6,
+     "wall": "back",
+     "bearing": true,
+     "size": "2x10",
+     "plies": 2,
+     "jacks": 2,
+     "ratio": 0.89
+    },
+    {
+     "opening": "o21",
+     "kind": "window",
+     "width": 3,
+     "wall": "back",
+     "bearing": true,
+     "size": "2x6",
+     "plies": 2,
+     "jacks": 1,
+     "ratio": 0.69
+    },
+    {
+     "opening": "o23",
+     "kind": "window",
+     "width": 2.5,
+     "wall": "back",
+     "bearing": true,
+     "size": "2x6",
+     "plies": 2,
+     "jacks": 1,
+     "ratio": 0.58
+    },
+    {
+     "opening": "o27",
+     "kind": "window",
+     "width": 4,
+     "wall": "back",
+     "bearing": true,
+     "size": "2x6",
+     "plies": 2,
+     "jacks": 1,
+     "ratio": 0.99
+    },
+    {
+     "opening": "o33",
+     "kind": "window",
+     "width": 2,
+     "wall": "back",
+     "bearing": true,
+     "size": "2x6",
+     "plies": 2,
+     "jacks": 1,
+     "ratio": 0.47
+    },
+    {
+     "opening": "o34",
+     "kind": "window",
+     "width": 2.5,
+     "wall": "back",
+     "bearing": true,
+     "size": "2x6",
+     "plies": 2,
+     "jacks": 1,
+     "ratio": 0.58
+    },
+    {
+     "opening": "o35",
+     "kind": "window",
+     "width": 3,
+     "wall": "back",
+     "bearing": true,
+     "size": "2x6",
+     "plies": 2,
+     "jacks": 1,
+     "ratio": 0.69
+    },
+    {
+     "opening": "o36",
+     "kind": "window",
+     "width": 3,
+     "wall": "back",
+     "bearing": true,
+     "size": "2x6",
+     "plies": 2,
+     "jacks": 1,
+     "ratio": 0.69
+    },
+    {
+     "opening": "o37",
+     "kind": "window",
+     "width": 3,
+     "wall": "back",
+     "bearing": true,
+     "size": "2x6",
+     "plies": 2,
+     "jacks": 1,
+     "ratio": 0.69
+    },
+    {
+     "opening": "o38",
+     "kind": "window",
+     "width": 3,
+     "wall": "back",
+     "bearing": true,
+     "size": "2x6",
+     "plies": 2,
+     "jacks": 1,
+     "ratio": 0.69
+    }
+   ],
+   "studs": [
+    {
+     "stud": "2x6",
+     "spacing": 24,
+     "lengthIn": 109,
+     "ratio": 0.41,
+     "pass": true,
+     "windPsf": 26.4
+    }
+   ],
+   "floor": null,
+   "trusses": {
+    "count": 50,
+    "span": 30,
+    "pitch": 9,
+    "overhang": 1,
+    "type": "common",
+    "loads": "TC dead 10 psf, TC snow 30 psf, BC dead 10 psf (assumed)"
+   }
+  },
+  "checks": {
+   "passed": 46,
+   "failed": [],
+   "list": [
+    {
+     "group": "Program",
+     "label": "Bedrooms: 5 asked 5",
+     "pass": true,
+     "value": 5,
+     "basis": "",
+     "severity": "rule"
+    },
+    {
+     "group": "Program",
+     "label": "Baths: 3.5 asked 3.5",
+     "pass": true,
+     "value": 3.5,
+     "basis": "",
+     "severity": "rule"
+    },
+    {
+     "group": "Program",
+     "label": "Conditioned area 2280 sq ft against 2300 asked (within 10%)",
+     "pass": true,
+     "value": 2280,
+     "basis": "",
+     "severity": "rule"
+    },
+    {
+     "group": "Rooms",
+     "label": "Living: least dimension 16.0 ft (at least 7)",
+     "pass": true,
+     "value": 15.958333333333334,
+     "basis": "IRC R304.3 (paraphrased)",
+     "severity": "rule"
+    },
+    {
+     "group": "Rooms",
+     "label": "Dining: least dimension 10.8 ft (at least 7)",
+     "pass": true,
+     "value": 10.8125,
+     "basis": "IRC R304.3 (paraphrased)",
+     "severity": "rule"
+    },
+    {
+     "group": "Rooms",
+     "label": "Bedroom 2: 155 sq ft, least dimension 11.8 ft (at least 70 and 7)",
+     "pass": true,
+     "value": 154.75,
+     "basis": "IRC R304.2, R304.3 (paraphrased)",
+     "severity": "rule"
+    },
+    {
+     "group": "Rooms",
+     "label": "Bedroom 2 has a closet",
+     "pass": true,
+     "value": true,
+     "basis": "convention, not code",
+     "severity": "advice"
+    },
+    {
+     "group": "Rooms",
+     "label": "Bedroom 3: 155 sq ft, least dimension 11.8 ft (at least 70 and 7)",
+     "pass": true,
+     "value": 154.75,
+     "basis": "IRC R304.2, R304.3 (paraphrased)",
+     "severity": "rule"
+    },
+    {
+     "group": "Rooms",
+     "label": "Bedroom 3 has a closet",
+     "pass": true,
+     "value": true,
+     "basis": "convention, not code",
+     "severity": "advice"
+    },
+    {
+     "group": "Rooms",
+     "label": "Bedroom 4: 147 sq ft, least dimension 11.1 ft (at least 70 and 7)",
+     "pass": true,
+     "value": 147,
+     "basis": "IRC R304.2, R304.3 (paraphrased)",
+     "severity": "rule"
+    },
+    {
+     "group": "Rooms",
+     "label": "Bedroom 4 has a closet",
+     "pass": true,
+     "value": true,
+     "basis": "convention, not code",
+     "severity": "advice"
+    },
+    {
+     "group": "Rooms",
+     "label": "Bedroom 5: 147 sq ft, least dimension 11.1 ft (at least 70 and 7)",
+     "pass": true,
+     "value": 147,
+     "basis": "IRC R304.2, R304.3 (paraphrased)",
+     "severity": "rule"
+    },
+    {
+     "group": "Rooms",
+     "label": "Bedroom 5 has a closet",
+     "pass": true,
+     "value": true,
+     "basis": "convention, not code",
+     "severity": "advice"
+    },
+    {
+     "group": "Rooms",
+     "label": "Primary bedroom: 216 sq ft, least dimension 12.8 ft (at least 70 and 7)",
+     "pass": true,
+     "value": 216,
+     "basis": "IRC R304.2, R304.3 (paraphrased)",
+     "severity": "rule"
+    },
+    {
+     "group": "Rooms",
+     "label": "Primary bedroom has a closet",
+     "pass": true,
+     "value": true,
+     "basis": "convention, not code",
+     "severity": "advice"
+    },
+    {
+     "group": "Rooms",
+     "label": "Ceiling height 9 ft (at least 7)",
+     "pass": true,
+     "value": 9,
+     "basis": "IRC R305.1 (paraphrased)",
+     "severity": "rule"
+    },
+    {
+     "group": "Rooms",
+     "label": "Hall clear width 38 in (at least 36)",
+     "pass": true,
+     "value": 3.125,
+     "basis": "IRC R311.6 (paraphrased)",
+     "severity": "rule"
+    },
+    {
+     "group": "Light",
+     "label": "Living: glazing 10.9% of floor (at least 8%)",
+     "pass": true,
+     "value": 0.10909090909090909,
+     "basis": "IRC R303.1 (paraphrased); openable area assumed to be at least half the glazing",
+     "severity": "rule"
+    },
+    {
+     "group": "Light",
+     "label": "Kitchen: glazing 8.6% of floor (at least 8%)",
+     "pass": true,
+     "value": 0.08641975308641975,
+     "basis": "IRC R303.1 (paraphrased); openable area assumed to be at least half the glazing",
+     "severity": "rule"
+    },
+    {
+     "group": "Light",
+     "label": "Dining: glazing 26.9% of floor (at least 8%)",
+     "pass": true,
+     "value": 0.26949494949494945,
+     "basis": "IRC R303.1 (paraphrased); openable area assumed to be at least half the glazing",
+     "severity": "rule"
+    },
+    {
+     "group": "Light",
+     "label": "Bedroom 2: glazing 21.3% of floor (at least 8%)",
+     "pass": true,
+     "value": 0.21324717285945072,
+     "basis": "IRC R303.1 (paraphrased); openable area assumed to be at least half the glazing",
+     "severity": "rule"
+    },
+    {
+     "group": "Light",
+     "label": "Bedroom 3: glazing 21.3% of floor (at least 8%)",
+     "pass": true,
+     "value": 0.21324717285945072,
+     "basis": "IRC R303.1 (paraphrased); openable area assumed to be at least half the glazing",
+     "severity": "rule"
+    },
+    {
+     "group": "Light",
+     "label": "Bedroom 4: glazing 22.4% of floor (at least 8%)",
+     "pass": true,
+     "value": 0.22448979591836735,
+     "basis": "IRC R303.1 (paraphrased); openable area assumed to be at least half the glazing",
+     "severity": "rule"
+    },
+    {
+     "group": "Light",
+     "label": "Bedroom 5: glazing 22.4% of floor (at least 8%)",
+     "pass": true,
+     "value": 0.22448979591836735,
+     "basis": "IRC R303.1 (paraphrased); openable area assumed to be at least half the glazing",
+     "severity": "rule"
+    },
+    {
+     "group": "Light",
+     "label": "Primary bedroom: glazing 22.9% of floor (at least 8%)",
+     "pass": true,
+     "value": 0.22916666666666666,
+     "basis": "IRC R303.1 (paraphrased); openable area assumed to be at least half the glazing",
+     "severity": "rule"
+    },
+    {
+     "group": "Light",
+     "label": "Bath 1: window; an exhaust fan vented outside is specified either way",
+     "pass": true,
+     "value": true,
+     "basis": "IRC R303.3 (paraphrased)",
+     "severity": "advice"
+    },
+    {
+     "group": "Light",
+     "label": "Powder: window; an exhaust fan vented outside is specified either way",
+     "pass": true,
+     "value": true,
+     "basis": "IRC R303.3 (paraphrased)",
+     "severity": "advice"
+    },
+    {
+     "group": "Light",
+     "label": "Bath 2: window; an exhaust fan vented outside is specified either way",
+     "pass": true,
+     "value": true,
+     "basis": "IRC R303.3 (paraphrased)",
+     "severity": "advice"
+    },
+    {
+     "group": "Light",
+     "label": "Primary bath: window; an exhaust fan vented outside is specified either way",
+     "pass": true,
+     "value": true,
+     "basis": "IRC R303.3 (paraphrased)",
+     "severity": "advice"
+    },
+    {
+     "group": "Egress",
+     "label": "Bedroom 2: emergency escape window (net 13.8 sq ft, 32 x 62 in clear, sill 26 in)",
+     "pass": true,
+     "value": 2,
+     "basis": "IRC R310.2 (paraphrased): 5.7 sq ft net, 24 in high, 20 in wide, sill at most 44 in; casement net opening assumed",
+     "severity": "rule"
+    },
+    {
+     "group": "Egress",
+     "label": "Bedroom 3: emergency escape window (net 13.8 sq ft, 32 x 62 in clear, sill 26 in)",
+     "pass": true,
+     "value": 2,
+     "basis": "IRC R310.2 (paraphrased): 5.7 sq ft net, 24 in high, 20 in wide, sill at most 44 in; casement net opening assumed",
+     "severity": "rule"
+    },
+    {
+     "group": "Egress",
+     "label": "Bedroom 4: emergency escape window (net 13.8 sq ft, 32 x 62 in clear, sill 26 in)",
+     "pass": true,
+     "value": 2,
+     "basis": "IRC R310.2 (paraphrased): 5.7 sq ft net, 24 in high, 20 in wide, sill at most 44 in; casement net opening assumed",
+     "severity": "rule"
+    },
+    {
+     "group": "Egress",
+     "label": "Bedroom 5: emergency escape window (net 13.8 sq ft, 32 x 62 in clear, sill 26 in)",
+     "pass": true,
+     "value": 2,
+     "basis": "IRC R310.2 (paraphrased): 5.7 sq ft net, 24 in high, 20 in wide, sill at most 44 in; casement net opening assumed",
+     "severity": "rule"
+    },
+    {
+     "group": "Egress",
+     "label": "Primary bedroom: emergency escape window (net 13.8 sq ft, 32 x 62 in clear, sill 26 in)",
+     "pass": true,
+     "value": 3,
+     "basis": "IRC R310.2 (paraphrased): 5.7 sq ft net, 24 in high, 20 in wide, sill at most 44 in; casement net opening assumed",
+     "severity": "rule"
+    },
+    {
+     "group": "Egress",
+     "label": "Egress door 36 in wide (32 in clear needs a 36 in door)",
+     "pass": true,
+     "value": 3,
+     "basis": "IRC R311.2 (paraphrased)",
+     "severity": "rule"
+    },
+    {
+     "group": "Plan",
+     "label": "Kitchen holds a sink, a range and a refrigerator",
+     "pass": true,
+     "value": 0,
+     "basis": "",
+     "severity": "rule"
+    },
+    {
+     "group": "Plan",
+     "label": "Every room can be reached from the entry",
+     "pass": true,
+     "value": 0,
+     "basis": "",
+     "severity": "rule"
+    },
+    {
+     "group": "Plan",
+     "label": "No bedroom is reached through another bedroom",
+     "pass": true,
+     "value": 0,
+     "basis": "",
+     "severity": "rule"
+    },
+    {
+     "group": "Plan",
+     "label": "Garage separated from the house by 1/2 in gypsum (5/8 in type X at a ceiling under a room) and a solid or 20-minute door",
+     "pass": true,
+     "value": true,
+     "basis": "IRC R302.5, R302.6 (paraphrased); confirm with the local code",
+     "severity": "advice"
+    },
+    {
+     "group": "Structure",
+     "label": "Headers: 22 sized from NDS checks, 1 need an engineered beam",
+     "pass": true,
+     "value": 22,
+     "basis": "NDS 2018 ASD checks, SPF No. 2 (structure.mjs, from research/house-spans)",
+     "severity": "rule"
+    },
+    {
+     "group": "Structure",
+     "label": "Studs 2x6 at 24 in: ratio 0.41 under roof dead + 30 psf snow and 26.4 psf wind",
+     "pass": true,
+     "value": 0.41,
+     "basis": "NDS 3.7 and 3.9 (research/house-framing's stud check)",
+     "severity": "rule"
+    },
+    {
+     "group": "Structure",
+     "label": "Roof: 50 common trusses spanning 30 ft",
+     "pass": true,
+     "value": 50,
+     "basis": "designed and sealed by the truss maker (not checked here)",
+     "severity": "advice"
+    },
+    {
+     "group": "Structure",
+     "label": "Bracing proxy, front wall: 49.5 of 98 ft solid (51%), 7 panels of 4 ft or more",
+     "pass": true,
+     "value": 0.5051020408163265,
+     "basis": "a proxy, not the IRC R602.10 braced-wall calculation; an engineer or the local prescriptive path must size the bracing",
+     "severity": "advice"
+    },
+    {
+     "group": "Structure",
+     "label": "Bracing proxy, back wall: 66.0 of 98 ft solid (67%), 8 panels of 4 ft or more",
+     "pass": true,
+     "value": 0.673469387755102,
+     "basis": "a proxy, not the IRC R602.10 braced-wall calculation; an engineer or the local prescriptive path must size the bracing",
+     "severity": "advice"
+    },
+    {
+     "group": "Structure",
+     "label": "Bracing proxy, left wall: 24.0 of 30 ft solid (80%), 2 panels of 4 ft or more",
+     "pass": true,
+     "value": 0.8,
+     "basis": "a proxy, not the IRC R602.10 braced-wall calculation; an engineer or the local prescriptive path must size the bracing",
+     "severity": "advice"
+    },
+    {
+     "group": "Structure",
+     "label": "Bracing proxy, right wall: 24.0 of 30 ft solid (80%), 3 panels of 4 ft or more",
+     "pass": true,
+     "value": 0.8,
+     "basis": "a proxy, not the IRC R602.10 braced-wall calculation; an engineer or the local prescriptive path must size the bracing",
+     "severity": "advice"
+    }
+   ]
+  },
+  "scores": {
+   "total": 3.245,
+   "parts": {
+    "cost": 1.26,
+    "area": 0.035,
+    "rooms": 0.135,
+    "wet": 0.551,
+    "hall": 0.249,
+    "shape": 0.033,
+    "facade": 0.494,
+    "light": 0.11
+   },
+   "facade": {
+    "symmetry": 0.307,
+    "rhythm": 0.522,
+    "frontGlazing": 0.2346
+   },
+   "daylight": 0.89
+  }
+ },
+ "geometry": {
+  "units": "feet; x along the front, y from the front wall toward the back",
+  "width": 98,
+  "depth": 30,
+  "zones": [
+   {
+    "kind": "garage",
+    "x0": 0,
+    "x1": 22
+   },
+   {
+    "kind": "public",
+    "x0": 22,
+    "x1": 52
+   },
+   {
+    "kind": "wing",
+    "x0": 52,
+    "x1": 98
+   }
+  ],
+  "rooms": [
+   {
+    "id": "garage-1",
+    "kind": "garage",
+    "name": "Garage",
+    "polygon": [
+     [
+      0,
+      0
+     ],
+     [
+      22,
+      0
+     ],
+     [
+      22,
+      30
+     ],
+     [
+      0,
+      30
+     ]
+    ]
+   },
+   {
+    "id": "mud-2",
+    "kind": "mud",
+    "name": "Mudroom / laundry",
+    "polygon": [
+     [
+      22,
+      16.5
+     ],
+     [
+      29,
+      16.5
+     ],
+     [
+      29,
+      30
+     ],
+     [
+      22,
+      30
+     ]
+    ]
+   },
+   {
+    "id": "living-3",
+    "kind": "living",
+    "name": "Living",
+    "polygon": [
+     [
+      22,
+      0
+     ],
+     [
+      52,
+      0
+     ],
+     [
+      52,
+      16.5
+     ],
+     [
+      22,
+      16.5
+     ]
+    ]
+   },
+   {
+    "id": "kitchen-4",
+    "kind": "kitchen",
+    "name": "Kitchen",
+    "polygon": [
+     [
+      40,
+      16.5
+     ],
+     [
+      52,
+      16.5
+     ],
+     [
+      52,
+      30
+     ],
+     [
+      40,
+      30
+     ]
+    ]
+   },
+   {
+    "id": "dining-5",
+    "kind": "dining",
+    "name": "Dining",
+    "polygon": [
+     [
+      29,
+      16.5
+     ],
+     [
+      40,
+      16.5
+     ],
+     [
+      40,
+      30
+     ],
+     [
+      29,
+      30
+     ]
+    ]
+   },
+   {
+    "id": "hall-6",
+    "kind": "hall",
+    "name": "Hall",
+    "polygon": [
+     [
+      52,
+      12.5
+     ],
+     [
+      84.5,
+      12.5
+     ],
+     [
+      84.5,
+      16
+     ],
+     [
+      52,
+      16
+     ]
+    ]
+   },
+   {
+    "id": "bath-7",
+    "kind": "bath",
+    "name": "Bath 1",
+    "polygon": [
+     [
+      52,
+      0
+     ],
+     [
+      57.5,
+      0
+     ],
+     [
+      57.5,
+      12.5
+     ],
+     [
+      52,
+      12.5
+     ]
+    ]
+   },
+   {
+    "id": "bed-8",
+    "kind": "bed",
+    "name": "Bedroom 2",
+    "polygon": [
+     [
+      57.5,
+      0
+     ],
+     [
+      71,
+      0
+     ],
+     [
+      71,
+      10.5
+     ],
+     [
+      64,
+      10.5
+     ],
+     [
+      64,
+      12.5
+     ],
+     [
+      57.5,
+      12.5
+     ]
+    ]
+   },
+   {
+    "id": "closet-9",
+    "kind": "closet",
+    "name": "Clo.",
+    "polygon": [
+     [
+      64,
+      10.5
+     ],
+     [
+      71,
+      10.5
+     ],
+     [
+      71,
+      12.5
+     ],
+     [
+      64,
+      12.5
+     ]
+    ]
+   },
+   {
+    "id": "bed-10",
+    "kind": "bed",
+    "name": "Bedroom 3",
+    "polygon": [
+     [
+      71,
+      0
+     ],
+     [
+      84.5,
+      0
+     ],
+     [
+      84.5,
+      10.5
+     ],
+     [
+      77.5,
+      10.5
+     ],
+     [
+      77.5,
+      12.5
+     ],
+     [
+      71,
+      12.5
+     ]
+    ]
+   },
+   {
+    "id": "closet-11",
+    "kind": "closet",
+    "name": "Clo.",
+    "polygon": [
+     [
+      77.5,
+      10.5
+     ],
+     [
+      84.5,
+      10.5
+     ],
+     [
+      84.5,
+      12.5
+     ],
+     [
+      77.5,
+      12.5
+     ]
+    ]
+   },
+   {
+    "id": "half-12",
+    "kind": "half",
+    "name": "Powder",
+    "polygon": [
+     [
+      52,
+      16
+     ],
+     [
+      56,
+      16
+     ],
+     [
+      56,
+      30
+     ],
+     [
+      52,
+      30
+     ]
+    ]
+   },
+   {
+    "id": "bath-13",
+    "kind": "bath",
+    "name": "Bath 2",
+    "polygon": [
+     [
+      56,
+      16
+     ],
+     [
+      61.5,
+      16
+     ],
+     [
+      61.5,
+      30
+     ],
+     [
+      56,
+      30
+     ]
+    ]
+   },
+   {
+    "id": "bed-14",
+    "kind": "bed",
+    "name": "Bedroom 4",
+    "polygon": [
+     [
+      61.5,
+      16
+     ],
+     [
+      66,
+      16
+     ],
+     [
+      66,
+      18
+     ],
+     [
+      73,
+      18
+     ],
+     [
+      73,
+      30
+     ],
+     [
+      61.5,
+      30
+     ]
+    ]
+   },
+   {
+    "id": "closet-15",
+    "kind": "closet",
+    "name": "Clo.",
+    "polygon": [
+     [
+      66,
+      16
+     ],
+     [
+      73,
+      16
+     ],
+     [
+      73,
+      18
+     ],
+     [
+      66,
+      18
+     ]
+    ]
+   },
+   {
+    "id": "bed-16",
+    "kind": "bed",
+    "name": "Bedroom 5",
+    "polygon": [
+     [
+      73,
+      16
+     ],
+     [
+      77.5,
+      16
+     ],
+     [
+      77.5,
+      18
+     ],
+     [
+      84.5,
+      18
+     ],
+     [
+      84.5,
+      30
+     ],
+     [
+      73,
+      30
+     ]
+    ]
+   },
+   {
+    "id": "closet-17",
+    "kind": "closet",
+    "name": "Clo.",
+    "polygon": [
+     [
+      77.5,
+      16
+     ],
+     [
+      84.5,
+      16
+     ],
+     [
+      84.5,
+      18
+     ],
+     [
+      77.5,
+      18
+     ]
+    ]
+   },
+   {
+    "id": "primary-18",
+    "kind": "primary",
+    "name": "Primary bedroom",
+    "polygon": [
+     [
+      84.5,
+      0
+     ],
+     [
+      98,
+      0
+     ],
+     [
+      98,
+      16
+     ],
+     [
+      84.5,
+      16
+     ]
+    ]
+   },
+   {
+    "id": "wic-19",
+    "kind": "wic",
+    "name": "Walk-in closet",
+    "polygon": [
+     [
+      84.5,
+      16
+     ],
+     [
+      90,
+      16
+     ],
+     [
+      90,
+      30
+     ],
+     [
+      84.5,
+      30
+     ]
+    ]
+   },
+   {
+    "id": "ensuite-20",
+    "kind": "ensuite",
+    "name": "Primary bath",
+    "polygon": [
+     [
+      90,
+      16
+     ],
+     [
+      98,
+      16
+     ],
+     [
+      98,
+      30
+     ],
+     [
+      90,
+      30
+     ]
+    ]
+   }
+  ],
+  "walls": [
+   {
+    "id": "w1",
+    "type": "ext",
+    "dir": "h",
+    "at": 0,
+    "from": 0,
+    "to": 98,
+    "thickness": 0.542
+   },
+   {
+    "id": "w2",
+    "type": "fire",
+    "dir": "v",
+    "at": 22,
+    "from": 0,
+    "to": 30,
+    "thickness": 0.375
+   },
+   {
+    "id": "w3",
+    "type": "ext",
+    "dir": "h",
+    "at": 30,
+    "from": 0,
+    "to": 98,
+    "thickness": 0.542
+   },
+   {
+    "id": "w4",
+    "type": "ext",
+    "dir": "v",
+    "at": 0,
+    "from": 0,
+    "to": 30,
+    "thickness": 0.542
+   },
+   {
+    "id": "w5",
+    "type": "int",
+    "dir": "h",
+    "at": 16.5,
+    "from": 22,
+    "to": 29,
+    "thickness": 0.375
+   },
+   {
+    "id": "w6",
+    "type": "open",
+    "dir": "h",
+    "at": 16.5,
+    "from": 29,
+    "to": 52,
+    "thickness": 0
+   },
+   {
+    "id": "w7",
+    "type": "int",
+    "dir": "v",
+    "at": 29,
+    "from": 16.5,
+    "to": 30,
+    "thickness": 0.375
+   },
+   {
+    "id": "w8",
+    "type": "int",
+    "dir": "v",
+    "at": 52,
+    "from": 0,
+    "to": 12.5,
+    "thickness": 0.375
+   },
+   {
+    "id": "w9",
+    "type": "open",
+    "dir": "v",
+    "at": 52,
+    "from": 12.5,
+    "to": 16,
+    "thickness": 0
+   },
+   {
+    "id": "w10",
+    "type": "int",
+    "dir": "v",
+    "at": 52,
+    "from": 16,
+    "to": 30,
+    "thickness": 0.375
+   },
+   {
+    "id": "w11",
+    "type": "open",
+    "dir": "v",
+    "at": 40,
+    "from": 16.5,
+    "to": 30,
+    "thickness": 0
+   },
+   {
+    "id": "w12",
+    "type": "int",
+    "dir": "h",
+    "at": 12.5,
+    "from": 52,
+    "to": 84.5,
+    "thickness": 0.375
+   },
+   {
+    "id": "w13",
+    "type": "int",
+    "dir": "v",
+    "at": 84.5,
+    "from": 0,
+    "to": 30,
+    "thickness": 0.375
+   },
+   {
+    "id": "w14",
+    "type": "int",
+    "dir": "h",
+    "at": 16,
+    "from": 52,
+    "to": 98,
+    "thickness": 0.375
+   },
+   {
+    "id": "w15",
+    "type": "int",
+    "dir": "v",
+    "at": 57.5,
+    "from": 0,
+    "to": 12.5,
+    "thickness": 0.375
+   },
+   {
+    "id": "w16",
+    "type": "int",
+    "dir": "v",
+    "at": 71,
+    "from": 0,
+    "to": 12.5,
+    "thickness": 0.375
+   },
+   {
+    "id": "w17",
+    "type": "int",
+    "dir": "h",
+    "at": 10.5,
+    "from": 64,
+    "to": 71,
+    "thickness": 0.375
+   },
+   {
+    "id": "w18",
+    "type": "int",
+    "dir": "h",
+    "at": 10.5,
+    "from": 77.5,
+    "to": 84.5,
+    "thickness": 0.375
+   },
+   {
+    "id": "w19",
+    "type": "int",
+    "dir": "v",
+    "at": 64,
+    "from": 10.5,
+    "to": 12.5,
+    "thickness": 0.375
+   },
+   {
+    "id": "w20",
+    "type": "int",
+    "dir": "v",
+    "at": 77.5,
+    "from": 10.5,
+    "to": 12.5,
+    "thickness": 0.375
+   },
+   {
+    "id": "w21",
+    "type": "int",
+    "dir": "v",
+    "at": 77.5,
+    "from": 16,
+    "to": 18,
+    "thickness": 0.375
+   },
+   {
+    "id": "w22",
+    "type": "int",
+    "dir": "v",
+    "at": 56,
+    "from": 16,
+    "to": 30,
+    "thickness": 0.375
+   },
+   {
+    "id": "w23",
+    "type": "int",
+    "dir": "v",
+    "at": 61.5,
+    "from": 16,
+    "to": 30,
+    "thickness": 0.375
+   },
+   {
+    "id": "w24",
+    "type": "int",
+    "dir": "v",
+    "at": 66,
+    "from": 16,
+    "to": 18,
+    "thickness": 0.375
+   },
+   {
+    "id": "w25",
+    "type": "int",
+    "dir": "h",
+    "at": 18,
+    "from": 66,
+    "to": 73,
+    "thickness": 0.375
+   },
+   {
+    "id": "w26",
+    "type": "int",
+    "dir": "h",
+    "at": 18,
+    "from": 77.5,
+    "to": 84.5,
+    "thickness": 0.375
+   },
+   {
+    "id": "w27",
+    "type": "int",
+    "dir": "v",
+    "at": 73,
+    "from": 16,
+    "to": 30,
+    "thickness": 0.375
+   },
+   {
+    "id": "w28",
+    "type": "ext",
+    "dir": "v",
+    "at": 98,
+    "from": 0,
+    "to": 30,
+    "thickness": 0.542
+   },
+   {
+    "id": "w29",
+    "type": "int",
+    "dir": "v",
+    "at": 90,
+    "from": 16,
+    "to": 30,
+    "thickness": 0.375
+   }
+  ],
+  "openings": [
+   {
+    "id": "o1",
+    "kind": "door",
+    "wall": "w2",
+    "centre": 23.25,
+    "width": 3,
+    "height": 6.67,
+    "sill": 0,
+    "rooms": [
+     "garage-1",
+     "mud-2"
+    ]
+   },
+   {
+    "id": "o2",
+    "kind": "cased",
+    "wall": "w7",
+    "centre": 23.25,
+    "width": 3.5,
+    "height": 6.67,
+    "sill": 0,
+    "rooms": [
+     "mud-2",
+     "dining-5"
+    ]
+   },
+   {
+    "id": "o3",
+    "kind": "door",
+    "wall": "w12",
+    "centre": 53.58,
+    "width": 2.5,
+    "height": 6.67,
+    "sill": 0,
+    "rooms": [
+     "hall-6",
+     "bath-7"
+    ]
+   },
+   {
+    "id": "o4",
+    "kind": "closet",
+    "wall": "w17",
+    "centre": 67.5,
+    "width": 6,
+    "height": 6.67,
+    "sill": 0,
+    "rooms": [
+     "bed-8",
+     "closet-9"
+    ]
+   },
+   {
+    "id": "o5",
+    "kind": "door",
+    "wall": "w12",
+    "centre": 62.34,
+    "width": 2.67,
+    "height": 6.67,
+    "sill": 0,
+    "rooms": [
+     "hall-6",
+     "bed-8"
+    ]
+   },
+   {
+    "id": "o6",
+    "kind": "closet",
+    "wall": "w18",
+    "centre": 81,
+    "width": 6,
+    "height": 6.67,
+    "sill": 0,
+    "rooms": [
+     "bed-10",
+     "closet-11"
+    ]
+   },
+   {
+    "id": "o7",
+    "kind": "door",
+    "wall": "w12",
+    "centre": 75.83,
+    "width": 2.67,
+    "height": 6.67,
+    "sill": 0,
+    "rooms": [
+     "hall-6",
+     "bed-10"
+    ]
+   },
+   {
+    "id": "o8",
+    "kind": "door",
+    "wall": "w14",
+    "centre": 53.58,
+    "width": 2.5,
+    "height": 6.67,
+    "sill": 0,
+    "rooms": [
+     "hall-6",
+     "half-12"
+    ]
+   },
+   {
+    "id": "o9",
+    "kind": "door",
+    "wall": "w14",
+    "centre": 57.58,
+    "width": 2.5,
+    "height": 6.67,
+    "sill": 0,
+    "rooms": [
+     "hall-6",
+     "bath-13"
+    ]
+   },
+   {
+    "id": "o10",
+    "kind": "closet",
+    "wall": "w25",
+    "centre": 69.5,
+    "width": 6,
+    "height": 6.67,
+    "sill": 0,
+    "rooms": [
+     "bed-14",
+     "closet-15"
+    ]
+   },
+   {
+    "id": "o11",
+    "kind": "door",
+    "wall": "w14",
+    "centre": 64.33,
+    "width": 2.67,
+    "height": 6.67,
+    "sill": 0,
+    "rooms": [
+     "hall-6",
+     "bed-14"
+    ]
+   },
+   {
+    "id": "o12",
+    "kind": "closet",
+    "wall": "w26",
+    "centre": 81,
+    "width": 6,
+    "height": 6.67,
+    "sill": 0,
+    "rooms": [
+     "bed-16",
+     "closet-17"
+    ]
+   },
+   {
+    "id": "o13",
+    "kind": "door",
+    "wall": "w14",
+    "centre": 75.83,
+    "width": 2.67,
+    "height": 6.67,
+    "sill": 0,
+    "rooms": [
+     "hall-6",
+     "bed-16"
+    ]
+   },
+   {
+    "id": "o14",
+    "kind": "door",
+    "wall": "w14",
+    "centre": 87.25,
+    "width": 2.5,
+    "height": 6.67,
+    "sill": 0,
+    "rooms": [
+     "primary-18",
+     "wic-19"
+    ]
+   },
+   {
+    "id": "o15",
+    "kind": "door",
+    "wall": "w14",
+    "centre": 94,
+    "width": 2.5,
+    "height": 6.67,
+    "sill": 0,
+    "rooms": [
+     "primary-18",
+     "ensuite-20"
+    ]
+   },
+   {
+    "id": "o16",
+    "kind": "door",
+    "wall": "w13",
+    "centre": 14.25,
+    "width": 2.67,
+    "height": 6.67,
+    "sill": 0,
+    "rooms": [
+     "hall-6",
+     "primary-18"
+    ]
+   },
+   {
+    "id": "o17",
+    "kind": "entry",
+    "wall": "w1",
+    "centre": 37,
+    "width": 3,
+    "height": 6.67,
+    "sill": 0,
+    "rooms": [
+     "living-3"
+    ]
+   },
+   {
+    "id": "o18",
+    "kind": "slider",
+    "wall": "w3",
+    "centre": 34.5,
+    "width": 6,
+    "height": 6.67,
+    "sill": 0,
+    "rooms": [
+     "dining-5"
+    ]
+   },
+   {
+    "id": "o19",
+    "kind": "garage",
+    "wall": "w1",
+    "centre": 11,
+    "width": 16,
+    "height": 7,
+    "sill": 0,
+    "rooms": [
+     "garage-1"
+    ]
+   },
+   {
+    "id": "o20",
+    "kind": "door",
+    "wall": "w4",
+    "centre": 27,
+    "width": 3,
+    "height": 6.67,
+    "sill": 0,
+    "rooms": [
+     "garage-1"
+    ]
+   },
+   {
+    "id": "o21",
+    "kind": "window",
+    "wall": "w3",
+    "centre": 11.38,
+    "width": 3,
+    "height": 3,
+    "sill": 4.666666666666667,
+    "rooms": [
+     "garage-1"
+    ]
+   },
+   {
+    "id": "o22",
+    "kind": "window",
+    "wall": "w4",
+    "centre": 13,
+    "width": 3,
+    "height": 3,
+    "sill": 4.666666666666667,
+    "rooms": [
+     "garage-1"
+    ]
+   },
+   {
+    "id": "o23",
+    "kind": "window",
+    "wall": "w3",
+    "centre": 25.5,
+    "width": 2.5,
+    "height": 3,
+    "sill": 4.666666666666667,
+    "rooms": [
+     "mud-2"
+    ]
+   },
+   {
+    "id": "o24",
+    "kind": "window",
+    "wall": "w1",
+    "centre": 25.69,
+    "width": 3,
+    "height": 6,
+    "sill": 1.666666666666667,
+    "rooms": [
+     "living-3"
+    ]
+   },
+   {
+    "id": "o25",
+    "kind": "window",
+    "wall": "w1",
+    "centre": 31.56,
+    "width": 3,
+    "height": 6,
+    "sill": 1.666666666666667,
+    "rooms": [
+     "living-3"
+    ]
+   },
+   {
+    "id": "o26",
+    "kind": "window",
+    "wall": "w1",
+    "centre": 45.38,
+    "width": 3,
+    "height": 6,
+    "sill": 1.666666666666667,
+    "rooms": [
+     "living-3"
+    ]
+   },
+   {
+    "id": "o27",
+    "kind": "window",
+    "wall": "w3",
+    "centre": 46,
+    "width": 4,
+    "height": 3.5,
+    "sill": 4.166666666666667,
+    "rooms": [
+     "kitchen-4"
+    ]
+   },
+   {
+    "id": "o28",
+    "kind": "window",
+    "wall": "w1",
+    "centre": 54.75,
+    "width": 2.5,
+    "height": 3,
+    "sill": 4.666666666666667,
+    "rooms": [
+     "bath-7"
+    ]
+   },
+   {
+    "id": "o29",
+    "kind": "window",
+    "wall": "w1",
+    "centre": 62.63,
+    "width": 3,
+    "height": 5.5,
+    "sill": 2.166666666666667,
+    "rooms": [
+     "bed-8"
+    ]
+   },
+   {
+    "id": "o30",
+    "kind": "window",
+    "wall": "w1",
+    "centre": 65.88,
+    "width": 3,
+    "height": 5.5,
+    "sill": 2.166666666666667,
+    "rooms": [
+     "bed-8"
+    ]
+   },
+   {
+    "id": "o31",
+    "kind": "window",
+    "wall": "w1",
+    "centre": 76.13,
+    "width": 3,
+    "height": 5.5,
+    "sill": 2.166666666666667,
+    "rooms": [
+     "bed-10"
+    ]
+   },
+   {
+    "id": "o32",
+    "kind": "window",
+    "wall": "w1",
+    "centre": 79.38,
+    "width": 3,
+    "height": 5.5,
+    "sill": 2.166666666666667,
+    "rooms": [
+     "bed-10"
+    ]
+   },
+   {
+    "id": "o33",
+    "kind": "window",
+    "wall": "w3",
+    "centre": 54,
+    "width": 2,
+    "height": 3,
+    "sill": 4.666666666666667,
+    "rooms": [
+     "half-12"
+    ]
+   },
+   {
+    "id": "o34",
+    "kind": "window",
+    "wall": "w3",
+    "centre": 58.75,
+    "width": 2.5,
+    "height": 3,
+    "sill": 4.666666666666667,
+    "rooms": [
+     "bath-13"
+    ]
+   },
+   {
+    "id": "o35",
+    "kind": "window",
+    "wall": "w3",
+    "centre": 65.63,
+    "width": 3,
+    "height": 5.5,
+    "sill": 2.166666666666667,
+    "rooms": [
+     "bed-14"
+    ]
+   },
+   {
+    "id": "o36",
+    "kind": "window",
+    "wall": "w3",
+    "centre": 68.88,
+    "width": 3,
+    "height": 5.5,
+    "sill": 2.166666666666667,
+    "rooms": [
+     "bed-14"
+    ]
+   },
+   {
+    "id": "o37",
+    "kind": "window",
+    "wall": "w3",
+    "centre": 77.13,
+    "width": 3,
+    "height": 5.5,
+    "sill": 2.166666666666667,
+    "rooms": [
+     "bed-16"
+    ]
+   },
+   {
+    "id": "o38",
+    "kind": "window",
+    "wall": "w3",
+    "centre": 80.38,
+    "width": 3,
+    "height": 5.5,
+    "sill": 2.166666666666667,
+    "rooms": [
+     "bed-16"
+    ]
+   },
+   {
+    "id": "o39",
+    "kind": "window",
+    "wall": "w1",
+    "centre": 89.25,
+    "width": 3,
+    "height": 5.5,
+    "sill": 2.166666666666667,
+    "rooms": [
+     "primary-18"
+    ]
+   },
+   {
+    "id": "o40",
+    "kind": "window",
+    "wall": "w1",
+    "centre": 92.5,
+    "width": 3,
+    "height": 5.5,
+    "sill": 2.166666666666667,
+    "rooms": [
+     "primary-18"
+    ]
+   },
+   {
+    "id": "o41",
+    "kind": "window",
+    "wall": "w28",
+    "centre": 8.38,
+    "width": 3,
+    "height": 5.5,
+    "sill": 2.166666666666667,
+    "rooms": [
+     "primary-18"
+    ]
+   },
+   {
+    "id": "o42",
+    "kind": "window",
+    "wall": "w28",
+    "centre": 22.63,
+    "width": 3,
+    "height": 3,
+    "sill": 4.666666666666667,
+    "rooms": [
+     "ensuite-20"
+    ]
+   }
+  ],
+  "porch": {
+   "x0": 22,
+   "x1": 98,
+   "w": 76,
+   "d": 8,
+   "roof": "shed",
+   "pitch": 3,
+   "post": 0.5
+  },
+  "parameters": {
+   "D": 30,
+   "arrangement": "linear",
+   "Wg": 22,
+   "Wq": 30,
+   "Lw": 46,
+   "suite": {
+    "w": 13.5,
+    "bedBack": false
+   },
+   "df": 12.5,
+   "hall": 3.5,
+   "split": {
+    "front": [
+     "bed",
+     "bed",
+     "bath"
+    ],
+    "back": [
+     "bed",
+     "bed",
+     "bath",
+     "half"
+    ]
+   },
+   "wetAt": "start",
+   "pub": {
+    "layout": "P1",
+    "kd": 13.5,
+    "kw": 12,
+    "kitchenSide": "wing"
+   },
+   "stack": null
+  }
+ }
+}

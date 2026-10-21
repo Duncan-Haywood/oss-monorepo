@@ -1,0 +1,50 @@
+1. Style and priority, 3 bed / 2 bath, 1,400 sq ft asked, slab, US average
+style        priority   footprint  sq ft   cost       $/sq ft  facade sym  daylight
+farmhouse    budget     50x28      1400    $299,569   214      0.42        0.88
+farmhouse    beauty     50x28      1400    $299,569   214      0.55        0.83
+craftsman    budget     50x28      1400    $285,643   204      0.35        0.86
+craftsman    beauty     50x28      1400    $285,643   204      0.55        0.79
+modern       budget     50x28      1400    $276,695   198      0.38        0.82
+modern       beauty     50x28      1400    $276,695   198      0.48        0.84
+ranch        budget     50x28      1400    $276,461   197      0.36        0.69
+ranch        beauty     50x28      1400    $276,461   197      0.48        0.79
+cottage      budget     50x28      1400    $280,699   200      0.27        0.81
+cottage      beauty     50x28      1400    $281,077   201      0.57        0.82
+minimal      budget     50x28      1400    $273,970   196      0.34        0.65
+minimal      beauty     50x28      1400    $273,970   196      0.48        0.77
+
+2. Size: 3 bed / 2 bath, minimal style, budget priority
+asked   got     footprint  cost       $/sq ft
+1000    1092    42x26      $240,997   221
+1200    1196    46x26      $252,791   211
+1400    1400    50x28      $273,970   196
+1600    1620    54x30      $296,969   183
+1800    1800    60x30      $315,374   175
+2000    1980    66x30      $334,225   169
+2200    2176    64x34      $351,893   162
+
+3. Search against a typical rule-passing layout (stage A skeletons, same brief)
+brief                         candidates  passing  best score  median score  best $/sq ft  median $/sq ft
+{"beds":2}                    2586        579      3.60        5.14          240           236
+{"beds":3}                    38064       2984     3.16        4.85          217           214
+{"beds":3,"priority":"budget"} 38064       2988     5.06        6.35          217           214
+{"beds":4,"garage":2}         32088       2652     3.23        4.57          224           221
+{"beds":5}                    75144       7674     2.77        4.63          190           186
+
+4. Wall framing lumber, advanced (2x6 @ 24 in) against conventional (2x4 @ 16 in)
+program        advanced bf  conventional bf  saving
+1 bed          1248         1420             12%
+2 bed          1699         1978             14%
+3 bed          2186         2580             15%
+4 bed          2731         3189             14%
+
+5. Single choices on the 3 bed / 2 bath / 1,400 sq ft farmhouse (balanced)
+change                      cost       difference
+as designed (porch, slab)   $299,569  
+no porch                    $280,156   -$19,413 (-6.5%)
+crawlspace                  $324,932   +$25,363 (8.5%)
+two-car garage              $340,174   +$40,605 (13.6%)
+basic finishes              $289,670   -$9,899 (-3.3%)
+premium finishes            $322,666   +$23,097 (7.7%)
+9 ft -> 8 ft ceilings       $297,013   -$2,556 (-0.9%)
+accessible                  $299,502   -$67 (-0.0%)
