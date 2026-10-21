@@ -18,7 +18,7 @@ import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { newBooks, importStatement, importOfxAccounts, lockPeriod, categorize, suggestRules, addRules, addDocuments, addAsset, disposeAsset, addAssetsCsv, register, writeOff, aging, salesTax, vatReturn, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, exportLines, status, analyze, fmt, taxableBusinessIncome } from "./engine.mjs";
 import { parseCents } from "./bank.mjs";
 import { accountMap } from "./ledger.mjs";
-import { scheduleC, scheduleCCsv, contractors1099, contractors1099Csv, nec1099FilingCsv, markW9, mergePayees } from "./taxforms.mjs";
+import { seSetAside, selfEmployment, scheduleC, scheduleCCsv, contractors1099, contractors1099Csv, nec1099FilingCsv, markW9, mergePayees } from "./taxforms.mjs";
 import { sniffFormat, splitOfx } from "./bank.mjs";
 import { detectRecurring, forecastCash } from "./recurring.mjs";
 import { setTaxTreatment, taxDepreciation } from "./taxdepr.mjs";
@@ -43,6 +43,7 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
   merge-payee FROM INTO [--off]  count two spellings of one payee as one on the contractors worksheet
   w9 PAYEE [--off]       record that a W-9 is on file for a payee (a flag; no tax IDs are stored)
   schedulec [--from D --to D] [--meals PCT] [--csv|--json]  the profit and loss on US Schedule C lines (a worksheet, not a filing)
+  se [--year Y] [--months N] [--wages $] [--json]  self-employment tax on the year's Schedule C profit, annualised, split into the four estimated-payment dates (worksheet; income tax not estimated)
   asset add NAME --cost 1800 --date D [--life MONTHS] [--salvage 0] [--expense]  register equipment; depreciation is booked monthly (default 60 months, straight-line)
   asset dispose ID --date D [--proceeds 0] [--into 1000]  sell or scrap it; books the gain or loss
   asset tax ID --class 5 [--s179 N] [--bonus PCT]  set the asset's US tax treatment (MACRS class 3/5/7/10/15/20 years, half-year)
@@ -195,6 +196,15 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
   if (sc.meals.booked) console.log(`  Meals booked ${fmt(sc.meals.booked)}, ${sc.meals.pct}% carried to 24b.`);
   for (const w of sc.warnings) console.log(`  ! ${w}`);
   console.log("  A worksheet for you or your preparer. Not tax advice; it leaves out depreciation, home office, mileage and self-employment tax.");
+} else if (cmd === "se") {
+  const yr = flag("--year"), mo = flag("--months"), wg = flag("--wages");
+  const r = seSetAside(books, { year: yr ? +yr : new Date().getFullYear(), monthsElapsed: mo ? +mo : 12, wages: wg ? Math.round(+wg * 100) : 0 });
+  if (json) { console.log(JSON.stringify(r, null, 2)); process.exit(0); }
+  console.log(`SELF-EMPLOYMENT TAX ${r.year}  (profit to date ${fmt(r.profitToDate)} over ${r.monthsElapsed} months, annualised ${fmt(r.annualisedProfit)})`);
+  console.log(`  Net earnings (92.35%)  ${fmt(r.se.netEarnings).padStart(12)}\n  Social security 12.4%  ${fmt(r.se.socialSecurity).padStart(12)}\n  Medicare 2.9%          ${fmt(r.se.medicare).padStart(12)}\n  Tax                    ${fmt(r.se.tax).padStart(12)}   (half, ${fmt(r.se.deduction)}, is deductible)`);
+  for (const p of r.payments) console.log(`  set aside by ${p.due}  ${fmt(p.cents).padStart(12)}`);
+  for (const w of r.warnings) console.log(`  ! ${w}`);
+  console.log("  A worksheet. Not tax advice; it leaves out income tax, the 0.9% additional Medicare tax and state tax.");
 } else if (cmd === "contractors") {
   const yr = flag("--year"), th = flag("--threshold");
   const r = contractors1099(books, { year: yr ? +yr : undefined, threshold: th !== null ? Math.round(+th * 100) : undefined });
