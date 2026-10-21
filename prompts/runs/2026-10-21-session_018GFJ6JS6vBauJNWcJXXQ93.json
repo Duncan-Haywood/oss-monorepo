@@ -33,7 +33,7 @@
   "deviations": [],
   "writeups": [],
   "goal": null,
-  "notes": "Landed 179 taxable-income limit + carryforward (engine, CLI). No agent doc/post written; CI not waited on, ran ai-bookkeeper tests locally (116 pass).",
+  "notes": "Landed 179 taxable-income limit + carryforward (engine, CLI). No agent doc/post written; CI not waited on, ran ai-bookkeeper tests locally (116 pass). Merge tool returned 409 'out of date' repeatedly while the PR head lagged the pushed branch.",
   "corrections": [],
   "redteam": null
 }
