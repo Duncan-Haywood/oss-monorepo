@@ -24,5 +24,7 @@
   "source": "Verify of P039, process run 2026-10-21",
   "pr": null,
   "result": null,
-  "history": []
+  "history": [
+    "2026-10-21: P043a landed (PR runs gate on platform/marketing/ and the workflow only; push keeps gitops/prod/). P043b remains."
+  ]
 }
