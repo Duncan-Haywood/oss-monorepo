@@ -359,7 +359,14 @@ series, 40 each, in `engine.test.mjs`):
   (counts rate about 10, clumpy, log growth flat to 105 then rising; `--model poisson --overdispersion nb --trend bend`):
   3957 -> 2213, 7982 -> 3773 and 2470 -> 1251 ms, about 1.8x. Still seconds, not milliseconds: the bend search runs
   PELT once per knot, and a cost that is O(segment) is the floor without a closed form; caching lam per knot
-  is the next idea.
+  was the idea.
+  **Knot screening (2026-10-21).** Instead, the knot scan now ranks candidates with the Poisson cost
+  (O(1) per segment) and refits only the best 14 under the negative-binomial cost, plus the neighbours of the
+  winner. One 240-point clumpy series, two bends: 11.8 s -> about 4 s with the same knots. `data/measure_nb_bend.mjs`
+  (40 series per row, bend kept / knot within 15 points / changes per series), before -> after: no season NB
+  18, 13, 2.30 -> 18, 15, 2.30; weekly NB 22, 18, 2.15 -> 22, 17, 2.30; straight series with a bend kept
+  0 of 40 in both settings (0.40 and 0.55 changes). Same power, inside noise on placement. A first try that
+  refitted only the best 6 lost the planted bend on a small sample (0 of 4 against 2 of 4), so 14 it is.
 
 ## Limits
 

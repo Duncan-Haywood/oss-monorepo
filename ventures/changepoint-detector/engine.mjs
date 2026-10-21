@@ -223,11 +223,12 @@ function solveSym(H, b) {
  * on g with each segment's rate profiled out, until g moves less than 1e-5.
  * Returns { g, exposure, passes }.
  */
+const SCREEN_KEEP = 14;
 export function poissonTrend(x, { base = null, penalty = 'bic', minSegment = 2, passes = 12, bend = false, knotMargin = 0.1, scale = 1, nbSize = 0 } = {}) {
   const n = x.length;
   const nb = nbSize > 0 && Number.isFinite(nbSize);
   // nb: PELT and the cost that ranks knots use the negative-binomial likelihood (size nbSize); the growth steps stay Poisson score steps (a quasi-likelihood)
-  const peltFit = (e) => pelt(x, nb ? { model: 'negbin', penalty, minSegment, size: nbSize, exposure: e } : { model: 'poisson', penalty, minSegment, exposure: e });
+  const peltFit = (e, cheap = false) => pelt(x, nb && !cheap ? { model: 'negbin', penalty, minSegment, size: nbSize, exposure: e } : { model: 'poisson', penalty, minSegment, exposure: e });
   const u = Array.from({ length: n }, (_, t) => (t - (n - 1) / 2) / Math.max(1, n - 1));
   const b = (t) => (base ? base[t] : 1);
   const y = x.map((v, t) => Math.log((v + 0.5) / b(t)));
@@ -239,12 +240,12 @@ export function poissonTrend(x, { base = null, penalty = 'bic', minSegment = 2, 
   const g0 = clamp(slopes.length ? median(slopes) : 0);
   const expo = (phi, g) => Array.from({ length: n }, (_, t) => b(t) * Math.exp(g.reduce((a, gj, j) => a + gj * phi[j][t], 0)));
   // Alternate PELT under the current exposures with a Newton step on all growth terms (phi: one basis row each).
-  const fit = (phi, gStart) => {
+  const fit = (phi, gStart, maxPasses = passes, cheap = false) => {
     let g = gStart.slice(), done = 0;
     const m = phi.length;
-    for (; done < passes; done++) {
+    for (; done < maxPasses; done++) {
       const e = expo(phi, g);
-      const r = peltFit(e);
+      const r = peltFit(e, cheap);
       const bounds = [0, ...r.changepoints, n];
       // Profile score and curvature: sum x phi_j - sum_seg A mean_w(phi_j); sum_seg A cov_w(phi_i, phi_j), w = e.
       const score = new Array(m).fill(0);
@@ -272,8 +273,8 @@ export function poissonTrend(x, { base = null, penalty = 'bic', minSegment = 2, 
     }
     // PELT's cost leaves out sum x log(exposure), which is constant for a fixed exposure but not across fits; add it back.
     // (the negative-binomial cost keeps it, since the mean enters through lam e[t])
-    const lin = nb ? 0 : x.reduce((a, v, t) => a + v * g.reduce((c, gj, j) => c + gj * phi[j][t], 0), 0);
-    return { g, phi, cost: peltFit(expo(phi, g)).cost - 2 * lin, passes: done };
+    const lin = nb && !cheap ? 0 : x.reduce((a, v, t) => a + v * g.reduce((c, gj, j) => c + gj * phi[j][t], 0), 0);
+    return { g, phi, cost: peltFit(expo(phi, g), cheap).cost - 2 * lin, passes: done };
   };
   const plain = fit([u], [g0]);
   const out = (f, extra = {}) => ({ g: f.g[0], exposure: expo(f.phi, f.g), passes: f.passes, ...extra });
@@ -294,19 +295,30 @@ export function poissonTrend(x, { base = null, penalty = 'bic', minSegment = 2, 
   let cur = plain, knotsFound = [];
   while (knotsFound.length < maxBends) {
     let best = null;
-    const tryKnot = (kt) => {
-      if (knotsFound.some((k) => Math.abs(k - kt) < Math.max(minSegment, 2 * step))) return;
+    // Screening: each candidate knot gets a few passes (enough to rank knots), the best SCREEN_KEEP are refitted in full.
+    const tryKnot = (kt, maxPasses, start = null, cheap = false) => {
+      if (knotsFound.some((k) => Math.abs(k - kt) < Math.max(minSegment, 2 * step))) return null;
       let f;
-      if (!knotsFound.length) {
+      if (start) f = fit(start.phi, start.g, maxPasses, cheap);
+      else if (!knotsFound.length) {
         const s1 = side(0, kt + 1), s2 = side(kt, n);
-        f = fit([u, hinge(kt)], [s1, s2 - s1]);
-      } else f = fit([...cur.phi, hinge(kt)], [...cur.g, 0]);
+        f = fit([u, hinge(kt)], [s1, s2 - s1], maxPasses, cheap);
+      } else f = fit([...cur.phi, hinge(kt)], [...cur.g, 0], maxPasses, cheap);
       f.knot = kt;
-      if (!best || f.cost < best.cost) best = f;
+      return f;
     };
-    for (let kt = lo; kt <= hi; kt += step) tryKnot(kt);
-    if (!best) break;
-    for (let kt = Math.max(lo, best.knot - step + 1); kt < Math.min(hi, best.knot + step); kt++) if (kt !== best.knot) tryKnot(kt);
+    const screened = [];
+    for (let kt = lo; kt <= hi; kt += step) { const f = tryKnot(kt, passes, null, nb); if (f) screened.push(f); }
+    if (!screened.length) break;
+    screened.sort((p, q) => p.cost - q.cost);
+    for (const sc of screened.slice(0, SCREEN_KEEP)) {
+      const f = tryKnot(sc.knot, passes, sc);  // continue from the screened coefficients
+      if (f && (!best || f.cost < best.cost)) best = f;
+    }
+    for (let kt = Math.max(lo, best.knot - step + 1); kt < Math.min(hi, best.knot + step); kt++) if (kt !== best.knot) {
+      const f = tryKnot(kt, passes);
+      if (f && f.cost < best.cost) best = f;
+    }
     if (!(best.cost + 3 * Math.log(n) * scale < cur.cost)) break;
     knotsFound = [...knotsFound, best.knot];
     cur = best;
