@@ -61,7 +61,7 @@ const map = accountMap(books.accounts);
 const name = (c) => (c ? `${c} ${map.get(c)?.name ?? ""}` : "-");
 
 if (cmd === "import") {
-  if (!rest[0] || !account) { console.error("import needs a CSV file and --account CODE"); process.exit(2); }
+  if (!rest[0] || !account) { console.error("import needs a statement file (CSV, OFX, QFX, QBO or QIF) and --account CODE"); process.exit(2); }
   const r = importStatement(books, readFileSync(rest[0], "utf8"), account, opts);
   books = r.books;
   save();

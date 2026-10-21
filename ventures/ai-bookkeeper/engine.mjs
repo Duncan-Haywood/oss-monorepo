@@ -60,7 +60,7 @@ export function importStatement(booksIn, csv, account, opts = {}) {
   const books = clone(booksIn);
   const acct = accountMap(books.accounts).get(account);
   if (!acct) return { books, added: 0, skipped: 0, problems: [`No account ${account} in the chart of accounts.`], balanceCheck: null };
-  const { rows, problems, inferred } = readStatement(csv, opts);
+  const { rows, problems, inferred, statement } = readStatement(csv, opts);
   if (inferred) problems.push(inferred);
   const ids = rowIds(rows, account);
   const have = new Set(books.transactions.map((t) => t.id));
@@ -83,6 +83,8 @@ export function importStatement(booksIn, csv, account, opts = {}) {
     books.statements = { ...(books.statements ?? {}), [account]: { closing: balanceCheck.closing, closingDate: balanceCheck.closingDate } };
     if (books.opening[account] === undefined && !booksIn.transactions.some((t) => t.account === account) && balanceCheck.opening) books.opening[account] = balanceCheck.opening;
   }
+  // OFX files print no per-row balance, only the closing one: keep it for reconciliation.
+  if (!balanceCheck.checked && statement) books.statements = { ...(books.statements ?? {}), [account]: { closing: statement.cents, closingDate: statement.date } };
   return { books: categorize(books, opts), added, skipped, problems, balanceCheck };
 }
 

@@ -50,7 +50,8 @@ flagships:
       Readers for the five US bank export shapes (Chase checking and card, Bank of
       America, Wells Fargo headerless, Amex, Capital One; card sign inferred from the
       payment rows) landed 2026-10-21 with hand-written fixtures in the documented
-      layouts; they still need trying on real exports.
+      layouts; they still need trying on real exports. OFX, QFX, QBO and QIF import (ofx.mjs; closing
+      balance kept for the reconcile check; fixtures hand-written) landed 2026-10-21.
   # Added 2026-10-21 second, on the owner's direction that day: "I want to make
   # tools that can automate part of the new home construction process in the
   # us. to drop prices and increase efficiency this is a long standing project

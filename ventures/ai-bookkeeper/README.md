@@ -285,6 +285,21 @@ header row at all), Amex (charges positive) and Capital One (Debit and Credit
 columns). The sign of a card file is inferred from its payment rows unless you
 pass `--invert`. See `fixtures/` and the last test in `engine.test.mjs`.
 
+## OFX, QFX, QBO and QIF
+
+Banks offer these next to CSV ("Download for Quicken / QuickBooks / Money"), and
+`readStatement` picks them up by content, not file name. `ofx.mjs` reads OFX 1.x
+(SGML, unclosed tags) and 2.x (XML), including QFX and QBO, which are OFX with a
+vendor header: payee plus memo as the description, a check number appended, the
+signed amount as printed, and the closing `LEDGERBAL`, which is kept and checked
+against the books by the reconcile close check (these files carry no per-line
+running balance). QIF (Bank, CCard, Cash, Oth A/L sections; split lines read as
+their total) takes `dayFirst` for D/M/Y files. Rows from OFX and QIF hash the same
+as CSV rows, so importing the same month in two formats adds nothing. A file with
+several accounts is read into one and says so. Fixtures are hand-written to the
+OFX 1.0.2 and 2.1.1 layouts, not real exports. Test: engine.test.mjs, "OFX (SGML
+and XML)" and "importing OFX".
+
 ## Not modelled
 
 Writing off a bill, depreciation, inventory,

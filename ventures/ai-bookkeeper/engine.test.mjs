@@ -569,3 +569,45 @@ test("a locked period refuses imports, re-filing, documents and write-offs", () 
   assert.throws(() => writeOff(docs.books, "2", { date: "2026-01-20" }), /locked/);
   assert.equal(lockPeriod(b, null).lockedThrough, undefined);
 });
+
+test("OFX (SGML and XML), QFX and QIF read to the same rows and signs as the CSV shapes", async () => {
+  const { readFileSync } = await import("node:fs");
+  const read = (f, o) => readStatement(readFileSync(new URL(`./fixtures/${f}`, import.meta.url), "utf8"), o);
+  const ofx = read("checking.ofx");
+  assert.equal(ofx.bank, "ofx");
+  assert.deepEqual(ofx.problems, []);
+  assert.deepEqual(ofx.rows.map((r) => r.cents), [420000, -5999, -85000, -300000]);
+  assert.deepEqual(ofx.rows.map((r) => r.date), ["2026-03-02", "2026-03-05", "2026-03-10", "2026-03-15"]);
+  assert.equal(ofx.rows[0].desc, "CLIENT PAYMENT ACME INV 1042");
+  assert.equal(ofx.rows[1].desc, "ADOBE & CREATIVE CLOUD");
+  assert.equal(ofx.rows[2].desc, "LANDLORD LLC CHECK 1007");
+  assert.deepEqual(ofx.statement, { cents: 29001, date: "2026-03-31" });
+  const qfx = read("card.qfx");
+  assert.deepEqual(qfx.rows.map((r) => r.cents), [-2340, -30000, 300000]);
+  assert.deepEqual(qfx.statement, { cents: -32340, date: "2026-03-31" });
+  const qif = read("checking.qif");
+  assert.equal(qif.bank, "qif");
+  assert.deepEqual(qif.rows.map((r) => [r.date, r.cents]), [["2026-03-02", 420000], ["2026-03-05", -5999], ["2026-03-10", -85000]]);
+  assert.equal(qif.rows[2].desc, "LANDLORD LLC CHECK 1007");
+  assert.deepEqual(read("checking.ofx", { invert: true }).rows.map((r) => r.cents), [-420000, 5999, 85000, 300000]);
+  assert.match(readStatement("<OFX></OFX>").problems[0], /No transactions/);
+  assert.match(readStatement("<OFX><STMTTRN><DTPOSTED>2026<TRNAMT>1</STMTTRN></OFX>").problems[0], /date/);
+});
+
+test("importing OFX keeps the bank's closing balance and reconciles the books to it", async () => {
+  const { readFileSync } = await import("node:fs");
+  const f = (n) => readFileSync(new URL(`./fixtures/${n}`, import.meta.url), "utf8");
+  let b = newBooks();
+  b.opening["1000"] = 0;
+  let r = importStatement(b, f("checking.ofx"), "1000");
+  assert.equal(r.added, 4);
+  assert.deepEqual(r.books.statements["1000"], { closing: 29001, closingDate: "2026-03-31" });
+  // Re-importing the same file, or the same lines from the QIF, adds nothing.
+  assert.equal(importStatement(r.books, f("checking.ofx"), "1000").added, 0);
+  assert.equal(importStatement(r.books, f("checking.qif"), "1000").added, 0);
+  const c = importStatement(r.books, f("card.qfx"), "2000");
+  assert.equal(c.added, 3);
+  assert.deepEqual(c.books.statements["2000"], { closing: -32340, closingDate: "2026-03-31" });
+  // The 3,000 payment is paired as a transfer between the two imported accounts.
+  assert.ok(c.books.transactions.filter((t) => t.status === "transfer").length >= 2);
+});

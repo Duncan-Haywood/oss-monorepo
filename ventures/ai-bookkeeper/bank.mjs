@@ -4,6 +4,8 @@
 // balance the bank printed. Column names are matched by alias. Pure functions,
 // no DOM, no network.
 
+import { isOfx, isQif, readOfx, readQif } from "./ofx.mjs";
+
 const ALIASES = {
   date: ["date", "transaction date", "posted date", "post date", "posting date", "trans date", "booking date", "effective date", "value date"],
   desc: ["description", "transaction description", "payee", "merchant", "name", "details", "original description", "memo", "narrative", "reference"],
@@ -129,6 +131,12 @@ function chargesArePositive(rows) {
 // undefined and a file with no running balance that has payment rows is
 // flipped when its payments are negative (`inferred` says so).
 export function readStatement(text, { dayFirst = false, decimalComma = false, invert } = {}) {
+  // OFX/QFX/QBO and QIF carry their own signs, so `invert` is the only option that applies.
+  if (isOfx(String(text ?? "")) || isQif(String(text ?? ""))) {
+    const r = isOfx(String(text)) ? readOfx(text) : readQif(text, { dayFirst });
+    if (invert === true) for (const x of r.rows) x.cents = -x.cents;
+    return r;
+  }
   const rows = parseCsv(text);
   const problems = [];
   if (rows.length < 2 && !(rows.length === 1 && headerlessShape(rows))) return { rows: [], problems: ["The file has no data rows."], columns: null };
