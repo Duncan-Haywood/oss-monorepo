@@ -1538,7 +1538,7 @@ Annals*). Payments: gridlock resolution and liquidity-saving mechanisms (Bech an
 6. `infra-cement` (done 2026-10-21; strength from one study's table read via search summary, primary papers unreachable): clinker substitution. Mass and energy balance of OPC, LC3 and slag blends
    per tonne of cement, with CO<sub>2</sub> split into calcination and fuel, every factor
    sourced; which substitution levels keep a published strength class?
-7. `infra-grind`: comminution circuits. A population-balance ball-mill and classifier model
+7. `infra-grind` (done 2026-10-21; model parameters typical values, swept, not fitted to a mill; open/closed gap far above the published factors): comminution circuits. A population-balance ball-mill and classifier model
    against Bond's law; the energy saved by circuit choices (cut size, recirculation load) at
    the same product size, set against published plant figures.
 8. `infra-chatter` (done 2026-10-21; one benchmark mode, no measured FRF): stability lobes for milling. The Altintas-Budak zero-order solution against
