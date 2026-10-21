@@ -620,3 +620,23 @@ test("MT940 and CAMT.053 read to the same rows and signs, with the closing balan
   const o = importStatement(b, f("checking.ofx"), "1000");
   assert.ok(o.books.statements["1000"].closingDate);
 });
+
+test("a multi-account OFX file splits per account and imports each to its own chart code", async () => {
+  const { readFileSync } = await import("node:fs");
+  const { splitOfx } = await import("./bank.mjs");
+  const { importOfxAccounts } = await import("./engine.mjs");
+  const text = readFileSync(new URL("./fixtures/two-accounts.ofx", import.meta.url), "utf8");
+  const parts = splitOfx(text);
+  assert.deepEqual(parts.map((p) => [p.id, p.card]), [["123456789", false], ["4111000011112222", true]]);
+  assert.deepEqual(readStatement(parts[1].text).rows.map((r) => r.cents), [-4210, -1999]);
+  assert.equal(splitOfx(readFileSync(new URL("./fixtures/checking.ofx", import.meta.url), "utf8")).length, 1);
+  const r = importOfxAccounts(newBooks({}), text, { 123456789: "1000", 4111000011112222: "2000" });
+  assert.equal(r.added, 4);
+  assert.deepEqual(r.books.transactions.map((t) => t.account).sort(), ["1000", "1000", "2000", "2000"]);
+  assert.equal(r.books.statements["2000"].closing, -6209);
+  // importing again adds nothing; an unmapped account is named and left out
+  assert.equal(importOfxAccounts(r.books, text, { 123456789: "1000", 4111000011112222: "2000" }).added, 0);
+  const part = importOfxAccounts(newBooks({}), text, { 123456789: "1000" });
+  assert.equal(part.added, 2);
+  assert.ok(part.problems.some((p) => /4111000011112222/.test(p)));
+});

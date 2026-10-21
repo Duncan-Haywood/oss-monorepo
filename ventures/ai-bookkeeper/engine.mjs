@@ -12,7 +12,7 @@
 // same input gives the same output in the page, the CLI and
 // platform/agents/tools.mjs.
 
-import { readStatement, rowIds, checkRunningBalance, parseCents } from "./bank.mjs";
+import { readStatement, splitOfx, sniffFormat, rowIds, checkRunningBalance, parseCents } from "./bank.mjs";
 import { DEFAULT_ACCOUNTS, accountMap, validateEntry, trialBalance, profitAndLoss, balanceSheet, balances, natural, fmt, dollars } from "./ledger.mjs";
 import { suggest, trainClassifier, buildMemory, parseRules, historyRecord, payeeKey } from "./categorize.mjs";
 import { addDocuments, writeOff, settle, aging, documentEntries, AR, AP } from "./accruals.mjs";
@@ -86,6 +86,26 @@ export function importStatement(booksIn, csv, account, opts = {}) {
   // OFX, MT940 and CAMT files print no running balance per line, only the closing one: keep it for the reconcile check.
   if (!balanceCheck.checked && statement) books.statements = { ...(books.statements ?? {}), [account]: { closing: statement.cents, closingDate: statement.date } };
   return { books: categorize(books, opts), added, skipped, problems, balanceCheck };
+}
+
+// Import an OFX/QFX file that holds several accounts. `map` sends each OFX
+// account id to a chart code ({ "123456789": "1000", "4111": "2000" }); an
+// account left out of the map is not imported and is named in `problems`.
+// -> importStatement's result, summed, plus `accounts` (what the file held).
+export function importOfxAccounts(booksIn, text, map, opts = {}) {
+  const parts = sniffFormat(text) === "ofx" ? splitOfx(text) : [];
+  const accounts = parts.map((p) => ({ id: p.id, type: p.type, card: p.card, code: map?.[p.id] ?? null }));
+  let books = booksIn, added = 0, skipped = 0;
+  const problems = [];
+  if (!parts.length) problems.push("Not an OFX file.");
+  parts.forEach((p, i) => {
+    const code = accounts[i].code;
+    if (!code) { problems.push(`Account ${p.id || "(no id)"} (${p.card ? "card" : p.type || "bank"}) has no chart code in the map, left out.`); return; }
+    const r = importStatement(books, p.text, code, opts);
+    books = r.books; added += r.added; skipped += r.skipped;
+    problems.push(...r.problems.map((x) => (parts.length > 1 ? `Account ${p.id}: ${x}` : x)));
+  });
+  return { books, added, skipped, problems, accounts };
 }
 
 // Suggest an account for every open line, pair transfers, and auto-post what
