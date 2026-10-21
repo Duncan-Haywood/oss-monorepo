@@ -147,6 +147,34 @@ export function balanceSheet(entries, accounts, { to = null } = {}) {
   return { to, assets, liabilities, equity, currentEarnings: earnings, totalAssets, totalLiabilities, totalEquity, balanced: totalAssets === totalLiabilities + totalEquity };
 }
 
+// Statement of cash flows, indirect method, between two dates. "Cash" is the
+// asset accounts marked `bank` (a card is a liability, so card spending shows
+// as operating until the card is paid). Every other balance-sheet account is
+// sorted by what it is: equity and loans are financing, fixed assets (codes
+// 1500 and up) are investing, the rest (receivables, clearing, sales tax,
+// payroll, cards) are operating working capital. The sections add up to the
+// change in cash, and `ties` says so.
+export function cashFlow(entries, accounts, { from = null, to = null } = {}) {
+  const map = accountMap(accounts);
+  const cash = (a) => a.type === "asset" && a.bank;
+  const period = balances(entries, { from, to });
+  const opening = from ? balances(entries, { to: new Date(Date.parse(from) - 864e5).toISOString().slice(0, 10) }) : new Map();
+  const sum = (m, pred) => [...m].filter(([c]) => map.has(c) && pred(map.get(c))).reduce((a, [, v]) => a + v, 0);
+  const net = -sum(period, (a) => a.type === "income" || a.type === "expense");
+  const sectionOf = (a) => (a.type === "equity" || /^22/.test(a.code) ? "financing" : a.type === "asset" && a.code >= "1500" ? "investing" : "operating");
+  const items = { operating: [], investing: [], financing: [] };
+  for (const [code, v] of period) {
+    const a = map.get(code);
+    if (!a || !v || cash(a) || a.type === "income" || a.type === "expense") continue;
+    items[sectionOf(a)].push({ code, name: a.name, amount: -v }); // an asset growing uses cash; a liability growing supplies it
+  }
+  for (const k in items) items[k].sort((x, y) => x.code.localeCompare(y.code));
+  const total = (l) => l.reduce((a, r) => a + r.amount, 0);
+  const operating = net + total(items.operating), investing = total(items.investing), financing = total(items.financing);
+  const openingCash = sum(opening, cash), change = sum(period, cash);
+  return { from, to, netProfit: net, operatingItems: items.operating, investingItems: items.investing, financingItems: items.financing, operating, investing, financing, change: operating + investing + financing, openingCash, closingCash: openingCash + change, ties: operating + investing + financing === change };
+}
+
 // The ledger for one account: every line, with a running natural balance.
 export function accountLedger(entries, accounts, code) {
   const a = accountMap(accounts).get(code);
