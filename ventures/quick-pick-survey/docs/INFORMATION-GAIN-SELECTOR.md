@@ -97,3 +97,21 @@ uses the survey's value when set and otherwise follows the `PAIR_SELECTOR`
 environment variable, so existing surveys behave as before. `staged` helps
 long lists answered at length (see above); for short lists it equals the
 standard selector for the first 120 answers.
+
+## Latency at long lists
+
+The information score scores every pair in the active pool, so it is quadratic
+in list length. Measured by `src/lib/pairLatency.test.ts` (selector compute
+only, median of 15 calls, one cloud container, 2026-10-21; the route adds a
+few indexed queries on top, not run against a live database):
+
+| items | answers | shipped | information | staged |
+|---|---|---|---|---|
+| 50 | 300 | 0.04 ms | 0.8 ms | 0.7 ms |
+| 220 | 90 | 0.12 ms | 6.3 ms | 0.13 ms |
+| 220 | 300 | 0.15 ms | 17.8 ms | 18.6 ms |
+| 500 | 300 | 0.33 ms | 66 ms | 67 ms |
+
+At 220 items the worst case is under 20 ms, so a pair request is dominated by
+the database round trips, not the selector. At 500 items it is 67 ms; a list
+much beyond that should cap the pool before using `staged`.

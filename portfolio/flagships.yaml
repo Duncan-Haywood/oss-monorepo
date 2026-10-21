@@ -170,7 +170,7 @@ flagships:
       answers per respondent (coverage(ranked, participants, answersPerRespondent);
       the ranking route reads it from answered trials; unit-tested, route not run
       against a live database; 2026-10-21).
-      Next: a live check that pair requests stay fast at 220 items.
+      Selector compute at 220 items is 19 ms (staged, worst case) and 67 ms at 500 (src/lib/pairLatency.test.ts, docs/INFORMATION-GAIN-SELECTOR.md; quadratic in the pool). Next: the same check through the route against a live database, and a pool cap for lists past ~500 items.
   - venture: league-schedule-generator
     why: >-
       Circle-method round robins with minimal home/away breaks, court and slot
