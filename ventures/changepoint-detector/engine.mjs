@@ -240,11 +240,12 @@ export function poissonTrend(x, { base = null, penalty = 'bic', minSegment = 2, 
   const expo = (phi, g) => Array.from({ length: n }, (_, t) => b(t) * Math.exp(g.reduce((a, gj, j) => a + gj * phi[j][t], 0)));
   // Alternate PELT under the current exposures with a Newton step on all growth terms (phi: one basis row each).
   const fit = (phi, gStart, poisson = false) => {
-    let g = gStart.slice(), done = 0;
+    let g = gStart.slice(), done = 0, last = null, converged = false;
     const m = phi.length;
     for (; done < passes; done++) {
       const e = expo(phi, g);
       const r = peltFit(e, poisson);
+      last = { cost: r.cost, g: g.slice() };
       const bounds = [0, ...r.changepoints, n];
       // Profile score and curvature: sum x phi_j - sum_seg A mean_w(phi_j); sum_seg A cov_w(phi_i, phi_j), w = e.
       const score = new Array(m).fill(0);
@@ -268,12 +269,14 @@ export function poissonTrend(x, { base = null, penalty = 'bic', minSegment = 2, 
       const big = Math.max(...step.map(Math.abs));
       const cap = big > 2 ? 2 / big : 1;
       g = g.map((v, j) => clamp(v + step[j] * cap));
-      if (big < 1e-5) { done++; break; }
+      if (big < 1e-5) { done++; converged = true; break; }
     }
     // PELT's cost leaves out sum x log(exposure), which is constant for a fixed exposure but not across fits; add it back.
     // (the negative-binomial cost keeps it, since the mean enters through lam e[t])
-    const lin = nb && !poisson ? 0 : x.reduce((a, v, t) => a + v * g.reduce((c, gj, j) => c + gj * phi[j][t], 0), 0);
-    return { g, phi, cost: peltFit(expo(phi, g), poisson).cost - 2 * lin, passes: done };
+    const linAt = (gv) => nb && !poisson ? 0 : x.reduce((a, v, t) => a + v * gv.reduce((c, gj, j) => c + gj * phi[j][t], 0), 0);
+    // A converged Newton step (under 1e-5) moved the exposures too little to change the cost at the profiled optimum, so the last pass's PELT cost stands in for another run.
+    if (converged) return { g, phi, cost: last.cost - 2 * linAt(last.g), passes: done };
+    return { g, phi, cost: peltFit(expo(phi, g), poisson).cost - 2 * linAt(g), passes: done };
   };
   const plain = fit([u], [g0]);
   const out = (f, extra = {}) => ({ g: f.g[0], exposure: expo(f.phi, f.g), passes: f.passes, ...extra });
