@@ -15,7 +15,10 @@ import { promisify } from 'node:util';
 
 const gzip = promisify(zlib.gzip);
 
+import { audienceGroups, audiencePageId } from './audiences.mjs';
 import {
+  exampleTools,
+  researchHighlights,
   addOfflineSupport,
   annotateNumberInputs,
   stepAllowsDecimals,
@@ -756,11 +759,14 @@ test('llms.txt keeps each tool on one line, so no description leaks into prose',
   const { surfaces } = await site();
   const bullets = (await read('llms.txt')).split('\n').filter((line) => line.startsWith('- ['));
 
-  // Ten trailing bullets under "Optional" describe the site's own surfaces
-  // rather than a tool — About, Ask, the research portfolio, updates and the
-  // changelog, the comparison index, the guides index, catalog.json, the agent
-  // CLI, the sitemap and the Atom feed — so the count is tools plus those.
-  assert.equal(bullets.length, surfaces.length + 10);
+  // Nine trailing bullets under "Optional" describe the site's own surfaces
+  // rather than a tool — About, Ask, updates and the changelog, the comparison
+  // index, the guides index, catalog.json, the agent CLI, the sitemap and the
+  // Atom feed. Above the tools, one bullet per audience page; below them, one
+  // per research topic. The count is tools plus those.
+  const audiences = audienceGroups(surfaces).length;
+  const topics = researchHighlights().themes.length;
+  assert.equal(bullets.length, surfaces.length + 9 + audiences + topics);
   for (const bullet of bullets) {
     assert.match(bullet, /^- \[[^\]]+\]\(https?:\/\/[^)]+\): \S/, `malformed bullet: ${bullet}`);
   }
@@ -802,6 +808,46 @@ test('llms.txt carries each tool full self-description, not the trimmed card cop
 
 test('the hub links llms.txt so it is reachable, not only well-known', async () => {
   assert.match(await read('index.html'), /href="llms\.txt"/);
+});
+
+test('llms.txt names every audience page and every research topic', async () => {
+  const { surfaces } = await site();
+  const llms = await read('llms.txt');
+  assert.match(llms.split('\n')[0], /^# Open Tools and Research$/);
+  for (const { audience } of audienceGroups(surfaces)) {
+    assert.ok(llms.includes(`](${BASE}c/${audiencePageId(audience)}/)`), `${audience.id} is missing from llms.txt`);
+  }
+  const { themes } = researchHighlights();
+  assert.ok(themes.length > 0);
+  for (const theme of themes) {
+    assert.ok(llms.includes(`](${BASE}research/topics/${theme.id}/)`), `research topic ${theme.id} is missing`);
+  }
+});
+
+test('an audience page leads with its fullest tools and their own guide pages, all of which shipped', async () => {
+  const { outDir, surfaces } = await site();
+  let checked = 0;
+  for (const { audience, items } of audienceGroups(surfaces)) {
+    const html = await fs.readFile(path.join(outDir, 'c', audiencePageId(audience), 'index.html'), 'utf8');
+    const lead = html.match(/<section class="start-here"[\s\S]*?<\/section>/);
+    if (items.length < 8) {
+      assert.equal(lead, null, `${audience.id} is short enough to need no lead`);
+      continue;
+    }
+    assert.ok(lead, `${audience.id} has no start-here block`);
+    const starts = [...lead[0].matchAll(/href="\.\.\/\.\.\/([^"/]+)\/"/g)].map((m) => m[1]);
+    assert.deepEqual(starts, exampleTools(items, 4).map((s) => s.slug));
+    const answers = html.match(/<section class="answers"[\s\S]*?<\/section>/);
+    if (answers) {
+      for (const [, href] of answers[0].matchAll(/<li><a href="\.\.\/\.\.\/([^"]+)"/g)) {
+        const file = href.endsWith('/') ? `${href}index.html` : href;
+        assert.ok(await exists(path.join(outDir, file)), `${audience.id} lists ${href}, which did not ship`);
+        assert.ok(items.some((s) => href.startsWith(`${s.slug}/`)), `${href} is not one of ${audience.id}'s tools`);
+      }
+    }
+    checked += 1;
+  }
+  assert.ok(checked > 5, 'expected several audience pages large enough for a lead');
 });
 
 // ---------------------------------------------------------------------------
