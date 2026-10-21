@@ -25,7 +25,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": 6,
+  "ci_failures_before_green": 7,
   "review_findings": null,
   "tests_added": 46,
   "outcome": "success",
@@ -37,7 +37,8 @@
     "portfolio-validate: front-door alias map and portfolio-front.yaml shard list were stale; regen.mjs reported 'current' but `front-door-tools.mjs --write` was still needed (new venture moved the shard count to 51).",
     "gitops pytest: tree counts (mirrored tools 1310 -> 1311, opt-out switches 1282 -> 1283) not bumped for the new venture; ran platform/ci/sync_tree_counts.py and added the +1 comment lines. Merged main again (generated .gz conflicts taken from main, then regenerated). Local: gitops test_manifests + test_ci_runner 108 passed, front-door-tools.test 102 pass, siblings/ink/entities 44 pass, three venture suites green.",
     "pages test (faq-visible) red on the merge with main: einvoice-preflight/italy-sdi-e-invoice-mandate.html (from #9059) had FAQ JSON-LD text that differs from the visible answer. Not this PR's change; reproduced on main, no open fix PR, ported a one-line fix (visible answer now matches the JSON-LD) because this session may only push its own branch.",
-    "No CI ran on 77c410c for 30 minutes: the branch conflicted with main (another venture graduated and bumped the same counts and mirror files). Merged main taking its side of every generated/count conflict, re-ran launched/regen/front-door-tools/sync_tree_counts and re-added the support-agent +1 lines."
+    "No CI ran on 77c410c for 30 minutes: the branch conflicted with main (another venture graduated and bumped the same counts and mirror files). Merged main taking its side of every generated/count conflict, re-ran launched/regen/front-door-tools/sync_tree_counts and re-added the support-agent +1 lines.",
+    "pages build red on the merge ref: docs/posts/2026-10-21-solar-hosting-regulators-beat-inverters.md (from #9071 on main) has a 184-character description (limit 160). Ported a trim (dropped 'once regulators responded', 158 chars). venture-preflight clean after merging main."
   ],
   "integrity_issues": [],
   "doc_friction": [
