@@ -1,0 +1,11 @@
+GoEmotions (first file): 5313 examples; 1500 held out for AUC, 3813 in the labelling pool; vocabulary 2409 words (df>=3); negative share 0.242 in the held-out set.
+12 random labelled subsets per size; mean AUC (sd over subsets) on the same held-out items. L2 strength (1, 10 or 100) chosen per fit on a 25% validation slice of the labelled items.
+
+n_labelled bow_mean bow_sd embed_mean embed_sd codes_mean codes_sd bow+codes_mean bow+codes_sd
+25 0.5149 0.0230 0.5148 0.0290 0.5659 0.0728 0.5553 0.0320
+50 0.5426 0.0222 0.5116 0.0331 0.5933 0.0487 0.5870 0.0273
+100 0.5578 0.0289 0.5107 0.0189 0.6520 0.0520 0.6061 0.0355
+200 0.5953 0.0248 0.5216 0.0216 0.6972 0.0208 0.6363 0.0253
+400 0.6262 0.0182 0.5335 0.0266 0.7247 0.0206 0.6613 0.0168
+800 0.6489 0.0155 0.5412 0.0154 0.7328 0.0096 0.6800 0.0180
+1600 0.6690 0.0139 0.5499 0.0169 0.7470 0.0042 0.6942 0.0122

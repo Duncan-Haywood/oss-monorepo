@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "society-doorcost"
+version = "0.1.0"
+description = "How high must the collision cost be before always-yielding robots are individually stable at a door? A cost-ratio sweep of the society-doorway game"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

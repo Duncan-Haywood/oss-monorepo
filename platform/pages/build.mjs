@@ -43,6 +43,15 @@ import {
   orderForFeed,
 } from './launched.mjs';
 
+import { addShareCards, cardTitle, renderCards, siteAddress } from './share.mjs';
+import {
+  MARK_FROM,
+  MARK_GEOMETRY,
+  renderSiteCard,
+  MARK_TO,
+  drawMark,
+  encodePng as encodeCardPng,
+} from './sharecard.mjs';
 import {
   ICONS,
   OFFLINE_WIDGET_SCRIPT,
@@ -3767,9 +3776,8 @@ export function categoryFor(slug) {
  * named by a title that renames): a rebrand or a retitled tool never breaks
  * this filename, and a share into the roofing group and a share into the
  * marketplace-fee thread render as visibly different cards without anyone
- * drawing 164 of them. See `renderSocialCard`'s `color` parameter in
- * `offline.mjs` for why a colour field is the whole difference — there is no
- * font rasteriser in this build to draw a per-category headline with.
+ * drawing 164 of them. The card itself is drawn by `sharecard.mjs`, with the
+ * category's name as its headline on the category's accent.
  */
 export function socialCardFileFor(categoryId) {
   return `social-card-${categoryId}.png`;
@@ -3789,6 +3797,35 @@ export function socialCardFileFor(categoryId) {
  */
 export function toolCardFileFor(slug) {
   return `${slug}/share-card.png`;
+}
+
+/**
+ * What a tool's share card draws: its name under its category, on the
+ * category's colour. Exported so the tests render the same card the build does.
+ */
+export function toolCardOptions(surface, { baseUrl = '' } = {}) {
+  const category = categoryFor(surface.slug);
+  return {
+    accent: category.accent,
+    headline: cardTitle(surface.title),
+    kicker: category.title,
+    // Sponsor Ready's own card gets the exception footer — its whole job is a
+    // live lookup, so "nothing you type is uploaded" is the one claim this
+    // card must not make. See `CARD_FOOTER_EXCEPTION`.
+    footer: surface.externalFetchHosts?.length ? CARD_FOOTER_EXCEPTION : CARD_FOOTER,
+    address: siteAddress(baseUrl),
+  };
+}
+
+/** What a category (or audience, or kind) page's share card draws. */
+export function categoryCardOptions(category, { footer = CARD_FOOTER, baseUrl = '' } = {}) {
+  return {
+    accent: category.accent,
+    headline: category.title,
+    kicker: 'Free tools',
+    footer,
+    address: siteAddress(baseUrl),
+  };
 }
 
 // The two lines every tool and category card carries besides its headline.
@@ -10383,7 +10420,7 @@ export async function addOfflineSupport({
   for (const icon of ICONS) {
     await fs.writeFile(
       path.join(outDir, icon.file),
-      renderIcon({ size: icon.size, maskable: Boolean(icon.maskable) }),
+      renderIcon({ size: icon.size, maskable: Boolean(icon.maskable), opaque: Boolean(icon.opaque) }),
     );
   }
   await fs.writeFile(
@@ -10844,8 +10881,14 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
   await fs.writeFile(path.join(outDir, 'favicon.ico'), renderFavicon());
   await fs.writeFile(path.join(outDir, 'favicon.svg'), renderFaviconSvg());
   // The site-wide card: what the hub and the About page point at, since
-  // neither belongs to one category.
-  await fs.writeFile(path.join(outDir, SOCIAL_CARD_FILE), renderSocialCard());
+  // neither belongs to one category. It carries the homepage's own headline.
+  await fs.writeFile(
+    path.join(outDir, SOCIAL_CARD_FILE),
+    renderSiteCard({
+      address: siteAddress(base),
+      footer: `${surfaces.length} free tools · ${researchProjectCount()} research projects`,
+    }),
+  );
   // One card per category, tinted and headlined with the section's own name.
   // A category holding a documented `externalCallExceptions` entry (today:
   // "more", because Sponsor Ready lives there) gets the exception footer —
@@ -10859,44 +10902,34 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
       .filter(({ items }) => externalCallExceptions(items).length)
       .map(({ audience }) => audiencePageId(audience)),
   ]);
-  await Promise.all(
-    [...ALL_CATEGORIES, ...KIND_PAGES, ...audiencePages.map(({ audience, items }) => audienceCategory(audience, items))].map((category) =>
-      fs.writeFile(
-        path.join(outDir, socialCardFileFor(category.id)),
-        renderSocialCard({
-          color: category.accent,
-          headline: category.title,
-          kicker: SITE_NAME,
-          footer: categoriesWithExceptions.has(category.id) ? CARD_FOOTER_EXCEPTION : CARD_FOOTER,
-        }),
-      )),
-  );
-  // And one per tool, headlined with the tool's own name on its category's
-  // tint. This is the difference between 164 shares of the same anonymous
-  // picture and 164 shares that each say what they link to — the single
-  // highest-leverage change available to a portfolio whose only distribution
-  // is organic. `cardtext.mjs` is what makes it possible without a font
-  // dependency; before it existed there was nothing to draw a headline with.
-  //
-  // Sequential, not `Promise.all`: each card is a 1200x630 CPU-bound raster
-  // and the in-cluster build runs under a 2-core limit, so firing 164 at once
-  // buys no wall-clock and peaks memory at 164 frame buffers.
-  for (const surface of surfaces) {
-    const dir = path.join(outDir, surface.slug);
-    if (!(await exists(dir))) continue;
-    await fs.writeFile(
-      path.join(outDir, toolCardFileFor(surface.slug)),
-      renderSocialCard({
-        color: categoryFor(surface.slug).accent,
-        headline: surface.title,
-        kicker: SITE_NAME,
-        // Sponsor Ready's own card gets the exception footer — its whole job
-        // is a live lookup, so "nothing you type is uploaded" is the one
-        // claim this card must not make. See `CARD_FOOTER_EXCEPTION`.
-        footer: surface.externalFetchHosts?.length ? CARD_FOOTER_EXCEPTION : CARD_FOOTER,
+  const cardJobs = [];
+  for (const category of [
+    ...ALL_CATEGORIES,
+    ...KIND_PAGES,
+    ...audiencePages.map(({ audience, items }) => audienceCategory(audience, items)),
+  ]) {
+    cardJobs.push({
+      file: path.join(outDir, socialCardFileFor(category.id)),
+      options: categoryCardOptions(category, {
+        footer: categoriesWithExceptions.has(category.id) ? CARD_FOOTER_EXCEPTION : CARD_FOOTER,
+        baseUrl: base,
       }),
-    );
+    });
   }
+  // And one per tool, headlined with the tool's own name under its category.
+  // This is the difference between a thousand shares of the same anonymous
+  // picture and a thousand that each say what they link to — the single
+  // highest-leverage change available to a portfolio whose only distribution
+  // is organic. They render on a pool of worker threads (`share.mjs`): each is
+  // a CPU-bound raster and there are well over a thousand.
+  for (const surface of surfaces) {
+    if (!(await exists(path.join(outDir, surface.slug)))) continue;
+    cardJobs.push({
+      file: path.join(outDir, toolCardFileFor(surface.slug)),
+      options: toolCardOptions(surface, { baseUrl: base }),
+    });
+  }
+  await renderCards(cardJobs);
 
   // Tell Jekyll (which GitHub Pages runs by default) to leave the tree alone;
   // without this, any directory starting with `_` is silently dropped.
@@ -10913,6 +10946,12 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
   // pages that no longer match it.
   const sponsored = await markSponsorLinksIn(outDir);
 
+  // After every generator has written its pages and the chrome has wrapped
+  // them: a card for each page still on the site-wide one (research, writing,
+  // comparisons, the section front pages), and complete share tags on all of
+  // them. Before the offline layer, which hashes the finished HTML.
+  const shareCards = await addShareCards({ outDir, baseUrl: base, siteName: SITE_NAME, siteCard: SOCIAL_CARD_FILE });
+
   // After the chrome pass, not before: the offline layer hashes the finished
   // site to name its cache, and injects into pages the chrome has already
   // rewritten. Reversed, every deploy would cache a page missing its nav.
@@ -10920,7 +10959,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
 
   return {
     outDir, baseUrl: base, surfaces, repairs, wrapped, rated, saved, shared, described,
-    highlighted, narrowed, embedded, sponsored, offline, comparisons,
+    highlighted, narrowed, embedded, sponsored, offline, comparisons, shareCards,
   };
 }
 
@@ -10936,120 +10975,72 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
  * the ventures' files, not this build's), and only `.ico` at the origin root
  * is fetched automatically, so the icon has to be generated here.
  *
- * Built rather than committed so the tree stays reviewable text: a 16x16 PNG
- * assembled by hand and wrapped in a single-image ICO container. Deterministic
- * -- same bytes on every run.
+ * Built rather than committed so the tree stays reviewable text, and
+ * deterministic -- same bytes on every run.
  */
-function pngChunk(type, data) {
-  const length = Buffer.alloc(4);
-  length.writeUInt32BE(data.length);
-  const body = Buffer.concat([Buffer.from(type, 'ascii'), data]);
-  const crc = Buffer.alloc(4);
-  crc.writeUInt32BE(crc32(body) >>> 0);
-  return Buffer.concat([length, body, crc]);
-}
 
-let CRC_TABLE = null;
-function crc32(buffer) {
-  if (!CRC_TABLE) {
-    CRC_TABLE = new Int32Array(256);
-    for (let n = 0; n < 256; n += 1) {
-      let c = n;
-      for (let k = 0; k < 8; k += 1) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
-      CRC_TABLE[n] = c;
-    }
-  }
-  let crc = -1;
-  for (const byte of buffer) crc = CRC_TABLE[(crc ^ byte) & 0xff] ^ (crc >>> 8);
-  return crc ^ -1;
-}
-
-// The mark, in one place. `renderFavicon` rasterises it to the 16x16 ICO every
-// browser fetches on its own; `renderFaviconSvg` emits the same geometry as
-// vector art for the icon the hub links explicitly. Sharing the constants is
-// what keeps the two from drifting into different logos.
+// The mark, in one place: `sharecard.mjs`'s `drawMark` (three rising bars on
+// the header's teal-to-indigo square) is what the app icons and every share
+// card draw from `MARK_GEOMETRY`, and `renderFaviconSvg` draws the same
+// geometry as vector art, so the tab,
+// the pinned tab, the home screen and a shared link carry one logo. The tab
+// icon used to be a flat green square while the header showed a gradient one
+// and the app icon a calculator: three logos for one site.
+export { MARK_GEOMETRY };
 const ICON_SIZE = 16;
-const ICON_INK = [36, 61, 53]; // the hub's accent green, so the tab matches the site
-const ICON_MARK = [197, 237, 181];
+// Sizes in the .ico: 16 for the tab strip, 32 for a high-DPI tab and the
+// Windows taskbar, 48 for a desktop shortcut.
+export const FAVICON_SIZES = [16, 32, 48];
 
-// Three rising bars on a rounded square. Chosen after looking at it at
-// actual size: anything with a diagonal turns to mush at 16px, while flat
-// bars stay crisp and read as "numbers" rather than as a generic glyph.
-const ICON_BARS = [
-  { x0: 3, x1: 4, top: 9 },
-  { x0: 7, x1: 8, top: 6 },
-  { x0: 11, x1: 12, top: 3 },
-];
-const ICON_BAR_BOTTOM = 12;
-const ICON_CORNER = 2; // matches the 2px corner the rasteriser cuts
+const rgbHex = (rgb) => '#' + rgb.map((c) => Math.round(c).toString(16).padStart(2, '0')).join('');
 
-const rgbHex = (rgb) => '#' + rgb.map((c) => c.toString(16).padStart(2, '0')).join('');
-
-/**
- * The same mark as `renderFavicon()`, as vector art.
- *
- * The `.ico` is a fixed raster: exactly right at 16px in a tab, and soft
- * everywhere a browser shows it larger — a pinned tab, the bookmark bar, a
- * phone home screen. A browser that understands `rel="icon"
- * type="image/svg+xml"` prefers this and renders the mark crisply at any size,
- * while the automatic `/favicon.ico` request still finds a file.
- */
 export function renderFaviconSvg() {
-  const bars = ICON_BARS.map(
+  const n = (v) => Number((v * ICON_SIZE).toFixed(2));
+  const g = MARK_GEOMETRY;
+  const bars = g.bars.map(
     (b) =>
-      `<rect x="${b.x0}" y="${b.top}" width="${b.x1 - b.x0 + 1}" ` +
-      `height="${ICON_BAR_BOTTOM - b.top + 1}" fill="${rgbHex(ICON_MARK)}"/>`,
+      `<rect x="${n(b.x)}" y="${n(b.top)}" width="${n(g.barWidth)}" ` +
+      `height="${n(g.bottom - b.top)}" rx="${n(g.barWidth * 0.28)}" fill="#ffffff"/>`,
   ).join('');
-
   return (
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${ICON_SIZE} ${ICON_SIZE}">` +
-    `<rect width="${ICON_SIZE}" height="${ICON_SIZE}" rx="${ICON_CORNER}" ` +
-    `fill="${rgbHex(ICON_INK)}"/>${bars}</svg>\n`
+    `<defs><linearGradient id="m" x1="0" y1="0" x2="1" y2="1">` +
+    `<stop offset="0" stop-color="${rgbHex(MARK_FROM)}"/><stop offset="1" stop-color="${rgbHex(MARK_TO)}"/>` +
+    `</linearGradient></defs>` +
+    `<rect width="${ICON_SIZE}" height="${ICON_SIZE}" rx="${n(g.radius)}" fill="url(#m)"/>${bars}</svg>\n`
   );
 }
 
+/**
+ * Every browser requests `/favicon.ico` on its own; see above. One PNG per
+ * size in `FAVICON_SIZES`, each drawn by `drawMark` at that size rather than
+ * scaled from one, wrapped in an ICO container.
+ */
 export function renderFavicon() {
-  const size = ICON_SIZE;
-  const ink = ICON_INK;
-  const mark = ICON_MARK;
-  const BARS = ICON_BARS;
-  const raw = [];
-  for (let y = 0; y < size; y += 1) {
-    raw.push(0); // PNG filter byte: none
-    for (let x = 0; x < size; x += 1) {
-      const corner = (x < 2 || x > 13) && (y < 2 || y > 13);
-      const inBar = BARS.some((b) => x >= b.x0 && x <= b.x1 && y >= b.top && y <= 12);
-      if (corner) raw.push(0, 0, 0, 0);
-      else if (inBar) raw.push(...mark, 255);
-      else raw.push(...ink, 255);
-    }
-  }
-
-  const ihdr = Buffer.alloc(13);
-  ihdr.writeUInt32BE(size, 0);
-  ihdr.writeUInt32BE(size, 4);
-  ihdr[8] = 8; // bit depth
-  ihdr[9] = 6; // colour type: RGBA
-  const png = Buffer.concat([
-    Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
-    pngChunk('IHDR', ihdr),
-    pngChunk('IDAT', zlib.deflateSync(Buffer.from(raw), { level: 9 })),
-    pngChunk('IEND', Buffer.alloc(0)),
-  ]);
-
-  // ICO container: 6-byte header, one 16-byte directory entry, then the PNG.
+  const pngs = FAVICON_SIZES.map((size) => {
+    const data = Buffer.alloc(size * size * 4);
+    drawMark({ width: size, height: size, data, channels: 4 }, 0, 0, size, { channels: 4, radius: MARK_GEOMETRY.radius });
+    return encodeCardPng(size, size, data, 4);
+  });
   const header = Buffer.alloc(6);
   header.writeUInt16LE(0, 0);
   header.writeUInt16LE(1, 2); // type: icon
-  header.writeUInt16LE(1, 4); // one image
-  const entry = Buffer.alloc(16);
-  entry[0] = size;
-  entry[1] = size;
-  entry.writeUInt16LE(1, 4); // colour planes
-  entry.writeUInt16LE(32, 6); // bits per pixel
-  entry.writeUInt32LE(png.length, 8);
-  entry.writeUInt32LE(header.length + entry.length, 12);
-  return Buffer.concat([header, entry, png]);
+  header.writeUInt16LE(pngs.length, 4);
+  const entries = [];
+  let offset = 6 + 16 * pngs.length;
+  pngs.forEach((png, i) => {
+    const size = FAVICON_SIZES[i];
+    const entry = Buffer.alloc(16);
+    entry[0] = size;
+    entry[1] = size;
+    entry.writeUInt16LE(1, 4); // colour planes
+    entry.writeUInt16LE(32, 6); // bits per pixel
+    entry.writeUInt32LE(png.length, 8);
+    entry.writeUInt32LE(offset, 12);
+    offset += png.length;
+    entries.push(entry);
+  });
+  return Buffer.concat([header, ...entries, ...pngs]);
 }
 
 // ---------------------------------------------------------------------------
@@ -11087,4 +11078,5 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   console.log(`Kept ${result.narrowed.length} page(s) with a table from scrolling sideways on a phone.`);
   console.log(`Added an embed offer to ${result.embedded.length} tool entry page(s).`);
   console.log(`Made the sponsor link countable on ${result.sponsored.length} page(s).`);
+  console.log(`Drew ${result.shareCards.cards.length} page share card(s); completed share tags on ${result.shareCards.changed.length} page(s).`);
 }
