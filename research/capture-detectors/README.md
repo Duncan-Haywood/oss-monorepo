@@ -19,10 +19,11 @@ Seventh project of track 13, autonomous multi-angle capture for travel creators 
 ```bash
 pip install "opencv-python-headless<5" numpy pytest   # OpenCV 5 dropped the Haar and HOG detectors
 cd research/capture-detectors
-python -m pytest -q tests                       # 9 tests, no network or models needed
+python -m pytest -q tests                       # 10 tests, no network or models needed
 python experiments/run.py                       # downloads ~42 MB once; ~4 min on a CPU; writes results.json
 python experiments/report.py                    # results.json -> results.txt
 python experiments/figure.py                    # results.txt -> recall.svg
+python experiments/yaw.py                       # section F: recall against face turn -> yaw.txt, yaw.json (~1 min)
 ```
 
 ## Results (from `experiments/results.txt`)
@@ -66,6 +67,15 @@ With the 0.6 curve and R = 16, the ends of the fitted mid range give 0.005 and 0
 
 **E. Independence of the face and body detectors.** In the 30 trials where a face was 8 to 24 px, YOLOX found the body every time while YuNet 0.6 missed 7% of faces: the person is about nine times taller than the face, so the body is still large when the face fails. That supports the body fallback in `capture-bystander`, and says the "both policies, independent errors" assumption never bites. The sample is 10 people.
 
+**F. Does recall fall as the face turns away?** (`experiments/yaw.py`, added for `capture-sentinel`, whose bearing curve was assumed: miss 0.03 facing the camera, 0.40 facing away.) Reference: 54 YuNet detections (score at least 0.3, at least 24 px wide, inside a labelled person) in the full-size photos. Face turn is a landmark proxy, the nose's horizontal offset from the eye midpoint over the inter-eye distance (0 frontal, larger toward profile; not an angle). Every detector is asked about the same faces at full size, so size is not shrunk. Haar profile runs on the photo and its mirror.
+
+| turn proxy | n | YuNet 0.6 | YuNet 0.9 | Haar frontal | Haar profile | Haar either |
+|---|---|---|---|---|---|---|
+| under 0.3 (near-frontal) | 35 | 0.97 | 0.54 | 0.66 | 0.43 | 0.69 |
+| 0.3 or more (turned) | 19 | 0.95 | 0.16 | 0.16 | 0.26 | 0.37 |
+
+95% Wilson intervals are in `experiments/yaw.txt`: for YuNet 0.9 they are 0.38 to 0.70 against 0.06 to 0.38, so the drop is outside the noise; YuNet 0.6 shows no drop (0.85 to 0.99 against 0.75 to 0.99). Reading for `capture-sentinel`: a conservative threshold or a frontal Haar cascade loses most faces once they turn about a third of the way to profile (miss from about 0.35 to about 0.84), so a sentinel on such a detector should be modelled with a miss that climbs well before the subject faces away; YuNet at 0.6 keeps the miss near 0.05 to profile. **Limits of this section:** the reference is a detector's own output, so faces that no detector sees (back of the head, heavy occlusion) are absent and the curve stops at near-profile, the 0.3 miss for facing away is untested; the 0.9 row is confounded with size, since the faces are 24 px and up and the 0.9 curve above is still climbing there; n is 54, in four bins of 7 to 21.
+
 ## Limitations
 - **Easy faces only.** The reference faces are confident YuNet detections at full size: frontal, sharp and lit, and chosen by the detector family under test. Recall on a real crowd (profile, occluded, motion-blurred, hats, masks, children, a darker or paler skin tone than a detector's training set) will be lower; published detector benchmarks such as WIDER FACE report a steep drop on small, hard faces. These curves are upper bounds on recall and lower bounds on leak.
 - **Shrunk, not far.** Area averaging gives a clean small image. A real distant face also has sensor noise, lens blur and video compression, and a 360 camera's stitching and distortion are not modelled.
@@ -75,7 +85,7 @@ With the 0.6 curve and R = 16, the ends of the fitted mid range give 0.005 and 0
 - Matching rules (centre-in-box and width within 2x for faces; IoU 0.5 for people) are choices; looser rules raise recall.
 
 ## Next steps
-Run the same shrink test on a face set with human labels (WIDER FACE needs a host this environment cannot reach) so the reference is not a detector's own output. Add hard-case strata (profile, occlusion). Measure the size at which people name a face, to set R. Then re-run `capture-bystander`'s persistence section with measured miss runs from real video.
+Feed section F's turned-face miss into `capture-sentinel` in place of its cosine model. Get labelled yaw (300W-LP or AFLW; not reachable from this environment) so the turn proxy becomes an angle and back-of-head is covered. Run the same shrink test on a face set with human labels (WIDER FACE needs a host this environment cannot reach) so the reference is not a detector's own output. Add hard-case strata (profile, occlusion). Measure the size at which people name a face, to set R. Then re-run `capture-bystander`'s persistence section with measured miss runs from real video.
 
 ## Owner steps
 None for this study. A field test would film a consenting group at measured distances with the chosen camera.

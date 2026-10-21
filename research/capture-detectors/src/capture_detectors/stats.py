@@ -22,6 +22,12 @@ def iou(a, b):
     return inter / union if union > 0 else 0.0
 
 
+def face_turn(right_eye, left_eye, nose):
+    """Face-turn proxy from YuNet landmarks: |nose x - eye-midpoint x| / inter-eye distance (0 = frontal)."""
+    ied = math.hypot(left_eye[0] - right_eye[0], left_eye[1] - right_eye[1]) or 1e-9
+    return abs(nose[0] - (right_eye[0] + left_eye[0]) / 2) / ied
+
+
 def face_hit(det, ref):
     """A detection finds a reference face if its centre lies in the face box and its width is within 2x."""
     cx, cy = det[0] + det[2] / 2, det[1] + det[3] / 2
