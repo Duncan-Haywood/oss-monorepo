@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-21",
+  "session": "https://claude.ai/code/session_019oi524MJ9vq2CANvhwowc7",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-21T12:25:05Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "swe-orgs batch 22",
+  "projects": [
+    "swe-orgs"
+  ],
+  "pr": 9169,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/swe-orgs/README.md",
+      "issue": "evidence counts and batch lists are repeated by hand in README, root README and projects.json; tests catch drift but each batch needs several manual edits"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "research/swe-orgs/LOG.md batch 22 entry"
+  ],
+  "goal": null,
+  "notes": "Added Microsoft Nudge (S60/P61) to swe-orgs; tests 9 pass, homepage build ok, md links ok. Source verified by web search only.",
+  "corrections": [],
+  "redteam": null
+}
