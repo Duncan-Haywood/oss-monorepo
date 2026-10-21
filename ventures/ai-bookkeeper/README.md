@@ -270,7 +270,11 @@ instructions; confirm each line with your preparer. Test: `taxforms.test.mjs`.
 contractors [--year Y] [--threshold DOLLARS] [--csv|--json]`) totals bank payments
 filed to Contract labor (6020, whole lines and split parts) by payee for a calendar
 year and marks who is over the 1099-NEC line. `cli.mjs w9 "PAYEE"` (`markW9`)
-records that a W-9 is on file; only that yes/no flag is stored, never a tax ID. The
+records that a W-9 is on file; only that yes/no flag is stored, never a tax ID.
+`cli.mjs merge-payee FROM INTO [--off]` (`mergePayees`) counts two spellings of one
+payee ("ZELLE ANNA LOPEZ", "UPWORK PAYMENT ANNA LOPEZ") as one, so their payments
+add up against the line; only a pointer is kept, and `--off` undoes it. The page has
+the same worksheet as a card (W-9 tick boxes, a merge picker, a CSV button). The
 line is $600 for payments through 2025 and $2,000 from 2026 as the author understands
 the 2025 change; check the current IRS instructions or pass `--threshold`. Card
 payments are shown apart and left out of the totals (the processor reports those on

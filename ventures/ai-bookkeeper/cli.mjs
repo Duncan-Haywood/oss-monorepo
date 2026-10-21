@@ -17,7 +17,7 @@
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { newBooks, importStatement, importOfxAccounts, lockPeriod, categorize, suggestRules, addRules, addDocuments, writeOff, aging, salesTax, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, exportLines, status, analyze, fmt } from "./engine.mjs";
 import { accountMap } from "./ledger.mjs";
-import { scheduleC, scheduleCCsv, contractors1099, contractors1099Csv, markW9 } from "./taxforms.mjs";
+import { scheduleC, scheduleCCsv, contractors1099, contractors1099Csv, markW9, mergePayees } from "./taxforms.mjs";
 import { sniffFormat, splitOfx } from "./bank.mjs";
 
 const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that learn from your corrections.
@@ -36,6 +36,7 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
   salestax [--from D --to D]  sales tax collected, credited and paid over by month, and what is still owed
   lock DATE|off          lock a closed period: nothing dated on or before DATE can be imported, re-filed, booked or written off
   contractors [--year Y] [--threshold DOLLARS] [--csv|--json]  contract labor paid by payee against the 1099-NEC line, with W-9 status
+  merge-payee FROM INTO [--off]  count two spellings of one payee as one on the contractors worksheet
   w9 PAYEE [--off]       record that a W-9 is on file for a payee (a flag; no tax IDs are stored)
   schedulec [--from D --to D] [--meals PCT] [--csv|--json]  the profit and loss on US Schedule C lines (a worksheet, not a filing)
   writeoff ID [--date D]  write off an invoice's unpaid balance to bad debts (6900)
@@ -139,6 +140,9 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
   for (const p of r.payees) console.log(`  ${p.name.slice(0, 34).padEnd(34)} ${fmt(p.cents).padStart(12)}  ${p.over ? "REPORT" : "under "}  ${p.w9 ? "W-9 on file" : "no W-9"}${p.cardCents ? `  (+${fmt(p.cardCents)} by card)` : ""}`);
   for (const w of r.warnings) console.log(`  ! ${w}`);
   console.log("  A worksheet, not a filing. Whether someone is a contractor, and any exemption, is for you or your preparer to decide.");
+} else if (cmd === "merge-payee") {
+  if (!rest[0] || !rest[1]) { console.error("merge-payee needs two payee names as they appear on the bank lines"); process.exit(2); }
+  try { books = mergePayees(books, rest[0], rest[1], !has("--off")); save(); console.log(has("--off") ? "Merge undone." : `"${rest[0]}" is now counted with "${rest[1]}".`); } catch (e) { console.error(e.message); process.exit(1); }
 } else if (cmd === "w9") {
   if (!rest[0]) { console.error("w9 needs a payee name as it appears on the bank line"); process.exit(2); }
   const off = has("--off");

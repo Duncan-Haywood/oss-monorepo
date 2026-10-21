@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { newBooks, importStatement, confirm, parseSplit } from "./engine.mjs";
-import { scheduleC, scheduleCCsv, contractors1099, contractors1099Csv, markW9, NEC_THRESHOLD } from "./taxforms.mjs";
+import { scheduleC, scheduleCCsv, contractors1099, contractors1099Csv, markW9, mergePayees, NEC_THRESHOLD } from "./taxforms.mjs";
 
 const CSV = `Date,Description,Amount
 2026-01-05,CLIENT PAYMENT ACME,5000.00
@@ -131,4 +131,22 @@ test("1099-NEC: card payments are left out, split parts count, unfiled lines are
   assert.ok(r.warnings.some((w) => /1099-K/.test(w)));
   assert.ok(r.warnings.some((w) => /still waiting/.test(w)));
   assert.equal(contractors1099Csv(r).split("\n")[0], "Payee,Paid by bank,Payments,Paid by card (not 1099-NEC),Reportable,W-9 on file");
+});
+
+test("1099-NEC: two spellings of one payee can be merged, which carries the total over the line, and undone", () => {
+  let { books } = importStatement(newBooks(), "Date,Description,Amount\n2026-01-10,UPWORK PAYMENT ANNA LOPEZ,-1500.00\n2026-02-10,ZELLE ANNA LOPEZ,-600.00\n", "1000");
+  books = confirm(books, Object.fromEntries(books.transactions.map((t) => [t.id, "6020"])));
+  const apart = contractors1099(books, { year: 2026, threshold: 200000 });
+  assert.equal(apart.payees.length, 2);
+  assert.equal(apart.reportable.length, 0);
+  const merged = mergePayees(markW9(books, "ZELLE ANNA LOPEZ"), "ZELLE ANNA LOPEZ", "UPWORK PAYMENT ANNA LOPEZ");
+  const r = contractors1099(merged, { year: 2026, threshold: 200000 });
+  assert.equal(r.payees.length, 1);
+  assert.equal(r.payees[0].cents, 210000);
+  assert.equal(r.payees[0].count, 2);
+  assert.equal(r.reportable.length, 1);
+  assert.equal(r.payees[0].w9, true, "a W-9 marked on the merged-away spelling carries to the survivor");
+  assert.equal(contractors1099(mergePayees(merged, "ZELLE ANNA LOPEZ", "UPWORK PAYMENT ANNA LOPEZ", false), { year: 2026 }).payees.length, 2);
+  assert.throws(() => mergePayees(books, "ZELLE ANNA LOPEZ", "NOBODY"), /No bank line/);
+  assert.throws(() => mergePayees(books, "ZELLE ANNA LOPEZ", "zelle anna lopez"), /same payee/);
 });

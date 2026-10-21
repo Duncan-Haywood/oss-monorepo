@@ -59,6 +59,7 @@ await page.click("#example");
 await page.waitForFunction(() => /synthetic months/.test(document.querySelector("#import-status").textContent), null, { timeout: 5000 }).catch(() => {});
 check(/synthetic months/.test(await page.locator("#import-status").textContent()), "example books load by click");
 
+check((await page.locator("#nec").textContent()).trim().length > 0, "the 1099-NEC card renders (a table or a no-contractors note)");
 check(errors.length === 0, `no page errors ${errors.join("; ")}`);
 await browser.close();
 server.close();
