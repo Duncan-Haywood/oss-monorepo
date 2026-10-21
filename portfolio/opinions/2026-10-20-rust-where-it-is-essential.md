@@ -84,7 +84,10 @@ Rust version is judged by the result, not by the language.
    `research/simdesign-topopt`. That project is a Python and scipy
    reproduction of Sigmund's 99-line code in 2D. 3D finite elements with a
    multigrid-preconditioned solver is real numerical work, and the browser
-   has no scipy. The bar is matching the Python reference on the 2D cases,
+   has no scipy. (Correction, 2026-10-21: through Pyodide it does. The 2D
+   code runs unchanged in WebAssembly at about 1.5x CPython's time, so the
+   case rests on 3D at interactive speed;
+   `docs/reports/2026-10-21-wasm-on-the-site.md`.) The bar is matching the Python reference on the 2D cases,
    then a 3D cantilever at interactive speed.
 3. **EDA passes** (placement, logic optimisation), growing out of the
    `research/chip-*` work, benchmarked against yosys, ABC and OpenROAD on
