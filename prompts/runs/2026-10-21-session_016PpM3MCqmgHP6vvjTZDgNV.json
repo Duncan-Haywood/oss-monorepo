@@ -61,7 +61,7 @@
     "docs/reports/2026-10-21-agent-dependent-domains-for-agents.md"
   ],
   "goal": null,
-  "notes": "Owner asked which industries agents depend on/benefit from vs humans, then for a post and agent doc as domains for future projects. Sources checked via web search 2026-10-21: IEA Energy and AI (415 TWh 2024, ~945 TWh 2030; Key Questions update ~950) and Anthropic Economic Index (37.2% computer/math vs 3.4% of US workforce). iea.org news page returned 403 to WebFetch; figures taken from the IEA executive summary via search results. Repo coverage counted by name keywords (results.txt). Checks: promptctl validate; links in both docs resolve to existing files.",
+  "notes": "Owner asked which industries agents depend on/benefit from vs humans, then for a post and agent doc as domains for future projects. Sources checked via web search 2026-10-21: IEA Energy and AI (415 TWh 2024, ~945 TWh 2030; Key Questions update ~950) and Anthropic Economic Index (37.2% computer/math vs 3.4% of US workforce). iea.org news page returned 403 to WebFetch; figures taken from the IEA executive summary via search results. Repo coverage counted by name keywords (results.txt). Checks: promptctl validate; links in both docs resolve to existing files. Follow-up PR 9034 also rewords docs/posts/2026-10-21-thirteen-publishers-zero-posts.md (merged in PR 9030), whose bare 'duncan-haywood.github.io' host failed custom-domain.test.mjs on main; custom-domain + writing tests 15/15 locally, full site build + check.mjs pass.",
   "corrections": [],
   "redteam": null
 }
