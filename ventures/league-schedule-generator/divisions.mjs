@@ -50,12 +50,18 @@ export function parseTravel(text, venues) {
   for (const raw of String(text || "").split(/\r?\n/)) {
     const line = raw.trim();
     if (!line) continue;
-    const m = line.match(/^(.+?)\s*(?:-|–|<->)\s*(.+?)\s*:\s*(\d+(?:\.\d+)?)\s*(?:min\w*)?$/i);
+    const m = line.match(/^(.+?)\s*:\s*(\d+(?:\.\d+)?)\s*(?:min\w*)?$/i);
     if (!m) { errors.push(`"${line}": write travel as "Park - School: 25" (minutes).`); continue; }
-    const a = known.get(m[1].trim().toLowerCase()), b = known.get(m[2].trim().toLowerCase());
-    if (!a || !b) { errors.push(`"${line}": ${!a ? m[1].trim() : m[2].trim()} is not a venue in the courts box (write a court as "Field 1 @ Park").`); continue; }
+    // a venue name may hold a hyphen ("North-Park"), so try every separator and keep the split where both sides are venues
+    const seps = [...m[1].matchAll(/\s*(?:-|–|<->)\s*/g)];
+    if (!seps.length) { errors.push(`"${line}": write travel as "Park - School: 25" (minutes).`); continue; }
+    const split = seps.map((x) => [m[1].slice(0, x.index).trim(), m[1].slice(x.index + x[0].length).trim()]);
+    const hit = split.find(([l, r]) => known.has(l.toLowerCase()) && known.has(r.toLowerCase()));
+    const [left, right] = hit || split[0];
+    const a = known.get(left.toLowerCase()), b = known.get(right.toLowerCase());
+    if (!a || !b) { errors.push(`"${line}": ${!a ? left : right} is not a venue in the courts box (write a court as "Field 1 @ Park").`); continue; }
     if (a === b) { errors.push(`"${line}": a venue is not away from itself.`); continue; }
-    const mins = Number(m[3]);
+    const mins = Number(m[2]);
     if (!(mins > 0)) { errors.push(`"${line}": minutes must be above zero.`); continue; }
     travel[[a, b].sort().join("|")] = mins;
   }
