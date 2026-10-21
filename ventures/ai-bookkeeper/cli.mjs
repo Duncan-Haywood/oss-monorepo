@@ -22,6 +22,7 @@ import { seSetAside, selfEmployment, scheduleC, scheduleCCsv, contractors1099, c
 import { sniffFormat, splitOfx } from "./bank.mjs";
 import { detectRecurring, forecastCash } from "./recurring.mjs";
 import { findAnomalies } from "./anomalies.mjs";
+import { compareProfit } from "./compare.mjs";
 import { setTaxTreatment, taxDepreciation } from "./taxdepr.mjs";
 
 const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that learn from your corrections.
@@ -55,6 +56,7 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
   recurring [--as-of D] [--json]  payees that repeat on a steady interval: cost per year, next date, and which went overdue, lapsed or changed amount
   forecast [--as-of D] [--days N] [--json]  expected cash day by day from the bank balance, recurring items and open invoices and bills; the lowest point
   anomalies [--json]     lines worth a second look: double charges, amounts far above a payee's usual, large first-time payees (candidates with a reason, not an audit)
+  compare [--from D --to D --vs-from D --vs-to D] [--json]  profit and loss against an earlier period (default: latest month vs the month before): what moved, what is new or gone
   aging [--as-of D]      what customers owe you and what you owe, by days past due
   rules [--apply]        payees you filed the same way 3+ times, as rules; --apply adds them
   accept [MIN]           accept every suggestion at or above MIN confidence (default 0.7)
@@ -176,6 +178,17 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
   for (const x of r) console.log(`${x.payee.slice(0, 26).padEnd(26)} ${x.cadence.padEnd(15)} ${fmt(x.typical).padStart(11)}  ${fmt(x.perYear).padStart(12)}/yr  next ${x.next}  ${x.status}${x.note ? ` (${x.note})` : ""}`);
   const sum = (d) => r.filter((x) => x.direction === d && x.status !== "lapsed").reduce((a, x) => a + x.perYear, 0);
   console.log(`${r.length} recurring. Per year, not lapsed: in ${fmt(sum("in"))}, out ${fmt(sum("out"))}.`);
+} else if (cmd === "compare") {
+  const vf = flag("--vs-from"), vt = flag("--vs-to");
+  if ((from || to) && !(from && to && vf && vt)) { console.error("compare needs --from, --to, --vs-from and --vs-to together, or none of them"); process.exit(2); }
+  const c = compareProfit(books, from ? { period: { from, to }, against: { from: vf, to: vt } } : {});
+  if (!c) { console.error("nothing is posted yet"); process.exit(1); }
+  if (json) { console.log(JSON.stringify(c, null, 2)); process.exit(0); }
+  console.log(`${c.period.from} to ${c.period.to}, against ${c.against.from} to ${c.against.to}`);
+  for (const [k, l] of [["income", "Income"], ["expense", "Expenses"], ["net", "Net"]]) console.log(`${l.padEnd(9)} ${fmt(c[k].now).padStart(12)} ${fmt(c[k].then).padStart(12)} ${fmt(c[k].now - c[k].then).padStart(12)}`);
+  for (const x of c.accounts) console.log(`  ${x.code} ${x.name.slice(0, 26).padEnd(26)} ${fmt(x.now).padStart(11)} ${fmt(x.then).padStart(11)} ${fmt(x.change).padStart(11)}  ${x.pct === null ? x.status : `${(x.pct * 100).toFixed(0)}%${x.status === "gone" ? " gone" : ""}`}${x.hurtsProfit ? "  lowers profit" : ""}`);
+  if (c.empty) console.log(`Note: ${c.empty}.`);
+  if (c.partial) console.log(`Note: ${c.partial}.`);
 } else if (cmd === "anomalies") {
   const a = findAnomalies(books);
   if (json) { console.log(JSON.stringify(a, null, 2)); process.exit(0); }
