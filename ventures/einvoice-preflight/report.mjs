@@ -3,6 +3,7 @@ import { inspectXrechnungProfile, inspectPeppolProfile, inspectFrenchProfile } f
 import { looksLikeCii, parseCiiInvoice } from "./cii.mjs";
 import { envelopeNote, extractEmbeddedInvoice, looksLikePdf } from "./facturx.mjs";
 import { looksLikeXml, parseUblInvoice } from "./ubl.mjs";
+import { checkFatturaPa, looksLikeFatturaPa } from "./fatturapa.mjs";
 
 export const DEFAULT_MAX_BYTES = 1_048_576;
 export const DEFAULT_MAX_FILES = 50;
@@ -63,6 +64,13 @@ export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES,
       continue;
     }
     try {
+      const peek = typeof source === "string" ? source : new TextDecoder().decode(source);
+      if (!looksLikePdf(name, source) && looksLikeFatturaPa(peek)) {
+        // Italy's FatturaPA is its own schema, not EN 16931: own rules, no UBL/CII reading.
+        const italian = checkFatturaPa(peek);
+        reports.push({ file: name, errors: italian.findings, envelope: "Read as Italian FatturaPA (SdI), not EN 16931", ...(italian.skipped.length ? { skipped: italian.skipped } : {}) });
+        continue;
+      }
       const { invoice, envelope, xml } = await inspectInvoiceSource(name, source);
       const errors = checkInvoice(invoice);
       if (profile === "xrechnung") errors.push(...inspectXrechnungProfile(invoice));
