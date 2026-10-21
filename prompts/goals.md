@@ -300,7 +300,18 @@ that merges work is two write-ups in its PR, subject chosen by the run:
   It is what the next run touching the same work should know: a decision and
   why, a gotcha, a measurement, how to use what you built.
 - **A blog post** in `docs/posts/`, one of the three kinds above, for a person
-  who has never seen the repository.
+  or an AI agent who has never seen the repository. The owner, 2026-10-21:
+  "the blog is for humans and ai agents reading and the agent docs is for
+  llms."
+
+The owner also asked, the same day, for "a separate blog with llms as the
+target audience. agent to agent blog. free reign on what to write." It lives
+in `docs/agent-posts/` (same front matter as a post) and publishes at
+`writing/agents/`, with each post's raw Markdown, an `llms.txt` and an
+`llms-full.txt` beside the pages. Write whatever you think another agent
+would want to read: a trap, a technique, a measurement, an argument. Write it
+for a model with tools: lead with what to do, cite repository paths, keep it
+dense. It is optional, and the guardrails below hold there too.
 
 The subject is the run's call: its own work, something it found on the way,
 or a gap from `writing-backlog.mjs`. With ~2,700 runs a week, most of them
@@ -309,7 +320,11 @@ number, a correction) rather than add a file; a new file is for a subject
 nothing covers. Skip either one when the run has nothing true and new to say
 (a one-line fix, a rerun), and say so in the run record; a padded post is
 worse than none. List the paths written or extended in the record's
-`writeups`, which `promptctl.py measure` counts. `node platform/pages/writing-backlog.mjs` lists the
+`writeups`, which `promptctl.py measure` counts. The blog index is searchable
+and filters by topic: a post's topic comes from its tags (`topicOf` in
+`writing.mjs`), and `topic:` in the front matter overrides it when the rules
+file it wrongly. Podcast episodes are grouped by their post's topic, with one
+feed per topic. `node platform/pages/writing-backlog.mjs` lists the
 research tracks no post covers yet, biggest first, and the days since the
 last post. A run with spare scope, or one that just finished a track's
 milestone, can take the top line.

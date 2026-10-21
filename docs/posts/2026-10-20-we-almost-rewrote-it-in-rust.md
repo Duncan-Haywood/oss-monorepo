@@ -2,6 +2,7 @@
 title: "We almost rewrote it in Rust: one zlib setting halved a 3-minute static site build"
 date: 2026-10-20
 description: "Profiling a 3,000-page static site build: 112 of its 182 seconds were PNG compression at zlib level 9. Level 6 cut it to 81 seconds for 9% larger images."
+topic: infrastructure
 tags: [performance, profiling, nodejs, static-site, ai-agents]
 ---
 
