@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "society-learnrobots"
+version = "0.1.0"
+description = "Do robots that learn their go probability from their own payoffs at a door drift to going below the collision-cost threshold? Logit-QRE prediction and a learning simulation"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
