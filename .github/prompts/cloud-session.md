@@ -68,6 +68,15 @@ Start these with `run_in_background` and wait with `Monitor`:
   can time out and leave counts partial)
 - a full unshallow (above)
 
+## Browser and process tools
+
+- Playwright is global at `/opt/node22/lib/node_modules/playwright` and
+  Chromium at `/opt/pw-browsers/chromium`: set `PLAYWRIGHT_PATH` and
+  `CHROMIUM_PATH` for scripts that read them (`ai-bookkeeper/eval/browser-click.mjs`),
+  or they print "skipped: playwright not installed".
+- `pkill -f <name>` kills the Bash tool's own shell, because its command
+  line contains the pattern. Use `pkill -f '[n]ame'` or `kill <pid>`.
+
 ## Scheduled tasks
 
 A scheduled task created from a cloud session (`create_trigger`) may store

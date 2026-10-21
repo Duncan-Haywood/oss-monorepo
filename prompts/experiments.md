@@ -1035,3 +1035,17 @@ or `ventures`) until its success rate passes 80% over 20 runs?
   run) and review 2 (10 runs, 100% vs 90%, overlap) unchanged. No audit or
   drift report (reduced pass).
 - Result: (next review)
+
+## E63: review 2026-10-21 (reduced pass, late night)
+
+- Change: `.github/prompts/cloud-session.md` gains "Browser and process
+  tools": the Playwright/Chromium env vars for cloud sessions and the
+  `pkill -f` self-kill trap (2 reports each in the last day). `derived/`
+  regenerated (`fetch` ran).
+- Metric: friction reports about playwright paths or `pkill`, over the next 40
+  runs (baseline: 2 and 1).
+- Decisions: research candidate 1 kept (retire verdict still fires only on the
+  one disclosed caveat; E55 proposal stands). ventures 2, process 2 and review
+  2 unchanged (overlap / too few runs). No audit or drift report (reduced
+  pass; four reviews already ran today).
+- Result: (next review)
