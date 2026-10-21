@@ -158,7 +158,8 @@ export function countDispersion(x, period = 0) {
   return Math.max(1, median(d) / 0.4549);
 }
 
-export function poissonSeasonal(x, period, { penalty = 'bic', minSegment = 2, passes = 8 } = {}) {
+// skip: point indices (known holidays) held out of the seasonal factors, so a holiday that always lands on one phase does not leak into it
+export function poissonSeasonal(x, period, { penalty = 'bic', minSegment = 2, passes = 8, skip = null } = {}) {
   const m = Math.floor(period);
   if (!(m >= 2)) throw new Error('The seasonal period must be a whole number of at least 2.');
   const n = x.length;
@@ -174,7 +175,7 @@ export function poissonSeasonal(x, period, { penalty = 'bic', minSegment = 2, pa
     level[t] = sum / m;
   }
   const num = new Array(m).fill(0), den = new Array(m).fill(0);
-  for (let t = 0; t < n; t++) if (level[t] !== null) { num[t % m] += x[t]; den[t % m] += level[t]; }
+  for (let t = 0; t < n; t++) if (level[t] !== null && !(skip && skip.has(t))) { num[t % m] += x[t]; den[t % m] += level[t]; }
   let f = normalise(num.map((v, p) => (den[p] > 0 ? v / den[p] : 1)));
   let done = 0;
   for (; done < passes; done++) {
@@ -186,7 +187,7 @@ export function poissonSeasonal(x, period, { penalty = 'bic', minSegment = 2, pa
       let a = 0, E = 0;
       for (let t = bounds[i]; t < bounds[i + 1]; t++) { a += x[t]; E += e[t]; }
       const rate = E > 0 ? a / E : 0;
-      for (let t = bounds[i]; t < bounds[i + 1]; t++) { pnum[t % m] += x[t]; pden[t % m] += rate; }
+      for (let t = bounds[i]; t < bounds[i + 1]; t++) if (!(skip && skip.has(t))) { pnum[t % m] += x[t]; pden[t % m] += rate; }
     }
     const g = normalise(pnum.map((v, p) => (pden[p] > 0 ? v / pden[p] : f[p])));
     const move = Math.max(...g.map((v, p) => Math.abs(v - f[p])));
@@ -1353,24 +1354,27 @@ export function analyze(input = {}) {
   }
   let profile = null, exposure = null;
   const original = values;
-  if (period) {
-    if (model === 'poisson') {
-      if (o.drift) throw new Error('A drifting seasonal shape is not available for counts: leave out drift, or use "mean" or "meanvar".');
-      const fit = poissonSeasonal(original, period, { penalty, minSegment: Math.max(1, Math.floor(Number(o.minSegment) || 2)) });
-      exposure = fit.exposure;
-      profile = fit.factors;
-    } else ({ adjusted: values, profile } = seasonalAdjust(original, period, { drift: !!o.drift }));
-  }
-  let holidayFit = null;
+  let holIdx = null, holKinds = null;
   if (o.holidays && o.holidays.length) {
     if (model !== 'poisson') throw new Error('Holidays are for counts: use model "poisson".');
     // entries are row labels (the date column when there is one, else the 1-based row number)
     const at = new Map(labels.map((l, i) => [String(l), i]));
     // an entry may be "label=kind": holidays of one kind share a factor, each kind gets its own
     const parts = o.holidays.map((h) => { const [lab, ...rest] = String(h).split('='); return { lab: lab.trim(), kind: rest.length ? rest.join('=').trim() : '' }; });
-    const idx = parts.map(({ lab }) => { const i = at.get(lab); if (i === undefined) throw new Error(`Holiday "${lab}" is not a row label in the series.`); return i; });
-    const kinds = parts.some((p) => p.kind) ? parts.map((p) => p.kind || 'other') : null;
-    holidayFit = poissonHolidays(original, idx, { base: exposure, penalty, minSegment: Math.max(1, Math.floor(Number(o.minSegment) || 2)), kinds });
+    holIdx = parts.map(({ lab }) => { const i = at.get(lab); if (i === undefined) throw new Error(`Holiday "${lab}" is not a row label in the series.`); return i; });
+    holKinds = parts.some((p) => p.kind) ? parts.map((p) => p.kind || 'other') : null;
+  }
+  if (period) {
+    if (model === 'poisson') {
+      if (o.drift) throw new Error('A drifting seasonal shape is not available for counts: leave out drift, or use "mean" or "meanvar".');
+      const fit = poissonSeasonal(original, period, { penalty, minSegment: Math.max(1, Math.floor(Number(o.minSegment) || 2)), skip: holIdx ? new Set(holIdx) : null });
+      exposure = fit.exposure;
+      profile = fit.factors;
+    } else ({ adjusted: values, profile } = seasonalAdjust(original, period, { drift: !!o.drift }));
+  }
+  let holidayFit = null;
+  if (holIdx) {
+    holidayFit = poissonHolidays(original, holIdx, { base: exposure, penalty, minSegment: Math.max(1, Math.floor(Number(o.minSegment) || 2)), kinds: holKinds });
     exposure = holidayFit.exposure;
   }
   let slope = null, slopeAfter, knot, knots, slopes;

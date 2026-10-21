@@ -1085,6 +1085,18 @@ test('known holidays: one fitted factor keeps the dips from reading as steps, an
   assert.ok(poissonHolidays(x, hol).exposure.every((e, t) => e === (hol.includes(t) ? poissonHolidays(x, hol).factor : 1)));
 });
 
+test('known holidays on one weekday are held out of the seasonal factors', () => {
+  const r = rng(5);
+  const week = [1.3, 1.0, 1.0, 0.9, 1.1, 0.8, 0.9], n = 224, hol = [];
+  for (let i = 14; i < n; i += 28) hol.push(i);
+  const x = Array.from({ length: n }, (_, t) => { const l = 40 * week[t % 7] * (hol.includes(t) ? 0.3 : 1); let u = 0; for (let i = 0; i < 12; i++) u += r(); return Math.max(0, Math.round(l + Math.sqrt(l) * (u - 6))); });
+  const held = poissonSeasonal(x, 7, { skip: new Set(hol) });
+  const leaky = poissonSeasonal(x, 7);
+  assert.ok(Math.abs(held.factors[0] - 1.3 / 1.0) < 0.15 * 1.3, `held-out busy-day factor ${held.factors[0]}`);
+  assert.ok(leaky.factors[0] < held.factors[0], 'without holding out, the holidays drag their weekday down');
+  assert.ok(Math.abs(analyze({ values: x, model: 'poisson', period: 7, holidays: hol.map((h) => h + 1) }).holidays.factor - 0.3) < 0.06);
+});
+
 test('known holidays: input errors are plain', () => {
   const x = Array.from({ length: 40 }, () => 10);
   assert.throws(() => analyze({ values: x, model: 'poisson', holidays: ['3'] }), /at least 2/);
