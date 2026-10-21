@@ -1,0 +1,13 @@
+# Open Robot Mower dock and RTK base station, v0.1. The generated dock BOM is manufacturing/dock/bom.csv. Prices are rough USD planning estimates, not quotes.
+item,qty,spec,est_unit_usd,notes
+Laser-cut aluminium 5052 dock base plate,1,manufacturing/dock/laser/*.dxf,40,3 mm
+ASA printed dock parts (contact tower + 2 guides),1,manufacturing/dock/print/*.stl,15,
+Li-ion charger 29.4 V 2 A (7S),1,outdoor-rated or in a sealed box,30,
+Spring stainless strip 0.3 mm,1,two 20 mm strips,5,contacts
+Charge-enable MOSFET or relay + mower-present sense,1,see hardware/dock.md,10,keeps the strips dead
+Cable gland IP68 M16 + outdoor lead,1,,10,
+Steel tent pegs 8 mm x 200 mm,6,,1.5,
+RTK GNSS receiver (u-blox ZED-F9P class),1,base station,180,base station; skip it if a free correction network (NTRIP) covers you
+Multi-band survey antenna with ground plane,1,on a fixed mount with a clear sky view,60,base station
+Correction link (LoRa radio pair or Wi-Fi + NTRIP caster software),1,,30,base station
+Base enclosure + mount + 5 V supply,1,,20,base station
