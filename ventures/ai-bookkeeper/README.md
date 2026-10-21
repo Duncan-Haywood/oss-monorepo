@@ -347,6 +347,8 @@ book schedule above. It posts nothing. Give an asset a tax treatment with
 `cli.mjs asset tax FA-1 --class 5 [--s179 1000] [--bonus 40]` (class 3, 5, 7,
 10, 15 or 20 years), then `cli.mjs taxdepr 2026` lists, per asset, the Section
 179 amount, bonus, MACRS and total for the year next to the book depreciation.
+Section 179 dollar limit and phase-out (2026-10-21, `s179Allowed`): the worksheet warns when the 179 you elect in a year exceeds the limit less the dollar-for-dollar reduction above the investment threshold (tables for 2023-2026 in `S179_LIMITS`, typed from secondary sources, not read from the IRS page; the taxable-income limit is still not checked). Two tests cover over and under the limit.
+
 Order: Section 179 off the cost, then bonus percent of the rest, then the IRS
 half-year percentages (Publication 946, Table A-1) on what remains; cents are
 rounded cumulatively so the years add to the basis exactly. In the year of

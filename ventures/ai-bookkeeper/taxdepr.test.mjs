@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { newBooks } from "./engine.mjs";
 import { addAsset, disposeAsset } from "./assets.mjs";
-import { MACRS_MID_QUARTER, usesMidQuarter, MACRS_HALF_YEAR, setTaxTreatment, assetTaxYear, taxDepreciation } from "./taxdepr.mjs";
+import { s179Allowed, MACRS_MID_QUARTER, usesMidQuarter, MACRS_HALF_YEAR, setTaxTreatment, assetTaxYear, taxDepreciation } from "./taxdepr.mjs";
 
 const with1 = (cost, date, tax, life = 60) => {
   let b = addAsset(newBooks(), { name: "Machine", date, cost, lifeMonths: life }).books;
@@ -57,7 +57,7 @@ test("worksheet compares with book depreciation and flags what it cannot check",
   assert.equal(w.rows[0].total, 100000 + 180000);
   assert.ok(w.rows[0].book > 0);
   assert.equal(w.rows[0].difference, w.rows[0].total - w.rows[0].book);
-  assert.ok(w.warnings.some((x) => /Section 179 dollar limits/.test(x)));
+  assert.ok(w.warnings.some((x) => /Section 179 limits for/.test(x)));
 });
 
 test("mid-quarter test warning when over 40% lands in Q4; untreated assets are listed", () => {
@@ -147,4 +147,22 @@ test("exactly 40 percent in Q4 stays on the half-year tables", () => {
   b = addAsset(b, { name: "B", date: "2026-11-01", cost: "4000", lifeMonths: 60 }).books;
   b = setTaxTreatment(setTaxTreatment(b, "FA-1", { macrsClass: 5 }).books, "FA-2", { macrsClass: 5 }).books;
   assert.equal(usesMidQuarter(b, 2026), false);
+});
+
+test("Section 179 over the phase-out limit is flagged; under it is not", () => {
+  // $4,590,000 placed in 2026: $500,000 over the threshold, so $2,060,000 is allowed.
+  const big = with1(4590000, "2026-03-01", { macrsClass: 7, s179: 250000000 });
+  const lim = s179Allowed(big, 2026);
+  assert.equal(lim.allowed, 206000000);
+  assert.equal(lim.over, 44000000);
+  assert.ok(taxDepreciation(big, 2026).warnings.some((w) => /over the most 2026 purchases support/.test(w)));
+  const small = with1(10000, "2026-03-01", { macrsClass: 5, s179: 10000 });
+  assert.equal(s179Allowed(small, 2026).over, 0);
+  assert.ok(!taxDepreciation(small, 2026).warnings.some((w) => /over the most/.test(w)));
+});
+
+test("a year without a limits table says it was not checked", () => {
+  const b = with1(10000, "2030-03-01", { macrsClass: 5, s179: 10000 });
+  assert.equal(s179Allowed(b, 2030), null);
+  assert.ok(taxDepreciation(b, 2030).warnings.some((w) => /not tabled for 2030/.test(w)));
 });
