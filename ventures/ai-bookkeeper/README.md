@@ -304,6 +304,19 @@ unpaid balance to Bad debts (6900, added if missing): debit bad debts, credit
 receivable, on the date given. Invoices only. Tests: "Refunding a credit note,
 and writing off a bad debt".
 
+## VAT return worksheet (UK layout)
+
+`vatReturn(books, { from, to })` and `cli.mjs vat --from D --to D` fill the nine boxes of
+the UK VAT return from the books: box 1 is the VAT on invoices (account 2100) less credit
+notes, box 4 the VAT on bills (an input account, 1300, added to the chart as an asset)
+less vendor credits, box 5 the difference (the CLI says pay or reclaim), boxes 6 and 7 the
+sales and purchases without VAT in whole pounds (pence dropped, as the form asks). Bank
+lines filed straight to 2100 or 1300 count in boxes 1 and 4; a purchase paid without a bill
+is in box 4 but not box 7, which it warns about. Invoice basis only (a document counts on
+its own date, not when paid); boxes 2, 8 and 9 (EU) are 0; flat-rate, cash accounting,
+partial exemption and Making Tax Digital submission are not modelled. A worksheet to check
+a return against, not a filing. Test: engine.test.mjs, "VAT return".
+
 ## Recurring payments and a cash forecast
 
 `node cli.mjs --books books.json recurring` finds the payees whose lines come at
@@ -396,7 +409,7 @@ That checks the typed digits, not the publication itself: check them before fili
 ## Not modelled
 
 Writing off a bill, the 179 taxable-income limit, inventory,
-payroll and sales tax filings, multiple currencies, and receipts.
+payroll and sales tax filings, multiple currencies (the VAT worksheet is UK-layout, invoice basis), and receipts.
 
 ## Next
 

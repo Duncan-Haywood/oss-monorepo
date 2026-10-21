@@ -15,7 +15,7 @@
 //   node cli.mjs --books books.json export qbo|xero|iif|csv|lines > journal.csv
 //   node cli.mjs --example report
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
-import { newBooks, importStatement, importOfxAccounts, lockPeriod, categorize, suggestRules, addRules, addDocuments, addAsset, disposeAsset, addAssetsCsv, register, writeOff, aging, salesTax, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, exportLines, status, analyze, fmt, taxableBusinessIncome } from "./engine.mjs";
+import { newBooks, importStatement, importOfxAccounts, lockPeriod, categorize, suggestRules, addRules, addDocuments, addAsset, disposeAsset, addAssetsCsv, register, writeOff, aging, salesTax, vatReturn, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, exportLines, status, analyze, fmt, taxableBusinessIncome } from "./engine.mjs";
 import { parseCents } from "./bank.mjs";
 import { accountMap } from "./ledger.mjs";
 import { scheduleC, scheduleCCsv, contractors1099, contractors1099Csv, nec1099FilingCsv, markW9, mergePayees } from "./taxforms.mjs";
@@ -36,6 +36,7 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
                          (amounts signed like the bank line; one may be left out)
   documents FILE         load an invoice and bill list (CSV: type,number,date,due,party,amount,account[,against]; type may be invoice, bill, credit note, vendor credit);
                          bank lines that pay them clear receivable/payable
+  vat [--from D --to D]  UK-layout VAT return worksheet (boxes 1-9) from account 2100 and an input account 1300
   salestax [--from D --to D]  sales tax collected, credited and paid over by month, and what is still owed
   lock DATE|off          lock a closed period: nothing dated on or before DATE can be imported, re-filed, booked or written off
   contractors [--year Y] [--threshold DOLLARS] [--csv|--filing|--json]  contract labor paid by payee against the 1099-NEC line, with W-9 status
@@ -217,6 +218,15 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
   console.log(`SALES TAX (account ${t.account})\n  ${"month".padEnd(8)} ${["sales", "collected", "credited", "paid over", "owed"].map((h) => h.padStart(12)).join(" ")}`);
   for (const r of t.months) console.log(`  ${r.month.padEnd(8)} ${[r.sales, r.collected, r.credited, r.remitted, r.owed].map((v) => fmt(v).padStart(12)).join(" ")}`);
   console.log(`  ${"total".padEnd(8)} ${[t.totals.sales, t.totals.collected, t.totals.credited, t.totals.remitted, t.owed].map((v) => fmt(v).padStart(12)).join(" ")}`);
+} else if (cmd === "vat") {
+  const v = vatReturn(books, { from, to });
+  if (json) { console.log(JSON.stringify(v, null, 2)); process.exit(0); }
+  const label = { 1: "VAT due on sales", 2: "VAT due on EU acquisitions", 3: "Total VAT due", 4: "VAT reclaimed on purchases", 5: v.payable === "pay" ? "Net VAT to pay" : "Net VAT to reclaim", 6: "Sales ex VAT (whole)", 7: "Purchases ex VAT (whole)", 8: "EU supplies ex VAT", 9: "EU acquisitions ex VAT" };
+  console.log(`VAT RETURN WORKSHEET${v.from || v.to ? ` (${v.from ?? "start"} to ${v.to ?? "end"})` : ""}`);
+  for (const k of Object.keys(v.boxes)) console.log(`  Box ${k}  ${label[k].padEnd(30)} ${(k >= 6 ? String(v.boxes[k]) : fmt(Math.abs(v.boxes[k]))).padStart(12)}`);
+  console.log(`  VAT already paid over by bank lines in the period: ${fmt(v.paid)}`);
+  for (const w of v.warnings) console.log(`  ! ${w}`);
+  console.log("  A worksheet to check a return against, not a filing. Scheme, rates and partial exemption are yours to decide.");
 } else if (cmd === "rules") {
   const sug = suggestRules(books);
   for (const r of sug) console.log(`${r.rule.padEnd(40)} ${r.count} times, ${Math.round(r.share * 100)}% to ${name(r.account)}`);
