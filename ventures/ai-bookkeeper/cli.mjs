@@ -15,7 +15,7 @@
 //   node cli.mjs --books books.json export qbo|xero|iif|csv|lines > journal.csv
 //   node cli.mjs --example report
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
-import { newBooks, importStatement, importOfxAccounts, lockPeriod, categorize, suggestRules, addRules, addDocuments, addAsset, disposeAsset, addAssetsCsv, register, writeOff, aging, salesTax, vatReturn, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, exportLines, status, analyze, fmt, taxableBusinessIncome } from "./engine.mjs";
+import { newBooks, importStatement, importOfxAccounts, lockPeriod, closeYear, reopenYear, yearEndReport, categorize, suggestRules, addRules, addDocuments, addAsset, disposeAsset, addAssetsCsv, register, writeOff, aging, salesTax, vatReturn, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, exportLines, status, analyze, fmt, taxableBusinessIncome } from "./engine.mjs";
 import { parseCents } from "./bank.mjs";
 import { accountMap } from "./ledger.mjs";
 import { seSetAside, selfEmployment, scheduleC, scheduleCCsv, contractors1099, contractors1099Csv, nec1099FilingCsv, markW9, mergePayees } from "./taxforms.mjs";
@@ -47,6 +47,7 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
   salestax [--from D --to D]  sales tax collected, credited and paid over by month, and what is still owed
   opening FILE --date D  set opening balances from a trial balance CSV (code,amount or code,debit,credit); "opening" alone shows them, "opening clear" removes them
   lock DATE|off          lock a closed period: nothing dated on or before DATE can be imported, re-filed, booked or written off
+  close YEAR [--draws]   year-end close: that year's income and expense go to retained earnings (3900) in one dated entry, and the books lock through Dec 31; --draws also closes owner draws and contributions. "close reopen YEAR" undoes the latest; "close report YEAR" shows it
   contractors [--year Y] [--threshold DOLLARS] [--csv|--filing|--json]  contract labor paid by payee against the 1099-NEC line, with W-9 status
   merge-payee FROM INTO [--off]  count two spellings of one payee as one on the contractors worksheet
   w9 PAYEE [--off]       record that a W-9 is on file for a payee (a flag; no tax IDs are stored)
@@ -155,6 +156,24 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
 } else if (cmd === "lock") {
   if (!rest[0]) { console.error("lock needs a date (YYYY-MM-DD) or off"); process.exit(2); }
   try { books = lockPeriod(books, rest[0] === "off" ? null : rest[0]); save(); console.log(books.lockedThrough ? `Locked through ${books.lockedThrough}.` : "Unlocked."); } catch (e) { console.error(e.message); process.exit(1); }
+} else if (cmd === "close") {
+  try {
+    if (rest[0] === "reopen") { books = reopenYear(books, rest[1]); save(); console.log(`Reopened ${rest[1]}. ${books.lockedThrough ? `Still locked through ${books.lockedThrough}.` : "The books are unlocked."}`); }
+    else if (rest[0] === "report") {
+      const r = yearEndReport(books, rest[1]);
+      if (!r.closed) { console.log(`${r.year} is not closed.`); process.exit(1); }
+      if (json) console.log(JSON.stringify(r, null, 2));
+      else {
+        console.log(`${r.year} closed. Retained earnings ${fmt(r.retainedBefore)} -> ${fmt(r.retainedAfter)} (${r.netToRetained >= 0 ? "profit" : "loss"} ${fmt(Math.abs(r.netToRetained))} moved).`);
+        for (const l of r.entry?.lines ?? []) console.log(`  ${l.account.padEnd(5)} ${name(l.account).padEnd(34)} ${l.debit ? "Dr " + fmt(l.debit) : "Cr " + fmt(l.credit)}`);
+      }
+    } else {
+      if (!rest[0]) { console.error("close needs a year (YYYY), 'report YEAR' or 'reopen YEAR'"); process.exit(2); }
+      books = closeYear(books, rest[0], { draws: rest.includes("--draws") }); save();
+      const r = yearEndReport(books, rest[0]);
+      console.log(`Closed ${r.year}: ${r.netToRetained >= 0 ? "profit" : "loss"} of ${fmt(Math.abs(r.netToRetained))} moved to ${name("3900")}. Locked through ${books.lockedThrough}.`);
+    }
+  } catch (e) { console.error(e.message); process.exit(1); }
 } else if (cmd === "asset") {
   try {
     if (rest[0] === "add") {
