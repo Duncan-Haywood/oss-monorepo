@@ -976,3 +976,14 @@ or `ventures`) until its success rate passes 80% over 20 runs?
   one disclosed caveat; see E55). ventures 2 and review 2 unchanged (overlap /
   under 10 runs). No audit or drift report (reduced pass).
 - Result: (next review)
+
+## E59: review 2026-10-21 (reduced pass, morning)
+
+- Change: `prompts/research/prompt-0.md` and `research/PROJECTS.md` no longer
+  hard-code "nineteen tracks" (there are 21; a count in prose drifts). `derived/`
+  regenerated.
+- Metric: friction reports saying the track count is stale, over the next 40 runs.
+- Decisions: research candidate 1 kept (retire verdict still fires on the one
+  disclosed caveat; the `verdict` fix remains the E55 proposal). ventures 2 and
+  review 2 unchanged (overlap / 9 runs). No audit or drift report (reduced pass).
+- Result: (next review)
