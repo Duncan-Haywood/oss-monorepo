@@ -1,0 +1,240 @@
+{
+  "date": "2026-10-21",
+  "session": "https://claude.ai/code/session_01Fhg4DrKZb4jG1ioYJvXatT",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-21T10:07:32Z",
+  "ended": "2026-10-21T10:07:53Z",
+  "wall_minutes": 21.24,
+  "tokens_in": 1678841,
+  "tokens_out": 8840,
+  "cost_usd": 0.6386,
+  "tool_calls": 25,
+  "task": null,
+  "projects": [],
+  "pr": 9144,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "A target whose suite takes minutes (ventures/changepoint-detector: ~12 tests over 10 s each) made the 300 s baseline time out; nothing says to check suite time with `targets` first or to pick another target. Switched to league-schedule-generator/divisions.mjs."
+    }
+  ],
+  "deviations": [],
+  "writeups": [],
+  "goal": null,
+  "notes": "First target changepoint-detector/engine.mjs abandoned: baseline timed out (suite is slow, not red; no mutants applied, file restored). Campaign on league-schedule-generator/divisions.mjs: 8 mutants, 4 escaped (CLI --history, venueFairness 'true' form string, night sort after rainouts, relocate time loop bound). Added 5 tests in divisions.test.mjs; rerun catch_rate_after_fix 1.0. No real defects found. No agent doc/post written: a test-only run.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/league-schedule-generator/divisions.mjs",
+        "test": "node --test ventures/league-schedule-generator/**/*.test.mjs  (in .)",
+        "seed": 404136298,
+        "commit": "ee2edb40",
+        "sites": 494,
+        "baseline_seconds": 23.6,
+        "mutants": [
+          {
+            "file": "ventures/league-schedule-generator/divisions.mjs",
+            "line": 35,
+            "col": 56,
+            "operator": "neq-flip",
+            "before": "if (new Set(teams.map((t) => t.toLowerCase())).size !== teams.length) { errors.push(`${name}: a team name is repeated.`); continue; }",
+            "after": "if (new Set(teams.map((t) => t.toLowerCase())).size === teams.length) { errors.push(`${name}: a team name is repeated.`); continue; }",
+            "line_text": "    if (new Set(teams.map((t) => t.toLowerCase())).size !== teams.length) { errors.push(`${name}: a team name is repeated.`); continue; }",
+            "caught": true,
+            "seconds": 17.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/league-schedule-generator/divisions.mjs",
+            "line": 114,
+            "col": 29,
+            "operator": "and-to-or",
+            "before": "const travel = spec.travel && Object.keys(spec.travel).length ? spec.travel : null;",
+            "after": "const travel = spec.travel || Object.keys(spec.travel).length ? spec.travel : null;",
+            "line_text": "  const travel = spec.travel && Object.keys(spec.travel).length ? spec.travel : null;",
+            "caught": true,
+            "seconds": 18.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/league-schedule-generator/divisions.mjs",
+            "line": 148,
+            "col": 60,
+            "operator": "const-plus-one",
+            "before": "for (let ti = 0; ti < times.length; ti++) for (let ci = 0; ci < courts.length; ci++) if (!courtClosedOn(cfg, courts[ci], day)) open.push({ ci, ti });",
+            "after": "for (let ti = 0; ti < times.length; ti++) for (let ci = 1; ci < courts.length; ci++) if (!courtClosedOn(cfg, courts[ci], day)) open.push({ ci, ti });",
+            "line_text": "    for (let ti = 0; ti < times.length; ti++) for (let ci = 0; ci < courts.length; ci++) if (!courtClosedOn(cfg, courts[ci], day)) open.push({ ci, ti });",
+            "caught": true,
+            "seconds": 18.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/league-schedule-generator/divisions.mjs",
+            "line": 360,
+            "col": 75,
+            "operator": "minus-to-plus",
+            "before": "s.nights = s.nights.filter((n) => n.matches.length).sort((a, b) => a.day - b.day);",
+            "after": "s.nights = s.nights.filter((n) => n.matches.length).sort((a, b) => a.day + b.day);",
+            "line_text": "  s.nights = s.nights.filter((n) => n.matches.length).sort((a, b) => a.day - b.day);",
+            "caught": false,
+            "seconds": 23.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "no test for this path; test added in divisions.test.mjs"
+          },
+          {
+            "file": "ventures/league-schedule-generator/divisions.mjs",
+            "line": 404,
+            "col": 28,
+            "operator": "lt-to-le",
+            "before": "for (let ti = 0; ti < cfg.times.length; ti++) for (const court of cfg.courts) {",
+            "after": "for (let ti = 0; ti <= cfg.times.length; ti++) for (const court of cfg.courts) {",
+            "line_text": "        for (let ti = 0; ti < cfg.times.length; ti++) for (const court of cfg.courts) {",
+            "caught": false,
+            "seconds": 23.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "no test for this path; test added in divisions.test.mjs"
+          },
+          {
+            "file": "ventures/league-schedule-generator/divisions.mjs",
+            "line": 491,
+            "col": 194,
+            "operator": "or-to-and",
+            "before": "schedule.divisions.forEach((d) => d.teams.forEach((t) => { out[`${d.name}/${t}`] = Object.fromEntries(venues.map((v) => [v, Number((schedule.config.venueHistory || {})[`${d.name}/${t}`]?.[v]) || 0])); }));",
+            "after": "schedule.divisions.forEach((d) => d.teams.forEach((t) => { out[`${d.name}/${t}`] = Object.fromEntries(venues.map((v) => [v, Number((schedule.config.venueHistory || {})[`${d.name}/${t}`]?.[v]) && 0])); }));",
+            "line_text": "  schedule.divisions.forEach((d) => d.teams.forEach((t) => { out[`${d.name}/${t}`] = Object.fromEntries(venues.map((v) => [v, Number((schedule.config.venueHistory || {})[`${d.name}/${t}`]?.[v]) || 0])); }));",
+            "caught": true,
+            "seconds": 23.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/league-schedule-generator/divisions.mjs",
+            "line": 625,
+            "col": 57,
+            "operator": "true-to-false",
+            "before": "const venueFairness = f.venueFairness === true || /^(1|true|yes|on)$/i.test(String(f.venueFairness || \"\"));",
+            "after": "const venueFairness = f.venueFairness === true || /^(1|false|yes|on)$/i.test(String(f.venueFairness || \"\"));",
+            "line_text": "  const venueFairness = f.venueFairness === true || /^(1|true|yes|on)$/i.test(String(f.venueFairness || \"\"));",
+            "caught": false,
+            "seconds": 23.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "no test for this path; test added in divisions.test.mjs"
+          },
+          {
+            "file": "ventures/league-schedule-generator/divisions.mjs",
+            "line": 647,
+            "col": 111,
+            "operator": "plus-to-minus",
+            "before": "if (process.argv.includes(\"--history\")) { process.stdout.write(JSON.stringify(carryVenueHistory(s), null, 1) + \"\\n\"); process.exit(0); }",
+            "after": "if (process.argv.includes(\"--history\")) { process.stdout.write(JSON.stringify(carryVenueHistory(s), null, 1) - \"\\n\"); process.exit(0); }",
+            "line_text": "  if (process.argv.includes(\"--history\")) { process.stdout.write(JSON.stringify(carryVenueHistory(s), null, 1) + \"\\n\"); process.exit(0); }",
+            "caught": false,
+            "seconds": 23.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "no test for this path; test added in divisions.test.mjs"
+          }
+        ]
+      }
+    ],
+    "real_defects": []
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "34b4a27b-3bfe-57ac-b680-4ebd1cf1b27b",
+    "transcripts": 1,
+    "first": "2026-10-21T10:07:32Z",
+    "last": "2026-10-21T10:28:46Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 24,
+        "input": 48,
+        "output": 8840,
+        "thinking": 2083,
+        "cache_read": 1622390,
+        "cache_write_5m": 0,
+        "cache_write_1h": 56403,
+        "api_equivalent_usd": 0.6386,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 24,
+      "input": 48,
+      "output": 8840,
+      "thinking": 2083,
+      "cache_read": 1622390,
+      "cache_write_5m": 0,
+      "cache_write_1h": 56403,
+      "api_equivalent_usd": 0.6386,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.966,
+    "tool_calls": 25,
+    "tools": {
+      "Bash": 23,
+      "Read": 2
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 21.24,
+      "active_minutes": 21.24,
+      "model_minutes": 1.83,
+      "tool_minutes": 19.42,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
