@@ -1,4 +1,4 @@
-qual-features: 5313 GoEmotions items (2313 pool, 3000 fixed test), 30 draws per cell, seed 20261021
+qual-features-outcomes: 5313 GoEmotions items (2313 pool, 3000 fixed test), 30 draws per cell, seed 20261021
 metric: test AUC of an L2 logistic regression, C chosen by 3-fold CV on the labelled draw
 codes: 28 human-majority emotion codes (the ceiling for a coder); bow: tf-idf unigrams, 2368 terms; lsa: 100-dim SVD of the tf-idf (an embedding stand-in, not a neural embedding)
 

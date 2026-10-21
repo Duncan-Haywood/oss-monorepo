@@ -19,7 +19,7 @@ warnings.filterwarnings("ignore")
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent))
 sys.path.insert(0, str(HERE.parents[1] / "qual-real" / "experiments"))
-import qualfeatures as q  # noqa: E402
+import qualfeaturesout as q  # noqa: E402
 import run as real  # noqa: E402  (qual-real's downloader)
 
 SEED, TEST_N, REPS = 20261021, 3000, 30
@@ -75,7 +75,7 @@ def main():
     num = np.array([q.numeric_features(t) for t in texts])
     codes = np.array([e[2] for e in items], dtype=float)
     blocks = {"num": num, "codes": codes, "bow": bow, "lsa": lsa}
-    out = [f"qual-features: {len(items)} GoEmotions items ({len(pool_idx)} pool, {TEST_N} fixed test), {REPS} draws per cell, "
+    out = [f"qual-features-outcomes: {len(items)} GoEmotions items ({len(pool_idx)} pool, {TEST_N} fixed test), {REPS} draws per cell, "
            f"seed {SEED}", "metric: test AUC of an L2 logistic regression, C chosen by 3-fold CV on the labelled draw",
            f"codes: {len(cols)} human-majority emotion codes (the ceiling for a coder); bow: tf-idf unigrams, {bow.shape[1]} terms; "
            "lsa: 100-dim SVD of the tf-idf (an embedding stand-in, not a neural embedding)", ""]

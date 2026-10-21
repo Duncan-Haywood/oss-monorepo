@@ -3,7 +3,7 @@ import unittest
 
 import numpy as np
 
-import qualfeatures as q
+import qualfeaturesout as q
 
 
 class Tests(unittest.TestCase):

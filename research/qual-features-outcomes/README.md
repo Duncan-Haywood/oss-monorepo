@@ -1,10 +1,10 @@
-# qual-features: do LLM-style qualitative codes predict outcomes better than bag-of-words, at the same labelling budget?
+# qual-features-outcomes: do LLM-style qualitative codes predict outcomes better than bag-of-words, at the same labelling budget?
 
 **Not on these outcomes. With 5,313 real Reddit comments, 28 human-coded emotion codes (the best an LLM coder could do) predicted whether a comment replies to another comment (test AUC 0.527 at 1,600 labelled outcomes) no better than the words themselves (0.557) or a 100-dimensional LSA embedding (0.595 with numeric features), and 5% simulated coder error erased what the codes did add.** Every feature set was weak (all AUC at most 0.60): reply-versus-top-level and "posted in a self-disclosure subreddit" are mostly not about emotion, which is the finding, not a flaw to hide. A coin-flip outcome stayed within 0.494-0.511, so the pipeline does not leak. **The "codes" are GoEmotions' human majority votes, not an LLM's output** (no API key in the session), so they are an upper bound on what an LLM coder gives here. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/qual-features/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/qual-features-outcomes/
 
-Track 19 (`qual`, [`PROJECTS.md`](../PROJECTS.md)), milestone 5. Uses the corpus and download cache of [`qual-real`](../qual-real); the question there was "can you count the codes", here it is "can you model with them".
+Track 19 (`qual`, [`PROJECTS.md`](../PROJECTS.md)), milestone 5, second study. The first, [`qual-features`](../qual-features), asked the same question for an *emotional* target (negative emotion, with word-list codes) and found codes ahead of words; this one asks it for targets that are *not* about emotion, where the answer flips. Uses the corpus and download cache of [`qual-real`](../qual-real); the question there was "can you count the codes", here it is "can you model with them".
 
 ![Test AUC against labelled outcomes for four feature sets](experiments/reply_auc.svg)
 
@@ -48,9 +48,9 @@ Run on a corpus with a real downstream outcome (ratings with review text, ticket
 ## Reproduce
 
 ```
-python3 research/qual-features/experiments/run.py      # about 5 minutes after the shared ~14 MB download; needs numpy, scipy, scikit-learn
-python3 research/qual-features/experiments/figure.py   # writes the SVG
-cd research/qual-features && python3 -m unittest test_qualfeatures
+python3 research/qual-features-outcomes/experiments/run.py      # about 5 minutes after the shared ~14 MB download; needs numpy, scipy, scikit-learn
+python3 research/qual-features-outcomes/experiments/figure.py   # writes the SVG
+cd research/qual-features-outcomes && python3 -m unittest test_qualfeaturesout
 ```
 
 ## References
