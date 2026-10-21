@@ -65,3 +65,9 @@ def test_head_coverage():
     assert s.head_coverage((30, 5, 30, 30), body, 0.15) == 1.0
     assert s.head_coverage((30, 100, 30, 30), body, 0.15) == 0.0
     assert abs(s.head_coverage((30, 50, 30, 30), body, 0.15) - 10 / 30) < 1e-12
+
+
+def test_face_turn_proxy():
+    assert s.face_turn((40, 50), (60, 50), (50, 70)) == 0.0  # nose under the eye midpoint
+    assert abs(s.face_turn((40, 50), (60, 50), (60, 70)) - 0.5) < 1e-12  # nose under the far eye
+    assert abs(s.face_turn((40, 50), (60, 50), (40, 70)) - 0.5) < 1e-12  # symmetric left/right

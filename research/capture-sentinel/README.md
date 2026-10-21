@@ -41,6 +41,7 @@ python3 experiments/figure.py   # writes experiments/miss.svg
 - The energy comparison is a simplified model and not a battery sizing.
 
 ## Next steps
+- Measured turned-face detector recall now exists in `capture-detectors` (section F, 54 faces, a landmark proxy for turn): YuNet at 0.6 stays near 0.95 to profile, while YuNet at 0.9 and a frontal Haar cascade fall to about 0.16 once turned. Replace the cosine model with it.
 - Estimate the miss-by-bearing curve from footage with the `capture-bystander` or `capture-edit` detectors at several camera angles.
 - Let the sentinel role move: hand it to whichever camera currently has the best view of the subject, and cost the radio traffic.
 - Combine with the `common` miss term of `capture-wake`.
