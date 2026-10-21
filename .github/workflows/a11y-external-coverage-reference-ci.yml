@@ -66,7 +66,11 @@ jobs:
           # The as-found result set is addressed by git revision rather than
           # trusted as a file, so the comparison needs real history. At the
           # default depth of 1 those tests skip instead of running.
+          # Blob-less keeps that history at a fraction of a full clone's
+          # cost; old blobs are fetched on demand, and all 29 tests run
+          # (docs/history/ci-perf-2026-10-21.md).
           fetch-depth: 0
+          filter: blob:none
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"

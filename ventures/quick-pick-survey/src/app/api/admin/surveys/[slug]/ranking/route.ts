@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { ADMIN_COOKIE_NAME, verifySessionToken } from "@/lib/adminAuth";
-import { groupRanking, rankingCsv } from "@/lib/groupRanking";
+import { coverage, groupRanking, rankingCsv } from "@/lib/groupRanking";
 
 /** A survey's pooled ranking with 95% intervals and rank ranges. `?format=csv` downloads it. */
 export async function GET(req: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
@@ -35,7 +35,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ slug
         },
       });
     }
-    return NextResponse.json({ title: survey.title, participants: survey._count.participants, ranking: ranked });
+    return NextResponse.json({ title: survey.title, participants: survey._count.participants, ranking: ranked, coverage: coverage(ranked, survey._count.participants) });
   } catch (err) {
     console.error("admin/surveys ranking failed", err);
     return NextResponse.json({ error: "Could not compute the ranking" }, { status: 500 });

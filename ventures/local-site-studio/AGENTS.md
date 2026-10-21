@@ -6,7 +6,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 ## Documentation
 
-- Do not add Markdown (`.md`) files for operator or product documentation.
+- Prefer not to add Markdown (`.md`) files for operator or product documentation.
 - All substantive docs live as TSX pages under `src/app/docs/` and are served at `/docs/*`.
 - Use the shared `DocPage` component (`src/components/docs/doc-page.tsx`) for consistent prose styling.
 - `README.md` is minimal bootstrap only — link to `/docs` for full documentation.

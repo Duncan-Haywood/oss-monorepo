@@ -137,3 +137,16 @@ and 22 of 36 in 16, a floor any LLM result should beat.
 If you work on EDA or LLM-for-RTL, the practical takeaways are cheap to
 check yourself: score several operand orders and scripts before believing a
 rewrite win, and keep the formal stage.
+
+## Update, 2026-10-21: real data, same question
+
+[`chip-digits`](../../research/chip-digits) repeats the bit-width question of
+`chip-accel` on the scikit-learn digits images instead of synthetic clusters
+(64-16-10 MLP, 5 splits). Float test accuracy is 96.8%. A lane with 5-bit
+weights and activations (268 generic gates) gives 96.3%; 4 and 4 bits (189
+gates) give 94.8%; 3-bit weights fall to 79 to 82% and 2-bit to about a third.
+This is plain post-training quantisation, so the cliff is that scheme's, not a
+hardware limit. Lane gate counts are not monotonic in width (ABC noise), a
+reminder of the operand-order effects above.
+
+See also [Open-source chip design loops on Yosys, OpenROAD and SKY130](2026-10-20-open-source-chip-design-yosys-openroad-sky130-findings.md), which reads this track together with the algorithmic `eda-*` track.

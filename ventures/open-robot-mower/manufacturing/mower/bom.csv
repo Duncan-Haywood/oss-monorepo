@@ -1,0 +1,64 @@
+item,kind,qty,what,notes
+chassis_plate,laser,1,aluminium 5052 4 mm,All holes are clearance holes; no tapping.
+height_plate,laser,1,aluminium 5052 4 mm,Two M6 nuts per rod set the cut height (20-50 mm); the printed height gauge sets all three rods equal.
+electronics_tray,laser,1,aluminium 5052 3 mm,Pi on M2.5 x 58x49; other boards on the 10 mm M3 grid.
+motor_clamp_cradle,print,2,ASA,"ASA, 4 walls, 40% infill. M4 heat-set inserts in the cradle; M4x50 through the cap."
+motor_clamp_cap,print,2,ASA,"ASA, 4 walls, 40% infill. M4 heat-set inserts in the cradle; M4x50 through the cap."
+wheel_hub,print,2,ASA,6 mm D bore with an M3 grub screw insert; four M4 to the wheel. Check your wheel's bolt circle.
+caster_fork,print,2,ASA,"M8 x 60 stem bolt with a flanged bushing in the chassis; M8 axle. 6 walls, 60% infill."
+guard_segment,print,4,ASA,Four identical quarters. Bolt each tab up into the chassis (M4 into a heat-set insert). The ring is the barrier between the blade and feet: never run without all four.
+shell_post,print,4,ASA,"3-axis hall sensor (TLV493D class) in the top pocket reads the shell magnet: up = lift, sideways = bump."
+mast_socket,print,1,ASA,"16 mm tube push fit, M4 grub screw."
+contact_block,print,1,ASA,"Two spring contacts (pogo or leaf, 5 A) face forward; the dock's strips press on them."
+shell_r1c1,print,1,ASA,"0.24 mm layers, 3 walls, 15% gyroid; print open side down. M4 x 12 + nut through the seam ribs, then solvent-weld the seam (acetone)."
+shell_r2c1,print,1,ASA,"0.24 mm layers, 3 walls, 15% gyroid; print open side down. M4 x 12 + nut through the seam ribs, then solvent-weld the seam (acetone)."
+shell_r1c2,print,1,ASA,"0.24 mm layers, 3 walls, 15% gyroid; print open side down. M4 x 12 + nut through the seam ribs, then solvent-weld the seam (acetone)."
+shell_r2c2,print,1,ASA,"0.24 mm layers, 3 walls, 15% gyroid; print open side down. M4 x 12 + nut through the seam ribs, then solvent-weld the seam (acetone)."
+shell_r1c3,print,1,ASA,"0.24 mm layers, 3 walls, 15% gyroid; print open side down. M4 x 12 + nut through the seam ribs, then solvent-weld the seam (acetone)."
+shell_r2c3,print,1,ASA,"0.24 mm layers, 3 walls, 15% gyroid; print open side down. M4 x 12 + nut through the seam ribs, then solvent-weld the seam (acetone)."
+height_rod,stock,3,"M6 threaded rod, stainless A2, cut 64 mm",Nut + washer on the chassis top; two nuts per rod at the plate.
+mast_tube,stock,1,"16 mm OD x 1.5 mm wall aluminium tube, cut 128 mm",
+standoff,cots,4,M3 x 80 mm female-female hex standoff,
+gearmotor,cots,2,"37 mm gearmotor, 24 V, ~90-110 rpm output, 6 mm D shaft, quadrature encoder",
+wheel,cots,2,220 x 60 mm lawn wheel with tread (or a printed rim + TPU tyre),
+caster_wheel,cots,2,75 x 25 mm wheel with 8 mm bearings,
+battery,cots,1,"7S 25.2 V Li-ion pack, 5 Ah (7S2P 21700), with a BMS, max 70 x 150 x 70 mm",
+electronics,cots,1,"Envelope for Raspberry Pi, RTK GNSS board, ESP32, motor driver, ESC, relay, IMU, buck converters",
+gnss_antenna,cots,1,Multi-band GNSS antenna with ground plane,
+rubber_mount,cots,4,"Rubber anti-vibration mount, M6 male-male, 20 x 15 mm",
+stop_button,cots,1,"40 mm red mushroom stop button, latching, 22 mm panel hole, 2 NC contacts",
+rain_sensor,cots,1,Resistive rain sensor board (glue to the shell),
+blade_sweep,cots,1,"3 x pivoting robotic-mower razor blade, 30 x 18 x 1 mm, M3 hole (the common replaceable kind)",
+blade_disc,laser,1,aluminium 5052 3 mm,Balance it: spin on a pin and file the heavy side. M3 shoulder screws for the blades.
+blade_hub,print,1,ASA,8 mm bore on the outrunner shaft with two M4 grub screws on a flat; M4 into inserts from the disc.
+blade_motor,cots,1,"Outrunner BLDC ~50 x 45 mm, 24 V, ~140 kv, 8 mm shaft out of the mount side, plus a 30 A ESC with braking",
+height_gauge,print,1,ASA,"Each step is the gap between the chassis underside and the height plate for one cut height (20, 25, 30, 35, 40, 45, 50 mm, left to right). Not part of the assembly."
+M4 x 50 socket cap screw,cots,8,M4 x 50 socket cap screw,motor clamp caps
+M4 x 12 socket cap screw,cots,32,M4 x 12 socket cap screw,"clamp cradles, shell posts, guard tabs, contact block, mast socket"
+"M4 heat-set insert, 5.7 mm long",cots,39,"M4 heat-set insert, 5.7 mm long",printed parts
+M4 x 12 button head + nut,cots,24,M4 x 12 button head + nut,shell seam ribs
+M3 grub screw insert + M3 grub screw,cots,2,M3 grub screw insert + M3 grub screw,wheel hubs on the 6 mm D shafts
+M4 x 16 screw,cots,8,M4 x 16 screw,wheel hubs to wheels
+M8 x 60 bolt + nyloc nut + flanged bushing,cots,2,M8 x 60 bolt + nyloc nut + flanged bushing,caster stems
+M8 x 50 bolt + nyloc nut,cots,2,M8 x 50 bolt + nyloc nut,caster axles
+M8 thrust washer,cots,2,M8 thrust washer,between caster fork and chassis
+"M6 nut + washer, stainless",cots,9,"M6 nut + washer, stainless","height rods: one on the chassis, two at the plate, per rod"
+M3 x 8 screw,cots,8,M3 x 8 screw,tray standoffs
+M3 x 8 screw,cots,4,M3 x 8 screw,blade motor to the height plate
+M4 x 10 screw,cots,3,M4 x 10 screw,blade disc to hub
+M4 grub screw,cots,2,M4 grub screw,blade hub on the motor shaft
+"M3 shoulder screw, 4 mm shoulder + nyloc nut",cots,3,"M3 shoulder screw, 4 mm shoulder + nyloc nut",razor blade pivots
+M2.5 x 6 screw + 6 mm standoff,cots,4,M2.5 x 6 screw + 6 mm standoff,Raspberry Pi
+8 x 3 mm neodymium magnet,cots,4,8 x 3 mm neodymium magnet,shell bosses over the hall sensors
+M6 x 12 screw,cots,4,M6 x 12 screw,rubber mounts into the shell bosses
+Raspberry Pi 5 (4 GB) or Pi 4,cots,1,Raspberry Pi 5 (4 GB) or Pi 4,"planning, RTK fusion"
+"RTK GNSS receiver, multi-band (u-blox ZED-F9P class) + antenna",cots,1,"RTK GNSS receiver, multi-band (u-blox ZED-F9P class) + antenna",rover; a second set for the base station
+ESP32 dev board (ESP32-WROOM-32),cots,1,ESP32 dev board (ESP32-WROOM-32),firmware/esp32
+"Dual DC motor driver, 10 A/ch, PWM+DIR",cots,1,"Dual DC motor driver, 10 A/ch, PWM+DIR",e.g. a Cytron MDD10A class driver
+"3-pole relay, 24 V coil, 10 A (NO to the ESC, NC shorting the motor phases)",cots,1,"3-pole relay, 24 V coil, 10 A (NO to the ESC, NC shorting the motor phases)",blade power + passive brake
+BNO085 (or similar) IMU,cots,1,BNO085 (or similar) IMU,tilt and heading
+3-axis hall sensor breakout (TLV493D class),cots,4,3-axis hall sensor breakout (TLV493D class),shell lift and bump
+5 V 5 A buck converter,cots,1,5 V 5 A buck converter,Pi supply
+"25 mm hook-and-loop strap, 600 mm",cots,1,"25 mm hook-and-loop strap, 600 mm",battery
+20 A blade fuse + holder; 3 A fuse for the electronics,cots,1,20 A blade fuse + holder; 3 A fuse for the electronics,battery positive
+"Main power switch, 20 A DC",cots,1,"Main power switch, 20 A DC",on the shell rear

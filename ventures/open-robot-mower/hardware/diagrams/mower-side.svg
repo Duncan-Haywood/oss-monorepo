@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 420" width="780" height="420" font-family="system-ui, sans-serif" font-size="12">
+<title>Open Robot Mower side section</title>
+<rect width="780" height="420" fill="#ffffff"/>
+<line x1="10" y1="380.0" x2="760" y2="380.0" stroke="#6b8f4e" stroke-width="3"/>
+<rect x="40.0" y="140.0" width="640.0" height="150.0" rx="20" fill="none" stroke="#2e6b2c" stroke-width="2" stroke-dasharray="6 4"/>
+<circle cx="170.0" cy="270.0" r="110.0" fill="#ddd" stroke="#333" stroke-width="2"/>
+<circle cx="575.0" cy="342.5" r="37.5" fill="#ddd" stroke="#333" stroke-width="2"/>
+<rect x="75.0" y="296.0" width="565.0" height="4.0" fill="#556"/>
+<rect x="251.0" y="300.0" width="298.0" height="65.0" fill="none" stroke="#b5651d" stroke-width="3"/>
+<rect x="284.0" y="344.0" width="232.0" height="2" fill="#d9472b"/>
+<rect x="300.0" y="341.0" width="200.0" height="3" fill="#9aa7b1"/>
+<rect x="380.0" y="325.0" width="40" height="16" fill="#c4c9cc"/>
+<rect x="261.0" y="319.0" width="278.0" height="4" fill="#556"/>
+<rect x="375.0" y="274.0" width="50" height="45" fill="#9aa7b1" stroke="#333"/>
+<line x1="272.0" y1="350.0" x2="272.0" y2="286.0" stroke="#333" stroke-width="3"/>
+<line x1="528.0" y1="350.0" x2="528.0" y2="286.0" stroke="#333" stroke-width="3"/>
+<rect x="235.0" y="226.0" width="70.0" height="70.0" fill="#f6c445" stroke="#8a6d10"/>
+<rect x="115.0" y="213.0" width="245.0" height="3.0" fill="#245c9a"/>
+<rect x="120.0" y="183.0" width="180.0" height="30.0" fill="#dce8f5" stroke="#245c9a"/>
+<rect x="312.0" y="80.0" width="16.0" height="136.0" fill="#9aa7b1"/>
+<rect x="290.0" y="55.0" width="60.0" height="25.0" rx="6" fill="#245c9a"/>
+<rect x="530.0" y="110.0" width="40" height="30" rx="8" fill="#d9472b"/>
+<rect x="80.0" y="158.0" width="24.0" height="138.0" fill="#7a8a99"/>
+<rect x="82.0" y="143.0" width="20.0" height="15.0" fill="#222"/>
+<rect x="548.0" y="158.0" width="24.0" height="138.0" fill="#7a8a99"/>
+<rect x="550.0" y="143.0" width="20.0" height="15.0" fill="#222"/>
+<text x="340.0" y="387.0" fill="#18222b">blade at 35 mm (20-50), guard to 15 mm</text>
+<text x="536.0" y="325.0" fill="#18222b">M6 height rods</text>
+<text x="242.0" y="262.0" fill="#18222b">battery</text>
+<text x="115.0" y="166.0" fill="#18222b">Pi, RTK, ESP32, drivers</text>
+<text x="360.0" y="70.0" fill="#18222b">RTK antenna</text>
+<text x="510.0" y="100.0" fill="#18222b">stop button</text>
+<text x="52.0" y="128.0" fill="#18222b">rubber mount + hall sensor</text>
+<text x="20" y="22" font-weight="700" fill="#2e6b2c">Open Robot Mower: side section (drawn from cad/orm_cad/params.py)</text>
+</svg>

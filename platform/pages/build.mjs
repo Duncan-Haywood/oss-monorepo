@@ -43,6 +43,15 @@ import {
   orderForFeed,
 } from './launched.mjs';
 
+import { addShareCards, cardTitle, renderCards, siteAddress } from './share.mjs';
+import {
+  MARK_FROM,
+  MARK_GEOMETRY,
+  renderSiteCard,
+  MARK_TO,
+  drawMark,
+  encodePng as encodeCardPng,
+} from './sharecard.mjs';
 import {
   ICONS,
   OFFLINE_WIDGET_SCRIPT,
@@ -3751,6 +3760,17 @@ const CATEGORY_RULES = [
     // podcast feeds, the same read-and-listen axis as the graded stories.
     test: (slug) => ['ai-engineering-academy', 'hands-free-language-coach', 'listen-and-learn-audio', 'hearth-and-horizon'].includes(slug),
   },
+  {
+    // Added 2026-10-21 when `open-floor-robots` and `open-robot-mower` took
+    // the catch-all to 7. Listing it put `open-tennis-robots` on the same
+    // axis: a machine to build, with CAD, firmware and a fabrication package,
+    // rather than a calculation about money or a check on a file.
+    id: 'open-hardware',
+    title: 'Open hardware & robots',
+    accent: '#7a4a12',
+    blurb: 'Robots you can build, change and sell: MIT-licensed CAD with laser-cut and 3D-print files, firmware, bills of materials and a browser simulator for each. A robot vacuum and mop, a robotic lawn mower, and tennis ball robots.',
+    test: (slug) => ['open-floor-robots', 'open-robot-mower', 'open-tennis-robots'].includes(slug),
+  },
 ];
 
 const FALLBACK_CATEGORY = {
@@ -3770,9 +3790,8 @@ export function categoryFor(slug) {
  * named by a title that renames): a rebrand or a retitled tool never breaks
  * this filename, and a share into the roofing group and a share into the
  * marketplace-fee thread render as visibly different cards without anyone
- * drawing 164 of them. See `renderSocialCard`'s `color` parameter in
- * `offline.mjs` for why a colour field is the whole difference — there is no
- * font rasteriser in this build to draw a per-category headline with.
+ * drawing 164 of them. The card itself is drawn by `sharecard.mjs`, with the
+ * category's name as its headline on the category's accent.
  */
 export function socialCardFileFor(categoryId) {
   return `social-card-${categoryId}.png`;
@@ -3792,6 +3811,35 @@ export function socialCardFileFor(categoryId) {
  */
 export function toolCardFileFor(slug) {
   return `${slug}/share-card.png`;
+}
+
+/**
+ * What a tool's share card draws: its name under its category, on the
+ * category's colour. Exported so the tests render the same card the build does.
+ */
+export function toolCardOptions(surface, { baseUrl = '' } = {}) {
+  const category = categoryFor(surface.slug);
+  return {
+    accent: category.accent,
+    headline: cardTitle(surface.title),
+    kicker: category.title,
+    // Sponsor Ready's own card gets the exception footer — its whole job is a
+    // live lookup, so "nothing you type is uploaded" is the one claim this
+    // card must not make. See `CARD_FOOTER_EXCEPTION`.
+    footer: surface.externalFetchHosts?.length ? CARD_FOOTER_EXCEPTION : CARD_FOOTER,
+    address: siteAddress(baseUrl),
+  };
+}
+
+/** What a category (or audience, or kind) page's share card draws. */
+export function categoryCardOptions(category, { footer = CARD_FOOTER, baseUrl = '' } = {}) {
+  return {
+    accent: category.accent,
+    headline: category.title,
+    kicker: 'Free tools',
+    footer,
+    address: siteAddress(baseUrl),
+  };
 }
 
 // The two lines every tool and category card carries besides its headline.
@@ -5686,7 +5734,100 @@ const CATEGORY_STYLE = `
     footer h2 { font-size: .95rem; color: var(--ink); margin: 18px 0 6px; }
     footer p { margin: 0; }
     footer a { color: var(--accent); }
+    /* Audience pages: "Start here" and "Questions these tools answer". */
+    .start-here { margin: 28px 0 0; }
+    .start-here h2, .answers h2 { font-size: 1.15rem; margin: 0 0 4px; letter-spacing: -.01em; }
+    .start-here .sub, .answers .sub { margin: 0 0 14px; color: var(--muted); font-size: .92rem; }
+    .start-grid { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; counter-reset: start;
+                  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); }
+    .start-grid li { counter-increment: start; position: relative; background: var(--panel);
+                     border: 1px solid var(--line); border-top: 3px solid var(--pf-cat, var(--accent));
+                     border-radius: 13px; padding: 16px 18px 16px 18px; }
+    .start-grid li::before { content: counter(start); display: inline-grid; place-items: center;
+                             width: 26px; height: 26px; border-radius: 999px; margin-bottom: 8px;
+                             font-size: .82rem; font-weight: 750; color: var(--panel);
+                             background: var(--pf-cat, var(--accent)); }
+    .start-grid a { color: var(--ink); text-decoration: none; font-weight: 650; font-size: 1.02rem; line-height: 1.3; display: block; }
+    .start-grid a:hover, .start-grid a:focus-visible { color: var(--accent); text-decoration: underline; }
+    .start-grid p { margin: 6px 0 0; color: var(--muted); font-size: .9rem; line-height: 1.5; }
+    .start-grid .meta { font-size: .8rem; color: var(--soft); }
+    .answers { margin: 30px 0 0; padding: 18px 20px; background: var(--panel); border: 1px solid var(--line); border-radius: 13px; }
+    .answers ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px 22px;
+                  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+    .answers li a { color: var(--accent); text-decoration: none; font-weight: 600; font-size: .93rem; line-height: 1.4; }
+    .answers li a:hover, .answers li a:focus-visible { text-decoration: underline; }
+    .answers li span { display: block; color: var(--soft); font-size: .8rem; }
+    .answers .all { margin: 12px 0 0; font-size: .88rem; }
+    .answers .all a { color: var(--accent); }
+    .all-tools { font-size: 1.15rem; margin: 34px 0 0; letter-spacing: -.01em; }
 `;
+
+/**
+ * An audience page's two lead blocks, or '' on any other page.
+ *
+ * "Start here" is the fullest of the audience's tools, by the rule the hub's
+ * featured row already uses (`exampleTools`: most published pages first), so
+ * nothing is ranked by a judgement this page cannot show. "Questions these
+ * tools answer" lists the tools' own guide pages (`discoverGuides`), so every
+ * line is a page that shipped, in that page's own words.
+ */
+export function renderAudienceLead({ start = [], questions = [], toRoot = '../../', who = '', total = 0 }) {
+  if (!start.length) return '';
+  const cards = start
+    .map(
+      (surface) => `        <li>
+          <a href="${escapeHtml(`${toRoot}${surface.slug}/`)}" data-pf-to="${escapeHtml(surface.slug)}">${escapeHtml(cardName(surface.title))}</a>
+          <p>${escapeHtml(surface.description)}</p>${
+            surface.pageCount > 1
+              ? `
+          <p class="meta">${surface.pageCount} questions answered</p>`
+              : ''
+          }
+        </li>`,
+    )
+    .join('\n');
+  const answers = questions.length
+    ? `
+    <section class="answers" aria-labelledby="answers-h">
+      <h2 id="answers-h">Questions these tools answer</h2>
+      <p class="sub">Worked answers written beside the calculators${who ? ` ${escapeHtml(who)} use` : ''}.</p>
+      <ul>
+${questions
+  .map(
+    (q) => `        <li><a href="${escapeHtml(`${toRoot}${q.slug}/${q.file.replace(/(^|\/)index\.html$/, '$1')}`)}">${escapeHtml(q.label)}</a><span>${escapeHtml(cardName(q.toolTitle))}</span></li>`,
+  )
+  .join('\n')}
+      </ul>
+      <p class="all"><a href="${escapeHtml(`${toRoot}${GUIDES_PATH}`)}">Every guide on the site →</a></p>
+    </section>`
+    : '';
+  return `
+    <section class="start-here" aria-labelledby="start-h">
+      <h2 id="start-h">Start here</h2>
+      <p class="sub">The fullest tools on this page, with the most worked questions behind them.</p>
+      <ol class="start-grid">
+${cards}
+      </ol>
+    </section>${answers}
+    <h2 class="all-tools">All ${total} tools${who ? ` for ${escapeHtml(who)}` : ''}</h2>
+`;
+}
+
+/**
+ * Up to `limit` guide pages from these tools, taken round-robin in the tools'
+ * own order so one tool with twenty pages does not fill the list.
+ */
+export function audienceQuestions(tools, guides, limit = 8) {
+  const byTool = new Map(guides.map((g) => [g.slug, g]));
+  const queues = tools.map((t) => [...(byTool.get(t.slug)?.items ?? [])].map((item) => ({ ...item, toolTitle: t.title })));
+  const out = [];
+  while (out.length < limit && queues.some((q) => q.length)) {
+    for (const q of queues) {
+      if (q.length && out.length < limit) out.push(q.shift());
+    }
+  }
+  return out;
+}
 
 /**
  * One category's landing page.
@@ -5896,7 +6037,7 @@ ${otherAudiences
       }
       <p class="count">${items.length} free tool${items.length === 1 ? '' : 's'} · no account · ${countPrivacyClaim}</p>
     </header>
-${jumps}
+${copy.lead ?? ''}${jumps}
 ${filter}
 
     <main>
@@ -5979,8 +6120,17 @@ export function audienceCategory(audience, items = []) {
  * rather than the job, and the tools grouped by the category each sits in when
  * they span more than one.
  */
-export function renderAudiencePage({ audience, items, groups, baseUrl, audiences = [] }) {
+export function renderAudiencePage({ audience, items, groups, baseUrl, audiences = [], guides = [] }) {
   const category = audienceCategory(audience, items);
+  // Four when the page is big enough to need a way in; none on a short page,
+  // where the list below already is the way in.
+  const start = items.length >= 8 ? exampleTools(items, 4) : [];
+  const lead = renderAudienceLead({
+    start,
+    questions: audienceQuestions(exampleTools(items, items.length), guides),
+    who: audience.who,
+    total: items.length,
+  });
   const byCategory = groupByCategory(items);
   const subgroups =
     byCategory.length > 1
@@ -6002,6 +6152,7 @@ export function renderAudiencePage({ audience, items, groups, baseUrl, audiences
       intro: audience.intro,
       starting: audience.starting,
       audience: audience.who,
+      lead,
     },
   });
 }
@@ -8816,6 +8967,34 @@ const CHROME_CSS = `
 .pf-chrome-foot li{margin:0}
 .pf-chrome :focus-visible{outline:2px solid currentColor;outline-offset:2px}
 
+/* The site header as a full-width band, as it is on the site's own pages.
+ *
+ * Every venture centres its body in a 1000-1080px column with ~28px of padding,
+ * and the header is the body's first child, so it used to sit as a grey strip
+ * inset in that column, floating 28px below the top of the window. The band
+ * now meets the top edge (the body's top padding moves below it) and its fill
+ * runs to both edges through a spread shadow clipped to the band's height. A
+ * shadow, not a 100vw pseudo-element: it adds no scrollable overflow, so no
+ * venture page grows a sideways scroll, and the fill stays the host-neutral
+ * grey the header always had. A browser without :has() keeps the old top gap.
+ *
+ * The mark is the one literal colour here, and it is not text: it is the
+ * site's logo square (pf-site.css draws the same gradient), so it reads as one
+ * site on every venture palette instead of a blot of the host's ink. */
+body:has(> .pf-chrome-top[data-pfs-head]:first-child){padding-top:0;margin-top:0}
+.pf-chrome-top[data-pfs-head]{margin:0 0 26px;border-bottom:0;
+  box-shadow:0 0 0 100vmax var(--pfs-head-bg,rgba(128,128,128,.07));clip-path:inset(0 -100vmax)}
+.pf-chrome-top .pfs-bar{padding:12px 0}
+.pf-chrome-top .pfs-crumbs{padding:0 0 10px}
+.pf-chrome-top .pfs-mark{background:linear-gradient(135deg,#12594a,#3b5bdb)}
+.pf-chrome-top .pfs-searchlink{padding:4px 14px;border:1px solid var(--pf-line);border-radius:999px}
+[data-pfs-head].pf-chrome-top .pfs-searchlink:hover{text-decoration:none;border-color:currentColor}
+/* The shop-rates and saved-bids bars (rates.mjs, jobs.mjs) sit under the band
+ * in the same column, so they line up with the venture's content rather than
+ * their own 18px inset. */
+body:has(> .pf-chrome-top[data-pfs-head]:first-child) > :is(.pf-rates,.pf-jobs){padding-left:0;padding-right:0}
+body:has(> .pf-chrome-top[data-pfs-head]:first-child) > .pf-jobs .pf-jobs-status:empty{display:none}
+
 /* Site chrome is not part of anything a visitor prints.
  *
  * Nine bid calculators produce a customer proposal (platform/proposal), whose
@@ -10104,14 +10283,17 @@ export function renderCatalog(surfaces, baseUrl, launched = {}) {
  * silently ends the list item, so a tool whose meta description wrapped would
  * publish its second half as body prose.
  */
-export function renderLlmsTxt(surfaces, baseUrl, compareProductGroups = [], guideGroups = []) {
+export function renderLlmsTxt(surfaces, baseUrl, compareProductGroups = [], guideGroups = [], { audiences = [], research = { themes: [] } } = {}) {
   const oneLine = (value) => String(value ?? '').replace(/\s+/g, ' ').trim();
   // Same fact the About page states in full; see `disclaimerHtml` for why it
   // is derived rather than hand-typed.
   const exceptions = externalCallExceptions(surfaces);
 
+  // A product that ships its own `llms.txt` (how to call it, which options fit
+  // which data, its limits) gets it named on its line, so an assistant that
+  // matched the product here can fetch the detail without crawling the page.
   const bullet = (surface) =>
-    `- [${oneLine(surface.title)}](${baseUrl}${surface.slug}/): ${oneLine(surface.fullDescription || surface.description)}`;
+    `- [${oneLine(surface.title)}](${baseUrl}${surface.slug}/): ${oneLine(surface.fullDescription || surface.description)}${surface.llmsDoc ? ` LLM docs: ${baseUrl}${surface.slug}/llms.txt` : ''}`;
 
   const sections = groupByCategory(surfaces).map(({ category, items }) => {
     const subgroups = groupBySubcategory(category.id, items);
@@ -10143,7 +10325,6 @@ export function renderLlmsTxt(surfaces, baseUrl, compareProductGroups = [], guid
     '',
     `- [About and press kit](${baseUrl}${ABOUT_PATH}): what this site is, how visitor data is handled (${counterOn() ? 'inputs never leave the browser; a cookieless per-page daily tally, with the kind of referring site, goes to a first-party counter' : 'it never leaves the browser'}${exceptions.length ? ', with a documented exception listed there' : ''}), the licence, and pre-written boilerplate for citing or linking to these tools.`,
     `- [Ask](${baseUrl}${ASK_PATH}): fill any calculator here by voice or a typed sentence, find a tool, or hear a result read back; in browsers with WebMCP every page also offers \`search_site_tools\`, \`read_page_results\` and (on calculators) \`fill_form\` to an agent. Runs in the browser; no model unless the visitor switches one on. The page states the measured accuracy and the limitations.`,
-    `- [Research](${baseUrl}${RESEARCH_PATH}): the open research portfolio built in the same repository — white papers with reproducible code on mechanism design for verifiable decentralised ML, and digital twins and sim-to-real gaps.`,
     `- [Updates and roadmap](${baseUrl}${UPDATES_PATH}): what shipped this week, what is in progress, the owner's direction for the project and how AI agents build it; and the [changelog](${baseUrl}${CHANGELOG_PATH}) of every change merged, by day.`,
     `- [Comparisons](${baseUrl}${COMPARE_PATH}): every page on this site that compares one of these tools with a named commercial product, grouped by product. Useful for answering "is there a free alternative to X?" with a page that says what the free tool does *not* do as well as what it does.`,
     // Named individually rather than left behind the index, because the
@@ -10185,17 +10366,44 @@ export function renderLlmsTxt(surfaces, baseUrl, compareProductGroups = [], guid
     '',
   ].join('\n');
 
-  return `# Free calculators and checks for people who run a small business
+  // "Free tools for roofers" and its 27 siblings: the page to cite when the
+  // question names a trade rather than a tool. Absent from this file until
+  // 2026-10-21, while every tool was here.
+  const audienceSection = audiences.length
+    ? `## Tools by who you are
 
-> ${surfaces.length} free, browser-only tools for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment: every calculation runs in the visitor's own browser${exceptions.length ? `, and the numbers they type never leave their device — except on ${listProse(exceptions.map((x) => toolProseName(x.title)))}, where the one thing you paste is sent to the public API it checks; the About page explains exactly what` : ' and the numbers they type never leave their device'}.
+One page per trade or kind of business, listing only the tools that serve it.
+
+${audiences
+  .map(({ audience, items }) => `- [${oneLine(audience.title)}](${baseUrl}${categoryPagePath(audiencePageId(audience))}): ${items.length} tools. ${oneLine(audience.description)}`)
+  .join('\n')}
+`
+    : '';
+  // The research half of the site, by topic, with counts. It was one line
+  // under "Optional" describing two of its 28 topics.
+  const researchProjects = research.themes.reduce((n, t) => n + t.count, 0);
+  const researchSection = research.themes.length
+    ? `## Open research
+
+${researchProjects} research projects, each with its question, code, tests and results, MIT licensed: [the research index](${baseUrl}${RESEARCH_PATH}). By topic:
+
+${research.themes
+  .map((t) => `- [${oneLine(t.name)}](${baseUrl}${RESEARCH_PATH}topics/${t.id}/): ${t.count} project${t.count === 1 ? '' : 's'}`)
+  .join('\n')}
+`
+    : '';
+
+  return `# Open Tools and Research
+
+> ${surfaces.length} free, open-source tools (browser calculators and checks, self-hostable business apps and command-line tools) for marketplace sellers, trade contractors, logistics buyers and small teams, plus ${researchProjects ? `${researchProjects} reproducible research projects` : 'open research'}. No account, no payment: every browser calculation runs in the visitor's own browser${exceptions.length ? `, and the numbers they type never leave their device — except on ${listProse(exceptions.map((x) => toolProseName(x.title)))}, where the one thing you paste is sent to the public API it checks; the About page explains exactly what` : ' and the numbers they type never leave their device'}.
 
 Each tool is a static page that works offline once opened, and is free with no
 gated features. They are estimates and records to act on, not professional
 advice or a determination made on anyone's behalf; each page carries its own
 limitations.
 
-${sections.join('\n')}
-${optional}`;
+${audienceSection ? `${audienceSection}\n` : ''}${sections.join('\n')}
+${researchSection ? `${researchSection}\n` : ''}${optional}`;
 }
 
 export function renderNotFound(baseUrl) {
@@ -10343,7 +10551,7 @@ export async function addOfflineSupport({
   for (const icon of ICONS) {
     await fs.writeFile(
       path.join(outDir, icon.file),
-      renderIcon({ size: icon.size, maskable: Boolean(icon.maskable) }),
+      renderIcon({ size: icon.size, maskable: Boolean(icon.maskable), opaque: Boolean(icon.opaque) }),
     );
   }
   await fs.writeFile(
@@ -10560,6 +10768,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
       kind: surfaceKind(path.join(REPO_ROOT, 'ventures', surface.slug), surface.slug),
       pageCount: await countPages(surface.sourceDir),
       publishedPageCount: pages.length,
+      llmsDoc: existsSync(path.join(destination, 'llms.txt')),
       externalFetchHosts: await surfaceExternalFetchHosts(destination),
     });
     log(`  ${surface.slug}`);
@@ -10613,6 +10822,11 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
   // failure `check.mjs` exists to catch.
   const categoryGroups = groupByCategory(surfaces);
   const audiencePages = audienceGroups(surfaces);
+  // Read off the built tree, so it comes after the per-venture copy above: a
+  // guide is listed because it shipped, at the URL it shipped to. Before the
+  // audience pages, which list their tools' questions, and the guides index
+  // and sitemaps below. See `GUIDES_PATH`.
+  const guides = await discoverGuides(surfaces, outDir);
   for (const { category, items } of categoryGroups) {
     const dir = path.join(outDir, CATEGORY_PATH_PREFIX, category.id);
     await fs.mkdir(dir, { recursive: true });
@@ -10629,7 +10843,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
     await fs.mkdir(dir, { recursive: true });
     await fs.writeFile(
       path.join(dir, 'index.html'),
-      renderAudiencePage({ audience, items, groups: categoryGroups, baseUrl: base, audiences: audiencePages }),
+      renderAudiencePage({ audience, items, groups: categoryGroups, baseUrl: base, audiences: audiencePages, guides }),
     );
   }
   // The browse-by-type pages (apps, command-line tools), on the same footing.
@@ -10720,7 +10934,8 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
 
   // Essays and write-ups from `docs/posts/` (see `writing.mjs`). Indexed, so
   // each post is listed in the hub sitemap below.
-  const posts = await buildWriting(outDir, base, { socialCard: `${base}${SOCIAL_CARD_FILE}`, originAlias: DEFAULT_BASE_URL });
+  // Page slugs under writing/: each post, and `podcast`.
+  const writingPages = await buildWriting(outDir, base, { socialCard: `${base}${SOCIAL_CARD_FILE}`, originAlias: DEFAULT_BASE_URL });
 
   // The lab (see `lab.mjs`): contained, `noindex` experiments in what the
   // site can be. Its handoff page reads catalog.json in the browser.
@@ -10766,10 +10981,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
     );
   }
 
-  // The guides index. After the per-venture loop because it reads the built
-  // tree — a page is listed because it shipped, at the URL it shipped to — and
-  // before the sitemaps because they list it. See `GUIDES_PATH`.
-  const guides = await discoverGuides(surfaces, outDir);
+  // The guides index (`guides` was read above, before the audience pages).
   const guidesDir = path.join(outDir, GUIDES_PATH);
   await fs.mkdir(guidesDir, { recursive: true });
   await fs.writeFile(
@@ -10789,13 +11001,13 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
       ],
       compareProducts.map((group) => group.key),
       [...researchSlugs, ...researchTopics, ...researchApps],
-      posts.map((post) => post.slug),
+      writingPages,
     ),
   );
   await fs.writeFile(path.join(outDir, 'catalog.json'), renderCatalog(surfaces, base, launched));
   await fs.writeFile(
     path.join(outDir, 'llms.txt'),
-    renderLlmsTxt(surfaces, base, compareProducts, guides),
+    renderLlmsTxt(surfaces, base, compareProducts, guides, { audiences: audiencePages, research }),
   );
   // Read from the committed file, not from `git log`: the in-cluster build
   // clones `--depth 1` and has no history. See `launched.mjs`.
@@ -10804,8 +11016,14 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
   await fs.writeFile(path.join(outDir, 'favicon.ico'), renderFavicon());
   await fs.writeFile(path.join(outDir, 'favicon.svg'), renderFaviconSvg());
   // The site-wide card: what the hub and the About page point at, since
-  // neither belongs to one category.
-  await fs.writeFile(path.join(outDir, SOCIAL_CARD_FILE), renderSocialCard());
+  // neither belongs to one category. It carries the homepage's own headline.
+  await fs.writeFile(
+    path.join(outDir, SOCIAL_CARD_FILE),
+    renderSiteCard({
+      address: siteAddress(base),
+      footer: `${surfaces.length} free tools · ${researchProjectCount()} research projects`,
+    }),
+  );
   // One card per category, tinted and headlined with the section's own name.
   // A category holding a documented `externalCallExceptions` entry (today:
   // "more", because Sponsor Ready lives there) gets the exception footer —
@@ -10819,44 +11037,34 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
       .filter(({ items }) => externalCallExceptions(items).length)
       .map(({ audience }) => audiencePageId(audience)),
   ]);
-  await Promise.all(
-    [...ALL_CATEGORIES, ...KIND_PAGES, ...audiencePages.map(({ audience, items }) => audienceCategory(audience, items))].map((category) =>
-      fs.writeFile(
-        path.join(outDir, socialCardFileFor(category.id)),
-        renderSocialCard({
-          color: category.accent,
-          headline: category.title,
-          kicker: SITE_NAME,
-          footer: categoriesWithExceptions.has(category.id) ? CARD_FOOTER_EXCEPTION : CARD_FOOTER,
-        }),
-      )),
-  );
-  // And one per tool, headlined with the tool's own name on its category's
-  // tint. This is the difference between 164 shares of the same anonymous
-  // picture and 164 shares that each say what they link to — the single
-  // highest-leverage change available to a portfolio whose only distribution
-  // is organic. `cardtext.mjs` is what makes it possible without a font
-  // dependency; before it existed there was nothing to draw a headline with.
-  //
-  // Sequential, not `Promise.all`: each card is a 1200x630 CPU-bound raster
-  // and the in-cluster build runs under a 2-core limit, so firing 164 at once
-  // buys no wall-clock and peaks memory at 164 frame buffers.
-  for (const surface of surfaces) {
-    const dir = path.join(outDir, surface.slug);
-    if (!(await exists(dir))) continue;
-    await fs.writeFile(
-      path.join(outDir, toolCardFileFor(surface.slug)),
-      renderSocialCard({
-        color: categoryFor(surface.slug).accent,
-        headline: surface.title,
-        kicker: SITE_NAME,
-        // Sponsor Ready's own card gets the exception footer — its whole job
-        // is a live lookup, so "nothing you type is uploaded" is the one
-        // claim this card must not make. See `CARD_FOOTER_EXCEPTION`.
-        footer: surface.externalFetchHosts?.length ? CARD_FOOTER_EXCEPTION : CARD_FOOTER,
+  const cardJobs = [];
+  for (const category of [
+    ...ALL_CATEGORIES,
+    ...KIND_PAGES,
+    ...audiencePages.map(({ audience, items }) => audienceCategory(audience, items)),
+  ]) {
+    cardJobs.push({
+      file: path.join(outDir, socialCardFileFor(category.id)),
+      options: categoryCardOptions(category, {
+        footer: categoriesWithExceptions.has(category.id) ? CARD_FOOTER_EXCEPTION : CARD_FOOTER,
+        baseUrl: base,
       }),
-    );
+    });
   }
+  // And one per tool, headlined with the tool's own name under its category.
+  // This is the difference between a thousand shares of the same anonymous
+  // picture and a thousand that each say what they link to — the single
+  // highest-leverage change available to a portfolio whose only distribution
+  // is organic. They render on a pool of worker threads (`share.mjs`): each is
+  // a CPU-bound raster and there are well over a thousand.
+  for (const surface of surfaces) {
+    if (!(await exists(path.join(outDir, surface.slug)))) continue;
+    cardJobs.push({
+      file: path.join(outDir, toolCardFileFor(surface.slug)),
+      options: toolCardOptions(surface, { baseUrl: base }),
+    });
+  }
+  await renderCards(cardJobs);
 
   // Tell Jekyll (which GitHub Pages runs by default) to leave the tree alone;
   // without this, any directory starting with `_` is silently dropped.
@@ -10873,6 +11081,12 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
   // pages that no longer match it.
   const sponsored = await markSponsorLinksIn(outDir);
 
+  // After every generator has written its pages and the chrome has wrapped
+  // them: a card for each page still on the site-wide one (research, writing,
+  // comparisons, the section front pages), and complete share tags on all of
+  // them. Before the offline layer, which hashes the finished HTML.
+  const shareCards = await addShareCards({ outDir, baseUrl: base, siteName: SITE_NAME, siteCard: SOCIAL_CARD_FILE });
+
   // After the chrome pass, not before: the offline layer hashes the finished
   // site to name its cache, and injects into pages the chrome has already
   // rewritten. Reversed, every deploy would cache a page missing its nav.
@@ -10880,7 +11094,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
 
   return {
     outDir, baseUrl: base, surfaces, repairs, wrapped, rated, saved, shared, described,
-    highlighted, narrowed, embedded, sponsored, offline, comparisons,
+    highlighted, narrowed, embedded, sponsored, offline, comparisons, shareCards,
   };
 }
 
@@ -10896,120 +11110,72 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
  * the ventures' files, not this build's), and only `.ico` at the origin root
  * is fetched automatically, so the icon has to be generated here.
  *
- * Built rather than committed so the tree stays reviewable text: a 16x16 PNG
- * assembled by hand and wrapped in a single-image ICO container. Deterministic
- * -- same bytes on every run.
+ * Built rather than committed so the tree stays reviewable text, and
+ * deterministic -- same bytes on every run.
  */
-function pngChunk(type, data) {
-  const length = Buffer.alloc(4);
-  length.writeUInt32BE(data.length);
-  const body = Buffer.concat([Buffer.from(type, 'ascii'), data]);
-  const crc = Buffer.alloc(4);
-  crc.writeUInt32BE(crc32(body) >>> 0);
-  return Buffer.concat([length, body, crc]);
-}
 
-let CRC_TABLE = null;
-function crc32(buffer) {
-  if (!CRC_TABLE) {
-    CRC_TABLE = new Int32Array(256);
-    for (let n = 0; n < 256; n += 1) {
-      let c = n;
-      for (let k = 0; k < 8; k += 1) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
-      CRC_TABLE[n] = c;
-    }
-  }
-  let crc = -1;
-  for (const byte of buffer) crc = CRC_TABLE[(crc ^ byte) & 0xff] ^ (crc >>> 8);
-  return crc ^ -1;
-}
-
-// The mark, in one place. `renderFavicon` rasterises it to the 16x16 ICO every
-// browser fetches on its own; `renderFaviconSvg` emits the same geometry as
-// vector art for the icon the hub links explicitly. Sharing the constants is
-// what keeps the two from drifting into different logos.
+// The mark, in one place: `sharecard.mjs`'s `drawMark` (three rising bars on
+// the header's teal-to-indigo square) is what the app icons and every share
+// card draw from `MARK_GEOMETRY`, and `renderFaviconSvg` draws the same
+// geometry as vector art, so the tab,
+// the pinned tab, the home screen and a shared link carry one logo. The tab
+// icon used to be a flat green square while the header showed a gradient one
+// and the app icon a calculator: three logos for one site.
+export { MARK_GEOMETRY };
 const ICON_SIZE = 16;
-const ICON_INK = [36, 61, 53]; // the hub's accent green, so the tab matches the site
-const ICON_MARK = [197, 237, 181];
+// Sizes in the .ico: 16 for the tab strip, 32 for a high-DPI tab and the
+// Windows taskbar, 48 for a desktop shortcut.
+export const FAVICON_SIZES = [16, 32, 48];
 
-// Three rising bars on a rounded square. Chosen after looking at it at
-// actual size: anything with a diagonal turns to mush at 16px, while flat
-// bars stay crisp and read as "numbers" rather than as a generic glyph.
-const ICON_BARS = [
-  { x0: 3, x1: 4, top: 9 },
-  { x0: 7, x1: 8, top: 6 },
-  { x0: 11, x1: 12, top: 3 },
-];
-const ICON_BAR_BOTTOM = 12;
-const ICON_CORNER = 2; // matches the 2px corner the rasteriser cuts
+const rgbHex = (rgb) => '#' + rgb.map((c) => Math.round(c).toString(16).padStart(2, '0')).join('');
 
-const rgbHex = (rgb) => '#' + rgb.map((c) => c.toString(16).padStart(2, '0')).join('');
-
-/**
- * The same mark as `renderFavicon()`, as vector art.
- *
- * The `.ico` is a fixed raster: exactly right at 16px in a tab, and soft
- * everywhere a browser shows it larger — a pinned tab, the bookmark bar, a
- * phone home screen. A browser that understands `rel="icon"
- * type="image/svg+xml"` prefers this and renders the mark crisply at any size,
- * while the automatic `/favicon.ico` request still finds a file.
- */
 export function renderFaviconSvg() {
-  const bars = ICON_BARS.map(
+  const n = (v) => Number((v * ICON_SIZE).toFixed(2));
+  const g = MARK_GEOMETRY;
+  const bars = g.bars.map(
     (b) =>
-      `<rect x="${b.x0}" y="${b.top}" width="${b.x1 - b.x0 + 1}" ` +
-      `height="${ICON_BAR_BOTTOM - b.top + 1}" fill="${rgbHex(ICON_MARK)}"/>`,
+      `<rect x="${n(b.x)}" y="${n(b.top)}" width="${n(g.barWidth)}" ` +
+      `height="${n(g.bottom - b.top)}" rx="${n(g.barWidth * 0.28)}" fill="#ffffff"/>`,
   ).join('');
-
   return (
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${ICON_SIZE} ${ICON_SIZE}">` +
-    `<rect width="${ICON_SIZE}" height="${ICON_SIZE}" rx="${ICON_CORNER}" ` +
-    `fill="${rgbHex(ICON_INK)}"/>${bars}</svg>\n`
+    `<defs><linearGradient id="m" x1="0" y1="0" x2="1" y2="1">` +
+    `<stop offset="0" stop-color="${rgbHex(MARK_FROM)}"/><stop offset="1" stop-color="${rgbHex(MARK_TO)}"/>` +
+    `</linearGradient></defs>` +
+    `<rect width="${ICON_SIZE}" height="${ICON_SIZE}" rx="${n(g.radius)}" fill="url(#m)"/>${bars}</svg>\n`
   );
 }
 
+/**
+ * Every browser requests `/favicon.ico` on its own; see above. One PNG per
+ * size in `FAVICON_SIZES`, each drawn by `drawMark` at that size rather than
+ * scaled from one, wrapped in an ICO container.
+ */
 export function renderFavicon() {
-  const size = ICON_SIZE;
-  const ink = ICON_INK;
-  const mark = ICON_MARK;
-  const BARS = ICON_BARS;
-  const raw = [];
-  for (let y = 0; y < size; y += 1) {
-    raw.push(0); // PNG filter byte: none
-    for (let x = 0; x < size; x += 1) {
-      const corner = (x < 2 || x > 13) && (y < 2 || y > 13);
-      const inBar = BARS.some((b) => x >= b.x0 && x <= b.x1 && y >= b.top && y <= 12);
-      if (corner) raw.push(0, 0, 0, 0);
-      else if (inBar) raw.push(...mark, 255);
-      else raw.push(...ink, 255);
-    }
-  }
-
-  const ihdr = Buffer.alloc(13);
-  ihdr.writeUInt32BE(size, 0);
-  ihdr.writeUInt32BE(size, 4);
-  ihdr[8] = 8; // bit depth
-  ihdr[9] = 6; // colour type: RGBA
-  const png = Buffer.concat([
-    Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
-    pngChunk('IHDR', ihdr),
-    pngChunk('IDAT', zlib.deflateSync(Buffer.from(raw), { level: 9 })),
-    pngChunk('IEND', Buffer.alloc(0)),
-  ]);
-
-  // ICO container: 6-byte header, one 16-byte directory entry, then the PNG.
+  const pngs = FAVICON_SIZES.map((size) => {
+    const data = Buffer.alloc(size * size * 4);
+    drawMark({ width: size, height: size, data, channels: 4 }, 0, 0, size, { channels: 4, radius: MARK_GEOMETRY.radius });
+    return encodeCardPng(size, size, data, 4);
+  });
   const header = Buffer.alloc(6);
   header.writeUInt16LE(0, 0);
   header.writeUInt16LE(1, 2); // type: icon
-  header.writeUInt16LE(1, 4); // one image
-  const entry = Buffer.alloc(16);
-  entry[0] = size;
-  entry[1] = size;
-  entry.writeUInt16LE(1, 4); // colour planes
-  entry.writeUInt16LE(32, 6); // bits per pixel
-  entry.writeUInt32LE(png.length, 8);
-  entry.writeUInt32LE(header.length + entry.length, 12);
-  return Buffer.concat([header, entry, png]);
+  header.writeUInt16LE(pngs.length, 4);
+  const entries = [];
+  let offset = 6 + 16 * pngs.length;
+  pngs.forEach((png, i) => {
+    const size = FAVICON_SIZES[i];
+    const entry = Buffer.alloc(16);
+    entry[0] = size;
+    entry[1] = size;
+    entry.writeUInt16LE(1, 4); // colour planes
+    entry.writeUInt16LE(32, 6); // bits per pixel
+    entry.writeUInt32LE(png.length, 8);
+    entry.writeUInt32LE(offset, 12);
+    offset += png.length;
+    entries.push(entry);
+  });
+  return Buffer.concat([header, ...entries, ...pngs]);
 }
 
 // ---------------------------------------------------------------------------
@@ -11047,4 +11213,5 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   console.log(`Kept ${result.narrowed.length} page(s) with a table from scrolling sideways on a phone.`);
   console.log(`Added an embed offer to ${result.embedded.length} tool entry page(s).`);
   console.log(`Made the sponsor link countable on ${result.sponsored.length} page(s).`);
+  console.log(`Drew ${result.shareCards.cards.length} page share card(s); completed share tags on ${result.shareCards.changed.length} page(s).`);
 }

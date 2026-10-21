@@ -1,0 +1,3 @@
+file,part,qty,material,volume_cm3,size_mm,settings,notes
+contact_tower.stl,contact_tower,1,ASA,306.5,90 x 180 x 80,"0.2 mm layers, 4 walls, 40% gyroid","Hollow, open at the back for the charger lead. M4 into heat-set inserts from under the plate."
+wheel_guide.stl,wheel_guide,2,ASA,55.2,240 x 14 x 18,"0.2 mm layers, 4 walls, 40% gyroid",Rails the rear wheels run between; they centre the mower on the contacts.

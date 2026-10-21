@@ -1,0 +1,2 @@
+file,part,qty,material,thickness_mm,width_mm,height_mm,area_cm2,cut_length_mm,holes_and_cutouts,notes
+base_plate__aluminium_3mm.dxf,base_plate,1,aluminium 5052,3.0,640.0,500.0,3188.8,2579,15,Peg to the lawn through the six holes (steel tent pegs).
