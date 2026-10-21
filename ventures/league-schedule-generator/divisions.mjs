@@ -608,11 +608,13 @@ export function readDivisionsSpec(f) {
   if (start === null) errors.push("The season start date must be a real date, like 2026-10-06.");
   const w = parseWeekdays(f.weekdays);
   errors.push(...w.errors);
+  if (!w.weekdays.length) errors.push("Pick at least one weekday to play on.");
   const skip = parseDateList(f.skip);
   errors.push(...skip.errors.map((e) => `Skip dates: ${e}`));
   const t = parseTimes(f.times);
   errors.push(...t.errors);
   const courts = parseNameList(f.courts);
+  if (!courts.length) errors.push("Name the shared courts.");
   const l = parseDivisionLinks(f.links, d.divisions);
   errors.push(...l.errors);
   // "Court 1 @ Park" puts a court at a venue; plain names are their own venue

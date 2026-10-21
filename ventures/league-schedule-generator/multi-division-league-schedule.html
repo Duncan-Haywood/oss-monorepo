@@ -172,7 +172,6 @@
       const f = read();
       try { localStorage.setItem(STORE, JSON.stringify(f)); } catch { /* storage is optional */ }
       const { spec, errors } = readDivisionsSpec(f);
-      if (!$("#courts").value.trim()) errors.push("Name the shared courts.");
       if (errors.length) { status.textContent = errors.join(" "); $("#report").hidden = true; return false; }
       let s, v;
       let moved = null;

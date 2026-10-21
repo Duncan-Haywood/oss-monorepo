@@ -472,3 +472,10 @@ test("validateDivisions flags a double round robin where a pair hosts twice", ()
   const v = validateDivisions(s);
   assert.ok(v.errors.some((e) => /do not each host once/.test(e)), v.errors.join("\n"));
 });
+
+test("readDivisionsSpec reports missing courts and weekdays instead of leaving buildDivisions to throw", () => {
+  const f = { divisions: "A: a, b, c", times: "18:00", start: "2026-10-06" };
+  assert.ok(readDivisionsSpec({ ...f, weekdays: "Tue", courts: "" }).errors.includes("Name the shared courts."));
+  assert.ok(readDivisionsSpec({ ...f, weekdays: "", courts: "C1" }).errors.includes("Pick at least one weekday to play on."));
+  assert.deepEqual(readDivisionsSpec({ ...f, weekdays: "Tue", courts: "C1" }).errors, []);
+});
