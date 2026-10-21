@@ -149,6 +149,28 @@ function ofxTag(block, tag) {
   return m ? m[1].trim().replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">") : "";
 }
 
+// A file from a bank with several accounts (or a card beside a checking
+// account) holds one STMTRS or CCSTMTRS block per account. -> [{ id, type,
+// card, text }], each `text` a complete one-account OFX file, so readOfx and
+// the importer need no changes. A single-account file comes back as one entry.
+export function splitOfx(text) {
+  const re = /<(STMTRS|CCSTMTRS)>[\s\S]*?<\/\1>/gi;
+  const blocks = text.match(re) ?? [];
+  if (blocks.length < 2) {
+    const one = blocks[0] ?? text;
+    return [{ ...ofxAccount(one), text }];
+  }
+  const first = text.search(re);
+  const head = text.slice(0, first);
+  return blocks.map((b) => ({ ...ofxAccount(b), text: head + b + "</OFX>" }));
+}
+
+function ofxAccount(block) {
+  const id = ofxTag(block, "ACCTID");
+  const type = ofxTag(block, "ACCTTYPE");
+  return { id, type, card: /<CCSTMTRS>/i.test(block) || /<CCACCTFROM>/i.test(block) };
+}
+
 export function readOfx(text) {
   const problems = [];
   const out = [];
