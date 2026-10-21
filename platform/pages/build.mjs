@@ -3649,6 +3649,8 @@ const CATEGORY_RULES = [
         'sales-call-notes-desk',
         // `sales-cadence-builder` joined 2026-10-20 on its first commit: the multi-channel prospecting plan (email, call, LinkedIn, letter) for a list the seller already has, the step before the call notes.
         'sales-cadence-builder',
+        // `sales-agent` joined 2026-10-21 on its first commit: the AI sales inbox agent after the cadence, sorting replies, honouring opt-outs and queueing drafts the seller approves.
+        'sales-agent',
         // `rental-ledger` joined 2026-10-07: the records-and-Schedule-E home for the landlord calculators, which each answer one typed question and hold nothing.
         'rental-ledger',
         // `expense-tracker` joined 2026-10-07: the costs beside the hours and the invoice, grouped by Schedule C line.
