@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import {
-  PAPERS, DEFAULTS, negbinSize, poissonSeasonal, poissonTrend, countDispersion, ar1JointFit, analyze, bocpd, defaultPoissonPrior, defaultNbPrior, defaultPrior, gammaPoissonLogMarginal, makeCost, lgamma, nigLogMarginal, optimalPartitioning, ar1Rho, longRunSd, prewhiten, seasonalAdjust, trendAdjust, penaltyValue, parseSeries, peaks, pelt, robustSd,
+  PAPERS, DEFAULTS, negbinSize, poissonSeasonal, poissonHolidays, poissonTrend, countDispersion, ar1JointFit, analyze, bocpd, defaultPoissonPrior, defaultNbPrior, defaultPrior, gammaPoissonLogMarginal, makeCost, lgamma, nigLogMarginal, optimalPartitioning, ar1Rho, longRunSd, prewhiten, seasonalAdjust, trendAdjust, penaltyValue, parseSeries, peaks, pelt, robustSd,
 } from './engine.mjs';
 
 // Seeded PRNG (mulberry32) and Box-Muller normals, so every test is reproducible.
@@ -1067,4 +1067,27 @@ test('negative-binomial cost with a season matches the per-point cost it replace
     assert.ok(Math.abs(fast(s, t) - slow(s, t)) < 1e-6 * Math.max(1, Math.abs(slow(s, t))), `segment ${s}..${t}`);
   }
   assert.deepEqual(pelt(x, { model: 'negbin', size: 3, exposure }).changepoints, pelt(x, { model: 'negbin', size: 3, exposure: drifted }).changepoints);
+});
+
+test('known holidays: one fitted factor keeps the dips from reading as steps, and a planted step still shows', () => {
+  const r = rng(77);
+  const pois = (l) => { const L = Math.exp(-l); let k = 0, p = 1; do { k++; p *= r(); } while (p > L); return k - 1; };
+  const n = 200, hol = [];
+  for (let i = 9; i < n; i += 17) hol.push(i);
+  const x = Array.from({ length: n }, (_, t) => pois(40 * (t >= 100 ? 1.5 : 1) * (hol.includes(t) ? 0.3 : 1)));
+  const plain = analyze({ values: x, model: 'poisson' });
+  const withHol = analyze({ values: x, model: 'poisson', holidays: hol.map((h) => h + 1) });
+  assert.ok(plain.pelt.changepoints.length > 2, 'without the calendar the dips are cut into steps');
+  assert.ok(Math.abs(withHol.holidays.factor - 0.3) < 0.08, `factor ${withHol.holidays.factor}`);
+  assert.ok(withHol.pelt.changepoints.some((c) => Math.abs(c.index - 100) <= 5));
+  assert.ok(withHol.pelt.changepoints.length <= 2);
+  assert.equal(withHol.holidays.count, hol.length);
+  assert.ok(poissonHolidays(x, hol).exposure.every((e, t) => e === (hol.includes(t) ? poissonHolidays(x, hol).factor : 1)));
+});
+
+test('known holidays: input errors are plain', () => {
+  const x = Array.from({ length: 40 }, () => 10);
+  assert.throws(() => analyze({ values: x, model: 'poisson', holidays: ['3'] }), /at least 2/);
+  assert.throws(() => analyze({ values: x, model: 'poisson', holidays: ['3', '99'] }), /not a row label/);
+  assert.throws(() => analyze({ values: x, model: 'mean', holidays: ['3', '9'] }), /counts/);
 });
