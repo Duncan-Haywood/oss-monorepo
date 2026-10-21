@@ -68,7 +68,17 @@ export function findUsageModules(root = VENTURES) {
     for (const entry of readdirSync(dir)) {
       if (entry === "node_modules" || entry.startsWith(".")) continue;
       const full = join(dir, entry);
-      if (statSync(full).isDirectory()) walk(full);
+      // `node --test` runs test files in parallel, and
+      // browser-signals.test.mjs makes and removes a scratch venture under
+      // ventures/. An entry gone between readdir and stat was never part of
+      // the catalogue, so skip it rather than crash the walk (CI, 2026-10-21:
+      // ENOENT on ventures/discovery-probe-IUtDEq in one-opt-out.test.mjs).
+      let stats;
+      try { stats = statSync(full); } catch (error) {
+        if (error.code === "ENOENT") continue;
+        throw error;
+      }
+      if (stats.isDirectory()) walk(full);
       // Almost every venture names its tracker usage.mjs, but a handful load
       // it as a classic (non-module) <script src="usage.js"> and pair it with
       // a require()-based node --test suite, so it is written as CommonJS and
