@@ -38,7 +38,7 @@
   "deviations": [],
   "writeups": [],
   "goal": null,
-  "notes": "Landed a small measured change (NB bend finalists from separate Poisson-cost dips): near-neutral within noise, said so in README. 97 tests pass. No agent doc/post written; slice was too small to warrant one.",
+  "notes": "Measured dip-based NB bend finalists (near-neutral); a concurrent run landed a different fix for the same crowding first, so the code change was dropped and only the measurement note landed. Overlap not caught: allocate.py top flagship had 16 commits in 7d.",
   "corrections": [],
   "redteam": null
 }
