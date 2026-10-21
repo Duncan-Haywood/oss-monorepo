@@ -30,7 +30,9 @@ jobs:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
-          fetch-depth: 0
+          # Default depth 1: build.py reads only the working tree. A full
+          # clone here took a median 96s of a 101s job
+          # (docs/history/ci-perf-2026-10-21.md).
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"

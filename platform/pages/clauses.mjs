@@ -2697,8 +2697,9 @@ export function touchedVentures(base, { repoRoot = REPO_ROOT } = {}) {
   });
   const slugs = new Set();
   for (const line of out.split('\n')) {
-    const [top, slug] = line.split('/');
-    if (top === 'ventures' && slug && existsSync(path.join(repoRoot, 'ventures', slug))) slugs.add(slug);
+    // A file directly under ventures/ (its CLAUDE.md) belongs to no venture.
+    const [top, slug, ...rest] = line.split('/');
+    if (top === 'ventures' && slug && rest.length > 0 && existsSync(path.join(repoRoot, 'ventures', slug))) slugs.add(slug);
   }
   return [...slugs].sort();
 }

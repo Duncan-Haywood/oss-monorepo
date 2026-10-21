@@ -314,6 +314,9 @@ workflows:
 - workflow: ci-minutes-pricing-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: ci-profile-ci.yml
+  classification: none
+  publishes: []
 - workflow: ci-test-shard-balancer-ci.yml
   classification: none
   publishes: []

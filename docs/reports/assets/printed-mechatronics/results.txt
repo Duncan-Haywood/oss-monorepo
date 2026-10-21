@@ -1,0 +1,23 @@
+SO-101 follower, STL at SO-ARM100@a758567c3978
+triangles: 96584
+enclosed solid volume: 571.3 cm^3
+solid PLA mass (upper bound, 100% infill): 708 g
+surface area: 2023 cm^2
+  est. printed mass, 0.8 mm skin + 15% infill: 277 g ($5.54 at $20/kg)
+  est. printed mass, 1.2 mm skin + 15% infill: 362 g ($7.24 at $20/kg)
+  est. printed mass, 1.6 mm skin + 15% infill: 447 g ($8.95 at $20/kg)
+  plastic cost at $15/kg, solid: $10.63
+  plastic cost at $20/kg, solid: $14.17
+  plastic cost at $30/kg, solid: $21.25
+
+purchased parts total: $121.94 (README states $121.94)
+with solid plastic at the premium price: $143.19
+  actuators    $  83.34   58.2%
+  electronics  $  27.60   19.3%
+  tooling      $  11.00    7.7%
+  plastic      $  21.25   14.8%  (upper bound)
+excluding tooling: actuators are 63.0% of $132.19
+central case (no tooling, 1.2 mm skin, $20/kg): $118.18
+  actuators     70.5%
+  electronics   23.4%
+  plastic        6.1%

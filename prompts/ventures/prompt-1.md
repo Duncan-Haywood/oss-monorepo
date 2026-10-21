@@ -34,9 +34,9 @@ no venture has a single measured visitor. That is not the brief. So:
   features, pages or consolidation to the 650+ that exist. Fix one only when
   it is broken. Higher-value products are the work (`prompts/goals.md`,
   "Direction: depth over calculators").
-- **A new venture must say why someone would use it.** Name the free or paid
+- **A new venture should say why someone would use it.** Name the free or paid
   alternatives a user has today and what this does better, in the venture's
-  README. If you can't, don't build it.
+  README. If you can't, it is probably not worth building.
 - **Build something with depth:** a real workflow, data, an algorithm, an
   integration, AI/ML that clearly helps, or a mobile or desktop app. Land a
   first working version in one run and deepen it over later runs.
@@ -94,7 +94,7 @@ touch closer to that:
 research/<slug>`); that repository is archived, read-only history. Neither
 portfolio is a side project of the other. Inside `research/`, the research
 rules (`research/CLAUDE.md`, the research track of `prompts/`) apply, not the
-product rules. Do not create a top-level `research/` for anything else.
+product rules. Avoid creating a top-level `research/` for anything else.
 
 Making a repository public is the owner's call (publishing under the
 portfolio's name, `CLAUDE.md`). Preparing for it is every session's job.
