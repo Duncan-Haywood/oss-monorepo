@@ -144,3 +144,56 @@ test("tax on receipts is summed by month and by the account the line was filed t
   assert.equal(t.noTax.length, 1);
   assert.equal(taxOnReceipts(b, { from: "2026-04-01" }).taxCents, 320);
 });
+
+import { receiptSplit, applyReceiptSplit, parseItems } from "./receipts.mjs";
+import { journal } from "./engine.mjs";
+
+const HW = `Home Depot Store 22
+2026-03-16
+Hammer           12.00
+Cafe lunch       8.00
+Subtotal         20.00
+Sales Tax         2.00
+Total            22.00`;
+
+test("line items are read above the subtotal; tax, tip and payment lines are not items", () => {
+  const r = parseReceipt(HW);
+  assert.deepEqual(r.items.map((i) => [i.desc, i.cents]), [["Hammer", 1200], ["Cafe lunch", 800]]);
+  assert.deepEqual(parseReceipt("Shop\n2026-03-01\nWidget 5.00\nDiscount -1.00\nTotal 4.00").items, []);
+  assert.deepEqual(parseItems(["Tip 3.00", "Visa 22.00"], null), []);
+});
+
+test("a receipt splits into accounts by item words, tax shared out, summing to the bank line", () => {
+  const b0 = books([["2026-03-16", "HOME DEPOT 22", "-24.50"]]);
+  const b1 = addReceipts(b0, HW).books;
+  // "hammer" hits no keyword, so it takes the account the line is suggested to (Home Depot, 6100)
+  assert.ok(receiptSplit(b1, "r1").ok);
+  const filed = { ...b1, transactions: b1.transactions.map((t) => ({ ...t, posted: "6100", status: "confirmed" })) };
+  const s2 = receiptSplit(filed, "r1");
+  assert.ok(s2.ok);
+  assert.equal(s2.tipCents, 250);
+  assert.equal(s2.parts.reduce((a, p) => a + p.cents, 0), -2450);
+  const lunch = s2.parts.find((p) => p.account === "6130");
+  assert.equal(lunch.cents, -(800 + 80)); // 8.00 plus 40% of the 2.00 tax
+  const hardware = s2.parts.find((p) => p.account === "6100");
+  assert.equal(hardware.cents, -(1200 + 120 + 250)); // 60% of the tax and the tip go with the largest item
+});
+
+test("applying the split posts one balanced entry", () => {
+  const b1 = addReceipts(books([["2026-03-16", "HOME DEPOT 22", "-22.00"]]), HW).books;
+  const filed = { ...b1, transactions: b1.transactions.map((t) => ({ ...t, posted: "6100", status: "confirmed" })) };
+  const done = applyReceiptSplit(filed, "r1");
+  assert.equal(done.transactions[0].status, "split");
+  const e = journal(done).find((x) => x.source === "split");
+  assert.equal(e.lines.reduce((a, l) => a + l.debit - l.credit, 0), 0);
+});
+
+test("items that do not add up, or one account only, are refused with a reason", () => {
+  const bad = addReceipts(books([["2026-03-16", "SHOP", "-4.00"]]), "Shop One\n2026-03-16\nWidget 5.00\nGadget 1.00\nTotal 4.00").books;
+  assert.equal(receiptSplit(bad, "r1").ok, false);
+  const one = addReceipts(books([["2026-03-16", "STAPLES", "-10.00"]]), "Staples\n2026-03-16\nPaper 6.00\nPens 4.00\nTotal 10.00").books;
+  const f = { ...one, transactions: one.transactions.map((t) => ({ ...t, posted: "6070", status: "confirmed" })) };
+  const r = receiptSplit(f, "r1");
+  assert.equal(r.ok, false);
+  assert.match(r.reason, /one account/);
+});

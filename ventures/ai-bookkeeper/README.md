@@ -465,6 +465,16 @@ receipt, leaving out lines filed to wages, owner draws and transfers.
 `receipts --tax` sums the tax printed on receipts by month and by the account
 the paid line was filed to (receipts with no tax line are listed apart, not
 counted as zero; `taxOnReceipts` in `receipts.mjs`, also on the page).
+`receipts split RID [--apply]` cuts a matched receipt into one part per account
+(`receiptSplit`, `applyReceiptSplit`): line items are the word-and-amount lines
+above the subtotal; each goes to the first built-in keyword rule its words hit,
+else the account the bank line is filed or suggested to; tax is shared over the
+items by amount and a tip goes with the largest item (largest remainder, so the
+parts add exactly to the line). It refuses, with the reason, when the items do
+not add to the receipt before tax, when a discount line is present, or when
+everything lands in one account. Hand-written receipts only; the item keyword
+rules are the line-level built-ins, so most grocery or mixed-store items fall to
+the line's account. No page button yet.
 `receipts attach RID LINEID`, `detach RID` and `remove RID` fix a pair by hand;
 the same receipt twice is kept once. Engine: `receipts.mjs`; kept in the books
 file, never in the journal. The page has a card for it (paste, read, tables;

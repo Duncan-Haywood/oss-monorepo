@@ -13,6 +13,8 @@
 import { parseCents, parseDate } from "./bank.mjs";
 import { payeeTokens } from "./categorize.mjs";
 import { accountMap } from "./ledger.mjs";
+import { BUILT_IN } from "./categorize.mjs";
+import { confirm } from "./engine.mjs";
 
 const day = (d) => Math.floor(Date.parse(`${d}T00:00:00Z`) / 86400000);
 const MONEY = /(?:[$£€]\s*)?(\d{1,3}(?:,\d{3})+\.\d{2}|\d+\.\d{2})(?!\d)/g;
@@ -65,7 +67,29 @@ export function parseReceipt(block) {
   let taxCents = null;
   for (const l of lines) if (TAX_RE.test(l) && !TOTAL_RE.test(l) && !/subtotal/i.test(l)) { const a = amountsIn(l); if (a.length) taxCents = a[a.length - 1]; }
   if (taxCents !== null && cents !== null && taxCents >= cents) taxCents = null;
-  return { date, merchant, cents, taxCents, ok: !!(date && merchant && cents), notes, totalLine: from, text: lines.join("\n").slice(0, 400) };
+  const items = parseItems(lines, from);
+  return { date, merchant, cents, taxCents, items, ok: !!(date && merchant && cents), notes, totalLine: from, text: lines.join("\n").slice(0, 400) };
+}
+
+// Line items: a line of words ending in an amount, above the subtotal or total
+// line. Quantity prefixes ("2 x") are kept in the description; the amount is
+// the line total. Tax, tip, discount and payment lines are not items. A
+// discount line (negative or "disc") would need a sign convention, so a receipt
+// with one is read with no items rather than wrongly.
+const NOT_ITEM_RE = /sub\s*-?total|total|\btax\b|\bvat\b|\bgst\b|\bhst\b|\btip\b|gratuity|change|cash|visa|master ?card|amex|debit|credit|balance|discount|coupon|savings|\bdisc\b|\bpaid\b|\bpayment\b/i;
+export function parseItems(lines, totalLine) {
+  const items = [];
+  for (const l of lines) {
+    if (l === totalLine) break;
+    if (/sub\s*-?total/i.test(l)) break;
+    if (/-\s*[$£€]?\d+\.\d{2}\b|\(\s*[$£€]?\d+\.\d{2}\s*\)/.test(l)) return [];
+    if (NOT_ITEM_RE.test(l) || DATE_RES.some((re) => re.test(l))) continue;
+    const m = l.match(/^(.*?[a-z]{2}.*?)\s+[$£€]?\s*(\d{1,3}(?:,\d{3})+\.\d{2}|\d+\.\d{2})\s*[A-Z]?$/i);
+    if (!m || /\d{3}[-. ]\d{3,4}/.test(m[1])) continue;
+    const cents = parseCents(m[2]);
+    if (Number.isInteger(cents) && cents > 0) items.push({ desc: m[1].trim().slice(0, 60), cents });
+  }
+  return items;
 }
 
 const sameReceipt = (a, b) => a.date === b.date && a.cents === b.cents && (a.merchant ?? "").toLowerCase() === (b.merchant ?? "").toLowerCase();
@@ -81,7 +105,7 @@ export function addReceipts(books, text) {
     if (!p.ok) { skipped.push({ text: p.text.split("\n")[0], notes: p.notes }); continue; }
     const dup = kept.find((r) => sameReceipt(r, p));
     if (dup) { duplicates.push({ id: dup.id, merchant: p.merchant, date: p.date, cents: p.cents }); continue; }
-    const r = { id: `r${++n}`, date: p.date, merchant: p.merchant, cents: p.cents, taxCents: p.taxCents, matched: null, note: p.notes.join("; ") || undefined, text: p.text };
+    const r = { id: `r${++n}`, date: p.date, merchant: p.merchant, cents: p.cents, taxCents: p.taxCents, items: p.items.length ? p.items : undefined, matched: null, note: p.notes.join("; ") || undefined, text: p.text };
     kept.push(r); added.push(r);
   }
   return { books: matchReceipts({ ...books, receipts: kept }), added, skipped, duplicates };
@@ -207,4 +231,65 @@ export function taxOnReceipts(books, { from = null, to = null } = {}) {
     byAccount: out(accounts, (code) => ({ code, name: names.get(code)?.name ?? (code === "unfiled" ? "Not matched, or line not filed yet" : code) })),
     rows, noTax,
   };
+}
+
+// Line-item split. A receipt with items, paired with a bank line, is cut into
+// one part per account: each item goes to the first built-in rule its words
+// hit, else to the account the line is filed or suggested to (`fallback`).
+// Tax is shared out over the items by their amounts, and a tip with the
+// largest item's account, so the parts add exactly to the bank line. Integer
+// cents, largest remainder. Returns null when the items do not reach the
+// receipt total less tax (a misread), or fewer than two accounts come out:
+// then a split adds nothing over filing the line whole.
+export function receiptSplit(books, receiptId) {
+  const r = (books.receipts ?? []).find((x) => x.id === receiptId);
+  if (!r) throw new Error(`no receipt ${receiptId}`);
+  if (!r.matched) throw new Error(`receipt ${receiptId} is not matched to a bank line`);
+  const t = books.transactions.find((x) => x.id === r.matched);
+  if (!t) throw new Error(`no line ${r.matched}`);
+  if (!r.items?.length) return { ok: false, reason: "no line items were read from this receipt", parts: [] };
+  const codes = new Set(books.accounts.map((a) => a.code));
+  const fallback = t.posted ?? t.suggestion?.account ?? null;
+  const sumItems = r.items.reduce((a, i) => a + i.cents, 0);
+  const pre = r.cents - (r.taxCents ?? 0);
+  if (sumItems !== pre && sumItems !== r.cents) return { ok: false, reason: `items add to ${(sumItems / 100).toFixed(2)} but the receipt is ${(pre / 100).toFixed(2)} before tax`, parts: [] };
+  const rows = r.items.map((i) => {
+    const hit = BUILT_IN.find(([acct, dir, re]) => dir !== "in" && /^\d+$/.test(acct) && codes.has(acct) && re.test(i.desc.toLowerCase()));
+    return { ...i, account: hit ? hit[0] : fallback, by: hit ? "keyword" : "line" };
+  });
+  if (rows.some((x) => !x.account)) return { ok: false, reason: "some items match no rule and the bank line is not filed yet; file it first", parts: [], items: rows };
+  // tax over items, then tip
+  const taxIn = sumItems === pre ? (r.taxCents ?? 0) : 0;
+  const tip = t.cents * -1 - r.cents;
+  const shares = spread(taxIn, rows.map((x) => x.cents));
+  rows.forEach((x, i) => { x.taxCents = shares[i]; });
+  const by = new Map();
+  for (const x of rows) by.set(x.account, (by.get(x.account) ?? 0) + x.cents + x.taxCents);
+  if (tip > 0) {
+    const big = rows.reduce((m, x) => (x.cents > m.cents ? x : m));
+    by.set(big.account, by.get(big.account) + tip);
+  } else if (tip < 0) return { ok: false, reason: "the bank line is smaller than the receipt", parts: [] };
+  const parts = [...by].map(([account, cents]) => ({ account, cents: -cents }));
+  const sum = parts.reduce((a, p) => a + p.cents, 0);
+  if (sum !== t.cents) return { ok: false, reason: `parts add to ${sum} but the line is ${t.cents}`, parts: [] };
+  if (parts.length < 2) return { ok: false, reason: "every item goes to one account; file the line whole", parts, items: rows, txn: t.id };
+  return { ok: true, parts, items: rows, txn: t.id, tipCents: tip || undefined };
+}
+
+// Largest remainder: share `total` over `weights` in whole cents.
+function spread(total, weights) {
+  const w = weights.reduce((a, b) => a + b, 0);
+  if (!total || !w) return weights.map(() => 0);
+  const raw = weights.map((x) => (total * x) / w);
+  const out = raw.map(Math.floor);
+  let left = total - out.reduce((a, b) => a + b, 0);
+  raw.map((v, i) => [v - out[i], i]).sort((a, b) => b[0] - a[0] || a[1] - b[1]).slice(0, left).forEach(([, i]) => { out[i]++; });
+  return out;
+}
+
+// Post the split on the bank line.
+export function applyReceiptSplit(books, receiptId) {
+  const s = receiptSplit(books, receiptId);
+  if (!s.ok) throw new Error(s.reason);
+  return confirm(books, { [s.txn]: s.parts });
 }

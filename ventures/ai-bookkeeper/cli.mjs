@@ -23,7 +23,7 @@ import { setOpeningBalances, clearOpeningBalances } from "./opening.mjs";
 import { sniffFormat, splitOfx } from "./bank.mjs";
 import { detectRecurring, forecastCash } from "./recurring.mjs";
 import { findAnomalies } from "./anomalies.mjs";
-import { addReceipts, attachReceipt, removeReceipt, receiptReport, taxOnReceipts } from "./receipts.mjs";
+import { receiptSplit, applyReceiptSplit, addReceipts, attachReceipt, removeReceipt, receiptReport, taxOnReceipts } from "./receipts.mjs";
 import { compareProfit } from "./compare.mjs";
 import { setBudget, budgetVsActual } from "./budget.mjs";
 import { setTaxTreatment, taxDepreciation } from "./taxdepr.mjs";
@@ -63,7 +63,7 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
   recurring [--as-of D] [--json]  payees that repeat on a steady interval: cost per year, next date, and which went overdue, lapsed or changed amount
   forecast [--as-of D] [--days N] [--json]  expected cash day by day from the bank balance, recurring items and open invoices and bills; the lowest point
   anomalies [--json]     lines worth a second look: double charges, amounts far above a payee's usual, large first-time payees (candidates with a reason, not an audit)
-  receipts [FILE|attach RID LINEID|detach RID|remove RID] [--min DOLLARS] [--tax] [--json]  receipt text (blocks split by ---) matched to bank lines; lists unmatched receipts and spending over --min (default 75) with no receipt
+  receipts [FILE|attach RID LINEID|detach RID|remove RID|split RID [--apply]] [--min DOLLARS] [--tax] [--json]  receipt text (blocks split by ---) matched to bank lines; lists unmatched receipts and spending over --min (default 75) with no receipt
   compare [--from D --to D --vs-from D --vs-to D] [--json]  profit and loss against an earlier period (default: latest month vs the month before): what moved, what is new or gone
   budget [CODE AMOUNT] [--from D --to D] [--json]  set a monthly budget for an account (AMOUNT 0 removes it), or show budget against actual for the period (default: latest month)
   aging [--as-of D]      what customers owe you and what you owe, by days past due
@@ -221,6 +221,19 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
       books = rest[0] === "remove" ? removeReceipt(books, rest[1]) : attachReceipt(books, rest[1], rest[0] === "detach" ? null : rest[2]);
     } catch (e) { console.error(e.message); process.exit(2); }
     save(); console.log(`${rest[0]} ${rest[1]}: done.`); process.exit(0);
+  }
+  if (rest[0] === "split") {
+    try {
+      const sp = receiptSplit(books, rest[1]);
+      if (json) { console.log(JSON.stringify(sp, null, 2)); process.exit(sp.ok ? 0 : 1); }
+      for (const i of sp.items ?? []) console.log(`  ${i.desc.slice(0, 30).padEnd(30)} ${fmt(i.cents).padStart(10)} + tax ${fmt(i.taxCents).padStart(8)} -> ${i.account} (${i.by})`);
+      if (!sp.ok) { console.log(`No split: ${sp.reason}.`); process.exit(1); }
+      for (const p of sp.parts) console.log(`  part ${p.account} ${fmt(p.cents)}`);
+      if (sp.tipCents) console.log(`  (includes a ${fmt(sp.tipCents)} tip, with the largest item)`);
+      if (has("--apply")) { books = applyReceiptSplit(books, rest[1]); save(); console.log(`Posted as a split on ${sp.txn}.`); }
+      else console.log("Run again with --apply to post it.");
+    } catch (e) { console.error(e.message); process.exit(2); }
+    process.exit(0);
   }
   if (rest[0] && !rest[0].startsWith("--")) {
     if (!existsSync(rest[0])) { console.error(`no file ${rest[0]}`); process.exit(2); }
