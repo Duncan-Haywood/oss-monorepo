@@ -1,0 +1,92 @@
+mimic-looptransfer: prompt-free detector AUROC (human test text vs replayed imitator text; 0.5 = cannot tell)
+
+family   proposer rd  loop-acc  valid  len         length         ngram  ngram-unseen        logppl          bino
+reddit   ga       0      0.12      F    70          0.97          0.70          0.63          0.19          0.42
+reddit   ga       1      0.25      F    71          0.99          0.67          0.61          0.19          0.37
+reddit   ga       2      0.42      T   148          0.94          0.82          0.73          0.55          0.61
+reddit   ga       3      0.58      T   202          0.91          0.83          0.70          0.62          0.63
+reddit   grips    0      0.12      F    70          0.97          0.70          0.63          0.19          0.42
+reddit   grips    1      0.17      F    46          1.00          0.64          0.56          0.13          0.39
+reddit   grips    2      0.25      F    48          1.00          0.66          0.59          0.14          0.41
+reddit   grips    3      0.25      F    48          1.00          0.66          0.59          0.14          0.41
+reddit   llm      0      0.12      F    70          0.97          0.70          0.63          0.19          0.42
+reddit   llm      1      0.42      T   147          0.87          0.80          0.73          0.52          0.60
+reddit   llm      2      0.54      T   260          0.71          0.88          0.81          0.74          0.74
+reddit   llm      3      0.38      T   333          0.58          0.90          0.82          0.84          0.88
+reddit   random   0      0.12      F    70          0.97          0.70          0.63          0.19          0.42
+reddit   random   1      0.38      F    51          1.00          0.64          0.55          0.15          0.34
+reddit   random   2      0.38      F    51          1.00          0.64          0.55          0.15          0.34
+reddit   random   3      0.38      F    51          1.00          0.64          0.55          0.15          0.34
+reviews  ga       0      0.12      T   166          0.83          0.81          0.81          0.73          0.85
+reviews  ga       1      0.12      T   166          0.83          0.81          0.81          0.73          0.85
+reviews  ga       2      0.08      T   232          0.86          0.75          0.75          0.89          0.90
+reviews  ga       3      0.25      T   260          0.84          0.72          0.72          0.78          0.79
+reviews  grips    0      0.12      T   166          0.83          0.81          0.81          0.73          0.85
+reviews  grips    1      0.08      T   166          0.83          0.81          0.81          0.73          0.85
+reviews  grips    2      0.21      T   219          0.89          0.72          0.72          0.80          0.90
+reviews  grips    3      0.25      T   219          0.89          0.72          0.72          0.80          0.90
+reviews  llm      0      0.12      T   166          0.83          0.81          0.81          0.73          0.85
+reviews  llm      1      0.25      T   351          0.64          0.90          0.90          0.99          0.97
+reviews  llm      2      0.29      T   357          0.57          0.90          0.90          0.94          0.97
+reviews  llm      3      0.12      T   327          0.68          0.88          0.88          0.85          0.96
+reviews  random   0      0.12      T   166          0.83          0.81          0.81          0.73          0.85
+reviews  random   1      0.17      T   166          0.83          0.81          0.81          0.73          0.85
+reviews  random   2      0.42      T   297          0.76          0.85          0.85          0.90          0.96
+reviews  random   3      0.38      T   230          0.88          0.86          0.86          0.80          0.84
+
+Length-matched AUROC (pairs within 1.5x in characters; blank when under 20 pairs):
+family   proposer rd         ngram  ngram-unseen        logppl          bino
+reddit   ga       0     0.92( 72)     0.92( 72)     1.00( 72)     0.99( 72)
+reddit   ga       1     0.96( 48)     0.96( 48)     0.98( 48)     1.00( 48)
+reddit   ga       2     0.95(264)     0.93(264)     0.97(264)     0.96(264)
+reddit   ga       3     0.96(456)     0.85(456)     0.92(456)     0.92(456)
+reddit   grips    0     0.92( 72)     0.92( 72)     1.00( 72)     0.99( 72)
+reddit   grips    1                                                        
+reddit   grips    2                                                        
+reddit   grips    3                                                        
+reddit   llm      0     0.92( 72)     0.92( 72)     1.00( 72)     0.99( 72)
+reddit   llm      1     0.99(288)     0.93(288)     0.93(288)     0.84(288)
+reddit   llm      2     0.97(672)     0.90(672)     0.93(672)     0.85(672)
+reddit   llm      3     0.95(912)     0.88(912)     0.94(912)     0.95(912)
+reddit   random   0     0.92( 72)     0.92( 72)     1.00( 72)     0.99( 72)
+reddit   random   1                                                        
+reddit   random   2                                                        
+reddit   random   3                                                        
+reviews  ga       0     0.96(362)     0.96(362)     1.00(362)     0.98(362)
+reviews  ga       1     0.96(362)     0.96(362)     1.00(362)     0.98(362)
+reviews  ga       2     0.86(456)     0.86(456)     1.00(456)     0.95(456)
+reviews  ga       3     0.85(649)     0.85(649)     0.98(649)     0.94(649)
+reviews  grips    0     0.96(362)     0.96(362)     1.00(362)     0.98(362)
+reviews  grips    1     0.96(362)     0.96(362)     1.00(362)     0.98(362)
+reviews  grips    2     0.90(540)     0.90(540)     1.00(540)     0.99(540)
+reviews  grips    3     0.90(540)     0.90(540)     1.00(540)     0.99(540)
+reviews  llm      0     0.96(362)     0.96(362)     1.00(362)     0.98(362)
+reviews  llm      1     0.94(964)     0.94(964)     0.99(964)     0.97(964)
+reviews  llm      2     0.90(1008)     0.90(1008)     1.00(1008)     0.98(1008)
+reviews  llm      3     0.90(912)     0.90(912)     0.99(912)     0.98(912)
+reviews  random   0     0.96(362)     0.96(362)     1.00(362)     0.98(362)
+reviews  random   1     0.96(362)     0.96(362)     1.00(362)     0.98(362)
+reviews  random   2     0.89(768)     0.89(768)     0.99(768)     0.98(768)
+reviews  random   3     0.83(505)     0.83(505)     1.00(505)     0.95(505)
+
+Spearman rho between the loop's paired detector accuracy (lower = imitator better) and each prompt-free AUROC:
+  length/all             rho=+0.09 p=0.641 n=32
+  length/valid           rho=+0.13 p=0.573 n=21
+  ngram/all              rho=+0.16 p=0.383 n=32
+  ngram/valid            rho=+0.40 p=0.075 n=21
+  ngram-unseen/all       rho=-0.05 p=0.805 n=32
+  ngram-unseen/valid     rho=-0.03 p=0.903 n=21
+  logppl/all             rho=-0.01 p=0.967 n=32
+  logppl/valid           rho=-0.04 p=0.858 n=21
+  bino/all               rho=-0.19 p=0.285 n=32
+  bino/valid             rho=-0.34 p=0.129 n=21
+  length/length-matched  rho=+0.11 p=0.604 n=26
+  length/vs-mean-length  rho=-0.87 p=0.000 n=32
+  ngram/length-matched   rho=+0.11 p=0.579 n=26
+  ngram/vs-mean-length   rho=+0.86 p=0.000 n=32
+  ngram-unseen/length-matched rho=-0.40 p=0.041 n=26
+  ngram-unseen/vs-mean-length rho=+0.86 p=0.000 n=32
+  logppl/length-matched  rho=-0.81 p=0.000 n=26
+  logppl/vs-mean-length  rho=+0.97 p=0.000 n=32
+  bino/length-matched    rho=-0.46 p=0.018 n=26
+  bino/vs-mean-length    rho=+0.88 p=0.000 n=32
