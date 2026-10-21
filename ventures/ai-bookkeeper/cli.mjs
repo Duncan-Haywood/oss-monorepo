@@ -21,6 +21,7 @@ import { accountMap } from "./ledger.mjs";
 import { seSetAside, selfEmployment, scheduleC, scheduleCCsv, contractors1099, contractors1099Csv, nec1099FilingCsv, markW9, mergePayees } from "./taxforms.mjs";
 import { sniffFormat, splitOfx } from "./bank.mjs";
 import { detectRecurring, forecastCash } from "./recurring.mjs";
+import { findAnomalies } from "./anomalies.mjs";
 import { setTaxTreatment, taxDepreciation } from "./taxdepr.mjs";
 
 const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that learn from your corrections.
@@ -53,6 +54,7 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
   writeoff ID [--date D]  write off an invoice's unpaid balance to bad debts (6900)
   recurring [--as-of D] [--json]  payees that repeat on a steady interval: cost per year, next date, and which went overdue, lapsed or changed amount
   forecast [--as-of D] [--days N] [--json]  expected cash day by day from the bank balance, recurring items and open invoices and bills; the lowest point
+  anomalies [--json]     lines worth a second look: double charges, amounts far above a payee's usual, large first-time payees (candidates with a reason, not an audit)
   aging [--as-of D]      what customers owe you and what you owe, by days past due
   rules [--apply]        payees you filed the same way 3+ times, as rules; --apply adds them
   accept [MIN]           accept every suggestion at or above MIN confidence (default 0.7)
@@ -174,6 +176,11 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
   for (const x of r) console.log(`${x.payee.slice(0, 26).padEnd(26)} ${x.cadence.padEnd(15)} ${fmt(x.typical).padStart(11)}  ${fmt(x.perYear).padStart(12)}/yr  next ${x.next}  ${x.status}${x.note ? ` (${x.note})` : ""}`);
   const sum = (d) => r.filter((x) => x.direction === d && x.status !== "lapsed").reduce((a, x) => a + x.perYear, 0);
   console.log(`${r.length} recurring. Per year, not lapsed: in ${fmt(sum("in"))}, out ${fmt(sum("out"))}.`);
+} else if (cmd === "anomalies") {
+  const a = findAnomalies(books);
+  if (json) { console.log(JSON.stringify(a, null, 2)); process.exit(0); }
+  for (const x of a) console.log(`${x.date}  ${fmt(x.cents).padStart(11)}  ${x.kind.padEnd(9)} ${x.desc.slice(0, 30).padEnd(30)} ${x.reason}`);
+  console.log(`${a.length} line${a.length === 1 ? "" : "s"} to look at.`);
 } else if (cmd === "forecast") {
   const f = forecastCash(books, { asOf, days: +(flag("--days") ?? 90) });
   if (json) { console.log(JSON.stringify(f, null, 2)); process.exit(0); }

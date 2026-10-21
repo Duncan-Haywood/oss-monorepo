@@ -449,6 +449,18 @@ That checks the typed digits, not the publication itself: check them before fili
 Writing off a bill, the 179 taxable-income limit, inventory,
 payroll and sales tax filings, multiple currencies (the VAT worksheet is UK-layout, invoice basis), reading a PDF file itself (paste its text instead), and receipts.
 
+## Anomalies
+
+`node cli.mjs --books books.json anomalies` (engine: `findAnomalies`, `anomalies.mjs`)
+lists bank and card lines worth a second look before a close: a repeat of the
+same payee and amount within seven days (double charge or a line imported
+twice), an amount far above that payee's usual (median plus six robust spreads
+and at least 2.5 times the median, with four or more other lines), and a large
+first line from a payee never seen before (over five times the book's median
+outflow; a payee counts as new only if its first word is unique, and transfers, draws and payroll are skipped). On the synthetic example it flags nothing. Each comes with its reason. Node tests on hand-written series pass;
+the thresholds are judgment calls, not tuned on real books, and a flagged line
+is often fine.
+
 ## Next
 
 - MT940 and CAMT.053 reading landed 2026-10-21 (`sepa.mjs`, hand-written fixtures); OFX, MT940 and CAMT closing balances now feed the reconcile check. Try real exports from a German, Dutch or UK bank.

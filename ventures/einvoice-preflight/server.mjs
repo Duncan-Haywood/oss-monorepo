@@ -8,6 +8,7 @@
 //     or ?profile=france for the French SIREN and payment-mention rules (FR-nnn)
 //     add ?schematron=1 to also run the official EN 16931 Schematron (BR-xx) when
 //     build-schematron.mjs has been run; the report says "unavailable" otherwise.
+//   POST /v1/repair          JSON invoice -> arithmetic fixed, change log, findings left
 //   POST /v1/validate/batch  {"documents":[{"name","content","encoding"?}]}
 //                            encoding "base64" is for PDFs; default is text.
 //   POST /v1/generate        {"draft":{...},"format":"ubl"|"cii","profile":"xrechnung"|
@@ -19,6 +20,7 @@
 // Everything runs in the deployer's own process. Nothing is stored and
 // nothing is forwarded; request bodies live in memory for the length of the
 // request. Configuration is by environment variable only (see README).
+import { repairInvoice } from "./repair.mjs";
 import { createServer } from "node:http";
 import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
@@ -209,6 +211,19 @@ export function createApp(config = loadConfig()) {
       });
       const result = await preflightDocuments(inputs, { maxBytes: config.maxBytes, maxFiles: config.maxBatch, profile: profileFrom(url), schematron: url.searchParams.get("schematron") === "1" });
       send(res, 200, { ...buildJsonReport(result), disclaimer: DISCLAIMER });
+      return;
+    }
+
+    if (path === "/v1/repair") {
+      const body = await readBody(req, config.maxBytes);
+      let invoice;
+      try {
+        invoice = JSON.parse(body.toString("utf8"));
+      } catch {
+        throw new HttpError(400, "Body must be a JSON invoice.");
+      }
+      const r = repairInvoice(invoice);
+      send(res, 200, { repaired: r.repaired, changes: r.changes, remaining: r.remaining, invoice: r.invoice, disclaimer: DISCLAIMER });
       return;
     }
 
