@@ -12,7 +12,7 @@ measurements to improve the sub-prompts and the documentation.
 ## 1. Route
 
 If the message that started the session names a specific task, pass its track:
-`route --track ventures|research|process|explore|redteam|review` (otherwise
+`route --track ventures|research|process|explore|redteam|creative|review` (otherwise
 the draw can send you elsewhere).
 A direct owner request that fits no track (a compliance review, a one-off
 fix) takes the closest one by the work's nature (`process` for repo or
@@ -46,7 +46,8 @@ exists, another run has claimed that review; route again with `--skip-review`.
 About 5% of runs draw the `explore` track: free choice, Google "20% time"
 style. The agent works on whatever it finds most interesting, with its own
 approach, under the same guardrails and landing rules
-([`prompts/explore/prompt-0.md`](prompts/explore/prompt-0.md)).
+([`prompts/explore/prompt-0.md`](prompts/explore/prompt-0.md)). About 10%
+draw `creative`: the owner's stories and podcasts ([`prompts/creative/`](prompts/creative/prompt-0.md)).
 
 ## 2. Work, and land it
 

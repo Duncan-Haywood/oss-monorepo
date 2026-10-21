@@ -60,6 +60,13 @@ and one platform that runs them:
 - **Free choice** (about 5% of effort): in the spirit of Google's "20% time",
   about one run in twenty works on whatever the agent finds most interesting,
   with its own approach (`prompts/explore/`). Same guardrails, same bar.
+- **Creative work** (about 10% of runs; owner, 2026-10-21: "the scheduled
+  agents are the throughput power I have I want some portion of them going
+  towards carrying out actually operating that goal"): the owner's
+  long-running creative projects, written, voiced and published by the
+  fleet (`prompts/creative/`). Hearth & Horizon's science fiction comes
+  first, beside its two story shelves, Saints by Candlelight and the
+  writing podcast.
 - **The web presence** (added 2026-10-14): one website, hosted on GitHub
   (GitHub Pages), from which all of the work above can be easily checked out
   visually. A visitor lands on one homepage and reaches every product and
@@ -415,12 +422,20 @@ replicate. something inaccessible algorithms from research papers and
 whatnot", and "I better not be able to understand the math behind it at a
 glance with my ba in mathematics."
 
-So a run with a free choice picks research, a research-adjacent tool or a
-flagship milestone before a new small product. A new calculator, or new work
-on an existing one, needs an engine that fails two tests: a chatbot can
-reproduce it in one reply, and a maths graduate follows it at a glance. A
-published model, a solver or a proof passes; rates times quantities does not.
-Comparison pages on arithmetic calculators are not progress. Where to
+The owner, 2026-10-21: "i want to drop the recommendations that have us
+still working on stupid calculators. whereever those insturctions are lets
+walk them back. working on higher value products seems much better."
+
+So calculator work is off the menu. Build no new calculators, and give the
+existing ones (over 650 on `main`) maintenance only: fix one when it is broken
+(a failing test, a wrong result, a dead link), and add no features, pages,
+comparison pages, consolidation or distribution work to it. The router
+(`portfolio/router/allocate.py`) ranks every non-flagship calculator last with
+that task. A run with a free choice picks research, a research-adjacent tool
+or a flagship milestone. A tool built on a published method that fails both
+tests (a chatbot reproduces it in one reply; a maths graduate follows it at a
+glance) is a research tool, not a calculator, and is welcome: a published
+model, a solver or a proof passes; rates times quantities does not. Where to
 find such engines: "Research algorithms as tools" above. The posts:
 [`docs/posts/2026-10-20-fewer-calculators-harder-problems.md`](../docs/posts/2026-10-20-fewer-calculators-harder-problems.md)
 and
@@ -442,6 +457,18 @@ records to 2026-10-20: 4 of 969 measured runs and 5 of 247 projects passed
 twenty estimated human hours; 92% of runs took under fifteen active minutes
 ([the post](../docs/posts/2026-10-21-work-that-takes-more-than-twenty-hours.md)).
 `runcost.py report` tracks it.
+
+**Beat asking a chatbot** (owner, 2026-10-21, on finding a day-count adder
+at the front of the site): "the tools need to justify their existence by
+being more useful or significantly cheaper than the alt of for example
+asking ai ... tools should have sufficient work required that it's not
+replaceable by chatgpt in less than a minute or two at least if not 20
+minutes of chatgpt working as a better rule of thumb." Before building or
+deepening a tool, write what a chatbot does with the same input in two
+minutes and in twenty, and what this tool does that neither does. If
+nothing, pick other work; rule rows, guide pages and links on such a tool
+are upkeep, not depth. Why the old ways missed it and what to build next:
+[`docs/reports/2026-10-21-flagship-front-door.md`](../docs/reports/2026-10-21-flagship-front-door.md).
 
 ## Direction: language is a judgment call
 
@@ -760,8 +787,8 @@ time budgets. Each change should move one of the dashboard's CI numbers.
 - **Ventures:** products on `main` with a public URL, disclaimers and usage
   tracking in place, then measured use (`portfolio/usage/`). Deploying what
   exists beats building another product (`portfolio/DIRECTION.md`).
-  Depth over count: prefer higher-value work to more single-page calculators
-  (a principle, not a ban; owner, 2026-10-16); new ventures follow the
+  No calculator work: no new calculators, and existing ones get fixes only
+  (owner, 2026-10-21, "Direction: depth over calculators"); new ventures follow the
   owner's brief in the ventures sub-prompt (ambitious, AI/ML where it helps,
   mobile apps, real business potential). The finish line for a venture is a
   working one-click self-deploy page (the business model under Mission).
@@ -769,7 +796,7 @@ time budgets. Each change should move one of the dashboard's CI numbers.
   the thousand plus small tools, but on the other hand I want to work on
   deeper business and engineering problems and more of the work to be to
   deepening and improving existing projects that have real depth to them."
-  So the small tools stay and get maintained, but most venture runs deepen
+  So the small tools stay live and get fixed when broken, but venture runs deepen
   one of the few ventures listed in
   [`portfolio/flagships.yaml`](../portfolio/flagships.yaml), which
   `allocate.py` ranks first.
@@ -779,6 +806,10 @@ time budgets. Each change should move one of the dashboard's CI numbers.
 - **Explore:** merged work the agent chose itself, about 5% of runs. Judged
   on the same success and integrity measures; the review also notes which
   free-choice ideas graduated into a regular track.
+- **Creative:** finished stories and episodes on `main` (text, audio,
+  feeds) that pass their series guide's honesty rules, then measured
+  listening (`audio_played`, `audio_finished`). Quality over count; audio
+  stays inside the Pages size budget the track prompt sets.
 - **Red team / blue team:** the repository's **catch rate** (seeded faults
   its tests catch, over non-equivalent faults seeded) rises over time, and
   its **error rate** (real defects found per red-team run) falls. Every
