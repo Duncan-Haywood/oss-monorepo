@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
@@ -168,4 +169,33 @@ test('readServingCname reports branchSeen separately from the CNAME', () => {
     cname: null,
     branchSeen: true,
   });
+});
+
+test('a hostname whose later labels start with any digit is a valid CNAME', () => {
+  for (const host of ['tools.9lives.example', 'a.5.example.com', 'x.2go.dev']) {
+    const result = publishedBaseUrl({
+      git: fakeGit({
+        refs: { [`refs/heads/${SERVING_BRANCH}`]: 'a' },
+        cnames: { [`refs/heads/${SERVING_BRANCH}:CNAME`]: `${host}\n` },
+      }),
+    });
+    assert.equal(result.baseUrl, `https://${host}/`);
+  }
+});
+
+test('the CLI prints the URL when run directly and nothing when imported', () => {
+  const script = join(HERE, 'published-base-url.mjs');
+  const direct = spawnSync(process.execPath, [script], { encoding: 'utf8' });
+  assert.equal(direct.status, 0);
+  assert.match(direct.stdout, /^https:\/\/\S+\/\n$/);
+  assert.match(direct.stderr, /^published base URL: /);
+
+  const imported = spawnSync(
+    process.execPath,
+    ['--input-type=module', '-e', `await import(${JSON.stringify(script)})`],
+    { encoding: 'utf8' },
+  );
+  assert.equal(imported.status, 0);
+  assert.equal(imported.stdout, '');
+  assert.equal(imported.stderr, '');
 });
