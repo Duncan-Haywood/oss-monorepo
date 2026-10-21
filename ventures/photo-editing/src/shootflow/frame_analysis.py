@@ -9,11 +9,14 @@ Python, so nothing beyond ffmpeg is needed:
   highlights.
 - ``contrast``: luma standard deviation.
 - ``motion``: mean absolute difference between sampled frames (video only).
+- ``framing``: where the detail sits in the frame (detail-energy centroid against
+  the rule-of-thirds points, and how much of the detail one region holds).
 - ``dhash``: 64-bit difference hash of the middle frame, for near-duplicate
   grouping by Hamming distance.
 
 These are technical signals. There is no face detector and no semantic model
-here, so ``story`` is a proxy and the analysis payload says so.
+here, so ``framing`` finds where the detail is, not what it is, and ``story``
+is a proxy; the analysis payload says so.
 """
 
 from __future__ import annotations
@@ -41,6 +44,9 @@ class FrameMetrics:
     exposure: float
     contrast: float
     motion: float
+    framing: float
+    subject_x: float
+    subject_y: float
     mean_luma: float
     clipped_shadows: float
     clipped_highlights: float
@@ -58,8 +64,9 @@ class FrameMetrics:
 
     @property
     def story_score(self) -> float:
-        # No semantic model: a documented blend of the two measured scores.
-        return _clamp(0.6 * self.aesthetic_score + 0.4 * self.technical_score)
+        # No semantic model: a documented blend of the measured scores.
+        base = 0.6 * self.aesthetic_score + 0.4 * self.technical_score
+        return _clamp(0.85 * base + 0.15 * self.framing)
 
 
 def analyze_media(tools: FfmpegTools, source: Path, *, media_type: str) -> FrameMetrics:
@@ -94,11 +101,15 @@ def metrics_from_frames(
         diffs = [_mean_abs_diff(a, b) for a, b in zip(frames, frames[1:])]
         motion = _clamp(sum(diffs) / len(diffs) / 32.0)
     variance = sorted(sharpness_values)[len(sharpness_values) // 2]
+    framing, subject_x, subject_y = framing_from_frame(frames[best], width, height)
     return FrameMetrics(
         sharpness=round(variance / (variance + _SHARPNESS_HALF_POINT), 6),
         exposure=round(_clamp(exposure), 6),
         contrast=round(_clamp(std / 64.0), 6),
         motion=round(motion, 6),
+        framing=round(framing, 6),
+        subject_x=round(subject_x, 6),
+        subject_y=round(subject_y, 6),
         mean_luma=round(mean, 3),
         clipped_shadows=round(shadows, 6),
         clipped_highlights=round(highlights, 6),
@@ -106,6 +117,41 @@ def metrics_from_frames(
         frames_sampled=len(frames),
         duration_seconds=duration_seconds,
     )
+
+
+_FRAMING_GRID = 8
+_THIRDS = ((1 / 3, 1 / 3), (2 / 3, 1 / 3), (1 / 3, 2 / 3), (2 / 3, 2 / 3))
+
+
+def framing_from_frame(frame: bytes, width: int = FRAME_WIDTH, height: int = FRAME_HEIGHT) -> tuple[float, float, float]:
+    """Score subject placement from where the detail is: ``(framing, x, y)``.
+
+    Gradient energy is summed on an 8x8 grid. The subject is taken to be the
+    detail-weighted centroid (x, y in 0..1). Placement scores 1.0 on a
+    rule-of-thirds point or the exact centre and falls off with distance;
+    isolation rewards a frame whose detail sits in a few cells (a subject
+    against a plain background) over an even texture. A frame with no detail
+    has no subject and scores 0.5, so it neither wins nor loses on framing.
+    """
+
+    grid = _FRAMING_GRID
+    cells = [0.0] * (grid * grid)
+    for y in range(1, height - 1):
+        row, below = y * width, (y + 1) * width
+        gy = y * grid // height
+        for x in range(1, width - 1):
+            gx = x * grid // width
+            cells[gy * grid + gx] += abs(frame[row + x + 1] - frame[row + x - 1]) + abs(frame[below + x] - frame[row - width + x])
+    total = sum(cells)
+    if total < 1.0 * len(cells):
+        return 0.5, 0.5, 0.5
+    cx = sum(cells[r * grid + c] * (c + 0.5) for r in range(grid) for c in range(grid)) / total / grid
+    cy = sum(cells[r * grid + c] * (r + 0.5) for r in range(grid) for c in range(grid)) / total / grid
+    nearest = min(math.hypot(cx - px, cy - py) for px, py in (*_THIRDS, (0.5, 0.5)))
+    placement = max(0.0, 1.0 - nearest / 0.25)
+    top_quarter = sum(sorted(cells, reverse=True)[: len(cells) // 4]) / total
+    isolation = _clamp((top_quarter - 0.25) / 0.65)
+    return _clamp(0.6 * placement + 0.4 * isolation), cx, cy
 
 
 def dhash_hex(frame: bytes, width: int = FRAME_WIDTH, height: int = FRAME_HEIGHT) -> str:
