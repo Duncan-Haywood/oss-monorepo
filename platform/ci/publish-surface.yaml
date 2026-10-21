@@ -314,6 +314,9 @@ workflows:
 - workflow: ci-minutes-pricing-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: ci-profile-ci.yml
+  classification: none
+  publishes: []
 - workflow: ci-test-shard-balancer-ci.yml
   classification: none
   publishes: []
@@ -1034,6 +1037,12 @@ workflows:
   classification: none
   publishes: []
 - workflow: oidc-trust-policy-check-ci.yml
+  classification: none
+  publishes: []
+- workflow: open-floor-robots-ci.yml
+  classification: none
+  publishes: []
+- workflow: open-robot-mower-ci.yml
   classification: none
   publishes: []
 - workflow: open-tennis-robots-ci.yml

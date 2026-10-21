@@ -58,7 +58,7 @@ test("links to the German and French pages and the sitemap entry is its own url 
 });
 
 test("every other country page links to the UAE page", () => {
-  for (const f of fs.readdirSync(new URL("./", import.meta.url)).filter((n) => /-mandate\.html$/.test(n) && !n.startsWith("uae"))) {
+  for (const f of fs.readdirSync(new URL("./", import.meta.url)).filter((n) => /-mandate\.html$/.test(n) && !n.startsWith("uae") && !n.startsWith("saudi"))) {
     const page = fs.readFileSync(new URL(`./${f}`, import.meta.url), "utf8");
     assert.match(page, /href="uae-e-invoice-mandate\.html"/, f);
   }

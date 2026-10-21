@@ -116,7 +116,10 @@ alias table, with the same value both times. It caused no harm and was removed.
 - **Rule of thumb** in [`PRODUCT_PLAYBOOK.md`](../../../PRODUCT_PLAYBOOK.md)
   §4: venture JS stays build-free `.mjs`, and TypeScript is used only as a
   checker. New files start with `// @ts-check`. A file you edit gets it too,
-  when `--candidates` says it already passes.
+  when `--candidates` says it already passes. (2026-10-21: the owner lifted
+  the build-free `.mjs` requirement; the language is now a free choice and
+  `// @ts-check` is the suggestion for ventures that stay in plain
+  JavaScript.)
 - **Check:** [`platform/pages/typecheck.mjs`](../../../platform/pages/typecheck.mjs)
   runs `tsc --noEmit` over the opted-in files of the ventures you name, using
   a pinned TypeScript installed outside the tree. `--candidates <slug>` lists

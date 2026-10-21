@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How Do You Know If a Time Series Really Changed? (Free Changepoint Detection)</title>
+<meta name="description" content="Did your metric really shift after the release, the price change or the new sensor, or is it noise? How changepoint detection answers that, the three traps that fake a change, and a free browser tool that runs PELT and Bayesian detection on your CSV.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/changepoint-detector/how-do-you-know-if-a-time-series-really-changed.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="How do you know if a time series really changed?">
+<meta property="og:description" content="Eyeballing a chart can't tell a shift from noise. Changepoint detection can, if you avoid three traps. Free, in your browser, nothing uploaded.">
+<meta property="og:url" content="https://example.invalid/changepoint-detector/how-do-you-know-if-a-time-series-really-changed.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do you know if a time series really changed?","acceptedAnswer":{"@type":"Answer","text":"Ask whether the data are better described as two or more segments with different levels than as one, after paying a penalty for every extra segment. That is changepoint detection. PELT finds the best segmentation exactly; Bayesian online changepoint detection gives a probability for a change at each point. A change both methods agree on is strong evidence; a change only your eye sees usually is not."}},{"@type":"Question","name":"Why not just compare the average before and after the date I suspect?","acceptedAnswer":{"@type":"Answer","text":"Because you picked the date by looking at the chart. Choosing the split point from the data and then testing at that point makes a difference look far more significant than it is. Changepoint detection searches every split point and charges for the search, so it does not have that bias."}},{"@type":"Question","name":"What makes a changepoint detector report changes that are not there?","acceptedAnswer":{"@type":"Answer","text":"Three things, mainly: autocorrelated noise (each point resembles the one before), a seasonal cycle, and a steady trend. Each looks like a series of steps to a method that assumes independent noise around a flat level. Measured on seeded series in this tool's test suite: sticky noise with no change at all produced a false change in 40 of 40 runs uncorrected and 4 of 40 with the autocorrelation option; a pure ramp produced 5.5 false changes per series with the level model and 0.15 with the trend model."}},{"@type":"Question","name":"Does a changepoint prove the release or price change caused it?","acceptedAnswer":{"@type":"Answer","text":"No. It says when the data changed and by how much. Whether your release, a holiday or an outage caused it is a separate question that needs what you know about that date."}},{"@type":"Question","name":"Should I use this tool or R or Python?","acceptedAnswer":{"@type":"Answer","text":"For a one-off question on one series, this page is quicker: paste a CSV, no install. For many series, multivariate data, costs this tool lacks or a pipeline, use R's changepoint package or Python's ruptures, which are more complete. This tool's PELT matched ruptures on 100 of 100 seeded test cases."}},{"@type":"Question","name":"Is my data uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. The tool reads and analyses the file in your browser tab. Nothing you paste is sent anywhere."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#1b1f2a;background:#f2f4f7}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#1f5f86}.eyebrow{font-weight:700;letter-spacing:.04em;color:#1f5f86;font-size:.85rem}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.1;color:#1f4a5d;margin:.4rem 0 .8rem}h2{color:#1f4a5d;font-size:1.25rem;margin-top:2rem}h3{font-size:1.02rem;margin:1.2rem 0 .3rem}p,li{line-height:1.6}.lede{font-size:1.1rem}.cta{display:inline-block;background:#1f5f86;color:#fff;font-weight:700;padding:.75rem 1.1rem;border-radius:8px;text-decoration:none;margin:.4rem .6rem .4rem 0}.cta.secondary{background:#e4edf1;color:#1f4a5d}.card{background:#fff;border:1px solid #d9dfe6;border-radius:14px;padding:1.2rem 1.4rem;margin:1.2rem 0}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:1rem}.grid .card{margin:0}.table-wrap{overflow-x:auto}table{border-collapse:collapse;width:100%;margin:.6rem 0}th,td{text-align:left;padding:.45rem .6rem;border-bottom:1px solid #e3e8ee}td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}caption{text-align:left;font-size:.88rem;color:#4c5a68;padding-bottom:.4rem}code{background:#eef2f6;padding:.1rem .3rem;border-radius:4px}.note,footer{font-size:.86rem;color:#4c5a68}footer{margin-top:2.5rem;border-top:1px solid #d9dfe6;padding-top:1rem}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; Changepoint Detector</a> · FREE · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+<header>
+<h1>How do you know if a time series really changed?</h1>
+<p class="lede">Sign-ups dipped after the redesign. Latency looks higher since Tuesday's deploy. The sensor reads warmer since it was moved. Is that a real shift, or the noise you see every week? A chart can't tell you. <strong>Changepoint detection</strong> can: it asks whether your data are better described as two segments than one, after charging a penalty for every extra segment, and says when the change happened and how sure to be.</p>
+<p><a class="cta" href="./">Open the free changepoint detector</a><a class="cta secondary" href="#example">See a worked example</a></p>
+</header>
+
+<h2>Who this is for</h2>
+<div class="grid">
+<div class="card"><h3>Product and growth analysts</h3><p>Did conversion really move after the launch, or did you pick the before-and-after dates that make it look that way?</p></div>
+<div class="card"><h3>Engineers and SREs</h3><p>Did p95 latency or error rate step up at a deploy, and from which build? A lasting shift, not one spiky minute that an alert already caught.</p></div>
+<div class="card"><h3>Scientists and engineers with sensor data</h3><p>When did the instrument drift, the flow drop or the regime change, with a method you can cite in a paper?</p></div>
+<div class="card"><h3>Anyone counting things</h3><p>Orders, incidents, visits per day. Counts have their own model here, with options for weekly cycles and clumpy days.</p></div>
+</div>
+
+<h2>Why the obvious ways mislead</h2>
+<ul>
+<li><strong>Eyeballing the chart.</strong> Quick, but noise has runs in it. Your eye finds a step in almost any series and cannot say whether it would survive more data.</li>
+<li><strong>Comparing the average before and after the date you suspect.</strong> You picked the date by looking at the chart, so a test at that date is biased toward finding a difference. A changepoint method searches every split point and pays for the search.</li>
+<li><strong>A rolling average.</strong> It smooths the noise and smears the change across the window, so it lags and blurs the date.</li>
+<li><strong>Anomaly alerts.</strong> They flag single odd points. A lasting change in level is a different question.</li>
+</ul>
+
+<h2 id="example">A worked example: the Nile, 1871 to 1970</h2>
+<p>The annual flow of the Nile at Aswan is the classic test series for this question; Cobb (1978, <em>Biometrika</em>) placed its change around 1898, the year the first Aswan dam was begun. Load it on the tool with one click. This is what the tool reports (output of <code>node cli.mjs --example</code>):</p>
+<div class="table-wrap">
+<table>
+<caption>PELT segments on the Nile series (flow in 10<sup>8</sup> m³), BIC penalty, change-in-level model.</caption>
+<thead><tr><th scope="col">Segment</th><th scope="col" class="n">Years</th><th scope="col" class="n">Mean</th><th scope="col" class="n">SD</th></tr></thead>
+<tbody>
+<tr><td>1871 – 1898</td><td class="n">28</td><td class="n">1097.75</td><td class="n">135.0</td></tr>
+<tr><td>1899 – 1970</td><td class="n">72</td><td class="n">849.97</td><td class="n">124.8</td></tr>
+</tbody>
+</table>
+</div>
+<p>One change, from 1899: the mean drops by about 248, which is 2.15 noise standard deviations. The Bayesian method puts 79% probability on a change within 3 points of it, and no other year reaches 50%. R's <code>changepoint</code> package gives the same split (<code>cpts = 28</code>). Two independent methods and the literature agree, which is what a real change looks like.</p>
+
+<h2>Three traps that fake a change, and what the tool does about each</h2>
+<p>Both methods assume the noise around each level is independent and the level is flat. Real series often break that, and each break shows up as extra, false changes. The tool's test suite measures each trap on seeded synthetic series (the numbers are from the <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/changepoint-detector#verification">README's Verification section</a>):</p>
+<div class="table-wrap">
+<table>
+<caption>Seeded series with no real change (or a known one), 40 runs each, before and after the matching option.</caption>
+<thead><tr><th scope="col">Trap</th><th scope="col">Without the option</th><th scope="col">With it</th><th scope="col">Option on the page</th></tr></thead>
+<tbody>
+<tr><td>Sticky noise (each point like the last; AR(1), rho 0.8, no change)</td><td>false change in 40 of 40 runs</td><td>4 of 40</td><td>"Autocorrelated noise: allow for it"</td></tr>
+<tr><td>A seasonal cycle hiding a real step of 4 (period 12)</td><td>exactly one change, at the step: 0 of 40</td><td>33 of 40</td><td>"Seasonal period in points"</td></tr>
+<tr><td>A steady ramp with no change</td><td>5.5 false changes per series</td><td>0.15</td><td>"Level or slope (trending series)"</td></tr>
+</tbody>
+</table>
+</div>
+<p>The corrections cost some power on small shifts; the README states by how much. If your series has a weekly or monthly rhythm, a trend, or tends to stay high once it is high, switch on the matching option before you believe a result.</p>
+
+<h2>What you get</h2>
+<ul>
+<li><strong>PELT</strong> (Killick, Fearnhead &amp; Eckley 2012): the exact best segmentation under a penalty per change. Not a heuristic.</li>
+<li><strong>Bayesian online changepoint detection</strong> (Adams &amp; MacKay 2007): a probability that a new segment began at each point.</li>
+<li>Models for a change in level, in level and volatility, in slope, and in the rate of counts (with seasonal, trend and overdispersion options).</li>
+<li>A chart, a table of changes and segments, and a per-point CSV download.</li>
+<li>The same engine as a zero-dependency command-line tool and as a tool AI agents can call. MIT licence, source on GitHub.</li>
+</ul>
+
+<h2>When to use something else</h2>
+<p>For many series at once, multivariate data, very long series or a production pipeline, R's <code>changepoint</code> package and Python's <code>ruptures</code> are the reference tools and more complete. This page is for the one-off question on one series, without setting up an environment. On 100 seeded test cases its PELT returned the same changepoints as <code>ruptures</code> on all 100.</p>
+
+<p><a class="cta" href="./">Find the changepoints in your own series</a></p>
+
+<section aria-labelledby="faq-h">
+<h2 id="faq-h">Questions</h2>
+<h3>How do you know if a time series really changed?</h3>
+<p>Ask whether the data are better described as two or more segments with different levels than as one, after paying a penalty for every extra segment. That is changepoint detection. PELT finds the best segmentation exactly; Bayesian online changepoint detection gives a probability for a change at each point. A change both methods agree on is strong evidence; a change only your eye sees usually is not.</p>
+<h3>Why not just compare the average before and after the date I suspect?</h3>
+<p>Because you picked the date by looking at the chart. Choosing the split point from the data and then testing at that point makes a difference look far more significant than it is. Changepoint detection searches every split point and charges for the search, so it does not have that bias.</p>
+<h3>What makes a changepoint detector report changes that are not there?</h3>
+<p>Three things, mainly: autocorrelated noise (each point resembles the one before), a seasonal cycle, and a steady trend. Each looks like a series of steps to a method that assumes independent noise around a flat level. Measured on seeded series in this tool's test suite: sticky noise with no change at all produced a false change in 40 of 40 runs uncorrected and 4 of 40 with the autocorrelation option; a pure ramp produced 5.5 false changes per series with the level model and 0.15 with the trend model.</p>
+<h3>Does a changepoint prove the release or price change caused it?</h3>
+<p>No. It says when the data changed and by how much. Whether your release, a holiday or an outage caused it is a separate question that needs what you know about that date.</p>
+<h3>Should I use this tool or R or Python?</h3>
+<p>For a one-off question on one series, this page is quicker: paste a CSV, no install. For many series, multivariate data, costs this tool lacks or a pipeline, use R's changepoint package or Python's ruptures, which are more complete. This tool's PELT matched ruptures on 100 of 100 seeded test cases.</p>
+<h3>Is my data uploaded?</h3>
+<p>No. The tool reads and analyses the file in your browser tab. Nothing you paste is sent anywhere.</p>
+</section>
+
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified statistician. Results are statistical estimates from the data you enter. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p>An independent implementation from the published papers; not affiliated with or endorsed by their authors or by the maintainers of the R and Python packages named here. Built by AI coding agents with the repository owner steering. <a href="https://github.com/duncan-haywood/oss-monorepo/blob/main/ventures/changepoint-detector/llms.txt">Notes for AI assistants (llms.txt)</a> · <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/changepoint-detector">Source (MIT)</a> · <a href="https://github.com/sponsors/Duncan-Haywood">Support on GitHub Sponsors</a></p>
+</footer>
+</main>
+</body>
+</html>

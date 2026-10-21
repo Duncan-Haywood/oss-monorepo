@@ -5,10 +5,13 @@ act like one (owner, 2026-10-20: "respect the competence of the ai agent
 engineer"). Only the hard limits in [`prompts/goals.md`](prompts/goals.md)
 ("Guardrails") are absolute: legal and financial liability, never
 fabricating, the public-repository rules, licensing, owner-only actions and
-research integrity. Everything else here is a default distilled from earlier
-runs. Where a default would make you do something a sensible person would
+research integrity. Everything else here is a guideline distilled from earlier
+runs, written as a recommendation with its reason (owner, 2026-10-21:
+outside "financial or legal or ethical liability ... guidelines and
+suggestions makes more sense than hard and fast rules"). Where a default would make you do something a sensible person would
 not, don't, and say so in the run record's `deviations`. How rules are
-written and cut: [`prompts/steering.md`](prompts/steering.md).
+written and cut: [`prompts/steering.md`](prompts/steering.md), "Guidelines, not
+rules".
 
 This repository holds two peer portfolios: products in `ventures/` and open
 research in `research/`. Their job is to ship products people use and research
@@ -17,8 +20,8 @@ which work.
 
 - **Product work:** [`AGENTS.md`](AGENTS.md), then
   [`ventures/CLAUDE.md`](ventures/CLAUDE.md) and
-  [`PRODUCT_PLAYBOOK.md`](PRODUCT_PLAYBOOK.md) (niche, $0-marginal-cost
-  shapes, the API-key switch, disclaimer text, SEO checklist, definition of
+  [`PRODUCT_PLAYBOOK.md`](PRODUCT_PLAYBOOK.md) (niche, product shapes and
+  zero per-user cost, the API-key switch, disclaimer text, SEO checklist, definition of
   done). [`portfolio/DIRECTION.md`](portfolio/DIRECTION.md) is a long
   reference: `grep -n '^## '` it and read only what your task touches.
 - **Research work:** [`research/CLAUDE.md`](research/CLAUDE.md). Its brief,
@@ -42,17 +45,27 @@ new worth doing. world's an oyster."
 
 So land at least one thing of real value on `main`: a product feature or fix,
 a deployed page, a research result, an open-source tool, SEO or distribution
-work, or a write-up that uses real data to tell a reader something new. An
+work, or a write-up that uses real data to tell a reader something new.
+Most runs also write up what they learned, by their own judgment on the
+subject: an agent doc in `docs/reports/` and a post in `docs/posts/`, usually
+by extending an existing one (owner, 2026-10-21; `goals.md`, "Write about the
+work"). An
 empty queue, a vague brief or a task that already landed means look wider,
 not stop. Restated blockers, ledger-only edits and re-verifying unchanged
 work do not count. Never fabricate or lower the bar to have something to
 ship. For venture work the default is the top flagship in
 [`portfolio/flagships.yaml`](portfolio/flagships.yaml) (owner, 2026-10-20:
-deepen "existing projects that have real depth").
+deepen "existing projects that have real depth"). Aim the main effort at work
+a person could not finish in about twenty hours (owner, 2026-10-21; `goals.md`,
+"Direction: depth over calculators").
 
 The owner's standing directions (SEO, compliant distribution, measurement,
-the blog at `docs/posts/`, sales tools, local models) are quoted in
-`goals.md`. They are directions for many runs, not tasks every run starts on.
+sales tools, local models) are quoted in `goals.md`. They are directions for
+many runs, not tasks every run starts on, apart from the write-ups above and
+one more default for product PRs (owner, 2026-10-21): the product's
+`llms.txt` kept current and a marketing page aimed at its users, with no fake
+reviews or claims a file can't back (`goals.md`, "LLM docs and a
+marketing page").
 One applies to every run: **files first, not the GitHub API** (owner,
 2026-10-20). What a later reader needs (verification output, decisions, why)
 goes in a file in the same PR (run record, README, `docs/history/`); a PR body
@@ -115,7 +128,8 @@ The catalogue is served by GitHub Pages at
 `.github/workflows/portfolio-pages.yml` on every merge that touches a site
 input (and every three hours). Merging is publishing; there is no branch to
 push by hand. The Hetzner/k3s route was retired on 2026-10-01: never connect
-to its old IPs, and manifests under `gitops/prod` describe a dead origin. What
+to its old IPs (they may now belong to someone else), and manifests under
+`gitops/prod` describe a dead origin. What
 is served, and which state readers are stale:
 [`portfolio/hosting/README.md`](portfolio/hosting/README.md), "What is served now".
 
@@ -129,7 +143,7 @@ the survivor is still open. A conflict is not a reason to close: merge `main`
 in and resolve it. Steps and tools:
 [`.github/prompts/duplicate-work.md`](.github/prompts/duplicate-work.md).
 
-Clones are shallow. Content reads (`git show origin/main:<path>`) are fine;
+Clones are shallow: fetch a branch with `git fetch --depth=40 origin <branch>` (without `--depth` it pulls the full ~5 GB history). Content reads (`git show origin/main:<path>`) are fine;
 when you need history for a merge, `git fetch --deepen=500 origin main` until
 `git merge-base HEAD origin/main` answers.
 
@@ -144,9 +158,9 @@ when you need history for a merge, `git fetch --deepen=500 origin main` until
 
 ## Small things that bite
 
-- **Never write `fixes #N` / `closes #N` about someone else's PR**: GitHub
+- **Avoid `fixes #N` / `closes #N` about someone else's PR**: GitHub
   closes it unmerged when your commit lands. Write "PR #109".
-- **A ledger entry is never a deliverable on its own**
+- **A ledger entry rarely counts as a deliverable on its own**
   (`python3 portfolio/ledger/check_ledger_only.py`). Record outcomes in the PR
   that ships the work.
 - **Usage is unmeasured, not zero** (`portfolio/usage/usage.yaml`). "Never
