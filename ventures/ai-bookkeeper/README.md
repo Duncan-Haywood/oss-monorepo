@@ -488,8 +488,12 @@ clicked through in headless Chromium with `eval/browser-click.mjs`). Receipts
 are read with regular expressions: a total is the last "total / amount due"
 line that is not a subtotal, tip or change line, else the largest amount (and
 the note says so). Checked by node tests on hand-written receipts in US/UK
-layouts only, not on real receipts or OCR output, which will have misread
-characters; foreign currency and receipts for several bank lines are not handled.
+layouts and a few hand-written German-style ones only, not on real receipts or
+OCR output, which will have misread characters; receipts for several bank lines
+are not handled. Decimal-comma receipts (12,50 or 1.234,56), dotted day-first
+dates (04.05.2026) and German, French, Dutch or Italian total and tax words
+(Gesamt, Summe, Zwischensumme, TVA, MwSt, IVA, BTW) are read too; the amount
+style is chosen per receipt by which form is more common.
 Many bookkeeping products (Dext, Hubdoc, Expensify) do this with image OCR and
 a subscription; this does the matching and the missing-receipt list on your
 own machine from text you already have.
