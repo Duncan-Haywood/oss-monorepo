@@ -118,6 +118,7 @@ introduces a dated fact.
 | 2060s | Saltwater flooding in the Mekong Delta resettles people inland | *NOTES.md* |
 | 2071 | Registry relay of 41 or more AI instances links flooded parish registers to land claims in Cần Thơ | *NOTES.md* |
 | 2089 | Shackleton Ridge Works, lunar south pole: 38 people, an operations AI called Quarry replaced by Quarry Nine; the first bell on the Moon is cast | *Slowest Bell* |
+| 2139 | Arcadia Station, Arcadia Planitia, Mars: 31 people and six Sisters of Our Lady of the Dawn (invented); the Hours are prayed by the sun, Sunday kept by the Earth calendar until Rome answers; a solar-conjunction blackout in Lent | *Thirty-Nine Minutes* |
 
 Little Lamps is set in history (Lima, about 1610 for *Brother Martin*) and is
 not on this timeline.
@@ -180,7 +181,7 @@ numbers worked out before drafting.
   an old fisher who will not sell and a storm season the models got wrong.
 - *A relay on the Camino in 2058:* hospitaleros, heat and a water-sharing
   rule; hard science is wet-bulb temperature and rationing.
-- *The Mars sisters, 2140:* a contemplative community on a long-duration
+- *(Done: Thirty-Nine Minutes, 2139.)* *The Mars sisters:* a contemplative community on a long-duration
   station keeping the Hours on a day 24 hours 39.6 minutes long; the problem is
   calendar and liturgy, not drama in a spacesuit.
 - *Quarry Nine:* a short sequel, a few years on, in which the new system is

@@ -16,6 +16,16 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>Thirty-Nine Minutes</title>
+      <link>https://example.invalid/hearth-and-horizon/thirty-nine-minutes.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/thirty-nine-minutes.html</guid>
+      <pubDate>Wed, 21 Oct 2026 12:00:00 GMT</pubDate>
+      <description>Six contemplative sisters on a Mars station find that a Martian day is 39 minutes longer than an Earth day, so the clock they have prayed by all their lives drifts round the sky every five weeks. Then Earth goes behind the Sun, and for two weeks nobody can tell them what time it is back home. Setting: Arcadia Station, Arcadia Planitia, Mars, 2139. Read the full text at https://example.invalid/hearth-and-horizon/thirty-nine-minutes.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>Six contemplative sisters on a Mars station find that a Martian day is 39 minutes longer than an Earth day, so the clock they have prayed by all their lives drifts round the sky every five weeks. Then Earth goes behind the Sun, and for two weeks nobody can tell them what time it is back home.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>The Slowest Bell on the Moon</title>
       <link>https://example.invalid/hearth-and-horizon/the-slowest-bell-on-the-moon.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-slowest-bell-on-the-moon.html</guid>
