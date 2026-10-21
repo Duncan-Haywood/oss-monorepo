@@ -162,10 +162,28 @@ export function taxDepreciation(books, year, { limits = S179_LIMITS } = {}) {
     else if (c.excess) warnings.push(`Section 179 elected for ${y} is ${money(c.elected)} but the limit after the investment phase-out is ${money(c.allowed)} (limit ${money(c.limit)}, ${money(c.placedCost)} placed in service against a ${money(c.threshold)} threshold); ${money(c.excess)} is over and is not allowed. The worksheet still shows what you entered.`);
   }
   if (rows.some((r) => r.s179)) warnings.push("Section 179 limits are typed from memory and unchecked against the IRS; the taxable-income limit and carryforward are not modelled.");
-  if (rows.some((r) => a_bonus(books, r.id))) warnings.push("Bonus depreciation is applied at the percent you entered; check the rate in force for the year placed in service.");
+  for (const r of rows) {
+    const bp = (books.assets ?? []).find((a) => a.id === r.id)?.tax?.bonusPct ?? 0;
+    const py = +r.placed.slice(0, 4);
+    if (bp > maxBonusPct(py)) warnings.push(`${r.id}: bonus ${bp}% is above the ${maxBonusPct(py)}% allowed for property placed in service in ${py}. The worksheet still uses your figure.`);
+  }
+  for (const y of [...new Set(rows.filter((r) => a_bonus(books, r.id) && r.placed.startsWith("2025")).map(() => 2025))]) warnings.push("Bonus for 2025: 100% applies only to property acquired after 19 January 2025; property acquired before that date gets 40%. The worksheet has no acquisition date, so check it.");
+  if (rows.some((r) => a_bonus(books, r.id))) warnings.push("Bonus depreciation is applied at the percent you entered; the checks above cover only the year's maximum, not an election out by class.");
   warnings.push("Business-use share, listed property and the placed-in-service date's own rules are not modelled.");
   const sum = (k) => rows.reduce((s, r) => s + r[k], 0);
   return { year, rows, totals: { s179: sum("s179"), bonus: sum("bonus"), macrs: sum("macrs"), total: sum("total"), book: sum("book"), difference: sum("difference") }, warnings };
+}
+// Highest bonus depreciation percent for property placed in service in a year:
+// 100 to 2022, then the 2017 act's phase-down (80, 60), and 100 again for
+// property acquired after 19 January 2025 (Pub. L. 119-21), which is all of 2026
+// on. 2025 is 100 here but is 40 for property acquired before that date; the
+// worksheet has no acquisition date, so it says so. From secondary summaries
+// (irs.gov unreachable), so confirm.
+export function maxBonusPct(year) {
+  if (year <= 2022) return 100;
+  if (year === 2023) return 80;
+  if (year === 2024) return 60;
+  return 100;
 }
 const a_bonus = (books, id) => (books.assets ?? []).find((a) => a.id === id)?.tax?.bonusPct > 0;
 
