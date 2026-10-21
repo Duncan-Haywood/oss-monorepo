@@ -74,3 +74,49 @@ test("the CSV has one row per account and the form totals", () => {
   assert.ok(rows.includes("24b,Deductible meals,6130 Meals,40.00"));
   assert.ok(rows.at(-1).startsWith("31,Net profit"));
 });
+
+import { contractors1099, setVendor, contractorsCsv } from "./taxforms.mjs";
+
+const PAY = `Date,Description,Amount
+2025-03-01,UPWORK ESCROW 1,-400.00
+2025-06-01,UPWORK ESCROW 22,-300.00
+2025-04-01,JANE DOE DESIGN,-550.00
+2025-05-01,ACME STAFFING LLC,-5000.00
+2026-02-01,JANE DOE DESIGN,-1500.00
+`;
+function paid() {
+  let { books } = importStatement(newBooks(), PAY, "1000");
+  return confirm(books, Object.fromEntries(books.transactions.map((t) => [t.id, "6020"])));
+}
+
+test("1099-NEC: payments to one payee add up across descriptions, and the year threshold applies", () => {
+  const r25 = contractors1099(paid(), { year: 2025 });
+  assert.equal(r25.threshold, 60000);
+  const up = r25.rows.find((x) => /upwork/.test(x.key));
+  assert.equal(up.cents, 70000);
+  assert.deepEqual(r25.toFile.map((x) => x.key).sort(), ["acme staffing", "upwork escrow"]);
+  assert.ok(!r25.toFile.some((x) => /jane/.test(x.key)), "550 is under 600");
+  assert.ok(r25.warnings.some((w) => /Jane|JANE/i.test(w) && /threshold/.test(w)));
+  const r26 = contractors1099(paid(), { year: 2026 });
+  assert.equal(r26.threshold, 200000);
+  assert.equal(r26.toFile.length, 0, "1500 is under 2000 in 2026");
+});
+
+test("1099-NEC: corporations drop off, W-9s clear the warning, card payments are not counted", () => {
+  let b = paid();
+  const acme = contractors1099(b, { year: 2025 }).rows.find((x) => /acme/.test(x.key));
+  assert.ok(acme.owed);
+  b = setVendor(b, acme.key, { corp: true });
+  assert.ok(!contractors1099(b, { year: 2025 }).rows.find((x) => x.key === acme.key).owed);
+  const r = contractors1099(b, { year: 2025 });
+  const up = r.toFile[0];
+  assert.ok(r.warnings.some((w) => /no W-9/.test(w)));
+  b = setVendor(b, up.key, { w9: true });
+  assert.ok(!contractors1099(b, { year: 2025 }).warnings.some((w) => /no W-9/.test(w)));
+  const card = importStatement(newBooks(), "Date,Description,Amount\n2025-03-01,FREELANCER CO,-900.00\n", "2000").books;
+  const cb = confirm(card, { [card.transactions[0].id]: "6020" });
+  const cr = contractors1099(cb, { year: 2025 });
+  assert.equal(cr.toFile.length, 0);
+  assert.ok(cr.warnings.some((w) => /1099-K/.test(w)));
+  assert.match(contractorsCsv(r), /^Payee,Key/);
+});

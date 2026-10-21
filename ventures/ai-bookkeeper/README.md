@@ -248,6 +248,21 @@ current, 1-30, 31-60, 61-90 and 90+ days past due.
 Tests: engine.test.mjs, "Accruals" and "Part-payments and credit notes". Not measured on real invoice exports (the
 tests use a four-row list); the matching thresholds are a first guess.
 
+## 1099-NEC contractor list (US)
+
+`contractors1099(books, { year, threshold })` in `taxforms.mjs` (CLI `cli.mjs
+contractors [--year Y] [--threshold DOLLARS] [--csv|--json]`, and `vendor KEY
+[--w9] [--corp]` to record a W-9 on file or a corporation) totals what was paid
+to each payee out of Contract labor (6020, split parts included) in a calendar
+year, on a cash basis, and lists who crossed the threshold ($600 through 2025,
+$2,000 from 2026: confirm on the current IRS instructions). Payments from a card
+account are listed apart (the card processor reports those on 1099-K). Payees
+that crossed with no W-9 on file, and those within 20% under the threshold, are
+warned about. Payees are grouped by the first two words of the bank description,
+so the same person under two spellings stays two rows. The books never store a
+taxpayer ID. A list to check, not a filing. Tests: `taxforms.test.mjs`, written
+by hand, not tried on real payee data.
+
 ## Schedule C worksheet (US sole proprietors)
 
 `scheduleC(books, { from, to, mealsPct, map })` in `taxforms.mjs` (also the page's

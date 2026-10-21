@@ -17,7 +17,7 @@
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { newBooks, importStatement, importOfxAccounts, lockPeriod, categorize, suggestRules, addRules, addDocuments, writeOff, aging, salesTax, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, exportLines, status, analyze, fmt } from "./engine.mjs";
 import { accountMap } from "./ledger.mjs";
-import { scheduleC, scheduleCCsv } from "./taxforms.mjs";
+import { scheduleC, scheduleCCsv, contractors1099, contractorsCsv, setVendor } from "./taxforms.mjs";
 import { sniffFormat, splitOfx } from "./bank.mjs";
 
 const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that learn from your corrections.
@@ -35,6 +35,8 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
                          bank lines that pay them clear receivable/payable
   salestax [--from D --to D]  sales tax collected, credited and paid over by month, and what is still owed
   lock DATE|off          lock a closed period: nothing dated on or before DATE can be imported, re-filed, booked or written off
+  contractors [--year Y] [--threshold DOLLARS] [--csv|--json]  who was paid enough for a 1099-NEC, and who lacks a W-9
+  vendor KEY [--w9] [--corp] [--name N]  record a W-9 on file or that a payee is a corporation (KEY is from "contractors")
   schedulec [--from D --to D] [--meals PCT] [--csv|--json]  the profit and loss on US Schedule C lines (a worksheet, not a filing)
   writeoff ID [--date D]  write off an invoice's unpaid balance to bad debts (6900)
   aging [--as-of D]      what customers owe you and what you owe, by days past due
@@ -118,6 +120,22 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
   console.log(`AGING as of ${a.asOf}`);
   for (const [h, side] of [["Receivable (owed to you)", a.receivable], ["Payable (you owe)", a.payable]]) console.log(`  ${h.padEnd(26)} ${fmt(side.total).padStart(12)}   ${a.buckets.map((b, i) => `${b}: ${fmt(side.byBucket[i])}`).join("  ")}`);
   for (const d of a.open) console.log(`    ${d.id.padEnd(14)} ${d.party.slice(0, 28).padEnd(28)} ${fmt(d.total).padStart(11)}  due ${d.due ?? d.date}  ${d.credit ? "credit not applied" : d.daysLate ? `${d.daysLate} days late` : "not due"}${d.partlyPaid ? `  (of ${fmt(d.original)})` : ""}`);
+} else if (cmd === "contractors") {
+  const th = flag("--threshold"), yr = flag("--year");
+  const r = contractors1099(books, { year: yr ? +yr : undefined, threshold: th !== null ? Math.round(+th * 100) : undefined });
+  if (json) { console.log(JSON.stringify(r, null, 2)); process.exit(0); }
+  if (has("--csv")) { process.stdout.write(contractorsCsv(r)); process.exit(0); }
+  console.log(`1099-NEC WORKSHEET ${r.year} (threshold ${fmt(r.threshold)})`);
+  for (const x of r.rows) console.log(`  ${x.owed ? "FILE" : "    "} ${x.key.padEnd(24)} ${fmt(x.cents).padStart(12)}  ${x.w9 ? "W-9" : "no W-9"}${x.corp ? "  corporation" : ""}`);
+  console.log(`  ${r.toFile.length} to file, ${fmt(r.totalToFile)} in all.`);
+  for (const w of r.warnings) console.log(`  ! ${w}`);
+  console.log("  A list to check, not a filing: confirm the threshold and each payee's type on the current IRS instructions.");
+} else if (cmd === "vendor") {
+  if (!rest[0]) { console.error("vendor needs a key (see the contractors list)"); process.exit(2); }
+  const nm = flag("--name"), w9 = has("--w9"), corp = has("--corp");
+  books = setVendor(books, rest[0], { ...(w9 ? { w9: true } : {}), ...(corp ? { corp: true } : {}), ...(nm ? { name: nm } : {}) });
+  save();
+  console.log(`Saved ${rest[0]}: ${JSON.stringify(books.vendors[rest[0]])}`);
 } else if (cmd === "schedulec") {
   const sc = scheduleC(books, { from, to, mealsPct: flag("--meals") !== null ? +flag("--meals") : 50 });
   if (json) { console.log(JSON.stringify(sc, null, 2)); process.exit(0); }
