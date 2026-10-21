@@ -1382,6 +1382,11 @@ pages, and the site card).
   favicon and links `favicon.svg` where a page lacks it. Cards render on a
   pool of worker threads (`share-worker.mjs`); on four cores the build takes
   no longer than before the pass existed.
+- The deploy guide and the development pages (`deploy/`, `dev/`) are written
+  into the artifact by later workflow steps, so `portfolio-pages.yml` runs the
+  same pass over them afterwards: `node platform/pages/share.mjs <dist>
+  --base=<site url> --only=deploy,dev`. Pages with no og: tags at all get
+  `og:title`, `og:description`, `og:url` and `og:type` from their own head.
 
 To look at a card: `node -e "import('./sharecard.mjs').then(m => process.stdout.write(m.renderCard({headline: 'Example', kicker: 'Section'})))" > card.png`.
 

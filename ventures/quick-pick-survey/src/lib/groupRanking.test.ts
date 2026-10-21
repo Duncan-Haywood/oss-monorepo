@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { groupRanking, pool, rankingCsv } from "./groupRanking";
+import { coverage, groupRanking, pool, rankingCsv } from "./groupRanking";
 
 // Small seeded PRNG so the coverage check is reproducible.
 function mulberry(seed: number) {
@@ -75,5 +75,33 @@ describe("groupRanking", () => {
     expect(csv.split("\n")[0]).toContain("ci_low");
     expect(csv).toContain(`"'=HYPERLINK(""u"")"`);
     expect(csv).toContain(",1500,");
+  });
+
+  describe("coverage", () => {
+    const mk = (n: number, counts: number[]) =>
+      groupRanking(
+        Array.from({ length: n }, (_, i) => ({ id: `i${i}`, label: `Item ${i}` })),
+        counts.flatMap((c, i) => Array.from({ length: c }, () => ({ itemId: `i${i}`, rating: 1500 + i, rd: 80 }))),
+      );
+    it("is empty with no answers", () => {
+      expect(coverage(mk(3, [0, 0, 0]), 5).status).toBe("empty");
+    });
+    it("is ok when every option has enough raters", () => {
+      const c = coverage(mk(3, [4, 5, 6]), 6);
+      expect(c).toMatchObject({ status: "ok", thin: [], median: 5, advice: "" });
+    });
+    it("names thin options thinnest first and just says wait on a short list", () => {
+      const c = coverage(mk(4, [6, 1, 0, 6]), 6);
+      expect(c.status).toBe("thin");
+      expect(c.thin).toEqual(["Item 2", "Item 1"]);
+      expect(c.advice).toContain("Wait for more respondents");
+      expect(c.advice).not.toContain("shorten");
+    });
+    it("suggests shortening a long list that reaches few respondents", () => {
+      const counts = Array.from({ length: 40 }, (_, i) => (i < 20 ? 2 : 3));
+      const c = coverage(mk(40, counts), 20);
+      expect(c.advice).toContain("shorten the list to about 5 options");
+      expect(c.advice).toContain("13%");
+    });
   });
 });

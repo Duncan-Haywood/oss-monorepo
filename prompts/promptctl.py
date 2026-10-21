@@ -82,6 +82,7 @@ RECORD_FIELDS: dict[str, Any] = {
     "integrity_issues": [],
     "doc_friction": [],
     "deviations": [],
+    "writeups": [],  # repo paths of the agent doc and post this run wrote or extended (goals.md)
     "goal": None,
     "notes": "",
     "corrections": [],
@@ -352,6 +353,9 @@ def validate_record(root: Path, path: Path, rec: Any, tracks: dict[str, Any]) ->
             isinstance(d, dict) and isinstance(d.get("file"), str) and isinstance(d.get("why"), str)
             for d in devs):
         errors.append(f"{where}: deviations must be a list of entries with a 'file' and a 'why'")
+    ups = rec.get("writeups", [])
+    if not isinstance(ups, list) or not all(isinstance(u, str) for u in ups):
+        errors.append(f"{where}: writeups must be a list of repository paths")
     rt = rec.get("redteam")
     if rt is not None:
         errors.extend(validate_redteam(where, rt))
@@ -799,10 +803,24 @@ def measure(root: Path = ROOT) -> dict[str, Any]:
                          for f, v in sorted(friction.items(), key=lambda kv: -len(kv[1]))},
         "deviations": {f: {"reports": len(v), "recent": v[-3:]}
                        for f, v in sorted(deviations.items(), key=lambda kv: -len(kv[1]))},
+        "writeups": writeup_share(runs),
         "instruction_lines": sizes,
         "instruction_budget": {rel: budget_for(rel) for rel in sizes},
         "backlog": backlog_summary([item for _, item in load_backlog(root)]),
     }
+
+
+WRITEUPS_FROM = "2026-10-21"  # the owner asked for an agent doc and a post from most runs
+
+
+def writeup_share(runs: list[dict[str, Any]]) -> dict[str, Any]:
+    """How many of the last 100 records since WRITEUPS_FROM name an agent doc and a post."""
+    recent = [r for r in runs if str(r.get("date") or "") >= WRITEUPS_FROM][-100:]
+    def has(r: dict[str, Any], prefix: str) -> bool:
+        return any(str(u).startswith(prefix) for u in r.get("writeups") or [])
+    return {"runs": len(recent),
+            "agent_doc": sum(has(r, "docs/reports/") for r in recent),
+            "post": sum(has(r, "docs/posts/") for r in recent)}
 
 
 def budget_for(rel: str) -> int | None:
@@ -866,6 +884,10 @@ def print_measure(m: dict[str, Any]) -> None:
         print("None recorded.\n")
     for path, f in m["deviations"].items():
         print(f"- `{path}`: {f['reports']} deviation(s); latest: " + " | ".join(f["recent"]))
+    w = m["writeups"]
+    print("\n## Write-ups (goals.md, \"Write about the work\")\n")
+    print(f"- Last {w['runs']} records since {WRITEUPS_FROM}: {w['agent_doc']} name an agent doc "
+          f"(docs/reports/), {w['post']} a post (docs/posts/)")
     b = m["backlog"]
     c = b["counts"]
     print("\n## Process backlog (`promptctl.py backlog`)\n")

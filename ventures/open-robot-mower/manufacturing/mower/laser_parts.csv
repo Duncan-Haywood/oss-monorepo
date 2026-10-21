@@ -1,0 +1,5 @@
+file,part,qty,material,thickness_mm,width_mm,height_mm,area_cm2,cut_length_mm,holes_and_cutouts,notes
+chassis_plate__aluminium_4mm.dxf,chassis_plate,1,aluminium 5052,4.0,565.0,300.0,1634.4,2810,42,All holes are clearance holes; no tapping.
+height_plate__aluminium_4mm.dxf,height_plate,1,aluminium 5052,4.0,214.0,243.7,182.6,1287,11,Two M6 nuts per rod set the cut height (20-50 mm); the printed height gauge sets all three rods equal.
+electronics_tray__aluminium_3mm.dxf,electronics_tray,1,aluminium 5052,3.0,245.0,220.0,523.5,2767,183,Pi on M2.5 x 58x49; other boards on the 10 mm M3 grid.
+blade_disc__aluminium_3mm.dxf,blade_disc,1,aluminium 5052,3.0,200.0,200.0,285.6,1049,10,Balance it: spin on a pin and file the heavy side. M3 shoulder screws for the blades.

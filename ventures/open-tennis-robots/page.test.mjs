@@ -77,3 +77,13 @@ test("the manufacturing package the page offers is committed next to it", () => 
   assert.ok(existsSync(new URL("./manufacturing/collector-package.zip", import.meta.url)));
   assert.ok(existsSync(new URL("./manufacturing/collector/bom.csv", import.meta.url)));
 });
+
+// One-hop sibling link (platform/pages/siblings.mjs): the related-tool strip
+// rotates and may never pair the open-hardware robot pages.
+test("index links one hop to the open-robot-mower sibling", () => {
+  assert.match(page("index.html"), /href="\.\.\/open-robot-mower\/"/);
+});
+
+test("index links one hop to the open-floor-robots sibling", () => {
+  assert.match(page("index.html"), /href="\.\.\/open-floor-robots\/"/);
+});

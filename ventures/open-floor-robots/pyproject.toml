@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "floorbots"
+version = "0.1.0"
+description = "Open-source robot vacuum, robot mop and vacuum-mop combo: coverage planner, noisy coverage simulation, battery and dock planning, fan and mop-water sizing, ESP32 protocol"
+readme = "README.md"
+requires-python = ">=3.9"
+license = {text = "MIT"}
+keywords = ["robot vacuum", "robot mop", "coverage path planning", "boustrophedon", "open hardware", "raspberry pi", "esp32"]
+classifiers = [
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Topic :: Scientific/Engineering",
+  "Topic :: Home Automation",
+]
+
+[project.optional-dependencies]
+serial = ["pyserial"]
+
+[project.scripts]
+floorbots = "floorbots.cli:main"
+
+[project.urls]
+Homepage = "https://duncan-haywood.github.io/monorepo-projects/open-floor-robots/"
+Source = "https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/open-floor-robots"
+
+[tool.setuptools.packages.find]
+where = ["src"]

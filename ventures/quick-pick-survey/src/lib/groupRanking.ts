@@ -110,3 +110,47 @@ export function rankingCsv(ranked: RankedItem[]): string {
   }
   return lines.join("\n") + "\n";
 }
+
+/** Options rated by fewer respondents than this are too thin to place. */
+export const THIN_RESPONDENTS = 3;
+
+export type Coverage = {
+  options: number;
+  /** Options rated by fewer than THIN_RESPONDENTS respondents (labels, thinnest first). */
+  thin: string[];
+  /** Median number of respondents per option. */
+  median: number;
+  /** "ok" when every option has enough raters, "thin" when some do not, "empty" with no answers. */
+  status: "ok" | "thin" | "empty";
+  /** One plain sentence for the admin, or "" when there is nothing to say. */
+  advice: string;
+};
+
+/**
+ * How well the respondents cover the list. Each respondent answers a limited
+ * number of pairs, so a long list spreads them thin: this names the options
+ * that too few people rated and says whether to wait, or shorten the list.
+ */
+export function coverage(ranked: RankedItem[], participants: number): Coverage {
+  const n = ranked.length;
+  const counts = ranked.map((r) => r.respondents).sort((a, b) => a - b);
+  const median = n === 0 ? 0 : n % 2 ? counts[(n - 1) / 2] : (counts[n / 2 - 1] + counts[n / 2]) / 2;
+  if (n === 0 || counts[n - 1] === 0) {
+    return { options: n, thin: [], median: 0, status: "empty", advice: "" };
+  }
+  const thin = ranked
+    .filter((r) => r.respondents < THIN_RESPONDENTS)
+    .sort((a, b) => a.respondents - b.respondents || a.label.localeCompare(b.label))
+    .map((r) => r.label);
+  if (thin.length === 0) {
+    return { options: n, thin, median, status: "ok", advice: "" };
+  }
+  // A respondent sees only part of a long list; the median says how far they reach.
+  const reach = participants > 0 ? Math.min(1, median / participants) : 0;
+  const keep = Math.max(2, Math.floor(n * Math.max(reach, 0.1)));
+  const advice =
+    reach < 0.5 && n > 12
+      ? `${thin.length} of ${n} options were rated by fewer than ${THIN_RESPONDENTS} people, and a typical option reached only ${Math.round(reach * 100)}% of respondents. Wait for more respondents, or shorten the list to about ${keep} options.`
+      : `${thin.length} of ${n} options were rated by fewer than ${THIN_RESPONDENTS} people, so their places are guesses. Wait for more respondents.`;
+  return { options: n, thin, median, status: "thin", advice };
+}

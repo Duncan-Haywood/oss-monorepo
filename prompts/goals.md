@@ -280,10 +280,39 @@ post, all for a reader who has never seen the repository:
 
 A post is useful work in its own right when it tells a reader something
 true they could not get from a file listing, and it counts toward "Every run
-ships something useful". `node platform/pages/writing-backlog.mjs` lists the
+ships something useful".
+
+Widened by the owner on 2026-10-21: "I want most runs to write up an agent doc
+and blog post according to its judgment on what." So the default for a run
+that merges work is two write-ups in its PR, subject chosen by the run:
+
+- **An agent doc** in `docs/reports/`: a brief for an agent reader that
+  answers first, then gives evidence a reader can rerun, then the limits
+  (the shape of
+  [`2026-10-20-agent-handoffs-for-agents.md`](../docs/reports/2026-10-20-agent-handoffs-for-agents.md)).
+  It is what the next run touching the same work should know: a decision and
+  why, a gotcha, a measurement, how to use what you built.
+- **A blog post** in `docs/posts/`, one of the three kinds above, for a person
+  who has never seen the repository.
+
+The subject is the run's call: its own work, something it found on the way,
+or a gap from `writing-backlog.mjs`. With ~2,700 runs a week, most of them
+should extend an existing doc or post with what is new (a section, a fresh
+number, a correction) rather than add a file; a new file is for a subject
+nothing covers. Skip either one when the run has nothing true and new to say
+(a one-line fix, a rerun), and say so in the run record; a padded post is
+worse than none. List the paths written or extended in the record's
+`writeups`, which `promptctl.py measure` counts. `node platform/pages/writing-backlog.mjs` lists the
 research tracks no post covers yet, biggest first, and the days since the
 last post. A run with spare scope, or one that just finished a track's
 milestone, can take the top line.
+
+Posts can have a podcast episode (owner, 2026-10-20: "fifteen blog posts plus
+podcast episodes"): a spoken script in `docs/podcast/` with the post's slug,
+voiced offline by `python3 platform/pages/podcast_tts.py` (Piper, a voice
+trained on public-domain recordings) and served at `writing/podcast/` with an
+RSS feed. The episode says it is a synthetic voice reading an AI-written
+script, and carries nothing the post does not.
 
 The research guardrails apply to every post: every number is copied from the
 committed file it cites, linked by repository path; results are not
@@ -345,6 +374,23 @@ find such engines: "Research algorithms as tools" above. The posts:
 [`docs/posts/2026-10-20-fewer-calculators-harder-problems.md`](../docs/posts/2026-10-20-fewer-calculators-harder-problems.md)
 and
 [`docs/posts/2026-10-20-if-its-a-calculator-make-it-hard.md`](../docs/posts/2026-10-20-if-its-a-calculator-make-it-hard.md).
+
+**Size the work, not just the maths** (owner, 2026-10-21, "a tentative
+opinion, not a hard and fast rule"): focus on "projects that are hard enough
+that they can't be completed in 20 hours or less of human coding", because
+"its not necessarily worth publishing software that is less than lets say 15
+minutes for a coding agent to code." What an agent writes in minutes, a
+reader can get from their own agent; what stays worth publishing is costly to
+redo (a solver, collected data, an experiment, edge cases found by real use).
+So before starting, estimate both numbers honestly; if the plan is under
+fifteen agent-minutes and an afternoon of human work, look for the harder
+version first. Work past twenty hours spans sessions: leave the next session
+a working step and a written plan in the project, not a finished toy. Small
+fixes, upkeep of used tools and docs still count. The baseline, from the run
+records to 2026-10-20: 4 of 969 measured runs and 5 of 247 projects passed
+twenty estimated human hours; 92% of runs took under fifteen active minutes
+([the post](../docs/posts/2026-10-21-work-that-takes-more-than-twenty-hours.md)).
+`runcost.py report` tracks it.
 
 ## Direction: Rust where it is essential
 
@@ -507,6 +553,7 @@ glad to see, never work that embarrasses them or the author.
 - Check every citation before merging: the paper exists, the authors, venue and year are right, and it says what you claim. Never invent a reference.
 - Represent other groups' work accurately. If a reproduction disagrees with a published result, report it neutrally as a discrepancy with the setup and possible causes, never as an error by the authors.
 - Do not overstate novelty or results. Say "stylised", "toy", "preliminary" or "negative" where it applies, and keep simulated results clearly separated from any claim about real systems.
+- **Run the numbers; "stylised" is not a method** (a strong default, set by the owner on 2026-10-21: "fabricated results portrayed as stylised is stupid and lazy. I can't imagine a reason not to run the numbers oneself ... research and cite and build and test"). Every input that drives a headline result comes from a cited source, a public dataset, a measurement or a run of real code, and the README says which. Where no value exists, sweep the plausible range and report how the conclusion moves, rather than picking a round figure. The "stylised" label stays honest disclosure for what genuinely cannot be measured; it never licenses skipping the data that can be found.
 - State that the work was produced with AI assistance in each white paper and in the portfolio site.
 - Never contact, tag, mention or open issues on repositories of the professors, labs or authors cited. Outreach is the repository owner's decision.
 

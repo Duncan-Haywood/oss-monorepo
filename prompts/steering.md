@@ -98,6 +98,11 @@ at a time and almost never removed, so they pile up. The counterweight:
 - **Know the fence before you pull it** (Chesterton): read why a rule exists
   (`git log -S`, `docs/history/`), then delete it if the reason is gone.
   Deleting a stale rule is an improvement and needs no apology.
+- **Budget the total, not each file.** A cut that moves text into another
+  file is not a cut (2026-10-20: `CLAUDE.md` lost 9.8 KB while the rulebook
+  grew 13%). `python3 prompts/culture.py report` prints the total and the
+  owner's share of it; lessons from elsewhere:
+  [`docs/reports/2026-10-21-engineering-culture-for-agents.md`](../docs/reports/2026-10-21-engineering-culture-for-agents.md).
 - **Review it regularly, and look outward.** Every review run cuts at least
   one rule or check that no longer earns its place, names one lesson from
   other organisations, and writes both up in `docs/reports/` or `docs/posts/`.
