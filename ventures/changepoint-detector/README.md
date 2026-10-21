@@ -418,3 +418,7 @@ Free and open source (MIT, see `LICENSE`). Optional support:
 
 
 **Page (2026-10-21).** The web page now has a "Known holidays" box (comma-separated dates or row numbers, counts model) that passes `holidays` to the engine. Checked on 200 seeded daily counts with every 17th day at 0.3x: 6 changes without the list, 0 with it (factor 0.304).
+
+## Holidays of different kinds
+
+`--holidays` entries may be written `label=kind` (`2026-12-25=closed,2026-11-27=sale`). Each kind gets its own fitted factor, reported under `holidays.kinds`; each kind needs at least 2 rows. Checked on 240 seeded daily counts (rate 40) with a 0.3x closed day every 17th row and a 1.8x sale day every 23rd: engine test `a factor per kind recovers two different dips` (closed within 0.1 of 0.3, sale within 0.3 of 1.8). Not measured against real holiday data.
