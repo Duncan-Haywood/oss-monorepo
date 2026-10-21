@@ -34,7 +34,7 @@ flagships:
       IIF journals; page, CLI and agent engine. Learning curve measured on
       synthetic data (README Verification).
     next: >-
-      A UK-layout VAT return worksheet (vatReturn, CLI `vat`: boxes 1-9, input VAT on bills to 1300, invoice basis; engine and CLI, tests only, not on the page) landed 2026-10-21. Recurring-payment detection (overdue, lapsed, amount-changed) and a 90-day cash
+      A UK-layout VAT return worksheet (vatReturn, CLI `vat`: boxes 1-9, input VAT on bills to 1300, invoice basis; engine and CLI, plus a page card for the From/To dates, node tests only, not clicked through) landed 2026-10-21. Recurring-payment detection (overdue, lapsed, amount-changed) and a 90-day cash
       forecast landed 2026-10-21 (recurring.mjs, CLI `recurring` and `forecast`; hand-written
       series only; a page card with the recurring table and forecast landed 2026-10-21, node tests only, not clicked through).
       The AI layer measured with a local model: the harness
