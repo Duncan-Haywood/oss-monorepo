@@ -356,9 +356,10 @@ percentages on 10,000, odd cents, 179 and bonus ordering, disposal, and bad
 input. It warns and does not compute: the mid-quarter convention (flagged when
 over 40% of the year's basis went into service October to December), Section
 179 dollar limits and phase-out, the bonus rate in force, business-use share
-and listed property. The tables were typed from memory of Table A-1 and checked
-only for their sums and lengths, not against the publication: check them before
-filing. Not on the page yet.
+and listed property. The tables were typed from memory of Table A-1, then checked (2026-10-21) by
+deriving each class from its rule (200% or 150% declining balance, half-year,
+switch to straight-line) in a test: all six agree within the printed rounding.
+That checks the typed digits, not the publication itself: check them before filing. Not on the page yet.
 
 ## Not modelled
 

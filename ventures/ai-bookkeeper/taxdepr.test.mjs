@@ -86,3 +86,28 @@ test("CSV has a row per asset, totals and the notes", async () => {
   assert.match(lines[2], /^Total,/);
   assert.ok(lines.slice(3).every((l) => l.startsWith("Note,")));
 });
+
+// Independent check of the typed Table A-1 figures: derive them from the rules
+// (200% declining balance for 3-10 year property, 150% for 15 and 20, half-year
+// first year, switch to straight-line when it gives more) and compare to the
+// table within rounding of the printed digits.
+function derive(life, factor) {
+  const out = [];
+  let remaining = 100;
+  const rate = factor / life;
+  for (let y = 1; y <= life + 1; y++) {
+    const db = remaining * rate * (y === 1 ? 0.5 : 1);
+    const sl = y === 1 ? db : remaining / (life - (y - 1) + 0.5);
+    let amt = Math.max(db, sl);
+    if (y === life + 1) amt = remaining;
+    out.push(amt); remaining -= amt;
+  }
+  return out;
+}
+test("Table A-1 percentages match the declining-balance rules they come from", () => {
+  for (const [life, factor, tol] of [[3, 2, 0.011], [5, 2, 0.011], [7, 2, 0.011], [10, 2, 0.011], [15, 1.5, 0.011], [20, 1.5, 0.0011]]) {
+    const d = derive(life, factor), t = MACRS_HALF_YEAR[life];
+    assert.equal(d.length, t.length, `class ${life} length`);
+    d.forEach((p, i) => assert.ok(Math.abs(p - t[i] / 1000) <= tol, `class ${life} year ${i + 1}: derived ${p.toFixed(4)} vs table ${(t[i] / 1000).toFixed(3)}`));
+  }
+});
