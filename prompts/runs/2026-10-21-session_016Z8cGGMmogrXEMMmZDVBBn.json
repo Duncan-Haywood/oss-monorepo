@@ -25,7 +25,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": 1,
+  "ci_failures_before_green": 2,
   "review_findings": null,
   "tests_added": 35,
   "outcome": "success",
@@ -35,7 +35,8 @@
     "Built-in 'transfer' rule caught 'STRIPE TRANSFER' (a payout, i.e. sales); payout rules now come first.",
     "Capitalize check flagged payroll; restricted to supply, office, repair and tool-like accounts.",
     "Post draft said about 580 lines a month; the generator makes about 48 a month (580 a year). Caught on re-read before commit.",
-    "VENTURE.yaml hypothesis used evidence 'measurement'; portfolio/router/validate.py accepts only customer-contact or in-repo. CI validate caught it; fixed."
+    "VENTURE.yaml hypothesis used evidence 'measurement'; portfolio/router/validate.py accepts only customer-contact or in-repo. CI validate caught it; fixed.",
+    "New venture shipped with no launch date in platform/pages/launched.json; CI build (check.mjs dist) caught it; fixed with node platform/pages/launched.mjs --write."
   ],
   "integrity_issues": [
     "The learning-curve benchmark is on synthetic data whose generator and built-in keywords share an author; month-1 accuracy is circular. Stated on the page, README, llms.txt and post; only the learning numbers are quoted as findings."
@@ -48,6 +49,10 @@
     {
       "file": "gitops/tests/test_manifests.py",
       "issue": "A new venture with a page must bump six hand-written counts; sync_tree_counts.py does it, but nothing in ventures/CLAUDE.md or PRODUCT_PLAYBOOK.md points a new-venture run at it before CI fails."
+    },
+    {
+      "file": "ventures/CLAUDE.md",
+      "issue": "A new venture needs launched.mjs --write and sync_tree_counts.py before CI is green; neither is listed where a new-venture run looks first."
     }
   ],
   "deviations": [
