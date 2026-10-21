@@ -1370,7 +1370,7 @@ alpha reliability. Check each before citing it.
 3. `qual-dialect`: measure milestone 1's mechanism on real data, whether LLM coding accuracy
    differs across dialects, languages or writing fluency, and how much that moves group
    comparisons.
-4. `qual-induce`: inductive coding. Compare LLM-proposed codebooks (TopicGPT/LLooM style) with
+4. `qual-induce` (no-LLM baseline done 2026-10-21; an LLM-proposed codebook still open): inductive coding. Compare LLM-proposed codebooks (TopicGPT/LLooM style) with
    a human codebook on the same corpus: coverage, redundancy, and agreement when each is applied.
 5. `qual-features` (done 2026-10-21): qualitative codes and LLM-scored dimensions as features next to numeric ones
    in a predictive model, against embeddings and bag-of-words at the same labelling budget.

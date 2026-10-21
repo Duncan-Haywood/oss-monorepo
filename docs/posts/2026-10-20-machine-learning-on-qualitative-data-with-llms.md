@@ -113,6 +113,19 @@ hand-coded study.
 - **Check that the correction helps.** If its interval is wider than the hand-coded one, the
   coder is too weak: fix the prompt or the codebook first.
 
+## Update (2026-10-21): a codebook induced from the text alone, without a model
+
+Inductive coding means letting the codes come from the data instead of a human codebook. As a
+no-model baseline, [`qual-induce`](/research/qual-induce/README.md) fitted NMF topics and k-means
+clusters (5 to 60 codes) on half of 5,313 real Reddit comments from GoEmotions and applied them to
+the other half. Against the 27-emotion human codebook the agreement was above a size-matched
+random assignment but small (normalised mutual information 0.26 for 27 topics against 0.12 at
+chance), and the best single induced code per emotion ranked that emotion's comments correctly
+about 60% of the time. Chance agreement rises with the number of codes, so a raw agreement score
+always favours a bigger codebook; compare against a shuffled baseline. These are topic models,
+not an LLM's codebook, so this sets the bar an LLM-proposed codebook has to clear rather than
+saying anything about LLMs.
+
 ## What comes next
 
 Track 19 lists the next steps. The first is to run the same pipeline on a public, hand-coded
