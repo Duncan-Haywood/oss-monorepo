@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import {
-  PAPERS, DEFAULTS, negbinSize, poissonSeasonal, poissonTrend, countDispersion, ar1JointFit, analyze, bocpd, defaultPoissonPrior, defaultNbPrior, defaultPrior, gammaPoissonLogMarginal, makeCost, lgamma, nigLogMarginal, optimalPartitioning, ar1Rho, longRunSd, prewhiten, seasonalAdjust, trendAdjust, parseSeries, peaks, pelt, robustSd,
+  PAPERS, DEFAULTS, negbinSize, poissonSeasonal, poissonTrend, countDispersion, ar1JointFit, analyze, bocpd, defaultPoissonPrior, defaultNbPrior, defaultPrior, gammaPoissonLogMarginal, makeCost, lgamma, nigLogMarginal, optimalPartitioning, ar1Rho, longRunSd, prewhiten, seasonalAdjust, trendAdjust, penaltyValue, parseSeries, peaks, pelt, robustSd,
 } from './engine.mjs';
 
 // Seeded PRNG (mulberry32) and Box-Muller normals, so every test is reproducible.
@@ -537,7 +537,7 @@ test('trend with a seasonal cycle, and counts are refused', () => {
   // measured (seeds 601..640): 6.6 changes/series with --period alone, 1.25 with --trend; found 40/40
   console.log(`# period+trend: ${plain / N} vs ${tr / N}; found ${found}/${N}`);
   assert.ok(tr / N < 0.3 * (plain / N) && found >= 0.95 * N);
-  assert.throws(() => analyze({ values: [1, 2, 3, 4, 5, 6], model: 'poisson', trend: 'bends' }), /counts/);
+  assert.throws(() => analyze({ values: [1, 2, 3, 4, 5, 6], model: 'poisson', trend: 'wiggly' }), /counts/);
 });
 
 test('trendAdjust keeps the mean level and returns the slope', () => {
@@ -810,8 +810,8 @@ test('a count trend can bend once: the knot is found and a straight trend gets n
   assert.equal(analyze({ values: straight, model: 'poisson', trend: 'bend' }).trend.growthChangesAt, undefined);
 });
 
-test('count trends refuse bends, and a flat series gets a growth near zero', () => {
-  assert.throws(() => analyze({ values: [1, 2, 3, 4, 5, 6, 7, 8], model: 'poisson', trend: 'bends' }), /is for/);
+test('count trends refuse unknown modes, and a flat series gets a growth near zero', () => {
+  assert.throws(() => analyze({ values: [1, 2, 3, 4, 5, 6, 7, 8], model: 'poisson', trend: 'wiggly' }), /up to two/);
   const r = rng(5);
   const a = analyze({ values: poissons(r, 150, 8), model: 'poisson', trend: true });
   assert.ok(Math.abs(a.trend.logGrowthAcrossSeries) < 0.4);
@@ -949,6 +949,36 @@ test('--overdispersion nb reaches the Bayesian pass: clumpy counts keep the powe
   assert.ok(hitNb >= 14 && hitNb > hitQ + 5, `NB found ${hitNb} of 20, quasi-Poisson ${hitQ}`);
 });
 
+// Red-team guards (2026-10-20): mutants in the penalty formula, the poissonTrend bend threshold and the joint knot grid escaped.
+test('penaltyValue: Hannan-Quinn is 2k ln ln n, with the log-log floored at n = 3', () => {
+  assert.ok(Math.abs(penaltyValue('hq', 100, 'mean') - 4 * Math.log(Math.log(100))) < 1e-12);
+  assert.ok(Math.abs(penaltyValue('hannan-quinn', 100, 'meanvar') - 6 * Math.log(Math.log(100))) < 1e-12);
+  assert.equal(penaltyValue('hq', 2, 'mean'), penaltyValue('hq', 3, 'mean'));
+});
+
+test('poissonTrend with bend: true finds a clear bend at the default scale', () => {
+  const r = rng(4);
+  const x = [];
+  for (let t = 0; t < 120; t++) {
+    const lam = 20 * Math.exp(0.01 * t + 0.8 * 0.02 * Math.max(0, t - 60));
+    let L = Math.exp(-lam), k = 0, p = 1;
+    do { k++; p *= r(); } while (p > L);
+    x.push(k - 1);
+  }
+  const fit = poissonTrend(x, { bend: true });
+  assert.ok(fit.knot !== undefined, 'a bend of this size should be accepted at the default scale');
+  assert.ok(fit.slopeAfter > fit.g);
+});
+
+test('trendAdjust joint search reaches the last grid knot', () => {
+  const r = rng(2);
+  const n = 40, x = [];
+  const nrm = () => Math.sqrt(-2 * Math.log(r() || 1e-9)) * Math.cos(2 * Math.PI * r());
+  for (let t = 0; t < n; t++) x.push(0.02 * t + 0.15 * Math.max(0, t - 22) - 0.5 * Math.max(0, t - 36) + 0.2 * nrm());
+  const fit = trendAdjust(x, { bend: 2, joint: true });
+  assert.deepEqual(fit.knots, [16, 36]);
+});
+
 test('negative-binomial BOCPD with exposures: the grid evidence matches the Gamma-Poisson closed form as r grows, up to the prior mass the grid cuts off', () => {
   const x = [3, 5, 4, 6, 2, 7, 4, 5, 3, 6, 5, 4];
   const m = x.reduce((a, b) => a + b, 0) / x.length;
@@ -986,4 +1016,26 @@ test('--overdispersion nb --trend reaches the Bayesian pass: clumpy counts on a 
   }
   assert.ok(falseNb / 12 < 0.3, `false flags per series ${falseNb / 12}`);
   assert.ok(hitNb >= 8 && hitNb > hitQ, `NB found ${hitNb} of 12, quasi-Poisson ${hitQ}`);
+});
+
+test('count trend bends: two changes of growth rate are found, a straight log-linear series gets none', () => {
+  const n = 240, N = 40;
+  const pois = (r, l) => { const L = Math.exp(-l); let k = 0, p = 1; do { k++; p *= r(); } while (p > L); return k - 1; };
+  const lr = (t) => Math.log(8) + 0.01 * Math.min(t, 80) + 0.03 * Math.max(0, Math.min(t, 160) - 80) - 0.02 * Math.max(0, t - 160);
+  let one = 0, two = 0, near = 0, falseBend = 0;
+  for (let s = 0; s < N; s++) {
+    const r = rng(2000 + s);
+    const x = Array.from({ length: n }, (_, t) => pois(r, Math.exp(lr(t))));
+    one += analyze({ values: x, model: 'poisson', trend: 'bend' }).pelt.changepoints.length;
+    const a = analyze({ values: x, model: 'poisson', trend: 'bends' });
+    two += a.pelt.changepoints.length;
+    const k = a.trend.growthChangesAtAll;
+    near += !!k && k.length >= 2 && Math.abs(k[0] - 80) <= 15 && Math.abs(k[1] - 160) <= 15;
+    const r2 = rng(3000 + s);
+    const y = Array.from({ length: n }, (_, t) => pois(r2, Math.exp(Math.log(8) + 0.012 * t)));
+    falseBend += analyze({ values: y, model: 'poisson', trend: 'bends' }).trend.growthChangesAt !== undefined;
+  }
+  // measured: 4.08 changes/series with one bend, 1.77 with bends; both knots within 15 points on 23 of 40; false bends 0 of 40
+  console.log(`# count bends: ${one / N} -> ${two / N}; both knots ${near}/${N}; false bends ${falseBend}`);
+  assert.ok(two < 0.6 * one && near >= 18 && falseBend <= 1);
 });
