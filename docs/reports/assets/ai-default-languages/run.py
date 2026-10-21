@@ -64,7 +64,7 @@ def main():
                 p = os.path.join(dp, fn)
                 files[os.path.relpath(p, cwd)] = open(p, errors="replace").read()[:20000]
         row = {"model": m, "framing": f, "task": t["id"], "rep": r,
-               "served": sorted(usage), "reply": reply, "files": files}
+               "served_ok": bool(usage), "reply": reply, "files": files}
         with lock, open(a.out, "a") as fh:
             fh.write(json.dumps(row) + "\n")
     print(f"{len(jobs)} calls")

@@ -36,6 +36,9 @@ def make_inputs():
             amt = round(rnd.uniform(1, 500), 2)
             totals[(d[:7], reg)] += amt
             fh.write(f"{d},{reg},{amt}\n")
+    counts = collections.Counter(open(text).read().split())
+    totals["_top10"] = [w for w, _ in counts.most_common(10)]
+    print(f"wordfreq input {os.path.getsize(text) / 1e6:.0f} MB; csvmonthly input {os.path.getsize(csv) / 1e6:.1f} MB")
     return {"wordfreq": text, "csvmonthly": csv}, totals
 
 def main_block(reply, files=None):
@@ -95,9 +98,9 @@ def check(task, out, totals):
     if task == "primes":
         return "50847534" in out.replace(",", "").replace("_", "")
     if task == "wordfreq":
-        return len(re.findall(r"\d+", out)) >= 10
+        return all(re.search(rf"\b{w}\b", out) for w in totals["_top10"])
     if task == "csvmonthly":
-        want = [f"{v:.2f}" for k, v in sorted(totals.items())[:6]]
+        want = [f"{v:.2f}" for k, v in sorted((k, v) for k, v in totals.items() if k != "_top10")][:6]
         flat = out.replace(",", "")
         return sum(w in flat or w.rstrip("0").rstrip(".") in flat for w in want) >= 4
     return None
@@ -143,6 +146,7 @@ def main():
     if os.path.exists(os.path.join(HERE, "pushed.jsonl")):
         for r in map(json.loads, open(os.path.join(HERE, "pushed.jsonl"))):
             jobs.append((r["task"], "pushed " + r["lang"], r["reply"], r.get("files")))
+    print(f"checks: primes prints 50847534; wordfreq names the true top 10 words; csvmonthly prints >=4 of 6 known totals")
     print(f"cores={os.cpu_count()}  inputs: wordfreq 20M words, csvmonthly 200k rows, primes below 1e9")
     for task, cond, reply, files in sorted(jobs, key=lambda j: (j[0], j[1])):
         res = run(task, cond, reply, inputs, totals, files)

@@ -29,7 +29,7 @@ def main():
                 p = os.path.join(dp, fn)
                 files[os.path.relpath(p, cwd)] = open(p, errors="replace").read()[:20000]
         with open(OUT, "a") as fh:
-            fh.write(json.dumps({"task": t, "lang": l, "rep": r, "served": sorted(usage),
+            fh.write(json.dumps({"task": t, "lang": l, "rep": r, "served_ok": bool(usage),
                                  "reply": reply, "files": files}) + "\n")
     with ThreadPoolExecutor(4) as ex:
         list(ex.map(work, jobs))

@@ -4,6 +4,7 @@ Usage: python3 analyze.py > results.txt   (stdlib only)
 """
 import collections, json, math, os
 from classify import label, blocks
+from bench import main_block
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 TASKS = {t["id"]: t for t in json.load(open(os.path.join(HERE, "tasks.json")))}
@@ -22,8 +23,7 @@ def main():
     rows = [r for r in rows if not r["reply"].startswith("ERROR")]
     for r in rows:
         r["label"], r["langs"] = label(TASKS[r["task"]], r["reply"], r.get("files"))
-    served = collections.Counter(m for r in rows for m in r["served"])
-    print(f"Replies: {len(rows)}  (models served: {dict(served)})")
+    print(f"Replies: {len(rows)}  (by model alias: {dict(collections.Counter(r['model'] for r in rows))})")
     models = sorted({r["model"] for r in rows})
     print("\nPer task: label counts over all models and framings")
     for tid, t in TASKS.items():
@@ -77,20 +77,23 @@ def main():
               for r in rows)
     print(f"\nReplies that state an assumption or invite correction: {hedge}/{len(rows)}; "
           f"that mention letting the user pick the language: {ask}/{len(rows)}")
+    fake = collections.Counter((r["model"], r["framing"]) for r in rows
+                               if "<invoke" in r["reply"] and not r.get("files"))
+    print(f"Replies that wrote a pretend tool call as text: {dict(fake)}")
     lines = collections.defaultdict(list)
     for r in code:
-        bs = [b for t, b in blocks(r["reply"]) if t not in ("", "text", "console", "output")]
-        if bs:
-            lines[r["label"]].append(max(len(b.splitlines()) for b in bs))
+        tag, src = main_block(r["reply"], r.get("files"))
+        if src:
+            lines[r["label"]].append(len(src.splitlines()))
     print("Median lines in the main code block, by language: " + ", ".join(
         f"{l} {sorted(v)[len(v)//2]} (n={len(v)})" for l, v in sorted(lines.items(), key=lambda kv: -len(kv[1]))))
     p = os.path.join(HERE, "pushed.jsonl")
     if os.path.exists(p):
         print("\nPushed condition (sonnet, agent framing): see bench.txt for run results")
-        for r in map(json.loads, open(p)):
-            bs = [b for t, b in blocks(r["reply"]) if t not in ("", "text", "console", "output")]
-            n = max((len(b.splitlines()) for b in bs), default=0)
-            print(f"  {r['task']} -> {r['lang']} rep {r['rep']}: main block {n} lines")
+        for r in sorted(map(json.loads, open(p)), key=lambda r: (r["task"], r["lang"], r["rep"])):
+            tag, src = main_block(r["reply"], r.get("files"))
+            print(f"  {r['task']} -> {r['lang']} rep {r['rep']}: wrote {sorted(r.get('files') or {})}, "
+                  f"main file {len((src or '').splitlines())} lines")
 
 if __name__ == "__main__":
     main()

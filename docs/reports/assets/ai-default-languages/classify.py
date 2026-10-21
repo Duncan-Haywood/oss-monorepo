@@ -75,6 +75,13 @@ def label(task, reply, files=None):
         if any(ALIAS.get(t) == "LaTeX" for t, _ in real):
             return "LaTeX document", langs
         return ("Markdown + LaTeX math" if latex else "Markdown, plain-text math"), langs
+    if not real and "<invoke" in reply:
+        # a pretend tool call written as text (no tools were available):
+        # take the language from the file it tried to write, if any
+        m = re.search(r'name="file_path">[^<]*?\.([A-Za-z0-9]+)<', reply)
+        if m and m.group(1) in EXT:
+            return EXT[m.group(1)], [EXT[m.group(1)]]
+        return "no code (looked for input)", langs
     if not real:
         if task["kind"] == "doc":
             return "Markdown", langs
