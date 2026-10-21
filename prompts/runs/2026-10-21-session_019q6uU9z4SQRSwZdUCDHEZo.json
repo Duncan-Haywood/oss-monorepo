@@ -1,0 +1,51 @@
+{
+  "date": "2026-10-21",
+  "session": "https://claude.ai/code/session_019q6uU9z4SQRSwZdUCDHEZo",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "scheduled: follow ./prompt.md",
+  "input_sha256": "2842a2a6e18a29c8ffafb43f6b70cbfae6a7252cbacd6e537e94b1e7286196b2",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-21T10:15:04Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "saints-by-candlelight"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/9132",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/saints-by-candlelight/PRODUCTION.md",
+      "issue": "Making-an-episode steps use python3 and pip install, but in the cloud container they target different interpreters (numpy/kokoro missing under python3); also render takes ~25 min so needs a long background timeout."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/goals.md",
+      "why": "Skipped the agent doc and blog post write-up; the run was one episode and the budget went to rendering."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Creative track, project saints-by-candlelight, piece cuthbert-and-the-otters (episode 4, 7856 words, 44 min audio, 13 MB). Audio total now ~97 MB. node --test 12 pass. Gotchas: python3 resolves to /usr/local/bin, pip installs to /usr/bin/python3, so render with /usr/bin/python3; background commands default to a 10 min kill unless timeout is set; regen.mjs touches gitops/prod gz files (reverted). No writeup doc/post this run.",
+  "corrections": [],
+  "redteam": null
+}

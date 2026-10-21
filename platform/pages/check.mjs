@@ -519,12 +519,11 @@ export const SERVED_EXTENSIONS = new Map([
   ['.mjs', 'conf'],
   ['.webmanifest', 'conf'],
   ['.csv', 'conf'],
-  ['.py', 'conf'],
-  ['.gz', 'conf'],
-  // ai-bookkeeper's bank-file fixtures; not in nginx's mime.types.
   ['.ofx', 'conf'],
   ['.qif', 'conf'],
   ['.mt940', 'conf'],
+  ['.py', 'conf'],
+  ['.gz', 'conf'],
 ]);
 
 // Where the served config lives, relative to the repo root. The build pod

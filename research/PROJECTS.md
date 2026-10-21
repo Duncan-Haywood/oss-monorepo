@@ -1457,7 +1457,7 @@ al. (1993), the revised NIOSH lifting equation, for the human side of a shared l
 7. `buildbot-custom`: purpose-built against humanoid. Design a task-specific machine for the
    costliest task from milestone 2 with the track-9 and track-14 loops, and compare it with the
    best stock robot on cost, cycle time and success.
-8. `buildbot-cost`: what it is worth. Crew hours replaced or shortened, times wages, against the
+8. `buildbot-cost` (done 2026-10-21): what it is worth. Crew hours replaced or shortened, times wages, against the
    robot's purchase, upkeep and supervision per hour, fed through `house-cost` and
    `house-schedule`. What share of a new home's price does a credible robot crew remove?
 9. Owner steps: buy or rent a robot (a G1 is the cheapest humanoid in the Menagerie set) and

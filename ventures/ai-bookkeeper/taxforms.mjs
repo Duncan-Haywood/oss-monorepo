@@ -186,3 +186,16 @@ export function contractors1099Csv(r) {
   for (const p of r.payees) rows.push([q(p.name), d(p.cents), p.count, d(p.cardCents), p.over ? "yes" : "no", p.w9 ? "yes" : "no"].join(","));
   return rows.join("\n") + "\n";
 }
+
+// A filing-prep CSV: one row per payee over the line, with the Form 1099-NEC
+// box names as columns, to paste into a filing service's import sheet. Filing
+// services each take their own column layout, so this is the form's own boxes,
+// not any one service's file. The recipient's TIN and address are left blank
+// on purpose: this tool never stores them; fill them from the W-9 in the
+// service. Box 4 (federal tax withheld) is left at 0.00.
+export function nec1099FilingCsv(r) {
+  const d = (c) => (c / 100).toFixed(2);
+  const rows = ["Tax year,Recipient name,Recipient TIN (fill from W-9),Street address,City,State,ZIP,Box 1 Nonemployee compensation,Box 4 Federal income tax withheld,W-9 on file"];
+  for (const p of r.reportable) rows.push([r.year, q(p.name), "", "", "", "", "", d(p.cents), "0.00", p.w9 ? "yes" : "no"].join(","));
+  return rows.join("\n") + "\n";
+}

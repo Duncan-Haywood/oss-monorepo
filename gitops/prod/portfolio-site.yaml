@@ -231,30 +231,24 @@ data:
         add_header Cache-Control "public, max-age=300, must-revalidate" always;
       }
 
-      # Bank-file fixtures (`ai-bookkeeper/fixtures/checking.ofx`): no entry in nginx's
-      # mime.types; typed as text so a visitor can read the sample.
+      # ai-bookkeeper ships bank-statement fixtures (.ofx, .qif, .mt940) a
+      # visitor can load into the tool; nginx's mime.types types none of them.
       location ~ \.ofx$ {
         types { }
-        default_type text/plain;
+        default_type application/x-ofx;
         add_header X-Content-Type-Options nosniff always;
         add_header X-Frame-Options DENY always;
         add_header Referrer-Policy strict-origin-when-cross-origin always;
         add_header Cache-Control "public, max-age=300, must-revalidate" always;
       }
-
-      # Bank-file fixtures (`ai-bookkeeper/fixtures/checking.qif`): no entry in nginx's
-      # mime.types; typed as text so a visitor can read the sample.
       location ~ \.qif$ {
         types { }
-        default_type text/plain;
+        default_type application/qif;
         add_header X-Content-Type-Options nosniff always;
         add_header X-Frame-Options DENY always;
         add_header Referrer-Policy strict-origin-when-cross-origin always;
         add_header Cache-Control "public, max-age=300, must-revalidate" always;
       }
-
-      # Bank-file fixtures (`ai-bookkeeper/fixtures/checking.mt940`): no entry in nginx's
-      # mime.types; typed as text so a visitor can read the sample.
       location ~ \.mt940$ {
         types { }
         default_type text/plain;

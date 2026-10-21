@@ -174,7 +174,6 @@ writing it; skip any already in `episodes/`):
 
 - Saint Seraphim of Sarov and the bear (Orthodox; widely loved by Catholics)
 - Saint Columba and the beast in the River Ness (Adomnán, *Life of Columba*)
-- Saint Cuthbert and the otters (Bede, *Life of Cuthbert*)
 - Joseph the dreamer and his brothers (Genesis 37-50)
 - Saint George and the dragon (legend; the historical martyr told gently)
 - Saint Brendan the Navigator and the island that moved (*Navigatio*; skip the birds-as-angels episode)
