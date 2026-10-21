@@ -244,9 +244,18 @@ on bills is left out. It is a worksheet to check a return against, not a return:
 rates, nexus, exemptions and filing dates are yours to know. Test: engine.test.mjs,
 "sales tax is collected".
 
+**Refunds and write-offs.** A bank line for the exact amount left on a credit
+note nobody applied (money out for a customer's credit, money in for a
+supplier's), with the credit's number or the party's name in the description,
+settles it: it posts to receivable or payable and the credit leaves `aging`.
+`writeoff ID [--date D]` (CLI; `writeOff` in the engine) moves an invoice's
+unpaid balance to Bad debts (6900, added if missing): debit bad debts, credit
+receivable, on the date given. Invoices only. Tests: "Refunding a credit note,
+and writing off a bad debt".
+
 ## Not modelled
 
-Refunding a credit note by a bank line, writing off a bad debt, depreciation, inventory,
+Writing off a bill, depreciation, inventory,
 payroll and sales tax filings, multiple currencies, locking a closed period,
 and receipts.
 
@@ -254,7 +263,6 @@ and receipts.
 
 - One real bank export of each major US shape (Chase, Bank of America, Wells
   Fargo, Amex, Capital One), each as a fixture with its quirks handled.
-- Refund and write-off of a credit balance.
 - Measure the AI layer with a local model on the synthetic year's review
   queue.
 
