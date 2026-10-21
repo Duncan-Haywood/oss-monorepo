@@ -1,0 +1,9 @@
+== A. biased draws: 26 targets x 4 generators x 5000 vectors
+extreme: real mismatches 0, truncated runs ['del@122:delete']
+sparse: real mismatches 0, truncated runs ['del@122:delete']
+onehot: real mismatches 0, truncated runs ['del@122:delete']
+mixed: real mismatches 0, truncated runs ['del@122:delete']
+equivalent-by-formal mutants caught by any biased generator: 0 of 16
+per-generator 95% upper bound on detection probability for a clean target: 5.99e-04
+
+== B. del@122:delete: 90 output rows for 100 vectors
