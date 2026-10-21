@@ -38,7 +38,7 @@ Any of these counts as the run's deliverable:
   feeds, passing tests. The science fiction shelf is the owner's headline
   project; give it at least an equal share.
 - **A series bible** where one is missing. Hearth & Horizon has none yet: a
-  `ventures/hearth-and-horizon/BIBLE.md` in the spirit of Saints by
+  BIBLE.md beside its README, in the spirit of Saints by
   Candlelight's `PRODUCTION.md` (setting timeline, recurring places and
   technology, tone, worldview and honesty rules, a "next up" list) is worth a
   run on its own, and later runs should follow and extend it.
