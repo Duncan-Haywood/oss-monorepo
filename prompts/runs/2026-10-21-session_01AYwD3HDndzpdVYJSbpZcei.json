@@ -15,11 +15,11 @@
   "tokens_out": null,
   "cost_usd": null,
   "tool_calls": null,
-  "task": "einvoice-preflight: llms.txt for assistants; flagship next corrected",
+  "task": "einvoice-preflight: llms.txt for assistants",
   "projects": [
     "einvoice-preflight"
   ],
-  "pr": null,
+  "pr": 9041,
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -40,7 +40,7 @@
   ],
   "writeups": [],
   "goal": null,
-  "notes": "Wanted national rule sets (NLCIUS, RO_CIUS, PINT AE) for einvoice-preflight; their Schematron repositories are not reachable from the cloud sandbox (git ls-remote asks for credentials; only ConnectingEurope, itplr-kosit and OpenPEPPOL/peppol-bis-invoice-3 resolve), and nothing was written from memory. The base EN 16931 and Peppol commits equal plain/manifest.json, so no refresh was due. Landed llms.txt with output from running the CLI and the plain-JS runner on examples/ubl-invoice-with-defects.xml, and corrected the flagship next: (the plain-JS port it listed as open shipped in PR 8982). Sub-par: small slice.",
+  "notes": "Wanted national rule sets (NLCIUS, RO_CIUS, PINT AE) for einvoice-preflight; their Schematron repositories are not reachable from the cloud sandbox (git ls-remote asks for credentials; only ConnectingEurope, itplr-kosit and OpenPEPPOL/peppol-bis-invoice-3 resolve), and nothing was written from memory. The base EN 16931 and Peppol commits equal plain/manifest.json, so no refresh was due. Landed llms.txt with output from running the CLI and the plain-JS runner on examples/ubl-invoice-with-defects.xml. The flagship next: edit was dropped in the merge with main, which had rewritten that text. Sub-par: small slice.",
   "corrections": [],
   "redteam": null
 }
