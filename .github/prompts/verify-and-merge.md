@@ -56,11 +56,10 @@ What the lines are for, and the traps in running them:
   parallel branches each bump them. It rewrites the numbers; you write the
   one-line reason.
 - **`regen.mjs --verify`** (about 9 s) says whether the committed front-door
-  mirror is stale. Exit 1 means run bare `regen.mjs` and commit what it
+  mirror (a retired origin's copy) is stale; run it when you edited `platform/marketing/`, not for a venture edit. Exit 1 means run bare `regen.mjs` and commit what it
   rewrites. Exit 2 means it could not answer. Avoid running it from a test or in
   parallel with the marketing suites, because it rewrites `gitops/prod/` for
-  a few seconds. Skipping this step is the most common way a venture fix
-  ships to the venture page but not to the apex copy users see.
+  a few seconds.
 - **Validators no test imports** (`router/validate.py`,
   `validate_doc_consistency.py`, `score_ventures.py --check` and others)
   run through `run_workflow_locally.py`. `--for-changes` covers your diff.

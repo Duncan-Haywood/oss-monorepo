@@ -25,6 +25,7 @@
   "pr": null,
   "result": null,
   "history": [
-    "2026-10-21: P043a landed (PR runs gate on platform/marketing/ and the workflow only; push keeps gitops/prod/). P043b remains."
+    "2026-10-21: P043a landed (PR runs gate on platform/marketing/ and the workflow only; push keeps gitops/prod/). P043b remains.",
+    "2026-10-21: P043b first slice: AGENTS.md and verify-and-merge.md stop telling venture edits to run regen.mjs --verify. Test/line deletion remains (P036 part 1)."
   ]
 }
