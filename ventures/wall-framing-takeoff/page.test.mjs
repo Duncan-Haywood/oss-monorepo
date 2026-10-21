@@ -103,6 +103,6 @@ test("the page offers blocking and fire blocking, and the plan it builds reaches
 test("the walls table has a tee-lap field that round-trips through the plan", () => {
   const html = page("index.html");
   assert.match(html, /Butts into \(tee lap\)/);
-  assert.match(html, /function teeField\(w, L\)/);
+  assert.match(html, /function teeField\(w, L, bad\)/);
   assert.match(html, /tee: w\.tee \?/);
 });
