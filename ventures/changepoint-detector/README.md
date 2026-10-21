@@ -455,3 +455,29 @@ or burst rule, not a holiday list. One series only; a second article was
 refused by the Wikimedia API's rate limit (429) and not retried. A series with
 a real holiday closure (a shop's or office's daily counts) is still the test
 that would show the factor earning its place.
+
+## Bursts
+
+`--bursts [ratio]` (counts only) cuts isolated spikes back before fitting. A
+point is a burst when it is at least `ratio` times (default 2.5) the larger of
+the medians of its same-phase neighbours before and after it (3 each side with
+`--period`, 5 adjacent points without) and clears a Poisson-sized excess. A
+step is high against one side only, so it is never flagged. Flagged days are
+listed in the result as `bursts`; the raw counts stay in `values`.
+
+`eval/bursts.mjs`, 40 seeded series per row (negative-binomial counts, weekly
+season, 200 points, bursts of 2.5 to 6 times the level), `--model poisson
+--period 7 --overdispersion nb`:
+
+| series | changes per series, off -> on | step at 100 found | bursts found | other days flagged |
+|---|---|---|---|---|
+| no step, 4 bursts | 3.85 -> 0.23 | | 119/160 | 1.13 per series |
+| 1.8x step, 4 bursts | 4.28 -> 1.30 | 35 -> 36 of 40 | 116/160 | 1.20 per series |
+| 1.8x step, no bursts | 1.23 -> 1.15 | 39 -> 39 of 40 | | 1.30 per series |
+
+At ratio 2 the rule finds 134/160 but flags 4.4 ordinary days per series; at 3
+it flags 0.4 but finds 90/160. 2.5 is a compromise, not an optimum. On the real
+"Payroll" pageviews the default cuts 1 day and takes 47 changes to 43; at 3x
+none are cut. The bursts there are mostly runs and wide, so this rule is a
+partial answer on that series (2023-24, one series). Synthetic bursts are
+planted with the rule's own shape in mind, so the recall figures flatter it.

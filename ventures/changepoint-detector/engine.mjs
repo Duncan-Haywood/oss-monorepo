@@ -1386,6 +1386,14 @@ export function analyze(input = {}) {
     if (bad >= 0) throw new Error(`The Poisson model needs counts (whole numbers, 0 or more); row ${bad + 1} is ${values[bad]}.`);
   }
   const period = Math.floor(Number(o.period) || 0);
+  let burstInfo = null;
+  const rawCounts = values;
+  if (o.bursts) {
+    if (model !== 'poisson') throw new Error('The burst rule is for counts: use model "poisson".');
+    const b = findBursts(values, { period, ratio: typeof o.bursts === 'number' ? o.bursts : 2.5 });
+    burstInfo = b.indexes.map((i) => ({ index: i, label: labels[i], value: values[i], keptAs: b.counts[i] }));
+    values = b.counts;
+  }
   let phi = null, penalty = o.penalty;
   let nbSize = 0;
   if (o.overdispersion === 'nb') {
@@ -1521,6 +1529,7 @@ export function analyze(input = {}) {
     ...(holidayFit ? { holidays: { count: holidayFit.count, factor: round(holidayFit.factor, 3), ...(holidayFit.kinds ? { kinds: holidayFit.kinds.map((k) => ({ ...k, factor: round(k.factor, 3) })) } : {}) } } : {}),
     ...(rho !== null ? { ar1: { rho: round(rho, 3) } } : {}),
     ...(phi !== null ? { dispersion: round(phi, 3) } : {}),
+    ...(burstInfo ? { bursts: burstInfo } : {}),
     pelt: { penalty: round(p.penalty), minSegment, changepoints: changes, segments },
     bocpd: {
       hazardLambda: Number(o.hazardLambda) || 100,
@@ -1531,10 +1540,36 @@ export function analyze(input = {}) {
       mapRunLength: b.mapRun,
     },
     labels,
-    values: original,
+    values: rawCounts,
     ...(period || o.trend || holidayFit ? { adjusted: values.map((v, t) => round(exposure ? v / exposure[t] : v)) } : {}),
     summary,
   };
+}
+
+/**
+ * Isolated bursts in a count series: single days (or short runs) far above BOTH sides, e.g. a link going viral.
+ * The reference is the median of up to `side` same-phase neighbours before and after (lag `period`, or the
+ * adjacent points without a period); a point is a burst when it is at least `ratio` times the larger of the two
+ * and clears a Poisson-sized excess. A step is high against one side only, so it is never flagged.
+ * Returns the flagged indexes and a copy of the counts with each burst cut back to its reference.
+ */
+export function findBursts(x, { period = 0, ratio = 2.5, side = period ? 3 : 5, skip = null } = {}) {
+  const n = x.length, lag = period || 1;
+  const med = (a) => { if (!a.length) return null; const s = [...a].sort((p, q) => p - q); const m = s.length >> 1; return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; };
+  const out = [], cut = x.slice();
+  for (let t = 0; t < n; t++) {
+    if (skip && skip.has(t)) continue;
+    const before = [], after = [];
+    for (let k = 1; k <= side; k++) {
+      if (t - k * lag >= 0 && !(skip && skip.has(t - k * lag))) before.push(x[t - k * lag]);
+      if (t + k * lag < n && !(skip && skip.has(t + k * lag))) after.push(x[t + k * lag]);
+    }
+    const mb = med(before), ma = med(after);
+    if (mb === null && ma === null) continue;
+    const ref = Math.max(mb ?? 0, ma ?? 0);
+    if (x[t] >= ratio * Math.max(ref, 1) && x[t] - ref > 4 * Math.sqrt(ref + 1)) { out.push(t); cut[t] = Math.round(ref); }
+  }
+  return { indexes: out, counts: cut };
 }
 
 /** Least-squares line through x[s..t): slope per index, residual sd, and the fitted value at any index. */

@@ -25,6 +25,7 @@ import { detectRecurring, forecastCash } from "./recurring.mjs";
 import { findAnomalies } from "./anomalies.mjs";
 import { addReceipts, attachReceipt, removeReceipt, receiptReport, taxOnReceipts, planReceiptSplit, splitFromReceipt } from "./receipts.mjs";
 import { compareProfit } from "./compare.mjs";
+import { addTrip, removeTrip, setHomeOffice, mileageDeduction } from "./deductions.mjs";
 import { setBudget, budgetVsActual } from "./budget.mjs";
 import { setTaxTreatment, taxDepreciation } from "./taxdepr.mjs";
 import { renderInvoice, setProfile, PROFILE_KEYS } from "./invoice.mjs";
@@ -53,7 +54,9 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
   contractors [--year Y] [--threshold DOLLARS] [--csv|--filing|--json]  contract labor paid by payee against the 1099-NEC line, with W-9 status
   merge-payee FROM INTO [--off]  count two spellings of one payee as one on the contractors worksheet
   w9 PAYEE [--off]       record that a W-9 is on file for a payee (a flag; no tax IDs are stored)
-  schedulec [--from D --to D] [--meals PCT] [--csv|--json]  the profit and loss on US Schedule C lines (a worksheet, not a filing)
+  trip add MILES --date D --purpose TEXT [--from A --to B] | trip list [--year Y] | trip remove ID   the business mileage log (goes to Schedule C line 9 with --year)
+  homeoffice SQFT [--from D --to D]     simplified home office ($5 a sq ft, 300 max; 0 removes it); line 30 with schedulec --year
+  schedulec [--year Y] [--from D --to D] [--meals PCT] [--csv|--json]  the profit and loss on US Schedule C lines (a worksheet, not a filing)
   se [--year Y] [--months N] [--wages $] [--json]  self-employment tax on the year's Schedule C profit, annualised, split into the four estimated-payment dates (worksheet; income tax not estimated)
   asset add NAME --cost 1800 --date D [--life MONTHS] [--salvage 0] [--expense]  register equipment; depreciation is booked monthly (default 60 months, straight-line)
   asset dispose ID --date D [--proceeds 0] [--into 1000]  sell or scrap it; books the gain or loss
@@ -64,7 +67,7 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
   invoice ID [--out FILE] [--as-of D]  a printable invoice or credit note (HTML; print to PDF) with payments, balance due and overdue days
   reminders [--as-of D] [--min AMOUNT] [--out DIR]  a payment reminder draft per customer with overdue invoices (friendly, firm or final by days late)
   statement [CUSTOMER] [--from D] [--out FILE]  a printable statement of account (HTML) with running balance and what is past due; no customer lists who owes what
-  writeoff ID [--date D]  write off an invoice's unpaid balance to bad debts (6900)
+  writeoff ID [--date D]  write off an invoice's unpaid balance to bad debts (6900), or record a bill the supplier forgave as other income (4100)
   recurring [--as-of D] [--json]  payees that repeat on a steady interval: cost per year, next date, and which went overdue, lapsed or changed amount
   forecast [--as-of D] [--days N] [--json]  expected cash day by day from the bank balance, recurring items and open invoices and bills; the lowest point
   anomalies [--json]     lines worth a second look: double charges, amounts far above a payee's usual, large first-time payees (candidates with a reason, not an audit)
@@ -248,8 +251,8 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
     if (out) { writeFileSync(out, r.html); console.log(`Wrote ${out}: ${r.party}, ${r.rows.length} lines, closing ${fmt(r.closing)}${r.overdue ? `, ${fmt(r.overdue)} past due` : ""}.`); } else process.stdout.write(r.html);
   } catch (e) { console.error(e.message); process.exit(1); }
 } else if (cmd === "writeoff") {
-  if (!rest[0]) { console.error("writeoff needs an invoice id or number"); process.exit(2); }
-  try { const r = writeOff(books, rest[0], { date: flag("--date") ?? undefined }); books = r.books; save(); console.log(`Wrote off ${fmt(r.cents)} of ${rest[0]} to bad debts.`); } catch (e) { console.error(e.message); process.exit(1); }
+  if (!rest[0]) { console.error("writeoff needs an invoice or bill id or number"); process.exit(2); }
+  try { const r = writeOff(books, rest[0], { date: flag("--date") ?? undefined }); books = r.books; save(); console.log(`Wrote off ${fmt(r.cents)} of ${rest[0]} to ${r.books.documents.find((x) => x.id === rest[0] || x.number === rest[0])?.kind === 'bill' ? 'other income (bill forgiven)' : 'bad debts'}.`); } catch (e) { console.error(e.message); process.exit(1); }
 } else if (cmd === "recurring") {
   const r = detectRecurring(books, { asOf });
   if (json) { console.log(JSON.stringify(r, null, 2)); process.exit(0); }
@@ -347,8 +350,28 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
   console.log(`AGING as of ${a.asOf}`);
   for (const [h, side] of [["Receivable (owed to you)", a.receivable], ["Payable (you owe)", a.payable]]) console.log(`  ${h.padEnd(26)} ${fmt(side.total).padStart(12)}   ${a.buckets.map((b, i) => `${b}: ${fmt(side.byBucket[i])}`).join("  ")}`);
   for (const d of a.open) console.log(`    ${d.id.padEnd(14)} ${d.party.slice(0, 28).padEnd(28)} ${fmt(d.total).padStart(11)}  due ${d.due ?? d.date}  ${d.credit ? "credit not applied" : d.daysLate ? `${d.daysLate} days late` : "not due"}${d.partlyPaid ? `  (of ${fmt(d.original)})` : ""}`);
+} else if (cmd === "trip") {
+  try {
+    if (rest[0] === "add") {
+      const r = addTrip(books, { miles: rest[1], date: flag("--date"), purpose: flag("--purpose"), from: from ?? "", to: to ?? "" });
+      books = r.books; save(); console.log(`${r.trip.id} ${r.trip.date} ${r.trip.miles} miles: ${r.trip.purpose}`);
+    } else if (rest[0] === "remove" && rest[1]) { books = removeTrip(books, rest[1]); save(); console.log(`Removed ${rest[1]}.`); }
+    else if (rest[0] === "list") {
+      const y = flag("--year"), trips = (books.mileage ?? []).filter((t) => !y || t.date.startsWith(`${y}-`));
+      if (json) { console.log(JSON.stringify(trips, null, 2)); process.exit(0); }
+      for (const t of trips) console.log(`  ${t.id.padEnd(6)} ${t.date} ${String(t.miles).padStart(7)} mi  ${t.purpose}${t.from || t.to ? ` (${t.from ?? ""} to ${t.to ?? ""})` : ""}`);
+      if (y) { const m = mileageDeduction(books, +y); console.log(`  ${y}: ${m.miles} miles${m.rate ? ` at ${m.rate / 10} cents = ${fmt(m.cents)}` : ""}`); for (const w of m.warnings) console.log(`  ! ${w}`); }
+      if (!trips.length) console.log("  no trips logged");
+    } else { console.error("trip add MILES --date D --purpose TEXT, trip list [--year Y], or trip remove ID"); process.exit(2); }
+  } catch (e) { console.error(e.message); process.exit(1); }
+} else if (cmd === "homeoffice") {
+  try {
+    books = setHomeOffice(books, { sqft: rest[0], from, to }); save();
+    console.log(books.homeOffice ? `Home office: ${books.homeOffice.sqft} sq ft (${Math.min(books.homeOffice.sqft, 300)} count).` : "Home office removed.");
+  } catch (e) { console.error(e.message); process.exit(1); }
 } else if (cmd === "schedulec") {
-  const sc = scheduleC(books, { from, to, mealsPct: flag("--meals") !== null ? +flag("--meals") : 50 });
+  const yr = flag("--year");
+  const sc = scheduleC(books, { from, to, mealsPct: flag("--meals") !== null ? +flag("--meals") : 50, year: yr ? +yr : null });
   if (json) { console.log(JSON.stringify(sc, null, 2)); process.exit(0); }
   if (has("--csv")) { process.stdout.write(scheduleCCsv(sc)); process.exit(0); }
   console.log(`SCHEDULE C WORKSHEET${from || to ? ` ${from ?? ""}..${to ?? ""}` : ""}`);
@@ -356,7 +379,7 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
   console.log(`  7    ${"Gross income".padEnd(36)} ${fmt(sc.grossIncome).padStart(12)}\n  28   ${"Total expenses".padEnd(36)} ${fmt(sc.totalExpenses).padStart(12)}\n  31   ${"Net profit or (loss)".padEnd(36)} ${fmt(sc.netProfit).padStart(12)}`);
   if (sc.meals.booked) console.log(`  Meals booked ${fmt(sc.meals.booked)}, ${sc.meals.pct}% carried to 24b.`);
   for (const w of sc.warnings) console.log(`  ! ${w}`);
-  console.log("  A worksheet for you or your preparer. Not tax advice; it leaves out depreciation, home office, mileage and self-employment tax.");
+  console.log("  A worksheet for you or your preparer. Not tax advice; it leaves out depreciation and self-employment tax, and mileage and home office unless you pass --year.");
 } else if (cmd === "se") {
   const yr = flag("--year"), mo = flag("--months"), wg = flag("--wages");
   const r = seSetAside(books, { year: yr ? +yr : new Date().getFullYear(), monthsElapsed: mo ? +mo : 12, wages: wg ? Math.round(+wg * 100) : 0 });

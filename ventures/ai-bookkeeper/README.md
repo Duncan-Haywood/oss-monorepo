@@ -218,6 +218,8 @@ earlier activity into a brought-forward line. The closing balance is tested
 against the aging table. Node tests on hand-written ledgers; the page button was
 not clicked through (playwright is not installed in the 2026-10-21 cloud session).
 
+**Writing off.** `writeoff ID` takes an invoice's unpaid balance to Bad debts (6900); on a bill it records the supplier forgiving the balance: payable debited, Other income (4100, "Debts forgiven") credited. Either leaves aging. Node test on a hand-written bill (engine.test.mjs, 2026-10-21). Forgiven debt can be taxable income; ask your accountant.
+
 A bank line clears a document when it has the **exact amount**, falls 0 to 180
 days after the document date, and carries the **invoice number or the party's
 name** in its description. It is then `settled` and posts to receivable or
@@ -284,6 +286,23 @@ worksheet to copy from, not a filing: no depreciation, home office, mileage,
 health insurance or self-employment tax, and the meals rule has exceptions. The line
 map is from the form's layout as the author knows it, not checked against this year's
 instructions; confirm each line with your preparer. Test: `taxforms.test.mjs`.
+
+## Mileage and home office (US)
+
+Two deductions a bank feed never shows. `trip add MILES --date D --purpose TEXT [--from A --to B]`
+keeps a mileage log (a purpose is required; the IRS asks for one), `trip list --year Y` totals it, and
+`homeoffice SQFT [--from D --to D]` records a home office under the simplified method ($5 a square foot,
+300 square feet at most, prorated by months used, never more than the business profit). Neither is a
+journal entry. `schedulec --year Y` adds the miles to line 9 at the year's standard rate and the home
+office to line 30, and net profit is line 29 less line 30. Without `--year` the worksheet is as before.
+
+Verification: `node --test deductions.test.mjs` (rate times miles in integer cents; the 300 sq ft cap;
+part-year proration; the profit limit; line 9, line 30 and net profit on a small ledger) and a CLI
+run on a three-line statement. **Not checked:** the 2024 and 2025 rates (67.0 and 70.0 cents) are from
+memory of the IRS notices and the 2026 rate (72.5) is flagged on the worksheet as unchecked; irs.gov
+was not read. No real mileage log was tried, and the page does not have a card for this yet. Whether
+a space qualifies for the home office deduction, and whether to use actual expenses instead, is for you
+or your preparer.
 
 ## 1099-NEC contractor worksheet (US)
 
@@ -474,7 +493,7 @@ only: a fiscal year ending in another month is not modelled. The page has a "yea
 
 ## Not modelled
 
-Writing off a bill, the 179 taxable-income limit, inventory,
+The 179 taxable-income limit, inventory,
 payroll and sales tax filings, multiple currencies (the VAT worksheet is UK-layout, invoice basis), reading a PDF file itself (paste its text instead), and reading a receipt image (paste the text; any OCR tool will give you that).
 
 ## Receipts matched to bank lines
