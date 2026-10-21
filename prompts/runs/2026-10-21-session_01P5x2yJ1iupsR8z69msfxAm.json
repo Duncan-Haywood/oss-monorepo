@@ -1,0 +1,132 @@
+{
+  "date": "2026-10-21",
+  "session": "https://claude.ai/code/session_01P5x2yJ1iupsR8z69msfxAm",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md (scheduled)",
+  "input_sha256": "a069142edff7faba0e7497f3e43587d325506648757355f87cd62c89d6f4f469",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-21T09:38:06Z",
+  "ended": "2026-10-21T10:42:14Z",
+  "wall_minutes": 64.32,
+  "tokens_in": 6914824,
+  "tokens_out": 32458,
+  "cost_usd": 2.1816,
+  "tool_calls": 61,
+  "task": "mimic-transfer slice (track 11)",
+  "projects": [
+    "mimic-looptransfer"
+  ],
+  "pr": 9133,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "pyenv.py first run took ~25 min for torch+transformers; two overlapping installs (one orphaned from a backgrounded shell) corrupted imports with a bus error until both finished; matplotlib import was left broken by a PIL mismatch, so figure.py is stdlib-only."
+    },
+    {
+      "file": "research/PROJECTS.md",
+      "issue": "Track 11 'Next steps' in mimic-anycontext-detect point at a model-based mimic-anycontext, but milestone 5 mimic-transfer (model part) was unlisted as done; had to read 35 READMEs to learn that only no-model slices existed."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-10-21-fooling-an-ai-detector-by-being-short.md",
+    "docs/reports/2026-10-21-mimic-length-confound.md"
+  ],
+  "goal": null,
+  "notes": "Replayed 32 mimic-loop imitator prompts (19 unique) with Qwen2.5-0.5B-Instruct, 48 texts each, scored with prompt-free detectors refit without test ids. Finding: raw AUROCs track length; length-matched all 26 testable prompts caught. Checks: research build.py ok, check_md_links ok, 5 unit tests pass. matplotlib unusable in this container.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b528452a-ab97-59d0-bf0e-c4396a87d3fe",
+    "transcripts": 1,
+    "first": "2026-10-21T09:38:06Z",
+    "last": "2026-10-21T10:42:25Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 60,
+        "input": 120,
+        "output": 32458,
+        "thinking": 6224,
+        "cache_read": 6790003,
+        "cache_write_5m": 0,
+        "cache_write_1h": 124701,
+        "api_equivalent_usd": 2.1816,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 60,
+      "input": 120,
+      "output": 32458,
+      "thinking": 6224,
+      "cache_read": 6790003,
+      "cache_write_5m": 0,
+      "cache_write_1h": 124701,
+      "api_equivalent_usd": 2.1816,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 61,
+    "tools": {
+      "Bash": 52,
+      "Monitor": 5,
+      "Read": 1,
+      "mcp__github__search_pull_requests": 1,
+      "ReadNotifications": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 64.32,
+      "active_minutes": 64.32,
+      "model_minutes": 5.75,
+      "tool_minutes": 58.56,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "replay harness, leakage-safe detector refit, length control, analysis and write-ups; about 1.5 days for a person",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 550.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
