@@ -95,5 +95,11 @@ For many series at once or a production pipeline, R's `changepoint` package
 and Python's `ruptures` are more complete. On 100 seeded cases this tool's
 PELT returned the same changepoints as `ruptures` on all 100.
 
+**A negative result worth keeping.** For clumpy counts with two changes of growth rate, the negative-binomial
+cost removes the false alarms (0.4 false changes per straight series against 9.5 for plain Poisson) but does not find
+both real bends: both knots within 15 points of the truth on 0 to 1 of 40 series, at counts around 10 and around 40.
+Lowering the threshold found more bends and more false ones, not more correct ones. Two bends of that size sit below
+what noisy counts can show, and the tool's README records the measurement rather than a tuned number.
+
 *All figures are from seeded synthetic series in the tool's test suite, not
 from users' data. Statistical analysis, not advice.*
