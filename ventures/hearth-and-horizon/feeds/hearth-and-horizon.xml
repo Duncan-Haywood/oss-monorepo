@@ -28,6 +28,18 @@
       <itunes:duration>0:22:23</itunes:duration>
     </item>
     <item>
+      <title>The Long Sea</title>
+      <link>https://example.invalid/hearth-and-horizon/the-long-sea.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-long-sea.html</guid>
+      <pubDate>Wed, 21 Oct 2026 12:00:00 GMT</pubDate>
+      <description>A seaweed-and-mussel co-operative off Newfoundland loses a third of its lines to a storm its harvest-scheduling AI had priced as survivable. The only person who knows why is the seventy-eight-year-old fisher who will not sell it his slip, and who has written down the weather every day since his father's time. Setting: Ragged Tickle, an invented cove in Placentia Bay, Newfoundland, 2045 to 2046. Read the full text at https://example.invalid/hearth-and-horizon/the-long-sea.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A seaweed-and-mussel co-operative off Newfoundland loses a third of its lines to a storm its harvest-scheduling AI had priced as survivable. The only person who knows why is the seventy-eight-year-old fisher who will not sell it his slip, and who has written down the weather every day since his father's time.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://example.invalid/hearth-and-horizon/audio/the-long-sea.mp3" length="7561827" type="audio/mpeg"/>
+      <itunes:duration>0:21:00</itunes:duration>
+    </item>
+    <item>
       <title>Thirty-Nine Minutes</title>
       <link>https://example.invalid/hearth-and-horizon/thirty-nine-minutes.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/thirty-nine-minutes.html</guid>
