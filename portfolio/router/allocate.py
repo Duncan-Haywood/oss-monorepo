@@ -146,6 +146,12 @@ class Venture:
         return bool(h and h.get("evidence") == "customer-contact" and self.production_url)
 
     @property
+    def maintain_only(self) -> bool:
+        """A calculator that is not a flagship: kept live and fixed when broken,
+        never deepened (owner, 2026-10-21)."""
+        return not self.flagship and is_calculator(self.name)
+
+    @property
     def measured(self) -> bool:
         return self.mrr is not None
 
@@ -356,12 +362,16 @@ def rank(ventures: list[Venture]) -> list[Venture]:
          are exempt from the HOT_COMMITS demotion below, which exists to
          spread effort across shallow ventures, the opposite of what a
          flagship needs.
-      4. Unmeasured ventures -- still owed their protected explore budget;
+      4. Not a calculator. Calculators are maintain-only (owner, 2026-10-21,
+         `prompts/goals.md` "Direction: depth over calculators"), so they
+         sink below every other dispatchable venture and their task says
+         fix-if-broken rather than explore or consolidate.
+      5. Unmeasured ventures -- still owed their protected explore budget;
          null MRR is "not yet measured", not "measured and failing". Among
          them, ventures with an untested hypothesis come before ones with none:
          "write a hypothesis" is a thin task, and dozens of them at the top
          hid the ventures that had a real claim to test.
-      5. Everything else: later stage before earlier stage, then ventures not
+      6. Everything else: later stage before earlier stage, then ventures not
          already folded into another (consolidated_into) before those that
          were (their Explore task has no product left to test), then ventures not
          worked heavily this week (HOT_COMMITS+ commits in 7 days) before
@@ -383,6 +393,7 @@ def rank(ventures: list[Venture]) -> list[Venture]:
             0 if v.needs_decision else 1,
             0 if v.dispatchable else 1,
             v.flagship_rank if v.flagship_rank is not None else 1_000_000,
+            1 if v.maintain_only else 0,
             1 if v.awaits_visitors else 0,
             0 if not v.measured else 1,
             0 if v.untested_hypothesis else 1,
@@ -395,96 +406,32 @@ def rank(ventures: list[Venture]) -> list[Venture]:
             v.name,
         )
 
-    return diversify(sorted(ventures, key=sort_key), tier=lambda v: sort_key(v)[:6])
+    return sorted(ventures, key=sort_key)
 
 
 # ---------------------------------------------------------------------------
-# Families
+# Calculators
 #
 # Measured 2026-10-16 (docs/reports/2026-10-16-calculator-glut.md): 121
-# `*-bid-calculator` ventures are 9.6% of the portfolio but held 63 of the
-# top 100 queue slots. Each one was scored on its own by the session that
-# created it, 85 of them with an identical score vector, and nothing here
-# could see that they were one product cloned per trade. So the queue told
-# session after session to polish clone #37 instead of building the product
-# the clones add up to.
-#
-# A family is ventures sharing a template suffix: `*-bid-calculator`,
-# `*-fee-calculator`, `*-cost-calculator`. It is a crude key, on purpose: it
-# needs no file reads, a reader can check it by eye, and it catches the shape
-# that actually happened.
+# `*-bid-calculator` ventures held 63 of the top 100 queue slots, so the queue
+# told session after session to polish clone #37. The fix then was to cap each
+# template family and hand its top member a "Consolidate" task. The owner,
+# 2026-10-21, went further: drop the work that keeps runs on calculators at
+# all. So a calculator that is not a flagship sinks below every other
+# dispatchable venture and is offered only maintenance.
 # ---------------------------------------------------------------------------
 
-# Compound suffixes: the word before `-calculator` that names a template.
-CALCULATOR_KINDS = frozenset(
-    {"bid", "fee", "roi", "price", "cost", "rate", "payout", "margin", "profit", "tax"}
+def is_calculator(name: str) -> bool:
+    """A calculator by its slug: the last word is `calculator` or `estimator`.
+    Crude on purpose, like `family_of`: a reader can check it by eye."""
+    return name.rsplit("-", 1)[-1] in ("calculator", "estimator")
+
+
+MAINTAIN_TASK = (
+    "Maintain only (owner, 2026-10-21): this is a calculator. Fix it if it is broken "
+    "(a failing test, a wrong result, a dead link); otherwise add no features, pages, "
+    "comparison pages or consolidation work -- take a flagship or research task instead."
 )
-# A family this big is a product built many times, not a set of products.
-FAMILY_MIN = 5
-# The most members of one family allowed ahead of every other family's
-# members within a tier. Later members still appear, after the rest of the tier.
-FAMILY_CAP = 3
-
-
-def family_of(name: str) -> str:
-    """`<kind>-calculator` for the template families; otherwise the venture is
-    its own family. A bare shared suffix (`-check`, `-keeper`, `-optimizer`)
-    is not enough: those slugs name different products that happen to share
-    a word, and telling a session to merge them would be wrong."""
-    parts = name.split("-")
-    if len(parts) >= 3 and parts[-1] == "calculator" and parts[-2] in CALCULATOR_KINDS:
-        return f"{parts[-2]}-calculator"
-    return name
-
-
-def family_sizes(ventures: list[Venture]) -> dict[str, int]:
-    sizes: dict[str, int] = {}
-    for v in ventures:
-        if v.consolidated_into:
-            continue
-        f = family_of(v.name)
-        sizes[f] = sizes.get(f, 0) + 1
-    return sizes
-
-
-def diversify(ordered: list[Venture], tier=lambda v: 0, cap: int = FAMILY_CAP) -> list[Venture]:
-    """Within each run of equal `tier`, let at most `cap` members of any large
-    family keep their place; push the rest to the end of that tier, in order.
-
-    Tiers (decision needed, dispatchable, measured, stage) are never crossed:
-    this only reorders ventures `rank` already considers interchangeable on
-    everything but merit, which is where the clones were winning.
-    """
-    sizes = family_sizes(ordered)
-    out: list[Venture] = []
-    i = 0
-    while i < len(ordered):
-        j = i
-        while j < len(ordered) and tier(ordered[j]) == tier(ordered[i]):
-            j += 1
-        seen: dict[str, int] = {}
-        kept, deferred = [], []
-        for v in ordered[i:j]:
-            f = family_of(v.name)
-            if sizes.get(f, 0) >= FAMILY_MIN and not v.consolidated_into:
-                seen[f] = seen.get(f, 0) + 1
-                if seen[f] > cap:
-                    deferred.append(v)
-                    continue
-            kept.append(v)
-        out.extend(kept + deferred)
-        i = j
-    return out
-
-
-def consolidation_task(family: str, size: int) -> str:
-    return (
-        f"Consolidate: this is the top-ranked of {size} '*-{family}' ventures. Where they "
-        "share one calculation shape, ship one product with a shared engine and the niches "
-        "as data (every old URL kept, linked into it) instead of polishing a single copy; "
-        "where they do not, say which members differ in the PR and deepen this one. "
-        "See docs/reports/2026-10-16-calculator-glut.md."
-    )
 
 
 NO_HYPOTHESIS_PREFIX = "Explore: no hypothesis recorded"
@@ -495,6 +442,8 @@ FLAGSHIP_NEXT_CHARS = 500
 def next_task(v: Venture) -> str:
     if v.needs_decision:
         return "Review: measured at $0 MRR past revenue stage -- check against kill_criteria before further spend."
+    if v.maintain_only:
+        return MAINTAIN_TASK
     if v.flagship:
         milestone = v.flagship_next or "the venture's own roadmap"
         if len(milestone) > FLAGSHIP_NEXT_CHARS:
@@ -530,33 +479,13 @@ def next_task(v: Venture) -> str:
 
 
 def work_queue(ventures: list[Venture]) -> list[dict]:
-    # The first member of each large family to appear gets the family's
-    # consolidation task instead of its own; that is the one unit of work
-    # that improves all of them.
-    sizes = family_sizes(ventures)
-    claimed: set[str] = set()
-
-    def task_for(v: Venture) -> str:
-        f = family_of(v.name)
-        if (
-            not v.consolidated_into
-            and not v.flagship
-            and sizes.get(f, 0) >= FAMILY_MIN
-            and f not in claimed
-            and not v.needs_decision
-            and v.dispatchable
-        ):
-            claimed.add(f)
-            return consolidation_task(f, sizes[f])
-        return next_task(v)
-
     return [
         {
             "venture": v.name,
             "stage": v.stage,
             "protected": v.protected,
             "flagship": v.flagship,
-            "task": task_for(v),
+            "task": next_task(v),
             "dispatchable": v.dispatchable,
             "blocked_on": v.blocker,
             "spend_ceiling_usd": v.monthly_cap,

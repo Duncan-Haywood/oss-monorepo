@@ -29,13 +29,11 @@ add value, iOS and Android apps, and real business potential. Measured on
 `*-calculator` (121 `*-bid-calculator`), there is no native mobile app, and
 no venture has a single measured visitor. That is not the brief. So:
 
-- **Prefer higher-value work to another single-page calculator.** A
-  principle, not a ban (owner, 2026-10-16): a form plus arithmetic on a
-  static page is rarely the most valuable thing a run can build, and the
-  catalogue already holds over 600 of them. Before adding one, ask whether
-  deepening an existing venture, or a different shape of product, would help
-  more people; if a calculator is genuinely useful, it is often best as a
-  feature of an existing venture.
+- **No calculator work** (owner, 2026-10-21, walking back the 2026-10-16
+  "principle, not a ban"): build no new calculators, and do not add
+  features, pages or consolidation to the 650+ that exist. Fix one only when
+  it is broken. Higher-value products are the work (`prompts/goals.md`,
+  "Direction: depth over calculators").
 - **A new venture should say why someone would use it.** Name the free or paid
   alternatives a user has today and what this does better, in the venture's
   README. If you can't, it is probably not worth building.
@@ -56,8 +54,8 @@ no venture has a single measured visitor. That is not the brief. So:
   land a working slice of its milestone: a hard business or engineering
   problem, not polish. When you land it, rewrite that venture's `next:` in
   [`portfolio/flagships.yaml`](../../portfolio/flagships.yaml) to the next
-  milestone. The small tools stay; fix them when they break, but they are no
-  longer where most runs go.
+  milestone. The small tools stay; fix them when they break, but they are
+  not where runs go.
 - **Payments.** A product may include payment code, off by default and
   running only on the deployer's own keys from environment variables. Never
   the owner's accounts (`prompts/goals.md`, "Payments: never the owner's").

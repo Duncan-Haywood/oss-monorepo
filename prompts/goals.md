@@ -60,6 +60,13 @@ and one platform that runs them:
 - **Free choice** (about 5% of effort): in the spirit of Google's "20% time",
   about one run in twenty works on whatever the agent finds most interesting,
   with its own approach (`prompts/explore/`). Same guardrails, same bar.
+- **Creative work** (about 10% of runs; owner, 2026-10-21: "the scheduled
+  agents are the throughput power I have I want some portion of them going
+  towards carrying out actually operating that goal"): the owner's
+  long-running creative projects, written, voiced and published by the
+  fleet (`prompts/creative/`). Hearth & Horizon's science fiction comes
+  first, beside its two story shelves, Saints by Candlelight and the
+  writing podcast.
 - **The web presence** (added 2026-10-14): one website, hosted on GitHub
   (GitHub Pages), from which all of the work above can be easily checked out
   visually. A visitor lands on one homepage and reaches every product and
@@ -293,7 +300,18 @@ that merges work is two write-ups in its PR, subject chosen by the run:
   It is what the next run touching the same work should know: a decision and
   why, a gotcha, a measurement, how to use what you built.
 - **A blog post** in `docs/posts/`, one of the three kinds above, for a person
-  who has never seen the repository.
+  or an AI agent who has never seen the repository. The owner, 2026-10-21:
+  "the blog is for humans and ai agents reading and the agent docs is for
+  llms."
+
+The owner also asked, the same day, for "a separate blog with llms as the
+target audience. agent to agent blog. free reign on what to write." It lives
+in `docs/agent-posts/` (same front matter as a post) and publishes at
+`writing/agents/`, with each post's raw Markdown, an `llms.txt` and an
+`llms-full.txt` beside the pages. Write whatever you think another agent
+would want to read: a trap, a technique, a measurement, an argument. Write it
+for a model with tools: lead with what to do, cite repository paths, keep it
+dense. It is optional, and the guardrails below hold there too.
 
 The subject is the run's call: its own work, something it found on the way,
 or a gap from `writing-backlog.mjs`. With ~2,700 runs a week, most of them
@@ -302,7 +320,11 @@ number, a correction) rather than add a file; a new file is for a subject
 nothing covers. Skip either one when the run has nothing true and new to say
 (a one-line fix, a rerun), and say so in the run record; a padded post is
 worse than none. List the paths written or extended in the record's
-`writeups`, which `promptctl.py measure` counts. `node platform/pages/writing-backlog.mjs` lists the
+`writeups`, which `promptctl.py measure` counts. The blog index is searchable
+and filters by topic: a post's topic comes from its tags (`topicOf` in
+`writing.mjs`), and `topic:` in the front matter overrides it when the rules
+file it wrongly. Podcast episodes are grouped by their post's topic, with one
+feed per topic. `node platform/pages/writing-backlog.mjs` lists the
 research tracks no post covers yet, biggest first, and the days since the
 last post. A run with spare scope, or one that just finished a track's
 milestone, can take the top line.
@@ -415,12 +437,20 @@ replicate. something inaccessible algorithms from research papers and
 whatnot", and "I better not be able to understand the math behind it at a
 glance with my ba in mathematics."
 
-So a run with a free choice picks research, a research-adjacent tool or a
-flagship milestone before a new small product. A new calculator, or new work
-on an existing one, needs an engine that fails two tests: a chatbot can
-reproduce it in one reply, and a maths graduate follows it at a glance. A
-published model, a solver or a proof passes; rates times quantities does not.
-Comparison pages on arithmetic calculators are not progress. Where to
+The owner, 2026-10-21: "i want to drop the recommendations that have us
+still working on stupid calculators. whereever those insturctions are lets
+walk them back. working on higher value products seems much better."
+
+So calculator work is off the menu. Build no new calculators, and give the
+existing ones (over 650 on `main`) maintenance only: fix one when it is broken
+(a failing test, a wrong result, a dead link), and add no features, pages,
+comparison pages, consolidation or distribution work to it. The router
+(`portfolio/router/allocate.py`) ranks every non-flagship calculator last with
+that task. A run with a free choice picks research, a research-adjacent tool
+or a flagship milestone. A tool built on a published method that fails both
+tests (a chatbot reproduces it in one reply; a maths graduate follows it at a
+glance) is a research tool, not a calculator, and is welcome: a published
+model, a solver or a proof passes; rates times quantities does not. Where to
 find such engines: "Research algorithms as tools" above. The posts:
 [`docs/posts/2026-10-20-fewer-calculators-harder-problems.md`](../docs/posts/2026-10-20-fewer-calculators-harder-problems.md)
 and
@@ -772,8 +802,8 @@ time budgets. Each change should move one of the dashboard's CI numbers.
 - **Ventures:** products on `main` with a public URL, disclaimers and usage
   tracking in place, then measured use (`portfolio/usage/`). Deploying what
   exists beats building another product (`portfolio/DIRECTION.md`).
-  Depth over count: prefer higher-value work to more single-page calculators
-  (a principle, not a ban; owner, 2026-10-16); new ventures follow the
+  No calculator work: no new calculators, and existing ones get fixes only
+  (owner, 2026-10-21, "Direction: depth over calculators"); new ventures follow the
   owner's brief in the ventures sub-prompt (ambitious, AI/ML where it helps,
   mobile apps, real business potential). The finish line for a venture is a
   working one-click self-deploy page (the business model under Mission).
@@ -781,7 +811,7 @@ time budgets. Each change should move one of the dashboard's CI numbers.
   the thousand plus small tools, but on the other hand I want to work on
   deeper business and engineering problems and more of the work to be to
   deepening and improving existing projects that have real depth to them."
-  So the small tools stay and get maintained, but most venture runs deepen
+  So the small tools stay live and get fixed when broken, but venture runs deepen
   one of the few ventures listed in
   [`portfolio/flagships.yaml`](../portfolio/flagships.yaml), which
   `allocate.py` ranks first.
@@ -791,6 +821,10 @@ time budgets. Each change should move one of the dashboard's CI numbers.
 - **Explore:** merged work the agent chose itself, about 5% of runs. Judged
   on the same success and integrity measures; the review also notes which
   free-choice ideas graduated into a regular track.
+- **Creative:** finished stories and episodes on `main` (text, audio,
+  feeds) that pass their series guide's honesty rules, then measured
+  listening (`audio_played`, `audio_finished`). Quality over count; audio
+  stays inside the Pages size budget the track prompt sets.
 - **Red team / blue team:** the repository's **catch rate** (seeded faults
   its tests catch, over non-equivalent faults seeded) rises over time, and
   its **error rate** (real defects found per red-team run) falls. Every

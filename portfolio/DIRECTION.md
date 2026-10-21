@@ -32,13 +32,13 @@ exposure the owner must clean up personally.
    the live snapshot matches `main`; if it is stale, refreshing it outranks new work.
 2. **Raise the bar, not the count.** There are 190+ ventures and no nonzero
    usage reading yet (`usage/usage.yaml`; unmeasured, not zero). A new venture
-   is welcome when it is a genuinely different product, not another copy of a
-   template family (121 near-identical `*-bid-calculator` ventures were built
+   is welcome when it is a genuinely different product, never a calculator
+   (owner, 2026-10-21) and not another copy of a template family (121 near-identical `*-bid-calculator` ventures were built
    while none was measured: `docs/reports/2026-10-16-calculator-glut.md`).
    Name where the first real visitor would come from (a subreddit, a search
    phrase with volume, a competitor's comparison traffic) before graduating
    one, and run `python3 portfolio/pipeline/duplicate_check.py "<niche>"` first.
-   Distribution, measurement and the router's `Consolidate:` task rank ahead.
+   Distribution, measurement and the flagships rank ahead.
 3. **Measure.** Usage is the only honest signal. Any product with a nonzero
    reading ranks by it (`platform/ci/usage_state.py`). A reading of zero after
    a fair run is a result worth recording.
@@ -54,8 +54,9 @@ Build traditional software that creates a lot of value for real users in
 super-niche markets where people have money and a concrete problem, especially
 problems that help them earn more. Add AI only where it clearly improves the
 product. Start from abundant free value, measure what people come back to
-without paid acquisition, and double down on that. Depth beats another
-single-page calculator (`goals.md`, "Direction: depth over calculators").
+without paid acquisition, and double down on that. No calculator work:
+no new calculators, fixes only for existing ones (owner, 2026-10-21; `goals.md`,
+"Direction: depth over calculators").
 
 - Do not collect payment on, or wire payout rails to, the owner's accounts.
 - Keep liability-limiting disclaimers in every user-facing product.

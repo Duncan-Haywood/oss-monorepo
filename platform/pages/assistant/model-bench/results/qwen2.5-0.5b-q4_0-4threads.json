@@ -1,0 +1,1311 @@
+{
+ "crossOriginIsolated": true,
+ "hc": 4,
+ "gpu": true,
+ "cases": [
+  {
+   "form": "ebay",
+   "say": "item price 55, shipping charged to buyer 8",
+   "round": 0,
+   "expect": {
+    "price": "55",
+    "shippingCharged": "8"
+   },
+   "raw": "{\"price\": 55, \"quantity\": 1, \"combinedItemCount\": 1, \"shippingCharged\": 8, \"finalValueRate\": 0, \"fixedFee\": 0, \"promotedRate\": 0, \"costOfGoods\": 0, \"shippingCost\": 0, \"packagingCost\": 0, \"targetMargin\": 0, \"returnRatePercent\": 0}",
+   "model": {
+    "price": "55",
+    "quantity": "1",
+    "shippingCharged": "8",
+    "finalValueRate": "0",
+    "fixedFee": "0",
+    "promotedRate": "0",
+    "costOfGoods": "0",
+    "shippingCost": "0",
+    "packagingCost": "0",
+    "targetMargin": "0",
+    "returnRatePercent": "0"
+   },
+   "rules": {
+    "price": "55",
+    "shippingCharged": "8"
+   },
+   "ms": 27881.775000000023,
+   "err": null
+  },
+  {
+   "form": "ebay",
+   "say": "I'm selling it for forty dollars and I paid twelve for the item",
+   "round": 0,
+   "expect": {
+    "price": "40",
+    "costOfGoods": "12"
+   },
+   "raw": "{\"price\": 40.0, \"quantity\": 1, \"combinedItemCount\": 1, \"shippingCharged\": 0, \"finalValueRate\": 0, \"fixedFee\": 0, \"promotedRate\": 0, \"costOfGoods\": 12.0, \"shippingCost\": 0, \"packagingCost\": 0, \"targetMargin\": 0, \"returnRatePercent\": 0}",
+   "model": {
+    "price": "40",
+    "quantity": "1",
+    "shippingCharged": "0",
+    "finalValueRate": "0",
+    "fixedFee": "0",
+    "promotedRate": "0",
+    "costOfGoods": "12",
+    "shippingCost": "0",
+    "packagingCost": "0",
+    "targetMargin": "0",
+    "returnRatePercent": "0"
+   },
+   "rules": {
+    "price": "40",
+    "costOfGoods": "12"
+   },
+   "ms": 10651.630000000005,
+   "err": null
+  },
+  {
+   "form": "ebay",
+   "say": "price $1,250",
+   "round": 0,
+   "expect": {
+    "price": "1250"
+   },
+   "raw": "{\"price\": 1250, \"quantity\": 1, \"combinedItemCount\": 1, \"shippingCharged\": 0, \"finalValueRate\": 0, \"fixedFee\": 0, \"promotedRate\": 0, \"costOfGoods\": 0, \"shippingCost\": 0, \"packagingCost\": 0, \"targetMargin\": 0, \"returnRatePercent\": 0}",
+   "model": {
+    "price": "1250",
+    "quantity": "1",
+    "shippingCharged": "0",
+    "finalValueRate": "0",
+    "fixedFee": "0",
+    "promotedRate": "0",
+    "costOfGoods": "0",
+    "shippingCost": "0",
+    "packagingCost": "0",
+    "targetMargin": "0",
+    "returnRatePercent": "0"
+   },
+   "rules": {
+    "price": "1250"
+   },
+   "ms": 10570.75,
+   "err": null
+  },
+  {
+   "form": "ebay",
+   "say": "promoted listings 5 percent",
+   "round": 0,
+   "expect": {
+    "promotedRate": "5"
+   },
+   "raw": "{\"promotedRate\": 5, \"targetMargin\": 0, \"returnRatePercent\": 0}",
+   "model": {
+    "promotedRate": "5",
+    "targetMargin": "0",
+    "returnRatePercent": "0"
+   },
+   "rules": {
+    "promotedRate": "5"
+   },
+   "ms": 3050.0200000000186,
+   "err": null
+  },
+  {
+   "form": "ebay",
+   "say": "final value fee 13.6%, fixed fee 0.40",
+   "round": 0,
+   "expect": {
+    "finalValueRate": "13.6",
+    "fixedFee": "0.4"
+   },
+   "raw": "{\"finalValueRate\": 13.6, \"fixedFee\": 0.40}",
+   "model": {
+    "finalValueRate": "13.6",
+    "fixedFee": "0.4"
+   },
+   "rules": {
+    "finalValueRate": "13.6",
+    "fixedFee": "0.4"
+   },
+   "ms": 3572.8249999999534,
+   "err": null
+  },
+  {
+   "form": "ebay",
+   "say": "shipping label costs 7.50 and packaging is 1 dollar",
+   "round": 0,
+   "expect": {
+    "shippingCost": "7.5",
+    "packagingCost": "1"
+   },
+   "raw": "{\"shippingCharged\": 7.5, \"shippingCost\": 7.5, \"packagingCost\": 1, \"targetMargin\": 99.99, \"returnRatePercent\": 100}",
+   "model": {
+    "shippingCharged": "7.5",
+    "shippingCost": "7.5",
+    "packagingCost": "1",
+    "targetMargin": "99.99",
+    "returnRatePercent": "100"
+   },
+   "rules": {
+    "shippingCost": "7.5",
+    "packagingCost": "1"
+   },
+   "ms": 5972.75,
+   "err": null
+  },
+  {
+   "form": "ebay",
+   "say": "ten units",
+   "round": 0,
+   "expect": {
+    "quantity": "10"
+   },
+   "raw": "{\"quantity\":1,\"targetMargin\":10}",
+   "model": {
+    "quantity": "1",
+    "targetMargin": "10"
+   },
+   "rules": {
+    "quantity": "10"
+   },
+   "ms": 1650.390000000014,
+   "err": null
+  },
+  {
+   "form": "ebay",
+   "say": "target margin twenty five percent",
+   "round": 0,
+   "expect": {
+    "targetMargin": "25"
+   },
+   "raw": "{\"targetMargin\": 25}",
+   "model": {
+    "targetMargin": "25"
+   },
+   "rules": {
+    "targetMargin": "25"
+   },
+   "ms": 1530.5250000000233,
+   "err": null
+  },
+  {
+   "form": "ebay",
+   "say": "return rate 150 percent",
+   "round": 0,
+   "expect": {},
+   "raw": "{\"returnRatePercent\": 150}",
+   "model": {},
+   "rules": {},
+   "ms": 2071.460000000079,
+   "err": null
+  },
+  {
+   "form": "ebay",
+   "say": "it sells for 30",
+   "round": 0,
+   "expect": {
+    "price": "30"
+   },
+   "raw": "{\"price\": 30, \"quantity\": 1, \"combinedItemCount\": 1, \"shippingCharged\": 0, \"finalValueRate\": 0, \"fixedFee\": 0, \"promotedRate\": 0, \"costOfGoods\": 0, \"shippingCost\": 0, \"packagingCost\": 0, \"targetMargin\": 0, \"returnRatePercent\": 0}",
+   "model": {
+    "price": "30",
+    "quantity": "1",
+    "shippingCharged": "0",
+    "finalValueRate": "0",
+    "fixedFee": "0",
+    "promotedRate": "0",
+    "costOfGoods": "0",
+    "shippingCost": "0",
+    "packagingCost": "0",
+    "targetMargin": "0",
+    "returnRatePercent": "0"
+   },
+   "rules": {
+    "price": "30"
+   },
+   "ms": 9755.75,
+   "err": null
+  },
+  {
+   "form": "roofing",
+   "say": "2,400 square feet, 8/12 pitch, two layers to tear off",
+   "round": 0,
+   "expect": {
+    "s1-foot": "2400",
+    "s1-pitch": "8",
+    "s1-layers": "2"
+   },
+   "raw": "{\"s1-foot\": 2, \"s1-pitch\": 8, \"s1-layers\": 2, \"s2-foot\": 2400, \"s2-pitch\": 8, \"s2-layers\": 2, \"wastePercent\": 0, \"materialPerSquare\": 0, \"hourlyWage\": 0, \"burdenRate\": 0, \"dumpsterFee\": 0, \"permitFee\": 0, \"targetMargin\": 0, \"depositPercent\": 0, \"validDays\": 365}",
+   "model": {
+    "s1-foot": "2",
+    "s1-pitch": "8",
+    "s1-layers": "2",
+    "s2-foot": "2400",
+    "s2-pitch": "8",
+    "s2-layers": "2",
+    "wastePercent": "0",
+    "materialPerSquare": "0",
+    "hourlyWage": "0",
+    "burdenRate": "0",
+    "dumpsterFee": "0",
+    "permitFee": "0",
+    "targetMargin": "0",
+    "depositPercent": "0",
+    "validDays": "365"
+   },
+   "rules": {
+    "s1-foot": "2400",
+    "s1-pitch": "8",
+    "s1-layers": "2"
+   },
+   "ms": 32360.209999999963,
+   "err": null
+  },
+  {
+   "form": "roofing",
+   "say": "footprint twenty four hundred sq ft and pitch eight over twelve",
+   "round": 0,
+   "expect": {
+    "s1-foot": "2400",
+    "s1-pitch": "8"
+   },
+   "raw": "{\"s1-foot\": 2400, \"s1-pitch\": 8, \"s2-foot\": 0, \"s2-pitch\": 0, \"s2-layers\": 6, \"wastePercent\": 0, \"materialPerSquare\": 0, \"hourlyWage\": 0, \"burdenRate\": 0, \"dumpsterFee\": 0, \"permitFee\": 0, \"targetMargin\": 0, \"depositPercent\": 0, \"validDays\": 365}",
+   "model": {
+    "s1-foot": "2400",
+    "s1-pitch": "8",
+    "s2-foot": "0",
+    "s2-pitch": "0",
+    "s2-layers": "6",
+    "wastePercent": "0",
+    "materialPerSquare": "0",
+    "hourlyWage": "0",
+    "burdenRate": "0",
+    "dumpsterFee": "0",
+    "permitFee": "0",
+    "targetMargin": "0",
+    "depositPercent": "0",
+    "validDays": "365"
+   },
+   "rules": {
+    "s1-foot": "2400",
+    "s1-pitch": "8"
+   },
+   "ms": 12783.03999999992,
+   "err": null
+  },
+  {
+   "form": "roofing",
+   "say": "waste 12 percent, material 145 per square",
+   "round": 0,
+   "expect": {
+    "wastePercent": "12",
+    "materialPerSquare": "145"
+   },
+   "raw": "{\"s1-foot\": 0, \"s1-pitch\": 0, \"s1-layers\": 6, \"s2-foot\": 0, \"s2-pitch\": 24, \"s2-layers\": 6, \"wastePercent\": 12, \"materialPerSquare\": 145, \"hourlyWage\": 0, \"burdenRate\": 0, \"dumpsterFee\": 0, \"permitFee\": 0, \"targetMargin\": 0, \"depositPercent\": 0, \"validDays\": 365}",
+   "model": {
+    "s1-foot": "0",
+    "s1-pitch": "0",
+    "s1-layers": "6",
+    "s2-foot": "0",
+    "s2-pitch": "24",
+    "s2-layers": "6",
+    "wastePercent": "12",
+    "materialPerSquare": "145",
+    "hourlyWage": "0",
+    "burdenRate": "0",
+    "dumpsterFee": "0",
+    "permitFee": "0",
+    "targetMargin": "0",
+    "depositPercent": "0",
+    "validDays": "365"
+   },
+   "rules": {
+    "wastePercent": "12",
+    "materialPerSquare": "145"
+   },
+   "ms": 14849.050000000047,
+   "err": null
+  },
+  {
+   "form": "roofing",
+   "say": "crew wage 38.50 an hour, payroll burden 28%",
+   "round": 0,
+   "expect": {
+    "hourlyWage": "38.5",
+    "burdenRate": "28"
+   },
+   "raw": "{\"s2-foot\": 38.5, \"s2-pitch\": 28, \"s2-layers\": 6, \"wastePercent\": 0, \"materialPerSquare\": 0, \"hourlyWage\": 38.5, \"burdenRate\": 28, \"dumpsterFee\": 0, \"permitFee\": 0, \"targetMargin\": 0, \"depositPercent\": 0, \"validDays\": 365}",
+   "model": {
+    "s2-layers": "6",
+    "wastePercent": "0",
+    "materialPerSquare": "0",
+    "hourlyWage": "38.5",
+    "burdenRate": "28",
+    "dumpsterFee": "0",
+    "permitFee": "0",
+    "targetMargin": "0",
+    "depositPercent": "0",
+    "validDays": "365"
+   },
+   "rules": {
+    "hourlyWage": "38.5",
+    "burdenRate": "28"
+   },
+   "ms": 13276.229999999981,
+   "err": null
+  },
+  {
+   "form": "roofing",
+   "say": "dumpster 500, permit 300",
+   "round": 0,
+   "expect": {
+    "dumpsterFee": "500",
+    "permitFee": "300"
+   },
+   "raw": "{\"s1-foot\": 500, \"s2-foot\": 500, \"wastePercent\": 0, \"materialPerSquare\": 0, \"hourlyWage\": 0, \"burdenRate\": 0, \"dumpsterFee\": 0, \"permitFee\": 0, \"targetMargin\": 0, \"depositPercent\": 0, \"validDays\": 365}",
+   "model": {
+    "s1-foot": "500",
+    "s2-foot": "500",
+    "wastePercent": "0",
+    "materialPerSquare": "0",
+    "hourlyWage": "0",
+    "burdenRate": "0",
+    "dumpsterFee": "0",
+    "permitFee": "0",
+    "targetMargin": "0",
+    "depositPercent": "0",
+    "validDays": "365"
+   },
+   "rules": {
+    "dumpsterFee": "500",
+    "permitFee": "300"
+   },
+   "ms": 11076.70000000007,
+   "err": null
+  },
+  {
+   "form": "roofing",
+   "say": "deposit 30 percent and hold the price for 45 days",
+   "round": 0,
+   "expect": {
+    "depositPercent": "30",
+    "validDays": "45"
+   },
+   "raw": "{\"depositPercent\": 30, \"validDays\": 45}",
+   "model": {
+    "depositPercent": "30",
+    "validDays": "45"
+   },
+   "rules": {
+    "depositPercent": "30",
+    "validDays": "45"
+   },
+   "ms": 3207.810000000056,
+   "err": null
+  },
+  {
+   "form": "roofing",
+   "say": "margin 22 and a half percent",
+   "round": 0,
+   "expect": {
+    "targetMargin": "22.5"
+   },
+   "raw": "{\"s1-foot\": 0.22, \"s2-foot\": 0.22, \"wastePercent\": 22, \"materialPerSquare\": 0, \"hourlyWage\": 0, \"burdenRate\": 0, \"dumpsterFee\": 0, \"permitFee\": 0, \"targetMargin\": 22, \"depositPercent\": 0, \"validDays\": 365}",
+   "model": {
+    "wastePercent": "22",
+    "materialPerSquare": "0",
+    "hourlyWage": "0",
+    "burdenRate": "0",
+    "dumpsterFee": "0",
+    "permitFee": "0",
+    "targetMargin": "22",
+    "depositPercent": "0",
+    "validDays": "365"
+   },
+   "rules": {
+    "targetMargin": "22.5"
+   },
+   "ms": 10955.349999999977,
+   "err": null
+  },
+  {
+   "form": "roofing",
+   "say": "seven layers",
+   "round": 0,
+   "expect": {},
+   "raw": "{\"s2-layers\": 7}",
+   "model": {},
+   "rules": {},
+   "ms": 1485.6199999999953,
+   "err": null
+  },
+  {
+   "form": "fba",
+   "say": "category electronics, sale price 24.99",
+   "round": 0,
+   "expect": {
+    "category": "electronics",
+    "salePrice": "24.99"
+   },
+   "raw": "{\"category\": \"electronics\", \"salePrice\": 24.99}",
+   "model": {
+    "category": "electronics",
+    "salePrice": "24.99"
+   },
+   "rules": {
+    "category": "electronics",
+    "salePrice": "24.99"
+   },
+   "ms": 18719.300000000047,
+   "err": null
+  },
+  {
+   "form": "fba",
+   "say": "length 10 width 8 height 3 inches, weight 1.2 pounds",
+   "round": 0,
+   "expect": {
+    "length": "10",
+    "width": "8",
+    "height": "3",
+    "weightLb": "1.2"
+   },
+   "raw": "{\"length\":10,\"width\":8,\"height\":3,\"weightLb\":1.2,\"costOfGoods\":0,\"lowPriceEligible\":false,\"couponPercent\":0}",
+   "model": {
+    "length": "10",
+    "width": "8",
+    "height": "3",
+    "weightLb": "1.2",
+    "costOfGoods": "0",
+    "lowPriceEligible": false,
+    "couponPercent": "0"
+   },
+   "rules": {
+    "length": "10",
+    "width": "8",
+    "height": "3",
+    "weightLb": "1.2"
+   },
+   "ms": 6128.444999999949,
+   "err": null
+  },
+  {
+   "form": "fba",
+   "say": "I ship it myself, FBM",
+   "round": 0,
+   "expect": {
+    "fulfillmentMethod": "fbm"
+   },
+   "raw": "{\"fulfillmentMethod\": \"fbm\", \"category\": \"clothing\", \"salePrice\": 0, \"length\": 0, \"width\": 0, \"height\": 0, \"weightLb\": 0, \"monthsInStorage\": 0, \"costOfGoods\": 0, \"lowPriceEligible\": true, \"couponPercent\": 0}",
+   "model": {
+    "fulfillmentMethod": "fbm",
+    "category": "clothing",
+    "salePrice": "0",
+    "length": "0",
+    "width": "0",
+    "height": "0",
+    "weightLb": "0",
+    "monthsInStorage": "0",
+    "costOfGoods": "0",
+    "lowPriceEligible": true,
+    "couponPercent": "0"
+   },
+   "rules": {
+    "fulfillmentMethod": "fbm"
+   },
+   "ms": 9145.584999999963,
+   "err": null
+  },
+  {
+   "form": "fba",
+   "say": "no low price FBA",
+   "round": 0,
+   "expect": {
+    "lowPriceEligible": false
+   },
+   "raw": "{\"salePrice\": 0, \"length\": 0, \"width\": 0, \"height\": 0, \"weightLb\": 0, \"monthsInStorage\": 0, \"costOfGoods\": 0, \"lowPriceEligible\": false, \"couponPercent\": 0}",
+   "model": {
+    "salePrice": "0",
+    "length": "0",
+    "width": "0",
+    "height": "0",
+    "weightLb": "0",
+    "monthsInStorage": "0",
+    "costOfGoods": "0",
+    "lowPriceEligible": false,
+    "couponPercent": "0"
+   },
+   "rules": {
+    "lowPriceEligible": false
+   },
+   "ms": 7733.8300000000745,
+   "err": null
+  },
+  {
+   "form": "fba",
+   "say": "beauty and personal care, I paid 6 for it, coupon 10 percent",
+   "round": 0,
+   "expect": {
+    "category": "beauty",
+    "costOfGoods": "6",
+    "couponPercent": "10"
+   },
+   "raw": "{\"salePrice\": 6, \"length\": 0, \"width\": 0, \"height\": 0, \"weightLb\": 0, \"monthsInStorage\": 0, \"costOfGoods\": 6, \"lowPriceEligible\": true, \"couponPercent\": 10}",
+   "model": {
+    "salePrice": "6",
+    "length": "0",
+    "width": "0",
+    "height": "0",
+    "weightLb": "0",
+    "monthsInStorage": "0",
+    "costOfGoods": "6",
+    "lowPriceEligible": true,
+    "couponPercent": "10"
+   },
+   "rules": {
+    "category": "beauty",
+    "costOfGoods": "6",
+    "couponPercent": "10"
+   },
+   "ms": 8881.784999999916,
+   "err": null
+  },
+  {
+   "form": "fba",
+   "say": "storage for three months",
+   "round": 0,
+   "expect": {
+    "monthsInStorage": "3"
+   },
+   "raw": "{\"salePrice\": 0, \"length\": 0, \"width\": 0, \"height\": 0, \"weightLb\": 0, \"monthsInStorage\": 3, \"costOfGoods\": 0, \"lowPriceEligible\": true, \"couponPercent\": 0}",
+   "model": {
+    "salePrice": "0",
+    "length": "0",
+    "width": "0",
+    "height": "0",
+    "weightLb": "0",
+    "monthsInStorage": "3",
+    "costOfGoods": "0",
+    "lowPriceEligible": true,
+    "couponPercent": "0"
+   },
+   "rules": {
+    "monthsInStorage": "3"
+   },
+   "ms": 8852.46000000008,
+   "err": null
+  },
+  {
+   "form": "ebay",
+   "say": "we charge the buyer 9.95 for shipping",
+   "round": 1,
+   "expect": {
+    "shippingCharged": "9.95"
+   },
+   "raw": "{\"shippingCharged\": 9.95}",
+   "model": {
+    "shippingCharged": "9.95"
+   },
+   "rules": {
+    "shippingCharged": "9.95"
+   },
+   "ms": 2421.3499999999767,
+   "err": null
+  },
+  {
+   "form": "ebay",
+   "say": "cost of goods eight bucks",
+   "round": 1,
+   "expect": {
+    "costOfGoods": "8"
+   },
+   "raw": "{\"price\": 8.0, \"quantity\": 1, \"combinedItemCount\": 2, \"shippingCharged\": 0, \"finalValueRate\": 0, \"fixedFee\": 0, \"promotedRate\": 0, \"costOfGoods\": 8.0, \"shippingCost\": 0, \"packagingCost\": 0, \"targetMargin\": 0, \"returnRatePercent\": 0}",
+   "model": {
+    "price": "8",
+    "quantity": "1",
+    "combinedItemCount": "2",
+    "shippingCharged": "0",
+    "finalValueRate": "0",
+    "fixedFee": "0",
+    "promotedRate": "0",
+    "costOfGoods": "8",
+    "shippingCost": "0",
+    "packagingCost": "0",
+    "targetMargin": "0",
+    "returnRatePercent": "0"
+   },
+   "rules": {
+    "costOfGoods": "8"
+   },
+   "ms": 10479.80999999994,
+   "err": null
+  },
+  {
+   "form": "ebay",
+   "say": "batch of 25",
+   "round": 1,
+   "expect": {
+    "quantity": "25"
+   },
+   "raw": "{\"quantity\":25, \"shippingCharged\":0, \"finalValueRate\":0, \"fixedFee\":0, \"promotedRate\":0, \"costOfGoods\":0, \"shippingCost\":0, \"packagingCost\":0, \"targetMargin\":0, \"returnRatePercent\":0}",
+   "model": {
+    "quantity": "25",
+    "shippingCharged": "0",
+    "finalValueRate": "0",
+    "fixedFee": "0",
+    "promotedRate": "0",
+    "costOfGoods": "0",
+    "shippingCost": "0",
+    "packagingCost": "0",
+    "targetMargin": "0",
+    "returnRatePercent": "0"
+   },
+   "rules": {
+    "quantity": "25"
+   },
+   "ms": 8004.4550000000745,
+   "err": null
+  },
+  {
+   "form": "ebay",
+   "say": "packaging 0.75, label 4.20, price 32",
+   "round": 1,
+   "expect": {
+    "packagingCost": "0.75",
+    "shippingCost": "4.2",
+    "price": "32"
+   },
+   "raw": "{\"quantity\": 1, \"combinedItemCount\": 2, \"shippingCharged\": 0, \"finalValueRate\": 0, \"fixedFee\": 0, \"promotedRate\": 0, \"costOfGoods\": 0, \"shippingCost\": 0, \"packagingCost\": 0, \"targetMargin\": 0, \"returnRatePercent\": 0}",
+   "model": {
+    "quantity": "1",
+    "combinedItemCount": "2",
+    "shippingCharged": "0",
+    "finalValueRate": "0",
+    "fixedFee": "0",
+    "promotedRate": "0",
+    "costOfGoods": "0",
+    "shippingCost": "0",
+    "packagingCost": "0",
+    "targetMargin": "0",
+    "returnRatePercent": "0"
+   },
+   "rules": {
+    "price": "32",
+    "shippingCost": "4.2",
+    "packagingCost": "0.75"
+   },
+   "ms": 10006.479999999981,
+   "err": null
+  },
+  {
+   "form": "ebay",
+   "say": "I expect about 8% returns",
+   "round": 1,
+   "expect": {
+    "returnRatePercent": "8"
+   },
+   "raw": "{\"returnRatePercent\": 8}",
+   "model": {
+    "returnRatePercent": "8"
+   },
+   "rules": {
+    "returnRatePercent": "8"
+   },
+   "ms": 1827.4749999999767,
+   "err": null
+  },
+  {
+   "form": "roofing",
+   "say": "three thousand two hundred square feet",
+   "round": 1,
+   "expect": {
+    "s1-foot": "3200"
+   },
+   "raw": "{\"s1-foot\": 3200, \"s2-foot\": 3200, \"wastePercent\": 0, \"materialPerSquare\": 0, \"hourlyWage\": 0, \"burdenRate\": 0, \"dumpsterFee\": 0, \"permitFee\": 0, \"targetMargin\": 0, \"depositPercent\": 0, \"validDays\": 365}",
+   "model": {
+    "s1-foot": "3200",
+    "s2-foot": "3200",
+    "wastePercent": "0",
+    "materialPerSquare": "0",
+    "hourlyWage": "0",
+    "burdenRate": "0",
+    "dumpsterFee": "0",
+    "permitFee": "0",
+    "targetMargin": "0",
+    "depositPercent": "0",
+    "validDays": "365"
+   },
+   "rules": {
+    "s1-foot": "3200"
+   },
+   "ms": 11268.400000000023,
+   "err": null
+  },
+  {
+   "form": "roofing",
+   "say": "the pitch is 6",
+   "round": 1,
+   "expect": {
+    "s1-pitch": "6"
+   },
+   "raw": "{\"s1-pitch\": 6}",
+   "model": {
+    "s1-pitch": "6"
+   },
+   "rules": {
+    "s1-pitch": "6"
+   },
+   "ms": 1774.8399999999674,
+   "err": null
+  },
+  {
+   "form": "roofing",
+   "say": "labor 42 dollars an hour",
+   "round": 1,
+   "expect": {
+    "hourlyWage": "42"
+   },
+   "raw": "{\"s1-foot\": 42, \"s2-foot\": 42, \"wastePercent\": 0, \"materialPerSquare\": 0, \"hourlyWage\": 0, \"burdenRate\": 0, \"dumpsterFee\": 0, \"permitFee\": 0, \"targetMargin\": 0, \"depositPercent\": 0, \"validDays\": 365}",
+   "model": {
+    "s1-foot": "42",
+    "s2-foot": "42",
+    "wastePercent": "0",
+    "materialPerSquare": "0",
+    "hourlyWage": "0",
+    "burdenRate": "0",
+    "dumpsterFee": "0",
+    "permitFee": "0",
+    "targetMargin": "0",
+    "depositPercent": "0",
+    "validDays": "365"
+   },
+   "rules": {
+    "hourlyWage": "42"
+   },
+   "ms": 10072.854999999981,
+   "err": null
+  },
+  {
+   "form": "roofing",
+   "say": "aim for a 25 percent margin with 10 percent waste",
+   "round": 1,
+   "expect": {
+    "targetMargin": "25",
+    "wastePercent": "10"
+   },
+   "raw": "{\"s1-foot\": 25, \"s1-pitch\": 0, \"s1-layers\": 6, \"s2-foot\": 0, \"s2-pitch\": 0, \"s2-layers\": 6, \"wastePercent\": 10, \"materialPerSquare\": 0, \"hourlyWage\": 0, \"burdenRate\": 0, \"dumpsterFee\": 0, \"permitFee\": 0, \"targetMargin\": 25, \"depositPercent\": 0, \"validDays\": 365}",
+   "model": {
+    "s1-foot": "25",
+    "s1-pitch": "0",
+    "s1-layers": "6",
+    "s2-foot": "0",
+    "s2-pitch": "0",
+    "s2-layers": "6",
+    "wastePercent": "10",
+    "materialPerSquare": "0",
+    "hourlyWage": "0",
+    "burdenRate": "0",
+    "dumpsterFee": "0",
+    "permitFee": "0",
+    "targetMargin": "25",
+    "depositPercent": "0",
+    "validDays": "365"
+   },
+   "rules": {
+    "wastePercent": "10",
+    "targetMargin": "25"
+   },
+   "ms": 14629.099999999977,
+   "err": null
+  },
+  {
+   "form": "fba",
+   "say": "it's jewelry, weighs half a pound",
+   "round": 1,
+   "expect": {
+    "category": "jewelry",
+    "weightLb": "0.5"
+   },
+   "raw": "{\"salePrice\": 0.5, \"length\": 0.5, \"width\": 0.5, \"height\": 0.5, \"weightLb\": 0.5, \"monthsInStorage\": 0, \"costOfGoods\": 0, \"lowPriceEligible\": true, \"couponPercent\": 0}",
+   "model": {
+    "salePrice": "0.5",
+    "length": "0.5",
+    "width": "0.5",
+    "height": "0.5",
+    "weightLb": "0.5",
+    "monthsInStorage": "0",
+    "costOfGoods": "0",
+    "lowPriceEligible": true,
+    "couponPercent": "0"
+   },
+   "rules": {
+    "category": "jewelry",
+    "weightLb": "0.5"
+   },
+   "ms": 8788.375,
+   "err": null
+  },
+  {
+   "form": "fba",
+   "say": "12 by 9 by 4 inches",
+   "round": 1,
+   "expect": {
+    "length": "12",
+    "width": "9",
+    "height": "4"
+   },
+   "raw": "{\"salePrice\": 12, \"length\": 9, \"width\": 4, \"height\": 0, \"weightLb\": 0, \"monthsInStorage\": 0, \"costOfGoods\": 0, \"lowPriceEligible\": true, \"couponPercent\": 0}",
+   "model": {
+    "salePrice": "12",
+    "length": "9",
+    "width": "4",
+    "height": "0",
+    "weightLb": "0",
+    "monthsInStorage": "0",
+    "costOfGoods": "0",
+    "lowPriceEligible": true,
+    "couponPercent": "0"
+   },
+   "rules": {
+    "length": "12",
+    "width": "9",
+    "height": "4"
+   },
+   "ms": 7546.090000000084,
+   "err": null
+  },
+  {
+   "form": "fba",
+   "say": "selling at 19.99 in clothing",
+   "round": 1,
+   "expect": {
+    "salePrice": "19.99",
+    "category": "clothing"
+   },
+   "raw": "{\"salePrice\": 19.99, \"length\": 0, \"width\": 0, \"height\": 0, \"weightLb\": 0, \"monthsInStorage\": 0, \"costOfGoods\": 0, \"lowPriceEligible\": true, \"couponPercent\": 0}",
+   "model": {
+    "salePrice": "19.99",
+    "length": "0",
+    "width": "0",
+    "height": "0",
+    "weightLb": "0",
+    "monthsInStorage": "0",
+    "costOfGoods": "0",
+    "lowPriceEligible": true,
+    "couponPercent": "0"
+   },
+   "rules": {
+    "category": "clothing",
+    "salePrice": "19.99"
+   },
+   "ms": 7863.399999999907,
+   "err": null
+  },
+  {
+   "form": "cleaning",
+   "say": "the house is 2,200 square feet with 3 bathrooms",
+   "round": 2,
+   "expect": {
+    "homeSqft": "2200",
+    "bathrooms": "3"
+   },
+   "raw": "{\"homeSqft\": 2200, \"bathrooms\": 3, \"sqftPerLaborHour\": 10, \"crewSize\": 1, \"wagePerHour\": 15, \"burdenPct\": 20, \"suppliesPerVisit\": 5, \"driveMinutesOneWay\": 0, \"milesRoundTrip\": 0, \"costPerMile\": 0.5, \"cardFeePct\": 10, \"targetMarginPct\": 20, \"basePrice\": 2000}",
+   "model": {
+    "homeSqft": "2200",
+    "bathrooms": "3",
+    "sqftPerLaborHour": "10",
+    "crewSize": "1",
+    "wagePerHour": "15",
+    "burdenPct": "20",
+    "suppliesPerVisit": "5",
+    "driveMinutesOneWay": "0",
+    "milesRoundTrip": "0",
+    "costPerMile": "0.5",
+    "cardFeePct": "10",
+    "targetMarginPct": "20",
+    "basePrice": "2000"
+   },
+   "rules": {
+    "homeSqft": "2200",
+    "bathrooms": "3"
+   },
+   "ms": 27003.515000000014,
+   "err": null
+  },
+  {
+   "form": "cleaning",
+   "say": "two cleaners at 18 an hour",
+   "round": 2,
+   "expect": {
+    "crewSize": "2",
+    "wagePerHour": "18"
+   },
+   "raw": "{\"homeSqft\": 0, \"bathrooms\": 0, \"minutesPerBathroom\": 0, \"sqftPerLaborHour\": 18, \"crewSize\": 2, \"wagePerHour\": 18, \"burdenPct\": 0, \"suppliesPerVisit\": 0, \"driveMinutesOneWay\": 0, \"milesRoundTrip\": 0, \"costPerMile\": 0, \"cardFeePct\": 0, \"targetMarginPct\": 0, \"basePrice\": 0}",
+   "model": {
+    "homeSqft": "0",
+    "bathrooms": "0",
+    "minutesPerBathroom": "0",
+    "sqftPerLaborHour": "18",
+    "crewSize": "2",
+    "wagePerHour": "18",
+    "burdenPct": "0",
+    "suppliesPerVisit": "0",
+    "driveMinutesOneWay": "0",
+    "milesRoundTrip": "0",
+    "costPerMile": "0",
+    "cardFeePct": "0",
+    "targetMarginPct": "0",
+    "basePrice": "0"
+   },
+   "rules": {
+    "crewSize": "2",
+    "wagePerHour": "18"
+   },
+   "ms": 13371.854999999981,
+   "err": null
+  },
+  {
+   "form": "cleaning",
+   "say": "supplies are about 6 dollars a visit, 25 minutes drive each way",
+   "round": 2,
+   "expect": {
+    "suppliesPerVisit": "6",
+    "driveMinutesOneWay": "25"
+   },
+   "raw": "{\"suppliesPerVisit\": 6, \"driveMinutesOneWay\": 25}",
+   "model": {
+    "suppliesPerVisit": "6",
+    "driveMinutesOneWay": "25"
+   },
+   "rules": {
+    "suppliesPerVisit": "6",
+    "driveMinutesOneWay": "25"
+   },
+   "ms": 3348.5,
+   "err": null
+  },
+  {
+   "form": "cleaning",
+   "say": "card fee 2.9 percent and I want a 35% margin",
+   "round": 2,
+   "expect": {
+    "cardFeePct": "2.9",
+    "targetMarginPct": "35"
+   },
+   "raw": "{\"cardFeePct\":2.9,\"targetMarginPct\":35,\"basePrice\":35}",
+   "model": {
+    "cardFeePct": "2.9",
+    "targetMarginPct": "35",
+    "basePrice": "35"
+   },
+   "rules": {
+    "cardFeePct": "2.9",
+    "targetMarginPct": "35"
+   },
+   "ms": 3828.715000000084,
+   "err": null
+  },
+  {
+   "form": "cleaning",
+   "say": "I charge 180 for a one time clean",
+   "round": 2,
+   "expect": {
+    "basePrice": "180"
+   },
+   "raw": "{\"homeSqft\": 0, \"bathrooms\": 0, \"minutesPerBathroom\": 0, \"sqftPerLaborHour\": 0, \"crewSize\": 0, \"wagePerHour\": 180, \"burdenPct\": 0, \"suppliesPerVisit\": 0, \"driveMinutesOneWay\": 0, \"milesRoundTrip\": 0, \"costPerMile\": 0, \"cardFeePct\": 0, \"targetMarginPct\": 0, \"basePrice\": 180}",
+   "model": {
+    "homeSqft": "0",
+    "bathrooms": "0",
+    "minutesPerBathroom": "0",
+    "sqftPerLaborHour": "0",
+    "crewSize": "0",
+    "wagePerHour": "180",
+    "burdenPct": "0",
+    "suppliesPerVisit": "0",
+    "driveMinutesOneWay": "0",
+    "milesRoundTrip": "0",
+    "costPerMile": "0",
+    "cardFeePct": "0",
+    "targetMarginPct": "0",
+    "basePrice": "180"
+   },
+   "rules": {
+    "basePrice": "180"
+   },
+   "ms": 13627.600000000093,
+   "err": null
+  },
+  {
+   "form": "cleaning",
+   "say": "round trip is 14 miles at 67 cents a mile",
+   "round": 2,
+   "expect": {
+    "milesRoundTrip": "14",
+    "costPerMile": "0.67"
+   },
+   "raw": "{\"driveMinutesOneWay\": 14, \"milesRoundTrip\": 14, \"costPerMile\": 0.67}",
+   "model": {
+    "driveMinutesOneWay": "14",
+    "milesRoundTrip": "14",
+    "costPerMile": "0.67"
+   },
+   "rules": {
+    "milesRoundTrip": "14",
+    "costPerMile": "0.67"
+   },
+   "ms": 4642.755000000005,
+   "err": null
+  },
+  {
+   "form": "mileage",
+   "say": "total miles this year 18,000 and vehicle costs 7,400",
+   "round": 2,
+   "expect": {
+    "total-miles": "18000",
+    "vehicle-expenses": "7400"
+   },
+   "raw": "{\"total-miles\": 18000, \"vehicle-expenses\": 7400}",
+   "model": {
+    "total-miles": "18000",
+    "vehicle-expenses": "7400"
+   },
+   "rules": {
+    "total-miles": "18000",
+    "vehicle-expenses": "7400"
+   },
+   "ms": 10655.014999999898,
+   "err": null
+  },
+  {
+   "form": "mileage",
+   "say": "parking and tolls were 320 dollars",
+   "round": 2,
+   "expect": {
+    "parking-tolls": "320"
+   },
+   "raw": "{\"parking-tolls\": 320}",
+   "model": {
+    "parking-tolls": "320"
+   },
+   "rules": {
+    "parking-tolls": "320"
+   },
+   "ms": 2029.3000000000466,
+   "err": null
+  },
+  {
+   "form": "ebay",
+   "say": "the buyer pays twelve fifty shipping",
+   "round": 2,
+   "expect": {
+    "shippingCharged": "12.5"
+   },
+   "raw": "{\"price\": 125.0, \"quantity\": 1, \"combinedItemCount\": 1, \"shippingCharged\": 0, \"finalValueRate\": 0, \"fixedFee\": 0, \"promotedRate\": 0, \"costOfGoods\": 0, \"shippingCost\": 0, \"packagingCost\": 0, \"targetMargin\": 0, \"returnRatePercent\": 0}",
+   "model": {
+    "price": "125",
+    "quantity": "1",
+    "shippingCharged": "0",
+    "finalValueRate": "0",
+    "fixedFee": "0",
+    "promotedRate": "0",
+    "costOfGoods": "0",
+    "shippingCost": "0",
+    "packagingCost": "0",
+    "targetMargin": "0",
+    "returnRatePercent": "0"
+   },
+   "rules": {
+    "shippingCharged": "12.5"
+   },
+   "ms": 10053.51000000001,
+   "err": null
+  },
+  {
+   "form": "ebay",
+   "say": "I bought it for 3 and I'm listing it at 19",
+   "round": 2,
+   "expect": {
+    "costOfGoods": "3",
+    "price": "19"
+   },
+   "raw": "{\"price\": 3, \"quantity\": 1, \"combinedItemCount\": 2, \"shippingCharged\": 0, \"finalValueRate\": 19, \"fixedFee\": 0, \"promotedRate\": 0, \"costOfGoods\": 0, \"shippingCost\": 0, \"packagingCost\": 0, \"targetMargin\": 19, \"returnRatePercent\": 0}",
+   "model": {
+    "price": "3",
+    "quantity": "1",
+    "combinedItemCount": "2",
+    "shippingCharged": "0",
+    "finalValueRate": "19",
+    "fixedFee": "0",
+    "promotedRate": "0",
+    "costOfGoods": "0",
+    "shippingCost": "0",
+    "packagingCost": "0",
+    "targetMargin": "19",
+    "returnRatePercent": "0"
+   },
+   "rules": {
+    "price": "19",
+    "costOfGoods": "3"
+   },
+   "ms": 10320.584999999963,
+   "err": null
+  },
+  {
+   "form": "roofing",
+   "say": "permit is going to be 175 and the dumpster 425",
+   "round": 2,
+   "expect": {
+    "permitFee": "175",
+    "dumpsterFee": "425"
+   },
+   "raw": "{\"s1-foot\": 425, \"s2-foot\": 175, \"permitFee\": 175, \"targetMargin\": 99.9, \"depositPercent\": 100, \"validDays\": 365}",
+   "model": {
+    "s1-foot": "425",
+    "s2-foot": "175",
+    "permitFee": "175",
+    "targetMargin": "99.9",
+    "depositPercent": "100",
+    "validDays": "365"
+   },
+   "rules": {
+    "dumpsterFee": "425",
+    "permitFee": "175"
+   },
+   "ms": 7463.25,
+   "err": null
+  },
+  {
+   "form": "roofing",
+   "say": "set waste to 15%",
+   "round": 2,
+   "expect": {
+    "wastePercent": "15"
+   },
+   "raw": "{\"s1-foot\": 0, \"s1-pitch\": 0, \"s1-layers\": 6, \"s2-foot\": 0, \"s2-pitch\": 0, \"s2-layers\": 6, \"wastePercent\": 15, \"materialPerSquare\": 0, \"hourlyWage\": 0, \"burdenRate\": 0, \"dumpsterFee\": 0, \"permitFee\": 0, \"targetMargin\": 0, \"depositPercent\": 0, \"validDays\": 365}",
+   "model": {
+    "s1-foot": "0",
+    "s1-pitch": "0",
+    "s1-layers": "6",
+    "s2-foot": "0",
+    "s2-pitch": "0",
+    "s2-layers": "6",
+    "wastePercent": "15",
+    "materialPerSquare": "0",
+    "hourlyWage": "0",
+    "burdenRate": "0",
+    "dumpsterFee": "0",
+    "permitFee": "0",
+    "targetMargin": "0",
+    "depositPercent": "0",
+    "validDays": "365"
+   },
+   "rules": {
+    "wastePercent": "15"
+   },
+   "ms": 13974.935000000056,
+   "err": null
+  },
+  {
+   "form": "fba",
+   "say": "weight 2 lbs, height 5 inches",
+   "round": 2,
+   "expect": {
+    "weightLb": "2",
+    "height": "5"
+   },
+   "raw": "{\"weightLb\": 2, \"monthsInStorage\": 0, \"lowPriceEligible\": true, \"couponPercent\": 0}",
+   "model": {
+    "weightLb": "2",
+    "monthsInStorage": "0",
+    "lowPriceEligible": true,
+    "couponPercent": "0"
+   },
+   "rules": {
+    "height": "5",
+    "weightLb": "2"
+   },
+   "ms": 4627.789999999921,
+   "err": null
+  },
+  {
+   "form": "fba",
+   "say": "grocery, price 8.49",
+   "round": 2,
+   "expect": {
+    "category": "grocery",
+    "salePrice": "8.49"
+   },
+   "raw": "{\"fulfillmentMethod\": \"fba\", \"category\": \"grocery\", \"salePrice\": 8.49, \"length\": 0, \"width\": 0, \"height\": 0, \"weightLb\": 0, \"monthsInStorage\": 0, \"costOfGoods\": 0, \"lowPriceEligible\": true, \"couponPercent\": 0}",
+   "model": {
+    "fulfillmentMethod": "fba",
+    "category": "grocery",
+    "salePrice": "8.49",
+    "length": "0",
+    "width": "0",
+    "height": "0",
+    "weightLb": "0",
+    "monthsInStorage": "0",
+    "costOfGoods": "0",
+    "lowPriceEligible": true,
+    "couponPercent": "0"
+   },
+   "rules": {
+    "category": "grocery",
+    "salePrice": "8.49"
+   },
+   "ms": 9642.584999999963,
+   "err": null
+  },
+  {
+   "form": "fba",
+   "say": "keep it in storage two months, and I paid 4.10",
+   "round": 2,
+   "expect": {
+    "monthsInStorage": "2",
+    "costOfGoods": "4.1"
+   },
+   "raw": "{\"salePrice\": 4.10, \"length\": 0, \"width\": 0, \"height\": 0, \"weightLb\": 0, \"monthsInStorage\": 2, \"costOfGoods\": 0, \"lowPriceEligible\": true, \"couponPercent\": 0}",
+   "model": {
+    "salePrice": "4.1",
+    "length": "0",
+    "width": "0",
+    "height": "0",
+    "weightLb": "0",
+    "monthsInStorage": "2",
+    "costOfGoods": "0",
+    "lowPriceEligible": true,
+    "couponPercent": "0"
+   },
+   "rules": {
+    "monthsInStorage": "2",
+    "costOfGoods": "4.1"
+   },
+   "ms": 8582.814999999944,
+   "err": null
+  },
+  {
+   "form": "cleaning",
+   "say": "burden 12 percent",
+   "round": 2,
+   "expect": {
+    "burdenPct": "12"
+   },
+   "raw": "{\"burdenPct\": 12}",
+   "model": {
+    "burdenPct": "12"
+   },
+   "rules": {
+    "burdenPct": "12"
+   },
+   "ms": 1573.3249999999534,
+   "err": null
+  }
+ ],
+ "loadMs": 8082.824999999953,
+ "multithread": true,
+ "threads": 4,
+ "answer": {
+  "ms": 10744.86499999999,
+  "firstMs": 2065.0400000000373,
+  "chunks": 91,
+  "text": "A final value fee on eBay typically represents the cost of shipping items to the buyer's address. This fee is applied to the total value of the item, which is the cost of the item plus the shipping costs to the buyer's address. The purpose of this fee is to ensure that the seller is compensated for the cost of shipping the item to the buyer's address, and to provide a clear indication of the cost of shipping to the buyer's address."
+ },
+ "wallMs": 494455,
+ "model": "qwen2.5-0.5b-instruct-q4_0.gguf"
+}
