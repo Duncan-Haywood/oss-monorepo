@@ -1,0 +1,60 @@
+== sparsity 0% : energy nJ/inference by size-law exponent alpha (alpha 0 = flat 0.15625 pJ/bit) ==
+design | acc | drop | a=0.0 | a=0.1 | a=0.2 | a=0.3 | a=0.4 | a=0.5
+int8 | 0.972 | +0.000 | 3.49 | 3.01 | 2.62 | 2.30 | 2.03 | 1.81
+share2 | 0.480 | +0.492 | 7.05 | 3.49 | 1.80 | 0.99 | 0.60 | 0.41
+share4 | 0.895 | +0.077 | 7.93 | 4.26 | 2.38 | 1.41 | 0.89 | 0.62
+share8 | 0.956 | +0.016 | 9.31 | 5.38 | 3.22 | 2.02 | 1.34 | 0.94
+share16 | 0.968 | +0.004 | 11.70 | 7.21 | 4.56 | 2.99 | 2.05 | 1.48
+share32 | 0.970 | +0.002 | 16.12 | 10.51 | 6.99 | 4.77 | 3.37 | 2.47
+-- best table design within 2-point drop, ratio to int8 MAC (<1: table wins) --
+a=0.0: share8 9.31 nJ vs MAC 3.49 nJ, ratio 2.67
+a=0.1: share8 5.38 nJ vs MAC 3.01 nJ, ratio 1.79
+a=0.2: share8 3.22 nJ vs MAC 2.62 nJ, ratio 1.23
+a=0.3: share8 2.02 nJ vs MAC 2.30 nJ, ratio 0.88
+a=0.4: share8 1.34 nJ vs MAC 2.03 nJ, ratio 0.66
+a=0.5: share8 0.94 nJ vs MAC 1.81 nJ, ratio 0.52
+-- same with arrays never cheaper than the 8 KB point (floor) --
+a=0.0: share8 ratio 2.67
+a=0.1: share8 ratio 2.67
+a=0.2: share8 ratio 2.67
+a=0.3: share8 ratio 2.67
+a=0.4: share8 ratio 2.67
+a=0.5: share8 ratio 2.67
+
+== sparsity 75% : energy nJ/inference by size-law exponent alpha (alpha 0 = flat 0.15625 pJ/bit) ==
+design | acc | drop | a=0.0 | a=0.1 | a=0.2 | a=0.3 | a=0.4 | a=0.5
+int8 | 0.969 | +0.001 | 1.47 | 1.16 | 0.93 | 0.75 | 0.61 | 0.51
+share2 | 0.905 | +0.065 | 2.75 | 1.49 | 0.86 | 0.54 | 0.36 | 0.26
+share4 | 0.954 | +0.016 | 3.34 | 1.90 | 1.13 | 0.72 | 0.48 | 0.34
+share8 | 0.966 | +0.004 | 4.45 | 2.63 | 1.61 | 1.03 | 0.70 | 0.50
+share16 | 0.967 | +0.002 | 6.56 | 4.04 | 2.56 | 1.67 | 1.14 | 0.82
+share32 | 0.967 | +0.003 | 10.70 | 6.91 | 4.54 | 3.06 | 2.13 | 1.54
+-- best table design within 2-point drop, ratio to int8 MAC (<1: table wins) --
+a=0.0: share4 3.34 nJ vs MAC 1.47 nJ, ratio 2.27
+a=0.1: share4 1.90 nJ vs MAC 1.16 nJ, ratio 1.64
+a=0.2: share4 1.13 nJ vs MAC 0.93 nJ, ratio 1.22
+a=0.3: share4 0.72 nJ vs MAC 0.75 nJ, ratio 0.95
+a=0.4: share4 0.48 nJ vs MAC 0.61 nJ, ratio 0.78
+a=0.5: share4 0.34 nJ vs MAC 0.51 nJ, ratio 0.68
+-- same with arrays never cheaper than the 8 KB point (floor) --
+a=0.0: share4 ratio 2.27
+a=0.1: share4 ratio 2.27
+a=0.2: share4 ratio 2.27
+a=0.3: share4 ratio 2.27
+a=0.4: share4 ratio 2.27
+a=0.5: share4 ratio 2.27
+
+== analytic: one dense 64xN layer, 4-bit inputs, K=16 table / int8 MAC energy ratio by alpha ==
+N | a=0.0 | a=0.1 | a=0.2 | a=0.3 | a=0.4 | a=0.5
+8 | 5.64 | 4.34 | 3.36 | 2.63 | 2.11 | 1.74
+16 | 3.99 | 2.92 | 2.17 | 1.64 | 1.29 | 1.04
+32 | 3.13 | 2.20 | 1.58 | 1.17 | 0.90 | 0.73
+64 | 2.69 | 1.81 | 1.27 | 0.93 | 0.71 | 0.57
+128 | 2.47 | 1.60 | 1.09 | 0.79 | 0.61 | 0.50
+256 | 2.36 | 1.47 | 0.98 | 0.71 | 0.55 | 0.45
+512 | 2.30 | 1.38 | 0.90 | 0.65 | 0.50 | 0.42
+1024 | 2.27 | 1.31 | 0.84 | 0.60 | 0.47 | 0.40
+
+== break-even exponent: smallest alpha at which the cheapest in-tolerance table design ties int8 MAC ==
+sparsity 0%: alpha = 0.260
+sparsity 75%: alpha = 0.280
