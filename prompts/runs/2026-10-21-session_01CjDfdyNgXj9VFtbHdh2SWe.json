@@ -17,7 +17,7 @@
   "tool_calls": null,
   "task": null,
   "projects": [],
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/9057",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -26,14 +26,19 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": null,
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [],
-  "deviations": [],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Routed to process/1 but the scheduled task asked for product work, so I shipped venture work."
+    }
+  ],
   "writeups": [],
   "goal": null,
-  "notes": "",
+  "notes": "Router drew the process track; the task prompt asked for venture work, so I deepened flagship 2 (einvoice-preflight) with a Malaysia MyInvois page. Local check: node --test in the venture, 446 pass 0 fail. Facts come from web search of secondary sources; conflicts are stated on the page.",
   "corrections": [],
   "redteam": null
 }
