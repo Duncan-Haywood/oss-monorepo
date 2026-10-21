@@ -49,7 +49,7 @@
 <h3>Is FatturaPA the same as EN 16931?</h3>
 <p>No. FatturaPA is Italy's own XML schema and predates the EU standard. The EN 16931 syntaxes (UBL and CII) are different files, so an EN 16931 invoice is not a FatturaPA file and SdI will not take it as one. Italy also uses Peppol for public procurement, which is a separate channel.</p>
 <h3>Can this checker validate a FatturaPA file?</h3>
-<p>Partly. Drop the FatturaPA XML into the checker and it runs offline checks of its own (IT-001 to IT-017: check digits, codes, arithmetic, IBAN). It is not SdI and cannot confirm acceptance.</p>
+<p>Partly. Drop the FatturaPA XML into the checker and it runs offline checks of its own (IT-001 to IT-017: partita IVA and codice fiscale check digits, codes, line and VAT arithmetic, IBAN). It is not SdI and cannot confirm acceptance.</p>
 <h3>How do I check an invoice before sending it to an Italian customer?</h3>
 <p>If the customer is a domestic Italian business, SdI and FatturaPA apply: the checker catches arithmetic and check-digit faults first but cannot confirm SdI's acceptance. For an EN 16931 invoice, drop the file into the checker. Nothing is uploaded when you use the page. It is an offline observation, not SdI's acceptance and not legal advice.</p>
 <p class="note">Open the <a href="./">E-invoice Preflight</a> checker to validate your own invoice file.</p>
