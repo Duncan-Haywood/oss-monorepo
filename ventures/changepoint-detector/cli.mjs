@@ -24,7 +24,7 @@ Options:
   --penalty bic|aic|hannan-quinn|<number>   PELT penalty per change (default: bic)
   --min-segment <n>         shortest segment (default: 2 for mean, 5 for meanvar)
   --period <n>              remove a seasonal cycle of n points first (12 monthly, 7 daily-weekly); mean/meanvar subtract it, poisson fits multiplicative factors
-  --holidays <a,b,...>      with --model poisson: row labels (dates, or 1-based row numbers) of known holidays; one fitted factor on their rate, so a holiday dip is not read as a step
+  --holidays <a,b,...>      with --model poisson: row labels (dates, or 1-based row numbers) of known holidays; one fitted factor on their rate, so a holiday dip is not read as a step; write label=kind (e.g. 2026-12-25=closed) to fit one factor per kind
   --drift                   with --period: let the seasonal shape change over time (growing amplitude, moving peak)
   --trend [bend|bends]          fit one linear trend under the steps and remove it (a ramp is not read as many small changes);
                             'bend' lets the slope change once, 'bends' up to three times, chosen by BIC (counts, --model poisson: a change of growth rate, 'bends' up to two);

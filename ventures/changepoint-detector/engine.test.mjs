@@ -1091,3 +1091,17 @@ test('known holidays: input errors are plain', () => {
   assert.throws(() => analyze({ values: x, model: 'poisson', holidays: ['3', '99'] }), /not a row label/);
   assert.throws(() => analyze({ values: x, model: 'mean', holidays: ['3', '9'] }), /counts/);
 });
+
+test('known holidays: a factor per kind recovers two different dips', () => {
+  const rng = (() => { let s = 7; return () => { s = (s * 1664525 + 1013904223) % 4294967296; return s / 4294967296; }; })();
+  const pois = (m) => { const L = Math.exp(-m); let k = 0, p = 1; do { k++; p *= rng(); } while (p > L); return k - 1; };
+  const n = 240, a = [], b = [];
+  for (let t = 0; t < n; t++) { if (t % 17 === 5) a.push(t); else if (t % 23 === 11) b.push(t); }
+  const x = Array.from({ length: n }, (_, t) => pois(40 * (a.includes(t) ? 0.3 : b.includes(t) ? 1.8 : 1)));
+  const kinds = [...a.map(() => 'closed'), ...b.map(() => 'sale')];
+  const r = analyze({ values: x, model: 'poisson', holidays: [...a, ...b].map((h, j) => `${h + 1}=${kinds[j]}`) });
+  const f = Object.fromEntries(r.holidays.kinds.map((k) => [k.kind, k.factor]));
+  assert.ok(Math.abs(f.closed - 0.3) < 0.1, `closed ${f.closed}`);
+  assert.ok(Math.abs(f.sale - 1.8) < 0.3, `sale ${f.sale}`);
+  assert.throws(() => analyze({ values: x, model: 'poisson', holidays: ['3=a', '9=a', '12=b'] }), /kind "b"/);
+});
