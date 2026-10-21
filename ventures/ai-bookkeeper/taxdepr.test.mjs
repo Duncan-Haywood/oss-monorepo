@@ -50,6 +50,20 @@ test("disposal year takes half, later years nothing", () => {
   assert.equal(assetTaxYear(b.assets[0], 2028).macrs, 0);
 });
 
+test("mid-quarter disposal takes the disposal quarter's midpoint share of the year", () => {
+  const full = (d) => {
+    let b = with1("10000", "2026-11-10", { macrsClass: 5 });
+    const f = assetTaxYear(b.assets[0], 2027, true).macrs;
+    b = disposeAsset(b, "FA-1", { date: d }).books;
+    return [f, assetTaxYear(b.assets[0], 2027, true).macrs];
+  };
+  for (const [d, k] of [["2027-02-10", 1], ["2027-05-10", 3], ["2027-08-10", 5], ["2027-12-10", 7]]) {
+    const [f, got] = full(d);
+    assert.equal(got, Math.round((f * k) / 8), d);
+  }
+  assert.equal(assetTaxYear(disposeAsset(with1("10000", "2026-11-10", { macrsClass: 5 }), "FA-1", { date: "2027-12-10" }).books.assets[0], 2028, true).macrs, 0);
+});
+
 test("worksheet compares with book depreciation and flags what it cannot check", () => {
   const b = with1("10000", "2026-03-10", { macrsClass: 5, s179: 100000 });
   const w = taxDepreciation(b, 2026);
