@@ -1,0 +1,45 @@
+{
+  "date": "2026-10-21",
+  "session": "https://claude.ai/code/session_01EpZCdWuXZLkd2h7LvAAox8",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-21T01:20:37Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "society-doorcost (track 17, society-doorway next step 1)",
+  "projects": [
+    "society-doorcost"
+  ],
+  "pr": 8994,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "README bullet step says edit projects.json for new projects but project.json is the new path; minor confusion."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Local checks: 6 unittest pass, _homepage/build.py ok, check_md_links ok. CI starvation not assessed; merging after CI check.",
+  "corrections": [],
+  "redteam": null
+}

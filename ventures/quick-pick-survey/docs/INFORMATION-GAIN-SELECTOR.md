@@ -87,3 +87,13 @@ toggle).
 `/api/trials/next` use `selectNextPairHybrid`. Unset, the shipped selector runs
 as before. It is a process-wide switch; a per-survey setting (column,
 migration, builder checkbox) is the next step.
+
+## Choosing it per survey
+
+`Survey.pairSelector` (migration `20261021000000_survey_pair_selector`) is
+`null`, `"standard"` or `"staged"`. `POST /api/admin/surveys` accepts it as
+`pairSelector`, and the admin form has a "Question order" menu. `/api/trials/next`
+uses the survey's value when set and otherwise follows the `PAIR_SELECTOR`
+environment variable, so existing surveys behave as before. `staged` helps
+long lists answered at length (see above); for short lists it equals the
+standard selector for the first 120 answers.

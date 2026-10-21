@@ -22,6 +22,13 @@ describe("surveyBuilder", () => {
     expect(s.items[1].category).toBe("Food");
     expect(s.items.map((i) => i.sortOrder)).toEqual([0, 1, 2]);
   });
+  it("accepts a pair selector and rejects an unknown one", () => {
+    const items = "A\nB\nC";
+    expect(ok({ title: "T", items }).pairSelector).toBeNull();
+    expect(ok({ title: "T", items, pairSelector: "" }).pairSelector).toBeNull();
+    expect(ok({ title: "T", items, pairSelector: "staged" }).pairSelector).toBe("staged");
+    expect(errs({ title: "T", items, pairSelector: "magic" })[0]).toMatch(/pairSelector/);
+  });
   it("disambiguates labels that slugify the same but differ", () => {
     const s = ok({ title: "t", items: ["A+B", "A-B", "C"] });
     expect(s.items.map((i) => i.slug)).toEqual(["a-b", "a-b-2", "c"]);

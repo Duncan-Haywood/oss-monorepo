@@ -40,6 +40,8 @@ import {
   pageUrlPath,
   renderFavicon,
   renderFaviconSvg,
+  FAVICON_SIZES,
+  MARK_GEOMETRY,
   renderRobots,
   INDEXNOW_KEY,
   indexNowKeyFileName,
@@ -61,6 +63,8 @@ import {
   SNIPPET_MAX,
   injectDiscoveryTags,
   SOCIAL_CARD_FILE,
+  categoryCardOptions,
+  toolCardOptions,
   socialCardFileFor,
   toolCardFileFor,
   ALL_CATEGORIES,
@@ -112,6 +116,7 @@ import {
 } from './build.mjs';
 import { LATE_NAV_DIRS, SITE_NAV, HEADER_MARKER } from './site-nav.mjs';
 import { renderSocialCard, SOCIAL_CARD_WIDTH, SOCIAL_CARD_HEIGHT, offlineBundleSizeLabel } from './offline.mjs';
+import { renderCard } from './sharecard.mjs';
 import { EMBED_QUERY_PARAM, DEFAULT_EMBED_HEIGHT } from './embed.mjs';
 import { decodeEntities } from './entities.mjs';
 // The hub embeds these rather than paraphrasing them, so the tests that used to
@@ -655,10 +660,11 @@ test('a favicon is emitted, because every page requests one whether or not it li
   const { outDir } = await site();
   const ico = await fs.readFile(path.join(outDir, 'favicon.ico'));
 
-  // ICO header: reserved 0, type 1 (icon), one image.
-  assert.deepEqual([...ico.subarray(0, 6)], [0, 0, 1, 0, 1, 0]);
-  assert.equal(ico[6], 16, 'width');
+  // ICO header: reserved 0, type 1 (icon), one image per size.
+  assert.deepEqual([...ico.subarray(0, 6)], [0, 0, 1, 0, FAVICON_SIZES.length, 0]);
+  assert.equal(ico[6], 16, 'the first image is the 16px tab icon (width)');
   assert.equal(ico[7], 16, 'height');
+  FAVICON_SIZES.forEach((size, i) => assert.equal(ico[6 + i * 16], size, `entry ${i} is ${size}px`));
   // The payload is a PNG, and its signature must survive the offset arithmetic
   // in the directory entry -- get that wrong and browsers show nothing at all
   // while the file still looks fine on disk.
@@ -681,21 +687,26 @@ test('an SVG favicon ships alongside the .ico', async () => {
 
 test('both favicons draw the same mark', () => {
   // A drift here means the tab icon and the pinned icon are two different
-  // logos, which is why the geometry lives in constants both renderers read.
+  // logos, which is why the geometry lives in one constant both renderers read.
   const svg = renderFaviconSvg();
-  assert.match(svg, /#243d35/, "the hub's ink");
-  assert.equal((svg.match(/#c5edb5/g) ?? []).length, 3, 'three bars in the mark colour');
-  assert.match(svg, /x="3" y="9" width="2" height="4"/, 'the short bar');
-  assert.match(svg, /x="11" y="3" width="2" height="10"/, 'the tall bar');
+  assert.match(svg, /stop-color="#12594a"/, "the header mark's gradient starts in the hub's green");
+  assert.match(svg, /stop-color="#3b5bdb"/, '...and ends in its indigo');
+  assert.equal((svg.match(/fill="#ffffff"/g) ?? []).length, MARK_GEOMETRY.bars.length, 'three white bars');
+  // The bars rise left to right, as `drawMark` draws them.
+  const tops = [...svg.matchAll(/<rect x="[\d.]+" y="([\d.]+)"/g)].map((m) => Number(m[1]));
+  assert.deepEqual(tops, MARK_GEOMETRY.bars.map((b) => Number((b.top * 16).toFixed(2))));
+  assert.ok(tops[0] > tops[1] && tops[1] > tops[2]);
 });
 
-test('the hub\'s top navigation links the blog', async () => {
+test('the hub\'s top navigation links the blog and the podcast', async () => {
   // The Writing section (`writing.mjs`) is the site's blog; the footer link alone
   // left it a screen of tools away from anyone who came to read.
   const html = await read('index.html');
   const nav = html.match(/<nav class="pfs-head"[\s\S]*?<\/nav>/);
   assert.ok(nav, 'the hub has the shared site header');
-  assert.match(nav[0], /<a data-pfs-nav="writing" href="writing\/"[^>]*>Writing<\/a>/);
+  assert.match(nav[0], /<a data-pfs-nav="writing" href="writing\/"[^>]*>Blog<\/a>/);
+  // Both at the top level (owner, 2026-10-21).
+  assert.match(nav[0], /<a data-pfs-nav="podcast" href="writing\/podcast\/"[^>]*>Podcast<\/a>/);
 });
 
 test('the hub links both favicons', async () => {
@@ -1354,10 +1365,13 @@ test('categories route each slug shape somewhere sensible', () => {
   assert.equal(categoryFor('einvoice-preflight').id, 'evidence');
   assert.equal(categoryFor('something-brand-new').id, 'more');
   assert.equal(categoryFor('changepoint-detector').id, 'research-algorithms');
+  for (const slug of ['open-floor-robots', 'open-robot-mower', 'open-tennis-robots']) {
+    assert.equal(categoryFor(slug).id, 'open-hardware');
+  }
 });
 
 test('every category names a distinct share-card file and accent colour', () => {
-  assert.equal(ALL_CATEGORIES.length, 14, 'the thirteen named sections plus the catch-all');
+  assert.equal(ALL_CATEGORIES.length, 15, 'the fourteen named sections plus the catch-all');
   const files = ALL_CATEGORIES.map((category) => socialCardFileFor(category.id));
   assert.equal(new Set(files).size, files.length, 'no two categories share a card file');
   const accents = ALL_CATEGORIES.map((category) => category.accent);
@@ -4108,13 +4122,15 @@ test("a tool page's card alt text names the tool, not just the site", async () =
   assert.notEqual(alt[1], 'Open Tools and Research — free, private, in your browser');
 });
 
-test('the hub and About page keep the generic site-wide card, not a category one', async () => {
+test('the hub keeps the site-wide card, and About gets its own rather than a category one', async () => {
   const { outDir } = await site();
   const hub = await fs.readFile(path.join(outDir, 'index.html'), 'utf8');
   const about = await fs.readFile(path.join(outDir, 'about', 'index.html'), 'utf8');
-  for (const html of [hub, about]) {
-    assert.ok(html.includes(`<meta property="og:image" content="${BASE}${SOCIAL_CARD_FILE}">`));
-  }
+  assert.ok(hub.includes(`<meta property="og:image" content="${BASE}${SOCIAL_CARD_FILE}">`));
+  // About belongs to no category, so `share.mjs` draws it a card of its own.
+  assert.ok(about.includes(`<meta property="og:image" content="${BASE}about/share-card.png">`));
+  assert.ok(await exists(path.join(outDir, 'about', 'share-card.png')));
+  assert.ok(!/social-card-[\w-]+\.png/.test(about.match(/og:image" content="[^"]*"/)[0]));
 });
 
 test('a category page carries the disclaimer and a route back', async () => {
@@ -4335,18 +4351,10 @@ test('a tool or category with a documented external-call exception gets the exce
 
   for (const ex of exceptions) {
     const surface = surfaces.find((s) => s.slug === ex.slug);
-    const withDefaultFooter = renderSocialCard({
-      color: categoryFor(surface.slug).accent,
-      headline: surface.title,
-      kicker: SITE_NAME,
-      footer: CARD_FOOTER,
-    });
-    const withExceptionFooter = renderSocialCard({
-      color: categoryFor(surface.slug).accent,
-      headline: surface.title,
-      kicker: SITE_NAME,
-      footer: CARD_FOOTER_EXCEPTION,
-    });
+    const options = toolCardOptions(surface, { baseUrl: BASE });
+    assert.equal(options.footer, CARD_FOOTER_EXCEPTION);
+    const withExceptionFooter = renderCard(options);
+    const withDefaultFooter = renderCard({ ...options, footer: CARD_FOOTER });
     const actual = await fs.readFile(path.join(outDir, toolCardFileFor(surface.slug)));
     assert.ok(
       actual.equals(withExceptionFooter),
@@ -4360,12 +4368,7 @@ test('a tool or category with a documented external-call exception gets the exce
 
   for (const { category, items } of groupByCategory(surfaces)) {
     const expectedFooter = externalCallExceptions(items).length ? CARD_FOOTER_EXCEPTION : CARD_FOOTER;
-    const expected = renderSocialCard({
-      color: category.accent,
-      headline: category.title,
-      kicker: SITE_NAME,
-      footer: expectedFooter,
-    });
+    const expected = renderCard(categoryCardOptions(category, { footer: expectedFooter, baseUrl: BASE }));
     const actual = await fs.readFile(path.join(outDir, socialCardFileFor(category.id)));
     assert.ok(actual.equals(expected), `${category.id}'s share card footer does not match its exceptions`);
   }
@@ -4454,8 +4457,13 @@ test('the About page lede states the device-privacy claim honestly, with any doc
   // make the unconditional claim regardless, which is the drift this guards.
   const { surfaces } = await site();
   const about = await read('about', 'index.html');
-  const [, lede] = about.match(/<p class="lede">([^<]+)<\/p>/) ?? [];
-  assert.ok(lede, 'About page has no .lede paragraph to check');
+  const [, ledeOnly] = about.match(/<p class="lede">([^<]+)<\/p>/) ?? [];
+  assert.ok(ledeOnly, 'About page has no .lede paragraph to check');
+  // The lede itself stays short; the named exceptions sit directly under it,
+  // in the hero, in a disclosure the lede points at. Both are read together:
+  // the claim and its exceptions must still be in the first thing a visitor sees.
+  const [, disclosure = ''] = about.match(/<details class="exceptions">([\s\S]*?)<\/details>/) ?? [];
+  const lede = `${ledeOnly} ${disclosure}`;
 
   const exceptions = externalCallExceptions(surfaces);
   assert.ok(!lede.includes('nothing you type into them is uploaded anywhere'), 'lede still makes the old unconditional claim');

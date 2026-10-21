@@ -31,7 +31,7 @@ import zlib from 'node:zlib';
 import { decodeEntities } from './entities.mjs';
 import { REFS as CHANNEL_REFS, SOURCE_HOSTS, SOURCE_LABELS, sourceOf } from '../counter/counter.mjs';
 import { buildEngineeringPage, ENGINEERING_PATH, REPO_URL } from './engineering.mjs';
-import { buildWriting, WRITING_PATH } from './writing.mjs';
+import { buildWriting, loadPosts, WRITING_PATH } from './writing.mjs';
 import { buildLab } from './lab.mjs';
 import { buildUpdates, CHANGELOG_PATH, UPDATES_PATH } from './updates.mjs';
 import { audienceGroups, audiencePageId, audiencesFor } from './audiences.mjs';
@@ -43,6 +43,15 @@ import {
   orderForFeed,
 } from './launched.mjs';
 
+import { addShareCards, cardTitle, renderCards, siteAddress } from './share.mjs';
+import {
+  MARK_FROM,
+  MARK_GEOMETRY,
+  renderSiteCard,
+  MARK_TO,
+  drawMark,
+  encodePng as encodeCardPng,
+} from './sharecard.mjs';
 import {
   ICONS,
   OFFLINE_WIDGET_SCRIPT,
@@ -133,6 +142,16 @@ import {
   renderMarquee,
   renderShowcaseSection,
 } from './showcase.mjs';
+import {
+  HOME_SECTIONS_CSS,
+  cardName,
+  icon,
+  renderCategoryCard,
+  renderHowItWorks,
+  renderLatestWriting,
+  renderResearchBand,
+  siteStructuredData,
+} from './home.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 export const REPO_ROOT = path.resolve(HERE, '..', '..');
@@ -3738,6 +3757,17 @@ const CATEGORY_RULES = [
     // podcast feeds, the same read-and-listen axis as the graded stories.
     test: (slug) => ['ai-engineering-academy', 'hands-free-language-coach', 'listen-and-learn-audio', 'hearth-and-horizon'].includes(slug),
   },
+  {
+    // Added 2026-10-21 when `open-floor-robots` and `open-robot-mower` took
+    // the catch-all to 7. Listing it put `open-tennis-robots` on the same
+    // axis: a machine to build, with CAD, firmware and a fabrication package,
+    // rather than a calculation about money or a check on a file.
+    id: 'open-hardware',
+    title: 'Open hardware & robots',
+    accent: '#7a4a12',
+    blurb: 'Robots you can build, change and sell: MIT-licensed CAD with laser-cut and 3D-print files, firmware, bills of materials and a browser simulator for each. A robot vacuum and mop, a robotic lawn mower, and tennis ball robots.',
+    test: (slug) => ['open-floor-robots', 'open-robot-mower', 'open-tennis-robots'].includes(slug),
+  },
 ];
 
 const FALLBACK_CATEGORY = {
@@ -3757,9 +3787,8 @@ export function categoryFor(slug) {
  * named by a title that renames): a rebrand or a retitled tool never breaks
  * this filename, and a share into the roofing group and a share into the
  * marketplace-fee thread render as visibly different cards without anyone
- * drawing 164 of them. See `renderSocialCard`'s `color` parameter in
- * `offline.mjs` for why a colour field is the whole difference — there is no
- * font rasteriser in this build to draw a per-category headline with.
+ * drawing 164 of them. The card itself is drawn by `sharecard.mjs`, with the
+ * category's name as its headline on the category's accent.
  */
 export function socialCardFileFor(categoryId) {
   return `social-card-${categoryId}.png`;
@@ -3779,6 +3808,35 @@ export function socialCardFileFor(categoryId) {
  */
 export function toolCardFileFor(slug) {
   return `${slug}/share-card.png`;
+}
+
+/**
+ * What a tool's share card draws: its name under its category, on the
+ * category's colour. Exported so the tests render the same card the build does.
+ */
+export function toolCardOptions(surface, { baseUrl = '' } = {}) {
+  const category = categoryFor(surface.slug);
+  return {
+    accent: category.accent,
+    headline: cardTitle(surface.title),
+    kicker: category.title,
+    // Sponsor Ready's own card gets the exception footer — its whole job is a
+    // live lookup, so "nothing you type is uploaded" is the one claim this
+    // card must not make. See `CARD_FOOTER_EXCEPTION`.
+    footer: surface.externalFetchHosts?.length ? CARD_FOOTER_EXCEPTION : CARD_FOOTER,
+    address: siteAddress(baseUrl),
+  };
+}
+
+/** What a category (or audience, or kind) page's share card draws. */
+export function categoryCardOptions(category, { footer = CARD_FOOTER, baseUrl = '' } = {}) {
+  return {
+    accent: category.accent,
+    headline: category.title,
+    kicker: 'Free tools',
+    footer,
+    address: siteAddress(baseUrl),
+  };
 }
 
 // The two lines every tool and category card carries besides its headline.
@@ -3825,6 +3883,8 @@ export const ABOUT_PATH = 'about/';
  * copied-constant mistake CLAUDE.md records twice as having cost live product.
  */
 export const SPONSORS_URL = 'https://github.com/sponsors/Duncan-Haywood';
+// The repository the site is built from, named in the hub's Organization data.
+export const REPO_WEB_URL = 'https://github.com/Duncan-Haywood/oss-monorepo';
 
 /**
  * The one usage event name that is fleet-standard rather than per-product.
@@ -5656,8 +5716,13 @@ const CATEGORY_STYLE = `
     .subgroup-count { font-weight: 600; color: var(--soft); letter-spacing: 0; }
     .cards { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px;
              grid-template-columns: repeat(auto-fill, minmax(268px, 1fr)); }
-    .card { background: var(--panel); border: 1px solid var(--line); border-radius: 13px;
-            padding: 17px 18px; }
+    .card { position: relative; background: var(--panel); border: 1px solid var(--line); border-radius: 13px;
+            padding: 17px 18px; transition: transform .18s, box-shadow .18s, border-color .18s; }
+    .card::before { content: ""; position: absolute; left: -1px; top: 14px; bottom: 14px; width: 3px;
+                    border-radius: 0 3px 3px 0; background: var(--pf-cat, var(--accent)); opacity: .85; }
+    .card:hover, .card:focus-within { transform: translateY(-2px); border-color: var(--pf-cat, var(--accent));
+                                      box-shadow: 0 10px 28px rgba(20, 30, 60, .10); }
+    @media (prefers-reduced-motion: reduce) { .card, .cat { transition: none; } .card:hover, .cat:hover { transform: none; } }
     .card h3 { margin: 0 0 7px; font-size: 1.03rem; line-height: 1.25; }
     .card a { color: inherit; text-decoration: none; }
     .card a:hover h3, .card a:focus-visible h3 { color: var(--accent); text-decoration: underline; }
@@ -5892,8 +5957,8 @@ ${otherAudiences
 </head>
 <body>
   ${renderSiteHeader({ toRoot, current: 'tools', crumbs: [{ label: 'Tools', href: `${toRoot}${CATEGORY_PATH_PREFIX}/` }, { label: category.title }] })}
-  <div class="wrap">
-    <header>
+  <div class="wrap"${category.accent ? ` style="--pf-cat:${escapeHtml(category.accent)}"` : ''}>
+    <header class="pf-hero">
       <p class="eyebrow">${escapeHtml(category.title)}</p>
       <h1>${escapeHtml(copy.title)}</h1>
       <p class="lede">${escapeHtml(copy.intro)}</p>${
@@ -6077,7 +6142,9 @@ export function renderToolsIndexPage({ groups, kindPages = [], audiencePages = [
   const description = `Every free tool on ${SITE_NAME}, filed by the job it does: ${groups
     .map(({ category }) => category.title.toLowerCase())
     .join(', ')}. Runs in your browser; no account.`;
-  const section = (id, heading, blurb, count, subs) => `      <section class="cat" id="${escapeHtml(id)}">
+  const section = (id, heading, blurb, count, subs, accent) => `      <section class="cat" id="${escapeHtml(id)}"${
+    accent ? ` style="--pf-cat:${escapeHtml(accent)}"` : ''
+  }>
         <h2><a href="${escapeHtml(`${id}/`)}" data-category="${escapeHtml(id)}">${escapeHtml(heading)}</a> <span>${count}</span></h2>
         <p>${escapeHtml(snippetize(blurb, 170))}</p>${
           subs.length
@@ -6096,11 +6163,12 @@ export function renderToolsIndexPage({ groups, kindPages = [], audiencePages = [
         category.blurb,
         items.length,
         groupBySubcategory(category.id, items).filter((g) => g.subcategory),
+        category.accent,
       ),
     )
     .join('\n');
   const kinds = kindPages
-    .map(({ page, items, subgroups }) => section(page.id, page.title, page.blurb, items.length, subgroups))
+    .map(({ page, items, subgroups }) => section(page.id, page.title, page.blurb, items.length, subgroups, page.accent))
     .join('\n');
   const itemList = {
     '@context': 'https://schema.org',
@@ -6144,7 +6212,7 @@ export function renderToolsIndexPage({ groups, kindPages = [], audiencePages = [
 <body>
   ${renderSiteHeader({ toRoot, current: 'tools', crumbs: [{ label: 'Tools' }] })}
   <div class="wrap">
-    <header>
+    <header class="pf-hero">
       <p class="eyebrow">Tools</p>
       <h1>${escapeHtml(title)}</h1>
       <p class="lede">Each section has its own page with every tool in it. Know what you need? <a href="${escapeHtml(`${toRoot}#${SEARCH_ANCHOR}`)}">Search all ${total} tools</a> instead.</p>
@@ -6186,7 +6254,12 @@ const TOOLS_INDEX_STYLE = `
     .band { font-size: .82rem; text-transform: uppercase; letter-spacing: .07em; color: var(--muted);
             margin: 34px 0 12px; padding-bottom: 7px; border-bottom: 1px solid var(--line); }
     .cats { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
-    .cat { background: var(--panel); border: 1px solid var(--line); border-radius: 13px; padding: 17px 18px; }
+    .cats { align-items: start; }
+    .cat { position: relative; background: var(--panel); border: 1px solid var(--line); border-radius: 13px; padding: 17px 18px;
+           transition: transform .18s, box-shadow .18s, border-color .18s; }
+    .cat { border-top: 3px solid var(--pf-cat, #1fb68f); }
+    .cat:hover, .cat:focus-within { transform: translateY(-2px); border-color: var(--pf-cat, var(--accent));
+                                    box-shadow: 0 10px 28px rgba(20, 30, 60, .10); }
     .cat h2 { font-size: 1.1rem; margin: 0 0 6px; letter-spacing: -.01em; }
     .cat h2 a { color: inherit; text-decoration: none; }
     .cat h2 a:hover, .cat h2 a:focus-visible { color: var(--accent); text-decoration: underline; }
@@ -6374,7 +6447,7 @@ ${group.items.map(renderCard).join('\n')}
 <body>
   ${renderSiteHeader({ toRoot, current: 'tools', crumbs: [{ label: 'Tools', href: `${toRoot}${CATEGORY_PATH_PREFIX}/` }, { label: 'Comparisons' }] })}
   <div class="wrap">
-    <header>
+    <header class="pf-hero">
       <p class="eyebrow">Comparisons</p>
       <h1>What each free tool here does that the paid product does not — and what it does not do</h1>
       <p class="lede">Every tool on this site that overlaps with a commercial product has a page saying so plainly: what the product does, what the free tool does, and when the paid one is the right answer. They are written by the tool's author, cite the product's own public documentation, and are not affiliated with, endorsed by, or reviewed by any product named here.</p>
@@ -6588,7 +6661,7 @@ export function renderCompareProductPage({
 <body>
   ${renderSiteHeader({ toRoot, current: 'tools', crumbs: [{ label: 'Tools', href: `${toRoot}${CATEGORY_PATH_PREFIX}/` }, { label: 'Comparisons', href: `${toRoot}${COMPARE_PATH}` }, { label: subject }] })}
   <div class="wrap">
-    <header>
+    <header class="pf-hero">
       <p class="eyebrow">Compared with ${escapeHtml(subject)}</p>
       <h1>${escapeHtml(`${n} free tools here have a page comparing themselves with ${subject}`)}</h1>
       <p class="lede">${escapeHtml(
@@ -6806,7 +6879,7 @@ ${tools.map(renderTool).join('\n')}
 <body>
   ${renderSiteHeader({ toRoot, current: 'tools', crumbs: [{ label: 'Tools', href: `${toRoot}${CATEGORY_PATH_PREFIX}/` }, { label: 'Guides' }] })}
   <div class="wrap">
-    <header>
+    <header class="pf-hero">
       <p class="eyebrow">Guides</p>
       <h1>The question people ask before they know a calculator exists</h1>
       <p class="lede">Every tool on this site ships pages beside the calculator: how a price is actually built up, when one option beats another, what a fee schedule does to a payout, and what to do with the number once you have it. They are written by the tool's author, in plain English, and the calculator that answers the same question with your own figures is one click away from each one.</p>
@@ -6856,6 +6929,9 @@ ${categoryLinks}
 }
 
 const ABOUT_STYLE = `
+    .exceptions { margin: 14px 0 0; max-width: 68ch; font-size: .92rem; color: var(--muted); }
+    .exceptions summary { cursor: pointer; font-weight: 650; color: var(--accent); }
+    .exceptions p { margin: 8px 0 0; line-height: 1.6; }
     .prose { max-width: 720px; }
     .prose h2 { font-size: 1.25rem; letter-spacing: -.02em; margin: 38px 0 12px; }
     .prose h3 { font-size: 1rem; margin: 24px 0 6px; }
@@ -6987,10 +7063,22 @@ export function renderAboutPage({ surfaces, groups, baseUrl }) {
 <body>
   ${renderSiteHeader({ toRoot, current: 'about', crumbs: [{ label: 'About' }] })}
   <div class="wrap">
-    <header>
+    <header class="pf-hero">
       <p class="eyebrow">About</p>
       <h1>${escapeHtml(title)}</h1>
-      <p class="lede">${total} free calculators and checks for people who run a small business. They run in your browser, they cost nothing, and ${deviceClaim}.</p>
+      <p class="lede">${total} free calculators and checks for people who run a small business. They run in your browser and they cost nothing. ${
+        exceptions.length
+          ? `The numbers you type never leave your device, except on the ${exceptions.length} lookup tools listed below, where the one thing you paste goes to the public API that tool checks.`
+          : 'The numbers you type never leave your device.'
+      }</p>${
+        exceptions.length
+          ? `
+      <details class="exceptions">
+        <summary>The ${exceptions.length} lookup tools that call a public API</summary>
+        <p>${deviceClaim.replace(/^the numbers a user types never leave their device, /, 'The numbers a user types never leave their device, ')}.</p>
+      </details>`
+          : ''
+      }
     </header>
 
     <main class="prose">
@@ -7263,7 +7351,7 @@ export function renderFeedbackPage({ surfaces = [], baseUrl, feedbackUrl = SITE_
 <body>
   ${renderSiteHeader({ toRoot, current: 'about', crumbs: [{ label: 'Feedback' }] })}
   <div class="wrap">
-    <header>
+    <header class="pf-hero">
       <p class="eyebrow">Feedback</p>
       <h1>${escapeHtml(title)}</h1>
       <p class="lede">Found a wrong number, a broken page, or a tool that almost does what you need? Tell us. Every report is read.</p>
@@ -7380,51 +7468,16 @@ export function renderSearchIndex(surfaces, research = []) {
 }
 
 /** One category's card on the front door: what it is for, how big, and a taste. */
-function renderCategoryTile({ id, title, blurb, count, examples, note = '' }) {
-  return `        <li class="cat">
-          <h3><a href="${escapeHtml(categoryPagePath(id))}" data-category="${escapeHtml(id)}">${escapeHtml(title)}</a></h3>
-          <p class="cat-blurb">${escapeHtml(snippetize(blurb, 140))}</p>
-          <ul class="cat-examples">
-${examples
-  .map((s) => `            <li><a href="${escapeHtml(s.slug)}/" data-tool="${escapeHtml(s.slug)}">${escapeHtml(s.title.split(' — ')[0])}</a></li>`)
-  .join('\n')}
-          </ul>
-          <a class="cat-all" href="${escapeHtml(categoryPagePath(id))}">${note || `All ${count} tools`} →</a>
-        </li>`;
-}
-
-/**
- * The research block on the hub: the research homepage's featured projects and
- * its themes, each linking into `research/`.
- */
-function renderResearchSection({ featured = [], themes = [] } = {}, researchCount = 0) {
-  if (!researchCount) return '';
-  const featuredHtml = featured.length
-    ? `      <ul class="research-featured">
-${featured
-  .slice(0, 6)
-  .map((p) => `        <li><a href="${escapeHtml(`${RESEARCH_PATH}${p.slug}/`)}">${escapeHtml(decodeEntities(p.title))}</a></li>`)
-  .join('\n')}
-      </ul>`
-    : '';
-  const themesHtml = themes.length
-    ? `      <p class="research-themes">${themes
-        .map((t) => `<a href="${escapeHtml(`${RESEARCH_PATH}${RESEARCH_TOPICS_DIR}/${t.id}/`)}">${escapeHtml(decodeEntities(t.name))} <span>${t.count}</span></a>`)
-        .join(' ')}</p>`
-    : '';
-  return `    <section class="band" id="research" aria-labelledby="research-h">
-      <p class="section-eyebrow">Open research</p>
-      <h2 id="research-h">${researchCount} reproducible research projects</h2>
-      <p class="band-lede">Verification markets, scoring rules, decentralised training, chip design and robotics, each with runnable code, tests and a written result. <a href="${RESEARCH_PATH}">Browse all research →</a></p>
-${featuredHtml}
-${themesHtml}
-    </section>`;
+function renderCategoryTile({ id, title, blurb, count, examples, note = '', accent }) {
+  return renderCategoryCard({
+    id, href: categoryPagePath(id), title, blurb: snippetize(blurb, 140), count, examples, note, accent,
+  });
 }
 
 export function renderHub(
   surfaces,
   baseUrl,
-  { researchCount = 0, research = { featured: [], themes: [] }, showcase = { shots: [], reel: null } } = {},
+  { researchCount = 0, research = { featured: [], themes: [] }, showcase = { shots: [], reel: null }, posts = [] } = {},
 ) {
   const groups = groupByCategory(surfaces);
   const audiencePages = audienceGroups(surfaces);
@@ -7466,6 +7519,7 @@ export function renderHub(
         blurb: category.blurb,
         count: items.length,
         examples: exampleTools(items, 4),
+        accent: category.accent,
       }),
     )
     .join('\n');
@@ -7478,6 +7532,7 @@ export function renderHub(
         count: items.length,
         examples: exampleTools(items, 4),
         note: `All ${items.length} ${page.kind === 'app' ? 'apps' : 'command-line tools'}`,
+        accent: page.accent,
       }),
     )
     .join('\n');
@@ -7493,7 +7548,7 @@ export function renderHub(
 
   // The moving shelf under the hero: a few tools from every section, split
   // across two rows so neither repeats a section back to back.
-  const shortName = (s) => s.title.split(' — ')[0];
+  const shortName = (s) => cardName(s.title);
   const shelf = groups.flatMap(({ items }) => exampleTools(items, 5)).map((s) => ({ slug: s.slug, name: shortName(s) }));
   const marqueeRows = [shelf.filter((_, i) => i % 2 === 0), shelf.filter((_, i) => i % 2 === 1)];
   const titles = new Map(surfaces.map((s) => [s.slug, shortName(s)]));
@@ -7528,6 +7583,13 @@ export function renderHub(
   <meta property="og:image:alt" content="${escapeHtml(`${SITE_NAME} — free, private, in your browser`)}">
   <meta name="twitter:card" content="summary_large_image">
   <script type="application/ld+json">${jsonLd(itemList)}</script>
+  <script type="application/ld+json">${jsonLd(siteStructuredData({
+    baseUrl,
+    siteName: SITE_NAME,
+    description: 'Free, open-source browser tools, self-hostable business apps and reproducible research.',
+    repoUrl: REPO_WEB_URL,
+    logo: `${baseUrl}icon-512.png`,
+  }))}</script>
   ${siteStyleLink('')}
   <style>
     :root {
@@ -7646,12 +7708,6 @@ export function renderHub(
     .principles { list-style: none; padding: 0; margin: 18px 0 0; display: flex; flex-wrap: wrap; gap: 8px 22px;
                   font-size: .9rem; color: var(--muted); }
     .principles li::before { content: "✓"; color: var(--accent); font-weight: 800; margin-right: 8px; }
-    .research-featured { list-style: none; padding: 0; margin: 18px 0 0; display: grid; gap: 10px;
-                         grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
-    .research-featured li { background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
-                            padding: 12px 14px; font-weight: 600; line-height: 1.4; }
-    .research-featured a { color: var(--ink); text-decoration: none; }
-    .research-featured a:hover { color: var(--accent); text-decoration: underline; }
     .research-themes { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 0; }
     .research-themes a { padding: 5px 12px; border: 1px solid var(--line); border-radius: 999px; font-size: .83rem;
                          text-decoration: none; color: var(--ink); background: var(--panel); }
@@ -7757,6 +7813,7 @@ export function renderHub(
     @media print { .backup { display: none; } }
     :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 ${HOME_MOTION_CSS}
+${HOME_SECTIONS_CSS}
   </style>
 </head>
 <body>
@@ -7852,11 +7909,6 @@ ${renderMarquee(marqueeRows)}
       <p class="bid-more" id="bidsMore" hidden></p>
     </section>
 
-    <!-- Directly under the list it backs up, and deliberately still drawn when
-         that list is empty: the browser with no saved bids is exactly the one
-         where "restore from a backup" is the only thing that helps. -->
-${BACKUP_WIDGET_HTML}
-
     <!-- Filled in by script from counts held on this device; a visitor with no
          history, no storage, or an opt-out never sees it. -->
     <section class="yours" id="yours" hidden>
@@ -7869,22 +7921,13 @@ ${BACKUP_WIDGET_HTML}
       <ul id="yoursList"></ul>
     </section>
 
-${renderShowcaseSection(showcase, (slug) => titles.get(slug) ?? slug)}
-
-    <section class="band" id="browse" aria-labelledby="browse-h">
-      <p class="section-eyebrow">Browse</p>
-      <h2 id="browse-h">Tools by the job they do</h2>
-      <p class="band-lede">${surfaces.length} free tools in ${groups.length} sections. Each section's page lists every tool in it, grouped and filterable. <a href="${CATEGORY_PATH_PREFIX}/">See every section →</a></p>
-      <ul class="cats">
-${categoryTiles}
-      </ul>
-    </section>
+${renderHowItWorks({ toolCount: browserCount, appCount: apps.length })}
 
 ${
   audiencePages.length
     ? `    <section class="band" id="for" aria-labelledby="for-h">
-      <p class="section-eyebrow">By trade or business</p>
-      <h2 id="for-h">Free tools for your trade or business</h2>
+      <p class="section-eyebrow">Who it is for</p>
+      <h2 id="for-h">Find the tools for your trade or business</h2>
       <p class="band-lede">The same tools, filed by who they are for. Each page lists the calculators that kind of business uses, and what to price first if you are just starting one.</p>
       <ul class="for-list">
 ${audiencePages
@@ -7900,7 +7943,17 @@ ${audiencePages
 
 `
     : ''
-}    <section class="band" id="types" aria-labelledby="types-h">
+}
+    <section class="band" id="browse" aria-labelledby="browse-h">
+      <p class="section-eyebrow">Browse</p>
+      <h2 id="browse-h">Tools by the job they do</h2>
+      <p class="band-lede">${surfaces.length} free tools in ${groups.length} sections. Each section's page lists every tool in it, grouped and filterable. <a href="${CATEGORY_PATH_PREFIX}/">See every section →</a></p>
+      <ul class="cats">
+${categoryTiles}
+      </ul>
+    </section>
+
+    <section class="band" id="types" aria-labelledby="types-h">
       <p class="section-eyebrow">By type</p>
       <h2 id="types-h">Apps you run yourself, and checks for your terminal</h2>
       <ul class="cats">
@@ -7908,35 +7961,43 @@ ${kindTiles}
       </ul>
     </section>
 
+${renderShowcaseSection(showcase, (slug) => titles.get(slug) ?? slug)}
+
     <section class="band" id="featured" aria-labelledby="featured-h">
       <p class="section-eyebrow">Featured</p>
       <h2 id="featured-h">The fullest tool in each of the largest sections</h2>
+      <p class="band-lede">Each one goes deep: worked examples, edge cases and the explainers written beside it.</p>
       <ul class="featured">
 ${featured
   .map(
-    (s) => `        <li><a href="${escapeHtml(s.slug)}/" data-tool="${escapeHtml(s.slug)}">${escapeHtml(s.title)}</a><span class="f-cat">${escapeHtml(categoryFor(s.slug).title)}</span><p>${escapeHtml(s.description ?? '')}</p></li>`,
+    (s) => `        <li style="--feat:${escapeHtml(categoryFor(s.slug).accent)}"><a href="${escapeHtml(s.slug)}/" data-tool="${escapeHtml(s.slug)}">${escapeHtml(cardName(s.title))}</a><span class="f-cat">${escapeHtml(categoryFor(s.slug).title)}</span><p>${escapeHtml(s.description ?? '')}</p></li>`,
   )
   .join('\n')}
       </ul>
     </section>
 
-${renderResearchSection(research, researchCount)}
+${renderResearchBand(research, researchCount, { researchPath: RESEARCH_PATH, topicsDir: RESEARCH_TOPICS_DIR })}
+
+${renderLatestWriting(posts, { writingPath: WRITING_PATH })}
 
     <section class="band" id="more" aria-labelledby="more-h">
       <p class="section-eyebrow">Also here</p>
       <h2 id="more-h">Run your own copy, read the guides, follow the work</h2>
       <div class="pillar-grid">
         <a class="pillar" href="deploy/">
+          <span class="pillar-ico">${icon('deploy')}</span>
           <h3>Deploy your own copy</h3>
           <p>Every app and tool is MIT licensed. Pick one, paste your own cloud credentials, and get a running copy in your own account. Nothing of ours sits in between.</p>
           <span class="pillar-more">Deploy your own →</span>
         </a>
         <a class="pillar" href="${GUIDES_PATH}">
+          <span class="pillar-ico">${icon('guide')}</span>
           <h3>Guides and comparisons</h3>
           <p>The explainers written beside each tool, and products compared side by side, filed by trade.</p>
           <span class="pillar-more">Read the guides →</span>
         </a>
         <a class="pillar" href="${UPDATES_PATH}">
+          <span class="pillar-ico">${icon('pulse')}</span>
           <h3>Built in public</h3>
           <p>What shipped this week, what is in progress, where the project is going and how AI agents build it, from the repository's own records.</p>
           <span class="pillar-more">Updates and roadmap →</span>
@@ -7949,6 +8010,12 @@ ${renderResearchSection(research, researchCount)}
         <li>Every change in the <a href="${CHANGELOG_PATH}">public changelog</a></li>
       </ul>
     </section>
+
+<!-- With the other "your data on this device" panel rather than at the top:
+     it is still drawn when no bids are saved (the browser with none is exactly
+     the one where restoring a backup helps), but a first-time visitor should
+     meet the tools before a file picker. Tool pages link here by #backup-box. -->
+${BACKUP_WIDGET_HTML}
 
 ${renderOfflineWidgetHtml(offlineBuckets(surfaces))}
 
@@ -10364,7 +10431,7 @@ export async function addOfflineSupport({
   for (const icon of ICONS) {
     await fs.writeFile(
       path.join(outDir, icon.file),
-      renderIcon({ size: icon.size, maskable: Boolean(icon.maskable) }),
+      renderIcon({ size: icon.size, maskable: Boolean(icon.maskable), opaque: Boolean(icon.opaque) }),
     );
   }
   await fs.writeFile(
@@ -10592,7 +10659,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
   log(`Published ${await copyShowcase(outDir, showcase)} showcase file(s).`);
   await fs.writeFile(
     path.join(outDir, 'index.html'),
-    renderHub(surfaces, base, { researchCount: researchProjectCount(), research, showcase }),
+    renderHub(surfaces, base, { researchCount: researchProjectCount(), research, showcase, posts: loadPosts() }),
   );
   // The index the hub's search fetches, and the stylesheet every site-owned
   // page links for the shared header (site-nav.mjs).
@@ -10741,7 +10808,8 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
 
   // Essays and write-ups from `docs/posts/` (see `writing.mjs`). Indexed, so
   // each post is listed in the hub sitemap below.
-  const posts = await buildWriting(outDir, base, { socialCard: `${base}${SOCIAL_CARD_FILE}`, originAlias: DEFAULT_BASE_URL });
+  // Page slugs under writing/: each post, and `podcast`.
+  const writingPages = await buildWriting(outDir, base, { socialCard: `${base}${SOCIAL_CARD_FILE}`, originAlias: DEFAULT_BASE_URL });
 
   // The lab (see `lab.mjs`): contained, `noindex` experiments in what the
   // site can be. Its handoff page reads catalog.json in the browser.
@@ -10810,7 +10878,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
       ],
       compareProducts.map((group) => group.key),
       [...researchSlugs, ...researchTopics, ...researchApps],
-      posts.map((post) => post.slug),
+      writingPages,
     ),
   );
   await fs.writeFile(path.join(outDir, 'catalog.json'), renderCatalog(surfaces, base, launched));
@@ -10825,8 +10893,14 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
   await fs.writeFile(path.join(outDir, 'favicon.ico'), renderFavicon());
   await fs.writeFile(path.join(outDir, 'favicon.svg'), renderFaviconSvg());
   // The site-wide card: what the hub and the About page point at, since
-  // neither belongs to one category.
-  await fs.writeFile(path.join(outDir, SOCIAL_CARD_FILE), renderSocialCard());
+  // neither belongs to one category. It carries the homepage's own headline.
+  await fs.writeFile(
+    path.join(outDir, SOCIAL_CARD_FILE),
+    renderSiteCard({
+      address: siteAddress(base),
+      footer: `${surfaces.length} free tools · ${researchProjectCount()} research projects`,
+    }),
+  );
   // One card per category, tinted and headlined with the section's own name.
   // A category holding a documented `externalCallExceptions` entry (today:
   // "more", because Sponsor Ready lives there) gets the exception footer —
@@ -10840,44 +10914,34 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
       .filter(({ items }) => externalCallExceptions(items).length)
       .map(({ audience }) => audiencePageId(audience)),
   ]);
-  await Promise.all(
-    [...ALL_CATEGORIES, ...KIND_PAGES, ...audiencePages.map(({ audience, items }) => audienceCategory(audience, items))].map((category) =>
-      fs.writeFile(
-        path.join(outDir, socialCardFileFor(category.id)),
-        renderSocialCard({
-          color: category.accent,
-          headline: category.title,
-          kicker: SITE_NAME,
-          footer: categoriesWithExceptions.has(category.id) ? CARD_FOOTER_EXCEPTION : CARD_FOOTER,
-        }),
-      )),
-  );
-  // And one per tool, headlined with the tool's own name on its category's
-  // tint. This is the difference between 164 shares of the same anonymous
-  // picture and 164 shares that each say what they link to — the single
-  // highest-leverage change available to a portfolio whose only distribution
-  // is organic. `cardtext.mjs` is what makes it possible without a font
-  // dependency; before it existed there was nothing to draw a headline with.
-  //
-  // Sequential, not `Promise.all`: each card is a 1200x630 CPU-bound raster
-  // and the in-cluster build runs under a 2-core limit, so firing 164 at once
-  // buys no wall-clock and peaks memory at 164 frame buffers.
-  for (const surface of surfaces) {
-    const dir = path.join(outDir, surface.slug);
-    if (!(await exists(dir))) continue;
-    await fs.writeFile(
-      path.join(outDir, toolCardFileFor(surface.slug)),
-      renderSocialCard({
-        color: categoryFor(surface.slug).accent,
-        headline: surface.title,
-        kicker: SITE_NAME,
-        // Sponsor Ready's own card gets the exception footer — its whole job
-        // is a live lookup, so "nothing you type is uploaded" is the one
-        // claim this card must not make. See `CARD_FOOTER_EXCEPTION`.
-        footer: surface.externalFetchHosts?.length ? CARD_FOOTER_EXCEPTION : CARD_FOOTER,
+  const cardJobs = [];
+  for (const category of [
+    ...ALL_CATEGORIES,
+    ...KIND_PAGES,
+    ...audiencePages.map(({ audience, items }) => audienceCategory(audience, items)),
+  ]) {
+    cardJobs.push({
+      file: path.join(outDir, socialCardFileFor(category.id)),
+      options: categoryCardOptions(category, {
+        footer: categoriesWithExceptions.has(category.id) ? CARD_FOOTER_EXCEPTION : CARD_FOOTER,
+        baseUrl: base,
       }),
-    );
+    });
   }
+  // And one per tool, headlined with the tool's own name under its category.
+  // This is the difference between a thousand shares of the same anonymous
+  // picture and a thousand that each say what they link to — the single
+  // highest-leverage change available to a portfolio whose only distribution
+  // is organic. They render on a pool of worker threads (`share.mjs`): each is
+  // a CPU-bound raster and there are well over a thousand.
+  for (const surface of surfaces) {
+    if (!(await exists(path.join(outDir, surface.slug)))) continue;
+    cardJobs.push({
+      file: path.join(outDir, toolCardFileFor(surface.slug)),
+      options: toolCardOptions(surface, { baseUrl: base }),
+    });
+  }
+  await renderCards(cardJobs);
 
   // Tell Jekyll (which GitHub Pages runs by default) to leave the tree alone;
   // without this, any directory starting with `_` is silently dropped.
@@ -10894,6 +10958,12 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
   // pages that no longer match it.
   const sponsored = await markSponsorLinksIn(outDir);
 
+  // After every generator has written its pages and the chrome has wrapped
+  // them: a card for each page still on the site-wide one (research, writing,
+  // comparisons, the section front pages), and complete share tags on all of
+  // them. Before the offline layer, which hashes the finished HTML.
+  const shareCards = await addShareCards({ outDir, baseUrl: base, siteName: SITE_NAME, siteCard: SOCIAL_CARD_FILE });
+
   // After the chrome pass, not before: the offline layer hashes the finished
   // site to name its cache, and injects into pages the chrome has already
   // rewritten. Reversed, every deploy would cache a page missing its nav.
@@ -10901,7 +10971,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
 
   return {
     outDir, baseUrl: base, surfaces, repairs, wrapped, rated, saved, shared, described,
-    highlighted, narrowed, embedded, sponsored, offline, comparisons,
+    highlighted, narrowed, embedded, sponsored, offline, comparisons, shareCards,
   };
 }
 
@@ -10917,120 +10987,72 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
  * the ventures' files, not this build's), and only `.ico` at the origin root
  * is fetched automatically, so the icon has to be generated here.
  *
- * Built rather than committed so the tree stays reviewable text: a 16x16 PNG
- * assembled by hand and wrapped in a single-image ICO container. Deterministic
- * -- same bytes on every run.
+ * Built rather than committed so the tree stays reviewable text, and
+ * deterministic -- same bytes on every run.
  */
-function pngChunk(type, data) {
-  const length = Buffer.alloc(4);
-  length.writeUInt32BE(data.length);
-  const body = Buffer.concat([Buffer.from(type, 'ascii'), data]);
-  const crc = Buffer.alloc(4);
-  crc.writeUInt32BE(crc32(body) >>> 0);
-  return Buffer.concat([length, body, crc]);
-}
 
-let CRC_TABLE = null;
-function crc32(buffer) {
-  if (!CRC_TABLE) {
-    CRC_TABLE = new Int32Array(256);
-    for (let n = 0; n < 256; n += 1) {
-      let c = n;
-      for (let k = 0; k < 8; k += 1) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
-      CRC_TABLE[n] = c;
-    }
-  }
-  let crc = -1;
-  for (const byte of buffer) crc = CRC_TABLE[(crc ^ byte) & 0xff] ^ (crc >>> 8);
-  return crc ^ -1;
-}
-
-// The mark, in one place. `renderFavicon` rasterises it to the 16x16 ICO every
-// browser fetches on its own; `renderFaviconSvg` emits the same geometry as
-// vector art for the icon the hub links explicitly. Sharing the constants is
-// what keeps the two from drifting into different logos.
+// The mark, in one place: `sharecard.mjs`'s `drawMark` (three rising bars on
+// the header's teal-to-indigo square) is what the app icons and every share
+// card draw from `MARK_GEOMETRY`, and `renderFaviconSvg` draws the same
+// geometry as vector art, so the tab,
+// the pinned tab, the home screen and a shared link carry one logo. The tab
+// icon used to be a flat green square while the header showed a gradient one
+// and the app icon a calculator: three logos for one site.
+export { MARK_GEOMETRY };
 const ICON_SIZE = 16;
-const ICON_INK = [36, 61, 53]; // the hub's accent green, so the tab matches the site
-const ICON_MARK = [197, 237, 181];
+// Sizes in the .ico: 16 for the tab strip, 32 for a high-DPI tab and the
+// Windows taskbar, 48 for a desktop shortcut.
+export const FAVICON_SIZES = [16, 32, 48];
 
-// Three rising bars on a rounded square. Chosen after looking at it at
-// actual size: anything with a diagonal turns to mush at 16px, while flat
-// bars stay crisp and read as "numbers" rather than as a generic glyph.
-const ICON_BARS = [
-  { x0: 3, x1: 4, top: 9 },
-  { x0: 7, x1: 8, top: 6 },
-  { x0: 11, x1: 12, top: 3 },
-];
-const ICON_BAR_BOTTOM = 12;
-const ICON_CORNER = 2; // matches the 2px corner the rasteriser cuts
+const rgbHex = (rgb) => '#' + rgb.map((c) => Math.round(c).toString(16).padStart(2, '0')).join('');
 
-const rgbHex = (rgb) => '#' + rgb.map((c) => c.toString(16).padStart(2, '0')).join('');
-
-/**
- * The same mark as `renderFavicon()`, as vector art.
- *
- * The `.ico` is a fixed raster: exactly right at 16px in a tab, and soft
- * everywhere a browser shows it larger — a pinned tab, the bookmark bar, a
- * phone home screen. A browser that understands `rel="icon"
- * type="image/svg+xml"` prefers this and renders the mark crisply at any size,
- * while the automatic `/favicon.ico` request still finds a file.
- */
 export function renderFaviconSvg() {
-  const bars = ICON_BARS.map(
+  const n = (v) => Number((v * ICON_SIZE).toFixed(2));
+  const g = MARK_GEOMETRY;
+  const bars = g.bars.map(
     (b) =>
-      `<rect x="${b.x0}" y="${b.top}" width="${b.x1 - b.x0 + 1}" ` +
-      `height="${ICON_BAR_BOTTOM - b.top + 1}" fill="${rgbHex(ICON_MARK)}"/>`,
+      `<rect x="${n(b.x)}" y="${n(b.top)}" width="${n(g.barWidth)}" ` +
+      `height="${n(g.bottom - b.top)}" rx="${n(g.barWidth * 0.28)}" fill="#ffffff"/>`,
   ).join('');
-
   return (
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${ICON_SIZE} ${ICON_SIZE}">` +
-    `<rect width="${ICON_SIZE}" height="${ICON_SIZE}" rx="${ICON_CORNER}" ` +
-    `fill="${rgbHex(ICON_INK)}"/>${bars}</svg>\n`
+    `<defs><linearGradient id="m" x1="0" y1="0" x2="1" y2="1">` +
+    `<stop offset="0" stop-color="${rgbHex(MARK_FROM)}"/><stop offset="1" stop-color="${rgbHex(MARK_TO)}"/>` +
+    `</linearGradient></defs>` +
+    `<rect width="${ICON_SIZE}" height="${ICON_SIZE}" rx="${n(g.radius)}" fill="url(#m)"/>${bars}</svg>\n`
   );
 }
 
+/**
+ * Every browser requests `/favicon.ico` on its own; see above. One PNG per
+ * size in `FAVICON_SIZES`, each drawn by `drawMark` at that size rather than
+ * scaled from one, wrapped in an ICO container.
+ */
 export function renderFavicon() {
-  const size = ICON_SIZE;
-  const ink = ICON_INK;
-  const mark = ICON_MARK;
-  const BARS = ICON_BARS;
-  const raw = [];
-  for (let y = 0; y < size; y += 1) {
-    raw.push(0); // PNG filter byte: none
-    for (let x = 0; x < size; x += 1) {
-      const corner = (x < 2 || x > 13) && (y < 2 || y > 13);
-      const inBar = BARS.some((b) => x >= b.x0 && x <= b.x1 && y >= b.top && y <= 12);
-      if (corner) raw.push(0, 0, 0, 0);
-      else if (inBar) raw.push(...mark, 255);
-      else raw.push(...ink, 255);
-    }
-  }
-
-  const ihdr = Buffer.alloc(13);
-  ihdr.writeUInt32BE(size, 0);
-  ihdr.writeUInt32BE(size, 4);
-  ihdr[8] = 8; // bit depth
-  ihdr[9] = 6; // colour type: RGBA
-  const png = Buffer.concat([
-    Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
-    pngChunk('IHDR', ihdr),
-    pngChunk('IDAT', zlib.deflateSync(Buffer.from(raw), { level: 9 })),
-    pngChunk('IEND', Buffer.alloc(0)),
-  ]);
-
-  // ICO container: 6-byte header, one 16-byte directory entry, then the PNG.
+  const pngs = FAVICON_SIZES.map((size) => {
+    const data = Buffer.alloc(size * size * 4);
+    drawMark({ width: size, height: size, data, channels: 4 }, 0, 0, size, { channels: 4, radius: MARK_GEOMETRY.radius });
+    return encodeCardPng(size, size, data, 4);
+  });
   const header = Buffer.alloc(6);
   header.writeUInt16LE(0, 0);
   header.writeUInt16LE(1, 2); // type: icon
-  header.writeUInt16LE(1, 4); // one image
-  const entry = Buffer.alloc(16);
-  entry[0] = size;
-  entry[1] = size;
-  entry.writeUInt16LE(1, 4); // colour planes
-  entry.writeUInt16LE(32, 6); // bits per pixel
-  entry.writeUInt32LE(png.length, 8);
-  entry.writeUInt32LE(header.length + entry.length, 12);
-  return Buffer.concat([header, entry, png]);
+  header.writeUInt16LE(pngs.length, 4);
+  const entries = [];
+  let offset = 6 + 16 * pngs.length;
+  pngs.forEach((png, i) => {
+    const size = FAVICON_SIZES[i];
+    const entry = Buffer.alloc(16);
+    entry[0] = size;
+    entry[1] = size;
+    entry.writeUInt16LE(1, 4); // colour planes
+    entry.writeUInt16LE(32, 6); // bits per pixel
+    entry.writeUInt32LE(png.length, 8);
+    entry.writeUInt32LE(offset, 12);
+    offset += png.length;
+    entries.push(entry);
+  });
+  return Buffer.concat([header, ...entries, ...pngs]);
 }
 
 // ---------------------------------------------------------------------------
@@ -11068,4 +11090,5 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   console.log(`Kept ${result.narrowed.length} page(s) with a table from scrolling sideways on a phone.`);
   console.log(`Added an embed offer to ${result.embedded.length} tool entry page(s).`);
   console.log(`Made the sponsor link countable on ${result.sponsored.length} page(s).`);
+  console.log(`Drew ${result.shareCards.cards.length} page share card(s); completed share tags on ${result.shareCards.changed.length} page(s).`);
 }

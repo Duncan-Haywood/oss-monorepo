@@ -31,7 +31,10 @@ export const SITE_STYLE_FILE = 'pf-site.css';
 export const SITE_NAV = Object.freeze([
   Object.freeze({ id: 'tools', label: 'Tools', href: 'c/' }),
   Object.freeze({ id: 'research', label: 'Research', href: 'research/' }),
-  Object.freeze({ id: 'writing', label: 'Writing', href: 'writing/' }),
+  // Blog and Podcast sit at the top level (owner, 2026-10-21). The podcast
+  // lives inside the blog's folder; its page always exists, even with no episodes.
+  Object.freeze({ id: 'writing', label: 'Blog', href: 'writing/' }),
+  Object.freeze({ id: 'podcast', label: 'Podcast', href: 'writing/podcast/' }),
   Object.freeze({ id: 'updates', label: 'Updates', href: 'updates/' }),
   Object.freeze({ id: 'ask', label: 'Ask', href: 'ask/' }),
   Object.freeze({ id: 'deploy', label: 'Deploy your own', href: 'deploy/' }),
@@ -119,7 +122,8 @@ export function renderSiteFooterNav({ toRoot = '' } = {}) {
   const links = [
     ['c/', 'All tools by category'],
     ['research/', 'Research'],
-    ['writing/', 'Writing'],
+    ['writing/', 'Blog'],
+    ['writing/podcast/', 'Podcast'],
     ['updates/', 'Updates &amp; roadmap'],
     ['changelog/', 'Changelog'],
     ['guides/', 'Guides'],
@@ -202,9 +206,59 @@ const SITE_FOOTER_CSS = `
 .pfs-foot a{color:var(--pfs-accent)}
 `;
 
+/**
+ * The page-hero band: the top of every site-owned sub-page (category pages,
+ * /c/, About, Compare, Guides, Feedback, Ask, Writing, Updates, Changelog)
+ * takes the homepage hero's dark field, glows and grid, so a visitor who
+ * clicks from the front door into a section does not land on what reads as a
+ * different site. A page opts in with `<header class="pf-hero">`.
+ *
+ * Dark in both colour schemes, like the homepage hero (showcase.mjs), so it
+ * redefines the page tokens it contains: every renderer's `.eyebrow`, `.lede`,
+ * `.dek`, `.count`, `.starting` and link already read `--ink`, `--muted`,
+ * `--accent` and friends, and get light-on-dark values here without each page
+ * restyling them. Lightest text-on-field pair: `--soft` #a9b5c6 on the
+ * brightest glow (~#1c2a52) is 6.6:1, above AA's 4.5:1.
+ *
+ * The band paints full-bleed from inside a centred `.wrap` with a 100vw
+ * pseudo-element; `html{overflow-x:clip}` keeps that from adding a sideways
+ * scroll where a scrollbar makes 100vw wider than the page. `clip`, not
+ * `hidden`, so no scroll container is created and sticky elements still stick.
+ * `--pf-hero-pull` is the wrap's top padding, so the field meets the nav.
+ */
+const SITE_HERO_CSS = `
+html{overflow-x:clip}
+.pf-hero{position:relative;isolation:isolate;max-width:none;margin:0 0 30px;
+  padding:clamp(22px,4.4vw,46px) 0 clamp(24px,4vw,40px);color:#eef2f8;
+  --ink:#eef2f8;--muted:#c3cddb;--soft:#a9b5c6;--accent:#7fe3c6;--accent-ink:#07121a;
+  --line:rgba(148,170,210,.3);--panel:rgba(20,28,48,.72);--bg:rgba(10,16,32,.6);--code:rgba(148,170,210,.16)}
+.pf-hero::before,.pf-hero::after{content:"";position:absolute;z-index:-1;pointer-events:none;
+  top:calc(-1 * var(--pf-hero-pull,26px));bottom:0;left:50%;width:100vw;margin-left:-50vw}
+.pf-hero::before{background:
+    radial-gradient(640px 300px at 8% 0%,rgba(31,182,143,.30),transparent 70%),
+    radial-gradient(760px 340px at 92% 0%,rgba(75,93,255,.34),transparent 70%),
+    radial-gradient(700px 300px at 55% 135%,rgba(177,75,255,.24),transparent 70%),
+    #080d1a;
+  border-bottom:1px solid #1d2742}
+.pf-hero::after{background-image:linear-gradient(rgba(140,170,255,.07) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(140,170,255,.07) 1px,transparent 1px);background-size:44px 44px;
+  -webkit-mask-image:radial-gradient(ellipse 70% 90% at 50% 0%,#000 30%,transparent 80%);
+          mask-image:radial-gradient(ellipse 70% 90% at 50% 0%,#000 30%,transparent 80%)}
+.pf-hero h1{color:#fff;letter-spacing:-.035em;text-wrap:balance}
+.pf-hero .eyebrow{display:inline-flex;align-items:center;gap:8px;color:var(--accent);font-size:.78rem;font-weight:700;
+  letter-spacing:.09em;text-transform:uppercase;margin:0 0 10px}
+.pf-hero .eyebrow::before{content:"";width:7px;height:7px;border-radius:50%;background:color-mix(in srgb,var(--pf-cat,var(--accent)) 45%,#7fe3c6);
+  box-shadow:0 0 0 3px color-mix(in srgb,var(--pf-cat,var(--accent)) 30%,transparent)}
+.pf-hero .lede,.pf-hero .dek{color:var(--muted);text-wrap:pretty;max-width:68ch}
+.pf-hero a{color:var(--accent)}
+.pf-hero .starting{background:var(--panel);border-left-color:var(--accent);color:var(--ink)}
+.pf-hero .count{color:var(--soft)}
+@media (max-width:600px){.pf-hero{padding-top:18px}}
+`;
+
 /** Contents of `pf-site.css`, the stylesheet every site-owned page links. */
 export function renderSiteStyle() {
-  return `${SITE_TOKENS_CSS.trimStart()}${SITE_HEADER_CSS}${SITE_FOOTER_CSS}`;
+  return `${SITE_TOKENS_CSS.trimStart()}${SITE_HEADER_CSS}${SITE_FOOTER_CSS}${SITE_HERO_CSS}`;
 }
 
 /** The `<link>` a site-owned page puts in its head. */

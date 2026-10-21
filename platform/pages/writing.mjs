@@ -28,6 +28,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { esc, renderMarkdown } from '../devlog/markdown.mjs';
 import { SITE_NAME, withSiteHeader } from './site-nav.mjs';
+import { loadEpisodes, renderPlayer, renderPodcastBody, renderPodcastHero, writePodcastAssets, PODCAST_PATH, SHOW_DESCRIPTION, SHOW_TITLE } from './podcast.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const DEFAULT_ROOT = path.resolve(HERE, '..', '..');
@@ -120,7 +121,7 @@ const STYLE = `
   @media (prefers-color-scheme: dark) { :root { --bg:#0f141a; --panel:#161d26; --ink:#e7edf4; --muted:#a3b0bf; --line:#2a3542; --accent:#86a8ff; --code:#1d2631; } }
   * { box-sizing:border-box; }
   body { margin:0; background:var(--bg); color:var(--ink); font:17px/1.65 system-ui, -apple-system, "Segoe UI", sans-serif; }
-  .wrap { max-width:720px; margin:0 auto; padding:24px 16px 72px; }
+  .wrap { max-width:720px; margin:0 auto; padding:24px 16px 72px; --pf-hero-pull:24px; }
   a { color:var(--accent); }
   .crumbs { font-size:.85rem; color:var(--muted); margin:0 0 28px; } .crumbs a { color:inherit; }
   h1 { font-size:2rem; line-height:1.2; margin:.2em 0 .3em; letter-spacing:-.01em; }
@@ -141,15 +142,29 @@ const STYLE = `
   th { font-size:.8rem; color:var(--muted); font-weight:600; }
   hr { border:0; border-top:1px solid var(--line); margin:2.4em 0; }
   .posts { list-style:none; padding:0; margin:0; }
-  .posts li { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:18px 20px; margin:0 0 14px; }
+  .posts li { position:relative; background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:18px 20px 16px 22px; margin:0 0 14px;
+    transition:transform .18s, box-shadow .18s, border-color .18s; }
+  .posts li::before { content:""; position:absolute; left:-1px; top:16px; bottom:16px; width:3px; border-radius:0 3px 3px 0;
+    background:linear-gradient(180deg,#1fb68f,#4b5dff); }
+  .posts li:hover { transform:translateY(-2px); border-color:var(--accent); box-shadow:0 10px 28px rgba(20,30,60,.10); }
   .posts h2 { font-size:1.2rem; margin:0 0 .3em; line-height:1.3; } .posts h2 a { color:inherit; text-decoration:none; }
-  .posts h2 a:hover { color:var(--accent); }
+  .posts h2 a::after { content:""; position:absolute; inset:0; border-radius:14px; }
+  .posts h2 a:hover, .posts h2 a:focus-visible { color:var(--accent); }
   .posts p { margin:.3em 0; color:var(--muted); font-size:.95rem; }
+  .posts .meta { display:flex; flex-wrap:wrap; gap:6px; margin:.7em 0 0; }
+  .posts .date, .posts .mins { display:inline-block; font-size:.78rem; font-weight:600; padding:2px 9px; border-radius:999px;
+    border:1px solid var(--line); background:var(--bg); color:var(--muted); }
+  .pf-hero .crumbs { margin:0 0 18px; } .pf-hero .meta { margin:0; } .pf-hero .tag { color:var(--muted); border-color:var(--line); }
+  .pf-hero h1 { font-size:clamp(1.9rem,4.4vw,2.6rem); }
   .more { margin-top:3em; padding-top:1.4em; border-top:1px solid var(--line); font-size:.95rem; }
+  .episode { margin:0 0 2em; padding:12px 14px; background:var(--panel); border:1px solid var(--line); border-radius:12px; }
+  .episode figcaption { font-size:.85rem; color:var(--muted); margin:0 0 8px; }
+  audio { width:100%; display:block; margin:.4em 0; }
+  details summary { cursor:pointer; color:var(--accent); font-size:.9rem; margin:.4em 0; }
   footer { margin-top:3em; font-size:.8rem; color:var(--muted); }
 `;
 
-function shell({ title, description, canonical, toRoot, crumbs, body, jsonLd, feedHref, socialCard }) {
+function shell({ title, description, canonical, toRoot, crumbs, hero = '', body, jsonLd, feedHref, socialCard, podcastFeedHref, current = 'writing' }) {
   // The site's shared header (site-nav.mjs) above this section's own breadcrumb.
   return withSiteHeader(`<!doctype html>
 <html lang="en">
@@ -159,7 +174,7 @@ function shell({ title, description, canonical, toRoot, crumbs, body, jsonLd, fe
 <title>${esc(title)}</title>
 <meta name="description" content="${esc(description)}">
 ${canonical ? `<link rel="canonical" href="${esc(canonical)}">\n` : ''}<link rel="alternate" type="application/atom+xml" title="${esc(SITE_NAME)}: writing" href="${esc(feedHref)}">
-<meta property="og:title" content="${esc(title)}">
+${podcastFeedHref ? `<link rel="alternate" type="application/rss+xml" title="${esc(SHOW_TITLE)}" href="${esc(podcastFeedHref)}">\n` : ''}<meta property="og:title" content="${esc(title)}">
 <meta property="og:description" content="${esc(description)}">
 <meta property="og:type" content="${jsonLd['@type'] === 'BlogPosting' ? 'article' : 'website'}">
 ${canonical ? `<meta property="og:url" content="${esc(canonical)}">\n` : ''}${socialCard ? `<meta property="og:image" content="${esc(socialCard)}">\n<meta property="og:image:width" content="1200">\n<meta property="og:image:height" content="630">\n` : ''}<meta name="twitter:card" content="${socialCard ? 'summary_large_image' : 'summary'}">
@@ -168,7 +183,10 @@ ${canonical ? `<meta property="og:url" content="${esc(canonical)}">\n` : ''}${so
 </head>
 <body>
 <div class="wrap">
+<header class="pf-hero">
 <nav class="crumbs" aria-label="Breadcrumb"><a href="${toRoot}" data-pf-to="hub">Home</a> › ${crumbs}</nav>
+${hero}
+</header>
 <main>
 ${body}
 </main>
@@ -180,33 +198,35 @@ ${body}
 </div>
 </body>
 </html>
-`, { toRoot, current: 'writing' });
+`, { toRoot, current });
 }
 
-export function renderIndex(posts, { baseUrl = '', socialCard = '' } = {}) {
+export function renderIndex(posts, { baseUrl = '', socialCard = '', episodes = [] } = {}) {
   const canonical = baseUrl ? `${baseUrl}${WRITING_PATH}` : '';
   const items = posts
     .map(
       (p) => `<li>
   <h2><a href="${esc(p.slug)}/">${esc(p.title)}</a></h2>
   <p>${esc(p.description)}</p>
-  <p class="meta"><time datetime="${p.date}">${longDate(p.date)}</time> · ${p.minutes} min read</p>
+  <p class="meta"><time class="date" datetime="${p.date}">${longDate(p.date)}</time> <span class="mins">${p.minutes} min read</span></p>
 </li>`,
     )
     .join('\n');
   return shell({
-    title: `Writing · ${SITE_NAME}`,
+    title: `Blog · ${SITE_NAME}`,
     description: 'Essays on building software with unattended AI coding agents, from this repository\'s own history and numbers.',
     canonical,
     socialCard,
     toRoot: '../',
-    crumbs: 'Writing',
+    crumbs: 'Blog',
     feedHref: 'feed.xml',
+    podcastFeedHref: episodes.length ? 'podcast/feed.xml' : '',
     jsonLd: { '@context': 'https://schema.org', '@type': 'Blog', name: `${SITE_NAME}: writing`, url: canonical || undefined },
-    body: `<h1>Writing</h1>
+    hero: `<p class="eyebrow">Blog</p>
+<h1>Blog</h1>
 <p class="dek">Essays on building software with unattended AI coding agents, drawn from this repository's own history and numbers.
-Subscribe with the <a href="feed.xml">Atom feed</a>.</p>
-${posts.length ? `<ul class="posts">\n${items}\n</ul>` : '<p>No posts yet.</p>'}`,
+Subscribe with the <a href="feed.xml">Atom feed</a>.${episodes.length ? ` Or listen: <a href="podcast/">the podcast</a> has spoken versions of ${episodes.length} of these posts.` : ''}</p>`,
+    body: `${posts.length ? `<ul class="posts">\n${items}\n</ul>` : '<p>No posts yet.</p>'}`,
   });
 }
 
@@ -223,7 +243,7 @@ export function renderPost(post, posts, opts = {}) {
   return baseUrl && baseUrl !== DEFAULT_SITE_ORIGIN ? html.split(DEFAULT_SITE_ORIGIN).join(baseUrl) : html;
 }
 
-function renderPostPage(post, posts, { baseUrl = '', socialCard = '' } = {}) {
+function renderPostPage(post, posts, { baseUrl = '', socialCard = '', episode = null } = {}) {
   const canonical = baseUrl ? `${baseUrl}${WRITING_PATH}${post.slug}/` : '';
   const others = posts.filter((p) => p.slug !== post.slug).slice(0, 5);
   const tags = post.tags.map((t) => `<span class="tag">${esc(t)}</span>`).join('');
@@ -233,7 +253,7 @@ function renderPostPage(post, posts, { baseUrl = '', socialCard = '' } = {}) {
     canonical,
     socialCard,
     toRoot: '../../',
-    crumbs: `<a href="../">Writing</a>`,
+    crumbs: `<a href="../">Blog</a>`,
     feedHref: '../feed.xml',
     jsonLd: {
       '@context': 'https://schema.org',
@@ -244,13 +264,16 @@ function renderPostPage(post, posts, { baseUrl = '', socialCard = '' } = {}) {
       url: canonical || undefined,
       keywords: post.tags.join(', ') || undefined,
       wordCount: post.words,
+      ...(episode && baseUrl
+        ? { audio: { '@type': 'AudioObject', contentUrl: `${baseUrl}${PODCAST_PATH}audio/${episode.audioFile}`, encodingFormat: 'audio/mpeg', duration: `PT${Math.round(episode.seconds)}S` } }
+        : {}),
     },
-    body: `<article>
-<h1>${esc(post.title)}</h1>
+    hero: `<h1>${esc(post.title)}</h1>
 <p class="dek">${esc(post.description)}</p>
 <p class="meta"><time datetime="${post.date}">${longDate(post.date)}</time> · ${post.minutes} min read ·
-<a href="${REPO_BLOB}${esc(post.source)}">Source</a>${tags ? `<br>${tags}` : ''}</p>
-${relinkSite(linkSiblings(renderMarkdown(post.body, { fromPath: post.source, dropTitle: true }), posts), '../../')}
+<a href="${REPO_BLOB}${esc(post.source)}">Source</a>${tags ? `<br>${tags}` : ''}</p>`,
+    body: `<article>
+${episode ? `${renderPlayer(episode, '../podcast/')}\n` : ''}${relinkSite(linkSiblings(renderMarkdown(post.body, { fromPath: post.source, dropTitle: true }), posts), '../../')}
 </article>
 <section class="more" aria-label="More writing">
 <p><strong>More writing</strong></p>
@@ -286,7 +309,29 @@ ${entries}
 `;
 }
 
-/** Write `writing/` into outDir. Returns the posts, so the caller can list them in the sitemap. */
+/** The podcast's page, in this section's shell (the same header, breadcrumb and disclaimer). */
+export function renderPodcastIndex(episodes, { baseUrl = '', socialCard = '' } = {}) {
+  const canonical = baseUrl ? `${baseUrl}${PODCAST_PATH}` : '';
+  return shell({
+    title: `Podcast · ${SITE_NAME}`,
+    description: SHOW_DESCRIPTION.slice(0, 160).replace(/\s+\S*$/, ''),
+    canonical,
+    socialCard,
+    toRoot: '../../',
+    crumbs: `<a href="../">Blog</a> › Podcast`,
+    current: 'podcast',
+    hero: renderPodcastHero(),
+    feedHref: '../feed.xml',
+    podcastFeedHref: 'feed.xml',
+    jsonLd: { '@context': 'https://schema.org', '@type': 'PodcastSeries', name: SHOW_TITLE, url: canonical || undefined, webFeed: canonical ? `${canonical}feed.xml` : undefined },
+    body: renderPodcastBody(episodes),
+  });
+}
+
+/**
+ * Write `writing/` into outDir, with the podcast at `writing/podcast/` when an
+ * episode's audio is committed. Returns the page slugs under `writing/` for the sitemap.
+ */
 // `originAlias` is the site's default address (build.mjs passes its
 // DEFAULT_BASE_URL). A post that links to a tool by its full URL then follows
 // the address the site is actually built for, the way rewriteOrigin in
@@ -294,22 +339,29 @@ ${entries}
 // relative paths are repository paths and render as GitHub links.
 export async function buildWriting(outDir, baseUrl = '', { root = DEFAULT_ROOT, socialCard = '', originAlias = '' } = {}) {
   const posts = loadPosts(root);
+  const episodes = loadEpisodes(root, new Set(posts.map((p) => p.slug)));
+  const byPost = new Map(episodes.map((ep) => [ep.post, ep]));
   const dir = path.join(outDir, WRITING_PATH);
   const rebase = (html) => (originAlias && baseUrl && originAlias !== baseUrl ? html.split(originAlias).join(baseUrl) : html);
   await fs.mkdir(dir, { recursive: true });
-  await fs.writeFile(path.join(dir, 'index.html'), rebase(renderIndex(posts, { baseUrl, socialCard })));
+  await fs.writeFile(path.join(dir, 'index.html'), rebase(renderIndex(posts, { baseUrl, socialCard, episodes })));
   await fs.writeFile(path.join(dir, 'feed.xml'), rebase(renderFeed(posts, { baseUrl })));
   for (const post of posts) {
     await fs.mkdir(path.join(dir, post.slug), { recursive: true });
-    await fs.writeFile(path.join(dir, post.slug, 'index.html'), rebase(renderPost(post, posts, { baseUrl, socialCard })));
+    await fs.writeFile(path.join(dir, post.slug, 'index.html'), rebase(renderPost(post, posts, { baseUrl, socialCard, episode: byPost.get(post.slug) })));
   }
-  return posts;
+  // The podcast page is in the top navigation, so it is written even before any
+  // episode has audio; the feed and audio only once one does.
+  if (episodes.length) await writePodcastAssets(outDir, episodes, { root, baseUrl, image: socialCard });
+  await fs.mkdir(path.join(outDir, PODCAST_PATH), { recursive: true });
+  await fs.writeFile(path.join(outDir, PODCAST_PATH, 'index.html'), rebase(renderPodcastIndex(episodes, { baseUrl, socialCard })));
+  return [...posts.map((p) => p.slug), 'podcast'];
 }
 
 const invokedDirectly = process.argv[1] && import.meta.url.endsWith(path.basename(process.argv[1]));
 if (invokedDirectly) {
   const arg = (name) => process.argv.find((a) => a.startsWith(`--${name}=`))?.split('=')[1];
   const out = arg('out') ?? path.join(HERE, 'dist');
-  const posts = await buildWriting(out, arg('base-url') ?? '');
-  console.log(`writing: wrote ${path.join(out, WRITING_PATH)} (${posts.length} posts)`);
+  const pages = await buildWriting(out, arg('base-url') ?? '');
+  console.log(`writing: wrote ${path.join(out, WRITING_PATH)} (${pages.length} pages)`);
 }

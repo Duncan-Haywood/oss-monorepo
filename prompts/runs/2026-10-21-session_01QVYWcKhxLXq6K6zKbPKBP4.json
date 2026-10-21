@@ -1,0 +1,45 @@
+{
+  "date": "2026-10-21",
+  "session": "https://claude.ai/code/session_01QVYWcKhxLXq6K6zKbPKBP4",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-21T01:25:14Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "qual-features (track 19 milestone 5)",
+  "projects": [
+    "research/qual-features"
+  ],
+  "pr": 8996,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "pyenv.py first use took several minutes; a pgrep -f wait loop matched its own shell and hung until the 10-minute timeout."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Weak-signal/negative result reported honestly: outcomes (reply vs top-level, self-disclosure subreddits) barely predictable; codes are human GoEmotions votes, not an LLM. Checks run locally: unittest 5 ok, _homepage/build.py ok, check_md_links ok, research_live_links ok.",
+  "corrections": [],
+  "redteam": null
+}

@@ -31,6 +31,7 @@ export async function POST(req: NextRequest) {
         title: s.title,
         description: s.description,
         kind: "ITEMS",
+        pairSelector: s.pairSelector,
         items: { create: s.items },
       },
       select: { slug: true },

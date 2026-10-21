@@ -1,0 +1,42 @@
+qual-features-outcomes: 5313 GoEmotions items (2313 pool, 3000 fixed test), 30 draws per cell, seed 20261021
+metric: test AUC of an L2 logistic regression, C chosen by 3-fold CV on the labelled draw
+codes: 28 human-majority emotion codes (the ceiling for a coder); bow: tf-idf unigrams, 2368 terms; lsa: 100-dim SVD of the tf-idf (an embedding stand-in, not a neural embedding)
+
+== A. outcome: comment replies to another comment (prevalence 0.594)
+n           numeric          codes  codes+numeric            bow    bow+numeric    lsa+numeric            all
+50            0.514          0.508          0.519          0.534          0.537          0.530          0.537
+100           0.509          0.509          0.516          0.537          0.538          0.529          0.539
+200           0.520          0.513          0.524          0.543          0.546          0.545          0.545
+400           0.525          0.517          0.535          0.550          0.553          0.558          0.554
+800           0.528          0.524          0.543          0.557          0.558          0.578          0.559
+1600          0.540          0.527          0.556          0.557          0.559          0.595          0.559
+sd            0.006          0.004          0.005          0.008          0.008          0.005          0.008   (sd of AUC at the largest n)
+
+== D. outcome: comment is from one of 9 self-disclosure subreddits (prevalence 0.037)
+n           numeric          codes  codes+numeric            bow    bow+numeric    lsa+numeric            all
+50            0.543          0.515          0.537          0.524          0.529          0.521          0.531
+100           0.504          0.491          0.500          0.502          0.501          0.496          0.500
+200           0.512          0.490          0.499          0.512          0.513          0.517          0.510
+400           0.522          0.494          0.509          0.525          0.526          0.522          0.527
+800           0.523          0.505          0.514          0.522          0.521          0.528          0.522
+1600          0.537          0.514          0.540          0.534          0.532          0.547          0.532
+sd            0.030          0.021          0.025          0.018          0.018          0.017          0.019   (sd of AUC at the largest n)
+
+== B. null outcome: a coin flip by item id (prevalence 0.499); expect 0.5
+n           numeric          codes  codes+numeric            bow    bow+numeric    lsa+numeric            all
+50            0.501          0.502          0.502          0.502          0.502          0.500          0.503
+100           0.499          0.504          0.502          0.503          0.503          0.499          0.504
+200           0.501          0.504          0.502          0.502          0.503          0.501          0.504
+400           0.500          0.507          0.505          0.498          0.498          0.498          0.500
+800           0.501          0.509          0.507          0.498          0.497          0.497          0.500
+1600          0.503          0.511          0.511          0.498          0.498          0.494          0.501
+sd            0.002          0.005          0.005          0.007          0.007          0.007          0.007   (sd of AUC at the largest n)
+
+== C. coder error: codes+numeric AUC at n=400 when each code cell flips with probability e (simulated)
+e      auc    sd
+0.0    0.535  0.016
+0.02   0.523  0.011
+0.05   0.513  0.011
+0.1    0.514  0.013
+0.2    0.514  0.013
+bow+numeric reference at n=400: 0.553
