@@ -33,7 +33,7 @@ import { promises as fs, existsSync, readFileSync, readdirSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { REPO_URL, withSiteHeader } from './site-nav.mjs';
+import { REPO_URL, sponsorsNote, withSiteHeader } from './site-nav.mjs';
 import { loadResearchRegistry } from './research-registry.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -765,6 +765,7 @@ ${mergeRows}
 <footer>
   <p>Built by <a href="${REPO_URL}/blob/main/platform/pages/engineering.mjs"><code>platform/pages/engineering.mjs</code></a> from files committed to the repository; nothing here is typed by hand. Compute figures are API-list-price equivalents that the sessions measured from their own transcripts (<code>prompts/runcost.py</code>), not charges. A figure a source could not supply is marked as such rather than shown as zero.</p>
   <p>Provided as-is, with no warranty of accuracy or completeness; it describes how the repository is being worked on and is not advice of any kind.</p>
+  <p>${sponsorsNote()}</p>
 </footer>
 </div>
 </body>
