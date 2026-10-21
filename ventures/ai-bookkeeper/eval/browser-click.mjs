@@ -97,6 +97,17 @@ await page.waitForFunction(() => /MACRS 5-year/.test(document.querySelector("#tx
 check(/FA-2: MACRS 5-year, section 179 1,000.00/.test(await page.locator("#tx-status").textContent()), "a tax treatment is set");
 const sheet = await page.locator("#tx-sheet").textContent();
 check(sheet.includes("Truck") && sheet.includes("2,800.00"), "the worksheet shows 179 plus the first-year MACRS (2,800.00)");
+// Opening balances: paste a trial balance that does not balance, set it, remove it.
+await page.fill("#open-date", "2025-12-31");
+await page.fill("#open-paste", "code,amount\n1000,5000.00\n2000,1200.00");
+await page.click("#open-set");
+await page.waitForFunction(() => /opening balances set/.test(document.querySelector("#open-status").textContent), null, { timeout: 5000 }).catch(() => {});
+const ost = await page.locator("#open-status").textContent();
+console.log("     status:", ost);
+check(/3 opening balances set as of 2025-12-31/.test(ost) && /3,800.00 did not balance/.test(ost), "a trial balance is set and its plug to 3000 is reported");
+check(await page.locator("#open-clear").isVisible(), "the remove button shows once balances are set");
+await page.click("#open-clear");
+check(/removed/.test(await page.locator("#open-status").textContent()), "opening balances are removed");
 check(errors.length === 0, `no page errors ${errors.join("; ")}`);
 await browser.close();
 server.close();

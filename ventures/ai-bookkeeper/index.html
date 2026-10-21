@@ -155,6 +155,20 @@
     <div class="scroll" id="salestax"></div>
   </section>
 
+  <section class="card" aria-labelledby="h-open">
+    <h2 id="h-open">Optional: opening balances from a trial balance</h2>
+    <p class="note">Already keeping books somewhere else? Start mid-stream with what you have: one account per line, <code>code,amount</code> (what the account holds in its natural sign: an asset you own, a loan you owe) or <code>code,debit,credit</code> with that header. Anything that does not balance goes to 3000 Opening balance equity and is reported. Import statements from the day after the date below.</p>
+    <div class="grid">
+      <div><label for="open-date">Balances as of</label><input id="open-date" type="date"></div>
+      <div><label for="open-file">Trial balance CSV file</label><input id="open-file" type="file" accept=".csv,text/csv,text/plain"></div>
+    </div>
+    <label for="open-paste">Or paste the CSV</label>
+    <textarea id="open-paste" placeholder="code,amount&#10;1000,5000.00&#10;2000,1200.00"></textarea>
+    <button type="button" id="open-set">Set opening balances</button>
+    <button type="button" class="secondary" id="open-clear">Remove them</button>
+    <p id="open-status" class="note" role="status" aria-live="polite"></p>
+  </section>
+
   <section class="card" aria-labelledby="h-reports">
     <h2 id="h-reports">4. Reports</h2>
     <div class="grid">
@@ -269,6 +283,7 @@
     import { parseCents } from "./bank.mjs";
     import { setTaxTreatment, taxDepreciation, taxDepreciationCsv } from "./taxdepr.mjs";
     import { parseAccounts } from "./ledger.mjs";
+    import { setOpeningBalances, clearOpeningBalances } from "./opening.mjs";
     import { detectRecurring, forecastCash } from "./recurring.mjs";
     import { aiSuggest } from "./ai.mjs";
     import { detectLocal, isLocal } from "./byok.mjs";
@@ -495,7 +510,30 @@
 
     $("#nec-filing-csv").addEventListener("click", () => { record("contractors_filing_downloaded"); download(nec1099FilingCsv(contractors1099(books, { year: necYear() })), "contractors-1099-nec-filing-prep.csv", "text/csv"); });
 
-    function render() { fillSetup(); renderScheduleC(); renderNec(); renderStatus(); renderQueue(); renderReports(); renderRuleSuggestions(); renderAging(); renderRecurring(); renderVat(); renderAssets(); renderTaxDepr(); renderSalesTax(); persist(); }
+    function render() { fillSetup(); renderScheduleC(); renderNec(); renderStatus(); renderQueue(); renderReports(); renderRuleSuggestions(); renderAging(); renderRecurring(); renderVat(); renderAssets(); renderTaxDepr(); renderSalesTax(); renderOpening(); persist(); }
+
+    function renderOpening() {
+      const tb = books.openingTB;
+      $("#open-clear").hidden = !tb;
+      if (tb && !$("#open-status").textContent) $("#open-status").textContent = `${tb.lines.length} opening balances set as of ${tb.date}.`;
+    }
+    $("#open-set").addEventListener("click", async () => {
+      const f = $("#open-file").files[0];
+      const text = f ? await f.text() : $("#open-paste").value;
+      if (!text.trim()) { $("#open-status").textContent = "Choose a CSV file or paste one first."; return; }
+      try {
+        const r = setOpeningBalances(books, text, { date: $("#open-date").value, decimalComma: false });
+        if (!r.lines.length) { $("#open-status").textContent = r.problems.slice(0, 3).join(" "); return; }
+        books = categorize(r.books, opts());
+        $("#open-file").value = ""; $("#open-paste").value = "";
+        record("opening_set");
+        render();
+        $("#open-status").textContent = [`${r.lines.length} opening balances set as of ${r.books.openingTB.date}.`, r.plug ? `${fmt(Math.abs(r.plug))} did not balance and went to 3000 Opening balance equity.` : "They balance.", ...r.problems.slice(0, 3)].join(" ");
+      } catch (e) { $("#open-status").textContent = e.message; }
+    });
+    $("#open-clear").addEventListener("click", () => {
+      try { books = categorize(clearOpeningBalances(books), opts()); record("opening_cleared"); render(); $("#open-status").textContent = "Opening balances removed."; } catch (e) { $("#open-status").textContent = e.message; }
+    });
 
     $("#docs-load").addEventListener("click", async () => {
       const f = $("#docs-file").files[0];
