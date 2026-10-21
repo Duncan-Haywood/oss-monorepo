@@ -92,17 +92,54 @@ export function detectColumns(header) {
   return cols;
 }
 
-// -> { rows: [{ line, date, desc, cents, balance }], problems: [string], columns }
-// `invert` flips signs for card exports that list charges as positive.
-export function readStatement(text, { dayFirst = false, decimalComma = false, invert = false } = {}) {
+// Wells Fargo checking exports have no header row: date, amount, "*", check
+// number, description. Recognised by shape, since there is nothing to name.
+function headerlessShape(rows) {
+  const sample = rows.slice(0, 5);
+  return sample.length > 0 && sample.every((r) => r.length === 5 && parseDate(r[0]) && /^[-+]?\$?[\d,]*\.?\d+$/.test(r[1].trim()) && r[2].trim() === "*");
+}
+
+// Which export this is, from its header or shape alone. Informational; the
+// column matching does the work. null when it is none of the five shapes.
+export function sniffBank(rows) {
+  if (headerlessShape(rows)) return "wells-fargo";
+  for (const r of rows.slice(0, 12)) {
+    const h = r.map(norm).join("|");
+    if (/^details\|posting date\|description\|amount\|type\|balance/.test(h)) return "chase-checking";
+    if (/^transaction date\|post date\|description\|category\|type\|amount/.test(h)) return "chase-card";
+    if (/^date\|description\|amount\|running bal/.test(h)) return "bank-of-america";
+    if (/^transaction date\|posted date\|card no\.\|description\|category\|debit\|credit/.test(h)) return "capital-one";
+    if (/^date\|description\|(card member\|account #\|)?amount/.test(h)) return "amex";
+  }
+  return null;
+}
+
+// Card exports disagree on which sign is a charge (Amex lists charges as
+// positive, Chase as negative). The payment rows settle it: a payment lowers
+// what is owed, so charges carry the opposite sign.
+function chargesArePositive(rows) {
+  const pay = rows.filter((r) => /payment.*thank you|autopay|automatic payment|online payment/i.test(r.desc));
+  if (pay.length === 0) return null;
+  const neg = pay.filter((r) => r.cents < 0).length;
+  return neg > pay.length / 2;
+}
+
+// -> { rows: [{ line, date, desc, cents, balance }], problems: [string], columns, bank, inferred }
+// `invert` flips signs for card exports that list charges as positive. Leave it
+// undefined and a file with no running balance that has payment rows is
+// flipped when its payments are negative (`inferred` says so).
+export function readStatement(text, { dayFirst = false, decimalComma = false, invert } = {}) {
   const rows = parseCsv(text);
   const problems = [];
-  if (rows.length < 2) return { rows: [], problems: ["The file has no data rows."], columns: null };
+  if (rows.length < 2 && !(rows.length === 1 && headerlessShape(rows))) return { rows: [], problems: ["The file has no data rows."], columns: null };
+  const bank = sniffBank(rows);
   let headerAt = rows.findIndex((r) => { const c = detectColumns(r); return c.date !== -1 && (c.amount !== -1 || c.debit !== -1 || c.credit !== -1); });
-  if (headerAt === -1) return { rows: [], problems: ["No date and amount columns were found. Name them Date and Amount (or Debit and Credit)."], columns: null };
-  const columns = detectColumns(rows[headerAt]);
+  let columns, first;
+  if (headerAt === -1 && bank === "wells-fargo") { columns = { date: 0, amount: 1, desc: 4, balance: -1, debit: -1, credit: -1 }; first = 0; }
+  else if (headerAt === -1) return { rows: [], problems: ["No date and amount columns were found. Name them Date and Amount (or Debit and Credit)."], columns: null };
+  else { columns = detectColumns(rows[headerAt]); first = headerAt + 1; }
   const out = [];
-  for (let i = headerAt + 1; i < rows.length; i++) {
+  for (let i = first; i < rows.length; i++) {
     const r = rows[i];
     const date = parseDate(r[columns.date], dayFirst);
     if (!date) { problems.push(`Line ${i + 1}: unreadable date "${r[columns.date] ?? ""}", skipped.`); continue; }
@@ -111,11 +148,17 @@ export function readStatement(text, { dayFirst = false, decimalComma = false, in
     else cents = (columns.credit !== -1 ? Math.abs(parseCents(r[columns.credit], decimalComma) || 0) : 0) - (columns.debit !== -1 ? Math.abs(parseCents(r[columns.debit], decimalComma) || 0) : 0);
     if (!Number.isFinite(cents)) { problems.push(`Line ${i + 1}: unreadable amount, skipped.`); continue; }
     if (cents === 0) continue;
-    if (invert) cents = -cents;
     const balance = columns.balance !== -1 && String(r[columns.balance] ?? "").trim() !== "" ? parseCents(r[columns.balance], decimalComma) : null;
     out.push({ line: i + 1, date, desc: String(r[columns.desc] ?? "").trim().replace(/\s+/g, " "), cents, balance: Number.isFinite(balance) ? balance : null });
   }
-  return { rows: out, problems, columns };
+  let inferred = null;
+  let flip = !!invert;
+  if (invert === undefined && out.every((r) => r.balance === null) && columns.amount !== -1) {
+    const pos = chargesArePositive(out);
+    if (pos) { flip = true; inferred = "Charges were positive (the payment rows are negative), so signs were flipped."; }
+  }
+  if (flip) for (const r of out) r.cents = -r.cents;
+  return { rows: out, problems, columns, bank, inferred };
 }
 
 // A stable id per row so importing the same statement twice adds nothing: the

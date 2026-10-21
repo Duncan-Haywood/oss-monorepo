@@ -49,7 +49,7 @@ const has = (k) => { const i = argv.indexOf(k); if (i === -1) return false; argv
 if (has("--help") || has("-h") || !argv.length) { console.log(HELP); process.exit(0); }
 
 const file = flag("--books");
-const json = has("--json"), example = has("--example"), invert = has("--invert"), dayFirst = has("--day-first"), decimalComma = has("--decimal-comma");
+const json = has("--json"), example = has("--example"), invert = has("--invert") ? true : undefined, dayFirst = has("--day-first"), decimalComma = has("--decimal-comma");
 const asOf = flag("--as-of");
 const account = flag("--account"), from = flag("--from"), to = flag("--to"), auto = flag("--auto");
 let books = example ? analyze({ example: true }).books : file && existsSync(file) ? JSON.parse(readFileSync(file, "utf8")) : newBooks();
