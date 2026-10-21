@@ -358,7 +358,7 @@ over 40% of the year's basis went into service October to December), Section
 179 dollar limits and phase-out, the bonus rate in force, business-use share
 and listed property. The tables were typed from memory of Table A-1 and checked
 only for their sums and lengths, not against the publication: check them before
-filing. Not on the page yet.
+filing. The page has the worksheet under the equipment card (pick an asset, class, 179 amount and bonus percent; tax year; CSV download; clicked through in headless Chromium, 2026-10-21).
 
 ## Not modelled
 

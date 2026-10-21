@@ -81,6 +81,13 @@ await page.fill("#fa-date", "2026-03-10");
 await page.fill("#fa-proceeds", "900");
 await page.click('button[aria-label="Dispose of Laptop"]');
 await page.waitForFunction(() => /disposed/.test(document.querySelector("#fa-status").textContent), null, { timeout: 5000 }).catch(() => {});
+// Tax depreciation worksheet on the same asset (after the sale above: 20% of 1,800 = 360.00, halved to 180.00).
+await page.selectOption("#td-class", "5");
+await page.fill("#td-year", "2026");
+await page.click("#td-set");
+await page.waitForFunction(() => /tax treatment set/.test(document.querySelector("#td-status").textContent), null, { timeout: 5000 }).catch(() => {});
+check(/FA-1: class 5/.test(await page.locator("#td-status").textContent()), "a tax treatment is set");
+check((await page.locator("#td-sheet").textContent()).includes("180.00"), "the worksheet shows 5-year MACRS year one, halved for the disposal that year (20% of 1,800, halved)");
 check(/FA-1 disposed on 2026-03-10/.test(await page.locator("#fa-status").textContent()), "the asset is sold");
 check((await page.locator("#fa-register").textContent()).includes("Disposed 2026-03-10"), "the register shows it disposed");
 check(errors.length === 0, `no page errors ${errors.join("; ")}`);

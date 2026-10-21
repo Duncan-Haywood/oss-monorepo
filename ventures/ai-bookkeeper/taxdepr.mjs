@@ -98,3 +98,14 @@ export function taxDepreciation(books, year) {
   return { year, rows, totals: { s179: sum("s179"), bonus: sum("bonus"), macrs: sum("macrs"), total: sum("total"), book: sum("book"), difference: sum("difference") }, warnings };
 }
 const a_bonus = (books, id) => (books.assets ?? []).find((a) => a.id === id)?.tax?.bonusPct > 0;
+
+// The worksheet as a CSV to hand to a preparer (Form 4562 inputs, by asset).
+export function taxDepreciationCsv(r) {
+  const d = (c) => (c / 100).toFixed(2);
+  const q = (s) => `"${String(s).replace(/"/g, '""')}"`;
+  const rows = ["Asset,Placed in service,Class,Cost,Section 179,Bonus,MACRS,Tax total,Book depreciation,Tax less book"];
+  for (const x of r.rows) rows.push([q(`${x.id} ${x.name}`), x.placed, x.class, d(x.cost), d(x.s179), d(x.bonus), d(x.macrs), d(x.total), d(x.book), d(x.difference)].join(","));
+  const t = r.totals;
+  rows.push(["Total " + r.year, "", "", "", d(t.s179), d(t.bonus), d(t.macrs), d(t.total), d(t.book), d(t.difference)].join(","));
+  return rows.join("\n") + "\n";
+}
