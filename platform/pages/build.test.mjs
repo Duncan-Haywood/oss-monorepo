@@ -63,6 +63,8 @@ import {
   SNIPPET_MAX,
   injectDiscoveryTags,
   SOCIAL_CARD_FILE,
+  categoryCardOptions,
+  toolCardOptions,
   socialCardFileFor,
   toolCardFileFor,
   ALL_CATEGORIES,
@@ -114,6 +116,7 @@ import {
 } from './build.mjs';
 import { LATE_NAV_DIRS, SITE_NAV, HEADER_MARKER } from './site-nav.mjs';
 import { renderSocialCard, SOCIAL_CARD_WIDTH, SOCIAL_CARD_HEIGHT, offlineBundleSizeLabel } from './offline.mjs';
+import { renderCard } from './sharecard.mjs';
 import { EMBED_QUERY_PARAM, DEFAULT_EMBED_HEIGHT } from './embed.mjs';
 import { decodeEntities } from './entities.mjs';
 // The hub embeds these rather than paraphrasing them, so the tests that used to
@@ -4114,13 +4117,15 @@ test("a tool page's card alt text names the tool, not just the site", async () =
   assert.notEqual(alt[1], 'Open Tools and Research — free, private, in your browser');
 });
 
-test('the hub and About page keep the generic site-wide card, not a category one', async () => {
+test('the hub keeps the site-wide card, and About gets its own rather than a category one', async () => {
   const { outDir } = await site();
   const hub = await fs.readFile(path.join(outDir, 'index.html'), 'utf8');
   const about = await fs.readFile(path.join(outDir, 'about', 'index.html'), 'utf8');
-  for (const html of [hub, about]) {
-    assert.ok(html.includes(`<meta property="og:image" content="${BASE}${SOCIAL_CARD_FILE}">`));
-  }
+  assert.ok(hub.includes(`<meta property="og:image" content="${BASE}${SOCIAL_CARD_FILE}">`));
+  // About belongs to no category, so `share.mjs` draws it a card of its own.
+  assert.ok(about.includes(`<meta property="og:image" content="${BASE}about/share-card.png">`));
+  assert.ok(await exists(path.join(outDir, 'about', 'share-card.png')));
+  assert.ok(!/social-card-[\w-]+\.png/.test(about.match(/og:image" content="[^"]*"/)[0]));
 });
 
 test('a category page carries the disclaimer and a route back', async () => {
@@ -4341,18 +4346,10 @@ test('a tool or category with a documented external-call exception gets the exce
 
   for (const ex of exceptions) {
     const surface = surfaces.find((s) => s.slug === ex.slug);
-    const withDefaultFooter = renderSocialCard({
-      color: categoryFor(surface.slug).accent,
-      headline: surface.title,
-      kicker: SITE_NAME,
-      footer: CARD_FOOTER,
-    });
-    const withExceptionFooter = renderSocialCard({
-      color: categoryFor(surface.slug).accent,
-      headline: surface.title,
-      kicker: SITE_NAME,
-      footer: CARD_FOOTER_EXCEPTION,
-    });
+    const options = toolCardOptions(surface, { baseUrl: BASE });
+    assert.equal(options.footer, CARD_FOOTER_EXCEPTION);
+    const withExceptionFooter = renderCard(options);
+    const withDefaultFooter = renderCard({ ...options, footer: CARD_FOOTER });
     const actual = await fs.readFile(path.join(outDir, toolCardFileFor(surface.slug)));
     assert.ok(
       actual.equals(withExceptionFooter),
@@ -4366,12 +4363,7 @@ test('a tool or category with a documented external-call exception gets the exce
 
   for (const { category, items } of groupByCategory(surfaces)) {
     const expectedFooter = externalCallExceptions(items).length ? CARD_FOOTER_EXCEPTION : CARD_FOOTER;
-    const expected = renderSocialCard({
-      color: category.accent,
-      headline: category.title,
-      kicker: SITE_NAME,
-      footer: expectedFooter,
-    });
+    const expected = renderCard(categoryCardOptions(category, { footer: expectedFooter, baseUrl: BASE }));
     const actual = await fs.readFile(path.join(outDir, socialCardFileFor(category.id)));
     assert.ok(actual.equals(expected), `${category.id}'s share card footer does not match its exceptions`);
   }
