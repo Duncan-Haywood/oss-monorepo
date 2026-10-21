@@ -41,7 +41,7 @@ export const PRECUT = { "8ft": 92.625, "9ft": 104.625, "10ft": 116.625 };
  *   headerHeight?: number, header?: string, headerPlies?: number, jacks?: number,
  *   kings?: number, sillPlies?: number, label?: string }} Opening
  * @typedef {{ id: string, length: number, stud?: "2x4"|"2x6", treatedPlate?: boolean,
- *   corner?: boolean, tees?: number[], openings?: Opening[], sheathed?: boolean }} Wall
+ *   corner?: boolean, tees?: number[], tee?: { wall: string, at: number, end?: "start"|"end" }, openings?: Opening[], sheathed?: boolean }} Wall
  * @typedef {{ size: string, length: number, price: number, label?: string }} Stock
  * @typedef {{ studSpacing: number, studLength: number, kerf: number, topPlateLap: number,
  *   cornerExtraStuds: number, teeExtraStuds: number, defaultHeaderHeight: number,
@@ -203,6 +203,12 @@ export function validatePlan(plan) {
     if (!sizes.has(stud)) errors.push(`${name}: no ${stud} boards in the lumber list.`);
     for (const t of wall.tees || []) {
       if (!(t >= THICK && t <= wall.length - THICK)) errors.push(`${name}: a tee at ${formatLength(t)} is off the wall.`);
+    }
+    if (wall.tee) {
+      const through = plan.walls.find((w) => w.id === wall.tee.wall);
+      if (!through || through === wall) errors.push(`${name}: its tee lap names a wall that is not in the plan.`);
+      else if (!(wall.tee.at >= THICK && wall.tee.at <= through.length - THICK)) errors.push(`${name}: its tee lap is off wall ${through.id}.`);
+      if (wall.tee.end && wall.tee.end !== "start" && wall.tee.end !== "end") errors.push(`${name}: a tee lap end is "start" or "end".`);
     }
     const ops = [...(wall.openings || [])].sort((a, b) => a.offset - b.offset);
     let prevEnd = -Infinity;
@@ -390,16 +396,31 @@ export function layoutWall(plan, wall) {
   const [topA, topB] = [lap.topStart, L + lap.topEnd];
   const [capA, capB] = [lap.capStart, L + lap.capEnd];
   const topJoints = splitPlate(topA, topB, centres, studStock, []);
-  const capJoints = topJoints ? splitPlate(capA, capB, centres, studStock, topJoints.map((j) => [j - plan.topPlateLap, j + plan.topPlateLap])) : null;
+  // The cap plate is cut where a partition's cap plate runs over this wall (tee laps); each run is spliced on its own.
+  const capSegs = [];
+  let capAt = capA;
+  for (const [lo, hi] of [...lap.capGaps].sort((x, y) => x[0] - y[0])) {
+    if (lo > capAt + EPS) capSegs.push([capAt, lo]);
+    capAt = Math.max(capAt, hi);
+  }
+  if (capB > capAt + EPS) capSegs.push([capAt, capB]);
+  const forbidden = topJoints ? topJoints.map((j) => [j - plan.topPlateLap, j + plan.topPlateLap]) : [];
+  const capRuns = topJoints ? capSegs.map(([a, b]) => splitPlate(a, b, centres, studStock, forbidden)) : [null];
+  const capJoints = capRuns.every(Boolean) ? capRuns.flat() : null;
   if (!topJoints || !capJoints) notes.push(`Top plates: no way to splice them over studs with joints ${formatInches(plan.topPlateLap)} apart using the boards listed; shown as one piece each.`);
-  /** @type {[number[], number, string, number, number][]} */
-  const upper = [[topJoints || [], top, "top plate", topA, topB], [capJoints || [], top + THICK, "cap plate", capA, capB]];
-  for (const [joints, y, label, from, to] of upper) {
-    let p = from;
-    for (const j of [...joints, to]) {
-      add("plate", p, y, j - p, THICK, stud, "h", label);
+  const pieces = (a, b, joints) => {
+    const out = [];
+    let p = a;
+    for (const j of [...joints, b]) {
+      out.push([p, j]);
       p = j;
     }
+    return out;
+  };
+  const topPieces = pieces(topA, topB, topJoints || []);
+  const capPieces = capJoints ? capSegs.flatMap(([a, b], k) => pieces(a, b, capRuns[k])) : capSegs.map(([a, b]) => [a, b]);
+  for (const [label, y, list] of [["top plate", top, topPieces], ["cap plate", top + THICK, capPieces]]) {
+    for (const [a, b] of list) add("plate", a, y, b - a, THICK, stud, "h", label);
   }
   // Blocking: flat 2x between neighbouring full-height studs at evenly spaced heights, never across an opening.
   const rows = blockingRows(plan);
@@ -440,11 +461,15 @@ export function blockingRows(plan) {
  * of the earlier wall runs through, past its end by the later wall's depth,
  * and the later wall's top plate stops short of its start by the earlier
  * wall's depth; the cap plate laps the other way. Lengths shift, totals do not.
+ * A wall with `tee: {wall, at, end}` is a partition whose `end` ("start" or "end") butts the face of
+ * wall `wall` at offset `at` along it: its cap plate runs over the through wall by that wall's depth,
+ * and the through wall's cap plate is cut for the partition's depth (the cap total grows by the
+ * through wall's depth minus the partition's depth).
  * Offsets are signed inches from the wall's start and end (end offsets are
  * added to the wall length).
  */
 export function plateLaps(plan, wall) {
-  const none = { topStart: 0, topEnd: 0, capStart: 0, capEnd: 0 };
+  const none = { topStart: 0, topEnd: 0, capStart: 0, capEnd: 0, capGaps: [] };
   const walls = plan.walls || [];
   const i = walls.indexOf(wall);
   if (!plan.plateLaps || i < 0 || walls.length < 2) return none;
@@ -459,6 +484,15 @@ export function plateLaps(plan, wall) {
   if (next.corner) {
     lap.topEnd = depthOf(next);
     lap.capEnd = -depthOf(next);
+  }
+  // Tee laps: a partition (wall.tee) butts the face of a through wall; its cap plate runs over the
+  // through wall's top plate by that wall's depth, and the through wall's cap plate is cut for it.
+  if (wall.tee) {
+    const through = walls.find((w) => w.id === wall.tee.wall);
+    if (through) lap[wall.tee.end === "start" ? "capStart" : "capEnd"] = (wall.tee.end === "start" ? -1 : 1) * depthOf(through);
+  }
+  for (const w of walls) {
+    if (w !== wall && w.tee && w.tee.wall === wall.id) lap.capGaps.push([w.tee.at - depthOf(w) / 2, w.tee.at + depthOf(w) / 2]);
   }
   return lap;
 }

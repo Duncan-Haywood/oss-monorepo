@@ -34,6 +34,7 @@ function normalise(plan) {
   for (const w of plan.walls || []) {
     w.length = L(w.length);
     w.tees = (w.tees || []).map(L);
+    if (w.tee && "at" in w.tee) w.tee.at = L(w.tee.at);
     for (const o of w.openings || []) for (const k of ["offset", "width", "height", "headerHeight"]) if (k in o) o[k] = L(o[k]);
   }
   const base = samplePlan();

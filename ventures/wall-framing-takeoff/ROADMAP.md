@@ -62,7 +62,9 @@ Ticked items are on `main`.
       The page has the controls (rows, fire blocking; 2026-10-21, saved in plan files). Not yet: staggered blocks, nailers for horizontal sheets.
 - [x] **Corner plate laps** (2026-10-21, `plateLaps` in `engine.mjs`): top plate
       through one way, cap the other, piece lengths change, totals do not. Tee
-      laps not yet.
+      laps (2026-10-21, wall `tee: {wall, at, end}`): the partition's cap runs
+      over the through wall's top plate and the through wall's cap is cut for it;
+      JSON/CLI only, not on the page yet.
 - [ ] **Advanced framing options** (2-stud corners, ladder blocking at tees,
       single top plate where framing stacks, right-sized headers from a
       user-supplied table) and a measured comparison on example houses.
