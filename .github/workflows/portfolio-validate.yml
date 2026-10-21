@@ -520,6 +520,15 @@ jobs:
         working-directory: platform/ci
         run: python3 -m unittest test_check_step_grid
 
+      # Reading the `localStorage` global throws SecurityError when a visitor
+      # blocks site data, `typeof` included; 990 usage.mjs files did it bare.
+      - name: Check usage.mjs never reads localStorage outside try
+        run: python3 platform/ci/check_storage_guard.py
+
+      - name: Storage-guard checker unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_check_storage_guard
+
       # Every venture vendors its own money() -- 322 copies of one function --
       # and it spelled a negative "$-9.24" instead of "-$9.24", and a rounded-off
       # -0 as "$-0.00". 11,172 unit tests went green over both, because not one

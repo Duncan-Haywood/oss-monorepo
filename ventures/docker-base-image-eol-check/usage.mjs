@@ -4,10 +4,20 @@ const KEY = "docker-base-image-eol-check-usage";
 // act it records.
 const OPT_OUT = "docker-base-image-eol-check-usage-opt-out";
 
+// Reading the `localStorage` global itself throws SecurityError when the
+// visitor blocks site data, so even `typeof localStorage` needs a guard.
+function noStorage() {
+  try {
+    return typeof localStorage === "undefined";
+  } catch {
+    return true;
+  }
+}
+
 function usageOptedOut() {
   if (globalThis.__usageOptOut) return true;
   try {
-    return typeof localStorage !== "undefined" && localStorage.getItem(OPT_OUT) === "1";
+    return !noStorage() && localStorage.getItem(OPT_OUT) === "1";
   } catch {
     // A blocked or full store must never be read as consent.
     return false;
@@ -25,7 +35,7 @@ function usageBlocked() {
 }
 
 export function record(event) {
-  if (typeof localStorage === "undefined" || usageBlocked()) return;
+  if (noStorage() || usageBlocked()) return;
   let current;
   try {
     current = JSON.parse(localStorage.getItem(KEY) || "{}");
@@ -42,7 +52,7 @@ export function record(event) {
 }
 
 export function readUsage() {
-  if (typeof localStorage === "undefined") return {};
+  if (noStorage()) return {};
   try {
     const parsed = JSON.parse(localStorage.getItem(KEY) || "{}");
     return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : {};
@@ -54,7 +64,7 @@ export function readUsage() {
 export function setUsageOptOut(value) {
   const off = Boolean(value);
   globalThis.__usageOptOut = off;
-  if (typeof localStorage === "undefined") return;
+  if (noStorage()) return;
   if (off) {
     try { localStorage.removeItem(KEY); } catch { /* storage is optional */ }
     try { localStorage.setItem(OPT_OUT, "1"); } catch { /* storage is optional */ }
