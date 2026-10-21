@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "chip-digits-qat"
+version = "0.1.0"
+description = "Moving the low-bit cliff of a quantised digits MLP: MSE clipping, per-channel scales, quantisation-aware training"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
