@@ -5,7 +5,7 @@ For each target (formal != "equivalent"): build the golden/mutant miter with Yos
 DEPTH (default 24, one inference is 20 cycles) and k-induction with the same z3. Writes smt.jsonl next to this file.
 Needs yosys (apt) and z3 (apt). Run with the interpreter that imports numpy.
 
-    python experiments/run.py [DEPTH] [TIMEOUT_S]
+    python experiments/smtrun.py [DEPTH] [TIMEOUT_S]
 """
 import json, os, subprocess, sys, tempfile, time
 from multiprocessing import Pool
