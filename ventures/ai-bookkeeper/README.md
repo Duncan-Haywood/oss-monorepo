@@ -300,7 +300,7 @@ Verification: `node --test deductions.test.mjs` (rate times miles in integer cen
 part-year proration; the profit limit; line 9, line 30 and net profit on a small ledger) and a CLI
 run on a three-line statement. **Not checked:** the 2024 and 2025 rates (67.0 and 70.0 cents) are from
 memory of the IRS notices and the 2026 rate (72.5) is flagged on the worksheet as unchecked; irs.gov
-was not read. No real mileage log was tried, and the page does not have a card for this yet. Whether
+was not read. No real mileage log was tried; the page card (trip log, home office, Schedule C lines 9 and 30) was clicked through in headless Chromium with `node eval/browser-click.mjs`. Whether
 a space qualifies for the home office deduction, and whether to use actual expenses instead, is for you
 or your preparer.
 

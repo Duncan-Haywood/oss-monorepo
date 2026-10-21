@@ -194,7 +194,7 @@
     <div class="scroll" id="cf"></div>
     <details><summary>Trial balance</summary><div class="scroll" id="tb"></div></details>
     <h3>US Schedule C worksheet</h3>
-    <p class="note">For a US sole proprietor or single-member LLC: the profit and loss regrouped onto the lines of Schedule C, with meals cut to 50%. A worksheet for you or your preparer, not a filing; it leaves out depreciation, home office, mileage and self-employment tax.</p>
+    <p class="note">For a US sole proprietor or single-member LLC: the profit and loss regrouped onto the lines of Schedule C, with meals cut to 50%. A worksheet for you or your preparer, not a filing; it leaves out depreciation and self-employment tax; miles and a simplified home office come in from the card below the reports.</p>
     <div class="scroll" id="schedc"></div>
     <button type="button" id="schedc-csv" class="secondary">Download Schedule C worksheet (CSV)</button>
     <h3>US contractors (1099-NEC worksheet)</h3>
@@ -211,6 +211,14 @@
     <p class="note">Payees whose lines come at a steady interval (three or more), what they cost per year, and which are overdue, lapsed or changed amount. The forecast rolls your bank balance forward 90 days with those items and your open invoices and bills. A guess from your own history, not a promise.</p>
     <div class="scroll" id="recurring"></div>
     <div id="forecast"></div>
+  </section>
+
+  <section class="card" aria-labelledby="h-deduct">
+    <h2 id="h-deduct">Optional: business miles and home office</h2>
+    <p class="note">Deductions the bank feed cannot see. Log business trips (the IRS asks for a date, miles and a purpose) and, if you qualify, a simplified home office ($5 a square foot, 300 at most). They go to Schedule C lines 9 and 30 in the worksheet above, for the year of the From date (or the latest year in your books). The 2026 mileage rate is not checked against irs.gov. Whether a space qualifies is for you or your preparer. Stored in this browser only.</p>
+    <p><label>Date <input id="trip-date" type="date"></label> <label>Miles <input id="trip-miles" inputmode="decimal" size="6" placeholder="12.5"></label> <label>Purpose <input id="trip-purpose" size="22" placeholder="Client site visit"></label> <button type="button" id="trip-add" class="secondary">Add trip</button></p>
+    <p><label>Home office sq ft <input id="ho-sqft" inputmode="decimal" size="6" placeholder="150"></label> <button type="button" id="ho-set" class="secondary">Set home office</button> <span id="deduct-status" class="note" role="status"></span></p>
+    <div class="scroll" id="deduct"></div>
   </section>
 
   <section class="card" aria-labelledby="h-budget">
@@ -318,6 +326,7 @@
     import { setOpeningBalances, clearOpeningBalances } from "./opening.mjs";
     import { detectRecurring, forecastCash } from "./recurring.mjs";
     import { setBudget, budgetVsActual } from "./budget.mjs";
+    import { addTrip, removeTrip, setHomeOffice, mileageDeduction, homeOfficeDeduction } from "./deductions.mjs";
     import { closeYear, reopenYear, yearEndReport } from "./yearend.mjs";
     import { addReceipts, receiptReport, taxOnReceipts, planReceiptSplit, splitFromReceipt } from "./receipts.mjs";
     import { renderInvoice, setProfile, PROFILE_KEYS } from "./invoice.mjs";
@@ -589,14 +598,32 @@
       $("#vat").replaceChildren(table(["Box", "Description", "Amount"], Object.keys(v.boxes).map((k) => [k, label[k], k >= 6 ? String(v.boxes[k]) : fmt(Math.abs(v.boxes[k]))])), el("p", { class: "note", text: `VAT already paid over by bank lines in the period: ${fmt(v.paid)}.` }), ...v.warnings.map((w) => el("p", { class: "note", text: w })));
     }
 
+    function deductYear() { return +($("#from").value || "").slice(0, 4) || Math.max(0, ...books.transactions.map((t) => +t.date.slice(0, 4)).filter(Boolean)) || new Date().getFullYear(); }
+    function renderDeduct() {
+      const y = deductYear(), m = mileageDeduction(books, y), h = homeOfficeDeduction(books, y);
+      const rows = m.trips.map((t) => [t.date, `${t.miles} mi`, t.purpose]);
+      const out = [el("p", { class: "note", text: `${y}: ${m.miles} business miles${m.rate ? ` at ${m.rate / 10} cents = ${fmt(m.cents)}` : ""}; home office ${h.sqft ? `${h.sqft} sq ft, ${h.months} months = ${fmt(h.cents)}` : "not set"}.` })];
+      if (rows.length) out.push(table(["Date", "Miles", "Purpose"], rows));
+      for (const t of m.trips) { const b = el("button", { type: "button", class: "secondary", text: `Remove ${t.date} ${t.miles} mi` }); b.addEventListener("click", () => { books = removeTrip(books, t.id); render(); }); out.push(b); }
+      $("#deduct").replaceChildren(...out);
+    }
+    $("#trip-add").addEventListener("click", () => {
+      try { const r = addTrip(books, { date: $("#trip-date").value, miles: $("#trip-miles").value, purpose: $("#trip-purpose").value }); books = r.books; record("trip_added"); render(); $("#deduct-status").textContent = `Added ${r.trip.miles} miles.`; }
+      catch (e) { $("#deduct-status").textContent = e.message; }
+    });
+    $("#ho-set").addEventListener("click", () => {
+      try { books = setHomeOffice(books, { sqft: $("#ho-sqft").value || 0 }); record("home_office_set"); render(); $("#deduct-status").textContent = "Home office saved."; }
+      catch (e) { $("#deduct-status").textContent = e.message; }
+    });
+
     function renderScheduleC() {
       const dates = { from: $("#from").value || null, to: $("#to").value || null };
-      const sc = scheduleC(books, dates);
+      const sc = scheduleC(books, { ...dates, year: deductYear() });
       if (!sc.lines.length) { $("#schedc").replaceChildren(el("p", { class: "note", text: "Nothing filed to income or expense accounts yet." })); return; }
       const rows = [...sc.lines.map((l) => [l.line, l.label, fmt(l.cents)])];
       $("#schedc").replaceChildren(table(["Line", "Description", "Amount"], rows, [["7", "Gross income", fmt(sc.grossIncome)], ["28", "Total expenses", fmt(sc.totalExpenses)], ["31", "Net profit or (loss)", fmt(sc.netProfit)]]), ...sc.warnings.map((w) => el("p", { class: "note", text: w })));
     }
-    $("#schedc-csv").addEventListener("click", () => { record("schedule_c_downloaded"); download(scheduleCCsv(scheduleC(books, { from: $("#from").value || null, to: $("#to").value || null })), "schedule-c-worksheet.csv", "text/csv"); });
+    $("#schedc-csv").addEventListener("click", () => { record("schedule_c_downloaded"); download(scheduleCCsv(scheduleC(books, { from: $("#from").value || null, to: $("#to").value || null, year: deductYear() })), "schedule-c-worksheet.csv", "text/csv"); });
 
     const necYear = () => Math.max(0, ...books.transactions.map((t) => +t.date.slice(0, 4)).filter(Boolean)) || new Date().getFullYear();
     function renderNec() {
@@ -622,7 +649,7 @@
 
     $("#nec-filing-csv").addEventListener("click", () => { record("contractors_filing_downloaded"); download(nec1099FilingCsv(contractors1099(books, { year: necYear() })), "contractors-1099-nec-filing-prep.csv", "text/csv"); });
 
-    function render() { fillSetup(); renderScheduleC(); renderNec(); renderStatus(); renderQueue(); renderReports(); renderRuleSuggestions(); renderAging(); renderRecurring(); renderBudget(); renderYearEnd(); renderReceipts(); renderVat(); renderAssets(); renderTaxDepr(); renderSalesTax(); renderOpening(); persist(); }
+    function render() { fillSetup(); renderScheduleC(); renderDeduct(); renderNec(); renderStatus(); renderQueue(); renderReports(); renderRuleSuggestions(); renderAging(); renderRecurring(); renderBudget(); renderYearEnd(); renderReceipts(); renderVat(); renderAssets(); renderTaxDepr(); renderSalesTax(); renderOpening(); persist(); }
 
     function renderOpening() {
       const tb = books.openingTB;
@@ -787,8 +814,8 @@
     });
     $("#receipts-min").addEventListener("change", renderReceipts);
     $("#receipts-clear").addEventListener("click", () => { books = { ...books, receipts: [] }; render(); $("#receipts-status").textContent = "Receipts removed."; });
-    $("#from").addEventListener("change", () => { renderReports(); renderScheduleC(); renderBudget(); renderReceipts(); renderVat(); });
-    $("#to").addEventListener("change", () => { renderReports(); renderScheduleC(); renderBudget(); renderReceipts(); renderVat(); });
+    $("#from").addEventListener("change", () => { renderReports(); renderScheduleC(); renderDeduct(); renderBudget(); renderReceipts(); renderVat(); });
+    $("#to").addEventListener("change", () => { renderReports(); renderScheduleC(); renderDeduct(); renderBudget(); renderReceipts(); renderVat(); });
 
     const download = (text, file, type) => { const a = el("a", { href: URL.createObjectURL(new Blob([text], { type })), download: file }); document.body.append(a); a.click(); a.remove(); };
     for (const b of document.querySelectorAll("[data-export]")) b.addEventListener("click", () => {
