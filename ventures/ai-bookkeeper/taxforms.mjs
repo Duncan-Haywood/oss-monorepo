@@ -103,7 +103,17 @@ function fmt(c) { const v = Math.abs(c); return `${c < 0 ? "-" : ""}${Math.floor
 // The threshold was $600 through payments made in 2025 and is $2,000 for
 // payments made in 2026 (IRS, as amended in 2025); check the current
 // instructions, or pass `threshold` in cents.
+// From 2027 the $2,000 is indexed to inflation, so for later years this is a
+// floor and the worksheet says so.
 export const NEC_THRESHOLD = (year) => (year >= 2026 ? 200000 : 60000);
+
+// The due date for 1099-NEC copies and the IRS filing: January 31 of the next
+// year, or the next weekday when that is a weekend (2026 payments: Feb 1, 2027).
+export function necDeadline(year) {
+  const d = new Date(Date.UTC(year + 1, 0, 31));
+  while (d.getUTCDay() === 0 || d.getUTCDay() === 6) d.setUTCDate(d.getUTCDate() + 1);
+  return d.toISOString().slice(0, 10);
+}
 const CONTRACT_CODES = ["6020"];
 
 // contractors1099(books, { year, threshold, codes }) ->
@@ -143,7 +153,8 @@ export function contractors1099(books, { year, threshold, codes = CONTRACT_CODES
   if (payees.some((p) => p.cardCents)) warnings.push("Some contract labor was paid by card; the card processor reports those on a 1099-K, so they are left out of the totals (shown as card).");
   const pending = (books.transactions ?? []).filter((t) => t.date?.startsWith(String(year)) && (t.status === "review" || t.status === "new")).length;
   if (pending) warnings.push(`${pending} bank line${pending === 1 ? " is" : "s are"} from ${year} and still waiting for an account; one may be a contractor payment.`);
-  if (missingW9.length) warnings.push(`${missingW9.length} payee${missingW9.length === 1 ? "" : "s"} over the line ${missingW9.length === 1 ? "has" : "have"} no W-9 on file. Ask before you file, ahead of January 31.`);
+  if (missingW9.length) warnings.push(`${missingW9.length} payee${missingW9.length === 1 ? "" : "s"} over the line ${missingW9.length === 1 ? "has" : "have"} no W-9 on file. Ask before you file, ahead of ${necDeadline(year)}.`);
+  if (year >= 2027 && threshold === NEC_THRESHOLD(year)) warnings.push(`From 2027 the $2,000 line is indexed to inflation; ${year}'s may be higher. Check the IRS instructions or pass a threshold.`);
   if (!payees.length) warnings.push(`No contract labor paid by bank in ${year}.`);
   return { year, threshold, payees, reportable, missingW9, warnings };
 }
