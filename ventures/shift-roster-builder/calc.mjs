@@ -689,12 +689,16 @@ function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000 } 
   const lists = Array.from({ length: P }, () => []);
   const owner = new Array(S).fill(-1);
   const lowerBound = (k, unfilledH, cutoff = Infinity) => {
-    let lb = BIG * unfilledH, capacity = 0;
+    let lb = BIG * unfilledH, capacity = 0, gSum = 0;
     for (let p = 0; p < P; p++) {
       const L = lists[p], h = hoursOf(ctx, L);
       let pay = 0;
       if (mono) { const q = payParts(ctx, L); pay = burden * staff[p].wage * (q.straight + q.ot * o.otMult + q.dt * o.dtMult); }
-      let lo = pay + avoidPenalty(ctx, p, L) + toughPenalty(ctx, p, L) + gMin(p, h, Math.max(h, Math.min(staff[p].maxHours, h + sufHours[k][p])));
+      const h1 = Math.max(h, Math.min(staff[p].maxHours, h + sufHours[k][p]));
+      lo0[p] = h; hi0[p] = h1;
+      const g0 = gMin(p, h, h1);
+      gSum += g0;
+      let lo = pay + avoidPenalty(ctx, p, L) + toughPenalty(ctx, p, L) + g0;
       if (staff[p].prefer) {
         let pm = 0;
         for (const i of L) pm += avoidMinutes(staff[p], slots[i], "prefer");
@@ -716,7 +720,37 @@ function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000 } 
     const cov = coverableHours(k, hoursLeft);
     const open = Math.max(0, demand - capacity, demand - cov.flow);
     // The shifts that have to stay open are not paid for, so take back at most the dearest rate per hour for each forced open hour.
-    return lb + BIG * open + Math.max(0, sufCheap[k] - open * maxRate, cov.cost);
+    // gSum lets every person sit at their own best hours. The covered hours are fixed in total, so they cannot all do that.
+    const coupled = coupledHours(demand - open, gSum);
+    return lb + coupled - gSum + BIG * open + Math.max(0, sufCheap[k] - open * maxRate, cov.cost);
+  };
+  // Lagrangian bound on the convex hours terms when the undecided shifts add at most `x` hours in all: for any price lam,
+  // sum_p min_h [g_p(h) - lam (h - h0_p)] + lam x is a lower bound on the least total (weak duality), and an open hour costs
+  // BIG > lam, so taking all x hours is the cheapest case. A negative lam prices hours as too many to place. lam = 0 gives gSum back; the
+  // best lam is found by ternary search.
+  const lo0 = new Array(P).fill(0), hi0 = new Array(P).fill(0);
+  const coupledHours = (x, gSum) => {
+    const a = o.shortfallValue, c = (o.balance / 100) * ctx.avgWage * 0.1;
+    let room = 0, maxH = 0;
+    for (let p = 0; p < P; p++) { room += hi0[p] - lo0[p]; maxH = Math.max(maxH, staff[p].maxHours); }
+    if (!(c > 0) || x >= room - 1e-9) return gSum;
+    const dual = (lam) => {
+      let t = lam * x;
+      for (let p = 0; p < P; p++) {
+        const tp = ctx.target[p], m = staff[p].minHours, l = lo0[p], u = hi0[p];
+        const g = (h) => a * Math.max(0, m - h) + c * (h - tp) ** 2 - lam * (h - l);
+        const cl = (h) => Math.min(u, Math.max(l, h));
+        t += Math.min(g(l), g(u), g(cl(m)), g(cl(tp + (a + lam) / (2 * c))), g(cl(tp + lam / (2 * c))));
+      }
+      return t;
+    };
+    const span = a + 2 * c * maxH + 1;
+    let lo = -span, hi = Math.min(BIG, span);
+    for (let it = 0; it < 24; it++) {
+      const m1 = lo + (hi - lo) / 3, m2 = hi - (hi - lo) / 3;
+      if (dual(m1) < dual(m2)) lo = m1; else hi = m2;
+    }
+    return Math.max(gSum, dual((lo + hi) / 2));
   };
   const days = [...new Set(slots.map((x) => x.day))].sort((x, y) => x - y);
   const dayAt = new Map(days.map((d, j) => [d, j]));
