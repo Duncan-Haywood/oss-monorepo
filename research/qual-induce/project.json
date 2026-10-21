@@ -1,0 +1,6 @@
+{
+ "theme": "qual",
+ "title": "How much of a human emotion codebook does a codebook induced from the text alone recover?",
+ "summary": "On 5,313 real GoEmotions comments, codebooks induced from half the text with no labels (NMF topics and k-means on LSA, 5 to 60 codes) were applied to the other half and compared with the 27-emotion human codebook. Agreement with the human primary emotion was above a size-matched random assignment but small: NMI 0.26 for 27 NMF topics against 0.12 at chance, and 0.34 for 60 against 0.20. The best single induced code per emotion reached held-out AUC 0.60&ndash;0.62 on average, at least 0.7 for 14&ndash;25% of the 15 emotions with enough positives. NMF topics were almost uncorrelated (mean |r| 0.02); k-means with few codes was redundant (11% of pairs above 0.3 at k=10). The induced codes are topic models, not an LLM&rsquo;s TopicGPT or LLooM codebook, and the agreement score rests on 1,906 comments with a unique majority emotion.",
+ "lede": "how much of a human emotion codebook does a codebook induced from the text alone recover? On 5,313 GoEmotions comments, NMF and k-means codebooks agree with the human emotion label above chance but weakly (NMI 0.26 vs 0.12 for 27 codes); the best single code per emotion reaches AUC about 0.6. Topic models, not an LLM."
+}
