@@ -97,18 +97,6 @@ await page.waitForFunction(() => /MACRS 5-year/.test(document.querySelector("#tx
 check(/FA-2: MACRS 5-year, section 179 1,000.00/.test(await page.locator("#tx-status").textContent()), "a tax treatment is set");
 const sheet = await page.locator("#tx-sheet").textContent();
 check(sheet.includes("Truck") && sheet.includes("2,800.00"), "the worksheet shows 179 plus the first-year MACRS (2,800.00)");
-// VAT worksheet: hidden without documents; load a list, set the period, read the boxes.
-check(await page.locator("#vat-wrap").isHidden(), "the VAT card is hidden before invoices and bills are loaded");
-await page.evaluate(() => { document.querySelector("#coa").value += "\n1300,VAT recoverable,asset"; });
-await page.locator("#save-setup").dispatchEvent("click");
-await page.fill("#docs-paste", ["type,number,date,due,party,amount,account", "invoice,1,2026-04-10,,Acme Ltd,1000.00,4000", "invoice,1,2026-04-10,,Acme Ltd,200.00,2100", "bill,7,2026-04-15,,Supply Co,300.00,6010", "bill,7,2026-04-15,,Supply Co,60.00,1300"].join("\n"));
-await page.click("#docs-load");
-await page.waitForFunction(() => !document.querySelector("#vat-wrap").hidden, null, { timeout: 5000 }).catch(() => {});
-await page.fill("#vat-from", "2026-04-01");
-await page.fill("#vat-to", "2026-06-30");
-await page.locator("#vat-to").dispatchEvent("change");
-const vat = await page.locator("#vat").textContent();
-check(vat.includes("200.00") && vat.includes("140.00") && vat.includes("1000") && vat.includes("300"), "the VAT boxes show 200.00 due, 140.00 net, 1000 sales, 300 purchases");
 check(errors.length === 0, `no page errors ${errors.join("; ")}`);
 await browser.close();
 server.close();

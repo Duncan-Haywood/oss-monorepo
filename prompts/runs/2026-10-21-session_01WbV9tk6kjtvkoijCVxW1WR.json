@@ -26,7 +26,7 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": "success",
+  "outcome": "partial",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [
@@ -37,12 +37,16 @@
     {
       "file": "ventures/ai-bookkeeper/eval/browser-click.mjs",
       "issue": "header says it skips without playwright; global playwright needs PLAYWRIGHT_PATH=<root>/playwright/index.mjs and CHROMIUM_PATH, undocumented"
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "two parallel runs both took the same 'not on the page' item from the top flagship; no claim mechanism"
     }
   ],
   "deviations": [],
   "writeups": [],
   "goal": null,
-  "notes": "Added VAT card to ai-bookkeeper page; node tests 126 pass; browser-click passes. No agent doc/post written (small slice). venture-preflight and CI not run locally.",
+  "notes": "Built a VAT card on the ai-bookkeeper page; PR #9240 landed the same feature first. Resolved by taking main's version; this PR carries only the run record. Duplicate PR search ran before I started but #9240 opened later (parallel run).",
   "corrections": [],
   "redteam": null
 }
