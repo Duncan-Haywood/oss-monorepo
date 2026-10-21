@@ -213,8 +213,9 @@ def test_ci_triggers_on_every_pages_script_gitops_tests_reads() -> None:
 def test_ci_never_applies_tofu() -> None:
     wf = (ROOT.parent / ".github" / "workflows" / "hetzner-gitops-ci.yml").read_text()
     assert not re.search(r"(?m)^\s+tofu apply\b", wf)
-    assert "assert_hcloud_read_only.sh" in wf
-    assert "secrets.HETZNERREADAPIKEY" in wf
+    # The hcloud-scope job (a secret-reading probe for the retired cluster)
+    # was removed 2026-10-21; no job needs the Hetzner token any more.
+    assert "secrets.HETZNERREADAPIKEY" not in wf
     # The servers were deleted on 2026-10-01 and their IPs released, so no job
     # may hold the SSH key or reach for a box that is now someone else's.
     assert "secrets.HETZNERSSHKEY" not in wf

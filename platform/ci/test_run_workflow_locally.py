@@ -903,7 +903,7 @@ class ReadOnlyJobs(unittest.TestCase):
         """Both halves on the real file, because both halves matter.
 
         `hetzner-gitops-ci.yml` validates the whole delivery path. The
-        `scripts` job is pure `shellcheck`; `hcloud-scope` reads a secret.
+        `scripts` job is pure `shellcheck`; `hcloud-scope` (a secret read) was removed 2026-10-21.
         Its `preflight` and `restore` jobs, which SSHed to the two Hetzner
         boxes, were removed on 2026-10-01 when the owner deleted the servers
         -- a released IP can be reassigned to a stranger -- so this also pins
@@ -920,9 +920,8 @@ class ReadOnlyJobs(unittest.TestCase):
         self.assertTrue(any("shellcheck" in s.run for s in steps),
                         "the scripts job must still carry the shellcheck step")
 
-        self.assertIn("hcloud-scope", held_ids,
-                      "hcloud-scope reads a secret and must never auto-run")
-        for job_id in ("preflight", "restore"):
+        self.assertEqual(held_ids, [], "no job in this file reads a secret")
+        for job_id in ("preflight", "restore", "hcloud-scope"):
             self.assertNotIn(job_id, parsed["jobs"],
                              f"{job_id} SSHed to servers deleted 2026-10-01")
 

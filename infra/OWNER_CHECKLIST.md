@@ -88,7 +88,7 @@ Names are exact; values never go in git.
 | Name | What | Used by |
 |---|---|---|
 | `HETZNERSSHKEY` | SSH private key for `root@89.167.29.39` and `root@157.180.80.188` | `hetzner-gitops-ci.yml` preflight (`workflow_dispatch`, `preflight: true`) |
-| `HETZNERREADAPIKEY` | Hetzner Cloud API token, **Read** only | `hetzner-gitops-ci.yml` `hcloud-scope` (maps to env `HCLOUD_TOKEN` for `hcloud` / Tofu plan). Laptop: `export HCLOUD_TOKEN=` the same value |
+| `HETZNERREADAPIKEY` | Hetzner Cloud API token, **Read** only | the removed `hcloud-scope` job of `hetzner-gitops-ci.yml` (maps to env `HCLOUD_TOKEN` for `hcloud` / Tofu plan). Laptop: `export HCLOUD_TOKEN=` the same value |
 | `CLAUDETRIGGERAPIKEY` | Claude Code routine API trigger bearer | `claude-routine-trigger.yml` only. Not this stack |
 
 Do not add a Hetzner **Write** token, an OpenAI Admin key, an age

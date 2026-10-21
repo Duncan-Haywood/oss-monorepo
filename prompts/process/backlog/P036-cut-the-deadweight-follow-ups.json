@@ -51,6 +51,10 @@
     {
       "date": "2026-10-21",
       "note": "Part 2 done (finishes the earlier started cut): portfolio/DIRECTION.md 875 -> 166 lines (53,180 -> 8,898 bytes); full text archived in docs/history/direction-full-text-2026-10-21.md. Section names other files cite (North star, Current priority, Owner direction) kept. Parts 1 remainder (hetzner-gitops-ci.yml), 5, 6 remain."
+    },
+    {
+      "date": "2026-10-21",
+      "note": "Part 1 slice: removed the hcloud-scope job (probe of HETZNERREADAPIKEY for the retired cluster) from hetzner-gitops-ci.yml; tests that pinned it updated (infra/tests/test_infra_layout.py, platform/ci/test_run_workflow_locally.py, 118 pass). Still in part 1: the gitops pytest/kustomize/tofu jobs of that workflow and assert_hcloud_read_only.sh. Parts 5,6 remain."
     }
   ]
 }
