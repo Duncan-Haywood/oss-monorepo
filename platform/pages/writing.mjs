@@ -120,7 +120,7 @@ const STYLE = `
   @media (prefers-color-scheme: dark) { :root { --bg:#0f141a; --panel:#161d26; --ink:#e7edf4; --muted:#a3b0bf; --line:#2a3542; --accent:#86a8ff; --code:#1d2631; } }
   * { box-sizing:border-box; }
   body { margin:0; background:var(--bg); color:var(--ink); font:17px/1.65 system-ui, -apple-system, "Segoe UI", sans-serif; }
-  .wrap { max-width:720px; margin:0 auto; padding:24px 16px 72px; }
+  .wrap { max-width:720px; margin:0 auto; padding:24px 16px 72px; --pf-hero-pull:24px; }
   a { color:var(--accent); }
   .crumbs { font-size:.85rem; color:var(--muted); margin:0 0 28px; } .crumbs a { color:inherit; }
   h1 { font-size:2rem; line-height:1.2; margin:.2em 0 .3em; letter-spacing:-.01em; }
@@ -141,15 +141,25 @@ const STYLE = `
   th { font-size:.8rem; color:var(--muted); font-weight:600; }
   hr { border:0; border-top:1px solid var(--line); margin:2.4em 0; }
   .posts { list-style:none; padding:0; margin:0; }
-  .posts li { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:18px 20px; margin:0 0 14px; }
+  .posts li { position:relative; background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:18px 20px 16px 22px; margin:0 0 14px;
+    transition:transform .18s, box-shadow .18s, border-color .18s; }
+  .posts li::before { content:""; position:absolute; left:-1px; top:16px; bottom:16px; width:3px; border-radius:0 3px 3px 0;
+    background:linear-gradient(180deg,#1fb68f,#4b5dff); }
+  .posts li:hover { transform:translateY(-2px); border-color:var(--accent); box-shadow:0 10px 28px rgba(20,30,60,.10); }
   .posts h2 { font-size:1.2rem; margin:0 0 .3em; line-height:1.3; } .posts h2 a { color:inherit; text-decoration:none; }
-  .posts h2 a:hover { color:var(--accent); }
+  .posts h2 a::after { content:""; position:absolute; inset:0; border-radius:14px; }
+  .posts h2 a:hover, .posts h2 a:focus-visible { color:var(--accent); }
   .posts p { margin:.3em 0; color:var(--muted); font-size:.95rem; }
+  .posts .meta { display:flex; flex-wrap:wrap; gap:6px; margin:.7em 0 0; }
+  .posts .date, .posts .mins { display:inline-block; font-size:.78rem; font-weight:600; padding:2px 9px; border-radius:999px;
+    border:1px solid var(--line); background:var(--bg); color:var(--muted); }
+  .pf-hero .crumbs { margin:0 0 18px; } .pf-hero .meta { margin:0; } .pf-hero .tag { color:var(--muted); border-color:var(--line); }
+  .pf-hero h1 { font-size:clamp(1.9rem,4.4vw,2.6rem); }
   .more { margin-top:3em; padding-top:1.4em; border-top:1px solid var(--line); font-size:.95rem; }
   footer { margin-top:3em; font-size:.8rem; color:var(--muted); }
 `;
 
-function shell({ title, description, canonical, toRoot, crumbs, body, jsonLd, feedHref, socialCard }) {
+function shell({ title, description, canonical, toRoot, crumbs, hero = '', body, jsonLd, feedHref, socialCard }) {
   // The site's shared header (site-nav.mjs) above this section's own breadcrumb.
   return withSiteHeader(`<!doctype html>
 <html lang="en">
@@ -168,7 +178,10 @@ ${canonical ? `<meta property="og:url" content="${esc(canonical)}">\n` : ''}${so
 </head>
 <body>
 <div class="wrap">
+<header class="pf-hero">
 <nav class="crumbs" aria-label="Breadcrumb"><a href="${toRoot}" data-pf-to="hub">Home</a> › ${crumbs}</nav>
+${hero}
+</header>
 <main>
 ${body}
 </main>
@@ -190,7 +203,7 @@ export function renderIndex(posts, { baseUrl = '', socialCard = '' } = {}) {
       (p) => `<li>
   <h2><a href="${esc(p.slug)}/">${esc(p.title)}</a></h2>
   <p>${esc(p.description)}</p>
-  <p class="meta"><time datetime="${p.date}">${longDate(p.date)}</time> · ${p.minutes} min read</p>
+  <p class="meta"><time class="date" datetime="${p.date}">${longDate(p.date)}</time> <span class="mins">${p.minutes} min read</span></p>
 </li>`,
     )
     .join('\n');
@@ -203,10 +216,11 @@ export function renderIndex(posts, { baseUrl = '', socialCard = '' } = {}) {
     crumbs: 'Writing',
     feedHref: 'feed.xml',
     jsonLd: { '@context': 'https://schema.org', '@type': 'Blog', name: `${SITE_NAME}: writing`, url: canonical || undefined },
-    body: `<h1>Writing</h1>
+    hero: `<p class="eyebrow">Writing</p>
+<h1>Writing</h1>
 <p class="dek">Essays on building software with unattended AI coding agents, drawn from this repository's own history and numbers.
-Subscribe with the <a href="feed.xml">Atom feed</a>.</p>
-${posts.length ? `<ul class="posts">\n${items}\n</ul>` : '<p>No posts yet.</p>'}`,
+Subscribe with the <a href="feed.xml">Atom feed</a>.</p>`,
+    body: `${posts.length ? `<ul class="posts">\n${items}\n</ul>` : '<p>No posts yet.</p>'}`,
   });
 }
 
@@ -245,11 +259,11 @@ function renderPostPage(post, posts, { baseUrl = '', socialCard = '' } = {}) {
       keywords: post.tags.join(', ') || undefined,
       wordCount: post.words,
     },
-    body: `<article>
-<h1>${esc(post.title)}</h1>
+    hero: `<h1>${esc(post.title)}</h1>
 <p class="dek">${esc(post.description)}</p>
 <p class="meta"><time datetime="${post.date}">${longDate(post.date)}</time> · ${post.minutes} min read ·
-<a href="${REPO_BLOB}${esc(post.source)}">Source</a>${tags ? `<br>${tags}` : ''}</p>
+<a href="${REPO_BLOB}${esc(post.source)}">Source</a>${tags ? `<br>${tags}` : ''}</p>`,
+    body: `<article>
 ${relinkSite(linkSiblings(renderMarkdown(post.body, { fromPath: post.source, dropTitle: true }), posts), '../../')}
 </article>
 <section class="more" aria-label="More writing">
