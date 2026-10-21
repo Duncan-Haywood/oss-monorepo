@@ -178,6 +178,10 @@ engine.test.mjs, "offered as rules".
 
 ## Invoices and bills (accruals)
 
+The page has an "Invoices and bills" card that takes the same CSV (paste or file)
+and shows the aging table, and the setup card lists rule suggestions with one
+button to add them. Checked in a headless browser, 2026-10-21.
+
 Bank lines alone give cash-basis books: a sale counts the day the deposit
 lands. Load an invoice and bill list and the books go accrual for those
 documents. `accruals.mjs`; CLI `documents FILE`, `aging [--as-of D]`; agents
@@ -213,14 +217,13 @@ tests use a four-row list); the matching thresholds are a first guess.
 
 Part-payments and credit notes against a document, depreciation, inventory,
 payroll and sales tax filings, multiple currencies, locking a closed period,
-and receipts. The page does not take an invoice list yet (engine, CLI and
-agents do).
+and receipts.
 
 ## Next
 
 - One real bank export of each major US shape (Chase, Bank of America, Wells
   Fargo, Amex, Capital One), each as a fixture with its quirks handled.
-- Invoice and bill list on the page; part-payments and credit notes.
+- Part-payments and credit notes against a document.
 - Measure the AI layer with a local model on the synthetic year's review
   queue.
 
