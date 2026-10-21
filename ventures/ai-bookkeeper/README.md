@@ -449,6 +449,19 @@ That checks the typed digits, not the publication itself: check them before fili
 Writing off a bill, the 179 taxable-income limit, inventory,
 payroll and sales tax filings, multiple currencies (the VAT worksheet is UK-layout, invoice basis), reading a PDF file itself (paste its text instead), and receipts.
 
+## This period against the last
+
+`node cli.mjs --books books.json compare` (engine: `compareProfit`, `compare.mjs`)
+sets the profit and loss for the latest month beside the month before: income,
+expenses and net, then every account that moved, largest change first, with the
+percentage, whether it is new or gone, and whether the move lowers profit
+(income down or expense up). For any other pair of periods pass all four of
+`--from D --to D --vs-from D --vs-to D`; `--json` gives the same data. Lines
+still in review are in neither period, and the output says how many. It reports
+the difference and does not explain it: a 78% rise in sales is a question for
+the owner, not a finding. Node tests on hand-built books and the built-in example
+pass. Not on the page yet.
+
 ## Anomalies
 
 `node cli.mjs --books books.json anomalies` (engine: `findAnomalies`, `anomalies.mjs`)
