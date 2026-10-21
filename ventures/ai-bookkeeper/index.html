@@ -135,6 +135,10 @@
     <h3>Balance sheet</h3>
     <div class="scroll" id="bs"></div>
     <details><summary>Trial balance</summary><div class="scroll" id="tb"></div></details>
+    <h3>US Schedule C worksheet</h3>
+    <p class="note">For a US sole proprietor or single-member LLC: the profit and loss regrouped onto the lines of Schedule C, with meals cut to 50%. A worksheet for you or your preparer, not a filing; it leaves out depreciation, home office, mileage and self-employment tax.</p>
+    <div class="scroll" id="schedc"></div>
+    <button type="button" id="schedc-csv" class="secondary">Download Schedule C worksheet (CSV)</button>
   </section>
 
   <section class="card" aria-labelledby="h-checks">
@@ -206,6 +210,7 @@
   </footer>
   <script type="module">
     import { sniffFormat, splitOfx } from "./bank.mjs";
+    import { scheduleC, scheduleCCsv } from "./taxforms.mjs";
     import { newBooks, importStatement, importOfxAccounts, categorize, suggestRules, addRules, addDocuments, writeOff, aging, salesTax, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, exportLines, status, analyze, fmt, DEFAULT_ACCOUNTS } from "./engine.mjs";
     import { parseAccounts } from "./ledger.mjs";
     import { aiSuggest } from "./ai.mjs";
@@ -330,7 +335,16 @@
       $("#salestax").replaceChildren(el("p", { class: "note", text: `Sales tax (account ${t.account}): collected on invoices, taken off by credit notes, paid over by bank lines. ${fmt(t.owed)} is still owed to the tax authority.` }), table(["Month", "Sales", "Collected", "Credited", "Paid over", "Owed"], [...t.months.map((m) => r(m.month, m)), r("Total", t.totals)]));
     }
 
-    function render() { fillSetup(); renderStatus(); renderQueue(); renderReports(); renderRuleSuggestions(); renderAging(); renderSalesTax(); persist(); }
+    function renderScheduleC() {
+      const dates = { from: $("#from").value || null, to: $("#to").value || null };
+      const sc = scheduleC(books, dates);
+      if (!sc.lines.length) { $("#schedc").replaceChildren(el("p", { class: "note", text: "Nothing filed to income or expense accounts yet." })); return; }
+      const rows = [...sc.lines.map((l) => [l.line, l.label, fmt(l.cents)])];
+      $("#schedc").replaceChildren(table(["Line", "Description", "Amount"], rows, [["7", "Gross income", fmt(sc.grossIncome)], ["28", "Total expenses", fmt(sc.totalExpenses)], ["31", "Net profit or (loss)", fmt(sc.netProfit)]]), ...sc.warnings.map((w) => el("p", { class: "note", text: w })));
+    }
+    $("#schedc-csv").addEventListener("click", () => { record("schedule_c_downloaded"); download(scheduleCCsv(scheduleC(books, { from: $("#from").value || null, to: $("#to").value || null })), "schedule-c-worksheet.csv", "text/csv"); });
+
+    function render() { fillSetup(); renderScheduleC(); renderStatus(); renderQueue(); renderReports(); renderRuleSuggestions(); renderAging(); renderSalesTax(); persist(); }
 
     $("#docs-load").addEventListener("click", async () => {
       const f = $("#docs-file").files[0];
@@ -448,8 +462,8 @@
       render();
     });
 
-    $("#from").addEventListener("change", renderReports);
-    $("#to").addEventListener("change", renderReports);
+    $("#from").addEventListener("change", () => { renderReports(); renderScheduleC(); });
+    $("#to").addEventListener("change", () => { renderReports(); renderScheduleC(); });
 
     const download = (text, file, type) => { const a = el("a", { href: URL.createObjectURL(new Blob([text], { type })), download: file }); document.body.append(a); a.click(); a.remove(); };
     for (const b of document.querySelectorAll("[data-export]")) b.addEventListener("click", () => {

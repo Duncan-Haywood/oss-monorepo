@@ -248,6 +248,22 @@ current, 1-30, 31-60, 61-90 and 90+ days past due.
 Tests: engine.test.mjs, "Accruals" and "Part-payments and credit notes". Not measured on real invoice exports (the
 tests use a four-row list); the matching thresholds are a first guess.
 
+## Schedule C worksheet (US sole proprietors)
+
+`scheduleC(books, { from, to, mealsPct, map })` in `taxforms.mjs` (also the page's
+"US Schedule C worksheet" table and CSV download, and `cli.mjs schedulec [--from D
+--to D] [--meals PCT] [--csv|--json]`) regroups the profit and loss onto the lines
+of Form 1040 Schedule C: gross receipts (1), cost of goods (4), other income (6),
+each expense line, meals cut to 50% on 24b, and gross income (7), total expenses
+(28) and net profit (31). Software, bank fees, education and shipping go to 27a
+(other expenses) with their own rows for Part V. A chart code the map does not know
+goes to 27a and is flagged; the uncategorized account and lines still in review are
+left out and flagged. Pass `map` (`{ "6060": "18" }`) to move an account. It is a
+worksheet to copy from, not a filing: no depreciation, home office, mileage,
+health insurance or self-employment tax, and the meals rule has exceptions. The line
+map is from the form's layout as the author knows it, not checked against this year's
+instructions; confirm each line with your preparer. Test: `taxforms.test.mjs`.
+
 ## Sales tax report
 
 `salesTax(books)` (also `salesTax` from `analyze`, the page's sales tax table and
