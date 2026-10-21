@@ -144,6 +144,8 @@
     <div class="scroll" id="nec"></div>
     <p id="nec-merge" hidden><label>Count <select id="nec-from"></select></label> <label>with <select id="nec-into"></select></label> <button type="button" id="nec-merge-go" class="secondary">Merge</button></p>
     <button type="button" id="nec-csv" class="secondary">Download contractors worksheet (CSV)</button>
+    <button type="button" id="nec-filing-csv" class="secondary">Download filing-prep CSV (Form 1099-NEC boxes)</button>
+    <p class="note">The filing-prep file has one row per payee over the line, in the form's own box names. Tax ID and address columns are blank on purpose: this page never stores them, so fill them from the W-9 in your filing service. Services take their own column layouts, so reorder the columns to match theirs.</p>
   </section>
 
   <section class="card" aria-labelledby="h-checks">
@@ -215,7 +217,7 @@
   </footer>
   <script type="module">
     import { sniffFormat, splitOfx } from "./bank.mjs";
-    import { scheduleC, scheduleCCsv, contractors1099, contractors1099Csv, markW9, mergePayees } from "./taxforms.mjs";
+    import { scheduleC, scheduleCCsv, contractors1099, contractors1099Csv, nec1099FilingCsv, markW9, mergePayees } from "./taxforms.mjs";
     import { newBooks, importStatement, importOfxAccounts, categorize, suggestRules, addRules, addDocuments, writeOff, aging, salesTax, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, exportLines, status, analyze, fmt, DEFAULT_ACCOUNTS } from "./engine.mjs";
     import { parseAccounts } from "./ledger.mjs";
     import { aiSuggest } from "./ai.mjs";
@@ -370,6 +372,8 @@
       try { books = mergePayees(books, $("#nec-from").value, $("#nec-into").value); record("payees_merged"); render(); } catch (e) { alert(e.message); }
     });
     $("#nec-csv").addEventListener("click", () => { record("contractors_downloaded"); download(contractors1099Csv(contractors1099(books, { year: necYear() })), "contractors-1099-nec-worksheet.csv", "text/csv"); });
+
+    $("#nec-filing-csv").addEventListener("click", () => { record("contractors_filing_downloaded"); download(nec1099FilingCsv(contractors1099(books, { year: necYear() })), "contractors-1099-nec-filing-prep.csv", "text/csv"); });
 
     function render() { fillSetup(); renderScheduleC(); renderNec(); renderStatus(); renderQueue(); renderReports(); renderRuleSuggestions(); renderAging(); renderSalesTax(); persist(); }
 

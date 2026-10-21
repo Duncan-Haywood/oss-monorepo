@@ -60,6 +60,15 @@ await page.waitForFunction(() => /synthetic months/.test(document.querySelector(
 check(/synthetic months/.test(await page.locator("#import-status").textContent()), "example books load by click");
 
 check((await page.locator("#nec").textContent()).trim().length > 0, "the 1099-NEC card renders (a table or a no-contractors note)");
+{
+  const [dl] = await Promise.all([page.waitForEvent("download", { timeout: 5000 }).catch(() => null), page.click("#nec-filing-csv")]);
+  check(!!dl && dl.suggestedFilename() === "contractors-1099-nec-filing-prep.csv", "the filing-prep button downloads the 1099-NEC CSV");
+  if (dl) {
+    const { readFile } = await import("node:fs/promises");
+    const text = await readFile(await dl.path(), "utf8");
+    check(text.startsWith("Tax year,Recipient name,Recipient TIN"), "the file has the form's box-name header");
+  }
+}
 check(errors.length === 0, `no page errors ${errors.join("; ")}`);
 await browser.close();
 server.close();
