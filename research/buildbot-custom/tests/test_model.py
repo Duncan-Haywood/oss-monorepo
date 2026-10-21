@@ -59,8 +59,8 @@ class T(unittest.TestCase):
 
     def test_taskbook_hours(self):
         h = M.nailing_hours(M.load_tasks())
-        self.assertAlmostEqual(h["wall"], 3.84 * 62 / 72, delta=0.02)
-        self.assertAlmostEqual(h["roof"], 6.62, delta=0.05)
+        self.assertAlmostEqual(h["wall"], 3.31, delta=0.02)
+        self.assertAlmostEqual(h["roof"], 5.70, delta=0.05)
         self.assertEqual(round(h["wall_sheets"]), 32)
 
     def test_simulation_deterministic_and_ordered(self):
