@@ -20,8 +20,8 @@ Coffee exception: `../PRODUCT_PLAYBOOK.md` §2, "Rule of thumb: anyone can
 deploy it themselves".
 
 **Deploy-first.** Products already on `main` with no public URL outrank new
-candidates: give them a GitHub Pages surface (the Hetzner box was retired on
-2026-10-01) rather than cloning another undeployed calculator
+candidates: give them a way to reach people (a GitHub Pages page, a package,
+a release or an app build; there is no static-only rule) rather than cloning another undeployed calculator
 ([`portfolio/hosting/`](../portfolio/hosting/README.md)).
 
 Target super-niches where users have money and a real problem — especially
@@ -33,4 +33,4 @@ donations only. Prefer higher-value work to another single-page calculator: a
 principle, not a ban (owner, 2026-10-16; `../prompts/ventures/prompt-1.md`).
 
 Running venture tests: `python3 platform/ci/run_venture_tests.py --changed`
-(or named slugs; no args runs all, in minutes). Do not loop `node --test` serially.
+(or named slugs; no args runs all, in minutes); it beats looping `node --test` serially.

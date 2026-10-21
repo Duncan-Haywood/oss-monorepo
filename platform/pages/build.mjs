@@ -5759,7 +5759,100 @@ const CATEGORY_STYLE = `
     footer h2 { font-size: .95rem; color: var(--ink); margin: 18px 0 6px; }
     footer p { margin: 0; }
     footer a { color: var(--accent); }
+    /* Audience pages: "Start here" and "Questions these tools answer". */
+    .start-here { margin: 28px 0 0; }
+    .start-here h2, .answers h2 { font-size: 1.15rem; margin: 0 0 4px; letter-spacing: -.01em; }
+    .start-here .sub, .answers .sub { margin: 0 0 14px; color: var(--muted); font-size: .92rem; }
+    .start-grid { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; counter-reset: start;
+                  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); }
+    .start-grid li { counter-increment: start; position: relative; background: var(--panel);
+                     border: 1px solid var(--line); border-top: 3px solid var(--pf-cat, var(--accent));
+                     border-radius: 13px; padding: 16px 18px 16px 18px; }
+    .start-grid li::before { content: counter(start); display: inline-grid; place-items: center;
+                             width: 26px; height: 26px; border-radius: 999px; margin-bottom: 8px;
+                             font-size: .82rem; font-weight: 750; color: var(--panel);
+                             background: var(--pf-cat, var(--accent)); }
+    .start-grid a { color: var(--ink); text-decoration: none; font-weight: 650; font-size: 1.02rem; line-height: 1.3; display: block; }
+    .start-grid a:hover, .start-grid a:focus-visible { color: var(--accent); text-decoration: underline; }
+    .start-grid p { margin: 6px 0 0; color: var(--muted); font-size: .9rem; line-height: 1.5; }
+    .start-grid .meta { font-size: .8rem; color: var(--soft); }
+    .answers { margin: 30px 0 0; padding: 18px 20px; background: var(--panel); border: 1px solid var(--line); border-radius: 13px; }
+    .answers ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px 22px;
+                  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+    .answers li a { color: var(--accent); text-decoration: none; font-weight: 600; font-size: .93rem; line-height: 1.4; }
+    .answers li a:hover, .answers li a:focus-visible { text-decoration: underline; }
+    .answers li span { display: block; color: var(--soft); font-size: .8rem; }
+    .answers .all { margin: 12px 0 0; font-size: .88rem; }
+    .answers .all a { color: var(--accent); }
+    .all-tools { font-size: 1.15rem; margin: 34px 0 0; letter-spacing: -.01em; }
 `;
+
+/**
+ * An audience page's two lead blocks, or '' on any other page.
+ *
+ * "Start here" is the fullest of the audience's tools, by the rule the hub's
+ * featured row already uses (`exampleTools`: most published pages first), so
+ * nothing is ranked by a judgement this page cannot show. "Questions these
+ * tools answer" lists the tools' own guide pages (`discoverGuides`), so every
+ * line is a page that shipped, in that page's own words.
+ */
+export function renderAudienceLead({ start = [], questions = [], toRoot = '../../', who = '', total = 0 }) {
+  if (!start.length) return '';
+  const cards = start
+    .map(
+      (surface) => `        <li>
+          <a href="${escapeHtml(`${toRoot}${surface.slug}/`)}" data-pf-to="${escapeHtml(surface.slug)}">${escapeHtml(cardName(surface.title))}</a>
+          <p>${escapeHtml(surface.description)}</p>${
+            surface.pageCount > 1
+              ? `
+          <p class="meta">${surface.pageCount} questions answered</p>`
+              : ''
+          }
+        </li>`,
+    )
+    .join('\n');
+  const answers = questions.length
+    ? `
+    <section class="answers" aria-labelledby="answers-h">
+      <h2 id="answers-h">Questions these tools answer</h2>
+      <p class="sub">Worked answers written beside the calculators${who ? ` ${escapeHtml(who)} use` : ''}.</p>
+      <ul>
+${questions
+  .map(
+    (q) => `        <li><a href="${escapeHtml(`${toRoot}${q.slug}/${q.file.replace(/(^|\/)index\.html$/, '$1')}`)}">${escapeHtml(q.label)}</a><span>${escapeHtml(cardName(q.toolTitle))}</span></li>`,
+  )
+  .join('\n')}
+      </ul>
+      <p class="all"><a href="${escapeHtml(`${toRoot}${GUIDES_PATH}`)}">Every guide on the site →</a></p>
+    </section>`
+    : '';
+  return `
+    <section class="start-here" aria-labelledby="start-h">
+      <h2 id="start-h">Start here</h2>
+      <p class="sub">The fullest tools on this page, with the most worked questions behind them.</p>
+      <ol class="start-grid">
+${cards}
+      </ol>
+    </section>${answers}
+    <h2 class="all-tools">All ${total} tools${who ? ` for ${escapeHtml(who)}` : ''}</h2>
+`;
+}
+
+/**
+ * Up to `limit` guide pages from these tools, taken round-robin in the tools'
+ * own order so one tool with twenty pages does not fill the list.
+ */
+export function audienceQuestions(tools, guides, limit = 8) {
+  const byTool = new Map(guides.map((g) => [g.slug, g]));
+  const queues = tools.map((t) => [...(byTool.get(t.slug)?.items ?? [])].map((item) => ({ ...item, toolTitle: t.title })));
+  const out = [];
+  while (out.length < limit && queues.some((q) => q.length)) {
+    for (const q of queues) {
+      if (q.length && out.length < limit) out.push(q.shift());
+    }
+  }
+  return out;
+}
 
 /**
  * One category's landing page.
@@ -5969,7 +6062,7 @@ ${otherAudiences
       }
       <p class="count">${items.length} free tool${items.length === 1 ? '' : 's'} · no account · ${countPrivacyClaim}</p>
     </header>
-${jumps}
+${copy.lead ?? ''}${jumps}
 ${filter}
 
     <main>
@@ -6053,8 +6146,17 @@ export function audienceCategory(audience, items = []) {
  * rather than the job, and the tools grouped by the category each sits in when
  * they span more than one.
  */
-export function renderAudiencePage({ audience, items, groups, baseUrl, audiences = [] }) {
+export function renderAudiencePage({ audience, items, groups, baseUrl, audiences = [], guides = [] }) {
   const category = audienceCategory(audience, items);
+  // Four when the page is big enough to need a way in; none on a short page,
+  // where the list below already is the way in.
+  const start = items.length >= 8 ? exampleTools(items, 4) : [];
+  const lead = renderAudienceLead({
+    start,
+    questions: audienceQuestions(exampleTools(items, items.length), guides),
+    who: audience.who,
+    total: items.length,
+  });
   const byCategory = groupByCategory(items);
   const subgroups =
     byCategory.length > 1
@@ -6076,6 +6178,7 @@ export function renderAudiencePage({ audience, items, groups, baseUrl, audiences
       intro: audience.intro,
       starting: audience.starting,
       audience: audience.who,
+      lead,
     },
   });
 }
@@ -8902,6 +9005,34 @@ const CHROME_CSS = `
 .pf-chrome-foot li{margin:0}
 .pf-chrome :focus-visible{outline:2px solid currentColor;outline-offset:2px}
 
+/* The site header as a full-width band, as it is on the site's own pages.
+ *
+ * Every venture centres its body in a 1000-1080px column with ~28px of padding,
+ * and the header is the body's first child, so it used to sit as a grey strip
+ * inset in that column, floating 28px below the top of the window. The band
+ * now meets the top edge (the body's top padding moves below it) and its fill
+ * runs to both edges through a spread shadow clipped to the band's height. A
+ * shadow, not a 100vw pseudo-element: it adds no scrollable overflow, so no
+ * venture page grows a sideways scroll, and the fill stays the host-neutral
+ * grey the header always had. A browser without :has() keeps the old top gap.
+ *
+ * The mark is the one literal colour here, and it is not text: it is the
+ * site's logo square (pf-site.css draws the same gradient), so it reads as one
+ * site on every venture palette instead of a blot of the host's ink. */
+body:has(> .pf-chrome-top[data-pfs-head]:first-child){padding-top:0;margin-top:0}
+.pf-chrome-top[data-pfs-head]{margin:0 0 26px;border-bottom:0;
+  box-shadow:0 0 0 100vmax var(--pfs-head-bg,rgba(128,128,128,.07));clip-path:inset(0 -100vmax)}
+.pf-chrome-top .pfs-bar{padding:12px 0}
+.pf-chrome-top .pfs-crumbs{padding:0 0 10px}
+.pf-chrome-top .pfs-mark{background:linear-gradient(135deg,#12594a,#3b5bdb)}
+.pf-chrome-top .pfs-searchlink{padding:4px 14px;border:1px solid var(--pf-line);border-radius:999px}
+[data-pfs-head].pf-chrome-top .pfs-searchlink:hover{text-decoration:none;border-color:currentColor}
+/* The shop-rates and saved-bids bars (rates.mjs, jobs.mjs) sit under the band
+ * in the same column, so they line up with the venture's content rather than
+ * their own 18px inset. */
+body:has(> .pf-chrome-top[data-pfs-head]:first-child) > :is(.pf-rates,.pf-jobs){padding-left:0;padding-right:0}
+body:has(> .pf-chrome-top[data-pfs-head]:first-child) > .pf-jobs .pf-jobs-status:empty{display:none}
+
 /* Site chrome is not part of anything a visitor prints.
  *
  * Nine bid calculators produce a customer proposal (platform/proposal), whose
@@ -10192,14 +10323,17 @@ export function renderCatalog(surfaces, baseUrl, launched = {}) {
  * silently ends the list item, so a tool whose meta description wrapped would
  * publish its second half as body prose.
  */
-export function renderLlmsTxt(surfaces, baseUrl, compareProductGroups = [], guideGroups = []) {
+export function renderLlmsTxt(surfaces, baseUrl, compareProductGroups = [], guideGroups = [], { audiences = [], research = { themes: [] } } = {}) {
   const oneLine = (value) => String(value ?? '').replace(/\s+/g, ' ').trim();
   // Same fact the About page states in full; see `disclaimerHtml` for why it
   // is derived rather than hand-typed.
   const exceptions = externalCallExceptions(surfaces);
 
+  // A product that ships its own `llms.txt` (how to call it, which options fit
+  // which data, its limits) gets it named on its line, so an assistant that
+  // matched the product here can fetch the detail without crawling the page.
   const bullet = (surface) =>
-    `- [${oneLine(surface.title)}](${baseUrl}${surface.slug}/): ${oneLine(surface.fullDescription || surface.description)}`;
+    `- [${oneLine(surface.title)}](${baseUrl}${surface.slug}/): ${oneLine(surface.fullDescription || surface.description)}${surface.llmsDoc ? ` LLM docs: ${baseUrl}${surface.slug}/llms.txt` : ''}`;
 
   const sections = groupByCategory(surfaces).map(({ category, items }) => {
     const subgroups = groupBySubcategory(category.id, items);
@@ -10231,7 +10365,6 @@ export function renderLlmsTxt(surfaces, baseUrl, compareProductGroups = [], guid
     '',
     `- [About and press kit](${baseUrl}${ABOUT_PATH}): what this site is, how visitor data is handled (${counterOn() ? 'inputs never leave the browser; a cookieless per-page daily tally, with the kind of referring site, goes to a first-party counter' : 'it never leaves the browser'}${exceptions.length ? ', with a documented exception listed there' : ''}), the licence, and pre-written boilerplate for citing or linking to these tools.`,
     `- [Ask](${baseUrl}${ASK_PATH}): fill any calculator here by voice or a typed sentence, find a tool, or hear a result read back; in browsers with WebMCP every page also offers \`search_site_tools\`, \`read_page_results\` and (on calculators) \`fill_form\` to an agent. Runs in the browser; no model unless the visitor switches one on. The page states the measured accuracy and the limitations.`,
-    `- [Research](${baseUrl}${RESEARCH_PATH}): the open research portfolio built in the same repository — white papers with reproducible code on mechanism design for verifiable decentralised ML, and digital twins and sim-to-real gaps.`,
     `- [Updates and roadmap](${baseUrl}${UPDATES_PATH}): what shipped this week, what is in progress, the owner's direction for the project and how AI agents build it; and the [changelog](${baseUrl}${CHANGELOG_PATH}) of every change merged, by day.`,
     `- [Comparisons](${baseUrl}${COMPARE_PATH}): every page on this site that compares one of these tools with a named commercial product, grouped by product. Useful for answering "is there a free alternative to X?" with a page that says what the free tool does *not* do as well as what it does.`,
     // Named individually rather than left behind the index, because the
@@ -10273,17 +10406,44 @@ export function renderLlmsTxt(surfaces, baseUrl, compareProductGroups = [], guid
     '',
   ].join('\n');
 
-  return `# Free calculators and checks for people who run a small business
+  // "Free tools for roofers" and its 27 siblings: the page to cite when the
+  // question names a trade rather than a tool. Absent from this file until
+  // 2026-10-21, while every tool was here.
+  const audienceSection = audiences.length
+    ? `## Tools by who you are
 
-> ${surfaces.length} free, browser-only tools for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment: every calculation runs in the visitor's own browser${exceptions.length ? `, and the numbers they type never leave their device — except on ${listProse(exceptions.map((x) => toolProseName(x.title)))}, where the one thing you paste is sent to the public API it checks; the About page explains exactly what` : ' and the numbers they type never leave their device'}.
+One page per trade or kind of business, listing only the tools that serve it.
+
+${audiences
+  .map(({ audience, items }) => `- [${oneLine(audience.title)}](${baseUrl}${categoryPagePath(audiencePageId(audience))}): ${items.length} tools. ${oneLine(audience.description)}`)
+  .join('\n')}
+`
+    : '';
+  // The research half of the site, by topic, with counts. It was one line
+  // under "Optional" describing two of its 28 topics.
+  const researchProjects = research.themes.reduce((n, t) => n + t.count, 0);
+  const researchSection = research.themes.length
+    ? `## Open research
+
+${researchProjects} research projects, each with its question, code, tests and results, MIT licensed: [the research index](${baseUrl}${RESEARCH_PATH}). By topic:
+
+${research.themes
+  .map((t) => `- [${oneLine(t.name)}](${baseUrl}${RESEARCH_PATH}topics/${t.id}/): ${t.count} project${t.count === 1 ? '' : 's'}`)
+  .join('\n')}
+`
+    : '';
+
+  return `# Open Tools and Research
+
+> ${surfaces.length} free, open-source tools (browser calculators and checks, self-hostable business apps and command-line tools) for marketplace sellers, trade contractors, logistics buyers and small teams, plus ${researchProjects ? `${researchProjects} reproducible research projects` : 'open research'}. No account, no payment: every browser calculation runs in the visitor's own browser${exceptions.length ? `, and the numbers they type never leave their device — except on ${listProse(exceptions.map((x) => toolProseName(x.title)))}, where the one thing you paste is sent to the public API it checks; the About page explains exactly what` : ' and the numbers they type never leave their device'}.
 
 Each tool is a static page that works offline once opened, and is free with no
 gated features. They are estimates and records to act on, not professional
 advice or a determination made on anyone's behalf; each page carries its own
 limitations.
 
-${sections.join('\n')}
-${optional}`;
+${audienceSection ? `${audienceSection}\n` : ''}${sections.join('\n')}
+${researchSection ? `${researchSection}\n` : ''}${optional}`;
 }
 
 export function renderNotFound(baseUrl) {
@@ -10648,6 +10808,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
       kind: surfaceKind(path.join(REPO_ROOT, 'ventures', surface.slug), surface.slug),
       pageCount: await countPages(surface.sourceDir),
       publishedPageCount: pages.length,
+      llmsDoc: existsSync(path.join(destination, 'llms.txt')),
       externalFetchHosts: await surfaceExternalFetchHosts(destination),
     });
     log(`  ${surface.slug}`);
@@ -10701,6 +10862,11 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
   // failure `check.mjs` exists to catch.
   const categoryGroups = groupByCategory(surfaces);
   const audiencePages = audienceGroups(surfaces);
+  // Read off the built tree, so it comes after the per-venture copy above: a
+  // guide is listed because it shipped, at the URL it shipped to. Before the
+  // audience pages, which list their tools' questions, and the guides index
+  // and sitemaps below. See `GUIDES_PATH`.
+  const guides = await discoverGuides(surfaces, outDir);
   for (const { category, items } of categoryGroups) {
     const dir = path.join(outDir, CATEGORY_PATH_PREFIX, category.id);
     await fs.mkdir(dir, { recursive: true });
@@ -10717,7 +10883,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
     await fs.mkdir(dir, { recursive: true });
     await fs.writeFile(
       path.join(dir, 'index.html'),
-      renderAudiencePage({ audience, items, groups: categoryGroups, baseUrl: base, audiences: audiencePages }),
+      renderAudiencePage({ audience, items, groups: categoryGroups, baseUrl: base, audiences: audiencePages, guides }),
     );
   }
   // The browse-by-type pages (apps, command-line tools), on the same footing.
@@ -10855,10 +11021,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
     );
   }
 
-  // The guides index. After the per-venture loop because it reads the built
-  // tree — a page is listed because it shipped, at the URL it shipped to — and
-  // before the sitemaps because they list it. See `GUIDES_PATH`.
-  const guides = await discoverGuides(surfaces, outDir);
+  // The guides index (`guides` was read above, before the audience pages).
   const guidesDir = path.join(outDir, GUIDES_PATH);
   await fs.mkdir(guidesDir, { recursive: true });
   await fs.writeFile(
@@ -10884,7 +11047,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
   await fs.writeFile(path.join(outDir, 'catalog.json'), renderCatalog(surfaces, base, launched));
   await fs.writeFile(
     path.join(outDir, 'llms.txt'),
-    renderLlmsTxt(surfaces, base, compareProducts, guides),
+    renderLlmsTxt(surfaces, base, compareProducts, guides, { audiences: audiencePages, research }),
   );
   // Read from the committed file, not from `git log`: the in-cluster build
   // clones `--depth 1` and has no history. See `launched.mjs`.

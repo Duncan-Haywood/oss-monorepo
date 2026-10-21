@@ -143,9 +143,10 @@ This repository has over 16,000 source files, most written by AI sessions.
   assume Python tooling (shared helpers, a Python test runner) without
   requiring it, so this is the default plus the house style.
 - **Products** (1,312 projects): 1,296 are mainly plain JavaScript. That one
-  is *not* a default: since 16 October the product playbook requires
+  was *not* a default: from 16 to 21 October the product playbook required
   build-free `.mjs` files served as committed, checked by TypeScript
-  without a build step.
+  without a build step. The owner lifted that requirement on 21 October,
+  so the language of a new product is now the builder's choice.
 - **The exceptions are all forced by the domain:** Verilog for 28 chip and
   accelerator projects, C for 4 firmware projects, Kotlin for an Android
   study, OpenSCAD for 3D-printed parts, Swift for one iOS widget.
@@ -167,8 +168,8 @@ From the measurements, name the language yourself when:
   embedded code.
 - **The code has to fit an existing codebase.** In the agent setup, models
   looked at the folder first. In a real repository that means they follow
-  what is there, so a rule (like this repository's plain-JavaScript rule)
-  or an existing file sets the language more reliably than the default.
+  what is there, so a rule (like this repository's former plain-JavaScript
+  rule) or an existing file sets the language more reliably than the default.
 - **You want types.** No reply chose TypeScript, even for browser apps. If
   the project will grow, ask for TypeScript or, as this repository does,
   `// @ts-check` on JavaScript.
