@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { writeOff, lockPeriod, newBooks, importStatement, confirm, parseSplit, suggestRules, addRules, acceptSuggestions, journal, reports, closeChecks, exportJournal, exportLines, status, analyze } from "./engine.mjs";
+import { addAsset, taxableBusinessIncome, writeOff, lockPeriod, newBooks, importStatement, confirm, parseSplit, suggestRules, addRules, acceptSuggestions, journal, reports, closeChecks, exportJournal, exportLines, status, analyze } from "./engine.mjs";
 import { parseCents, parseDate, readStatement, checkRunningBalance } from "./bank.mjs";
 import { validateEntry, DEFAULT_ACCOUNTS, parseAccounts } from "./ledger.mjs";
 import { payeeKey, suggest, parseRules } from "./categorize.mjs";
@@ -653,4 +653,18 @@ test("the cash flow statement ties to the change in the bank accounts", () => {
   assert.equal(c.closingCash - c.openingCash, c.change);
   const ex = reports(analyze({ example: true }).books, { from: "2026-02-01", to: "2026-03-31" }).cashFlow;
   assert.ok(ex.ties, "ties for a sub-period, with an opening cash balance");
+});
+
+test("taxableBusinessIncome swaps book depreciation for MACRS and bonus, and the 179 limit follows", async () => {
+  const { setTaxTreatment, taxDepreciation } = await import("./taxdepr.mjs");
+  let b = newBooks();
+  b = addAsset(b, { name: "Press", date: "2026-03-01", cost: "10000", lifeMonths: 60 }).books;
+  b = setTaxTreatment(b, "FA-1", { macrsClass: 5, s179: "4000", bonusPct: 0 }).books;
+  const t = taxDepreciation(b, 2026).totals;
+  const inc = taxableBusinessIncome(b, 2026);
+  // no income booked: net is minus book depreciation; put back book, take MACRS on the non-179 part
+  assert.equal(inc, -t.macrs);
+  const w = taxDepreciation(b, 2026, { businessIncome: inc });
+  assert.equal(w.s179Income.deductible, 0);
+  assert.equal(w.s179Income.carryOut, 400000);
 });
