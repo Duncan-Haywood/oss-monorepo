@@ -515,6 +515,12 @@ Ship when every line is true:
       tools (`prompts/goals.md`, web presence). The page says what it does and
       for whom, shows it (a screenshot or a demo), and links to try it and to
       the code.
+- [ ] It has a marketing page aimed at the people who would use it (who it
+      is for, their problem in their words, a worked example, when to use
+      something else), and an `llms.txt` beside its page for assistants
+      (`prompts/goals.md`, "LLM docs and a marketing page"). Every
+      claim on them is one a file backs: no invented reviews, testimonials,
+      ratings or user counts (Guardrails, "Honest marketing").
 - [ ] It runs with no key, no account, and no paid dependency of ours.
 - [ ] LICENSE, disclaimer, and privacy line are in the README **and** the
       product.

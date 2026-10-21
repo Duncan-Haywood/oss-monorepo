@@ -4451,6 +4451,16 @@ test('the hub links every category page, and the sitemap lists them', async () =
   }
 });
 
+test('llms.txt links a product\'s own LLM docs only when it ships them', () => {
+  const surfaces = [
+    { slug: 'with-docs', title: 'With docs', description: 'Has a brief.', llmsDoc: true },
+    { slug: 'without-docs', title: 'Without docs', description: 'Has none.' },
+  ];
+  const llms = renderLlmsTxt(surfaces, BASE);
+  assert.match(llms, new RegExp(`\\[With docs\\]\\(${BASE}with-docs/\\): Has a brief\\. LLM docs: ${BASE}with-docs/llms\\.txt`));
+  assert.ok(!llms.includes(`${BASE}without-docs/llms.txt`));
+});
+
 test('llms.txt and catalog.json name the category pages', async () => {
   const { surfaces } = await site();
   const llms = renderLlmsTxt(surfaces, BASE);

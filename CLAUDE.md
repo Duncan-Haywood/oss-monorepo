@@ -61,7 +61,11 @@ a person could not finish in about twenty hours (owner, 2026-10-21; `goals.md`,
 
 The owner's standing directions (SEO, compliant distribution, measurement,
 sales tools, local models) are quoted in `goals.md`. They are directions for
-many runs, not tasks every run starts on, apart from the write-ups above.
+many runs, not tasks every run starts on, apart from the write-ups above and
+one more default for product PRs (owner, 2026-10-21): the product's
+`llms.txt` kept current and a marketing page aimed at its users, with no fake
+reviews or claims a file can't back (`goals.md`, "LLM docs and a
+marketing page").
 One applies to every run: **files first, not the GitHub API** (owner,
 2026-10-20). What a later reader needs (verification output, decisions, why)
 goes in a file in the same PR (run record, README, `docs/history/`); a PR body
