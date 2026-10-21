@@ -205,6 +205,23 @@ export function sheathe(plan, result) {
   };
 }
 
+/** Sheathing nailers as cut-list rows, for `takeoff(plan, nailerCuts(s))`. Pieces with no length (no header found) are left out. */
+export function nailerCuts(s) {
+  if (!s || !s.ok) return [];
+  const map = new Map();
+  for (const w of s.walls) {
+    for (const p of w.nailerPieces) {
+      if (!(p.length > EPS)) continue;
+      const key = `${p.size}|${p.length}`;
+      const row = map.get(key) || { size: p.size, length: p.length, kind: "sheathing nailer", qty: 0, walls: [] };
+      row.qty++;
+      if (!row.walls.includes(p.wall)) row.walls.push(p.wall);
+      map.set(key, row);
+    }
+  }
+  return [...map.values()];
+}
+
 /** Self-check one wall's panels. Returns a list of problems; empty means it passes. */
 function checkWall(w, panels, centres, width, cover, ops, plan) {
   const bad = [];
