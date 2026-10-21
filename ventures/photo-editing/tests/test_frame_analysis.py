@@ -11,6 +11,7 @@ from shootflow.frame_analysis import (
     FRAME_WIDTH,
     analyze_media,
     dhash_hex,
+    framing_from_frame,
     hamming_distance,
     metrics_from_frames,
 )
@@ -30,6 +31,40 @@ def _checker(low: int, high: int, cell: int = 8) -> bytes:
 
 def _gradient() -> bytes:
     return bytes(int(x * 255 / (FRAME_WIDTH - 1)) for _ in range(FRAME_HEIGHT) for x in range(FRAME_WIDTH))
+
+
+def _patch(cx: int, cy: int, half: int = 20) -> bytes:
+    """Flat grey frame with one checkered patch centred on (cx, cy) pixels."""
+
+    return bytes(
+        200 if (abs(x - cx) < half and abs(y - cy) < half and ((x // 4) + (y // 4)) % 2) else 100
+        for y in range(FRAME_HEIGHT)
+        for x in range(FRAME_WIDTH)
+    )
+
+
+class FramingTests(unittest.TestCase):
+    def test_flat_frame_is_neutral(self) -> None:
+        self.assertEqual(framing_from_frame(bytes([120]) * SIZE), (0.5, 0.5, 0.5))
+
+    def test_subject_on_a_thirds_point_beats_one_in_the_corner(self) -> None:
+        thirds, x, y = framing_from_frame(_patch(FRAME_WIDTH // 3, FRAME_HEIGHT // 3))
+        corner, _, _ = framing_from_frame(_patch(24, 24))
+        self.assertAlmostEqual(x, 1 / 3, delta=0.05)
+        self.assertAlmostEqual(y, 1 / 3, delta=0.05)
+        self.assertGreater(thirds, 0.8)
+        self.assertGreater(thirds, corner + 0.3)
+
+    def test_isolated_subject_beats_even_texture_at_the_centre(self) -> None:
+        isolated, _, _ = framing_from_frame(_patch(FRAME_WIDTH // 2, FRAME_HEIGHT // 2))
+        texture, _, _ = framing_from_frame(_checker(40, 200))
+        self.assertGreater(isolated, texture)
+
+    def test_metrics_carry_framing_into_story_score(self) -> None:
+        good = metrics_from_frames([_patch(FRAME_WIDTH // 3, FRAME_HEIGHT // 3)])
+        bad = metrics_from_frames([_patch(24, 24)])
+        self.assertGreater(good.framing, bad.framing)
+        self.assertGreater(good.story_score, bad.story_score)
 
 
 class MetricsFromFramesTests(unittest.TestCase):

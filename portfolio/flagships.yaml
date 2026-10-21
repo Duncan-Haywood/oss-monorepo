@@ -128,8 +128,11 @@ flagships:
       catalog, ffmpeg proxies, LUT-graded masters, reels and carousels.
     next: >-
       Sharpness, exposure, motion and dHash near-duplicate grouping now run
-      on real frames (src/shootflow/frame_analysis.py). Next: face and
-      closed-eye scores and subject framing for the story score (a small
+      on real frames (src/shootflow/frame_analysis.py). Subject framing without a
+      model landed 2026-10-21 (detail-energy centroid against thirds points plus
+      detail concentration; `framing`, `subject_x/y`, 15% of story_score; synthetic
+      patches only, not yet checked against human picks). Next: face and
+      closed-eye scores for the story score (a small
       on-device model, opt-in, behind the same analysis/NNNNN.json contract),
       and RAW stills via a RAW developer so they stop falling back to the
       sha256 stand-in.
