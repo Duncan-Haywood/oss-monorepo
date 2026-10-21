@@ -1,0 +1,2188 @@
+{
+ "n_train": 2976,
+ "n_removed_ids": 48,
+ "rows": [
+  {
+   "family": "reddit",
+   "proposer": "ga",
+   "round": 0,
+   "loop_paired_acc": 0.125,
+   "loop_paired_acc_plain": 0.125,
+   "loop_valid": false,
+   "loop_len": 64.79166666666667,
+   "mean_len": 69.97916666666667,
+   "length": {
+    "auroc": 0.9667792792792793,
+    "ci": [
+     0.9149211711711712,
+     1.0
+    ],
+    "matched_auroc": 0.5902777777777778,
+    "matched_pairs": 72,
+    "detect_rate": 0.972972972972973,
+    "human_flag_rate": 0.4583333333333333
+   },
+   "ngram": {
+    "auroc": 0.7038288288288288,
+    "ci": [
+     0.5781813063063063,
+     0.8406813063063063
+    ],
+    "matched_auroc": 0.9166666666666666,
+    "matched_pairs": 72,
+    "detect_rate": 0.13513513513513514,
+    "human_flag_rate": 0.08333333333333333
+   },
+   "ngram-unseen": {
+    "auroc": 0.6295045045045046,
+    "ci": [
+     0.4847691441441441,
+     0.7574605855855855
+    ],
+    "matched_auroc": 0.9166666666666666,
+    "matched_pairs": 72,
+    "detect_rate": 0.05405405405405406,
+    "human_flag_rate": 0.0
+   },
+   "logppl": {
+    "auroc": 0.19256756756756757,
+    "ci": [
+     0.09738175675675677,
+     0.30416666666666664
+    ],
+    "matched_auroc": 1.0,
+    "matched_pairs": 72,
+    "detect_rate": 0.08108108108108109,
+    "human_flag_rate": 0.041666666666666664
+   },
+   "bino": {
+    "auroc": 0.4155405405405405,
+    "ci": [
+     0.289893018018018,
+     0.5588400900900898
+    ],
+    "matched_auroc": 0.9861111111111112,
+    "matched_pairs": 72,
+    "detect_rate": 0.24324324324324326,
+    "human_flag_rate": 0.20833333333333334
+   }
+  },
+  {
+   "family": "reddit",
+   "proposer": "ga",
+   "round": 1,
+   "loop_paired_acc": 0.25,
+   "loop_paired_acc_plain": 0.16666666666666666,
+   "loop_valid": false,
+   "loop_len": 69.91666666666667,
+   "mean_len": 70.625,
+   "length": {
+    "auroc": 0.9923780487804877,
+    "ci": [
+     0.9684451219512196,
+     1.0
+    ],
+    "matched_auroc": 0.84375,
+    "matched_pairs": 48,
+    "detect_rate": 1.0,
+    "human_flag_rate": 0.4583333333333333
+   },
+   "ngram": {
+    "auroc": 0.665650406504065,
+    "ci": [
+     0.5186229674796747,
+     0.8103658536585362
+    ],
+    "matched_auroc": 0.9583333333333334,
+    "matched_pairs": 48,
+    "detect_rate": 0.12195121951219512,
+    "human_flag_rate": 0.08333333333333333
+   },
+   "ngram-unseen": {
+    "auroc": 0.6067073170731708,
+    "ci": [
+     0.44662093495934957,
+     0.7434705284552845
+    ],
+    "matched_auroc": 0.9583333333333334,
+    "matched_pairs": 48,
+    "detect_rate": 0.024390243902439025,
+    "human_flag_rate": 0.0
+   },
+   "logppl": {
+    "auroc": 0.19410569105691056,
+    "ci": [
+     0.09441056910569107,
+     0.32632113821138203
+    ],
+    "matched_auroc": 0.9791666666666666,
+    "matched_pairs": 48,
+    "detect_rate": 0.04878048780487805,
+    "human_flag_rate": 0.041666666666666664
+   },
+   "bino": {
+    "auroc": 0.36890243902439024,
+    "ci": [
+     0.2611788617886179,
+     0.5147611788617886
+    ],
+    "matched_auroc": 1.0,
+    "matched_pairs": 48,
+    "detect_rate": 0.24390243902439024,
+    "human_flag_rate": 0.20833333333333334
+   }
+  },
+  {
+   "family": "reddit",
+   "proposer": "ga",
+   "round": 2,
+   "loop_paired_acc": 0.4166666666666667,
+   "loop_paired_acc_plain": 0.5,
+   "loop_valid": true,
+   "loop_len": 225.70833333333334,
+   "mean_len": 147.79166666666666,
+   "length": {
+    "auroc": 0.9417613636363636,
+    "ci": [
+     0.8797111742424243,
+     0.9886363636363636
+    ],
+    "matched_auroc": 0.7670454545454546,
+    "matched_pairs": 264,
+    "detect_rate": 0.9545454545454546,
+    "human_flag_rate": 0.4583333333333333
+   },
+   "ngram": {
+    "auroc": 0.821969696969697,
+    "ci": [
+     0.7040482954545455,
+     0.9139204545454545
+    ],
+    "matched_auroc": 0.9545454545454546,
+    "matched_pairs": 264,
+    "detect_rate": 0.5,
+    "human_flag_rate": 0.08333333333333333
+   },
+   "ngram-unseen": {
+    "auroc": 0.725378787878788,
+    "ci": [
+     0.5946496212121213,
+     0.8305397727272726
+    ],
+    "matched_auroc": 0.928030303030303,
+    "matched_pairs": 264,
+    "detect_rate": 0.1590909090909091,
+    "human_flag_rate": 0.0
+   },
+   "logppl": {
+    "auroc": 0.553030303030303,
+    "ci": [
+     0.4316287878787879,
+     0.6852982954545453
+    ],
+    "matched_auroc": 0.9696969696969697,
+    "matched_pairs": 264,
+    "detect_rate": 0.29545454545454547,
+    "human_flag_rate": 0.041666666666666664
+   },
+   "bino": {
+    "auroc": 0.6117424242424243,
+    "ci": [
+     0.490435606060606,
+     0.7372869318181817
+    ],
+    "matched_auroc": 0.9583333333333334,
+    "matched_pairs": 264,
+    "detect_rate": 0.5,
+    "human_flag_rate": 0.20833333333333334
+   }
+  },
+  {
+   "family": "reddit",
+   "proposer": "ga",
+   "round": 3,
+   "loop_paired_acc": 0.5833333333333334,
+   "loop_paired_acc_plain": 0.25,
+   "loop_valid": true,
+   "loop_len": 227.75,
+   "mean_len": 202.5,
+   "length": {
+    "auroc": 0.9057971014492754,
+    "ci": [
+     0.820414402173913,
+     0.9662703804347826
+    ],
+    "matched_auroc": 0.7719298245614035,
+    "matched_pairs": 456,
+    "detect_rate": 0.9565217391304348,
+    "human_flag_rate": 0.4583333333333333
+   },
+   "ngram": {
+    "auroc": 0.8269927536231884,
+    "ci": [
+     0.7069519927536231,
+     0.9117527173913043
+    ],
+    "matched_auroc": 0.9605263157894737,
+    "matched_pairs": 456,
+    "detect_rate": 0.5434782608695652,
+    "human_flag_rate": 0.08333333333333333
+   },
+   "ngram-unseen": {
+    "auroc": 0.6956521739130435,
+    "ci": [
+     0.5570199275362319,
+     0.8115262681159416
+    ],
+    "matched_auroc": 0.8530701754385965,
+    "matched_pairs": 456,
+    "detect_rate": 0.15217391304347827,
+    "human_flag_rate": 0.0
+   },
+   "logppl": {
+    "auroc": 0.6186594202898551,
+    "ci": [
+     0.48999094202898547,
+     0.747373188405797
+    ],
+    "matched_auroc": 0.9210526315789473,
+    "matched_pairs": 456,
+    "detect_rate": 0.34782608695652173,
+    "human_flag_rate": 0.041666666666666664
+   },
+   "bino": {
+    "auroc": 0.6286231884057971,
+    "ci": [
+     0.5093523550724638,
+     0.7537590579710144
+    ],
+    "matched_auroc": 0.918859649122807,
+    "matched_pairs": 456,
+    "detect_rate": 0.4782608695652174,
+    "human_flag_rate": 0.20833333333333334
+   }
+  },
+  {
+   "family": "reddit",
+   "proposer": "grips",
+   "round": 0,
+   "loop_paired_acc": 0.125,
+   "loop_paired_acc_plain": 0.125,
+   "loop_valid": false,
+   "loop_len": 64.79166666666667,
+   "mean_len": 69.97916666666667,
+   "length": {
+    "auroc": 0.9667792792792793,
+    "ci": [
+     0.9149211711711712,
+     1.0
+    ],
+    "matched_auroc": 0.5902777777777778,
+    "matched_pairs": 72,
+    "detect_rate": 0.972972972972973,
+    "human_flag_rate": 0.4583333333333333
+   },
+   "ngram": {
+    "auroc": 0.7038288288288288,
+    "ci": [
+     0.5781813063063063,
+     0.8406813063063063
+    ],
+    "matched_auroc": 0.9166666666666666,
+    "matched_pairs": 72,
+    "detect_rate": 0.13513513513513514,
+    "human_flag_rate": 0.08333333333333333
+   },
+   "ngram-unseen": {
+    "auroc": 0.6295045045045046,
+    "ci": [
+     0.4847691441441441,
+     0.7574605855855855
+    ],
+    "matched_auroc": 0.9166666666666666,
+    "matched_pairs": 72,
+    "detect_rate": 0.05405405405405406,
+    "human_flag_rate": 0.0
+   },
+   "logppl": {
+    "auroc": 0.19256756756756757,
+    "ci": [
+     0.09738175675675677,
+     0.30416666666666664
+    ],
+    "matched_auroc": 1.0,
+    "matched_pairs": 72,
+    "detect_rate": 0.08108108108108109,
+    "human_flag_rate": 0.041666666666666664
+   },
+   "bino": {
+    "auroc": 0.4155405405405405,
+    "ci": [
+     0.289893018018018,
+     0.5588400900900898
+    ],
+    "matched_auroc": 0.9861111111111112,
+    "matched_pairs": 72,
+    "detect_rate": 0.24324324324324326,
+    "human_flag_rate": 0.20833333333333334
+   }
+  },
+  {
+   "family": "reddit",
+   "proposer": "grips",
+   "round": 1,
+   "loop_paired_acc": 0.16666666666666666,
+   "loop_paired_acc_plain": 0.16666666666666666,
+   "loop_valid": false,
+   "loop_len": 44.583333333333336,
+   "mean_len": 45.520833333333336,
+   "length": {
+    "auroc": 1.0,
+    "ci": [
+     0.9999999999999999,
+     1.0
+    ],
+    "matched_auroc": null,
+    "matched_pairs": 0,
+    "detect_rate": 1.0,
+    "human_flag_rate": 0.4583333333333333
+   },
+   "ngram": {
+    "auroc": 0.6425438596491229,
+    "ci": [
+     0.4901315789473684,
+     0.7851425438596491
+    ],
+    "matched_auroc": null,
+    "matched_pairs": 0,
+    "detect_rate": 0.05263157894736842,
+    "human_flag_rate": 0.08333333333333333
+   },
+   "ngram-unseen": {
+    "auroc": 0.5635964912280702,
+    "ci": [
+     0.4166666666666667,
+     0.6979440789473683
+    ],
+    "matched_auroc": null,
+    "matched_pairs": 0,
+    "detect_rate": 0.05263157894736842,
+    "human_flag_rate": 0.0
+   },
+   "logppl": {
+    "auroc": 0.1293859649122807,
+    "ci": [
+     0.059155701754385955,
+     0.21658442982456133
+    ],
+    "matched_auroc": null,
+    "matched_pairs": 0,
+    "detect_rate": 0.0,
+    "human_flag_rate": 0.041666666666666664
+   },
+   "bino": {
+    "auroc": 0.38815789473684215,
+    "ci": [
+     0.27850877192982454,
+     0.5177083333333332
+    ],
+    "matched_auroc": null,
+    "matched_pairs": 0,
+    "detect_rate": 0.23684210526315788,
+    "human_flag_rate": 0.20833333333333334
+   }
+  },
+  {
+   "family": "reddit",
+   "proposer": "grips",
+   "round": 2,
+   "loop_paired_acc": 0.25,
+   "loop_paired_acc_plain": 0.20833333333333334,
+   "loop_valid": false,
+   "loop_len": 52.125,
+   "mean_len": 47.9375,
+   "length": {
+    "auroc": 1.0,
+    "ci": [
+     0.9999999999999999,
+     1.0
+    ],
+    "matched_auroc": null,
+    "matched_pairs": 0,
+    "detect_rate": 1.0,
+    "human_flag_rate": 0.4583333333333333
+   },
+   "ngram": {
+    "auroc": 0.6602564102564102,
+    "ci": [
+     0.5063568376068376,
+     0.8055555555555556
+    ],
+    "matched_auroc": null,
+    "matched_pairs": 0,
+    "detect_rate": 0.07692307692307693,
+    "human_flag_rate": 0.08333333333333333
+   },
+   "ngram-unseen": {
+    "auroc": 0.5897435897435898,
+    "ci": [
+     0.4325320512820513,
+     0.7325053418803418
+    ],
+    "matched_auroc": null,
+    "matched_pairs": 0,
+    "detect_rate": 0.05128205128205128,
+    "human_flag_rate": 0.0
+   },
+   "logppl": {
+    "auroc": 0.14102564102564102,
+    "ci": [
+     0.065625,
+     0.24318910256410245
+    ],
+    "matched_auroc": null,
+    "matched_pairs": 0,
+    "detect_rate": 0.0,
+    "human_flag_rate": 0.041666666666666664
+   },
+   "bino": {
+    "auroc": 0.4091880341880342,
+    "ci": [
+     0.2857638888888889,
+     0.5443643162393162
+    ],
+    "matched_auroc": null,
+    "matched_pairs": 0,
+    "detect_rate": 0.23076923076923078,
+    "human_flag_rate": 0.20833333333333334
+   }
+  },
+  {
+   "family": "reddit",
+   "proposer": "grips",
+   "round": 3,
+   "loop_paired_acc": 0.25,
+   "loop_paired_acc_plain": 0.20833333333333334,
+   "loop_valid": false,
+   "loop_len": 52.125,
+   "mean_len": 47.9375,
+   "length": {
+    "auroc": 1.0,
+    "ci": [
+     0.9999999999999999,
+     1.0
+    ],
+    "matched_auroc": null,
+    "matched_pairs": 0,
+    "detect_rate": 1.0,
+    "human_flag_rate": 0.4583333333333333
+   },
+   "ngram": {
+    "auroc": 0.6602564102564102,
+    "ci": [
+     0.5063568376068376,
+     0.8055555555555556
+    ],
+    "matched_auroc": null,
+    "matched_pairs": 0,
+    "detect_rate": 0.07692307692307693,
+    "human_flag_rate": 0.08333333333333333
+   },
+   "ngram-unseen": {
+    "auroc": 0.5897435897435898,
+    "ci": [
+     0.4325320512820513,
+     0.7325053418803418
+    ],
+    "matched_auroc": null,
+    "matched_pairs": 0,
+    "detect_rate": 0.05128205128205128,
+    "human_flag_rate": 0.0
+   },
+   "logppl": {
+    "auroc": 0.14102564102564102,
+    "ci": [
+     0.065625,
+     0.24318910256410245
+    ],
+    "matched_auroc": null,
+    "matched_pairs": 0,
+    "detect_rate": 0.0,
+    "human_flag_rate": 0.041666666666666664
+   },
+   "bino": {
+    "auroc": 0.4091880341880342,
+    "ci": [
+     0.2857638888888889,
+     0.5443643162393162
+    ],
+    "matched_auroc": null,
+    "matched_pairs": 0,
+    "detect_rate": 0.23076923076923078,
+    "human_flag_rate": 0.20833333333333334
+   }
+  },
+  {
+   "family": "reddit",
+   "proposer": "llm",
+   "round": 0,
+   "loop_paired_acc": 0.125,
+   "loop_paired_acc_plain": 0.125,
+   "loop_valid": false,
+   "loop_len": 64.79166666666667,
+   "mean_len": 69.97916666666667,
+   "length": {
+    "auroc": 0.9667792792792793,
+    "ci": [
+     0.9149211711711712,
+     1.0
+    ],
+    "matched_auroc": 0.5902777777777778,
+    "matched_pairs": 72,
+    "detect_rate": 0.972972972972973,
+    "human_flag_rate": 0.4583333333333333
+   },
+   "ngram": {
+    "auroc": 0.7038288288288288,
+    "ci": [
+     0.5781813063063063,
+     0.8406813063063063
+    ],
+    "matched_auroc": 0.9166666666666666,
+    "matched_pairs": 72,
+    "detect_rate": 0.13513513513513514,
+    "human_flag_rate": 0.08333333333333333
+   },
+   "ngram-unseen": {
+    "auroc": 0.6295045045045046,
+    "ci": [
+     0.4847691441441441,
+     0.7574605855855855
+    ],
+    "matched_auroc": 0.9166666666666666,
+    "matched_pairs": 72,
+    "detect_rate": 0.05405405405405406,
+    "human_flag_rate": 0.0
+   },
+   "logppl": {
+    "auroc": 0.19256756756756757,
+    "ci": [
+     0.09738175675675677,
+     0.30416666666666664
+    ],
+    "matched_auroc": 1.0,
+    "matched_pairs": 72,
+    "detect_rate": 0.08108108108108109,
+    "human_flag_rate": 0.041666666666666664
+   },
+   "bino": {
+    "auroc": 0.4155405405405405,
+    "ci": [
+     0.289893018018018,
+     0.5588400900900898
+    ],
+    "matched_auroc": 0.9861111111111112,
+    "matched_pairs": 72,
+    "detect_rate": 0.24324324324324326,
+    "human_flag_rate": 0.20833333333333334
+   }
+  },
+  {
+   "family": "reddit",
+   "proposer": "llm",
+   "round": 1,
+   "loop_paired_acc": 0.4166666666666667,
+   "loop_paired_acc_plain": 0.25,
+   "loop_valid": true,
+   "loop_len": 161.0,
+   "mean_len": 147.29166666666666,
+   "length": {
+    "auroc": 0.8650793650793651,
+    "ci": [
+     0.7794270833333334,
+     0.9523809523809524
+    ],
+    "matched_auroc": 0.5277777777777778,
+    "matched_pairs": 288,
+    "detect_rate": 0.8571428571428571,
+    "human_flag_rate": 0.4583333333333333
+   },
+   "ngram": {
+    "auroc": 0.7966269841269841,
+    "ci": [
+     0.6634920634920635,
+     0.8829861111111111
+    ],
+    "matched_auroc": 0.9895833333333334,
+    "matched_pairs": 288,
+    "detect_rate": 0.42857142857142855,
+    "human_flag_rate": 0.08333333333333333
+   },
+   "ngram-unseen": {
+    "auroc": 0.7261904761904762,
+    "ci": [
+     0.575719246031746,
+     0.8348958333333333
+    ],
+    "matched_auroc": 0.9270833333333334,
+    "matched_pairs": 288,
+    "detect_rate": 0.2619047619047619,
+    "human_flag_rate": 0.0
+   },
+   "logppl": {
+    "auroc": 0.5198412698412699,
+    "ci": [
+     0.3893105158730159,
+     0.6638392857142856
+    ],
+    "matched_auroc": 0.9305555555555556,
+    "matched_pairs": 288,
+    "detect_rate": 0.2619047619047619,
+    "human_flag_rate": 0.041666666666666664
+   },
+   "bino": {
+    "auroc": 0.6031746031746031,
+    "ci": [
+     0.463764880952381,
+     0.7381448412698413
+    ],
+    "matched_auroc": 0.84375,
+    "matched_pairs": 288,
+    "detect_rate": 0.5238095238095238,
+    "human_flag_rate": 0.20833333333333334
+   }
+  },
+  {
+   "family": "reddit",
+   "proposer": "llm",
+   "round": 2,
+   "loop_paired_acc": 0.5416666666666666,
+   "loop_paired_acc_plain": 0.3333333333333333,
+   "loop_valid": true,
+   "loop_len": 282.6666666666667,
+   "mean_len": 259.7916666666667,
+   "length": {
+    "auroc": 0.7129629629629629,
+    "ci": [
+     0.5912037037037037,
+     0.8217824074074074
+    ],
+    "matched_auroc": 0.5386904761904762,
+    "matched_pairs": 672,
+    "detect_rate": 0.7111111111111111,
+    "human_flag_rate": 0.4583333333333333
+   },
+   "ngram": {
+    "auroc": 0.8842592592592593,
+    "ci": [
+     0.8017129629629629,
+     0.950925925925926
+    ],
+    "matched_auroc": 0.96875,
+    "matched_pairs": 672,
+    "detect_rate": 0.6666666666666666,
+    "human_flag_rate": 0.08333333333333333
+   },
+   "ngram-unseen": {
+    "auroc": 0.8083333333333332,
+    "ci": [
+     0.6944444444444444,
+     0.8982407407407408
+    ],
+    "matched_auroc": 0.9047619047619048,
+    "matched_pairs": 672,
+    "detect_rate": 0.28888888888888886,
+    "human_flag_rate": 0.0
+   },
+   "logppl": {
+    "auroc": 0.7425925925925926,
+    "ci": [
+     0.6166203703703703,
+     0.8636342592592591
+    ],
+    "matched_auroc": 0.9270833333333334,
+    "matched_pairs": 672,
+    "detect_rate": 0.37777777777777777,
+    "human_flag_rate": 0.041666666666666664
+   },
+   "bino": {
+    "auroc": 0.7398148148148147,
+    "ci": [
+     0.624074074074074,
+     0.8458564814814813
+    ],
+    "matched_auroc": 0.8482142857142857,
+    "matched_pairs": 672,
+    "detect_rate": 0.6,
+    "human_flag_rate": 0.20833333333333334
+   }
+  },
+  {
+   "family": "reddit",
+   "proposer": "llm",
+   "round": 3,
+   "loop_paired_acc": 0.375,
+   "loop_paired_acc_plain": 0.4166666666666667,
+   "loop_valid": true,
+   "loop_len": 343.375,
+   "mean_len": 333.2708333333333,
+   "length": {
+    "auroc": 0.5766843971631206,
+    "ci": [
+     0.4496121453900709,
+     0.7056959219858155
+    ],
+    "matched_auroc": 0.4764254385964912,
+    "matched_pairs": 912,
+    "detect_rate": 0.574468085106383,
+    "human_flag_rate": 0.4583333333333333
+   },
+   "ngram": {
+    "auroc": 0.899822695035461,
+    "ci": [
+     0.8155141843971632,
+     0.9658909574468085
+    ],
+    "matched_auroc": 0.9473684210526315,
+    "matched_pairs": 912,
+    "detect_rate": 0.723404255319149,
+    "human_flag_rate": 0.08333333333333333
+   },
+   "ngram-unseen": {
+    "auroc": 0.821808510638298,
+    "ci": [
+     0.7304964539007092,
+     0.9087322695035461
+    ],
+    "matched_auroc": 0.8793859649122807,
+    "matched_pairs": 912,
+    "detect_rate": 0.3829787234042553,
+    "human_flag_rate": 0.0
+   },
+   "logppl": {
+    "auroc": 0.843971631205674,
+    "ci": [
+     0.7575132978723403,
+     0.9357491134751774
+    ],
+    "matched_auroc": 0.9353070175438597,
+    "matched_pairs": 912,
+    "detect_rate": 0.574468085106383,
+    "human_flag_rate": 0.041666666666666664
+   },
+   "bino": {
+    "auroc": 0.8803191489361701,
+    "ci": [
+     0.7960106382978723,
+     0.9587987588652482
+    ],
+    "matched_auroc": 0.9462719298245614,
+    "matched_pairs": 912,
+    "detect_rate": 0.8297872340425532,
+    "human_flag_rate": 0.20833333333333334
+   }
+  },
+  {
+   "family": "reddit",
+   "proposer": "random",
+   "round": 0,
+   "loop_paired_acc": 0.125,
+   "loop_paired_acc_plain": 0.125,
+   "loop_valid": false,
+   "loop_len": 64.79166666666667,
+   "mean_len": 69.97916666666667,
+   "length": {
+    "auroc": 0.9667792792792793,
+    "ci": [
+     0.9149211711711712,
+     1.0
+    ],
+    "matched_auroc": 0.5902777777777778,
+    "matched_pairs": 72,
+    "detect_rate": 0.972972972972973,
+    "human_flag_rate": 0.4583333333333333
+   },
+   "ngram": {
+    "auroc": 0.7038288288288288,
+    "ci": [
+     0.5781813063063063,
+     0.8406813063063063
+    ],
+    "matched_auroc": 0.9166666666666666,
+    "matched_pairs": 72,
+    "detect_rate": 0.13513513513513514,
+    "human_flag_rate": 0.08333333333333333
+   },
+   "ngram-unseen": {
+    "auroc": 0.6295045045045046,
+    "ci": [
+     0.4847691441441441,
+     0.7574605855855855
+    ],
+    "matched_auroc": 0.9166666666666666,
+    "matched_pairs": 72,
+    "detect_rate": 0.05405405405405406,
+    "human_flag_rate": 0.0
+   },
+   "logppl": {
+    "auroc": 0.19256756756756757,
+    "ci": [
+     0.09738175675675677,
+     0.30416666666666664
+    ],
+    "matched_auroc": 1.0,
+    "matched_pairs": 72,
+    "detect_rate": 0.08108108108108109,
+    "human_flag_rate": 0.041666666666666664
+   },
+   "bino": {
+    "auroc": 0.4155405405405405,
+    "ci": [
+     0.289893018018018,
+     0.5588400900900898
+    ],
+    "matched_auroc": 0.9861111111111112,
+    "matched_pairs": 72,
+    "detect_rate": 0.24324324324324326,
+    "human_flag_rate": 0.20833333333333334
+   }
+  },
+  {
+   "family": "reddit",
+   "proposer": "random",
+   "round": 1,
+   "loop_paired_acc": 0.375,
+   "loop_paired_acc_plain": 0.20833333333333334,
+   "loop_valid": false,
+   "loop_len": 68.33333333333333,
+   "mean_len": 51.375,
+   "length": {
+    "auroc": 1.0,
+    "ci": [
+     0.9999999999999999,
+     1.0
+    ],
+    "matched_auroc": null,
+    "matched_pairs": 0,
+    "detect_rate": 1.0,
+    "human_flag_rate": 0.4583333333333333
+   },
+   "ngram": {
+    "auroc": 0.6446759259259259,
+    "ci": [
+     0.4866608796296296,
+     0.7885995370370367
+    ],
+    "matched_auroc": null,
+    "matched_pairs": 0,
+    "detect_rate": 0.1111111111111111,
+    "human_flag_rate": 0.08333333333333333
+   },
+   "ngram-unseen": {
+    "auroc": 0.5509259259259259,
+    "ci": [
+     0.372337962962963,
+     0.699681712962963
+    ],
+    "matched_auroc": null,
+    "matched_pairs": 0,
+    "detect_rate": 0.08333333333333333,
+    "human_flag_rate": 0.0
+   },
+   "logppl": {
+    "auroc": 0.14930555555555555,
+    "ci": [
+     0.05318287037037036,
+     0.2777777777777778
+    ],
+    "matched_auroc": null,
+    "matched_pairs": 0,
+    "detect_rate": 0.05555555555555555,
+    "human_flag_rate": 0.041666666666666664
+   },
+   "bino": {
+    "auroc": 0.33564814814814814,
+    "ci": [
+     0.21516203703703704,
+     0.4949363425925925
+    ],
+    "matched_auroc": null,
+    "matched_pairs": 0,
+    "detect_rate": 0.16666666666666666,
+    "human_flag_rate": 0.20833333333333334
+   }
+  },
+  {
+   "family": "reddit",
+   "proposer": "random",
+   "round": 2,
+   "loop_paired_acc": 0.375,
+   "loop_paired_acc_plain": 0.20833333333333334,
+   "loop_valid": false,
+   "loop_len": 68.33333333333333,
+   "mean_len": 51.375,
+   "length": {
+    "auroc": 1.0,
+    "ci": [
+     0.9999999999999999,
+     1.0
+    ],
+    "matched_auroc": null,
+    "matched_pairs": 0,
+    "detect_rate": 1.0,
+    "human_flag_rate": 0.4583333333333333
+   },
+   "ngram": {
+    "auroc": 0.6446759259259259,
+    "ci": [
+     0.4866608796296296,
+     0.7885995370370367
+    ],
+    "matched_auroc": null,
+    "matched_pairs": 0,
+    "detect_rate": 0.1111111111111111,
+    "human_flag_rate": 0.08333333333333333
+   },
+   "ngram-unseen": {
+    "auroc": 0.5509259259259259,
+    "ci": [
+     0.372337962962963,
+     0.699681712962963
+    ],
+    "matched_auroc": null,
+    "matched_pairs": 0,
+    "detect_rate": 0.08333333333333333,
+    "human_flag_rate": 0.0
+   },
+   "logppl": {
+    "auroc": 0.14930555555555555,
+    "ci": [
+     0.05318287037037036,
+     0.2777777777777778
+    ],
+    "matched_auroc": null,
+    "matched_pairs": 0,
+    "detect_rate": 0.05555555555555555,
+    "human_flag_rate": 0.041666666666666664
+   },
+   "bino": {
+    "auroc": 0.33564814814814814,
+    "ci": [
+     0.21516203703703704,
+     0.4949363425925925
+    ],
+    "matched_auroc": null,
+    "matched_pairs": 0,
+    "detect_rate": 0.16666666666666666,
+    "human_flag_rate": 0.20833333333333334
+   }
+  },
+  {
+   "family": "reddit",
+   "proposer": "random",
+   "round": 3,
+   "loop_paired_acc": 0.375,
+   "loop_paired_acc_plain": 0.20833333333333334,
+   "loop_valid": false,
+   "loop_len": 68.33333333333333,
+   "mean_len": 51.375,
+   "length": {
+    "auroc": 1.0,
+    "ci": [
+     0.9999999999999999,
+     1.0
+    ],
+    "matched_auroc": null,
+    "matched_pairs": 0,
+    "detect_rate": 1.0,
+    "human_flag_rate": 0.4583333333333333
+   },
+   "ngram": {
+    "auroc": 0.6446759259259259,
+    "ci": [
+     0.4866608796296296,
+     0.7885995370370367
+    ],
+    "matched_auroc": null,
+    "matched_pairs": 0,
+    "detect_rate": 0.1111111111111111,
+    "human_flag_rate": 0.08333333333333333
+   },
+   "ngram-unseen": {
+    "auroc": 0.5509259259259259,
+    "ci": [
+     0.372337962962963,
+     0.699681712962963
+    ],
+    "matched_auroc": null,
+    "matched_pairs": 0,
+    "detect_rate": 0.08333333333333333,
+    "human_flag_rate": 0.0
+   },
+   "logppl": {
+    "auroc": 0.14930555555555555,
+    "ci": [
+     0.05318287037037036,
+     0.2777777777777778
+    ],
+    "matched_auroc": null,
+    "matched_pairs": 0,
+    "detect_rate": 0.05555555555555555,
+    "human_flag_rate": 0.041666666666666664
+   },
+   "bino": {
+    "auroc": 0.33564814814814814,
+    "ci": [
+     0.21516203703703704,
+     0.4949363425925925
+    ],
+    "matched_auroc": null,
+    "matched_pairs": 0,
+    "detect_rate": 0.16666666666666666,
+    "human_flag_rate": 0.20833333333333334
+   }
+  },
+  {
+   "family": "reviews",
+   "proposer": "ga",
+   "round": 0,
+   "loop_paired_acc": 0.125,
+   "loop_paired_acc_plain": 0.125,
+   "loop_valid": true,
+   "loop_len": 175.91666666666666,
+   "mean_len": 165.97916666666666,
+   "length": {
+    "auroc": 0.8295454545454546,
+    "ci": [
+     0.7070707070707071,
+     0.9261363636363638
+    ],
+    "matched_auroc": 0.6270718232044199,
+    "matched_pairs": 362,
+    "detect_rate": 0.9090909090909091,
+    "human_flag_rate": 0.5
+   },
+   "ngram": {
+    "auroc": 0.8068181818181819,
+    "ci": [
+     0.6824179292929293,
+     0.9148674242424242
+    ],
+    "matched_auroc": 0.9558011049723757,
+    "matched_pairs": 362,
+    "detect_rate": 0.7272727272727273,
+    "human_flag_rate": 0.125
+   },
+   "ngram-unseen": {
+    "auroc": 0.8068181818181819,
+    "ci": [
+     0.6824179292929293,
+     0.9148674242424242
+    ],
+    "matched_auroc": 0.9558011049723757,
+    "matched_pairs": 362,
+    "detect_rate": 0.7272727272727273,
+    "human_flag_rate": 0.125
+   },
+   "logppl": {
+    "auroc": 0.7323232323232323,
+    "ci": [
+     0.588604797979798,
+     0.8460227272727273
+    ],
+    "matched_auroc": 1.0,
+    "matched_pairs": 362,
+    "detect_rate": 0.6363636363636364,
+    "human_flag_rate": 0.041666666666666664
+   },
+   "bino": {
+    "auroc": 0.8522727272727272,
+    "ci": [
+     0.7473484848484849,
+     0.9432449494949494
+    ],
+    "matched_auroc": 0.9834254143646409,
+    "matched_pairs": 362,
+    "detect_rate": 0.8181818181818182,
+    "human_flag_rate": 0.3333333333333333
+   }
+  },
+  {
+   "family": "reviews",
+   "proposer": "ga",
+   "round": 1,
+   "loop_paired_acc": 0.125,
+   "loop_paired_acc_plain": 0.125,
+   "loop_valid": true,
+   "loop_len": 175.91666666666666,
+   "mean_len": 165.97916666666666,
+   "length": {
+    "auroc": 0.8295454545454546,
+    "ci": [
+     0.7070707070707071,
+     0.9261363636363638
+    ],
+    "matched_auroc": 0.6270718232044199,
+    "matched_pairs": 362,
+    "detect_rate": 0.9090909090909091,
+    "human_flag_rate": 0.5
+   },
+   "ngram": {
+    "auroc": 0.8068181818181819,
+    "ci": [
+     0.6824179292929293,
+     0.9148674242424242
+    ],
+    "matched_auroc": 0.9558011049723757,
+    "matched_pairs": 362,
+    "detect_rate": 0.7272727272727273,
+    "human_flag_rate": 0.125
+   },
+   "ngram-unseen": {
+    "auroc": 0.8068181818181819,
+    "ci": [
+     0.6824179292929293,
+     0.9148674242424242
+    ],
+    "matched_auroc": 0.9558011049723757,
+    "matched_pairs": 362,
+    "detect_rate": 0.7272727272727273,
+    "human_flag_rate": 0.125
+   },
+   "logppl": {
+    "auroc": 0.7323232323232323,
+    "ci": [
+     0.588604797979798,
+     0.8460227272727273
+    ],
+    "matched_auroc": 1.0,
+    "matched_pairs": 362,
+    "detect_rate": 0.6363636363636364,
+    "human_flag_rate": 0.041666666666666664
+   },
+   "bino": {
+    "auroc": 0.8522727272727272,
+    "ci": [
+     0.7473484848484849,
+     0.9432449494949494
+    ],
+    "matched_auroc": 0.9834254143646409,
+    "matched_pairs": 362,
+    "detect_rate": 0.8181818181818182,
+    "human_flag_rate": 0.3333333333333333
+   }
+  },
+  {
+   "family": "reviews",
+   "proposer": "ga",
+   "round": 2,
+   "loop_paired_acc": 0.08333333333333333,
+   "loop_paired_acc_plain": 0.08333333333333333,
+   "loop_valid": true,
+   "loop_len": 226.08333333333334,
+   "mean_len": 232.4375,
+   "length": {
+    "auroc": 0.8550724637681159,
+    "ci": [
+     0.7664515398550724,
+     0.9391870471014492
+    ],
+    "matched_auroc": 0.6491228070175439,
+    "matched_pairs": 456,
+    "detect_rate": 0.8260869565217391,
+    "human_flag_rate": 0.5
+   },
+   "ngram": {
+    "auroc": 0.7490942028985507,
+    "ci": [
+     0.631340579710145,
+     0.8492980072463768
+    ],
+    "matched_auroc": 0.8640350877192983,
+    "matched_pairs": 456,
+    "detect_rate": 0.41304347826086957,
+    "human_flag_rate": 0.125
+   },
+   "ngram-unseen": {
+    "auroc": 0.7490942028985507,
+    "ci": [
+     0.631340579710145,
+     0.8492980072463768
+    ],
+    "matched_auroc": 0.8640350877192983,
+    "matched_pairs": 456,
+    "detect_rate": 0.41304347826086957,
+    "human_flag_rate": 0.125
+   },
+   "logppl": {
+    "auroc": 0.8949275362318841,
+    "ci": [
+     0.8133605072463769,
+     0.9583333333333334
+    ],
+    "matched_auroc": 0.9956140350877193,
+    "matched_pairs": 456,
+    "detect_rate": 0.6739130434782609,
+    "human_flag_rate": 0.041666666666666664
+   },
+   "bino": {
+    "auroc": 0.9039855072463767,
+    "ci": [
+     0.8319519927536232,
+     0.9664855072463768
+    ],
+    "matched_auroc": 0.9539473684210527,
+    "matched_pairs": 456,
+    "detect_rate": 0.8913043478260869,
+    "human_flag_rate": 0.3333333333333333
+   }
+  },
+  {
+   "family": "reviews",
+   "proposer": "ga",
+   "round": 3,
+   "loop_paired_acc": 0.25,
+   "loop_paired_acc_plain": 0.25,
+   "loop_valid": true,
+   "loop_len": 259.7916666666667,
+   "mean_len": 260.3958333333333,
+   "length": {
+    "auroc": 0.8441840277777778,
+    "ci": [
+     0.743923611111111,
+     0.9192925347222222
+    ],
+    "matched_auroc": 0.7234206471494607,
+    "matched_pairs": 649,
+    "detect_rate": 0.8541666666666666,
+    "human_flag_rate": 0.5
+   },
+   "ngram": {
+    "auroc": 0.7213541666666666,
+    "ci": [
+     0.6092881944444445,
+     0.8251085069444445
+    ],
+    "matched_auroc": 0.8489984591679507,
+    "matched_pairs": 649,
+    "detect_rate": 0.4791666666666667,
+    "human_flag_rate": 0.125
+   },
+   "ngram-unseen": {
+    "auroc": 0.7213541666666666,
+    "ci": [
+     0.6092881944444445,
+     0.8251085069444445
+    ],
+    "matched_auroc": 0.8489984591679507,
+    "matched_pairs": 649,
+    "detect_rate": 0.4791666666666667,
+    "human_flag_rate": 0.125
+   },
+   "logppl": {
+    "auroc": 0.7786458333333333,
+    "ci": [
+     0.6670789930555556,
+     0.8807942708333332
+    ],
+    "matched_auroc": 0.9784283513097073,
+    "matched_pairs": 649,
+    "detect_rate": 0.5,
+    "human_flag_rate": 0.041666666666666664
+   },
+   "bino": {
+    "auroc": 0.7942708333333334,
+    "ci": [
+     0.6939887152777777,
+     0.8940972222222222
+    ],
+    "matched_auroc": 0.9414483821263482,
+    "matched_pairs": 649,
+    "detect_rate": 0.7916666666666666,
+    "human_flag_rate": 0.3333333333333333
+   }
+  },
+  {
+   "family": "reviews",
+   "proposer": "grips",
+   "round": 0,
+   "loop_paired_acc": 0.125,
+   "loop_paired_acc_plain": 0.125,
+   "loop_valid": true,
+   "loop_len": 175.91666666666666,
+   "mean_len": 165.97916666666666,
+   "length": {
+    "auroc": 0.8295454545454546,
+    "ci": [
+     0.7070707070707071,
+     0.9261363636363638
+    ],
+    "matched_auroc": 0.6270718232044199,
+    "matched_pairs": 362,
+    "detect_rate": 0.9090909090909091,
+    "human_flag_rate": 0.5
+   },
+   "ngram": {
+    "auroc": 0.8068181818181819,
+    "ci": [
+     0.6824179292929293,
+     0.9148674242424242
+    ],
+    "matched_auroc": 0.9558011049723757,
+    "matched_pairs": 362,
+    "detect_rate": 0.7272727272727273,
+    "human_flag_rate": 0.125
+   },
+   "ngram-unseen": {
+    "auroc": 0.8068181818181819,
+    "ci": [
+     0.6824179292929293,
+     0.9148674242424242
+    ],
+    "matched_auroc": 0.9558011049723757,
+    "matched_pairs": 362,
+    "detect_rate": 0.7272727272727273,
+    "human_flag_rate": 0.125
+   },
+   "logppl": {
+    "auroc": 0.7323232323232323,
+    "ci": [
+     0.588604797979798,
+     0.8460227272727273
+    ],
+    "matched_auroc": 1.0,
+    "matched_pairs": 362,
+    "detect_rate": 0.6363636363636364,
+    "human_flag_rate": 0.041666666666666664
+   },
+   "bino": {
+    "auroc": 0.8522727272727272,
+    "ci": [
+     0.7473484848484849,
+     0.9432449494949494
+    ],
+    "matched_auroc": 0.9834254143646409,
+    "matched_pairs": 362,
+    "detect_rate": 0.8181818181818182,
+    "human_flag_rate": 0.3333333333333333
+   }
+  },
+  {
+   "family": "reviews",
+   "proposer": "grips",
+   "round": 1,
+   "loop_paired_acc": 0.08333333333333333,
+   "loop_paired_acc_plain": 0.125,
+   "loop_valid": true,
+   "loop_len": 175.91666666666666,
+   "mean_len": 165.97916666666666,
+   "length": {
+    "auroc": 0.8295454545454546,
+    "ci": [
+     0.7070707070707071,
+     0.9261363636363638
+    ],
+    "matched_auroc": 0.6270718232044199,
+    "matched_pairs": 362,
+    "detect_rate": 0.9090909090909091,
+    "human_flag_rate": 0.5
+   },
+   "ngram": {
+    "auroc": 0.8068181818181819,
+    "ci": [
+     0.6824179292929293,
+     0.9148674242424242
+    ],
+    "matched_auroc": 0.9558011049723757,
+    "matched_pairs": 362,
+    "detect_rate": 0.7272727272727273,
+    "human_flag_rate": 0.125
+   },
+   "ngram-unseen": {
+    "auroc": 0.8068181818181819,
+    "ci": [
+     0.6824179292929293,
+     0.9148674242424242
+    ],
+    "matched_auroc": 0.9558011049723757,
+    "matched_pairs": 362,
+    "detect_rate": 0.7272727272727273,
+    "human_flag_rate": 0.125
+   },
+   "logppl": {
+    "auroc": 0.7323232323232323,
+    "ci": [
+     0.588604797979798,
+     0.8460227272727273
+    ],
+    "matched_auroc": 1.0,
+    "matched_pairs": 362,
+    "detect_rate": 0.6363636363636364,
+    "human_flag_rate": 0.041666666666666664
+   },
+   "bino": {
+    "auroc": 0.8522727272727272,
+    "ci": [
+     0.7473484848484849,
+     0.9432449494949494
+    ],
+    "matched_auroc": 0.9834254143646409,
+    "matched_pairs": 362,
+    "detect_rate": 0.8181818181818182,
+    "human_flag_rate": 0.3333333333333333
+   }
+  },
+  {
+   "family": "reviews",
+   "proposer": "grips",
+   "round": 2,
+   "loop_paired_acc": 0.20833333333333334,
+   "loop_paired_acc_plain": 0.25,
+   "loop_valid": true,
+   "loop_len": 188.04166666666666,
+   "mean_len": 218.79166666666666,
+   "length": {
+    "auroc": 0.8943089430894309,
+    "ci": [
+     0.809451219512195,
+     0.9606580284552845
+    ],
+    "matched_auroc": 0.8074074074074075,
+    "matched_pairs": 540,
+    "detect_rate": 0.926829268292683,
+    "human_flag_rate": 0.5
+   },
+   "ngram": {
+    "auroc": 0.7215447154471545,
+    "ci": [
+     0.6005081300813008,
+     0.8389481707317072
+    ],
+    "matched_auroc": 0.8981481481481481,
+    "matched_pairs": 540,
+    "detect_rate": 0.5121951219512195,
+    "human_flag_rate": 0.125
+   },
+   "ngram-unseen": {
+    "auroc": 0.7215447154471545,
+    "ci": [
+     0.6005081300813008,
+     0.8389481707317072
+    ],
+    "matched_auroc": 0.8981481481481481,
+    "matched_pairs": 540,
+    "detect_rate": 0.5121951219512195,
+    "human_flag_rate": 0.125
+   },
+   "logppl": {
+    "auroc": 0.8038617886178863,
+    "ci": [
+     0.6803099593495935,
+     0.9090701219512196
+    ],
+    "matched_auroc": 0.9981481481481481,
+    "matched_pairs": 540,
+    "detect_rate": 0.7317073170731707,
+    "human_flag_rate": 0.041666666666666664
+   },
+   "bino": {
+    "auroc": 0.8953252032520325,
+    "ci": [
+     0.7987296747967481,
+     0.9654471544715447
+    ],
+    "matched_auroc": 0.9944444444444445,
+    "matched_pairs": 540,
+    "detect_rate": 0.8536585365853658,
+    "human_flag_rate": 0.3333333333333333
+   }
+  },
+  {
+   "family": "reviews",
+   "proposer": "grips",
+   "round": 3,
+   "loop_paired_acc": 0.25,
+   "loop_paired_acc_plain": 0.25,
+   "loop_valid": true,
+   "loop_len": 188.04166666666666,
+   "mean_len": 218.79166666666666,
+   "length": {
+    "auroc": 0.8943089430894309,
+    "ci": [
+     0.809451219512195,
+     0.9606580284552845
+    ],
+    "matched_auroc": 0.8074074074074075,
+    "matched_pairs": 540,
+    "detect_rate": 0.926829268292683,
+    "human_flag_rate": 0.5
+   },
+   "ngram": {
+    "auroc": 0.7215447154471545,
+    "ci": [
+     0.6005081300813008,
+     0.8389481707317072
+    ],
+    "matched_auroc": 0.8981481481481481,
+    "matched_pairs": 540,
+    "detect_rate": 0.5121951219512195,
+    "human_flag_rate": 0.125
+   },
+   "ngram-unseen": {
+    "auroc": 0.7215447154471545,
+    "ci": [
+     0.6005081300813008,
+     0.8389481707317072
+    ],
+    "matched_auroc": 0.8981481481481481,
+    "matched_pairs": 540,
+    "detect_rate": 0.5121951219512195,
+    "human_flag_rate": 0.125
+   },
+   "logppl": {
+    "auroc": 0.8038617886178863,
+    "ci": [
+     0.6803099593495935,
+     0.9090701219512196
+    ],
+    "matched_auroc": 0.9981481481481481,
+    "matched_pairs": 540,
+    "detect_rate": 0.7317073170731707,
+    "human_flag_rate": 0.041666666666666664
+   },
+   "bino": {
+    "auroc": 0.8953252032520325,
+    "ci": [
+     0.7987296747967481,
+     0.9654471544715447
+    ],
+    "matched_auroc": 0.9944444444444445,
+    "matched_pairs": 540,
+    "detect_rate": 0.8536585365853658,
+    "human_flag_rate": 0.3333333333333333
+   }
+  },
+  {
+   "family": "reviews",
+   "proposer": "llm",
+   "round": 0,
+   "loop_paired_acc": 0.125,
+   "loop_paired_acc_plain": 0.125,
+   "loop_valid": true,
+   "loop_len": 175.91666666666666,
+   "mean_len": 165.97916666666666,
+   "length": {
+    "auroc": 0.8295454545454546,
+    "ci": [
+     0.7070707070707071,
+     0.9261363636363638
+    ],
+    "matched_auroc": 0.6270718232044199,
+    "matched_pairs": 362,
+    "detect_rate": 0.9090909090909091,
+    "human_flag_rate": 0.5
+   },
+   "ngram": {
+    "auroc": 0.8068181818181819,
+    "ci": [
+     0.6824179292929293,
+     0.9148674242424242
+    ],
+    "matched_auroc": 0.9558011049723757,
+    "matched_pairs": 362,
+    "detect_rate": 0.7272727272727273,
+    "human_flag_rate": 0.125
+   },
+   "ngram-unseen": {
+    "auroc": 0.8068181818181819,
+    "ci": [
+     0.6824179292929293,
+     0.9148674242424242
+    ],
+    "matched_auroc": 0.9558011049723757,
+    "matched_pairs": 362,
+    "detect_rate": 0.7272727272727273,
+    "human_flag_rate": 0.125
+   },
+   "logppl": {
+    "auroc": 0.7323232323232323,
+    "ci": [
+     0.588604797979798,
+     0.8460227272727273
+    ],
+    "matched_auroc": 1.0,
+    "matched_pairs": 362,
+    "detect_rate": 0.6363636363636364,
+    "human_flag_rate": 0.041666666666666664
+   },
+   "bino": {
+    "auroc": 0.8522727272727272,
+    "ci": [
+     0.7473484848484849,
+     0.9432449494949494
+    ],
+    "matched_auroc": 0.9834254143646409,
+    "matched_pairs": 362,
+    "detect_rate": 0.8181818181818182,
+    "human_flag_rate": 0.3333333333333333
+   }
+  },
+  {
+   "family": "reviews",
+   "proposer": "llm",
+   "round": 1,
+   "loop_paired_acc": 0.25,
+   "loop_paired_acc_plain": 0.25,
+   "loop_valid": true,
+   "loop_len": 333.5,
+   "mean_len": 350.625,
+   "length": {
+    "auroc": 0.6439814814814815,
+    "ci": [
+     0.5216203703703703,
+     0.7590856481481482
+    ],
+    "matched_auroc": 0.6011410788381742,
+    "matched_pairs": 964,
+    "detect_rate": 0.6888888888888889,
+    "human_flag_rate": 0.5
+   },
+   "ngram": {
+    "auroc": 0.8972222222222223,
+    "ci": [
+     0.8161342592592593,
+     0.9611574074074074
+    ],
+    "matched_auroc": 0.9377593360995851,
+    "matched_pairs": 964,
+    "detect_rate": 0.8,
+    "human_flag_rate": 0.125
+   },
+   "ngram-unseen": {
+    "auroc": 0.8972222222222223,
+    "ci": [
+     0.8161342592592593,
+     0.9611574074074074
+    ],
+    "matched_auroc": 0.9377593360995851,
+    "matched_pairs": 964,
+    "detect_rate": 0.8,
+    "human_flag_rate": 0.125
+   },
+   "logppl": {
+    "auroc": 0.9888888888888889,
+    "ci": [
+     0.9712962962962962,
+     1.0
+    ],
+    "matched_auroc": 0.9937759336099585,
+    "matched_pairs": 964,
+    "detect_rate": 0.9111111111111111,
+    "human_flag_rate": 0.041666666666666664
+   },
+   "bino": {
+    "auroc": 0.9740740740740742,
+    "ci": [
+     0.9337731481481482,
+     0.9972222222222222
+    ],
+    "matched_auroc": 0.9719917012448133,
+    "matched_pairs": 964,
+    "detect_rate": 1.0,
+    "human_flag_rate": 0.3333333333333333
+   }
+  },
+  {
+   "family": "reviews",
+   "proposer": "llm",
+   "round": 2,
+   "loop_paired_acc": 0.2916666666666667,
+   "loop_paired_acc_plain": 0.20833333333333334,
+   "loop_valid": true,
+   "loop_len": 371.3333333333333,
+   "mean_len": 356.6666666666667,
+   "length": {
+    "auroc": 0.5707465277777777,
+    "ci": [
+     0.4335720486111111,
+     0.69423828125
+    ],
+    "matched_auroc": 0.5094246031746031,
+    "matched_pairs": 1008,
+    "detect_rate": 0.4791666666666667,
+    "human_flag_rate": 0.5
+   },
+   "ngram": {
+    "auroc": 0.9010416666666666,
+    "ci": [
+     0.8210937500000001,
+     0.9635850694444444
+    ],
+    "matched_auroc": 0.9017857142857143,
+    "matched_pairs": 1008,
+    "detect_rate": 0.7708333333333334,
+    "human_flag_rate": 0.125
+   },
+   "ngram-unseen": {
+    "auroc": 0.9010416666666666,
+    "ci": [
+     0.8210937500000001,
+     0.9635850694444444
+    ],
+    "matched_auroc": 0.9017857142857143,
+    "matched_pairs": 1008,
+    "detect_rate": 0.7708333333333334,
+    "human_flag_rate": 0.125
+   },
+   "logppl": {
+    "auroc": 0.9409722222222222,
+    "ci": [
+     0.8779730902777778,
+     0.9935112847222222
+    ],
+    "matched_auroc": 0.9950396825396826,
+    "matched_pairs": 1008,
+    "detect_rate": 0.8125,
+    "human_flag_rate": 0.041666666666666664
+   },
+   "bino": {
+    "auroc": 0.9696180555555556,
+    "ci": [
+     0.9270399305555556,
+     0.9961154513888888
+    ],
+    "matched_auroc": 0.9791666666666666,
+    "matched_pairs": 1008,
+    "detect_rate": 0.9791666666666666,
+    "human_flag_rate": 0.3333333333333333
+   }
+  },
+  {
+   "family": "reviews",
+   "proposer": "llm",
+   "round": 3,
+   "loop_paired_acc": 0.125,
+   "loop_paired_acc_plain": 0.125,
+   "loop_valid": true,
+   "loop_len": 332.125,
+   "mean_len": 327.2083333333333,
+   "length": {
+    "auroc": 0.677951388888889,
+    "ci": [
+     0.5685438368055556,
+     0.7980794270833332
+    ],
+    "matched_auroc": 0.5932017543859649,
+    "matched_pairs": 912,
+    "detect_rate": 0.75,
+    "human_flag_rate": 0.5
+   },
+   "ngram": {
+    "auroc": 0.8750000000000001,
+    "ci": [
+     0.7836371527777779,
+     0.9461805555555556
+    ],
+    "matched_auroc": 0.8991228070175439,
+    "matched_pairs": 912,
+    "detect_rate": 0.7291666666666666,
+    "human_flag_rate": 0.125
+   },
+   "ngram-unseen": {
+    "auroc": 0.8750000000000001,
+    "ci": [
+     0.7836371527777779,
+     0.9461805555555556
+    ],
+    "matched_auroc": 0.8991228070175439,
+    "matched_pairs": 912,
+    "detect_rate": 0.7291666666666666,
+    "human_flag_rate": 0.125
+   },
+   "logppl": {
+    "auroc": 0.8454861111111112,
+    "ci": [
+     0.7373914930555555,
+     0.9320963541666665
+    ],
+    "matched_auroc": 0.9923245614035088,
+    "matched_pairs": 912,
+    "detect_rate": 0.7291666666666666,
+    "human_flag_rate": 0.041666666666666664
+   },
+   "bino": {
+    "auroc": 0.9565972222222222,
+    "ci": [
+     0.9083984375,
+     0.9917751736111111
+    ],
+    "matched_auroc": 0.981359649122807,
+    "matched_pairs": 912,
+    "detect_rate": 0.9791666666666666,
+    "human_flag_rate": 0.3333333333333333
+   }
+  },
+  {
+   "family": "reviews",
+   "proposer": "random",
+   "round": 0,
+   "loop_paired_acc": 0.125,
+   "loop_paired_acc_plain": 0.125,
+   "loop_valid": true,
+   "loop_len": 175.91666666666666,
+   "mean_len": 165.97916666666666,
+   "length": {
+    "auroc": 0.8295454545454546,
+    "ci": [
+     0.7070707070707071,
+     0.9261363636363638
+    ],
+    "matched_auroc": 0.6270718232044199,
+    "matched_pairs": 362,
+    "detect_rate": 0.9090909090909091,
+    "human_flag_rate": 0.5
+   },
+   "ngram": {
+    "auroc": 0.8068181818181819,
+    "ci": [
+     0.6824179292929293,
+     0.9148674242424242
+    ],
+    "matched_auroc": 0.9558011049723757,
+    "matched_pairs": 362,
+    "detect_rate": 0.7272727272727273,
+    "human_flag_rate": 0.125
+   },
+   "ngram-unseen": {
+    "auroc": 0.8068181818181819,
+    "ci": [
+     0.6824179292929293,
+     0.9148674242424242
+    ],
+    "matched_auroc": 0.9558011049723757,
+    "matched_pairs": 362,
+    "detect_rate": 0.7272727272727273,
+    "human_flag_rate": 0.125
+   },
+   "logppl": {
+    "auroc": 0.7323232323232323,
+    "ci": [
+     0.588604797979798,
+     0.8460227272727273
+    ],
+    "matched_auroc": 1.0,
+    "matched_pairs": 362,
+    "detect_rate": 0.6363636363636364,
+    "human_flag_rate": 0.041666666666666664
+   },
+   "bino": {
+    "auroc": 0.8522727272727272,
+    "ci": [
+     0.7473484848484849,
+     0.9432449494949494
+    ],
+    "matched_auroc": 0.9834254143646409,
+    "matched_pairs": 362,
+    "detect_rate": 0.8181818181818182,
+    "human_flag_rate": 0.3333333333333333
+   }
+  },
+  {
+   "family": "reviews",
+   "proposer": "random",
+   "round": 1,
+   "loop_paired_acc": 0.16666666666666666,
+   "loop_paired_acc_plain": 0.125,
+   "loop_valid": true,
+   "loop_len": 175.91666666666666,
+   "mean_len": 165.97916666666666,
+   "length": {
+    "auroc": 0.8295454545454546,
+    "ci": [
+     0.7070707070707071,
+     0.9261363636363638
+    ],
+    "matched_auroc": 0.6270718232044199,
+    "matched_pairs": 362,
+    "detect_rate": 0.9090909090909091,
+    "human_flag_rate": 0.5
+   },
+   "ngram": {
+    "auroc": 0.8068181818181819,
+    "ci": [
+     0.6824179292929293,
+     0.9148674242424242
+    ],
+    "matched_auroc": 0.9558011049723757,
+    "matched_pairs": 362,
+    "detect_rate": 0.7272727272727273,
+    "human_flag_rate": 0.125
+   },
+   "ngram-unseen": {
+    "auroc": 0.8068181818181819,
+    "ci": [
+     0.6824179292929293,
+     0.9148674242424242
+    ],
+    "matched_auroc": 0.9558011049723757,
+    "matched_pairs": 362,
+    "detect_rate": 0.7272727272727273,
+    "human_flag_rate": 0.125
+   },
+   "logppl": {
+    "auroc": 0.7323232323232323,
+    "ci": [
+     0.588604797979798,
+     0.8460227272727273
+    ],
+    "matched_auroc": 1.0,
+    "matched_pairs": 362,
+    "detect_rate": 0.6363636363636364,
+    "human_flag_rate": 0.041666666666666664
+   },
+   "bino": {
+    "auroc": 0.8522727272727272,
+    "ci": [
+     0.7473484848484849,
+     0.9432449494949494
+    ],
+    "matched_auroc": 0.9834254143646409,
+    "matched_pairs": 362,
+    "detect_rate": 0.8181818181818182,
+    "human_flag_rate": 0.3333333333333333
+   }
+  },
+  {
+   "family": "reviews",
+   "proposer": "random",
+   "round": 2,
+   "loop_paired_acc": 0.4166666666666667,
+   "loop_paired_acc_plain": 0.125,
+   "loop_valid": true,
+   "loop_len": 344.2083333333333,
+   "mean_len": 296.5208333333333,
+   "length": {
+    "auroc": 0.7624113475177305,
+    "ci": [
+     0.6340536347517731,
+     0.8584109042553191
+    ],
+    "matched_auroc": 0.6510416666666666,
+    "matched_pairs": 768,
+    "detect_rate": 0.7446808510638298,
+    "human_flag_rate": 0.5
+   },
+   "ngram": {
+    "auroc": 0.850177304964539,
+    "ci": [
+     0.7592420212765957,
+     0.9326241134751774
+    ],
+    "matched_auroc": 0.890625,
+    "matched_pairs": 768,
+    "detect_rate": 0.6595744680851063,
+    "human_flag_rate": 0.125
+   },
+   "ngram-unseen": {
+    "auroc": 0.850177304964539,
+    "ci": [
+     0.7592420212765957,
+     0.9326241134751774
+    ],
+    "matched_auroc": 0.890625,
+    "matched_pairs": 768,
+    "detect_rate": 0.6595744680851063,
+    "human_flag_rate": 0.125
+   },
+   "logppl": {
+    "auroc": 0.9033687943262412,
+    "ci": [
+     0.8142508865248227,
+     0.9703235815602836
+    ],
+    "matched_auroc": 0.9921875,
+    "matched_pairs": 768,
+    "detect_rate": 0.723404255319149,
+    "human_flag_rate": 0.041666666666666664
+   },
+   "bino": {
+    "auroc": 0.9601063829787234,
+    "ci": [
+     0.9179742907801419,
+     0.9969193262411348
+    ],
+    "matched_auroc": 0.984375,
+    "matched_pairs": 768,
+    "detect_rate": 0.9787234042553191,
+    "human_flag_rate": 0.3333333333333333
+   }
+  },
+  {
+   "family": "reviews",
+   "proposer": "random",
+   "round": 3,
+   "loop_paired_acc": 0.375,
+   "loop_paired_acc_plain": 0.16666666666666666,
+   "loop_valid": true,
+   "loop_len": 194.08333333333334,
+   "mean_len": 229.60416666666666,
+   "length": {
+    "auroc": 0.8849431818181818,
+    "ci": [
+     0.7967329545454546,
+     0.9526515151515151
+    ],
+    "matched_auroc": 0.7594059405940594,
+    "matched_pairs": 505,
+    "detect_rate": 0.9090909090909091,
+    "human_flag_rate": 0.5
+   },
+   "ngram": {
+    "auroc": 0.8607954545454545,
+    "ci": [
+     0.7583806818181817,
+     0.9398910984848485
+    ],
+    "matched_auroc": 0.8277227722772277,
+    "matched_pairs": 505,
+    "detect_rate": 0.6818181818181818,
+    "human_flag_rate": 0.125
+   },
+   "ngram-unseen": {
+    "auroc": 0.8607954545454545,
+    "ci": [
+     0.7583806818181817,
+     0.9398910984848485
+    ],
+    "matched_auroc": 0.8277227722772277,
+    "matched_pairs": 505,
+    "detect_rate": 0.6818181818181818,
+    "human_flag_rate": 0.125
+   },
+   "logppl": {
+    "auroc": 0.7964015151515151,
+    "ci": [
+     0.7044507575757576,
+     0.8916429924242423
+    ],
+    "matched_auroc": 0.998019801980198,
+    "matched_pairs": 505,
+    "detect_rate": 0.6136363636363636,
+    "human_flag_rate": 0.041666666666666664
+   },
+   "bino": {
+    "auroc": 0.8352272727272727,
+    "ci": [
+     0.735250946969697,
+     0.9187499999999997
+    ],
+    "matched_auroc": 0.9524752475247524,
+    "matched_pairs": 505,
+    "detect_rate": 0.7727272727272727,
+    "human_flag_rate": 0.3333333333333333
+   }
+  }
+ ],
+ "spearman": {
+  "length/all": {
+   "rho": 0.0857957598653371,
+   "p": 0.640580613731319,
+   "n": 32
+  },
+  "length/valid": {
+   "rho": 0.13028984219926637,
+   "p": 0.5734950774504879,
+   "n": 21
+  },
+  "ngram/all": {
+   "rho": 0.1595231043133383,
+   "p": 0.38315374528940604,
+   "n": 32
+  },
+  "ngram/valid": {
+   "rho": 0.39691390072044547,
+   "p": 0.07482674666819397,
+   "n": 21
+  },
+  "ngram-unseen/all": {
+   "rho": -0.045322275944900015,
+   "p": 0.8054441634040096,
+   "n": 32
+  },
+  "ngram-unseen/valid": {
+   "rho": -0.02820707923901643,
+   "p": 0.9033982879844159,
+   "n": 21
+  },
+  "logppl/all": {
+   "rho": -0.007632233579078797,
+   "p": 0.9669313973506525,
+   "n": 32
+  },
+  "logppl/valid": {
+   "rho": -0.041639021733786155,
+   "p": 0.8577752302832731,
+   "n": 21
+  },
+  "bino/all": {
+   "rho": -0.19495174413721023,
+   "p": 0.2849622879103108,
+   "n": 32
+  },
+  "bino/valid": {
+   "rho": -0.3418429364918896,
+   "p": 0.12933796387550078,
+   "n": 21
+  },
+  "length/length-matched": {
+   "rho": 0.10659115538280609,
+   "p": 0.6042765790859922,
+   "n": 26
+  },
+  "length/vs-mean-length": {
+   "rho": -0.8716741040726188,
+   "p": 8.382609748547582e-11,
+   "n": 32
+  },
+  "ngram/length-matched": {
+   "rho": 0.11409003063586784,
+   "p": 0.5789263399390484,
+   "n": 26
+  },
+  "ngram/vs-mean-length": {
+   "rho": 0.8554977711738482,
+   "p": 4.4434567265274973e-10,
+   "n": 32
+  },
+  "ngram-unseen/length-matched": {
+   "rho": -0.40368945112315674,
+   "p": 0.04083937572311269,
+   "n": 26
+  },
+  "ngram-unseen/vs-mean-length": {
+   "rho": 0.8566121842496284,
+   "p": 3.987294988336215e-10,
+   "n": 32
+  },
+  "logppl/length-matched": {
+   "rho": -0.8133479140892531,
+   "p": 4.395546269977332e-07,
+   "n": 26
+  },
+  "logppl/vs-mean-length": {
+   "rho": 0.9743684992570577,
+   "p": 5.4119133648473664e-21,
+   "n": 32
+  },
+  "bino/length-matched": {
+   "rho": -0.45868120297894277,
+   "p": 0.018432094679947213,
+   "n": 26
+  },
+  "bino/vs-mean-length": {
+   "rho": 0.8789004457652301,
+   "p": 3.69488272134726e-11,
+   "n": 32
+  }
+ }
+}

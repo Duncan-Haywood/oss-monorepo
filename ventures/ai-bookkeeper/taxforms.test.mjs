@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { newBooks, importStatement, confirm, parseSplit } from "./engine.mjs";
-import { scheduleC, scheduleCCsv, contractors1099, contractors1099Csv, markW9, mergePayees, NEC_THRESHOLD } from "./taxforms.mjs";
+import { scheduleC, scheduleCCsv, contractors1099, contractors1099Csv, nec1099FilingCsv, markW9, mergePayees, NEC_THRESHOLD, necDeadline } from "./taxforms.mjs";
 
 const CSV = `Date,Description,Amount
 2026-01-05,CLIENT PAYMENT ACME,5000.00
@@ -149,4 +149,22 @@ test("1099-NEC: two spellings of one payee can be merged, which carries the tota
   assert.equal(contractors1099(mergePayees(merged, "ZELLE ANNA LOPEZ", "UPWORK PAYMENT ANNA LOPEZ", false), { year: 2026 }).payees.length, 2);
   assert.throws(() => mergePayees(books, "ZELLE ANNA LOPEZ", "NOBODY"), /No bank line/);
   assert.throws(() => mergePayees(books, "ZELLE ANNA LOPEZ", "zelle anna lopez"), /same payee/);
+});
+
+test("1099-NEC: the filing-prep CSV lists only payees over the line, in the form's boxes, with no TIN", () => {
+  let { books } = importStatement(newBooks(), "Date,Description,Amount\n2026-01-10,UPWORK PAYMENT ANNA LOPEZ,-2500.00\n2026-02-10,ZELLE BOB SMALL,-300.00\n", "1000");
+  books = confirm(books, Object.fromEntries(books.transactions.map((t) => [t.id, "6020"])));
+  const lines = nec1099FilingCsv(contractors1099(books, { year: 2026 })).trim().split("\n");
+  assert.equal(lines.length, 2, "header plus the one payee over $2,000");
+  assert.match(lines[0], /^Tax year,Recipient name,Recipient TIN/);
+  assert.match(lines[1], /^2026,.*ANNA LOPEZ,,,,,,2500\.00,0\.00,no$/);
+});
+
+test("1099-NEC: the due date rolls off weekends and 2027 is flagged as indexed", () => {
+  assert.equal(necDeadline(2025), "2026-02-02"); // Jan 31 2026 is a Saturday
+  assert.equal(necDeadline(2026), "2027-02-01"); // a Sunday
+  assert.equal(necDeadline(2027), "2028-01-31"); // a Monday
+  assert.ok(contractors1099(necBooks(), { year: 2026 }).warnings.every((w) => !/indexed/.test(w)));
+  assert.ok(contractors1099(necBooks(), { year: 2027 }).warnings.some((w) => /indexed/.test(w)));
+  assert.ok(!contractors1099(necBooks(), { year: 2027, threshold: 250000 }).warnings.some((w) => /indexed/.test(w)));
 });
