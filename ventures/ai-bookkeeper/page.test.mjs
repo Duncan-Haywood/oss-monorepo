@@ -71,3 +71,10 @@ test("the invoice and bill loader and rule suggestions are wired to controls tha
 test("the page offers a write-off button for open invoices", () => {
   assert.match(script(), /writeOff\(books, o\.id\)/);
 });
+
+test("a multi-account OFX file gets a per-account mapping on the page", () => {
+  const html = page("index.html");
+  assert.match(html, /id="ofx-map"/);
+  assert.match(script(), /importOfxAccounts\(books/);
+  assert.match(script(), /splitOfx\(text\)/);
+});
