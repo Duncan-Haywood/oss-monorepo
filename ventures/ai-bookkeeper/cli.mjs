@@ -17,6 +17,7 @@
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { newBooks, importStatement, importOfxAccounts, lockPeriod, categorize, suggestRules, addRules, addDocuments, writeOff, aging, salesTax, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, exportLines, status, analyze, fmt } from "./engine.mjs";
 import { accountMap } from "./ledger.mjs";
+import { scheduleC, scheduleCCsv, contractors1099, contractors1099Csv, markW9 } from "./taxforms.mjs";
 import { sniffFormat, splitOfx } from "./bank.mjs";
 
 const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that learn from your corrections.
@@ -34,6 +35,9 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
                          bank lines that pay them clear receivable/payable
   salestax [--from D --to D]  sales tax collected, credited and paid over by month, and what is still owed
   lock DATE|off          lock a closed period: nothing dated on or before DATE can be imported, re-filed, booked or written off
+  contractors [--year Y] [--threshold DOLLARS] [--csv|--json]  contract labor paid by payee against the 1099-NEC line, with W-9 status
+  w9 PAYEE [--off]       record that a W-9 is on file for a payee (a flag; no tax IDs are stored)
+  schedulec [--from D --to D] [--meals PCT] [--csv|--json]  the profit and loss on US Schedule C lines (a worksheet, not a filing)
   writeoff ID [--date D]  write off an invoice's unpaid balance to bad debts (6900)
   aging [--as-of D]      what customers owe you and what you owe, by days past due
   rules [--apply]        payees you filed the same way 3+ times, as rules; --apply adds them
@@ -116,6 +120,29 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
   console.log(`AGING as of ${a.asOf}`);
   for (const [h, side] of [["Receivable (owed to you)", a.receivable], ["Payable (you owe)", a.payable]]) console.log(`  ${h.padEnd(26)} ${fmt(side.total).padStart(12)}   ${a.buckets.map((b, i) => `${b}: ${fmt(side.byBucket[i])}`).join("  ")}`);
   for (const d of a.open) console.log(`    ${d.id.padEnd(14)} ${d.party.slice(0, 28).padEnd(28)} ${fmt(d.total).padStart(11)}  due ${d.due ?? d.date}  ${d.credit ? "credit not applied" : d.daysLate ? `${d.daysLate} days late` : "not due"}${d.partlyPaid ? `  (of ${fmt(d.original)})` : ""}`);
+} else if (cmd === "schedulec") {
+  const sc = scheduleC(books, { from, to, mealsPct: flag("--meals") !== null ? +flag("--meals") : 50 });
+  if (json) { console.log(JSON.stringify(sc, null, 2)); process.exit(0); }
+  if (has("--csv")) { process.stdout.write(scheduleCCsv(sc)); process.exit(0); }
+  console.log(`SCHEDULE C WORKSHEET${from || to ? ` ${from ?? ""}..${to ?? ""}` : ""}`);
+  for (const l of sc.lines) console.log(`  ${l.line.padEnd(4)} ${l.label.padEnd(36)} ${fmt(l.cents).padStart(12)}`);
+  console.log(`  7    ${"Gross income".padEnd(36)} ${fmt(sc.grossIncome).padStart(12)}\n  28   ${"Total expenses".padEnd(36)} ${fmt(sc.totalExpenses).padStart(12)}\n  31   ${"Net profit or (loss)".padEnd(36)} ${fmt(sc.netProfit).padStart(12)}`);
+  if (sc.meals.booked) console.log(`  Meals booked ${fmt(sc.meals.booked)}, ${sc.meals.pct}% carried to 24b.`);
+  for (const w of sc.warnings) console.log(`  ! ${w}`);
+  console.log("  A worksheet for you or your preparer. Not tax advice; it leaves out depreciation, home office, mileage and self-employment tax.");
+} else if (cmd === "contractors") {
+  const yr = flag("--year"), th = flag("--threshold");
+  const r = contractors1099(books, { year: yr ? +yr : undefined, threshold: th !== null ? Math.round(+th * 100) : undefined });
+  if (json) { console.log(JSON.stringify(r, null, 2)); process.exit(0); }
+  if (has("--csv")) { process.stdout.write(contractors1099Csv(r)); process.exit(0); }
+  console.log(`CONTRACT LABOR ${r.year}, 1099-NEC line ${fmt(r.threshold)}`);
+  for (const p of r.payees) console.log(`  ${p.name.slice(0, 34).padEnd(34)} ${fmt(p.cents).padStart(12)}  ${p.over ? "REPORT" : "under "}  ${p.w9 ? "W-9 on file" : "no W-9"}${p.cardCents ? `  (+${fmt(p.cardCents)} by card)` : ""}`);
+  for (const w of r.warnings) console.log(`  ! ${w}`);
+  console.log("  A worksheet, not a filing. Whether someone is a contractor, and any exemption, is for you or your preparer to decide.");
+} else if (cmd === "w9") {
+  if (!rest[0]) { console.error("w9 needs a payee name as it appears on the bank line"); process.exit(2); }
+  const off = has("--off");
+  try { books = markW9(books, rest[0], !off); save(); console.log(off ? "W-9 flag cleared." : "W-9 marked on file."); } catch (e) { console.error(e.message); process.exit(1); }
 } else if (cmd === "salestax") {
   const t = salesTax(books, { from, to });
   if (json) { console.log(JSON.stringify(t, null, 2)); process.exit(0); }
