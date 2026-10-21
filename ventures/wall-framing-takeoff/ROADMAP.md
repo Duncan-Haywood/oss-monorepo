@@ -55,8 +55,11 @@ Ticked items are on `main`.
       bound. Not yet: two courses (blocked horizontal joint) for walls taller
       than the longest sheet, horizontal panel orientation, a 2D reuse of
       opening cut-outs, corner overhang and the rim board.
-- [ ] **Blocking and fire blocking**: mid-height blocking rows, fire blocking
-      for walls over 10 ft, nailers; added to the cut list.
+- [x] **Blocking and fire blocking** (2026-10-21, `blockingRows` in `engine.mjs`):
+      plan `blocking: {rows, fire}` adds evenly spaced flat-2x rows between
+      neighbouring full-height studs, skips openings, and `fire` adds enough
+      rows that no stud run passes 10 ft; they join the cut list and order.
+      Not yet: staggered blocks, the page control, nailers for horizontal sheets.
 - [ ] **Corner and tee plate laps**: the cap plate laps into the intersecting
       wall; piece lengths, not totals, change.
 - [ ] **Advanced framing options** (2-stud corners, ladder blocking at tees,

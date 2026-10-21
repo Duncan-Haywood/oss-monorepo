@@ -398,10 +398,36 @@ export function layoutWall(plan, wall) {
       p = j;
     }
   }
+  // Blocking: flat 2x between neighbouring full-height studs at evenly spaced heights, never across an opening.
+  const rows = blockingRows(plan);
+  if (rows > 0) {
+    const tall = members
+      .filter((m) => m.orient === "v" && Math.abs(m.y - THICK) < EPS && Math.abs(m.h - plan.studLength) < EPS)
+      .sort((a, b) => a.x - b.x);
+    for (let r = 1; r <= rows; r++) {
+      const y = THICK + (plan.studLength * r) / (rows + 1) - THICK / 2;
+      for (let i = 0; i + 1 < tall.length; i++) {
+        const x0 = tall[i].x + THICK;
+        const x1 = tall[i + 1].x;
+        if (x1 - x0 < 1 - EPS) continue;
+        if (ops.some((op) => x0 < op.offset + op.width - EPS && x1 > op.offset + EPS)) continue;
+        add("blocking", x0, y, x1 - x0, THICK, stud, "h", plan.blocking?.fire ? "fire blocking" : "blocking");
+      }
+    }
+  } else if (plan.studLength > 120 + EPS) {
+    notes.push(`the studs are ${formatInches(plan.studLength)}: fire blocking is needed at most 10 ft apart (set blocking.fire).`);
+  }
   if (shortCripples.length) notes.push(`short top cripples over ${shortCripples.join(", ")}. Header sizes are yours to check.`);
   if (shimGaps.length) notes.push(`a gap too small for cripples between header and top plate over ${shimGaps.join(", ")}: shim or fill it.`);
   if (spacers.length) notes.push(`header spacers not in the takeoff: ${spacers.join(", ")}.`);
   return { id: wall.id, length: L, height, stud, members, notes, layout, joints: { bottom: bottomJoints, top: topJoints || [], cap: capJoints || [] } };
+}
+
+/** Rows of blocking: the asked-for count, or what fire blocking needs so no stud run exceeds 10 ft. */
+export function blockingRows(plan) {
+  const b = plan.blocking || {};
+  const fire = b.fire ? Math.max(0, Math.ceil((plan.studLength + 2 * THICK) / 120 - EPS) - 1) : 0;
+  return Math.max(Math.floor(b.rows || 0), fire);
 }
 
 /**
