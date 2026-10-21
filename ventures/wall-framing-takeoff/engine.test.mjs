@@ -604,3 +604,25 @@ test("rim lap: sheathing runs below the bottom plate to cover the rim board, che
   assert.ok(on.notes.some((n) => /rim board/.test(n)));
   assert.ok(on.courses[0].y0 === -9.25 || on.courses.length > 1);
 });
+
+test("a gable opening that rises into the triangle: cripples only where the roof clears the header, too-tall headers rejected", () => {
+  const plan = { ...base(), walls: [{ id: "G", length: 240, gable: { pitch: 6 }, openings: [
+    { kind: "window", offset: 100, width: 36, height: 36, header: "2x10", headerHeight: 110, label: "W1" },
+  ] }] };
+  assert.deepEqual(validatePlan(plan), []);
+  const w = layoutWall(plan, plan.walls[0]);
+  assert.deepEqual(verifyWall(w, plan.walls[0]), []);
+  const eave = plan.studLength + 1.5;
+  const cr = w.members.filter((m) => m.label === "top cripple, W1");
+  assert.ok(cr.length > 0 && cr.every((m) => m.length > 0.5));
+  assert.ok(w.notes.some((n) => /above the eave line/.test(n)));
+  const rise = (x) => 0.5 * Math.min(x, 240 - x);
+  // each cripple's top sits on the roof line at its long point
+  for (const m of cr) assert.ok(Math.abs(m.y + m.length - (eave + Math.max(rise(m.x), rise(m.x + 1.5)))) < 1e-6);
+  const high = { ...base(), walls: [{ id: "G", length: 240, gable: { pitch: 6 }, openings: [
+    { kind: "window", offset: 20, width: 36, height: 36, header: "2x10", headerHeight: 110, label: "W2" },
+  ] }] };
+  assert.ok(validatePlan(high).some((e) => /sloped top plate/.test(e)));
+  const flat = { ...base(), walls: [{ id: "F", length: 240, openings: [{ kind: "window", offset: 100, width: 36, height: 36, header: "2x10", headerHeight: 110 }] }] };
+  assert.ok(validatePlan(flat).some((e) => /under the top plates/.test(e)));
+});
