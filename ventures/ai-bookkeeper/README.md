@@ -248,6 +248,42 @@ current, 1-30, 31-60, 61-90 and 90+ days past due.
 Tests: engine.test.mjs, "Accruals" and "Part-payments and credit notes". Not measured on real invoice exports (the
 tests use a four-row list); the matching thresholds are a first guess.
 
+## Schedule C worksheet (US sole proprietors)
+
+`scheduleC(books, { from, to, mealsPct, map })` in `taxforms.mjs` (also the page's
+"US Schedule C worksheet" table and CSV download, and `cli.mjs schedulec [--from D
+--to D] [--meals PCT] [--csv|--json]`) regroups the profit and loss onto the lines
+of Form 1040 Schedule C: gross receipts (1), cost of goods (4), other income (6),
+each expense line, meals cut to 50% on 24b, and gross income (7), total expenses
+(28) and net profit (31). Software, bank fees, education and shipping go to 27a
+(other expenses) with their own rows for Part V. A chart code the map does not know
+goes to 27a and is flagged; the uncategorized account and lines still in review are
+left out and flagged. Pass `map` (`{ "6060": "18" }`) to move an account. It is a
+worksheet to copy from, not a filing: no depreciation, home office, mileage,
+health insurance or self-employment tax, and the meals rule has exceptions. The line
+map is from the form's layout as the author knows it, not checked against this year's
+instructions; confirm each line with your preparer. Test: `taxforms.test.mjs`.
+
+## 1099-NEC contractor worksheet (US)
+
+`contractors1099(books, { year, threshold })` in `taxforms.mjs` (and `cli.mjs
+contractors [--year Y] [--threshold DOLLARS] [--csv|--json]`) totals bank payments
+filed to Contract labor (6020, whole lines and split parts) by payee for a calendar
+year and marks who is over the 1099-NEC line. `cli.mjs w9 "PAYEE"` (`markW9`)
+records that a W-9 is on file; only that yes/no flag is stored, never a tax ID.
+`cli.mjs merge-payee FROM INTO [--off]` (`mergePayees`) counts two spellings of one
+payee ("ZELLE ANNA LOPEZ", "UPWORK PAYMENT ANNA LOPEZ") as one, so their payments
+add up against the line; only a pointer is kept, and `--off` undoes it. The page has
+the same worksheet as a card (W-9 tick boxes, a merge picker, a CSV button). The
+line is $600 for payments through 2025 and $2,000 from 2026 as the author understands
+the 2025 change; check the current IRS instructions or pass `--threshold`. Card
+payments are shown apart and left out of the totals (the processor reports those on
+a 1099-K); payees over the line without a W-9 and unfiled bank lines from the year
+are warned about. Payees are grouped by the first two payee words of the bank line,
+so two spellings of one person can split: check the list. It is a worksheet, not a
+filing: whether someone is a contractor, and exemptions such as corporations, are
+yours to decide. Page card: not yet. Test: `taxforms.test.mjs`.
+
 ## Sales tax report
 
 `salesTax(books)` (also `salesTax` from `analyze`, the page's sales tax table and
@@ -294,7 +330,7 @@ payroll and sales tax filings, multiple currencies, and receipts.
 ## Next
 
 - MT940 and CAMT.053 reading landed 2026-10-21 (`sepa.mjs`, hand-written fixtures); OFX, MT940 and CAMT closing balances now feed the reconcile check. Try real exports from a German, Dutch or UK bank.
-- OFX/QFX and QIF reading landed 2026-10-21 against hand-written fixtures (`fixtures/checking.ofx`, `checking.qif`); try real downloads, and try a real multi-account OFX file. Those split per account (2026-10-21, `splitOfx`, `importOfxAccounts`, `fixtures/two-accounts.ofx`; CLI `import FILE --map OFXID=CODE,...`); the page's file picker shows one account picker per account (2026-10-21; checked by markup tests, not yet clicked through in a browser).
+- OFX/QFX and QIF reading landed 2026-10-21 against hand-written fixtures (`fixtures/checking.ofx`, `checking.qif`); try real downloads, and try a real multi-account OFX file. Those split per account (2026-10-21, `splitOfx`, `importOfxAccounts`, `fixtures/two-accounts.ofx`; CLI `import FILE --map OFXID=CODE,...`); the page's file picker shows one account picker per account (2026-10-21; clicked through in headless Chromium 2026-10-21 by `eval/browser-click.mjs`, which serves the folder, loads `two-accounts.ofx`, picks accounts, imports and loads the example; it skips when Playwright is absent).
 - Check the five importers against real exports. `fixtures/` holds one file per
   shape (Chase checking and card, Bank of America, Wells Fargo, Amex, Capital
   One), written by hand from the layouts those banks document, with made-up

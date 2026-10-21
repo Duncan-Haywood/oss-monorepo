@@ -52,8 +52,8 @@ Ticked items are on `main`.
       nailer is called out where an opening leaves none), cut-outs at openings,
       the sheet length chosen from the wall height, and the sheet order as a
       cutting-stock problem over 48 in strips pooled across walls, with its LP
-      bound. Not yet: two courses (blocked horizontal joint) for walls taller
-      than the longest sheet, horizontal panel orientation, a 2D reuse of
+      bound. Two courses (blocked horizontal joint) for walls taller
+      than the longest sheet landed 2026-10-21. Not yet: horizontal panel orientation, a 2D reuse of
       opening cut-outs, corner overhang and the rim board.
 - [x] **Blocking and fire blocking** (2026-10-21, `blockingRows` in `engine.mjs`):
       plan `blocking: {rows, fire}` adds evenly spaced flat-2x rows between

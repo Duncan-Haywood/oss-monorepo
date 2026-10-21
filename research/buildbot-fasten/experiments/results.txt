@@ -1,0 +1,117 @@
+buildbot-fasten: one 4x8 sheet = 62 nails; tool 3.4 kg; Menagerie cda5236f9838
+A. Nail windows (half-width = how far the nail centre may stray from the window centre)
+   bottom plate    7 nails, +-13.46 mm in z
+   field          14 nails, +-17.39 mm in y
+   joint          34 nails, +-3.93 mm in y
+   top plate       7 nails, +-32.51 mm in z
+   whole sheet inside its windows with probability 0.5: tip sigma <= 1.69 mm (equal y and z)
+   whole sheet inside its windows with probability 0.9: tip sigma <= 1.33 mm (equal y and z)
+   whole sheet inside its windows with probability 0.95: tip sigma <= 1.24 mm (equal y and z)
+   whole sheet inside its windows with probability 0.99: tip sigma <= 1.09 mm (equal y and z)
+   the same without the 3/8 in edge distance on the joint nails (each +-17.4 mm): 95% needs 4.82 mm
+
+B. g1 mu=0.3: largest horizontal push (N) by tool height (rows, m) and reach (cols, m); '-' infeasible
+   z \ x     0.3    0.4    0.5    0.6
+     0.2       9      -      -      -
+     0.4       8      -      -      -
+     0.6      70      -      -      -
+     0.8     108    108      -      -
+     1.0     101     82      -      -
+     1.2      71     78      -      -
+     1.4      64      -      -      -
+     1.6       -      -      -      -
+   binding limit (cells): waist_pitch_joint 4, right_wrist_pitch_joint 3, slip 2, left_wrist_pitch_joint 1
+
+B. g1 mu=0.6: largest horizontal push (N) by tool height (rows, m) and reach (cols, m); '-' infeasible
+   z \ x     0.3    0.4    0.5    0.6
+     0.2       9      -      -      -
+     0.4       8      -      -      -
+     0.6      70      -      -      -
+     0.8     116    142      -      -
+     1.0     101     82      -      -
+     1.2      71     78      -      -
+     1.4      64      -      -      -
+     1.6       -      -      -      -
+   binding limit (cells): waist_pitch_joint 4, left_wrist_pitch_joint 3, right_wrist_pitch_joint 3
+
+C. g1: tip scatter in the wall plane per degree (1 sigma) of independent error on every joint (mm, y/z), and the joint sigma (deg) for a 95% sheet
+   z \ x                    0.3                   0.4                   0.5                   0.6
+     0.2     15.9/13.3    0.078    17.2/16.9    0.072                     -                     -
+     0.4     14.7/13.4    0.084    16.3/17.1    0.076    18.1/20.8    0.068                     -
+     0.6     14.3/13.4    0.087    16.1/17.2    0.077    18.2/20.9    0.068                     -
+     0.8     14.5/13.3    0.085    16.7/17.2    0.074    19.1/21.0    0.065                     -
+     1.0     16.2/13.7    0.076    18.4/17.2    0.067    21.2/20.8    0.058                     -
+     1.2     19.5/13.6    0.063    21.4/17.1    0.058                     -                     -
+     1.4     23.8/13.2    0.052                     -                     -                     -
+     1.6                      -                     -                     -                     -
+
+E. g1 at (x 0.4, z 1.0) m: 10-bit joint sensors: tip sigma 1.86/1.75 mm (y/z), whole sheet inside its windows 0.299
+E. g1 at (x 0.4, z 1.0) m: 11-bit joint sensors: tip sigma 0.93/0.87 mm (y/z), whole sheet inside its windows 0.999
+E. g1 at (x 0.4, z 1.0) m: 12-bit joint sensors: tip sigma 0.47/0.44 mm (y/z), whole sheet inside its windows 1.000
+E. g1 at (x 0.4, z 1.0) m: 13-bit joint sensors: tip sigma 0.23/0.22 mm (y/z), whole sheet inside its windows 1.000
+E. g1 at (x 0.4, z 1.0) m: 14-bit joint sensors: tip sigma 0.12/0.11 mm (y/z), whole sheet inside its windows 1.000
+E. g1 at (x 0.4, z 1.0) m: 16-bit joint sensors: tip sigma 0.03/0.03 mm (y/z), whole sheet inside its windows 1.000
+
+D. g1 mu=0.3 needs 20 N: tool heights 0.6-1.4 m; 18/62 nails of a sheet within 0.1 m of one
+D. g1 mu=0.3 needs 50 N: tool heights 0.6-1.4 m; 18/62 nails of a sheet within 0.1 m of one
+D. g1 mu=0.3 needs 100 N: tool heights 0.8-1.0 m; 8/62 nails of a sheet within 0.1 m of one
+D. g1 mu=0.6 needs 20 N: tool heights 0.6-1.4 m; 18/62 nails of a sheet within 0.1 m of one
+D. g1 mu=0.6 needs 50 N: tool heights 0.6-1.4 m; 18/62 nails of a sheet within 0.1 m of one
+D. g1 mu=0.6 needs 100 N: tool heights 0.8-1.0 m; 8/62 nails of a sheet within 0.1 m of one
+B. h1 mu=0.3: largest horizontal push (N) by tool height (rows, m) and reach (cols, m); '-' infeasible
+   z \ x     0.3    0.4    0.5    0.6
+     0.2       -      -      -      -
+     0.4     124    127    136      -
+     0.6     124    123    131    147
+     0.8     123    123    133    150
+     1.0     131    152    161    161
+     1.2     125    159    161    161
+     1.4     161    122    126    134
+     1.6     156    161    125    124
+     1.8     130    130    126    123
+     2.0      82     89      -      -
+     2.2       -      -      -      -
+   binding limit (cells): right_elbow 19, slip 6, left_elbow 5, reach 3
+
+B. h1 mu=0.6: largest horizontal push (N) by tool height (rows, m) and reach (cols, m); '-' infeasible
+   z \ x     0.3    0.4    0.5    0.6
+     0.2       -      -      -      -
+     0.4     124    127    136      -
+     0.6     124    123    131    147
+     0.8     123    123    133    150
+     1.0     131    152    184    227
+     1.2     276    159    177    191
+     1.4     182    122    205    134
+     1.6     156    166    125    124
+     1.8     130    130    126    123
+     2.0      82     89      -      -
+     2.2       -      -      -      -
+   binding limit (cells): right_elbow 22, left_elbow 5, reach 5, left_shoulder_yaw 1
+
+C. h1: tip scatter in the wall plane per degree (1 sigma) of independent error on every joint (mm, y/z), and the joint sigma (deg) for a 95% sheet
+   z \ x                    0.3                   0.4                   0.5                   0.6
+     0.2                      -                     -                     -                     -
+     0.4     16.4/11.3    0.076    17.2/13.4    0.072    18.3/15.8    0.068                     -
+     0.6     14.8/11.0    0.084    15.8/13.2    0.078    16.8/15.7    0.074    17.6/18.4    0.070
+     0.8     13.4/10.3    0.092    14.7/12.8    0.084    16.0/15.5    0.077    17.1/18.3    0.072
+     1.0     12.1/10.0    0.102    13.8/12.7    0.090    15.4/15.4    0.080    16.8/18.2    0.074
+     1.2     11.4/10.3    0.109    13.5/12.7    0.092    15.3/15.4    0.081    16.8/18.2    0.074
+     1.4     12.4/10.2    0.100    14.2/12.8    0.087    15.9/15.5    0.078    17.3/18.2    0.072
+     1.6     14.5/10.3    0.086    15.7/12.9    0.079    17.0/15.5    0.073    18.0/18.2    0.069
+     1.8     16.4/10.1    0.075    17.3/12.7    0.072    18.1/15.2    0.068    18.8/17.7    0.066
+     2.0     18.0/9.4     0.069    18.6/12.0    0.067                     -                     -
+     2.2                      -                     -                     -                     -
+
+E. h1 at (x 0.4, z 1.0) m: 10-bit joint sensors: tip sigma 1.40/1.28 mm (y/z), whole sheet inside its windows 0.845
+E. h1 at (x 0.4, z 1.0) m: 11-bit joint sensors: tip sigma 0.70/0.64 mm (y/z), whole sheet inside its windows 1.000
+E. h1 at (x 0.4, z 1.0) m: 12-bit joint sensors: tip sigma 0.35/0.32 mm (y/z), whole sheet inside its windows 1.000
+E. h1 at (x 0.4, z 1.0) m: 13-bit joint sensors: tip sigma 0.17/0.16 mm (y/z), whole sheet inside its windows 1.000
+E. h1 at (x 0.4, z 1.0) m: 14-bit joint sensors: tip sigma 0.09/0.08 mm (y/z), whole sheet inside its windows 1.000
+E. h1 at (x 0.4, z 1.0) m: 16-bit joint sensors: tip sigma 0.02/0.02 mm (y/z), whole sheet inside its windows 1.000
+
+D. h1 mu=0.3 needs 20 N: tool heights 0.4-2.0 m; 36/62 nails of a sheet within 0.1 m of one
+D. h1 mu=0.3 needs 50 N: tool heights 0.4-2.0 m; 36/62 nails of a sheet within 0.1 m of one
+D. h1 mu=0.3 needs 100 N: tool heights 0.4-1.8 m; 34/62 nails of a sheet within 0.1 m of one
+D. h1 mu=0.6 needs 20 N: tool heights 0.4-2.0 m; 36/62 nails of a sheet within 0.1 m of one
+D. h1 mu=0.6 needs 50 N: tool heights 0.4-2.0 m; 36/62 nails of a sheet within 0.1 m of one
+D. h1 mu=0.6 needs 100 N: tool heights 0.4-1.8 m; 34/62 nails of a sheet within 0.1 m of one
