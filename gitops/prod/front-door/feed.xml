@@ -40,6 +40,14 @@
     <summary type="text">Build your own robot lawn mower. An open-source robotic mower with wire-free RTK GNSS navigation, a guarded pivoting-blade disc, a floating bump shell, ESP32 safety firmware and a complete CAD manufacturing package (MIT). Plan your own lawn&#39;s mowing pattern in the browser.</summary>
   </entry>
   <entry>
+    <title>Wall Framing Takeoff — stud layout, cut list and lumber order for a house</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/wall-framing-takeoff/"/>
+    <id>tag:marisstella.dev,2026:tool/wall-framing-takeoff</id>
+    <updated>2026-10-21T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">Free wall framing calculator for builders and framers. Enter walls, doors and windows; get the stud layout 16 or 24 on center, kings, jacks, headers and cripples, a cut list, plate splices over studs and the cheapest mix of board lengths to buy. Runs in your browser.</summary>
+  </entry>
+  <entry>
     <title>Changepoint Detector — find when a time series changed (PELT + Bayesian)</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/changepoint-detector/"/>
     <id>tag:marisstella.dev,2026:tool/changepoint-detector</id>

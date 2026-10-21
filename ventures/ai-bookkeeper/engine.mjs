@@ -12,7 +12,7 @@
 // same input gives the same output in the page, the CLI and
 // platform/agents/tools.mjs.
 
-import { readStatement, rowIds, checkRunningBalance } from "./bank.mjs";
+import { readStatement, rowIds, checkRunningBalance, parseCents } from "./bank.mjs";
 import { DEFAULT_ACCOUNTS, accountMap, validateEntry, trialBalance, profitAndLoss, balanceSheet, balances, natural, fmt, dollars } from "./ledger.mjs";
 import { suggest, trainClassifier, buildMemory, parseRules, historyRecord, payeeKey } from "./categorize.mjs";
 import { SAMPLE_CHECKING, SAMPLE_CARD } from "./example-data.mjs";
@@ -76,7 +76,7 @@ export function categorize(booksIn, opts = {}) {
   const map = accountMap(books.accounts);
   pairTransfers(books, o.transferDays);
   for (const t of books.transactions) {
-    if (t.status === "confirmed" || t.status === "transfer") continue;
+    if (t.status === "confirmed" || t.status === "transfer" || t.status === "split") continue;
     let s = suggest(t, model);
     // Keep a model's suggestion over a weaker deterministic one; your rules
     // and memory still win.
@@ -102,7 +102,7 @@ export function categorize(booksIn, opts = {}) {
 // one transfer, posted once (debit the account that received, credit the one
 // that paid). Each line pairs at most once, nearest date first.
 export function pairTransfers(books, days = DEFAULTS.transferDays) {
-  const open = books.transactions.filter((t) => t.status !== "confirmed" && t.status !== "transfer");
+  const open = books.transactions.filter((t) => t.status !== "confirmed" && t.status !== "transfer" && t.status !== "split");
   const bankCodes = new Set(books.accounts.filter((a) => a.bank).map((a) => a.code));
   const ins = open.filter((t) => t.cents > 0 && bankCodes.has(t.account));
   const outs = open.filter((t) => t.cents < 0 && bankCodes.has(t.account));
@@ -126,20 +126,70 @@ export function pairTransfers(books, days = DEFAULTS.transferDays) {
 }
 
 // Confirm (or correct) lines: { [id]: accountCode }. Each one is learned from.
+// A value can instead be a split: [{ account, cents }, ...], parts signed like
+// the bank line (a payout of 970.00 is sales +1000.00 and fees -30.00), at most
+// one with no cents to take the remainder. A split posts one entry with a line
+// per part and is not learned from, since the same payee splits differently
+// each time.
 export function confirm(booksIn, choices) {
   const books = clone(booksIn);
   const codes = new Set(books.accounts.map((a) => a.code));
   for (const t of books.transactions) {
     const c = choices[t.id];
     if (c === undefined) continue;
+    if (Array.isArray(c)) {
+      const parts = resolveSplit(t, c, codes);
+      if (t.status === "transfer") unpair(books, t);
+      t.status = "split";
+      t.split = parts;
+      t.posted = parts.reduce((m, p) => (Math.abs(p.cents) > Math.abs(m.cents) ? p : m)).account;
+      continue;
+    }
     if (!codes.has(c)) throw new Error(`No account ${c} in the chart of accounts.`);
     if (t.status === "transfer") unpair(books, t);
+    delete t.split;
     t.status = "confirmed";
     t.posted = c;
     books.history.push(historyRecord(t, c));
   }
   return categorize(books);
 }
+
+// Check a split against its bank line and fill in the one open part. Returns
+// [{ account, cents }] summing exactly to the line's cents.
+export function resolveSplit(t, parts, codes) {
+  if (!Array.isArray(parts) || parts.length < 2) throw new Error(`Line ${t.id}: a split needs at least two parts.`);
+  const open = parts.filter((p) => p.cents === undefined || p.cents === null);
+  if (open.length > 1) throw new Error(`Line ${t.id}: only one part of a split can leave its amount to the remainder.`);
+  for (const p of parts) {
+    if (!codes.has(p.account)) throw new Error(`No account ${p.account} in the chart of accounts.`);
+    if (p.cents !== undefined && p.cents !== null && (!Number.isInteger(p.cents) || p.cents === 0)) throw new Error(`Line ${t.id}: split amounts are whole, non-zero cents.`);
+  }
+  const given = parts.reduce((a, p) => a + (p.cents ?? 0), 0);
+  const out = parts.map((p) => ({ account: p.account, cents: p.cents ?? t.cents - given }));
+  if (out.some((p) => p.cents === 0)) throw new Error(`Line ${t.id}: the remainder part would be zero.`);
+  const sum = out.reduce((a, p) => a + p.cents, 0);
+  if (sum !== t.cents) throw new Error(`Line ${t.id}: the parts add to ${fmt(sum)} but the line is ${fmt(t.cents)}.`);
+  return out;
+}
+
+// "4000:1000.00, 6010:-30.00" or "4000, 6010:-30.00" -> [{ account, cents }].
+// Amounts are signed like the bank line; one may be left out. A bare code with
+// no comma is not a split, so it comes back as the code.
+export function parseSplit(text) {
+  const bits = String(text ?? "").split(/[,;]/).map((x) => x.trim()).filter(Boolean);
+  if (bits.length < 2) return bits[0] ?? "";
+  return bits.map((b) => {
+    const [account, amt] = b.split(":").map((x) => x.trim());
+    if (amt === undefined || amt === "") return { account };
+    const cents = parseCents(amt);
+    if (cents === null || cents === undefined || Number.isNaN(cents)) throw new Error(`Cannot read the amount "${amt}" in "${b}".`);
+    return { account, cents };
+  });
+}
+
+// The account legs of a posted line, signed like the bank line.
+const legsOf = (t) => (t.split ?? (t.posted ? [{ account: t.posted, cents: t.cents }] : []));
 
 // Accept every suggestion at or above a confidence, as if confirmed one by one.
 export function acceptSuggestions(books, minConfidence = 0.7) {
@@ -172,6 +222,11 @@ export function journal(books) {
     if (!t.posted || t.status === "review" || t.status === "new" || seen.has(t.id)) continue;
     seen.add(t.id);
     if (t.status === "transfer") seen.add(t.pair);
+    if (t.status === "split") {
+      const bank = { account: t.account, debit: Math.max(t.cents, 0), credit: Math.max(-t.cents, 0) };
+      entries.push({ id: t.id, date: t.date, memo: t.desc, source: "split", lines: [bank, ...t.split.map((p) => ({ account: p.account, debit: Math.max(-p.cents, 0), credit: Math.max(p.cents, 0) }))] });
+      continue;
+    }
     const amt = Math.abs(t.cents);
     const into = t.cents > 0 ? t.account : t.posted;
     const from = t.cents > 0 ? t.posted : t.account;
@@ -194,7 +249,7 @@ export function closeChecks(books, opts = {}) {
 
   const sus = books.accounts.filter((a) => a.suspense).map((a) => a.code);
   const b = balances(entries);
-  for (const c of sus) if (b.get(c)) out.push({ severity: "medium", check: "suspense", message: `${fmt(Math.abs(b.get(c)))} sits in ${map.get(c).name}. Move it to a real account before you file.`, ids: books.transactions.filter((t) => t.posted === c).map((t) => t.id) });
+  for (const c of sus) if (b.get(c)) out.push({ severity: "medium", check: "suspense", message: `${fmt(Math.abs(b.get(c)))} sits in ${map.get(c).name}. Move it to a real account before you file.`, ids: books.transactions.filter((t) => legsOf(t).some((l) => l.account === c)).map((t) => t.id) });
 
   // Duplicates: same account, date, amount and payee, in different imports.
   const groups = new Map();
@@ -210,10 +265,10 @@ export function closeChecks(books, opts = {}) {
     for (const t of list) if (-t.cents > o.unusualRatio * med && -t.cents - med > 5000) out.push({ severity: "medium", check: "unusual", message: `${t.date}: ${fmt(-t.cents)} to "${k}" is ${(-t.cents / med).toFixed(1)}x the usual ${fmt(med)}. A price rise, an annual plan, or a mistake?`, ids: [t.id] });
   }
 
-  for (const t of books.transactions) {
-    const a = map.get(t.posted);
+  for (const t of books.transactions) for (const l of legsOf(t)) {
+    const a = map.get(l.account);
     // Only accounts where a long-lived purchase hides: supplies, office, repairs, tools.
-    if (t.cents < 0 && a?.type === "expense" && CAPEX_LIKELY.test(a.name) && -t.cents >= o.capitalizeOver) out.push({ severity: "low", check: "capitalize", message: `${t.date}: ${fmt(-t.cents)} to ${a.name} (${t.desc}). If it is equipment that lasts more than a year, it may belong in an asset account and be depreciated; ask your accountant.`, ids: [t.id] });
+    if (l.cents < 0 && a?.type === "expense" && CAPEX_LIKELY.test(a.name) && -l.cents >= o.capitalizeOver) out.push({ severity: "low", check: "capitalize", message: `${t.date}: ${fmt(-l.cents)} to ${a.name} (${t.desc}). If it is equipment that lasts more than a year, it may belong in an asset account and be depreciated; ask your accountant.`, ids: [t.id] });
   }
 
   // Ledger vs. the bank's own closing balance, when the statement printed one.
@@ -232,7 +287,7 @@ export function closeChecks(books, opts = {}) {
   const bs = balances(entries);
   for (const a of books.accounts.filter((x) => x.type === "liability" && !x.bank)) {
     const v = natural(a, bs.get(a.code) ?? 0);
-    if (v < 0) out.push({ severity: "medium", check: "liability", message: `${a.name} is ${fmt(v)}: more was paid out of it than was ever recorded owing. If it is tax you collected, part of your sales deposits belongs here; if it is a loan, enter the balance it started with.`, ids: books.transactions.filter((t) => t.posted === a.code).map((t) => t.id) });
+    if (v < 0) out.push({ severity: "medium", check: "liability", message: `${a.name} is ${fmt(v)}: more was paid out of it than was ever recorded owing. If it is tax you collected, part of your sales deposits belongs here; if it is a loan, enter the balance it started with.`, ids: books.transactions.filter((t) => legsOf(t).some((l) => l.account === a.code)).map((t) => t.id) });
   }
 
   // An account with lines still in review is already reported above; its
@@ -288,7 +343,7 @@ export function exportLines(books) {
   const rows = [csvRow(["date", "bank_account", "description", "amount", "status", "account_code", "account_name", "suggested", "confidence", "source", "reason"])];
   for (const t of [...books.transactions].sort((a, b) => a.date.localeCompare(b.date))) {
     const s = t.suggestion ?? {};
-    rows.push(csvRow([t.date, map.get(t.account)?.name ?? t.account, t.desc, dollars(t.cents), t.status, t.posted ?? "", map.get(t.posted)?.name ?? "", s.account ?? "", s.confidence !== undefined ? s.confidence.toFixed(2) : "", s.source ?? "", s.reason ?? (t.status === "transfer" ? "paired with an equal and opposite line in another account" : "")]));
+    rows.push(csvRow([t.date, map.get(t.account)?.name ?? t.account, t.desc, dollars(t.cents), t.status, t.split ? "split" : t.posted ?? "", t.split ? t.split.map((p) => `${map.get(p.account)?.name ?? p.account} ${dollars(p.cents)}`).join("; ") : map.get(t.posted)?.name ?? "", s.account ?? "", s.confidence !== undefined ? s.confidence.toFixed(2) : "", s.source ?? "", s.reason ?? (t.status === "transfer" ? "paired with an equal and opposite line in another account" : "")]));
   }
   return rows.join("\n") + "\n";
 }
@@ -298,8 +353,46 @@ export function reports(books, { from = null, to = null } = {}) {
   return { trialBalance: trialBalance(entries, books.accounts, { to }), profitAndLoss: profitAndLoss(entries, books.accounts, { from, to }), balanceSheet: balanceSheet(entries, books.accounts, { to }) };
 }
 
+// Payees you have filed the same way again and again, offered as rules. A rule
+// is explicit and survives the learned history, and you can edit it. A payee is
+// offered when it was filed at least `minCount` times, at least `minShare` of
+// them to one account, in one direction (money in or out), and no rule you
+// already wrote matches its name.
+// -> [{ key, account, count, share, rule: "key => code" }], most-filed first.
+export function suggestRules(books, { minCount = 3, minShare = 0.9 } = {}) {
+  const { rules } = parseRules(books.rules, books.accounts);
+  const groups = new Map();
+  for (const h of books.history) {
+    if (!h.key) continue;
+    const k = `${h.key}|${h.dir}`;
+    const g = groups.get(k) ?? { key: h.key, counts: new Map(), n: 0 };
+    g.counts.set(h.account, (g.counts.get(h.account) ?? 0) + 1);
+    g.n++;
+    groups.set(k, g);
+  }
+  const out = [];
+  for (const g of groups.values()) {
+    if (g.n < minCount) continue;
+    const [account, count] = [...g.counts].sort((a, b) => b[1] - a[1])[0];
+    if (count / g.n < minShare || rules.some((r) => r.re.test(g.key))) continue;
+    out.push({ key: g.key, account, count: g.n, share: count / g.n, rule: `${g.key} => ${account}` });
+  }
+  // The same payee can come back once per direction; keep the most-filed.
+  const seen = new Set();
+  return out.sort((a, b) => b.count - a.count || a.key.localeCompare(b.key)).filter((r) => (seen.has(r.rule) ? false : seen.add(r.rule)));
+}
+
+// Append suggested rules (the `rule` strings) to the books' rules text.
+export function addRules(booksIn, ruleLines) {
+  const books = clone(booksIn);
+  const have = new Set(String(books.rules ?? "").split(/\r?\n/).map((l) => l.trim()));
+  const add = ruleLines.filter((l) => !have.has(l));
+  if (add.length) books.rules = [String(books.rules ?? "").replace(/\s+$/, ""), ...add].filter(Boolean).join("\n") + "\n";
+  return books;
+}
+
 export function status(books) {
-  const c = { new: 0, review: 0, auto: 0, confirmed: 0, transfer: 0 };
+  const c = { new: 0, review: 0, auto: 0, confirmed: 0, split: 0, transfer: 0 };
   for (const t of books.transactions) c[t.status] = (c[t.status] ?? 0) + 1;
   return { lines: books.transactions.length, ...c, learnedFrom: books.history.length };
 }
@@ -327,6 +420,7 @@ export function analyze(input = {}) {
     problems,
     review: books.transactions.filter((t) => t.status === "review").map((t) => ({ id: t.id, date: t.date, account: map.get(t.account)?.name, desc: t.desc, amount: dollars(t.cents), suggested: t.suggestion?.account ?? null, suggestedName: map.get(t.suggestion?.account)?.name ?? null, confidence: t.suggestion?.confidence ?? 0, reason: t.suggestion?.reason })),
     reports: reports(books, { from: input.from, to: input.to }),
+    ruleSuggestions: suggestRules(books),
     checks: closeChecks(books, opts),
     books,
   };

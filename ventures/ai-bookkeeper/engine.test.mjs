@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { newBooks, importStatement, confirm, acceptSuggestions, journal, reports, closeChecks, exportJournal, exportLines, status, analyze } from "./engine.mjs";
+import { newBooks, importStatement, confirm, parseSplit, suggestRules, addRules, acceptSuggestions, journal, reports, closeChecks, exportJournal, exportLines, status, analyze } from "./engine.mjs";
 import { parseCents, parseDate, readStatement, checkRunningBalance } from "./bank.mjs";
 import { validateEntry, DEFAULT_ACCOUNTS, parseAccounts } from "./ledger.mjs";
 import { payeeKey, suggest, parseRules } from "./categorize.mjs";
@@ -166,4 +166,73 @@ test("the guide's worked example figures", () => {
   const c = closeChecks(b);
   assert.ok(c.some((x) => x.check === "reconcile" && x.severity === "ok" && /10,947\.46/.test(x.message)));
   assert.deepEqual(c.filter((x) => x.check === "liability").map((x) => x.message.match(/is (-[\d,.]+)/)[1]), ["-1,197.16", "-1,230.00"]);
+});
+
+const PAYOUT = `Date,Description,Amount,Balance
+2026-02-01,STRIPE PAYOUT 970,970.00,970.00
+2026-02-05,LOAN PMT ACME BANK,-1000.00,-30.00
+`;
+
+test("a Stripe payout splits into gross sales less fees, and posts one balanced entry", () => {
+  let b = importStatement(newBooks(), PAYOUT, "1000").books;
+  const id = b.transactions[0].id;
+  b = confirm(b, { [id]: parseSplit("4000:1000.00, 6010:-30.00") });
+  const e = journal(b).find((x) => x.id === id);
+  assert.equal(e.source, "split");
+  assert.deepEqual(e.lines, [{ account: "1000", debit: 97000, credit: 0 }, { account: "4000", debit: 0, credit: 100000 }, { account: "6010", debit: 3000, credit: 0 }]);
+  assert.deepEqual(validateEntry(e, b.accounts), []);
+  const r = reports(b);
+  assert.equal(r.profitAndLoss.totalIncome, 100000);
+  assert.equal(r.profitAndLoss.totalExpense, 3000);
+  assert.equal(b.history.length, 0, "splits are not learned from");
+});
+
+test("a loan payment splits into principal and interest; the open part takes the remainder", () => {
+  let b = importStatement(newBooks(), PAYOUT, "1000").books;
+  const id = b.transactions[1].id;
+  b = confirm(b, { [id]: parseSplit("6040:-200.00,2200") });
+  const e = journal(b).find((x) => x.id === id);
+  assert.deepEqual(e.lines, [{ account: "1000", debit: 0, credit: 100000 }, { account: "6040", debit: 20000, credit: 0 }, { account: "2200", debit: 80000, credit: 0 }]);
+  assert.deepEqual(validateEntry(e, b.accounts), []);
+  assert.equal(exportLines(b).includes("split"), true);
+});
+
+test("a split that does not add up to the line is refused, and a later plain choice undoes a split", () => {
+  let b = importStatement(newBooks(), PAYOUT, "1000").books;
+  const id = b.transactions[0].id;
+  assert.throws(() => confirm(b, { [id]: parseSplit("4000:1000.00,6010:-20.00") }), /add to/);
+  assert.throws(() => confirm(b, { [id]: [{ account: "4000", cents: 97000 }] }), /at least two/);
+  assert.throws(() => confirm(b, { [id]: parseSplit("4000,6010") }), /only one part/);
+  assert.throws(() => confirm(b, { [id]: parseSplit("4000:970.00,6010:0") }), /non-zero|remainder/);
+  b = confirm(b, { [id]: parseSplit("4000:1000.00,6010:-30.00") });
+  assert.equal(status(b).split, 1);
+  b = confirm(b, { [id]: "4000" });
+  assert.equal(b.transactions[0].split, undefined);
+  assert.equal(status(b).confirmed, 1);
+  assert.equal(journal(b).find((x) => x.id === id).lines.length, 2);
+});
+
+test("the loan check and the QuickBooks export see every leg of a split", () => {
+  let b = importStatement(newBooks(), PAYOUT, "1000").books;
+  b = confirm(b, { [b.transactions[1].id]: parseSplit("6040:-200.00,2200") });
+  assert.ok(closeChecks(b).some((c) => c.check === "liability" && c.ids.includes(b.transactions[1].id)));
+  const qbo = exportJournal(b, "qbo").trim().split("\n").slice(1);
+  assert.equal(qbo.length, 3);
+});
+
+test("payees filed the same way repeatedly are offered as rules, once, and not when a rule exists", () => {
+  const rows = ["Date,Description,Amount"];
+  for (let i = 1; i <= 4; i++) rows.push(`2026-03-0${i},ZOOM.US 88${i},-15.99`);
+  rows.push("2026-03-09,OAKLAND DINER 11,-20.00", "2026-03-10,OAKLAND DINER 12,-22.00");
+  let b = importStatement(newBooks(), rows.join("\n") + "\n", "1000").books;
+  const choices = {};
+  for (const t of b.transactions) choices[t.id] = /ZOOM/.test(t.desc) ? "6060" : "6130";
+  b = confirm(b, choices);
+  const s = suggestRules(b);
+  assert.deepEqual(s.map((r) => r.rule), ["zoom => 6060"]);
+  assert.equal(s[0].count, 4);
+  b = addRules(b, s.map((r) => r.rule));
+  assert.match(b.rules, /zoom => 6060/);
+  assert.deepEqual(suggestRules(b), []);
+  assert.equal(addRules(b, ["zoom => 6060"]).rules, b.rules);
 });

@@ -1,0 +1,10 @@
+{"id": "2:lit@123:0+1", "formal_before": "undecided", "bmc": "timeout", "bmc_s": 900.0, "induct": "skipped", "induct_s": 0.0, "depth": 24}
+{"id": "1:lit@123:0+1", "formal_before": "undecided", "bmc": "timeout", "bmc_s": 900.0, "induct": "skipped", "induct_s": 0.0, "depth": 24}
+{"id": "0:del@122:delete", "formal_before": "undecided", "bmc": "timeout", "bmc_s": 900.0, "induct": "skipped", "induct_s": 0.0, "depth": 24}
+{"id": "3:lit@123:0+1", "formal_before": "undecided", "bmc": "timeout", "bmc_s": 900.0, "induct": "skipped", "induct_s": 0.0, "depth": 24}
+{"id": "4:lit@123:0+1", "formal_before": "undecided", "bmc": "timeout", "bmc_s": 900.0, "induct": "skipped", "induct_s": 0.0, "depth": 24}
+{"id": "6:lit@123:0+1", "formal_before": "undecided", "bmc": "timeout", "bmc_s": 900.0, "induct": "skipped", "induct_s": 0.0, "depth": 24}
+{"id": "5:lit@123:0+1", "formal_before": "undecided", "bmc": "timeout", "bmc_s": 900.0, "induct": "skipped", "induct_s": 0.0, "depth": 24}
+{"id": "8:op@135:<-><=", "formal_before": "undecided", "bmc": "timeout", "bmc_s": 900.0, "induct": "skipped", "induct_s": 0.0, "depth": 24}
+{"id": "10:op@137:<-><=", "formal_before": "undecided", "bmc": "timeout", "bmc_s": 900.0, "induct": "skipped", "induct_s": 0.0, "depth": 24}
+{"id": "11:lit@137:4+1", "formal_before": "undecided", "bmc": "timeout", "bmc_s": 900.0, "induct": "skipped", "induct_s": 0.0, "depth": 24}

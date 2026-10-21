@@ -1,0 +1,60 @@
+name: wall-framing-takeoff
+description: >-
+  Free browser tool, CLI and agent engine for builders and framers: type the
+  walls, doors and windows of a house and get the stud layout, every king,
+  jack, header, sill and cripple, plate splices over studs, a cut list and the
+  cheapest mix of board lengths to buy (Gilmore-Gomory column generation with
+  an LP lower bound, exact for small groups). Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Started 2026-10-21 on the owner's direction that day: tools that automate part
+# of US new-home construction to drop prices, "a long standing project to work
+# on continually". ROADMAP.md holds the program; this is its first tool.
+#
+# duplicate_check.py "wall framing takeoff and lumber cut-list optimizer for new
+# home construction": closest rows cut-list-optimizer 0.33/0.23 (shop parts on
+# sheet goods and linear stock, no wall layout), construction-delay-claim-
+# calculator 0.17, tile-layout-planner 0.14; nothing near 0.45. By hand: the
+# ~150 *-bid-calculator ventures price remodelling jobs; none lays out a wall.
+#
+# First visitor: searches for "wall framing calculator", "stud calculator", "how
+# many studs do I need", "framing takeoff", "lumber takeoff for a house"; owner-
+# builder and framing forums when a house is being planned. Volume not measured
+# with an external tool.
+#
+# Liability boundary: layout geometry and arithmetic on user-typed figures; no
+# structural check (header size, jack count, spacing are inputs, said on the page,
+# in --help and the README); no lumber price asserted; the example house is
+# invented.
+#
+# Path to revenue (payment rails stay off): lead magnet for a panel shop or
+# lumberyard quote form, and donations; later tools in ROADMAP.md (estimate,
+# schedule) are where builders pay for software today.
+
+hypotheses:
+  - claim: >-
+      Builders and owner-builders will run a full wall layout before ordering
+      framing lumber when it takes minutes instead of hours, and the order it
+      gives buys less board than their usual allowance.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted plan) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a layout with overlapping members, a member in a rough opening, or a plate joint off a stud that the self-check passed.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/wall-framing-takeoff/
+  analytics: null

@@ -60,6 +60,18 @@ opposite, within 5 days, become one entry. Nearest dates pair first, and each
 line pairs once. A card payment is a transfer, not an expense. If only one side
 has been imported, the line waits in review and says why.
 
+**Split lines.** A line that is several things at once posts as one entry with
+a line per part. A Stripe payout of 970.00 is sales +1,000.00 and fees -30.00;
+a loan payment of 1,000.00 is interest 200.00 and loan principal for the rest.
+Parts are signed like the bank line and must add to it exactly, to the cent; at
+most one part may leave its amount out to take the remainder. On the page, open
+"Split" on a queue line and type `4000:1000.00, 6010:-30.00`. In the CLI:
+`confirm ID=4000:1000.00,6010:-30.00`. For agents, pass an array in `confirm`:
+`{"<id>": [{"account":"4000","cents":100000},{"account":"6010","cents":-3000}]}`.
+A split is not learned from (the same payee splits differently each time), and
+a later plain account choice for the line undoes it. The liability, suspense
+and equipment checks read every part.
+
 **Close checks.** Lines still in review; money in the uncategorized account;
 duplicate lines; a charge more than 3 times a payee's median (and at least $50
 over it); a supplies, office or repairs line of $2,500 or more that may be
@@ -129,23 +141,28 @@ layer's share (an ablation), and any real bank export.
 - CLI: import, a second import of the same file (0 added, 87 already in the
   books), review, accept, report, checks and `export qbo`.
 
+## Rules from your corrections
+
+`suggestRules(books)` (also `ruleSuggestions` from `analyze`, and
+`cli.mjs rules [--apply]`) lists payees you filed at least three times, at least
+90% to one account, that no rule of yours already matches, as ready-made
+`payee => code` lines; `addRules` appends them to the books' rules. Test:
+engine.test.mjs, "offered as rules".
+
 ## Not modelled
 
 Accruals (unpaid invoices and bills), depreciation, inventory, payroll and
-sales tax filings, multiple currencies, splitting one bank line across accounts,
-locking a closed period, and receipts. It is cash-basis bookkeeping from bank
+sales tax filings, multiple currencies, locking a closed period, and receipts. It is cash-basis bookkeeping from bank
 lines.
 
 ## Next
 
 - One real bank export of each major US shape (Chase, Bank of America, Wells
   Fargo, Amex, Capital One), each as a fixture with its quirks handled.
-- Split lines (a Stripe payout as sales minus fees; a loan payment as principal
-  plus interest), then accruals from an invoice and bill list.
+- Accruals from an invoice and bill list.
 - Measure the AI layer with a local model on the synthetic year's review
   queue, and run the per-layer ablation.
-- Payee rules suggested from your corrections ("you filed 'ZOOM.US' as Software
-  6 times: make it a rule?").
+
 
 ## Disclaimer
 
