@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import {
-  PAPERS, DEFAULTS, negbinSize, poissonSeasonal, poissonHolidays, poissonTrend, countDispersion, ar1JointFit, analyze, bocpd, defaultPoissonPrior, defaultNbPrior, defaultPrior, gammaPoissonLogMarginal, makeCost, lgamma, nigLogMarginal, optimalPartitioning, ar1Rho, longRunSd, prewhiten, seasonalAdjust, trendAdjust, lsKnots, lineRss, penaltyValue, parseSeries, peaks, pelt, robustSd,
+  PAPERS, DEFAULTS, negbinSize, poissonSeasonal, poissonHolidays, poissonTrend, countDispersion, ar1JointFit, analyze, findBursts, bocpd, defaultPoissonPrior, defaultNbPrior, defaultPrior, gammaPoissonLogMarginal, makeCost, lgamma, nigLogMarginal, optimalPartitioning, ar1Rho, longRunSd, prewhiten, seasonalAdjust, trendAdjust, lsKnots, lineRss, penaltyValue, parseSeries, peaks, pelt, robustSd,
 } from './engine.mjs';
 
 // Seeded PRNG (mulberry32) and Box-Muller normals, so every test is reproducible.
@@ -1144,4 +1144,26 @@ test('lsKnots (prefix sums) picks the same pair as a brute-force pass over lineR
     }
     assert.deepEqual(lsKnots(x, 9, 81, 13), best.knots, `seed ${seed}`);
   }
+});
+
+test('findBursts flags an isolated spike but not a step', () => {
+  const flat = Array.from({ length: 60 }, (_, i) => 20 + (i % 3));
+  flat[30] = 90;
+  const b = findBursts(flat);
+  assert.deepEqual(b.indexes, [30]);
+  assert.ok(b.counts[30] <= 22);
+  const step = flat.map((v, i) => (i >= 30 ? 60 + (i % 3) : 20 + (i % 3)));
+  assert.deepEqual(findBursts(step).indexes, []);
+});
+
+test('--bursts stops a spike being read as two changes', () => {
+  const x = Array.from({ length: 80 }, (_, i) => 30 + ((i * 7) % 5));
+  x[40] = 160;
+  const off = analyze({ values: x, model: 'poisson' });
+  const on = analyze({ values: x, model: 'poisson', bursts: true });
+  assert.ok(off.pelt.changepoints.length >= 2);
+  assert.equal(on.pelt.changepoints.length, 0);
+  assert.equal(on.bursts[0].index, 40);
+  assert.equal(on.values[40], 160);
+  assert.throws(() => analyze({ values: x, bursts: true }), /counts/);
 });
