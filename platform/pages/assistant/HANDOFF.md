@@ -25,7 +25,7 @@ Never observed: the model answering. The download and the load from cache work.
 3. Back in the chat, type "price 40, shipping 6" on the eBay fee calculator, then ask "what does final value fee mean?".
 4. Record in the report the load time, the first-token time, whether the fill was right, and whether the reply's "How:" line names the model. If the worker reports an error, the message comes from `worker.js`. The likely suspects are the `response_format` JSON schema (WebLLM's grammar mode) and the q4f32 fallback.
 
-A cloud session cannot do this: its WebGPU is a software adapter, and generation did not finish in 15 minutes.
+A cloud session cannot do this: its WebGPU is a software adapter, and generation did not finish in 15 minutes. It can now run the same model on the CPU path (wllama, WebAssembly), which the worker uses when there is no hardware adapter: measured 2026-10-21 in `docs/reports/2026-10-21-wasm-on-the-site.md`. Still never observed: the WebLLM (WebGPU) path answering.
 
 ## 2. Blind round 3 for the rule reader
 
@@ -38,6 +38,8 @@ Round 2's four wrong writes were fixed after it was scored, so the fixes are unm
 5. Only now fix the misses. Every fix should be a general rule, never a special case for one sentence. Then all cases must pass again.
 
 ## 3. Score the model engines
+
+Done for Qwen2.5 0.5B and 1.5B on the CPU path (`model-bench/`, results in `model-bench/results/`, report `docs/reports/2026-10-21-wasm-on-the-site.md`). The 0.5B model wrote 337 wrong values on the 52 sentences until `validateFills(…, said)` and `mergeFills` were added. What is left: a model score on sentences the rules get wrong (they pass all 52 now), and the rows below for the other engines.
 
 Run every sentence in `evals.json` through each engine's fill prompt: `FILL_SYSTEM` + `fieldList` + `fieldSchema` in `client.js`, through `validateFills`. Score the same way as the rules, and add a table to the Ask page's quality section in `assistant.mjs`.
 
