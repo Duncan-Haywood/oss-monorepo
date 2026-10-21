@@ -53,3 +53,9 @@ test("preflightDocuments routes FatturaPA to its own rules", async () => {
   assert.equal(reports[0].errors.length, 0);
   assert.match(reports[0].envelope, /FatturaPA/);
 });
+
+test("examples/fatturapa-invoice-with-defects.xml is the planted-defect file, pinned rule by rule", () => {
+  const bad = readFileSync(new URL("./examples/fatturapa-invoice-with-defects.xml", import.meta.url), "utf8");
+  assert.ok(looksLikeFatturaPa(bad));
+  assert.deepEqual([...new Set(rules(bad))], ["IT-002", "IT-003", "IT-006", "IT-011", "IT-012", "IT-014", "IT-015", "IT-016"]);
+});
