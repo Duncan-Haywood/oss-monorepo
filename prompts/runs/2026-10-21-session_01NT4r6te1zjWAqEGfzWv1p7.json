@@ -17,7 +17,7 @@
   "tool_calls": null,
   "task": "Lift the build-free .mjs requirement and make language choice a judgment call",
   "projects": [],
-  "pr": null,
+  "pr": 8998,
   "repo": null,
   "commits": [],
   "lines_added": null,
