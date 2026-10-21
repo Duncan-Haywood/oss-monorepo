@@ -976,3 +976,14 @@ or `ventures`) until its success rate passes 80% over 20 runs?
   one disclosed caveat; see E55). ventures 2 and review 2 unchanged (overlap /
   under 10 runs). No audit or drift report (reduced pass).
 - Result: (next review)
+
+## E59: review 2026-10-21 (reduced pass, morning)
+
+- Change: `.github/prompts/verify-and-merge.md` makes the `pgrep -f` trap a
+  bold "never" with its error count (it was a subordinate clause; 18
+  run-record errors came from it).
+- Metric: run-record errors naming `pgrep`, over the next 40 runs (baseline: 18).
+- Decisions: research candidate 1 kept (the retire verdict still fires on the
+  one disclosed caveat; see E55). ventures 2 and review 2 unchanged (overlap /
+  under 10 runs). No derive fetch, audit or drift report (reduced pass).
+- Result: (next review)
