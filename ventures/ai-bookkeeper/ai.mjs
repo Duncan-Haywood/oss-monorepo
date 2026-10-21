@@ -47,8 +47,8 @@ export function parseReply(text) {
 }
 
 // -> { books, source: "model" | "fallback", error?, suggested, dropped }
-export async function aiSuggest(config, books, { max = 40, fetch, maxTokens = 3000 } = {}) {
-  const queue = books.transactions.filter((t) => t.status === "review").slice(0, max);
+export async function aiSuggest(config, books, { max = 40, offset = 0, fetch, maxTokens = 3000 } = {}) {
+  const queue = books.transactions.filter((t) => t.status === "review").slice(offset, offset + max);
   const unchanged = () => ({ books, suggested: 0, dropped: 0 });
   if (!queue.length) return { ...unchanged(), source: "fallback", error: "nothing is waiting for review" };
   const r = await withFallback(config, unchanged, async (c) => {
