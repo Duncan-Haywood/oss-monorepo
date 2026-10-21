@@ -212,9 +212,15 @@ flagships:
       The feeder CAD v0.1 package is in (manufacturing/feeder/: launcher head,
       trunnion cheeks, turntable, 2040 base with brackets, mast, 3 m net beam,
       poles and camera bar; the build tilts the head through -15..+45 deg for
-      collisions and sizes wind ballast). Next: the parts it does not model,
-      in this order: the hopper with feed tube and gate, the elevation
-      actuator bracket and azimuth drive, then the netting trough that rolls
-      balls to the hopper inlet; then check the head's wheel-to-wheel gap
-      and plate clearance against the ball path with the flight model's
-      launch speeds.
+      collisions and sizes wind ballast). The hopper and feed landed
+      2026-10-21: a tub on a sloped shelf and four posts, a hose, and a
+      printed floor, roof, column and metering shuttle between the head
+      plates (checks for one-ball metering, column and wheel clearance, tub
+      capacity, hose slope and bend radius, shuttle clear when advanced;
+      cad/README.md "Feed"). Next: close the feed's known gaps (a front
+      retainer so a ball cannot roll to the wheels at negative elevation,
+      post bracing, the hose end swinging about 450 mm), then the actuator
+      brackets (shuttle and elevation) and azimuth drive, then the netting
+      trough that rolls balls to the hopper inlet; then check the head's
+      wheel-to-wheel gap and plate clearance against the ball path with the
+      flight model's launch speeds.

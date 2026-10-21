@@ -198,6 +198,7 @@ def _build(out, p, M, robot, fasteners_, cots_extra, readme, drawings, zip_it) -
 
     laser_rows, print_rows, cut_rows, bom_rows = [], [], [], []
     mass_g = 0.0
+    hopper_g = 0.0  # tall and toward the rear wheel line: not credited against tipping
     for part in parts:
         if part.kind in ("laser", "print"):
             export_step(part.shape, str(out / "step" / f"{part.name}.step"))
@@ -224,7 +225,10 @@ def _build(out, p, M, robot, fasteners_, cots_extra, readme, drawings, zip_it) -
         elif part.kind == "stock":
             cut_rows.append({"part": part.name, "qty": part.qty, "stock": part.spec, "notes": part.notes})
         if part.material in DENSITY:
-            mass_g += DENSITY[part.material] * part.shape.volume / 1000 * part.qty
+            part_g = DENSITY[part.material] * part.shape.volume / 1000 * part.qty
+            mass_g += part_g
+            if part.name.startswith("hopper"):
+                hopper_g += part_g
         bom_rows.append({"item": part.name, "kind": part.kind, "qty": part.qty,
                          "what": part.spec or f"{part.material}" + (f" {part.thickness:g} mm" if part.thickness else ""),
                          "notes": part.notes})
@@ -248,7 +252,7 @@ def _build(out, p, M, robot, fasteners_, cots_extra, readme, drawings, zip_it) -
         _drawings(assembly, out / "drawings")
 
     if feeder:
-        checks, derived = F.summary(p, mass_g, rules, clash, contacts, ground_ok)
+        checks, derived = F.summary(p, mass_g, rules, clash, contacts, ground_ok, hopper_g)
     else:
         length, width = p.overall
         checks = [
@@ -311,8 +315,8 @@ ORDER
                tap M5 into the extrusion ends where noted.
 4. bom.csv     Buy the rest. Check bought-in dimensions against params.py.
 
-NOT IN THIS PACKAGE YET: netting and trough, hopper and agitator, feed tube,
-elevation actuator and bracket, azimuth drive, cabling. See hardware/feeder-catcher.md.
+NOT IN THIS PACKAGE YET: netting and trough, hopper agitator, shuttle actuator
+bracket, elevation actuator and bracket, azimuth drive, post bracing, cabling. See hardware/feeder-catcher.md.
 
 CHECKS RUN WHEN THIS PACKAGE WAS BUILT
 {checks}
