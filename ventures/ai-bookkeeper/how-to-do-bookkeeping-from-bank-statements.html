@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How to Do Bookkeeping From Bank Statements (Worked Example)</title>
+<meta name="description" content="Turn bank and card statements into a profit and loss and a balance sheet: file each line to an account, pair transfers, keep owner draws out of expenses, reconcile to the statement. A worked three-month example where the two classic mistakes turn an $8,062.93 profit into a $6,176.11 loss.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="./how-to-do-bookkeeping-from-bank-statements.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="How do you do bookkeeping from bank statements?">
+<meta property="og:description" content="Five steps, three traps, and a worked example in which counting the card payment and the owner's draws as expenses turns a profit into a loss.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do you do bookkeeping from bank statements?","acceptedAnswer":{"@type":"Answer","text":"Export each bank and card account as a CSV. File every line to one account in a chart of accounts (sales, software, meals, owner draws and so on), as a double-entry journal entry against the bank account it came from. Pair the payments between your own accounts as transfers. Check the result against the statement's closing balance. Then read the profit and loss and the balance sheet off the entries. AI Bookkeeper does the filing suggestions, the pairing, the reconciliation and the reports in your browser."}},{"@type":"Question","name":"Is a credit card payment a business expense?","acceptedAnswer":{"@type":"Answer","text":"No. The expense happened when you bought each thing on the card. Paying the card from checking moves money between two of your own accounts and lowers what you owe. Count it as an expense too and every card purchase is counted twice. In the worked example, three monthly card payments of $4,608.60 in total would have been double-counted."}},{"@type":"Question","name":"Are owner draws an expense?","acceptedAnswer":{"@type":"Answer","text":"No. Money a sole proprietor or partner takes out for themselves is a draw from equity, not a cost of running the business, so it does not reduce profit. In the worked example, $9,630.44 of draws filed as expenses would have hidden the whole profit."}},{"@type":"Question","name":"What does it mean to reconcile to the bank statement?","acceptedAnswer":{"@type":"Answer","text":"Your books' balance for the account on the statement date must equal the balance the bank printed. If it does not, a line is missing, doubled, filed to the wrong side, or the opening balance was never entered. When the bank's CSV has a running balance column, AI Bookkeeper checks every row against it and compares the closing balance with the books."}},{"@type":"Question","name":"Why is my sales tax payable account negative?","acceptedAnswer":{"@type":"Answer","text":"Because you paid the state sales tax you never recorded collecting. On books kept from bank lines, the tax your customers paid usually arrives inside the sales deposits. The negative balance is the size of the tax still sitting in your sales figure. Move that much from sales to sales tax payable, or have your accountant do it."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#1c2430;background:#f3f5f2}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#23613f}.eyebrow{font-weight:700;letter-spacing:.04em;color:#23613f;font-size:.85rem}h1{font-size:clamp(1.7rem,5vw,2.5rem);line-height:1.08;margin:.3rem 0;color:#183d2a}.lede{font-size:1.05rem;max-width:66ch;color:#4a5560}section{background:#fff;border:1px solid #d5ddd6;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #183d2a10;margin:1rem 0}h2{margin-top:0;color:#183d2a}p,li{line-height:1.55}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:.95rem}caption{caption-side:bottom;color:#4a5560;font-size:.85rem;text-align:left;padding-top:.6rem}th,td{border-bottom:1px solid #e1e7e2;padding:.5rem .45rem;text-align:right}th:first-child,td:first-child{text-align:left}tr.total td,tr.total th{font-weight:700}.fine,footer{font-size:.86rem;color:#4a5560}@media (max-width:600px){body{padding:1rem}}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; AI Bookkeeper</a></p>
+<header>
+<h1>How do you do bookkeeping from bank statements?</h1>
+<p class="lede">File every bank and card line to one account and pair the transfers between your own accounts. Check the books against the statement's closing balance, then read the profit and loss and the balance sheet off the result. Most small businesses with no bookkeeper can do it this way. The arithmetic is easy. The traps are in which lines are <em>not</em> expenses.</p>
+</header>
+
+<section>
+<h2>The five steps</h2>
+<ol>
+<li><strong>Export a CSV</strong> from each bank and card account for the period. Keep the running balance column if your bank offers one.</li>
+<li><strong>File each line to one account</strong>: sales, software, meals, contract labor, owner draws, a loan. Each filed line becomes a double-entry journal entry. Money out of checking for software debits Software and credits Checking.</li>
+<li><strong>Pair transfers.</strong> Paying the card from checking, or moving money to savings, shows up in two statements. It is one transfer, not income in one place and an expense in the other.</li>
+<li><strong>Reconcile.</strong> The books' checking balance on the statement date must equal the bank's printed balance, to the cent.</li>
+<li><strong>Read the reports.</strong> The profit and loss sums income and expense accounts. The balance sheet lists what you own, what you owe and the equity left over, and it must balance.</li>
+</ol>
+<p>Doing step 2 by hand is the slow part. <a href="./">AI Bookkeeper</a> suggests an account for each line with a reason, remembers the payees you file, and pairs the transfers itself. It also reconciles to the running balance and builds the reports, all in your browser.</p>
+</section>
+
+<section>
+<h2>Worked example: three months, two traps</h2>
+<p>The tool's built-in example is three months of <strong>synthetic</strong> lines for a made-up design studio: a checking statement with a running balance and a card statement, 145 lines. Filed correctly, it reconciles to the bank's closing balance of $10,947.46 on 31 March 2026. The table below shows what the two classic mistakes do to the profit.</p>
+<div class="table-wrap">
+<table>
+<caption>Figures from the example in the tool, every line filed to its true account. Synthetic data, not a real business.</caption>
+<thead><tr><th scope="col">Three months, January to March 2026</th><th scope="col">Amount</th></tr></thead>
+<tbody>
+<tr><th scope="row">Income (sales $39,011.04, interest $10.48)</th><td>$39,021.52</td></tr>
+<tr><th scope="row">Expenses (wages, rent, software, meals and the rest)</th><td>$30,958.59</td></tr>
+<tr class="total"><th scope="row">Net profit, filed correctly</th><td>$8,062.93</td></tr>
+<tr><th scope="row">Mistake 1: the three card payments from checking also counted as an expense</th><td>&minus;$4,608.60</td></tr>
+<tr><th scope="row">Mistake 2: the owner's draws counted as an expense</th><td>&minus;$9,630.44</td></tr>
+<tr class="total"><th scope="row">"Net profit" with both mistakes</th><td>&minus;$6,176.11</td></tr>
+</tbody>
+</table>
+</div>
+<p>The card payments are already counted once: each purchase on the card is an expense when it happens. The draws are the owner's own money leaving the business, filed to equity. Together the two mistakes turn a profitable quarter into a loss of $6,176.11.</p>
+</section>
+
+<section>
+<h2>The third trap: what the balance sheet tells you</h2>
+<p>With everything filed, the example's balance sheet balances, and its close checks find two liabilities below zero:</p>
+<ul>
+<li><strong>Sales tax payable &minus;$1,197.16.</strong> The studio paid the state sales tax but never recorded collecting it, because the tax arrived inside the Stripe deposits filed as sales. So $1,197.16 of the "sales" was never the studio's income. On bank-line books this is the usual case, and the negative balance tells you how much to move.</li>
+<li><strong>Loan payable &minus;$1,230.00.</strong> Three loan payments were filed, but the loan itself was never entered. Enter the balance it started with, and then split each payment into principal and interest. The interest is an expense; the principal is not.</li>
+</ul>
+<p>A profit and loss alone would not show either one. That is why a bookkeeper reads the balance sheet too.</p>
+</section>
+
+<section>
+<h2>Questions</h2>
+<h3>How do you do bookkeeping from bank statements?</h3>
+<p>Export each bank and card account as a CSV. File every line to one account in a chart of accounts (sales, software, meals, owner draws and so on), as a double-entry journal entry against the bank account it came from. Pair the payments between your own accounts as transfers. Check the result against the statement's closing balance. Then read the profit and loss and the balance sheet off the entries. AI Bookkeeper does the filing suggestions, the pairing, the reconciliation and the reports in your browser.</p>
+<h3>Is a credit card payment a business expense?</h3>
+<p>No. The expense happened when you bought each thing on the card. Paying the card from checking moves money between two of your own accounts and lowers what you owe. Count it as an expense too and every card purchase is counted twice. In the worked example, three monthly card payments of $4,608.60 in total would have been double-counted.</p>
+<h3>Are owner draws an expense?</h3>
+<p>No. Money a sole proprietor or partner takes out for themselves is a draw from equity, not a cost of running the business, so it does not reduce profit. In the worked example, $9,630.44 of draws filed as expenses would have hidden the whole profit.</p>
+<h3>What does it mean to reconcile to the bank statement?</h3>
+<p>Your books' balance for the account on the statement date must equal the balance the bank printed. If it does not, a line is missing, doubled, filed to the wrong side, or the opening balance was never entered. When the bank's CSV has a running balance column, AI Bookkeeper checks every row against it and compares the closing balance with the books.</p>
+<h3>Why is my sales tax payable account negative?</h3>
+<p>Because you paid the state sales tax you never recorded collecting. On books kept from bank lines, the tax your customers paid usually arrives inside the sales deposits. The negative balance is the size of the tax still sitting in your sales figure. Move that much from sales to sales tax payable, or have your accountant do it.</p>
+</section>
+
+<p><a href="./">Open AI Bookkeeper</a> and load the example to see every figure on this page, or import your own statements. Nothing is uploaded.</p>
+</main>
+<footer>
+<p><strong>No warranty.</strong> This page and the tool are provided free and as-is, without warranty of any kind. They are not legal, tax, or financial advice and do not replace a qualified professional. You are responsible for reviewing and verifying any output before relying on it. The example is synthetic data, not a real business. Stripe is a trademark of its owner, named only to describe a payee.</p>
+</footer>
+</body>
+</html>
