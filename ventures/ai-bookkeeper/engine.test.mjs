@@ -696,7 +696,7 @@ test("VAT return: output VAT, input VAT on bills, credits, a bank line to 2100, 
   assert.equal(vatReturn(books).boxes[1], v.boxes[1] + 2000);
   assert.ok(vatReturn(books).warnings.some((w) => /No period/.test(w)));
   // a missing input account is flagged
-  assert.ok(vatReturn(newBooks(), { from: "2026-01-01", to: "2026-12-31" }).warnings.some((w) => /No input VAT account/.test(w)));
+  assert.ok(vatReturn(newBooks({ accounts: DEFAULT_ACCOUNTS.filter((a) => a.code !== "1300") }), { from: "2026-01-01", to: "2026-12-31" }).warnings.some((w) => /No input VAT account/.test(w)));
   // more reclaimed than due: negative net, "reclaim"; a bank line filed to 1300 counts in box 4
   let b = newBooks(); b.accounts = accounts;
   b = addDocuments(b, "type,number,date,due,party,amount,account\nbill,1,2026-04-01,,S,100.00,6010\nbill,1,2026-04-01,,S,20.00,1300\n").books;

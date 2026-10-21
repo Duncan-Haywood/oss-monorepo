@@ -128,6 +128,33 @@ const splitBtn = page.getByRole("button", { name: /Split Hiscox.* by items/ });
 check((await splitBtn.count()) === 1, "a matched receipt with items of two kinds offers a split");
 if (await splitBtn.count()) { await splitBtn.click(); check(/Split Hiscox/.test(await page.locator("#receipts-status").textContent()), "the split button posts the split"); }
 check(/Net profit/.test(btext) && /(better|worse|on budget)/.test(btext), "the budget table shows a status and the net line");
+// Recurring payments and cash forecast. The made-up example has no steady payee (its gaps are uneven), so the card says so;
+// then a statement with monthly rent and a monthly software charge fills the table and the forecast.
+check(/No payee has three or more lines at a steady interval/.test(await page.locator("#recurring").textContent()), "the recurring card says so when no payee is steady (example books)");
+const steady = ["Date,Description,Amount"];
+for (const m of ["01", "02", "03", "04"]) steady.push(`2026-${m}-01,ACME LANDLORD RENT,-1200.00`, `2026-${m}-12,CLOUDSOFT SUBSCRIPTION,-29.00`);
+await page.setInputFiles("#file", { name: "steady.csv", mimeType: "text/csv", buffer: Buffer.from(steady.join("\n") + "\n") });
+await page.click("#import");
+await page.waitForFunction(() => /added/.test(document.querySelector("#import-status").textContent), null, { timeout: 5000 }).catch(() => {});
+const rtab = await page.locator("#recurring").textContent();
+const ftab = await page.locator("#forecast").textContent();
+check(/landlord/i.test(rtab) && /monthly/.test(rtab) && /cloudsoft/i.test(rtab) && /1,200\.00/.test(rtab), "the recurring table lists the monthly rent and subscription");
+check(/Forecast \d{4}-\d{2}-\d{2} to \d{4}-\d{2}-\d{2}: start/.test(ftab) && /lowest/.test(ftab), "the 90-day forecast line shows start, end and lowest balance");
+// UK VAT worksheet: load a small invoice and bill list with VAT, set the dates, read the boxes.
+await page.fill("#docs-paste", [
+  "type,number,date,due,party,amount,account",
+  "invoice,V1,2026-04-10,,Alpha Ltd,1000.00,4000", "invoice,V1,2026-04-10,,Alpha Ltd,200.00,2100",
+  "bill,V2,2026-04-15,,Supply Co,300.00,6010", "bill,V2,2026-04-15,,Supply Co,60.00,1300",
+].join("\n"));
+await page.click("#docs-load");
+await page.fill("#from", "2026-04-01");
+await page.fill("#to", "2026-06-30");
+await page.dispatchEvent("#to", "change");
+await page.waitForFunction(() => /Net VAT/.test(document.querySelector("#vat").textContent), null, { timeout: 5000 }).catch(() => {});
+const vtext = await page.locator("#vat").textContent();
+console.log("     docs:", await page.locator("#docs-status").textContent());
+check(/Net VAT to pay/.test(vtext) && /140\.00/.test(vtext), "the VAT table shows net VAT to pay of 140.00 (200.00 due less 60.00 reclaimed)");
+check(/VAT due on sales/.test(vtext) && /1000/.test(vtext) && /300/.test(vtext), "boxes 6 and 7 show sales and purchases ex VAT in whole pounds");
 check(errors.length === 0, `no page errors ${errors.join("; ")}`);
 await browser.close();
 server.close();
