@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import {
-  PAPERS, DEFAULTS, negbinSize, poissonSeasonal, poissonHolidays, poissonTrend, countDispersion, ar1JointFit, analyze, bocpd, defaultPoissonPrior, defaultNbPrior, defaultPrior, gammaPoissonLogMarginal, makeCost, lgamma, nigLogMarginal, optimalPartitioning, ar1Rho, longRunSd, prewhiten, seasonalAdjust, trendAdjust, penaltyValue, parseSeries, peaks, pelt, robustSd,
+  PAPERS, DEFAULTS, negbinSize, poissonSeasonal, poissonHolidays, poissonTrend, countDispersion, ar1JointFit, analyze, bocpd, defaultPoissonPrior, defaultNbPrior, defaultPrior, gammaPoissonLogMarginal, makeCost, lgamma, nigLogMarginal, optimalPartitioning, ar1Rho, longRunSd, prewhiten, seasonalAdjust, trendAdjust, lsKnots, lineRss, penaltyValue, parseSeries, peaks, pelt, robustSd,
 } from './engine.mjs';
 
 // Seeded PRNG (mulberry32) and Box-Muller normals, so every test is reproducible.
@@ -1131,4 +1131,17 @@ test('known holidays with a season: alternating keeps the planted step, adds no 
   const mean = week.reduce((a, b) => a + b) / 7;
   const err = (r) => Math.max(...week.map((w, i) => Math.abs(r.seasonal.profile[i] - w / mean)));
   assert.ok(err(on) <= err(off) + 0.01, `alternating ${err(on)} vs ${err(off)}`);
+});
+
+test('lsKnots (prefix sums) picks the same pair as a brute-force pass over lineRss', () => {
+  for (const seed of [1, 2, 3, 4, 5]) {
+    const r = rng(seed), n = 90, z = normals(r, n);
+    const x = Array.from({ length: n }, (_, t) => 5 + 0.02 * t + 0.06 * Math.max(0, t - 35) - 0.1 * Math.max(0, t - 60) + z[t] * 0.5 + 100);
+    let best = null;
+    for (let a = 9; a <= 81; a++) for (let b = a + 13; b <= 81; b++) {
+      const rss = lineRss(x, [a, b]);
+      if (!best || rss < best.rss) best = { rss, knots: [a, b] };
+    }
+    assert.deepEqual(lsKnots(x, 9, 81, 13), best.knots, `seed ${seed}`);
+  }
 });
