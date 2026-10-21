@@ -128,6 +128,21 @@ const splitBtn = page.getByRole("button", { name: /Split Hiscox.* by items/ });
 check((await splitBtn.count()) === 1, "a matched receipt with items of two kinds offers a split");
 if (await splitBtn.count()) { await splitBtn.click(); check(/Split Hiscox/.test(await page.locator("#receipts-status").textContent()), "the split button posts the split"); }
 check(/Net profit/.test(btext) && /(better|worse|on budget)/.test(btext), "the budget table shows a status and the net line");
+// Printable invoice: load one invoice, save the seller's details, press Print and read the opened page.
+await page.fill("#docs-paste", "type,number,date,due,party,amount,account\ninvoice,INV-900,2026-01-05,2026-02-04,Acme Corp,1200.00,4000");
+await page.click("#docs-load");
+await page.waitForTimeout(300);
+await page.evaluate(() => { document.querySelector("#profile").open = true; });
+await page.fill("#pf-name", "Kestrel Design Ltd");
+await page.fill("#pf-payTo", "IBAN GB00 TEST 0000 0000");
+await page.click("#pf-save");
+const printBtn = page.getByRole("button", { name: "Print invoice INV-INV-900" });
+check((await printBtn.count()) === 1, "an open invoice has a Print button");
+if (await printBtn.count()) {
+  const [pop] = await Promise.all([page.context().waitForEvent("page", { timeout: 5000 }).catch(() => null), printBtn.click()]);
+  if (pop) { await pop.waitForLoadState(); const t = await pop.locator("body").textContent(); check(/Kestrel Design Ltd/.test(t) && /INV-900/.test(t) && /1,200\.00/.test(t) && /IBAN GB00/.test(t), "the opened invoice shows seller, number, amount and how to pay"); }
+  else check(false, "Print opens the invoice page");
+}
 // Recurring payments and cash forecast. The made-up example has no steady payee (its gaps are uneven), so the card says so;
 // then a statement with monthly rent and a monthly software charge fills the table and the forecast.
 check(/No payee has three or more lines at a steady interval/.test(await page.locator("#recurring").textContent()), "the recurring card says so when no payee is steady (example books)");
