@@ -53,7 +53,7 @@ flagships:
       layouts; they still need trying on real exports. OFX/QFX (SGML and XML) and
       QIF files read too (2026-10-21, hand-written fixtures; page file picker takes
       .ofx/.qfx/.qif); multi-account OFX files split per account in the engine and CLI (`--map OFXID=CODE`,
-      2026-10-21); the page now shows one account picker per account in a multi-account OFX file (2026-10-21; clicked through in headless Chromium with `node eval/browser-click.mjs`: two pickers, import across 2 accounts, example load, no page errors). A US Schedule C worksheet (taxforms.mjs: P&L on the form's lines, meals at 50%, 27a rows, unmapped and unfiled flagged; CLI `schedulec`, page table and CSV) landed 2026-10-21; its line map is unchecked against the current form instructions. Next after the model run: a 1099-NEC list of contractors paid over $600 from contract-labor lines, and a W-9-on-file check.
+      2026-10-21); the page now shows one account picker per account in a multi-account OFX file (2026-10-21; clicked through in headless Chromium with `node eval/browser-click.mjs`: two pickers, import across 2 accounts, example load, no page errors). A US Schedule C worksheet (taxforms.mjs: P&L on the form's lines, meals at 50%, 27a rows, unmapped and unfiled flagged; CLI `schedulec`, page table and CSV) landed 2026-10-21; its line map is unchecked against the current form instructions. A 1099-NEC contractor worksheet (CLI `contractors`, `w9`; engine in taxforms.mjs; threshold $600 to 2025 and $2,000 from 2026, unverified against the IRS page; a page card (W-9 tick boxes, merge of two spellings of one payee, worksheet CSV; clicked through in headless Chromium) and CLI `merge-payee` landed 2026-10-21. Next after the model run: a 1099-NEC CSV in the layout filing services import (their column layouts need checking first), and a check of the 2026 threshold against the IRS page.
   # Added 2026-10-21 second, on the owner's direction that day: "I want to make
   # tools that can automate part of the new home construction process in the
   # us. to drop prices and increase efficiency this is a long standing project
@@ -69,8 +69,9 @@ flagships:
       sheet order with a bound; ROADMAP.md milestone 1). Blocking and fire
       blocking landed 2026-10-21 (plan `blocking: {rows, fire}`; engine, cut
       list and order; page controls landed 2026-10-21). A sheathing joint over an opening now comes back as a sized nailer piece (stud size, length from header top to top plate; sheathing result `nailerPieces`, 2026-10-21; rare, since cripples usually give bearing). Nailers are now a cut list and board order of their own (sheathing result `nailerLumber`, CLI; 2026-10-21) and are also pooled into the framing order (`takeoff(plan, nailerCuts(sheathing))`, CLI and page, so they come out of its offcuts). Corner plate laps
-      (plan `plateLaps`; top plate through one way, cap the other; totals unchanged) landed 2026-10-21. Next: two-course
-      sheathing for walls taller than the sheet, then tee laps.
+      (plan `plateLaps`; top plate through one way, cap the other; totals unchanged) landed 2026-10-21. Two-course
+      sheathing for walls taller than the longest sheet landed 2026-10-21 (lower sheet + upper
+      course by price per strip, bands cut crosswise, on-edge joint blocking in the cut list). Next: tee laps, then horizontal sheathing.
   # Added 2026-10-20 first, on the owner's direction that day for research
   # algorithms as tools (prompts/goals.md). New tools of that kind follow
   # portfolio/research-tools/README.md; this entry deepens the first one.

@@ -432,3 +432,24 @@ test("make-ups on named dates past the season keep the nights in date order even
   assert.ok(days.includes(parseDate("2027-03-02")) && days.includes(parseDate("2027-03-09")));
   assert.deepEqual(days, [...days].sort((x, y) => x - y));
 });
+
+test("a make-up date whose every slot is taken is refused, not given a blank time", () => {
+  const { spec } = readDivisionsSpec({ divisions: "A: a1, a2, a3", courts: "C1", times: "18:00", start: "2026-10-06", weekdays: "Tue" });
+  const s = buildDivisions(spec);
+  const [first, second] = s.nights;
+  const r = applyDivisionRainouts(s, `${dayIso(first.day)} A -> ${dayIso(second.day)}`);
+  assert.equal(r.moves.length, 0);
+  assert.ok(r.errors.length > 0 && r.errors.every((e) => /no open court slot|already plays/.test(e)));
+  for (const n of r.schedule.nights) for (const m of n.matches) assert.ok(spec.times.includes(m.time), `blank time on ${dayIso(n.day)}`);
+  assert.deepEqual(validateDivisions(r.schedule).errors, []);
+});
+
+test("after a rainout every night lists its matches by time, then by court", () => {
+  const s = build();
+  const r = applyDivisionRainouts(s, dayIso(s.nights[0].day));
+  const { times, courts } = r.schedule.config;
+  for (const n of r.schedule.nights) {
+    const keys = n.matches.map((m) => times.indexOf(m.time) * 1000 + courts.indexOf(m.court));
+    assert.deepEqual(keys, [...keys].sort((a, b) => a - b), `night ${dayIso(n.day)} out of order`);
+  }
+});

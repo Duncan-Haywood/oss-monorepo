@@ -74,3 +74,14 @@ rebuilt every `categorize` pass, so re-filing a settled line reopens its
 document. New close checks: `control` (ledger receivable or payable differs from
 the open documents) and `overdue` / `bill-overdue` (over 30 days past due).
 Tests: engine.test.mjs, "Accruals". Not measured on a real invoice export.
+
+## Addendum: 1099-NEC worksheet (2026-10-21)
+
+`cli.mjs contractors` and `w9` add a year-end contractor list to the engine: bank
+payments filed to Contract labor, totalled by payee, against the 1099-NEC line, with a
+W-9-on-file flag. Two choices an agent calling it should know. Card payments are shown
+apart and excluded, because the processor reports them on a 1099-K. The W-9 flag keeps
+no tax ID, so the books file stays free of the most sensitive field. The threshold
+(600 dollars to 2025, 2,000 from 2026) is the author's reading of the 2025 change and is
+not checked against the IRS page. Payees group on the first two words of the bank line,
+so spelling variants can split one person in two.

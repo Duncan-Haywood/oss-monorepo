@@ -139,6 +139,11 @@
     <p class="note">For a US sole proprietor or single-member LLC: the profit and loss regrouped onto the lines of Schedule C, with meals cut to 50%. A worksheet for you or your preparer, not a filing; it leaves out depreciation, home office, mileage and self-employment tax.</p>
     <div class="scroll" id="schedc"></div>
     <button type="button" id="schedc-csv" class="secondary">Download Schedule C worksheet (CSV)</button>
+    <h3>US contractors (1099-NEC worksheet)</h3>
+    <p class="note">Contract labor (account 6020) paid by bank in the latest year of your books, per payee, against the 1099-NEC line ($600 to 2025, $2,000 from 2026; check the IRS page). Tick a W-9 once you hold one (only a flag is kept, never a tax ID). Merge two spellings of one person so their payments add up. A worksheet, not a filing: whether someone is a contractor, and any exemption, is for you or your preparer to decide.</p>
+    <div class="scroll" id="nec"></div>
+    <p id="nec-merge" hidden><label>Count <select id="nec-from"></select></label> <label>with <select id="nec-into"></select></label> <button type="button" id="nec-merge-go" class="secondary">Merge</button></p>
+    <button type="button" id="nec-csv" class="secondary">Download contractors worksheet (CSV)</button>
   </section>
 
   <section class="card" aria-labelledby="h-checks">
@@ -210,7 +215,7 @@
   </footer>
   <script type="module">
     import { sniffFormat, splitOfx } from "./bank.mjs";
-    import { scheduleC, scheduleCCsv } from "./taxforms.mjs";
+    import { scheduleC, scheduleCCsv, contractors1099, contractors1099Csv, markW9, mergePayees } from "./taxforms.mjs";
     import { newBooks, importStatement, importOfxAccounts, categorize, suggestRules, addRules, addDocuments, writeOff, aging, salesTax, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, exportLines, status, analyze, fmt, DEFAULT_ACCOUNTS } from "./engine.mjs";
     import { parseAccounts } from "./ledger.mjs";
     import { aiSuggest } from "./ai.mjs";
@@ -344,7 +349,29 @@
     }
     $("#schedc-csv").addEventListener("click", () => { record("schedule_c_downloaded"); download(scheduleCCsv(scheduleC(books, { from: $("#from").value || null, to: $("#to").value || null })), "schedule-c-worksheet.csv", "text/csv"); });
 
-    function render() { fillSetup(); renderScheduleC(); renderStatus(); renderQueue(); renderReports(); renderRuleSuggestions(); renderAging(); renderSalesTax(); persist(); }
+    const necYear = () => Math.max(0, ...books.transactions.map((t) => +t.date.slice(0, 4)).filter(Boolean)) || new Date().getFullYear();
+    function renderNec() {
+      const r = contractors1099(books, { year: necYear() });
+      const box = $("#nec");
+      if (!r.payees.length) { box.replaceChildren(el("p", { class: "note", text: r.warnings[0] })); $("#nec-merge").hidden = true; return; }
+      const t = table(["Payee", "Paid by bank", "1099-NEC", "By card"], r.payees.map((p) => [p.name, fmt(p.cents), p.over ? "Report" : "Under", p.cardCents ? fmt(p.cardCents) : ""]));
+      t.querySelector("thead tr").append(el("th", { scope: "col", text: "W-9 on file" }));
+      [...t.querySelectorAll("tbody tr")].forEach((tr, i) => {
+        const p = r.payees[i], cb = el("input", { type: "checkbox", "aria-label": `W-9 on file for ${p.name}` });
+        cb.checked = p.w9;
+        cb.addEventListener("change", () => { books = markW9(books, p.name, cb.checked); record("w9_flag_set"); render(); });
+        tr.append(el("td", {}, cb));
+      });
+      box.replaceChildren(el("p", { class: "note", text: `${r.year}, 1099-NEC line ${fmt(r.threshold)}` }), t, ...r.warnings.map((w) => el("p", { class: "note", text: w })));
+      for (const id of ["#nec-from", "#nec-into"]) $(id).replaceChildren(...r.payees.map((p) => el("option", { value: p.name, text: p.name })));
+      $("#nec-merge").hidden = r.payees.length < 2;
+    }
+    $("#nec-merge-go").addEventListener("click", () => {
+      try { books = mergePayees(books, $("#nec-from").value, $("#nec-into").value); record("payees_merged"); render(); } catch (e) { alert(e.message); }
+    });
+    $("#nec-csv").addEventListener("click", () => { record("contractors_downloaded"); download(contractors1099Csv(contractors1099(books, { year: necYear() })), "contractors-1099-nec-worksheet.csv", "text/csv"); });
+
+    function render() { fillSetup(); renderScheduleC(); renderNec(); renderStatus(); renderQueue(); renderReports(); renderRuleSuggestions(); renderAging(); renderSalesTax(); persist(); }
 
     $("#docs-load").addEventListener("click", async () => {
       const f = $("#docs-file").files[0];

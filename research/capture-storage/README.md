@@ -16,8 +16,9 @@ Follow-up to `capture-kit` (track 13, autonomous multi-angle capture), which bud
 ```bash
 pip install pytest
 cd research/capture-storage
-python -m pytest -q tests                        # 9 tests
+python -m pytest -q tests                        # 15 tests
 PYTHONPATH=src python experiments/run.py         # under a second; writes experiments/results.txt
+PYTHONPATH=src python experiments/sourced.py     # about 10 s; writes experiments/sourced_results.txt
 python experiments/figure.py                     # experiments/offload_vs_cards.svg from results.txt
 ```
 
@@ -40,13 +41,32 @@ python experiments/figure.py                     # experiments/offload_vs_cards.
 - **Bitrate is the lever.** Scaling bitrates by 0.5 cuts the 1-hour plan to 227 g and 0.25 to 162 g; 1.5 needs all 8 readers and 652 g.
 - **What the weight buys.** Cards only holds 6 TB in one copy (864 GB exposed is the offload plan's worst case); two SSD copies cost 60 times the grams in return.
 
+## Sourced figures and a measured checksum rate (added 2026-10-21)
+The first version used round numbers chosen by the author. `src/capture_storage/sourced.py` now holds a `PARAMS` table (value, unit, source, sourced or assumed) and `experiments/sourced.py` re-runs the model on it (`experiments/sourced_results.txt`; the hash timings vary a few percent per run).
+
+- **Sourced:** action-camera bitrate 120 Mbit/s (GoPro HERO13 Black, Wikipedia's GoPro table; DJI Osmo Action 5 Pro, dji.com spec page "Max Video Bitrate 120 Mbps"); card mass 0.25 g microSD and 2 g full SD (Wikipedia "SD card" infobox; mass does not depend on capacity, so the old 0.4 to 0.6 g was wrong for microSD); card bus ceilings, UHS-I 104 MB/s and UHS-II 312 MB/s (SD Association table as shown on Wikipedia, all fetched 2026-10-21).
+- **Still assumed (no spec text reachable from this environment):** the 360 camera (Insta360 returned 403), phone and mirrorless bitrates, SSD grams, reader grams, and an SSD read rate of 400 MB/s.
+- **Measured:** hash throughput with Python's OpenSSL `hashlib` on this container's 2.3 GHz Xeon (SHA-NI): SHA-256 about 1,460 MB/s, MD5 about 630, BLAKE2b about 630, CRC-32 about 4,500.
+
+| 4 cameras, 4 h/day, 7 days, 2 SSD copies, 1 h limit | day (GB) | plan (g) | readers | evening copy (h) |
+|---|---|---|---|---|
+| assumed figures (above) | 864 | 452 | 6 | 0.89 |
+| sourced, reader 90 MB/s | 900 | 451 | 6 | 0.93 |
+| sourced, UHS-I ceiling 104 MB/s | 900 | 426 | 5 | 0.96 |
+| sourced, UHS-II ceiling 312 MB/s | 900 | 351 | 2 | 0.80 |
+
+- **The headline survives.** With sourced bitrates and card masses a day is 900 GB, cards alone weigh 4 g and a card is still orders of magnitude lighter than its battery per recording hour (0.029 g of card against 31.8 g of pack per hour for an action camera). Evening copy time still decides the kit: one UHS-I reader needs 2.4 h to copy a day once, and a plan with two copies in 1 h needs 5 readers (6 at 90 MB/s; none within 8 at 45 MB/s).
+- **A faster card bus is the cheapest lever.** UHS-II readers (312 MB/s ceiling) cut the plan from 426 g to 351 g and from 5 readers to 2. These are ceilings: a real card and reader pair reads below the bus speed, so treat 104 and 312 MB/s as best cases, which makes the reader count a lower bound.
+- **Checksums are not the bottleneck.** One core hashes SHA-256 at about 1,460 MB/s, enough to feed 14 UHS-I readers at once (4.7 UHS-II readers). A rig that hashes while it copies adds no time; a separate re-read of the SSD copy adds about 0.6 h (at an assumed 400 MB/s SSD), and re-reading the cards too doubles the evening to 4.8 h. Verify while copying.
+- **Not shown:** that any plan here works with real readers, hubs or a laptop's USB bus; the hash timings are for this container, not a travel laptop.
+
 ## Limitations
-- **All figures are assumed**, round numbers from the author's general knowledge, not datasheets or measurements: bitrates, card and SSD grams, 90 MB/s per reader. Nothing was fetched. Read the structure (time, not grams, binds), not the grams.
+- **The first sections' figures are assumed** (round numbers, not datasheets). The section above replaces those it could source and says which it could not. Read the structure (time, not grams, binds), not the grams.
 - Many readers need a powered hub and a laptop or fast SSDs able to absorb 8 x 90 MB/s; their weight, the laptop and the power for the offload are not counted. Cards are assumed reused daily after a verified copy, and a real workflow verifies checksums, which costs time.
 - Recording hours are assumed per camera; `capture-kit`'s battery hours for a given kit are not enforced here. Variable bitrate, proxies and cloud upload are not modelled.
 
 ## Next steps
-- Replace assumed figures with datasheet or bench-measured rates (cards, readers, SSDs).
+- Source the remaining assumed figures: 360-camera, phone and mirrorless bitrates, SSD masses and read rates (their manufacturer pages are scripted or blocked from this environment; a person with a browser can fill `PARAMS` in minutes), then bench-measure a real card-to-SSD copy.
 - Couple with `capture-kit`: choose cameras and storage together under one weight and offload-time budget.
 - Model checksum verification and a cloud or phone-hotspot backup path.
 
