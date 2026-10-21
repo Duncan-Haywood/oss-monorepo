@@ -196,3 +196,19 @@ test("a split that lands in two accounts posts a split; unknown items need --oth
   assert.equal(splitFromReceipt(odd, "r1", { other: "6100" }).books.transactions[0].posted, "6100");
   assert.throws(() => planReceiptSplit(books([]), "r1"), /no receipt/);
 });
+
+test("items you place by hand are learned, so the next receipt needs no flag", async () => {
+  const { splitFromReceipt, planReceiptSplit } = await import("./receipts.mjs");
+  const mk = (id, day) => `Corner Market\n2026-05-${day}\nWidget 6.00\nStarbucks coffee 10.00\nTotal 16.00`;
+  let b = addReceipts(books([["2026-05-04", "CORNER MARKET", "-16.00"], ["2026-05-06", "CORNER MARKET", "-16.00"]]), mk(1, "04") + "\n---\n" + mk(2, "06")).books;
+  const before = JSON.stringify(b.receipts);
+  const plan = planReceiptSplit(b, "r1", { fix: { widget: "6100" } });
+  assert.deepEqual(plan.parts.map((p) => p.account).sort(), ["6100", "6130"]);
+  assert.equal(JSON.stringify(b.receipts), before, "planning leaves the books alone");
+  const r = splitFromReceipt(b, "r1", { fix: { widget: "6100" } });
+  assert.deepEqual(r.taught.map((t) => [t.desc, t.account]), [["Widget", "6100"]], "only the placed item is taught, not the coffee");
+  const next = planReceiptSplit(r.books, "r2");
+  assert.equal(next.unfiled.length, 0, "Widget now has an account");
+  assert.deepEqual(next.parts.map((p) => p.account).sort(), ["6100", "6130"]);
+  assert.equal(splitFromReceipt(b, "r1", { fix: { widget: "6100" }, learn: false }).taught.length, 0);
+});

@@ -11,7 +11,7 @@
 // Not a statement of what any tax authority requires you to keep.
 
 import { parseCents, parseDate } from "./bank.mjs";
-import { payeeTokens, suggest } from "./categorize.mjs";
+import { payeeTokens, suggest, historyRecord } from "./categorize.mjs";
 import { accountMap } from "./ledger.mjs";
 import { modelFor, confirm } from "./engine.mjs";
 
@@ -252,7 +252,7 @@ export function taxOnReceipts(books, { from = null, to = null } = {}) {
 // -> { receipt, line, parts: [{account, cents, items}], unfiled, single }.
 // `single` is the one account when every item lands in the same place: that is a
 // plain filing, not a split. Nothing here changes the books; splitFromReceipt does.
-export function planReceiptSplit(books, receiptId, { other = null } = {}) {
+export function planReceiptSplit(books, receiptId, { other = null, fix = {} } = {}) {
   const r = (books.receipts ?? []).find((x) => x.id === receiptId);
   if (!r) throw new Error(`no receipt ${receiptId}`);
   if (!r.items?.length) throw new Error(`receipt ${receiptId} has no line items that add up to its total`);
@@ -265,11 +265,13 @@ export function planReceiptSplit(books, receiptId, { other = null } = {}) {
   const unfiled = [];
   for (const it of r.items) {
     const s = suggest({ desc: it.desc, cents: -it.cents }, model);
-    let account = s.account && s.account !== "transfer" ? s.account : fallback;
+    const fixed = Object.entries(fix).find(([w]) => it.desc.toLowerCase().includes(w.toLowerCase()));
+    let account = fixed ? fixed[1] : s.account && s.account !== "transfer" ? s.account : fallback;
+    const taught = Boolean(fixed || (other && account === other && !(s.account && s.account !== "transfer")));
     if (!account || account === "transfer") { unfiled.push(it); continue; }
     if (!groups.has(account)) groups.set(account, { account, cents: 0, items: [] });
     const g = groups.get(account);
-    g.cents += it.cents; g.items.push(it);
+    g.cents += it.cents; g.items.push(taught ? { ...it, taught } : it);
   }
   const parts = [...groups.values()].sort((a, b) => b.cents - a.cents);
   const itemSum = r.items.reduce((a, i) => a + i.cents, 0);
@@ -297,5 +299,18 @@ export function splitFromReceipt(books, receiptId, opts = {}) {
   const plan = planReceiptSplit(books, receiptId, opts);
   if (plan.unfiled.length) throw new Error(`${plan.unfiled.length} item${plan.unfiled.length === 1 ? "" : "s"} (${plan.unfiled.map((i) => i.desc).join(", ")}) match no account; name one with --other CODE`);
   const choice = plan.single ?? plan.parts.map((p) => ({ account: p.account, cents: p.cents }));
-  return { books: confirm(books, { [plan.line.id]: choice }), plan };
+  const out = confirm(books, { [plan.line.id]: choice });
+  // Item-level learning: an item you placed (--fix WORD=CODE, or the --other
+  // catch-all) is remembered under its own words, so the next receipt with it
+  // lands there without being told. Items the categorizer already placed are not
+  // re-taught. Skipped when `learn` is false.
+  const taught = [];
+  if (opts.learn !== false) {
+    for (const p of plan.parts) for (const it of p.items) {
+      if (!it.taught) continue;
+      out.history.push(historyRecord({ desc: it.desc, cents: -it.cents }, p.account));
+      taught.push({ desc: it.desc, account: p.account });
+    }
+  }
+  return { books: out, plan, taught };
 }

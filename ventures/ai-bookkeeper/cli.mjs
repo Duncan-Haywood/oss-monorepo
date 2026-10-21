@@ -63,7 +63,7 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
   recurring [--as-of D] [--json]  payees that repeat on a steady interval: cost per year, next date, and which went overdue, lapsed or changed amount
   forecast [--as-of D] [--days N] [--json]  expected cash day by day from the bank balance, recurring items and open invoices and bills; the lowest point
   anomalies [--json]     lines worth a second look: double charges, amounts far above a payee's usual, large first-time payees (candidates with a reason, not an audit)
- receipts [FILE|attach RID LINEID|detach RID|remove RID|split RID [--other CODE] [--apply]] [--min DOLLARS] [--tax] [--json]  receipt text (blocks split by ---) matched to bank lines; lists unmatched receipts and spending over --min (default 75) with no receipt
+ receipts [FILE|attach RID LINEID|detach RID|remove RID|split RID [--other CODE] [--fix WORD=CODE]... [--apply]] [--min DOLLARS] [--tax] [--json]  receipt text (blocks split by ---) matched to bank lines; lists unmatched receipts and spending over --min (default 75) with no receipt
   compare [--from D --to D --vs-from D --vs-to D] [--json]  profit and loss against an earlier period (default: latest month vs the month before): what moved, what is new or gone
   budget [CODE AMOUNT] [--from D --to D] [--json]  set a monthly budget for an account (AMOUNT 0 removes it), or show budget against actual for the period (default: latest month)
   aging [--as-of D]      what customers owe you and what you owe, by days past due
@@ -219,11 +219,13 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
   if (rest[0] === "split") {
     try {
       const other = flag("--other");
-      const plan = planReceiptSplit(books, rest[1], { other });
+      const fix = {};
+      for (let v; (v = flag("--fix")); ) { const [w, c] = v.split("="); if (!w || !c) throw new Error("--fix takes WORD=CODE, e.g. --fix toner=6070"); fix[w] = c; }
+      const plan = planReceiptSplit(books, rest[1], { other, fix });
       console.log(`${plan.receipt.merchant} ${plan.receipt.date}, line ${plan.line.id} ${fmt(plan.line.cents)}:`);
       for (const p of plan.parts) console.log(`  ${name(p.account).padEnd(34)} ${fmt(p.cents).padStart(11)}  ${p.items.map((i) => i.desc).join(", ").slice(0, 40)}${p.taxCents ? ` (+${fmt(p.taxCents)} tax)` : ""}${p.extraCents ? ` (+${fmt(p.extraCents)} tip)` : ""}`);
       for (const i of plan.unfiled) console.log(`  NO ACCOUNT for "${i.desc}" ${fmt(i.cents)}; use --other CODE`);
-      if (has("--apply")) { books = splitFromReceipt(books, rest[1], { other }).books; save(); console.log(plan.single ? `Filed whole to ${name(plan.single)} (one account).` : "Split posted."); }
+      if (has("--apply")) { const done = splitFromReceipt(books, rest[1], { other, fix }); books = done.books; save(); console.log(plan.single ? `Filed whole to ${name(plan.single)} (one account).` : "Split posted."); if (done.taught.length) console.log(`Learned ${done.taught.length} item${done.taught.length === 1 ? "" : "s"}: ${done.taught.map((t) => `"${t.desc}" -> ${t.account}`).join(", ")}`); }
       else console.log(plan.single ? "One account for everything: a plain filing. --apply files it." : "Add --apply to post this split.");
     } catch (e) { console.error(e.message); process.exit(2); }
     process.exit(0);
