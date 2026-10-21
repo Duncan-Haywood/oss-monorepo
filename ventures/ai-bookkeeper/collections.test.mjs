@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { newBooks } from "./engine.mjs";
 import { addDocuments } from "./accruals.mjs";
 import { setProfile } from "./invoice.mjs";
-import { customerStatement, reminders, toneFor } from "./collections.mjs";
+import { reminders, toneFor } from "./collections.mjs";
 
 const csv = "type,number,date,due,party,amount,account\n" +
   "invoice,1,2026-01-01,2026-01-31,Acme <Co>,500.00,4000\n" +
@@ -18,18 +18,6 @@ test("tone steps up with days late", () => {
   assert.equal(toneFor(15), "firm");
   assert.equal(toneFor(45), "final");
   assert.equal(toneFor(20, { firm: 30, final: 60 }), "friendly");
-});
-
-test("statement totals agree with the open invoices and escape names", () => {
-  const s = customerStatement(books(), "acme <co>", { asOf: "2026-05-10" });
-  assert.equal(s.total, 75000);
-  assert.equal(s.rows.length, 2);
-  assert.equal(s.overdue, 75000);
-  assert.equal(s.byBucket.reduce((a, x) => a + x, 0), s.total);
-  assert.match(s.html, /Acme &lt;Co&gt;/);
-  assert.doesNotMatch(s.html, /<Co>/);
-  assert.match(s.html, /IBAN XX00/);
-  assert.throws(() => customerStatement(books(), "Nobody", { asOf: "2026-05-10" }), /nothing open/);
 });
 
 test("reminders: one per customer, oldest first, not-yet-due left out, payments reduce", () => {

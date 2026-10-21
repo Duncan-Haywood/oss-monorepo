@@ -31,7 +31,7 @@ changed on `main` (`git log --since=3.days --name-only origin/main`) or that
 users rely on most. The campaign prints the baseline time and an estimate; run two or
 three campaigns if each takes under a minute, and for a slow suite (anything over ~20 s per mutant, since a campaign runs
 the suite once per mutant and the foreground limit is 10 min) start it with
-`run_in_background` and wait for it. The target file is mutated in place while it
+`run_in_background` and wait for it (use `--timeout` for a suite over 300 s, and pick another target when baseline x mutants exceeds ~20 min). The target file is mutated in place while it
 runs: avoid reading or editing it until the campaign exits (a mutated-looking file
 mid-run is the tool, not a bug), and check `git status` afterwards.
 

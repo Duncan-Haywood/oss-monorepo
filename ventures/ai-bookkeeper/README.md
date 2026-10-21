@@ -210,6 +210,14 @@ document journals on its own date: an invoice debits Accounts receivable
 the chart if it is missing) and debits its lines. Loading a number twice adds
 nothing.
 
+**Statement of account.** `node cli.mjs --books books.json statement Acme --out acme.html` (or the
+Statement button beside each open invoice on the page) prints one customer's
+invoices, credit notes, payments, refunds and write-offs in date order with a
+running balance, the amount owed and how much is past due; `--from DATE` rolls
+earlier activity into a brought-forward line. The closing balance is tested
+against the aging table. Node tests on hand-written ledgers; the page button was
+not clicked through (playwright is not installed in the 2026-10-21 cloud session).
+
 A bank line clears a document when it has the **exact amount**, falls 0 to 180
 days after the document date, and carries the **invoice number or the party's
 name** in its description. It is then `settled` and posts to receivable or
@@ -593,7 +601,7 @@ yet in the CLI or page, and the income is supplied, not read from the P&L.
 
 `node cli.mjs profile name "Studio Co"` (also `address`, `email`, `taxId`, `payTo`, `terms`) stores your details in the books; `node cli.mjs invoice 7 --out inv-7.html [--as-of DATE]` writes one invoice or credit note as a single self-contained HTML page that prints to PDF. Lines use the document CSV's optional `description` column (else the account name; account 2100 shows as sales tax); it then shows credits applied, payments received, the balance due, a Paid stamp or the days overdue, and "How to pay" only while a balance is open. Everything is HTML-escaped. A bill is refused. Test: `invoice.test.mjs` (hand-written documents only; the layout was not checked on paper). On the page: "Your details for printed invoices" under the invoices card saves the same fields, and each open invoice in the write-off list has a Print button that opens the invoice in a new tab (a download if pop-ups are blocked) for the browser's Save as PDF; clicked through in headless Chromium with `eval/browser-click.mjs`. Paid invoices and credit notes have no button yet.
 
-## Getting paid: statements and reminders
+## Payment reminders
 
 `node cli.mjs reminders [--as-of DATE] [--min AMOUNT] [--out DIR]` lists each
 customer with overdue invoices, oldest debt first, and with `--out` writes a
@@ -601,10 +609,7 @@ plain-text draft (subject line and body) per customer. The tone steps up with
 how late the oldest invoice is: friendly under 15 days, firm from 15, final from
 45 (`DEFAULT_STEPS` in `collections.mjs`; a common practice, not a rule, and the
 final wording's 7-day notice is a template to edit, not legal advice).
-`node cli.mjs statement "Acme Co" [--out FILE]` prints what one customer owes,
-or writes it as a printable HTML statement with the aging buckets and your
-`payTo` and `terms`. Amounts come from the same open documents as `aging`, so
+Pair it with `statement` for the customer's account. Amounts come from the same open documents as `aging`, so
 part-payments and credit notes are already netted. Nothing is sent from here.
 Tested in `collections.test.mjs` on hand-written invoices only (tone steps,
-totals agreeing with the open list, escaping, part-payments, the `--min`
-cut); not on the page yet, and no real customer has received one.
+one per customer, part-payments, the `--min` cut); not on the page yet, and no real customer has received one.
