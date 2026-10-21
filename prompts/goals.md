@@ -225,6 +225,19 @@ the sales and marketing ventures that already exist comes before adding
 new ones. Spec, guardrails and definition of done:
 [`portfolio/sales-tools/README.md`](../portfolio/sales-tools/README.md).
 
+## Direction: AI accounting systems
+
+Set by the owner on 2026-10-21: "I want to make ai accounting systems".
+
+The portfolio already had about ninety accounting tools, and each did one step
+(a payout to a journal, a CSV check, a categorizer, a reconciler). The
+direction is the system those steps belong to: books that persist, learn from
+the owner's corrections, and produce what a bookkeeper hands over at month end.
+The deterministic path stays the product, and a model only suggests
+(`PRODUCT_PLAYBOOK.md` §3). The first piece is
+[`ventures/ai-bookkeeper`](../ventures/ai-bookkeeper/README.md), first in
+`portfolio/flagships.yaml`.
+
 ## Direction: local models as an option beside API keys
 
 Set by the owner on 2026-10-18: "for the majority of applications, I think

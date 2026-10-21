@@ -21,6 +21,26 @@
 # retail-pilot-intel, print-atelier and real-estate-agent-photo-app (mostly
 # plans and demo UI), workflow-audit and marketplace-fee-compare (thin).
 flagships:
+  # Added 2026-10-21 first, on the owner's direction that day: "I want to make
+  # ai accounting systems". It joins up what about ninety single-step
+  # accounting tools in ventures/ already did into books that persist and learn.
+  - venture: ai-bookkeeper
+    why: >-
+      A double-entry ledger in integer cents with a four-layer categorizer that
+      learns from each filed line (rules, payee memory, naive Bayes, built-in
+      keywords) and an optional bring-your-own-key or local model for the review
+      queue. It pairs transfers, reconciles to the statement's running balance,
+      and produces a P&L, balance sheet, close checks and QuickBooks, Xero and
+      IIF journals; page, CLI and agent engine. Learning curve measured on
+      synthetic data (README Verification).
+    next: >-
+      Split lines are next: a Stripe payout as gross sales minus fees, and a loan
+      payment as principal plus interest, with a split editor on the page and
+      in confirm(). After that: real bank exports as fixtures (Chase, Bank of
+      America, Wells Fargo, Amex, Capital One), the AI layer measured with a
+      local model on the synthetic review queue, a per-layer ablation, rules
+      suggested from repeated corrections, and accruals from an invoice and
+      bill list.
   # Added 2026-10-20 first, on the owner's direction that day for research
   # algorithms as tools (prompts/goals.md). New tools of that kind follow
   # portfolio/research-tools/README.md; this entry deepens the first one.
