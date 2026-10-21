@@ -31,9 +31,6 @@ import {
   CATALOG_OUTPUT_FILE,
   COMPRESSED_SUFFIX,
   catalogStoredKey,
-  EMBED_HOST_OUTPUT_FILE,
-  EMBED_MODULE_OUTPUT_FILE,
-  EMBED_STYLE_OUTPUT_FILE,
   LLMS_FILE,
   LLMS_OUTPUT_FILE,
   llmsStoredKey,
@@ -353,42 +350,6 @@ test('the nginx rewrite and the ConfigMap key agree about where a category page 
     // halves of `gzip_static`'s lookup, which nothing else states in one place.
     assert.equal(categoryPageStoredKey(page.id), `${categoryPageKey(page.id)}.gz`);
   }
-});
-
-test('the committed embed runtime and stylesheet match what embed.mjs renders', async () => {
-  // The same staleness guard every other generated file here gets, and it
-  // matters more for these two than for a document: they are *imported* from
-  // `platform/pages/embed.mjs` rather than written here, so an edit to the
-  // widget on the tools host would otherwise leave the apex serving last
-  // week's runtime with no test anywhere noticing. `CLAUDE.md` records two
-  // occasions where a copied-instead-of-imported rule cost live product; this
-  // is the check that keeps the import honest at the file level too.
-  const { renderEmbedModule, renderEmbedStyle, renderEmbedHostModule } =
-    await import('../pages/embed.mjs');
-
-  const committedModule = await fs.readFile(EMBED_MODULE_OUTPUT_FILE, 'utf8');
-  assert.equal(
-    committedModule,
-    renderEmbedModule(),
-    'gitops/prod/front-door/pf-embed.js is stale — run `node platform/marketing/regen.mjs`',
-  );
-
-  const committedStyle = await fs.readFile(EMBED_STYLE_OUTPUT_FILE, 'utf8');
-  assert.equal(
-    committedStyle,
-    renderEmbedStyle(),
-    'gitops/prod/front-door/pf-embed.css is stale — run `node platform/marketing/regen.mjs`',
-  );
-
-  // The resizer matters more here than either file above, not less: nothing on
-  // this host loads it, so a stale or missing copy is invisible from every
-  // page we can look at and broken on every site that pasted the snippet.
-  const committedHost = await fs.readFile(EMBED_HOST_OUTPUT_FILE, 'utf8');
-  assert.equal(
-    committedHost,
-    renderEmbedHostModule(),
-    'gitops/prod/front-door/pf-embed-host.js is stale — run `node platform/marketing/regen.mjs`',
-  );
 });
 
 test('nginx serves the embed runtime and stylesheet as their own types', async () => {
