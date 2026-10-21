@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of the median gap in percentage points of absolute percentage error between the farthest-point spread and random draws against the number of synthesised designs k, with design-level bootstrap bounds, for the linear and ridge models; negative means the spread is better, and the intervals include zero at k = 3">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Spread minus random error, with design-level 95% bootstrap interval (weight 5)</text>
+<line x1="64" x2="624" y1="270.4" y2="270.4" stroke="#ddd"/><text x="58" y="274.4" text-anchor="end" font-family="sans-serif" font-size="11">-2</text>
+<line x1="64" x2="624" y1="195.3" y2="195.3" stroke="#ddd"/><text x="58" y="199.3" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="120.3" y2="120.3" stroke="#ddd"/><text x="58" y="124.3" text-anchor="end" font-family="sans-serif" font-size="11">2</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">2</text>
+<text x="157.3" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">3</text>
+<text x="344.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">5</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">8</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">synthesised designs from the new family (k)</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">spread minus random, percentage points</text>
+<polyline points="64.0,280.9 157.3,208.1 344.0,221.6 624.0,212.6" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="280.9" r="3" fill="#c0392b"/>
+<circle cx="157.3" cy="208.1" r="3" fill="#c0392b"/>
+<circle cx="344.0" cy="221.6" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="212.6" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">linear: median gap</text>
+<polyline points="64.0,324.0 157.3,246.4 344.0,239.6 624.0,224.6" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="324.0" r="3" fill="#1f6fb2"/>
+<circle cx="157.3" cy="246.4" r="3" fill="#1f6fb2"/>
+<circle cx="344.0" cy="239.6" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="224.6" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">linear: design-level 95% low</text>
+<polyline points="64.0,239.6 157.3,181.1 344.0,201.0 624.0,206.2" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="239.6" r="3" fill="#2e8b57"/>
+<circle cx="157.3" cy="181.1" r="3" fill="#2e8b57"/>
+<circle cx="344.0" cy="201.0" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="206.2" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">linear: design-level 95% high</text>
+<polyline points="64.0,239.2 157.3,151.8 344.0,236.6 624.0,223.8" fill="none" stroke="#8e44ad" stroke-width="2"/>
+<circle cx="64.0" cy="239.2" r="3" fill="#8e44ad"/>
+<circle cx="157.3" cy="151.8" r="3" fill="#8e44ad"/>
+<circle cx="344.0" cy="236.6" r="3" fill="#8e44ad"/>
+<circle cx="624.0" cy="223.8" r="3" fill="#8e44ad"/>
+<rect x="574" y="32" width="14" height="10" fill="#8e44ad"/><text x="594" y="41" font-family="sans-serif" font-size="11">ridge: median gap</text>
+<polyline points="64.0,307.9 157.3,219.3 344.0,263.6 624.0,241.5" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="307.9" r="3" fill="#c0392b"/>
+<circle cx="157.3" cy="219.3" r="3" fill="#c0392b"/>
+<circle cx="344.0" cy="263.6" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="241.5" r="3" fill="#c0392b"/>
+<rect x="744" y="32" width="14" height="10" fill="#c0392b"/><text x="764" y="41" font-family="sans-serif" font-size="11">ridge: design-level 95% low</text>
+<polyline points="64.0,180.3 157.3,71.2 344.0,208.1 624.0,209.2" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="180.3" r="3" fill="#1f6fb2"/>
+<circle cx="157.3" cy="71.2" r="3" fill="#1f6fb2"/>
+<circle cx="344.0" cy="208.1" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="209.2" r="3" fill="#1f6fb2"/>
+<rect x="914" y="32" width="14" height="10" fill="#1f6fb2"/><text x="934" y="41" font-family="sans-serif" font-size="11">ridge: design-level 95% high</text>
+</svg>
