@@ -33,6 +33,12 @@ SAY = {
     "Jordanes": "Jor-dah-nees",
     "Raguel": "Rag-you-el",
     "Lycia": "Lissia",
+    "Seraphim": "Serra-fim",
+    "Sarov": "Sah-rov",
+    "Prokhor": "Prok-hor",
+    "Motovilov": "Mo-toe-vee-lov",
+    "Diveyevo": "Dee-vay-ay-vo",
+    "Agathia": "Ah-gah-thee-ah",
 }
 
 
