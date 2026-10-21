@@ -111,3 +111,12 @@ test("Table A-1 percentages match the declining-balance rules they come from", (
     d.forEach((p, i) => assert.ok(Math.abs(p - t[i] / 1000) <= tol, `class ${life} year ${i + 1}: derived ${p.toFixed(4)} vs table ${(t[i] / 1000).toFixed(3)}`));
   }
 });
+
+test("section 179 and bonus accept their exact limits and reject one step past", () => {
+  const b = with1("10000", "2026-02-01", { macrsClass: 5 });
+  assert.equal(setTaxTreatment(b, "FA-1", { macrsClass: 5, s179: 1000000 }).asset.tax.s179, 1000000);
+  assert.throws(() => setTaxTreatment(b, "FA-1", { macrsClass: 5, s179: 1000001 }), /Section 179/);
+  assert.equal(setTaxTreatment(b, "FA-1", { macrsClass: 5, bonusPct: 100 }).asset.tax.bonusPct, 100);
+  assert.throws(() => setTaxTreatment(b, "FA-1", { macrsClass: 5, bonusPct: 100.5 }), /Bonus percent/);
+  assert.throws(() => setTaxTreatment(b, "FA-1", { macrsClass: 5, bonusPct: -1 }), /Bonus percent/);
+});
