@@ -19,9 +19,9 @@ Two companion documents carry the parts this one only names:
     per user, the API-key switch, the disclaimer text to copy, the SEO/AI-discovery
     checklist, and the definition of done.
 - [`portfolio/hosting/`](hosting/README.md) — where a product goes live:
-    GitHub Pages for static tools. The Hetzner boxes were deleted
-    2026-10-01, so processes need a new host decision. Not Cloudflare.
-    Not Vercel.
+    GitHub Pages for web surfaces; other forms (apps, CLIs, services for
+    others to run) ship through their own channels, with no static-only
+    rule (owner, 2026-10-21). Not Cloudflare. Not Vercel.
 - [`portfolio/usage/`](usage/README.md) — what may be counted (events, never
   people), which free signals already exist, and where readings land
   (`usage/usage.yaml`) so the next session and the router can see them.
@@ -419,9 +419,9 @@ beats another build**:
 2. Record a usage reading that is not `null`.
 3. Only then graduate a new candidate or clone another bid calculator.
 
-The host is decided: GitHub Pages for static products. The Hetzner boxes
-for processes were deleted 2026-10-01, so processes need a new host
-decision — see [`hosting/README.md`](hosting/README.md).
+The host is decided: GitHub Pages for web surfaces. Products are not limited
+to static pages (owner, 2026-10-21); one with a process ships for others to
+run — see [`hosting/README.md`](hosting/README.md).
 ~~The remaining owner flip is `deploy-settings` (enable GitHub Pages).~~
 **No longer true — see the "Superseded 2026-09-06" note above: `deploy-settings`
 is granted, and this line contradicted that note by still naming it as the

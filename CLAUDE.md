@@ -17,8 +17,8 @@ which work.
 
 - **Product work:** [`AGENTS.md`](AGENTS.md), then
   [`ventures/CLAUDE.md`](ventures/CLAUDE.md) and
-  [`PRODUCT_PLAYBOOK.md`](PRODUCT_PLAYBOOK.md) (niche, $0-marginal-cost
-  shapes, the API-key switch, disclaimer text, SEO checklist, definition of
+  [`PRODUCT_PLAYBOOK.md`](PRODUCT_PLAYBOOK.md) (niche, product shapes and
+  zero per-user cost, the API-key switch, disclaimer text, SEO checklist, definition of
   done). [`portfolio/DIRECTION.md`](portfolio/DIRECTION.md) is a long
   reference: `grep -n '^## '` it and read only what your task touches.
 - **Research work:** [`research/CLAUDE.md`](research/CLAUDE.md). Its brief,
