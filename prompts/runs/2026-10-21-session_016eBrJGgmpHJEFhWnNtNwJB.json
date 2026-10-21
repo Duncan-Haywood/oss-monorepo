@@ -17,7 +17,7 @@
   "tool_calls": null,
   "task": "Owner question: what an automated system that 'prints' mechatronics and robots would look like; owner follow-up asked for a blog post on the direction plus an agent doc.",
   "projects": [],
-  "pr": null,
+  "pr": 9025,
   "repo": null,
   "commits": [],
   "lines_added": null,
