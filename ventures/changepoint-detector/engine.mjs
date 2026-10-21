@@ -803,6 +803,48 @@ export function makeCost(x, model = 'mean', sigma = robustSd(x), rho = 0, exposu
       // Per-point exposures e (a seasonal factor, a trend): the mean at t is lam e[t], and lam has no closed form,
       // so the segment's lam is the Poisson estimate a / sum(e) polished by two Newton steps on the NB score.
       // The cost is O(segment length), not O(1); PELT's pruning keeps the candidate set small.
+      // A season gives a handful of distinct exposures: the score and the likelihood depend on each point only through
+      // its exposure class, so prefix sums of count and total per class make the same cost O(classes) per segment.
+      const classes = new Map();
+      for (let i = 0; i < n && classes.size <= NB_CLASS_MAX; i++) if (!classes.has(exposure[i])) classes.set(exposure[i], classes.size);
+      if (classes.size <= NB_CLASS_MAX) {
+        const K = classes.size, ev = [...classes.keys()];
+        const CN = ev.map(() => new Float64Array(n + 1)), CS = ev.map(() => new Float64Array(n + 1));
+        for (let k = 0; k < K; k++) for (let i = 0; i < n; i++) {
+          const hit = classes.get(exposure[i]) === k;
+          CN[k][i + 1] = CN[k][i] + (hit ? 1 : 0);
+          CS[k][i + 1] = CS[k][i] + (hit ? x[i] : 0);
+        }
+        const nn = new Float64Array(K), ss = new Float64Array(K);
+        return (s, t) => {
+          let a = 0, E = 0;
+          for (let k = 0; k < K; k++) {
+            nn[k] = CN[k][t] - CN[k][s]; ss[k] = CS[k][t] - CS[k][s];
+            a += ss[k]; E += nn[k] * ev[k];
+          }
+          if (!(E > 0)) return 0;
+          let lam = a / E;
+          for (let it = 0; it < 2 && lam > 0; it++) {
+            let g = 0, h = 0;
+            for (let k = 0; k < K; k++) {
+              if (!nn[k]) continue;
+              const e = ev[k], d = lam * e + size, w = ss[k] + size * nn[k];
+              g += ss[k] / lam - w * e / d;
+              h += -ss[k] / (lam * lam) + w * e * e / (d * d);
+            }
+            const next = lam - g / h;
+            if (!(h < 0) || !(next > 0)) break;
+            lam = next;
+          }
+          let ll = 0;
+          for (let k = 0; k < K; k++) {
+            if (!nn[k]) continue;
+            const mu = lam * ev[k];
+            ll += (ss[k] > 0 ? ss[k] * Math.log(mu / (mu + size)) : 0) + nn[k] * size * Math.log(size / (mu + size));
+          }
+          return -2 * ll;
+        };
+      }
       return (s, t) => {
         let a = 0, E = 0;
         for (let i = s; i < t; i++) { a += x[i]; E += exposure[i]; }
@@ -926,6 +968,7 @@ export function optimalPartitioning(x, { model = 'mean', penalty = 'bic', minSeg
 
 // ---------------------------------------------------------------- BOCPD
 
+const NB_CLASS_MAX = 64; // most distinct exposures the per-class prefix-sum NB cost handles
 const NB_GRID = 240, NB_SPAN = 10;
 
 /**
