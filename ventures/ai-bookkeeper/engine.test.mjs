@@ -24,6 +24,8 @@ test("amounts and dates in the shapes banks print", () => {
   assert.equal(parseCents("12.00-"), -1200);
   assert.equal(parseCents("-$5"), -500);
   assert.equal(parseCents("1.234,56", true), 123456);
+  assert.ok(Number.isNaN(parseCents("1e3")), "scientific notation is not silently read as 13.00");
+  assert.ok(Number.isNaN(parseCents("99999999999999999999")), "amounts beyond safe integer cents are unreadable");
   assert.equal(parseDate("03/04/2026"), "2026-03-04");
   assert.equal(parseDate("03/04/2026", true), "2026-04-03");
   assert.equal(parseDate("12 Mar 2026"), "2026-03-12");
