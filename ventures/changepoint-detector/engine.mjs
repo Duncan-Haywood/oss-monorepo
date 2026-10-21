@@ -196,6 +196,41 @@ export function poissonSeasonal(x, period, { penalty = 'bic', minSegment = 2, pa
   return { factors: f, exposure: Array.from({ length: n }, (_, t) => f[t % m]), passes: done };
 }
 
+/**
+ * Known holidays for counts: one multiplicative factor on the rate at the given
+ * points (indices into the series), fitted jointly with the steps. Alternates PELT under the
+ * current exposure (base x factor at holidays) with the ratio of the holiday
+ * counts to what the segment rates predict there. `base` carries a seasonal or
+ * other exposure; the result composes with it. Returns { factor, exposure, passes }.
+ */
+export function poissonHolidays(x, holidays, { base = null, penalty = 'bic', minSegment = 2, passes = 10 } = {}) {
+  const n = x.length;
+  const hol = [...new Set(holidays)].filter((i) => Number.isInteger(i) && i >= 0 && i < n).sort((a, b) => a - b);
+  if (hol.length < 2) throw new Error('Holidays need at least 2 points inside the series to fit a factor; got ' + hol.length + '.');
+  if (hol.length > n / 2) throw new Error('More than half the points are holidays: give only the unusual days.');
+  const isHol = new Array(n).fill(false);
+  for (const i of hol) isHol[i] = true;
+  const b = (t) => (base ? base[t] : 1);
+  let factor = 1, done = 0;
+  for (; done < passes; done++) {
+    const e = Array.from({ length: n }, (_, t) => b(t) * (isHol[t] ? factor : 1));
+    const { changepoints } = pelt(x, { model: 'poisson', penalty, minSegment, exposure: e });
+    const bounds = [0, ...changepoints, n];
+    let obs = 0, exp = 0;
+    for (let i = 0; i + 1 < bounds.length; i++) {
+      let a = 0, E = 0;
+      for (let t = bounds[i]; t < bounds[i + 1]; t++) { a += x[t]; E += e[t]; }
+      const rate = E > 0 ? a / E : 0;
+      for (let t = bounds[i]; t < bounds[i + 1]; t++) if (isHol[t]) { obs += x[t]; exp += rate * b(t); }
+    }
+    const next = exp > 0 ? Math.max(0.01, Math.min(100, obs / exp)) : factor;
+    const move = Math.abs(Math.log(next / factor));
+    factor = next;
+    if (move < 1e-4) { done++; break; }
+  }
+  return { factor, exposure: Array.from({ length: n }, (_, t) => b(t) * (isHol[t] ? factor : 1)), passes: done, count: hol.length };
+}
+
 /** Solve H z = b for a small symmetric positive-definite H by Gaussian elimination; null when it is (near) singular. */
 function solveSym(H, b) {
   const m = b.length, A = H.map((row, i) => [...row, b[i]]);
@@ -1310,6 +1345,15 @@ export function analyze(input = {}) {
       profile = fit.factors;
     } else ({ adjusted: values, profile } = seasonalAdjust(original, period, { drift: !!o.drift }));
   }
+  let holidayFit = null;
+  if (o.holidays && o.holidays.length) {
+    if (model !== 'poisson') throw new Error('Holidays are for counts: use model "poisson".');
+    // entries are row labels (the date column when there is one, else the 1-based row number)
+    const at = new Map(labels.map((l, i) => [String(l), i]));
+    const idx = o.holidays.map((h) => { const i = at.get(String(h).trim()); if (i === undefined) throw new Error(`Holiday "${h}" is not a row label in the series.`); return i; });
+    holidayFit = poissonHolidays(original, idx, { base: exposure, penalty, minSegment: Math.max(1, Math.floor(Number(o.minSegment) || 2)) });
+    exposure = holidayFit.exposure;
+  }
   let slope = null, slopeAfter, knot, knots, slopes;
   let growth = null, countKnot, growthAfter, countKnots, countRates;
   const nbAfterExposure = () => { if (o.overdispersion === 'nb') nbSize = negbinSize(exposure ? original.map((v, t) => v / exposure[t]) : values); };
@@ -1399,6 +1443,7 @@ export function analyze(input = {}) {
     ...(period ? { seasonal: { period, profile: profile.map((v) => round(v, exposure ? 3 : undefined)), ...(exposure ? { multiplicative: true } : {}) } } : {}),
     ...(slope !== null ? { trend: { slopePerPoint: round(slope, 6), ...(knot !== undefined ? { slopeAfter: round(slopeAfter, 6), slopeChangesAt: knot, ...(knots.length > 1 ? { slopeChangesAtAll: knots, slopes: slopes.map((v) => round(v, 6)) } : {}) } : {}) } } : {}),
     ...(growth !== null ? { trend: { logGrowthAcrossSeries: round(growth, 4), growthFactorAcrossSeries: round(Math.exp(growth), 4), multiplicative: true, ...(countKnot !== undefined ? { growthChangesAt: countKnot, logGrowthAcrossSeriesAfter: round(growthAfter, 4), ...(countKnots.length > 1 ? { growthChangesAtAll: countKnots, logGrowthAcrossSeriesRates: countRates.map((v) => round(v, 4)) } : {}) } : {}) } } : {}),
+    ...(holidayFit ? { holidays: { count: holidayFit.count, factor: round(holidayFit.factor, 3) } } : {}),
     ...(rho !== null ? { ar1: { rho: round(rho, 3) } } : {}),
     ...(phi !== null ? { dispersion: round(phi, 3) } : {}),
     pelt: { penalty: round(p.penalty), minSegment, changepoints: changes, segments },
@@ -1412,7 +1457,7 @@ export function analyze(input = {}) {
     },
     labels,
     values: original,
-    ...(period || o.trend ? { adjusted: values.map((v, t) => round(exposure ? v / exposure[t] : v)) } : {}),
+    ...(period || o.trend || holidayFit ? { adjusted: values.map((v, t) => round(exposure ? v / exposure[t] : v)) } : {}),
     summary,
   };
 }

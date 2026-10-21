@@ -135,6 +135,18 @@ series, 40 each, in `engine.test.mjs`):
   exactly one change within 1 point of the truth in 33 of 40 with `--period 12`
   (centred moving average, per-phase median, profile centred at zero). It needs
   two full cycles. For counts, see the next item.
+- **Known holidays for counts (`--model poisson --holidays a,b,...`, added 2026-10-21).** A bank holiday
+  or a closure is a dip a calendar already explains. The listed rows (labels from the date column, else
+  1-based row numbers) share one multiplicative factor on their rate, an exposure like the seasonal ones, so it
+  composes with `--period` and `--trend`. The factor alternates with PELT: segment under the current exposure,
+  then set the factor to the holiday counts over what the segment rates predict there (at most 10 passes, until it
+  moves less than 1e-4 in log). Measured on 200 daily counts at rate 40 with a holiday every 17th day at 0.3 of the
+  rate, 40 seeded series: with no step, changes per series 3.73 -> 0.07 and the fitted factor 0.297 on average; with
+  a 1.5x step at point 100, changes per series 8.40 -> 1.07, step found within 5 points 40 of 40 both ways; with no
+  holiday effect (factor 1) the output is unchanged (0.00 and 1.02 changes per series, factor 1.001 and 0.993). Limits:
+  one common factor, not one per holiday; a holiday on a seasonal phase is also absorbed in that phase's factor
+  when `--period` is on (the cycle is fitted first); the calendar is yours to supply, none is built in. The
+  test in `engine.test.mjs` reproduces the step case on one seed.
 - **Seasonal counts (`--model poisson --period n`, added 2026-10-20).** Subtracting a profile
   would break counts, so the cycle is multiplicative: a count in phase p has rate (segment rate) x f[p],
   the factors average 1 and enter the Poisson likelihood as exposures (cost 2(a - a log(a / sum e)), the
