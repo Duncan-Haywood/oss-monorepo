@@ -2,6 +2,8 @@
 
 Track 11, adversarial human imitation. Why this one: the track's earlier detector projects (`mimic-anycontext-detect`, `mimic-evade`, `mimic-whitebox`) all use one n-gram detector, and the chain was drifting into variants of it. This asks a different question of the same data: **what is the detector actually reading when it transfers?** It also removes a limitation the earlier project listed (the vectoriser was fitted on all text, test items included) and adds bootstrap intervals. No language model is used (Hugging Face is blocked in the container), so nothing here tests an imitator; it measures the detector side only. **Stylised and preliminary:** plain-prompt machine text from three RAID chat models, eight families, one classifier (logistic regression), one run.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/mimic-featuretransfer/
+
 ## Results (`results.txt`, `results.json`)
 
 Leave-one-family-out AUROC on the held-out family (human against machine, 300 + 300 items), with a 95% bootstrap interval over test items. Every vectoriser and scaler is fitted on the other seven families only.
