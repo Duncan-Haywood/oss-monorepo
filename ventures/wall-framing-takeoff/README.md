@@ -166,7 +166,7 @@ corners, the cap total changes (by the through wall's depth minus the partition'
 - **Corner overhang (2026-10-21):** `sheathing.overhang: true` (CLI `--overhang`, page tick box "run sheathing past corners") runs each wall's vertical sheathing past its end by the next wall's stud depth where that wall has `corner: true` (same earlier-wall-runs-through reading as `plateLaps`), so the sheets cover the corner's end stud. The last panel is longer by that amount, and the wall's self-check covers the extra width. Not applied to horizontal sheets (a note says so), and the later wall's sheathing is not trimmed back for the sheet's thickness.
 - **Not modelled yet:** let-in or
   structural bracing, header spacers (listed in the notes), hardware and
-  fasteners, gable and rake walls, walls that change height, multiple storeys,
+  fasteners, walls that change height or have an off-centre peak, multiple storeys,
   window and door rough openings given by unit size (enter rough openings), and
   plates lapping at corners that do not close a loop (`plateLaps` reads the walls as a
   closed loop in the order listed).
@@ -204,3 +204,7 @@ turn counting off.
 Not affiliated with any lumberyard, builder, code body or software company.
 MIT licence ([LICENSE](LICENSE)). [Support](https://github.com/sponsors/Duncan-Haywood)
 is optional and never changes what the tool does.
+
+## Gable walls
+
+Set `"gable": {"pitch": 6}` on a wall (rise per 12 in of run) to frame a symmetric gable end: a level bottom plate, studs whose lengths follow the roof (the long point of the angled cut; the eave studs are `studLength`), and top and cap plates measured along the slope, spliced over studs with the usual cap offset. Openings, blocking and sheathing are not done for gable walls (the validator and the notes say so). Tested in `engine.test.mjs` on a 20 ft, 6:12 wall: layout self-check clean, plate length equals run x sqrt(1 + slope^2).
