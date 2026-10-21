@@ -209,7 +209,7 @@ class Feeder:
     motor_d: float = 63.0
     motor_len: float = 70.0
     motor_pitch: float = 25.0     # M4 square
-    head_x0: float = -110.0       # plate rear edge, relative to the wheel centres
+    head_x0: float = -250.0       # plate rear edge, relative to the wheel centres (the feed shuttle runs back here)
     head_x1: float = 110.0
     head_z0: float = -225.0
     head_z1: float = 190.0
@@ -234,6 +234,35 @@ class Feeder:
     drag_coeff: float = 1.2
     design_wind: float = 8.0      # m/s steady (Beaufort 5)
     foot_half_y: float = 1450.0
+
+    # Feed: balls queue in a column that drops into the pocket of a sliding
+    # shuttle between the head plates; the shuttle carries one ball forward to
+    # the wheels, its solid rear closing the column meanwhile. A hose joins the
+    # column's top socket to the hopper.
+    feed_col_x: float = -125.0    # column axis, relative to the wheel centres
+    feed_clear: float = 0.8       # printed parts' gap to each head plate
+    feed_stroke: float = 95.0
+    feed_floor_t: float = 8.0
+    shuttle_h: float = 72.0       # taller than one ball, shorter than two
+    socket_h: float = 40.0
+    hose_id: float = 72.0
+    hose_od: float = 82.0
+    hose_min_bend: float = 150.0  # smallest bend radius the hose tolerates
+    feed_min_slope_deg: float = 30.0  # steepest-needed: a ball will not roll down less in a smooth hose (assumption)
+
+    # Hopper: a storage tub on a sloped laser shelf, on four posts on the deck.
+    tub_l: float = 440.0
+    tub_w: float = 340.0
+    tub_h: float = 250.0
+    tub_wall: float = 3.0
+    packing: float = 0.55         # fraction of the tub's inside volume that balls fill, with a sloped floor
+    want_balls: int = 120
+    shelf_slope_deg: float = 12.0  # falls toward the net, to the outlet
+    hopper_out_x: float = -330.0
+    hopper_out_z: float = 1560.0   # underside of the shelf at the outlet
+    post_front_x: float = -380.0
+    post_rear_x: float = -640.0
+    shelf_post_y: float = 225.0
 
     # ---- derived -----------------------------------------------------------
     @property
@@ -291,6 +320,106 @@ class Feeder:
         need = self.wind_force_n * h / (9.81 * arm)
         return max(0.0, need - structure_kg)
 
+    # ---- feed geometry (head frame: x forward, z up from the ball path) --------
+    @property
+    def shuttle_z0(self) -> float:
+        return -self.ball_d / 2 + 0.5
+
+    @property
+    def floor_top(self) -> float:
+        return -self.ball_d / 2
+
+    @property
+    def roof_bottom(self) -> float:
+        return self.shuttle_z0 + self.shuttle_h + 0.5
+
+    @property
+    def hole_d(self) -> float:
+        return self.ball_d + 3.0
+
+    @property
+    def col_top(self) -> float:
+        return self.head_z1 + 1.5
+
+    @property
+    def mouth_rel(self) -> tuple[float, float]:
+        """Hose socket mouth, head frame (x, z)."""
+        return (self.feed_col_x, self.col_top + self.socket_h)
+
+    @property
+    def nip_x(self) -> float:
+        """Ball-centre x at which the ball first touches both wheels."""
+        reach = self.wheel_head_d / 2 + self.ball_d / 2
+        return -math.sqrt(reach ** 2 - self.head_gap_axis ** 2)
+
+    def mouth_world(self, elev_deg: float) -> tuple[float, float]:
+        """World (x, z) of the socket mouth with the head tilted `elev_deg` nose up about the pivot."""
+        mx, mz = self.mouth_rel
+        dx, dz = mx, mz - self.pivot_z_rel
+        t = math.radians(elev_deg)
+        return (self.head_x + dx * math.cos(t) - dz * math.sin(t),
+                self.pivot_z + dx * math.sin(t) + dz * math.cos(t))
+
+    @property
+    def shelf_origin(self) -> tuple[float, float]:
+        """World (x, z) of the shelf's underside centre; the shelf falls toward +x."""
+        s = math.radians(self.shelf_slope_deg)
+        a = self.shelf_l / 2 - 55.0
+        return (self.hopper_out_x - a * math.cos(s), self.hopper_out_z + a * math.sin(s))
+
+    @property
+    def shuttle_rear(self) -> float:
+        """Rear end of the shuttle: it still shuts the column when pushed fully forward."""
+        return self.feed_col_x - self.hole_d / 2 - 2.0 - self.feed_stroke
+
+    def shelf_underside_z(self, x: float) -> float:
+        cx, cz = self.shelf_origin
+        return cz - (x - cx) * math.tan(math.radians(self.shelf_slope_deg))
+
+    @property
+    def shelf_l(self) -> float:
+        return self.tub_l + 20.0
+
+    @property
+    def shelf_w(self) -> float:
+        return 2 * (self.shelf_post_y + 25.0)
+
+    def tub_capacity(self) -> int:
+        inside = (self.tub_l - 2 * self.tub_wall) * (self.tub_w - 2 * self.tub_wall) * (self.tub_h - self.tub_wall)
+        return int(self.packing * inside / (math.pi / 6 * self.ball_d ** 3))
+
+    def hose_chords(self, steps: int = 4) -> list[tuple[float, float, float]]:
+        """(elevation, chord mm, slope deg) from the hopper outlet to the socket mouth over the elevation range."""
+        out = []
+        for i in range(steps + 1):
+            e = self.elev_min + (self.elev_max - self.elev_min) * i / steps
+            mx, mz = self.mouth_world(e)
+            dx, dz = self.hopper_out_x - mx, self.hopper_out_z - mz
+            out.append((e, math.hypot(dx, dz), math.degrees(math.atan2(dz, abs(dx)))))
+        return out
+
+    @property
+    def hose_len(self) -> float:
+        """Cut length: the longest chord with 5% spare, rounded up to 10 mm."""
+        return math.ceil(max(c for _, c, _ in self.hose_chords()) * 1.05 / 10) * 10
+
+    def hose_bow_radius(self) -> float:
+        """Smallest bend radius, taking the hose as a circular arc of its cut length across the shortest chord."""
+        c = min(c for _, c, _ in self.hose_chords())
+        length = self.hose_len
+        if length <= c:
+            return math.inf
+        lo, hi = c / 2, 1e6   # arc length 2 r asin(c / 2r) falls from pi c / 2 toward c as r grows
+        if length >= math.pi * c / 2:  # more than a semicircle: radius is c/2 or less
+            return c / 2
+        for _ in range(80):
+            r = (lo + hi) / 2
+            if 2 * r * math.asin(c / (2 * r)) > length:
+                lo = r
+            else:
+                hi = r
+        return (lo + hi) / 2
+
     def check(self) -> list[str]:
         bad = []
         if not 0.80 * self.ball_d <= self.wheel_gap <= 0.90 * self.ball_d:
@@ -309,6 +438,32 @@ class Feeder:
             bad.append("feet are beyond the ends of the net beam")
         if self.cheek_x_half > self.head_x1:
             bad.append("cheeks reach past the muzzle")
+        bad += self.check_feed()
+        return bad
+
+    def check_feed(self) -> list[str]:
+        bad = []
+        if not self.ball_d < self.shuttle_h < 2 * self.ball_d - 5:
+            bad.append("shuttle must be taller than one ball and shorter than two, or it does not meter")
+        tube_od = 2 * self.plate_half_y - 2 * self.feed_clear
+        if tube_od < self.hole_d + 6:
+            bad.append("column wall under 3 mm between the head plates")
+        if self.feed_col_x + tube_od / 2 > -self.wheel_head_d / 2 - 3:
+            bad.append("feed column touches the top wheel")
+        if not self.nip_x <= self.feed_col_x + self.feed_stroke <= 0:
+            bad.append("feed stroke does not carry the ball to the wheels")
+        if self.feed_col_x - self.hole_d / 2 - 10 < self.head_x0:
+            bad.append("feed column is behind the head plates")
+        if self.hose_id < self.ball_d + 3 or self.hose_od > self.hole_d + 15:
+            bad.append("hose does not pass a ball, or is too wide for its socket")
+        if self.tub_capacity() < self.want_balls:
+            bad.append(f"tub holds about {self.tub_capacity()} balls, under the {self.want_balls} wanted")
+        slopes = [s for _, _, s in self.hose_chords()]
+        if min(slopes) < self.feed_min_slope_deg:
+            bad.append(f"hose chord falls only {min(slopes):.0f} deg at its flattest; balls need {self.feed_min_slope_deg:g}")
+        if self.hose_bow_radius() < self.hose_min_bend:
+            bad.append(f"hose bows to a {self.hose_bow_radius():.0f} mm radius when the head is at its closest pose; "
+                       f"the hose allows {self.hose_min_bend:g}")
         return bad
 
 
