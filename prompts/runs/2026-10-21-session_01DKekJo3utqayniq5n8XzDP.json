@@ -1,0 +1,249 @@
+{
+  "date": "2026-10-21",
+  "session": "https://claude.ai/code/session_01DKekJo3utqayniq5n8XzDP",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "scheduled: follow prompt.md",
+  "input_sha256": "3e54a4671d69cc91f71654788cc0aa9420c6093cc023245b58cf4de88920f85c",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-21T07:38:44Z",
+  "ended": "2026-10-21T07:39:04Z",
+  "wall_minutes": 15.29,
+  "tokens_in": 1352358,
+  "tokens_out": 7277,
+  "cost_usd": 0.5286,
+  "tool_calls": 22,
+  "task": null,
+  "projects": [],
+  "pr": 9107,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 1 shows campaign with --record but a mistyped first call without it wasted a 10 min run; changepoint-detector suite takes >200s per mutant so is unusable as a target, and targets list does not show suite time"
+    }
+  ],
+  "deviations": [],
+  "writeups": [],
+  "goal": null,
+  "notes": "Target fbar-8938-checker/calc.mjs: catch rate 4/8 before, 8/8 after. Real defect: CSV formula injection/newline in asset name, patched. First attempt on changepoint-detector/engine.mjs aborted (suite >200s).",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/fbar-8938-checker/calc.mjs",
+        "test": "node --test ventures/fbar-8938-checker/**/*.test.mjs  (in .)",
+        "seed": 840246277,
+        "commit": "4947d46f",
+        "sites": 90,
+        "baseline_seconds": 0.4,
+        "mutants": [
+          {
+            "file": "ventures/fbar-8938-checker/calc.mjs",
+            "line": 24,
+            "col": 75,
+            "operator": "true-to-false",
+            "before": "insurance: { label: \"Life insurance with cash value\", fbar: true, f8938: true },",
+            "after": "insurance: { label: \"Life insurance with cash value\", fbar: true, f8938: false },",
+            "line_text": "  insurance: { label: \"Life insurance with cash value\", fbar: true, f8938: true },",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "guard test added in calc.test.mjs"
+          },
+          {
+            "file": "ventures/fbar-8938-checker/calc.mjs",
+            "line": 36,
+            "col": 72,
+            "operator": "const-plus-one",
+            "before": "{ name: \"UK current account\", kind: \"bank\", maxLocal: 6200, endLocal: 4100, rate: 1.27 },",
+            "after": "{ name: \"UK current account\", kind: \"bank\", maxLocal: 6200, endLocal: 4101, rate: 1.27 },",
+            "line_text": "  { name: \"UK current account\", kind: \"bank\", maxLocal: 6200, endLocal: 4100, rate: 1.27 },",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "guard test added in calc.test.mjs"
+          },
+          {
+            "file": "ventures/fbar-8938-checker/calc.mjs",
+            "line": 42,
+            "col": 15,
+            "operator": "eq-flip",
+            "before": "if (typeof s === \"number\") return s;",
+            "after": "if (typeof s !== \"number\") return s;",
+            "line_text": "  if (typeof s === \"number\") return s;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/fbar-8938-checker/calc.mjs",
+            "line": 50,
+            "col": 14,
+            "operator": "max-to-min",
+            "before": "const max = Math.max(a.maxLocal || 0, a.endLocal || 0); // the highest value can never be below the year-end value",
+            "after": "const max = Math.min(a.maxLocal || 0, a.endLocal || 0); // the highest value can never be below the year-end value",
+            "line_text": "  const max = Math.max(a.maxLocal || 0, a.endLocal || 0); // the highest value can never be below the year-end value",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/fbar-8938-checker/calc.mjs",
+            "line": 51,
+            "col": 35,
+            "operator": "times-to-div",
+            "before": "return { ...a, rate, maxUsd: max * rate, endUsd: (a.endLocal || 0) * rate };",
+            "after": "return { ...a, rate, maxUsd: max / rate, endUsd: (a.endLocal || 0) * rate };",
+            "line_text": "  return { ...a, rate, maxUsd: max * rate, endUsd: (a.endLocal || 0) * rate };",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/fbar-8938-checker/calc.mjs",
+            "line": 80,
+            "col": 44,
+            "operator": "or-to-and",
+            "before": "const f8938Required = endTotal > endLimit || anyCeiling > anyLimit;",
+            "after": "const f8938Required = endTotal > endLimit && anyCeiling > anyLimit;",
+            "line_text": "  const f8938Required = endTotal > endLimit || anyCeiling > anyLimit;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/fbar-8938-checker/calc.mjs",
+            "line": 81,
+            "col": 38,
+            "operator": "false-to-true",
+            "before": "const f8938Maybe = !f8938Required ? false : endTotal <= endLimit; // required only by the any-time ceiling",
+            "after": "const f8938Maybe = !f8938Required ? true : endTotal <= endLimit; // required only by the any-time ceiling",
+            "line_text": "  const f8938Maybe = !f8938Required ? false : endTotal <= endLimit; // required only by the any-time ceiling",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "guard test added in calc.test.mjs"
+          },
+          {
+            "file": "ventures/fbar-8938-checker/calc.mjs",
+            "line": 98,
+            "col": 115,
+            "operator": "const-plus-one",
+            "before": "...r.assets.map((x) => [String(x.name || \"\").replace(/,/g, \" \"), x.kind, x.maxUsd.toFixed(2), x.endUsd.toFixed(2), KINDS[x.kind].fbar ? \"yes\" : \"no\", KINDS[x.kind].f8938 ? \"yes\" : \"no\"]),",
+            "after": "...r.assets.map((x) => [String(x.name || \"\").replace(/,/g, \" \"), x.kind, x.maxUsd.toFixed(2), x.endUsd.toFixed(3), KINDS[x.kind].fbar ? \"yes\" : \"no\", KINDS[x.kind].f8938 ? \"yes\" : \"no\"]),",
+            "line_text": "    ...r.assets.map((x) => [String(x.name || \"\").replace(/,/g, \" \"), x.kind, x.maxUsd.toFixed(2), x.endUsd.toFixed(2), KINDS[x.kind].fbar ? \"yes\" : \"no\", KINDS[x.kind].f8938 ? \"yes\" : \"no\"]),",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "guard test added; rerun reported line changed (csvText refactor), mutant re-applied by hand (toFixed(3)) and the csv two-decimal test failed it"
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/fbar-8938-checker/calc.mjs",
+        "issue": "toCsv let an asset name starting with = + - @ become a spreadsheet formula, and a newline or quote in a name broke the CSV rows",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "a75a60e0-3e9c-5705-8545-de08aed63d15",
+    "transcripts": 1,
+    "first": "2026-10-21T07:38:44Z",
+    "last": "2026-10-21T07:54:01Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 20,
+        "input": 40,
+        "output": 7277,
+        "thinking": 695,
+        "cache_read": 1303547,
+        "cache_write_5m": 0,
+        "cache_write_1h": 48771,
+        "api_equivalent_usd": 0.5286,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 20,
+      "input": 40,
+      "output": 7277,
+      "thinking": 695,
+      "cache_read": 1303547,
+      "cache_write_5m": 0,
+      "cache_write_1h": 48771,
+      "api_equivalent_usd": 0.5286,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.964,
+    "tool_calls": 22,
+    "tools": {
+      "Bash": 17,
+      "Read": 2,
+      "bash": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 15.29,
+      "active_minutes": 15.29,
+      "model_minutes": 1.63,
+      "tool_minutes": 13.66,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
