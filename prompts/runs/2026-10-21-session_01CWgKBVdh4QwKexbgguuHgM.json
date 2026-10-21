@@ -1,0 +1,63 @@
+{
+  "date": "2026-10-21",
+  "session": "https://claude.ai/code/session_01CWgKBVdh4QwKexbgguuHgM",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "I want to make ai customer service systems.",
+  "input_sha256": "92dc4f8973b2480774ed5a2c05cd32a3aeb056be44931140e8a8c3e798d14d8b",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-21T03:11:36Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "ventures/support-agent"
+  ],
+  "pr": 9046,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 46,
+  "outcome": "success",
+  "errors": [
+    "A bare `cat > file` with no heredoc in a compound Bash command hung on stdin until the 120 s timeout; the recovery `pkill -f cat` killed the shell. Rewrote the file with the Write tool."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/pages/venture-preflight.mjs",
+      "issue": "The first preflight failed on another session's post (description over 160 characters) that main had already fixed; a stale base makes the 5-minute build fail for reasons outside the venture. Merging main first would have saved a run."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "instruction": "route the run with promptctl.py route",
+      "did": "picked the ventures track directly",
+      "why": "the owner gave a specific task (AI customer service systems), which the routing docs allow (--track for a specific task)",
+      "result": "record written as ventures/1"
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "instruction": "venture work defaults to deepening the top flagship",
+      "did": "built a new venture next to support-desk and help-keeper",
+      "why": "the owner asked for AI customer service systems; the existing support ventures do not answer customers themselves, and the new one integrates with both rather than duplicating them",
+      "result": "new venture with a measured benchmark"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Tuning on BANKING77 dev split only; test split scored three times (frozen design, after an unrelated one-word-clarify change that shifted the fitted models, and after email/number stripping, no change). First run 65/787/1007 right and 0/39/58 wrong; reported 65/786/1007 right, 0/39/66 wrong with 0/10/40 past questions per intent (fixtures/banking77/README.md). Verification: node --test 46 pass; run_venture_tests.py support-agent 1 suite 0 failed; clauses.mjs OK; headless Chromium at 390px for the page and the widget against a live server; venture-preflight.mjs support-agent clean (after merging main).",
+  "corrections": [],
+  "redteam": null
+}
