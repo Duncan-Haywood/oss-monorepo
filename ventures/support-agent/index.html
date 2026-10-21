@@ -40,6 +40,7 @@
   </style>
 </head>
 <body>
+<main>
   <h1>An AI support agent that answers from your help articles, and knows when to hand off</h1>
   <p>After using this, you can <strong>let a chat on your site answer the questions your help articles already answer, with the source linked, and pass everything else to a person</strong>, without a per-resolution fee and without a model making up a refund policy. Open source (MIT), one Node process you host yourself, works with no AI key at all.</p>
   <p class="note">Below: paste your articles and ask a question, then paste questions with known answers and see how often it would be right, wrong or hand off, and which confidence bar to use. Everything on this page runs in your browser; nothing is uploaded.</p>
@@ -348,7 +349,8 @@ ADMIN_KEY=$(openssl rand -hex 16) node server.mjs
     <p>No. Deciding, answering and the handoff all work without one. A key from Anthropic, OpenAI or Gemini, or a model on your own machine through Ollama, LM Studio or llama.cpp, only makes the wording friendlier, and a checker guards it.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, consumer-protection or professional advice, and it does not replace a person on your support team. <strong>You are responsible for reviewing what it tells your customers</strong> and for your support policies. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. No uptime or delivery guarantee for the server.</p>
     <p>Privacy: everything on this page runs in your browser; your articles and questions are never uploaded. Anonymous feature counts are kept in this browser only. The server you host logs questions with email addresses and long numbers masked, on your own disk.</p>
     <p><a href="https://github.com/sponsors/Duncan-Haywood">Sponsor on GitHub</a> &middot; <label style="display:inline;font-weight:400"><input type="checkbox" id="optout" style="width:auto"> Don't count my usage</label></p>

@@ -51,6 +51,7 @@
     <p>Paste the request headers, the <strong>raw</strong> body and your signing secret. The page computes the HMAC the way <strong>Stripe, GitHub, Shopify, Slack</strong> and <strong>Standard Webhooks</strong> (Svix, Clerk, Resend) define it, tells you whether it verifies, and, when it does not, tries the usual culprits: re-serialised JSON, a trailing newline, CRLF line endings, whitespace in the secret, a <code>whsec_</code> secret used in the wrong form.</p>
     <p class="note">Nothing is uploaded. Your secret and payload are used in this tab by the browser's Web Crypto API and never leave your device; the page makes no network calls of its own. Prefer a test-mode or rotated secret when you debug.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>The request</h2>
@@ -99,7 +100,8 @@ node cli.mjs --provider github --snippet                                # refere
     <p>More: <a href="how-to-verify-webhook-signatures.html">how to verify webhook signatures correctly (and why raw body matters)</a></p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is a debugging aid, not a security audit or security advice. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong></p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs from the repo</a> and run it yourself.</p>
     <p>Everything runs in your browser. The headers, body and secret you paste are never uploaded; there are no accounts, cookies, or analytics vendors, and the tool makes no network calls. Anonymous feature events (<code>verify_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>

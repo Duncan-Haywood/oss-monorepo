@@ -49,6 +49,7 @@
     <p>Paste the output of <code>EXPLAIN (ANALYZE, BUFFERS)</code> — text or JSON — and get the <strong>time spent in each node</strong>, the <strong>filters that throw away most rows</strong>, <strong>bad row estimates</strong>, <strong>sorts and hashes spilling to disk</strong> and <strong>nested loops over sequential scans</strong>, each with a suggested fix.</p>
     <p class="note">Nothing is uploaded. The text box is analysed in this browser and never leaves your device. It reads one plan and never touches your database: suggestions are hypotheses to test on your own data.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Paste a plan</h2>
@@ -109,7 +110,8 @@ node cli.mjs analyze plan.txt --fail-on warn --json</pre>
     <p>No. The page analyses the text in your own browser and never sends it anywhere. The CLI reads a local file or stdin and makes no network call.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering, database-administration or professional advice. It applies heuristics to one plan you paste, can misread unusual plans and cannot see your schema, data or settings; a suggested index may not help or may slow down writes. <strong>You are responsible for reviewing and testing its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. PostgreSQL is a trademark of the PostgreSQL Community Association of Canada; this project is not affiliated with or endorsed by it.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
     <p>Everything runs in your browser. The text you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analyze_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>

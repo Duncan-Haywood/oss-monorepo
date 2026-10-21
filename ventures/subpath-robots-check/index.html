@@ -60,6 +60,7 @@
     <p>A crawler fetches <code>robots.txt</code> from exactly one place: the <strong>origin root</strong>. If your site lives under a path prefix — <code>user.github.io/repo/</code>, <code>group.gitlab.io/project/</code>, a CDN subdirectory — then the <code>robots.txt</code> you publish is at an address nothing ever requests, and the <code>Sitemap:</code> line inside it is never seen. Your pages are never enumerated. <strong>Nothing errors when this happens</strong>, which is why it usually goes unnoticed for years.</p>
     <p class="note">Nothing is uploaded. What you paste is read in this browser and never leaves your device, and this page makes no network calls — not even to fetch the robots.txt it tells you about.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Where is your site published?</h2>
@@ -130,7 +131,8 @@ node cli.mjs explain</pre>
     <p class="note">More on the mechanism, and the full list of what this cannot tell you: <a href="why-a-subpath-site-cannot-govern-its-robots-txt.html">why a subpath site cannot govern its robots.txt</a>, or <a href="vs-checking-robots-txt-by-eye.html">how this compares to just opening robots.txt and reading it</a>.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a security audit, a compliance attestation, or a guarantee about your site's search visibility, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including confirming what each search engine reports for your own site. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
     <p>Everything runs in your browser. What you paste is never uploaded; there are no accounts, cookies, or analytics vendors, and the page makes no network calls. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>

@@ -47,6 +47,7 @@
     <p>Paste or load Kubernetes manifest YAML and get a deterministic report of every container missing a memory limit, memory request, CPU request, or ephemeral-storage limit -- the specific gaps that let one container starve or crowd out everything else sharing its node.</p>
     <p class="note">Nothing is uploaded. The file you load is read in this browser and never leaves your device. No kubeconfig, no API server call.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Load your manifests</h2>
@@ -103,7 +104,8 @@ node cli.mjs check manifests.yaml --fail-on-risk --json</pre>
     <p>Because, unlike the other findings here, a CPU limit is not simply missing something safer -- once set, it is enforced by the kernel's CFS bandwidth controller, which can throttle a container that bursts within one scheduling period even while the node overall has spare CPU. That is a real, well-documented trade-off (tracked upstream as kubernetes/kubernetes#67577), not a bug, so this tool surfaces it rather than telling you to remove it.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not infrastructure, security, or capacity-planning advice, and it does not replace a qualified professional or Kubernetes' own documentation. It reports what the manifest declares against a fixed set of documented mechanisms -- it cannot know what your workload actually needs at runtime. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for load-testing any limit you set. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
     <p>Everything runs in your browser. The manifest you load is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>, <code>file_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>

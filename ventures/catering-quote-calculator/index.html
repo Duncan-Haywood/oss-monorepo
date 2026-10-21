@@ -58,6 +58,7 @@
     <p>Paste your costs for one event — food per guest, staff hours, rentals, fuel — and see <strong>the per-guest price that delivers your margin</strong>, <strong>food and labor as a share of the quote</strong>, <strong>the deposit</strong> and <strong>the guest count below which you lose money</strong>.</p>
     <p class="note">Nothing is uploaded and no supplier or accounting tool is contacted. The text box is analysed in this browser and never leaves your device. The 35% food and labor warning levels, 30% margin and 10% overhead are common rules of thumb, not a standard, and you can change every one.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Paste your cost lines</h2>
@@ -130,7 +131,8 @@ node cli.mjs quote event.csv --guests 60 --price 28 --json --fail-on error</pre>
     <p>No. The browser page runs on the text in your own browser and never sends it anywhere. The CLI reads a local file or stdin and makes no network call.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, tax, legal, food-safety or business advice. It does arithmetic on the cost lines you paste; it is not a guarantee of profit, and licensing, insurance, health-code and sales-tax rules for catering vary by place and are yours to check. Square, Toast, QuickBooks and other product names are trademarks of their owners, used only to describe where numbers come from.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
     <p>Everything runs in your browser. The text you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>quote_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>

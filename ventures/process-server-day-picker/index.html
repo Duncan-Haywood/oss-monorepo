@@ -43,6 +43,7 @@
     <p>Taking serves in the order they were assigned, or the biggest fee first, fills the day with the wrong work. Paste the queue — <strong>price, materials, minutes on site, the window each customer gives you and where they are</strong> — and get <strong>the exact set and order of jobs with the highest profit for the day</strong>, the drive and idle time it implies, <strong>what each job it turns down would need to pay</strong>, and what first-come dispatch leaves behind.</p>
     <p class="note">For independent process servers and small serving agencies running one vehicle. Nothing is uploaded: the text box is analysed in this browser and never leaves your device.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Paste the queue</h2>
@@ -116,7 +117,8 @@ cat jobs.csv | node cli.mjs plan - --speed 25</pre>
     <p>Independent process servers and one-vehicle serving agencies choosing which assigned serves to attempt today.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, tax, legal or business advice, and it does not replace a qualified professional. You are responsible for reviewing and verifying its output before relying on it, for the accuracy of the prices, costs, times and distances you type, for the promises you have made to customers, and for any contract, agency or attorney agreement that requires you to take a serve. Serving papers is regulated and safety-sensitive: the plan only orders attempts, it does not know service rules, filing or court deadlines, or whether an address is safe, and those come first; never trespass, misrepresent yourself or attempt service you are not authorised to make. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. It chooses between options using the numbers you supply; it is not a forecast of whether anyone will be home.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
     <p>Everything runs in your browser. The text you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>plan_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>

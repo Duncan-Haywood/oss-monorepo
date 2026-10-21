@@ -58,6 +58,7 @@
     <p>Paste the page's HTML (View source, copy all). You get a score, the mistakes ranked by how much they matter, and the exact fix for each: title and description length, headings, canonical, link previews, structured data that actually parses, image alt text, and whether the text exists before JavaScript runs.</p>
     <p class="note">Nothing is uploaded. What you paste is read in this browser and never leaves your device, and this page makes no network calls.</p>
   </header>
+<main>
   <section class="card">
     <h2>1. Paste the page source</h2>
     <label for="html">HTML</label>
@@ -96,7 +97,8 @@ node cli.mjs audit dist/index.html --min-score 85</pre>
     <p>Browsers block a web page from reading another site's HTML. Pasting the source keeps the tool private and serverless. For URLs, the Node command-line version fetches the page directly and can fail a build below a minimum score.</p>
     <p class="note">Longer version: <a href="seo-checklist-for-a-single-page.html">the on-page SEO checklist behind each finding</a>.</p>
   </section>
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a security audit, a compliance attestation, or a guarantee about your site's search visibility or ranking, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including confirming what each search engine reports for your own site. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
     <p>Everything runs in your browser. What you paste is never uploaded; there are no accounts, cookies, or analytics vendors, and the page makes no network calls. Anonymous feature events (<code>audit_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>

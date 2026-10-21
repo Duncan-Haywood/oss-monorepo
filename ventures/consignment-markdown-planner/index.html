@@ -43,6 +43,7 @@
     <p>Every week an item sits, it uses a rack slot you pay for. A fixed rule (25% off at 30 days, 50% at 60) treats a $12 tee and a $210 handbag the same. Paste your items — <strong>price, how fast it sells, your share of the sale and what a slot costs per week</strong> — and get <strong>the exact markdown schedule with the highest expected profit for each</strong>, <strong>which items are not worth taking in</strong>, and what a fixed rule leaves on the table.</p>
     <p class="note">For consignment and resale boutiques, thrift, vintage and furniture shops. Nothing is uploaded: the text box is analysed in this browser and never leaves your device.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Paste your items</h2>
@@ -110,7 +111,8 @@ cat items.csv | node cli.mjs plan - --handling 2</pre>
     <p>Consignment and resale boutiques, thrift and vintage shops and furniture consignors deciding when to mark things down and what to accept.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, tax, legal or business advice, and it does not replace a qualified professional. You are responsible for reviewing and verifying its output before relying on it, for the accuracy of the prices, sell rates and costs you type, and for the terms of your consignment agreements, including any markdown schedule or price floor you have promised a consignor. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. It chooses between options using the numbers you supply; it is not a forecast of what will sell.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
     <p>Everything runs in your browser. The text you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>plan_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>

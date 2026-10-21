@@ -49,6 +49,7 @@
     <p>Enter your <strong>monthly revenue</strong>, average sale price and international share. Get <strong>Stripe, Stripe Tax, Paddle, Lemon Squeezy and Polar</strong> priced side by side, with <strong>the cost of filing sales tax and VAT yourself</strong> counted where the platform is not the seller, plus the <strong>monthly revenue where the cheapest option changes</strong>.</p>
     <p class="note">Nothing is uploaded. Calculated in this browser from numbers you enter and approximate list prices you can edit. It cannot see your account and is not tax advice.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Your sales</h2>
@@ -108,7 +109,8 @@ node cli.mjs compare --revenue 5000 --prices prices.json --json</pre>
     
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, legal or tax advice. It applies list prices that may be out of date and ignores payout, currency-conversion, dispute and subscription charges, negotiated rates and your own tax position; it is not a quote and not a guarantee of what any provider will charge. Product names belong to their owners; this project is not affiliated with any of them.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
     <p>Everything runs in your browser. What you enter is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>compare_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>

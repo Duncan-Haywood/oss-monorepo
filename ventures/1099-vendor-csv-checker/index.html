@@ -59,6 +59,7 @@
     <p>Paste or drop your <strong>vendor payments CSV</strong> (name, TIN, address, total paid). It adds up each vendor, tests the total against the <strong>$600 / $2,000 reporting threshold</strong> for the year, and lists every fault with its row: <strong>missing or malformed TINs, blank addresses, bad state codes, ZIPs that lost their leading zero, duplicate vendors, one name with two TINs, probable corporations</strong> and card payments that belong on a 1099-K. Then download a clean list of the vendors who need a form.</p>
     <p class="note">The file is read in this browser tab and never leaves your device. TINs are masked to their last four digits in the report. Independent of the IRS. Check each rule against current IRS instructions for Form 1099-NEC before you file.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Your vendor list</h2>
@@ -116,7 +117,8 @@
     <p>The page runs in your browser and nothing is uploaded; a test in the code asserts there are no network calls. TINs are masked to the last four digits in the report. The downloadable vendor CSV carries full TINs because it is your own data going back to you; your own policies decide whether you may open it in a browser.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, payroll, compliance, or financial advice, and it does not replace a qualified professional or the IRS's own instructions. Results depend entirely on the file you provide. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including with a tax professional before you file information returns. A clean result is not a promise that the IRS will accept a filing.</p>
     <p><strong>Not affiliated with the IRS.</strong> This tool is independent and is not sponsored, endorsed or connected to the Internal Revenue Service, the Social Security Administration, or any accounting or tax software vendor. Thresholds and rules are written from public sources and may be out of date; confirm them in the current Instructions for Forms 1099-MISC and 1099-NEC.</p>
     <p><strong>Taxpayer data.</strong> Vendor lists contain names, addresses and taxpayer identification numbers. This page runs in your browser and sends nothing anywhere, and the portfolio never receives your file. Whether you may open such data in a browser tool is a question for your own security policies.</p>

@@ -43,6 +43,7 @@
     <p>Accepting requests as they arrive, or the biggest fee first, fills your calendar with the wrong files and leaves the good ones late. Paste the queue — <strong>fee, hours of work, the day each is due and what each costs you out of pocket</strong> — and get <strong>the exact set of files with the highest total net that you can still deliver on time</strong>, the order to work them, <strong>the fee each file it turns down would need to pay</strong>, and what first-come acceptance leaves behind.</p>
     <p class="note">For independent real estate appraisers, home inspectors and other solo professionals paid per file. Nothing is uploaded: the text box is analysed in this browser and never leaves your device.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Paste the queue</h2>
@@ -113,7 +114,8 @@ cat assignments.csv | node cli.mjs plan - --hours-per-day 7</pre>
     <p>Independent real estate appraisers, home and property inspectors, and other solo professionals paid a fee per file who choose which requests to accept against fixed due dates.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, tax, legal, valuation or business advice, and it does not replace a qualified professional. You are responsible for reviewing and verifying its output before relying on it, for the accuracy of the fees, hours, costs and due dates you type, and for any engagement, panel or client agreement that governs which assignments you must take or decline. Appraisal and inspection work is regulated and professional-judgement-sensitive: the plan only chooses between files on the numbers you supply, it does not know licensing or competency rules, USPAP or other standards, conflict-of-interest or independence requirements, or whether you are qualified for a given property, and those come first; never accept an assignment you cannot complete competently and independently, and never let a fee or deadline influence an opinion of value. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. It chooses between options using the numbers you supply; it is not a forecast of how long any file will take.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
     <p>Everything runs in your browser. The text you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>plan_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>

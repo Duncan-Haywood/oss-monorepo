@@ -44,6 +44,7 @@
     <p>"Wait until it sells" quietly pays floorplan interest, curtailments and lot costs on units that are worth less every week. Paste your inventory — <strong>days on lot, total cost, floored amount, expected retail and wholesale values and how fast each falls</strong> — and get <strong>each unit's true carrying cost to date and per day</strong>, <strong>the exact best day to wholesale it</strong> under your own numbers, <strong>which units to wholesale now, ranked by what they earn per $1,000 of floorplan line per day</strong>, and <strong>the dollars a wait-until-it-sells policy leaves behind</strong>.</p>
     <p class="note">For independent used-car dealers with 1 to 60 units on a floorplan line. Nothing is uploaded: the text box is analysed in this browser and never leaves your device.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Paste the inventory</h2>
@@ -111,7 +112,8 @@ cat lot.csv | node cli.mjs plan - --line-value 2 --json</pre>
     <p>Independent used-car dealers with roughly 1 to 60 units on a floorplan line, deciding which aged units to keep retailing and which to send to auction or a wholesaler.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, tax, legal, lending or business advice, and it does not replace a qualified professional or your floorplan lender's own terms. You are responsible for reviewing and verifying its output before relying on it, for the accuracy of the costs, values, rates and schedules you type, and for meeting your floorplan agreement, curtailment and payoff obligations. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. It works out the consequences of the numbers you supply; it is not a forecast of what any vehicle will sell for.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
     <p>Everything runs in your browser. The text you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>plan_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>

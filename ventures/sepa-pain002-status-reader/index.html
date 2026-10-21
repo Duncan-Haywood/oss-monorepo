@@ -61,6 +61,7 @@
     <p>Paste or drop the <strong>pain.002 status report</strong> your bank sent back after you uploaded a SEPA credit transfer or direct debit file. You get the status of the file, of each payment block and of <strong>each payment</strong>, every reason code (AC04, AM04, MD01, AM10 …) in <strong>plain language with what to do</strong>, the <strong>rejected total</strong>, and a list of the rejected payments to fix and resend.</p>
     <p class="note">The file is read in this browser tab and never leaves your device. IBANs are masked in the report. Independent of the EPC and of every bank. The reason-code table is read from memory of public ISO 20022 code lists; no bank documentation was available when this was built, and banks add private codes.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. The bank's status report</h2>
@@ -123,7 +124,8 @@
     <p>It does not know your bank's private reason codes, it does not check the report against the payment file you sent, it does not read camt.053 or camt.054 statements, and it covers pain.002.001.03 and later versions by namespace on a best-effort basis. A code table from memory is not your bank's documentation.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, banking, payments, compliance, or financial advice, and it does not replace a qualified professional or your bank's own explanation of a rejection. Results depend entirely on the file you provide. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including confirming with your bank whether a payment was in fact made before you send it again.</p>
     <p><strong>Not affiliated with the EPC or any bank.</strong> SEPA, ISO 20022 and the names of banks are trademarks of their owners. This tool is independent and is not sponsored, endorsed or connected to the European Payments Council, the ECB, ISO, or any bank or payment processor. The code table is read from memory of public documents and may not match every bank's variant.</p>
     <p><strong>Payment data.</strong> Status reports contain IBANs and the names of the people or companies you pay. This page runs in your browser and sends nothing anywhere, and the portfolio never receives your file. IBANs are masked in the report and the downloads. Whether you may open a bank file in a browser tool is a question for your own security policies.</p>

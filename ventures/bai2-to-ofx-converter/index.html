@@ -59,6 +59,7 @@
     <p>Paste or drop a <strong>BAI2</strong> file from your bank's business portal. Its control totals and balances are <strong>checked first</strong> (opening ledger plus transactions must equal the closing ledger), then each account is written as <strong>OFX/QBO for QuickBooks and Quicken</strong>, <strong>QIF</strong>, or <strong>Xero's statement CSV</strong> — one file per account, each entry with a <strong>stable transaction ID</strong> so importing the same statement twice does not post it twice.</p>
     <p class="note">The file is read in this browser tab and never leaves your device. Account numbers are masked to their last four characters unless you tick the box. Independent of every bank and of the BAI. The layout is read from memory of the public BAI cash management format and import-help documents; no real bank file, bank validator or live QuickBooks, Quicken or Xero import was available when this was written.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Your BAI2 file</h2>
@@ -128,7 +129,8 @@
     <p>Whether the file agrees with your bank's online statement or your books, bank-specific BAI2 variants, lockbox records, currencies with other than two decimal places, and loan or other codes outside the credit and debit ranges, which are listed but left out of the converted file.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, banking, accounting, compliance, or financial advice, and it does not replace a qualified professional or your bank's own reporting. Results depend entirely on the file you provide. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Not affiliated with any bank or standards body.</strong> BAI2 is a format of the Bank Administration Institute. This tool is independent and is not sponsored, endorsed or connected to the BAI, to Intuit, Quicken, Xero or to any bank or software vendor. The layout and the type codes are read from memory of the public format and may not match every bank's variant.</p>
     <p><strong>Financial data.</strong> Bank files contain account numbers, balances and the names of the people or companies you deal with. This page runs in your browser and sends nothing anywhere, and the portfolio never receives your file. Account numbers are masked to their last four characters in the downloads unless you choose otherwise. Whether you may open bank data in a browser tool is a question for your own policies.</p>

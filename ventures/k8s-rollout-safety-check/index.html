@@ -52,6 +52,7 @@
     <p><code>RollingUpdate</code> promises that Kubernetes replaces pods gradually. It does <em>not</em> promise that a pod is ready before traffic reaches it, or that it has stopped receiving traffic before it shuts down. Those two gaps are why a deploy that reports success can still serve a burst of connection errors — and nothing in <code>kubectl rollout status</code> will ever mention it. Paste your Deployment YAML below.</p>
     <p class="note">Nothing is uploaded. The manifest you paste is parsed in this browser and never leaves your device; this tool makes no network calls of its own and never touches your cluster.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Paste your manifests</h2>
@@ -107,7 +108,8 @@ node check.mjs --fail-on-risk      # exit 2 if a rollout can drop requests</code
     <p>More: <a href="why-your-kubernetes-rollout-drops-requests.html">why your Kubernetes rollout drops requests</a>. Already run <a href="vs-kube-score.html">kube-score</a>? See <a href="vs-kube-score.html">how this checker compares</a> on the rollout question specifically. This checks whether a rollout is <em>safe</em>, not whether the manifest's <code>apiVersion</code> itself will survive the next Kubernetes upgrade — a manifest can pass every check here and still fail to apply outright on a newer cluster. See <a href="../k8s-deprecated-api-check/">Kubernetes Deprecated API Check</a> for that, a separate failure class entirely.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a production-readiness audit, a security review, or a guarantee that your deploy is free of downtime, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including testing any suggested change against your own workload before applying it to production. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, save <a href="check.mjs" download>check.mjs</a>, <a href="engine.mjs" download>engine.mjs</a> and <a href="yaml.mjs" download>yaml.mjs</a> and run them yourself.</p>
     <p>Everything runs in your browser. The manifest you paste is never uploaded; there are no accounts, cookies, or analytics vendors, and the tool makes no network calls. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>

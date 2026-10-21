@@ -67,6 +67,7 @@
     </p>
     <p class="note">Nothing is uploaded. The HTML you paste is parsed in this browser and never leaves your device — see "Why can't the browser just check this itself?" below for what an automatic-fetch attempt can and can't do.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Check a page</h2>
@@ -143,7 +144,8 @@ node check.mjs https://example.com/en/ --max-alternates 20</pre>
     <p>No. It checks five specific, well-documented hreflang misconfigurations from Google's own documentation — reciprocity, code validity, x-default, self-reference, and duplicate/conflicting values. It is not a ranking guarantee, not a crawl of your whole site, and not a determination that your international SEO is otherwise correct.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not SEO, legal, or marketing advice, and it does not replace a qualified professional. It reports whether the hreflang tags on the page(s) you provided satisfy five specific, mechanically checkable rules — nothing more. It is not a ranking guarantee and not a substitute for Google Search Console's own International Targeting report. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="check.mjs" rel="noopener">check.mjs</a> and run it yourself.</p>
     <p>Everything you paste runs in your browser and is never uploaded; there are no accounts, cookies, or analytics vendors. When you click "Try automatic fetch", this page makes a request directly from your browser to the URL shown — the same as opening it in a tab — and reads the response only if the target allows it; nothing about that request goes through this site either. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage. Do Not Track and Global Privacy Control are honoured.</p>

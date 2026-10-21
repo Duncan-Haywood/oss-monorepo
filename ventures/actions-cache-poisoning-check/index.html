@@ -51,6 +51,7 @@
     <p>Actions cache entries are scoped to the whole repository, not to a branch or a trust level. A job triggered by <code>pull_request_target</code> or <code>workflow_run</code> runs with your secrets even though a stranger's fork raised the event — and if it writes to <code>actions/cache</code>, that stranger controls what a later, privileged workflow may restore. This is the exact root cause of the TanStack Router incident (May 2026). Paste your workflow YAML below and this page finds both a fork-writable cache and a <code>restore-keys</code> fallback that can adopt a colliding entry, each with the exact fix.</p>
     <p class="note">Nothing is uploaded. The YAML you paste is read in this browser and never leaves your device, and this tool makes no network calls of its own.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Paste one or more workflow files</h2>
@@ -103,7 +104,8 @@ python3 check.py --fail-on-risk   # exit 2 if any finding exists</code></pre>
     <p>More: <a href="what-is-github-actions-cache-poisoning.html">what is GitHub Actions cache poisoning?</a> &middot; <a href="vs-zizmor.html">how this differs from zizmor's cache-poisoning audit</a> &middot; <a href="vs-checking-by-hand.html">where a manual read holds up and where it slips</a></p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a security audit, a compliance attestation, or a guarantee against cache poisoning, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="check.py" rel="noopener">check.py from the repo</a> and run it yourself.</p>
     <p>Everything runs in your browser. The YAML you paste is never uploaded; there are no accounts, cookies, or analytics vendors, and the tool makes no network calls. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>

@@ -45,6 +45,7 @@
     <p>Paid scanners such as FOSSA and Snyk answer this inside a platform. This page does the core of it for free: paste your <code>package-lock.json</code> and get every dependency licence, with <strong>strong-copyleft</strong>, <strong>unlicensed</strong>, <strong>weak-copyleft</strong> and <strong>unknown</strong> packages listed first. SPDX <code>OR</code>/<code>AND</code> expressions are resolved.</p>
     <p class="note">Nothing is uploaded. The lockfile you paste is read in this browser and never leaves your device, and this tool makes no network calls of its own. It reads licence metadata that package authors declared; it is not legal advice.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>Paste your lockfile</h2>
@@ -96,7 +97,8 @@ node license-check.mjs --json                       # machine-readable</code></p
     <p>More: <a href="npm-license-compliance-guide.html">an npm licence compliance checklist for shipping software</a></p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal advice and its heuristic reading of declared licence metadata can be wrong. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong></p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="license-check.mjs" rel="noopener">license-check.mjs from the repo</a> and run it yourself.</p>
     <p>Everything runs in your browser. The lockfile you paste is never uploaded; there are no accounts, cookies, or analytics vendors, and the tool makes no network calls. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>

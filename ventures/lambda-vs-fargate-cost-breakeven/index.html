@@ -49,6 +49,7 @@
     <p>Enter your <strong>monthly requests</strong>, <strong>average duration</strong>, <strong>memory</strong>, <strong>vCPU</strong> and <strong>concurrency</strong>. Get the monthly cost on each platform, the <strong>cheapest option</strong>, the <strong>request volume where always-on containers beat pay-per-request</strong>, and how the answer shifts at 0.1x to 10x your traffic.</p>
     <p class="note">Nothing is uploaded and no cloud account is contacted. The numbers are used in this browser and never leave your device. This is an estimate, not a bill.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Describe the workload</h2>
@@ -129,7 +130,8 @@ node cli.mjs compare workload.txt --expect fargate     # exit 1 when another pla
     <p>No. The page does the arithmetic in your browser and never sends the numbers anywhere. The CLI reads local files and makes no network call.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, legal, security or engineering advice. It does arithmetic on numbers you type and list prices that change; it is an estimate, not a bill, and not a guarantee of what any cloud will charge. Free tiers, discounts, data transfer, latency and cold starts are not modelled, and you are responsible for checking its output against your own bill before moving a workload. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. AWS, Lambda, Fargate, EC2, Google Cloud and Cloud Run are trademarks of their owners; this project is not affiliated with or endorsed by them.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
     <p>Everything runs in your browser. What you enter is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>compare_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>

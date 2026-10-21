@@ -45,6 +45,7 @@
     <p>Enter a prospect's monthly transactions, accounts, payroll runs, AR/AP volume and sales-tax filings and get <strong>the minimum monthly fee that hits your target hourly rate</strong>, <strong>a recommended fee</strong>, <strong>a one-time cleanup quote</strong> and <strong>a walk-away price</strong>. Paste your existing clients and see <strong>who earns you the least per hour and the raise each needs</strong>.</p>
     <p class="note"><strong>Your numbers, not market rates and not advice.</strong> This page knows no going rates and gives no tax, accounting or legal advice: every volume, minute and rate is a number you type. Nothing is uploaded: the inputs are used in this browser tab only.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Price a prospective client</h2>
@@ -154,7 +155,8 @@ node cli.mjs roster clients.csv --target 80 --json</pre>
     <p>Paste one row per existing client with the monthly fee, the hours you actually spend and optional software cost. It ranks clients by effective hourly, worst first, and shows the fee increase each needs to reach your target rate.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, tax, accounting, legal or investment advice, it is not a market rate or a fee survey, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, for the accuracy of the volumes, minutes, rates and software costs you type, for your engagement letter and scope, and for any licensing or professional rules that apply to you where you work. Actual hours vary and clients' books change. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. It prices work using the numbers you supply; it is not a forecast of what a client will cost or pay.</p>
     <p>Not affiliated with, endorsed by or sponsored by any accounting software vendor, accounting body or bookkeeping firm; no product names are used to imply otherwise.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>

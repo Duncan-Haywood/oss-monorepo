@@ -43,6 +43,7 @@
     <p>A small farm sells a season of weekly produce boxes up front. A share that looks fair to members can still pay the farmer a few dollars an hour. List what goes in the box and the weeks it runs, and see <strong>what a member gets at retail, what the season pays you per hour, the price that pays your target wage</strong>, the number of shares you need to break even, and how the answer moves if sign-ups react to price.</p>
     <p class="note">For market gardens, small vegetable farms and farmer-led CSAs. Nothing is uploaded: the text box is analysed in this browser and never leaves your device.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. List the box</h2>
@@ -120,7 +121,8 @@ cat box.csv | node cli.mjs price - --json</pre>
     <p>Retail value of a season of boxes divided by the share price. Members compare you with the store, so a ratio under 1 is a hard sell and a ratio well over 1 means there is room to raise the price.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, tax, legal or business advice, and it does not replace a qualified professional. You are responsible for reviewing and verifying its output, for the accuracy of the values, costs and hours you type, and for any food-safety, licensing or sales-tax rule that applies to your farm. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. It prices a share from the numbers you supply; it is not a forecast of how many members you will sign.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
     <p>Everything runs in your browser. The text you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>price_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>

@@ -38,6 +38,7 @@
     <p>Pwn requests, script injection, cache and artifact poisoning, secrets leaking into logs, <code>write-all</code> tokens, fork-reachable self-hosted runners and more. Workflow Audit runs twelve focused checkers over <code>.github/workflows</code>, merges their findings into one severity-ranked report, and writes it to your job summary, with optional Code Scanning alerts.</p>
     <p class="note">It reads files in the checkout and makes no network calls of its own. Your workflows are never uploaded.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>Add it in four lines</h2>
@@ -87,7 +88,8 @@
     <p>Nothing. It is MIT-licensed open source; sponsoring is optional.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a security audit or a compliance attestation, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record. Get <a href="https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/workflow-audit" rel="noopener">audit.py from the repo</a> and run it yourself.</p>
     <p>Want only one check? The standalone <a href="../actions-runtime-deprecation-check/">Actions runtime deprecation check</a> finds actions that still run on retired Node runtimes; the other checks have their own pages in the same family.</p>
