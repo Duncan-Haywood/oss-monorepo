@@ -210,6 +210,14 @@ document journals on its own date: an invoice debits Accounts receivable
 the chart if it is missing) and debits its lines. Loading a number twice adds
 nothing.
 
+**Statement of account.** `node cli.mjs --books books.json statement Acme --out acme.html` (or the
+Statement button beside each open invoice on the page) prints one customer's
+invoices, credit notes, payments, refunds and write-offs in date order with a
+running balance, the amount owed and how much is past due; `--from DATE` rolls
+earlier activity into a brought-forward line. The closing balance is tested
+against the aging table. Node tests on hand-written ledgers; the page button was
+not clicked through (playwright is not installed in the 2026-10-21 cloud session).
+
 A bank line clears a document when it has the **exact amount**, falls 0 to 180
 days after the document date, and carries the **invoice number or the party's
 name** in its description. It is then `settled` and posts to receivable or

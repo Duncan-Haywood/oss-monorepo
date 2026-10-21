@@ -321,6 +321,7 @@
     import { closeYear, reopenYear, yearEndReport } from "./yearend.mjs";
     import { addReceipts, receiptReport, taxOnReceipts, planReceiptSplit, splitFromReceipt } from "./receipts.mjs";
     import { renderInvoice, setProfile, PROFILE_KEYS } from "./invoice.mjs";
+    import { renderStatement } from "./statement.mjs";
     import { aiSuggest } from "./ai.mjs";
     import { detectLocal, isLocal } from "./byok.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
@@ -496,7 +497,15 @@
             record("invoice_printed"); $("#docs-status").textContent = `Invoice ${o.id} opened; use your browser's Print and choose Save as PDF.`;
           } catch (e) { $("#docs-status").textContent = e.message; }
         });
-        return el("tr", {}, el("td", { text: o.id }), el("td", { text: o.party }), el("td", { class: "n", text: o.due ?? o.date }), el("td", { class: "n", text: `${o.daysLate} days` }), el("td", { class: "n", text: fmt(o.total) }), el("td", {}, pr, b));
+        const st = el("button", { type: "button", class: "secondary", "aria-label": `Statement for ${o.party}`, text: "Statement" });
+        st.addEventListener("click", () => {
+          try {
+            const html = renderStatement(books, o.party).html, url = URL.createObjectURL(new Blob([html], { type: "text/html" }));
+            if (!window.open(url, "_blank")) { const a = el("a", { href: url, download: `statement-${o.party}.html` }); document.body.append(a); a.click(); a.remove(); }
+            record("statement_printed"); $("#docs-status").textContent = `Statement for ${o.party} opened; use your browser's Print and choose Save as PDF.`;
+          } catch (e) { $("#docs-status").textContent = e.message; }
+        });
+        return el("tr", {}, el("td", { text: o.id }), el("td", { text: o.party }), el("td", { class: "n", text: o.due ?? o.date }), el("td", { class: "n", text: `${o.daysLate} days` }), el("td", { class: "n", text: fmt(o.total) }), el("td", {}, pr, st, b));
       });
       return el("div", {}, el("p", { class: "note", text: "Open invoices. Print one to send (your details are under Your details above), or write off one that will not be paid; its unpaid balance goes to bad debts and it leaves the aging table:" }), el("table", {}, el("thead", {}, el("tr", {}, ...["Invoice", "Customer", "Due", "Late", "Owed", ""].map((h) => el("th", { scope: "col", text: h })))), el("tbody", {}, ...rows)));
     }
