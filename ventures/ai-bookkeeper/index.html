@@ -108,6 +108,18 @@
     <p class="note">What is sent, from your browser straight to the provider you chose: the dates, descriptions and amounts of up to 40 lines still in review, your chart of accounts, and up to 40 lines you already filed as examples. A local model keeps it all on your computer. For Ollama on a web page, start it with <code>OLLAMA_ORIGINS=https://duncan-haywood.github.io</code>.</p>
   </section>
 
+  <section class="card" aria-labelledby="h-docs">
+    <h2 id="h-docs">Optional: invoices and bills (accruals)</h2>
+    <p class="note">Bank lines alone give cash-basis books. Load a list of invoices you sent and bills you owe and each is booked on its own date; a bank line with the exact amount and the invoice number or the party's name then clears it instead of counting as income twice. Header: <code>type,number,date,due,party,amount,account</code>, type <code>invoice</code> or <code>bill</code>; rows sharing a number are one document.</p>
+    <label for="docs-file">Invoice and bill CSV file</label><input id="docs-file" type="file" accept=".csv,text/csv,text/plain">
+    <label for="docs-paste">Or paste the CSV</label>
+    <textarea id="docs-paste" placeholder="type,number,date,due,party,amount,account&#10;invoice,INV-101,2026-01-05,2026-02-04,Acme Corp,1200.00,4000"></textarea>
+    <button type="button" id="docs-load">Load invoices and bills</button>
+    <p id="docs-status" class="note" role="status" aria-live="polite"></p>
+    <div class="scroll" id="aging"></div>
+    <div class="scroll" id="salestax"></div>
+  </section>
+
   <section class="card" aria-labelledby="h-reports">
     <h2 id="h-reports">4. Reports</h2>
     <div class="grid">
@@ -145,6 +157,7 @@
     <h2 id="h-setup">Your rules and chart of accounts</h2>
     <label for="rules">Your rules, one per line: <code>keyword =&gt; account</code> (code or name; <code>/regex/</code> allowed)</label>
     <textarea id="rules" placeholder="acme corp => 4000&#10;blue bottle => Meals&#10;/^venmo .*design/ => Contract labor"></textarea>
+    <div id="rule-suggest"></div>
     <details><summary>Chart of accounts</summary>
       <p class="note">One account per line: <code>code,name,type[,bank]</code>, type one of asset, liability, equity, income, expense; <code>bank</code> marks an account you import statements into. Keep 3000 Opening balance equity. Changing the chart does not move lines already filed.</p>
       <label for="coa">Accounts</label><textarea id="coa" style="min-height:220px"></textarea>
@@ -188,7 +201,7 @@
     <p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> or <a href="https://buymeacoffee.com/duncanhaywood" rel="noopener">buy me a coffee</a> is entirely optional and never changes what the tool does.</p>
   </footer>
   <script type="module">
-    import { newBooks, importStatement, categorize, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, exportLines, status, analyze, fmt, DEFAULT_ACCOUNTS } from "./engine.mjs";
+    import { newBooks, importStatement, categorize, suggestRules, addRules, addDocuments, aging, salesTax, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, exportLines, status, analyze, fmt, DEFAULT_ACCOUNTS } from "./engine.mjs";
     import { parseAccounts } from "./ledger.mjs";
     import { aiSuggest } from "./ai.mjs";
     import { detectLocal, isLocal } from "./byok.mjs";
@@ -274,7 +287,43 @@
       $("#summary").replaceChildren(tile(s.lines, "lines in the books"), tile(s.review, "waiting for you"), tile(s.auto, "posted by memory or rules"), tile(s.confirmed, "filed by you"), tile(s.transfer, "transfer lines paired"), tile(s.learnedFrom, "choices learned from"));
     }
 
-    function render() { fillSetup(); renderStatus(); renderQueue(); renderReports(); persist(); }
+    function renderRuleSuggestions() {
+      const sug = suggestRules(books);
+      const box = $("#rule-suggest");
+      if (!sug.length) { box.replaceChildren(); return; }
+      const add = el("button", { type: "button", class: "secondary", id: "add-rules", text: `Add these ${sug.length} as rules` });
+      add.addEventListener("click", () => { books = categorize(addRules(books, sug.map((r) => r.rule))); record("rules_added"); render(); $("#setup-status").textContent = `${sug.length} rule${sug.length === 1 ? "" : "s"} added. Matching lines now post by themselves.`; });
+      box.replaceChildren(el("p", { class: "note", text: "You filed these payees the same way every time. As rules they post at once, without waiting to reach the memory's confidence:" }), el("ul", {}, ...sug.slice(0, 15).map((r) => el("li", {}, el("code", { text: r.rule }), ` (${name(r.account)}, filed ${r.count} times)`))), add);
+    }
+
+    function renderAging() {
+      const docs = books.documents ?? [];
+      if (!docs.length) { $("#aging").replaceChildren(); return; }
+      const a = aging(books);
+      const row = (label, side) => [label, ...side.byBucket.map((v) => fmt(v)), fmt(side.total)];
+      $("#aging").replaceChildren(el("p", { class: "note", text: `${docs.filter((d) => d.settledBy).length} of ${docs.length} documents are paid by a bank line. Open items as of ${a.asOf}, by days past due:` }), table(["", ...a.buckets, "Total"], [row("Owed to you", a.receivable), row("You owe", a.payable)]));
+    }
+
+    function renderSalesTax() {
+      const t = salesTax(books);
+      if (!t.months.some((m) => m.collected || m.credited || m.remitted)) { $("#salestax").replaceChildren(); return; }
+      const r = (label, m) => [label, fmt(m.sales), fmt(m.collected), fmt(m.credited), fmt(m.remitted), fmt(m.owed ?? t.owed)];
+      $("#salestax").replaceChildren(el("p", { class: "note", text: `Sales tax (account ${t.account}): collected on invoices, taken off by credit notes, paid over by bank lines. ${fmt(t.owed)} is still owed to the tax authority.` }), table(["Month", "Sales", "Collected", "Credited", "Paid over", "Owed"], [...t.months.map((m) => r(m.month, m)), r("Total", t.totals)]));
+    }
+
+    function render() { fillSetup(); renderStatus(); renderQueue(); renderReports(); renderRuleSuggestions(); renderAging(); renderSalesTax(); persist(); }
+
+    $("#docs-load").addEventListener("click", async () => {
+      const f = $("#docs-file").files[0];
+      const text = f ? await f.text() : $("#docs-paste").value;
+      if (!text.trim()) { $("#docs-status").textContent = "Choose a CSV file or paste one first."; return; }
+      const r = addDocuments(books, text, opts());
+      books = categorize(r.books, opts());
+      $("#docs-status").textContent = [`${r.added} document${r.added === 1 ? "" : "s"} added${r.skipped ? `, ${r.skipped} already in the books` : ""}.`, ...r.problems.slice(0, 3)].join(" ");
+      $("#docs-file").value = ""; $("#docs-paste").value = "";
+      record("documents_loaded");
+      render();
+    });
 
     async function readInput() {
       const f = $("#file").files[0];

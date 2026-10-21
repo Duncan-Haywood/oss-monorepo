@@ -15,7 +15,7 @@
 //   node cli.mjs --books books.json export qbo|xero|iif|csv|lines > journal.csv
 //   node cli.mjs --example report
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
-import { newBooks, importStatement, categorize, suggestRules, addRules, addDocuments, aging, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, exportLines, status, analyze, fmt } from "./engine.mjs";
+import { newBooks, importStatement, categorize, suggestRules, addRules, addDocuments, writeOff, aging, salesTax, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, exportLines, status, analyze, fmt } from "./engine.mjs";
 import { accountMap } from "./ledger.mjs";
 
 const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that learn from your corrections.
@@ -28,8 +28,10 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
   confirm ID=CODE:AMT,CODE[:AMT] ...
                          split a line: ID=4000:1000.00,6010:-30.00 for a 970.00 payout
                          (amounts signed like the bank line; one may be left out)
-  documents FILE         load an invoice and bill list (CSV: type,number,date,due,party,amount,account);
+  documents FILE         load an invoice and bill list (CSV: type,number,date,due,party,amount,account[,against]; type may be invoice, bill, credit note, vendor credit);
                          bank lines that pay them clear receivable/payable
+  salestax [--from D --to D]  sales tax collected, credited and paid over by month, and what is still owed
+  writeoff ID [--date D]  write off an invoice's unpaid balance to bad debts (6900)
   aging [--as-of D]      what customers owe you and what you owe, by days past due
   rules [--apply]        payees you filed the same way 3+ times, as rules; --apply adds them
   accept [MIN]           accept every suggestion at or above MIN confidence (default 0.7)
@@ -84,12 +86,21 @@ if (cmd === "import") {
   for (const p of r.problems) console.error(p);
   const settled = books.documents.filter((d) => d.settledBy).length;
   console.log(`${r.added} documents added, ${r.skipped} already in the books. ${settled} of ${books.documents.length} are paid by a bank line; ${status(books).review} lines waiting for review.`);
+} else if (cmd === "writeoff") {
+  if (!rest[0]) { console.error("writeoff needs an invoice id or number"); process.exit(2); }
+  try { const r = writeOff(books, rest[0], { date: flag("--date") ?? undefined }); books = r.books; save(); console.log(`Wrote off ${fmt(r.cents)} of ${rest[0]} to bad debts.`); } catch (e) { console.error(e.message); process.exit(1); }
 } else if (cmd === "aging") {
   const a = aging(books, asOf);
   if (json) { console.log(JSON.stringify(a, null, 2)); process.exit(0); }
   console.log(`AGING as of ${a.asOf}`);
   for (const [h, side] of [["Receivable (owed to you)", a.receivable], ["Payable (you owe)", a.payable]]) console.log(`  ${h.padEnd(26)} ${fmt(side.total).padStart(12)}   ${a.buckets.map((b, i) => `${b}: ${fmt(side.byBucket[i])}`).join("  ")}`);
-  for (const d of a.open) console.log(`    ${d.id.padEnd(14)} ${d.party.slice(0, 28).padEnd(28)} ${fmt(d.total).padStart(11)}  due ${d.due ?? d.date}  ${d.daysLate ? `${d.daysLate} days late` : "not due"}`);
+  for (const d of a.open) console.log(`    ${d.id.padEnd(14)} ${d.party.slice(0, 28).padEnd(28)} ${fmt(d.total).padStart(11)}  due ${d.due ?? d.date}  ${d.credit ? "credit not applied" : d.daysLate ? `${d.daysLate} days late` : "not due"}${d.partlyPaid ? `  (of ${fmt(d.original)})` : ""}`);
+} else if (cmd === "salestax") {
+  const t = salesTax(books, { from, to });
+  if (json) { console.log(JSON.stringify(t, null, 2)); process.exit(0); }
+  console.log(`SALES TAX (account ${t.account})\n  ${"month".padEnd(8)} ${["sales", "collected", "credited", "paid over", "owed"].map((h) => h.padStart(12)).join(" ")}`);
+  for (const r of t.months) console.log(`  ${r.month.padEnd(8)} ${[r.sales, r.collected, r.credited, r.remitted, r.owed].map((v) => fmt(v).padStart(12)).join(" ")}`);
+  console.log(`  ${"total".padEnd(8)} ${[t.totals.sales, t.totals.collected, t.totals.credited, t.totals.remitted, t.owed].map((v) => fmt(v).padStart(12)).join(" ")}`);
 } else if (cmd === "rules") {
   const sug = suggestRules(books);
   for (const r of sug) console.log(`${r.rule.padEnd(40)} ${r.count} times, ${Math.round(r.share * 100)}% to ${name(r.account)}`);

@@ -1,0 +1,13 @@
+[project]
+name = "energy-tou-lp-tmy"
+version = "0.1.0"
+description = "Does a clear-sky-index forecast rescue the optimal home-battery controller on real (PVGIS typical-year) weather?"
+requires-python = ">=3.9"
+dependencies = ["numpy", "scipy"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "../energy-tou-lp-forecast/src", "../energy-tou-lp/src", "../energy-tou/src", "../energy-home/src"]

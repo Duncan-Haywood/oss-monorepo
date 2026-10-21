@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-21",
+  "session": "https://claude.ai/code/session_017nj75ihSCoRzrBQzkBg9XY",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-21T06:00:53Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship 1: ai-bookkeeper refund of unapplied credit notes and invoice write-off",
+  "projects": [
+    "ai-bookkeeper"
+  ],
+  "pr": 9084,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/runs",
+      "why": "No write-up post this run: a small engine slice; the README documents it."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "First built bundled payments, found PR #9083 had landed the same on main, dropped mine and reset to main. Then built refunds and write-offs. node --test in ventures/ai-bookkeeper 63/63; run_venture_tests.py ai-bookkeeper 0 failed. Not measured on real exports. No page button for write-off yet.",
+  "corrections": [],
+  "redteam": null
+}

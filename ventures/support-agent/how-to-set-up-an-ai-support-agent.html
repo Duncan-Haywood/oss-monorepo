@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How to Set Up an AI Support Agent That Doesn't Make Things Up</title>
+  <meta name="description" content="A step-by-step guide to an AI customer service agent for a small business: answer from your help articles, hand off refunds and complaints to a person, and set the confidence bar from your own test questions. With numbers measured on BANKING77.">
+  <meta property="og:title" content="How to set up an AI support agent that doesn't make things up">
+  <meta property="og:description" content="Five steps, measured: articles, handoff rules, test questions, past tickets, and a checked model.">
+  <link rel="canonical" href="./how-to-set-up-an-ai-support-agent.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "HowTo", "name": "How to set up an AI support agent that doesn't make things up", "step": [
+    {"@type": "HowToStep", "name": "Write the answers down first", "text": "One help article per question customers ask, with the facts (prices, days, steps) written out."},
+    {"@type": "HowToStep", "name": "Decide what always goes to a person", "text": "Requests for a person, refunds and double charges, legal threats, injuries, hacked accounts, data deletion requests, angry messages and card numbers."},
+    {"@type": "HowToStep", "name": "Write test questions with known answers", "text": "Thirty or more real-sounding questions with the article that answers each, or handoff, and pick the confidence bar from how often the agent is wrong."},
+    {"@type": "HowToStep", "name": "Add past tickets", "text": "Questions customers really asked, labelled with the article that answered them or handoff."},
+    {"@type": "HowToStep", "name": "Only then add a model, and check it", "text": "Let a model reword an answer the agent already chose, and reject its text if it has a number, link or promise the article does not."}
+  ]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1c2030; background: #f6f7fb; }
+    body { max-width: 760px; margin: auto; padding: 28px 16px; }
+    a { color: #1f5f8b; } h1 { font-size: clamp(1.6rem, 4.4vw, 2.3rem); line-height: 1.15; color: #12304a; } h2 { font-size: 1.15rem; margin-top: 28px; color: #12304a; }
+    p, li { line-height: 1.6; } table { border-collapse: collapse; width: 100%; font-size: .9rem; } th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #e3e6f1; }
+    .scroll { overflow-x: auto; } footer, .note { font-size: .86rem; color: #46506b; } pre { background: #eef0f8; padding: 10px; border-radius: 8px; overflow-x: auto; font-size: .85rem; }
+  </style>
+</head>
+<body>
+  <p><a href="./index.html">Support Agent</a> › guide</p>
+  <h1>How to set up an AI support agent that doesn't make things up</h1>
+  <p>The worry with an AI chat on a support page is not that it fails to answer: it is that it answers wrongly and sounds sure. It tells someone they can have a refund you don't offer, or makes up a delivery date. These five steps keep the useful part (questions answered at 2am) and drop the risky part. The numbers come from running the open-source <a href="./index.html">Support Agent</a> on BANKING77, a public set of 13,083 real online-banking questions.</p>
+
+  <h2>1. Write the answers down first</h2>
+  <p>An agent can only be as right as the text it answers from. Write one short article per question customers ask, and write out the facts: "Standard delivery takes 3 to 5 working days", not "Delivery is quick". Put each topic under its own heading, because the agent copies the passage under the heading that matches. Your current saved replies are a good first draft.</p>
+
+  <h2>2. Decide what always goes to a person</h2>
+  <p>Some messages should never get an automatic answer, however good the match. Support Agent hands these off before it searches at all:</p>
+  <ul>
+    <li>asking for a person ("can I talk to someone");</li>
+    <li>asking for money to move: a refund, money back, a double charge, a payment they didn't authorise (asking <em>how refunds work</em> is fine; asking <em>for one</em> needs someone to look at the account);</li>
+    <li>legal threats, chargebacks, complaints to a regulator;</li>
+    <li>injuries and safety problems; a hacked or stolen account; requests to delete or export personal data;</li>
+    <li>anger (swearing, "scam", a message in capitals);</li>
+    <li>a card or social security number pasted into the chat (it is never repeated back).</li>
+  </ul>
+
+  <h2>3. Write test questions with known answers, and set the bar from them</h2>
+  <p>Every answer gets a confidence between 0 and 1. Where to draw the line is a business decision: a wrong answer costs more than a handoff, which costs someone a few minutes. So write 30 or more questions the way customers write them (typos, "my parcel never came", "it's been a week"), each with the article that answers it or <code>handoff</code>. Include some the articles don't cover. The tool then tries every bar and recommends the one that answers the most correctly while keeping wrong answers at or under, say, 5% of answers.</p>
+  <p>Between the answer bar and a lower suggest bar, the agent does not state an answer: it offers its two best articles with "talk to a person" one click away. A wrong suggestion costs the customer a glance.</p>
+
+  <h2>4. Add past tickets: they matter more than anything else</h2>
+  <p>Questions customers really asked, each labelled with the article that answered it or <code>handoff</code>, teach the agent how your customers word things and which questions looked answerable but weren't. On BANKING77 (22 articles; test questions held out from everything we tuned):</p>
+  <div class="scroll"><table>
+    <tr><th>Past questions per topic</th><th>Answered right</th><th>Answered wrong (share of answers)</th><th>Offered articles</th></tr>
+    <tr><td>none</td><td>65 (3.0%)</td><td>0 (0%)</td><td>1,172</td></tr>
+    <tr><td>10</td><td>786 (36.4%)</td><td>39 (4.7%)</td><td>431</td></tr>
+    <tr><td>40</td><td>1,007 (46.6%)</td><td>66 (6.2%)</td><td>211</td></tr>
+  </table></div>
+  <p class="note">2,160 test questions, 1,360 of them answerable from an article; the rest should go to a person. The bar was set on training questions to keep wrong answers at or under 5%; on unseen questions it came out at 4.7% and 6.2%, which is why you re-run your own test questions after every change.</p>
+  <p>BANKING77 is hard on purpose: "my card payment was declined" (needs a person) reads almost the same as "contactless isn't working" (an article covers it). A shop with fewer look-alike questions will do better. The only way to know is to run your own.</p>
+
+  <h2>5. Only then add a model, and check what it says</h2>
+  <p>Without a model, Support Agent's answers are sentences copied from your article, so nothing can be invented. A model (your own Anthropic, OpenAI or Gemini key, or Ollama on your own machine) can make the wording friendlier, but it is never the one deciding whether to answer. It rewrites an answer already chosen, from that article only, and its text is rejected if it contains a number, a link, an email address or a promise ("refund", "free of charge", "guarantee") that the article does not, or if it cites no passage. Then the copied answer is used instead.</p>
+
+  <h2>Try it</h2>
+  <p>The <a href="./index.html">browser page</a> runs steps 1 to 4 on your own articles and questions without uploading anything. To put the chat on your site:</p>
+  <pre>ADMIN_KEY=$(openssl rand -hex 16) node server.mjs
+&lt;script src="https://your-agent.example.com/widget.js" defer&gt;&lt;/script&gt;</pre>
+  <p>Handoffs go to your inbox through a webhook (for example a <a href="../support-desk/">Support Desk</a> mailbox) with the chat so far, and the admin page lists what customers asked that no article answered.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This guide and the tool are provided free and as-is, without warranty of any kind, express or implied. It is not legal, consumer-protection or professional advice. <strong>You are responsible for reviewing what your support channel tells customers</strong>. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p>BANKING77: Casanueva et al., "Efficient Intent Detection with Dual Sentence Encoders" (2020), PolyAI, CC BY 4.0.</p>
+  </footer>
+</body>
+</html>

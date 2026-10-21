@@ -178,13 +178,17 @@ engine.test.mjs, "offered as rules".
 
 ## Invoices and bills (accruals)
 
+The page has an "Invoices and bills" card that takes the same CSV (paste or file)
+and shows the aging table, and the setup card lists rule suggestions with one
+button to add them. Checked in a headless browser, 2026-10-21.
+
 Bank lines alone give cash-basis books: a sale counts the day the deposit
 lands. Load an invoice and bill list and the books go accrual for those
 documents. `accruals.mjs`; CLI `documents FILE`, `aging [--as-of D]`; agents
 pass `documents: [{ "csv": "..." }]` to `analyze` and get `aging` back.
 
-The CSV has a header `type,number,date,due,party,amount,account`. `type` is
-`invoice` or `bill`. Rows that share a type and number are one document with a
+The CSV has a header `type,number,date,due,party,amount,account` (and `against`
+for credit notes). `type` is `invoice` or `bill`, or a credit note. Rows that share a type and number are one document with a
 line per row (an invoice's sales line to `4000`, its tax line to `2100`). A
 document journals on its own date: an invoice debits Accounts receivable
 (1100) and credits its lines; a bill credits Accounts payable (2050, added to
@@ -196,8 +200,29 @@ days after the document date, and carries the **invoice number or the party's
 name** in its description. It is then `settled` and posts to receivable or
 payable instead of income, so revenue is counted once, in the month invoiced.
 An amount match with nothing else (one open document of that amount) is only a
-0.60 suggestion in the review queue. Nothing is guessed across amounts: a
-part-payment or a bundled payment stays in review, and you file it yourself.
+0.60 suggestion in the review queue. A bundled payment is handled below.
+
+**Part-payments.** A line smaller than what is still owed, with the document's
+number in its description (or its party's name, when that party has just one
+open document), is a part-payment: it posts to receivable or payable, lowers
+the balance, and the document stays open in `aging` (flagged as part-paid, with
+its original amount) until the instalments reach the total. The last
+instalment is matched like any exact payment.
+
+**Credit notes.** Types `credit note` (sales) and `vendor credit` or `debit
+note` (purchases) are documents too. They journal the invoice backwards (income
+and tax debited, receivable credited). An optional `against` column names the
+invoice or bill number it reduces; the credit is applied in date order, never
+below zero, and the payment expected is the amount net of it. A credit with no
+`against`, or more than the invoice still owes, shows in `aging` as a negative
+item until you settle it.
+**One payment across several documents.** A line that equals the open balances
+of two or more documents of one party, to the cent, and names the party or one of
+the numbers, settles them all (`docs` on the line lists them). The smallest
+set wins and any number named in the description must be in it; if two sets
+fit equally well, the line stays in review. Up to 16 open documents per party
+are searched.
+
 Matches are rebuilt on every pass, so filing a settled line elsewhere reopens
 its document.
 
@@ -206,21 +231,38 @@ open documents (a line filed to 1100 or 2050 with no document behind it), and
 invoices or bills more than 30 days past due. `aging` buckets what is open as
 current, 1-30, 31-60, 61-90 and 90+ days past due.
 
-Tests: engine.test.mjs, "Accruals". Not measured on real invoice exports (the
+Tests: engine.test.mjs, "Accruals" and "Part-payments and credit notes". Not measured on real invoice exports (the
 tests use a four-row list); the matching thresholds are a first guess.
+
+## Sales tax report
+
+`salesTax(books)` (also `salesTax` from `analyze`, the page's sales tax table and
+`cli.mjs salestax [--from D --to D]`) reads account 2100 by month: sales (the
+invoice lines other than tax, less credit notes), tax collected, tax taken off by
+credit notes, tax paid over (bank lines filed to 2100) and what is still owed. Tax
+on bills is left out. It is a worksheet to check a return against, not a return:
+rates, nexus, exemptions and filing dates are yours to know. Test: engine.test.mjs,
+"sales tax is collected".
+
+**Refunds and write-offs.** A bank line for the exact amount left on a credit
+note nobody applied (money out for a customer's credit, money in for a
+supplier's), with the credit's number or the party's name in the description,
+settles it: it posts to receivable or payable and the credit leaves `aging`.
+`writeoff ID [--date D]` (CLI; `writeOff` in the engine) moves an invoice's
+unpaid balance to Bad debts (6900, added if missing): debit bad debts, credit
+receivable, on the date given. Invoices only. Tests: "Refunding a credit note,
+and writing off a bad debt".
 
 ## Not modelled
 
-Part-payments and credit notes against a document, depreciation, inventory,
+Writing off a bill, depreciation, inventory,
 payroll and sales tax filings, multiple currencies, locking a closed period,
-and receipts. The page does not take an invoice list yet (engine, CLI and
-agents do).
+and receipts.
 
 ## Next
 
 - One real bank export of each major US shape (Chase, Bank of America, Wells
   Fargo, Amex, Capital One), each as a fixture with its quirks handled.
-- Invoice and bill list on the page; part-payments and credit notes.
 - Measure the AI layer with a local model on the synthetic year's review
   queue.
 
