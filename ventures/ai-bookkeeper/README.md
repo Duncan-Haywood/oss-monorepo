@@ -462,6 +462,9 @@ amount, closer date); a pair with no shared words needs an exact amount within
 2 days and is marked "name differs: check". The report then lists receipts
 with no bank line and the spending at or over `--min` (default 75) with no
 receipt, leaving out lines filed to wages, owner draws and transfers.
+`receipts --tax` sums the tax printed on receipts by month and by the account
+the paid line was filed to (receipts with no tax line are listed apart, not
+counted as zero; `taxOnReceipts` in `receipts.mjs`, also on the page).
 `receipts attach RID LINEID`, `detach RID` and `remove RID` fix a pair by hand;
 the same receipt twice is kept once. `receipts split RID [--base CODE] [--apply]`
 reads the receipt's item lines and proposes a split of its bank line: each item
