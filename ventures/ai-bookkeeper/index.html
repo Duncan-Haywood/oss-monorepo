@@ -134,6 +134,9 @@
     <div class="scroll" id="pnl"></div>
     <h3>Balance sheet</h3>
     <div class="scroll" id="bs"></div>
+    <h3>Cash flow</h3>
+    <p class="note">Indirect method: net profit adjusted for receivables, payables, tax and the like, then purchases of fixed assets, then loans and owner money. A card counts as a liability, so card spending shows as operating until the card is paid. The sections add up to the change in your bank accounts.</p>
+    <div class="scroll" id="cf"></div>
     <details><summary>Trial balance</summary><div class="scroll" id="tb"></div></details>
     <h3>US Schedule C worksheet</h3>
     <p class="note">For a US sole proprietor or single-member LLC: the profit and loss regrouped onto the lines of Schedule C, with meals cut to 50%. A worksheet for you or your preparer, not a filing; it leaves out depreciation, home office, mileage and self-employment tax.</p>
@@ -292,6 +295,8 @@
       const b = r.balanceSheet;
       const sec = (h, list) => [[h, ""], ...list.map((l) => [`   ${l.name}`, fmt(l.amount)])];
       $("#bs").replaceChildren(table(["", "Amount"], [...sec("Assets", b.assets), ["Total assets", fmt(b.totalAssets)], ...sec("Liabilities", b.liabilities), ...sec("Equity", b.equity), ["   Current earnings (not yet closed)", fmt(b.currentEarnings)]], [["Liabilities + equity", fmt(b.totalLiabilities + b.totalEquity)], [b.balanced ? "Balanced" : "NOT BALANCED", ""]]));
+      const cfl = r.cashFlow, cashRow = (n, v) => [n, fmt(v)];
+      $("#cf").replaceChildren(table(["", "Amount"], [cashRow("Net profit", cfl.netProfit), ...cfl.operatingItems.map((l) => cashRow(`   Change in ${l.name.toLowerCase()}`, l.amount)), cashRow("Cash from operations", cfl.operating), ...cfl.investingItems.map((l) => cashRow(`   ${l.name}`, l.amount)), cashRow("Cash from investing", cfl.investing), ...cfl.financingItems.map((l) => cashRow(`   ${l.name}`, l.amount)), cashRow("Cash from financing", cfl.financing)], [cashRow("Change in cash", cfl.change), [`Cash ${fmt(cfl.openingCash)} to ${fmt(cfl.closingCash)}`, cfl.ties ? "Ties to the bank accounts" : "DOES NOT TIE"]]));
       const t = r.trialBalance;
       $("#tb").replaceChildren(table(["Account", "Debit", "Credit"], t.rows.map((x) => [`${x.code} ${x.name}`, x.debit ? fmt(x.debit) : "", x.credit ? fmt(x.credit) : ""]), [["Total", fmt(t.debit), fmt(t.credit)]]));
       const c = closeChecks(books, opts());
