@@ -104,6 +104,13 @@
     "script_sha256": "31685f4ba5c52e6c992eb8bc470dddac825426370b3357c3151ec2bba0cf2040",
     "voice": "en_US-ljspeech-high"
   },
+  "2026-10-21-why-changepoint-detectors-cry-wolf": {
+    "bytes": 1282148,
+    "seconds": 256.34,
+    "sha256": "90e5087f88c5bd7f8482037e3b7586d9d7ccff55d434aeeb640fd8f0904f87ec",
+    "script_sha256": "2f4ac840d2ddee981308fcecfa7427fc1c63382ebef71afa3eaf2c94b7224a30",
+    "voice": "en_US-ljspeech-high"
+  },
   "2026-10-21-work-that-takes-more-than-twenty-hours": {
     "bytes": 950136,
     "seconds": 189.94,
