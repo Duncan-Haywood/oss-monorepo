@@ -128,6 +128,19 @@ const splitBtn = page.getByRole("button", { name: /Split Hiscox.* by items/ });
 check((await splitBtn.count()) === 1, "a matched receipt with items of two kinds offers a split");
 if (await splitBtn.count()) { await splitBtn.click(); check(/Split Hiscox/.test(await page.locator("#receipts-status").textContent()), "the split button posts the split"); }
 check(/Net profit/.test(btext) && /(better|worse|on budget)/.test(btext), "the budget table shows a status and the net line");
+// Year-end close: 2026 is refused while example lines still need an account; 2025 has no lines and closes.
+await page.fill("#ye-year", "2026");
+await page.click("#ye-close");
+check(/still need an account/.test(await page.locator("#ye-status").textContent()), "closing a year with unfiled lines is refused");
+await page.fill("#ye-year", "2025");
+await page.click("#ye-close");
+check(/2025 closed. Locked through 2025-12-31/.test(await page.locator("#ye-status").textContent()), "a year is closed and the books lock");
+const yetext = await page.locator("#yearend").textContent();
+check(/Locked through 2025-12-31/.test(yetext) && /2025/.test(yetext), "the close table shows the year");
+await page.click("#ye-close");
+check(/already closed/.test(await page.locator("#ye-status").textContent()), "closing twice is refused");
+await page.click("#ye-reopen");
+check(/2025 reopened/.test(await page.locator("#ye-status").textContent()) && /No year is closed/.test(await page.locator("#yearend").textContent()), "the latest year reopens");
 // Printable invoice: load one invoice, save the seller's details, press Print and read the opened page.
 await page.fill("#docs-paste", "type,number,date,due,party,amount,account\ninvoice,INV-900,2026-01-05,2026-02-04,Acme Corp,1200.00,4000");
 await page.click("#docs-load");

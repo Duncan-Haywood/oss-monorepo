@@ -220,6 +220,13 @@
     <div class="scroll" id="budget"></div>
   </section>
 
+  <section class="card" aria-labelledby="h-yearend">
+    <h2 id="h-yearend">Optional: year-end close</h2>
+    <p class="note">Closing a calendar year moves its income and expense into retained earnings (3900) with one dated entry and locks the books through December 31. The profit and loss and tax worksheets still show the year; the balance sheet and journal exports include the entry. Only the latest closed year can be reopened. Calendar years only.</p>
+    <p><label>Year <input id="ye-year" inputmode="numeric" size="6" placeholder="2025"></label> <label style="display:inline;font-weight:400"><input type="checkbox" id="ye-draws"> Also close owner draws and contributions</label> <button type="button" id="ye-close" class="secondary">Close year</button> <button type="button" id="ye-reopen" class="secondary">Reopen latest</button> <span id="ye-status" class="note" role="status"></span></p>
+    <div class="scroll" id="yearend"></div>
+  </section>
+
   <section class="card" aria-labelledby="h-receipts">
     <h2 id="h-receipts">Optional: match receipts to bank lines</h2>
     <p class="note">Paste the text of receipts (typed, copied from an email, or read off a photo by any OCR tool), with a line of <code>---</code> between them. Each is read into a merchant, date, total and tax, then paired with the bank or card line that paid it (the same amount, within a few days; a tip up to 25% on top counts when the name agrees). Below: receipts with no bank line, and spending over the amount you choose that has no receipt. The text stays in this browser. A reading aid, not a statement of what any tax authority requires you to keep.</p>
@@ -311,6 +318,7 @@
     import { setOpeningBalances, clearOpeningBalances } from "./opening.mjs";
     import { detectRecurring, forecastCash } from "./recurring.mjs";
     import { setBudget, budgetVsActual } from "./budget.mjs";
+    import { closeYear, reopenYear, yearEndReport } from "./yearend.mjs";
     import { addReceipts, receiptReport, taxOnReceipts, planReceiptSplit, splitFromReceipt } from "./receipts.mjs";
     import { renderInvoice, setProfile, PROFILE_KEYS } from "./invoice.mjs";
     import { aiSuggest } from "./ai.mjs";
@@ -430,6 +438,15 @@
       $("#budget").replaceChildren(
         el("p", { class: "note", text: `${b.from} to ${b.to}, ${b.months} month${b.months === 1 ? "" : "s"}.${b.empty ? ` ${b.empty.replace("use `budget CODE AMOUNT`", "pick an account above")}.` : ""}${b.partial ? ` ${b.partial}.` : ""}` }),
         table(["Account", "Budget", "Actual", "Variance", "Status"], rows, [["Net profit", fmt(b.net.budget), fmt(b.net.actual), fmt(b.net.variance), ""]]));
+    }
+
+    function renderYearEnd() {
+      const done = books.yearEnd ?? [];
+      const rows = done.map((y) => { const r = yearEndReport(books, y.year); return [String(y.year), r.netToRetained >= 0 ? "profit" : "loss", fmt(Math.abs(r.netToRetained)), fmt(r.retainedBefore), fmt(r.retainedAfter), y.draws ? "yes" : "no"]; });
+      $("#yearend").replaceChildren(rows.length
+        ? el("div", {}, el("p", { class: "note", text: `Locked through ${books.lockedThrough}.` }), table(["Year", "Result", "Moved", "Retained before", "Retained after", "Draws closed"], rows))
+        : el("p", { class: "note", text: "No year is closed." }));
+      $("#ye-reopen").disabled = !done.length;
     }
 
     function renderReceipts() {
@@ -581,7 +598,7 @@
 
     $("#nec-filing-csv").addEventListener("click", () => { record("contractors_filing_downloaded"); download(nec1099FilingCsv(contractors1099(books, { year: necYear() })), "contractors-1099-nec-filing-prep.csv", "text/csv"); });
 
-    function render() { fillSetup(); renderScheduleC(); renderNec(); renderStatus(); renderQueue(); renderReports(); renderRuleSuggestions(); renderAging(); renderRecurring(); renderBudget(); renderReceipts(); renderVat(); renderAssets(); renderTaxDepr(); renderSalesTax(); renderOpening(); persist(); }
+    function render() { fillSetup(); renderScheduleC(); renderNec(); renderStatus(); renderQueue(); renderReports(); renderRuleSuggestions(); renderAging(); renderRecurring(); renderBudget(); renderYearEnd(); renderReceipts(); renderVat(); renderAssets(); renderTaxDepr(); renderSalesTax(); renderOpening(); persist(); }
 
     function renderOpening() {
       const tb = books.openingTB;
@@ -726,6 +743,14 @@
       render();
     });
 
+    $("#ye-close").addEventListener("click", () => {
+      try { books = closeYear(books, $("#ye-year").value.trim(), { draws: $("#ye-draws").checked }); record("year_close"); const y = $("#ye-year").value.trim(); render(); $("#ye-status").textContent = `${y} closed. Locked through ${books.lockedThrough}.`; }
+      catch (e) { $("#ye-status").textContent = e.message; }
+    });
+    $("#ye-reopen").addEventListener("click", () => {
+      try { const y = (books.yearEnd ?? []).at(-1)?.year; books = reopenYear(books, y); render(); $("#ye-status").textContent = `${y} reopened.`; }
+      catch (e) { $("#ye-status").textContent = e.message; }
+    });
     $("#budget-set").addEventListener("click", () => {
       try { const cents = parseCents($("#budget-amount").value || "0"); if (cents === null || Number.isNaN(cents)) throw new Error("Enter an amount such as 200.00."); books = setBudget(books, $("#budget-account").value, cents); record("budget_set"); render(); $("#budget-status").textContent = cents ? `Budget set: ${fmt(cents)} a month.` : "Budget removed."; }
       catch (e) { $("#budget-status").textContent = e.message; }

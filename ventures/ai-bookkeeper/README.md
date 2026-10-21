@@ -462,7 +462,7 @@ profit and loss, cash flow, budget and Schedule C keep showing the closed year;
 `journal(books, { withClosing: true })` adds it, and the balance sheet and the
 QuickBooks, Xero, IIF and CSV exports use that (the exported books close the same
 way yours do). Tests: `yearend.test.mjs` (9; hand-written ledgers). Calendar years
-only: a fiscal year ending in another month is not modelled. Not on the page yet.
+only: a fiscal year ending in another month is not modelled. The page has a "year-end close" card (year, draws tick box, Close year, Reopen latest, table of closed years; clicked through in headless Chromium with `eval/browser-click.mjs`, 2026-10-21; a year with unfiled lines is refused).
 
 ## Not modelled
 
