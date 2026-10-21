@@ -392,6 +392,20 @@ twenty estimated human hours; 92% of runs took under fifteen active minutes
 ([the post](../docs/posts/2026-10-21-work-that-takes-more-than-twenty-hours.md)).
 `runcost.py report` tracks it.
 
+## Direction: language is a judgment call
+
+Set by the owner on 2026-10-21: "I want freedom of judgement on language
+choice generally", after lifting the product playbook's build-free `.mjs`
+requirement ("let's take away that hard requirement").
+
+No track, area or runbook mandates a language. Pick the one that makes the
+work best, and say why in the README when it is not what the surrounding code
+uses. Existing code, shared tooling (`research/` helpers are Python; most
+venture pages and checks are plain `.mjs`) and the host (Pages serves
+committed files) are reasons to weigh, not rules. A guide that reads as
+requiring a language is out of date: follow this section and report it as
+`doc_friction`. The Rust direction below is one such reason, for heavy cores.
+
 ## Direction: Rust where it is essential
 
 Set by the owner on 2026-10-20: "I want to do more projects in rust go java
