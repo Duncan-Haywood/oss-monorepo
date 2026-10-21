@@ -1,0 +1,49 @@
+{
+ "date": "2026-10-21",
+ "session": "https://claude.ai/code/session_014tzdmtnZvURQwQnEqpDAgA",
+ "track": "ventures",
+ "prompt_version": 1,
+ "input": null,
+ "input_sha256": null,
+ "follow_up_inputs": [],
+ "model": "claude-sonnet-5-5",
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-10-21T23:33:32Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": null,
+ "projects": [],
+ "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/9304",
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": null,
+ "outcome": "success",
+ "errors": [],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "prompts/promptctl.py",
+   "issue": "route picked the research track, the task prompt asked for revenue ventures, and `record --version` takes an int while commits carry a text Prompt-Version trailer; I used ventures/1 here but the commits say venture/flagship"
+  }
+ ],
+ "deviations": [
+  {
+   "file": "prompts/research/prompt-0.md",
+   "why": "The routed track was research, but the scheduled task asked for revenue-generating products, so the run deepened the ai-bookkeeper flagship instead."
+  }
+ ],
+ "writeups": [],
+ "goal": null,
+ "notes": "Landed `reminders` (collections.mjs, CLI, tests, README, llms.txt, flagship next, post update) as PR #9304. A customer statement built in parallel was dropped because #9303 landed `statement` first. Also removed an empty docs/posts/README.md that broke the Pages build. Merged with the agent-permission-harness test job still running (unrelated to the change; it had run over 10 minutes on every head); all other checks green. Tested on hand-written invoices only; not on the page.",
+ "corrections": [],
+ "redteam": null
+}
