@@ -1060,9 +1060,6 @@ workflows:
 - workflow: page-integrity-ci.yml
   classification: none
   publishes: []
-- workflow: pages-freshness-ci.yml
-  classification: none
-  publishes: []
 - workflow: pages.yml
   classification: none
   publishes: []
@@ -1203,14 +1200,6 @@ workflows:
 - workflow: publish-kit-ci.yml
   classification: none
   publishes: []
-- workflow: publish-pages-branch.yml
-  classification: gated
-  publishes:
-  - job: publish
-    step: runs 'publish-branch.sh'
-    gates:
-    - github.event_name == 'workflow_dispatch' || vars.PAGES_BRANCH_PUBLISH == 'true'
-    - vars.PAGES_BRANCH_PUBLISH == 'true'
 - workflow: pwa-installability-check-ci.yml
   classification: none
   publishes: []

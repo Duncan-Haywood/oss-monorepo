@@ -537,7 +537,7 @@ test('trend with a seasonal cycle, and counts are refused', () => {
   // measured (seeds 601..640): 6.6 changes/series with --period alone, 1.25 with --trend; found 40/40
   console.log(`# period+trend: ${plain / N} vs ${tr / N}; found ${found}/${N}`);
   assert.ok(tr / N < 0.3 * (plain / N) && found >= 0.95 * N);
-  assert.throws(() => analyze({ values: [1, 2, 3, 4, 5, 6], model: 'poisson', trend: 'bends' }), /counts/);
+  assert.throws(() => analyze({ values: [1, 2, 3, 4, 5, 6], model: 'poisson', trend: 'wiggly' }), /counts/);
 });
 
 test('trendAdjust keeps the mean level and returns the slope', () => {
@@ -810,8 +810,8 @@ test('a count trend can bend once: the knot is found and a straight trend gets n
   assert.equal(analyze({ values: straight, model: 'poisson', trend: 'bend' }).trend.growthChangesAt, undefined);
 });
 
-test('count trends refuse bends, and a flat series gets a growth near zero', () => {
-  assert.throws(() => analyze({ values: [1, 2, 3, 4, 5, 6, 7, 8], model: 'poisson', trend: 'bends' }), /is for/);
+test('count trends refuse unknown modes, and a flat series gets a growth near zero', () => {
+  assert.throws(() => analyze({ values: [1, 2, 3, 4, 5, 6, 7, 8], model: 'poisson', trend: 'wiggly' }), /up to two/);
   const r = rng(5);
   const a = analyze({ values: poissons(r, 150, 8), model: 'poisson', trend: true });
   assert.ok(Math.abs(a.trend.logGrowthAcrossSeries) < 0.4);
@@ -977,4 +977,65 @@ test('trendAdjust joint search reaches the last grid knot', () => {
   for (let t = 0; t < n; t++) x.push(0.02 * t + 0.15 * Math.max(0, t - 22) - 0.5 * Math.max(0, t - 36) + 0.2 * nrm());
   const fit = trendAdjust(x, { bend: 2, joint: true });
   assert.deepEqual(fit.knots, [16, 36]);
+});
+
+test('negative-binomial BOCPD with exposures: the grid evidence matches the Gamma-Poisson closed form as r grows, up to the prior mass the grid cuts off', () => {
+  const x = [3, 5, 4, 6, 2, 7, 4, 5, 3, 6, 5, 4];
+  const m = x.reduce((a, b) => a + b, 0) / x.length;
+  const b = bocpd(x, { hazardLambda: 1e15, prune: 0, model: 'poisson', nbSize: 1e7, exposure: x.map(() => 1) });
+  const exact = gammaPoissonLogMarginal(x, { alpha: 1, beta: 1 / m });
+  // the grid spans m/10 to 10 m and renormalises the Gamma(1) prior: it drops the mass below m/10, 1 - exp(-0.1)
+  const cut = -Math.log(Math.exp(-0.1) - Math.exp(-10));
+  assert.ok(Math.abs(b.logEvidence - (exact + cut)) < 0.02, `${b.logEvidence} vs ${exact + cut}`);
+});
+
+test('--overdispersion nb --period reaches the Bayesian pass: weekly clumpy counts, a 3.5x step found without false flags', () => {
+  const season = [1.6, 1.4, 1.2, 1, 0.8, 0.5, 0.5];
+  let falseNb = 0, hitNb = 0, hitQ = 0;
+  for (let seed = 1800; seed < 1812; seed++) {
+    const r = rng(seed);
+    const gen = (step) => Array.from({ length: 210 }, (_, i) => poissons(r, 1, 10 * season[i % 7] * (step && i >= 105 ? 3.5 : 1) * Math.exp(0.35 * normals(r, 1)[0] - 0.06))[0]);
+    falseNb += analyze({ values: gen(false), model: 'poisson', period: 7, overdispersion: 'nb' }).bocpd.detections.length;
+    const step = gen(true);
+    if (analyze({ values: step, model: 'poisson', period: 7, overdispersion: 'nb' }).bocpd.detections.some((d) => Math.abs(d.index - 105) <= 8)) hitNb++;
+    if (analyze({ values: step, model: 'poisson', period: 7, overdispersion: true }).bocpd.detections.some((d) => Math.abs(d.index - 105) <= 8)) hitQ++;
+  }
+  assert.ok(falseNb / 12 < 0.3, `false flags per series ${falseNb / 12}`);
+  assert.ok(hitNb >= 9 && hitNb > hitQ + 3, `NB found ${hitNb} of 12, quasi-Poisson ${hitQ}`);
+});
+
+test('--overdispersion nb --trend reaches the Bayesian pass: clumpy counts on a ramp, a 3.5x step found without false flags', () => {
+  let falseNb = 0, hitNb = 0, hitQ = 0;
+  for (let seed = 1800; seed < 1812; seed++) {
+    const r = rng(seed);
+    const gen = (step) => Array.from({ length: 210 }, (_, i) => poissons(r, 1, 10 * Math.exp(0.004 * i) * (step && i >= 105 ? 3.5 : 1) * Math.exp(0.35 * normals(r, 1)[0] - 0.06))[0]);
+    falseNb += analyze({ values: gen(false), model: 'poisson', trend: true, overdispersion: 'nb' }).bocpd.detections.length;
+    const step = gen(true);
+    if (analyze({ values: step, model: 'poisson', trend: true, overdispersion: 'nb' }).bocpd.detections.some((d) => Math.abs(d.index - 105) <= 8)) hitNb++;
+    if (analyze({ values: step, model: 'poisson', trend: true, overdispersion: true }).bocpd.detections.some((d) => Math.abs(d.index - 105) <= 8)) hitQ++;
+  }
+  assert.ok(falseNb / 12 < 0.3, `false flags per series ${falseNb / 12}`);
+  assert.ok(hitNb >= 8 && hitNb > hitQ, `NB found ${hitNb} of 12, quasi-Poisson ${hitQ}`);
+});
+
+test('count trend bends: two changes of growth rate are found, a straight log-linear series gets none', () => {
+  const n = 240, N = 40;
+  const pois = (r, l) => { const L = Math.exp(-l); let k = 0, p = 1; do { k++; p *= r(); } while (p > L); return k - 1; };
+  const lr = (t) => Math.log(8) + 0.01 * Math.min(t, 80) + 0.03 * Math.max(0, Math.min(t, 160) - 80) - 0.02 * Math.max(0, t - 160);
+  let one = 0, two = 0, near = 0, falseBend = 0;
+  for (let s = 0; s < N; s++) {
+    const r = rng(2000 + s);
+    const x = Array.from({ length: n }, (_, t) => pois(r, Math.exp(lr(t))));
+    one += analyze({ values: x, model: 'poisson', trend: 'bend' }).pelt.changepoints.length;
+    const a = analyze({ values: x, model: 'poisson', trend: 'bends' });
+    two += a.pelt.changepoints.length;
+    const k = a.trend.growthChangesAtAll;
+    near += !!k && k.length >= 2 && Math.abs(k[0] - 80) <= 15 && Math.abs(k[1] - 160) <= 15;
+    const r2 = rng(3000 + s);
+    const y = Array.from({ length: n }, (_, t) => pois(r2, Math.exp(Math.log(8) + 0.012 * t)));
+    falseBend += analyze({ values: y, model: 'poisson', trend: 'bends' }).trend.growthChangesAt !== undefined;
+  }
+  // measured: 4.08 changes/series with one bend, 1.77 with bends; both knots within 15 points on 23 of 40; false bends 0 of 40
+  console.log(`# count bends: ${one / N} -> ${two / N}; both knots ${near}/${N}; false bends ${falseBend}`);
+  assert.ok(two < 0.6 * one && near >= 18 && falseBend <= 1);
 });

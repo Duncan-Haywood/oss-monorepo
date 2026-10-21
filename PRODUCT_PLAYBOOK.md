@@ -513,12 +513,9 @@ Ship when every line is true:
 - [ ] Discoverability checklist above is done.
 - [ ] The venture's tests and linter pass, and you ran the product itself.
 - [ ] The §5b **no-warranty** clause is on every page the venture publishes,
-      not just the calculator, and any `vs-<competitor>.html` page carries the
-      §5f **not-affiliated** trademark disclaimer — `node
-      platform/pages/clauses.mjs <slug>` checks both. `ventures-tests.yml` runs
-      it for every venture a PR touches, so it fails on the PR rather than on
-      `main`. (The no-SLA clause is
-      injected by the Pages build and is not yours to carry; see §5b.)
+      and any `vs-<competitor>.html` page carries the §5f **not-affiliated**
+      disclaimer — `node platform/pages/clauses.mjs <slug>` checks both (the
+      Pages build injects the no-SLA clause; see §5b).
 - [ ] `VENTURE.yaml` exists (or the slug is under `product_lines` in its host
       venture's) so the router can see it — `python3 portfolio/router/validate.py`.
 - [ ] If you added `.github/workflows/<slug>-ci.yml` (and
@@ -529,10 +526,6 @@ Ship when every line is true:
       venture CI. `publish_surface.py --check` fails until the snapshot names
       it, by design: a new workflow is a new thing a merge to `main` could
       publish, and that classification is confirmed rather than inferred.
-      This line exists because the step was carried by recollection and got
-      missed: #4573 added the workflow without the snapshot row and left
-      `main` red on two steps for the rest of the day, invisible behind
-      starved checks.
 - [ ] CI green, merged, one ledger line in `portfolio/ledger/YYYY-MM.yaml`.
 - [ ] A stranger can reach it without cloning this repo — a public URL or an
       install command. Merged-to-`main` is not deployed. Static products go

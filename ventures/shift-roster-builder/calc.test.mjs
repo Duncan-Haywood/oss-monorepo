@@ -237,6 +237,8 @@ test("the exact bound sees that hours, overlaps and rest force shifts open, and 
   assert.ok(r.optimality.lowerBound >= 15 * 100000, `bound ${r.optimality.lowerBound}`);
   assert.ok(r.optimality.lowerBound <= r.score + 1e-6);
   assert.ok((r.score - r.optimality.lowerBound) / r.score < 0.01, `bound ${r.optimality.lowerBound} vs ${r.score}`);
+  // The balance terms are coupled through the fixed covered hours (Lagrangian bound): the gap was $68.95 with each person alone.
+  assert.ok(r.score - r.optimality.lowerBound < 60, `gap ${r.score - r.optimality.lowerBound}`);
   // Random tight weeks (caps, overlaps, rest rules all biting): the exact answer still equals brute force.
   let seed = 7;
   const rnd = (n) => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed % n; };

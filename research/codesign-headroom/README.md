@@ -1,4 +1,4 @@
-# codesign-headroom
+# Does diagnostic feedback help a gripper design loop once the task has headroom?
 
 **Does diagnostic feedback help a gripper design loop once the task has headroom? Still no: fixing the scene bug raised every method's best test success by only 0.00 to 0.05, and the failure-summary and rollout-log readers still do not beat random search, CMA-ES or Bayesian optimisation.** (Stylised MuJoCo simulation, rule-based readers, not an LLM.)
 
