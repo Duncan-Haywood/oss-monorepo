@@ -33,6 +33,20 @@ export function newBooks({ name = "My business", accounts = DEFAULT_ACCOUNTS, cu
   return { version: VERSION, name, currency, accounts: accounts.map((a) => ({ ...a })), rules: "", transactions: [], history: [], opening: {} };
 }
 
+// Lock a closed period: lines and documents dated on or before `date` can no
+// longer be imported, re-filed, booked or written off. Refuses while a line in
+// the period still needs an account. `date` null unlocks. -> new books.
+export function lockPeriod(booksIn, date) {
+  const books = clone(booksIn);
+  if (date === null) { delete books.lockedThrough; return books; }
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || Number.isNaN(dayNum(date))) throw new Error(`Lock date ${date} is not a YYYY-MM-DD date.`);
+  const open = books.transactions.filter((t) => t.date <= date && (t.status === "review" || t.status === "new"));
+  if (open.length) throw new Error(`${open.length} line${open.length === 1 ? "" : "s"} dated on or before ${date} still need an account; file them before locking.`);
+  if (books.lockedThrough && date < books.lockedThrough) throw new Error(`Already locked through ${books.lockedThrough}; unlock first to move the lock back.`);
+  books.lockedThrough = date;
+  return books;
+}
+
 // Rebuild the learned parts (memory, classifier) from the books' history.
 export function modelFor(books, skip = null) {
   const { rules, problems } = parseRules(books.rules, books.accounts);
@@ -51,14 +65,17 @@ export function importStatement(booksIn, csv, account, opts = {}) {
   const ids = rowIds(rows, account);
   const have = new Set(books.transactions.map((t) => t.id));
   let added = 0, skipped = 0;
+  let locked = 0;
   rows.forEach((r, i) => {
     if (have.has(ids[i])) { skipped++; return; }
+    if (books.lockedThrough && r.date <= books.lockedThrough) { locked++; return; }
     books.transactions.push({ id: ids[i], account, date: r.date, desc: r.desc, cents: r.cents, balance: r.balance, status: "new" });
     added++;
   });
   // Balances are kept debit-positive (what you own is positive, what you owe
   // negative). A card statement prints what you owe as positive, so try both
   // signs and keep whichever the rows agree with.
+  if (locked) problems.push(`${locked} line${locked === 1 ? "" : "s"} dated on or before ${books.lockedThrough} left out: that period is locked.`);
   const asIs = checkRunningBalance(rows);
   const flipped = checkRunningBalance(rows.map((r) => ({ ...r, balance: r.balance === null ? null : -r.balance })));
   const balanceCheck = !asIs.checked ? asIs : flipped.breaks.length < asIs.breaks.length || (flipped.breaks.length === asIs.breaks.length && acct.type === "liability") ? flipped : asIs;
@@ -141,6 +158,7 @@ export function confirm(booksIn, choices) {
   for (const t of books.transactions) {
     const c = choices[t.id];
     if (c === undefined) continue;
+    if (books.lockedThrough && t.date <= books.lockedThrough) throw new Error(`Line ${t.id} is dated ${t.date}, in the period locked through ${books.lockedThrough}. Unlock it first.`);
     if (Array.isArray(c)) {
       const parts = resolveSplit(t, c, codes);
       if (t.status === "transfer") unpair(books, t);

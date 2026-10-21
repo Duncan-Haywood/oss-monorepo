@@ -253,6 +253,17 @@ unpaid balance to Bad debts (6900, added if missing): debit bad debts, credit
 receivable, on the date given. Invoices only. Tests: "Refunding a credit note,
 and writing off a bad debt".
 
+## Locking a closed period
+
+`lockPeriod(books, date)` (CLI `lock DATE`, `lock off` to undo) closes the books
+through a date. After that, statement lines dated on or before it are left out of
+imports (reported in `problems`), `confirm` refuses to re-file them, invoices and
+bills dated in it are not loaded and a write-off cannot be dated in it. It refuses
+while a line in the period still needs an account, and the lock cannot move back
+without unlocking first. Rules added later can still re-categorize
+auto-posted lines in the period; the lock guards your edits and imports, not the
+learning. Test: engine.test.mjs, "a locked period".
+
 ## Bank export shapes
 
 `bank.mjs` reads the CSV layouts of Chase (checking and card), Bank of America
@@ -264,8 +275,7 @@ pass `--invert`. See `fixtures/` and the last test in `engine.test.mjs`.
 ## Not modelled
 
 Writing off a bill, depreciation, inventory,
-payroll and sales tax filings, multiple currencies, locking a closed period,
-and receipts.
+payroll and sales tax filings, multiple currencies, and receipts.
 
 ## Next
 
