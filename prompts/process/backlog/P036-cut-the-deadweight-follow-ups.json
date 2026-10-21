@@ -39,6 +39,10 @@
     {
       "date": "2026-10-20",
       "note": "Part 1 started: removed outage-triage.yml (dispatch-only, probed deleted Hetzner servers) with outage_triage.py, its test and the references. Still open in part 1: hetzner-gitops-ci.yml, public-surface-check.yml (its Hetzner half). Parts 2,3,5,6 remain."
+    },
+    {
+      "date": "2026-10-21",
+      "note": "Part 3 done: PRODUCT_PLAYBOOK.md definition of done lost the #4573 incident story and a trimmed clause line (-7 lines). Part 1 remainder: hetzner-gitops-ci.yml is tied to front-door/site tests and its hcloud-scope job is asserted by infra/tests/test_infra_layout.py and platform/ci/test_run_workflow_locally.py; needs its own PR. Parts 2,5,6 remain."
     }
   ]
 }
