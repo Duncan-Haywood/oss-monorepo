@@ -1,0 +1,12 @@
+buildbot-fasten: one 4x8 sheet = 62 nails; tool 3.4 kg; Menagerie cda5236f9838
+A. Nail windows (half-width = how far the nail centre may stray from the window centre)
+   bottom plate    7 nails, +-13.46 mm in z
+   field          14 nails, +-17.39 mm in y
+   joint          34 nails, +-3.93 mm in y
+   top plate       7 nails, +-32.51 mm in z
+   whole sheet inside its windows with probability 0.5: tip sigma <= 1.69 mm (equal y and z)
+   whole sheet inside its windows with probability 0.9: tip sigma <= 1.33 mm (equal y and z)
+   whole sheet inside its windows with probability 0.95: tip sigma <= 1.24 mm (equal y and z)
+   whole sheet inside its windows with probability 0.99: tip sigma <= 1.09 mm (equal y and z)
+   the same without the 3/8 in edge distance on the joint nails (each +-17.4 mm): 95% needs 4.82 mm
+
