@@ -1,0 +1,55 @@
+{
+  "date": "2026-10-21",
+  "session": "https://claude.ai/code/session_015C7q7mYeCrxzFStsm72SLZ",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-21T10:32:15Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "buildbot-fasten (track 20, milestone 4)",
+  "projects": [
+    "buildbot-fasten"
+  ],
+  "pr": 9143,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/PROJECTS.md",
+      "issue": "Milestone 4 asks for a trained policy; a CPU-budget run delivered the schedule, windows, push envelope and error budget instead (see README limitations)."
+    },
+    {
+      "file": "research/buildbot-taskbook/README.md",
+      "issue": "Its 72 nails per sheet counts three interior studs; a 4 ft sheet at 16 in has two (62 nails). Reported in buildbot-fasten, not changed."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/PROJECTS.md",
+      "why": "No policy trained; shipped the specification and static budgets and said so. Also no agent doc or post written this run."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Local checks: pytest research/buildbot-fasten 7 passed; research/_homepage/build.py ok; check_md_links ok. Edited buildbot_payload.pose with an optional com_dx (default unchanged). Sources for nail windows are secondary (search results).",
+  "corrections": [],
+  "redteam": null
+}
