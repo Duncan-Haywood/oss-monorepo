@@ -65,7 +65,7 @@ flagships:
       Sheathing landed 2026-10-21 (vertical panels, joints on framing, cut-outs,
       sheet order with a bound; ROADMAP.md milestone 1). Blocking and fire
       blocking landed 2026-10-21 (plan `blocking: {rows, fire}`; engine, cut
-      list and order; page controls landed 2026-10-21). A sheathing joint over an opening now comes back as a sized nailer piece (stud size, length from header top to top plate; sheathing result `nailerPieces`, 2026-10-21; rare, since cripples usually give bearing). Next: put nailers in the cut list and order, then corner plate
+      list and order; page controls landed 2026-10-21). A sheathing joint over an opening now comes back as a sized nailer piece (stud size, length from header top to top plate; sheathing result `nailerPieces`, 2026-10-21; rare, since cripples usually give bearing). Nailers now have their own cut list and board order (sheathing result `nailerCuts`, `nailerOrder`; 2026-10-21). Next: corner plate
       laps, then two-course sheathing for walls taller than the sheet.
   # Added 2026-10-20 first, on the owner's direction that day for research
   # algorithms as tools (prompts/goals.md). New tools of that kind follow

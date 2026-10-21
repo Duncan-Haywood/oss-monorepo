@@ -162,6 +162,32 @@ export function sheathe(plan, result) {
   }
   for (const w of walls) for (const p of w.panels) if (p.width < cfg.minStrip - EPS) notes.push(`${p.id} is only ${formatInches(p.width)} wide: a sliver to cut and nail; consider moving a stud or a joint.`);
 
+  // Nailers are lumber, so they get their own cut list and a board order from the plan's stock (a nailer is a short offcut of the wall's stud size).
+  const nailerMap = new Map();
+  for (const w of walls) for (const p of w.nailerPieces) {
+    if (!(p.length > EPS)) continue;
+    const key = `${p.size}|${p.length}`;
+    const row = nailerMap.get(key) || { size: p.size, length: p.length, kind: "nailer", qty: 0, walls: new Set() };
+    row.qty++;
+    row.walls.add(p.wall);
+    nailerMap.set(key, row);
+  }
+  const nailerCuts = [...nailerMap.values()].map((r) => ({ ...r, walls: [...r.walls] })).sort((a, b) => a.size.localeCompare(b.size) || b.length - a.length);
+  const nailerOrder = [];
+  for (const size of new Set(nailerCuts.map((c) => c.size))) {
+    const stock = (plan.stock || []).filter((s) => s.size === size);
+    if (!stock.length) { notes.push(`No ${size} stock is listed, so the nailers are not priced; cut them from ${size} offcuts.`); continue; }
+    const res = optimizeStock(nailerCuts.filter((c) => c.size === size).map((c) => ({ length: c.length, qty: c.qty, ref: "nailer" })), stock, plan.kerf);
+    const lines = new Map();
+    for (const b of res.bars) {
+      const key = `${b.length}|${b.label || ""}`;
+      const row = lines.get(key) || { size, length: b.length, label: b.label || "", price: b.price, qty: 0 };
+      row.qty++;
+      lines.set(key, row);
+    }
+    nailerOrder.push({ size, cost: res.cost, boards: res.bars.length, lines: [...lines.values()] });
+  }
+
   const rip = [{ length: width, price: sheet.price }];
   const res = pieces.length ? optimizeStock(pieces, rip, 0.125) : { bars: [], cost: 0, bound: 0, proven: true, method: "none" };
   const area = (w, h) => (w * h) / 144;
@@ -183,6 +209,8 @@ export function sheathe(plan, result) {
     sheet,
     cover,
     walls,
+    nailerCuts,
+    nailerOrder,
     strips,
     order: { label: sheet.label || `${formatInches(width)} x ${formatInches(sheet.length)}`, qty: res.bars.length, price: sheet.price, cost: res.cost },
     summary: {
@@ -237,6 +265,8 @@ export function sheathingText(s) {
     out.push(`  ${w.id}: ${w.panels.map((p) => `${formatInches(p.width)}${p.cutouts.length ? ` (cut ${p.cutouts.map((c) => c.label).join(", ")})` : ""}`).join(" | ")}`);
     for (const b of w.check) out.push(`    CHECK FAILED: ${b}`);
   }
+  for (const c of s.nailerCuts || []) out.push(`  Nailers: ${c.qty} x ${c.size} at ${formatInches(c.length)} (${c.walls.join(", ")})`);
+  for (const o of s.nailerOrder || []) out.push(`  Nailer lumber: ${o.lines.map((l) => `${l.qty} x ${l.size} ${formatInches(l.length)}`).join(", ")}; cost ${o.cost.toFixed(2)}`);
   for (const n of s.notes) out.push(`  - ${n}`);
   return out;
 }

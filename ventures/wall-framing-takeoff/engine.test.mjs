@@ -319,4 +319,7 @@ test("sheathing: a joint over an opening with no cripples comes back as a sized 
     assert.ok(Math.abs(p.length - (94.125 - (hdr.y + hdr.h))) < 0.07, JSON.stringify(p));
   }
   assert.ok(s.notes.some((n) => /2x4 nailer .* long/.test(n)));
+  assert.equal(s.nailerCuts.reduce((t, c) => t + c.qty, 0), w.nailerPieces.length);
+  assert.ok(s.nailerCuts.every((c) => c.kind === "nailer" && c.size === "2x4"));
+  assert.ok(s.nailerOrder.length === 1 && s.nailerOrder[0].boards >= 1 && s.nailerOrder[0].cost > 0);
 });
