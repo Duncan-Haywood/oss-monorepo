@@ -1,7 +1,7 @@
 # Priority projects
 
 The owner's priority projects, set on 2026-10-12, with tracks 7 to 11 added on 2026-10-14, track 12 on 2026-10-16 tracks 13 to 15 on 2026-10-19, tracks 16 and 17 on 2026-10-19, track 18 on 2026-10-19 track 19 on 2026-10-20 and tracks 20 and 21 on 2026-10-21. Runs
-started from `prompt.md` take their new work from here. There are nineteen tracks. Each one is
+started from `prompt.md` take their new work from here. The tracks are numbered below. Each one is
 open-ended: its milestones are a starting order, not a checklist, so follow the results. Every
 project a track produces is a normal `research/<slug>/` project. It needs a README, tests, a
 README bullet, a `_homepage/projects.json` entry, a home page on the Pages site (milestone 9 below)
@@ -1518,7 +1518,7 @@ Annals*). Payments: gridlock resolution and liquidity-saving mechanisms (Bech an
 2. `infra-transformer` (done 2026-10-21; transformer constants swept, not verified against the standard): distribution transformer ageing under heat-pump and EV load growth. The
    IEEE C57.91 hot-spot and ageing model on an hourly load profile: how much load growth doubles
    loss of life, and how much of it a charging schedule buys back, before a replacement is due.
-3. `infra-waterloss`: finding leaks from pressure data. WNTR on BattLeDIM's L-Town with its
+3. `infra-waterloss` (done 2026-10-21; Net3 with simulated leaks, BattLeDIM unreachable from the proxy, so the L-Town baseline is still open): finding leaks from pressure data. WNTR on BattLeDIM's L-Town with its
    published leak schedule: the competition's best methods as baselines, and the repo's
    `changepoint-detector` (PELT, Bayesian online) applied to residuals, scored by detection
    delay and false alarms.
