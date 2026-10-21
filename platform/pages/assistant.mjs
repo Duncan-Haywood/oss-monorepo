@@ -237,7 +237,7 @@ export function renderAskPage({ baseUrl, siteName, chrome, toolCount }) {
           ${rounds.map((r) => `<tr><td>${r.round} (${esc(r.date)}): ${esc(r.forms)}</td><td>${r.cases}</td><td>${r.passed}</td><td>${r.wrong_writes}</td><td><a href="${esc(`https://github.com/Duncan-Haywood/oss-monorepo/tree/${r.commit}/platform/pages/assistant`)}"><code>${esc(r.commit)}</code></a></td></tr>`).join('\n          ')}
         </tbody>
       </table></div>
-      <p>The samples are small, and a wrong value written is the mistake that matters most, which is why every change the assistant makes is listed with an Undo. Model engines are not scored here yet; how they do depends on the model you pick.</p>
+      <p>The samples are small, and a wrong value written is the mistake that matters most, which is why every change the assistant makes is listed with an Undo. The on-device models were scored on the same 52 sentences on 2026-10-21: on their own, Qwen2.5 0.5B wrote 337 wrong values and 1.5B wrote 87, and with the checks above the panel wrote none for either. The rules already pass all 52, so this shows the checks stop a model doing harm, not that a model helps; that needs new sentences the rules get wrong (${src('platform/pages/assistant/model-bench/score.mjs')}).</p>
 
       <h2 id="limits">Limitations</h2>
       <ul>

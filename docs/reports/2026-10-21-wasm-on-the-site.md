@@ -54,8 +54,8 @@ the page is cross-origin isolated (COOP and COEP headers). GitHub Pages does
 not let a site set headers, so the live site runs on one thread. A service
 worker can add the headers (the `coi-serviceworker` trick). But
 `require-corp` would block every cross-origin image, embed and script on the
-page that does not send CORP. Measured gain: about 2x with 2 threads, about
-3.5x with 4. That is worth a later, scoped experiment on `/ask/` only, not a
+page that does not send CORP. Measured on the same four sentences: 190.9 s on one thread, 98.9 s on
+two (1.9x), 52.2 s on four (3.7x). That is worth a later, scoped experiment on `/ask/` only, not a
 site-wide change.
 
 **Storage quota.** wllama stores the file before loading it. In a headless
@@ -115,7 +115,19 @@ the rules already pass all 52 sentences, because every rule miss found
 there was fixed. Whether a model adds anything needs sentences the rules
 get wrong, written blind (`HANDOFF.md` item 2's protocol).
 
-Qwen2.5 1.5B, same 52 sentences, 4 threads: RESULTS_15
+Qwen2.5 1.5B, same 52 sentences, 4 threads:
+
+| Reading | Fully right | Wrong values written | Missed |
+|---|---|---|---|
+| Model alone (= panel before this change) | 37 | 87 | 4 |
+| Panel after this change | 52 | 0 | 0 |
+
+The checks were not written from these replies, and they still remove every
+wrong value. The larger model is better on its own (37 against 13 fully
+right) but still writes 87 wrong values. Speed with 4 threads: load 12 s,
+fill median 11.1 s, p90 39.4 s, max 85.6 s; a reply's first token 7.4 s. One
+thread was not measured for 1.5B; if it scales like 0.5B, expect about
+3.7x those times.
 
 ## 3. Research reproductions could run on their own pages (Pyodide)
 
