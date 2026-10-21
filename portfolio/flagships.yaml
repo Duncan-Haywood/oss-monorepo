@@ -40,8 +40,11 @@ flagships:
       repeated corrections, and accruals (an invoice and bill list that journals on
       its own date, is cleared by matching bank lines, and is aged; close checks for
       control-account drift and overdue items) landed 2026-10-21 (engine, CLI and
-      agents; the page shows neither suggestions nor documents yet). After those:
-      part-payments and credit notes against a document.
+      agents, and the page: a rule-suggestion list with an add button and an invoice
+      and bill card with the aging table). Part-payments and credit notes (an
+      `against` column, applied net) landed 2026-10-21. After those: refunding or
+      writing off a credit balance, one payment across several documents, and sales
+      tax as its own report.
   # Added 2026-10-21 second, on the owner's direction that day: "I want to make
   # tools that can automate part of the new home construction process in the
   # us. to drop prices and increase efficiency this is a long standing project

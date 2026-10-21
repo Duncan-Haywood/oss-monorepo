@@ -304,8 +304,8 @@ export function closeChecks(books, opts = {}) {
       const ledger = natural(a, bs.get(code) ?? 0);
       if (ledger !== side.total) out.push({ severity: "medium", check: "control", message: `${label} is ${fmt(ledger)} in the ledger but the open documents add up to ${fmt(side.total)}. A line was filed to ${code} with no invoice or bill behind it, or a document is missing.`, ids: books.transactions.filter((t) => legsOf(t).some((l) => l.account === code) && !t.doc).map((t) => t.id) });
     }
-    const late = ag.open.filter((d) => d.daysLate > 30);
-    for (const d of late) out.push({ severity: d.kind === "invoice" ? "medium" : "low", check: d.kind === "invoice" ? "overdue" : "bill-overdue", message: `${d.kind === "invoice" ? "Invoice" : "Bill"} ${d.id.replace(/^[A-Z]+-/, "")} from ${d.party} for ${fmt(d.total)} is ${d.daysLate} days past due as of ${ag.asOf}.${d.kind === "invoice" ? " Chase it, or write it off." : " Pay it, or confirm it is disputed."}`, ids: [d.id] });
+    const late = ag.open.filter((d) => !d.credit && d.daysLate > 30);
+    for (const d of late) out.push({ severity: d.kind === "invoice" ? "medium" : "low", check: d.kind === "invoice" ? "overdue" : "bill-overdue", message: `${d.kind === "invoice" ? "Invoice" : "Bill"} ${d.id.replace(/^[A-Z]+-/, "")} from ${d.party} for ${fmt(d.total)}${d.partlyPaid ? ` still owing (of ${fmt(d.original)})` : ""} is ${d.daysLate} days past due as of ${ag.asOf}.${d.kind === "invoice" ? " Chase it, or write it off." : " Pay it, or confirm it is disputed."}`, ids: [d.id] });
   }
 
   // An account with lines still in review is already reported above; its
