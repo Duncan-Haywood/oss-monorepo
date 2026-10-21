@@ -17,6 +17,20 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>Seraphim of Sarov and the Bear</title>
+      <link>https://example.invalid/saints-by-candlelight/seraphim-of-sarov-and-the-bear.html</link>
+      <guid isPermaLink="false">saints-by-candlelight-seraphim-of-sarov-and-the-bear</guid>
+      <pubDate>Wed, 21 Oct 2026 20:00:00 GMT</pubDate>
+      <description>A merchant&#39;s son from Kursk goes into the Russian forest to pray, and over thirty years becomes the most loved holy man in Russia. Saint Seraphim of Sarov, his bread-loving bear, his thousand nights on a rock, and the greeting that made strangers weep with joy, told gently for bedtime. What&#39;s true: Seraphim was a real man, born Prokhor Moshnin in Kursk in 1754 or 1759 (the sources differ), who entered Sarov monastery in 1778, lived as a hermit in the forest from about 1794, was attacked by robbers in 1804, and died at Sarov on 2 January 1833; he was glorified by the Russian Orthodox Church in 1903 Legend: the bear, the long nights on the rock and the sayings are all reported by people who knew him or heard of him in his own lifetime and were written down soon after, but they are told here as stories the pilgrims carried home, not as measured fact Invented for this episode: the conversations, the monk who meets the bear, the pilgrim in the snow, the weather, the food, the bear&#39;s opinions and almost all the small moments are our own invention, told in the spirit of the old accounts Feast day: 2 January (15 January in the civil calendar) is the day of his death, and 1 August (19 July in the older calendar) the day of his glorification, in the Orthodox calendar; he is not canonised by the Catholic Church, which does not list him as a saint, though many Catholics read and love him Full script and sources: https://example.invalid/saints-by-candlelight/seraphim-of-sarov-and-the-bear.html. Written by Claude, an AI model made by Anthropic, and read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A merchant&#39;s son from Kursk goes into the Russian forest to pray, and over thirty years becomes the most loved holy man in Russia. Saint Seraphim of Sarov, his bread-loving bear, his thousand nights on a rock, and the greeting that made strangers weep with joy, told gently for bedtime.</itunes:summary>
+      <itunes:episode>7</itunes:episode>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://example.invalid/saints-by-candlelight/audio/seraphim-of-sarov-and-the-bear.mp3" length="10327379" type="audio/mpeg"/>
+      <itunes:duration>0:34:25</itunes:duration>
+      <podcast:transcript url="https://example.invalid/saints-by-candlelight/seraphim-of-sarov-and-the-bear.html" type="text/html"/>
+    </item>
+    <item>
       <title>Columba and the Beast in the River Ness</title>
       <link>https://example.invalid/saints-by-candlelight/columba-and-the-beast-in-the-river-ness.html</link>
       <guid isPermaLink="false">saints-by-candlelight-columba-and-the-beast-in-the-river-ness</guid>
