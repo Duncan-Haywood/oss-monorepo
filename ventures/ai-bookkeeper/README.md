@@ -304,6 +304,25 @@ unpaid balance to Bad debts (6900, added if missing): debit bad debts, credit
 receivable, on the date given. Invoices only. Tests: "Refunding a credit note,
 and writing off a bad debt".
 
+## Recurring payments and a cash forecast
+
+`node cli.mjs --books books.json recurring` finds the payees whose lines come at
+a steady interval (weekly, every two weeks, monthly, quarterly, yearly), with the
+usual amount, the cost per year, the next expected date, and a status: **overdue**
+(the date passed and nothing came), **lapsed** (over two intervals of silence),
+or **amount changed** (the latest line is over 10% off the usual one: a price
+rise or a double charge). `forecast [--days 90]` rolls the bank balance forward
+day by day with those items (lapsed ones left out) and the open invoices and
+bills at their due dates, and reports the lowest point and when the balance would
+go below zero. Code: `recurring.mjs`, tests in `recurring.test.mjs` (month-end
+stepping, price rise, lapsed client, forecast arithmetic in integer cents).
+
+Limits, stated plainly: it needs three lines at a steady gap (a payee with
+irregular days, such as the synthetic example's jittered dates, is not reported),
+it assumes tomorrow for anything overdue, it does not know about payroll
+calendars, tax due dates or seasonality, and it is checked on hand-written series
+only, not on real statements. It is a heads-up, not a budget.
+
 ## Locking a closed period
 
 `lockPeriod(books, date)` (CLI `lock DATE`, `lock off` to undo) closes the books
