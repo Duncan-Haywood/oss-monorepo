@@ -391,6 +391,18 @@ MCP server, and the app packagers in `platform/distribution/` (iOS, Android,
 browser extension; desktop is the open gap). Publishing under the
 portfolio's name stays an owner step; building the packages is not. Channel
 list and status: [`portfolio/distribution/README.md`](../portfolio/distribution/README.md).
+
+**No static-only default** (the owner, 2026-10-21): "drop the requirement for
+static site only ... it's an unneccessary and harmful restricitong.
+applications can and should be distributable in a variety of ways to a
+variety of platforms etc." So pick a product's form for what its users need:
+a web app, a native or desktop app, a CLI, a library, a container, an MCP
+server, a browser extension, or a self-hosted service. A product that needs a
+running process is fine. What stays fixed is the cost and liability line,
+not the shape: no per-user bill on the owner's accounts and no unattended
+paid automation without the owner (Guardrails), so a service ships for its
+users or deployers to run, not on servers we pay for.
+
 ## Direction: depth over calculators
 
 Set by the owner on 2026-10-20: "we are still shipping all sorts of stupid
