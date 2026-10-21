@@ -1,0 +1,49 @@
+{
+ "date": "2026-10-21",
+ "session": "https://claude.ai/code/session_01Dvnp42JNAHeFueGUQQx6xm",
+ "track": "research",
+ "prompt_version": 1,
+ "input": "read ./prompt.md and follow the instructions there",
+ "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+ "follow_up_inputs": [],
+ "model": "claude-sonnet-5-5",
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-10-21T18:33:23Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": null,
+ "projects": [],
+ "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/9247",
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": null,
+ "outcome": "success",
+ "errors": [],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "research/CLAUDE.md",
+   "issue": "Said pyenv returns at once; first use installed packages (~1 min). Also pick_track redrew to track 7 which has 29 eda projects; no unexplored milestone, so I chose a follow-up from a README limitation."
+  }
+ ],
+ "deviations": [
+  {
+   "file": "prompts/research/prompt-1.md",
+   "why": "Skipped research_idea_dupe.py and a writeup in docs/reports; the project is a direct follow-up named in eda-adaptci's limitations and open PRs showed no eda work."
+  }
+ ],
+ "writeups": [],
+ "goal": null,
+ "notes": "New research/eda-adaptdesign: design-level bootstrap. 5 unit tests, build.py ok, check_md_links ok run locally.",
+ "corrections": [],
+ "redteam": null
+}
