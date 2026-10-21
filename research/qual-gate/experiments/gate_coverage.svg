@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot: always-PPI coverage stays near 0.95 at every bias; naive coverage is 0 except at zero bias; audit-gated coverage is 0.96 at zero bias, falls to 0.08 for biases of 2.6 points and recovers only to 0.80 to 0.88 at biases of 6 to 13 points">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Coverage of the 95% interval against the coder's prevalence bias (200 hand-coded items)</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="273.4" y2="273.4" stroke="#ddd"/><text x="58" y="277.4" text-anchor="end" font-family="sans-serif" font-size="11">0.2</text>
+<line x1="64" x2="624" y1="222.9" y2="222.9" stroke="#ddd"/><text x="58" y="226.9" text-anchor="end" font-family="sans-serif" font-size="11">0.4</text>
+<line x1="64" x2="624" y1="172.3" y2="172.3" stroke="#ddd"/><text x="58" y="176.3" text-anchor="end" font-family="sans-serif" font-size="11">0.6</text>
+<line x1="64" x2="624" y1="121.7" y2="121.7" stroke="#ddd"/><text x="58" y="125.7" text-anchor="end" font-family="sans-serif" font-size="11">0.8</text>
+<line x1="64" x2="624" y1="71.2" y2="71.2" stroke="#ddd"/><text x="58" y="75.2" text-anchor="end" font-family="sans-serif" font-size="11">1</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">-0.1023</text>
+<text x="188.5" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">-0.0511</text>
+<text x="250.3" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">-0.0257</text>
+<text x="312.8" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0</text>
+<text x="375.2" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.0257</text>
+<text x="468.4" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.064</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.128</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">coder prevalence bias (coded share minus true share)</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">coverage</text>
+<line x1="64" x2="624" y1="83.8" y2="83.8" stroke="#555" stroke-dasharray="4 3"/>
+<polyline points="64.0,84.6 188.5,80.3 250.3,81.5 312.8,80.5 375.2,83.6 468.4,81.8 624.0,79.5" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="84.6" r="3" fill="#c0392b"/>
+<circle cx="188.5" cy="80.3" r="3" fill="#c0392b"/>
+<circle cx="250.3" cy="81.5" r="3" fill="#c0392b"/>
+<circle cx="312.8" cy="80.5" r="3" fill="#c0392b"/>
+<circle cx="375.2" cy="83.6" r="3" fill="#c0392b"/>
+<circle cx="468.4" cy="81.8" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="79.5" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">always PPI</text>
+<polyline points="64.0,121.0 188.5,255.2 250.3,302.5 312.8,80.5 375.2,304.3 468.4,232.7 624.0,101.8" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="121.0" r="3" fill="#1f6fb2"/>
+<circle cx="188.5" cy="255.2" r="3" fill="#1f6fb2"/>
+<circle cx="250.3" cy="302.5" r="3" fill="#1f6fb2"/>
+<circle cx="312.8" cy="80.5" r="3" fill="#1f6fb2"/>
+<circle cx="375.2" cy="304.3" r="3" fill="#1f6fb2"/>
+<circle cx="468.4" cy="232.7" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="101.8" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">audit-gated</text>
+<polyline points="64.0,324.0 188.5,324.0 250.3,324.0 312.8,71.2 375.2,324.0 468.4,324.0 624.0,324.0" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="324.0" r="3" fill="#2e8b57"/>
+<circle cx="188.5" cy="324.0" r="3" fill="#2e8b57"/>
+<circle cx="250.3" cy="324.0" r="3" fill="#2e8b57"/>
+<circle cx="312.8" cy="71.2" r="3" fill="#2e8b57"/>
+<circle cx="375.2" cy="324.0" r="3" fill="#2e8b57"/>
+<circle cx="468.4" cy="324.0" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="324.0" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">naive</text>
+</svg>
