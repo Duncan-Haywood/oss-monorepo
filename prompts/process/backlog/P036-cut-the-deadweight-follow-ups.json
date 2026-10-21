@@ -43,6 +43,10 @@
     {
       "date": "2026-10-21",
       "note": "Part 3 done: PRODUCT_PLAYBOOK.md definition of done lost the #4573 incident story and a trimmed clause line (-7 lines). Part 1 remainder: hetzner-gitops-ci.yml is tied to front-door/site tests and its hcloud-scope job is asserted by infra/tests/test_infra_layout.py and platform/ci/test_run_workflow_locally.py; needs its own PR. Parts 2,5,6 remain."
+    },
+    {
+      "date": "2026-10-21",
+      "note": "Part 2 done: portfolio/DIRECTION.md 875 -> 166 lines (53,180 -> 8,898 bytes); full text archived in docs/history/direction-full-text-2026-10-21.md. Section names other files cite (North star, Current priority, Owner direction) kept. Parts 1 remainder (hetzner-gitops-ci.yml), 5, 6 remain."
     }
   ]
 }
