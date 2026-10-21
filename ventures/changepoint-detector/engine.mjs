@@ -855,11 +855,15 @@ export function makeCost(x, model = 'mean', sigma = robustSd(x), rho = 0, exposu
         EP[i + 1] = EP[i] + exposure[i];
       }
       const logSize = Math.log(size);
+      // PELT asks for (s, t) with t rising for each start s, and the rate barely moves when one point is added, so the
+      // last fitted rate for a start is kept and polished by one Newton step instead of two from the Poisson estimate.
+      const lamAt = new Float64Array(n + 1);
       return (s, t) => {
         const a = S1[t] - S1[s], E = EP[t] - EP[s];
         if (!(E > 0)) return 0;
-        let lam = a / E;
-        for (let k = 0; k < 2 && lam > 0; k++) {
+        const warm = lamAt[s] > 0 && t - s > 3;
+        let lam = warm ? lamAt[s] : a / E;
+        for (let k = warm ? 1 : 0; k < 2 && lam > 0; k++) {
           let g = a / lam, h = -a / (lam * lam);
           for (let i = s; i < t; i++) {
             const e = exposure[i], inv = 1 / (lam * e + size), q = W[i] * e * inv;
@@ -869,6 +873,7 @@ export function makeCost(x, model = 'mean', sigma = robustSd(x), rho = 0, exposu
           if (!(h < 0) || !(next > 0)) break;
           lam = next;
         }
+        if (lam > 0) lamAt[s] = lam;
         let acc = 0;
         for (let i = s; i < t; i++) acc += W[i] * Math.log(lam * exposure[i] + size);
         const ll = (a > 0 ? a * Math.log(lam) : 0) + (LX[t] - LX[s]) - acc + (t - s) * size * logSize;

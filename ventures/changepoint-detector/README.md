@@ -358,8 +358,12 @@ series, 40 each, in `engine.test.mjs`):
   prefix sums, so it takes one log per point instead of two. Same changes on three seeded 210-point series
   (counts rate about 10, clumpy, log growth flat to 105 then rising; `--model poisson --overdispersion nb --trend bend`):
   3957 -> 2213, 7982 -> 3773 and 2470 -> 1251 ms, about 1.8x. Still seconds, not milliseconds: the bend search runs
-  PELT once per knot, and a cost that is O(segment) is the floor without a closed form; caching lam per knot
-  is the next idea.
+  PELT once per knot, and a cost that is O(segment) is the floor without a closed form.
+  Warm start (2026-10-21): PELT asks for segments that start at the same point and grow by one, so the cost
+  keeps the last fitted rate per start and polishes it with one Newton step instead of two from the Poisson
+  estimate. Same changes and knots on 24 seeded clumpy-count fits (trend and trend bend, 150 to 260 points, with and
+  without a step; cost differs by at most 2e-5 relative); one seeded 240-point series with
+  `--trend bends` under NB, 4.4 -> 1.7 s on this container.
 
 ## Limits
 
