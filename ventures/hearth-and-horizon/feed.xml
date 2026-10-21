@@ -48,6 +48,8 @@
       <itunes:summary>Once a generation a seed vault switches off every machine it owns and runs for eight days on paper and pencil. This year the keeper is seventy-one, the council wants to end the custom, and the apprentice's hand count of one old barley lot disagrees with what the vault's database has said for forty years.</itunes:summary>
       <itunes:episodeType>full</itunes:episodeType>
       <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://example.invalid/hearth-and-horizon/audio/the-dark-week.mp3" length="8700976" type="audio/mpeg"/>
+      <itunes:duration>0:24:10</itunes:duration>
     </item>
     <item>
       <title>The Grader</title>
