@@ -195,3 +195,17 @@ results are from this repository's models and are mostly built on assumed
 inputs, as each README states. The twelve projects are plans, not results.
 Any future post on them will report what they found, including findings that
 the borrowed method did not help.
+
+## Update: the first grid result
+
+The first project in the energy-and-grid list is done: how fast heat pumps and
+electric cars wear out a neighbourhood transformer. In a model of ten homes on
+a transformer sized with ordinary headroom, nothing much happens until about
+half the homes have both a heat pump and a car. After that the wear climbs
+steeply, to about 5.6 % of the insulation's life per year with everyone
+plugging in on arrival, against about 1 % if cars charge in the low-load hours
+overnight. Smart charging fully fixes the cars but not a cold snap, when every
+heat pump runs at once. The transformer constants are swept, not verified
+against the paywalled standard, and the heat pumps are fully coincident, so
+read the 100 % figures as a pessimistic bound. Code, data and tests:
+[`research/infra-transformer`](../../research/infra-transformer/README.md).
