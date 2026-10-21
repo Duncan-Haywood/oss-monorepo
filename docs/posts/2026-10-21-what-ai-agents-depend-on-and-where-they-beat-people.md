@@ -1,7 +1,7 @@
 ---
 title: "What AI agents depend on, and where they beat people"
 date: 2026-10-21
-description: "Which industries AI agents will need and change most, set against what people need, with IEA and Anthropic data and where this repository's 1,314 products sit."
+description: "Which industries AI agents depend on and which they change most, compared with people, with IEA and Anthropic data and gaps in this repo."
 tags: [opinion, ai-agents, strategy, energy, product]
 ---
 

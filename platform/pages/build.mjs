@@ -4779,6 +4779,18 @@ export function researchHighlights(repoRoot = REPO_ROOT) {
   return { featured, themes, projects };
 }
 
+/**
+ * The flagship ventures, in the order `portfolio/flagships.yaml` lists them:
+ * the projects with the most engineering in them, chosen by an audit rather
+ * than by a count this page can take. The hub's featured row leads with them.
+ * Read with a line match (the file is a flat list of `- venture: <slug>`).
+ */
+export function flagshipSlugs(repoRoot = REPO_ROOT) {
+  const file = path.join(repoRoot, 'portfolio', 'flagships.yaml');
+  if (!existsSync(file)) return [];
+  return [...readFileSync(file, 'utf8').matchAll(/^  - venture: ([a-z0-9-]+)\s*$/gm)].map((m) => m[1]);
+}
+
 /** Research projects the research homepage builds: `research/<slug>/` with a README. */
 export function researchProjectCount(repoRoot = REPO_ROOT) {
   const dir = path.join(repoRoot, 'research');
@@ -7582,7 +7594,7 @@ function renderCategoryTile({ id, title, blurb, count, examples, note = '', acce
 export function renderHub(
   surfaces,
   baseUrl,
-  { researchCount = 0, research = { featured: [], themes: [] }, showcase = { shots: [], reel: null }, posts = [] } = {},
+  { researchCount = 0, research = { featured: [], themes: [] }, showcase = { shots: [], reel: null }, posts = [], flagships = [] } = {},
 ) {
   const groups = groupByCategory(surfaces);
   const audiencePages = audienceGroups(surfaces);
@@ -7642,14 +7654,18 @@ export function renderHub(
     )
     .join('\n');
 
-  // A short featured row: the fullest tool in each of the six largest
-  // categories, so the front door shows range rather than six calculators
-  // from one trade.
-  const featured = [...groups]
-    .sort((a, b) => b.items.length - a.items.length)
-    .slice(0, 6)
-    .map(({ items }) => exampleTools(items, 1)[0])
-    .filter(Boolean);
+  // A short featured row: the flagships first (`flagshipSlugs`), then, while
+  // there is room, the tool with the most pages in each of the largest
+  // categories. Page count alone put a day-count adder at the front
+  // (2026-10-21): pages measure explainers written beside a tool, not the
+  // engineering in it (docs/reports/2026-10-21-flagship-front-door.md).
+  const bySlug = new Map(surfaces.map((s) => [s.slug, s]));
+  const featured = flagships.map((slug) => bySlug.get(slug)).filter(Boolean).slice(0, 6);
+  for (const { items } of [...groups].sort((a, b) => b.items.length - a.items.length)) {
+    if (featured.length >= 6) break;
+    const pick = exampleTools(items.filter((s) => !featured.includes(s)), 1)[0];
+    if (pick) featured.push(pick);
+  }
 
   // The moving shelf under the hero: a few tools from every section, split
   // across two rows so neither repeats a section back to back.
@@ -8070,8 +8086,8 @@ ${renderShowcaseSection(showcase, (slug) => titles.get(slug) ?? slug)}
 
     <section class="band" id="featured" aria-labelledby="featured-h">
       <p class="section-eyebrow">Featured</p>
-      <h2 id="featured-h">The fullest tool in each of the largest sections</h2>
-      <p class="band-lede">Each one goes deep: worked examples, edge cases and the explainers written beside it.</p>
+      <h2 id="featured-h">The projects with the most engineering in them</h2>
+      <p class="band-lede">Flagships first: the projects most runs go deeper on, picked for the engineering in them rather than the number of pages beside them.</p>
       <ul class="featured">
 ${featured
   .map(
@@ -10822,7 +10838,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
   log(`Published ${await copyShowcase(outDir, showcase)} showcase file(s).`);
   await fs.writeFile(
     path.join(outDir, 'index.html'),
-    renderHub(surfaces, base, { researchCount: researchProjectCount(), research, showcase, posts: loadPosts() }),
+    renderHub(surfaces, base, { researchCount: researchProjectCount(), research, showcase, posts: loadPosts(), flagships: flagshipSlugs() }),
   );
   // The index the hub's search fetches, and the stylesheet every site-owned
   // page links for the shared header (site-nav.mjs).
