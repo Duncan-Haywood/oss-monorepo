@@ -569,3 +569,24 @@ test("a locked period refuses imports, re-filing, documents and write-offs", () 
   assert.throws(() => writeOff(docs.books, "2", { date: "2026-01-20" }), /locked/);
   assert.equal(lockPeriod(b, null).lockedThrough, undefined);
 });
+
+test("OFX/QFX and QIF files read to the same rows as a CSV, with signs as printed", async () => {
+  const { readFileSync } = await import("node:fs");
+  const read = (f) => readStatement(readFileSync(new URL(`./fixtures/${f}`, import.meta.url), "utf8"));
+  const ofx = read("checking.ofx");
+  assert.equal(ofx.bank, "ofx");
+  assert.deepEqual(ofx.problems, []);
+  assert.deepEqual(ofx.rows.map((r) => r.cents), [-450, 250000, -8999]);
+  assert.deepEqual(ofx.rows.map((r) => r.date), ["2026-01-05", "2026-01-12", "2026-01-20"]);
+  assert.equal(ofx.rows[0].desc, "BLUE BOTTLE COFFEE POS PURCHASE");
+  assert.equal(ofx.rows[2].desc, "COMCAST & CO");
+  assert.equal(ofx.rows[2].balance, 240551);
+  const qif = read("checking.qif");
+  assert.equal(qif.bank, "qif");
+  assert.deepEqual(qif.problems, []);
+  assert.deepEqual(qif.rows.map((r) => r.cents), [-450, 250000, -8999]);
+  assert.deepEqual(qif.rows.map((r) => r.date), ["2026-01-05", "2026-01-12", "2026-01-20"]);
+  assert.equal(qif.rows[0].desc, "Blue Bottle Coffee POS purchase");
+  // an empty OFX says so rather than importing nothing silently
+  assert.ok(readStatement("OFXHEADER:100\n<OFX></OFX>").problems.length > 0);
+});

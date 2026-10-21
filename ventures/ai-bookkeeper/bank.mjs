@@ -124,11 +124,87 @@ function chargesArePositive(rows) {
   return neg > pay.length / 2;
 }
 
+// OFX/QFX (SGML 1.x or XML 2.x) and QIF, which most banks offer next to CSV.
+// Both carry signed amounts in the account's own convention (a card charge is
+// already negative), so no sign inference is done. Returns the same shape as
+// the CSV path. The balance is only known for the last row (LEDGERBAL).
+export function sniffFormat(text) {
+  const head = text.slice(0, 2000);
+  if (/<OFX>|OFXHEADER:|<STMTTRN>/i.test(head) || /<STMTTRN>/i.test(text)) return "ofx";
+  if (/^\s*!(Type|Account|Option)/im.test(head)) return "qif";
+  return "csv";
+}
+
+function ofxDate(v) {
+  const m = /^(\d{4})(\d{2})(\d{2})/.exec(String(v).trim());
+  return m ? `${m[1]}-${m[2]}-${m[3]}` : null;
+}
+
+function ofxTag(block, tag) {
+  const m = new RegExp(`<${tag}>([^<\\r\\n]*)`, "i").exec(block);
+  return m ? m[1].trim().replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">") : "";
+}
+
+export function readOfx(text) {
+  const problems = [];
+  const out = [];
+  const blocks = text.split(/<STMTTRN>/i).slice(1);
+  blocks.forEach((raw, i) => {
+    const b = raw.split(/<\/STMTTRN>/i)[0];
+    const date = ofxDate(ofxTag(b, "DTPOSTED"));
+    const amt = ofxTag(b, "TRNAMT").replace(",", ".");
+    if (!date) { problems.push(`Transaction ${i + 1}: unreadable date, skipped.`); return; }
+    if (!/^[-+]?\d*\.?\d+$/.test(amt)) { problems.push(`Transaction ${i + 1}: unreadable amount, skipped.`); return; }
+    const cents = Math.round(parseFloat(amt) * 100);
+    if (cents === 0) return;
+    const desc = [ofxTag(b, "NAME") || ofxTag(b, "PAYEE"), ofxTag(b, "MEMO")].filter(Boolean).filter((x, j, a) => a.indexOf(x) === j).join(" ").replace(/\s+/g, " ");
+    out.push({ line: i + 1, date, desc, cents, balance: null });
+  });
+  const lb = /<LEDGERBAL>[\s\S]*?<BALAMT>\s*([-+]?[\d.,]+)/i.exec(text);
+  if (lb && out.length) {
+    const last = out.reduce((a, r) => (r.date >= a.date ? r : a), out[0]);
+    const bal = Math.round(parseFloat(lb[1].replace(",", ".")) * 100);
+    if (Number.isFinite(bal)) last.balance = bal;
+  }
+  if (!blocks.length) problems.push("No transactions (STMTTRN) were found in the OFX file.");
+  return { rows: out, problems, columns: null, bank: "ofx", inferred: null };
+}
+
+export function readQif(text, { dayFirst = false } = {}) {
+  const problems = [];
+  const out = [];
+  let cur = {};
+  let n = 0;
+  const flush = (line) => {
+    if (cur.D === undefined && cur.T === undefined) { cur = {}; return; }
+    n++;
+    const date = parseDate(String(cur.D ?? "").replace(/'/g, "/").replace(/\s+/g, ""), dayFirst);
+    const cents = parseCents(String(cur.T ?? cur.U ?? ""));
+    if (!date) problems.push(`Line ${line}: unreadable date "${cur.D ?? ""}", skipped.`);
+    else if (!Number.isFinite(cents)) problems.push(`Line ${line}: unreadable amount, skipped.`);
+    else if (cents !== 0) out.push({ line, date, desc: [cur.P, cur.M].filter(Boolean).filter((x, j, a) => a.indexOf(x) === j).join(" ").replace(/\s+/g, " ").trim(), cents, balance: null });
+    cur = {};
+  };
+  text.split(/\r?\n/).forEach((l, i) => {
+    if (!l) return;
+    const c = l[0];
+    if (c === "!") return;
+    if (c === "^") return flush(i + 1);
+    cur[c] = l.slice(1).trim();
+  });
+  if (Object.keys(cur).length) flush(text.split(/\r?\n/).length);
+  if (!n) problems.push("No transactions were found in the QIF file.");
+  return { rows: out, problems, columns: null, bank: "qif", inferred: null };
+}
+
 // -> { rows: [{ line, date, desc, cents, balance }], problems: [string], columns, bank, inferred }
 // `invert` flips signs for card exports that list charges as positive. Leave it
 // undefined and a file with no running balance that has payment rows is
 // flipped when its payments are negative (`inferred` says so).
 export function readStatement(text, { dayFirst = false, decimalComma = false, invert } = {}) {
+  const format = sniffFormat(text);
+  if (format === "ofx") return readOfx(text);
+  if (format === "qif") return readQif(text, { dayFirst });
   const rows = parseCsv(text);
   const problems = [];
   if (rows.length < 2 && !(rows.length === 1 && headerlessShape(rows))) return { rows: [], problems: ["The file has no data rows."], columns: null };
