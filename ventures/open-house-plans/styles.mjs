@@ -1,0 +1,75 @@
+// @ts-check
+// Architectural style presets. A style sets the roof, overhangs, window shapes,
+// porch, cladding and colours; it never changes the room program. Numbers are
+// design choices typical of each style, not rules from any code.
+
+export const STYLES = {
+  farmhouse: {
+    label: "Modern farmhouse",
+    roof: "gable", pitch: 9, eave: 1.0, rake: 0.75,
+    ceiling: 9,
+    cladding: "board-and-batten",
+    window: { w: 3, h: 5.5, grille: "none", pair: true },
+    living: { w: 3, h: 6, count: 3 },
+    porch: { depth: 8, span: "full", roof: "shed", pitch: 3, post: 0.5 },
+    colors: { wall: "#f4f1ea", trim: "#2b2b2b", roof: "#3a3d42", window: "#2b2b2b", door: "#7a4b2a", porch: "#d9cdb8" },
+    symmetry: 0.9,
+  },
+  craftsman: {
+    label: "Craftsman bungalow",
+    roof: "gable", pitch: 6, eave: 2.0, rake: 1.5,
+    ceiling: 9,
+    cladding: "lap",
+    window: { w: 3, h: 4.5, grille: "3-over-1", pair: true },
+    living: { w: 3, h: 5, count: 3 },
+    porch: { depth: 8, span: "public", roof: "gable", pitch: 6, post: 1.25 },
+    colors: { wall: "#7d8f78", trim: "#f2ead8", roof: "#5b4a3f", window: "#f2ead8", door: "#8b3a1e", porch: "#c8b79a" },
+    symmetry: 0.6,
+  },
+  modern: {
+    label: "Modern shed roof",
+    roof: "shed", pitch: 2.5, eave: 2.0, rake: 1.0,
+    ceiling: 9,
+    cladding: "vertical",
+    window: { w: 4, h: 5, grille: "none", pair: false },
+    living: { w: 6, h: 7, count: 2 },
+    porch: null,
+    colors: { wall: "#50555b", trim: "#1d1f22", roof: "#2a2c2f", window: "#1d1f22", door: "#c98a3b", porch: "#a8977f" },
+    symmetry: 0.2,
+  },
+  ranch: {
+    label: "Classic ranch",
+    roof: "hip", pitch: 5, eave: 1.5, rake: 1.5,
+    ceiling: 8,
+    cladding: "lap",
+    window: { w: 3, h: 4.5, grille: "colonial", pair: false },
+    living: { w: 3, h: 5, count: 3 },
+    porch: { depth: 5, span: "entry", roof: "integral", pitch: 5, post: 0.5 },
+    colors: { wall: "#e8e0cf", trim: "#ffffff", roof: "#5e5a55", window: "#ffffff", door: "#24435c", porch: "#c9c0ad" },
+    symmetry: 0.7,
+  },
+  cottage: {
+    label: "Storybook cottage",
+    roof: "gable", pitch: 10, eave: 1.0, rake: 0.75,
+    ceiling: 8,
+    cladding: "shingle",
+    window: { w: 2.5, h: 4.5, grille: "colonial", pair: true },
+    living: { w: 2.5, h: 5, count: 4 },
+    porch: { depth: 6, span: "entry", roof: "gable", pitch: 10, post: 0.5 },
+    colors: { wall: "#c9d6dc", trim: "#ffffff", roof: "#4f5a54", window: "#ffffff", door: "#b5453a", porch: "#d8cdb6" },
+    symmetry: 0.8,
+  },
+  minimal: {
+    label: "Budget minimal",
+    roof: "gable", pitch: 4, eave: 1.0, rake: 0.75,
+    ceiling: 8,
+    cladding: "lap",
+    window: { w: 3, h: 4, grille: "none", pair: false },
+    living: { w: 3, h: 5, count: 2 },
+    porch: { depth: 5, span: "entry", roof: "shed", pitch: 3, post: 0.5 },
+    colors: { wall: "#dad7cf", trim: "#ffffff", roof: "#55585c", window: "#ffffff", door: "#3f5f4a", porch: "#c4beb2" },
+    symmetry: 0.5,
+  },
+};
+
+export const STYLE_NAMES = Object.keys(STYLES);

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Open Tools and Research — tools on marisstella.dev</title>
-  <subtitle>The 1313 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1314 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -20,15 +20,23 @@
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/open-floor-robots/"/>
     <id>tag:marisstella.dev,2026:tool/open-floor-robots</id>
     <updated>2026-10-21T00:00:00Z</updated>
-    <category term="Open hardware &amp; robots"/>
+    <category term="Open hardware, robots &amp; house plans"/>
     <summary type="text">DIY robot vacuum, robot mop and robot vacuum-mop combo: open-source hardware (MIT) with laser-cut and 3D-printed parts, ESP32 firmware, a coverage path planner, and a cleaning simulator you can try in your browser on your own room.</summary>
+  </entry>
+  <entry>
+    <title>Free House Plan Generator: Parametric Home Designs to Download (CC0)</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/open-house-plans/"/>
+    <id>tag:marisstella.dev,2026:tool/open-house-plans</id>
+    <updated>2026-10-21T00:00:00Z</updated>
+    <category term="Open hardware, robots &amp; house plans"/>
+    <summary type="text">Generate a free house plan from a sentence: floor plan, elevations, 3D model (IFC, OBJ), CAD (DXF), bill of materials and a cost estimate. 1 to 5 bedrooms, farmhouse, craftsman, modern, ranch and cottage styles. Public domain, runs in your browser.</summary>
   </entry>
   <entry>
     <title>Open Robot Mower — DIY robot lawn mower: open-source, wire-free RTK, full CAD</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/open-robot-mower/"/>
     <id>tag:marisstella.dev,2026:tool/open-robot-mower</id>
     <updated>2026-10-21T00:00:00Z</updated>
-    <category term="Open hardware &amp; robots"/>
+    <category term="Open hardware, robots &amp; house plans"/>
     <summary type="text">Build your own robot lawn mower. An open-source robotic mower with wire-free RTK GNSS navigation, a guarded pivoting-blade disc, a floating bump shell, ESP32 safety firmware and a complete CAD manufacturing package (MIT). Plan your own lawn&#39;s mowing pattern in the browser.</summary>
   </entry>
   <entry>
@@ -158,13 +166,5 @@
     <updated>2026-10-19T00:00:00Z</updated>
     <category term="Learning &amp; practice"/>
     <summary type="text">Learn a language by voice alone: the coach says a phrase, you say it back, it listens and scores you, and moves on. No tapping, no screen. Streaks, XP and spaced review like a language game, free in your browser, plus a skill for Claude and ChatGPT voice mode.</summary>
-  </entry>
-  <entry>
-    <title>Listen &amp; Learn Audio — bilingual audio stories for language learners, hands-free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/listen-and-learn-audio/"/>
-    <id>tag:marisstella.dev,2026:tool/listen-and-learn-audio</id>
-    <updated>2026-10-19T00:00:00Z</updated>
-    <category term="Learning &amp; practice"/>
-    <summary type="text">Short graded stories read aloud in Spanish, French, German and Italian, each line followed by English. Press play and listen while you walk or commute. Free in your browser, plus an AI skill for Claude and ChatGPT voice mode that tells new stories and podcast-style episodes on any topic, at your level.</summary>
   </entry>
 </feed>

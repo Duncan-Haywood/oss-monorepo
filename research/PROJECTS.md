@@ -926,6 +926,12 @@ Census Survey of Construction for where a house's price goes.
    dwelling unit) generated from milestones 2 to 8, with drawings, a takeoff, a cost estimate,
    energy and structural reports, all reproducible from code. A licensed review and a permit
    are owner steps.
+10. `open-house-plans` (product, first version done 2026-10-21, in `ventures/open-house-plans/`): the
+   generator milestone 9 pointed at. From a brief or a sentence it searches single-storey layouts
+   (studio to five bedrooms, six styles, garage, porch, accessible option), sizes members with the
+   house-spans and house-framing checks (ported to JS, pinned by tests), runs IRC-paraphrased checks,
+   takes off materials, prices with an NAHB-anchored model and exports SVG, DXF, IFC4, OBJ and CSV
+   under CC0. Two storeys, L-shaped plans, a site plan and a licensed review of one design are next.
 
 Each project that prices a build cites every price and its date. Building anything is an owner
 step.

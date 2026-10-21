@@ -108,7 +108,7 @@ export function panelBreaks(length, centres, width = SHEET_WIDTH, minStrip = 12,
 /**
  * Panels and sheet order for a laid-out house.
  * @param {any} plan a plan with a `sheathing` block (see defaultSheathing)
- * @param {{ walls: any[] }} result the output of takeoff()
+ * @param {any} result the output of takeoff() (its `walls`)
  */
 export function sheathe(plan, result) {
   const cfg = { ...defaultSheathing(), ...(plan.sheathing || {}) };

@@ -4171,3 +4171,16 @@ entries:
         builds. Simulation (living-room example): vacuum coverage 95.5% at 0 cm pose error, 86.6%
         at 10 cm. BOMs ~$424 / ~$405 / ~$468 (estimates). Usage unmeasured.
     mrr_end: 0
+  - venture: open-house-plans
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Built at the owner's request (2026-10-21): free house plan generator. From a sentence or a
+        JSON brief it searches single-storey layouts (studio to 5 beds, six styles, garage, porch,
+        accessible), sizes headers, studs and floor framing (NDS checks ported from house-spans and
+        house-framing, equal to 1e-9), runs IRC-paraphrased checks, takes off materials, prices with
+        an NAHB-anchored model and exports SVG, DXF, IFC4, OBJ, CSV and JSON under CC0, in the
+        browser, as a CLI and as an agent tool; 12 catalogue designs. IfcOpenShell reads every
+        catalogue IFC with 0 schema errors. Usage unmeasured.
+    mrr_end: 0
