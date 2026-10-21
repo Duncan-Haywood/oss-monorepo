@@ -103,7 +103,8 @@
     <button type="button" class="secondary" id="csv">Download CSV</button>
     <button type="button" class="secondary" id="savePlan">Save plan file</button>
     <label for="openPlan" style="display:inline-block;font-weight:600">Open plan file</label> <input type="file" id="openPlan" accept=".json,application/json" style="width:auto">
-    <p><input type="checkbox" id="sheath" style="width:auto"> <label for="sheath" style="display:inline">Also lay out wall sheathing (4 x 8 to 4 x 12 sheets, 1 per square foot)</label></p>
+    <p><input type="checkbox" id="sheath" style="width:auto"> <label for="sheath" style="display:inline">Also lay out wall sheathing (4 x 8 to 4 x 12 sheets, 1 per square foot)</label>
+      <input type="checkbox" id="sheathH" style="width:auto;margin-left:1rem"> <label for="sheathH" style="display:inline">sheets long side along the wall</label></p>
     <p id="status" class="note" role="status"></p>
     <div id="errors" class="err" role="alert"></div>
     <div id="summary" aria-live="polite"></div>
@@ -329,11 +330,11 @@
       const card = $("#sheathCard");
       card.hidden = !$("#sheath").checked;
       if (card.hidden) return;
-      const sh = sheathe({ ...plan, sheathing: defaultSheathing() }, result);
+      const sh = sheathe({ ...plan, sheathing: { ...defaultSheathing(), ...($("#sheathH").checked ? { orientation: "horizontal" } : {}) } }, result);
       if (!sh.ok) { $("#sheathing").innerHTML = `<ul class="err">${sh.errors.map((e) => `<li>${esc(e)}</li>`).join("")}</ul>`; return; }
       const q = sh.summary;
       $("#sheathing").innerHTML = `<p><strong>${q.sheets}</strong> sheets of ${esc(sh.order.label)} for ${q.panels} panels (lower bound cost ${q.bound.toFixed(2)}, gap ${(100 * q.gap).toFixed(2)}%; one sheet per panel would be ${q.naiveSheets}). ${q.areaBought.toFixed(0)} sq ft bought for ${q.areaCovered.toFixed(0)} sq ft on the walls: ${(100 * q.waste).toFixed(1)}% offcut and opening cut-outs.</p>
-        <p class="note">Panels run vertically from the wall start; every joint lands on framing that runs the panel's height. Widths left to right:</p>
+        <p class="note">${sh.orientation === "horizontal" ? "Sheets run long side along the wall in courses from the floor; end joints land on studs and alternate courses are staggered, and each course joint is blocked between studs. Lengths left to right:" : "Panels run vertically from the wall start; every joint lands on framing that runs the panel's height. Widths left to right:"}</p>
         <table><thead><tr><th>Wall</th><th>Panels (width, cut-outs)</th></tr></thead><tbody>${sh.walls.map((w) => `<tr><td>${esc(w.id)}${w.check.length ? " (CHECK FAILED)" : ""}</td><td>${w.panels.map((p) => formatInches(p.width) + (p.cutouts.length ? ` (cut ${esc(p.cutouts.map((c) => c.label).join(", "))})` : "")).join(" | ")}</td></tr>`).join("")}</tbody></table>
         ${sh.notes.length ? `<ul>${sh.notes.map((n) => `<li>${esc(n)}</li>`).join("")}</ul>` : ""}`;
     }
@@ -346,7 +347,7 @@
       try {
         result = takeoff(plan);
         if (result.ok && $("#sheath").checked) {
-          const extra = nailerCuts(sheathe({ ...plan, sheathing: defaultSheathing() }, result));
+          const extra = nailerCuts(sheathe({ ...plan, sheathing: { ...defaultSheathing(), ...($("#sheathH").checked ? { orientation: "horizontal" } : {}) } }, result));
           if (extra.length) result = takeoff(plan, extra);
         }
       } catch (e) { result = { ok: false, errors: [e instanceof Error ? e.message : String(e)] }; }
@@ -423,6 +424,7 @@
     $("#addStock").addEventListener("click", () => { ui.stock.push({ size: "2x4", length: "8'", price: 8, label: "" }); renderStock(); });
     $("#resetStock").addEventListener("click", () => { ui.stock = defaultStock(parseLength($("#studLength").value) || PRECUT["8ft"]).map((s) => ({ size: s.size, length: formatLength(s.length), price: s.price, label: s.label || "" })); renderStock(); later(run, 0); });
     $("#sheath").addEventListener("change", () => run());
+    $("#sheathH").addEventListener("change", () => run());
     $("#run").addEventListener("click", () => { if (run()) record("takeoff_run"); });
     $("#example").addEventListener("click", () => { if (load(samplePlan())) { record("example_loaded"); $("#status").textContent = "Example: an invented 40 x 28 ft ranch, not a real plan."; } });
     $("#clear").addEventListener("click", () => { ui.walls = [{ id: "Wall 1", length: "12'", stud: "2x4", treatedPlate: false, corner: false, tees: "", tee: "" }]; ui.openings = []; renderAll(); run(); $("#status").textContent = "Started an empty plan with one wall."; });

@@ -77,10 +77,15 @@ function bearingCentres(plan, w, ops, cover) {
  * needed there between the header and the top plate; those joints come back
  * in `nailers`.
  */
-export function panelBreaks(length, centres, width = SHEET_WIDTH, minStrip = 12, spans = []) {
+export function panelBreaks(length, centres, width = SHEET_WIDTH, minStrip = 12, spans = [], lead = 0) {
   const joints = [];
   const nailers = [];
   let at = 0;
+  // A first panel shorter than the sheet staggers this course's joints against its neighbours' (horizontal sheets).
+  if (lead > EPS && length - lead > EPS) {
+    const first = centres.filter((c) => c > EPS && c <= lead + EPS).pop();
+    if (first !== undefined) { joints.push(first); at = first; }
+  }
   while (length - at > width + EPS) {
     let reach = centres.filter((c) => c > at + EPS && c <= at + width + EPS).pop();
     if (reach === undefined) {
@@ -175,6 +180,7 @@ export function sheathe(plan, result) {
   if (!sheets.length) return { ok: false, errors: ["List at least one sheet size for sheathing."] };
   const wallHeight = result.walls[0]?.height ?? 0;
   const cover = cfg.coverHeight > 0 ? cfg.coverHeight : wallHeight;
+  if (cfg.orientation === "horizontal") return sheatheHorizontal(plan, result, cfg, sheets, cover);
   const courses = chooseCourses(sheets, cover, cfg.minCourse, 0.125);
   if (!courses) {
     const longest = Math.max(...sheets.map((s) => s.length));
@@ -298,6 +304,138 @@ export function sheathe(plan, result) {
   };
 }
 
+/**
+ * Sheets laid long side along the wall (`sheathing.orientation: "horizontal"`).
+ * Courses are one sheet width high (the last one ripped to what is left); end
+ * joints land on stud centres and alternate courses start half a sheet in so
+ * the joints are staggered; every course boundary gets blocking between studs.
+ * One sheet length is used for the whole house: each listed length is tried and
+ * the cheapest order wins (ties go to the longer sheet).
+ */
+function sheatheHorizontal(plan, result, cfg, sheets, cover) {
+  const notes = [];
+  const area = (w, h) => (w * h) / 144;
+  let best = null;
+  for (const sheet of sheets) {
+    const ch = sheet.width;
+    const nFull = Math.floor((cover + EPS) / ch);
+    const rem = cover - nFull * ch;
+    const heights = Array(nFull).fill(ch);
+    if (rem > EPS) heights.push(rem);
+    // A last course under minCourse is a sliver: take the difference off the course below it instead.
+    if (rem > EPS && rem < cfg.minCourse - EPS && nFull > 0) { heights[nFull - 1] = ch - (cfg.minCourse - rem); heights[nFull] = cfg.minCourse; }
+    if (heights.length && heights[heights.length - 1] < 6) continue;
+    const courses = [];
+    let y = 0;
+    for (const h of heights) {
+      courses.push({ y0: y, y1: y + h, sheet, perSheet: h >= ch - EPS ? 1 : Math.max(1, Math.floor((ch + 0.125) / (h + 0.125))) });
+      y += h;
+    }
+    const walls = [];
+    const skipped = [];
+    const piecesBy = courses.map(() => []);
+    for (const w of result.walls) {
+      const pw = plan.walls.find((x) => x.id === w.id);
+      if (pw?.sheathed === false) continue;
+      const ops = (pw?.openings || []).slice().sort((a, b) => a.offset - b.offset);
+      const centres = bearingCentres(plan, w, ops, cover);
+      const even = panelBreaks(w.length, centres, sheet.length, cfg.minStrip, [], 0);
+      const odd = panelBreaks(w.length, centres, sheet.length, cfg.minStrip, [], sheet.length / 2);
+      if (!even || !odd) { skipped.push(w.id); continue; }
+      const panels = [];
+      courses.forEach((course, ci) => {
+        (ci % 2 ? odd : even).breaks.forEach(([a, b], i) => {
+          const cutouts = [];
+          for (const op of ops) {
+            const x0 = Math.max(a, op.offset);
+            const x1 = Math.min(b, op.offset + op.width);
+            const hh = op.headerHeight ?? plan.defaultHeaderHeight;
+            const y0 = Math.max(course.y0, hh - op.height);
+            const y1 = Math.min(course.y1, hh);
+            if (x1 - x0 > EPS && y1 - y0 > EPS) cutouts.push({ label: op.label || op.kind, x0: x0 - a, x1: x1 - a, y0, y1 });
+          }
+          panels.push({ id: `${w.id}-C${ci + 1}.${i + 1}`, course: ci, x0: a, x1: b, y0: course.y0, width: b - a, height: course.y1 - course.y0, cutouts });
+        });
+      });
+      for (const p of panels) piecesBy[p.course].push({ length: p.width, qty: 1, ref: p.id });
+      const jointBlocks = [];
+      let existing = 0;
+      for (let ci = 1; ci < courses.length; ci++) {
+        const jb = jointBlocking(w, ops, plan, courses[ci].y0);
+        jointBlocks.push(...jb.blocks);
+        existing += jb.existing;
+      }
+      walls.push({ id: w.id, panels, joints: [...new Set(panels.flatMap((p) => [p.x0, p.x1]))].filter((x) => x > EPS && x < w.length - EPS).sort((a, b) => a - b), nailers: [], nailerPieces: [], jointBlocks, existing, check: checkWall(w, panels, centres, sheet.length, cover, ops, plan, courses, jointBlocks) });
+    }
+    // Full courses pool into one order; the ripped course is cut crosswise into bands.
+    const groups = [];
+    for (const [i, c] of courses.entries()) {
+      const g = groups.find((x) => Math.abs(courses[x[0]].y1 - courses[x[0]].y0 - (c.y1 - c.y0)) < EPS);
+      if (g) g.push(i); else groups.push([i]);
+    }
+    let cost = 0, bound = 0, sheetsBought = 0, bought = 0, proven = true;
+    const orders = [], strips = [], methods = [];
+    const label = sheet.label || `${formatInches(sheet.width)} x ${formatInches(sheet.length)}`;
+    for (const idxs of groups) {
+      const per = courses[idxs[0]].perSheet;
+      const pieces = idxs.flatMap((i) => piecesBy[i]);
+      const res = pieces.length ? optimizeStock(pieces, [{ length: sheet.length, price: sheet.price / per }], 0.125) : { bars: [], cost: 0, bound: 0, proven: true, method: "none" };
+      const qty = Math.ceil(res.bars.length / per - 1e-9);
+      const height = courses[idxs[0]].y1 - courses[idxs[0]].y0;
+      orders.push({ course: idxs[0], courses: idxs, label, qty, price: sheet.price, cost: qty * sheet.price, bands: res.bars.length, perSheet: per, height });
+      cost += qty * sheet.price; bound += res.bound ?? 0; sheetsBought += qty; bought += qty * area(sheet.width, sheet.length);
+      proven = proven && res.proven; methods.push(res.method);
+      for (const b of res.bars) strips.push({ n: strips.length + 1, course: idxs[0], cuts: b.cuts.map((c) => ({ width: c.length, ref: c.ref })), ripOffcut: b.offcut, topOffcut: 0 });
+    }
+    const cand = { sheet, courses, walls, skipped, orders, strips, cost, bound, sheetsBought, bought, proven, methods, label };
+    if (!best || cost < best.cost - EPS || (Math.abs(cost - best.cost) <= EPS && sheet.length > best.sheet.length)) best = cand;
+  }
+  if (!best) return { ok: false, errors: [`No listed sheet leaves courses of at least ${formatInches(cfg.minCourse)} for a ${formatInches(cover)} wall.`] };
+  const { sheet, courses, walls, orders, strips, label } = best;
+  for (const id of best.skipped) notes.push(`${id}: no framing within ${formatInches(sheet.length)} of a panel edge; sheathe this wall by hand.`);
+  for (const w of walls) {
+    if (w.existing) notes.push(`${w.id}: ${w.existing} bay${w.existing > 1 ? "s" : ""} already have a blocking row at a course joint; the joint rests on it.`);
+    for (const p of w.panels) if (p.width < cfg.minStrip - EPS) notes.push(`${p.id} is only ${formatInches(p.width)} long: a sliver to cut and nail; consider moving a stud.`);
+  }
+  for (const [i, c] of courses.entries()) if (c.y1 - c.y0 < sheet.width - EPS) notes.push(`Course ${i + 1} is ripped to ${formatInches(c.y1 - c.y0)}${c.perSheet > 1 ? `: ${c.perSheet} bands are cut crosswise from each sheet` : ""}.`);
+  notes.push(`Sheets run long side along the wall: ${courses.length} course${courses.length > 1 ? "s" : ""}, end joints on stud centres, alternate courses start half a sheet in to stagger them, and each course joint (${courses.slice(1).map((c) => formatInches(c.y0)).join(", ") || "none"}) is blocked between studs. Check the nailing and blocking against your shear-wall schedule.`);
+  const panelAll = walls.flatMap((w) => w.panels);
+  const cutoutArea = panelAll.reduce((t, p) => t + p.cutouts.reduce((u, c) => u + area(c.x1 - c.x0, c.y1 - c.y0), 0), 0);
+  const panelArea = panelAll.reduce((t, p) => t + area(p.width, p.height), 0) - cutoutArea;
+  const naive = panelAll.reduce((t, p) => t + sheet.price * (p.height < sheet.width - EPS ? 1 / courses[p.course].perSheet : 1), 0);
+  return {
+    ok: true,
+    orientation: "horizontal",
+    sheet,
+    cover,
+    courses: courses.map((c, i) => ({ y0: c.y0, y1: c.y1, sheet: c.sheet, perSheet: c.perSheet, order: orders.find((o) => o.courses.includes(i)) })),
+    jointY: courses.length > 1 ? courses[1].y0 : null,
+    jointYs: courses.slice(1).map((c) => c.y0),
+    walls,
+    strips,
+    nailerLumber: nailerOrder(walls, plan),
+    order: { label, qty: best.sheetsBought, price: sheet.price, cost: best.cost },
+    orders,
+    summary: {
+      panels: panelAll.length,
+      sheets: best.sheetsBought,
+      cost: best.cost,
+      bound: best.bound,
+      gap: best.bound > 0 ? (best.cost - best.bound) / best.bound : 0,
+      method: best.methods.join(" + "),
+      proven: best.proven,
+      naiveSheets: panelAll.length,
+      naiveCost: naive,
+      areaCovered: panelArea,
+      areaCutOut: cutoutArea,
+      areaBought: best.bought,
+      waste: best.bought > 0 ? (best.bought - panelArea) / best.bought : 0,
+      stripArea: panelArea + cutoutArea,
+    },
+    notes,
+  };
+}
+
 /** Sheathing nailers as cut-list rows, for `takeoff(plan, nailerCuts(s))`. Pieces with no length (no header found) are left out. */
 export function nailerCuts(s) {
   if (!s || !s.ok) return [];
@@ -386,13 +524,13 @@ function checkWall(w, panels, centres, width, cover, ops, plan, courses, jointBl
     const cut = mine.reduce((t, p) => t + p.cutouts.reduce((u, c) => u + (c.x1 - c.x0), 0), 0);
     if (Math.abs(open - cut) > 1e-6) bad.push("cutout widths do not add up to the openings");
   });
-  if (courses.length === 2) {
-    // The horizontal joint needs something to nail to along its whole length, except where an opening is cut out there.
-    const y = courses[0].y1;
+  for (let ci = 1; ci < courses.length; ci++) {
+    // Each horizontal joint needs something to nail to along its whole length, except where an opening is cut out there.
+    const y = courses[ci].y0;
     const spans = [
       ...w.members.filter((m) => m.orient === "v" && m.y < y - EPS && m.y + m.h > y + EPS).map((m) => [m.x, m.x + m.w]),
       ...w.members.filter((m) => m.orient === "h" && m.kind === "blocking" && Math.abs(m.y + m.h / 2 - y) <= m.h / 2 + EPS).map((m) => [m.x, m.x + m.w]),
-      ...jointBlocks.map((b) => [b.x, b.x + b.length]),
+      ...jointBlocks.filter((b) => Math.abs(b.y - y) < EPS).map((b) => [b.x, b.x + b.length]),
       ...ops.filter((op) => { const hh = op.headerHeight ?? plan.defaultHeaderHeight; return y > hh - op.height + EPS && y < hh - EPS; }).map((op) => [op.offset, op.offset + op.width]),
     ].sort((a, b) => a[0] - b[0]);
     let at = 0;
@@ -401,8 +539,8 @@ function checkWall(w, panels, centres, width, cover, ops, plan, courses, jointBl
       at = Math.max(at, hi);
     }
     if (at < w.length - 1 - EPS) bad.push(`the horizontal joint at ${formatInches(y)} has nothing to nail to past ${formatInches(at)}`);
-    for (const p of panels.filter((q) => q.course === 1)) if (p.height < 6) bad.push(`${p.id} is only ${formatInches(p.height)} high`);
   }
+  if (courses.length > 1) for (const p of panels.filter((q) => q.course === courses.length - 1)) if (p.height < 6) bad.push(`${p.id} is only ${formatInches(p.height)} high`);
   return bad;
 }
 
