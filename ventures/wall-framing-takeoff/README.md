@@ -40,6 +40,18 @@ construction in the US and bring its cost down: [ROADMAP.md](ROADMAP.md).
   Gilmore-Gomory column generation for a lower bound and a near-cheapest order,
   first-fit-decreasing kept as a fallback, and an exact dynamic program for
   groups small enough to finish. Saw kerf is counted on every cut.
+- **Sheathing** (opt in: the page checkbox, `--sheathing`, or a `sheathing`
+  block in the plan). Vertical panels from each wall's start end, full wall
+  height, every joint on the centre of framing that runs the panel's height (a
+  stud, king, corner or tee backing stud, or the cripple/header/sill column
+  around an opening), so at 19.2 o.c. a panel is ripped short to the last stud
+  that fits. Openings are cut out of the panel that covers them. The sheet is
+  the cheapest one at least as long as the wall (4x9 for the precut 8 ft wall's
+  97-1/8"); the order is a cutting-stock problem over 48" strips, pooled across
+  all walls, so one wall's remainder becomes the next wall's panel, with an LP
+  bound. Walls marked `"sheathed": false` (interior) are skipped. Where a joint
+  has to fall over an opening with no cripple under it, the note says to fit a
+  nailer.
 - **Outputs.** Order with totals, cut list, board-by-board cutting plan with
   offcuts, layout marks per wall, an elevation drawing per wall, CSV export, and
   a plan file you can save and reopen.
@@ -78,7 +90,7 @@ A plan is JSON: `studSpacing`, `studLength`, `kerf`, `topPlateLap`,
 
 ## Verification
 
-`node --test` (34 tests across engine, CLI, page and usage). What they check:
+`node --test` (42 tests across engine, CLI, page and usage). What they check:
 
 - **Hand-counted walls.** A plain 10 ft wall at 16 o.c. has studs at exactly
   0, 15-1/4, 31-1/4, ... 111-1/4 and 118-1/2. A 36 x 48 window gets kings at
@@ -94,6 +106,11 @@ A plan is JSON: `studSpacing`, `studLength`, `kerf`, `topPlateLap`,
   cut exactly once, no board is overfilled (kerf counted), the cost is never
   below the LP bound, and the shipped order equals the exact cheapest order on
   every case the exact solver finishes.
+- **Sheathing:** a 10 ft wall gets joints at 48 and 96; at 19.2 o.c. the first
+  panel is ripped to the 38.4 stud; window cut-outs add up to the opening
+  width; on 400 seeded random walls (60 to 456 in, three spacings, up to
+  three openings) the panels tile the wall, every joint has framing under it,
+  and the cost is never below the bound.
 - **The LP solver** reproduces a textbook LP and its dual exactly.
 
 `node bench.mjs` measures the optimiser (seeded, reproducible):
@@ -125,7 +142,7 @@ column is the extreme case: 22% more board).
 - **No structural checks.** Header size, plies, jack count, stud size and
   spacing are inputs. Nothing checks them against a span table, a load or a
   building code.
-- **Not modelled yet:** sheathing, blocking and fire blocking, let-in or
+- **Not modelled yet:** sheathing over two courses (a wall taller than the longest sheet), horizontal sheathing, corner overhang, blocking and fire blocking, let-in or
   structural bracing, header spacers (listed in the notes), hardware and
   fasteners, gable and rake walls, walls that change height, multiple storeys,
   window and door rough openings given by unit size (enter rough openings), and
