@@ -28,7 +28,7 @@ def job(args):
 if __name__ == "__main__":
     t0 = time.time()
     old = json.load(open(os.path.join(R, "codesign-headroom", "experiments", "results.json")))
-    new = json.load(open(os.path.join(HERE, "..", "search.json")))
+    new = json.load(open(os.path.join(HERE, "search.json")))
     prev = {}
     for r in json.load(open(os.path.join(R, "codesign-power", "experiments", "results.json")))["records"]:
         if not r.get("none"):
