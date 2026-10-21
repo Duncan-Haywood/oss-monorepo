@@ -55,6 +55,28 @@ lowers the count of items that get deep enough.
 So the gap at 90 answers is structural, not a missing term: 90 answers give
 180 appearances, and an item needs about ten to fall under rd 150, so at most
 18 items can get there and the argmax scorer spreads them over ~30. The
-selector stays opt-in and unwired. Next: a staged hybrid (shipped selector
-while `answeredCount` < ~120, information score after, since the information
-selector wins at 300) measured on the same cells, then a survey flag.
+selector stays opt-in and unwired.
+
+## Staged hybrid (measured 2026-10-21)
+
+`selectNextPairHybrid(input, { switchAt })` runs the shipped selector while
+`answeredCount < switchAt` (default `HYBRID_SWITCH_ANSWERS` = 120) and the
+information selector after. Same 10 seeded respondents per cell; shipped /
+info / hybrid@120:
+
+| items / answers | rd<150 | rank accuracy |
+|---|---|---|
+| 41 / 90 | 5 / 1 / 5 | 0.61 / 0.67 / 0.61 |
+| 41 / 300 | 41 / 41 / 41 | 0.87 / 0.90 / 0.89 |
+| 220 / 90 | 5 / 1 / 5 | 0.14 / 0.18 / 0.14 |
+| 220 / 300 | 34 / 70 / 66 | 0.32 / 0.36 / 0.36 |
+
+Below 120 answers it is the shipped selector, so the couple screen's bar is
+unchanged; at 300 answers on 220 items it keeps 66 of the 70 settled items and
+the rank gain. Switching at 60 answers helps rank at 41 items/90 answers
+(0.70) but gives 2 items under rd 150 against 5; switching at 200 leaves 31
+settled items at 220/300 and no gain. 120 is the switch point that never loses
+to the shipped selector on either measure in these cells; the test asserts it.
+Not wired in yet. Next: a per-survey `pairSelector` flag (prisma field, admin
+toggle).
+

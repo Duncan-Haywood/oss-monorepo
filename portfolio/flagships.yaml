@@ -103,9 +103,14 @@ flagships:
       220 items, but 1 vs 5 at 90 answers); not wired in. The dimension-conflict
       bonus and a coverage term are options on it, measured: neither moves
       rd<150 at 90 answers (1 and 0 against 5), the gap is structural (180
-      appearances, ~10 each to reach rd 150), so both default off. Next: a
-      staged hybrid (shipped selector until ~120 answers, information score
-      after) measured on the same four cells, then a survey flag.
+      appearances, ~10 each to reach rd 150), so both default off. A staged
+      hybrid (selectNextPairHybrid: shipped selector until 120 answers,
+      information score after) is in and measured: it equals the shipped one at
+      90 answers and keeps 66 of the 70 settled items and the rank gain at 300
+      answers on 220 items (docs/INFORMATION-GAIN-SELECTOR.md); not wired in.
+      Next: a per-survey `pairSelector` flag (prisma field, admin toggle, used
+      by the answer route), then a live check that pair requests stay fast at
+      220 items.
   - venture: league-schedule-generator
     why: >-
       Circle-method round robins with minimal home/away breaks, court and slot
