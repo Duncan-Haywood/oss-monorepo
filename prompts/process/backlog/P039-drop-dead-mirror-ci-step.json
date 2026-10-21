@@ -19,6 +19,6 @@
   "opened": "2026-10-20",
   "source": "git-pattern re-measurement, PR #8765 (docs/parallel-agents.md, 'Re-measured 2026-10-20')",
   "pr": "this PR (branch claude/upbeat-ptolemy-5h04nw)",
-  "result": null,
+  "result": "Helped (2026-10-21). mcp actions_list portfolio-validate.yml event=pull_request status=completed, newest 30: successful runs took 3m26s to 5m54s wall clock (created_at to updated_at; e.g. runs 39536544045 3m26s, 39536294766 5m54s, 39536222154 4m05s) against ~10 min at baseline. Wall clock includes queueing, so the step's own saving is at least that large. Side effect seen in the same runs: with the check gated, main's mirror can drift until a PR touching gitops/prod or portfolio-validate.yml trips it (PR with commit 'Regenerate the apex mirror (stale on main)').",
   "history": []
 }
