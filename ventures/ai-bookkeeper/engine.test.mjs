@@ -590,3 +590,33 @@ test("OFX/QFX and QIF files read to the same rows as a CSV, with signs as printe
   // an empty OFX says so rather than importing nothing silently
   assert.ok(readStatement("OFXHEADER:100\n<OFX></OFX>").problems.length > 0);
 });
+
+test("MT940 and CAMT.053 read to the same rows and signs, with the closing balance", async () => {
+  const { readFileSync } = await import("node:fs");
+  const f = (n) => readFileSync(new URL(`./fixtures/${n}`, import.meta.url), "utf8");
+  const mt = readStatement(f("checking.mt940"));
+  assert.equal(mt.bank, "mt940");
+  assert.deepEqual(mt.problems, []);
+  assert.deepEqual(mt.rows.map((r) => [r.date, r.cents]), [["2026-03-02", 420000], ["2026-03-05", -5999], ["2026-03-10", -85000]]);
+  assert.equal(mt.rows[0].desc, "ACME GMBH Invoice 1042 Thanks");
+  assert.deepEqual(mt.statement, { cents: 429001, date: "2026-03-31" });
+  const cx = readStatement(f("checking.camt053.xml"));
+  assert.equal(cx.bank, "camt053");
+  assert.deepEqual(cx.rows.map((r) => r.cents), [420000, -5999, -85000, -1000]); // the reversed credit takes money out
+  assert.equal(cx.rows[0].desc, "ACME GmbH Invoice 1042");
+  assert.equal(cx.rows[2].desc, "LANDLORD LLC rent March");
+  assert.deepEqual(cx.statement, { cents: 428001, date: "2026-03-31" });
+  // Opening 1000.00 plus the rows lands on the printed closing balance in both files.
+  assert.equal(100000 + mt.rows.reduce((a, r) => a + r.cents, 0), mt.statement.cents);
+  assert.equal(100000 + cx.rows.reduce((a, r) => a + r.cents, 0), cx.statement.cents);
+  assert.match(readStatement("<Document><BkToCstmrStmt></BkToCstmrStmt></Document>").problems[0], /Ntry/);
+  // Importing keeps the closing balance and the reconcile check uses it.
+  let b = newBooks();
+  b.opening["1000"] = 100000;
+  const r = importStatement(b, f("checking.mt940"), "1000");
+  assert.deepEqual(r.books.statements["1000"], { closing: 429001, closingDate: "2026-03-31" });
+  assert.equal(importStatement(r.books, f("checking.mt940"), "1000").added, 0);
+  // An OFX file's LEDGERBAL is kept the same way.
+  const o = importStatement(b, f("checking.ofx"), "1000");
+  assert.ok(o.books.statements["1000"].closingDate);
+});
