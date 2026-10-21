@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { newBooks, importStatement } from "./engine.mjs";
-import { parseReceipt, splitReceipts, addReceipts, matchReceipts, attachReceipt, removeReceipt, receiptReport } from "./receipts.mjs";
+import { parseReceipt, splitReceipts, addReceipts, matchReceipts, attachReceipt, removeReceipt, receiptReport, taxOnReceipts, planReceiptSplit } from "./receipts.mjs";
 
 const books = (rows) => importStatement(newBooks(), "Date,Description,Amount\n" + rows.map(([d, n, a]) => `${d},${n},${a}`).join("\n") + "\n", "1000").books;
 
@@ -211,4 +211,50 @@ test("items you place by hand are learned, so the next receipt needs no flag", a
   assert.equal(next.unfiled.length, 0, "Widget now has an account");
   assert.deepEqual(next.parts.map((p) => p.account).sort(), ["6100", "6130"]);
   assert.equal(splitFromReceipt(b, "r1", { fix: { widget: "6100" }, learn: false }).taught.length, 0);
+});
+
+// foreign-currency receipts
+const PARIS = (d, tot, tax) => `Café de Flore
+2 rue Test, Paris
+${d}
+Café crème      € 4.00
+Tartine         € 6.00
+TVA             € ${tax}
+Total           € ${tot}`;
+
+test("a receipt in another currency is read with its code", () => {
+  const r = parseReceipt(PARIS("2026-03-10", "11.00", "1.00"));
+  assert.equal(r.currency, "EUR");
+  assert.equal(r.cents, 1100);
+  assert.equal(parseReceipt(CAFE).currency, null);
+  assert.equal(parseReceipt("Pret\n2026-03-10\nTotal GBP 12.40").currency, "GBP");
+});
+
+test("a euro receipt matches a dollar card line by the implied rate", () => {
+  const b0 = books([["2026-03-11", "CAFE DE FLORE PARIS", "-11.90"], ["2026-03-11", "SOMETHING ELSE", "-11.00"]]);
+  const { books: b, added } = addReceipts(b0, PARIS("2026-03-10", "11.00", "1.00"));
+  assert.equal(added[0].currency, "EUR");
+  const r = b.receipts[0];
+  assert.equal(r.matched, b.transactions.find((t) => /FLORE/.test(t.desc)).id);
+  assert.ok(Math.abs(r.fxRate - 1.081818) < 1e-4);
+});
+
+test("a given rate rules out a coincidence of a different size", () => {
+  const b0 = books([["2026-03-11", "CAFE DE FLORE PARIS", "-30.00"]]);
+  const { books: b } = addReceipts({ ...b0, fxRates: { EUR: 1.08 } }, PARIS("2026-03-10", "11.00", "1.00"));
+  assert.equal(b.receipts[0].matched, null);
+  const ok = matchReceipts({ ...b, receipts: b.receipts }, { rates: { EUR: 2.7 } });
+  assert.ok(ok.receipts[0].matched, "a rate that fits 30.00 / 11 matches");
+});
+
+test("tax on a euro receipt is counted in dollars at the line's rate; split is in dollars", () => {
+  const b0 = books([["2026-03-11", "CAFE DE FLORE PARIS", "-11.90"]]);
+  const { books: b } = addReceipts(b0, PARIS("2026-03-10", "11.00", "1.00"));
+  const t = taxOnReceipts(b);
+  assert.equal(t.taxCents, 108);
+  const plan = planReceiptSplit(b, "r1", { other: "6150" });
+  assert.equal(plan.parts.reduce((a, p) => a + p.cents, 0), -1190);
+  const none = taxOnReceipts({ ...b, receipts: [{ ...b.receipts[0], matched: null }] });
+  assert.equal(none.taxCents, 0);
+  assert.ok(none.noTax[0].note);
 });

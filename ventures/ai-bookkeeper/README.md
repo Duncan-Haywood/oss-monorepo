@@ -466,7 +466,13 @@ receipt, leaving out lines filed to wages, owner draws and transfers.
 the paid line was filed to (receipts with no tax line are listed apart, not
 counted as zero; `taxOnReceipts` in `receipts.mjs`, also on the page).
 `receipts attach RID LINEID`, `detach RID` and `remove RID` fix a pair by hand;
-the same receipt twice is kept once. Item lines (words, then a price) are kept
+a receipt printed in another currency (a symbol such as € or £, or a code such as EUR) is
+paired by rate: one you give (`rates`, or `fxRates` in the books file), else the
+median of that currency's earlier pairs, within 6% for card fees; with no rate
+known the payee words must agree. The rate each line implies is kept, and tax
+and item splits for that receipt are converted at it. Hand-written fixtures
+only; comma-decimal numbers (1.234,56) are not read yet.
+The same receipt twice is kept once. Item lines (words, then a price) are kept
 when they add up to the total with the printed tax and tip, or already include
 the tax; a receipt with a discount line or any other gap is not used for a
 split, and says so. `receipts split RID [--other CODE] [--apply]` shows the

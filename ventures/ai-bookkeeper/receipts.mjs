@@ -26,7 +26,24 @@ const DATE_RES = [
 ];
 const TOTAL_RE = /\b(grand\s+total|total\s+(?:due|paid|charged|amount)|amount\s+(?:due|paid|charged)|balance\s+due|order\s+total|total)\b/i;
 const NOT_TOTAL_RE = /sub\s*-?total|total\s+(?:savings|discount|items|tax|points)|tax\s+total|before\s+tax|tip\b|change\b|cash\b/i;
-const TAX_RE = /\b(sales\s+tax|tax|vat|gst|hst|pst)\b/i;
+const TAX_RE = /\b(sales\s+tax|tax|vat|gst|hst|pst|tva|mwst|iva|btw)\b/i;
+
+// Currency printed on a receipt: an unambiguous symbol or a three-letter code
+// beside an amount. A bare "$" says nothing (USD, CAD, AUD all use it), so it
+// returns null and the receipt is read in the books' currency.
+const SYMBOL_CUR = { "€": "EUR", "£": "GBP", "¥": "JPY", "₹": "INR", "₩": "KRW", "₪": "ILS", "R$": "BRL", "CHF": "CHF" };
+const CODES = "EUR|GBP|USD|CAD|AUD|NZD|CHF|JPY|SEK|NOK|DKK|PLN|CZK|MXN|BRL|INR|SGD|HKD|ZAR";
+export function detectCurrency(lines) {
+  const counts = new Map();
+  const bump = (c) => counts.set(c, (counts.get(c) ?? 0) + 1);
+  for (const l of lines) {
+    for (const m of l.matchAll(/(R\$|[€£¥₹₩₪])\s*\d/g)) bump(SYMBOL_CUR[m[1]]);
+    for (const m of l.matchAll(new RegExp(`\\b(${CODES})\\b\\s*\\d|\\d[\\d.,]*\\s*\\b(${CODES})\\b`, "g"))) bump(m[1] ?? m[2]);
+  }
+  return [...counts].sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
+}
+// books.currency is a code ("USD") or a symbol ("$"); compare as codes
+const bookCode = (books) => { const c = String(books.currency ?? "USD").trim(); return SYMBOL_CUR[c] ?? (c === "$" ? "USD" : c.toUpperCase()); };
 
 const amountsIn = (line) => [...line.matchAll(MONEY)].map((m) => parseCents(m[1])).filter((c) => Number.isInteger(c));
 
@@ -37,7 +54,7 @@ export function splitReceipts(text) {
 }
 
 // Lines that carry an amount but are not things bought.
-const NOT_ITEM_RE = /sub\s*-?total|\btotal\b|\btax\b|\bvat\b|\bgst\b|\bhst\b|\bpst\b|\btip\b|gratuity|change|cash|tender|visa|mastercard|mc\s|amex|debit|credit|card|payment|paid|balance|amount|discount|coupon|savings|points|rounding|\bauth\b|\bref\b|\bacct\b|\bthank/i;
+const NOT_ITEM_RE = /sub\s*-?total|\btotal\b|\btax\b|\bvat\b|\bgst\b|\bhst\b|\bpst\b|\btva\b|\bmwst\b|\biva\b|\bbtw\b|\btip\b|gratuity|change|cash|tender|visa|mastercard|mc\s|amex|debit|credit|card|payment|paid|balance|amount|discount|coupon|savings|points|rounding|\bauth\b|\bref\b|\bacct\b|\bthank/i;
 const TIP_RE = /\b(tip|gratuity)\b/i;
 
 // Item lines: words, then a price (the last amount on the line; "2 x 3.00  6.00"
@@ -98,7 +115,8 @@ export function parseReceipt(block) {
     else if (sum + (tipCents ?? 0) === cents && taxCents !== null) itemsOk = "tax included";
     else notes.push(`items add to ${(sum / 100).toFixed(2)} but the total is ${(cents / 100).toFixed(2)}${taxCents !== null ? " with tax" : ""}: not used for a split`);
   }
-  return { date, merchant, cents, taxCents, tipCents, items: itemsOk ? items : [], itemsOk: !!itemsOk, taxIncluded: itemsOk === "tax included", ok: !!(date && merchant && cents), notes, totalLine: from, text: lines.join("\n").slice(0, 400) };
+  const currency = detectCurrency(lines);
+  return { date, merchant, currency, cents, taxCents, tipCents, items: itemsOk ? items : [], itemsOk: !!itemsOk, taxIncluded: itemsOk === "tax included", ok: !!(date && merchant && cents), notes, totalLine: from, text: lines.join("\n").slice(0, 400) };
 }
 
 const sameReceipt = (a, b) => a.date === b.date && a.cents === b.cents && (a.merchant ?? "").toLowerCase() === (b.merchant ?? "").toLowerCase();
@@ -114,7 +132,8 @@ export function addReceipts(books, text) {
     if (!p.ok) { skipped.push({ text: p.text.split("\n")[0], notes: p.notes }); continue; }
     const dup = kept.find((r) => sameReceipt(r, p));
     if (dup) { duplicates.push({ id: dup.id, merchant: p.merchant, date: p.date, cents: p.cents }); continue; }
-    const r = { id: `r${++n}`, date: p.date, merchant: p.merchant, cents: p.cents, taxCents: p.taxCents, ...(p.items.length ? { items: p.items, printedTipCents: p.tipCents ?? undefined, taxIncluded: p.taxIncluded || undefined } : {}), matched: null, note: p.notes.join("; ") || undefined, text: p.text };
+    const foreign = p.currency && p.currency !== bookCode(books) ? p.currency : null;
+    const r = { id: `r${++n}`, date: p.date, merchant: p.merchant, ...(foreign ? { currency: foreign } : {}), cents: p.cents, taxCents: p.taxCents, ...(p.items.length ? { items: p.items, printedTipCents: p.tipCents ?? undefined, taxIncluded: p.taxIncluded || undefined } : {}), matched: null, note: p.notes.join("; ") || undefined, text: p.text };
     kept.push(r); added.push(r);
   }
   return { books: matchReceipts({ ...books, receipts: kept }), added, skipped, duplicates };
@@ -133,8 +152,22 @@ const overlap = (a, b) => {
 // added at the table); the bank date must fall `before` days before to `after`
 // days after the receipt date. Best pairs go first: payee words in common, then
 // an exact amount, then the closer date. Pairs fixed by hand are kept.
-export function matchReceipts(books, { before = 3, after = 7, tipPct = 0.25 } = {}) {
+//
+// A receipt in another currency (r.currency) cannot be compared by amount alone.
+// The rate is, in order: `rates[CUR]` (books-currency units per one foreign
+// unit, passed in or kept in books.fxRates), else the median rate of receipts
+// in that currency already matched. With a rate the bank amount must be within
+// `fxTolerance` of it (default 6%: card fees and the spread on top of the
+// day's rate); with no rate at all the payee words must agree and the amount
+// only has to be a plausible multiple (0.2x to 5x). The rate each pair implies
+// is kept as r.fxRate, and later foreign receipts are matched against it.
+export function matchReceipts(books, { before = 3, after = 7, tipPct = 0.25, rates = {}, fxTolerance = 0.06 } = {}) {
   const receipts = (books.receipts ?? []).map((r) => ({ ...r }));
+  const known = { ...(books.fxRates ?? {}), ...rates };
+  const learned = (cur) => {
+    const xs = receipts.filter((r) => r.currency === cur && r.matched && r.fxRate).map((r) => r.fxRate).sort((a, b) => a - b);
+    return xs.length ? xs[Math.floor(xs.length / 2)] : null;
+  };
   const bank = new Set(books.accounts.filter((a) => a.bank).map((a) => a.code));
   const taken = new Set(receipts.filter((r) => r.matched).map((r) => r.matched));
   const pool = books.transactions.filter((t) => bank.has(t.account) && t.cents < 0 && t.status !== "transfer" && !taken.has(t.id));
@@ -144,9 +177,18 @@ export function matchReceipts(books, { before = 3, after = 7, tipPct = 0.25 } = 
     for (const t of pool) {
       const gap = day(t.date) - day(r.date);
       if (gap < -before || gap > after) continue;
-      const paid = -t.cents, extra = paid - r.cents;
-      if (extra < 0 || extra > Math.round(r.cents * tipPct)) continue;
+      const paid = -t.cents;
       const words = overlap(r.merchant, t.desc);
+      if (r.currency) {
+        const rate = known[r.currency] ?? learned(r.currency);
+        const implied = paid / r.cents;
+        if (rate ? Math.abs(implied / rate - 1) > fxTolerance : words < 0.5 || implied < 0.2 || implied > 5) continue;
+        if (words < 0.5 && gap > 2) continue;
+        pairs.push({ r, t, words, exact: 1, gap: Math.abs(gap), extra: 0, fxRate: implied, rated: Boolean(rate) });
+        continue;
+      }
+      const extra = paid - r.cents;
+      if (extra < 0 || extra > Math.round(r.cents * tipPct)) continue;
       // an amount that is not exact needs the payee to agree, or it is a coincidence
       if (extra > 0 && words < 0.5) continue;
       // an exact amount with other words on the line is a guess: only a close date makes it worth showing
@@ -161,6 +203,7 @@ export function matchReceipts(books, { before = 3, after = 7, tipPct = 0.25 } = 
     usedT.add(p.t.id); usedR.add(p.r.id);
     p.r.matched = p.t.id;
     p.r.tipCents = p.extra || undefined;
+    if (p.r.currency) { p.r.fxRate = Math.round(p.fxRate * 1e6) / 1e6; p.r.rateSource = p.rated ? "given or learned" : "implied by this pair only"; }
     p.r.payeeAgrees = p.words >= 0.5;
   }
   return { ...books, receipts };
@@ -176,6 +219,7 @@ export function attachReceipt(books, receiptId, txnId) {
   const other = receipts.find((x) => x.matched === txnId && x.id !== receiptId);
   if (other) other.matched = null;
   r.matched = txnId; delete r.tipCents;
+  if (r.currency) r.fxRate = Math.round((-t.cents / r.cents) * 1e6) / 1e6;
   return { ...books, receipts };
 }
 
@@ -221,9 +265,12 @@ export function taxOnReceipts(books, { from = null, to = null } = {}) {
   const names = accountMap(books.accounts);
   const inRange = (d) => (!from || d >= from) && (!to || d <= to);
   const months = new Map(), accounts = new Map(), rows = [], noTax = [];
-  for (const r of books.receipts ?? []) {
+  for (let r of books.receipts ?? []) {
     if (!inRange(r.date)) continue;
     if (!r.taxCents) { noTax.push({ id: r.id, date: r.date, merchant: r.merchant, cents: r.cents }); continue; }
+    if (r.currency && !(r.matched && r.fxRate)) { noTax.push({ id: r.id, date: r.date, merchant: r.merchant, cents: r.cents, note: `${r.currency}, not matched to a bank line, so no rate to convert` }); continue; }
+    // a foreign receipt is counted in the books' currency at the rate its bank line implies
+    if (r.currency) r = { ...r, cents: Math.round(r.cents * r.fxRate), taxCents: Math.round(r.taxCents * r.fxRate) };
     const base = r.cents - r.taxCents;
     const line = r.matched ? byTxn.get(r.matched) : null;
     const code = line?.posted ?? null;
@@ -253,11 +300,17 @@ export function taxOnReceipts(books, { from = null, to = null } = {}) {
 // `single` is the one account when every item lands in the same place: that is a
 // plain filing, not a split. Nothing here changes the books; splitFromReceipt does.
 export function planReceiptSplit(books, receiptId, { other = null, fix = {} } = {}) {
-  const r = (books.receipts ?? []).find((x) => x.id === receiptId);
+  let r = (books.receipts ?? []).find((x) => x.id === receiptId);
   if (!r) throw new Error(`no receipt ${receiptId}`);
   if (!r.items?.length) throw new Error(`receipt ${receiptId} has no line items that add up to its total`);
   const line = r.matched ? books.transactions.find((t) => t.id === r.matched) : null;
   if (!line) throw new Error(`receipt ${receiptId} is not matched to a bank line yet (receipts attach ${receiptId} LINEID)`);
+  // a foreign receipt is split in the books' currency: items and tax scaled by
+  // the rate the bank line implies; any cent of rounding lands on the biggest part
+  if (r.currency && r.fxRate) {
+    const k = r.fxRate, c = (x) => Math.round(x * k);
+    r = { ...r, items: r.items.map((i) => ({ ...i, cents: c(i.cents) })), taxCents: r.taxCents ? c(r.taxCents) : r.taxCents, cents: c(r.cents) };
+  }
   const model = modelFor(books);
   const merchant = suggest({ desc: line.desc, cents: line.cents }, model);
   const fallback = other ?? merchant.account;
