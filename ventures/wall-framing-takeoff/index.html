@@ -163,7 +163,7 @@
 
   <script type="module">
     import { takeoff, samplePlan, defaultStock, parseLength, formatLength, formatInches, toCsv, verifyWall, PRECUT, DEPTH } from "./engine.mjs";
-    import { sheathe, defaultSheathing } from "./sheathing.mjs";
+    import { sheathe, defaultSheathing, nailerCuts } from "./sheathing.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -327,7 +327,13 @@
       $("#errors").innerHTML = "";
       if (bad.length) { $("#errors").innerHTML = `<ul>${bad.map((e) => `<li>${esc(e)}</li>`).join("")}</ul>`; return false; }
       let result;
-      try { result = takeoff(plan); } catch (e) { result = { ok: false, errors: [e instanceof Error ? e.message : String(e)] }; }
+      try {
+        result = takeoff(plan);
+        if (result.ok && $("#sheath").checked) {
+          const extra = nailerCuts(sheathe({ ...plan, sheathing: defaultSheathing() }, result));
+          if (extra.length) result = takeoff(plan, extra);
+        }
+      } catch (e) { result = { ok: false, errors: [e instanceof Error ? e.message : String(e)] }; }
       if (!result.ok) {
         $("#errors").innerHTML = `<ul>${result.errors.map((e) => `<li>${esc(e)}</li>`).join("")}</ul>`;
         $("#summary").innerHTML = ""; $("#order").innerHTML = ""; $("#cuts").innerHTML = ""; $("#boards").innerHTML = ""; $("#notes").innerHTML = "";

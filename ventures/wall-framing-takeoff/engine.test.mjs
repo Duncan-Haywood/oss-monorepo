@@ -205,7 +205,7 @@ test("default stock carries the precut stud for the wall height asked", () => {
 });
 
 // ---- sheathing ----
-import { sheathe, defaultSheathing, panelBreaks } from "./sheathing.mjs";
+import { sheathe, defaultSheathing, panelBreaks, nailerCuts } from "./sheathing.mjs";
 
 const sheathed = (plan) => { const r = takeoff(plan); return { r, s: sheathe({ ...plan, sheathing: defaultSheathing() }, r) }; };
 
@@ -324,4 +324,19 @@ test("sheathing: a joint over an opening with no cripples comes back as a sized 
   assert.ok(nl.cuts.every((c) => c.kind === "nailer" && c.size === "2x4" && c.walls.includes("N")));
   assert.ok(nl.orders.length === 1 && nl.orders[0].boards >= 1 && nl.cost > 0);
   assert.ok(nl.orders[0].lines.every((l) => l.length >= nl.cuts[0].length));
+});
+
+test("sheathing nailers join the cut list and the lumber order", () => {
+  const plan = { ...base(), studSpacing: 24, walls: [{ id: "N", length: 240, stud: "2x4", corner: false, openings: [{ kind: "door", offset: 20, width: 100, height: 82.5, header: "2x10" }] }] };
+  const r = takeoff(plan);
+  r.walls[0].members = r.walls[0].members.filter((m) => m.kind !== "cripple");
+  const extra = nailerCuts(sheathe({ ...plan, sheathing: defaultSheathing() }, r));
+  assert.ok(extra.length > 0);
+  const n = extra.reduce((s, c) => s + c.qty, 0);
+  const t = takeoff(plan, extra);
+  assert.ok(t.ok);
+  assert.equal(t.cuts.filter((c) => c.kind === "sheathing nailer").reduce((s, c) => s + c.qty, 0), n);
+  assert.equal(t.summary.pieces, r.summary.pieces + n);
+  assert.ok(t.summary.neededFeet > r.summary.neededFeet);
+  assert.deepEqual(nailerCuts(null), []);
 });

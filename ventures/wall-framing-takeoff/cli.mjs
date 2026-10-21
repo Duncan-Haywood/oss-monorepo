@@ -3,7 +3,7 @@
 // Wall framing takeoff from the terminal: a plan JSON in, an order, a cut
 // list and per-wall layout marks out.
 import { readFileSync } from "node:fs";
-import { sheathe, defaultSheathing, sheathingText } from "./sheathing.mjs";
+import { sheathe, defaultSheathing, sheathingText, nailerCuts } from "./sheathing.mjs";
 import { takeoff, samplePlan, toCsv, formatLength, formatInches, parseLength } from "./engine.mjs";
 
 const HELP = `wall-framing-takeoff: stud layout, cut list and the cheapest lumber order for a set of walls
@@ -53,9 +53,14 @@ export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "u
   } catch (e) {
     return { code: 2, out: `Could not read the plan: ${e instanceof Error ? e.message : e}` };
   }
-  const r = takeoff(plan);
+  let r = takeoff(plan);
   if (!r.ok) return { code: 1, out: `The plan has problems:\n${r.errors.map((e) => `  - ${e}`).join("\n")}` };
-  if (flags.has("--sheathing") || plan.sheathing) r.sheathing = sheathe({ ...plan, sheathing: { ...defaultSheathing(), ...(plan.sheathing || {}) } }, r);
+  if (flags.has("--sheathing") || plan.sheathing) {
+    const sheathing = sheathe({ ...plan, sheathing: { ...defaultSheathing(), ...(plan.sheathing || {}) } }, r);
+    const extra = nailerCuts(sheathing);
+    if (extra.length) r = takeoff(plan, extra); // nailers join the cut list and the lumber order
+    r.sheathing = sheathing;
+  }
   if (flags.has("--json")) return { code: 0, out: JSON.stringify(r, null, 2) };
   if (flags.has("--csv")) return { code: 0, out: toCsv(r).trimEnd() };
   const s = r.summary;

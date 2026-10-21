@@ -45,7 +45,7 @@ export const PRECUT = { "8ft": 92.625, "9ft": 104.625, "10ft": 116.625 };
  * @typedef {{ size: string, length: number, price: number, label?: string }} Stock
  * @typedef {{ studSpacing: number, studLength: number, kerf: number, topPlateLap: number,
  *   cornerExtraStuds: number, teeExtraStuds: number, defaultHeaderHeight: number,
- *   stock: Stock[], walls: Wall[] }} Plan
+ *   blocking?: { rows?: number, fire?: boolean }, stock: Stock[], walls: Wall[] }} Plan
  * @typedef {{ kind: string, x: number, y: number, w: number, h: number, size: string,
  *   length: number, orient: "v"|"h", label: string }} Member
  */
@@ -548,6 +548,19 @@ export function cutList(walls) {
     .sort((a, b) => a.size.localeCompare(b.size) || b.length - a.length || a.kind.localeCompare(b.kind));
 }
 
+/** Add extra pieces to a cut list, joining rows of the same size, length and kind. */
+export function mergeCuts(cuts, extra) {
+  const map = new Map(cuts.map((c) => [`${c.size}|${c.length}|${c.kind}`, { ...c, walls: [...c.walls] }]));
+  for (const e of extra) {
+    const key = `${e.size}|${e.length}|${e.kind}`;
+    const row = map.get(key) || { size: e.size, length: e.length, kind: e.kind, qty: 0, walls: [] };
+    row.qty += e.qty;
+    for (const w of e.walls) if (!row.walls.includes(w)) row.walls.push(w);
+    map.set(key, row);
+  }
+  return [...map.values()].sort((a, b) => a.size.localeCompare(b.size) || b.length - a.length || a.kind.localeCompare(b.kind));
+}
+
 // ---------------------------------------------------------------- cutting stock
 
 /**
@@ -874,12 +887,13 @@ export function exactStock(items, boards, workLimit = 3e7) {
 /**
  * Lay out every wall and buy the lumber for it.
  * @param {Plan} plan
+ * @param {{size: string, length: number, kind: string, qty: number, walls: string[]}[]} [extraCuts] pieces that are not wall members (sheathing nailers), bought with the rest
  */
-export function takeoff(plan) {
+export function takeoff(plan, extraCuts = []) {
   const errors = validatePlan(plan);
   if (errors.length) return { ok: false, errors };
   const walls = plan.walls.map((w) => layoutWall(plan, w));
-  const cuts = cutList(walls);
+  const cuts = mergeCuts(cutList(walls), extraCuts);
   const sizes = [...new Set(cuts.map((c) => c.size))];
   const orders = [];
   for (const size of sizes) {
