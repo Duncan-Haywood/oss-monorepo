@@ -4321,13 +4321,21 @@ test('a category holding a documented external-call exception says so, not "noth
         count.includes('except on'),
         `${category.id} files ${exceptions.map((x) => x.title).join(', ')} but its count line reads "${count}"`,
       );
+      // A long list is folded into the <details> right under the count line
+      // (privacyClaimParts); the line itself then counts them.
+      const [, folded] = html.match(/<\/p>\s*<details class="count-exceptions">[\s\S]*?<p>([\s\S]*?)<\/p><\/details>/) ?? [];
+      if (exceptions.length > 3) {
+        assert.ok(count.includes(`except on the ${exceptions.length} lookup tools listed below`), `${category.id}: "${count}"`);
+        assert.ok(folded, `${category.id} counts ${exceptions.length} exceptions but lists none under the count line`);
+      }
+      const named = exceptions.length > 3 ? folded : count;
       for (const x of exceptions) {
         // The *prose* name, not the raw title: eight catalogue titles carry an
         // em-dash tagline that would swallow the conjunction in this list. See
         // `toolProseName`. The claim being pinned is unchanged — every
         // exception is still named on the line that makes the privacy claim.
         const name = toolProseName(x.title);
-        assert.ok(count.includes(name), `${category.id}'s count line omits ${name}: "${count}"`);
+        assert.ok(named.includes(name.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')), `${category.id}'s exception list omits ${name}`);
       }
     } else {
       assert.equal(

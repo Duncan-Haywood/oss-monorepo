@@ -5339,6 +5339,27 @@ export function toolProseName(title) {
   return name || raw;
 }
 
+/**
+ * The privacy claim a catalogue-wide page's count line makes, and the list of
+ * exceptions that goes with it.
+ *
+ * Up to `inline` exceptions are named in the sentence itself. Past that the
+ * sentence counts them and the names go in a `<details>` placed right under
+ * the count line, as the About page already does: inlined, the 40-odd lookup
+ * tools that call a public API made a paragraph of tool names the size of
+ * the lede in every hero that carried them. The claim and every name are
+ * still on the page; only the long list is folded.
+ */
+export function privacyClaimParts(exceptions, { inline = 3 } = {}) {
+  const names = exceptions.map((x) => escapeHtml(toolProseName(x.title)));
+  if (names.length === 0) return { claim: 'nothing you type is uploaded', list: '' };
+  if (names.length <= inline) return { claim: `nothing you type is uploaded, except on ${listProse(names)}`, list: '' };
+  return {
+    claim: `nothing you type is uploaded, except on the ${names.length} lookup tools listed below`,
+    list: `\n      <details class="count-exceptions"><summary>The ${names.length} lookup tools that send the one thing you paste to the public API they check</summary><p>${listProse(names)}</p></details>`,
+  };
+}
+
 /** "A", "A and B", or "A, B, and C" — used to read an exception list as prose. */
 export function listProse(items) {
   if (items.length === 0) return '';
@@ -5808,9 +5829,7 @@ export function renderCategoryPage({
   // not have this page say "nothing you type is uploaded" for all of its
   // tools when that is false for one of them.
   const categoryExceptions = externalCallExceptions(items);
-  const countPrivacyClaim = categoryExceptions.length
-    ? `nothing you type is uploaded, except on ${listProse(categoryExceptions.map((x) => toolProseName(x.title)))}`
-    : 'nothing you type is uploaded';
+  const { claim: countPrivacyClaim, list: countExceptionList } = privacyClaimParts(categoryExceptions);
   const flat = subgroups.length === 1 && subgroups[0].subcategory === null;
 
   const renderCard = (surface) => `          <li class="card">
@@ -5967,7 +5986,7 @@ ${otherAudiences
       <p class="starting">${escapeHtml(copy.starting)}</p>`
           : ''
       }
-      <p class="count">${items.length} free tool${items.length === 1 ? '' : 's'} · no account · ${countPrivacyClaim}</p>
+      <p class="count">${items.length} free tool${items.length === 1 ? '' : 's'} · no account · ${countPrivacyClaim}</p>${countExceptionList}
     </header>
 ${jumps}
 ${filter}
@@ -6333,11 +6352,7 @@ export function renderComparePage({ groups, surfaces, categoryGroups = [], baseU
   // flat "nothing you type is uploaded" in the header would be false for them
   // while the footer's own disclaimer named the exception two screens below.
   const exceptions = externalCallExceptions(surfaces);
-  const privacyClaim = exceptions.length
-    ? `nothing you type is uploaded, except on ${listProse(
-        exceptions.map((x) => escapeHtml(toolProseName(x.title))),
-      )}`
-    : 'nothing you type is uploaded';
+  const { claim: privacyClaim, list: exceptionList } = privacyClaimParts(exceptions);
 
   const title = `Comparisons: free tools next to the software they are measured against`;
   const description =
@@ -6451,7 +6466,7 @@ ${group.items.map(renderCard).join('\n')}
       <p class="eyebrow">Comparisons</p>
       <h1>What each free tool here does that the paid product does not — and what it does not do</h1>
       <p class="lede">Every tool on this site that overlaps with a commercial product has a page saying so plainly: what the product does, what the free tool does, and when the paid one is the right answer. They are written by the tool's author, cite the product's own public documentation, and are not affiliated with, endorsed by, or reviewed by any product named here.</p>
-      <p class="count">${total} comparison page${total === 1 ? '' : 's'} across ${groups.length} product${groups.length === 1 ? '' : 's'} · free · no account · ${privacyClaim}</p>
+      <p class="count">${total} comparison page${total === 1 ? '' : 's'} across ${groups.length} product${groups.length === 1 ? '' : 's'} · free · no account · ${privacyClaim}</p>${exceptionList}
     </header>
 
     <nav class="jump" aria-label="Products with more than one comparison">
@@ -6559,11 +6574,7 @@ export function renderCompareProductPage({
   const n = group.items.length;
 
   const exceptions = externalCallExceptions(surfaces);
-  const privacyClaim = exceptions.length
-    ? `nothing you type is uploaded, except on ${listProse(
-        exceptions.map((x) => escapeHtml(toolProseName(x.title))),
-      )}`
-    : 'nothing you type is uploaded';
+  const { claim: privacyClaim, list: exceptionList } = privacyClaimParts(exceptions);
 
   const title = `${subject} alternatives: ${n} free tools with a side-by-side page`;
   const description =
@@ -6667,7 +6678,7 @@ export function renderCompareProductPage({
       <p class="lede">${escapeHtml(
         `Each page below is written by the author of the free tool, cites ${subject}'s own public documentation, and says three things: what ${subject} does, what the free tool does, and when ${subject} is the right answer. None of them is affiliated with, endorsed by, or reviewed by ${subject}, and none is a statement about its quality — only about what each tool does and does not do.`,
       )}</p>
-      <p class="count">${n} comparison page${n === 1 ? '' : 's'} · free · no account · ${privacyClaim}</p>
+      <p class="count">${n} comparison page${n === 1 ? '' : 's'} · free · no account · ${privacyClaim}</p>${exceptionList}
     </header>
 
     <main>
@@ -6760,11 +6771,7 @@ export function renderGuidesPage({ groups, surfaces, categoryGroups = [], baseUr
   // the whole catalogue, so a flat "nothing you type is uploaded" would be
   // false for the tools that do make a documented live call.
   const exceptions = externalCallExceptions(surfaces);
-  const privacyClaim = exceptions.length
-    ? `nothing you type is uploaded, except on ${listProse(
-        exceptions.map((x) => escapeHtml(toolProseName(x.title))),
-      )}`
-    : 'nothing you type is uploaded';
+  const { claim: privacyClaim, list: exceptionList } = privacyClaimParts(exceptions);
 
   const title = 'Guides: what to charge, and how each price is worked out';
   const description =
@@ -6883,7 +6890,7 @@ ${tools.map(renderTool).join('\n')}
       <p class="eyebrow">Guides</p>
       <h1>The question people ask before they know a calculator exists</h1>
       <p class="lede">Every tool on this site ships pages beside the calculator: how a price is actually built up, when one option beats another, what a fee schedule does to a payout, and what to do with the number once you have it. They are written by the tool's author, in plain English, and the calculator that answers the same question with your own figures is one click away from each one.</p>
-      <p class="count">${total} page${total === 1 ? '' : 's'} across ${groups.length} tool${groups.length === 1 ? '' : 's'} · free · no account · ${privacyClaim}</p>
+      <p class="count">${total} page${total === 1 ? '' : 's'} across ${groups.length} tool${groups.length === 1 ? '' : 's'} · free · no account · ${privacyClaim}</p>${exceptionList}
     </header>
 
     <nav class="jump" aria-label="Guides by trade">
@@ -10301,12 +10308,32 @@ export function renderNotFound(baseUrl) {
   <title>Not found</title>
   ${siteStyleLink(baseUrl)}
   <style>
-    body { font-family: system-ui, sans-serif; margin: 0; line-height: 1.6; color: #1d2530; background: #eef2f7; }
-    .nf { max-width: 40rem; margin: 10vh auto; padding: 0 1.2rem; }
-    a { color: #12594a; }
+    :root { --bg: #eef2f7; --panel: #ffffff; --ink: #1d2530; --muted: #4a5666; --line: #d3dce6; --accent: #12594a; }
     @media (prefers-color-scheme: dark) {
-      body { color: #e8eef5; background: #10151c; } a { color: #7fd8c0; }
+      :root { --bg: #10151c; --panel: #171e27; --ink: #e8eef5; --muted: #a2b0c0; --line: #2a343f; --accent: #7fd8c0; }
     }
+    body { font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif; margin: 0; line-height: 1.6;
+           color: var(--ink); background: var(--bg); -webkit-font-smoothing: antialiased; }
+    .nf { max-width: 46rem; margin: 0 auto; padding: 0 16px 64px; --pf-hero-pull: 0px; }
+    .nf h1 { font-size: clamp(2rem, 5vw, 3rem); line-height: 1.08; margin: 0 0 12px; }
+    .nf .lede { font-size: 1.08rem; margin: 0 0 22px; }
+    .code { font: 700 clamp(4.5rem, 14vw, 7.5rem)/1 "Inter", system-ui, sans-serif; letter-spacing: -.06em; margin: 0 0 4px;
+            background: linear-gradient(100deg, #7fe3c6, #8ea2ff 55%, #c79bff); -webkit-background-clip: text;
+            background-clip: text; color: transparent; }
+    .nf-search { display: flex; gap: 8px; max-width: 34rem; }
+    .nf-search input { flex: 1 1 auto; min-width: 0; font: inherit; padding: 11px 14px; border-radius: 12px;
+                       border: 1px solid var(--line); background: var(--panel); color: var(--ink); }
+    .nf-search button { font: inherit; font-weight: 700; padding: 11px 18px; border-radius: 12px; cursor: pointer;
+                        border: 1px solid var(--accent); background: var(--accent); color: var(--accent-ink); }
+    .nf h2 { font-size: .8rem; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); margin: 8px 0 12px; }
+    .ways { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+    .ways a { display: block; height: 100%; box-sizing: border-box; padding: 14px 16px; border-radius: 12px; text-decoration: none;
+              border: 1px solid var(--line); background: var(--panel); color: var(--ink);
+              transition: transform .15s ease, border-color .15s ease; }
+    .ways a:hover, .ways a:focus-visible { transform: translateY(-2px); border-color: var(--accent); }
+    .ways strong { display: block; color: var(--accent); }
+    .ways span { font-size: .9rem; color: var(--muted); }
+    @media (prefers-reduced-motion: reduce) { .ways a { transition: none; } .ways a:hover { transform: none; } }
   </style>
 </head>
 <body>
@@ -10314,10 +10341,33 @@ export function renderNotFound(baseUrl) {
        path was mistyped, so a relative link would resolve against that. -->
   ${renderSiteHeader({ toRoot: baseUrl, search: 'link' })}
   <main class="nf">
-  <h1>That page isn't here</h1>
-  <p>The tool may have moved, or the link may be mistyped.</p>
-  <p><a href="${escapeHtml(`${baseUrl}#${SEARCH_ANCHOR}`)}">Search every tool</a> or <a href="${escapeHtml(`${baseUrl}${CATEGORY_PATH_PREFIX}/`)}">browse them by category →</a></p>
+  <header class="pf-hero">
+    <p class="code" aria-hidden="true">404</p>
+    <h1>That page isn't here</h1>
+    <p class="lede">The tool may have moved, or the link may be mistyped. Search for it, or start from one of the sections below.</p>
+    <form class="nf-search" action="${escapeHtml(baseUrl)}" method="get" role="search">
+      <label class="pfs-vh" for="nf-q">Search every tool and research project</label>
+      <input id="nf-q" name="q" type="search" placeholder="Search every tool and research project" autocomplete="off">
+      <button type="submit">Search</button>
+    </form>
+  </header>
+  <h2>Or start here</h2>
+  <ul class="ways">
+    <li><a href="${escapeHtml(`${baseUrl}${CATEGORY_PATH_PREFIX}/`)}"><strong>Tools by category →</strong><span>Every free calculator and checker, grouped by job.</span></a></li>
+    <li><a href="${escapeHtml(`${baseUrl}guides/`)}"><strong>Guides →</strong><span>How a price is built up, and when one option beats another.</span></a></li>
+    <li><a href="${escapeHtml(`${baseUrl}research/`)}"><strong>Research →</strong><span>Open projects with their code, tests and limitations.</span></a></li>
+    <li><a href="${escapeHtml(`${baseUrl}writing/`)}"><strong>Blog →</strong><span>What building this with AI agents has taught us.</span></a></li>
+  </ul>
   </main>
+  <script>
+    // Seed the search with the words of the path that missed, so a renamed
+    // tool is usually one press of Enter away: /ebay-fee-calc/ -> "ebay fee calc".
+    try {
+      var words = decodeURIComponent(location.pathname).split('/').filter(Boolean).pop() || '';
+      words = words.replace(/\.html?$/i, '').replace(/[-_.]+/g, ' ').trim();
+      if (words && words.length < 80 && !/^404$/.test(words)) document.getElementById('nf-q').value = words;
+    } catch (e) {}
+  </script>
 </body>
 </html>
 `;
