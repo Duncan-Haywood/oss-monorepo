@@ -128,6 +128,9 @@ import {
   renderSiteHeader,
   renderSiteFooterNav,
   renderSiteStyle,
+  sponsorsNote,
+  SPONSORS_URL,
+  BUY_ME_A_COFFEE_URL,
   siteStyleLink,
   writeResearchChrome,
 } from './site-nav.mjs';
@@ -3875,14 +3878,8 @@ export function categoryPagePath(categoryId) {
  */
 export const ABOUT_PATH = 'about/';
 
-/**
- * The owner's GitHub Sponsors profile, in one place.
- *
- * It was written out longhand in four separate templates before this constant
- * existed, which is four places to miss on the day the account changes — the
- * copied-constant mistake CLAUDE.md records twice as having cost live product.
- */
-export const SPONSORS_URL = 'https://github.com/sponsors/Duncan-Haywood';
+// Both support links live in site-nav.mjs, beside the footer that carries them.
+export { SPONSORS_URL, BUY_ME_A_COFFEE_URL, sponsorsNote };
 // The repository the site is built from, named in the hub's Organization data.
 export const REPO_WEB_URL = 'https://github.com/Duncan-Haywood/oss-monorepo';
 
@@ -3923,8 +3920,11 @@ export const SPONSOR_CLICK_EVENT = 'sponsor_link_clicked';
  */
 export const SPONSOR_LINK_ATTR = 'data-pf-sponsor';
 
+// Both support links count as one event: the question is whether anyone
+// supports the work, not which button they pressed.
+const escapeRe = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const SPONSOR_ANCHOR_RE = new RegExp(
-  `<a\\b([^>]*\\bhref="${SPONSORS_URL.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}[^"]*"[^>]*)>`,
+  `<a\\b([^>]*\\bhref="(?:${escapeRe(SPONSORS_URL)}|${escapeRe(BUY_ME_A_COFFEE_URL)})[^"]*"[^>]*)>`,
   'gi',
 );
 
@@ -3960,36 +3960,11 @@ export async function markSponsorLinksIn(outDir) {
   return marked;
 }
 
-/**
- * The optional-support line a user-facing page carries in its footer.
- *
- * ## Why the hub pages needed one
- *
- * Measured 2026-09-06 against the published snapshot: 698 of its 721 pages
- * carried a sponsors line and 23 did not. Two of those are `404.html` and
- * `offline.html`, which correctly have none. The other 21 were the category
- * hubs (`/c/<id>/`) and the comparison pages (`/compare/`, `/compare/<product>/`)
- * — which is exactly backwards, because those are the pages a stranger arriving
- * from a search query lands on *first*. A visitor could read a whole
- * "vs ServiceTitan" comparison and never be told the tools are free and
- * supportable, while the deeper tool page they might never reach said so.
- *
- * `portfolio/DIRECTION.md` names this as the agent-doable half of the
- * `funding-sponsors-live` decision: whether the repo publishes a funding
- * surface is the owner's call, but making sure every product already carries
- * its own half correctly is not, so the day it is decided nothing is missing.
- *
- * ## Why it is phrased this way
- *
- * `PRODUCT_PLAYBOOK.md` §6: a donation prompt lives in the README and the
- * footer, "nowhere a user has to pass through", and never in front of a
- * feature. The sentence says the ask changes nothing about the product because
- * that is true — refusing costs the visitor no functionality — and a donation
- * ask that overstates itself is worse than none.
- */
-export function sponsorsNote() {
-  return `<a href="${SPONSORS_URL}">Sponsoring on GitHub</a> is optional and changes nothing about what these tools do.`;
-}
+// The optional-support line (`sponsorsNote`, site-nav.mjs) rides in
+// `renderSiteFooterNav`, so every site-owned page that ends in the shared link
+// row carries it — the category hubs and comparison pages included, which a
+// stranger arriving from search lands on first (21 of them had none when
+// measured on 2026-09-06). Tool pages get it from the chrome footer below.
 
 /**
  * The index of every `vs-<product>.html` comparison page in the catalogue,
@@ -4775,6 +4750,18 @@ export function researchHighlights(repoRoot = REPO_ROOT) {
       .map((p) => ({ slug: p.slug, title: p.title, summary: p.summary ?? '', themeId: theme.id, themeName: theme.name })),
   );
   return { featured, themes, projects };
+}
+
+/**
+ * The flagship ventures, in the order `portfolio/flagships.yaml` lists them:
+ * the projects with the most engineering in them, chosen by an audit rather
+ * than by a count this page can take. The hub's featured row leads with them.
+ * Read with a line match (the file is a flat list of `- venture: <slug>`).
+ */
+export function flagshipSlugs(repoRoot = REPO_ROOT) {
+  const file = path.join(repoRoot, 'portfolio', 'flagships.yaml');
+  if (!existsSync(file)) return [];
+  return [...readFileSync(file, 'utf8').matchAll(/^  - venture: ([a-z0-9-]+)\s*$/gm)].map((m) => m[1]);
 }
 
 /** Research projects the research homepage builds: `research/<slug>/` with a README. */
@@ -6079,7 +6066,6 @@ ${siblings}
 ${audienceLinks}
     <footer>${disclaimerHtml(toRoot, groups.flatMap((g) => g.items))}
       ${renderSiteFooterNav({ toRoot })}
-      <p>${sponsorsNote()}</p>
     </footer>
   </div>
   <!-- The same anonymous, local-only counter every tool page loads, with the
@@ -6344,7 +6330,6 @@ ${audiencePages
     </main>
     <footer>${disclaimerHtml(toRoot, surfaces)}
       ${renderSiteFooterNav({ toRoot })}
-      <p>${sponsorsNote()}</p>
     </footer>
   </div>
   <script src="${escapeHtml(`${toRoot}${CHROME_MODULE_FILE}`)}" ${CHROME_SLUG_ATTR}="${CATEGORY_PATH_PREFIX}" defer></script>
@@ -6595,7 +6580,6 @@ ${categoryLinks}
         tool does and does not do.
       </p>
       ${renderSiteFooterNav({ toRoot })}
-      <p>${sponsorsNote()}</p>
     </footer>
   </div>
   <!-- The same anonymous, local-only counter every other page loads, with this
@@ -6811,7 +6795,6 @@ ${categoryLinks}
       </p>
       <p style="margin-top:18px"><a href="${escapeHtml(`${toRoot}${COMPARE_PATH}`)}">All comparisons</a></p>
       ${renderSiteFooterNav({ toRoot })}
-      <p>${sponsorsNote()}</p>
     </footer>
   </div>
   <!-- Its own slug, not the hub's. Whether a product page earns the traffic
@@ -7017,7 +7000,6 @@ ${categoryLinks}
         figure, no ranking and no claim of its own.
       </p>
       ${renderSiteFooterNav({ toRoot })}
-      <p>${sponsorsNote()}</p>
     </footer>
   </div>
   <!-- The same anonymous, local-only counter every other page loads, with this
@@ -7250,8 +7232,9 @@ export function renderAboutPage({ surfaces, groups, baseUrl }) {
       </p>
       <p>
         If one of these has saved you money,
-        <a href="${SPONSORS_URL}">sponsoring on
-        GitHub</a> is welcome and entirely optional. Declining changes nothing
+        <a href="${SPONSORS_URL}">sponsoring on GitHub</a> or
+        <a href="${BUY_ME_A_COFFEE_URL}">buying me a coffee</a> is welcome and
+        entirely optional. Declining changes nothing
         about what any tool does, and nothing here is gated behind it.
       </p>
 
@@ -7580,7 +7563,7 @@ function renderCategoryTile({ id, title, blurb, count, examples, note = '', acce
 export function renderHub(
   surfaces,
   baseUrl,
-  { researchCount = 0, research = { featured: [], themes: [] }, showcase = { shots: [], reel: null }, posts = [] } = {},
+  { researchCount = 0, research = { featured: [], themes: [] }, showcase = { shots: [], reel: null }, posts = [], flagships = [] } = {},
 ) {
   const groups = groupByCategory(surfaces);
   const audiencePages = audienceGroups(surfaces);
@@ -7640,14 +7623,18 @@ export function renderHub(
     )
     .join('\n');
 
-  // A short featured row: the fullest tool in each of the six largest
-  // categories, so the front door shows range rather than six calculators
-  // from one trade.
-  const featured = [...groups]
-    .sort((a, b) => b.items.length - a.items.length)
-    .slice(0, 6)
-    .map(({ items }) => exampleTools(items, 1)[0])
-    .filter(Boolean);
+  // A short featured row: the flagships first (`flagshipSlugs`), then, while
+  // there is room, the tool with the most pages in each of the largest
+  // categories. Page count alone put a day-count adder at the front
+  // (2026-10-21): pages measure explainers written beside a tool, not the
+  // engineering in it (docs/reports/2026-10-21-flagship-front-door.md).
+  const bySlug = new Map(surfaces.map((s) => [s.slug, s]));
+  const featured = flagships.map((slug) => bySlug.get(slug)).filter(Boolean).slice(0, 6);
+  for (const { items } of [...groups].sort((a, b) => b.items.length - a.items.length)) {
+    if (featured.length >= 6) break;
+    const pick = exampleTools(items.filter((s) => !featured.includes(s)), 1)[0];
+    if (pick) featured.push(pick);
+  }
 
   // The moving shelf under the hero: a few tools from every section, split
   // across two rows so neither repeats a section back to back.
@@ -7886,8 +7873,6 @@ export function renderHub(
              font-size: .87rem; line-height: 1.6; color: var(--muted); }
     footer h2 { font-size: .95rem; color: var(--ink); margin: 20px 0 6px; }
     footer a { color: var(--accent); }
-    .support { background: var(--panel); border: 1px solid var(--line); border-radius: 13px;
-               padding: 15px 18px; margin-top: 26px; }
     .optout { margin-top: 18px; font-size: .84rem; }
     .offline p { margin: 8px 0 12px; font-size: .9rem; line-height: 1.5; color: var(--muted); }
     .offline select { max-width: 100%; box-sizing: border-box; font: inherit; padding: 8px 10px;
@@ -8068,8 +8053,8 @@ ${renderShowcaseSection(showcase, (slug) => titles.get(slug) ?? slug)}
 
     <section class="band" id="featured" aria-labelledby="featured-h">
       <p class="section-eyebrow">Featured</p>
-      <h2 id="featured-h">The fullest tool in each of the largest sections</h2>
-      <p class="band-lede">Each one goes deep: worked examples, edge cases and the explainers written beside it.</p>
+      <h2 id="featured-h">The projects with the most engineering in them</h2>
+      <p class="band-lede">Flagships first: the projects most runs go deeper on, picked for the engineering in them rather than the number of pages beside them.</p>
       <ul class="featured">
 ${featured
   .map(
@@ -8121,13 +8106,6 @@ ${renderLatestWriting(posts, { writingPath: WRITING_PATH })}
 ${BACKUP_WIDGET_HTML}
 
 ${renderOfflineWidgetHtml(offlineBuckets(surfaces))}
-
-    <div class="support">
-      <strong>Free, and staying free.</strong> If one of these saved you money,
-      <a href="${SPONSORS_URL}">sponsoring on GitHub</a>
-      is welcome and entirely optional — nothing here is gated behind it, and
-      declining changes nothing about what the tools do.
-    </div>
 
     <footer>
 ${disclaimerHtml('', surfaces)}
@@ -9824,10 +9802,8 @@ ${noSla}${links ? `    <ul>\n${links}\n    </ul>\n` : ''}${forLinks}    <p>
       <a href="${escapeHtml(`${toRoot}${FEEDBACK_PATH}?tool=${encodeURIComponent(slug)}`)}">Report a problem or suggest a feature</a>
       &nbsp;·&nbsp;
       <a href="${escapeHtml(`${toRoot}deploy/?app=${encodeURIComponent(slug)}`)}">Run your own copy</a>
-      &nbsp;·&nbsp;
-      <a href="${SPONSORS_URL}">Sponsoring on GitHub</a>
-      is optional and changes nothing about what these tools do.
     </p>
+    <p class="pf-support">${sponsorsNote()}</p>
   </div>
 </aside>
 <script src="${escapeHtml(`${toRoot}${CHROME_MODULE_FILE}`)}" ${CHROME_SLUG_ATTR}="${escapeHtml(slug)}"></script>`;
@@ -10820,7 +10796,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
   log(`Published ${await copyShowcase(outDir, showcase)} showcase file(s).`);
   await fs.writeFile(
     path.join(outDir, 'index.html'),
-    renderHub(surfaces, base, { researchCount: researchProjectCount(), research, showcase, posts: loadPosts() }),
+    renderHub(surfaces, base, { researchCount: researchProjectCount(), research, showcase, posts: loadPosts(), flagships: flagshipSlugs() }),
   );
   // The index the hub's search fetches, and the stylesheet every site-owned
   // page links for the shared header (site-nav.mjs).

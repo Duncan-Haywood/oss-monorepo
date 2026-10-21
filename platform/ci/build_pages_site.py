@@ -583,7 +583,8 @@ def render_hub(products: list[Product], base_url: str) -> str:
 
     <p>
       Free to use and free to keep. If one of these saved you money, you can
-      <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the work</a> —
+      <a href="https://github.com/sponsors/Duncan-Haywood">sponsor on GitHub</a> or
+      <a href="https://buymeacoffee.com/duncanhaywood">buy me a coffee</a> —
       entirely optional, and nothing here is gated behind it.
     </p>
   </footer>
