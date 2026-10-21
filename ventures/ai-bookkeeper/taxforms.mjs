@@ -212,3 +212,53 @@ export function nec1099FilingCsv(r) {
   for (const p of r.reportable) rows.push([r.year, q(p.name), "", "", "", "", "", d(p.cents), "0.00", p.w9 ? "yes" : "no"].join(","));
   return rows.join("\n") + "\n";
 }
+
+// Schedule SE worksheet: US self-employment tax on a Schedule C profit.
+// Net earnings are 92.35% of profit; social security is 12.4% of them up to the
+// year's wage base (less any wages already counted toward it, `wages`), Medicare
+// 2.9% on all of them. Nothing is owed under $400 of net earnings. Half the tax is
+// an income-tax deduction (Schedule 1, line 15). Left out: the 0.9% additional
+// Medicare tax (Form 8959), farm income, church income and more than one business.
+// Wage bases are from memory (2024 168,600; 2025 176,100; 2026 184,500) and
+// unchecked against the SSA page, so the result carries a warning; pass `wageBase`
+// in cents to override. A worksheet, not a filing.
+export const SS_WAGE_BASE = { 2024: 16860000, 2025: 17610000, 2026: 18450000 };
+export function selfEmployment(profitCents, { year = new Date().getFullYear(), wageBase, wages = 0 } = {}) {
+  const warnings = [];
+  const base = wageBase ?? SS_WAGE_BASE[year];
+  if (wageBase === undefined) warnings.push(base === undefined ? `No wage base on file for ${year}; pass wageBase.` : `The ${year} social security wage base is from memory and unchecked; confirm it on ssa.gov or pass wageBase.`);
+  const limit = base ?? Infinity;
+  if (profitCents <= 0) return { year, profit: profitCents, netEarnings: 0, socialSecurity: 0, medicare: 0, tax: 0, deduction: 0, warnings: [...warnings, "No profit, so no self-employment tax."] };
+  const netEarnings = Math.round(profitCents * 0.9235);
+  if (netEarnings < 40000) return { year, profit: profitCents, netEarnings, socialSecurity: 0, medicare: 0, tax: 0, deduction: 0, warnings: [...warnings, "Net earnings under $400: no self-employment tax."] };
+  const ssRoom = Math.max(0, limit - Math.max(0, wages));
+  const socialSecurity = Math.round(Math.min(netEarnings, ssRoom) * 0.124);
+  const medicare = Math.round(netEarnings * 0.029);
+  const tax = socialSecurity + medicare;
+  return { year, profit: profitCents, netEarnings, socialSecurity, medicare, tax, deduction: Math.round(tax / 2), warnings };
+}
+
+// The four federal estimated-payment dates for a tax year: Apr 15, Jun 15, Sep 15
+// and Jan 15 of the next year, moved to Monday when one lands on a weekend
+// (holidays are not modelled).
+export function estimatedDueDates(year) {
+  return [[year, 4, 15], [year, 6, 15], [year, 9, 15], [year + 1, 1, 15]].map(([y, m, d]) => {
+    const dt = new Date(Date.UTC(y, m - 1, d));
+    const dow = dt.getUTCDay();
+    if (dow === 6) dt.setUTCDate(d + 2); else if (dow === 0) dt.setUTCDate(d + 1);
+    return dt.toISOString().slice(0, 10);
+  });
+}
+
+// Quarter-by-quarter set-aside for the self-employment part: the year's Schedule C
+// profit so far, annualised to the months covered, taxed with selfEmployment() and
+// split into four equal payments. Income tax is not estimated.
+export function seSetAside(books, { year, monthsElapsed = 12, wages = 0, wageBase } = {}) {
+  const sc = scheduleC(books, { from: `${year}-01-01`, to: `${year}-12-31` });
+  const months = Math.min(12, Math.max(1, monthsElapsed));
+  const annual = Math.round((sc.netProfit * 12) / months);
+  const se = selfEmployment(annual, { year, wages, wageBase });
+  const each = Math.round(se.tax / 4);
+  const dates = estimatedDueDates(year);
+  return { year, monthsElapsed: months, profitToDate: sc.netProfit, annualisedProfit: annual, se, payments: dates.map((due, i) => ({ due, cents: i < 3 ? each : se.tax - each * 3 })), warnings: [...sc.warnings, ...se.warnings] };
+}

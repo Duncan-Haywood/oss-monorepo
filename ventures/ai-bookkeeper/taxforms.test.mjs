@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { newBooks, importStatement, confirm, parseSplit } from "./engine.mjs";
-import { scheduleC, scheduleCCsv, contractors1099, contractors1099Csv, nec1099FilingCsv, markW9, mergePayees, NEC_THRESHOLD, necDeadline } from "./taxforms.mjs";
+import { selfEmployment, estimatedDueDates, seSetAside, scheduleC, scheduleCCsv, contractors1099, contractors1099Csv, nec1099FilingCsv, markW9, mergePayees, NEC_THRESHOLD, necDeadline } from "./taxforms.mjs";
 
 const CSV = `Date,Description,Amount
 2026-01-05,CLIENT PAYMENT ACME,5000.00
@@ -167,4 +167,38 @@ test("1099-NEC: the due date rolls off weekends and 2027 is flagged as indexed",
   assert.ok(contractors1099(necBooks(), { year: 2026 }).warnings.every((w) => !/indexed/.test(w)));
   assert.ok(contractors1099(necBooks(), { year: 2027 }).warnings.some((w) => /indexed/.test(w)));
   assert.ok(!contractors1099(necBooks(), { year: 2027, threshold: 250000 }).warnings.some((w) => /indexed/.test(w)));
+});
+
+test("Schedule SE: 92.35% of profit, 15.3% under the wage base, half deductible", () => {
+  const se = selfEmployment(10000000, { year: 2025 });
+  assert.equal(se.netEarnings, 9235000);
+  assert.equal(se.socialSecurity, 1145140);
+  assert.equal(se.medicare, 267815);
+  assert.equal(se.tax, 1412955);
+  assert.equal(se.deduction, 706478);
+  assert.ok(se.warnings.some((w) => /unchecked/.test(w)));
+});
+
+test("Schedule SE: social security stops at the wage base, wages use it up, tiny and negative profits owe nothing", () => {
+  const hi = selfEmployment(30000000, { year: 2025, wageBase: 17610000 });
+  assert.equal(hi.socialSecurity, Math.round(17610000 * 0.124));
+  assert.equal(hi.medicare, Math.round(Math.round(30000000 * 0.9235) * 0.029));
+  assert.equal(selfEmployment(5000000, { wageBase: 17610000, wages: 17610000 }).socialSecurity, 0);
+  assert.equal(selfEmployment(40000, { year: 2025 }).tax, 0);
+  assert.equal(selfEmployment(-500000, { year: 2025 }).tax, 0);
+  assert.ok(selfEmployment(1000000, { year: 2031 }).warnings.some((w) => /No wage base/.test(w)));
+});
+
+test("estimated payment dates roll off weekends", () => {
+  assert.deepEqual(estimatedDueDates(2026), ["2026-04-15", "2026-06-15", "2026-09-15", "2027-01-15"]);
+  assert.deepEqual(estimatedDueDates(2025), ["2025-04-15", "2025-06-16", "2025-09-15", "2026-01-15"]);
+  assert.equal(estimatedDueDates(2027)[3], "2028-01-17"); // Jan 15 2028 is a Saturday, Monday the 17th
+});
+
+test("seSetAside annualises the profit to date and splits the tax into four payments that add up", () => {
+  const r = seSetAside(filed(), { year: 2026, monthsElapsed: 3 });
+  assert.equal(r.profitToDate, 600000 - 20000 - 4000 - 12000 - 3333 - 6000);
+  assert.equal(r.annualisedProfit, r.profitToDate * 4);
+  assert.equal(r.payments.length, 4);
+  assert.equal(r.payments.reduce((a, p) => a + p.cents, 0), r.se.tax);
 });

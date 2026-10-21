@@ -248,6 +248,18 @@ current, 1-30, 31-60, 61-90 and 90+ days past due.
 Tests: engine.test.mjs, "Accruals" and "Part-payments and credit notes". Not measured on real invoice exports (the
 tests use a four-row list); the matching thresholds are a first guess.
 
+## Self-employment tax and estimated payments (US)
+
+`selfEmployment(profit, { year, wageBase, wages })`, `estimatedDueDates(year)` and
+`seSetAside(books, { year, monthsElapsed })` in `taxforms.mjs`, and `cli.mjs se
+[--year Y] [--months N] [--wages $] [--json]`, take the year's Schedule C profit so
+far, annualise it to the months covered, work out Schedule SE (92.35% net earnings,
+12.4% social security up to the wage base, 2.9% Medicare, half deductible) and split
+it across the four federal payment dates (weekend dates move to Monday). Income tax is
+not estimated, and the 0.9% additional Medicare tax, farm and church income are left
+out. The wage bases (2024-2026) are from memory and unchecked against the SSA page, so
+every result warns; pass `wageBase`. Node tests only; not on the page yet.
+
 ## Schedule C worksheet (US sole proprietors)
 
 `scheduleC(books, { from, to, mealsPct, map })` in `taxforms.mjs` (also the page's
