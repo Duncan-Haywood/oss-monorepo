@@ -1,0 +1,48 @@
+{"label":"unsubscribe","subject":"Re: saw your post","body":"Kindly delete my contact details from whatever list this is."}
+{"label":"unsubscribe","subject":"Re: idea","body":"Please don't email me again."}
+{"label":"unsubscribe","subject":"Re: question for you","body":"I'd like to be unsubscribed from these messages."}
+{"label":"unsubscribe","subject":"Re: Harbour","body":"Remove."}
+{"label":"unsubscribe","subject":"Re: intro","body":"Stop contacting our staff. We will report this."}
+{"label":"unsubscribe","subject":"Re: 2 minutes?","body":"No. And please stop sending me emails."}
+{"label":"bounce","subject":"Message not delivered","body":"Your message to ops@acme.example couldn't be delivered. The recipient's mailbox is full."}
+{"label":"bounce","subject":"Delivery Status Notification (Delay)","body":"Delivery to the following recipient has been delayed and has now failed permanently: 554 5.7.1 rejected"}
+{"label":"bounce","subject":"Undelivered Mail Returned to Sender","from":"postmaster@acme.example","body":"The original message was not delivered."}
+{"label":"out_of_office","subject":"Out of Office: Re: hello","body":"Hi, I'm out until the 12th. I'll get back to you then."}
+{"label":"out_of_office","subject":"Automatic reply","body":"I am currently on annual leave and will be back in the office on Tuesday 5 November."}
+{"label":"out_of_office","subject":"Away","body":"Thanks for reaching out! I'm away at a conference this week and will respond next week."}
+{"label":"out_of_office","subject":"Automatic reply: question","body":"I'm on sick leave. Please email reception@clinic.example in the meantime."}
+{"label":"out_of_office","subject":"Re: idea","body":"Auto-reply: I am travelling and will have limited access to my email until Friday."}
+{"label":"left_company","subject":"Re: dispatch","body":"Mark retired last month. His replacement is Jen Ortiz, jen.ortiz@acme.example."}
+{"label":"left_company","subject":"Re: hello","body":"She doesn't work here anymore."}
+{"label":"left_company","subject":"Re: quick idea","body":"I don't handle this. Our IT director Alan would be the one to talk to."}
+{"label":"left_company","subject":"Re: route","body":"I'm no longer at Brightline, I moved to a new role elsewhere."}
+{"label":"not_now","subject":"Re: idea","body":"Could be useful down the line. Ask me again in the spring."}
+{"label":"not_now","subject":"Re: question","body":"We're in the middle of a re-org. Try again in three months."}
+{"label":"not_now","subject":"Re: Peak","body":"Our contract renews in April, reach out around February and we can compare."}
+{"label":"not_now","subject":"Re: hi","body":"Too busy right now, maybe after Q4 closes."}
+{"label":"not_now","subject":"Re: intro","body":"Interesting but not this year. Next year we'll have budget."}
+{"label":"not_now","subject":"Re: route planning","body":"Hold off for now, I'll let you know when we're ready."}
+{"label":"not_interested","subject":"Re: question","body":"Thanks, but we're good."}
+{"label":"not_interested","subject":"Re: dispatch","body":"We don't need this."}
+{"label":"not_interested","subject":"Re: hello","body":"Nope."}
+{"label":"not_interested","subject":"Re: idea","body":"Thanks for reaching out but we will not be moving forward."}
+{"label":"not_interested","subject":"Re: tool","body":"Not relevant for our business, sorry."}
+{"label":"objection","subtype":"competitor","subject":"Re: idea","body":"We switched to FleetPlan last year, no plans to change."}
+{"label":"objection","subtype":"competitor","subject":"Re: tool","body":"Our ERP already does routing for us."}
+{"label":"objection","subtype":"price","subject":"Re: question","body":"Every quote we've had for this is way over what we can spend."}
+{"label":"objection","subtype":"price","subject":"Re: hi","body":"Money is tight this year so it's hard to justify."}
+{"label":"objection","subtype":"authority","subject":"Re: intro","body":"I'd need sign-off from the owner, and he's hard to convince."}
+{"label":"objection","subtype":"need","subject":"Re: route","body":"Our drivers know their routes already. Why would we need software for that?"}
+{"label":"question","subject":"Re: dispatch","body":"Do you integrate with Samsara?"}
+{"label":"question","subject":"Re: route planning","body":"How long does setup usually take?"}
+{"label":"question","subject":"Re: quick idea","body":"Is this per driver or per vehicle?"}
+{"label":"question","subject":"Re: hello","body":"Is there a free trial?"}
+{"label":"interested","subject":"Re: idea","body":"Yes please, would love a demo. Mornings work best."}
+{"label":"interested","subject":"Re: tool","body":"Let's find 30 minutes. My calendar is open Wednesday."}
+{"label":"interested","subject":"Re: route","body":"This could save us a lot of time. What are next steps?"}
+{"label":"interested","subject":"Re: dispatch","body":"Sure, I can do a call on Monday at 2pm."}
+{"label":"interested","subject":"Re: question","body":"Count me in. When can you show me?"}
+{"label":"interested","subject":"Re: intro","body":"Forwarding to our COO who's been looking for exactly this. Bill, over to you."}
+{"label":"unclear","subject":"Re: hello","body":"?"}
+{"label":"unclear","subject":"Re: idea","body":"Who is this?"}
+{"label":"unclear","subject":"Re: intro","body":"Noted."}

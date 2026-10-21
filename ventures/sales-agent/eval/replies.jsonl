@@ -1,0 +1,72 @@
+{"label":"unsubscribe","subject":"Re: quick idea","body":"Please remove me from your mailing list."}
+{"label":"unsubscribe","subject":"Re: intro","body":"Unsubscribe"}
+{"label":"unsubscribe","subject":"Re: Brightline + you","body":"Stop emailing me. This is the third time."}
+{"label":"unsubscribe","subject":"Re: question","body":"Take me off your list please, not interested."}
+{"label":"unsubscribe","subject":"Re: following up","body":"Do not contact me again."}
+{"label":"unsubscribe","subject":"Re: routing","body":"STOP"}
+{"label":"unsubscribe","subject":"Re: routing","body":"Under GDPR I am asking you to delete my data and confirm."}
+{"label":"unsubscribe","subject":"Re: hi","body":"I never signed up for this. Opt me out."}
+{"label":"unsubscribe","subject":"Re: idea for your team","body":"Not interested, please stop sending these."}
+{"label":"unsubscribe","subject":"Re: idea","body":"Sounds interesting but please take us off this list, we get too many of these."}
+{"label":"bounce","subject":"Delivery Status Notification (Failure)","body":"Address not found. Your message wasn't delivered to jo@acme.example because the address couldn't be found."}
+{"label":"bounce","subject":"Undeliverable: route planning","body":"Delivery has failed to these recipients or groups. The email address you entered couldn't be found."}
+{"label":"bounce","subject":"Mail delivery failed","body":"550 5.1.1 Recipient address rejected: User unknown in virtual mailbox table"}
+{"label":"bounce","subject":"Returned mail","from":"mailer-daemon@mx.example","body":"This is the mail system at host mx.example. I'm sorry to have to inform you that your message could not be delivered."}
+{"label":"out_of_office","subject":"Automatic reply: route planning","body":"I am out of the office until Monday, November 3 and will respond when I return."}
+{"label":"out_of_office","subject":"OOO","body":"I'm currently on vacation with no access to email. I will be back on 11/10."}
+{"label":"out_of_office","subject":"Re: quick question","body":"Thanks for your email. I am on parental leave until January 2027. For anything urgent, contact maria@acme.example."}
+{"label":"out_of_office","subject":"Auto-reply","body":"I'm travelling this week with limited access to email. I will reply when I'm back."}
+{"label":"out_of_office","subject":"Automatic reply","body":"I am away from the office returning on the 28th."}
+{"label":"out_of_office","subject":"Abwesenheitsnotiz / Out of office","body":"I am out of office until 4 November. Messages are not forwarded."}
+{"label":"left_company","subject":"Re: route planning","body":"Jo is no longer with the company. Please contact sam.lee@acme.example for anything related to operations."}
+{"label":"left_company","subject":"Re: idea","body":"I'm not the right person for this. The right person would be our ops lead, Raj."}
+{"label":"left_company","subject":"Re: hello","body":"This mailbox is no longer monitored."}
+{"label":"left_company","subject":"Re: intro","body":"Wrong person, sorry. Try procurement@acme.example."}
+{"label":"left_company","subject":"Re: quick idea","body":"Hi, Pat has left Acme. You should reach out to Chris Doyle who handles purchasing now."}
+{"label":"not_now","subject":"Re: route planning","body":"Not right now, we are mid-migration. Try me again in Q1."}
+{"label":"not_now","subject":"Re: idea","body":"Interesting, but the timing isn't right. Can you circle back in March?"}
+{"label":"not_now","subject":"Re: quick question","body":"Our budget is frozen until next fiscal year. Reach out again in July."}
+{"label":"not_now","subject":"Re: Brightline","body":"We're swamped this quarter. Maybe next quarter."}
+{"label":"not_now","subject":"Re: hi","body":"Not a priority at the moment. Follow up in a couple of months?"}
+{"label":"not_now","subject":"Re: intro","body":"Let's revisit after the holidays."}
+{"label":"not_now","subject":"Re: idea","body":"Not interested right now but maybe later this year."}
+{"label":"not_now","subject":"Re: routing","body":"Check back with me in 6 weeks, we're finishing a big project."}
+{"label":"not_interested","subject":"Re: route planning","body":"No thanks."}
+{"label":"not_interested","subject":"Re: idea","body":"We're all set, thank you."}
+{"label":"not_interested","subject":"Re: quick question","body":"Not interested."}
+{"label":"not_interested","subject":"Re: hi","body":"I'll pass, thanks for thinking of us."}
+{"label":"not_interested","subject":"Re: intro","body":"This isn't a fit for us. We only run two vans."}
+{"label":"not_interested","subject":"Re: idea","body":"No need, we do routes by hand and it works fine."}
+{"label":"not_interested","subject":"Re: Brightline","body":"Appreciate it but not something we're looking for."}
+{"label":"objection","subtype":"competitor","subject":"Re: quick question","body":"We already use RouteWorks and we're happy with it."}
+{"label":"objection","subtype":"competitor","subject":"Re: idea","body":"We built our own routing tool in-house, so I doubt we'd switch."}
+{"label":"objection","subtype":"competitor","subject":"Re: routing","body":"We're locked into a contract with OptiFleet until 2028."}
+{"label":"objection","subtype":"price","subject":"Re: intro","body":"Looks nice but these tools are always too expensive for a business our size."}
+{"label":"objection","subtype":"price","subject":"Re: hi","body":"We have no budget for new software this year, honestly."}
+{"label":"objection","subtype":"price","subject":"Re: routing","body":"What you charge is probably out of our range, we need something cheaper."}
+{"label":"objection","subtype":"authority","subject":"Re: idea","body":"Not my call, I'd have to run it by my boss."}
+{"label":"objection","subtype":"authority","subject":"Re: quick question","body":"I need to check with our CFO before anything like this."}
+{"label":"objection","subtype":"need","subject":"Re: route planning","body":"How is this different from Google Maps with multiple stops?"}
+{"label":"objection","subtype":"need","subject":"Re: intro","body":"Honestly this sounds like every other routing tool. I'm skeptical."}
+{"label":"question","subject":"Re: route planning","body":"Does it work with QuickBooks Online?"}
+{"label":"question","subject":"Re: idea","body":"What does pricing look like for 12 drivers?"}
+{"label":"question","subject":"Re: intro","body":"Can it handle time windows for deliveries? Some of our customers only accept before noon."}
+{"label":"question","subject":"Re: hi","body":"Where is the data stored?"}
+{"label":"question","subject":"Re: quick question","body":"Is there a mobile app for the drivers?"}
+{"label":"interested","subject":"Re: route planning for Brightline","body":"This sounds interesting. Could you send over a few times next week for a quick call?"}
+{"label":"interested","subject":"Re: idea","body":"Sure, happy to chat. I'm free Thursday afternoon."}
+{"label":"interested","subject":"Re: intro","body":"Yes, let's set up a demo. Looping in my colleague Ana who runs dispatch."}
+{"label":"interested","subject":"Re: quick question","body":"Send me a calendar link and I'll grab a slot."}
+{"label":"interested","subject":"Re: hi","body":"Tell me more. We waste a lot of time on routes."}
+{"label":"interested","subject":"Re: routing","body":"We use RouteWorks today but it's clunky. Happy to take a look, send me some times."}
+{"label":"interested","subject":"Re: Brightline","body":"Good timing actually, we were just talking about this. Can we talk tomorrow?"}
+{"label":"interested","subject":"Re: idea","body":"I'm interested. How does Tuesday at 10 look?"}
+{"label":"interested","subject":"Re: quick idea","body":"Could you send more info and pricing? We might be a fit."}
+{"label":"unclear","subject":"Re: route planning","body":"Thanks."}
+{"label":"unclear","subject":"Re: idea","body":"Who are you and how did you get my email"}
+{"label":"unclear","subject":"Re: intro","body":"Received."}
+{"label":"unclear","subject":"Re: hi","body":"ok"}
+{"label":"not_now","subject":"Re: routing","body":"Can you ping me in January? We set budgets then."}
+{"label":"out_of_office","subject":"Automatic reply: Re: idea","body":"Thank you for your message. I am currently out of the office with no access to email and will return on December 1."}
+{"label":"interested","subject":"Re: Peak Dental","body":"Our office manager Kim handles scheduling software, I've cc'd her. Kim, can you find time with Sam?"}
+{"label":"unsubscribe","subject":"Re: hello","body":"How did you get my address? Remove it from your database now."}
