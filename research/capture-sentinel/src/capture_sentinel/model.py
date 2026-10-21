@@ -20,6 +20,21 @@ class Detector:
     miss_back: float = 0.40      # ... and when the subject faces directly away
 
 
+@dataclass(frozen=True)
+class ZoneDetector:
+    """Miss probability in three zones of the angle between the subject's facing and the camera.
+
+    Measured detector recall (capture-detectors section F) has two bins, near-frontal and turned, so the curve is a
+    step: `miss_front` up to `front_deg`, `miss_turned` up to `away_deg`, `miss_away` beyond. How a landmark turn
+    proxy maps to a body angle is not measured, so front_deg and miss_away are swept, not fitted.
+    """
+    miss_front: float
+    miss_turned: float
+    miss_away: float
+    front_deg: float = 45.0
+    away_deg: float = 120.0
+
+
 def ring_angles(n):
     """Camera azimuths (degrees) around the subject, camera 0 at the favourite facing direction."""
     return [360.0 * i / n for i in range(n)]
@@ -27,6 +42,9 @@ def ring_angles(n):
 
 def miss_at(det, delta_rad):
     """Miss probability for a camera whose bearing is delta_rad away from the subject's facing direction."""
+    if isinstance(det, ZoneDetector):
+        d = abs(math.degrees(math.atan2(math.sin(delta_rad), math.cos(delta_rad))))
+        return det.miss_front if d <= det.front_deg else det.miss_turned if d <= det.away_deg else det.miss_away
     return det.miss_front + (det.miss_back - det.miss_front) * (1.0 - math.cos(delta_rad)) / 2.0
 
 
@@ -45,7 +63,10 @@ def bessel_ratio(kappa):
 
 
 def expected_miss(det, cam_deg, kappa):
-    """Mean miss probability of one camera, averaged over the subject's facing (closed form)."""
+    """Mean miss probability of one camera, averaged over the subject's facing (closed form; numerical for zones)."""
+    if isinstance(det, ZoneDetector):
+        xs, ws = facing_grid(kappa)
+        return sum(w * miss_at(det, x - math.radians(cam_deg)) for x, w in zip(xs, ws))
     a = bessel_ratio(kappa)
     return det.miss_front + (det.miss_back - det.miss_front) * (1.0 - a * math.cos(math.radians(cam_deg))) / 2.0
 
