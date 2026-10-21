@@ -109,3 +109,7 @@ test("the build cost the page quotes is the bills of materials' total", () => {
 test("index links one hop to the open-tennis-robots sibling", () => {
   assert.match(page("index.html"), /href="\.\.\/open-tennis-robots\/"/);
 });
+
+test("index links one hop to the open-floor-robots sibling", () => {
+  assert.match(page("index.html"), /href="\.\.\/open-floor-robots\/"/);
+});

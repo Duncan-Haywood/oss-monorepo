@@ -83,3 +83,7 @@ test("the manufacturing package the page offers is committed next to it", () => 
 test("index links one hop to the open-robot-mower sibling", () => {
   assert.match(page("index.html"), /href="\.\.\/open-robot-mower\/"/);
 });
+
+test("index links one hop to the open-floor-robots sibling", () => {
+  assert.match(page("index.html"), /href="\.\.\/open-floor-robots\/"/);
+});
