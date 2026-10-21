@@ -277,6 +277,23 @@ health insurance or self-employment tax, and the meals rule has exceptions. The 
 map is from the form's layout as the author knows it, not checked against this year's
 instructions; confirm each line with your preparer. Test: `taxforms.test.mjs`.
 
+## Mileage and home office (US)
+
+Two deductions a bank feed never shows. `trip add MILES --date D --purpose TEXT [--from A --to B]`
+keeps a mileage log (a purpose is required; the IRS asks for one), `trip list --year Y` totals it, and
+`homeoffice SQFT [--from D --to D]` records a home office under the simplified method ($5 a square foot,
+300 square feet at most, prorated by months used, never more than the business profit). Neither is a
+journal entry. `schedulec --year Y` adds the miles to line 9 at the year's standard rate and the home
+office to line 30, and net profit is line 29 less line 30. Without `--year` the worksheet is as before.
+
+Verification: `node --test deductions.test.mjs` (rate times miles in integer cents; the 300 sq ft cap;
+part-year proration; the profit limit; line 9, line 30 and net profit on a small ledger) and a CLI
+run on a three-line statement. **Not checked:** the 2024 and 2025 rates (67.0 and 70.0 cents) are from
+memory of the IRS notices and the 2026 rate (72.5) is flagged on the worksheet as unchecked; irs.gov
+was not read. No real mileage log was tried, and the page does not have a card for this yet. Whether
+a space qualifies for the home office deduction, and whether to use actual expenses instead, is for you
+or your preparer.
+
 ## 1099-NEC contractor worksheet (US)
 
 `contractors1099(books, { year, threshold })` in `taxforms.mjs` (and `cli.mjs

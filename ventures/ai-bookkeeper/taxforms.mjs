@@ -7,6 +7,7 @@
 // the asset register (assets.mjs) and goes to line 13 as straight-line book depreciation;
 // tax depreciation (MACRS, section 179) is for you or your preparer.
 
+import { mileageDeduction, homeOfficeDeduction } from "./deductions.mjs";
 import { journal } from "./engine.mjs";
 import { payeeKey } from "./categorize.mjs";
 import { accountMap, profitAndLoss } from "./ledger.mjs";
@@ -19,7 +20,7 @@ export const LINES = {
   "15": "Insurance (other than health)", "16b": "Interest (other)", "17": "Legal and professional services",
   "18": "Office expense", "20b": "Rent (other business property)", "21": "Repairs and maintenance",
   "22": "Supplies", "23": "Taxes and licenses", "24a": "Travel", "24b": "Deductible meals",
-  "25": "Utilities", "26": "Wages", "27a": "Other expenses",
+  "25": "Utilities", "26": "Wages", "27a": "Other expenses", "30": "Expenses for business use of your home",
 };
 
 // Chart code -> Schedule C line. Codes the chart does not name, and any expense
@@ -43,7 +44,9 @@ const EXPENSE_ORDER = ["8", "9", "10", "11", "13", "15", "16b", "17", "18", "20b
 // Meals are booked in full to 6130 and only `mealsPct` percent is carried to line
 // 24b (50 by default; the rule has exceptions, so check yours). Dates run on the
 // books' own basis, cash unless invoices were added.
-export function scheduleC(books, { from = null, to = null, mealsPct = 50, map = {} } = {}) {
+// With `year`, the mileage log goes to line 9 and the simplified home office to line 30
+// (deductions.mjs); net profit is line 29 less line 30. Both are left out without it.
+export function scheduleC(books, { from = null, to = null, mealsPct = 50, map = {}, year = null, mileageRate } = {}) {
   const accts = accountMap(books.accounts);
   const entries = journal(books);
   const pl = profitAndLoss(entries, books.accounts, { from, to });
@@ -63,6 +66,12 @@ export function scheduleC(books, { from = null, to = null, mealsPct = 50, map = 
     if (line === "24b") { mealsBooked += cents; cents = Math.round((cents * mealsPct) / 100); }
     put(line, l.code, cents);
   }
+  let mileage = null, home = null;
+  if (year) {
+    mileage = mileageDeduction(books, year, { rate: mileageRate });
+    warnings.push(...mileage.warnings);
+    if (mileage.cents) put("9", "miles", mileage.cents), byLine.get("9").at(-1).name = `Business miles (${mileage.miles} at ${mileage.rate / 10} cents)`;
+  }
   const sum = (line) => (byLine.get(line) ?? []).reduce((a, r) => a + r.cents, 0);
   const row = (line) => ({ line, label: LINES[line] ?? line, cents: sum(line), accounts: byLine.get(line) ?? [] });
   const order = ["1", "4", "6", ...EXPENSE_ORDER];
@@ -71,12 +80,19 @@ export function scheduleC(books, { from = null, to = null, mealsPct = 50, map = 
   const grossIncome = grossReceipts - sum("4") + sum("6");
   const totalExpenses = EXPENSE_ORDER.reduce((a, k) => a + sum(k), 0);
   const tentativeProfit = grossIncome - totalExpenses;
+  let homeCents = 0;
+  if (year) {
+    home = homeOfficeDeduction(books, year, { profit: tentativeProfit });
+    warnings.push(...home.warnings);
+    homeCents = home.cents;
+    if (homeCents) lines.push({ line: "30", label: LINES["30"], cents: homeCents, accounts: [{ code: "home", name: `Simplified method, ${home.sqft} sq ft, ${home.months} months`, cents: homeCents }] });
+  }
   const pending = (books.transactions ?? []).filter((t) => t.status === "review").length;
   if (pending) warnings.push(`${pending} bank line${pending === 1 ? " is" : "s are"} still waiting for an account and ${pending === 1 ? "is" : "are"} not in these totals.`);
   if (unmapped.length) warnings.push(`${unmapped.map((u) => `${u.name} (${u.code})`).join(", ")} ${unmapped.length === 1 ? "has" : "have"} no Schedule C line of its own and went to ${unmapped.some((u) => accts.get(u.code)?.type === "income") ? "line 6 or " : ""}27a. Pass a map to move ${unmapped.length === 1 ? "it" : "them"}.`);
   if (!lines.length) warnings.push("No income or expense in this period.");
   return {
-    period: { from, to }, lines, grossReceipts, grossIncome, totalExpenses, tentativeProfit, netProfit: tentativeProfit,
+    period: { from, to }, lines, grossReceipts, grossIncome, totalExpenses, tentativeProfit, homeOffice: homeCents, netProfit: tentativeProfit - homeCents, mileage, home,
     meals: { booked: mealsBooked, deductible: sum("24b"), pct: mealsPct },
     otherExpenses: byLine.get("27a") ?? [], unmapped, warnings,
   };
