@@ -59,6 +59,8 @@ Start these with `run_in_background` and wait with `Monitor`:
 
 - `node platform/marketing/regen.mjs --verify` and the pages test suites
   (over 10 min in a shallow clone)
+- `node --test` over a whole venture (changepoint-detector alone: 280-400 s)
+    and `node platform/pages/venture-preflight.mjs <slug>` (over 5 min)
 - `python3 platform/ci/run_workflow_locally.py --for-changes` (over 5 min)
 - `python3 portfolio/router/allocate.py` (35-120 s; its shallow-clone fetch
   can time out and leave counts partial)
