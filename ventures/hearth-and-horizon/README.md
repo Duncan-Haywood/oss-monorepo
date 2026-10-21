@@ -70,6 +70,9 @@ python3 render_audio.py <slug> --voice en_US-ljspeech-high.onnx   # then node ge
 python3 make_covers.py                  # redraw the podcast covers
 ```
 
+Writing the next story? Read [`BIBLE.md`](BIBLE.md) first: tone, worldview and
+science-honesty rules, the setting timeline and a "next up" list.
+
 To add a story, write `stories/<slug>.md` with `title`, `shelf`
 (`hearth-and-horizon`, `for-other-minds` or `little-lamps`), `setting`,
 `published` and `summary`, then render audio and regenerate.

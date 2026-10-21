@@ -316,8 +316,7 @@ export function poissonTrend(x, { base = null, penalty = 'bic', minSegment = 2, 
     for (let kt = lo; kt <= hi; kt += step) tryKnot(kt, quick);
     if (quick) {
       if (!scanned.length) break;
-      const centre = scanned.reduce((a, f) => (f.cost < a.cost ? f : a)).knot;
-      for (let kt = Math.max(lo, centre - step + 1); kt < Math.min(hi, centre + step); kt++) if (kt !== centre) tryKnot(kt, true);
+      // Finalists are the best grid knots, spread over the series; adding the winner's fine neighbours crowded them out and placed knots worse (README "Speed").
       scanned.sort((a, b) => a.cost - b.cost);
       for (const f of scanned.slice(0, NB_FINALISTS)) tryKnot(f.knot);
       if (!best) break;

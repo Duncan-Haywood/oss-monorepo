@@ -118,7 +118,7 @@ import {
   kindPageGroups,
   SEARCH_INDEX_FILE,
 } from './build.mjs';
-import { LATE_NAV_DIRS, SITE_NAV, HEADER_MARKER } from './site-nav.mjs';
+import { LATE_NAV_DIRS, SITE_NAV, HEADER_MARKER, VENTURE_CHROME_CSS } from './site-nav.mjs';
 import { AGENT_POSTS_DIR, loadPosts } from './writing.mjs';
 import { renderSocialCard, SOCIAL_CARD_WIDTH, SOCIAL_CARD_HEIGHT, offlineBundleSizeLabel } from './offline.mjs';
 import { renderCard } from './sharecard.mjs';
@@ -3569,11 +3569,16 @@ test('chrome takes its theme from the host page, not the operating system', asyn
 
   assert.ok(!/prefers-color-scheme/.test(style),
     'the chrome must not branch on the OS theme — the host page decides');
-  // The site's logo square is the one exception: a 20px mark, not text and not
-  // a band, drawn in the site's own gradient on every host.
-  const painted = style.replace(/\.pf-chrome-top \.pfs-mark\{[^}]*\}/, '');
-  assert.ok(!/#[0-9a-f]{3,8}\b/i.test(painted),
-    `the chrome must not hard-code a colour: ${painted.match(/#[0-9a-f]{3,8}\b/i)?.[0]}`);
+  // Two blocks name colours. The site header and footer's own palette
+  // (`VENTURE_CHROME_CSS`), light by default and dark only where pf-site.js
+  // measured the host page's background as dark; and the logo square's
+  // fallback gradient, a 20px mark rather than text or a band. Everything else
+  // the chrome draws still takes its colours from the page.
+  assert.ok(style.includes(VENTURE_CHROME_CSS), 'the venture header carries the site palette');
+  assert.match(VENTURE_CHROME_CSS, /\[data-pfs-theme="dark"\]/, 'dark only on a measured dark host');
+  const rest = style.replace(VENTURE_CHROME_CSS, '').replace(/\.pf-chrome-top \.pfs-mark\{[^}]*\}/, '');
+  assert.ok(!/#[0-9a-f]{3,8}\b/i.test(rest),
+    `the chrome must not hard-code a colour: ${rest.match(/#[0-9a-f]{3,8}\b/i)?.[0]}`);
   assert.match(style, /color:inherit/, 'text colour comes from the page');
   assert.match(style, /--pf-line:rgba\(128,128,128/, 'lines are neutral on either background');
 });
