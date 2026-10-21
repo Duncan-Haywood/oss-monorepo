@@ -543,11 +543,31 @@ test("a gable wall: studs rise with the roof, plates run along the slope, the la
   assert.ok(r.cuts.some((c) => c.kind === "stud" && c.length > plan.studLength + 50));
 });
 
-test("gable walls reject openings and a flat pitch", () => {
-  const op = { kind: "window", offset: 60, width: 36, height: 36 };
-  const plan = { ...base(), walls: [{ id: "G", length: 240, gable: { pitch: 0 }, openings: [op] }] };
-  const errs = validatePlan(plan);
-  assert.ok(errs.some((e) => e.includes("pitch")) && errs.some((e) => e.includes("gable wall")));
+test("gable walls reject a flat pitch", () => {
+  const plan = { ...base(), walls: [{ id: "G", length: 240, gable: { pitch: 0 } }] };
+  assert.ok(validatePlan(plan).some((e) => e.includes("pitch")));
+});
+
+test("gable walls frame openings: kings and cripples run to the slope, the layout verifies", () => {
+  const ops = [
+    { kind: "window", offset: 40, width: 36, height: 36, header: "2x10", headerHeight: 80, label: "W1" },
+    { kind: "door", offset: 120, width: 36, height: 80, header: "2x10", headerHeight: 81.5, label: "D1" },
+  ];
+  const plan = { ...base(), walls: [{ id: "G", length: 240, gable: { pitch: 6 }, openings: ops }] };
+  assert.deepEqual(validatePlan(plan), []);
+  const w = layoutWall(plan, plan.walls[0]);
+  assert.deepEqual(verifyWall(w, plan.walls[0]), []);
+  const kings = w.members.filter((m) => m.kind === "king");
+  assert.equal(kings.length, 4);
+  assert.ok(kings.every((k) => k.length >= plan.studLength));
+  const rising = kings.find((k) => k.label === "king, D1" && k.x > 120);
+  assert.ok(Math.abs(rising.length - (plan.studLength + 0.5 * Math.min(rising.x + 1.5, 240 - rising.x))) < 1e-6);
+  // the door cuts the bottom plate; the window stays under it
+  const bottom = w.members.filter((m) => m.label === "bottom plate");
+  assert.ok(!bottom.some((m) => m.x < 156 - 1e-6 && m.x + m.w > 120 + 1e-6));
+  assert.ok(w.members.some((m) => m.label === "top cripple, W1" && m.length > 0));
+  const r = takeoff(plan);
+  assert.ok(r.ok, JSON.stringify(r.errors));
 });
 
 // ---- rim lap ----

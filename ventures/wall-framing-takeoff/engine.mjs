@@ -213,7 +213,6 @@ export function validatePlan(plan) {
     if (wall.gable) {
       const g = wall.gable;
       if (!(g.pitch > 0 && g.pitch <= 24)) errors.push(`${name}: a gable pitch is the rise per 12 inches of run, more than 0 and at most 24.`);
-      if ((wall.openings || []).length) errors.push(`${name}: openings in a gable wall are not framed yet; frame them by hand or move them to a level wall.`);
     }
     const ops = [...(wall.openings || [])].sort((a, b) => a.offset - b.offset);
     let prevEnd = -Infinity;
@@ -461,7 +460,9 @@ export function layoutWall(plan, wall) {
  * studs cut to a sloped top plate that rises from both wall ends (the eaves,
  * where the studs are plan.studLength) at wall.gable.pitch inches per 12 of
  * run. Stud lengths are the long point of the angled cut; plate lengths are
- * along the slope, with joints over studs. No openings, no blocking.
+ * along the slope, with joints over studs. Openings are framed as in a level
+ * wall (header under the eave-line top plate; kings and cripples run up to the
+ * slope). No blocking.
  * @param {Plan} plan
  * @param {Wall} wall
  */
@@ -490,13 +491,61 @@ function layoutGable(plan, wall) {
     const len = plan.studLength + Math.max(rise(x), rise(x + THICK));
     add(kind, x, THICK, THICK, len, stud, "v", label);
   };
-  layout.forEach((x) => studAt(x, "stud", x === 0 || x === L - THICK ? "end stud" : "stud"));
   const overlaps = (x, a, b) => x < b - EPS && x + THICK > a + EPS;
+  const inside = (x, a, b) => x >= a - EPS && x + THICK <= b + EPS;
+  const ops = [...(wall.openings || [])].sort((a, b) => a.offset - b.offset);
+  const zones = ops.map((op) => ({ op, ...framingZone(op), g: openingGeometry(plan, wall, op) }));
+  const fullStudX = [];
+  for (const x of layout) {
+    if (zones.some((zz) => overlaps(x, zz.start, zz.end))) continue;
+    fullStudX.push(x);
+    studAt(x, "stud", x === 0 || x === L - THICK ? "end stud" : "stud");
+  }
+  const spacers = [];
+  const shimGaps = [];
+  for (const z of zones) {
+    const { op, g } = z;
+    const name = op.label || op.kind;
+    const hStart = op.offset - THICK * z.jacks;
+    const hEnd = op.offset + op.width + THICK * z.jacks;
+    for (let i = 0; i < z.kings; i++) {
+      const xl = z.start + i * THICK;
+      const xr = z.end - (i + 1) * THICK;
+      fullStudX.push(xl, xr);
+      studAt(xl, "king", `king, ${name}`);
+      studAt(xr, "king", `king, ${name}`);
+    }
+    for (let i = 0; i < z.jacks; i++) {
+      add("jack", hStart + i * THICK, THICK, THICK, g.jack, stud, "v", `jack, ${name}`);
+      add("jack", hEnd - (i + 1) * THICK, THICK, THICK, g.jack, stud, "v", `jack, ${name}`);
+    }
+    const plies = op.headerPlies ?? (stud === "2x6" ? 3 : 2);
+    for (let i = 0; i < plies; i++) add("header", hStart, g.headerHeight, hEnd - hStart, g.depth, op.header, "h", `header ply, ${name}`);
+    if (plies * THICK < DEPTH[stud] - EPS && DEPTH[op.header] > DEPTH["2x4"]) spacers.push(`${name} (${formatInches(DEPTH[stud] - plies * THICK)})`);
+    if (g.topCripple > 0.5) {
+      // Each cripple runs to the long point of the sloped plate above it.
+      for (const x of layout) {
+        if (inside(x, hStart, hEnd)) add("cripple", x, g.headerHeight + g.depth, THICK, g.topCripple + Math.max(rise(x), rise(x + THICK)), stud, "v", `top cripple, ${name}`);
+      }
+    } else if (g.topCripple > EPS) {
+      shimGaps.push(`${name} (${formatInches(g.topCripple)})`);
+    }
+    if (op.kind === "window") {
+      for (let i = 0; i < g.sillPlies; i++) add("sill", op.offset, g.roBottom - (i + 1) * THICK, op.width, THICK, stud, "h", `rough sill, ${name}`);
+      if (g.bottomCripple > 0.5) {
+        const xs = [op.offset, op.offset + op.width - THICK];
+        for (const x of layout) {
+          if (inside(x, op.offset, op.offset + op.width) && !xs.some((e) => overlaps(x, e, e + THICK))) xs.push(x);
+        }
+        for (const x of xs.sort((a, b) => a - b)) add("cripple", x, THICK, THICK, g.bottomCripple, stud, "v", `bottom cripple, ${name}`);
+      }
+    }
+  }
   const backing = (target, kind, label) => {
-    const clear = (x) => x >= -EPS && x + THICK <= L + EPS && !members.some((m) => m.orient === "v" && overlaps(x, m.x, m.x + m.w));
+    const clear = (x) => x >= -EPS && x + THICK <= L + EPS && !members.some((m) => m.orient === "v" && overlaps(x, m.x, m.x + m.w)) && !zones.some((z) => overlaps(x, z.start, z.end));
     for (let d = 0; d <= 48 * 16; d++) {
       for (const x of d ? [target + d / 16, target - d / 16] : [target]) {
-        if (clear(x)) return studAt(x, kind, label);
+        if (clear(x)) { fullStudX.push(x); return studAt(x, kind, label); }
       }
     }
     notes.push(`No room for ${label} near ${formatLength(target)}; add it by hand.`);
@@ -505,15 +554,27 @@ function layoutGable(plan, wall) {
   for (const t of wall.tees || []) {
     for (let i = 0; i < plan.teeExtraStuds; i++) backing(t - (plan.teeExtraStuds * THICK) / 2 + i * THICK, "tee", `tee backing at ${formatLength(t)}`);
   }
-  const centres = [...new Set(members.filter((m) => m.orient === "v").map((m) => Math.round((m.x + THICK / 2) * 16) / 16))].sort((a, b) => a - b);
+  const centres = [...new Set(fullStudX.map((x) => Math.round((x + THICK / 2) * 16) / 16))].sort((a, b) => a - b);
   const pSize = plateSize(wall);
   const stockFor = (size) => (plan.stock || []).filter((st) => st.size === size && st.length > 0 && !st.label);
-  const bottomJoints = splitPlate(0, L, centres, stockFor(pSize), []);
-  if (!bottomJoints) notes.push("Bottom plate: no way to splice it over studs with the boards listed; shown as one piece.");
-  let p = 0;
-  for (const j of [...(bottomJoints || []), L]) {
-    add("plate", p, 0, j - p, THICK, pSize, "h", "bottom plate");
-    p = j;
+  // The bottom plate is cut out across each door.
+  const bottomSegs = [];
+  let segAt = 0;
+  for (const o of ops.filter((o) => o.kind === "door")) {
+    if (o.offset > segAt + EPS) bottomSegs.push([segAt, o.offset]);
+    segAt = o.offset + o.width;
+  }
+  if (L > segAt + EPS) bottomSegs.push([segAt, L]);
+  const bottomJoints = [];
+  for (const [a, b] of bottomSegs) {
+    const cut = splitPlate(a, b, centres, stockFor(pSize), []);
+    if (!cut) notes.push(`Bottom plate ${formatLength(a)} to ${formatLength(b)}: no way to splice it over studs with the boards listed; shown as one piece.`);
+    bottomJoints.push(...(cut || []));
+    let p = a;
+    for (const j of [...(cut || []), b]) {
+      add("plate", p, 0, j - p, THICK, pSize, "h", "bottom plate");
+      p = j;
+    }
   }
   // Sloped plates: a board of length B covers B / sec of run, so split with the stock shortened to match.
   const flat = stockFor(stud).map((st) => ({ ...st, length: st.length / sec }));
@@ -545,7 +606,9 @@ function layoutGable(plan, wall) {
       }
     }
   }
-  return { id: wall.id, length: L, height: base + maxRise + 2 * vt, stud, members, notes, layout, lapped: false, gable: { pitch: wall.gable.pitch, peakRise: maxRise }, joints: { bottom: bottomJoints || [], top: topJoints, cap: capJoints } };
+  if (shimGaps.length) notes.push(`a gap too small for cripples between header and top plate over ${shimGaps.join(", ")}: shim or fill it.`);
+  if (spacers.length) notes.push(`header spacers not in the takeoff: ${spacers.join(", ")}.`);
+  return { id: wall.id, length: L, height: base + maxRise + 2 * vt, stud, members, notes, layout, lapped: false, gable: { pitch: wall.gable.pitch, peakRise: maxRise }, joints: { bottom: bottomJoints, top: topJoints, cap: capJoints } };
 }
 
 function wall_studMin(w) {
