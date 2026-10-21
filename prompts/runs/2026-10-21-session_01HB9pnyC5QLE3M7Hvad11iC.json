@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-21",
+  "session": "https://claude.ai/code/session_01HB9pnyC5QLE3M7Hvad11iC",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-21T04:15:27Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "changepoint-detector flagship: NB bend finalists",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/9062",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/goals.md",
+      "why": "No agent doc or post written: change is a small measured tweak recorded in the venture README; no new reader-facing finding."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Season-aware Poisson ranking was already in place; real cause of weekly gap was fine neighbours crowding NB finalists. Finalists now 8 best grid knots: weekly knot-near 14->16/40, no season 13->14, false bends 0/40; within noise, kept for simplicity. engine.test.mjs 74/74 pass. Venture preflight and full CI-equivalent not run locally.",
+  "corrections": [],
+  "redteam": null
+}

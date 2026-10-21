@@ -8,6 +8,14 @@
   <updated>2026-10-21T00:00:00Z</updated>
   <rights>Tools are MIT-licensed. They are estimates and records to act on, not professional advice.</rights>
   <entry>
+    <title>AI Bookkeeper: free double-entry books from your bank CSV, that learn</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/ai-bookkeeper/"/>
+    <id>tag:marisstella.dev,2026:tool/ai-bookkeeper</id>
+    <updated>2026-10-21T00:00:00Z</updated>
+    <category term="Compliance checks &amp; evidence records"/>
+    <summary type="text">Free AI bookkeeping in your browser. Import bank and card CSVs, get an account suggested for every line with a reason, file the review queue once and it learns your payees. Transfers paired, trial balance, P&amp;L, balance sheet, close checks, QuickBooks and Xero journals. Nothing uploaded.</summary>
+  </entry>
+  <entry>
     <title>Open Floor Robots — build your own robot vacuum, robot mop or vacuum-mop combo (open source)</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/open-floor-robots/"/>
     <id>tag:marisstella.dev,2026:tool/open-floor-robots</id>

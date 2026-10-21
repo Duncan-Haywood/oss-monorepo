@@ -228,6 +228,128 @@ export const SITE_HEADER_CSS = `
 @media print{[data-pfs-head]{display:none !important}}
 `;
 
+/**
+ * The venture pages' header and footer, in the site's own palette.
+ *
+ * The chrome on the ~1,300 venture pages used to take its colours from the
+ * venture (`SITE_HEADER_CSS` carries none), so the one bar that says "this is
+ * Open Tools and Research" was a different bar on every tool: a grey strip in
+ * the venture's own width and font, and the brand mark a black square because
+ * `--pfs-mark` was never set. A visitor arriving from search at a calculator
+ * could not tell it belonged to the site they then clicked through to.
+ *
+ * Here the venture header and footer carry the site palette (the same tokens
+ * as `pf-site.css`, light and dark), on selectors strong enough to beat a
+ * venture's own `nav`, `aside`, `a` and `h2` rules, and repeat the layout
+ * resets a venture rule like `nav{position:sticky;display:grid}` would undo.
+ * Only these two elements: everything between them stays the venture's.
+ *
+ * Which palette is the host page's call, as it always was, not the OS's: a
+ * `prefers-color-scheme` switch here once bolted a near-black slab onto
+ * light-only cream pages for every visitor with a dark OS. The light palette
+ * is the default, and `VENTURE_CHROME_JS` sets `data-pfs-theme="dark"` only
+ * when it measures the venture's own background as dark (a venture with a
+ * dark mode, or a dark-only one), so the bar always matches what it sits on.
+ *
+ * Contrast, light: muted #4a5666 on #ffffff is 7.6:1, accent #12594a on
+ * #f6f8fb is 7.4:1. Dark: muted #a2b0c0 on #171e27 is 7.9:1, accent #7fd8c0
+ * on #121821 is 10.6:1.
+ *
+ * Full width is `VENTURE_CHROME_JS`'s job, because only a measurement can say
+ * where a venture's centred, padded or gridded body put the bar.
+ */
+export const VENTURE_CHROME_CSS = `
+nav.pf-chrome.pf-chrome-top[data-pfs-head],aside.pf-chrome.pf-chrome-foot{
+  --pfs-ink:#1d2530;--pfs-muted:#4a5666;--pfs-line:#d3dce6;--pfs-accent:#12594a;--pfs-panel:#ffffff;
+  --pfs-head-bg:#ffffff;--pfs-foot-bg:#f6f8fb;--pfs-mark:linear-gradient(135deg,#12594a,#3b5bdb);
+  font-family:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased;
+  text-shadow:none;letter-spacing:normal;text-transform:none;text-align:left}
+nav.pf-chrome.pf-chrome-top[data-pfs-head][data-pfs-theme="dark"],aside.pf-chrome.pf-chrome-foot[data-pfs-theme="dark"]{
+  --pfs-ink:#e8eef5;--pfs-muted:#a2b0c0;--pfs-line:#2a343f;--pfs-accent:#7fd8c0;--pfs-panel:#171e27;
+  --pfs-head-bg:#171e27;--pfs-foot-bg:#121821;--pfs-mark:linear-gradient(135deg,#7fd8c0,#8ea2ff)}
+nav.pf-chrome.pf-chrome-top[data-pfs-head]{display:block;position:relative;z-index:30;float:none;inset:auto;
+  box-sizing:border-box;height:auto;min-height:0;max-width:none;margin:0;padding:0;
+  color:var(--pfs-ink);background:var(--pfs-head-bg);border:0;border-bottom:1px solid var(--pfs-line);
+  box-shadow:0 1px 0 rgba(15,23,42,.03);border-radius:0;font-size:15px;line-height:1.4;font-weight:400}
+nav.pf-chrome.pf-chrome-top[data-pfs-head] a{color:inherit;font:inherit;font-weight:inherit;text-decoration:none;background:none;box-shadow:none;border:0}
+nav.pf-chrome.pf-chrome-top[data-pfs-head] .pfs-brand{font-weight:750;color:var(--pfs-ink)}
+nav.pf-chrome.pf-chrome-top[data-pfs-head] .pfs-nav a{color:var(--pfs-muted);font-weight:600;border-bottom:2px solid transparent}
+nav.pf-chrome.pf-chrome-top[data-pfs-head] .pfs-nav a[aria-current="page"]{color:var(--pfs-ink);border-bottom-color:var(--pfs-accent)}
+nav.pf-chrome.pf-chrome-top[data-pfs-head] .pfs-crumbs{color:var(--pfs-muted)}
+nav.pf-chrome.pf-chrome-top[data-pfs-head] .pfs-crumbs a{text-decoration:underline;text-underline-offset:2px}
+nav.pf-chrome.pf-chrome-top[data-pfs-head] .pfs-searchlink.pfs-always{padding:5px 12px;border:1px solid var(--pfs-line);
+  border-radius:999px;font-weight:600;color:var(--pfs-ink)}
+nav.pf-chrome.pf-chrome-top[data-pfs-head] .pfs-mark{background:var(--pfs-mark);box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)}
+aside.pf-chrome.pf-chrome-foot{display:block;position:static;float:none;max-width:none;box-sizing:border-box;
+  color:var(--pfs-ink);background:var(--pfs-foot-bg);border:0;border-top:1px solid var(--pfs-line);border-radius:0;
+  box-shadow:none;margin-left:0;margin-right:0;font-size:15px;line-height:1.55}
+aside.pf-chrome.pf-chrome-foot h2{font-family:inherit;font-size:1.05rem;font-weight:750;letter-spacing:-.01em;color:var(--pfs-ink);
+  display:flex;align-items:center;gap:9px}
+aside.pf-chrome.pf-chrome-foot h2::before{content:"";width:18px;height:18px;border-radius:5px;flex:none;background:var(--pfs-mark)}
+aside.pf-chrome.pf-chrome-foot p,aside.pf-chrome.pf-chrome-foot li{color:var(--pfs-ink)}
+aside.pf-chrome.pf-chrome-foot a{color:var(--pfs-accent);font-weight:550;text-decoration:underline;text-underline-offset:2px}
+aside.pf-chrome.pf-chrome-foot>details.pf-embed-offer{max-width:1080px;margin:0 auto;padding:0 16px}
+`;
+
+/**
+ * Pick the venture chrome's palette from the host's measured background (see
+ * above), then stretch the venture header and footer to the window's width.
+ *
+ * They are inserted as the body's first and last children, so they sit in
+ * whatever box the venture gave its body: `max-width:780px;margin:auto`,
+ * padding, a centred flex column. CSS alone cannot escape that box reliably
+ * (`100vw` counts the scrollbar and adds a sideways scroll on desktop), so
+ * this measures where the bar landed and offsets it by exactly that much,
+ * using `clientWidth`, which excludes the scrollbar. It then checks the page
+ * did not gain a sideways scroll and undoes itself if it did (a venture with
+ * `overflow:hidden` on a wrapper, say); the bar is then exactly as it was.
+ * It also closes a small gap above the header left by a body's top margin.
+ */
+export const VENTURE_CHROME_JS = `
+(function(){
+  if(typeof document==='undefined'||!document.querySelectorAll||!document.documentElement)return;
+  var els=[].slice.call(document.querySelectorAll('nav.pf-chrome-top[data-pfs-head],aside.pf-chrome-foot'));
+  if(!els.length)return;
+  var root=document.documentElement;
+  function bg(node){
+    for(;node&&node.nodeType===1;node=node.parentElement){
+      var m=/rgba?\\(([\\d.]+),\\s*([\\d.]+),\\s*([\\d.]+)(?:,\\s*([\\d.]+))?/.exec(getComputedStyle(node).backgroundColor||'');
+      if(m&&(m[4]===undefined||+m[4]>0.5))return [+m[1],+m[2],+m[3]];
+    }
+    return [255,255,255];
+  }
+  function theme(){
+    var c=bg(document.body),l=function(v){v/=255;return v<=0.03928?v/12.92:Math.pow((v+0.055)/1.055,2.4);};
+    var dark=0.2126*l(c[0])+0.7152*l(c[1])+0.0722*l(c[2])<0.18;
+    els.forEach(function(el){if(dark)el.setAttribute('data-pfs-theme','dark');else el.removeAttribute('data-pfs-theme');});
+  }
+  try{theme();var mq=window.matchMedia&&matchMedia('(prefers-color-scheme: dark)');if(mq&&mq.addEventListener)mq.addEventListener('change',function(){setTimeout(theme,50);});}catch(e){}
+  function reset(el){el.style.marginLeft='';el.style.marginRight='';el.style.width='';el.style.maxWidth='';el.style.marginTop='';}
+  function fit(){
+    var before=root.scrollWidth>root.clientWidth;
+    els.forEach(function(el){
+      reset(el);
+      var vw=root.clientWidth,r=el.getBoundingClientRect();
+      if(Math.abs(r.left)<1&&Math.abs(r.width-vw)<1)return;
+      el.style.maxWidth='none';el.style.width=vw+'px';el.style.marginLeft=(-r.left)+'px';el.style.marginRight='0';
+      var r2=el.getBoundingClientRect();
+      if(Math.abs(r2.left)>=1)el.style.marginLeft=(parseFloat(el.style.marginLeft)-r2.left)+'px';
+      if(el.tagName==='NAV'){
+        var top=el.getBoundingClientRect().top+(window.scrollY||0);
+        if(top>0&&top<40)el.style.marginTop=(-top)+'px';
+      }
+      var r3=el.getBoundingClientRect();
+      if(Math.abs(r3.left)>=1||(!before&&root.scrollWidth>root.clientWidth))reset(el);
+    });
+  }
+  var t;
+  function soon(){clearTimeout(t);t=setTimeout(fit,60);}
+  fit();
+  addEventListener('load',fit);
+  addEventListener('resize',soon);
+})();
+`;
+
 /** The site palette for site-owned pages, light and dark. */
 const SITE_TOKENS_CSS = `
 :root{--pfs-ink:#1d2530;--pfs-muted:#4a5666;--pfs-line:#d3dce6;--pfs-accent:#12594a;--pfs-panel:#ffffff;
