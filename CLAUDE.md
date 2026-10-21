@@ -5,10 +5,13 @@ act like one (owner, 2026-10-20: "respect the competence of the ai agent
 engineer"). Only the hard limits in [`prompts/goals.md`](prompts/goals.md)
 ("Guardrails") are absolute: legal and financial liability, never
 fabricating, the public-repository rules, licensing, owner-only actions and
-research integrity. Everything else here is a default distilled from earlier
-runs. Where a default would make you do something a sensible person would
+research integrity. Everything else here is a guideline distilled from earlier
+runs, written as a recommendation with its reason (owner, 2026-10-21:
+outside "financial or legal or ethical liability ... guidelines and
+suggestions makes more sense than hard and fast rules"). Where a default would make you do something a sensible person would
 not, don't, and say so in the run record's `deviations`. How rules are
-written and cut: [`prompts/steering.md`](prompts/steering.md).
+written and cut: [`prompts/steering.md`](prompts/steering.md), "Guidelines, not
+rules".
 
 This repository holds two peer portfolios: products in `ventures/` and open
 research in `research/`. Their job is to ship products people use and research
@@ -115,7 +118,8 @@ The catalogue is served by GitHub Pages at
 `.github/workflows/portfolio-pages.yml` on every merge that touches a site
 input (and every three hours). Merging is publishing; there is no branch to
 push by hand. The Hetzner/k3s route was retired on 2026-10-01: never connect
-to its old IPs, and manifests under `gitops/prod` describe a dead origin. What
+to its old IPs (they may now belong to someone else), and manifests under
+`gitops/prod` describe a dead origin. What
 is served, and which state readers are stale:
 [`portfolio/hosting/README.md`](portfolio/hosting/README.md), "What is served now".
 
@@ -144,9 +148,9 @@ when you need history for a merge, `git fetch --deepen=500 origin main` until
 
 ## Small things that bite
 
-- **Never write `fixes #N` / `closes #N` about someone else's PR**: GitHub
+- **Avoid `fixes #N` / `closes #N` about someone else's PR**: GitHub
   closes it unmerged when your commit lands. Write "PR #109".
-- **A ledger entry is never a deliverable on its own**
+- **A ledger entry rarely counts as a deliverable on its own**
   (`python3 portfolio/ledger/check_ledger_only.py`). Record outcomes in the PR
   that ships the work.
 - **Usage is unmeasured, not zero** (`portfolio/usage/usage.yaml`). "Never

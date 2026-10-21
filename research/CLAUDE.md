@@ -64,7 +64,7 @@ results, in the same commit:
     "summary": "Plain-language abstract with the key quantitative results and the model's main limitations (e.g. Stylised.)."}
    ```
    The summary is HTML: use entities for maths (`&minus;`, `&radic;`, `&times;`, `<sub>`, `<sup>`, `<em>`).
-   Don't write the test count; the build adds it. Add a new theme only if several projects
+   No need to write the test count; the build adds it. Add a new theme only if several projects
    need it, and give it a `--t-<id>` colour in both the light and dark blocks of `_homepage/template.html`.
 3. Run `python3 research/_homepage/build.py` and make sure it prints `ok`. It fails if any
    `research/` project is missing from `projects.json` or `README.md`, or if either lists one
@@ -78,7 +78,7 @@ from the repo root, `PY=$(python3 platform/ci/pyenv.py pytest numpy matplotlib)`
 `python3` (it returns at once when an interpreter already imports everything; stdout is only the
 interpreter path, and it can differ from the default `python3`).
 First use can build a venv and install packages: 20s to over 2 minutes (5 reports of a 120s foreground timeout), install chatter on stderr. Run it with `run_in_background` and read its stdout when it exits. The same goes for any `run.py` or experiment that may pass 2 minutes (foreground calls time out at 120s).
-The clone is shallow (about 50 commits). If you need history (claim checks, "what changed since", git-based studies), start `git fetch --unshallow origin main` with `run_in_background` at the beginning; it took 2 to 15 minutes and up to ~5 GB in recent runs (`prompts/runs/*.json` friction), so do not block on it. Content reads (`git show origin/main:<path>`) work without it.
+The clone is shallow (about 50 commits). If you need history (claim checks, "what changed since", git-based studies), start `git fetch --unshallow origin main` with `run_in_background` at the beginning; it took 2 to 15 minutes and up to ~5 GB in recent runs (`prompts/runs/*.json` friction), so avoid blocking on it. Content reads (`git show origin/main:<path>`) work without it.
 EDA/chip projects also need `yosys` and `iverilog`, which the image lacks:
 `apt-get update -qq && apt-get install -y yosys iverilog` (about a minute; checked 2026-10-18).
 
