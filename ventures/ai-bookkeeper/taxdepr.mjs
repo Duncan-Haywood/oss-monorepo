@@ -53,7 +53,16 @@ function midQuarterTable(life, quarter) {
   r[r.length - 1] = Math.round((100 - r.slice(0, -1).reduce((s, x) => s + x, 0)) * 100) / 100;
   return r;
 }
-export const MACRS_MID_QUARTER = Object.fromEntries([3, 5, 7, 10, 15, 20].map((c) => [c, [1, 2, 3, 4].map((q) => T(midQuarterTable(c, q)))]));
+// 7-year rows as printed in Tables A-2 to A-5 (typed from memory, offline, not
+// checked against the publication). The generator is a hair off in the repeated
+// straight-line years (8.75/8.74 and the last year), so these replace it.
+const PRINTED_7 = [
+  [25.0, 21.43, 15.31, 10.93, 8.75, 8.74, 8.75, 1.09],
+  [17.85, 23.47, 16.76, 11.97, 8.87, 8.87, 8.87, 3.34],
+  [10.71, 25.51, 18.22, 13.02, 9.3, 8.85, 8.86, 5.53],
+  [3.57, 27.55, 19.68, 14.06, 10.04, 8.73, 8.73, 7.64],
+];
+export const MACRS_MID_QUARTER = Object.fromEntries([3, 5, 7, 10, 15, 20].map((c) => [c, [1, 2, 3, 4].map((q) => T(c === 7 ? PRINTED_7[q - 1] : midQuarterTable(c, q)))]));
 
 export const CLASSES = Object.keys(MACRS_HALF_YEAR).map(Number);
 

@@ -208,3 +208,14 @@ test("179 taxable-income limit defers the excess and carries it forward", () => 
   assert.equal(w.s179Income.carryOut, 1800000);
   assert.ok(w.warnings.some((x) => /carries to 2027/.test(x)));
 });
+
+test("7-year mid-quarter rows match the printed Tables A-2 to A-5 and each adds to 100", () => {
+  const want = [
+    [25000, 21430, 15310, 10930, 8750, 8740, 8750, 1090],
+    [17850, 23470, 16760, 11970, 8870, 8870, 8870, 3340],
+    [10710, 25510, 18220, 13020, 9300, 8850, 8860, 5530],
+    [3570, 27550, 19680, 14060, 10040, 8730, 8730, 7640],
+  ];
+  assert.deepEqual(MACRS_MID_QUARTER[7], want);
+  for (const r of want) assert.equal(r.reduce((s, x) => s + x, 0), 100000);
+});
