@@ -22,7 +22,7 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
 
   --books FILE           the books (JSON); created on first import
   --example              start from the synthetic three-month example instead
-  import FILE --account CODE [--invert] [--day-first] [--decimal-comma] [--auto 0.85]
+  import FILE --account CODE [--ofx-account ACCTID] [--invert] [--day-first] [--decimal-comma] [--auto 0.85]
   review                 list lines waiting for an account
   confirm ID=CODE ...    file lines (and learn from them)
   confirm ID=CODE:AMT,CODE[:AMT] ...
@@ -51,11 +51,11 @@ if (has("--help") || has("-h") || !argv.length) { console.log(HELP); process.exi
 
 const file = flag("--books");
 const json = has("--json"), example = has("--example"), invert = has("--invert") ? true : undefined, dayFirst = has("--day-first"), decimalComma = has("--decimal-comma");
-const asOf = flag("--as-of");
+const asOf = flag("--as-of"), ofxAccount = flag("--ofx-account");
 const account = flag("--account"), from = flag("--from"), to = flag("--to"), auto = flag("--auto");
 let books = example ? analyze({ example: true }).books : file && existsSync(file) ? JSON.parse(readFileSync(file, "utf8")) : newBooks();
 const save = () => { if (file) writeFileSync(file, JSON.stringify(books, null, 1)); };
-const opts = { invert, dayFirst, decimalComma, ...(auto ? { autoPost: +auto } : {}) };
+const opts = { invert, dayFirst, decimalComma, ...(ofxAccount ? { ofxAccount } : {}), ...(auto ? { autoPost: +auto } : {}) };
 const [cmd, ...rest] = argv;
 const map = accountMap(books.accounts);
 const name = (c) => (c ? `${c} ${map.get(c)?.name ?? ""}` : "-");

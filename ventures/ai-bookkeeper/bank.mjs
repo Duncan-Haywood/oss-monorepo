@@ -149,7 +149,40 @@ function ofxTag(block, tag) {
   return m ? m[1].trim().replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">") : "";
 }
 
-export function readOfx(text) {
+// One OFX file can hold several statements (a checking and a card account from
+// the same bank). Each <STMTRS> (bank) or <CCSTMTRS> (card) is one account.
+function ofxSegments(text) {
+  const at = [...text.matchAll(/<(?:CC)?STMTRS>/gi)].map((m) => m.index);
+  if (at.length < 2) return [text];
+  return at.map((from, i) => text.slice(from, at[i + 1] ?? text.length));
+}
+
+// The accounts in an OFX file: [{ id, type, count }], in file order.
+export function ofxAccounts(text) {
+  return ofxSegments(text).map((seg) => ({ id: ofxTag(seg, "ACCTID"), type: ofxTag(seg, "ACCTTYPE") || (/<CCSTMTRS>/i.test(seg) ? "CREDITCARD" : ""), count: (seg.match(/<STMTTRN>/gi) ?? []).length }));
+}
+
+// `account` picks one statement out of a multi-account file by its ACCTID, or by
+// the last digits of it (how a bank prints "ending 6789"). Without it a file
+// with more than one account reads no rows and lists them, so lines from two
+// accounts never land in one by mistake.
+export function readOfx(text, { account } = {}) {
+  const segs = ofxSegments(text);
+  const accounts = ofxAccounts(text);
+  if (segs.length < 2) return readOfxSegment(text, accounts);
+  const want = String(account ?? "").trim();
+  const hits = want ? accounts.map((a, i) => i).filter((i) => accounts[i].id === want || (want.length >= 3 && accounts[i].id.endsWith(want))) : [];
+  const exact = hits.filter((i) => accounts[i].id === want);
+  const pick = exact.length === 1 ? exact[0] : hits.length === 1 ? hits[0] : -1;
+  if (pick === -1) {
+    const list = accounts.map((a) => `${a.id || "(no id)"}${a.type ? ` ${a.type.toLowerCase()}` : ""} (${a.count} line${a.count === 1 ? "" : "s"})`).join("; ");
+    const why = want ? (hits.length > 1 ? `"${want}" matches more than one account` : `No account "${want}" in the file`) : `This OFX file holds ${accounts.length} accounts`;
+    return { rows: [], problems: [`${why}: ${list}. Import it once per account, choosing the account number.`], columns: null, bank: "ofx", inferred: null, statement: null, accounts };
+  }
+  return readOfxSegment(segs[pick], accounts, pick);
+}
+
+function readOfxSegment(text, accounts, picked = null) {
   const problems = [];
   const out = [];
   const blocks = text.split(/<STMTTRN>/i).slice(1);
@@ -177,7 +210,7 @@ export function readOfx(text) {
     const bal = Math.round(parseFloat(lb[1].replace(",", ".")) * 100);
     if (d && Number.isFinite(bal)) statement = { cents: bal, date: `${d[1]}-${d[2]}-${d[3]}` };
   }
-  return { rows: out, problems, columns: null, bank: "ofx", inferred: null, statement };
+  return { rows: out, problems, columns: null, bank: "ofx", inferred: null, statement, accounts, ...(picked === null ? {} : { picked: accounts[picked].id }) };
 }
 
 export function readQif(text, { dayFirst = false } = {}) {
@@ -211,14 +244,14 @@ export function readQif(text, { dayFirst = false } = {}) {
 // `invert` flips signs for card exports that list charges as positive. Leave it
 // undefined and a file with no running balance that has payment rows is
 // flipped when its payments are negative (`inferred` says so).
-export function readStatement(text, { dayFirst = false, decimalComma = false, invert } = {}) {
+export function readStatement(text, { dayFirst = false, decimalComma = false, invert, ofxAccount } = {}) {
   const format = sniffFormat(text);
   if (format === "camt053" || format === "mt940") {
     const r = format === "camt053" ? readCamt(text) : readMt940(text);
     if (invert === true) for (const x of r.rows) x.cents = -x.cents;
     return r;
   }
-  if (format === "ofx") return readOfx(text);
+  if (format === "ofx") return readOfx(text, { account: ofxAccount });
   if (format === "qif") return readQif(text, { dayFirst });
   const rows = parseCsv(text);
   const problems = [];

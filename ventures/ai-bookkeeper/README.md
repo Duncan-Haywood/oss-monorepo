@@ -294,7 +294,7 @@ payroll and sales tax filings, multiple currencies, and receipts.
 ## Next
 
 - MT940 and CAMT.053 reading landed 2026-10-21 (`sepa.mjs`, hand-written fixtures); OFX, MT940 and CAMT closing balances now feed the reconcile check. Try real exports from a German, Dutch or UK bank.
-- OFX/QFX and QIF reading landed 2026-10-21 against hand-written fixtures (`fixtures/checking.ofx`, `checking.qif`); try real downloads, and add multi-account OFX files (one file, several statements) if they turn up.
+- OFX/QFX and QIF reading landed 2026-10-21 against hand-written fixtures (`fixtures/checking.ofx`, `checking.qif`); try real downloads. Multi-account OFX files (one file, several statements) landed 2026-10-21: with no choice the file reads no rows and lists its accounts; `--ofx-account ID` (CLI) or the page's account-number box picks one by full number or last digits (`fixtures/two-accounts.ofx`, hand-written).
 - Check the five importers against real exports. `fixtures/` holds one file per
   shape (Chase checking and card, Bank of America, Wells Fargo, Amex, Capital
   One), written by hand from the layouts those banks document, with made-up

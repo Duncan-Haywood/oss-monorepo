@@ -620,3 +620,33 @@ test("MT940 and CAMT.053 read to the same rows and signs, with the closing balan
   const o = importStatement(b, f("checking.ofx"), "1000");
   assert.ok(o.books.statements["1000"].closingDate);
 });
+
+test("an OFX file with several accounts is split by account number, never merged", async () => {
+  const { readFileSync } = await import("node:fs");
+  const f = readFileSync(new URL("./fixtures/two-accounts.ofx", import.meta.url), "utf8");
+  // no choice: nothing is read, and the accounts are listed
+  const none = readStatement(f);
+  assert.deepEqual(none.rows, []);
+  assert.equal(none.accounts.length, 2);
+  assert.match(none.problems[0], /holds 2 accounts: 123456789 checking \(2 lines\); 4111000000009876 creditcard \(2 lines\)/);
+  // by full number or by last digits
+  const chk = readStatement(f, { ofxAccount: "123456789" });
+  assert.deepEqual(chk.rows.map((r) => r.cents), [250000, -30000]);
+  assert.deepEqual(chk.statement, { cents: 220000, date: "2026-01-31" });
+  const card = readStatement(f, { ofxAccount: "9876" });
+  assert.equal(card.picked, "4111000000009876");
+  assert.deepEqual(card.rows.map((r) => r.cents), [-4210, 30000]);
+  assert.deepEqual(card.statement, { cents: -4210, date: "2026-01-31" });
+  // too-short or unknown picks list the accounts instead of guessing
+  assert.deepEqual(readStatement(f, { ofxAccount: "76" }).rows, []);
+  assert.match(readStatement(f, { ofxAccount: "55555" }).problems[0], /No account "55555"/);
+  // imported into two books accounts, the card payment pairs with the checking line
+  let b = newBooks();
+  b = importStatement(b, f, "1000", { ofxAccount: "123456789" }).books;
+  const r = importStatement(b, f, "2000", { ofxAccount: "9876" });
+  assert.equal(r.added, 2);
+  assert.equal(r.books.statements["2000"].closing, -4210);
+  assert.equal(r.books.transactions.filter((t) => t.posted && t.status === "transfer").length, 2);
+  // a single-account file is unchanged and still reports its account
+  assert.equal(readStatement(readFileSync(new URL("./fixtures/checking.ofx", import.meta.url), "utf8")).accounts[0].id, "123456789");
+});

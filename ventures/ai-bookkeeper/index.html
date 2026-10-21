@@ -64,6 +64,7 @@
     <h2 id="h-import">1. Import a statement</h2>
     <div class="grid">
       <div><label for="bank">Which account is this statement for?</label><select id="bank"></select></div>
+      <div><label for="ofxacct">OFX file with several accounts: account number (or last digits)</label><input id="ofxacct" type="text" autocomplete="off" placeholder="only if the file holds more than one"></div>
       <div><label for="file">Bank or card file (CSV, OFX, QFX, QIF, MT940 or CAMT.053)</label><input id="file" type="file" accept=".csv,.ofx,.qfx,.qbo,.qif,.sta,.mt940,.xml,text/csv,text/plain,text/xml"></div>
       <div><label for="auto">Post by itself at confidence</label><input id="auto" type="number" min="0.5" max="1" step="0.01" value="0.85"></div>
     </div>
@@ -213,7 +214,7 @@
     const load = () => { try { const s = localStorage.getItem(STORE); return s ? JSON.parse(s) : null; } catch { return null; } };
     let books = load() ?? newBooks();
     const persist = () => { try { localStorage.setItem(STORE, JSON.stringify(books)); } catch { $("#save-status").textContent = "This browser would not save the books (private window or storage full). Download the books file to keep them."; } };
-    const opts = () => ({ autoPost: Math.min(1, Math.max(0.5, parseFloat($("#auto").value) || 0.85)), invert: $("#invert").checked || undefined, dayFirst: $("#dayfirst").checked });
+    const opts = () => ({ autoPost: Math.min(1, Math.max(0.5, parseFloat($("#auto").value) || 0.85)), invert: $("#invert").checked || undefined, dayFirst: $("#dayfirst").checked, ofxAccount: $("#ofxacct").value.trim() || undefined });
     const name = (c) => books.accounts.find((a) => a.code === c)?.name ?? c;
 
     function fillSetup() {
