@@ -103,3 +103,9 @@ test("the build cost the page quotes is the bills of materials' total", () => {
   assert.ok(html.includes(`roughly ${to50(robot).toLocaleString("en-US")} US dollars for the mower and dock`), `mower + dock ${robot}`);
   assert.ok(html.includes(`about ${to50(sum(base))} for an RTK base station`), `base ${sum(base)}`);
 });
+
+// One-hop sibling link (platform/pages/siblings.mjs): the related-tool strip
+// rotates and may never pair the open-hardware robot pages.
+test("index links one hop to the open-tennis-robots sibling", () => {
+  assert.match(page("index.html"), /href="\.\.\/open-tennis-robots\/"/);
+});
