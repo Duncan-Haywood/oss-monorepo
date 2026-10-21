@@ -49,8 +49,7 @@ test('no posts directory means no posts, not an error', () => {
 test('build writes an index, one page per post and a feed, each with a disclaimer', async () => {
   const root = repoWith({ '2026-10-16-hello.md': post('Hello <world>', '2026-10-16') });
   const out = mkdtempSync(path.join(os.tmpdir(), 'writing-out-'));
-  const posts = await buildWriting(out, BASE, { root });
-  assert.equal(posts.length, 1);
+  assert.deepEqual(await buildWriting(out, BASE, { root }), ['hello', 'podcast']);
   const index = await fs.readFile(path.join(out, WRITING_PATH, 'index.html'), 'utf8');
   const page = await fs.readFile(path.join(out, WRITING_PATH, 'hello/index.html'), 'utf8');
   const feed = await fs.readFile(path.join(out, WRITING_PATH, 'feed.xml'), 'utf8');

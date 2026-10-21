@@ -1,0 +1,57 @@
+{
+  "generator": "orm_cad 0.1.0",
+  "robot": "dock",
+  "params": {
+    "plate_t": 3.0,
+    "plate_len": 640.0,
+    "plate_half_w": 250.0,
+    "peg_holes": 6,
+    "tower_x": 540.0,
+    "tower_w": 180.0,
+    "tower_depth": 90.0,
+    "tower_h": 80.0,
+    "contact_z": 56.0,
+    "contact_half_y": 25.0,
+    "contact_strip": [
+      3.0,
+      20.0,
+      30.0
+    ],
+    "guide_len": 240.0,
+    "guide_h": 18.0,
+    "guide_w": 14.0,
+    "guide_y": 232.0,
+    "bed": [
+      256.0,
+      256.0,
+      256.0
+    ],
+    "bed_margin": 6.0
+  },
+  "derived": {
+    "contact_z_mm": 56.0,
+    "contact_spacing_mm": 50.0,
+    "made_part_mass_kg": 2.79
+  },
+  "design_rules": [],
+  "collisions": [],
+  "ground_contacts_z_mm": {
+    "base_plate": 0.0
+  },
+  "files": {
+    "README.txt": "211a1040406c20304a4ce7241a4c80d7ae8abc4d3a7f2c228cd8a0f01f8b8154",
+    "bom.csv": "476e3e562e2dea2164161b1bdfcc358fbd5b6c6121e0b1692735a5c36616c04b",
+    "drawings/assembly_front.svg": "1dabad4870bc32caf0f079e7ffdf7322b7b5bcad295ca3cd44c399c8a27c2aec",
+    "drawings/assembly_side.svg": "23bc0989c6665822e6cc7cff0c4282240251e94cbed224dab392a4c91c0d8c07",
+    "drawings/assembly_top.svg": "9fa23d5fbfbf998a80c4724f908787c2026465fce2ae1b3b9ea33a4235e07cb9",
+    "laser/base_plate__aluminium_3mm.dxf": "034a1a795e7bf2ad4285aa0638bb7e37aa386e90d01580b47776c523b3eb9378",
+    "laser_parts.csv": "643b3fb7cf797298a11a5cc562bd18f759ec16645e75878d2038464dbe7c0f2c",
+    "print/contact_tower.stl": "d952f965b4f7e63da6c7069942a2c2c2d598bbc974097df0191a97fd559d8193",
+    "print/wheel_guide.stl": "6b3fc20a5304f213ea3f603fce8d9a0ff5a0e0639032e844618194ec6e33de79",
+    "print_parts.csv": "8f0c268d815c9545940d0989b5a437c35400c30d4c6943c6efddd35cdbc287f9",
+    "step/assembly.step": "eecabdc8d1f79402707ffa62af5a6dd1ea78cfc64a17f10428ac169956c8f76a",
+    "step/base_plate.step": "18b3bac6368ab394ff1277fa1c67d450539123334256752a7a71ca2df37058c9",
+    "step/contact_tower.step": "54baaf6cf7ad73d1e5b8394024899ea1dbc192f005927c205313e23095fc1673",
+    "step/wheel_guide.step": "1a8e95f0fa9c16629fb228668d6c26f863c9d334dc79a47d141fea39a83dd4d1"
+  }
+}

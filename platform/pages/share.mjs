@@ -62,6 +62,8 @@ const SECTION_ACCENTS = {
   about: '#12594a',
   lab: '#be185d',
   c: '#1d4ed8',
+  deploy: '#0f766e',
+  dev: '#0369a1',
 };
 const PALETTE = ['#0f766e', '#1d4ed8', '#7c3aed', '#be185d', '#c2410c', '#a16207', '#15803d', '#0e7490', '#4338ca', '#9333ea', '#b91c1c', '#0369a1'];
 
@@ -98,6 +100,8 @@ const SECTION_NAMES = {
   about: 'About',
   lab: 'Lab',
   c: 'Tools',
+  deploy: 'Deploy your own',
+  dev: 'How it is built',
 };
 
 const FOOTERS = {
@@ -128,6 +132,12 @@ function metaContent(html, attr, key) {
   return null;
 }
 
+// The page's own <title>: the first one inside <head>, not an SVG chart's.
+function headTitle(html) {
+  const head = html.slice(0, Math.max(0, html.search(/<\/head>/i)));
+  return decode(/<title>([\s\S]*?)<\/title>/i.exec(head)?.[1] ?? '').replace(/\s+/g, ' ').trim();
+}
+
 /** The breadcrumb trail's labels, without "Home". */
 export function crumbsOf(html) {
   const start = html.search(/<(?:span|nav)\b[^>]*class="[^"]*\b(?:pfs-crumbs|crumbs)\b/i);
@@ -149,7 +159,7 @@ export function pageCardPlan(html, relative, { baseUrl, siteCard = 'social-card.
   if (!relative.endsWith('index.html') || relative === 'index.html') return null;
   const image = metaContent(html, 'property', 'og:image');
   if (image && !(image.endsWith(`/${siteCard}`) || image === siteCard)) return null;
-  const rawTitle = metaContent(html, 'property', 'og:title') || (/<title>([\s\S]*?)<\/title>/i.exec(html)?.[1] ?? '');
+  const rawTitle = metaContent(html, 'property', 'og:title') || headTitle(html);
   const headline = cardTitle(decode(rawTitle));
   if (!headline) return null;
   const dir = relative.slice(0, -'index.html'.length);
@@ -193,7 +203,7 @@ const tidy = (s) => String(s ?? '')
  * `og:image` when `card` names a card drawn for this page, and a description
  * whose whitespace was left by stripped markup.
  */
-export function completeShareTags(html, { card = '', siteName = 'Open Tools and Research', toRoot = '' } = {}) {
+export function completeShareTags(html, { card = '', siteName = 'Open Tools and Research', toRoot = '', url = '' } = {}) {
   if (!/<\/head>/i.test(html)) return html;
   let next = html;
 
@@ -226,7 +236,14 @@ export function completeShareTags(html, { card = '', siteName = 'Open Tools and 
     if (!value || has(attr, key)) return;
     tags.push(`<meta ${attr}="${key}" content="${escapeAttr(value)}">`);
   };
-  const ogTitle = metaContent(next, 'property', 'og:title') ?? decode(/<title>([\s\S]*?)<\/title>/i.exec(next)?.[1] ?? '').trim();
+  // A page written without any og: tags (the deploy guide, the development
+  // dashboards) still gets the basics, from its own title and description.
+  add('property', 'og:title', headTitle(next));
+  add('property', 'og:description', tidy(metaContent(next, 'name', 'description') ?? ''));
+  add('property', 'og:type', 'website');
+  add('property', 'og:url', url);
+  const pending = (key) => tags.find((t) => t.includes(`"${key}"`))?.match(/content="([^"]*)"/)?.[1];
+  const ogTitle = metaContent(next, 'property', 'og:title') ?? decode(pending('og:title') ?? '');
   const ogDescription = metaContent(next, 'property', 'og:description') ?? metaContent(next, 'name', 'description');
   const ogImage = metaContent(next, 'property', 'og:image');
   add('property', 'og:site_name', siteName);
@@ -308,8 +325,10 @@ async function listHtml(dir, out = []) {
  * The pass itself: draw a card for every page still on the site-wide one,
  * then complete the tags on every page. Returns what it changed.
  */
-export async function addShareCards({ outDir, baseUrl, siteName, siteCard = 'social-card.png' }) {
-  const files = await listHtml(outDir);
+export async function addShareCards({ outDir, baseUrl, siteName, siteCard = 'social-card.png', only = null }) {
+  const files = only
+    ? (await Promise.all(only.map((dir) => listHtml(path.join(outDir, dir)).catch(() => [])))).flat()
+    : await listHtml(outDir);
   const jobs = [];
   const changed = [];
   for (const file of files) {
@@ -319,7 +338,8 @@ export async function addShareCards({ outDir, baseUrl, siteName, siteCard = 'soc
     const depth = relative.split('/').length - 1;
     const toRoot = '../'.repeat(depth);
     if (plan) jobs.push({ file: path.join(outDir, plan.file), options: plan.options });
-    const next = completeShareTags(html, { card: plan ? `${baseUrl}${plan.file}` : '', siteName, toRoot });
+    const url = baseUrl ? `${baseUrl}${relative.replace(/(^|\/)index\.html$/, '$1')}` : '';
+    const next = completeShareTags(html, { card: plan ? `${baseUrl}${plan.file}` : '', siteName, toRoot, url });
     if (next !== html) {
       await fs.writeFile(file, next);
       changed.push(relative);
@@ -327,4 +347,26 @@ export async function addShareCards({ outDir, baseUrl, siteName, siteCard = 'soc
   }
   await renderCards(jobs);
   return { cards: jobs.map((j) => path.relative(outDir, j.file)), changed };
+}
+
+// CLI, for pages built after `build.mjs` (the deploy guide and the
+// development dashboards are written into the artifact by later workflow
+// steps, so the build's own pass never sees them):
+//
+//   node platform/pages/share.mjs platform/pages/dist --base=https://example.github.io/site/ --only=deploy,dev
+if (process.argv[1] && path.resolve(process.argv[1]) === new URL(import.meta.url).pathname) {
+  const [dir] = process.argv.slice(2).filter((a) => !a.startsWith('--'));
+  const opt = (name) => process.argv.find((a) => a.startsWith(`--${name}=`))?.slice(name.length + 3);
+  const baseUrl = opt('base') ?? process.env.PAGES_BASE_URL ?? '';
+  if (!dir || !baseUrl) {
+    console.error('usage: share.mjs <dist> --base=<site url> [--only=dir,dir]');
+    process.exit(2);
+  }
+  const result = await addShareCards({
+    outDir: path.resolve(dir),
+    baseUrl: baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`,
+    siteName: 'Open Tools and Research',
+    only: opt('only')?.split(',').filter(Boolean) ?? null,
+  });
+  console.log(`Drew ${result.cards.length} share card(s); completed share tags on ${result.changed.length} page(s).`);
 }

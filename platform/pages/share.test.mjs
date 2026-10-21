@@ -148,3 +148,17 @@ test('completeShareTags leaves a tag a page already set', () => {
   assert.equal((out.match(/twitter:title/g) ?? []).length, 1);
   assert.ok(out.includes('content="Own title"'));
 });
+
+test('a page written with no og: tags gets title, description, url and type from its own head', () => {
+  const html = '<!doctype html><html><head><title>Deploy your own copy</title>\n<meta name="description" content="Run  your own copy .">\n</head><body><svg><title>chart</title></svg></body></html>';
+  const out = completeShareTags(html, { card: `${BASE}deploy/share-card.png`, url: `${BASE}deploy/`, toRoot: '../' });
+  assert.match(out, /property="og:title" content="Deploy your own copy"/);
+  assert.match(out, /property="og:description" content="Run your own copy\."/);
+  assert.match(out, /property="og:url" content="https:\/\/example\.github\.io\/site\/deploy\/"/);
+  assert.match(out, /property="og:type" content="website"/);
+  assert.match(out, /property="og:image" content="https:\/\/example\.github\.io\/site\/deploy\/share-card\.png"/);
+  assert.match(out, /name="twitter:title" content="Deploy your own copy"/);
+  // An SVG chart's <title> is not the page's.
+  assert.equal(pageCardPlan(html, 'deploy/index.html', { baseUrl: BASE }).options.headline, 'Deploy your own copy');
+  assert.equal(completeShareTags(out, { card: `${BASE}deploy/share-card.png`, url: `${BASE}deploy/`, toRoot: '../' }), out);
+});

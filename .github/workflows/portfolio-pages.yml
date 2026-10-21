@@ -200,6 +200,17 @@ jobs:
           node platform/daily/build.mjs --out=platform/pages/dist/dev/daily \
             --stats=platform/pages/dist/dev/stats.json --asks="$asks"
 
+      # The deploy guide, the analyses, the dashboard and the daily brief are
+      # written into the artifact by the steps above, after build.mjs ran its
+      # share pass, so they shipped with no og:/twitter: tags and no icon
+      # links. The same pass, run over just those directories.
+      - name: Give the pages built after the site their share cards and tags
+        env:
+          PAGES_BASE_URL: ${{ vars.PAGES_BASE_URL }}
+        run: |
+          export PAGES_BASE_URL="${PAGES_BASE_URL:-https://${GITHUB_REPOSITORY_OWNER,,}.github.io/${GITHUB_REPOSITORY#*/}/}"
+          node platform/pages/share.mjs platform/pages/dist --base="$PAGES_BASE_URL" --only=deploy,dev
+
       - name: Upload Pages artifact
         if: github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v3
