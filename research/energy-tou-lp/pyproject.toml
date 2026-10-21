@@ -1,0 +1,13 @@
+[project]
+name = "energy-tou-lp"
+version = "0.1.0"
+description = "How much is a home battery worth under time-of-use pricing with optimal dispatch? An LP against the fixed rule of energy-tou"
+requires-python = ">=3.9"
+dependencies = ["numpy", "scipy"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "../energy-tou/src", "../energy-home/src"]
