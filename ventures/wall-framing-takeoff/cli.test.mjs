@@ -57,3 +57,12 @@ test("--csv prints the order and cut list", () => {
   assert.match(out, /\ncut,2x10,/);
   assert.match(out, /\nboard,2x4,/);
 });
+
+test("--sheathing adds panels and a sheet order, and skips interior walls", () => {
+  const plan = JSON.stringify(samplePlan());
+  const { code, out } = main(["plan.json", "--sheathing"], () => plan);
+  assert.equal(code, 0);
+  assert.match(out, /SHEATHING/);
+  assert.match(out, /panels from \d+ sheets of 4x9/);
+  assert.doesNotMatch(out, /\n  Hall: \d/);
+});

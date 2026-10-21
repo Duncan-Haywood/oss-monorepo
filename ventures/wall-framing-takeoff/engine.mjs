@@ -22,7 +22,7 @@
 export const THICK = 1.5;
 export const DEPTH = { "2x4": 3.5, "2x6": 5.5, "2x8": 7.25, "2x10": 9.25, "2x12": 11.25 };
 const STEP = 16; // cutting resolution: 1/16 in
-const EPS = 1e-9;
+export const EPS = 1e-9;
 
 /** The method the lumber order uses, cited for `tools.mjs describe`. */
 export const PAPERS = [
@@ -89,16 +89,16 @@ export function samplePlan() {
         openings: [{ kind: "window", label: "Bed 2", offset: ft(8), width: 36, height: 48, header: "2x10" }],
       },
       {
-        id: "Hall", length: ft(37), stud: "2x4", tees: [ft(11), ft(23)],
+        id: "Hall", sheathed: false, length: ft(37), stud: "2x4", tees: [ft(11), ft(23)],
         openings: [
           { kind: "door", label: "Bed 1", offset: ft(3), width: 32, height: 82.5, header: "2x4", headerPlies: 2 },
           { kind: "door", label: "Bath", offset: ft(15), width: 30, height: 82.5, header: "2x4", headerPlies: 2 },
           { kind: "door", label: "Bed 2", offset: ft(28), width: 32, height: 82.5, header: "2x4", headerPlies: 2 },
         ],
       },
-      { id: "Bed 1 / Bath", length: ft(13, 3), stud: "2x4" },
-      { id: "Bath / Bed 2", length: ft(13, 3), stud: "2x4", openings: [{ kind: "door", label: "Closet", offset: 40, width: 50, height: 82.5, header: "2x4", headerPlies: 2 }] },
-      { id: "Kitchen", length: ft(12), stud: "2x4" },
+      { id: "Bed 1 / Bath", sheathed: false, length: ft(13, 3), stud: "2x4" },
+      { id: "Bath / Bed 2", sheathed: false, length: ft(13, 3), stud: "2x4", openings: [{ kind: "door", label: "Closet", offset: 40, width: 50, height: 82.5, header: "2x4", headerPlies: 2 }] },
+      { id: "Kitchen", sheathed: false, length: ft(12), stud: "2x4" },
     ],
   };
   return plan;
