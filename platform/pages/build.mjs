@@ -434,6 +434,9 @@ const isTestFile = (name) =>
 const NON_WEB_EXTENSIONS = new Set([
   '.py', '.toml', '.cfg', '.ini', '.lock', '.yaml', '.yml', '.sh', '.ts', '.tsx', '.md',
   '.dxf', '.step', '.stp', '.stl', '.zip',
+  // Labelled data sets (sales-agent's eval/*.jsonl): read by scripts in the repo, of no use to a visitor, and
+  // nginx has no type for them.
+  '.jsonl',
 ]);
 
 // Files whose contents get the placeholder origin swapped for the real one.
