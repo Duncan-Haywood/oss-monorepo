@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { newBooks } from "./engine.mjs";
 import { addAsset, disposeAsset } from "./assets.mjs";
-import { MACRS_MID_QUARTER, usesMidQuarter, MACRS_HALF_YEAR, setTaxTreatment, assetTaxYear, taxDepreciation, s179Check } from "./taxdepr.mjs";
+import { MACRS_MID_QUARTER, usesMidQuarter, MACRS_HALF_YEAR, setTaxTreatment, assetTaxYear, taxDepreciation, maxBonusPct, s179Check } from "./taxdepr.mjs";
 
 const with1 = (cost, date, tax, life = 60) => {
   let b = addAsset(newBooks(), { name: "Machine", date, cost, lifeMonths: life }).books;
@@ -169,4 +169,14 @@ test("a year with no limits on file says so", () => {
   const b = with1("10000", "2031-03-10", { macrsClass: 5, s179: "1000" });
   assert.equal(s179Check(b, 2031), null);
   assert.ok(taxDepreciation(b, 2031).warnings.some((x) => /No Section 179 limits on file for 2031/.test(x)));
+});
+
+test("bonus above the year's maximum is flagged; 2025 asks about the acquisition date", () => {
+  assert.deepEqual([2022, 2023, 2024, 2025, 2026].map(maxBonusPct), [100, 80, 60, 100, 100]);
+  const over = taxDepreciation(with1("10000", "2024-05-01", { macrsClass: 5, bonusPct: 100 }), 2024);
+  assert.ok(over.warnings.some((x) => /bonus 100% is above the 60%/.test(x)));
+  const ok = taxDepreciation(with1("10000", "2024-05-01", { macrsClass: 5, bonusPct: 60 }), 2024);
+  assert.ok(!ok.warnings.some((x) => /is above the/.test(x)));
+  const y25 = taxDepreciation(with1("10000", "2025-05-01", { macrsClass: 5, bonusPct: 100 }), 2025);
+  assert.ok(y25.warnings.some((x) => /acquired after 19 January 2025/.test(x)));
 });
