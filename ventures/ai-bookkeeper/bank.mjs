@@ -4,6 +4,8 @@
 // balance the bank printed. Column names are matched by alias. Pure functions,
 // no DOM, no network.
 
+import { isMt940, isCamt, readMt940, readCamt } from "./sepa.mjs";
+
 const ALIASES = {
   date: ["date", "transaction date", "posted date", "post date", "posting date", "trans date", "booking date", "effective date", "value date"],
   desc: ["description", "transaction description", "payee", "merchant", "name", "details", "original description", "memo", "narrative", "reference"],
@@ -129,6 +131,8 @@ function chargesArePositive(rows) {
 // already negative), so no sign inference is done. Returns the same shape as
 // the CSV path. The balance is only known for the last row (LEDGERBAL).
 export function sniffFormat(text) {
+  if (isCamt(text)) return "camt053";
+  if (isMt940(text)) return "mt940";
   const head = text.slice(0, 2000);
   if (/<OFX>|OFXHEADER:|<STMTTRN>/i.test(head) || /<STMTTRN>/i.test(text)) return "ofx";
   if (/^\s*!(Type|Account|Option)/im.test(head)) return "qif";
@@ -167,7 +171,13 @@ export function readOfx(text) {
     if (Number.isFinite(bal)) last.balance = bal;
   }
   if (!blocks.length) problems.push("No transactions (STMTTRN) were found in the OFX file.");
-  return { rows: out, problems, columns: null, bank: "ofx", inferred: null };
+  let statement = null;
+  if (lb) {
+    const d = /<LEDGERBAL>[\s\S]*?<DTASOF>\s*(\d{4})(\d{2})(\d{2})/i.exec(text);
+    const bal = Math.round(parseFloat(lb[1].replace(",", ".")) * 100);
+    if (d && Number.isFinite(bal)) statement = { cents: bal, date: `${d[1]}-${d[2]}-${d[3]}` };
+  }
+  return { rows: out, problems, columns: null, bank: "ofx", inferred: null, statement };
 }
 
 export function readQif(text, { dayFirst = false } = {}) {
@@ -203,6 +213,11 @@ export function readQif(text, { dayFirst = false } = {}) {
 // flipped when its payments are negative (`inferred` says so).
 export function readStatement(text, { dayFirst = false, decimalComma = false, invert } = {}) {
   const format = sniffFormat(text);
+  if (format === "camt053" || format === "mt940") {
+    const r = format === "camt053" ? readCamt(text) : readMt940(text);
+    if (invert === true) for (const x of r.rows) x.cents = -x.cents;
+    return r;
+  }
   if (format === "ofx") return readOfx(text);
   if (format === "qif") return readQif(text, { dayFirst });
   const rows = parseCsv(text);
