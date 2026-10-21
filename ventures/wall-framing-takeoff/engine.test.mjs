@@ -302,3 +302,21 @@ test("blocking: rows sit between full studs, skip openings, and a 12 ft wall get
   const w2 = layoutWall(two, { id: "B", length: 96, stud: "2x4" });
   assert.equal(new Set(w2.members.filter((m) => m.kind === "blocking").map((m) => m.y)).size, 2);
 });
+
+test("sheathing: a joint over an opening with no cripples comes back as a sized nailer piece", () => {
+  const plan = { ...base(), studSpacing: 24, walls: [{ id: "N", length: 240, stud: "2x4", corner: false, openings: [{ kind: "door", offset: 20, width: 100, height: 82.5, header: "2x10" }] }] };
+  const r = takeoff(plan);
+  assert.ok(r.ok, JSON.stringify(r.errors));
+  r.walls[0].members = r.walls[0].members.filter((m) => m.kind !== "cripple");
+  const s = sheathe({ ...plan, sheathing: defaultSheathing() }, r);
+  assert.ok(s.ok);
+  const w = s.walls[0];
+  assert.ok(w.nailers.length > 0);
+  assert.equal(w.nailerPieces.length, w.nailers.length);
+  const hdr = r.walls[0].members.find((m) => m.kind === "header");
+  for (const p of w.nailerPieces) {
+    assert.equal(p.size, "2x4");
+    assert.ok(Math.abs(p.length - (94.125 - (hdr.y + hdr.h))) < 0.07, JSON.stringify(p));
+  }
+  assert.ok(s.notes.some((n) => /2x4 nailer .* long/.test(n)));
+});
