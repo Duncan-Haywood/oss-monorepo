@@ -119,6 +119,7 @@ import {
   SEARCH_INDEX_FILE,
 } from './build.mjs';
 import { LATE_NAV_DIRS, SITE_NAV, HEADER_MARKER } from './site-nav.mjs';
+import { AGENT_POSTS_DIR, loadPosts } from './writing.mjs';
 import { renderSocialCard, SOCIAL_CARD_WIDTH, SOCIAL_CARD_HEIGHT, offlineBundleSizeLabel } from './offline.mjs';
 import { renderCard } from './sharecard.mjs';
 import { EMBED_QUERY_PARAM, DEFAULT_EMBED_HEIGHT } from './embed.mjs';
@@ -766,11 +767,13 @@ test('llms.txt keeps each tool on one line, so no description leaks into prose',
   // Nine trailing bullets under "Optional" describe the site's own surfaces
   // rather than a tool — About, Ask, updates and the changelog, the comparison
   // index, the guides index, catalog.json, the agent CLI, the sitemap and the
-  // Atom feed. Above the tools, one bullet per audience page; below them, one
-  // per research topic. The count is tools plus those.
+  // Atom feed, plus the agent-to-agent blog once `docs/agent-posts/` has a
+  // post. Above the tools, one bullet per audience page; below them, one per
+  // research topic. The count is tools plus those.
   const audiences = audienceGroups(surfaces).length;
   const topics = researchHighlights().themes.length;
-  assert.equal(bullets.length, surfaces.length + 9 + audiences + topics);
+  const agentBlog = loadPosts(undefined, AGENT_POSTS_DIR).length ? 1 : 0;
+  assert.equal(bullets.length, surfaces.length + 9 + audiences + topics + agentBlog);
   for (const bullet of bullets) {
     assert.match(bullet, /^- \[[^\]]+\]\(https?:\/\/[^)]+\): \S/, `malformed bullet: ${bullet}`);
   }

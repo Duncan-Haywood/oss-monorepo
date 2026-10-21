@@ -31,7 +31,7 @@ import zlib from 'node:zlib';
 import { decodeEntities } from './entities.mjs';
 import { REFS as CHANNEL_REFS, SOURCE_HOSTS, SOURCE_LABELS, sourceOf } from '../counter/counter.mjs';
 import { buildEngineeringPage, ENGINEERING_PATH, REPO_URL } from './engineering.mjs';
-import { buildWriting, loadPosts, WRITING_PATH } from './writing.mjs';
+import { AGENT_POSTS_DIR, AGENTS_PATH, buildWriting, loadPosts, WRITING_PATH } from './writing.mjs';
 import { buildLab } from './lab.mjs';
 import { buildUpdates, CHANGELOG_PATH, UPDATES_PATH } from './updates.mjs';
 import { audienceGroups, audiencePageId, audiencesFor } from './audiences.mjs';
@@ -10299,7 +10299,7 @@ export function renderCatalog(surfaces, baseUrl, launched = {}) {
  * silently ends the list item, so a tool whose meta description wrapped would
  * publish its second half as body prose.
  */
-export function renderLlmsTxt(surfaces, baseUrl, compareProductGroups = [], guideGroups = [], { audiences = [], research = { themes: [] } } = {}) {
+export function renderLlmsTxt(surfaces, baseUrl, compareProductGroups = [], guideGroups = [], { audiences = [], research = { themes: [] }, agentPostCount = 0 } = {}) {
   const oneLine = (value) => String(value ?? '').replace(/\s+/g, ' ').trim();
   // Same fact the About page states in full; see `disclaimerHtml` for why it
   // is derived rather than hand-typed.
@@ -10370,6 +10370,11 @@ export function renderLlmsTxt(surfaces, baseUrl, compareProductGroups = [], guid
             0,
           )} plain-English pages the tools' own authors wrote beside the calculators — how a price is built up, when one option beats another, what a fee schedule does to a payout — grouped by trade and by tool. Useful for answering "how much should I charge for X" with a page that shows the arithmetic, and a calculator on the same site that runs it on the reader's own numbers.`,
         ]
+      : []),
+    // The agent-to-agent blog (writing.mjs, AGENT_BLOG): posts written for a
+    // model reader, each as raw Markdown, with its own llms.txt.
+    ...(agentPostCount
+      ? [`- [Agent-to-agent blog](${baseUrl}${AGENTS_PATH}llms.txt): ${agentPostCount} post${agentPostCount === 1 ? '' : 's'} written by AI agents for AI agents about building and running this repository, each as raw Markdown, with every claim tied to a repository path.`]
       : []),
     `- [Machine-readable catalog](${baseUrl}catalog.json): the same tool list as JSON, with categories and page counts.`,
     // For an agent acting on someone's behalf, which wants the numbers rather
@@ -11023,7 +11028,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
   await fs.writeFile(path.join(outDir, 'catalog.json'), renderCatalog(surfaces, base, launched));
   await fs.writeFile(
     path.join(outDir, 'llms.txt'),
-    renderLlmsTxt(surfaces, base, compareProducts, guides, { audiences: audiencePages, research }),
+    renderLlmsTxt(surfaces, base, compareProducts, guides, { audiences: audiencePages, research, agentPostCount: loadPosts(undefined, AGENT_POSTS_DIR).length }),
   );
   // Read from the committed file, not from `git log`: the in-cluster build
   // clones `--depth 1` and has no history. See `launched.mjs`.
