@@ -61,9 +61,10 @@ flagships:
       CLI and agent engine. First tool of the new-home construction program.
     next: >-
       Sheathing landed 2026-10-21 (vertical panels, joints on framing, cut-outs,
-      sheet order with a bound; ROADMAP.md milestone 1). Next: blocking and fire
-      blocking (mid-height rows, nailers where a sheathing joint falls over an
-      opening, added to the cut list and the lumber order), then corner plate
+      sheet order with a bound; ROADMAP.md milestone 1). Blocking and fire
+      blocking landed 2026-10-21 (plan `blocking: {rows, fire}`; engine, cut
+      list and order; no page control yet). Next: the page control for blocking,
+      nailers where a sheathing joint falls over an opening, then corner plate
       laps, then two-course sheathing for walls taller than the sheet.
   # Added 2026-10-20 first, on the owner's direction that day for research
   # algorithms as tools (prompts/goals.md). New tools of that kind follow

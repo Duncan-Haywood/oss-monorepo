@@ -283,3 +283,22 @@ test("400 seeded random walls: panels tile the wall, every edge has framing, cos
 test("panelBreaks: nothing in reach and no opening gives null", () => {
   assert.equal(panelBreaks(200, [0, 100, 200], 48, 12, []), null);
 });
+
+test("blocking: rows sit between full studs, skip openings, and a 12 ft wall gets fire blocking", () => {
+  const plan = { ...base(), studLength: 140.625, blocking: { fire: true } };
+  const wall = { id: "A", length: 240, stud: "2x4", openings: [{ kind: "window", offset: 100, width: 36, height: 48, header: "2x6", headerHeight: 100 }] };
+  plan.walls = [wall];
+  const w = layoutWall(plan, wall);
+  assert.deepEqual(verifyWall(w, wall), []);
+  const bl = w.members.filter((m) => m.kind === "blocking");
+  assert.ok(bl.length > 0);
+  assert.ok(bl.every((m) => m.label === "fire blocking" && Math.abs(m.y + 0.75 - (1.5 + 140.625 / 2)) < 1e-9));
+  assert.ok(bl.every((m) => m.x + m.w <= 100 || m.x >= 136));
+  assert.ok(takeoff(plan).cuts.some((c) => c.kind === "blocking" || c.kind === "fire blocking"));
+  const flat = { ...plan, blocking: undefined };
+  assert.equal(layoutWall(flat, wall).members.filter((m) => m.kind === "blocking").length, 0);
+  assert.ok(layoutWall(flat, wall).notes.some((n) => n.includes("fire blocking")));
+  const two = { ...base(), blocking: { rows: 2 } };
+  const w2 = layoutWall(two, { id: "B", length: 96, stud: "2x4" });
+  assert.equal(new Set(w2.members.filter((m) => m.kind === "blocking").map((m) => m.y)).size, 2);
+});

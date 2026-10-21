@@ -81,7 +81,7 @@ construction in the US and bring its cost down: [ROADMAP.md](ROADMAP.md).
   or `run wall-framing-takeoff -- plan.json`
   ([`platform/agents/`](../../platform/agents/README.md)).
 
-A plan is JSON: `studSpacing`, `studLength`, `kerf`, `topPlateLap`,
+A plan is JSON (optional `blocking: {rows: 1, fire: true}` adds blocking rows; `fire` adds rows so no stud run passes 10 ft): `studSpacing`, `studLength`, `kerf`, `topPlateLap`,
 `cornerExtraStuds`, `teeExtraStuds`, `defaultHeaderHeight`, `stock` (`size`,
 `length`, `price`, optional `label`) and `walls` (`id`, `length`, `stud`,
 `treatedPlate`, `corner`, `tees`, `openings` with `kind`, `offset`, `width`,
