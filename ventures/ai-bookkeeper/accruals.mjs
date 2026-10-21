@@ -36,7 +36,7 @@ export function parseDocuments(text, { dayFirst = false, decimalComma = false } 
   if (rows.length < 2) return { documents: [], problems: ["No document rows found. Expected a header: type,number,date,due,party,amount,account."] };
   const head = rows[0].map((h) => h.trim().toLowerCase());
   const col = (...names) => head.findIndex((h) => names.includes(h));
-  const c = { type: col("type", "kind"), number: col("number", "no", "invoice", "bill", "ref", "id"), date: col("date", "issued", "invoice date", "bill date"), due: col("due", "due date"), party: col("party", "customer", "vendor", "name", "supplier"), amount: col("amount", "total", "line amount"), account: col("account", "account code", "code"), against: col("against", "applies to", "original", "credit for") };
+  const c = { type: col("type", "kind"), number: col("number", "no", "invoice", "bill", "ref", "id"), date: col("date", "issued", "invoice date", "bill date"), due: col("due", "due date"), party: col("party", "customer", "vendor", "name", "supplier"), amount: col("amount", "total", "line amount"), account: col("account", "account code", "code"), against: col("against", "applies to", "original", "credit for"), desc: col("description", "memo", "item", "details") };
   for (const k of ["type", "number", "date", "party", "amount", "account"]) if (c[k] === -1) problems.push(`Missing column "${k}".`);
   if (problems.length) return { documents: [], problems };
   const byId = new Map();
@@ -59,7 +59,8 @@ export function parseDocuments(text, { dayFirst = false, decimalComma = false } 
     const against = c.against >= 0 ? (r[c.against] ?? "").trim() : "";
     const d = byId.get(id) ?? { id, kind, number, date, due, party: (r[c.party] ?? "").trim(), lines: [], total: 0 };
     if (credit) { d.credit = true; if (against) d.against = against; }
-    d.lines.push({ account, cents });
+    const desc = c.desc >= 0 ? (r[c.desc] ?? "").trim() : "";
+    d.lines.push(desc ? { account, cents, desc } : { account, cents });
     d.total += cents;
     byId.set(id, d);
   });
