@@ -5,6 +5,7 @@
 // no DOM, no network.
 
 import { isMt940, isCamt, readMt940, readCamt } from "./sepa.mjs";
+import { readStatementText } from "./statementtext.mjs";
 
 const ALIASES = {
   date: ["date", "transaction date", "posted date", "post date", "posting date", "trans date", "booking date", "effective date", "value date"],
@@ -246,6 +247,10 @@ export function readStatement(text, { dayFirst = false, decimalComma = false, in
   if (format === "qif") return readQif(text, { dayFirst });
   const rows = parseCsv(text);
   const problems = [];
+  if (!rows.some((r) => { if (r.length < 2) return false; const c = detectColumns(r); return c.date !== -1 && (c.amount !== -1 || c.debit !== -1 || c.credit !== -1); }) && sniffBank(rows) !== "wells-fargo") {
+    const t = readStatementText(text, { dayFirst, decimalComma });
+    if (t.rows.length) { if (invert === true) for (const x of t.rows) x.cents = -x.cents; return t; }
+  }
   if (rows.length < 2 && !(rows.length === 1 && headerlessShape(rows))) return { rows: [], problems: ["The file has no data rows."], columns: null };
   const bank = sniffBank(rows);
   let headerAt = rows.findIndex((r) => { const c = detectColumns(r); return c.date !== -1 && (c.amount !== -1 || c.debit !== -1 || c.credit !== -1); });
