@@ -1434,7 +1434,7 @@ al. (1993), the revised NIOSH lifting equation, for the human side of a shared l
    payload envelopes of the Menagerie G1 and H1 (feet fixed, balance kept, every joint within
    its torque limit) over hand height and reach, and a table of residential handling tasks
    against them, solo and shared with a person.
-2. `buildbot-taskbook`: an open task specification of a wood-frame house. For each task
+2. `buildbot-taskbook` (done 2026-10-21): an open task specification of a wood-frame house. For each task
    (carry, place, hold, fasten, cut, lay out, finish): masses, forces, reach, tolerance,
    cycle count and crew hours, taken from the track-12 takeoffs and schedule. Which tasks hold
    the most labour cost per unit of robot difficulty? The output is a dataset other robot

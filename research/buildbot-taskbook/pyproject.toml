@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "buildbot-taskbook"
+version = "0.1.0"
+description = "An open task book of a wood-frame house: quantities, masses, cycles and crew hours, scored against stock humanoid payload envelopes."
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[project.optional-dependencies]
+figure = ["matplotlib"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "../house-framing/src"]
