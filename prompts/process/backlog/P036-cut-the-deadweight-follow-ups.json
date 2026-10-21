@@ -29,7 +29,7 @@
   "baseline": "170,362 bytes after PR #8733's first commit (2026-10-20)",
   "opened": "2026-10-20",
   "source": "owner, in session 2026-10-20",
-  "pr": null,
+  "pr": 9023,
   "result": null,
   "history": [
     {
