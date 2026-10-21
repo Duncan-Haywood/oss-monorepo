@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { newBooks, importStatement, confirm, parseSplit } from "./engine.mjs";
-import { scheduleC, scheduleCCsv, contractors1099, contractors1099Csv, markW9, mergePayees, NEC_THRESHOLD } from "./taxforms.mjs";
+import { scheduleC, scheduleCCsv, contractors1099, contractors1099Csv, markW9, mergePayees, NEC_THRESHOLD, necDeadline, nec1099FilingCsv } from "./taxforms.mjs";
 
 const CSV = `Date,Description,Amount
 2026-01-05,CLIENT PAYMENT ACME,5000.00
@@ -149,4 +149,18 @@ test("1099-NEC: two spellings of one payee can be merged, which carries the tota
   assert.equal(contractors1099(mergePayees(merged, "ZELLE ANNA LOPEZ", "UPWORK PAYMENT ANNA LOPEZ", false), { year: 2026 }).payees.length, 2);
   assert.throws(() => mergePayees(books, "ZELLE ANNA LOPEZ", "NOBODY"), /No bank line/);
   assert.throws(() => mergePayees(books, "ZELLE ANNA LOPEZ", "zelle anna lopez"), /same payee/);
+});
+
+test("1099-NEC: the due date rolls off weekends, 2027 is flagged as indexed, and the filing CSV lists only payees over the line", () => {
+  assert.equal(necDeadline(2025), "2026-02-02"); // Jan 31 2026 is a Saturday
+  assert.equal(necDeadline(2026), "2027-02-01"); // a Sunday
+  assert.equal(necDeadline(2027), "2028-01-31"); // a Monday
+  const r = contractors1099(necBooks(), { year: 2026 });
+  const lines = nec1099FilingCsv(r).trim().split("\n");
+  assert.equal(lines.length, 1 + r.reportable.length);
+  assert.match(lines[0], /^Recipient name,Recipient TIN/);
+  assert.ok(lines.slice(1).every((l) => l.split(",")[1] === ""), "no tax IDs are filled in");
+  assert.ok(r.warnings.every((w) => !/indexed/.test(w)));
+  assert.ok(contractors1099(necBooks(), { year: 2027 }).warnings.some((w) => /indexed/.test(w)));
+  assert.ok(!contractors1099(necBooks(), { year: 2027, threshold: 250000 }).warnings.some((w) => /indexed/.test(w)));
 });

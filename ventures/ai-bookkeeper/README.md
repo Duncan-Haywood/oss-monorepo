@@ -282,7 +282,13 @@ a 1099-K); payees over the line without a W-9 and unfiled bank lines from the ye
 are warned about. Payees are grouped by the first two payee words of the bank line,
 so two spellings of one person can split: check the list. It is a worksheet, not a
 filing: whether someone is a contractor, and exemptions such as corporations, are
-yours to decide. Page card: not yet. Test: `taxforms.test.mjs`.
+yours to decide. `--filing-csv` (`nec1099FilingCsv`, and a page button) writes only
+the payees over the line in the boxes of Form 1099-NEC (name, blank TIN and address to
+copy from each W-9, Box 1; Box 4 blank) for typing or importing into a filing service;
+those services' own column layouts were not checked, so map the columns on upload.
+`necDeadline` gives the filing date (January 31, rolled to the next weekday: February 1,
+2027 for 2026 payments). From 2027 the $2,000 is indexed to inflation, so the worksheet
+warns unless you pass a threshold. Test: `taxforms.test.mjs`.
 
 ## Sales tax report
 
