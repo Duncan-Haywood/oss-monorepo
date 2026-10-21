@@ -15,8 +15,10 @@
   "tokens_out": null,
   "cost_usd": null,
   "tool_calls": null,
-  "task": null,
-  "projects": [],
+  "task": "Deepen (flagship 1): ai-bookkeeper page write-off button",
+  "projects": [
+    "ai-bookkeeper"
+  ],
   "pr": null,
   "repo": null,
   "commits": [],
@@ -25,15 +27,15 @@
   "merged": null,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": null,
-  "outcome": null,
+  "tests_added": 1,
+  "outcome": "partial",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [],
   "deviations": [],
   "writeups": [],
   "goal": null,
-  "notes": "",
+  "notes": "Added a Write off button per open invoice on the page (index.html), verified in headless Chromium (load invoice, click, 500.00 written off, no page errors) and node --test 65/65. Local-model measurement of the AI layer not done (no model in container); ablation already existed.",
   "corrections": [],
   "redteam": null
 }
