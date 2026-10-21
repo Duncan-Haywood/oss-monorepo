@@ -46,7 +46,7 @@ test("agrees with the Saxon SEF route on every example invoice", { skip: skip ||
   }
 });
 
-test("a rule that fails to evaluate is reported as skipped, never as a pass", () => {
+test("a rule that fails to evaluate is reported as skipped, never as a pass", { skip }, () => {
   const fx = createRequire(import.meta.url)("fontoxpath");
   const runner = createPlainRunner({ fontoxpath: fx, parseXml: () => ({}) });
   const rules = { ns: {}, prolog: "", patterns: [{ id: "p", rules: [{ context: "/a", checks: [{ kind: "assert", id: "R-1", flag: "fatal", test: "xs:integer('x') = 1", text: "[R-1]-x" }] }] }] };
@@ -56,7 +56,7 @@ test("a rule that fails to evaluate is reported as skipped, never as a pass", ()
   assert.deepEqual(out.skipped, ["R-1"]);
 });
 
-test("a failed money equation is cleared when it is only floating-point noise", () => {
+test("a failed money equation is cleared when it is only floating-point noise", { skip }, () => {
   const req = createRequire(import.meta.url);
   const runner = createPlainRunner({ fontoxpath: req("fontoxpath"), parseXml: () => ({}) });
   const check = (id, test) => ({ kind: "assert", id, flag: "fatal", test, text: `[${id}]-m` });
