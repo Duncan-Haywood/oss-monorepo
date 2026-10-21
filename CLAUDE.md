@@ -53,6 +53,10 @@ deepen "existing projects that have real depth").
 The owner's standing directions (SEO, compliant distribution, measurement,
 the blog at `docs/posts/`, sales tools, local models) are quoted in
 `goals.md`. They are directions for many runs, not tasks every run starts on.
+A default for most PRs (owner, 2026-10-21; skip with judgment): a post in
+`docs/posts/`, the product's `llms.txt` brought up to date, and a marketing
+page aimed at its users, with no fake reviews or claims a file can't back
+(`goals.md`, "A post, LLM docs and a marketing page").
 One applies to every run: **files first, not the GitHub API** (owner,
 2026-10-20). What a later reader needs (verification output, decisions, why)
 goes in a file in the same PR (run record, README, `docs/history/`); a PR body

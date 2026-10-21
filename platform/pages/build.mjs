@@ -10150,8 +10150,11 @@ export function renderLlmsTxt(surfaces, baseUrl, compareProductGroups = [], guid
   // is derived rather than hand-typed.
   const exceptions = externalCallExceptions(surfaces);
 
+  // A product that ships its own `llms.txt` (how to call it, which options fit
+  // which data, its limits) gets it named on its line, so an assistant that
+  // matched the product here can fetch the detail without crawling the page.
   const bullet = (surface) =>
-    `- [${oneLine(surface.title)}](${baseUrl}${surface.slug}/): ${oneLine(surface.fullDescription || surface.description)}`;
+    `- [${oneLine(surface.title)}](${baseUrl}${surface.slug}/): ${oneLine(surface.fullDescription || surface.description)}${surface.llmsDoc ? ` LLM docs: ${baseUrl}${surface.slug}/llms.txt` : ''}`;
 
   const sections = groupByCategory(surfaces).map(({ category, items }) => {
     const subgroups = groupBySubcategory(category.id, items);
@@ -10600,6 +10603,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
       kind: surfaceKind(path.join(REPO_ROOT, 'ventures', surface.slug), surface.slug),
       pageCount: await countPages(surface.sourceDir),
       publishedPageCount: pages.length,
+      llmsDoc: existsSync(path.join(destination, 'llms.txt')),
       externalFetchHosts: await surfaceExternalFetchHosts(destination),
     });
     log(`  ${surface.slug}`);
