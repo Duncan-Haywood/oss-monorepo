@@ -159,6 +159,23 @@
     <p><strong>Measured, on synthetic data.</strong> A seeded generator writes a year of lines for a made-up studio (payroll, software, Amazon bought for two different accounts, coffee, one-off local merchants, a card paid from checking). Importing a month at a time and filing each month's queue correctly, from the fourth month on 60% of lines posted by themselves (1,300 of 2,164), 1 of those 1,300 to the wrong account, and 84% of the review suggestions were right (542 of 642; 5 seeds, 2,892 lines; the README has the table and the command). The built-in keywords were written by the same person as the generator, so the first month's accuracy flatters them; the learning numbers are the honest part. Real bank files will be messier.</p>
     <p><strong>Not modelled:</strong> accruals (invoices and bills not yet paid), depreciation, inventory, payroll and sales tax filings, multiple currencies, splitting one line across accounts, and locking a closed period. It is cash-basis bookkeeping from bank lines. Reconciles to the statement only when the file has a running balance column.</p>
   </section>
+  <section class="card" aria-labelledby="h-faq">
+    <h2 id="h-faq">Questions</h2>
+    <h3>What does AI Bookkeeper actually do with my bank file?</h3>
+    <p>It reads each line, suggests the account it belongs to with a confidence and the reason, and turns every line you accept into a balanced double-entry journal entry. From those entries it builds a trial balance, a profit and loss by month and a balance sheet. The file is read in your browser and never uploaded.</p>
+    <h3>How does it learn?</h3>
+    <p>Every line you file is remembered by its payee, cleaned of store numbers and reference codes. Next time the same payee posts itself once you have filed it the same way three times, and a small naive Bayes classifier trained on everything you filed suggests accounts for payees it has not seen exactly. On a synthetic year of a small studio's lines, 60% of each month posted by itself from the fourth month on, and 1 of those 1,300 lines went to the wrong account.</p>
+    <h3>Is the AI required, and where does my data go?</h3>
+    <p>No. The rules, memory and classifier run in your browser with no key. If you add your own Anthropic, OpenAI or Gemini key, or point it at a model on your own computer such as Ollama or LM Studio, the dates, descriptions and amounts of the lines still in review, your chart of accounts and up to 40 lines you already filed are sent from your browser straight to that provider, never to us. The model only suggests; nothing is posted until you accept it.</p>
+    <h3>Why doesn't a credit card payment show up as an expense?</h3>
+    <p>Because it is not one. Paying the card from checking moves money between two of your own accounts. When you import both statements, the payment out of checking and the payment received on the card are paired into one transfer entry, so the expense is counted once, when you bought the thing.</p>
+    <h3>Can I take the books to QuickBooks or Xero, or to my accountant?</h3>
+    <p>Yes. Export a QuickBooks Online journal entry import, a Xero manual journal CSV, a QuickBooks Desktop IIF file, a plain journal CSV, or a CSV of every line with its account, suggestion and reason. Check the account names match your company file before you import.</p>
+    <h3>Where are my books saved?</h3>
+    <p>In this browser's local storage and in the books file you download. Nothing is kept on a server. Download the books file regularly; clearing site data deletes the copy in the browser.</p>
+    <h3>Is this a replacement for an accountant?</h3>
+    <p>No. It does the sorting and the arithmetic of bookkeeping and tells you what to check. It does not know your tax position, accrual adjustments, depreciation, payroll filings or sales tax rules. Have a qualified accountant review the books before you file anything.</p>
+  </section>
   </main>
 
   <footer>

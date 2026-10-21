@@ -25,7 +25,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": 2,
+  "ci_failures_before_green": 5,
   "review_findings": null,
   "tests_added": 35,
   "outcome": "success",
@@ -36,7 +36,10 @@
     "Capitalize check flagged payroll; restricted to supply, office, repair and tool-like accounts.",
     "Post draft said about 580 lines a month; the generator makes about 48 a month (580 a year). Caught on re-read before commit.",
     "VENTURE.yaml hypothesis used evidence 'measurement'; portfolio/router/validate.py accepts only customer-contact or in-repo. CI validate caught it; fixed.",
-    "New venture shipped with no launch date in platform/pages/launched.json; CI build (check.mjs dist) caught it; fixed with node platform/pages/launched.mjs --write."
+    "New venture shipped with no launch date in platform/pages/launched.json; CI build (check.mjs dist) caught it; fixed with node platform/pages/launched.mjs --write.",
+    "New venture was a crawlable orphan (siblings.test); filed it beside the journal tools in build.mjs and linked it from sales-export-to-journal and payment-reconciliation-workbench.",
+    "FAQPage JSON-LD questions were not visible on the page (faq-visible.test); rendered a visible Questions section from the same strings.",
+    "Front-door artifacts were stale for the new venture (marketing tests); regenerated with regen.mjs and front-door-tools.mjs --write (alias map only is tracked)."
   ],
   "integrity_issues": [
     "The learning-curve benchmark is on synthetic data whose generator and built-in keywords share an author; month-1 accuracy is circular. Stated on the page, README, llms.txt and post; only the learning numbers are quoted as findings."
@@ -52,7 +55,7 @@
     },
     {
       "file": "ventures/CLAUDE.md",
-      "issue": "A new venture needs launched.mjs --write and sync_tree_counts.py before CI is green; neither is listed where a new-venture run looks first."
+      "issue": "A new venture needs, before CI is green: launched.mjs --write, sync_tree_counts.py, a sibling link from a related venture (siblings.mjs), FAQ JSON-LD rendered visibly, and regen.mjs plus front-door-tools.mjs --write. None of these is listed where a new-venture run looks first; each cost a CI round here."
     }
   ],
   "deviations": [
@@ -66,7 +69,7 @@
     "docs/reports/2026-10-21-ai-bookkeeper-for-agents.md"
   ],
   "goal": "Start the AI accounting systems direction with a working system, not another single-step tool",
-  "notes": "Verification run here: node --test ventures/ai-bookkeeper/*.test.mjs (35 pass); headless Chromium (example -> accept -> file -> reconciles to $10,947.46; balance sheet balances; persists across reload; no horizontal scroll at 390px; no outside requests); CLI end to end; node platform/agents/tools.mjs call ai-bookkeeper analyze; node platform/pages/clauses.mjs ai-bookkeeper (ok); node --test platform/pages/venture-sitemap-coverage.test.mjs (3 pass); front-door explainIneligible (eligible); sync_tree_counts.py --check (agrees); node --test platform/privacy/optout-persistence.test.mjs (17 pass); promptctl validate (ok). Benchmark: 5 seeds, 2,892 synthetic lines; months 4-12 1,300/2,164 posted alone, 1 wrong; 542/642 review suggestions right. python3 portfolio/router/validate.py (all valid).",
+  "notes": "Verification run here: node --test ventures/ai-bookkeeper/*.test.mjs (35 pass); headless Chromium (example -> accept -> file -> reconciles to $10,947.46; balance sheet balances; persists across reload; no horizontal scroll at 390px; no outside requests); CLI end to end; node platform/agents/tools.mjs call ai-bookkeeper analyze; node platform/pages/clauses.mjs ai-bookkeeper (ok); node --test platform/pages/venture-sitemap-coverage.test.mjs (3 pass); front-door explainIneligible (eligible); sync_tree_counts.py --check (agrees); node --test platform/privacy/optout-persistence.test.mjs (17 pass); promptctl validate (ok). Benchmark: 5 seeds, 2,892 synthetic lines; months 4-12 1,300/2,164 posted alone, 1 wrong; 542/642 review suggestions right. python3 portfolio/router/validate.py (all valid). After CI rounds: node --test platform/pages/*.test.mjs (siblings and faq-visible fixed, rest passing), node --test platform/marketing/*.test.mjs (pass after regen), regen.mjs --verify (current).",
   "corrections": [],
   "redteam": null
 }
