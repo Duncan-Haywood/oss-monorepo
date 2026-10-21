@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { newBooks } from "./engine.mjs";
 import { addAsset, disposeAsset } from "./assets.mjs";
-import { MACRS_HALF_YEAR, setTaxTreatment, assetTaxYear, taxDepreciation } from "./taxdepr.mjs";
+import { MACRS_MID_QUARTER, usesMidQuarter, MACRS_HALF_YEAR, setTaxTreatment, assetTaxYear, taxDepreciation } from "./taxdepr.mjs";
 
 const with1 = (cost, date, tax, life = 60) => {
   let b = addAsset(newBooks(), { name: "Machine", date, cost, lifeMonths: life }).books;
@@ -119,4 +119,32 @@ test("section 179 and bonus accept their exact limits and reject one step past",
   assert.equal(setTaxTreatment(b, "FA-1", { macrsClass: 5, bonusPct: 100 }).asset.tax.bonusPct, 100);
   assert.throws(() => setTaxTreatment(b, "FA-1", { macrsClass: 5, bonusPct: 100.5 }), /Bonus percent/);
   assert.throws(() => setTaxTreatment(b, "FA-1", { macrsClass: 5, bonusPct: -1 }), /Bonus percent/);
+});
+
+test("every mid-quarter table adds to 100 percent", () => {
+  for (const [cls, qs] of Object.entries(MACRS_MID_QUARTER)) for (const t of qs) assert.equal(t.reduce((s, p) => s + p, 0), 100000, `class ${cls}`);
+});
+
+test("5-year mid-quarter rows match the published Q1 and Q4 percentages", () => {
+  assert.deepEqual(MACRS_MID_QUARTER[5][0], [35000, 26000, 15600, 11010, 11010, 1380]);
+  assert.deepEqual(MACRS_MID_QUARTER[5][3], [5000, 38000, 22800, 13680, 10940, 9580]);
+});
+
+test("more than 40 percent of basis in Q4 switches the whole year to mid-quarter", () => {
+  let b = addAsset(newBooks(), { name: "A", date: "2026-02-01", cost: "5000", lifeMonths: 60 }).books;
+  b = addAsset(b, { name: "B", date: "2026-11-01", cost: "5000", lifeMonths: 60 }).books;
+  b = setTaxTreatment(b, "FA-1", { macrsClass: 5 }).books;
+  b = setTaxTreatment(b, "FA-2", { macrsClass: 5 }).books;
+  assert.equal(usesMidQuarter(b, 2026), true);
+  const w = taxDepreciation(b, 2026);
+  assert.equal(w.rows[0].macrs, 175000); // Q1: 35% of 5,000
+  assert.equal(w.rows[1].macrs, 25000);  // Q4: 5% of 5,000
+  assert.ok(w.warnings.some((x) => /mid-quarter convention applies/.test(x)));
+});
+
+test("exactly 40 percent in Q4 stays on the half-year tables", () => {
+  let b = addAsset(newBooks(), { name: "A", date: "2026-02-01", cost: "6000", lifeMonths: 60 }).books;
+  b = addAsset(b, { name: "B", date: "2026-11-01", cost: "4000", lifeMonths: 60 }).books;
+  b = setTaxTreatment(setTaxTreatment(b, "FA-1", { macrsClass: 5 }).books, "FA-2", { macrsClass: 5 }).books;
+  assert.equal(usesMidQuarter(b, 2026), false);
 });

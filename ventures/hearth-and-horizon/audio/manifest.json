@@ -9,9 +9,24 @@
     "seconds": 1228.6,
     "voice": "en_US-ljspeech-high"
   },
+  "the-bell-at-half-past-three": {
+    "bytes": 8055870,
+    "seconds": 1342.6,
+    "voice": "en_US-ljspeech-high"
+  },
+  "the-grader": {
+    "bytes": 5381959,
+    "seconds": 896.9,
+    "voice": "en_US-ljspeech-high"
+  },
   "the-slowest-bell-on-the-moon": {
     "bytes": 8949259,
     "seconds": 1491.4,
+    "voice": "en_US-ljspeech-high"
+  },
+  "thirty-nine-minutes": {
+    "bytes": 9521958,
+    "seconds": 1586.9,
     "voice": "en_US-ljspeech-high"
   }
 }

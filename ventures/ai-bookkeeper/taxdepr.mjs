@@ -21,6 +21,40 @@ export const MACRS_HALF_YEAR = {
   15: T([5.0, 9.5, 8.55, 7.7, 6.93, 6.23, 5.9, 5.9, 5.91, 5.9, 5.91, 5.9, 5.91, 5.9, 5.91, 2.95]),
   20: T([3.75, 7.219, 6.677, 6.177, 5.713, 5.285, 4.888, 4.522, 4.462, 4.461, 4.462, 4.461, 4.462, 4.461, 4.462, 4.461, 4.462, 4.461, 4.462, 4.461, 2.231]),
 };
+
+// Mid-quarter convention: property is treated as placed in service at the middle
+// of its quarter, so year 1 gets 87.5, 62.5, 37.5 or 12.5% of a full year. The
+// IRS tables (Pub 946 A-2 to A-5) are the declining balance method (200% for
+// 3 to 10 years, 150% for 15 and 20) switching to straight line when that is
+// larger. They are generated here that way and rounded to two decimals. The
+// IRS rounds some repeated straight-line years by hand (a year can differ by
+// 0.01 to 0.04 of a point from the printed row), so the totals are exact but
+// a year may not match the printed table to the last digit; not checked
+// against the publication (offline).
+const QUARTER_FRACTION = [0.875, 0.625, 0.375, 0.125];
+function midQuarterTable(life, quarter) {
+  const rate = (life >= 15 ? 1.5 : 2) / life;
+  const out = [];
+  let basis = 1, used = 0, remainingLife = life;
+  for (let y = 0; y <= life; y++) {
+    let amt;
+    if (y === 0) { amt = basis * rate * QUARTER_FRACTION[quarter - 1]; remainingLife = life - QUARTER_FRACTION[quarter - 1]; }
+    else {
+      const db = basis * rate;
+      const sl = basis / remainingLife;
+      amt = Math.min(basis, Math.max(db, sl));
+      remainingLife -= 1;
+    }
+    out.push(amt); basis -= amt; used += amt;
+  }
+  const r = out.map((x) => Math.round(x * 10000) / 100);
+  // Year after the last full year takes whatever rounding left, so the table adds to 100.
+  while (r.length && r[r.length - 1] === 0) r.pop();
+  r[r.length - 1] = Math.round((100 - r.slice(0, -1).reduce((s, x) => s + x, 0)) * 100) / 100;
+  return r;
+}
+export const MACRS_MID_QUARTER = Object.fromEntries([3, 5, 7, 10, 15, 20].map((c) => [c, [1, 2, 3, 4].map((q) => T(midQuarterTable(c, q)))]));
+
 export const CLASSES = Object.keys(MACRS_HALF_YEAR).map(Number);
 
 const clone = (x) => JSON.parse(JSON.stringify(x));
@@ -41,9 +75,9 @@ export function setTaxTreatment(booksIn, id, { macrsClass, s179 = 0, bonusPct = 
 }
 
 // One asset's tax depreciation in `year`. Year 1 is the year placed in service.
-// Disposal year takes half of that year's table amount (half-year convention).
+// Disposal year takes half of that year's table amount (half-year convention). `midQuarter` uses the mid-quarter tables for the asset's quarter.
 // -> { s179, bonus, macrs, total } in cents
-export function assetTaxYear(a, year) {
+export function assetTaxYear(a, year, midQuarter = false) {
   const t = a.tax;
   if (!t) return { s179: 0, bonus: 0, macrs: 0, total: 0 };
   const y0 = +a.date.slice(0, 4);
@@ -53,7 +87,8 @@ export function assetTaxYear(a, year) {
   const bonus = Math.round((afterSec * t.bonusPct) / 100);
   if (n === 0) out.bonus = bonus;
   if (n >= 0) {
-    const table = MACRS_HALF_YEAR[t.macrsClass];
+    const quarter = Math.floor((+a.date.slice(5, 7) - 1) / 3) + 1;
+    const table = midQuarter ? MACRS_MID_QUARTER[t.macrsClass][quarter - 1] : MACRS_HALF_YEAR[t.macrsClass];
     const base = afterSec - bonus;
     const pct = (k) => table[k] ?? 0;
     // Cumulative rounding so the years add to the basis exactly.
@@ -69,6 +104,17 @@ export function assetTaxYear(a, year) {
   return out;
 }
 
+// The mid-quarter test for the year property was placed in service: true when
+// more than 40% of that year's depreciable basis (cost less 179) went into
+// service in October to December. Then every item placed that year uses the
+// mid-quarter tables for its own quarter.
+export function usesMidQuarter(books, year) {
+  const placed = (books.assets ?? []).filter((a) => a.tax && a.date.startsWith(String(year)));
+  const basis = placed.reduce((s, a) => s + a.cents - a.tax.s179, 0);
+  const q4 = placed.filter((a) => +a.date.slice(5, 7) >= 10).reduce((s, a) => s + a.cents - a.tax.s179, 0);
+  return basis > 0 && q4 * 100 > basis * 40;
+}
+
 // The worksheet for a tax year: a row per asset with a tax treatment, the book
 // depreciation for the same year for comparison, and warnings.
 export function taxDepreciation(books, year) {
@@ -79,17 +125,12 @@ export function taxDepreciation(books, year) {
   for (const a of books.assets ?? []) {
     if (!a.tax) { if (+a.date.slice(0, 4) <= year) untreated.push(a.id); continue; }
     if (+a.date.slice(0, 4) > year) continue;
-    const t = assetTaxYear(a, year);
+    const mq = usesMidQuarter(books, +a.date.slice(0, 4));
+    const t = assetTaxYear(a, year, mq);
     const book = schedule(a, through).filter((r) => r.date.startsWith(String(year))).reduce((s, r) => s + r.cents, 0);
-    rows.push({ id: a.id, name: a.name, placed: a.date, class: a.tax.macrsClass, cost: a.cents, ...t, book, difference: t.total - book });
+    rows.push({ midQuarter: mq, id: a.id, name: a.name, placed: a.date, class: a.tax.macrsClass, cost: a.cents, ...t, book, difference: t.total - book });
   }
-  // Mid-quarter test: if more than 40% of the year's depreciable basis (cost less
-  // 179) of property placed in service in the year went into service in Q4, the
-  // half-year tables do not apply. Flagged, not recomputed.
-  const placed = (books.assets ?? []).filter((a) => a.tax && a.date.startsWith(String(year)));
-  const basis = placed.reduce((s, a) => s + a.cents - a.tax.s179, 0);
-  const q4 = placed.filter((a) => +a.date.slice(5, 7) >= 10).reduce((s, a) => s + a.cents - a.tax.s179, 0);
-  if (basis > 0 && q4 * 100 > basis * 40) warnings.push(`${((q4 * 100) / basis).toFixed(0)}% of ${year}'s depreciable basis was placed in service in October to December. Over 40% triggers the mid-quarter convention, whose tables this worksheet does not have; the half-year figures here are wrong in that case.`);
+  for (const y of [...new Set(rows.filter((r) => r.midQuarter).map((r) => +r.placed.slice(0, 4)))]) warnings.push(`More than 40% of ${y}'s depreciable basis was placed in service in October to December, so the mid-quarter convention applies to everything placed in service in ${y} (tables generated by the IRS method; a year can differ from the printed Pub 946 row by a few hundredths of a point). The test counts only assets with a tax treatment set here; add the rest or check it with your preparer.`);
   if (untreated.length) warnings.push(`No tax treatment set for ${untreated.join(", ")}; they are left out. Set one with "asset tax ID --class 5".`);
   if (rows.some((r) => r.s179)) warnings.push("Section 179 dollar limits, the investment phase-out and the taxable-income limit are not checked.");
   if (rows.some((r) => a_bonus(books, r.id))) warnings.push("Bonus depreciation is applied at the percent you entered; check the rate in force for the year placed in service.");

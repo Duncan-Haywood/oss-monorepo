@@ -1,0 +1,250 @@
+{
+  "date": "2026-10-21",
+  "session": "https://claude.ai/code/session_015YDG47VsaHRSua25egWWy3",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-21T14:08:40Z",
+  "ended": "2026-10-21T14:08:53Z",
+  "wall_minutes": 19.44,
+  "tokens_in": 2165082,
+  "tokens_out": 8665,
+  "cost_usd": 0.7846,
+  "tool_calls": 28,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/9192",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "A first campaign on changepoint-detector/engine.mjs ran past the 10 min foreground limit with no warning; the doc suggests checking suite time but redteam.py campaign gave no estimate before starting."
+    }
+  ],
+  "deviations": [],
+  "writeups": [],
+  "goal": null,
+  "notes": "",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/league-schedule-generator/divisions.mjs",
+        "test": "node --test ventures/league-schedule-generator/**/*.test.mjs  (in .)",
+        "seed": 262455159,
+        "commit": "0166ee01",
+        "sites": 494,
+        "baseline_seconds": 22.6,
+        "mutants": [
+          {
+            "file": "ventures/league-schedule-generator/divisions.mjs",
+            "line": 55,
+            "col": 68,
+            "operator": "const-plus-one",
+            "before": "const a = known.get(m[1].trim().toLowerCase()), b = known.get(m[2].trim().toLowerCase());",
+            "after": "const a = known.get(m[1].trim().toLowerCase()), b = known.get(m[3].trim().toLowerCase());",
+            "line_text": "    const a = known.get(m[1].trim().toLowerCase()), b = known.get(m[2].trim().toLowerCase());",
+            "caught": true,
+            "seconds": 17.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/league-schedule-generator/divisions.mjs",
+            "line": 210,
+            "col": 37,
+            "operator": "const-plus-one",
+            "before": "const iters = (travel ? 6000 : 600) + 40 * ms.length; // a travel table has more to gain from search (measured in divisions.test.mjs)",
+            "after": "const iters = (travel ? 6000 : 601) + 40 * ms.length; // a travel table has more to gain from search (measured in divisions.test.mjs)",
+            "line_text": "      const iters = (travel ? 6000 : 600) + 40 * ms.length; // a travel table has more to gain from search (measured in divisions.test.mjs)",
+            "caught": true,
+            "seconds": 22.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/league-schedule-generator/divisions.mjs",
+            "line": 448,
+            "col": 36,
+            "operator": "minus-to-plus",
+            "before": "if (Math.abs(counts(dv, home) - 2) > 1 || Math.abs(counts(dv, away) + 2) > 1) continue;",
+            "after": "if (Math.abs(counts(dv, home) + 2) > 1 || Math.abs(counts(dv, away) + 2) > 1) continue;",
+            "line_text": "      if (Math.abs(counts(dv, home) - 2) > 1 || Math.abs(counts(dv, away) + 2) > 1) continue;",
+            "caught": true,
+            "seconds": 22.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/league-schedule-generator/divisions.mjs",
+            "line": 566,
+            "col": 15,
+            "operator": "or-to-and",
+            "before": "if (!rec || rec.c !== want) errors.push(`${d.name}: ${d.teams[a]} and ${d.teams[b]} meet ${rec ? rec.c : 0} time(s), expected ${want}.`);",
+            "after": "if (!rec && rec.c !== want) errors.push(`${d.name}: ${d.teams[a]} and ${d.teams[b]} meet ${rec ? rec.c : 0} time(s), expected ${want}.`);",
+            "line_text": "      if (!rec || rec.c !== want) errors.push(`${d.name}: ${d.teams[a]} and ${d.teams[b]} meet ${rec ? rec.c : 0} time(s), expected ${want}.`);",
+            "caught": true,
+            "seconds": 24.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/league-schedule-generator/divisions.mjs",
+            "line": 567,
+            "col": 43,
+            "operator": "or-to-and",
+            "before": "else if (want === 2 && (rec.lo !== 1 || rec.hi !== 1)) errors.push(`${d.name}: ${d.teams[a]} and ${d.teams[b]} do not each host once.`);",
+            "after": "else if (want === 2 && (rec.lo !== 1 && rec.hi !== 1)) errors.push(`${d.name}: ${d.teams[a]} and ${d.teams[b]} do not each host once.`);",
+            "line_text": "      else if (want === 2 && (rec.lo !== 1 || rec.hi !== 1)) errors.push(`${d.name}: ${d.teams[a]} and ${d.teams[b]} do not each host once.`);",
+            "caught": false,
+            "seconds": 23.2,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "in this branch rec.c===2 so lo+hi===2: lo!==1 and hi!==1 are both true or both false, so || and && agree. (The extra test for a pair hosting twice stays as a behaviour guard.)"
+          },
+          {
+            "file": "ventures/league-schedule-generator/divisions.mjs",
+            "line": 625,
+            "col": 57,
+            "operator": "true-to-false",
+            "before": "const venueFairness = f.venueFairness === true || /^(1|true|yes|on)$/i.test(String(f.venueFairness || \"\"));",
+            "after": "const venueFairness = f.venueFairness === true || /^(1|false|yes|on)$/i.test(String(f.venueFairness || \"\"));",
+            "line_text": "  const venueFairness = f.venueFairness === true || /^(1|true|yes|on)$/i.test(String(f.venueFairness || \"\"));",
+            "caught": true,
+            "seconds": 23.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/league-schedule-generator/divisions.mjs",
+            "line": 627,
+            "col": 85,
+            "operator": "const-plus-one",
+            "before": "if (fw !== \"\" && !(Number.isFinite(Number(fw)) && Number(fw) >= 0 && Number(fw) <= 100)) errors.push(\"The fairness weight is a number from 0 to 100 (default 3).\");",
+            "after": "if (fw !== \"\" && !(Number.isFinite(Number(fw)) && Number(fw) >= 0 && Number(fw) <= 101)) errors.push(\"The fairness weight is a number from 0 to 100 (default 3).\");",
+            "line_text": "  if (fw !== \"\" && !(Number.isFinite(Number(fw)) && Number(fw) >= 0 && Number(fw) <= 100)) errors.push(\"The fairness weight is a number from 0 to 100 (default 3).\");",
+            "caught": false,
+            "seconds": 22.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "no test at the fairness-weight upper bound (101 accepted); test added"
+          },
+          {
+            "file": "ventures/league-schedule-generator/divisions.mjs",
+            "line": 668,
+            "col": 26,
+            "operator": "or-to-and",
+            "before": "const t = String(text || \"\").replace(/^#?d=/, \"\");",
+            "after": "const t = String(text && \"\").replace(/^#?d=/, \"\");",
+            "line_text": "    const t = String(text || \"\").replace(/^#?d=/, \"\");",
+            "caught": true,
+            "seconds": 23.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/league-schedule-generator/divisions.mjs",
+        "issue": "parseTravel split the line at the first hyphen, so a venue named 'North-Park' was rejected as 'North is not a venue'",
+        "patched": true
+      }
+    ],
+    "notes": " Guards: parseTravel hyphenated venue test, fairness weight 100/101 boundary test, double round robin hosts-twice validation test. Campaign target divisions.mjs: 6/8 caught, 7/7 non-equivalent after fix."
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "2e13e69b-6a63-54b9-84eb-664047e53466",
+    "transcripts": 1,
+    "first": "2026-10-21T14:08:40Z",
+    "last": "2026-10-21T14:28:07Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 27,
+        "input": 58,
+        "output": 8665,
+        "thinking": 1408,
+        "cache_read": 2095334,
+        "cache_write_5m": 0,
+        "cache_write_1h": 69690,
+        "api_equivalent_usd": 0.7846,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 27,
+      "input": 58,
+      "output": 8665,
+      "thinking": 1408,
+      "cache_read": 2095334,
+      "cache_write_5m": 0,
+      "cache_write_1h": 69690,
+      "api_equivalent_usd": 0.7846,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.968,
+    "tool_calls": 28,
+    "tools": {
+      "Bash": 20,
+      "Read": 3,
+      "Monitor": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 19.44,
+      "active_minutes": 16.54,
+      "model_minutes": 1.79,
+      "tool_minutes": 14.74,
+      "waiting_on_human_minutes": 2.9,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

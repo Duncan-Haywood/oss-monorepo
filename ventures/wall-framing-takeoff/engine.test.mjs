@@ -549,3 +549,20 @@ test("gable walls reject openings and a flat pitch", () => {
   const errs = validatePlan(plan);
   assert.ok(errs.some((e) => e.includes("pitch")) && errs.some((e) => e.includes("gable wall")));
 });
+
+// ---- rim lap ----
+test("rim lap: sheathing runs below the bottom plate to cover the rim board, checks pass, sheet grows", () => {
+  const plan = samplePlan();
+  const r = takeoff(plan);
+  const off = sheathe({ ...plan, sheathing: defaultSheathing() }, r);
+  const on = sheathe({ ...plan, sheathing: { ...defaultSheathing(), rimLap: 9.25 } }, r);
+  assert.equal(on.ok, true);
+  assert.equal(on.rimLap, 9.25);
+  for (const w of on.walls) {
+    assert.deepEqual(w.check, [], `${w.id}: ${w.check}`);
+    assert.ok(w.panels.every((p) => p.y0 < 0 || p.course > 0));
+  }
+  assert.ok(on.summary.areaCovered > off.summary.areaCovered);
+  assert.ok(on.notes.some((n) => /rim board/.test(n)));
+  assert.ok(on.courses[0].y0 === -9.25 || on.courses.length > 1);
+});

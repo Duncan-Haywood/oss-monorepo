@@ -1,0 +1,49 @@
+{
+  "date": "2026-10-21",
+  "session": "https://claude.ai/code/session_011yga9CK2iSbdoCgAaM2CQ2",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-21T14:25:14Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 9191,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Said to run the whole prompt/route flow plus write-ups; for a small slice, the post/report step was skipped for budget."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No agent doc or post written for this small slice; README, ROADMAP and flagships next updated instead. Ran the venture's three node test files (53 pass), not the 5-minute venture-preflight."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Rim lap for wall-framing-takeoff sheathing (engine, CLI --rim-lap=, page field, test).",
+  "corrections": [],
+  "redteam": null
+}
