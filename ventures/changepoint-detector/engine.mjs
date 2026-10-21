@@ -223,8 +223,11 @@ function solveSym(H, b) {
  * on g with each segment's rate profiled out, until g moves less than 1e-5.
  * Returns { g, exposure, passes }.
  */
-export function poissonTrend(x, { base = null, penalty = 'bic', minSegment = 2, passes = 12, bend = false, knotMargin = 0.1, scale = 1 } = {}) {
+export function poissonTrend(x, { base = null, penalty = 'bic', minSegment = 2, passes = 12, bend = false, knotMargin = 0.1, scale = 1, nbSize = 0 } = {}) {
   const n = x.length;
+  const nb = nbSize > 0 && Number.isFinite(nbSize);
+  // nb: PELT and the cost that ranks knots use the negative-binomial likelihood (size nbSize); the growth steps stay Poisson score steps (a quasi-likelihood)
+  const peltFit = (e) => pelt(x, nb ? { model: 'negbin', penalty, minSegment, size: nbSize, exposure: e } : { model: 'poisson', penalty, minSegment, exposure: e });
   const u = Array.from({ length: n }, (_, t) => (t - (n - 1) / 2) / Math.max(1, n - 1));
   const b = (t) => (base ? base[t] : 1);
   const y = x.map((v, t) => Math.log((v + 0.5) / b(t)));
@@ -241,7 +244,7 @@ export function poissonTrend(x, { base = null, penalty = 'bic', minSegment = 2, 
     const m = phi.length;
     for (; done < passes; done++) {
       const e = expo(phi, g);
-      const r = pelt(x, { model: 'poisson', penalty, minSegment, exposure: e });
+      const r = peltFit(e);
       const bounds = [0, ...r.changepoints, n];
       // Profile score and curvature: sum x phi_j - sum_seg A mean_w(phi_j); sum_seg A cov_w(phi_i, phi_j), w = e.
       const score = new Array(m).fill(0);
@@ -268,8 +271,9 @@ export function poissonTrend(x, { base = null, penalty = 'bic', minSegment = 2, 
       if (big < 1e-5) { done++; break; }
     }
     // PELT's cost leaves out sum x log(exposure), which is constant for a fixed exposure but not across fits; add it back.
-    const lin = x.reduce((a, v, t) => a + v * g.reduce((c, gj, j) => c + gj * phi[j][t], 0), 0);
-    return { g, phi, cost: pelt(x, { model: 'poisson', penalty, minSegment, exposure: expo(phi, g) }).cost - 2 * lin, passes: done };
+    // (the negative-binomial cost keeps it, since the mean enters through lam e[t])
+    const lin = nb ? 0 : x.reduce((a, v, t) => a + v * g.reduce((c, gj, j) => c + gj * phi[j][t], 0), 0);
+    return { g, phi, cost: peltFit(expo(phi, g)).cost - 2 * lin, passes: done };
   };
   const plain = fit([u], [g0]);
   const out = (f, extra = {}) => ({ g: f.g[0], exposure: expo(f.phi, f.g), passes: f.passes, ...extra });
@@ -799,6 +803,48 @@ export function makeCost(x, model = 'mean', sigma = robustSd(x), rho = 0, exposu
       // Per-point exposures e (a seasonal factor, a trend): the mean at t is lam e[t], and lam has no closed form,
       // so the segment's lam is the Poisson estimate a / sum(e) polished by two Newton steps on the NB score.
       // The cost is O(segment length), not O(1); PELT's pruning keeps the candidate set small.
+      // A season gives a handful of distinct exposures: the score and the likelihood depend on each point only through
+      // its exposure class, so prefix sums of count and total per class make the same cost O(classes) per segment.
+      const classes = new Map();
+      for (let i = 0; i < n && classes.size <= NB_CLASS_MAX; i++) if (!classes.has(exposure[i])) classes.set(exposure[i], classes.size);
+      if (classes.size <= NB_CLASS_MAX) {
+        const K = classes.size, ev = [...classes.keys()];
+        const CN = ev.map(() => new Float64Array(n + 1)), CS = ev.map(() => new Float64Array(n + 1));
+        for (let k = 0; k < K; k++) for (let i = 0; i < n; i++) {
+          const hit = classes.get(exposure[i]) === k;
+          CN[k][i + 1] = CN[k][i] + (hit ? 1 : 0);
+          CS[k][i + 1] = CS[k][i] + (hit ? x[i] : 0);
+        }
+        const nn = new Float64Array(K), ss = new Float64Array(K);
+        return (s, t) => {
+          let a = 0, E = 0;
+          for (let k = 0; k < K; k++) {
+            nn[k] = CN[k][t] - CN[k][s]; ss[k] = CS[k][t] - CS[k][s];
+            a += ss[k]; E += nn[k] * ev[k];
+          }
+          if (!(E > 0)) return 0;
+          let lam = a / E;
+          for (let it = 0; it < 2 && lam > 0; it++) {
+            let g = 0, h = 0;
+            for (let k = 0; k < K; k++) {
+              if (!nn[k]) continue;
+              const e = ev[k], d = lam * e + size, w = ss[k] + size * nn[k];
+              g += ss[k] / lam - w * e / d;
+              h += -ss[k] / (lam * lam) + w * e * e / (d * d);
+            }
+            const next = lam - g / h;
+            if (!(h < 0) || !(next > 0)) break;
+            lam = next;
+          }
+          let ll = 0;
+          for (let k = 0; k < K; k++) {
+            if (!nn[k]) continue;
+            const mu = lam * ev[k];
+            ll += (ss[k] > 0 ? ss[k] * Math.log(mu / (mu + size)) : 0) + nn[k] * size * Math.log(size / (mu + size));
+          }
+          return -2 * ll;
+        };
+      }
       return (s, t) => {
         let a = 0, E = 0;
         for (let i = s; i < t; i++) { a += x[i]; E += exposure[i]; }
@@ -922,6 +968,7 @@ export function optimalPartitioning(x, { model = 'mean', penalty = 'bic', minSeg
 
 // ---------------------------------------------------------------- BOCPD
 
+const NB_CLASS_MAX = 64; // most distinct exposures the per-class prefix-sum NB cost handles
 const NB_GRID = 240, NB_SPAN = 10;
 
 /**
@@ -1240,7 +1287,8 @@ export function analyze(input = {}) {
   const nbAfterExposure = () => { if (o.overdispersion === 'nb') nbSize = negbinSize(exposure ? original.map((v, t) => v / exposure[t]) : values); };
   if (o.trend && model === 'poisson') {
     if (o.trend !== true && o.trend !== 'bend' && o.trend !== 'bends') throw new Error('For counts, --trend takes one common growth rate under the steps, "bend" for one change of growth rate or "bends" for up to two.');
-    const fit = poissonTrend(original, { base: exposure, penalty, minSegment: Math.max(1, Math.floor(Number(o.minSegment) || 2)), bend: o.trend === 'bend' ? 1 : o.trend === 'bends' ? 2 : false, knotMargin: o.knotMargin, scale: phi ?? 1 });
+    const fit = poissonTrend(original, { base: exposure, penalty, minSegment: Math.max(1, Math.floor(Number(o.minSegment) || 2)), bend: o.trend === 'bend' ? 1 : o.trend === 'bends' ? 2 : false, knotMargin: o.knotMargin, scale: phi ?? 1,
+      nbSize: o.overdispersion === 'nb' ? negbinSize(exposure ? original.map((v, t) => v / exposure[t]) : original) : 0 });
     exposure = fit.exposure;
     growth = fit.g;
     if (fit.knot !== undefined) { countKnot = fit.knot; growthAfter = fit.slopeAfter; countKnots = fit.knots; countRates = fit.rates; }

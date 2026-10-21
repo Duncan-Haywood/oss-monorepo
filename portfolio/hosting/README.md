@@ -26,7 +26,7 @@ add a third cloud to host a calculator.
 | Anything with a process, disk, or webhook | ~~**Hetzner product box**~~ — deleted 2026-10-01; needs a new host decision | Incremental cost was ~0. Deploy with the existing GHA SSH keys (Caddy + compose/systemd, or the OpenTofu/Argo path in flight on #1486). |
 | Headless agent fleet | ~~**Hetzner agent box**~~ — deleted 2026-10-01 | `ventures/ubuntu-agent-server`. Keep this off the public product path. |
 
-Do not put public sites on the agent box. Do not put a static calculator on
+Avoid putting public sites on the agent box, or a static calculator on
 Hetzner just because the box is there.
 
 ## Amended 2026-08-29: the whole static site also goes to Hetzner
@@ -245,7 +245,7 @@ Two things the builder owns, so no venture should hand-maintain them:
 - **The public base URL.** Ventures used to hard-code a guessed origin —
   most said `https://example.invalid/<slug>/`, four said
   `.../monorepo-projects/ventures/<slug>/`. The build rewrites every `<loc>`
-  and `Sitemap:` line to where it actually deploys. Do not hand-edit a
+  and `Sitemap:` line to where it actually deploys. There is no need to hand-edit a
   sitemap to "fix" its domain; it will be rewritten anyway.
 - **Where a product lives.** The layout is `<base>/<slug>/`. Products are not
   nested under `/ventures/`.
@@ -267,7 +267,7 @@ python3 platform/ci/check_pages_links.py _site   # fail on any link that 404s
 ```
 
 The remaining owner flip is still `deploy-settings` — enable GitHub Pages.
-Do not open a second platform ask. Until it is flipped, the build still runs
+Avoid opening a second platform ask. Until it is flipped, the build still runs
 on every push and the artifact is still uploaded; only the publish step is
 skipped.
 
@@ -328,7 +328,7 @@ that name.
   told sessions for days that the catalogue was live while nothing listened
   on port 443, and later that it was dark while Pages served it. The story
   is in the history file.
-- **The front-door mirror imports, never restates, the build rules.**
+- **The front-door mirror imports rather than restates the build rules.**
   `venturePageRoot` imports its entry-point candidates and
   `ENTRY_OVERRIDES` from `platform/pages/build.mjs`. A copied list has cost
   live product twice.

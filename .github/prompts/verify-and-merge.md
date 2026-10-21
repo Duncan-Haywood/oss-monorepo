@@ -57,7 +57,7 @@ What the lines are for, and the traps in running them:
   one-line reason.
 - **`regen.mjs --verify`** (about 9 s) says whether the committed front-door
   mirror is stale. Exit 1 means run bare `regen.mjs` and commit what it
-  rewrites. Exit 2 means it could not answer. Never run it from a test or in
+  rewrites. Exit 2 means it could not answer. Avoid running it from a test or in
   parallel with the marketing suites, because it rewrites `gitops/prod/` for
   a few seconds. Skipping this step is the most common way a venture fix
   ships to the venture page but not to the apex copy users see.
@@ -67,7 +67,7 @@ What the lines are for, and the traps in running them:
   `--tree` asks whether `main` itself is green, and an empty selection exits
   1. Steps whose tool is missing report `UNRUN`, not `FAILED`: install what
   they name and rerun before you call the tree green.
-- **Use `python3 -m <tool>`** (pytest, mypy, pip), never the bare name: in
+- **Use `python3 -m <tool>`** (pytest, mypy, pip), not the bare name: in
   web sessions the bare names are `uv tool` shims with a different
   interpreter, and they report missing modules as failures. When a workflow
   step spells a tool bare, run both before you believe the red.
@@ -83,9 +83,9 @@ What the lines are for, and the traps in running them:
 - **Long suites**: the `platform/pages`, `marketing` and `deploy` node suites
   can run past the tool limit (10 min; `git fetch --unshallow` and
   `publish-branch.sh` too). Start each with `run_in_background` and read the
-  result when it finishes; do not chain them. Foreground `sleep` is blocked in
+  result when it finishes; avoid chaining them. Foreground `sleep` is blocked in
   cloud sessions, so wait with Monitor and an `until` loop on the output file,
-  never `pgrep -f` (it matches its own command line and never ends). When
+  not `pgrep -f` (it matches its own command line and never ends). When
   your change reaches only a few cases of one file (`build.test.mjs` alone
   took ~17 min), run those with `node --test --test-name-pattern='<words>'
   <file>` and say so in the PR; run the whole file when the change is to
@@ -110,7 +110,7 @@ python3 platform/ci/browser_checks.py --only <slug>
 ```
 
 `playwright@1.56.0` matches the preinstalled Chromium at `/opt/pw-browsers`.
-Never run `npx playwright install`, which downloads a second browser and can
+Avoid `npx playwright install`, which downloads a second browser and can
 fill the disk. Install both packages in one command, because a second
 `--no-save` install prunes the first. Add `--record` to a full (not `--only`)
 run to write the reading. The first full run, on 2026-09-06, found 48
@@ -136,7 +136,7 @@ printed.
 **After you merge a change that touches a served surface:** nothing to do.
 `.github/workflows/portfolio-pages.yml` builds and deploys the site on the
 merge (gated on the owner's `PAGES_ENABLED`). The old `gh-pages` branch is no
-longer served, so do not run `publish-branch.sh` by hand.
+longer served, so there is no need to run `publish-branch.sh` by hand.
 
 ## Reading CI (moved from `CLAUDE.md`, 2026-10-20)
 

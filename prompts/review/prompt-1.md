@@ -14,7 +14,7 @@ with `--skip-review`.
 
 **Short on time (a scheduled run)?** A reduced pass is a valid review: do
 steps 1, 3, 7 and 8 and one fix from step 5, skip the audit and the drift
-report when recent outputs are doc-only, and say so in the log. Do not report
+report when recent outputs are doc-only, and say so in the log. No need to report
 the skip as friction (37 reports said a full pass was too large).
 
 ## 1. Measure
@@ -44,7 +44,7 @@ and code, and check that the README's numbers match what the code produces.
 For research, check citations; for a venture, its disclaimer and usage
 tracking. Skip mirrored upstream records and doc-only runs (most of them
 today): audit what is auditable, say in one line what was not (this is expected,
-not friction; do not report it). Log each problem as a correction (integrity issue or
+not friction; no need to report it). Log each problem as a correction (integrity issue or
 error) on the producing run's record.
 
 ## 3. Decide the active candidates
@@ -95,7 +95,7 @@ the file with the most of them; what you cannot fix goes into
 ## 6. Drift audit
 
 Added 2026-10-15 at the owner's request: the owner reviews little, so agents
-must notice and fix drift ("Judgment over rules" in `prompts/goals.md`).
+should notice and fix drift ("Judgment over rules" in `prompts/goals.md`).
 
 1. **Read the owner's own words.** These are the `input` fields of run records
    that are not a routine trigger ("By starting message"), the owner's brief
