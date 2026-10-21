@@ -154,7 +154,16 @@ class TestMain(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             make_repo(tmp)
             _, out, _ = self.run_main(tmp)
-        self.assertIn("PRs #-393-#7:", out)
+        self.assertIn("PRs #1-#7:", out)  # clamped: no PR numbers below 1
+
+    def test_default_since_is_14_days_back(self):
+        seen = []
+        ct.refresh_local = lambda repo, since: seen.append(since)
+        with tempfile.TemporaryDirectory() as tmp:
+            make_repo(tmp)
+            with contextlib.redirect_stdout(io.StringIO()):
+                ct.main(["--repo", tmp, "--local"])
+        self.assertEqual(seen, [(ct.date.today() - ct.timedelta(days=14)).isoformat()])
 
     def test_no_pull_refs_is_a_clean_failure(self):
         with tempfile.TemporaryDirectory() as tmp:

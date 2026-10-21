@@ -1,0 +1,68 @@
+{
+  "date": "2026-10-21",
+  "session": "https://claude.ai/code/session_01MkYZfcDYnRouDerndoxcry",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "i want to do physics sims with already available conumser robots training on construction tasks to reduce the cost of new residential home construction. maybe alongside humans? the goal is to have outputs of useful skills. either on already manufactured robots like unitree or alternatively on custom built robotics fully designed. this is a long term direction.",
+  "input_sha256": "a880b8441b75ea7a65ba771a8b023f4b83bb3a8e1e38706c082c1ccc7a422a44",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-21T02:13:16Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "new-track",
+  "projects": [
+    "buildbot-payload"
+  ],
+  "pr": 9017,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First IK (plain Gauss-Newton with clipping) diverged or stalled at joint stops",
+      "fix": "Levenberg-Marquardt with accept/reject, an active set for stops and an annealed posture term"
+    },
+    {
+      "what": "Zero-acceleration test failed with qacc ~4e3",
+      "fix": "Menagerie G1 has position actuators that push at ctrl=0; test disables actuation and constraints before mj_forward"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "Says to add a theme only if several projects need it, but a new track's first project has to add one; PROJECTS.md 'Picking work' step 3 says so. Minor mismatch."
+    },
+    {
+      "file": ".github/prompts/verify-and-merge.md",
+      "issue": "Says agent pushes trigger workflows; here a git push through the session proxy started no runs on the PR (only PR creation did). Worth a line on how to re-trigger."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No docs/reports agent doc: the new track's brief in research/PROJECTS.md section 20 is the agent-facing write-up, and a separate report would duplicate it. The reader post is docs/posts/2026-10-21-can-a-unitree-humanoid-carry-building-materials.md."
+    },
+    {
+      "file": "research/PROJECTS.md",
+      "why": "Owner asked for a long-term direction, so this run added track 20 itself rather than drawing a track with pick_track.py."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Owner asked for a long-term direction: physics sims of consumer robots (Unitree) or custom robots learning residential construction tasks, possibly alongside people. Added track 20 (buildbot) to research/PROJECTS.md with 9 milestones and guardrails, theme + colours, pick_track.py now maps 20 tracks. Shipped milestone 1, research/buildbot-payload: whole-body static payload envelopes of the Menagerie G1 and H1 (pinned commit cda5236f, models fetched not vendored, BSD-3). G1 median 4.5 kg (waist pitch 50 N.m binds; agrees with Unitree's 2-3 kg rating), H1 median 14.2 kg (18 N.m elbows bind); task table of 9 residential lifts. Local checks: 7 unittest tests pass (python3 -m unittest, mujoco 3.16.0; pytest absent in image); experiments/run.py 2m40s; research/_homepage/build.py ok (826 projects, 29 topics); research_live_links --write; check_md_links ok. Research CI only builds the homepage, so tests ran here. After merging main (new research/CLAUDE.md rule 'Run the numbers; don't stylise them'), replaced the assumed task masses with sourced ones (USG drywall 1.6 lb/ft2, NDS SPF G 0.42 via Wood Handbook, CMU survey 26/37 lb, Metabo HPT nailer 7.5 lb) and swept OSB 1.4-1.6 lb/ft2; envelope unchanged, H1 now passes the lightweight block. CI did not trigger on git pushes from this session (only on PR open); merged main to get a fresh run.",
+  "corrections": [],
+  "redteam": null
+}
