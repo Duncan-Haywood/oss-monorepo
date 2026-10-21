@@ -519,6 +519,9 @@ export const SERVED_EXTENSIONS = new Map([
   ['.mjs', 'conf'],
   ['.webmanifest', 'conf'],
   ['.csv', 'conf'],
+  ['.ofx', 'conf'],
+  ['.qif', 'conf'],
+  ['.mt940', 'conf'],
   ['.py', 'conf'],
   ['.gz', 'conf'],
 ]);

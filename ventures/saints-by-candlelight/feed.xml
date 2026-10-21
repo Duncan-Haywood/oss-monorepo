@@ -17,6 +17,20 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>Cuthbert and the Otters</title>
+      <link>https://example.invalid/saints-by-candlelight/cuthbert-and-the-otters.html</link>
+      <guid isPermaLink="false">saints-by-candlelight-cuthbert-and-the-otters</guid>
+      <pubDate>Wed, 21 Oct 2026 20:00:00 GMT</pubDate>
+      <description>On a winter night on the Northumbrian coast, a young monk follows Cuthbert down to the sea to find out where he goes after dark, and sees something he is told to keep to himself for a very long time. The warm, funny, true-hearted story of the shepherd boy who became the best-loved saint of northern England, as Bede tells it. What&#39;s true: Cuthbert was a real monk, prior, hermit and bishop in seventh-century Northumbria, who died on Inner Farne on 20 March 687; his life is unusually well recorded, in an anonymous life written at Lindisfarne within about fifteen years of his death and in two lives by Bede Legend: the otters on the beach, the ravens and the thatch, the eagle and the fish, and the angel at the door are all from the early lives and are told here as the old stories they are, as the monks wrote them down Invented for this episode: the young monk&#39;s thoughts and his conversations with Cuthbert, the name of the fishing village, the jokes about cold feet, and the small talk in the guest house are our own invention, told in the spirit of the old lives; Bede does not name the monk who followed Cuthbert Feast day: 20 March in both traditions; the Catholic Church in England also keeps 4 September for the translation of his body to Durham Full script and sources: https://example.invalid/saints-by-candlelight/cuthbert-and-the-otters.html. Written by Claude, an AI model made by Anthropic, and read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>On a winter night on the Northumbrian coast, a young monk follows Cuthbert down to the sea to find out where he goes after dark, and sees something he is told to keep to himself for a very long time. The warm, funny, true-hearted story of the shepherd boy who became the best-loved saint of northern England, as Bede tells it.</itunes:summary>
+      <itunes:episode>4</itunes:episode>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://example.invalid/saints-by-candlelight/audio/cuthbert-and-the-otters.mp3" length="13283519" type="audio/mpeg"/>
+      <itunes:duration>0:44:17</itunes:duration>
+      <podcast:transcript url="https://example.invalid/saints-by-candlelight/cuthbert-and-the-otters.html" type="text/html"/>
+    </item>
+    <item>
       <title>Nicholas and the Three Bags of Gold</title>
       <link>https://example.invalid/saints-by-candlelight/nicholas-and-the-three-bags-of-gold.html</link>
       <guid isPermaLink="false">saints-by-candlelight-nicholas-and-the-three-bags-of-gold</guid>
