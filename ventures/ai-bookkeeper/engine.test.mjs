@@ -376,3 +376,49 @@ test("a vendor credit and a part-payment leave the bill and the control check co
   assert.equal(reports(books).profitAndLoss.totalIncome, 140000);
   assert.equal(reports(books).profitAndLoss.totalExpense, 25000);
 });
+
+// One payment across several documents, and the sales tax report.
+import { salesTax } from "./engine.mjs";
+const DOCS3 = `type,number,date,due,party,amount,account
+invoice,3001,2026-01-05,2026-02-04,Acme Design Co,1000.00,4000
+invoice,3001,2026-01-05,2026-02-04,Acme Design Co,80.00,2100
+invoice,3002,2026-01-12,2026-02-11,Acme Design Co,500.00,4000
+invoice,3003,2026-01-14,2026-02-13,Acme Design Co,250.00,4000
+invoice,3004,2026-01-15,2026-02-14,Birch Studio,500.00,4000
+credit note,C9,2026-02-01,,Acme Design Co,40.00,4000
+`;
+const BUNDLE = `Date,Description,Amount
+2026-02-10,ACH ACME DESIGN CO INV 3001 3003,1330.00
+2026-02-11,ACH BIRCH STUDIO,500.00
+2026-04-20,STATE TAX BOARD SALES TAX,-80.00
+`;
+const bundled = () => addDocuments(importStatement(newBooks(), BUNDLE, "1000").books, DOCS3);
+
+test("one bank line that adds up to several documents of one party settles them all", () => {
+  const { books } = bundled();
+  const t = books.transactions.find((x) => x.desc.includes("3001 3003"));
+  assert.equal(t.status, "settled");
+  assert.deepEqual(t.docs, ["INV-3001", "INV-3003"]);
+  assert.equal(books.documents.find((d) => d.id === "INV-3001").settledBy, t.id);
+  assert.equal(books.documents.find((d) => d.id === "INV-3002").settledBy, undefined, "the invoice not named stays open");
+  assert.equal(reports(books).balanceSheet.balanced, true);
+  assert.equal(aging(books, "2026-02-28").receivable.total, 46000);
+});
+
+test("a bundle that two different sets of documents could make is left in review", () => {
+  const twin = DOCS3.replace("invoice,3003,2026-01-14,2026-02-13,Acme Design Co,250.00,4000", "invoice,3003,2026-01-14,2026-02-13,Acme Design Co,250.00,4000\ninvoice,3005,2026-01-16,2026-02-15,Acme Design Co,250.00,4000\ninvoice,3006,2026-01-16,2026-02-15,Acme Design Co,1080.00,4000");
+  const { books } = addDocuments(importStatement(newBooks(), "Date,Description,Amount\n2026-02-10,ACH ACME DESIGN CO,1330.00\n", "1000").books, twin);
+  assert.notEqual(books.transactions[0].status, "settled");
+});
+
+test("sales tax is collected on invoices, taken off by credit notes and paid over by bank lines", () => {
+  let { books } = bundled();
+  books = confirm(books, { [books.transactions.find((x) => x.desc.includes("STATE TAX")).id]: "2100" });
+  const t = salesTax(books);
+  assert.equal(t.totals.collected, 8000);
+  assert.equal(t.totals.remitted, 8000);
+  assert.equal(t.owed, 0);
+  assert.equal(t.months.find((m) => m.month === "2026-04").remitted, 8000);
+  assert.equal(t.invoices[0].rate, 0.08);
+  assert.equal(salesTax(books, { to: "2026-03-31" }).owed, 8000);
+});

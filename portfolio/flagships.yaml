@@ -42,9 +42,9 @@ flagships:
       control-account drift and overdue items) landed 2026-10-21 (engine, CLI and
       agents, and the page: a rule-suggestion list with an add button and an invoice
       and bill card with the aging table). Part-payments and credit notes (an
-      `against` column, applied net) landed 2026-10-21. After those: refunding or
-      writing off a credit balance, one payment across several documents, and sales
-      tax as its own report.
+      `against` column, applied net) landed 2026-10-21. One payment across several
+      documents and a sales tax report (by month: collected, credited, paid over, owed)
+      landed 2026-10-21. After those: refunding or writing off a credit balance.
   # Added 2026-10-21 second, on the owner's direction that day: "I want to make
   # tools that can automate part of the new home construction process in the
   # us. to drop prices and increase efficiency this is a long standing project
