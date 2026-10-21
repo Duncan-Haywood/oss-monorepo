@@ -602,13 +602,17 @@ test('the itemised calculators are offered the control once they declare their r
 // flipping a comparison in them passed every test. This runs the emitted module
 // itself in a `vm` with the smallest document it needs.
 
-function runLinkModule(hash, formIds, { storage = {}, repeatPrefix = '', hero = null, checkboxes = [] } = {}) {
+function runLinkModule(hash, formIds, { storage = {}, repeatPrefix = '', hero = null, checkboxes = [], navigator = {}, values = {}, clipboard = undefined, setHashThrows = false } = {}) {
   const note = { textContent: '', hidden: true, attrs: {}, setAttribute(k, v) { this.attrs[k] = v; },
     removeAttribute(k) { delete this.attrs[k]; } };
+  const events = [];
   const nodes = formIds.map((id) => ({
-    id, tagName: 'INPUT', type: checkboxes.includes(id) ? 'checkbox' : 'text', value: '', closest: () => null, dispatchEvent() {},
+    id, tagName: 'INPUT', type: checkboxes.includes(id) ? 'checkbox' : 'text', value: values[id] ?? '', closest: () => null,
+    dispatchEvent(e) { events.push([id, e.type]); if (!e.bubbles) events.push([id, 'non-bubbling']); },
     getAttribute: () => null,
   }));
+  let clicked = null;
+  const button = { addEventListener(_t, fn) { clicked = fn; }, remove() {} };
   const document = {
     // `hero` stands in for the page's headline figure: the script tag names its
     // selector and the selector finds the element showing the number.
@@ -617,7 +621,7 @@ function runLinkModule(hash, formIds, { storage = {}, repeatPrefix = '', hero = 
       if (sel.startsWith('script[')) return { getAttribute: () => '#bidPrice' };
       return sel === '#bidPrice' ? { textContent: hero } : null;
     },
-    getElementById: (id) => (id === 'pf-link-note' ? note : null),
+    getElementById: (id) => (id === 'pf-link-note' ? note : id === 'pf-link-copy' ? button : null),
     querySelectorAll: (sel) => {
       if (sel.startsWith('input[id]')) return nodes;
       if (repeatPrefix && sel.includes('data-pf-repeat')) {
@@ -628,12 +632,17 @@ function runLinkModule(hash, formIds, { storage = {}, repeatPrefix = '', hero = 
   };
   const store = { ...storage };
   const context = {
-    document, navigator: {}, Event: class {}, setTimeout: (fn) => fn(),
-    location: { hash, origin: 'https://x.test', pathname: '/', search: '' },
+    document, navigator: clipboard === undefined ? navigator : { ...navigator, clipboard }, Event: class { constructor(type, init = {}) { this.type = type; this.bubbles = !!init.bubbles; } },
+    setTimeout: (fn) => fn(),
+    location: {
+      origin: 'https://x.test', pathname: '/', search: '',
+      get hash() { return hash; },
+      set hash(v) { if (setHashThrows) throw new Error('blocked'); hash = '#' + v; },
+    },
     localStorage: { getItem: (k) => (k in store ? store[k] : null), setItem: (k, v) => { store[k] = v; } },
   };
   vm.runInNewContext(renderBidLinkModule(), context);
-  return { note, nodes, store };
+  return { note, nodes, store, events, click: () => clicked && clicked() };
 }
 
 test('the page script writes a link whose fields are exactly the form fields', () => {
@@ -742,4 +751,69 @@ test('a checkbox in a link sets its checked state, not its text value', () => {
   assert.equal(nodes[0].checked, true);
   assert.equal(nodes[0].value, '');
   assert.equal(nodes[1].value, '3');
+});
+
+// Red-team seeding (2026-10-21): these in-page paths escaped every test.
+
+test('the page script honours Do Not Track and Global Privacy Control separately', () => {
+  const hash = '#' + encodeBidLink({ fields: { a: '1' } });
+  const dnt = runLinkModule(hash, ['a'], { navigator: { doNotTrack: '1' } });
+  assert.equal('portfolio-hub-usage' in dnt.store, false);
+  const gpc = runLinkModule(hash, ['a'], { navigator: { globalPrivacyControl: true } });
+  assert.equal('portfolio-hub-usage' in gpc.store, false);
+});
+
+test('the usage counter stamps the day it last counted', () => {
+  const hash = '#' + encodeBidLink({ fields: { a: '1' } });
+  const { store } = runLinkModule(hash, ['a']);
+  assert.equal(JSON.parse(store['portfolio-hub-usage']).last_day, new Date().toISOString().slice(0, 10));
+});
+
+test('opening a link fires input and change on every field it writes', () => {
+  const hash = '#' + encodeBidLink({ fields: { a: '1', b: '2' } });
+  const { events } = runLinkModule(hash, ['a', 'b']);
+  assert.deepEqual(events, [['a', 'input'], ['a', 'change'], ['b', 'input'], ['b', 'change']]);
+});
+
+test('a link that left one long field behind says so, with the right verb', () => {
+  const scope = 'x'.repeat(MAX_LINK_VALUE + 1);
+  const hash = '#' + encodeBidLink({ fields: { a: '1', scope } });
+  const one = runLinkModule(hash, ['a', 'scope']);
+  assert.match(one.note.textContent,
+    /The sender's scope was too long to fit in a link, so it is this page's own wording below\.$/);
+  const hash2 = '#' + encodeBidLink({ fields: { a: '1', scope, terms: scope } });
+  const two = runLinkModule(hash2, ['a', 'scope', 'terms']);
+  assert.match(two.note.textContent,
+    /The sender's scope, terms were too long to fit in a link, so they are this page's own wording below\.$/);
+});
+
+test('copying a bid with long fields names them and uses the right pronoun', async () => {
+  const scope = 'x'.repeat(MAX_LINK_VALUE + 1);
+  const wrote = [];
+  const clipboard = { writeText: (u) => { wrote.push(u); return { then: (ok) => ok() }; } };
+  const one = runLinkModule('', ['a', 'scope'], { values: { a: '1', scope }, clipboard });
+  one.click();
+  assert.match(one.note.textContent, / Your scope is too long to fit in a link and stayed behind; paste it separately if the wording matters\.$/);
+  const two = runLinkModule('', ['a', 'scope', 'terms'], { values: { a: '1', scope, terms: scope }, clipboard });
+  two.click();
+  assert.match(two.note.textContent, / Your scope, terms are too long to fit in a link and stayed behind; paste them separately if the wording matters\.$/);
+});
+
+test('copying falls back to the address bar, and warns if even that is blocked', () => {
+  const viaHash = runLinkModule('', ['a'], { values: { a: '1' } });
+  viaHash.click();
+  assert.match(viaHash.note.textContent, /^This browser would not copy for us/);
+  assert.ok('data-pf-link-warn' in viaHash.note.attrs);
+  const blocked = runLinkModule('', ['a'], { values: { a: '1' }, setHashThrows: true });
+  blocked.click();
+  assert.equal(blocked.note.textContent, 'This browser would not build a link for this bid.');
+  assert.ok('data-pf-link-warn' in blocked.note.attrs, 'a failure to build is a warning');
+});
+
+test('a link that omits a field is encoded with the omission only when there is one', () => {
+  const none = decodeBidLink('#' + encodeBidLink({ fields: { a: '1' } }));
+  assert.equal('omitted' in none, false);
+  assert.doesNotMatch(decodeURIComponent(encodeBidLink({ fields: { a: '1' } })), /"o"/);
+  const raw = encodeBidLink({ fields: { a: '1', big: 'x'.repeat(MAX_LINK_VALUE + 1) } });
+  assert.match(decodeURIComponent(raw), /"o":\["big"\]/);
 });
