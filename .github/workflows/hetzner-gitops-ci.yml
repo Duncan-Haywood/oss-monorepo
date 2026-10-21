@@ -1,7 +1,8 @@
 name: hetzner-gitops CI
 
 # Validate the IaC + GitOps tree. Never tofu apply. Never start a Codex
-# Job. HETZNERREADAPIKEY (Read token) is probed via empty POST /servers.
+# Job. The hcloud-scope job (HETZNERREADAPIKEY probe) was removed 2026-10-21:
+# it only guarded a token for the retired cluster.
 # The SSH preflight/restore jobs were removed 2026-10-01: the Hetzner servers
 # they targeted were deleted by the owner, and a released IP can be
 # reassigned to a stranger. Everything below is offline validation.
@@ -233,20 +234,3 @@ jobs:
             gitops/ci/host/register-and-run.sh \
             gitops/prod/host/refresh-site.sh \
             platform/pages/publish-branch.sh
-
-  hcloud-scope:
-    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
-    timeout-minutes: 5
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-      - name: Prove HETZNERREADAPIKEY is Read-only
-        env:
-          HCLOUD_TOKEN: ${{ secrets.HETZNERREADAPIKEY }}
-        run: |
-          if [ -z "${HCLOUD_TOKEN}" ]; then
-            echo "HETZNERREADAPIKEY unset — skip. A Read token belongs here; a Write token does not."
-            exit 0
-          fi
-          infra/scripts/assert_hcloud_read_only.sh
