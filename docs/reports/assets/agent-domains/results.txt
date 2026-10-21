@@ -1,0 +1,15 @@
+ventures: 1314 directories
+   114  tax, accounting, payroll, invoicing
+    46  legal documents
+    41  logistics and inventory
+    42  data work (csv, sql)
+    28  compliance and audit
+    28  physical trades, robotics
+    10  energy and power
+     6  identity, verification, trust
+research: 829 directories
+    90  robotics (robofab, osrobot, hanger)
+    58  mechanical design (simdesign)
+    12  energy
+    33  verifier, scoring, elicitation
+     4  audit mechanisms
