@@ -175,11 +175,13 @@ export const HOME_MOTION_CSS = `
     .marquee:hover .marquee-row, .marquee:focus-within .marquee-row { animation-play-state: paused; }
     @keyframes slide { to { transform: translateX(-50%); } }
 
-    /* The showcase: a framed recording and a strip of stills. */
+    /* The showcase: a framed recording and a strip of stills. The frame tilts
+       back from its bottom edge: hinged at the top, the tilt brought the lower
+       edge toward the viewer and drew it over the caption beneath. */
     .reel { margin: 24px 0 0; }
     .frame { border-radius: 16px; overflow: hidden; border: 1px solid var(--line); background: #0b1020;
              box-shadow: 0 30px 80px -30px rgba(40, 60, 160, .55), 0 0 0 1px rgba(255,255,255,.03);
-             transform: perspective(1600px) rotateX(4deg); transform-origin: 50% 0; transition: transform .6s cubic-bezier(.2,.8,.2,1); }
+             transform: perspective(1600px) rotateX(4deg); transform-origin: 50% 100%; transition: transform .6s cubic-bezier(.2,.8,.2,1); }
     .reel:hover .frame { transform: perspective(1600px) rotateX(0); }
     .frame-bar { display: flex; align-items: center; gap: 7px; padding: 10px 14px; background: #121a2e; color: #b6c2d3; font-size: .78rem; }
     .frame-bar i { width: 11px; height: 11px; border-radius: 50%; background: #ff5f57; }

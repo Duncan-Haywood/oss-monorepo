@@ -964,3 +964,15 @@ or `ventures`) until its success rate passes 80% over 20 runs?
   (see E55); kept, 99% vs 98% success. `derived/` regenerated. No audit
   (reduced pass), no new candidate.
 - Result: (next review)
+
+## E58: review 2026-10-21 (reduced pass)
+
+- Change: `CLAUDE.md` says to fetch branches with `--depth=40` (a bare fetch
+  pulled ~5 GB); `research/CLAUDE.md` names the exact `--write` command instead
+  of "step 4's" (reported as pointing at a flag `build.py` lacks). `derived/`
+  regenerated.
+- Metric: friction reports on those two lines, per run, over the next 40 runs.
+- Decisions: research candidate 1 kept (the retire verdict still fires on the
+  one disclosed caveat; see E55). ventures 2 and review 2 unchanged (overlap /
+  under 10 runs). No audit or drift report (reduced pass).
+- Result: (next review)

@@ -216,9 +216,36 @@ const SITE_TOKENS_CSS = `
   --pfs-panel:#171e27;--pfs-head-bg:#171e27;--pfs-mark:linear-gradient(135deg,#7fd8c0,#8ea2ff)}}
 `;
 
+/**
+ * The footer: a dark full-width band closing every site-owned page, the
+ * homepage hero's field mirrored at the bottom, with the link row laid out as
+ * a grid rather than one run-on dotted line.
+ *
+ * It selects the footer that holds `renderSiteFooterNav`'s row, so every
+ * renderer gets it without a class of its own. Like `.pf-hero` it is dark in
+ * both colour schemes and redefines the page tokens its contents read. The
+ * fill runs edge to edge and down past the page's bottom padding through a
+ * spread shadow clipped to the band's sides and below: unlike a 100vw
+ * pseudo-element, a shadow adds no scrollable overflow. Lightest
+ * text-on-field pair: `--soft` #a9b5c6 on #080d1a is 9.4:1.
+ */
 const SITE_FOOTER_CSS = `
+footer:has(.pfs-foot){position:relative;max-width:none;color-scheme:dark;margin-top:64px;padding:40px 0 34px;border-top:0;
+  color:#c3cddb;--ink:#eef2f8;--muted:#c3cddb;--soft:#a9b5c6;--accent:#7fe3c6;--line:rgba(148,170,210,.24);
+  --panel:rgba(20,28,48,.72);--pfs-accent:#7fe3c6;
+  background:radial-gradient(420px 160px at 30% 0%,rgba(31,182,143,.16),transparent 70%),
+    radial-gradient(460px 170px at 72% 0%,rgba(75,93,255,.18),transparent 70%),#080d1a;
+  box-shadow:0 0 0 100vmax #080d1a;clip-path:inset(0 -100vmax -100vmax)}
+footer:has(.pfs-foot)>:not(.pfs-foot){max-width:84ch}
+footer:has(.pfs-foot) h2,footer:has(.pfs-foot) strong{color:#eef2f8}
 .pfs-foot{margin:18px 0 0;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:14px;line-height:1.9}
 .pfs-foot a{color:var(--pfs-accent)}
+footer .pfs-foot{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:4px 24px;
+  margin-top:26px;padding-top:22px;border-top:1px solid rgba(148,170,210,.24);line-height:1.6}
+footer .pfs-foot>span{display:none}
+footer .pfs-foot+*{margin-top:16px}
+footer .pfs-foot a{text-decoration:none}
+footer .pfs-foot a:hover,footer .pfs-foot a:focus-visible{text-decoration:underline;text-underline-offset:3px}
 `;
 
 /**

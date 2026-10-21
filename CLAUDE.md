@@ -20,8 +20,8 @@ which work.
 
 - **Product work:** [`AGENTS.md`](AGENTS.md), then
   [`ventures/CLAUDE.md`](ventures/CLAUDE.md) and
-  [`PRODUCT_PLAYBOOK.md`](PRODUCT_PLAYBOOK.md) (niche, $0-marginal-cost
-  shapes, the API-key switch, disclaimer text, SEO checklist, definition of
+  [`PRODUCT_PLAYBOOK.md`](PRODUCT_PLAYBOOK.md) (niche, product shapes and
+  zero per-user cost, the API-key switch, disclaimer text, SEO checklist, definition of
   done). [`portfolio/DIRECTION.md`](portfolio/DIRECTION.md) is a long
   reference: `grep -n '^## '` it and read only what your task touches.
 - **Research work:** [`research/CLAUDE.md`](research/CLAUDE.md). Its brief,
@@ -61,7 +61,11 @@ a person could not finish in about twenty hours (owner, 2026-10-21; `goals.md`,
 
 The owner's standing directions (SEO, compliant distribution, measurement,
 sales tools, local models) are quoted in `goals.md`. They are directions for
-many runs, not tasks every run starts on, apart from the write-ups above.
+many runs, not tasks every run starts on, apart from the write-ups above and
+one more default for product PRs (owner, 2026-10-21): the product's
+`llms.txt` kept current and a marketing page aimed at its users, with no fake
+reviews or claims a file can't back (`goals.md`, "LLM docs and a
+marketing page").
 One applies to every run: **files first, not the GitHub API** (owner,
 2026-10-20). What a later reader needs (verification output, decisions, why)
 goes in a file in the same PR (run record, README, `docs/history/`); a PR body
@@ -139,7 +143,7 @@ the survivor is still open. A conflict is not a reason to close: merge `main`
 in and resolve it. Steps and tools:
 [`.github/prompts/duplicate-work.md`](.github/prompts/duplicate-work.md).
 
-Clones are shallow. Content reads (`git show origin/main:<path>`) are fine;
+Clones are shallow: fetch a branch with `git fetch --depth=40 origin <branch>` (without `--depth` it pulls the full ~5 GB history). Content reads (`git show origin/main:<path>`) are fine;
 when you need history for a merge, `git fetch --deepen=500 origin main` until
 `git merge-base HEAD origin/main` answers.
 
