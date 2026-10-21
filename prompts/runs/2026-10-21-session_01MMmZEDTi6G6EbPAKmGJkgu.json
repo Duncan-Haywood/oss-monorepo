@@ -1,0 +1,59 @@
+{
+ "date": "2026-10-21",
+ "session": "https://claude.ai/code/session_01MMmZEDTi6G6EbPAKmGJkgu",
+ "track": "research",
+ "prompt_version": 1,
+ "input": "follow the instructions in ./prompt.md",
+ "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+ "follow_up_inputs": [],
+ "model": "claude-sonnet-5-5",
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-10-21T08:21:31Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": null,
+ "projects": [
+  "energy-mix-sourced"
+ ],
+ "pr": 9106,
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": null,
+ "outcome": "success",
+ "errors": [],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "research/PROJECTS.md",
+   "issue": "pick_track.py draw landed on track 10 (swe, 39 projects, mostly micro-variants; most run-record fields null or constant), no signal to redraw; the BrokenPipe on `| head` also noisy"
+  },
+  {
+   "file": "research/CLAUDE.md",
+   "issue": "pyenv.py failed twice (pip cannot uninstall debian packaging); I built a venv by hand"
+  }
+ ],
+ "deviations": [
+  {
+   "file": "research/PROJECTS.md",
+   "why": "Drew track 10 but its chain is saturated; redrew to track 16 and took energy-mix next step 1 (sourced costs), per the owner's run-the-numbers directive."
+  },
+  {
+   "file": "prompts/goals.md",
+   "why": "No agent doc or post written this run; the README carries the write-up."
+  }
+ ],
+ "writeups": [],
+ "goal": null,
+ "notes": "42 LP solves (about 50 min on 4 cores). Sourced parameters from PyPSA technology-data v0.9.2 and commit 65244b4c; no check against a published whole-system figure (stated in README).",
+ "corrections": [],
+ "redteam": null
+}
