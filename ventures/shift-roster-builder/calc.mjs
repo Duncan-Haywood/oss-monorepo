@@ -1930,7 +1930,7 @@ export function parseTimeOffRequest(from, to = "") {
   if (!real(from) || !real(to)) return { error: "Write the dates as YYYY-MM-DD." };
   const days = utcDay(to) - utcDay(from);
   if (days < 0) return { error: "The last day is before the first day." };
-  if (days > 60) return { error: "Ask for 60 days or fewer at a time." };
+  if (days > 59) return { error: "Ask for 60 days or fewer at a time." };
   return { entry: from === to ? from : `${from}..${to}` };
 }
 

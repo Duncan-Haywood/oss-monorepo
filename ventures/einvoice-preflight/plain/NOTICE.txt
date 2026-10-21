@@ -1,0 +1,12 @@
+# Rules in this folder
+
+The `*.json` files are the official e-invoicing Schematron rules, compiled to JSON
+by `../build-plain-rules.mjs`. They are derived works of:
+
+- `en16931-*.json`: ConnectingEurope/eInvoicing-EN16931, EUPL-1.2.
+- `xrechnung-*.json`: itplr-kosit/xrechnung-schematron, Apache-2.0.
+- `peppol-*.json`: OpenPEPPOL/peppol-bis-invoice-3, MPL-2.0.
+
+`manifest.json` has the upstream commit each file was built from.
+`fontoxpath.esm.js` is fontoxpath (MIT, `fontoxpath.LICENSE.txt`) bundled with its
+dependencies xspattern and prsc (both MIT).

@@ -58,17 +58,34 @@ figcaption{font-size:13px;color:var(--muted);margin-top:.5rem}
 .topic-chips a[aria-current]{border-color:var(--c,var(--accent));font-weight:600}
 .topic-chips small{color:var(--muted);margin-left:.25rem}
 footer{border-top:1px solid var(--border);margin-top:3rem;padding:1.5rem 0 3rem;font-size:13px;color:var(--faint)}
+/* The title block as a band tinted with the project's theme colour, full
+   width from inside the 820px column (pf-site.css clips the overflow). */
+.phead{position:relative;margin:0 calc(50% - 50vw) 8px;padding:6px calc(50vw - 50%) 4px;border-bottom:1px solid var(--border);
+  background:radial-gradient(640px 260px at 12% 0%,color-mix(in srgb,var(--c,var(--accent)) 13%,transparent),transparent 72%),
+             radial-gradient(560px 260px at 92% 10%,color-mix(in srgb,var(--accent) 9%,transparent),transparent 72%)}
+.phead .theme-tag{display:inline-flex;align-items:center;gap:.45rem}
+.phead .theme-tag::before{content:"";width:8px;height:8px;border-radius:2px;background:var(--c,var(--accent))}
+.phead h1{text-wrap:balance}
+.phead .lede{text-wrap:pretty}
+.stats span{font:500 13px var(--mono)}
+.links a{transition:border-color .15s,transform .15s}
+.links a:hover{text-decoration:none;border-color:var(--text);transform:translateY(-1px)}
+.more-list li{transition:border-color .15s}
+.more-list li:hover{border-color:var(--c,var(--border-strong))}
+.topbar{border-bottom:0}
 {{THEME_VARS}}
 </style>
 </head>
 <body>
 <header class="topbar"><div class="wrap"><a href="../index.html">← All projects</a><a href="{{REPO_URL}}">GitHub</a></div></header>
 <main class="wrap t-{{THEME_ID}}">
+  <header class="phead">
   <a class="theme-tag" href="../topics/{{THEME_ID}}/">{{THEME_NAME}}</a>
   <h1>{{TITLE}}</h1>
   <p class="slug">research/{{SLUG}}</p>
   <p class="lede">{{LEDE}}</p>
   <div class="stats">{{STATS}}</div>
+  </header>
   <h2>What it found</h2>
   <p>{{SUMMARY}}</p>
 {{FIGURE}}

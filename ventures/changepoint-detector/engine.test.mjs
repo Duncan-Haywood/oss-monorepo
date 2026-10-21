@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import {
-  PAPERS, DEFAULTS, negbinSize, poissonSeasonal, poissonTrend, countDispersion, ar1JointFit, analyze, bocpd, defaultPoissonPrior, defaultNbPrior, defaultPrior, gammaPoissonLogMarginal, makeCost, lgamma, nigLogMarginal, optimalPartitioning, ar1Rho, longRunSd, prewhiten, seasonalAdjust, trendAdjust, parseSeries, peaks, pelt, robustSd,
+  PAPERS, DEFAULTS, negbinSize, poissonSeasonal, poissonTrend, countDispersion, ar1JointFit, analyze, bocpd, defaultPoissonPrior, defaultNbPrior, defaultPrior, gammaPoissonLogMarginal, makeCost, lgamma, nigLogMarginal, optimalPartitioning, ar1Rho, longRunSd, prewhiten, seasonalAdjust, trendAdjust, penaltyValue, parseSeries, peaks, pelt, robustSd,
 } from './engine.mjs';
 
 // Seeded PRNG (mulberry32) and Box-Muller normals, so every test is reproducible.
@@ -947,6 +947,36 @@ test('--overdispersion nb reaches the Bayesian pass: clumpy counts keep the powe
   }
   assert.ok(falseNb / 20 < 0.3, `false flags per series ${falseNb / 20}`);
   assert.ok(hitNb >= 14 && hitNb > hitQ + 5, `NB found ${hitNb} of 20, quasi-Poisson ${hitQ}`);
+});
+
+// Red-team guards (2026-10-20): mutants in the penalty formula, the poissonTrend bend threshold and the joint knot grid escaped.
+test('penaltyValue: Hannan-Quinn is 2k ln ln n, with the log-log floored at n = 3', () => {
+  assert.ok(Math.abs(penaltyValue('hq', 100, 'mean') - 4 * Math.log(Math.log(100))) < 1e-12);
+  assert.ok(Math.abs(penaltyValue('hannan-quinn', 100, 'meanvar') - 6 * Math.log(Math.log(100))) < 1e-12);
+  assert.equal(penaltyValue('hq', 2, 'mean'), penaltyValue('hq', 3, 'mean'));
+});
+
+test('poissonTrend with bend: true finds a clear bend at the default scale', () => {
+  const r = rng(4);
+  const x = [];
+  for (let t = 0; t < 120; t++) {
+    const lam = 20 * Math.exp(0.01 * t + 0.8 * 0.02 * Math.max(0, t - 60));
+    let L = Math.exp(-lam), k = 0, p = 1;
+    do { k++; p *= r(); } while (p > L);
+    x.push(k - 1);
+  }
+  const fit = poissonTrend(x, { bend: true });
+  assert.ok(fit.knot !== undefined, 'a bend of this size should be accepted at the default scale');
+  assert.ok(fit.slopeAfter > fit.g);
+});
+
+test('trendAdjust joint search reaches the last grid knot', () => {
+  const r = rng(2);
+  const n = 40, x = [];
+  const nrm = () => Math.sqrt(-2 * Math.log(r() || 1e-9)) * Math.cos(2 * Math.PI * r());
+  for (let t = 0; t < n; t++) x.push(0.02 * t + 0.15 * Math.max(0, t - 22) - 0.5 * Math.max(0, t - 36) + 0.2 * nrm());
+  const fit = trendAdjust(x, { bend: 2, joint: true });
+  assert.deepEqual(fit.knots, [16, 36]);
 });
 
 test('negative-binomial BOCPD with exposures: the grid evidence matches the Gamma-Poisson closed form as r grows, up to the prior mass the grid cuts off', () => {

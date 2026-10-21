@@ -315,7 +315,7 @@ const STYLE = `
     --accent:#8fb0ff; --soft:#1c2531; --k-tools:#7fd8c0; --k-research:#d2b0f5; --k-site:#8fb0ff; --k-platform:#e7c76a; } }
   * { box-sizing:border-box; }
   body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.6 system-ui, -apple-system, "Segoe UI", sans-serif; }
-  .wrap { max-width:960px; margin:0 auto; padding:24px 16px 72px; }
+  .wrap { max-width:960px; margin:0 auto; padding:24px 16px 72px; --pf-hero-pull:24px; }
   a { color:var(--accent); }
   h1 { font-size:2.1rem; line-height:1.15; margin:.3em 0 .25em; letter-spacing:-.015em; }
   h2 { font-size:1.4rem; margin:2.2em 0 .5em; letter-spacing:-.01em; }
@@ -326,10 +326,17 @@ const STYLE = `
   .jump a { display:inline-block; padding:5px 12px; border:1px solid var(--line); border-radius:999px; background:var(--panel);
     text-decoration:none; color:var(--ink); font-size:.9rem; }
   .jump a:hover { border-color:var(--accent); }
-  .tiles { display:grid; grid-template-columns:repeat(auto-fit, minmax(170px, 1fr)); gap:12px; margin:1em 0; }
-  .tile { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:14px 16px; }
-  .tile b { display:block; font-size:1.7rem; line-height:1.1; letter-spacing:-.01em; }
-  .tile span { font-size:.88rem; color:var(--muted); }
+  .tiles { display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%, 250px), 1fr)); gap:12px; margin:1em 0; }
+  @media (max-width:600px) { .tiles { grid-template-columns:repeat(2, minmax(0, 1fr)); } .tile b { font-size:1.6rem; } }
+  .tile { position:relative; overflow:hidden; background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:16px 18px 15px;
+    transition:transform .18s, border-color .18s, box-shadow .18s; }
+  .tile::before { content:""; position:absolute; left:0; right:0; top:0; height:3px; background:linear-gradient(90deg,#1fb68f,#4b5dff,#b14bff); }
+  .tile:hover { transform:translateY(-2px); border-color:var(--accent); box-shadow:0 10px 28px rgba(20,30,60,.10); }
+  .tile b { display:block; font-size:2rem; line-height:1.1; letter-spacing:-.025em; font-variant-numeric:tabular-nums; }
+  .tile span { display:block; margin-top:4px; font-size:.86rem; line-height:1.4; color:var(--muted); }
+  .card { transition:border-color .18s; } .card:hover { border-color:var(--accent); }
+  .pf-hero h1 { font-size:clamp(2rem,4.6vw,2.8rem); } .pf-hero .jump a { background:var(--panel); color:var(--ink); border-color:var(--line); }
+  .pf-hero .jump a:hover { border-color:var(--accent); }
   .card { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:16px 18px; margin:0 0 14px; }
   .cols { display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:14px; }
   .cols .card { margin:0; }
@@ -481,11 +488,11 @@ ${KINDS.map((k) => `<button type="button" data-filter="${k.id}" aria-pressed="fa
       dateModified: entries?.[0]?.date,
       isPartOf: baseUrl ? { '@type': 'WebSite', name: SITE_NAME, url: baseUrl } : undefined,
     },
-    body: `<p class="meta"><a href="../${UPDATES_PATH}">Updates</a> › Changelog</p>
+    body: `<header class="pf-hero"><p class="meta"><a href="../${UPDATES_PATH}">Updates</a> › Changelog</p>
 <h1>Changelog</h1>
 <p class="dek">Everything merged into the <a href="${REPO_URL}">repository</a> in the last ${CHANGELOG_DAYS} days, newest first:
 new free tools, research results, website changes and the platform that builds them. Each line links to its pull request,
-and to the live page it changed. Follow along with the <a href="feed.xml">Atom feed</a>.</p>
+and to the live page it changed. Follow along with the <a href="feed.xml">Atom feed</a>.</p></header>
 ${entries ? `${filters}\n${historyNote(s)}\n${list || '<p>Nothing merged in this window.</p>'}` : unavailable('Merge history')}`,
   });
 }
@@ -688,7 +695,8 @@ and keeps what works. Experiments and their verdicts are on the <a href="../dev/
       dateModified: s.today,
       isPartOf: baseUrl ? { '@type': 'WebSite', name: SITE_NAME, url: baseUrl } : undefined,
     },
-    body: `<h1>Updates</h1>
+    body: `<header class="pf-hero"><p class="eyebrow">Built in public</p>
+<h1>Updates</h1>
 <p class="dek">An open book on this project: what shipped this week, what is in progress, where it is going and how it is built.
 Free tools and open research, built in public by AI coding agents and checked by automated tests. Everything here is generated from the
 <a href="${REPO_URL}">repository</a> on each publish.</p>
@@ -696,7 +704,7 @@ Free tools and open research, built in public by AI coding agents and checked by
 <li><a href="#week">This week</a></li><li><a href="#shipped">Recently shipped</a></li><li><a href="../${CHANGELOG_PATH}">Full changelog</a></li>
 <li><a href="#research-log">Active research</a></li><li><a href="#in-progress">In progress</a></li><li><a href="#direction">Direction</a></li>
 <li><a href="#process">How it is built</a></li><li><a href="../${CHANGELOG_PATH}feed.xml">Atom feed</a></li>
-</ul>
+</ul></header>
 
 <h2 id="week">This week in numbers</h2>
 <p class="muted">The seven days to ${esc(longDate(s.today))}.</p>
