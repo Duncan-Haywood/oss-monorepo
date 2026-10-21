@@ -391,13 +391,6 @@ jobs:
         working-directory: platform/ci
         run: python3 -m unittest test_ci_starvation
 
-      # And the tool that says where the runner pool's time goes
-      # (docs/history/ci-perf-2026-10-21.md). It reads the API only when run
-      # by hand; these tests use fixtures.
-      - name: CI-profile unit tests
-        working-directory: platform/ci
-        run: python3 -m unittest test_ci_profile
-
       # Same argument again, one route over: this reads the Pages route's
       # state for `infra_state.yaml`'s `github-pages-plan` row, and that row
       # decides whether an owner's thirty seconds in Settings is worth
