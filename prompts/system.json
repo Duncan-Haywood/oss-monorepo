@@ -24,11 +24,11 @@
 
     {"path": "AGENTS.md", "layer": "area", "changed_by": "review", "budget": 200, "for": ["ventures", "explore"],
      "answers": "Product work: build criteria, what every user-facing product includes, graduating a venture."},
-    {"path": "ventures/CLAUDE.md", "layer": "area", "changed_by": "review", "for": ["ventures"],
+    {"path": "ventures/CLAUDE.md", "layer": "area", "changed_by": "review", "for": ["ventures", "creative"],
      "answers": "Product-first default, self-deploy, niche choice."},
     {"path": "research/CLAUDE.md", "layer": "area", "changed_by": "review", "always_read": true, "for": ["research"],
      "answers": "The research brief. Governs work inside research/."},
-    {"glob": "ventures/*/CLAUDE.md", "layer": "area", "changed_by": "any", "for": ["ventures"],
+    {"glob": "ventures/*/CLAUDE.md", "layer": "area", "changed_by": "any", "for": ["ventures", "creative"],
      "answers": "Notes for one venture."},
     {"glob": "ventures/*/AGENTS.md", "layer": "area", "changed_by": "any", "for": ["ventures"],
      "answers": "Notes for one venture."},

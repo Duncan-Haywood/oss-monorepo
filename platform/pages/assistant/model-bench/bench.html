@@ -1,0 +1,52 @@
+<!doctype html><meta charset=utf-8><title>loading</title><body><script type=module>
+// Driven by run.mjs: loads the GGUF through wllama on the CPU, times one free-text
+// answer, then runs every eval sentence through the assistant's fill prompt.
+import { Wllama } from './wllama/index.js';
+import { validateFills, extractJson, fieldSchema, parseUtterance } from './fill.mjs';
+const FILL_SYSTEM = 'You fill in a web form from what the user said. Reply with only a JSON object whose keys are field keys from the list and whose values are what the user gave for that field. Leave out every field the user did not mention. Numbers are plain numbers with no units or currency signs. For a choice field, use one of its listed values. Never invent a value.';
+function fieldList(fields) {
+  return fields.slice(0, 60).map((f) => {
+    let t = `- ${f.key}: ${f.label} (${f.type}`;
+    if (f.type === 'number' && (f.min !== undefined || f.max !== undefined)) t += `, ${f.min ?? ''}..${f.max ?? ''}`;
+    if (f.type === 'select') t += `; choices: ${f.options.map((o) => `${o.value}=${o.text}`).join(', ')}`;
+    return `${t}; now ${f.value === '' || f.value === undefined ? 'empty' : f.value})`;
+  }).join('\n');
+}
+// Same prompt and field list as client.js; keep them in step.
+const P = new URLSearchParams(location.search);
+window.run = async () => {
+  const out = { crossOriginIsolated, hc: navigator.hardwareConcurrency, gpu: !!navigator.gpu, cases: [] };
+  const w = new Wllama({ default: './wllama/wasm/wllama.wasm' }, { suppressNativeLog: true });
+  let t = performance.now();
+  // From a Blob, not loadModelFromUrl: that one caches the file first, and a
+  // headless profile's quota (about 930 MB here) is smaller than the 1.5B model.
+  const blob = await (await fetch('./model.gguf')).blob();
+  await w.loadModel([blob], { n_ctx: 2048, n_gpu_layers: 0, n_threads: +(P.get('threads') || 0) || undefined });
+  out.loadMs = performance.now() - t;
+  out.multithread = w.isMultithread?.(); out.threads = w.getNumThreads?.();
+  // free-text answer speed
+  t = performance.now();
+  let first = 0, n = 0, text = '';
+  await w.createChatCompletion({ messages: [{ role: 'system', content: 'Answer in at most four short sentences.' }, { role: 'user', content: 'What does a final value fee on eBay mean?' }], stream: true, max_tokens: 120, temperature: 0.3,
+    onData: (c) => { if (!first) first = performance.now() - t; const d = c.choices?.[0]?.delta?.content || ''; if (d) { n++; text += d; } } }).catch(async (e) => { out.streamErr = String(e); });
+  if (!n) { const r = await w.createChatCompletion({ messages: [{ role: 'system', content: 'Answer in at most four short sentences.' }, { role: 'user', content: 'What does a final value fee on eBay mean?' }], max_tokens: 120, temperature: 0.3 }); text = r.choices[0].message.content; out.nonStream = r.usage || r.timings; }
+  out.answer = { ms: performance.now() - t, firstMs: first, chunks: n, text };
+  const ev = await (await fetch('./evals.json')).json();
+  const lim = +(P.get('n') || 1e9);
+  for (const c of ev.cases.slice(0, lim)) {
+    const fields = ev.forms[c.form].fields;
+    const t0 = performance.now();
+    let raw = '', err = null;
+    try {
+      const r = await w.createChatCompletion({ messages: [{ role: 'system', content: FILL_SYSTEM }, { role: 'user', content: `Fields:\n${fieldList(fields)}\n\nThe user said: ${c.say}` }], temperature: 0, max_tokens: 200,
+        response_format: { type: 'json_schema', json_schema: { name: 'fill', schema: fieldSchema(fields.slice(0, 60)) } } });
+      raw = r.choices[0].message.content || '';
+    } catch (e) { err = String(e); }
+    const model = Object.fromEntries(validateFills(extractJson(raw), fields).fills.map((f) => [f.key, f.value]));
+    const rules = Object.fromEntries(parseUtterance(c.say, fields).fills.map((f) => [f.key, f.value]));
+    out.cases.push({ form: c.form, say: c.say, round: c.round, expect: c.expect, raw, model, rules, ms: performance.now() - t0, err });
+  }
+  return out;
+};
+document.title = 'ready';
+</script>
