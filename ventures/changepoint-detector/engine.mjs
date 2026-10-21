@@ -196,6 +196,22 @@ export function poissonSeasonal(x, period, { penalty = 'bic', minSegment = 2, pa
   return { factors: f, exposure: Array.from({ length: n }, (_, t) => f[t % m]), passes: done };
 }
 
+/** Solve H z = b for a small symmetric positive-definite H by Gaussian elimination; null when it is (near) singular. */
+function solveSym(H, b) {
+  const m = b.length, A = H.map((row, i) => [...row, b[i]]);
+  const scale = Math.max(...H.map((row, i) => row[i]));
+  for (let c = 0; c < m; c++) {
+    let p = c;
+    for (let r = c + 1; r < m; r++) if (Math.abs(A[r][c]) > Math.abs(A[p][c])) p = r;
+    if (!(Math.abs(A[p][c]) > 1e-12 * scale)) return null;
+    [A[c], A[p]] = [A[p], A[c]];
+    for (let r = c + 1; r < m; r++) { const f = A[r][c] / A[c][c]; for (let k = c; k <= m; k++) A[r][k] -= f * A[c][k]; }
+  }
+  const z = new Array(m).fill(0);
+  for (let r = m - 1; r >= 0; r--) { let a = A[r][m]; for (let k = r + 1; k < m; k++) a -= A[r][k] * z[k]; z[r] = a / A[r][r]; }
+  return z;
+}
+
 /**
  * A common log-linear trend under the steps for counts: the rate at point t is
  * (segment rate) x base[t] x exp(g u[t]), with u running from -0.5 to 0.5 over
@@ -244,13 +260,8 @@ export function poissonTrend(x, { base = null, penalty = 'bic', minSegment = 2, 
         }
       }
       if (!(H[0][0] > 1e-12)) break;
-      let step;
-      if (m === 1) step = [score[0] / H[0][0]];
-      else {
-        const det = H[0][0] * H[1][1] - H[0][1] * H[1][0];
-        if (!(det > 1e-12 * H[0][0] * H[1][1])) break;
-        step = [(H[1][1] * score[0] - H[0][1] * score[1]) / det, (H[0][0] * score[1] - H[1][0] * score[0]) / det];
-      }
+      const step = solveSym(H, score);
+      if (!step) break;
       const big = Math.max(...step.map(Math.abs));
       const cap = big > 2 ? 2 / big : 1;
       g = g.map((v, j) => clamp(v + step[j] * cap));
@@ -262,29 +273,46 @@ export function poissonTrend(x, { base = null, penalty = 'bic', minSegment = 2, 
   };
   const plain = fit([u], [g0]);
   const out = (f, extra = {}) => ({ g: f.g[0], exposure: expo(f.phi, f.g), passes: f.passes, ...extra });
-  if (!bend) return out(plain);
-  // One bend: the log rate follows g u until the knot and g + h afterwards. Scan a grid of knots, keep the best by
-  // penalised cost, and accept it only if it beats the straight trend by 3 log n (the knot and the slope change, with the scan over knots charged as another).
+  const maxBends = bend === true ? 1 : bend ? Math.min(3, Math.floor(Number(bend)) || 0) : 0;
+  if (!maxBends) return out(plain);
+  // Bends: the log rate follows g u until the first knot and gains h_j (t - knot_j) after each knot. Scan a grid of knots, keep the best by
+  // penalised cost, and accept it only if it beats the fit without it by 3 log n (the knot and the slope change, with the scan over knots charged as another).
+  // With more than one bend allowed the search is greedy: each round adds the one knot that lowers the cost most, while it still clears 3 log n.
   const margin = Math.min(0.4, Math.max(0.05, Number(knotMargin) || 0.1));
   const lo = Math.max(2, Math.ceil(margin * n)), hi = Math.min(n - 3, Math.floor((1 - margin) * n));
   const step = Math.max(1, Math.round(n / 40));
-  let best = null;
-  const tryKnot = (kt) => {
-    const side = (a, z) => {  // Theil-Sen-style slope of log counts over [a, z), per series length
-      const kk = Math.max(1, Math.floor((z - a) / 4)), sl = [];
-      for (let t = a; t + kk < z; t++) sl.push((y[t + kk] - y[t]) / (u[t + kk] - u[t]));
-      return sl.length ? clamp(median(sl)) : plain.g[0];
-    };
-    const s1 = side(0, kt + 1), s2 = side(kt, n);
-    const f = fit([u, u.map((v, t) => Math.max(0, t - kt) / Math.max(1, n - 1))], [s1, s2 - s1]);
-    f.knot = kt;
-    if (!best || f.cost < best.cost) best = f;
+  const hinge = (kt) => u.map((v, t) => Math.max(0, t - kt) / Math.max(1, n - 1));
+  const side = (a, z) => {  // Theil-Sen-style slope of log counts over [a, z), per series length
+    const kk = Math.max(1, Math.floor((z - a) / 4)), sl = [];
+    for (let t = a; t + kk < z; t++) sl.push((y[t + kk] - y[t]) / (u[t + kk] - u[t]));
+    return sl.length ? clamp(median(sl)) : plain.g[0];
   };
-  for (let kt = lo; kt <= hi; kt += step) tryKnot(kt);
-  if (!best) return out(plain);
-  for (let kt = Math.max(lo, best.knot - step + 1); kt < Math.min(hi, best.knot + step); kt++) if (kt !== best.knot) tryKnot(kt);
-  if (!(best.cost + 3 * Math.log(n) * scale < plain.cost)) return out(plain);
-  return out(best, { knot: best.knot, slopeAfter: best.g[0] + best.g[1] });
+  let cur = plain, knotsFound = [];
+  while (knotsFound.length < maxBends) {
+    let best = null;
+    const tryKnot = (kt) => {
+      if (knotsFound.some((k) => Math.abs(k - kt) < Math.max(minSegment, 2 * step))) return;
+      let f;
+      if (!knotsFound.length) {
+        const s1 = side(0, kt + 1), s2 = side(kt, n);
+        f = fit([u, hinge(kt)], [s1, s2 - s1]);
+      } else f = fit([...cur.phi, hinge(kt)], [...cur.g, 0]);
+      f.knot = kt;
+      if (!best || f.cost < best.cost) best = f;
+    };
+    for (let kt = lo; kt <= hi; kt += step) tryKnot(kt);
+    if (!best) break;
+    for (let kt = Math.max(lo, best.knot - step + 1); kt < Math.min(hi, best.knot + step); kt++) if (kt !== best.knot) tryKnot(kt);
+    if (!(best.cost + 3 * Math.log(n) * scale < cur.cost)) break;
+    knotsFound = [...knotsFound, best.knot];
+    cur = best;
+  }
+  if (!knotsFound.length) return out(plain);
+  // knots in time order, with the growth rate after each (the slope is cumulative in the hinge terms)
+  const order = knotsFound.map((k, j) => ({ k, h: cur.g[j + 1] })).sort((p, q) => p.k - q.k);
+  const rates = [cur.g[0]];
+  for (const o of order) rates.push(rates[rates.length - 1] + o.h);
+  return out(cur, { knot: order[0].k, slopeAfter: rates[1], knots: order.map((o) => o.k), rates });
 }
 
 /**
@@ -1208,14 +1236,14 @@ export function analyze(input = {}) {
     } else ({ adjusted: values, profile } = seasonalAdjust(original, period, { drift: !!o.drift }));
   }
   let slope = null, slopeAfter, knot, knots, slopes;
-  let growth = null, countKnot, growthAfter;
+  let growth = null, countKnot, growthAfter, countKnots, countRates;
   const nbAfterExposure = () => { if (o.overdispersion === 'nb') nbSize = negbinSize(exposure ? original.map((v, t) => v / exposure[t]) : values); };
   if (o.trend && model === 'poisson') {
-    if (o.trend !== true && o.trend !== 'bend') throw new Error('For counts, --trend takes one common growth rate under the steps, or "bend" for one change of growth rate: "bends" is for "mean" or "meanvar".');
-    const fit = poissonTrend(original, { base: exposure, penalty, minSegment: Math.max(1, Math.floor(Number(o.minSegment) || 2)), bend: o.trend === 'bend', knotMargin: o.knotMargin, scale: phi ?? 1 });
+    if (o.trend !== true && o.trend !== 'bend' && o.trend !== 'bends') throw new Error('For counts, --trend takes one common growth rate under the steps, "bend" for one change of growth rate or "bends" for up to two.');
+    const fit = poissonTrend(original, { base: exposure, penalty, minSegment: Math.max(1, Math.floor(Number(o.minSegment) || 2)), bend: o.trend === 'bend' ? 1 : o.trend === 'bends' ? 2 : false, knotMargin: o.knotMargin, scale: phi ?? 1 });
     exposure = fit.exposure;
     growth = fit.g;
-    if (fit.knot !== undefined) { countKnot = fit.knot; growthAfter = fit.slopeAfter; }
+    if (fit.knot !== undefined) { countKnot = fit.knot; growthAfter = fit.slopeAfter; countKnots = fit.knots; countRates = fit.rates; }
   } else if (o.trend) {
     ({ adjusted: values, slope, slopeAfter, knot, knots, slopes } = trendAdjust(values, { penalty: o.penalty, minSegment: Math.max(1, Math.floor(Number(o.minSegment) || (model === 'meanvar' ? 5 : 2))), ar1: !!o.ar1 && model === 'mean', bend: o.trend === 'bend' ? 1 : o.trend === 'bends' ? 3 : false, joint: !!o.jointKnots, knotMargin: o.knotMargin }));
   }
@@ -1294,7 +1322,7 @@ export function analyze(input = {}) {
     noiseSd: round(sigma),
     ...(period ? { seasonal: { period, profile: profile.map((v) => round(v, exposure ? 3 : undefined)), ...(exposure ? { multiplicative: true } : {}) } } : {}),
     ...(slope !== null ? { trend: { slopePerPoint: round(slope, 6), ...(knot !== undefined ? { slopeAfter: round(slopeAfter, 6), slopeChangesAt: knot, ...(knots.length > 1 ? { slopeChangesAtAll: knots, slopes: slopes.map((v) => round(v, 6)) } : {}) } : {}) } } : {}),
-    ...(growth !== null ? { trend: { logGrowthAcrossSeries: round(growth, 4), growthFactorAcrossSeries: round(Math.exp(growth), 4), multiplicative: true, ...(countKnot !== undefined ? { growthChangesAt: countKnot, logGrowthAcrossSeriesAfter: round(growthAfter, 4) } : {}) } } : {}),
+    ...(growth !== null ? { trend: { logGrowthAcrossSeries: round(growth, 4), growthFactorAcrossSeries: round(Math.exp(growth), 4), multiplicative: true, ...(countKnot !== undefined ? { growthChangesAt: countKnot, logGrowthAcrossSeriesAfter: round(growthAfter, 4), ...(countKnots.length > 1 ? { growthChangesAtAll: countKnots, logGrowthAcrossSeriesRates: countRates.map((v) => round(v, 4)) } : {}) } : {}) } } : {}),
     ...(rho !== null ? { ar1: { rho: round(rho, 3) } } : {}),
     ...(phi !== null ? { dispersion: round(phi, 3) } : {}),
     pelt: { penalty: round(p.penalty), minSegment, changepoints: changes, segments },
