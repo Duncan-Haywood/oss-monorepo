@@ -37,10 +37,7 @@
   ],
   "deviations": [],
   "writeups": [
-    {
-      "file": "ventures/changepoint-detector/README.md",
-      "note": "Speed section extended"
-    }
+    "ventures/changepoint-detector/README.md"
   ],
   "goal": null,
   "notes": "Small slice: ~15% faster NB bend search, identical output, 97/97 engine tests. No separate post written; run was short.",
