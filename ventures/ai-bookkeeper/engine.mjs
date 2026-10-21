@@ -18,10 +18,12 @@ import { suggest, trainClassifier, buildMemory, parseRules, historyRecord, payee
 import { addDocuments, writeOff, settle, aging, documentEntries, AR, AP } from "./accruals.mjs";
 import { taxDepreciation } from "./taxdepr.mjs";
 import { assetEntries, register, addAsset, disposeAsset, addAssetsCsv, ASSET_ACCOUNT } from "./assets.mjs";
+import { closingEntries } from "./yearend.mjs";
 import { openingEntry, setOpeningBalances, clearOpeningBalances } from "./opening.mjs";
 import { SAMPLE_CHECKING, SAMPLE_CARD } from "./example-data.mjs";
 
 export { setOpeningBalances, clearOpeningBalances };
+export { closeYear, reopenYear, yearEndReport } from "./yearend.mjs";
 export { DEFAULT_ACCOUNTS, fmt, dollars, payeeKey, addDocuments, writeOff, aging, addAsset, disposeAsset, addAssetsCsv, register };
 
 export const VERSION = 1;
@@ -255,7 +257,7 @@ function unpair(books, t) {
 
 // Journal entries for everything posted (confirmed, auto, transfer), plus the
 // opening balances. Review lines are left out and counted.
-export function journal(books) {
+export function journal(books, { withClosing = false } = {}) {
   const entries = [];
   const map = accountMap(books.accounts);
   const tb = openingEntry(books);
@@ -284,6 +286,7 @@ export function journal(books) {
     const from = t.cents > 0 ? t.posted : t.account;
     entries.push({ id: t.id, date: t.date, memo: t.desc, source: t.status, lines: [{ account: into, debit: amt, credit: 0 }, { account: from, debit: 0, credit: amt }] });
   }
+  if (withClosing && books.yearEnd?.length) entries.push(...closingEntries(books, entries));
   return entries.sort((a, b) => a.date.localeCompare(b.date) || a.id.localeCompare(b.id));
 }
 
@@ -388,7 +391,7 @@ const ukDate = (iso) => `${iso.slice(8, 10)}/${iso.slice(5, 7)}/${iso.slice(0, 4
 
 export function exportJournal(books, format = "csv") {
   const map = accountMap(books.accounts);
-  const entries = journal(books);
+  const entries = journal(books, { withClosing: true });
   const name = (c) => map.get(c)?.name ?? c;
   if (format === "qbo") {
     const rows = [csvRow(["*JournalNo", "*JournalDate", "*AccountName", "Debits", "Credits", "Description"])];
@@ -429,7 +432,7 @@ export function exportLines(books) {
 
 export function reports(books, { from = null, to = null } = {}) {
   const entries = journal(books);
-  return { trialBalance: trialBalance(entries, books.accounts, { to }), profitAndLoss: profitAndLoss(entries, books.accounts, { from, to }), balanceSheet: balanceSheet(entries, books.accounts, { to }), cashFlow: cashFlow(entries, books.accounts, { from, to }) };
+  return { trialBalance: trialBalance(entries, books.accounts, { to }), profitAndLoss: profitAndLoss(entries, books.accounts, { from, to }), balanceSheet: balanceSheet(journal(books, { withClosing: true }), books.accounts, { to }), cashFlow: cashFlow(entries, books.accounts, { from, to }) };
 }
 
 // The year's business income before the Section 179 deduction, for the

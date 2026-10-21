@@ -446,6 +446,24 @@ deriving each class from its rule (200% or 150% declining balance, half-year,
 switch to straight-line) in a test: all six agree within the printed rounding.
 That checks the typed digits, not the publication itself: check them before filing. Not on the page yet.
 
+## Year-end close
+
+`closeYear(books, 2025)` (CLI `close 2025 [--draws]`) moves the year's income and
+expense balances into Retained earnings (3900) with one entry dated 2025-12-31,
+and locks the books through that date. It refuses while a line dated in the year
+still needs an account, a year already closed, or a year before a later closed
+one. `close report 2025` shows the entry and retained earnings before and after;
+`close reopen 2025` removes the latest close and restores the earlier lock.
+`--draws` also closes owner draws (3100) and contributions (3010).
+
+The entry is worked out from the journal each time it is read, not stored, so it
+always equals what the year posted. `journal(books)` leaves it out on purpose, so the
+profit and loss, cash flow, budget and Schedule C keep showing the closed year;
+`journal(books, { withClosing: true })` adds it, and the balance sheet and the
+QuickBooks, Xero, IIF and CSV exports use that (the exported books close the same
+way yours do). Tests: `yearend.test.mjs` (9; hand-written ledgers). Calendar years
+only: a fiscal year ending in another month is not modelled. Not on the page yet.
+
 ## Not modelled
 
 Writing off a bill, the 179 taxable-income limit, inventory,

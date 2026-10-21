@@ -1,0 +1,6 @@
+{
+ "theme": "twins",
+ "title": "Does a physics digital twin beat black-box models on a real two-tank rig? 0.53 V test RMSE with 8 parameters vs 0.66 V for the best black box",
+ "summary": "Fits a two-tank Torricelli twin, with and without an overflow path, to the real Cascaded Tanks benchmark measurements (Schoukens et al. 2016) and scores free-run simulation on the held-out experiment against linear ARX and quadratic NARX models. The 8-parameter overflow twin reaches 0.53 V test RMSE (0.51 V with the sensor&rsquo;s 10 V saturation applied); the best black box, a 9-parameter linear ARX, gets 0.66 V, tied with the twin without overflow, so the gain comes from the overflow term. Quadratic NARX models are worse and the 3/3 and 4/4 fits diverge in free run (7.4 and 42 V) after a one-step fit. One rig, one split, no confidence interval; the spill gain sits near its fit bound; no published number is reproduced. Data are measured; no input is invented.",
+ "lede": "does a physics digital twin beat black-box models on a real two-tank rig? An 8-parameter overflow twin gets 0.53 V test RMSE against 0.66 V for the best black box (9-parameter ARX); quadratic NARX models diverge in free run. One rig, one split, no confidence interval."
+}
