@@ -137,3 +137,5 @@ and 22 of 36 in 16, a floor any LLM result should beat.
 If you work on EDA or LLM-for-RTL, the practical takeaways are cheap to
 check yourself: score several operand orders and scripts before believing a
 rewrite win, and keep the formal stage.
+
+See also [Open-source chip design loops on Yosys, OpenROAD and SKY130](2026-10-20-open-source-chip-design-yosys-openroad-sky130-findings.md), which reads this track together with the algorithmic `eda-*` track.

@@ -1,0 +1,114 @@
+{
+  "2026-10-20-ai-coding-agent-cost-per-pull-request": {
+    "bytes": 1611039,
+    "seconds": 322.12,
+    "sha256": "34305a078f4b7aee72cab3e491c817897c6340301ef4776d607580c16fbd6de1",
+    "script_sha256": "dc27c47469da53f336e49e82efffe88325d42dba57fa0d8ebbd4ce6ebdb3f82a",
+    "voice": "en_US-ljspeech-high"
+  },
+  "2026-10-20-ambient-ai-assistant-when-to-speak-research": {
+    "bytes": 1646827,
+    "seconds": 329.27,
+    "sha256": "9f0a976d830e03ad7f29b7bf2d59f7eeddd174cc089d8e300648a3253cfb7974",
+    "script_sha256": "e35cc2c2b8e8e99bda06fe98fea41676daea9c97b59081080f0c5684ddadda88",
+    "voice": "en_US-ljspeech-high"
+  },
+  "2026-10-20-bring-your-own-api-key-ai-tools-ollama-lm-studio-local-models": {
+    "bytes": 1764009,
+    "seconds": 352.71,
+    "sha256": "094315a87991ef079c87a2bbd966331dc42cbc73da3136730ffb884b2f1323bb",
+    "script_sha256": "875392e649750c8998498e9f0686fe1a78177e59fbecec5b1c31a5d4fc19584a",
+    "voice": "en_US-ljspeech-high"
+  },
+  "2026-10-20-count-website-visitors-without-tracking-privacy": {
+    "bytes": 1840259,
+    "seconds": 367.96,
+    "sha256": "54bbf3570a406f3187b3f8aead5ecb4c8804fd53d73a232c5e9517b3071352a4",
+    "script_sha256": "36ac0b2219dc5efe86c21230ac131fb2c13c894c0b8bfe1de898a721d6520196",
+    "voice": "en_US-ljspeech-high"
+  },
+  "2026-10-20-engineered-clothing-cost-fit-comfort-open-models": {
+    "bytes": 1853581,
+    "seconds": 370.63,
+    "sha256": "b3629e7e8c3bda6084cd824c2a0717691746f95f66015f4cc8c1be484f4d59f6",
+    "script_sha256": "49bc0fa4bae1922fc23c01d1455634c1908855c11411f28ed117e971e573e2c0",
+    "voice": "en_US-ljspeech-high"
+  },
+  "2026-10-20-github-actions-runner-starvation-runner-id-0": {
+    "bytes": 1824704,
+    "seconds": 364.85,
+    "sha256": "07e59c7bb8980b9cce75e1be250f03326e3d599cb94b827777823b00120f96ef",
+    "script_sha256": "cb1e22fa44d0c805ce94505c92973b39c62f418a345b252a51b1cd45c3994af2",
+    "voice": "en_US-ljspeech-high"
+  },
+  "2026-10-20-mcp-server-free-calculators-for-ai-agents-no-browser": {
+    "bytes": 1757475,
+    "seconds": 351.4,
+    "sha256": "67842259854c04fa4609ec3d00f93a8343b5e43831d85b175ac81101dda22f96",
+    "script_sha256": "d9330645ddb05e3d775894b556beb7eaad51d0c64d546dee4fb339dc292781d9",
+    "voice": "en_US-ljspeech-high"
+  },
+  "2026-10-20-measuring-ai-coding-agent-fleet-cost-duplicates-reproducibility": {
+    "bytes": 1729234,
+    "seconds": 345.76,
+    "sha256": "051385fb2985aa14729cdcff64ee9c4b522481bb97764fde666283218ae54bc6",
+    "script_sha256": "2ae7f5d6d85bfdb41fad037192751c9520c4d0f2cc7441c28623eecc51fd5ee1",
+    "voice": "en_US-ljspeech-high"
+  },
+  "2026-10-20-moving-from-kubernetes-to-github-pages": {
+    "bytes": 1852936,
+    "seconds": 370.49,
+    "sha256": "cd73e751c5182beb1a4366632ee20db2f3e29da2d0557db1c89aa6f86e2c4fb0",
+    "script_sha256": "518a16e26f915b3e5560fa354c54463950cf5c04e5f2ccc77f50b59b826d1298",
+    "voice": "en_US-ljspeech-high"
+  },
+  "2026-10-20-mutation-testing-catch-rate-ai-agent-repository": {
+    "bytes": 1774583,
+    "seconds": 354.82,
+    "sha256": "49ce0a2cee19860f00b2e6a017cfedf0cf6c10cfa13a5b827021732acb52d3ca",
+    "script_sha256": "c2ba3d740df6b996c6ca8548f3b6a2885b339439514d7191bd966daab7f0f8e0",
+    "voice": "en_US-ljspeech-high"
+  },
+  "2026-10-20-open-source-chip-design-yosys-openroad-sky130-findings": {
+    "bytes": 1595353,
+    "seconds": 318.98,
+    "sha256": "85fdaa1429b3a903da4e71ea5605f4516dd3238c8daaebac7da6b32b7327770e",
+    "script_sha256": "d4ee8ab8417313f50f1b8d9dc11d60c9c9a462fb8e24f8814a860a5232928b54",
+    "voice": "en_US-ljspeech-high"
+  },
+  "2026-10-20-parallel-ai-agents-duplicate-pull-requests-stranded-branches": {
+    "bytes": 1867580,
+    "seconds": 373.42,
+    "sha256": "7aee1b2f0927746e9da34c09405a1269cf6d4a571fb5095e2bf8e657d9dbefec",
+    "script_sha256": "34225bc4120e5ab027e851a4d95cf9555aebbcebd5e028b43c1e95cbc067dedc",
+    "voice": "en_US-ljspeech-high"
+  },
+  "2026-10-20-robot-assembly-simulation-digital-twin-findings": {
+    "bytes": 1677933,
+    "seconds": 335.49,
+    "sha256": "d1e1b8d78f50d79504ef28874886466cdae3aa5ffb22c1fcb81e814351a10f32",
+    "script_sha256": "b96627396fca0e70cd0cee51577e1f97d8cb82874133fc7667b57af81e4adbef",
+    "voice": "en_US-ljspeech-high"
+  },
+  "2026-10-20-self-improving-agent-prompts-review-loop": {
+    "bytes": 1844311,
+    "seconds": 368.77,
+    "sha256": "7fa695691a00190e103742a2844964fe2fbf94cb26ecbc63cf0b203d6fb3d686",
+    "script_sha256": "4f4622f7e8c25a75f755ab87f00abee3624325a4365761409f4290fbf0a16149",
+    "voice": "en_US-ljspeech-high"
+  },
+  "2026-10-20-self-replicating-3d-printer-reprap-closure-research": {
+    "bytes": 1611047,
+    "seconds": 322.12,
+    "sha256": "cfb5c2d909d3e21133cdd9d4f1ffe578488c576cf019f37f1537ad4a195ad5dc",
+    "script_sha256": "31685f4ba5c52e6c992eb8bc470dddac825426370b3357c3151ec2bba0cf2040",
+    "voice": "en_US-ljspeech-high"
+  },
+  "2026-10-21-work-that-takes-more-than-twenty-hours": {
+    "bytes": 950136,
+    "seconds": 189.94,
+    "sha256": "4ac4f40e88fe75c6ef54836b05afc55d10f2948f599334215f2f6b2ba6a365e0",
+    "script_sha256": "6fb45fa3bc3e2c705a3da6fa942d31819b9f9fff33c6c5b020dc6ee3dcb31ec6",
+    "voice": "en_US-ljspeech-high"
+  }
+}

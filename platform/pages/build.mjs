@@ -10808,7 +10808,8 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
 
   // Essays and write-ups from `docs/posts/` (see `writing.mjs`). Indexed, so
   // each post is listed in the hub sitemap below.
-  const posts = await buildWriting(outDir, base, { socialCard: `${base}${SOCIAL_CARD_FILE}`, originAlias: DEFAULT_BASE_URL });
+  // Page slugs under writing/: each post, and `podcast`.
+  const writingPages = await buildWriting(outDir, base, { socialCard: `${base}${SOCIAL_CARD_FILE}`, originAlias: DEFAULT_BASE_URL });
 
   // The lab (see `lab.mjs`): contained, `noindex` experiments in what the
   // site can be. Its handoff page reads catalog.json in the browser.
@@ -10877,7 +10878,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
       ],
       compareProducts.map((group) => group.key),
       [...researchSlugs, ...researchTopics, ...researchApps],
-      posts.map((post) => post.slug),
+      writingPages,
     ),
   );
   await fs.writeFile(path.join(outDir, 'catalog.json'), renderCatalog(surfaces, base, launched));
