@@ -230,7 +230,7 @@
   <section class="card" aria-labelledby="h-receipts">
     <h2 id="h-receipts">Optional: match receipts to bank lines</h2>
     <p class="note">Paste the text of receipts (typed, copied from an email, or read off a photo by any OCR tool), with a line of <code>---</code> between them. Each is read into a merchant, date, total and tax, then paired with the bank or card line that paid it (the same amount, within a few days; a tip up to 25% on top counts when the name agrees). Below: receipts with no bank line, and spending over the amount you choose that has no receipt. The text stays in this browser. A reading aid, not a statement of what any tax authority requires you to keep.</p>
-    <p><textarea id="receipts-text" rows="6" placeholder="Blue Bottle Coffee&#10;03/14/2026&#10;Subtotal 9.75&#10;Sales Tax 0.87&#10;Total 10.62&#10;---&#10;Hardware Hank&#10;2026-03-16&#10;Total 43.20" style="width:100%;font-family:monospace"></textarea></p>
+    <p><textarea id="receipts-text" aria-label="Receipt text, receipts separated by ---" rows="6" placeholder="Blue Bottle Coffee&#10;03/14/2026&#10;Subtotal 9.75&#10;Sales Tax 0.87&#10;Total 10.62&#10;---&#10;Hardware Hank&#10;2026-03-16&#10;Total 43.20" style="width:100%;font-family:monospace"></textarea></p>
     <p><button type="button" id="receipts-read" class="secondary">Read receipts</button> <label>Ask for a receipt at or over <input id="receipts-min" inputmode="decimal" value="75" size="6"></label> <button type="button" id="receipts-clear" class="secondary">Remove all receipts</button> <span id="receipts-status" class="note" role="status"></span></p>
     <div class="scroll" id="receipts"></div>
   </section>
