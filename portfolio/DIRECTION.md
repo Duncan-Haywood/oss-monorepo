@@ -11,10 +11,13 @@ are an agent's reading, not a quotation (`goals.md`, "Judgment over rules").
 
 Companions that carry the detail:
 
-- [`PRODUCT_PLAYBOOK.md`](../PRODUCT_PLAYBOOK.md): niche choice, $0-per-user
-  shapes, the API-key switch, disclaimer text, SEO checklist, definition of done.
-- [`portfolio/hosting/`](hosting/README.md): GitHub Pages is the only host
-  (the Hetzner/k3s route was deleted 2026-10-01).
+- [`PRODUCT_PLAYBOOK.md`](../PRODUCT_PLAYBOOK.md): niche choice, product
+  shapes at $0 per user to us, the API-key switch, disclaimer text, SEO checklist, definition of done.
+- [`portfolio/hosting/`](hosting/README.md): GitHub Pages hosts our web
+  surfaces (the Hetzner/k3s route was deleted 2026-10-01). Products are not
+  limited to static pages (owner, 2026-10-21): apps, CLIs, packages and
+  services for others to run ship through their own channels
+  ([`portfolio/distribution/`](distribution/README.md)).
 - [`portfolio/usage/`](usage/README.md): what may be counted (events, never
   people), free signals, and where readings land (`usage/usage.yaml`).
 
@@ -140,7 +143,8 @@ problem, and can ship a useful free slice with the safeguards below.
 2. Graduate by its `graduate_as` field: `venture` creates `ventures/<slug>/`
    with `VENTURE.yaml`, a runnable app, disclaimers and usage tracking;
    `product-line` adds the slug under `product_lines` in its host venture.
-3. Ship on GitHub Pages; record usage, not opinions.
+3. Ship it where its users are (a Pages page, a package, a release, an app
+   build); record usage, not opinions.
 4. If a product on `main` has no public URL, that deploy is the next task.
 5. Let organic traffic and return usage decide further investment.
 
