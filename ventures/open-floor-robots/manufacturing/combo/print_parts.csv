@@ -1,0 +1,17 @@
+file,part,qty,material,volume_cm3,size_mm,settings,notes
+bumper_left.stl,bumper_left,1,PETG,64.2,162 x 162 x 60,"0.2 mm layers, 4 walls, 40% gyroid","Bumper: rides on M3 shoulder screws in radial slots, sprung outward; two microswitches behind it."
+bumper_right.stl,bumper_right,1,PETG,64.2,162 x 162 x 60,"0.2 mm layers, 4 walls, 40% gyroid","Bumper: rides on M3 shoulder screws in radial slots, sprung outward; two microswitches behind it."
+skirt_left.stl,skirt_left,1,PETG,64.3,162 x 162 x 60,"0.2 mm layers, 4 walls, 40% gyroid",Fixed skirt: M3 into heat-set inserts in the tabs.
+skirt_right.stl,skirt_right,1,PETG,64.3,162 x 162 x 60,"0.2 mm layers, 4 walls, 40% gyroid",Fixed skirt: M3 into heat-set inserts in the tabs.
+wheel_pod_cradle.stl,wheel_pod_cradle,2,PETG,15.7,44 x 40 x 15,"0.2 mm layers, 4 walls, 40% gyroid","M3 heat-set inserts: two underneath (to the base), four on top (cap bolts)."
+wheel_pod_cap.stl,wheel_pod_cap,2,PETG,20.0,44 x 40 x 18,"0.2 mm layers, 4 walls, 40% gyroid",M3 x 20 through the cap into the cradle.
+caster_spacer.stl,caster_spacer,2,PETG,1.9,20 x 20 x 5,"0.2 mm layers, 4 walls, 40% gyroid",Between base and ball caster; drill the caster's own pattern through if it differs.
+cliff_sensor_mount.stl,cliff_sensor_mount,6,PETG,2.0,22 x 12 x 10,"0.2 mm layers, 4 walls, 40% gyroid",Holds a downward IR module over the base window; black PETG cuts stray light.
+deck_post.stl,deck_post,4,PETG,8.2,12 x 12 x 74,"0.2 mm layers, 4 walls, 40% gyroid",Inserts at both ends.
+nozzle_housing.stl,nozzle_housing,1,PETG,176.7,52 x 190 x 37,"0.2 mm layers, 4 walls, 40% gyroid",Over the base slot; duct to the bin at the back. Foam gasket between duct and bin.
+side_brush_mount.stl,side_brush_mount,1,PETG,4.8,24 x 24 x 12,"0.2 mm layers, 4 walls, 40% gyroid","N20 gearmotor on top, shaft down through the base to the brush hub."
+dust_bin.stl,dust_bin,1,PETG,24.2,64 x 60 x 40,"0.2 mm layers, 4 walls, 40% gyroid",Lifts out through the deck hatch with the fan; a magnet in the wall trips the bin reed switch.
+bin_lid.stl,bin_lid,1,PETG,4.1,64 x 60 x 2,"0.2 mm layers, 4 walls, 40% gyroid",Filter pad sits under the lid; fan screws on top.
+water_tank.stl,water_tank,1,PETG,35.1,64 x 38 x 70,"0.2 mm layers, 4 walls, 40% gyroid",Print with 4 walls and 100% top/bottom; check it holds water before fitting. Float switch inside.
+mop_plate.stl,mop_plate,1,PETG,54.5,47 x 150 x 8,"0.2 mm layers, 4 walls, 40% gyroid",Pad attaches with hook-and-loop; vibration motor glued in the pocket; three drip holes at the front.
+lift_guide.stl,lift_guide,2,PETG,10.8,20 x 20 x 30,"0.2 mm layers, 4 walls, 40% gyroid",Guide rod slides in the bore; the servo horn lifts a collar on the rod.

@@ -96,7 +96,7 @@ document.
    > **Superseded 2026-10-16** ([`docs/reports/2026-10-16-calculator-glut.md`](../docs/reports/2026-10-16-calculator-glut.md)):
    > "new ventures first" is how 121 near-identical `*-bid-calculator` ventures and
    > 521 other calculators were built while none was ever measured. A new venture
-   > is welcome when it is a genuinely different product (web or not), never another
+   > is welcome when it is a genuinely different product (web or not), not another
    > copy of an existing template family; distribution, measurement and the
    > router's `Consolidate:` task rank ahead of it.
 
@@ -247,7 +247,7 @@ Concretely, as measured this session (`session_gate.py`, `allocate.py`,
    or added depth on a product nobody has visited — the owner has said
    directly that new ventures get a special priority here.
 3. **Picking which existing venture gets a session is a solved problem —
-   use the tool, don't guess.** `python3 portfolio/router/allocate.py`
+   use the tool rather than guessing.** `python3 portfolio/router/allocate.py`
    ranks the dispatchable set by merit and names the specific untested
    hypothesis each one is waiting on (187 of 196 ventures dispatchable as of
    this session). Its top rows are the mechanical answer to "what is the
@@ -267,12 +267,12 @@ Concretely, as measured this session (`session_gate.py`, `allocate.py`,
    There is no remaining per-venture donation task. The two changes that
    would actually move revenue off $0 — `payout-rail` and
    `funding-sponsors-live` — are both owner-only
-   (`portfolio/ledger/decision_queue.py`); do not add a third ask about
+   (`portfolio/ledger/decision_queue.py`); there is no need for a third ask about
    money.
 6. **Legal exposure is the one place speed does not apply, and the list is
    short and fixed**: payment collection, a compliance warranty, scraped
    personal data, or a claim the product can't back up. Nothing else trades
-   against speed — a session should never slow down to re-verify an
+   against speed — a session need not slow down to re-verify an
    already-verified PR, re-litigate this document, or grow the decision
    queue with an item that doesn't block a product from shipping.
 
@@ -366,7 +366,7 @@ Revenue comes later. For now:
 > Hetzner k3s route is still down (`CLAUDE.md`'s outage block has the
 > measurements) and its recovery is a real owner action
 > (`hetzner-ssh-key-is-a-public-key`, #3184) — a local SSH/Argo restore, not
-> a Pages setting. Don't conflate the two: a session that reads "the
+> a Pages setting. Avoid conflating the two: a session that reads "the
 > catalogue is dark" from that block and reads no further will re-derive
 > the deploy-first urgency this note just retired. The Pages route needs
 > nothing further to keep serving *except* the standing job below.
@@ -425,7 +425,7 @@ decision — see [`hosting/README.md`](hosting/README.md).
 ~~The remaining owner flip is `deploy-settings` (enable GitHub Pages).~~
 **No longer true — see the "Superseded 2026-09-06" note above: `deploy-settings`
 is granted, and this line contradicted that note by still naming it as the
-remaining blocker two paragraphs below it.** Do not add Cloudflare or
+remaining blocker two paragraphs below it.** Prefer not to add Cloudflare or
 Vercel as the way a product goes live. Agents prepare the deploy artifact;
 they do not register a domain, store listing, or npm publish. Building
 privately remains allowed. Cloning a twelfth undeployed calculator is
@@ -443,7 +443,7 @@ picking work:
 
 - **Nothing further is needed to publish.** A new calculator is discovered
   automatically on the next push — no manifest to update, no per-venture deploy
-  workflow to write. If a venture must stay private, add its slug to
+  workflow to write. If a venture needs to stay private, add its slug to
   `EXCLUDED_SLUGS` with a reason.
 - **The deploy half of deploy-first is done.** What is still missing is the
   owner flip, and nothing an agent builds changes that. So the next unit of
@@ -492,7 +492,7 @@ changes what "the next task" means. In order:
    stopping work on it") and spend the session elsewhere.
 
    **Check which zero you are looking at first (added 2026-09-11).** This
-   rule retires a product, so it must not fire on a product that was never
+   rule retires a product, so it should not fire on a product that was never
    counted. A flat line of `null` is not a flat line of zero: per the
    correction in point 2, no visitor reading has ever been taken here, so
    *no* product can currently satisfy "had a fair run and stayed at zero"
@@ -516,7 +516,7 @@ changes what "the next task" means. In order:
    (`liability_containment` ≥ 5, `ethical_robustness` ≥ 5, per
    `pipeline/README.md`'s scoring) and names a real distribution channel,
    over inventing a 176th niche calculator with no such evidence. A strong,
-   non-duplicative idea is never blocked — but "strong" now means
+   non-duplicative idea is not blocked — but "strong" now means
    evidence-backed, because for the first time the fleet has a real
    audience to measure it against instead of a hypothetical one.
 
@@ -543,7 +543,7 @@ changes what "the next task" means. In order:
 
 ## The fleet-parity trap (rule; measurements in `docs/history/`)
 
-Do not add a feature to a venture only because a sibling has it (a share link,
+Avoid adding a feature to a venture only because a sibling has it (a share link,
 a save slot, an export format). Check that venture's row in `usage.yaml` first.
 Zero usage after a fair run (`PRODUCT_PLAYBOOK.md` §8) means spend the session
 on a genuinely different product, a real discoverability defect (sitemap entry,
@@ -608,7 +608,7 @@ those pages already load counts a click into `portfolio-hub-usage` under the
 literal event `sponsor_link_clicked`. See
 [`portfolio/usage/README.md`](usage/README.md#the-published-tool-site-counts-itself)
 "Wired the same day, on the published site, in one place rather than 186" for
-the full mechanism. **Do not hand-wire this per venture** — the build already
+the full mechanism. **There is no need to hand-wire this per venture** — the build already
 covers the published site, and a mechanical pass adding a second, redundant
 listener to 185 footers is exactly the fleet-parity trap below, not progress.
 The one case worth an individual venture's own `usage.mjs` wiring it too:
@@ -686,7 +686,7 @@ everything that was scored and ready has already been built. The five
 `dns-configuration-evidence`, `backup-verification-evidence`) are not a
 second version of this bug — each write-up deliberately keeps its verdict at
 `probe` pending an owner-gated buyer test, per `pipeline/README.md`'s
-`graduate_as` rules; do not "fix" those to `graduated`.
+`graduate_as` rules; leave those rather than "fixing" them to `graduated`.
 
 **So the next new-venture session screens a fresh niche, not the queue.**
 Pick one not in `screened-out.md`, score it honestly against the
@@ -735,7 +735,7 @@ not one that adds a feature nobody visiting the product has asked for.
 |---|---|
 | Runs on this VM / GitHub / agents | No new infra spend to try an idea |
 | Useful without a human in the loop | Matches how the fleet ships |
-| Low variable cost per user | Inference, storage, and egress must not scale linearly with usage at launch |
+| Low variable cost per user | Inference, storage, and egress should not scale linearly with usage at launch |
 | Turnkey with API keys | A product blocked only on an owner-supplied key is a win — build it, document the one key, move on |
 | Niche + searchable | SEO and AI discovery can carry early growth without ad spend |
 | High value per user | Tools that help someone make or save real money beat vanity metrics |
@@ -752,7 +752,7 @@ usage tracking, bug fixes, performance, SEO content, integrations behind
 env vars. Every session should leave a venture closer to something a stranger
 could use and benefit from.
 
-**Rely on the owner as little as possible.** Merge product PRs. Do not
+**Rely on the owner as little as possible.** Merge product PRs. No need to
 ask whether product code may land. Flag only when the session cannot
 finish without a secret, a legal-person account, taking money, publishing
 under the public name, or turning on unattended paid spend.
@@ -769,7 +769,7 @@ under the public name, or turning on unattended paid spend.
 Run `python3 portfolio/ledger/session_gate.py` on a generic brief ("continue
 work", "improve the process", etc.). If it says **BUILD**, build — and if
 anything already on `main` still has no public URL, that deploy is the
-build. Do not meta-work. If it says **PROCEED**, keep building what you
+build. Skip the meta-work. If it says **PROCEED**, keep building what you
 were building.
 
 ## Development flow
@@ -780,7 +780,7 @@ within scope merges without waiting for human review. Iterate in production
 
 Still required before merge:
 
-- Relevant tests and builds green (read CI; do not hand-rebuild what CI already ran)
+- Relevant tests and builds green (read CI; no need to hand-rebuild what CI already ran)
 - No payment on the owner's accounts, no new legal exposure beyond documented disclaimers
 - Usage instrumentation included for new user-facing features
 
@@ -795,7 +795,7 @@ when product work is actually blocked):
 - Pasting a secret they hold (Pages enable, deploy tokens, a GitHub PAT)
 
 Internal surfaces and `ventures/*` product code are **agent-decidable**:
-verify, merge, ship. Answered 2026-08-25: yes, merge product PRs. Do not
+verify, merge, ship. Answered 2026-08-25: yes, merge product PRs. No need to
 re-ask. `python3 platform/ci/publish_surface.py` still tells you whether a
 merge publishes anything live; it does not block the merge.
 
@@ -814,7 +814,7 @@ reason to defer a strong, non-duplicative product.
      a runnable app, disclaimers, and basic usage tracking.
    - `graduate_as: product-line` — add the slug under `product_lines` in
      its host venture's `VENTURE.yaml` (the host must already be routable).
-     Do not open a second venture directory.
+     Prefer not to open a second venture directory.
 3. Ship on GitHub Pages (the Hetzner product box was deleted 2026-10-01); record usage, not opinions.
 4. If the product is already on `main` and still has no public URL, **that
    deploy is the next task** — not a second product in the same niche.

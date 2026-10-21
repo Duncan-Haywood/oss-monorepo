@@ -810,6 +810,18 @@ test('a count trend can bend once: the knot is found and a straight trend gets n
   assert.equal(analyze({ values: straight, model: 'poisson', trend: 'bend' }).trend.growthChangesAt, undefined);
 });
 
+test('--overdispersion nb --trend bend ranks knots with the negative-binomial likelihood (README "Bends on clumpy counts")', () => {
+  // seed 5000 of data/measure_nb_bend.mjs: independent lognormal rates (sd 0.35), growth flat to 105 then 4.0 per series length
+  const r = rng(5000), n = 210;
+  const norm = () => Math.sqrt(-2 * Math.log(Math.max(r(), 1e-12))) * Math.cos(2 * Math.PI * r());
+  const pois = (l) => { if (l > 50) return Math.max(0, Math.round(l + Math.sqrt(l) * norm())); const L = Math.exp(-l); let k = 0, p = 1; do { k++; p *= r(); } while (p > L); return k - 1; };
+  const x = Array.from({ length: n }, (_, t) => { const rate = 10 * Math.exp((t < 105 ? 0 : 4 * (t - 105) / n) - 1); return pois(rate * Math.exp(0.35 * norm() - 0.06)); });
+  const a = analyze({ values: x, model: 'poisson', trend: 'bend', overdispersion: 'nb' });
+  assert.ok(Math.abs(a.trend.growthChangesAt - 105) <= 15, `knot ${a.trend.growthChangesAt}`);
+  const fit = poissonTrend(x, { bend: true, nbSize: 3.5 });
+  assert.ok(Number.isFinite(fit.g) && fit.exposure.length === n);
+});
+
 test('count trends refuse unknown modes, and a flat series gets a growth near zero', () => {
   assert.throws(() => analyze({ values: [1, 2, 3, 4, 5, 6, 7, 8], model: 'poisson', trend: 'wiggly' }), /up to two/);
   const r = rng(5);

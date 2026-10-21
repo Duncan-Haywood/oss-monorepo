@@ -252,7 +252,7 @@ for ai agent to use and plug ins with seo and auditable quality." And:
 "easily auditable quality limitations and transparency on how things work."
 
 Every tool is reachable four ways: the visual form, a typed sentence, the
-voice, and an AI agent. Output can be read aloud, and voice-only use must work.
+voice, and an AI agent. Output can be read aloud, and voice-only use should work.
 Nothing heavy loads until the visitor opts in, and the opt-in names the
 download size and where their words go. Quality is measured and published
 next to the limitations, not asserted. The shared implementation is the site
@@ -280,10 +280,39 @@ post, all for a reader who has never seen the repository:
 
 A post is useful work in its own right when it tells a reader something
 true they could not get from a file listing, and it counts toward "Every run
-ships something useful". `node platform/pages/writing-backlog.mjs` lists the
+ships something useful".
+
+Widened by the owner on 2026-10-21: "I want most runs to write up an agent doc
+and blog post according to its judgment on what." So the default for a run
+that merges work is two write-ups in its PR, subject chosen by the run:
+
+- **An agent doc** in `docs/reports/`: a brief for an agent reader that
+  answers first, then gives evidence a reader can rerun, then the limits
+  (the shape of
+  [`2026-10-20-agent-handoffs-for-agents.md`](../docs/reports/2026-10-20-agent-handoffs-for-agents.md)).
+  It is what the next run touching the same work should know: a decision and
+  why, a gotcha, a measurement, how to use what you built.
+- **A blog post** in `docs/posts/`, one of the three kinds above, for a person
+  who has never seen the repository.
+
+The subject is the run's call: its own work, something it found on the way,
+or a gap from `writing-backlog.mjs`. With ~2,700 runs a week, most of them
+should extend an existing doc or post with what is new (a section, a fresh
+number, a correction) rather than add a file; a new file is for a subject
+nothing covers. Skip either one when the run has nothing true and new to say
+(a one-line fix, a rerun), and say so in the run record; a padded post is
+worse than none. List the paths written or extended in the record's
+`writeups`, which `promptctl.py measure` counts. `node platform/pages/writing-backlog.mjs` lists the
 research tracks no post covers yet, biggest first, and the days since the
 last post. A run with spare scope, or one that just finished a track's
 milestone, can take the top line.
+
+Posts can have a podcast episode (owner, 2026-10-20: "fifteen blog posts plus
+podcast episodes"): a spoken script in `docs/podcast/` with the post's slug,
+voiced offline by `python3 platform/pages/podcast_tts.py` (Piper, a voice
+trained on public-domain recordings) and served at `writing/podcast/` with an
+RSS feed. The episode says it is a synthetic voice reading an AI-written
+script, and carries nothing the post does not.
 
 The research guardrails apply to every post: every number is copied from the
 committed file it cites, linked by repository path; results are not
@@ -346,6 +375,23 @@ find such engines: "Research algorithms as tools" above. The posts:
 and
 [`docs/posts/2026-10-20-if-its-a-calculator-make-it-hard.md`](../docs/posts/2026-10-20-if-its-a-calculator-make-it-hard.md).
 
+**Size the work, not just the maths** (owner, 2026-10-21, "a tentative
+opinion, not a hard and fast rule"): focus on "projects that are hard enough
+that they can't be completed in 20 hours or less of human coding", because
+"its not necessarily worth publishing software that is less than lets say 15
+minutes for a coding agent to code." What an agent writes in minutes, a
+reader can get from their own agent; what stays worth publishing is costly to
+redo (a solver, collected data, an experiment, edge cases found by real use).
+So before starting, estimate both numbers honestly; if the plan is under
+fifteen agent-minutes and an afternoon of human work, look for the harder
+version first. Work past twenty hours spans sessions: leave the next session
+a working step and a written plan in the project, not a finished toy. Small
+fixes, upkeep of used tools and docs still count. The baseline, from the run
+records to 2026-10-20: 4 of 969 measured runs and 5 of 247 projects passed
+twenty estimated human hours; 92% of runs took under fifteen active minutes
+([the post](../docs/posts/2026-10-21-work-that-takes-more-than-twenty-hours.md)).
+`runcost.py report` tracks it.
+
 ## Direction: Rust where it is essential
 
 Set by the owner on 2026-10-20: "I want to do more projects in rust go java
@@ -355,8 +401,8 @@ essential", narrowed to "specifically rust."
 
 So prefer projects whose heavy core needs Rust: our own inner loop is the
 measured bottleneck, there is no room for a runtime (firmware, real-time
-control), or one engine must ship to WASM, CLI, Python and crates.io. Never
-port light work or a wrapper around an existing C library. The opinion piece,
+control), or one engine has to ship to WASM, CLI, Python and crates.io. Porting light
+work or a wrapper around an existing C library rarely pays off. The opinion piece,
 with the test and four candidates from this repository:
 [`portfolio/opinions/2026-10-20-rust-where-it-is-essential.md`](../portfolio/opinions/2026-10-20-rust-where-it-is-essential.md).
 
@@ -384,9 +430,9 @@ to it, never the source:
 - **A review or PR thread that settles something:** copy the conclusion into
   one of the above and link the PR. Leave the back-and-forth on GitHub.
 
-Don't muddy the repository. Write the conclusion, not a transcript. Don't
-make a new file for something that fits in a sentence of an existing one, and
-don't backfill threads nobody will need.
+Try not to muddy the repository. Write the conclusion, not a transcript.
+Prefer a sentence in an existing file to a new file, and skip backfilling
+threads nobody will need.
 
 ## Judgment over rules
 
@@ -406,6 +452,18 @@ legal ethical etc. remove the unecessary rules and processes and regulations
 and focus on delivering value to the multifaceted users and following the r
 and d directions among other ones the agents are interested in."
 
+On 2026-10-21 the owner made it the standing style for every guidance file:
+"I want to transitions to rules and suggestions within the repo going
+forward. it it's not a financial or legal or ethical liability then generally
+guidelines and suggestions makes more sense than hard and fast rules the
+agents are generally better to adapt to a certain goals and circumstances than
+hard rules written much before hand without the current goal and context in
+ming", and "update all the rules docs for softer wording on must not to it is
+recommended to not but use your judgement sort of things when it doesn't
+affect legal or financial liability." So "never" and "must" belong to the hard
+limits below; everywhere else, write a recommendation and its reason
+(`steering.md`, "Guidelines, not rules").
+
 So the default is trust: an agent decides anything that is reversible and
 inside the hard limits, and a rule or check has to keep earning its place
 (`steering.md`, "Cut the deadweight"). The owner writes rarely and does not
@@ -416,20 +474,20 @@ above, never goals of their own. Use common sense:
 - **Do what a sensible person would do.** If following a rule to the letter
   would produce something a sensible person would not build, such as a
   near-duplicate product, a tool whose only job is checking another tool, or
-  a paragraph nobody will act on, don't do it. Do the sensible thing instead,
+  a paragraph nobody will act on, skip it. Do the sensible thing instead,
   and record it in the run record's `deviations` (`steering.md`).
 - **Depth over count.** Making something that exists better beats adding one
   more near-copy of it. "Every run ships something useful" means useful to a
   person, not one more item in a count. Before building something new, ask
   whether a real person would choose it over what is already available for
-  free. If not, don't build it.
+  free. If not, it is probably not worth building.
 - **Fewer, shorter rules.** A rule earns its place by changing what runs do,
   not by recording what happened once. One incident does not earn a
   permanent paragraph: fix the cause in code or a check, and put the story in
   the commit or PR, not in `CLAUDE.md`, `AGENTS.md` or `DIRECTION.md`. State
   a rule in a sentence or two, without its history. When you add a rule,
-  delete or merge one that no longer applies. Never paste the same rule into
-  two files: link to it.
+  delete or merge one that no longer applies. Link to a rule rather than
+  pasting it into a second file.
 - **Only the owner's words are the owner's direction.** Write "the owner
   wants", "owner direction" or "relayed from the owner" only next to a dated
   quote of the owner's actual message. An agent's summary of intent is
@@ -452,7 +510,8 @@ the research-integrity rules. No judgment call crosses them. The other items
 in this section are **strong defaults**: follow them unless a run has a
 reason it records as a deviation (`steering.md`). These are "every run ships
 something useful", the red team's 5-10% band (enforced as a routing setting),
-and the mechanics of landing work. Leaving work unlanded is never fine.
+and the mechanics of landing work. Leaving work unlanded is almost never
+the right call.
 
 - **Never fabricate.** No invented results, numbers, citations, measurements
   or run records. Report only what code or a tool actually produced. A failed
@@ -507,6 +566,7 @@ glad to see, never work that embarrasses them or the author.
 - Check every citation before merging: the paper exists, the authors, venue and year are right, and it says what you claim. Never invent a reference.
 - Represent other groups' work accurately. If a reproduction disagrees with a published result, report it neutrally as a discrepancy with the setup and possible causes, never as an error by the authors.
 - Do not overstate novelty or results. Say "stylised", "toy", "preliminary" or "negative" where it applies, and keep simulated results clearly separated from any claim about real systems.
+- **Run the numbers; "stylised" is not a method** (a strong default, set by the owner on 2026-10-21: "fabricated results portrayed as stylised is stupid and lazy. I can't imagine a reason not to run the numbers oneself ... research and cite and build and test"). Every input that drives a headline result comes from a cited source, a public dataset, a measurement or a run of real code, and the README says which. Where no value exists, sweep the plausible range and report how the conclusion moves, rather than picking a round figure. The "stylised" label stays honest disclosure for what genuinely cannot be measured; it never licenses skipping the data that can be found.
 - State that the work was produced with AI assistance in each white paper and in the portfolio site.
 - Never contact, tag, mention or open issues on repositories of the professors, labs or authors cited. Outreach is the repository owner's decision.
 

@@ -1,0 +1,26 @@
+# Open Robot Mower, v0.1. The authoritative, generated BOM (every fabricated part and fastener) is manufacturing/mower/bom.csv. Prices here are rough USD planning estimates, not quotes.
+item,qty,spec,est_unit_usd,notes
+Laser-cut aluminium 5052 parts (4 designs),1,manufacturing/mower/laser/*.dxf,120,online laser service; 4 mm chassis and height plate; 3 mm tray and blade disc
+ASA printed parts (16 designs / 30 pieces),1,manufacturing/mower/print/*.stl,50,about 2 kg of ASA if you print them yourself; shell segments are the bulk
+Gearmotor 37 mm 24 V with encoder,2,~90-110 rpm output; 6 mm D shaft,30,drive
+Lawn wheel 220 x 60 mm with tread,2,6 mm D-shaft hub or the printed hub,20,drive
+Caster wheel 75 x 25 mm with 8 mm bearings,2,,5,front
+Outrunner BLDC motor ~50 x 45 mm,1,24 V; ~140 kv; 8 mm shaft out of the mount side,30,blade
+ESC 30 A with active braking,1,RC-style PWM input,20,blade
+Pivoting razor blades for robotic mowers,1,pack of 30; 30 x 18 x 1 mm; M3 hole,10,replace every few weeks
+3-pole relay 24 V coil 10 A,1,NO to the ESC; NC contacts short the motor phases,15,blade power + passive brake
+Raspberry Pi 5 (4 GB) or Pi 4,1,with heatsink,60,planning and RTK fusion
+RTK GNSS receiver (multi-band; u-blox ZED-F9P class) + multi-band antenna,1,rover,220,the most expensive part
+ESP32 dev board (ESP32-WROOM-32),1,,8,firmware/esp32
+Dual DC motor driver 10 A/ch PWM+DIR,1,e.g. a Cytron MDD10A class driver,30,
+BNO085 IMU breakout,1,,25,tilt and heading
+3-axis hall sensor breakout (TLV493D class),4,,6,shell lift and bump
+Rubber anti-vibration mount M6 male-male 20 x 15 mm,4,,2,shell
+Neodymium magnet 8 x 3 mm,4,,0.75,in the shell bosses
+Li-ion battery 7S2P 21700 (25.2 V 5 Ah) with BMS,1,max 70 x 150 x 70 mm,90,buy a pack with a BMS; do not build one without experience
+5 V 5 A buck converter,1,,10,Pi supply
+Stop button 40 mm mushroom latching 2 NC,1,22 mm hole,10,on top of the shell
+Rain sensor board,1,resistive,3,
+Main switch 20 A DC + fuses + holders + wiring + connectors,1,,30,
+M6 threaded rod + 16 mm tube + fasteners + heat-set inserts,1,see manufacturing/mower/bom.csv and cut_list.csv,30,
+Spring contacts 5 A (pogo or leaf),2,,5,charging

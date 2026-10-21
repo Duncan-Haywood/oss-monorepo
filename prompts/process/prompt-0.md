@@ -27,7 +27,7 @@ study fits in one session.
 
 ## 2. Gather evidence
 
-Measure; do not recall. Every number in the report names the command, query
+Measure rather than recall. Every number in the report names the command, query
 or file it came from, so the next study can re-take it. Suggested sources
 (use what answers a question; skip what does not):
 

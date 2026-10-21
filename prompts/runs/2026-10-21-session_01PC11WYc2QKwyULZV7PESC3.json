@@ -1,0 +1,59 @@
+{
+  "date": "2026-10-21",
+  "session": "https://claude.ai/code/session_01PC11WYc2QKwyULZV7PESC3",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "some projects to add on robo vaccum cleaner robo mopper. robo vaaccum-mopper. robo lawn mower. fully designed projects under mit licenses.",
+  "input_sha256": "46749c588286cd63c73861b485e036f2a047952e659f633ad8e6851ef6343974",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-21T00:04:58Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Owner request: fully designed MIT open-hardware robot vacuum, robot mop, robot vacuum-mop and robot lawn mower.",
+  "projects": [
+    "open-floor-robots",
+    "open-robot-mower"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/8970",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 3,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "PRODUCT_PLAYBOOK.md",
+      "issue": "The one-hop sibling-link rule (platform/pages/siblings.mjs, orphan budget 0) is not in the section 7 definition of done; a new venture learns it from red CI."
+    },
+    {
+      "file": "prompts/README.md",
+      "issue": "Nothing says which track a direct owner-named venture task records under; the first commits carried explore/1, which has no prompt file, and the record uses ventures/1."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/runs",
+      "why": "model left null: this session's instructions forbid model identifiers in pushed artifacts."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "Built two ventures (floor robots as one chassis with three modules, mower separately) instead of four, because vacuum, mop and combo share chassis, drive and electronics; three copies would triple maintenance for no extra design."
+    }
+  ],
+  "goal": null,
+  "notes": "Two new ventures built by parallel subagents, modelled on open-tennis-robots. Local verification: run_venture_tests.py for the three robot ventures, 0 failed (floor: 44 Python + 25 node + 13 CAD; mower: 44 Python + 24 node + 15 CAD); siblings + launched tests 41 pass; clauses.mjs pass x3; router validate 1311 valid; publish_surface --check 0; validate_workflows 546 valid; regen.mjs rerun (66 stale front-door artifacts rewritten); sync_tree_counts and sync_readme_counts applied. CI fixes: sibling orphan (cross-links between the three robot pages), missing launch date. The venture_live_links failure on hearth-and-horizon was base-branch and cleared by merging main. All performance numbers are simulation outputs under stated assumptions; nothing has been built.",
+  "corrections": [],
+  "redteam": null
+}
