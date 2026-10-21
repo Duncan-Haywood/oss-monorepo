@@ -67,6 +67,10 @@
       <div><label for="file">Bank or card file (CSV, OFX, QFX, QIF, MT940 or CAMT.053)</label><input id="file" type="file" accept=".csv,.ofx,.qfx,.qbo,.qif,.sta,.mt940,.xml,text/csv,text/plain,text/xml"></div>
       <div><label for="auto">Post by itself at confidence</label><input id="auto" type="number" min="0.5" max="1" step="0.01" value="0.85"></div>
     </div>
+    <div id="ofx-map" hidden>
+      <p class="muted" id="ofx-map-note"></p>
+      <div class="grid" id="ofx-map-rows"></div>
+    </div>
     <label for="paste">Or paste the CSV</label>
     <textarea id="paste" placeholder="Date,Description,Amount,Balance&#10;2026-01-02,STRIPE TRANSFER,1000.00,6000.00"></textarea>
     <div class="check"><input id="invert" type="checkbox"><label for="invert">Charges are positive in this file (most card exports)</label></div>
@@ -201,7 +205,8 @@
     <p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> or <a href="https://buymeacoffee.com/duncanhaywood" rel="noopener">buy me a coffee</a> is entirely optional and never changes what the tool does.</p>
   </footer>
   <script type="module">
-    import { newBooks, importStatement, categorize, suggestRules, addRules, addDocuments, writeOff, aging, salesTax, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, exportLines, status, analyze, fmt, DEFAULT_ACCOUNTS } from "./engine.mjs";
+    import { sniffFormat, splitOfx } from "./bank.mjs";
+    import { newBooks, importStatement, importOfxAccounts, categorize, suggestRules, addRules, addDocuments, writeOff, aging, salesTax, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, exportLines, status, analyze, fmt, DEFAULT_ACCOUNTS } from "./engine.mjs";
     import { parseAccounts } from "./ledger.mjs";
     import { aiSuggest } from "./ai.mjs";
     import { detectLocal, isLocal } from "./byok.mjs";
@@ -344,9 +349,39 @@
       return f ? await f.text() : $("#paste").value;
     }
 
+    // A multi-account OFX file: one select per account in the file, so each
+    // goes to its own chart code (or is left out).
+    let ofxParts = [];
+    async function showOfxMap() {
+      const f = $("#file").files[0];
+      ofxParts = [];
+      if (f) { const text = await f.text(); if (sniffFormat(text) === "ofx") { const p = splitOfx(text); if (p.length > 1) ofxParts = p; } }
+      $("#ofx-map").hidden = !ofxParts.length;
+      if (!ofxParts.length) return;
+      $("#ofx-map-note").textContent = `This file holds ${ofxParts.length} accounts. Choose the chart account each one goes to.`;
+      const banks = books.accounts.filter((a) => a.bank);
+      $("#ofx-map-rows").replaceChildren(...ofxParts.map((p, i) => {
+        const sel = el("select", { id: `ofx-acct-${i}` }, el("option", { value: "", text: "Leave out" }), ...banks.map((a) => el("option", { value: a.code, text: `${a.code} ${a.name}` })));
+        const label = el("label", { for: `ofx-acct-${i}`, text: `Account ${p.id || "(no id)"} (${p.card ? "card" : p.type || "bank"})` });
+        return el("div", {}, label, sel);
+      }));
+    }
+    $("#file").addEventListener("change", showOfxMap);
+
     $("#import").addEventListener("click", async () => {
       const text = await readInput();
       if (!text.trim()) { $("#import-status").textContent = "Choose a CSV file or paste one first."; return; }
+      if (ofxParts.length && $("#file").files[0]) {
+        const map = {};
+        ofxParts.forEach((p, i) => { const v = $(`#ofx-acct-${i}`).value; if (v) map[p.id] = v; });
+        const r = importOfxAccounts(books, text, map, opts());
+        books = r.books;
+        $("#import-status").textContent = [`${r.added} line${r.added === 1 ? "" : "s"} added across ${Object.keys(map).length} account${Object.keys(map).length === 1 ? "" : "s"}${r.skipped ? `, ${r.skipped} already in the books` : ""}.`, ...r.problems.slice(0, 3)].join(" ");
+        $("#file").value = ""; $("#paste").value = ""; ofxParts = []; $("#ofx-map").hidden = true;
+        record("statement_imported");
+        render();
+        return;
+      }
       const r = importStatement(books, text, $("#bank").value, opts());
       books = r.books;
       const msg = [`${r.added} line${r.added === 1 ? "" : "s"} added to ${name($("#bank").value)}${r.skipped ? `, ${r.skipped} already in the books` : ""}.`];
