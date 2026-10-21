@@ -122,6 +122,7 @@ introduces a dated fact.
 | 2139 | Arcadia Station, Arcadia Planitia, Mars: 31 people and six Sisters of Our Lady of the Dawn (invented); the Hours are prayed by the sun, Sunday kept by the Earth calendar until Rome answers; a solar-conjunction blackout in Lent | *Thirty-Nine Minutes* |
 | 2045-46 | Ragged Tickle (invented cove, Placentia Bay, Newfoundland): a 40-line kelp and mussel co-operative, 14 lines lost to a 16-second swell on 14 October 2045; weather books kept since 1961 by the Rideout family; AI scheduler called Almanac; keeper's lease on Eli Rideout's slip | *The Long Sea* |
 | 2058 | Annex of the (invented) Szpital św. Łazarza, ulica Kalwaryjska, Kraków: 24 dialysis chairs, open 06:00 to 22:00 Monday to Saturday, 138 patients on three sessions a week; a scheduling benchmark whose slot table was copied from a 24-hour hospital calendar | *The Grader* |
+| 2064 | Invented water users' cooperative in Kerala: six villages, six chlorinating stations; Station 4's flow meter replaced 14 March, reports 14 L/s (50.4 m³/h) to a controller expecting m³/h, so it doses about 0.28 mg/L against a 1.0 mg/L target (ratio 3.6); engineer Parvathy Menon, operator K. T. Mathew | *The Last Message in the Window* |
 | 3026 | Fjellbu Vault (invented), northern Norway, the fourth vault after a first one whose entrance flooded in its ninth year (real: Svalbard, 2017); about 2.5 million samples at minus 18 C; a Dark Week every 25 years (all electronics off, 8 days, paper Ledger in pencil); keeper Ines Adeyemi-Solberg, apprentice Davi Quispe, AI called Tally; accession 4417 (bere barley, invented collector M. Flett, 2921) tests 61 of 100 against a database figure of 96 (Ledger: 86 in 2985) | *The Dark Week* |
 
 Little Lamps is set in history (Lima, about 1610 for *Brother Martin*) and is
@@ -195,7 +196,7 @@ numbers worked out before drafting.
 
 **For Other Minds**
 
-- *The last message in the window:* an agent running out of context decides what
+- *(Done: The Last Message in the Window, Kerala, 2064.)* An agent running out of context decides what
   goes into its handoff.
 - *(Done: The Grader, 2058.)* An evaluator model finds that the test it was given
   can be passed without doing the task, and says so.
