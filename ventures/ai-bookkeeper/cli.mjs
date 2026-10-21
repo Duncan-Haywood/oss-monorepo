@@ -19,6 +19,7 @@ import { newBooks, importStatement, importOfxAccounts, lockPeriod, categorize, s
 import { parseCents } from "./bank.mjs";
 import { accountMap } from "./ledger.mjs";
 import { seSetAside, selfEmployment, scheduleC, scheduleCCsv, contractors1099, contractors1099Csv, nec1099FilingCsv, markW9, mergePayees } from "./taxforms.mjs";
+import { setOpeningBalances, clearOpeningBalances } from "./opening.mjs";
 import { sniffFormat, splitOfx } from "./bank.mjs";
 import { detectRecurring, forecastCash } from "./recurring.mjs";
 import { findAnomalies } from "./anomalies.mjs";
@@ -42,6 +43,7 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
                          bank lines that pay them clear receivable/payable
   vat [--from D --to D]  UK-layout VAT return worksheet (boxes 1-9) from account 2100 and an input account 1300
   salestax [--from D --to D]  sales tax collected, credited and paid over by month, and what is still owed
+  opening FILE --date D  set opening balances from a trial balance CSV (code,amount or code,debit,credit); "opening" alone shows them, "opening clear" removes them
   lock DATE|off          lock a closed period: nothing dated on or before DATE can be imported, re-filed, booked or written off
   contractors [--year Y] [--threshold DOLLARS] [--csv|--filing|--json]  contract labor paid by payee against the 1099-NEC line, with W-9 status
   merge-payee FROM INTO [--off]  count two spellings of one payee as one on the contractors worksheet
@@ -128,6 +130,23 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
   for (const p of r.problems) console.error(p);
   const settled = books.documents.filter((d) => d.settledBy).length;
   console.log(`${r.added} documents added, ${r.skipped} already in the books. ${settled} of ${books.documents.length} are paid by a bank line; ${status(books).review} lines waiting for review.`);
+} else if (cmd === "opening") {
+  if (rest[0] === "clear") { books = clearOpeningBalances(books); save(); console.log("Opening balances cleared."); }
+  else if (!rest[0]) {
+    const tb = books.openingTB;
+    if (!tb) console.log("No opening balances set. Usage: opening FILE.csv --date YYYY-MM-DD");
+    else { console.log(`OPENING BALANCES as of ${tb.date}`); for (const l of tb.lines) console.log(`  ${name(l.account).padEnd(40)} ${(l.cents > 0 ? fmt(l.cents) : "").padStart(12)} ${(l.cents < 0 ? fmt(-l.cents) : "").padStart(12)}`); }
+  } else {
+    const date = flag("--date");
+    if (!date) { console.error("opening needs --date YYYY-MM-DD (the day the balances are as of)"); process.exit(2); }
+    try {
+      const r = setOpeningBalances(books, readFileSync(rest[0], "utf8"), { date, decimalComma });
+      for (const p of r.problems) console.error(p);
+      if (!r.lines.length) process.exit(1);
+      books = r.books; save();
+      console.log(`${r.lines.length} opening balances set as of ${date}.${r.plug ? ` ${fmt(Math.abs(r.plug))} did not balance and went to ${name("3000")}.` : " They balance."}`);
+    } catch (e) { console.error(e.message); process.exit(1); }
+  }
 } else if (cmd === "lock") {
   if (!rest[0]) { console.error("lock needs a date (YYYY-MM-DD) or off"); process.exit(2); }
   try { books = lockPeriod(books, rest[0] === "off" ? null : rest[0]); save(); console.log(books.lockedThrough ? `Locked through ${books.lockedThrough}.` : "Unlocked."); } catch (e) { console.error(e.message); process.exit(1); }

@@ -18,8 +18,10 @@ import { suggest, trainClassifier, buildMemory, parseRules, historyRecord, payee
 import { addDocuments, writeOff, settle, aging, documentEntries, AR, AP } from "./accruals.mjs";
 import { taxDepreciation } from "./taxdepr.mjs";
 import { assetEntries, register, addAsset, disposeAsset, addAssetsCsv, ASSET_ACCOUNT } from "./assets.mjs";
+import { openingEntry, setOpeningBalances, clearOpeningBalances } from "./opening.mjs";
 import { SAMPLE_CHECKING, SAMPLE_CARD } from "./example-data.mjs";
 
+export { setOpeningBalances, clearOpeningBalances };
 export { DEFAULT_ACCOUNTS, fmt, dollars, payeeKey, addDocuments, writeOff, aging, addAsset, disposeAsset, addAssetsCsv, register };
 
 export const VERSION = 1;
@@ -256,8 +258,11 @@ function unpair(books, t) {
 export function journal(books) {
   const entries = [];
   const map = accountMap(books.accounts);
+  const tb = openingEntry(books);
+  if (tb) entries.push(tb);
+  const tbCodes = new Set((books.openingTB?.lines ?? []).map((l) => l.account));
   for (const [code, cents] of Object.entries(books.opening ?? {})) {
-    if (!cents || !map.has(code)) continue;
+    if (!cents || !map.has(code) || tbCodes.has(code)) continue; // a trial balance you entered wins over one inferred from a statement
     const firstDate = books.transactions.filter((t) => t.account === code).map((t) => t.date).sort()[0] ?? "2000-01-01";
     const date = prevDay(firstDate);
     const deb = cents > 0;
@@ -293,6 +298,11 @@ export function closeChecks(books, opts = {}) {
   if (review.length) out.push({ severity: "high", check: "review", message: `${review.length} line${review.length === 1 ? "" : "s"} still need an account. Nothing is posted for them yet, so the reports leave them out.`, ids: review.map((t) => t.id) });
 
   for (const e of entries) { const p = validateEntry(e, map); if (p.length) out.push({ severity: "high", check: "unbalanced", message: `Entry ${e.id}: ${p.join("; ")}.`, ids: [e.id] }); }
+
+  if (books.openingTB) {
+    const early = books.transactions.filter((t) => t.date <= books.openingTB.date && t.posted);
+    if (early.length) out.push({ severity: "high", check: "opening-overlap", message: `${early.length} posted line${early.length === 1 ? " is" : "s are"} dated on or before the opening balances (${books.openingTB.date}), so they count twice. Re-import from the next day.`, ids: early.map((t) => t.id) });
+  }
 
   const sus = books.accounts.filter((a) => a.suspense).map((a) => a.code);
   const b = balances(entries);
@@ -562,9 +572,15 @@ export function status(books) {
 export function analyze(input = {}) {
   let books = input.books ? clone(input.books) : newBooks({ name: input.name });
   if (input.rules !== undefined) books.rules = input.rules;
+  const openingProblems = [];
+  if (input.opening) {
+    const r = setOpeningBalances(books, input.opening.csv ?? input.opening, { date: input.opening.date ?? input.openingDate, decimalComma: !!input.decimalComma });
+    books = r.books;
+    openingProblems.push(...r.problems);
+  }
   const opts = { autoPost: input.autoPost ?? DEFAULTS.autoPost, dayFirst: !!input.dayFirst, decimalComma: !!input.decimalComma };
   const statements = input.example ? [{ csv: SAMPLE_CHECKING, account: "1000" }, { csv: SAMPLE_CARD, account: "2000", invert: true }] : input.statements ?? (input.csv ? [{ csv: input.csv, account: input.account ?? "1000", invert: input.invert }] : []);
-  const problems = [];
+  const problems = [...openingProblems];
   for (const s of statements) {
     const r = importStatement(books, s.csv, s.account ?? "1000", { ...opts, invert: s.invert });
     books = r.books;
