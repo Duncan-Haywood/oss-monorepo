@@ -45,7 +45,7 @@ export const PRECUT = { "8ft": 92.625, "9ft": 104.625, "10ft": 116.625 };
  * @typedef {{ size: string, length: number, price: number, label?: string }} Stock
  * @typedef {{ studSpacing: number, studLength: number, kerf: number, topPlateLap: number,
  *   cornerExtraStuds: number, teeExtraStuds: number, defaultHeaderHeight: number,
- *   blocking?: { rows?: number, fire?: boolean }, stock: Stock[], walls: Wall[] }} Plan
+ *   blocking?: { rows?: number, fire?: boolean }, plateLaps?: boolean, stock: Stock[], walls: Wall[] }} Plan
  * @typedef {{ kind: string, x: number, y: number, w: number, h: number, size: string,
  *   length: number, orient: "v"|"h", label: string }} Member
  */
@@ -392,7 +392,7 @@ export function layoutWall(plan, wall) {
   const topJoints = splitPlate(topA, topB, centres, studStock, []);
   const capJoints = topJoints ? splitPlate(capA, capB, centres, studStock, topJoints.map((j) => [j - plan.topPlateLap, j + plan.topPlateLap])) : null;
   if (!topJoints || !capJoints) notes.push(`Top plates: no way to splice them over studs with joints ${formatInches(plan.topPlateLap)} apart using the boards listed; shown as one piece each.`);
-  /** @type {[number[], number, string][]} */
+  /** @type {[number[], number, string, number, number][]} */
   const upper = [[topJoints || [], top, "top plate", topA, topB], [capJoints || [], top + THICK, "cap plate", capA, capB]];
   for (const [joints, y, label, from, to] of upper) {
     let p = from;
