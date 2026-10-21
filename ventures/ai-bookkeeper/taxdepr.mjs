@@ -75,7 +75,7 @@ export function setTaxTreatment(booksIn, id, { macrsClass, s179 = 0, bonusPct = 
 }
 
 // One asset's tax depreciation in `year`. Year 1 is the year placed in service.
-// Disposal year takes half of that year's table amount (half-year convention). `midQuarter` uses the mid-quarter tables for the asset's quarter.
+// Disposal year takes half of that year's table amount (half-year convention); under mid-quarter it takes 12.5, 37.5, 62.5 or 87.5% by the quarter of disposal. `midQuarter` uses the mid-quarter tables for the asset's quarter.
 // -> { s179, bonus, macrs, total } in cents
 export function assetTaxYear(a, year, midQuarter = false) {
   const t = a.tax;
@@ -96,7 +96,11 @@ export function assetTaxYear(a, year, midQuarter = false) {
     const dispYear = a.disposed ? +a.disposed.date.slice(0, 4) : null;
     if (dispYear === null || year <= dispYear) {
       let amt = pct(n) === 0 ? 0 : cum(n) - cum(n - 1);
-      if (dispYear === year) amt = Math.round(amt / 2);
+      if (dispYear === year) {
+        // Half-year: half of the year's amount. Mid-quarter: the disposal quarter's midpoint (12.5, 37.5, 62.5, 87.5%).
+        const dq = Math.floor((+a.disposed.date.slice(5, 7) - 1) / 3);
+        amt = midQuarter ? Math.round((amt * (2 * dq + 1)) / 8) : Math.round(amt / 2);
+      }
       out.macrs = amt;
     }
   }
