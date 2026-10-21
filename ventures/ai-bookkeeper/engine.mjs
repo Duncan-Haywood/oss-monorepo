@@ -13,7 +13,7 @@
 // platform/agents/tools.mjs.
 
 import { readStatement, splitOfx, sniffFormat, rowIds, checkRunningBalance, parseCents } from "./bank.mjs";
-import { DEFAULT_ACCOUNTS, accountMap, validateEntry, trialBalance, profitAndLoss, balanceSheet, balances, natural, fmt, dollars } from "./ledger.mjs";
+import { DEFAULT_ACCOUNTS, accountMap, validateEntry, trialBalance, profitAndLoss, balanceSheet, cashFlow, balances, natural, fmt, dollars } from "./ledger.mjs";
 import { suggest, trainClassifier, buildMemory, parseRules, historyRecord, payeeKey } from "./categorize.mjs";
 import { addDocuments, writeOff, settle, aging, documentEntries, AR, AP } from "./accruals.mjs";
 import { assetEntries, register, addAsset, disposeAsset, addAssetsCsv, ASSET_ACCOUNT } from "./assets.mjs";
@@ -418,7 +418,7 @@ export function exportLines(books) {
 
 export function reports(books, { from = null, to = null } = {}) {
   const entries = journal(books);
-  return { trialBalance: trialBalance(entries, books.accounts, { to }), profitAndLoss: profitAndLoss(entries, books.accounts, { from, to }), balanceSheet: balanceSheet(entries, books.accounts, { to }) };
+  return { trialBalance: trialBalance(entries, books.accounts, { to }), profitAndLoss: profitAndLoss(entries, books.accounts, { from, to }), balanceSheet: balanceSheet(entries, books.accounts, { to }), cashFlow: cashFlow(entries, books.accounts, { from, to }) };
 }
 
 // Payees you have filed the same way again and again, offered as rules. A rule

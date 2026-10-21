@@ -103,5 +103,14 @@ describe("groupRanking", () => {
       expect(c.advice).toContain("shorten the list to about 5 options");
       expect(c.advice).toContain("13%");
     });
+    it("sizes the shorter list from measured answers per respondent", () => {
+      const counts = Array.from({ length: 40 }, (_, i) => (i < 20 ? 2 : 3));
+      const c = coverage(mk(40, counts), 20, 6);
+      // 20 people * 2 options * 6 answers / 3 raters = 80 appearances' worth, capped below the list length
+      expect(c.advice).toContain("shorten the list to about 39 options");
+      expect(c.advice).toContain("median of 6 pairs");
+      const c2 = coverage(mk(40, counts), 20, 1);
+      expect(c2.advice).toContain("shorten the list to about 13 options");
+    });
   });
 });

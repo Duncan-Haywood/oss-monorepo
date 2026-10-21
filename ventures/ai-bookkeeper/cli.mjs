@@ -212,6 +212,18 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
   for (const [h, list] of [["Assets", b.assets], ["Liabilities", b.liabilities], ["Equity", b.equity]]) { console.log(`  ${h}`); for (const l of list) console.log(`    ${l.name.padEnd(38)} ${fmt(l.amount).padStart(12)}`); }
   console.log(`    ${"Current earnings".padEnd(38)} ${fmt(b.currentEarnings).padStart(12)}`);
   console.log(`  Assets ${fmt(b.totalAssets)} = liabilities ${fmt(b.totalLiabilities)} + equity ${fmt(b.totalEquity)}: ${b.balanced ? "balanced" : "NOT BALANCED"}`);
+  const c = r.cashFlow;
+  console.log("\nCASH FLOW (indirect)");
+  const row = (n, v) => console.log(`  ${n.padEnd(40)} ${fmt(v).padStart(12)}`);
+  row("Net profit", c.netProfit);
+  for (const l of c.operatingItems) row(`Change in ${l.name.toLowerCase()}`, l.amount);
+  row("Cash from operations", c.operating);
+  for (const l of c.investingItems) row(l.name, l.amount);
+  row("Cash from investing", c.investing);
+  for (const l of c.financingItems) row(l.name, l.amount);
+  row("Cash from financing", c.financing);
+  row("Change in cash", c.change);
+  console.log(`  Cash ${fmt(c.openingCash)} -> ${fmt(c.closingCash)}: ${c.ties ? "ties to the bank accounts" : "DOES NOT TIE"}`);
   const s = status(books);
   if (s.review) console.log(`\n${s.review} lines are still in review and not in these figures.`);
 } else if (cmd === "checks") {

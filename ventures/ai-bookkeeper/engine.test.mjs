@@ -642,3 +642,15 @@ test("a multi-account OFX file splits per account and imports each to its own ch
   assert.equal(part.added, 2);
   assert.ok(part.problems.some((p) => /4111000011112222/.test(p)));
 });
+
+test("the cash flow statement ties to the change in the bank accounts", () => {
+  let b = importStatement(newBooks(), CHK, "1000").books;
+  b = importStatement(b, CARD, "2000", { invert: true }).books;
+  b = confirm(b, Object.fromEntries(b.transactions.filter((t) => t.status === "review").map((t) => [t.id, t.cents > 0 ? "4000" : /bottle/i.test(t.desc) ? "6130" : "6060"])));
+  const c = reports(b).cashFlow;
+  assert.ok(c.ties);
+  assert.equal(c.netProfit, 100000 - 950 - 5999 - 5999);
+  assert.equal(c.closingCash - c.openingCash, c.change);
+  const ex = reports(analyze({ example: true }).books, { from: "2026-02-01", to: "2026-03-31" }).cashFlow;
+  assert.ok(ex.ties, "ties for a sub-period, with an opening cash balance");
+});
