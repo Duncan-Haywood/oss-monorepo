@@ -60,3 +60,10 @@ test("the measured claims on the page match the README", () => {
   const html = page("index.html"), readme = page("README.md");
   for (const claim of ["1,300 of 2,164", "542 of 642", "2,892 lines"]) { assert.ok(html.includes(claim), claim); assert.ok(readme.includes(claim), `README: ${claim}`); }
 });
+
+test("the invoice and bill loader and rule suggestions are wired to controls that exist", () => {
+  const html = page("index.html");
+  for (const id of ["docs-file", "docs-paste"]) assert.match(html, new RegExp(`<label for="${id}">`), id);
+  assert.match(script(), /addDocuments\(books/);
+  assert.match(script(), /suggestRules\(books\)/);
+});
