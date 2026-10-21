@@ -25,7 +25,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 4,
   "review_findings": null,
   "tests_added": 34,
   "outcome": "success",
@@ -35,6 +35,10 @@
     {
       "file": "CLAUDE.md",
       "issue": "run_workflow_locally.py --for-changes without a base diffed against a stale origin/main in this shallow clone and selected 26 workflows (749 files); merging main first and passing origin/main explicitly was needed. Worth a line in the landing steps."
+    },
+    {
+      "file": "AGENTS.md",
+      "issue": "'Touched a venture page? Run regen.mjs' is not enough for a new venture: gitops/prod/front-door/00-mirror-alias.conf is only rewritten by `node platform/marketing/front-door-tools.mjs --write` (which also leaves an untracked gitops/prod/front-door-tools/ dir to delete), and regen.mjs --verify passes while front-door-tools.test.mjs fails."
     }
   ],
   "deviations": [
