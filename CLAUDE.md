@@ -20,8 +20,8 @@ which work.
 
 - **Product work:** [`AGENTS.md`](AGENTS.md), then
   [`ventures/CLAUDE.md`](ventures/CLAUDE.md) and
-  [`PRODUCT_PLAYBOOK.md`](PRODUCT_PLAYBOOK.md) (niche, $0-marginal-cost
-  shapes, the API-key switch, disclaimer text, SEO checklist, definition of
+  [`PRODUCT_PLAYBOOK.md`](PRODUCT_PLAYBOOK.md) (niche, product shapes and
+  zero per-user cost, the API-key switch, disclaimer text, SEO checklist, definition of
   done). [`portfolio/DIRECTION.md`](portfolio/DIRECTION.md) is a long
   reference: `grep -n '^## '` it and read only what your task touches.
 - **Research work:** [`research/CLAUDE.md`](research/CLAUDE.md). Its brief,
@@ -143,7 +143,7 @@ the survivor is still open. A conflict is not a reason to close: merge `main`
 in and resolve it. Steps and tools:
 [`.github/prompts/duplicate-work.md`](.github/prompts/duplicate-work.md).
 
-Clones are shallow. Content reads (`git show origin/main:<path>`) are fine;
+Clones are shallow: fetch a branch with `git fetch --depth=40 origin <branch>` (without `--depth` it pulls the full ~5 GB history). Content reads (`git show origin/main:<path>`) are fine;
 when you need history for a merge, `git fetch --deepen=500 origin main` until
 `git merge-base HEAD origin/main` answers.
 

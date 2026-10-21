@@ -118,7 +118,7 @@ def main(argv=None):
         if not numbers and not args.last_pr:
             raise uw.GitError("no pull request refs to sample")
         last = args.last_pr or max(numbers)
-        first = args.first_pr or last - 400
+        first = args.first_pr or max(1, last - 400)
         rows = pr_rounds(probe, first, last, local=args.local)
         landed, files, prefixes = hotspots(probe, args.since)
     except uw.GitError as exc:
