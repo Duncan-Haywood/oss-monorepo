@@ -1515,7 +1515,7 @@ Annals*). Payments: gridlock resolution and liquidity-saving mechanisms (Bech an
    voltage or thermal limits bind, and how much do cheap measures (inverter volt-var, smart
    charging, a tap change) add? OpenDSS on IEEE test feeders, hosting capacity as a stochastic
    sweep, each measure scored on the same placements.
-2. `infra-transformer`: distribution transformer ageing under heat-pump and EV load growth. The
+2. `infra-transformer` (done 2026-10-21; transformer constants swept, not verified against the standard): distribution transformer ageing under heat-pump and EV load growth. The
    IEEE C57.91 hot-spot and ageing model on an hourly load profile: how much load growth doubles
    loss of life, and how much of it a charging schedule buys back, before a replacement is due.
 3. `infra-waterloss`: finding leaks from pressure data. WNTR on BattLeDIM's L-Town with its

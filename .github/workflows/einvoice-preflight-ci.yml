@@ -86,7 +86,8 @@ jobs:
           set -eu
           found=0
           for example in examples/*; do
-            # FatturaPA is not EN 16931: the browser checker reads it (it.mjs), the Python CLI does not.
+            # FatturaPA (Italy) is read by the browser engine only (fatturapa.mjs,
+            # covered by its node tests); the Python CLI reads EN 16931 formats.
             case "$example" in *-with-defects.*|*/draft-*|*/fatturapa-*) continue;; esac
             echo "--- $example"
             python3 -m einvoice_preflight "$example"

@@ -1,0 +1,75 @@
+{
+  "date": "2026-10-21",
+  "session": "https://claude.ai/code/session_016Z8cGGMmogrXEMMmZDVBBn",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "I want to make ai accounting systems",
+  "input_sha256": "c8791fc033499f5bb55a2e039a0417a1cf94a7e6554d107daced0d97e093473a",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-21T03:14:05Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "New flagship venture ai-bookkeeper: double-entry books from bank CSVs with a learning categorizer, on the owner's direction 'I want to make ai accounting systems'",
+  "projects": [
+    "ai-bookkeeper"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/9048",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 5,
+  "review_findings": null,
+  "tests_added": 35,
+  "outcome": "success",
+  "errors": [
+    "Benchmark first crashed because import normalises whitespace in descriptions and the truth lookup did not; fixed in eval/benchmark.mjs.",
+    "First tokenizer stripped digits inside reference codes, making fake payee tokens ('1GH4QE' -> 'gh'); now tokens with digits are dropped whole.",
+    "Built-in 'transfer' rule caught 'STRIPE TRANSFER' (a payout, i.e. sales); payout rules now come first.",
+    "Capitalize check flagged payroll; restricted to supply, office, repair and tool-like accounts.",
+    "Post draft said about 580 lines a month; the generator makes about 48 a month (580 a year). Caught on re-read before commit.",
+    "VENTURE.yaml hypothesis used evidence 'measurement'; portfolio/router/validate.py accepts only customer-contact or in-repo. CI validate caught it; fixed.",
+    "New venture shipped with no launch date in platform/pages/launched.json; CI build (check.mjs dist) caught it; fixed with node platform/pages/launched.mjs --write.",
+    "New venture was a crawlable orphan (siblings.test); filed it beside the journal tools in build.mjs and linked it from sales-export-to-journal and payment-reconciliation-workbench.",
+    "FAQPage JSON-LD questions were not visible on the page (faq-visible.test); rendered a visible Questions section from the same strings.",
+    "Front-door artifacts were stale for the new venture (marketing tests); regenerated with regen.mjs and front-door-tools.mjs --write (alias map only is tracked)."
+  ],
+  "integrity_issues": [
+    "The learning-curve benchmark is on synthetic data whose generator and built-in keywords share an author; month-1 accuracy is circular. Stated on the page, README, llms.txt and post; only the learning numbers are quoted as findings."
+  ],
+  "doc_friction": [
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "--for-changes on a new venture ran build.test.mjs for over ten minutes with no streamed output, so a 600s tool limit loses the whole result; the targeted checks in docs/reports/2026-10-21-product-marketing-pages-for-agents.md were the useful local loop."
+    },
+    {
+      "file": "gitops/tests/test_manifests.py",
+      "issue": "A new venture with a page must bump six hand-written counts; sync_tree_counts.py does it, but nothing in ventures/CLAUDE.md or PRODUCT_PLAYBOOK.md points a new-venture run at it before CI fails."
+    },
+    {
+      "file": "ventures/CLAUDE.md",
+      "issue": "A new venture needs, before CI is green: launched.mjs --write, sync_tree_counts.py, a sibling link from a related venture (siblings.mjs), FAQ JSON-LD rendered visibly, and regen.mjs plus front-door-tools.mjs --write. None of these is listed where a new-venture run looks first; each cost a CI round here."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Default venture work is the top flagship; the owner asked directly for AI accounting systems, so this run built a new venture and placed it first in portfolio/flagships.yaml instead of deepening changepoint-detector."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-21-a-bookkeeper-that-learns.md",
+    "docs/reports/2026-10-21-ai-bookkeeper-for-agents.md"
+  ],
+  "goal": "Start the AI accounting systems direction with a working system, not another single-step tool",
+  "notes": "Verification run here: node --test ventures/ai-bookkeeper/*.test.mjs (35 pass); headless Chromium (example -> accept -> file -> reconciles to $10,947.46; balance sheet balances; persists across reload; no horizontal scroll at 390px; no outside requests); CLI end to end; node platform/agents/tools.mjs call ai-bookkeeper analyze; node platform/pages/clauses.mjs ai-bookkeeper (ok); node --test platform/pages/venture-sitemap-coverage.test.mjs (3 pass); front-door explainIneligible (eligible); sync_tree_counts.py --check (agrees); node --test platform/privacy/optout-persistence.test.mjs (17 pass); promptctl validate (ok). Benchmark: 5 seeds, 2,892 synthetic lines; months 4-12 1,300/2,164 posted alone, 1 wrong; 542/642 review suggestions right. python3 portfolio/router/validate.py (all valid). After CI rounds: node --test platform/pages/*.test.mjs (siblings and faq-visible fixed, rest passing), node --test platform/marketing/*.test.mjs (pass after regen), regen.mjs --verify (current). Ported two fixes for failures red on main and not caused by this PR: gitops/ci/README.md runs-on count (sync_readme_counts.py; main later carried it, so it no-oped after merging main) and the einvoice-preflight Italy page's visible FAQ answer, which had drifted from its JSON-LD in #9059 (faq-visible.test).",
+  "corrections": [],
+  "redteam": null
+}
