@@ -25,11 +25,15 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 4,
   "review_findings": null,
-  "tests_added": 12,
+  "tests_added": 13,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "Edited portfolio-validate.yml, which triggers the apex mirror check; mirror was stale on main and re-staled during CI after a regen. Moved the tests to ci-profile-ci.yml instead.",
+    "New workflow missed publish-surface.yaml; fixed with publish_surface.py --write.",
+    "Pre-existing parallel-test race in platform/privacy (findUsageModules ENOENT on browser-signals.test.mjs's scratch venture); fixed with an ENOENT skip and a dangling-symlink regression test."
+  ],
   "integrity_issues": [],
   "doc_friction": [],
   "deviations": [
