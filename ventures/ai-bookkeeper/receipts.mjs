@@ -11,8 +11,9 @@
 // Not a statement of what any tax authority requires you to keep.
 
 import { parseCents, parseDate } from "./bank.mjs";
-import { payeeTokens } from "./categorize.mjs";
+import { payeeTokens, suggest } from "./categorize.mjs";
 import { accountMap } from "./ledger.mjs";
+import { modelFor, confirm } from "./engine.mjs";
 
 const day = (d) => Math.floor(Date.parse(`${d}T00:00:00Z`) / 86400000);
 const MONEY = /(?:[$£€]\s*)?(\d{1,3}(?:,\d{3})+\.\d{2}|\d+\.\d{2})(?!\d)/g;
@@ -33,6 +34,26 @@ const amountsIn = (line) => [...line.matchAll(MONEY)].map((m) => parseCents(m[1]
 // underscores, or by a form feed. One receipt with no separator is fine.
 export function splitReceipts(text) {
   return String(text ?? "").split(/^\s*(?:[-=_]{3,}|\f)\s*$/m).map((b) => b.trim()).filter(Boolean);
+}
+
+// Lines that carry an amount but are not things bought.
+const NOT_ITEM_RE = /sub\s*-?total|\btotal\b|\btax\b|\bvat\b|\bgst\b|\bhst\b|\bpst\b|\btip\b|gratuity|change|cash|tender|visa|mastercard|mc\s|amex|debit|credit|card|payment|paid|balance|amount|discount|coupon|savings|points|rounding|\bauth\b|\bref\b|\bacct\b|\bthank/i;
+const TIP_RE = /\b(tip|gratuity)\b/i;
+
+// Item lines: words, then a price (the last amount on the line; "2 x 3.00  6.00"
+// is 6.00). Discount lines are not read, so a receipt with one fails the
+// check below and says so rather than splitting on a guess.
+export function parseItems(lines) {
+  const items = [];
+  for (const l of lines) {
+    if (NOT_ITEM_RE.test(l) || DATE_RES.some((re) => re.test(l))) continue;
+    const a = amountsIn(l);
+    if (!a.length) continue;
+    const desc = l.replace(MONEY, " ").replace(/^\s*\d+\s*(?:x\s*)?(?=[a-z])/i, "").replace(/[\s$£€@x*]+$/gi, "").replace(/\s{2,}/g, " ").trim();
+    if (!/[a-z]{2}/i.test(desc)) continue;
+    items.push({ desc: desc.slice(0, 60), cents: a[a.length - 1] });
+  }
+  return items;
 }
 
 export function parseReceipt(block) {
@@ -65,7 +86,19 @@ export function parseReceipt(block) {
   let taxCents = null;
   for (const l of lines) if (TAX_RE.test(l) && !TOTAL_RE.test(l) && !/subtotal/i.test(l)) { const a = amountsIn(l); if (a.length) taxCents = a[a.length - 1]; }
   if (taxCents !== null && cents !== null && taxCents >= cents) taxCents = null;
-  return { date, merchant, cents, taxCents, ok: !!(date && merchant && cents), notes, totalLine: from, text: lines.join("\n").slice(0, 400) };
+  // line items, kept only if they add up to the printed total (with the tax and
+  // any tip, or already including tax); the merchant line is not an item
+  let tipCents = null;
+  for (const l of lines) if (TIP_RE.test(l) && !TOTAL_RE.test(l)) { const a = amountsIn(l); if (a.length) tipCents = a[a.length - 1]; }
+  const items = parseItems(lines);
+  let itemsOk = false;
+  if (items.length && cents !== null) {
+    const sum = items.reduce((a, i) => a + i.cents, 0);
+    if (sum + (taxCents ?? 0) + (tipCents ?? 0) === cents) itemsOk = true;
+    else if (sum + (tipCents ?? 0) === cents && taxCents !== null) itemsOk = "tax included";
+    else notes.push(`items add to ${(sum / 100).toFixed(2)} but the total is ${(cents / 100).toFixed(2)}${taxCents !== null ? " with tax" : ""}: not used for a split`);
+  }
+  return { date, merchant, cents, taxCents, tipCents, items: itemsOk ? items : [], itemsOk: !!itemsOk, taxIncluded: itemsOk === "tax included", ok: !!(date && merchant && cents), notes, totalLine: from, text: lines.join("\n").slice(0, 400) };
 }
 
 const sameReceipt = (a, b) => a.date === b.date && a.cents === b.cents && (a.merchant ?? "").toLowerCase() === (b.merchant ?? "").toLowerCase();
@@ -81,7 +114,7 @@ export function addReceipts(books, text) {
     if (!p.ok) { skipped.push({ text: p.text.split("\n")[0], notes: p.notes }); continue; }
     const dup = kept.find((r) => sameReceipt(r, p));
     if (dup) { duplicates.push({ id: dup.id, merchant: p.merchant, date: p.date, cents: p.cents }); continue; }
-    const r = { id: `r${++n}`, date: p.date, merchant: p.merchant, cents: p.cents, taxCents: p.taxCents, matched: null, note: p.notes.join("; ") || undefined, text: p.text };
+    const r = { id: `r${++n}`, date: p.date, merchant: p.merchant, cents: p.cents, taxCents: p.taxCents, ...(p.items.length ? { items: p.items, printedTipCents: p.tipCents ?? undefined, taxIncluded: p.taxIncluded || undefined } : {}), matched: null, note: p.notes.join("; ") || undefined, text: p.text };
     kept.push(r); added.push(r);
   }
   return { books: matchReceipts({ ...books, receipts: kept }), added, skipped, duplicates };
@@ -207,4 +240,62 @@ export function taxOnReceipts(books, { from = null, to = null } = {}) {
     byAccount: out(accounts, (code) => ({ code, name: names.get(code)?.name ?? (code === "unfiled" ? "Not matched, or line not filed yet" : code) })),
     rows, noTax,
   };
+}
+
+// Split a matched bank line by the receipt's items. Each item goes to the
+// account the categorizer picks for its own words (your rules and what you
+// filed before win, then the built-in keywords); an item it knows nothing about
+// goes to `other`, else to the account the merchant's name suggests. Tax is
+// shared out over the accounts in proportion to their items (largest remainder,
+// so the cents add up), and a tip printed on the receipt joins the biggest one.
+// Any tip added at the table, bank amount over the receipt, goes there too.
+// -> { receipt, line, parts: [{account, cents, items}], unfiled, single }.
+// `single` is the one account when every item lands in the same place: that is a
+// plain filing, not a split. Nothing here changes the books; splitFromReceipt does.
+export function planReceiptSplit(books, receiptId, { other = null } = {}) {
+  const r = (books.receipts ?? []).find((x) => x.id === receiptId);
+  if (!r) throw new Error(`no receipt ${receiptId}`);
+  if (!r.items?.length) throw new Error(`receipt ${receiptId} has no line items that add up to its total`);
+  const line = r.matched ? books.transactions.find((t) => t.id === r.matched) : null;
+  if (!line) throw new Error(`receipt ${receiptId} is not matched to a bank line yet (receipts attach ${receiptId} LINEID)`);
+  const model = modelFor(books);
+  const merchant = suggest({ desc: line.desc, cents: line.cents }, model);
+  const fallback = other ?? merchant.account;
+  const groups = new Map();
+  const unfiled = [];
+  for (const it of r.items) {
+    const s = suggest({ desc: it.desc, cents: -it.cents }, model);
+    let account = s.account && s.account !== "transfer" ? s.account : fallback;
+    if (!account || account === "transfer") { unfiled.push(it); continue; }
+    if (!groups.has(account)) groups.set(account, { account, cents: 0, items: [] });
+    const g = groups.get(account);
+    g.cents += it.cents; g.items.push(it);
+  }
+  const parts = [...groups.values()].sort((a, b) => b.cents - a.cents);
+  const itemSum = r.items.reduce((a, i) => a + i.cents, 0);
+  if (parts.length && !unfiled.length) {
+    // tax in proportion to the items, largest remainder
+    const tax = r.taxIncluded ? 0 : r.taxCents ?? 0;
+    if (tax) {
+      const raw = parts.map((p) => (tax * p.cents) / itemSum);
+      const base = raw.map(Math.floor);
+      let left = tax - base.reduce((a, b) => a + b, 0);
+      raw.map((x, i) => [x - base[i], i]).sort((a, b) => b[0] - a[0] || a[1] - b[1]).forEach(([, i]) => { if (left-- > 0) base[i]++; });
+      parts.forEach((p, i) => { p.taxCents = base[i]; p.cents += base[i]; });
+    }
+    // the rest (printed tip, tip at the table) onto the biggest account
+    const rest = -line.cents - parts.reduce((a, p) => a + p.cents, 0);
+    if (rest) { parts[0].extraCents = rest; parts[0].cents += rest; }
+  }
+  const sign = line.cents < 0 ? -1 : 1;
+  return { receipt: r, line, parts: parts.map((p) => ({ ...p, cents: sign * p.cents })), unfiled, single: parts.length === 1 && !unfiled.length ? parts[0].account : null };
+}
+
+// Post the split. Needs every item to have an account, so pass `other` when the
+// plan lists unfiled items. One account for everything is filed plainly.
+export function splitFromReceipt(books, receiptId, opts = {}) {
+  const plan = planReceiptSplit(books, receiptId, opts);
+  if (plan.unfiled.length) throw new Error(`${plan.unfiled.length} item${plan.unfiled.length === 1 ? "" : "s"} (${plan.unfiled.map((i) => i.desc).join(", ")}) match no account; name one with --other CODE`);
+  const choice = plan.single ?? plan.parts.map((p) => ({ account: p.account, cents: p.cents }));
+  return { books: confirm(books, { [plan.line.id]: choice }), plan };
 }

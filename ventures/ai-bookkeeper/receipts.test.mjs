@@ -144,3 +144,55 @@ test("tax on receipts is summed by month and by the account the line was filed t
   assert.equal(t.noTax.length, 1);
   assert.equal(taxOnReceipts(b, { from: "2026-04-01" }).taxCents, 320);
 });
+
+const STORE = `Office Depot
+2026-05-04
+Printer paper      24.99
+Stamps book        11.00
+Coffee beans       12.50
+Subtotal           48.49
+Sales Tax           4.00
+Total              52.49`;
+
+test("items are read when they add up to the total, and left out when they do not", () => {
+  const r = parseReceipt(STORE);
+  assert.deepEqual(r.items.map((i) => [i.desc, i.cents]), [["Printer paper", 2499], ["Stamps book", 1100], ["Coffee beans", 1250]]);
+  assert.ok(r.itemsOk);
+  const bad = parseReceipt(STORE.replace("Total              52.49", "Discount -5.00\nTotal              47.49"));
+  assert.equal(bad.items.length, 0);
+  assert.ok(bad.notes.some((n) => /not used for a split/.test(n)));
+  const incl = parseReceipt("Cafe Uno\n2026-05-04\nSandwich 8.00\nSoda 2.00\nTotal 10.00\nIncludes tax 0.80");
+  assert.ok(incl.itemsOk && incl.taxIncluded);
+  const tipped = parseReceipt("Luigi's\n2026-05-04\nPasta 20.00\nTax 1.60\nTip 4.00\nTotal 25.60");
+  assert.equal(tipped.items.length, 1);
+  assert.equal(tipped.tipCents, 400);
+});
+
+test("a receipt is split by item with tax shared out so the cents add up", async () => {
+  const { splitFromReceipt, planReceiptSplit } = await import("./receipts.mjs");
+  let b = addReceipts(books([["2026-05-05", "OFFICE DEPOT 1234", "-52.49"]]), STORE).books;
+  const plan = planReceiptSplit(b, b.receipts[0].id);
+  assert.equal(plan.line.cents, -5249);
+  assert.equal(plan.parts.reduce((a, p) => a + p.cents, 0), -5249);
+  assert.deepEqual(plan.parts.map((p) => [p.account, p.cents, p.taxCents]), [["6070", -3896, 297], ["6130", -1353, 103]], "paper and stamps follow the merchant; coffee beans go to meals; $4.00 tax shared 297/103");
+  const r = splitFromReceipt(b, b.receipts[0].id);
+  const t = r.books.transactions[0];
+  assert.equal(t.status, "split");
+  assert.deepEqual(t.split, [{ account: "6070", cents: -3896 }, { account: "6130", cents: -1353 }]);
+});
+
+test("a split that lands in two accounts posts a split; unknown items need --other", async () => {
+  const { splitFromReceipt, planReceiptSplit } = await import("./receipts.mjs");
+  const text = "Corner Market\n2026-05-04\nStarbucks coffee 6.00\nUSPS stamps 10.00\nTax 0.00\nTotal 16.00".replace("Tax 0.00\n", "");
+  const b = addReceipts(books([["2026-05-04", "CORNER MARKET", "-16.00"]]), text).books;
+  const plan = planReceiptSplit(b, "r1");
+  assert.equal(plan.unfiled.length, 0, "nothing unknown here");
+  assert.deepEqual(plan.parts.map((p) => [p.account, p.cents]), [["6070", -1000], ["6130", -600]]);
+  const done = splitFromReceipt(b, "r1");
+  assert.equal(done.books.transactions[0].status, "split");
+  const odd = addReceipts(books([["2026-05-04", "CORNER MARKET", "-16.00"]]), "Corner Market\n2026-05-04\nWidget 6.00\nGizmo 10.00\nTotal 16.00").books;
+  assert.equal(planReceiptSplit(odd, "r1").unfiled.length, 2);
+  assert.throws(() => splitFromReceipt(odd, "r1"), /--other/);
+  assert.equal(splitFromReceipt(odd, "r1", { other: "6100" }).books.transactions[0].posted, "6100");
+  assert.throws(() => planReceiptSplit(books([]), "r1"), /no receipt/);
+});
