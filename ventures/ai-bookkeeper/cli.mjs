@@ -28,7 +28,7 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
   confirm ID=CODE:AMT,CODE[:AMT] ...
                          split a line: ID=4000:1000.00,6010:-30.00 for a 970.00 payout
                          (amounts signed like the bank line; one may be left out)
-  documents FILE         load an invoice and bill list (CSV: type,number,date,due,party,amount,account);
+  documents FILE         load an invoice and bill list (CSV: type,number,date,due,party,amount,account[,against]; type may be invoice, bill, credit note, vendor credit);
                          bank lines that pay them clear receivable/payable
   aging [--as-of D]      what customers owe you and what you owe, by days past due
   rules [--apply]        payees you filed the same way 3+ times, as rules; --apply adds them
@@ -89,7 +89,7 @@ if (cmd === "import") {
   if (json) { console.log(JSON.stringify(a, null, 2)); process.exit(0); }
   console.log(`AGING as of ${a.asOf}`);
   for (const [h, side] of [["Receivable (owed to you)", a.receivable], ["Payable (you owe)", a.payable]]) console.log(`  ${h.padEnd(26)} ${fmt(side.total).padStart(12)}   ${a.buckets.map((b, i) => `${b}: ${fmt(side.byBucket[i])}`).join("  ")}`);
-  for (const d of a.open) console.log(`    ${d.id.padEnd(14)} ${d.party.slice(0, 28).padEnd(28)} ${fmt(d.total).padStart(11)}  due ${d.due ?? d.date}  ${d.daysLate ? `${d.daysLate} days late` : "not due"}`);
+  for (const d of a.open) console.log(`    ${d.id.padEnd(14)} ${d.party.slice(0, 28).padEnd(28)} ${fmt(d.total).padStart(11)}  due ${d.due ?? d.date}  ${d.credit ? "credit not applied" : d.daysLate ? `${d.daysLate} days late` : "not due"}${d.partlyPaid ? `  (of ${fmt(d.original)})` : ""}`);
 } else if (cmd === "rules") {
   const sug = suggestRules(books);
   for (const r of sug) console.log(`${r.rule.padEnd(40)} ${r.count} times, ${Math.round(r.share * 100)}% to ${name(r.account)}`);
