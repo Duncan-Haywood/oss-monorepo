@@ -19,6 +19,11 @@
     "seconds": 1342.6,
     "voice": "en_US-ljspeech-high"
   },
+  "the-dark-week": {
+    "bytes": 8700976,
+    "seconds": 1450.1,
+    "voice": "en_US-ljspeech-high"
+  },
   "the-grader": {
     "bytes": 5381959,
     "seconds": 896.9,
