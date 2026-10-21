@@ -1,0 +1,55 @@
+{
+ "date": "2026-10-21",
+ "session": "https://claude.ai/code/session_01M4GideiepVHv3f9DxNTcTZ",
+ "track": "research",
+ "prompt_version": 0,
+ "input": "follow the instructions in ./prompt.md (scheduled)",
+ "input_sha256": "a069142edff7faba0e7497f3e43587d325506648757355f87cd62c89d6f4f469",
+ "follow_up_inputs": [],
+ "model": "claude-sonnet-5-5",
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-10-21T15:41:44Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": null,
+ "projects": [],
+ "pr": 9209,
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": null,
+ "outcome": "success",
+ "errors": [],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "research/CLAUDE.md",
+   "issue": "pyenv.py first use ran in background and printed only the interpreter path; had to wait on it with no progress signal."
+  },
+  {
+   "file": "research/PROJECTS.md",
+   "issue": "Track 7 has 28 eda-* micro-variants; the Next steps chain is exhausted of new questions, so the pick was another confidence-interval follow-up."
+  }
+ ],
+ "deviations": [
+  {
+   "file": "research/PROJECTS.md",
+   "why": "Did not take a new milestone; added a bootstrap interval to eda-adaptfixed, the listed next step, because its headline claim had none. Result: it holds for linear, not for ridge k=3 or the sorter family."
+  }
+ ],
+ "writeups": [
+  "research/eda-adaptci/README.md (no separate docs/posts entry)"
+ ],
+ "goal": null,
+ "notes": "",
+ "corrections": [],
+ "redteam": null
+}
