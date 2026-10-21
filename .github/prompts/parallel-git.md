@@ -20,7 +20,7 @@ beats the pattern on its own.
 
 ## Rules
 
-1. **Do not add a file that every PR has to edit.** A counter of the whole
+1. **Avoid adding a file that every PR has to edit.** A counter of the whole
    tree, a list of every project, or a generated mirror makes any two
    concurrent PRs conflict. Put per-item data in the item's own directory and
    derive the totals. *Why:* in early October 95% of PRs rewrote one
@@ -33,7 +33,7 @@ beats the pattern on its own.
    stayed in every PR for about two more weeks. It came back once (6,202
    files) before #8638 removed it and added a check that fails if it returns.
 3. **A CI check on `main` compares a commit with its own parent
-   (`github.event.before`), never with `main`'s current tip.** *Why:* a
+   (`github.event.before`), not with `main`'s current tip.** *Why:* a
    queued run starts about 10 merges late, so the tip has moved. 77 of 100
    `Portfolio validate` runs on `main` failed because a venture added after
    the commit looked as if the commit had deleted it. A pull-request run
@@ -45,11 +45,11 @@ beats the pattern on its own.
    merge on red, and #7226 broke `gitops/tests` behind it. If a red check
    looks "already broken", classify it (`ci_starvation.py`). Then reproduce
    it on the commit itself before you merge on top of it.
-5. **Do not let `main` runs cancel each other.** Use `cancel-in-progress`
+5. **Avoid letting `main` runs cancel each other.** Use `cancel-in-progress`
    only on PR branches. *Why:* 44 of 100 `ventures tests` runs on `main` were
    cancelled by the next merge, so most commits never got a verdict (P038).
 6. **Squash-merge.** Merge `main` into your branch to resolve a conflict;
-   never rebase or force-push a branch that is not yours. *Why:* squash keeps
+   avoid rebasing or force-pushing a branch that is not yours. *Why:* squash keeps
    `main`'s first-parent history one commit per PR, which every measurement
    here depends on. From 10-14 to 10-16, 228 PRs landed as merge commits and
    brought their internal merge-main commits onto `main`. The research

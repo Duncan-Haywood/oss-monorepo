@@ -1,0 +1,51 @@
+{
+  "date": "2026-10-21",
+  "session": "https://claude.ai/code/session_01YPq1ytq1mdoszNmXJL9Egt",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "Owner: transition repo rules to guidelines outside legal/financial/ethical liability; blog post and agent doc; soften must-not wording",
+  "input_sha256": "d015259fb2256ebfd90aef097864a55e8a209f745b352df0a4e4010e148942f5",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-21T01:54:57Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 9004,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/goals.md",
+      "issue": "Guardrails called 'Land what you push' a strong default but then said unlanded work is 'never fine', mixing rule and default registers; softened per owner direction."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/README.md",
+      "instruction": "goals.md is changed by the owner only",
+      "did": "edited goals.md wording and added a dated quote",
+      "why": "the owner asked in this session for all rules docs to be softened; hard limits left untouched",
+      "result": "validate ok"
+    }
+  ],
+  "goal": null,
+  "notes": "rule_language.py default-pile lines 290 -> 190 across 44 guidance files; liability lines 73 -> 72. Rewording fanned out to four subagents by file group, each told to keep hard limits absolute. promptctl validate ok; test_rule_language + test_promptctl OK.",
+  "corrections": [],
+  "redteam": null
+}

@@ -32,7 +32,7 @@ users rely on most. The campaign prints the baseline time and an estimate; run t
 three campaigns if each takes under a minute, and for a slow suite (anything over ~20 s per mutant, since a campaign runs
 the suite once per mutant and the foreground limit is 10 min) start it with
 `run_in_background` and wait for it. The target file is mutated in place while it
-runs: do not read or edit it until the campaign exits (a mutated-looking file
+runs: avoid reading or editing it until the campaign exits (a mutated-looking file
 mid-run is the tool, not a bug), and check `git status` afterwards.
 
 The tool applies one mutant at a time, runs the suite, and restores the file
@@ -82,7 +82,7 @@ the mutant to the new code and say so in `note`.
 
 If a defect is too large for this run, such as a product that is wrong in a
 way that needs a redesign, leave `patched: false`, describe it in the PR, and
-fix only what is safe. Do not widen the run.
+fix only what is safe. Avoid widening the run.
 
 ## 4. Fix the class, not the instance
 

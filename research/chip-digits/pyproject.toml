@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "chip-digits"
+version = "0.1.0"
+description = "Accuracy versus MAC-lane area of a quantised MLP on the scikit-learn digits data: weight and activation bit-width sweep"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
