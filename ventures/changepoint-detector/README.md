@@ -144,8 +144,8 @@ series, 40 each, in `engine.test.mjs`):
   rate, 40 seeded series: with no step, changes per series 3.73 -> 0.07 and the fitted factor 0.297 on average; with
   a 1.5x step at point 100, changes per series 8.40 -> 1.07, step found within 5 points 40 of 40 both ways; with no
   holiday effect (factor 1) the output is unchanged (0.00 and 1.02 changes per series, factor 1.001 and 0.993). Limits:
-  one common factor, not one per holiday; a holiday on a seasonal phase is also absorbed in that phase's factor
-  when `--period` is on (the cycle is fitted first); the calendar is yours to supply, none is built in. The
+  one common factor, not one per holiday; a holiday on a seasonal phase was absorbed in that phase's factor
+  (fixed 2026-10-21: see "Holidays held out" below); the calendar is yours to supply, none is built in. The
   test in `engine.test.mjs` reproduces the step case on one seed.
 - **Seasonal counts (`--model poisson --period n`, added 2026-10-20).** Subtracting a profile
   would break counts, so the cycle is multiplicative: a count in phase p has rate (segment rate) x f[p],
@@ -422,3 +422,7 @@ Free and open source (MIT, see `LICENSE`). Optional support:
 ## Holidays of different kinds
 
 `--holidays` entries may be written `label=kind` (`2026-12-25=closed,2026-11-27=sale`). Each kind gets its own fitted factor, reported under `holidays.kinds`; each kind needs at least 2 rows. Checked on 240 seeded daily counts (rate 40) with a 0.3x closed day every 17th row and a 1.8x sale day every 23rd: engine test `a factor per kind recovers two different dips` (closed within 0.1 of 0.3, sale within 0.3 of 1.8). Not measured against real holiday data.
+
+## Holidays held out of the seasonal fit
+
+With `--period`, the holidays are now left out of the seasonal factors (they no longer count toward their phase), so a holiday that always falls on one weekday does not drag that weekday's factor down and bias the holiday factor toward 1. `node eval/holiday-heldout.mjs` runs the check: 40 seeded 224-day series, weekly pattern, a 0.3x holiday every 28th day (always the busiest weekday). Mean fitted holiday factor 0.355 before, 0.311 after (true 0.300); mean absolute error 0.055 -> 0.020; changes per series 0.03 both ways. Synthetic data only; the seasonal PELT pass still sees the holiday dips as unexplained (only the factors skip them).
