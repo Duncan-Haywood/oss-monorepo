@@ -1535,7 +1535,7 @@ Annals*). Payments: gridlock resolution and liquidity-saving mechanisms (Bech an
 5. `infra-routing`: electric delivery fleets. EVRPTW on the Schneider et al. instances, OR-Tools
    and an LLM or session proposer against the published best-known solutions at the same
    budget, with charging cost on a time-of-use tariff (track 16's `energy-tou`).
-6. `infra-cement`: clinker substitution. Mass and energy balance of OPC, LC3 and slag blends
+6. `infra-cement` (done 2026-10-21; strength from one study's table read via search summary, primary papers unreachable): clinker substitution. Mass and energy balance of OPC, LC3 and slag blends
    per tonne of cement, with CO<sub>2</sub> split into calcination and fuel, every factor
    sourced; which substitution levels keep a published strength class?
 7. `infra-grind`: comminution circuits. A population-balance ball-mill and classifier model
