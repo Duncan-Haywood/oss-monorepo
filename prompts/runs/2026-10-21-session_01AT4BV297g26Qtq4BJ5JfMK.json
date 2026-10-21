@@ -1,0 +1,52 @@
+{
+  "date": "2026-10-21",
+  "session": "https://claude.ai/code/session_01AT4BV297g26Qtq4BJ5JfMK",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-21T12:24:46Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [
+    "huggingface.co voice download: proxy 403"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "Assumes audio can be rendered in-session; cloud egress blocks the Piper voice download, so no way to produce the MP3. Needs a cached voice or an allowed host."
+    },
+    {
+      "file": "platform/pages/podcast_tts.py",
+      "issue": "--check printed nothing and exit 0 although two scripts (briefing-the-machines, cut-the-deadweight) have no audio."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/podcast/2026-10-21-typeof-localstorage-throws.md"
+  ],
+  "goal": null,
+  "notes": "Creative track, writing podcast, slug 2026-10-21-typeof-localstorage-throws. Script landed; audio NOT rendered: the Piper voice (huggingface.co, hf-mirror, cdn-lfs) is blocked by the egress proxy (403 CONNECT) and no voice exists on disk. podcast.test.mjs passes (9/9). Audio size 109 MB, under the 400 MB limit. Script numbers copied from docs/reports/2026-10-21-blocked-storage-usage-counter.md.",
+  "corrections": [],
+  "redteam": null
+}
