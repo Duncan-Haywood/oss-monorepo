@@ -1,0 +1,38 @@
+Weather: PVGIS-ERA5 typical-meteorological-year hourly GHI (data/*.csv). Load: energy-home synthetic shape, 8,000 kWh/yr, 5 noise seeds (only the load differs by seed).
+Tariff and battery as energy-tou-lp: assumed three-band TOU, 6 kW PV, 10 kWh, 90% round trip, C/2, export $0.05, 6% discount, 4,000-cycle life (assumed). Rolling 36 h plan, 24 h committed, wear $0.05/kWh.
+
+A. Forecast skill alone (day-ahead PV forecast made at local midnight, days 8-364): hourly nRMSE (RMSE / mean daylight GHI), daily-energy MAE / mean daily energy
+site annual_GHI_kWh_m2 daily_kc_mean lag1_autocorr_daily_kc persistence_nrmse smart_nrmse smart_week_nrmse persistence_daily_mae smart_daily_mae smart_week_daily_mae
+golden-co 1619 0.79 0.29 0.63 0.55 0.51 0.29 0.29 0.28
+phoenix-az 2142 0.95 0.31 0.26 0.25 0.23 0.11 0.11 0.12
+seattle-wa 1234 0.64 0.36 0.68 0.60 0.56 0.33 0.33 0.31
+synthetic energy-home weather (lat 40, mean of 5 seeds) lag1_autocorr_daily_kc 0.50
+
+B. Controller by PV forecast, 10 kWh (load forecast = yesterday unless noted): saving per year over no battery / life-limited break-even $/kWh / cycles per year / annual bill
+site controller saving breakeven cycles bill share_of_gap_rule_to_perfect
+golden-co best_rule 734 713 230 510 0.00
+golden-co persistence 722 672 286 521 -0.06
+golden-co smart 725 673 286 519 -0.05
+golden-co smart_week 733 677 288 511 -0.01
+golden-co smart_perfect_load 740 680 291 504 0.03
+golden-co perfect 929 738 360 314 1.00
+phoenix-az best_rule 668 649 202 303 0.00
+phoenix-az persistence 785 671 324 186 0.55
+phoenix-az smart 780 668 323 191 0.53
+phoenix-az smart_week 779 669 321 193 0.52
+phoenix-az smart_perfect_load 798 676 329 173 0.61
+phoenix-az perfect 880 707 355 91 1.00
+seattle-wa best_rule 618 600 199 789 0.00
+seattle-wa persistence 677 628 287 729 0.25
+seattle-wa smart 678 632 285 728 0.26
+seattle-wa smart_week 691 641 287 716 0.31
+seattle-wa smart_perfect_load 694 639 290 713 0.32
+seattle-wa perfect 852 691 350 554 1.00
+
+C. By battery size, Golden CO: life-limited break-even $/kWh, best rule / persistence / smart / perfect
+batt_kwh best_rule persistence smart perfect
+2.5 854 735 761 859
+5 845 771 785 877
+10 713 672 673 738
+15 514 497 495 619
+20 393 374 372 479
