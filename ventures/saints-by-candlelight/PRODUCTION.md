@@ -189,7 +189,7 @@ writing it; skip any already in `episodes/`):
 
 ## Waiting for audio
 
-- Episode 7 (`seraphim-of-sarov-and-the-bear`) is written and has a page but no audio: the 2026-10-21 cloud session could not reach huggingface.co for the Kokoro model files. Any session that can (`python3 render_audio.py seraphim-of-sarov-and-the-bear`, then `node generate.mjs`) should render it; the feed lists it only once audio exists.
+None: every episode has audio (episode 7 was rendered on 2026-10-21, 34 minutes).
 
 ## Publishing
 
