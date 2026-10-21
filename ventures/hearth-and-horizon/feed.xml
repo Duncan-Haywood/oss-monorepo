@@ -16,6 +16,16 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>The Bell at Half Past Three</title>
+      <link>https://example.invalid/hearth-and-horizon/the-bell-at-half-past-three.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-bell-at-half-past-three.html</guid>
+      <pubDate>Wed, 21 Oct 2026 12:00:00 GMT</pubDate>
+      <description>In a Holy Year heatwave, a retired river engineer volunteering at a pilgrim hostel on the Spanish Meseta learns that the number everyone quotes about deadly heat is not the number that threatens her guests, and that an AI which knows where every litre of water is cannot decide who may walk. Setting: Valdeceniza, on the Camino Francés in Castile, Spain, July 2060. Read the full text at https://example.invalid/hearth-and-horizon/the-bell-at-half-past-three.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>In a Holy Year heatwave, a retired river engineer volunteering at a pilgrim hostel on the Spanish Meseta learns that the number everyone quotes about deadly heat is not the number that threatens her guests, and that an AI which knows where every litre of water is cannot decide who may walk.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>The Grader</title>
       <link>https://example.invalid/hearth-and-horizon/the-grader.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-grader.html</guid>
