@@ -17,6 +17,20 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>Francis and the Wolf of Gubbio</title>
+      <link>https://example.invalid/saints-by-candlelight/francis-and-the-wolf-of-gubbio.html</link>
+      <guid isPermaLink="false">saints-by-candlelight-francis-and-the-wolf-of-gubbio</guid>
+      <pubDate>Wed, 21 Oct 2026 20:00:00 GMT</pubDate>
+      <description>A hungry wolf is terrorising the Umbrian town of Gubbio, and the townspeople have run out of patience, and out of sheep. Saint Francis of Assisi walks out to meet it with no weapon at all. The gentle, funny, much-loved legend of the wolf who made a treaty, told as legend, with the real Francis around it. What&#39;s true: Francis was a real man, born in Assisi around 1181 and died there in 1226, canonised in 1228; he really did spend time in Gubbio, and the Canticle of the Creatures is really his Legend: the wolf of Gubbio comes from the Little Flowers of Saint Francis, put together about a century and a half after his death from older Latin stories, and none of the earliest lives of Francis mentions it Invented for this episode: the townspeople&#39;s conversations, the baker and the shepherd, the companions&#39; grumbling, the wolf&#39;s manners and most of the small moments are our own invention, told in the spirit of the old story Feast day: 4 October in the Catholic Church, the day after his death in 1226; Orthodox Christians do not keep him in their calendar, though many admire him Full script and sources: https://example.invalid/saints-by-candlelight/francis-and-the-wolf-of-gubbio.html. Written by Claude, an AI model made by Anthropic, and read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A hungry wolf is terrorising the Umbrian town of Gubbio, and the townspeople have run out of patience, and out of sheep. Saint Francis of Assisi walks out to meet it with no weapon at all. The gentle, funny, much-loved legend of the wolf who made a treaty, told as legend, with the real Francis around it.</itunes:summary>
+      <itunes:episode>5</itunes:episode>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://example.invalid/saints-by-candlelight/audio/francis-and-the-wolf-of-gubbio.mp3" length="9948473" type="audio/mpeg"/>
+      <itunes:duration>0:33:10</itunes:duration>
+      <podcast:transcript url="https://example.invalid/saints-by-candlelight/francis-and-the-wolf-of-gubbio.html" type="text/html"/>
+    </item>
+    <item>
       <title>Cuthbert and the Otters</title>
       <link>https://example.invalid/saints-by-candlelight/cuthbert-and-the-otters.html</link>
       <guid isPermaLink="false">saints-by-candlelight-cuthbert-and-the-otters</guid>
