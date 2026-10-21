@@ -236,3 +236,143 @@ test("payees filed the same way repeatedly are offered as rules, once, and not w
   assert.deepEqual(suggestRules(b), []);
   assert.equal(addRules(b, ["zoom => 6060"]).rules, b.rules);
 });
+
+// Accruals: invoices and bills.
+import { addDocuments, aging } from "./engine.mjs";
+import { parseDocuments, settle } from "./accruals.mjs";
+
+const DOCS = `type,number,date,due,party,amount,account
+invoice,1042,2026-01-05,2026-02-04,Acme Design Co,1500.00,4000
+invoice,1043,2026-01-20,2026-02-19,Birch Studio,800.00,4000
+invoice,1043,2026-01-20,2026-02-19,Birch Studio,64.00,2100
+bill,77,2026-01-10,2026-01-25,Paper Supply Inc,230.00,6100
+`;
+const PAID = `Date,Description,Amount
+2026-02-01,ACH CREDIT ACME DESIGN CO INV 1042,1500.00
+2026-02-10,DEPOSIT,864.00
+2026-02-15,CHECK 2231,-230.00
+`;
+const accrual = () => addDocuments(importStatement(newBooks(), PAID, "1000").books, DOCS);
+
+test("rows with one number are one document with a line each; bad rows are reported", () => {
+  const r = parseDocuments(DOCS + "invoice,9,2026-13-40,,X,5.00,4000\nbill,10,2026-01-01,,Y,-5.00,6100\n");
+  assert.equal(r.documents.length, 3);
+  assert.equal(r.documents.find((d) => d.id === "INV-1043").total, 86400);
+  assert.equal(r.problems.length, 2);
+});
+
+test("an invoice is income on its own date, before any money arrives", () => {
+  const r = addDocuments(newBooks(), DOCS);
+  assert.equal(r.added, 3);
+  const pl = reports(r.books).profitAndLoss;
+  assert.equal(pl.totalIncome, 230000);
+  assert.equal(pl.totalExpense, 23000);
+  const bs = reports(r.books).balanceSheet;
+  assert.equal(bs.balanced, true);
+  assert.equal(addDocuments(r.books, DOCS).added, 0);
+});
+
+test("a payment with the invoice number or party name settles it; an amount alone only suggests", () => {
+  const { books } = accrual();
+  const by = (d) => books.transactions.find((t) => t.desc.includes(d));
+  assert.equal(by("ACME").status, "settled");
+  assert.equal(by("ACME").posted, "1100");
+  assert.equal(books.documents.find((d) => d.id === "INV-1042").settledBy, by("ACME").id);
+  assert.equal(by("DEPOSIT").status, "review");
+  assert.equal(by("DEPOSIT").suggestion.account, "1100");
+  assert.equal(by("DEPOSIT").suggestion.confidence, 0.6);
+  assert.equal(aging(books, "2026-02-28").receivable.total, 86400);
+});
+
+test("accepting the suggestions clears receivable and payable, and the control check agrees", () => {
+  let { books } = accrual();
+  books = confirm(books, Object.fromEntries(books.transactions.filter((t) => t.status === "review").map((t) => [t.id, t.suggestion.account])));
+  assert.equal(books.documents.every((d) => d.settledBy), true);
+  const bs = reports(books).balanceSheet;
+  assert.equal(bs.balanced, true);
+  assert.equal(aging(books).receivable.total + aging(books).payable.total, 0);
+  assert.equal(closeChecks(books).some((c) => c.check === "control" || c.check === "overdue"), false);
+  // Revenue is booked once: in January by invoice, not again in February by the deposit.
+  assert.equal(reports(books).profitAndLoss.totalIncome, 230000);
+});
+
+test("filing a settled line elsewhere un-settles the document; open items are aged and flagged", () => {
+  let { books } = accrual();
+  const t = books.transactions.find((x) => x.desc.includes("ACME"));
+  books = confirm(books, { [t.id]: "4100" });
+  assert.equal(books.transactions.find((x) => x.id === t.id).status, "confirmed");
+  assert.equal(books.documents.find((d) => d.id === "INV-1042").settledBy, undefined);
+  const a = aging(books, "2026-05-01");
+  assert.equal(a.receivable.byBucket[3], 150000 + 86400);
+  assert.ok(closeChecks(books, { asOf: "2026-05-01" }).some((c) => c.check === "overdue"));
+});
+
+test("analyze takes documents and returns the aging", () => {
+  const r = analyze({ statements: [{ csv: PAID, account: "1000" }], documents: [{ csv: DOCS }] });
+  assert.equal(r.aging.receivable.total, 86400);
+  assert.equal(r.status.settled, 1);
+});
+
+test("ablation: switching a layer off removes its suggestions, and without memory nothing posts alone", () => {
+  const full = runSeed(1).slice(3), noMem = runSeed(1, undefined, { skipLayers: ["memory"] }).slice(3);
+  const sum = (rows, k) => rows.reduce((a, r) => a + r[k], 0);
+  assert.ok(sum(full, "auto") > 0);
+  assert.equal(sum(noMem, "auto"), 0);
+  assert.equal(sum(noMem.map((r) => ({ n: r.bySource.memory?.n ?? 0 })), "n"), 0);
+  const none = runSeed(1, undefined, { skipLayers: ["memory", "learned", "built-in"] }).slice(3);
+  assert.equal(sum(none, "suggested"), 0);
+});
+
+// Part-payments and credit notes against a document.
+const DOCS2 = `type,number,date,due,party,amount,account,against
+invoice,2001,2026-01-05,2026-02-04,Acme Design Co,1000.00,4000,
+invoice,2002,2026-01-06,2026-02-05,Acme Design Co,500.00,4000,
+credit note,C1,2026-01-20,,Acme Design Co,100.00,4000,2002
+bill,90,2026-01-10,2026-01-25,Paper Supply Inc,300.00,6100,
+vendor credit,V1,2026-01-15,,Paper Supply Inc,50.00,6100,
+`;
+const INSTAL = `Date,Description,Amount
+2026-02-01,ACH ACME INV 2001 PART 1,600.00
+2026-02-20,ACH ACME INV 2001 FINAL,400.00
+2026-02-22,ACH ACME 2002,400.00
+2026-02-25,CHECK PAPER SUPPLY INC,-100.00
+`;
+const inst = () => addDocuments(importStatement(newBooks(), INSTAL, "1000").books, DOCS2);
+
+test("a credit note reduces the invoice it names; the payment expected is net of it", () => {
+  const { books } = inst();
+  const inv = books.documents.find((d) => d.id === "INV-2002");
+  assert.equal(inv.credited, 10000);
+  assert.equal(books.documents.find((d) => d.id === "CN-C1").applied, 10000);
+  assert.equal(books.transactions.find((t) => t.desc.includes("2002")).status, "settled");
+  assert.equal(inv.settledBy, books.transactions.find((t) => t.desc.includes("2002")).id);
+});
+
+test("instalments are part-payments until the balance reaches zero", () => {
+  const { books } = inst();
+  const part = books.transactions.find((t) => t.desc.includes("PART 1"));
+  assert.equal(part.status, "settled");
+  assert.equal(part.partial, true);
+  const inv = books.documents.find((d) => d.id === "INV-2001");
+  assert.equal(inv.payments.length, 2);
+  assert.equal(inv.settledBy, books.transactions.find((t) => t.desc.includes("FINAL")).id);
+  assert.equal(aging(books, "2026-02-28").receivable.total, 0);
+  const half = { ...books, transactions: books.transactions.filter((t) => !t.desc.includes("FINAL")) };
+  const a = aging(settle(half), "2026-02-28");
+  assert.equal(a.open.find((d) => d.id === "INV-2001").total, 40000);
+  assert.equal(a.open.find((d) => d.id === "INV-2001").partlyPaid, true);
+});
+
+test("a vendor credit and a part-payment leave the bill and the control check consistent", () => {
+  const { books } = inst();
+  const a = aging(books);
+  assert.equal(a.payable.total, 15000);
+  assert.equal(a.open.find((d) => d.id === "BILL-90").total, 20000);
+  assert.equal(a.open.find((d) => d.id === "BILL-90").partlyPaid, true);
+  assert.equal(books.documents.find((d) => d.id === "VC-V1").applied, undefined, "a vendor credit with no 'against' stays unapplied");
+  assert.equal(a.open.find((d) => d.id === "VC-V1").total, -5000);
+  assert.equal(reports(books).balanceSheet.balanced, true);
+  assert.equal(closeChecks(books).some((c) => c.check === "control"), false);
+  assert.equal(reports(books).profitAndLoss.totalIncome, 140000);
+  assert.equal(reports(books).profitAndLoss.totalExpense, 25000);
+});

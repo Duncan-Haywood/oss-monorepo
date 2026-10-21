@@ -10,10 +10,12 @@
 //   node cli.mjs --books books.json ai            (LLM_PROVIDER / ANTHROPIC_API_KEY / OLLAMA ...)
 //   node cli.mjs --books books.json report [--from 2026-01-01] [--to 2026-03-31] [--json]
 //   node cli.mjs --books books.json checks
+//   node cli.mjs --books books.json documents invoices-and-bills.csv
+//   node cli.mjs --books books.json aging
 //   node cli.mjs --books books.json export qbo|xero|iif|csv|lines > journal.csv
 //   node cli.mjs --example report
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
-import { newBooks, importStatement, categorize, suggestRules, addRules, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, exportLines, status, analyze, fmt } from "./engine.mjs";
+import { newBooks, importStatement, categorize, suggestRules, addRules, addDocuments, aging, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, exportLines, status, analyze, fmt } from "./engine.mjs";
 import { accountMap } from "./ledger.mjs";
 
 const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that learn from your corrections.
@@ -26,6 +28,9 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
   confirm ID=CODE:AMT,CODE[:AMT] ...
                          split a line: ID=4000:1000.00,6010:-30.00 for a 970.00 payout
                          (amounts signed like the bank line; one may be left out)
+  documents FILE         load an invoice and bill list (CSV: type,number,date,due,party,amount,account[,against]; type may be invoice, bill, credit note, vendor credit);
+                         bank lines that pay them clear receivable/payable
+  aging [--as-of D]      what customers owe you and what you owe, by days past due
   rules [--apply]        payees you filed the same way 3+ times, as rules; --apply adds them
   accept [MIN]           accept every suggestion at or above MIN confidence (default 0.7)
   ai                     ask a model for the review queue: your key or a local model
@@ -43,6 +48,7 @@ if (has("--help") || has("-h") || !argv.length) { console.log(HELP); process.exi
 
 const file = flag("--books");
 const json = has("--json"), example = has("--example"), invert = has("--invert"), dayFirst = has("--day-first"), decimalComma = has("--decimal-comma");
+const asOf = flag("--as-of");
 const account = flag("--account"), from = flag("--from"), to = flag("--to"), auto = flag("--auto");
 let books = example ? analyze({ example: true }).books : file && existsSync(file) ? JSON.parse(readFileSync(file, "utf8")) : newBooks();
 const save = () => { if (file) writeFileSync(file, JSON.stringify(books, null, 1)); };
@@ -70,6 +76,20 @@ if (cmd === "import") {
   books = confirm(books, choices);
   save();
   console.log(`${Object.keys(choices).length} filed. ${status(books).review} still waiting.`);
+} else if (cmd === "documents") {
+  if (!rest[0]) { console.error("documents needs a CSV file"); process.exit(2); }
+  const r = addDocuments(books, readFileSync(rest[0], "utf8"), opts);
+  books = categorize(r.books);
+  save();
+  for (const p of r.problems) console.error(p);
+  const settled = books.documents.filter((d) => d.settledBy).length;
+  console.log(`${r.added} documents added, ${r.skipped} already in the books. ${settled} of ${books.documents.length} are paid by a bank line; ${status(books).review} lines waiting for review.`);
+} else if (cmd === "aging") {
+  const a = aging(books, asOf);
+  if (json) { console.log(JSON.stringify(a, null, 2)); process.exit(0); }
+  console.log(`AGING as of ${a.asOf}`);
+  for (const [h, side] of [["Receivable (owed to you)", a.receivable], ["Payable (you owe)", a.payable]]) console.log(`  ${h.padEnd(26)} ${fmt(side.total).padStart(12)}   ${a.buckets.map((b, i) => `${b}: ${fmt(side.byBucket[i])}`).join("  ")}`);
+  for (const d of a.open) console.log(`    ${d.id.padEnd(14)} ${d.party.slice(0, 28).padEnd(28)} ${fmt(d.total).padStart(11)}  due ${d.due ?? d.date}  ${d.credit ? "credit not applied" : d.daysLate ? `${d.daysLate} days late` : "not due"}${d.partlyPaid ? `  (of ${fmt(d.original)})` : ""}`);
 } else if (cmd === "rules") {
   const sug = suggestRules(books);
   for (const r of sug) console.log(`${r.rule.padEnd(40)} ${r.count} times, ${Math.round(r.share * 100)}% to ${name(r.account)}`);

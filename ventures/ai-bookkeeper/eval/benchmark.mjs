@@ -15,14 +15,14 @@ const arg = (k, d) => { const i = process.argv.indexOf(k); return i === -1 ? d :
 const SEEDS = +arg("--seeds", 5), AUTO = +arg("--auto", 0.85);
 const where = { checking: "1000", card: "2000" };
 
-export function runSeed(seed, autoPost = AUTO) {
+export function runSeed(seed, autoPost = AUTO, extra = {}) {
   const lines = generateYear({ seed });
   let books = newBooks();
   const months = [];
   for (let m = 1; m <= 12; m++) {
     const mm = String(m).padStart(2, "0");
     const these = lines.filter((l) => l.date.slice(5, 7) === mm);
-    for (const w of ["checking", "card"]) books = importStatement(books, toCsv(these, w), where[w], { autoPost, invert: w === "card" }).books;
+    for (const w of ["checking", "card"]) books = importStatement(books, toCsv(these, w), where[w], { autoPost, invert: w === "card", ...extra }).books;
     const truth = new Map();
     // Ids are assigned by import; recover each line's truth by matching on fields.
     const key = (t) => `${t.account}|${t.date}|${t.cents}|${t.desc}`;

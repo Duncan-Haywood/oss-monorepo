@@ -36,9 +36,15 @@ flagships:
     next: >-
       Real bank exports as fixtures (Chase, Bank of America, Wells Fargo, Amex,
       Capital One), the AI layer measured with a local model on the synthetic
-      review queue, a per-layer ablation, and accruals from an invoice and bill list. Split lines
-      and rule suggestions from repeated corrections landed 2026-10-21 (engine, CLI;
-      the page does not show suggestions yet).
+      review queue, and a per-layer ablation. Split lines, rule suggestions from
+      repeated corrections, and accruals (an invoice and bill list that journals on
+      its own date, is cleared by matching bank lines, and is aged; close checks for
+      control-account drift and overdue items) landed 2026-10-21 (engine, CLI and
+      agents, and the page: a rule-suggestion list with an add button and an invoice
+      and bill card with the aging table). Part-payments and credit notes (an
+      `against` column, applied net) landed 2026-10-21. After those: refunding or
+      writing off a credit balance, one payment across several documents, and sales
+      tax as its own report.
   # Added 2026-10-21 second, on the owner's direction that day: "I want to make
   # tools that can automate part of the new home construction process in the
   # us. to drop prices and increase efficiency this is a long standing project
@@ -50,10 +56,11 @@ flagships:
       cutting-stock order within 0.02% of its LP bound on whole houses; page,
       CLI and agent engine. First tool of the new-home construction program.
     next: >-
-      Sheathing (ROADMAP.md milestone 1): panel layout per wall with breaks on
-      stud centres, cut-outs at openings, offcuts reused across walls as a 2D
-      cutting problem with a bound, and the sheet order; then blocking and
-      corner plate laps.
+      Sheathing landed 2026-10-21 (vertical panels, joints on framing, cut-outs,
+      sheet order with a bound; ROADMAP.md milestone 1). Next: blocking and fire
+      blocking (mid-height rows, nailers where a sheathing joint falls over an
+      opening, added to the cut list and the lumber order), then corner plate
+      laps, then two-course sheathing for walls taller than the sheet.
   # Added 2026-10-20 first, on the owner's direction that day for research
   # algorithms as tools (prompts/goals.md). New tools of that kind follow
   # portfolio/research-tools/README.md; this entry deepens the first one.

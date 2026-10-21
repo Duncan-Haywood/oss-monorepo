@@ -47,9 +47,14 @@ Ticked items are on `main`.
       tee backing, plate splices over studs with cap/top joint offset, layout
       self-check, cut list, cutting-stock order with LP bound and exact small
       groups, page, CLI, agent engine (2026-10-21).
-- [ ] **Sheathing**: 4x8 / 4x9 / 4x10 panel layout per wall from the start end
-      (breaks on stud centres), cut-outs at openings, offcut reuse across walls
-      (a 2D cutting problem), sheet order. Next.
+- [x] **Sheathing** (2026-10-21, `sheathing.mjs`): vertical panels per wall from
+      the start end, every joint on framing that runs the panel's height (a
+      nailer is called out where an opening leaves none), cut-outs at openings,
+      the sheet length chosen from the wall height, and the sheet order as a
+      cutting-stock problem over 48 in strips pooled across walls, with its LP
+      bound. Not yet: two courses (blocked horizontal joint) for walls taller
+      than the longest sheet, horizontal panel orientation, a 2D reuse of
+      opening cut-outs, corner overhang and the rim board.
 - [ ] **Blocking and fire blocking**: mid-height blocking rows, fire blocking
       for walls over 10 ft, nailers; added to the cut list.
 - [ ] **Corner and tee plate laps**: the cap plate laps into the intersecting

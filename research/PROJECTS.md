@@ -1517,7 +1517,7 @@ Annals*). Payments: gridlock resolution and liquidity-saving mechanisms (Bech an
 *Annual Reviews in Control*).
 
 **Milestones.** Grid and energy first; the rest in any order.
-1. `infra-hosting`: how much rooftop PV and EV charging can a distribution feeder take before
+1. `infra-hosting` (done 2026-10-21; IEEE 13-node only, snapshots): how much rooftop PV and EV charging can a distribution feeder take before
    voltage or thermal limits bind, and how much do cheap measures (inverter volt-var, smart
    charging, a tap change) add? OpenDSS on IEEE test feeders, hosting capacity as a stochastic
    sweep, each measure scored on the same placements.
@@ -1528,7 +1528,7 @@ Annals*). Payments: gridlock resolution and liquidity-saving mechanisms (Bech an
    published leak schedule: the competition's best methods as baselines, and the repo's
    `changepoint-detector` (PELT, Bayesian online) applied to residuals, scored by detection
    delay and false alarms.
-4. `infra-propulsion`: energy per tonne-km by mode from first principles (rolling resistance,
+4. `infra-propulsion` (done 2026-10-21; floors only, most inputs assumed and swept): energy per tonne-km by mode from first principles (rolling resistance,
    aerodynamic and hull drag, lift), reproducing published figures, then the range and payload
    each storage technology from `energy-density` and `energy-practical` gives a truck, train,
    ship and aircraft. Which modes can electrify directly, and which need a fuel?
@@ -1544,7 +1544,7 @@ Annals*). Payments: gridlock resolution and liquidity-saving mechanisms (Bech an
 8. `infra-chatter`: stability lobes for milling. The Altintas-Budak zero-order solution against
    time-domain simulation, then the spindle speeds that maximise metal removal rate for a
    measured tool tip FRF from a public dataset.
-9. `infra-yield`: cost per good die. Poisson, Murphy and negative-binomial yield models against
+9. `infra-yield` (done 2026-10-21; wafer prices and D0 are 2020 secondary-source snapshots, packaging assumed and swept): cost per good die. Poisson, Murphy and negative-binomial yield models against
    die area and defect density, reproducing published curves, and the chiplet break-even
    (tracks 3, 7 and 8 cover design; this covers the fab and packaging economics).
 10. `infra-sorting`: robotic waste sorting. A detector trained on ZeroWaste or TACO, and a
