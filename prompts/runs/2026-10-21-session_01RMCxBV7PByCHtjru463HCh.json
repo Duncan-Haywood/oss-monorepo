@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-21",
+  "session": "https://claude.ai/code/session_01RMCxBV7PByCHtjru463HCh",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-21T11:34:18Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship 2 wall-framing-takeoff: page field for tee laps",
+  "projects": [
+    "wall-framing-takeoff"
+  ],
+  "pr": 9152,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "Another session landed tee laps (#9157) while I built the same slice; the next: text named 'tee laps' as open. Wasted a first implementation and a conflicted PR."
+    }
+  ],
+  "deviations": [],
+  "writeups": [],
+  "goal": null,
+  "notes": "First built engine tee laps (startTee/endTee), lost the race to #9157, reset onto main and built the page field instead. page tests pass; headless Chromium: valid entry runs, malformed entry reported, no page errors. Full CI test job was still running at first merge attempt.",
+  "corrections": [],
+  "redteam": null
+}
