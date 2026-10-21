@@ -973,3 +973,19 @@ test('--overdispersion nb --period reaches the Bayesian pass: weekly clumpy coun
   assert.ok(falseNb / 12 < 0.3, `false flags per series ${falseNb / 12}`);
   assert.ok(hitNb >= 9 && hitNb > hitQ + 3, `NB found ${hitNb} of 12, quasi-Poisson ${hitQ}`);
 });
+
+test('--overdispersion nb --trend reaches the Bayesian pass: clumpy growing counts, a 3.5x step found without false flags', () => {
+  let falseNb = 0, falsePlain = 0, hitNb = 0, hitQ = 0;
+  for (let seed = 1900; seed < 1912; seed++) {
+    const r = rng(seed);
+    const gen = (step) => Array.from({ length: 210 }, (_, i) => poissons(r, 1, 6 * Math.exp(0.006 * i) * (step && i >= 105 ? 3.5 : 1) * Math.exp(0.35 * normals(r, 1)[0] - 0.06))[0]);
+    const flat = gen(false), step = gen(true);
+    falseNb += analyze({ values: flat, model: 'poisson', trend: true, overdispersion: 'nb' }).bocpd.detections.length;
+    falsePlain += analyze({ values: flat, model: 'poisson', trend: true }).bocpd.detections.length;
+    const near = (o) => analyze({ values: step, model: 'poisson', trend: true, ...o }).bocpd.detections.some((d) => Math.abs(d.index - 105) <= 8);
+    if (near({ overdispersion: 'nb' })) hitNb++;
+    if (near({ overdispersion: true })) hitQ++;
+  }
+  assert.ok(falseNb / 12 < 0.3 && falseNb < falsePlain, `false flags per series: NB ${falseNb / 12}, plain ${falsePlain / 12}`);
+  assert.ok(hitNb >= 7 && hitNb >= hitQ, `NB found ${hitNb} of 12, quasi-Poisson ${hitQ}`);
+});

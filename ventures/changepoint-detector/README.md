@@ -223,7 +223,13 @@ series, 40 each, in `engine.test.mjs`):
   8 points / false flags per flat series: plain Poisson 26, 33 and 36 of 40 (1.8x, 2.5x, 3.5x) with 1.38 false flags; quasi-Poisson
   7, 10 and 19 of 40 with 0.40; NB 12, 24 and 38 of 40 with 0.05. Same picture as without a season: NB is the clean choice from about
   3x up, and a 1.8x step in counts this clumpy is not found reliably by any of them. Rates outside the grid are clipped to its ends.
-  Only the season was measured; `--trend` uses the same code path but has no power numbers yet.
+  `--trend` is measured below.
+- **Negative binomial with `--trend` in the Bayesian pass (measured 2026-10-21).** 210 counts growing 0.6% a step from rate 6
+  (a factor 3.5 over the series), lognormal clumping sd 0.35, seeds 1900..1939, `--model poisson --trend`, lag 5, threshold 0.5,
+  a step at 105 found within 8 points / false flags per flat series: plain Poisson 24, 27 and 30 of 40 (1.8x, 2.5x, 3.5x) with
+  1.20 false flags; quasi-Poisson 4, 18 and 24 of 40 with 0.125; NB 10, 22 and 32 of 40 with 0. Same picture as with a season: NB
+  has no false flags and is the best of the three from about 3.5x, but at 1.8x and 2.5x plain Poisson still finds more steps,
+  at the price of 1.2 false flags per series. Pinned by a test in `engine.test.mjs` (12 seeds).
 - **Drifting seasonality (`--period n --drift`).** The fixed profile is wrong when the
   cycle's amplitude grows or its peak moves. With `--drift` each phase is smoothed across
   cycles by a running median (5 cycles, 3 on short series), re-centred per cycle. On 144
