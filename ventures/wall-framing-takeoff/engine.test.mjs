@@ -543,6 +543,24 @@ test("a gable wall: studs rise with the roof, plates run along the slope, the la
   assert.ok(r.cuts.some((c) => c.kind === "stud" && c.length > plan.studLength + 50));
 });
 
+test("an off-centre gable peak: far slope is steeper, eaves stay level, plates follow each slope, layout verifies", () => {
+  const plan = { ...base(), walls: [{ id: "G", length: 240, gable: { pitch: 6, peak: 80 } }] };
+  assert.deepEqual(validatePlan(plan), []);
+  const w = layoutWall(plan, plan.walls[0]);
+  assert.deepEqual(verifyWall(w, plan.walls[0]), []);
+  assert.equal(w.gable.peakRise, 40); // 6:12 over 80 in
+  assert.ok(Math.abs(w.gable.farPitch - 3) < 1e-9, "40 in of rise over 160 in of run is 3:12");
+  const studs = w.members.filter((m) => m.orient === "v").sort((a, b) => a.x - b.x);
+  assert.equal(studs[0].length, plan.studLength + 0.5 * 1.5);
+  assert.ok(Math.abs(studs[studs.length - 1].length - (plan.studLength + (3 / 12) * 1.5)) < 1e-9, "far eave stud rises at the far pitch");
+  const top = w.members.filter((m) => m.label === "top plate");
+  const want = 80 * Math.sqrt(1 + 0.25) + 160 * Math.sqrt(1 + 0.0625);
+  assert.ok(Math.abs(top.reduce((s, m) => s + m.length, 0) - want) < 1e-6);
+  assert.ok(takeoff(plan).ok);
+  const bad = { ...base(), walls: [{ id: "G", length: 240, gable: { pitch: 6, peak: 1 } }] };
+  assert.ok(validatePlan(bad).some((e) => e.includes("peak")));
+});
+
 test("gable walls reject openings and a flat pitch", () => {
   const op = { kind: "window", offset: 60, width: 36, height: 36 };
   const plan = { ...base(), walls: [{ id: "G", length: 240, gable: { pitch: 0 }, openings: [op] }] };
