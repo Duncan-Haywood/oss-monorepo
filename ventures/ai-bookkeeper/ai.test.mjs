@@ -2,6 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { aiSuggest, aiPrompt, parseReply } from "./ai.mjs";
+import { runSeed } from "./eval/ai-eval.mjs";
 import { newBooks, importStatement, categorize, acceptSuggestions } from "./engine.mjs";
 
 const CSV = "Date,Description,Amount\n2026-01-03,ZQX STUDIO RENTALS,-300.00\n2026-01-04,MYSTERY LLC,-12.00\n";
@@ -52,4 +53,20 @@ test("the prompt carries the chart and only the review lines", () => {
   assert.match(p, /ZQX STUDIO RENTALS/);
   assert.doesNotMatch(p, /MYSTERY/);
   assert.throws(() => parseReply("no json here"), /JSON/);
+});
+
+test("aiSuggest batches with an offset", async () => {
+  const b = books();
+  const [, m] = b.transactions;
+  const r = await aiSuggest({ provider: "anthropic", apiKey: "k" }, b, { max: 1, offset: 1, fetch: reply('{"lines":[{"id":"' + m.id + '","account":"6070","confidence":0.6,"reason":"x"}]}') });
+  assert.equal(r.suggested, 1);
+  assert.equal(r.books.transactions[1].suggestion.source, "ai");
+});
+
+test("ai-eval harness: a perfect scripted model is right on every review line", async () => {
+  const t = await runSeed(1, { config: { provider: "anthropic", apiKey: "stub" }, stub: 1, from: 11 });
+  assert.ok(t.review > 20);
+  assert.equal(t.aiRight, t.review);
+  assert.equal(t.broken, 0);
+  assert.equal(t.failedCalls, 0);
 });

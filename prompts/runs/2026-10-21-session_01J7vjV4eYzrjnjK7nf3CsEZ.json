@@ -1,0 +1,49 @@
+{
+  "date": "2026-10-21",
+  "session": "https://claude.ai/code/session_01J7vjV4eYzrjnjK7nf3CsEZ",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-21T07:21:07Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "ai-bookkeeper next: still listed the per-layer ablation, which already existed in the README."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "Could not measure the AI layer: huggingface/ollama blocked by the proxy, no model in container. Landed the eval harness (stub-tested) and said plainly that no reading exists."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Added eval/ai-eval.mjs, aiSuggest offset, 2 tests (68 pass). No agent doc/post written this run.",
+  "corrections": [],
+  "redteam": null
+}

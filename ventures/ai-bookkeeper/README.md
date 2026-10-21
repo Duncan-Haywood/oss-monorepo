@@ -155,8 +155,21 @@ of the two extra layers adds the most cannot be read off this table: each
 "without" row removes a layer the others partly cover.
 
 **Not yet measured:** accuracy of the AI layer (no key or local model in the
-build environment; the tests check its guard rails with a stubbed reply), and
-any real bank export.
+build environment, and model hosts were not reachable from it), and any real
+bank export.
+
+### The AI layer (harness ready, no reading yet)
+
+`node ventures/ai-bookkeeper/eval/ai-eval.mjs` sends the synthetic year's
+review queue (months 4 to 12, lines the four layers did not post alone) to the
+model in batches of 40, the same call the page makes, and reports the
+deterministic top suggestion's hit rate, the model's, and how many lines the
+model rescued against how many it broke. Point it at a model with the same
+variables as the page (`LLM_PROVIDER=ollama LLM_MODEL=...`, or a provider key).
+`--stub 0.8` swaps in a scripted reply to test the harness; its numbers are
+about the script, not a model, and are not a result. On one seed the review
+queue is 157 lines and the deterministic top suggestion is right on 63.7%,
+with 22.3% having none: that is the bar a model has to beat.
 
 ### Checked by hand
 
@@ -284,8 +297,8 @@ payroll and sales tax filings, multiple currencies, and receipts.
   One), written by hand from the layouts those banks document, with made-up
   rows. They are not real statements, so a bank changing its layout, or a quirk
   that only real data shows, is not covered until a real export is tried.
-- Measure the AI layer with a local model on the synthetic year's review
-  queue.
+- Run `eval/ai-eval.mjs` against a local model (it needs one the build
+  environment lacked) and put the table in Verification.
 
 
 ## Disclaimer

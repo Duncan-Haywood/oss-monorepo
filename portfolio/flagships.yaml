@@ -34,8 +34,10 @@ flagships:
       IIF journals; page, CLI and agent engine. Learning curve measured on
       synthetic data (README Verification).
     next: >-
-      The AI layer measured with a local model on the synthetic
-      review queue, and a per-layer ablation. Split lines, rule suggestions from
+      The AI layer measured with a local model: the harness
+      (eval/ai-eval.mjs: hit rate, rescued and broken lines against the
+      deterministic layers; `--stub` tests it) landed 2026-10-21 but needs a run
+      on a machine with a model. The per-layer ablation is in the README. Split lines, rule suggestions from
       repeated corrections, and accruals (an invoice and bill list that journals on
       its own date, is cleared by matching bank lines, and is aged; close checks for
       control-account drift and overdue items) landed 2026-10-21 (engine, CLI and
