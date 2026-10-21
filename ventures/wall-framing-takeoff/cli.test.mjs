@@ -66,3 +66,13 @@ test("--sheathing adds panels and a sheet order, and skips interior walls", () =
   assert.match(out, /panels from \d+ sheets of 4x9/);
   assert.doesNotMatch(out, /\n  Hall: \d/);
 });
+
+test("--drawings prints one printable sheet per wall", async () => {
+  const { main } = await import("./cli.mjs");
+  const { samplePlan } = await import("./engine.mjs");
+  const plan = samplePlan();
+  const { code, out } = main(["plan.json", "--drawings"], () => JSON.stringify(plan));
+  assert.equal(code, 0);
+  assert.match(out, /^<!doctype html>/);
+  assert.equal((out.match(/<section class="sheet">/g) || []).length, plan.walls.length);
+});

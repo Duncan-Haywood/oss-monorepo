@@ -4,6 +4,7 @@
 // list and per-wall layout marks out.
 import { readFileSync } from "node:fs";
 import { sheathe, defaultSheathing, sheathingText, nailerCuts } from "./sheathing.mjs";
+import { drawingSetHtml } from "./drawings.mjs";
 import { takeoff, samplePlan, toCsv, formatLength, formatInches, parseLength } from "./engine.mjs";
 
 const HELP = `wall-framing-takeoff: stud layout, cut list and the cheapest lumber order for a set of walls
@@ -16,6 +17,7 @@ Usage:
   node cli.mjs plan.json --overhang   run sheathing past corners to cover the next wall's end stud (vertical sheets)
   node cli.mjs plan.json --rim-lap=9.25  run sheathing that many inches below the bottom plate to cover the rim board (vertical sheets)
   node cli.mjs plan.json --horizontal sheets long side along the wall (implies --sheathing)
+  node cli.mjs plan.json --drawings   printable HTML shop drawings, one sheet per wall (marked members, dimensions, parts table)
   node cli.mjs --example            print the example plan (an invented 40 x 28 ft ranch) to start from
   cat plan.json | node cli.mjs -    read the plan from stdin
 
@@ -66,6 +68,7 @@ export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "u
     if (extra.length) r = takeoff(plan, extra); // nailers join the cut list and the lumber order
     r.sheathing = sheathing;
   }
+  if (flags.has("--drawings")) return { code: 0, out: drawingSetHtml(r, plan).trimEnd() };
   if (flags.has("--json")) return { code: 0, out: JSON.stringify(r, null, 2) };
   if (flags.has("--csv")) return { code: 0, out: toCsv(r).trimEnd() };
   const s = r.summary;
