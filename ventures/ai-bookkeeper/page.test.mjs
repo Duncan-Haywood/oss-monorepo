@@ -78,3 +78,8 @@ test("a multi-account OFX file gets a per-account mapping on the page", () => {
   assert.match(script(), /importOfxAccounts\(books/);
   assert.match(script(), /splitOfx\(text\)/);
 });
+
+test("the page shows the cash flow statement from the engine", () => {
+  assert.match(page("index.html"), /id="cf"/);
+  assert.match(script(), /r\.cashFlow/);
+});
