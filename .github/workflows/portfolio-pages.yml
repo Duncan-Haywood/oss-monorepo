@@ -20,7 +20,7 @@
 # reference for exactly this reason.
 #
 # This is the workflow that owner flip publishes. See portfolio/DIRECTION.md
-# ("Current priority: deploy what is already built") and platform/pages/README.md.
+# ("Deploy first (resolved)") and platform/pages/README.md.
 name: Portfolio Pages
 
 on:
