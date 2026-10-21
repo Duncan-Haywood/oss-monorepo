@@ -845,27 +845,33 @@ export function makeCost(x, model = 'mean', sigma = robustSd(x), rho = 0, exposu
           return -2 * ll;
         };
       }
+      // Continuous exposures: one pass of reciprocals per Newton step and one log per point. The likelihood is
+      // a log(lam) + sum x log e - sum (x + r) log(lam e + r) + m r log r, and sum x log e is a prefix sum, so
+      // the final pass takes one log per point where the textbook form takes two.
+      const W = new Float64Array(n), LX = new Float64Array(n + 1), EP = new Float64Array(n + 1);
+      for (let i = 0; i < n; i++) {
+        W[i] = x[i] + size;
+        LX[i + 1] = LX[i] + (x[i] > 0 ? x[i] * Math.log(exposure[i]) : 0);
+        EP[i + 1] = EP[i] + exposure[i];
+      }
+      const logSize = Math.log(size);
       return (s, t) => {
-        let a = 0, E = 0;
-        for (let i = s; i < t; i++) { a += x[i]; E += exposure[i]; }
+        const a = S1[t] - S1[s], E = EP[t] - EP[s];
         if (!(E > 0)) return 0;
         let lam = a / E;
         for (let k = 0; k < 2 && lam > 0; k++) {
-          let g = 0, h = 0;
+          let g = a / lam, h = -a / (lam * lam);
           for (let i = s; i < t; i++) {
-            const e = exposure[i], d = lam * e + size;
-            g += x[i] / lam - (x[i] + size) * e / d;
-            h += -x[i] / (lam * lam) + (x[i] + size) * e * e / (d * d);
+            const e = exposure[i], inv = 1 / (lam * e + size), q = W[i] * e * inv;
+            g -= q; h += q * e * inv;
           }
           const next = lam - g / h;
           if (!(h < 0) || !(next > 0)) break;
           lam = next;
         }
-        let ll = 0;
-        for (let i = s; i < t; i++) {
-          const mu = lam * exposure[i];
-          ll += (x[i] > 0 ? x[i] * Math.log(mu / (mu + size)) : 0) + size * Math.log(size / (mu + size));
-        }
+        let acc = 0;
+        for (let i = s; i < t; i++) acc += W[i] * Math.log(lam * exposure[i] + size);
+        const ll = (a > 0 ? a * Math.log(lam) : 0) + (LX[t] - LX[s]) - acc + (t - s) * size * logSize;
         return -2 * ll;
       };
     }
