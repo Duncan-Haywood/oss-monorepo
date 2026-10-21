@@ -319,7 +319,14 @@ export function poissonTrend(x, { base = null, penalty = 'bic', minSegment = 2, 
       const centre = scanned.reduce((a, f) => (f.cost < a.cost ? f : a)).knot;
       for (let kt = Math.max(lo, centre - step + 1); kt < Math.min(hi, centre + step); kt++) if (kt !== centre) tryKnot(kt, true);
       scanned.sort((a, b) => a.cost - b.cost);
-      for (const f of scanned.slice(0, NB_FINALISTS)) tryKnot(f.knot);
+      // finalists: the best knot of each dip in the Poisson cost curve first (so a distant second basin is not crowded out by the
+      // neighbours of the best knot), then the best of the rest
+      const byKnot = [...scanned].sort((a, b) => a.knot - b.knot);
+      const dips = byKnot.filter((f, i) => (i === 0 || f.cost <= byKnot[i - 1].cost) && (i === byKnot.length - 1 || f.cost <= byKnot[i + 1].cost));
+      dips.sort((a, b) => a.cost - b.cost);
+      const finalists = [...dips.slice(0, NB_FINALISTS)];
+      for (const f of scanned) if (finalists.length < NB_FINALISTS && !finalists.includes(f)) finalists.push(f);
+      for (const f of finalists) tryKnot(f.knot);
       if (!best) break;
     } else {
       if (!best) break;
