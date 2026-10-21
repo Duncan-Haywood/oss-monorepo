@@ -29,7 +29,7 @@
   "baseline": "170,362 bytes after PR #8733's first commit (2026-10-20)",
   "opened": "2026-10-20",
   "source": "owner, in session 2026-10-20",
-  "pr": null,
+  "pr": 9023,
   "result": null,
   "history": [
     {
@@ -47,6 +47,10 @@
     {
       "date": "2026-10-21",
       "note": "Part 2 started: DIRECTION.md 875->723 lines. 'Before rewriting this brief' and 'Current priority: deploy' replaced by short pointers; originals archived in docs/history/direction-superseded-sections-2026-10-21.md. Still in part 2: 'North star', 'Owner direction, relayed again', 'What changes now that distribution is solved' overlap and carry dated stories. Parts 1 (hetzner-gitops-ci.yml, 20 referencing files), 5, 6 remain."
+    },
+    {
+      "date": "2026-10-21",
+      "note": "Part 2 done (finishes the earlier started cut): portfolio/DIRECTION.md 875 -> 166 lines (53,180 -> 8,898 bytes); full text archived in docs/history/direction-full-text-2026-10-21.md. Section names other files cite (North star, Current priority, Owner direction) kept. Parts 1 remainder (hetzner-gitops-ci.yml), 5, 6 remain."
     }
   ]
 }
