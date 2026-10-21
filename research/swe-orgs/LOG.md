@@ -2,6 +2,13 @@
 
 An ongoing log of the `swe-orgs` study: each run reads a new batch of sources on how software companies organise and run engineering, adds them to `data/`, re-scores the catalogue against the run ledger, and appends an entry here, newest first. The project page on the portfolio site shows this log. Numbers come from `experiments/results.txt` as it stood at each entry.
 
+## 2026-10-21 · Batch 22: reminding the owner of a pull request that has gone overdue
+
+- Added 1 source and 1 practice (61 practices, 60 sources): Maddila et al., "Nudge: Accelerating Overdue Pull Requests Towards Completion" (Microsoft; arXiv 2011.12468, TOSEM 2022; P61). It is the catalogue's fifth measured source: a randomised trial on 147 repositories and about 8,500 pull requests reported 60% shorter resolution for nudged overdue pull requests than for un-nudged ones, with about 73% of notifications acknowledged positively (preprint figures).
+- **Transfers `yes` and is `partly adopted`.** Sessions are told to look at other sessions' stalled PRs and `unlanded_work.py` lists them, but nothing reminds anyone or wakes a session on one, and nothing measures how long a PR sits open. It ranks 1.3% (unlanded).
+- **Still no proposal.** The ledger has 1942 rows (it had 1900); every class share is at or below 1.3%, far below the 5% bar. A reminder's gain here depends on PR dwell time, which `swe-prlifetime` measures; the join is the next step.
+- Verification was by web search only. The TOSEM article was not found, so its final figures are not confirmed; only the preprint's two headline figures are used.
+
 ## 2026-10-21 · Batch 21: a merge queue that keeps main green
 
 - Added 1 source and 1 practice (60 practices, 59 sources): Ananthanarayanan et al., "Keeping Master Green at Scale" (EuroSys 2019; P60), Uber's SubmitQueue, which tests each change on top of the changes queued ahead of it so the main branch builds at every commit. It is the catalogue's first merge-queue source. An earlier draft of this batch took Shopify's "Deconstructing the Monolith" and was dropped before it landed: it duplicated P24 (Packwerk).
