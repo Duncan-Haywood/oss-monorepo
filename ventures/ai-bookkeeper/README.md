@@ -450,6 +450,19 @@ That checks the typed digits, not the publication itself: check them before fili
 Writing off a bill, the 179 taxable-income limit, inventory,
 payroll and sales tax filings, multiple currencies (the VAT worksheet is UK-layout, invoice basis), reading a PDF file itself (paste its text instead), and receipts.
 
+## Budget against actual
+
+`node cli.mjs --books books.json budget 6130 200` sets a monthly budget of $200
+for account 6130 (amount 0 removes it); it is kept in the books file as integer
+cents. `budget` alone sets the budgets beside what was posted for the latest
+month (or `--from D --to D`; a period of several months multiplies each monthly
+budget by the calendar months it touches). Each account shows budget, actual,
+variance, percent and a status: `better` or `worse` for profit (income over
+budget helps, expense over budget hurts), `on budget`, or `unbudgeted`.
+Engine: `budgetVsActual`, `setBudget` in `budget.mjs`; `--json` gives the data.
+Checked by node tests on hand-written ledgers only; whole-month scaling means a
+part-month period is compared against a full month's budget. Not on the page yet.
+
 ## This period against the last
 
 `node cli.mjs --books books.json compare` (engine: `compareProfit`, `compare.mjs`)
