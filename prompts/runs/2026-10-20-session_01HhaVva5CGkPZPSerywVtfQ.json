@@ -1,0 +1,240 @@
+{
+  "date": "2026-10-20",
+  "session": "https://claude.ai/code/session_01HhaVva5CGkPZPSerywVtfQ",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-20T23:17:51Z",
+  "ended": "2026-10-20T23:18:06Z",
+  "wall_minutes": 100.44,
+  "tokens_in": 2756793,
+  "tokens_out": 10240,
+  "cost_usd": 0.9135,
+  "tool_calls": 33,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/8983",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "changepoint-detector/engine.mjs campaign took 37 min (8 mutants x ~225s) and rerun about as long; the prompt's 10-minute foreground guidance does not mention that a 1-hour+ run is possible, so pick a faster target."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Target ventures/changepoint-detector/engine.mjs. 8 seeded, 4 caught. 3 gaps got guard tests (penaltyValue hq, poissonTrend default scale, joint knot grid upper bound); 1 equivalent (out-of-range Float64Array write). Catch rate 0.5 -> 1.0 after fix. No real defects found.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/changepoint-detector/engine.mjs",
+        "test": "node --test ventures/changepoint-detector/**/*.test.mjs  (in .)",
+        "seed": 1061365615,
+        "commit": "9141c6a6",
+        "sites": 1777,
+        "baseline_seconds": 252.2,
+        "mutants": [
+          {
+            "file": "ventures/changepoint-detector/engine.mjs",
+            "line": 210,
+            "col": 133,
+            "operator": "const-plus-one",
+            "before": "export function poissonTrend(x, { base = null, penalty = 'bic', minSegment = 2, passes = 12, bend = false, knotMargin = 0.1, scale = 1 } = {}) {",
+            "after": "export function poissonTrend(x, { base = null, penalty = 'bic', minSegment = 2, passes = 12, bend = false, knotMargin = 0.1, scale = 2 } = {}) {",
+            "line_text": "export function poissonTrend(x, { base = null, penalty = 'bic', minSegment = 2, passes = 12, bend = false, knotMargin = 0.1, scale = 1 } = {}) {",
+            "caught": false,
+            "seconds": 251.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Guard test added in engine.test.mjs (Red-team guards 2026-10-20)."
+          },
+          {
+            "file": "ventures/changepoint-detector/engine.mjs",
+            "line": 242,
+            "col": 24,
+            "operator": "times-to-div",
+            "before": "score[p] -= A * Wp[p] / W;",
+            "after": "score[p] -= A / Wp[p] / W;",
+            "line_text": "          score[p] -= A * Wp[p] / W;",
+            "caught": true,
+            "seconds": 251.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/changepoint-detector/engine.mjs",
+            "line": 286,
+            "col": 18,
+            "operator": "plus-to-minus",
+            "before": "if (!(best.cost + 3 * Math.log(n) * scale < plain.cost)) return out(plain);",
+            "after": "if (!(best.cost - 3 * Math.log(n) * scale < plain.cost)) return out(plain);",
+            "line_text": "  if (!(best.cost + 3 * Math.log(n) * scale < plain.cost)) return out(plain);",
+            "caught": true,
+            "seconds": 247.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/changepoint-detector/engine.mjs",
+            "line": 476,
+            "col": 50,
+            "operator": "le-to-lt",
+            "before": "for (let knot = Math.ceil(margin * n); knot <= Math.floor((1 - margin) * n); knot += step) grid.push(knot);",
+            "after": "for (let knot = Math.ceil(margin * n); knot < Math.floor((1 - margin) * n); knot += step) grid.push(knot);",
+            "line_text": "      for (let knot = Math.ceil(margin * n); knot <= Math.floor((1 - margin) * n); knot += step) grid.push(knot);",
+            "caught": false,
+            "seconds": 243.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Guard test added in engine.test.mjs (Red-team guards 2026-10-20)."
+          },
+          {
+            "file": "ventures/changepoint-detector/engine.mjs",
+            "line": 758,
+            "col": 22,
+            "operator": "lt-to-le",
+            "before": "for (let i = 0; i < n; i++) E[i + 1] = E[i] + (exposure ? exposure[i] : 1);",
+            "after": "for (let i = 0; i <= n; i++) E[i + 1] = E[i] + (exposure ? exposure[i] : 1);",
+            "line_text": "    for (let i = 0; i < n; i++) E[i + 1] = E[i] + (exposure ? exposure[i] : 1);",
+            "caught": false,
+            "seconds": 250.7,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "E is a Float64Array of length n+1; the extra write to index n+1 is out of bounds and silently ignored, and exposure[n] reads undefined without throwing."
+          },
+          {
+            "file": "ventures/changepoint-detector/engine.mjs",
+            "line": 793,
+            "col": 53,
+            "operator": "plus-to-minus",
+            "before": "ll += (x[i] > 0 ? x[i] * Math.log(mu / (mu + size)) : 0) + size * Math.log(size / (mu + size));",
+            "after": "ll += (x[i] > 0 ? x[i] * Math.log(mu / (mu - size)) : 0) + size * Math.log(size / (mu + size));",
+            "line_text": "          ll += (x[i] > 0 ? x[i] * Math.log(mu / (mu + size)) : 0) + size * Math.log(size / (mu + size));",
+            "caught": true,
+            "seconds": 254.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/changepoint-detector/engine.mjs",
+            "line": 831,
+            "col": 49,
+            "operator": "times-to-div",
+            "before": "case 'hannan-quinn': case 'hq': return 2 * k * Math.log(Math.log(Math.max(n, 3)));",
+            "after": "case 'hannan-quinn': case 'hq': return 2 * k / Math.log(Math.log(Math.max(n, 3)));",
+            "line_text": "    case 'hannan-quinn': case 'hq': return 2 * k * Math.log(Math.log(Math.max(n, 3)));",
+            "caught": false,
+            "seconds": 228.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Guard test added in engine.test.mjs (Red-team guards 2026-10-20)."
+          },
+          {
+            "file": "ventures/changepoint-detector/engine.mjs",
+            "line": 843,
+            "col": 17,
+            "operator": "max-to-min",
+            "before": "const minSeg = Math.max(1, Math.floor(minSegment));",
+            "after": "const minSeg = Math.min(1, Math.floor(minSegment));",
+            "line_text": "  const minSeg = Math.max(1, Math.floor(minSegment));",
+            "caught": true,
+            "seconds": 224.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": []
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "86844fd0-ab4d-59e6-9d72-a157fc12e124",
+    "transcripts": 1,
+    "first": "2026-10-20T23:17:51Z",
+    "last": "2026-10-21T00:58:17Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 35,
+        "input": 74,
+        "output": 10240,
+        "thinking": 1282,
+        "cache_read": 2688413,
+        "cache_write_5m": 0,
+        "cache_write_1h": 68306,
+        "api_equivalent_usd": 0.9135,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 35,
+      "input": 74,
+      "output": 10240,
+      "thinking": 1282,
+      "cache_read": 2688413,
+      "cache_write_5m": 0,
+      "cache_write_1h": 68306,
+      "api_equivalent_usd": 0.9135,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 33,
+    "tools": {
+      "Bash": 28,
+      "Monitor": 3,
+      "Read": 2
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 100.44,
+      "active_minutes": 85.85,
+      "model_minutes": 1.91,
+      "tool_minutes": 83.94,
+      "waiting_on_human_minutes": 14.59,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

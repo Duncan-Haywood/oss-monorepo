@@ -1,0 +1,6 @@
+{
+ "theme": "codesign",
+ "title": "Which gripper co-design method finds the best design when designs are scored on 600 scenes instead of 40?",
+ "lede": "does the ranking of co-design methods survive 600 test scenes? No: re-scoring the 144 final designs of codesign-headroom gives 0.82 to 0.85 true success for every method, random search ties CMA-ES and Bayesian optimisation, and the rollout-log reader trails by 0.03 (interval includes 0)",
+ "summary": "Re-scores the final designs of every <code>codesign-headroom</code> run (6 methods &times; 8 seeds &times; 3 checkpoints, 77 distinct designs) on 600 new scenes, with no re-optimisation. After 40 designs the mean true success is 0.846 for random search and CMA-ES, 0.845 for Bayesian optimisation and the score-only reader, 0.836 for the failure-summary reader and 0.817 for the rollout-log reader; no difference to random search has a 95% bootstrap interval excluding 0 (rollout logs: &minus;0.029, [&minus;0.073, +0.010]). The 40-scene test score overstates the chosen designs by 0.04&ndash;0.05 and ranks designs only moderately (Spearman 0.63). Eight runs per method, not the scene count, now limit resolution. Stylised; readers are rules, not an LLM."
+}

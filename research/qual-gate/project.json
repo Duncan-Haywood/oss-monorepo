@@ -1,0 +1,6 @@
+{
+ "theme": "qual",
+ "title": "If a hand-coded audit finds no bias in a coder, can you trust its counts?",
+ "summary": "On 3,188 real GoEmotions comments, an audit-gated estimator (use the coder's labels if a 200-item hand-coded paired z test finds no bias, else apply a prediction-powered correction) covered the true prevalence in only 8% of draws when the coder over-counted by 2.6 points, and 27% when it under-counted by 5.1; it reached 88% only with a 12.8-point bias. At zero bias it behaved (corrects 4% of draws, covers 96%). Always applying the prediction-powered correction covered 94&ndash;97% at every bias. The coders are a naive-Bayes classifier with a moved cut-off and a word list, not LLMs; one corpus, one seed.",
+ "lede": "if a hand-coded audit finds no bias in a coder, can you trust its counts? On 3,188 GoEmotions comments, an audit-then-trust rule covered the truth in 8% of draws for a coder 2.6 points off, while always applying the prediction-powered correction covered 94&ndash;97%. Not an LLM; one corpus."
+}
