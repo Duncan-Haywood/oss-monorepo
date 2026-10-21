@@ -1,7 +1,7 @@
 # Priority projects
 
 The owner's priority projects, set on 2026-10-12, with tracks 7 to 11 added on 2026-10-14, track 12 on 2026-10-16 tracks 13 to 15 on 2026-10-19, tracks 16 and 17 on 2026-10-19, track 18 on 2026-10-19 track 19 on 2026-10-20 and tracks 20 and 21 on 2026-10-21. Runs
-started from `prompt.md` take their new work from here. There are nineteen tracks. Each one is
+started from `prompt.md` take their new work from here. The tracks are numbered below. Each one is
 open-ended: its milestones are a starting order, not a checklist, so follow the results. Every
 project a track produces is a normal `research/<slug>/` project. It needs a README, tests, a
 README bullet, a `_homepage/projects.json` entry, a home page on the Pages site (milestone 9 below)
