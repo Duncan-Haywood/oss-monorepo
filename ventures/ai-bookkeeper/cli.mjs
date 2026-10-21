@@ -29,6 +29,7 @@ import { addTrip, removeTrip, setHomeOffice, mileageDeduction } from "./deductio
 import { setBudget, budgetVsActual } from "./budget.mjs";
 import { setTaxTreatment, taxDepreciation } from "./taxdepr.mjs";
 import { renderInvoice, setProfile, PROFILE_KEYS } from "./invoice.mjs";
+import { renderStatement, customers } from "./statement.mjs";
 
 const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that learn from your corrections.
 
@@ -63,6 +64,7 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
   assets FILE|[--as-of D] load a CSV (name,date,cost,life_months[,salvage,method]), or list the register: cost, accumulated depreciation, net book value
   profile [KEY VALUE]     your details for invoices (name, address, email, taxId, payTo, terms); no arguments lists them
   invoice ID [--out FILE] [--as-of D]  a printable invoice or credit note (HTML; print to PDF) with payments, balance due and overdue days
+  statement [CUSTOMER] [--from D] [--out FILE]  a printable statement of account (HTML) with running balance and what is past due; no customer lists who owes what
   writeoff ID [--date D]  write off an invoice's unpaid balance to bad debts (6900)
   recurring [--as-of D] [--json]  payees that repeat on a steady interval: cost per year, next date, and which went overdue, lapsed or changed amount
   forecast [--as-of D] [--days N] [--json]  expected cash day by day from the bank balance, recurring items and open invoices and bills; the lowest point
@@ -227,6 +229,13 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
     const r = renderInvoice(books, rest[0], { asOf: asOf ?? null });
     const out = flag("--out");
     if (out) { writeFileSync(out, r.html); console.log(`Wrote ${out}: ${r.id}, ${r.status}${r.balance ? `, balance ${fmt(r.balance)}` : ""}.`); } else process.stdout.write(r.html);
+  } catch (e) { console.error(e.message); process.exit(1); }
+} else if (cmd === "statement") {
+  try {
+    if (!rest[0]) { for (const c of customers(books)) console.log(`${c.party.slice(0, 30).padEnd(30)} ${fmt(c.owed).padStart(12)}`); process.exit(0); }
+    const r = renderStatement(books, rest[0], { from: flag("--from") ?? null, asOf: asOf ?? null });
+    const out = flag("--out");
+    if (out) { writeFileSync(out, r.html); console.log(`Wrote ${out}: ${r.party}, ${r.rows.length} lines, closing ${fmt(r.closing)}${r.overdue ? `, ${fmt(r.overdue)} past due` : ""}.`); } else process.stdout.write(r.html);
   } catch (e) { console.error(e.message); process.exit(1); }
 } else if (cmd === "writeoff") {
   if (!rest[0]) { console.error("writeoff needs an invoice id or number"); process.exit(2); }

@@ -321,6 +321,7 @@
     import { closeYear, reopenYear, yearEndReport } from "./yearend.mjs";
     import { addReceipts, receiptReport, taxOnReceipts, planReceiptSplit, splitFromReceipt } from "./receipts.mjs";
     import { renderInvoice, setProfile, PROFILE_KEYS } from "./invoice.mjs";
+    import { renderStatement } from "./statement.mjs";
     import { aiSuggest } from "./ai.mjs";
     import { detectLocal, isLocal } from "./byok.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
@@ -482,23 +483,46 @@
     // Open invoices with a write-off button: for a customer who will not pay. Books the balance to bad debts (6900).
     function writeOffList(a) {
       const open = a.open.filter((o) => o.kind === "invoice" && !o.credit).slice(0, 25);
-      if (!open.length) return el("span");
+      if (!open.length) return settledList(a.open);
       const rows = open.map((o) => {
         const b = el("button", { type: "button", class: "secondary", "aria-label": `Write off invoice ${o.id}`, text: "Write off" });
         b.addEventListener("click", () => {
           try { const r = writeOff(books, o.id); books = categorize(r.books, opts()); record("invoice_written_off"); render(); $("#docs-status").textContent = `Wrote off ${fmt(r.cents)} of ${o.id} to bad debts (6900).`; } catch (e) { $("#docs-status").textContent = e.message; }
         });
-        const pr = el("button", { type: "button", class: "secondary", "aria-label": `Print invoice ${o.id}`, text: "Print" });
-        pr.addEventListener("click", () => {
+        const pr = printButton(o);
+        const st = el("button", { type: "button", class: "secondary", "aria-label": `Statement for ${o.party}`, text: "Statement" });
+        st.addEventListener("click", () => {
           try {
-            const html = renderInvoice(books, o.id).html, url = URL.createObjectURL(new Blob([html], { type: "text/html" }));
-            if (!window.open(url, "_blank")) { const a = el("a", { href: url, download: `invoice-${o.id}.html` }); document.body.append(a); a.click(); a.remove(); }
-            record("invoice_printed"); $("#docs-status").textContent = `Invoice ${o.id} opened; use your browser's Print and choose Save as PDF.`;
+            const html = renderStatement(books, o.party).html, url = URL.createObjectURL(new Blob([html], { type: "text/html" }));
+            if (!window.open(url, "_blank")) { const a = el("a", { href: url, download: `statement-${o.party}.html` }); document.body.append(a); a.click(); a.remove(); }
+            record("statement_printed"); $("#docs-status").textContent = `Statement for ${o.party} opened; use your browser's Print and choose Save as PDF.`;
           } catch (e) { $("#docs-status").textContent = e.message; }
         });
-        return el("tr", {}, el("td", { text: o.id }), el("td", { text: o.party }), el("td", { class: "n", text: o.due ?? o.date }), el("td", { class: "n", text: `${o.daysLate} days` }), el("td", { class: "n", text: fmt(o.total) }), el("td", {}, pr, b));
+        return el("tr", {}, el("td", { text: o.id }), el("td", { text: o.party }), el("td", { class: "n", text: o.due ?? o.date }), el("td", { class: "n", text: `${o.daysLate} days` }), el("td", { class: "n", text: fmt(o.total) }), el("td", {}, pr, st, b));
       });
-      return el("div", {}, el("p", { class: "note", text: "Open invoices. Print one to send (your details are under Your details above), or write off one that will not be paid; its unpaid balance goes to bad debts and it leaves the aging table:" }), el("table", {}, el("thead", {}, el("tr", {}, ...["Invoice", "Customer", "Due", "Late", "Owed", ""].map((h) => el("th", { scope: "col", text: h })))), el("tbody", {}, ...rows)));
+      return el("div", {}, el("p", { class: "note", text: "Open invoices. Print one to send (your details are under Your details above), or write off one that will not be paid; its unpaid balance goes to bad debts and it leaves the aging table:" }), el("table", {}, el("thead", {}, el("tr", {}, ...["Invoice", "Customer", "Due", "Late", "Owed", ""].map((h) => el("th", { scope: "col", text: h })))), el("tbody", {}, ...rows)), settledList(a.open));
+    }
+
+    function printButton(o) {
+      const noun = o.credit ? "credit note" : "invoice";
+      const pr = el("button", { type: "button", class: "secondary", "aria-label": `Print ${noun} ${o.id}`, text: "Print" });
+      pr.addEventListener("click", () => {
+        try {
+          const html = renderInvoice(books, o.id).html, url = URL.createObjectURL(new Blob([html], { type: "text/html" }));
+          if (!window.open(url, "_blank")) { const a = el("a", { href: url, download: `${noun.replace(" ", "-")}-${o.id}.html` }); document.body.append(a); a.click(); a.remove(); }
+          record("invoice_printed"); $("#docs-status").textContent = `${noun[0].toUpperCase() + noun.slice(1)} ${o.id} opened; use your browser's Print and choose Save as PDF.`;
+        } catch (e) { $("#docs-status").textContent = e.message; }
+      });
+      return pr;
+    }
+
+    // Paid invoices and credit notes: no write-off, but a copy or a receipt can still be printed.
+    function settledList(open) {
+      const openIds = new Set(open.filter((o) => !o.credit).map((o) => o.id));
+      const rows = (books.documents ?? []).filter((d) => d.kind === "invoice" && !openIds.has(d.id)).slice(-25).reverse().map((d) =>
+        el("tr", {}, el("td", { text: d.id }), el("td", { text: d.party }), el("td", { text: d.credit ? "Credit note" : "Paid" }), el("td", { class: "n", text: fmt(d.total) }), el("td", {}, printButton(d))));
+      if (!rows.length) return el("span");
+      return el("div", {}, el("p", { class: "note", text: "Paid invoices and credit notes (latest 25). Print a copy or a paid receipt:" }), el("table", {}, el("thead", {}, el("tr", {}, ...["Document", "Customer", "Status", "Total", ""].map((h) => el("th", { scope: "col", text: h })))), el("tbody", {}, ...rows)));
     }
 
     function renderAssets() {
