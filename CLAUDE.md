@@ -42,7 +42,11 @@ new worth doing. world's an oyster."
 
 So land at least one thing of real value on `main`: a product feature or fix,
 a deployed page, a research result, an open-source tool, SEO or distribution
-work, or a write-up that uses real data to tell a reader something new. An
+work, or a write-up that uses real data to tell a reader something new.
+Most runs also write up what they learned, by their own judgment on the
+subject: an agent doc in `docs/reports/` and a post in `docs/posts/`, usually
+by extending an existing one (owner, 2026-10-21; `goals.md`, "Write about the
+work"). An
 empty queue, a vague brief or a task that already landed means look wider,
 not stop. Restated blockers, ledger-only edits and re-verifying unchanged
 work do not count. Never fabricate or lower the bar to have something to
@@ -51,8 +55,8 @@ ship. For venture work the default is the top flagship in
 deepen "existing projects that have real depth").
 
 The owner's standing directions (SEO, compliant distribution, measurement,
-the blog at `docs/posts/`, sales tools, local models) are quoted in
-`goals.md`. They are directions for many runs, not tasks every run starts on.
+sales tools, local models) are quoted in `goals.md`. They are directions for
+many runs, not tasks every run starts on, apart from the write-ups above.
 One applies to every run: **files first, not the GitHub API** (owner,
 2026-10-20). What a later reader needs (verification output, decisions, why)
 goes in a file in the same PR (run record, README, `docs/history/`); a PR body
