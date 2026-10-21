@@ -1,0 +1,57 @@
+{
+  "date": "2026-10-21",
+  "session": "https://claude.ai/code/session_01D8sa1G7xpTRTUqLiAxSXc4",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "I want to analyze the best engineering management and engineering culture and org of other organizations and make a blog and a agent doc on it. I also want to analyze our own current problems with culture and processes ... how much is set by the owner and how much evolved naturally from the agent's own work and disposition, how much drift ... solutions for owner and within the repo. blog and agent doc for all of this",
+  "input_sha256": "dc4343d7695e049485bca89e3a2d80737e113007d47cd678a89b3d1083bdac08",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-21T01:55:16Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Owner-asked study: engineering culture of other orgs, this repo's culture (owner-set vs agent-evolved), drift, fixes; two posts, an agent brief, prompts/culture.py",
+  "projects": [
+    "prompts",
+    "docs/posts",
+    "docs/reports"
+  ],
+  "pr": 9005,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/system.json",
+      "issue": "Per-file line budgets exist but nothing budgets the rulebook total, so the 2026-10-20 cut moved text into goals.md and new runbooks (total +13% in two days). culture.py now reports the total; steering.md names it."
+    },
+    {
+      "file": "README.md",
+      "issue": "Still opens with 'more than 1,200 browser calculators' though goals.md (2026-10-20) says depth over calculators; left for a venture/pages run because it is the SEO front door."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/steering.md",
+      "why": "Owner asked for this study directly; added one line to steering.md in a non-review run because the finding (budget the total) is about how instructions are cut."
+    }
+  ],
+  "goal": null,
+  "notes": "Unshallowed main (13,748 commits). Counts from prompts/culture.py report --history: rulebook 199,719 bytes / 15 files, owner-quoted ~10% (upper bound), goals.md ~27%; 1,804 run records: meta tracks 21%, deviations 15%, inputs routine 1,638 / scheduled 83 / ask 83; usage.yaml 296 products, 482 readings, 0 live visitor counts. External sources gathered by a research subagent with WebFetch; unverified claims marked in the post. Verified locally: python3 -m unittest discover -s prompts (93 tests, OK once this record was filled), promptctl.py validate, node --test platform/pages/writing.test.mjs (0 fail).",
+  "corrections": [],
+  "redteam": null,
+  "build_ok": true
+}
