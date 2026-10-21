@@ -38,11 +38,10 @@ clearly does not fit, do what better serves the goals and record it as a
 deviation (step 3). That is how the defaults improve
 ([`prompts/steering.md`](prompts/steering.md)).
 
-The router picks the review track
-by itself once enough runs have merged since the last review, for a share of
-runs (`review_when_due`) so parallel routines do not all start one. If an open
-pull request titled `prompts: review` already exists, another run has claimed
-that review; route again with `--skip-review`.
+The router picks the review track by itself once enough runs have merged since
+the last review, for a share of runs (`review_when_due`) so parallel routines
+do not all start one. If an open pull request titled `prompts: review` already
+exists, another run has claimed that review; route again with `--skip-review`.
 
 About 5% of runs draw the `explore` track: free choice, Google "20% time"
 style. The agent works on whatever it finds most interesting, with its own
@@ -67,8 +66,9 @@ python3 prompts/promptctl.py record --track <track> --version <n> --session <ses
 ```
 
 Fill in the record it writes under `prompts/runs/`: at least `outcome`, `pr`,
-`errors`, `integrity_issues`, `doc_friction` and `deviations`, plus anything
-else you can observe. Then measure what the run cost, from its own transcript:
+`errors`, `integrity_issues`, `doc_friction`, `deviations` and `writeups` (the
+agent doc and post you wrote or extended: `goals.md`, "Write about the work"),
+plus anything else you can observe. Then measure what the run cost, from its own transcript:
 `python3 prompts/runcost.py attach <record> --human-hours <h> --human-basis "<how>"`
 (tokens, models, time and API-equivalent dollars; `prompts/README.md`;
 `--human-hours` is optional, drop both flags if you cannot estimate). With no

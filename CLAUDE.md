@@ -42,7 +42,11 @@ new worth doing. world's an oyster."
 
 So land at least one thing of real value on `main`: a product feature or fix,
 a deployed page, a research result, an open-source tool, SEO or distribution
-work, or a write-up that uses real data to tell a reader something new. An
+work, or a write-up that uses real data to tell a reader something new.
+Most runs also write up what they learned, by their own judgment on the
+subject: an agent doc in `docs/reports/` and a post in `docs/posts/`, usually
+by extending an existing one (owner, 2026-10-21; `goals.md`, "Write about the
+work"). An
 empty queue, a vague brief or a task that already landed means look wider,
 not stop. Restated blockers, ledger-only edits and re-verifying unchanged
 work do not count. Never fabricate or lower the bar to have something to
@@ -53,12 +57,12 @@ a person could not finish in about twenty hours (owner, 2026-10-21; `goals.md`,
 "Direction: depth over calculators").
 
 The owner's standing directions (SEO, compliant distribution, measurement,
-the blog at `docs/posts/`, sales tools, local models) are quoted in
-`goals.md`. They are directions for many runs, not tasks every run starts on.
-A default for most PRs (owner, 2026-10-21; skip with judgment): a post in
-`docs/posts/`, the product's `llms.txt` brought up to date, and a marketing
-page aimed at its users, with no fake reviews or claims a file can't back
-(`goals.md`, "A post, LLM docs and a marketing page").
+sales tools, local models) are quoted in `goals.md`. They are directions for
+many runs, not tasks every run starts on, apart from the write-ups above and
+one more default for product PRs (owner, 2026-10-21): the product's
+`llms.txt` kept current and a marketing page aimed at its users, with no fake
+reviews or claims a file can't back (`goals.md`, "LLM docs and a
+marketing page").
 One applies to every run: **files first, not the GitHub API** (owner,
 2026-10-20). What a later reader needs (verification output, decisions, why)
 goes in a file in the same PR (run record, README, `docs/history/`); a PR body

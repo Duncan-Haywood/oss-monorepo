@@ -280,7 +280,29 @@ post, all for a reader who has never seen the repository:
 
 A post is useful work in its own right when it tells a reader something
 true they could not get from a file listing, and it counts toward "Every run
-ships something useful". `node platform/pages/writing-backlog.mjs` lists the
+ships something useful".
+
+Widened by the owner on 2026-10-21: "I want most runs to write up an agent doc
+and blog post according to its judgment on what." So the default for a run
+that merges work is two write-ups in its PR, subject chosen by the run:
+
+- **An agent doc** in `docs/reports/`: a brief for an agent reader that
+  answers first, then gives evidence a reader can rerun, then the limits
+  (the shape of
+  [`2026-10-20-agent-handoffs-for-agents.md`](../docs/reports/2026-10-20-agent-handoffs-for-agents.md)).
+  It is what the next run touching the same work should know: a decision and
+  why, a gotcha, a measurement, how to use what you built.
+- **A blog post** in `docs/posts/`, one of the three kinds above, for a person
+  who has never seen the repository.
+
+The subject is the run's call: its own work, something it found on the way,
+or a gap from `writing-backlog.mjs`. With ~2,700 runs a week, most of them
+should extend an existing doc or post with what is new (a section, a fresh
+number, a correction) rather than add a file; a new file is for a subject
+nothing covers. Skip either one when the run has nothing true and new to say
+(a one-line fix, a rerun), and say so in the run record; a padded post is
+worse than none. List the paths written or extended in the record's
+`writeups`, which `promptctl.py measure` counts. `node platform/pages/writing-backlog.mjs` lists the
 research tracks no post covers yet, biggest first, and the days since the
 last post. A run with spare scope, or one that just finished a track's
 milestone, can take the top line.
@@ -299,7 +321,7 @@ steering, and carry a not-advice sentence where a reader might act on a
 number. One post per subject: before writing, check `docs/posts/` and open
 PRs for one that covers it, and extend it instead of writing a second.
 
-## Direction: a post, LLM docs and a marketing page with the work
+## Direction: LLM docs and a marketing page for every product
 
 Set by the owner on 2026-10-21: "I want blog posts and llm docs with each pr
 generally. keep it interesting and on topic. not a hard rule agents can
@@ -309,15 +331,11 @@ marketing page. don't violate laws or tos on them but like a marketing
 landing page. and there should be marketing pages and seo targeting
 potential users also no fake reviews or anything."
 
-A default for most PRs, not a gate. Skip it, and say why in the run record,
-when there is nothing a reader would want to know (a typo, a CI fix, a
-ledger line) or when an existing post or page already covers it (extend
-that instead):
+The post half is covered by "Write about the work" above (an agent doc and a
+post per run, by judgment). The product half is a default for PRs that add or
+change a product, not a gate; skip it, and say why in the run record, when an
+existing page or file already covers the change (extend that instead):
 
-- **A post** in `docs/posts/` (the blog, "Write about the work" above) about
-  what the PR shipped or found, for a reader who has never seen the
-  repository. Interesting and on topic: lead with the finding or the
-  problem, not the process, and use the PR's real numbers.
 - **LLM docs**: an `llms.txt` beside a product's page
   (`ventures/<slug>/llms.txt`, Markdown per [llmstxt.org](https://llmstxt.org))
   that tells an assistant when to recommend the product, how to call it,
@@ -588,6 +606,7 @@ glad to see, never work that embarrasses them or the author.
 - Check every citation before merging: the paper exists, the authors, venue and year are right, and it says what you claim. Never invent a reference.
 - Represent other groups' work accurately. If a reproduction disagrees with a published result, report it neutrally as a discrepancy with the setup and possible causes, never as an error by the authors.
 - Do not overstate novelty or results. Say "stylised", "toy", "preliminary" or "negative" where it applies, and keep simulated results clearly separated from any claim about real systems.
+- **Run the numbers; "stylised" is not a method** (a strong default, set by the owner on 2026-10-21: "fabricated results portrayed as stylised is stupid and lazy. I can't imagine a reason not to run the numbers oneself ... research and cite and build and test"). Every input that drives a headline result comes from a cited source, a public dataset, a measurement or a run of real code, and the README says which. Where no value exists, sweep the plausible range and report how the conclusion moves, rather than picking a round figure. The "stylised" label stays honest disclosure for what genuinely cannot be measured; it never licenses skipping the data that can be found.
 - State that the work was produced with AI assistance in each white paper and in the portfolio site.
 - Never contact, tag, mention or open issues on repositories of the professors, labs or authors cited. Outreach is the repository owner's decision.
 
