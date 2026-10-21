@@ -8891,6 +8891,34 @@ const CHROME_CSS = `
 .pf-chrome-foot li{margin:0}
 .pf-chrome :focus-visible{outline:2px solid currentColor;outline-offset:2px}
 
+/* The site header as a full-width band, as it is on the site's own pages.
+ *
+ * Every venture centres its body in a 1000-1080px column with ~28px of padding,
+ * and the header is the body's first child, so it used to sit as a grey strip
+ * inset in that column, floating 28px below the top of the window. The band
+ * now meets the top edge (the body's top padding moves below it) and its fill
+ * runs to both edges through a spread shadow clipped to the band's height. A
+ * shadow, not a 100vw pseudo-element: it adds no scrollable overflow, so no
+ * venture page grows a sideways scroll, and the fill stays the host-neutral
+ * grey the header always had. A browser without :has() keeps the old top gap.
+ *
+ * The mark is the one literal colour here, and it is not text: it is the
+ * site's logo square (pf-site.css draws the same gradient), so it reads as one
+ * site on every venture palette instead of a blot of the host's ink. */
+body:has(> .pf-chrome-top[data-pfs-head]:first-child){padding-top:0;margin-top:0}
+.pf-chrome-top[data-pfs-head]{margin:0 0 26px;border-bottom:0;
+  box-shadow:0 0 0 100vmax var(--pfs-head-bg,rgba(128,128,128,.07));clip-path:inset(0 -100vmax)}
+.pf-chrome-top .pfs-bar{padding:12px 0}
+.pf-chrome-top .pfs-crumbs{padding:0 0 10px}
+.pf-chrome-top .pfs-mark{background:linear-gradient(135deg,#12594a,#3b5bdb)}
+.pf-chrome-top .pfs-searchlink{padding:4px 14px;border:1px solid var(--pf-line);border-radius:999px}
+[data-pfs-head].pf-chrome-top .pfs-searchlink:hover{text-decoration:none;border-color:currentColor}
+/* The shop-rates and saved-bids bars (rates.mjs, jobs.mjs) sit under the band
+ * in the same column, so they line up with the venture's content rather than
+ * their own 18px inset. */
+body:has(> .pf-chrome-top[data-pfs-head]:first-child) > :is(.pf-rates,.pf-jobs){padding-left:0;padding-right:0}
+body:has(> .pf-chrome-top[data-pfs-head]:first-child) > .pf-jobs .pf-jobs-status:empty{display:none}
+
 /* Site chrome is not part of anything a visitor prints.
  *
  * Nine bid calculators produce a customer proposal (platform/proposal), whose
