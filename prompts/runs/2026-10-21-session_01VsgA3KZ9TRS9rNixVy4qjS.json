@@ -1,0 +1,132 @@
+{
+  "date": "2026-10-21",
+  "session": "https://claude.ai/code/session_01VsgA3KZ9TRS9rNixVy4qjS",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there (scheduled)",
+  "input_sha256": "4089edbb83e0eda8db85acdf10601b9c582ad7e98bb6145969ccaadf7186a02b",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-21T03:18:01Z",
+  "ended": "2026-10-21T03:58:44Z",
+  "wall_minutes": 40.85,
+  "tokens_in": 6657491,
+  "tokens_out": 49352,
+  "cost_usd": 2.3164,
+  "tool_calls": 63,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/9056",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "OpenCV 5.0 (default here) has no CascadeClassifier or HOG; pinned <5 in a venv",
+    "HOG detectMultiScale segfaults on images smaller than its window; guarded",
+    "first fit was pure python and never finished; vectorised with numpy"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "pyenv.py hint does not mention that OpenCV 5 lacks Haar/HOG; only raw.githubusercontent, media.githubusercontent, GitHub release assets and PyPI are reachable (HF, figshare, Wikimedia, COCO blocked), which limits dataset choice and is not documented"
+    },
+    {
+      "file": "research/PROJECTS.md",
+      "issue": "track 13 lists all milestones done; picking work relies on a project's Next steps, which is fine but not marked in the track text"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/goals.md",
+      "why": "No agent doc or blog post written: the run's budget went to the measurement; README carries the findings"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Pilot with 22 reference faces; results flagged optimistic. Checks: pytest 9 passed, research/_homepage/build.py ok, check_md_links ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "58308f54-9eaf-562d-a57a-d29c7c63f526",
+    "transcripts": 1,
+    "first": "2026-10-21T03:18:01Z",
+    "last": "2026-10-21T03:58:52Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 58,
+        "input": 116,
+        "output": 49352,
+        "thinking": 15569,
+        "cache_read": 6528117,
+        "cache_write_5m": 0,
+        "cache_write_1h": 129258,
+        "api_equivalent_usd": 2.3164,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 58,
+      "input": 116,
+      "output": 49352,
+      "thinking": 15569,
+      "cache_read": 6528117,
+      "cache_write_5m": 0,
+      "cache_write_1h": 129258,
+      "api_equivalent_usd": 2.3164,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 63,
+    "tools": {
+      "Bash": 54,
+      "Read": 2,
+      "ToolSearch": 2,
+      "Monitor": 2,
+      "mcp__github__search_pull_requests": 1,
+      "WebSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 40.85,
+      "active_minutes": 40.85,
+      "model_minutes": 6.23,
+      "tool_minutes": 34.62,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
