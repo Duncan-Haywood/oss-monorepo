@@ -1439,7 +1439,7 @@ al. (1993), the revised NIOSH lifting equation, for the human side of a shared l
    cycle count and crew hours, taken from the track-12 takeoffs and schedule. Which tasks hold
    the most labour cost per unit of robot difficulty? The output is a dataset other robot
    projects can score against.
-3. `buildbot-carry`: dynamic carrying. A learned (or model-based) walking policy carries a stud,
+3. `buildbot-carry` (envelope done 2026-10-21; a walking policy, falls and drops still open): dynamic carrying. A learned (or model-based) walking policy carries a stud,
    a sheet or a block across a site floor and over thresholds and ramps from `terrain-twin`.
    Score falls, items dropped, metres per minute and energy per item, on a CPU budget stated
    in the README. Does a stock humanoid's carry rate beat one labourer's?
