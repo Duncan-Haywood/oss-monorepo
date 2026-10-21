@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { newBooks } from "./engine.mjs";
 import { addAsset, disposeAsset } from "./assets.mjs";
-import { MACRS_MID_QUARTER, usesMidQuarter, MACRS_HALF_YEAR, setTaxTreatment, assetTaxYear, taxDepreciation } from "./taxdepr.mjs";
+import { MACRS_MID_QUARTER, usesMidQuarter, MACRS_HALF_YEAR, setTaxTreatment, assetTaxYear, taxDepreciation, section179Limit } from "./taxdepr.mjs";
 
 const with1 = (cost, date, tax, life = 60) => {
   let b = addAsset(newBooks(), { name: "Machine", date, cost, lifeMonths: life }).books;
@@ -57,7 +57,7 @@ test("worksheet compares with book depreciation and flags what it cannot check",
   assert.equal(w.rows[0].total, 100000 + 180000);
   assert.ok(w.rows[0].book > 0);
   assert.equal(w.rows[0].difference, w.rows[0].total - w.rows[0].book);
-  assert.ok(w.warnings.some((x) => /Section 179 dollar limits/.test(x)));
+  assert.ok(w.warnings.some((x) => /Section 179 taxable-income limit/.test(x)));
 });
 
 test("mid-quarter test warning when over 40% lands in Q4; untreated assets are listed", () => {
@@ -147,4 +147,20 @@ test("exactly 40 percent in Q4 stays on the half-year tables", () => {
   b = addAsset(b, { name: "B", date: "2026-11-01", cost: "4000", lifeMonths: 60 }).books;
   b = setTaxTreatment(setTaxTreatment(b, "FA-1", { macrsClass: 5 }).books, "FA-2", { macrsClass: 5 }).books;
   assert.equal(usesMidQuarter(b, 2026), false);
+});
+
+test("section 179 limit shrinks dollar for dollar above the investment threshold", () => {
+  assert.equal(section179Limit(2026, 100000000).reduced, 256000000);
+  assert.equal(section179Limit(2026, 409000000 + 50000000).reduced, 256000000 - 50000000);
+  assert.equal(section179Limit(2026, 409000000 + 256000000).reduced, 0);
+  assert.equal(section179Limit(2026, 900000000).reduced, 0);
+  assert.equal(section179Limit(2019, 1).known, false);
+});
+
+test("worksheet warns when the 179 election is over the year's limit, and says when it is within", () => {
+  const ok = taxDepreciation(with1("10000", "2026-03-10", { macrsClass: 5, s179: 100000 }), 2026);
+  assert.ok(ok.warnings.some((x) => /within the \$2,560,000 limit/.test(x)));
+  // $1.5M machine, $1.5M elected in 2024 (limit $1.22M)
+  const over = taxDepreciation(with1("1500000", "2024-03-10", { macrsClass: 7, s179: 150000000 }), 2024);
+  assert.ok(over.warnings.some((x) => /elected \$1,500,000, but the limit is \$1,220,000/.test(x)));
 });
