@@ -28,6 +28,10 @@ def main():
     o += ["", "every sweep point:"]
     for r in sw:
         o.append(f"  {r['id']} depth={r['depth']} {r['verdict']} {r['seconds']} s")
+    if os.path.exists(os.path.join(HERE, "wordlevel.jsonl")):
+        o += ["", "== C. word-level encoding (no memory_map), z3, 240 s limit"]
+        for r in load("wordlevel.jsonl"):
+            o.append(f"  {r['id']} depth={r['depth']} {r['verdict']} {r['seconds']} s")
     open(os.path.join(HERE, "results.txt"), "w").write("\n".join(o) + "\n")
     print("\n".join(o))
 
