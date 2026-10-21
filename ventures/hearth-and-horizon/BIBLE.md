@@ -122,6 +122,7 @@ introduces a dated fact.
 | 2139 | Arcadia Station, Arcadia Planitia, Mars: 31 people and six Sisters of Our Lady of the Dawn (invented); the Hours are prayed by the sun, Sunday kept by the Earth calendar until Rome answers; a solar-conjunction blackout in Lent | *Thirty-Nine Minutes* |
 | 2045-46 | Ragged Tickle (invented cove, Placentia Bay, Newfoundland): a 40-line kelp and mussel co-operative, 14 lines lost to a 16-second swell on 14 October 2045; weather books kept since 1961 by the Rideout family; AI scheduler called Almanac; keeper's lease on Eli Rideout's slip | *The Long Sea* |
 | 2058 | Annex of the (invented) Szpital św. Łazarza, ulica Kalwaryjska, Kraków: 24 dialysis chairs, open 06:00 to 22:00 Monday to Saturday, 138 patients on three sessions a week; a scheduling benchmark whose slot table was copied from a 24-hour hospital calendar | *The Grader* |
+| 3026 | Fjellbu Vault (invented), northern Norway, the fourth vault after a first one whose entrance flooded in its ninth year (real: Svalbard, 2017); about 2.5 million samples at minus 18 C; a Dark Week every 25 years (all electronics off, 8 days, paper Ledger in pencil); keeper Ines Adeyemi-Solberg, apprentice Davi Quispe, AI called Tally; accession 4417 (bere barley, invented collector M. Flett, 2921) tests 61 of 100 against a database figure of 96 (Ledger: 86 in 2985) | *The Dark Week* |
 
 Little Lamps is set in history (Lima, about 1610 for *Brother Martin*) and is
 not on this timeline.
@@ -189,7 +190,7 @@ numbers worked out before drafting.
   calendar and liturgy, not drama in a spacesuit.
 - *Quarry Nine:* a short sequel, a few years on, in which the new system is
   asked why the old bell is rung (use sparingly; the first story is complete).
-- *A seed vault at 1,000 years:* a keeper, a clock and a handover that must work
+- *(Done: The Dark Week, Fjellbu Vault, 3026.)* *A seed vault at 1,000 years:* a keeper, a ledger and a handover that must work
   without electronics.
 
 **For Other Minds**

@@ -28,6 +28,16 @@
       <itunes:duration>0:22:23</itunes:duration>
     </item>
     <item>
+      <title>The Dark Week</title>
+      <link>https://example.invalid/hearth-and-horizon/the-dark-week.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-dark-week.html</guid>
+      <pubDate>Wed, 21 Oct 2026 12:00:00 GMT</pubDate>
+      <description>Once a generation a seed vault switches off every machine it owns and runs for eight days on paper and pencil. This year the keeper is seventy-one, the council wants to end the custom, and the apprentice's hand count of one old barley lot disagrees with what the vault's database has said for forty years. Setting: Fjellbu Vault, northern Norway, March 3026. Read the full text at https://example.invalid/hearth-and-horizon/the-dark-week.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>Once a generation a seed vault switches off every machine it owns and runs for eight days on paper and pencil. This year the keeper is seventy-one, the council wants to end the custom, and the apprentice's hand count of one old barley lot disagrees with what the vault's database has said for forty years.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>The Long Sea</title>
       <link>https://example.invalid/hearth-and-horizon/the-long-sea.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-long-sea.html</guid>
