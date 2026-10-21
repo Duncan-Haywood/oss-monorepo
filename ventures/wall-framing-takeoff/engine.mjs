@@ -41,7 +41,7 @@ export const PRECUT = { "8ft": 92.625, "9ft": 104.625, "10ft": 116.625 };
  *   headerHeight?: number, header?: string, headerPlies?: number, jacks?: number,
  *   kings?: number, sillPlies?: number, label?: string }} Opening
  * @typedef {{ id: string, length: number, stud?: "2x4"|"2x6", treatedPlate?: boolean,
- *   corner?: boolean, tees?: number[], tee?: { wall: string, at: number, end?: "start"|"end" }, openings?: Opening[], sheathed?: boolean, gable?: { pitch: number } }} Wall
+ *   corner?: boolean, tees?: number[], tee?: { wall: string, at: number, end?: "start"|"end" }, openings?: Opening[], sheathed?: boolean, gable?: { pitch: number, peak?: number } }} Wall
  * @typedef {{ size: string, length: number, price: number, label?: string }} Stock
  * @typedef {{ studSpacing: number, studLength: number, kerf: number, topPlateLap: number,
  *   cornerExtraStuds: number, teeExtraStuds: number, defaultHeaderHeight: number,
@@ -213,6 +213,7 @@ export function validatePlan(plan) {
     if (wall.gable) {
       const g = wall.gable;
       if (!(g.pitch > 0 && g.pitch <= 24)) errors.push(`${name}: a gable pitch is the rise per 12 inches of run, more than 0 and at most 24.`);
+      if (g.peak !== undefined && !(g.peak >= 2 * THICK + EPS && g.peak <= wall.length - 2 * THICK - EPS)) errors.push(`${name}: a gable peak is the distance from the wall start, clear of both end studs.`);
     }
     const ops = [...(wall.openings || [])].sort((a, b) => a.offset - b.offset);
     let prevEnd = -Infinity;
@@ -456,10 +457,12 @@ export function layoutWall(plan, wall) {
 
 
 /**
- * A gable (rake) end wall, symmetric about its middle: level bottom plate,
- * studs cut to a sloped top plate that rises from both wall ends (the eaves,
- * where the studs are plan.studLength) at wall.gable.pitch inches per 12 of
- * run. Stud lengths are the long point of the angled cut; plate lengths are
+ * A gable (rake) end wall: level bottom plate, studs cut to a sloped top
+ * plate that rises from both wall ends (the eaves, where the studs are
+ * plan.studLength) to a peak, in the middle unless wall.gable.peak (inches from
+ * the wall start) says otherwise. wall.gable.pitch is the rise per 12 inches of
+ * run on the start side; an off-centre peak keeps both eaves level, so the far
+ * side's pitch is whatever reaches the same peak height. Stud lengths are the long point of the angled cut; plate lengths are
  * along the slope, with joints over studs. Openings are framed as in a level
  * wall (header under the eave-line top plate; kings and cripples run up to the
  * slope). No blocking.
@@ -470,10 +473,12 @@ function layoutGable(plan, wall) {
   const L = wall.length;
   const stud = wall.stud || "2x4";
   const s = plan.studSpacing;
-  const slope = wall.gable.pitch / 12;
-  const sec = Math.sqrt(1 + slope * slope);
-  const mid = L / 2;
-  const rise = (x) => slope * Math.min(x, L - x);
+  const mid = wall.gable.peak ?? L / 2;
+  const slopeL = wall.gable.pitch / 12;
+  const slopeR = (slopeL * mid) / (L - mid);
+  const secL = Math.sqrt(1 + slopeL * slopeL);
+  const secR = Math.sqrt(1 + slopeR * slopeR);
+  const rise = (x) => (x <= mid ? slopeL * x : slopeR * (L - x));
   const base = THICK + plan.studLength; // underside of the top plate at the eaves
   const maxRise = rise(mid);
   /** @type {Member[]} */
@@ -577,25 +582,27 @@ function layoutGable(plan, wall) {
     }
   }
   // Sloped plates: a board of length B covers B / sec of run, so split with the stock shortened to match.
-  const flat = stockFor(stud).map((st) => ({ ...st, length: st.length / sec }));
-  const side = (a, b) => ({ a, b });
+  const flatL = stockFor(stud).map((st) => ({ ...st, length: st.length / secL }));
+  const flatR = stockFor(stud).map((st) => ({ ...st, length: st.length / secR }));
+  const side = (a, b, flat) => ({ a, b, flat });
   const topJoints = [];
   const capJoints = [];
   const forbidden = [];
-  for (const { a, b } of [side(0, mid), side(mid, L)]) {
+  for (const { a, b, flat } of [side(0, mid, flatL), side(mid, L, flatR)]) {
     const j = splitPlate(a, b, centres, flat, []);
     if (!j) { notes.push("Top plate: no way to splice it over studs with the boards listed; shown as one piece per slope."); continue; }
     topJoints.push(...j);
     forbidden.push(...j.map((x) => [x - plan.topPlateLap, x + plan.topPlateLap]));
   }
-  for (const { a, b } of [side(0, mid), side(mid, L)]) {
+  for (const { a, b, flat } of [side(0, mid, flatL), side(mid, L, flatR)]) {
     const j = splitPlate(a, b, centres, flat, forbidden);
     if (!j) { notes.push(`Cap plate: no way to splice it over studs with joints ${formatInches(plan.topPlateLap)} from the top plate's; shown as one piece per slope.`); continue; }
     capJoints.push(...j);
   }
-  const vt = THICK * sec; // vertical thickness of a plate lying on the slope
-  for (const [label, off, joints] of [["top plate", 0, topJoints], ["cap plate", vt, capJoints]]) {
-    for (const [a, b] of [[0, mid], [mid, L]]) {
+  const vtL = THICK * secL; // vertical thickness of a plate lying on the slope
+  const vtR = THICK * secR;
+  for (const [label, offL, offR, joints] of [["top plate", 0, 0, topJoints], ["cap plate", vtL, vtR, capJoints]]) {
+    for (const [a, b, sec, vt, off] of [[0, mid, secL, vtL, offL], [mid, L, secR, vtR, offR]]) {
       const js = joints.filter((x) => x > a + EPS && x < b - EPS).sort((x, y) => x - y);
       let q = a;
       for (const j of [...js, b]) {
@@ -608,7 +615,7 @@ function layoutGable(plan, wall) {
   }
   if (shimGaps.length) notes.push(`a gap too small for cripples between header and top plate over ${shimGaps.join(", ")}: shim or fill it.`);
   if (spacers.length) notes.push(`header spacers not in the takeoff: ${spacers.join(", ")}.`);
-  return { id: wall.id, length: L, height: base + maxRise + 2 * vt, stud, members, notes, layout, lapped: false, gable: { pitch: wall.gable.pitch, peakRise: maxRise }, joints: { bottom: bottomJoints, top: topJoints, cap: capJoints } };
+  return { id: wall.id, length: L, height: base + maxRise + 2 * Math.max(vtL, vtR), stud, members, notes, layout, lapped: false, gable: { pitch: wall.gable.pitch, peak: mid, peakRise: maxRise, ...(mid !== L / 2 ? { farPitch: slopeR * 12 } : {}) }, joints: { bottom: bottomJoints, top: topJoints, cap: capJoints } };
 }
 
 function wall_studMin(w) {
