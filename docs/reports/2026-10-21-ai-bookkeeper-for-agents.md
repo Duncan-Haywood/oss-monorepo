@@ -51,3 +51,13 @@ fail if the page, the README and the guide drift from them.
 No real bank export has been tested, and the AI layer is unmeasured. The page
 is checked in headless Chromium (example, filing, reconciliation, a reload, 390px
 width, no outside requests), but no person has used it yet.
+
+## Update: split lines (2026-10-21)
+
+`confirm` now also takes an array of `{ account, cents }` parts for a line
+(signed like the bank line, summing exactly to it, one `cents` may be omitted
+for the remainder). Status `split`; the journal posts the bank leg plus one leg
+per part; `parseSplit("4000:1000.00,6010:-30.00")` is the text form the CLI and
+page use. Splits skip `history`, so they never train memory. Tests:
+`ventures/ai-bookkeeper/engine.test.mjs`, four cases (payout, loan, refusals
+and undo, checks and export).

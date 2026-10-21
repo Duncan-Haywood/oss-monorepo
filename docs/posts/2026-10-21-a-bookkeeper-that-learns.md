@@ -82,10 +82,21 @@ collected inside its Stripe deposits, so that much of "sales" was never its
 income. The [guide](https://duncan-haywood.github.io/monorepo-projects/ai-bookkeeper/how-to-do-bookkeeping-from-bank-statements.html)
 walks through the arithmetic.
 
+## Update: split lines
+
+A bank line is often several things. A Stripe payout of $970.00 is $1,000.00
+of sales less $30.00 of fees; a $1,000.00 loan payment is interest plus
+principal. Without splits, the books either overstate nothing and hide the fee,
+or misstate income. Now a line can be filed across accounts: the parts are
+signed like the bank line, must add to it to the cent, and post as one balanced
+entry (one part may leave its amount out to take the remainder). Splits work in
+the page, the CLI and the agent engine, flow into the QuickBooks, Xero and IIF
+exports, and the loan-balance and equipment checks read every part. They are
+not learned from, because the same payee splits differently each time.
+
 ## What is next
 
-Split lines are next: a payout as sales minus fees, and a loan payment as
-principal plus interest. After that come real bank exports as test fixtures,
+Real bank exports as test fixtures,
 and then a measurement of the AI layer with a local model. The source, the
 benchmark and its caveats are in
 [`ventures/ai-bookkeeper`](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/ai-bookkeeper).
