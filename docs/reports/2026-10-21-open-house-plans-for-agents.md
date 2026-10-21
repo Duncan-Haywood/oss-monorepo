@@ -35,7 +35,10 @@ From `ventures/open-house-plans/`:
   on all twelve catalogue designs, 0 IFC schema errors, every solid built,
   0 DXF audit errors (`data/verify.txt`).
 - `node verify/study.mjs` writes `data/study.txt` (style, size, layout and
-  single-choice cost effects; the post quotes it).
+  single-choice cost effects; the post quotes it), and
+  `node verify/sensitivity.mjs` writes `data/sensitivity.txt`: the same
+  findings under 500 seeded draws of the cost model's assumptions. All keep
+  their sign; the porch's cost is the least certain ($10.5k to $28.2k).
 
 ## Gotchas
 

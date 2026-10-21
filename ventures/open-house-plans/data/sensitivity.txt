@@ -1,0 +1,9 @@
+Cost findings under 500 draws of the cost model's assumptions (seed 20261021)
+finding                                                      as built        5th    median      95th
+$/sq ft, 1,000 vs 2,200 sq ft asked (3 bed, minimal)         1.36x         1.32x     1.38x     1.44x
+farmhouse over minimal, $/sq ft (3 bed, 1,400)               9.3%           6.5%      9.5%     12.3%
+full-width porch on the farmhouse                            $19,413     $10,539   $19,932   $28,215
+crawlspace over slab (farmhouse)                             8.5%           5.0%      7.9%     11.0%
+two-car garage (farmhouse)                                   13.6%         11.6%     12.9%     14.5%
+widest $/sq ft spread, 2896 rule-passing 3-bed layouts*      7.2%           6.6%      7.5%      8.4%
+* dearest against cheapest; their areas differ by up to 17% (the search accepts -7% to +10% of the asked area)

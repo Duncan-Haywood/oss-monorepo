@@ -46,26 +46,36 @@ export const STAGE_DRIVERS = {
   other: { area: 1.0 },
 };
 
-// Assumed reference geometry for the anchor house.
-const REF = (() => {
-  const area = ANCHOR.area, storeys = 2, aspect = 1.5;
-  const fp = area / storeys;
-  const w = Math.sqrt(fp / aspect), l = w * aspect;
-  const garage = 22 * 22;
-  const perimeter = 2 * (w + l) + 2 * 22; // the garage adds two sides' worth
-  const wall = 2 * (w + l) * storeys * 9.5 + 3 * 22 * 9.5;
-  const footprint = fp + garage;
-  const roof = (footprint + perimeter * 1.0) * Math.sqrt(1 + (6 / 12) ** 2);
+// Assumed reference geometry for the anchor house, and the other assumed
+// factors, in one object so verify/sensitivity.mjs can vary them.
+export const ASSUMPTIONS = {
+  drivers: STAGE_DRIVERS,
+  ref: { storeys: 2, aspect: 1.5, garageSide: 22, wallHeight: 9.5, pitch: 6, overhang: 1, partitionsPerSqFt: 0.12, fixtures: 13, glazing: 0.15 },
+  finish: { basic: 0.85, standard: 1.0, premium: 1.35 }, // interior finishes only
+  foundation: { slab: 0.85, crawl: 1.05 }, // against the survey's mix of foundations
+  porchShare: 0.3, // a covered porch costs this share of the anchor $/sq ft
+};
+
+/** The reference house's drivers under a set of assumptions. */
+export function referenceDrivers(a = ASSUMPTIONS) {
+  const r = a.ref;
+  const area = ANCHOR.area;
+  const fp = area / r.storeys;
+  const w = Math.sqrt(fp / r.aspect), l = w * r.aspect;
+  const g = r.garageSide;
+  const perimeter = 2 * (w + l) + 2 * g; // the garage adds two sides' worth
+  const wall = 2 * (w + l) * r.storeys * r.wallHeight + 3 * g * r.wallHeight;
+  const footprint = fp + g * g;
+  const roof = (footprint + perimeter * r.overhang) * Math.sqrt(1 + (r.pitch / 12) ** 2);
   return {
     fixed: 1, area, footprint, perimeter, wall, roof,
-    framedFloor: fp, partitions: area * 0.12, fixtures: 13, openings: area * 0.15 + 3 * 20 + 16 * 7,
+    framedFloor: fp, partitions: area * r.partitionsPerSqFt, fixtures: r.fixtures, openings: area * r.glazing + 3 * 20 + 16 * 7,
   };
-})();
-export const REFERENCE_DRIVERS = REF;
-
-export const FINISH = { basic: 0.85, standard: 1.0, premium: 1.35 }; // assumed, interior finishes only
-export const FOUNDATION = { slab: 0.85, crawl: 1.05 }; // assumed, against the survey's mix
-export const PORCH_SHARE = 0.3; // assumed: a covered porch costs 30% of the anchor $/sq ft
+}
+export const REFERENCE_DRIVERS = referenceDrivers();
+export const FINISH = ASSUMPTIONS.finish;
+export const FOUNDATION = ASSUMPTIONS.foundation;
+export const PORCH_SHARE = ASSUMPTIONS.porchShare;
 
 /** Plumbing fixtures: toilet, basin, tub or shower per bath, and so on. */
 export function fixtureCount(rooms) {
@@ -105,20 +115,21 @@ export function planDrivers(plan, brief, style) {
 }
 
 /** Dollar estimate by stage from drivers. */
-export function estimate(d, brief, porchArea = 0) {
+export function estimate(d, brief, porchArea = 0, a = ASSUMPTIONS) {
+  const REF = a === ASSUMPTIONS ? REFERENCE_DRIVERS : referenceDrivers(a);
   const stages = {};
   let total = 0;
-  for (const [stage, split] of Object.entries(STAGE_DRIVERS)) {
+  for (const [stage, split] of Object.entries(a.drivers)) {
     let ratio = 0;
     for (const [k, w] of Object.entries(split)) ratio += (w * d[k]) / REF[k];
     let v = ANCHOR.construction * STAGE_SHARES[stage] * ratio;
-    if (stage === "interior_finishes") v *= FINISH[brief.finish] ?? 1;
-    if (stage === "foundations") v *= FOUNDATION[brief.foundation] ?? 1;
+    if (stage === "interior_finishes") v *= a.finish[brief.finish] ?? 1;
+    if (stage === "foundations") v *= a.foundation[brief.foundation] ?? 1;
     v *= brief.region ?? 1;
     stages[stage] = v;
     total += v;
   }
-  const porch = porchArea * (ANCHOR.construction / ANCHOR.area) * PORCH_SHARE * (brief.region ?? 1);
+  const porch = porchArea * (ANCHOR.construction / ANCHOR.area) * a.porchShare * (brief.region ?? 1);
   if (porch) { stages.porch = porch; total += porch; }
   return {
     stages,

@@ -84,6 +84,21 @@ From [`data/study.txt`](data/study.txt) (`node verify/study.mjs`). All figures a
 - **Other single choices** on that farmhouse: a crawlspace +8.5%, a two-car garage +13.6%, premium finishes +7.7%, basic finishes -3.3%, 8 ft instead of 9 ft ceilings -0.9%.
 - **Advanced framing** uses 12% to 15% less wall lumber than conventional 2x4 at 16 in on the same plans (wall studs, plates and headers only), in line with [`research/house-framing`](../../research/house-framing).
 
+### Do these findings survive the cost model's assumptions?
+
+The model has one sourced anchor; the rest (how each stage splits over its drivers, the reference house's geometry, the porch and foundation factors) is assumed. [`verify/sensitivity.mjs`](verify/sensitivity.mjs) draws 500 sets of those assumptions (every driver weight scaled by 0.5 to 1.5 and renormalised, the reference house's storeys, glazing, fixtures, wall height, pitch and garage over plausible ranges, the factors widened by half) and reprices fixed designs. From [`data/sensitivity.txt`](data/sensitivity.txt), 5th to 95th percentile:
+
+| Finding | As built | 5th to 95th |
+|---|---|---|
+| $/sq ft at 1,000 against 2,200 sq ft asked | 1.36x | 1.32x to 1.44x |
+| Farmhouse over minimal, $/sq ft | 9.3% | 6.5% to 12.3% |
+| Full-width porch on the farmhouse | $19,413 | $10,539 to $28,215 |
+| Crawlspace over slab | 8.5% | 5.0% to 11.0% |
+| Two-car garage | 13.6% | 11.6% to 14.5% |
+| Widest $/sq ft spread across 2,896 rule-passing 3-bed layouts (areas differ by up to 17%) | 7.2% | 6.6% to 8.4% |
+
+Every finding keeps its sign and rough size; the porch is the least certain number, because it rests on one assumed factor.
+
 ## Limitations
 
 - **Single storey, rectangular footprints.** No second floor, stairs, L or U shapes, basements or bonus rooms. Wide programs get long houses (the five-bedroom with a garage is 98 ft).

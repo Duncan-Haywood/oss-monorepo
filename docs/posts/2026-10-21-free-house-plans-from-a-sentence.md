@@ -1,7 +1,7 @@
 ---
 title: "Free house plans from a sentence: an open generator, and what it says about cost"
 date: 2026-10-21
-description: "Open House Plans turns '3 bed 2 bath farmhouse, 1,400 sq ft' into a public-domain plan set: floor plan, elevations, IFC, DXF, materials and a cost estimate. Here is how it works and what it found."
+description: "Type '3 bed 2 bath farmhouse' and get a public-domain plan set: floor plan, elevations, IFC, DXF, materials and cost. How it works and what it found."
 tags: [housing, construction, open-source, tools, agents]
 ---
 
@@ -130,6 +130,13 @@ model, which cannot see pipe-run length or how complex the partitions are.
 3.3% and 8 ft ceilings instead of 9 ft save 0.9%. Advanced framing (2x6 studs
 at 24 inches) uses 12% to 15% less wall lumber than 2x4s at 16 inches on the
 same plans.
+
+Those figures rest on assumptions as well as the anchor, so they were
+repriced under 500 random sets of the assumptions
+([`data/sensitivity.txt`](../../ventures/open-house-plans/data/sensitivity.txt)).
+The size effect stayed between 1.32x and 1.44x, the farmhouse premium between
+6.5% and 12.3%, the crawlspace between 5% and 11% and the garage between 11.6%
+and 14.5%. The porch was the least certain, at $10,500 to $28,200.
 
 If you want a cheaper house, the model's advice is old advice: build
 smaller, keep the roof simple, and choose the porch and the garage on
