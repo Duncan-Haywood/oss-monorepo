@@ -210,6 +210,14 @@
     <div class="scroll" id="budget"></div>
   </section>
 
+  <section class="card" aria-labelledby="h-receipts">
+    <h2 id="h-receipts">Optional: match receipts to bank lines</h2>
+    <p class="note">Paste the text of receipts (typed, copied from an email, or read off a photo by any OCR tool), with a line of <code>---</code> between them. Each is read into a merchant, date, total and tax, then paired with the bank or card line that paid it (the same amount, within a few days; a tip up to 25% on top counts when the name agrees). Below: receipts with no bank line, and spending over the amount you choose that has no receipt. The text stays in this browser. A reading aid, not a statement of what any tax authority requires you to keep.</p>
+    <p><textarea id="receipts-text" rows="6" placeholder="Blue Bottle Coffee&#10;03/14/2026&#10;Subtotal 9.75&#10;Sales Tax 0.87&#10;Total 10.62&#10;---&#10;Hardware Hank&#10;2026-03-16&#10;Total 43.20" style="width:100%;font-family:monospace"></textarea></p>
+    <p><button type="button" id="receipts-read" class="secondary">Read receipts</button> <label>Ask for a receipt at or over <input id="receipts-min" inputmode="decimal" value="75" size="6"></label> <button type="button" id="receipts-clear" class="secondary">Remove all receipts</button> <span id="receipts-status" class="note" role="status"></span></p>
+    <div class="scroll" id="receipts"></div>
+  </section>
+
   <section class="card" aria-labelledby="h-vat">
     <h2 id="h-vat">Optional: UK VAT return worksheet</h2>
     <p class="note">The nine boxes of the UK VAT return from invoices and bills dated inside the From and To dates above (invoice basis; VAT on sales in account 2100, VAT on purchases in 1300). Boxes 2, 8 and 9 (EU) stay 0. Flat-rate, cash accounting and partial exemption are not modelled. A worksheet to check a return against, not a filing.</p>
@@ -293,6 +301,7 @@
     import { setOpeningBalances, clearOpeningBalances } from "./opening.mjs";
     import { detectRecurring, forecastCash } from "./recurring.mjs";
     import { setBudget, budgetVsActual } from "./budget.mjs";
+    import { addReceipts, receiptReport } from "./receipts.mjs";
     import { aiSuggest } from "./ai.mjs";
     import { detectLocal, isLocal } from "./byok.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
@@ -410,6 +419,18 @@
       $("#budget").replaceChildren(
         el("p", { class: "note", text: `${b.from} to ${b.to}, ${b.months} month${b.months === 1 ? "" : "s"}.${b.empty ? ` ${b.empty.replace("use `budget CODE AMOUNT`", "pick an account above")}.` : ""}${b.partial ? ` ${b.partial}.` : ""}` }),
         table(["Account", "Budget", "Actual", "Variance", "Status"], rows, [["Net profit", fmt(b.net.budget), fmt(b.net.actual), fmt(b.net.variance), ""]]));
+    }
+
+    function renderReceipts() {
+      if (!(books.receipts ?? []).length && !$("#receipts-text").value.trim()) { $("#receipts").replaceChildren(); return; }
+      const min = parseCents($("#receipts-min").value || "75");
+      const rep = receiptReport(books, { minCents: Number.isFinite(min) && min > 0 ? min : 7500, from: $("#from").value || null, to: $("#to").value || null });
+      const out = [el("p", { class: "note", text: `${rep.receipts} receipt${rep.receipts === 1 ? "" : "s"} on file: ${rep.matched.length} matched, ${rep.unmatched.length} without a bank line. ${fmt(rep.coveredCents)} of ${fmt(rep.spendCents)} spending is covered by a receipt.` })];
+      if (rep.matched.length) out.push(table(["Receipt", "Date", "Total", "Bank line", ""], rep.matched.map((m) => [m.merchant, m.date, fmt(m.cents), `${m.line.date} ${m.line.desc}`, [m.tipCents ? `+${fmt(m.tipCents)} tip` : "", m.payeeAgrees === false ? "name differs: check" : ""].filter(Boolean).join(", ")])));
+      if (rep.unmatched.length) out.push(el("p", { class: "note", text: "No bank line found (paid another way, or not imported yet):" }), table(["Receipt", "Date", "Total"], rep.unmatched.map((u) => [u.merchant, u.date, fmt(u.cents)])));
+      out.push(el("p", { class: "note", text: `${rep.missing.length} line${rep.missing.length === 1 ? "" : "s"} of ${fmt(rep.minCents)} or more with no receipt (${fmt(rep.missingCents)}). Wages, owner draws and transfers are left out.` }));
+      if (rep.missing.length) out.push(table(["Date", "Bank line", "Amount"], rep.missing.slice(0, 200).map((t) => [t.date, t.desc, fmt(t.cents)])));
+      $("#receipts").replaceChildren(...out);
     }
 
     function renderAging() {
@@ -531,7 +552,7 @@
 
     $("#nec-filing-csv").addEventListener("click", () => { record("contractors_filing_downloaded"); download(nec1099FilingCsv(contractors1099(books, { year: necYear() })), "contractors-1099-nec-filing-prep.csv", "text/csv"); });
 
-    function render() { fillSetup(); renderScheduleC(); renderNec(); renderStatus(); renderQueue(); renderReports(); renderRuleSuggestions(); renderAging(); renderRecurring(); renderBudget(); renderVat(); renderAssets(); renderTaxDepr(); renderSalesTax(); renderOpening(); persist(); }
+    function render() { fillSetup(); renderScheduleC(); renderNec(); renderStatus(); renderQueue(); renderReports(); renderRuleSuggestions(); renderAging(); renderRecurring(); renderBudget(); renderReceipts(); renderVat(); renderAssets(); renderTaxDepr(); renderSalesTax(); renderOpening(); persist(); }
 
     function renderOpening() {
       const tb = books.openingTB;
@@ -676,8 +697,16 @@
       try { const cents = parseCents($("#budget-amount").value || "0"); if (cents === null || Number.isNaN(cents)) throw new Error("Enter an amount such as 200.00."); books = setBudget(books, $("#budget-account").value, cents); record("budget_set"); render(); $("#budget-status").textContent = cents ? `Budget set: ${fmt(cents)} a month.` : "Budget removed."; }
       catch (e) { $("#budget-status").textContent = e.message; }
     });
-    $("#from").addEventListener("change", () => { renderReports(); renderScheduleC(); renderBudget(); renderVat(); });
-    $("#to").addEventListener("change", () => { renderReports(); renderScheduleC(); renderBudget(); renderVat(); });
+    $("#receipts-read").addEventListener("click", () => {
+      const r = addReceipts(books, $("#receipts-text").value);
+      books = r.books; record("receipts_read"); render();
+      $("#receipts-status").textContent = `Read ${r.added.length}; ${r.duplicates.length} already on file; ${r.skipped.length} could not be read${r.skipped.length ? ` (${r.skipped.map((x) => `"${x.text.slice(0, 24)}": ${x.notes.join(", ")}`).join("; ")})` : ""}.`;
+      if (r.added.length) $("#receipts-text").value = "";
+    });
+    $("#receipts-min").addEventListener("change", renderReceipts);
+    $("#receipts-clear").addEventListener("click", () => { books = { ...books, receipts: [] }; render(); $("#receipts-status").textContent = "Receipts removed."; });
+    $("#from").addEventListener("change", () => { renderReports(); renderScheduleC(); renderBudget(); renderReceipts(); renderVat(); });
+    $("#to").addEventListener("change", () => { renderReports(); renderScheduleC(); renderBudget(); renderReceipts(); renderVat(); });
 
     const download = (text, file, type) => { const a = el("a", { href: URL.createObjectURL(new Blob([text], { type })), download: file }); document.body.append(a); a.click(); a.remove(); };
     for (const b of document.querySelectorAll("[data-export]")) b.addEventListener("click", () => {

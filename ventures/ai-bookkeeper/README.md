@@ -449,7 +449,31 @@ That checks the typed digits, not the publication itself: check them before fili
 ## Not modelled
 
 Writing off a bill, the 179 taxable-income limit, inventory,
-payroll and sales tax filings, multiple currencies (the VAT worksheet is UK-layout, invoice basis), reading a PDF file itself (paste its text instead), and receipts.
+payroll and sales tax filings, multiple currencies (the VAT worksheet is UK-layout, invoice basis), reading a PDF file itself (paste its text instead), and reading a receipt image (paste the text; any OCR tool will give you that).
+
+## Receipts matched to bank lines
+
+`node cli.mjs --books books.json receipts receipts.txt` reads receipt text
+(blocks split by a `---` line) into merchant, date, total and tax, and pairs
+each with the bank or card outflow that paid it: the same amount (or up to 25%
+more, a tip, when the payee words agree), the bank date from 3 days before to
+7 after the receipt date. Best pairs go first (shared payee words, exact
+amount, closer date); a pair with no shared words needs an exact amount within
+2 days and is marked "name differs: check". The report then lists receipts
+with no bank line and the spending at or over `--min` (default 75) with no
+receipt, leaving out lines filed to wages, owner draws and transfers.
+`receipts attach RID LINEID`, `detach RID` and `remove RID` fix a pair by hand;
+the same receipt twice is kept once. Engine: `receipts.mjs`; kept in the books
+file, never in the journal. The page has a card for it (paste, read, tables;
+clicked through in headless Chromium with `eval/browser-click.mjs`). Receipts
+are read with regular expressions: a total is the last "total / amount due"
+line that is not a subtotal, tip or change line, else the largest amount (and
+the note says so). Checked by node tests on hand-written receipts in US/UK
+layouts only, not on real receipts or OCR output, which will have misread
+characters; foreign currency and receipts for several bank lines are not handled.
+Many bookkeeping products (Dext, Hubdoc, Expensify) do this with image OCR and
+a subscription; this does the matching and the missing-receipt list on your
+own machine from text you already have.
 
 ## Budget against actual
 

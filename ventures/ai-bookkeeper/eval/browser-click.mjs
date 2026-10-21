@@ -114,6 +114,12 @@ await page.fill("#budget-amount", "50.00");
 await page.click("#budget-set");
 check(/Budget set: 50.00 a month/.test(await page.locator("#budget-status").textContent()), "a monthly budget is set");
 const btext = await page.locator("#budget").textContent();
+// Receipts: paste two receipts onto the example books, one of which has a bank line.
+await page.fill("#receipts-text", "Hiscox Insurance\n2026-01-01\nTotal 48.00\n---\nCorner Cafe\n01/03/2026\nTotal 12.40");
+await page.click("#receipts-read");
+const rtext = await page.locator("#receipts").textContent();
+check(/2 receipts on file: 1 matched, 1 without a bank line/.test(rtext), "receipts are read and one is paired with its bank line");
+check(/HISCOX/.test(rtext) && /Corner Cafe/.test(rtext) && /with no receipt/.test(rtext), "the receipt tables and the missing-receipt list show");
 check(/Net profit/.test(btext) && /(better|worse|on budget)/.test(btext), "the budget table shows a status and the net line");
 check(errors.length === 0, `no page errors ${errors.join("; ")}`);
 await browser.close();
