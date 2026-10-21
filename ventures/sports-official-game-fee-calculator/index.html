@@ -96,7 +96,7 @@
     <div class="scroll"><table><thead><tr><th scope="col">Round-trip miles</th><th scope="col">Kept per trip</th><th scope="col">Hours</th><th scope="col">Pay per hour</th></tr></thead><tbody id="ladder"></tbody></table></div>
     <h3>What a second game is worth</h3>
     <p class="note">Same drive, more games on the same trip.</p>
-    <div class="scroll"><table><thead><tr><th scope="col">Games per trip</th><th scope="col">Kept per trip</th><th scope="col">Hours</th><th scope="col">Pay per hour</th></tr></thead><tbody id="games"></tbody></table></div>
+    <div class="scroll"><table><thead><tr><th scope="col">Games per trip</th><th scope="col">Kept per trip</th><th scope="col">Hours</th><th scope="col">Pay per hour</th></tr></thead><tbody id="games-rows"></tbody></table></div>
     <p><button type="button" class="secondary" id="download">Download the distance table as CSV</button></p>
   </section>
 
@@ -172,7 +172,7 @@
       $("#seasonRows").innerHTML = row("Game fees", usd(s.gross)) + row("Assignor or booking fees", "-" + usd(s.assignor)) + row("Driving and trip expenses", "-" + usd(s.driving + s.expenses)) + row("Yearly costs", "-" + usd(s.annualCosts)) + row("Cash before tax", usd(s.cashBeforeTax)) + row("Taxable profit (with IRS mileage rate)", usd(s.profit)) + row("Self-employment tax", "-" + usd(s.se)) + row("Income tax", "-" + usd(s.incomeTax)) + row("Take-home", usd(s.takeHome)) + row("Take-home per hour worked", usd(s.takeHomeHourly));
       const lr = (a, label) => `<tr><th scope="row">${label}${a.isYours ? " (yours)" : ""}</th><td>${usd(a.net)}</td><td>${a.hours.toFixed(2)}</td><td>${usd(a.hourly)}</td></tr>`;
       $("#ladder").innerHTML = r.byDistance.map((a) => lr(a, a.miles)).join("");
-      $("#games").innerHTML = r.byGames.map((a) => lr(a, a.n)).join("");
+      $("#games-rows").innerHTML = r.byGames.map((a) => lr(a, a.n)).join("");
       report.hidden = false;
       status.textContent = "Pay calculated.";
       report.scrollIntoView({ behavior: "smooth", block: "start" });

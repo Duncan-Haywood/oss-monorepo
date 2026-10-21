@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-21",
+  "session": "https://claude.ai/code/session_01FnsWCgGCdDnuDQvjAsG5Dc",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-21T04:00:36Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 2): einvoice-preflight reads Italian FatturaPA",
+  "projects": [
+    "einvoice-preflight"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/9059",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "Took flagship 2 instead of the top row (changepoint-detector, 54 commits in 7 days, remaining next steps are marginal); FatturaPA was the biggest named gap on the Italy page."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "fatturapa.mjs: IT-001..IT-017 (check digits, codes, arithmetic, IBAN), wired into preflightDocuments; node --test in ventures/einvoice-preflight 444 pass 0 fail. Official FatturaPA XSD/spec hosts were unreachable (proxy 403/ENOTFOUND): code lists (TD, RF, Natura) and the one-cent tolerance are from the author's knowledge, stated as unverified in README and flagship next. Rule ids are the tool's own, not SdI error codes. Venture preflight (platform/pages/venture-preflight.mjs) not run.",
+  "corrections": [],
+  "redteam": null
+}

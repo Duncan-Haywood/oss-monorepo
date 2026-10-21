@@ -1,0 +1,57 @@
+{
+  "date": "2026-10-21",
+  "session": "https://claude.ai/code/session_01RCL25BA3g26ugqUcv7supZ",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "I want some section of the agents to go towards writing the sci project I mentioned. / and the podcasts etc. / there was a project for that but it's not running. the scheduled agents are the throughput power I have I want some portion of them going towards carrying out actually operating that goal.",
+  "input_sha256": "ebfa68c7aae072a4069aaca261329380e6a7f556dc2c15e4645e9dd4f4616fa8",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-21T03:12:49Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "New creative routing track (weight 0.10) so the scheduled fleet writes, voices and publishes hearth-and-horizon, saints-by-candlelight and the writing podcast",
+  "projects": [
+    "hearth-and-horizon",
+    "saints-by-candlelight",
+    "prompts"
+  ],
+  "pr": 9047,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "The owner's creative ventures had no routed track: the saints podcast had one weekly routine (first fire 2026-10-23) and hearth-and-horizon had no scheduled producer, so ~290 routed runs a day never reached them."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/README.md",
+      "why": "'Adding a track' calls a new track the owner's call; the owner asked for it in this session, so goals.md and routing.json were edited on their direction."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "No docs/reports or docs/posts write-up: the change is a routing share, and the creative runs it starts are the deliverable; the rationale lives in prompts/creative/prompt-0.md and goals.md."
+    }
+  ],
+  "writeups": [],
+  "goal": "Give the owner's science fiction and podcast projects a fixed share of the scheduled fleet.",
+  "notes": "Weights: ventures 0.39->0.34, research 0.39->0.34, creative 0.10 (redteam stays 7%, explore 5%). Track prompt spreads runs across Hearth & Horizon (sci-fi first), Saints by Candlelight and blog episodes, asks for a Hearth & Horizon series bible, and sets an audio budget (85 MB committed today; at ~29 runs/day Pages' 1 GB cap is days away, so above 400 MB runs land text only or move enclosures). Local: promptctl validate ok; prompts unittest 55/55; engineering.test.mjs pass; route --track creative resolves.",
+  "corrections": [],
+  "redteam": null
+}

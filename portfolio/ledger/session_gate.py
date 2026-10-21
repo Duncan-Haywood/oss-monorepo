@@ -624,10 +624,10 @@ def verdict(
     else:
         reasons.append(
             "No `build-now` candidate is unbuilt — first take the router's top 'Deepen "
-            "(flagship N)' row, then its 'Consolidate:' task "
-            "(`python3 portfolio/router/allocate.py`) if one is listed; otherwise pick "
-            "a product not in `portfolio/pipeline/screened-out.md` that is not another copy "
-            "of an existing template family, score it, graduate it, and ship. Prefer ideas "
+            "(flagship N)' row (`python3 portfolio/router/allocate.py`); otherwise pick "
+            "a product not in `portfolio/pipeline/screened-out.md` that is not a calculator "
+            "(owner, 2026-10-21) or another copy of an existing template family, score it, "
+            "graduate it, and ship. Prefer ideas "
             "that run on this VM with low variable cost, web or not."
         )
     return "BUILD", reasons

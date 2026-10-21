@@ -82,6 +82,13 @@ test('the build puts a player on the post, a podcast page and an RSS feed with e
   assert.match(feed, /xmlns:itunes=/);
   assert.match(feed, new RegExp(`<enclosure url="${BASE}writing/podcast/audio/2026-10-20-a.mp3" length="7" type="audio/mpeg"/>`));
   assert.match(feed, /<itunes:duration>125<\/itunes:duration>/);
+  // Grouped by the post's topic, with a feed per topic.
+  assert.match(pod, /<section id="topic-tools"/);
+  assert.match(pod, /href="tools\/feed\.xml">RSS for this topic only</);
+  const topicFeed = await fs.readFile(path.join(w, 'podcast/tools/feed.xml'), 'utf8');
+  assert.match(topicFeed, /<title>[^<]*: Tools and projects<\/title>/);
+  assert.match(topicFeed, new RegExp(`<enclosure url="${BASE}writing/podcast/audio/2026-10-20-a.mp3"`));
+  await assert.rejects(fs.access(path.join(w, 'podcast/research/feed.xml')));
   await fs.access(path.join(w, 'podcast/audio/2026-10-20-a.mp3'));
 });
 
