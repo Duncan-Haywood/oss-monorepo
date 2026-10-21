@@ -1,0 +1,106 @@
+basis,revision,cost_year,technology,parameter,value,unit,currency_year,primary_source
+v092_2030,v0.9.2,2030,CCGT,FOM,3.3494,%/year,2015.0,Danish Energy Agency
+v092_2030,v0.9.2,2030,CCGT,VOM,4.4445,EUR/MWh,2015.0,Danish Energy Agency
+v092_2030,v0.9.2,2030,CCGT,efficiency,0.58,per unit,2015.0,Danish Energy Agency
+v092_2030,v0.9.2,2030,CCGT,investment,878.324,EUR/kW,2015.0,Danish Energy Agency
+v092_2030,v0.9.2,2030,CCGT,lifetime,25.0,years,2015.0,Danish Energy Agency
+v092_2030,v0.9.2,2030,battery inverter,FOM,0.3375,%/year,2015.0,Danish Energy Agency
+v092_2030,v0.9.2,2030,battery inverter,efficiency,0.96,per unit,2015.0,Danish Energy Agency
+v092_2030,v0.9.2,2030,battery inverter,investment,169.3155,EUR/kW,2015.0,Danish Energy Agency
+v092_2030,v0.9.2,2030,battery inverter,lifetime,10.0,years,2015.0,Danish Energy Agency
+v092_2030,v0.9.2,2030,battery storage,investment,150.2675,EUR/kWh,2015.0,Danish Energy Agency
+v092_2030,v0.9.2,2030,battery storage,lifetime,25.0,years,2015.0,Danish Energy Agency
+v092_2030,v0.9.2,2030,electrolysis,FOM,4.0,%/year,2020.0,Danish Energy Agency
+v092_2030,v0.9.2,2030,electrolysis,efficiency,0.6217,per unit,2020.0,Danish Energy Agency
+v092_2030,v0.9.2,2030,electrolysis,investment,1500.0,EUR/kW_e,2020.0,private communications; IEA https://iea.blob.core.windows.ne
+v092_2030,v0.9.2,2030,electrolysis,lifetime,25.0,years,2020.0,Danish Energy Agency
+v092_2030,v0.9.2,2030,fuel cell,FOM,5.0,%/year,2015.0,Danish Energy Agency
+v092_2030,v0.9.2,2030,fuel cell,efficiency,0.5,per unit,2015.0,Danish Energy Agency
+v092_2030,v0.9.2,2030,fuel cell,investment,1164.0438,EUR/kW_e,2015.0,Danish Energy Agency
+v092_2030,v0.9.2,2030,fuel cell,lifetime,10.0,years,2015.0,Danish Energy Agency
+v092_2030,v0.9.2,2030,gas,CO2 intensity,0.198,tCO2/MWh_th,,Stoichiometric calculation with 50 GJ/t CH4
+v092_2030,v0.9.2,2030,gas,fuel,24.568,EUR/MWh_th,2010.0,DIW (2013): Current and propsective costs of electricity gen
+v092_2030,v0.9.2,2030,hydrogen storage tank type 1 including compressor,FOM,1.1133,%/year,2015.0,Danish Energy Agency
+v092_2030,v0.9.2,2030,hydrogen storage tank type 1 including compressor,investment,47.5247,EUR/kWh,2015.0,Danish Energy Agency
+v092_2030,v0.9.2,2030,hydrogen storage tank type 1 including compressor,lifetime,30.0,years,2015.0,Danish Energy Agency
+v092_2030,v0.9.2,2030,hydrogen storage underground,FOM,0.0,%/year,2015.0,Danish Energy Agency
+v092_2030,v0.9.2,2030,hydrogen storage underground,VOM,0.0,EUR/MWh,2015.0,Danish Energy Agency
+v092_2030,v0.9.2,2030,hydrogen storage underground,investment,2.1164,EUR/kWh,2015.0,Danish Energy Agency
+v092_2030,v0.9.2,2030,hydrogen storage underground,lifetime,100.0,years,2015.0,Danish Energy Agency
+v092_2030,v0.9.2,2030,onwind,FOM,1.2167,%/year,2015.0,Danish Energy Agency
+v092_2030,v0.9.2,2030,onwind,VOM,1.4286,EUR/MWh,2015.0,Danish Energy Agency
+v092_2030,v0.9.2,2030,onwind,investment,1095.8533,EUR/kW,2015.0,Danish Energy Agency
+v092_2030,v0.9.2,2030,onwind,lifetime,30.0,years,2015.0,Danish Energy Agency
+v092_2030,v0.9.2,2030,solar-utility,FOM,2.4757,%/year,2020.0,Danish Energy Agency
+v092_2030,v0.9.2,2030,solar-utility,investment,383.7312,EUR/kW_e,2020.0,Danish Energy Agency
+v092_2030,v0.9.2,2030,solar-utility,lifetime,40.0,years,2020.0,Danish Energy Agency
+v092_2050,v0.9.2,2050,CCGT,FOM,3.25,%/year,2015.0,Danish Energy Agency
+v092_2050,v0.9.2,2050,CCGT,VOM,4.2329,EUR/MWh,2015.0,Danish Energy Agency
+v092_2050,v0.9.2,2050,CCGT,efficiency,0.6,per unit,2015.0,Danish Energy Agency
+v092_2050,v0.9.2,2050,CCGT,investment,846.5773,EUR/kW,2015.0,Danish Energy Agency
+v092_2050,v0.9.2,2050,CCGT,lifetime,25.0,years,2015.0,Danish Energy Agency
+v092_2050,v0.9.2,2050,battery inverter,FOM,0.9,%/year,2015.0,Danish Energy Agency
+v092_2050,v0.9.2,2050,battery inverter,efficiency,0.96,per unit,2015.0,Danish Energy Agency
+v092_2050,v0.9.2,2050,battery inverter,investment,63.4933,EUR/kW,2015.0,Danish Energy Agency
+v092_2050,v0.9.2,2050,battery inverter,lifetime,10.0,years,2015.0,Danish Energy Agency
+v092_2050,v0.9.2,2050,battery storage,investment,79.3666,EUR/kWh,2015.0,Danish Energy Agency
+v092_2050,v0.9.2,2050,battery storage,lifetime,30.0,years,2015.0,Danish Energy Agency
+v092_2050,v0.9.2,2050,electrolysis,FOM,4.0,%/year,2020.0,Danish Energy Agency
+v092_2050,v0.9.2,2050,electrolysis,efficiency,0.6994,per unit,2020.0,Danish Energy Agency
+v092_2050,v0.9.2,2050,electrolysis,investment,1000.0,EUR/kW_e,2020.0,private communications; IEA https://iea.blob.core.windows.ne
+v092_2050,v0.9.2,2050,electrolysis,lifetime,25.0,years,2020.0,Danish Energy Agency
+v092_2050,v0.9.2,2050,fuel cell,FOM,5.0,%/year,2015.0,Danish Energy Agency
+v092_2050,v0.9.2,2050,fuel cell,efficiency,0.5,per unit,2015.0,Danish Energy Agency
+v092_2050,v0.9.2,2050,fuel cell,investment,846.5773,EUR/kW_e,2015.0,Danish Energy Agency
+v092_2050,v0.9.2,2050,fuel cell,lifetime,10.0,years,2015.0,Danish Energy Agency
+v092_2050,v0.9.2,2050,gas,CO2 intensity,0.198,tCO2/MWh_th,,Stoichiometric calculation with 50 GJ/t CH4
+v092_2050,v0.9.2,2050,gas,fuel,24.568,EUR/MWh_th,2010.0,DIW (2013): Current and propsective costs of electricity gen
+v092_2050,v0.9.2,2050,hydrogen storage tank type 1 including compressor,FOM,1.9048,%/year,2015.0,Danish Energy Agency
+v092_2050,v0.9.2,2050,hydrogen storage tank type 1 including compressor,investment,22.2227,EUR/kWh,2015.0,Danish Energy Agency
+v092_2050,v0.9.2,2050,hydrogen storage tank type 1 including compressor,lifetime,30.0,years,2015.0,Danish Energy Agency
+v092_2050,v0.9.2,2050,hydrogen storage underground,FOM,0.0,%/year,2015.0,Danish Energy Agency
+v092_2050,v0.9.2,2050,hydrogen storage underground,VOM,0.0,EUR/MWh,2015.0,Danish Energy Agency
+v092_2050,v0.9.2,2050,hydrogen storage underground,investment,1.2699,EUR/kWh,2015.0,Danish Energy Agency
+v092_2050,v0.9.2,2050,hydrogen storage underground,lifetime,100.0,years,2015.0,Danish Energy Agency
+v092_2050,v0.9.2,2050,onwind,FOM,1.1775,%/year,2015.0,Danish Energy Agency
+v092_2050,v0.9.2,2050,onwind,VOM,1.2857,EUR/MWh,2015.0,Danish Energy Agency
+v092_2050,v0.9.2,2050,onwind,investment,1019.1375,EUR/kW,2015.0,Danish Energy Agency
+v092_2050,v0.9.2,2050,onwind,lifetime,30.0,years,2015.0,Danish Energy Agency
+v092_2050,v0.9.2,2050,solar-utility,FOM,2.5292,%/year,2020.0,Danish Energy Agency
+v092_2050,v0.9.2,2050,solar-utility,investment,292.5769,EUR/kW_e,2020.0,Danish Energy Agency
+v092_2050,v0.9.2,2050,solar-utility,lifetime,40.0,years,2020.0,Danish Energy Agency
+head_2030,65244b4c560112ec4ec73f14baf5f220e15d3ef8,2030,CCGT,FOM,3.3494,%/year,2015.0,Danish Energy Agency
+head_2030,65244b4c560112ec4ec73f14baf5f220e15d3ef8,2030,CCGT,VOM,5.6104,EUR/MWh,2025.0,Danish Energy Agency
+head_2030,65244b4c560112ec4ec73f14baf5f220e15d3ef8,2030,CCGT,efficiency,0.58,per unit,2015.0,Danish Energy Agency
+head_2030,65244b4c560112ec4ec73f14baf5f220e15d3ef8,2030,CCGT,investment,1108.7166,EUR/kW,2025.0,Danish Energy Agency
+head_2030,65244b4c560112ec4ec73f14baf5f220e15d3ef8,2030,CCGT,lifetime,25.0,years,2015.0,Danish Energy Agency
+head_2030,65244b4c560112ec4ec73f14baf5f220e15d3ef8,2030,battery inverter,FOM,0.3375,%/year,2020.0,Danish Energy Agency
+head_2030,65244b4c560112ec4ec73f14baf5f220e15d3ef8,2030,battery inverter,efficiency,0.96,per unit,2020.0,Danish Energy Agency
+head_2030,65244b4c560112ec4ec73f14baf5f220e15d3ef8,2030,battery inverter,investment,213.9279,EUR/kW,2025.0,Danish Energy Agency
+head_2030,65244b4c560112ec4ec73f14baf5f220e15d3ef8,2030,battery inverter,lifetime,10.0,years,2020.0,Danish Energy Agency
+head_2030,65244b4c560112ec4ec73f14baf5f220e15d3ef8,2030,battery storage,investment,189.861,EUR/kWh,2025.0,Danish Energy Agency
+head_2030,65244b4c560112ec4ec73f14baf5f220e15d3ef8,2030,battery storage,lifetime,25.0,years,2020.0,Danish Energy Agency
+head_2030,65244b4c560112ec4ec73f14baf5f220e15d3ef8,2030,electrolysis,FOM,4.0,%/year,2020.0,Danish Energy Agency
+head_2030,65244b4c560112ec4ec73f14baf5f220e15d3ef8,2030,electrolysis,efficiency,0.6217,per unit,2020.0,Danish Energy Agency
+head_2030,65244b4c560112ec4ec73f14baf5f220e15d3ef8,2030,electrolysis,investment,1886.0019,EUR/kW_e,2025.0,private communications; IEA https://iea.blob.core.windows.ne
+head_2030,65244b4c560112ec4ec73f14baf5f220e15d3ef8,2030,electrolysis,lifetime,25.0,years,2020.0,Danish Energy Agency
+head_2030,65244b4c560112ec4ec73f14baf5f220e15d3ef8,2030,fuel cell,FOM,5.0,%/year,2015.0,Danish Energy Agency
+head_2030,65244b4c560112ec4ec73f14baf5f220e15d3ef8,2030,fuel cell,efficiency,0.5,per unit,2015.0,Danish Energy Agency
+head_2030,65244b4c560112ec4ec73f14baf5f220e15d3ef8,2030,fuel cell,investment,1469.3834,EUR/kW_e,2025.0,Danish Energy Agency
+head_2030,65244b4c560112ec4ec73f14baf5f220e15d3ef8,2030,fuel cell,lifetime,10.0,years,2015.0,Danish Energy Agency
+head_2030,65244b4c560112ec4ec73f14baf5f220e15d3ef8,2030,gas,CO2 intensity,0.198,tCO2/MWh_th,,Stoichiometric calculation with 50 GJ/t CH4
+head_2030,65244b4c560112ec4ec73f14baf5f220e15d3ef8,2030,gas,fuel,28.4158,EUR/MWh_th,2025.0,World Bank (2025) Commodity Markets
+head_2030,65244b4c560112ec4ec73f14baf5f220e15d3ef8,2030,hydrogen storage tank type 1 including compressor,FOM,1.1133,%/year,2020.0,Danish Energy Agency
+head_2030,65244b4c560112ec4ec73f14baf5f220e15d3ef8,2030,hydrogen storage tank type 1 including compressor,investment,60.0469,EUR/kWh,2025.0,Danish Energy Agency
+head_2030,65244b4c560112ec4ec73f14baf5f220e15d3ef8,2030,hydrogen storage tank type 1 including compressor,lifetime,30.0,years,2020.0,Danish Energy Agency
+head_2030,65244b4c560112ec4ec73f14baf5f220e15d3ef8,2030,hydrogen storage underground,FOM,0.0,%/year,2020.0,Danish Energy Agency
+head_2030,65244b4c560112ec4ec73f14baf5f220e15d3ef8,2030,hydrogen storage underground,VOM,0.0,EUR/MWh,2025.0,Danish Energy Agency
+head_2030,65244b4c560112ec4ec73f14baf5f220e15d3ef8,2030,hydrogen storage underground,investment,2.6741,EUR/kWh,2025.0,Danish Energy Agency
+head_2030,65244b4c560112ec4ec73f14baf5f220e15d3ef8,2030,hydrogen storage underground,lifetime,100.0,years,2020.0,Danish Energy Agency
+head_2030,65244b4c560112ec4ec73f14baf5f220e15d3ef8,2030,onwind,FOM,1.2167,%/year,2015.0,Danish Energy Agency
+head_2030,65244b4c560112ec4ec73f14baf5f220e15d3ef8,2030,onwind,VOM,1.8033,EUR/MWh,2025.0,Danish Energy Agency
+head_2030,65244b4c560112ec4ec73f14baf5f220e15d3ef8,2030,onwind,investment,1383.3059,EUR/kW,2025.0,Danish Energy Agency
+head_2030,65244b4c560112ec4ec73f14baf5f220e15d3ef8,2030,onwind,lifetime,30.0,years,2015.0,Danish Energy Agency
+head_2030,65244b4c560112ec4ec73f14baf5f220e15d3ef8,2030,solar-utility,FOM,2.4757,%/year,2020.0,Danish Energy Agency
+head_2030,65244b4c560112ec4ec73f14baf5f220e15d3ef8,2030,solar-utility,investment,482.4785,EUR/kW_e,2025.0,Danish Energy Agency
+head_2030,65244b4c560112ec4ec73f14baf5f220e15d3ef8,2030,solar-utility,lifetime,40.0,years,2020.0,Danish Energy Agency
