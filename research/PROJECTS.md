@@ -1511,7 +1511,7 @@ Annals*). Payments: gridlock resolution and liquidity-saving mechanisms (Bech an
 *Annual Reviews in Control*).
 
 **Milestones.** Grid and energy first; the rest in any order.
-1. `infra-hosting`: how much rooftop PV and EV charging can a distribution feeder take before
+1. `infra-hosting` (done 2026-10-21; IEEE 13-node only, snapshots): how much rooftop PV and EV charging can a distribution feeder take before
    voltage or thermal limits bind, and how much do cheap measures (inverter volt-var, smart
    charging, a tap change) add? OpenDSS on IEEE test feeders, hosting capacity as a stochastic
    sweep, each measure scored on the same placements.
