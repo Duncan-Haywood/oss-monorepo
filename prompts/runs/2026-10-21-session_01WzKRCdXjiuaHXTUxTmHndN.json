@@ -15,8 +15,10 @@
   "tokens_out": null,
   "cost_usd": null,
   "tool_calls": null,
-  "task": null,
-  "projects": [],
+  "task": "Deepen (flagship 1): ai-bookkeeper split lines",
+  "projects": [
+    "ai-bookkeeper"
+  ],
   "pr": null,
   "repo": null,
   "commits": [],
@@ -25,15 +27,17 @@
   "merged": null,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": null,
-  "outcome": null,
+  "tests_added": 2,
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [],
   "deviations": [],
-  "writeups": [],
+  "writeups": [
+    "docs/reports/2026-10-21-ai-bookkeeper-for-agents.md"
+  ],
   "goal": null,
-  "notes": "",
+  "notes": "node --test in ventures/ai-bookkeeper: 37 pass. Split lines in engine confirm(), CLI and page Split button; README, llms.txt, flagships.yaml next updated. Page Split button not browser-tested. No CI run locally beyond the venture tests.",
   "corrections": [],
   "redteam": null
 }
