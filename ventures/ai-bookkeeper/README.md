@@ -337,13 +337,32 @@ accumulated depreciation, books the proceeds and the gain or loss (4150). `asset
 prints cost, depreciated and net book value; the close checks flag an Equipment
 balance that disagrees with the register (a purchase nobody registered is not being
 depreciated); the Schedule C worksheet carries 6950 to line 13. This is book
-depreciation. Tax depreciation (MACRS tables, section 179 limits, bonus) is not
-computed: `assets.test.mjs` covers the arithmetic, the journal, disposal, the check,
+depreciation. Tax depreciation is a separate worksheet (below); `assets.test.mjs` covers the arithmetic, the journal, disposal, the check,
 line 13 and the locked period. Not on the page yet.
+
+### Tax depreciation worksheet (US, MACRS)
+
+`taxdepr.mjs` (2026-10-21) computes the schedule a US return uses, beside the
+book schedule above. It posts nothing. Give an asset a tax treatment with
+`cli.mjs asset tax FA-1 --class 5 [--s179 1000] [--bonus 40]` (class 3, 5, 7,
+10, 15 or 20 years), then `cli.mjs taxdepr 2026` lists, per asset, the Section
+179 amount, bonus, MACRS and total for the year next to the book depreciation.
+Order: Section 179 off the cost, then bonus percent of the rest, then the IRS
+half-year percentages (Publication 946, Table A-1) on what remains; cents are
+rounded cumulatively so the years add to the basis exactly. In the year of
+disposal MACRS takes half of that year's amount, then stops. `taxdepr.test.mjs`
+checks that every table sums to 100% and has class + 1 years, the 5-year
+percentages on 10,000, odd cents, 179 and bonus ordering, disposal, and bad
+input. It warns and does not compute: the mid-quarter convention (flagged when
+over 40% of the year's basis went into service October to December), Section
+179 dollar limits and phase-out, the bonus rate in force, business-use share
+and listed property. The tables were typed from memory of Table A-1 and checked
+only for their sums and lengths, not against the publication: check them before
+filing. Not on the page yet.
 
 ## Not modelled
 
-Writing off a bill, tax depreciation (MACRS, section 179 limits), inventory,
+Writing off a bill, mid-quarter MACRS and section 179 limits, inventory,
 payroll and sales tax filings, multiple currencies, and receipts.
 
 ## Next
