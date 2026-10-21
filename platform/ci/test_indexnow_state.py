@@ -272,6 +272,13 @@ class Rendering(unittest.TestCase):
         self.assertIn("not that anything was indexed", result["reason"])
         self.assertIn("Search Console", state.render(result))
 
+    def test_render_shows_the_live_snapshot_sha_or_a_placeholder(self) -> None:
+        base = {"verdict": "never", "reason": "r", "examined": []}
+        with_sha = state.render({**base, "serving": {"sha": "abcdef0123456789", "date": "d", "author": "a"}})
+        self.assertIn("live snapshot     abcdef012 pushed", with_sha)
+        without = state.render({**base, "serving": {"date": "d", "author": "a"}})
+        self.assertIn("live snapshot     ? pushed", without)
+
     def test_render_survives_every_verdict(self) -> None:
         for maker in (
             lambda: state.collect(api_for([_run(1, "2026-09-11T04:15:40Z")], {1: [_job(0)]}, branch=branch_commit())),
