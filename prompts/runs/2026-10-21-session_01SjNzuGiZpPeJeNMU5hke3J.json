@@ -1,0 +1,51 @@
+{
+  "date": "2026-10-21",
+  "session": "https://claude.ai/code/session_01SjNzuGiZpPeJeNMU5hke3J",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-21T17:30:20Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "capture-whichwrong (track 13 follow-up)",
+  "projects": [
+    "research/capture-whichwrong"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/9234",
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "The pyenv.py hint printed /usr/local/bin/python3 without numpy/pytest; had to pip install directly."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Wrote no agent doc or post in docs/reports or docs/posts: the README carries the full write-up; judged a separate post would add nothing."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Reproduced learngate's 26.78 dB exactly. Negative result on the new features (+0.03 dB); gain from the per-source weight. Local checks: pytest 11 passed, build.py ok, check_md_links ok. Single seed per system.",
+  "corrections": [],
+  "redteam": null
+}
