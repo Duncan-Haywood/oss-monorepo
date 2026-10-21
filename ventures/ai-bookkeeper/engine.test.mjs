@@ -28,6 +28,14 @@ test("amounts and dates in the shapes banks print", () => {
   assert.equal(parseDate("03/04/2026", true), "2026-04-03");
   assert.equal(parseDate("12 Mar 2026"), "2026-03-12");
   assert.equal(parseDate("2026-02-30"), null);
+  assert.equal(parseDate("12 Mar 26"), "2026-03-12");
+  assert.equal(parseDate("3/4/26"), "2026-03-04");
+});
+
+test("a preamble row that names a date but no amount is not taken for the header", () => {
+  const r = readStatement("Date,Generated 2026-01-31\nDate,Description,Amount\n01/02/2026,A,-10.00\n");
+  assert.deepEqual(r.rows.map((x) => x.cents), [-1000]);
+  assert.equal(r.problems.length, 0);
 });
 
 test("debit and credit columns, and the running balance check catches a missing row", () => {
