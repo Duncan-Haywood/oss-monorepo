@@ -15,7 +15,7 @@
 //   node cli.mjs --books books.json export qbo|xero|iif|csv|lines > journal.csv
 //   node cli.mjs --example report
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
-import { newBooks, importStatement, importOfxAccounts, lockPeriod, categorize, suggestRules, addRules, addDocuments, writeOff, aging, salesTax, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, exportLines, status, analyze, fmt } from "./engine.mjs";
+import { newBooks, importStatement, importOfxAccounts, lockPeriod, categorize, suggestRules, addRules, addDocuments, addAsset, disposeAsset, addAssetsCsv, register, writeOff, aging, salesTax, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, exportLines, status, analyze, fmt } from "./engine.mjs";
 import { accountMap } from "./ledger.mjs";
 import { scheduleC, scheduleCCsv, contractors1099, contractors1099Csv, nec1099FilingCsv, markW9, mergePayees } from "./taxforms.mjs";
 import { sniffFormat, splitOfx } from "./bank.mjs";
@@ -39,6 +39,9 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
   merge-payee FROM INTO [--off]  count two spellings of one payee as one on the contractors worksheet
   w9 PAYEE [--off]       record that a W-9 is on file for a payee (a flag; no tax IDs are stored)
   schedulec [--from D --to D] [--meals PCT] [--csv|--json]  the profit and loss on US Schedule C lines (a worksheet, not a filing)
+  asset add NAME --cost 1800 --date D [--life MONTHS] [--salvage 0] [--expense]  register equipment; depreciation is booked monthly (default 60 months, straight-line)
+  asset dispose ID --date D [--proceeds 0] [--into 1000]  sell or scrap it; books the gain or loss
+  assets FILE|[--as-of D] load a CSV (name,date,cost,life_months[,salvage,method]), or list the register: cost, accumulated depreciation, net book value
   writeoff ID [--date D]  write off an invoice's unpaid balance to bad debts (6900)
   aging [--as-of D]      what customers owe you and what you owe, by days past due
   rules [--apply]        payees you filed the same way 3+ times, as rules; --apply adds them
@@ -112,6 +115,30 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
 } else if (cmd === "lock") {
   if (!rest[0]) { console.error("lock needs a date (YYYY-MM-DD) or off"); process.exit(2); }
   try { books = lockPeriod(books, rest[0] === "off" ? null : rest[0]); save(); console.log(books.lockedThrough ? `Locked through ${books.lockedThrough}.` : "Unlocked."); } catch (e) { console.error(e.message); process.exit(1); }
+} else if (cmd === "asset") {
+  try {
+    if (rest[0] === "add") {
+      const date = flag("--date"), cost = flag("--cost"), life = flag("--life"), salvage = flag("--salvage") ?? 0, method = has("--expense") ? "expense" : "straight-line";
+      const r = addAsset(books, { name: argv.slice(2).join(" "), date, cost, lifeMonths: life ? +life : 60, salvage, method });
+      books = r.books; save(); console.log(`${r.asset.id} ${r.asset.name}: ${fmt(r.asset.cents)}, ${r.asset.method === "expense" ? "expensed in full in its first month" : `${r.asset.lifeMonths} months straight-line`}.`);
+    } else if (rest[0] === "dispose" && rest[1]) {
+      const r = disposeAsset(books, rest[1], { date: flag("--date"), proceeds: flag("--proceeds") ?? 0, account: flag("--into") ?? "1000" });
+      books = r.books; save(); console.log(`${r.asset.id} disposed on ${r.asset.disposed.date}.`);
+    } else { console.error("asset add NAME --cost N --date D, or asset dispose ID --date D"); process.exit(2); }
+  } catch (e) { console.error(e.message); process.exit(1); }
+} else if (cmd === "assets") {
+  if (rest[0]) {
+    const r = addAssetsCsv(books, readFileSync(rest[0], "utf8"), opts);
+    books = r.books; save();
+    for (const p of r.problems) console.error(p);
+    console.log(`${r.added} assets added.`);
+  } else {
+    const g = register(books, asOf);
+    if (json) { console.log(JSON.stringify(g, null, 2)); process.exit(0); }
+    console.log(`ASSET REGISTER as of ${g.asOf ?? "-"}`);
+    for (const a of g.rows) console.log(`  ${a.id.padEnd(6)} ${a.name.slice(0, 28).padEnd(28)} ${a.date}  cost ${fmt(a.cost).padStart(11)}  depreciated ${fmt(a.accumulated).padStart(11)}  net ${fmt(a.netBookValue).padStart(11)}${a.disposed ? "  disposed " + a.disposed.date : a.fullyDepreciated ? "  fully depreciated" : ""}`);
+    console.log(`  Total (not disposed): cost ${fmt(g.cost)}, depreciated ${fmt(g.accumulated)}, net ${fmt(g.netBookValue)}`);
+  }
 } else if (cmd === "writeoff") {
   if (!rest[0]) { console.error("writeoff needs an invoice id or number"); process.exit(2); }
   try { const r = writeOff(books, rest[0], { date: flag("--date") ?? undefined }); books = r.books; save(); console.log(`Wrote off ${fmt(r.cents)} of ${rest[0]} to bad debts.`); } catch (e) { console.error(e.message); process.exit(1); }

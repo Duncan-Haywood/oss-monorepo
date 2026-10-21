@@ -323,9 +323,27 @@ header row at all), Amex (charges positive) and Capital One (Debit and Credit
 columns). The sign of a card file is inferred from its payment rows unless you
 pass `--invert`. See `fixtures/` and the last test in `engine.test.mjs`.
 
+## Fixed assets and depreciation
+
+`assets.mjs` is a register for equipment. You file the purchase to Equipment
+(1500) from the bank line as usual, then register it (`cli.mjs asset add "Standing desk" --cost 900 --date 2026-02-01 --life 48`, or a CSV with `cli.mjs assets FILE`). From then on the ledger books
+depreciation each month, from the month placed in service through the month of the
+latest line in the books: debit Depreciation (6950), credit Accumulated depreciation
+(1590). Straight-line in integer cents (month k carries `floor(base*k/life)` less the
+months before, so the last month closes the cost exactly, with an optional salvage
+value), or `--expense` to write the whole cost off in the first month (the choice of
+whether you may is yours or your preparer's). `asset dispose` removes the cost and
+accumulated depreciation, books the proceeds and the gain or loss (4150). `assets`
+prints cost, depreciated and net book value; the close checks flag an Equipment
+balance that disagrees with the register (a purchase nobody registered is not being
+depreciated); the Schedule C worksheet carries 6950 to line 13. This is book
+depreciation. Tax depreciation (MACRS tables, section 179 limits, bonus) is not
+computed: `assets.test.mjs` covers the arithmetic, the journal, disposal, the check,
+line 13 and the locked period. Not on the page yet.
+
 ## Not modelled
 
-Writing off a bill, depreciation, inventory,
+Writing off a bill, tax depreciation (MACRS, section 179 limits), inventory,
 payroll and sales tax filings, multiple currencies, and receipts.
 
 ## Next

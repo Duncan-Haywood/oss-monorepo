@@ -16,9 +16,10 @@ import { readStatement, splitOfx, sniffFormat, rowIds, checkRunningBalance, pars
 import { DEFAULT_ACCOUNTS, accountMap, validateEntry, trialBalance, profitAndLoss, balanceSheet, cashFlow, balances, natural, fmt, dollars } from "./ledger.mjs";
 import { suggest, trainClassifier, buildMemory, parseRules, historyRecord, payeeKey } from "./categorize.mjs";
 import { addDocuments, writeOff, settle, aging, documentEntries, AR, AP } from "./accruals.mjs";
+import { assetEntries, register, addAsset, disposeAsset, addAssetsCsv, ASSET_ACCOUNT } from "./assets.mjs";
 import { SAMPLE_CHECKING, SAMPLE_CARD } from "./example-data.mjs";
 
-export { DEFAULT_ACCOUNTS, fmt, dollars, payeeKey, addDocuments, writeOff, aging };
+export { DEFAULT_ACCOUNTS, fmt, dollars, payeeKey, addDocuments, writeOff, aging, addAsset, disposeAsset, addAssetsCsv, register };
 
 export const VERSION = 1;
 const CAPEX_LIKELY = /suppl|office|repair|equipment|tool|computer|furniture|material|uncategori/i;
@@ -261,7 +262,7 @@ export function journal(books) {
     const deb = cents > 0;
     entries.push({ id: `OPEN-${code}`, date, memo: `Opening balance, ${map.get(code).name}`, source: "opening", lines: [{ account: code, debit: deb ? cents : 0, credit: deb ? 0 : -cents }, { account: "3000", debit: deb ? 0 : -cents, credit: deb ? cents : 0 }] });
   }
-  entries.push(...documentEntries(books));
+  entries.push(...documentEntries(books), ...assetEntries(books));
   const seen = new Set();
   for (const t of books.transactions) {
     if (!t.posted || t.status === "review" || t.status === "new" || seen.has(t.id)) continue;
@@ -295,6 +296,14 @@ export function closeChecks(books, opts = {}) {
   const sus = books.accounts.filter((a) => a.suspense).map((a) => a.code);
   const b = balances(entries);
   for (const c of sus) if (b.get(c)) out.push({ severity: "medium", check: "suspense", message: `${fmt(Math.abs(b.get(c)))} sits in ${map.get(c).name}. Move it to a real account before you file.`, ids: books.transactions.filter((t) => legsOf(t).some((l) => l.account === c)).map((t) => t.id) });
+
+  // Equipment: the asset account should equal the register's cost. A purchase filed to
+  // 1500 with no register row is not being depreciated.
+  if (books.assets?.length) {
+    const cost = register(books).cost;
+    const ledger = b.get(ASSET_ACCOUNT) ?? 0;
+    if (ledger !== cost) out.push({ severity: "low", check: "assets", message: `${map.get(ASSET_ACCOUNT)?.name ?? ASSET_ACCOUNT} is ${fmt(ledger)} in the ledger but the asset register adds up to ${fmt(cost)}. ${ledger > cost ? "A purchase filed there has no register row, so it is not being depreciated." : "A register row has no purchase filed to the account."}`, ids: [] });
+  }
 
   // Duplicates: same account, date, amount and payee, in different imports.
   const groups = new Map();

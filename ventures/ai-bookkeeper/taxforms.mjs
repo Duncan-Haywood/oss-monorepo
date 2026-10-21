@@ -3,7 +3,9 @@
 // a sole proprietor or single-member LLC. It is a worksheet for you or your
 // preparer to copy from, not a filing: it does not know your return, and it does
 // not compute self-employment tax or the home-office, depreciation, mileage or
-// health-insurance figures that are not in a bank feed.
+// health-insurance figures that are not in a bank feed. Depreciation comes from
+// the asset register (assets.mjs) and goes to line 13 as straight-line book depreciation;
+// tax depreciation (MACRS, section 179) is for you or your preparer.
 
 import { journal } from "./engine.mjs";
 import { payeeKey } from "./categorize.mjs";
@@ -13,7 +15,7 @@ import { accountMap, profitAndLoss } from "./ledger.mjs";
 // itemised on Part V, so every account sent there keeps its own row.
 export const LINES = {
   "1": "Gross receipts or sales", "6": "Other income", "4": "Cost of goods sold",
-  "8": "Advertising", "9": "Car and truck expenses", "10": "Commissions and fees", "11": "Contract labor",
+  "8": "Advertising", "9": "Car and truck expenses", "10": "Commissions and fees", "11": "Contract labor", "13": "Depreciation and section 179",
   "15": "Insurance (other than health)", "16b": "Interest (other)", "17": "Legal and professional services",
   "18": "Office expense", "20b": "Rent (other business property)", "21": "Repairs and maintenance",
   "22": "Supplies", "23": "Taxes and licenses", "24a": "Travel", "24b": "Deductible meals",
@@ -27,10 +29,10 @@ export const SCHEDULE_C_MAP = {
   "4000": "1", "4100": "6", "4200": "6", "5000": "4",
   "6000": "8", "6010": "27a", "6020": "11", "6030": "15", "6040": "16b", "6050": "17", "6060": "27a",
   "6070": "18", "6080": "20b", "6090": "21", "6100": "22", "6110": "23", "6120": "24a", "6130": "24b",
-  "6140": "25", "6150": "26", "6160": "9", "6170": "27a", "6180": "27a", "6900": "27a",
+  "6140": "25", "6150": "26", "6160": "9", "6170": "27a", "6180": "27a", "6900": "27a", "6950": "13",
 };
 
-const EXPENSE_ORDER = ["8", "9", "10", "11", "15", "16b", "17", "18", "20b", "21", "22", "23", "24a", "24b", "25", "26", "27a"];
+const EXPENSE_ORDER = ["8", "9", "10", "11", "13", "15", "16b", "17", "18", "20b", "21", "22", "23", "24a", "24b", "25", "26", "27a"];
 
 // scheduleC(books, { from, to, mealsPct = 50, map }) ->
 //   { period, lines: [{ line, label, cents, accounts: [{ code, name, cents }] }],
