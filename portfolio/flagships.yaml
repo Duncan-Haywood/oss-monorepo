@@ -69,8 +69,9 @@ flagships:
       sheet order with a bound; ROADMAP.md milestone 1). Blocking and fire
       blocking landed 2026-10-21 (plan `blocking: {rows, fire}`; engine, cut
       list and order; page controls landed 2026-10-21). A sheathing joint over an opening now comes back as a sized nailer piece (stud size, length from header top to top plate; sheathing result `nailerPieces`, 2026-10-21; rare, since cripples usually give bearing). Nailers are now a cut list and board order of their own (sheathing result `nailerLumber`, CLI; 2026-10-21) and are also pooled into the framing order (`takeoff(plan, nailerCuts(sheathing))`, CLI and page, so they come out of its offcuts). Corner plate laps
-      (plan `plateLaps`; top plate through one way, cap the other; totals unchanged) landed 2026-10-21. Next: two-course
-      sheathing for walls taller than the sheet, then tee laps.
+      (plan `plateLaps`; top plate through one way, cap the other; totals unchanged) landed 2026-10-21. Two-course
+      sheathing for walls taller than the longest sheet landed 2026-10-21 (lower sheet + upper
+      course by price per strip, bands cut crosswise, on-edge joint blocking in the cut list). Next: tee laps, then horizontal sheathing.
   # Added 2026-10-20 first, on the owner's direction that day for research
   # algorithms as tools (prompts/goals.md). New tools of that kind follow
   # portfolio/research-tools/README.md; this entry deepens the first one.

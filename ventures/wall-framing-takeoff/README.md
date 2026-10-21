@@ -154,7 +154,8 @@ checks it). Splices still sit over full studs.
 - **No structural checks.** Header size, plies, jack count, stud size and
   spacing are inputs. Nothing checks them against a span table, a load or a
   building code.
-- **Not modelled yet:** sheathing over two courses (a wall taller than the longest sheet), horizontal sheathing, corner overhang, blocking and fire blocking, let-in or
+- **Two courses (2026-10-21):** when no listed sheet is as long as the wall (say 12 ft 4-1/2 in of wall and nothing past a 4x10), `chooseCourses` picks a lower sheet and an upper course of at least `minCourse` (12 in) by lowest price per strip, counting the bands that cut crosswise from one sheet (four 24-1/2 in bands from a 4x9). The horizontal joint gets a piece of the wall's stud size on edge in every bay between studs (`jointBlocks`; bays an opening cuts out at that height are skipped, an existing blocking row counts), the pieces join the nailer cut list and board order, and the wall check fails if the joint has nothing to nail to along its length. Vertical joints of both courses sit on the same studs. Tested on 300 seeded walls of 125 to 154 in studs. Not checked against an engineered shear-wall schedule: blocking and nail spacing at the joint are yours to confirm.
+- **Not modelled yet:** horizontal sheathing, corner overhang, let-in or
   structural bracing, header spacers (listed in the notes), hardware and
   fasteners, gable and rake walls, walls that change height, multiple storeys,
   window and door rough openings given by unit size (enter rough openings), and

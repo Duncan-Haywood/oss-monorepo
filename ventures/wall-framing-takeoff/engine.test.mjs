@@ -355,3 +355,78 @@ test("corner plate laps move piece lengths but not the plate totals", () => {
   assert.equal(first("cap plate").x, -3.5); // runs through over it
   assert.deepEqual(plateLaps({ walls: [] }, {}), { topStart: 0, topEnd: 0, capStart: 0, capEnd: 0 });
 });
+
+// ---- two-course sheathing ----
+import { chooseCourses, jointBlocking } from "./sheathing.mjs";
+
+const tallPlan = (len = 240, studLength = 140, openings = []) => ({ ...base(), studLength, stock: defaultStock(studLength), walls: [{ id: "A", length: len, stud: "2x4", openings }] });
+
+test("chooseCourses: one sheet when it is long enough, else a lower sheet and an upper course of at least minCourse", () => {
+  const sheets = defaultSheathing().sheets;
+  assert.equal(chooseCourses(sheets, 100).length, 1);
+  const c = chooseCourses(sheets, 144.5);
+  assert.equal(c.length, 2);
+  assert.equal(c[0].y1, 120);
+  assert.ok(Math.abs(c[1].y1 - c[1].y0 - 24.5) < 1e-9);
+  assert.equal(c[1].perSheet, 4); // four 24-1/2 in bands fit across a 9 ft sheet with kerf
+  assert.equal(chooseCourses([{ width: 48, length: 96, price: 1 }], 200), null);
+  // a lower sheet that would leave a 6 in sliver is passed over
+  const d = chooseCourses(sheets, 126);
+  assert.ok(d.every((x) => x.y1 - x.y0 >= 12 - 1e-9));
+});
+
+test("a wall taller than every sheet gets two courses, a blocked joint, and passes its own check", () => {
+  const plan = tallPlan(240, 140, [{ kind: "window", label: "W", offset: 60, width: 36, height: 48, header: "2x10" }]);
+  const r = takeoff(plan);
+  const s = sheathe({ ...plan, sheathing: { ...defaultSheathing(), sheets: defaultSheathing().sheets.filter((x) => x.length <= 120) } }, r);
+  assert.ok(s.ok, JSON.stringify(s.errors));
+  assert.equal(s.courses.length, 2);
+  const w = s.walls[0];
+  assert.deepEqual(w.check, []);
+  const lower = w.panels.filter((p) => p.course === 0);
+  const upper = w.panels.filter((p) => p.course === 1);
+  assert.equal(lower.length, upper.length);
+  assert.ok(upper.every((p) => Math.abs(p.height - (s.cover - s.jointY)) < 1e-9 && p.y0 === s.jointY && p.id.endsWith("U")));
+  // the window is below the joint: cut out of the lower course only
+  assert.ok(lower.some((p) => p.cutouts.length) && upper.every((p) => p.cutouts.length === 0));
+  assert.ok(w.jointBlocks.length > 0);
+  assert.ok(w.jointBlocks.every((b) => b.size === "2x4" && b.y === s.jointY && b.length >= 1));
+  assert.equal(s.summary.sheets, s.orders[0].qty + s.orders[1].qty);
+  assert.ok(s.summary.areaBought >= s.summary.areaCovered);
+  const rows = nailerCuts(s);
+  assert.equal(rows.filter((c) => c.kind === "sheathing joint block").reduce((t, c) => t + c.qty, 0), w.jointBlocks.length);
+  assert.ok(s.nailerLumber.orders.length === 1 && s.nailerLumber.cost > 0);
+});
+
+test("joint blocking skips bays an opening cuts out at the joint height", () => {
+  // a window from 20 to 100 in, reaches the joint at 96 (4x8 and 4x6 sheets only)
+  const plan = tallPlan(240, 140, [{ kind: "window", label: "W", offset: 100, width: 36, height: 80, header: "2x10", headerHeight: 100 }]);
+  const r = takeoff(plan);
+  assert.ok(r.ok, JSON.stringify(r.errors));
+  const sheets = [{ label: "4x8", width: 48, length: 96, price: 1 }, { label: "4x6", width: 48, length: 72, price: 1 }];
+  const s = sheathe({ ...plan, sheathing: { ...defaultSheathing(), sheets } }, r);
+  assert.ok(s.ok, JSON.stringify(s.errors));
+  assert.deepEqual(s.walls[0].check, []);
+  for (const b of s.walls[0].jointBlocks) assert.ok(b.x + b.length <= 100 + 1e-6 || b.x >= 136 - 1e-6, JSON.stringify(b));
+  const { blocks } = jointBlocking(r.walls[0], plan.walls[0].openings, plan, s.jointY);
+  assert.equal(blocks.length, s.walls[0].jointBlocks.length);
+});
+
+test("two-course sheathing, 300 seeded walls: every course tiles the wall, the joint is backed along its length, cost is not below the bound", () => {
+  const rand = rng(31);
+  let two = 0;
+  for (let n = 0; n < 300; n++) {
+    const studLength = 125 + Math.floor(rand() * 30);
+    const len = 72 + Math.floor(rand() * 30) * 12;
+    const openings = rand() < 0.6 ? [{ kind: "window", label: "W", offset: 24 + Math.floor(rand() * 20) * 4, width: 36, height: 48, header: "2x10" }] : [];
+    const plan = tallPlan(len, studLength, openings);
+    const r = takeoff(plan);
+    if (!r.ok) continue;
+    const s = sheathe({ ...plan, sheathing: { ...defaultSheathing(), sheets: defaultSheathing().sheets.filter((x) => x.length <= 120) } }, r);
+    if (!s.ok) continue;
+    if (s.courses.length === 2) two++;
+    for (const w of s.walls) assert.deepEqual(w.check, [], `${len}/${studLength}`);
+    assert.ok(s.summary.cost >= s.summary.bound - 1e-6);
+  }
+  assert.ok(two > 200, `only ${two} two-course walls`);
+});
