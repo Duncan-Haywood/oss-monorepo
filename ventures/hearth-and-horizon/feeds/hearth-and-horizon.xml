@@ -24,6 +24,8 @@
       <itunes:summary>In a Holy Year heatwave, a retired river engineer volunteering at a pilgrim hostel on the Spanish Meseta learns that the number everyone quotes about deadly heat is not the number that threatens her guests, and that an AI which knows where every litre of water is cannot decide who may walk.</itunes:summary>
       <itunes:episodeType>full</itunes:episodeType>
       <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://example.invalid/hearth-and-horizon/audio/the-bell-at-half-past-three.mp3" length="8055870" type="audio/mpeg"/>
+      <itunes:duration>0:22:23</itunes:duration>
     </item>
     <item>
       <title>Thirty-Nine Minutes</title>
@@ -34,6 +36,8 @@
       <itunes:summary>Six contemplative sisters on a Mars station find that a Martian day is 39 minutes longer than an Earth day, so the clock they have prayed by all their lives drifts round the sky every five weeks. Then Earth goes behind the Sun, and for two weeks nobody can tell them what time it is back home.</itunes:summary>
       <itunes:episodeType>full</itunes:episodeType>
       <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://example.invalid/hearth-and-horizon/audio/thirty-nine-minutes.mp3" length="9521958" type="audio/mpeg"/>
+      <itunes:duration>0:26:27</itunes:duration>
     </item>
     <item>
       <title>The Slowest Bell on the Moon</title>

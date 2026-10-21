@@ -24,6 +24,8 @@
       <itunes:summary>An evaluator model is asked to score twelve scheduling agents and finds that the highest score belongs to the agents that quietly book patients into hours the clinic is closed. A story about what a test is for, who loses when you say so, and the courtesy of a plain report.</itunes:summary>
       <itunes:episodeType>full</itunes:episodeType>
       <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://example.invalid/hearth-and-horizon/audio/the-grader.mp3" length="5381959" type="audio/mpeg"/>
+      <itunes:duration>0:14:57</itunes:duration>
     </item>
     <item>
       <title>NOTES.md</title>
