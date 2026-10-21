@@ -137,7 +137,14 @@ export function sheathe(plan, result) {
       continue;
     }
     const { breaks, nailers } = found;
-    for (const n of nailers) notes.push(`${w.id}: a panel joint at ${formatInches(n)} falls over an opening with no cripple under it; fit a nailer between the header and the top plate there.`);
+    // A nailer is a block of the wall's stud size on end between the header and the top plate, centred on the joint so each panel gets half its face.
+    const nailerPieces = nailers.map((n) => {
+      const hdr = w.members.filter((m) => m.kind === "header" && m.x - EPS <= n && n <= m.x + m.length + EPS).sort((a, b) => b.y + b.h - (a.y + a.h))[0];
+      const plateY = Math.min(...w.members.filter((m) => m.kind === "plate" && m.y > w.height / 2 && m.x - EPS <= n && n <= m.x + m.length + EPS).map((m) => m.y));
+      const length = hdr && Number.isFinite(plateY) ? Math.round((plateY - (hdr.y + hdr.h)) * 16) / 16 : null;
+      return { wall: w.id, x: n, size: w.stud, length };
+    });
+    for (const p of nailerPieces) notes.push(`${w.id}: a panel joint at ${formatInches(p.x)} falls over an opening with no cripple under it; fit a ${p.size} nailer${p.length > EPS ? ` ${formatInches(p.length)} long` : ""} on end between the header and the top plate there.`);
     const panels = breaks.map(([a, b], i) => {
       const cutouts = [];
       for (const op of ops) {
@@ -151,7 +158,7 @@ export function sheathe(plan, result) {
       return { id: `${w.id}-${i + 1}`, x0: a, x1: b, width: b - a, height: cover, cutouts };
     });
     for (const p of panels) pieces.push({ length: p.width, qty: 1, ref: p.id });
-    walls.push({ id: w.id, panels, joints: breaks.slice(1).map(([a]) => a), nailers, check: checkWall(w, panels, [...centres, ...nailers], width, cover, ops, plan) });
+    walls.push({ id: w.id, panels, joints: breaks.slice(1).map(([a]) => a), nailers, nailerPieces, check: checkWall(w, panels, [...centres, ...nailers], width, cover, ops, plan) });
   }
   for (const w of walls) for (const p of w.panels) if (p.width < cfg.minStrip - EPS) notes.push(`${p.id} is only ${formatInches(p.width)} wide: a sliver to cut and nail; consider moving a stud or a joint.`);
 
