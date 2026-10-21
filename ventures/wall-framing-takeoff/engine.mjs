@@ -232,12 +232,28 @@ export function validatePlan(plan) {
       const g = openingGeometry(plan, wall, op);
       if (!(op.header in DEPTH)) errors.push(`${on}: header must be one of ${Object.keys(DEPTH).join(", ")}.`);
       else if (!sizes.has(op.header)) errors.push(`${on}: no ${op.header} boards in the lumber list.`);
-      if (g.topCripple < -EPS) errors.push(`${on}: the header does not fit under the top plates (${formatInches(-g.topCripple)} too tall). Lower the header height or use a shallower header.`);
+      if (wall.gable && g.topCripple < -EPS) {
+        // On a gable wall the header may rise into the triangle: it must clear the sloped plate at the end where the roof is lowest.
+        const rise = gableRiseAt(wall);
+        const hs = op.offset - THICK * (op.jacks ?? 1);
+        const he = op.offset + op.width + THICK * (op.jacks ?? 1);
+        const room = g.topCripple + Math.min(rise(hs), rise(he));
+        if (room < -EPS) errors.push(`${on}: the header does not fit under the sloped top plate (${formatInches(-room)} too tall at its lower end). Lower the header height or use a shallower header.`);
+      } else if (g.topCripple < -EPS) errors.push(`${on}: the header does not fit under the top plates (${formatInches(-g.topCripple)} too tall). Lower the header height or use a shallower header.`);
       if (op.kind === "window" && g.bottomCripple < -EPS) errors.push(`${on}: the window sill is below the bottom plate. Raise the header height or shorten the window.`);
       if (op.kind === "door" && g.roBottom > THICK + EPS) errors.push(`${on}: a door opening should reach the floor; check the header height and opening height.`);
     }
   }
   return errors;
+}
+
+/** Rise of a gable wall's roof line above the eave line at x inches from the wall start. */
+function gableRiseAt(wall) {
+  const L = wall.length;
+  const mid = wall.gable.peak ?? L / 2;
+  const slopeL = wall.gable.pitch / 12;
+  const slopeR = (slopeL * mid) / (L - mid);
+  return (x) => (x <= mid ? slopeL * x : slopeR * (L - x));
 }
 
 function plateSize(wall) {
@@ -527,14 +543,18 @@ function layoutGable(plan, wall) {
     const plies = op.headerPlies ?? (stud === "2x6" ? 3 : 2);
     for (let i = 0; i < plies; i++) add("header", hStart, g.headerHeight, hEnd - hStart, g.depth, op.header, "h", `header ply, ${name}`);
     if (plies * THICK < DEPTH[stud] - EPS && DEPTH[op.header] > DEPTH["2x4"]) spacers.push(`${name} (${formatInches(DEPTH[stud] - plies * THICK)})`);
-    if (g.topCripple > 0.5) {
-      // Each cripple runs to the long point of the sloped plate above it.
-      for (const x of layout) {
-        if (inside(x, hStart, hEnd)) add("cripple", x, g.headerHeight + g.depth, THICK, g.topCripple + Math.max(rise(x), rise(x + THICK)), stud, "v", `top cripple, ${name}`);
-      }
-    } else if (g.topCripple > EPS) {
-      shimGaps.push(`${name} (${formatInches(g.topCripple)})`);
+    // Each cripple runs to the long point of the sloped plate above it; a header that rises above the
+    // eave line gets cripples only where the roof has climbed clear of it (and none if it never does).
+    const crippleXs = layout.filter((x) => inside(x, hStart, hEnd));
+    const lens = crippleXs.map((x) => g.topCripple + Math.max(rise(x), rise(x + THICK)));
+    const tall = lens.filter((l) => l > 0.5);
+    if (tall.length) {
+      crippleXs.forEach((x, i) => { if (lens[i] > 0.5) add("cripple", x, g.headerHeight + g.depth, THICK, lens[i], stud, "v", `top cripple, ${name}`); });
+      if (lens.some((l) => l > EPS && l <= 0.5)) shimGaps.push(`${name} (${formatInches(Math.min(...lens.filter((l) => l > EPS && l <= 0.5)))})`);
+    } else if (lens.some((l) => l > EPS)) {
+      shimGaps.push(`${name} (${formatInches(Math.max(...lens))})`);
     }
+    if (g.topCripple < -EPS) notes.push(`${name}: the header tops out ${formatInches(-g.topCripple)} above the eave line, in the triangle; check its size for the roof load above it.`);
     if (op.kind === "window") {
       for (let i = 0; i < g.sillPlies; i++) add("sill", op.offset, g.roBottom - (i + 1) * THICK, op.width, THICK, stud, "h", `rough sill, ${name}`);
       if (g.bottomCripple > 0.5) {
@@ -753,6 +773,7 @@ export function verifyWall(w, wall) {
     const y1 = top.y;
     const y0 = y1 - op.height;
     for (const m of ms) {
+      if (m.sloped) continue; // a sloped plate's box spans the triangle, and its underside clearing the header is checked when the plan is validated
       const ox = Math.min(m.x + m.w, x1) - Math.max(m.x, x0);
       const oy = Math.min(m.y + m.h, y1) - Math.max(m.y, Math.max(y0, op.kind === "door" ? 0 : y0));
       if (ox > 1e-6 && oy > 1e-6) problems.push(`${m.label} at ${formatLength(m.x)} sits in the ${name} opening`);

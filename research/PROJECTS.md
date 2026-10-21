@@ -1446,7 +1446,7 @@ al. (1993), the revised NIOSH lifting equation, for the human side of a shared l
 4. `buildbot-fasten`: driving nails and screws. Tool reaction forces, the stud-face tolerance
    (a 1.5 in face behind sheathing) against arm placement error, and a policy that drives a
    sheathing nailing schedule. The skill is the output: a policy plus its test scene.
-5. `buildbot-cohold`: a person and a robot holding one sheet. The robot follows a simulated
+5. `buildbot-cohold` (done 2026-10-21): a person and a robot holding one sheet. The robot follows a simulated
    person's lead under impedance control while the person fastens. Score interaction forces
    against ISO/TS 15066 body-region limits, sheet placement error and the person's lifted load
    against the NIOSH limit.

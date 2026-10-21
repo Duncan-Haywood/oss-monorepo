@@ -68,7 +68,7 @@ Ticked items are on `main`.
 - [ ] **Advanced framing options** (2-stud corners, ladder blocking at tees,
       single top plate where framing stacks, right-sized headers from a
       user-supplied table) and a measured comparison on example houses.
-- [x] **Gable walls** (2026-10-21, `layoutGable` in `engine.mjs`): wall `gable: {pitch}` (rise per 12 in), symmetric about the middle; studs cut to the long point of the angled cut, top and cap plates along the slope with joints over studs. Openings below the eave line landed 2026-10-21. Not yet: openings that rise into the triangle (the off-centre peak landed in PR 9202), sheathing the triangle, walls that step in height.
+- [x] **Gable walls** (2026-10-21, `layoutGable` in `engine.mjs`): wall `gable: {pitch}` (rise per 12 in), symmetric about the middle; studs cut to the long point of the angled cut, top and cap plates along the slope with joints over studs. Openings below the eave line landed 2026-10-21. Openings that rise into the triangle landed 2026-10-21 (header may top out above the eave line; cripples only where the roof clears it; a header that meets the slope at its lower end is rejected; engine and plan files, not the page). Not yet (the off-centre peak landed in PR 9202), sheathing the triangle, walls that step in height.
 - [x] **Shop drawings** (2026-10-21, `drawings.mjs`): one printable sheet per
       wall (SVG elevation with member marks, dimension chain, parts table; CLI
       `--drawings`, page button). Not yet: per-panel sheets that split a long wall
