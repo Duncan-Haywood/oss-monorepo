@@ -53,7 +53,7 @@ flagships:
       layouts; they still need trying on real exports. OFX/QFX (SGML and XML) and
       QIF files read too (2026-10-21, hand-written fixtures; page file picker takes
       .ofx/.qfx/.qif); multi-account OFX files split per account in the engine and CLI (`--map OFXID=CODE`,
-      2026-10-21); the page shows one account picker per account in a multi-account OFX file (2026-10-21; clicked through in headless Chromium 2026-10-21: two pickers appear for fixtures/two-accounts.ofx). A US Schedule C worksheet (taxforms.mjs: P&L on the form's lines, meals at 50%, 27a rows, unmapped and unfiled flagged; CLI `schedulec`, page table and CSV) landed 2026-10-21; its line map is unchecked against the current form instructions. Next after the model run: a 1099-NEC list of contractors paid over $600 from contract-labor lines, and a W-9-on-file check.
+      2026-10-21); the page now shows one account picker per account in a multi-account OFX file (2026-10-21; clicked through in headless Chromium with `node eval/browser-click.mjs`: two pickers, import across 2 accounts, example load, no page errors). A US Schedule C worksheet (taxforms.mjs: P&L on the form's lines, meals at 50%, 27a rows, unmapped and unfiled flagged; CLI `schedulec`, page table and CSV) landed 2026-10-21; its line map is unchecked against the current form instructions. Next after the model run: a 1099-NEC list of contractors paid over $600 from contract-labor lines, and a W-9-on-file check.
   # Added 2026-10-21 second, on the owner's direction that day: "I want to make
   # tools that can automate part of the new home construction process in the
   # us. to drop prices and increase efficiency this is a long standing project
