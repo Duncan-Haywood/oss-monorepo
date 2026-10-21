@@ -156,6 +156,18 @@ if (await printBtn.count()) {
   if (pop) { await pop.waitForLoadState(); const t = await pop.locator("body").textContent(); check(/Kestrel Design Ltd/.test(t) && /INV-900/.test(t) && /1,200\.00/.test(t) && /IBAN GB00/.test(t), "the opened invoice shows seller, number, amount and how to pay"); }
   else check(false, "Print opens the invoice page");
 }
+// A credit note leaves the open list but can still be printed from the settled list.
+await page.fill("#docs-paste", "type,number,date,due,party,amount,account,against\ninvoice,INV-900,2026-01-05,2026-02-04,Acme Corp,1200.00,4000,\ncredit note,CN-1,2026-01-20,,Acme Corp,1200.00,4000,INV-900");
+await page.click("#docs-load");
+await page.waitForTimeout(300);
+const cnBtn = page.getByRole("button", { name: /^Print (credit note|invoice) / });
+check((await cnBtn.count()) >= 1, "a settled invoice or credit note has a Print button");
+const cnOnly = page.getByRole("button", { name: /Print credit note/ });
+if (await cnOnly.count()) {
+  const [pop2] = await Promise.all([page.context().waitForEvent("page", { timeout: 5000 }).catch(() => null), cnOnly.first().click()]);
+  if (pop2) { await pop2.waitForLoadState(); check(/Credit note/.test(await pop2.locator("body").textContent()), "the opened page is a credit note"); }
+  else check(false, "Print opens the credit note");
+} else check(false, "a credit note has its own Print button");
 // Recurring payments and cash forecast. The made-up example has no steady payee (its gaps are uneven), so the card says so;
 // then a statement with monthly rent and a monthly software charge fills the table and the forecast.
 check(/No payee has three or more lines at a steady interval/.test(await page.locator("#recurring").textContent()), "the recurring card says so when no payee is steady (example books)");
