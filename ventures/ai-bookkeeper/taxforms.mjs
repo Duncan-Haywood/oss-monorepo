@@ -101,8 +101,8 @@ function fmt(c) { const v = Math.abs(c); return `${c < 0 ? "-" : ""}${Math.floor
 // whether someone is a contractor at all is a judgment this cannot make.
 //
 // The threshold was $600 through payments made in 2025 and is $2,000 for
-// payments made in 2026 (IRS, as amended in 2025); check the current
-// instructions, or pass `threshold` in cents.
+// payments made in 2026 (IRS Form 1099-NEC pages and FS-2025-08, read
+// 2026-10-21); check the current instructions, or pass `threshold` in cents.
 // From 2027 the $2,000 is indexed to inflation, so for later years this is a
 // floor and the worksheet says so.
 export const NEC_THRESHOLD = (year) => (year >= 2026 ? 200000 : 60000);

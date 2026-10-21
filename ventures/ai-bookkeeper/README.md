@@ -275,8 +275,9 @@ records that a W-9 is on file; only that yes/no flag is stored, never a tax ID.
 payee ("ZELLE ANNA LOPEZ", "UPWORK PAYMENT ANNA LOPEZ") as one, so their payments
 add up against the line; only a pointer is kept, and `--off` undoes it. The page has
 the same worksheet as a card (W-9 tick boxes, a merge picker, a CSV button). The
-line is $600 for payments through 2025 and $2,000 from 2026 as the author understands
-the 2025 change; check the current IRS instructions or pass `--threshold`. Card
+line is $600 for payments through 2025 and $2,000 from 2026 (read on the IRS's
+Form 1099-NEC pages and fact sheet FS-2025-08 on 2026-10-21; indexed to inflation
+from 2027, so check the current instructions then or pass `--threshold`). Card
 payments are shown apart and left out of the totals (the processor reports those on
 a 1099-K); payees over the line without a W-9 and unfiled bank lines from the year
 are warned about. Payees are grouped by the first two payee words of the bank line,
