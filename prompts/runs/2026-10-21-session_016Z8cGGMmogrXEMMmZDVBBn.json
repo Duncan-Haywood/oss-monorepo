@@ -25,7 +25,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 35,
   "outcome": "success",
@@ -34,7 +34,8 @@
     "First tokenizer stripped digits inside reference codes, making fake payee tokens ('1GH4QE' -> 'gh'); now tokens with digits are dropped whole.",
     "Built-in 'transfer' rule caught 'STRIPE TRANSFER' (a payout, i.e. sales); payout rules now come first.",
     "Capitalize check flagged payroll; restricted to supply, office, repair and tool-like accounts.",
-    "Post draft said about 580 lines a month; the generator makes about 48 a month (580 a year). Caught on re-read before commit."
+    "Post draft said about 580 lines a month; the generator makes about 48 a month (580 a year). Caught on re-read before commit.",
+    "VENTURE.yaml hypothesis used evidence 'measurement'; portfolio/router/validate.py accepts only customer-contact or in-repo. CI validate caught it; fixed."
   ],
   "integrity_issues": [
     "The learning-curve benchmark is on synthetic data whose generator and built-in keywords share an author; month-1 accuracy is circular. Stated on the page, README, llms.txt and post; only the learning numbers are quoted as findings."
@@ -60,7 +61,7 @@
     "docs/reports/2026-10-21-ai-bookkeeper-for-agents.md"
   ],
   "goal": "Start the AI accounting systems direction with a working system, not another single-step tool",
-  "notes": "Verification run here: node --test ventures/ai-bookkeeper/*.test.mjs (35 pass); headless Chromium (example -> accept -> file -> reconciles to $10,947.46; balance sheet balances; persists across reload; no horizontal scroll at 390px; no outside requests); CLI end to end; node platform/agents/tools.mjs call ai-bookkeeper analyze; node platform/pages/clauses.mjs ai-bookkeeper (ok); node --test platform/pages/venture-sitemap-coverage.test.mjs (3 pass); front-door explainIneligible (eligible); sync_tree_counts.py --check (agrees); node --test platform/privacy/optout-persistence.test.mjs (17 pass); promptctl validate (ok). Benchmark: 5 seeds, 2,892 synthetic lines; months 4-12 1,300/2,164 posted alone, 1 wrong; 542/642 review suggestions right.",
+  "notes": "Verification run here: node --test ventures/ai-bookkeeper/*.test.mjs (35 pass); headless Chromium (example -> accept -> file -> reconciles to $10,947.46; balance sheet balances; persists across reload; no horizontal scroll at 390px; no outside requests); CLI end to end; node platform/agents/tools.mjs call ai-bookkeeper analyze; node platform/pages/clauses.mjs ai-bookkeeper (ok); node --test platform/pages/venture-sitemap-coverage.test.mjs (3 pass); front-door explainIneligible (eligible); sync_tree_counts.py --check (agrees); node --test platform/privacy/optout-persistence.test.mjs (17 pass); promptctl validate (ok). Benchmark: 5 seeds, 2,892 synthetic lines; months 4-12 1,300/2,164 posted alone, 1 wrong; 542/642 review suggestions right. python3 portfolio/router/validate.py (all valid).",
   "corrections": [],
   "redteam": null
 }

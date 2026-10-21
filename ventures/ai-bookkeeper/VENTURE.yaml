@@ -54,7 +54,7 @@ hypotheses:
       after three months of filing, with under 1% of those wrong.
     status: untested
     checked: null
-    evidence: measurement
+    evidence: customer-contact
 
 economics:
   currency: USD
