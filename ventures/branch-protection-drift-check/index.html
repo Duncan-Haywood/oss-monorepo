@@ -50,6 +50,7 @@
     <p>Someone disables a rule for one urgent hotfix — required reviews, admin enforcement, the force-push block — and nothing reminds anyone to turn it back on. It stays invisible until the rule is actually needed: a merge lands with no review, or a force push overwrites history nobody meant to lose. Paste your repo's actual settings and your declared policy below to find every rule that has quietly drifted weaker.</p>
     <p class="note">Nothing is uploaded. What you paste is read in this browser and never leaves your device, and this tool makes no network calls of its own — not even to read your branch protection settings for you.</p>
   </header>
+<main>
 
   <section class="card">
     <div class="grid2">
@@ -119,7 +120,8 @@ node cli.mjs --actual actual.json --policy policy.txt --fail-on-drift   # exit 2
     <p>More: <a href="why-branch-protection-drifts.html">why branch protection drifts silently, and how to stop finding out the hard way</a>.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a security audit, a compliance attestation, or a guarantee about your repository's configuration, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including confirming in GitHub's own UI before changing branch protection settings. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
     <p>Everything runs in your browser. What you paste is never uploaded; there are no accounts, cookies, or analytics vendors, and the tool makes no network calls. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>

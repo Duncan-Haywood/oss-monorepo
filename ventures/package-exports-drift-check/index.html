@@ -48,6 +48,7 @@
     <p>Paste your <code>package.json</code> and a listing of the files you actually publish (<code>npm pack --dry-run</code>, <code>git ls-files</code>, or a plain <code>find . -type f</code>) and see every literal target in the <code>exports</code> map — across every subpath, every condition (<code>import</code>/<code>require</code>/<code>types</code>/...), every fallback array — that doesn't exist. That's the difference between a package that works on the maintainer's own machine and one that throws <code>ERR_PACKAGE_PATH_NOT_EXPORTED</code> or <code>Cannot find module</code> the moment a stranger runs <code>npm install</code>.</p>
     <p class="note">Nothing is uploaded. Both text boxes are parsed in this browser and never leave your device. This checks existence, not behaviour: it never runs your code, resolves an import graph, or reads a file's contents.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Paste your files</h2>
@@ -113,7 +114,8 @@ node cli.mjs check --json                    # machine-readable</pre>
     <p>No. The browser page parses the text you paste entirely in your own browser and never sends it anywhere. The CLI reads only local files — no network call, ever.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering advice, and it does not replace a qualified professional or actually running <code>npm publish --dry-run</code> and testing the tarball yourself. It reports whether a literal path named in "exports" exists on disk against the file list you provided — nothing more, and it is not a guarantee that your package will install or import cleanly. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
     <p>Everything runs in your browser. The text you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>

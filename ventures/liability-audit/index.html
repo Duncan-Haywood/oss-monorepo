@@ -46,6 +46,7 @@
     <p>Pick your project folder or a built site. Liability Audit reads it locally and reports the common, cheap-to-fix exposures. It checks for <strong>trackers with no consent step</strong>, <strong>subscriptions with no renewal or cancellation terms</strong>, a missing <strong>privacy notice</strong> or <strong>terms</strong>, <strong>affiliate links</strong> and <strong>AI</strong> with no disclosure, and tax, legal or medical tools with no "not advice" line. It also checks for <strong>live keys in the tree</strong>, <strong>LLM endpoints anyone can spend</strong> on your key, <strong>cloud with no budget alarm</strong> and <strong>strong-copyleft dependencies</strong>. Each finding shows where it is, the law or rule behind it, and the fix.</p>
     <p class="note">Nothing is uploaded: files are read by this page in your browser and never leave your device. Findings are observations to check, not legal advice.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Choose what to scan</h2>
@@ -89,7 +90,8 @@ node cli.mjs rules                        # every rule and the law behind it</pr
     <p>Yes. node cli.mjs scan . --fail-on high exits 1 on any high-severity finding, --format md writes a PR comment, and --format sarif produces a file GitHub code scanning can show inline.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial or security advice, and it does not replace a qualified professional. It pattern-matches files: it can miss problems and flag non-problems, and a clear report is not a finding that anything is lawful. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for your own compliance. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. Product and law names are used descriptively; this project is not affiliated with any vendor named in its rules.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
     <p>Everything runs in your browser. The files you choose are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>scan_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>

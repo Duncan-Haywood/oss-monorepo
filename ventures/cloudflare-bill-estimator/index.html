@@ -49,6 +49,7 @@
     <p>Enter your usage from the Cloudflare dashboard and get an <strong>estimated monthly bill by line</strong> and a <strong>ranked list of levers</strong> (edge caching, CPU trimming, KV caching, redundant KV writes, R2 lifecycle, R2 batching, CDN in front of R2) with a dollar saving for each.</p>
     <p class="note">Nothing is uploaded. Calculated in this browser from numbers you enter and approximate list prices you can edit. It cannot see your plan or your invoice.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Your monthly usage</h2>
@@ -114,7 +115,8 @@ node cli.mjs estimate usage.csv --prices prices.json --assume assumptions.json</
     <p>No. The browser page calculates in your own browser and never sends anything. The CLI reads a local file or stdin and makes no network call.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, legal or engineering advice. It multiplies usage numbers you enter by list prices that may be out of date and ignores plans, contracts and Cloudflare's own metering rules; it is not a guarantee of what Cloudflare will charge, and it is not a bill reader. Cloudflare is a trademark of its owner; this project is not affiliated with or endorsed by Cloudflare.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
     <p>Everything runs in your browser. What you enter is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>estimate_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>

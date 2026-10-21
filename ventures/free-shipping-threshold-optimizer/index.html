@@ -55,6 +55,7 @@
     <p>Paste your past orders — subtotal and what shipping cost you — and see <strong>what every minimum would earn</strong>, <strong>how many buyers each must win back to pay for the shipping you give away</strong>, and <strong>the threshold that loses least if your guesses are off</strong>.</p>
     <p class="note">Nothing is uploaded and no store is contacted. The text box is analysed in this browser and never leaves your device. Two behaviours — shoppers topping up their cart and buyers abandoning over shipping — cannot be read from past orders, so you set them and the result shows how much they matter.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Paste your orders</h2>
@@ -125,7 +126,8 @@ node cli.mjs analyze orders.csv --top-up 15 --drag 5 --json --fail-on warn</pre>
     <p>No. The browser page runs on the text in your own browser and never sends it anywhere. The CLI reads a local file or stdin and makes no network call.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, tax or business advice. It does arithmetic on order rows you paste plus two behavioural assumptions you set; it is not a measurement of your customers and not a forecast of what a change will earn. Changing a shipping policy changes what shoppers see: try it for a few weeks and compare average order value and conversion before keeping it. Shopify, WooCommerce and other store names are trademarks of their owners, used only to describe where numbers come from.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
     <p>Everything runs in your browser. The text you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analyze_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>

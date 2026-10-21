@@ -51,6 +51,7 @@
     <p>GitHub Actions masks the exact, unmodified string of a declared secret everywhere it appears in a log. It does not survive two common things: <strong>transforming</strong> a secret (base64, hex, a substring) before printing produces a different string the masking doesn't recognise, and <strong>exporting</strong> a secret-derived value to <code>$GITHUB_ENV</code> or <code>$GITHUB_OUTPUT</code> doesn't register it for masking at all — a later step that echoes it prints it in plain text. Paste your workflow YAML below and this page finds both, each with the exact fix.</p>
     <p class="note">Nothing is uploaded. The YAML you paste is read in this browser and never leaves your device, and this tool makes no network calls of its own.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Paste one or more workflow files</h2>
@@ -104,7 +105,8 @@ python3 check.py --fail-on-risk   # exit 2 if any finding exists</code></pre>
     <p>More: <a href="why-github-actions-secret-masking-fails.html">why GitHub Actions secret masking fails on a transformed value</a>, and <a href="vs-reading-the-workflow-by-eye.html">this checker vs. reading the workflow by eye</a>.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a security audit, and it is not a guarantee that your secrets are safe: it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="check.py" rel="noopener">check.py from the repo</a> and run it yourself.</p>
     <p>Everything runs in your browser. The YAML you paste is never uploaded; there are no accounts, cookies, or analytics vendors, and the tool makes no network calls. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>

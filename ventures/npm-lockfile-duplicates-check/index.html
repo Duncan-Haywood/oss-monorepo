@@ -45,6 +45,7 @@
     <p>Paste your <code>package-lock.json</code> and get every package that resolves to more than one version, the dependant that pulls in each copy, and a fix: <strong>same-major</strong> copies that <code>npm dedupe</code> can usually collapse are listed first, then <strong>cross-major</strong> copies that need an upgrade or an <code>overrides</code> entry.</p>
     <p class="note">Nothing is uploaded. The lockfile you paste is read in this browser and never leaves your device, and this tool makes no network calls of its own. A lockfile has versions, not sizes, so it counts copies; it does not measure bytes.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>Paste your lockfile</h2>
@@ -97,7 +98,8 @@ node dupes-check.mjs --json                   # machine-readable</code></pre>
     <p>More: <a href="duplicate-packages-npm-guide.html">how to remove duplicate packages from node_modules</a></p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It reads version metadata from a lockfile and can be wrong or out of date. It is not engineering advice of record. <strong>You are responsible for reviewing and verifying its output, and for testing any change to your dependencies, before relying on it.</strong></p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="dupes-check.mjs" rel="noopener">dupes-check.mjs from the repo</a> and run it yourself.</p>
     <p>Everything runs in your browser. The lockfile you paste is never uploaded; there are no accounts, cookies, or analytics vendors, and the tool makes no network calls. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>

@@ -54,6 +54,7 @@
     <p>Paste an API response, or several, and get types that match what the API really returns: <strong>optional fields</strong> found by merging samples, <strong>nullable fields</strong>, integers versus floats, dates, UUIDs, emails and URLs recognised, and identical nested shapes shared.</p>
     <p class="note">Nothing is uploaded. Your JSON stays in this tab and the page makes no network calls.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>Your JSON</h2>
@@ -104,7 +105,8 @@ node cli.mjs data.json --style jsonschema --readonly</code></pre>
     <p>More: <a href="how-to-type-an-api-response.html">how to type an API response safely (and why generated types lie)</a></p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. Types are inferred from the samples you paste and describe those samples only. <strong>You are responsible for reviewing and verifying its output before using it.</strong></p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs from the repo</a> and run it yourself.</p>
     <p>Everything runs in your browser. The JSON you paste is never uploaded; there are no accounts, cookies, or analytics vendors, and the tool makes no network calls. Anonymous feature events (<code>types_generated</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>

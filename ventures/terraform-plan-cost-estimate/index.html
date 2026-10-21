@@ -52,6 +52,7 @@
     <p>Paste or load a Terraform structured plan (<code>terraform show -json</code>) and get an approximate monthly cost delta for every create, update and delete, the biggest cost drivers, and an honest list of what could not be priced. A free, offline alternative to Infracost for the common AWS resources.</p>
     <p class="note">Nothing is uploaded. The file you load is read in this browser and never leaves your device. Prices come from a small bundled table of approximate us-east-1 on-demand rates dated 2026-10-03 — an estimate, not a quote.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Load your plan</h2>
@@ -157,7 +158,8 @@ node cli.mjs estimate plan.json --region eu-west-1 --json</pre>
     <p>The structured plan JSON: terraform plan -out=tfplan &amp;&amp; terraform show -json tfplan &gt; plan.json. Not the text output and not the terraform plan -json stream.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is informational only — it is not financial, billing, engineering or other professional advice, and it does not replace the cloud provider's own pricing pages, the AWS Pricing Calculator, or your own review. Figures are estimates from an approximate bundled price table, not quotes; real bills depend on usage, discounts, taxes and prices that change. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Not affiliated with HashiCorp, Terraform, OpenTofu, Amazon Web Services, or Infracost.</strong> Terraform is a trademark of HashiCorp, AWS is a trademark of Amazon.com, Inc., and Infracost is a trademark of its owner. They are named only to describe what this tool reads and compares to; this is an independent, unofficial tool and is not endorsed by or connected with any of them.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>

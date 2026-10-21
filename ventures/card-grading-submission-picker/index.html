@@ -45,6 +45,7 @@
     <p>Grading fees, shipping and weeks of waiting eat the premium on most cards. Paste your cards with <strong>what each would sell for raw and at each grade, and your own chance of each grade</strong>, and get <strong>the expected net from grading against selling raw</strong>, the cheapest fee tier that covers each card, <strong>the exact chance of a 10 each card needs to be worth sending</strong>, the downside, and — if you have a budget or a card limit per submission — <strong>the exact best subset to send</strong>.</p>
     <p class="note"><strong>Your estimates, not a price guide and not a forecast.</strong> This page knows no card prices and predicts no grades: every value, chance, fee and turnaround is a number you type. For Pokemon, baseball, basketball, football and Magic sellers and collectors using PSA, BGS, CGC, SGC or any grader. Nothing is uploaded: the text boxes are analysed in this browser and never leave your device.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Paste your cards</h2>
@@ -128,7 +129,8 @@ cat cards.csv | node cli.mjs pick - --tiers my-tiers.csv --json</pre>
     <p>Any card where you can estimate a raw value and a value at each grade: Pokemon, baseball, basketball, football, Magic: The Gathering and others, for PSA, BGS, CGC, SGC or any grader whose fees you enter.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, tax, legal, investment or authentication advice, it is not a price guide or a grade prediction, and it does not replace a qualified professional or a grading company's own guidance. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, for the accuracy of the values, grade chances, fees and turnaround times you type, for any grader's current terms, and for any loss or damage to cards sent in the mail. Card values move, and grading can return a lower grade than you expect. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. It chooses between options using the numbers you supply; it is not a forecast of what will happen to a card.</p>
     <p>Not affiliated with, endorsed by or sponsored by PSA, BGS, Beckett, CGC, SGC or any grading company or marketplace; their names are used only to say which services the tool can be fed numbers for.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>

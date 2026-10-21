@@ -57,6 +57,7 @@
     </p>
     <p class="note">Nothing is uploaded. The caption text you paste is parsed in this browser and never leaves your device.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Check a caption file</h2>
@@ -140,7 +141,8 @@ node check.mjs captions.srt --max-line-length 32 --max-lines 2</pre>
     <p>No. It checks mechanically verifiable properties of the timing and text you provide — reading speed, line length, duration, overlap, and gaps. It cannot judge whether a caption is an accurate transcription, whether speaker labels or sound descriptions are used correctly, or whether the translation (for subtitles) reads naturally. Treat a clean report as evidence that the mechanical thresholds are met, not as a substitute for reviewing the captions yourself.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, accessibility-compliance, or broadcast-standards advice, and it does not replace a qualified professional or a human caption review. It reports whether the caption file you provided satisfies specific, mechanically checkable, commonly-used thresholds — nothing more, and not a certification of WCAG, FCC, or any other standard's compliance. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="check.mjs" rel="noopener">check.mjs</a> and run it yourself.</p>
     <p>Everything you paste runs in your browser and is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage. Do Not Track and Global Privacy Control are honoured.</p>

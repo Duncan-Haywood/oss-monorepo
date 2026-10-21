@@ -59,6 +59,7 @@
     <p>Drop in a bank <strong>statement CSV</strong> and get every problem <strong>with its line number</strong>: <strong>account details above the header</strong>, <strong>separate Debit and Credit columns</strong> instead of one Amount, amounts like <code>1.234,56</code>, <code>(18.00)</code> or <code>$12.50</code>, <strong>dates the file cannot prove the order of</strong> or that <strong>mix day-first and month-first</strong>, rows downloaded twice, and cells a spreadsheet damaged. Then download a repaired CSV in Xero's column layout.</p>
     <p class="note">The file is read in this browser tab and never leaves your device; bank files hold account details, so that matters. This checks the file against what Xero's statement import is documented to expect, not against Xero itself. For OFX, QFX or QBO use the <a href="../ofx-file-check/">OFX file check</a>; for QIF use the <a href="../qif-file-check/">QIF file check</a>. Independent of every product named.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Your statement CSV</h2>
@@ -122,7 +123,8 @@
     <p>No. It is read in your browser tab and a test in the code asserts there are no network calls. Bank files contain account details, so do not paste one into a tool that uploads it.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not replace your bookkeeper or Xero's own import checks. Results depend entirely on the file you provide. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including checking balances and transaction counts after you import, and a clean result is not a promise that Xero will accept the file.</p>
     <p><strong>Not affiliated with any platform.</strong> This tool is independent and is not sponsored, endorsed or connected to Xero or any bank or company named. Their names are trademarks of their owners, used here only to say which behaviour is meant. Specifications are read from memory of public sources and may be out of date.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>

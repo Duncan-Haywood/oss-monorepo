@@ -46,6 +46,7 @@
     <p>Enter one <strong>base price</strong> and get a <strong>price for about 50 countries</strong>, scaled to local price levels with a floor you control, tidy rounding, optional price tiers and the <strong>regional discount groups</strong> you type into a payment processor. Then check, against your own traffic mix, how much extra conversion each discount has to win to pay for itself.</p>
     <p class="note">Nothing is uploaded. The page makes no network calls. Price levels are rounded estimates; check them before you publish a price.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Set your base price and rules</h2>
@@ -124,7 +125,8 @@ node cli.mjs 29 --traffic shares.txt --elasticity 1.5</code></pre>
     <p>More: <a href="how-to-set-regional-prices-for-software.html">How to set regional prices for software without losing money</a></p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. The price levels are rounded estimates and the revenue model is a what-if; the prices it suggests are a starting point for your own judgement, not financial, tax or legal advice. Sales tax, VAT and local consumer rules still apply to what you charge.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as the only copy of anything important.</p>
     <p>Everything runs in your browser. The numbers you enter are never uploaded; there are no accounts, cookies, or analytics vendors, and the tool makes no network calls. Anonymous feature events (<code>table_built</code>, <code>model_run</code>, <code>csv_copied</code>, <code>json_copied</code>, <code>example_loaded</code>) are counted in this browser's local storage only, never sent anywhere, and can be switched off below.</p>

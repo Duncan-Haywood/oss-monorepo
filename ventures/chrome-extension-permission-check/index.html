@@ -80,6 +80,7 @@
 </style>
 </head>
 <body>
+<main>
 <h1>Chrome Extension Permission Checker</h1>
 <p>
   Scans your extension's JavaScript/TypeScript source for <strong>chrome.*</strong> API usage
@@ -310,6 +311,7 @@ chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
   <p>Vetting an extension someone else already published instead of your own? See <a href="vs-crxcavator.html">this checker vs. CRXcavator</a>. Prefer to just read the manifest? See <a href="vs-checking-the-manifest-by-hand.html">this checker vs. checking the manifest by hand</a>.</p>
 </section>
 
+</main>
 <footer>
   <label><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
   <p><strong>Evidence, not a determination.</strong> This tool reports what pattern-matching found in the

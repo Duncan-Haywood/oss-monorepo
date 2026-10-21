@@ -50,6 +50,7 @@
     <p>Enter guests, hours and your costs. Get <strong>bartenders needed</strong>, <strong>drinks to stock</strong>, a <strong>walk-away floor</strong>, the <strong>price per guest</strong> at your target margin, and a check of what a client's "$X a head" ask really nets you.</p>
     <p class="note">Nothing is uploaded. Planning arithmetic you check against your own supplier prices, not a licence or insurance determination.</p>
   </header>
+<main>
   <section class="card">
     <h2>1. The event</h2>
     <div class="row">
@@ -90,7 +91,8 @@ node cli.mjs --guests 120 --compare</pre>
     <h2>Common questions</h2>
     <h3>Is this a quote I can send a client as-is?</h3><p>It is planning arithmetic. It prices staffing, drinks, supplies, travel and insurance, then adds your target margin. Check every input against your own supplier prices before you send anything.</p><h3>How many bartenders does a party need?</h3><p>A common rule of thumb is one bartender per 50 guests for a full bar and one per 75 to 100 for beer and wine. The calculator uses 50 by default and you can change it.</p><h3>How many drinks per guest should I plan for?</h3><p>About two in the first hour and one to one and a half per hour after that. Daytime, dry crowds and weddings with a signature cocktail all move this, so adjust it.</p><h3>Does this tell me what licence or insurance I need?</h3><p>No. Alcohol licensing, server certification and liability insurance rules are set by your state or country and by the venue. The insurance and permit field is just a dollar figure you enter.</p>
   </section>
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, insurance, tax or accounting advice and not a liquor-licensing determination. Figures are planning arithmetic from the numbers you enter; it is not a quote and not a guarantee of any price or margin.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
     <p>Everything runs in your browser. What you type is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>quote_run</code>, <code>ask_checked</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>

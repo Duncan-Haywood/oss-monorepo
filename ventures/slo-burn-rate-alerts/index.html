@@ -49,6 +49,7 @@
     <p>Type your <strong>SLO</strong> and get the <strong>downtime budget</strong>, the <strong>multi-window burn-rate thresholds</strong> from the Google SRE Workbook, <strong>how fast each alert fires</strong> in an outage, warnings for thresholds that <strong>can never fire</strong>, and a <strong>Prometheus rules file</strong> to review.</p>
     <p class="note">Nothing is uploaded. This is arithmetic in your browser on the numbers you type; it never contacts your Prometheus.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Your SLO</h2>
@@ -107,7 +108,8 @@ node cli.mjs rules --slo 99.9 --name api \
     <p>Treat them as a reviewed starting point. They assume your error and total selectors are counters you can rate(), that traffic is steady enough for ratio alerts, and that you have tested the expression in your own Prometheus. Run promtool check rules and try the expressions in the expression browser first.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering, reliability, legal or financial advice. It generates alert rules and downtime figures from the numbers you type, using the windows described in a published method; it cannot know your traffic shape, your SLI definition or your on-call setup, and generated rules can be wrong for your system. <strong>You are responsible for reviewing, testing and verifying every rule before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. Prometheus and Google are trademarks of their owners; this project is not affiliated with or endorsed by them.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
     <p>Everything runs in your browser. The values you type are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>generate_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>

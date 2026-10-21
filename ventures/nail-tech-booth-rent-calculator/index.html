@@ -45,6 +45,7 @@
     <p>Enter a typical week: hours at the salon, clients, ticket, supplies and tips. See <strong>take-home per hour worked, not per hour booked</strong>, for booth or chair rent, a commission split and an hourly job, with <strong>idle chair time</strong>, <strong>a self-employment tax estimate</strong> and <strong>the clients a week it takes to break even</strong>. Paste past weeks and see <strong>which arrangement actually paid</strong>.</p>
     <p class="note"><strong>Your numbers, not market rates and not tax advice.</strong> This page knows no going rents or splits and gives no tax, legal or financial advice: every price, rent, percentage and tax rate is a number you type. Nothing is uploaded: the inputs are used in this browser tab only.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Your week at the chair</h2>
@@ -172,7 +173,8 @@ node cli.mjs history weeks.csv --target 25 --json</pre>
     <p>The fewest clients a week at which an arrangement reaches your target take-home per hour worked. The crossover is the client count where booth rent first pays more per hour worked than the commission split or the hourly job.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, tax, legal or investment advice, it is not a market rate or a survey of rents or splits, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, for the accuracy of the numbers you enter, for your lease or employment terms and for any licensing and tax rules that apply to you. To the maximum extent permitted by law the authors accept no liability for any loss or damage arising from its use.</p>
     <p>Not affiliated with, endorsed by or sponsored by any salon, beauty brand, booking platform or nail product company; no product names are used to imply otherwise.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>

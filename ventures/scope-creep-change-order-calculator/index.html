@@ -49,6 +49,7 @@
     <p>Enter your fixed-price quote and the extra requests. Get a <strong>change order you can send</strong> at the rate your quote implies, plus what <strong>absorbing the work would cost you</strong> and how many days it adds.</p>
     <p class="note">Nothing is uploaded. Figures are arithmetic on your own estimates, not a contract or a quote.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. The original quote</h2>
@@ -106,7 +107,8 @@ node cli.mjs --price 6000 --hours 60 --file requests.txt --max-creep-pct 20   # 
     
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax or accounting advice and not a contract. Figures are arithmetic on the estimates you enter; they are not a quote and not a guarantee. Check your agreement for how scope changes must be approved.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
     <p>Everything runs in your browser. What you type is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>order_built</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>

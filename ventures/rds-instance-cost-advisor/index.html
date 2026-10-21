@@ -49,6 +49,7 @@
     <p>Paste one row per RDS instance — class, engine, Multi-AZ, storage, IOPS, CPU — and see <strong>what each instance costs</strong>, <strong>Multi-AZ you are paying double for outside production</strong>, <strong>io1 provisioned IOPS that a gp3 volume covers</strong>, <strong>x86 classes with a cheaper Graviton twin</strong>, <strong>idle instances</strong> and the <strong>ready-to-paste <code>aws rds modify-db-instance</code> command</strong>.</p>
     <p class="note">Nothing is uploaded and AWS is never contacted. The text box is analysed in this browser and never leaves your device. Prices are illustrative list prices and the savings are differences of those prices, which is an estimate.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Paste your instances</h2>
@@ -111,7 +112,8 @@ node cli.mjs analyze instances.csv --json --prices my-prices.json</pre>
     <p>No. The browser page analyses the text in your own browser and never sends it anywhere. The CLI reads a local file or stdin and makes no network call.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, legal, security or engineering advice. It prices instance rows you paste at list prices you can edit; it is not a measurement and not a guarantee of what AWS will charge. Changing instance class, Multi-AZ or storage type affects availability and performance: test on a copy first. Amazon Web Services and Amazon RDS are trademarks of their owner and are used only to describe what the tool reads.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
     <p>Everything runs in your browser. The text you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analyze_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>

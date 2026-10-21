@@ -43,6 +43,7 @@
     <p>A buyer offers one price for the whole estate, storage unit or pallet. Listing the items one by one looks like more money until fees, shipping and <strong>your own hours</strong> come out. Paste the lines and the offer and see <strong>what splitting really nets</strong>, which lines are worth listing and which should go in bulk, and <strong>the hourly value of your time at which you should just take the offer</strong>.</p>
     <p class="note">For resellers, estate liquidators, storage-unit buyers and pallet flippers. Nothing is uploaded: the text box is analysed in this browser and never leaves your device.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Paste your lot</h2>
@@ -114,7 +115,8 @@ cat lot.csv | node cli.mjs split - --json</pre>
     <p>The value of an hour of your time at which the whole-lot offer and your best split earn the same. If your time is worth more than that, take the offer.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, tax, legal or business advice, and it does not replace a qualified professional. You are responsible for reviewing and verifying its output before relying on it, for the accuracy of the prices, sell-through rates and fees you type, and for any contract or return term of the lot you buy or sell. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. It chooses between options using the numbers you supply; it is not a forecast of what you will sell for.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
     <p>Everything runs in your browser. The text you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>split_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>

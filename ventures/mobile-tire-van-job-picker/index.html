@@ -43,6 +43,7 @@
     <p>Taking calls in the order they ring, or the biggest ticket first, fills the day with the wrong work. Paste the queue — <strong>price, materials, minutes on site, the window each customer gives you and where they are</strong> — and get <strong>the exact set and order of jobs with the highest profit for the day</strong>, the drive and idle time it implies, <strong>what each job it turns down would need to pay</strong>, and what first-come dispatch leaves behind.</p>
     <p class="note">For mobile tire, roadside service and other one-van field businesses. Nothing is uploaded: the text box is analysed in this browser and never leaves your device.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Paste the queue</h2>
@@ -116,7 +117,8 @@ cat jobs.csv | node cli.mjs plan - --speed 25</pre>
     <p>Mobile tire and roadside service operators, mobile mechanics and other one-van field-service businesses choosing which requested jobs to run today.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, tax, legal or business advice, and it does not replace a qualified professional. You are responsible for reviewing and verifying its output before relying on it, for the accuracy of the prices, costs, times and distances you type, for the promises you have made to customers, and for any contract, motor-club or fleet agreement that requires you to take a call. Roadside and on-road work is safety-sensitive: do not use the plan to skip a call that involves a stranded or unsafe driver. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. It chooses between options using the numbers you supply; it is not a forecast of what will happen on the road.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
     <p>Everything runs in your browser. The text you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>plan_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>

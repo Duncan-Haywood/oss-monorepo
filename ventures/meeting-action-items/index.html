@@ -62,6 +62,7 @@
     <p>Paste your notes or a transcript. You get who agreed to do what and by when, the decisions made, the questions still open, and a follow-up email grouped by person. Anything nobody owns is flagged, not guessed.</p>
     <p class="note">Nothing is uploaded. What you paste is read in this browser and never leaves your device, unless you turn on the optional AI pass below with your own key. It is off by default.</p>
   </header>
+<main>
   <section class="card">
     <h2>1. Paste the notes</h2>
     <label for="notes">Meeting notes or transcript</label>
@@ -126,7 +127,8 @@ node cli.mjs notes.txt --date 2026-10-19 --format csv</pre>
     <p>A markdown checklist, a CSV, a follow-up email grouped by person, and a calendar file with all-day entries for every dated item. The command-line version can fail a CI step while any item still has no owner.</p>
     <p class="note">Longer version: <a href="how-to-write-meeting-action-items.html">how to write meeting action items that get done</a>.</p>
   </section>
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It reads patterns in text, so it can miss or misread a commitment, and it is not a record of what anyone agreed to. <strong>You are responsible for reviewing and verifying its output before you send or rely on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="extract.mjs" rel="noopener">extract.mjs</a> and run it yourself.</p>
     <p>Everything runs in your browser. What you paste is never uploaded unless you turn on the optional AI pass with your own key; there are no accounts, cookies, or analytics vendors, and without that pass the page makes no network calls. Anonymous feature events (<code>extract_run</code>, <code>export_used</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
