@@ -15,7 +15,8 @@
 //   node cli.mjs --books books.json export qbo|xero|iif|csv|lines > journal.csv
 //   node cli.mjs --example report
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
-import { newBooks, importStatement, importOfxAccounts, lockPeriod, categorize, suggestRules, addRules, addDocuments, addAsset, disposeAsset, addAssetsCsv, register, writeOff, aging, salesTax, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, exportLines, status, analyze, fmt } from "./engine.mjs";
+import { newBooks, importStatement, importOfxAccounts, lockPeriod, categorize, suggestRules, addRules, addDocuments, addAsset, disposeAsset, addAssetsCsv, register, writeOff, aging, salesTax, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, exportLines, status, analyze, fmt, taxableBusinessIncome } from "./engine.mjs";
+import { parseCents } from "./bank.mjs";
 import { accountMap } from "./ledger.mjs";
 import { scheduleC, scheduleCCsv, contractors1099, contractors1099Csv, nec1099FilingCsv, markW9, mergePayees } from "./taxforms.mjs";
 import { sniffFormat, splitOfx } from "./bank.mjs";
@@ -43,7 +44,7 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
   asset add NAME --cost 1800 --date D [--life MONTHS] [--salvage 0] [--expense]  register equipment; depreciation is booked monthly (default 60 months, straight-line)
   asset dispose ID --date D [--proceeds 0] [--into 1000]  sell or scrap it; books the gain or loss
   asset tax ID --class 5 [--s179 N] [--bonus PCT]  set the asset's US tax treatment (MACRS class 3/5/7/10/15/20 years, half-year)
-  taxdepr YEAR [--json]  tax depreciation worksheet beside the book depreciation, with what it cannot check
+  taxdepr YEAR [--income books|N] [--carry-in N] [--json]  tax depreciation worksheet beside the book depreciation, with what it cannot check
   assets FILE|[--as-of D] load a CSV (name,date,cost,life_months[,salvage,method]), or list the register: cost, accumulated depreciation, net book value
   writeoff ID [--date D]  write off an invoice's unpaid balance to bad debts (6900)
   aging [--as-of D]      what customers owe you and what you owe, by days past due
@@ -135,10 +136,14 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
 } else if (cmd === "taxdepr") {
   const year = +rest[0];
   if (!(year >= 1990 && year <= 2100)) { console.error("taxdepr needs a year, e.g. taxdepr 2026"); process.exit(2); }
-  const w = taxDepreciation(books, year);
+  const elected = (books.assets ?? []).some((a) => a.tax?.s179);
+  const incomeFlag = flag("--income");
+  const businessIncome = incomeFlag !== null && incomeFlag !== "books" ? parseCents(incomeFlag) : elected ? taxableBusinessIncome(books, year) : null;
+  const w = taxDepreciation(books, year, { businessIncome, carryIn: flag("--carry-in") ? parseCents(flag("--carry-in")) : 0 });
   if (json) { console.log(JSON.stringify(w, null, 2)); process.exit(0); }
   console.log(`TAX DEPRECIATION ${year} (MACRS, half-year)`);
   for (const r of w.rows) console.log(`  ${r.id.padEnd(6)} ${r.name.slice(0, 24).padEnd(24)} ${r.class}-yr  179 ${fmt(r.s179).padStart(10)}  bonus ${fmt(r.bonus).padStart(10)}  MACRS ${fmt(r.macrs).padStart(10)}  tax ${fmt(r.total).padStart(11)}  book ${fmt(r.book).padStart(10)}`);
+  if (w.s179Income) console.log(`  Section 179 income limit: elected ${fmt(w.s179Income.elected)}, after dollar limit ${fmt(w.s179Income.dollarLimited)}${w.s179Income.carryIn ? ` + carried in ${fmt(w.s179Income.carryIn)}` : ""}, business income ${fmt(w.s179Income.income ?? 0)}, deductible ${fmt(w.s179Income.deductible)}, carried to ${year + 1} ${fmt(w.s179Income.carryOut)}`);
   console.log(`  Total: tax ${fmt(w.totals.total)}, book ${fmt(w.totals.book)}, difference ${fmt(w.totals.difference)}`);
   for (const x of w.warnings) console.log(`  Note: ${x}`);
 } else if (cmd === "assets") {

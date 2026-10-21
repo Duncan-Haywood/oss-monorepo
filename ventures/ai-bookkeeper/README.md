@@ -353,6 +353,13 @@ rounded cumulatively so the years add to the basis exactly. In the year of
 disposal MACRS takes half of that year's amount, then stops. `taxdepr.test.mjs`
 checks that every table sums to 100% and has class + 1 years, the 5-year
 percentages on 10,000, odd cents, 179 and bonus ordering, disposal, and bad
+The Section 179 taxable-income limit now runs from the books (2026-10-21):
+`taxableBusinessIncome(books, year)` is the year's net profit with book
+depreciation on treated assets swapped for their MACRS and bonus depreciation;
+`cli.mjs taxdepr 2026` applies it (override with `--income N`, add last year's
+disallowed amount with `--carry-in N`) and the page has a "179 carried in" box.
+Self-employment-tax deduction, disposal gains and other businesses' income are
+not in that figure, so confirm it with a preparer.
 input. The mid-quarter convention is computed (2026-10-21): when over 40% of the
 year's basis (cost less 179) went into service October to December, every asset
 placed that year uses a table for its own quarter (`MACRS_MID_QUARTER`,

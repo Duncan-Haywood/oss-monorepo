@@ -1,7 +1,7 @@
 ---
 title: "We checked the energy table our accelerator models were built on"
 date: 2026-10-21
-description: "34 energy constants typed from memory, checked against the source figure, all within 4%. One contradiction, a flat memory cost, barely moves the ranking."
+description: "34 energy constants typed from memory, checked against the source figure: all within 4%. The one contradiction, a flat memory cost, barely moves the ranking."
 tags: [research, hardware, energy, accelerators, open-source]
 ---
 

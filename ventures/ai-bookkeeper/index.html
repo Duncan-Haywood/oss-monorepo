@@ -135,6 +135,7 @@
       <div><label for="tx-179">Section 179 amount</label><input id="tx-179" inputmode="decimal" value="0"></div>
       <div><label for="tx-bonus">Bonus percent</label><input id="tx-bonus" inputmode="numeric" value="0"></div>
       <div><label for="tx-year">Tax year</label><input id="tx-year" inputmode="numeric"></div>
+      <div><label for="tx-carry">179 carried in</label><input id="tx-carry" inputmode="decimal" value="0"></div>
     </div>
     <button type="button" id="tx-set" class="secondary">Set tax treatment</button>
     <button type="button" id="tx-csv" class="secondary">Download tax depreciation worksheet (CSV)</button>
@@ -251,7 +252,8 @@
   <script type="module">
     import { sniffFormat, splitOfx } from "./bank.mjs";
     import { scheduleC, scheduleCCsv, contractors1099, contractors1099Csv, nec1099FilingCsv, markW9, mergePayees } from "./taxforms.mjs";
-    import { newBooks, importStatement, importOfxAccounts, categorize, suggestRules, addRules, addDocuments, writeOff, aging, addAsset, disposeAsset, register, salesTax, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, exportLines, status, analyze, fmt, DEFAULT_ACCOUNTS } from "./engine.mjs";
+    import { newBooks, importStatement, importOfxAccounts, categorize, suggestRules, addRules, addDocuments, writeOff, aging, addAsset, disposeAsset, register, salesTax, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, exportLines, status, analyze, fmt, DEFAULT_ACCOUNTS, taxableBusinessIncome } from "./engine.mjs";
+    import { parseCents } from "./bank.mjs";
     import { setTaxTreatment, taxDepreciation, taxDepreciationCsv } from "./taxdepr.mjs";
     import { parseAccounts } from "./ledger.mjs";
     import { aiSuggest } from "./ai.mjs";
@@ -393,13 +395,18 @@
     });
 
     const taxYear = () => { const y = parseInt($("#tx-year").value, 10); return y >= 1990 && y <= 2100 ? y : Math.max(0, ...books.transactions.map((t) => +t.date.slice(0, 4)).filter(Boolean)) || new Date().getFullYear(); };
+    const taxDepr = () => {
+      const y = taxYear(), elected = (books.assets ?? []).some((a) => a.tax?.s179);
+      let carryIn = 0; try { carryIn = parseCents($("#tx-carry").value || "0"); } catch {}
+      return taxDepreciation(books, y, { businessIncome: elected || carryIn ? taxableBusinessIncome(books, y) : null, carryIn });
+    };
     function renderTaxDepr() {
       const sel = $("#tx-asset"), keep = sel.value;
       sel.replaceChildren(...(books.assets ?? []).map((a) => el("option", { value: a.id, text: `${a.id} ${a.name}` })));
       if (keep) sel.value = keep;
       const wrap = $("#tx-sheet");
       if (!(books.assets ?? []).some((a) => a.tax)) { wrap.replaceChildren(); return; }
-      const w = taxDepreciation(books, taxYear());
+      const w = taxDepr();
       const row = (r) => [`${r.id} ${r.name}`, `${r.class}-yr`, fmt(r.s179), fmt(r.bonus), fmt(r.macrs), fmt(r.total), fmt(r.book), fmt(r.difference)];
       wrap.replaceChildren(table(["Asset", "Class", "Section 179", "Bonus", "MACRS", "Tax", "Book", "Difference"], w.rows.map(row), [["Total", "", fmt(w.totals.s179), fmt(w.totals.bonus), fmt(w.totals.macrs), fmt(w.totals.total), fmt(w.totals.book), fmt(w.totals.difference)]]), ...w.warnings.map((x) => el("p", { class: "note", text: x })));
     }
@@ -410,9 +417,10 @@
       } catch (e) { $("#tx-status").textContent = e.message; }
     });
     $("#tx-year").addEventListener("change", renderTaxDepr);
+    $("#tx-carry").addEventListener("change", renderTaxDepr);
     $("#tx-csv").addEventListener("click", () => {
       if (!(books.assets ?? []).some((a) => a.tax)) { $("#tx-status").textContent = "Set a tax treatment on at least one asset first."; return; }
-      record("tax_depreciation_downloaded"); download(taxDepreciationCsv(taxDepreciation(books, taxYear())), `tax-depreciation-${taxYear()}.csv`, "text/csv");
+      record("tax_depreciation_downloaded"); download(taxDepreciationCsv(taxDepr()), `tax-depreciation-${taxYear()}.csv`, "text/csv");
     });
 
     function renderSalesTax() {

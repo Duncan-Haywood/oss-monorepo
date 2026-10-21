@@ -111,6 +111,13 @@
     "script_sha256": "7aa64710d727d79620ba98ad447d59b94354707b56343059038a2b5289d6cc01",
     "voice": "en_US-ljspeech-high"
   },
+  "2026-10-21-typeof-localstorage-throws": {
+    "bytes": 699883,
+    "seconds": 139.89,
+    "sha256": "584b3f6a92f88d0d3058b5b4bc195074f81574313267f8bfaff3f51c2055df18",
+    "script_sha256": "bf6305a596ecbf0f39ab95cf58afaafc74976f49dd91ba65fae14b2b95c9ee2f",
+    "voice": "en_US-ljspeech-high"
+  },
   "2026-10-21-why-changepoint-detectors-cry-wolf": {
     "bytes": 1282148,
     "seconds": 256.34,
