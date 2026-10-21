@@ -630,4 +630,4 @@ value, new value, reason), re-runs the checks on the result and lists what is
 left. It never chooses a tax rate, date, identifier, bank detail or party:
 those findings stay for a person (exit 1 while any remain). If a line's
 quantity, price or tax percent is invalid, no totals are touched. Tests in
-`repair.test.mjs` and `server.test.mjs`. Not yet in the web page.
+`repair.test.mjs` and `server.test.mjs`. The web page has a "Repair the arithmetic (JSON)" button (paste JSON, click, read the change table; clicked through with `eval/browser-repair.mjs`).

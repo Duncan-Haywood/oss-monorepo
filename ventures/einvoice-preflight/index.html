@@ -127,8 +127,10 @@
         <button id="adjustmentSample" class="secondary" type="button">Load a header discount that does not match its percent</button>
         <button id="termsSample" class="secondary" type="button">Load terms days that do not match the due date</button>
         <button id="validSample" class="secondary" type="button">Load a passing example</button>
+        <button id="repair" class="secondary" type="button">Repair the arithmetic (JSON)</button>
       </div>
       <p id="inputError" class="error" role="alert"></p>
+      <div id="repairLog" aria-live="polite"></div>
     </section>
     <section>
       <h2>Preflight result</h2>
@@ -222,6 +224,7 @@
   <script type="module">
     import { preflightDocuments, buildChecklist, buildMarkdown, buildJsonReport, buildRemediationCsv, summarizePreflight } from "./report.mjs";
     import { addOfficialFindings, officialNote } from "./official.mjs";
+    import { repairInvoice } from "./repair.mjs";
     import { recordUsage, readOptOut, writeOptOut } from "./usage.mjs";
 
     const VALID_EXAMPLE = {
@@ -449,6 +452,26 @@
       for (const report of result.reports) {
         recordUsage(localStorage, optedOut(), "invoice_preflight_checked");
       }
+    });
+
+    document.getElementById("repair").addEventListener("click", async () => {
+      const log = document.getElementById("repairLog");
+      log.innerHTML = "";
+      inputError.textContent = "";
+      let invoice;
+      try { invoice = JSON.parse(paste.value); } catch { inputError.textContent = "Repair works on pasted JSON invoices. Paste one first."; return; }
+      const out = repairInvoice(invoice);
+      if (!out.repaired) {
+        log.innerHTML = '<p class="note">Nothing to repair: line nets, totals and amount due already follow from the lines (or the lines are not complete enough to recompute).</p>';
+        return;
+      }
+      paste.value = JSON.stringify(out.invoice, null, 2);
+      filesInput.value = "";
+      dropped = [];
+      const rows = out.changes.map((c) => `<tr><td><code>${escapeHtml(c.path)}</code></td><td>${escapeHtml(String(c.from))}</td><td>${escapeHtml(String(c.to))}</td><td>${escapeHtml(c.reason)}</td></tr>`).join("");
+      const left = out.remaining.length;
+      log.innerHTML = `<p class="note">Repaired ${out.changes.length} value(s) in the box above. Rates, dates, identifiers and parties are never touched; ${left} finding(s) still need a person.</p><table><thead><tr><th>Path</th><th>Was</th><th>Now</th><th>Why</th></tr></thead><tbody>${rows}</tbody></table>`;
+      document.getElementById("check").click();
     });
 
     function fallbackCopy(text) {
