@@ -99,3 +99,10 @@ test("the page offers blocking and fire blocking, and the plan it builds reaches
   assert.equal(count(plain), 0);
   assert.ok(count(blocked) > 0);
 });
+
+test("the walls table has a tee-lap field that round-trips through the plan", () => {
+  const html = page("index.html");
+  assert.match(html, /Butts into \(tee lap\)/);
+  assert.match(html, /function teeField\(w, L, bad\)/);
+  assert.match(html, /tee: w\.tee \?/);
+});

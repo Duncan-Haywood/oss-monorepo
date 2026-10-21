@@ -64,7 +64,7 @@ Ticked items are on `main`.
       through one way, cap the other, piece lengths change, totals do not. Tee
       laps (2026-10-21, wall `tee: {wall, at, end}`): the partition's cap runs
       over the through wall's top plate and the through wall's cap is cut for it;
-      JSON/CLI only, not on the page yet.
+      page field "Butts into" landed 2026-10-21.
 - [ ] **Advanced framing options** (2-stud corners, ladder blocking at tees,
       single top plate where framing stacks, right-sized headers from a
       user-supplied table) and a measured comparison on example houses.

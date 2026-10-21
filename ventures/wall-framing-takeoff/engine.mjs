@@ -419,7 +419,9 @@ export function layoutWall(plan, wall) {
   };
   const topPieces = pieces(topA, topB, topJoints || []);
   const capPieces = capJoints ? capSegs.flatMap(([a, b], k) => pieces(a, b, capRuns[k])) : capSegs.map(([a, b]) => [a, b]);
-  for (const [label, y, list] of [["top plate", top, topPieces], ["cap plate", top + THICK, capPieces]]) {
+  /** @type {[string, number, number[][]][]} */
+  const plateRuns = [["top plate", top, topPieces], ["cap plate", top + THICK, capPieces]];
+  for (const [label, y, list] of plateRuns) {
     for (const [a, b] of list) add("plate", a, y, b - a, THICK, stud, "h", label);
   }
   // Blocking: flat 2x between neighbouring full-height studs at evenly spaced heights, never across an opening.
