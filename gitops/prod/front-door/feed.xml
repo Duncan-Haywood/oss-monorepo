@@ -40,6 +40,14 @@
     <summary type="text">Build your own robot lawn mower. An open-source robotic mower with wire-free RTK GNSS navigation, a guarded pivoting-blade disc, a floating bump shell, ESP32 safety firmware and a complete CAD manufacturing package (MIT). Plan your own lawn&#39;s mowing pattern in the browser.</summary>
   </entry>
   <entry>
+    <title>Support Agent — Self-Hosted AI Customer Service That Answers From Your Help Articles</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/support-agent/"/>
+    <id>tag:marisstella.dev,2026:tool/support-agent</id>
+    <updated>2026-10-21T00:00:00Z</updated>
+    <category term="Self-hosted business apps"/>
+    <summary type="text">An open-source AI support agent you host yourself: it answers customers from your own help articles, cites them, offers articles when unsure and hands off to a person on refunds, legal threats or anything it can&#39;t answer. Measured on BANKING77. Try it in your browser.</summary>
+  </entry>
+  <entry>
     <title>Wall Framing Takeoff — stud layout, cut list and lumber order for a house</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/wall-framing-takeoff/"/>
     <id>tag:marisstella.dev,2026:tool/wall-framing-takeoff</id>

@@ -44,3 +44,7 @@ test("the Dockerfile copies every module the server imports", () => {
   const docker = page("Dockerfile");
   for (const f of ["server.mjs", "render.mjs", "desk.mjs"]) for (const m of page(f).matchAll(/from "\.\/([a-z]+\.mjs)"/g)) assert.ok(docker.includes(m[1]), m[1]);
 });
+
+test("the footer links Support Agent so crawlers reach it in one hop", () => {
+  assert.match(readFileSync(new URL("./index.html", import.meta.url), "utf8"), /href="\.\.\/support-agent\/"/);
+});

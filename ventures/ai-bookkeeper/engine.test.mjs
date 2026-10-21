@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { newBooks, importStatement, confirm, parseSplit, suggestRules, addRules, acceptSuggestions, journal, reports, closeChecks, exportJournal, exportLines, status, analyze } from "./engine.mjs";
+import { writeOff, newBooks, importStatement, confirm, parseSplit, suggestRules, addRules, acceptSuggestions, journal, reports, closeChecks, exportJournal, exportLines, status, analyze } from "./engine.mjs";
 import { parseCents, parseDate, readStatement, checkRunningBalance } from "./bank.mjs";
 import { validateEntry, DEFAULT_ACCOUNTS, parseAccounts } from "./ledger.mjs";
 import { payeeKey, suggest, parseRules } from "./categorize.mjs";
@@ -375,4 +375,139 @@ test("a vendor credit and a part-payment leave the bill and the control check co
   assert.equal(closeChecks(books).some((c) => c.check === "control"), false);
   assert.equal(reports(books).profitAndLoss.totalIncome, 140000);
   assert.equal(reports(books).profitAndLoss.totalExpense, 25000);
+});
+
+// One payment across several documents, and the sales tax report.
+import { salesTax } from "./engine.mjs";
+const DOCS3 = `type,number,date,due,party,amount,account
+invoice,3001,2026-01-05,2026-02-04,Acme Design Co,1000.00,4000
+invoice,3001,2026-01-05,2026-02-04,Acme Design Co,80.00,2100
+invoice,3002,2026-01-12,2026-02-11,Acme Design Co,500.00,4000
+invoice,3003,2026-01-14,2026-02-13,Acme Design Co,250.00,4000
+invoice,3004,2026-01-15,2026-02-14,Birch Studio,500.00,4000
+credit note,C9,2026-02-01,,Acme Design Co,40.00,4000
+`;
+const BUNDLE = `Date,Description,Amount
+2026-02-10,ACH ACME DESIGN CO INV 3001 3003,1330.00
+2026-02-11,ACH BIRCH STUDIO,500.00
+2026-04-20,STATE TAX BOARD SALES TAX,-80.00
+`;
+const bundled = () => addDocuments(importStatement(newBooks(), BUNDLE, "1000").books, DOCS3);
+
+test("one bank line that adds up to several documents of one party settles them all", () => {
+  const { books } = bundled();
+  const t = books.transactions.find((x) => x.desc.includes("3001 3003"));
+  assert.equal(t.status, "settled");
+  assert.deepEqual(t.docs, ["INV-3001", "INV-3003"]);
+  assert.equal(books.documents.find((d) => d.id === "INV-3001").settledBy, t.id);
+  assert.equal(books.documents.find((d) => d.id === "INV-3002").settledBy, undefined, "the invoice not named stays open");
+  assert.equal(reports(books).balanceSheet.balanced, true);
+  assert.equal(aging(books, "2026-02-28").receivable.total, 46000);
+});
+
+test("a bundle that two different sets of documents could make is left in review", () => {
+  const twin = DOCS3.replace("invoice,3003,2026-01-14,2026-02-13,Acme Design Co,250.00,4000", "invoice,3003,2026-01-14,2026-02-13,Acme Design Co,250.00,4000\ninvoice,3005,2026-01-16,2026-02-15,Acme Design Co,250.00,4000\ninvoice,3006,2026-01-16,2026-02-15,Acme Design Co,1080.00,4000");
+  const { books } = addDocuments(importStatement(newBooks(), "Date,Description,Amount\n2026-02-10,ACH ACME DESIGN CO,1330.00\n", "1000").books, twin);
+  assert.notEqual(books.transactions[0].status, "settled");
+});
+
+test("sales tax is collected on invoices, taken off by credit notes and paid over by bank lines", () => {
+  let { books } = bundled();
+  books = confirm(books, { [books.transactions.find((x) => x.desc.includes("STATE TAX")).id]: "2100" });
+  const t = salesTax(books);
+  assert.equal(t.totals.collected, 8000);
+  assert.equal(t.totals.remitted, 8000);
+  assert.equal(t.owed, 0);
+  assert.equal(t.months.find((m) => m.month === "2026-04").remitted, 8000);
+  assert.equal(t.invoices[0].rate, 0.08);
+  assert.equal(salesTax(books, { to: "2026-03-31" }).owed, 8000);
+});
+
+// Red-team guards (2026-10-21): boundaries of the matching window, the aging
+// buckets, the as-of day and the document columns.
+const withDocs = (docs, stmt) => addDocuments(importStatement(newBooks(), stmt, "1000").books, docs).books;
+
+test("a payment matches up to 180 days after the document, not 181", () => {
+  const docs = "type,number,date,due,party,amount,account\ninvoice,5,2026-01-01,,Zed Ltd,100.00,4000\n";
+  const on = withDocs(docs, "Date,Description,Amount\n2026-06-30,ZED LTD INV 5,100.00\n");
+  assert.equal(on.transactions[0].status, "settled");
+  const after = withDocs(docs, "Date,Description,Amount\n2026-07-01,ZED LTD INV 5,100.00\n");
+  assert.notEqual(after.transactions[0].status, "settled");
+});
+
+test("aging buckets split on the day: due today is current, 30 days late is 1-30, 31 is 31-60", () => {
+  const docs = "type,number,date,due,party,amount,account\n" +
+    ["a,2026-01-01,2026-03-01", "b,2026-01-01,2026-02-01", "c,2026-01-01,2026-01-30", "d,2026-01-01,2026-01-29", "e,2026-01-01,2025-12-30", "f,2026-01-01,2025-11-30"]
+      .map((s) => { const [n, dt, du] = s.split(","); return `invoice,${n},${dt},${du},P${n},10.00,4000`; }).join("\n") + "\n";
+  const a = aging(withDocs(docs, "Date,Description,Amount\n2026-01-01,X,1.00\n"), "2026-03-01");
+  const bucket = (n) => a.open.find((d) => d.id === `INV-${n}`).bucket;
+  assert.deepEqual(["a", "b", "c", "d", "e", "f"].map(bucket), ["current", "1-30", "1-30", "31-60", "61-90", "90+"]);
+  assert.equal(a.open.find((d) => d.id === "INV-a").daysLate, 0);
+  assert.equal(a.open.find((d) => d.id === "INV-c").daysLate, 30);
+  assert.equal(a.open.find((d) => d.id === "INV-a").partlyPaid, undefined, "an unpaid invoice is not part-paid");
+});
+
+test("a document dated on the as-of day is counted, one dated after is not", () => {
+  const docs = "type,number,date,due,party,amount,account\ninvoice,1,2026-03-01,,A Co,10.00,4000\ninvoice,2,2026-03-02,,B Co,20.00,4000\n";
+  const a = aging(withDocs(docs, "Date,Description,Amount\n2026-01-01,X,1.00\n"), "2026-03-01");
+  assert.equal(a.receivable.total, 1000);
+});
+
+test("the credit-note 'against' column may be the first column", () => {
+  const docs = "against,type,number,date,party,amount,account\n,invoice,7,2026-01-01,Q Co,100.00,4000\n7,credit note,C7,2026-01-05,Q Co,40.00,4000\n";
+  const r = parseDocuments(docs);
+  assert.equal(r.problems.length, 0);
+  assert.equal(r.documents.find((d) => d.credit).against, "7");
+});
+
+test("a one-cent part-payment counts, and a zero line never settles a paid document", () => {
+  const docs = "type,number,date,due,party,amount,account\ninvoice,8,2026-01-01,,Kay Co,10.00,4000\n";
+  const one = withDocs(docs, "Date,Description,Amount\n2026-01-05,KAY CO INV 8,0.01\n");
+  assert.equal(one.transactions[0].status, "settled");
+  assert.equal(one.transactions[0].partial, true);
+  const paid = withDocs(docs, "Date,Description,Amount\n2026-01-05,KAY CO INV 8,10.00\n2026-01-06,KAY CO INV 8,0.00\n");
+  assert.equal(paid.transactions.filter((t) => t.status === "settled").length, 1);
+});
+
+test("a second credit note against an already-credited invoice applies nothing", () => {
+  const docs = "type,number,date,due,party,amount,account,against\ninvoice,9,2026-01-01,,R Co,50.00,4000,\ncredit note,C1,2026-01-02,,R Co,50.00,4000,9\ncredit note,C2,2026-01-03,,R Co,20.00,4000,9\n";
+  const books = withDocs(docs, "Date,Description,Amount\n2026-01-01,X,1.00\n");
+  assert.equal(books.documents.find((d) => d.id === "CN-C1").applied, 5000);
+  assert.equal(books.documents.find((d) => d.id === "CN-C2").applied, undefined);
+});
+
+// Refunding a credit note, and writing off a bad debt.
+const DOCS4 = `type,number,date,due,party,amount,account,against
+invoice,4001,2026-03-01,2026-03-31,Dune Dental,900.00,4000,
+credit note,C9,2026-03-10,,Elm Events,250.00,4000,
+vendor credit,V9,2026-03-12,,Paper Supply Inc,80.00,6100,
+`;
+const refunds = (stmt) => addDocuments(importStatement(newBooks(), stmt, "1000").books, DOCS4).books;
+
+test("a bank line that pays back an unapplied credit note settles it", () => {
+  const b = refunds(`Date,Description,Amount\n2026-03-20,CHECK ELM EVENTS REFUND C9,-250.00\n2026-03-25,PAPER SUPPLY INC REFUND,80.00\n`);
+  assert.equal(b.transactions[0].status, "settled");
+  assert.equal(b.transactions[0].posted, "1100");
+  assert.equal(b.transactions[1].posted, "2050");
+  const a = aging(b, "2026-03-31");
+  assert.equal(a.open.filter((d) => d.credit).length, 0);
+  assert.equal(a.receivable.total, 90000);
+  assert.equal(closeChecks(b).filter((c) => c.check === "control").length, 0);
+});
+
+test("a refund of the wrong amount leaves the credit open", () => {
+  const b = refunds(`Date,Description,Amount\n2026-03-20,CHECK ELM EVENTS REFUND,-200.00\n`);
+  assert.notEqual(b.transactions[0].status, "settled");
+  assert.equal(aging(b, "2026-03-31").open.filter((d) => d.credit).length, 2);
+});
+
+test("writing off an invoice moves its balance to bad debts and out of aging", () => {
+  const b = refunds(`Date,Description,Amount\n2026-03-05,ACH DUNE DENTAL INV 4001 PART,300.00\n`);
+  const { books, cents } = writeOff(b, "4001", { date: "2026-06-30" });
+  assert.equal(cents, 60000);
+  assert.equal(aging(books, "2026-06-30").open.filter((d) => d.id === "INV-4001").length, 0);
+  assert.equal(reports(books).profitAndLoss.totalExpense, 60000 - 8000); // 600.00 bad debt less the 80.00 vendor credit
+  assert.equal(closeChecks(books).filter((c) => c.check === "control").length, 0);
+  assert.throws(() => writeOff(books, "4001"), /nothing owing/);
+  assert.throws(() => writeOff(books, "C9"), /only an invoice/);
 });

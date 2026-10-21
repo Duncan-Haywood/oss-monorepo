@@ -3087,7 +3087,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `s-corp-basis-tracker` graduated (browser S corporation stock and debt basis roll-forward in Form 7203 order, suspended losses and excess distributions).
     # +1: `uk-crypto-cgt-calculator` graduated (browser + CLI UK crypto capital gains: HMRC same-day, 30-day and Section 104 pool matching, per-tax-year estimate, working CSV).
     # +1: `open-house-plans` graduated (browser, CLI and agent house plan generator: a brief or a sentence to a CC0 plan set of SVG drawings, DXF, IFC4, OBJ, schedules and an NAHB-anchored cost).
-    total = 1313  # `infra/OWNER_CHECKLIST.md`'s own "N of the 1313 tools" wording.
+    total = 1314  # `infra/OWNER_CHECKLIST.md`'s own "N of the 1314 tools" wording.
     # +1: `interview-content-studio` graduated (browser and CLI: interviews about a brand or topic become a per-platform plan, a 4-week calendar and drafts for 14 platforms, optional own-key AI with a no-invented-numbers check).
     # +1: `open-tennis-robots` graduated (open-source tennis ball machine with a moving catch net and a ball-collecting rover: shot planner, catch simulation, route planner, ESP32 firmware, seller listing tool, collector manufacturing package).
     # +1: `sales-call-notes-desk` graduated (browser sales call notes reader: CRM fields, BANT/MEDDIC gaps, dated next steps, a follow-up email checked against the notes, optional own-key AI).
@@ -3133,6 +3133,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `hearth-and-horizon` graduated (free CC BY-SA AI-written stories: sci-fi, stories for AI agents, Catholic saints bedtime stories; pages, podcast RSS feeds and Piper audio).
     # +1: `ai-bookkeeper` graduated (browser + CLI double-entry books from bank CSVs that learn payees, pair transfers, reconcile and export QuickBooks/Xero journals; optional own-key or local-model AI).
     # +1: `wall-framing-takeoff` graduated (browser + CLI wall framing takeoff: stud layout, cut list and a cutting-stock lumber order with an LP bound).
+    # +1: `support-agent` graduated (self-hosted AI support agent: answers from your help articles with citations, hands off by rule or calibrated confidence; measured on BANKING77).
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

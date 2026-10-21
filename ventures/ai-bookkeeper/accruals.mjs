@@ -104,8 +104,29 @@ export function documentEntries(books) {
     const lines = [{ account: d.kind === "invoice" ? AR : AP, debit: dr ? d.total : 0, credit: dr ? 0 : d.total }, ...d.lines.map((l) => ({ account: l.account, debit: dr ? 0 : l.cents, credit: dr ? l.cents : 0 }))];
     const name = d.credit ? (d.kind === "invoice" ? "Credit note" : "Vendor credit") : d.kind === "invoice" ? "Invoice" : "Bill";
     return { id: d.id, date: d.date, memo: `${name} ${d.number}, ${d.party}${d.against ? ` (against ${d.against})` : ""}`, source: d.credit ? "credit" : d.kind, lines };
-  });
+  }).concat(writeOffEntries(books));
 }
+
+// Write off what a customer will not pay: debits bad debts, credits receivable,
+// for the invoice's balance on `date`. Only invoices (a bill you will not pay is
+// not a loss). The invoice leaves aging; a later payment is not matched to it.
+// -> { books, cents } or throws.
+export const BAD_DEBT = "6900";
+export function writeOff(booksIn, id, { date, account = BAD_DEBT } = {}) {
+  const books = settle(JSON.parse(JSON.stringify(booksIn)));
+  const d = (books.documents ?? []).find((x) => x.id === id || x.number === id);
+  if (!d) throw new Error(`No document ${id}.`);
+  if (d.kind !== "invoice" || d.credit) throw new Error(`${d.id} is not an invoice; only an invoice can be written off.`);
+  const cents = balance(d);
+  if (cents <= 0) throw new Error(`${d.id} has nothing owing.`);
+  if (!books.accounts.some((a) => a.code === account)) books.accounts.push({ code: account, name: "Bad debts", type: "expense" });
+  books.accounts.sort((a, b) => a.code.localeCompare(b.code));
+  const day = date ?? [...books.transactions.map((t) => t.date), d.date].sort().at(-1);
+  if (day < d.date) throw new Error(`The write-off date ${day} is before the invoice date ${d.date}.`);
+  d.writtenOff = { date: day, cents, account };
+  return { books: settle(books), cents };
+}
+const writeOffEntries = (books) => (books.documents ?? []).filter((d) => d.writtenOff).map((d) => ({ id: `WO-${d.id}`, date: d.writtenOff.date, memo: `Write-off of invoice ${d.number}, ${d.party}`, source: "writeoff", lines: [{ account: d.writtenOff.account, debit: d.writtenOff.cents, credit: 0 }, { account: AR, debit: 0, credit: d.writtenOff.cents }] }));
 
 const dayNum = (iso) => Date.UTC(+iso.slice(0, 4), +iso.slice(5, 7) - 1, +iso.slice(8, 10)) / 86400000;
 const hasNumber = (desc, number) => new RegExp(`(^|[^0-9a-z])${number.replace(/[^0-9a-z]/gi, "")}($|[^0-9a-z])`, "i").test(desc.replace(/[#\-_/]/g, ""));
@@ -117,7 +138,9 @@ const partyHit = (desc, party) => {
 // What is still owed on a document: its total less credit notes applied to it
 // and part-payments matched to it. A credit note's own balance is what is left
 // of it after it was applied.
-export const balance = (d) => d.total - (d.credited ?? 0) - (d.payments ?? []).reduce((a, p) => a + p.cents, 0);
+export const balance = (d) => d.total - (d.credited ?? 0) - (d.writtenOff?.cents ?? 0) - (d.payments ?? []).reduce((a, p) => a + p.cents, 0);
+// What is left of a credit note once it was applied to an invoice or refunded.
+const creditLeft = (c) => c.total - (c.applied ?? 0) - (c.refund?.cents ?? 0);
 
 // Match bank lines to the documents they settle, by amount, a date on or after
 // the document's, and either its number in the description or the party's name
@@ -134,8 +157,8 @@ export const balance = (d) => d.total - (d.credited ?? 0) - (d.payments ?? []).r
 export function settle(booksIn) {
   const books = JSON.parse(JSON.stringify(booksIn));
   const docs = books.documents ?? [];
-  for (const t of books.transactions) if (t.status === "settled") { t.status = "new"; delete t.posted; delete t.doc; delete t.suggestion; delete t.partial; }
-  for (const d of docs) { delete d.settledBy; delete d.payments; delete d.credited; delete d.applied; }
+  for (const t of books.transactions) if (t.status === "settled") { t.status = "new"; delete t.posted; delete t.doc; delete t.docs; delete t.suggestion; delete t.partial; delete t.refund; }
+  for (const d of docs) { delete d.settledBy; delete d.payments; delete d.credited; delete d.applied; delete d.refund; }
   // Credit notes reduce the document they name, in date order, never below zero.
   for (const c of docs.filter((x) => x.credit).sort((a, b) => a.date.localeCompare(b.date) || a.id.localeCompare(b.id))) {
     const target = c.against && docs.find((x) => !x.credit && x.kind === c.kind && x.number === c.against);
@@ -184,6 +207,18 @@ export function settle(booksIn) {
       moved = true;
     }
     if (moved) continue;
+    // One line paying several documents of one party at once.
+    for (const t of lines) {
+      if (usedLine.has(t.id) || t.cents === 0) continue;
+      const set = bundleFor(t, open().filter((d) => sign(d) === Math.sign(t.cents) && within(d, t)));
+      if (!set) continue;
+      usedLine.add(t.id);
+      t.status = "settled"; t.posted = control(set[0]); t.doc = set[0].id; t.docs = set.map((d) => d.id);
+      t.suggestion = { account: control(set[0]), confidence: 1, source: "document", reason: `One payment for ${set.length} documents from ${set[0].party}: ${set.map((d) => d.number).join(", ")} (${set.map((d) => (balance(d) / 100).toFixed(2)).join(" + ")})` };
+      for (const d of set) pay(d, t, balance(d));
+      moved = true;
+    }
+    if (moved) continue;
     const parts = [];
     for (const t of lines) if (!usedLine.has(t.id) && t.cents !== 0) for (const d of open()) {
       if (Math.sign(t.cents) !== sign(d) || Math.abs(t.cents) >= balance(d) || !within(d, t)) continue;
@@ -197,6 +232,21 @@ export function settle(booksIn) {
     post(t, d, score, true);
     pay(d, t, Math.abs(t.cents));
   }
+  // Refunds: money paid back for a credit note nobody applied. A refund of a
+  // customer's credit leaves the bank (negative); a supplier's refund comes in.
+  for (const c of docs.filter((x) => x.credit).sort((a, b) => a.date.localeCompare(b.date) || a.id.localeCompare(b.id))) {
+    const left = creditLeft(c);
+    if (left <= 0) continue;
+    const want = c.kind === "invoice" ? -left : left;
+    const hits = lines.filter((t) => !usedLine.has(t.id) && t.cents === want && within(c, t) && (hasNumber(t.desc, c.number) || partyHit(t.desc, c.party)));
+    hits.sort((a, b) => Number(hasNumber(b.desc, c.number)) - Number(hasNumber(a.desc, c.number)) || a.date.localeCompare(b.date) || a.id.localeCompare(b.id));
+    const t = hits[0];
+    if (!t) continue;
+    usedLine.add(t.id);
+    t.status = "settled"; t.posted = control(c); t.doc = c.id; t.refund = true;
+    t.suggestion = { account: t.posted, confidence: 1, source: "document", reason: `Refund of ${c.kind === "invoice" ? "credit note" : "vendor credit"} ${c.number} for ${c.party}: same amount, ${hasNumber(t.desc, c.number) ? "number" : "party name"} in the description` };
+    c.refund = { line: t.id, cents: left };
+  }
   // Amount-only candidates: suggest, never post.
   for (const t of lines) {
     if (t.status !== "review" && t.status !== "new") continue;
@@ -207,6 +257,35 @@ export function settle(booksIn) {
     }
   }
   return books;
+}
+
+// A bank line that pays several open documents of one party in one go. The
+// documents' balances must add to the line to the cent, and the description
+// must name the party or one of the numbers. The smallest set wins; if two
+// sets of that size fit and the description does not tell them apart, nothing
+// is chosen and the line stays in review. At most 16 open documents per party
+// are searched.
+function bundleFor(t, docs) {
+  const total = Math.abs(t.cents);
+  const byParty = new Map();
+  for (const d of docs) byParty.set(`${d.kind}|${d.party}`, [...(byParty.get(`${d.kind}|${d.party}`) ?? []), d]);
+  const found = [];
+  for (const group of byParty.values()) {
+    const g = group.slice(0, 16);
+    const named = g.filter((d) => hasNumber(t.desc, d.number));
+    if (!named.length && !partyHit(t.desc, g[0].party)) continue;
+    let best = [];
+    for (let m = 1; m < 1 << g.length; m++) {
+      const pick = g.filter((_, i) => m & (1 << i));
+      if (pick.length < 2 || pick.reduce((a, d) => a + balance(d), 0) !== total) continue;
+      if (named.some((d) => !pick.includes(d))) continue;
+      if (!best.length || pick.length < best[0].length) best = [pick];
+      else if (pick.length === best[0].length) best.push(pick);
+    }
+    if (best.length === 1) found.push(best[0]);
+    else if (best.length > 1) return null;
+  }
+  return found.length === 1 ? found[0].sort((a, b) => a.date.localeCompare(b.date) || a.id.localeCompare(b.id)) : null;
 }
 
 // Open documents aged from their due date (the document date when there is no
@@ -222,7 +301,7 @@ export function aging(books, asOf = null) {
   for (const d of docs) {
     if (d.date > day) continue;
     // A credit note counts as a negative item for whatever part of it was not applied to an invoice.
-    const left = d.credit ? -(d.total - (d.applied ?? 0)) : balance(d);
+    const left = d.credit ? -creditLeft(d) : balance(d);
     if (left === 0) continue;
     const late = dayNum(day) - dayNum(d.due ?? d.date);
     const b = bucket(late);

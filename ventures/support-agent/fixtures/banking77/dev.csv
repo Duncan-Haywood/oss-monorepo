@@ -1,0 +1,2156 @@
+question,expect,intent
+I am still waiting on my card?,card-delivery,card_arrival
+What can I do if my card still hasn't arrived after 2 weeks?,card-delivery,card_arrival
+I have been waiting over a week. Is the card still coming?,card-delivery,card_arrival
+Can I track my card while it is in the process of delivery?,card-delivery,card_arrival
+"How do I know if I will get my card, or if it is lost?",card-delivery,card_arrival
+When did you send me my new card?,card-delivery,card_arrival
+Do you have info about the card on delivery?,card-delivery,card_arrival
+What do I do if I still have not received my new card?,card-delivery,card_arrival
+Does the package with my card have tracking?,card-delivery,card_arrival
+I ordered my card but it still isn't here,card-delivery,card_arrival
+Why has my new card still not come?,card-delivery,card_arrival
+"I still haven't received my card after two weeks, is it lost?",card-delivery,card_arrival
+Can you track my card for me?,card-delivery,card_arrival
+Is there a way to track the delivery of my card?,card-delivery,card_arrival
+It's been a week since I ordered my card and it's not here. Please help?,card-delivery,card_arrival
+Will I be able to track the card that was sent to me?,card-delivery,card_arrival
+I don't have my card in 1 week. Should I be worried?,card-delivery,card_arrival
+How do I know when my new card is going to arrive?,card-delivery,card_arrival
+My new card has not been delivered to my home yet. What is going on?,card-delivery,card_arrival
+It's been a week since you issued me a card and I still didn't get it. Should I keep waiting?,card-delivery,card_arrival
+"On the card that is coming, what's the tracking info?",card-delivery,card_arrival
+What is the status of my card's delivery?,card-delivery,card_arrival
+Have you sent out my card yet?,card-delivery,card_arrival
+My card isn't here yet.,card-delivery,card_arrival
+where is my new card?,card-delivery,card_arrival
+It's been a week since you sent my card and I still don't have it.,card-delivery,card_arrival
+How do I track the card you sent me?,card-delivery,card_arrival
+When will I recieve my new card?,card-delivery,card_arrival
+When will I get my new card?,card-delivery,card_arrival
+What is the expected delivery date for my card?,card-delivery,card_arrival
+Is there a tracking number for the card you sent me?,card-delivery,card_arrival
+I would like to track the card you sent to me.,card-delivery,card_arrival
+Has my card been lost in delivery?,card-delivery,card_arrival
+My new card hasn't came in.,card-delivery,card_arrival
+Where is the card I ordered 2 weeks ago?,card-delivery,card_arrival
+Can I get an update on my replacement card?,card-delivery,card_arrival
+How long does it take for a new card to ship?,card-delivery,card_arrival
+What's the tracking on the card you sent?,card-delivery,card_arrival
+I haven't received my card and am worried it is lost.,card-delivery,card_arrival
+My card still hasn't been delivered,card-delivery,card_arrival
+What is my money worth in other countries?,exchange-rates,exchange_rate
+Will my money be of equal value when I travel abroad?,exchange-rates,exchange_rate
+Do you know the rate of exchange?,exchange-rates,exchange_rate
+What foreign exchange rate will I get on weekdays and on the weekends?,exchange-rates,exchange_rate
+What is the exchange looking like?,exchange-rates,exchange_rate
+How is the exchange rate doing?,exchange-rates,exchange_rate
+I would like to know how exchange rates are calculated when transferring funds.,exchange-rates,exchange_rate
+I would like to know what exchange rates you use?,exchange-rates,exchange_rate
+"If I need to cash foreign transfers, how does that work?",exchange-rates,exchange_rate
+Do you know what your exchange rates are?,exchange-rates,exchange_rate
+How do I know what exchange rate I will get?,exchange-rates,exchange_rate
+What are you exchange rates?,exchange-rates,exchange_rate
+Do you have the best exchange rate?,exchange-rates,exchange_rate
+Where can I find your exchange rates?,exchange-rates,exchange_rate
+Your exchange rates come from where?,exchange-rates,exchange_rate
+I need to know what your exchange rates are.,exchange-rates,exchange_rate
+What's the process for exchanges?,exchange-rates,exchange_rate
+What do you think of the exchange rate?,exchange-rates,exchange_rate
+How are exchange rates calculated at this bank?,exchange-rates,exchange_rate
+What do you use to figure out the exchange rate for the card?,exchange-rates,exchange_rate
+What's the foreign exchange rate I will receive?,exchange-rates,exchange_rate
+I need to know what foreign exchange rate I can get.,exchange-rates,exchange_rate
+What are the current exchange rates?,exchange-rates,exchange_rate
+What exchange rate will I receive?,exchange-rates,exchange_rate
+What is the basis of your exchange rates?,exchange-rates,exchange_rate
+How's the exchange rate?,exchange-rates,exchange_rate
+How do you determine your exchange rates?,exchange-rates,exchange_rate
+How do the foreign exchange rates work?,exchange-rates,exchange_rate
+Where are you getting your exchange rates from?,exchange-rates,exchange_rate
+How is the exchange rate calculated?,exchange-rates,exchange_rate
+I'm interested in what your exchange rates are based on.,exchange-rates,exchange_rate
+How do you decide what the exchange rates are?,exchange-rates,exchange_rate
+What is the current exchange rate?,exchange-rates,exchange_rate
+What is the formula for your exchange rate?,exchange-rates,exchange_rate
+What method do you use for the exchange rate?,exchange-rates,exchange_rate
+What are Interbanks current exchange rates?,exchange-rates,exchange_rate
+from where are coming your exchange rates?,exchange-rates,exchange_rate
+How do you calculate exchange rates?,exchange-rates,exchange_rate
+Why is your exchange rate different on different days?,exchange-rates,exchange_rate
+Where can I find the exchange rate for my transfer?,exchange-rates,exchange_rate
+Why is there an extra fee on my statement?,handoff,extra_charge_on_statement
+Why did they charge me an extra $1?,handoff,extra_charge_on_statement
+Why is there a 1 euro fee on my statement?,handoff,extra_charge_on_statement
+Why do I see an extra £1 charge on my statement?,handoff,extra_charge_on_statement
+I am inquiring about a $1 charge on my statement.,handoff,extra_charge_on_statement
+What is the $1 transaction on my account?,handoff,extra_charge_on_statement
+What is this extra pound charge for?,handoff,extra_charge_on_statement
+I was charged $1 in a transaction.,handoff,extra_charge_on_statement
+What is the reason for the extra fee on my statement?,handoff,extra_charge_on_statement
+There is a pending 1£ charge on my statement. I haven't purchased anything for 1£. Why is it on my statement?,handoff,extra_charge_on_statement
+Have have a small charge on my account from someone I purchased with but I'm not sure what it relates to.,handoff,extra_charge_on_statement
+"I have a strange transaction for £1 on my statement, what is that?",handoff,extra_charge_on_statement
+I have no idea why there is a dollar that has been charged to my account.,handoff,extra_charge_on_statement
+I have been charged a pound for something that appears on my statement,handoff,extra_charge_on_statement
+Why is there a $1 charge on my statement?,handoff,extra_charge_on_statement
+Where did this extra €1 fee on my statement come from?,handoff,extra_charge_on_statement
+Is there a reason why there is an extra £1 charge on my account?,handoff,extra_charge_on_statement
+Can you tell me what this fee is on my statement?,handoff,extra_charge_on_statement
+Why has another fee been placed on my statement?,handoff,extra_charge_on_statement
+There has been a charge pending on my account statement that I can't figue out it's for a dollar.,handoff,extra_charge_on_statement
+€1 was in my statement as an extra fee.,handoff,extra_charge_on_statement
+Why is there an extra charge on my statement.,handoff,extra_charge_on_statement
+"Hey, I got charged extra for some reason when I purchased an app. Is this a hidden fee or something? I don't think it's very cool.",handoff,extra_charge_on_statement
+I see a $1 charge in a transaction.,handoff,extra_charge_on_statement
+I had to pay a pound more than I anticipated!,handoff,extra_charge_on_statement
+There is a €1 extra fee in my statement,handoff,extra_charge_on_statement
+My statement contained a one pound extra fee,handoff,extra_charge_on_statement
+I checked my account today and saw that I was charged an extra pound that I did not spend.,handoff,extra_charge_on_statement
+What is the extra €1 on my statement for?,handoff,extra_charge_on_statement
+I see I was charged $1 for a transaction.,handoff,extra_charge_on_statement
+$1 charge in transaction.,handoff,extra_charge_on_statement
+"I just looked at my app and it seems I was charged extra, why is that?",handoff,extra_charge_on_statement
+Why is there an extra pound charge that is pending?,handoff,extra_charge_on_statement
+I was wrongfully charged one pound.,handoff,extra_charge_on_statement
+Why is there an extra fee charged?,handoff,extra_charge_on_statement
+"I just checked my statement and saw a $1 charge, why is it there?",handoff,extra_charge_on_statement
+There is an odd 1£ charge that appears as pending on my statement. What's the reason for that? I haven't purchased anything for a pound.,handoff,extra_charge_on_statement
+Why have I been charged an extra pound?,handoff,extra_charge_on_statement
+I think I may have been charged $1 extra on my app. Could you provide some insight as to why this may have happened?,handoff,extra_charge_on_statement
+Why do I see an extra €1 charge on my statement?,handoff,extra_charge_on_statement
+How many different currencies can I hold money in?,supported-currencies,fiat_currency_support
+Do you allow currency exchanges?,supported-currencies,fiat_currency_support
+How many currencies can I have money in in my account?,supported-currencies,fiat_currency_support
+Is the EUR accepted for exchanges?,supported-currencies,fiat_currency_support
+Is it okay to hold money in multiple currencies?,supported-currencies,fiat_currency_support
+Can I have money in more than one currency in my account?,supported-currencies,fiat_currency_support
+What currencies can I have?,supported-currencies,fiat_currency_support
+What currencies can my account be in?,supported-currencies,fiat_currency_support
+How many currencies can I have?,supported-currencies,fiat_currency_support
+Are EUR exchanges allowed?,supported-currencies,fiat_currency_support
+I want to have multiple currencies in my account if possible.,supported-currencies,fiat_currency_support
+Do you convert to Euro?,supported-currencies,fiat_currency_support
+What fiat currencies can I use for holding and exchanging?,supported-currencies,fiat_currency_support
+Can exchanged be made to EUR?,supported-currencies,fiat_currency_support
+I need to know what flat currencies you support for holding and exchange.,supported-currencies,fiat_currency_support
+Do you support other currencies?,supported-currencies,fiat_currency_support
+Can you convert to EUR?,supported-currencies,fiat_currency_support
+What are the fiat currencies used?,supported-currencies,fiat_currency_support
+"What currencies can I not hold many in, if so what are they?",supported-currencies,fiat_currency_support
+How many different currencies can I have my money in?,supported-currencies,fiat_currency_support
+Which fiat currencies are supported by you?,supported-currencies,fiat_currency_support
+What currencies do you offer?,supported-currencies,fiat_currency_support
+Are there any fiat currencies that you will not work with?,supported-currencies,fiat_currency_support
+I wondered if multiple currencies is okay?,supported-currencies,fiat_currency_support
+Are all fiat currencies supported?,supported-currencies,fiat_currency_support
+Can you tell me the names of the fiat currencies that I can use at your institution?,supported-currencies,fiat_currency_support
+Can I change or hold different currency?,supported-currencies,fiat_currency_support
+Which flat currencies are supported for holding and exchange?,supported-currencies,fiat_currency_support
+What other fiat currencies can I use?,supported-currencies,fiat_currency_support
+What fiat currencies do you allow exchange with?,supported-currencies,fiat_currency_support
+Are all European currencies available for holding and exchange?,supported-currencies,fiat_currency_support
+Can you tell me how many currencies I can hold?,supported-currencies,fiat_currency_support
+What types of foreign money can be used with this service.?,supported-currencies,fiat_currency_support
+Am I allowed to hold money in multiple currencies?,supported-currencies,fiat_currency_support
+What fiat currencies do you support?,supported-currencies,fiat_currency_support
+"I need to hold money, what currencies can I use?",supported-currencies,fiat_currency_support
+Can you do exchanges of EUR?,supported-currencies,fiat_currency_support
+What are all the fiat currencies that are supported for both exchange and holding?,supported-currencies,fiat_currency_support
+What currencies can I hold?,supported-currencies,fiat_currency_support
+what currencies do you accept?,supported-currencies,fiat_currency_support
+Can it specifically be delivered on a certain date?,card-delivery,card_delivery_estimate
+I need to get my card quickly,card-delivery,card_delivery_estimate
+When can I expect my card? I live in the US.,card-delivery,card_delivery_estimate
+Help! When will the card arrive at my home?,card-delivery,card_delivery_estimate
+Can I get my card fast tracked?,card-delivery,card_delivery_estimate
+How long is the wait for my card?,card-delivery,card_delivery_estimate
+i need to expedite my card,card-delivery,card_delivery_estimate
+When should I expect to receive my card?,card-delivery,card_delivery_estimate
+How long until my card will get here?,card-delivery,card_delivery_estimate
+How long is the delivery time to the US?,card-delivery,card_delivery_estimate
+Can I have it delivered on a specific date?,card-delivery,card_delivery_estimate
+"i am express delivering my card to the us, how long will that take",card-delivery,card_delivery_estimate
+I need my card soon.,card-delivery,card_delivery_estimate
+Can I choose when my card is delivered?,card-delivery,card_delivery_estimate
+When will my card be here?,card-delivery,card_delivery_estimate
+How long will delivery to the US take?,card-delivery,card_delivery_estimate
+When can I expect delivery?,card-delivery,card_delivery_estimate
+Can I specify a day for my card to be delivered?,card-delivery,card_delivery_estimate
+I'm worried my card might be lost in the mail? How long does it usually take to arrive?,card-delivery,card_delivery_estimate
+When will my card be delivered?,card-delivery,card_delivery_estimate
+can the delivery be specific to my needs?,card-delivery,card_delivery_estimate
+how long does delivery take?,card-delivery,card_delivery_estimate
+"To deliver to the US, how long will it take?",card-delivery,card_delivery_estimate
+How quickly can you get me my card?,card-delivery,card_delivery_estimate
+can I choose delivery times to suite me?,card-delivery,card_delivery_estimate
+Can I choose the day it's delivered?,card-delivery,card_delivery_estimate
+How long will this take to get to me?,card-delivery,card_delivery_estimate
+When shipped to the US how long is delivery time?,card-delivery,card_delivery_estimate
+"Give me my card, I need it now!",card-delivery,card_delivery_estimate
+I'd like to have it delivered on Saturday. Is that possible?,card-delivery,card_delivery_estimate
+How long will I have to wait for my new card?,card-delivery,card_delivery_estimate
+How long is a delivery to the US?,card-delivery,card_delivery_estimate
+What is the delivery time to the US?,card-delivery,card_delivery_estimate
+How long does it take for deliver to the US?,card-delivery,card_delivery_estimate
+If I order a card when does it arrive?,card-delivery,card_delivery_estimate
+When can I expect my card?,card-delivery,card_delivery_estimate
+How long is delivery to the US?,card-delivery,card_delivery_estimate
+What is your shipping policies for cards?,card-delivery,card_delivery_estimate
+I ordered my card and it isn't here yet. I need it ASAP. When can I expect to get it?,card-delivery,card_delivery_estimate
+how long should I expect to wait for my card to arrive?,card-delivery,card_delivery_estimate
+Can I change from AUD to GBP?,exchange-rates,exchange_via_app
+"I need to exchange between different currencies, like GBP and USD. Can I do that with your app?",exchange-rates,exchange_via_app
+How can I change to another currency?,exchange-rates,exchange_via_app
+Does the app allowing exchanges between USD and GBP,exchange-rates,exchange_via_app
+What if I need to use GBP instead of USD?,exchange-rates,exchange_via_app
+I am from X but am traveling to Y - how do I get currency for Y?,exchange-rates,exchange_via_app
+Is it possible to change from AUD to GBP?,exchange-rates,exchange_via_app
+Can money be exchanged from one currency to another?,exchange-rates,exchange_via_app
+How can I change USD to GBP?,exchange-rates,exchange_via_app
+What currencies can be exchanged in the app?,exchange-rates,exchange_via_app
+Can i add a new currency to my account?,exchange-rates,exchange_via_app
+How can I exchange AUD for GBP?,exchange-rates,exchange_via_app
+Can I possibly change my currency to another?,exchange-rates,exchange_via_app
+I would like to exchange currencies on the app. How do I do this?,exchange-rates,exchange_via_app
+What do I do to exchange currency?,exchange-rates,exchange_via_app
+Is it possible to exchange currencies?,exchange-rates,exchange_via_app
+Can turn my money into another currency?,exchange-rates,exchange_via_app
+I would like to change to a different currency.,exchange-rates,exchange_via_app
+How can I change currency type?,exchange-rates,exchange_via_app
+"I do not need GBP, I need AUD, how do I convert it?",exchange-rates,exchange_via_app
+"Instead of GBP, how do I exchange for AUD?",exchange-rates,exchange_via_app
+Is currency exchange possible?,exchange-rates,exchange_via_app
+"Using your app, would I be able to exchange between USD and GBP?",exchange-rates,exchange_via_app
+Can I use this app for both USD and GBP?,exchange-rates,exchange_via_app
+I am trying to find out how to exchange currency X with currency Y.,exchange-rates,exchange_via_app
+Does your app allow currency exchanges between USD and GBP?,exchange-rates,exchange_via_app
+"With this app, will I be able to exchange currency?",exchange-rates,exchange_via_app
+How do I change my currency to another?,exchange-rates,exchange_via_app
+How do I exchange currencies using the app?,exchange-rates,exchange_via_app
+Does this app allow currencies to be exchanged?,exchange-rates,exchange_via_app
+Can I exchange USD for GBP in your app?,exchange-rates,exchange_via_app
+Is it possible to exchange currencies using the app?,exchange-rates,exchange_via_app
+How do I exchange currencies using this app?,exchange-rates,exchange_via_app
+I want to exchange USD and GBP with the app,exchange-rates,exchange_via_app
+How do I change my AUD into GBP?,exchange-rates,exchange_via_app
+How can I convert currencies?,exchange-rates,exchange_via_app
+Can I use your app to exchange between USD and GBP,exchange-rates,exchange_via_app
+I need to get some Euros for my holiday. Am I able to exchange some of my money?,exchange-rates,exchange_via_app
+Can currencies be exchanged on this app?,exchange-rates,exchange_via_app
+How do I change to a different currency?,exchange-rates,exchange_via_app
+Has there been any activity on my card today?,handoff,lost_or_stolen_card
+I lost my wallet and all my cards were in it.,handoff,lost_or_stolen_card
+I'm panicking! I lost my card! Help!,handoff,lost_or_stolen_card
+I need to report a stolen card,handoff,lost_or_stolen_card
+How do I replace a stolen card?,handoff,lost_or_stolen_card
+Can you provide information for freezing my card immediately?,handoff,lost_or_stolen_card
+What's the phone number to freeze a card?,handoff,lost_or_stolen_card
+I can't find my card! Can you help?,handoff,lost_or_stolen_card
+"Hi, I am on vacation in Spain and someone stole my bag with my phone and wallet with cards and everything. Can you block it ASAP and then I want to order a new one also ASAP.",handoff,lost_or_stolen_card
+Help! I lost my card!,handoff,lost_or_stolen_card
+My card is missing. Please help.,handoff,lost_or_stolen_card
+I think that my card has been stolen!,handoff,lost_or_stolen_card
+My card was stolen,handoff,lost_or_stolen_card
+A fee shouldn't apply to me if my card was stolen.,handoff,lost_or_stolen_card
+"My card has been stolen. I reported it with the police, but I need to report it with you as well.",handoff,lost_or_stolen_card
+Can you tell me the status of my new card?,handoff,lost_or_stolen_card
+My card has been stolen what do I do?,handoff,lost_or_stolen_card
+"I can't find my card, it is lost.",handoff,lost_or_stolen_card
+My card is lost! Please help me!,handoff,lost_or_stolen_card
+I believe that my card has been stolen!,handoff,lost_or_stolen_card
+What should I do if I think my card was stolen?,handoff,lost_or_stolen_card
+Can you send me a new card and block my current one. I'm in Spain and my wallet was stolen.,handoff,lost_or_stolen_card
+"I thought I left my card at a restaurant, but they claim not to have it and now I don't have any idea where it is. I'm so worried that someone might be using it fraudulently. Is there any way to look into this?",handoff,lost_or_stolen_card
+My bag got stolen with all my cards. Can you please cancel my card and send a new one?,handoff,lost_or_stolen_card
+I think my card is stolen!,handoff,lost_or_stolen_card
+"Help! I fear that my card was stolen,",handoff,lost_or_stolen_card
+Someone stole my card!,handoff,lost_or_stolen_card
+Are you able to guide me to my card's location?,handoff,lost_or_stolen_card
+How can I report that my card was stolen? I made a police report first.,handoff,lost_or_stolen_card
+My card is missing! Help!,handoff,lost_or_stolen_card
+"My wallet was stolen, along with my cards. How do I put a freeze on my cards and order a new one?",handoff,lost_or_stolen_card
+Could you please freeze my card immediately?,handoff,lost_or_stolen_card
+"i need help, i lost my card",handoff,lost_or_stolen_card
+What can I do if I lost my card?,handoff,lost_or_stolen_card
+I think that the card is stolen. What are my next steps?,handoff,lost_or_stolen_card
+What do I do if my card is stolen?,handoff,lost_or_stolen_card
+My card is stolen. Help!,handoff,lost_or_stolen_card
+I lost track of my card,handoff,lost_or_stolen_card
+Report stolen card,handoff,lost_or_stolen_card
+Help! My card is stolen.,handoff,lost_or_stolen_card
+I want to open an account for my children,age-limit,age_limit
+How old do you need to be to use the banks services?,age-limit,age_limit
+Whats the minimum age to have an account,age-limit,age_limit
+Can my children open an account?,age-limit,age_limit
+How old do I need to be?,age-limit,age_limit
+What are age requirements for opening an account?,age-limit,age_limit
+Is there any age limit?,age-limit,age_limit
+We want to start a college fund for my daughter.,age-limit,age_limit
+Hold old do my kids have to be to use the service?,age-limit,age_limit
+Can I start an account for my kids?,age-limit,age_limit
+How old does my daughter have to be to open an account?,age-limit,age_limit
+What is minimum age for an account?,age-limit,age_limit
+What is needed for my daughter to open an account?,age-limit,age_limit
+What about my children?,age-limit,age_limit
+What is the process for setting up and account for my child?,age-limit,age_limit
+Is there an age limit to open an account,age-limit,age_limit
+How old do my kids have to be use this?,age-limit,age_limit
+Can I make an account for my kids?,age-limit,age_limit
+I'd like to open an account for my kids can I do that?,age-limit,age_limit
+Would it be possible to open up an account for children?,age-limit,age_limit
+Do you have any age limit?,age-limit,age_limit
+If I want my son to have his own account is that possible?,age-limit,age_limit
+Could I open an account for children?,age-limit,age_limit
+What does my daughter need to open an account?,age-limit,age_limit
+Can my children get an account?,age-limit,age_limit
+What is the age limit for an account?,age-limit,age_limit
+What age do you have to be?,age-limit,age_limit
+What is the appropriate age for my child to be able to open an account?,age-limit,age_limit
+How do I open an account for my children?,age-limit,age_limit
+What are the requirements to open an account for a minor?,age-limit,age_limit
+are there age requirements,age-limit,age_limit
+Is there an age limit for opening an account?,age-limit,age_limit
+Can my 8 year old grandson open an account at the bank?,age-limit,age_limit
+What is the minimum age required to open an account with your service?,age-limit,age_limit
+"If I want to get an account for my daughter, can I do that?",age-limit,age_limit
+How old do you have to be to open an account?,age-limit,age_limit
+I have young kids. Can they use this service?,age-limit,age_limit
+Do you have an age limit?,age-limit,age_limit
+How old do you have to be?,age-limit,age_limit
+Could my daughter open an account?,age-limit,age_limit
+I have exceeded the number of PIN attempts,pin-blocked,pin_blocked
+I mistook my pin and now I am locked. Can you unlock me?,pin-blocked,pin_blocked
+Please help me unblock my pin which I put the wrong one too many times.,pin-blocked,pin_blocked
+Help me unblock my account. I entered the PIN wrong too many times.,pin-blocked,pin_blocked
+"I locked myself out of my account, how do I unblock my PIN?",pin-blocked,pin_blocked
+My PIN tries have run out. Now what?,pin-blocked,pin_blocked
+Can I reset my PIN if it is blocked?,pin-blocked,pin_blocked
+"After inputting the wrong pin too many times, can you now help me unblock my pin?",pin-blocked,pin_blocked
+Where do I find PIN for my card?,pin-blocked,pin_blocked
+Can someone help me unblock my pin?,pin-blocked,pin_blocked
+I attempted to enter my pin to many times.,pin-blocked,pin_blocked
+I forgot my PIN and now it is blocked.,pin-blocked,pin_blocked
+Can someone assist me with explaining how I can unblock my pin?,pin-blocked,pin_blocked
+"My pin needs unblocking, unblock it please?",pin-blocked,pin_blocked
+What do I have to do to get my PIN unblocked?,pin-blocked,pin_blocked
+I tried my PIN too many times and now my card won't work!,pin-blocked,pin_blocked
+I entered a wrong PIN too many times. How can I fix this?,pin-blocked,pin_blocked
+How can I unblock my PIN?,pin-blocked,pin_blocked
+When I was drunk I got my card stuck in your machine because i mis-typed my PIN. What do I need to do to get it restored?,pin-blocked,pin_blocked
+I cannot try my PIN anymore.,pin-blocked,pin_blocked
+What's the web address to unblock my pin?,pin-blocked,pin_blocked
+How do I make my PIN work again?,pin-blocked,pin_blocked
+What steps do I take to unblock my PIN?,pin-blocked,pin_blocked
+My PIN was entered wrong and now I am blocked. Please unblock.,pin-blocked,pin_blocked
+Can I use app to unblock my card?,pin-blocked,pin_blocked
+I tried the wrong PIN too many times.,pin-blocked,pin_blocked
+Help me unblock my PIN.,pin-blocked,pin_blocked
+Can I unblock my PIN in the app?,pin-blocked,pin_blocked
+How can I get my PIN unblocked?,pin-blocked,pin_blocked
+I forgot my PIN number.,pin-blocked,pin_blocked
+I tried entering my pin several times incorrectly. Why isn't my pin working?,pin-blocked,pin_blocked
+I need my PIN unlocked.,pin-blocked,pin_blocked
+I can't input my pin again.,pin-blocked,pin_blocked
+How do I take a block off my card?,pin-blocked,pin_blocked
+Will you help me unblock my pin after putting in the wrong pin too many times?,pin-blocked,pin_blocked
+What do I do if I forgot my PIN?,pin-blocked,pin_blocked
+What is the process for unlocking the pin?,pin-blocked,pin_blocked
+How do I go about unlocking a pin?,pin-blocked,pin_blocked
+"I enetered the wrong information, I need my account unblocked How do I do that?",pin-blocked,pin_blocked
+"My PIN is locked, how do I unlock it?",pin-blocked,pin_blocked
+Should i uninstall the app before i try it again?,contactless,contactless_not_working
+How come when I tried to pay contactless at the bus it didnt work?,contactless,contactless_not_working
+Why is my contactless not working?,contactless,contactless_not_working
+My contactless payments don't work.,contactless,contactless_not_working
+how many days processing new card?,contactless,contactless_not_working
+I'm confused. My contactless is suddenly not working anywhere that I try to use it. How do I fix it?,contactless,contactless_not_working
+Would reinstalling the app solve the problem?,contactless,contactless_not_working
+I've tried using my contactless in several locations today and it's not working anywhere. It seemed fine before. How do I get it to work again?,contactless,contactless_not_working
+What do I have to do to get the contactless to work?,contactless,contactless_not_working
+The terminal I paid at wouldn't take my card. Is something wrong?,contactless,contactless_not_working
+Why wasn't my contactless accepted at the metro?,contactless,contactless_not_working
+Can I make a contactless payments?,contactless,contactless_not_working
+I can't get a contactless payment to work.,contactless,contactless_not_working
+Contactless payments need to be enabled for my card.,contactless,contactless_not_working
+Help me to set up contactless payments.,contactless,contactless_not_working
+My contactless stopped working today for no good reason. It's not working no matter where I try to use it. Can you please help me fix it?,contactless,contactless_not_working
+I'm confused ass to why my contactless is not working.,contactless,contactless_not_working
+I need help fixing my contactless. It's not working anywhere I go today.,contactless,contactless_not_working
+The contactless payments are not working.,contactless,contactless_not_working
+how to get new card?,contactless,contactless_not_working
+How do I troubleshoot my contactless?,contactless,contactless_not_working
+How can I fix my contactless?,contactless,contactless_not_working
+Any charges applicable for new card?,contactless,contactless_not_working
+I have a contactless that's broken.,contactless,contactless_not_working
+My contactless is non-functional.,contactless,contactless_not_working
+How can i get new card?,contactless,contactless_not_working
+My contactless stopped working today no matter where I try to use it. How do I get it to start working again?,contactless,contactless_not_working
+How do I troubleshoot when contactless doesn't work?,contactless,contactless_not_working
+How can I fix my card if the contactless function didn't work this morning?,contactless,contactless_not_working
+"I was trying to use contactless earlier, but it didn't work.",contactless,contactless_not_working
+Why wouldn't my contactless work for the metro?,contactless,contactless_not_working
+Are my contactless settings correct? I tried to use it today but it wasn't working.,contactless,contactless_not_working
+I am having problems with my contactless.,contactless,contactless_not_working
+"I am having issues using contactless payments, could my card be damaged?",contactless,contactless_not_working
+"What is the reason when I tried to pay contactless at the bus, it didnt work?",contactless,contactless_not_working
+Is there a top up fee for transfer?,top-up-bank-transfer,top_up_by_bank_transfer_charge
+Will there be a charge for topping up by account with a SEPA transfer?,top-up-bank-transfer,top_up_by_bank_transfer_charge
+What are the charges for receiving a SEPA transfer?,top-up-bank-transfer,top_up_by_bank_transfer_charge
+Is there a charge for SEPA transfers?,top-up-bank-transfer,top_up_by_bank_transfer_charge
+Will I be charged a fee for a SEPA transfer?,top-up-bank-transfer,top_up_by_bank_transfer_charge
+What is the fee to top-up my account,top-up-bank-transfer,top_up_by_bank_transfer_charge
+Will you guys charge me for topping up by transfer?,top-up-bank-transfer,top_up_by_bank_transfer_charge
+Can you tell me the cost of a transfer?,top-up-bank-transfer,top_up_by_bank_transfer_charge
+Do you receive SWIFT transfers?,top-up-bank-transfer,top_up_by_bank_transfer_charge
+What is the charge for receiving a SEPA transfer?,top-up-bank-transfer,top_up_by_bank_transfer_charge
+Will I receive all the money sent to my account by SEPA transfer?,top-up-bank-transfer,top_up_by_bank_transfer_charge
+Am I going to see a charge for a SEPA transfer?,top-up-bank-transfer,top_up_by_bank_transfer_charge
+Can I do a SWIFT transfer?,top-up-bank-transfer,top_up_by_bank_transfer_charge
+What would I be charged in receiving a SEPA transfer?,top-up-bank-transfer,top_up_by_bank_transfer_charge
+How much is it to receive money?,top-up-bank-transfer,top_up_by_bank_transfer_charge
+Is there a charge for using transfers for top ups?,top-up-bank-transfer,top_up_by_bank_transfer_charge
+"If someone sends me money, will I be charged?",top-up-bank-transfer,top_up_by_bank_transfer_charge
+Do you accept SWIFT transfers?,top-up-bank-transfer,top_up_by_bank_transfer_charge
+Am I charged for receiving money?,top-up-bank-transfer,top_up_by_bank_transfer_charge
+Will I be charged for topping up by transfer?,top-up-bank-transfer,top_up_by_bank_transfer_charge
+Will I be charged any fee for receiving money?,top-up-bank-transfer,top_up_by_bank_transfer_charge
+Are there fees for receiving a SEPA transfer?,top-up-bank-transfer,top_up_by_bank_transfer_charge
+Is there a fee to top up by bank transfers?,top-up-bank-transfer,top_up_by_bank_transfer_charge
+Do you offer SWIFT transfers?,top-up-bank-transfer,top_up_by_bank_transfer_charge
+Will I be charged for a top off transfer?,top-up-bank-transfer,top_up_by_bank_transfer_charge
+Will I be charged for receiving money?,top-up-bank-transfer,top_up_by_bank_transfer_charge
+To receive money are there charges?,top-up-bank-transfer,top_up_by_bank_transfer_charge
+Will there be a charge when money is added to my account?,top-up-bank-transfer,top_up_by_bank_transfer_charge
+What are the fees associated with top up via transfer?,top-up-bank-transfer,top_up_by_bank_transfer_charge
+Can I use SWIFT transfers?,top-up-bank-transfer,top_up_by_bank_transfer_charge
+How much does a transfer cost?,top-up-bank-transfer,top_up_by_bank_transfer_charge
+Is there a fee for a SEPA transfer,top-up-bank-transfer,top_up_by_bank_transfer_charge
+why do you charge for transfers?,top-up-bank-transfer,top_up_by_bank_transfer_charge
+Is there a fee to make a transfer?,top-up-bank-transfer,top_up_by_bank_transfer_charge
+What is the charge to make a transfer,top-up-bank-transfer,top_up_by_bank_transfer_charge
+"If I were to transfer, what would the cost be?",top-up-bank-transfer,top_up_by_bank_transfer_charge
+Does it cost anything to transfer money for a top-up?,top-up-bank-transfer,top_up_by_bank_transfer_charge
+Will I be fined for topping up by transfer?,top-up-bank-transfer,top_up_by_bank_transfer_charge
+what is the price of a transfer?,top-up-bank-transfer,top_up_by_bank_transfer_charge
+If I top-up by using a trasfer are there charges that applied?,top-up-bank-transfer,top_up_by_bank_transfer_charge
+What is the max amount of top-ups?,top-up-limits,top_up_limits
+Are top-ups unlimited?,top-up-limits,top_up_limits
+Can I increase my top-up maximum?,top-up-limits,top_up_limits
+Can I top-up any amount?,top-up-limits,top_up_limits
+What's the limit to how much I can top up?,top-up-limits,top_up_limits
+Would I be able to top up as much as I can?,top-up-limits,top_up_limits
+Do I have a limit to the number of top-ups per day?,top-up-limits,top_up_limits
+need to know if there is a maximum i can top up,top-up-limits,top_up_limits
+How many top-ups am I allowed to do?,top-up-limits,top_up_limits
+How much is ok for me to top up with?,top-up-limits,top_up_limits
+What is the maximum I can top up?,top-up-limits,top_up_limits
+what is the most money i can top up?,top-up-limits,top_up_limits
+Are there any top-up limits?,top-up-limits,top_up_limits
+Is there a limit to the top-ups someone can do?,top-up-limits,top_up_limits
+What is the greatest number of times that I can top-up?,top-up-limits,top_up_limits
+Tell me if there is a limit to top-up.,top-up-limits,top_up_limits
+Is there a top-up limit that I have to stay under during a given period of time?,top-up-limits,top_up_limits
+How much am I allowed to top-up?,top-up-limits,top_up_limits
+Is there a limit on how much I can top up?,top-up-limits,top_up_limits
+Is there a limit to how much I can top-up?,top-up-limits,top_up_limits
+Is there a limit for the amount I can top up?,top-up-limits,top_up_limits
+what is the limit for top-ups?,top-up-limits,top_up_limits
+How much can I top up in a day?,top-up-limits,top_up_limits
+Do top-ups have limits?,top-up-limits,top_up_limits
+Is there a limit to how much I can top up?,top-up-limits,top_up_limits
+Please tell me the limit to topping-up.,top-up-limits,top_up_limits
+Do top-up limits exist?,top-up-limits,top_up_limits
+I would like to know how much I can top-up.,top-up-limits,top_up_limits
+Whats the limit on my top up,top-up-limits,top_up_limits
+Are there any top-up limits that I must follow?,top-up-limits,top_up_limits
+Can I top-up any amount I wish on any given day?,top-up-limits,top_up_limits
+Is topping up unlimited?,top-up-limits,top_up_limits
+What is the highest amount of top ups I'm allowed?,top-up-limits,top_up_limits
+is there a limit for top up?,top-up-limits,top_up_limits
+Can I set my own top-up limit?,top-up-limits,top_up_limits
+What are the rules for a top-up?,top-up-limits,top_up_limits
+How often can I top up?,top-up-limits,top_up_limits
+What is the highest amount I can top-up?,top-up-limits,top_up_limits
+What is the most that I can top-up to a card?,top-up-limits,top_up_limits
+What limits are the to top-ups?,top-up-limits,top_up_limits
+Why did I only receive a partial amount of what I tried to withdraw?,handoff,wrong_amount_of_cash_received
+my atm transaction was wrong,handoff,wrong_amount_of_cash_received
+why did i only get 20.00,handoff,wrong_amount_of_cash_received
+Why is my cash request and the amount I received different?,handoff,wrong_amount_of_cash_received
+"I tried to withdraw $100, all it gave me was $20.",handoff,wrong_amount_of_cash_received
+The ATM didn't give me enough money.,handoff,wrong_amount_of_cash_received
+When I went to withdraw cash today the ATM gave me the wrong amount of cash. The app is showing a larger amount.,handoff,wrong_amount_of_cash_received
+I didn't get the all the cash i wanted from the atm,handoff,wrong_amount_of_cash_received
+I received $20 but I entered $100,handoff,wrong_amount_of_cash_received
+"Hi, I used an ATM today to take money out of my account, but the amount it gave me is not the amount I requested. What should I do?",handoff,wrong_amount_of_cash_received
+Did a WD earlier at an ATM. The amount showing in the App is more than I got though.,handoff,wrong_amount_of_cash_received
+I didn't get the correct amount of money from the ATM machine,handoff,wrong_amount_of_cash_received
+Some cash was missing at ATM.,handoff,wrong_amount_of_cash_received
+I didn't get all the cash I asked for,handoff,wrong_amount_of_cash_received
+I tried to withdraw $100 but only got $20. What happened?,handoff,wrong_amount_of_cash_received
+how come when i asked for 100 it only gave me 20.00 in the app,handoff,wrong_amount_of_cash_received
+Asked for $100 but only got $20. Why would this happen?,handoff,wrong_amount_of_cash_received
+I wanted to withdraw $100 from the ATM but I only got $20,handoff,wrong_amount_of_cash_received
+I got less money than I asked for.,handoff,wrong_amount_of_cash_received
+"Hi, Please help me to request cash back. As i have been withdrawn money from ATM, but i got wrong amount. in Application its showing the amount i have been charged through.",handoff,wrong_amount_of_cash_received
+The cash I wanted wasn't there.,handoff,wrong_amount_of_cash_received
+I requested a higher amount for my cash withdrawal,handoff,wrong_amount_of_cash_received
+The amount of cash I received did not match the amount I requested,handoff,wrong_amount_of_cash_received
+The ATM didn't give me the full requested amount,handoff,wrong_amount_of_cash_received
+The amount of cash I received was not the full amount,handoff,wrong_amount_of_cash_received
+How can I request cash back? The ATM just gave me the wrong amount that I've been charged though...,handoff,wrong_amount_of_cash_received
+I was only given $20 after trying to withdraw $100,handoff,wrong_amount_of_cash_received
+I received less cash than the amount I specified in the ATM.,handoff,wrong_amount_of_cash_received
+I went tot the ATM earlier today and didn't realize this till now but I did not get all the money I requested. I believe my account was charged for 100 but I only got 80. Is there any way we can solve this problem?,handoff,wrong_amount_of_cash_received
+I got less cash than what I specified at the ATM.,handoff,wrong_amount_of_cash_received
+Why did I not get the amount of money I requested?,handoff,wrong_amount_of_cash_received
+I'm at the ATM right now and it only allowed me to withdraw 10 pounds instead of my requested 30. What's going on? How can I fix this?,handoff,wrong_amount_of_cash_received
+I got $20 when I should've gotten $100,handoff,wrong_amount_of_cash_received
+How can I request cash back? The ATM gave me the wrong amount that I've been charged though...,handoff,wrong_amount_of_cash_received
+I didn't receive the amount of cash I requested for the ATM.,handoff,wrong_amount_of_cash_received
+my cash balance less than what I thought,handoff,wrong_amount_of_cash_received
+It didn't give me my cash,handoff,wrong_amount_of_cash_received
+It kept my cash,handoff,wrong_amount_of_cash_received
+I only got $20 of the $100 that I attempted to withdraw.,handoff,wrong_amount_of_cash_received
+"Hi, I draw out some money from the ATM today. The ATM has given me wrong amount and the application is displaying more amount than i withdraw.",handoff,wrong_amount_of_cash_received
+I am worried that too much time has gone by for a transfer to be completed.,handoff,transfer_not_received_by_recipient
+What is the time frame that it usually takes for a transfer to come through? I have a friend needing it immediately but it has yet to come through.,handoff,transfer_not_received_by_recipient
+My money transaction can't be seen by the person I sent it to,handoff,transfer_not_received_by_recipient
+"How long does it typically take a transfer to go through? I sent some money to a friend earlier today, and she really needs it. It still is a pending transfer, even though I sent it a few hours ago.",handoff,transfer_not_received_by_recipient
+"I have done a transfer within the country the day before yesterday, but it's still not there yet. Can you please check what's going on with that, the account number definitely is the right one, I've checked that already.",handoff,transfer_not_received_by_recipient
+"I have done a transfer within the country the day before yesterday, but it's still not there yet. Can you please check what's going on with that, the account number is the right one, I've checked that several times already.",handoff,transfer_not_received_by_recipient
+My money transaction hasn't arrived.,handoff,transfer_not_received_by_recipient
+I sent money to a person and they haven't received the payment yet.,handoff,transfer_not_received_by_recipient
+I do not know where the transaction is.,handoff,transfer_not_received_by_recipient
+I transferred money but the recipient does not see the funds in their account?,handoff,transfer_not_received_by_recipient
+why hasn't a transaction to a friend cleared yet?,handoff,transfer_not_received_by_recipient
+The app isn't showing my transactions,handoff,transfer_not_received_by_recipient
+Why isn't the recipient seeing the transaction? I just sent the money.,handoff,transfer_not_received_by_recipient
+I transferred money and it didn't get there.,handoff,transfer_not_received_by_recipient
+Is there a reason why a recipient might not see my money transaction,handoff,transfer_not_received_by_recipient
+I don't see the transaction I made to a friend on my account.,handoff,transfer_not_received_by_recipient
+why has a transaction to a friend been delayed?,handoff,transfer_not_received_by_recipient
+"A transaction I did to my friend hasn't arrived yet, why?",handoff,transfer_not_received_by_recipient
+Where is my last money transaction,handoff,transfer_not_received_by_recipient
+I am having an issue with an in country transfer I did a few days ago. It has yet to appear in my account. I have checked to be sure that all account information is correct multiple times. What is taking the transfer so long?,handoff,transfer_not_received_by_recipient
+I made a transfer the day before yesterday within this country. It is still not showing up at all. I have double-checked and the account number is certainly right. I've actually type this multiple times. can you look into what is going on here?,handoff,transfer_not_received_by_recipient
+How much time do transfers typically take? I sent money to a friend who needs it urgently. It's been hours and has not gone through.,handoff,transfer_not_received_by_recipient
+A transaction to a friend still hasn't shown up.,handoff,transfer_not_received_by_recipient
+I sent money and the recipient has not received their money after two weeks.,handoff,transfer_not_received_by_recipient
+How long will it take for my transfer to arrive?,handoff,transfer_not_received_by_recipient
+Why did the funds not transfer to another recipient?,handoff,transfer_not_received_by_recipient
+I sent a payment but it isn't showing up in the app,handoff,transfer_not_received_by_recipient
+I tried to transfer some money and it hasn't done it yet - what's going on?,handoff,transfer_not_received_by_recipient
+I made a transfer and they haven't received the money I sent them.,handoff,transfer_not_received_by_recipient
+"how long does it take to transfer money, my retailer is waiting",handoff,transfer_not_received_by_recipient
+"I sent money to someone but they haven't gotten it, what's going on?",handoff,transfer_not_received_by_recipient
+"How long does it take for transfers to process? I sent funds to a friend, and she says that she has not yet received anything.",handoff,transfer_not_received_by_recipient
+Why hasn't the transaction I did to my friend arrive yet?,handoff,transfer_not_received_by_recipient
+I sent money about 5 days ago and the recipient has not received the money yet.,handoff,transfer_not_received_by_recipient
+I am just waiting on the completion of the transaction.,handoff,transfer_not_received_by_recipient
+My cash transaction isn't showing on my account,handoff,transfer_not_received_by_recipient
+Why hasn't my transaction arrived?,handoff,transfer_not_received_by_recipient
+When are you going to transfer the money?,handoff,transfer_not_received_by_recipient
+"I have moved to a new house and set up a rent payment to my landlord, it was supposed to be in her account a few days ago but it hasn't arrived. I definitely sent it to the right place, can you confirm where the money is?",handoff,transfer_not_received_by_recipient
+I need to check status as my friend hasn't got money I sent.,handoff,transfer_not_received_by_recipient
+How do I use American express to top up my account?,supported-currencies,supported_cards_and_currencies
+Which currencies do you accept for adding money?,supported-currencies,supported_cards_and_currencies
+Is my credit card supported for top-ups?,supported-currencies,supported_cards_and_currencies
+Am I able to add money into my account using my American Express?,supported-currencies,supported_cards_and_currencies
+Can I use my American Express card to add money into my account?,supported-currencies,supported_cards_and_currencies
+Can you tell me what currencies I can use to add money?,supported-currencies,supported_cards_and_currencies
+I want to use my American Express for adding money into my account.,supported-currencies,supported_cards_and_currencies
+With what currencies can I add money?,supported-currencies,supported_cards_and_currencies
+What are the acceptable currencies for adding funds?,supported-currencies,supported_cards_and_currencies
+how can i transfer money from american express card,supported-currencies,supported_cards_and_currencies
+what cards and currencies are accepted?,supported-currencies,supported_cards_and_currencies
+How can I top up my card with another card?,supported-currencies,supported_cards_and_currencies
+use my credit to add money,supported-currencies,supported_cards_and_currencies
+What types of currencies do you accept?,supported-currencies,supported_cards_and_currencies
+Do you accept any card and currency?,supported-currencies,supported_cards_and_currencies
+can i use my mastercard to add money to my account,supported-currencies,supported_cards_and_currencies
+What types of cards and money do you accept?,supported-currencies,supported_cards_and_currencies
+How can I fund another account with my American Express?,supported-currencies,supported_cards_and_currencies
+What currencies do you accept to add money?,supported-currencies,supported_cards_and_currencies
+How can I top up my account and which currency can I use?,supported-currencies,supported_cards_and_currencies
+Will my other US credit card be accepted?,supported-currencies,supported_cards_and_currencies
+can i top up from a usa credit card,supported-currencies,supported_cards_and_currencies
+How can I get funds into my account from my American Express?,supported-currencies,supported_cards_and_currencies
+Which cards and currencies are supported?,supported-currencies,supported_cards_and_currencies
+What are the currencies and cards that are supported with my account?,supported-currencies,supported_cards_and_currencies
+What currency can I use to add money?,supported-currencies,supported_cards_and_currencies
+Can I use a credit card from the US to top up?,supported-currencies,supported_cards_and_currencies
+why don't you accept american express for adding money to my account,supported-currencies,supported_cards_and_currencies
+Can you tell me what cards and currencies you support?,supported-currencies,supported_cards_and_currencies
+Which foreign currencies do you accept for adding money?,supported-currencies,supported_cards_and_currencies
+I only have one other credit card from the US. Do you accept that?,supported-currencies,supported_cards_and_currencies
+What currencies are approved to add money?,supported-currencies,supported_cards_and_currencies
+I wish to use my American Express to put funds into my account.,supported-currencies,supported_cards_and_currencies
+I have another card from the U.S. Will you be able to accept that one?,supported-currencies,supported_cards_and_currencies
+I want to use a payment card to top up my account. How can I do this?,supported-currencies,supported_cards_and_currencies
+Can I use American Express?,supported-currencies,supported_cards_and_currencies
+I'd prefer to use my American Express when putting funds into my account.,supported-currencies,supported_cards_and_currencies
+What currencies can I use?,supported-currencies,supported_cards_and_currencies
+what cards can i use to add money to my account,supported-currencies,supported_cards_and_currencies
+What currencies and methods can i use to top up my account?,supported-currencies,supported_cards_and_currencies
+"I would like to order a virtual card, where can I get one?",virtual-cards,getting_virtual_card
+"I need to order a new virtual card, how do I do that?",virtual-cards,getting_virtual_card
+How can I sign up for a virtual card?,virtual-cards,getting_virtual_card
+I haven't received my virtual card yet!!,virtual-cards,getting_virtual_card
+Can you give me a virtual card?,virtual-cards,getting_virtual_card
+I want to get my hands on one of those virtual cards!,virtual-cards,getting_virtual_card
+i need a virtual card,virtual-cards,getting_virtual_card
+How do I get to the virtual cards?,virtual-cards,getting_virtual_card
+want to know how to get virtual card,virtual-cards,getting_virtual_card
+Where is my virtual card?,virtual-cards,getting_virtual_card
+Where are the virtual cards?,virtual-cards,getting_virtual_card
+Is it possible to order a virtual card?,virtual-cards,getting_virtual_card
+how to i go about getting my virtual card,virtual-cards,getting_virtual_card
+I don't have a virtual card - how do I get one?,virtual-cards,getting_virtual_card
+How to receive virtual card?,virtual-cards,getting_virtual_card
+Why haven't I gotten a virtual card yet?,virtual-cards,getting_virtual_card
+Where do I order a virtual card?,virtual-cards,getting_virtual_card
+Can i have a virtual card?,virtual-cards,getting_virtual_card
+Please explain to me the process of getting a virtual card.,virtual-cards,getting_virtual_card
+my virtual card has not came yet!,virtual-cards,getting_virtual_card
+Which part of the app do I order virtual cards from?,virtual-cards,getting_virtual_card
+Where do I have access to a virtual card?,virtual-cards,getting_virtual_card
+How to order a virtual card,virtual-cards,getting_virtual_card
+Where do I get a virtual card?,virtual-cards,getting_virtual_card
+Why haven't I been given a virtual card yet?,virtual-cards,getting_virtual_card
+Can you help me find the virtual card?,virtual-cards,getting_virtual_card
+How do I go about getting hold of a virtual card?,virtual-cards,getting_virtual_card
+Where's my virtual card,virtual-cards,getting_virtual_card
+How can I go about ordering a virtual card?,virtual-cards,getting_virtual_card
+Where can i find the virtual card?,virtual-cards,getting_virtual_card
+"I'd rather not use my physical card, how can I get a virtual card?",virtual-cards,getting_virtual_card
+What do I have to do to get my virtual card?,virtual-cards,getting_virtual_card
+can i use my app to get a virtual card,virtual-cards,getting_virtual_card
+How can I obtain a virtual card?,virtual-cards,getting_virtual_card
+I'm interested in getting a virtual card. How do I get one?,virtual-cards,getting_virtual_card
+What is the way to go about getting a virtual card?,virtual-cards,getting_virtual_card
+How can I receive a virtual card?,virtual-cards,getting_virtual_card
+When will my virtual card arrive?,virtual-cards,getting_virtual_card
+How do I get my virtual card?,virtual-cards,getting_virtual_card
+how to get virtual card,virtual-cards,getting_virtual_card
+There's a payment with my card that I didn't perform. I don't know that name shown.,handoff,card_payment_not_recognised
+My statement indicates I made a payment to an unfamiliar merchant.,handoff,card_payment_not_recognised
+"There's a payment with my card that I definitely didn't do myself, never seen that name before.",handoff,card_payment_not_recognised
+Help! In the app there is a payment that I don't remember.,handoff,card_payment_not_recognised
+I don't understand where this charge came from.,handoff,card_payment_not_recognised
+there is a charge i dont recognize,handoff,card_payment_not_recognised
+"I need to figure out what these charges are on my account. They've been coming out for a couple of days. Can i get all of this money back? Also, I need to freeze my card.",handoff,card_payment_not_recognised
+Someone might have access to my card! There are some strange payments showing up on my account. What do I do?,handoff,card_payment_not_recognised
+"There are a couple payments with my card shown in the app that i really didn't make myself. What's going on with this, does someone has access to my card?!",handoff,card_payment_not_recognised
+I'm using the app and I noticed a payment that I didn't make.,handoff,card_payment_not_recognised
+"A strange card payment, I do not recognize it.",handoff,card_payment_not_recognised
+They is a payment I don't recognize on my statement.,handoff,card_payment_not_recognised
+I have an unusual payment in my statement,handoff,card_payment_not_recognised
+I do not recognize the card payment.,handoff,card_payment_not_recognised
+Hi something is going on with the app. I see some payments I didn't make?,handoff,card_payment_not_recognised
+"If I see a payment in the app that I don't recognize, what should I do?",handoff,card_payment_not_recognised
+I do not recognise the card payment.,handoff,card_payment_not_recognised
+"There are a couple payments with my card shown in the app that i really didn't make myself. What's happenning with this, does someone has access to my card?!",handoff,card_payment_not_recognised
+Just today there was a purchase on my card that wasn't done by me. Can this be reversed and my card be frozen? I can't have this continue!,handoff,card_payment_not_recognised
+I need some help now please! There are some transactions on my account that I do not remember purchasing. Can they be reversed? Can you please cancel or freeze my card so I don't keep getting charged?!,handoff,card_payment_not_recognised
+my statement contains an unknown payment,handoff,card_payment_not_recognised
+I don't recognize what this payment on my statement would be for.,handoff,card_payment_not_recognised
+There has been a payment in the App that has not be done by me.,handoff,card_payment_not_recognised
+I don't recognize a purchase that was made with my card.,handoff,card_payment_not_recognised
+I'm checking the app and I see a payment that's not mine.,handoff,card_payment_not_recognised
+I have a charge for something I didn't buy.,handoff,card_payment_not_recognised
+A payment on my statement is wrong.,handoff,card_payment_not_recognised
+There's a payment that isn't mine on my app,handoff,card_payment_not_recognised
+What is this strange payment in my account?,handoff,card_payment_not_recognised
+I'm not sure where this charge came from.,handoff,card_payment_not_recognised
+I looked at my statement and found a payment I and found a mistake.,handoff,card_payment_not_recognised
+A payment in my account was made by someone I don't know,handoff,card_payment_not_recognised
+"I don't recognize this payment on my app, I am sure I didn't spend any money there.",handoff,card_payment_not_recognised
+There are a couple of payments with my card shown in the app that in reality I didn't make. Maybe someone has access to my card?Can you check whats the issue ?,handoff,card_payment_not_recognised
+There is payment showing that I didn't do.,handoff,card_payment_not_recognised
+Payment I didn't do.,handoff,card_payment_not_recognised
+Why is there a random payment in my statement?,handoff,card_payment_not_recognised
+"Hi, there is a suspicious payment from my card. I definitely do not know who this is or who could have made this payment.",handoff,card_payment_not_recognised
+A payment I didn't do shows in my app,handoff,card_payment_not_recognised
+There is a charge I don't recognize.,handoff,card_payment_not_recognised
+I am interested in changing my personal details.,edit-details,edit_personal_details
+I am here to change my adress.,edit-details,edit_personal_details
+I'd like to make some changes to my personal information.,edit-details,edit_personal_details
+I would like to change my name after marriage.,edit-details,edit_personal_details
+I would like to change my adress,edit-details,edit_personal_details
+My address is incorrect on my file.,edit-details,edit_personal_details
+My address details have changed and I want to update them,edit-details,edit_personal_details
+Where do I go to edit my personal details on my account?,edit-details,edit_personal_details
+"I need to change my name, since i just got married",edit-details,edit_personal_details
+I moved to a new city and need to change my address,edit-details,edit_personal_details
+How can I change my address?,edit-details,edit_personal_details
+My last name has changed and I need to update my account details.,edit-details,edit_personal_details
+where can I change my address?,edit-details,edit_personal_details
+How do I edit the personal details on my account?,edit-details,edit_personal_details
+details need to be modified,edit-details,edit_personal_details
+Am I able to modify my account details?,edit-details,edit_personal_details
+How can I change my name because I just got married?,edit-details,edit_personal_details
+Where can I find how to change my name?,edit-details,edit_personal_details
+I just moved. How do I give you my new address?,edit-details,edit_personal_details
+I need to change my address in the personal details.,edit-details,edit_personal_details
+Why can't I edit my personal details?,edit-details,edit_personal_details
+I need to change details about my personal account.,edit-details,edit_personal_details
+I need to change my phone number.,edit-details,edit_personal_details
+How can I change my name in my profile?,edit-details,edit_personal_details
+I have a new phone number and need to edit my contact information.,edit-details,edit_personal_details
+How do I go about changing my address?,edit-details,edit_personal_details
+I need to change my personal details in my account.,edit-details,edit_personal_details
+My billing address changed and I need to update my information.,edit-details,edit_personal_details
+Tell me how to change my details.,edit-details,edit_personal_details
+How do I change my account details?,edit-details,edit_personal_details
+How do I change the details in my account?,edit-details,edit_personal_details
+I would like to change my address.,edit-details,edit_personal_details
+I just had a wedding and I want to take my spouses name.,edit-details,edit_personal_details
+I got married and need to change my name.,edit-details,edit_personal_details
+need my details changed,edit-details,edit_personal_details
+I've just got married and want to change my name.,edit-details,edit_personal_details
+How do I edit my details?,edit-details,edit_personal_details
+I am looking to change my adress.,edit-details,edit_personal_details
+I need to change my last name on my account because I just got married.,edit-details,edit_personal_details
+after i got married i need to change my name,edit-details,edit_personal_details
+Why do you have an identity check?,verify-identity,why_verify_identity
+I do not feel comfortable verifying my identity.,verify-identity,why_verify_identity
+Why on earth do you need so much personal id info from me?,verify-identity,why_verify_identity
+DO you know the reason for the identity check?,verify-identity,why_verify_identity
+I answered so many questions about my identity. Why do you need this info?,verify-identity,why_verify_identity
+Why do you have the identity check,verify-identity,why_verify_identity
+Is getting my identity verified required before I can use my account?,verify-identity,why_verify_identity
+why are all my identity details required,verify-identity,why_verify_identity
+I would like to know why so much identity information is required?,verify-identity,why_verify_identity
+Why do you need verification for my identity?,verify-identity,why_verify_identity
+Is the identity check part of bank policy?,verify-identity,why_verify_identity
+Why is identity verification required?,verify-identity,why_verify_identity
+Why is my identification required?,verify-identity,why_verify_identity
+Why are you asking so many questions about who I am,verify-identity,why_verify_identity
+which identity details are required,verify-identity,why_verify_identity
+Can I use my account before the identity verification is complete?,verify-identity,why_verify_identity
+Should I complete my security verification before I can use my account?,verify-identity,why_verify_identity
+Why do you require identification documents,verify-identity,why_verify_identity
+I already have an account. Why can't I use it unless my identity is verified?,verify-identity,why_verify_identity
+Why does my identity need to be verified?,verify-identity,why_verify_identity
+Can I still use my account without verifying my identity?,verify-identity,why_verify_identity
+What is the reason for the identity check,verify-identity,why_verify_identity
+Can I use my account although my identity verification has yet to pass?,verify-identity,why_verify_identity
+I am not comfortable verifying my indentity.,verify-identity,why_verify_identity
+what I need to verify my account,verify-identity,why_verify_identity
+What if I don't verify my identity?,verify-identity,why_verify_identity
+what are the reasons I have to proof my identity to you?,verify-identity,why_verify_identity
+What's the reason for needing to verify my identity?,verify-identity,why_verify_identity
+Why does it matter that I prove my identity?,verify-identity,why_verify_identity
+Why should I have to prove my identity?,verify-identity,why_verify_identity
+Can I use my account before my Identity verification has passed?,verify-identity,why_verify_identity
+Why do I need to verify my account?,verify-identity,why_verify_identity
+Why do you guys need to verify my identity?,verify-identity,why_verify_identity
+Why do I need to verify my identity?,verify-identity,why_verify_identity
+If my identy verifacation hasn't gone through can I use my account?,verify-identity,why_verify_identity
+Is it really necessary to verify my Identity?,verify-identity,why_verify_identity
+Why do you need so much information about me,verify-identity,why_verify_identity
+"Can I use my account now, even though my identity verification has not gone through yet?",verify-identity,why_verify_identity
+What is the function of the identity check,verify-identity,why_verify_identity
+Why is the identity check involved?,verify-identity,why_verify_identity
+Can you help me with proving my identity?,handoff,unable_to_verify_identity
+What proof do you need for my identification?,handoff,unable_to_verify_identity
+Are there any reasons that my identity wouldn't be accepted even though everything I've provided is factual?,handoff,unable_to_verify_identity
+I am having some difficulty verifying my id.,handoff,unable_to_verify_identity
+I am not able to verify my id. Why?,handoff,unable_to_verify_identity
+Help me verify my identify?,handoff,unable_to_verify_identity
+I can't verify identity through the app.,handoff,unable_to_verify_identity
+I need help verifying my identity.,handoff,unable_to_verify_identity
+I'm having trouble proving my identity,handoff,unable_to_verify_identity
+Why isn't my id verified?,handoff,unable_to_verify_identity
+This stupid system is not letting me prove my identity.,handoff,unable_to_verify_identity
+The app is having trouble verifying my identity.,handoff,unable_to_verify_identity
+Why is my identity not being verified?,handoff,unable_to_verify_identity
+"You will hear back from us about your verification results in 10 minutes to a one hour timeframe. If these verification results do fail, please double-check to make sure your images are clear and have no glare or blur; your photos need to be fully readable. You need to be 18 years of age or older and a resident of Switzerland or the European Economic Area to create an account.",handoff,unable_to_verify_identity
+The app does not know it is me.,handoff,unable_to_verify_identity
+My identity wasn't verified,handoff,unable_to_verify_identity
+Help me verify my identification.,handoff,unable_to_verify_identity
+Unsure how to provide my identity.,handoff,unable_to_verify_identity
+It can take between 10 minutes to an hour before you hear back from us about the verification result. Please try again if your verification fails. Make sure you double check that images are clear and all document photos are readable without blur or glare. You have to be 18 or older and live in the European Economic area or live in Switzerland to be able to open an account.,handoff,unable_to_verify_identity
+I can't upload my identification.,handoff,unable_to_verify_identity
+Why isn't my id verifying?,handoff,unable_to_verify_identity
+How long does it take to prove my identity?,handoff,unable_to_verify_identity
+Why am I not allowed to verify my id?,handoff,unable_to_verify_identity
+I am not able to prove my identity,handoff,unable_to_verify_identity
+The app failed to verify my id.,handoff,unable_to_verify_identity
+"Hearing back from us regarding your important verification results may take 10 minutes to one hour time. If verification results do fail, double-check to make sure all of your images are clear -- make sure your photos have no glare or blurring. Note: These photos need to be readable as well. You also need to be 18 years of age or older. You must be a resident of Switzerland or the European Economic Area to open a new account.",handoff,unable_to_verify_identity
+I'm unable to verify my identity,handoff,unable_to_verify_identity
+My identity verification didn't work,handoff,unable_to_verify_identity
+I'm not able to verify my identity.,handoff,unable_to_verify_identity
+The app is not able to realize that it is me.,handoff,unable_to_verify_identity
+The app does not believe that I am myself,handoff,unable_to_verify_identity
+It won't let me verify my identity.,handoff,unable_to_verify_identity
+I am unable to prove my identity,handoff,unable_to_verify_identity
+I dont have identification,handoff,unable_to_verify_identity
+Why isn't this accepting my identity?,handoff,unable_to_verify_identity
+The app won't identify me.,handoff,unable_to_verify_identity
+My identity can't be verified for some reason,handoff,unable_to_verify_identity
+My identity is unable to be verified.,handoff,unable_to_verify_identity
+I have no way to prove my identity.,handoff,unable_to_verify_identity
+The app does not recognize who I am.,handoff,unable_to_verify_identity
+"I'm not sure what to do about the PIN, because I don't have one yet.",order-card,get_physical_card
+Is my PIN sent separably?,order-card,get_physical_card
+Where can I get my card PIN?,order-card,get_physical_card
+my pin hasn't arrived in the post! How do I cancel it or get a new one?,order-card,get_physical_card
+Where is the card PIN located?,order-card,get_physical_card
+"I have my card, when whill my PIN be available?",order-card,get_physical_card
+I dont have a pin,order-card,get_physical_card
+i have yet to get my pin,order-card,get_physical_card
+Where is my card PIN?,order-card,get_physical_card
+The card PIN?,order-card,get_physical_card
+I do not see the card PIN anywhere?,order-card,get_physical_card
+My pin isn't here yet,order-card,get_physical_card
+Is my PIN recorded anywhere?,order-card,get_physical_card
+How will I know my pin number?,order-card,get_physical_card
+"I need my PIN, where is it?",order-card,get_physical_card
+I haven't received my pin,order-card,get_physical_card
+I am not able to see the card PIN anywhere?,order-card,get_physical_card
+"I don't know my PIN, how can I find that out?",order-card,get_physical_card
+Where can the pin be located?,order-card,get_physical_card
+How do I find my PIN?,order-card,get_physical_card
+Why have I not received my PIN,order-card,get_physical_card
+When do I get my PIN?,order-card,get_physical_card
+Where can I locate my card PIN?,order-card,get_physical_card
+Tell me about the card PIN?,order-card,get_physical_card
+"In the app, where do I find my card PIN?",order-card,get_physical_card
+do i have to wait for a physical card before i get my pin,order-card,get_physical_card
+The card PIN is not visible anywhere?,order-card,get_physical_card
+I cannot see the card PIN anywhere?,order-card,get_physical_card
+How will I receive my PIN?,order-card,get_physical_card
+My card arrived but I don't know how to get my PIN.,order-card,get_physical_card
+Where should I look for my PIN number at?,order-card,get_physical_card
+Where can I locate my PIN at?,order-card,get_physical_card
+Where is the PIN for my card located?,order-card,get_physical_card
+I do not have my pin yet,order-card,get_physical_card
+Do I have a card PIN?,order-card,get_physical_card
+Where is my PIN located?,order-card,get_physical_card
+I can't find the PIN.,order-card,get_physical_card
+What can you tell me about the card PIN?,order-card,get_physical_card
+Where can I find my card PIN?,order-card,get_physical_card
+How do I find my PIN number?,order-card,get_physical_card
+My money I had was gone and I could not get gas!,top-up-by-card,topping_up_by_card
+i can not see my top up,top-up-by-card,topping_up_by_card
+I can't see my top up in my wallet!,top-up-by-card,topping_up_by_card
+I want to transfer money using my credit card.,top-up-by-card,topping_up_by_card
+"I tried topping up using my card, but the money is gone?",top-up-by-card,topping_up_by_card
+How can my friends top up my account?,top-up-by-card,topping_up_by_card
+"I used my card to top up, but the money is not there!",top-up-by-card,topping_up_by_card
+My card needs to be topped up.,top-up-by-card,topping_up_by_card
+Can my friends top up my account?,top-up-by-card,topping_up_by_card
+What's the process for topping up by card?,top-up-by-card,topping_up_by_card
+Is my account able to be topped up by my friends?,top-up-by-card,topping_up_by_card
+Can anyone else top-up for me?,top-up-by-card,topping_up_by_card
+I tried to top up and suddenly my money disappeared,top-up-by-card,topping_up_by_card
+My wallet doesn't show my recent top up.,top-up-by-card,topping_up_by_card
+Can I get my friends to add money to my account?,top-up-by-card,topping_up_by_card
+I used my card top-up but all of the money is missing.,top-up-by-card,topping_up_by_card
+Could you tell me why my top up isn't showing in my wallet?,top-up-by-card,topping_up_by_card
+What do I do to Top up my card?,top-up-by-card,topping_up_by_card
+"I tried topping off my account with a card, but the money is not in my account despite the charge going through",top-up-by-card,topping_up_by_card
+Is it possible to top up by card?,top-up-by-card,topping_up_by_card
+I want to know how to transfer money with my credit card,top-up-by-card,topping_up_by_card
+Hoe do i use my credit card to transfer money?,top-up-by-card,topping_up_by_card
+"I attempted to top up using my card, but now the money just disappeared?",top-up-by-card,topping_up_by_card
+My top up isn't in my wallet.,top-up-by-card,topping_up_by_card
+Can I let other people have access to my account in order to top up?,top-up-by-card,topping_up_by_card
+How do I to up by card?,top-up-by-card,topping_up_by_card
+How do I add money to my card?,top-up-by-card,topping_up_by_card
+"When I tried to top up using my card, all of the money disappeared.",top-up-by-card,topping_up_by_card
+"I used my card to top up, but now I don't see the money in my account.",top-up-by-card,topping_up_by_card
+Can i top up by card?,top-up-by-card,topping_up_by_card
+With my credit card i would like to transfer money.,top-up-by-card,topping_up_by_card
+I want to top up by card,top-up-by-card,topping_up_by_card
+I don't understanfd how to top up,top-up-by-card,topping_up_by_card
+Why was my card charged when topping off my balance but it's not showing up in my wallet balance?,top-up-by-card,topping_up_by_card
+Why can't I see my top up?,top-up-by-card,topping_up_by_card
+Is it simple to transfer money using my credit card?,top-up-by-card,topping_up_by_card
+Why can't I see the top up I made?,top-up-by-card,topping_up_by_card
+Can a credit card be used to transfer money?,top-up-by-card,topping_up_by_card
+Is it possible to transfer money to my credit card?,top-up-by-card,topping_up_by_card
+"My wallet isn't showing my top-up, did I do something wrong?",top-up-by-card,topping_up_by_card
+Do the disposable cards have any restrictions on them?,virtual-cards,disposable_card_limits
+How many times can I use a virtual card?,virtual-cards,disposable_card_limits
+A friend was telling me about her disposable cards. What would I have to do to be able to get that feature?,virtual-cards,disposable_card_limits
+Can I have more disposable cards?,virtual-cards,disposable_card_limits
+"i tried using a virtual card for a hotel but it didn't work, why not",virtual-cards,disposable_card_limits
+What are the guidelines for the disposable cards?,virtual-cards,disposable_card_limits
+Do the disposable cards have a transaction limit?,virtual-cards,disposable_card_limits
+Can you give me the restrictions of the disposable cards?,virtual-cards,disposable_card_limits
+Is there a limit on the number of times I can use a disposable card?,virtual-cards,disposable_card_limits
+How many disposable cards am I allowed to have?,virtual-cards,disposable_card_limits
+What are the restrictions of the disposable cards?,virtual-cards,disposable_card_limits
+What is the most amount of disposable cards allowable?,virtual-cards,disposable_card_limits
+Can I get a disposable card? How many can I have? How often can I use them?,virtual-cards,disposable_card_limits
+What number of transactions can i do with one disposable card?,virtual-cards,disposable_card_limits
+Whats the maximum disposable virtual cards?,virtual-cards,disposable_card_limits
+How limited is a virtual card?,virtual-cards,disposable_card_limits
+What are the disposable cards restrictions?,virtual-cards,disposable_card_limits
+"I need multiple cards per day, and they all have to be disposable.",virtual-cards,disposable_card_limits
+Is there a limit to the number of disposable cards I can have?,virtual-cards,disposable_card_limits
+Can I have more than 2 disposable cards?,virtual-cards,disposable_card_limits
+What sort of restrictions are there for the disposable cards?,virtual-cards,disposable_card_limits
+What is the limit on disposable cards?,virtual-cards,disposable_card_limits
+Help me create several temp cards every day.,virtual-cards,disposable_card_limits
+Are there any limits to using disposable virtual cards?,virtual-cards,disposable_card_limits
+Are there a certain amount of transactions i can do with one disposable card?,virtual-cards,disposable_card_limits
+What are the limitations on the disposable cards?,virtual-cards,disposable_card_limits
+"I have a disposable card, how many transactions can I make?",virtual-cards,disposable_card_limits
+What are the policies of disposable cards?,virtual-cards,disposable_card_limits
+Is there a limit on how many times I can use a disposable card?,virtual-cards,disposable_card_limits
+I need to make several disposable cards per day.,virtual-cards,disposable_card_limits
+What is the number of transactions I get with a disposable card?,virtual-cards,disposable_card_limits
+How many disposable virtual cards can you have?,virtual-cards,disposable_card_limits
+Can you tell me the restrictions for the disposable cards?,virtual-cards,disposable_card_limits
+How can many disposable cards can I have per day?,virtual-cards,disposable_card_limits
+Could you tell me about the restrictions that are on the disposable cards?,virtual-cards,disposable_card_limits
+Do the disposable cards have any restrictions?,virtual-cards,disposable_card_limits
+I need several cards per day. And I need to be able to throw away all of the cards I make.,virtual-cards,disposable_card_limits
+How many times can I use my disposable card?,virtual-cards,disposable_card_limits
+With one disposable card how many transactions can i do?,virtual-cards,disposable_card_limits
+Is there any limits I should know about if I'm going to use a disposable virtual card?,virtual-cards,disposable_card_limits
+I think someone is using my card without my permission!,handoff,compromised_card
+What do I do if I detect fraudulent use on my car?,handoff,compromised_card
+I think my account has been hacked there are charges on there I don't recognize.,handoff,compromised_card
+I don't recognize some transactions. Is someone else using it?,handoff,compromised_card
+I just got an email in confirming my purchase with my card. I login to the mobile app on the card and found out there are several purchase were made without me aware of it. Evidently someone had stole my card information and made these fraudulent purchase. I need the transaction to be reverse and have my card suspended.,handoff,compromised_card
+How do I stop fraud to my account?,handoff,compromised_card
+card is being used by someone else,handoff,compromised_card
+I think someone else is using my card.,handoff,compromised_card
+Someone might be using my card that is not me.,handoff,compromised_card
+There are strange transactions on my account. What should I do if I think someone stole my details?,handoff,compromised_card
+I sees some suspicious spending on my credit card that I don't recall I had made. What should I do?,handoff,compromised_card
+"It looks like someone besides me ordered something with my card, what should I do?",handoff,compromised_card
+There are charges on my card that I haven't purchased.,handoff,compromised_card
+Someone might be using my card. What should I do?,handoff,compromised_card
+I suspect someone used my card.,handoff,compromised_card
+Please tell me how you can stop unauthorized payments from being made on my card since on this bill I see that this has happened. There are transactions that I never made from a place I've never been to.,handoff,compromised_card
+I think that somebody is utilizing my card without my authorization!,handoff,compromised_card
+"There are a few transaction that I don't recognize, I think someone managed to get my card details and use it.",handoff,compromised_card
+Someone has been using my card. There are unfamiliar transactions on there. Can you freeze the card to keep this from happening?,handoff,compromised_card
+What can I do if my card details where stolen from my car? I think they used my card to buy gas.,handoff,compromised_card
+I want to cancel my card. I think someone else is using it.,handoff,compromised_card
+"I can't be sure, but I think that someone may be using my card.",handoff,compromised_card
+What should I do if I think someone is using my card without my permission?,handoff,compromised_card
+I believe that someone is using my card without my knowledge!,handoff,compromised_card
+There is unusual activity on my account and I believe someone took my card.,handoff,compromised_card
+Someone must have found my card details as I don't recognize these transactions.,handoff,compromised_card
+Should I order a new card before I freeze my original one?,handoff,compromised_card
+"I think that someone may be using my card, but I'm not sure,.",handoff,compromised_card
+I think someone has hacked my card!,handoff,compromised_card
+My card has been compromised. I see a bunch of online shopping charges that I didn't make. I need to freeze it immediately.,handoff,compromised_card
+I think my card has been used by somebody else since I was never in the little town where some transactions on this bill have come from. Please stop this right away.,handoff,compromised_card
+am suspicious of my card's security,handoff,compromised_card
+"Someone is making transactions on my account, I think they took my card information.",handoff,compromised_card
+I think someone stole my card number and brought stuff in different places that I have never been to. I need to suspend any further purchase on my credit card.,handoff,compromised_card
+There's a possibility that my card was compromised.,handoff,compromised_card
+What should I do if I think there are unauthorized transactions?,handoff,compromised_card
+How do I stop fraud to my card?,handoff,compromised_card
+am afraid someone may have gained access to the info on my card.,handoff,compromised_card
+My statement shows charges for things I never purchased. Were my account details stolen?,handoff,compromised_card
+What should I do if someone else used my card?,handoff,compromised_card
+I can use this card at which ATMs?,atm-cash,atm_support
+Can I use the card at any cash machine?,atm-cash,atm_support
+What locations can I get money from?,atm-cash,atm_support
+What ATMs take this card?,atm-cash,atm_support
+Which ATM's can I use to make a withdrawal?,atm-cash,atm_support
+Do all ATMs accept this card?,atm-cash,atm_support
+Will this card work at any ATM?,atm-cash,atm_support
+Which ATMs am I allowed to get money from?,atm-cash,atm_support
+Where is the closest ATM to me?,atm-cash,atm_support
+Which ATMs accept this bill of fare ?,atm-cash,atm_support
+Do I have to use a bank approved ATM to withdraw money?,atm-cash,atm_support
+How do I withdraw money?,atm-cash,atm_support
+Can I use this card at any ATM?,atm-cash,atm_support
+What locations allow me to withdraw money?,atm-cash,atm_support
+What ATMs accept my card?,atm-cash,atm_support
+Can I use my card to withdraw from my account?,atm-cash,atm_support
+Can you tell me where I can withdraw money?,atm-cash,atm_support
+What kind of ATMs would this card be accepted at?,atm-cash,atm_support
+Are there specific ATM's that I can draw money from?,atm-cash,atm_support
+Where can money withdrawals be made?,atm-cash,atm_support
+Do I have to use bank approved ATM's,atm-cash,atm_support
+Where can I find Mastercard ATMs?,atm-cash,atm_support
+What ATMs can I use my card at?,atm-cash,atm_support
+What ATM machines allow this card?,atm-cash,atm_support
+Where can I do a cash withdrawal?,atm-cash,atm_support
+Where should I withdraw money from?,atm-cash,atm_support
+Where are the ATMs that accept this card?,atm-cash,atm_support
+Is there a way to find an ATM around me?,atm-cash,atm_support
+Will any ATM's decline my card?,atm-cash,atm_support
+What ATMs can I use my card?,atm-cash,atm_support
+What cash stations take this card?,atm-cash,atm_support
+At which ATMs can I use this card?,atm-cash,atm_support
+Please provide me a list of ATMs that accept my card.,atm-cash,atm_support
+Can I use my card at an ATM?,atm-cash,atm_support
+Where is the closest ATM I can use?,atm-cash,atm_support
+Where is the nearest Mastercard ATM?,atm-cash,atm_support
+Where can I get money from my card?,atm-cash,atm_support
+How can I find an ATM that accepts this card?,atm-cash,atm_support
+I need an ATM right now!,atm-cash,atm_support
+Which ATMs accept Mastercard?,atm-cash,atm_support
+"Hi, i found a large amount payment in my old statements which i am sure was not made by me. I am aware that the time has passed but is there a way to raise a dispute for this payment now?",handoff,direct_debit_payment_not_recognised
+what is the word?,handoff,direct_debit_payment_not_recognised
+Please help my find out why there is an odd direct debit in my records.,handoff,direct_debit_payment_not_recognised
+I am seeing in the App a diret debit that its not mine,handoff,direct_debit_payment_not_recognised
+There is a direct debit payment that I did not make.,handoff,direct_debit_payment_not_recognised
+There is a strange charge on my debit statement,handoff,direct_debit_payment_not_recognised
+There is a Direct Debit that looks suspicious.,handoff,direct_debit_payment_not_recognised
+Is there a way for you to find out why my account was deducted from a seller when I didn't approve of it?,handoff,direct_debit_payment_not_recognised
+Why is there a direct debit payment on my statement that I didn't do?,handoff,direct_debit_payment_not_recognised
+A direct debit payment that I didn't authorise shows up in my app.,handoff,direct_debit_payment_not_recognised
+My app is showing a payment that I know I did not do. Can you please cancel that transaction and credit my account please?,handoff,direct_debit_payment_not_recognised
+i would like to dispute a direct debit payment,handoff,direct_debit_payment_not_recognised
+Is it possible to dispute a debit payment from a couple of months ago.,handoff,direct_debit_payment_not_recognised
+A direct debit payment I didn't do shows in my app,handoff,direct_debit_payment_not_recognised
+I see a direct debit transaction in my history that I did not set up.,handoff,direct_debit_payment_not_recognised
+A false direct debit payment is showing in my app,handoff,direct_debit_payment_not_recognised
+I do not understand what this particular direct debit is ?,handoff,direct_debit_payment_not_recognised
+There was some money taken from my account that I don't remember paying for. Am I able to look up this transaction which was a few weeks ago to see who took out the money? Im not sure I need a refund just want to check to make sure it's legit.,handoff,direct_debit_payment_not_recognised
+Please tell me what this direct debit in my statement is,handoff,direct_debit_payment_not_recognised
+what is this charge on my card?,handoff,direct_debit_payment_not_recognised
+"A few weeks ago, a strange transaction was made on my account by a seller I don't know. I am quite sure I didn't do it and will like for you to check it for me.",handoff,direct_debit_payment_not_recognised
+Is there a strict timeline regarding disputing transactions made on my account? I just noticed a fraudulent charge on a statement from a couple months ago.,handoff,direct_debit_payment_not_recognised
+There is a mysterious debit transaction on my statement,handoff,direct_debit_payment_not_recognised
+what is the matter?,handoff,direct_debit_payment_not_recognised
+My account shows I made a debit payment to someone that I can't recall and would like to find out who the payment was made to.,handoff,direct_debit_payment_not_recognised
+I don't recognize the direct debit payment from the app.,handoff,direct_debit_payment_not_recognised
+I need a refund on a direct debit that shows in the app because I did not make it.,handoff,direct_debit_payment_not_recognised
+"hey, I think someone stole my card numbers. There is a purchase showing up on my app from a store pretty far away from me.. I really need that money back to pay my rent.",handoff,direct_debit_payment_not_recognised
+I was just going over my transactions for the past couple of months and noticed a large type charge that I know I did not make. Even though it's been a while can I please still dispute this?,handoff,direct_debit_payment_not_recognised
+There was a charge made on my card from a couple weeks ago and I don't remember making the purchase. Nor do I remember the company itself. Can we trace this at all to confirm if I did it or not?,handoff,direct_debit_payment_not_recognised
+There is a direct debit payment I don't recognize.,handoff,direct_debit_payment_not_recognised
+What is this direct debit in my statement?,handoff,direct_debit_payment_not_recognised
+This debit is not my transcation. How do I get my money out back?,handoff,direct_debit_payment_not_recognised
+How can I get my money back for a payment i didnt make,handoff,direct_debit_payment_not_recognised
+I don't recognize the direct debit payment on my account.,handoff,direct_debit_payment_not_recognised
+A direct debit appears in the app but I didn't authorize it.,handoff,direct_debit_payment_not_recognised
+I'm seeing a direct debit payment that is not me.,handoff,direct_debit_payment_not_recognised
+I see a direct debit transaction that I didn't make.,handoff,direct_debit_payment_not_recognised
+Could I raise a dispute for a large payment that i found out was not done by me in my couple of last statements? I am aware its delayed now. Please help me out.,handoff,direct_debit_payment_not_recognised
+I don't know where a direct debit payment came from,handoff,direct_debit_payment_not_recognised
+Help me! I don't know what my password is.,passcode,passcode_forgotten
+"I thought I knew my password but I guess I was wrong, what can I do now?",passcode,passcode_forgotten
+I am unable to access my app due to forgetting my passcode.,passcode,passcode_forgotten
+I can't recall my password.,passcode,passcode_forgotten
+What should I do if I don't know my password?,passcode,passcode_forgotten
+Need a new passcode.,passcode,passcode_forgotten
+I can't log in with this passocde,passcode,passcode_forgotten
+I forgot my passcode. Now what?,passcode,passcode_forgotten
+What are the steps to reset my passcode?,passcode,passcode_forgotten
+Where do I go to reset the passcode?,passcode,passcode_forgotten
+I am unaware of what my password is.,passcode,passcode_forgotten
+I can't remember my passcode.,passcode,passcode_forgotten
+I forgot my code,passcode,passcode_forgotten
+Help me. The passcode doesn't work.,passcode,passcode_forgotten
+The passcode isn't working for me.,passcode,passcode_forgotten
+Is there a way to recover my password?,passcode,passcode_forgotten
+Can you lookup my password?,passcode,passcode_forgotten
+What is my password?,passcode,passcode_forgotten
+I forgot my password to get into the app!,passcode,passcode_forgotten
+Why doesn't my passcode work?,passcode,passcode_forgotten
+I happened to forget my password,passcode,passcode_forgotten
+I forgot the passcode on my app.,passcode,passcode_forgotten
+I seem to of forgotten my passcode.,passcode,passcode_forgotten
+I do not understand why my pass-code is not working.,passcode,passcode_forgotten
+My passcode won't work.,passcode,passcode_forgotten
+How do I reset my passcode?,passcode,passcode_forgotten
+Not sure what my password is.,passcode,passcode_forgotten
+how to recover my passcode,passcode,passcode_forgotten
+I don't remember my login code,passcode,passcode_forgotten
+I need a new login code,passcode,passcode_forgotten
+Help! I forgot my password.,passcode,passcode_forgotten
+I happened to forget my passcode,passcode,passcode_forgotten
+"what is going on, i have entered my passcode and its not working",passcode,passcode_forgotten
+passcode retrieval,passcode,passcode_forgotten
+My passcode is not being accepted,passcode,passcode_forgotten
+I would like to better understand why my pass-code is not working.,passcode,passcode_forgotten
+I can't find my code,passcode,passcode_forgotten
+My password doesn't work.,passcode,passcode_forgotten
+My passcode was denied.,passcode,passcode_forgotten
+I don't know the code for the app.,passcode,passcode_forgotten
+"My phone was stolen, what should I do first?",handoff,lost_or_stolen_phone
+"My phone was stolen, what should I do?",handoff,lost_or_stolen_phone
+"I lost my phone, what should I do?",handoff,lost_or_stolen_phone
+"Someone has stolen my phone, what should I do?",handoff,lost_or_stolen_phone
+I think I lost my phone. Is there a way to prevent anyone from getting into my account on it?,handoff,lost_or_stolen_phone
+My phone was stolen! What do I need to do?,handoff,lost_or_stolen_phone
+Can I use the app without my phone?,handoff,lost_or_stolen_phone
+"My bag was stolen from me yesterday, so I can't use any apps or anything. I need some help.",handoff,lost_or_stolen_phone
+"Someone stole my phone, what is my next step?",handoff,lost_or_stolen_phone
+"I forgot my phone at the hotel, so I can't access the app.",handoff,lost_or_stolen_phone
+"Help, my phone was stolen, please advise!",handoff,lost_or_stolen_phone
+my phone was lost,handoff,lost_or_stolen_phone
+I need help- I got mugged yesterday and they took everything so I can't use the app.,handoff,lost_or_stolen_phone
+I can't find my phone and I'm worried someone is going to use it,handoff,lost_or_stolen_phone
+I lost my phone! Will my card still work?,handoff,lost_or_stolen_phone
+I can not find my phone or it has been stolen.,handoff,lost_or_stolen_phone
+I can't use the app because I got mugged yesterday and they took everything. Please help.,handoff,lost_or_stolen_phone
+Can you tell me what i steps i should take since my card was stolen?,handoff,lost_or_stolen_phone
+What do I do if my phone was stolen?,handoff,lost_or_stolen_phone
+What do I do if I can't access the app?,handoff,lost_or_stolen_phone
+What do I do if my phone is stolen?,handoff,lost_or_stolen_phone
+I left my phone somewhere and can't use the app.,handoff,lost_or_stolen_phone
+Someone mugged my and stole everything. I can't use the app. What should I do?,handoff,lost_or_stolen_phone
+"I got mugged yesterday and they took everything. I can't use the app, so I need some help.",handoff,lost_or_stolen_phone
+I am not sure where my phone is.,handoff,lost_or_stolen_phone
+"If my phone was stolen, do I need to do anything?",handoff,lost_or_stolen_phone
+Please help! I was mugged and everything stolen. What do I do to stop them from accessing my account?,handoff,lost_or_stolen_phone
+I have an emergency and lost my phone. I need help accessing my account.,handoff,lost_or_stolen_phone
+"stolen phone, what should i do",handoff,lost_or_stolen_phone
+Help me. My phone has been lost or stolen!,handoff,lost_or_stolen_phone
+My app was on the phone and I was mugged. What do I do?,handoff,lost_or_stolen_phone
+I don't have the device I used to log onto the platform so I can't access it.,handoff,lost_or_stolen_phone
+I lost my phone. Can I use my card without the app?,handoff,lost_or_stolen_phone
+What should I do if my smart phone is lost or stolen?,handoff,lost_or_stolen_phone
+"If I lost my phone, what steps do I need to take to stop someone from using my account?",handoff,lost_or_stolen_phone
+Can someone else use my account if they have my phone? I lost mine.,handoff,lost_or_stolen_phone
+"My phone was stolen, help!",handoff,lost_or_stolen_phone
+"phone is gone, what should i do",handoff,lost_or_stolen_phone
+"I'm currently not in possession of my phone, is it still possible to go about things normally without access to the app?",handoff,lost_or_stolen_phone
+I lost my phone. Can I disable to app?,handoff,lost_or_stolen_phone
+How long does it take to get a refund on something I bought?,handoff,request_refund
+Please tell me how to get a refund for something I bought.,handoff,request_refund
+Can i cancel this purchase?,handoff,request_refund
+I want to return an item for a refund can I do that?,handoff,request_refund
+Can I request a refund,handoff,request_refund
+"I am not sure how this will work, but I have not received a product I ordered. I want a refund, but should I just cancel the payment?",handoff,request_refund
+Where do I go for a refund?,handoff,request_refund
+I'm interested in learning more about product refunds.,handoff,request_refund
+do you offer refunds? i would like to return purchase.,handoff,request_refund
+What's the procedure for canceling a purchase?,handoff,request_refund
+I need to cancel a purchase that I made the other day.,handoff,request_refund
+Hello. How do i go about getting a refund of an item i bought ? I want to cancel the payment since i have not received the item yet.,handoff,request_refund
+"I need a refund and cancel a transaction on an item I purchased and i need it as soon as possible, please!",handoff,request_refund
+i bought the wrong size and would like a refund,handoff,request_refund
+I want to know about your refund policy.,handoff,request_refund
+Can I cancel an order if I haven't received the item yet? And how can I get my money back? Please help. Thanks.,handoff,request_refund
+"Hey I want to get a refund on something I bought, but not sure how to go about it. Can you please just cancel the payment, I have not received the item yet.",handoff,request_refund
+I am quite aggravated that I ordered online almost a month ago and I never got my package and I paid for it. I would really appreciate it if I could get a full refund back now.,handoff,request_refund
+My statement has a charge that shouldn't have been made.,handoff,request_refund
+My product hasn't arrived even though I ordered it a while ago. I want a refund!,handoff,request_refund
+Is there a way you can have money from a purchase I made refunded to my account.,handoff,request_refund
+I've changed my mind on an item. How do I get a refund?,handoff,request_refund
+"I decided I no long want something that I ordered, and want a refund. How do I go about doing that?",handoff,request_refund
+How do I get a refund for something I bought?,handoff,request_refund
+I made a purchase recently but I have decided that I'm not buying it and I need to receive my money back. Can you please give me a refund ASAP. It's extremely urgent.,handoff,request_refund
+Please help me get a refund?,handoff,request_refund
+What is the refund policy?,handoff,request_refund
+I just bought an item and changed my mind. I have not received it yet how can I get refunded. Thank you.,handoff,request_refund
+Are refunds allowed for certain items.,handoff,request_refund
+I need to cancel a purchase?,handoff,request_refund
+I have an incorrect charge and would like a refund.,handoff,request_refund
+I want a refund on the things i bought,handoff,request_refund
+I would like my money back for an item I purchased,handoff,request_refund
+Please could you give me a refund,handoff,request_refund
+"If I bought something I didn't like, can I get a refund?",handoff,request_refund
+I bought something that I need a refund for.,handoff,request_refund
+I want to cancel a purchase,handoff,request_refund
+Am I able to get a refund for something I bought?,handoff,request_refund
+"My order hasn't shown up yet, what can I do?",handoff,request_refund
+My package is taking too long to arrive and I don't want it anymore. Can I get a refund?,handoff,request_refund
+"I don't see my refund money yet in my account. I asked the merchant a while ago for a refund, so I don't know what's taking so long. Can you look into it and see if the money is there, just not in my account yet?",handoff,Refund_not_showing_up
+Why am I missing my refund,handoff,Refund_not_showing_up
+Please help me. I am still waiting on a refund.,handoff,Refund_not_showing_up
+I requested a refund but am unable to see it in my account. Why is that?,handoff,Refund_not_showing_up
+When will my refund come through,handoff,Refund_not_showing_up
+Why is my refund not showing up on the statement?,handoff,Refund_not_showing_up
+I need my refund,handoff,Refund_not_showing_up
+why cant you just refund me instead of a merchant,handoff,Refund_not_showing_up
+Why haven't I received a refund yet?,handoff,Refund_not_showing_up
+when will I get my refund?,handoff,Refund_not_showing_up
+They said I would get a refund but I don't see it on my statement.,handoff,Refund_not_showing_up
+A refund is taking too long.,handoff,Refund_not_showing_up
+"I requested a refund from a merchant a while ago, and upon repeatedly checking my statement, the merchant has yet to refund me my money. I don't know what's going on, or why the money is getting into my account--could you please help?",handoff,Refund_not_showing_up
+Why isn't my refund showing up in my statement?,handoff,Refund_not_showing_up
+I can't see a refund for a return I completed recently.,handoff,Refund_not_showing_up
+How come my refund hasn't appeared on my statement?,handoff,Refund_not_showing_up
+Why am I still waiting for my refund,handoff,Refund_not_showing_up
+I keep checking my statements but nothing shows up. I requested a refund a long time ago but seems it's not reaching my account for some reason. Would you please help me get the money back from the seller.,handoff,Refund_not_showing_up
+Why is my refund not visible on my statement?,handoff,Refund_not_showing_up
+The refund doesn't show in my account,handoff,Refund_not_showing_up
+I have not received a refund.,handoff,Refund_not_showing_up
+Where is my recent refund in the my statement?,handoff,Refund_not_showing_up
+I am missing a refund amount on my account.,handoff,Refund_not_showing_up
+I asked for a refund but its not here yet,handoff,Refund_not_showing_up
+I have a missing refund,handoff,Refund_not_showing_up
+i need a refund right away but the funds aren't available in my account,handoff,Refund_not_showing_up
+When will my returned transaction show up on my account?,handoff,Refund_not_showing_up
+There is a refund missing.,handoff,Refund_not_showing_up
+"My refund has not arrived, and I am unsure why. Who do I contact?",handoff,Refund_not_showing_up
+I need my refund as soon as possible. What else do I have to do?,handoff,Refund_not_showing_up
+I can't see my refund in my history.,handoff,Refund_not_showing_up
+The refund isn't appearing in my account,handoff,Refund_not_showing_up
+How can I check if I have received a refund if it is not yet on my statement?,handoff,Refund_not_showing_up
+Why isn't a refund showing on my statement?,handoff,Refund_not_showing_up
+I can not find my refund.,handoff,Refund_not_showing_up
+"I requested a refund from a merchant several days ago, but don't see anything showing up in my account yet. Can you check on your end to see if the money has reached you guys?",handoff,Refund_not_showing_up
+I am waiting on the refund,handoff,Refund_not_showing_up
+How can I investigate a missing refund?,handoff,Refund_not_showing_up
+"Hi, Last week I have contacted the seller for a refund as directed by you, but i have not received the money yet. Please look into this issue with seller and help me in getting the refund.",handoff,Refund_not_showing_up
+I still don't have a refund.,handoff,Refund_not_showing_up
+I'm not sure why my card didn't work,handoff,declined_card_payment
+My card is not working at stores.,handoff,declined_card_payment
+Do you know why my card payment has been declined?,handoff,declined_card_payment
+Why isn't my card working? I was pumped to use my new card but it keeps getting declined. Help please.,handoff,declined_card_payment
+I could not use my card in a store.,handoff,declined_card_payment
+If my card payment isn't working what do I do?,handoff,declined_card_payment
+I'm not sure why the card payment didn't work.,handoff,declined_card_payment
+Tell me why my card payment has been declined.,handoff,declined_card_payment
+I was just shopping online for some tickets and the payment was declined by you. Why has this happened? I am certain I have the right amount of funds in my account.,handoff,declined_card_payment
+I am very upset that i went to use my new card today and it kept getting declined. Why is this happening and what do I do to not have it declined?,handoff,declined_card_payment
+What are the reasons why a card payment would be declined?,handoff,declined_card_payment
+The card payment I attempted to make failed.,handoff,declined_card_payment
+Why has my card been declined?,handoff,declined_card_payment
+I went to use my new card today and the card was repeatedly declined. I would really like to use this card and need to know what to do about it.,handoff,declined_card_payment
+"I was out today looking forward to paying with my new card, but the payment just kept getting declined. This is really sad, what's going on?",handoff,declined_card_payment
+What is the reason my payment was not accepted?,handoff,declined_card_payment
+"May monthly payment to Apple has been declined but I don't know why, they are going to re-try the payment and it must go through, can you tell me what is going on please?",handoff,declined_card_payment
+You have declined my payment.,handoff,declined_card_payment
+Can you tell me why my card keeps getting declined every time I try to use it?,handoff,declined_card_payment
+Can you tell me why my card is not working? I keep trying to use it but it keeps rejecting my payment. I am being careful and entering the info correctly but it still happens.,handoff,declined_card_payment
+"Apparently, I went out today to use my new card and was informed my payment was decline. This is really embarrassing, what happen?",handoff,declined_card_payment
+I NEED HELP WITH MY CARD!!!!! please. It keeps getting declined when I try to use it. I have tried a few times to use it and it keeps getting rejected. I have no idea why.,handoff,declined_card_payment
+How do I check to see why my card payment was declined?,handoff,declined_card_payment
+Why was my card declined in a shop?,handoff,declined_card_payment
+The payment for the card did not go through,handoff,declined_card_payment
+My card was rejected,handoff,declined_card_payment
+I use this card all the time so why did it get declined at the store today?,handoff,declined_card_payment
+I couldn't pay with my card,handoff,declined_card_payment
+Why are all my card payments being declined?,handoff,declined_card_payment
+I couldn't pay with card in a shop,handoff,declined_card_payment
+Why is my payment declined? It looked like everything worked ok and my account was fine.,handoff,declined_card_payment
+My card payment failed.,handoff,declined_card_payment
+"My payment has been declined!! What's going on, I thought everything was alright and working well?",handoff,declined_card_payment
+My latest payment was declined! What happened! I was told everything had been resolved and was back to working order again.,handoff,declined_card_payment
+My card wasn't working in a shop,handoff,declined_card_payment
+I'm sure I have enough money so why didn't the store accept my card?,handoff,declined_card_payment
+Why has my payment been declined? I paid by card.,handoff,declined_card_payment
+can you tell me why my card was declined?,handoff,declined_card_payment
+My card didn't go through. It doesn't make sense. You told me that everything was ok.,handoff,declined_card_payment
+Please explain why my payment was declined? I thought everything was good.,handoff,declined_card_payment
+"i put in money for vacation and its not showing. i need that money today, how long will it take",handoff,pending_transfer
+I can't figure out why a transfer is still pending?,handoff,pending_transfer
+"Transfers can take up to one day to process before departing for the beneficiary accounts. Please confirm that you've entered your account details correctly. SEPA transfers can take up to two working days, while SWIFT transfers can take up to five working days.",handoff,pending_transfer
+When will my transfer finish pending?,handoff,pending_transfer
+"How long do transfers take, mine just says pending?",handoff,pending_transfer
+How long does it take for a transfer to finish pending?,handoff,pending_transfer
+How long does it take for a money transfer to show up?,handoff,pending_transfer
+Why is a transfer I have still pending?,handoff,pending_transfer
+"Transfers may show up as pending for up to one day while they are processed by one of our payment processors. Then, they will depart for the beneficiary accounts. Please also double-check that you have entered the correct account details. SEPA transfers can take up to two business days, and SWIFT transfers can take up to five business days.",handoff,pending_transfer
+What's the time frame on EU transfers? I purchased something a couple of days ago but the seller hasn't received my payment.,handoff,pending_transfer
+When will the transaction post to my account?,handoff,pending_transfer
+I sent a transfer and it has been pending for awhile. How long will it stay pending?,handoff,pending_transfer
+"I transferred money to another country several days ago, but my transaction is still pending. i have checked that the accounts are keyed in correctly. what sees to be the problem?",handoff,pending_transfer
+What is the reason a transfer shows as pending?,handoff,pending_transfer
+Why is the transfer showing pending?,handoff,pending_transfer
+Hi I am trying to transfer money to another country but it is showing pending and it has been a long time. I have checked numbers and they are correct. Could you please help?,handoff,pending_transfer
+Why does my transfer say it is pending?,handoff,pending_transfer
+What am I supposed to do if the funds haven't show up from a transfer completed this morning?,handoff,pending_transfer
+How long do I have to wait for the transfer to be finalized?,handoff,pending_transfer
+My payment shows that it is pending will I be charged more money?,handoff,pending_transfer
+Why is my transfer still pending?,handoff,pending_transfer
+Tell me why my transfer is pending.,handoff,pending_transfer
+How long will my transfer be pending for?,handoff,pending_transfer
+"I'm hoping you can answer my question about a pending transfer that I've had for a while now. I know that all of the account details are correct, so why is it taking so long to go through?",handoff,pending_transfer
+How long is a transfer in the pending status?,handoff,pending_transfer
+Why is it taking so long for my pending transaction to post as cleared?,handoff,pending_transfer
+"I haven't received my transfer funds yet, where are they?",handoff,pending_transfer
+I'm confused as to why my transfer is still listed as pending on the website.,handoff,pending_transfer
+"How long do EU transfers actually take? I recently bought something online a few days ago, sent the money immediately online but the seller says it's still not there yet.",handoff,pending_transfer
+Why is my transfer pending?,handoff,pending_transfer
+I sent payment with EU transfer and they still haven't received it. How long does it take?,handoff,pending_transfer
+I bought something on line a and the seller hasn't received the money I sent could you please tell me how long an EU transfer takes?,handoff,pending_transfer
+How long is the wait for a money transfer to show up?,handoff,pending_transfer
+What is going on? I have checked over and over and the details of my account are right. Why is my transfer still pending? It's 2018 not 1818. Transfering money to another country can't be that hard.,handoff,pending_transfer
+"As I double checked that I have the correct account details that i submitted , they're right for sure. Transfer is still pending so far.",handoff,pending_transfer
+How long until transfers complete?,handoff,pending_transfer
+My money transfer has not yet occurred,handoff,pending_transfer
+My transfer is still pending,handoff,pending_transfer
+Will my transfer be done soon?,handoff,pending_transfer
+"How long do you expect me to wait for the transfer? It finally worked out, but has been pending for a long time and it's quite urgent.",handoff,pending_transfer
+How do I deactivate my account?,close-account,terminate_account
+Remove my account immediately.,close-account,terminate_account
+Are you able to delete my account?,close-account,terminate_account
+How do I discontinue my account?,close-account,terminate_account
+please delete account,close-account,terminate_account
+I need you to delete my account now.,close-account,terminate_account
+"I would like to delete my account now, please.",close-account,terminate_account
+I would like to invalidate my account. I am very disappointed with your services.,close-account,terminate_account
+I need to delete my account.,close-account,terminate_account
+Can you delete the account?,close-account,terminate_account
+"for god sake, just delete my account i am sick of this",close-account,terminate_account
+"I need to delete my account, please.",close-account,terminate_account
+unhappy with service need to delete account,close-account,terminate_account
+"This company is bad, delete my account now.",close-account,terminate_account
+How do I shut down my account and get out of this company?,close-account,terminate_account
+How do I close my account?,close-account,terminate_account
+I want to shut down my account as soon as possible.,close-account,terminate_account
+cancel my account,close-account,terminate_account
+Help me close my account.,close-account,terminate_account
+I want to close my account due to poor customer service.,close-account,terminate_account
+"I would like to close my account, as I'm not happy.",close-account,terminate_account
+What's the process for terminating an account?,close-account,terminate_account
+What steps do I need to do to delete my account?,close-account,terminate_account
+How do I delete my account now,close-account,terminate_account
+I want to cancel my account.,close-account,terminate_account
+"I want to get rid of the account, and delete personal information .",close-account,terminate_account
+if im not using my account should i close it or just let it sit,close-account,terminate_account
+i'm not satisfied with the services and no longer want to be a customer,close-account,terminate_account
+I am not satisfied with your company and wish to delete all accounts immediately.,close-account,terminate_account
+I want to delete my account.,close-account,terminate_account
+I am not happy with your company. Please delete my account asap.,close-account,terminate_account
+"How can I close my account, I don't want it.",close-account,terminate_account
+I am upset with your service. Please delete my account.,close-account,terminate_account
+I would like to cancel my account.,close-account,terminate_account
+"I don't like the services, please close my account",close-account,terminate_account
+I'd like to delete my account.,close-account,terminate_account
+I want to stop my account,close-account,terminate_account
+Please delete my account immediately.,close-account,terminate_account
+How do I delete my account? I am dissatisfied with the service.,close-account,terminate_account
+This place has been too much work so I'd just like to close out my account & be done.,close-account,terminate_account
+What do I do if the ATM took my card?,handoff,card_swallowed
+What do I do now my credit card has been swallowed by the ATM?,handoff,card_swallowed
+An ATM machine didn't give me back my card.,handoff,card_swallowed
+"My card got trapped inside an ATM, what should I do?",handoff,card_swallowed
+What do I do if I can't get my card out of the ATM?,handoff,card_swallowed
+My card got stuck in an ATM.,handoff,card_swallowed
+Your machine took my card. How do I get it back?,handoff,card_swallowed
+"I can't get my card out of the ATM, what should I do now?",handoff,card_swallowed
+My card is stuck in the ATM?,handoff,card_swallowed
+I didn't get my card back from the ATM.,handoff,card_swallowed
+"The ATM at Metro bank on High St. Kensington didn't return my card, and the bank is now closed. How do I get back a card swallowed by an ATM?",handoff,card_swallowed
+I need a new card because the ATM took mine.,handoff,card_swallowed
+The ATM stole my card!,handoff,card_swallowed
+How can I get my card out of the stupid ATM that ate it?,handoff,card_swallowed
+The ATM took my card.,handoff,card_swallowed
+The ATM won't give me my card back. I need it back now!,handoff,card_swallowed
+How do I get my card back quickly from a bank machine that it?,handoff,card_swallowed
+The ATM sucked my card in.,handoff,card_swallowed
+The ATM did not give me my card back?,handoff,card_swallowed
+I was getting cash and the card got stuck inside,handoff,card_swallowed
+What should I do since my card is trapped in the ATM?,handoff,card_swallowed
+what do I need to do if the ATM kept my card?,handoff,card_swallowed
+The ATM machine would not give my card back,handoff,card_swallowed
+I can't get my card out of the ATM,handoff,card_swallowed
+Why did the ATM take my card and keep it?,handoff,card_swallowed
+What are the steps to get my card back that was kept by the ATM?,handoff,card_swallowed
+How do I get my card out of the ATM?,handoff,card_swallowed
+Why did the ATM eat my card?,handoff,card_swallowed
+Please send a new card; the ATM ate mine.,handoff,card_swallowed
+The ATM didnt return my card!,handoff,card_swallowed
+I was removing a dollar amount from my account and now don't have access to my card.,handoff,card_swallowed
+A Bank ATM did not give my card back. What do I do now?,handoff,card_swallowed
+Why did the ATM swallow my card?,handoff,card_swallowed
+lost my card in atm,handoff,card_swallowed
+I cannot get my card out of the ATM.,handoff,card_swallowed
+An ATM machine didn't return my card.,handoff,card_swallowed
+My card is stuck inside the ATM.,handoff,card_swallowed
+The bank machine didn't give my card back how do I get a new one fast?,handoff,card_swallowed
+What should I do if the atm eats my card?,handoff,card_swallowed
+What do I do? The ATM took my card!,handoff,card_swallowed
+A transaction shows duplicate times.,handoff,transaction_charged_twice
+There is a repeat charge for the same item,handoff,transaction_charged_twice
+How can I fix this? There is a double charge on my account.,handoff,transaction_charged_twice
+My card got charged twice for the same thing!,handoff,transaction_charged_twice
+"My husband and I went out for our weekly ""dinner and a movie,"" and it was my turn to pick up the check. Now I see that my card was charged twice. Who should I contact about negating the second charge and getting my card credited?",handoff,transaction_charged_twice
+How do I query a payment on my card? It looks like I have paid for the same thing twice.,handoff,transaction_charged_twice
+I have duplicated transactions on my statement,handoff,transaction_charged_twice
+"I only made one transaction at this place, but it's appearing multiple times.",handoff,transaction_charged_twice
+"One of my charges was declined, but the second one went through. But I notice on my App that one of them has gone through, and the other one is still pending. Please ensure that only one charge is processed. Thanks",handoff,transaction_charged_twice
+What do I do if I've been charged twice for the same transaction?,handoff,transaction_charged_twice
+"I think I was charged twice, please help!",handoff,transaction_charged_twice
+I think there is a mistake. I am being charged twice.,handoff,transaction_charged_twice
+"My transaction history is looking a little off. I have been charged twice for multiple different purchases, and would like to have those duplicate charges refunded.",handoff,transaction_charged_twice
+I was charged for the same thing twice,handoff,transaction_charged_twice
+My account was charged twice for one purchase,handoff,transaction_charged_twice
+"I was charged twice for a restaurant, can you take the second charge off?",handoff,transaction_charged_twice
+I have a transaction that shows multiple times.,handoff,transaction_charged_twice
+What happens when I am charged twice?,handoff,transaction_charged_twice
+I have been charged twice for the same transaction.,handoff,transaction_charged_twice
+How do I get my money back for a duplicated charge?,handoff,transaction_charged_twice
+I have a duplicate payment on my card.,handoff,transaction_charged_twice
+Several items I have charged this week are appearing twice. Please review my statement and remove any duplicate charges.,handoff,transaction_charged_twice
+I have a transaction showing multiple times.,handoff,transaction_charged_twice
+"Hi, I just looked at my card transactions and saw that I've been charged twice for a restaurant I went to this week. Can you remove the double charge, please?",handoff,transaction_charged_twice
+I have been double charged,handoff,transaction_charged_twice
+I was double charged at a restaurant can you take the second charge off?,handoff,transaction_charged_twice
+I have a duplicate charge,handoff,transaction_charged_twice
+I got charged two times for a transaction,handoff,transaction_charged_twice
+What happens with the duplicate charge in my account?,handoff,transaction_charged_twice
+Why have I been charged twice?,handoff,transaction_charged_twice
+I have two of the same charges on my account!,handoff,transaction_charged_twice
+Why am I being charged for the same thing twice?,handoff,transaction_charged_twice
+Who do I talk to for transactions debited twice?,handoff,transaction_charged_twice
+There is a duplicate charge on my account.,handoff,transaction_charged_twice
+I have been charged twice this week for a couple of things on my card. Can you please check this out for me and return the double charged items back?,handoff,transaction_charged_twice
+I got charged twice for the same payment. Please removed the pending payment. Thank you.,handoff,transaction_charged_twice
+I think I got charged twice for the same thing,handoff,transaction_charged_twice
+It looks like I was charged twice for a single transaction,handoff,transaction_charged_twice
+"I had a duplicate card and bought something and it showed up twice. I canceled my card, how do I get my money back?",handoff,transaction_charged_twice
+There is a transaction showing up several times.,handoff,transaction_charged_twice
+How long am I to wait before the transfer gets to my account?,transfer-timing,transfer_timing
+Will the transfer show up in my account soon?,transfer-timing,transfer_timing
+What time will a transfer from the US take?,transfer-timing,transfer_timing
+When will the money reach my account?,transfer-timing,transfer_timing
+How long does it take to get my money,transfer-timing,transfer_timing
+When does my transfer from the US arrive in my account?,transfer-timing,transfer_timing
+"I desperately need to transfer something from China, Please give me the wait time.",transfer-timing,transfer_timing
+I am yet to receive the money in my account how long will this take?,transfer-timing,transfer_timing
+Does a US transfer take long,transfer-timing,transfer_timing
+How long will this transfer from europe take?,transfer-timing,transfer_timing
+Will I see the transfer in my account within the week?,transfer-timing,transfer_timing
+How long should I have to wait before I see the transfer in my account?,transfer-timing,transfer_timing
+When will my transfer post to my account?,transfer-timing,transfer_timing
+How long does a European transfer take?,transfer-timing,transfer_timing
+How many days do I have to wait for the transfer to reach my account?,transfer-timing,transfer_timing
+I am waiting for the money to enter my account. How long does it take?,transfer-timing,transfer_timing
+How long will an urgent transfer from China take?,transfer-timing,transfer_timing
+How long do transfers from Europe take?,transfer-timing,transfer_timing
+I have to quickly transfer something to China. How long will it take to arrive there?,transfer-timing,transfer_timing
+How long will I have to wait for my money to be in my account?,transfer-timing,transfer_timing
+"In the US, how long is the wait for a transfer?",transfer-timing,transfer_timing
+Where is my money transfer?,transfer-timing,transfer_timing
+How long does a transfer take to reach one's account.,transfer-timing,transfer_timing
+Where's the money from my transfer from Europe?,transfer-timing,transfer_timing
+How long will a transfer from Europe take?,transfer-timing,transfer_timing
+There is an urgent thing that I need to transfer from China. Approximately how long will it take?,transfer-timing,transfer_timing
+I need to transfer funds from China and quick expedition is crucial. Approximately how long does it take for a transfer from China to go through?,transfer-timing,transfer_timing
+How long will a transfer from the US take?,transfer-timing,transfer_timing
+How long do I wait for a transfer from the United States?,transfer-timing,transfer_timing
+What is the timeframe for a transfer in Europe?,transfer-timing,transfer_timing
+How long do I have to wait for a US transfer?,transfer-timing,transfer_timing
+"I have been waiting for my transfer, shouldn't it be here already?",transfer-timing,transfer_timing
+How fast can I transfer something from China?,transfer-timing,transfer_timing
+"My Bank is in Europe, how long will the transfer take?",transfer-timing,transfer_timing
+I urgently need to transfer something from China. How long can I expect it to take?,transfer-timing,transfer_timing
+How many days does it take for a transfer to go through?,transfer-timing,transfer_timing
+When will the money show in my account?,transfer-timing,transfer_timing
+what is the average wait for transfers,transfer-timing,transfer_timing
+How long until the transfer is reflected on my account balance?,transfer-timing,transfer_timing
+How long do I have to wait for Europe transfers?,transfer-timing,transfer_timing
+Is it possible for me to change my PIN number?,change-pin,change_pin
+What are the steps to change my PIN to something else?,change-pin,change_pin
+In what way can I change my PIN and where do I need to be?,change-pin,change_pin
+Can I change my PIN at any cash machines?,change-pin,change_pin
+I need to make my card PIN a different number,change-pin,change_pin
+Can I change my PIN abroad?,change-pin,change_pin
+Do I have to go to the bank to change my PIN?,change-pin,change_pin
+If I want to can I set up a new PIN?,change-pin,change_pin
+Do I have to go into the bank to change my PIN?,change-pin,change_pin
+Can I change my PIN at my local bank?,change-pin,change_pin
+"If I wanted to change my PIN, how would I do that?",change-pin,change_pin
+If I want to select a new PIN what do I do?,change-pin,change_pin
+How can I change my PIN without going to the bank?,change-pin,change_pin
+Do I need to speak to a representative to change my pin?,change-pin,change_pin
+Can I pick a new PIN?,change-pin,change_pin
+Where can I update my pin number?,change-pin,change_pin
+Can I change my PIN remotely?,change-pin,change_pin
+I need to change my card PIN.,change-pin,change_pin
+If i want to change my pin number can I directly from an ATM?,change-pin,change_pin
+Are there any specific cash machines that I have to go to in order to change my PIN?,change-pin,change_pin
+Can I change my PIN at any ATM?,change-pin,change_pin
+Can I change my pin at an atm?,change-pin,change_pin
+Can I change my PIN without being physically present?,change-pin,change_pin
+Can you tell me how to change my PIN?,change-pin,change_pin
+I want to choose a new PIN.,change-pin,change_pin
+Is there a way yo change my PIN?,change-pin,change_pin
+Can I change my PIN?,change-pin,change_pin
+Do I need to go to a physical bank to change my PIN?,change-pin,change_pin
+What cash machines will let me change my PIN?,change-pin,change_pin
+Do I need to go to an office to change my pin?,change-pin,change_pin
+Which ATM's am i able to change my PIN?,change-pin,change_pin
+Can I change my PIN without going to a bank?,change-pin,change_pin
+Can my PIN changed remotely without visiting a bank?,change-pin,change_pin
+Which countries can I change my PIN in?,change-pin,change_pin
+Can I change my pin through the app?,change-pin,change_pin
+I want a new PIN please.,change-pin,change_pin
+Can I change my PIN at a nearby ATM when in Spain? I think someone saw my PIN and I need to change it but am on vacation.,change-pin,change_pin
+Please help me set up a new PIN.,change-pin,change_pin
+I have been travelling overseas and I need to change my PIN. Can you tell me how this is done?,change-pin,change_pin
+Is there a location where I can change my PIN?,change-pin,change_pin
+is there something blocking me from making transfers,handoff,beneficiary_not_allowed
+What are the reasons for my beneficiary not being allowed?,handoff,beneficiary_not_allowed
+Is there something wrong with the transferring functions? I keep trying to transfer funds and only get an error message.,handoff,beneficiary_not_allowed
+What are the reasons a beneficiary would be denied?,handoff,beneficiary_not_allowed
+A transfer to my account was denied.,handoff,beneficiary_not_allowed
+Why was I not allowed to do a transfer to a beneficiary?,handoff,beneficiary_not_allowed
+I got a message that my transfer is not possible. What is happening? I need this to go through please.,handoff,beneficiary_not_allowed
+What is the reason for my beneficiary to be disallowed?,handoff,beneficiary_not_allowed
+Can someone explain why I'm getting a message on my screen saying my transfer isn't possible? I've done several in the past and haven't had a single problem until now. What's going on?,handoff,beneficiary_not_allowed
+I tried transferring to an account but it won't let me.,handoff,beneficiary_not_allowed
+It's not letting me transfer money to my beneficiery.,handoff,beneficiary_not_allowed
+My transfer to an account failed.,handoff,beneficiary_not_allowed
+Why is my beneficiary not allowed?,handoff,beneficiary_not_allowed
+For some reason I am unable to preform a transfer to a beneficiary.,handoff,beneficiary_not_allowed
+My beneficiary is not allowed? Why?,handoff,beneficiary_not_allowed
+I tried to transfer funds to a beneficiary and was denied. Can you tell me why?,handoff,beneficiary_not_allowed
+What is the reason I couldn't do a transfer to a beneficiary?,handoff,beneficiary_not_allowed
+I got a message that I cannot name X as a beneficiary.,handoff,beneficiary_not_allowed
+Why am I not allowed to add a certain beneficiary?,handoff,beneficiary_not_allowed
+Why can't my beneficiary access my account?,handoff,beneficiary_not_allowed
+I'm trying to purchase crypto via the app. I haven't been able to get it to go through. Am I doing something wrong?,handoff,beneficiary_not_allowed
+Hello - I'm on the app and trying to purchase crypto. It's not going through. What am I doing wrong?,handoff,beneficiary_not_allowed
+My beneficiary didn't receive my transfer,handoff,beneficiary_not_allowed
+why didnt a transfer to my account process,handoff,beneficiary_not_allowed
+Why can I not do a transfer,handoff,beneficiary_not_allowed
+Why didn't my transfer to a beneficiary go through?,handoff,beneficiary_not_allowed
+"For some reason, I'm unable to transfer funds.",handoff,beneficiary_not_allowed
+Why has my beneficiary been denied?,handoff,beneficiary_not_allowed
+I need to transfer to my account and cant.,handoff,beneficiary_not_allowed
+Why am I not allowed to transfer money to my cryptocurrency exchange?,handoff,beneficiary_not_allowed
+what are the reasons why you would not be able to process a payment,handoff,beneficiary_not_allowed
+Why can't I transfer to another account?,handoff,beneficiary_not_allowed
+Are there restrictions to transfers to certain accounts?,handoff,beneficiary_not_allowed
+Please tell me why I am having problems transferring to a beneficiary.,handoff,beneficiary_not_allowed
+I wanted to purchase some crypto. The app will not let me. What's going on here? I really want to make this exchange.,handoff,beneficiary_not_allowed
+My attempted transfer keeps kicking back with an error message. Could you please help me to resolve this?,handoff,beneficiary_not_allowed
+i tried to do a transfer to an account but it didn't work,handoff,beneficiary_not_allowed
+I just got an error message saying my transfer is not possible? Why is that? I've transferred money before and it worked without problem,handoff,beneficiary_not_allowed
+Why is my beneficiary being denies?,handoff,beneficiary_not_allowed
+Why does my transfer keep generating an error message?,handoff,beneficiary_not_allowed
+What is happening? I have tried to transfer money 5x already. Is the system down? This shouldnt be happening as this is a basic transfer.,handoff,failed_transfer
+Is there a reason that my transfer failed?,handoff,failed_transfer
+Why didn't my transfer complete?,handoff,failed_transfer
+Why was I unable to finish this transfer?,handoff,failed_transfer
+"I have made 5 attempts to make a very standard survey, yet I can't get it to work. What is the problem? Is there an issue related to your system?",handoff,failed_transfer
+"Your system is broken. My transfers keep failing, 5 times now.",handoff,failed_transfer
+I tried to make a transfer like five different times. Why won't your system let me? Is it broke?,handoff,failed_transfer
+Can you tell me why I wasn't able to complete my transfer?,handoff,failed_transfer
+Why wont the other bank take my money?? Is it not good enough?? There's sufficient funds but I keep getting denied a standard transfer. Ive tried 5 times!,handoff,failed_transfer
+Is there a problem with your system being down or something? I have already tried 5 times to issue a standard transfer but I'm getting nowhere.,handoff,failed_transfer
+A transfer could not be completed.,handoff,failed_transfer
+What would cause a transfer failure?,handoff,failed_transfer
+I believe that my transfer hasn't gone through.,handoff,failed_transfer
+Transfer isn't working?,handoff,failed_transfer
+Can you tell me why my transfer is failing and help resolve?,handoff,failed_transfer
+Transfer has failed.,handoff,failed_transfer
+Did my transfer fail?,handoff,failed_transfer
+I tried to make a transfer but it failed. will you tell me why?,handoff,failed_transfer
+I was unable to transfer money from my account.,handoff,failed_transfer
+Why hasn't my transfer gone through,handoff,failed_transfer
+I really need some help to understand why my transfer keeps failing. I'm trying to send money to a friend. Please help.,handoff,failed_transfer
+I have tried 5 times at this point to complete a transfer that's simply standard. What appears to be the problem? Is your system messed up?,handoff,failed_transfer
+"Hi, I am currently in the process of buying a flat and I am waiting for the mortgage to go through but it keeps showing up as an error. Do you know what could be causing this and can you help me get the money over.",handoff,failed_transfer
+"Hi, I'm in progress of purchasing a flat and am trying to make to make a payment. An error is appearing, and I need assistance.",handoff,failed_transfer
+Why did my transfer not work?,handoff,failed_transfer
+"The transfer keeps failing - I tried to transfer some money to friends this morning but it keeps getting rejected for some reason, I have no idea why",handoff,failed_transfer
+I've been trying to do a transfer multiple times and have failed? Is the system down?,handoff,failed_transfer
+I have tried sending a standard transfer five times and it hasn't gone through. What is the problem?,handoff,failed_transfer
+My transfer failed when I tried.,handoff,failed_transfer
+Can you explain why my transfer was unsuccessful?,handoff,failed_transfer
+Why did my transfer fail? What can I do?,handoff,failed_transfer
+My transfer failed. Help!,handoff,failed_transfer
+My transfer failed to process correctly. Is there a reason this would happen?,handoff,failed_transfer
+Can you help me transfer money into my friend's bank account? I tried to do it but it keeps rejecting me. I need to get the money in there asap. I have enough and all the account info is correct.,handoff,failed_transfer
+I tried to make a transfer and it didn't work.,handoff,failed_transfer
+please help my transfer go through,handoff,failed_transfer
+My transfer didn't work! Help!,handoff,failed_transfer
+What could possibly be the cause of my failed transfer?,handoff,failed_transfer
+Is there a reason behind why my transfer did not work?,handoff,failed_transfer
+Why won't my transfer go through?,handoff,failed_transfer
+I want to transfer money. How do I do that for my account?,top-up-bank-transfer,transfer_into_account
+How do I transfer money into my account?,top-up-bank-transfer,transfer_into_account
+How can I link my bank to my top up account?,top-up-bank-transfer,transfer_into_account
+I have an account that is empty of funds. Can I transfer some from another bank?,top-up-bank-transfer,transfer_into_account
+HOW DO I TRANSFER MONEY FROM MY BANK ACCOUNT?,top-up-bank-transfer,transfer_into_account
+Whats the transfer process,top-up-bank-transfer,transfer_into_account
+How can you assist me on topping up on bank transfers to my account?,top-up-bank-transfer,transfer_into_account
+Can I add money to my account via bank transfer?,top-up-bank-transfer,transfer_into_account
+I want to op up my account by using bank transfer. How do I go about it?,top-up-bank-transfer,transfer_into_account
+I have questions about how to transfer money to my account.,top-up-bank-transfer,transfer_into_account
+I need to add money to my account. Can I do so via bank transfer?,top-up-bank-transfer,transfer_into_account
+Can I use my bank account to send me more money?,top-up-bank-transfer,transfer_into_account
+I can't figure out how to transfer money into my account.,top-up-bank-transfer,transfer_into_account
+Can you please explain how to transfer money using the bank transfer process?,top-up-bank-transfer,transfer_into_account
+How simple is it to transfer money into my account?,top-up-bank-transfer,transfer_into_account
+How can my account have money transferred into it?,top-up-bank-transfer,transfer_into_account
+"I am in desperate need to transfer funds from another account that i have into this one, how do i do that?",top-up-bank-transfer,transfer_into_account
+How do I use bank transfer to top up my account?,top-up-bank-transfer,transfer_into_account
+How do I top up?,top-up-bank-transfer,transfer_into_account
+Why can I not transfer money into my account?,top-up-bank-transfer,transfer_into_account
+How can I move money from an account at another bank to this one?,top-up-bank-transfer,transfer_into_account
+What process should I use to transfer money into my account?,top-up-bank-transfer,transfer_into_account
+"I want to transfer money into my account, what do I do?",top-up-bank-transfer,transfer_into_account
+I need to deposit money to my account,top-up-bank-transfer,transfer_into_account
+Can you transfer money to your card by bank transfer?,top-up-bank-transfer,transfer_into_account
+What do you do to transfer money to my account?,top-up-bank-transfer,transfer_into_account
+How can I move money from my account at a different bank to the account I have at this bank.,top-up-bank-transfer,transfer_into_account
+Please provide details on how to top up my account using transfer option,top-up-bank-transfer,transfer_into_account
+Where can I find out how to transfer money into my account.,top-up-bank-transfer,transfer_into_account
+How does it work when I transfer money into my account?,top-up-bank-transfer,transfer_into_account
+I need assistance with transferring funds to another account.,top-up-bank-transfer,transfer_into_account
+How can I add money to my account from another account I have?,top-up-bank-transfer,transfer_into_account
+I have money in a foreign account that I want to send to this account.,top-up-bank-transfer,transfer_into_account
+How can I transfer money into my account?,top-up-bank-transfer,transfer_into_account
+I need to move money from another bank to this account.,top-up-bank-transfer,transfer_into_account
+I need to transfer money into this account from my other bank account.,top-up-bank-transfer,transfer_into_account
+How do I go forth with bank transfers for top up accounts?,top-up-bank-transfer,transfer_into_account
+"I have an account at another bank, but I want to transfer some of the money to my account here. .",top-up-bank-transfer,transfer_into_account
+"I want to do a bank transfer to this bank, from an account at another bank.",top-up-bank-transfer,transfer_into_account
+What are my bank details so I can do a transfer?,top-up-bank-transfer,transfer_into_account
+Are extra charges added for sending out additional cards?,order-card,getting_spare_card
+I'd like to order an additional card,order-card,getting_spare_card
+I want some extra physical cards.,order-card,getting_spare_card
+"I would like open a second card for my daughter, how can you assist me?",order-card,getting_spare_card
+Am I gonna be charged for sending out more cards?,order-card,getting_spare_card
+Would I have to pay anything if I need an additional card?,order-card,getting_spare_card
+Is it possible to get a second card for my daughter?,order-card,getting_spare_card
+Can I get a few more physical cards?,order-card,getting_spare_card
+What's the limit on total number of cards I can have?,order-card,getting_spare_card
+Is there a charge for sending out more cards?,order-card,getting_spare_card
+How much does it cost to get more cards?,order-card,getting_spare_card
+How can I create another card linked to this account?,order-card,getting_spare_card
+May I order another card?,order-card,getting_spare_card
+Can I order another card?,order-card,getting_spare_card
+Can I order a second card?,order-card,getting_spare_card
+Can I have more physical cards?,order-card,getting_spare_card
+How many physical cards am I allowed to have?,order-card,getting_spare_card
+I want to get few more physical cards,order-card,getting_spare_card
+Please tell me if I'm going to be charged for sending out more cards?,order-card,getting_spare_card
+Can I get more cards just incase?,order-card,getting_spare_card
+Would I be able to get a second card?,order-card,getting_spare_card
+Do you charge for sending out more cards?,order-card,getting_spare_card
+I need a second card on this account for my daughter.,order-card,getting_spare_card
+How can I get another card?,order-card,getting_spare_card
+Can I have a third card?,order-card,getting_spare_card
+I have left my card at my parents house. Can you send me a spare one please to use in the meantime?,order-card,getting_spare_card
+I'd like to provide my daughter with a card - could I get an additional card from my account to give her?,order-card,getting_spare_card
+What is the price for an additional card?,order-card,getting_spare_card
+Can I get a second card for free?,order-card,getting_spare_card
+Will I be charged if I add more cards to the account?,order-card,getting_spare_card
+How many cards am I allowed?,order-card,getting_spare_card
+"Can my daughter also have a card issued in her name, but linked to my account?",order-card,getting_spare_card
+I'd like to order another card,order-card,getting_spare_card
+Can I have a supplementary card?,order-card,getting_spare_card
+"I lost my card and need a new one, will it cost me?",order-card,getting_spare_card
+My daughter need a card from this account. Is that possible?,order-card,getting_spare_card
+My daughter would like a card from my account? Can I do this?,order-card,getting_spare_card
+Are there any fees to get additional cards?,order-card,getting_spare_card
+Can you send me more cards for my account?,order-card,getting_spare_card
+"I would like some more physical cards, what is my limit?",order-card,getting_spare_card
+How much does it cost for a physical card?,order-card,order_physical_card
+Where can the cards be delivered?,order-card,order_physical_card
+What do i do to get a physical card?,order-card,order_physical_card
+Can I request a card?,order-card,order_physical_card
+Do I have to pay for a physical card?,order-card,order_physical_card
+"I need an actual card that I can hold in my hand, how do I do that?",order-card,order_physical_card
+what steps do i do to get a real card,order-card,order_physical_card
+Can you tell me exactly what fees I will expect to see in regards to your cards?,order-card,order_physical_card
+What do I do to get ahold of my own card?,order-card,order_physical_card
+Are cards delivered to my location?,order-card,order_physical_card
+Is it possible to get a physical card?,order-card,order_physical_card
+I would like to request a card.,order-card,order_physical_card
+I need to order a new card.,order-card,order_physical_card
+Can you send me the actual card?,order-card,order_physical_card
+"I would like to get a physical card, but I don't know how. Can you help me?",order-card,order_physical_card
+how do i get a new card,order-card,order_physical_card
+Where do you need to live to receive card,order-card,order_physical_card
+How do I get a real card?,order-card,order_physical_card
+How do I go about getting an actual card?,order-card,order_physical_card
+Please tell me how I can receive a physical card,order-card,order_physical_card
+I would like a physical card,order-card,order_physical_card
+Where are your cards delivered to?,order-card,order_physical_card
+Can I order a card please?,order-card,order_physical_card
+tell me how I can order my card.,order-card,order_physical_card
+Does it cost anyting to get my own card?,order-card,order_physical_card
+Is a physical card also available,order-card,order_physical_card
+Do physical cards cost money?,order-card,order_physical_card
+Are physical card available?,order-card,order_physical_card
+I want to request a physical card,order-card,order_physical_card
+Is there a charge for a physical card?,order-card,order_physical_card
+Do you ship your cards anywhere?,order-card,order_physical_card
+I want a real card,order-card,order_physical_card
+Where do you deliver cards to?,order-card,order_physical_card
+Where are the cards delivered to,order-card,order_physical_card
+What do I owe for a new card?,order-card,order_physical_card
+Is it possible to order a card?,order-card,order_physical_card
+What areas are cards delivered to?,order-card,order_physical_card
+Where can I order a card?,order-card,order_physical_card
+Is there a fee to get an actual card?,order-card,order_physical_card
+do i need to add money before i order a card,order-card,order_physical_card
+What do you use disposable cards on?,virtual-cards,get_disposable_virtual_card
+How do I get a disposable virtual card as well?,virtual-cards,get_disposable_virtual_card
+"I want a disposable virtual card, how do I do that?",virtual-cards,get_disposable_virtual_card
+What are the disposable cards for?,virtual-cards,get_disposable_virtual_card
+I need a disposable virtual card. Please tell me how to order one.,virtual-cards,get_disposable_virtual_card
+What systems do you have in place for my security when using my card for everyday purchases?,virtual-cards,get_disposable_virtual_card
+Why use a disposable card?,virtual-cards,get_disposable_virtual_card
+How can I get disposable virtual cards?,virtual-cards,get_disposable_virtual_card
+Can you tell me about these disposable virtual cards?,virtual-cards,get_disposable_virtual_card
+Do you offer disposable virtual cards too?,virtual-cards,get_disposable_virtual_card
+can i get a virtual card online,virtual-cards,get_disposable_virtual_card
+How do I request a disposable virtual card?,virtual-cards,get_disposable_virtual_card
+How can I create a disposable virtual card?,virtual-cards,get_disposable_virtual_card
+When will you be taking orders for disposable virtual cards?,virtual-cards,get_disposable_virtual_card
+Who can purchase a disposable virtual card?,virtual-cards,get_disposable_virtual_card
+How does a disposable virtual card work?,virtual-cards,get_disposable_virtual_card
+What is the function of the disposable cards?,virtual-cards,get_disposable_virtual_card
+Do I need a disposable card?,virtual-cards,get_disposable_virtual_card
+Is there a disposable virtual card?,virtual-cards,get_disposable_virtual_card
+Please tell me how disposable virtual cards work?,virtual-cards,get_disposable_virtual_card
+how do I get a disposable virtual card?,virtual-cards,get_disposable_virtual_card
+Can you please explain disposable virtual cards for me?,virtual-cards,get_disposable_virtual_card
+How do I create a disposable virtual card?,virtual-cards,get_disposable_virtual_card
+Why would I need a disposable card?,virtual-cards,get_disposable_virtual_card
+What are the disposable cards used for?,virtual-cards,get_disposable_virtual_card
+What are these disposable virtual cards all about?,virtual-cards,get_disposable_virtual_card
+What is the process to create a disposable virtual card?,virtual-cards,get_disposable_virtual_card
+Will you tell me how I am supposed to use the disposable cards?,virtual-cards,get_disposable_virtual_card
+How about disposable virtual cards?,virtual-cards,get_disposable_virtual_card
+Please send me a disposable virtual card.,virtual-cards,get_disposable_virtual_card
+I want to make an online purchase but I don't want to use my credit card. Can you tell me how a disposable virtual card works and where I can apply for one?,virtual-cards,get_disposable_virtual_card
+What can I do with a disposable virtual card?,virtual-cards,get_disposable_virtual_card
+Do you have the option for a disposable virtual card?,virtual-cards,get_disposable_virtual_card
+What are disposable virtual cards?,virtual-cards,get_disposable_virtual_card
+I want a virtual card that is disposable,virtual-cards,get_disposable_virtual_card
+"I would like a disposable virtual card, could I get one?",virtual-cards,get_disposable_virtual_card
+Please can i get a disposable virtual card as well?,virtual-cards,get_disposable_virtual_card
+disposable virtual card can be ordered where?,virtual-cards,get_disposable_virtual_card
+Where do I get a disposable card,virtual-cards,get_disposable_virtual_card
+In what way can I use the disposable cards?,virtual-cards,get_disposable_virtual_card
+I think my top-up has failed.,handoff,top_up_failed
+Top-up is not working,handoff,top_up_failed
+My top up is not working,handoff,top_up_failed
+"My top-up hasn't gone through, what happened?",handoff,top_up_failed
+My top-up was rejected by an app.,handoff,top_up_failed
+For what reason did my top-up fail?,handoff,top_up_failed
+I can't add any more money.,handoff,top_up_failed
+Why won't my top up work,handoff,top_up_failed
+I topped up but the app denied it,handoff,top_up_failed
+My money I added isn't on my card.,handoff,top_up_failed
+"Hi, My card is getting declined continuously when i am trying to top-up. Request you to look into this issue or tell me any other alternatives.",handoff,top_up_failed
+My credit card was declined for top-up. Can you see if there is enough funds in my account?,handoff,top_up_failed
+Why did my credit card get declined for top up?,handoff,top_up_failed
+"Hello, there was an error while attempting top-up with my card this morning. I was able to use the card two days ago with no issues. Could you please assist?",handoff,top_up_failed
+"I've been trying to transfer funds to top-up my card, but the transaction is not going through. Is there something I'm doing wrong?",handoff,top_up_failed
+Seems like my top-up has failed,handoff,top_up_failed
+I really need to top-up my card today urgently but my card keeps getting declined!! Can you please resolve this problem or try an alternative,handoff,top_up_failed
+"Hey, I attempted to top up my card today and for some reason it didn't work. When I did it the other way it worked just fine. Could you help me figure out why this is happening please?",handoff,top_up_failed
+I believe my top up has failed,handoff,top_up_failed
+I tried using my credit card with top up but it didn't work! I thought it was supposed to?,handoff,top_up_failed
+My credit card for was not approved for a top-up transaction. What happened?,handoff,top_up_failed
+Why isn't my topup working?,handoff,top_up_failed
+My credit card did not go through. Can you see if it has insufficient funds?,handoff,top_up_failed
+Can I tell if my top off didn't work? It doesn't seem to have.,handoff,top_up_failed
+"Hi, My card is getting declined during top-up. As it urgent, could you please resolve this issue, or guide me with other alternatives if any.",handoff,top_up_failed
+My top up is giving me problems. What is wrong with it?,handoff,top_up_failed
+I got my card a few days ago but am unable to top up. I'm thinking about closing my account because of this. What is going on?,handoff,top_up_failed
+Looks like my top up failed.,handoff,top_up_failed
+I urgently need to top-up my card but its getting declined. Please help me in this or advise with other options if any.,handoff,top_up_failed
+The top-up I ordered didn't process.,handoff,top_up_failed
+I don't think that my top-up worked.,handoff,top_up_failed
+Tell me why my topup wouldn't go through?,handoff,top_up_failed
+"I did a bank transfer to top up, but the money is not available.",handoff,top_up_failed
+What reasons would a topup fail?,handoff,top_up_failed
+"I tried topping up my account but it failed, can you help me?",handoff,top_up_failed
+Why has my top up failed?,handoff,top_up_failed
+"So my top-up failed, could you tell me why?",handoff,top_up_failed
+Why has my top-up failed?,handoff,top_up_failed
+I need to top-up my card today urgently but my card keeps getting declined!! Can you please resolve this problem or let me know if you have any alternatives,handoff,top_up_failed
+I tried to top up with my card but it was declined. I was able to a couple days ago and it worked. Is something wrong? Can you check it for me please?,handoff,top_up_failed
+help my money isnt showing up,handoff,balance_not_updated_after_bank_transfer
+how do i see what i transferred,handoff,balance_not_updated_after_bank_transfer
+Hello. Can you help figure out why the recent transfer from my UK bank account isn't showing up?,handoff,balance_not_updated_after_bank_transfer
+I've made a transfer from France two days ago but I was wondering if international transfers take longer to arrive because it hasn't made it yet.,handoff,balance_not_updated_after_bank_transfer
+After I transferred money the balance remained the same.,handoff,balance_not_updated_after_bank_transfer
+Where is the money that I transferred.,handoff,balance_not_updated_after_bank_transfer
+"About two days ago now, I made a transfer from France but it hasn't arrived yet. Is it possible that the international transfer just takes longer?",handoff,balance_not_updated_after_bank_transfer
+Why is my balance the same after a transfer?,handoff,balance_not_updated_after_bank_transfer
+How long will it take for a bank transfer to show up on my account? It's been a couple hours but I havnt seen anything yet. Also it's from a UK account if that makes any difference.,handoff,balance_not_updated_after_bank_transfer
+The transfer I made isn't reflected in my balance,handoff,balance_not_updated_after_bank_transfer
+Can you please check my UK Account to make sure everything went alright? I made the transfer a couple of hours ago.,handoff,balance_not_updated_after_bank_transfer
+"Hi, I am unable to see transaction in my account which i made couples of hours ago from my UK account. Please help me in this.",handoff,balance_not_updated_after_bank_transfer
+"Hello I made a bank account transfer from the UK. The transfer was a couple hours ago, nothing has shown up yet. Can you check to see if everything okay. Please.",handoff,balance_not_updated_after_bank_transfer
+My balance didn't change after I transferred some money.,handoff,balance_not_updated_after_bank_transfer
+I've transferred money into my account but the balance is the same,handoff,balance_not_updated_after_bank_transfer
+Money that I have transferred hasn't arrived yet,handoff,balance_not_updated_after_bank_transfer
+I made a transfer from France two days ago now but there hasn't made it there yet. Do international transfers take longer?,handoff,balance_not_updated_after_bank_transfer
+I transferred money but the balance did not update.,handoff,balance_not_updated_after_bank_transfer
+I am wondering about a transfer from a different country that doesn't show up yet?,handoff,balance_not_updated_after_bank_transfer
+I just made a transfer from a UK account. How long does that typically take to show up? I just want to make sure it worked alright.,handoff,balance_not_updated_after_bank_transfer
+I just made a transfer from France 2 days ago. It has not yet reached my bank. Is it possible it takes longer because it was an international transfer?,handoff,balance_not_updated_after_bank_transfer
+Im going to need to make a transfer from a UK account but I need it to go through ASAP. Is that going to be possible or will it take forever?? Im hoping it will be a couple hours and not a couple weeks.,handoff,balance_not_updated_after_bank_transfer
+How long before a bank transfer shows up in the account?,handoff,balance_not_updated_after_bank_transfer
+How soon will my balance be updated to reflect my transfer?,handoff,balance_not_updated_after_bank_transfer
+My transfer into my account isn't showing up.,handoff,balance_not_updated_after_bank_transfer
+How can I fix my bank transfer to show up on my bank account?,handoff,balance_not_updated_after_bank_transfer
+when does my balance update for a transfer,handoff,balance_not_updated_after_bank_transfer
+There is a transfer not showing on my account.,handoff,balance_not_updated_after_bank_transfer
+It is common for an international transfer to take 2 days or longer? I made a transfer from France 2 days ago and I have not seen it yet.,handoff,balance_not_updated_after_bank_transfer
+I did a money transfer to my account and it is not showing there.,handoff,balance_not_updated_after_bank_transfer
+I was wondering if international transfers take longer than normal because I made a transfer from France a couple of days ago and nothing has happened yet?,handoff,balance_not_updated_after_bank_transfer
+What's the time frame normally for a UK account transfer? I just made one and it's not showing up anywhere. I want to be sure that everything is good.,handoff,balance_not_updated_after_bank_transfer
+My latest transfer seems to be missing.,handoff,balance_not_updated_after_bank_transfer
+Is there a longer processing time for international bank transfers?,handoff,balance_not_updated_after_bank_transfer
+Balance hasn't been updated following a bank transfer,handoff,balance_not_updated_after_bank_transfer
+Why isn't the transfer to my account showing up?,handoff,balance_not_updated_after_bank_transfer
+Where is my money that I transfered?!,handoff,balance_not_updated_after_bank_transfer
+"The other bank confirmed a transfer I made, but this account is not reflecting it yet.",handoff,balance_not_updated_after_bank_transfer
+Why can't I see a transfer to my account?,handoff,balance_not_updated_after_bank_transfer
+"Hi, I made a transfer from France two days ago and thought it would be here by now. Can you give me an update please?",handoff,balance_not_updated_after_bank_transfer
+I looked on the app and it says I withdrew cash. I didn't!,handoff,cash_withdrawal_not_recognised
+I didn't withdraw the amount of cash that is showing up in the app.,handoff,cash_withdrawal_not_recognised
+"I saw on the app that a cash withdrawal was completed on my account; however, I did not complete it.",handoff,cash_withdrawal_not_recognised
+I got a notice from my app that I withdrew cash but I don't remember doing so. How do I fix this?,handoff,cash_withdrawal_not_recognised
+"Someone has a copy of my card !! I definitely still have it here but someone just made a 500£ cash withdrawal, HELP!",handoff,cash_withdrawal_not_recognised
+Why do I see a random withdrawal in my app?,handoff,cash_withdrawal_not_recognised
+"Hello, Please look into this matter urgently. As i have lost my wallet and i can see one withdrawal, now i do not want to loose more money.",handoff,cash_withdrawal_not_recognised
+"Someone has a copy of my card. I have my card with me, but someone just made a 500£ cash withdrawal. Help me.",handoff,cash_withdrawal_not_recognised
+There is a withdrawal on my account that I don't remember initiating.,handoff,cash_withdrawal_not_recognised
+"I got a message saying I made a withdrawal from the bank machine, but I did not.",handoff,cash_withdrawal_not_recognised
+"Someone has copied my card. I have my card with me, but someone just made a 500£ cash withdrawal. Please help now.",handoff,cash_withdrawal_not_recognised
+"help, I see money missing I didn't take out.",handoff,cash_withdrawal_not_recognised
+My wallet was taken and I see that someone is using my card! Please help me!,handoff,cash_withdrawal_not_recognised
+I see cash withdrawal activity in the app that is not mine.,handoff,cash_withdrawal_not_recognised
+There is a withdrawal on my account I didn't make.,handoff,cash_withdrawal_not_recognised
+"A 500 pound cash withdrawal was just made from my account, but I didn't make it. I am pretty sure my card has been compromised - can you help me?",handoff,cash_withdrawal_not_recognised
+I just lost my wallet and I think someone is using my card to withdraw my money. Can you please cancel or freeze my card?!!,handoff,cash_withdrawal_not_recognised
+The app is showing a cash withdrawal that I didn't make.,handoff,cash_withdrawal_not_recognised
+What is this witdrawal,handoff,cash_withdrawal_not_recognised
+There's a cash withdrawal I didn't make,handoff,cash_withdrawal_not_recognised
+I think someone stole money from my card,handoff,cash_withdrawal_not_recognised
+I have a cash withdrawal on my statement that I am unsure of.,handoff,cash_withdrawal_not_recognised
+The app says I got cash from an ATM but I didn't,handoff,cash_withdrawal_not_recognised
+I see money go out that I didn't withdraw.,handoff,cash_withdrawal_not_recognised
+I lost my wallet and I think someone is withdrawing cash with my card. Please help. It is urgent.,handoff,cash_withdrawal_not_recognised
+Somebody stole my wallet and is using my card! Can you do something so they can't keep taking my money?,handoff,cash_withdrawal_not_recognised
+"Help! I think someone has a copy of my card - I still have my card, but a five hundred pound cash withdrawal that I didn't authorize is shown on my account.",handoff,cash_withdrawal_not_recognised
+I believe my card has been compromised as there's a cash withdrawal I don't recognize.,handoff,cash_withdrawal_not_recognised
+I was checking my account when I saw a $500 cash withdraw that I know I didn't do. I have my card so I don't understand how this happened. Please help me.,handoff,cash_withdrawal_not_recognised
+"Hi, Could you please help me as someone has stolen my wallet few hours ago. And a withdrawal is made, please help immediately. As i don't want to suffer more.",handoff,cash_withdrawal_not_recognised
+What should I do if I see an unauthorized withdrawal on my statement?,handoff,cash_withdrawal_not_recognised
+"A WD was just made on my account, but it was not me and I still have my card. What to do?",handoff,cash_withdrawal_not_recognised
+Why is there extra cash in my account?,handoff,cash_withdrawal_not_recognised
+What is this cash withdrawal I don't recognize?,handoff,cash_withdrawal_not_recognised
+I believe my card has been compromised as there are funds showing that I did not receive.,handoff,cash_withdrawal_not_recognised
+THere is some cash that is showing up on my app.,handoff,cash_withdrawal_not_recognised
+My wallet was just stolen and I see my account already has a withdrawal. Can you please help me.,handoff,cash_withdrawal_not_recognised
+Somebody made a withdrawal from my account for 500. I have my card so how can this be? Does somebody have a duplicate card or something? Help please.,handoff,cash_withdrawal_not_recognised
+There is a cash withdrawal from an ATM listed but I don't remember making this withdrawal.,handoff,cash_withdrawal_not_recognised
+I saw there is a cash withdrawal from my account via the app which I did not complete.,handoff,cash_withdrawal_not_recognised
+How much is the exchange fee?,exchange-rates,exchange_charge
+Are there any hidden extra fees for currency exchanges?,exchange-rates,exchange_charge
+If I exchange currencies on a frequent basis can I receive a discount?,exchange-rates,exchange_charge
+Is there any cost to change foreign money to local?,exchange-rates,exchange_charge
+What are the currency exchange fees?,exchange-rates,exchange_charge
+Do you charge a fee on currency exchange?,exchange-rates,exchange_charge
+What is the current exchange fee?,exchange-rates,exchange_charge
+Will I be charged an extra fee if I need to exchange currency?,exchange-rates,exchange_charge
+Currency exchanges have any extra fees?,exchange-rates,exchange_charge
+Does it cost extra to exchange foreign currencies?,exchange-rates,exchange_charge
+Is there any type of fee for currency exchange?,exchange-rates,exchange_charge
+How much more do you charge for currency exchange?,exchange-rates,exchange_charge
+"When exchanging currencies, is there an extra fee?",exchange-rates,exchange_charge
+Exchange fee help?,exchange-rates,exchange_charge
+What's the exchange fee?,exchange-rates,exchange_charge
+exchanging currencies costs what?,exchange-rates,exchange_charge
+How much will I be charged for a cross-currency exchange?,exchange-rates,exchange_charge
+How much extra will I be charged for exchanging foreign currency?,exchange-rates,exchange_charge
+Do I pay extra for exchange?,exchange-rates,exchange_charge
+Do I need to pay extra for exchanging currencies?,exchange-rates,exchange_charge
+How much to exchange currencies?,exchange-rates,exchange_charge
+Could you help my figure out the exchange fee?,exchange-rates,exchange_charge
+IS there a fee to exchange currency?,exchange-rates,exchange_charge
+Do I get a discount if I exchange currencies a lot?,exchange-rates,exchange_charge
+What kind of costs are involved for exchanging currency?,exchange-rates,exchange_charge
+Are there any discounts in exchanging currencies frequently?,exchange-rates,exchange_charge
+Do you offer any discounts for someone who exchanges currencies frequently?,exchange-rates,exchange_charge
+Is there a pay structure for currency exchanges?,exchange-rates,exchange_charge
+would I need to pay extra for exchanging currencies?,exchange-rates,exchange_charge
+What is the charge for exchanging currencies?,exchange-rates,exchange_charge
+Are there any discounts for frequent currency exchanges?,exchange-rates,exchange_charge
+how much do I have to pay for exchange of currency?,exchange-rates,exchange_charge
+I need to exchange foreign currency will i be charged?,exchange-rates,exchange_charge
+"Since I need to exchange currencies frequently, would you be able to offer me a discount?",exchange-rates,exchange_charge
+"always exchanging currencies, do you offer a discount?",exchange-rates,exchange_charge
+How much do I have to pay to accept an international transfer?,exchange-rates,exchange_charge
+is there a foreign currencies charge?,exchange-rates,exchange_charge
+I exchange my currency quite a bit. Do I get an exchange price break?,exchange-rates,exchange_charge
+"If I exchange currencies on a regular basis, is there a discount?",exchange-rates,exchange_charge
+Do you charge extra for exchanging currencies?,exchange-rates,exchange_charge
+What is the charge for using a Top up card in the US?,top-up-by-card,top_up_by_card_charge
+What is the fee for topping up a US card?,top-up-by-card,top_up_by_card_charge
+What fees are charged when I top up,top-up-by-card,top_up_by_card_charge
+Is there a charge for topping up by card?,top-up-by-card,top_up_by_card_charge
+Which US cards have top up charges?,top-up-by-card,top_up_by_card_charge
+Will you charge me if I top up by card?,top-up-by-card,top_up_by_card_charge
+how much does it cost to add money to my card,top-up-by-card,top_up_by_card_charge
+How much are the fees for adding funds using an international card?,top-up-by-card,top_up_by_card_charge
+Does it cost money to top up?,top-up-by-card,top_up_by_card_charge
+should i add money via bank transfer instead,top-up-by-card,top_up_by_card_charge
+Do I have to pay extra if I use an international card to top up my account?,top-up-by-card,top_up_by_card_charge
+What are the charges for topping up US card?,top-up-by-card,top_up_by_card_charge
+Do you charge if I use a European bank card for top up?,top-up-by-card,top_up_by_card_charge
+"I need to top up, but I have to use an international card. Is there a cost for that?",top-up-by-card,top_up_by_card_charge
+how much does it cost to add money,top-up-by-card,top_up_by_card_charge
+Will I be charged for topping up?,top-up-by-card,top_up_by_card_charge
+Do you have any fees if I want to add money using an international card.,top-up-by-card,top_up_by_card_charge
+"I am wanting to refill my card, is there a charge?",top-up-by-card,top_up_by_card_charge
+Is there a fee to add money to an international card?,top-up-by-card,top_up_by_card_charge
+Does it cost to add money to my card?,top-up-by-card,top_up_by_card_charge
+Do I get charged for a top up from a European bank?,top-up-by-card,top_up_by_card_charge
+Are their fee's for top ups?,top-up-by-card,top_up_by_card_charge
+Does it cost to top up my card?,top-up-by-card,top_up_by_card_charge
+how much is the fee for topping by card,top-up-by-card,top_up_by_card_charge
+What is the fee if I use a European bank for a top up?,top-up-by-card,top_up_by_card_charge
+Are there any charges for using a bank card to top up,top-up-by-card,top_up_by_card_charge
+I was wondering if you will take any fees in exchange for top ups?,top-up-by-card,top_up_by_card_charge
+Are there any charges for European bank card for top up?,top-up-by-card,top_up_by_card_charge
+Are there still fees for european top-ups?,top-up-by-card,top_up_by_card_charge
+How much are you going to charge me if I top up my US card?,top-up-by-card,top_up_by_card_charge
+Will I be charged a fee to top up using a debit or credit card?,top-up-by-card,top_up_by_card_charge
+If I top up using a European card is there a charge?,top-up-by-card,top_up_by_card_charge
+Will I see fees from adding money with an international card?,top-up-by-card,top_up_by_card_charge
+Do you charge extra for topping up with a debit or credit card?,top-up-by-card,top_up_by_card_charge
+Is there a fee for european bank cards?,top-up-by-card,top_up_by_card_charge
+What are the top up charges for all US cards?,top-up-by-card,top_up_by_card_charge
+When I add money to my international card do you charge a fee to do so?,top-up-by-card,top_up_by_card_charge
+Is there a top charge for US cards?,top-up-by-card,top_up_by_card_charge
+Are there going to be fees from adding money with an international card?,top-up-by-card,top_up_by_card_charge
+What is the charge for topping up a card?,top-up-by-card,top_up_by_card_charge
+Please help me with my card. It won't activate.,activate-card,activate_my_card
+I tired but an unable to activate my card.,activate-card,activate_my_card
+I want to start using my card.,activate-card,activate_my_card
+How do I verify my new card?,activate-card,activate_my_card
+I tried activating my plug-in and it didn't piece of work,activate-card,activate_my_card
+How do i activate my card,activate-card,activate_my_card
+Can someone assist me with activating my card?,activate-card,activate_my_card
+My card needs to be activated.,activate-card,activate_my_card
+I was unable to activate my card.,activate-card,activate_my_card
+Is my card ready for use or does it need activated and if so how?,activate-card,activate_my_card
+Help me activate my new card.,activate-card,activate_my_card
+Do I need a photo ID to activate a my new card?,activate-card,activate_my_card
+"I just got my new card, how do I activate it?",activate-card,activate_my_card
+Can I have my card activated?,activate-card,activate_my_card
+i cant seem to activate card,activate-card,activate_my_card
+It won't let me activate my card.,activate-card,activate_my_card
+I tried activation my card and it didn't employment,activate-card,activate_my_card
+I want to use my card. How do I activate it?,activate-card,activate_my_card
+Activate my card,activate-card,activate_my_card
+Can I get some help activating my new card?,activate-card,activate_my_card
+Is my card activated?,activate-card,activate_my_card
+I would like to activate my card.,activate-card,activate_my_card
+Can I call to get my card activated?,activate-card,activate_my_card
+How can I activate my new card? I didn't recieve any information with it about how to do so.,activate-card,activate_my_card
+How do I activate my new card I just got?,activate-card,activate_my_card
+will you be able to activate my card,activate-card,activate_my_card
+Can I get some help to get me card activated?,activate-card,activate_my_card
+I want to activate my new card.,activate-card,activate_my_card
+What would II do if I wanted to activate my new card,activate-card,activate_my_card
+What needs to be done to activate and use a card?,activate-card,activate_my_card
+Can I activate my card?,activate-card,activate_my_card
+I need assistance activating my card?,activate-card,activate_my_card
+I need assistance with activating my new card.,activate-card,activate_my_card
+How do I get my card active?,activate-card,activate_my_card
+What do I have to do to activate my card?,activate-card,activate_my_card
+What is needed to activate my card?,activate-card,activate_my_card
+How can my new card be activated?,activate-card,activate_my_card
+Can you activate my card pls,activate-card,activate_my_card
+How do I turn on my new card?,activate-card,activate_my_card
+Please assist me in activating the card.,activate-card,activate_my_card
+Why is there a charge when I took out money?,atm-cash,cash_withdrawal_charge
+Why have I been charged a fee for cash withdrawal?,atm-cash,cash_withdrawal_charge
+I made a cash withdrawl and there is a charge. What is this?,atm-cash,cash_withdrawal_charge
+I am inquiring about why there was an extra fee charged when I used an ATM.,atm-cash,cash_withdrawal_charge
+Why am I being charged extra when I withdrew money?,atm-cash,cash_withdrawal_charge
+Why am I charged to get money from the ATM?,atm-cash,cash_withdrawal_charge
+I saw I was charged extra for money I withdrew?,atm-cash,cash_withdrawal_charge
+Is there an extra fee for using an ATM?,atm-cash,cash_withdrawal_charge
+Why did they take more money out then I withdrawed?,atm-cash,cash_withdrawal_charge
+I withdrew cash and was charged,atm-cash,cash_withdrawal_charge
+why has a cash withdrawal charged me?,atm-cash,cash_withdrawal_charge
+I was charged for getting cash.,atm-cash,cash_withdrawal_charge
+"Hello, I have a question concerning an unfamiliar fee that I notice on my account. I see that you guys charge for ATM withdrawal. Never notice this fee until now. Can you please explain?",atm-cash,cash_withdrawal_charge
+Why am I charged a fee for withdrawing cash?,atm-cash,cash_withdrawal_charge
+Why was there a fee for my cash withdrawal?,atm-cash,cash_withdrawal_charge
+I don't understand why I was charged extra for withdrawing money?,atm-cash,cash_withdrawal_charge
+I made a transaction at an atm and was charged extra for it.,atm-cash,cash_withdrawal_charge
+"I was charged extra when I made a cash withdraw, why?",atm-cash,cash_withdrawal_charge
+Why was I charged for cash withdrawal?,atm-cash,cash_withdrawal_charge
+Why was there a fee on my cash withdrawal?,atm-cash,cash_withdrawal_charge
+Why was I charged for a cash withdrawal at the ATM?,atm-cash,cash_withdrawal_charge
+Since when do you charge to make a withdrawal? I've always done it for free. So how much is it now?,atm-cash,cash_withdrawal_charge
+WHY IS THERE AN EXTRA FEE FOR USING THE ATM??!!!,atm-cash,cash_withdrawal_charge
+Is the fee with my cash withdrawal a mistake?,atm-cash,cash_withdrawal_charge
+Why did using an ATM cause me to have an extra fee charged?,atm-cash,cash_withdrawal_charge
+"Why am I being charged for ATM cash withdrawals? The only reason I use it is because it's been free! Now you expect me to pay for them, and how much is that going to cost me?",atm-cash,cash_withdrawal_charge
+Why was my account assessed a fee for an ATM transaction?,atm-cash,cash_withdrawal_charge
+Why am I being charged for ATM fees?,atm-cash,cash_withdrawal_charge
+Why have I been charged for pulling cash out of my own account?,atm-cash,cash_withdrawal_charge
+Why was i charged for making a withdrawal? After i went grocery shopping i withdrew some money from my account and now there is another charge.,atm-cash,cash_withdrawal_charge
+Do you charge for making a withdrawal? I took some money out of my account earlier and I was charged for this.,atm-cash,cash_withdrawal_charge
+"So, I was just charged for my recent ATM withdrawal and any withdrawal prior to this has been free. What is the issue here?",atm-cash,cash_withdrawal_charge
+Why was I charged an extra fee when using an ATM?,atm-cash,cash_withdrawal_charge
+When I got cash I was charged an extra fee! Explain!,atm-cash,cash_withdrawal_charge
+"I am not supposed to be charged a cash withdrawal fee, but I was.",atm-cash,cash_withdrawal_charge
+I have a question about fee for cash withdraw.,atm-cash,cash_withdrawal_charge
+Could you explain your rules for ATM fees?,atm-cash,cash_withdrawal_charge
+How do I avoid a fee to use an ATM?,atm-cash,cash_withdrawal_charge
+How much can I withdrawal in one month without incurring fees?,atm-cash,cash_withdrawal_charge
+Am I charged more for using the ATM?,atm-cash,cash_withdrawal_charge
+Are there any express fees if i want my new card faster?,card-expiry,card_about_to_expire
+Do I need to do something to get a new card once it expires?,card-expiry,card_about_to_expire
+"I am overseas in China, can I get a replacement card?",card-expiry,card_about_to_expire
+Can I get a new card with new expiration date in China?,card-expiry,card_about_to_expire
+Are there restrictions on new cards in China?,card-expiry,card_about_to_expire
+"Need a new card, mine is expiring.",card-expiry,card_about_to_expire
+"I need a new card to replace an expired one. Will it cost anything, and how soon?",card-expiry,card_about_to_expire
+My card expires next week. How do I get a new one?,card-expiry,card_about_to_expire
+What is the cost and time frame of getting a new card?,card-expiry,card_about_to_expire
+Is it possible to get a new card in China?,card-expiry,card_about_to_expire
+Does it cost much or take long to get a new card? Mine is about to expire.,card-expiry,card_about_to_expire
+Are there steps I need to take before my card expires?,card-expiry,card_about_to_expire
+My card is about to expire. How do I get a new card?,card-expiry,card_about_to_expire
+Will I receive a new card when mine expires?,card-expiry,card_about_to_expire
+My card is due to expire,card-expiry,card_about_to_expire
+What do I do if my card expires soon?,card-expiry,card_about_to_expire
+"If I am in China, can I still order a new card and if so, how?",card-expiry,card_about_to_expire
+"In a month, my card will reach its expiration date, am I required to request the next card?",card-expiry,card_about_to_expire
+What happens if my card expires?,card-expiry,card_about_to_expire
+"My card's expiring a month from now, should I place an order for the new card?",card-expiry,card_about_to_expire
+Will I be sent a new card before mine expires?,card-expiry,card_about_to_expire
+The date my card expires is coming up,card-expiry,card_about_to_expire
+How can I replace an expired card?,card-expiry,card_about_to_expire
+How do I get a new card sent to China?,card-expiry,card_about_to_expire
+After my card expires what should I do?,card-expiry,card_about_to_expire
+My card is about to expire. What do I need to do to keep using my card?,card-expiry,card_about_to_expire
+"My card will expire soon, do I need to order a new one?",card-expiry,card_about_to_expire
+Where can I have a new bank card sent to China?,card-expiry,card_about_to_expire
+I'm in China and need a new card. Please help.,card-expiry,card_about_to_expire
+Tell me what I should do after my card expires.,card-expiry,card_about_to_expire
+How do I know when my card will expire?,card-expiry,card_about_to_expire
+What is the procedure for an expired card?,card-expiry,card_about_to_expire
+How do I order a new card when my old one is ready to expire?,card-expiry,card_about_to_expire
+What do I do if my card is about to expire?,card-expiry,card_about_to_expire
+What happens after my card expires?,card-expiry,card_about_to_expire
+Where can I order a card when I am in China?,card-expiry,card_about_to_expire
+How do I replace a card that's going to expire?,card-expiry,card_about_to_expire
+If my card becomes expired what can I do?,card-expiry,card_about_to_expire
+What steps should I take before my card expires?,card-expiry,card_about_to_expire
+I need a new card before it expires.,card-expiry,card_about_to_expire
+"Hi, I have an apple watch. How do I use it to top up my card?",apple-google-pay,apple_pay_or_google_pay
+Can I use google pay to top up?,apple-google-pay,apple_pay_or_google_pay
+why top up is not working even if I got my American Express in Apple Bay?,apple-google-pay,apple_pay_or_google_pay
+Can I deposit money using Apple Pay?,apple-google-pay,apple_pay_or_google_pay
+Can I use google pay for topping -up,apple-google-pay,apple_pay_or_google_pay
+I do I top up from my Apple Watch?,apple-google-pay,apple_pay_or_google_pay
+"I need to top up, can I use google pay?",apple-google-pay,apple_pay_or_google_pay
+How do I go about topping up with Google Pay?,apple-google-pay,apple_pay_or_google_pay
+google pay top up did not work,apple-google-pay,apple_pay_or_google_pay
+Google play top up help?,apple-google-pay,apple_pay_or_google_pay
+What currencies does google pay top up accept?,apple-google-pay,apple_pay_or_google_pay
+Can I use my American Express card with Apple Pay?,apple-google-pay,apple_pay_or_google_pay
+Why can't I get my top up to work in Apple Pay?,apple-google-pay,apple_pay_or_google_pay
+Can I use my apple watch to top-up?,apple-google-pay,apple_pay_or_google_pay
+Is top-up possible with Apple Pay?,apple-google-pay,apple_pay_or_google_pay
+Why isn't my google top-up pay working?,apple-google-pay,apple_pay_or_google_pay
+What do I do if my Google pay top up isn't working?,apple-google-pay,apple_pay_or_google_pay
+Can I top up with Google Pay?,apple-google-pay,apple_pay_or_google_pay
+Am I able to use Apple Pay?,apple-google-pay,apple_pay_or_google_pay
+"I got my American Express in Apple Pay, why is top up not working in my country?",apple-google-pay,apple_pay_or_google_pay
+Can I add funds directly from my Apple Watch?,apple-google-pay,apple_pay_or_google_pay
+"Apple watch top up help, please?",apple-google-pay,apple_pay_or_google_pay
+"I am having a slight problem with my American express in apple play, can you help me fix the problem with top up?",apple-google-pay,apple_pay_or_google_pay
+"In regards to top-ups, can I do them via Google Pay?",apple-google-pay,apple_pay_or_google_pay
+How do you Top Up on the apple watch?,apple-google-pay,apple_pay_or_google_pay
+Am I able to top up with Apple Pay?,apple-google-pay,apple_pay_or_google_pay
+Can I use top-up with Apple pay?,apple-google-pay,apple_pay_or_google_pay
+"I want to top up from my Apple Watch, can I?",apple-google-pay,apple_pay_or_google_pay
+Can I use the apple watch to make a top-up?,apple-google-pay,apple_pay_or_google_pay
+"My American express works with my apple pay, why is top up not working?",apple-google-pay,apple_pay_or_google_pay
+I would like to know if I can top up with Google Pay.,apple-google-pay,apple_pay_or_google_pay
+Can I top-up via Apple Pay?,apple-google-pay,apple_pay_or_google_pay
+Can I top up using my apple watch?,apple-google-pay,apple_pay_or_google_pay
+Why is top up not working for my apple pay app,apple-google-pay,apple_pay_or_google_pay
+Can I use Apple Pay to top-up?,apple-google-pay,apple_pay_or_google_pay
+Why doesn't my Google pay top up work?,apple-google-pay,apple_pay_or_google_pay
+How can I set up Google Pay on my device?,apple-google-pay,apple_pay_or_google_pay
+Can you show me how to top up with Google play?,apple-google-pay,apple_pay_or_google_pay
+I seem to be having trouble with my Google Pay Top. Can you please help?,apple-google-pay,apple_pay_or_google_pay
+Does Google Pay offer a top up option?,apple-google-pay,apple_pay_or_google_pay
+What do you require for identity verification?,verify-identity,verify_my_identity
+How can I prove I am me?,verify-identity,verify_my_identity
+I need to verify my identity. How do I do that?,verify-identity,verify_my_identity
+How do I verify my identity?,verify-identity,verify_my_identity
+How do I verify my identity online,verify-identity,verify_my_identity
+I'm not sure how to complete the identity checks process.,verify-identity,verify_my_identity
+why must I prove ID,verify-identity,verify_my_identity
+What am I going to need in order to verify my identity?,verify-identity,verify_my_identity
+How do I prove I am who I am?,verify-identity,verify_my_identity
+How and where can I find the identity checks?,verify-identity,verify_my_identity
+What are the requirements to verify my identity?,verify-identity,verify_my_identity
+What do I need to do to perform identity checks?,verify-identity,verify_my_identity
+Show me how to verify my identity?,verify-identity,verify_my_identity
+How recent do my documents need to be for verification?,verify-identity,verify_my_identity
+Can you tell me what I need to do for the identity check process?,verify-identity,verify_my_identity
+What documents are required for proof of identity?,verify-identity,verify_my_identity
+What documents do I need to validate my identity?,verify-identity,verify_my_identity
+Hi! What documents can I use to verify my identity?,verify-identity,verify_my_identity
+what steps do you take to check identity,verify-identity,verify_my_identity
+What will I need to verify my identity,verify-identity,verify_my_identity
+How can I verify my identity?,verify-identity,verify_my_identity
+What proof of identification is needed?,verify-identity,verify_my_identity
+How do I perform identity checks?,verify-identity,verify_my_identity
+What do I need for the identity verification?,verify-identity,verify_my_identity
+Can you tell me what I need for identity validation?,verify-identity,verify_my_identity
+What do you need for the identity verification,verify-identity,verify_my_identity
+What documents do I need to get together to verify my identity?,verify-identity,verify_my_identity
+How do I go through the identity checks?,verify-identity,verify_my_identity
+What steps do I need to take for the identity checking process?,verify-identity,verify_my_identity
+What are the steps to verify identity?,verify-identity,verify_my_identity
+What is the identity verification process?,verify-identity,verify_my_identity
+What are all of the different steps for identity checks?,verify-identity,verify_my_identity
+Where do I go to fill out the identity form?,verify-identity,verify_my_identity
+Please tell me how I verify my identity.,verify-identity,verify_my_identity
+How can I prove who I am?,verify-identity,verify_my_identity
+What works for identity verification?,verify-identity,verify_my_identity
+What do I need in regards to identification?,verify-identity,verify_my_identity
+Please tell me the steps to verify my identity.,verify-identity,verify_my_identity
+What forms of ID do you need for identity verification?,verify-identity,verify_my_identity
+Where can I verify my identity?,verify-identity,verify_my_identity
+Which countries are you available in?,country-support,country_support
+Where are you cards supported?,country-support,country_support
+How do I get a card if I live in the US?,country-support,country_support
+Please list the countries you support.,country-support,country_support
+Are these cards available in europe?,country-support,country_support
+If I live outside of the UK am I still eligible for a card?,country-support,country_support
+Can I get a card in the EU?,country-support,country_support
+Can I use my card in Austria?,country-support,country_support
+Do you have to be in the UK to get a card?,country-support,country_support
+Can I use this all over the world?,country-support,country_support
+Can I get a card even though I live in the US,country-support,country_support
+Do you provide cards to people not in the UK?,country-support,country_support
+What countries are you located in?,country-support,country_support
+Which countries does your service work in?,country-support,country_support
+Which countries do you operate in,country-support,country_support
+From what countries can I use an account?,country-support,country_support
+Can the card be mailed to Europe?,country-support,country_support
+Who gets support?,country-support,country_support
+i live in portugal. do you operate here?,country-support,country_support
+I live in the EU - can I get a card?,country-support,country_support
+What countries do your accounts send and receive to?,country-support,country_support
+How do I get a card in the EU?,country-support,country_support
+How does a US resident go about acquiring a new card?,country-support,country_support
+Can you tell me the countries you operate in?,country-support,country_support
+As far as courtries go which ones are supported?,country-support,country_support
+May I get one of your cards? I live in the EU.,country-support,country_support
+can i get a card if I live in the usa?,country-support,country_support
+What countries do you operate in?,country-support,country_support
+Where are you present globally?,country-support,country_support
+What are the countries that you operate in?,country-support,country_support
+Which countries are supported,country-support,country_support
+Is this open to residents of all countries?,country-support,country_support
+Is it possible to get one of your cards in the European Union?,country-support,country_support
+Are you located in other countries?,country-support,country_support
+"Although I am not located in the UK area, may i still receive a card?",country-support,country_support
+can usa residents get a card?,country-support,country_support
+What countries can I use my account in?,country-support,country_support
+What countries are you available in?,country-support,country_support
+Is it possible for a person who lives in the US to get a card?,country-support,country_support
+Are your cards supported in the EU?,country-support,country_support

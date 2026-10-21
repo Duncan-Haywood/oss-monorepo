@@ -15,10 +15,10 @@
 import { readStatement, rowIds, checkRunningBalance, parseCents } from "./bank.mjs";
 import { DEFAULT_ACCOUNTS, accountMap, validateEntry, trialBalance, profitAndLoss, balanceSheet, balances, natural, fmt, dollars } from "./ledger.mjs";
 import { suggest, trainClassifier, buildMemory, parseRules, historyRecord, payeeKey } from "./categorize.mjs";
-import { addDocuments, settle, aging, documentEntries, AR, AP } from "./accruals.mjs";
+import { addDocuments, writeOff, settle, aging, documentEntries, AR, AP } from "./accruals.mjs";
 import { SAMPLE_CHECKING, SAMPLE_CARD } from "./example-data.mjs";
 
-export { DEFAULT_ACCOUNTS, fmt, dollars, payeeKey, addDocuments, aging };
+export { DEFAULT_ACCOUNTS, fmt, dollars, payeeKey, addDocuments, writeOff, aging };
 
 export const VERSION = 1;
 const CAPEX_LIKELY = /suppl|office|repair|equipment|tool|computer|furniture|material|uncategori/i;
@@ -409,6 +409,44 @@ export function addRules(booksIn, ruleLines) {
   return books;
 }
 
+// Sales tax collected, credited back and paid over, by month, from the
+// sales tax payable account (2100 unless `account` says otherwise). Collected
+// is what invoices put on it, credited what credit notes took off, remitted
+// what bank lines paid to the authority. `rate` is tax over the invoice's
+// other lines, so a mixed-rate month shows an average. -> { account, months,
+// totals, owed, invoices }
+export function salesTax(books, { account = "2100", from = null, to = null } = {}) {
+  const months = new Map();
+  const m = (d) => {
+    const k = d.slice(0, 7);
+    if (!months.has(k)) months.set(k, { month: k, sales: 0, collected: 0, credited: 0, remitted: 0 });
+    return months.get(k);
+  };
+  const inRange = (d) => (!from || d >= from) && (!to || d <= to);
+  const invoices = [];
+  for (const d of books.documents ?? []) {
+    if (d.kind !== "invoice" || !inRange(d.date)) continue;
+    const tax = d.lines.filter((l) => l.account === account).reduce((a, l) => a + l.cents, 0);
+    const base = d.total - tax;
+    const row = m(d.date);
+    if (d.credit) { row.credited += tax; row.sales -= base; continue; }
+    row.collected += tax; row.sales += base;
+    if (tax) invoices.push({ id: d.id, party: d.party, date: d.date, sales: base, tax, rate: base ? tax / base : null });
+  }
+  for (const e of journal(books)) {
+    if (e.source === "invoice" || e.source === "credit" || e.source === "bill" || !inRange(e.date)) continue;
+    for (const l of e.lines) if (l.account === account) {
+      if (l.debit) m(e.date).remitted += l.debit;
+      else if (l.credit) m(e.date).collected += l.credit;
+    }
+  }
+  const rows = [...months.values()].sort((a, b) => a.month.localeCompare(b.month));
+  for (const r of rows) r.owed = r.collected - r.credited - r.remitted;
+  const sum = (k) => rows.reduce((a, r) => a + r[k], 0);
+  const totals = { sales: sum("sales"), collected: sum("collected"), credited: sum("credited"), remitted: sum("remitted") };
+  return { account, months: rows, totals, owed: totals.collected - totals.credited - totals.remitted, invoices };
+}
+
 export function status(books) {
   const c = { new: 0, review: 0, auto: 0, confirmed: 0, split: 0, transfer: 0, settled: 0 };
   for (const t of books.transactions) c[t.status] = (c[t.status] ?? 0) + 1;
@@ -446,6 +484,7 @@ export function analyze(input = {}) {
     reports: reports(books, { from: input.from, to: input.to }),
     ruleSuggestions: suggestRules(books),
     aging: books.documents?.length ? aging(books, input.asOf) : null,
+    salesTax: salesTax(books, { from: input.from, to: input.to }),
     checks: closeChecks(books, opts),
     books,
   };
