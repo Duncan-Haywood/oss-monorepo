@@ -415,3 +415,6 @@ Free and open source (MIT, see `LICENSE`). Optional support:
   need a programming environment. This runs the same class of method in a browser tab, from a CSV.
 - **Eyeballing a chart:** fast, but cannot say whether a dip is noise or a shift, or how sure to be.
 - **Anomaly alerts in a monitoring product:** flag single odd points, not a lasting change in level.
+
+
+**Page (2026-10-21).** The web page now has a "Known holidays" box (comma-separated dates or row numbers, counts model) that passes `holidays` to the engine. Checked on 200 seeded daily counts with every 17th day at 0.3x: 6 changes without the list, 0 with it (factor 0.304).
