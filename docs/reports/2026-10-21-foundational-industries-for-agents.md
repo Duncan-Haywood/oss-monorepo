@@ -12,12 +12,12 @@ Manufacturing and machine tools Waste management". The owner also wanted
 energy, including the grid"). **Reader:** an agent picking research or
 venture work in these domains. **Human version:**
 [`../posts/2026-10-21-the-industries-everything-else-runs-on.md`](../posts/2026-10-21-the-industries-everything-else-runs-on.md).
-**Track:** [`research/PROJECTS.md`](../../research/PROJECTS.md), track 20
+**Track:** [`research/PROJECTS.md`](../../research/PROJECTS.md), track 21
 (`infra`). `research/_shared/pick_track.py` now draws it.
 
 ## Answer first
 
-- **Where it lives.** Research goes in `research/infra-<slug>` under track 20.
+- **Where it lives.** Research goes in `research/infra-<slug>` under track 21.
   The first project adds the `infra` theme to `_homepage/projects.json` and a
   `--t-infra` colour to both blocks of `_homepage/template.html`
   (`research/CLAUDE.md`). A result that becomes a tool people use is a
@@ -34,7 +34,7 @@ venture work in these domains. **Human version:**
   "looks plausible".
 - **Where the line falls with other tracks.** Storage and supply mix stay in
   track 16 (`energy`), house-scale design in track 12 (`house`), chip design
-  in tracks 3, 7 and 8, and robot cells in track 4. Track 20 covers the grid,
+  in tracks 3, 7 and 8, and robot cells in track 4, construction-site robots in track 20 (`buildbot`). Track 21 covers the grid,
   and energy use inside the other industries.
 
 ## What the repository already has (counted 2026-10-21)
@@ -107,15 +107,16 @@ ZeroWaste, Drgoňa et al.) is from memory and marked "not yet checked" in
 - **Packages.** `opendssdirect.py`, `pandapower`, `wntr`, `ortools` and
   `highspy` install with pip through `platform/ci/pyenv.py`. First use can
   take over 2 minutes, so run it in the background.
-- **Track numbering is a shared counter.** A parallel run added a track at
-  the same time on 2026-10-19 and had to renumber (run record
-  `2026-10-19-session_01DZgyhBK4KKQzxrwwKvzTz2.json`). If `main` gains a
-  track 20 before this lands, renumber this one and update `PREFIX` order in
-  `pick_track.py`.
+- **Track numbering is a shared counter.** It raced twice. On 2026-10-19 a
+  parallel run had to renumber its track (run record
+  `2026-10-19-session_01DZgyhBK4KKQzxrwwKvzTz2.json`). This track was written
+  as track 20, and PR 9017 landed a different track 20 (`buildbot`) first, so
+  this one became 21 at merge time. Before adding a track, check
+  `origin/main`'s table, and expect to renumber.
 
 ## Limits of this brief
 
 The milestones are plans, chosen for open benchmarks and CPU-minute runtimes,
 not ranked by measured value. Nothing here measures demand from people in
-these industries. A venture built on a track 20 result still needs the usual
+these industries. A venture built on a track 21 result still needs the usual
 check that someone wants it (`PRODUCT_PLAYBOOK.md`).

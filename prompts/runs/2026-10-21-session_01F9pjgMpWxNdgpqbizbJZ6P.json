@@ -27,7 +27,12 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    {
+      "what": "Pages build/test red on the first two heads from posts merged to main in PRs 9030 and 9033 (description over 160 chars; bare default host).",
+      "fix": "Ported PR 9034's two fixes; green on 3b2871b3. PR 9034 then landed on main and the ports merged cleanly."
+    }
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -37,13 +42,17 @@
     {
       "file": "platform/ci/run_workflow_locally.py",
       "issue": "portfolio-pages.yml 'Test the site builder' spends the whole 300 s local budget, so no pages build step runs locally for a docs-only diff."
+    },
+    {
+      "file": "research/PROJECTS.md",
+      "issue": "Track numbers are a shared counter with no claim step: PR 9017 landed a different track 20 while this PR was in CI, so this track was renumbered to 21 in the merge (second such race, after 2026-10-19)."
     }
   ],
   "deviations": [
     {
       "file": "research/PROJECTS.md",
       "instruction": "Picking work: draw a track at random",
-      "did": "added track 20 instead of drawing",
+      "did": "added a track (written as 20, renumbered 21 at merge after PR 9017 landed track 20 buildbot) instead of drawing",
       "why": "the owner named a new direction in this session (as the 2026-10-19 runs did for tracks 14-16)",
       "result": "track added; pick_track draws it"
     }

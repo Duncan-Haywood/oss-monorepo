@@ -20,7 +20,8 @@ from pathlib import Path
 
 PREFIX = ["selfrep", "ambient", "chip", "robofab", "simdesign", "garment",
           "eda", "accel", "osrobot", "swe", "mimic", "house", "capture",
-          "codesign", "sensing", "energy", "society", "hanger", "qual", "infra"]
+          "codesign", "sensing", "energy", "society", "hanger", "qual", "buildbot",
+          "infra"]
 SATURATED = 40
 RESEARCH = Path(__file__).resolve().parents[1]
 
@@ -28,8 +29,7 @@ RESEARCH = Path(__file__).resolve().parents[1]
 def pick(r):
     if r < 0.05:
         return "free"
-    n = len(PREFIX)
-    return min(n, 1 + math.floor((r - 0.05) / 0.95 * n))
+    return min(len(PREFIX), 1 + math.floor((r - 0.05) / 0.95 * len(PREFIX)))
 
 
 def projects(prefix, limit=5):

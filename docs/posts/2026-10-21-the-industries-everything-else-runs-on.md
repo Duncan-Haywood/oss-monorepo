@@ -18,7 +18,7 @@ This post gives our answer to the question and explains why energy comes
 first. It sums up what the repository's open energy models have already
 found, and lists the twelve problems a new research track is starting on.
 The track is
-[track 20 in `research/PROJECTS.md`](../../research/PROJECTS.md). None of it
+[track 21 in `research/PROJECTS.md`](../../research/PROJECTS.md). None of it
 is engineering, investment or financial advice.
 
 A companion opinion piece,
