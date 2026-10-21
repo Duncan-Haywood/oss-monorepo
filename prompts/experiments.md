@@ -1038,6 +1038,19 @@ or `ventures`) until its success rate passes 80% over 20 runs?
 
 ## E63: review 2026-10-21 (reduced pass, late night)
 
+- Change: `prompts/redteam/prompt-0.md` gives a cutoff for slow suites
+  (`--timeout`; pick another target when baseline x mutants > ~20 min). Cause:
+  3 reports today of changepoint-detector campaigns past 10-30 min. `derived/`
+  regenerated.
+- Metric: redteam/prompt-0 friction about slow suites, over the next 40 runs
+  (baseline: 3).
+- Decisions: research candidate 1 kept (E55 caveat); ventures 2, process 2
+  and review 2 unchanged (overlap / too few runs). No audit or drift report
+  (reduced pass; the 2026-10-21 report stands).
+- Result: (next review)
+
+## E64: review 2026-10-21 (reduced pass, late night)
+
 - Change: `.github/prompts/cloud-session.md` gains "Browser and process
   tools": the Playwright/Chromium env vars for cloud sessions and the
   `pkill -f` self-kill trap (2 reports each in the last day). `derived/`
