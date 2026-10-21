@@ -37,12 +37,15 @@
       "issue": "Says audio is rendered offline in the session but never notes the voice file comes from huggingface.co, which the cloud proxy blocks."
     }
   ],
-  "deviations": [],
-  "writeups": [
-    "docs/podcast/2026-10-21-typeof-localstorage-throws.md"
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "Duplicate-work search covered only story PRs, not podcast scripts; the same episode landed concurrently."
+    }
   ],
+  "writeups": [],
   "goal": null,
-  "notes": "Creative track, writing podcast, slug 2026-10-21-typeof-localstorage-throws. Script only; podcast.mjs skips unvoiced scripts, podcast tests pass (9/9). Backlog P044 filed.",
+  "notes": "Creative track, writing podcast, slug 2026-10-21-typeof-localstorage-throws. Script only; podcast.mjs skips unvoiced scripts, podcast tests pass (9/9). Backlog P044 filed. Merge found another session had already landed the same episode (with audio); my script was dropped in favour of main.",
   "corrections": [],
   "redteam": null
 }
