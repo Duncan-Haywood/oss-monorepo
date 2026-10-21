@@ -154,7 +154,7 @@ checks it). Splices still sit over full studs.
 `end`; `at` is the partition's centre along the through wall). With `plateLaps` on,
 the partition's cap plate runs over the through wall by its depth and the through
 wall's cap is cut for the partition's depth, each run spliced on its own. Unlike
-corners, the cap total changes (by the through wall's depth minus the partition's). JSON and CLI only; the page has no field yet.
+corners, the cap total changes (by the through wall's depth minus the partition's). The page has a "Butts into (tee lap)" field per wall: `Front @ 14'` (add `end` for the wall's far end); checked in headless Chromium (valid entry runs clean, a malformed one is reported, no page errors).
 
 ## Limits
 
