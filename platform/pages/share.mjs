@@ -280,7 +280,10 @@ export async function renderCards(jobs, { threads = Math.max(1, Math.min(8, avai
   const queue = [...jobs];
   const workerUrl = new URL('./share-worker.mjs', import.meta.url);
   await Promise.all(Array.from({ length: Math.min(threads, jobs.length) }, () => new Promise((resolve, reject) => {
-    const worker = new Worker(workerUrl);
+    // `execArgv: []`: a worker inherits the parent's flags, and a build started
+    // as `node --input-type=module -e ...` (gitops/tests) would pass a flag a
+    // file-backed worker refuses.
+    const worker = new Worker(workerUrl, { execArgv: [] });
     const next = () => {
       const job = queue.shift();
       if (!job) { worker.terminate().then(() => resolve()); return; }
