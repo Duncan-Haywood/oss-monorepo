@@ -1,0 +1,69 @@
+# Net3 (EPANET example network, 92 junctions) leak detection; one week hourly, leak starts at hour 96, training window hours 0-47
+# mean total demand 691 L/s; 5 or 15 pressure sensors; 120 leak-free calibration weeks and 60 leak locations x 5 sizes per demand-error level
+
+== A. Sensors and coverage
+sensors 253 15 10 143 225 259 61 601 257 50 147 107 217 263 184  (mean nominal pressure 32.5 35.8 17.1 48.3 41.2 41.1 72.6 72.6 43.6 7.9 42.6 42.4 41.8 48.7 41.1 m)
+share of the 92 leak locations whose 2% leak lowers some of the first 5 sensors by more than x metres (noise-free, 24 h after onset; the sensor at the leak itself is ignored):
+x_m 0.05 0.1 0.25 0.5 1.0
+share 0.51 0.46 0.34 0.28 0.07
+
+== B. Realised leak flow, % of mean total demand, by requested size (mean over locations, 24 h after onset)
+requested_pct 0.25 0.5 1 2 4
+low 0.25 0.50 0.99 1.98 3.93
+base 0.25 0.50 0.99 1.98 3.93
+high 0.25 0.50 0.99 1.98 3.92
+
+== C1. demand error base (node sd 0.1, system sd 0.03), pressure sensor sd 0.05 m, 5 sensors (28% of leak locations covered)
+mode det threshold fa_cal fa_test | detection rate, all leaks | detection rate, covered leaks only | median delay h   [columns: leak size % of demand: 0.25 0.5 1 2 4]
+pressure MA3 4 0.03 0.03 | 0.05 0.05 0.10 0.14 0.31 | 0.00 0.00 0.00 0.23 0.69 | 64 63 41 51.5 37
+pressure CUSUM 75.7 0.05 0.00 | 0.02 0.03 0.03 0.08 0.28 | 0.00 0.00 0.00 0.23 0.92 | 63 61.5 35.5 47 36
+pressure PELT 189 0.01 0.00 | 0.00 0.00 0.00 0.02 0.18 | 0.00 0.00 0.00 0.00 0.62 | nan nan nan 12 30
+flow-adjusted MA3 4 0.04 0.03 | 0.02 0.04 0.10 0.14 0.33 | 0.00 0.08 0.15 0.31 0.85 | 39 52 52.5 40 18
+flow-adjusted CUSUM 51.1 0.05 0.00 | 0.02 0.02 0.05 0.22 0.37 | 0.00 0.00 0.08 0.69 0.92 | 65 65 64 41 22
+flow-adjusted PELT 128 0.05 0.02 | 0.03 0.03 0.05 0.09 0.33 | 0.00 0.00 0.00 0.31 1.00 | 36 30 18 42 18
+
+== C2. demand error base (node sd 0.1, system sd 0.03), pressure sensor sd 0.25 m, 5 sensors (28% of leak locations covered)
+mode det threshold fa_cal fa_test | detection rate, all leaks | detection rate, covered leaks only | median delay h   [columns: leak size % of demand: 0.25 0.5 1 2 4]
+pressure MA3 4 0.04 0.02 | 0.02 0.04 0.03 0.07 0.23 | 0.00 0.00 0.00 0.08 0.62 | 64 64.5 64 40 27.5
+pressure CUSUM 62.2 0.05 0.00 | 0.02 0.02 0.05 0.10 0.27 | 0.00 0.00 0.08 0.31 0.92 | 32 35 33 47.5 35
+pressure PELT 128 0.02 0.00 | 0.02 0.00 0.02 0.03 0.20 | 0.00 0.00 0.00 0.08 0.77 | 60 nan 66 39 30
+flow-adjusted MA3 3.75 0.05 0.05 | 0.00 0.02 0.02 0.10 0.28 | 0.00 0.00 0.08 0.23 0.77 | nan 65 64 52 13
+flow-adjusted CUSUM 42 0.05 0.00 | 0.00 0.02 0.03 0.25 0.38 | 0.00 0.00 0.08 0.85 1.00 | nan 40 46 39 23
+flow-adjusted PELT 128 0.05 0.00 | 0.02 0.02 0.02 0.03 0.27 | 0.00 0.00 0.00 0.08 0.85 | 60 6 60 27 24
+
+== C3. demand error base (node sd 0.1, system sd 0.03), pressure sensor sd 1.0 m, 5 sensors (28% of leak locations covered)
+mode det threshold fa_cal fa_test | detection rate, all leaks | detection rate, covered leaks only | median delay h   [columns: leak size % of demand: 0.25 0.5 1 2 4]
+pressure MA3 2.75 0.05 0.02 | 0.05 0.05 0.03 0.03 0.22 | 0.08 0.08 0.08 0.15 0.69 | 53 52 31.5 33 39
+pressure CUSUM 34.5 0.05 0.00 | 0.00 0.02 0.02 0.08 0.22 | 0.00 0.00 0.00 0.23 0.85 | nan 4 17 59 39
+pressure PELT 40.4 0.04 0.00 | 0.03 0.05 0.05 0.05 0.25 | 0.08 0.15 0.00 0.15 0.92 | 48 42 12 42 18
+flow-adjusted MA3 3 0.03 0.03 | 0.00 0.00 0.02 0.00 0.13 | 0.00 0.00 0.00 0.00 0.54 | nan nan 14 nan 16
+flow-adjusted CUSUM 23.3 0.05 0.00 | 0.00 0.00 0.02 0.12 0.25 | 0.00 0.00 0.00 0.46 1.00 | nan nan 14 50 19
+flow-adjusted PELT 40.4 0.05 0.02 | 0.03 0.03 0.05 0.03 0.28 | 0.08 0.08 0.00 0.08 1.00 | 42 51 18 18 18
+
+== C4. demand error low (node sd 0.05, system sd 0.01), pressure sensor sd 0.25 m, 5 sensors (28% of leak locations covered)
+mode det threshold fa_cal fa_test | detection rate, all leaks | detection rate, covered leaks only | median delay h   [columns: leak size % of demand: 0.25 0.5 1 2 4]
+pressure MA3 3.25 0.03 0.03 | 0.02 0.03 0.05 0.22 0.52 | 0.08 0.08 0.08 0.69 1.00 | 0 34 5 16 16
+pressure CUSUM 34.5 0.03 0.00 | 0.00 0.05 0.10 0.30 0.42 | 0.00 0.08 0.38 0.85 1.00 | nan 29 41 29.5 14
+pressure PELT 59.4 0.03 0.00 | 0.00 0.02 0.08 0.25 0.45 | 0.00 0.00 0.15 0.85 1.00 | nan 30 6 18 18
+flow-adjusted MA3 3.25 0.03 0.02 | 0.02 0.00 0.07 0.20 0.60 | 0.08 0.00 0.17 0.69 1.00 | 0 nan 35 16.5 16.5
+flow-adjusted CUSUM 23.3 0.05 0.00 | 0.02 0.08 0.23 0.37 0.60 | 0.08 0.23 0.77 0.92 1.00 | 55 15 38.5 17.5 16.5
+flow-adjusted PELT 59.4 0.03 0.00 | 0.00 0.03 0.12 0.27 0.47 | 0.00 0.00 0.23 0.85 1.00 | nan 48 30 18 18
+
+== C5. demand error high (node sd 0.2, system sd 0.05), pressure sensor sd 0.25 m, 5 sensors (28% of leak locations covered)
+mode det threshold fa_cal fa_test | detection rate, all leaks | detection rate, covered leaks only | median delay h   [columns: leak size % of demand: 0.25 0.5 1 2 4]
+pressure MA3 4.25 0.03 0.02 | 0.00 0.02 0.02 0.03 0.10 | 0.00 0.00 0.00 0.00 0.23 | nan 64 64 34.5 26.5
+pressure CUSUM 112 0.03 0.00 | 0.00 0.00 0.00 0.02 0.07 | 0.00 0.00 0.00 0.00 0.15 | nan nan nan 50 63.5
+pressure PELT 189 0.03 0.00 | 0.00 0.00 0.00 0.02 0.07 | 0.00 0.00 0.00 0.00 0.15 | nan nan nan 66 60
+flow-adjusted MA3 4 0.03 0.02 | 0.00 0.00 0.00 0.03 0.10 | 0.00 0.00 0.00 0.00 0.31 | nan nan nan 20.5 20.5
+flow-adjusted CUSUM 62.2 0.04 0.00 | 0.00 0.00 0.03 0.03 0.25 | 0.00 0.00 0.08 0.08 0.85 | nan nan 58 34.5 39
+flow-adjusted PELT 189 0.03 0.00 | 0.00 0.00 0.00 0.00 0.13 | 0.00 0.00 0.00 0.00 0.38 | nan nan nan nan 48
+
+== C6. demand error base (node sd 0.1, system sd 0.03), pressure sensor sd 0.25 m, 15 sensors (28% of leak locations covered)
+mode det threshold fa_cal fa_test | detection rate, all leaks | detection rate, covered leaks only | median delay h   [columns: leak size % of demand: 0.25 0.5 1 2 4]
+pressure MA3 4 0.04 0.00 | 0.03 0.00 0.03 0.07 0.15 | 0.00 0.00 0.00 0.08 0.31 | 65 nan 63.5 64 40
+pressure CUSUM 62.2 0.04 0.00 | 0.02 0.02 0.02 0.03 0.20 | 0.00 0.00 0.00 0.00 0.69 | 65 65 59 42.5 42
+pressure PELT 128 0.04 0.00 | 0.02 0.02 0.03 0.00 0.17 | 0.00 0.00 0.00 0.00 0.54 | 54 54 60 nan 42
+flow-adjusted MA3 4 0.05 0.00 | 0.00 0.02 0.02 0.03 0.17 | 0.00 0.00 0.00 0.08 0.38 | nan 47 29 64.5 24
+flow-adjusted CUSUM 62.2 0.04 0.00 | 0.02 0.00 0.02 0.02 0.27 | 0.00 0.00 0.00 0.00 0.85 | 64 nan 51 62 39
+flow-adjusted PELT 189 0.04 0.00 | 0.02 0.02 0.02 0.00 0.13 | 0.00 0.00 0.00 0.00 0.38 | 54 60 54 nan 51
+

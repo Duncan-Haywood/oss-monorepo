@@ -1518,7 +1518,7 @@ Annals*). Payments: gridlock resolution and liquidity-saving mechanisms (Bech an
 2. `infra-transformer` (done 2026-10-21; transformer constants swept, not verified against the standard): distribution transformer ageing under heat-pump and EV load growth. The
    IEEE C57.91 hot-spot and ageing model on an hourly load profile: how much load growth doubles
    loss of life, and how much of it a charging schedule buys back, before a replacement is due.
-3. `infra-waterloss`: finding leaks from pressure data. WNTR on BattLeDIM's L-Town with its
+3. `infra-waterloss` (done 2026-10-21; Net3 with simulated leaks, BattLeDIM unreachable from the proxy, so the L-Town baseline is still open): finding leaks from pressure data. WNTR on BattLeDIM's L-Town with its
    published leak schedule: the competition's best methods as baselines, and the repo's
    `changepoint-detector` (PELT, Bayesian online) applied to residuals, scored by detection
    delay and false alarms.
