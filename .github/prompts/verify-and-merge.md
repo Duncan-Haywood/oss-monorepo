@@ -5,6 +5,8 @@ merge-check do not carry it (process backlog P017). The checklist code block
 is below; the notes after it explain each line. Read it when you run that block,
 touch typed-in markup, or have just merged a change to a served surface.
 
+**Start with one command:** `python3 platform/ci/run_workflow_locally.py --for-changes` runs what your diff would trigger in CI. The block below is the reference for the individual suites it does not reach or that you want to run by hand; you need not run every line.
+
 The checklist (moved here from `CLAUDE.md` by process backlog P030; `platform/ci/checklist_coverage.py` reads this file):
 
 ```
