@@ -117,6 +117,7 @@
     <button type="button" id="docs-load">Load invoices and bills</button>
     <p id="docs-status" class="note" role="status" aria-live="polite"></p>
     <div class="scroll" id="aging"></div>
+    <div class="scroll" id="salestax"></div>
   </section>
 
   <section class="card" aria-labelledby="h-reports">
@@ -200,7 +201,7 @@
     <p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> or <a href="https://buymeacoffee.com/duncanhaywood" rel="noopener">buy me a coffee</a> is entirely optional and never changes what the tool does.</p>
   </footer>
   <script type="module">
-    import { newBooks, importStatement, categorize, suggestRules, addRules, addDocuments, aging, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, exportLines, status, analyze, fmt, DEFAULT_ACCOUNTS } from "./engine.mjs";
+    import { newBooks, importStatement, categorize, suggestRules, addRules, addDocuments, aging, salesTax, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, exportLines, status, analyze, fmt, DEFAULT_ACCOUNTS } from "./engine.mjs";
     import { parseAccounts } from "./ledger.mjs";
     import { aiSuggest } from "./ai.mjs";
     import { detectLocal, isLocal } from "./byok.mjs";
@@ -303,7 +304,14 @@
       $("#aging").replaceChildren(el("p", { class: "note", text: `${docs.filter((d) => d.settledBy).length} of ${docs.length} documents are paid by a bank line. Open items as of ${a.asOf}, by days past due:` }), table(["", ...a.buckets, "Total"], [row("Owed to you", a.receivable), row("You owe", a.payable)]));
     }
 
-    function render() { fillSetup(); renderStatus(); renderQueue(); renderReports(); renderRuleSuggestions(); renderAging(); persist(); }
+    function renderSalesTax() {
+      const t = salesTax(books);
+      if (!t.months.some((m) => m.collected || m.credited || m.remitted)) { $("#salestax").replaceChildren(); return; }
+      const r = (label, m) => [label, fmt(m.sales), fmt(m.collected), fmt(m.credited), fmt(m.remitted), fmt(m.owed ?? t.owed)];
+      $("#salestax").replaceChildren(el("p", { class: "note", text: `Sales tax (account ${t.account}): collected on invoices, taken off by credit notes, paid over by bank lines. ${fmt(t.owed)} is still owed to the tax authority.` }), table(["Month", "Sales", "Collected", "Credited", "Paid over", "Owed"], [...t.months.map((m) => r(m.month, m)), r("Total", t.totals)]));
+    }
+
+    function render() { fillSetup(); renderStatus(); renderQueue(); renderReports(); renderRuleSuggestions(); renderAging(); renderSalesTax(); persist(); }
 
     $("#docs-load").addEventListener("click", async () => {
       const f = $("#docs-file").files[0];

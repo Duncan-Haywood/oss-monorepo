@@ -200,8 +200,7 @@ days after the document date, and carries the **invoice number or the party's
 name** in its description. It is then `settled` and posts to receivable or
 payable instead of income, so revenue is counted once, in the month invoiced.
 An amount match with nothing else (one open document of that amount) is only a
-0.60 suggestion in the review queue. A bundled payment (one line for several
-documents) stays in review, and you file it yourself.
+0.60 suggestion in the review queue. A bundled payment is handled below.
 
 **Part-payments.** A line smaller than what is still owed, with the document's
 number in its description (or its party's name, when that party has just one
@@ -217,6 +216,13 @@ invoice or bill number it reduces; the credit is applied in date order, never
 below zero, and the payment expected is the amount net of it. A credit with no
 `against`, or more than the invoice still owes, shows in `aging` as a negative
 item until you settle it.
+**One payment across several documents.** A line that equals the open balances
+of two or more documents of one party, to the cent, and names the party or one of
+the numbers, settles them all (`docs` on the line lists them). The smallest
+set wins and any number named in the description must be in it; if two sets
+fit equally well, the line stays in review. Up to 16 open documents per party
+are searched.
+
 Matches are rebuilt on every pass, so filing a settled line elsewhere reopens
 its document.
 
@@ -228,9 +234,19 @@ current, 1-30, 31-60, 61-90 and 90+ days past due.
 Tests: engine.test.mjs, "Accruals" and "Part-payments and credit notes". Not measured on real invoice exports (the
 tests use a four-row list); the matching thresholds are a first guess.
 
+## Sales tax report
+
+`salesTax(books)` (also `salesTax` from `analyze`, the page's sales tax table and
+`cli.mjs salestax [--from D --to D]`) reads account 2100 by month: sales (the
+invoice lines other than tax, less credit notes), tax collected, tax taken off by
+credit notes, tax paid over (bank lines filed to 2100) and what is still owed. Tax
+on bills is left out. It is a worksheet to check a return against, not a return:
+rates, nexus, exemptions and filing dates are yours to know. Test: engine.test.mjs,
+"sales tax is collected".
+
 ## Not modelled
 
-Refunding a credit note by a bank line, writing off a bad debt, one payment across several documents, depreciation, inventory,
+Refunding a credit note by a bank line, writing off a bad debt, depreciation, inventory,
 payroll and sales tax filings, multiple currencies, locking a closed period,
 and receipts.
 
@@ -238,7 +254,7 @@ and receipts.
 
 - One real bank export of each major US shape (Chase, Bank of America, Wells
   Fargo, Amex, Capital One), each as a fixture with its quirks handled.
-- Refund and write-off of a credit balance; one payment across several documents.
+- Refund and write-off of a credit balance.
 - Measure the AI layer with a local model on the synthetic year's review
   queue.
 

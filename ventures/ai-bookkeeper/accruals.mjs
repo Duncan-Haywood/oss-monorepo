@@ -134,7 +134,7 @@ export const balance = (d) => d.total - (d.credited ?? 0) - (d.payments ?? []).r
 export function settle(booksIn) {
   const books = JSON.parse(JSON.stringify(booksIn));
   const docs = books.documents ?? [];
-  for (const t of books.transactions) if (t.status === "settled") { t.status = "new"; delete t.posted; delete t.doc; delete t.suggestion; delete t.partial; }
+  for (const t of books.transactions) if (t.status === "settled") { t.status = "new"; delete t.posted; delete t.doc; delete t.docs; delete t.suggestion; delete t.partial; }
   for (const d of docs) { delete d.settledBy; delete d.payments; delete d.credited; delete d.applied; }
   // Credit notes reduce the document they name, in date order, never below zero.
   for (const c of docs.filter((x) => x.credit).sort((a, b) => a.date.localeCompare(b.date) || a.id.localeCompare(b.id))) {
@@ -184,6 +184,18 @@ export function settle(booksIn) {
       moved = true;
     }
     if (moved) continue;
+    // One line paying several documents of one party at once.
+    for (const t of lines) {
+      if (usedLine.has(t.id) || t.cents === 0) continue;
+      const set = bundleFor(t, open().filter((d) => sign(d) === Math.sign(t.cents) && within(d, t)));
+      if (!set) continue;
+      usedLine.add(t.id);
+      t.status = "settled"; t.posted = control(set[0]); t.doc = set[0].id; t.docs = set.map((d) => d.id);
+      t.suggestion = { account: control(set[0]), confidence: 1, source: "document", reason: `One payment for ${set.length} documents from ${set[0].party}: ${set.map((d) => d.number).join(", ")} (${set.map((d) => (balance(d) / 100).toFixed(2)).join(" + ")})` };
+      for (const d of set) pay(d, t, balance(d));
+      moved = true;
+    }
+    if (moved) continue;
     const parts = [];
     for (const t of lines) if (!usedLine.has(t.id) && t.cents !== 0) for (const d of open()) {
       if (Math.sign(t.cents) !== sign(d) || Math.abs(t.cents) >= balance(d) || !within(d, t)) continue;
@@ -207,6 +219,35 @@ export function settle(booksIn) {
     }
   }
   return books;
+}
+
+// A bank line that pays several open documents of one party in one go. The
+// documents' balances must add to the line to the cent, and the description
+// must name the party or one of the numbers. The smallest set wins; if two
+// sets of that size fit and the description does not tell them apart, nothing
+// is chosen and the line stays in review. At most 16 open documents per party
+// are searched.
+function bundleFor(t, docs) {
+  const total = Math.abs(t.cents);
+  const byParty = new Map();
+  for (const d of docs) byParty.set(`${d.kind}|${d.party}`, [...(byParty.get(`${d.kind}|${d.party}`) ?? []), d]);
+  const found = [];
+  for (const group of byParty.values()) {
+    const g = group.slice(0, 16);
+    const named = g.filter((d) => hasNumber(t.desc, d.number));
+    if (!named.length && !partyHit(t.desc, g[0].party)) continue;
+    let best = [];
+    for (let m = 1; m < 1 << g.length; m++) {
+      const pick = g.filter((_, i) => m & (1 << i));
+      if (pick.length < 2 || pick.reduce((a, d) => a + balance(d), 0) !== total) continue;
+      if (named.some((d) => !pick.includes(d))) continue;
+      if (!best.length || pick.length < best[0].length) best = [pick];
+      else if (pick.length === best[0].length) best.push(pick);
+    }
+    if (best.length === 1) found.push(best[0]);
+    else if (best.length > 1) return null;
+  }
+  return found.length === 1 ? found[0].sort((a, b) => a.date.localeCompare(b.date) || a.id.localeCompare(b.id)) : null;
 }
 
 // Open documents aged from their due date (the document date when there is no
