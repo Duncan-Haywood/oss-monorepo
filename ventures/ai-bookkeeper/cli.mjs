@@ -35,7 +35,7 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
                          bank lines that pay them clear receivable/payable
   salestax [--from D --to D]  sales tax collected, credited and paid over by month, and what is still owed
   lock DATE|off          lock a closed period: nothing dated on or before DATE can be imported, re-filed, booked or written off
-  contractors [--year Y] [--threshold DOLLARS] [--csv|--filing-csv|--json]  contract labor paid by payee against the 1099-NEC line, with W-9 status
+  contractors [--year Y] [--threshold DOLLARS] [--csv|--filing|--json]  contract labor paid by payee against the 1099-NEC line, with W-9 status
   merge-payee FROM INTO [--off]  count two spellings of one payee as one on the contractors worksheet
   w9 PAYEE [--off]       record that a W-9 is on file for a payee (a flag; no tax IDs are stored)
   schedulec [--from D --to D] [--meals PCT] [--csv|--json]  the profit and loss on US Schedule C lines (a worksheet, not a filing)
@@ -136,7 +136,7 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
   const r = contractors1099(books, { year: yr ? +yr : undefined, threshold: th !== null ? Math.round(+th * 100) : undefined });
   if (json) { console.log(JSON.stringify(r, null, 2)); process.exit(0); }
   if (has("--csv")) { process.stdout.write(contractors1099Csv(r)); process.exit(0); }
-  if (has("--filing-csv")) { process.stdout.write(nec1099FilingCsv(r)); process.exit(0); }
+  if (has("--filing")) { process.stdout.write(nec1099FilingCsv(r)); process.exit(0); }
   console.log(`CONTRACT LABOR ${r.year}, 1099-NEC line ${fmt(r.threshold)}`);
   for (const p of r.payees) console.log(`  ${p.name.slice(0, 34).padEnd(34)} ${fmt(p.cents).padStart(12)}  ${p.over ? "REPORT" : "under "}  ${p.w9 ? "W-9 on file" : "no W-9"}${p.cardCents ? `  (+${fmt(p.cardCents)} by card)` : ""}`);
   for (const w of r.warnings) console.log(`  ! ${w}`);
