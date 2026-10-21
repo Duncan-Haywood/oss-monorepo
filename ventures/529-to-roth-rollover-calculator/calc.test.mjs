@@ -80,3 +80,38 @@ test("csv lists only years with a rollover", () => {
   assert.equal(lines[0], "year_from_now,rollover_usd,limiting_factor,eligible_balance_after_usd");
   assert.equal(lines.length, 6);
 });
+
+test("defaults keep the documented example inputs", () => {
+  assert.equal(DEFAULTS.contrib2, 2000);
+  assert.equal(analyze({}).result.lockedNow, 6000);
+});
+
+test("growth rate outside -50..50 percent is rejected, inside is accepted", () => {
+  assert.ok(analyze({ ...base, growthPct: 60 }).warnings.some((w) => /Growth rate/.test(w)));
+  assert.ok(analyze({ ...base, growthPct: -60 }).warnings.some((w) => /Growth rate/.test(w)));
+  assert.ok(!analyze({ ...base, growthPct: 5 }).warnings.length);
+});
+
+test("the annual IRA limit grows at the typed limit growth rate", () => {
+  const a = analyze({ ...base, limitGrowthPct: 2, annualLimit: 7500, balance: 60000, earnedIncome: 50000 });
+  near(a.schedule[1].roll, 7650);
+  near(a.schedule[2].roll, 7500 * 1.02 * 1.02);
+});
+
+test("earnings share and alternative tax use the balance even when it is tiny", () => {
+  const a = analyze({ ...base, balance: 1, basis: 0, earnedIncome: 50000 });
+  near(a.result.earningsShare, 1);
+});
+
+test("a 15-year-old account has no waiting note; a 14-year-old waits one year", () => {
+  assert.ok(!analyze({ ...base, accountAgeYears: 15, balance: 60000 }).notes.some((n) => /cannot start/.test(n)));
+  const n = analyze({ ...base, accountAgeYears: 14, balance: 60000 }).notes.find((x) => /cannot start/.test(x));
+  assert.match(n, /for 1 more year/);
+});
+
+test("remaining balance is what is left after rollovers, with growth", () => {
+  const a = analyze({ ...base, balance: 60000, earnedIncome: 50000 });
+  near(a.result.remainingInAccount, 25000);
+  const b = analyze({ ...base, balance: 10000, growthPct: 10, accountAgeYears: 0, contrib4: 1000 });
+  assert.ok(b.result.remainingInAccount > 10000);
+});
