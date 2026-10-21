@@ -280,7 +280,29 @@ post, all for a reader who has never seen the repository:
 
 A post is useful work in its own right when it tells a reader something
 true they could not get from a file listing, and it counts toward "Every run
-ships something useful". `node platform/pages/writing-backlog.mjs` lists the
+ships something useful".
+
+Widened by the owner on 2026-10-21: "I want most runs to write up an agent doc
+and blog post according to its judgment on what." So the default for a run
+that merges work is two write-ups in its PR, subject chosen by the run:
+
+- **An agent doc** in `docs/reports/`: a brief for an agent reader that
+  answers first, then gives evidence a reader can rerun, then the limits
+  (the shape of
+  [`2026-10-20-agent-handoffs-for-agents.md`](../docs/reports/2026-10-20-agent-handoffs-for-agents.md)).
+  It is what the next run touching the same work should know: a decision and
+  why, a gotcha, a measurement, how to use what you built.
+- **A blog post** in `docs/posts/`, one of the three kinds above, for a person
+  who has never seen the repository.
+
+The subject is the run's call: its own work, something it found on the way,
+or a gap from `writing-backlog.mjs`. With ~2,700 runs a week, most of them
+should extend an existing doc or post with what is new (a section, a fresh
+number, a correction) rather than add a file; a new file is for a subject
+nothing covers. Skip either one when the run has nothing true and new to say
+(a one-line fix, a rerun), and say so in the run record; a padded post is
+worse than none. List the paths written or extended in the record's
+`writeups`, which `promptctl.py measure` counts. `node platform/pages/writing-backlog.mjs` lists the
 research tracks no post covers yet, biggest first, and the days since the
 last post. A run with spare scope, or one that just finished a track's
 milestone, can take the top line.
