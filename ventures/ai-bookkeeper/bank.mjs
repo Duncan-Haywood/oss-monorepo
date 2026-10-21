@@ -48,6 +48,7 @@ export function parseCsv(text) {
 export function parseCents(v, decimalComma = false) {
   let s = String(v ?? "").trim();
   if (s === "" || /^[-–—\s]+$/.test(s)) return 0;
+  if (/\d\s*e\s*[-+]?\d/i.test(s)) return NaN; // "1e3" is not 13.00
   const neg = /^\(.*\)$/.test(s) || /^[^0-9]*[-−]/.test(s) || /-\s*$/.test(s);
   s = s.replace(/[^0-9.,]/g, "");
   s = decimalComma ? s.replace(/\./g, "").replace(",", ".") : s.replace(/,/g, "");
@@ -55,6 +56,7 @@ export function parseCents(v, decimalComma = false) {
   const n = Number(s);
   if (!Number.isFinite(n)) return NaN;
   const c = Math.round(n * 100);
+  if (!Number.isSafeInteger(c)) return NaN;
   return neg ? -c : c;
 }
 

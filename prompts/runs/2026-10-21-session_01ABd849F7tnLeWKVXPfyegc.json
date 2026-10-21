@@ -1,0 +1,186 @@
+{
+  "date": "2026-10-21",
+  "session": "https://claude.ai/code/session_01ABd849F7tnLeWKVXPfyegc",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-21T09:18:26Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 9129,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "redteam.py targets did not list ventures/ai-bookkeeper/bank.mjs, yet --target accepted it; prompt does not say --target works for unlisted files"
+    }
+  ],
+  "deviations": [],
+  "writeups": [],
+  "goal": null,
+  "notes": "Campaign on ai-bookkeeper/bank.mjs: 8 seeded, 6 caught, 2 equivalent. Two real defects patched in parseCents (1e3, unsafe-integer cents); unterminated-quote CSV left unpatched.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/ai-bookkeeper/bank.mjs",
+        "test": "node --test ventures/ai-bookkeeper/**/*.test.mjs  (in .)",
+        "seed": 578461970,
+        "commit": "deec5e76",
+        "sites": 298,
+        "baseline_seconds": 1.2,
+        "mutants": [
+          {
+            "file": "ventures/ai-bookkeeper/bank.mjs",
+            "line": 36,
+            "col": 12,
+            "operator": "eq-flip",
+            "before": "if (c === \"\\r\" && s[i + 1] === \"\\n\") i++;",
+            "after": "if (c !== \"\\r\" && s[i + 1] === \"\\n\") i++;",
+            "line_text": "      if (c === \"\\r\" && s[i + 1] === \"\\n\") i++;",
+            "caught": false,
+            "seconds": 1.1,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "CRLF double-break only yields an empty row, which parseCsv drops; no visible change"
+          },
+          {
+            "file": "ventures/ai-bookkeeper/bank.mjs",
+            "line": 63,
+            "col": 40,
+            "operator": "false-to-true",
+            "before": "export function parseDate(v, dayFirst = false) {",
+            "after": "export function parseDate(v, dayFirst = true) {",
+            "line_text": "export function parseDate(v, dayFirst = false) {",
+            "caught": true,
+            "seconds": 1.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ai-bookkeeper/bank.mjs",
+            "line": 66,
+            "col": 84,
+            "operator": "const-plus-one",
+            "before": "if ((x = s.match(/^(\\d{4})[-/.](\\d{1,2})[-/.](\\d{1,2})/))) [y, m, d] = [+x[1], +x[2], +x[3]];",
+            "after": "if ((x = s.match(/^(\\d{4})[-/.](\\d{1,2})[-/.](\\d{1,2})/))) [y, m, d] = [+x[1], +x[3], +x[3]];",
+            "line_text": "  if ((x = s.match(/^(\\d{4})[-/.](\\d{1,2})[-/.](\\d{1,2})/))) [y, m, d] = [+x[1], +x[2], +x[3]];",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ai-bookkeeper/bank.mjs",
+            "line": 143,
+            "col": 32,
+            "operator": "const-plus-one",
+            "before": "const m = /^(\\d{4})(\\d{2})(\\d{2})/.exec(String(v).trim());",
+            "after": "const m = /^(\\d{4})(\\d{2})(\\d{3})/.exec(String(v).trim());",
+            "line_text": "  const m = /^(\\d{4})(\\d{2})(\\d{2})/.exec(String(v).trim());",
+            "caught": true,
+            "seconds": 1.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ai-bookkeeper/bank.mjs",
+            "line": 165,
+            "col": 59,
+            "operator": "plus-to-minus",
+            "before": "return blocks.map((b) => ({ ...ofxAccount(b), text: head + b + \"</OFX>\" }));",
+            "after": "return blocks.map((b) => ({ ...ofxAccount(b), text: head - b + \"</OFX>\" }));",
+            "line_text": "  return blocks.map((b) => ({ ...ofxAccount(b), text: head + b + \"</OFX>\" }));",
+            "caught": true,
+            "seconds": 1.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ai-bookkeeper/bank.mjs",
+            "line": 199,
+            "col": 65,
+            "operator": "const-plus-one",
+            "before": "const bal = Math.round(parseFloat(lb[1].replace(\",\", \".\")) * 100);",
+            "after": "const bal = Math.round(parseFloat(lb[1].replace(\",\", \".\")) * 101);",
+            "line_text": "    const bal = Math.round(parseFloat(lb[1].replace(\",\", \".\")) * 100);",
+            "caught": true,
+            "seconds": 1.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ai-bookkeeper/bank.mjs",
+            "line": 252,
+            "col": 20,
+            "operator": "eq-flip",
+            "before": "else if (headerAt === -1) return { rows: [], problems: [\"No date and amount columns were found. Name them Date and Amount (or Debit and Credit).\"], columns: null };",
+            "after": "else if (headerAt !== -1) return { rows: [], problems: [\"No date and amount columns were found. Name them Date and Amount (or Debit and Credit).\"], columns: null };",
+            "line_text": "  else if (headerAt === -1) return { rows: [], problems: [\"No date and amount columns were found. Name them Date and Amount (or Debit and Credit).\"], columns: null };",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ai-bookkeeper/bank.mjs",
+            "line": 264,
+            "col": 41,
+            "operator": "const-plus-one",
+            "before": "const balance = columns.balance !== -1 && String(r[columns.balance] ?? \"\").trim() !== \"\" ? parseCents(r[columns.balance], decimalComma) : null;",
+            "after": "const balance = columns.balance !== -2 && String(r[columns.balance] ?? \"\").trim() !== \"\" ? parseCents(r[columns.balance], decimalComma) : null;",
+            "line_text": "    const balance = columns.balance !== -1 && String(r[columns.balance] ?? \"\").trim() !== \"\" ? parseCents(r[columns.balance], decimalComma) : null;",
+            "caught": false,
+            "seconds": 1.0,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "balance index -2 vs -1: r[-1] is undefined and r[-2] is too, both give null balance"
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/ai-bookkeeper/bank.mjs",
+        "issue": "parseCents('1e3') returned 1300 cents (digits glued); now NaN",
+        "patched": true
+      },
+      {
+        "file": "ventures/ai-bookkeeper/bank.mjs",
+        "issue": "amounts beyond safe-integer cents accepted silently (1e22 cents); now unreadable",
+        "patched": true
+      },
+      {
+        "file": "ventures/ai-bookkeeper/bank.mjs",
+        "issue": "unterminated quote in CSV swallows the rest of the file into one row with no problem reported",
+        "patched": false
+      }
+    ]
+  }
+}
