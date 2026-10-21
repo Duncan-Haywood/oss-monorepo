@@ -166,9 +166,11 @@ flagships:
       The admin ranking now shows raters per option and a coverage note
       (groupRanking.coverage names options rated by fewer than 3 people and
       suggests waiting or shortening a long list; unit-tested).
-      Next: a live check that pair requests stay fast at 220 items, then feed
-      measured answers-per-respondent into the shorten-the-list suggestion (it
-      now uses median reach).
+      The shorten-the-list suggestion now sizes the list from the measured median
+      answers per respondent (coverage(ranked, participants, answersPerRespondent);
+      the ranking route reads it from answered trials; unit-tested, route not run
+      against a live database; 2026-10-21).
+      Next: a live check that pair requests stay fast at 220 items.
   - venture: league-schedule-generator
     why: >-
       Circle-method round robins with minimal home/away breaks, court and slot
