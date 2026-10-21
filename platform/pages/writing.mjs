@@ -27,7 +27,7 @@ import { promises as fs, existsSync, readFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { esc, renderMarkdown } from '../devlog/markdown.mjs';
-import { SITE_NAME, withSiteHeader } from './site-nav.mjs';
+import { SITE_NAME, sponsorsNote, withSiteHeader } from './site-nav.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const DEFAULT_ROOT = path.resolve(HERE, '..', '..');
@@ -189,6 +189,7 @@ ${body}
   <p>Written with AI assistance and checked against the repository; every figure links to, or names, its source in the
   <a href="https://github.com/Duncan-Haywood/oss-monorepo">repository</a>. Provided as-is, with no warranty of accuracy or
   completeness, and not advice of any kind. MIT-licensed, like everything here.</p>
+  <p>${sponsorsNote()}</p>
 </footer>
 </div>
 </body>

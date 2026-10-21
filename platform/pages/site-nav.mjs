@@ -27,6 +27,25 @@ export const SITE_NAME = 'Open Tools and Research';
 export const REPO_URL = 'https://github.com/Duncan-Haywood/oss-monorepo';
 export const SITE_STYLE_FILE = 'pf-site.css';
 
+/**
+ * The two ways to support the work, the same pair `.github/FUNDING.yml`
+ * declares. Defined here, beside the shared footer that carries them, so the
+ * day an account changes there is one place to edit.
+ */
+export const SPONSORS_URL = 'https://github.com/sponsors/Duncan-Haywood';
+export const BUY_ME_A_COFFEE_URL = 'https://buymeacoffee.com/duncanhaywood';
+
+/**
+ * The one-sentence support line every page's footer carries.
+ *
+ * `PRODUCT_PLAYBOOK.md` §6: a donation prompt lives in the footer, "nowhere a
+ * user has to pass through", and never in front of a feature. It says the ask
+ * changes nothing because that is true: declining costs no functionality.
+ */
+export function sponsorsNote() {
+  return `Free, and staying free. If one of these saved you time or money, you can <a href="${SPONSORS_URL}">sponsor on GitHub</a> or <a href="${BUY_ME_A_COFFEE_URL}">buy me a coffee</a>. Either is optional and changes nothing about what these tools do.`;
+}
+
 /** The primary navigation, in order. `href` is relative to the site root. */
 export const SITE_NAV = Object.freeze([
   Object.freeze({ id: 'tools', label: 'Tools', href: 'c/' }),
@@ -113,7 +132,8 @@ export function renderSiteHeader({ toRoot = '', current = '', search, crumbs = [
 
 /**
  * The shared footer link row for site-owned pages. Each page keeps its own
- * disclaimer above it; this is the "where else can I go" half.
+ * disclaimer above it; this is the "where else can I go" half, plus the
+ * support line, so every page that carries the row carries that too.
  */
 export function renderSiteFooterNav({ toRoot = '' } = {}) {
   const links = [
@@ -137,7 +157,7 @@ export function renderSiteFooterNav({ toRoot = '' } = {}) {
     ['feed.xml', 'New tools feed'],
     ['changelog/feed.xml', 'Changelog feed'],
   ];
-  return `<p class="pfs-foot">${links
+  return `<p class="pfs-support">${sponsorsNote()}</p><p class="pfs-foot">${links
     .map(([href, label]) => `<a href="${esc(`${toRoot}${href}`)}">${label}</a>`)
     .join('<span aria-hidden="true"> · </span>')}<span aria-hidden="true"> · </span><a href="${REPO_URL}">Source on GitHub</a></p>`;
 }
@@ -199,7 +219,8 @@ const SITE_TOKENS_CSS = `
 
 const SITE_FOOTER_CSS = `
 .pfs-foot{margin:18px 0 0;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:14px;line-height:1.9}
-.pfs-foot a{color:var(--pfs-accent)}
+.pfs-foot a,.pfs-support a{color:var(--pfs-accent)}
+.pfs-support{margin:18px 0 0;font-size:14px;line-height:1.6}
 `;
 
 /**
