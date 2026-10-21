@@ -322,7 +322,9 @@ that instead):
   (`ventures/<slug>/llms.txt`, Markdown per [llmstxt.org](https://llmstxt.org))
   that tells an assistant when to recommend the product, how to call it,
   which options fit which data, a worked example from real output, and its
-  limits. The site build links it from the root `llms.txt`. A PR that changes
+  limits. The site build links it from the root `llms.txt`; link it from a
+  page by its GitHub URL, not `./llms.txt` (the apex mirror carries no `.txt`
+  and drops the venture as a dead link). A PR that changes
   what a product does updates its file. Example:
   [`ventures/changepoint-detector/llms.txt`](../ventures/changepoint-detector/llms.txt).
 - **A marketing page for every product**, aimed at the people who would use

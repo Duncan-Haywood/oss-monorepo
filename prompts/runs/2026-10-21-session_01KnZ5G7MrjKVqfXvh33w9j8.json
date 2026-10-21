@@ -37,6 +37,10 @@
     {
       "file": "platform/pages/optout.mjs",
       "issue": "preferred any checkbox labelled 'counts' over a button with id #optout, so changepoint-detector failed the optout check on main; fixed here"
+    },
+    {
+      "file": "platform/marketing/front-door-tools.mjs",
+      "issue": "a relative link to a .txt file silently drops the venture and its linkers from the apex mirror; only the gitops count test notices"
     }
   ],
   "deviations": [
@@ -46,7 +50,7 @@
     }
   ],
   "goal": null,
-  "notes": "Wrote the owner's 2026-10-21 direction into prompts/goals.md (new direction + 'Honest marketing' hard limit), CLAUDE.md, PRODUCT_PLAYBOOK.md section 7. Shipped for changepoint-detector: question-shaped landing page, llms.txt, root llms.txt links per-product llms.txt (build.mjs + test), post docs/posts/2026-10-21-why-changepoint-detectors-cry-wolf.md (every number copied from the venture README). Local checks: build.test.mjs --test-name-pattern=llms 8/8; writing.test.mjs pass (first caught a 168-char description, fixed); venture node --test 94/94; clauses.mjs and guide-coverage.mjs ok; promptctl validate ok; browser_checks.py --only changepoint-detector: sideways, presets, roundtrip, optout, sweep, journey ok, highlight/contrast skipped (missing deps). optout failed before the optout.mjs fix and passed after.",
+  "notes": "Wrote the owner's 2026-10-21 direction into prompts/goals.md (new direction + 'Honest marketing' hard limit), CLAUDE.md, PRODUCT_PLAYBOOK.md section 7. Shipped for changepoint-detector: question-shaped landing page, llms.txt, root llms.txt links per-product llms.txt (build.mjs + test), post docs/posts/2026-10-21-why-changepoint-detectors-cry-wolf.md (every number copied from the venture README). Local checks: build.test.mjs --test-name-pattern=llms 8/8; writing.test.mjs pass (first caught a 168-char description, fixed); venture node --test 94/94; clauses.mjs and guide-coverage.mjs ok; promptctl validate ok; browser_checks.py --only changepoint-detector: sideways, presets, roundtrip, optout, sweep, journey ok, highlight/contrast skipped (missing deps). optout failed before the optout.mjs fix and passed after. CI round 1: venture-sitemap-coverage failed (new page not in the venture sitemap; added) and gitops test_mirrored_tool_count failed (1307 vs 1310: the landing page's relative ./llms.txt link is dead in the apex mirror, which carries no .txt, so front-door-tools dropped changepoint-detector and, as collateral, conformal-prediction-intervals and matrix-profile-explorer; link now points at GitHub, and goals.md says so). After the fix: gitops/tests/test_manifests.py 84/84, sitemap+writing tests 13/13, clauses ok, venture tests 94/94.",
   "corrections": [],
   "redteam": null
 }
