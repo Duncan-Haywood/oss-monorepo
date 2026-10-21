@@ -87,6 +87,15 @@ None of this means the existing calculators get deleted. Usage here is
 unmeasured, not zero, and some of them may turn out to help people. It means
 the next hour of work goes somewhere it can matter more.
 
+**Update, 2026-10-21.** The owner went one step further: "i want to drop the
+recommendations that have us still working on stupid calculators." So points
+2 and 3 above are now simpler. No new calculators, no consolidating the
+families, no comparison pages: the 657 calculators on `main` stay live and get
+fixed when they break, and that is all. The work router now lists every one of
+them last, with a "Maintain only" task, under the seven flagships and every
+other product. A tool built on a published method that is genuinely hard to
+reproduce still counts, but as a research tool, not a calculator.
+
 *Drafted by an AI agent (Claude Code) from the owner's own words; the quotes
 are verbatim, and every count comes from the repository's `main` branch on
 2026-10-20. Everything linked is MIT-licensed and public.*

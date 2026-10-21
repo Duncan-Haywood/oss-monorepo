@@ -22,7 +22,7 @@
 // every value written into a form is listed with an Undo. See /ask/ for the
 // measured accuracy and the limitations.
 
-import { parseUtterance, validateFills, extractJson, fieldSchema, describeFills, contentTokens } from './pf-fill.js';
+import { parseUtterance, validateFills, mergeFills, extractJson, fieldSchema, describeFills, contentTokens } from './pf-fill.js';
 import { searchVariants, searchScore } from './pf-search.js';
 
 const ROOT = new URL('./', import.meta.url);
@@ -30,9 +30,12 @@ const SETTINGS_KEY = 'pf-assistant';
 const BYOK_KEY = 'pf-assistant-key';
 const USAGE_KEY = 'portfolio-hub-usage';
 
+// `gguf` is the same model for llama.cpp, which the worker runs on the CPU
+// (WebAssembly) when this browser has no hardware WebGPU; `cpuSize` is its download.
+const GGUF = 'https://huggingface.co/Qwen/';
 export const LOCAL_MODELS = [
-  { id: 'Qwen2.5-0.5B-Instruct-q4f16_1-MLC', name: 'Qwen2.5 0.5B', size: '290 MB', vram: '1 GB', note: 'fastest; fine for filling forms, weak at explaining' },
-  { id: 'Qwen2.5-1.5B-Instruct-q4f16_1-MLC', name: 'Qwen2.5 1.5B', size: '880 MB', vram: '1.7 GB', note: 'better answers; needs a recent laptop or desktop GPU' },
+  { id: 'Qwen2.5-0.5B-Instruct-q4f16_1-MLC', name: 'Qwen2.5 0.5B', size: '290 MB', vram: '1 GB', cpuSize: '430 MB', ggufBytes: 428730208, gguf: `${GGUF}Qwen2.5-0.5B-Instruct-GGUF/resolve/main/qwen2.5-0.5b-instruct-q4_0.gguf`, note: 'fastest; fine for filling forms, weak at explaining' },
+  { id: 'Qwen2.5-1.5B-Instruct-q4f16_1-MLC', name: 'Qwen2.5 1.5B', size: '880 MB', vram: '1.7 GB', cpuSize: '1.1 GB', ggufBytes: 1066227232, gguf: `${GGUF}Qwen2.5-1.5B-Instruct-GGUF/resolve/main/qwen2.5-1.5b-instruct-q4_0.gguf`, note: 'better answers; needs a recent laptop or desktop GPU' },
 ];
 const WHISPER = { name: 'Whisper tiny.en', size: '96 MB' };
 const BYOK_PROVIDERS = {
@@ -325,16 +328,16 @@ async function startBrowserModel(onProgress) {
 }
 
 async function startLocalModel(onProgress) {
-  if (!navigator.gpu) throw new Error('This browser has no WebGPU, which the on-device model needs. Try Chrome or Edge on a laptop or desktop, or use the browser’s built-in model or your own key instead.');
+  const m = LOCAL_MODELS.find((x) => x.id === settings.model) || LOCAL_MODELS[0];
   const listener = (d) => { if (d.kind === 'llm') onProgress?.(d); };
   progressListeners.add(listener);
   let loaded = null;
   try {
     try { await navigator.storage?.persist?.(); } catch { /* optional */ }
-    loaded = await ask({ type: 'llm-load', model: settings.model });
+    loaded = await ask({ type: 'llm-load', model: m.id, gguf: m.gguf, ggufBytes: m.ggufBytes });
   } finally { progressListeners.delete(listener); }
-  const m = LOCAL_MODELS.find((x) => x.id === settings.model) || LOCAL_MODELS[0];
-  engines.local.label = `${m.name}${/q4f32/.test(loaded?.model || '') ? ' (32-bit build: this GPU lacks 16-bit shaders)' : ''}, on this device`;
+  const build = loaded?.backend === 'wasm' ? ' (on the CPU: no WebGPU here, so slower)' : /q4f32/.test(loaded?.model || '') ? ' (32-bit build: this GPU lacks 16-bit shaders)' : '';
+  engines.local.label = `${m.name}${build}, on this device`;
   engines.local.ready = true;
   settings.localReady = true;
   persist();
@@ -535,9 +538,9 @@ async function handle(text, ui, { spoken = false } = {}) {
       try {
         ui.status(`Reading your numbers with ${engineLabel()}…`);
         const raw = await generate(FILL_SYSTEM, `Fields:\n${fieldList(fields)}\n\nThe user said: ${text}`, { json: fieldSchema(fields.slice(0, 60)) });
-        const viaModel = validateFills(extractJson(raw), fields);
-        // The model's reading wins when it found at least as much; the rules are the floor.
-        if (viaModel.fills.length >= ruled.fills.length) { result = viaModel; how = engineLabel(); }
+        // The rules' values stand; the model only adds fields they missed.
+        const merged = mergeFills(ruled, validateFills(extractJson(raw), fields, text), text);
+        if (merged.added) { result = merged; how = `${engineLabel()} and the rule-based reader`; }
       } catch (e) {
         ui.note(`The model could not run (${e.message}), so the rule-based reader was used.`);
       } finally { ui.status(''); }
@@ -810,7 +813,7 @@ function renderSettings(pane, ui) {
   });
 
   const modelSelect = el('select', { 'aria-label': 'On-device model', onchange: (e) => { settings.model = e.target.value; settings.localReady = false; engines.local.ready = false; persist(); } },
-    ...LOCAL_MODELS.map((m) => el('option', { value: m.id, selected: settings.model === m.id }, `${m.name} — ${m.size} download, ~${m.vram} GPU memory (${m.note})`)));
+    ...LOCAL_MODELS.map((m) => el('option', { value: m.id, selected: settings.model === m.id }, navigator.gpu ? `${m.name} — ${m.size} download, ~${m.vram} GPU memory (${m.note})` : `${m.name} — ${m.cpuSize} download, runs on the CPU (${m.note})`)));
   const loadBtn = el('button', { type: 'button', class: 'pa-primary' }, settings.localReady ? 'Load it now' : 'Download and turn on');
   loadBtn.addEventListener('click', async () => {
     settings.engine = 'local'; persist();
@@ -822,7 +825,7 @@ function renderSettings(pane, ui) {
     } catch (e) { ui.status(`Could not start the on-device model: ${e.message}`); loadBtn.disabled = false; }
   });
   engineSet.append(radio('local', 'A model on this device (download once)',
-    `Runs in the background with WebGPU, so the page stays responsive. Downloaded once from huggingface.co and the WebLLM code from cdn.jsdelivr.net, then kept in this browser’s cache. What you type is never sent. ${navigator.gpu ? '' : 'This browser has no WebGPU, so this will not run here.'}`,
+    `Runs in the background, so the page stays responsive: on the graphics chip with WebGPU (WebLLM), or on the CPU with WebAssembly (llama.cpp) where there is no WebGPU, which is several times slower. Downloaded once from huggingface.co and the engine from cdn.jsdelivr.net, then kept in this browser’s storage. What you type is never sent. ${navigator.gpu ? '' : 'This browser has no WebGPU, so it will use the CPU: in our test a form fill took from 10 seconds to almost 2 minutes.'}`,
     el('span', {}, modelSelect, ' ', loadBtn)));
 
   const b = settings.byok;

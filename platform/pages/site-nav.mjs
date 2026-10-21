@@ -27,6 +27,25 @@ export const SITE_NAME = 'Open Tools and Research';
 export const REPO_URL = 'https://github.com/Duncan-Haywood/oss-monorepo';
 export const SITE_STYLE_FILE = 'pf-site.css';
 
+/**
+ * The two ways to support the work, the same pair `.github/FUNDING.yml`
+ * declares. Defined here, beside the shared footer that carries them, so the
+ * day an account changes there is one place to edit.
+ */
+export const SPONSORS_URL = 'https://github.com/sponsors/Duncan-Haywood';
+export const BUY_ME_A_COFFEE_URL = 'https://buymeacoffee.com/duncanhaywood';
+
+/**
+ * The one-sentence support line every page's footer carries.
+ *
+ * `PRODUCT_PLAYBOOK.md` §6: a donation prompt lives in the footer, "nowhere a
+ * user has to pass through", and never in front of a feature. It says the ask
+ * changes nothing because that is true: declining costs no functionality.
+ */
+export function sponsorsNote() {
+  return `Free, and staying free. If one of these saved you time or money, you can <a href="${SPONSORS_URL}">sponsor on GitHub</a> or <a href="${BUY_ME_A_COFFEE_URL}">buy me a coffee</a>. Either is optional and changes nothing about what these tools do.`;
+}
+
 /** The primary navigation, in order. `href` is relative to the site root. */
 export const SITE_NAV = Object.freeze([
   Object.freeze({ id: 'tools', label: 'Tools', href: 'c/' }),
@@ -94,7 +113,7 @@ export function renderSiteHeader({ toRoot = '', current = '', search, crumbs = [
   // where an input in the header would cost a whole row.
   const searchHtml =
     mode === true
-      ? `<form class="pfs-search" action="${esc(root)}" method="get" role="search"><label class="pfs-vh" for="pfs-q">Search all tools and research</label><input id="pfs-q" name="q" type="search" placeholder="Search tools &amp; research" autocomplete="off"><button type="submit">Search</button></form>${link}`
+      ? `<form class="pfs-search" action="${esc(root)}" method="get" role="search"><label class="pfs-vh" for="pfs-q">Search all tools and research</label><input id="pfs-q" name="q" type="search" placeholder="Search tools &amp; research" autocomplete="off"><button type="submit"><span class="pfs-vh">Search</span></button></form>${link}`
       : mode === 'link'
         ? link
         : '';
@@ -116,7 +135,8 @@ export function renderSiteHeader({ toRoot = '', current = '', search, crumbs = [
 
 /**
  * The shared footer link row for site-owned pages. Each page keeps its own
- * disclaimer above it; this is the "where else can I go" half.
+ * disclaimer above it; this is the "where else can I go" half, plus the
+ * support line, so every page that carries the row carries that too.
  */
 export function renderSiteFooterNav({ toRoot = '' } = {}) {
   const links = [
@@ -141,7 +161,7 @@ export function renderSiteFooterNav({ toRoot = '' } = {}) {
     ['feed.xml', 'New tools feed'],
     ['changelog/feed.xml', 'Changelog feed'],
   ];
-  return `<p class="pfs-foot">${links
+  return `<p class="pfs-support">${sponsorsNote()}</p><p class="pfs-foot">${links
     .map(([href, label]) => `<a href="${esc(`${toRoot}${href}`)}">${label}</a>`)
     .join('<span aria-hidden="true"> · </span>')}<span aria-hidden="true"> · </span><a href="${REPO_URL}">Source on GitHub</a></p>`;
 }
@@ -167,15 +187,21 @@ export const SITE_HEADER_CSS = `
 .pfs-bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 22px;max-width:1120px;margin:0 auto;padding:10px 16px}
 [data-pfs-head] .pfs-brand{display:inline-flex;align-items:center;gap:9px;font-weight:750;letter-spacing:-.01em;white-space:nowrap}
 .pfs-mark{display:inline-block;width:20px;height:20px;border-radius:6px;flex:none;background:var(--pfs-mark,currentColor)}
-.pfs-nav{display:flex;flex-wrap:wrap;gap:4px 18px;flex:1 1 auto;min-width:0}
+.pfs-nav{display:flex;flex-wrap:wrap;gap:4px 16px;flex:1 1 auto;min-width:0}
 [data-pfs-head] .pfs-nav a{display:inline-block;padding:4px 0;font-weight:600;color:var(--pfs-muted,inherit);
   border-bottom:2px solid transparent}
 [data-pfs-head] .pfs-nav a[aria-current="page"]{color:var(--pfs-ink,inherit);border-bottom-color:var(--pfs-accent,currentColor)}
-.pfs-search{display:flex;gap:6px;margin:0;padding:0;border:0;flex:0 1 280px;min-width:0}
-.pfs-search input{flex:1 1 auto;min-width:0;width:100%;font:inherit;font-size:14px;padding:7px 10px;margin:0;border-radius:8px;
-  border:1px solid var(--pfs-line,rgba(128,128,128,.5));background:var(--pfs-panel,transparent);color:inherit}
-.pfs-search button{font:inherit;font-size:14px;font-weight:650;padding:7px 12px;margin:0;border-radius:8px;cursor:pointer;
-  border:1px solid var(--pfs-line,rgba(128,128,128,.5));background:var(--pfs-panel,transparent);color:inherit}
+.pfs-search{position:relative;display:flex;margin:0;padding:0;border:0;flex:0 1 236px;min-width:0}
+.pfs-search input{flex:1 1 auto;min-width:0;width:100%;font:inherit;font-size:14px;padding:7px 12px 7px 34px;margin:0;border-radius:999px;
+  border:1px solid var(--pfs-line,rgba(128,128,128,.5));background:var(--pfs-panel,transparent);color:inherit;
+  transition:border-color .15s ease,box-shadow .15s ease}
+.pfs-search input:focus{outline:none;border-color:var(--pfs-accent,currentColor);
+  box-shadow:0 0 0 3px color-mix(in srgb,var(--pfs-accent,currentColor) 22%,transparent)}
+.pfs-search button{position:absolute;left:3px;top:50%;transform:translateY(-50%);width:28px;height:28px;padding:0;margin:0;
+  border:0;border-radius:999px;background:none;color:var(--pfs-muted,inherit);cursor:pointer}
+.pfs-search button::before{content:"";position:absolute;inset:6px;background:currentColor;
+  -webkit-mask:var(--pfs-glass) center/contain no-repeat;mask:var(--pfs-glass) center/contain no-repeat}
+.pfs-search{--pfs-glass:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round'%3E%3Ccircle cx='10.5' cy='10.5' r='6.5'/%3E%3Cpath d='M15.5 15.5 21 21'/%3E%3C/svg%3E")}
 [data-pfs-head] .pfs-searchlink{display:none;font-weight:600}
 [data-pfs-head] .pfs-searchlink.pfs-always{display:inline-block}
 .pfs-vh{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
@@ -183,12 +209,21 @@ export const SITE_HEADER_CSS = `
   overflow-wrap:anywhere}
 [data-pfs-head] .pfs-crumbs a{text-decoration:underline;text-underline-offset:2px}
 .pfs-sep{margin:0 7px}
+@media (max-width:1080px){
+  .pfs-search{display:none}
+  [data-pfs-head] .pfs-searchlink{display:inline-block}
+}
 @media (max-width:720px){
   .pfs-bar{gap:6px 14px;padding:9px 16px}
   [data-pfs-head] .pfs-brand{flex:1 1 auto}
   .pfs-search{display:none}
   [data-pfs-head] .pfs-searchlink{display:inline-block}
-  .pfs-nav{order:3;flex-basis:100%;gap:2px 16px}
+  .pfs-nav{order:3;flex-basis:100%;gap:2px 18px;flex-wrap:nowrap;overflow-x:auto;overscroll-behavior-x:contain;
+    scrollbar-width:none;margin-right:-16px;padding-right:28px;
+    -webkit-mask-image:linear-gradient(90deg,black calc(100% - 28px),transparent);
+            mask-image:linear-gradient(90deg,black calc(100% - 28px),transparent)}
+  .pfs-nav::-webkit-scrollbar{display:none}
+  [data-pfs-head] .pfs-nav a{flex:none;white-space:nowrap}
 }
 @media print{[data-pfs-head]{display:none !important}}
 `;
@@ -224,7 +259,8 @@ footer:has(.pfs-foot){position:relative;max-width:none;color-scheme:dark;margin-
 footer:has(.pfs-foot)>:not(.pfs-foot){max-width:84ch}
 footer:has(.pfs-foot) h2,footer:has(.pfs-foot) strong{color:#eef2f8}
 .pfs-foot{margin:18px 0 0;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:14px;line-height:1.9}
-.pfs-foot a{color:var(--pfs-accent)}
+.pfs-foot a,.pfs-support a{color:var(--pfs-accent)}
+.pfs-support{margin:18px 0 0;font-size:14px;line-height:1.6}
 footer .pfs-foot{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:4px 24px;
   margin-top:26px;padding-top:22px;border-top:1px solid rgba(148,170,210,.24);line-height:1.6}
 footer .pfs-foot>span{display:none}
@@ -280,6 +316,15 @@ html{overflow-x:clip}
 .pf-hero a{color:var(--accent)}
 .pf-hero .starting{background:var(--panel);border-left-color:var(--accent);color:var(--ink)}
 .pf-hero .count{color:var(--soft)}
+.count-exceptions{margin:8px 0 0;font-size:.85rem;color:var(--soft);max-width:80ch}
+.count-exceptions summary{cursor:pointer;width:fit-content;font-weight:650;color:var(--accent);list-style:none;
+  display:inline-flex;align-items:center;gap:7px}
+.count-exceptions summary::-webkit-details-marker{display:none}
+.count-exceptions summary::before{content:"";width:6px;height:6px;border:solid currentColor;border-width:0 2px 2px 0;
+  transform:rotate(-45deg);transition:transform .15s ease}
+.count-exceptions[open] summary::before{transform:rotate(45deg)}
+.count-exceptions p{margin:8px 0 0;padding:10px 14px;border:1px solid var(--line);border-radius:10px;
+  background:var(--panel);line-height:1.6}
 @media (max-width:600px){.pf-hero{padding-top:18px}}
 `;
 

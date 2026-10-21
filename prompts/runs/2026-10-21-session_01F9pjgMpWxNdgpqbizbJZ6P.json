@@ -1,0 +1,68 @@
+{
+  "date": "2026-10-21",
+  "session": "https://claude.ai/code/session_01F9pjgMpWxNdgpqbizbJZ6P",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "Owner: which industries are most fundamental; then blog post and agent doc, and work on tools/applied R&D for water, HVAC, energy and grid, mining, materials, transport and propulsion, semis, payments, machine tools, waste; energy first",
+  "input_sha256": "93daf7e4961b39eec778e3e42c49a42ce33245bf495a85f2513d63c0016e9416",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-21T02:51:19Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "new-track",
+  "projects": [],
+  "pr": 9037,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "Pages build/test red on the first two heads from posts merged to main in PRs 9030 and 9033 (description over 160 chars; bare default host).",
+      "fix": "Ported PR 9034's two fixes; green on 3b2871b3. PR 9034 then landed on main and the ports merged cleanly."
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/_shared/pick_track.py",
+      "issue": "Track count 19 was hard-coded in pick(); adding a track needed a code change as well as the PROJECTS.md table. Now sized from len(PREFIX)."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "portfolio-pages.yml 'Test the site builder' spends the whole 300 s local budget, so no pages build step runs locally for a docs-only diff."
+    },
+    {
+      "file": "research/PROJECTS.md",
+      "issue": "Track numbers are a shared counter with no claim step: PR 9017 landed a different track 20 while this PR was in CI, so this track was renumbered to 21 in the merge (second such race, after 2026-10-19)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/PROJECTS.md",
+      "instruction": "Picking work: draw a track at random",
+      "did": "added a track (written as 20, renumbered 21 at merge after PR 9017 landed track 20 buildbot) instead of drawing",
+      "why": "the owner named a new direction in this session (as the 2026-10-19 runs did for tracks 14-16)",
+      "result": "track added; pick_track draws it"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-21-the-industries-everything-else-runs-on.md",
+    "docs/reports/2026-10-21-foundational-industries-for-agents.md"
+  ],
+  "goal": null,
+  "notes": "Local: check_md_links ok (3084 files); writing.mjs builds 51 pages incl. the new post; research homepage build ok; run_workflow_locally --for-changes 4/6 workflows, guard and research-ci steps ok, portfolio-pages steps timed out on the 300 s local budget (CI covers). External figures checked by web search this run: Erisman 2008 (48%), UNCTAD ~80% by volume, IEA 2023 ~3,000 GW queue (secondary), NIAC draft 2024 quoting Wood Mackenzie 80-210 weeks, Liemberger-Wyatt 126 bn m3 (secondary), Chatham House 2018 ~8% (secondary); secondary ones flagged in both write-ups.",
+  "corrections": [],
+  "redteam": null
+}
