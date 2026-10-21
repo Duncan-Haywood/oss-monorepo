@@ -67,3 +67,9 @@ test("the invoice and bill loader and rule suggestions are wired to controls tha
   assert.match(script(), /addDocuments\(books/);
   assert.match(script(), /suggestRules\(books\)/);
 });
+
+test("the page offers a write-off button for open invoices, wired to the engine", () => {
+  const js = script();
+  assert.match(js, /writeOff\(books, d\.id\)/);
+  assert.match(js, /import \{ balance \} from "\.\/accruals\.mjs"/);
+});

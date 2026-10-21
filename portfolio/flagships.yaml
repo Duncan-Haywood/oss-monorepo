@@ -44,7 +44,7 @@ flagships:
       `against` column, applied net) landed 2026-10-21. One payment across several
       documents and a sales tax report (by month: collected, credited, paid over, owed)
       landed 2026-10-21. Refunding a credit note by a bank line and writing off an invoice
-      landed 2026-10-21 (CLI `writeoff`); the page has no write-off button yet.
+      landed 2026-10-21 (CLI `writeoff`); the page got a write-off button per open invoice 2026-10-21.
       Readers for the five US bank export shapes (Chase checking and card, Bank of
       America, Wells Fargo headerless, Amex, Capital One; card sign inferred from the
       payment rows) landed 2026-10-21 with hand-written fixtures in the documented

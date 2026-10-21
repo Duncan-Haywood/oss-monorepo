@@ -248,7 +248,7 @@ rates, nexus, exemptions and filing dates are yours to know. Test: engine.test.m
 note nobody applied (money out for a customer's credit, money in for a
 supplier's), with the credit's number or the party's name in the description,
 settles it: it posts to receivable or payable and the credit leaves `aging`.
-`writeoff ID [--date D]` (CLI; `writeOff` in the engine) moves an invoice's
+`writeoff ID [--date D]` (CLI; `writeOff` in the engine; on the page, a "Write off" button beside each open invoice under the aging table) moves an invoice's
 unpaid balance to Bad debts (6900, added if missing): debit bad debts, credit
 receivable, on the date given. Invoices only. Tests: "Refunding a credit note,
 and writing off a bad debt".
