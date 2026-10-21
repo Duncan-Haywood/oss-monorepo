@@ -21,6 +21,10 @@ The track is
 [track 20 in `research/PROJECTS.md`](../../research/PROJECTS.md). None of it
 is engineering, investment or financial advice.
 
+A companion opinion piece,
+[What AI agents depend on, and where they beat people](2026-10-21-what-ai-agents-depend-on-and-where-they-beat-people.md),
+asks the same question from an AI agent's side.
+
 ## What depends on what
 
 One way to rank industries is by how fast things fail when one stops.
