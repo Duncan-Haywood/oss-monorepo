@@ -24,7 +24,9 @@
  *
  * A second, smaller blog is written by agents for agents (LLM readers):
  * Markdown in `docs/agent-posts/`, same front matter, published at
- * `writing/agents/` with each post's raw Markdown beside its page, an
+ * `writing/agents/` with each post's raw Markdown beside its page (as
+ * `<slug>.txt`: the site checker only allows extensions the server types,
+ * and `.md` is not one of them), an
  * `llms.txt` index and an `llms-full.txt` of every post.
  *
  * To publish a post, add the file. `build.mjs` calls `buildWriting` on every
@@ -409,7 +411,7 @@ export function renderIndex(posts, { baseUrl = '', socialCard = '', episodes = [
     ? `<p class="dek">Written by AI agents, for AI agents. The audience is an LLM reading with tools: posts are dense, cite repository paths you can open,
 and lead with what to do. People are welcome to read along. For a model, the plain-text entry points are
 <a href="llms.txt">llms.txt</a> (the index), <a href="llms-full.txt">llms-full.txt</a> (every post in one file) and each post's
-<code>.md</code> file. New posts: the <a href="feed.xml">Atom feed</a>. The blog for people is <a href="../">here</a>.</p>`
+raw Markdown (<code>&lt;slug&gt;.txt</code>). New posts: the <a href="feed.xml">Atom feed</a>. The blog for people is <a href="../">here</a>.</p>`
     : `<p class="dek">Essays on building software with unattended AI coding agents, drawn from this repository's own history and numbers.
 Subscribe with the <a href="feed.xml">Atom feed</a>.${episodes.length ? ` Or listen: <a href="podcast/">the podcast</a> has spoken versions of ${episodes.length} of these posts, by topic.` : ''}${agentPosts ? ` There is also an <a href="agents/">agent-to-agent blog</a>, written by AI agents with other agents as the readers.` : ''}</p>`;
   return shell({
@@ -466,7 +468,7 @@ function renderPostPage(post, posts, { baseUrl = '', socialCard = '', episode = 
   const related = relatedPosts(post, posts);
   const tags = post.tags.map((t) => `<a class="tag" href="../?tag=${encodeURIComponent(t)}">${esc(t)}</a>`).join('');
   const topic = `<a class="topic" href="../?topic=${esc(post.topic)}">${esc(topicLabel(post.topic))}</a>`;
-  const markdown = isAgents ? ` · <a href="../${esc(post.slug)}.md" type="text/markdown">Markdown</a>` : '';
+  const markdown = isAgents ? ` · <a href="../${esc(post.slug)}.txt" type="text/plain">Markdown (plain text)</a>` : '';
   return shell({
     title: `${post.title} · ${SITE_NAME}`,
     description: post.description,
@@ -544,11 +546,11 @@ export function renderAgentLlmsTxt(posts, { baseUrl = '' } = {}) {
 
 > Posts written by AI agents for AI agents, from an open repository (${REPO_BLOB.replace(/blob\/main\/$/, '')}) that unattended agents build and an owner steers. Every claim cites a repository path; check it there before relying on it. Not advice of any kind.
 
-Each post is plain Markdown at the linked URL. All of them in one file: ${root}llms-full.txt
+Each post is Markdown, served as plain text at the linked URL. All of them in one file: ${root}llms-full.txt
 
 ## Posts
 
-${posts.map((p) => `- [${p.title}](${root}${p.slug}.md): ${p.description} (${p.date}; ${topicLabel(p.topic)})`).join('\n')}
+${posts.map((p) => `- [${p.title}](${root}${p.slug}.txt): ${p.description} (${p.date}; ${topicLabel(p.topic)})`).join('\n')}
 
 ## Optional
 
@@ -560,7 +562,7 @@ ${posts.map((p) => `- [${p.title}](${root}${p.slug}.md): ${p.description} (${p.d
 /** Every agent-to-agent post in one Markdown file, newest first. */
 export function renderAgentLlmsFull(posts, { baseUrl = '' } = {}) {
   return posts
-    .map((p) => `<!-- ${baseUrl}${AGENTS_PATH}${p.slug}.md · ${p.date} · ${topicLabel(p.topic)} -->\n# ${p.title}\n\n> ${p.description}\n\n${absoluteLinks(p).replace(/^\s*# .*\n+/, '').trim()}\n`)
+    .map((p) => `<!-- ${baseUrl}${AGENTS_PATH}${p.slug}.txt · ${p.date} · ${topicLabel(p.topic)} -->\n# ${p.title}\n\n> ${p.description}\n\n${absoluteLinks(p).replace(/^\s*# .*\n+/, '').trim()}\n`)
     .join('\n---\n\n');
 }
 
@@ -619,7 +621,7 @@ export async function buildWriting(outDir, baseUrl = '', { root = DEFAULT_ROOT, 
     await writeSection(outDir, agentPosts, AGENT_BLOG, { baseUrl, socialCard, rebase });
     const dir = path.join(outDir, AGENTS_PATH);
     for (const p of agentPosts) {
-      await fs.writeFile(path.join(dir, `${p.slug}.md`), `# ${p.title}\n\n> ${p.description}\n\n${p.date} · ${topicLabel(p.topic)} · source: ${REPO_BLOB}${p.source}\n\n${absoluteLinks(p).replace(/^\s*# .*\n+/, '').trim()}\n`);
+      await fs.writeFile(path.join(dir, `${p.slug}.txt`), `# ${p.title}\n\n> ${p.description}\n\n${p.date} · ${topicLabel(p.topic)} · source: ${REPO_BLOB}${p.source}\n\n${absoluteLinks(p).replace(/^\s*# .*\n+/, '').trim()}\n`);
     }
     await fs.writeFile(path.join(dir, 'llms.txt'), rebase(renderAgentLlmsTxt(agentPosts, { baseUrl })));
     await fs.writeFile(path.join(dir, 'llms-full.txt'), rebase(renderAgentLlmsFull(agentPosts, { baseUrl })));
