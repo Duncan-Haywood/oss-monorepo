@@ -15,7 +15,10 @@ import { promisify } from 'node:util';
 
 const gzip = promisify(zlib.gzip);
 
+import { audienceGroups, audiencePageId } from './audiences.mjs';
 import {
+  exampleTools,
+  researchHighlights,
   addOfflineSupport,
   annotateNumberInputs,
   stepAllowsDecimals,
@@ -758,11 +761,14 @@ test('llms.txt keeps each tool on one line, so no description leaks into prose',
   const { surfaces } = await site();
   const bullets = (await read('llms.txt')).split('\n').filter((line) => line.startsWith('- ['));
 
-  // Ten trailing bullets under "Optional" describe the site's own surfaces
-  // rather than a tool — About, Ask, the research portfolio, updates and the
-  // changelog, the comparison index, the guides index, catalog.json, the agent
-  // CLI, the sitemap and the Atom feed — so the count is tools plus those.
-  assert.equal(bullets.length, surfaces.length + 10);
+  // Nine trailing bullets under "Optional" describe the site's own surfaces
+  // rather than a tool — About, Ask, updates and the changelog, the comparison
+  // index, the guides index, catalog.json, the agent CLI, the sitemap and the
+  // Atom feed. Above the tools, one bullet per audience page; below them, one
+  // per research topic. The count is tools plus those.
+  const audiences = audienceGroups(surfaces).length;
+  const topics = researchHighlights().themes.length;
+  assert.equal(bullets.length, surfaces.length + 9 + audiences + topics);
   for (const bullet of bullets) {
     assert.match(bullet, /^- \[[^\]]+\]\(https?:\/\/[^)]+\): \S/, `malformed bullet: ${bullet}`);
   }
@@ -804,6 +810,46 @@ test('llms.txt carries each tool full self-description, not the trimmed card cop
 
 test('the hub links llms.txt so it is reachable, not only well-known', async () => {
   assert.match(await read('index.html'), /href="llms\.txt"/);
+});
+
+test('llms.txt names every audience page and every research topic', async () => {
+  const { surfaces } = await site();
+  const llms = await read('llms.txt');
+  assert.match(llms.split('\n')[0], /^# Open Tools and Research$/);
+  for (const { audience } of audienceGroups(surfaces)) {
+    assert.ok(llms.includes(`](${BASE}c/${audiencePageId(audience)}/)`), `${audience.id} is missing from llms.txt`);
+  }
+  const { themes } = researchHighlights();
+  assert.ok(themes.length > 0);
+  for (const theme of themes) {
+    assert.ok(llms.includes(`](${BASE}research/topics/${theme.id}/)`), `research topic ${theme.id} is missing`);
+  }
+});
+
+test('an audience page leads with its fullest tools and their own guide pages, all of which shipped', async () => {
+  const { outDir, surfaces } = await site();
+  let checked = 0;
+  for (const { audience, items } of audienceGroups(surfaces)) {
+    const html = await fs.readFile(path.join(outDir, 'c', audiencePageId(audience), 'index.html'), 'utf8');
+    const lead = html.match(/<section class="start-here"[\s\S]*?<\/section>/);
+    if (items.length < 8) {
+      assert.equal(lead, null, `${audience.id} is short enough to need no lead`);
+      continue;
+    }
+    assert.ok(lead, `${audience.id} has no start-here block`);
+    const starts = [...lead[0].matchAll(/href="\.\.\/\.\.\/([^"/]+)\/"/g)].map((m) => m[1]);
+    assert.deepEqual(starts, exampleTools(items, 4).map((s) => s.slug));
+    const answers = html.match(/<section class="answers"[\s\S]*?<\/section>/);
+    if (answers) {
+      for (const [, href] of answers[0].matchAll(/<li><a href="\.\.\/\.\.\/([^"]+)"/g)) {
+        const file = href.endsWith('/') ? `${href}index.html` : href;
+        assert.ok(await exists(path.join(outDir, file)), `${audience.id} lists ${href}, which did not ship`);
+        assert.ok(items.some((s) => href.startsWith(`${s.slug}/`)), `${href} is not one of ${audience.id}'s tools`);
+      }
+    }
+    checked += 1;
+  }
+  assert.ok(checked > 5, 'expected several audience pages large enough for a lead');
 });
 
 // ---------------------------------------------------------------------------
@@ -3512,13 +3558,14 @@ test('chrome takes its theme from the host page, not the operating system', asyn
 
   assert.ok(!/prefers-color-scheme/.test(style),
     'the chrome must not branch on the OS theme — the host page decides');
-  // The one block that names colours is the site header and footer's own
-  // palette (`VENTURE_CHROME_CSS`), light by default and dark only where
-  // pf-site.js measured the host page's background as dark. Everything else
+  // Two blocks name colours. The site header and footer's own palette
+  // (`VENTURE_CHROME_CSS`), light by default and dark only where pf-site.js
+  // measured the host page's background as dark; and the logo square's
+  // fallback gradient, a 20px mark rather than text or a band. Everything else
   // the chrome draws still takes its colours from the page.
   assert.ok(style.includes(VENTURE_CHROME_CSS), 'the venture header carries the site palette');
   assert.match(VENTURE_CHROME_CSS, /\[data-pfs-theme="dark"\]/, 'dark only on a measured dark host');
-  const rest = style.replace(VENTURE_CHROME_CSS, '');
+  const rest = style.replace(VENTURE_CHROME_CSS, '').replace(/\.pf-chrome-top \.pfs-mark\{[^}]*\}/, '');
   assert.ok(!/#[0-9a-f]{3,8}\b/i.test(rest),
     `the chrome must not hard-code a colour: ${rest.match(/#[0-9a-f]{3,8}\b/i)?.[0]}`);
   assert.match(style, /color:inherit/, 'text colour comes from the page');
@@ -4410,6 +4457,16 @@ test('the hub links every category page, and the sitemap lists them', async () =
       `${id} is in no sitemap, so it is built and never found`,
     );
   }
+});
+
+test('llms.txt links a product\'s own LLM docs only when it ships them', () => {
+  const surfaces = [
+    { slug: 'with-docs', title: 'With docs', description: 'Has a brief.', llmsDoc: true },
+    { slug: 'without-docs', title: 'Without docs', description: 'Has none.' },
+  ];
+  const llms = renderLlmsTxt(surfaces, BASE);
+  assert.match(llms, new RegExp(`\\[With docs\\]\\(${BASE}with-docs/\\): Has a brief\\. LLM docs: ${BASE}with-docs/llms\\.txt`));
+  assert.ok(!llms.includes(`${BASE}without-docs/llms.txt`));
 });
 
 test('llms.txt and catalog.json name the category pages', async () => {

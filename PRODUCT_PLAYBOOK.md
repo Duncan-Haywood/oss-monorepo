@@ -39,39 +39,43 @@ is wrong, and no amount of code fixes it. The strongest version of that sentence
 ends in the user earning more: a job they can now bid on, an invoice they can
 now issue, a client they can now keep.
 
-## 2. Choose a shape that costs us nothing per user
+## 2. Choose the shape that fits the user; keep our cost per user at zero
 
-In rough order of preference. **This order is about cost, not about what to
-build next** (2026-10-16): read as a recipe, it produced 121 near-identical
+**A menu, not a ranking.** There is no static-only or static-first rule
+(owner, 2026-10-21: "applications can and should be distributable in a
+variety of ways to a variety of platforms"; `prompts/goals.md`, "Direction:
+every platform"). Pick the form the user would actually reach for, and ship
+the same engine through several of them where that helps (web page, CLI,
+MCP server, desktop and mobile packages in `platform/distribution/`). An
+earlier static-first ordering, read as a recipe, produced 121 near-identical
 `<trade>-bid-calculator` ventures
-([`docs/reports/2026-10-16-calculator-glut.md`](docs/reports/2026-10-16-calculator-glut.md)).
-A CLI, library, desktop app or extension (shape 2) costs nothing to serve
-either, and the owner wants that track run alongside web tools. Before adding
+([`docs/reports/2026-10-16-calculator-glut.md`](docs/reports/2026-10-16-calculator-glut.md)). Before adding
 a product in an existing template family, extend or consolidate the family. A calculator
 needs an engine a chatbot can't reproduce in one reply and a maths graduate
 can't follow at a glance (owner, 2026-10-20; `prompts/goals.md`, "Depth over
 calculators").
 
-1. **Static site / browser app.** All computation client-side, state in
-   `localStorage` or a file the user downloads. GitHub Pages hosts it. Zero
-   marginal cost, no data of theirs on our side, no outage we have to answer
-   for.
+1. **Browser app.** Computation client-side, state in `localStorage` or a
+   file the user downloads. GitHub Pages hosts it at no cost to us.
 2. **CLI or library.** Distributed through a package registry or a GitHub
    release; runs on the user's machine. Great for developer and technical-trade
    niches, and it makes the repo page the landing page.
 3. **Generator / checker that runs in the user's own CI.** A GitHub Action or a
    script they schedule. Their compute, their secrets, their data.
-4. **A small service the deployer hosts.** Only when the product genuinely
-   cannot be any of the above. We run no product servers (the Hetzner box was
-   retired on 2026-10-01), so ship it as a one-click self-deploy (below):
-   stateless, the data the user's, the no-SLA clause in §5b. Details:
+4. **Native, desktop or mobile app; browser or editor extension.** Built by
+   the packagers in `platform/distribution/`; runs on the user's device.
+5. **A service, with a server, database or long-running process.** Fine when
+   the product is better for it. We run no product servers on the owner's
+   bill (the Hetzner box was retired on 2026-10-01), so ship it for others to
+   run: a container image, a one-click self-deploy (below), or a package the
+   user runs locally, with the no-SLA clause in §5b. Details:
    [`portfolio/hosting/README.md`](portfolio/hosting/README.md).
 
 Rules that keep the cost floor at zero: no per-user paid API on our account, no
 per-user database we pay for, no per-user human step, no account system unless
 the product is useless without one (and if you need one, prefer "bring your own
 GitHub login" over storing credentials). Do not add Cloudflare or Vercel as
-the way a new product goes live — GitHub Pages is the host.
+the way a new product goes live — GitHub Pages hosts our web surfaces.
 
 ### Rule of thumb: anyone can deploy it themselves (owner, 2026-10-15)
 
@@ -515,6 +519,12 @@ Ship when every line is true:
       tools (`prompts/goals.md`, web presence). The page says what it does and
       for whom, shows it (a screenshot or a demo), and links to try it and to
       the code.
+- [ ] It has a marketing page aimed at the people who would use it (who it
+      is for, their problem in their words, a worked example, when to use
+      something else), and an `llms.txt` beside its page for assistants
+      (`prompts/goals.md`, "LLM docs and a marketing page"). Every
+      claim on them is one a file backs: no invented reviews, testimonials,
+      ratings or user counts (Guardrails, "Honest marketing").
 - [ ] It runs with no key, no account, and no paid dependency of ours.
 - [ ] LICENSE, disclaimer, and privacy line are in the README **and** the
       product.
