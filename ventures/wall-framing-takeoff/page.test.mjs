@@ -86,3 +86,16 @@ test("the footer links the cut list optimizer, and it links back", () => {
   assert.match(page("index.html"), /<a href="\.\.\/cut-list-optimizer\/">/);
   assert.match(readFileSync(new URL("../cut-list-optimizer/index.html", import.meta.url), "utf8"), /<a href="\.\.\/wall-framing-takeoff\/">/);
 });
+
+test("the page offers blocking and fire blocking, and the plan it builds reaches the engine", async () => {
+  const html = page("index.html");
+  for (const id of ["blockRows", "fireBlock"]) assert.match(html, new RegExp(`<label for="${id}">`));
+  assert.match(html, /blocking: \{ rows: .*fire: \$\("#fireBlock"\)\.value === "fire" \}/);
+  const { takeoff, samplePlan } = await import("./engine.mjs");
+  const plain = takeoff(samplePlan());
+  const blocked = takeoff({ ...samplePlan(), blocking: { rows: 1, fire: true } });
+  assert.ok(plain.ok && blocked.ok);
+  const count = (r) => r.cuts.filter((c) => /blocking/.test(c.kind)).reduce((n, c) => n + c.qty, 0);
+  assert.equal(count(plain), 0);
+  assert.ok(count(blocked) > 0);
+});

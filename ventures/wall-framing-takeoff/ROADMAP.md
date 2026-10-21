@@ -59,7 +59,7 @@ Ticked items are on `main`.
       plan `blocking: {rows, fire}` adds evenly spaced flat-2x rows between
       neighbouring full-height studs, skips openings, and `fire` adds enough
       rows that no stud run passes 10 ft; they join the cut list and order.
-      Not yet: staggered blocks, the page control, nailers for horizontal sheets.
+      The page has the controls (rows, fire blocking; 2026-10-21, saved in plan files). Not yet: staggered blocks, nailers for horizontal sheets.
 - [ ] **Corner and tee plate laps**: the cap plate laps into the intersecting
       wall; piece lengths, not totals, change.
 - [ ] **Advanced framing options** (2-stud corners, ladder blocking at tees,
