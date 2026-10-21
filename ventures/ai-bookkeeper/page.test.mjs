@@ -83,3 +83,11 @@ test("the page shows the cash flow statement from the engine", () => {
   assert.match(page("index.html"), /id="cf"/);
   assert.match(script(), /r\.cashFlow/);
 });
+
+test("the page has an equipment register card wired to the engine", () => {
+  const html = page("index.html");
+  for (const id of ["fa-name", "fa-date", "fa-cost", "fa-life"]) assert.match(html, new RegExp(`<label for="${id}">`), id);
+  assert.match(script(), /addAsset\(books/);
+  assert.match(script(), /disposeAsset\(books/);
+  assert.match(script(), /register\(books\)/);
+});

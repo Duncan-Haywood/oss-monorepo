@@ -112,6 +112,23 @@
     <p class="note">What is sent, from your browser straight to the provider you chose: the dates, descriptions and amounts of up to 40 lines still in review, your chart of accounts, and up to 40 lines you already filed as examples. A local model keeps it all on your computer. For Ollama on a web page, start it with <code>OLLAMA_ORIGINS=https://duncan-haywood.github.io</code>.</p>
   </section>
 
+  <section class="card" aria-labelledby="h-assets">
+    <h2 id="h-assets">Optional: equipment and depreciation</h2>
+    <p class="note">A computer, a van or a tool that lasts more than a year is spread over its life instead of counted all at once. File the purchase to account 1500 Equipment, then register it here; depreciation is booked monthly (straight-line, or written off in full the first month if you and your preparer choose). Book depreciation, not the US tax schedule. Ask your accountant.</p>
+    <div class="grid">
+      <div><label for="fa-name">Asset</label><input id="fa-name" autocomplete="off" placeholder="e.g. Laptop"></div>
+      <div><label for="fa-date">Placed in service</label><input id="fa-date" type="date"></div>
+      <div><label for="fa-cost">Cost</label><input id="fa-cost" inputmode="decimal" autocomplete="off" placeholder="1800.00"></div>
+      <div><label for="fa-life">Life (months)</label><input id="fa-life" inputmode="numeric" value="60"></div>
+      <div><label for="fa-salvage">Salvage value</label><input id="fa-salvage" inputmode="decimal" value="0"></div>
+      <div><label for="fa-proceeds">Sale proceeds (to sell or scrap, set the date above first)</label><input id="fa-proceeds" inputmode="decimal" value="0"></div>
+      <div><label for="fa-method">Method</label><select id="fa-method"><option value="straight-line">Straight-line</option><option value="expense">Expense in full</option></select></div>
+    </div>
+    <button type="button" id="fa-add">Add to the register</button>
+    <p id="fa-status" class="note" role="status" aria-live="polite"></p>
+    <div class="scroll" id="fa-register"></div>
+  </section>
+
   <section class="card" aria-labelledby="h-docs">
     <h2 id="h-docs">Optional: invoices and bills (accruals)</h2>
     <p class="note">Bank lines alone give cash-basis books. Load a list of invoices you sent and bills you owe and each is booked on its own date; a bank line with the exact amount and the invoice number or the party's name then clears it instead of counting as income twice. Header: <code>type,number,date,due,party,amount,account</code>, type <code>invoice</code> or <code>bill</code>; rows sharing a number are one document.</p>
@@ -221,7 +238,7 @@
   <script type="module">
     import { sniffFormat, splitOfx } from "./bank.mjs";
     import { scheduleC, scheduleCCsv, contractors1099, contractors1099Csv, nec1099FilingCsv, markW9, mergePayees } from "./taxforms.mjs";
-    import { newBooks, importStatement, importOfxAccounts, categorize, suggestRules, addRules, addDocuments, writeOff, aging, salesTax, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, exportLines, status, analyze, fmt, DEFAULT_ACCOUNTS } from "./engine.mjs";
+    import { newBooks, importStatement, importOfxAccounts, categorize, suggestRules, addRules, addDocuments, writeOff, aging, addAsset, disposeAsset, register, salesTax, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, exportLines, status, analyze, fmt, DEFAULT_ACCOUNTS } from "./engine.mjs";
     import { parseAccounts } from "./ledger.mjs";
     import { aiSuggest } from "./ai.mjs";
     import { detectLocal, isLocal } from "./byok.mjs";
@@ -340,6 +357,27 @@
       return el("div", {}, el("p", { class: "note", text: "Open invoices. Write off one that will not be paid; its unpaid balance goes to bad debts and it leaves the aging table:" }), el("table", {}, el("thead", {}, el("tr", {}, ...["Invoice", "Customer", "Due", "Late", "Owed", ""].map((h) => el("th", { scope: "col", text: h })))), el("tbody", {}, ...rows)));
     }
 
+    function renderAssets() {
+      const r = register(books);
+      if (!r.rows.length) { $("#fa-register").replaceChildren(); return; }
+      const rows = r.rows.map((a) => {
+        const act = a.disposed ? el("span", { text: `Disposed ${a.disposed.date}` }) : el("button", { type: "button", class: "secondary", "aria-label": `Dispose of ${a.name}`, text: "Sell or scrap" });
+        if (!a.disposed) act.addEventListener("click", () => {
+          const date = $("#fa-date").value, proceeds = $("#fa-proceeds").value || "0";
+          try { const d = disposeAsset(books, a.id, { date, proceeds }); books = categorize(d.books, opts()); record("asset_disposed"); render(); $("#fa-status").textContent = `${a.id} disposed on ${date}.`; } catch (e) { $("#fa-status").textContent = e.message; }
+        });
+        return el("tr", {}, el("td", { text: `${a.id} ${a.name}` }), el("td", { class: "n", text: a.date }), el("td", { class: "n", text: fmt(a.cost) }), el("td", { class: "n", text: fmt(a.accumulated) }), el("td", { class: "n", text: fmt(a.netBookValue) }), el("td", {}, act));
+      });
+      $("#fa-register").replaceChildren(el("table", {}, el("thead", {}, el("tr", {}, ...["Asset", "In service", "Cost", "Depreciated", "Net book value", ""].map((h) => el("th", { scope: "col", text: h })))), el("tbody", {}, ...rows, el("tr", { class: "total" }, el("th", { scope: "row", text: `Total as of ${r.asOf}` }), el("td"), el("td", { class: "n", text: fmt(r.cost) }), el("td", { class: "n", text: fmt(r.accumulated) }), el("td", { class: "n", text: fmt(r.netBookValue) }), el("td")))));
+    }
+    $("#fa-add").addEventListener("click", () => {
+      try {
+        const m = $("#fa-method").value;
+        const r = addAsset(books, { name: $("#fa-name").value, date: $("#fa-date").value, cost: $("#fa-cost").value, lifeMonths: m === "expense" ? 1 : parseInt($("#fa-life").value, 10), salvage: $("#fa-salvage").value || "0", method: m });
+        books = categorize(r.books, opts()); record("asset_added"); render(); $("#fa-status").textContent = `${r.asset.id} ${r.asset.name} added.`;
+      } catch (e) { $("#fa-status").textContent = e.message; }
+    });
+
     function renderSalesTax() {
       const t = salesTax(books);
       if (!t.months.some((m) => m.collected || m.credited || m.remitted)) { $("#salestax").replaceChildren(); return; }
@@ -380,7 +418,7 @@
 
     $("#nec-filing-csv").addEventListener("click", () => { record("contractors_filing_downloaded"); download(nec1099FilingCsv(contractors1099(books, { year: necYear() })), "contractors-1099-nec-filing-prep.csv", "text/csv"); });
 
-    function render() { fillSetup(); renderScheduleC(); renderNec(); renderStatus(); renderQueue(); renderReports(); renderRuleSuggestions(); renderAging(); renderSalesTax(); persist(); }
+    function render() { fillSetup(); renderScheduleC(); renderNec(); renderStatus(); renderQueue(); renderReports(); renderRuleSuggestions(); renderAging(); renderAssets(); renderSalesTax(); persist(); }
 
     $("#docs-load").addEventListener("click", async () => {
       const f = $("#docs-file").files[0];

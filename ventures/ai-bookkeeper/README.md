@@ -338,7 +338,7 @@ prints cost, depreciated and net book value; the close checks flag an Equipment
 balance that disagrees with the register (a purchase nobody registered is not being
 depreciated); the Schedule C worksheet carries 6950 to line 13. This is book
 depreciation. Tax depreciation is a separate worksheet (below); `assets.test.mjs` covers the arithmetic, the journal, disposal, the check,
-line 13 and the locked period. Not on the page yet.
+line 13 and the locked period. The page has an "equipment and depreciation" card: add an asset, see cost, depreciated and net book value, sell or scrap it (clicked through in headless Chromium by `eval/browser-click.mjs`).
 
 ### Tax depreciation worksheet (US, MACRS)
 

@@ -69,6 +69,20 @@ check((await page.locator("#nec").textContent()).trim().length > 0, "the 1099-NE
     check(text.startsWith("Tax year,Recipient name,Recipient TIN"), "the file has the form's box-name header");
   }
 }
+// Equipment register: add an asset, see it in the register, sell it.
+await page.fill("#fa-name", "Laptop");
+await page.fill("#fa-date", "2026-01-15");
+await page.fill("#fa-cost", "1800");
+await page.click("#fa-add");
+await page.waitForFunction(() => /added/.test(document.querySelector("#fa-status").textContent), null, { timeout: 5000 }).catch(() => {});
+check(/FA-1 Laptop added/.test(await page.locator("#fa-status").textContent()), "an asset is added to the register");
+check((await page.locator("#fa-register").textContent()).includes("Laptop"), "the register table lists the asset");
+await page.fill("#fa-date", "2026-03-10");
+await page.fill("#fa-proceeds", "900");
+await page.click('button[aria-label="Dispose of Laptop"]');
+await page.waitForFunction(() => /disposed/.test(document.querySelector("#fa-status").textContent), null, { timeout: 5000 }).catch(() => {});
+check(/FA-1 disposed on 2026-03-10/.test(await page.locator("#fa-status").textContent()), "the asset is sold");
+check((await page.locator("#fa-register").textContent()).includes("Disposed 2026-03-10"), "the register shows it disposed");
 check(errors.length === 0, `no page errors ${errors.join("; ")}`);
 await browser.close();
 server.close();
