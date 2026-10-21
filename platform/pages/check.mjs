@@ -514,6 +514,8 @@ export const SERVED_EXTENSIONS = new Map([
   ['.webm', 'stock'],
   // Podcast audio (hearth-and-horizon); nginx's mime.types lists audio/mpeg mp3.
   ['.mp3', 'stock'],
+  // The research pages' self-hosted fonts; mime.types lists font/woff2 woff2.
+  ['.woff2', 'stock'],
   ['.mjs', 'conf'],
   ['.webmanifest', 'conf'],
   ['.csv', 'conf'],
@@ -897,6 +899,9 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
     // product claims.
     const listed = new Set(
       [...llms.matchAll(/\]\((?:[^)]*?)\/([^/)]+)\/([^/)]+)\/\)/g)]
+        // A research topic (`research/topics/<id>/`) is a page about research,
+        // not a product claim.
+        .filter((m) => !m[0].includes('/research/'))
         .filter((m) => !SITE_OWN_DIRS.has(m[1]))
         .map((m) => m[2]),
     );
