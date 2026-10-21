@@ -1,0 +1,57 @@
+{
+  "date": "2026-10-21",
+  "session": "https://claude.ai/code/session_01T6wmGfD8pqg7ydHRAi6W4b",
+  "track": "research",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-21T18:15:00Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "buildbot-custom (track 20, milestone 7)",
+  "projects": [
+    "research/buildbot-custom"
+  ],
+  "pr": 9244,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 12,
+  "outcome": "success",
+  "errors": [
+    "run.py first draft printed doubled/wrong format strings ($0k labels, a %o TypeError) and a README claim that firing dominates travel the numbers did not support; all fixed before commit"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "says plain python3 may lack pytest; platform/ci/pyenv.py printed a path fine but the default python3 had none, one extra step"
+    },
+    {
+      "file": "research/PROJECTS.md",
+      "issue": "milestone 4 recount: buildbot-taskbook books 72 nails a sheet, buildbot-fasten says 62; still unreconciled in the taskbook"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/goals.md",
+      "why": "No agent doc or post written for this project (Write about the work is a judgment default); the README carries the result and sources, and a single milestone did not warrant a report."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Verification run locally: 12 tests pass, research/_homepage/build.py ok, check_md_links ok, research_live_links ok. Two sources (US 7,954,681 and Senco SmartLoad listing) were read only as search-result snippets, stated in the README. Machine price and time inputs are swept, stated as unsourced.",
+  "corrections": [],
+  "redteam": null
+}

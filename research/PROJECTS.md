@@ -1454,7 +1454,7 @@ al. (1993), the revised NIOSH lifting equation, for the human side of a shared l
    randomisation, check them across a second simulator or contact model (sim-to-sim as the
    proxy for sim-to-real, `codesign-transfer`), and publish policies, scenes and success rates
    in a form a robot owner could load.
-7. `buildbot-custom`: purpose-built against humanoid. Design a task-specific machine for the
+7. `buildbot-custom` (done 2026-10-21, a modelled sheathing-nailing gantry; no machine built or quoted): purpose-built against humanoid. Design a task-specific machine for the
    costliest task from milestone 2 with the track-9 and track-14 loops, and compare it with the
    best stock robot on cost, cycle time and success.
 8. `buildbot-cost` (done 2026-10-21): what it is worth. Crew hours replaced or shortened, times wages, against the
