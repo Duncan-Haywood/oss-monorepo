@@ -1,0 +1,208 @@
+{
+  "generator": "ofr_cad 0.1.0",
+  "variant": "mop",
+  "params": {
+    "variant": "mop",
+    "base_r": 150.0,
+    "plate_t": 3.0,
+    "base_z": 18.0,
+    "deck_r": 163.0,
+    "deck_t": 3.0,
+    "deck_z": 95.0,
+    "shell_r": 165.0,
+    "shell_wall": 4.0,
+    "shell_z0": 24.0,
+    "shell_z1": 84.0,
+    "bumper_travel": 5.0,
+    "tab_r0": 138.0,
+    "tab_w": 16.0,
+    "tab_t": 6.0,
+    "tab_gap": 3.0,
+    "bumper_tabs_deg": [
+      20.0,
+      75.0
+    ],
+    "skirt_tabs_deg": [
+      110.0,
+      145.0
+    ],
+    "wheel_d": 72.0,
+    "wheel_w": 22.0,
+    "wheel_y": 115.0,
+    "motor_d": 25.0,
+    "motor_len": 72.0,
+    "hub_gap": 2.0,
+    "pod_w": 44.0,
+    "pod_len": 40.0,
+    "pod_wall": 5.0,
+    "caster_x": 130.0,
+    "rear_caster_x": -138.0,
+    "caster_height": 13.0,
+    "caster_r": 9.0,
+    "caster_pad": 20.0,
+    "battery": [
+      75.0,
+      75.0,
+      40.0
+    ],
+    "battery_x": 72.0,
+    "elec": [
+      70.0,
+      55.0,
+      30.0
+    ],
+    "elec_xy": [
+      68.0,
+      72.0
+    ],
+    "cliff_r": 128.0,
+    "cliff_front_deg": [
+      10.0,
+      66.0,
+      -10.0,
+      -66.0
+    ],
+    "cliff_rear_deg": [
+      125.0,
+      -125.0
+    ],
+    "cliff_window": 8.0,
+    "roller_d": 40.0,
+    "roller_len": 160.0,
+    "roller_x": -50.0,
+    "nozzle_clear": 3.0,
+    "housing_wall": 3.0,
+    "housing_h": 37.0,
+    "housing_half_y": 95.0,
+    "nozzle_lip_gap": 4.0,
+    "side_brush_xy": [
+      110.0,
+      -88.0
+    ],
+    "side_brush_r": 55.0,
+    "module_x0": -148.0,
+    "module_x1": -84.0,
+    "module_half_y": 50.0,
+    "module_wall": 2.0,
+    "bin_h": 42.0,
+    "tank_h": 70.0,
+    "combo_split_y": 10.0,
+    "fan_d": 60.0,
+    "fan_h": 28.0,
+    "pad_t": 5.0,
+    "plate_th": 8.0,
+    "mop_x0": -125.0,
+    "mop_x1_mop": -30.0,
+    "mop_x1_combo": -78.0,
+    "mop_half_y_mop": 85.0,
+    "mop_half_y_combo": 75.0,
+    "rod_d": 6.0,
+    "rod_y": 65.0,
+    "rod_len": 37.0,
+    "lift": 4.5,
+    "erm": [
+      7.0,
+      25.0
+    ],
+    "pump": [
+      32.0,
+      50.0,
+      28.0
+    ],
+    "lidar_d": 70.0,
+    "lidar_h": 38.0,
+    "lidar_x": 60.0,
+    "posts_xy": [
+      [
+        75.0,
+        120.0
+      ],
+      [
+        75.0,
+        -120.0
+      ],
+      [
+        -70.0,
+        125.0
+      ],
+      [
+        -70.0,
+        -125.0
+      ]
+    ],
+    "post_d": 12.0,
+    "m_battery": 420.0,
+    "m_motor": 100.0,
+    "m_wheel": 40.0,
+    "m_lidar": 110.0,
+    "m_elec": 90.0,
+    "m_fan": 90.0,
+    "m_roller": 60.0,
+    "m_brush_motor": 60.0,
+    "m_side_brush": 30.0,
+    "m_pump": 60.0,
+    "m_servo": 10.0
+  },
+  "derived": {
+    "track_mm": 230.0,
+    "overall_mm": [
+      330,
+      136
+    ],
+    "cliff_lead_mm": 52.1,
+    "bin_ml": 0,
+    "tank_ml": 380,
+    "side_brush_reach_mm": null,
+    "centre_of_mass_mm": [
+      -7.0,
+      2.5
+    ],
+    "mass_kg": 2.58
+  },
+  "design_rules": [],
+  "collisions": [],
+  "ground_contacts_z_mm": {
+    "wheel": 0.0,
+    "ball_caster": 0.0,
+    "mop_pad": 0.0
+  },
+  "files": {
+    "README.txt": "42c06b18b7310bc173cb8b36d82210f6fb22a63b82e559d935ea10d4ee5c4e8f",
+    "bom.csv": "ad525a3c0a3e814a2737ba3d16dfb61af41259e34e7e09df6b1897ea3fe16f7d",
+    "cut_list.csv": "252b3386ca28514a98a76d213fba12e18aeda32f403e3345ddae96123f7a7a78",
+    "drawings/assembly_front.svg": "87b7d65a3beafb7017e79dbc0629933d00bf52666265d6a599ae9ef10a9409e3",
+    "drawings/assembly_side.svg": "0496c025dcc3183200e501d21fc715e88dea7f532c9959270b053097d972d5ff",
+    "drawings/assembly_top.svg": "f02159906116c693125ff6e386ea0992a7e1c85fffdd64ff89fd2b25e57e43d8",
+    "laser/base_plate__aluminium_3mm.dxf": "b5f68613a9320d5e6b05d5dc200bf90ead5778bbe9e16e86fa1a01445ba17598",
+    "laser/top_deck__acrylic_3mm.dxf": "1330eb78585baa92e2dd5fc11f365ec771c70bc126c81dcea7a6715b29f3fc7c",
+    "laser_parts.csv": "6a08d942a5328a28098fed01a3c16164cc3e125a91d4fa8fe555f7992dfb96fb",
+    "print/bumper_left.stl": "22330c37541f61f14b6006e222f6dd79c4377752390650aedc4ab1ec812898ff",
+    "print/bumper_right.stl": "6d51d0d00215c5af80d350c4f03a2dc0e66a63fbd5be88fe39fe3c12aba432e5",
+    "print/caster_spacer.stl": "a28eff74e092f56f1df6a86b08d23710c612f523ab952514ffceaf65809e5cc1",
+    "print/cliff_sensor_mount.stl": "02e5eb7cc0ac5616f9424ffe60f6cc3a16180762b37cc1327a1d20667691f478",
+    "print/deck_post.stl": "3be8db3d08693d9cd3bedd786bb384bca463c8a1e0135454d1975d2c789dcf44",
+    "print/lift_guide.stl": "2753d3ee81b033d37424ed2b65c927ca3fa9d693ffcb5a344f420db5106b2642",
+    "print/mop_plate.stl": "460f44a26d2ebe958a03dbbe54b49824703582f08b8115bb9ab4486847e47171",
+    "print/skirt_left.stl": "03af43b184b248fd66dfe29f8346252e0beadc75206855b18694ac4dd1f42c27",
+    "print/skirt_right.stl": "ed3d596b7df988a00914fdc1e297f36b80d94d2b5feb982d66d59a25358b26e7",
+    "print/water_tank.stl": "5003f4317846bd5c46e5b0f88c1e3ea63b014d4e32a7c88744de5d4ccb5a8201",
+    "print/wheel_pod_cap.stl": "c434cd9754f551e414bbaee39bbd1221fbcbcfef303b216a4598dba4fbef61f0",
+    "print/wheel_pod_cradle.stl": "ba49bc383bf7d7761d680a0715a591e59f9ffb6012b23324b562fb639fe3ddfc",
+    "print_parts.csv": "0dbf3120e3edfa7172f8eaf3e0439363e55fdc4e5635b3ed3b0cb92d6fb3b6a2",
+    "step/assembly.step": "5e751de0c1dc908d41311eebcb5b958072058d7ea3570e5d06ab9bfaa35252ca",
+    "step/base_plate.step": "573f2b87cac5877d899773eaf9834a3726825c0a807f85e178a8615b1abeb2c4",
+    "step/bumper_left.step": "1c5b41d7f2478a90180beec7441fb89362b5ec5b55682c0f66b214509d2c64f2",
+    "step/bumper_right.step": "eef23391288269d2cd10d738b56e613f14bd1a8e3fbc9ea0e7b34cf06870aae5",
+    "step/caster_spacer.step": "fc5858af8f76664b427638339e7a9eee200c816ff46f3d187a2de845ebe7e690",
+    "step/cliff_sensor_mount.step": "4b027d89e90891e9f3fccb71e4c854bae58d4f0d5ea6c057dc95f4dc1caea910",
+    "step/deck_post.step": "47e3ef2a855cf0d258175e5b27d0e2fe2861d05f5e74e88d41f8ce165f5e2294",
+    "step/lift_guide.step": "83f40f1bac7da488952dfee51ef84c8abbf7c017eda32dbec6b33dd767363302",
+    "step/mop_plate.step": "e90ce1bf142e744aef953b13526ab206a14776649ca92bae047129c48f1dcafd",
+    "step/skirt_left.step": "53ecfacbac28561558538e8611193189d92c2b8973e599d64e281cf7e30a9495",
+    "step/skirt_right.step": "25fc2e4d604f9f32b42f1c01a7127ac88de60d76e1d9a40f3ddbe6378adc4481",
+    "step/top_deck.step": "7dab6813b504e9b12f3327ce50c9b988619cc26dcf680244c129e50d4b362351",
+    "step/water_tank.step": "fec0f968ae13922694f30c7d19cea87b7279f0941debca4c84e9143ae5575055",
+    "step/wheel_pod_cap.step": "db1adad8026133379b0714a21dd80de79885a77d9ceb8a5ba06748a3e18886eb",
+    "step/wheel_pod_cradle.step": "aad68351e72df7242a44fdc38f526e7a8cb621f9c5657066645085dc76c4df46"
+  }
+}

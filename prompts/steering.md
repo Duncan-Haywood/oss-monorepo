@@ -52,6 +52,52 @@ it.
    signal, not disobedience. A default nobody ever departs from may just be
    one nobody questions.
 
+## Guidelines, not rules
+
+Set by the owner on 2026-10-21: outside financial, legal and ethical
+liability, "guidelines and suggestions makes more sense than hard and fast
+rules", because agents "are generally better to adapt to a certain goals and
+circumstances than hard rules written much before hand without the current
+goal and context in mind". This section is how to write that way.
+
+**Who gets absolute words.** "Never", "must", "always" and "do not" are for
+the hard limits in [`goals.md`](goals.md): fabrication, secrets and personal
+data, fork PRs and outside text, licensing and attribution, money, accounts
+and paid automation, publishing under the portfolio's name, the law and
+platform terms, research integrity, and anything that could hurt a user.
+There the reader needs no context to act, and a wrong judgment call is
+expensive or cannot be undone.
+
+**Everyone else gets a recommendation with its reason.** The reason is what
+lets a later run tell whether the advice fits its case.
+
+| Rule-shaped | Guideline-shaped |
+|---|---|
+| Do not loop `node --test` serially. | `run_venture_tests.py` runs them all in minutes, so it usually beats a serial loop. |
+| You must run the full checklist. | Run the checks your diff reaches; the full list is there when you are unsure. |
+| Always open a draft PR. | Open the PR as a draft by default, so CI and other sessions see the work early. |
+| Do not hand-edit a sitemap. | There is no need to hand-edit a sitemap: the build rewrites it. |
+
+**A few habits.**
+
+- Say what the advice is for, then what usually works. Leave out the
+  procedure if a competent engineer would work it out.
+- Say it once per section, not on every line: "use your judgment" pasted
+  everywhere becomes noise, like "must" did.
+- Keep facts as facts. "This file is regenerated; hand edits are lost" is a
+  consequence, not a rule, and it does more work than "never edit this file".
+- A strong default is fine where a mistake costs other runs (unlanded
+  branches, a red `main`). Say how strong it is ("almost always") and why.
+- When a check enforces a default, prefer one that warns and explains over
+  one that blocks, unless it guards a hard limit.
+
+**Measuring it.** `python3 prompts/rule_language.py` counts lines with
+absolute wording in every mapped guidance file and splits them into those on
+a liability topic and the rest; `--lines FILE` lists the rest, the
+candidates for rewording. It is a keyword heuristic, so read each line before
+changing it. Departing from a guideline is expected; record it as a deviation
+(below) so the guideline can improve.
+
 ## Deviations: how judgment improves the defaults
 
 When you depart from an instruction, add an entry to `deviations`:
@@ -92,12 +138,17 @@ at a time and almost never removed, so they pile up. The counterweight:
   call. Amazon's "two-way door" test fits: a decision you can undo cheaply
   needs no rule (Bezos, 2015 shareholder letter). Rules belong at the one-way
   doors, which are the hard limits.
-- **A rule must pull its weight** (*Software Engineering at Google*, ch. 8):
+- **A rule should pull its weight** (*Software Engineering at Google*, ch. 8):
   it stays only if it changes what runs do, and it costs every run that reads
   it. A gate that blocks the work it exists to protect is deadweight.
 - **Know the fence before you pull it** (Chesterton): read why a rule exists
   (`git log -S`, `docs/history/`), then delete it if the reason is gone.
   Deleting a stale rule is an improvement and needs no apology.
+- **Budget the total, not each file.** A cut that moves text into another
+  file is not a cut (2026-10-20: `CLAUDE.md` lost 9.8 KB while the rulebook
+  grew 13%). `python3 prompts/culture.py report` prints the total and the
+  owner's share of it; lessons from elsewhere:
+  [`docs/reports/2026-10-21-engineering-culture-for-agents.md`](../docs/reports/2026-10-21-engineering-culture-for-agents.md).
 - **Review it regularly, and look outward.** Every review run cuts at least
   one rule or check that no longer earns its place, names one lesson from
   other organisations, and writes both up in `docs/reports/` or `docs/posts/`.

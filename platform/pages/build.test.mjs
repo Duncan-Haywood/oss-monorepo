@@ -698,13 +698,15 @@ test('both favicons draw the same mark', () => {
   assert.ok(tops[0] > tops[1] && tops[1] > tops[2]);
 });
 
-test('the hub\'s top navigation links the blog', async () => {
+test('the hub\'s top navigation links the blog and the podcast', async () => {
   // The Writing section (`writing.mjs`) is the site's blog; the footer link alone
   // left it a screen of tools away from anyone who came to read.
   const html = await read('index.html');
   const nav = html.match(/<nav class="pfs-head"[\s\S]*?<\/nav>/);
   assert.ok(nav, 'the hub has the shared site header');
-  assert.match(nav[0], /<a data-pfs-nav="writing" href="writing\/"[^>]*>Writing<\/a>/);
+  assert.match(nav[0], /<a data-pfs-nav="writing" href="writing\/"[^>]*>Blog<\/a>/);
+  // Both at the top level (owner, 2026-10-21).
+  assert.match(nav[0], /<a data-pfs-nav="podcast" href="writing\/podcast\/"[^>]*>Podcast<\/a>/);
 });
 
 test('the hub links both favicons', async () => {
@@ -1363,10 +1365,13 @@ test('categories route each slug shape somewhere sensible', () => {
   assert.equal(categoryFor('einvoice-preflight').id, 'evidence');
   assert.equal(categoryFor('something-brand-new').id, 'more');
   assert.equal(categoryFor('changepoint-detector').id, 'research-algorithms');
+  for (const slug of ['open-floor-robots', 'open-robot-mower', 'open-tennis-robots']) {
+    assert.equal(categoryFor(slug).id, 'open-hardware');
+  }
 });
 
 test('every category names a distinct share-card file and accent colour', () => {
-  assert.equal(ALL_CATEGORIES.length, 14, 'the thirteen named sections plus the catch-all');
+  assert.equal(ALL_CATEGORIES.length, 15, 'the fourteen named sections plus the catch-all');
   const files = ALL_CATEGORIES.map((category) => socialCardFileFor(category.id));
   assert.equal(new Set(files).size, files.length, 'no two categories share a card file');
   const accents = ALL_CATEGORIES.map((category) => category.accent);

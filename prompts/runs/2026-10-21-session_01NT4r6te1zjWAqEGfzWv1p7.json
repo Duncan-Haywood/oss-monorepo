@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-21",
+  "session": "https://claude.ai/code/session_01NT4r6te1zjWAqEGfzWv1p7",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "Lift the playbook's hard build-free .mjs requirement; I want freedom of judgement on language choice generally",
+  "input_sha256": "9c4590c39ad0ddd03cb5f9f13c3f868892409292d060c657b9e3b3ccad488c4c",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-21T01:34:43Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Lift the build-free .mjs requirement and make language choice a judgment call",
+  "projects": [],
+  "pr": 8998,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "PRODUCT_PLAYBOOK.md",
+      "issue": "Section 4 mandated build-free .mjs for all venture code (2026-10-16), which the owner did not want as a hard rule; now a default with the Pages constraint stated."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Direct owner request, not a routed run; recorded under the process track."
+    }
+  ],
+  "goal": null,
+  "notes": "Changed PRODUCT_PLAYBOOK.md section 4 (language is free; Pages serves committed files and drops .ts; @ts-check stays the suggestion for plain JS), added goals.md 'Direction: language is a judgment call', and updated typecheck.mjs header, js-typecheck README, and today's language post/report. Checks: promptctl validate ok; pytest prompts/ 87 passed. typecheck.mjs CI behavior unchanged (only a comment edited).",
+  "corrections": [],
+  "redteam": null
+}

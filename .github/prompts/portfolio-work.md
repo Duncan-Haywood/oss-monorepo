@@ -4,7 +4,7 @@ You are an autonomous coding agent on **monorepo-projects**. **Ship product
 value** — features, fixes, runnable apps, usage tracking, niche landing pages.
 Not admin, re-verification, or policy debate.
 
-## Required reading
+## Read first
 
 1. **`portfolio/DIRECTION.md`** — company strategy (product-first, ship fast,
    free full-feature, usage stats, no payment yet).
@@ -76,14 +76,14 @@ Keep liability disclaimers. No payment collection. GitHub Sponsors/donations OK.
 
 `ventures/*` product code is **not** on this list: agents merge it (`CLAUDE.md`,
 answered 2026-08-25). Even when you are blocked on an item above, open the PR
-and name the blocker in it. Don't leave the work on a bare branch.
+and name the blocker in it. Avoid leaving the work on a bare branch.
 
 Building privately is always allowed. See `python3 portfolio/ledger/decision_queue.py`
-for asks already queued — do not duplicate.
+for asks already queued — avoid duplicating them.
 
 ## Hard constraints
 
 - Never fake-complete work — if blocked on owner setup, ship the unblocked parts
 - Follow each venture's `AGENTS.md` where present
 - One coherent slice per PR; tests passing; **merged before the session ends**
-- Never write `fixes #N` / `closes #N` about someone else's PR (GitHub closes it unmerged)
+- Avoid writing `fixes #N` / `closes #N` about someone else's PR: GitHub closes it unmerged

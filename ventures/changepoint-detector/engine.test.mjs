@@ -810,6 +810,18 @@ test('a count trend can bend once: the knot is found and a straight trend gets n
   assert.equal(analyze({ values: straight, model: 'poisson', trend: 'bend' }).trend.growthChangesAt, undefined);
 });
 
+test('--overdispersion nb --trend bend ranks knots with the negative-binomial likelihood (README "Bends on clumpy counts")', () => {
+  // seed 5000 of data/measure_nb_bend.mjs: independent lognormal rates (sd 0.35), growth flat to 105 then 4.0 per series length
+  const r = rng(5000), n = 210;
+  const norm = () => Math.sqrt(-2 * Math.log(Math.max(r(), 1e-12))) * Math.cos(2 * Math.PI * r());
+  const pois = (l) => { if (l > 50) return Math.max(0, Math.round(l + Math.sqrt(l) * norm())); const L = Math.exp(-l); let k = 0, p = 1; do { k++; p *= r(); } while (p > L); return k - 1; };
+  const x = Array.from({ length: n }, (_, t) => { const rate = 10 * Math.exp((t < 105 ? 0 : 4 * (t - 105) / n) - 1); return pois(rate * Math.exp(0.35 * norm() - 0.06)); });
+  const a = analyze({ values: x, model: 'poisson', trend: 'bend', overdispersion: 'nb' });
+  assert.ok(Math.abs(a.trend.growthChangesAt - 105) <= 15, `knot ${a.trend.growthChangesAt}`);
+  const fit = poissonTrend(x, { bend: true, nbSize: 3.5 });
+  assert.ok(Number.isFinite(fit.g) && fit.exposure.length === n);
+});
+
 test('count trends refuse unknown modes, and a flat series gets a growth near zero', () => {
   assert.throws(() => analyze({ values: [1, 2, 3, 4, 5, 6, 7, 8], model: 'poisson', trend: 'wiggly' }), /up to two/);
   const r = rng(5);
@@ -1038,4 +1050,21 @@ test('count trend bends: two changes of growth rate are found, a straight log-li
   // measured: 4.08 changes/series with one bend, 1.77 with bends; both knots within 15 points on 23 of 40; false bends 0 of 40
   console.log(`# count bends: ${one / N} -> ${two / N}; both knots ${near}/${N}; false bends ${falseBend}`);
   assert.ok(two < 0.6 * one && near >= 18 && falseBend <= 1);
+});
+
+test('negative-binomial cost with a season matches the per-point cost it replaces', () => {
+  // Seven distinct exposures take the per-class prefix-sum path; a 1e-12 drift per point makes every exposure
+  // distinct and forces the O(segment length) path. Same costs to rounding, same changes.
+  const r = rng(11);
+  const WEEKLY = [1, 1.1, 1.2, 1.0, 0.9, 0.5, 0.4];
+  const n = 210;
+  const exposure = Array.from({ length: n }, (_, t) => WEEKLY[t % 7]);
+  const drifted = exposure.map((e, t) => e + 1e-12 * t);
+  const x = exposure.map((e, t) => Math.round((t < 100 ? 6 : 15) * e * (0.5 + r())));
+  const fast = makeCost(x, 'negbin', 1, 0, exposure, 3);
+  const slow = makeCost(x, 'negbin', 1, 0, drifted, 3);
+  for (const [s, t] of [[0, 10], [0, 100], [37, 180], [100, 210], [5, 6]]) {
+    assert.ok(Math.abs(fast(s, t) - slow(s, t)) < 1e-6 * Math.max(1, Math.abs(slow(s, t))), `segment ${s}..${t}`);
+  }
+  assert.deepEqual(pelt(x, { model: 'negbin', size: 3, exposure }).changepoints, pelt(x, { model: 'negbin', size: 3, exposure: drifted }).changepoints);
 });

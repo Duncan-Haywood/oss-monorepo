@@ -31,7 +31,10 @@ export const SITE_STYLE_FILE = 'pf-site.css';
 export const SITE_NAV = Object.freeze([
   Object.freeze({ id: 'tools', label: 'Tools', href: 'c/' }),
   Object.freeze({ id: 'research', label: 'Research', href: 'research/' }),
-  Object.freeze({ id: 'writing', label: 'Writing', href: 'writing/' }),
+  // Blog and Podcast sit at the top level (owner, 2026-10-21). The podcast
+  // lives inside the blog's folder; its page always exists, even with no episodes.
+  Object.freeze({ id: 'writing', label: 'Blog', href: 'writing/' }),
+  Object.freeze({ id: 'podcast', label: 'Podcast', href: 'writing/podcast/' }),
   Object.freeze({ id: 'updates', label: 'Updates', href: 'updates/' }),
   Object.freeze({ id: 'ask', label: 'Ask', href: 'ask/' }),
   Object.freeze({ id: 'deploy', label: 'Deploy your own', href: 'deploy/' }),
@@ -119,7 +122,8 @@ export function renderSiteFooterNav({ toRoot = '' } = {}) {
   const links = [
     ['c/', 'All tools by category'],
     ['research/', 'Research'],
-    ['writing/', 'Writing'],
+    ['writing/', 'Blog'],
+    ['writing/podcast/', 'Podcast'],
     ['updates/', 'Updates &amp; roadmap'],
     ['changelog/', 'Changelog'],
     ['guides/', 'Guides'],
