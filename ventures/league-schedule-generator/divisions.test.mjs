@@ -453,3 +453,22 @@ test("after a rainout every night lists its matches by time, then by court", () 
     assert.deepEqual(keys, [...keys].sort((a, b) => a - b), `night ${dayIso(n.day)} out of order`);
   }
 });
+
+test("parseTravel keeps a hyphen inside a venue name", () => {
+  const r = parseTravel("North-Park - School: 25\nSchool - North-Park: 30", ["North-Park", "School"]);
+  assert.deepEqual(r.errors, []);
+  assert.equal(r.travel["North-Park|School"], 30);
+});
+
+test("fairness weight: 100 is accepted, 101 is named as out of range", () => {
+  assert.ok(!readDivisionsSpec({ ...example, fairnessWeight: "100" }).errors.some((e) => /fairness weight/.test(e)));
+  assert.ok(readDivisionsSpec({ ...example, fairnessWeight: "101" }).errors.some((e) => /fairness weight/.test(e)));
+});
+
+test("validateDivisions flags a double round robin where a pair hosts twice", () => {
+  const s = JSON.parse(JSON.stringify(build({ divisions: [{ name: "D", teams: ["A", "B", "C"], double: true }], links: [] })));
+  const ms = s.divisions[0].rounds.flatMap((r) => r.matches).concat(s.nights.flatMap((n) => n.matches));
+  for (const m of ms) if (m.home > m.away) { [m.home, m.away] = [m.away, m.home]; }
+  const v = validateDivisions(s);
+  assert.ok(v.errors.some((e) => /do not each host once/.test(e)), v.errors.join("\n"));
+});
