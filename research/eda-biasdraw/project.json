@@ -1,0 +1,6 @@
+{
+ "theme": "eda",
+ "title": "Do input-biased random vectors (extreme, sparse, one-hot) catch RTL bugs that uniform random vectors never did?",
+ "lede": "Four biased generators (20,000 vectors per target) catch none of the 26 eda-deepdraw survivors, so none contradicts a formal equivalence proof, and the del@122 mutant is confirmed as truncated output (90 rows for 100 vectors).",
+ "summary": "Extreme-value, sparse, one-hot and mixed input generators, 5,000 vectors each, run against the 26 eda-deepdraw targets (16 proved equivalent, 9 formal timeouts, plus <em>del@122</em>). No generator catches any of them, so none of the 16 equivalence proofs is contradicted, and a bug visible to a given generator among the 9 undecided mutants has per-vector detection probability below 6&times;10<sup>&minus;4</sup> (95%). The <em>del@122</em> mutant prints 90 output rows for 100 vectors with no wrong value, confirming truncation. Stylised and negative: one design, hand-chosen generators."
+}
