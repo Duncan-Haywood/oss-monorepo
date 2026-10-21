@@ -127,9 +127,36 @@ That 60% is held down by the payees deliberately filed two ways and by the
 one-off merchants. Real bank files will be messier, and the first real export
 someone reports is worth more than this table.
 
+### Which layer earns its keep (ablation)
+
+`node ventures/ai-bookkeeper/eval/ablation.mjs` reruns the same synthetic year
+with layers switched off (`skipLayers`). Months 4 to 12, 5 seeds, 2,074 lines
+that are not paired transfers; "right in all" counts lines posted alone or
+carrying a right suggestion:
+
+| layers | posted alone, right | right in all | wrong suggestions | no suggestion |
+|---|---|---|---|---|
+| all | 62.6% | 88.8% | 100 | 6.4% |
+| without memory | 0% | 85.9% | 77 | 10.4% |
+| without the classifier | 62.6% | 86.8% | 68 | 9.8% |
+| without built-in keywords | 62.6% | 85.8% | 100 | 9.3% |
+| memory only | 62.6% | 81.1% | 68 | 15.6% |
+| classifier only | 0% | 78.2% | 77 | 18.1% |
+| built-in keywords only | 0% | 54.7% | 0 | 45.3% |
+
+Reading it, same caveat as above (synthetic data, keywords written by the
+generator's author): memory alone gets to 81%, and the other two layers add
+about 8 points between them. Auto-posting comes only from memory and your
+rules, so without memory nothing posts alone, however good the classifier is.
+Wrong suggestions rise from 68 (memory only) to 100 (all layers) as the
+extra layers widen coverage, while "right in all" rises from 81.1% to 88.8%.
+Suggestions never post alone unless memory or a rule made them. Which
+of the two extra layers adds the most cannot be read off this table: each
+"without" row removes a layer the others partly cover.
+
 **Not yet measured:** accuracy of the AI layer (no key or local model in the
-build environment; the tests check its guard rails with a stubbed reply), each
-layer's share (an ablation), and any real bank export.
+build environment; the tests check its guard rails with a stubbed reply), and
+any real bank export.
 
 ### Checked by hand
 
@@ -195,7 +222,7 @@ agents do).
   Fargo, Amex, Capital One), each as a fixture with its quirks handled.
 - Invoice and bill list on the page; part-payments and credit notes.
 - Measure the AI layer with a local model on the synthetic year's review
-  queue, and run the per-layer ablation.
+  queue.
 
 
 ## Disclaimer

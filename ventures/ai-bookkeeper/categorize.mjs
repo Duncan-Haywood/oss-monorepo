@@ -136,14 +136,17 @@ export function parseRules(text, accounts) {
 }
 
 // -> { account, confidence (0..1), source, reason, alternatives: [{account, p}] }
-// `model` is { rules, memory, classifier, codes:Set }.
+// `model` is { rules, memory, classifier, codes:Set }. `model.skip` (a Set of
+// "rule", "memory", "learned", "built-in") switches layers off, for the ablation
+// in eval/ablation.mjs; it is never set in normal use.
 export function suggest(txn, model) {
+  const off = model.skip ?? new Set();
   const text = String(txn.desc ?? "").toLowerCase();
   const d = dir(txn.cents);
-  for (const r of model.rules ?? []) if (r.re.test(text)) return { account: r.account, confidence: 1, source: "rule", reason: `your rule "${r.text}"`, alternatives: [] };
+  if (!off.has("rule")) for (const r of model.rules ?? []) if (r.re.test(text)) return { account: r.account, confidence: 1, source: "rule", reason: `your rule "${r.text}"`, alternatives: [] };
 
   const key = payeeKey(txn.desc);
-  const mem = key ? model.memory?.get(`${key}|${d}`) : null;
+  const mem = key && !off.has("memory") ? model.memory?.get(`${key}|${d}`) : null;
   if (mem) {
     const total = [...mem.values()].reduce((a, v) => a + v, 0);
     const [account, n] = [...mem].sort((a, b) => b[1] - a[1])[0];
@@ -154,12 +157,12 @@ export function suggest(txn, model) {
     }
   }
 
-  const ranked = classify(model.classifier, txn, (a) => model.codes?.has(a) ?? true);
+  const ranked = off.has("learned") ? [] : classify(model.classifier, txn, (a) => model.codes?.has(a) ?? true);
   if (ranked.length && ranked[0].p >= 0.5) {
     return { account: ranked[0].account, confidence: Math.min(ranked[0].p, 0.85), source: "learned", reason: `similar to lines you filed here (${Math.round(ranked[0].p * 100)}%)`, alternatives: ranked.slice(1, 3) };
   }
 
-  for (const [account, rd, re] of BUILT_IN) {
+  for (const [account, rd, re] of off.has("built-in") ? [] : BUILT_IN) {
     if (rd !== "any" && rd !== d) continue;
     if (account !== "transfer" && model.codes && !model.codes.has(account)) continue;
     if (re.test(text)) return { account, confidence: account === "transfer" ? 0.6 : 0.7, source: "built-in", reason: `built-in keyword "${(text.match(re) ?? [""])[0].trim()}"`, alternatives: ranked.slice(0, 2) };

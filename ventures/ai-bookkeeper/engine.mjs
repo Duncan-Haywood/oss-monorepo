@@ -34,9 +34,9 @@ export function newBooks({ name = "My business", accounts = DEFAULT_ACCOUNTS, cu
 }
 
 // Rebuild the learned parts (memory, classifier) from the books' history.
-export function modelFor(books) {
+export function modelFor(books, skip = null) {
   const { rules, problems } = parseRules(books.rules, books.accounts);
-  return { rules, ruleProblems: problems, memory: buildMemory(books.history), classifier: trainClassifier(books.history), codes: new Set(books.accounts.map((a) => a.code)) };
+  return { rules, ruleProblems: problems, memory: buildMemory(books.history), classifier: trainClassifier(books.history), codes: new Set(books.accounts.map((a) => a.code)), ...(skip ? { skip: new Set(skip) } : {}) };
 }
 
 // Import one statement into one bank account. Lines already in the books (same
@@ -73,7 +73,7 @@ export function importStatement(booksIn, csv, account, opts = {}) {
 export function categorize(booksIn, opts = {}) {
   const books = clone(booksIn);
   const o = { ...DEFAULTS, ...opts };
-  const model = modelFor(books);
+  const model = modelFor(books, o.skipLayers);
   const map = accountMap(books.accounts);
   // Lines matched to an invoice or bill are re-matched at the end of every pass.
   for (const t of books.transactions) if (t.status === "settled") { t.status = "new"; delete t.posted; delete t.doc; }
