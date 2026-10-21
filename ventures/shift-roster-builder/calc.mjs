@@ -646,6 +646,7 @@ function search(ctx, restarts, iterations, first = 0) {
 // "auto" runs the exact search by itself on weeks this small, where it finishes in well under a second; 150 random 5-10 shift weeks
 // had the quick search beaten in 38 (each by covering more hours) before this was on by default.
 const EXACT_AUTO_SLOTS = 14;
+const TANGENTS = 8; // tangent lines under each person's hours curve inside the coverage flow
 function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000 } = {}) {
   const { P, S, slots, staff, o, elig } = ctx;
   const mono = o.otMult >= 1 && o.dtMult >= 1;
@@ -722,7 +723,10 @@ function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000 } 
     // The shifts that have to stay open are not paid for, so take back at most the dearest rate per hour for each forced open hour.
     // gSum lets every person sit at their own best hours. The covered hours are fixed in total, so they cannot all do that.
     const coupled = coupledHours(demand - open, gSum);
-    return lb + coupled - gSum + BIG * open + Math.max(0, sufCheap[k] - open * maxRate, cov.cost);
+    const apart = lb + coupled - gSum + BIG * open + Math.max(0, sufCheap[k] - open * maxRate, cov.cost);
+    // With the hours terms inside the flow, who can work when and how far each person's hours sit from their target are priced
+    // together: the cheapest way to cover the most hours, pay and the convex terms both, is the bound.
+    return cov.joint === undefined ? apart : Math.max(apart, lb - gSum + cov.joint + BIG * open);
   };
   // Lagrangian bound on the convex hours terms when the undecided shifts add at most `x` hours in all: for any price lam,
   // sum_p min_h [g_p(h) - lam (h - h0_p)] + lam x is a lower bound on the least total (weak duality), and an open hour costs
@@ -787,6 +791,7 @@ function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000 } 
     const pd = (p, j) => n + p * D + j, pn = (p) => n + P * D + p;
     // Sparse residual graph: edge e goes to[e] with capacity cap[e] and cost cst[e]; its reverse is e ^ 1.
     const to = [], cap = [], cst = [], adj = Array.from({ length: N }, () => []);
+    let joint0 = 0; // the hours terms at no extra hours, summed over people
     const link = (u, v, c, w) => {
       adj[u].push(to.length); to.push(v); cap.push(c); cst.push(w);
       adj[v].push(to.length); to.push(u); cap.push(0); cst.push(-w);
@@ -818,7 +823,26 @@ function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000 } 
         room = 0;
         for (let x = r; x > 0; x--) if (fits[x]) { room = x / 4; break; }
       }
-      link(pn(p), snk, room, 0);
+      if (o.flowBalance !== false && o.balance > 0 && room > eps) {
+        // g_p(h) = shortfall + balance terms is convex, so the largest of a few tangent lines is a lower bound on it and is itself
+        // convex: each stretch between neighbouring tangents becomes a parallel edge at the tangent's slope, cheapest used first.
+        const a = o.shortfallValue, c = (o.balance / 100) * ctx.avgWage * 0.1, t = ctx.target[p], m = staff[p].minHours, l = lo0[p];
+        const g = (h) => a * Math.max(0, m - h) + c * (h - t) ** 2;
+        const slope = (h) => (h < m ? -a : 0) + 2 * c * (h - t); // right derivative: a valid subgradient
+        const xs = [];
+        for (let x = 0; x <= TANGENTS; x++) xs.push(l + (room * x) / TANGENTS);
+        if (m > l && m < l + room) xs.push(m);
+        xs.sort((u, v) => u - v);
+        const lines = xs.map((x) => ({ s: slope(x), b: g(x) - slope(x) * x }));
+        const env = (h) => Math.max(...lines.map((ln) => ln.s * h + ln.b));
+        joint0 += env(l);
+        let at = l;
+        for (let q = 0; q < lines.length; q++) {
+          const next = q === lines.length - 1 ? l + room : Math.min(l + room, Math.max(at, (lines[q + 1].b - lines[q].b) / (lines[q].s - lines[q + 1].s)));
+          if (lines[q + 1] && lines[q + 1].s === lines[q].s) continue;
+          if (next > at + eps) { link(pn(p), snk, next - at, lines[q].s); at = next; }
+        }
+      } else link(pn(p), snk, room, 0);
     }
     // Successive cheapest augmenting paths (SPFA): the most hours that can be covered, and the least straight-time pay for them.
     let flow = 0, cost = 0;
@@ -839,7 +863,7 @@ function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000 } 
           }
         }
       }
-      if (prevE[snk] < 0) return { flow, cost };
+      if (prevE[snk] < 0) return o.flowBalance !== false && o.balance > 0 ? { flow, cost, joint: cost + joint0 } : { flow, cost };
       let f = Infinity;
       for (let v = snk; v !== src; v = to[prevE[v] ^ 1]) f = Math.min(f, cap[prevE[v]]);
       for (let v = snk; v !== src; v = to[prevE[v] ^ 1]) { cap[prevE[v]] -= f; cap[prevE[v] ^ 1] += f; }

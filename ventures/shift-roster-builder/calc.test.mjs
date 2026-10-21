@@ -239,6 +239,11 @@ test("the exact bound sees that hours, overlaps and rest force shifts open, and 
   assert.ok((r.score - r.optimality.lowerBound) / r.score < 0.01, `bound ${r.optimality.lowerBound} vs ${r.score}`);
   // The balance terms are coupled through the fixed covered hours (Lagrangian bound): the gap was $68.95 with each person alone.
   assert.ok(r.score - r.optimality.lowerBound < 60, `gap ${r.score - r.optimality.lowerBound}`);
+  // Hours terms inside the coverage flow (tangent lines under each person's convex hours curve): who can work when is priced with the
+  // balance targets, and the gap falls to cents. The same flow without them (flowBalance: false) leaves the older Lagrangian gap.
+  assert.ok(r.score - r.optimality.lowerBound < 1, `flow gap ${r.score - r.optimality.lowerBound}`);
+  const old = buildRoster(staff, slots, { exact: true, exactNodes: 20, flowBalance: false });
+  assert.ok(old.score - old.optimality.lowerBound > 50);
   // Random tight weeks (caps, overlaps, rest rules all biting): the exact answer still equals brute force.
   let seed = 7;
   const rnd = (n) => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed % n; };
