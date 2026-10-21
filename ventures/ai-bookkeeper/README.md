@@ -466,7 +466,17 @@ receipt, leaving out lines filed to wages, owner draws and transfers.
 the paid line was filed to (receipts with no tax line are listed apart, not
 counted as zero; `taxOnReceipts` in `receipts.mjs`, also on the page).
 `receipts attach RID LINEID`, `detach RID` and `remove RID` fix a pair by hand;
-the same receipt twice is kept once. Engine: `receipts.mjs`; kept in the books
+the same receipt twice is kept once. Item lines (words, then a price) are kept
+when they add up to the total with the printed tax and tip, or already include
+the tax; a receipt with a discount line or any other gap is not used for a
+split, and says so. `receipts split RID [--other CODE] [--apply]` shows the
+bank line divided by item: each item goes where the categorizer puts its own
+words (your rules and past filings, then the built-in keywords), else to
+`--other`, else to the account the merchant's name suggests; sales tax is shared
+over the accounts in proportion (largest remainder, cents add up) and a tip
+joins the biggest one. `--apply` posts it as a split (one account for
+everything is filed plainly). Tried on hand-written receipts only, no real ones,
+no foreign currency. Engine: `receipts.mjs`; kept in the books
 file, never in the journal. The page has a card for it (paste, read, tables;
 clicked through in headless Chromium with `eval/browser-click.mjs`). Receipts
 are read with regular expressions: a total is the last "total / amount due"
