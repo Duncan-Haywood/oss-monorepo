@@ -80,3 +80,10 @@ to the shipped selector on either measure in these cells; the test asserts it.
 Not wired in yet. Next: a per-survey `pairSelector` flag (prisma field, admin
 toggle).
 
+
+## Switching it on
+
+`PAIR_SELECTOR=staged` in the deployment's environment makes
+`/api/trials/next` use `selectNextPairHybrid`. Unset, the shipped selector runs
+as before. It is a process-wide switch; a per-survey setting (column,
+migration, builder checkbox) is the next step.
