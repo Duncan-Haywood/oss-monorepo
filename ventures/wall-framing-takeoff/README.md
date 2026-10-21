@@ -77,7 +77,7 @@ construction in the US and bring its cost down: [ROADMAP.md](ROADMAP.md).
   `150 1/2`; a bare number is inches.
 - **Command line** (Node 18+, no install):
   `node cli.mjs --example > plan.json`, edit it, then `node cli.mjs plan.json`
-  (`--json` for the full result, `--csv` for the order and cut list).
+  (`--json` for the full result, `--csv` for the order and cut list, `--drawings > walls.html` for the shop drawings below).
 - **AI agents / MCP:** from a clone of the repository,
   `node platform/agents/tools.mjs call wall-framing-takeoff takeoff --args '[<plan JSON>]'`,
   or `run wall-framing-takeoff -- plan.json`
@@ -197,7 +197,7 @@ yourself.
 
 **Privacy.** Everything runs in your browser. Your plan is never uploaded, and
 there are no accounts, tracking cookies, or analytics vendor. The page counts
-anonymous events (`takeoff_run`, `example_loaded`, `csv_downloaded`,
+anonymous events (`takeoff_run`, `example_loaded`, `csv_downloaded`, `drawings_downloaded`,
 `plan_saved`, `plan_opened`) in your browser's local storage only, and keeps
 your last plan there so it is back when you return; the footer has a switch to
 turn counting off.
@@ -209,3 +209,7 @@ is optional and never changes what the tool does.
 ## Gable walls
 
 Set `"gable": {"pitch": 6}` on a wall (rise per 12 in of run) to frame a symmetric gable end: a level bottom plate, studs whose lengths follow the roof (the long point of the angled cut; the eave studs are `studLength`), and top and cap plates measured along the slope, spliced over studs with the usual cap offset. Add `"peak": 80` (inches from the wall start) for an off-centre peak: `pitch` is then the start side's rise per 12 in, and the far side gets the pitch that reaches the same peak height, so both eaves stay level (result `gable.farPitch`). Openings are framed as in a level wall (2026-10-21): header, jacks and sill at their heights from the bottom plate, kings and top cripples cut to the long point of the slope, the bottom plate cut across a door; the header must fit under the eave-line top plate, so a window in the triangle itself is not done. Blocking and sheathing are not done for gable walls.  Tested in `engine.test.mjs` on a 20 ft, 6:12 wall: layout self-check clean, plate length equals run x sqrt(1 + slope^2).
+
+## Shop drawings
+
+`node cli.mjs plan.json --drawings > walls.html`, or "Download wall drawings" on the page, gives one printable sheet per wall (2026-10-21, `drawings.mjs`): a dimensioned elevation to scale, every member marked (S1, K1, H1, C2 ... members of the same kind, size, length and label share a mark), rough openings dashed and labelled, plate joints in red, a chain of stud-to-stud dimensions and the overall length, a parts table (mark, quantity, size, cut length), the layout check result and the no-warranty text. Gable walls draw their sloped plates. It runs in the browser and the CLI from the same module, with no upload. Tested in `drawings.test.mjs` (every member marked, quantities add up to the member count, labels escaped, gable walls) and clicked through in headless Chromium (the example house: 8 sheets, no page errors). Not yet: a PDF (print to PDF from the browser works), per-panel sheets that split a long wall into transportable panels, and nailer or sheathing marks on the drawing.

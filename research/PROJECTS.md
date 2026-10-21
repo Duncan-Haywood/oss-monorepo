@@ -1373,7 +1373,7 @@ alpha reliability. Check each before citing it.
 2. `qual-real`: the same pipeline on a public, hand-coded corpus (open-ended survey answers or
    annotated reviews with a licence that allows it), with a model behind `ANTHROPIC_API_KEY` and a
    deterministic stub. Without a key, label any session-agent coding as such.
-3. `qual-dialect`: measure milestone 1's mechanism on real data, whether LLM coding accuracy
+3. `qual-dialect` (done 2026-10-21, no LLM yet): measure milestone 1's mechanism on real data, whether LLM coding accuracy
    differs across dialects, languages or writing fluency, and how much that moves group
    comparisons.
 4. `qual-induce` (no-LLM baseline done 2026-10-21; an LLM-proposed codebook still open): inductive coding. Compare LLM-proposed codebooks (TopicGPT/LLooM style) with

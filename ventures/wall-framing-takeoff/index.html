@@ -101,6 +101,7 @@
     <button type="button" class="secondary" id="example">Load the example house</button>
     <button type="button" class="secondary" id="clear">Start empty</button>
     <button type="button" class="secondary" id="csv">Download CSV</button>
+    <button type="button" class="secondary" id="drawings">Download wall drawings (printable)</button>
     <button type="button" class="secondary" id="savePlan">Save plan file</button>
     <label for="openPlan" style="display:inline-block;font-weight:600">Open plan file</label> <input type="file" id="openPlan" accept=".json,application/json" style="width:auto">
     <p><input type="checkbox" id="sheath" style="width:auto"> <label for="sheath" style="display:inline">Also lay out wall sheathing (4 x 8 to 4 x 12 sheets, 1 per square foot)</label>
@@ -161,7 +162,7 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering, construction, building-code, legal or financial advice, and it does not replace a qualified professional, your plans or your building department. Header sizes, jack counts and stud spacing are your inputs and are not checked against any span table or code. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including every length before you cut. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Independent.</strong> Not affiliated with any lumberyard, builder, code body or software company. No lumber price is stated or implied; prices are what you type.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record: save your plan file. Your last entries stay in this browser's local storage only.</p>
-    <p>Everything runs in your browser. Your plan is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>takeoff_run</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>plan_saved</code>, <code>plan_opened</code>) are counted only in local storage on your device, never with anything you typed.</p>
+    <p>Everything runs in your browser. Your plan is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>takeoff_run</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>drawings_downloaded</code>, <code>plan_saved</code>, <code>plan_opened</code>) are counted only in local storage on your device, never with anything you typed.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Related tools: the <a href="../cut-list-optimizer/">cut list optimizer</a> for sheet goods and shop stock, and the <a href="../tile-layout-planner/">tile layout planner</a>. Command line and source: <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/wall-framing-takeoff" rel="noopener">wall-framing-takeoff on GitHub</a>.</p>
     <p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
@@ -169,6 +170,7 @@
 
   <script type="module">
     import { takeoff, samplePlan, defaultStock, parseLength, formatLength, formatInches, toCsv, verifyWall, PRECUT, DEPTH } from "./engine.mjs";
+    import { drawingSetHtml } from "./drawings.mjs";
     import { sheathe, defaultSheathing, nailerCuts } from "./sheathing.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
@@ -441,6 +443,7 @@
       setTimeout(() => URL.revokeObjectURL(a.href), 1000);
     };
     $("#csv").addEventListener("click", () => { if (run() && last) { download("framing-takeoff.csv", "text/csv", toCsv(last.result)); record("csv_downloaded"); } });
+    $("#drawings").addEventListener("click", () => { if (run() && last) { download("wall-drawings.html", "text/html", drawingSetHtml(last.result, last.plan)); record("drawings_downloaded"); } });
     $("#savePlan").addEventListener("click", () => { const { plan, bad } = toPlan(); if (bad.length) { run(); return; } download("framing-plan.json", "application/json", JSON.stringify(plan, null, 2)); record("plan_saved"); });
     $("#openPlan").addEventListener("change", async (e) => {
       const input = /** @type {HTMLInputElement} */ (e.target);
