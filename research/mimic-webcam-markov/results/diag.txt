@@ -1,0 +1,15 @@
+single feature group detector	own markov frame	own markov gauss	(mean AUROC of 3 seeds)
+level	0.969	0.992
+spread	0.967	0.988
+extremes	0.996	1.000
+roughness	0.996	0.998
+autocorr	0.999	0.998
+holds	0.998	0.999
+floor	0.900	0.895
+cross	0.793	0.750
+
+K (states)	own markov frame, all-groups detector, seed 0
+4	1.000
+8	1.000
+32	1.000
+128	1.000

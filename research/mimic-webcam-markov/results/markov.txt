@@ -1,0 +1,5 @@
+generator	population detector	profile-aware detector	(mean AUROC of 3 seeds, K=32; min..max of population)
+own markov frame	1.000	1.000	1.000..1.000
+own markov gauss	1.000	1.000	1.000..1.000
+pooled markov frame	0.999	0.999	0.999..1.000
+pooled markov gauss	1.000	1.000	1.000..1.000
