@@ -14,7 +14,7 @@ from typing import Any
 # Common Peppol Electronic Address Scheme (EAS) codes. Unknown codes are
 # INV-039 so a typo like 088 or 00888 is visible before the network bounce.
 _KNOWN_SCHEMES = frozenset({
-    "0002", "0007", "0009", "0037", "0060", "0088", "0096", "0130", "0151",
+    "0002", "0007", "0009", "0037", "0060", "0088", "0096", "0106", "0130", "0151",
     "0183", "0184", "0190", "0191", "0192", "0193", "0195", "0196", "0198",
     "0201", "0204", "0208", "0209", "0210", "0211", "0212", "0213", "0216",
     "0221", "0230", "0235", "0240",

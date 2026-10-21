@@ -456,6 +456,15 @@ jobs:
         working-directory: platform/ci
         run: python3 -m unittest test_check_control_labels
 
+      # getElementById returns the first match, so two elements sharing an id
+      # silently send a script's writes to the wrong one.
+      - name: Check no served page repeats an id
+        run: python3 platform/ci/check_duplicate_ids.py
+
+      - name: Duplicate-id checker unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_check_duplicate_ids
+
       # A calculator with both a saved draft and a shareable link restores the
       # draft first and lets the link win. That only works if the link REPLACES
       # the form: encode omits a blank, decode omits the missing key, and a

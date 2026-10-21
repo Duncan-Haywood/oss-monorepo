@@ -170,3 +170,11 @@ test("the Peppol credit note example is read as a credit note and passes the bui
   assert.deepEqual(checkInvoice(invoice), []);
   assert.deepEqual(checkInvoice(await parseInvoiceSource("peppol-credit-note.xml", xml)), []);
 });
+
+test("the Dutch Peppol credit note example is read as a credit note and passes the built-in rules", async () => {
+  const xml = example("peppol-nl-credit-note.xml");
+  const invoice = parseUblInvoice(xml);
+  assert.equal(invoice.invoice_number, "CN-2026-0007");
+  assert.equal(invoice.document_type, "credit_note");
+  assert.deepEqual(checkInvoice(invoice), []);
+});

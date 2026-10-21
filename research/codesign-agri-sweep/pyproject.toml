@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "codesign-agri-sweep"
+version = "0.1.0"
+description = "Sweep of the assumed constants of the codesign-agri soft-fruit gripper model: do the optimiser ranking and the optimum survive?"
+requires-python = ">=3.9"
+dependencies = ["numpy", "scipy", "cma", "matplotlib"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

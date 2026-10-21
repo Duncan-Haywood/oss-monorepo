@@ -14,7 +14,7 @@ const skip = !ready && "npm i --no-save slimdom fontoxpath (rules are in ./plain
 const read = (name) => readFileSync(new URL(`./examples/${name}`, import.meta.url), "utf8");
 
 test("the clean example invoices pass the official rules, base and add-ons", { skip }, async () => {
-  for (const name of ["xrechnung-cii-invoice.xml", "peppol-credit-note.xml", "xrechnung-cii-credit-note.xml"]) {
+  for (const name of ["xrechnung-cii-invoice.xml", "peppol-credit-note.xml", "peppol-nl-credit-note.xml", "xrechnung-cii-credit-note.xml"]) {
     const r = await runPlain(read(name));
     assert.equal(r.status, "ok", name);
     assert.deepEqual(r.findings.filter((f) => f.severity !== "information").map((f) => f.rule), [], name);
@@ -30,6 +30,13 @@ test("the same defects the Saxon route finds, with English fixes", { skip }, asy
   assert.deepEqual(cii.findings.map((f) => f.rule).sort(), ["BR-CL-01", "BR-CO-14", "BR-CO-17", "BR-DE-15", "BR-DE-17", "BR-DE-2", "BR-DE-TMP-32", "BR-S-09"]);
   for (const f of [...ubl.findings, ...cii.findings]) assert.ok(hasSpecificFix(f.rule), f.rule);
   assert.match(ubl.findings[0].path, /^\/Invoice\[1\]|^\/CreditNote\[1\]/);
+});
+
+test("Peppol's Dutch NL-R rules fire on a Dutch credit note, each with an English fix", { skip }, async () => {
+  const r = await runPlain(read("peppol-nl-credit-note-with-defects.xml"));
+  assert.deepEqual(r.sets, ["en16931", "peppol"]);
+  assert.deepEqual(r.findings.map((f) => f.rule).sort(), ["NL-R-001", "NL-R-002", "NL-R-003"]);
+  for (const f of r.findings) assert.ok(hasSpecificFix(f.rule), f.rule);
 });
 
 // The reference: every example must give the same rule at the same place as the

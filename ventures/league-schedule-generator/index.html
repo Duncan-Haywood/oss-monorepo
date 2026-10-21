@@ -154,7 +154,7 @@
     <div id="notices"></div>
     <div class="big" id="big"></div>
     <p id="check-line"></p>
-    <div class="scroll"><table id="rounds"><thead><tr><th>Round</th><th>Date</th><th>Time</th><th>Court</th><th>Home</th><th>Away</th><th id="off-th" hidden>Official</th></tr></thead><tbody></tbody></table></div>
+    <div class="scroll"><table id="rounds-table"><thead><tr><th>Round</th><th>Date</th><th>Time</th><th>Court</th><th>Home</th><th>Away</th><th id="off-th" hidden>Official</th></tr></thead><tbody></tbody></table></div>
 
     <h2 style="margin-top:22px">By team</h2>
     <label for="team">Show one team</label>
@@ -401,7 +401,7 @@
       $("#dl-off-msgs").hidden = !offNames.length;
       $("#dl-off-ics").hidden = $("#official-pick").hidden = !offNames.length;
       $("#official-pick").innerHTML = offNames.map((n) => `<option>${esc(n)}</option>`).join("");
-      $("#rounds tbody").innerHTML = s.rounds.map((r) => {
+      $("#rounds-table tbody").innerHTML = s.rounds.map((r) => {
         const cls = r.makeup ? ' class="mk"' : "";
         const rows = r.matches.map((m, i) => `<tr${cls}><td>${i === 0 ? esc(r.label) : ""}</td><td>${i === 0 ? dayLabel(r.day) : ""}</td><td>${esc(m.time)}</td><td>${esc(m.court)}</td><td>${esc(m.homeName)}</td><td>${esc(m.awayName)}</td>${m.official !== undefined ? `<td>${esc(m.official)}</td>` : ""}</tr>`);
         if (r.bye !== null && r.bye !== undefined) rows.push(`<tr class="bye"><td>${r.matches.length ? "" : esc(r.label)}</td><td></td><td colspan="4">Bye: ${esc(s.teams[r.bye])}</td></tr>`);
