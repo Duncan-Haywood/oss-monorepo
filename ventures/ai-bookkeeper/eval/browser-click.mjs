@@ -108,6 +108,13 @@ check(/3 opening balances set as of 2025-12-31/.test(ost) && /3,800.00 did not b
 check(await page.locator("#open-clear").isVisible(), "the remove button shows once balances are set");
 await page.click("#open-clear");
 check(/removed/.test(await page.locator("#open-status").textContent()), "opening balances are removed");
+// Budget against actual: set a monthly budget on the example books and read the table.
+await page.selectOption("#budget-account", { index: 0 });
+await page.fill("#budget-amount", "50.00");
+await page.click("#budget-set");
+check(/Budget set: 50.00 a month/.test(await page.locator("#budget-status").textContent()), "a monthly budget is set");
+const btext = await page.locator("#budget").textContent();
+check(/Net profit/.test(btext) && /(better|worse|on budget)/.test(btext), "the budget table shows a status and the net line");
 check(errors.length === 0, `no page errors ${errors.join("; ")}`);
 await browser.close();
 server.close();

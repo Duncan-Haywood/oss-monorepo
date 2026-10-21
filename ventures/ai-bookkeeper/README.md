@@ -462,7 +462,9 @@ variance, percent and a status: `better` or `worse` for profit (income over
 budget helps, expense over budget hurts), `on budget`, or `unbudgeted`.
 Engine: `budgetVsActual`, `setBudget` in `budget.mjs`; `--json` gives the data.
 Checked by node tests on hand-written ledgers only; whole-month scaling means a
-part-month period is compared against a full month's budget. Not on the page yet.
+part-month period is compared against a full month's budget. The page has a card for it
+(pick an account, type a monthly amount, read the table for the From and To
+dates; clicked through in headless Chromium with `eval/browser-click.mjs`).
 
 ## This period against the last
 

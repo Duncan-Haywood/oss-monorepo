@@ -203,6 +203,13 @@
     <div id="forecast"></div>
   </section>
 
+  <section class="card" aria-labelledby="h-budget">
+    <h2 id="h-budget">Optional: budget against actual</h2>
+    <p class="note">Set a monthly amount for an income or expense account, then see it beside what was posted in the From and To dates above (the latest month if they are empty). "Better" and "worse" mean for profit. Lines still waiting in the queue are not counted.</p>
+    <p><label>Account <select id="budget-account"></select></label> <label>Per month <input id="budget-amount" inputmode="decimal" placeholder="200.00" size="10"></label> <button type="button" id="budget-set" class="secondary">Set budget</button> <span id="budget-status" class="note" role="status"></span></p>
+    <div class="scroll" id="budget"></div>
+  </section>
+
   <section class="card" aria-labelledby="h-vat">
     <h2 id="h-vat">Optional: UK VAT return worksheet</h2>
     <p class="note">The nine boxes of the UK VAT return from invoices and bills dated inside the From and To dates above (invoice basis; VAT on sales in account 2100, VAT on purchases in 1300). Boxes 2, 8 and 9 (EU) stay 0. Flat-rate, cash accounting and partial exemption are not modelled. A worksheet to check a return against, not a filing.</p>
@@ -285,6 +292,7 @@
     import { parseAccounts } from "./ledger.mjs";
     import { setOpeningBalances, clearOpeningBalances } from "./opening.mjs";
     import { detectRecurring, forecastCash } from "./recurring.mjs";
+    import { setBudget, budgetVsActual } from "./budget.mjs";
     import { aiSuggest } from "./ai.mjs";
     import { detectLocal, isLocal } from "./byok.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
@@ -389,6 +397,19 @@
       let bal = f.start;
       const rows = f.items.slice(0, 40).map((it) => { bal += it.cents; return [it.date, it.label, fmt(it.cents), fmt(bal)]; });
       $("#forecast").replaceChildren(el("p", { class: "note", text: `Forecast ${f.asOf} to ${f.to}: start ${fmt(f.start)}, end ${fmt(f.end)}, lowest ${fmt(f.lowest.cents)} on ${f.lowest.date}. ${msg}` }), table(["Date", "Item", "Amount", "Balance"], rows));
+    }
+
+    function renderBudget() {
+      const sel = $("#budget-account"), keep = sel.value;
+      sel.replaceChildren(...books.accounts.filter((a) => a.type === "income" || a.type === "expense").map((a) => el("option", { value: a.code, text: `${a.code} ${a.name}` })));
+      if (keep) sel.value = keep;
+      const b = budgetVsActual(books, { from: $("#from").value || null, to: $("#to").value || null });
+      if (!b) { $("#budget").replaceChildren(el("p", { class: "note", text: "Import a statement first." })); return; }
+      const pct = (x) => x.pct === null ? "" : ` ${(x.pct * 100).toFixed(0)}%`;
+      const rows = b.rows.map((x) => [`${x.code} ${x.name}`, fmt(x.budget), fmt(x.actual), fmt(x.variance), x.status + pct(x)]);
+      $("#budget").replaceChildren(
+        el("p", { class: "note", text: `${b.from} to ${b.to}, ${b.months} month${b.months === 1 ? "" : "s"}.${b.empty ? ` ${b.empty.replace("use `budget CODE AMOUNT`", "pick an account above")}.` : ""}${b.partial ? ` ${b.partial}.` : ""}` }),
+        table(["Account", "Budget", "Actual", "Variance", "Status"], rows, [["Net profit", fmt(b.net.budget), fmt(b.net.actual), fmt(b.net.variance), ""]]));
     }
 
     function renderAging() {
@@ -510,7 +531,7 @@
 
     $("#nec-filing-csv").addEventListener("click", () => { record("contractors_filing_downloaded"); download(nec1099FilingCsv(contractors1099(books, { year: necYear() })), "contractors-1099-nec-filing-prep.csv", "text/csv"); });
 
-    function render() { fillSetup(); renderScheduleC(); renderNec(); renderStatus(); renderQueue(); renderReports(); renderRuleSuggestions(); renderAging(); renderRecurring(); renderVat(); renderAssets(); renderTaxDepr(); renderSalesTax(); renderOpening(); persist(); }
+    function render() { fillSetup(); renderScheduleC(); renderNec(); renderStatus(); renderQueue(); renderReports(); renderRuleSuggestions(); renderAging(); renderRecurring(); renderBudget(); renderVat(); renderAssets(); renderTaxDepr(); renderSalesTax(); renderOpening(); persist(); }
 
     function renderOpening() {
       const tb = books.openingTB;
@@ -651,8 +672,12 @@
       render();
     });
 
-    $("#from").addEventListener("change", () => { renderReports(); renderScheduleC(); renderVat(); });
-    $("#to").addEventListener("change", () => { renderReports(); renderScheduleC(); renderVat(); });
+    $("#budget-set").addEventListener("click", () => {
+      try { const cents = parseCents($("#budget-amount").value || "0"); if (cents === null || Number.isNaN(cents)) throw new Error("Enter an amount such as 200.00."); books = setBudget(books, $("#budget-account").value, cents); record("budget_set"); render(); $("#budget-status").textContent = cents ? `Budget set: ${fmt(cents)} a month.` : "Budget removed."; }
+      catch (e) { $("#budget-status").textContent = e.message; }
+    });
+    $("#from").addEventListener("change", () => { renderReports(); renderScheduleC(); renderBudget(); renderVat(); });
+    $("#to").addEventListener("change", () => { renderReports(); renderScheduleC(); renderBudget(); renderVat(); });
 
     const download = (text, file, type) => { const a = el("a", { href: URL.createObjectURL(new Blob([text], { type })), download: file }); document.body.append(a); a.click(); a.remove(); };
     for (const b of document.querySelectorAll("[data-export]")) b.addEventListener("click", () => {
