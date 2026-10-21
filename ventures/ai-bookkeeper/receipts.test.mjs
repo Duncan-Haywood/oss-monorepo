@@ -258,3 +258,26 @@ test("tax on a euro receipt is counted in dollars at the line's rate; split is i
   assert.equal(none.taxCents, 0);
   assert.ok(none.noTax[0].note);
 });
+
+test("decimal-comma receipts and dotted day-first dates are read", async () => {
+  const { commaStyle } = await import("./receipts.mjs");
+  const r = parseReceipt("Bäckerei Schmidt\nHauptstr. 5, Berlin\n04.05.2026 09:12\nBrötchen 3,20 EUR\nKuchen 12,50 EUR\nZwischensumme 15,70 EUR\nMwSt 19% 2,51 EUR\nGesamt 18,21 EUR");
+  assert.equal(r.date, "2026-05-04");
+  assert.equal(r.cents, 1821, "Gesamt is the total, Zwischensumme is not");
+  assert.equal(r.taxCents, 251);
+  assert.equal(r.merchant, "Bäckerei Schmidt");
+  assert.equal(r.currency, "EUR");
+  assert.equal(parseReceipt("Shop\n1.234,56\nTotal 1.234,56").cents, 123456, "a dot thousands separator");
+  assert.ok(commaStyle("Total 12,50"));
+  assert.ok(!commaStyle("Total 12.50\n04.05.2026"), "a dotted date is not an amount");
+  assert.ok(!commaStyle("Total 1,234.50"));
+  assert.equal(parseReceipt(CAFE).cents, 1062, "dot receipts are unchanged");
+});
+
+test("a decimal-comma receipt's items split like any other", async () => {
+  const { planReceiptSplit } = await import("./receipts.mjs");
+  const text = "Corner Market\n2026-05-04\nStarbucks coffee 6,00\nUSPS stamps 10,00\nTotal 16,00";
+  const b = addReceipts(books([["2026-05-04", "CORNER MARKET", "-16.00"]]), text).books;
+  assert.deepEqual(b.receipts[0].items.map((i) => i.cents), [600, 1000]);
+  assert.equal(planReceiptSplit(b, "r1").parts.length, 2);
+});
