@@ -29,7 +29,12 @@
   "outcome": "partial",
   "errors": [],
   "integrity_issues": [],
-  "doc_friction": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Duplicate-PR search only covers open PRs; the same P043 verify had already merged minutes earlier, so my change conflicted."
+    }
+  ],
   "deviations": [
     {
       "file": "prompts/process/prompt-1.md",
@@ -38,7 +43,7 @@
   ],
   "writeups": [],
   "goal": null,
-  "notes": "Backlog ids: P043 (done, 0/100 failing, window 8h). Skipped P036 part 1 remainder: hetzner-gitops-ci.yml referenced by ~30 files.",
+  "notes": "Backlog ids: P043 (done, 0/100 failing, window 8h). Skipped P036 part 1 remainder: hetzner-gitops-ci.yml referenced by ~30 files. Another session landed the identical P043 verification on main first (duplicate work); I took main's file in the merge.",
   "corrections": [],
   "redteam": null
 }
