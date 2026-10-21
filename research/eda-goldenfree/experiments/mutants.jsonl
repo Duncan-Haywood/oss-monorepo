@@ -1,0 +1,91 @@
+{"id": "lit@122:0+1", "kind": "lit", "truth": "killable", "violated": ["abort", "glitch", "latency", "pulse", "repeat"], "prop_seconds": 0.04622616500000731, "random64_any": true, "directed16": true}
+{"id": "del@122:delete", "kind": "del", "truth": "killable", "violated": ["abort", "glitch", "latency", "pulse", "repeat"], "prop_seconds": 0.042880620000005365, "random64_any": true, "directed16": true}
+{"id": "lit@123:0+1", "kind": "lit", "truth": "undecided", "violated": [], "prop_seconds": 0.09015272999999979, "random64_any": false, "directed16": false}
+{"id": "lit@123:0+1", "kind": "lit", "truth": "undecided", "violated": [], "prop_seconds": 0.08718685299999152, "random64_any": false, "directed16": false}
+{"id": "lit@123:0+1", "kind": "lit", "truth": "undecided", "violated": [], "prop_seconds": 0.08505403700002034, "random64_any": false, "directed16": false}
+{"id": "lit@125:0+1", "kind": "lit", "truth": "killable", "violated": [], "prop_seconds": 0.08605387699998346, "random64_any": true, "directed16": true}
+{"id": "lit@123:0+1", "kind": "lit", "truth": "undecided", "violated": [], "prop_seconds": 0.08893950099997028, "random64_any": false, "directed16": false}
+{"id": "lit@125:0+1", "kind": "lit", "truth": "killable", "violated": [], "prop_seconds": 0.11401693999999907, "random64_any": true, "directed16": true}
+{"id": "lit@125:0+1", "kind": "lit", "truth": "killable", "violated": [], "prop_seconds": 0.09104490700002543, "random64_any": true, "directed16": true}
+{"id": "lit@125:0+1", "kind": "lit", "truth": "killable", "violated": [], "prop_seconds": 0.08540872200001104, "random64_any": true, "directed16": false}
+{"id": "lit@123:0+1", "kind": "lit", "truth": "undecided", "violated": [], "prop_seconds": 0.08629762399999663, "random64_any": false, "directed16": false}
+{"id": "lit@127:0+1", "kind": "lit", "truth": "killable", "violated": [], "prop_seconds": 0.12331229199998006, "random64_any": true, "directed16": true}
+{"id": "lit@123:0+1", "kind": "lit", "truth": "undecided", "violated": [], "prop_seconds": 0.09438755899998341, "random64_any": false, "directed16": false}
+{"id": "op@127:+->-", "kind": "op", "truth": "killable", "violated": ["abort", "glitch", "hold", "latency", "pulse", "repeat"], "prop_seconds": 20.02507788500003, "random64_any": true, "directed16": true}
+{"id": "lit@127:1+1", "kind": "lit", "truth": "killable", "violated": [], "prop_seconds": 0.05914442200003123, "random64_any": true, "directed16": true}
+{"id": "op@128:+->-", "kind": "op", "truth": "killable", "violated": [], "prop_seconds": 0.11441633399999773, "random64_any": true, "directed16": true}
+{"id": "lit@127:1-1", "kind": "lit", "truth": "killable", "violated": ["abort", "glitch", "hold", "latency", "pulse", "repeat"], "prop_seconds": 20.036082524999983, "random64_any": true, "directed16": true}
+{"id": "op@128:*->+", "kind": "op", "truth": "killable", "violated": [], "prop_seconds": 0.10462171599999692, "random64_any": true, "directed16": true}
+{"id": "op@130:+->-", "kind": "op", "truth": "killable", "violated": [], "prop_seconds": 0.0839978039999778, "random64_any": true, "directed16": true}
+{"id": "op@130:*->+", "kind": "op", "truth": "killable", "violated": [], "prop_seconds": 0.14720176599996648, "random64_any": true, "directed16": true}
+{"id": "del@130:delete", "kind": "del", "truth": "killable", "violated": [], "prop_seconds": 0.04278653599999416, "random64_any": true, "directed16": true}
+{"id": "op@132:==->!=", "kind": "op", "truth": "killable", "violated": ["abort", "glitch", "latency"], "prop_seconds": 0.04094681499998387, "random64_any": true, "directed16": true}
+{"id": "op@132:+->-", "kind": "op", "truth": "killable", "violated": ["abort", "glitch", "hold", "latency", "pulse", "repeat"], "prop_seconds": 0.10847958299996208, "random64_any": true, "directed16": true}
+{"id": "lit@132:7+1", "kind": "lit", "truth": "killable", "violated": ["abort", "glitch", "hold", "latency", "pulse", "repeat"], "prop_seconds": 0.09594994299999371, "random64_any": true, "directed16": true}
+{"id": "op@127:<-><=", "kind": "op", "truth": "equivalent", "violated": [], "prop_seconds": 0.09451363399995216, "random64_any": false, "directed16": false}
+{"id": "lit@132:1+1", "kind": "lit", "truth": "killable", "violated": ["abort", "glitch", "latency"], "prop_seconds": 0.6632601669999758, "random64_any": true, "directed16": true}
+{"id": "lit@132:7-1", "kind": "lit", "truth": "killable", "violated": ["abort", "glitch", "latency"], "prop_seconds": 0.083730748999983, "random64_any": true, "directed16": true}
+{"id": "lit@132:1-1", "kind": "lit", "truth": "killable", "violated": ["abort", "glitch", "latency"], "prop_seconds": 0.4582296159999828, "random64_any": true, "directed16": true}
+{"id": "lit@135:1+1", "kind": "lit", "truth": "killable", "violated": [], "prop_seconds": 0.08236297000001969, "random64_any": true, "directed16": true}
+{"id": "lit@135:0+1", "kind": "lit", "truth": "killable", "violated": [], "prop_seconds": 0.24747332200001892, "random64_any": true, "directed16": true}
+{"id": "op@135:+->-", "kind": "op", "truth": "killable", "violated": ["abort", "glitch", "hold", "latency", "pulse", "repeat"], "prop_seconds": 20.045293121000043, "random64_any": true, "directed16": true}
+{"id": "lit@135:1-1", "kind": "lit", "truth": "killable", "violated": ["abort", "glitch", "hold", "latency", "pulse", "repeat"], "prop_seconds": 20.050466373000006, "random64_any": true, "directed16": true}
+{"id": "op@136:+->-", "kind": "op", "truth": "killable", "violated": [], "prop_seconds": 0.08756405899998754, "random64_any": true, "directed16": true}
+{"id": "op@136:*->+", "kind": "op", "truth": "killable", "violated": [], "prop_seconds": 0.10805346300003293, "random64_any": true, "directed16": true}
+{"id": "lit@137:4-1", "kind": "lit", "truth": "killable", "violated": [], "prop_seconds": 0.08992391800001087, "random64_any": true, "directed16": true}
+{"id": "op@135:<-><=", "kind": "op", "truth": "undecided", "violated": [], "prop_seconds": 0.08853268600000774, "random64_any": false, "directed16": false}
+{"id": "lit@137:8+1", "kind": "lit", "truth": "equivalent", "violated": [], "prop_seconds": 0.08655626699999175, "random64_any": false, "directed16": false}
+{"id": "op@138:+->-", "kind": "op", "truth": "killable", "violated": [], "prop_seconds": 0.10585726300001852, "random64_any": true, "directed16": true}
+{"id": "op@137:<-><=", "kind": "op", "truth": "undecided", "violated": [], "prop_seconds": 0.08545502900000201, "random64_any": false, "directed16": false}
+{"id": "lit@137:4+1", "kind": "lit", "truth": "undecided", "violated": [], "prop_seconds": 0.09736582700003282, "random64_any": false, "directed16": false}
+{"id": "op@140:>>>->>>", "kind": "op", "truth": "equivalent", "violated": [], "prop_seconds": 0.09968487100002221, "random64_any": false, "directed16": false}
+{"id": "lit@137:8-1", "kind": "lit", "truth": "killable", "violated": [], "prop_seconds": 0.08971585399996229, "random64_any": true, "directed16": true}
+{"id": "op@139:==->!=", "kind": "op", "truth": "killable", "violated": [], "prop_seconds": 0.10115483599997788, "random64_any": true, "directed16": true}
+{"id": "lit@139:0+1", "kind": "lit", "truth": "killable", "violated": [], "prop_seconds": 0.09237927100002707, "random64_any": true, "directed16": true}
+{"id": "op@140:<-><=", "kind": "op", "truth": "equivalent", "violated": [], "prop_seconds": 0.13013740799999596, "random64_any": false, "directed16": false}
+{"id": "lit@140:3+1", "kind": "lit", "truth": "killable", "violated": [], "prop_seconds": 0.15071804500001917, "random64_any": true, "directed16": true}
+{"id": "lit@140:3-1", "kind": "lit", "truth": "killable", "violated": [], "prop_seconds": 0.10072015500003317, "random64_any": true, "directed16": true}
+{"id": "lit@140:0+1", "kind": "lit", "truth": "killable", "violated": [], "prop_seconds": 0.09329222999997455, "random64_any": true, "directed16": true}
+{"id": "op@143:>>>->>>", "kind": "op", "truth": "killable", "violated": [], "prop_seconds": 0.0892338410000093, "random64_any": true, "directed16": true}
+{"id": "lit@143:3+1", "kind": "lit", "truth": "killable", "violated": [], "prop_seconds": 0.14198261999996475, "random64_any": true, "directed16": true}
+{"id": "lit@140:0+1", "kind": "lit", "truth": "equivalent", "violated": [], "prop_seconds": 0.14112721000003603, "random64_any": false, "directed16": false}
+{"id": "lit@143:3-1", "kind": "lit", "truth": "killable", "violated": [], "prop_seconds": 0.13320078800001056, "random64_any": true, "directed16": true}
+{"id": "del@147:delete", "kind": "del", "truth": "killable", "violated": [], "prop_seconds": 0.1125483499999973, "random64_any": true, "directed16": true}
+{"id": "op@141:>->>=", "kind": "op", "truth": "equivalent", "violated": [], "prop_seconds": 0.15470825200003446, "random64_any": false, "directed16": false}
+{"id": "op@144:>->>=", "kind": "op", "truth": "equivalent", "violated": [], "prop_seconds": 0.09371452900001032, "random64_any": false, "directed16": false}
+{"id": "lit@150:0+1", "kind": "lit", "truth": "killable", "violated": ["abort", "glitch", "latency"], "prop_seconds": 0.1035647630000085, "random64_any": true, "directed16": true}
+{"id": "op@145:<-><=", "kind": "op", "truth": "equivalent", "violated": [], "prop_seconds": 0.0856192659999806, "random64_any": false, "directed16": false}
+{"id": "op@151:*->+", "kind": "op", "truth": "equivalent", "violated": [], "prop_seconds": 0.0845778010000231, "random64_any": false, "directed16": false}
+{"id": "lit@150:0+1", "kind": "lit", "truth": "killable", "violated": ["abort", "glitch", "latency"], "prop_seconds": 0.0849928989999853, "random64_any": true, "directed16": true}
+{"id": "op@151:+->-", "kind": "op", "truth": "equivalent", "violated": [], "prop_seconds": 0.12367297200000849, "random64_any": false, "directed16": false}
+{"id": "lit@151:1+1", "kind": "lit", "truth": "equivalent", "violated": [], "prop_seconds": 0.08827620200003139, "random64_any": false, "directed16": false}
+{"id": "op@151:<-><=", "kind": "op", "truth": "killable", "violated": ["abort", "glitch", "latency"], "prop_seconds": 0.12632919800000764, "random64_any": true, "directed16": true}
+{"id": "lit@151:4+1", "kind": "lit", "truth": "equivalent", "violated": [], "prop_seconds": 0.08675988600003848, "random64_any": false, "directed16": false}
+{"id": "lit@151:4-1", "kind": "lit", "truth": "equivalent", "violated": [], "prop_seconds": 0.09275398799996992, "random64_any": false, "directed16": false}
+{"id": "lit@151:1-1", "kind": "lit", "truth": "killable", "violated": [], "prop_seconds": 0.09465717000000495, "random64_any": true, "directed16": true}
+{"id": "lit@151:8-1", "kind": "lit", "truth": "equivalent", "violated": [], "prop_seconds": 0.0887949049999861, "random64_any": false, "directed16": false}
+{"id": "op@152:==->!=", "kind": "op", "truth": "killable", "violated": ["abort", "glitch", "latency"], "prop_seconds": 0.05367394800003922, "random64_any": true, "directed16": true}
+{"id": "lit@151:1+1", "kind": "lit", "truth": "equivalent", "violated": [], "prop_seconds": 0.10518763499999295, "random64_any": false, "directed16": false}
+{"id": "lit@151:8+1", "kind": "lit", "truth": "killable", "violated": ["abort", "glitch", "latency"], "prop_seconds": 0.1421966269999757, "random64_any": true, "directed16": true}
+{"id": "lit@152:0+1", "kind": "lit", "truth": "killable", "violated": ["abort", "glitch", "latency"], "prop_seconds": 0.054521622000038406, "random64_any": true, "directed16": true}
+{"id": "lit@153:1+1", "kind": "lit", "truth": "killable", "violated": ["abort", "glitch", "latency"], "prop_seconds": 0.6717340619999845, "random64_any": true, "directed16": true}
+{"id": "lit@151:1-1", "kind": "lit", "truth": "equivalent", "violated": [], "prop_seconds": 0.09621935899997425, "random64_any": false, "directed16": false}
+{"id": "lit@153:0+1", "kind": "lit", "truth": "killable", "violated": [], "prop_seconds": 0.08955091000001403, "random64_any": true, "directed16": true}
+{"id": "lit@153:1-1", "kind": "lit", "truth": "killable", "violated": ["abort", "glitch", "latency"], "prop_seconds": 0.5891423010000381, "random64_any": true, "directed16": true}
+{"id": "rom@10:+1", "kind": "rom", "truth": "killable", "violated": [], "prop_seconds": 0.08954409000000396, "random64_any": true, "directed16": true}
+{"id": "rom@12:+1", "kind": "rom", "truth": "killable", "violated": [], "prop_seconds": 0.0881035410000095, "random64_any": true, "directed16": true}
+{"id": "rom@23:+1", "kind": "rom", "truth": "killable", "violated": [], "prop_seconds": 0.11176854900003264, "random64_any": true, "directed16": true}
+{"id": "lit@154:1+1", "kind": "lit", "truth": "killable", "violated": ["abort", "glitch", "latency"], "prop_seconds": 0.10258935000001657, "random64_any": true, "directed16": true}
+{"id": "rom@29:+1", "kind": "rom", "truth": "killable", "violated": [], "prop_seconds": 0.08867767399999593, "random64_any": true, "directed16": true}
+{"id": "lit@154:1-1", "kind": "lit", "truth": "killable", "violated": ["abort", "glitch", "latency"], "prop_seconds": 0.11623961699996244, "random64_any": true, "directed16": true}
+{"id": "rom@46:+1", "kind": "rom", "truth": "killable", "violated": [], "prop_seconds": 0.10478605200000857, "random64_any": true, "directed16": true}
+{"id": "rom@55:+1", "kind": "rom", "truth": "killable", "violated": [], "prop_seconds": 0.09196284900002638, "random64_any": true, "directed16": true}
+{"id": "rom@60:+1", "kind": "rom", "truth": "killable", "violated": [], "prop_seconds": 0.08794931199997791, "random64_any": true, "directed16": false}
+{"id": "rom@51:+1", "kind": "rom", "truth": "killable", "violated": [], "prop_seconds": 0.09388267900004621, "random64_any": true, "directed16": true}
+{"id": "rom@14:+1", "kind": "rom", "truth": "killable", "violated": [], "prop_seconds": 0.1001966209999523, "random64_any": true, "directed16": true}
+{"id": "rom@32:+1", "kind": "rom", "truth": "killable", "violated": [], "prop_seconds": 0.0883447950000118, "random64_any": true, "directed16": true}
+{"id": "rom@74:+1", "kind": "rom", "truth": "killable", "violated": [], "prop_seconds": 0.09279046299997162, "random64_any": true, "directed16": true}
+{"id": "rom@62:+1", "kind": "rom", "truth": "killable", "violated": [], "prop_seconds": 0.10300793999999769, "random64_any": true, "directed16": true}
+{"id": "rom@70:+1", "kind": "rom", "truth": "killable", "violated": [], "prop_seconds": 0.1409530760000166, "random64_any": true, "directed16": true}
+{"id": "rom@84:+1", "kind": "rom", "truth": "killable", "violated": [], "prop_seconds": 0.14987863300001436, "random64_any": true, "directed16": true}
+{"id": "rom@101:+1", "kind": "rom", "truth": "killable", "violated": [], "prop_seconds": 0.1661430689999861, "random64_any": true, "directed16": true}
