@@ -620,3 +620,22 @@ test("MT940 and CAMT.053 read to the same rows and signs, with the closing balan
   const o = importStatement(b, f("checking.ofx"), "1000");
   assert.ok(o.books.statements["1000"].closingDate);
 });
+
+test("a multi-account OFX file is split by account number, never mixed", async () => {
+  const { readFileSync } = await import("node:fs");
+  const text = readFileSync(new URL("./fixtures/checking-and-card.ofx", import.meta.url), "utf8");
+  const first = readStatement(text);
+  assert.deepEqual(first.accounts.map((a) => [a.id, a.type, a.n]), [["123456789", "CHECKING", 2], ["4111000011112222", "CREDITCARD", 2]]);
+  assert.equal(first.account, "123456789");
+  assert.deepEqual(first.rows.map((r) => r.cents), [250000, -12000]);
+  assert.equal(first.statement.cents, 238000);
+  assert.match(first.problems[0], /holds 2 accounts/);
+  const card = readStatement(text, { account: "4111000011112222" });
+  assert.deepEqual(card.rows.map((r) => r.cents), [-450, 12000]);
+  assert.equal(card.statement.cents, -450);
+  assert.deepEqual(card.problems, []);
+  assert.equal(readStatement(text, { account: "2" }).account, "4111000011112222");
+  assert.match(readStatement(text, { account: "999" }).problems[0], /No account 999/);
+  // a single-account file is unchanged and raises no problem
+  assert.deepEqual(readStatement(readFileSync(new URL("./fixtures/checking.ofx", import.meta.url), "utf8")).problems, []);
+});

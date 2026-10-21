@@ -149,7 +149,31 @@ function ofxTag(block, tag) {
   return m ? m[1].trim().replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">") : "";
 }
 
-export function readOfx(text) {
+// One OFX file can carry several statements (a checking and a card, say).
+// `account` picks one by its ACCTID (or its 1-based position); with none given
+// the first is read and a problem lists the rest, so lines of two accounts are
+// never mixed into one ledger. `accounts` lists them all.
+export function readOfx(text, { account } = {}) {
+  const parts = text.split(/<(?:CC)?STMTRS>/i);
+  const stmts = parts.length > 1 ? parts.slice(1).map((p) => p.split(/<\/(?:CC)?STMTRS>/i)[0]) : [text];
+  const info = stmts.map((s, i) => ({ id: ofxTag(s, "ACCTID") || `#${i + 1}`, type: ofxTag(s, "ACCTTYPE") || (/<CCACCTFROM>/i.test(s) ? "CREDITCARD" : ""), n: (s.match(/<STMTTRN>/gi) ?? []).length }));
+  let pick = 0;
+  const extra = [];
+  if (account !== undefined && account !== null && account !== "") {
+    const k = info.findIndex((x) => x.id === String(account));
+    const byPos = /^\d+$/.test(String(account)) ? Number(account) - 1 : -1;
+    if (k !== -1) pick = k;
+    else if (byPos >= 0 && byPos < stmts.length) pick = byPos;
+    else extra.push(`No account ${account} in the OFX file. It holds ${info.map((x) => x.id).join(", ")}; reading ${info[0].id}.`);
+  } else if (stmts.length > 1) {
+    extra.push(`The OFX file holds ${stmts.length} accounts (${info.map((x) => `${x.id}${x.type ? " " + x.type.toLowerCase() : ""}, ${x.n} line${x.n === 1 ? "" : "s"}`).join("; ")}). Reading ${info[0].id}; import the others by naming their account number.`);
+  }
+  const r = readOfxStatement(stmts[pick]);
+  r.problems.push(...extra);
+  return { ...r, accounts: info, account: info[pick].id };
+}
+
+function readOfxStatement(text) {
   const problems = [];
   const out = [];
   const blocks = text.split(/<STMTTRN>/i).slice(1);
@@ -211,14 +235,14 @@ export function readQif(text, { dayFirst = false } = {}) {
 // `invert` flips signs for card exports that list charges as positive. Leave it
 // undefined and a file with no running balance that has payment rows is
 // flipped when its payments are negative (`inferred` says so).
-export function readStatement(text, { dayFirst = false, decimalComma = false, invert } = {}) {
+export function readStatement(text, { dayFirst = false, decimalComma = false, invert, account } = {}) {
   const format = sniffFormat(text);
   if (format === "camt053" || format === "mt940") {
     const r = format === "camt053" ? readCamt(text) : readMt940(text);
     if (invert === true) for (const x of r.rows) x.cents = -x.cents;
     return r;
   }
-  if (format === "ofx") return readOfx(text);
+  if (format === "ofx") return readOfx(text, { account });
   if (format === "qif") return readQif(text, { dayFirst });
   const rows = parseCsv(text);
   const problems = [];
