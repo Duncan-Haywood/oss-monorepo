@@ -114,7 +114,7 @@
 
   <section class="card" aria-labelledby="h-assets">
     <h2 id="h-assets">Optional: equipment and depreciation</h2>
-    <p class="note">A computer, a van or a tool that lasts more than a year is spread over its life instead of counted all at once. File the purchase to account 1500 Equipment, then register it here; depreciation is booked monthly (straight-line, or written off in full the first month if you and your preparer choose). Book depreciation, not the US tax schedule. Ask your accountant.</p>
+    <p class="note">A computer, a van or a tool that lasts more than a year is spread over its life instead of counted all at once. File the purchase to account 1500 Equipment, then register it here; depreciation is booked monthly (straight-line, or written off in full the first month if you and your preparer choose). The books use straight-line; the US tax schedule (MACRS) is a separate worksheet below. Ask your accountant.</p>
     <div class="grid">
       <div><label for="fa-name">Asset</label><input id="fa-name" autocomplete="off" placeholder="e.g. Laptop"></div>
       <div><label for="fa-date">Placed in service</label><input id="fa-date" type="date"></div>
@@ -127,6 +127,19 @@
     <button type="button" id="fa-add">Add to the register</button>
     <p id="fa-status" class="note" role="status" aria-live="polite"></p>
     <div class="scroll" id="fa-register"></div>
+    <h3 id="h-macrs">US tax depreciation (MACRS)</h3>
+    <p class="note">The tax return uses its own schedule: an optional Section 179 deduction, optional bonus depreciation, then the IRS half-year percentage table (Publication 946, Table A-1) on the rest. Set a treatment for each asset, then read the year's worksheet beside the book figures. Whether you may elect 179 or bonus, and the dollar limits, are for you or your preparer; the worksheet lists what it cannot check.</p>
+    <div class="grid">
+      <div><label for="tx-asset">Asset</label><select id="tx-asset"></select></div>
+      <div><label for="tx-class">MACRS class</label><select id="tx-class"><option>3</option><option selected>5</option><option>7</option><option>10</option><option>15</option><option>20</option></select></div>
+      <div><label for="tx-179">Section 179 amount</label><input id="tx-179" inputmode="decimal" value="0"></div>
+      <div><label for="tx-bonus">Bonus percent</label><input id="tx-bonus" inputmode="numeric" value="0"></div>
+      <div><label for="tx-year">Tax year</label><input id="tx-year" inputmode="numeric"></div>
+    </div>
+    <button type="button" id="tx-set" class="secondary">Set tax treatment</button>
+    <button type="button" id="tx-csv" class="secondary">Download tax depreciation worksheet (CSV)</button>
+    <p id="tx-status" class="note" role="status" aria-live="polite"></p>
+    <div class="scroll" id="tx-sheet"></div>
   </section>
 
   <section class="card" aria-labelledby="h-docs">
@@ -239,6 +252,7 @@
     import { sniffFormat, splitOfx } from "./bank.mjs";
     import { scheduleC, scheduleCCsv, contractors1099, contractors1099Csv, nec1099FilingCsv, markW9, mergePayees } from "./taxforms.mjs";
     import { newBooks, importStatement, importOfxAccounts, categorize, suggestRules, addRules, addDocuments, writeOff, aging, addAsset, disposeAsset, register, salesTax, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, exportLines, status, analyze, fmt, DEFAULT_ACCOUNTS } from "./engine.mjs";
+    import { setTaxTreatment, taxDepreciation, taxDepreciationCsv } from "./taxdepr.mjs";
     import { parseAccounts } from "./ledger.mjs";
     import { aiSuggest } from "./ai.mjs";
     import { detectLocal, isLocal } from "./byok.mjs";
@@ -378,6 +392,29 @@
       } catch (e) { $("#fa-status").textContent = e.message; }
     });
 
+    const taxYear = () => { const y = parseInt($("#tx-year").value, 10); return y >= 1990 && y <= 2100 ? y : Math.max(0, ...books.transactions.map((t) => +t.date.slice(0, 4)).filter(Boolean)) || new Date().getFullYear(); };
+    function renderTaxDepr() {
+      const sel = $("#tx-asset"), keep = sel.value;
+      sel.replaceChildren(...(books.assets ?? []).map((a) => el("option", { value: a.id, text: `${a.id} ${a.name}` })));
+      if (keep) sel.value = keep;
+      const wrap = $("#tx-sheet");
+      if (!(books.assets ?? []).some((a) => a.tax)) { wrap.replaceChildren(); return; }
+      const w = taxDepreciation(books, taxYear());
+      const row = (r) => [`${r.id} ${r.name}`, `${r.class}-yr`, fmt(r.s179), fmt(r.bonus), fmt(r.macrs), fmt(r.total), fmt(r.book), fmt(r.difference)];
+      wrap.replaceChildren(table(["Asset", "Class", "Section 179", "Bonus", "MACRS", "Tax", "Book", "Difference"], w.rows.map(row), [["Total", "", fmt(w.totals.s179), fmt(w.totals.bonus), fmt(w.totals.macrs), fmt(w.totals.total), fmt(w.totals.book), fmt(w.totals.difference)]]), ...w.warnings.map((x) => el("p", { class: "note", text: x })));
+    }
+    $("#tx-set").addEventListener("click", () => {
+      try {
+        const r = setTaxTreatment(books, $("#tx-asset").value, { macrsClass: $("#tx-class").value, s179: $("#tx-179").value || "0", bonusPct: $("#tx-bonus").value || "0" });
+        books = r.books; record("asset_tax_set"); render(); $("#tx-status").textContent = `${r.asset.id}: MACRS ${r.asset.tax.macrsClass}-year, section 179 ${fmt(r.asset.tax.s179)}, bonus ${r.asset.tax.bonusPct}%.`;
+      } catch (e) { $("#tx-status").textContent = e.message; }
+    });
+    $("#tx-year").addEventListener("change", renderTaxDepr);
+    $("#tx-csv").addEventListener("click", () => {
+      if (!(books.assets ?? []).some((a) => a.tax)) { $("#tx-status").textContent = "Set a tax treatment on at least one asset first."; return; }
+      record("tax_depreciation_downloaded"); download(taxDepreciationCsv(taxDepreciation(books, taxYear())), `tax-depreciation-${taxYear()}.csv`, "text/csv");
+    });
+
     function renderSalesTax() {
       const t = salesTax(books);
       if (!t.months.some((m) => m.collected || m.credited || m.remitted)) { $("#salestax").replaceChildren(); return; }
@@ -418,7 +455,7 @@
 
     $("#nec-filing-csv").addEventListener("click", () => { record("contractors_filing_downloaded"); download(nec1099FilingCsv(contractors1099(books, { year: necYear() })), "contractors-1099-nec-filing-prep.csv", "text/csv"); });
 
-    function render() { fillSetup(); renderScheduleC(); renderNec(); renderStatus(); renderQueue(); renderReports(); renderRuleSuggestions(); renderAging(); renderAssets(); renderSalesTax(); persist(); }
+    function render() { fillSetup(); renderScheduleC(); renderNec(); renderStatus(); renderQueue(); renderReports(); renderRuleSuggestions(); renderAging(); renderAssets(); renderTaxDepr(); renderSalesTax(); persist(); }
 
     $("#docs-load").addEventListener("click", async () => {
       const f = $("#docs-file").files[0];

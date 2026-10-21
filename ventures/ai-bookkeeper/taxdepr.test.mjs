@@ -76,3 +76,13 @@ test("bad treatment is refused", () => {
   assert.throws(() => setTaxTreatment(b, "FA-1", { macrsClass: 5, s179: 99999 }), /Section 179/);
   assert.throws(() => setTaxTreatment(b, "FA-9", { macrsClass: 5 }), /No asset/);
 });
+
+test("CSV has a row per asset, totals and the notes", async () => {
+  const { taxDepreciationCsv } = await import("./taxdepr.mjs");
+  const b = with1("10000", "2026-03-10", { macrsClass: 5, s179: 100000 });
+  const lines = taxDepreciationCsv(taxDepreciation(b, 2026)).trim().split("\n");
+  assert.match(lines[0], /^Asset,Name,Placed in service,MACRS class/);
+  assert.match(lines[1], /^FA-1,.*,5,10000\.00,1000\.00,0\.00,1800\.00,2800\.00,/);
+  assert.match(lines[2], /^Total,/);
+  assert.ok(lines.slice(3).every((l) => l.startsWith("Note,")));
+});
