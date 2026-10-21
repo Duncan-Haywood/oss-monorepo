@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "codesign-power"
+version = "0.1.0"
+description = "How good are the designs found by each gripper co-design method, scored on 600 scenes instead of 40?"
+requires-python = ">=3.9"
+dependencies = ["numpy", "scipy", "cma", "mujoco", "matplotlib"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
