@@ -3558,8 +3558,11 @@ test('chrome takes its theme from the host page, not the operating system', asyn
 
   assert.ok(!/prefers-color-scheme/.test(style),
     'the chrome must not branch on the OS theme — the host page decides');
-  assert.ok(!/#[0-9a-f]{3,8}\b/i.test(style),
-    `the chrome must not hard-code a colour: ${style.match(/#[0-9a-f]{3,8}\b/i)?.[0]}`);
+  // The site's logo square is the one exception: a 20px mark, not text and not
+  // a band, drawn in the site's own gradient on every host.
+  const painted = style.replace(/\.pf-chrome-top \.pfs-mark\{[^}]*\}/, '');
+  assert.ok(!/#[0-9a-f]{3,8}\b/i.test(painted),
+    `the chrome must not hard-code a colour: ${painted.match(/#[0-9a-f]{3,8}\b/i)?.[0]}`);
   assert.match(style, /color:inherit/, 'text colour comes from the page');
   assert.match(style, /--pf-line:rgba\(128,128,128/, 'lines are neutral on either background');
 });
