@@ -1,6 +1,6 @@
 import math
 
-from capture_sentinel.model import (Detector, bessel_ratio, best_sentinel, expected_miss, miss_all,
+from capture_sentinel.model import (Detector, ZoneDetector, bessel_ratio, best_sentinel, expected_miss, miss_all,
                                     miss_all_independent, miss_at, ring_angles, rig_energy_wh, simulate_miss)
 
 D = Detector()
@@ -58,3 +58,23 @@ def test_shared_miss_equals_independent_when_one_camera():
 def test_more_detectors_cost_more_false_alarm_energy():
     assert rig_energy_wh(4, 4, 0.99) > rig_energy_wh(4, 1, 0.9)
     assert rig_energy_wh(4, 1, 0.9) < 4 * 5.0 * 16
+
+
+def test_zone_detector_steps_and_wraps():
+    z = ZoneDetector(0.05, 0.4, 1.0, front_deg=45.0, away_deg=120.0)
+    assert miss_at(z, 0.0) == 0.05 and miss_at(z, math.radians(44)) == 0.05
+    assert miss_at(z, math.radians(90)) == 0.4 and miss_at(z, math.radians(-90)) == 0.4
+    assert miss_at(z, math.radians(180)) == 1.0 and miss_at(z, math.radians(-350)) == 0.05
+
+
+def test_zone_detector_uniform_facing_is_the_arc_weighted_mean():
+    z = ZoneDetector(0.05, 0.4, 1.0, front_deg=45.0, away_deg=120.0)
+    want = (90 * 0.05 + 150 * 0.4 + 120 * 1.0) / 360
+    assert abs(expected_miss(z, 0.0, 0.0) - want) < 2e-3
+
+
+def test_zone_closed_form_matches_simulation_and_best_sentinel_faces_favourite():
+    z = ZoneDetector(0.05, 0.4, 0.4)
+    for c in (0.0, 90.0, 180.0):
+        assert abs(simulate_miss(z, [c], 2.0, 40000, 3) - expected_miss(z, c, 2.0)) < 0.01
+    assert best_sentinel(z, ring_angles(4), 2.0)[0] == 0
