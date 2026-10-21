@@ -172,7 +172,6 @@ if missing. Narrator voice: `bm_george` at speed 0.9.
 Done episodes are in `episodes/`. Next up, roughly in order (claim one by
 writing it; skip any already in `episodes/`):
 
-- Saint Seraphim of Sarov and the bear (Orthodox; widely loved by Catholics)
 - Joseph the dreamer and his brothers (Genesis 37-50)
 - Saint George and the dragon (legend; the historical martyr told gently)
 - Saint Brendan the Navigator and the island that moved (*Navigatio*; skip the birds-as-angels episode)
@@ -187,6 +186,10 @@ writing it; skip any already in `episodes/`):
 - Elijah, the ravens and the still small voice (1 Kings 17-19)
 - Saint Spyridon and the snake that became gold (legend; told with care)
 - An invented episode: a novice and an old abbess on a winter night, with the saints she tells him about (clearly labelled fiction)
+
+## Waiting for audio
+
+- Episode 7 (`seraphim-of-sarov-and-the-bear`) is written and has a page but no audio: the 2026-10-21 cloud session could not reach huggingface.co for the Kokoro model files. Any session that can (`python3 render_audio.py seraphim-of-sarov-and-the-bear`, then `node generate.mjs`) should render it; the feed lists it only once audio exists.
 
 ## Publishing
 
