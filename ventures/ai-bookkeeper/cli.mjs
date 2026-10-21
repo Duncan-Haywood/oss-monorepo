@@ -23,6 +23,7 @@ import { setOpeningBalances, clearOpeningBalances } from "./opening.mjs";
 import { sniffFormat, splitOfx } from "./bank.mjs";
 import { detectRecurring, forecastCash } from "./recurring.mjs";
 import { findAnomalies } from "./anomalies.mjs";
+import { addReceipts, attachReceipt, removeReceipt, receiptReport } from "./receipts.mjs";
 import { compareProfit } from "./compare.mjs";
 import { setBudget, budgetVsActual } from "./budget.mjs";
 import { setTaxTreatment, taxDepreciation } from "./taxdepr.mjs";
@@ -59,6 +60,7 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
   recurring [--as-of D] [--json]  payees that repeat on a steady interval: cost per year, next date, and which went overdue, lapsed or changed amount
   forecast [--as-of D] [--days N] [--json]  expected cash day by day from the bank balance, recurring items and open invoices and bills; the lowest point
   anomalies [--json]     lines worth a second look: double charges, amounts far above a payee's usual, large first-time payees (candidates with a reason, not an audit)
+  receipts [FILE|attach RID LINEID|detach RID|remove RID] [--min DOLLARS] [--json]  receipt text (blocks split by ---) matched to bank lines; lists unmatched receipts and spending over --min (default 75) with no receipt
   compare [--from D --to D --vs-from D --vs-to D] [--json]  profit and loss against an earlier period (default: latest month vs the month before): what moved, what is new or gone
   budget [CODE AMOUNT] [--from D --to D] [--json]  set a monthly budget for an account (AMOUNT 0 removes it), or show budget against actual for the period (default: latest month)
   aging [--as-of D]      what customers owe you and what you owe, by days past due
@@ -199,6 +201,29 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
   for (const x of r) console.log(`${x.payee.slice(0, 26).padEnd(26)} ${x.cadence.padEnd(15)} ${fmt(x.typical).padStart(11)}  ${fmt(x.perYear).padStart(12)}/yr  next ${x.next}  ${x.status}${x.note ? ` (${x.note})` : ""}`);
   const sum = (d) => r.filter((x) => x.direction === d && x.status !== "lapsed").reduce((a, x) => a + x.perYear, 0);
   console.log(`${r.length} recurring. Per year, not lapsed: in ${fmt(sum("in"))}, out ${fmt(sum("out"))}.`);
+} else if (cmd === "receipts") {
+  if (rest[0] === "attach" || rest[0] === "detach" || rest[0] === "remove") {
+    try {
+      books = rest[0] === "remove" ? removeReceipt(books, rest[1]) : attachReceipt(books, rest[1], rest[0] === "detach" ? null : rest[2]);
+    } catch (e) { console.error(e.message); process.exit(2); }
+    save(); console.log(`${rest[0]} ${rest[1]}: done.`); process.exit(0);
+  }
+  if (rest[0]) {
+    if (!existsSync(rest[0])) { console.error(`no file ${rest[0]}`); process.exit(2); }
+    const r = addReceipts(books, readFileSync(rest[0], "utf8"));
+    books = r.books; save();
+    console.log(`Read ${r.added.length} receipt${r.added.length === 1 ? "" : "s"}; ${r.duplicates.length} already on file; ${r.skipped.length} could not be read.`);
+    for (const s of r.skipped) console.log(`  skipped "${s.text.slice(0, 40)}": ${s.notes.join(", ")}`);
+  }
+  const minFlag = flag("--min");
+  const min = minFlag ? parseCents(minFlag) : 7500;
+  const rep = receiptReport(books, { minCents: min, from, to });
+  if (json) { console.log(JSON.stringify(rep, null, 2)); process.exit(0); }
+  console.log(`RECEIPTS ${rep.receipts} on file: ${rep.matched.length} matched, ${rep.unmatched.length} not. ${fmt(rep.coveredCents)} of ${fmt(rep.spendCents)} spending is covered.`);
+  for (const m of rep.matched) console.log(`  ${m.id}  ${m.date}  ${fmt(m.cents).padStart(10)}  ${m.merchant.slice(0, 26).padEnd(26)} -> ${m.line.date} ${m.line.desc.slice(0, 28)}${m.tipCents ? ` (+${fmt(m.tipCents)} tip)` : ""}${m.payeeAgrees === false ? " (name differs: check)" : ""}`);
+  for (const u of rep.unmatched) console.log(`  ${u.id}  ${u.date}  ${fmt(u.cents).padStart(10)}  ${u.merchant.slice(0, 26).padEnd(26)} NO BANK LINE (paid another way, or not imported)`);
+  console.log(`${rep.missing.length} line${rep.missing.length === 1 ? "" : "s"} of ${fmt(min)} or more with no receipt, ${fmt(rep.missingCents)} in all:`);
+  for (const t of rep.missing) console.log(`  ${t.id}  ${t.date}  ${fmt(t.cents).padStart(11)}  ${t.desc.slice(0, 40)}`);
 } else if (cmd === "compare") {
   const vf = flag("--vs-from"), vt = flag("--vs-to");
   if ((from || to) && !(from && to && vf && vt)) { console.error("compare needs --from, --to, --vs-from and --vs-to together, or none of them"); process.exit(2); }
