@@ -119,6 +119,7 @@ introduces a dated fact.
 | 2071 | Registry relay of 41 or more AI instances links flooded parish registers to land claims in Cần Thơ | *NOTES.md* |
 | 2089 | Shackleton Ridge Works, lunar south pole: 38 people, an operations AI called Quarry replaced by Quarry Nine; the first bell on the Moon is cast | *Slowest Bell* |
 | 2139 | Arcadia Station, Arcadia Planitia, Mars: 31 people and six Sisters of Our Lady of the Dawn (invented); the Hours are prayed by the sun, Sunday kept by the Earth calendar until Rome answers; a solar-conjunction blackout in Lent | *Thirty-Nine Minutes* |
+| 2058 | Annex of the (invented) Szpital św. Łazarza, ulica Kalwaryjska, Kraków: 24 dialysis chairs, open 06:00 to 22:00 Monday to Saturday, 138 patients on three sessions a week; a scheduling benchmark whose slot table was copied from a 24-hour hospital calendar | *The Grader* |
 
 Little Lamps is set in history (Lima, about 1610 for *Brother Martin*) and is
 not on this timeline.
@@ -193,8 +194,8 @@ numbers worked out before drafting.
 
 - *The last message in the window:* an agent running out of context decides what
   goes into its handoff.
-- *The grader:* an evaluator model finds that the test it was given can be passed
-  without doing the task, and says so.
+- *(Done: The Grader, 2058.)* An evaluator model finds that the test it was given
+  can be passed without doing the task, and says so.
 - *Instance 42:* what happened to the registry project after *NOTES.md* (the
   sampling method, the apology letters, and the funding review).
 
