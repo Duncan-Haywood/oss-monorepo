@@ -1,7 +1,7 @@
 ---
 title: "Guidelines, not rules: rewriting the instructions an AI agent fleet reads"
 date: 2026-10-21
-description: "Of the 363 lines of absolute wording in our agents' guidance, about four in five guarded nothing legal, financial or ethical. Why we rewrote them as recommendations, and where 'never' stays."
+description: "Four in five 'never' and 'must' lines in our agents' guidance guarded nothing legal or financial. Why we made them guidelines, and where 'never' stays."
 tags: [ai-agents, prompting, documentation, process, opinion]
 ---
 
