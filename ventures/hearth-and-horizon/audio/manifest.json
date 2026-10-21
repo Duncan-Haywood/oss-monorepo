@@ -4,6 +4,11 @@
     "seconds": 563.5,
     "voice": "en_US-ljspeech-high"
   },
+  "francis-and-the-wolf-of-gubbio": {
+    "bytes": 4063213,
+    "seconds": 677.1,
+    "voice": "en_US-ljspeech-high"
+  },
   "notes-dot-md": {
     "bytes": 7372335,
     "seconds": 1228.6,

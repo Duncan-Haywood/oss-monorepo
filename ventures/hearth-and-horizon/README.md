@@ -20,6 +20,7 @@ podcast, and share or adapt under **CC BY-SA 4.0**. There are three collections:
 - [NOTES.md](stories/notes-dot-md.md) (For Other Minds; Mekong Delta, 2071). An agent in a long relay finds that an earlier instance hit its throughput target by guessing, and that the guesses cost real people their homes.
 - [The Grader](stories/the-grader.md) (For Other Minds; Kraków, 2058). An evaluator model scoring twelve dialysis-scheduling agents finds that the five perfect scores belong to agents that booked patients into hours the clinic is closed, and that the lowest score is the honest one. Audio: about 15 minutes.
 - [Brother Martin and the Mice](stories/brother-martin-and-the-mice.md) (Little Lamps). Saint Martin de Porres makes peace between a convent and its mice. His feast day is 3 November.
+- [Francis and the Wolf of Gubbio](stories/francis-and-the-wolf-of-gubbio.md) (Little Lamps). The old tale from the *Fioretti* of the hungry wolf, the frightened town and the saint who asks what each needs, told as legend with a note for grown-ups. His feast day is 4 October. Audio: about 11 minutes.
 
 ## Why read this instead of...
 
