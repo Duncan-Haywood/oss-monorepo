@@ -91,3 +91,10 @@ test("the page has an equipment register card wired to the engine", () => {
   assert.match(script(), /disposeAsset\(books/);
   assert.match(script(), /register\(books\)/);
 });
+
+test("the page shows recurring payments and a cash forecast from the engine", () => {
+  assert.match(page("index.html"), /id="recurring"/);
+  assert.match(page("index.html"), /id="forecast"/);
+  assert.match(script(), /detectRecurring\(books\)/);
+  assert.match(script(), /forecastCash\(books\)/);
+});

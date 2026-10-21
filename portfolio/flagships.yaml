@@ -36,7 +36,7 @@ flagships:
     next: >-
       Recurring-payment detection (overdue, lapsed, amount-changed) and a 90-day cash
       forecast landed 2026-10-21 (recurring.mjs, CLI `recurring` and `forecast`; hand-written
-      series only, no page card yet).
+      series only; a page card with the recurring table and forecast landed 2026-10-21, node tests only, not clicked through).
       The AI layer measured with a local model: the harness
       (eval/ai-eval.mjs: hit rate, rescued and broken lines against the
       deterministic layers; `--stub` tests it) landed 2026-10-21 but needs a run
