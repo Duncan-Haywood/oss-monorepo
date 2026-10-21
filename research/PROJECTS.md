@@ -1,6 +1,6 @@
 # Priority projects
 
-The owner's priority projects, set on 2026-10-12, with tracks 7 to 11 added on 2026-10-14, track 12 on 2026-10-16 tracks 13 to 15 on 2026-10-19, tracks 16 and 17 on 2026-10-19, track 18 on 2026-10-19 and track 19 on 2026-10-20. Runs
+The owner's priority projects, set on 2026-10-12, with tracks 7 to 11 added on 2026-10-14, track 12 on 2026-10-16 tracks 13 to 15 on 2026-10-19, tracks 16 and 17 on 2026-10-19, track 18 on 2026-10-19 track 19 on 2026-10-20 and track 20 on 2026-10-21. Runs
 started from `prompt.md` take their new work from here. There are nineteen tracks. Each one is
 open-ended: its milestones are a starting order, not a checklist, so follow the results. Every
 project a track produces is a normal `research/<slug>/` project. It needs a README, tests, a
@@ -74,7 +74,7 @@ deleted; its pull requests, review threads and old Pages site stay there.
 ## Picking work
 
 1. **Pick a track at random:** `python3 research/_shared/pick_track.py` (below 0.05 is a
-   free-choice run; otherwise it maps the draw onto tracks 1-19, redraws any track with 40+ projects, and lists the track's newest projects). Four runs start in the same
+   free-choice run; otherwise it maps the draw onto tracks 1-20, redraws any track with 40+ projects, and lists the track's newest projects). Four runs start in the same
    minute, and a random pick spreads them out.
 
    **Free choice (about 5% of runs).** In the spirit of Google's "20% time", about one run in
@@ -117,6 +117,7 @@ deleted; its pull requests, review threads and old Pages site stay there.
 | 17. Societies of AI agents in robots among people | `society` |
 | 18. Laundry-hanging robots and custom hangers | `hanger` |
 | 19. Machine learning on qualitative data with LLMs | `qual` |
+| 20. Applied R&D for the industries modern life runs on | `infra` |
 | Free choice (about 5% of runs) | `free` |
 
 ## Rules for every track
@@ -1388,9 +1389,107 @@ portfolio's own run records. Each needs the same validation step.
   data in the repository.
 - *No benchmark claims without a real model.* Simulated coders are labelled as simulated.
 
+## 20. Applied R&D for the industries modern life runs on (`infra`)
+
+Added on 2026-10-21 at the owner's request: "I want to work on tools for water and sanitation
+shelter and climate control energy electric utiltiies and grid mining and extraction basic
+materials and heavy industry transportation and logistic including other propulsion and
+trasnportation methods. Semiconductors and electronics Finance and payments Manufacturing and
+machine tools Waste management looking for innovations and applications of advanced research to
+these domains to improve efficiency be useful in smalll or large jumps." And, on order: "Energy
+as the master resource ... If you had to pick just one, pick energy, including the grid."
+
+**Goal.** Take methods that already work somewhere (optimisation, statistics, simulation,
+machine learning, robotics, the repo's own research tools) and apply them where they are thin:
+the physical industries everything else depends on. Water and sanitation, shelter and climate
+control, energy and the grid, mining, basic materials (cement, steel, chemicals), transport and
+logistics (including other propulsion), semiconductors, payments, manufacturing and machine
+tools, and waste. Each project picks one costly, measurable problem in one of them, reproduces
+the standard method on an open benchmark, then asks whether a transferred method does better at
+the same budget. A small, checked gain on a real benchmark beats a large one on a toy.
+Energy comes first: most of these industries are limited by cheap, reliable energy, so grid
+and energy milestones lead the list and take ties. Track 16 (`energy`) covers storage and supply
+mix; this track covers the grid and energy use inside the other industries. A project that is
+really a storage question belongs in track 16, and a house-scale one in track 12.
+
+**Prior work and open tools.** Check each before citing it. Grid: EPRI's OpenDSS
+(`opendssdirect.py`), pandapower (Thurner et al. 2018, *IEEE Trans. Power Systems*), the IEEE PES
+distribution test feeders, IEEE C57.91 (transformer loading and insulation ageing). Water:
+EPANET and WNTR (Klise et al. 2017), the BattLeDIM 2020 leakage benchmark and its L-Town network
+(Vrachimis et al. 2022, *J. Water Resources Planning and Management*). Logistics: Solomon's
+(1987) VRPTW instances, the electric VRP with recharging stations (Schneider, Stenger and Goeke
+2014, *Transportation Science*), OR-Tools and HiGHS. Materials: limestone calcined clay cement
+(Scrivener et al. 2018, *Cement and Concrete Research*). Mining: Bond's (1952) work index for
+grinding energy. Machine tools: analytical chatter stability (Altintas and Budak 1995, *CIRP
+Annals*). Payments: gridlock resolution and liquidity-saving mechanisms (Bech and Soram&auml;ki
+2001; Martin and McAndrews 2008, *J. Monetary Economics*). Waste: the ZeroWaste sorting dataset
+(Bashkirova et al. 2022, CVPR). Buildings: MPC for buildings (Drgo&ntilde;a et al. 2020,
+*Annual Reviews in Control*).
+
+**Milestones.** Grid and energy first; the rest in any order.
+1. `infra-hosting`: how much rooftop PV and EV charging can a distribution feeder take before
+   voltage or thermal limits bind, and how much do cheap measures (inverter volt-var, smart
+   charging, a tap change) add? OpenDSS on IEEE test feeders, hosting capacity as a stochastic
+   sweep, each measure scored on the same placements.
+2. `infra-transformer`: distribution transformer ageing under heat-pump and EV load growth. The
+   IEEE C57.91 hot-spot and ageing model on an hourly load profile: how much load growth doubles
+   loss of life, and how much of it a charging schedule buys back, before a replacement is due.
+3. `infra-waterloss`: finding leaks from pressure data. WNTR on BattLeDIM's L-Town with its
+   published leak schedule: the competition's best methods as baselines, and the repo's
+   `changepoint-detector` (PELT, Bayesian online) applied to residuals, scored by detection
+   delay and false alarms.
+4. `infra-propulsion`: energy per tonne-km by mode from first principles (rolling resistance,
+   aerodynamic and hull drag, lift), reproducing published figures, then the range and payload
+   each storage technology from `energy-density` and `energy-practical` gives a truck, train,
+   ship and aircraft. Which modes can electrify directly, and which need a fuel?
+5. `infra-routing`: electric delivery fleets. EVRPTW on the Schneider et al. instances, OR-Tools
+   and an LLM or session proposer against the published best-known solutions at the same
+   budget, with charging cost on a time-of-use tariff (track 16's `energy-tou`).
+6. `infra-cement`: clinker substitution. Mass and energy balance of OPC, LC3 and slag blends
+   per tonne of cement, with CO<sub>2</sub> split into calcination and fuel, every factor
+   sourced; which substitution levels keep a published strength class?
+7. `infra-grind`: comminution circuits. A population-balance ball-mill and classifier model
+   against Bond's law; the energy saved by circuit choices (cut size, recirculation load) at
+   the same product size, set against published plant figures.
+8. `infra-chatter`: stability lobes for milling. The Altintas-Budak zero-order solution against
+   time-domain simulation, then the spindle speeds that maximise metal removal rate for a
+   measured tool tip FRF from a public dataset.
+9. `infra-yield`: cost per good die. Poisson, Murphy and negative-binomial yield models against
+   die area and defect density, reproducing published curves, and the chiplet break-even
+   (tracks 3, 7 and 8 cover design; this covers the fab and packaging economics).
+10. `infra-sorting`: robotic waste sorting. A detector trained on ZeroWaste or TACO, and a
+    simulated conveyor pick cell (with track 4's twin) scored on purity, recovery and picks per
+    minute against belt speed.
+11. `infra-netting`: liquidity in payment systems. A simulated RTGS day with a published
+    payment-size distribution: how much liquidity bilateral and multilateral offsetting saves,
+    and how much delay it costs, against the Bech-Soram&auml;ki algorithm.
+12. `infra-hvacmpc`: heating and cooling control. A grey-box RC building model fitted to an
+    open dataset, MPC against a thermostat rule on a time-of-use tariff and a forecast that
+    is not perfect (the lesson of `energy-tou-lp-forecast`).
+
+**Method transfers worth trying.** The point of the track is the transfer, so say in each README
+where the method came from. Changepoint detection and conformal prediction for sensor and meter
+data; Bayesian optimisation and LLM proposers for process settings; LP and MILP (HiGHS) for
+scheduling and dispatch; queueing and discrete-event twins (track 4's `robofab-cell`) for ports,
+yards and warehouses; survival analysis for asset failure; graph algorithms for networks and
+netting; simulators plus learned surrogates for anything slow.
+
+**Guardrails.**
+- *Models are not plants.* Keep simulated, benchmark and field figures apart, and never present a
+  modelled feeder, network, mill or cell as a measured one.
+- *No connection to real operational systems.* No SCADA, OT, utility, payment-network or plant
+  system is touched, scanned or probed, and no vulnerability research targets real
+  infrastructure. Public datasets and simulators only.
+- *Safety-critical designs are research.* Drinking water, grid protection, pressure, structural
+  and machine-guarding work needs licensed engineers and the operator's approval before any use;
+  say so in the README. Track 16's grid and electrical rule applies.
+- *Payments and money.* No real accounts, funds or customer data. Results are not financial
+  advice.
+- *Every price, emission factor and device figure is sourced and dated, or swept.*
+
 ## References
 
-Tracks 1 to 6 were checked on 2026-10-12, tracks 7 to 11 on 2026-10-14 track 12 on 2026-10-16 and track 13 on 2026-10-19; tracks 14 and 15, added on 2026-10-19, are not yet checked; track 16's were not all re-checked (`energy-density`'s README marks which it checked); track 17's were checked when it was added on 2026-10-19; track 18's, added on 2026-10-19, are not yet checked. Check them again before
+Tracks 1 to 6 were checked on 2026-10-12, tracks 7 to 11 on 2026-10-14 track 12 on 2026-10-16 and track 13 on 2026-10-19; tracks 14 and 15, added on 2026-10-19, are not yet checked; track 16's were not all re-checked (`energy-density`'s README marks which it checked); track 17's were checked when it was added on 2026-10-19; track 18's, added on 2026-10-19, are not yet checked; track 20's, added on 2026-10-21, are not yet checked. Check them again before
 citing one, as `prompt.md` requires.
 
 **Track 1.**
