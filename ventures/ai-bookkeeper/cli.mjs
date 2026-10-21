@@ -13,7 +13,7 @@
 //   node cli.mjs --books books.json export qbo|xero|iif|csv|lines > journal.csv
 //   node cli.mjs --example report
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
-import { newBooks, importStatement, categorize, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, exportLines, status, analyze, fmt } from "./engine.mjs";
+import { newBooks, importStatement, categorize, suggestRules, addRules, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, exportLines, status, analyze, fmt } from "./engine.mjs";
 import { accountMap } from "./ledger.mjs";
 
 const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that learn from your corrections.
@@ -26,6 +26,7 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
   confirm ID=CODE:AMT,CODE[:AMT] ...
                          split a line: ID=4000:1000.00,6010:-30.00 for a 970.00 payout
                          (amounts signed like the bank line; one may be left out)
+  rules [--apply]        payees you filed the same way 3+ times, as rules; --apply adds them
   accept [MIN]           accept every suggestion at or above MIN confidence (default 0.7)
   ai                     ask a model for the review queue: your key or a local model
                          (LLM_PROVIDER, LLM_MODEL, LLM_BASE_URL, LLM_API_KEY or ANTHROPIC_API_KEY)
@@ -69,6 +70,11 @@ if (cmd === "import") {
   books = confirm(books, choices);
   save();
   console.log(`${Object.keys(choices).length} filed. ${status(books).review} still waiting.`);
+} else if (cmd === "rules") {
+  const sug = suggestRules(books);
+  for (const r of sug) console.log(`${r.rule.padEnd(40)} ${r.count} times, ${Math.round(r.share * 100)}% to ${name(r.account)}`);
+  if (has("--apply") && sug.length) { books = addRules(books, sug.map((r) => r.rule)); save(); console.log(`${sug.length} rule(s) added.`); }
+  else console.log(sug.length ? `${sug.length} suggested. Run again with --apply to add them.` : "No payee has been filed the same way often enough.");
 } else if (cmd === "accept") {
   const before = status(books).review;
   books = acceptSuggestions(books, rest[0] ? +rest[0] : 0.7);

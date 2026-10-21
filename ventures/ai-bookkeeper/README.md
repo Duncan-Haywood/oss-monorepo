@@ -141,6 +141,14 @@ layer's share (an ablation), and any real bank export.
 - CLI: import, a second import of the same file (0 added, 87 already in the
   books), review, accept, report, checks and `export qbo`.
 
+## Rules from your corrections
+
+`suggestRules(books)` (also `ruleSuggestions` from `analyze`, and
+`cli.mjs rules [--apply]`) lists payees you filed at least three times, at least
+90% to one account, that no rule of yours already matches, as ready-made
+`payee => code` lines; `addRules` appends them to the books' rules. Test:
+engine.test.mjs, "offered as rules".
+
 ## Not modelled
 
 Accruals (unpaid invoices and bills), depreciation, inventory, payroll and
@@ -154,8 +162,7 @@ lines.
 - Accruals from an invoice and bill list.
 - Measure the AI layer with a local model on the synthetic year's review
   queue, and run the per-layer ablation.
-- Payee rules suggested from your corrections ("you filed 'ZOOM.US' as Software
-  6 times: make it a rule?").
+
 
 ## Disclaimer
 

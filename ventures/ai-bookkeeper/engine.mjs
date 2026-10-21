@@ -353,6 +353,44 @@ export function reports(books, { from = null, to = null } = {}) {
   return { trialBalance: trialBalance(entries, books.accounts, { to }), profitAndLoss: profitAndLoss(entries, books.accounts, { from, to }), balanceSheet: balanceSheet(entries, books.accounts, { to }) };
 }
 
+// Payees you have filed the same way again and again, offered as rules. A rule
+// is explicit and survives the learned history, and you can edit it. A payee is
+// offered when it was filed at least `minCount` times, at least `minShare` of
+// them to one account, in one direction (money in or out), and no rule you
+// already wrote matches its name.
+// -> [{ key, account, count, share, rule: "key => code" }], most-filed first.
+export function suggestRules(books, { minCount = 3, minShare = 0.9 } = {}) {
+  const { rules } = parseRules(books.rules, books.accounts);
+  const groups = new Map();
+  for (const h of books.history) {
+    if (!h.key) continue;
+    const k = `${h.key}|${h.dir}`;
+    const g = groups.get(k) ?? { key: h.key, counts: new Map(), n: 0 };
+    g.counts.set(h.account, (g.counts.get(h.account) ?? 0) + 1);
+    g.n++;
+    groups.set(k, g);
+  }
+  const out = [];
+  for (const g of groups.values()) {
+    if (g.n < minCount) continue;
+    const [account, count] = [...g.counts].sort((a, b) => b[1] - a[1])[0];
+    if (count / g.n < minShare || rules.some((r) => r.re.test(g.key))) continue;
+    out.push({ key: g.key, account, count: g.n, share: count / g.n, rule: `${g.key} => ${account}` });
+  }
+  // The same payee can come back once per direction; keep the most-filed.
+  const seen = new Set();
+  return out.sort((a, b) => b.count - a.count || a.key.localeCompare(b.key)).filter((r) => (seen.has(r.rule) ? false : seen.add(r.rule)));
+}
+
+// Append suggested rules (the `rule` strings) to the books' rules text.
+export function addRules(booksIn, ruleLines) {
+  const books = clone(booksIn);
+  const have = new Set(String(books.rules ?? "").split(/\r?\n/).map((l) => l.trim()));
+  const add = ruleLines.filter((l) => !have.has(l));
+  if (add.length) books.rules = [String(books.rules ?? "").replace(/\s+$/, ""), ...add].filter(Boolean).join("\n") + "\n";
+  return books;
+}
+
 export function status(books) {
   const c = { new: 0, review: 0, auto: 0, confirmed: 0, split: 0, transfer: 0 };
   for (const t of books.transactions) c[t.status] = (c[t.status] ?? 0) + 1;
@@ -382,6 +420,7 @@ export function analyze(input = {}) {
     problems,
     review: books.transactions.filter((t) => t.status === "review").map((t) => ({ id: t.id, date: t.date, account: map.get(t.account)?.name, desc: t.desc, amount: dollars(t.cents), suggested: t.suggestion?.account ?? null, suggestedName: map.get(t.suggestion?.account)?.name ?? null, confidence: t.suggestion?.confidence ?? 0, reason: t.suggestion?.reason })),
     reports: reports(books, { from: input.from, to: input.to }),
+    ruleSuggestions: suggestRules(books),
     checks: closeChecks(books, opts),
     books,
   };

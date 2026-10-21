@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { newBooks, importStatement, confirm, parseSplit, acceptSuggestions, journal, reports, closeChecks, exportJournal, exportLines, status, analyze } from "./engine.mjs";
+import { newBooks, importStatement, confirm, parseSplit, suggestRules, addRules, acceptSuggestions, journal, reports, closeChecks, exportJournal, exportLines, status, analyze } from "./engine.mjs";
 import { parseCents, parseDate, readStatement, checkRunningBalance } from "./bank.mjs";
 import { validateEntry, DEFAULT_ACCOUNTS, parseAccounts } from "./ledger.mjs";
 import { payeeKey, suggest, parseRules } from "./categorize.mjs";
@@ -218,4 +218,21 @@ test("the loan check and the QuickBooks export see every leg of a split", () => 
   assert.ok(closeChecks(b).some((c) => c.check === "liability" && c.ids.includes(b.transactions[1].id)));
   const qbo = exportJournal(b, "qbo").trim().split("\n").slice(1);
   assert.equal(qbo.length, 3);
+});
+
+test("payees filed the same way repeatedly are offered as rules, once, and not when a rule exists", () => {
+  const rows = ["Date,Description,Amount"];
+  for (let i = 1; i <= 4; i++) rows.push(`2026-03-0${i},ZOOM.US 88${i},-15.99`);
+  rows.push("2026-03-09,OAKLAND DINER 11,-20.00", "2026-03-10,OAKLAND DINER 12,-22.00");
+  let b = importStatement(newBooks(), rows.join("\n") + "\n", "1000").books;
+  const choices = {};
+  for (const t of b.transactions) choices[t.id] = /ZOOM/.test(t.desc) ? "6060" : "6130";
+  b = confirm(b, choices);
+  const s = suggestRules(b);
+  assert.deepEqual(s.map((r) => r.rule), ["zoom => 6060"]);
+  assert.equal(s[0].count, 4);
+  b = addRules(b, s.map((r) => r.rule));
+  assert.match(b.rules, /zoom => 6060/);
+  assert.deepEqual(suggestRules(b), []);
+  assert.equal(addRules(b, ["zoom => 6060"]).rules, b.rules);
 });
