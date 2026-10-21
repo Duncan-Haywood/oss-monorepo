@@ -994,3 +994,16 @@ or `ventures`) until its success rate passes 80% over 20 runs?
   disclosed caveat; the `verdict` fix remains the E55 proposal). ventures 2 and
   review 2 unchanged (overlap / 9 runs). No audit or drift report (reduced pass).
 - Result: (next review)
+
+## E60: review 2026-10-21 (reduced pass, afternoon)
+
+- Change: `CLAUDE.md` ("Hosting") and `portfolio/hosting/README.md` ("What is
+  served now") name `duncan-haywood.github.io/oss-monorepo/`; the old
+  `/monorepo-projects/` path 404s since the repo rename (2 reports today; the
+  full URL sweep is the owner's draft PR #8592, left alone).
+- Metric: friction reports that the Hosting URL is wrong, over the next 40 runs
+  (baseline: 2).
+- Decisions: research candidate 1 kept (retire verdict still fires on the one
+  disclosed caveat; E55). ventures 2 and review 2 unchanged (overlap / 9 runs).
+  `derived/` regenerated. No audit or drift report (reduced pass).
+- Result: (next review)

@@ -124,7 +124,7 @@ is already asked; don't duplicate it.
 ## Hosting
 
 The catalogue is served by GitHub Pages at
-**https://duncan-haywood.github.io/monorepo-projects/**, built and deployed by
+**https://duncan-haywood.github.io/oss-monorepo/**, built and deployed by
 `.github/workflows/portfolio-pages.yml` on every merge that touches a site
 input (and every three hours). Merging is publishing; there is no branch to
 push by hand. The Hetzner/k3s route was retired on 2026-10-01: never connect
