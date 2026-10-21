@@ -103,3 +103,35 @@ test("helpers and csv", () => {
   assert.match(csv, /^asset,kind,/);
   assert.match(csv, /FBAR aggregate/);
 });
+
+test("life insurance with cash value counts for both forms", () => {
+  assert.equal(analyze([acct(60000, 60000, "insurance")]).result.fbar.required, true);
+  assert.equal(analyze([acct(60000, 60000, "insurance")]).result.f8938.required, true);
+  assert.deepEqual(KINDS.insurance, { label: "Life insurance with cash value", fbar: true, f8938: true });
+});
+
+test("onlyByAnyTime is false when the year-end test already decides it, and when nothing is required", () => {
+  const yearEnd = analyze([acct(80000, 60000)]).result.f8938;
+  assert.equal(yearEnd.required, true);
+  assert.equal(yearEnd.onlyByAnyTime, false);
+  const none = analyze([acct(1000)]).result.f8938;
+  assert.equal(none.required, false);
+  assert.equal(none.onlyByAnyTime, false);
+});
+
+test("the example assets keep their documented figures", () => {
+  assert.deepEqual(EXAMPLE_ASSETS[0], { name: "UK current account", kind: "bank", maxLocal: 6200, endLocal: 4100, rate: 1.27 });
+});
+
+test("csv rows carry two-decimal dollar figures", () => {
+  const rows = toCsv(analyze([{ name: "a", kind: "bank", maxLocal: 100.5, endLocal: 50, rate: 1.1 }])).split("\n");
+  assert.equal(rows[1], "a,bank,110.55,55.00,yes,yes");
+});
+
+test("csv: a name cannot start a spreadsheet formula or break the row", () => {
+  const csv = toCsv(analyze([{ name: '=HYPERLINK("http://x")\n+evil', kind: "bank", maxLocal: 1, endLocal: 1, rate: 1 }]));
+  const rows = csv.trimEnd().split("\n");
+  assert.equal(rows.length, 4); // header, one asset, two totals
+  assert.ok(!/^[=+\-@]/.test(rows[1]));
+  assert.ok(!rows[1].includes('"'));
+});

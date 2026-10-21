@@ -92,10 +92,13 @@ export function analyze(rawAssets, rawOpts) {
   };
 }
 
+// A name is free text: flatten line breaks, drop quotes and commas, and defuse a leading formula character.
+const csvText = (v) => String(v || "").replace(/[\r\n]+/g, " ").replace(/[",]/g, " ").replace(/^([=+\-@\t])/, "'$1");
+
 export function toCsv(a) {
   const r = a.result;
   const rows = [["asset", "kind", "highest_usd", "year_end_usd", "counts_for_fbar", "counts_for_8938"],
-    ...r.assets.map((x) => [String(x.name || "").replace(/,/g, " "), x.kind, x.maxUsd.toFixed(2), x.endUsd.toFixed(2), KINDS[x.kind].fbar ? "yes" : "no", KINDS[x.kind].f8938 ? "yes" : "no"]),
+    ...r.assets.map((x) => [csvText(x.name), x.kind, x.maxUsd.toFixed(2), x.endUsd.toFixed(2), KINDS[x.kind].fbar ? "yes" : "no", KINDS[x.kind].f8938 ? "yes" : "no"]),
     ["FBAR aggregate", "", r.fbar.total.toFixed(2), "", r.fbar.required ? "FILE" : "not required", ""],
     ["Form 8938 year-end total", "", "", r.f8938.endTotal.toFixed(2), "", r.f8938.required ? "FILE" : "not required"]];
   return rows.map((x) => x.join(",")).join("\n") + "\n";
