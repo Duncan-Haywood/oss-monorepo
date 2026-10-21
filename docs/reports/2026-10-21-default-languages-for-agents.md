@@ -88,8 +88,9 @@ in `docs/reports/assets/ai-default-languages/`. Outputs: `results.txt`,
 1. **The repository's language and written rules come first.** Read the
    nearest guide (here: `PRODUCT_PLAYBOOK.md` for `ventures/`, any language
    that fits, plain `.mjs` with `// @ts-check` as the easy path; `research/CLAUDE.md` for `research/`, Python and
-   its shared helpers). Do not introduce a new language into an area that
-   has one without a measured reason.
+   its shared helpers). These are defaults, not mandates (owner,
+   2026-10-21: language choice is the builder's judgment); leave them when
+   another language makes the work clearly better, and say why.
 2. **No rule and no existing code: the default is fine** for scripts, data
    work and algorithms (Python), table queries (SQL), file chores (shell)
    and anything opened in a browser (one HTML file).
