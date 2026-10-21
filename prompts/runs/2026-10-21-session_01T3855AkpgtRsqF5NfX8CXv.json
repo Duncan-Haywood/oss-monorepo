@@ -32,10 +32,7 @@
   "doc_friction": [],
   "deviations": [],
   "writeups": [
-    {
-      "file": "ventures/changepoint-detector/README.md",
-      "note": "extended Verification with a Speed section"
-    }
+    "ventures/changepoint-detector/README.md"
   ],
   "goal": null,
   "notes": "Flagship 1 slice: NB cost with a season via per-class prefix sums. engine/cli/page tests 73/73 locally; venture-preflight not run (engine-only change). No separate post written; README extended.",
