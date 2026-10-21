@@ -467,7 +467,8 @@ async function htmlPagesUnder(dir) {
 test('the sponsor ask is optional and does not gate anything', async () => {
   const hub = await read('index.html');
   assert.match(hub, /github\.com\/sponsors\//);
-  assert.match(hub, /entirely optional/i);
+  assert.match(hub, /buymeacoffee\.com\//);
+  assert.match(hub, /is optional and changes nothing/i);
   // `\bsubscribe\b` rather than a bare `subscribe`: the guard is about a
   // paywall *call to action* ("Subscribe", "subscribe now", "subscribe to
   // unlock"), and every one of those forms still matches. What no longer
@@ -2487,7 +2488,11 @@ test('the chrome counts locally, honours opt-out, and asks for nothing off-origi
   assert.ok(!/fetch\(|XMLHttpRequest|navigator\.sendBeacon/.test(chrome), 'nothing is transmitted');
 
   const offOrigin = [...chrome.matchAll(/(?:src|href)="(https?:\/\/[^"]+)"/g)].map((m) => m[1]);
-  assert.deepEqual(offOrigin, ['https://github.com/sponsors/Duncan-Haywood'], 'only the sponsor link leaves');
+  assert.deepEqual(
+    offOrigin,
+    ['https://github.com/sponsors/Duncan-Haywood', 'https://buymeacoffee.com/duncanhaywood'],
+    'only the two support links leave',
+  );
   // Nor does the shared file: an off-origin request from a script every page
   // loads would be the whole privacy claim undone in one line.
   assert.deepEqual([...script.matchAll(/https?:\/\/[^'"\s]+/g)].map((m) => m[0]), []);
@@ -2624,7 +2629,9 @@ test('a page carries no inline chrome script or stylesheet, only links to the sh
 
 test('the sponsor line on a tool page is optional and gates nothing', async () => {
   const page = await read('etsy-profit-calculator', 'index.html');
-  assert.match(page, /Sponsoring on GitHub<\/a>\s*\n?\s*is optional and changes nothing/);
+  const chrome = page.slice(page.indexOf('<aside class="pf-chrome pf-chrome-foot"'));
+  assert.ok(chrome.includes(markSponsorLinks(sponsorsNote())), 'the shared support line, verbatim (both links counted)');
+  assert.match(sponsorsNote(), /sponsor on GitHub<\/a> or <a href="https:\/\/buymeacoffee\.com\//);
 });
 
 test('the hub itself is not wrapped in its own navigation', async () => {
