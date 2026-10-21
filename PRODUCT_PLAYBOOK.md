@@ -50,10 +50,10 @@ MCP server, desktop and mobile packages in `platform/distribution/`). An
 earlier static-first ordering, read as a recipe, produced 121 near-identical
 `<trade>-bid-calculator` ventures
 ([`docs/reports/2026-10-16-calculator-glut.md`](docs/reports/2026-10-16-calculator-glut.md)). Before adding
-a product in an existing template family, extend or consolidate the family. A calculator
-needs an engine a chatbot can't reproduce in one reply and a maths graduate
-can't follow at a glance (owner, 2026-10-20; `prompts/goals.md`, "Depth over
-calculators").
+a product in an existing template family, don't. Build no new calculators, and
+give existing ones fixes only (owner, 2026-10-21; `prompts/goals.md`, "Depth
+over calculators"). A browser tool's engine should be one a chatbot can't
+reproduce in one reply and a maths graduate can't follow at a glance.
 
 1. **Browser app.** Computation client-side, state in `localStorage` or a
    file the user downloads. GitHub Pages hosts it at no cost to us.
@@ -212,7 +212,7 @@ easily as a person. So voice, chat and agent use are primary interfaces, not
 add-ons (`prompts/goals.md`, "Direction: voice, chat and agents"). For a
 browser tool on the Pages site most of this comes free from the site
 assistant (`platform/pages/assistant.mjs`): the header's Ask link, a
-"Speak or type" button on every calculator, voice-only mode, and WebMCP
+"Speak or type" button on every tool page, voice-only mode, and WebMCP
 tools for agents. A product's part is:
 
 - **Keep the form readable by machines.** Every control has a real

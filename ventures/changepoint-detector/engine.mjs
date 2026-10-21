@@ -227,7 +227,7 @@ export function poissonTrend(x, { base = null, penalty = 'bic', minSegment = 2, 
   const n = x.length;
   const nb = nbSize > 0 && Number.isFinite(nbSize);
   // nb: PELT and the cost that ranks knots use the negative-binomial likelihood (size nbSize); the growth steps stay Poisson score steps (a quasi-likelihood)
-  const peltFit = (e) => pelt(x, nb ? { model: 'negbin', penalty, minSegment, size: nbSize, exposure: e } : { model: 'poisson', penalty, minSegment, exposure: e });
+  const peltFit = (e, poisson = false) => pelt(x, nb && !poisson ? { model: 'negbin', penalty, minSegment, size: nbSize, exposure: e } : { model: 'poisson', penalty, minSegment, exposure: e });
   const u = Array.from({ length: n }, (_, t) => (t - (n - 1) / 2) / Math.max(1, n - 1));
   const b = (t) => (base ? base[t] : 1);
   const y = x.map((v, t) => Math.log((v + 0.5) / b(t)));
@@ -239,12 +239,12 @@ export function poissonTrend(x, { base = null, penalty = 'bic', minSegment = 2, 
   const g0 = clamp(slopes.length ? median(slopes) : 0);
   const expo = (phi, g) => Array.from({ length: n }, (_, t) => b(t) * Math.exp(g.reduce((a, gj, j) => a + gj * phi[j][t], 0)));
   // Alternate PELT under the current exposures with a Newton step on all growth terms (phi: one basis row each).
-  const fit = (phi, gStart) => {
+  const fit = (phi, gStart, poisson = false) => {
     let g = gStart.slice(), done = 0;
     const m = phi.length;
     for (; done < passes; done++) {
       const e = expo(phi, g);
-      const r = peltFit(e);
+      const r = peltFit(e, poisson);
       const bounds = [0, ...r.changepoints, n];
       // Profile score and curvature: sum x phi_j - sum_seg A mean_w(phi_j); sum_seg A cov_w(phi_i, phi_j), w = e.
       const score = new Array(m).fill(0);
@@ -272,8 +272,8 @@ export function poissonTrend(x, { base = null, penalty = 'bic', minSegment = 2, 
     }
     // PELT's cost leaves out sum x log(exposure), which is constant for a fixed exposure but not across fits; add it back.
     // (the negative-binomial cost keeps it, since the mean enters through lam e[t])
-    const lin = nb ? 0 : x.reduce((a, v, t) => a + v * g.reduce((c, gj, j) => c + gj * phi[j][t], 0), 0);
-    return { g, phi, cost: peltFit(expo(phi, g)).cost - 2 * lin, passes: done };
+    const lin = nb && !poisson ? 0 : x.reduce((a, v, t) => a + v * g.reduce((c, gj, j) => c + gj * phi[j][t], 0), 0);
+    return { g, phi, cost: peltFit(expo(phi, g), poisson).cost - 2 * lin, passes: done };
   };
   const plain = fit([u], [g0]);
   const out = (f, extra = {}) => ({ g: f.g[0], exposure: expo(f.phi, f.g), passes: f.passes, ...extra });
@@ -291,22 +291,37 @@ export function poissonTrend(x, { base = null, penalty = 'bic', minSegment = 2, 
     for (let t = a; t + kk < z; t++) sl.push((y[t + kk] - y[t]) / (u[t + kk] - u[t]));
     return sl.length ? clamp(median(sl)) : plain.g[0];
   };
+  const NB_FINALISTS = 8;
   let cur = plain, knotsFound = [];
   while (knotsFound.length < maxBends) {
     let best = null;
-    const tryKnot = (kt) => {
+    // Under the negative binomial a fit costs ~30x a Poisson one, so the grid is ranked with the Poisson cost and only the best
+    // few knots are fitted with the negative binomial (measured in README "Speed": most of the power is kept, not all).
+    const scanned = [];
+    const tryKnot = (kt, poisson = false) => {
       if (knotsFound.some((k) => Math.abs(k - kt) < Math.max(minSegment, 2 * step))) return;
       let f;
       if (!knotsFound.length) {
         const s1 = side(0, kt + 1), s2 = side(kt, n);
-        f = fit([u, hinge(kt)], [s1, s2 - s1]);
-      } else f = fit([...cur.phi, hinge(kt)], [...cur.g, 0]);
+        f = fit([u, hinge(kt)], [s1, s2 - s1], poisson);
+      } else f = fit([...cur.phi, hinge(kt)], [...cur.g, 0], poisson);
       f.knot = kt;
-      if (!best || f.cost < best.cost) best = f;
+      if (poisson) scanned.push(f);
+      else if (!best || f.cost < best.cost) best = f;
     };
-    for (let kt = lo; kt <= hi; kt += step) tryKnot(kt);
-    if (!best) break;
-    for (let kt = Math.max(lo, best.knot - step + 1); kt < Math.min(hi, best.knot + step); kt++) if (kt !== best.knot) tryKnot(kt);
+    const quick = nb && n >= 80;
+    for (let kt = lo; kt <= hi; kt += step) tryKnot(kt, quick);
+    if (quick) {
+      if (!scanned.length) break;
+      const centre = scanned.reduce((a, f) => (f.cost < a.cost ? f : a)).knot;
+      for (let kt = Math.max(lo, centre - step + 1); kt < Math.min(hi, centre + step); kt++) if (kt !== centre) tryKnot(kt, true);
+      scanned.sort((a, b) => a.cost - b.cost);
+      for (const f of scanned.slice(0, NB_FINALISTS)) tryKnot(f.knot);
+      if (!best) break;
+    } else {
+      if (!best) break;
+      for (let kt = Math.max(lo, best.knot - step + 1); kt < Math.min(hi, best.knot + step); kt++) if (kt !== best.knot) tryKnot(kt);
+    }
     if (!(best.cost + 3 * Math.log(n) * scale < cur.cost)) break;
     knotsFound = [...knotsFound, best.knot];
     cur = best;
@@ -855,11 +870,15 @@ export function makeCost(x, model = 'mean', sigma = robustSd(x), rho = 0, exposu
         EP[i + 1] = EP[i] + exposure[i];
       }
       const logSize = Math.log(size);
+      // PELT asks for (s, t) with t rising for each start s, and the rate barely moves when one point is added, so the
+      // last fitted rate for a start is kept and polished by one Newton step instead of two from the Poisson estimate.
+      const lamAt = new Float64Array(n + 1);
       return (s, t) => {
         const a = S1[t] - S1[s], E = EP[t] - EP[s];
         if (!(E > 0)) return 0;
-        let lam = a / E;
-        for (let k = 0; k < 2 && lam > 0; k++) {
+        const warm = lamAt[s] > 0 && t - s > 3;
+        let lam = warm ? lamAt[s] : a / E;
+        for (let k = warm ? 1 : 0; k < 2 && lam > 0; k++) {
           let g = a / lam, h = -a / (lam * lam);
           for (let i = s; i < t; i++) {
             const e = exposure[i], inv = 1 / (lam * e + size), q = W[i] * e * inv;
@@ -869,6 +888,7 @@ export function makeCost(x, model = 'mean', sigma = robustSd(x), rho = 0, exposu
           if (!(h < 0) || !(next > 0)) break;
           lam = next;
         }
+        if (lam > 0) lamAt[s] = lam;
         let acc = 0;
         for (let i = s; i < t; i++) acc += W[i] * Math.log(lam * exposure[i] + size);
         const ll = (a > 0 ? a * Math.log(lam) : 0) + (LX[t] - LX[s]) - acc + (t - s) * size * logSize;

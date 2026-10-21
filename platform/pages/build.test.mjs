@@ -40,6 +40,7 @@ import {
   relatedTools,
   upToRoot,
   renderHub,
+  flagshipSlugs,
   pageUrlPath,
   renderFavicon,
   renderFaviconSvg,
@@ -466,7 +467,8 @@ async function htmlPagesUnder(dir) {
 test('the sponsor ask is optional and does not gate anything', async () => {
   const hub = await read('index.html');
   assert.match(hub, /github\.com\/sponsors\//);
-  assert.match(hub, /entirely optional/i);
+  assert.match(hub, /buymeacoffee\.com\//);
+  assert.match(hub, /is optional and changes nothing/i);
   // `\bsubscribe\b` rather than a bare `subscribe`: the guard is about a
   // paywall *call to action* ("Subscribe", "subscribe now", "subscribe to
   // unlock"), and every one of those forms still matches. What no longer
@@ -2486,7 +2488,11 @@ test('the chrome counts locally, honours opt-out, and asks for nothing off-origi
   assert.ok(!/fetch\(|XMLHttpRequest|navigator\.sendBeacon/.test(chrome), 'nothing is transmitted');
 
   const offOrigin = [...chrome.matchAll(/(?:src|href)="(https?:\/\/[^"]+)"/g)].map((m) => m[1]);
-  assert.deepEqual(offOrigin, ['https://github.com/sponsors/Duncan-Haywood'], 'only the sponsor link leaves');
+  assert.deepEqual(
+    offOrigin,
+    ['https://github.com/sponsors/Duncan-Haywood', 'https://buymeacoffee.com/duncanhaywood'],
+    'only the two support links leave',
+  );
   // Nor does the shared file: an off-origin request from a script every page
   // loads would be the whole privacy claim undone in one line.
   assert.deepEqual([...script.matchAll(/https?:\/\/[^'"\s]+/g)].map((m) => m[0]), []);
@@ -2623,7 +2629,9 @@ test('a page carries no inline chrome script or stylesheet, only links to the sh
 
 test('the sponsor line on a tool page is optional and gates nothing', async () => {
   const page = await read('etsy-profit-calculator', 'index.html');
-  assert.match(page, /Sponsoring on GitHub<\/a>\s*\n?\s*is optional and changes nothing/);
+  const chrome = page.slice(page.indexOf('<aside class="pf-chrome pf-chrome-foot"'));
+  assert.ok(chrome.includes(markSponsorLinks(sponsorsNote())), 'the shared support line, verbatim (both links counted)');
+  assert.match(sponsorsNote(), /sponsor on GitHub<\/a> or <a href="https:\/\/buymeacoffee\.com\//);
 });
 
 test('the hub itself is not wrapped in its own navigation', async () => {
@@ -5681,4 +5689,21 @@ test('clampMetaDescription cuts at a word with an ellipsis when no sentence fits
   const out = clampMetaDescription(`<meta name="description" content="${long}">`);
   const got = out.match(/content="([^"]*)"/)[1];
   assert.ok(got.length <= 320 && got.endsWith('word\u2026'));
+});
+
+// Ranking by page count alone put a day-count adder with ten explainer pages
+// at the front of the featured row (2026-10-21). Flagships lead it now.
+test('the featured row leads with the flagships, then fills by page count', () => {
+  const surfaces = [
+    { slug: 'state-residency-day-counter', title: 'State residency day counter', description: 'Days.', kind: 'browser', pageCount: 11 },
+    { slug: 'changepoint-detector', title: 'Changepoint detector', description: 'PELT.', kind: 'browser', pageCount: 2 },
+    { slug: 'einvoice-preflight', title: 'E-invoice preflight', description: 'EN 16931.', kind: 'browser', pageCount: 19 },
+  ];
+  const featuredRow = (hub) => hub.slice(hub.indexOf('id="featured"')).match(/data-tool="([^"]+)"/g).map((m) => m.slice(11, -1));
+  const hub = renderHub(surfaces, 'https://example.test/', { flagships: ['changepoint-detector', 'einvoice-preflight', 'not-a-surface'] });
+  const row = featuredRow(hub);
+  assert.deepEqual(row.slice(0, 2), ['changepoint-detector', 'einvoice-preflight']);
+  assert.equal(new Set(row).size, row.length, 'no tool twice');
+  assert.ok(row.includes('state-residency-day-counter'), 'room left is filled by page count');
+  assert.ok(flagshipSlugs().includes('changepoint-detector'), 'the real file parses');
 });

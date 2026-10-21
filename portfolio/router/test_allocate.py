@@ -15,8 +15,7 @@ from allocate import (
     count_ledger_entries,
     count_portfolio_mentions,
     decisions_by_merit,
-    diversify,
-    family_of,
+    is_calculator,
     load_flagships,
     load_merit_scores,
     load_ventures,
@@ -598,53 +597,29 @@ class DecisionsByMeritTests(unittest.TestCase):
 
 
 
-class FamilyTests(unittest.TestCase):
-    """One product cloned per niche must not fill the queue (2026-10-16 report)."""
+class CalculatorTests(unittest.TestCase):
+    """Calculators are maintain-only (owner, 2026-10-21)."""
 
-    def test_family_key(self):
-        self.assertEqual(family_of("carpet-install-bid-calculator"), "bid-calculator")
-        self.assertEqual(family_of("etsy-fee-calculator"), "fee-calculator")
-        # A shared bare suffix is not a family: these are different products.
-        self.assertEqual(family_of("where-to-sell-calculator"), "where-to-sell-calculator")
-        self.assertEqual(family_of("waitlist-keeper"), "waitlist-keeper")
+    def test_calculator_key(self):
+        self.assertTrue(is_calculator("carpet-install-bid-calculator"))
+        self.assertTrue(is_calculator("ltl-freight-class-estimator"))
+        self.assertFalse(is_calculator("changepoint-detector"))
+        self.assertFalse(is_calculator("calculator-hub-check"))
 
-    def test_a_large_family_keeps_only_three_places_ahead_of_others(self):
+    def test_calculators_sink_below_other_dispatchable_work(self):
+        calc = make("etsy-fee-calculator", merit=9.0)
+        calc.hypotheses = [{"claim": "c", "status": "untested"}]
+        other = make("tiny-csv-check", merit=1.0)
+        self.assertEqual([v.name for v in rank([calc, other])], ["tiny-csv-check", "etsy-fee-calculator"])
+
+    def test_calculator_task_is_maintenance_and_no_consolidation(self):
         clones = [make(f"t{i}-bid-calculator", merit=7.0) for i in range(6)]
-        others = [make(f"other-{i}", merit=5.0) for i in range(2)]
-        names = [v.name for v in rank(clones + others)]
-        self.assertEqual(names[:3], ["t0-bid-calculator", "t1-bid-calculator", "t2-bid-calculator"])
-        self.assertEqual(names[3:5], ["other-0", "other-1"])
-        self.assertEqual(len(names), 8)
-
-    def test_small_families_are_untouched(self):
-        few = [make(f"t{i}-bid-calculator", merit=7.0) for i in range(4)]
-        other = make("other", merit=5.0)
-        self.assertEqual([v.name for v in rank(few + [other])][-1], "other")
-
-    def test_diversify_never_crosses_a_tier(self):
-        clones = [make(f"t{i}-bid-calculator") for i in range(6)]
-        late = make("late")
-        out = diversify(clones + [late], tier=lambda v: v.name == "late")
-        self.assertEqual(out[-1].name, "late")
-
-    def test_top_family_member_gets_the_consolidation_task(self):
-        clones = [make(f"t{i}-bid-calculator", merit=7.0 - i / 10) for i in range(5)]
         queue = work_queue(clones)
-        self.assertTrue(queue[0]["task"].startswith("Consolidate"))
-        self.assertIn("5 '*-bid-calculator'", queue[0]["task"])
-        self.assertFalse(any(r["task"].startswith("Consolidate") for r in queue[1:]))
+        self.assertTrue(all(r["task"].startswith("Maintain only") for r in queue))
 
-    def test_consolidated_members_neither_claim_nor_count(self):
-        clones = [make(f"t{i}-bid-calculator", merit=7.0 - i / 10) for i in range(7)]
-        clones[0].consolidated_into = "host"
-        clones[1].consolidated_into = "host"
-        queue = work_queue(clones)
-        claimed = [r for r in queue if r["task"].startswith("Consolidate")]
-        self.assertEqual(len(claimed), 1)
-        self.assertNotIn(claimed[0]["venture"], ("t0-bid-calculator", "t1-bid-calculator"))
-        self.assertIn("5 '*-bid-calculator'", claimed[0]["task"])
-        clones[2].consolidated_into = "host"
-        self.assertFalse(any(r["task"].startswith("Consolidate") for r in work_queue(clones)))
+    def test_zero_mrr_review_still_wins_for_a_calculator(self):
+        v = make("x-fee-calculator", stage="revenue", mrr=0)
+        self.assertTrue(next_task(v).startswith("Review"))
 
 
 class RecentCommitsTest(unittest.TestCase):
@@ -698,7 +673,7 @@ class FlagshipTests(unittest.TestCase):
         self.assertEqual(rank([waiting, startable])[0].name, "deep")
         self.assertTrue(next_task(waiting).startswith("Deepen"))
 
-    def test_flagship_task_names_its_milestone_and_skips_consolidation(self):
+    def test_flagship_calculator_still_gets_its_deepen_task(self):
         v = self.flag("roof-bid-calculator", 0, "Ship the solver.")
         task = next_task(v)
         self.assertTrue(task.startswith("Deepen (flagship 1): Ship the solver."), task)
