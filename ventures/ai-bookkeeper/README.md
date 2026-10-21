@@ -547,3 +547,7 @@ MIT licence (`LICENSE`).
 dollar limit) plus any carry-in is deductible up to the year's taxable business
 income before 179; the rest carries forward. Tested in `taxdepr.test.mjs`. Not
 yet in the CLI or page, and the income is supplied, not read from the P&L.
+
+## Invoices to send
+
+`node cli.mjs profile name "Studio Co"` (also `address`, `email`, `taxId`, `payTo`, `terms`) stores your details in the books; `node cli.mjs invoice 7 --out inv-7.html [--as-of DATE]` writes one invoice or credit note as a single self-contained HTML page that prints to PDF. Lines use the document CSV's optional `description` column (else the account name; account 2100 shows as sales tax); it then shows credits applied, payments received, the balance due, a Paid stamp or the days overdue, and "How to pay" only while a balance is open. Everything is HTML-escaped. A bill is refused. Test: `invoice.test.mjs` (hand-written documents only; a page button is not built yet, and the layout was not checked on paper).
