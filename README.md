@@ -71,9 +71,10 @@ stranded branch.
 **Strategy:** [`portfolio/DIRECTION.md`](portfolio/DIRECTION.md) — build
 products people use (free, full-feature, usage-tracked), ship fast, minimize
 variable cost. **Current priority:** deploy what is already on `main` before
-building another product. **Host:** GitHub Pages for static tools; the Hetzner
-boxes for processes were deleted 2026-10-01, so processes need a new host
-decision — [`portfolio/hosting/`](portfolio/hosting/README.md).
+building another product. **Where it goes:** GitHub Pages for web surfaces;
+apps, CLIs, packages and services ship through their own channels, with no
+static-only rule — [`portfolio/hosting/`](portfolio/hosting/README.md),
+[`portfolio/distribution/`](portfolio/distribution/README.md).
 Agent instructions: [`AGENTS.md`](AGENTS.md). How to build one:
 [`PRODUCT_PLAYBOOK.md`](PRODUCT_PLAYBOOK.md). What to count and where it
 lands: [`portfolio/usage/`](portfolio/usage/README.md).
