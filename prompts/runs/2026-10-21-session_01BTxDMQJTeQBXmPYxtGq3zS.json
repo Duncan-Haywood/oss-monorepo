@@ -1,0 +1,58 @@
+{
+  "date": "2026-10-21",
+  "session": "https://claude.ai/code/session_01BTxDMQJTeQBXmPYxtGq3zS",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "lets do a blog and agent doc on ai's favorite default programming and documentation languages when not given instruction from other things. when it willingly chooses other languages and when it can be beneficial to push it to a non default language",
+  "input_sha256": "060a9b3659bda8be8430459ebf03580b303d7b3fde8b339536cc9aa9478a158c",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-21T00:15:16Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Blog post + agent brief: AI default programming/documentation languages, when they switch, when pushing pays off (measured)",
+  "projects": [
+    "docs/posts",
+    "docs/reports"
+  ],
+  "pr": 8964,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First agent arm ran the coding-agent prompt with no tools: models wrote pretend tool calls instead of code. Replaced with a file-tools arm; old replies kept in agent_notools.jsonl.",
+    "pkill -f with a pattern matching my own shell command killed the shell twice; relaunched."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/pages/writing.mjs",
+      "issue": "160-character description limit is only enforced by the test; writing.mjs header example does not mention it."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "User gave a direct task, so no route draw was followed; recorded under explore."
+    },
+    {
+      "file": "prompts/runs",
+      "why": "model field left null and full model version ids stripped from the data rows: the session instructions forbid model identifiers in pushed artifacts. Family aliases (haiku/sonnet/opus) kept because they are the study's subject."
+    }
+  ],
+  "goal": null,
+  "notes": "449 replies (3 Claude aliases x 2 framings x 25 language-free tasks x 3 reps, claude -p in fresh empty dirs). Neutral tasks: Python 117/126 (93%, CI 87-96). Switches: SQL tables 17/18, shell rename 13/18, C/C++ fastest 17/18, Go single binary 15/17, single HTML for browser/phone/game 51/54. Never main: Rust, TypeScript, Swift, Kotlin etc. Docs: Markdown, YAML, OpenAPI, JSON Schema, Mermaid. Bench (37 programs, all correct): wordfreq 136MB Python ~5.3s -> Rust ~1.4s; CSV 0.47s -> 0.05s (0.31s is pandas import); primes default C ~0.24s vs Rust 0.17s. Census: research 91% Python files, products 85% JS by playbook rule, zero Rust/Go. Local checks: check_md_links ok; node --test platform/pages/writing*.test.mjs 13/13; run_workflow_locally --for-changes: portfolio-pages build hit its local 300s budget (not a code failure), left to CI.",
+  "corrections": [],
+  "redteam": null
+}
