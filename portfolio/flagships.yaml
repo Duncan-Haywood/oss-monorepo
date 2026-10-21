@@ -44,7 +44,8 @@ flagships:
       and bill card with the aging table). Part-payments and credit notes (an
       `against` column, applied net) landed 2026-10-21. One payment across several
       documents and a sales tax report (by month: collected, credited, paid over, owed)
-      landed 2026-10-21. After those: refunding or writing off a credit balance.
+      landed 2026-10-21. Refunding a credit note by a bank line and writing off an invoice
+      landed 2026-10-21 (CLI `writeoff`); the page has no write-off button yet.
   # Added 2026-10-21 second, on the owner's direction that day: "I want to make
   # tools that can automate part of the new home construction process in the
   # us. to drop prices and increase efficiency this is a long standing project

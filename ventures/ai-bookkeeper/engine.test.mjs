@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { newBooks, importStatement, confirm, parseSplit, suggestRules, addRules, acceptSuggestions, journal, reports, closeChecks, exportJournal, exportLines, status, analyze } from "./engine.mjs";
+import { writeOff, newBooks, importStatement, confirm, parseSplit, suggestRules, addRules, acceptSuggestions, journal, reports, closeChecks, exportJournal, exportLines, status, analyze } from "./engine.mjs";
 import { parseCents, parseDate, readStatement, checkRunningBalance } from "./bank.mjs";
 import { validateEntry, DEFAULT_ACCOUNTS, parseAccounts } from "./ledger.mjs";
 import { payeeKey, suggest, parseRules } from "./categorize.mjs";
@@ -474,4 +474,40 @@ test("a second credit note against an already-credited invoice applies nothing",
   const books = withDocs(docs, "Date,Description,Amount\n2026-01-01,X,1.00\n");
   assert.equal(books.documents.find((d) => d.id === "CN-C1").applied, 5000);
   assert.equal(books.documents.find((d) => d.id === "CN-C2").applied, undefined);
+});
+
+// Refunding a credit note, and writing off a bad debt.
+const DOCS4 = `type,number,date,due,party,amount,account,against
+invoice,4001,2026-03-01,2026-03-31,Dune Dental,900.00,4000,
+credit note,C9,2026-03-10,,Elm Events,250.00,4000,
+vendor credit,V9,2026-03-12,,Paper Supply Inc,80.00,6100,
+`;
+const refunds = (stmt) => addDocuments(importStatement(newBooks(), stmt, "1000").books, DOCS4).books;
+
+test("a bank line that pays back an unapplied credit note settles it", () => {
+  const b = refunds(`Date,Description,Amount\n2026-03-20,CHECK ELM EVENTS REFUND C9,-250.00\n2026-03-25,PAPER SUPPLY INC REFUND,80.00\n`);
+  assert.equal(b.transactions[0].status, "settled");
+  assert.equal(b.transactions[0].posted, "1100");
+  assert.equal(b.transactions[1].posted, "2050");
+  const a = aging(b, "2026-03-31");
+  assert.equal(a.open.filter((d) => d.credit).length, 0);
+  assert.equal(a.receivable.total, 90000);
+  assert.equal(closeChecks(b).filter((c) => c.check === "control").length, 0);
+});
+
+test("a refund of the wrong amount leaves the credit open", () => {
+  const b = refunds(`Date,Description,Amount\n2026-03-20,CHECK ELM EVENTS REFUND,-200.00\n`);
+  assert.notEqual(b.transactions[0].status, "settled");
+  assert.equal(aging(b, "2026-03-31").open.filter((d) => d.credit).length, 2);
+});
+
+test("writing off an invoice moves its balance to bad debts and out of aging", () => {
+  const b = refunds(`Date,Description,Amount\n2026-03-05,ACH DUNE DENTAL INV 4001 PART,300.00\n`);
+  const { books, cents } = writeOff(b, "4001", { date: "2026-06-30" });
+  assert.equal(cents, 60000);
+  assert.equal(aging(books, "2026-06-30").open.filter((d) => d.id === "INV-4001").length, 0);
+  assert.equal(reports(books).profitAndLoss.totalExpense, 60000 - 8000); // 600.00 bad debt less the 80.00 vendor credit
+  assert.equal(closeChecks(books).filter((c) => c.check === "control").length, 0);
+  assert.throws(() => writeOff(books, "4001"), /nothing owing/);
+  assert.throws(() => writeOff(books, "C9"), /only an invoice/);
 });
