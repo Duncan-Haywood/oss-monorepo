@@ -57,7 +57,7 @@ file the two new problems you hit along the way.
 
 ## Judgment over ritual
 
-- **Measure; do not recall.** Every number names the command or source it
+- **Measure rather than recall.** Every number names the command or source it
   came from. "Never measured" is not zero, and "too few cases to tell" is a
   finding.
 - **Simplify the system.** Deleting a stale rule, merging two overlapping

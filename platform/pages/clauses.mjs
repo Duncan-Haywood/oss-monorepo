@@ -2697,10 +2697,9 @@ export function touchedVentures(base, { repoRoot = REPO_ROOT } = {}) {
   });
   const slugs = new Set();
   for (const line of out.split('\n')) {
-    // `rest` skips files directly under ventures/ (CLAUDE.md, README.md):
-    // they are guides, not ventures, and named as slugs they fail the run.
-    const [top, slug, rest] = line.split('/');
-    if (top === 'ventures' && slug && rest && existsSync(path.join(repoRoot, 'ventures', slug))) slugs.add(slug);
+    // A file directly under ventures/ (its CLAUDE.md) belongs to no venture.
+    const [top, slug, ...rest] = line.split('/');
+    if (top === 'ventures' && slug && rest.length > 0 && existsSync(path.join(repoRoot, 'ventures', slug))) slugs.add(slug);
   }
   return [...slugs].sort();
 }

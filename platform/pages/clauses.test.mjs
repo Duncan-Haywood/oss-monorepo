@@ -310,13 +310,12 @@ test('--changed-since checks only what the change touched', async () => {
 });
 
 test('--changed-since ignores files directly under ventures/', async () => {
-  // ventures/CLAUDE.md is the guide for the folder, not a venture; editing it
-  // used to fail the run with "CLAUDE.md: no such venture".
-  const { root, base } = fixtureRepo({ 'ventures/CLAUDE.md': 'guide\n' });
+  const { root, base } = fixtureRepo({ 'ventures/CLAUDE.md': 'notes\n' });
   try {
     assert.deepEqual(touchedVentures(base, { repoRoot: root }), []);
-    const { code } = await run(['--changed-since', base], { repoRoot: root });
+    const { code, out } = await run(['--changed-since', base], { repoRoot: root });
     assert.equal(code, 0);
+    assert.match(out, /no venture touched/);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }

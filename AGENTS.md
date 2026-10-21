@@ -83,8 +83,8 @@ unmeasured, not unwanted: GitHub Pages self-reports nothing.
 Pages is live, and `.github/workflows/portfolio-pages.yml` redeploys it on
 every merge that touches a site input, so merging is publishing.
 
-Use traditional software patterns. Add AI where it clearly helps; do not
-AI-wrap by default.
+Use traditional software patterns. Add AI where it clearly helps; avoid
+AI-wrapping by default.
 
 ## Ship fast
 
@@ -102,7 +102,7 @@ Judgment first: these are defaults, not a ritual (`CLAUDE.md`, top).
 - **Classify red CI before debugging:** `python3 platform/ci/ci_starvation.py --run <run_id>`
   (`.github/prompts/verify-and-merge.md`, "Reading CI").
 - **Don't re-verify** PRs `python3 portfolio/ledger/verification_status.py`
-  reports unchanged, and never land ledger prose alone
+  reports unchanged, and avoid landing ledger prose alone
   (`python3 portfolio/ledger/check_ledger_only.py`).
 
 Flag the owner only for the owner-only items in `CLAUDE.md` ("Ship without
@@ -153,7 +153,7 @@ and build.
 
 ## Git hygiene
 
-- Never write `fixes #N` / `closes #N` when referring to someone else's PR —
+- Avoid writing `fixes #N` / `closes #N` when referring to someone else's PR —
   GitHub closes the PR unmerged. Say "per #109" or "resolved the conflict on #109".
 - One logical change per commit; push your branch, open its PR, and merge
   it. Work pushed after that PR merges needs a **new** PR.

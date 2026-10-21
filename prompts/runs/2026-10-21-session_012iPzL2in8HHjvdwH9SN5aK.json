@@ -25,7 +25,7 @@
   "merged": null,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": 1,
+  "tests_added": 0,
   "outcome": "success",
   "errors": [],
   "integrity_issues": [],
@@ -42,7 +42,7 @@
   "deviations": [],
   "writeups": [],
   "goal": null,
-  "notes": "Owner asked to drop any static-site-only requirement. No literal rule existed, but the bias lived in PRODUCT_PLAYBOOK \u00a72 (static-first order, service only as last resort), portfolio/hosting/README.md (prefer static; processes need an owner host decision), README.md, portfolio/DIRECTION.md, ventures/CLAUDE.md and CLAUDE.md. Recorded the owner's words in prompts/goals.md under 'Direction: every platform' and made \u00a72 a menu (browser app, CLI/library, user's CI, native/desktop/mobile/extension, service run by users or deployers). Kept the cost/liability line: no per-user bill on owner accounts, no unattended paid automation. Docs-only change. CI: changed-ventures failed with 'CLAUDE.md: no such venture' because touchedVentures() in platform/pages/clauses.mjs read ventures/CLAUDE.md as a slug; fixed (require a path inside the venture dir) with a regression test. node --test platform/pages/clauses.test.mjs: 28 pass; node platform/pages/clauses.mjs --changed-since origin/main: exit 0.",
+  "notes": "Owner asked to drop any static-site-only requirement. No literal rule existed, but the bias lived in PRODUCT_PLAYBOOK \u00a72 (static-first order, service only as last resort), portfolio/hosting/README.md (prefer static; processes need an owner host decision), README.md, portfolio/DIRECTION.md, ventures/CLAUDE.md and CLAUDE.md. Recorded the owner's words in prompts/goals.md under 'Direction: every platform' and made \u00a72 a menu (browser app, CLI/library, user's CI, native/desktop/mobile/extension, service run by users or deployers). Kept the cost/liability line: no per-user bill on owner accounts, no unattended paid automation. Docs-only change. CI: changed-ventures failed with 'CLAUDE.md: no such venture' because touchedVentures() in platform/pages/clauses.mjs read ventures/CLAUDE.md as a slug; fixed (require a path inside the venture dir) with a regression test. node --test platform/pages/clauses.test.mjs: 28 pass; node platform/pages/clauses.mjs --changed-since origin/main: exit 0. main landed an equivalent clauses.mjs fix meanwhile; the merge took main's version. main's DIRECTION.md rewrite said 'GitHub Pages is the only host'; reworded in the merge.",
   "corrections": [],
   "redteam": null
 }
