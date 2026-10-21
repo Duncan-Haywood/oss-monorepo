@@ -179,14 +179,17 @@ export const HOME_MOTION_CSS = `
     .reel { margin: 24px 0 0; }
     .frame { border-radius: 16px; overflow: hidden; border: 1px solid var(--line); background: #0b1020;
              box-shadow: 0 30px 80px -30px rgba(40, 60, 160, .55), 0 0 0 1px rgba(255,255,255,.03);
-             transform: perspective(1600px) rotateX(4deg); transform-origin: 50% 0; transition: transform .6s cubic-bezier(.2,.8,.2,1); }
+             transform: perspective(1600px) rotateX(4deg); transform-origin: 50% 100%; transition: transform .6s cubic-bezier(.2,.8,.2,1); }
+    /* Pivot on the bottom edge: the top leans away and the frame stays inside
+       its own box. Pivoting on the top edge swung the bottom toward the viewer,
+       wider than the column and down over the caption under it. */
     .reel:hover .frame { transform: perspective(1600px) rotateX(0); }
     .frame-bar { display: flex; align-items: center; gap: 7px; padding: 10px 14px; background: #121a2e; color: #b6c2d3; font-size: .78rem; }
     .frame-bar i { width: 11px; height: 11px; border-radius: 50%; background: #ff5f57; }
     .frame-bar i:nth-child(2) { background: #febc2e; } .frame-bar i:nth-child(3) { background: #28c840; }
     .frame-bar span { margin-left: 10px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
     .reel-video { display: block; width: 100%; height: auto; aspect-ratio: 960 / 600; background: #0b1020; }
-    .reel figcaption { margin-top: 10px; font-size: .85rem; color: var(--muted); }
+    .reel figcaption { margin-top: 14px; font-size: .85rem; color: var(--muted); }
     .shots { list-style: none; padding: 4px 2px 18px; margin: 26px 0 0; display: grid; grid-auto-flow: column;
              grid-auto-columns: minmax(280px, 34%); gap: 16px; overflow-x: auto; scroll-snap-type: x mandatory;
              scrollbar-width: thin; }
