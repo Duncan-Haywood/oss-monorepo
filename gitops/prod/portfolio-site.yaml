@@ -231,6 +231,39 @@ data:
         add_header Cache-Control "public, max-age=300, must-revalidate" always;
       }
 
+      # Bank-file fixtures (`ai-bookkeeper/fixtures/checking.ofx`): no entry in nginx's
+      # mime.types; typed as text so a visitor can read the sample.
+      location ~ \.ofx$ {
+        types { }
+        default_type text/plain;
+        add_header X-Content-Type-Options nosniff always;
+        add_header X-Frame-Options DENY always;
+        add_header Referrer-Policy strict-origin-when-cross-origin always;
+        add_header Cache-Control "public, max-age=300, must-revalidate" always;
+      }
+
+      # Bank-file fixtures (`ai-bookkeeper/fixtures/checking.qif`): no entry in nginx's
+      # mime.types; typed as text so a visitor can read the sample.
+      location ~ \.qif$ {
+        types { }
+        default_type text/plain;
+        add_header X-Content-Type-Options nosniff always;
+        add_header X-Frame-Options DENY always;
+        add_header Referrer-Policy strict-origin-when-cross-origin always;
+        add_header Cache-Control "public, max-age=300, must-revalidate" always;
+      }
+
+      # Bank-file fixtures (`ai-bookkeeper/fixtures/checking.mt940`): no entry in nginx's
+      # mime.types; typed as text so a visitor can read the sample.
+      location ~ \.mt940$ {
+        types { }
+        default_type text/plain;
+        add_header X-Content-Type-Options nosniff always;
+        add_header X-Frame-Options DENY always;
+        add_header Referrer-Policy strict-origin-when-cross-origin always;
+        add_header Cache-Control "public, max-age=300, must-revalidate" always;
+      }
+
       # Fourth of the same class: nginx's mime.types has no `py` entry either
       # (verified against 1.27.0). 18 ventures publish a standalone CLI
       # checker (`check.py` and friends, `DOWNLOADABLE_CLI_FILES` in
