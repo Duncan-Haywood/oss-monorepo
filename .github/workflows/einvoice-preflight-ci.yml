@@ -86,7 +86,8 @@ jobs:
           set -eu
           found=0
           for example in examples/*; do
-            case "$example" in *-with-defects.*|*/draft-*) continue;; esac
+            # FatturaPA is not EN 16931: the browser checker reads it (it.mjs), the Python CLI does not.
+            case "$example" in *-with-defects.*|*/draft-*|*/fatturapa-*) continue;; esac
             echo "--- $example"
             python3 -m einvoice_preflight "$example"
             found=$((found + 1))
