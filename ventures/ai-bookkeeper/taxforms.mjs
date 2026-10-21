@@ -116,7 +116,8 @@ export function contractors1099(books, { year, threshold, codes = CONTRACT_CODES
   const byKey = new Map();
   const warnings = [];
   const get = (t) => {
-    const key = payeeKey(t.desc) || t.desc.toLowerCase();
+    const raw = payeeKey(t.desc) || t.desc.toLowerCase();
+    const key = books.vendors?.[raw]?.mergeInto ?? raw;
     if (!byKey.has(key)) byKey.set(key, { key, names: new Map(), cents: 0, count: 0, cardCents: 0 });
     const p = byKey.get(key);
     p.names.set(t.desc, (p.names.get(t.desc) ?? 0) + 1);
@@ -153,7 +154,29 @@ export function markW9(books, payee, on = true) {
   const key = payeeKey(payee) || payee.toLowerCase();
   if (!next.transactions.some((t) => (payeeKey(t.desc) || t.desc.toLowerCase()) === key)) throw new Error(`No bank line matches the payee "${payee}".`);
   next.vendors = next.vendors ?? {};
-  if (on) next.vendors[key] = { ...next.vendors[key], w9: true }; else delete next.vendors[key];
+  if (on) next.vendors[key] = { ...next.vendors[key], w9: true };
+  else if (next.vendors[key]) { delete next.vendors[key].w9; if (!Object.keys(next.vendors[key]).length) delete next.vendors[key]; }
+  return next;
+}
+
+// Count two spellings of one payee as one ("ZELLE ANNA LOPEZ" and "UPWORK PAYMENT
+// ANNA LOPEZ"): the first is summed under the second. Only a pointer is kept.
+// `mergePayees(books, from, into, false)` undoes it.
+export function mergePayees(books, from, into, on = true) {
+  const next = JSON.parse(JSON.stringify(books));
+  const keyOf = (n) => payeeKey(n) || n.toLowerCase();
+  const [a, b] = [keyOf(from), keyOf(into)];
+  const known = (k) => next.transactions.some((t) => keyOf(t.desc) === k);
+  if (!known(a)) throw new Error(`No bank line matches the payee "${from}".`);
+  if (on && !known(b)) throw new Error(`No bank line matches the payee "${into}".`);
+  if (on && a === b) throw new Error("Those are already the same payee.");
+  next.vendors = next.vendors ?? {};
+  if (on) {
+    const root = next.vendors[b]?.mergeInto ?? b;
+    for (const v of Object.values(next.vendors)) if (v.mergeInto === a) v.mergeInto = root; // keep chains flat
+    next.vendors[a] = { ...next.vendors[a], mergeInto: root };
+    if (next.vendors[a].w9) { next.vendors[root] = { ...next.vendors[root], w9: true }; delete next.vendors[a].w9; }
+  } else if (next.vendors[a]) { delete next.vendors[a].mergeInto; if (!Object.keys(next.vendors[a]).length) delete next.vendors[a]; }
   return next;
 }
 
