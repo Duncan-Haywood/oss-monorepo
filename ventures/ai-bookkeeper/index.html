@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>AI Bookkeeper: free double-entry books from your bank CSV, that learn</title>
+  <meta name="description" content="Free AI bookkeeping in your browser. Import bank and card CSVs, get an account suggested for every line with a reason, file the review queue once and it learns your payees. Transfers paired, trial balance, P&amp;L, balance sheet, close checks, QuickBooks and Xero journals. Nothing uploaded.">
+  <meta property="og:title" content="AI Bookkeeper: double-entry books that learn from your corrections">
+  <meta property="og:description" content="Bank and card CSVs in, balanced books out. Learns your payees, pairs transfers, reconciles to the statement, exports QuickBooks Online, Xero and IIF journals. Optional AI on your own key or a local model.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "AI Bookkeeper", "applicationCategory": "FinanceApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Double-entry bookkeeping from bank and card CSV exports. Suggests an account for every line with a confidence and a reason, learns from each line you confirm, pairs transfers between your own accounts, reconciles to the statement's running balance, and produces a trial balance, profit and loss, balance sheet, close checks and journals for QuickBooks Online, Xero and QuickBooks Desktop. Optional AI suggestions on your own API key or a model on your own computer. Runs in the browser.", "featureList": "bank CSV import, transaction categorization, learns payees, review queue, transfer matching, double-entry journal, trial balance, profit and loss, balance sheet, bank reconciliation, close checklist, QuickBooks Online journal import, Xero manual journal, IIF, bring-your-own-key AI, local model (Ollama, LM Studio)"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What does AI Bookkeeper actually do with my bank file?", "acceptedAnswer": {"@type": "Answer", "text": "It reads each line, suggests the account it belongs to with a confidence and the reason, and turns every line you accept into a balanced double-entry journal entry. From those entries it builds a trial balance, a profit and loss by month and a balance sheet. The file is read in your browser and never uploaded."}}, {"@type": "Question", "name": "How does it learn?", "acceptedAnswer": {"@type": "Answer", "text": "Every line you file is remembered by its payee, cleaned of store numbers and reference codes. Next time the same payee posts itself once you have filed it the same way three times, and a small naive Bayes classifier trained on everything you filed suggests accounts for payees it has not seen exactly. On a synthetic year of a small studio's lines, 60% of each month posted by itself from the fourth month on, and 1 of those 1,300 lines went to the wrong account."}}, {"@type": "Question", "name": "Is the AI required, and where does my data go?", "acceptedAnswer": {"@type": "Answer", "text": "No. The rules, memory and classifier run in your browser with no key. If you add your own Anthropic, OpenAI or Gemini key, or point it at a model on your own computer such as Ollama or LM Studio, the dates, descriptions and amounts of the lines still in review, your chart of accounts and up to 40 lines you already filed are sent from your browser straight to that provider, never to us. The model only suggests; nothing is posted until you accept it."}}, {"@type": "Question", "name": "Why doesn't a credit card payment show up as an expense?", "acceptedAnswer": {"@type": "Answer", "text": "Because it is not one. Paying the card from checking moves money between two of your own accounts. When you import both statements, the payment out of checking and the payment received on the card are paired into one transfer entry, so the expense is counted once, when you bought the thing."}}, {"@type": "Question", "name": "Can I take the books to QuickBooks or Xero, or to my accountant?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Export a QuickBooks Online journal entry import, a Xero manual journal CSV, a QuickBooks Desktop IIF file, a plain journal CSV, or a CSV of every line with its account, suggestion and reason. Check the account names match your company file before you import."}}, {"@type": "Question", "name": "Where are my books saved?", "acceptedAnswer": {"@type": "Answer", "text": "In this browser's local storage and in the books file you download. Nothing is kept on a server. Download the books file regularly; clearing site data deletes the copy in the browser."}}, {"@type": "Question", "name": "Is this a replacement for an accountant?", "acceptedAnswer": {"@type": "Answer", "text": "No. It does the sorting and the arithmetic of bookkeeping and tells you what to check. It does not know your tax position, accrual adjustments, depreciation, payroll filings or sales tax rules. Have a qualified accountant review the books before you file anything."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1c2430; background: #f3f5f2; }
+    body { max-width: 1120px; margin: auto; padding: 28px; }
+    a { color: #23613f; }
+    h1 { font-size: clamp(1.8rem, 4.6vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #183d2a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #183d2a; }
+    h3 { font-size: 1rem; margin: 16px 0 6px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4a5560; }
+    .card { background: #fff; border: 1px solid #d5ddd6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #183d2a10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6b7a70; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    textarea { min-height: 90px; font: 13px ui-monospace, monospace; }
+    button { border: 0; border-radius: 8px; padding: 10px 14px; background: #23613f; color: #fff; font-weight: 700; cursor: pointer; margin: 10px 8px 0 0; }
+    button.secondary { background: #e3ece5; color: #183d2a; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 12px 0 0; }
+    .check input { width: auto; }
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin: 8px 0; }
+    .stats div { background: #edf3ee; border-radius: 10px; padding: 10px 12px; }
+    .stats strong { display: block; font-size: 1.4rem; color: #183d2a; }
+    .scroll { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: .92rem; }
+    th, td { text-align: left; padding: 7px 6px; border-bottom: 1px solid #e6ebe7; vertical-align: top; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5560; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    tr.total td, tr.total th { font-weight: 700; border-top: 2px solid #c9d3cb; }
+    td select { min-width: 190px; padding: 5px 6px; font-size: .88rem; }
+    .pill { display: inline-block; font-size: .7rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+    .pill.hi { background: #d8eedd; color: #1d5a2c; }
+    .pill.mid { background: #fbefd2; color: #5c4508; }
+    .pill.lo { background: #f6dad6; color: #7d1f16; }
+    .pill.ai { background: #e2e3fb; color: #2d2f7a; }
+    .finding { border-left: 4px solid #c9d3cb; padding: 4px 10px; margin: 8px 0; }
+    .finding.high { border-color: #b3261e; } .finding.medium { border-color: #b7791f; } .finding.ok { border-color: #2f855a; }
+    .reason { font-size: .8rem; color: #4a5560; }
+    footer { margin-top: 28px; border-top: 1px solid #d5ddd6; padding-top: 16px; }
+    details summary { cursor: pointer; font-weight: 700; color: #183d2a; }
+    @media (max-width: 720px) { body { padding: 16px; } .card { padding: 16px; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">AI BOOKKEEPER · DOUBLE-ENTRY · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Books from your bank file that learn your business.</h1>
+    <p>Import the <strong>CSV from your bank and your card</strong>. Every line gets a <strong>suggested account, a confidence and the reason</strong>. You file the ones it is unsure of, and it <strong>remembers</strong>: next month the payees you have filed post themselves. A card payment from checking is <strong>paired into one transfer</strong>, not counted as an expense. Out come a <strong>trial balance, profit and loss and balance sheet</strong>, the <strong>close checks</strong> a bookkeeper runs, and journals for <strong>QuickBooks Online, Xero</strong> or your accountant.</p>
+    <p class="note">AI is optional: on your own API key or a model running on your own computer, it suggests accounts for the lines still in review, and never posts by itself. Independent of every bank, card issuer and accounting software company. Not accounting or tax advice. New to this? Read <a href="./how-to-do-bookkeeping-from-bank-statements.html">how to do bookkeeping from bank statements</a>, with a worked example of the two mistakes that turn a profit into a loss.</p>
+  </header>
+
+  <main>
+  <section class="card" aria-labelledby="h-import">
+    <h2 id="h-import">1. Import a statement</h2>
+    <div class="grid">
+      <div><label for="bank">Which account is this statement for?</label><select id="bank"></select></div>
+      <div><label for="file">Bank or card CSV file</label><input id="file" type="file" accept=".csv,text/csv,text/plain"></div>
+      <div><label for="auto">Post by itself at confidence</label><input id="auto" type="number" min="0.5" max="1" step="0.01" value="0.85"></div>
+    </div>
+    <label for="paste">Or paste the CSV</label>
+    <textarea id="paste" placeholder="Date,Description,Amount,Balance&#10;2026-01-02,STRIPE TRANSFER,1000.00,6000.00"></textarea>
+    <div class="check"><input id="invert" type="checkbox"><label for="invert">Charges are positive in this file (most card exports)</label></div>
+    <div class="check"><input id="dayfirst" type="checkbox"><label for="dayfirst">Dates are day first (31/01/2026)</label></div>
+    <button type="button" id="import">Import</button>
+    <button type="button" class="secondary" id="example">Load the example (three synthetic months)</button>
+    <p id="import-status" class="note" role="status" aria-live="polite"></p>
+  </section>
+
+  <section class="card" aria-labelledby="h-status">
+    <h2 id="h-status">Where the books stand</h2>
+    <div class="stats" id="summary" aria-live="polite"></div>
+  </section>
+
+  <section class="card" aria-labelledby="h-review">
+    <h2 id="h-review">2. Review queue</h2>
+    <p class="note">Each line shows the suggested account, how sure it is and why. Change any account, tick the lines to file, and file them. Every line you file teaches the memory and the classifier.</p>
+    <div class="grid">
+      <div><label for="accept-min">Accept every suggestion at or above</label><input id="accept-min" type="number" min="0" max="1" step="0.05" value="0.7"></div>
+    </div>
+    <button type="button" id="file-checked">File the ticked lines</button>
+    <button type="button" class="secondary" id="accept-all">Accept suggestions at or above that</button>
+    <div class="scroll"><table><thead><tr><th scope="col"><input type="checkbox" id="tick-all" aria-label="Tick every line"></th><th scope="col">Date</th><th scope="col">From</th><th scope="col">Description</th><th class="n" scope="col">Amount</th><th scope="col">Account</th><th scope="col">Why</th></tr></thead><tbody id="queue"></tbody></table></div>
+    <p id="queue-note" class="note"></p>
+  </section>
+
+  <section class="card" aria-labelledby="h-ai">
+    <h2 id="h-ai">3. Optional: ask an AI about the review queue</h2>
+    <p id="ai-state" class="note">AI suggestions are off. Add your own Anthropic, OpenAI or Gemini key, or point it at a model running on your own computer (Ollama, LM Studio, llama.cpp). Nothing is ever sent to us.</p>
+    <div class="grid">
+      <div><label for="provider">Provider</label><select id="provider"><option value="">Off</option><option value="ollama">Ollama on this computer</option><option value="lmstudio">LM Studio on this computer</option><option value="llamacpp">llama.cpp on this computer</option><option value="anthropic">Anthropic (your key)</option><option value="openai">OpenAI (your key)</option><option value="gemini">Google Gemini (your key)</option><option value="openai-compatible">Other OpenAI-compatible endpoint</option></select></div>
+      <div><label for="model">Model</label><input id="model" placeholder="e.g. llama3.2 or claude-opus-5-5" autocomplete="off"></div>
+      <div><label for="apikey">API key (kept in this browser only)</label><input id="apikey" type="password" autocomplete="off"></div>
+      <div><label for="baseurl">Server address (optional)</label><input id="baseurl" placeholder="http://localhost:11434/v1" autocomplete="off"></div>
+    </div>
+    <div class="check"><input id="remember" type="checkbox"><label for="remember">Remember these settings in this browser</label></div>
+    <button type="button" class="secondary" id="detect">Find a model on this computer</button>
+    <button type="button" id="ask-ai">Suggest accounts for the review queue</button>
+    <p class="note">What is sent, from your browser straight to the provider you chose: the dates, descriptions and amounts of up to 40 lines still in review, your chart of accounts, and up to 40 lines you already filed as examples. A local model keeps it all on your computer. For Ollama on a web page, start it with <code>OLLAMA_ORIGINS=https://duncan-haywood.github.io</code>.</p>
+  </section>
+
+  <section class="card" aria-labelledby="h-reports">
+    <h2 id="h-reports">4. Reports</h2>
+    <div class="grid">
+      <div><label for="from">From</label><input id="from" type="date"></div>
+      <div><label for="to">To</label><input id="to" type="date"></div>
+    </div>
+    <h3>Profit and loss</h3>
+    <div class="scroll" id="pnl"></div>
+    <h3>Balance sheet</h3>
+    <div class="scroll" id="bs"></div>
+    <details><summary>Trial balance</summary><div class="scroll" id="tb"></div></details>
+  </section>
+
+  <section class="card" aria-labelledby="h-checks">
+    <h2 id="h-checks">5. Close checks</h2>
+    <p class="note">Reconciles each account to the statement's own closing balance (when the file has a running balance), and checks for lines left in review, money in the uncategorized account, duplicates, charges far above a payee's usual, and purchases that may be equipment.</p>
+    <div id="checks"></div>
+  </section>
+
+  <section class="card" aria-labelledby="h-export">
+    <h2 id="h-export">6. Export and save</h2>
+    <button type="button" data-export="qbo">QuickBooks Online journal</button>
+    <button type="button" data-export="xero">Xero manual journal</button>
+    <button type="button" data-export="iif">QuickBooks Desktop IIF</button>
+    <button type="button" class="secondary" data-export="csv">Journal CSV</button>
+    <button type="button" class="secondary" data-export="lines">Every line with its account</button>
+    <br>
+    <button type="button" class="secondary" id="save">Download the books file</button>
+    <label for="open">Open a books file</label><input id="open" type="file" accept=".json,application/json">
+    <button type="button" class="secondary" id="clear">Start empty books</button>
+    <p id="save-status" class="note" role="status" aria-live="polite"></p>
+  </section>
+
+  <section class="card" aria-labelledby="h-setup">
+    <h2 id="h-setup">Your rules and chart of accounts</h2>
+    <label for="rules">Your rules, one per line: <code>keyword =&gt; account</code> (code or name; <code>/regex/</code> allowed)</label>
+    <textarea id="rules" placeholder="acme corp => 4000&#10;blue bottle => Meals&#10;/^venmo .*design/ => Contract labor"></textarea>
+    <details><summary>Chart of accounts</summary>
+      <p class="note">One account per line: <code>code,name,type[,bank]</code>, type one of asset, liability, equity, income, expense; <code>bank</code> marks an account you import statements into. Keep 3000 Opening balance equity. Changing the chart does not move lines already filed.</p>
+      <label for="coa">Accounts</label><textarea id="coa" style="min-height:220px"></textarea>
+      <button type="button" class="secondary" id="save-setup">Save rules and chart</button>
+    </details>
+    <p id="setup-status" class="note" role="status" aria-live="polite"></p>
+  </section>
+
+  <section class="card" aria-labelledby="h-how">
+    <h2 id="h-how">How it decides, and what it leaves out</h2>
+    <p><strong>Four layers, then you.</strong> (1) Your rules. (2) Memory: the account you chose before for the same payee, after store numbers, card numbers and reference codes are stripped ("SQ *BLUE BOTTLE 0412 OAKLAND CA" and "POS DEBIT SQ *BLUE BOTTLE 9981" are one payee). Confidence is how many times you chose it over how often you saw the payee; at three unanimous choices it reaches 0.86 and posts by itself. (3) A naive Bayes classifier trained on everything you filed, for payees it has not seen exactly; it only suggests. (4) Conservative built-in keywords for common merchants; they only suggest. A language model, if you turn one on, is a fifth suggester for the review queue.</p>
+    <p><strong>Measured, on synthetic data.</strong> A seeded generator writes a year of lines for a made-up studio (payroll, software, Amazon bought for two different accounts, coffee, one-off local merchants, a card paid from checking). Importing a month at a time and filing each month's queue correctly, from the fourth month on 60% of lines posted by themselves (1,300 of 2,164), 1 of those 1,300 to the wrong account, and 84% of the review suggestions were right (542 of 642; 5 seeds, 2,892 lines; the README has the table and the command). The built-in keywords were written by the same person as the generator, so the first month's accuracy flatters them; the learning numbers are the honest part. Real bank files will be messier.</p>
+    <p><strong>Not modelled:</strong> accruals (invoices and bills not yet paid), depreciation, inventory, payroll and sales tax filings, multiple currencies, splitting one line across accounts, and locking a closed period. It is cash-basis bookkeeping from bank lines. Reconciles to the statement only when the file has a running balance column.</p>
+  </section>
+  <section class="card" aria-labelledby="h-faq">
+    <h2 id="h-faq">Questions</h2>
+    <h3>What does AI Bookkeeper actually do with my bank file?</h3>
+    <p>It reads each line, suggests the account it belongs to with a confidence and the reason, and turns every line you accept into a balanced double-entry journal entry. From those entries it builds a trial balance, a profit and loss by month and a balance sheet. The file is read in your browser and never uploaded.</p>
+    <h3>How does it learn?</h3>
+    <p>Every line you file is remembered by its payee, cleaned of store numbers and reference codes. Next time the same payee posts itself once you have filed it the same way three times, and a small naive Bayes classifier trained on everything you filed suggests accounts for payees it has not seen exactly. On a synthetic year of a small studio's lines, 60% of each month posted by itself from the fourth month on, and 1 of those 1,300 lines went to the wrong account.</p>
+    <h3>Is the AI required, and where does my data go?</h3>
+    <p>No. The rules, memory and classifier run in your browser with no key. If you add your own Anthropic, OpenAI or Gemini key, or point it at a model on your own computer such as Ollama or LM Studio, the dates, descriptions and amounts of the lines still in review, your chart of accounts and up to 40 lines you already filed are sent from your browser straight to that provider, never to us. The model only suggests; nothing is posted until you accept it.</p>
+    <h3>Why doesn't a credit card payment show up as an expense?</h3>
+    <p>Because it is not one. Paying the card from checking moves money between two of your own accounts. When you import both statements, the payment out of checking and the payment received on the card are paired into one transfer entry, so the expense is counted once, when you bought the thing.</p>
+    <h3>Can I take the books to QuickBooks or Xero, or to my accountant?</h3>
+    <p>Yes. Export a QuickBooks Online journal entry import, a Xero manual journal CSV, a QuickBooks Desktop IIF file, a plain journal CSV, or a CSV of every line with its account, suggestion and reason. Check the account names match your company file before you import.</p>
+    <h3>Where are my books saved?</h3>
+    <p>In this browser's local storage and in the books file you download. Nothing is kept on a server. Download the books file regularly; clearing site data deletes the copy in the browser.</p>
+    <h3>Is this a replacement for an accountant?</h3>
+    <p>No. It does the sorting and the arithmetic of bookkeeping and tells you what to check. It does not know your tax position, accrual adjustments, depreciation, payroll filings or sales tax rules. Have a qualified accountant review the books before you file anything.</p>
+  </section>
+  </main>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are estimates that depend entirely on the files you provide and the choices you make. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including before you file a return or import it into your accounting software. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Not affiliated with any bank or software company.</strong> QuickBooks, Xero, Stripe, Gusto, Amazon, Ollama, LM Studio and the other names are trademarks of their owners, named only to describe file formats and payees. This tool is independent and is not sponsored or endorsed by any of them.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental and may be slow, broken, moved or taken offline without notice. Your books are kept only in this browser's storage and in the file you download; download it regularly. Clearing site data deletes the browser copy.</p>
+    <p>Everything runs in your browser. Your files are never uploaded; there are no accounts, cookies or analytics vendors. If you turn on AI, the lines described above go from your browser to the provider you chose. Anonymous feature events (<code>statement_imported</code>, <code>lines_filed</code>, <code>ai_suggested</code>, <code>exported</code>, <code>example_loaded</code>) are counted only in local storage on your device. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related: <a href="../payment-reconciliation-workbench/">payment reconciliation workbench</a>, <a href="../sales-export-to-journal/">sales export to journal</a>, <a href="../freelancer-schedule-c-categorizer/">Schedule C categorizer</a>, <a href="../quickbooks-import-csv-check/">QuickBooks import CSV check</a>.</p>
+    <p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> or <a href="https://buymeacoffee.com/duncanhaywood" rel="noopener">buy me a coffee</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { newBooks, importStatement, categorize, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, exportLines, status, analyze, fmt, DEFAULT_ACCOUNTS } from "./engine.mjs";
+    import { parseAccounts } from "./ledger.mjs";
+    import { aiSuggest } from "./ai.mjs";
+    import { detectLocal, isLocal } from "./byok.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const STORE = "ai-bookkeeper-books", AI_STORE = "ai-bookkeeper-ai";
+    const el = (tag, attrs = {}, ...kids) => { const e = document.createElement(tag); for (const [k, v] of Object.entries(attrs)) { if (k === "class") e.className = v; else if (k === "text") e.textContent = v; else e.setAttribute(k, v); } for (const k of kids) e.append(k); return e; };
+    const load = () => { try { const s = localStorage.getItem(STORE); return s ? JSON.parse(s) : null; } catch { return null; } };
+    let books = load() ?? newBooks();
+    const persist = () => { try { localStorage.setItem(STORE, JSON.stringify(books)); } catch { $("#save-status").textContent = "This browser would not save the books (private window or storage full). Download the books file to keep them."; } };
+    const opts = () => ({ autoPost: Math.min(1, Math.max(0.5, parseFloat($("#auto").value) || 0.85)), invert: $("#invert").checked, dayFirst: $("#dayfirst").checked });
+    const name = (c) => books.accounts.find((a) => a.code === c)?.name ?? c;
+
+    function fillSetup() {
+      const sel = $("#bank"), keep = sel.value;
+      sel.replaceChildren(...books.accounts.filter((a) => a.bank).map((a) => el("option", { value: a.code, text: `${a.code} ${a.name}` })));
+      if (keep) sel.value = keep;
+      $("#rules").value = books.rules ?? "";
+      $("#coa").value = books.accounts.map((a) => [a.code, a.name, a.type, a.bank ? "bank" : ""].filter(Boolean).join(",")).join("\n");
+    }
+
+    function pill(s) {
+      if (!s?.account) return el("span", { class: "pill lo", text: "no idea" });
+      if (s.source === "ai") return el("span", { class: "pill ai", text: `AI ${s.confidence.toFixed(2)}` });
+      return el("span", { class: `pill ${s.confidence >= 0.85 ? "hi" : s.confidence >= 0.6 ? "mid" : "lo"}`, text: `${s.source} ${s.confidence.toFixed(2)}` });
+    }
+
+    // A line that is several things at once (a payout of sales less fees, a loan
+    // payment of principal plus interest): "4000:1000.00, 6010:-30.00".
+    function splitEditor(t) {
+      const input = el("input", { type: "text", placeholder: "4000:1000.00, 6010:-30.00", "aria-label": `Split ${t.desc} into accounts`, size: 26 });
+      const msg = el("span", { class: "reason", role: "status" });
+      const go = el("button", { type: "button", class: "secondary", text: "Split" });
+      go.addEventListener("click", () => {
+        try {
+          const parts = parseSplit(input.value);
+          if (!Array.isArray(parts)) { msg.textContent = "Give two or more accounts: code:amount, code:amount. Amounts are signed like the line; one may be left out."; return; }
+          books = confirm(books, { [t.id]: parts });
+          record("lines_filed");
+          render();
+        } catch (e) { msg.textContent = e.message; }
+      });
+      return el("details", {}, el("summary", { text: "Split" }), input, " ", go, " ", msg);
+    }
+
+    function renderQueue() {
+      const q = books.transactions.filter((t) => t.status === "review").sort((a, b) => a.date.localeCompare(b.date));
+      const shown = q.slice(0, 300);
+      const options = books.accounts.map((a) => [a.code, `${a.code} ${a.name}`]);
+      $("#queue").replaceChildren(...shown.map((t) => {
+        const sel = el("select", { "data-id": t.id, "aria-label": `Account for ${t.desc}` }, el("option", { value: "", text: "Choose an account" }), ...options.map(([v, l]) => el("option", { value: v, text: l })));
+        sel.value = t.suggestion?.account ?? "";
+        const tick = el("input", { type: "checkbox", "data-tick": t.id, "aria-label": `File ${t.desc}` });
+        if (t.suggestion?.account) tick.checked = t.suggestion.confidence >= 0.6;
+        sel.addEventListener("change", () => { tick.checked = !!sel.value; });
+        return el("tr", {}, el("td", {}, tick), el("td", { text: t.date }), el("td", { text: name(t.account) }), el("td", { text: t.desc }), el("td", { class: "n", text: fmt(t.cents) }), el("td", {}, sel), el("td", {}, pill(t.suggestion), " ", el("span", { class: "reason", text: t.suggestion?.reason ?? "" }), splitEditor(t)));
+      }));
+      $("#queue-note").textContent = q.length ? (q.length > shown.length ? `Showing the first ${shown.length} of ${q.length}.` : `${q.length} line${q.length === 1 ? "" : "s"} waiting.`) : "Nothing is waiting. Import another statement.";
+    }
+
+    function table(head, rows, totalRows = []) {
+      return el("table", {}, el("thead", {}, el("tr", {}, ...head.map((h, i) => el("th", { scope: "col", class: i ? "n" : "", text: h })))), el("tbody", {}, ...rows.map((r) => el("tr", {}, ...r.map((c, i) => el(i ? "td" : "th", i ? { class: "n", text: c } : { scope: "row", text: c })))), ...totalRows.map((r) => el("tr", { class: "total" }, ...r.map((c, i) => el(i ? "td" : "th", i ? { class: "n", text: c } : { scope: "row", text: c }))))));
+    }
+
+    function renderReports() {
+      const r = reports(books, { from: $("#from").value || null, to: $("#to").value || null });
+      const p = r.profitAndLoss, m = p.months;
+      const line = (l) => [l.name, ...l.months.map((v) => fmt(v)), fmt(l.total)];
+      $("#pnl").replaceChildren(m.length ? table(["Account", ...m, "Total"], [...p.income.map(line), ["Total income", ...p.incomeByMonth.map((v) => fmt(v)), fmt(p.totalIncome)], ...p.expense.map(line)], [["Total expenses", ...p.expenseByMonth.map((v) => fmt(v)), fmt(p.totalExpense)], ["Net profit", ...p.netByMonth.map((v) => fmt(v)), fmt(p.net)]]) : el("p", { class: "note", text: "Nothing posted yet." }));
+      const b = r.balanceSheet;
+      const sec = (h, list) => [[h, ""], ...list.map((l) => [`   ${l.name}`, fmt(l.amount)])];
+      $("#bs").replaceChildren(table(["", "Amount"], [...sec("Assets", b.assets), ["Total assets", fmt(b.totalAssets)], ...sec("Liabilities", b.liabilities), ...sec("Equity", b.equity), ["   Current earnings (not yet closed)", fmt(b.currentEarnings)]], [["Liabilities + equity", fmt(b.totalLiabilities + b.totalEquity)], [b.balanced ? "Balanced" : "NOT BALANCED", ""]]));
+      const t = r.trialBalance;
+      $("#tb").replaceChildren(table(["Account", "Debit", "Credit"], t.rows.map((x) => [`${x.code} ${x.name}`, x.debit ? fmt(x.debit) : "", x.credit ? fmt(x.credit) : ""]), [["Total", fmt(t.debit), fmt(t.credit)]]));
+      const c = closeChecks(books, opts());
+      $("#checks").replaceChildren(...(c.length ? c.map((x) => el("div", { class: `finding ${x.severity}` }, el("strong", { text: `${x.severity === "ok" ? "OK" : x.severity}: ` }), x.message)) : [el("p", { class: "note", text: "Nothing to check yet." })]));
+    }
+
+    function renderStatus() {
+      const s = status(books);
+      const tile = (v, l) => el("div", {}, el("strong", { text: String(v) }), l);
+      $("#summary").replaceChildren(tile(s.lines, "lines in the books"), tile(s.review, "waiting for you"), tile(s.auto, "posted by memory or rules"), tile(s.confirmed, "filed by you"), tile(s.transfer, "transfer lines paired"), tile(s.learnedFrom, "choices learned from"));
+    }
+
+    function render() { fillSetup(); renderStatus(); renderQueue(); renderReports(); persist(); }
+
+    async function readInput() {
+      const f = $("#file").files[0];
+      return f ? await f.text() : $("#paste").value;
+    }
+
+    $("#import").addEventListener("click", async () => {
+      const text = await readInput();
+      if (!text.trim()) { $("#import-status").textContent = "Choose a CSV file or paste one first."; return; }
+      const r = importStatement(books, text, $("#bank").value, opts());
+      books = r.books;
+      const msg = [`${r.added} line${r.added === 1 ? "" : "s"} added to ${name($("#bank").value)}${r.skipped ? `, ${r.skipped} already in the books` : ""}.`];
+      if (r.balanceCheck?.checked) msg.push(r.balanceCheck.breaks.length ? `The statement's running balance breaks at line ${r.balanceCheck.breaks[0].line}: a row may be missing, doubled or have the wrong sign.` : "Every row agrees with the statement's running balance.");
+      msg.push(...r.problems.slice(0, 3));
+      $("#import-status").textContent = msg.join(" ");
+      $("#file").value = ""; $("#paste").value = "";
+      record("statement_imported");
+      render();
+    });
+
+    $("#example").addEventListener("click", () => {
+      books = analyze({ example: true }).books;
+      $("#import-status").textContent = "Loaded three synthetic months for a made-up studio: a checking statement with a running balance, and a card statement. File the queue, then import nothing more and look at the reports.";
+      record("example_loaded");
+      render();
+    });
+
+    $("#tick-all").addEventListener("change", (e) => { for (const t of document.querySelectorAll("[data-tick]")) t.checked = e.target.checked; });
+
+    $("#file-checked").addEventListener("click", () => {
+      const choices = {};
+      for (const t of document.querySelectorAll("[data-tick]")) {
+        if (!t.checked) continue;
+        const v = document.querySelector(`select[data-id="${CSS.escape(t.dataset.tick)}"]`).value;
+        if (v) choices[t.dataset.tick] = v;
+      }
+      if (!Object.keys(choices).length) { $("#queue-note").textContent = "Tick at least one line that has an account chosen."; return; }
+      books = confirm(books, choices);
+      record("lines_filed");
+      render();
+    });
+
+    $("#accept-all").addEventListener("click", () => {
+      books = acceptSuggestions(books, parseFloat($("#accept-min").value) || 0.7);
+      record("lines_filed");
+      render();
+    });
+
+    const aiConfig = () => ({ provider: $("#provider").value, model: $("#model").value.trim() || undefined, apiKey: $("#apikey").value.trim() || undefined, baseUrl: $("#baseurl").value.trim() || undefined, browser: true });
+    try { const s = JSON.parse(localStorage.getItem(AI_STORE) || "null"); if (s) { for (const k of ["provider", "model", "apikey", "baseurl"]) $(`#${k}`).value = s[k] ?? ""; $("#remember").checked = true; } } catch { /* storage is optional */ }
+    const rememberAi = () => { try { if ($("#remember").checked) localStorage.setItem(AI_STORE, JSON.stringify({ provider: $("#provider").value, model: $("#model").value, apikey: $("#apikey").value, baseurl: $("#baseurl").value })); else localStorage.removeItem(AI_STORE); } catch { /* storage is optional */ } };
+    for (const id of ["provider", "model", "apikey", "baseurl", "remember"]) $(`#${id}`).addEventListener("change", rememberAi);
+
+    $("#detect").addEventListener("click", async () => {
+      $("#ai-state").textContent = "Looking for Ollama, LM Studio and llama.cpp on this computer...";
+      const found = await detectLocal();
+      if (!found.length) { $("#ai-state").textContent = "No local model answered. Start Ollama with OLLAMA_ORIGINS=https://duncan-haywood.github.io (or turn on CORS in LM Studio's server settings), allow this page to reach your computer if the browser asks, and try again."; return; }
+      $("#provider").value = found[0].provider;
+      if (found[0].models[0]) $("#model").value = found[0].models[0];
+      rememberAi();
+      $("#ai-state").textContent = `Found ${found.map((f) => `${f.provider} (${f.models.length} model${f.models.length === 1 ? "" : "s"})`).join(", ")}. Lines stay on your computer.`;
+    });
+
+    $("#ask-ai").addEventListener("click", async () => {
+      const cfg = aiConfig();
+      if (!cfg.provider) { $("#ai-state").textContent = "Choose a provider first. AI is optional: the review queue already has every suggestion the rules, memory and classifier can make."; return; }
+      $("#ai-state").textContent = `Asking ${isLocal(cfg) ? "the model on your computer" : cfg.provider} about up to 40 review lines...`;
+      const r = await aiSuggest(cfg, books);
+      if (r.source !== "model") { $("#ai-state").textContent = `No AI suggestions: ${r.error ?? "AI is off"}. The review queue is unchanged.`; return; }
+      books = categorize(r.books, opts());
+      $("#ai-state").textContent = `${r.suggested} line${r.suggested === 1 ? "" : "s"} now have an AI suggestion (purple). Check each before you file it.${r.dropped ? ` ${r.dropped} answer${r.dropped === 1 ? " was" : "s were"} dropped for naming an account not in your chart.` : ""}`;
+      record("ai_suggested");
+      render();
+    });
+
+    $("#from").addEventListener("change", renderReports);
+    $("#to").addEventListener("change", renderReports);
+
+    const download = (text, file, type) => { const a = el("a", { href: URL.createObjectURL(new Blob([text], { type })), download: file }); document.body.append(a); a.click(); a.remove(); };
+    for (const b of document.querySelectorAll("[data-export]")) b.addEventListener("click", () => {
+      const f = b.dataset.export;
+      if (f === "lines") download(exportLines(books), "bookkeeper-lines.csv", "text/csv");
+      else download(exportJournal(books, f), `bookkeeper-journal-${f}.${f === "iif" ? "iif" : "csv"}`, f === "iif" ? "text/plain" : "text/csv");
+      record("exported");
+    });
+    $("#save").addEventListener("click", () => { download(JSON.stringify(books, null, 1), `books-${new Date().toISOString().slice(0, 10)}.json`, "application/json"); $("#save-status").textContent = "Books file downloaded. Open it here on any computer to carry on."; });
+    $("#open").addEventListener("change", async () => {
+      const f = $("#open").files[0];
+      if (!f) return;
+      try { const b = JSON.parse(await f.text()); if (!Array.isArray(b.transactions) || !Array.isArray(b.accounts)) throw new Error("not a books file"); books = b; $("#save-status").textContent = `Opened ${f.name}.`; render(); }
+      catch (e) { $("#save-status").textContent = `Could not open that file: ${e.message}.`; }
+    });
+    $("#clear").addEventListener("click", () => { if (!confirm_("Start empty books? Download the books file first if you want to keep these.")) return; books = newBooks(); render(); });
+    function confirm_(msg) { return typeof window.confirm === "function" ? window.confirm(msg) : true; }
+
+    $("#save-setup").addEventListener("click", () => {
+      const { accounts, problems } = parseAccounts($("#coa").value);
+      if (!accounts.some((a) => a.code === "3000")) problems.push("Keep account 3000 (Opening balance equity).");
+      if (problems.length) { $("#setup-status").textContent = problems.slice(0, 3).join(" "); return; }
+      books.accounts = accounts.map((a) => ({ ...a, ...(DEFAULT_ACCOUNTS.find((d) => d.code === a.code && d.suspense) ? { suspense: true } : {}) }));
+      books.rules = $("#rules").value;
+      books = categorize(books, opts());
+      $("#setup-status").textContent = "Saved. Open lines were re-suggested.";
+      render();
+    });
+    $("#rules").addEventListener("change", () => { books.rules = $("#rules").value; books = categorize(books, opts()); render(); });
+
+    const opt = $("#optout");
+    const syncOpt = () => { opt.textContent = usageOptedOut() ? "Turn usage counting back on" : "Turn usage counting off"; };
+    opt.addEventListener("click", () => { setUsageOptOut(!usageOptedOut()); syncOpt(); });
+    syncOpt();
+    render();
+  </script>
+</body>
+</html>

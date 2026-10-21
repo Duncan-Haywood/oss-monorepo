@@ -1746,6 +1746,8 @@ const CATEGORY_RULES = [
       || slug === 'payoneer-statement-to-journal'
       // `sales-export-to-journal` joined 2026-10-05: the single front door to the eight platform tools above (drop any export, the page detects the platform), filed beside them.
       || slug === 'sales-export-to-journal'
+      // `ai-bookkeeper` joined 2026-10-21: the double-entry ledger these journal tools feed (bank CSVs in, learned categories, transfers paired, P&L and balance sheet out), filed beside the front door.
+      || slug === 'ai-bookkeeper'
       // `airbnb-payout-to-journal` joined 2026-10-05: the Airbnb host end of the same payout-to-journal set, filed beside it.
       || slug === 'airbnb-payout-to-journal'
       // `paypal-activity-to-journal` joined 2026-10-05: the PayPal end of the same payout-to-journal set (Balance-column continuity proof, then a month-split journal), filed beside it.
