@@ -1,0 +1,131 @@
+{
+  "date": "2026-10-21",
+  "session": "https://claude.ai/code/session_01HkZoYJMDom7Msx4CfW6a4D",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-21T08:18:02Z",
+  "ended": "2026-10-21T08:20:23Z",
+  "wall_minutes": 2.56,
+  "tokens_in": 2418070,
+  "tokens_out": 9906,
+  "cost_usd": 0.8638,
+  "tool_calls": 33,
+  "task": "swe-orgs batch 21",
+  "projects": [
+    "swe-orgs"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/9117",
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "Shopify candidate (P60 draft) duplicated P24; dropped before commit",
+    "README case-study count test failed once until the hand-kept counts were bumped"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/swe-orgs/README.md",
+      "issue": "counts are repeated by hand in ~8 places and a test fails until each is bumped; a generated block would save a round trip"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "took the standing swe-orgs milestone (track 10 draw) with a small batch of one source; no new project, since milestones 1-7 exist"
+    }
+  ],
+  "writeups": [
+    "research/swe-orgs/LOG.md entry for batch 21"
+  ],
+  "goal": null,
+  "notes": "Verification of the source was by web search only (host fetch failed); stated in the CSV row and LOG. Checks run locally: swe-orgs pytest 9 pass, _homepage/build.py ok, check_md_links ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "aa842960-43c4-51c7-9335-a48a4a3bddfd",
+    "transcripts": 1,
+    "first": "2026-10-21T08:18:02Z",
+    "last": "2026-10-21T08:20:36Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 28,
+        "input": 56,
+        "output": 9906,
+        "thinking": 1360,
+        "cache_read": 2344071,
+        "cache_write_5m": 0,
+        "cache_write_1h": 73943,
+        "api_equivalent_usd": 0.8638,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 28,
+      "input": 56,
+      "output": 9906,
+      "thinking": 1360,
+      "cache_read": 2344071,
+      "cache_write_5m": 0,
+      "cache_write_1h": 73943,
+      "api_equivalent_usd": 0.8638,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.969,
+    "tool_calls": 33,
+    "tools": {
+      "Bash": 25,
+      "ToolSearch": 2,
+      "WebSearch": 2,
+      "Read": 1,
+      "mcp__github__search_pull_requests": 1,
+      "WebFetch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 2.56,
+      "active_minutes": 2.56,
+      "model_minutes": 1.73,
+      "tool_minutes": 0.83,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
