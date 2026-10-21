@@ -32,3 +32,20 @@ test("clean books give nothing, and refunds are not duplicates of charges", () =
   const r = findAnomalies(books([...base, "2026-06-06,CLOUD HOST,50.00", ...filler]));
   assert.equal(r.filter((x) => x.kind === "duplicate").length, 0);
 });
+
+test("the first two lines of a payee can be a double charge", () => {
+  const r = findAnomalies(books(["2026-03-01,GYM CLUB,-30.00", "2026-03-02,GYM CLUB,-30.00", ...filler]));
+  const d = r.filter((x) => x.kind === "duplicate");
+  assert.equal(d.length, 1);
+  assert.equal(d[0].date, "2026-03-02");
+  assert.match(d[0].reason, /2026-03-01 \(1 days earlier\)/);
+});
+
+test("the new-payee check needs ten outflows exactly, and skips a payee whose first word is shared", () => {
+  const ten = Array.from({ length: 9 }, (_, i) => `2026-02-${10 + i},SHOP ${i},-20.00`);
+  const big = "2026-03-01,UNKNOWN CONSULTING,-4000.00";
+  assert.equal(findAnomalies(books([...ten, big])).filter((x) => x.kind === "new-large").length, 1);
+  assert.equal(findAnomalies(books([...ten.slice(1), big])).filter((x) => x.kind === "new-large").length, 0);
+  const shared = findAnomalies(books([...base, ...filler, "2026-06-20,STAPLES 4411,-4000.00", "2026-06-21,STAPLES 9022,-15.00"]));
+  assert.equal(shared.filter((x) => x.kind === "new-large").length, 0);
+});
