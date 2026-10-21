@@ -36,6 +36,7 @@ Robotics & autonomy (priority):
 ## Output standards
 - Each artifact lives in its own directory with a README covering motivation, which group's work it builds on (with citations), method, how to reproduce, results, limitations, and next steps.
 - Never fabricate results. Report only what the code actually produced. Mark anything preliminary or negative as such.
+- Run the numbers rather than assume them: source every parameter that drives a result (datasheet, paper, dataset or a real run) and cite it; sweep a range where none exists. "Stylised" discloses what cannot be measured, it is not a substitute for looking (`research/CLAUDE.md`).
 - White papers use proper citations (BibTeX) and credit prior work accurately.
 - Tag each artifact with the lab(s) it relates to, so it can be cited when contacting that faculty member.
 - Prefer lightweight, runnable simulators (e.g. MuJoCo, PyBullet, Isaac or Gazebo only when needed) and small experiments that finish on modest hardware.
