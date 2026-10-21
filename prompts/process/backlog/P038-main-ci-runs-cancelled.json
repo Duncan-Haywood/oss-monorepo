@@ -20,7 +20,7 @@
   "opened": "2026-10-20",
   "source": "git-pattern re-measurement, PR #8765 (docs/parallel-agents.md, 'Re-measured 2026-10-20')",
   "pr": 8829,
-  "result": null,
+  "result": "Helped (2026-10-21). mcp actions_list ventures-tests.yml branch=main event=push status=completed, last 100 (2026-10-20T12:02Z..2026-10-21T03:00Z): 91 success / 9 cancelled, against 44 of 100 cancelled at baseline. The 9 left are likely runs from before the change merged or manual cancels; other workflows still cancel per ref and were not re-measured.",
   "history": [
     "2026-10-20: ventures-tests.yml only: main runs no longer cancel in-flight runs. Other workflows left (runner starvation risk across 500+ workflows); verify metric after a day."
   ]

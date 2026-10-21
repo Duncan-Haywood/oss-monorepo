@@ -352,7 +352,14 @@ series, 40 each, in `engine.test.mjs`):
   exposure falls back to the point loop). Same costs and same changes, tested against the point loop
   (`negative-binomial cost with a season matches...`). Weekly clumpy counts with one step, size 3, one seeded
   series on this container: 600 points 109 -> 47 ms, 3000 points 2623 -> 172 ms (identical changes and cost).
-  Exposures from `--trend` are continuous, so they are not sped up; that is the open part.
+  Exposures from `--trend` are continuous, so they still loop over the segment, but the loop is leaner
+  (2026-10-21): reciprocals computed once per point per Newton step, and the final likelihood written as
+  `a log(lam) + sum x log e - sum (x + r) log(lam e + r) + m r log r` with `sum x log e` and the exposure total as
+  prefix sums, so it takes one log per point instead of two. Same changes on three seeded 210-point series
+  (counts rate about 10, clumpy, log growth flat to 105 then rising; `--model poisson --overdispersion nb --trend bend`):
+  3957 -> 2213, 7982 -> 3773 and 2470 -> 1251 ms, about 1.8x. Still seconds, not milliseconds: the bend search runs
+  PELT once per knot, and a cost that is O(segment) is the floor without a closed form; caching lam per knot
+  is the next idea.
 
 ## Limits
 
