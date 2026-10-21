@@ -98,3 +98,8 @@ test("the page shows recurring payments and a cash forecast from the engine", ()
   assert.match(script(), /detectRecurring\(books\)/);
   assert.match(script(), /forecastCash\(books\)/);
 });
+
+test("the page shows a UK VAT return worksheet from the engine", () => {
+  assert.match(page("index.html"), /id="vat"/);
+  assert.match(script(), /vatReturn\(books/);
+});

@@ -315,7 +315,7 @@ lines filed straight to 2100 or 1300 count in boxes 1 and 4; a purchase paid wit
 is in box 4 but not box 7, which it warns about. Invoice basis only (a document counts on
 its own date, not when paid); boxes 2, 8 and 9 (EU) are 0; flat-rate, cash accounting,
 partial exemption and Making Tax Digital submission are not modelled. A worksheet to check
-a return against, not a filing. Test: engine.test.mjs, "VAT return".
+a return against, not a filing. The page has the same worksheet under the invoices card (from and to dates; shown once invoices and bills are loaded; add `1300,VAT recoverable,asset` to the chart first). Tests: engine.test.mjs, "VAT return"; `eval/browser-click.mjs` clicks it through.
 
 ## Recurring payments and a cash forecast
 

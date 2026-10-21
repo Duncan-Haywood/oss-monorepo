@@ -153,6 +153,13 @@
     <p id="docs-status" class="note" role="status" aria-live="polite"></p>
     <div class="scroll" id="aging"></div>
     <div class="scroll" id="salestax"></div>
+    <div id="vat-wrap" hidden>
+      <h3>UK VAT return worksheet</h3>
+      <p class="note">The nine boxes of the UK return from the invoices and bills above, on the invoice basis. Needs the VAT on invoices in account 2100 and on bills in account 1300: add <code>1300,VAT recoverable,asset</code> to the chart above first. A worksheet to check a return against, not a filing.</p>
+      <label for="vat-from">From</label><input id="vat-from" type="date">
+      <label for="vat-to">To</label><input id="vat-to" type="date">
+      <div class="scroll" id="vat"></div>
+    </div>
   </section>
 
   <section class="card" aria-labelledby="h-reports">
@@ -259,7 +266,7 @@
   <script type="module">
     import { sniffFormat, splitOfx } from "./bank.mjs";
     import { scheduleC, scheduleCCsv, contractors1099, contractors1099Csv, nec1099FilingCsv, markW9, mergePayees } from "./taxforms.mjs";
-    import { newBooks, importStatement, importOfxAccounts, categorize, suggestRules, addRules, addDocuments, writeOff, aging, addAsset, disposeAsset, register, salesTax, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, exportLines, status, analyze, fmt, DEFAULT_ACCOUNTS, taxableBusinessIncome } from "./engine.mjs";
+    import { newBooks, importStatement, importOfxAccounts, categorize, suggestRules, addRules, addDocuments, writeOff, aging, addAsset, disposeAsset, register, salesTax, vatReturn, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, exportLines, status, analyze, fmt, DEFAULT_ACCOUNTS, taxableBusinessIncome } from "./engine.mjs";
     import { parseCents } from "./bank.mjs";
     import { setTaxTreatment, taxDepreciation, taxDepreciationCsv } from "./taxdepr.mjs";
     import { parseAccounts } from "./ledger.mjs";
@@ -449,6 +456,17 @@
       $("#salestax").replaceChildren(el("p", { class: "note", text: `Sales tax (account ${t.account}): collected on invoices, taken off by credit notes, paid over by bank lines. ${fmt(t.owed)} is still owed to the tax authority.` }), table(["Month", "Sales", "Collected", "Credited", "Paid over", "Owed"], [...t.months.map((m) => r(m.month, m)), r("Total", t.totals)]));
     }
 
+    function renderVat() {
+      const has = (books.documents ?? []).length > 0;
+      $("#vat-wrap").hidden = !has;
+      if (!has) return;
+      const v = vatReturn(books, { from: $("#vat-from").value || null, to: $("#vat-to").value || null });
+      const names = ["VAT due on sales", "VAT due on EU acquisitions", "Total VAT due (1 + 2)", "VAT reclaimed on purchases", "Net VAT to pay (negative: reclaim)", "Total sales excluding VAT (whole pounds)", "Total purchases excluding VAT (whole pounds)", "EU supplies of goods", "EU acquisitions of goods"];
+      const rows = names.map((n, i) => [`Box ${i + 1}`, n, i >= 5 ? String(v.boxes[i + 1]) : fmt(v.boxes[i + 1])]);
+      $("#vat").replaceChildren(table(["Box", "Meaning", "Amount"], rows), ...v.warnings.map((w) => el("p", { class: "note", text: w })));
+    }
+    for (const id of ["#vat-from", "#vat-to"]) $(id).addEventListener("change", renderVat);
+
     function renderScheduleC() {
       const dates = { from: $("#from").value || null, to: $("#to").value || null };
       const sc = scheduleC(books, dates);
@@ -482,7 +500,7 @@
 
     $("#nec-filing-csv").addEventListener("click", () => { record("contractors_filing_downloaded"); download(nec1099FilingCsv(contractors1099(books, { year: necYear() })), "contractors-1099-nec-filing-prep.csv", "text/csv"); });
 
-    function render() { fillSetup(); renderScheduleC(); renderNec(); renderStatus(); renderQueue(); renderReports(); renderRuleSuggestions(); renderAging(); renderRecurring(); renderAssets(); renderTaxDepr(); renderSalesTax(); persist(); }
+    function render() { fillSetup(); renderScheduleC(); renderNec(); renderStatus(); renderQueue(); renderReports(); renderRuleSuggestions(); renderAging(); renderRecurring(); renderAssets(); renderTaxDepr(); renderSalesTax(); renderVat(); persist(); }
 
     $("#docs-load").addEventListener("click", async () => {
       const f = $("#docs-file").files[0];
