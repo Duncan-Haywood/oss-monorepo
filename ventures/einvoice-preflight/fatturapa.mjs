@@ -284,6 +284,45 @@ function ibanValid(iban) {
   return remainder === 1;
 }
 
+
+// Child order the schema (XSD) requires inside the blocks below. SdI rejects a
+// file whose elements are out of sequence, the commonest "not conforming to the
+// format" cause for hand-built files. Written from memory of the published
+// schema, so only the order of elements present is checked, never presence.
+const SEQUENCES = {
+  FatturaElettronicaHeader: ["DatiTrasmissione", "CedentePrestatore", "RappresentanteFiscale", "CessionarioCommittente", "TerzoIntermediarioOSoggettoEmittente", "SoggettoEmittente"],
+  DatiTrasmissione: ["IdTrasmittente", "ProgressivoInvio", "FormatoTrasmissione", "CodiceDestinatario", "ContattiTrasmittente", "PECDestinatario"],
+  DatiAnagrafici: ["IdFiscaleIVA", "CodiceFiscale", "Anagrafica", "AlboProfessionale", "ProvinciaAlbo", "NumeroIscrizioneAlbo", "DataIscrizioneAlbo", "RegimeFiscale"],
+  Sede: ["Indirizzo", "NumeroCivico", "CAP", "Comune", "Provincia", "Nazione"],
+  FatturaElettronicaBody: ["DatiGenerali", "DatiBeniServizi", "DatiVeicoli", "DatiPagamento", "Allegati"],
+  DatiGenerali: ["DatiGeneraliDocumento", "DatiOrdineAcquisto", "DatiContratto", "DatiConvenzione", "DatiRicezione", "DatiFattureCollegate", "DatiSAL", "DatiDDT", "DatiTrasporto", "FatturaPrincipale"],
+  DatiGeneraliDocumento: ["TipoDocumento", "Divisa", "Data", "Numero", "DatiRitenuta", "DatiBollo", "DatiCassaPrevidenziale", "ScontoMaggiorazione", "ImportoTotaleDocumento", "Arrotondamento", "Causale", "Art73"],
+  DatiBeniServizi: ["DettaglioLinee", "DatiRiepilogo"],
+  DettaglioLinee: ["NumeroLinea", "TipoCessionePrestazione", "CodiceArticolo", "Descrizione", "Quantita", "UnitaMisura", "DataInizioPeriodo", "DataFinePeriodo", "PrezzoUnitario", "ScontoMaggiorazione", "PrezzoTotale", "AliquotaIVA", "Ritenuta", "Natura", "RiferimentoAmministrazione", "AltriDatiGestionali"],
+  DatiRiepilogo: ["AliquotaIVA", "Natura", "SpeseAccessorie", "Arrotondamento", "ImponibileImporto", "Imposta", "EsigibilitaIVA", "RiferimentoNormativo"],
+  DatiPagamento: ["CondizioniPagamento", "DettaglioPagamento"],
+};
+
+function checkOrder(node, path, out) {
+  const seq = SEQUENCES[node.name];
+  if (seq) {
+    let high = -1;
+    let highName = "";
+    for (const c of node.children) {
+      const idx = seq.indexOf(c.name);
+      if (idx < 0) continue;
+      if (idx < high) {
+        out.push(finding("IT-018", `${c.name} comes after ${highName} in ${node.name}, but the schema puts it before.`,
+          `Move ${c.name} ahead of ${highName}; SdI rejects elements out of sequence.`, `${path}/${c.name}`));
+        return;
+      }
+      high = idx;
+      highName = c.name;
+    }
+  }
+  for (const c of node.children) checkOrder(c, `${path}/${c.name}`, out);
+}
+
 /** @returns {{findings: object[], skipped: string[]}} */
 export function checkFatturaPa(source) {
   const text = typeof source === "string" ? source : new TextDecoder().decode(source);
@@ -328,5 +367,6 @@ export function checkFatturaPa(source) {
     out.push(finding("IT-010", "The file has no FatturaElettronicaBody.", "Add the body with DatiGenerali and DatiBeniServizi.", "/FatturaElettronica"));
   }
   bodies.forEach((b, i) => checkBody(b, i, out, skipped));
+  checkOrder(root, "/FatturaElettronica", out);
   return { findings: out, skipped: [...new Set(skipped)] };
 }
