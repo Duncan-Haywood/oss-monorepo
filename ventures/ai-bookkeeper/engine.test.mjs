@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { addAsset, taxableBusinessIncome, writeOff, lockPeriod, newBooks, importStatement, confirm, parseSplit, suggestRules, addRules, acceptSuggestions, journal, reports, closeChecks, exportJournal, exportLines, status, analyze } from "./engine.mjs";
+import { vatReturn, addAsset, taxableBusinessIncome, writeOff, lockPeriod, newBooks, importStatement, confirm, parseSplit, suggestRules, addRules, acceptSuggestions, journal, reports, closeChecks, exportJournal, exportLines, status, analyze } from "./engine.mjs";
 import { parseCents, parseDate, readStatement, checkRunningBalance } from "./bank.mjs";
 import { validateEntry, DEFAULT_ACCOUNTS, parseAccounts } from "./ledger.mjs";
 import { payeeKey, suggest, parseRules } from "./categorize.mjs";
@@ -667,4 +667,44 @@ test("taxableBusinessIncome swaps book depreciation for MACRS and bonus, and the
   const w = taxDepreciation(b, 2026, { businessIncome: inc });
   assert.equal(w.s179Income.deductible, 0);
   assert.equal(w.s179Income.carryOut, 400000);
+});
+
+test("VAT return: output VAT, input VAT on bills, credits, a bank line to 2100, whole-pound boxes", () => {
+  const accounts = DEFAULT_ACCOUNTS.concat([{ code: "1300", name: "VAT recoverable", type: "asset" }]);
+  let books = newBooks();
+  books.accounts = accounts;
+  const docs = [
+    "type,number,date,due,party,amount,account",
+    "invoice,1,2026-04-10,,Acme Ltd,1000.50,4000", "invoice,1,2026-04-10,,Acme Ltd,200.10,2100",
+    "invoice,2,2026-05-02,,Beta Ltd,500.00,4000", "invoice,2,2026-05-02,,Beta Ltd,100.00,2100",
+    "credit note,9,2026-05-20,,Beta Ltd,50.00,4000", "credit note,9,2026-05-20,,Beta Ltd,10.00,2100",
+    "bill,7,2026-04-15,,Supply Co,300.99,6010", "bill,7,2026-04-15,,Supply Co,60.00,1300",
+    "vendor credit,3,2026-06-01,,Supply Co,20.00,6010", "vendor credit,3,2026-06-01,,Supply Co,4.00,1300",
+    "invoice,3,2026-07-01,,Late Ltd,100.00,4000", "invoice,3,2026-07-01,,Late Ltd,20.00,2100",
+  ].join("\n") + "\n";
+  books = addDocuments(books, docs).books;
+  const v = vatReturn(books, { from: "2026-04-01", to: "2026-06-30" });
+  assert.equal(v.boxes[1], 20010 + 10000 - 1000);
+  assert.equal(v.boxes[3], v.boxes[1]);
+  assert.equal(v.boxes[4], 6000 - 400);
+  assert.equal(v.boxes[5], v.boxes[1] - v.boxes[4]);
+  assert.equal(v.payable, "pay");
+  assert.equal(v.boxes[6], 1450, "1000.50 + 500.00 - 50.00 = 1450.50, pence dropped");
+  assert.equal(v.boxes[7], 280, "300.99 - 20.00 = 280.99, pence dropped");
+  assert.equal(v.warnings.length, 0);
+  // outside the period: July's invoice is left out; with no period it is counted and flagged
+  assert.equal(vatReturn(books).boxes[1], v.boxes[1] + 2000);
+  assert.ok(vatReturn(books).warnings.some((w) => /No period/.test(w)));
+  // a missing input account is flagged
+  assert.ok(vatReturn(newBooks(), { from: "2026-01-01", to: "2026-12-31" }).warnings.some((w) => /No input VAT account/.test(w)));
+  // more reclaimed than due: negative net, "reclaim"; a bank line filed to 1300 counts in box 4
+  let b = newBooks(); b.accounts = accounts;
+  b = addDocuments(b, "type,number,date,due,party,amount,account\nbill,1,2026-04-01,,S,100.00,6010\nbill,1,2026-04-01,,S,20.00,1300\n").books;
+  const r = vatReturn(b, { from: "2026-04-01", to: "2026-04-30" });
+  assert.deepEqual([r.boxes[5], r.payable, r.boxes[7]], [-2000, "reclaim", 100]);
+  let c = importStatement(b, "Date,Description,Amount\n2026-04-05,PHONE CO,-12.00\n", "1000").books;
+  c = confirm(c, { [c.transactions[0].id]: "1300" });
+  const r2 = vatReturn(c, { from: "2026-04-01", to: "2026-04-30" });
+  assert.equal(r2.boxes[4], 3200);
+  assert.ok(r2.warnings.some((w) => /not in box 7/.test(w)));
 });

@@ -512,6 +512,42 @@ export function salesTax(books, { account = "2100", from = null, to = null } = {
   return { account, months: rows, totals, owed: totals.collected - totals.credited - totals.remitted, invoices };
 }
 
+// A VAT return worksheet on the UK's nine-box layout, from the output account
+// (2100, as for salesTax) and an input account for VAT paid on purchases
+// (1300 unless `input` says otherwise; add it to the chart as an asset).
+// Invoice basis: a document counts on its own date, not when it is paid.
+// Box 1 VAT due on sales, 2 on EU acquisitions (always 0 here), 3 = 1 + 2,
+// 4 reclaimed on purchases, 5 = net to pay (negative: repayable), 6 and 7 sales and
+// purchases excluding VAT in whole pounds (pence dropped, as the form asks), 8 and
+// 9 EU supplies (0 here). Bank lines filed straight to the output or input account
+// count in boxes 1 and 4; a purchase paid without a bill is not in box 7, which is
+// flagged. -> { boxes, paid, warnings, from, to }
+export function vatReturn(books, { output = "2100", input = "1300", from = null, to = null } = {}) {
+  const inRange = (d) => (!from || d >= from) && (!to || d <= to);
+  const sum = (d, acct) => d.lines.filter((l) => l.account === acct).reduce((a, l) => a + l.cents, 0);
+  let due = 0, reclaim = 0, sales = 0, purchases = 0, paid = 0, bankPurchases = 0;
+  for (const d of books.documents ?? []) {
+    if (!inRange(d.date)) continue;
+    const sign = d.credit ? -1 : 1;
+    if (d.kind === "invoice") { const tax = sum(d, output); due += sign * tax; sales += sign * (d.total - tax); }
+    else { const tax = sum(d, input); reclaim += sign * tax; purchases += sign * (d.total - tax); }
+  }
+  for (const e of journal(books)) {
+    if (["invoice", "credit", "bill"].includes(e.source) || !inRange(e.date)) continue;
+    for (const l of e.lines) {
+      if (l.account === output) { if (l.debit) paid += l.debit; else due += l.credit; }
+      else if (l.account === input) { reclaim += l.debit - l.credit; if (l.debit) bankPurchases++; }
+    }
+  }
+  const warnings = [];
+  if (!books.accounts.some((a) => a.code === input)) warnings.push(`No input VAT account ${input} in the chart, so box 4 is 0. Add it as an asset and put the VAT on each bill there.`);
+  if (bankPurchases) warnings.push(`${bankPurchases} bank line(s) filed to ${input} count in box 4, but the net amount of those purchases is not in box 7.`);
+  if (from === null && to === null) warnings.push("No period given: the boxes cover every date in the books. Pass a from and to date for one return.");
+  const whole = (c) => Math.trunc(c / 100);
+  const b5 = due - reclaim;
+  return { from, to, input, output, paid, warnings, boxes: { 1: due, 2: 0, 3: due, 4: reclaim, 5: b5, 6: whole(sales), 7: whole(purchases), 8: 0, 9: 0 }, payable: b5 >= 0 ? "pay" : "reclaim" };
+}
+
 export function status(books) {
   const c = { new: 0, review: 0, auto: 0, confirmed: 0, split: 0, transfer: 0, settled: 0 };
   for (const t of books.transactions) c[t.status] = (c[t.status] ?? 0) + 1;
