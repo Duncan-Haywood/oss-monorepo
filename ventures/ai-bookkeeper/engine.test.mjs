@@ -422,3 +422,56 @@ test("sales tax is collected on invoices, taken off by credit notes and paid ove
   assert.equal(t.invoices[0].rate, 0.08);
   assert.equal(salesTax(books, { to: "2026-03-31" }).owed, 8000);
 });
+
+// Red-team guards (2026-10-21): boundaries of the matching window, the aging
+// buckets, the as-of day and the document columns.
+const withDocs = (docs, stmt) => addDocuments(importStatement(newBooks(), stmt, "1000").books, docs).books;
+
+test("a payment matches up to 180 days after the document, not 181", () => {
+  const docs = "type,number,date,due,party,amount,account\ninvoice,5,2026-01-01,,Zed Ltd,100.00,4000\n";
+  const on = withDocs(docs, "Date,Description,Amount\n2026-06-30,ZED LTD INV 5,100.00\n");
+  assert.equal(on.transactions[0].status, "settled");
+  const after = withDocs(docs, "Date,Description,Amount\n2026-07-01,ZED LTD INV 5,100.00\n");
+  assert.notEqual(after.transactions[0].status, "settled");
+});
+
+test("aging buckets split on the day: due today is current, 30 days late is 1-30, 31 is 31-60", () => {
+  const docs = "type,number,date,due,party,amount,account\n" +
+    ["a,2026-01-01,2026-03-01", "b,2026-01-01,2026-02-01", "c,2026-01-01,2026-01-30", "d,2026-01-01,2026-01-29", "e,2026-01-01,2025-12-30", "f,2026-01-01,2025-11-30"]
+      .map((s) => { const [n, dt, du] = s.split(","); return `invoice,${n},${dt},${du},P${n},10.00,4000`; }).join("\n") + "\n";
+  const a = aging(withDocs(docs, "Date,Description,Amount\n2026-01-01,X,1.00\n"), "2026-03-01");
+  const bucket = (n) => a.open.find((d) => d.id === `INV-${n}`).bucket;
+  assert.deepEqual(["a", "b", "c", "d", "e", "f"].map(bucket), ["current", "1-30", "1-30", "31-60", "61-90", "90+"]);
+  assert.equal(a.open.find((d) => d.id === "INV-a").daysLate, 0);
+  assert.equal(a.open.find((d) => d.id === "INV-c").daysLate, 30);
+  assert.equal(a.open.find((d) => d.id === "INV-a").partlyPaid, undefined, "an unpaid invoice is not part-paid");
+});
+
+test("a document dated on the as-of day is counted, one dated after is not", () => {
+  const docs = "type,number,date,due,party,amount,account\ninvoice,1,2026-03-01,,A Co,10.00,4000\ninvoice,2,2026-03-02,,B Co,20.00,4000\n";
+  const a = aging(withDocs(docs, "Date,Description,Amount\n2026-01-01,X,1.00\n"), "2026-03-01");
+  assert.equal(a.receivable.total, 1000);
+});
+
+test("the credit-note 'against' column may be the first column", () => {
+  const docs = "against,type,number,date,party,amount,account\n,invoice,7,2026-01-01,Q Co,100.00,4000\n7,credit note,C7,2026-01-05,Q Co,40.00,4000\n";
+  const r = parseDocuments(docs);
+  assert.equal(r.problems.length, 0);
+  assert.equal(r.documents.find((d) => d.credit).against, "7");
+});
+
+test("a one-cent part-payment counts, and a zero line never settles a paid document", () => {
+  const docs = "type,number,date,due,party,amount,account\ninvoice,8,2026-01-01,,Kay Co,10.00,4000\n";
+  const one = withDocs(docs, "Date,Description,Amount\n2026-01-05,KAY CO INV 8,0.01\n");
+  assert.equal(one.transactions[0].status, "settled");
+  assert.equal(one.transactions[0].partial, true);
+  const paid = withDocs(docs, "Date,Description,Amount\n2026-01-05,KAY CO INV 8,10.00\n2026-01-06,KAY CO INV 8,0.00\n");
+  assert.equal(paid.transactions.filter((t) => t.status === "settled").length, 1);
+});
+
+test("a second credit note against an already-credited invoice applies nothing", () => {
+  const docs = "type,number,date,due,party,amount,account,against\ninvoice,9,2026-01-01,,R Co,50.00,4000,\ncredit note,C1,2026-01-02,,R Co,50.00,4000,9\ncredit note,C2,2026-01-03,,R Co,20.00,4000,9\n";
+  const books = withDocs(docs, "Date,Description,Amount\n2026-01-01,X,1.00\n");
+  assert.equal(books.documents.find((d) => d.id === "CN-C1").applied, 5000);
+  assert.equal(books.documents.find((d) => d.id === "CN-C2").applied, undefined);
+});
