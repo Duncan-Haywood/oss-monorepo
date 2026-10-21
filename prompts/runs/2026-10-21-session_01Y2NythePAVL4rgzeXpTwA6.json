@@ -1,0 +1,51 @@
+{
+  "date": "2026-10-21",
+  "session": "https://claude.ai/code/session_01Y2NythePAVL4rgzeXpTwA6",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-21T11:22:29Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [
+    "irs.gov not directly reachable (ENOTFOUND); used WebSearch result snippets"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "flagship next: entries are thousands of words; hard to find the actual next step"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Took a small verification slice (1099-NEC threshold confirmed from IRS pages) instead of a 20-hour milestone; tee laps for wall-framing lacked a sourced convention so I did not invent one."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Thin run: confirmed the $2,000 1099-NEC line from 2026 against IRS pages via search; docs and flagship note updated. ai-bookkeeper tests pass.",
+  "corrections": [],
+  "redteam": null
+}
