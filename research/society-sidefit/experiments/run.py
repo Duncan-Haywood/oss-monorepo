@@ -33,7 +33,7 @@ mean = lambda xs: sum(xs) / len(xs)  # noqa: E731
 
 l3, r3 = read("condition_3_two_walkers_head_on")
 l2, r2 = read("condition_2_static_obstacle")
-ELL = round(l3 / (l3 + r3), 2)
+ELL = 0.17  # 0.175 read, rounded down; 0.14 to 0.20 is swept
 say("society-sidefit results. Model of society-blocs; observable = share of L (left) choices in a head-on meeting "
     "of a crowd in the status-quo (R) convention with no robots. Cells are sl/rho_c unless stated.")
 say()

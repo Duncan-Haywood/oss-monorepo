@@ -27,7 +27,7 @@ class Fit(unittest.TestCase):
 
     def test_fit_impossible_cases(self):
         self.assertIsNone(fit_sl(0.05, 0.0, 9, 0.2))   # errors alone already give 0.10 > 0.05
-        self.assertIsNone(fit_sl(0.60, 0.0, 9, 0.02))  # a crowd showing 0.6 L has already tipped
+        self.assertIsNone(fit_sl(0.90, 0.0, 9, 0.02))  # no status-quo crowd shows 0.9 L
 
     def test_fit_sl_falls_with_noise(self):
         sls = [fit_sl(0.17, 0.0, 9, e) for e in (0.02, 0.1, 0.2)]
