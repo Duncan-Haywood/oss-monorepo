@@ -321,14 +321,14 @@ and writing off a bad debt".
 
 `vatReturn(books, { from, to })` and `cli.mjs vat --from D --to D` fill the nine boxes of
 the UK VAT return from the books: box 1 is the VAT on invoices (account 2100) less credit
-notes, box 4 the VAT on bills (an input account, 1300, added to the chart as an asset)
+notes, box 4 the VAT on bills (an input account, 1300, in the default chart as an asset; add it by hand to a chart saved before 2026-10-21)
 less vendor credits, box 5 the difference (the CLI says pay or reclaim), boxes 6 and 7 the
 sales and purchases without VAT in whole pounds (pence dropped, as the form asks). Bank
 lines filed straight to 2100 or 1300 count in boxes 1 and 4; a purchase paid without a bill
 is in box 4 but not box 7, which it warns about. Invoice basis only (a document counts on
 its own date, not when paid); boxes 2, 8 and 9 (EU) are 0; flat-rate, cash accounting,
 partial exemption and Making Tax Digital submission are not modelled. A worksheet to check
-a return against, not a filing. The page shows the same boxes in a card, for the From and To dates in the Reports section. Test: engine.test.mjs, "VAT return"; page.test.mjs.
+a return against, not a filing. The page shows the same boxes in a card, for the From and To dates in the Reports section. Test: engine.test.mjs, "VAT return"; page.test.mjs; the card and the recurring and forecast card are clicked through in headless Chromium by `eval/browser-click.mjs` (2026-10-21).
 
 ## Recurring payments and a cash forecast
 
@@ -445,6 +445,24 @@ and listed property. The tables were typed from memory of Table A-1, then checke
 deriving each class from its rule (200% or 150% declining balance, half-year,
 switch to straight-line) in a test: all six agree within the printed rounding.
 That checks the typed digits, not the publication itself: check them before filing. Not on the page yet.
+
+## Year-end close
+
+`closeYear(books, 2025)` (CLI `close 2025 [--draws]`) moves the year's income and
+expense balances into Retained earnings (3900) with one entry dated 2025-12-31,
+and locks the books through that date. It refuses while a line dated in the year
+still needs an account, a year already closed, or a year before a later closed
+one. `close report 2025` shows the entry and retained earnings before and after;
+`close reopen 2025` removes the latest close and restores the earlier lock.
+`--draws` also closes owner draws (3100) and contributions (3010).
+
+The entry is worked out from the journal each time it is read, not stored, so it
+always equals what the year posted. `journal(books)` leaves it out on purpose, so the
+profit and loss, cash flow, budget and Schedule C keep showing the closed year;
+`journal(books, { withClosing: true })` adds it, and the balance sheet and the
+QuickBooks, Xero, IIF and CSV exports use that (the exported books close the same
+way yours do). Tests: `yearend.test.mjs` (9; hand-written ledgers). Calendar years
+only: a fiscal year ending in another month is not modelled. Not on the page yet.
 
 ## Not modelled
 

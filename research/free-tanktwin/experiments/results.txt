@@ -1,0 +1,9 @@
+model                  params train RMSE  test RMSE  in-range   beyond  clip@10
+twin (no overflow)          6      0.566      0.659     0.625    1.238    0.654
+twin (overflow)             8      0.462      0.528     0.503    0.971    0.512
+linear ARX 2/2              5      0.622      0.715     0.687    1.235    0.714
+linear ARX 4/4              9      0.563      0.655     0.631    1.103    0.651
+NARX quadratic 2/2         15      0.681      0.808     0.774    1.417    0.808
+NARX quadratic 3/3         28      0.765      7.416     7.555    1.407    2.871
+NARX quadratic 4/4         45     39.282     42.193    42.279   39.960   20.370
+test samples with y above the training maximum: 37 of 974
