@@ -34,13 +34,11 @@ flagships:
       IIF journals; page, CLI and agent engine. Learning curve measured on
       synthetic data (README Verification).
     next: >-
-      Split lines are next: a Stripe payout as gross sales minus fees, and a loan
-      payment as principal plus interest, with a split editor on the page and
-      in confirm(). After that: real bank exports as fixtures (Chase, Bank of
-      America, Wells Fargo, Amex, Capital One), the AI layer measured with a
-      local model on the synthetic review queue, a per-layer ablation, rules
-      suggested from repeated corrections, and accruals from an invoice and
-      bill list.
+      Real bank exports as fixtures (Chase, Bank of America, Wells Fargo, Amex,
+      Capital One), the AI layer measured with a local model on the synthetic
+      review queue, a per-layer ablation, rules suggested from repeated
+      corrections, and accruals from an invoice and bill list. Split lines
+      landed 2026-10-21 (Stripe payout, loan payment; page, CLI, agent engine).
   # Added 2026-10-21 second, on the owner's direction that day: "I want to make
   # tools that can automate part of the new home construction process in the
   # us. to drop prices and increase efficiency this is a long standing project

@@ -188,7 +188,7 @@
     <p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> or <a href="https://buymeacoffee.com/duncanhaywood" rel="noopener">buy me a coffee</a> is entirely optional and never changes what the tool does.</p>
   </footer>
   <script type="module">
-    import { newBooks, importStatement, categorize, confirm, acceptSuggestions, reports, closeChecks, exportJournal, exportLines, status, analyze, fmt, DEFAULT_ACCOUNTS } from "./engine.mjs";
+    import { newBooks, importStatement, categorize, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, exportLines, status, analyze, fmt, DEFAULT_ACCOUNTS } from "./engine.mjs";
     import { parseAccounts } from "./ledger.mjs";
     import { aiSuggest } from "./ai.mjs";
     import { detectLocal, isLocal } from "./byok.mjs";
@@ -217,6 +217,24 @@
       return el("span", { class: `pill ${s.confidence >= 0.85 ? "hi" : s.confidence >= 0.6 ? "mid" : "lo"}`, text: `${s.source} ${s.confidence.toFixed(2)}` });
     }
 
+    // A line that is several things at once (a payout of sales less fees, a loan
+    // payment of principal plus interest): "4000:1000.00, 6010:-30.00".
+    function splitEditor(t) {
+      const input = el("input", { type: "text", placeholder: "4000:1000.00, 6010:-30.00", "aria-label": `Split ${t.desc} into accounts`, size: 26 });
+      const msg = el("span", { class: "reason", role: "status" });
+      const go = el("button", { type: "button", class: "secondary", text: "Split" });
+      go.addEventListener("click", () => {
+        try {
+          const parts = parseSplit(input.value);
+          if (!Array.isArray(parts)) { msg.textContent = "Give two or more accounts: code:amount, code:amount. Amounts are signed like the line; one may be left out."; return; }
+          books = confirm(books, { [t.id]: parts });
+          record("lines_filed");
+          render();
+        } catch (e) { msg.textContent = e.message; }
+      });
+      return el("details", {}, el("summary", { text: "Split" }), input, " ", go, " ", msg);
+    }
+
     function renderQueue() {
       const q = books.transactions.filter((t) => t.status === "review").sort((a, b) => a.date.localeCompare(b.date));
       const shown = q.slice(0, 300);
@@ -227,7 +245,7 @@
         const tick = el("input", { type: "checkbox", "data-tick": t.id, "aria-label": `File ${t.desc}` });
         if (t.suggestion?.account) tick.checked = t.suggestion.confidence >= 0.6;
         sel.addEventListener("change", () => { tick.checked = !!sel.value; });
-        return el("tr", {}, el("td", {}, tick), el("td", { text: t.date }), el("td", { text: name(t.account) }), el("td", { text: t.desc }), el("td", { class: "n", text: fmt(t.cents) }), el("td", {}, sel), el("td", {}, pill(t.suggestion), " ", el("span", { class: "reason", text: t.suggestion?.reason ?? "" })));
+        return el("tr", {}, el("td", {}, tick), el("td", { text: t.date }), el("td", { text: name(t.account) }), el("td", { text: t.desc }), el("td", { class: "n", text: fmt(t.cents) }), el("td", {}, sel), el("td", {}, pill(t.suggestion), " ", el("span", { class: "reason", text: t.suggestion?.reason ?? "" }), splitEditor(t)));
       }));
       $("#queue-note").textContent = q.length ? (q.length > shown.length ? `Showing the first ${shown.length} of ${q.length}.` : `${q.length} line${q.length === 1 ? "" : "s"} waiting.`) : "Nothing is waiting. Import another statement.";
     }
