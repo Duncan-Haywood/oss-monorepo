@@ -40,6 +40,8 @@ import {
   pageUrlPath,
   renderFavicon,
   renderFaviconSvg,
+  FAVICON_SIZES,
+  MARK_GEOMETRY,
   renderRobots,
   INDEXNOW_KEY,
   indexNowKeyFileName,
@@ -655,10 +657,11 @@ test('a favicon is emitted, because every page requests one whether or not it li
   const { outDir } = await site();
   const ico = await fs.readFile(path.join(outDir, 'favicon.ico'));
 
-  // ICO header: reserved 0, type 1 (icon), one image.
-  assert.deepEqual([...ico.subarray(0, 6)], [0, 0, 1, 0, 1, 0]);
-  assert.equal(ico[6], 16, 'width');
+  // ICO header: reserved 0, type 1 (icon), one image per size.
+  assert.deepEqual([...ico.subarray(0, 6)], [0, 0, 1, 0, FAVICON_SIZES.length, 0]);
+  assert.equal(ico[6], 16, 'the first image is the 16px tab icon (width)');
   assert.equal(ico[7], 16, 'height');
+  FAVICON_SIZES.forEach((size, i) => assert.equal(ico[6 + i * 16], size, `entry ${i} is ${size}px`));
   // The payload is a PNG, and its signature must survive the offset arithmetic
   // in the directory entry -- get that wrong and browsers show nothing at all
   // while the file still looks fine on disk.
@@ -681,12 +684,15 @@ test('an SVG favicon ships alongside the .ico', async () => {
 
 test('both favicons draw the same mark', () => {
   // A drift here means the tab icon and the pinned icon are two different
-  // logos, which is why the geometry lives in constants both renderers read.
+  // logos, which is why the geometry lives in one constant both renderers read.
   const svg = renderFaviconSvg();
-  assert.match(svg, /#243d35/, "the hub's ink");
-  assert.equal((svg.match(/#c5edb5/g) ?? []).length, 3, 'three bars in the mark colour');
-  assert.match(svg, /x="3" y="9" width="2" height="4"/, 'the short bar');
-  assert.match(svg, /x="11" y="3" width="2" height="10"/, 'the tall bar');
+  assert.match(svg, /stop-color="#12594a"/, "the header mark's gradient starts in the hub's green");
+  assert.match(svg, /stop-color="#3b5bdb"/, '...and ends in its indigo');
+  assert.equal((svg.match(/fill="#ffffff"/g) ?? []).length, MARK_GEOMETRY.bars.length, 'three white bars');
+  // The bars rise left to right, as `drawMark` draws them.
+  const tops = [...svg.matchAll(/<rect x="[\d.]+" y="([\d.]+)"/g)].map((m) => Number(m[1]));
+  assert.deepEqual(tops, MARK_GEOMETRY.bars.map((b) => Number((b.top * 16).toFixed(2))));
+  assert.ok(tops[0] > tops[1] && tops[1] > tops[2]);
 });
 
 test('the hub\'s top navigation links the blog', async () => {

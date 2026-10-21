@@ -1336,6 +1336,39 @@ second is the maintenance signal: if it grows against the first, some
 calculator has started wording its messages in a way the matcher cannot follow,
 and those pages are back to pointing at a highlight nobody drew.
 
+## Link previews, icons and the share pass
+
+A shared link is the first thing most people see of the site, so every page
+previews as a card of its own (2,282 on the 2026-10-21 build: 1,307 tools, 43
+category and audience pages, 931 research, writing, comparison and section
+pages, and the site card).
+
+- **`sharecard.mjs`** draws a card in the homepage hero's look (night field,
+  teal and indigo aurora, grid, constellation): the brand lockup, the page's
+  section as a coloured kicker, its name in Inter, a footer claim and the
+  site's address. Cards are median-cut to 256 colours and written as indexed
+  PNG, about 50 KB each instead of 150-200 KB truecolour, which keeps the
+  artifact to ~120 MB of cards. It also draws the brand mark (three rising
+  bars on the header's teal-to-indigo square) used by `favicon.ico` (16, 32
+  and 48 px), `favicon.svg`, the app icons and the opaque 180 px
+  `apple-touch-icon.png`.
+- **`fontraster.mjs`** reads TrueType outlines and fills them anti-aliased,
+  with no dependency. The faces are Inter subsets in `fonts/` (SIL Open Font
+  License, `fonts/OFL.txt`); `fonts/kerning.py` flattens their GPOS kerning
+  into `fonts/kerning.json` and is the one step that needs `fonttools`.
+- **`share.mjs`** is the pass that runs after every generator and the chrome:
+  any directory page still pointing at the site-wide `social-card.png` gets a
+  `share-card.png` beside it (title from `og:title`, kicker from the
+  breadcrumb, research pages coloured by their topic's colour on the research
+  map), and every page gets complete share tags: `og:site_name`, image size
+  and type, `og:image:alt`, and `twitter:title`, `twitter:description`,
+  `twitter:image` and `twitter:image:alt`. It also drops a stray inline
+  favicon and links `favicon.svg` where a page lacks it. Cards render on a
+  pool of worker threads (`share-worker.mjs`); on four cores the build takes
+  no longer than before the pass existed.
+
+To look at a card: `node -e "import('./sharecard.mjs').then(m => process.stdout.write(m.renderCard({headline: 'Example', kicker: 'Section'})))" > card.png`.
+
 ## Offline and installable
 
 The people these tools are for are often somewhere with no signal at the moment
