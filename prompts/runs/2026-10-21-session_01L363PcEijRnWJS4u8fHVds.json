@@ -1,0 +1,59 @@
+{
+  "date": "2026-10-21",
+  "session": "https://claude.ai/code/session_01L363PcEijRnWJS4u8fHVds",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "I want to have a tool that can generate home designs from agent instructions and also to generate actaul residential home designs that are possible to construct. beautiful ones cost effective ones etc. paramaterized ones. they should be artificacts people can download and use freely",
+  "input_sha256": "ed5e7d8a252776e80901871e7e08b90588483bd51641b67017fafa77aaae6e00",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-21T02:59:47Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "open-house-plans: a free house plan generator (brief or sentence -> CC0 plan set: SVG, DXF, IFC4, OBJ, CSV, JSON) for people and agents",
+  "projects": [
+    "open-house-plans"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/9039",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 33,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/pages/build.mjs",
+      "issue": "NON_WEB_EXTENSIONS and check.mjs SERVED_EXTENSIONS mean .ifc, .obj, .mtl, .dxf and .zip cannot be published from a venture directory; not documented in PRODUCT_PLAYBOOK.md, found by reading the build. A product whose deliverables are CAD/BIM files has to build them in the browser."
+    },
+    {
+      "file": "platform/agents/README.md",
+      "issue": "call --input merges the module's DEFAULTS into the input, so an engine that accepts a free-text field alongside structured fields must ignore default-valued fields or the defaults silently override the text; worth a sentence for engine authors."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "The run was a direct owner request rather than a prompt.md routing, so no promptctl route was run; the record is written anyway so the run is visible to measure."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-21-free-house-plans-from-a-sentence.md",
+    "docs/reports/2026-10-21-open-house-plans-for-agents.md"
+  ],
+  "goal": null,
+  "notes": "Direct owner request, not routed from prompt.md. New venture ventures/open-house-plans (engine, page, CLI, catalogue of 12). Verification run here: node --test in the venture 33 pass (150-program sweep with layout invariants and every rule check); structure port equals research/house-spans and house-framing to 1e-9 on 294 cases; IfcOpenShell 0.9.0 reads all 12 catalogue IFCs with 0 schema errors and builds every solid, ezdxf audits every DXF with 0 errors (data/verify.txt); headless Chromium page run: design in 0.4 s, zip of 15 files valid, no console errors; clauses.mjs, typecheck.mjs (21 files, 0 diagnostics), router validate, validate_workflows, check_md_links, research homepage build all ok. Cost findings (data/study.txt) checked under 500 draws of the cost model's assumptions (data/sensitivity.txt), per the owner's 2026-10-21 'run the numbers' direction.",
+  "corrections": [],
+  "redteam": null,
+  "build_ok": true
+}
