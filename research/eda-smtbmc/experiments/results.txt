@@ -22,3 +22,7 @@ every sweep point:
   1:lit@123:0+1 depth=8 pass 0.8 s
   1:lit@123:0+1 depth=10 pass 3.1 s
   1:lit@123:0+1 depth=12 timeout 240.0 s
+
+== C. word-level encoding (no memory_map), z3, 240 s limit
+  0:del@122:delete depth=1 timeout 240.1 s
+  1:lit@123:0+1 depth=1 timeout 240.1 s

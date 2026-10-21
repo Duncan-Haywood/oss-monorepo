@@ -18,6 +18,7 @@ sudo apt-get install -y yosys iverilog z3 && pip install numpy scikit-learn
 cd research/eda-smtbmc
 python experiments/smtrun.py 24 900   # about 45 min on 4 cores; writes smt.jsonl
 python experiments/sweep.py           # about 10 min; writes sweep.jsonl
+python experiments/wordlevel.py       # about 8 min; writes wordlevel.jsonl
 python experiments/analyse.py         # stdlib only; writes results.txt
 python -m unittest discover -s tests
 ```
@@ -28,6 +29,9 @@ python -m unittest discover -s tests
 - The sweep includes `del@122`, which simulation shows is killable (truncated output). z3 does not find it by depth 10 either: "no counterexample to depth 10" says nothing about the full 20-cycle behaviour, so these passes must not be read as equivalence.
 - So the undecided set stays undecided. This route is not stronger than `sat -seq 22` at the depth that matters; it adds a data point on where the cost wall sits (depth 10 to 12).
 
+- **C. Word-level encoding (`experiments/wordlevel.py`, `wordlevel.jsonl`).** Same miter with `memory_map` skipped (ROM stays an SMT array, multiplier a bit-vector multiply) and z3, 240 s limit, the same two targets. It is *worse*: both targets already time out at depth 1 (a single step, 240 s), where the bit-blasted route passes depth 10 in 3 s. See `experiments/results.txt` for both targets. So the "next step" suggested by the first version of this README does not help with z3; array theory plus nonlinear bit-vector multiply is harder for z3 here than the flat bit-blasted netlist.
+- **D. Boolector from apt.** Ubuntu's `boolector` package is version 1.5.118 (2013); `yosys-smtbmc -s boolector` crashes with a broken pipe on it (it needs Boolector 3's incremental SMT2 interface). Yices2 has no apt package on this image. So the stronger-solver route stays open only for an environment that can build Boolector 3, Bitwuzla or Yices 2 from source.
+
 ## Limitations
 - Only z3 was tried. Yices and Boolector (the usual faster BMC solvers) are not installable in this environment, so the result does not say SMT-BMC cannot work, only that z3 on this unrolled netlist does not.
 - Time limits are 900 s (A) and 240 s (B); a longer limit could change a timeout to a verdict. The sweep stops at the first timeout, so it does not show growth beyond depth 12.
@@ -35,7 +39,7 @@ python -m unittest discover -s tests
 - The miter is the flattened bit-blasted netlist after `memory_map`; a word-level encoding of the multiplier and ROM could be far cheaper and was not tried.
 
 ## Next steps
-Try the word-level route: keep the ROM and multiplier as SMT arrays and bit-vector multiplies (skip `memory_map` and bit-blasting, export with `write_smt2` without `-wires` flattening), or constrain the inputs to a small set after the reset to shorten the unrolling. Or install Yices/Boolector in an environment that has them.
+The word-level route was tried (result C) and is worse with z3. Remaining: constrain the inputs to a small set after the reset to shorten the unrolling, or build Boolector 3 / Bitwuzla / Yices 2 from source in an environment with a compiler and network access.
 
 ## Owner steps
 None.
