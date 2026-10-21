@@ -39,7 +39,7 @@ What still holds:
   live links, `.md` links and anchors, and unnamed form controls have each been
   swept (`platform/ci/check_*.py`, `serp_snippets.py`, `venture_live_links.py`,
   `page-identity.mjs`, `page-seo-audit`); re-run the tool if you doubt one, but
-  do not rebuild the sweep. Meta descriptions over 320 characters are clean too
+  there is no need to rebuild the sweep. Meta descriptions over 320 characters are clean too
   (`serp_snippets.py --desc-max 320` reports 0 of 2,830 venture pages, 2026-10-20).
   Only sweeps of a kind not listed are open.
 - **Not more admin.** A free-choice run that only writes plans, ledger prose
