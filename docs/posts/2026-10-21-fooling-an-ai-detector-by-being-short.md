@@ -1,7 +1,7 @@
 ---
 title: "Fooling an AI-text detector by being short: a length trap in the imitation game"
 date: 2026-10-21
-description: "A tiny model learned prompts that beat a prompted detector. Scored by detectors that use no prompt, the wins vanish once text length is matched: 26 of 26 testable prompts are still caught."
+description: "A tiny model learned prompts that beat a prompted detector. Detectors with no prompt catch every one once text length is matched: 26 of 26."
 tags: [research, findings, ai-detection, mimic, prompts, measurement]
 ---
 
