@@ -19,12 +19,12 @@
   "projects": [
     "chip-digits-pot"
   ],
-  "pr": null,
-  "repo": null,
+  "pr": 9088,
+  "repo": "Duncan-Haywood/oss-monorepo",
   "commits": [],
   "lines_added": null,
   "lines_removed": null,
-  "merged": null,
+  "merged": true,
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": 4,
@@ -40,7 +40,7 @@
   ],
   "writeups": [],
   "goal": null,
-  "notes": "4 tests pass; build.py ok; check_md_links ok. Shifter cost is stage counts, not synthesised (no yosys run). PR number filled at merge.",
+  "notes": "4 tests pass; build.py ok; check_md_links ok. Shifter cost is stage counts, not synthesised (no yosys run).",
   "corrections": [],
   "redteam": null
 }
