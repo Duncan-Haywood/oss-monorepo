@@ -1007,3 +1007,17 @@ or `ventures`) until its success rate passes 80% over 20 runs?
   disclosed caveat; E55). ventures 2 and review 2 unchanged (overlap / 9 runs).
   `derived/` regenerated. No audit or drift report (reduced pass).
 - Result: (next review)
+
+## E61: review 2026-10-21 (full pass, evening)
+
+- Change: process candidate 2 (`prompts/process/prompt-2.md`, share 0.2): after
+  the first split row lands, take up to three rows in one run. Cause: 19 of 70
+  process runs since 2026-10-20 ended `partial` on one-deletion slices.
+- Change: `steering.md` "improvement loop" cut from 17 to 7 lines (duplicated
+  `process/prompt-1.md`); 171 -> ~161 lines. `derived/` regenerated.
+- Metric: process/2 `partial` rate vs process/1 (baseline 27%), once each has
+  10+ runs; `steering.md` friction reports (baseline 0 this window).
+- Decisions: research candidate 1 kept (retire verdict fires only on the one
+  disclosed caveat; E55). ventures 2 (90% vs 89%, overlap) and review 2 (9
+  runs) unchanged. Audit clean (3 PRs); drift report `drift/2026-10-21.md`.
+- Result: (next review)

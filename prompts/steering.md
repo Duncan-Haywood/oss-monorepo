@@ -155,17 +155,7 @@ at a time and almost never removed, so they pile up. The counterweight:
 
 ## The improvement loop
 
-Runs record friction and deviations; `measure` aggregates them; the process
-and review tracks turn them into backlog items and better defaults.
-
-- **Critique**: process studies and reviews find problems in how work gets
-  done. Each problem worth fixing becomes an item in
-  [`process/backlog/`](process/backlog/README.md), not a paragraph in a
-  report that nobody rereads.
-- **Solve**: process runs take the top open item and ship it. Any other run
-  with spare scope may do the same.
-- **Verify**: a closed item names its metric and baseline, and a later run
-  checks whether the metric moved. A fix that did not help gets reverted or
-  rethought, not defended.
-
-`python3 prompts/promptctl.py backlog` ranks the open items.
+Friction and deviations feed `promptctl.py measure`; process and review runs
+turn them into [`process/backlog/`](process/backlog/README.md) items and better
+defaults (`promptctl.py backlog` ranks them). A closed item names its metric
+and baseline, and a fix that did not help gets reverted, not defended.
