@@ -115,3 +115,21 @@ few indexed queries on top, not run against a live database):
 At 220 items the worst case is under 20 ms, so a pair request is dominated by
 the database round trips, not the selector. At 500 items it is 67 ms; a list
 much beyond that should cap the pool before using `staged`.
+
+### Pool cap (2026-10-21)
+
+`selectNextPairByInformation` now scores at most `INFO_POOL_CAP` (400) items,
+the ones with the largest rd (then least shown); `poolCap` in the options
+overrides it, and lists at or under the cap are untouched (tested: same pair
+as uncapped). Median of 5 calls with 600 answers, one cloud container, selector
+compute only (throwaway script, not committed):
+
+| items | uncapped | cap 400 |
+|---|---|---|
+| 500 | 56 ms | 36 ms |
+| 1000 | 252 ms | 58 ms |
+| 3000 | 1983 ms | 36 ms |
+
+Not measured: rank accuracy with the cap on lists over 400 items (the
+simulation tests use up to 220), so the cap is a latency guard, not a proven
+accuracy-neutral change.

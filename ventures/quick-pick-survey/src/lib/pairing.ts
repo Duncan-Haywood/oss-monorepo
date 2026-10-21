@@ -346,14 +346,30 @@ export type InformationOptions = {
   conflictBonus?: number;
   /** Extra weight per appearance an item is below the pool average, as a fraction of the score. */
   coverageWeight?: number;
+  /** Most items scored pairwise; the rest wait. Cost is quadratic in the pool. Default INFO_POOL_CAP. */
+  poolCap?: number;
 };
+
+/**
+ * Past this many active items the information score keeps only the most
+ * uncertain ones (largest rd, then least shown), so a 2,000-item list costs
+ * what a 400-item one does. Lists up to the cap are untouched.
+ */
+export const INFO_POOL_CAP = 400;
+
+export function capPool(pool: PairItem[], timesShown: Map<string, number>, cap: number): PairItem[] {
+  if (pool.length <= cap) return pool;
+  return [...pool]
+    .sort((a, b) => b.rd - a.rd || (timesShown.get(a.id) ?? 0) - (timesShown.get(b.id) ?? 0) || (a.id < b.id ? -1 : 1))
+    .slice(0, Math.max(2, cap));
+}
 
 export function selectNextPairByInformation(
   { items, timesShown, recentPairKeys, answeredCount = 0, rand = Math.random }: PairingInput,
-  { conflictBonus = 1, coverageWeight = 0 }: InformationOptions = {}
+  { conflictBonus = 1, coverageWeight = 0, poolCap = INFO_POOL_CAP }: InformationOptions = {}
 ): [string, string] {
   if (items.length < 2) throw new Error("Need at least 2 items to pair");
-  const pool = activeItems(items, answeredCount, timesShown);
+  const pool = capPool(activeItems(items, answeredCount, timesShown), timesShown, poolCap);
   const avgShown = pool.reduce((sum, i) => sum + (timesShown.get(i.id) ?? 0), 0) / pool.length;
   const lag = (i: PairItem) => Math.max(0, avgShown - (timesShown.get(i.id) ?? 0));
 

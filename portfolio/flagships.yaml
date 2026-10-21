@@ -176,7 +176,7 @@ flagships:
       answers per respondent (coverage(ranked, participants, answersPerRespondent);
       the ranking route reads it from answered trials; unit-tested, route not run
       against a live database; 2026-10-21).
-      Selector compute at 220 items is 19 ms (staged, worst case) and 67 ms at 500 (src/lib/pairLatency.test.ts, docs/INFORMATION-GAIN-SELECTOR.md; quadratic in the pool). Next: the same check through the route against a live database, and a pool cap for lists past ~500 items.
+      Selector compute at 220 items is 19 ms (staged, worst case) and 67 ms at 500 (src/lib/pairLatency.test.ts, docs/INFORMATION-GAIN-SELECTOR.md; quadratic in the pool). A pool cap (INFO_POOL_CAP 400, most uncertain items; 3000 items 1983 -> 36 ms; accuracy with the cap not simulated past 220 items) landed 2026-10-21. Next: the same check through the route against a live database, and a rank-accuracy simulation on lists over 400 items.
   - venture: league-schedule-generator
     why: >-
       Circle-method round robins with minimal home/away breaks, court and slot
