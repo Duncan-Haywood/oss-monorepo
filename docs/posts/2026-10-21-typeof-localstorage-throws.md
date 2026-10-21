@@ -1,3 +1,10 @@
+---
+title: "typeof localStorage is not a safe check"
+date: 2026-10-21
+description: "Evaluating the localStorage global throws when a visitor blocks site data, so the feature test itself fails. A one-line helper, applied to 990 pages."
+tags: [software-engineering, ci]
+---
+
 # `typeof localStorage` is not a safe check
 
 Feature-detecting storage with `typeof localStorage === "undefined"` feels

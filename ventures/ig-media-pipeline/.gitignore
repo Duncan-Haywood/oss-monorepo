@@ -1,0 +1,2 @@
+# the pipeline database lives in state_dir; a copy here is a stray from a local run
+*.sqlite
