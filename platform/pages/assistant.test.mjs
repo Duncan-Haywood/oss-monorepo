@@ -6,7 +6,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { parseUtterance, tokenize, checkValue, validateFills, extractJson, fieldSchema, describeFills } from './assistant/fill.mjs';
+import { parseUtterance, tokenize, checkValue, validateFills, mergeFills, extractJson, fieldSchema, describeFills } from './assistant/fill.mjs';
 import { ASSISTANT_LAUNCHER_JS, ASSISTANT_FILES, renderAskPage, renderAssistantFiles, scoreEvals } from './assistant.mjs';
 import { SITE_NAV } from './site-nav.mjs';
 
@@ -102,6 +102,60 @@ test("a model's proposal is checked field by field", () => {
   assert.equal(describeFills([{ key: 'cat', label: 'Category', value: 'toys' }], fields), 'Category to Toys');
 });
 
+test("a model's number must be one the person said", () => {
+  const fields = [
+    { key: 'price', label: 'Price', type: 'number', min: 0 },
+    { key: 'shipping', label: 'Shipping', type: 'number', min: 0 },
+    { key: 'rate', label: 'Rate', type: 'number', min: 0 },
+  ];
+  // What Qwen2.5 0.5B returned through llama.cpp's JSON grammar: every unmentioned field as 0.
+  const r = validateFills({ price: 40, shipping: 0, rate: 0 }, fields, "I'm selling it for forty dollars");
+  assert.deepEqual(r.fills.map((f) => [f.key, f.value]), [['price', '40']]);
+  assert.equal(r.skipped.filter((s) => /did not say/.test(s.reason)).length, 2);
+  assert.deepEqual(validateFills({ price: 1250, shipping: 0 }, fields, 'price $1,250 and free shipping').fills.map((f) => f.value), ['1250', '0']);
+  assert.deepEqual(validateFills({ price: 12.5, rate: 0.05 }, fields, 'twelve fifty at 5 percent').fills.map((f) => f.value), ['12.5', '0.05']);
+  // Without the sentence (an agent's tool call) nothing changes.
+  assert.equal(validateFills({ price: 40, shipping: 0 }, fields).fills.length, 2);
+});
+
+test("the rules' values stand; a model only adds the fields they missed", () => {
+  const fields = [
+    { key: 'price', label: 'Item price', type: 'number', min: 0 },
+    { key: 'costOfGoods', label: 'Cost of goods', type: 'number', min: 0 },
+    { key: 'shipping', label: 'Shipping', type: 'number', min: 0 },
+  ];
+  const said = 'cost of goods eight bucks, and 5 for shipping';
+  const ruled = { fills: [{ key: 'costOfGoods', label: 'Cost of goods', value: '8' }], skipped: [] };
+  // The model read the eight as the cost too, but wrote 9; the rules' 8 stands and its shipping is added.
+  const m = mergeFills(ruled, validateFills({ costOfGoods: 9, shipping: 5 }, fields, said));
+  assert.deepEqual(m.fills.map((f) => [f.key, f.value]), [['costOfGoods', '8'], ['shipping', '5']]);
+  assert.equal(m.added, 1);
+  assert.equal(mergeFills(ruled, { fills: [{ key: 'costOfGoods', value: '9' }], skipped: [] }).added, 0);
+});
+
+test('a model cannot reuse a number, or set a choice nobody named', () => {
+  const fields = [
+    { key: 's1', label: 'Section 1 area', type: 'number', min: 0 },
+    { key: 's2', label: 'Section 2 area', type: 'number', min: 0 },
+    { key: 'permit', label: 'Permit fee', type: 'number', min: 0 },
+    { key: 'cat', label: 'Category', type: 'select', options: [{ value: 'clothing', text: 'Clothing' }, { value: 'grocery', text: 'Grocery & gourmet' }] },
+    { key: 'low', label: 'Listing can use Low-Price FBA', type: 'checkbox' },
+    { key: 'price', label: 'Sale price', type: 'number', min: 0 },
+  ];
+  const none = { fills: [], skipped: [] };
+  // "dumpster 500, permit 300": Qwen2.5 0.5B put the 500 in both sections.
+  let said = 'dumpster 500, permit 300';
+  let m = mergeFills(none, validateFills({ s1: 500, s2: 500, permit: 300 }, fields, said), said);
+  assert.deepEqual(m.fills.map((f) => f.key), ['permit']);
+  // A number the rules already placed is not the model's to place again.
+  m = mergeFills({ fills: [{ key: 'permit', label: 'Permit fee', value: '300' }], skipped: [] }, validateFills({ s1: 300 }, fields, said), said);
+  assert.equal(m.added, 0);
+  // "grocery, price 8.49": the choice is named, the checkbox is not ("price" is another field's word too).
+  said = 'grocery, price 8.49';
+  assert.deepEqual(validateFills({ cat: 'grocery', low: true, price: 8.49 }, fields, said).fills.map((f) => f.key), ['cat', 'price']);
+  assert.deepEqual(validateFills({ cat: 'clothing', low: false }, fields, 'no low price FBA').fills.map((f) => f.key), ['low']);
+});
+
 // ---- What ships --------------------------------------------------------------
 
 test('the header carries an Ask link on every page', () => {
@@ -133,8 +187,9 @@ test('the launcher is small, and runs without a DOM it can use', () => {
 test('heavy libraries are pinned to exact versions and load only inside the worker', () => {
   const worker = readFileSync(path.join(HERE, 'assistant', 'worker.js'), 'utf8');
   const urls = worker.match(/https:\/\/cdn\.jsdelivr\.net\/npm\/[^'"]+/g);
-  assert.equal(urls.length, 2);
-  for (const u of urls) assert.match(u, /@\d+\.\d+\.\d+\/\+esm$/, u);
+  assert.equal(urls.length, 4);
+  // An exact version on every URL; wllama's bundle and its .wasm are files in the package, not +esm.
+  for (const u of urls) assert.match(u, /@\d+\.\d+\.\d+\/(\+esm|esm\/index\.js|esm\/wasm\/wllama\.wasm)$/, u);
   const client = readFileSync(path.join(HERE, 'assistant', 'client.js'), 'utf8');
   assert.doesNotMatch(client, /https:\/\/cdn\./, 'the panel must not fetch a CDN itself');
   // Cloud speech recognition would send audio to a third party: only the on-device mode is used.

@@ -1,0 +1,59 @@
+{
+  "date": "2026-10-21",
+  "session": "https://claude.ai/code/session_015tsJygvzeEUxVNussUDcDr",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "the blog is for humans and ai agents reading and the agent docs is for llms. I think as a curiosity it could be nice to have a separate blog with llms as the target audience. agent to agent blog. free reign on what to write. I also want the podcasts separated based on topic and the blog to be more navigable and serachable filterable etc.",
+  "input_sha256": "1686c2ce3fd8890aa192254cd945bcaba00b1bce4cdba4432cf43db165a53dab",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": null,
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "9028",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    "Python edit script computed a slice offset before inserting CSS above it, then cut writing.mjs at the stale offset; caught by a syntax error on import and repaired from git show HEAD",
+    "until ! pgrep -f run_workflow_locally wait loop matched its own shell and ran until the 30-minute background limit (the trap .github/prompts/verify-and-merge.md warns about)",
+    "committed during a run_workflow_locally sweep, which then reported UNSTABLE CHECKOUT, so the sweep result was void",
+    "edited files while build.test.mjs was building twice, which made the cache-name test fail spuriously; reran alone, passes"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/verify-and-merge.md",
+      "issue": "the pgrep -f warning exists but is easy to miss; 18 run-record errors are this one trap (docs/reports/assets/run-errors/results.txt)"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/goals.md",
+      "instruction": "default to an agent doc in docs/reports/ plus a blog post",
+      "did": "wrote an agent-to-agent post instead of a docs/reports brief, and no human blog post",
+      "why": "the owner asked for the agent-to-agent blog in this message; the post is the agent-reader write-up, and the site change has no new finding for people beyond what the PR says",
+      "result": "one write-up, cited in writeups"
+    }
+  ],
+  "writeups": [
+    "docs/agent-posts/2026-10-21-traps-agents-keep-hitting-here.md"
+  ],
+  "goal": "Agent-to-agent blog (free rein), podcast separated by topic, searchable/filterable blog index (owner, 2026-10-21).",
+  "notes": "Topic rules applied to the 47 posts on main: agents 21, research 14, tools 8, infrastructure 4 (one explicit override: we-almost-rewrote-it-in-rust -> infrastructure). Verified: node --test writing/podcast/writing-backlog (25 pass); headless Chromium against a local writing build: finder visible, 47 posts, topic=research 14, +tag chip-design 2, full-text q=zlib 2 of 47 (from search.json), empty state shows, URL state round-trips (?topic=infrastructure&sort=old -> 4), podcast sections agents 5 / research 6 / tools 3 / infrastructure 2; the 375px overflow seen was the site header without pf-site.css in a partial build, not the new markup. search.json is 312 KB uncompressed, fetched only on first keystroke. build.test + check.test + home.test: 401 pass, 2 fail on the first run; 'llms.txt keeps each tool on one line' was a real count change (one more Optional bullet for the agent blog), test updated and passing; 'identical build produces an identical cache name' failed because I edited goals.md between the suite's two builds, and passes rerun alone. CI round 2: build check rejected the .md raw copies (no MIME mapping in check.mjs SERVED_EXTENSIONS; nginx manifest retired), so they are served as <slug>.txt. CI test job: custom-domain.test.mjs found the default host in writing/search.json (not passed through rebase; fixed, and the agent .txt copies too) and in thirteen-publishers-zero-posts (merged from main in PR #9030, names the bare host in prose; reworded without the literal host, meaning kept). Full platform/pages suite locally before the fix: 1203 pass, 1 fail (that test); after: custom-domain + writing + podcast 27 pass.",
+  "corrections": [],
+  "redteam": null
+}

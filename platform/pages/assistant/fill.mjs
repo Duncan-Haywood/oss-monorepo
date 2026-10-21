@@ -456,12 +456,47 @@ export function parseUtterance(text, fields) {
   return { fills, skipped };
 }
 
+/** The numbers in a sentence, each with every value it can be read as (5 percent is 5 or 0.05). */
+function saidNumbers(said) {
+  const out = [];
+  for (const t of tokenize(said)) {
+    if (t.kind !== 'num') continue;
+    const reads = [t.value, t.value / 100];
+    if (t.pair) reads.push(t.pair[0], t.pair[1], t.pair[0] + t.pair[1] / 100);
+    if (t.ratio) reads.push(t.ratio[0], t.ratio[1], t.ratio[0] / t.ratio[1]);
+    out.push(new Set(reads.map(fmt)));
+  }
+  if (/\b(zero|free|no|none|nothing)\b/i.test(said)) out.push(new Set(['0']));
+  return out;
+}
+
+/**
+ * Whether the person named a choice: a word of the chosen option for a select,
+ * or a word of a checkbox's label that no other field's label has. Numbers and
+ * text are checked elsewhere.
+ */
+function named(field, value, fields, words) {
+  if (field.type === 'select') {
+    const opt = (field.options || []).find((o) => String(o.value) === String(value));
+    return contentTokens(`${opt?.text || ''} ${value}`).some((w) => words.has(w));
+  }
+  if (field.type === 'checkbox') {
+    const others = new Set(fields.filter((f) => f !== field).flatMap((f) => contentTokens(f.label)));
+    return contentTokens(field.label).some((w) => !others.has(w) && words.has(w));
+  }
+  return true;
+}
+
 /**
  * Check a model's proposed values (an object of key -> value) against the
  * form. Unknown keys and values the field would refuse are dropped and
- * reported, never written.
+ * reported, never written. Given what the person `said`, a number that is not
+ * in their words is dropped too: a 0.5B model asked for JSON fills unmentioned
+ * fields with 0 (docs/reports/2026-10-21-wasm-on-the-site.md).
  */
-export function validateFills(proposed, fields) {
+export function validateFills(proposed, fields, said = null) {
+  const heard = said === null ? null : saidNumbers(said);
+  const words = said === null ? null : new Set(contentTokens(said));
   const fills = [];
   const skipped = [];
   if (!proposed || typeof proposed !== 'object') return { fills, skipped: [{ text: String(proposed), reason: 'the model did not return field values' }] };
@@ -476,9 +511,48 @@ export function validateFills(proposed, fields) {
     }
     const checked = checkValue(field, v);
     if (!checked.ok) { skipped.push({ text: `${field.label}: ${value}`, reason: checked.reason }); continue; }
+    if (heard && field.type === 'number' && !heard.some((reads) => reads.has(checked.value))) {
+      skipped.push({ text: `${field.label}: ${value}`, reason: 'the model gave a number you did not say' });
+      continue;
+    }
+    if (heard && !named(field, checked.value, fields, words)) {
+      skipped.push({ text: `${field.label}: ${value}`, reason: 'the model set a choice you did not name' });
+      continue;
+    }
     fills.push({ key, label: field.label, value: checked.value, from: 'model' });
   }
   return { fills, skipped };
+}
+
+/**
+ * Combine the rule reader's fills with a model's. The rules' values stand; the
+ * model only adds fields the rules did not fill. Given what the person `said`,
+ * each number they said fills one field: the model cannot reuse a number the
+ * rules placed, and a number it puts in more fields than it was said is
+ * dropped from all of them. On the 52 eval sentences with Qwen2.5 0.5B, letting
+ * the model's reading replace the rules' wrote 337 wrong values
+ * (docs/reports/2026-10-21-wasm-on-the-site.md).
+ */
+export function mergeFills(ruled, viaModel, said = null) {
+  const have = new Set(ruled.fills.map((f) => f.key));
+  const fresh = viaModel.fills.filter((f) => !have.has(f.key));
+  const skipped = [...ruled.skipped, ...viaModel.skipped];
+  let added = fresh;
+  if (said !== null) {
+    const left = saidNumbers(said);
+    const take = (value) => { const i = left.findIndex((reads) => reads.has(String(value))); if (i >= 0) left.splice(i, 1); return i >= 0; };
+    for (const f of ruled.fills) if (/^-?[\d.]+$/.test(String(f.value))) take(f.value);
+    const byValue = new Map();
+    for (const f of fresh) if (typeof f.value === 'string' && /^-?[\d.]+$/.test(f.value)) byValue.set(f.value, [...(byValue.get(f.value) || []), f]);
+    const dropped = new Set();
+    for (const [value, group] of byValue) {
+      const free = left.filter((reads) => reads.has(value)).length;
+      if (group.length > free) { group.forEach((f) => dropped.add(f)); skipped.push({ text: `${value}: ${group.map((f) => f.label).join(', ')}`, reason: free ? 'the model put one number in several fields' : 'that number is already used' }); }
+      else for (let i = 0; i < group.length; i++) take(value);
+    }
+    added = fresh.filter((f) => !dropped.has(f));
+  }
+  return { fills: [...ruled.fills, ...added], skipped, added: added.length };
 }
 
 /** The first JSON object in a model's reply, or null. Small models wrap JSON in prose and fences. */

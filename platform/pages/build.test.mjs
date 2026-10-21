@@ -40,6 +40,7 @@ import {
   relatedTools,
   upToRoot,
   renderHub,
+  flagshipSlugs,
   pageUrlPath,
   renderFavicon,
   renderFaviconSvg,
@@ -118,6 +119,7 @@ import {
   SEARCH_INDEX_FILE,
 } from './build.mjs';
 import { LATE_NAV_DIRS, SITE_NAV, HEADER_MARKER } from './site-nav.mjs';
+import { AGENT_POSTS_DIR, loadPosts } from './writing.mjs';
 import { renderSocialCard, SOCIAL_CARD_WIDTH, SOCIAL_CARD_HEIGHT, offlineBundleSizeLabel } from './offline.mjs';
 import { renderCard } from './sharecard.mjs';
 import { EMBED_QUERY_PARAM, DEFAULT_EMBED_HEIGHT } from './embed.mjs';
@@ -466,7 +468,8 @@ async function htmlPagesUnder(dir) {
 test('the sponsor ask is optional and does not gate anything', async () => {
   const hub = await read('index.html');
   assert.match(hub, /github\.com\/sponsors\//);
-  assert.match(hub, /entirely optional/i);
+  assert.match(hub, /buymeacoffee\.com\//);
+  assert.match(hub, /is optional and changes nothing/i);
   // `\bsubscribe\b` rather than a bare `subscribe`: the guard is about a
   // paywall *call to action* ("Subscribe", "subscribe now", "subscribe to
   // unlock"), and every one of those forms still matches. What no longer
@@ -764,11 +767,13 @@ test('llms.txt keeps each tool on one line, so no description leaks into prose',
   // Nine trailing bullets under "Optional" describe the site's own surfaces
   // rather than a tool — About, Ask, updates and the changelog, the comparison
   // index, the guides index, catalog.json, the agent CLI, the sitemap and the
-  // Atom feed. Above the tools, one bullet per audience page; below them, one
-  // per research topic. The count is tools plus those.
+  // Atom feed, plus the agent-to-agent blog once `docs/agent-posts/` has a
+  // post. Above the tools, one bullet per audience page; below them, one per
+  // research topic. The count is tools plus those.
   const audiences = audienceGroups(surfaces).length;
   const topics = researchHighlights().themes.length;
-  assert.equal(bullets.length, surfaces.length + 9 + audiences + topics);
+  const agentBlog = loadPosts(undefined, AGENT_POSTS_DIR).length ? 1 : 0;
+  assert.equal(bullets.length, surfaces.length + 9 + audiences + topics + agentBlog);
   for (const bullet of bullets) {
     assert.match(bullet, /^- \[[^\]]+\]\(https?:\/\/[^)]+\): \S/, `malformed bullet: ${bullet}`);
   }
@@ -2486,7 +2491,11 @@ test('the chrome counts locally, honours opt-out, and asks for nothing off-origi
   assert.ok(!/fetch\(|XMLHttpRequest|navigator\.sendBeacon/.test(chrome), 'nothing is transmitted');
 
   const offOrigin = [...chrome.matchAll(/(?:src|href)="(https?:\/\/[^"]+)"/g)].map((m) => m[1]);
-  assert.deepEqual(offOrigin, ['https://github.com/sponsors/Duncan-Haywood'], 'only the sponsor link leaves');
+  assert.deepEqual(
+    offOrigin,
+    ['https://github.com/sponsors/Duncan-Haywood', 'https://buymeacoffee.com/duncanhaywood'],
+    'only the two support links leave',
+  );
   // Nor does the shared file: an off-origin request from a script every page
   // loads would be the whole privacy claim undone in one line.
   assert.deepEqual([...script.matchAll(/https?:\/\/[^'"\s]+/g)].map((m) => m[0]), []);
@@ -2623,7 +2632,9 @@ test('a page carries no inline chrome script or stylesheet, only links to the sh
 
 test('the sponsor line on a tool page is optional and gates nothing', async () => {
   const page = await read('etsy-profit-calculator', 'index.html');
-  assert.match(page, /Sponsoring on GitHub<\/a>\s*\n?\s*is optional and changes nothing/);
+  const chrome = page.slice(page.indexOf('<aside class="pf-chrome pf-chrome-foot"'));
+  assert.ok(chrome.includes(markSponsorLinks(sponsorsNote())), 'the shared support line, verbatim (both links counted)');
+  assert.match(sponsorsNote(), /sponsor on GitHub<\/a> or <a href="https:\/\/buymeacoffee\.com\//);
 });
 
 test('the hub itself is not wrapped in its own navigation', async () => {
@@ -4370,13 +4381,21 @@ test('a category holding a documented external-call exception says so, not "noth
         count.includes('except on'),
         `${category.id} files ${exceptions.map((x) => x.title).join(', ')} but its count line reads "${count}"`,
       );
+      // A long list is folded into the <details> right under the count line
+      // (privacyClaimParts); the line itself then counts them.
+      const [, folded] = html.match(/<\/p>\s*<details class="count-exceptions">[\s\S]*?<p>([\s\S]*?)<\/p><\/details>/) ?? [];
+      if (exceptions.length > 3) {
+        assert.ok(count.includes(`except on the ${exceptions.length} lookup tools listed below`), `${category.id}: "${count}"`);
+        assert.ok(folded, `${category.id} counts ${exceptions.length} exceptions but lists none under the count line`);
+      }
+      const named = exceptions.length > 3 ? folded : count;
       for (const x of exceptions) {
         // The *prose* name, not the raw title: eight catalogue titles carry an
         // em-dash tagline that would swallow the conjunction in this list. See
         // `toolProseName`. The claim being pinned is unchanged — every
         // exception is still named on the line that makes the privacy claim.
         const name = toolProseName(x.title);
-        assert.ok(count.includes(name), `${category.id}'s count line omits ${name}: "${count}"`);
+        assert.ok(named.includes(name.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')), `${category.id}'s exception list omits ${name}`);
       }
     } else {
       assert.equal(
@@ -5673,4 +5692,21 @@ test('clampMetaDescription cuts at a word with an ellipsis when no sentence fits
   const out = clampMetaDescription(`<meta name="description" content="${long}">`);
   const got = out.match(/content="([^"]*)"/)[1];
   assert.ok(got.length <= 320 && got.endsWith('word\u2026'));
+});
+
+// Ranking by page count alone put a day-count adder with ten explainer pages
+// at the front of the featured row (2026-10-21). Flagships lead it now.
+test('the featured row leads with the flagships, then fills by page count', () => {
+  const surfaces = [
+    { slug: 'state-residency-day-counter', title: 'State residency day counter', description: 'Days.', kind: 'browser', pageCount: 11 },
+    { slug: 'changepoint-detector', title: 'Changepoint detector', description: 'PELT.', kind: 'browser', pageCount: 2 },
+    { slug: 'einvoice-preflight', title: 'E-invoice preflight', description: 'EN 16931.', kind: 'browser', pageCount: 19 },
+  ];
+  const featuredRow = (hub) => hub.slice(hub.indexOf('id="featured"')).match(/data-tool="([^"]+)"/g).map((m) => m.slice(11, -1));
+  const hub = renderHub(surfaces, 'https://example.test/', { flagships: ['changepoint-detector', 'einvoice-preflight', 'not-a-surface'] });
+  const row = featuredRow(hub);
+  assert.deepEqual(row.slice(0, 2), ['changepoint-detector', 'einvoice-preflight']);
+  assert.equal(new Set(row).size, row.length, 'no tool twice');
+  assert.ok(row.includes('state-residency-day-counter'), 'room left is filled by page count');
+  assert.ok(flagshipSlugs().includes('changepoint-detector'), 'the real file parses');
 });

@@ -1,0 +1,54 @@
+{
+  "date": "2026-10-21",
+  "session": "https://claude.ai/code/session_019fstSszB6jefTVGmMh9FkX",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "i want to drop the recommendations that have us still working on stupid calculators. whereever those insturctions are lets walk them back. working on higher value products seems much better.",
+  "input_sha256": "b12a6625b30c06969be44b87adf18615a2c7beabe2ebabcffd1b263a24478e97",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-21T03:12:12Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Walk back every instruction that keeps runs working on calculators",
+  "projects": [
+    "portfolio/router",
+    "prompts"
+  ],
+  "pr": 9021,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "calculators detected by slug suffix only; some route-pricing/payout calculators slip through"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "gitops/agents/queue/",
+      "why": "queue items still mention calculator comparison pages but run on the retired host; left alone"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-20-fewer-calculators-harder-problems.md"
+  ],
+  "goal": null,
+  "notes": "Owner direction 2026-10-21 recorded in goals.md: no new calculators, existing ones fixes only. allocate.py ranks 657 non-flagship *-calculator/*-estimator ventures last with a 'Maintain only' task; the Consolidate family task and family cap are removed. Session gate, ventures prompts 1-2, ventures/CLAUDE.md, PRODUCT_PLAYBOOK, DIRECTION, pipeline README follow. Verification (no CI check runs were created for the PR within 50 minutes, so checks ran here): pytest portfolio/router portfolio/ledger/test_session_gate.py prompts -> 244 passed; promptctl validate ok; check_direction_only exit 0; allocate.py live run: 7 flagships, then other work, then 657 Maintain-only rows. Merged origin/main with conflicts in 4 docs; resolved by taking main's rewrites and reapplying the edits.",
+  "corrections": [],
+  "redteam": null
+}
