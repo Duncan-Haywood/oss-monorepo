@@ -619,3 +619,16 @@ yet in the CLI or page, and the income is supplied, not read from the P&L.
 ## Invoices to send
 
 `node cli.mjs profile name "Studio Co"` (also `address`, `email`, `taxId`, `payTo`, `terms`) stores your details in the books; `node cli.mjs invoice 7 --out inv-7.html [--as-of DATE]` writes one invoice or credit note as a single self-contained HTML page that prints to PDF. Lines use the document CSV's optional `description` column (else the account name; account 2100 shows as sales tax); it then shows credits applied, payments received, the balance due, a Paid stamp or the days overdue, and "How to pay" only while a balance is open. Everything is HTML-escaped. A bill is refused. Test: `invoice.test.mjs` (hand-written documents only; the layout was not checked on paper). On the page: "Your details for printed invoices" under the invoices card saves the same fields, and each open invoice in the write-off list has a Print button that opens the invoice in a new tab (a download if pop-ups are blocked) for the browser's Save as PDF; clicked through in headless Chromium with `eval/browser-click.mjs`. Paid invoices and credit notes have no button yet.
+
+## Payment reminders
+
+`node cli.mjs reminders [--as-of DATE] [--min AMOUNT] [--out DIR]` lists each
+customer with overdue invoices, oldest debt first, and with `--out` writes a
+plain-text draft (subject line and body) per customer. The tone steps up with
+how late the oldest invoice is: friendly under 15 days, firm from 15, final from
+45 (`DEFAULT_STEPS` in `collections.mjs`; a common practice, not a rule, and the
+final wording's 7-day notice is a template to edit, not legal advice).
+Pair it with `statement` for the customer's account. Amounts come from the same open documents as `aging`, so
+part-payments and credit notes are already netted. Nothing is sent from here.
+Tested in `collections.test.mjs` on hand-written invoices only (tone steps,
+one per customer, part-payments, the `--min` cut); not on the page yet, and no real customer has received one.

@@ -94,6 +94,15 @@ the page, the CLI and the agent engine, flow into the QuickBooks, Xero and IIF
 exports, and the loan-balance and equipment checks read every part. They are
 not learned from, because the same payee splits differently each time.
 
+## Update: payment reminders
+
+Books that know who owes you should help you ask. `reminders` lists each
+customer with overdue invoices, oldest debt first, and writes a draft per
+customer whose tone steps up with the oldest invoice's lateness: friendly under
+15 days, firm from 15, final from 45. Pair it with `statement` for the account itself. Amounts come from the open-invoice list the aging report uses, so part-payments and credit notes are already netted and the figures agree with the ledger. Nothing is sent: the drafts are for you to read. Tested on hand-written
+invoices only; the 15- and 45-day steps are common practice, not a measured
+optimum.
+
 ## What is next
 
 Real bank exports as test fixtures,

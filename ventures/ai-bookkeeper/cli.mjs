@@ -14,7 +14,7 @@
 //   node cli.mjs --books books.json aging
 //   node cli.mjs --books books.json export qbo|xero|iif|csv|lines > journal.csv
 //   node cli.mjs --example report
-import { readFileSync, writeFileSync, existsSync } from "node:fs";
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
 import { newBooks, importStatement, importOfxAccounts, lockPeriod, closeYear, reopenYear, yearEndReport, categorize, suggestRules, addRules, addDocuments, addAsset, disposeAsset, addAssetsCsv, register, writeOff, aging, salesTax, vatReturn, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, exportLines, status, analyze, fmt, taxableBusinessIncome } from "./engine.mjs";
 import { parseCents } from "./bank.mjs";
 import { accountMap } from "./ledger.mjs";
@@ -29,6 +29,7 @@ import { addTrip, removeTrip, setHomeOffice, mileageDeduction } from "./deductio
 import { setBudget, budgetVsActual } from "./budget.mjs";
 import { setTaxTreatment, taxDepreciation } from "./taxdepr.mjs";
 import { renderInvoice, setProfile, PROFILE_KEYS } from "./invoice.mjs";
+import { reminders } from "./collections.mjs";
 import { renderStatement, customers } from "./statement.mjs";
 
 const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that learn from your corrections.
@@ -64,6 +65,7 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
   assets FILE|[--as-of D] load a CSV (name,date,cost,life_months[,salvage,method]), or list the register: cost, accumulated depreciation, net book value
   profile [KEY VALUE]     your details for invoices (name, address, email, taxId, payTo, terms); no arguments lists them
   invoice ID [--out FILE] [--as-of D]  a printable invoice or credit note (HTML; print to PDF) with payments, balance due and overdue days
+  reminders [--as-of D] [--min AMOUNT] [--out DIR]  a payment reminder draft per customer with overdue invoices (friendly, firm or final by days late)
   statement [CUSTOMER] [--from D] [--out FILE]  a printable statement of account (HTML) with running balance and what is past due; no customer lists who owes what
   writeoff ID [--date D]  write off an invoice's unpaid balance to bad debts (6900), or record a bill the supplier forgave as other income (4100)
   recurring [--as-of D] [--json]  payees that repeat on a steady interval: cost per year, next date, and which went overdue, lapsed or changed amount
@@ -230,6 +232,17 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
     const out = flag("--out");
     if (out) { writeFileSync(out, r.html); console.log(`Wrote ${out}: ${r.id}, ${r.status}${r.balance ? `, balance ${fmt(r.balance)}` : ""}.`); } else process.stdout.write(r.html);
   } catch (e) { console.error(e.message); process.exit(1); }
+} else if (cmd === "reminders") {
+  const min = flag("--min") ? Math.round(Number(flag("--min")) * 100) : 1;
+  const r = reminders(books, { asOf: asOf ?? null, min });
+  const dir = flag("--out");
+  if (json) { console.log(JSON.stringify(r, null, 2)); process.exit(0); }
+  if (dir) mkdirSync(dir, { recursive: true });
+  r.forEach((x, i) => {
+    if (dir) { const f = `${dir}/${String(i + 1).padStart(2, "0")}-${x.party.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "customer"}.txt`; writeFileSync(f, `Subject: ${x.subject}\n\n${x.text}`); }
+    console.log(`${x.party.slice(0, 28).padEnd(28)} ${x.tone.padEnd(8)} ${String(x.daysLate).padStart(4)} days  ${fmt(x.overdue).padStart(12)}  ${x.invoices.length} invoice${x.invoices.length > 1 ? "s" : ""}`);
+  });
+  console.log(r.length ? `${r.length} reminder${r.length > 1 ? "s" : ""}${dir ? ` written to ${dir}` : " (add --out DIR to write the drafts)"}.` : "Nothing overdue.");
 } else if (cmd === "statement") {
   try {
     if (!rest[0]) { for (const c of customers(books)) console.log(`${c.party.slice(0, 30).padEnd(30)} ${fmt(c.owed).padStart(12)}`); process.exit(0); }
