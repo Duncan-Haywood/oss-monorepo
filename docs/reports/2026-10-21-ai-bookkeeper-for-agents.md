@@ -61,3 +61,16 @@ per part; `parseSplit("4000:1000.00,6010:-30.00")` is the text form the CLI and
 page use. Splits skip `history`, so they never train memory. Tests:
 `ventures/ai-bookkeeper/engine.test.mjs`, four cases (payout, loan, refusals
 and undo, checks and export).
+
+## Update: invoices and bills (2026-10-21)
+
+`analyze` takes `documents: [{ csv }]` (`type,number,date,due,party,amount,account`)
+and returns `aging`. A document journals on its own date to receivable (1100) or
+payable (2050, added to the chart if missing). A bank line settles one only on
+an exact amount, 0 to 180 days after, plus the number or the party name in its
+description; an amount alone is a 0.60 suggestion, never a post. Without that
+rule a deposit that pays an invoice would count as income twice. Matches are
+rebuilt every `categorize` pass, so re-filing a settled line reopens its
+document. New close checks: `control` (ledger receivable or payable differs from
+the open documents) and `overdue` / `bill-overdue` (over 30 days past due).
+Tests: engine.test.mjs, "Accruals". Not measured on a real invoice export.

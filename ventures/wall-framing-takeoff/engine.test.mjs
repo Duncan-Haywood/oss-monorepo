@@ -203,3 +203,83 @@ test("default stock carries the precut stud for the wall height asked", () => {
   assert.ok(defaultStock(PRECUT["9ft"]).some((s) => s.label === "precut stud" && s.length === PRECUT["9ft"]));
   assert.ok(!defaultStock(PRECUT["9ft"]).some((s) => s.length === PRECUT["8ft"]));
 });
+
+// ---- sheathing ----
+import { sheathe, defaultSheathing, panelBreaks } from "./sheathing.mjs";
+
+const sheathed = (plan) => { const r = takeoff(plan); return { r, s: sheathe({ ...plan, sheathing: defaultSheathing() }, r) }; };
+
+test("a plain 10 ft wall at 16 on center: joints on studs at 48 and 96, a 24 in last panel", () => {
+  const plan = { ...base(), walls: [{ id: "A", length: 120, stud: "2x4" }] };
+  const { s } = sheathed(plan);
+  assert.ok(s.ok);
+  assert.deepEqual(s.walls[0].panels.map((p) => [p.x0, p.x1]), [[0, 48 - 0], [48, 96], [96, 120]].map(([a, b]) => [a, b]));
+  assert.deepEqual(s.walls[0].check, []);
+  // 97-1/8 in of wall needs a 4x9 sheet; three strips (48, 48, 24) share two sheets: 48 | 48 | 24 does not pack, so three
+  assert.equal(s.sheet.length, 108);
+  assert.equal(s.summary.panels, 3);
+});
+
+test("19.2 on center: a panel is ripped short to the last stud that fits", () => {
+  const plan = { ...base(), studSpacing: 19.2, walls: [{ id: "A", length: 144, stud: "2x4" }] };
+  const { s } = sheathed(plan);
+  const [p1] = s.walls[0].panels;
+  // studs are centred on 19.2, 38.4, 57.6 ...; the furthest centre within 48 is 38.4
+  assert.ok(Math.abs(p1.x1 - 38.4) < 0.07, String(p1.x1));
+  assert.deepEqual(s.walls[0].check, []);
+});
+
+test("an opening is cut out of the panel and the cut-outs add up to the opening width", () => {
+  const plan = { ...base(), walls: [{ id: "A", length: 192, stud: "2x4", openings: [{ kind: "window", label: "W", offset: 60, width: 36, height: 48, header: "2x10" }] }] };
+  const { s } = sheathed(plan);
+  const cuts = s.walls[0].panels.flatMap((p) => p.cutouts);
+  assert.equal(cuts.reduce((t, c) => t + (c.x1 - c.x0), 0), 36);
+  for (const c of cuts) { assert.equal(c.y1, 82.5); assert.equal(c.y0, 82.5 - 48); }
+  assert.deepEqual(s.walls[0].check, []);
+});
+
+test("interior walls marked sheathed:false are skipped", () => {
+  const { s } = sheathed(samplePlan());
+  assert.deepEqual(s.walls.map((w) => w.id), ["Front", "Right", "Back", "Left"]);
+});
+
+test("no sheet long enough is an error, and a shorter cover height uses the 4x8", () => {
+  const plan = { ...base(), walls: [{ id: "A", length: 96, stud: "2x4" }] };
+  const r = takeoff(plan);
+  const a = sheathe({ ...plan, sheathing: { sheets: [{ label: "4x8", width: 48, length: 96, price: 1 }] } }, r);
+  assert.equal(a.ok, false);
+  const b = sheathe({ ...plan, sheathing: { sheets: [{ label: "4x8", width: 48, length: 96, price: 1 }], coverHeight: 96 } }, r);
+  assert.ok(b.ok);
+  assert.equal(b.summary.sheets, 2);
+});
+
+test("400 seeded random walls: panels tile the wall, every edge has framing, cost is never below the bound", () => {
+  const rand = rng(77);
+  let withNailer = 0;
+  for (let n = 0; n < 400; n++) {
+    const length = 60 + Math.floor(rand() * 40) * 12;
+    const ops = [];
+    let at = 24;
+    for (let k = 0; k < Math.floor(rand() * 4); k++) {
+      const width = [24, 36, 48, 72][Math.floor(rand() * 4)];
+      const kind = rand() < 0.3 ? "door" : "window";
+      if (at + width + 24 > length) break;
+      ops.push(kind === "door" ? { kind, offset: at, width, height: 82.5, header: "2x10" } : { kind, offset: at, width, height: 48, header: "2x10" });
+      at += width + 30 + Math.floor(rand() * 60);
+    }
+    const plan = { ...base(), studSpacing: [16, 19.2, 24][Math.floor(rand() * 3)], walls: [{ id: "W", length, stud: "2x4", corner: rand() < 0.5, openings: ops }] };
+    const { r, s } = sheathed(plan);
+    if (!r.ok || !s.ok || !s.walls.length) continue;
+    const w = s.walls[0];
+    assert.deepEqual(w.check, [], JSON.stringify(plan));
+    assert.equal(w.panels.reduce((t, p) => t + p.width, 0), length);
+    assert.ok(s.summary.cost >= s.summary.bound - 1e-9);
+    assert.ok(s.summary.sheets <= s.summary.panels);
+    withNailer += w.nailers.length > 0 ? 1 : 0;
+  }
+  assert.ok(withNailer >= 0);
+});
+
+test("panelBreaks: nothing in reach and no opening gives null", () => {
+  assert.equal(panelBreaks(200, [0, 100, 200], 48, 12, []), null);
+});

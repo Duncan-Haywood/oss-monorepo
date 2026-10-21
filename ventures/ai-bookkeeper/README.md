@@ -127,9 +127,36 @@ That 60% is held down by the payees deliberately filed two ways and by the
 one-off merchants. Real bank files will be messier, and the first real export
 someone reports is worth more than this table.
 
+### Which layer earns its keep (ablation)
+
+`node ventures/ai-bookkeeper/eval/ablation.mjs` reruns the same synthetic year
+with layers switched off (`skipLayers`). Months 4 to 12, 5 seeds, 2,074 lines
+that are not paired transfers; "right in all" counts lines posted alone or
+carrying a right suggestion:
+
+| layers | posted alone, right | right in all | wrong suggestions | no suggestion |
+|---|---|---|---|---|
+| all | 62.6% | 88.8% | 100 | 6.4% |
+| without memory | 0% | 85.9% | 77 | 10.4% |
+| without the classifier | 62.6% | 86.8% | 68 | 9.8% |
+| without built-in keywords | 62.6% | 85.8% | 100 | 9.3% |
+| memory only | 62.6% | 81.1% | 68 | 15.6% |
+| classifier only | 0% | 78.2% | 77 | 18.1% |
+| built-in keywords only | 0% | 54.7% | 0 | 45.3% |
+
+Reading it, same caveat as above (synthetic data, keywords written by the
+generator's author): memory alone gets to 81%, and the other two layers add
+about 8 points between them. Auto-posting comes only from memory and your
+rules, so without memory nothing posts alone, however good the classifier is.
+Wrong suggestions rise from 68 (memory only) to 100 (all layers) as the
+extra layers widen coverage, while "right in all" rises from 81.1% to 88.8%.
+Suggestions never post alone unless memory or a rule made them. Which
+of the two extra layers adds the most cannot be read off this table: each
+"without" row removes a layer the others partly cover.
+
 **Not yet measured:** accuracy of the AI layer (no key or local model in the
-build environment; the tests check its guard rails with a stubbed reply), each
-layer's share (an ablation), and any real bank export.
+build environment; the tests check its guard rails with a stubbed reply), and
+any real bank export.
 
 ### Checked by hand
 
@@ -149,19 +176,53 @@ layer's share (an ablation), and any real bank export.
 `payee => code` lines; `addRules` appends them to the books' rules. Test:
 engine.test.mjs, "offered as rules".
 
+## Invoices and bills (accruals)
+
+Bank lines alone give cash-basis books: a sale counts the day the deposit
+lands. Load an invoice and bill list and the books go accrual for those
+documents. `accruals.mjs`; CLI `documents FILE`, `aging [--as-of D]`; agents
+pass `documents: [{ "csv": "..." }]` to `analyze` and get `aging` back.
+
+The CSV has a header `type,number,date,due,party,amount,account`. `type` is
+`invoice` or `bill`. Rows that share a type and number are one document with a
+line per row (an invoice's sales line to `4000`, its tax line to `2100`). A
+document journals on its own date: an invoice debits Accounts receivable
+(1100) and credits its lines; a bill credits Accounts payable (2050, added to
+the chart if it is missing) and debits its lines. Loading a number twice adds
+nothing.
+
+A bank line clears a document when it has the **exact amount**, falls 0 to 180
+days after the document date, and carries the **invoice number or the party's
+name** in its description. It is then `settled` and posts to receivable or
+payable instead of income, so revenue is counted once, in the month invoiced.
+An amount match with nothing else (one open document of that amount) is only a
+0.60 suggestion in the review queue. Nothing is guessed across amounts: a
+part-payment or a bundled payment stays in review, and you file it yourself.
+Matches are rebuilt on every pass, so filing a settled line elsewhere reopens
+its document.
+
+Close checks add: receivable or payable in the ledger that differs from the
+open documents (a line filed to 1100 or 2050 with no document behind it), and
+invoices or bills more than 30 days past due. `aging` buckets what is open as
+current, 1-30, 31-60, 61-90 and 90+ days past due.
+
+Tests: engine.test.mjs, "Accruals". Not measured on real invoice exports (the
+tests use a four-row list); the matching thresholds are a first guess.
+
 ## Not modelled
 
-Accruals (unpaid invoices and bills), depreciation, inventory, payroll and
-sales tax filings, multiple currencies, locking a closed period, and receipts. It is cash-basis bookkeeping from bank
-lines.
+Part-payments and credit notes against a document, depreciation, inventory,
+payroll and sales tax filings, multiple currencies, locking a closed period,
+and receipts. The page does not take an invoice list yet (engine, CLI and
+agents do).
 
 ## Next
 
 - One real bank export of each major US shape (Chase, Bank of America, Wells
   Fargo, Amex, Capital One), each as a fixture with its quirks handled.
-- Accruals from an invoice and bill list.
+- Invoice and bill list on the page; part-payments and credit notes.
 - Measure the AI layer with a local model on the synthetic year's review
-  queue, and run the per-layer ablation.
+  queue.
 
 
 ## Disclaimer

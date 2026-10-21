@@ -3,6 +3,7 @@
 // Wall framing takeoff from the terminal: a plan JSON in, an order, a cut
 // list and per-wall layout marks out.
 import { readFileSync } from "node:fs";
+import { sheathe, defaultSheathing, sheathingText } from "./sheathing.mjs";
 import { takeoff, samplePlan, toCsv, formatLength, formatInches, parseLength } from "./engine.mjs";
 
 const HELP = `wall-framing-takeoff: stud layout, cut list and the cheapest lumber order for a set of walls
@@ -11,6 +12,7 @@ Usage:
   node cli.mjs plan.json            print the order, the cut list and the layout marks
   node cli.mjs plan.json --json     the full result as JSON
   node cli.mjs plan.json --csv      order, cut list and board-by-board cuts as CSV
+  node cli.mjs plan.json --sheathing  add panel layout per wall and the sheet order
   node cli.mjs --example            print the example plan (an invented 40 x 28 ft ranch) to start from
   cat plan.json | node cli.mjs -    read the plan from stdin
 
@@ -53,6 +55,7 @@ export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "u
   }
   const r = takeoff(plan);
   if (!r.ok) return { code: 1, out: `The plan has problems:\n${r.errors.map((e) => `  - ${e}`).join("\n")}` };
+  if (flags.has("--sheathing") || plan.sheathing) r.sheathing = sheathe({ ...plan, sheathing: { ...defaultSheathing(), ...(plan.sheathing || {}) } }, r);
   if (flags.has("--json")) return { code: 0, out: JSON.stringify(r, null, 2) };
   if (flags.has("--csv")) return { code: 0, out: toCsv(r).trimEnd() };
   const s = r.summary;
@@ -73,6 +76,7 @@ export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "u
     lines.push(`  ${w.id} (${formatLength(w.length)}): ${marks.map((m) => `${formatInches(m.x)}${m.kind === "stud" ? "" : ` ${m.kind[0].toUpperCase()}`}`).join(", ")}`);
   }
   lines.push("  K = king, C = corner backing, T = tee backing; jacks sit inside the kings.");
+  if (r.sheathing) lines.push("", "SHEATHING (panels run vertically from the wall start; widths left to right)", ...sheathingText(r.sheathing));
   if (r.notes.length) lines.push("", "NOTES", ...r.notes.map((n) => `  - ${n}`));
   lines.push("", "Header sizes and jack counts are your inputs and are not checked against a span table or code.");
   return { code: 0, out: lines.join("\n") };
