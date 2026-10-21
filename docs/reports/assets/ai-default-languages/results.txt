@@ -1,0 +1,100 @@
+Replies: 449  (by model alias: {'haiku': 150, 'sonnet': 150, 'opus': 149})
+
+Per task: label counts over all models and framings
+  fib           [open       ] n=18  top=Python 18/18  all={'Python': 18}
+  palindrome    [open       ] n=18  top=Python 18/18  all={'Python': 18}
+  wordfreq      [scripting  ] n=18  top=Python 18/18  all={'Python': 18}
+  rename        [scripting  ] n=18  top=Shell 13/18  all={'Shell': 13, 'no code (looked for input)': 5}
+  dijkstra      [algorithm  ] n=18  top=Python 18/18  all={'Python': 18}
+  lru           [algorithm  ] n=18  top=Python 18/18  all={'Python': 18}
+  csvmonthly    [data       ] n=18  top=Python 15/18  all={'Python': 15, 'no code (looked for input)': 3}
+  regression    [data       ] n=18  top=Python 12/18  all={'Python': 12, 'no code (looked for input)': 6}
+  topcustomers  [data       ] n=18  top=SQL 17/18  all={'SQL': 17, 'Python': 1}
+  primes        [performance] n=18  top=C 14/18  all={'C': 14, 'C++': 3, 'no code (looked for input)': 1}
+  httpserver    [systems    ] n=18  top=Python 18/18  all={'Python': 18}
+  fetch1000     [systems    ] n=18  top=Python 14/18  all={'Python': 14, 'Shell': 4}
+  binarycli     [systems    ] n=17  top=Go 15/17  all={'Go': 15, 'no code (looked for input)': 2}
+  led           [embedded   ] n=18  top=Arduino C++ 9/18  all={'Arduino C++': 9, 'C++': 7, 'C': 2}
+  browsertool   [web        ] n=18  top=HTML + inline JS 14/18  all={'HTML + inline JS': 14, 'HTML': 3, 'no code (looked for input)': 1}
+  todoapp       [app        ] n=18  top=HTML + inline JS 15/18  all={'HTML + inline JS': 15, 'HTML': 3}
+  snake         [app        ] n=18  top=HTML + inline JS 15/18  all={'HTML + inline JS': 15, 'no code (looked for input)': 2, 'HTML': 1}
+  config        [config     ] n=18  top=YAML 18/18  all={'YAML': 18}
+  readme        [docs       ] n=18  top=Markdown 18/18  all={'Markdown': 18}
+  funcdoc       [docs       ] n=18  top=Python docstring 11/18  all={'Python docstring': 11, 'Markdown': 7}
+  designdoc     [docs       ] n=18  top=Markdown 18/18  all={'Markdown': 18}
+  apiref        [docs       ] n=18  top=YAML 15/18  all={'YAML': 15, 'JSON': 1, 'Shell': 1, 'HTTP': 1}
+  diagram       [docs       ] n=18  top=Mermaid 17/18  all={'Mermaid': 17, 'ASCII art': 1}
+  derivation    [docs       ] n=18  top=Markdown + LaTeX math 18/18  all={'Markdown + LaTeX math': 18}
+  schema        [docs       ] n=18  top=JSON 18/18  all={'JSON': 18}
+
+Per task and model (labels across both framings)
+  fib           haiku: Python 6 | opus: Python 6 | sonnet: Python 6
+  palindrome    haiku: Python 6 | opus: Python 6 | sonnet: Python 6
+  wordfreq      haiku: Python 6 | opus: Python 6 | sonnet: Python 6
+  rename        haiku: Shell 5, no code (looked for input) 1 | opus: Shell 6 | sonnet: no code (looked for input) 4, Shell 2
+  dijkstra      haiku: Python 6 | opus: Python 6 | sonnet: Python 6
+  lru           haiku: Python 6 | opus: Python 6 | sonnet: Python 6
+  csvmonthly    haiku: Python 5, no code (looked for input) 1 | opus: Python 6 | sonnet: Python 4, no code (looked for input) 2
+  regression    haiku: Python 3, no code (looked for input) 3 | opus: Python 6 | sonnet: no code (looked for input) 3, Python 3
+  topcustomers  haiku: SQL 6 | opus: SQL 6 | sonnet: SQL 5, Python 1
+  primes        haiku: C 5, no code (looked for input) 1 | opus: C 6 | sonnet: C 3, C++ 3
+  httpserver    haiku: Python 6 | opus: Python 6 | sonnet: Python 6
+  fetch1000     haiku: Python 6 | opus: Python 4, Shell 2 | sonnet: Python 4, Shell 2
+  binarycli     haiku: Go 6 | opus: Go 5 | sonnet: Go 4, no code (looked for input) 2
+  led           haiku: C++ 3, Arduino C++ 3 | opus: Arduino C++ 3, C++ 2, C 1 | sonnet: Arduino C++ 3, C++ 2, C 1
+  browsertool   haiku: HTML + inline JS 6 | opus: HTML + inline JS 5, no code (looked for input) 1 | sonnet: HTML 3, HTML + inline JS 3
+  todoapp       haiku: HTML + inline JS 6 | opus: HTML + inline JS 6 | sonnet: HTML 3, HTML + inline JS 3
+  snake         haiku: HTML + inline JS 6 | opus: HTML + inline JS 6 | sonnet: HTML + inline JS 3, no code (looked for input) 2, HTML 1
+  config        haiku: YAML 6 | opus: YAML 6 | sonnet: YAML 6
+  readme        haiku: Markdown 6 | opus: Markdown 6 | sonnet: Markdown 6
+  funcdoc       haiku: Markdown 3, Python docstring 3 | opus: Python docstring 4, Markdown 2 | sonnet: Python docstring 4, Markdown 2
+  designdoc     haiku: Markdown 6 | opus: Markdown 6 | sonnet: Markdown 6
+  apiref        haiku: YAML 3, JSON 1, Shell 1, HTTP 1 | opus: YAML 6 | sonnet: YAML 6
+  diagram       haiku: Mermaid 6 | opus: Mermaid 5, ASCII art 1 | sonnet: Mermaid 6
+  derivation    haiku: Markdown + LaTeX math 6 | opus: Markdown + LaTeX math 6 | sonnet: Markdown + LaTeX math 6
+  schema        haiku: JSON 6 | opus: JSON 6 | sonnet: JSON 6
+
+Framing effect: tasks whose top label differs between bare and agent framing
+  led: bare={'C++': 7, 'C': 2} agent={'Arduino C++': 9}
+
+Code tasks answered in Python: 150/305 = 49% (95% CI 44-55)
+Python share on tasks with no platform or speed signal (csvmonthly, dijkstra, fib, lru, palindrome, regression, wordfreq): 117/126 = 93% (95% CI 87-96)
+  haiku: code labels {'Python': 50, 'HTML + inline JS': 18, 'SQL': 6, 'Go': 6, 'no code (looked for input)': 6, 'Shell': 5, 'C': 5, 'C++': 3, 'Arduino C++': 3}
+  opus: code labels {'Python': 52, 'HTML + inline JS': 17, 'Shell': 8, 'C': 7, 'SQL': 6, 'Go': 5, 'Arduino C++': 3, 'C++': 2, 'no code (looked for input)': 1}
+  sonnet: code labels {'Python': 48, 'no code (looked for input)': 13, 'HTML + inline JS': 9, 'HTML': 7, 'SQL': 5, 'C++': 5, 'C': 4, 'Shell': 4, 'Go': 4, 'Arduino C++': 3}
+Distinct primary languages on code tasks: 10: {'Python': 150, 'HTML + inline JS': 44, 'no code (looked for input)': 20, 'Shell': 17, 'SQL': 17, 'C': 16, 'Go': 15, 'C++': 10, 'Arduino C++': 9, 'HTML': 7}
+Primary-language counts for languages often called popular: C# 0, Java 0, Julia 0, Kotlin 0, PHP 0, R 0, Ruby 0, Rust 0, Swift 0, TypeScript 0, Zig 0
+
+Document tasks: languages used in code samples inside the document
+  readme     {'Markdown': 12, 'Shell': 6, 'Python': 4, 'JavaScript': 2, 'TypeScript': 1}
+  funcdoc    {'Python': 16, 'Markdown': 2}
+  designdoc  {'Markdown': 6, 'YAML': 1}
+  apiref     {'YAML': 15, 'JSON': 6, 'HTTP': 2, 'Shell': 1}
+  schema     {'JSON': 18, 'TypeScript': 6, 'SQL': 2, 'Python': 1}
+
+Replies that state an assumption or invite correction: 78/449; that mention letting the user pick the language: 3/449
+Replies that wrote a pretend tool call as text: {('haiku', 'bare'): 1, ('sonnet', 'bare'): 31, ('opus', 'bare'): 1}
+Median lines in the main code block, by language: Python 27 (n=144), HTML + inline JS 178 (n=44), SQL 11 (n=17), C 66 (n=16), Go 56 (n=15), C++ 19 (n=10), Arduino C++ 15 (n=9)
+
+Pushed condition (sonnet, agent framing): see bench.txt for run results
+  csvmonthly -> Go rep 0: wrote ['main.go'], main file 102 lines
+  csvmonthly -> Go rep 1: wrote ['main.go'], main file 102 lines
+  csvmonthly -> Go rep 2: wrote ['main.go'], main file 102 lines
+  csvmonthly -> Rust rep 0: wrote ['Cargo.toml', 'src/main.rs'], main file 52 lines
+  csvmonthly -> Rust rep 1: wrote ['Cargo.toml', 'src/main.rs'], main file 57 lines
+  csvmonthly -> Rust rep 2: wrote ['Cargo.toml', 'src/main.rs'], main file 44 lines
+  primes -> C rep 0: wrote ['primes.c'], main file 42 lines
+  primes -> C rep 1: wrote ['primes.c'], main file 57 lines
+  primes -> C rep 2: wrote ['primes.c'], main file 58 lines
+  primes -> Python rep 0: wrote ['primes.py'], main file 59 lines
+  primes -> Python rep 1: wrote ['count_primes.py'], main file 42 lines
+  primes -> Python rep 2: wrote ['primes.py'], main file 33 lines
+  primes -> Rust rep 0: wrote ['primes.rs'], main file 73 lines
+  primes -> Rust rep 1: wrote ['primes.rs'], main file 80 lines
+  primes -> Rust rep 2: wrote ['primes.rs'], main file 80 lines
+  wordfreq -> Go rep 0: wrote ['wordfreq.go'], main file 64 lines
+  wordfreq -> Go rep 1: wrote ['main.go'], main file 64 lines
+  wordfreq -> Go rep 2: wrote ['wordfreq.go'], main file 66 lines
+  wordfreq -> Rust rep 0: wrote ['wordfreq.rs'], main file 39 lines
+  wordfreq -> Rust rep 1: wrote ['wordcount.rs'], main file 39 lines
+  wordfreq -> Rust rep 2: wrote ['wordfreq.rs'], main file 39 lines

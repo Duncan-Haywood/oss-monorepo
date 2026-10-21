@@ -1,0 +1,45 @@
+{
+  "date": "2026-10-20",
+  "session": "https://claude.ai/code/session_01TGBucpti95TDkfhXpzmN7m",
+  "track": "ventures",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-20T23:58:12Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship 2 (einvoice-preflight): UAE e-invoicing mandate page",
+  "projects": [
+    "einvoice-preflight"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/8968",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "promptctl route drew the research track, but the scheduled task asked for revenue products, so the run took the top venture flagship slice with a regulatory tailwind."
+    }
+  ],
+  "goal": null,
+  "notes": "UAE page from a web search of adviser sites (Ministerial Decisions 243/244 of 2025 as amended by 66 of 2026; Cabinet Decision 106 of 2025). One source conflicts and is said so on the page. Checks: node --test *.test.mjs in ventures/einvoice-preflight: 414 pass, 0 fail, 14 skipped (Saxon-JS artefacts absent). The page claims no PINT AE validation.",
+  "corrections": [],
+  "redteam": null
+}
