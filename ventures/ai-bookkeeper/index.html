@@ -201,7 +201,7 @@
     <p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> or <a href="https://buymeacoffee.com/duncanhaywood" rel="noopener">buy me a coffee</a> is entirely optional and never changes what the tool does.</p>
   </footer>
   <script type="module">
-    import { newBooks, importStatement, categorize, suggestRules, addRules, addDocuments, aging, salesTax, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, exportLines, status, analyze, fmt, DEFAULT_ACCOUNTS } from "./engine.mjs";
+    import { newBooks, importStatement, categorize, suggestRules, addRules, addDocuments, writeOff, aging, salesTax, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, exportLines, status, analyze, fmt, DEFAULT_ACCOUNTS } from "./engine.mjs";
     import { parseAccounts } from "./ledger.mjs";
     import { aiSuggest } from "./ai.mjs";
     import { detectLocal, isLocal } from "./byok.mjs";
@@ -301,7 +301,21 @@
       if (!docs.length) { $("#aging").replaceChildren(); return; }
       const a = aging(books);
       const row = (label, side) => [label, ...side.byBucket.map((v) => fmt(v)), fmt(side.total)];
-      $("#aging").replaceChildren(el("p", { class: "note", text: `${docs.filter((d) => d.settledBy).length} of ${docs.length} documents are paid by a bank line. Open items as of ${a.asOf}, by days past due:` }), table(["", ...a.buckets, "Total"], [row("Owed to you", a.receivable), row("You owe", a.payable)]));
+      $("#aging").replaceChildren(el("p", { class: "note", text: `${docs.filter((d) => d.settledBy).length} of ${docs.length} documents are paid by a bank line. Open items as of ${a.asOf}, by days past due:` }), table(["", ...a.buckets, "Total"], [row("Owed to you", a.receivable), row("You owe", a.payable)]), writeOffList(a));
+    }
+
+    // Open invoices with a write-off button: for a customer who will not pay. Books the balance to bad debts (6900).
+    function writeOffList(a) {
+      const open = a.open.filter((o) => o.kind === "invoice" && !o.credit).slice(0, 25);
+      if (!open.length) return el("span");
+      const rows = open.map((o) => {
+        const b = el("button", { type: "button", class: "secondary", "aria-label": `Write off invoice ${o.id}`, text: "Write off" });
+        b.addEventListener("click", () => {
+          try { const r = writeOff(books, o.id); books = categorize(r.books, opts()); record("invoice_written_off"); render(); $("#docs-status").textContent = `Wrote off ${fmt(r.cents)} of ${o.id} to bad debts (6900).`; } catch (e) { $("#docs-status").textContent = e.message; }
+        });
+        return el("tr", {}, el("td", { text: o.id }), el("td", { text: o.party }), el("td", { class: "n", text: o.due ?? o.date }), el("td", { class: "n", text: `${o.daysLate} days` }), el("td", { class: "n", text: fmt(o.total) }), el("td", {}, b));
+      });
+      return el("div", {}, el("p", { class: "note", text: "Open invoices. Write off one that will not be paid; its unpaid balance goes to bad debts and it leaves the aging table:" }), el("table", {}, el("thead", {}, el("tr", {}, ...["Invoice", "Customer", "Due", "Late", "Owed", ""].map((h) => el("th", { scope: "col", text: h })))), el("tbody", {}, ...rows)));
     }
 
     function renderSalesTax() {
