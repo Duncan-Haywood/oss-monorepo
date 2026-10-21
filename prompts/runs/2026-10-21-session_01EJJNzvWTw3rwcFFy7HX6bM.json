@@ -32,10 +32,7 @@
   "doc_friction": [],
   "deviations": [],
   "writeups": [
-    {
-      "file": "ventures/quick-pick-survey/docs/INFORMATION-GAIN-SELECTOR.md",
-      "note": "extended with pool-cap latency table"
-    }
+    "ventures/quick-pick-survey/docs/INFORMATION-GAIN-SELECTOR.md"
   ],
   "goal": null,
   "notes": "Local tests passed (poolCap, pairing, pairLatency, infoGain simulation). CI not waited on. No agent doc/post written this run.",
