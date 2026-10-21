@@ -1,0 +1,7 @@
+{
+ "theme": "energy",
+ "title": "Which storage technology is cheapest at each duration once costs come from NREL ATB and PyPSA technology-data, not from round numbers?",
+ "summary": "Re-runs <em>energy-lcos</em> and <em>energy-lcos-mc</em> with every cost, efficiency and lifetime read from PyPSA technology-data (Danish Energy Agency; Viswanathan et al. 2022) and NREL ATB 2024, converted at the ECB 2025 rate. Point estimates keep the assumed map's order (Li-ion up to 4 h at $121/MWh, cavern compressed air from 6 h up) except at 500 h, where hydrogen no longer wins ($425 against $258). Over the sourced spread (ATB scenarios, pumped-hydro site classes, cost years 2020 to 2050, rate 3&ndash;10%, charging $10&ndash;100/MWh) 8 h is a three-way contest: pumped hydro 52%, compressed air 27%, Li-ion 22%; cavern air wins at least 95% from 48 h. Cavern air has a single sourced value, so the cost multiple that would cost it the win is reported (1.33 at 8 h, 2.2 at 24 h). Limitations: cycle life, fade, discount rate and charging price are not sourced; the spread is the range of two sources, not a probability."
+,
+ "lede": "which storage technology is cheapest at each duration once costs are sourced (NREL ATB 2024, PyPSA technology-data)? Li-ion to 4 h, cavern compressed air from 6 h; at 8 h pumped hydro 52%, air 27%, Li-ion 22% of scenarios; hydrogen's assumed 500 h win does not survive."
+}
