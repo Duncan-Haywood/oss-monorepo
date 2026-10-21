@@ -51,7 +51,9 @@ construction in the US and bring its cost down: [ROADMAP.md](ROADMAP.md).
   all walls, so one wall's remainder becomes the next wall's panel, with an LP
   bound. Walls marked `"sheathed": false` (interior) are skipped. Where a joint
   has to fall over an opening with no cripple under it, the note says to fit a
-  nailer, and the nailers are added to the cut list and the lumber order (CLI with `--sheathing`, and the page when sheathing is on).
+  nailer, and `nailerLumber` (also in the CLI's sheathing section) gives the
+  nailers as a cut list and a board order from the plan's stock, to add to the
+  framing order. With `--sheathing` (and on the page) the nailers are also pooled into the framing order itself, so they can come out of its offcuts.
 - **Outputs.** Order with totals, cut list, board-by-board cutting plan with
   offcuts, layout marks per wall, an elevation drawing per wall, CSV export, and
   a plan file you can save and reopen.

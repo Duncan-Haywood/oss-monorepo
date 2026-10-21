@@ -178,12 +178,14 @@ export function sheathe(plan, result) {
     ripOffcut: b.offcut,
     topOffcut: sheet.length - cover,
   }));
+  const nailerLumber = nailerOrder(walls, plan);
   return {
     ok: true,
     sheet,
     cover,
     walls,
     strips,
+    nailerLumber,
     order: { label: sheet.label || `${formatInches(width)} x ${formatInches(sheet.length)}`, qty: res.bars.length, price: sheet.price, cost: res.cost },
     summary: {
       panels: pieces.length,
@@ -222,6 +224,41 @@ export function nailerCuts(s) {
   return [...map.values()];
 }
 
+/**
+ * Extra lumber for the nailers: a cut list in the main list's shape and a board
+ * order per stud size from the plan's stock, so the lumber order can be added
+ * to the framing order (or the pieces cut from its offcuts).
+ */
+function nailerOrder(walls, plan) {
+  const map = new Map();
+  for (const w of walls) {
+    for (const p of w.nailerPieces) {
+      if (!(p.length > EPS)) continue;
+      const key = `${p.size}|${p.length}`;
+      const row = map.get(key) || { size: p.size, length: p.length, kind: "nailer", qty: 0, walls: new Set() };
+      row.qty++;
+      row.walls.add(w.id);
+      map.set(key, row);
+    }
+  }
+  const cuts = [...map.values()].map((r) => ({ ...r, walls: [...r.walls] })).sort((a, b) => a.size.localeCompare(b.size) || b.length - a.length);
+  const orders = [];
+  for (const size of [...new Set(cuts.map((c) => c.size))]) {
+    const stock = (plan.stock || []).filter((s) => s.size === size);
+    if (!stock.length) continue;
+    const res = optimizeStock(cuts.filter((c) => c.size === size).map((c) => ({ length: c.length, qty: c.qty, ref: "nailer" })), stock, plan.kerf ?? 0.125);
+    const lines = new Map();
+    for (const b of res.bars) {
+      const key = `${b.length}|${b.label || ""}`;
+      const row = lines.get(key) || { size, length: b.length, label: b.label || "", price: b.price, qty: 0 };
+      row.qty++;
+      lines.set(key, row);
+    }
+    orders.push({ size, cost: res.cost, bound: res.bound, boards: res.bars.length, lines: [...lines.values()].sort((a, b) => b.length - a.length) });
+  }
+  return { cuts, orders, cost: orders.reduce((t, o) => t + o.cost, 0) };
+}
+
 /** Self-check one wall's panels. Returns a list of problems; empty means it passes. */
 function checkWall(w, panels, centres, width, cover, ops, plan) {
   const bad = [];
@@ -253,6 +290,12 @@ export function sheathingText(s) {
   for (const w of s.walls) {
     out.push(`  ${w.id}: ${w.panels.map((p) => `${formatInches(p.width)}${p.cutouts.length ? ` (cut ${p.cutouts.map((c) => c.label).join(", ")})` : ""}`).join(" | ")}`);
     for (const b of w.check) out.push(`    CHECK FAILED: ${b}`);
+  }
+  const nl = s.nailerLumber;
+  if (nl && nl.cuts.length) {
+    out.push("  Nailers to add to the lumber order:");
+    for (const c of nl.cuts) out.push(`    ${c.qty} x ${c.size} ${formatInches(c.length)} (${c.walls.join(", ")})`);
+    for (const o of nl.orders) out.push(`    buy ${o.lines.map((l) => `${l.qty} x ${l.size} ${formatInches(l.length)}`).join(", ")}; ${o.cost.toFixed(2)}`);
   }
   for (const n of s.notes) out.push(`  - ${n}`);
   return out;
