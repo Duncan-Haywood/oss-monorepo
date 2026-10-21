@@ -45,7 +45,7 @@ export const PRECUT = { "8ft": 92.625, "9ft": 104.625, "10ft": 116.625 };
  * @typedef {{ size: string, length: number, price: number, label?: string }} Stock
  * @typedef {{ studSpacing: number, studLength: number, kerf: number, topPlateLap: number,
  *   cornerExtraStuds: number, teeExtraStuds: number, defaultHeaderHeight: number,
- *   stock: Stock[], walls: Wall[] }} Plan
+ *   blocking?: { rows?: number, fire?: boolean }, stock: Stock[], walls: Wall[] }} Plan
  * @typedef {{ kind: string, x: number, y: number, w: number, h: number, size: string,
  *   length: number, orient: "v"|"h", label: string }} Member
  */
