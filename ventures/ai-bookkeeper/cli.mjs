@@ -1,0 +1,106 @@
+#!/usr/bin/env node
+// AI Bookkeeper from a terminal. The books live in one JSON file you name with
+// --books; every command reads it and, if it changed anything, writes it back.
+//
+//   node cli.mjs --books books.json import checking.csv --account 1000
+//   node cli.mjs --books books.json import card.csv --account 2000 --invert
+//   node cli.mjs --books books.json review
+//   node cli.mjs --books books.json confirm <id>=6060 <id>=6130
+//   node cli.mjs --books books.json accept 0.7
+//   node cli.mjs --books books.json ai            (LLM_PROVIDER / ANTHROPIC_API_KEY / OLLAMA ...)
+//   node cli.mjs --books books.json report [--from 2026-01-01] [--to 2026-03-31] [--json]
+//   node cli.mjs --books books.json checks
+//   node cli.mjs --books books.json export qbo|xero|iif|csv|lines > journal.csv
+//   node cli.mjs --example report
+import { readFileSync, writeFileSync, existsSync } from "node:fs";
+import { newBooks, importStatement, categorize, confirm, acceptSuggestions, reports, closeChecks, exportJournal, exportLines, status, analyze, fmt } from "./engine.mjs";
+import { accountMap } from "./ledger.mjs";
+
+const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that learn from your corrections.
+
+  --books FILE           the books (JSON); created on first import
+  --example              start from the synthetic three-month example instead
+  import FILE --account CODE [--invert] [--day-first] [--decimal-comma] [--auto 0.85]
+  review                 list lines waiting for an account
+  confirm ID=CODE ...    file lines (and learn from them)
+  accept [MIN]           accept every suggestion at or above MIN confidence (default 0.7)
+  ai                     ask a model for the review queue: your key or a local model
+                         (LLM_PROVIDER, LLM_MODEL, LLM_BASE_URL, LLM_API_KEY or ANTHROPIC_API_KEY)
+  report [--from D] [--to D] [--json]
+  checks                 close checks: review left, suspense, duplicates, unusual sizes, reconciliation
+  export FORMAT          qbo | xero | iif | csv | lines
+
+No warranty. Not accounting, tax or financial advice; check its output before you rely on it.`;
+
+const argv = process.argv.slice(2);
+const flag = (k) => { const i = argv.indexOf(k); if (i === -1) return null; const v = argv[i + 1]; argv.splice(i, 2); return v; };
+const has = (k) => { const i = argv.indexOf(k); if (i === -1) return false; argv.splice(i, 1); return true; };
+if (has("--help") || has("-h") || !argv.length) { console.log(HELP); process.exit(0); }
+
+const file = flag("--books");
+const json = has("--json"), example = has("--example"), invert = has("--invert"), dayFirst = has("--day-first"), decimalComma = has("--decimal-comma");
+const account = flag("--account"), from = flag("--from"), to = flag("--to"), auto = flag("--auto");
+let books = example ? analyze({ example: true }).books : file && existsSync(file) ? JSON.parse(readFileSync(file, "utf8")) : newBooks();
+const save = () => { if (file) writeFileSync(file, JSON.stringify(books, null, 1)); };
+const opts = { invert, dayFirst, decimalComma, ...(auto ? { autoPost: +auto } : {}) };
+const [cmd, ...rest] = argv;
+const map = accountMap(books.accounts);
+const name = (c) => (c ? `${c} ${map.get(c)?.name ?? ""}` : "-");
+
+if (cmd === "import") {
+  if (!rest[0] || !account) { console.error("import needs a CSV file and --account CODE"); process.exit(2); }
+  const r = importStatement(books, readFileSync(rest[0], "utf8"), account, opts);
+  books = r.books;
+  save();
+  for (const p of r.problems) console.error(p);
+  const s = status(books);
+  console.log(`${r.added} lines added, ${r.skipped} already in the books. ${s.auto} posted by rule or memory, ${s.transfer} transfer lines paired, ${s.review} waiting for review.`);
+  if (r.balanceCheck?.checked) console.log(r.balanceCheck.breaks.length ? `The running balance breaks at ${r.balanceCheck.breaks.length} line(s), first at line ${r.balanceCheck.breaks[0].line}: a row may be missing or doubled.` : "The statement's running balance agrees with every row.");
+} else if (cmd === "review") {
+  const q = books.transactions.filter((t) => t.status === "review");
+  if (json) console.log(JSON.stringify(q, null, 2));
+  else for (const t of q) console.log(`${t.id}  ${t.date}  ${fmt(t.cents).padStart(11)}  ${t.desc.slice(0, 42).padEnd(42)}  ${name(t.suggestion?.account)}  ${(t.suggestion?.confidence ?? 0).toFixed(2)}  ${t.suggestion?.reason ?? ""}`);
+  if (!json) console.log(`${q.length} waiting.`);
+} else if (cmd === "confirm") {
+  const choices = Object.fromEntries(rest.map((x) => x.split("=")));
+  books = confirm(books, choices);
+  save();
+  console.log(`${Object.keys(choices).length} filed. ${status(books).review} still waiting.`);
+} else if (cmd === "accept") {
+  const before = status(books).review;
+  books = acceptSuggestions(books, rest[0] ? +rest[0] : 0.7);
+  save();
+  console.log(`${before - status(books).review} suggestions accepted. ${status(books).review} still waiting.`);
+} else if (cmd === "ai") {
+  const { configFromEnv } = await import("./byok.mjs");
+  const { aiSuggest } = await import("./ai.mjs");
+  const r = await aiSuggest(configFromEnv(process.env), books);
+  if (r.source !== "model") { console.error(`AI is off or failed: ${r.error ?? "no provider configured"}. Set LLM_PROVIDER=ollama and LLM_MODEL, or ANTHROPIC_API_KEY.`); process.exit(1); }
+  books = categorize(r.books);
+  save();
+  console.log(`${r.suggested} lines have an AI suggestion (${r.dropped} answers dropped). Review them with "review", then "confirm" or "accept".`);
+} else if (cmd === "report") {
+  const r = reports(books, { from, to });
+  if (json) { console.log(JSON.stringify(r, null, 2)); process.exit(0); }
+  const p = r.profitAndLoss, b = r.balanceSheet;
+  console.log(`PROFIT AND LOSS ${p.months[0] ?? ""} to ${p.months.at(-1) ?? ""}`);
+  for (const l of p.income) console.log(`  ${l.name.padEnd(40)} ${fmt(l.total).padStart(12)}`);
+  console.log(`  ${"Total income".padEnd(40)} ${fmt(p.totalIncome).padStart(12)}`);
+  for (const l of p.expense) console.log(`  ${l.name.padEnd(40)} ${fmt(l.total).padStart(12)}`);
+  console.log(`  ${"Total expenses".padEnd(40)} ${fmt(p.totalExpense).padStart(12)}\n  ${"Net profit".padEnd(40)} ${fmt(p.net).padStart(12)}\n`);
+  console.log("BALANCE SHEET");
+  for (const [h, list] of [["Assets", b.assets], ["Liabilities", b.liabilities], ["Equity", b.equity]]) { console.log(`  ${h}`); for (const l of list) console.log(`    ${l.name.padEnd(38)} ${fmt(l.amount).padStart(12)}`); }
+  console.log(`    ${"Current earnings".padEnd(38)} ${fmt(b.currentEarnings).padStart(12)}`);
+  console.log(`  Assets ${fmt(b.totalAssets)} = liabilities ${fmt(b.totalLiabilities)} + equity ${fmt(b.totalEquity)}: ${b.balanced ? "balanced" : "NOT BALANCED"}`);
+  const s = status(books);
+  if (s.review) console.log(`\n${s.review} lines are still in review and not in these figures.`);
+} else if (cmd === "checks") {
+  const c = closeChecks(books, opts);
+  if (json) console.log(JSON.stringify(c, null, 2));
+  else for (const x of c) console.log(`[${x.severity}] ${x.message}`);
+} else if (cmd === "export") {
+  process.stdout.write(rest[0] === "lines" ? exportLines(books) : exportJournal(books, rest[0] ?? "csv"));
+} else {
+  console.error(`Unknown command "${cmd}".\n\n${HELP}`);
+  process.exit(2);
+}
