@@ -284,6 +284,65 @@ function ibanValid(iban) {
   return remainder === 1;
 }
 
+// Child order of the containers SdI's XSD sequences. Written from the
+// FatturaPA 1.2.x layout as remembered, not read from the XSD (the site was
+// unreachable); only the names listed here are judged, so an element this table
+// does not know is reported once as unknown rather than guessed at.
+const ORDER = {
+  FatturaElettronicaHeader: ["DatiTrasmissione", "CedentePrestatore", "RappresentanteFiscale", "CessionarioCommittente", "TerzoIntermediarioOSoggettoEmittente", "SoggettoEmittente"],
+  DatiTrasmissione: ["IdTrasmittente", "ProgressivoInvio", "FormatoTrasmissione", "CodiceDestinatario", "ContattiTrasmittente", "PECDestinatario"],
+  CedentePrestatore: ["DatiAnagrafici", "Sede", "StabileOrganizzazione", "IscrizioneREA", "Contatti", "RiferimentoAmministrazione"],
+  CessionarioCommittente: ["DatiAnagrafici", "Sede", "StabileOrganizzazione", "RappresentanteFiscale"],
+  Sede: ["Indirizzo", "NumeroCivico", "CAP", "Comune", "Provincia", "Nazione"],
+  FatturaElettronicaBody: ["DatiGenerali", "DatiBeniServizi", "DatiVeicoli", "DatiPagamento", "Allegati"],
+  DatiGeneraliDocumento: ["TipoDocumento", "Divisa", "Data", "Numero", "DatiRitenuta", "DatiBollo", "DatiCassaPrevidenziale", "ScontoMaggiorazione", "ImportoTotaleDocumento", "Arrotondamento", "Causale", "Art73"],
+  DatiBeniServizi: ["DettaglioLinee", "DatiRiepilogo"],
+  DettaglioLinee: ["NumeroLinea", "TipoCessionePrestazione", "CodiceArticolo", "Descrizione", "Quantita", "UnitaMisura", "DataInizioPeriodo", "DataFinePeriodo", "PrezzoUnitario", "ScontoMaggiorazione", "PrezzoTotale", "AliquotaIVA", "Ritenuta", "Natura", "RiferimentoAmministrazione", "AltriDatiGestionali"],
+  DatiRiepilogo: ["AliquotaIVA", "Natura", "SpeseAccessorie", "Arrotondamento", "ImponibileImporto", "Imposta", "EsigibilitaIVA", "RiferimentoNormativo"],
+  DatiPagamento: ["CondizioniPagamento", "DettaglioPagamento"],
+  DettaglioPagamento: ["Beneficiario", "ModalitaPagamento", "DataRiferimentoTerminiPagamento", "GiorniTerminiPagamento", "DataScadenzaPagamento", "ImportoPagamento", "IstitutoFinanziario", "IBAN", "ABI", "CAB", "BIC", "ScontoPagamentoAnticipato", "DataLimitePagamentoAnticipato", "PenalitaPagamentiRitardati", "DataDecorrenzaPenale", "CodicePagamento"],
+};
+// The seller's DatiAnagrafici and the buyer's differ in what follows Anagrafica.
+const ORDER_SELLER_ANAG = ["IdFiscaleIVA", "CodiceFiscale", "Anagrafica", "AlboProfessionale", "ProvinciaAlbo", "NumeroIscrizioneAlbo", "DataIscrizioneAlbo", "RegimeFiscale"];
+const ORDER_BUYER_ANAG = ["IdFiscaleIVA", "CodiceFiscale", "Anagrafica"];
+
+function checkOrder(node, order, path, out) {
+  let last = -1;
+  const unknown = new Set();
+  for (const c of node.children) {
+    const i = order.indexOf(c.name);
+    if (i < 0) { unknown.add(c.name); continue; }
+    if (i < last) {
+      out.push(finding("IT-018", `${c.name} is out of order inside ${node.name}: SdI's schema fixes the sequence of elements and rejects a file that breaks it.`,
+        `Move ${c.name} to its place in the order ${order.filter((n) => node.children.some((k) => k.name === n)).join(", ")}.`, `${path}/${c.name}`));
+    } else last = i;
+  }
+  for (const name of unknown) {
+    out.push(finding("IT-018", `${name} is not an element this checker knows inside ${node.name}.`,
+      "Check the spelling and the element's place in the FatturaPA 1.2 layout; this checker's table is not the full schema, so a valid rare element may be flagged.", `${path}/${name}`));
+  }
+}
+
+function checkStructure(root, out) {
+  const walk = (node, path) => {
+    let order = ORDER[node.name];
+    if (node.name === "DatiAnagrafici") order = path.includes("/CedentePrestatore") ? ORDER_SELLER_ANAG : path.includes("/CessionarioCommittente") ? ORDER_BUYER_ANAG : undefined;
+    if (order) checkOrder(node, order, path, out);
+    for (const c of node.children) {
+      const same = node.children.filter((k) => k.name === c.name);
+      walk(c, `${path}/${c.name}${same.length > 1 ? `[${same.indexOf(c) + 1}]` : ""}`);
+    }
+  };
+  const top = ["FatturaElettronicaHeader", "FatturaElettronicaBody", "Signature"];
+  let last = -1;
+  for (const c of root.children) {
+    const i = top.indexOf(c.name);
+    if (i >= 0 && i < last) out.push(finding("IT-018", `${c.name} is out of order inside FatturaElettronica.`, "Put the header first, then the body or bodies.", `/FatturaElettronica/${c.name}`));
+    else if (i >= 0) last = i;
+  }
+  walk(root, "/FatturaElettronica");
+}
+
 /** @returns {{findings: object[], skipped: string[]}} */
 export function checkFatturaPa(source) {
   const text = typeof source === "string" ? source : new TextDecoder().decode(source);
@@ -328,5 +387,6 @@ export function checkFatturaPa(source) {
     out.push(finding("IT-010", "The file has no FatturaElettronicaBody.", "Add the body with DatiGenerali and DatiBeniServizi.", "/FatturaElettronica"));
   }
   bodies.forEach((b, i) => checkBody(b, i, out, skipped));
+  checkStructure(root, out);
   return { findings: out, skipped: [...new Set(skipped)] };
 }
