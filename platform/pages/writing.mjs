@@ -591,7 +591,7 @@ async function writeSection(outDir, posts, section, { baseUrl, socialCard, rebas
   await fs.mkdir(dir, { recursive: true });
   await fs.writeFile(path.join(dir, 'index.html'), rebase(renderIndex(posts, { baseUrl, socialCard, episodes, section, agentPosts })));
   await fs.writeFile(path.join(dir, 'feed.xml'), rebase(renderFeed(posts, { baseUrl, section })));
-  await fs.writeFile(path.join(dir, 'search.json'), renderSearchIndex(posts));
+  await fs.writeFile(path.join(dir, 'search.json'), rebase(renderSearchIndex(posts)));
   for (const post of posts) {
     await fs.mkdir(path.join(dir, post.slug), { recursive: true });
     await fs.writeFile(path.join(dir, post.slug, 'index.html'), rebase(renderPost(post, posts, { baseUrl, socialCard, episode: byPost.get(post.slug), section })));
@@ -621,7 +621,7 @@ export async function buildWriting(outDir, baseUrl = '', { root = DEFAULT_ROOT, 
     await writeSection(outDir, agentPosts, AGENT_BLOG, { baseUrl, socialCard, rebase });
     const dir = path.join(outDir, AGENTS_PATH);
     for (const p of agentPosts) {
-      await fs.writeFile(path.join(dir, `${p.slug}.txt`), `# ${p.title}\n\n> ${p.description}\n\n${p.date} · ${topicLabel(p.topic)} · source: ${REPO_BLOB}${p.source}\n\n${absoluteLinks(p).replace(/^\s*# .*\n+/, '').trim()}\n`);
+      await fs.writeFile(path.join(dir, `${p.slug}.txt`), rebase(`# ${p.title}\n\n> ${p.description}\n\n${p.date} · ${topicLabel(p.topic)} · source: ${REPO_BLOB}${p.source}\n\n${absoluteLinks(p).replace(/^\s*# .*\n+/, '').trim()}\n`));
     }
     await fs.writeFile(path.join(dir, 'llms.txt'), rebase(renderAgentLlmsTxt(agentPosts, { baseUrl })));
     await fs.writeFile(path.join(dir, 'llms-full.txt'), rebase(renderAgentLlmsFull(agentPosts, { baseUrl })));

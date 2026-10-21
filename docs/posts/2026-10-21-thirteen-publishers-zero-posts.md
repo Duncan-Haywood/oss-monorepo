@@ -78,7 +78,8 @@ In order, because each step depends on the one before:
    job, since the accounts are theirs.
 3. **Give the visit counter somewhere to run**, so posts can be compared
    by what they bring in.
-4. **Create the `duncan-haywood.github.io` repository.** Crawlers read
+4. **Create the account's user-site repository** (the GitHub account name
+   plus `.github.io`, which serves the host root). Crawlers read
    `robots.txt` only at the root of a host. Our sitemap, listing 1,310 tool
    sitemaps, is announced at a URL no crawler reads. Bing and Yandex already
    get IndexNow pings. Google relies on that `robots.txt` or Search Console.
