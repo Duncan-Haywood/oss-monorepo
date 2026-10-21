@@ -236,3 +236,13 @@ test("payees filed the same way repeatedly are offered as rules, once, and not w
   assert.deepEqual(suggestRules(b), []);
   assert.equal(addRules(b, ["zoom => 6060"]).rules, b.rules);
 });
+
+test("ablation: switching a layer off removes its suggestions, and without memory nothing posts alone", () => {
+  const full = runSeed(1).slice(3), noMem = runSeed(1, undefined, { skipLayers: ["memory"] }).slice(3);
+  const sum = (rows, k) => rows.reduce((a, r) => a + r[k], 0);
+  assert.ok(sum(full, "auto") > 0);
+  assert.equal(sum(noMem, "auto"), 0);
+  assert.equal(sum(noMem.map((r) => ({ n: r.bySource.memory?.n ?? 0 })), "n"), 0);
+  const none = runSeed(1, undefined, { skipLayers: ["memory", "learned", "built-in"] }).slice(3);
+  assert.equal(sum(none, "suggested"), 0);
+});
