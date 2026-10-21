@@ -26,19 +26,24 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": "success",
+  "outcome": "partial",
   "errors": [],
   "integrity_issues": [],
-  "doc_friction": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Duplicate-PR search is advised before opening a PR, but the clash was on the flagship next: item; checking recent main commits for the named item before coding would have caught it."
+    }
+  ],
   "deviations": [
     {
       "file": "prompt.md",
-      "why": "Router said review track; the scheduled brief asked for product work on a flagship, so I did that."
+      "why": "Router said review track; the scheduled brief asked for product work on a flagship."
     }
   ],
   "writeups": [],
   "goal": null,
-  "notes": "Section 179 dollar limit and phase-out warning in ai-bookkeeper taxdepr worksheet. Venture tests pass locally (taxdepr 18/18). Router sent this run to the review track; I took the owner's scheduled product brief instead (deviation). Limits tables unverified against IRS.",
+  "notes": "Built the Section 179 dollar-limit and phase-out worksheet warning for ai-bookkeeper, then found a parallel session had landed the same feature on main (s179Check) before my merge. Dropped my copy and kept theirs (19 taxdepr tests pass). Nothing else shipped by this run: duplicate work, which the repo's own duplicate-PR search before starting would have caught.",
   "corrections": [],
   "redteam": null
 }
