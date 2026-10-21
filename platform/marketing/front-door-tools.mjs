@@ -697,6 +697,7 @@ export const WHY_CATEGORY_WORD = {
   'self-hosted': 'self-hosted',
   learning: 'learning',
   'research-algorithms': 'research-algorithms',
+  'open-hardware': 'open-hardware',
   more: 'more',
 };
 

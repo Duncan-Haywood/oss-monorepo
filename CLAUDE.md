@@ -48,7 +48,9 @@ not stop. Restated blockers, ledger-only edits and re-verifying unchanged
 work do not count. Never fabricate or lower the bar to have something to
 ship. For venture work the default is the top flagship in
 [`portfolio/flagships.yaml`](portfolio/flagships.yaml) (owner, 2026-10-20:
-deepen "existing projects that have real depth").
+deepen "existing projects that have real depth"). Aim the main effort at work
+a person could not finish in about twenty hours (owner, 2026-10-21; `goals.md`,
+"Direction: depth over calculators").
 
 The owner's standing directions (SEO, compliant distribution, measurement,
 the blog at `docs/posts/`, sales tools, local models) are quoted in

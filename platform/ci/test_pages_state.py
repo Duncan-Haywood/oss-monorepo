@@ -882,6 +882,11 @@ class IndexingVerdict(unittest.TestCase):
         # Wrapped rather than one long line: an unwrapped paragraph runs off a
         # terminal and is skipped by the reader this row exists for.
         self.assertTrue(all(len(line) <= 100 for line in out.split("\n")), out)
+        # The paragraph wraps at 76 columns: a 77-character reason must break,
+        # so a row never passes 96 characters with its 20-column gutter.
+        state["indexing_reason"] = "a" * 38 + " " + "b" * 38
+        rows = [l for l in ps.render(state).split("\n") if l.strip(" ").startswith(("a", "b"))]
+        self.assertEqual(len(rows), 2, rows)
 
     def test_it_does_not_change_the_exit_code(self):
         """A subpath robots.txt is an owner action, not a broken route -- and
