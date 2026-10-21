@@ -97,6 +97,124 @@ def find_figure(slug):
                 return found[0]
     return None
 
+SITE_NAME = "Open Tools and Research"
+
+# Self-hosted, not Google Fonts. Every research page used to block its first
+# paint on a stylesheet from fonts.googleapis.com and then fetch the faces from
+# fonts.gstatic.com, which hands every reader's IP address to Google on a site
+# whose pitch is that nothing you do leaves your hands. These are the same
+# variable faces (latin subset, SIL Open Font License, fonts/README.md), served
+# from the site itself with `font-display: swap`.
+FONT_FILES = ("Inter.woff2", "Newsreader.woff2", "JetBrainsMono.woff2")
+
+
+def font_faces(prefix):
+    """The @font-face rules for a page `prefix` levels below research/ ('' for the index)."""
+    url = f"{prefix}fonts/"
+    latin = ("U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, "
+             "U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD")
+    faces = [("Inter", "Inter.woff2", "100 900", ""), ("Newsreader", "Newsreader.woff2", "200 800", ""),
+             ("JetBrains Mono", "JetBrainsMono.woff2", "100 800", "")]
+    rules = "".join(
+        f"@font-face{{font-family:'{fam}';font-style:normal;font-weight:{w};font-display:swap;"
+        f"src:url({url}{file}) format('woff2');unicode-range:{latin}}}"
+        for fam, file, w, _ in faces)
+    return (f'<link rel="preload" href="{url}Inter.woff2" as="font" type="font/woff2" crossorigin>\n'
+            f"<style>{rules}</style>\n")
+
+
+def json_ld(data):
+    """A JSON-LD <script> block. `</` is escaped so a title can never close the script early."""
+    return ('<script type="application/ld+json">'
+            + json.dumps(data, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
+            + "</script>\n")
+
+
+def site_root(base_url):
+    return base_url.rstrip("/") + "/"
+
+
+def breadcrumbs(base_url, trail):
+    """trail: [(name, path under the site root)], after the site itself."""
+    root = site_root(base_url)
+    items = [(SITE_NAME, root)] + [(n, root + p) for n, p in trail]
+    return {"@type": "BreadcrumbList", "itemListElement": [
+        {"@type": "ListItem", "position": i, "name": n, "item": u} for i, (n, u) in enumerate(items, 1)]}
+
+
+def project_ld(p, theme, base_url):
+    """A project page as a ScholarlyArticle: what a search engine needs to show it as research
+    (title, abstract, topic, licence, where the code lives), and nothing the page does not state."""
+    root = site_root(base_url)
+    slug = p["slug"]
+    return json_ld({
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "ScholarlyArticle",
+                "headline": text(p["title"])[:110],
+                "name": text(p["title"]),
+                "abstract": plain(p["summary"]),
+                "url": f"{root}research/{slug}/",
+                "inLanguage": "en",
+                "isAccessibleForFree": True,
+                "license": f"{REPO_URL}/blob/main/LICENSE",
+                "about": {"@type": "Thing", "name": text(theme["name"])},
+                "isPartOf": {"@type": "CollectionPage", "name": text(theme["name"]),
+                             "url": f"{root}research/{TOPICS_DIR}/{theme['id']}/"},
+                "publisher": {"@type": "Organization", "name": SITE_NAME, "url": root},
+                "isBasedOn": {"@type": "SoftwareSourceCode", "name": f"research/{slug}",
+                              "codeRepository": f"{REPO_URL}/tree/main/research/{slug}"},
+            },
+            breadcrumbs(base_url, [("Research", "research/"),
+                                   (text(theme["name"]), f"research/{TOPICS_DIR}/{theme['id']}/"),
+                                   (text(p["title"]), f"research/{slug}/")]),
+        ],
+    })
+
+
+def collection_ld(base_url, name, path, description, items, trail):
+    """A topic page or the research index: a CollectionPage whose ItemList names what it links."""
+    root = site_root(base_url)
+    return json_ld({
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "CollectionPage",
+                "name": name,
+                "url": root + path,
+                "description": description,
+                "isPartOf": {"@type": "WebSite", "name": SITE_NAME, "url": root},
+                "mainEntity": {"@type": "ItemList", "numberOfItems": len(items), "itemListElement": [
+                    {"@type": "ListItem", "position": i, "name": n, "url": root + u} for i, (n, u) in enumerate(items, 1)]},
+            },
+            breadcrumbs(base_url, trail),
+        ],
+    })
+
+
+def image_size(path):
+    """(width, height) of a PNG or SVG figure, or None, so the page reserves its box before it loads."""
+    try:
+        if path.suffix.lower() == ".png":
+            head = path.read_bytes()[:24]
+            if head[:8] == b"\x89PNG\r\n\x1a\n":
+                return int.from_bytes(head[16:20], "big"), int.from_bytes(head[20:24], "big")
+        if path.suffix.lower() == ".svg":
+            tag = re.search(r"<svg\b[^>]*>", path.read_text(errors="ignore")[:4000])
+            if not tag:
+                return None
+            vb = re.search(r'viewBox="\s*[-\d.]+[\s,]+[-\d.]+[\s,]+([\d.]+)[\s,]+([\d.]+)', tag.group(0))
+            if vb:
+                return round(float(vb.group(1))), round(float(vb.group(2)))
+            w = re.search(r'\bwidth="([\d.]+)(?:px)?"', tag.group(0))
+            h = re.search(r'\bheight="([\d.]+)(?:px)?"', tag.group(0))
+            if w and h:
+                return round(float(w.group(1))), round(float(h.group(1)))
+    except (OSError, ValueError):
+        return None
+    return None
+
 
 def project_links(slug):
     base, url = RESEARCH / slug, f"{REPO_URL}/tree/main/research/{slug}"
@@ -248,7 +366,9 @@ def project_page(p, theme, lede, tests, tokens, theme_vars, tmpl, out, base_url=
     figure = ""
     if fig:
         shutil.copyfile(fig, d / fig.name)
-        figure = (f'  <h2>A figure from its own output</h2>\n  <figure><img src="{html.escape(fig.name)}" alt="Figure produced by research/{slug}: {html.escape(fig.stem)}" loading="lazy">'
+        size = image_size(fig)
+        dims = f' width="{size[0]}" height="{size[1]}"' if size else ""
+        figure = (f'  <h2>A figure from its own output</h2>\n  <figure><img src="{html.escape(fig.name)}" alt="Figure produced by research/{slug}: {html.escape(fig.stem)}"{dims} loading="lazy">'
                   f'<figcaption>{html.escape(str(fig.relative_to(RESEARCH)))}, written by the project\'s own experiment code.</figcaption></figure>')
     app = RESEARCH / slug / "app"
     if (app / "index.html").is_file():
@@ -274,6 +394,7 @@ def project_page(p, theme, lede, tests, tokens, theme_vars, tmpl, out, base_url=
     links = "\n".join(f'    <li><a{" class=primary" if prim else ""} href="{u}">{l}</a></li>' for u, l, prim in project_links(slug))
     page = tmpl
     for key, val in {
+        "FONTS": font_faces("../"),
         "TOKENS": tokens, "THEME_VARS": theme_vars, "SLUG": slug, "TITLE": p["title"], "LEDE": lede, "SUMMARY": p["summary"],
         "DESC": html.escape(plain(p["summary"])[:240]), "THEME_ID": theme["id"], "THEME_NAME": theme["name"],
         "STATS": stats, "FIGURE": figure, "LOG": log_html(slug), "LINKS": links, "REPO_URL": REPO_URL, "REPO": REPO,
@@ -287,6 +408,7 @@ def project_page(p, theme, lede, tests, tokens, theme_vars, tmpl, out, base_url=
         raise ValueError(f"research/{slug}: unfilled placeholders {leftover}")
     if base_url:
         page = published_page(page, slug, base_url, chrome is None)
+        page = page.replace("</head>", project_ld(p, theme, base_url) + "</head>", 1)
     if chrome:
         page = with_site_chrome(page, chrome, "../../", replace_topbar=False, header_key="project_header",
                                 fill={"TOPIC_ID": theme["id"], "TOPIC": text(theme["name"]), "TITLE": text(p["title"])})
@@ -306,6 +428,7 @@ def topic_page(theme, themes, ledes, tests, tokens, theme_vars, tmpl, out, base_
     d.mkdir(parents=True, exist_ok=True)
     page = tmpl
     for key, val in {
+        "FONTS": font_faces("../../"),
         "TOKENS": tokens, "THEME_VARS": theme_vars, "THEME_ID": theme["id"], "THEME_NAME": theme["name"],
         "THEME_NAME_TEXT": text(theme["name"]), "THEME_COUNT": str(len(theme["projects"])), "BLURB": theme["blurb"],
         "DESC": text(theme["blurb"]), "TOPICS": topic_chips(themes, theme["id"], "../../"),
@@ -318,6 +441,10 @@ def topic_page(theme, themes, ledes, tests, tokens, theme_vars, tmpl, out, base_
         raise ValueError(f"unfilled placeholders {leftover}")
     if base_url:
         page = published_page(page, f"{TOPICS_DIR}/{theme['id']}", base_url, hub_link=False)
+        page = page.replace("</head>", collection_ld(
+            base_url, text(theme["name"]), f"research/{TOPICS_DIR}/{theme['id']}/", text(theme["blurb"]),
+            [(text(p["title"]), f"research/{p['slug']}/") for p in theme["projects"]],
+            [("Research", "research/"), (text(theme["name"]), f"research/{TOPICS_DIR}/{theme['id']}/")]) + "</head>", 1)
     if chrome:
         page = with_site_chrome(page, chrome, "../../../", replace_topbar=False, header_key="topic_header",
                                 fill={"TOPIC": text(theme["name"])})
@@ -326,14 +453,18 @@ def topic_page(theme, themes, ledes, tests, tokens, theme_vars, tmpl, out, base_
 
 def card(p, theme, lede, tests):
     url = f"{REPO_URL}/tree/main/research/{p['slug']}"
-    search = html.escape(" ".join([p["slug"], plain(p["title"]), plain(lede), plain(p["summary"]), theme["name"]]).lower())
+    # The index carries a card per project, 800+ of them, so each card is the
+    # question and its one-line answer: the abstract lives on the project page
+    # and its topic page. With the abstract here three times over (the search
+    # text, a collapsed <details>, and the page it links to) the index was
+    # 2.4 MB of HTML; search still matches the slug, title, lede and theme.
+    search = html.escape(" ".join([p["slug"], plain(p["title"]), plain(lede), theme["name"]]).lower())
     badge = f'<span class="tests">{tests} tests</span>' if tests else ""
     return f"""    <article class="card" id="{p['slug']}" data-search="{search}">
       <div class="card-top"><span class="slug">{p['slug']}</span>{badge}</div>
       <h3><a href="{p['slug']}/">{p['title']}</a></h3>
       <p class="lede">{lede}</p>
-      <details><summary><span>Abstract <svg class="chev" width="10" height="10" viewBox="0 0 10 10"><path d="M2 3.5l3 3 3-3" stroke="currentColor" stroke-width="1.5" fill="none"/></svg></span><a href="{url}">Code →</a></summary>
-        <p class="abstract">{p['summary']}</p></details>
+      <div class="card-foot"><a href="{p['slug']}/">Abstract and results →</a><a href="{url}">Code →</a></div>
     </article>"""
 
 
@@ -425,6 +556,7 @@ def build(out, base_url=None, chrome=None):
 
     page = (HERE / "template.html").read_text()
     for key, val in {
+        "FONTS": font_faces(""),
         "THEME_VARS": theme_vars, "MAP": rmap, "CHIPS": chips, "FEATURED": featured, "LOGS": log_section, "SECTIONS": sections,
         "PROJECT_COUNT": str(len(by_slug)), "TEST_COUNT": f"{sum(tests.values()):,}",
         "THEME_COUNT": str(len(data["themes"])), "SOCIAL_META": social_meta(base_url), "REPO_URL": REPO_URL, "REPO": REPO,
@@ -434,10 +566,20 @@ def build(out, base_url=None, chrome=None):
     if leftover:
         sys.exit(f"unfilled template placeholders: {leftover}")
 
+    if base_url:
+        # The index lists the topics, not every project: each topic page carries its own list.
+        page = page.replace("</head>", collection_ld(
+            base_url, f"Open research: {len(by_slug)} reproducible projects", "research/",
+            f"{len(by_slug)} open-source research projects in {len(data['themes'])} topics, each with its code, tests and results.",
+            [(text(t["name"]), f"research/{TOPICS_DIR}/{t['id']}/") for t in data["themes"]],
+            [("Research", "research/")]) + "</head>", 1)
     if chrome:
         page = with_site_chrome(page, chrome, "../", replace_topbar=True)
     out.mkdir(parents=True, exist_ok=True)
     (out / "index.html").write_text(page)
+    (out / "fonts").mkdir(exist_ok=True)
+    for name in FONT_FILES:
+        shutil.copyfile(HERE / "fonts" / name, out / "fonts" / name)
     # One home page per project: _site/<slug>/index.html. Any failure fails the build.
     tmpl = (HERE / "project.html").read_text()
     head = (HERE / "template.html").read_text()

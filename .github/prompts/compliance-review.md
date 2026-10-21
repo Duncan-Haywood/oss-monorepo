@@ -32,7 +32,7 @@ name the items a lawyer should see.
    with `git log --since=<last report date> --name-only --format= origin/main | sort -u`.
    Fetch history first (`git fetch --deepen=500 origin main`; see
    `CLAUDE.md`, "Shallow clones lie about history"). Read the changed files
-   against the checklist below. Don't re-read areas that did not change
+   against the checklist below. No need to re-read areas that did not change
    unless the last report says to.
 5. **Write `docs/reports/<YYYY-MM-DD>-compliance-review.md`.** Use the same
    shape as the last one: short version, baseline table with the change from
@@ -142,6 +142,6 @@ name the items a lawyer should see.
   rewriting history, enabling a channel, legal opinions. Queue them with
   `portfolio/ledger/decision_queue.py` only when shipping is blocked and the
   item isn't already queued.
-- **Don't widen the scanner to chase a one-off finding.** Add a check to
+- **Prefer not to widen the scanner to chase a one-off finding.** Add a check to
   `platform/ci/compliance_scan.py`, with a test, only when the finding is
   regular enough to count across the tree.

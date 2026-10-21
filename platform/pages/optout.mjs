@@ -163,7 +163,11 @@ const READ_CONTROL = () => {
   // it. A guard that accuses working pages is one that gets muted.
   const around = (el) => (el.parentElement ?? el).textContent.replace(/\s+/g, ' ').trim();
 
-  const box = boxes.find(named) ?? boxes.find((el) => worded(labelOf(el)));
+  // A control named for the job wins over one that only mentions counts, of
+  // either kind: `changepoint-detector` has a real `#optout` button beside a
+  // model checkbox labelled "Counts are clumpy or sticky", and preferring any
+  // worded checkbox over a named button reloaded the model option instead.
+  const box = boxes.find(named) ?? (buttons.some(named) ? null : boxes.find((el) => worded(labelOf(el))));
   if (box) {
     return { kind: 'checkbox', id: box.id || null, label: labelOf(box).slice(0, 80), own: String(box.checked), around: String(box.checked) };
   }

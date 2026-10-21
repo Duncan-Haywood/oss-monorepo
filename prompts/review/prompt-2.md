@@ -23,7 +23,7 @@ Read the tables. Then make the numbers true before you trust them:
 - **Measure what runs could not know.** Run
   `python3 prompts/derive.py fetch && python3 prompts/derive.py build` and
   commit the regenerated `prompts/derived/`. On a 403 (no GitHub token) skip
-  `fetch`, run `build` on the cache, and log it in one line; do not retry.
+  `fetch`, run `build` on the cache, and log it in one line; a retry won't help.
 - **Count leaked work.** Branches or pull requests a recorded run pushed that
   were not on `main` 24 hours later. Set `merged: false` on their records,
   then land or close each one, per `land-your-work.md`.
@@ -87,7 +87,7 @@ the file with the most of them; what you cannot fix goes into
 ## 6. Drift audit
 
 Added 2026-10-15 at the owner's request: the owner reviews little, so agents
-must notice and fix drift from what the owner asked. Apply "Judgment over
+should notice and fix drift from what the owner asked. Apply "Judgment over
 rules" in `prompts/goals.md`.
 
 1. **Read the owner's own words.** These are the `input` fields of run records

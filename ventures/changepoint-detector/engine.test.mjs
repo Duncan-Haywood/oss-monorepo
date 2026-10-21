@@ -1051,3 +1051,20 @@ test('count trend bends: two changes of growth rate are found, a straight log-li
   console.log(`# count bends: ${one / N} -> ${two / N}; both knots ${near}/${N}; false bends ${falseBend}`);
   assert.ok(two < 0.6 * one && near >= 18 && falseBend <= 1);
 });
+
+test('negative-binomial cost with a season matches the per-point cost it replaces', () => {
+  // Seven distinct exposures take the per-class prefix-sum path; a 1e-12 drift per point makes every exposure
+  // distinct and forces the O(segment length) path. Same costs to rounding, same changes.
+  const r = rng(11);
+  const WEEKLY = [1, 1.1, 1.2, 1.0, 0.9, 0.5, 0.4];
+  const n = 210;
+  const exposure = Array.from({ length: n }, (_, t) => WEEKLY[t % 7]);
+  const drifted = exposure.map((e, t) => e + 1e-12 * t);
+  const x = exposure.map((e, t) => Math.round((t < 100 ? 6 : 15) * e * (0.5 + r())));
+  const fast = makeCost(x, 'negbin', 1, 0, exposure, 3);
+  const slow = makeCost(x, 'negbin', 1, 0, drifted, 3);
+  for (const [s, t] of [[0, 10], [0, 100], [37, 180], [100, 210], [5, 6]]) {
+    assert.ok(Math.abs(fast(s, t) - slow(s, t)) < 1e-6 * Math.max(1, Math.abs(slow(s, t))), `segment ${s}..${t}`);
+  }
+  assert.deepEqual(pelt(x, { model: 'negbin', size: 3, exposure }).changepoints, pelt(x, { model: 'negbin', size: 3, exposure: drifted }).changepoints);
+});
