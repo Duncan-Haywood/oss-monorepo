@@ -37,6 +37,18 @@ def auroc(pos, neg):
     return float(roc_auc_score(y, list(pos) + list(neg)))
 
 
+def matched_auroc(gs, hs, glen, hlen, ratio=1.5):
+    """AUROC over only the (machine, human) pairs whose character lengths are within `ratio` of each other.
+    Returns (auroc, number of pairs); (None, 0) when fewer than 20 pairs qualify."""
+    win = pairs = 0.0
+    for g, lg in zip(gs, glen):
+        for h, lh in zip(hs, hlen):
+            if max(lg, lh) <= ratio * min(lg, lh):
+                pairs += 1
+                win += (g > h) + 0.5 * (g == h)
+    return (win / pairs, int(pairs)) if pairs >= 20 else (None, int(pairs))
+
+
 def boot_auroc(pos, neg, reps=300, seed=0):
     rng = random.Random(seed)
     v = []
@@ -96,7 +108,8 @@ def main():
             hs = list(f([h["text"] for h in hum], hum))
             gs = list(f([t["text"] for t in gen], gen))
             lo, hi = boot_auroc(gs, hs)
-            res[d] = {"auroc": auroc(gs, hs), "ci": [lo, hi], "detect_rate": float(np.mean([s > 0 for s in gs])),
+            m, npairs = matched_auroc(gs, hs, [len(t["text"]) for t in gen], [len(h["text"]) for h in hum])
+            res[d] = {"auroc": auroc(gs, hs), "ci": [lo, hi], "matched_auroc": m, "matched_pairs": npairs, "detect_rate": float(np.mean([s > 0 for s in gs])),
                       "human_flag_rate": float(np.mean([s > 0 for s in hs]))}
         out["rows"].append(res)
     rows_ = out["rows"]
@@ -108,12 +121,25 @@ def main():
             if len(sel) > 3 and len(set(xs)) > 1:
                 rho, p = spearmanr(xs, ys)
                 out["spearman"][f"{d}/{scope}"] = {"rho": float(rho), "p": float(p), "n": len(sel)}
+    for d in DETS:
+        sel = [r for r in rows_ if r[d]["matched_auroc"] is not None]
+        xs = [r["loop_paired_acc"] for r in sel]
+        if len(sel) > 3 and len(set(xs)) > 1:
+            rho, p = spearmanr(xs, [r[d]["matched_auroc"] for r in sel])
+            out["spearman"][f"{d}/length-matched"] = {"rho": float(rho), "p": float(p), "n": len(sel)}
+        rho, p = spearmanr([r["mean_len"] for r in rows_], [r[d]["auroc"] for r in rows_])
+        out["spearman"][f"{d}/vs-mean-length"] = {"rho": float(rho), "p": float(p), "n": len(rows_)}
     json.dump(out, open(os.path.join(HERE, "results.json"), "w"), indent=1)
     lines = ["mimic-looptransfer: prompt-free detector AUROC (human test text vs replayed imitator text; 0.5 = cannot tell)", "",
              f"{'family':8s} {'proposer':7s} rd  loop-acc  valid  len   " + "  ".join(f"{d:>12s}" for d in DETS)]
     for r in rows_:
         lines.append(f"{r['family']:8s} {r['proposer']:7s} {r['round']:2d}  {r['loop_paired_acc']:8.2f}  {str(r['loop_valid'])[0]:>5s} {r['mean_len']:5.0f}  "
                      + "  ".join(f"{r[d]['auroc']:12.2f}" for d in DETS))
+    lines += ["", "Length-matched AUROC (pairs within 1.5x in characters; blank when under 20 pairs):",
+              f"{'family':8s} {'proposer':7s} rd  " + "  ".join(f"{d:>12s}" for d in DETS[1:])]
+    for r in rows_:
+        lines.append(f"{r['family']:8s} {r['proposer']:7s} {r['round']:2d}  " + "  ".join(
+            (f"{r[d]['matched_auroc']:7.2f}({r[d]['matched_pairs']:3d})" if r[d]["matched_auroc"] is not None else f"{'':12s}") for d in DETS[1:]))
     lines += ["", "Spearman rho between the loop's paired detector accuracy (lower = imitator better) and each prompt-free AUROC:"]
     for k, v in out["spearman"].items():
         lines.append(f"  {k:22s} rho={v['rho']:+.2f} p={v['p']:.3f} n={v['n']}")
