@@ -25,7 +25,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": 3,
+  "ci_failures_before_green": 4,
   "review_findings": null,
   "tests_added": 46,
   "outcome": "success",
@@ -33,7 +33,8 @@
     "A bare `cat > file` with no heredoc in a compound Bash command hung on stdin until the 120 s timeout; the recovery `pkill -f cat` killed the shell. Rewrote the file with the Write tool.",
     "link-contrast CI failed: platform/pages/ink.mjs hoists @media (prefers-color-scheme: dark) rules, so the light link colour was judged on the dark background; removed the dark overrides from the two static pages.",
     "sibling-links CI failed: support-agent had no inbound link from a sibling page (orphan budget 0); added footer links from support-desk and help-keeper with a page test each.",
-    "pages test suite: &rsaquo; in the guide page is not in platform/pages/entities.mjs NAMED_ENTITIES; replaced with the literal character. Local run of platform/pages tests: 1202 pass, this 1 fail, now fixed."
+    "pages test suite: &rsaquo; in the guide page is not in platform/pages/entities.mjs NAMED_ENTITIES; replaced with the literal character. Local run of platform/pages tests: 1202 pass, this 1 fail, now fixed.",
+    "portfolio-validate: front-door alias map and portfolio-front.yaml shard list were stale; regen.mjs reported 'current' but `front-door-tools.mjs --write` was still needed (new venture moved the shard count to 51)."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -44,6 +45,10 @@
     {
       "file": "platform/pages/ink.mjs",
       "issue": "Screen media queries are hoisted, so any page with a prefers-color-scheme dark block fails the link audit unless its links pass on both backgrounds; nothing in the venture docs says static pages should not ship a dark mode."
+    },
+    {
+      "file": "platform/marketing/regen.mjs",
+      "issue": "regen.mjs said 'The served surface is current' while front-door-tools.test.mjs failed on a stale 00-mirror-alias.conf and shard mount list; a new venture needs `node platform/marketing/front-door-tools.mjs --write` too, and that command also writes an untracked gitops/prod/front-door-tools/ directory that must not be committed."
     }
   ],
   "deviations": [
