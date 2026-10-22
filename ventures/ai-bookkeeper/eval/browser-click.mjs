@@ -147,6 +147,24 @@ check(/2,?400\.00/.test(pptext) && /Still paid ahead/.test(pptext), "the prepaid
 await page.fill("#pp-months", "1");
 await page.click("#pp-add");
 check(/Months must be/.test(await page.locator("#pp-status").textContent()), "a one-month prepaid is refused");
+// Loans: add a 36-month loan on the example books, read the register, split nothing (no matching bank line), refuse a bad rate.
+await page.fill("#ln-name", "Van loan");
+await page.fill("#ln-amount", "12000.00");
+await page.fill("#ln-rate", "6.5");
+await page.fill("#ln-months", "36");
+await page.fill("#ln-first", "2026-02-01");
+await page.click("#ln-add");
+check(/LN-1 Van loan added: payment 367\.\d\d/.test(await page.locator("#ln-status").textContent()), "a loan is added with its level payment");
+const lntext = await page.locator("#ln-register").textContent();
+check(/12,?000\.00 at 6\.5%/.test(lntext) && /0 of 36/.test(lntext), "the loan register shows terms and no payments split");
+await page.click("#ln-apply");
+check(/No unfiled bank payment matches/.test(await page.locator("#ln-status").textContent()), "no bank line matches a scheduled payment, so none is split");
+await page.fill("#ln-rate", "250");
+await page.click("#ln-add");
+check(/Rate is an annual percentage/.test(await page.locator("#ln-status").textContent()), "a 250% rate is refused");
+// Bill-pay planner: the example books hold no bills, so the card says so.
+await page.click("#bp-plan");
+check(/No open bills/.test(await page.locator("#bp-status").textContent()), "the bill-pay card says so when there are no open bills");
 // Budget against actual: set a monthly budget on the example books and read the table.
 await page.selectOption("#budget-account", { index: 0 });
 await page.fill("#budget-amount", "50.00");
