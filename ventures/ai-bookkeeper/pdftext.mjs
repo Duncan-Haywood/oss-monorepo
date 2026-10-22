@@ -5,7 +5,8 @@
 // is enough for them. It is not a general PDF reader:
 //   - scans (images) have no text and come back empty; the caller says so;
 //   - encrypted files are refused, not decrypted;
-//   - only Flate streams are decoded (LZW, ASCII85 and JBIG are skipped);
+//   - Flate, LZW, ASCII85, ASCIIHex and RunLength streams are decoded, with PNG and
+//     TIFF predictors (JBIG, DCT and other image filters are skipped);
 //   - fonts with no ToUnicode map and a two-byte encoding are unreadable.
 // Lines are rebuilt from where each text run sits on the page (full
 // transformation matrix, so the y-flip most generators add is handled), top
@@ -123,6 +124,105 @@ async function inflate(bytes) {
 }
 const toStr = (u8) => dec.decode(u8);
 
+function asciiHex(b) {
+  const out = []; let hi = -1;
+  for (const c of b) {
+    if (c === 0x3e) break;
+    const v = c >= 48 && c <= 57 ? c - 48 : c >= 65 && c <= 70 ? c - 55 : c >= 97 && c <= 102 ? c - 87 : -1;
+    if (v < 0) continue;
+    if (hi < 0) hi = v; else { out.push(hi * 16 + v); hi = -1; }
+  }
+  if (hi >= 0) out.push(hi * 16);
+  return Uint8Array.from(out);
+}
+
+function ascii85(b) {
+  const out = []; let g = [];
+  const flush = (n) => {
+    if (n < 2) return;
+    const pad = g.concat([84, 84, 84, 84]).slice(0, 5);
+    let v = 0; for (const x of pad) v = v * 85 + x;
+    const bytes = [(v / 16777216) & 255, (v >>> 16) & 255, (v >>> 8) & 255, v & 255];
+    out.push(...bytes.slice(0, n - 1));
+  };
+  for (let i = 0; i < b.length; i++) {
+    const c = b[i];
+    if (c === 0x7e) break;                              // "~>" ends the data
+    if (c <= 32) continue;
+    if (c === 0x7a && g.length === 0) { out.push(0, 0, 0, 0); continue; }
+    if (c < 33 || c > 117) continue;
+    g.push(c - 33);
+    if (g.length === 5) { flush(5); g = []; }
+  }
+  flush(g.length);
+  return Uint8Array.from(out);
+}
+
+function runLength(b) {
+  const out = [];
+  for (let i = 0; i < b.length;) {
+    const n = b[i++];
+    if (n === 128) break;
+    if (n < 128) { for (let k = 0; k <= n && i < b.length; k++) out.push(b[i++]); }
+    else { const v = b[i++]; for (let k = 0; k < 257 - n; k++) out.push(v); }
+  }
+  return Uint8Array.from(out);
+}
+
+// PDF LZW: MSB-first codes of 9 to 12 bits, 256 clears, 257 ends; early change 1 by default.
+function lzw(b, early = 1) {
+  const out = [];
+  let table = [], width = 9, prev = null, acc = 0, bits = 0;
+  const reset = () => { table = []; for (let i = 0; i < 256; i++) table.push([i]); table.push(null, null); width = 9; prev = null; };
+  reset();
+  for (let i = 0; i < b.length;) {
+    while (bits < width && i < b.length) { acc = ((acc << 8) | b[i++]) >>> 0; bits += 8; }
+    if (bits < width) break;
+    const code = (acc >>> (bits - width)) & ((1 << width) - 1);
+    bits -= width; acc &= (1 << bits) - 1;
+    if (code === 256) { reset(); continue; }
+    if (code === 257) break;
+    let entry;
+    if (code < table.length && table[code]) entry = table[code];
+    else if (prev && code === table.length) entry = prev.concat(prev[0]);
+    else break;                                         // corrupt: keep what decoded
+    for (const x of entry) out.push(x);
+    if (prev && table.length < 4096) table.push(prev.concat(entry[0]));
+    prev = entry;
+    const n = table.length + early;
+    width = n >= 2048 ? 12 : n >= 1024 ? 11 : n >= 512 ? 10 : 9;
+  }
+  return Uint8Array.from(out);
+}
+
+// /Predictor 2 (TIFF) and 10-15 (PNG row filters) as Flate and LZW use them.
+function predict(b, p, val) {
+  const pred = val(p?.Predictor);
+  if (!pred || pred === 1) return b;
+  const colors = val(p.Colors) ?? 1, bpc = val(p.BitsPerComponent) ?? 8, cols = val(p.Columns) ?? 1;
+  const bpp = Math.max(1, Math.ceil(colors * bpc / 8)), rowLen = Math.ceil(colors * bpc * cols / 8);
+  if (pred === 2) {
+    if (bpc !== 8) return b;
+    const out = Uint8Array.from(b);
+    for (let r = 0; r + rowLen <= out.length; r += rowLen) for (let k = bpp; k < rowLen; k++) out[r + k] = (out[r + k] + out[r + k - bpp]) & 255;
+    return out;
+  }
+  const rows = Math.floor(b.length / (rowLen + 1));
+  const out = new Uint8Array(rows * rowLen);
+  for (let r = 0; r < rows; r++) {
+    const ft = b[r * (rowLen + 1)], src = r * (rowLen + 1) + 1, dst = r * rowLen;
+    for (let k = 0; k < rowLen; k++) {
+      const x = b[src + k];
+      const a = k >= bpp ? out[dst + k - bpp] : 0, up = r ? out[dst - rowLen + k] : 0, c = r && k >= bpp ? out[dst - rowLen + k - bpp] : 0;
+      let v;
+      if (ft === 0) v = x; else if (ft === 1) v = x + a; else if (ft === 2) v = x + up; else if (ft === 3) v = x + ((a + up) >> 1);
+      else { const pp = a + up - c, pa = Math.abs(pp - a), pb = Math.abs(pp - up), pc = Math.abs(pp - c); v = x + (pa <= pb && pa <= pc ? a : pb <= pc ? up : c); }
+      out[dst + k] = v & 255;
+    }
+  }
+  return out;
+}
+
 // ---- the object table ---------------------------------------------------------
 async function loadObjects(u8) {
   const s = toStr(u8);
@@ -154,12 +254,18 @@ async function loadObjects(u8) {
   const getStream = async (o) => {
     if (!o?.stream) return null;
     const d = o.value;
-    let f = d.Filter;
-    f = f === undefined ? [] : Array.isArray(f) ? f : [f];
+    const val = (x) => (x instanceof Ref ? objs.get(x.ref)?.value : x);
+    const list = (x) => { x = val(x); return x === undefined ? [] : Array.isArray(x) ? x : [x]; };
+    const f = list(d.Filter), parms = list(d.DecodeParms ?? d.DP);
     let bytes = u8.subarray(o.stream[0], o.stream[1]);
-    for (const x of f) {
-      const n = (x instanceof Ref ? objs.get(x.ref)?.value : x)?.name;
-      if (n === "FlateDecode" || n === "Fl") bytes = await inflate(bytes);
+    for (let k = 0; k < f.length; k++) {
+      const n = val(f[k])?.name;
+      const p = val(parms[k]);
+      if (n === "FlateDecode" || n === "Fl") bytes = predict(await inflate(bytes), p, val);
+      else if (n === "LZWDecode" || n === "LZW") bytes = predict(lzw(bytes, val(p?.EarlyChange) === 0 ? 0 : 1), p, val);
+      else if (n === "ASCII85Decode" || n === "A85") bytes = ascii85(bytes);
+      else if (n === "ASCIIHexDecode" || n === "AHx") bytes = asciiHex(bytes);
+      else if (n === "RunLengthDecode" || n === "RL") bytes = runLength(bytes);
       else return null;
     }
     return bytes;
