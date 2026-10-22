@@ -104,6 +104,12 @@ test("the page shows the UK VAT return worksheet from the engine", () => {
   assert.match(script(), /vatReturn\(books/);
 });
 
+test("the page has a reconcile-to-statement card wired to the engine", () => {
+  const html = page("index.html");
+  for (const id of ["recon-account", "recon-date", "recon-balance", "recon-check", "recon"]) assert.match(html, new RegExp(`id="${id}"`), id);
+  assert.match(script(), /reconcile\(books, \{ account: \$\("#recon-account"\)\.value/);
+});
+
 test("every module the page loads, transitively, is free of node: imports", () => {
   const seen = new Set(), bad = [];
   const walk = (src, name) => {

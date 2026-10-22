@@ -155,6 +155,21 @@ const splitBtn = page.getByRole("button", { name: /Split Hiscox.* by items/ });
 check((await splitBtn.count()) === 1, "a matched receipt with items of two kinds offers a split");
 if (await splitBtn.count()) { await splitBtn.click(); check(/Split Hiscox/.test(await page.locator("#receipts-status").textContent()), "the split button posts the split"); }
 check(/Net profit/.test(btext) && /(better|worse|on budget)/.test(btext), "the budget table shows a status and the net line");
+// Reconcile to a paper statement: a wrong balance names a difference; the books' own balance then agrees.
+await page.selectOption("#recon-account", "1000");
+await page.fill("#recon-date", "2026-12-31");
+await page.fill("#recon-balance", "1.00");
+await page.click("#recon-check");
+const rc1 = await page.locator("#recon").textContent();
+console.log("     recon:", rc1.slice(0, 160));
+check(/Difference/.test(rc1) && /statement 1\.00/.test(rc1), "a wrong closing balance reports a difference");
+const bookBal = /books ([\d,.-]+),/.exec(rc1)?.[1];
+await page.fill("#recon-balance", bookBal.replace(/,/g, ""));
+await page.click("#recon-check");
+check(/They agree/.test(await page.locator("#recon").textContent()), "typing the books' own balance agrees");
+await page.fill("#recon-balance", "abc");
+await page.click("#recon-check");
+check(/closing balance/.test(await page.locator("#recon-status").textContent()), "a non-number is refused");
 // Year-end close: 2026 is refused while example lines still need an account; 2025 has no lines and closes.
 await page.fill("#ye-year", "2026");
 await page.click("#ye-close");
