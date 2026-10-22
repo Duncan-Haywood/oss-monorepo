@@ -1041,6 +1041,15 @@ test("absencePlan: a shift nobody can take stays open with the reasons", () => {
   assert.equal(plan.owner[0], -1);
 });
 
+test("absencePlan: equally hard shifts are handed over in calendar order, so the cheaper cover takes the earlier one", () => {
+  // Ben (cheapest) can only take one 8-hour shift; Cy takes the other. Mon and Tue each have two possible covers.
+  const staff = staffOf("Ana, 10, 40, 0, Mon-Tue 8-16\nBen, 12, 8, 0, Mon-Tue 8-16\nCy, 20, 40, 0, Mon-Tue 8-16");
+  const slots = slotsOf("Mon, 8, 16, 1, open\nTue, 8, 16, 1, open");
+  const r = { owner: [0, 0] };
+  const plan = absencePlan(staff, slots, r, "Ana");
+  assert.deepEqual(plan.moves.map((m) => [m.slot.day, m.to]), [[0, "Ben"], [1, "Cy"]]);
+});
+
 test("pay differential adds a premium for hours inside its windows, per hour and as a percent of wage", () => {
   const ana = staffOf("Ana, 20, 40");
   const shifts = slotsOf("Fri,22,6,1,close\nMon,9,17,1,day");
