@@ -24,7 +24,7 @@
 // Bank match: a positive, not-yet-split line in the books equal to the
 // payout's net, dated from 2 days before to 7 days after the payout date; the
 // nearest date wins, and a line is used once. Nothing is posted by `plan`.
-// Amazon settlement reports (flat file V2) are read too; see readAmazon.
+// Amazon settlement reports (flat file V2) and the date-range CSV are read too; see readAmazon, readAmazonRange.
 // Integer cents. Hand-written fixtures in the documented layout only; no real
 // export has been tried. Not accounting advice.
 
@@ -59,8 +59,11 @@ const CATEGORY = {
 
 // Read the report. -> { rows, payouts: [{ id, date, net, parts, rows }], pending, problems }
 export function readPayoutReport(text) {
-  const table = parseCsv(text).filter((r) => r.some((c) => String(c).trim() !== ""));
+  let table = parseCsv(text).filter((r) => r.some((c) => String(c).trim() !== ""));
   if (table.length < 2) throw new Error("The report has no rows.");
+  // Seller Central's date-range CSV opens with a few note lines before the header.
+  const at0 = table.findIndex((r) => { const h = r.map(key); return h.includes("settlement_id") && h.includes("selling_fees") && h.includes("product_sales"); });
+  if (at0 !== -1) return readAmazonRange(table.slice(at0));
   const head = table[0].map(key);
   if (head.includes("settlement_id") && head.includes("amount_type") && head.includes("amount_description")) return readAmazon(table, head);
   const col = Object.fromEntries(Object.entries(ALIASES).map(([k, names]) => [k, names.map((n) => head.indexOf(n)).find((i) => i !== -1) ?? -1]));
@@ -184,6 +187,66 @@ function readAmazon(table, head) {
   }
   payouts.sort((a, b) => String(a.date).localeCompare(String(b.date)));
   return { rows, payouts, pending: [], problems };
+}
+
+// Seller Central's date-range transaction CSV ("Reports > Date range"): a few
+// note lines, then date/time, settlement id, type, order id, sku, description,
+// ..., product sales, shipping credits, promotional rebates, selling fees, fba
+// fees, other transaction fees, other, total. Dates read "Jan 2, 2026 3:04:05
+// AM PST". A "Transfer" row is the deposit (its total is negative: money out of
+// the Amazon balance). A settlement is split only when its other rows add up to
+// the transfer and each row's columns add up to its own total.
+const MONTHS = { jan: 1, feb: 2, mar: 3, apr: 4, may: 5, jun: 6, jul: 7, aug: 8, sep: 9, oct: 10, nov: 11, dec: 12 };
+const rangeDate = (v) => {
+  const m = /^([A-Za-z]{3})[a-z]*\.? (\d{1,2}),? (\d{4})/.exec(String(v ?? "").trim());
+  return m && MONTHS[m[1].toLowerCase()] ? `${m[3]}-${String(MONTHS[m[1].toLowerCase()]).padStart(2, "0")}-${m[2].padStart(2, "0")}` : parseDate(String(v ?? "").trim());
+};
+function readAmazonRange(table) {
+  const head = table[0].map(key);
+  const ix = (n) => head.indexOf(n);
+  const money = ["product_sales", "product_sales_tax", "shipping_credits", "shipping_credits_tax", "gift_wrap_credits", "giftwrap_credits_tax", "regulatory_fee", "tax_on_regulatory_fee", "promotional_rebates", "promotional_rebates_tax", "marketplace_withheld_tax", "selling_fees", "fba_fees", "other_transaction_fees", "other"];
+  const kindOf = { product_sales: "sales", shipping_credits: "sales", gift_wrap_credits: "sales", product_sales_tax: "tax", shipping_credits_tax: "tax", giftwrap_credits_tax: "tax", tax_on_regulatory_fee: "tax", promotional_rebates_tax: "tax", marketplace_withheld_tax: "tax", promotional_rebates: "refunds", regulatory_fee: "fees", selling_fees: "fees", fba_fees: "fees", other_transaction_fees: "fees" };
+  const total = ix("total");
+  if (total === -1) throw new Error('The Amazon date-range report has no "total" column.');
+  const problems = [];
+  const settlements = new Map();
+  table.slice(1).forEach((r, n) => {
+    const at = (k) => (ix(k) === -1 ? "" : String(r[ix(k)] ?? "").trim());
+    const sid = at("settlement_id");
+    if (!sid) return; // not yet in a settlement: still pending at Amazon
+    const cents = parseCents(String(r[total] ?? ""));
+    if (cents === null || Number.isNaN(cents)) { problems.push(`Row ${n + 2}: cannot read the total.`); return; }
+    if (!settlements.has(sid)) settlements.set(sid, { id: sid, date: null, deposit: 0, transfers: 0, rows: [] });
+    const st = settlements.get(sid);
+    const type = key(at("type")), date = rangeDate(at("date_time"));
+    if (/transfer/.test(type)) { st.deposit += -cents; st.transfers++; st.date = date; return; }
+    const parts = money.map((k) => [k, ix(k) === -1 ? 0 : parseCents(String(r[ix(k)] ?? ""))]);
+    if (parts.some(([, v]) => v === null || Number.isNaN(v))) { problems.push(`Row ${n + 2}: cannot read the amounts.`); return; }
+    const sum = parts.reduce((a, [, v]) => a + v, 0);
+    if (sum !== cents) { problems.push(`Row ${n + 2}: the columns add up to ${fmt(sum)} but the total is ${fmt(cents)}.`); st.broken = true; return; }
+    const desc = [at("type"), at("description"), at("sku")].filter(Boolean).join(" ");
+    for (const [k, v] of parts) {
+      if (!v) continue;
+      let kind = kindOf[k];
+      if (k === "other") kind = /advertis/.test(type + key(at("description"))) ? "ads" : /service_fee|fee|subscription|storage|inventory/.test(type) ? "fees" : "other";
+      else if ((k === "product_sales" || k === "shipping_credits" || k === "gift_wrap_credits") && type === "refund") kind = "refunds";
+      st.rows.push({ row: n + 2, id: at("order_id") || `row${n + 2}`, payout: sid, payoutDate: null, created: date, category: `${type}/${k}`, kind, gross: v, fee: 0, net: v, desc });
+    }
+  });
+  const payouts = [];
+  const rows = [];
+  const pending = [];
+  for (const st of settlements.values()) {
+    rows.push(...st.rows);
+    const sum = st.rows.reduce((a, x) => a + x.net, 0);
+    if (!st.transfers) { pending.push(...st.rows.map((x) => ({ ...x, payout: "" }))); continue; }
+    if (st.broken) problems.push(`Amazon settlement ${st.id}: a row did not add up. Not split.`);
+    else if (st.transfers > 1) problems.push(`Amazon settlement ${st.id}: it has ${st.transfers} transfer rows (more than one deposit). Not split; file each deposit by hand.`);
+    else if (sum !== st.deposit) problems.push(`Amazon settlement ${st.id}: its rows add up to ${fmt(sum)} but the transfer is ${fmt(st.deposit)} (a balance carried over from an earlier period, or a reserve). Not split.`);
+    else { for (const x of st.rows) x.payoutDate = st.date; payouts.push({ id: st.id, date: st.date, net: st.deposit, gross: sum, fees: 0, rows: st.rows }); }
+  }
+  payouts.sort((a, b) => String(a.date).localeCompare(String(b.date)));
+  return { rows, payouts, pending, problems };
 }
 
 const addDays = (d, n) => new Date(Date.parse(`${d}T00:00:00Z`) + n * 864e5).toISOString().slice(0, 10);

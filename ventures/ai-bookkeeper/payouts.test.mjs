@@ -172,3 +172,27 @@ test("an Amazon settlement that does not add up, or holds a reserve, is not spli
   assert.equal(r2.payouts.length, 0);
   assert.match(r2.problems[0], /reserve/);
 });
+
+test("an Amazon date-range transaction CSV splits by settlement, with the transfer as the deposit", async () => {
+  const { readFileSync } = await import("node:fs");
+  const r = readPayoutReport(readFileSync(new URL("./fixtures/amazon-date-range.csv", import.meta.url), "utf8"));
+  assert.deepEqual(r.problems, []);
+  assert.equal(r.payouts.length, 1);
+  assert.equal(r.payouts[0].id, "9200001");
+  assert.equal(r.payouts[0].date, "2026-03-10");
+  assert.equal(r.payouts[0].net, 39075);
+  assert.equal(r.pending.length, 2); // settlement 9200002 has no transfer yet
+  const plan = planPayouts(books([["2026-03-10", "AMAZON.COM SERVICES DEPOSIT", "390.75"]]), r);
+  assert.equal(plan.matched.length, 1);
+  const by = Object.fromEntries(plan.matched[0].parts.map((x) => [x.account, x.cents]));
+  // sales 100+5+400, refund -20 and rebate -5, tax nets to zero, ads -25, fees -15.75-3.5-60+3, reimbursement +12
+  assert.deepEqual(by, { 4000: 48000, 6000: -2500, 6010: -7625, 4100: 1200 });
+  assert.equal(Object.values(by).reduce((a, b) => a + b, 0), 39075);
+});
+
+test("an Amazon date-range row whose columns do not add up to its total is refused", () => {
+  const head = '"date/time","settlement id","type","order id","product sales","selling fees","total"';
+  const r = readPayoutReport(`"note"\n${head}\n"Mar 2, 2026 9:15:02 AM PST","S1","Order","A","100.00","-15.00","90.00"\n"Mar 3, 2026 9:15:02 AM PST","S1","Transfer","","0","0","-90.00"\n`);
+  assert.equal(r.payouts.length, 0);
+  assert.match(r.problems[0], /add up to 85\.00|85\.00/);
+});
