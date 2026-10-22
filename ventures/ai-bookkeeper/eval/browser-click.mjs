@@ -165,6 +165,18 @@ check(/Rate is an annual percentage/.test(await page.locator("#ln-status").textC
 // Bill-pay planner: the example books hold no bills, so the card says so.
 await page.click("#bp-plan");
 check(/No open bills/.test(await page.locator("#bp-status").textContent()), "the bill-pay card says so when there are no open bills");
+// Same card with real open bills: three bills loaded from the invoices-and-bills card, due on the last example day and just after.
+const lastDay = await page.evaluate(() => { const m = document.body.textContent.match(/\b20\d\d-\d\d-\d\d\b/g) || []; return m.sort().at(-1); });
+const plus = (d, n) => new Date(Date.parse(d) + n * 864e5).toISOString().slice(0, 10);
+await page.fill("#docs-paste", `type,number,date,due,party,amount,account\nbill,B-1,${plus(lastDay, -20)},${plus(lastDay, 3)},Acme Supply,300.00,6100\nbill,B-2,${plus(lastDay, -10)},${plus(lastDay, 10)},Print Shop,150.00,6100\nbill,B-3,${plus(lastDay, -5)},${plus(lastDay, 20)},Landlord,9999999.00,6100\n`);
+await page.click("#docs-load");
+await page.fill("#bp-reserve", "100");
+await page.click("#bp-plan");
+const bptext = await page.locator("#bp-result").textContent();
+console.log("     bill plan:", bptext.slice(0, 300), "|", await page.locator("#bp-status").textContent());
+check(/B-1/.test(bptext) && /B-2/.test(bptext) && /B-3/.test(bptext), "the plan lists each open bill");
+check(/cannot fit/.test(bptext), "a bill larger than any cash on hand is reported as one that cannot fit");
+check(/lowest balance/.test(await page.locator("#bp-status").textContent()), "the plan states the lowest balance");
 // Budget against actual: set a monthly budget on the example books and read the table.
 await page.selectOption("#budget-account", { index: 0 });
 await page.fill("#budget-amount", "50.00");

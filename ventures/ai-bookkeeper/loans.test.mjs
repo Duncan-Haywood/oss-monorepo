@@ -64,3 +64,20 @@ test("a 0% loan files each payment plainly to the loan account", () => {
   assert.equal(t.status, "confirmed");
   assert.equal(t.posted, "2200");
 });
+
+test("payments and total interest match widely published mortgage-table figures", () => {
+  // Figures printed in standard payment tables / lender calculators (30 years, monthly):
+  //   100,000 at 6%   -> 599.55 a month, about 115,838 interest in total
+  //   200,000 at 6.5% -> 1,264.14 a month
+  //   300,000 at 4%   -> 1,432.25 a month
+  assert.equal(levelPayment(10000000, 600, 360), 59955);
+  assert.equal(levelPayment(20000000, 650, 360), 126414);
+  assert.equal(levelPayment(30000000, 400, 360), 143225);
+  const { loan } = addLoan(newBooks(), { name: "Mortgage", amount: "100000", rate: "6", months: 360, first: "2026-02-01" });
+  const s = loanSchedule(loan);
+  assert.equal(s[0].interest, 50000);
+  assert.equal(s[0].principal, 9955);
+  const interest = s.reduce((a, r) => a + r.interest, 0);
+  assert.ok(Math.abs(interest - 11583819) < 100, `total interest ${interest}`);
+  assert.equal(s.at(-1).balance, 0);
+});
