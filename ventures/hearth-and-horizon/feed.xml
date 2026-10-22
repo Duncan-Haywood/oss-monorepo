@@ -60,6 +60,16 @@
       <itunes:explicit>false</itunes:explicit>
     </item>
     <item>
+      <title>Thérèse and the Small Way</title>
+      <link>https://example.invalid/hearth-and-horizon/therese-and-the-small-way.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/therese-and-the-small-way.html</guid>
+      <pubDate>Thu, 22 Oct 2026 12:00:00 GMT</pubDate>
+      <description>A bedtime story about Saint Thérèse of Lisieux, who as a little girl chose the whole basket of dolls' clothes, and who as a grown-up found that she was too small to climb to heaven and decided to be carried instead. Told from her own writing, with a note for grown-ups on what is history. For ages 3 to 8, about ten minutes read aloud. Her feast day is the 1st of October. Setting: Alençon and Lisieux, France, about a hundred and fifty years ago. Read the full text at https://example.invalid/hearth-and-horizon/therese-and-the-small-way.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A bedtime story about Saint Thérèse of Lisieux, who as a little girl chose the whole basket of dolls' clothes, and who as a grown-up found that she was too small to climb to heaven and decided to be carried instead. Told from her own writing, with a note for grown-ups on what is history. For ages 3 to 8, about ten minutes read aloud. Her feast day is the 1st of October.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>Francis and the Wolf of Gubbio</title>
       <link>https://example.invalid/hearth-and-horizon/francis-and-the-wolf-of-gubbio.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/francis-and-the-wolf-of-gubbio.html</guid>
