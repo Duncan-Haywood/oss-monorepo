@@ -1249,3 +1249,15 @@ test('clumpy counts under the plain Poisson cost carry a range warning, the nb c
   assert.equal(analyze({ values: clumpy, model: 'poisson', overdispersion: 'nb' }).rangeWarning, undefined);
   assert.equal(analyze({ values: clean, model: 'poisson' }).rangeWarning, undefined);
 });
+
+test('a slope-change knot carries a 95% range that holds the planted knot, and intervals:false drops it', () => {
+  let seed = 41;
+  const rnd = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return (seed + 0.5) / 4294967296; };
+  const gauss = () => Math.sqrt(-2 * Math.log(rnd())) * Math.cos(2 * Math.PI * rnd());
+  const x = Array.from({ length: 200 }, (_, t) => 0.05 * t + (t > 100 ? 0.3 * (t - 100) : 0) + gauss());
+  const tr = analyze({ values: x, trend: 'bend' }).trend;
+  const r = tr.slopeChangesRange95[0];
+  assert.equal(r.knot, tr.slopeChangesAt);
+  assert.ok(r.from <= 100 && 100 <= r.to && r.to - r.from < 30, `range ${r.from}-${r.to}`);
+  assert.equal(analyze({ values: x, trend: 'bend', intervals: false }).trend.slopeChangesRange95, undefined);
+});

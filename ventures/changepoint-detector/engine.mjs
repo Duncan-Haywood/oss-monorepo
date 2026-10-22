@@ -485,10 +485,10 @@ export function lsKnots(x, lo, hi, gap) {
 }
 
 // residual sum of squares of x on [1, t, (t-k)+ ...] by the normal equations (one pass over the series; the reference lsKnots is tested against)
-export function lineRss(x, ks) {
-  const n = x.length, p = 2 + ks.length;
+export function lineRss(x, ks, steps = []) {
+  const n = x.length, p = 2 + ks.length + steps.length;
   const A = Array.from({ length: p }, () => new Array(p + 1).fill(0));
-  const row = (t) => [1, t, ...ks.map((k) => Math.max(0, t - k))];
+  const row = (t) => [1, t, ...ks.map((k) => Math.max(0, t - k)), ...steps.map((c) => (t >= c ? 1 : 0))];
   for (let t = 0; t < n; t++) {
     const r = row(t);
     for (let i = 0; i < p; i++) { for (let j = 0; j < p; j++) A[i][j] += r[i] * r[j]; A[i][p] += r[i] * x[t]; }
@@ -1438,6 +1438,7 @@ export function analyze(input = {}) {
     }
   }
   let slope = null, slopeAfter, knot, knots, slopes;
+  let valuesBeforeTrend = null;
   let growth = null, countKnot, growthAfter, countKnots, countRates;
   const nbAfterExposure = () => { if (o.overdispersion === 'nb') nbSize = negbinSize(exposure ? original.map((v, t) => v / exposure[t]) : values); };
   if (o.trend && model === 'poisson') {
@@ -1448,6 +1449,7 @@ export function analyze(input = {}) {
     growth = fit.g;
     if (fit.knot !== undefined) { countKnot = fit.knot; growthAfter = fit.slopeAfter; countKnots = fit.knots; countRates = fit.rates; }
   } else if (o.trend) {
+    valuesBeforeTrend = values;
     ({ adjusted: values, slope, slopeAfter, knot, knots, slopes } = trendAdjust(values, { penalty: o.penalty, minSegment: Math.max(1, Math.floor(Number(o.minSegment) || (model === 'meanvar' ? 5 : 2))), ar1: !!o.ar1 && model === 'mean', bend: o.trend === 'bend' ? 1 : o.trend === 'bends' ? 3 : false, joint: !!o.jointKnots, knotMargin: o.knotMargin }));
   }
   nbAfterExposure();
@@ -1497,6 +1499,11 @@ export function analyze(input = {}) {
     const nbOn = isFinite(nbSize) && nbSize > 0;
     ranges = changeIntervals(p.changepoints, values.length, nbOn ? makeCost(values, 'negbin', sigma, 0, exposure, nbSize) : makeCost(values, model, sigma, 0, exposure), { minSegment, level: 0.95 });
   }
+  // slope-change knots (--trend bend, bends): a likelihood range for each, with the steps refitted
+  let knotRanges = null;
+  if (!joint && o.intervals !== false && knots && knots.length && !(o.trend && model === 'poisson')) {
+    knotRanges = knotIntervals(valuesBeforeTrend, knots, sigma, p.changepoints, { margin: o.knotMargin, level: 0.95 });
+  }
   // the range assumes independent noise: on sticky series without --ar1 it is far too narrow (57% and 30% coverage, README)
   let rangeWarning = null;
   if (ranges && model === 'mean' && !o.ar1 && values.length >= 20) {
@@ -1542,7 +1549,7 @@ export function analyze(input = {}) {
     model,
     noiseSd: round(sigma),
     ...(period ? { seasonal: { period, profile: profile.map((v) => round(v, exposure ? 3 : undefined)), ...(exposure ? { multiplicative: true } : {}) } } : {}),
-    ...(slope !== null ? { trend: { slopePerPoint: round(slope, 6), ...(knot !== undefined ? { slopeAfter: round(slopeAfter, 6), slopeChangesAt: knot, ...(knots.length > 1 ? { slopeChangesAtAll: knots, slopes: slopes.map((v) => round(v, 6)) } : {}) } : {}) } } : {}),
+    ...(slope !== null ? { trend: { slopePerPoint: round(slope, 6), ...(knot !== undefined ? { slopeAfter: round(slopeAfter, 6), slopeChangesAt: knot, ...(knotRanges ? { slopeChangesRange95: knotRanges.map((r) => ({ knot: r.knot, from: r.from, to: r.to })) } : {}), ...(knots.length > 1 ? { slopeChangesAtAll: knots, slopes: slopes.map((v) => round(v, 6)) } : {}) } : {}) } } : {}),
     ...(growth !== null ? { trend: { logGrowthAcrossSeries: round(growth, 4), growthFactorAcrossSeries: round(Math.exp(growth), 4), multiplicative: true, ...(countKnot !== undefined ? { growthChangesAt: countKnot, logGrowthAcrossSeriesAfter: round(growthAfter, 4), ...(countKnots.length > 1 ? { growthChangesAtAll: countKnots, logGrowthAcrossSeriesRates: countRates.map((v) => round(v, 4)) } : {}) } : {}) } } : {}),
     ...(holidayFit ? { holidays: { count: holidayFit.count, factor: round(holidayFit.factor, 3), ...(holidayFit.kinds ? { kinds: holidayFit.kinds.map((k) => ({ ...k, factor: round(k.factor, 3) })) } : {}) } } : {}),
     ...(rangeWarning ? { rangeWarning } : {}),
@@ -1588,6 +1595,39 @@ export function changeIntervals(changepoints, n, cost, { minSegment = 2, level =
     let acc = 0, from = Infinity, to = -Infinity;
     for (const i of order) { acc += w[i] / tot; from = Math.min(from, ks[i]); to = Math.max(to, ks[i]); if (acc >= level) break; }
     return { index: c, from, to, level };
+  });
+}
+
+/**
+ * A likely range for each slope-change knot (--trend bend, bends). With the other knots and the steps held fixed,
+ * every position k the knot could take (clear of its neighbours by the search's gap and inside the knot margin) is
+ * weighted by exp(-(rss(k) - min rss) / (2 sigma^2)), the profile likelihood of a straight-line-per-stretch fit with
+ * Gaussian noise of sd sigma, and the most likely positions holding `level` of the weight are returned as the first and
+ * last. The steps (indexes where a new level starts) are refitted with each candidate: holding them at their fitted
+ * levels let a false step that had soaked up the kink pull coverage to 28% (eval/knot-interval.mjs). y is the series before the trend. Like changeIntervals it is a likelihood range under the
+ * fitted model, not an exact frequentist interval; eval/knot-interval.mjs measures how often it holds the true knot.
+ */
+export function knotIntervals(y, knots, sigma, steps, { margin = 0.1, level = 0.95 } = {}) {
+  const n = y.length;
+  const gap = Math.ceil(0.15 * n);
+  const m = Math.min(0.4, Math.max(0.05, Number(margin) || 0.1));
+  const lo0 = Math.ceil(m * n), hi0 = Math.floor((1 - m) * n);
+  const s2 = 2 * sigma * sigma;
+  return knots.map((c, j) => {
+    const lo = Math.max(lo0, j ? knots[j - 1] + gap : 0), hi = Math.min(hi0, j + 1 < knots.length ? knots[j + 1] - gap : n);
+    if (!(s2 > 0) || hi < lo) return { knot: c, from: c, to: c, level };
+    const ks = [], cs = [];
+    for (let k = Math.min(lo, c); k <= Math.max(hi, c); k++) {
+      ks.push(k);
+      cs.push(lineRss(y, knots.map((q, i) => (i === j ? k : q)), steps));
+    }
+    const mn = Math.min(...cs);
+    const w = cs.map((v) => Math.exp(-(v - mn) / s2));
+    const tot = w.reduce((u, v) => u + v, 0);
+    const order = w.map((_, i) => i).sort((u, v) => w[v] - w[u]);
+    let acc = 0, from = Infinity, to = -Infinity;
+    for (const i of order) { acc += w[i] / tot; from = Math.min(from, ks[i]); to = Math.max(to, ks[i]); if (acc >= level) break; }
+    return { knot: c, from, to, level };
   });
 }
 

@@ -92,6 +92,11 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
     if (r.rangeWarning) lines.push(`  (${r.rangeWarning})`);
     for (const x of ch) lines.push(`  ${x.label}: ${x.range95.from === x.range95.to ? 'that point only' : `${x.range95.from} – ${x.range95.to}`}`);
   }
+  const kr = r.trend && r.trend.slopeChangesRange95;
+  if (kr && kr.length) {
+    lines.push('', 'Likely range for each slope change (95%, other knots and steps refitted):');
+    for (const x of kr) lines.push(`  ${x.knot}: ${x.from === x.to ? 'that point only' : `${x.from} – ${x.to}`}`);
+  }
   if (r.bocpd.detections.length) {
     lines.push('', `Bayesian changes (probability >= ${r.bocpd.threshold}):`);
     for (const d of r.bocpd.detections) lines.push(`  ${d.label}  ${(d.probability * 100).toFixed(0)}%`);
