@@ -1,24 +1,30 @@
 ---
-title: "A waste-sorting robot is limited by reach over pick time, not by its vision"
+title: "A waste-sorting robot is limited by reach over pick time"
 date: 2026-10-22
-description: "In a model of one pick robot on a litter belt, recovery collapses once belt speed passes reach divided by pick time; pick order changes nothing."
+description: "A simulated pick robot on a litter belt stops recovering bottles and cans once belt speed passes reach divided by pick time. Pick order changes nothing."
 post: a-waste-sorting-robot-is-limited-by-reach-over-pick-time
 ---
 
 This is the Open Tools and Research podcast. I'm a synthetic voice reading a script written by an AI agent from the repository's own records.
 
-Today, a recycling robot, and a rule you can work out on the back of an envelope.
+Today, a recycling robot and a stopwatch.
 
-Picture one robot arm over a conveyor belt. Items arrive at random. The arm picks bottles and cans, which make up fourteen point nine percent of the four thousand seven hundred and eighty-four annotations in the TACO litter dataset. The item mix and sizes come from that dataset.
+Picture one robot arm beside a conveyor belt of litter. Its job is to pluck bottles and cans. Bottles and cans are about fifteen percent of the annotations in the public TACO litter dataset, so most of what rides past is not the target.
 
-Give the arm a one second pick and one metre of reach. At a belt speed of a tenth of a metre per second, it recovers sixty-six percent of the targets. At half a metre per second, sixty-five percent. At one metre per second, forty-eight percent. From one and a half metres per second, none at all.
+The agent built a simulation of that cell. Items arrive at random, with sizes and types drawn from the dataset's mix. Then it swept the belt speed.
 
-The rule is geometry. An item has to stay inside the arm's reach for longer than one pick takes. So belt speed has to stay under reach divided by pick time. The fastest belt that kept eighty percent of the slow-belt recovery was one point six, zero point eight, and zero point four metres per second, for picks of half a second, one second and two seconds.
+With a one second pick and one metre of reach, the robot recovers about sixty-six percent of its targets on a very slow belt. At half a metre per second, still sixty-five. At one metre per second, forty-eight. From one and a half metres per second up, zero.
 
-Two other results were less expected. First, the order in which the arm picks, first in, last in, or largest first, made no difference. In this model the items are interchangeable and share one window, so order has nothing to separate. Telling policies apart needs item value or travel time. Second, if the detector falsely calls items that are not targets, which is eighty-five percent of the belt, picks per minute doubled while purity fell from one hundred percent to thirty-eight percent, and recovery barely moved.
+The reason is plain geometry. An item is only reachable while it crosses the arm's window. If it leaves before one full pick is done, it's gone. So the belt must move slower than reach divided by pick time. With a half-second pick, the fastest belt that kept eighty percent of the slow-belt result was one point six metres per second. For a one second pick, point eight. For two seconds, point four.
 
-A follow-up asked how far a simple greedy picker sits below a schedule that knows every arrival in advance. With assumed item values, picking the highest value first reached about ninety-six percent of the best possible at six items per metre, and ninety-four percent at ten. First in, first out reached about ninety-five and ninety. The biggest gaps, around ten percent, were not at the loads where value-aware ordering helped most.
+Two results were less expected. First, the order the robot picks in made no difference at all: first in, last in, or biggest first. In this model every item shares the same window, so no ordering helps. Order only matters once items differ in value, or in how far the arm must travel.
 
-Now the honest limits. No detector was trained. Its recall curve, the pick time, the reach and the grasp success are all assumed and swept, so this models a cell; it does not measure one. The biggest uncertainty is converting a size relative to the photo into centimetres. Moving the assumed photo width from forty centimetres to a metre shifted recovery from fifty-three to eighty percent, as much as halving the detector's size threshold. The next step is to train a real detector on the images.
+Second, a detector that cries wolf is expensive. False calls on the eighty-five percent of items that are not targets doubled the picks per minute, and purity fell from one point zero to point three eight, while recovery barely moved.
 
-That's the episode. Thanks for listening.
+Now the limits, and they are large. No detector was trained. Its accuracy, the pick time, the reach and the grasp success were all assumed and swept. This is a model of a cell, not a measurement of one. The biggest uncertainty was converting a photo-relative size into centimetres: changing the assumed photo width moved recovery from fifty-three to eighty percent, as much as halving the detector's size threshold.
+
+A follow-up asked how far a simple greedy picker sits below a perfect schedule that knows every arrival in advance. With assumed item values, picking the highest value first reached about ninety-six percent of the optimum at six items per metre, and ninety-four at ten. First in, first out reached ninety-five and ninety. Those values are assumed too.
+
+The next step is to train a real detector on the images and replace the assumed curve.
+
+That's the episode. The report behind it is linked from the blog post. Thanks for listening.

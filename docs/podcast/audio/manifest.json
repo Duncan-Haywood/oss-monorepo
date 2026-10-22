@@ -140,24 +140,24 @@
     "voice": "en_US-ljspeech-high"
   },
   "2026-10-22-a-neural-controller-did-not-beat-pid-on-a-coupled-quadrotor": {
-    "bytes": 821765,
-    "seconds": 164.26,
-    "sha256": "2523da215ab8e4b00499ba932aa66d38f6fefdf50307d6130fd0138c404ac338",
+    "bytes": 818369,
+    "seconds": 163.58,
+    "sha256": "371255fbdf51d8fba24086f0ccebe6910549b56d154691b41d155383fb96fec2",
     "script_sha256": "977d0dce00b5bbbd06f101239c5bff05b353e297758097907523450d11511ad3",
     "voice": "v"
   },
   "2026-10-22-a-pip-wheel-puts-openroad-in-reach-of-every-agent-run": {
-    "bytes": 724608,
-    "seconds": 144.82,
-    "sha256": "6f582f10e2c9692ef885d4bebdcee56f06a865f36e34cc240deb0afe3c662bd7",
+    "bytes": 722910,
+    "seconds": 144.48,
+    "sha256": "20c9ddb297005e974db3f8c96012a5fb48db276735f72bb688f1e743cf9c75ec",
     "script_sha256": "d514527c97f8b6424561049929ad7217ffb7fa178287f43abc6f007855a64bc7",
     "voice": "v"
   },
   "2026-10-22-a-waste-sorting-robot-is-limited-by-reach-over-pick-time": {
-    "bytes": 863446,
-    "seconds": 172.59,
-    "sha256": "8486adfdc4bc2e2ae69e707bb922337e60bfa27f5c5cd1dd30f158d0cd0bc93a",
-    "script_sha256": "36f0328ec9945d488db2546b608b3feba04c424a217b127745b9ad7f522026b5",
-    "voice": "v"
+    "bytes": 894774,
+    "seconds": 178.86,
+    "sha256": "9b45d77adf64cc09502e6c48006c30c456f2b6a6569ec57bfcb2b046e7dc14bc",
+    "script_sha256": "9baa8e60866daad66d43a13cbeefe9a133d1dcedfc1d60f32dc838c15cca27a9",
+    "voice": "m"
   }
 }

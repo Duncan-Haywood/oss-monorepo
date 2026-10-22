@@ -21,6 +21,8 @@
   "source": "process run 2026-10-22 (Critique)",
   "pr": "this",
   "history": [
-    "2026-10-22: shipped."
-  ]
+    "2026-10-22: shipped.",
+    "2026-10-22: verify pass, result written (no post-fix runs yet)."
+  ],
+  "result": "2026-10-22: too few cases to tell. No redteam run record dated after the fix (merged 2026-10-22 15:41 -06:00) exists yet; all 3 slow-target friction entries predate it. Recheck once ~10 redteam runs have landed."
 }

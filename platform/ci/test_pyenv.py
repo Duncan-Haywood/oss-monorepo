@@ -133,6 +133,44 @@ class T(unittest.TestCase):
         self.assertNotIn("python3-foo", names)
         self.assertEqual(len([n for n in names if n in ("python3.11", "python3.99")]), 1)
 
+    def test_candidates_skips_non_executable_file(self):
+        with tempfile.TemporaryDirectory() as d:
+            plain = Path(d) / "python3.9"
+            plain.write_text("")
+            plain.chmod(0o644)
+            good = Path(d) / "python3.8"
+            good.write_text("")
+            good.chmod(0o755)
+            found = pyenv.candidates(path="", extra_globs=(f"{d}/python3*",))
+            self.assertIn(str(good), found)
+            self.assertNotIn(str(plain), found)
+
+    def test_apt_update_output_is_captured(self):
+        seen = []
+
+        def run(cmd, **kw):
+            seen.append((cmd[1], kw.get("capture_output")))
+            return Result(0)
+
+        orig = pyenv.shutil.which
+        pyenv.shutil.which = lambda name, path=None: "/usr/bin/apt-get" if name == "apt-get" else orig(name, path=path)
+        try:
+            self.assertTrue(pyenv.apt_install(["numpy"], run))
+        finally:
+            pyenv.shutil.which = orig
+        self.assertEqual(seen, [("update", True), ("install", True)])
+
+    def test_venv_rejected_when_pip_succeeds_but_import_still_fails(self):
+        with tempfile.TemporaryDirectory() as d:
+            vpy = os.path.join(d, "bin", "python")
+            os.makedirs(os.path.dirname(vpy))
+            Path(vpy).write_text("")
+
+            def run(cmd, **kw):
+                return Result(0 if cmd[1:3] == ["-m", "pip"] else 1)
+
+            self.assertIsNone(pyenv.venv_install("/usr/bin/python3", ["numpy"], d, run, quiet))
+
     def test_real_interpreter_imports_stdlib(self):
         self.assertTrue(pyenv.imports(sys.executable, ["json"]))
         self.assertFalse(pyenv.imports(sys.executable, ["no_such_module_xyz"]))
