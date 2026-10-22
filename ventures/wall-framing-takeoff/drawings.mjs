@@ -128,12 +128,12 @@ export function partsTableHtml(w) {
 }
 
 /** Panel table: letter, span, width and the members each shop panel carries. */
-function panelTableHtml(w, pan, max) {
-  const parts = panelParts(w, pan);
-  const rows = pan.panels.map((p, k) => `<tr><td><b>${esc(p.name)}</b></td><td>${esc(formatLength(p.x0))} to ${esc(formatLength(p.x1))}</td><td class="n">${esc(formatLength(p.width))}${p.over ? ' <span class="err">over limit</span>' : ""}</td><td class="n">${parts[k].pieceCount}</td><td class="n">${parts[k].lb} lb</td></tr>`).join("");
+function panelTableHtml(w, pan, max, wall = {}, psf = 0) {
+  const parts = panelParts(w, pan, { sheathPsf: psf, openings: wall.openings });
+  const rows = pan.panels.map((p, k) => `<tr><td><b>${esc(p.name)}</b></td><td>${esc(formatLength(p.x0))} to ${esc(formatLength(p.x1))}</td><td class="n">${esc(formatLength(p.width))}${p.over ? ' <span class="err">over limit</span>' : ""}</td><td class="n">${parts[k].pieceCount}</td><td class="n">${parts[k].lb} lb</td>${psf > 0 ? `<td class="n">${parts[k].sheathLb} lb</td><td class="n">${parts[k].totalLb} lb</td>` : ""}</tr>`).join("");
   const cutLists = parts.map((p) => `<h3>Panel ${esc(p.name)} cut list</h3><table><thead><tr><th class="n">Qty</th><th>Size</th><th class="n">Cut length</th><th>Member</th></tr></thead><tbody>${p.pieces.map((x) => `<tr><td class="n">${x.qty}</td><td>${esc(x.size)}</td><td class="n">${esc(formatInches(x.length))}</td><td>${esc(x.label)}</td></tr>`).join("")}</tbody></table>`).join("");
-  return `<h2>Shop panels (up to ${esc(formatLength(max))})</h2><table><thead><tr><th>Panel</th><th>Span</th><th class="n">Width</th><th class="n">Pieces</th><th class="n">Lumber weight</th></tr></thead><tbody>${rows}</tbody></table>`
-    + `<p class="chk">Cuts (purple) fall only where no stud, king, jack, cripple, header, sill or block crosses; plates are cut to panel length and the adjoining end studs are nailed together on site. Weights are lumber only (SPF 28 lb/ft3, treated plate 40 lb/ft3), before sheathing, nails and connectors; a handling estimate, not a lifting plan.${pan.over ? ' <span class="err">At least one panel is over the limit: no clear cut line exists within it (a wide opening).</span>' : ""}</p>`
+  return `<h2>Shop panels (up to ${esc(formatLength(max))})</h2><table><thead><tr><th>Panel</th><th>Span</th><th class="n">Width</th><th class="n">Pieces</th><th class="n">Lumber weight</th>${psf > 0 ? '<th class="n">Sheathing</th><th class="n">Total</th>' : ""}</tr></thead><tbody>${rows}</tbody></table>`
+    + `<p class="chk">Cuts (purple) fall only where no stud, king, jack, cripple, header, sill or block crosses; plates are cut to panel length and the adjoining end studs are nailed together on site. ${psf > 0 ? `Weights: lumber SPF 28 lb/ft3, treated plate 40 lb/ft3; sheathing ${psf} lb per sq ft over the panel less the openings in it` : "Weights are lumber only (SPF 28 lb/ft3, treated plate 40 lb/ft3), before sheathing"}, before nails and connectors; a handling estimate, not a lifting plan.${pan.over ? ' <span class="err">At least one panel is over the limit: no clear cut line exists within it (a wide opening).</span>' : ""}</p>`
     + cutLists;
 }
 
@@ -151,7 +151,7 @@ const DISCLAIMER = "No warranty. These drawings are a plan-derived picture of th
  * The whole drawing set as one printable HTML document, one sheet per wall.
  * @param {{ok: boolean, walls: any[]}} result from takeoff()
  * @param {any} plan the plan that produced it
- * @param {{title?: string, panelMax?: number}} [opts] panelMax (inches) splits each wall into shop panels no longer than that
+ * @param {{title?: string, panelMax?: number, sheathPsf?: number}} [opts] panelMax (inches) splits each wall into shop panels no longer than that; sheathPsf (lb per sq ft) adds sheathing weight to each panel
  */
 export function drawingSetHtml(result, plan, opts = {}) {
   const title = opts.title || "Wall framing shop drawings";
@@ -162,7 +162,7 @@ export function drawingSetHtml(result, plan, opts = {}) {
     const pan = opts.panelMax > 0 ? panelizeWall(w, opts.panelMax) : null;
     return `<section class="sheet"><h1>${esc(w.id)}</h1><p class="sub">Sheet ${i + 1} of ${result.walls.length} &middot; ${esc(formatLength(w.length))} long &middot; ${esc(formatInches(w.height))} high &middot; ${esc(w.stud)} studs at ${esc(formatInches(plan.studSpacing))} centres${w.gable ? ` &middot; gable ${w.gable.pitch}/12` : ""}</p>`
       + wallElevationSvg(w, wall, plan, pan)
-      + (pan ? panelTableHtml(w, pan, opts.panelMax) : "")
+      + (pan ? panelTableHtml(w, pan, opts.panelMax, wall, opts.sheathPsf > 0 ? opts.sheathPsf : 0) : "")
       + `<h2>Parts</h2>${partsTableHtml(w)}`
       + `<p class="chk">Plate joints (red) from the wall start: ${esc(joints)}. ${problems.length ? `<span class="err">Layout check found ${problems.length} problem(s): ${problems.map(esc).join("; ")}</span>` : "Layout check passed: every member inside the wall, none overlapping, every plate joint over a full stud."}</p>`
       + (w.notes?.length ? `<p class="chk">${w.notes.map(esc).join(" ")}</p>` : "")
