@@ -180,6 +180,14 @@ console.log("     bill plan:", bptext.slice(0, 300), "|", await page.locator("#b
 check(/B-1/.test(bptext) && /B-2/.test(bptext) && /B-3/.test(bptext), "the plan lists each open bill");
 check(/cannot fit/.test(bptext), "a bill larger than any cash on hand is reported as one that cannot fit");
 check(/lowest balance/.test(await page.locator("#bp-status").textContent()), "the plan states the lowest balance");
+// Supplier terms on the same card: a discount for Acme Supply and a malformed line.
+await page.fill("#bp-terms", "Acme Supply, 2, 30, 5");
+await page.click("#bp-plan");
+check(/early-payment discount .* taken|late fee about/.test(await page.locator("#bp-result").textContent()), "supplier terms show a discount taken or a late fee in the plan");
+await page.fill("#bp-terms", "Acme Supply, lots");
+await page.click("#bp-plan");
+check(/Supplier terms line 1/.test(await page.locator("#bp-status").textContent()), "a malformed terms line is refused");
+await page.fill("#bp-terms", "");
 // Budget against actual: set a monthly budget on the example books and read the table.
 await page.selectOption("#budget-account", { index: 0 });
 await page.fill("#budget-amount", "50.00");
