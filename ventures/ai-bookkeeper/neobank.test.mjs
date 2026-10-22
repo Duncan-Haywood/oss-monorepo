@@ -53,3 +53,25 @@ test("Mercury: pending rows are reported, not imported", () => {
   assert.deepEqual(r.rows.map((x) => x.cents), [-12050, 500000]);
   assert.equal(r.problems.length, 1);
 });
+
+test("Discover card: charges positive, DIRECTPAY row settles the sign", () => {
+  const r = read("discover-card.csv");
+  assert.equal(r.bank, "discover");
+  assert.deepEqual(r.rows.map((x) => x.cents), [-4217, -5999, 10216]);
+  assert.ok(r.inferred);
+});
+
+test("Citi card: debit and credit columns, Status column ignored", () => {
+  const r = read("citi-card.csv");
+  assert.equal(r.bank, "citi");
+  assert.deepEqual(r.rows.map((x) => x.cents), [-3850, 3850, -1725]);
+});
+
+test("US Bank and Ally checking are recognised and signed as written", () => {
+  const u = read("us-bank-checking.csv");
+  assert.equal(u.bank, "us-bank");
+  assert.deepEqual(u.rows.map((x) => x.cents), [-125000, 480000, -9640]);
+  const a = read("ally-checking.csv");
+  assert.equal(a.bank, "ally");
+  assert.deepEqual(a.rows.map((x) => x.cents), [-4500, 250000, -1299]);
+});
