@@ -89,3 +89,12 @@ test("Lloyds: day-first dates, debit and credit columns, balance chain holds", (
   assert.deepEqual(r.rows.map((x) => x.date), ["2026-03-02", "2026-03-04", "2026-03-05"]);
   assert.equal(checkRunningBalance(r.rows).checked, true);
 });
+
+test("Barclays: day-first dates, Memo as description, no dates dropped", () => {
+  const r = read("barclays-current.csv");
+  assert.equal(r.bank, "barclays");
+  assert.deepEqual(r.problems, []);
+  assert.deepEqual(r.rows.map((x) => x.date), ["2026-03-05", "2026-03-13", "2026-03-14"]);
+  assert.deepEqual(r.rows.map((x) => x.cents), [-2499, 150000, -850]);
+  assert.equal(r.rows[1].desc, "CLIENT LTD INV 114");
+});
