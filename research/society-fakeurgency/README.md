@@ -85,7 +85,7 @@ field 0.913), normal 1.092 ± 0.001 (1.095).
 ## Next steps
 
 1. Robots that learn `gS` and `gQ` from their payoffs, so they discount a signal that is sent by everyone.
-2. A signal with a cost that is lower for the urgent (a cue that is cheap for them and hard for others to fake).
+2. A signal with a cost that is lower for the urgent (a cue that is cheap for them and hard for others to fake).  Done: `society-cheapcue`.
 3. Map the multiple equilibria near 50% robots by continuation.
 
 ![Cost against signal cost](experiments/cost_vs_signal.svg)
