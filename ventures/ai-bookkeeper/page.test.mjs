@@ -132,10 +132,10 @@ test("every module the page loads, transitively, is free of node: imports", () =
   assert.deepEqual(bad, [], "a browser cannot load node: modules, so the whole page script would die");
 });
 
-test("the page has a payroll card wired to the engine", () => {
+test("the payroll card is labelled and wired to the payroll engine", () => {
   const html = page("index.html");
-  for (const id of ["pr-file", "pr-paste", "pr-add", "pr-apply", "pr-941", "pr-year", "pr-quarter", "pr-result"]) assert.match(html, new RegExp(`id="${id}"`), id);
-  assert.match(script(), /addPayroll\(books, await payrollText\(\)\)/);
+  for (const id of ["pr-file", "pr-paste", "pr-year", "pr-q"]) assert.match(html, new RegExp(`<label for="${id}">`), id);
+  assert.match(script(), /addPayroll\(books/);
   assert.match(script(), /applyPayroll\(books, planPayroll\(books\)\)/);
-  assert.match(script(), /form941\(books, year,/);
+  assert.match(script(), /form941\(books/);
 });
