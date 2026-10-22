@@ -5,6 +5,7 @@
 import { readFileSync } from "node:fs";
 import { sheathe, defaultSheathing, sheathingText, nailerCuts } from "./sheathing.mjs";
 import { layoutFloor, floorCuts, floorText } from "./floor.mjs";
+import { layoutRoof, roofCuts, roofText } from "./roof.mjs";
 import { drawingSetHtml } from "./drawings.mjs";
 import { panelOrder, panelOrderText, panelPullText } from "./panels.mjs";
 import { takeoff, samplePlan, toCsv, formatLength, formatInches, parseLength } from "./engine.mjs";
@@ -24,6 +25,7 @@ Usage:
   node cli.mjs plan.json --panel-max=12ft --panel-order  lumber order for the shop panels (plates cut at panel breaks) against the whole-wall order
   node cli.mjs plan.json --panel-max=12ft --sheathing-psf=1.5  also weigh the sheathing on each panel (lb per sq ft)
   node cli.mjs plan.json --floor     add the plan's floor (joists, rim, blocking, subfloor sheets); its lumber joins the order
+  node cli.mjs plan.json --roof      add the plan's gable roof (rafters, ridge, sheathing, shingle and felt quantities); its lumber joins the order
   node cli.mjs plan.json --drawings   printable HTML shop drawings, one sheet per wall (marked members, dimensions, parts table)
   node cli.mjs --example            print the example plan (an invented 40 x 28 ft ranch) to start from
   cat plan.json | node cli.mjs -    read the plan from stdin
@@ -75,14 +77,23 @@ export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "u
     floor = layoutFloor(plan.floor, plan);
     if (!floor.ok) return { code: 1, out: `The floor has problems:\n${floor.errors.map((e) => `  - ${e}`).join("\n")}` };
   }
+  let roof = null;
+  if (flags.has("--roof") || plan.roof) {
+    if (!plan.roof) return { code: 2, out: "The plan has no `roof` object (width, length, pitch, rafter, spacing)." };
+    for (const k of ["width", "length", "overhang", "gableOverhang", "ceilingBearing", "collarDrop"]) if (typeof plan.roof[k] === "string") plan.roof[k] = parseLength(plan.roof[k]);
+    roof = layoutRoof(plan.roof, plan);
+    if (!roof.ok) return { code: 1, out: `The roof has problems:\n${roof.errors.map((e) => `  - ${e}`).join("\n")}` };
+  }
+  const shell = () => [...(floor ? floorCuts(floor) : []), ...(roof ? roofCuts(roof) : [])];
   /** @type {any} */
-  let r = takeoff(plan, floor ? floorCuts(floor) : []);
+  let r = takeoff(plan, shell());
   if (floor && r.ok) r.floor = floor;
+  if (roof && r.ok) r.roof = roof;
   if (!r.ok) return { code: 1, out: `The plan has problems:\n${r.errors.map((e) => `  - ${e}`).join("\n")}` };
   if (flags.has("--sheathing") || flags.has("--horizontal") || flags.has("--overhang") || rimLap > 0 || plan.sheathing) {
     const sheathing = sheathe({ ...plan, sheathing: { ...defaultSheathing(), ...(plan.sheathing || {}), ...(flags.has("--horizontal") ? { orientation: "horizontal" } : {}), ...(flags.has("--overhang") ? { overhang: true } : {}), ...(rimLap > 0 ? { rimLap } : {}) } }, r);
     const extra = nailerCuts(sheathing);
-    if (extra.length) { r = takeoff(plan, [...extra, ...(floor ? floorCuts(floor) : [])]); if (floor) r.floor = floor; } // nailers join the cut list and the lumber order
+    if (extra.length) { r = takeoff(plan, [...extra, ...shell()]); if (floor) r.floor = floor; if (roof) r.roof = roof; } // nailers join the cut list and the lumber order
     r.sheathing = sheathing;
   }
   const sheathPsf = Math.max(0, parseFloat(argv.find((a) => a.startsWith("--sheathing-psf="))?.slice(16) ?? "0") || 0);
@@ -114,6 +125,7 @@ export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "u
   lines.push("  K = king, C = corner backing, T = tee backing; jacks sit inside the kings.");
   if (r.sheathing) lines.push("", `SHEATHING (panels run ${r.sheathing.orientation === "horizontal" ? "horizontally, course by course from the floor" : "vertically from the wall start"}; lengths left to right)`, ...sheathingText(r.sheathing));
   if (r.floor) lines.push("", "FLOOR", ...floorText(r.floor));
+  if (r.roof) lines.push("", "ROOF", ...roofText(r.roof));
   if (r.notes.length) lines.push("", "NOTES", ...r.notes.map((n) => `  - ${n}`));
   lines.push("", "Header sizes and jack counts are your inputs and are not checked against a span table or code.");
   return { code: 0, out: lines.join("\n") };

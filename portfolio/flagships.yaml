@@ -46,7 +46,7 @@ flagships:
       terms letter checked against the fee and discount rules, and one named
       lender's own schedule against the loan register; (5) try receipts and
       the reconcile-to-statement command on real paper, and read receipt
-      photos in the page; (6) payroll.mjs landed 2026-10-22 (CLI and a page card, per-employee Social Security wage base, Additional Medicare Tax (line 5d), Form 940 FUTA worksheet, hand-made fixtures): try a real Gusto or ADP report; (7) one named filing service's import layout, from its own spec; (8) sales tax return worksheet by jurisdiction landed 2026-10-22 (`salestax return`, hand-made fixtures): check it against one state's real return layout and due dates. A run that lands a slice replaces
+      photos in the page; (6) payroll.mjs landed 2026-10-22 (CLI and a page card, per-employee Social Security wage base, Additional Medicare Tax (line 5d), Form 940 FUTA worksheet, hand-made fixtures): try a real Gusto or ADP report; (7) one named filing service's import layout, from its own spec; (8) sales tax return worksheet by jurisdiction landed 2026-10-22 (`salestax return`, due-date rollover, vendor discount and paid-vs-owed per period, hand-made fixtures): check it against one state's real return layout and holiday calendar. A run that lands a slice replaces
       its item here; keep this under 2,000 characters.
 
   # Added 2026-10-21 second, on the owner's direction that day: "I want to make
@@ -61,7 +61,7 @@ flagships:
       CLI and agent engine. First tool of the new-home construction program.
     next: >-
       Open items only; landed work is in ventures/wall-framing-takeoff/README.md
-      and ROADMAP.md. Next: floor subfloor cut-out, a floor drawing, several
+      and ROADMAP.md. Roof framing (gable: rafters, ridge, sheathing, shingle/felt quantities; CLI --roof) landed 2026-10-22. Next: roof on the page, hips and valleys, floor subfloor cut-out, a floor drawing, several
       stairwells on the page; gable sheathing on the page, in the horizontal layout and reusing the offcut triangle (vertical-sheet order landed 2026-10-22);
       right-sized headers from a user table; a 2D reuse of opening cut-outs;
       click through the panel sheathing-weight field and the panel order and
