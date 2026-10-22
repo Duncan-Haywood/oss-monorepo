@@ -48,5 +48,18 @@ const uRows = await page.locator("#repairLog tbody tr").count();
 const uXml = await page.inputValue("#paste");
 console.log({ uRows, startsXml: uXml.trimStart().startsWith("<"), gross: /TaxInclusiveAmount[^>]*>([^<]*)/.exec(uXml)?.[1], errors });
 const uOk = uRows >= 1 && uXml.includes("398.50") && !uXml.includes("999.99") && errors.length === 0;
+
+// CII: break a line total and the amount due in the example file.
+const cii = readFileSync(join(root, "examples/xrechnung-cii-invoice.xml"), "utf8")
+  .replace("<ram:LineTotalAmount>960.00", "<ram:LineTotalAmount>900.00")
+  .replace("<ram:DuePayableAmount>1190.00", "<ram:DuePayableAmount>1.00");
+await page.fill("#paste", cii);
+await page.click("#repair");
+await page.waitForFunction(() => /Repaired \d+ value/.test(document.getElementById("repairLog").textContent));
+const cRows = await page.locator("#repairLog tbody tr").count();
+const cXml = await page.inputValue("#paste");
+const norm = (x) => x.replace(/\r\n/g, "\n").trim();
+console.log({ cRows, sameAsOriginal: norm(cXml) === norm(readFileSync(join(root, "examples/xrechnung-cii-invoice.xml"), "utf8")), errors });
+const cOk = cRows === 2 && norm(cXml) === norm(readFileSync(join(root, "examples/xrechnung-cii-invoice.xml"), "utf8")) && errors.length === 0;
 await browser.close(); server.close();
-process.exit(ok && uOk ? 0 : 1);
+process.exit(ok && uOk && cOk ? 0 : 1);

@@ -93,6 +93,6 @@ test("browser page offers the arithmetic repair", () => {
   assert.match(page, /id="repair"/);
   assert.match(page, /from "\.\/repair\.mjs"/);
   assert.match(page, /repairInvoice\(invoice\)/);
-  assert.match(page, /from "\.\/repair-ubl\.mjs"/);
-  assert.match(page, /repairUbl\(paste\.value\)/);
+  assert.match(page, /from "\.\/repair-cii\.mjs"/);
+  assert.match(page, /repairXml\(paste\.value\)/);
 });

@@ -5,7 +5,7 @@
 // person. Exit 0 repaired file passes every check, 1 findings remain, 2 usage.
 import { readFileSync, writeFileSync } from "node:fs";
 import { repairInvoice } from "./repair.mjs";
-import { repairUbl } from "./repair-ubl.mjs";
+import { repairXml } from "./repair-cii.mjs";
 
 const args = process.argv.slice(2);
 const oi = args.findIndex((a) => a === "-o" || a === "--output");
@@ -18,7 +18,7 @@ if (!file) {
 if (file !== "-" && file.toLowerCase().endsWith(".xml")) {
   let x;
   try {
-    x = repairUbl(readFileSync(file, "utf8"));
+    x = await repairXml(readFileSync(file, "utf8"));
   } catch (e) {
     console.error(`Cannot read invoice: ${e.message}`);
     process.exit(2);

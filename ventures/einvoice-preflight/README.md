@@ -657,6 +657,6 @@ or category. The result is re-parsed and re-checked. On
 INV-017, INV-018, INV-029 and INV-038; INV-021 (due date) and INV-045 (no
 IBAN) stay for a person. Tested on the repo's hand-written UBL examples only
 (`repair-ubl.test.mjs`, `server.test.mjs`); not tried on a real ERP export,
-and CII is not covered. The web page's repair button takes UBL as well as JSON
+and CII is repaired by `repair-cii.mjs` (LineTotalAmount, header tax groups, header totals; same CLI, `POST /v1/repair` and page button, picked by content; `repair-cii.test.mjs`, `eval/browser-repair.mjs`; hand-written XRechnung CII example only, Factur-X PDFs are not repaired). The web page's repair button takes UBL as well as JSON
 (clicked through in headless Chromium with `eval/browser-repair.mjs`, which breaks
 the example's gross total and checks it comes back to 398.50).

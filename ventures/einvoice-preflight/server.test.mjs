@@ -145,6 +145,10 @@ test("POST /v1/repair fixes totals and lists what is left", async () => {
   assert.equal(xj.changes.length, 3);
   assert.deepEqual(xj.remaining.map((e) => e.rule).sort(), ["INV-021", "INV-045"]);
   assert.match(xj.xml, /<cbc:TaxInclusiveAmount currencyID="EUR">398\.50</);
+  const cii = (await ex("xrechnung-cii-invoice.xml")).toString().replace("<ram:GrandTotalAmount>1190.00", "<ram:GrandTotalAmount>5.00");
+  const cj = await (await fetch(`${s.base}/v1/repair`, { method: "POST", body: cii })).json();
+  assert.deepEqual(cj.changes.map((c) => c.path), ["/totals/gross"]);
+  assert.match(cj.xml, /<ram:GrandTotalAmount>1190\.00</);
   const bad = await fetch(`${s.base}/v1/repair`, { method: "POST", body: "nope" });
   assert.equal(bad.status, 400);
   await s.close();

@@ -14,13 +14,13 @@
 import { checkInvoice, roundHalfUpToCents } from "./checks.mjs";
 import { parseUblInvoice } from "./ubl.mjs";
 
-const fmt = (n) => (Math.round(n * 100) / 100).toFixed(2);
-const tagRe = (name, flags = "g") => new RegExp(`<((?:[\\w.-]+:)?${name})(\\s[^>]*)?>([\\s\\S]*?)</\\1>`, flags);
-const num = (s) => (s === undefined || s === null || s.trim() === "" ? null : Number(s.trim()));
+export const fmt = (n) => (Math.round(n * 100) / 100).toFixed(2);
+export const tagRe = (name, flags = "g") => new RegExp(`<((?:[\\w.-]+:)?${name})(\\s[^>]*)?>([\\s\\S]*?)</\\1>`, flags);
+export const num = (s) => { if (s === undefined || s === null || s.trim() === "") return null; const n = Number(s.trim()); return Number.isFinite(n) ? n : null; };
 
 // First <name ...>value</name> at the top level of a block (not inside a nested
 // element named in `skip`), as {start, end, value} offsets of the value text.
-function firstChild(block, name, skip = []) {
+export function firstChild(block, name, skip = []) {
   let masked = block;
   for (const s of skip) masked = masked.replace(tagRe(s), (m) => " ".repeat(m.length));
   const m = tagRe(name, "").exec(masked);

@@ -127,7 +127,7 @@
         <button id="adjustmentSample" class="secondary" type="button">Load a header discount that does not match its percent</button>
         <button id="termsSample" class="secondary" type="button">Load terms days that do not match the due date</button>
         <button id="validSample" class="secondary" type="button">Load a passing example</button>
-        <button id="repair" class="secondary" type="button">Repair the arithmetic (JSON or UBL)</button>
+        <button id="repair" class="secondary" type="button">Repair the arithmetic (JSON, UBL or CII)</button>
       </div>
       <p id="inputError" class="error" role="alert"></p>
       <div id="repairLog" aria-live="polite"></div>
@@ -225,7 +225,7 @@
     import { preflightDocuments, buildChecklist, buildMarkdown, buildJsonReport, buildRemediationCsv, summarizePreflight } from "./report.mjs";
     import { addOfficialFindings, officialNote } from "./official.mjs";
     import { repairInvoice } from "./repair.mjs";
-    import { repairUbl } from "./repair-ubl.mjs";
+    import { repairXml } from "./repair-cii.mjs";
     import { recordUsage, readOptOut, writeOptOut } from "./usage.mjs";
 
     const VALID_EXAMPLE = {
@@ -461,10 +461,10 @@
       inputError.textContent = "";
       if (paste.value.trimStart().startsWith("<")) {
         let x;
-        try { x = repairUbl(paste.value); } catch (e) { inputError.textContent = "Repair reads UBL Invoice or CreditNote XML; this one could not be read: " + e.message; return; }
+        try { x = await repairXml(paste.value); } catch (e) { inputError.textContent = "Repair reads UBL Invoice, UBL CreditNote or CII XML; this one could not be read: " + e.message; return; }
         const skippedNote = x.skipped.length ? ` Left alone: ${x.skipped.map((t) => escapeHtml(String(t))).join("; ")}.` : "";
         if (!x.repaired) {
-          log.innerHTML = `<p class="note">Nothing to repair in this UBL file: the line nets, tax amounts and totals already follow from the lines.${skippedNote}</p>`;
+          log.innerHTML = `<p class="note">Nothing to repair in this XML file: the line nets, tax amounts and totals already follow from the lines.${skippedNote}</p>`;
           return;
         }
         paste.value = x.xml;

@@ -21,7 +21,7 @@
 // nothing is forwarded; request bodies live in memory for the length of the
 // request. Configuration is by environment variable only (see README).
 import { repairInvoice } from "./repair.mjs";
-import { repairUbl } from "./repair-ubl.mjs";
+import { repairXml } from "./repair-cii.mjs";
 import { createServer } from "node:http";
 import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
@@ -221,7 +221,7 @@ export function createApp(config = loadConfig()) {
       if (bodyText.trimStart().startsWith("<")) {
         let x;
         try {
-          x = repairUbl(bodyText);
+          x = await repairXml(bodyText);
         } catch (e) {
           throw new HttpError(400, `Body must be a UBL invoice or credit note: ${e.message}`);
         }
