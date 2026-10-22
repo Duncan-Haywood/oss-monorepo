@@ -181,7 +181,6 @@ writing it; skip any already in `episodes/`):
 - Saint Mary of Egypt (Orthodox and Catholic; told gently for bedtime)
 - Abraham and the three visitors at Mamre (Genesis 18)
 - Saint Herman of Alaska and the animals of Spruce Island (Orthodox)
-- Saint Hilda of Whitby and the cowherd Caedmon who could not sing (Bede)
 - Saint Nicholas, part two: the storm at sea and the grain ships
 - Elijah, the ravens and the still small voice (1 Kings 17-19)
 - Saint Spyridon and the snake that became gold (legend; told with care)
@@ -189,7 +188,9 @@ writing it; skip any already in `episodes/`):
 
 ## Waiting for audio
 
-None: every episode has audio (episode 7 was rendered on 2026-10-21, 34 minutes).
+Episode 8, `hilda-of-whitby-and-the-cowherd-who-could-not-sing` (text and page landed 2026-10-22; Hugging Face was blocked in that cloud session, so the Kokoro models could not be fetched). Render it with `python3 render_audio.py hilda-of-whitby-and-the-cowherd-who-could-not-sing`, then `node generate.mjs`.
+
+Episodes 1 to 7 have audio (episode 7 was rendered on 2026-10-21, 34 minutes).
 
 ## Publishing
 

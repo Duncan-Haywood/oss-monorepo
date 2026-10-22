@@ -464,6 +464,12 @@ SARIF uses paths relative to the input directory. An empty directory is an
 input error and exits `2`. Batch scans also flag a supplier (matched by id, VAT id or
 name) who reuses an `invoice_number` as `INV-019`; the number itself is never
 emitted. Two different suppliers that both issue `1001` are not flagged.
+Credit notes are tied to their originals when both are in the batch (same seller,
+reference matched ignoring case): `INV-056` for a currency mismatch, `INV-057` when
+the credit notes against one invoice add up to more than its gross total, `INV-058`
+when the named invoice in the batch belongs to a different seller. A credit note whose
+original is not in the batch is left alone. Tested on hand-written invoices (JS and
+Python CLI); not tried on real ERP exports.
 JSON output uses the same versioned summary fields for single files and
 directories: `schema_version` (currently `1`), `status`, `exit_code`,
 `files_checked`, `files_failed`, `observations`, `rules`, `fixes`, and `read_errors`.

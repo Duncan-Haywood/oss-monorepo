@@ -1186,3 +1186,16 @@ test('negbinSize counts every first difference, the first included', () => {
   // four calm differences against three jumps: the median is 0, so there is no excess spread to fit
   assert.equal(negbinSize([5, 5, 5, 5, 5, 25, 5, 25]), Infinity);
 });
+
+test('seasonalAdjust accepts a period of exactly 2, the smallest cycle', () => {
+  const { adjusted, profile } = seasonalAdjust([1, 3, 1, 3, 1, 3, 1, 3], 2);
+  assert.equal(profile.length, 2);
+  assert.equal(adjusted.length, 8);
+});
+
+test('ar1mean cost of a perfectly constant segment is only the stationary-start term', () => {
+  // x = 5 throughout: the fitted mean explains it exactly, so the residual is 0 and the cost is -log(1 - rho^2).
+  const rho = 0.5;
+  const cost = makeCost(Array(10).fill(5), 'ar1mean', 1, rho);
+  assert.ok(Math.abs(cost(0, 10) - -Math.log(1 - rho * rho)) < 1e-9);
+});
