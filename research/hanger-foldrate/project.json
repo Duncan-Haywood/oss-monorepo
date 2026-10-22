@@ -1,0 +1,6 @@
+{
+ "theme": "hanger",
+ "title": "How many dryers can a laundry-hanging arm serve when the fold takes as long as published robots take?",
+ "summary": "Taking the fold time from Avigal et al. (2022), SpeedFolding (30&ndash;40 folds per hour, about 90&ndash;120 s each) instead of hanger-cell's assumed 25 s, the one-arm cell with the learned hang-or-fold rule drops from 169 to 58&ndash;44 garments an hour (5.1 to 1.8&ndash;1.3 dryers) and is fold-bound (table 98% busy, arm 24&ndash;31%). Always hanging stays at 146 an hour, 3.3 times the learned rule at 120 s, and beats always folding for any fold time above about 24 s. More fold tables recover throughput only slowly (115 an hour needs 3 at 120 s). Sourced: the fold rate. Assumed and unchanged: every other station time, the load mix and the claim that the fold runs on a table separate from the arm; hanging quality is not scored, so &lsquo;always hang&rsquo; is a speed bound, not a recommendation.",
+ "lede": "how many dryers can a laundry-hanging arm serve when folding takes as long as published robots take? At SpeedFolding's 90–120 s per fold the learned-rule cell falls from 169 to 58–44 garments an hour; always hanging holds 146. Only the fold time is sourced."
+}
