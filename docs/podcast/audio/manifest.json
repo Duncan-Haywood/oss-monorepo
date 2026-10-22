@@ -138,5 +138,12 @@
     "sha256": "4ac4f40e88fe75c6ef54836b05afc55d10f2948f599334215f2f6b2ba6a365e0",
     "script_sha256": "6fb45fa3bc3e2c705a3da6fa942d31819b9f9fff33c6c5b020dc6ee3dcb31ec6",
     "voice": "en_US-ljspeech-high"
+  },
+  "2026-10-22-a-waste-sorting-robot-is-limited-by-reach-over-pick-time": {
+    "bytes": 894774,
+    "seconds": 178.86,
+    "sha256": "9b45d77adf64cc09502e6c48006c30c456f2b6a6569ec57bfcb2b046e7dc14bc",
+    "script_sha256": "9baa8e60866daad66d43a13cbeefe9a133d1dcedfc1d60f32dc838c15cca27a9",
+    "voice": "m"
   }
 }
