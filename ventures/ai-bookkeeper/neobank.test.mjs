@@ -221,3 +221,11 @@ test("NAB: 'DD Mon YY' dates, signed amount, transaction details as description"
   assert.equal(r.rows[0].desc, "OFFICEWORKS 0412");
   assert.deepEqual(checkRunningBalance(r.rows).breaks, []);
 });
+
+test("USAA: original description column ignored, pending rows skipped", () => {
+  const r = read("usaa-checking.csv");
+  assert.equal(r.bank, "usaa");
+  assert.deepEqual(r.rows.map((x) => x.cents), [-4210, 250000]);
+  assert.equal(r.rows[0].desc, "Shell");
+  assert.equal(r.problems.length, 1);
+});
