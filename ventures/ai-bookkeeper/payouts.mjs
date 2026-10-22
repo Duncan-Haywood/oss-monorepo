@@ -5,6 +5,9 @@
 // and splits the line into sales, refunds and fees, so the books show gross
 // sales and the true cost of taking cards, not just what landed.
 //
+// Shopify Payments "payout transactions" CSVs (Transaction Date, Type, Amount,
+// Fee, Net, Payout Date, Payout ID) read through the same aliases, from the
+// documented layout only.
 // Report columns (Stripe "payout reconciliation" or balance-transactions CSV,
 // matched by name, any order): payout id, payout date, category, gross, fee,
 // net, and optionally an id and a created date. A row's net must equal gross
@@ -31,7 +34,7 @@ const ALIASES = {
   fee: ["fee", "fees", "fee_amount"],
   net: ["net", "net_amount"],
   id: ["balance_transaction_id", "id", "transaction_id"],
-  created: ["created", "created_utc", "created_at", "date"],
+  created: ["created", "created_utc", "created_at", "transaction_date", "date"],
   desc: ["description", "memo"],
 };
 
@@ -41,6 +44,7 @@ const CATEGORY = {
   refund: "refunds", payment_refund: "refunds", refund_failure: "sales",
   fee: "fees", stripe_fee: "fees", network_cost: "fees", tax: "fees",
   dispute: "disputes", dispute_reversal: "disputes", chargeback: "disputes", payment_failure_refund: "refunds",
+  adjustment: "other", reserve: "skip", chargeback_won: "disputes", chargeback_reversal: "disputes",
   payout: "skip", payout_cancel: "skip", payout_failure: "skip", transfer: "skip",
 };
 

@@ -82,3 +82,18 @@ test("two payouts of the same amount take two different lines", () => {
 test("a role pointing at a missing account is refused", () => {
   assert.throws(() => planPayouts(books(bankRows), readPayoutReport(REPORT), { fees: "6999" }), /No account 6999/);
 });
+
+test("a Shopify payout transactions CSV reads and splits", () => {
+  const shop = `Transaction Date,Type,Order Name,Amount,Fee,Net,Payout Date,Payout ID
+2026-03-01,charge,#1001,100.00,3.20,96.80,2026-03-04,111
+2026-03-02,refund,#1000,-20.00,0.00,-20.00,2026-03-04,111
+2026-03-02,adjustment,,-5.00,0.00,-5.00,2026-03-04,111
+`;
+  const r = readPayoutReport(shop);
+  assert.deepEqual(r.problems, []);
+  assert.equal(r.payouts.length, 1);
+  assert.equal(r.payouts[0].net, 7180);
+  const plan = planPayouts(books([["2026-03-05", "SHOPIFY", "71.80"]]), r, { other: "4100" });
+  assert.equal(plan.matched.length, 1);
+  assert.deepEqual(plan.matched[0].parts, [{ account: "4000", cents: 8000 }, { account: "6010", cents: -320 }, { account: "4100", cents: -500 }]);
+});
