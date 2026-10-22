@@ -100,6 +100,8 @@ def run_many(c, items, runs=40, seed=1):
 
 def summarise(rs, key):
     v = [r[key] for r in rs if r[key] == r[key]]
+    if not v:
+        return float("nan"), float("nan")
     m = sum(v) / len(v)
     sd = (sum((x - m) ** 2 for x in v) / max(len(v) - 1, 1)) ** 0.5
     return m, 1.96 * sd / math.sqrt(len(v))

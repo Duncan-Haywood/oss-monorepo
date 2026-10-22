@@ -1548,7 +1548,7 @@ Annals*). Payments: gridlock resolution and liquidity-saving mechanisms (Bech an
 9. `infra-yield` (done 2026-10-21; wafer prices and D0 are 2020 secondary-source snapshots, packaging assumed and swept): cost per good die. Poisson, Murphy and negative-binomial yield models against
    die area and defect density, reproducing published curves, and the chiplet break-even
    (tracks 3, 7 and 8 cover design; this covers the fab and packaging economics).
-10. `infra-sorting`: robotic waste sorting. A detector trained on ZeroWaste or TACO, and a
+10. `infra-sorting` (done 2026-10-22; TACO annotations only, detector assumed not trained): robotic waste sorting. A detector trained on ZeroWaste or TACO, and a
     simulated conveyor pick cell (with track 4's twin) scored on purity, recovery and picks per
     minute against belt speed.
 11. `infra-netting`: liquidity in payment systems. A simulated RTGS day with a published

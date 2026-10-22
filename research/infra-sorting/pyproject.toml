@@ -1,0 +1,13 @@
+[project]
+name = "infra-sorting"
+version = "0.1.0"
+description = "Robotic waste sorting: a conveyor pick cell driven by TACO's class mix and sizes"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
