@@ -1,0 +1,33 @@
+# Yosys 0.33 (git sha1 2584903a060); OpenROAD HDL-HEAD (pip wheel); SKY130 HD tt_025C_1v80 at ORFS commit e5cc6e799f
+# 40 MAC-engine designs of eda-harness; ABC: strash; dc2; map -D T; topo; upsize -D T; dnsize -D T; then OpenROAD placement at 40% utilisation,
+# ideal clock, I/O delay 0, parasitics estimated from the placement (no routing). 'period' = T - worst slack (ns), flop clk-to-q and setup included.
+
+== ABC target T = 5 ns (40 designs)
+wire penalty (placed period / no-wire netlist period): min 1.18, median 1.36, max 1.88
+STA netlist period / ABC combinational delay (flop overhead, no wires): min 1.12, median 1.30, max 1.69
+repaired area / ABC area: min 1.080, median 1.131, max 1.218
+spearman: abc_delay~netlist_period 0.745  abc_delay~placed_period 0.763  abc_delay~repaired_period 0.796  gen_depth~placed_period 0.659  gen_depth~abc_delay 0.638
+spearman: abc_area~repaired_area 0.997  gen_cells~repaired_area 0.994  placed_period~area 0.926
+designs meeting T: ABC says 15, STA netlist 0, placed 0, repaired 0
+of the 15 that ABC says meet T, 0 meet it after placement and repair
+front (area, cycles) among ABC-feasible, ABC area : p8w4, p4w4, p2w4, p1w4
+front among placement-feasible, repaired area     : none
+best area x cycles at shared T: ABC view p4w4, placed view none
+best area x cycles x own period: ABC p4w4, repaired p4w4
+fastest design: ABC p2w4, placed p2w4, repaired p1w4
+by lanes p (mean wire penalty): p1: 1.33  p2: 1.31  p3: 1.31  p4: 1.55  p5: 1.36  p6: 1.53  p7: 1.44  p8: 1.70
+
+== ABC target T = 8 ns (40 designs)
+wire penalty (placed period / no-wire netlist period): min 1.23, median 1.36, max 1.99
+STA netlist period / ABC combinational delay (flop overhead, no wires): min 1.03, median 1.18, max 1.39
+repaired area / ABC area: min 1.002, median 1.035, max 1.099
+spearman: abc_delay~netlist_period 0.755  abc_delay~placed_period 0.610  abc_delay~repaired_period 0.346  gen_depth~placed_period 0.540  gen_depth~abc_delay 0.341
+spearman: abc_area~repaired_area 0.999  gen_cells~repaired_area 0.996  placed_period~area 0.928
+designs meeting T: ABC says 39, STA netlist 7, placed 1, repaired 27
+of the 39 that ABC says meet T, 27 meet it after placement and repair
+front (area, cycles) among ABC-feasible, ABC area : p8w4, p4w4, p2w4, p1w4
+front among placement-feasible, repaired area     : p8w4, p4w4, p2w4, p1w4
+best area x cycles at shared T: ABC view p4w4, placed view p4w4
+best area x cycles x own period: ABC p4w4, repaired p4w4
+fastest design: ABC p1w4, placed p1w4, repaired p1w4
+by lanes p (mean wire penalty): p1: 1.30  p2: 1.28  p3: 1.35  p4: 1.37  p5: 1.35  p6: 1.49  p7: 1.46  p8: 1.79
