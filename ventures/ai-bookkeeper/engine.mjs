@@ -460,9 +460,42 @@ export function exportJournal(books, format = "csv") {
     }
     return out.join("\r\n") + "\r\n";
   }
+  if (format === "ledger" || format === "beancount") return plainText(books, entries, map, format === "beancount");
   const rows = [csvRow(["entry", "date", "account_code", "account_name", "debit", "credit", "memo", "posted_by"])];
   for (const e of entries) for (const l of e.lines) rows.push(csvRow([e.id, e.date, l.account, name(l.account), l.debit ? dollars(l.debit) : "", l.credit ? dollars(l.credit) : "", e.memo, e.source]));
   return rows.join("\n") + "\n";
+}
+
+// Plain-text accounting (ledger-cli and hledger, or Beancount): one dated entry
+// per journal entry, amounts in the books' currency, each entry summing to zero.
+// Beancount also wants an `open` line per account and capitalised name parts.
+function plainText(books, entries, map, bean) {
+  const root = { asset: "Assets", liability: "Liabilities", equity: "Equity", income: "Income", expense: "Expenses" };
+  const path = (code) => {
+    const a = map.get(code);
+    const words = String(a?.name ?? code).replace(/[^A-Za-z0-9]+/g, " ").trim().split(" ").filter(Boolean);
+    const parts = (words.length ? words : [`A${code}`]).map((w) => (bean ? w[0].toUpperCase() + w.slice(1) : w));
+    return `${root[a?.type] ?? "Equity"}:${parts.join("-")}`;
+  };
+  const cur = books.currency || "USD";
+  const text = (t) => String(t ?? "").replace(/[\r\n]+/g, " ").replace(bean ? /"/g : /;/g, bean ? "'" : ",").trim();
+  const out = [];
+  if (bean) {
+    const used = [...new Set(entries.flatMap((e) => e.lines.map((l) => l.account)))];
+    out.push(`option "title" "${text(books.name ?? "Books")}"`, `option "operating_currency" "${cur}"`, "");
+    for (const c of used) out.push(`${entries[0].date} open ${path(c)} ${cur}`);
+    out.push("");
+  }
+  for (const e of entries) {
+    out.push(bean ? `${e.date} * "${text(e.memo || e.id)}"` : `${e.date} ${text(e.memo || e.id)}`);
+    const w = Math.max(...e.lines.map((l) => path(l.account).length));
+    for (const l of e.lines) {
+      const n = l.debit - l.credit;
+      out.push(`  ${path(l.account).padEnd(w)}  ${n < 0 ? "-" : ""}${dollars(Math.abs(n))} ${cur}`);
+    }
+    out.push("");
+  }
+  return out.join("\n");
 }
 
 // Every line with what happened to it, for a preparer or a spreadsheet.

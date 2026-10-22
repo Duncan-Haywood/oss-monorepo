@@ -133,6 +133,16 @@ test("exports: QuickBooks Online, Xero and IIF lines sum to zero per entry", () 
   for (const l of xero) { const cells = l.split(","); const amt = Math.round(+cells.at(-1) * 100); byNarr.set(cells[1] + cells[0], (byNarr.get(cells[1] + cells[0]) ?? 0) + amt); }
   for (const v of byNarr.values()) assert.equal(v, 0);
   assert.match(exportJournal(b, "iif"), /^!TRNS/);
+  for (const fmt of ["ledger", "beancount"]) {
+    const txt = exportJournal(b, fmt);
+    const blocks = txt.split("\n\n").filter((x) => /^\d{4}-\d\d-\d\d [^o]/.test(x));
+    assert.ok(blocks.length > 0);
+    for (const blk of blocks) {
+      const sum = blk.split("\n").slice(1).filter((l) => l.trim()).reduce((t, l) => t + Math.round(parseFloat(l.trim().split(/\s+/).at(-2)) * 100), 0);
+      assert.equal(sum, 0);
+    }
+  }
+  assert.match(exportJournal(b, "beancount"), /^option "title"[\s\S]*\d{4}-\d\d-\d\d open Assets:/m);
   assert.match(exportLines(b), /^date,bank_account,description,amount,status/);
 });
 

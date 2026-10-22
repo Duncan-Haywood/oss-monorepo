@@ -12,7 +12,7 @@
 //   node cli.mjs --books books.json checks
 //   node cli.mjs --books books.json documents invoices-and-bills.csv
 //   node cli.mjs --books books.json aging
-//   node cli.mjs --books books.json export qbo|xero|iif|csv|lines > journal.csv
+//   node cli.mjs --books books.json export qbo|xero|iif|ledger|beancount|csv|lines > journal.csv
 //   node cli.mjs --example report
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
 import { addLoan, addLoanExtra, applyLoanPayments, loanRegister, loanSchedule } from "./loans.mjs";
@@ -107,7 +107,7 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
                          (LLM_PROVIDER, LLM_MODEL, LLM_BASE_URL, LLM_API_KEY or ANTHROPIC_API_KEY)
   report [--from D] [--to D] [--json]
   checks                 close checks: review left, suspense, duplicates, unusual sizes, reconciliation
-  export FORMAT          qbo | xero | iif | csv | lines
+  export FORMAT          qbo | xero | iif | ledger | beancount | csv | lines
 
 No warranty. Not accounting, tax or financial advice; check its output before you rely on it.`;
 

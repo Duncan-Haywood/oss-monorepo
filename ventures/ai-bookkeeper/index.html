@@ -337,6 +337,8 @@
     <button type="button" data-export="qbo">QuickBooks Online journal</button>
     <button type="button" data-export="xero">Xero manual journal</button>
     <button type="button" data-export="iif">QuickBooks Desktop IIF</button>
+    <button type="button" class="secondary" data-export="ledger">ledger / hledger journal</button>
+    <button type="button" class="secondary" data-export="beancount">Beancount file</button>
     <button type="button" class="secondary" data-export="csv">Journal CSV</button>
     <button type="button" class="secondary" data-export="lines">Every line with its account</button>
     <br>
@@ -1058,7 +1060,7 @@
     for (const b of document.querySelectorAll("[data-export]")) b.addEventListener("click", () => {
       const f = b.dataset.export;
       if (f === "lines") download(exportLines(books), "bookkeeper-lines.csv", "text/csv");
-      else download(exportJournal(books, f), `bookkeeper-journal-${f}.${f === "iif" ? "iif" : "csv"}`, f === "iif" ? "text/plain" : "text/csv");
+      else download(exportJournal(books, f), `bookkeeper-journal-${f}.${f === "iif" ? "iif" : f === "ledger" ? "journal" : f === "beancount" ? "beancount" : "csv"}`, ["iif", "ledger", "beancount"].includes(f) ? "text/plain" : "text/csv");
       record("exported");
     });
     $("#save").addEventListener("click", () => { download(JSON.stringify(books, null, 1), `books-${new Date().toISOString().slice(0, 10)}.json`, "application/json"); $("#save-status").textContent = "Books file downloaded. Open it here on any computer to carry on."; });
