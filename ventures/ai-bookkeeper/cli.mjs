@@ -76,7 +76,7 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
   profile [KEY VALUE]     your details for invoices (name, address, email, taxId, payTo, terms); no arguments lists them
   invoice ID [--out FILE] [--as-of D]  a printable invoice or credit note (HTML; print to PDF) with payments, balance due and overdue days
   reminders [--as-of D] [--min AMOUNT] [--out DIR]  a payment reminder draft per customer with overdue invoices (friendly, firm or final by days late)
-  paybills [--as-of D] [--days N] [--reserve AMOUNT] [--json]  when to pay each open bill so the bank balance stays above a reserve: due date, held back for cash, or cannot fit
+  paybills [--as-of D] [--days N] [--reserve AMOUNT] [--terms FILE.json] [--json]  when to pay each open bill so the bank balance stays above a reserve: due date, held back for cash, or cannot fit
   statement [CUSTOMER] [--from D] [--out FILE]  a printable statement of account (HTML) with running balance and what is past due; no customer lists who owes what
   writeoff ID [--date D]  write off an invoice's unpaid balance to bad debts (6900), or record a bill the supplier forgave as other income (4100)
   recurring [--as-of D] [--json]  payees that repeat on a steady interval: cost per year, next date, and which went overdue, lapsed or changed amount
@@ -295,7 +295,7 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
   });
   console.log(r.length ? `${r.length} reminder${r.length > 1 ? "s" : ""}${dir ? ` written to ${dir}` : " (add --out DIR to write the drafts)"}.` : "Nothing overdue.");
 } else if (cmd === "paybills") {
-  const p = planBills(books, { asOf: asOf ?? null, days: +(flag("--days") ?? 90), reserve: Math.round(Number(flag("--reserve") ?? 0) * 100) });
+  const p = planBills(books, { asOf: asOf ?? null, days: +(flag("--days") ?? 90), reserve: Math.round(Number(flag("--reserve") ?? 0) * 100), terms: flag("--terms") ? JSON.parse(readFileSync(flag("--terms"), "utf8")) : {} });
   if (json) { console.log(JSON.stringify(p, null, 2)); process.exit(0); }
   console.log(`BILL PLAN ${p.asOf} to ${p.to}: cash ${fmt(p.start)}, reserve ${fmt(p.reserve)}, lowest after paying ${fmt(p.lowest.cents)} on ${p.lowest.date}.`);
   for (const r of p.rows) console.log(`  ${r.payOn}  ${fmt(r.cents).padStart(11)}  ${r.id.padEnd(12)} ${r.party.slice(0, 24).padEnd(24)} due ${r.due}  ${r.status}${r.note ? ` - ${r.note}` : ""}`);
