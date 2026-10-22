@@ -65,3 +65,17 @@ test("sheathing weight: width x height less openings in the span, at the typed l
   assert.equal(b.sheathLb, (64 - (36 * 48 + 6 * 48) / 144) * 1.5); // second opening only 6 in inside the wall
   assert.equal(panelParts({ ...w, gable: { pitch: 6 } }, pan, { sheathPsf: 1.5 })[0].sheathLb, 0);
 });
+
+test("panel order: pooled panel pieces cover every panel piece and cost about what the whole-wall order does", async () => {
+  const { panelOrder } = await import("./panels.mjs");
+  const plan = samplePlan();
+  const po = panelOrder(r, plan, 144);
+  assert.equal(po.panels, r.walls.reduce((t, w) => t + panelizeWall(w, 144).panels.length, 0));
+  // lumber is conserved: pieces ordered = pieces in the panels, and a panel plate break never loses length
+  const inCuts = po.cuts.reduce((t, c) => t + c.qty * c.length, 0);
+  const inBars = po.orders.reduce((t, o) => t + o.bars.reduce((s, b) => s + b.cuts.reduce((u, c) => u + c.length, 0), 0), 0);
+  assert.ok(Math.abs(inCuts - inBars) < 1e-6);
+  assert.ok(inCuts >= r.cuts.reduce((t, c) => t + c.qty * c.length, 0) - 1e-6);
+  assert.ok(Math.abs(po.cost - po.wholeWallCost) / po.wholeWallCost < 0.01);
+  assert.equal(po.wholeWallCost, r.summary.cost);
+});

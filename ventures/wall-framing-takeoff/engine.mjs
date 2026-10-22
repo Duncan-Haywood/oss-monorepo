@@ -891,7 +891,10 @@ export function boundedKnapsack(weights, values, bounds, cap) {
 
 /**
  * Maximise b.y subject to A y <= c, y >= 0, with c >= 0 (so the origin is
- * feasible). A is rows x cols. Dense tableau simplex with Bland's rule.
+ * feasible). A is rows x cols. Dense tableau simplex with Bland's rule; on more than 150 rows (Bland's
+ * rule crawls on the degenerate LPs of a pooled panel order) the most negative
+ * reduced cost enters (Dantzig), with Bland's rule back after a run of
+ * degenerate pivots so it cannot cycle.
  * Returns { value, y, x }, where x are the duals of the rows: the optimal
  * solution of min c.x subject to A^T x >= b, x >= 0.
  */
@@ -910,9 +913,15 @@ export function simplexMaxLE(A, b, c) {
   const z = new Float64Array(W);
   for (let j = 0; j < n; j++) z[j] = -b[j];
   const basis = Array.from({ length: m }, (_, r) => n + r);
+  let stall = 0;
   for (let iter = 0; iter < 50000; iter++) {
     let enter = -1;
-    for (let j = 0; j < W - 1; j++) if (z[j] < -1e-10) { enter = j; break; }
+    if (m <= 150 || stall > 20) {
+      for (let j = 0; j < W - 1; j++) if (z[j] < -1e-10) { enter = j; break; }
+    } else {
+      let low = -1e-10;
+      for (let j = 0; j < W - 1; j++) if (z[j] < low) { low = z[j]; enter = j; }
+    }
     if (enter < 0) break;
     let leave = -1;
     let ratio = Infinity;
@@ -927,6 +936,7 @@ export function simplexMaxLE(A, b, c) {
       }
     }
     if (leave < 0) throw new Error("LP unbounded: a piece is longer than every board");
+    stall = ratio <= 1e-12 ? stall + 1 : 0;
     const pr = T[leave];
     const pv = pr[enter];
     for (let j = 0; j < W; j++) pr[j] /= pv;
