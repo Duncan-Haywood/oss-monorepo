@@ -29,6 +29,7 @@ podcast, and share or adapt under **CC BY-SA 4.0**. There are three collections:
 - [Francis and the Wolf of Gubbio](stories/francis-and-the-wolf-of-gubbio.md) (Little Lamps). The old tale from the *Fioretti* of the hungry wolf, the frightened town and the saint who asks what each needs, told as legend with a note for grown-ups. His feast day is 4 October. Audio: about 11 minutes.
 - [Thérèse and the Small Way](stories/therese-and-the-small-way.md) (Little Lamps). Saint Thérèse of Lisieux chooses the whole basket of dolls' clothes as a child, and as a Carmelite finds she is too small to climb to heaven and decides to be carried, from her own *Story of a Soul* (feast day 1 October). Audio: about 9 minutes.
 - [Isidore and the Angels Who Ploughed](stories/isidore-and-the-angels-who-ploughed.md) (Little Lamps). Saint Isidore the Farmer stops his ploughing each morning to pray, and the old legend says angels finished his furrows (legend, not history). His feast day is 15 May. Audio: about 7 minutes.
+- [Nicholas and the Three Bags of Gold](stories/nicholas-and-the-three-bags-of-gold.md) (Little Lamps). Saint Nicholas of Myra tosses gold through a poor family's window on three dark nights, as the medieval Lives tell it (legend, not history). His feast day is 6 December. Audio to follow.
 
 ## Why read this instead of...
 
