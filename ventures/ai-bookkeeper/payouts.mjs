@@ -24,6 +24,7 @@
 // Bank match: a positive, not-yet-split line in the books equal to the
 // payout's net, dated from 2 days before to 7 days after the payout date; the
 // nearest date wins, and a line is used once. Nothing is posted by `plan`.
+// Amazon settlement reports (flat file V2) are read too; see readAmazon.
 // Integer cents. Hand-written fixtures in the documented layout only; no real
 // export has been tried. Not accounting advice.
 
@@ -61,6 +62,7 @@ export function readPayoutReport(text) {
   const table = parseCsv(text).filter((r) => r.some((c) => String(c).trim() !== ""));
   if (table.length < 2) throw new Error("The report has no rows.");
   const head = table[0].map(key);
+  if (head.includes("settlement_id") && head.includes("amount_type") && head.includes("amount_description")) return readAmazon(table, head);
   const col = Object.fromEntries(Object.entries(ALIASES).map(([k, names]) => [k, names.map((n) => head.indexOf(n)).find((i) => i !== -1) ?? -1]));
   for (const need of ["gross", "net", "category"]) if (col[need] === -1) throw new Error(`No "${need}" column: the report needs payout id, payout date, category, gross, fee and net columns.`);
   if (col.payout === -1 && head.includes("transaction_id") && head.includes("status") && head.includes("type")) return readPaypal(table, head);
@@ -129,6 +131,61 @@ function readPaypal(table, head) {
   return { rows: all, payouts, pending, problems };
 }
 
+// Amazon's settlement report (flat file V2, tab-delimited). The first row of a
+// settlement is a summary (settlement-id, dates, total-amount = the deposit);
+// every other row is one amount: transaction-type (Order, Refund,
+// other-transaction), amount-type (ItemPrice, ItemFees, Promotion,
+// ItemWithheldTax ...), amount-description (Principal, Commission ...).
+// A settlement is split only when its rows add up to the summary's total; a
+// reserve line or any other mismatch is listed in `problems`, not guessed.
+function readAmazon(table, head) {
+  const c = Object.fromEntries(["settlement_id", "deposit_date", "total_amount", "transaction_type", "order_id", "adjustment_id", "amount_type", "amount_description", "amount", "posted_date", "sku"].map((k) => [k, head.indexOf(k)]));
+  for (const need of ["amount", "total_amount", "deposit_date"]) if (c[need] === -1) throw new Error(`The Amazon settlement report has no "${need}" column.`);
+  const when = (v) => {
+    const t = String(v ?? "").trim().split(/[ T]/)[0];
+    const m = /^(\d{1,2})\.(\d{1,2})\.(\d{4})$/.exec(t);
+    return m ? `${m[3]}-${m[2].padStart(2, "0")}-${m[1].padStart(2, "0")}` : parseDate(t);
+  };
+  const problems = [];
+  const settlements = new Map();
+  let cur = "";
+  table.slice(1).forEach((r, n) => {
+    const at = (k) => (c[k] === -1 ? "" : String(r[c[k]] ?? "").trim());
+    cur = at("settlement_id") || cur;
+    if (!cur) { problems.push(`Row ${n + 2}: no settlement id.`); return; }
+    if (!settlements.has(cur)) settlements.set(cur, { id: cur, date: null, total: null, rows: [] });
+    const st = settlements.get(cur);
+    if (at("total_amount") !== "") { st.total = parseCents(at("total_amount")); st.date = when(at("deposit_date")); if (!at("amount")) return; }
+    const cents = parseCents(at("amount"));
+    if (cents === null || Number.isNaN(cents)) { problems.push(`Row ${n + 2}: cannot read the amount.`); return; }
+    if (!cents) return;
+    const type = key(at("transaction_type")), amt = key(at("amount_type")), what = key(at("amount_description"));
+    let kind;
+    if (/transfer/.test(type)) kind = "skip";
+    else if (/reserve/.test(what) || /reserve/.test(amt)) kind = "reserve";
+    else if (amt === "itemprice") kind = /tax/.test(what) ? "tax" : type === "refund" ? "refunds" : "sales";
+    else if (/withheld|tax/.test(amt)) kind = "tax";
+    else if (/promotion/.test(amt)) kind = "refunds";
+    else if (/reimburs|goodwill|compensat/.test(what)) kind = "other";
+    else if (/advertis/.test(what + amt)) kind = "ads";
+    else if (/fee|commission|chargeback|subscription|storage|label|disposal|removal|inbound|fba/.test(what + amt)) kind = "fees";
+    else kind = "other";
+    if (kind !== "skip") st.rows.push({ row: n + 2, id: at("order_id") || at("adjustment_id") || `row${n + 2}`, payout: cur, payoutDate: st.date, created: when(at("posted_date")), category: `${amt}/${what}`, kind, gross: cents, fee: 0, net: cents, desc: [at("transaction_type"), at("amount_description"), at("sku")].filter(Boolean).join(" ") });
+  });
+  const payouts = [];
+  const rows = [];
+  for (const st of settlements.values()) {
+    const sum = st.rows.reduce((a, x) => a + x.net, 0);
+    rows.push(...st.rows);
+    if (st.total === null) problems.push(`Amazon settlement ${st.id}: no summary row with a total-amount. Not split.`);
+    else if (st.rows.some((x) => x.kind === "reserve")) problems.push(`Amazon settlement ${st.id}: it holds a reserve line, which the books would need an asset account for. Not split; file the deposit by hand.`);
+    else if (sum !== st.total) problems.push(`Amazon settlement ${st.id}: its rows add up to ${fmt(sum)} but the summary total is ${fmt(st.total)}. Not split.`);
+    else payouts.push({ id: st.id, date: st.date, net: st.total, gross: sum, fees: 0, rows: st.rows });
+  }
+  payouts.sort((a, b) => String(a.date).localeCompare(String(b.date)));
+  return { rows, payouts, pending: [], problems };
+}
+
 const addDays = (d, n) => new Date(Date.parse(`${d}T00:00:00Z`) + n * 864e5).toISOString().slice(0, 10);
 const gap = (a, b) => Math.abs(Date.parse(`${a}T00:00:00Z`) - Date.parse(`${b}T00:00:00Z`)) / 864e5;
 
@@ -144,10 +201,11 @@ function partsOf(payout, roles) {
 }
 
 // Match each payout to a bank line. Roles are account codes; override any.
-export function planPayouts(books, report, { sales = "4000", refunds = "4000", fees = "6010", disputes = "6010", other = "4100", window = [-2, 7] } = {}) {
-  const roles = { sales, refunds, fees, disputes, other };
+export function planPayouts(books, report, { sales = "4000", refunds = "4000", fees = "6010", disputes = "6010", other = "4100", tax = "2100", ads = "6000", window = [-2, 7] } = {}) {
+  const roles = { sales, refunds, fees, disputes, other, tax, ads };
   const codes = new Set(books.accounts.map((a) => a.code));
-  for (const [r, c] of Object.entries(roles)) if (!codes.has(c)) throw new Error(`No account ${c} in the chart of accounts (for ${r}).`);
+  const used = new Set(report.payouts.flatMap((p) => p.rows.map((x) => x.kind)));
+  for (const [r, c] of Object.entries(roles)) if (!codes.has(c) && (r !== "tax" && r !== "ads" || used.has(r))) throw new Error(`No account ${c} in the chart of accounts (for ${r}).`);
   const taken = new Set();
   const matched = [], unmatched = [], done = [];
   for (const p of report.payouts) {

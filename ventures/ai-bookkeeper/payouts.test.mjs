@@ -141,3 +141,34 @@ test("Stripe's FX, tax and Climate categories are costs, not other income", () =
   const r = readPayoutReport(`${HEAD}\npo_7,2026-03-05,t1,2026-03-01,stripe_fx_fee,-2.00,0.00,-2.00,FX\npo_7,2026-03-05,t2,2026-03-01,tax_fee,-1.00,0.00,-1.00,Tax\npo_7,2026-03-05,t3,2026-03-01,contribution,-1.00,0.00,-1.00,Climate\npo_7,2026-03-05,t4,2026-03-01,partial_capture_reversal,-5.00,0.00,-5.00,x\n`);
   assert.deepEqual(r.rows.map((x) => x.kind), ["fees", "fees", "fees", "refunds"]);
 });
+
+test("an Amazon settlement (flat file V2) splits into sales, refunds, tax, ads and fees", async () => {
+  const { readFileSync } = await import("node:fs");
+  const text = readFileSync(new URL("./fixtures/amazon-settlement-v2.txt", import.meta.url), "utf8");
+  const r = readPayoutReport(text);
+  assert.deepEqual(r.problems, []);
+  assert.equal(r.payouts.length, 1);
+  const p = r.payouts[0];
+  assert.equal(p.id, "9100001");
+  assert.equal(p.date, "2026-03-05");
+  assert.equal(p.net, 35016);
+  const plan = planPayouts(books([["2026-03-05", "AMAZON.COM SERVICES DEPOSIT", "350.16"]]), r);
+  assert.equal(plan.matched.length, 1);
+  const by = Object.fromEntries(plan.matched[0].parts.map((x) => [x.account, x.cents]));
+  // sales 100+5+400 less refund 20 and promotion 5, tax nets to zero (left out), ads -25, fees -15.75-3.5-60+3-0.6-39.99, reimbursement +12
+  assert.deepEqual(by, { 4000: 48000, 6000: -2500, 6010: -11684, 4100: 1200 });
+  const applied = applyPayouts(books([["2026-03-05", "AMAZON.COM SERVICES DEPOSIT", "350.16"]]), plan);
+  assert.equal(applied.posted, 1);
+});
+
+test("an Amazon settlement that does not add up, or holds a reserve, is not split", () => {
+  const head = "settlement-id\tsettlement-start-date\tsettlement-end-date\tdeposit-date\ttotal-amount\tcurrency\ttransaction-type\torder-id\tamount-type\tamount-description\tamount";
+  const bad = `${head}\nS1\t\t\t2026-03-05\t100.00\tUSD\t\t\t\t\t\nS1\t\t\t\t\t\tOrder\tA\tItemPrice\tPrincipal\t90.00\n`;
+  const r = readPayoutReport(bad);
+  assert.equal(r.payouts.length, 0);
+  assert.match(r.problems[0], /add up to \$?90\.00|90\.00/);
+  const res = `${head}\nS2\t\t\t2026-03-05\t100.00\tUSD\t\t\t\t\t\nS2\t\t\t\t\t\tOrder\tA\tItemPrice\tPrincipal\t110.00\nS2\t\t\t\t\t\tother-transaction\t\tother-transaction\tCurrent Reserve Amount\t-10.00\n`;
+  const r2 = readPayoutReport(res);
+  assert.equal(r2.payouts.length, 0);
+  assert.match(r2.problems[0], /reserve/);
+});
