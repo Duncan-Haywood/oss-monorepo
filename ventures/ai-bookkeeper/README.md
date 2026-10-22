@@ -363,6 +363,10 @@ unpaid balance to Bad debts (6900, added if missing): debit bad debts, credit
 receivable, on the date given. Invoices only. Tests: "Refunding a credit note,
 and writing off a bad debt".
 
+## GST return worksheets (Canada, Australia)
+
+`gstReturn(books, { region: "ca" | "au", from, to })` in `gstreturn.mjs` and `cli.mjs gst --region ca|au --from D --to D` reuse the VAT return's accounts (2100 tax charged, 1300 tax on purchases). Canada gets GST/HST return lines 101 (sales before tax), 103/105 (collected), 106/108 (input tax credits) and 109 (net), in cents. Australia gets the BAS labels G1 and G11 (both include GST), 1A, 1B and the net, in whole dollars. Zero-rated, exempt and GST-free sales, capital purchases (G10), HST provincial rates and quick methods are not split out, and the warnings say so. Hand-made fixtures only; check one against a real return. Test: `gstreturn.test.mjs`. The page does not show these yet.
+
 ## VAT return worksheet (UK layout)
 
 `vatReturn(books, { from, to })` and `cli.mjs vat --from D --to D` fill the nine boxes of

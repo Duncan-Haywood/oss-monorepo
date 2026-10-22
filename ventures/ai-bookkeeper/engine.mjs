@@ -660,7 +660,7 @@ export function vatReturn(books, { output = "2100", input = "1300", from = null,
   if (from === null && to === null) warnings.push("No period given: the boxes cover every date in the books. Pass a from and to date for one return.");
   const whole = (c) => Math.trunc(c / 100);
   const b5 = due - reclaim;
-  return { from, to, input, output, paid, warnings, boxes: { 1: due, 2: 0, 3: due, 4: reclaim, 5: b5, 6: whole(sales), 7: whole(purchases), 8: 0, 9: 0 }, payable: b5 >= 0 ? "pay" : "reclaim" };
+  return { from, to, input, output, paid, warnings, cents: { sales, purchases }, boxes: { 1: due, 2: 0, 3: due, 4: reclaim, 5: b5, 6: whole(sales), 7: whole(purchases), 8: 0, 9: 0 }, payable: b5 >= 0 ? "pay" : "reclaim" };
 }
 
 export function status(books) {
