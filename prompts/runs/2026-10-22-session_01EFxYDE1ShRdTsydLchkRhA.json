@@ -37,10 +37,7 @@
   }
  ],
  "writeups": [
-  {
-   "doc": "research/accel-sysmodel/README.md",
-   "post": null
-  }
+  "research/accel-sysmodel/README.md"
  ],
  "goal": null,
  "notes": "Tests (5), research homepage build, live-links and md-link checks run locally; CI not awaited beyond that.",
