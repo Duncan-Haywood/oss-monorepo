@@ -388,7 +388,31 @@ export function poissonTrend(x, { base = null, penalty = 'bic', minSegment = 2, 
   const order = knotsFound.map((k, j) => ({ k, h: cur.g[j + 1] })).sort((p, q) => p.k - q.k);
   const rates = [cur.g[0]];
   for (const o of order) rates.push(rates[rates.length - 1] + o.h);
-  return out(cur, { knot: order[0].k, slopeAfter: rates[1], knots: order.map((o) => o.k), rates });
+  // Where exactly does the growth rate change? As for the Gaussian trend: slide each knot over its allowed span with the others held
+  // fixed, refit, weight each position by exp(-(cost - min cost) / 2 / scale) (the cost is -2 log-likelihood; scale is the
+  // overdispersion factor, so a noisier series gets a wider range), keep the most likely positions holding 95% of the weight.
+  // Under the negative binomial a long series is scored with the Poisson cost, as in the knot search. Stride about n / 80.
+  const rangeGap = Math.max(minSegment, 2 * step), rstride = Math.max(1, Math.round(n / 80));
+  const poissonRank = nb && n >= 80;
+  const phis = knotsFound.map((k) => hinge(k));
+  const ranges = knotsFound.map((k, j) => {
+    const others = knotsFound.filter((_, i) => i !== j);
+    const rlo = Math.max(2, lo, ...others.filter((v) => v < k).map((v) => v + rangeGap));
+    const rhi = Math.min(n - 3, hi, ...others.filter((v) => v > k).map((v) => v - rangeGap));
+    const ks = [], cs = [];
+    for (let q = rlo; q <= rhi; q += rstride) {
+      const f = fit([u, ...phis.map((ph, i) => (i === j ? hinge(q) : ph))], cur.g, poissonRank);
+      ks.push(q); cs.push(f.cost);
+    }
+    if (!ks.includes(k)) { ks.push(k); cs.push(fit([u, ...phis], cur.g, poissonRank).cost); }
+    const m = Math.min(...cs);
+    const w = cs.map((v) => Math.exp(-(v - m) / 2 / Math.max(1, scale)));
+    const tot = w.reduce((a, v) => a + v, 0);
+    let acc = 0, from = Infinity, to = -Infinity;
+    for (const i of w.map((_, i) => i).sort((a, b) => w[b] - w[a])) { acc += w[i] / tot; from = Math.min(from, ks[i]); to = Math.max(to, ks[i]); if (acc >= 0.95) break; }
+    return { knot: k, from, to, level: 0.95 };
+  }).sort((p, q) => p.knot - q.knot);
+  return out(cur, { knot: order[0].k, slopeAfter: rates[1], knots: order.map((o) => o.k), rates, knotRanges: ranges });
 }
 
 /**
@@ -1466,7 +1490,7 @@ export function analyze(input = {}) {
     }
   }
   let slope = null, slopeAfter, knot, knots, slopes, knotRanges;
-  let growth = null, countKnot, growthAfter, countKnots, countRates;
+  let growth = null, countKnot, growthAfter, countKnots, countRates, countRanges;
   const nbAfterExposure = () => { if (o.overdispersion === 'nb') nbSize = negbinSize(exposure ? original.map((v, t) => v / exposure[t]) : values); };
   if (o.trend && model === 'poisson') {
     if (o.trend !== true && o.trend !== 'bend' && o.trend !== 'bends') throw new Error('For counts, --trend takes one common growth rate under the steps, "bend" for one change of growth rate or "bends" for up to two.');
@@ -1474,7 +1498,7 @@ export function analyze(input = {}) {
       nbSize: o.overdispersion === 'nb' ? negbinSize(exposure ? original.map((v, t) => v / exposure[t]) : original) : 0 });
     exposure = fit.exposure;
     growth = fit.g;
-    if (fit.knot !== undefined) { countKnot = fit.knot; growthAfter = fit.slopeAfter; countKnots = fit.knots; countRates = fit.rates; }
+    if (fit.knot !== undefined) { countKnot = fit.knot; growthAfter = fit.slopeAfter; countKnots = fit.knots; countRates = fit.rates; countRanges = fit.knotRanges; }
   } else if (o.trend) {
     ({ adjusted: values, slope, slopeAfter, knot, knots, slopes, knotRanges } = trendAdjust(values, { penalty: o.penalty, minSegment: Math.max(1, Math.floor(Number(o.minSegment) || (model === 'meanvar' ? 5 : 2))), ar1: !!o.ar1 && model === 'mean', bend: o.trend === 'bend' ? 1 : o.trend === 'bends' ? 3 : false, joint: !!o.jointKnots, knotMargin: o.knotMargin }));
   }
@@ -1571,7 +1595,7 @@ export function analyze(input = {}) {
     noiseSd: round(sigma),
     ...(period ? { seasonal: { period, profile: profile.map((v) => round(v, exposure ? 3 : undefined)), ...(exposure ? { multiplicative: true } : {}) } } : {}),
     ...(slope !== null ? { trend: { slopePerPoint: round(slope, 6), ...(knot !== undefined ? { slopeAfter: round(slopeAfter, 6), slopeChangesAt: knot, ...(knotRanges ? { slopeChangeRange95: knotRanges.map((r) => ({ at: labels[r.knot], from: labels[r.from], to: labels[r.to], fromIndex: r.from, toIndex: r.to })) } : {}), ...(knots.length > 1 ? { slopeChangesAtAll: knots, slopes: slopes.map((v) => round(v, 6)) } : {}) } : {}) } } : {}),
-    ...(growth !== null ? { trend: { logGrowthAcrossSeries: round(growth, 4), growthFactorAcrossSeries: round(Math.exp(growth), 4), multiplicative: true, ...(countKnot !== undefined ? { growthChangesAt: countKnot, logGrowthAcrossSeriesAfter: round(growthAfter, 4), ...(countKnots.length > 1 ? { growthChangesAtAll: countKnots, logGrowthAcrossSeriesRates: countRates.map((v) => round(v, 4)) } : {}) } : {}) } } : {}),
+    ...(growth !== null ? { trend: { logGrowthAcrossSeries: round(growth, 4), growthFactorAcrossSeries: round(Math.exp(growth), 4), multiplicative: true, ...(countKnot !== undefined ? { growthChangesAt: countKnot, logGrowthAcrossSeriesAfter: round(growthAfter, 4), ...(countRanges ? { growthChangeRange95: countRanges.map((r) => ({ at: labels[r.knot], from: labels[r.from], to: labels[r.to], fromIndex: r.from, toIndex: r.to })) } : {}), ...(countKnots.length > 1 ? { growthChangesAtAll: countKnots, logGrowthAcrossSeriesRates: countRates.map((v) => round(v, 4)) } : {}) } : {}) } } : {}),
     ...(holidayFit ? { holidays: { count: holidayFit.count, factor: round(holidayFit.factor, 3), ...(holidayFit.kinds ? { kinds: holidayFit.kinds.map((k) => ({ ...k, factor: round(k.factor, 3) })) } : {}) } } : {}),
     ...(rangeWarning ? { rangeWarning } : {}),
     ...(rho !== null ? { ar1: { rho: round(rho, 3) } } : {}),

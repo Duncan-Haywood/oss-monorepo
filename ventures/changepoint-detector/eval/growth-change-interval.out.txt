@@ -1,0 +1,4 @@
+growth bump (per point)  found  covered  median width
+0.015  90/100  79/90 (88%)  37
+0.025  97/100  85/97 (88%)  25
+0.04  81/100  68/81 (84%)  16
