@@ -56,3 +56,14 @@ test("terms: a late fee is reported on a deferred bill", () => {
   const p = planBills(books, { asOf: "2026-05-01", reserve: 30000, terms: { "BIG SUPPLIER": { lateFeePct: 5 } } });
   assert.equal(p.rows[0].fee, 4500); assert.match(p.rows[0].note, /late fee/);
 });
+
+test("a late fee counts toward the reserve: a bill that fits only without it is held longer", () => {
+  const docs = "bill,1,2026-04-01,2026-04-20,Slow Supplier,700.00,6130\ninvoice,7,2026-04-25,2026-05-15,Client,100.00,4000\n";
+  const opts = { asOf: "2026-05-01", reserve: 30000 };
+  const plain = planBills(make(docs), opts).rows[0];
+  assert.equal(plain.payOn, "2026-05-02");
+  const p = planBills(make(docs), { ...opts, terms: { "slow supplier": { lateFeePct: 5 } } });
+  const r = p.rows[0];
+  assert.equal(r.fee, 3500); assert.equal(r.payOn, "2026-05-15"); assert.equal(r.status, "deferred");
+  assert.ok(p.lowest.cents >= 30000);
+});
