@@ -82,3 +82,9 @@ test("--panel-max prints shop drawings with panels", () => {
   assert.equal(r.code, 0);
   assert.match(r.out, /Shop panels/);
 });
+
+test("--panel-max with --panel-order prints the pooled panel order against the whole-wall order", () => {
+  const r = main(["plan.json", "--panel-max=12ft", "--panel-order"], () => JSON.stringify(samplePlan()));
+  assert.equal(r.code, 0);
+  assert.match(r.out, /^\d+ shop panels: \d+ boards, cost [\d.]+ \(whole walls: \d+ boards/);
+});

@@ -292,7 +292,7 @@
   <section class="card" aria-labelledby="h-yearend">
     <h2 id="h-yearend">Optional: year-end close</h2>
     <p class="note">Closing a calendar year moves its income and expense into retained earnings (3900) with one dated entry and locks the books through December 31. The profit and loss and tax worksheets still show the year; the balance sheet and journal exports include the entry. Only the latest closed year can be reopened. Calendar years only.</p>
-    <p><label>Year <input id="ye-year" inputmode="numeric" size="6" placeholder="2025"></label> <label style="display:inline;font-weight:400"><input type="checkbox" id="ye-draws"> Also close owner draws and contributions</label> <button type="button" id="ye-close" class="secondary">Close year</button> <button type="button" id="ye-reopen" class="secondary">Reopen latest</button> <span id="ye-status" class="note" role="status"></span></p>
+    <p><label>Year <input id="ye-year" inputmode="numeric" size="6" placeholder="2025"></label> <label>Year ends in <select id="ye-month"><option value="12">December</option><option value="1">January</option><option value="2">February</option><option value="3">March</option><option value="4">April</option><option value="5">May</option><option value="6">June</option><option value="7">July</option><option value="8">August</option><option value="9">September</option><option value="10">October</option><option value="11">November</option></select></label> <label style="display:inline;font-weight:400"><input type="checkbox" id="ye-draws"> Also close owner draws and contributions</label> <button type="button" id="ye-close" class="secondary">Close year</button> <button type="button" id="ye-reopen" class="secondary">Reopen latest</button> <span id="ye-status" class="note" role="status"></span></p>
     <div class="scroll" id="yearend"></div>
   </section>
 
@@ -982,7 +982,7 @@
     });
 
     $("#ye-close").addEventListener("click", () => {
-      try { books = closeYear(books, $("#ye-year").value.trim(), { draws: $("#ye-draws").checked }); record("year_close"); const y = $("#ye-year").value.trim(); render(); $("#ye-status").textContent = `${y} closed. Locked through ${books.lockedThrough}.`; }
+      try { books = closeYear(books, $("#ye-year").value.trim(), { draws: $("#ye-draws").checked, month: $("#ye-month").value }); record("year_close"); const y = $("#ye-year").value.trim(); render(); $("#ye-status").textContent = `${y} closed. Locked through ${books.lockedThrough}.`; }
       catch (e) { $("#ye-status").textContent = e.message; }
     });
     $("#ye-reopen").addEventListener("click", () => {

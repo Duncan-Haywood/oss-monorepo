@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { newBooks, importStatement, confirm, journal, reports, exportJournal, closeChecks } from "./engine.mjs";
-import { closeYear, reopenYear, yearEndReport, closingEntries } from "./yearend.mjs";
+import { closeYear, reopenYear, yearEndReport, closingEntries, fiscalSpan } from "./yearend.mjs";
 import { balances } from "./ledger.mjs";
 
 const pick = { SALE: "4000", HOST: "6130", FEE: "6010", DRAW: "3100", PUT: "3010" };
@@ -97,4 +97,48 @@ test("the entry follows the year's postings and report says what moved", () => {
   assert.equal(yearEndReport(books, 2025).closed, false);
   assert.equal(closeChecks(c).some((x) => x.severity === "high"), false);
   assert.deepEqual(closingEntries(books, journal(books)), []);
+});
+
+// A fiscal year ending 30 June 2026 runs 2025-07-01 to 2026-06-30.
+const fy = filed([
+  ["2025-03-05", "SALE ONE", "400.00"], // before the fiscal year: stays out of it
+  ["2025-08-05", "SALE TWO", "1000.00"], ["2025-09-09", "HOST A", "-250.00"],
+  ["2026-06-30", "FEE X", "-40.00"], // last day, in
+  ["2026-07-01", "SALE TWO", "500.00"], // first day of the next year, out
+]);
+
+test("a fiscal year closes the twelve months ending in its month, dated its last day", () => {
+  const c = closeYear(fy, 2026, { month: 6 });
+  assert.equal(c.lockedThrough, "2026-06-30");
+  assert.equal(c.yearEnd[0].month, 6);
+  const entry = journal(c, { withClosing: true }).find((e) => e.id === "CLOSE-2026");
+  assert.equal(entry.date, "2026-06-30");
+  const re = entry.lines.find((l) => l.account === "3900");
+  assert.deepEqual([re.debit, re.credit], [0, 71000]); // 1000 - 250 - 40, not the March or July sales
+  assert.equal(entry.lines.reduce((a, l) => a + l.debit - l.credit, 0), 0);
+});
+
+test("a fiscal-year report starts from the day before the year and the balance sheet balances", () => {
+  const c = closeYear(fy, 2026, { month: 6 });
+  const r = yearEndReport(c, 2026);
+  assert.equal(r.netToRetained, 71000);
+  assert.equal(r.retainedBefore, 0);
+  assert.equal(r.retainedAfter, 71000);
+  const bs = reports(c, { to: "2026-07-31" }).balanceSheet;
+  assert.equal(bs.balanced, true);
+  assert.equal(bs.equity.find((x) => x.code === "3900").amount, 71000);
+});
+
+test("a leap-year February year-end falls on the 29th", () => {
+  assert.equal(fiscalSpan(2028, 2).to, "2028-02-29");
+  assert.equal(fiscalSpan(2027, 2).to, "2027-02-28");
+  assert.deepEqual(fiscalSpan(2026), { from: "2026-01-01", to: "2026-12-31" });
+});
+
+test("the year-end month must be valid and stay the same across closes", () => {
+  assert.throws(() => closeYear(fy, 2026, { month: 13 }), /1 to 12/);
+  const c = closeYear(fy, 2026, { month: 6 });
+  assert.throws(() => closeYear(c, 2027, { month: 12 }), /keep the same year-end month/);
+  assert.equal(closeYear(c, 2027, { month: 6 }).lockedThrough, "2027-06-30");
+  assert.equal(reopenYear(c, 2026).yearEnd, undefined);
 });

@@ -6,7 +6,7 @@
 // length. Fewest panels first, then the most even widths. Pure functions;
 // inches throughout. A layout aid, not engineering: lifting, bracing and
 // shipping are for the builder.
-import { formatLength, DEPTH } from "./engine.mjs";
+import { formatLength, DEPTH, mergeCuts, optimizeStock } from "./engine.mjs";
 
 const EPS = 1e-6;
 const r3 = (n) => Math.round(n * 1000) / 1000;
@@ -114,4 +114,54 @@ export function panelParts(w, pan, opts = {}) {
     const r1 = (v) => Math.round(v * 10) / 10;
     return { name: p.name, width: p.width, pieces, pieceCount: pieces.reduce((t, x) => t + x.qty, 0), lb: r1(lb), sheathLb: r1(sheathLb), totalLb: r1(lb + sheathLb) };
   });
+}
+
+/**
+ * The lumber order for the shop panels: every panel's pieces (plates trimmed
+ * to panel length) pooled and cut from stock, beside the order for the same
+ * house built as whole walls. Plates cut at the panel breaks pack differently
+ * and each break costs a saw kerf, so the two orders can differ by a board.
+ * Lengths round up to 1/16 in. Pass nailer cuts (nailerCuts()) as `extra`.
+ * @param {{ok: boolean, walls: any[], orders: any[], summary: any}} result from takeoff()
+ * @param {{stock: any[], kerf?: number}} plan
+ * @param {number} panelMax longest panel, inches
+ * @param {any[]} [extra] cuts to pool in unchanged
+ */
+export function panelOrder(result, plan, panelMax, extra = []) {
+  const rows = [];
+  let panels = 0, over = false;
+  for (const w of result.walls) {
+    const pan = panelizeWall(w, panelMax);
+    over = over || pan.over;
+    panels += pan.panels.length;
+    for (const p of panelParts(w, pan)) {
+      for (const x of p.pieces) rows.push({ size: x.size, length: Math.ceil(x.length * 16 - 1e-6) / 16, kind: x.kind, qty: x.qty, walls: [w.id] });
+    }
+  }
+  const cuts = mergeCuts([], [...rows, ...extra]);
+  const orders = [];
+  for (const size of [...new Set(cuts.map((c) => c.size))]) {
+    const stock = plan.stock.filter((s) => s.size === size);
+    const pieces = cuts.filter((c) => c.size === size).map((c) => ({ length: c.length, qty: c.qty, ref: c.kind }));
+    const res = optimizeStock(pieces, stock, plan.kerf);
+    const lines = new Map();
+    for (const b of res.bars) {
+      const key = `${b.length}|${b.label || ""}`;
+      const row = lines.get(key) || { size, length: b.length, label: b.label || "", price: b.price, qty: 0 };
+      row.qty++;
+      lines.set(key, row);
+    }
+    orders.push({ size, ...res, lines: [...lines.values()].sort((a, b) => b.length - a.length) });
+  }
+  const cost = orders.reduce((t, o) => t + o.cost, 0);
+  const boards = orders.reduce((t, o) => t + o.bars.length, 0);
+  return { panels, over, cuts, orders, cost, boards, wholeWallCost: result.summary.cost, wholeWallBoards: result.summary.boards, extraCost: cost - result.summary.cost };
+}
+
+/** Text lines for panelOrder(). */
+export function panelOrderText(po) {
+  const lines = [`${po.panels} shop panels: ${po.boards} boards, cost ${po.cost.toFixed(2)} (whole walls: ${po.wholeWallBoards} boards, ${po.wholeWallCost.toFixed(2)}; difference ${po.extraCost >= 0 ? "+" : ""}${po.extraCost.toFixed(2)})`];
+  for (const o of po.orders) for (const l of o.lines) lines.push(`  ${String(l.qty).padStart(4)}  ${o.size.padEnd(7)} ${formatLength(l.length).padEnd(10)} ${l.label}`);
+  if (po.over) lines.push("  At least one panel is over the limit: no clear cut line exists within it.");
+  return lines;
 }
