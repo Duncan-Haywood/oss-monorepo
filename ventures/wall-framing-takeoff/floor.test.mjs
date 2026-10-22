@@ -86,3 +86,36 @@ test("a wall along the joists gets a companion joist on its side, in the cut lis
   assert.equal(rows.reduce((s, r) => s + r.qty, 0), 4);
   assert.equal(layoutFloor({ ...sampleFloor(), doubleUnder: [900] }, plan()).ok, false);
 });
+
+test("a stairwell cuts the joists it crosses, doubles the trimmers and headers, and keeps the lumber accounted for", () => {
+  const base = layoutFloor(sampleFloor(), plan());
+  const l = layoutFloor({ ...sampleFloor(), openings: [{ x: 100, y: 40, width: 36, depth: 100 }] }, plan());
+  assert.ok(l.ok, JSON.stringify(l.errors));
+  const [o] = l.openings;
+  assert.equal(o.left, 96); // joist at or before x = 100
+  assert.equal(o.right, 144); // first joist at or past 136
+  assert.equal(o.clearWidth, 48 - 1.5);
+  const tails = l.joists.filter((j) => j.tail);
+  assert.equal(tails.length, 2 * 3); // joists at 112 and 128: front tail, rear tail, and the far span past the beam
+  const hdr = l.joists.filter((j) => j.header);
+  assert.equal(hdr.length, 4);
+  assert.ok(hdr.every((h) => h.length === 48 - 1.5));
+  assert.equal(l.joists.filter((j) => j.trimmer).length >= 2, true);
+  // no joist piece enters a header zone
+  for (const j of tails.filter((t) => t.y < 168)) assert.ok(j.y + j.length <= o.y - 3 + 1e-9 || j.y >= o.y + o.depth + 3 - 1e-9);
+  // net joist length falls by the opening plus header zones, rises by the trimmers and headers
+  const sum = (a) => a.reduce((s, j) => s + j.length, 0);
+  assert.ok(sum(l.joists.filter((j) => !j.trimmer && !j.header)) < sum(base.joists));
+  const rows = floorCuts(l);
+  assert.equal(rows.filter((r) => r.kind === "floor header").reduce((s, r) => s + r.qty, 0), 4);
+  assert.ok(takeoff({ ...plan(), walls: [{ id: "A", length: 120, stud: "2x4" }] }, rows).ok);
+  assert.ok(floorText(l).join("\n").includes("clear"));
+});
+
+test("openings that leave the floor, are tiny or sit over the beam are refused", () => {
+  const bad = (o) => layoutFloor({ ...sampleFloor(), openings: [o] }, plan());
+  assert.equal(bad({ x: 100, y: 40, width: 6, depth: 100 }).ok, false);
+  assert.equal(bad({ x: 460, y: 40, width: 36, depth: 100 }).ok, false);
+  assert.equal(bad({ x: 100, y: 120, width: 36, depth: 100 }).ok, false); // over the beam at 168
+  assert.equal(bad({ x: 100, y: 2, width: 36, depth: 60 }).ok, false);
+});

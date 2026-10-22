@@ -13,9 +13,10 @@
 // floorCuts(...))` pools with the walls; sheets are their own order.
 import { THICK, EPS, DEPTH, optimizeStock, formatLength, formatInches } from "./engine.mjs";
 
+const DOUBLE = 2 * THICK;
 export const SHEET = { width: 48, length: 96 };
 
-/** @typedef {{ id?: string, width: number, depth: number, joist?: string, spacing?: number, rim?: boolean, beam?: number, blockingRows?: number, doubleUnder?: number[], sheet?: { length?: number, width?: number, price?: number, kerf?: number } }} Floor */
+/** @typedef {{ id?: string, width: number, depth: number, joist?: string, spacing?: number, rim?: boolean, beam?: number, blockingRows?: number, doubleUnder?: number[], openings?: { x: number, y: number, width: number, depth: number }[], sheet?: { length?: number, width?: number, price?: number, kerf?: number } }} Floor */
 
 export function sampleFloor() {
   return { id: "Main floor", width: 480, depth: 336, joist: "2x10", spacing: 16, rim: true, beam: 168, blockingRows: 0 };
@@ -29,6 +30,12 @@ export function validateFloor(f, plan) {
   if (!(f.joist in DEPTH)) errors.push(`Unknown joist size ${f.joist}.`);
   if (!(f.spacing > 0 && f.spacing <= 48)) errors.push("Joist spacing must be between 0 and 48 inches.");
   for (const x of f.doubleUnder || []) if (!(x > 0 && x < f.width)) errors.push(`A wall at ${x} in for doubled joists must sit inside the floor's ${f.width} in width.`);
+  for (const [i, o] of (f.openings || []).entries()) {
+    const n = `Opening ${i + 1}`;
+    if (!(o.width >= 12 && o.depth >= 12)) errors.push(`${n} must be at least 1 ft each way.`);
+    else if (!(o.x > 0 && o.x + o.width < f.width && o.y >= 12 + DOUBLE && o.y + o.depth <= f.depth - 12 - DOUBLE)) errors.push(`${n} must sit inside the floor, at least 1 ft and a header from each edge.`);
+    else if (f.beam != null && f.beam > o.y - 6 && f.beam < o.y + o.depth + 6) errors.push(`${n} runs over the beam at ${f.beam} in; move one of them.`);
+  }
   if (f.beam != null && !(f.beam > 12 && f.beam < f.depth - 12)) errors.push("The beam must sit between 1 ft and 1 ft short of the far edge.");
   const longest = Math.max(0, ...plan.stock.filter((s) => s.size === f.joist).map((s) => s.length));
   if (!longest) errors.push(`No ${f.joist} boards listed in the stock.`);
@@ -79,8 +86,33 @@ export function layoutFloor(f, plan) {
   const notes = [];
   const joists = [];
   const spans = f.beam != null ? [[rimT, f.beam], [f.beam, f.depth - rimT]] : [[rimT, f.depth - rimT]];
+  // An opening (a stairwell: x and y from the left and front edges, width across the joists, depth along them)
+  // is bounded by the joist at or beside each side (the trimmers, doubled on the outer side) and a doubled header
+  // at each end; joists between the trimmers become tail joists that stop at the headers.
+  const openings = (f.openings || []).map((o) => {
+    const cl = centres.filter((c) => c <= o.x + EPS).pop();
+    const cr = centres.find((c) => c >= o.x + o.width - EPS);
+    return { ...o, left: cl, right: cr, clearWidth: cr - cl - THICK, cut: [o.y - DOUBLE, o.y + o.depth + DOUBLE] };
+  });
+  const headers = [];
+  for (const o of openings) for (const y of [o.y - DOUBLE, o.y + o.depth]) for (let k = 0; k < 2; k++) headers.push({ x: o.left + THICK / 2, y, length: o.right - o.left - THICK, size: f.joist, opening: openings.indexOf(o) });
+  const cutAt = (c) => openings.filter((o) => c > o.left + EPS && c < o.right - EPS);
+  /** y-intervals of a span with the openings' header zones removed */
+  const runs = (y0, y1, os) => {
+    let out = [[y0, y1]];
+    for (const o of os) out = out.flatMap(([a, b]) => [[a, Math.min(b, o.cut[0])], [Math.max(a, o.cut[1]), b]]).filter(([a, b]) => b - a > EPS);
+    return out;
+  };
   for (const [i, c] of centres.entries()) {
-    for (const [y0, y1] of spans) joists.push({ x: c - THICK / 2, y: y0, length: y1 - y0, size: f.joist, edge: i === 0 || i === centres.length - 1 });
+    const os = cutAt(c);
+    for (const [y0, y1] of spans) for (const [a, b] of runs(y0, y1, os)) joists.push({ x: c - THICK / 2, y: a, length: b - a, size: f.joist, edge: i === 0 || i === centres.length - 1, tail: os.length > 0 });
+  }
+  const trimmers = [];
+  for (const [k, o] of openings.entries()) for (const [c, i] of [[o.left, centres.indexOf(o.left)], [o.right, centres.indexOf(o.right)]]) {
+    const side = i === 0 ? 1 : i === centres.length - 1 ? -1 : c === o.left ? -1 : 1;
+    const cx = c + side * THICK;
+    for (const [y0, y1] of spans) for (const [a, b] of runs(y0, y1, [])) joists.push({ x: cx - THICK / 2, y: a, length: b - a, size: f.joist, edge: false, doubled: true, trimmer: true });
+    trimmers.push({ opening: k, joist: i, x: cx });
   }
   // A wall running along the joists (`doubleUnder`: its x from the left edge) sits on a doubled joist:
   // a companion joist is nailed beside the one nearest the wall, on the wall's side, or inward at an edge.
@@ -92,6 +124,7 @@ export function layoutFloor(f, plan) {
     for (const [y0, y1] of spans) joists.push({ x: cx - THICK / 2, y: y0, length: y1 - y0, size: f.joist, edge: false, doubled: true });
     doubled.push({ wall: x, joist: i, x: cx });
   }
+  for (const h of headers) joists.push({ ...h, header: true, edge: false });
   for (const j of joists) if (j.length > longest + EPS) {
     return { ok: false, errors: [`A ${formatLength(j.length)} joist run is longer than the longest ${f.joist} listed (${formatLength(longest)}). Add a beam (floor.beam) or list longer boards.`] };
   }
@@ -144,10 +177,11 @@ export function layoutFloor(f, plan) {
   const sheetArea = (sheet.width * sheet.length) / 144;
   if (rest > EPS) notes.push(`The last subfloor course is ${formatInches(rest)} wide, ripped from ${rip} sheet${rip === 1 ? "" : "s"}; its long edge runs across the joists, so block or use tongue-and-groove sheets.`);
   if (f.beam != null) notes.push(`Joists butt over the beam at ${formatLength(f.beam)}; whether they butt, lap or hang from it is the framer's and engineer's call.`);
+  if (openings.length) notes.push(`${openings.length} opening${openings.length === 1 ? "" : "s"}: doubled headers at both ends and doubled trimmer joists; the subfloor is bought for the whole floor and the cut-out is not deducted. Header size, hangers and the trimmers' load are the engineer's call.`);
   if (doubled.length) notes.push(`${doubled.length} doubled joist line${doubled.length === 1 ? "" : "s"} under walls that run along the joists; a wall across the joists, or over a bay, needs blocking or a beam, which this does not size.`);
   notes.push("Joist size and spacing are your inputs and are not checked against a span table or code; bearing, hangers and fasteners are not in the takeoff.");
   return {
-    ok: true, id, width: f.width, depth: f.depth, joistSize: f.joist, spacing: f.spacing, centres, joists, doubled, rims, blocks, courses,
+    ok: true, openings, trimmers, id, width: f.width, depth: f.depth, joistSize: f.joist, spacing: f.spacing, centres, joists, doubled, rims, blocks, courses,
     sheets: { count: sheets, rows: sheetRows, area, waste: sheets ? 1 - area / (sheets * sheetArea) : 0 },
     notes,
   };
@@ -164,7 +198,7 @@ export function floorCuts(l) {
     row.qty++;
     map.set(key, row);
   };
-  for (const j of l.joists) add(j.size, j.length, j.doubled ? "doubled floor joist" : "floor joist");
+  for (const j of l.joists) add(j.size, j.length, j.header ? "floor header" : j.trimmer ? "trimmer joist" : j.doubled ? "doubled floor joist" : j.tail ? "tail joist" : "floor joist");
   for (const r of l.rims) add(r.size, r.length, "rim board");
   for (const b of l.blocks) add(b.size, b.length, "floor blocking");
   return [...map.values()];
@@ -173,7 +207,7 @@ export function floorCuts(l) {
 export function floorText(l) {
   if (!l.ok) return l.errors.map((e) => `  - ${e}`);
   const out = [`${l.id}: ${formatLength(l.width)} x ${formatLength(l.depth)}, ${l.joistSize} joists at ${l.spacing} o.c.`];
-  out.push(`  ${l.centres.length} joist lines (${l.joists.length} pieces), ${l.rims.length} rim board${l.rims.length === 1 ? "" : "s"}, ${l.blocks.length} blocks${l.doubled.length ? `, ${l.doubled.length} doubled under walls` : ""}`);
+  out.push(`  ${l.centres.length} joist lines (${l.joists.length} pieces), ${l.rims.length} rim board${l.rims.length === 1 ? "" : "s"}, ${l.blocks.length} blocks${l.doubled.length ? `, ${l.doubled.length} doubled under walls` : ""}${l.openings.length ? `, ${l.openings.length} opening${l.openings.length === 1 ? "" : "s"} (${l.openings.map((o) => formatInches(o.clearWidth) + " clear").join(", ")})` : ""}`);
   out.push(`  Joist centres: ${l.centres.map((c) => formatInches(c)).join(", ")}`);
   out.push(`  Subfloor: ${l.sheets.count} sheets of ${SHEET.width} x ${SHEET.length} in for ${l.sheets.area.toFixed(0)} sq ft (${(100 * l.sheets.waste).toFixed(1)}% offcut)`);
   for (const c of l.courses) out.push(`    course at ${formatLength(c.y)} (${formatInches(c.width)} wide): ${c.pieces.map((p) => formatInches(p.length)).join(" + ")}`);
