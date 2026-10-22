@@ -213,6 +213,21 @@
     <div class="scroll" id="po-result"></div>
   </section>
 
+  <section class="card" aria-labelledby="h-payroll">
+    <h2 id="h-payroll">Optional: payroll provider reports</h2>
+    <p class="note">Load a pay-run report from Gusto, ADP, Paychex, QuickBooks Payroll or a spreadsheet (one row per employee per pay date: pay date, gross, net, federal, social security and Medicare withholding, employer shares, FUTA and SUTA). Each pay date becomes one entry: wages, employer taxes and the payroll liability (2300). The bank lines that paid the net pay and the tax deposits are then found, and a Form 941 worksheet is summed for the quarter. Worksheet only: not a filing. Nothing is posted until you press Post.</p>
+    <label for="pr-file">Pay-run report CSV file</label><input id="pr-file" type="file" accept=".csv,text/csv,text/plain">
+    <label for="pr-paste">Or paste the CSV</label>
+    <textarea id="pr-paste" placeholder="pay date,gross pay,net pay,federal tax,social security,medicare,employer social security,employer medicare"></textarea>
+    <button type="button" id="pr-add">Book the pay runs</button>
+    <button type="button" id="pr-post" class="secondary">Post matched bank lines to 2300</button>
+    <label for="pr-year">Form 941 year</label><input id="pr-year" type="number" min="2000" max="2100" placeholder="2026">
+    <label for="pr-q">Quarter</label><select id="pr-q"><option>1</option><option>2</option><option>3</option><option>4</option></select>
+    <button type="button" id="pr-941" class="secondary">Form 941 worksheet</button>
+    <p id="pr-status" class="note" role="status" aria-live="polite"></p>
+    <div class="scroll" id="pr-result"></div>
+  </section>
+
   <section class="card" aria-labelledby="h-docs">
     <h2 id="h-docs">Optional: invoices and bills (accruals)</h2>
     <p class="note">Bank lines alone give cash-basis books. Load a list of invoices you sent and bills you owe and each is booked on its own date; a bank line with the exact amount and the invoice number or the party's name then clears it instead of counting as income twice. Header: <code>type,number,date,due,party,amount,account</code>, type <code>invoice</code> or <code>bill</code>; rows sharing a number are one document.</p>
@@ -365,7 +380,7 @@
     <h2 id="h-how">How it decides, and what it leaves out</h2>
     <p><strong>Four layers, then you.</strong> (1) Your rules. (2) Memory: the account you chose before for the same payee, after store numbers, card numbers and reference codes are stripped ("SQ *BLUE BOTTLE 0412 OAKLAND CA" and "POS DEBIT SQ *BLUE BOTTLE 9981" are one payee). Confidence is how many times you chose it over how often you saw the payee; at three unanimous choices it reaches 0.86 and posts by itself. (3) A naive Bayes classifier trained on everything you filed, for payees it has not seen exactly; it only suggests. (4) Conservative built-in keywords for common merchants; they only suggest. A language model, if you turn one on, is a fifth suggester for the review queue.</p>
     <p><strong>Measured, on synthetic data.</strong> A seeded generator writes a year of lines for a made-up studio (payroll, software, Amazon bought for two different accounts, coffee, one-off local merchants, a card paid from checking). Importing a month at a time and filing each month's queue correctly, from the fourth month on 60% of lines posted by themselves (1,300 of 2,164), 1 of those 1,300 to the wrong account, and 84% of the review suggestions were right (542 of 642; 5 seeds, 2,892 lines; the README has the table and the command). The built-in keywords were written by the same person as the generator, so the first month's accuracy flatters them; the learning numbers are the honest part. Real bank files will be messier.</p>
-    <p><strong>Not modelled:</strong> accruals (invoices and bills not yet paid), depreciation, inventory, payroll and sales tax filings, foreign-currency invoices (foreign bank accounts are covered in the CLI), splitting one line across accounts, and locking a closed period. It is cash-basis bookkeeping from bank lines. Reconciles to the statement only when the file has a running balance column.</p>
+    <p><strong>Not modelled:</strong> accruals (invoices and bills not yet paid), depreciation, inventory, payroll filings (a Form 941 worksheet is offered) and sales tax filings, foreign-currency invoices (foreign bank accounts are covered in the CLI), splitting one line across accounts, and locking a closed period. It is cash-basis bookkeeping from bank lines. Reconciles to the statement only when the file has a running balance column.</p>
   </section>
   <section class="card" aria-labelledby="h-faq">
     <h2 id="h-faq">Questions</h2>
@@ -410,6 +425,7 @@
     import { setBudget, budgetVsActual } from "./budget.mjs";
     import { reconcile } from "./reconcile.mjs";
     import { readPayoutReport, planPayouts, applyPayouts } from "./payouts.mjs";
+    import { addPayroll, planPayroll, applyPayroll, payrollSummary, form941, employerCost } from "./payroll.mjs";
     import { addTrip, removeTrip, setHomeOffice, mileageDeduction, homeOfficeDeduction } from "./deductions.mjs";
     import { closeYear, reopenYear, yearEndReport } from "./yearend.mjs";
     import { addReceipts, receiptReport, taxOnReceipts, planReceiptSplit, splitFromReceipt } from "./receipts.mjs";
@@ -749,6 +765,47 @@
         if (r.posted) { books = categorize(r.books, opts()); record("payouts_posted"); render(); }
         showPayouts(planPayouts(books, readPayoutReport(($("#po-file").files[0] ? await $("#po-file").files[0].text() : $("#po-paste").value))), r.posted);
       } catch (e) { $("#po-status").textContent = e.message; }
+    });
+
+    function showPayroll(note = "") {
+      const s = payrollSummary(books), plan = planPayroll(books);
+      const kids = [];
+      if ((books.payroll ?? []).length) kids.push(table(["Pay date", "Employees", "Gross", "Net", "Employer cost"], books.payroll.map((r) => [r.date, String(r.employees), fmt(r.gross), fmt(r.net), fmt(employerCost(r))])));
+      if (plan.matched.length || plan.unmatched.length) kids.push(table(["Pay run", "What", "Amount", "Bank line"], [
+        ...plan.matched.map((m) => [m.run, m.kind, fmt(m.amount), `line ${m.line} ${m.lineDate}${m.ambiguous ? " (ambiguous, skipped)" : ""}`]),
+        ...plan.unmatched.map((m) => [m.run, m.kind, fmt(m.amount), `not matched: ${m.why}`]),
+      ]));
+      $("#pr-result").replaceChildren(...kids);
+      $("#pr-status").textContent = `${note}${s.runs ? ` Accrued ${fmt(s.accrued)}, paid from the bank ${fmt(s.paid)}, still owed ${fmt(s.owed)}.` : ""}`.trim();
+    }
+    async function payrollText() {
+      const f = $("#pr-file").files[0];
+      const text = f ? await f.text() : $("#pr-paste").value;
+      if (!text.trim()) throw new Error("Choose the pay-run report file or paste its CSV.");
+      return text;
+    }
+    $("#pr-add").addEventListener("click", async () => {
+      try {
+        const r = addPayroll(books, await payrollText());
+        books = categorize(r.books, opts()); record("payroll_booked"); render();
+        showPayroll(`${r.added.length} pay run${r.added.length === 1 ? "" : "s"} booked${r.skipped.length ? `, ${r.skipped.length} already in the books` : ""}. ${r.problems.join(" ")}`);
+      } catch (e) { $("#pr-status").textContent = e.message; $("#pr-result").replaceChildren(); }
+    });
+    $("#pr-post").addEventListener("click", () => {
+      try {
+        const r = applyPayroll(books, planPayroll(books));
+        if (r.posted) { books = categorize(r.books, opts()); record("payroll_posted"); render(); }
+        showPayroll(`${r.posted} bank line${r.posted === 1 ? "" : "s"} filed to 2300.`);
+      } catch (e) { $("#pr-status").textContent = e.message; }
+    });
+    $("#pr-941").addEventListener("click", () => {
+      try {
+        const f = form941(books, $("#pr-year").value || new Date().getFullYear(), $("#pr-q").value);
+        record("form941_viewed");
+        const rows = [["Wages (line 2)", f.wages], ["Federal income tax withheld (line 3)", f.federalWithheld], ["Social security tax, both shares (line 5a)", f.socialSecurityTax], ["Medicare tax, both shares (line 5c)", f.medicareTax], ["Total taxes before adjustments", f.totalTaxes], ["Federal deposits due from the register", f.deposited], ["FUTA (Form 940)", f.futa]].map(([l, v]) => [l, fmt(v)]);
+        $("#pr-result").replaceChildren(table(["Line", "Amount"], rows), ...f.warnings.map((w) => el("p", { class: "note", text: `Check: ${w}` })), el("p", { class: "note", text: "Worksheet only: tips, adjustments, the social security wage base and credits are not modelled." }));
+        $("#pr-status").textContent = `${f.year} Q${f.quarter} (${f.from} to ${f.to}), ${f.runs} pay run${f.runs === 1 ? "" : "s"}.`;
+      } catch (e) { $("#pr-status").textContent = e.message; }
     });
 
     function renderAssets() {
