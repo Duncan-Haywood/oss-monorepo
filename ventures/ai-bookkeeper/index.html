@@ -668,7 +668,7 @@
         record("billpay_planned");
         const rows = p.rows.map((r) => el("tr", {}, el("td", { text: `${r.id} ${r.party}` }), el("td", { class: "n", text: fmt(r.cents) }), el("td", { class: "n", text: r.due }), el("td", { class: "n", text: r.payOn }), el("td", { text: r.status }), el("td", { text: r.note })));
         $("#bp-result").replaceChildren(el("table", {}, el("thead", {}, el("tr", {}, ...["Bill", "Amount", "Due", "Pay on", "Status", "Note"].map((h) => el("th", { scope: "col", text: h })))), el("tbody", {}, ...rows)));
-        $("#bp-status").textContent = `From ${fmt(p.start)} on ${p.asOf}, the lowest balance is ${fmt(p.lowest.cents)} on ${p.lowest.date}.${p.shortfall ? ` ${fmt(p.shortfall)} of bills cannot fit above the reserve.` : ""}`;
+        $("#bp-status").textContent = `From ${fmt(p.start)} on ${p.asOf}, the lowest balance is ${fmt(p.lowest.cents)} on ${p.lowest.date}${p.shortfall ? ", counting the bills that cannot fit" : ""}.${p.shortfall ? ` ${fmt(p.shortfall)} of bills cannot fit above the reserve.` : ""}`;
       } catch (e) { $("#bp-status").textContent = e.message; }
     });
 
