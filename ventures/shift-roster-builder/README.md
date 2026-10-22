@@ -112,7 +112,20 @@ Guide pages, each with figures a test re-derives from the engine: [how to make a
 | 10 x 22 | 0 of 8 | 1,211,132 |
 | 10 x 28 | 0 of 8 | 1,193,955 |
 
-(The 12 x 30 row did not finish inside the 10-minute run.) So the proof is reliable to about 5 people and 14 shifts and gone by 10 people; beyond that the annealed roster is the answer and the report says it is not proven. The weeks here are drawn in one simple style and the node limit is the default one: a higher limit proves more (the 3M-node note above), so read the table as where the default stops, not where proof is impossible. Next: see whether the unproven gap is open hours (the coverage pass) or cost.
+(The 12 x 30 row did not finish inside the 10-minute run.) So the proof is reliable to about 5 people and 14 shifts and gone by 10 people; beyond that the annealed roster is the answer and the report says it is not proven. The weeks here are drawn in one simple style and the node limit is the default one: a higher limit proves more (the 3M-node note above), so read the table as where the default stops, not where proof is impossible. 
+
+**Open hours or cost?** The bench now splits every unproven week (`node eval/scale-bench.mjs 4 30000`, 4 cases per size, 30,000-node limit, 2026-10-22, one run):
+
+| people x shifts | proven | unproven, coverage proven | unproven, coverage not proven |
+|---|---|---|---|
+| 6 x 14 | 3 of 4 | 0 | 1 |
+| 8 x 18 | 2 of 4 | 0 | 2 |
+| 8 x 22 | 0 of 4 | 0 | 4 |
+| 10 x 22 | 0 of 4 | 0 | 4 |
+| 10 x 28 | 0 of 4 | 0 | 4 |
+| 12 x 30 | 0 of 4 | 0 | 4 |
+
+Every unproven week failed at the coverage step: the search could not show whether the open hours it left (1 to 60 h per size) were the fewest possible, so the pay-and-penalty gap is never reached. The cost bound is not what stops the proof here; the open-hours floor is. Small sample and a lower node limit than the table above, so read it as a direction, not a rate. Next: a tighter bound on the open-hours floor (the coverage pass at 8 or more people).
 
 ## Limits
 
