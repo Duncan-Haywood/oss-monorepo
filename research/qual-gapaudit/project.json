@@ -1,0 +1,6 @@
+{
+ "theme": "qual",
+ "title": "Does a hand-coded audit protect a group gap when it only checks the overall count?",
+ "summary": "On 3,188 real GoEmotions comments, the short-minus-long gap in negative-emotion prevalence (&minus;0.053) was badly distorted by every naive-Bayes coder (error 0.13&ndash;0.25, 5&ndash;10 times the naive interval's half-width), even a coder with exactly zero overall prevalence bias. Gating on the overall difference test, as for a single prevalence, gave worst-case 95% coverage of 0.04 at 100 hand-coded items and 0.004 at 1,600: the more it was audited the more surely the coder was trusted. A test on the gap bias itself was 0.23 at 100 items and recovered to 0.97 only from 800. Equivalence gates at tolerance 0.02 and 0.05 never passed the naive-Bayes coders, so they equalled always applying the group-wise prediction-powered correction (0.94&ndash;0.99). Coders are a naive-Bayes classifier with a moved cut-off and a word list, not LLMs; one corpus, one split, one seed.",
+ "lede": "does a hand-coded audit protect a group gap when it only checks the overall count? On 3,188 GoEmotions comments, a coder with zero overall bias still distorted a short-vs-long gap by 0.20, and the overall-bias gate covered the gap 0.4% of the time at 1,600 audited items. Not an LLM; one corpus."
+}
