@@ -15,7 +15,7 @@
 //   node cli.mjs --books books.json export qbo|xero|iif|csv|lines > journal.csv
 //   node cli.mjs --example report
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
-import { addLoan, applyLoanPayments, loanRegister, loanSchedule } from "./loans.mjs";
+import { addLoan, addLoanExtra, applyLoanPayments, loanRegister, loanSchedule } from "./loans.mjs";
 import { newBooks, importStatement, importOfxAccounts, lockPeriod, closeYear, reopenYear, yearEndReport, categorize, suggestRules, addRules, addDocuments, addAsset, disposeAsset, addAssetsCsv, register, addPrepaid, prepaidRegister, writeOff, aging, salesTax, vatReturn, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, addFxAccount, setRates, parseRates, fxRegister, exportLines, status, analyze, fmt, taxableBusinessIncome, s179Carryforward } from "./engine.mjs";
 import { parseCents } from "./bank.mjs";
 import { accountMap } from "./ledger.mjs";
@@ -72,6 +72,7 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
   taxdepr YEAR [--income books|N] [--carry-in N] [--json]  tax depreciation worksheet beside the book depreciation, with what it cannot check
   prepaid add NAME --amount 2400 --date D [--months 12] [--into 6030]  spread an up-front payment (filed to 1400) over the months it covers
   loan add NAME --amount 20000 --rate 6.5 --months 36 --first 2026-02-01 [--payment 612.34]  a fixed-rate loan and its schedule
+  loan extra ID --amount 2000 --date 2026-06-10   extra principal on top of the schedule (it ends sooner)
   loan apply ID           split the unfiled bank lines that are its scheduled payments into interest (6040) and principal (2200)
   loan [ID]               list loans (balance, next payment), or one loan's schedule
   fx account CODE CUR   mark a bank account as held in a foreign currency (e.g. 1020 EUR); lines convert at the rate on their date
@@ -254,10 +255,15 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
       const amount = flag("--amount"), rate = flag("--rate"), months = flag("--months"), first = flag("--first"), payment = flag("--payment");
       const r = addLoan(books, { name: argv.slice(2).join(" "), amount, rate, months, first, payment });
       books = r.books; save(); console.log(`${r.loan.id} ${r.loan.name}: ${fmt(r.loan.cents)} at ${r.loan.rateBp / 100}% over ${r.loan.months} months, payment ${fmt(r.loan.payment)}. Enter the proceeds as a deposit filed to 2200 (or use opening balances), then \`loan apply ${r.loan.id}\`.`);
+    } else if (rest[0] === "extra") {
+      const r = addLoanExtra(books, rest[1], { amount: flag("--amount"), date: flag("--date") });
+      books = r.books; save();
+      const last = loanSchedule(r.loan).at(-1);
+      console.log(`${r.loan.id}: extra principal recorded; the schedule now ends ${last.date} after ${last.n} of ${r.loan.months} payments. \`loan apply ${r.loan.id}\` files the bank line.`);
     } else if (rest[0] === "apply") {
       const r = applyLoanPayments(books, rest[1]);
       books = r.books; save();
-      for (const m of r.matched) console.log(`  ${m.id} ${m.date} payment ${m.n}: interest ${fmt(m.interest)}, principal ${fmt(m.principal)}`);
+      for (const m of r.matched) console.log(`  ${m.id} ${m.date} ${m.extra === undefined ? `payment ${m.n}` : "extra principal"}: interest ${fmt(m.interest)}, principal ${fmt(m.principal)}`);
       console.log(`${r.matched.length} payment${r.matched.length === 1 ? "" : "s"} split.`);
     } else if (rest[0]) {
       const loan = (books.loans ?? []).find((l) => l.id === rest[0]);
