@@ -139,6 +139,7 @@ export function sniffBank(rows) {
     if (/^date \(utc\)\|description\|amount\|status\|source account/.test(h)) return "mercury";
     if (/^booking date\|value date\|partner name\|partner iban\|type\|payment reference/.test(h)) return "n26";
     if (/^id\|datetime\|type\|status\|note\|from\|to\|amount \(total\)/.test(h.replace(/^\|/, ""))) return "venmo";
+    if (/^transaction id\|date\|transaction type\|currency\|amount\|fee\|net amount/.test(h)) return "cash-app";
     if (/^transferwise id\|date\|amount\|currency\|description/.test(h)) return "wise";
     if (/^transaction date\|posted date\|card no\.\|description\|category\|debit\|credit/.test(h)) return "capital-one";
     if (/^trans\. date\|post date\|description\|amount\|category/.test(h)) return "discover";
@@ -302,10 +303,12 @@ export function readStatement(text, { dayFirst = false, decimalComma = false, in
   if (bank === "lloyds" || bank === "barclays" || bank === "wise" || bank === "monzo" || bank === "starling") dayFirst = true;
   const hdr = headerAt === -1 ? [] : rows[headerAt].map(norm);
   if (bank === "monzo") columns.desc = hdr.indexOf("name");
+  // Cash App prints Amount before its fee; the books want what landed (Net Amount).
+  if (bank === "cash-app") { columns.amount = hdr.indexOf("net amount"); const o = hdr.indexOf("name of sender/receiver"); if (o !== -1) columns.desc = o; }
   // Mercury lists Pending, Failed and Cancelled rows beside Sent ones.
   // Venmo lists Pending and Cancelled payments, and its balance rows have no date.
-  const stateCol = bank === "revolut" ? hdr.indexOf("state") : bank === "mercury" || bank === "venmo" ? hdr.indexOf("status") : -1;
-  const okState = bank === "mercury" ? /^(sent|completed)$/i : bank === "venmo" ? /^(complete|issued)$/i : /^completed$/i;
+  const stateCol = bank === "revolut" ? hdr.indexOf("state") : bank === "mercury" || bank === "venmo" || bank === "cash-app" ? hdr.indexOf("status") : -1;
+  const okState = bank === "mercury" ? /^(sent|completed)$/i : bank === "venmo" ? /^(complete|issued)$/i : bank === "cash-app" ? /^complete$/i : /^completed$/i;
   const feeCol = bank === "revolut" ? hdr.indexOf("fee") : -1;
   const curCol = bank === "revolut" ? hdr.indexOf("currency") : -1;
   const currencies = new Set();
@@ -324,6 +327,7 @@ export function readStatement(text, { dayFirst = false, decimalComma = false, in
     if (cents === 0) continue;
     const balance = columns.balance !== -1 && String(r[columns.balance] ?? "").trim() !== "" ? parseCents(r[columns.balance], decimalComma) : null;
     let desc = String(r[columns.desc] ?? "").trim().replace(/\s+/g, " ");
+    if (bank === "cash-app") desc = [desc, String(r[hdr.indexOf("notes")] ?? "").trim() || String(r[hdr.indexOf("transaction type")] ?? "").trim()].filter(Boolean).join(" - ");
     if (bank === "venmo") {
       // The note is free text; name the other party, and fall back to the type for transfers.
       const who = String(r[hdr.indexOf(cents < 0 ? "to" : "from")] ?? "").trim();
