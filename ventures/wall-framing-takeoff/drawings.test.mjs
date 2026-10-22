@@ -84,6 +84,9 @@ test("panelMax adds purple panel joints, a panel table and keeps the layout chec
   assert.match(html, /Shop panels \(up to 12&#39;/);
   assert.match(html, /Panel A/);
   assert.match(html, /stroke="#6a2c91"/);
+  assert.match(html, /Lumber weight/);
+  assert.match(html, /Panel A cut list/);
+  assert.match(html, /\d+(\.\d)? lb/);
   assert.doesNotMatch(html, /NaN|undefined/);
   assert.doesNotMatch(drawingSetHtml(r, plan), /Shop panels/);
 });

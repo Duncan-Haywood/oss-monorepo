@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { takeoff, samplePlan } from "./engine.mjs";
-import { panelizeWall } from "./panels.mjs";
+import { panelizeWall, panelParts } from "./panels.mjs";
 
 const r = takeoff(samplePlan());
 
@@ -31,4 +31,25 @@ test("a wall shorter than the limit is one panel; an impossible limit is flagged
   assert.equal(panelizeWall(r.walls[5], 400).panels.length, 1);
   const tight = panelizeWall(r.walls[0], 20);
   assert.ok(tight.over);
+});
+
+test("per-panel parts: plates are trimmed to the panel span and total the wall's plate length", () => {
+  for (const w of r.walls) {
+    const pan = panelizeWall(w, 144);
+    const parts = panelParts(w, pan);
+    const plateIn = parts.flatMap((p) => p.pieces.filter((x) => x.kind === "plate")).reduce((t, x) => t + x.qty * x.length, 0);
+    const plateWall = w.members.filter((m) => m.kind === "plate").reduce((t, m) => t + m.length, 0);
+    assert.ok(Math.abs(plateIn - plateWall) < 1e-6, w.id);
+    const framing = parts.flatMap((p) => p.pieces.filter((x) => x.kind !== "plate")).reduce((t, x) => t + x.qty, 0);
+    assert.equal(framing, w.members.filter((m) => m.kind !== "plate").length, w.id);
+    assert.ok(parts.every((p) => p.lb > 0 && p.pieces.every((x) => x.length <= p.width + 1e-6 || x.kind !== "plate")));
+  }
+});
+
+test("a panel's weight matches a hand count: one 2x4 stud of 92.625 in is 1.5*3.5*92.625/1728*28 = 7.9 lb", () => {
+  const w = { id: "t", length: 48, members: [{ kind: "stud", x: 0, w: 1.5, size: "2x4", length: 92.625, label: "end stud" }] };
+  const [p] = panelParts(w, panelizeWall(w, 144));
+  assert.equal(p.lb, 7.9);
+  const [q] = panelParts(w, panelizeWall(w, 144), { pcf: 0 });
+  assert.equal(q.lb, 0);
 });

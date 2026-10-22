@@ -4,7 +4,7 @@
 // to build from. Pure functions (no DOM): the page, the CLI and agents share them.
 // Inches throughout; the drawing is a plan-derived picture, not engineering.
 import { formatLength, formatInches, verifyWall } from "./engine.mjs";
-import { panelizeWall } from "./panels.mjs";
+import { panelizeWall, panelParts } from "./panels.mjs";
 
 const PREFIX = { plate: "P", stud: "S", king: "K", jack: "J", header: "H", cripple: "C", sill: "L", blocking: "B" };
 const FILL = { plate: "#a3824f", stud: "#d9b97c", king: "#c48a3a", jack: "#8d6a2f", header: "#6f4e22", cripple: "#e4cf9f", sill: "#b88d4a", blocking: "#c9b48a" };
@@ -129,13 +129,12 @@ export function partsTableHtml(w) {
 
 /** Panel table: letter, span, width and the members each shop panel carries. */
 function panelTableHtml(w, pan, max) {
-  const rows = pan.panels.map((p) => {
-    const kinds = {};
-    for (const i of p.members) kinds[w.members[i].kind] = (kinds[w.members[i].kind] || 0) + 1;
-    return `<tr><td><b>${esc(p.name)}</b></td><td>${esc(formatLength(p.x0))} to ${esc(formatLength(p.x1))}</td><td class="n">${esc(formatLength(p.width))}${p.over ? ' <span class="err">over limit</span>' : ""}</td><td>${Object.entries(kinds).map(([k, n]) => `${n} ${k}`).join(", ")}</td></tr>`;
-  }).join("");
-  return `<h2>Shop panels (up to ${esc(formatLength(max))})</h2><table><thead><tr><th>Panel</th><th>Span</th><th class="n">Width</th><th>Members</th></tr></thead><tbody>${rows}</tbody></table>`
-    + `<p class="chk">Cuts (purple) fall only where no stud, king, jack, cripple, header, sill or block crosses; plates are cut to panel length and the adjoining end studs are nailed together on site.${pan.over ? ' <span class="err">At least one panel is over the limit: no clear cut line exists within it (a wide opening).</span>' : ""}</p>`;
+  const parts = panelParts(w, pan);
+  const rows = pan.panels.map((p, k) => `<tr><td><b>${esc(p.name)}</b></td><td>${esc(formatLength(p.x0))} to ${esc(formatLength(p.x1))}</td><td class="n">${esc(formatLength(p.width))}${p.over ? ' <span class="err">over limit</span>' : ""}</td><td class="n">${parts[k].pieceCount}</td><td class="n">${parts[k].lb} lb</td></tr>`).join("");
+  const cutLists = parts.map((p) => `<h3>Panel ${esc(p.name)} cut list</h3><table><thead><tr><th class="n">Qty</th><th>Size</th><th class="n">Cut length</th><th>Member</th></tr></thead><tbody>${p.pieces.map((x) => `<tr><td class="n">${x.qty}</td><td>${esc(x.size)}</td><td class="n">${esc(formatInches(x.length))}</td><td>${esc(x.label)}</td></tr>`).join("")}</tbody></table>`).join("");
+  return `<h2>Shop panels (up to ${esc(formatLength(max))})</h2><table><thead><tr><th>Panel</th><th>Span</th><th class="n">Width</th><th class="n">Pieces</th><th class="n">Lumber weight</th></tr></thead><tbody>${rows}</tbody></table>`
+    + `<p class="chk">Cuts (purple) fall only where no stud, king, jack, cripple, header, sill or block crosses; plates are cut to panel length and the adjoining end studs are nailed together on site. Weights are lumber only (SPF 28 lb/ft3, treated plate 40 lb/ft3), before sheathing, nails and connectors; a handling estimate, not a lifting plan.${pan.over ? ' <span class="err">At least one panel is over the limit: no clear cut line exists within it (a wide opening).</span>' : ""}</p>`
+    + cutLists;
 }
 
 const CSS = `body{font:14px/1.4 system-ui,sans-serif;margin:0;color:#1b1b1b;background:#fff}

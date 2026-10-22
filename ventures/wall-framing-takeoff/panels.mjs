@@ -6,7 +6,7 @@
 // length. Fewest panels first, then the most even widths. Pure functions;
 // inches throughout. A layout aid, not engineering: lifting, bracing and
 // shipping are for the builder.
-import { formatLength } from "./engine.mjs";
+import { formatLength, DEPTH } from "./engine.mjs";
 
 const EPS = 1e-6;
 const r3 = (n) => Math.round(n * 1000) / 1000;
@@ -53,4 +53,47 @@ export function panelizeWall(w, maxWidth) {
 /** A line per wall: panel names and widths, left to right. */
 export function panelsText(set) {
   return set.map((s) => `${s.id}: ${s.panels.map((p) => `${p.name} ${formatLength(p.width)}${p.over ? " (OVER LIMIT: no cut line is clear)" : ""}`).join(" | ")}`);
+}
+
+// Weights are a handling estimate, not a load figure: kiln-dried SPF at about
+// 28 lb/ft3 and treated bottom plates at about 40 lb/ft3 (wet treated stock
+// runs heavier). Override with opts.pcf / opts.ptPcf.
+export const SPF_PCF = 28;
+export const PT_PCF = 40;
+
+/**
+ * Per-panel parts: every framing member whole, every plate trimmed to the
+ * panel's span, and the panel's lumber weight.
+ * @param {{id: string, length: number, members: any[]}} w laid-out wall from takeoff()
+ * @param {ReturnType<typeof panelizeWall>} pan
+ * @param {{pcf?: number, ptPcf?: number}} [opts]
+ * @returns {{name: string, width: number, pieces: {size: string, length: number, kind: string, label: string, qty: number}[], pieceCount: number, lb: number}[]}
+ */
+export function panelParts(w, pan, opts = {}) {
+  const pcf = opts.pcf ?? SPF_PCF, ptPcf = opts.ptPcf ?? PT_PCF;
+  const weigh = (size, len) => {
+    const base = size.split(" ")[0];
+    const depth = DEPTH[base] ?? 3.5;
+    return (1.5 * depth * len / 1728) * (/\bPT\b/.test(size) ? ptPcf : pcf);
+  };
+  return pan.panels.map((p) => {
+    const rows = new Map();
+    let lb = 0;
+    const add = (m, len) => {
+      const label = m.kind === "plate" ? m.label : m.label.replace(/,.*$/, "");
+      const key = `${m.size}|${r3(len)}|${m.kind}|${label}`;
+      const row = rows.get(key) || { size: m.size, length: r3(len), kind: m.kind, label, qty: 0 };
+      row.qty++;
+      rows.set(key, row);
+      lb += weigh(m.size, len);
+    };
+    for (const i of p.members) if (w.members[i].kind !== "plate") add(w.members[i], w.members[i].length);
+    for (const m of w.members) {
+      if (m.kind !== "plate") continue;
+      const a = Math.max(m.x, p.x0), b = Math.min(m.x + m.w, p.x1);
+      if (b - a > EPS) add(m, b - a);
+    }
+    const pieces = [...rows.values()].sort((a, b) => a.kind.localeCompare(b.kind) || b.length - a.length);
+    return { name: p.name, width: p.width, pieces, pieceCount: pieces.reduce((t, x) => t + x.qty, 0), lb: Math.round(lb * 10) / 10 };
+  });
 }
