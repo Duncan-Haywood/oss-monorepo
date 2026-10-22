@@ -15,7 +15,7 @@
 //   node cli.mjs --books books.json export qbo|xero|iif|csv|lines > journal.csv
 //   node cli.mjs --example report
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
-import { newBooks, importStatement, importOfxAccounts, lockPeriod, closeYear, reopenYear, yearEndReport, categorize, suggestRules, addRules, addDocuments, addAsset, disposeAsset, addAssetsCsv, register, writeOff, aging, salesTax, vatReturn, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, exportLines, status, analyze, fmt, taxableBusinessIncome } from "./engine.mjs";
+import { newBooks, importStatement, importOfxAccounts, lockPeriod, closeYear, reopenYear, yearEndReport, categorize, suggestRules, addRules, addDocuments, addAsset, disposeAsset, addAssetsCsv, register, addPrepaid, prepaidRegister, writeOff, aging, salesTax, vatReturn, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, exportLines, status, analyze, fmt, taxableBusinessIncome } from "./engine.mjs";
 import { parseCents } from "./bank.mjs";
 import { accountMap } from "./ledger.mjs";
 import { seSetAside, selfEmployment, scheduleC, scheduleCCsv, contractors1099, contractors1099Csv, nec1099FilingCsv, markW9, mergePayees } from "./taxforms.mjs";
@@ -63,6 +63,8 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
   asset dispose ID --date D [--proceeds 0] [--into 1000]  sell or scrap it; books the gain or loss
   asset tax ID --class 5 [--s179 N] [--bonus PCT]  set the asset's US tax treatment (MACRS class 3/5/7/10/15/20 years, half-year)
   taxdepr YEAR [--income books|N] [--carry-in N] [--json]  tax depreciation worksheet beside the book depreciation, with what it cannot check
+  prepaid add NAME --amount 2400 --date D [--months 12] [--into 6030]  spread an up-front payment (filed to 1400) over the months it covers
+  prepaid [--as-of D]     list prepaid items: amount, expensed so far, still paid ahead
   assets FILE|[--as-of D] load a CSV (name,date,cost,life_months[,salvage,method]), or list the register: cost, accumulated depreciation, net book value
   profile [KEY VALUE]     your details for invoices (name, address, email, taxId, payTo, terms); no arguments lists them
   invoice ID [--out FILE] [--as-of D]  a printable invoice or credit note (HTML; print to PDF) with payments, balance due and overdue days
@@ -209,6 +211,20 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
   if (w.s179Income) console.log(`  Section 179 income limit: elected ${fmt(w.s179Income.elected)}, after dollar limit ${fmt(w.s179Income.dollarLimited)}${w.s179Income.carryIn ? ` + carried in ${fmt(w.s179Income.carryIn)}` : ""}, business income ${fmt(w.s179Income.income ?? 0)}, deductible ${fmt(w.s179Income.deductible)}, carried to ${year + 1} ${fmt(w.s179Income.carryOut)}`);
   console.log(`  Total: tax ${fmt(w.totals.total)}, book ${fmt(w.totals.book)}, difference ${fmt(w.totals.difference)}`);
   for (const x of w.warnings) console.log(`  Note: ${x}`);
+} else if (cmd === "prepaid") {
+  try {
+    if (rest[0] === "add") {
+      const date = flag("--date"), amount = flag("--amount"), months = flag("--months") ?? 12, into = flag("--into") ?? undefined;
+      const r = addPrepaid(books, { name: argv.slice(2).join(" "), date, amount, months, expenseAccount: into });
+      books = r.books; save(); console.log(`${r.prepaid.id} ${r.prepaid.name}: ${fmt(r.prepaid.cents)} over ${r.prepaid.months} months to ${r.prepaid.expenseAccount}. File the payment to 1400.`);
+    } else {
+      const g = prepaidRegister(books, asOf);
+      if (json) { console.log(JSON.stringify(g, null, 2)); process.exit(0); }
+      console.log(`PREPAID EXPENSES as of ${g.asOf ?? "-"}`);
+      for (const a of g.rows) console.log(`  ${a.id.padEnd(6)} ${a.name.slice(0, 28).padEnd(28)} ${a.date}  ${String(a.months).padStart(2)} mo  paid ${fmt(a.cents).padStart(11)}  expensed ${fmt(a.expensed).padStart(11)}  ahead ${fmt(a.remaining).padStart(11)}`);
+      console.log(`  Total: paid ${fmt(g.cents)}, still paid ahead ${fmt(g.remaining)}`);
+    }
+  } catch (e) { console.error(e.message); process.exit(1); }
 } else if (cmd === "assets") {
   if (rest[0]) {
     const r = addAssetsCsv(books, readFileSync(rest[0], "utf8"), opts);
