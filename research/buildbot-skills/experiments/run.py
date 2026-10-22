@@ -42,6 +42,7 @@ def one_seed(seed):
 
 
 def main():
+    np.seterr(all="ignore")
     worlds = test_sets()
     out = {"criteria": CRIT, "n_test": N_TEST, "runs": []}
     with ProcessPoolExecutor(len(SEEDS)) as ex:
@@ -62,37 +63,33 @@ def main():
             rows.append({"policy": name, "seed": t["seed"], **p, "test": ev})
     out["rows"] = rows
 
-    print("\n# Threshold sweep: test success on B of each A-trained policy (best seed by A-test) as the tilt limit changes")
-    out["threshold_sweep"] = {}
-    for name in ("A_nominal", "A_random"):
-        best = max((r for r in rows if r["policy"] == name), key=lambda r: r["test"]["A"]["success"])
-        out["threshold_sweep"][name] = {"policy": {k: best[k] for k in ("K", "B", "Ki", "seed")}}
+    diag = {"A_random": max((r for r in rows if r["policy"] == "A_random"), key=lambda r: r["test"]["A"]["success"]),
+            "B_random": max((r for r in rows if r["policy"] == "B_random"), key=lambda r: r["test"]["B"]["success"])}
+    print("\n# Diagnostics on plant-B test episodes: A_random = best seed by A-test (no peeking at B); B_random = best seed by B-test")
+    out["diagnostics"] = {}
+    for name, pol in diag.items():
+        w = worlds["B"]
+        r = M.simulate(w, pol, "B")
+        ok = M.success(r, **CRIT)
+        d = {"policy": {k: pol[k] for k in ("K", "B", "Ki", "seed")}, "success_by_tilt_limit": {}}
         for lim in (1.0, 2.0, 3.0, 5.0):
-            ev = evaluate(best, {"B": worlds["B"]}, tilt_peak_deg=lim, tilt_end_deg=0.5)
-            out["threshold_sweep"][name][str(lim)] = ev["B"]["success"]
-            print("%s peak<=%.0f deg: B success %.3f" % (name, lim, ev["B"]["success"]))
-
-    print("\n# Where the A-random policy of the best seed fails on B (test episodes)")
-    best = max((r for r in rows if r["policy"] == "A_random"), key=lambda r: r["test"]["A"]["success"])
-    w = worlds["B"]
-    r = M.simulate(w, best, "B")
-    ok = M.success(r, **CRIT)
-    fails = {"peak tilt > limit": float(np.mean(r["peak_tilt_deg"] > CRIT["tilt_peak_deg"])),
-             "end tilt > limit": float(np.mean(r["end_tilt_deg"] > CRIT["tilt_end_deg"])),
-             "person > NIOSH": float(np.mean(r["person_kg_peak"] > M.NIOSH_KG)), "diverged": float(np.mean(~r["ok"]))}
-    out["failure_modes"] = fails
-    print(fails)
-    bins = {}
-    for label, key, edges in (("sheet kg", "m", (6, 8, 15, 23)), ("feedback delay ms", "delay", (0, 0.01, 0.02, 0.03)),
-                              ("flex stiffness N m/rad", "kflex", (150, 600, 2000, 6000)), ("lag s", "lag", (0, 0.15, 0.3, 0.5))):
-        v = w[key]
-        res = []
-        for lo, hi in zip(edges[:-1], edges[1:]):
-            sel = (v >= lo) & (v <= hi)
-            res.append({"range": [lo, hi], "n": int(sel.sum()), "success": float(ok[sel].mean())})
-            print("%s %g-%g: n=%d success %.3f" % (label, lo, hi, sel.sum(), ok[sel].mean()))
-        bins[label] = res
-    out["bins_B"] = bins
+            d["success_by_tilt_limit"][str(lim)] = float(M.success(r, tilt_peak_deg=lim, tilt_end_deg=0.5).mean())
+        d["failure_modes"] = {"peak tilt > limit": float(np.mean(r["peak_tilt_deg"] > CRIT["tilt_peak_deg"])),
+                              "end tilt > limit": float(np.mean(r["end_tilt_deg"] > CRIT["tilt_end_deg"])),
+                              "person > NIOSH": float(np.mean(r["person_kg_peak"] > M.NIOSH_KG)), "diverged": float(np.mean(~r["ok"]))}
+        print(name, d["policy"], d["success_by_tilt_limit"], d["failure_modes"])
+        bins = {}
+        for label, key, edges in (("sheet kg", "m", (6, 8, 15, 23)), ("feedback delay s", "delay", (0, 0.01, 0.02, 0.03)),
+                                  ("flex stiffness N m/rad", "kflex", (150, 600, 2000, 6000)), ("lag s", "lag", (0, 0.15, 0.3, 0.5))):
+            v = w[key]
+            res = []
+            for lo, hi in zip(edges[:-1], edges[1:]):
+                sel = (v >= lo) & (v <= hi)
+                res.append({"range": [lo, hi], "n": int(sel.sum()), "success": float(ok[sel].mean())})
+                print("  %s %g-%g: n=%d success %.3f" % (label, lo, hi, sel.sum(), ok[sel].mean()))
+            bins[label] = res
+        d["bins"] = bins
+        out["diagnostics"][name] = d
     json.dump(out, open(HERE / "results.json", "w"), indent=1)
 
 

@@ -84,7 +84,7 @@ def simulate(world, policy, kind="A", dt=1e-3, extra=1.5, t_end=None, settle=1.0
         Ii = mi * l * l / 12.0
         th1 = np.zeros(n); th2 = np.zeros(n); w1 = np.zeros(n); w2 = np.zeros(n)
         Fa = np.stack([np.zeros(n), ffz], 0)       # actuator output starts at the hold force
-        RING = 64
+        RING = int(dly.max()) + 2
         ring = np.zeros((RING, 4, n))
     else:
         I = m * L * L / 3.0

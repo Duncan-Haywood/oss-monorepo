@@ -28,14 +28,14 @@ def main():
     a.set_title("Success on 1000 fresh episodes per plant (bars: mean over seeds, dots: seeds)", fontsize=9)
     a.legend(fontsize=8, loc="upper left")
     a.grid(axis="y", alpha=0.3)
-    for label, col in (("feedback delay ms", "tab:purple"), ("flex stiffness N m/rad", "tab:green"), ("sheet kg", "tab:orange")):
-        rows = res["bins_B"][label]
+    for label, col in (("feedback delay s", "tab:purple"), ("flex stiffness N m/rad", "tab:green"), ("sheet kg", "tab:orange")):
+        rows = res["diagnostics"]["B_random"]["bins"][label]
         b.plot(range(len(rows)), [r["success"] for r in rows], "o-", color=col, label=label)
     b.set_xticks(range(3))
     b.set_xticklabels(["low third of range", "middle", "top third"], fontsize=8)
     b.set_ylim(0, 1)
     b.set_ylabel("success on plant B")
-    b.set_title("Plant-B success of the randomised-A skill (best seed), by condition", fontsize=9)
+    b.set_title("Plant-B success of the B-trained skill (best seed), by condition", fontsize=9)
     b.legend(fontsize=8)
     b.grid(alpha=0.3)
     fig.savefig(HERE / "figure.png", dpi=110)

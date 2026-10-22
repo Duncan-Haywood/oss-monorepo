@@ -54,3 +54,10 @@ def test_integral_term_removes_feedforward_sag():
     no_i = M.simulate(w, dict(K=1000.0, B=150.0, Ki=0.0), "A", extra=6.0)
     with_i = M.simulate(w, dict(K=1000.0, B=150.0, Ki=800.0), "A", extra=6.0)
     assert no_i["end_tilt_deg"][0] > 0.5 > with_i["end_tilt_deg"][0]
+
+
+def test_plant_b_result_does_not_depend_on_step_size():
+    w = M.draw_world(np.random.default_rng(5), 40, "B")
+    a = M.success(M.simulate(w, POL, "B", dt=1e-3)).mean()
+    b = M.success(M.simulate(w, POL, "B", dt=5e-4)).mean()
+    assert abs(a - b) <= 0.05
