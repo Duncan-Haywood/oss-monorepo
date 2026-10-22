@@ -1,0 +1,6 @@
+{
+ "theme": "capture",
+ "title": "Does the audio-sync threshold found on synthetic noise hold on real recorded sound?",
+ "summary": "Reruns capture-audiosync's GCC-PHAT delay estimator on 10 real recordings and sound effects (installed LibreOffice gallery sounds, not copied into the repository) with simulated delay and synthetic white or wind-like noise. With 2 s windows the share of windows more than one 30 fps frame off is 0.00 on synthetic audio at &minus;10 dB SNR but 0.53 on average over the real clips (0.00 for applause, 0.95 for the worst), and 0.26 vs 0.00 at 0 dB. Partial whitening (dividing the cross-spectrum by |C|<sup>&gamma;</sup>) cuts the mean failure share from 0.52 to 0.28 at &minus;10 dB with &gamma; = 0.25. Limits: 10 sound-effect clips, not field audio; simulated delay and noise; no reverb, where PHAT is expected to win; trials within a clip overlap.",
+ "lede": "does the synthetic audio-sync threshold hold on real sound? No: on 10 real clips 2 s windows fail 53% of the time at -10 dB SNR (0% synthetic), and partial whitening instead of PHAT halves that."
+}
