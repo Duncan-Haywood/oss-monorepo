@@ -38,6 +38,53 @@ for (const filter of ["", "FlateDecode"]) {
   });
 }
 
+// A PDF 1.5 shaped file: the newest cross-reference is a stream, no "trailer".
+function xrefStreamPdf(xmlBytes) {
+  const enc = new TextEncoder();
+  const parts = [];
+  const offsets = {};
+  let len = 0;
+  const put = (b) => { const u = typeof b === "string" ? enc.encode(b) : b; parts.push(u); len += u.length; };
+  put("%PDF-1.5\n%\xE2\xE3\n");
+  const obj = (n, body) => { offsets[n] = len; put(`${n} 0 obj\n`); put(body); put("\nendobj\n"); };
+  obj(1, "<< /Type /Catalog /Pages 2 0 R /Names << /EmbeddedFiles 3 0 R >> >>");
+  obj(2, "<< /Type /Pages /Kids [] /Count 0 >>");
+  obj(3, "<< /Names [(factur-x.xml) 4 0 R] >>");
+  obj(4, "<< /Type /Filespec /F (factur-x.xml) /EF << /F 5 0 R >> >>");
+  offsets[5] = len;
+  put(`5 0 obj\n<< /Type /EmbeddedFile /Length ${xmlBytes.length} >>\nstream\n`);
+  put(xmlBytes);
+  put("\nendstream\nendobj\n");
+  const at = len;
+  put(`6 0 obj\n<< /Type /XRef /Size 7 /W [1 4 2] /Root 1 0 R /ID [<aa> <bb>] /Length 0 >>\nstream\n\nendstream\nendobj\nstartxref\n${at}\n%%EOF\n`);
+  return Uint8Array.from(parts.flatMap((u) => [...u]));
+}
+
+test("a Factur-X PDF with a cross-reference stream is fixed by an appended xref stream", async () => {
+  const clean = dec(ex("xrechnung-cii-invoice.xml"));
+  const bad = clean.replace("<ram:GrandTotalAmount>1190.00", "<ram:GrandTotalAmount>1100.00");
+  const pdf = xrefStreamPdf(new TextEncoder().encode(bad));
+  const r = await repairFacturX(pdf);
+  assert.equal(r.pdfRewritten, true);
+  assert.deepEqual(r.pdf.subarray(0, pdf.length), pdf, "original bytes untouched");
+  assert.equal(dec(await extractEmbeddedInvoiceXml(r.pdf)), clean);
+  const tail = new TextDecoder("latin1").decode(r.pdf);
+  const start = Number(tail.match(/startxref\s+(\d+)\s+%%EOF\s*$/)[1]);
+  assert.match(tail.slice(start), /^7 0 obj\n<< \/Type \/XRef \/Size 8 \/W \[1 4 2\] \/Index \[5 1 7 1\] \/Root 1 0 R \/ID \[<aa> <bb>\] \/Prev \d+/);
+  const rows = r.pdf.subarray(tail.indexOf("stream\n", start) + 7);
+  const off = (i) => (rows[i * 7 + 1] << 24 | rows[i * 7 + 2] << 16 | rows[i * 7 + 3] << 8 | rows[i * 7 + 4]);
+  assert.match(tail.slice(off(0)), /^5 0 obj/);
+  assert.equal(off(1), start);
+  assert.match(tail.slice(Number(tail.match(/\/Prev (\d+)/g).at(-1).slice(6))), /^6 0 obj/);
+});
+
+test("an encrypted cross-reference stream is not extended", async () => {
+  const xml = new TextEncoder().encode(dec(ex("xrechnung-cii-invoice.xml")).replace("<ram:GrandTotalAmount>1190.00", "<ram:GrandTotalAmount>1100.00"));
+  const pdf = xrefStreamPdf(xml);
+  const enc = Uint8Array.from(new TextEncoder().encode(new TextDecoder("latin1").decode(pdf).replace("/Root 1 0 R", "/Root 1 0 R /Encrypt 9 0 R")));
+  await assert.rejects(repairFacturX(enc), /encrypted/);
+});
+
 test("a non-CII or non-PDF input is refused", async () => {
   await assert.rejects(repairFacturX(new TextEncoder().encode("hello")), /not a PDF/);
 });
