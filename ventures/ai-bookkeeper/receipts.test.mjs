@@ -281,3 +281,10 @@ test("a decimal-comma receipt's items split like any other", async () => {
   assert.deepEqual(b.receipts[0].items.map((i) => i.cents), [600, 1000]);
   assert.equal(planReceiptSplit(b, "r1").parts.length, 2);
 });
+
+test("OCR slips in pasted receipt text are repaired by the parser", () => {
+  const r = parseReceipt("Blue Bottle Coffee\n03/14/2026\nLatte 5 .50\nCroissant 4.25\nSales Tax O.87\nTOTAL S10.62");
+  assert.equal(r.cents, 1062);
+  assert.equal(r.taxCents, 87);
+  assert.equal(parseReceipt("Route 66 Diner\n2026-03-01\nTotal 12.50").cents, 1250);
+});
