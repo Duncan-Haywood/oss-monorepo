@@ -581,8 +581,12 @@ a payout already split is reported as done, so a re-run posts nothing twice;
 two lines that fit equally well are skipped, not guessed. Engine: `payouts.mjs`
 (`--json` gives the plan). Checked by node tests and one CLI run on a hand-written
 file in the documented layout (`fixtures/stripe-payouts.csv`): no real Stripe
-export has been tried, other processors (Square, Shopify, PayPal) need their own
-column names, and it is not on the page yet.
+export has been tried. Shopify Payments' payout-transactions column names
+(Transaction Date, Type, Amount, Fee, Net, Payout Date, Payout ID) read through
+the same aliases, from the documented layout and a hand-written fixture only.
+Square and PayPal need their own handling (PayPal's report has no payout id).
+The page has a card for it (paste or pick the CSV, match, post), clicked through
+in headless Chromium.
 
 ### Reconcile to a paper statement (2026-10-22)
 

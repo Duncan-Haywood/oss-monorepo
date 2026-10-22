@@ -110,6 +110,13 @@ test("the page has a reconcile-to-statement card wired to the engine", () => {
   assert.match(script(), /reconcile\(books, \{ account: \$\("#recon-account"\)\.value/);
 });
 
+test("the page has a processor-payouts card wired to the engine", () => {
+  const html = page("index.html");
+  for (const id of ["po-file", "po-paste", "po-plan", "po-post", "po-result"]) assert.match(html, new RegExp(`id="${id}"`), id);
+  assert.match(script(), /planPayouts\(books, readPayoutReport\(text\)\)/);
+  assert.match(script(), /applyPayouts\(books, plan\)/);
+});
+
 test("every module the page loads, transitively, is free of node: imports", () => {
   const seen = new Set(), bad = [];
   const walk = (src, name) => {

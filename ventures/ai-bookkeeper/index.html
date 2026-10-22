@@ -158,6 +158,18 @@
     <div class="scroll" id="pp-register"></div>
   </section>
 
+  <section class="card" aria-labelledby="h-payouts">
+    <h2 id="h-payouts">Optional: card-processor payouts</h2>
+    <p class="note">A Stripe or Shopify deposit reaches the bank as one lump: sales less fees. Load the processor's payout report and each deposit already in your books is split into gross sales, refunds and fees, so profit shows what you really sold and what taking cards cost. Stripe: the payout reconciliation report. Shopify: payout transactions. Nothing is posted until you press Post.</p>
+    <label for="po-file">Payout report CSV file</label><input id="po-file" type="file" accept=".csv,text/csv,text/plain">
+    <label for="po-paste">Or paste the CSV</label>
+    <textarea id="po-paste" placeholder="automatic_payout_id,automatic_payout_effective_at,reporting_category,gross,fee,net"></textarea>
+    <button type="button" id="po-plan" class="secondary">Match to bank lines</button>
+    <button type="button" id="po-post">Post the matched splits</button>
+    <p id="po-status" class="note" role="status" aria-live="polite"></p>
+    <div class="scroll" id="po-result"></div>
+  </section>
+
   <section class="card" aria-labelledby="h-docs">
     <h2 id="h-docs">Optional: invoices and bills (accruals)</h2>
     <p class="note">Bank lines alone give cash-basis books. Load a list of invoices you sent and bills you owe and each is booked on its own date; a bank line with the exact amount and the invoice number or the party's name then clears it instead of counting as income twice. Header: <code>type,number,date,due,party,amount,account</code>, type <code>invoice</code> or <code>bill</code>; rows sharing a number are one document.</p>
@@ -350,6 +362,7 @@
     import { detectRecurring, forecastCash } from "./recurring.mjs";
     import { setBudget, budgetVsActual } from "./budget.mjs";
     import { reconcile } from "./reconcile.mjs";
+    import { readPayoutReport, planPayouts, applyPayouts } from "./payouts.mjs";
     import { addTrip, removeTrip, setHomeOffice, mileageDeduction, homeOfficeDeduction } from "./deductions.mjs";
     import { closeYear, reopenYear, yearEndReport } from "./yearend.mjs";
     import { addReceipts, receiptReport, taxOnReceipts, planReceiptSplit, splitFromReceipt } from "./receipts.mjs";
@@ -577,6 +590,37 @@
         const r = addPrepaid(books, { name: $("#pp-name").value, date: $("#pp-date").value, amount: $("#pp-amount").value, months: $("#pp-months").value, expenseAccount: $("#pp-account").value });
         books = categorize(r.books, opts()); record("prepaid_added"); render(); $("#pp-status").textContent = `${r.prepaid.id} ${r.prepaid.name} added: ${fmt(r.prepaid.cents)} over ${r.prepaid.months} months. File the payment to 1400 if you have not.`;
       } catch (e) { $("#pp-status").textContent = e.message; }
+    });
+
+    async function payoutPlan() {
+      const f = $("#po-file").files[0];
+      const text = f ? await f.text() : $("#po-paste").value;
+      if (!text.trim()) throw new Error("Choose the payout report file or paste its CSV.");
+      return planPayouts(books, readPayoutReport(text));
+    }
+    function showPayouts(plan, posted = null) {
+      const rows = [
+        ...plan.matched.map((m) => [m.id, m.date, fmt(m.net), fmt(m.gross), fmt(m.fees), `line ${m.line}${m.ambiguous ? " (ambiguous, skipped)" : ""}`]),
+        ...plan.done.map((m) => [m.id, m.date, fmt(m.net), fmt(m.gross), fmt(m.fees), `already split on ${m.line}`]),
+        ...plan.unmatched.map((m) => [m.id, m.date ?? "", fmt(m.net), fmt(m.gross), fmt(m.fees), `not matched: ${m.why}`]),
+      ];
+      const kids = [];
+      if (rows.length) kids.push(table(["Payout", "Date", "Deposit", "Gross", "Fees", "Bank line"], rows));
+      if (plan.pending.length) kids.push(el("p", { class: "note", text: `${plan.pending.length} row${plan.pending.length > 1 ? "s" : ""} not paid out yet (${fmt(plan.pending.reduce((a, x) => a + x.net, 0))}); they match once the payout lands.` }));
+      for (const p of plan.problems) kids.push(el("p", { class: "note", text: p }));
+      $("#po-result").replaceChildren(...kids);
+      $("#po-status").textContent = posted === null ? (plan.matched.length ? `${plan.matched.length} payout${plan.matched.length === 1 ? "" : "s"} matched to bank lines. Press Post to split them.` : "Nothing to post.") : `${posted} payout${posted === 1 ? "" : "s"} split in the books.`;
+    }
+    $("#po-plan").addEventListener("click", async () => {
+      try { const plan = await payoutPlan(); record("payouts_planned"); showPayouts(plan); } catch (e) { $("#po-status").textContent = e.message; $("#po-result").replaceChildren(); }
+    });
+    $("#po-post").addEventListener("click", async () => {
+      try {
+        const plan = await payoutPlan();
+        const r = applyPayouts(books, plan);
+        if (r.posted) { books = categorize(r.books, opts()); record("payouts_posted"); render(); }
+        showPayouts(planPayouts(books, readPayoutReport(($("#po-file").files[0] ? await $("#po-file").files[0].text() : $("#po-paste").value))), r.posted);
+      } catch (e) { $("#po-status").textContent = e.message; }
     });
 
     function renderAssets() {

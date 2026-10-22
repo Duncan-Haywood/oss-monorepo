@@ -167,6 +167,14 @@ const splitBtn = page.getByRole("button", { name: /Split Hiscox.* by items/ });
 check((await splitBtn.count()) === 1, "a matched receipt with items of two kinds offers a split");
 if (await splitBtn.count()) { await splitBtn.click(); check(/Split Hiscox/.test(await page.locator("#receipts-status").textContent()), "the split button posts the split"); }
 check(/Net profit/.test(btext) && /(better|worse|on budget)/.test(btext), "the budget table shows a status and the net line");
+// Processor payouts: a Shopify-layout report that matches no bank line is planned, then a bad file is refused.
+await page.fill("#po-paste", "Transaction Date,Type,Amount,Fee,Net,Payout Date,Payout ID\n2026-03-01,charge,100.00,3.20,96.80,2026-03-04,111\n");
+await page.click("#po-plan");
+const potext = await page.locator("#po-result").textContent();
+check(/111/.test(potext) && /not matched/.test(potext), "a payout report is read and shown with its unmatched payout");
+await page.fill("#po-paste", "nonsense\n1\n");
+await page.click("#po-plan");
+check(/column|payout id/i.test(await page.locator("#po-status").textContent()), "a report with no payout columns is refused");
 // Reconcile to a paper statement: a wrong balance names a difference; the books' own balance then agrees.
 await page.selectOption("#recon-account", "1000");
 await page.fill("#recon-date", "2026-12-31");
