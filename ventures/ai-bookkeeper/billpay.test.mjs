@@ -40,3 +40,19 @@ test("no bills, no rows", () => {
   const p = planBills(make("invoice,1,2026-04-25,2026-05-15,Client,500.00,4000\n"), { asOf: "2026-05-01" });
   assert.deepEqual(p.rows, []);
 });
+
+test("terms: an early-payment discount is taken when cash holds, not when it would break the reserve", () => {
+  const docs = "bill,1,2026-05-01,2026-05-31,Parts Co,1000.00,6130\n";
+  const terms = { "parts co": { discountPct: 2, discountDays: 10 } };
+  const rich = planBills(make(docs, 200000), { asOf: "2026-05-01", reserve: 30000, terms });
+  assert.equal(rich.rows[0].saved, 2000); assert.equal(rich.rows[0].payOn, "2026-05-11");
+  const tight = planBills(make(docs, 120000), { asOf: "2026-05-01", reserve: 30000, terms });
+  assert.equal(tight.rows[0].saved, 0); assert.equal(tight.rows[0].payOn, "2026-05-31");
+  assert.equal(planBills(make(docs, 200000), { asOf: "2026-05-01" }).rows[0].saved, 0);
+});
+
+test("terms: a late fee is reported on a deferred bill", () => {
+  const books = make("bill,2,2026-05-01,2026-05-10,Big Supplier,900.00,6130\ninvoice,7,2026-04-25,2026-05-15,Client,500.00,4000\n");
+  const p = planBills(books, { asOf: "2026-05-01", reserve: 30000, terms: { "BIG SUPPLIER": { lateFeePct: 5 } } });
+  assert.equal(p.rows[0].fee, 4500); assert.match(p.rows[0].note, /late fee/);
+});
