@@ -194,6 +194,16 @@ class TestMain(unittest.TestCase):
                 ct.main(["--repo", tmp, "--local"])
         self.assertEqual(seen, [(ct.date.today() - ct.timedelta(days=14)).isoformat()])
 
+    def test_default_lists_top_12_files(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            make_repo(tmp)
+            for i in range(13):
+                commit(tmp, f"f{i}", f"dir{i}/file{i}.txt")
+            git(tmp, "update-ref", "refs/remotes/origin/main", "main")
+            _, out, _ = self.run_main(tmp)
+        listed = out.split("Files the most")[1].split("Top-level areas:")[0]
+        self.assertEqual(len([l for l in listed.splitlines() if "%  " in l]), 12)
+
     def test_no_pull_refs_is_a_clean_failure(self):
         with tempfile.TemporaryDirectory() as tmp:
             git(tmp, "init", "-q", "-b", "main")
