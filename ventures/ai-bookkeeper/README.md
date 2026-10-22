@@ -588,6 +588,7 @@ file in the documented layout (`fixtures/stripe-payouts.csv`): no real Stripe
 export has been tried. Shopify Payments' payout-transactions column names
 (Transaction Date, Type, Amount, Fee, Net, Payout Date, Payout ID) read through
 the same aliases, from the documented layout and a hand-written fixture only.
+The Stripe column names were checked against Stripe's published payout_reconciliation.itemized.5 schema on 2026-10-22 (all match); that check found `stripe_fx_fee`, `tax_fee` and `contribution` (Climate) falling into Other income, now booked as fees, and `partial_capture_reversal` now a refund. Reserve and transfer categories still go to Other income; still no real export.
 A PayPal activity CSV (Date, Time, Type, Status, Gross, Fee, Net, Transaction ID)
 has no payout id, so completed rows since the previous "withdrawal" row are
 grouped under it (fees read as negatives; pending rows listed as pending). A
