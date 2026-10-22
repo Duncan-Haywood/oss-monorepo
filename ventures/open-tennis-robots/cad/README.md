@@ -81,10 +81,15 @@ the part you actually buy before cutting metal.
   bend radius, taken at the closest pose, is not under the hose's limit
   (`Feeder.hose_chords`, `hose_bow_radius`: an approximation that ignores the
   hose's end directions); the shuttle fully advanced clears the head.
-  **Known gaps, found by this model:** the shuttle's front is open, so at
-  negative elevation a ball can roll to the wheels without a stroke (a front
-  retainer is needed); the hose end swings about 450 mm as the head tilts
-  (`mouth_world`), which the 600 mm cut length only just absorbs; the
+  **Front retainer (added 2026-10-22):** the shuttle's open front is narrowed to
+  87% of the ball (58 mm) between two 1.6 mm PETG flexure arms, each with a
+  5 mm relief behind it. Checks (`Feeder.retain_*`, end-loaded cantilever
+  worst case): arm strain 1.0% against a 2% limit, about 17 N to drag a ball
+  through against 0.14 N of ball weight at -15 deg, and 1.5x that must stay
+  under the wheels' assumed 60 N pull. The modulus (1.5 GPa) and the wheel pull
+  are assumptions: print one and pull a ball through with a scale.
+  **Known gaps, found by this model:** the hose end swings about 450 mm as the
+  head tilts (`mouth_world`), which the 600 mm cut length only just absorbs; the
   1.4 m posts need bracing before the tub is filled.
   **Not yet modelled:** the netting and trough, hopper agitator, brackets for
   the shuttle and elevation actuators, azimuth drive and cabling. The BOM

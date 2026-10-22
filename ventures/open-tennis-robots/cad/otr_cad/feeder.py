@@ -276,11 +276,19 @@ def feed_shuttle(p: Feeder) -> Part:
     blk = Box(x_front - x_rear, w, p.shuttle_h).moved(Location(((x_rear + x_front) / 2, 0, p.shuttle_z0 + p.shuttle_h / 2)))
     zc = p.shuttle_z0 + p.shuttle_h / 2
     blk = blk - Cylinder(p.hole_d / 2, p.shuttle_h + 2).moved(Location((p.feed_col_x, 0, zc)))
+    # Open front: full-width slot to the arms' root, then a narrowed gap between two flexure arms.
+    x_root = x_front - p.retain_len
     slot_x0 = p.feed_col_x
-    blk = blk - Box(x_front - slot_x0 + 1, p.hole_d, p.shuttle_h + 2).moved(Location(((slot_x0 + x_front + 1) / 2, 0, zc)))
+    blk = blk - Box(x_root - slot_x0, p.hole_d, p.shuttle_h + 2).moved(Location(((slot_x0 + x_root) / 2, 0, zc)))
+    blk = blk - Box(x_front - x_root + 1, p.retain_gap, p.shuttle_h + 2).moved(Location(((x_root + x_front + 1) / 2, 0, zc)))
+    y_rel = p.retain_gap / 2 + p.retain_t + p.retain_relief / 2
+    for sy in (-1, 1):
+        blk = blk - Box(x_front - x_root + 1, p.retain_relief, p.shuttle_h + 2).moved(
+            Location(((x_root + x_front + 1) / 2, sy * y_rel, zc)))
     blk = blk - Cylinder(2.0, 20).moved(Location((x_rear + 8.0, 0, zc), (0, 90, 0)))  # M4 for the actuator clevis
     return Part("feed_shuttle", "print", "PETG", 1, blk, [_head_loc(p)],
-                notes=f"Pocket for one ball ({p.hole_d:g} mm hole, open to the front); the solid rear shuts the column "
+                notes=f"Pocket for one ball ({p.hole_d:g} mm hole); the front is narrowed to {p.retain_gap:.0f} mm between two "
+                      f"{p.retain_t:g} mm flexure arms that hold the ball at negative elevation and let the wheels pull it out; the solid rear shuts the column "
                       f"while it moves {p.feed_stroke:g} mm forward. Drawn retracted (pocket under the column). 6 walls.")
 
 
@@ -542,6 +550,9 @@ def summary(p: Feeder, mass_g: float, rules, clash, contacts, ground_ok, hopper_
         f"ball path {p.launch_z:g} mm high; muzzle {p.head_x + p.head_x1:+.0f} mm from the net plane",
         f"feed: shuttle meters one ball ({p.shuttle_h:g} mm tall, {p.feed_stroke:g} mm stroke to the wheels at {p.nip_x:+.0f} mm); "
         f"tub holds about {p.tub_capacity()} balls",
+        f"retainer: front narrowed to {p.retain_gap:.1f} mm by two {p.retain_t:g} mm arms; strain {p.retain_arm_strain:.1%}, "
+        f"{p.retain_pass_n:.0f} N to pull a ball through against {p.retain_hold_n:.2f} N of ball weight at {p.elev_min:+.0f} deg "
+        f"(wheels assumed to pull {p.wheel_pull_n:g} N)",
         f"hose: {p.hose_len:g} mm; chord {min(c for _, c, _ in chords):.0f} to {max(c for _, c, _ in chords):.0f} mm and "
         f"falls at least {min(s for _, _, s in chords):.0f} deg over the elevation range; "
         f"bows to a {p.hose_bow_radius():.0f} mm radius at its closest pose (hose allows {p.hose_min_bend:g})",
@@ -553,5 +564,5 @@ def summary(p: Feeder, mass_g: float, rules, clash, contacts, ground_ok, hopper_
     derived = {"wheel_gap_mm": p.wheel_gap, "ball_squeeze_mm": round(p.ball_d - p.wheel_gap, 1),
                "base_width_mm": round(width), "net_w_mm": p.net_w, "wind_force_n": round(p.wind_force_n, 1),
                "ballast_kg": round(ballast, 1), "hose_len_mm": p.hose_len,
-               "hose_bow_radius_mm": round(p.hose_bow_radius()), "tub_capacity_balls": p.tub_capacity(), "made_part_mass_kg": round(mass_g / 1000, 2)}
+               "hose_bow_radius_mm": round(p.hose_bow_radius()), "tub_capacity_balls": p.tub_capacity(), "retain_pass_n": round(p.retain_pass_n, 1), "made_part_mass_kg": round(mass_g / 1000, 2)}
     return checks, derived

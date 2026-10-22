@@ -204,10 +204,10 @@ flagships:
       printed floor, roof, column and metering shuttle between the head
       plates (checks for one-ball metering, column and wheel clearance, tub
       capacity, hose slope and bend radius, shuttle clear when advanced;
-      cad/README.md "Feed"). Next: close the feed's known gaps (a front
-      retainer so a ball cannot roll to the wheels at negative elevation,
-      post bracing, the hose end swinging about 450 mm), then the actuator
-      brackets (shuttle and elevation) and azimuth drive, then the netting
+      cad/README.md "Feed"); a printed front retainer (two flexure arms, strain,
+      hold and pull-through forces checked) landed 2026-10-22. Next: close the feed's
+      remaining gaps (post bracing, the hose end swinging about 450 mm), then the
+      actuator brackets (shuttle and elevation) and azimuth drive, then the netting
       trough that rolls balls to the hopper inlet; then check the head's
       wheel-to-wheel gap and plate clearance against the ball path with the
       flight model's launch speeds.

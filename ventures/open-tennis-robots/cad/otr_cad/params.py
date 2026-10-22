@@ -245,6 +245,16 @@ class Feeder:
     feed_floor_t: float = 8.0
     shuttle_h: float = 72.0       # taller than one ball, shorter than two
     socket_h: float = 40.0
+    # Front retainer: two printed flexure arms narrow the shuttle's open front so a ball
+    # cannot roll out when the head tilts nose-down; the wheels pull it through.
+    retain_frac: float = 0.87     # narrowed gap, as a fraction of the ball diameter
+    retain_t: float = 1.6         # arm thickness (about four 0.4 mm lines)
+    retain_relief: float = 5.0    # gap behind each arm for it to flex into
+    retain_len: float = 32.0      # arm length from its root to the free end
+    petg_e_mpa: float = 1500.0    # printed PETG bending modulus across layers (assumption)
+    petg_strain_max: float = 0.02  # working strain limit for a printed arm (assumption)
+    ball_g: float = 57.0          # ITF ball mass is 56 to 59.4 g
+    wheel_pull_n: float = 60.0    # force the wheels put on a ball along the path (assumption: measure it)
     hose_id: float = 72.0
     hose_od: float = 82.0
     hose_min_bend: float = 150.0  # smallest bend radius the hose tolerates
@@ -368,6 +378,37 @@ class Feeder:
         return (self.hopper_out_x - a * math.cos(s), self.hopper_out_z + a * math.sin(s))
 
     @property
+    def retain_gap(self) -> float:
+        return self.retain_frac * self.ball_d
+
+    @property
+    def retain_defl(self) -> float:
+        """How far each arm must spring outward to let the ball through."""
+        return (self.ball_d - self.retain_gap) / 2
+
+    @property
+    def retain_arm_n(self) -> float:
+        """Side force of one arm at full deflection (end-loaded cantilever; worst case)."""
+        i = self.shuttle_h * self.retain_t ** 3 / 12
+        return 3 * self.petg_e_mpa * i * self.retain_defl / self.retain_len ** 3
+
+    @property
+    def retain_arm_strain(self) -> float:
+        return 3 * self.retain_t * self.retain_defl / (2 * self.retain_len ** 2)
+
+    @property
+    def retain_pass_n(self) -> float:
+        """Pull along the path to drag a ball through both arms (frictionless contact on the ball's circle)."""
+        half = self.retain_gap / 2
+        r = self.ball_d / 2
+        return 2 * self.retain_arm_n * math.sqrt(r * r - half * half) / half
+
+    @property
+    def retain_hold_n(self) -> float:
+        """Ball weight along the path at the steepest nose-down tilt."""
+        return self.ball_g / 1000 * 9.81 * math.sin(math.radians(-self.elev_min))
+
+    @property
     def shuttle_rear(self) -> float:
         """Rear end of the shuttle: it still shuts the column when pushed fully forward."""
         return self.feed_col_x - self.hole_d / 2 - 2.0 - self.feed_stroke
@@ -441,6 +482,19 @@ class Feeder:
         bad += self.check_feed()
         return bad
 
+    def retain_strain_bad(self) -> str:
+        if not 0.5 < self.retain_frac < 0.95:
+            return "retainer gap must be 50 to 95% of the ball diameter"
+        if self.retain_arm_strain > self.petg_strain_max:
+            return f"retainer arm strain {self.retain_arm_strain:.1%} is over the {self.petg_strain_max:.0%} limit"
+        if self.retain_pass_n * 1.5 > self.wheel_pull_n:
+            return f"wheels ({self.wheel_pull_n:g} N) may not pull a ball through the retainer ({self.retain_pass_n:.0f} N)"
+        if self.retain_pass_n < 3 * self.retain_hold_n:
+            return "retainer is too weak to hold a ball at the steepest nose-down tilt"
+        if self.retain_gap / 2 + self.retain_t + self.retain_relief + 3 > self.plate_half_y - self.feed_clear - 0.2:
+            return "retainer arms and relief do not fit across the shuttle"
+        return ""
+
     def check_feed(self) -> list[str]:
         bad = []
         if not self.ball_d < self.shuttle_h < 2 * self.ball_d - 5:
@@ -458,6 +512,8 @@ class Feeder:
             bad.append("hose does not pass a ball, or is too wide for its socket")
         if self.tub_capacity() < self.want_balls:
             bad.append(f"tub holds about {self.tub_capacity()} balls, under the {self.want_balls} wanted")
+        if self.retain_strain_bad():
+            bad.append(self.retain_strain_bad())
         slopes = [s for _, _, s in self.hose_chords()]
         if min(slopes) < self.feed_min_slope_deg:
             bad.append(f"hose chord falls only {min(slopes):.0f} deg at its flattest; balls need {self.feed_min_slope_deg:g}")
