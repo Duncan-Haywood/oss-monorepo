@@ -483,3 +483,9 @@ test("readDivisionsSpec reports missing courts and weekdays instead of leaving b
 test("a share fragment holding a JSON scalar or null is refused, not decoded into blank fields", () => {
   for (const json of ["5", '"x"', "true", "null"]) assert.equal(decodeDivisionFields("#d=" + btoa(json)), null, json);
 });
+
+test("a schedule built without skip days or links records them as empty lists, not undefined", () => {
+  const { skipDays, links } = JSON.parse(JSON.stringify(build({ skipDays: undefined, links: undefined }))).config;
+  assert.deepEqual(skipDays, []);
+  assert.deepEqual(links, []);
+});
