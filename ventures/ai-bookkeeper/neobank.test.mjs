@@ -192,3 +192,32 @@ test("SoFi: pending rows skipped, balance chain holds", () => {
   assert.equal(r.problems.length, 1);
   assert.deepEqual(checkRunningBalance(r.rows).breaks, []);
 });
+
+test("RBC: CAD$ column, MM/DD dates, both description columns joined", () => {
+  const r = read("rbc-chequing.csv");
+  assert.equal(r.bank, "rbc");
+  assert.deepEqual(r.problems, []);
+  assert.deepEqual(r.rows.map((x) => x.date), ["2026-03-02", "2026-03-04", "2026-03-09"]);
+  assert.deepEqual(r.rows.map((x) => x.cents), [-4520, 200000, -30000]);
+  assert.equal(r.rows[1].desc, "E-TRANSFER CLIENT LTD INV 88");
+});
+
+test("Westpac: day-first dates, debit and credit columns, balance chain holds", () => {
+  const r = read("westpac-business.csv");
+  assert.equal(r.bank, "westpac");
+  assert.deepEqual(r.problems, []);
+  assert.deepEqual(r.rows.map((x) => x.date), ["2026-03-02", "2026-03-04", "2026-03-09"]);
+  assert.deepEqual(r.rows.map((x) => x.cents), [-4520, 200000, -30000]);
+  assert.equal(checkRunningBalance(r.rows).checked, true);
+  assert.deepEqual(checkRunningBalance(r.rows).breaks, []);
+});
+
+test("NAB: 'DD Mon YY' dates, signed amount, transaction details as description", () => {
+  const r = read("nab-transactions.csv");
+  assert.equal(r.bank, "nab");
+  assert.deepEqual(r.problems, []);
+  assert.deepEqual(r.rows.map((x) => x.date), ["2026-03-02", "2026-03-04", "2026-03-09"]);
+  assert.deepEqual(r.rows.map((x) => x.cents), [-4520, 200000, -30000]);
+  assert.equal(r.rows[0].desc, "OFFICEWORKS 0412");
+  assert.deepEqual(checkRunningBalance(r.rows).breaks, []);
+});

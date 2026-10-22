@@ -13,7 +13,7 @@ const ALIASES = {
     "datum", "buchungstag", "buchungsdatum", "valuta", "wertstellung", "date de l'opération", "date opération", "date operation", "fecha", "fecha operación", "fecha valor", "data", "data operazione", "data contabile", "data valuta", "boekdatum", "transactiedatum"],
   desc: ["description", "transaction description", "payee", "merchant", "name", "details", "original description", "memo", "narrative", "counter party", "counterparty", "reference", "partner name", "note",
     "beschreibung", "verwendungszweck", "buchungstext", "beguenstigter/zahlungspflichtiger", "begünstigter/zahlungspflichtiger", "libellé", "libelle", "descripción", "descripcion", "concepto", "descrizione", "causale", "omschrijving", "naam / omschrijving"],
-  amount: ["amount", "amount (total)", "transaction amount", "amt", "value", "amount (usd)", "amount (gbp)", "amount (eur)", "betrag", "betrag (eur)", "montant", "importe", "importo", "bedrag"],
+  amount: ["amount", "amount (total)", "transaction amount", "amt", "value", "amount (usd)", "amount (gbp)", "amount (eur)", "cad$", "betrag", "betrag (eur)", "montant", "importe", "importo", "bedrag"],
   debit: ["debit", "debits", "withdrawal", "withdrawals", "money out", "paid out", "amount debit", "debit amount", "soll", "débit", "debit (eur)", "cargo", "dare", "uscite"],
   credit: ["credit", "credits", "deposit", "deposits", "money in", "paid in", "amount credit", "credit amount", "haben", "crédit", "credito", "crédito", "abono", "avere", "entrate"],
   balance: ["balance", "running balance", "runningbalance", "running bal.", "ledger balance", "balance (gbp)", "balance (eur)", "balance (usd)", "saldo", "kontostand", "solde", "saldo (eur)"],
@@ -132,6 +132,9 @@ export function sniffBank(rows) {
     const h = r.map(norm).join("|");
     if (/^details\|posting date\|description\|amount\|type\|balance/.test(h)) return "chase-checking";
     if (/^transaction date\|post date\|description\|category\|type\|amount/.test(h)) return "chase-card";
+    if (/^account type\|account number\|transaction date\|cheque number\|description 1\|description 2\|cad\$/.test(h)) return "rbc";
+    if (/^bank account\|date\|narrative\|debit amount\|credit amount\|balance/.test(h)) return "westpac";
+    if (/^date\|amount\|account number\|\|transaction type\|transaction details\|balance/.test(h)) return "nab";
     if (/^date\|description\|amount\|running bal/.test(h)) return "bank-of-america";
     if (/^type\|product\|started date\|completed date\|description\|amount\|fee\|currency\|state\|balance/.test(h)) return "revolut";
     if (/^transaction id\|date\|time\|type\|name\|emoji\|category\|amount\|currency/.test(h)) return "monzo";
@@ -301,8 +304,10 @@ export function readStatement(text, { dayFirst = false, decimalComma = false, in
   const out = [];
   // Wise writes DD-MM-YYYY. Revolut lists pending, declined and reverted rows
   // beside completed ones and keeps the fee in its own column.
-  if (bank === "lloyds" || bank === "barclays" || bank === "wise" || bank === "monzo" || bank === "starling") dayFirst = true;
+  if (bank === "lloyds" || bank === "barclays" || bank === "wise" || bank === "monzo" || bank === "starling" || bank === "westpac" || bank === "nab") dayFirst = true;
   const hdr = headerAt === -1 ? [] : rows[headerAt].map(norm);
+  if (bank === "nab") columns.desc = hdr.indexOf("transaction details");
+  const rbc2 = bank === "rbc" ? hdr.indexOf("description 2") : -1;
   if (bank === "monzo") columns.desc = hdr.indexOf("name");
   // Cash App: the fee sits in its own column, so the net amount is what moved.
   // The payee column beats the free-text note.
@@ -333,6 +338,7 @@ export function readStatement(text, { dayFirst = false, decimalComma = false, in
       const who = String(r[hdr.indexOf("name of sender/receiver")] ?? "").trim();
       desc = [who, desc || String(r[hdr.indexOf("transaction type")] ?? "").trim()].filter(Boolean).join(" - ");
     }
+    if (rbc2 !== -1) desc = [desc, String(r[rbc2] ?? "").trim()].filter(Boolean).join(" ").replace(/\s+/g, " ");
     if (bank === "venmo") {
       // The note is free text; name the other party, and fall back to the type for transfers.
       const who = String(r[hdr.indexOf(cents < 0 ? "to" : "from")] ?? "").trim();
