@@ -361,6 +361,14 @@ function addWing(base, r, plan) {
     if (res.error) return { ok: false, errors: [res.error] };
     wingCeilingJoists.push(...res.rows);
   }
+  // wing collar ties: every other pair of wing commons, the same height rule as the main roof's (jack pairs end at a valley, so none)
+  const wingCollarTies = [];
+  if (r.collarTies) {
+    const drop = r.collarDrop ?? 24;
+    const len = Math.round((ridgeT + 2 * drop * 12 / r.pitch) * 16) / 16;
+    if (len < w.width - 1) { const commons = uCentres.filter((u) => u <= eaveU + EPS); for (let i = 0; i < commons.length; i += 2) wingCollarTies.push({ u: commons[i], length: len, size: "2x4" }); }
+    else wingNotes.push("The wing collar tie would be as long as the wing is wide; lower the drop or skip them.");
+  }
   const valleys = [0, 1].map((i) => ({ side: i ? "right" : "left", length: valleyLen, size: valleySize, kind: "valley rafter" }));
   const wingRidges = [];
   if (r.ridge) {
@@ -420,8 +428,8 @@ function addWing(base, r, plan) {
   notes.push(...wingNotes);
   notes.push(`Cross wing ${formatLength(w.width)} wide, ${formatLength(P)} out from the main wall, centred ${formatLength(at)} along the ridge on the ${side} side: ${wingRafters.length} wing rafters, ${wingJacks.length + interrupted} valley jacks (${interrupted} of them main-roof rafters cut short at the valley), 2 ${valleySize} valleys of ${formatInches(valleyLen)}, a ${formatLength(P + hw + rake)} wing ridge. Equal pitch is assumed, so the wing ridge meets the main roof ${formatLength(hw)} inside the main wall.`);
   if (!w.valley) notes.push(`Valleys are ${valleySize}, as the rafters; a valley is normally one size deeper so the jacks bear on its face (set \`wing.valley\`).`);
-  notes.push("Wing sheathing counts each course at its longer edge, and the main plane is not reduced where the wing covers it, so the sheet count is an upper bound. Wing collar ties are not framed, nor valley backing, saddles, the main wall's extra header or the wing's own plates; valley flashing length is `roofing.valleyFeet`.");
-  return { ...base, rafters, wing: { width: w.width, projection: P, at, side, valleySize }, wingRafters, wingJacks, wingCeilingJoists, valleys, wingRidges, wingCentres: uCentres, valleyLength: valleyLen, courses: [...base.courses, ...wingCourses], sheets: { count: sheets, rows: sheetRows, area, waste: sheets ? 1 - area / (sheets * sheetArea) : 0 }, roofing, notes };
+  notes.push("Wing sheathing counts each course at its longer edge, and the main plane is not reduced where the wing covers it, so the sheet count is an upper bound. Wing collar ties follow the main roof's rule (every other pair of wing commons); valley backing is not framed, nor, saddles, the main wall's extra header or the wing's own plates; valley flashing length is `roofing.valleyFeet`.");
+  return { ...base, rafters, wing: { width: w.width, projection: P, at, side, valleySize }, wingRafters, wingJacks, wingCeilingJoists, wingCollarTies, valleys, wingRidges, wingCentres: uCentres, valleyLength: valleyLen, courses: [...base.courses, ...wingCourses], sheets: { count: sheets, rows: sheetRows, area, waste: sheets ? 1 - area / (sheets * sheetArea) : 0 }, roofing, notes };
 }
 
 /** Cut rows in the engine's shape, so `takeoff(plan, roofCuts(layout))` buys roof lumber with the walls'. */
@@ -442,7 +450,7 @@ export function roofCuts(l) {
   for (const x of l.jacks || []) add(x.size, x.length, "jack rafter");
   for (const x of l.ridges) add(x.size, x.length, "ridge board");
   for (const x of [...l.ceilingJoists, ...(l.wingCeilingJoists || [])]) add(x.size, x.length, "ceiling joist");
-  for (const x of l.collarTies) add(x.size, x.length, "collar tie");
+  for (const x of [...l.collarTies, ...(l.wingCollarTies || [])]) add(x.size, x.length, "collar tie");
   return [...map.values()];
 }
 
@@ -453,7 +461,7 @@ export function roofText(l) {
   if (l.shape === "hip") out.push(`  Hip roof: ${l.rafters.length} common rafters of ${formatInches(l.rafterLength)}, ${l.hips.length} ${l.hipSize} hips of ${formatInches(l.hipLength)}, ${l.jacks.length} jack rafters (${l.jacks.length ? `${formatInches(Math.min(...l.jacks.map((j) => j.length)))} to ${formatInches(Math.max(...l.jacks.map((j) => j.length)))}` : "none"}), ${l.ridges.length} ridge board${l.ridges.length === 1 ? "" : "s"}${l.ceilingJoists.length ? `, ${l.ceilingJoists.length} ceiling joists` : ""}${l.collarTies.length ? `, ${l.collarTies.length} collar ties` : ""}`);
   else if (l.trusses) out.push(`  ${l.trusses.count} trusses, ${formatLength(l.trusses.span)} span, at ${l.spacing} o.c. (purchased)`);
   else out.push(`  ${l.rafters.length} ${l.rafterSize} rafters of ${formatInches(l.rafterLength)} at ${l.spacing} o.c., ${l.ridges.length} ridge board${l.ridges.length === 1 ? "" : "s"}${l.ceilingJoists.length ? `, ${l.ceilingJoists.length} ceiling joists` : ""}${l.collarTies.length ? `, ${l.collarTies.length} collar ties` : ""}`);
-  if (l.wing) out.push(`  Cross wing ${formatLength(l.wing.width)} x ${formatLength(l.wing.projection)}: ${l.wingRafters.length} wing rafters, ${l.wingJacks.length} valley jacks, ${l.valleys.length} ${l.wing.valleySize} valleys of ${formatInches(l.valleyLength)}, ${l.wingRidges.length} wing ridge board${l.wingRidges.length === 1 ? "" : "s"}; ${l.rafters.filter((x) => x.kind).length} main rafters end at a valley`);
+  if (l.wing) out.push(`  Cross wing ${formatLength(l.wing.width)} x ${formatLength(l.wing.projection)}: ${l.wingRafters.length} wing rafters, ${l.wingJacks.length} valley jacks, ${l.valleys.length} ${l.wing.valleySize} valleys of ${formatInches(l.valleyLength)}, ${l.wingRidges.length} wing ridge board${l.wingRidges.length === 1 ? "" : "s"}${l.wingCollarTies?.length ? `, ${l.wingCollarTies.length} wing collar ties` : ""}; ${l.rafters.filter((x) => x.kind).length} main rafters end at a valley`);
   out.push(`  Roof sheathing: ${l.sheets.count} sheets of ${SHEET.width} x ${SHEET.length} in for ${l.sheets.area.toFixed(0)} sq ft (${(100 * l.sheets.waste).toFixed(1)}% offcut)`);
   for (const c of l.courses) out.push(`    ${c.plane ? `${c.plane} planes, ` : ""}course at ${formatLength(c.y)} up the slope (${formatInches(c.width)} wide): ${c.pieces.map((p) => formatInches(p.length)).join(" + ")}`);
   const g = l.roofing;
