@@ -524,4 +524,6 @@ Measured with `node eval/change-interval.mjs` (200 seeded white-noise series of 
 | 2 | 200/200 | 189/200 (95%) | 4 |
 | 3 | 200/200 | 191/200 (96%) | 2 |
 
-Coverage is about the nominal 95% on independent Gaussian noise; the shift-1 row is conservative. Not measured: sticky (AR(1)) noise, where the range is probably too narrow because the cost assumes independence, counts, and the trend and seasonal models (the range is computed from their cost, but its coverage is untested).
+Coverage is about the nominal 95% on independent Gaussian noise; the shift-1 row is conservative. Sticky noise (2026-10-22, `node eval/change-interval-sticky.mjs`, output in `eval/change-interval-sticky.out.txt`; marginal sd 1, one shift of 2 or 3 sd, 200 series each): without `--ar1` the range is far too narrow, holding the planted date in 57% to 60% of series at rho 0.5 and 30% to 31% at rho 0.7 (median width 2 to 3 points). With `--ar1` it holds it in 97% to 99%, conservatively wide (5 to 22 points), though PELT finds the change less often at rho 0.7 (149 to 177 of 200 within 15 points). So the result now carries a `rangeWarning` (CLI: a note above the ranges) when the mean model runs without `--ar1` on a series whose lag-1 autocorrelation estimate is 0.3 or more; it fired on 99 to 100 of 100 series at rho 0.5 and 0.7 and 0 of 100 on white noise.
+
+Not measured: counts, and the trend and seasonal models (the range is computed from their cost, but its coverage is untested).

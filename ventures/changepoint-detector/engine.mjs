@@ -1497,6 +1497,12 @@ export function analyze(input = {}) {
     const nbOn = isFinite(nbSize) && nbSize > 0;
     ranges = changeIntervals(p.changepoints, values.length, nbOn ? makeCost(values, 'negbin', sigma, 0, exposure, nbSize) : makeCost(values, model, sigma, 0, exposure), { minSegment, level: 0.95 });
   }
+  // the range assumes independent noise: on sticky series without --ar1 it is far too narrow (57% and 30% coverage, README)
+  let rangeWarning = null;
+  if (ranges && model === 'mean' && !o.ar1 && values.length >= 20) {
+    const r0 = ar1Rho(values);
+    if (r0 >= 0.3) rangeWarning = `The series looks autocorrelated (rho about ${round(r0, 2)}), so these ranges are too narrow: use --ar1 (page: allow for autocorrelation).`;
+  }
   const changes = p.changepoints.map((i, k) => {
     const before = segments[k];
     const after = segments[k + 1];
@@ -1534,6 +1540,7 @@ export function analyze(input = {}) {
     ...(slope !== null ? { trend: { slopePerPoint: round(slope, 6), ...(knot !== undefined ? { slopeAfter: round(slopeAfter, 6), slopeChangesAt: knot, ...(knots.length > 1 ? { slopeChangesAtAll: knots, slopes: slopes.map((v) => round(v, 6)) } : {}) } : {}) } } : {}),
     ...(growth !== null ? { trend: { logGrowthAcrossSeries: round(growth, 4), growthFactorAcrossSeries: round(Math.exp(growth), 4), multiplicative: true, ...(countKnot !== undefined ? { growthChangesAt: countKnot, logGrowthAcrossSeriesAfter: round(growthAfter, 4), ...(countKnots.length > 1 ? { growthChangesAtAll: countKnots, logGrowthAcrossSeriesRates: countRates.map((v) => round(v, 4)) } : {}) } : {}) } } : {}),
     ...(holidayFit ? { holidays: { count: holidayFit.count, factor: round(holidayFit.factor, 3), ...(holidayFit.kinds ? { kinds: holidayFit.kinds.map((k) => ({ ...k, factor: round(k.factor, 3) })) } : {}) } } : {}),
+    ...(rangeWarning ? { rangeWarning } : {}),
     ...(rho !== null ? { ar1: { rho: round(rho, 3) } } : {}),
     ...(phi !== null ? { dispersion: round(phi, 3) } : {}),
     ...(burstInfo ? { bursts: burstInfo } : {}),

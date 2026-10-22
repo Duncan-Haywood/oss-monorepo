@@ -89,6 +89,7 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
   const ch = r.pelt.changepoints.filter((x) => x.range95);
   if (ch.length) {
     lines.push('', 'Likely range for each change (95%, neighbouring changes held fixed):');
+    if (r.rangeWarning) lines.push(`  (${r.rangeWarning})`);
     for (const x of ch) lines.push(`  ${x.label}: ${x.range95.from === x.range95.to ? 'that point only' : `${x.range95.from} – ${x.range95.to}`}`);
   }
   if (r.bocpd.detections.length) {

@@ -1227,3 +1227,13 @@ test('each change carries a 95% range that holds the planted date and narrows wi
   assert.ok(nile.range95.fromIndex <= nile.index && nile.index <= nile.range95.toIndex);
   assert.equal(analyze({ csv: readFileSync(new URL('./data/nile.csv', import.meta.url), 'utf8'), intervals: false }).pelt.changepoints[0].range95, undefined);
 });
+
+test('sticky series without --ar1 carry a range warning, white noise and --ar1 do not', () => {
+  let seed = 11;
+  const rnd = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return (seed + 0.5) / 4294967296; };
+  const gauss = () => Math.sqrt(-2 * Math.log(rnd())) * Math.cos(2 * Math.PI * rnd());
+  const make = (rho) => { let e = gauss(); return Array.from({ length: 200 }, (_, t) => { e = rho * e + Math.sqrt(1 - rho * rho) * gauss(); return e + (t >= 100 ? 2 : 0); }); };
+  assert.ok(analyze({ values: make(0.7) }).rangeWarning);
+  assert.equal(analyze({ values: make(0) }).rangeWarning, undefined);
+  assert.equal(analyze({ values: make(0.7), ar1: true }).rangeWarning, undefined);
+});
