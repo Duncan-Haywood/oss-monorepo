@@ -894,7 +894,7 @@ function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000, t
   const t0 = Date.now();
   const rec = (k, unfilledH) => {
     if (aborted) return;
-    if (++nodes > nodeLimit || ((nodes & 1023) === 0 && Date.now() - t0 > (covMode ? timeLimitMs / 2 : timeLimitMs))) { aborted = true; return; }
+    if (++nodes > (covMode ? 2 * nodeLimit : nodeLimit) || ((nodes & 1023) === 0 && Date.now() - t0 > (covMode ? timeLimitMs / 2 : timeLimitMs))) { aborted = true; return; }
     if (lowerBound(k, unfilledH, best - tolerance - 1e-9) >= best - tolerance - 1e-9) return;
     if (k === S) {
       const total = covMode ? BIG * unfilledH : scoreOwner(ctx, owner).total;
