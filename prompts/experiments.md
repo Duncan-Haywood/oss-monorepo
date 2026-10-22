@@ -1075,3 +1075,18 @@ or `ventures`) until its success rate passes 80% over 20 runs?
   2 unchanged (overlap / too few runs). No audit or drift report (reduced
   pass; the 2026-10-21 report stands).
 - Result: (next review)
+
+## E66: review 2026-10-22 (reduced pass)
+
+- Change: `portfolio/flagships.yaml` ai-bookkeeper `next:` cut from 18.7k to
+  about 1.1k characters: open items only, landed history left to the README and
+  git. Cause: 3 friction reports today that it was a duplicated run-on. The
+  other flagships' `next:` (changepoint-detector 10.5k, einvoice-preflight 8k)
+  are the same shape and are the next cut.
+- Metric: friction reports against `portfolio/flagships.yaml`, over the next
+  40 runs (baseline: 32 total, 3 on ai-bookkeeper today).
+- Decisions: research candidate 1 kept (retire verdict still fires only on the
+  one disclosed caveat; E55 proposal stands). ventures 2, process 2 and review
+  2 unchanged (overlap / too few runs). `derived/` regenerated (`fetch` ran,
+  25 of 44 PRs). No audit or drift report (reduced pass).
+- Result: (next review)
