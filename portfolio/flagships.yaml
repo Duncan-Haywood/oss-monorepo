@@ -46,7 +46,7 @@ flagships:
       terms letter checked against the fee and discount rules, and one named
       lender's own schedule against the loan register; (5) try receipts and
       the reconcile-to-statement command on real paper, and read receipt
-      photos in the page; (6) payroll.mjs landed 2026-10-22 (CLI and a page card, per-employee Social Security wage base, Form 940 FUTA worksheet, hand-made fixtures): try a real Gusto or ADP report; (7) one named filing service's import layout, from its own spec. A run that lands a slice replaces
+      photos in the page; (6) payroll.mjs landed 2026-10-22 (CLI and a page card, per-employee Social Security wage base, Additional Medicare Tax (line 5d), Form 940 FUTA worksheet, hand-made fixtures): try a real Gusto or ADP report; (7) one named filing service's import layout, from its own spec. A run that lands a slice replaces
       its item here; keep this under 2,000 characters.
 
   # Added 2026-10-21 second, on the owner's direction that day: "I want to make
