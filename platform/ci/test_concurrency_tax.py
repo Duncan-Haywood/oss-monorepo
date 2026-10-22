@@ -204,6 +204,26 @@ class TestMain(unittest.TestCase):
         listed = out.split("Files the most")[1].split("Top-level areas:")[0]
         self.assertEqual(len([l for l in listed.splitlines() if "%  " in l]), 12)
 
+    def test_merge_and_housekeeping_totals_are_summed_from_their_own_columns(self):
+        rows = [(1, 5, 3, 1), (2, 4, 2, 0)]
+        saved = (ct.pr_rounds, ct.hotspots)
+        ct.pr_rounds = lambda *a, **k: rows
+        ct.hotspots = lambda *a, **k: (1, ct.Counter(), ct.Counter())
+        try:
+            with tempfile.TemporaryDirectory() as tmp:
+                make_repo(tmp)
+                code, out, _ = self.run_main(tmp, "--first-pr", "1")
+        finally:
+            ct.pr_rounds, ct.hotspots = saved
+        self.assertEqual(code, 0)
+        self.assertIn("commits: 9 own + 5 merge-main; 1 of the own are housekeeping", out)
+
+    def test_help_describes_the_tool_with_its_first_paragraph(self):
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out), self.assertRaises(SystemExit):
+            ct.main(["--help"])
+        self.assertIn(ct.__doc__.split("\n\n")[0].split()[0], out.getvalue())
+
     def test_no_pull_refs_is_a_clean_failure(self):
         with tempfile.TemporaryDirectory() as tmp:
             git(tmp, "init", "-q", "-b", "main")
