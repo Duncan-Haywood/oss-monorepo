@@ -24,6 +24,8 @@
       <itunes:summary>A cargo airship carrying the only insulin shipment for a remote island cannot moor in the gusty lee of the island's mountain, and the captain wants to try anyway. A sixty-three-year-old mooring master says no, and then has to find a way to say yes to the thing that matters, which costs her island everything else in the hold.</itunes:summary>
       <itunes:episodeType>full</itunes:episodeType>
       <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://example.invalid/hearth-and-horizon/audio/the-patches.mp3" length="7012471" type="audio/mpeg"/>
+      <itunes:duration>0:19:29</itunes:duration>
     </item>
     <item>
       <title>The Bell at Half Past Three</title>
