@@ -11,6 +11,7 @@
 
 import { parseCsv, parseCents, parseDate } from "./bank.mjs";
 import { payeeTokens } from "./categorize.mjs";
+import { convertCents, rateOn, FX_ACCOUNT } from "./fx.mjs";
 
 export const AR = "1100", AP = "2050";
 const MATCH_DAYS = 180; // a payment this long after the document date still matches
@@ -36,7 +37,7 @@ export function parseDocuments(text, { dayFirst = false, decimalComma = false } 
   if (rows.length < 2) return { documents: [], problems: ["No document rows found. Expected a header: type,number,date,due,party,amount,account."] };
   const head = rows[0].map((h) => h.trim().toLowerCase());
   const col = (...names) => head.findIndex((h) => names.includes(h));
-  const c = { type: col("type", "kind"), number: col("number", "no", "invoice", "bill", "ref", "id"), date: col("date", "issued", "invoice date", "bill date"), due: col("due", "due date"), party: col("party", "customer", "vendor", "name", "supplier"), amount: col("amount", "total", "line amount"), account: col("account", "account code", "code"), against: col("against", "applies to", "original", "credit for"), desc: col("description", "memo", "item", "details") };
+  const c = { type: col("type", "kind"), number: col("number", "no", "invoice", "bill", "ref", "id"), date: col("date", "issued", "invoice date", "bill date"), due: col("due", "due date"), party: col("party", "customer", "vendor", "name", "supplier"), amount: col("amount", "total", "line amount"), account: col("account", "account code", "code"), against: col("against", "applies to", "original", "credit for"), desc: col("description", "memo", "item", "details"), cur: col("currency", "cur", "ccy"), rate: col("rate", "fx rate", "exchange rate") };
   for (const k of ["type", "number", "date", "party", "amount", "account"]) if (c[k] === -1) problems.push(`Missing column "${k}".`);
   if (problems.length) return { documents: [], problems };
   const byId = new Map();
@@ -58,6 +59,11 @@ export function parseDocuments(text, { dayFirst = false, decimalComma = false } 
     const id = docId(kind, credit, number);
     const against = c.against >= 0 ? (r[c.against] ?? "").trim() : "";
     const d = byId.get(id) ?? { id, kind, number, date, due, party: (r[c.party] ?? "").trim(), lines: [], total: 0 };
+    const cur = c.cur >= 0 ? (r[c.cur] ?? "").trim().toUpperCase() : "";
+    const rate = c.rate >= 0 && (r[c.rate] ?? "").trim() ? Number((r[c.rate] ?? "").replace(",", ".")) : null;
+    if (cur && !/^[A-Z]{3}$/.test(cur)) return problems.push(`${where}: currency must be a three-letter code.`);
+    if (rate !== null && !(rate > 0 && rate < 1e6)) return problems.push(`${where}: rate must be a number above zero.`);
+    if (cur) { d.currency = cur; if (rate) d.rate = rate; }
     if (credit) { d.credit = true; if (against) d.against = against; }
     const desc = c.desc >= 0 ? (r[c.desc] ?? "").trim() : "";
     d.lines.push(desc ? { account, cents, desc } : { account, cents });
@@ -82,6 +88,14 @@ export function addDocuments(booksIn, text, opts = {}) {
     const bad = d.lines.find((l) => !codes.has(l.account));
     if (bad) { problems.push(`${d.id}: no account ${bad.account} in the chart of accounts.`); continue; }
     if (have.has(d.id)) { skipped++; continue; }
+    if (d.currency && d.currency !== String(books.currency ?? "USD").toUpperCase()) {
+      // Foreign document: amounts are in its currency; the books carry base cents at the rate on its date.
+      const rate = d.rate ?? rateOn(books, d.currency, d.date);
+      if (!rate) { problems.push(`${d.id}: no ${d.currency} rate on or before ${d.date}; add a rate column or "fx rate".`); continue; }
+      d.rate = rate; d.foreignTotal = d.total; d.total = 0;
+      for (const l of d.lines) { l.foreign = l.cents; l.cents = convertCents(l.cents, rate); d.total += l.cents; }
+      if (!books.accounts.some((a) => a.code === FX_ACCOUNT)) books.accounts.push({ code: FX_ACCOUNT, name: "Foreign exchange gain or loss", type: "expense" });
+    } else if (d.currency) { delete d.currency; delete d.rate; }
     if (books.lockedThrough && d.date <= books.lockedThrough) { problems.push(`${d.id}: dated ${d.date}, in the period locked through ${books.lockedThrough}.`); continue; }
     books.documents.push(d);
     have.add(d.id);
@@ -106,7 +120,7 @@ export function documentEntries(books) {
     const lines = [{ account: d.kind === "invoice" ? AR : AP, debit: dr ? d.total : 0, credit: dr ? 0 : d.total }, ...d.lines.map((l) => ({ account: l.account, debit: dr ? 0 : l.cents, credit: dr ? l.cents : 0 }))];
     const name = d.credit ? (d.kind === "invoice" ? "Credit note" : "Vendor credit") : d.kind === "invoice" ? "Invoice" : "Bill";
     return { id: d.id, date: d.date, memo: `${name} ${d.number}, ${d.party}${d.against ? ` (against ${d.against})` : ""}`, source: d.credit ? "credit" : d.kind, lines };
-  }).concat(writeOffEntries(books));
+  }).concat(writeOffEntries(books), fxSettleEntries(books));
 }
 
 // Write off what a customer will not pay: debits bad debts, credits receivable,
@@ -133,6 +147,17 @@ export function writeOff(booksIn, id, { date, account } = {}) {
   d.writtenOff = { date: day, cents, account };
   return { books: settle(books), cents };
 }
+// A foreign invoice or bill settled by a base-currency bank line: what the line
+// paid differs from what was booked, and the difference is a realized exchange
+// gain or loss (6190; a gain shows as a negative expense).
+const fxSettleEntries = (books) => (books.documents ?? []).filter((d) => d.fxDiff).map((d) => {
+  const t = books.transactions.find((x) => x.id === d.settledBy);
+  const bill = d.kind !== "invoice", n = Math.abs(d.fxDiff);
+  const toControl = bill ? d.fxDiff > 0 : d.fxDiff < 0; // control account debited
+  return { id: `FX-${d.id}`, date: t?.date ?? d.date, memo: `Realized exchange ${(d.fxDiff > 0) === !bill ? "loss" : "gain"} on ${bill ? "bill" : "invoice"} ${d.number}, ${d.party} (${d.currency})`, source: "fx", lines: [
+    { account: bill ? AP : AR, debit: toControl ? n : 0, credit: toControl ? 0 : n },
+    { account: FX_ACCOUNT, debit: toControl ? 0 : n, credit: toControl ? n : 0 }] };
+});
 const writeOffEntries = (books) => (books.documents ?? []).filter((d) => d.writtenOff).map((d) => {
   const bill = d.kind !== "invoice", w = d.writtenOff;
   return { id: `WO-${d.id}`, date: w.date, memo: `${bill ? "Bill forgiven" : "Write-off of invoice"} ${d.number}, ${d.party}`, source: "writeoff", lines: bill
@@ -170,7 +195,7 @@ export function settle(booksIn) {
   const books = JSON.parse(JSON.stringify(booksIn));
   const docs = books.documents ?? [];
   for (const t of books.transactions) if (t.status === "settled") { t.status = "new"; delete t.posted; delete t.doc; delete t.docs; delete t.suggestion; delete t.partial; delete t.refund; }
-  for (const d of docs) { delete d.settledBy; delete d.payments; delete d.credited; delete d.applied; delete d.refund; }
+  for (const d of docs) { delete d.settledBy; delete d.payments; delete d.credited; delete d.applied; delete d.refund; delete d.fxDiff; }
   // Credit notes reduce the document they name, in date order, never below zero.
   for (const c of docs.filter((x) => x.credit).sort((a, b) => a.date.localeCompare(b.date) || a.id.localeCompare(b.id))) {
     const target = c.against && docs.find((x) => !x.credit && x.kind === c.kind && x.number === c.against);
@@ -183,7 +208,10 @@ export function settle(booksIn) {
   const open = () => docs.filter((d) => !d.credit && balance(d) > 0);
   const sign = (d) => (d.kind === "invoice" ? 1 : -1);
   const within = (d, t) => dayNum(t.date) >= dayNum(d.date) && dayNum(t.date) - dayNum(d.date) <= MATCH_DAYS;
-  const fits = (d, t) => t.cents === sign(d) * balance(d) && within(d, t);
+  // A foreign document is paid in base currency at the bank's rate: close to the booked
+  // amount (within 3%) counts, but only with the number or party name in the description.
+  const near = (d, t) => d.currency && Math.sign(t.cents) === sign(d) && Math.abs(Math.abs(t.cents) - balance(d)) <= Math.max(100, Math.round(balance(d) * 0.03)) && within(d, t) && (hasNumber(t.desc, d.number) || partyHit(t.desc, d.party));
+  const fits = (d, t) => (t.cents === sign(d) * balance(d) && within(d, t)) || near(d, t);
   const control = (d) => (d.kind === "invoice" ? AR : AP);
   const pay = (d, t, cents) => {
     (d.payments ??= []).push({ line: t.id, cents });
@@ -210,12 +238,14 @@ export function settle(booksIn) {
       const score = hasNumber(t.desc, d.number) ? 2 : partyHit(t.desc, d.party) ? 1 : 0;
       scored.push({ t, d, score, gap: dayNum(t.date) - dayNum(d.date) });
     }
-    scored.sort((a, b) => b.score - a.score || a.gap - b.gap || a.d.id.localeCompare(b.d.id));
+    scored.sort((a, b) => b.score - a.score || Math.abs(Math.abs(a.t.cents) - balance(a.d)) - Math.abs(Math.abs(b.t.cents) - balance(b.d)) || a.gap - b.gap || a.d.id.localeCompare(b.d.id));
     let moved = false;
     for (const { t, d, score } of scored) {
       if (score === 0 || usedLine.has(t.id) || balance(d) === 0 || !fits(d, t)) continue;
       post(t, d, score, false);
-      pay(d, t, balance(d));
+      const owed = balance(d);
+      if (d.currency && Math.abs(t.cents) !== owed) d.fxDiff = owed - Math.abs(t.cents);
+      pay(d, t, owed);
       moved = true;
     }
     if (moved) continue;
