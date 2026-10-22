@@ -800,3 +800,7 @@ one per customer, part-payments, the `--min` cut); on the page (2026-10-22): und
 ### Cash App and SoFi CSVs (2026-10-22)
 
 `bank.mjs` recognises the Cash App activity report (the Net Amount column is used so the fee is already taken off, non-COMPLETE rows such as canceled payments are reported rather than imported, and the description names the other party and the note) and the SoFi checking export (Pending rows skipped, running balance chained). Both are written from memory of the layouts and tested on hand-made fixtures (`fixtures/cashapp-report.csv`, `fixtures/sofi-checking.csv`, `neobank.test.mjs`), not on a real download.
+
+### USAA CSV (2026-10-22)
+
+`bank.mjs` recognises the USAA checking export (`Date, Description, Original Description, Category, Amount, Status`): the cleaned Description is used, Pending rows are reported rather than imported. Written from memory of the layout and tested on a hand-made fixture (`fixtures/usaa-checking.csv`, `neobank.test.mjs`), not on a real download.
