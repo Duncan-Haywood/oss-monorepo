@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { vatReturn, addAsset, taxableBusinessIncome, writeOff, lockPeriod, newBooks, importStatement, confirm, parseSplit, suggestRules, addRules, acceptSuggestions, journal, reports, closeChecks, exportJournal, exportLines, status, analyze } from "./engine.mjs";
+import { vatReturn, addAsset, taxableBusinessIncome, s179Carryforward, writeOff, lockPeriod, newBooks, importStatement, confirm, parseSplit, suggestRules, addRules, acceptSuggestions, journal, reports, closeChecks, exportJournal, exportLines, status, analyze } from "./engine.mjs";
 import { parseCents, parseDate, readStatement, checkRunningBalance } from "./bank.mjs";
 import { validateEntry, DEFAULT_ACCOUNTS, parseAccounts } from "./ledger.mjs";
 import { payeeKey, suggest, parseRules } from "./categorize.mjs";
@@ -729,4 +729,21 @@ test("VAT return: output VAT, input VAT on bills, credits, a bank line to 2100, 
   const r2 = vatReturn(c, { from: "2026-04-01", to: "2026-04-30" });
   assert.equal(r2.boxes[4], 3200);
   assert.ok(r2.warnings.some((w) => /not in box 7/.test(w)));
+});
+
+test("s179Carryforward rolls a disallowed 179 forward and deducts it when income arrives", async () => {
+  const { setTaxTreatment, taxDepreciation } = await import("./taxdepr.mjs");
+  let b = newBooks();
+  b = addAsset(b, { name: "Press", date: "2025-03-01", cost: "10000", lifeMonths: 60 }).books;
+  b = setTaxTreatment(b, "FA-1", { macrsClass: 5, s179: "4000", bonusPct: 0 }).books;
+  const c = s179Carryforward(b, 2027);
+  assert.deepEqual(c.years.map((y) => y.year), [2025, 2026]);
+  assert.equal(c.years[0].elected, 400000);
+  assert.equal(c.years[0].deductible, 0, "no income in 2025, nothing deducted");
+  assert.equal(c.years[0].booked, false);
+  assert.equal(c.carryIn, 400000, "nothing earned, all of it still carries");
+  assert.equal(s179Carryforward(b, 2025).carryIn, 0, "nothing carries into the placed-in-service year");
+  const w = taxDepreciation(b, 2027, { businessIncome: 150000, carryIn: c.carryIn });
+  assert.equal(w.s179Income.deductible, 150000);
+  assert.equal(w.s179Income.carryOut, 250000);
 });

@@ -16,7 +16,7 @@ import { readStatement, splitOfx, sniffFormat, rowIds, checkRunningBalance, pars
 import { DEFAULT_ACCOUNTS, accountMap, validateEntry, trialBalance, profitAndLoss, balanceSheet, cashFlow, balances, natural, fmt, dollars } from "./ledger.mjs";
 import { suggest, trainClassifier, buildMemory, parseRules, historyRecord, payeeKey } from "./categorize.mjs";
 import { addDocuments, writeOff, settle, aging, documentEntries, AR, AP } from "./accruals.mjs";
-import { taxDepreciation } from "./taxdepr.mjs";
+import { taxDepreciation, s179IncomeLimit } from "./taxdepr.mjs";
 import { prepaidEntries, prepaidRegister, addPrepaid, PREPAID_ACCOUNT } from "./prepaid.mjs";
 import { assetEntries, register, addAsset, disposeAsset, addAssetsCsv, ASSET_ACCOUNT } from "./assets.mjs";
 import { closingEntries } from "./yearend.mjs";
@@ -454,6 +454,28 @@ export function taxableBusinessIncome(books, year) {
   const net = profitAndLoss(entries, books.accounts, { from: `${year}-01-01`, to: `${year}-12-31` }).net;
   const t = taxDepreciation(books, year).totals;
   return net + t.book - (t.macrs + t.bonus);
+}
+
+// The Section 179 amount carried into `year` from earlier years, worked out
+// from the books instead of typed in. Each year from the first one with an
+// election applies the taxable-income limit (`s179IncomeLimit`) to that year's
+// business income from the books plus the carry from the year before.
+// A year with no bookkeeping at all counts as zero income, so it is flagged
+// `booked: false`; a preparer's figure for those years should replace it.
+// -> { carryIn, years: [{ year, elected, dollarLimited, carryIn, income, deductible, carryOut, booked }] }
+export function s179Carryforward(books, year, { limits } = {}) {
+  const firstYear = Math.min(...(books.assets ?? []).filter((a) => a.tax?.s179).map((a) => +a.date.slice(0, 4)), year);
+  const entries = journal(books);
+  const years = [];
+  let carry = 0;
+  for (let y = firstYear; y < year; y++) {
+    const income = taxableBusinessIncome(books, y);
+    const r = s179IncomeLimit(books, y, { ...(limits ? { limits } : {}), businessIncome: income, carryIn: carry });
+    const booked = entries.some((e) => !["depreciation", "disposal", "opening"].includes(e.source) && e.date.startsWith(String(y)));
+    years.push({ year: y, elected: r.elected, dollarLimited: r.dollarLimited, carryIn: carry, income, deductible: r.deductible, carryOut: r.carryOut, booked });
+    carry = r.carryOut;
+  }
+  return { carryIn: carry, years };
 }
 
 // Payees you have filed the same way again and again, offered as rules. A rule

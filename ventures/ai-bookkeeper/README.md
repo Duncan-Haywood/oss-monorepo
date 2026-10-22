@@ -458,8 +458,12 @@ percentages on 10,000, odd cents, 179 and bonus ordering, disposal, and bad
 The Section 179 taxable-income limit now runs from the books (2026-10-21):
 `taxableBusinessIncome(books, year)` is the year's net profit with book
 depreciation on treated assets swapped for their MACRS and bonus depreciation;
-`cli.mjs taxdepr 2026` applies it (override with `--income N`, add last year's
-disallowed amount with `--carry-in N`) and the page has a "179 carried in" box.
+`cli.mjs taxdepr 2026` applies it (override with `--income N`, override the
+carry with `--carry-in N`) and the page has a "179 carried in" box. Left empty, the
+carry comes from the books (2026-10-22, `s179Carryforward`): each earlier year from the first
+election applies the limit to that year's book-derived income, and a year with no
+bookkeeping counts as zero income and says so. Node test on a hand-written asset
+(`engine.test.mjs`); no preparer's real carryforward schedule was compared.
 Self-employment-tax deduction, disposal gains and other businesses' income are
 not in that figure, so confirm it with a preparer.
 input. The mid-quarter convention is computed (2026-10-21): when over 40% of the
@@ -470,8 +474,7 @@ printed ones as remembered, the 7-year rows are typed as printed (the generator 
 some years; test added), 10, 15 and 20-year rows may differ from the printed row by a
 few hundredths of a point in a year, and none is checked against Pub 946
 because the hosts were unreachable). Disposal in a mid-quarter year takes
-12.5, 37.5, 62.5 or 87.5% of the year's amount by the quarter of disposal (half in a half-year year). Section 179 dollar limit and investment phase-out are checked (`s179Check`, 2024 to 2026, 2025 and 2026 figures cross-checked 2026-10-22 against several secondary sources, not the Rev. Proc. itself; excess is warned, not removed). It warns and does not compute: the 179
-taxable-income limit and carryforward, the bonus rate in force, business-use share
+12.5, 37.5, 62.5 or 87.5% of the year's amount by the quarter of disposal (half in a half-year year). Section 179 dollar limit and investment phase-out are checked (`s179Check`, 2024 to 2026, 2025 and 2026 figures cross-checked 2026-10-22 against several secondary sources, not the Rev. Proc. itself; excess is warned, not removed). It warns and does not compute: the bonus rate in force, business-use share
 and listed property. The tables were typed from memory of Table A-1, then checked (2026-10-21) by
 deriving each class from its rule (200% or 150% declining balance, half-year,
 switch to straight-line) in a test: all six agree within the printed rounding.
