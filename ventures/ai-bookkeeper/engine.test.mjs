@@ -104,6 +104,14 @@ test("your rules win and name themselves; a rule to an unknown account is report
   assert.equal(s.source, "rule");
 });
 
+test("built-in keywords: sales tax remitted, SBA loan payments and the bank's service fee", () => {
+  const codes = new Set(DEFAULT_ACCOUNTS.map((a) => a.code));
+  const acct = (desc) => suggest({ desc, cents: -10000 }, { rules: [], codes }).account;
+  assert.equal(acct("PURCHASE AUTHORIZED ON 01/14 NY DEPT TAX SALES MWCCT CARD 4417"), "2100");
+  assert.equal(acct("SBA LOAN PMT 1C9087 01/27"), "2200");
+  assert.equal(acct("DEBIT CARD PURCHASE MONTHLY SERVICE FEE"), "6010");
+});
+
 test("an unbalanced entry is refused", () => {
   assert.match(validateEntry({ date: "2026-01-01", lines: [{ account: "1000", debit: 100, credit: 0 }, { account: "6060", debit: 0, credit: 99 }] }, DEFAULT_ACCOUNTS).join(), /do not equal/);
 });
