@@ -6,6 +6,8 @@ Track 13 (autonomous multi-angle capture), a follow-up to `capture-audiosync` an
 
 **Builds on.** `capture-audiosync` (the GCC-PHAT estimator and audio model, imported from its `src/`) and `capture-syncfine` (the long first window). The tolerance is EBU Recommendation R37 (2007), "The relative timing of the sound and vision components of a television signal": sound may lead picture by at most 40 ms and lag by at most 60 ms; ITU-R BT.1359-1 (1998) gives the wider detectability and acceptability thresholds. Both were set for a single programme's lip-sync, not for a cut between two cameras (no source I know sets that), so the 40 ms is a stand-in for "viewers may notice", not a measured limit. No CU Boulder group in `prompt.md` covers this and none is claimed.
 
+> **Correction (`capture-syncslope`):** this project correlated the raw window while the delay grew to 1.66 s, so many of the 300 s and 900 s failures below are overlap artifacts, not noise. The 1800 s and 3600 s columns and the analytic table stand; see `capture-syncslope`.
+
 ## What is and is not real
 Audio is synthetic (`capture-audiosync`'s speech-like noise, independent white noise per camera, exact fractional delay); no real recording was used. The clock error is a straight line, swept (5 to 100 ppm in the analytic table; 40 ppm in the simulation) and not sourced to a camera datasheet. Real drift varies with temperature, which a held offset handles worse than a line. The 6 h shoot, the 100 ppm bound used by the gate, 5 ms gate margin and the 0.8 s start offset are my choices.
 
