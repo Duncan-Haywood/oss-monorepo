@@ -45,6 +45,12 @@ def projects(prefix, limit=5):
     return len(dirs), sorted(dirs, key=stamp, reverse=True)[:limit]
 
 
+def is_shallow():
+    out = subprocess.run(["git", "rev-parse", "--is-shallow-repository"],
+                         cwd=RESEARCH, capture_output=True, text=True).stdout.strip()
+    return out == "true"
+
+
 def milestones(prefix):
     """(listed, free) milestone slugs from the track's section in PROJECTS.md.
 
@@ -81,7 +87,9 @@ if __name__ == "__main__":
             print(f"track {old} has {SATURATED}+ projects; redrawn -> track {t}")
     if t != "free":
         n, newest = projects(PREFIX[t - 1])
-        print(f"{n} `{PREFIX[t - 1]}-*` projects on this checkout; newest: {', '.join(newest) or 'none'}")
+        shallow = is_shallow()
+        label = "some (shallow clone: commit dates are flattened, so this is not newest-first)" if shallow else "newest"
+        print(f"{n} `{PREFIX[t - 1]}-*` projects on this checkout; {label}: {', '.join(newest) or 'none'}")
         listed, free = milestones(PREFIX[t - 1])
         if not listed:
             print("milestones: no list found in PROJECTS.md; take a 'Next steps' item or ask a new question")
@@ -90,9 +98,7 @@ if __name__ == "__main__":
         else:
             print(f"milestones: all {len(listed)} listed are on this checkout; take a 'Next steps' item or ask a new question")
         if newest:
-            shallow = subprocess.run(["git", "rev-parse", "--is-shallow-repository"],
-                                     cwd=RESEARCH, capture_output=True, text=True).stdout.strip() == "true"
-            note = " (shallow clone: order is not by date; unshallow first)" if shallow else ""
+            note = " (shallow clone: not necessarily the newest; unshallow first for that)" if shallow else ""
             if n >= SATURATED:
                 counts = sorted(((len(list(RESEARCH.glob(x + "-*"))), i + 1) for i, x in enumerate(PREFIX)))
                 print(f"track {t} has {n} projects (>= {SATURATED}); redrawing is fine. Fewest: "
