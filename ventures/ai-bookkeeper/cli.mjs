@@ -453,9 +453,9 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
       const f = form941(books, rest[1], rest[2]);
       if (json) { console.log(JSON.stringify(f, null, 2)); process.exit(0); }
       console.log(`FORM 941 WORKSHEET ${f.year} Q${f.quarter} (${f.from} to ${f.to}), ${f.runs} run${f.runs === 1 ? "" : "s"}`);
-      for (const [l, v] of [["Wages (line 2)", f.wages], ["Federal income tax withheld (line 3)", f.federalWithheld], ["Social security tax, both shares (line 5a)", f.socialSecurityTax], ["Medicare tax, both shares (line 5c)", f.medicareTax], ["Total taxes before adjustments", f.totalTaxes], ["Federal deposits due from the register", f.deposited], ["FUTA (Form 940)", f.futa]]) console.log(`  ${l.padEnd(46)} ${fmt(v).padStart(12)}`);
+      for (const [l, v] of [["Wages (line 2)", f.wages], ["Federal income tax withheld (line 3)", f.federalWithheld], ...(f.socialSecurityWages == null ? [] : [["Taxable social security wages (line 5a col 1)", f.socialSecurityWages]]), ["Social security tax, both shares (line 5a)", f.socialSecurityTax], ["Medicare tax, both shares (line 5c)", f.medicareTax], ["Total taxes before adjustments", f.totalTaxes], ["Federal deposits due from the register", f.deposited], ["FUTA (Form 940)", f.futa]]) console.log(`  ${l.padEnd(46)} ${fmt(v).padStart(12)}`);
       for (const w of f.warnings) console.log(`  CHECK ${w}`);
-      console.log("  Worksheet only: tips, adjustments, the social security wage base and credits are not modelled.");
+      console.log("  Worksheet only: tips, adjustments and credits are not modelled.");
     } else if (rest[0] && existsSync(rest[0])) {
       const r = addPayroll(books, readFileSync(rest[0], "utf8"));
       books = r.books;

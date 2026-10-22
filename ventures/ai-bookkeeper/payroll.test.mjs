@@ -101,3 +101,19 @@ test("form 941 sums the quarter and flags a social security rate that is off", (
   const off = addPayroll(newBooks(), `${HEAD}\n2026-03-27,Ana,2000.00,150.00,100.00,29.00,60.00,0.00,1661.00,124.00,29.00,12.00,20.00\n`).books;
   assert.match(form941(off, 2026, 1).warnings.join("\n"), /social security/);
 });
+
+test("form 941 stops social security at the wage base, per employee", () => {
+  // Ana is paid 100,000.00 a run; 2026 base is 184,500.00. Run 1 taxes all of it, run 2 taxes 84,500.00, run 3 none.
+  const row = (d, ss) => `${d},Ana,100000.00,0.00,${ss},1450.00,0.00,0.00,${(100000 - ss / 1 - 1450).toFixed(2)},${ss},1450.00,0.00,0.00`;
+  const reg = `${HEAD}\n${row("2026-01-15", "6200.00")}\n${row("2026-02-15", "5239.00")}\n${row("2026-03-15", "0.00")}\n`;
+  const { books } = addPayroll(newBooks(), reg);
+  const f = form941(books, 2026, 1);
+  assert.deepEqual(f.warnings, []);
+  assert.equal(f.socialSecurityWages, 18450000);
+  assert.equal(f.socialSecurityTax, 2 * (620000 + 523900));
+  // Withholding the full 6.2% in run 3 is flagged.
+  const bad = addPayroll(newBooks(), `${HEAD}\n${row("2026-01-15", "6200.00")}\n${row("2026-02-15", "5239.00")}\n${row("2026-03-15", "6200.00")}\n`).books;
+  assert.match(form941(bad, 2026, 1).warnings.join("\n"), /Ana.*taxable wages/);
+  // Wages from an earlier quarter count toward the base.
+  assert.equal(form941(books, 2026, 2).runs, 0);
+});
