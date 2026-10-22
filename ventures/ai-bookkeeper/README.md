@@ -442,19 +442,6 @@ depreciated); the Schedule C worksheet carries 6950 to line 13. This is book
 depreciation. Tax depreciation is a separate worksheet (below); `assets.test.mjs` covers the arithmetic, the journal, disposal, the check,
 line 13 and the locked period. The page has an "equipment and depreciation" card: add an asset, see cost, depreciated and net book value, sell or scrap it (clicked through in headless Chromium by `eval/browser-click.mjs`). The same card has a US tax depreciation (MACRS) section (2026-10-21): pick an asset, set class, Section 179 and bonus percent, read the year's worksheet (tax against book, with the engine's warnings) and download it as CSV (`taxDepreciationCsv`); clicked through in headless Chromium (a $10,000 5-year asset with $1,000 of 179 shows $2,800.00 in year one).
 
-
-### Statement PDF in the page (2026-10-22)
-
-The page's file picker takes a statement PDF with a text layer: `pdftext.mjs`
-reads it in the browser (Flate and object streams, page-tree order, ToUnicode
-maps for two-byte fonts, glyph widths for spacing, rows rebuilt by position),
-then the pasted-text reader above does the rest. No tool is installed and
-nothing is uploaded. Checked on a PDF printed by Chromium (per-glyph
-positioning, Type0 fonts, flipped CTM): 4 of 4 rows, and the page click-through
-in headless Chromium imports them. Not tried: a real bank's PDF, encrypted
-files, fonts with no ToUnicode map and a non-Latin-1 encoding, rotated pages.
-The CLI still uses `pdftotext` (its path is synchronous); scans stay unread.
-
 ### Tax depreciation worksheet (US, MACRS)
 
 `taxdepr.mjs` (2026-10-21) computes the schedule a US return uses, beside the
@@ -511,7 +498,7 @@ only: a fiscal year ending in another month is not modelled. The page has a "yea
 ## Not modelled
 
 The 179 taxable-income limit, inventory,
-payroll and sales tax filings, multiple currencies (the VAT worksheet is UK-layout, invoice basis), a scanned (image-only) bank-statement PDF. A statement PDF with a text layer is read by `import FILE.pdf` through pdftotext. Receipts can be a PDF or a photo (see below).
+payroll and sales tax filings, multiple currencies (the VAT worksheet is UK-layout, invoice basis), a scanned (image-only) bank-statement PDF. A statement PDF with a text layer is read by `import FILE.pdf` through pdftotext, and on the page by `pdftext.mjs`. Receipts can be a PDF or a photo (see below).
 
 ## Receipts matched to bank lines
 
@@ -604,7 +591,8 @@ is often fine.
 
 ## Next
 
-- Bank statement PDF files read by the CLI (`import FILE.pdf --account CODE`, 2026-10-22: `pdftotext -layout`, then the pasted-text reader; node test builds a one-page PDF by hand and reads it with the real pdftotext; no real bank PDF tried, scans refused). Try real statements; the page still takes pasted text.
+- Bank statement PDF files read by the CLI (`import FILE.pdf --account CODE`, 2026-10-22: `pdftotext -layout`, then the pasted-text reader; node test builds a one-page PDF by hand and reads it with the real pdftotext; no real bank PDF tried, scans refused). Try real statements.
+- The page's file picker takes a statement PDF too (2026-10-22, `pdftext.mjs`): the text layer is read in the tab with no library and no upload (Flate streams, ToUnicode maps, text matrix and y-flip, widths for spacing). Verified on two PDFs printed by headless Chromium (a text statement and a table with a running balance over two pages): output equals `pdftotext -layout` after whitespace folding, 7 of 7 rows imported and reconciled, clicked through in headless Chromium. Not read: scans, encrypted files, non-Flate filters, two-byte fonts with no ToUnicode map; PDFs with compressed object streams are handled in code but no such file was tried. No real bank PDF has been tried.
 - Opening balances from a trial balance (`opening.mjs`, CLI `opening`, agent input `opening`; 2026-10-21; node tests on hand-written trial balances, `node --test ventures/ai-bookkeeper/opening.test.mjs`, 8 pass; a page card (date, file or paste, set and remove; clicked through in headless Chromium with `node eval/browser-click.mjs`, 2026-10-21); a typed list replaces the opening inferred from a statement's running balance for the same account, and imported lines dated on or before the opening date raise a high `opening-overlap` close check).
 - MT940 and CAMT.053 reading landed 2026-10-21 (`sepa.mjs`, hand-written fixtures); OFX, MT940 and CAMT closing balances now feed the reconcile check. Try real exports from a German, Dutch or UK bank.
 - OFX/QFX and QIF reading landed 2026-10-21 against hand-written fixtures (`fixtures/checking.ofx`, `checking.qif`); try real downloads, and try a real multi-account OFX file. Those split per account (2026-10-21, `splitOfx`, `importOfxAccounts`, `fixtures/two-accounts.ofx`; CLI `import FILE --map OFXID=CODE,...`); the page's file picker shows one account picker per account (2026-10-21; clicked through in headless Chromium 2026-10-21 by `eval/browser-click.mjs`, which serves the folder, loads `two-accounts.ofx`, picks accounts, imports and loads the example; it skips when Playwright is absent).
