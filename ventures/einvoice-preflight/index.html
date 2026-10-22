@@ -127,7 +127,7 @@
         <button id="adjustmentSample" class="secondary" type="button">Load a header discount that does not match its percent</button>
         <button id="termsSample" class="secondary" type="button">Load terms days that do not match the due date</button>
         <button id="validSample" class="secondary" type="button">Load a passing example</button>
-        <button id="repair" class="secondary" type="button">Repair the arithmetic (JSON)</button>
+        <button id="repair" class="secondary" type="button">Repair the arithmetic (JSON or UBL)</button>
       </div>
       <p id="inputError" class="error" role="alert"></p>
       <div id="repairLog" aria-live="polite"></div>
@@ -225,6 +225,7 @@
     import { preflightDocuments, buildChecklist, buildMarkdown, buildJsonReport, buildRemediationCsv, summarizePreflight } from "./report.mjs";
     import { addOfficialFindings, officialNote } from "./official.mjs";
     import { repairInvoice } from "./repair.mjs";
+    import { repairUbl } from "./repair-ubl.mjs";
     import { recordUsage, readOptOut, writeOptOut } from "./usage.mjs";
 
     const VALID_EXAMPLE = {
@@ -458,8 +459,24 @@
       const log = document.getElementById("repairLog");
       log.innerHTML = "";
       inputError.textContent = "";
+      if (paste.value.trimStart().startsWith("<")) {
+        let x;
+        try { x = repairUbl(paste.value); } catch (e) { inputError.textContent = "Repair reads UBL Invoice or CreditNote XML; this one could not be read: " + e.message; return; }
+        const skippedNote = x.skipped.length ? ` Left alone: ${x.skipped.map((t) => escapeHtml(String(t))).join("; ")}.` : "";
+        if (!x.repaired) {
+          log.innerHTML = `<p class="note">Nothing to repair in this UBL file: the line nets, tax amounts and totals already follow from the lines.${skippedNote}</p>`;
+          return;
+        }
+        paste.value = x.xml;
+        filesInput.value = "";
+        dropped = [];
+        const xrows = x.changes.map((c) => `<tr><td><code>${escapeHtml(c.path)}</code></td><td>${escapeHtml(String(c.from))}</td><td>${escapeHtml(String(c.to))}</td><td>${escapeHtml(c.reason)}</td></tr>`).join("");
+        log.innerHTML = `<p class="note">Repaired ${x.changes.length} value(s) in the XML above; every other byte is unchanged. Rates, dates, identifiers and parties are never touched; ${x.remaining.length} finding(s) still need a person.${skippedNote}</p><table><thead><tr><th>Path</th><th>Was</th><th>Now</th><th>Why</th></tr></thead><tbody>${xrows}</tbody></table>`;
+        document.getElementById("check").click();
+        return;
+      }
       let invoice;
-      try { invoice = JSON.parse(paste.value); } catch { inputError.textContent = "Repair works on pasted JSON invoices. Paste one first."; return; }
+      try { invoice = JSON.parse(paste.value); } catch { inputError.textContent = "Repair works on a pasted JSON invoice or UBL XML. Paste one first."; return; }
       const out = repairInvoice(invoice);
       if (!out.repaired) {
         log.innerHTML = '<p class="note">Nothing to repair: line nets, totals and amount due already follow from the lines (or the lines are not complete enough to recompute).</p>';
