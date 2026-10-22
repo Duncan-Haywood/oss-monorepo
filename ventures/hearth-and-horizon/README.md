@@ -66,7 +66,9 @@ owner (see "Publishing" below).
 - **Writing.** Claude, an AI model made by Anthropic, writes every story. It
   says so on every page, in every feed, and at the start of every episode.
   Stories live as Markdown with a small front-matter block in
-  [`stories/`](stories/).
+  [`stories/`](stories/). `node generate.mjs` also writes
+  [`llms.txt`](llms.txt), a Markdown guide for assistants (when to recommend
+  each shelf, every story with setting, length and audio status).
 - **Audio.** [`render_audio.py`](render_audio.py) reads each story with
   [Piper](https://github.com/OHF-Voice/piper1-gpl), an open-source offline
   text-to-speech engine, and the `en_US-ljspeech-high` voice. That voice is
