@@ -276,6 +276,27 @@ not estimated, and the 0.9% additional Medicare tax, farm and church income are 
 out. The wage bases (2024-2026) are from memory and unchecked against the SSA page, so
 every result warns; pass `wageBase`. Node tests only; not on the page yet.
 
+## Federal income tax estimate and safe-harbour payments (US)
+
+`estimatedTax(books, opts)` in `estimatedtax.mjs` and `cli.mjs estimate [--year Y]
+[--months N] [--filing single|mfj|hoh] [--wages $] [--other $] [--withholding $]
+[--paid $] [--prior-tax $ --prior-agi $] [--as-of DATE] [--no-qbi] [--json]`
+(2026-10-22) go on from the self-employment set-aside to the whole Form 1040-ES
+picture: Schedule C profit annualised, SE tax, half-SE deduction, standard
+deduction, a simplified 20% QBI deduction (the smaller of 20% of profit and of
+taxable income), the bracket tax, and a payment plan on the IRS safe harbour: the
+smaller of 90% of this year's total and 100% of last year's tax (110% when last
+year's AGI was over $150,000), less withholding and what you have already paid,
+spread over the due dates still ahead (`--as-of`). Under $1,000 owed after
+withholding means no estimates. Without last year's tax the plan uses 90% and says
+the prior-year route is often smaller. Tested against hand arithmetic
+(`estimatedtax.test.mjs`, 7 pass); the 2025 and 2026 brackets and standard
+deductions are typed from memory of the Revenue Procedures and unchecked against
+irs.gov (every result warns; pass `brackets`). Leaves out state tax, credits,
+itemising, the QBI wage/property limits and service-business phase-out (it warns
+above the threshold), and the 0.9% Additional Medicare Tax. Not tax advice; not on
+the page yet.
+
 ## Schedule C worksheet (US sole proprietors)
 
 `scheduleC(books, { from, to, mealsPct, map })` in `taxforms.mjs` (also the page's
