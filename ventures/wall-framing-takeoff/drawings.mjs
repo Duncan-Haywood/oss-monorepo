@@ -4,6 +4,7 @@
 // to build from. Pure functions (no DOM): the page, the CLI and agents share them.
 // Inches throughout; the drawing is a plan-derived picture, not engineering.
 import { formatLength, formatInches, verifyWall } from "./engine.mjs";
+import { panelizeWall } from "./panels.mjs";
 
 const PREFIX = { plate: "P", stud: "S", king: "K", jack: "J", header: "H", cripple: "C", sill: "L", blocking: "B" };
 const FILL = { plate: "#a3824f", stud: "#d9b97c", king: "#c48a3a", jack: "#8d6a2f", header: "#6f4e22", cripple: "#e4cf9f", sill: "#b88d4a", blocking: "#c9b48a" };
@@ -64,13 +65,14 @@ function shape(m, H, peak) {
  * @param {any} w laid-out wall from takeoff()
  * @param {any} wall the plan's wall (for rough openings)
  * @param {{defaultHeaderHeight?: number}} plan
+ * @param {ReturnType<typeof panelizeWall>|null} [panels] when given, panel joints are drawn as purple dash-dot lines with a letter per panel
  */
-export function wallElevationSvg(w, wall, plan = {}) {
+export function wallElevationSvg(w, wall, plan = {}, panels = null) {
   const H = w.height;
   const L = w.length;
   const { marks } = markMembers(w);
   const peak = w.gable?.peak ?? L / 2;
-  const padL = 14, padR = 14, padT = 14, padB = 46;
+  const padL = 14, padR = 14, padT = panels ? 22 : 14, padB = 46;
   const members = w.members.map((m, i) => {
     const s = shape(m, H, peak);
     const tiny = (m.kind === "plate" ? m.h : Math.min(m.w, m.h)) < 3;
@@ -108,10 +110,13 @@ export function wallElevationSvg(w, wall, plan = {}) {
   const overall = `<line x1="0" x2="${L}" y1="${baseY + 12}" y2="${baseY + 12}" class="dim"/><line x1="0" x2="0" y1="${baseY + 9}" y2="${baseY + 15}" class="dim"/><line x1="${L}" x2="${L}" y1="${baseY + 9}" y2="${baseY + 15}" class="dim"/><text x="${r3(L / 2)}" y="${baseY + 22}" class="dt big">${esc(w.id)}: ${esc(formatLength(L))} overall</text>`;
   const hdim = `<line x1="-6" x2="-6" y1="0" y2="${H}" class="dim"/><text x="-8" y="${r3(H / 2)}" transform="rotate(-90 -8 ${r3(H / 2)})" class="dt">${esc(formatInches(H))}</text>`;
 
+  const panelLines = !panels ? "" : panels.cuts.map((c) => `<line x1="${c}" x2="${c}" y1="-4" y2="${H + 2}" stroke="#6a2c91" stroke-width="0.8" stroke-dasharray="4 1.5 1 1.5"/>`).join("")
+    + panels.panels.map((p) => `<text x="${r3((p.x0 + p.x1) / 2)}" y="-5" class="pn">Panel ${esc(p.name)}</text>`).join("");
+
   const vb = `${-padL} ${-padT} ${r3(L + padL + padR)} ${r3(H + padT + padB)}`;
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${vb}" role="img" aria-label="Shop drawing of wall ${esc(w.id)}, ${esc(formatLength(L))} long, ${esc(formatInches(H))} high">`
-    + `<style>.mk{font:3.4px sans-serif;text-anchor:middle;dominant-baseline:middle;fill:#1b1306}.ro{font:4.4px sans-serif;text-anchor:middle;fill:#1d5c7a}.ro.sm{font-size:3.4px}.dt{font:3.6px sans-serif;text-anchor:middle;fill:#222}.dt.big{font-size:5px;font-weight:700}.dim{stroke:#444;stroke-width:0.3}</style>`
-    + `${members}${openings}${joints}${ticks}${chain}${overall}${hdim}</svg>`;
+    + `<style>.mk{font:3.4px sans-serif;text-anchor:middle;dominant-baseline:middle;fill:#1b1306}.ro{font:4.4px sans-serif;text-anchor:middle;fill:#1d5c7a}.ro.sm{font-size:3.4px}.dt{font:3.6px sans-serif;text-anchor:middle;fill:#222}.dt.big{font-size:5px;font-weight:700}.dim{stroke:#444;stroke-width:0.3}.pn{font:4px sans-serif;text-anchor:middle;fill:#6a2c91;font-weight:700}</style>`
+    + `${members}${openings}${joints}${panelLines}${ticks}${chain}${overall}${hdim}</svg>`;
 }
 
 /** The parts table of one wall as HTML. */
@@ -120,6 +125,17 @@ export function partsTableHtml(w) {
   return `<table><thead><tr><th>Mark</th><th class="n">Qty</th><th>Size</th><th class="n">Cut length</th><th>Member</th></tr></thead><tbody>`
     + parts.map((p) => `<tr><td><b>${esc(p.mark)}</b></td><td class="n">${p.qty}</td><td>${esc(p.size)}</td><td class="n">${esc(formatInches(p.length))}</td><td>${esc(p.label)}</td></tr>`).join("")
     + `</tbody></table>`;
+}
+
+/** Panel table: letter, span, width and the members each shop panel carries. */
+function panelTableHtml(w, pan, max) {
+  const rows = pan.panels.map((p) => {
+    const kinds = {};
+    for (const i of p.members) kinds[w.members[i].kind] = (kinds[w.members[i].kind] || 0) + 1;
+    return `<tr><td><b>${esc(p.name)}</b></td><td>${esc(formatLength(p.x0))} to ${esc(formatLength(p.x1))}</td><td class="n">${esc(formatLength(p.width))}${p.over ? ' <span class="err">over limit</span>' : ""}</td><td>${Object.entries(kinds).map(([k, n]) => `${n} ${k}`).join(", ")}</td></tr>`;
+  }).join("");
+  return `<h2>Shop panels (up to ${esc(formatLength(max))})</h2><table><thead><tr><th>Panel</th><th>Span</th><th class="n">Width</th><th>Members</th></tr></thead><tbody>${rows}</tbody></table>`
+    + `<p class="chk">Cuts (purple) fall only where no stud, king, jack, cripple, header, sill or block crosses; plates are cut to panel length and the adjoining end studs are nailed together on site.${pan.over ? ' <span class="err">At least one panel is over the limit: no clear cut line exists within it (a wide opening).</span>' : ""}</p>`;
 }
 
 const CSS = `body{font:14px/1.4 system-ui,sans-serif;margin:0;color:#1b1b1b;background:#fff}
@@ -136,7 +152,7 @@ const DISCLAIMER = "No warranty. These drawings are a plan-derived picture of th
  * The whole drawing set as one printable HTML document, one sheet per wall.
  * @param {{ok: boolean, walls: any[]}} result from takeoff()
  * @param {any} plan the plan that produced it
- * @param {{title?: string}} [opts]
+ * @param {{title?: string, panelMax?: number}} [opts] panelMax (inches) splits each wall into shop panels no longer than that
  */
 export function drawingSetHtml(result, plan, opts = {}) {
   const title = opts.title || "Wall framing shop drawings";
@@ -144,8 +160,10 @@ export function drawingSetHtml(result, plan, opts = {}) {
     const wall = plan.walls[i];
     const problems = verifyWall(w, wall);
     const joints = ["bottom", "top", "cap"].map((k) => `${k} ${(w.joints?.[k] || []).map(formatLength).join(", ") || "none"}`).join("; ");
+    const pan = opts.panelMax > 0 ? panelizeWall(w, opts.panelMax) : null;
     return `<section class="sheet"><h1>${esc(w.id)}</h1><p class="sub">Sheet ${i + 1} of ${result.walls.length} &middot; ${esc(formatLength(w.length))} long &middot; ${esc(formatInches(w.height))} high &middot; ${esc(w.stud)} studs at ${esc(formatInches(plan.studSpacing))} centres${w.gable ? ` &middot; gable ${w.gable.pitch}/12` : ""}</p>`
-      + wallElevationSvg(w, wall, plan)
+      + wallElevationSvg(w, wall, plan, pan)
+      + (pan ? panelTableHtml(w, pan, opts.panelMax) : "")
       + `<h2>Parts</h2>${partsTableHtml(w)}`
       + `<p class="chk">Plate joints (red) from the wall start: ${esc(joints)}. ${problems.length ? `<span class="err">Layout check found ${problems.length} problem(s): ${problems.map(esc).join("; ")}</span>` : "Layout check passed: every member inside the wall, none overlapping, every plate joint over a full stud."}</p>`
       + (w.notes?.length ? `<p class="chk">${w.notes.map(esc).join(" ")}</p>` : "")

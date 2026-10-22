@@ -36,6 +36,11 @@ await page.waitForFunction(() => document.querySelector("#sheathing")?.textConte
 const adv = await page.textContent("#sheathing");
 console.log(adv.includes("CHECK FAILED") ? "FAIL: advanced framing check" : "ok: advanced framing both, no check failures");
 console.log(vertical.includes("Panels run vertically") && horizontal.includes("CHECK FAILED") === false ? "ok: vertical then horizontal, no check failures" : "FAIL");
+await page.fill("#panelMax", "12 ft");
+const [dl] = await Promise.all([page.waitForEvent("download"), page.click("#drawings")]);
+const drawn = await (await import("node:fs/promises")).readFile(await dl.path(), "utf8");
+const panelsOk = drawn.includes("Shop panels (up to 12") && drawn.includes("Panel A") && !/NaN|undefined/.test(drawn);
+console.log(panelsOk ? "ok: drawings download with shop panels" : "FAIL: shop panels missing");
 console.log("page errors:", errors.length);
 await browser.close(); server.close();
-process.exit(errors.length || horizontal.includes("CHECK FAILED") ? 1 : 0);
+process.exit(errors.length || !panelsOk || horizontal.includes("CHECK FAILED") ? 1 : 0);
