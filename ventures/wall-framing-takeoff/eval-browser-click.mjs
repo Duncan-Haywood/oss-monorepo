@@ -49,6 +49,13 @@ await page.selectOption("#rfSpacing", "24");
 await page.waitForFunction(() => document.querySelector("#roofOut")?.textContent.includes("at 24 o.c."));
 const roofOk = /Roof sheathing: \d+ sheets/.test(roofTxt) && !/NaN|undefined/.test(roofTxt) && (await page.textContent("#order")).includes("rafter") === false; // order rows carry sizes, not kinds
 console.log(roofOk ? "ok: roof on, then 24 in spacing" : "FAIL: roof card");
+await page.fill("#rfW", "16 ft"); await page.fill("#rfL", "24 ft"); // a 28 x 40 hip needs 21 ft hips, longer than default stock
+await page.selectOption("#rfShape", "hip");
+await page.selectOption("#rfHip", "2x10");
+await page.waitForFunction(() => document.querySelector("#roofOut")?.textContent.includes("Hip roof"));
+const hipTxt = await page.textContent("#roofOut");
+const hipOk = /2x10 hips of/.test(hipTxt) && !/NaN|undefined/.test(hipTxt);
+console.log(hipOk ? "ok: hip roof with 2x10 hips" : "FAIL: hip roof card");
 console.log("page errors:", errors.length);
 await browser.close(); server.close();
-process.exit(errors.length || !panelsOk || !roofOk || horizontal.includes("CHECK FAILED") ? 1 : 0);
+process.exit(errors.length || !panelsOk || !roofOk || !hipOk || horizontal.includes("CHECK FAILED") ? 1 : 0);
