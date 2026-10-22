@@ -1,0 +1,13 @@
+[project]
+name = "capture-syncfine"
+version = "0.1.0"
+description = "Does a coarse offset first let short audio windows sync two drifting cameras at lower SNR?"
+requires-python = ">=3.9"
+dependencies = ["numpy"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "../capture-audiosync/src"]
