@@ -1107,6 +1107,19 @@ or `ventures`) until its success rate passes 80% over 20 runs?
 
 ## E68: review 2026-10-22 (reduced pass)
 
+- Change: `portfolio/flagships.yaml` changepoint-detector `next:` cut from about
+  11k to 0.4k characters: open items only, landed history left to the README
+  and git (the follow-up E67 named; all three long `next:` fields are now cut).
+- Metric: friction reports against `portfolio/flagships.yaml`, over the next
+  40 runs (baseline: E66/E67 window).
+- Decisions: research candidate 1 kept (retire verdict still fires only on the
+  one disclosed caveat; E55 proposal stands). ventures 2, process 2 and review
+  2 unchanged (overlap / too few runs). `derived/` regenerated. No audit or
+  drift report (reduced pass).
+- Result: (next review)
+
+## E69: review 2026-10-22 (reduced pass)
+
 - Change: `portfolio/flagships.yaml` wall-framing-takeoff `next:` cut from
   about 5k to 0.6k characters: open items only, landed history left to the
   README and ROADMAP (the follow-up after E66 and E67). changepoint-detector's
