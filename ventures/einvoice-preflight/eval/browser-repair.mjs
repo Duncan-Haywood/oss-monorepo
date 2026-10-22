@@ -55,6 +55,18 @@ await page.waitForFunction(() => /Repaired 1 value/.test(document.getElementById
 const xmlNow = await page.inputValue("#paste");
 const xmlOk = xmlNow.includes("<ram:CalculatedAmount>190.00</ram:CalculatedAmount>") && xmlNow.startsWith("<?xml");
 console.log({ xmlOk });
-const ok = xmlOk && ok0;
+// A dropped Factur-X PDF with a wrong gross: repaired, with a download link.
+const { buildPdfWithAttachment } = await import("../facturx.mjs");
+const badCii = readFileSync(join(root, "examples/xrechnung-cii-invoice.xml"), "utf8").replace("<ram:GrandTotalAmount>1190.00", "<ram:GrandTotalAmount>1100.00");
+await page.fill("#paste", "");
+await page.setInputFiles("#files", { name: "bad.pdf", mimeType: "application/pdf", buffer: Buffer.from(buildPdfWithAttachment(badCii)) });
+await page.click("#repair");
+await page.waitForSelector("#repairedPdf");
+const pdfHref = await page.getAttribute("#repairedPdf", "href");
+const pdfBytes = await page.evaluate(async (u) => (await (await fetch(u)).arrayBuffer()).byteLength, pdfHref);
+const pdfRows = await page.locator("#repairLog tbody tr").count();
+console.log({ pdfRows, pdfBytes, errors });
+const pdfOk = pdfRows === 1 && pdfBytes > buildPdfWithAttachment(badCii).length && errors.length === 0;
+const ok = xmlOk && ok0 && pdfOk;
 await browser.close(); server.close();
 process.exit(ok && uOk ? 0 : 1);
