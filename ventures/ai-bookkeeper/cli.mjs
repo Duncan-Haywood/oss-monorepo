@@ -16,7 +16,7 @@
 //   node cli.mjs --example report
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
 import { addLoan, applyLoanPayments, loanRegister, loanSchedule } from "./loans.mjs";
-import { newBooks, importStatement, importOfxAccounts, lockPeriod, closeYear, reopenYear, yearEndReport, categorize, suggestRules, addRules, addDocuments, addAsset, disposeAsset, addAssetsCsv, register, addPrepaid, prepaidRegister, writeOff, aging, salesTax, vatReturn, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, exportLines, status, analyze, fmt, taxableBusinessIncome } from "./engine.mjs";
+import { newBooks, importStatement, importOfxAccounts, lockPeriod, closeYear, reopenYear, yearEndReport, categorize, suggestRules, addRules, addDocuments, addAsset, disposeAsset, addAssetsCsv, register, addPrepaid, prepaidRegister, writeOff, aging, salesTax, vatReturn, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, exportLines, status, analyze, fmt, taxableBusinessIncome, s179Carryforward } from "./engine.mjs";
 import { parseCents } from "./bank.mjs";
 import { accountMap } from "./ledger.mjs";
 import { seSetAside, selfEmployment, scheduleC, scheduleCCsv, contractors1099, contractors1099Csv, nec1099FilingCsv, markW9, mergePayees } from "./taxforms.mjs";
@@ -214,7 +214,10 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
   const elected = (books.assets ?? []).some((a) => a.tax?.s179);
   const incomeFlag = flag("--income");
   const businessIncome = incomeFlag !== null && incomeFlag !== "books" ? parseCents(incomeFlag) : elected ? taxableBusinessIncome(books, year) : null;
-  const w = taxDepreciation(books, year, { businessIncome, carryIn: flag("--carry-in") ? parseCents(flag("--carry-in")) : 0 });
+  const carryFlag = flag("--carry-in");
+  const chain = carryFlag === null && elected ? s179Carryforward(books, year) : null;
+  const w = taxDepreciation(books, year, { businessIncome, carryIn: carryFlag ? parseCents(carryFlag) : chain ? chain.carryIn : 0 });
+  if (chain) for (const c of chain.years.filter((c) => c.carryIn || c.carryOut || c.elected)) w.warnings.push(`${c.year}: Section 179 pool ${fmt(c.dollarLimited + c.carryIn)} against business income ${fmt(c.income)}: ${fmt(c.deductible)} deducted, ${fmt(c.carryOut)} carried on${c.booked ? "" : " (no bookkeeping that year, so income counted as zero; enter the real figure with --carry-in)"}.`);
   if (json) { console.log(JSON.stringify(w, null, 2)); process.exit(0); }
   console.log(`TAX DEPRECIATION ${year} (MACRS, half-year)`);
   for (const r of w.rows) console.log(`  ${r.id.padEnd(6)} ${r.name.slice(0, 24).padEnd(24)} ${r.class}-yr  179 ${fmt(r.s179).padStart(10)}  bonus ${fmt(r.bonus).padStart(10)}  MACRS ${fmt(r.macrs).padStart(10)}  tax ${fmt(r.total).padStart(11)}  book ${fmt(r.book).padStart(10)}`);
