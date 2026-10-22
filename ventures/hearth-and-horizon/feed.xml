@@ -24,6 +24,8 @@
       <itunes:summary>A bedtime story about Saint Brigid of Kildare, who asked a king for only as much land as her cloak could cover, and the cloak that went on spreading. Told as the old tradition tells it, with a note for grown-ups on what is history and what is legend. For ages 3 to 8, about ten minutes read aloud. Her feast day is the 1st of February.</itunes:summary>
       <itunes:episodeType>full</itunes:episodeType>
       <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://example.invalid/hearth-and-horizon/audio/brigid-and-the-cloak.mp3" length="3866815" type="audio/mpeg"/>
+      <itunes:duration>0:10:44</itunes:duration>
     </item>
     <item>
       <title>Francis and the Wolf of Gubbio</title>

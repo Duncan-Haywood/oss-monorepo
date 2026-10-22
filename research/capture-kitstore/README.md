@@ -25,8 +25,9 @@ Follow-up to `capture-realkit` and `capture-storage` (track 13, autonomous multi
 ```bash
 pip install pytest
 cd research/capture-kitstore
-python -m pytest -q tests                       # 10 tests
+python -m pytest -q tests                       # 11 tests
 PYTHONPATH=src python experiments/run.py        # a few seconds; writes experiments/results.txt
+PYTHONPATH=src python experiments/sweep.py        # sweep.txt
 python experiments/figure.py                    # experiments/kit_vs_joint.svg
 ```
 
@@ -50,9 +51,22 @@ python experiments/figure.py                    # experiments/kit_vs_joint.svg
 - **Reader speed changes nothing here.** The joint shot count is identical at 90, 104 and 312 MB/s at all seven budgets; the speed changes how many readers the plan carries (a few tens of grams), not which kit wins.
 - **The data volume is modest** because only one camera per mount records: 108 GB a day for the phone-only kits, 468 to 576 GB for kits with a mirrorless body.
 
+
+## Trip length and filming hours (`experiments/sweep.py`, `experiments/sweep.txt`)
+Recording hours per day (which is also the kit's recording floor) against trip length, same offload rules, exact search over all 11,520 kits:
+
+| hours/day | 3 d | 7 d | 14 d | 28 d |
+|---|---|---|---|---|
+| 2 | 3,492 | 3,512 | 3,552 | 3,702 |
+| 4 | 4,076 | 4,116 | 4,266 | 4,566 |
+| 6 | 4,142 | 4,292 | 4,442 | 4,892 |
+| 8 | 4,257 | 4,407 | 4,707 | 5,307 |
+
+Lightest total carried weight (g) reaching all 18 shots. The storage share of that kit runs from 140 g (2 h, 3 d) to 1,326 g (8 h, 28 d). Within a 4 kg budget the best kit reaches 18 shots only at 2 h a day; at 4 h it reaches 15 at every trip length, and at 8 h or 28 d with 6 h it falls to 12. Doubling the filming day costs more than quadrupling the trip at the low end (2 h to 4 h adds about 560 g at 7 days; 7 to 28 days adds 190 g at 2 h). The 4 h, 7 d cell is 4,116 g here against 4,125 g in the 25 g-step table above, as expected. Same unsourced inputs as above (SSD and reader masses, three bitrates).
+
 ## Limitations
 - The 360 camera, phone and mirrorless bitrates, SSD masses and reader mass are assumed. The bitrate sweep covers the first; the second group is small next to a kit (45 to 75 g per SSD) but unswept.
-- Only 4 h of recording a day and a 7-day trip were tried; longer trips raise SSD weight, and longer shooting days raise the readers needed.
+- The main tables use 4 h a day and 7 days; the sweep above covers 2 to 8 h and 3 to 28 days, with one recording-hours figure for every camera.
 - A phone has no card slot; its footage is treated as one more stream through the same readers. A laptop or hub able to take 3 to 4 readers at once, its charger and its power are not counted, though a trip with a mirrorless body probably carries a laptop anyway.
 - The bus speeds are ceilings; real card and reader pairs are slower, so reader counts are lower bounds.
 - The variety score counts band-by-viewpoint labels, not image quality.
@@ -60,7 +74,6 @@ python experiments/figure.py                    # experiments/kit_vs_joint.svg
 ## Next steps
 - Count the laptop or hub the offload needs, and compare with offloading to a phone and cloud over hotel Wi-Fi.
 - Weigh real mounts and SSDs with a scale (see `capture-realkit`'s next steps); the SSD and reader grams are the main unsourced inputs here.
-- Vary recording hours per camera and trip length together with the kit.
 
 ## Owner steps
 Time a real card-to-SSD copy with the intended readers before relying on any reader count here.

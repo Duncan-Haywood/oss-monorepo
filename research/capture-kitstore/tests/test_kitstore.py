@@ -66,3 +66,10 @@ def test_four_kilo_loses_shots_when_storage_counted():
 def test_without_storage_joint_equals_kit_only():
     for b in (1500, 5000):
         assert variety(exact_joint(b, KITS, 4.0, with_storage=False)[0]) == variety(exact_kit(b, KITS, 4.0))
+
+
+def test_storage_weight_grows_with_trip_length_and_hours():
+    k = next(k for k in KITS if any(c.name.startswith("Sony") for c in k.cameras) and legal(k) and hours(k) >= 8)
+    g = lambda h, d: storage(k, h, days=d).grams
+    assert g(4.0, 3) <= g(4.0, 7) <= g(4.0, 28)
+    assert g(2.0, 7) <= g(4.0, 7) <= g(8.0, 7)

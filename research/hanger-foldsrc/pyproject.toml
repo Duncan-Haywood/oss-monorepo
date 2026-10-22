@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hanger-foldsrc"
+version = "0.1.0"
+description = "The laundry-hanging cell with fold-station times taken from the SpeedFolding paper instead of an assumed 25 s: dryers served and fold tables needed"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+dependencies = []
+
+[tool.setuptools.packages.find]
+where = ["src"]

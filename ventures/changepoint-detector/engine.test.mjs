@@ -1167,3 +1167,22 @@ test('--bursts stops a spike being read as two changes', () => {
   assert.equal(on.values[40], 160);
   assert.throws(() => analyze({ values: x, bursts: true }), /counts/);
 });
+
+test('negbinSize sizes a clumpy series from its first differences', () => {
+  const x = Array.from({ length: 12 }, (_, i) => (i % 2 ? 20 : 0));
+  const r = negbinSize(x);
+  assert.ok(Number.isFinite(r));
+  assert.ok(Math.abs(r - 100 / (400 / 0.9098 - 10)) < 1e-9);
+});
+
+test('findBursts needs both the ratio and a Poisson-sized excess', () => {
+  const small = Array(12).fill(0); small[6] = 3; // 3 >= 2.5 x 1, but the excess 3 is within Poisson noise
+  assert.deepEqual(findBursts(small).indexes, []);
+  const big = Array(12).fill(100); big[6] = 145; // excess 45 is large, but only 1.45 x the neighbours
+  assert.deepEqual(findBursts(big).indexes, []);
+});
+
+test('negbinSize counts every first difference, the first included', () => {
+  // four calm differences against three jumps: the median is 0, so there is no excess spread to fit
+  assert.equal(negbinSize([5, 5, 5, 5, 5, 25, 5, 25]), Infinity);
+});
