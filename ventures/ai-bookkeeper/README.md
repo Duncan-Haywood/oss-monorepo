@@ -343,6 +343,17 @@ on bills is left out. It is a worksheet to check a return against, not a return:
 rates, nexus, exemptions and filing dates are yours to know. Test: engine.test.mjs,
 "sales tax is collected".
 
+**Return worksheet by jurisdiction** (`salestaxreturn.mjs`, 2026-10-22; CLI
+`salestax return [--freq monthly|quarterly|annual] [--due-day N] [--rate "CA state=7.25"]`):
+put the jurisdiction in the tax line's description column ("CA state", "LA county")
+and the worksheet gives, per filing period and jurisdiction, taxable sales (net of
+credit notes), non-taxable sales (invoices with no tax line), tax due, the rate
+actually collected, and the due date (next month's `--due-day`, default the 20th).
+`--rate` warns when the collected rate differs from the one you expect; tax lines
+with no description are listed as "Unlabelled" with a warning. Hand-written
+documents only (`salestaxreturn.test.mjs`, 3 pass); no state's own return layout,
+vendor discount, or due-date calendar is modelled. Not tax advice.
+
 **Refunds and write-offs.** A bank line for the exact amount left on a credit
 note nobody applied (money out for a customer's credit, money in for a
 supplier's), with the credit's number or the party's name in the description,
