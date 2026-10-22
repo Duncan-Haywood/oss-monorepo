@@ -36,7 +36,7 @@
     }
   ],
   "deviations": [],
-  "writeups": [],
+  "writeups": ["research/osrobot-weedpass/README.md"],
   "goal": null,
   "notes": "Backlog P036 part 1 slice: removed tofu job. 140 tests pass locally; no agent doc/post written (small slice).",
   "corrections": [],

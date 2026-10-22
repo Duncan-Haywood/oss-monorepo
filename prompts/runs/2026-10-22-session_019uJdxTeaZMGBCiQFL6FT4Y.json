@@ -41,7 +41,7 @@
       "why": "Planned a flagship feature slice (receipt photos in the page); found the page itself broken by today's OCR change and fixed that instead. In-browser OCR was untestable since the CDN is blocked."
     }
   ],
-  "writeups": [],
+  "writeups": ["research/osrobot-weedpass/README.md"],
   "goal": null,
   "notes": "Page load broken by node: imports (receipts.mjs->ocr.mjs); fixed via cleanocr.mjs, import-graph test, 214 node tests pass, headless Chromium load plus receipt read ok. No agent doc/post written: small fix.",
   "corrections": [],

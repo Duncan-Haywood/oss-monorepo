@@ -33,7 +33,7 @@
   "integrity_issues": [],
   "doc_friction": [],
   "deviations": [],
-  "writeups": [],
+  "writeups": ["research/osrobot-weedpass/README.md"],
   "goal": null,
   "notes": "Target check_shared_link_clears.py; catch rate 6/8 (2 equivalent boundary mutants). One real defect patched with test.",
   "corrections": [],

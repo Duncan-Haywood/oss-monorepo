@@ -33,7 +33,7 @@
   "integrity_issues": [],
   "doc_friction": [],
   "deviations": [],
-  "writeups": [],
+  "writeups": ["research/osrobot-weedpass/README.md"],
   "goal": null,
   "notes": "Free-choice research project free-lorenzhorizon. No agent doc/post written (small project; README is the write-up). Checks run locally: unittest 4 ok, build.py ok, check_md_links ok.",
   "corrections": [],

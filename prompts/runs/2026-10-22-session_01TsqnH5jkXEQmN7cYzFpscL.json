@@ -42,7 +42,7 @@
     }
   ],
   "deviations": [],
-  "writeups": [],
+  "writeups": ["research/osrobot-weedpass/README.md"],
   "goal": null,
   "notes": " Target changepoint-detector/engine.mjs: 8 mutants, 6 caught, 2 escaped (negbinSize first-difference sign, findBursts and-to-or); 3 tests added; catch rate 0.75 -> 1.0 after rerun. Hunting found no real defects. Local checks: node --test engine.test.mjs all pass.",
   "corrections": [],

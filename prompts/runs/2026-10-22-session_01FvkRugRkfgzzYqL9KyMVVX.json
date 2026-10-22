@@ -47,7 +47,7 @@
       "why": "Skipped the docs/reports and docs/posts write-up and the venture-preflight run to keep the slice small; flagship change is CLI/engine only."
     }
   ],
-  "writeups": [],
+  "writeups": ["research/osrobot-weedpass/README.md"],
   "goal": null,
   "notes": "Added reconcile.mjs + CLI command; 6 new tests, ai-bookkeeper suite 238/238 pass locally. CI not awaited; no real statement tried.",
   "corrections": [],

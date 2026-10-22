@@ -42,7 +42,7 @@
   }
  ],
  "deviations": [],
- "writeups": [],
+ "writeups": ["research/osrobot-weedpass/README.md"],
  "goal": null,
  "notes": "Wrote a PDF text-layer reader and page support, then found PR #9327 had landed the same feature (pdftext.mjs) on main during the run. Dropped my implementation in the merge and kept only a real-Chromium-PDF fixture test against theirs (their reader gives the same rows). Duplicate work: the open-PR search at start did not catch it because #9327 was opened/merged mid-run. Local checks only.",
  "corrections": [],

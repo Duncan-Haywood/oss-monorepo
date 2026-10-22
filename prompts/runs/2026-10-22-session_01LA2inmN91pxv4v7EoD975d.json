@@ -44,7 +44,7 @@
    "why": "ran 1 seed per condition instead of the planned 3 (30 min/run on CPU); reported as preliminary. Skipped agent doc/post write-up for time."
   }
  ],
- "writeups": [],
+ "writeups": ["research/osrobot-weedpass/README.md"],
  "goal": null,
  "notes": "",
  "corrections": [],

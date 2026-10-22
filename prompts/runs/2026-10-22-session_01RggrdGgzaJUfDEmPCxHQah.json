@@ -38,7 +38,7 @@
     }
   ],
   "deviations": [],
-  "writeups": [],
+  "writeups": ["research/osrobot-weedpass/README.md"],
   "goal": null,
   "notes": "Track 13 has no free milestone; coupled capture-realkit and capture-storage (both named it as a next step). 10 tests, build.py ok, check_md_links ok run locally.",
   "corrections": [],

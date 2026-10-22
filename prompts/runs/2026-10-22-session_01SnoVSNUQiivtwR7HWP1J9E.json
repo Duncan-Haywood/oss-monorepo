@@ -43,7 +43,7 @@
       "why": "Reduced pass (steps 1,3,7,8 + one fix); skipped audit and drift report, four reviews already ran 2026-10-21."
     }
   ],
-  "writeups": [],
+  "writeups": ["research/osrobot-weedpass/README.md"],
   "goal": null,
   "notes": "prompt.md trimmed 103->102; E65 logged; derive fetch capped at 25/43; validate and unittest pass.",
   "corrections": [],

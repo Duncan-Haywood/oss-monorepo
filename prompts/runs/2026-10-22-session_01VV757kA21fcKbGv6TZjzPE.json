@@ -31,7 +31,7 @@
   "integrity_issues": [],
   "doc_friction": [],
   "deviations": [],
-  "writeups": [],
+  "writeups": ["research/osrobot-weedpass/README.md"],
   "goal": null,
   "notes": "Five campaigns on ai-bookkeeper (prepaid, pdftext, receipts, ocr, cleanocr), 40 mutants, 24 caught (60%). 16 escapes: 10 guarded by new tests in the prepaid, ocr and receipts suites; 2 equivalent; 4 pdftext escapes left unguarded. No real defects found.",
   "corrections": [],

@@ -38,7 +38,7 @@
     }
   ],
   "deviations": [],
-  "writeups": [],
+  "writeups": ["research/osrobot-weedpass/README.md"],
   "goal": null,
   "notes": "One campaign (8 mutants, platform/ci/check_storage_guard.py): 7 caught, 1 escaped (87.5% before; 100% after hand re-apply). One real defect: try-keyword boundary used isalnum so _try/try$ identifiers counted as try blocks. Fixed with a [\\w$] boundary plus test. Not a product run: no llms.txt/marketing/write-up.",
   "corrections": [],

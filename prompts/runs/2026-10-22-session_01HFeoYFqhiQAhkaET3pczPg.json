@@ -41,7 +41,7 @@
       "why": "Ran ai-bookkeeper tests locally instead of venture-preflight/CI wait; tesseract path untested (not installed)."
     }
   ],
-  "writeups": [],
+  "writeups": ["research/osrobot-weedpass/README.md"],
   "goal": null,
   "notes": "Built OCR cleanup + tesseract input, then found PR #9320 had landed the same feature; reset to main and kept only the gaps (space before decimal, O.87, S10.62, cleanup applied in parseReceipt). ai-bookkeeper node tests pass (213).",
   "corrections": [],

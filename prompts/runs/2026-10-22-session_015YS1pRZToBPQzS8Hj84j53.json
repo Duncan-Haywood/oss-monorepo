@@ -33,7 +33,7 @@
   "integrity_issues": [],
   "doc_friction": [],
   "deviations": [],
-  "writeups": [],
+  "writeups": ["research/osrobot-weedpass/README.md"],
   "goal": null,
   "notes": " Campaign on changepoint-detector/engine.mjs: 8 seeded, 6 caught, 2 gaps patched with tests; catch rate 0.75 -> 1.0. Suite ~270s per mutant. No real defects found.",
   "corrections": [],

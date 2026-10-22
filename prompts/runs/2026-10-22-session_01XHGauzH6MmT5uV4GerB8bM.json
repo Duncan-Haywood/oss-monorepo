@@ -47,7 +47,7 @@
       "why": "skipped the agent report and blog post write-up to keep the run small; README carries the findings"
     }
   ],
-  "writeups": [],
+  "writeups": ["research/osrobot-weedpass/README.md"],
   "goal": null,
   "notes": "",
   "corrections": [],

@@ -38,7 +38,7 @@
     }
   ],
   "deviations": [],
-  "writeups": [],
+  "writeups": ["research/osrobot-weedpass/README.md"],
   "goal": null,
   "notes": "Project hearth-and-horizon, piece brigid-and-the-cloak (Little Lamps): rendered pending audio (644 s, 3.9 MB), regenerated pages/feeds, node --test 9/9 pass. Audio total 176 MB (<400).",
   "corrections": [],

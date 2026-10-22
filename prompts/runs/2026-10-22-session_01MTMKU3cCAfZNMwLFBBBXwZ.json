@@ -38,7 +38,7 @@
       "why": "Wrote no agent doc/post: slice was small; README and flagships.yaml carry the record."
     }
   ],
-  "writeups": [],
+  "writeups": ["research/osrobot-weedpass/README.md"],
   "goal": null,
   "notes": "ai-bookkeeper: statement PDF (text layer) import via pdftotext in CLI; ocr.test.mjs builds a real PDF; 215 node tests pass in the venture. CI not awaited beyond local checks.",
   "corrections": [],

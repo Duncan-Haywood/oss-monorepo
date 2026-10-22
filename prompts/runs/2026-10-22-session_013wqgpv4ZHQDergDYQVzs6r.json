@@ -38,7 +38,7 @@
       "why": "no audio rendered; model download blocked"
     }
   ],
-  "writeups": [],
+  "writeups": ["research/osrobot-weedpass/README.md"],
   "goal": null,
   "notes": "saints-by-candlelight episode 8 (hilda-of-whitby-and-the-cowherd-who-could-not-sing): text and page landed, check-script ok (5612 words), venture tests 12/12. Audio not rendered: huggingface.co returned 403 through the proxy, so no Kokoro models; PRODUCTION.md Waiting for audio lists the render command.",
   "corrections": [],

@@ -40,7 +40,7 @@
     }
   ],
   "deviations": [],
-  "writeups": [],
+  "writeups": ["research/osrobot-weedpass/README.md"],
   "goal": null,
   "notes": "Small slice: payout card text names Square and PayPal; two Chromium click-through checks added. 252 node tests pass. No agent doc or post written this run.",
   "corrections": [],
