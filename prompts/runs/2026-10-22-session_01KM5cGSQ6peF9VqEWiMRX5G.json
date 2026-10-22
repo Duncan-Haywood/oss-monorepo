@@ -15,9 +15,11 @@
   "tokens_out": null,
   "cost_usd": null,
   "tool_calls": null,
-  "task": null,
-  "projects": [],
-  "pr": null,
+  "task": "Deepen (flagship 4): einvoice-preflight CII repair",
+  "projects": [
+    "einvoice-preflight"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/9380",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -25,15 +27,15 @@
   "merged": null,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": null,
-  "outcome": null,
+  "tests_added": 7,
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [],
   "deviations": [],
   "writeups": [],
   "goal": null,
-  "notes": "",
+  "notes": "repair-cii.mjs, CLI/server dispatch by content, page button for pasted JSON/UBL/CII. run_venture_tests einvoice-preflight: 0 failed. eval/browser-repair.mjs clicked through in headless Chromium (JSON and CII paths ok, no page errors). venture-preflight.mjs not run (over 5 min); CI covers it. Hand-written examples only.",
   "corrections": [],
   "redteam": null
 }
