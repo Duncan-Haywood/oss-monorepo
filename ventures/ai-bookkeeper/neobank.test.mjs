@@ -29,3 +29,27 @@ test("Wise: DD-MM-YYYY dates read day first, running balance chains", () => {
   assert.deepEqual(r.rows.map((x) => x.cents), [-2499, 100000]);
   assert.deepEqual(checkRunningBalance(r.rows).breaks, []);
 });
+
+test("Monzo: day-first dates, merchant name as description", () => {
+  const r = read("monzo-business.csv");
+  assert.equal(r.bank, "monzo");
+  assert.deepEqual(r.rows.map((x) => x.date), ["2026-03-02", "2026-03-13"]);
+  assert.deepEqual(r.rows.map((x) => x.cents), [-800, 150000]);
+  assert.equal(r.rows[0].desc, "Notion");
+});
+
+test("Starling: counter party, currency-suffixed amount and balance chain", () => {
+  const r = read("starling-business.csv");
+  assert.equal(r.bank, "starling");
+  assert.deepEqual(r.rows.map((x) => x.date), ["2026-03-02", "2026-03-13"]);
+  assert.deepEqual(r.rows.map((x) => x.cents), [-800, 150000]);
+  assert.equal(r.rows[1].desc, "Client Ltd");
+  assert.deepEqual(checkRunningBalance(r.rows).breaks, []);
+});
+
+test("Mercury: pending rows are reported, not imported", () => {
+  const r = read("mercury-checking.csv");
+  assert.equal(r.bank, "mercury");
+  assert.deepEqual(r.rows.map((x) => x.cents), [-12050, 500000]);
+  assert.equal(r.problems.length, 1);
+});

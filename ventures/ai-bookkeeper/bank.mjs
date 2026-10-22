@@ -9,11 +9,11 @@ import { readStatementText } from "./statementtext.mjs";
 
 const ALIASES = {
   date: ["date", "transaction date", "posted date", "post date", "posting date", "trans date", "booking date", "effective date", "value date", "completed date", "started date", "date (utc)"],
-  desc: ["description", "transaction description", "payee", "merchant", "name", "details", "original description", "memo", "narrative", "reference"],
-  amount: ["amount", "transaction amount", "amt", "value", "amount (usd)"],
+  desc: ["description", "transaction description", "payee", "merchant", "name", "details", "original description", "memo", "narrative", "counter party", "counterparty", "reference"],
+  amount: ["amount", "transaction amount", "amt", "value", "amount (usd)", "amount (gbp)", "amount (eur)"],
   debit: ["debit", "debits", "withdrawal", "withdrawals", "money out", "paid out", "amount debit", "debit amount"],
   credit: ["credit", "credits", "deposit", "deposits", "money in", "paid in", "amount credit", "credit amount"],
-  balance: ["balance", "running balance", "running bal.", "ledger balance"],
+  balance: ["balance", "running balance", "running bal.", "ledger balance", "balance (gbp)", "balance (eur)", "balance (usd)"],
 };
 
 // RFC 4180 CSV: quoted fields, doubled quotes, CRLF, a BOM, and a ; or tab
@@ -114,6 +114,9 @@ export function sniffBank(rows) {
     if (/^transaction date\|post date\|description\|category\|type\|amount/.test(h)) return "chase-card";
     if (/^date\|description\|amount\|running bal/.test(h)) return "bank-of-america";
     if (/^type\|product\|started date\|completed date\|description\|amount\|fee\|currency\|state\|balance/.test(h)) return "revolut";
+    if (/^transaction id\|date\|time\|type\|name\|emoji\|category\|amount\|currency/.test(h)) return "monzo";
+    if (/^date\|counter party\|reference\|type\|amount \((gbp|eur|usd)\)\|balance/.test(h)) return "starling";
+    if (/^date \(utc\)\|description\|amount\|status\|source account/.test(h)) return "mercury";
     if (/^transferwise id\|date\|amount\|currency\|description/.test(h)) return "wise";
     if (/^transaction date\|posted date\|card no\.\|description\|category\|debit\|credit/.test(h)) return "capital-one";
     if (/^date\|description\|(card member\|account #\|)?amount/.test(h)) return "amex";
@@ -264,15 +267,18 @@ export function readStatement(text, { dayFirst = false, decimalComma = false, in
   const out = [];
   // Wise writes DD-MM-YYYY. Revolut lists pending, declined and reverted rows
   // beside completed ones and keeps the fee in its own column.
-  if (bank === "wise") dayFirst = true;
+  if (bank === "wise" || bank === "monzo" || bank === "starling") dayFirst = true;
   const hdr = headerAt === -1 ? [] : rows[headerAt].map(norm);
-  const stateCol = bank === "revolut" ? hdr.indexOf("state") : -1;
+  if (bank === "monzo") columns.desc = hdr.indexOf("name");
+  // Mercury lists Pending, Failed and Cancelled rows beside Sent ones.
+  const stateCol = bank === "revolut" ? hdr.indexOf("state") : bank === "mercury" ? hdr.indexOf("status") : -1;
+  const okState = bank === "mercury" ? /^(sent|completed)$/i : /^completed$/i;
   const feeCol = bank === "revolut" ? hdr.indexOf("fee") : -1;
   const curCol = bank === "revolut" ? hdr.indexOf("currency") : -1;
   const currencies = new Set();
   for (let i = first; i < rows.length; i++) {
     const r = rows[i];
-    if (stateCol !== -1 && String(r[stateCol] ?? "").trim().toUpperCase() !== "COMPLETED") { problems.push(`Line ${i + 1}: state ${String(r[stateCol] ?? "").trim() || "blank"}, not a completed transaction, skipped.`); continue; }
+    if (stateCol !== -1 && !okState.test(String(r[stateCol] ?? "").trim())) { problems.push(`Line ${i + 1}: state ${String(r[stateCol] ?? "").trim() || "blank"}, not a completed transaction, skipped.`); continue; }
     if (curCol !== -1 && String(r[curCol] ?? "").trim()) currencies.add(r[curCol].trim().toUpperCase());
     const date = parseDate(r[columns.date], dayFirst);
     if (!date) { problems.push(`Line ${i + 1}: unreadable date "${r[columns.date] ?? ""}", skipped.`); continue; }
