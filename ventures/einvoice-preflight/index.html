@@ -127,7 +127,7 @@
         <button id="adjustmentSample" class="secondary" type="button">Load a header discount that does not match its percent</button>
         <button id="termsSample" class="secondary" type="button">Load terms days that do not match the due date</button>
         <button id="validSample" class="secondary" type="button">Load a passing example</button>
-        <button id="repair" class="secondary" type="button">Repair the arithmetic (JSON)</button>
+        <button id="repair" class="secondary" type="button">Repair the arithmetic (JSON, UBL or CII)</button>
       </div>
       <p id="inputError" class="error" role="alert"></p>
       <div id="repairLog" aria-live="polite"></div>
@@ -225,6 +225,9 @@
     import { preflightDocuments, buildChecklist, buildMarkdown, buildJsonReport, buildRemediationCsv, summarizePreflight } from "./report.mjs";
     import { addOfficialFindings, officialNote } from "./official.mjs";
     import { repairInvoice } from "./repair.mjs";
+    import { repairUbl } from "./repair-ubl.mjs";
+    import { repairCii } from "./repair-cii.mjs";
+    import { looksLikeCii } from "./cii.mjs";
     import { recordUsage, readOptOut, writeOptOut } from "./usage.mjs";
 
     const VALID_EXAMPLE = {
@@ -458,14 +461,21 @@
       const log = document.getElementById("repairLog");
       log.innerHTML = "";
       inputError.textContent = "";
-      let invoice;
-      try { invoice = JSON.parse(paste.value); } catch { inputError.textContent = "Repair works on pasted JSON invoices. Paste one first."; return; }
-      const out = repairInvoice(invoice);
-      if (!out.repaired) {
-        log.innerHTML = '<p class="note">Nothing to repair: line nets, totals and amount due already follow from the lines (or the lines are not complete enough to recompute).</p>';
+      const text = paste.value;
+      const isXml = text.trimStart().startsWith("<");
+      let out;
+      try {
+        out = isXml ? (looksLikeCii(text) ? repairCii(text) : repairUbl(text)) : repairInvoice(JSON.parse(text));
+      } catch (e) {
+        inputError.textContent = isXml ? `Repair could not read this XML as a UBL or CII invoice: ${e.message}` : "Repair works on a pasted JSON invoice or one UBL or CII XML file. Paste one first.";
         return;
       }
-      paste.value = JSON.stringify(out.invoice, null, 2);
+      if (!out.repaired) {
+        const why = (out.skipped || []).length ? " " + out.skipped.map(escapeHtml).join(" ") : "";
+        log.innerHTML = '<p class="note">Nothing to repair: line nets, totals and amount due already follow from the lines (or the lines are not complete enough to recompute).' + why + '</p>';
+        return;
+      }
+      paste.value = isXml ? out.xml : JSON.stringify(out.invoice, null, 2);
       filesInput.value = "";
       dropped = [];
       const rows = out.changes.map((c) => `<tr><td><code>${escapeHtml(c.path)}</code></td><td>${escapeHtml(String(c.from))}</td><td>${escapeHtml(String(c.to))}</td><td>${escapeHtml(c.reason)}</td></tr>`).join("");

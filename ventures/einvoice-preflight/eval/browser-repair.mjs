@@ -37,6 +37,13 @@ const fixed = JSON.parse(await page.inputValue("#paste"));
 await page.waitForFunction(() => document.getElementById("overall").textContent.trim() !== "No invoice checked yet.");
 const overall = await page.textContent("#overall");
 console.log({ rows, currency: fixed.currency, totals: fixed.totals, overall: overall.trim(), errors });
-const ok = rows >= 4 && fixed.currency === "EUR" && fixed.totals.gross === 238 && errors.length === 0;
+// Pasted XML: a CII credit note with a wrong VAT amount is repaired in place.
+await page.fill("#paste", readFileSync(join(root, "examples/xrechnung-cii-credit-note-with-defects.xml"), "utf8"));
+await page.click("#repair");
+await page.waitForFunction(() => /Repaired 1 value/.test(document.getElementById("repairLog").textContent));
+const xmlNow = await page.inputValue("#paste");
+const xmlOk = xmlNow.includes("<ram:CalculatedAmount>190.00</ram:CalculatedAmount>") && xmlNow.startsWith("<?xml");
+console.log({ xmlOk });
+const ok = xmlOk && rows >= 4 && fixed.currency === "EUR" && fixed.totals.gross === 238 && errors.length === 0;
 await browser.close(); server.close();
 process.exit(ok ? 0 : 1);

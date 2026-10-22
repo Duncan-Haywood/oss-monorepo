@@ -92,5 +92,6 @@ test("links to the EU VAT OSS calculator", () => {
 test("browser page offers the arithmetic repair", () => {
   assert.match(page, /id="repair"/);
   assert.match(page, /from "\.\/repair\.mjs"/);
-  assert.match(page, /repairInvoice\(invoice\)/);
+  assert.match(page, /repairInvoice\(JSON\.parse\(text\)\)/);
+  assert.match(page, /from "\.\/repair-cii\.mjs"/);
 });

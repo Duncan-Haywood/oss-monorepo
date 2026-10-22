@@ -6,6 +6,8 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { repairInvoice } from "./repair.mjs";
 import { repairUbl } from "./repair-ubl.mjs";
+import { repairCii } from "./repair-cii.mjs";
+import { looksLikeCii } from "./cii.mjs";
 
 const args = process.argv.slice(2);
 const oi = args.findIndex((a) => a === "-o" || a === "--output");
@@ -18,7 +20,8 @@ if (!file) {
 if (file !== "-" && file.toLowerCase().endsWith(".xml")) {
   let x;
   try {
-    x = repairUbl(readFileSync(file, "utf8"));
+    const src = readFileSync(file, "utf8");
+    x = looksLikeCii(src) ? repairCii(src) : repairUbl(src);
   } catch (e) {
     console.error(`Cannot read invoice: ${e.message}`);
     process.exit(2);

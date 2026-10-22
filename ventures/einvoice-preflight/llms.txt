@@ -34,4 +34,4 @@ Not checked: national profiles beyond XRechnung and Peppol (NLCIUS, RO_CIUS, KSe
 
 FatturaPA (Italy): an XML with root FatturaElettronica (FPR12/FPA12) is read by its own rules IT-001..IT-017 (partita IVA / codice fiscale check digits, SdI destination code, TipoDocumento, RegimeFiscale, Natura, line/VAT/total arithmetic, IBAN). Not SdI's XSD, signature or acceptance.
 
-Repair: POST /v1/repair with a JSON invoice returns the invoice with line nets, net, tax, gross and amount due recomputed, a change log, and the findings only a person can fix (tax rates, dates, identities are never guessed). CLI: node repair-cli.mjs invoice.json.
+Repair: POST /v1/repair with a JSON invoice returns the invoice with line nets, net, tax, gross and amount due recomputed, a change log, and the findings only a person can fix (tax rates, dates, identities are never guessed). CLI: node repair-cli.mjs invoice.json. The same endpoint and CLI repair UBL and CII XML files in place (only amounts are edited).

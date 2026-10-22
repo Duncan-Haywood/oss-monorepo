@@ -8,7 +8,7 @@
 //     or ?profile=france for the French SIREN and payment-mention rules (FR-nnn)
 //     add ?schematron=1 to also run the official EN 16931 Schematron (BR-xx) when
 //     build-schematron.mjs has been run; the report says "unavailable" otherwise.
-//   POST /v1/repair          JSON invoice or UBL XML -> arithmetic fixed, change log, findings left
+//   POST /v1/repair          JSON invoice, UBL or CII XML -> arithmetic fixed, change log, findings left
 //   POST /v1/validate/batch  {"documents":[{"name","content","encoding"?}]}
 //                            encoding "base64" is for PDFs; default is text.
 //   POST /v1/generate        {"draft":{...},"format":"ubl"|"cii","profile":"xrechnung"|
@@ -22,6 +22,8 @@
 // request. Configuration is by environment variable only (see README).
 import { repairInvoice } from "./repair.mjs";
 import { repairUbl } from "./repair-ubl.mjs";
+import { repairCii } from "./repair-cii.mjs";
+import { looksLikeCii } from "./cii.mjs";
 import { createServer } from "node:http";
 import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
@@ -221,9 +223,9 @@ export function createApp(config = loadConfig()) {
       if (bodyText.trimStart().startsWith("<")) {
         let x;
         try {
-          x = repairUbl(bodyText);
+          x = looksLikeCii(bodyText) ? repairCii(bodyText) : repairUbl(bodyText);
         } catch (e) {
-          throw new HttpError(400, `Body must be a UBL invoice or credit note: ${e.message}`);
+          throw new HttpError(400, `Body must be a UBL or CII invoice or credit note: ${e.message}`);
         }
         send(res, 200, { repaired: x.repaired, changes: x.changes, skipped: x.skipped, remaining: x.remaining, xml: x.xml, disclaimer: DISCLAIMER });
         return;
