@@ -32,3 +32,11 @@ test('--help cites both papers; bad flags fail', async () => {
   assert.match(s, /Killick/);
   await assert.rejects(run(['--nope']), /Unknown option/);
 });
+
+test('rejects a --hazard or --threshold that cannot work instead of silently ignoring it', async () => {
+  const csv = 'a,b\n1,1\n2,1\n3,2\n4,9\n5,9\n6,9\n';
+  for (const bad of [['--hazard', 'abc'], ['--hazard', '0'], ['--hazard', '-5'], ['--threshold', '2'], ['--threshold', '0'], ['--threshold', '-0.1'], ['--threshold', 'x']]) {
+    await assert.rejects(run(bad, csv), /--(hazard|threshold)/, bad.join(' '));
+  }
+  assert.equal((await run(['--hazard', '50', '--threshold', '0.9'], csv)).code, 0);
+});

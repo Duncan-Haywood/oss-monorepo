@@ -72,6 +72,8 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
     else file = a;
   }
   for (const k of ['minSegment', 'hazardLambda', 'threshold', 'period', 'knotMargin']) if (opt[k] != null) opt[k] = Number(opt[k]);
+  if (opt.hazardLambda != null && !(opt.hazardLambda >= 1)) throw new Error('--hazard (expected points between changes) must be a number of at least 1.');
+  if (opt.threshold != null && !(opt.threshold > 0 && opt.threshold <= 1)) throw new Error('--threshold must be a probability above 0 and at most 1.');
   if (!example) {
     if (file) opt.csv = await readFile(file, 'utf8');
     else {
