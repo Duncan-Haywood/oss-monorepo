@@ -30,3 +30,13 @@ The largest uncertainty is the conversion from a photo-relative size to
 centimetres: moving the assumed photo width from 0.4 to 1.0 m shifted recovery
 from 0.53 to 0.80, as much as halving the detector's size threshold. The next
 step is training a detector on the images to replace the assumed curve.
+
+**Update: how much better could pick order be?** A follow-up (`research/infra-sortbound`)
+asks how far greedy dispatch sits below a schedule that knows every arrival in
+advance. Because all items share one reach window, the best schedule picks in
+arrival order, so a dynamic program solves it exactly (checked against brute force
+on 25 small instances). With assumed item values, highest-value-first reaches 96.5%
+of that optimum at 6 items per metre and 93.9% at 10; first-in-first-out reaches
+94.7% and 89.6%. The biggest gaps, about 10% (FIFO 11%), are at a 0.75 m/s belt and
+a 0.4 m/s arm, not at the loads where value-aware order helped most. Values, arm
+and detector are still assumed.

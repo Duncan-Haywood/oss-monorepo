@@ -141,3 +141,18 @@ What it found, and what it could not source:
   hourly load and weather came from packages that bundle them (`pvlib` TMY
   files, `demandlib` BDEW profiles). A next run with the standard's text
   should replace the swept constants first.
+
+## Follow-up: `infra-sortbound` (2026-10-22)
+
+- Exact bound on the waste-sorting cell's dispatch: with one reach window for all
+  items, deadlines are in arrival order, so arrival order is optimal and a Pareto
+  dynamic program over (finish time, value) solves the clairvoyant schedule;
+  finish times rounded up and down bracket it (width under 0.1% of value at a 5 ms
+  grid). It matches a brute-force search on 25 random small instances.
+- Highest-value-first reaches 96.5% of the optimum at 6 items/m and 93.9% at 10
+  (FIFO 94.7% and 89.6%); the largest gaps (about 10%) sit at faster belts and
+  slower arms. Item values and the cell are assumed, as in `infra-sortvalue`.
+- **Friction worth knowing.** Writing the bound exposed that `infra-sortvalue`'s
+  contamination sweep lets value-first read a false call's true (negative) value,
+  which a real robot cannot, so that sweep may overstate the gain; it is listed as
+  a next step rather than rerun here.
