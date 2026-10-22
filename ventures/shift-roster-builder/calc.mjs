@@ -648,6 +648,7 @@ function search(ctx, restarts, iterations, first = 0) {
 const EXACT_AUTO_SLOTS = 14;
 const TANGENTS = 8; // tangent lines under each person's hours curve inside the coverage flow
 function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000, tolerance = 0 } = {}) {
+  let coverNodes = 0;
   const { P, S, slots, staff, o, elig } = ctx;
   const mono = o.otMult >= 1 && o.dtMult >= 1;
   const mFloor = Math.min(1, o.otMult, o.dtMult);
@@ -689,7 +690,10 @@ function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000, t
   const cls = staff.map((p, q) => JSON.stringify([{ ...p, name: 0 }, elig[q], ctx.target[q]]));
   const lists = Array.from({ length: P }, () => []);
   const owner = new Array(S).fill(-1);
+  let minOpenH = 0; // least hours that must stay open, once the coverage pass has proven it
+  let covMode = false; // coverage-first pass: only the hours left open count
   const lowerBound = (k, unfilledH, cutoff = Infinity) => {
+    if (covMode) return coverBound(k, unfilledH, cutoff);
     let lb = BIG * unfilledH, capacity = 0, gSum = 0;
     for (let p = 0; p < P; p++) {
       const L = lists[p], h = hoursOf(ctx, L);
@@ -719,7 +723,7 @@ function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000, t
     const openCap = Math.max(0, demand - capacity);
     if (lb + BIG * openCap + Math.max(0, sufCheap[k] - openCap * maxRate) >= cutoff) return Infinity;
     const cov = coverableHours(k, hoursLeft);
-    const open = Math.max(0, demand - capacity, demand - cov.flow);
+    const open = Math.max(0, demand - capacity, demand - cov.flow, minOpenH - unfilledH);
     // The shifts that have to stay open are not paid for, so take back at most the dearest rate per hour for each forced open hour.
     // gSum lets every person sit at their own best hours. The covered hours are fixed in total, so they cannot all do that.
     const coupled = coupledHours(demand - open, gSum);
@@ -727,6 +731,20 @@ function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000, t
     // With the hours terms inside the flow, who can work when and how far each person's hours sit from their target are priced
     // together: the cheapest way to cover the most hours, pay and the convex terms both, is the bound.
     return cov.joint === undefined ? apart : Math.max(apart, lb - gSum + cov.joint + BIG * open);
+  };
+  // Least hours that must stay open (BIG each) given the decided shifts: total capacity first, the flow only if that does not cut.
+  const coverBound = (k, unfilledH, cutoff) => {
+    let capacity = 0, demand = 0;
+    for (let p = 0; p < P; p++) {
+      const h = hoursOf(ctx, lists[p]);
+      capacity += Math.max(0, Math.min(staff[p].maxHours, h + sufHours[k][p]) - h);
+      hoursLeft[p] = Math.max(0, staff[p].maxHours - h);
+    }
+    for (let j = k; j < S; j++) demand += len[order[j]];
+    const base = BIG * unfilledH;
+    const openCap = Math.max(0, demand - capacity);
+    if (base + BIG * openCap >= cutoff) return Infinity;
+    return base + BIG * Math.max(openCap, demand - coverableHours(k, hoursLeft, true).flow);
   };
   // Lagrangian bound on the convex hours terms when the undecided shifts add at most `x` hours in all: for any price lam,
   // sum_p min_h [g_p(h) - lam (h - h0_p)] + lam x is a lower bound on the least total (weak duality), and an open hour costs
@@ -786,7 +804,7 @@ function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000, t
   // hold, so overlaps and rest gaps with decided shifts count. Every cap is an upper bound, so the result never undercounts.
   const rate = (p, i) => burden * staff[p].wage * mFloor * paidMinutes(o, slots[i]) / 60 / len[i]; // cheapest pay per hour of the shift
   const hoursLeft = new Array(P).fill(0);
-  const coverableHours = (k, left) => {
+  const coverableHours = (k, left, flowOnly = false) => {
     const n = S - k, N = n + P * D + P + 2, src = N - 2, snk = N - 1, eps = 1e-9;
     const pd = (p, j) => n + p * D + j, pn = (p) => n + P * D + p;
     // Sparse residual graph: edge e goes to[e] with capacity cap[e] and cost cst[e]; its reverse is e ^ 1.
@@ -823,7 +841,7 @@ function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000, t
         room = 0;
         for (let x = r; x > 0; x--) if (fits[x]) { room = x / 4; break; }
       }
-      if (o.flowBalance !== false && o.balance > 0 && room > eps) {
+      if (!flowOnly && o.flowBalance !== false && o.balance > 0 && room > eps) {
         // g_p(h) = shortfall + balance terms is convex, so the largest of a few tangent lines is a lower bound on it and is itself
         // convex: each stretch between neighbouring tangents becomes a parallel edge at the tangent's slope, cheapest used first.
         const a = o.shortfallValue, c = (o.balance / 100) * ctx.avgWage * 0.1, t = ctx.target[p], m = staff[p].minHours, l = lo0[p];
@@ -876,10 +894,10 @@ function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000, t
   const t0 = Date.now();
   const rec = (k, unfilledH) => {
     if (aborted) return;
-    if (++nodes > nodeLimit || ((nodes & 1023) === 0 && Date.now() - t0 > timeLimitMs)) { aborted = true; return; }
+    if (++nodes > nodeLimit || ((nodes & 1023) === 0 && Date.now() - t0 > (covMode ? timeLimitMs / 2 : timeLimitMs))) { aborted = true; return; }
     if (lowerBound(k, unfilledH, best - tolerance - 1e-9) >= best - tolerance - 1e-9) return;
     if (k === S) {
-      const total = scoreOwner(ctx, owner).total;
+      const total = covMode ? BIG * unfilledH : scoreOwner(ctx, owner).total;
       if (total < best - 1e-9) { best = total; bestOwner = owner.slice(); }
       return;
     }
@@ -904,8 +922,20 @@ function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000, t
     }
     rec(k + 1, unfilledH + len[i]);
   };
+  // Coverage first: how few hours can stay open at all, ignoring pay? Cost bounds are weak against whole open hours (BIG each),
+  // so the cost search below is told the answer. It gets the node limit again and half the time limit; an unfinished pass proves nothing and is dropped.
+    const incOpen = Math.floor(incumbent / BIG + 1e-9);
+  if (incOpen > 0 && rootBound >= BIG * 0.5) {
+    covMode = true;
+    const savedBest = best;
+    best = BIG * incOpen;
+    rec(0, 0);
+    coverNodes = nodes;
+    if (!aborted) minOpenH = Math.max(minOpenH, Math.round(best / BIG * 4) / 4);
+    covMode = false; aborted = false; nodes = 0; bestOwner = null; best = savedBest;
+  }
   rec(0, 0);
-  return { proven: !aborted, nodes, rootBound, owner: bestOwner, score: bestOwner ? best : null };
+  return { proven: !aborted, nodes: nodes + coverNodes, coverNodes, coverOpen: minOpenH, rootBound, owner: bestOwner, score: bestOwner ? best : null };
 }
 
 // What a manager gets filling shifts in time order with the first valid person in the list.
@@ -1021,7 +1051,7 @@ export function buildRoster(staff, slots, options = {}) {
       annealScore, bestScore: best.score, lowerBound: ex.proven ? best.score : ex.rootBound,
       forcedOpenHours: Math.floor((ex.proven ? best.score : ex.rootBound) / BIG + 1e-9),
       coverageProven: ex.proven || Math.abs(Math.floor(ex.rootBound / BIG + 1e-9) - Math.floor(best.score / BIG + 1e-9)) === 0,
-      tolerance: o.exactTolerance, gap: Math.max(0, gap), gapPct: annealScore > 0 ? (Math.max(0, gap) / annealScore) * 100 : 0, nodes: ex.nodes,
+      tolerance: o.exactTolerance, coverOpen: ex.coverOpen, coverNodes: ex.coverNodes, gap: Math.max(0, gap), gapPct: annealScore > 0 ? (Math.max(0, gap) / annealScore) * 100 : 0, nodes: ex.nodes,
     };
   }
   const res = summarise(ctx, best.owner);
