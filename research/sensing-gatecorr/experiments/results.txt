@@ -1,0 +1,26 @@
+sensing-gatecorr: sensing-epigate's trial with each bad feature wrong by the same 10-40 px offset in `span` consecutive views, 12 seeds per cell.
+Rig: 300 features, 12 views, 0.5 px noise, pose error 0.5 deg / 0.02 radii, gate 2 px Sampson, vote 0.5. Synthetic geometry. Overall rate = SIFT ratio-test rate measured by sensing-matchreal (stereo pair, no mutual check); span 1 is the independent case.
+
+== ratio test 0.8, overall wrong rate 0.102
+span clean_ba cauchy ri_cauchy g_tri g_linear g_cauchy recall lost cover   (surface error in object radii; recall, lost, cover are fractions)
+   1 0.0014 0.0247 0.0052 0.0161 0.0046 0.0031 0.8084 0.0380 0.9517
+   2 0.0014 0.0058 0.0062 0.0162 0.0051 0.0039 0.7537 0.0581 0.9303
+   4 0.0014 0.0058 0.0054 0.0165 0.0051 0.0045 0.6564 0.0303 0.9403
+   8 0.0014 0.0053 0.0051 0.0162 0.0050 0.0048 0.6186 0.0158 0.9389
+  12 0.0014 0.0045 0.0046 0.0159 0.0048 0.0580 0.5894 0.0011 0.9478
+
+== ratio test 0.7, overall wrong rate 0.061
+span clean_ba cauchy ri_cauchy g_tri g_linear g_cauchy recall lost cover   (surface error in object radii; recall, lost, cover are fractions)
+   1 0.0014 0.0040 0.0041 0.0155 0.0038 0.0027 0.8064 0.0272 0.9653
+   2 0.0014 0.0041 0.0039 0.0152 0.0036 0.0030 0.7505 0.0324 0.9581
+   4 0.0014 0.0037 0.0036 0.0152 0.0033 0.0031 0.6788 0.0181 0.9644
+   8 0.0014 0.0038 0.0038 0.0152 0.0037 0.0036 0.6243 0.0093 0.9650
+  12 0.0014 0.0033 0.0033 0.0151 0.0035 0.0034 0.6027 0.0010 0.9678
+
+== ratio test 0.6, overall wrong rate 0.047
+span clean_ba cauchy ri_cauchy g_tri g_linear g_cauchy recall lost cover   (surface error in object radii; recall, lost, cover are fractions)
+   1 0.0014 0.0035 0.0034 0.0151 0.0031 0.0024 0.8219 0.0211 0.9725
+   2 0.0014 0.0034 0.0032 0.0148 0.0031 0.0026 0.7539 0.0250 0.9669
+   4 0.0014 0.0032 0.0033 0.0149 0.0030 0.0028 0.6796 0.0150 0.9700
+   8 0.0014 0.0033 0.0031 0.0148 0.0032 0.0030 0.6278 0.0069 0.9736
+  12 0.0014 0.0028 0.0028 0.0148 0.0030 0.0030 0.6065 0.0010 0.9767
