@@ -106,3 +106,11 @@ test("PNC: withdrawals and deposits columns, quoted thousands, balance chain hol
   assert.deepEqual(r.rows.map((x) => x.cents), [-4520, 200000, -30000]);
   assert.equal(checkRunningBalance(r.rows).checked, true);
 });
+
+test("Schwab: Withdrawal and Deposit columns with dollar signs, balance chain holds", () => {
+  const r = read("schwab-checking.csv");
+  assert.equal(r.bank, "schwab");
+  assert.deepEqual(r.problems, []);
+  assert.deepEqual(r.rows.map((x) => x.cents), [-4520, 200000, -30000]);
+  assert.equal(checkRunningBalance(r.rows).checked, true);
+});

@@ -13,7 +13,7 @@ const ALIASES = {
   amount: ["amount", "transaction amount", "amt", "value", "amount (usd)", "amount (gbp)", "amount (eur)"],
   debit: ["debit", "debits", "withdrawal", "withdrawals", "money out", "paid out", "amount debit", "debit amount"],
   credit: ["credit", "credits", "deposit", "deposits", "money in", "paid in", "amount credit", "credit amount"],
-  balance: ["balance", "running balance", "running bal.", "ledger balance", "balance (gbp)", "balance (eur)", "balance (usd)"],
+  balance: ["balance", "running balance", "runningbalance", "running bal.", "ledger balance", "balance (gbp)", "balance (eur)", "balance (usd)"],
 };
 
 // RFC 4180 CSV: quoted fields, doubled quotes, CRLF, a BOM, and a ; or tab
@@ -127,6 +127,7 @@ export function sniffBank(rows) {
     if (/^transaction date\|transaction type\|sort code\|account number\|transaction description\|debit amount\|credit amount/.test(h)) return "lloyds";
     if (/^number\|date\|account\|amount\|subcategory\|memo/.test(h)) return "barclays";
     if (/^date\|description\|withdrawals\|deposits\|balance/.test(h)) return "pnc";
+    if (/^date\|status\|type\|checknumber\|description\|withdrawal\|deposit\|runningbalance/.test(h)) return "schwab";
     if (/^date\|description\|(card member\|account #\|)?amount/.test(h)) return "amex";
   }
   return null;
