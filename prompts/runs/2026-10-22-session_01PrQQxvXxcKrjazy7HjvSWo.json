@@ -34,10 +34,7 @@
   "doc_friction": [],
   "deviations": [],
   "writeups": [
-    {
-      "file": "ventures/changepoint-detector/README.md",
-      "note": "extended with slope-change range section"
-    }
+    "ventures/changepoint-detector/README.md"
   ],
   "goal": null,
   "notes": "Local node tests 117 pass; coverage eval in eval/slope-change-interval.out.txt. No separate post written.",
