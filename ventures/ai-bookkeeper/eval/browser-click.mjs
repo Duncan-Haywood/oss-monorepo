@@ -108,6 +108,23 @@ check(/3 opening balances set as of 2025-12-31/.test(ost) && /3,800.00 did not b
 check(await page.locator("#open-clear").isVisible(), "the remove button shows once balances are set");
 await page.click("#open-clear");
 check(/removed/.test(await page.locator("#open-status").textContent()), "opening balances are removed");
+// Miles and home office: log a trip, set a home office, see lines 9 and 30 in the Schedule C table.
+await page.fill("#trip-date", "2026-03-14");
+await page.fill("#trip-miles", "100");
+await page.fill("#trip-purpose", "Client visit");
+await page.click("#trip-add");
+check(/Added 100 miles/.test(await page.locator("#deduct-status").textContent()), "a trip is logged");
+await page.fill("#ho-sqft", "150");
+await page.click("#ho-set");
+const dtext = await page.locator("#deduct").textContent();
+console.log("     deduct:", dtext.slice(0, 160));
+check(/100 business miles/.test(dtext) && /home office 150 sq ft/.test(dtext), "the card shows miles and home office");
+const sctext = await page.locator("#schedc").textContent();
+check(/Car and truck/i.test(sctext) && /Home office|business use of your home/i.test(sctext), "Schedule C table carries the mileage line");
+await page.click("text=Remove 2026-03-14");
+check(/0 business miles/.test(await page.locator("#deduct").textContent()), "a trip is removed");
+await page.fill("#ho-sqft", "0");
+await page.click("#ho-set");
 // Budget against actual: set a monthly budget on the example books and read the table.
 await page.selectOption("#budget-account", { index: 0 });
 await page.fill("#budget-amount", "50.00");
