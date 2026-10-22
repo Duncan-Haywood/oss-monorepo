@@ -60,6 +60,16 @@ def milestones(prefix):
     return listed, [x for x in listed if not (RESEARCH / x).is_dir()]
 
 
+def next_steps(name, width=400):
+    """The "Next steps" paragraph of research/<name>/README.md, cut to `width`."""
+    readme = RESEARCH / name / "README.md"
+    if not readme.is_file():
+        return ""
+    m = re.search(r"^#+ *Next steps[^\n]*\n(.*?)(?=^#|\Z)", readme.read_text(), re.M | re.S)
+    text = " ".join(m.group(1).split()) if m else ""
+    return text if len(text) <= width else text[:width].rstrip() + "..."
+
+
 if __name__ == "__main__":
     r = float(sys.argv[1]) if len(sys.argv) > 1 else random.random()
     t = pick(r)
@@ -88,3 +98,6 @@ if __name__ == "__main__":
                 print(f"track {t} has {n} projects (>= {SATURATED}); redrawing is fine. Fewest: "
                       + ", ".join(f"track {i} ({c})" for c, i in counts[:3]))
             print(f"next step if milestones are done: research/{newest[0]}/README.md, 'Next steps'{note}")
+            if not free:
+                for name in newest[:3]:
+                    print(f"  {name}: {next_steps(name) or '(no Next steps section)'}")

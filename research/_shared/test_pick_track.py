@@ -13,5 +13,15 @@ class MilestonesTest(unittest.TestCase):
         self.assertEqual(pick_track.milestones("nosuchtrack"), ([], []))
 
 
+class NextStepsTest(unittest.TestCase):
+    def test_reads_section_and_cuts(self):
+        text = pick_track.next_steps("sensing-gatemix", width=40)
+        self.assertTrue(text.startswith("Resample the measured offset"))
+        self.assertLessEqual(len(text), 43)
+
+    def test_missing_project_is_empty(self):
+        self.assertEqual(pick_track.next_steps("nosuch-project"), "")
+
+
 if __name__ == "__main__":
     unittest.main()
