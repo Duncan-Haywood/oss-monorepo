@@ -1442,9 +1442,22 @@ test("the 7-person sample week is proven inside the default limits, to within th
   assert.equal(r.optimality.tolerance, 0.5);
   assert.equal(r.optimality.forcedOpenHours, 15);
   assert.match(optimalityText(r.optimality), /within \$0\.50|more than \$0\.50/);
-  // with no tolerance the same search stays unproven in the default 8 s / 400,000 nodes
+  // with no tolerance the same week is still proven now that the coverage pass always runs (it stayed "bounded" before 2026-10-22)
   const strict = buildRoster(staff, slots, { exact: true, exactTolerance: 0, exactNodes: 20000 });
-  assert.equal(strict.optimality.status, "bounded");
+  assert.equal(strict.optimality.tolerance, 0);
+  assert.ok(["optimal", "improved"].includes(strict.optimality.status), strict.optimality.status);
+});
+
+test("the coverage pass runs even when the flow bound says nothing must stay open, and its better roster is kept", () => {
+  // seeded random week (eval/scale-bench.mjs, 8 people x 22 shifts, case 1): the annealer leaves 5 h open, the flow bound at the
+  // root says 0, and the coverage pass finds a roster with 4 h open and proves 4 is the least. It used to be skipped here.
+  const staff = staffOf("P0,15,12,0,Mon-Fri 6-20\nP1,14,36,0,Mon-Fri 6-20\nP2,18,18,0,Tue-Fri 6-20\nP3,10,24,0,Mon-Fri 9-17\nP4,10,24,0,Mon-Fri 6-23\nP5,17,24,0,Mon-Fri 8-22\nP6,11,30,0,Tue-Fri 7-20\nP7,18,18,0,Tue-Fri 6-20");
+  const slots = slotsOf("Fri,8,15,2\nMon,14,19,1\nMon,8,13,1\nWed,11,17,1\nTue,9,14,2\nTue,14,19,2\nThu,7,15,1\nFri,6,14,2\nMon,9,17,1\nMon,7,11,1\nWed,9,13,1\nMon,10,16,1\nThu,14,18,1\nWed,7,15,1\nTue,9,18,1\nTue,11,15,1\nFri,7,16,2\nWed,13,17,1\nMon,9,17,1\nThu,7,11,1\nTue,9,15,2\nThu,7,14,2");
+  const r = buildRoster(staff, slots, { exact: true, exactNodes: 30000, exactMs: 20000 });
+  assert.equal(r.optimality.coverOpen, 4);
+  assert.equal(r.optimality.forcedOpenHours, 4);
+  assert.equal(r.optimality.coverageProven, true);
+  assert.equal(r.unfilledHours, 4);
 });
 
 test("coverage-first pass proves how few hours must stay open, and the cost search is told", () => {

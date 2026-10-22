@@ -850,6 +850,25 @@ function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000, t
   // (capped by the heaviest compatible set that person could hold that day) to each person (capped by the best whole-shift subset
   // that fits in their remaining weekly hours). A person gets an edge only if the shift is still a valid addition to what they
   // hold, so overlaps and rest gaps with decided shifts count. Every cap is an upper bound, so the result never undercounts.
+  // Most hours of `items` that person p could hold on top of what they have, with every rule checked together (overlap, rest
+  // across days, daily cap, consecutive days, weekly limit), not each alone as the day and week caps above do. At most `cap`.
+  const heldMost = (p, items, cap) => {
+    const its = [...items].sort((x, y) => slots[x].start - slots[y].start || x - y);
+    const suffix = new Array(its.length + 1).fill(0);
+    for (let x = its.length - 1; x >= 0; x--) suffix[x] = suffix[x + 1] + len[its[x]];
+    let best = 0;
+    const go = (x, list, hours) => {
+      if (hours > best) best = hours;
+      if (best >= cap - 1e-9) return;
+      for (; x < its.length; x++) {
+        if (hours + suffix[x] <= best + 1e-9) return;
+        const nl = insertSorted(ctx, list, its[x]);
+        if (validList(ctx, p, nl)) { go(x + 1, nl, hours + len[its[x]]); if (best >= cap - 1e-9) return; }
+      }
+    };
+    go(0, lists[p], 0);
+    return best;
+  };
   const rate = (p, i) => burden * staff[p].wage * mFloor * paidMinutes(o, slots[i]) / 60 / len[i]; // cheapest pay per hour of the shift
   const hoursLeft = new Array(P).fill(0);
   const coverableHours = (k, left, flowOnly = false) => {
@@ -889,6 +908,7 @@ function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000, t
         room = 0;
         for (let x = r; x > 0; x--) if (fits[x]) { room = x / 4; break; }
       }
+      if (room > eps && edge[p].length > 1) room = Math.min(room, heldMost(p, edge[p], room));
       if (!flowOnly && o.flowBalance !== false && o.balance > 0 && room > eps) {
         // g_p(h) = shortfall + balance terms is convex, so the largest of a few tangent lines is a lower bound on it and is itself
         // convex: each stretch between neighbouring tangents becomes a parallel edge at the tangent's slope, cheapest used first.
@@ -973,14 +993,20 @@ function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000, t
   // Coverage first: how few hours can stay open at all, ignoring pay? Cost bounds are weak against whole open hours (BIG each),
   // so the cost search below is told the answer. It gets the node limit again and half the time limit; an unfinished pass proves nothing and is dropped.
     const incOpen = Math.floor(incumbent / BIG + 1e-9);
-  if (incOpen > 0 && rootBound >= BIG * 0.5) {
+  if (incOpen > 0 && incOpen > Math.floor(rootBound / BIG + 1e-9)) {
     covMode = true;
     const savedBest = best;
     best = BIG * incOpen;
     rec(0, 0);
     coverNodes = nodes;
     if (!aborted) minOpenH = Math.max(minOpenH, Math.round(best / BIG * 4) / 4);
+    // A pass that found fewer open hours than the incumbent has found a better roster, even before pay is looked at.
+    const coverOwner = bestOwner;
     covMode = false; aborted = false; nodes = 0; bestOwner = null; best = savedBest;
+    if (coverOwner) {
+      const total = scoreOwner(ctx, coverOwner).total;
+      if (total < best - 1e-9) { best = total; bestOwner = coverOwner; }
+    }
   }
   rec(0, 0);
   return { proven: !aborted, nodes: nodes + coverNodes, coverNodes, coverOpen: minOpenH, rootBound, owner: bestOwner, score: bestOwner ? best : null };
@@ -1105,8 +1131,8 @@ export function buildRoster(staff, slots, options = {}) {
     optimality = {
       status: ex.proven ? (gap > 1e-6 ? "improved" : "optimal") : "bounded",
       annealScore, bestScore: best.score, lowerBound: ex.proven ? best.score : ex.rootBound,
-      forcedOpenHours: Math.floor((ex.proven ? best.score : ex.rootBound) / BIG + 1e-9),
-      coverageProven: ex.proven || Math.abs(Math.floor(ex.rootBound / BIG + 1e-9) - Math.floor(best.score / BIG + 1e-9)) === 0,
+      forcedOpenHours: ex.proven ? Math.floor(best.score / BIG + 1e-9) : Math.max(Math.floor(ex.rootBound / BIG + 1e-9), Math.floor(ex.coverOpen + 1e-9)),
+      coverageProven: ex.proven || Math.max(Math.floor(ex.rootBound / BIG + 1e-9), Math.floor(ex.coverOpen + 1e-9)) === Math.floor(best.score / BIG + 1e-9),
       tolerance: o.exactTolerance, coverOpen: ex.coverOpen, coverNodes: ex.coverNodes, gap: Math.max(0, gap), gapPct: annealScore > 0 ? (Math.max(0, gap) / annealScore) * 100 : 0, nodes: ex.nodes,
     };
   }
