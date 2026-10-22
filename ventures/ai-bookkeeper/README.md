@@ -421,6 +421,10 @@ against the author's own rendering, not against a bank's real layouts; PDF text
 from a two-column statement, or one where the extractor reorders columns, is not
 covered. Scanned (image) PDFs have no text to copy.
 
+## Prepaid expenses
+
+`prepaid.mjs` spreads an up-front payment (a year of insurance, software or rent) over the months it covers. File the bank line to Prepaid expenses (1400, now in the default chart), then register it: `cli.mjs prepaid add "State Farm policy" --amount 2400 --date 2026-03-01 --months 12 [--into 6030]`. The ledger then books one entry a month through the latest month in the books: debit the expense account (Insurance 6030 by default), credit 1400. Integer cents, the last month closes the amount exactly. `cli.mjs prepaid [--as-of D]` lists paid, expensed and still paid ahead. A close check ("prepaid") flags 1400 when the ledger and the register disagree. Test: `prepaid.test.mjs` (hand-written ledgers only; cash-basis tax treatment of prepaids, such as the 12-month rule, is for you or your preparer and is not modelled).
+
 ## Fixed assets and depreciation
 
 `assets.mjs` is a register for equipment. You file the purchase to Equipment
