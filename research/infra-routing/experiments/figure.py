@@ -13,8 +13,8 @@ def main():
     rows = []
     for line in (HERE / "results.txt").read_text().splitlines():
         p = [s.strip() for s in line.split("|")]
-        if len(p) > 6 and p[0] == "Q":
-            m = re.match(r"(-?[\d.]+)% -> (-?[\d.]+)%", p[5])
+        if len(p) > 7 and p[0] == "Q":
+            m = re.match(r"(-?[\d.]+)% -> (-?[\d.]+)%", p[6])
             rows.append((float(p[1][2:]), float(m.group(1)), float(m.group(2))))
     rows.sort()
     xs = [r[0] for r in rows]

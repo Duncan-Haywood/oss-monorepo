@@ -1532,7 +1532,7 @@ Annals*). Payments: gridlock resolution and liquidity-saving mechanisms (Bech an
    aerodynamic and hull drag, lift), reproducing published figures, then the range and payload
    each storage technology from `energy-density` and `energy-practical` gives a truck, train,
    ship and aircraft. Which modes can electrify directly, and which need a fuel?
-5. `infra-routing`: electric delivery fleets. EVRPTW on the Schneider et al. instances, OR-Tools
+5. `infra-routing` (done 2026-10-22; Solomon RC208 with assumed battery, Schneider instances unreachable, no tariff): electric delivery fleets. EVRPTW on the Schneider et al. instances, OR-Tools
    and an LLM or session proposer against the published best-known solutions at the same
    budget, with charging cost on a time-of-use tariff (track 16's `energy-tou`).
 6. `infra-cement` (done 2026-10-21; strength from one study's table read via search summary, primary papers unreachable): clinker substitution. Mass and energy balance of OPC, LC3 and slag blends
