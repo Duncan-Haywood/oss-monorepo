@@ -351,8 +351,14 @@ credit notes), non-taxable sales (invoices with no tax line), tax due, the rate
 actually collected, and the due date (next month's `--due-day`, default the 20th).
 `--rate` warns when the collected rate differs from the one you expect; tax lines
 with no description are listed as "Unlabelled" with a warning. Hand-written
-documents only (`salestaxreturn.test.mjs`, 3 pass); no state's own return layout,
-vendor discount, or due-date calendar is modelled. Not tax advice.
+documents only (`salestaxreturn.test.mjs`, 5 pass). Added 2026-10-22: a due date on a
+weekend or US federal holiday moves to the next business day (`--no-rollover` keeps
+the calendar date; state calendars differ, so check yours); `--discount "CA state=0.5,100"`
+takes a timely-filing discount (percent, dollar cap) off a jurisdiction's tax; and bank
+lines filed to 2100 are matched to the last period that ended before the payment, so each
+period shows payable, paid over and still owed, with a warning for an unpaid period past
+its due date. Hand-made fixtures only; no state's own return layout or calendar is
+modelled. Not tax advice.
 
 **Refunds and write-offs.** A bank line for the exact amount left on a credit
 note nobody applied (money out for a customer's credit, money in for a
