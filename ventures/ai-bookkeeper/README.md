@@ -299,8 +299,9 @@ office to line 30, and net profit is line 29 less line 30. Without `--year` the 
 Verification: `node --test deductions.test.mjs` (rate times miles in integer cents; the 300 sq ft cap;
 part-year proration; the profit limit; line 9, line 30 and net profit on a small ledger) and a CLI
 run on a three-line statement. **Not checked:** the 2024 and 2025 rates (67.0 and 70.0 cents) are from
-memory of the IRS notices and the 2026 rate (72.5) is flagged on the worksheet as unchecked; irs.gov
-was not read. No real mileage log was tried; the page card (trip log, home office, Schedule C lines 9 and 30) was clicked through in headless Chromium with `node eval/browser-click.mjs`. Whether
+memory of the IRS notices. 2026 is priced by trip date: 72.5 cents to June 30 and 76 cents from July 1
+(Announcement 2026-11, 2026-10-22; read from several tax-press reports, irs.gov was unreachable from the
+build sandbox). The earlier flat 72.5 would have under-deducted every second-half trip. No real mileage log was tried; the page card (trip log, home office, Schedule C lines 9 and 30) was clicked through in headless Chromium with `node eval/browser-click.mjs`. Whether
 a space qualifies for the home office deduction, and whether to use actual expenses instead, is for you
 or your preparer.
 

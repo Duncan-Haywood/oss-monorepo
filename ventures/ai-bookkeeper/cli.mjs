@@ -449,7 +449,7 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
       const y = flag("--year"), trips = (books.mileage ?? []).filter((t) => !y || t.date.startsWith(`${y}-`));
       if (json) { console.log(JSON.stringify(trips, null, 2)); process.exit(0); }
       for (const t of trips) console.log(`  ${t.id.padEnd(6)} ${t.date} ${String(t.miles).padStart(7)} mi  ${t.purpose}${t.from || t.to ? ` (${t.from ?? ""} to ${t.to ?? ""})` : ""}`);
-      if (y) { const m = mileageDeduction(books, +y); console.log(`  ${y}: ${m.miles} miles${m.rate ? ` at ${m.rate / 10} cents = ${fmt(m.cents)}` : ""}`); for (const w of m.warnings) console.log(`  ! ${w}`); }
+      if (y) { const m = mileageDeduction(books, +y); console.log(`  ${y}: ${m.miles} miles${m.rate ? ` (${m.label}) = ${fmt(m.cents)}` : ""}`); for (const w of m.warnings) console.log(`  ! ${w}`); }
       if (!trips.length) console.log("  no trips logged");
     } else { console.error("trip add MILES --date D --purpose TEXT, trip list [--year Y], or trip remove ID"); process.exit(2); }
   } catch (e) { console.error(e.message); process.exit(1); }
