@@ -176,8 +176,10 @@
 
   <section class="card" aria-labelledby="h-billpay">
     <h2 id="h-billpay">Optional: when to pay your bills</h2>
-    <p class="note">Takes the open bills you loaded below, the bank balance and the cash forecast, and suggests a pay date for each so the balance stays above a reserve you choose: on the due date, held back until cash arrives, or flagged when it cannot fit. Overdue bills go first. It is a plan to read; nothing is paid from here, and late fees or supplier terms are not modelled.</p>
+    <p class="note">Takes the open bills you loaded below, the bank balance and the cash forecast, and suggests a pay date for each so the balance stays above a reserve you choose: on the due date, held back until cash arrives, or flagged when it cannot fit. Overdue bills go first. It is a plan to read; nothing is paid from here. Supplier terms are optional: one line per supplier, <code>name, discount %, days, late fee %</code> (for example <code>Acme Supply, 2, 10, 5</code> for 2% off if paid within 10 days of the bill date and a 5% late fee). A discount is taken when the cash holds; a late fee is reported, not counted against the reserve.</p>
     <label for="bp-reserve">Keep at least this much in the bank</label><input id="bp-reserve" inputmode="decimal" autocomplete="off" value="0">
+    <label for="bp-terms">Supplier terms (optional, one per line)</label>
+    <textarea id="bp-terms" placeholder="Acme Supply, 2, 10, 5"></textarea>
     <button type="button" id="bp-plan">Plan the bills</button>
     <p id="bp-status" class="note" role="status" aria-live="polite"></p>
     <div class="scroll" id="bp-result"></div>
@@ -663,7 +665,15 @@
       try {
         const reserve = $("#bp-reserve").value.trim() ? parseCents($("#bp-reserve").value) : 0;
         if (!Number.isFinite(reserve) || reserve < 0) throw new Error("The reserve must be an amount of zero or more.");
-        const p = planBills(books, { reserve });
+        const terms = {};
+        for (const [i, line] of $("#bp-terms").value.split("\n").entries()) {
+          if (!line.trim()) continue;
+          const c = line.split(",").map((x) => x.trim());
+          const [d, dd, lf] = [c[1] || "0", c[2] || "0", c[3] || "0"].map(Number);
+          if (!c[0] || [d, dd, lf].some((x) => !Number.isFinite(x) || x < 0) || d > 100 || lf > 100) throw new Error(`Supplier terms line ${i + 1}: use name, discount %, days, late fee %.`);
+          terms[c[0]] = { discountPct: d, discountDays: dd, lateFeePct: lf };
+        }
+        const p = planBills(books, { reserve, terms });
         if (!p.rows.length) { $("#bp-result").replaceChildren(); $("#bp-status").textContent = "No open bills fall in the next 90 days. Load bills in the invoices and bills card."; return; }
         record("billpay_planned");
         const rows = p.rows.map((r) => el("tr", {}, el("td", { text: `${r.id} ${r.party}` }), el("td", { class: "n", text: fmt(r.cents) }), el("td", { class: "n", text: r.due }), el("td", { class: "n", text: r.payOn }), el("td", { text: r.status }), el("td", { text: r.note })));
