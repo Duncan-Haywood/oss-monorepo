@@ -31,3 +31,10 @@ eps 0.050 s  lower 911.95  upper 919.70  width 7.754
 eps 0.020 s  lower 915.74  upper 918.70  width 2.954
 eps 0.010 s  lower 916.93  upper 918.45  width 1.524
 eps 0.005 s  lower 917.49  upper 918.25  width 0.759
+# F. rolling horizon: re-solve the exact schedule at every free-arm moment over the queue plus items arriving
+# within L seconds (L=0: queue only). Share of the clairvoyant optimum, paired, 95% interval
+density 3/m        share of opt: value-first 98.2%  L=0.00s 98.8% +-0.2  L=0.25s 99.5% +-0.2  L=0.50s 99.7% +-0.1  L=1.00s 99.9% +-0.1  L=2.00s 99.9% +-0.0  L=5.00s 99.9% +-0.0
+density 6/m        share of opt: value-first 96.5%  L=0.00s 97.5% +-0.3  L=0.25s 98.7% +-0.2  L=0.50s 99.4% +-0.1  L=1.00s 99.7% +-0.1  L=2.00s 99.8% +-0.1  L=5.00s 99.8% +-0.1
+density 10/m       share of opt: value-first 93.9%  L=0.00s 95.6% +-0.3  L=0.25s 97.7% +-0.2  L=0.50s 98.7% +-0.1  L=1.00s 99.4% +-0.1  L=2.00s 99.6% +-0.1  L=5.00s 99.7% +-0.1
+speed 0.75 m/s     share of opt: value-first 89.5%  L=0.00s 91.1% +-0.5  L=0.25s 94.4% +-0.4  L=0.50s 96.3% +-0.3  L=1.00s 98.0% +-0.2  L=2.00s 98.2% +-0.2  L=5.00s 98.2% +-0.2
+arm 0.4 m/s        share of opt: value-first 91.0%  L=0.00s 92.8% +-0.5  L=0.25s 94.7% +-0.4  L=0.50s 96.3% +-0.3  L=1.00s 98.0% +-0.2  L=2.00s 98.8% +-0.2  L=5.00s 98.8% +-0.2
