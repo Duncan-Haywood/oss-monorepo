@@ -550,7 +550,7 @@ paired by rate: one you give (`rates`, or `fxRates` in the books file), else the
 median of that currency's earlier pairs, within 6% for card fees; with no rate
 known the payee words must agree. The rate each line implies is kept, and tax
 and item splits for that receipt are converted at it. Hand-written fixtures
-only; comma-decimal numbers (1.234,56) are not read yet.
+only (decimal-comma receipts are read; see below).
 The same receipt twice is kept once. Item lines (words, then a price) are kept
 when they add up to the total with the printed tax and tip, or already include
 the tax; a receipt with a discount line or any other gap is not used for a
