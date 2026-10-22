@@ -1131,3 +1131,17 @@ or `ventures`) until its success rate passes 80% over 20 runs?
   2 unchanged (overlap / too few runs). `derived/` regenerated. No audit or
   drift report (reduced pass).
 - Result: (next review)
+
+## E70: review 2026-10-22 (reduced pass)
+
+- Change: `prompts/review/prompt-1.md` step 1 now names `measure --section`
+  (it exists; the last four reviews still reported "measure is 50KB+ with no
+  section flag").
+- Metric: friction reports against `prompts/review/prompt-1.md` saying
+  measure has no section flag, over the next 40 runs (baseline: 4 recent).
+- Decisions: research candidate 1 kept (retire verdict fires on 1/154 vs 5/790
+  integrity issues, a 0.0065 vs 0.0063 difference, not a real gap; E55
+  proposal stands). ventures 2, process 2 and review 2 unchanged (overlap /
+  too few runs). `derived/` regenerated (50 PRs). No audit or drift report
+  (reduced pass).
+- Result: (next review)
