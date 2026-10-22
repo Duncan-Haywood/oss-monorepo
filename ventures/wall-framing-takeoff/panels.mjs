@@ -129,17 +129,32 @@ export function panelParts(w, pan, opts = {}) {
  */
 export function panelOrder(result, plan, panelMax, extra = []) {
   const rows = [];
+  const demand = new Map(); // size|length|kind -> [{panel, left}] in wall order
+  const want = (panel, size, length, kind, qty) => {
+    const key = `${size}|${length}|${kind}`;
+    if (!demand.has(key)) demand.set(key, []);
+    demand.get(key).push({ panel, left: qty });
+  };
+  const panelNames = [];
   let panels = 0, over = false;
   for (const w of result.walls) {
     const pan = panelizeWall(w, panelMax);
     over = over || pan.over;
     panels += pan.panels.length;
     for (const p of panelParts(w, pan)) {
-      for (const x of p.pieces) rows.push({ size: x.size, length: Math.ceil(x.length * 16 - 1e-6) / 16, kind: x.kind, qty: x.qty, walls: [w.id] });
+      const name = `${w.id} ${p.name}`;
+      panelNames.push(name);
+      for (const x of p.pieces) {
+        const length = Math.ceil(x.length * 16 - 1e-6) / 16;
+        rows.push({ size: x.size, length, kind: x.kind, qty: x.qty, walls: [w.id] });
+        want(name, x.size, length, x.kind, x.qty);
+      }
     }
   }
+  if (extra.length) panelNames.push(NAILERS);
+  for (const e of extra) want(NAILERS, e.size, e.length, e.kind, e.qty);
   const cuts = mergeCuts([], [...rows, ...extra]);
-  const orders = [];
+  const orders = [], barsBySize = [];
   for (const size of [...new Set(cuts.map((c) => c.size))]) {
     const stock = plan.stock.filter((s) => s.size === size);
     const pieces = cuts.filter((c) => c.size === size).map((c) => ({ length: c.length, qty: c.qty, ref: c.kind }));
@@ -151,17 +166,62 @@ export function panelOrder(result, plan, panelMax, extra = []) {
       row.qty++;
       lines.set(key, row);
     }
+    barsBySize.push({ size, bars: res.bars });
     orders.push({ size, ...res, lines: [...lines.values()].sort((a, b) => b.length - a.length) });
   }
   const cost = orders.reduce((t, o) => t + o.cost, 0);
   const boards = orders.reduce((t, o) => t + o.bars.length, 0);
-  return { panels, over, cuts, orders, cost, boards, wholeWallCost: result.summary.cost, wholeWallBoards: result.summary.boards, extraCost: cost - result.summary.cost };
+  const assignment = assignBoards(barsBySize, demand, panelNames);
+  return { panels, over, cuts, orders, cost, boards, assignment, wholeWallCost: result.summary.cost, wholeWallBoards: result.summary.boards, extraCost: cost - result.summary.cost };
+}
+
+const NAILERS = "(sheathing nailers)";
+
+/**
+ * Hand each cut of each ordered board to the panel that needs that piece, so
+ * a shop can build panel by panel. Greedy: a cut goes to a panel the board
+ * already feeds when one still needs the piece (fewer boards walk between
+ * stations), else to the panel with the most of that piece still to come.
+ * Every piece of every panel is placed exactly once (the cut list is the sum
+ * of the panels' pieces), so no panel is short.
+ */
+function assignBoards(barsBySize, demand, panelNames) {
+  const byPanel = new Map(panelNames.map((n) => [n, []]));
+  let shared = 0, boardCount = 0;
+  for (const { size, bars } of barsBySize) {
+    bars.forEach((b, bi) => {
+      boardCount++;
+      const fed = new Map();
+      for (const c of b.cuts) {
+        const slots = (demand.get(`${size}|${c.length}|${c.ref}`) || []).filter((d) => d.left > 0);
+        if (!slots.length) continue;
+        const pick = slots.find((d) => fed.has(d.panel)) || slots.reduce((a, d) => (d.left > a.left ? d : a));
+        pick.left--;
+        if (!fed.has(pick.panel)) fed.set(pick.panel, []);
+        fed.get(pick.panel).push(c.length);
+      }
+      if (fed.size > 1) shared++;
+      for (const [panel, lens] of fed) byPanel.get(panel).push({ size, board: bi + 1, boardLength: b.length, label: b.label || "", cuts: lens, sharedWith: fed.size - 1 });
+    });
+  }
+  return { panels: [...byPanel].map(([panel, boards]) => ({ panel, boards })), sharedBoards: shared, boards: boardCount };
 }
 
 /** Text lines for panelOrder(). */
 export function panelOrderText(po) {
   const lines = [`${po.panels} shop panels: ${po.boards} boards, cost ${po.cost.toFixed(2)} (whole walls: ${po.wholeWallBoards} boards, ${po.wholeWallCost.toFixed(2)}; difference ${po.extraCost >= 0 ? "+" : ""}${po.extraCost.toFixed(2)})`];
   for (const o of po.orders) for (const l of o.lines) lines.push(`  ${String(l.qty).padStart(4)}  ${o.size.padEnd(7)} ${formatLength(l.length).padEnd(10)} ${l.label}`);
+  lines.push(`  ${po.assignment.sharedBoards} of ${po.assignment.boards} boards feed more than one panel`);
   if (po.over) lines.push("  At least one panel is over the limit: no clear cut line exists within it.");
+  return lines;
+}
+
+/** Per-panel pull lists: which boards (size, length, cuts) a panel is built from. */
+export function panelPullText(po) {
+  const lines = [];
+  for (const p of po.assignment.panels) {
+    lines.push(`${p.panel}: ${p.boards.length} boards`);
+    for (const b of p.boards) lines.push(`  ${b.size} ${formatLength(b.boardLength)} #${b.board}: cut ${b.cuts.map((c) => formatLength(c)).join(", ")}${b.sharedWith ? ` (board also feeds ${b.sharedWith} other panel${b.sharedWith > 1 ? "s" : ""})` : ""}`);
+  }
   return lines;
 }

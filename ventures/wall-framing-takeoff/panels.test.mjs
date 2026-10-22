@@ -79,3 +79,16 @@ test("panel order: pooled panel pieces cover every panel piece and cost about wh
   assert.ok(Math.abs(po.cost - po.wholeWallCost) / po.wholeWallCost < 0.01);
   assert.equal(po.wholeWallCost, r.summary.cost);
 });
+
+test("panel pull lists place every panel piece once, on boards that exist", async () => {
+  const { panelOrder, panelPullText } = await import("./panels.mjs");
+  const plan = samplePlan();
+  const po = panelOrder(r, plan, 144);
+  const placed = po.assignment.panels.reduce((t, p) => t + p.boards.reduce((u, b) => u + b.cuts.length, 0), 0);
+  const ordered = po.cuts.reduce((t, c) => t + c.qty, 0);
+  assert.equal(placed, ordered);
+  assert.equal(po.assignment.panels.length, po.panels);
+  assert.ok(po.assignment.sharedBoards <= po.assignment.boards);
+  for (const p of po.assignment.panels) for (const b of p.boards) assert.ok(b.cuts.reduce((t, c) => t + c, 0) <= b.boardLength + 1e-6);
+  assert.ok(panelPullText(po).length > po.panels);
+});
