@@ -28,6 +28,18 @@
       <itunes:duration>0:10:44</itunes:duration>
     </item>
     <item>
+      <title>Kevin and the Blackbird</title>
+      <link>https://example.invalid/hearth-and-horizon/kevin-and-the-blackbird.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/kevin-and-the-blackbird.html</guid>
+      <pubDate>Thu, 22 Oct 2026 12:00:00 GMT</pubDate>
+      <description>A bedtime story about Saint Kevin of Glendalough, who was praying with his hand held out of a window when a blackbird laid an egg in it, and who stayed still until the chick hatched. Told as the old legend tells it, with a note for grown-ups on what is history and what is legend. For ages 3 to 8, about nine minutes read aloud. His feast day is the 3rd of June. Setting: Glendalough, the valley of two lakes in the Wicklow mountains, Ireland, about fourteen hundred years ago. Read the full text at https://example.invalid/hearth-and-horizon/kevin-and-the-blackbird.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A bedtime story about Saint Kevin of Glendalough, who was praying with his hand held out of a window when a blackbird laid an egg in it, and who stayed still until the chick hatched. Told as the old legend tells it, with a note for grown-ups on what is history and what is legend. For ages 3 to 8, about nine minutes read aloud. His feast day is the 3rd of June.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://example.invalid/hearth-and-horizon/audio/kevin-and-the-blackbird.mp3" length="3579993" type="audio/mpeg"/>
+      <itunes:duration>0:09:57</itunes:duration>
+    </item>
+    <item>
       <title>Francis and the Wolf of Gubbio</title>
       <link>https://example.invalid/hearth-and-horizon/francis-and-the-wolf-of-gubbio.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/francis-and-the-wolf-of-gubbio.html</guid>
