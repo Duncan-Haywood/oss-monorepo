@@ -495,6 +495,10 @@ QuickBooks, Xero, IIF and CSV exports use that (the exported books close the sam
 way yours do). Tests: `yearend.test.mjs` (9; hand-written ledgers). Calendar years
 only: a fiscal year ending in another month is not modelled. The page has a "year-end close" card (year, draws tick box, Close year, Reopen latest, table of closed years; clicked through in headless Chromium with `eval/browser-click.mjs`, 2026-10-21; a year with unfiled lines is refused).
 
+## Loans
+
+`loans.mjs` (2026-10-22): a fixed-rate, monthly, equal-payment loan. `cli.mjs loan add Van --amount 20000 --rate 6 --months 36 --first 2026-02-01` computes the level payment (608.44, the textbook figure, checked in the test) and the schedule; `loan apply LN-1` splits each unfiled bank outflow that equals a scheduled payment, within 5 days of its due date, into interest (6040) and principal (2200) as an ordinary split, so no one types the split each month; `loan` lists balance by schedule and the next payment; `loan LN-1` prints the schedule. Interest is balance x rate / 12 rounded to the cent, and the last payment clears the balance. Not modelled: balloon, interest-only periods, variable rates, day-count interest, extra principal payments, and a lender's own schedule may differ by cents (use `--payment` to match its payment). Tested with hand-written statements (`loans.test.mjs`); no lender's real schedule compared, not on the page.
+
 ## Not modelled
 
 The 179 taxable-income limit, inventory,
