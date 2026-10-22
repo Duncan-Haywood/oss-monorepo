@@ -685,3 +685,8 @@ fields for a person. Hand-written examples only (`repair-cii.test.mjs`,
 repair button takes pasted JSON, UBL or CII (clicked through in headless
 Chromium with `eval/browser-repair.mjs`, which pastes the defective CII
 credit note).
+
+The web page's repair button also takes one dropped Factur-X PDF (empty paste
+box): it lists the changes and offers `<name>-repaired.pdf` to download. The
+printed pages are not redrawn. Clicked through in headless Chromium with
+`eval/browser-repair.mjs` on a PDF built by this repo.

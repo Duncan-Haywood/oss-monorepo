@@ -127,7 +127,7 @@
         <button id="adjustmentSample" class="secondary" type="button">Load a header discount that does not match its percent</button>
         <button id="termsSample" class="secondary" type="button">Load terms days that do not match the due date</button>
         <button id="validSample" class="secondary" type="button">Load a passing example</button>
-        <button id="repair" class="secondary" type="button">Repair the arithmetic (JSON, UBL or CII)</button>
+        <button id="repair" class="secondary" type="button">Repair the arithmetic (JSON, UBL, CII or a dropped Factur-X PDF)</button>
       </div>
       <p id="inputError" class="error" role="alert"></p>
       <div id="repairLog" aria-live="polite"></div>
@@ -227,6 +227,7 @@
     import { repairInvoice } from "./repair.mjs";
     import { repairUbl } from "./repair-ubl.mjs";
     import { repairCii } from "./repair-cii.mjs";
+    import { repairFacturX } from "./repair-facturx.mjs";
     import { looksLikeCii } from "./cii.mjs";
     import { recordUsage, readOptOut, writeOptOut } from "./usage.mjs";
 
@@ -462,6 +463,26 @@
       log.innerHTML = "";
       inputError.textContent = "";
       const text = paste.value;
+      const pdfFile = !text.trim() && dropped.length === 1 && /\.pdf$/i.test(dropped[0].name) ? dropped[0] : null;
+      if (pdfFile) {
+        let x;
+        try {
+          x = await repairFacturX(new Uint8Array(await pdfFile.arrayBuffer()));
+        } catch (e) {
+          inputError.textContent = `Repair could not read this PDF: ${e.message}`;
+          return;
+        }
+        if (!x.repaired) {
+          const why = (x.skipped || []).length ? " " + x.skipped.map(escapeHtml).join(" ") : "";
+          log.innerHTML = '<p class="note">Nothing to repair in the PDF\'s invoice: line nets, totals and amount due already follow from the lines (or the lines are not complete enough to recompute).' + why + '</p>';
+          return;
+        }
+        const url = URL.createObjectURL(new Blob([x.pdf], { type: "application/pdf" }));
+        const name = pdfFile.name.replace(/\.pdf$/i, "") + "-repaired.pdf";
+        const rows = x.changes.map((c) => `<tr><td><code>${escapeHtml(c.path)}</code></td><td>${escapeHtml(String(c.from))}</td><td>${escapeHtml(String(c.to))}</td><td>${escapeHtml(c.reason)}</td></tr>`).join("");
+        log.innerHTML = `<p class="note">Repaired ${x.changes.length} value(s) in the PDF's embedded invoice; ${x.remaining.length} finding(s) still need a person. The printed pages are not redrawn: if they show the wrong totals, re-issue the PDF from your accounting system. <a id="repairedPdf" href="${url}" download="${escapeHtml(name)}">Download ${escapeHtml(name)}</a></p><table><thead><tr><th>Path</th><th>Was</th><th>Now</th><th>Why</th></tr></thead><tbody>${rows}</tbody></table>`;
+        return;
+      }
       const isXml = text.trimStart().startsWith("<");
       let out;
       try {

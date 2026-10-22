@@ -95,4 +95,6 @@ test("browser page offers the arithmetic repair", () => {
   assert.match(page, /repairInvoice\(JSON\.parse\(text\)\)/);
   assert.match(page, /from "\.\/repair-cii\.mjs"/);
   assert.match(page, /from "\.\/repair-ubl\.mjs"/);
+  assert.match(page, /from "\.\/repair-facturx\.mjs"/);
+  assert.match(page, /id="repairedPdf"/);
 });
