@@ -1,0 +1,14 @@
+# buildbot-skillpack: mixed-plant training, 4 seeds; the seed is picked on a validation set (not the test set)
+seed 1 | K 213 B 20 Ki 110 | train min 0.650 | val A 0.618 B 0.635
+seed 2 | K 330 B 28 Ki 215 | train min 0.658 | val A 0.682 B 0.650
+seed 3 | K 386 B 34 Ki 80 | train min 0.583 | val A 0.685 B 0.680
+seed 4 | K 305 B 23 Ki 50 | train min 0.650 | val A 0.632 B 0.615
+picked seed 3
+
+# reloaded from skills/*.json: pass rate on 1000 episodes (A, B numpy) and the first 200 plant-B worlds in MuJoCo (C)
+skill | K B Ki | A | B | C (MuJoCo) | claimed matches
+cohold-follow-A | 22778 25 4774 | 0.823 | 0.000 | 0.000 | yes
+cohold-follow-B | 330 28 215 | 0.716 | 0.689 | 0.710 | yes
+cohold-follow-mixed | 386 34 80 | 0.675 | 0.653 | 0.695 | yes
+cohold-follow-nominal | 1000 150 0 | 0.612 | 0.275 | 0.280 | yes
+sheathing-nail | read 0.89 mm, tool 0.90 mm | sheet success 0.9513 (claimed 0.9513)
