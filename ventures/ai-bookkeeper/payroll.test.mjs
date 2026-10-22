@@ -104,15 +104,18 @@ test("form 941 sums the quarter and flags a social security rate that is off", (
 
 test("form 941 stops social security at the wage base, per employee", () => {
   // Ana is paid 100,000.00 a run; 2026 base is 184,500.00. Run 1 taxes all of it, run 2 taxes 84,500.00, run 3 none.
-  const row = (d, ss) => `${d},Ana,100000.00,0.00,${ss},1450.00,0.00,0.00,${(100000 - ss / 1 - 1450).toFixed(2)},${ss},1450.00,0.00,0.00`;
-  const reg = `${HEAD}\n${row("2026-01-15", "6200.00")}\n${row("2026-02-15", "5239.00")}\n${row("2026-03-15", "0.00")}\n`;
+  // Run 3 also carries the 0.9% additional Medicare tax on the 100,000.00 above 200,000.00.
+  const row = (d, ss, med = 1450) => `${d},Ana,100000.00,0.00,${ss},${med.toFixed(2)},0.00,0.00,${(100000 - ss - med).toFixed(2)},${ss},1450.00,0.00,0.00`;
+  const reg = `${HEAD}\n${row("2026-01-15", "6200.00")}\n${row("2026-02-15", "5239.00")}\n${row("2026-03-15", "0.00", 2350)}\n`;
   const { books } = addPayroll(newBooks(), reg);
   const f = form941(books, 2026, 1);
   assert.deepEqual(f.warnings, []);
   assert.equal(f.socialSecurityWages, 18450000);
   assert.equal(f.socialSecurityTax, 2 * (620000 + 523900));
+  assert.equal(f.additionalMedicareWages, 10000000);
+  assert.equal(f.additionalMedicareTax, 90000);
   // Withholding the full 6.2% in run 3 is flagged.
-  const bad = addPayroll(newBooks(), `${HEAD}\n${row("2026-01-15", "6200.00")}\n${row("2026-02-15", "5239.00")}\n${row("2026-03-15", "6200.00")}\n`).books;
+  const bad = addPayroll(newBooks(), `${HEAD}\n${row("2026-01-15", "6200.00")}\n${row("2026-02-15", "5239.00")}\n${row("2026-03-15", "6200.00", 2350)}\n`).books;
   assert.match(form941(bad, 2026, 1).warnings.join("\n"), /Ana.*taxable wages/);
   // Wages from an earlier quarter count toward the base.
   assert.equal(form941(books, 2026, 2).runs, 0);
@@ -163,6 +166,21 @@ test("form 940 reports the wages over the FUTA base as exempt", () => {
   const row = (d, futa) => `${d},Ana,5000.00,0.00,0.00,0.00,0.00,0.00,5000.00,0.00,0.00,${futa},0.00`;
   const { books } = addPayroll(newBooks(), `${HEAD}\n${row("2026-01-15", "30.00")}\n${row("2026-04-15", "12.00")}\n${row("2026-07-15", "0.00")}\n`);
   assert.equal(form940(books, 2026).exemptOverBase, 800000);
+});
+
+test("form 941 flags additional Medicare tax missing, or charged to the employer", () => {
+  const row = (d, med, erMed) => `${d},Ana,150000.00,0.00,0.00,${med},0.00,0.00,${(150000 - med).toFixed(2)},0.00,${erMed},0.00,0.00`;
+  const reg = (m2, e2) => `${HEAD}\n${row("2026-01-15", 2175, 2175)}\n${row("2026-02-15", m2, e2)}\n`;
+  // Run 2 crosses 200,000.00 with 100,000.00 over: 1.45% of 150,000.00 is 2,175.00 plus 900.00.
+  const ok = form941(addPayroll(newBooks(), reg(3075, 2175)).books, 2026, 1);
+  assert.deepEqual(ok.warnings.filter((w) => /medicare/i.test(w)), []);
+  assert.equal(ok.additionalMedicareWages, 10000000 / 2 + 5000000);
+  assert.equal(ok.additionalMedicareTax, 90000 / 2 + 45000);
+  assert.match(form941(addPayroll(newBooks(), reg(2175, 2175)).books, 2026, 1).warnings.join("\n"), /additional Medicare tax/);
+  assert.match(form941(addPayroll(newBooks(), reg(3075, 3075)).books, 2026, 1).warnings.join("\n"), /employer share has no additional/);
+  // Under 200,000.00 there is nothing extra.
+  const small = form941(addPayroll(newBooks(), `${HEAD}\n${row("2026-01-15", 2175, 2175)}\n`).books, 2026, 1);
+  assert.equal(small.additionalMedicareTax, undefined);
 });
 
 test("w-2 summary adds up each employee's year and caps box 3 at the wage base", () => {
