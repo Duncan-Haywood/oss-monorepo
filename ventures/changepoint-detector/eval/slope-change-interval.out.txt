@@ -1,0 +1,4 @@
+slope bump (per point)  found  covered  median width
+0.1  96/100  93/96 (97%)  31
+0.2  100/100  95/100 (95%)  19
+0.3  100/100  95/100 (95%)  14

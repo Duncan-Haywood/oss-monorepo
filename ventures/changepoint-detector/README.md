@@ -531,3 +531,17 @@ Counts (2026-10-22, `node eval/change-interval-counts.mjs`, output in `eval/chan
 Seasonal and trend models (2026-10-22, `node eval/change-interval-adjusted.mjs`, output in `eval/change-interval-adjusted.out.txt`; 200 white-noise series of 200 points, one level shift of 2 or 3 sd, simulated data): with `--period 7` under a sine of amplitude 1.5 the range holds the planted date in 95% and 97% of series; with `--trend` (one common slope of 0.02 per point) in 92% (192 found) and 94%; with `--model trend` in 95% and 99%. Median widths are 4 and 2 points, like the plain mean model. The 92% is the nearest to a miss: the shift-2 trend row, where 8 of 200 series gave no change within 15 points and 16 of 192 ranges missed.
 
 Not measured: slope changes and bends under `--model trend`, the seasonal counts model, and any real series (all simulated here).
+
+### A range on a slope change (2026-10-22)
+
+With `--trend bend` or `bends`, each slope change also carries `trend.slopeChangeRange95`. Each knot is slid over its allowed span with the other knots held fixed; every position is weighted by `exp(-(BIC - min BIC) / 2)` (the BIC is -2 log-likelihood with the noise variance profiled out, the same profile-likelihood idea as `range95`), and the most likely positions holding 95% of the weight give the first and last. The CLI prints it ("Likely range for each slope change"). Series over 200 points are scanned on a stride of about n / 200.
+
+Measured with `node eval/slope-change-interval.mjs` (100 seeded white-noise series of 200 points per row, slope 0.1 per point growing by the bump at a random point from 70 to 129; counted only if the fitted knot landed within 20 points):
+
+| bump in slope (per point) | found | range holds planted bend | median width (points) |
+|---|---|---|---|
+| 0.1 | 96/100 | 93/96 (97%) | 31 |
+| 0.2 | 100/100 | 95/100 (95%) | 19 |
+| 0.3 | 100/100 | 95/100 (95%) | 14 |
+
+It is a likelihood range under the fitted model, checked on synthetic series only; no real series with a documented slope break has been tried.
