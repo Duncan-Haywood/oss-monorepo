@@ -42,6 +42,13 @@ const [dl] = await Promise.all([page.waitForEvent("download"), page.click("#draw
 const drawn = await (await import("node:fs/promises")).readFile(await dl.path(), "utf8");
 const panelsOk = drawn.includes("Shop panels (up to 12") && drawn.includes("Panel A") && /lb/.test(drawn) && !/NaN|undefined/.test(drawn);
 console.log(panelsOk ? "ok: drawings download with shop panels" : "FAIL: shop panels missing");
+await page.check("#rfOn");
+await page.waitForFunction(() => document.querySelector("#roofOut")?.textContent.includes("rafters"));
+const roofTxt = await page.textContent("#roofOut");
+await page.selectOption("#rfSpacing", "24");
+await page.waitForFunction(() => document.querySelector("#roofOut")?.textContent.includes("at 24 o.c."));
+const roofOk = /Roof sheathing: \d+ sheets/.test(roofTxt) && !/NaN|undefined/.test(roofTxt) && (await page.textContent("#order")).includes("rafter") === false; // order rows carry sizes, not kinds
+console.log(roofOk ? "ok: roof on, then 24 in spacing" : "FAIL: roof card");
 console.log("page errors:", errors.length);
 await browser.close(); server.close();
-process.exit(errors.length || !panelsOk || horizontal.includes("CHECK FAILED") ? 1 : 0);
+process.exit(errors.length || !panelsOk || !roofOk || horizontal.includes("CHECK FAILED") ? 1 : 0);
