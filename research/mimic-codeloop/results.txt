@@ -1,0 +1,11 @@
+rounds per code-model run: 6; candidates per run: 24
+
+code model, blind: 1 runs, 24 candidates, 29% valid
+  final reference AUROC 1.000; best round 1.000; final loop detector 1.000
+  outcomes: banned token 10, valid 7, crashes or copies 4, does not load 3
+  component search at the same budget (round 6, 8 runs): reference AUROC 1.000 (0.999 to 1.000)
+
+code model, feedback: 1 runs, 24 candidates, 25% valid
+  final reference AUROC 1.000; best round 1.000; final loop detector 1.000
+  outcomes: banned token 7, does not load 7, valid 6, crashes or copies 4
+  component search at the same budget (round 6, 8 runs): reference AUROC 1.000 (1.000 to 1.000)
