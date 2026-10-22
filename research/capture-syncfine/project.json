@@ -1,0 +1,6 @@
+{
+ "theme": "capture",
+ "title": "Does finding the start offset first let short audio windows sync two drifting cameras at lower SNR?",
+ "summary": "Coarse-to-fine audio sync on synthetic speech-like audio: one 10 s GCC-PHAT window gives the start offset (0.8 s), then every later window on camera B is cut that much earlier so short windows overlap fully. Over 1 h at 40 ppm, 0.5 s windows hold within one 30 fps frame from &minus;12 dB SNR where plain 0.5 s windows never work; 1 s windows go from failing up to &minus;5 dB to working at &minus;15 dB; with reverb at 0 dB SNR 1 s windows go from 0/20 to 20/20 seeds. At &minus;20 dB all fail. Not real recordings: audio, delay and the 40 ppm are synthetic or assumed; the plain baseline loses much of its overlap by construction.",
+ "lede": "does a coarse offset first let short windows sync drifting cameras? A 10 s window finds the offset, then 0.5 s windows hold within a frame from -12 dB SNR; plain 1 s windows fail to -5 dB. Synthetic audio."
+}

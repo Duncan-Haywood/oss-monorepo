@@ -61,3 +61,5 @@ Record a clap on two owned cameras at the start and end of a long take to get th
 
 ## Outside dependencies
 Python, NumPy, pytest. No real recordings.
+
+Follow-up: [`capture-syncfine`](../capture-syncfine) tried the coarse-offset-first idea; 0.5 s windows then sync from -12 dB SNR.
