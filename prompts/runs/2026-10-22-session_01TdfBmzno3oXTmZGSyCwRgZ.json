@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-22",
+  "session": "https://claude.ai/code/session_01TdfBmzno3oXTmZGSyCwRgZ",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled: develop revenue products; merge when done",
+  "input_sha256": "faa7ea664b2fb1022de0f03a4b76705eb3ea31e6751c0bc83ce3f3fc91922b69",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-22T21:02:22Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "wall-framing-takeoff"
+  ],
+  "pr": 9589,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 12,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/promptctl.py route",
+      "why": "Router drew the research track; the scheduled prompt asked for revenue products, so I ran a ventures flagship slice."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Added roof.mjs and --roof (gable roofs). node --test in the venture: 115 pass. Not run: full CI locally, browser page (roof not on the page yet).",
+  "corrections": [],
+  "redteam": null
+}
