@@ -1211,3 +1211,19 @@ test('--burst-runs cuts a 3-day plateau that single-day bursts miss, and leaves 
   const step = base.map((v, i) => (i >= 40 ? Math.round(v * 2.5) : v));
   assert.equal(analyze({ values: step, model: 'poisson', bursts: true, burstRuns: 5 }).bursts.length, 0);
 });
+
+test('each change carries a 95% range that holds the planted date and narrows with a bigger shift', () => {
+  let seed = 7;
+  const rnd = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return (seed + 0.5) / 4294967296; };
+  const gauss = () => Math.sqrt(-2 * Math.log(rnd())) * Math.cos(2 * Math.PI * rnd());
+  const width = (shift) => {
+    const x = Array.from({ length: 160 }, (_, t) => gauss() + (t >= 80 ? shift : 0));
+    const r = analyze({ values: x }).pelt.changepoints[0].range95;
+    assert.ok(r.fromIndex <= 80 && 80 <= r.toIndex, `range ${r.fromIndex}-${r.toIndex} should hold 80`);
+    return r.toIndex - r.fromIndex;
+  };
+  assert.ok(width(4) <= width(1.5));
+  const nile = analyze({ csv: readFileSync(new URL('./data/nile.csv', import.meta.url), 'utf8') }).pelt.changepoints[0];
+  assert.ok(nile.range95.fromIndex <= nile.index && nile.index <= nile.range95.toIndex);
+  assert.equal(analyze({ csv: readFileSync(new URL('./data/nile.csv', import.meta.url), 'utf8'), intervals: false }).pelt.changepoints[0].range95, undefined);
+});

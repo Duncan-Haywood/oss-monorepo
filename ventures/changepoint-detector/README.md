@@ -510,3 +510,18 @@ clean data, so they are probably not separable from level changes by size
 alone.
 
 On the web page the same rule is the checkbox "Cut back isolated spikes before fitting" (counts model). It lists the days it cut back under the summary. Clicked through in headless Chromium on a hand-made 60-day series with one spike: two false changes without it, none with it (2026-10-22).
+
+## A range on each change date (2026-10-22)
+
+Every PELT change now carries `range95`: with the neighbouring changes held fixed, each possible start of the later segment is weighted by `exp(-(cost - min cost) / 2)` (the cost is -2 log-likelihood, so this is the profile likelihood), and the most likely starts holding 95% of the weight are returned as the first and last. The CLI prints it ("Likely range for each change"); `intervals: false` turns it off. It is not offered for `--ar1 joint`, which has its own likelihood. On the Nile series the 1899 change comes back as 1897 to 1899.
+
+Measured with `node eval/change-interval.mjs` (200 seeded white-noise series of 200 points, one planted shift at a random date from 60 to 139, a change counted only if PELT put one within 15 points):
+
+| shift (noise sd) | found | range holds planted date | median width (points) |
+|---|---|---|---|
+| 1 | 197/200 | 193/197 (98%) | 16 |
+| 1.5 | 200/200 | 189/200 (95%) | 7 |
+| 2 | 200/200 | 189/200 (95%) | 4 |
+| 3 | 200/200 | 191/200 (96%) | 2 |
+
+Coverage is about the nominal 95% on independent Gaussian noise; the shift-1 row is conservative. Not measured: sticky (AR(1)) noise, where the range is probably too narrow because the cost assumes independence, counts, and the trend and seasonal models (the range is computed from their cost, but its coverage is untested).
