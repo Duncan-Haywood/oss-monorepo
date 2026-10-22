@@ -15,9 +15,11 @@
   "tokens_out": null,
   "cost_usd": null,
   "tool_calls": null,
-  "task": null,
-  "projects": [],
-  "pr": null,
+  "task": "Deepen (flagship 1): ai-bookkeeper payroll page card",
+  "projects": [
+    "ai-bookkeeper"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/9525",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -25,15 +27,15 @@
   "merged": null,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": null,
-  "outcome": null,
+  "tests_added": 1,
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [],
   "deviations": [],
   "writeups": [],
   "goal": null,
-  "notes": "",
+  "notes": "Wired payroll.mjs into index.html (book report, file bank lines, Form 941 worksheet). 351 node tests pass; headless Chromium smoke with a hand-made report, no page errors. Real provider exports still untried.",
   "corrections": [],
   "redteam": null
 }
