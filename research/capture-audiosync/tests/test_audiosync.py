@@ -38,3 +38,9 @@ def test_fit_beats_offset_only_over_an_hour():
     r = trial(3, ppm=40.0, snr_db=10.0)
     assert r["offset_only_max_ms"] > 1000 * 40e-6 * 3600 * 0.9   # about 144 ms
     assert r["fit_max_ms"] < 5.0
+
+
+def test_short_window_with_long_lag_search_is_not_fooled_by_wraparound():
+    rng = np.random.default_rng(5)
+    a, b = make_pair(rng, 0.05, 0.5, snr_db=40)
+    assert abs(gcc_phat(a, b, max_lag_s=2.0) - 0.05) < 1e-4

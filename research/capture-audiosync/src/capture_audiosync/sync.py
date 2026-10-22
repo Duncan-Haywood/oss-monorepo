@@ -26,7 +26,7 @@ def gcc_phat(a, b, fs=FS, max_lag_s=2.0, band=(100.0, 4000.0)):
     f = np.fft.rfftfreq(nfft, 1.0 / fs)
     c[(f < band[0]) | (f > band[1])] = 0
     cc = np.fft.irfft(c, nfft)
-    m = int(max_lag_s * fs)
+    m = min(int(max_lag_s * fs), min(len(a), len(b)) - 1)   # a lag beyond the window has no overlap
     cc = np.concatenate((cc[-m:], cc[:m + 1]))
     k = int(np.argmax(cc))
     off = 0.0
