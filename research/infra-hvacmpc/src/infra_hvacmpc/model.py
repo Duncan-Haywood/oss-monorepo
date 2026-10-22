@@ -43,8 +43,8 @@ class Params:
     ce: float = 8.0e6            # J/K envelope mass (swept)
     solar_area: float = 4.6      # m2 = 12 m2 window x SHGC 0.769 x 0.5 orientation/shading factor (assumed)
     internal: float = 200.0      # W continuous internal gain (ASHRAE 140 Case 600)
-    qh_max: float = 4000.0       # W thermal, heating
-    qc_max: float = 4000.0       # W thermal, cooling
+    qh_max: float = 6000.0       # W thermal, heating
+    qc_max: float = 6000.0       # W thermal, cooling
     eta_cool: float = 0.4        # Carnot fraction of the cooling COP (assumed, swept)
     t_lo: float = 20.0           # comfort band, deg C
     t_hi: float = 24.0
