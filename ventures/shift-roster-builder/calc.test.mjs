@@ -1456,3 +1456,18 @@ test("coverage-first pass proves how few hours must stay open, and the cost sear
   assert.notEqual(r.optimality.status, "bounded");
   assert.equal(r.unfilledHours, 22);
 });
+
+test("redteam: a meal break on an unwatched stretch sits nearest the middle, not at the latest start", () => {
+  const r = { assignments: [{ slot: { day: 2, startMin: 480, endMin: 960 }, person: "Sam" }] };
+  const b = placeBreaks(r);
+  assert.equal(b.length, 1);
+  assert.equal(b[0].startMin, 705);
+});
+
+test("redteam: the unpaid meal cut applies from just over mealAfter hours, not a few minutes later", () => {
+  const staff = staffOf("Ana, $20, 40");
+  const slots = slotsOf("Mon, 9:00am, 3:05pm, 1, Open");
+  const plain = buildRoster(staff, slots, {});
+  const meal = buildRoster(staff, slots, { mealAfter: 6, mealMin: 30 });
+  assert.ok(Math.abs(plain.cost - meal.cost - 10) < 1e-6);
+});
