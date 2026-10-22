@@ -81,3 +81,20 @@ test("payments and total interest match widely published mortgage-table figures"
   assert.ok(Math.abs(interest - 11583819) < 100, `total interest ${interest}`);
   assert.equal(s.at(-1).balance, 0);
 });
+
+test("a zero amount is refused", () => {
+  assert.throws(() => addLoan(newBooks(), { name: "x", amount: "0", rate: 5, months: 12, first: "2026-01-01" }), /positive/);
+});
+
+test("the register counts matched payments, and has no next payment once all are matched", () => {
+  let { books, loan } = addLoan(newBooks(), { name: "Short", amount: "1200", rate: 0, months: 2, first: "2026-01-05" });
+  books = importStatement(books, "Date,Description,Amount\n2026-01-05,PAYMENT TO SHORT,-600.00\n", "1000").books;
+  books = applyLoanPayments(books, loan.id).books;
+  let r = loanRegister(books).rows[0];
+  assert.equal(r.paid, 1); assert.equal(r.principalPaid, 60000); assert.equal(r.balance, 60000);
+  assert.equal(r.next.n, 2); assert.equal(r.next.payment, 60000);
+  books = importStatement(books, "Date,Description,Amount\n2026-02-05,PAYMENT TO SHORT,-600.00\n", "1000").books;
+  books = applyLoanPayments(books, loan.id).books;
+  r = loanRegister(books).rows[0];
+  assert.equal(r.paid, 2); assert.equal(r.balance, 0); assert.equal(r.next, null);
+});

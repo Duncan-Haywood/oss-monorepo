@@ -67,3 +67,29 @@ test("a late fee counts toward the reserve: a bill that fits only without it is 
   assert.equal(r.fee, 3500); assert.equal(r.payOn, "2026-05-15"); assert.equal(r.status, "deferred");
   assert.ok(p.lowest.cents >= 30000);
 });
+
+test("two bills due together: the larger gets the cash first, then the lower id on a tie", () => {
+  const p = planBills(make("bill,1,2026-05-01,2026-05-10,Small,300.00,6130\nbill,2,2026-05-01,2026-05-10,Large,800.00,6130\n"), { asOf: "2026-05-01" });
+  assert.equal(p.rows.find((r) => r.id === "BILL-2").status, "on time");
+  assert.equal(p.rows.find((r) => r.id === "BILL-1").status, "cannot fit");
+  const q = planBills(make("bill,1,2026-05-01,2026-05-10,Same A,800.00,6130\nbill,2,2026-05-01,2026-05-10,Same B,800.00,6130\n"), { asOf: "2026-05-01" });
+  assert.equal(q.rows.find((r) => r.id === "BILL-1").status, "on time");
+  assert.equal(q.rows.find((r) => r.id === "BILL-2").status, "cannot fit");
+});
+
+test("a discount window starting tomorrow is used, and landing exactly on the reserve counts as holding it", () => {
+  const terms = { "parts co": { discountPct: 2, discountDays: 1 } };
+  const r = planBills(make("bill,1,2026-05-01,2026-05-31,Parts Co,1000.00,6130\n", 100000), { asOf: "2026-05-01", reserve: 2000, terms }).rows[0];
+  assert.equal(r.saved, 2000); assert.equal(r.payOn, "2026-05-02"); assert.equal(r.status, "on time");
+});
+
+test("no discount when it needs early cash that is not there, even if the bill is paid later with the window gone", () => {
+  const docs = "bill,1,2026-05-01,2026-05-20,Parts Co,900.00,6130\ninvoice,7,2026-04-25,2026-05-15,Client,500.00,4000\n";
+  const r = planBills(make(docs, 100000), { asOf: "2026-05-01", reserve: 30000, terms: { "parts co": { discountPct: 2, discountDays: 5 } } }).rows[0];
+  assert.equal(r.status, "on time"); assert.equal(r.payOn, "2026-05-20"); assert.equal(r.saved, 0);
+});
+
+test("a bill one day past due is paid tomorrow and called late now", () => {
+  const r = planBills(make("bill,1,2026-04-01,2026-04-30,Supplier,100.00,6130\n"), { asOf: "2026-05-01" }).rows[0];
+  assert.equal(r.daysLate, 1); assert.equal(r.status, "late now"); assert.equal(r.payOn, "2026-05-02");
+});
