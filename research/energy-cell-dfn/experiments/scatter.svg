@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 460" role="img" aria-labelledby="t d" font-family="sans-serif" font-size="12">
+<title id="t">SPMe against DFN energy density at cycle 100</title>
+<desc id="d">Scatter of Wh per kg at cycle 100 for each design under the single-particle model with electrolyte (x) and the full porous-electrode model (y), with the y = x line.</desc>
+<rect width="460" height="460" fill="#fff"/>
+<line x1="60.0" y1="400.0" x2="430.0" y2="30.0" stroke="#999" stroke-dasharray="4"/>
+<text x="60.0" y="418" text-anchor="middle">60</text><text x="52" y="404.0" text-anchor="end">60</text>
+<text x="134.0" y="418" text-anchor="middle">80</text><text x="52" y="330.0" text-anchor="end">80</text>
+<text x="208.0" y="418" text-anchor="middle">100</text><text x="52" y="256.0" text-anchor="end">100</text>
+<text x="282.0" y="418" text-anchor="middle">120</text><text x="52" y="182.0" text-anchor="end">120</text>
+<text x="356.0" y="418" text-anchor="middle">140</text><text x="52" y="108.0" text-anchor="end">140</text>
+<text x="430.0" y="418" text-anchor="middle">160</text><text x="52" y="34.0" text-anchor="end">160</text>
+<circle cx="368.6" cy="26.7" r="4" fill="#1f6fb2" fill-opacity=".7"/>
+<circle cx="367.1" cy="28.5" r="4" fill="#1f6fb2" fill-opacity=".7"/>
+<circle cx="365.2" cy="31.9" r="4" fill="#1f6fb2" fill-opacity=".7"/>
+<circle cx="364.9" cy="33.7" r="4" fill="#1f6fb2" fill-opacity=".7"/>
+<circle cx="364.9" cy="29.3" r="4" fill="#1f6fb2" fill-opacity=".7"/>
+<circle cx="359.0" cy="51.1" r="4" fill="#1f6fb2" fill-opacity=".7"/>
+<circle cx="359.0" cy="52.2" r="4" fill="#1f6fb2" fill-opacity=".7"/>
+<circle cx="358.6" cy="18.9" r="4" fill="#1f6fb2" fill-opacity=".7"/>
+<circle cx="357.1" cy="44.8" r="4" fill="#1f6fb2" fill-opacity=".7"/>
+<circle cx="354.5" cy="24.8" r="4" fill="#1f6fb2" fill-opacity=".7"/>
+<circle cx="351.6" cy="61.8" r="4" fill="#1f6fb2" fill-opacity=".7"/>
+<circle cx="350.8" cy="48.1" r="4" fill="#1f6fb2" fill-opacity=".7"/>
+<circle cx="350.4" cy="60.3" r="4" fill="#1f6fb2" fill-opacity=".7"/>
+<circle cx="350.1" cy="74.8" r="4" fill="#1f6fb2" fill-opacity=".7"/>
+<circle cx="347.1" cy="53.3" r="4" fill="#1f6fb2" fill-opacity=".7"/>
+<circle cx="347.1" cy="61.8" r="4" fill="#1f6fb2" fill-opacity=".7"/>
+<circle cx="343.1" cy="60.7" r="4" fill="#1f6fb2" fill-opacity=".7"/>
+<circle cx="338.2" cy="52.2" r="4" fill="#1f6fb2" fill-opacity=".7"/>
+<circle cx="334.5" cy="84.0" r="4" fill="#1f6fb2" fill-opacity=".7"/>
+<circle cx="326.4" cy="69.2" r="4" fill="#1f6fb2" fill-opacity=".7"/>
+<circle cx="319.7" cy="35.2" r="4" fill="#1f6fb2" fill-opacity=".7"/>
+<circle cx="315.7" cy="89.2" r="4" fill="#1f6fb2" fill-opacity=".7"/>
+<circle cx="310.9" cy="111.4" r="4" fill="#1f6fb2" fill-opacity=".7"/>
+<circle cx="307.5" cy="92.9" r="4" fill="#1f6fb2" fill-opacity=".7"/>
+<circle cx="302.7" cy="133.6" r="4" fill="#1f6fb2" fill-opacity=".7"/>
+<circle cx="296.8" cy="132.1" r="4" fill="#1f6fb2" fill-opacity=".7"/>
+<circle cx="288.7" cy="138.8" r="4" fill="#1f6fb2" fill-opacity=".7"/>
+<circle cx="282.0" cy="152.5" r="4" fill="#1f6fb2" fill-opacity=".7"/>
+<circle cx="276.4" cy="139.2" r="4" fill="#1f6fb2" fill-opacity=".7"/>
+<circle cx="272.0" cy="98.8" r="4" fill="#1f6fb2" fill-opacity=".7"/>
+<circle cx="268.7" cy="164.7" r="4" fill="#1f6fb2" fill-opacity=".7"/>
+<circle cx="263.5" cy="172.8" r="4" fill="#1f6fb2" fill-opacity=".7"/>
+<circle cx="257.2" cy="181.0" r="4" fill="#1f6fb2" fill-opacity=".7"/>
+<circle cx="248.3" cy="194.3" r="4" fill="#1f6fb2" fill-opacity=".7"/>
+<circle cx="239.8" cy="60.7" r="4" fill="#1f6fb2" fill-opacity=".7"/>
+<circle cx="231.3" cy="208.0" r="4" fill="#1f6fb2" fill-opacity=".7"/>
+<circle cx="214.7" cy="233.1" r="4" fill="#1f6fb2" fill-opacity=".7"/>
+<circle cx="209.1" cy="240.9" r="4" fill="#1f6fb2" fill-opacity=".7"/>
+<circle cx="202.1" cy="239.8" r="4" fill="#1f6fb2" fill-opacity=".7"/>
+<circle cx="190.6" cy="251.6" r="4" fill="#1f6fb2" fill-opacity=".7"/>
+<circle cx="169.5" cy="276.1" r="4" fill="#1f6fb2" fill-opacity=".7"/>
+<circle cx="149.5" cy="304.2" r="4" fill="#1f6fb2" fill-opacity=".7"/>
+<circle cx="134.4" cy="97.7" r="4" fill="#1f6fb2" fill-opacity=".7"/>
+<circle cx="-59.9" cy="141.4" r="4" fill="#1f6fb2" fill-opacity=".7"/>
+<circle cx="-92.1" cy="83.7" r="4" fill="#1f6fb2" fill-opacity=".7"/>
+<text x="230.0" y="448" text-anchor="middle">SPMe, Wh/kg at cycle 100</text>
+<text transform="translate(16 230.0) rotate(-90)" text-anchor="middle">DFN, Wh/kg at cycle 100</text>
+<text x="60" y="22" font-weight="bold">Same 45 designs, two electrochemical models (modelled, stack level)</text></svg>
