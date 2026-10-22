@@ -120,6 +120,18 @@
       <itunes:duration>0:19:29</itunes:duration>
     </item>
     <item>
+      <title>The Return Gate</title>
+      <link>https://example.invalid/hearth-and-horizon/the-return-gate.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-return-gate.html</guid>
+      <pubDate>Thu, 22 Oct 2026 12:00:00 GMT</pubDate>
+      <description>A glacier that has passed its peak melt feeds a nine-kilometre earthen canal, and the village's water judge is offered a plan that would give her 150 hectares of potatoes and barley most of the water they lost. The canal's gauge AI shows her what the plan does not say, that the water the canal leaks is the same water that fills a spring in the next village down, and that nobody can say exactly how much. Setting: Huallapampa, an invented village in the Cordillera Blanca, Peru, September 2057. Read the full text at https://example.invalid/hearth-and-horizon/the-return-gate.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A glacier that has passed its peak melt feeds a nine-kilometre earthen canal, and the village's water judge is offered a plan that would give her 150 hectares of potatoes and barley most of the water they lost. The canal's gauge AI shows her what the plan does not say, that the water the canal leaks is the same water that fills a spring in the next village down, and that nobody can say exactly how much.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://example.invalid/hearth-and-horizon/audio/the-return-gate.mp3" length="8578882" type="audio/mpeg"/>
+      <itunes:duration>0:23:50</itunes:duration>
+    </item>
+    <item>
       <title>Thérèse and the Small Way</title>
       <link>https://example.invalid/hearth-and-horizon/therese-and-the-small-way.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/therese-and-the-small-way.html</guid>
