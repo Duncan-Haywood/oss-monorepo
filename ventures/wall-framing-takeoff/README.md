@@ -141,7 +141,7 @@ column is the extreme case: 22% more board).
 
 ## Advanced framing (2026-10-22)
 
-Plan `"advanced": { "twoStudCorners": true, "ladderTees": true }` (or the
+Plan `"advanced": { "twoStudCorners": true, "ladderTees": true, "singleTopPlate": true }` (or the
 "Advanced framing" menu on the page):
 
 - `twoStudCorners` puts one backing stud in a `corner: true` wall instead of
@@ -151,6 +151,13 @@ Plan `"advanced": { "twoStudCorners": true, "ladderTees": true }` (or the
   nail to. Where those studs are more than one stud spacing apart, or an
   opening is between them, that tee keeps standard backing and a note says so.
   The blocks come out of offcuts in the order.
+- `singleTopPlate` (2026-10-22) leaves out the cap plate, so the wall is 1-1/2 in
+  shorter. With nothing lapping the top plate's joints, each joint, corner and
+  tee takes a steel plate tie; the count is `plateTies` on the wall and a note
+  lists where (ties are not in the takeoff). It needs roof or floor framing
+  within 1 in of the stud centres (the IRC R602.3.2 exception; check your
+  edition), which this tool cannot see. On the example house it takes 345 pieces
+  / 253 boards / $2,384.16 down to 329 / 238 / $2,173.88 (-8.8%, 20 ties).
 
 Measured on the built-in example house (`samplePlan`, 8 walls, priced stock;
 `takeoff().summary`):
