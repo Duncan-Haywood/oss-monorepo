@@ -494,9 +494,11 @@ only: a fiscal year ending in another month is not modelled. The page has a "yea
 ## Not modelled
 
 The 179 taxable-income limit, inventory,
-payroll and sales tax filings, multiple currencies (the VAT worksheet is UK-layout, invoice basis), reading a PDF file itself (paste its text instead), and reading a receipt image (paste the text; any OCR tool will give you that).
+payroll and sales tax filings, multiple currencies (the VAT worksheet is UK-layout, invoice basis), reading a bank-statement PDF file itself (paste its text instead). Receipts can be a PDF or a photo (see below).
 
 ## Receipts matched to bank lines
+
+`receipts FILE` also takes a PDF with a text layer (through `pdftotext -layout`) or a photo (through `tesseract`, or any command in `RECEIPT_OCR_CMD` such as `myocr --lang en {file}`); digit look-alikes OCR leaves in amounts and dates (`l2.5O`) are repaired before parsing (`ocr.mjs`). Node tests use stubbed tools and hand-written damaged text; no real scan or photo was run (neither tool is installed in the build container).
 
 `node cli.mjs --books books.json receipts receipts.txt` reads receipt text
 (blocks split by a `---` line) into merchant, date, total and tax, and pairs
