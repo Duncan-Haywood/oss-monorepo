@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of the contact area in square centimetres that the worst of 200 camera-arm trials needs so that its peak force stays under a pressure limit of 20 or 110 newtons per square centimetre, against approach speed in metres per second, at contact damping 4 and 1000">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Contact area the worst trial needs to stay within a pressure limit</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="276.7" y2="276.7" stroke="#ddd"/><text x="58" y="280.7" text-anchor="end" font-family="sans-serif" font-size="11">0.5</text>
+<line x1="64" x2="624" y1="229.3" y2="229.3" stroke="#ddd"/><text x="58" y="233.3" text-anchor="end" font-family="sans-serif" font-size="11">1</text>
+<line x1="64" x2="624" y1="182.0" y2="182.0" stroke="#ddd"/><text x="58" y="186.0" text-anchor="end" font-family="sans-serif" font-size="11">1.5</text>
+<line x1="64" x2="624" y1="134.6" y2="134.6" stroke="#ddd"/><text x="58" y="138.6" text-anchor="end" font-family="sans-serif" font-size="11">2</text>
+<line x1="64" x2="624" y1="87.3" y2="87.3" stroke="#ddd"/><text x="58" y="91.3" text-anchor="end" font-family="sans-serif" font-size="11">2.5</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.02</text>
+<text x="157.3" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.05</text>
+<text x="312.9" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.1</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.2</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">approach speed (m/s)</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">area needed (cm2)</text>
+<polyline points="64.0,245.4 157.3,244.5 312.9,252.0 624.0,228.4" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="245.4" r="3" fill="#c0392b"/>
+<circle cx="157.3" cy="244.5" r="3" fill="#c0392b"/>
+<circle cx="312.9" cy="252.0" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="228.4" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">b=4, limit 20 N/cm2</text>
+<polyline points="64.0,309.8 157.3,309.8 312.9,310.7 624.0,307.0" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="309.8" r="3" fill="#1f6fb2"/>
+<circle cx="157.3" cy="309.8" r="3" fill="#1f6fb2"/>
+<circle cx="312.9" cy="310.7" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="307.0" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">b=4, limit 110 N/cm2</text>
+<polyline points="64.0,163.0 157.3,186.7 312.9,148.8 624.0,71.2" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="163.0" r="3" fill="#2e8b57"/>
+<circle cx="157.3" cy="186.7" r="3" fill="#2e8b57"/>
+<circle cx="312.9" cy="148.8" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">b=1000, limit 20 N/cm2</text>
+<polyline points="64.0,294.6 157.3,299.4 312.9,291.8 624.0,278.5" fill="none" stroke="#8e44ad" stroke-width="2"/>
+<circle cx="64.0" cy="294.6" r="3" fill="#8e44ad"/>
+<circle cx="157.3" cy="299.4" r="3" fill="#8e44ad"/>
+<circle cx="312.9" cy="291.8" r="3" fill="#8e44ad"/>
+<circle cx="624.0" cy="278.5" r="3" fill="#8e44ad"/>
+<rect x="574" y="32" width="14" height="10" fill="#8e44ad"/><text x="594" y="41" font-family="sans-serif" font-size="11">b=1000, limit 110 N/cm2</text>
+</svg>
