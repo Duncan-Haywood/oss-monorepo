@@ -194,7 +194,7 @@
     <div class="scroll" id="cf"></div>
     <details><summary>Trial balance</summary><div class="scroll" id="tb"></div></details>
     <h3>US Schedule C worksheet</h3>
-    <p class="note">For a US sole proprietor or single-member LLC: the profit and loss regrouped onto the lines of Schedule C, with meals cut to 50%. A worksheet for you or your preparer, not a filing; it leaves out depreciation, home office, mileage and self-employment tax.</p>
+    <p class="note">For a US sole proprietor or single-member LLC: the profit and loss regrouped onto the lines of Schedule C, with meals cut to 50%. A worksheet for you or your preparer, not a filing; it leaves out depreciation and self-employment tax, and includes mileage and home office only when you log them in the card below and the dates above fall in one year.</p>
     <div class="scroll" id="schedc"></div>
     <button type="button" id="schedc-csv" class="secondary">Download Schedule C worksheet (CSV)</button>
     <h3>US contractors (1099-NEC worksheet)</h3>
@@ -218,6 +218,15 @@
     <p class="note">Set a monthly amount for an income or expense account, then see it beside what was posted in the From and To dates above (the latest month if they are empty). "Better" and "worse" mean for profit. Lines still waiting in the queue are not counted.</p>
     <p><label>Account <select id="budget-account"></select></label> <label>Per month <input id="budget-amount" inputmode="decimal" placeholder="200.00" size="10"></label> <button type="button" id="budget-set" class="secondary">Set budget</button> <span id="budget-status" class="note" role="status"></span></p>
     <div class="scroll" id="budget"></div>
+  </section>
+
+  <section class="card" aria-labelledby="h-mileage">
+    <h2 id="h-mileage">Optional: mileage log and home office (US)</h2>
+    <p class="note">Log business trips and, if you work from a dedicated space at home, its square feet. For the year you pick, the totals use the IRS standard mileage rate and the simplified home office method ($5 a square foot, 300 at most). They join the Schedule C worksheet (lines 9 and 30) when the From and To dates above fall in one calendar year. Rates are not checked against irs.gov; confirm them. A worksheet, not tax advice.</p>
+    <p><label>Date <input id="trip-date" placeholder="2026-03-14" size="10"></label> <label>Miles <input id="trip-miles" inputmode="decimal" size="6"></label> <label>Purpose <input id="trip-purpose" placeholder="Client site visit" size="22"></label> <label>From <input id="trip-from" size="10"></label> <label>To <input id="trip-to" size="10"></label> <button type="button" id="trip-add" class="secondary">Add trip</button> <span id="trip-status" class="note" role="status"></span></p>
+    <p><label>Home office sq ft <input id="ho-sqft" inputmode="numeric" size="6"></label> <label>Used from <input id="ho-from" placeholder="optional" size="10"></label> <label>to <input id="ho-to" placeholder="optional" size="10"></label> <button type="button" id="ho-set" class="secondary">Set home office</button> <span id="ho-status" class="note" role="status"></span></p>
+    <p><label>Year <input id="ded-year" inputmode="numeric" size="5"></label></p>
+    <div class="scroll" id="mileage"></div>
   </section>
 
   <section class="card" aria-labelledby="h-yearend">
@@ -318,6 +327,7 @@
     import { setOpeningBalances, clearOpeningBalances } from "./opening.mjs";
     import { detectRecurring, forecastCash } from "./recurring.mjs";
     import { setBudget, budgetVsActual } from "./budget.mjs";
+    import { addTrip, removeTrip, setHomeOffice, deductionExtras } from "./deductions.mjs";
     import { closeYear, reopenYear, yearEndReport } from "./yearend.mjs";
     import { addReceipts, receiptReport, taxOnReceipts, planReceiptSplit, splitFromReceipt } from "./receipts.mjs";
     import { renderInvoice, setProfile, PROFILE_KEYS } from "./invoice.mjs";
@@ -383,7 +393,7 @@
     }
 
     function table(head, rows, totalRows = []) {
-      return el("table", {}, el("thead", {}, el("tr", {}, ...head.map((h, i) => el("th", { scope: "col", class: i ? "n" : "", text: h })))), el("tbody", {}, ...rows.map((r) => el("tr", {}, ...r.map((c, i) => el(i ? "td" : "th", i ? { class: "n", text: c } : { scope: "row", text: c })))), ...totalRows.map((r) => el("tr", { class: "total" }, ...r.map((c, i) => el(i ? "td" : "th", i ? { class: "n", text: c } : { scope: "row", text: c }))))));
+      return el("table", {}, el("thead", {}, el("tr", {}, ...head.map((h, i) => el("th", { scope: "col", class: i ? "n" : "", text: h })))), el("tbody", {}, ...rows.map((r) => el("tr", {}, ...r.map((c, i) => c instanceof Node ? el("td", {}, c) : el(i ? "td" : "th", i ? { class: "n", text: c } : { scope: "row", text: c })))), ...totalRows.map((r) => el("tr", { class: "total" }, ...r.map((c, i) => el(i ? "td" : "th", i ? { class: "n", text: c } : { scope: "row", text: c }))))));
     }
 
     function renderReports() {
@@ -439,6 +449,18 @@
       $("#budget").replaceChildren(
         el("p", { class: "note", text: `${b.from} to ${b.to}, ${b.months} month${b.months === 1 ? "" : "s"}.${b.empty ? ` ${b.empty.replace("use `budget CODE AMOUNT`", "pick an account above")}.` : ""}${b.partial ? ` ${b.partial}.` : ""}` }),
         table(["Account", "Budget", "Actual", "Variance", "Status"], rows, [["Net profit", fmt(b.net.budget), fmt(b.net.actual), fmt(b.net.variance), ""]]));
+    }
+
+    function dedYear() { const y = $("#ded-year").value.trim(); return /^\d{4}$/.test(y) ? y : String(new Date().getFullYear()); }
+    function renderMileage() {
+      if (!$("#ded-year").value) $("#ded-year").value = ($("#from").value || "").slice(0, 4) || String(new Date().getFullYear());
+      const y = dedYear(), d = deductionExtras(books, y);
+      const trips = (books.mileage ?? []).filter((t) => t.date.startsWith(`${y}-`));
+      const rows = trips.map((t) => { const b = el("button", { type: "button", class: "secondary trip-remove", text: "Remove" }); b.addEventListener("click", () => { books = removeTrip(books, t.id); render(); }); return [t.date, String(t.miles), t.purpose + (t.from || t.to ? ` (${t.from ?? ""} to ${t.to ?? ""})` : ""), b]; });
+      const sum = [d.mileage.rate ? `${y}: ${d.mileage.miles} miles at ${d.mileage.rate / 10} cents = ${fmt(d.mileage.cents)} (Schedule C line 9).` : `${y}: ${d.mileage.miles} miles logged, no rate on file.`,
+        books.homeOffice ? `Home office ${d.home.sqft} sq ft for ${d.home.months} month${d.home.months === 1 ? "" : "s"} = ${fmt(d.home.cents)} (line 30, limited to profit on the worksheet).` : "No home office set."];
+      $("#mileage").replaceChildren(trips.length ? table(["Date", "Miles", "Purpose", ""], rows) : el("p", { class: "note", text: `No trips logged for ${y}.` }), ...sum.map((t) => el("p", { class: "note", text: t })), ...d.warnings.map((w) => el("p", { class: "note", text: w })));
+      if (books.homeOffice && !$("#ho-sqft").value) $("#ho-sqft").value = books.homeOffice.sqft;
     }
 
     function renderYearEnd() {
@@ -589,14 +611,14 @@
       $("#vat").replaceChildren(table(["Box", "Description", "Amount"], Object.keys(v.boxes).map((k) => [k, label[k], k >= 6 ? String(v.boxes[k]) : fmt(Math.abs(v.boxes[k]))])), el("p", { class: "note", text: `VAT already paid over by bank lines in the period: ${fmt(v.paid)}.` }), ...v.warnings.map((w) => el("p", { class: "note", text: w })));
     }
 
+    function scDates() { const from = $("#from").value || null, to = $("#to").value || null, f = (from ?? "").slice(0, 4), t = (to ?? "").slice(0, 4); return { from, to, year: f && (!t || t === f) ? +f : (!f && t ? +t : null) }; }
     function renderScheduleC() {
-      const dates = { from: $("#from").value || null, to: $("#to").value || null };
-      const sc = scheduleC(books, dates);
+      const sc = scheduleC(books, scDates());
       if (!sc.lines.length) { $("#schedc").replaceChildren(el("p", { class: "note", text: "Nothing filed to income or expense accounts yet." })); return; }
       const rows = [...sc.lines.map((l) => [l.line, l.label, fmt(l.cents)])];
       $("#schedc").replaceChildren(table(["Line", "Description", "Amount"], rows, [["7", "Gross income", fmt(sc.grossIncome)], ["28", "Total expenses", fmt(sc.totalExpenses)], ["31", "Net profit or (loss)", fmt(sc.netProfit)]]), ...sc.warnings.map((w) => el("p", { class: "note", text: w })));
     }
-    $("#schedc-csv").addEventListener("click", () => { record("schedule_c_downloaded"); download(scheduleCCsv(scheduleC(books, { from: $("#from").value || null, to: $("#to").value || null })), "schedule-c-worksheet.csv", "text/csv"); });
+    $("#schedc-csv").addEventListener("click", () => { record("schedule_c_downloaded"); download(scheduleCCsv(scheduleC(books, scDates())), "schedule-c-worksheet.csv", "text/csv"); });
 
     const necYear = () => Math.max(0, ...books.transactions.map((t) => +t.date.slice(0, 4)).filter(Boolean)) || new Date().getFullYear();
     function renderNec() {
@@ -622,7 +644,7 @@
 
     $("#nec-filing-csv").addEventListener("click", () => { record("contractors_filing_downloaded"); download(nec1099FilingCsv(contractors1099(books, { year: necYear() })), "contractors-1099-nec-filing-prep.csv", "text/csv"); });
 
-    function render() { fillSetup(); renderScheduleC(); renderNec(); renderStatus(); renderQueue(); renderReports(); renderRuleSuggestions(); renderAging(); renderRecurring(); renderBudget(); renderYearEnd(); renderReceipts(); renderVat(); renderAssets(); renderTaxDepr(); renderSalesTax(); renderOpening(); persist(); }
+    function render() { fillSetup(); renderScheduleC(); renderNec(); renderStatus(); renderQueue(); renderReports(); renderRuleSuggestions(); renderAging(); renderRecurring(); renderBudget(); renderMileage(); renderYearEnd(); renderReceipts(); renderVat(); renderAssets(); renderTaxDepr(); renderSalesTax(); renderOpening(); persist(); }
 
     function renderOpening() {
       const tb = books.openingTB;
@@ -775,6 +797,15 @@
       try { const y = (books.yearEnd ?? []).at(-1)?.year; books = reopenYear(books, y); render(); $("#ye-status").textContent = `${y} reopened.`; }
       catch (e) { $("#ye-status").textContent = e.message; }
     });
+    $("#trip-add").addEventListener("click", () => {
+      try { const r = addTrip(books, { date: $("#trip-date").value, miles: $("#trip-miles").value, purpose: $("#trip-purpose").value, from: $("#trip-from").value.trim(), to: $("#trip-to").value.trim() }); books = r.books; record("trip_added"); $("#ded-year").value = r.trip.date.slice(0, 4); render(); $("#trip-status").textContent = `Logged ${r.trip.miles} miles on ${r.trip.date}.`; for (const i of ["date", "miles", "purpose", "from", "to"]) $(`#trip-${i}`).value = ""; }
+      catch (e) { $("#trip-status").textContent = e.message; }
+    });
+    $("#ho-set").addEventListener("click", () => {
+      try { books = setHomeOffice(books, { sqft: $("#ho-sqft").value || 0, from: $("#ho-from").value.trim() || null, to: $("#ho-to").value.trim() || null }); record("home_office_set"); if (!books.homeOffice) $("#ho-sqft").value = ""; render(); $("#ho-status").textContent = books.homeOffice ? `Home office set: ${books.homeOffice.sqft} sq ft.` : "Home office removed."; }
+      catch (e) { $("#ho-status").textContent = e.message; }
+    });
+    $("#ded-year").addEventListener("change", renderMileage);
     $("#budget-set").addEventListener("click", () => {
       try { const cents = parseCents($("#budget-amount").value || "0"); if (cents === null || Number.isNaN(cents)) throw new Error("Enter an amount such as 200.00."); books = setBudget(books, $("#budget-account").value, cents); record("budget_set"); render(); $("#budget-status").textContent = cents ? `Budget set: ${fmt(cents)} a month.` : "Budget removed."; }
       catch (e) { $("#budget-status").textContent = e.message; }
