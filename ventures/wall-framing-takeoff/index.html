@@ -63,6 +63,7 @@
       <div><label for="headerHeight">Default header height (top of rough opening)</label><input id="headerHeight" value="82-1/2"></div>
       <div><label for="lap">Cap plate joint offset from top plate joints</label><input id="lap" value="24"></div>
       <div><label for="kerf">Saw kerf</label><input id="kerf" value="1/8"></div>
+      <div><label for="panelMax">Longest shop panel for the drawings (blank: whole walls)</label><input id="panelMax" placeholder="e.g. 12 ft"></div>
       <div><label for="cornerStuds">Extra studs at a corner</label><input id="cornerStuds" type="number" min="0" max="4" step="1" value="2"></div>
       <div><label for="teeStuds">Extra studs where a wall meets this one</label><input id="teeStuds" type="number" min="0" max="4" step="1" value="2"></div>
       <div><label for="blockRows">Rows of blocking between studs</label><input id="blockRows" type="number" min="0" max="6" step="1" value="0"></div>
@@ -446,7 +447,7 @@
       setTimeout(() => URL.revokeObjectURL(a.href), 1000);
     };
     $("#csv").addEventListener("click", () => { if (run() && last) { download("framing-takeoff.csv", "text/csv", toCsv(last.result)); record("csv_downloaded"); } });
-    $("#drawings").addEventListener("click", () => { if (run() && last) { download("wall-drawings.html", "text/html", drawingSetHtml(last.result, last.plan)); record("drawings_downloaded"); } });
+    $("#drawings").addEventListener("click", () => { if (run() && last) { download("wall-drawings.html", "text/html", drawingSetHtml(last.result, last.plan, { panelMax: Math.max(0, parseLength($("#panelMax").value.trim() || "0") || 0) })); record("drawings_downloaded"); } });
     $("#savePlan").addEventListener("click", () => { const { plan, bad } = toPlan(); if (bad.length) { run(); return; } download("framing-plan.json", "application/json", JSON.stringify(plan, null, 2)); record("plan_saved"); });
     $("#openPlan").addEventListener("change", async (e) => {
       const input = /** @type {HTMLInputElement} */ (e.target);

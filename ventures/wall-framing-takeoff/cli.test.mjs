@@ -76,3 +76,9 @@ test("--drawings prints one printable sheet per wall", async () => {
   assert.match(out, /^<!doctype html>/);
   assert.equal((out.match(/<section class="sheet">/g) || []).length, plan.walls.length);
 });
+
+test("--panel-max prints shop drawings with panels", () => {
+  const r = main(["plan.json", "--panel-max=12ft"], () => JSON.stringify(samplePlan()));
+  assert.equal(r.code, 0);
+  assert.match(r.out, /Shop panels/);
+});

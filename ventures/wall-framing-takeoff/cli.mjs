@@ -17,6 +17,7 @@ Usage:
   node cli.mjs plan.json --overhang   run sheathing past corners to cover the next wall's end stud (vertical sheets)
   node cli.mjs plan.json --rim-lap=9.25  run sheathing that many inches below the bottom plate to cover the rim board (vertical sheets)
   node cli.mjs plan.json --horizontal sheets long side along the wall (implies --sheathing)
+  node cli.mjs plan.json --panel-max=12ft  shop drawings with each wall split into panels no longer than that
   node cli.mjs plan.json --drawings   printable HTML shop drawings, one sheet per wall (marked members, dimensions, parts table)
   node cli.mjs --example            print the example plan (an invented 40 x 28 ft ranch) to start from
   cat plan.json | node cli.mjs -    read the plan from stdin
@@ -68,7 +69,8 @@ export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "u
     if (extra.length) r = takeoff(plan, extra); // nailers join the cut list and the lumber order
     r.sheathing = sheathing;
   }
-  if (flags.has("--drawings")) return { code: 0, out: drawingSetHtml(r, plan).trimEnd() };
+  const panelMax = Math.max(0, parseLength(argv.find((a) => a.startsWith("--panel-max="))?.slice(12) ?? "0") || 0);
+  if (flags.has("--drawings") || panelMax > 0) return { code: 0, out: drawingSetHtml(r, plan, { panelMax }).trimEnd() };
   if (flags.has("--json")) return { code: 0, out: JSON.stringify(r, null, 2) };
   if (flags.has("--csv")) return { code: 0, out: toCsv(r).trimEnd() };
   const s = r.summary;

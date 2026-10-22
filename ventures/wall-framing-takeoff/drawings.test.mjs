@@ -77,3 +77,13 @@ test("the drawing set has one sheet per wall, the disclaimer on each, and a clea
   assert.doesNotMatch(html, /fetch\(|<script/);
   assert.match(partsTableHtml(r.walls[0]), /<th>Mark<\/th>/);
 });
+
+test("panelMax adds purple panel joints, a panel table and keeps the layout check", () => {
+  const { plan, r } = house();
+  const html = drawingSetHtml(r, plan, { panelMax: 144 });
+  assert.match(html, /Shop panels \(up to 12&#39;/);
+  assert.match(html, /Panel A/);
+  assert.match(html, /stroke="#6a2c91"/);
+  assert.doesNotMatch(html, /NaN|undefined/);
+  assert.doesNotMatch(drawingSetHtml(r, plan), /Shop panels/);
+});
