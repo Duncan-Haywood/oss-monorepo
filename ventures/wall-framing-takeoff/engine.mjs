@@ -45,7 +45,7 @@ export const PRECUT = { "8ft": 92.625, "9ft": 104.625, "10ft": 116.625 };
  * @typedef {{ size: string, length: number, price: number, label?: string }} Stock
  * @typedef {{ studSpacing: number, studLength: number, kerf: number, topPlateLap: number,
  *   cornerExtraStuds: number, teeExtraStuds: number, defaultHeaderHeight: number,
- *   blocking?: { rows?: number, fire?: boolean }, plateLaps?: boolean, stock: Stock[], walls: Wall[] }} Plan
+ *   blocking?: { rows?: number, fire?: boolean }, plateLaps?: boolean, advanced?: { twoStudCorners?: boolean, ladderTees?: boolean }, stock: Stock[], walls: Wall[] }} Plan
  * @typedef {{ kind: string, x: number, y: number, w: number, h: number, size: string,
  *   length: number, orient: "v"|"h", label: string }} Member
  */
@@ -384,8 +384,26 @@ export function layoutWall(plan, wall) {
     }
     notes.push(`No room for ${label} near ${formatLength(target)}; add it by hand.`);
   };
-  if (wall.corner) for (let i = 0; i < plan.cornerExtraStuds; i++) backing(THICK * (i + 1), "corner", "corner backing");
+  const adv = plan.advanced || {};
+  const cornerBacking = adv.twoStudCorners ? Math.min(1, plan.cornerExtraStuds) : plan.cornerExtraStuds;
+  if (wall.corner) for (let i = 0; i < cornerBacking; i++) backing(THICK * (i + 1), "corner", "corner backing");
+  /** Ladder blocking at tees: [x0, x1] gaps between the full-height studs either side of the tee. */
+  const ladders = [];
   for (const t of wall.tees || []) {
+    if (adv.ladderTees) {
+      const tall = members.filter((m) => m.orient === "v" && Math.abs(m.y - THICK) < EPS && Math.abs(m.h - plan.studLength) < EPS);
+      const left = tall.filter((m) => m.x + THICK <= t + EPS).sort((a, b) => b.x - a.x)[0];
+      const right = tall.filter((m) => m.x >= t - EPS).sort((a, b) => a.x - b.x)[0];
+      if (left && right) {
+        const x0 = left.x + THICK;
+        const x1 = right.x;
+        if (x1 - x0 >= 1 - EPS && x1 - x0 <= plan.studSpacing + EPS && !ops.some((op) => x0 < op.offset + op.width - EPS && x1 > op.offset + EPS)) {
+          ladders.push([x0, x1, t]);
+          continue;
+        }
+      }
+      notes.push(`Ladder blocking at ${formatLength(t)} does not fit between studs; standard tee backing used.`);
+    }
     for (let i = 0; i < plan.teeExtraStuds; i++) backing(t - (plan.teeExtraStuds * THICK) / 2 + i * THICK, "tee", `tee backing at ${formatLength(t)}`);
   }
 
@@ -445,6 +463,12 @@ export function layoutWall(plan, wall) {
   const plateRuns = [["top plate", top, topPieces], ["cap plate", top + THICK, capPieces]];
   for (const [label, y, list] of plateRuns) {
     for (const [a, b] of list) add("plate", a, y, b - a, THICK, stud, "h", label);
+  }
+  // Ladder blocking at tees: flat 2x between the studs either side of the tee, 24 in apart, for the partition to nail to.
+  for (const [x0, x1, t] of ladders) {
+    for (let y = THICK + 24 - THICK / 2; y + THICK / 2 < THICK + plan.studLength - EPS; y += 24) {
+      add("blocking", x0, y, x1 - x0, THICK, stud, "h", `ladder blocking at ${formatLength(t)}`);
+    }
   }
   // Blocking: flat 2x between neighbouring full-height studs at evenly spaced heights, never across an opening.
   const rows = blockingRows(plan);
