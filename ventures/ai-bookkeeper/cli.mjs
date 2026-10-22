@@ -15,6 +15,7 @@
 //   node cli.mjs --books books.json export qbo|xero|iif|ledger|beancount|csv|lines > journal.csv
 //   node cli.mjs --example report
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
+import { join } from "node:path";
 import { addLoan, addLoanExtra, applyLoanPayments, loanRegister, loanSchedule } from "./loans.mjs";
 import { newBooks, importStatement, importOfxAccounts, lockPeriod, closeYear, reopenYear, yearEndReport, categorize, suggestRules, addRules, addDocuments, addAsset, disposeAsset, addAssetsCsv, register, addPrepaid, prepaidRegister, addInventoryMove, setInventoryMethod, inventoryRegister, writeOff, aging, salesTax, vatReturn, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, addFxAccount, setRates, parseRates, fxRegister, exportLines, status, analyze, fmt, taxableBusinessIncome, s179Carryforward } from "./engine.mjs";
 import { parseCents } from "./bank.mjs";
@@ -37,6 +38,7 @@ import { setTaxTreatment, taxDepreciation } from "./taxdepr.mjs";
 import { renderInvoice, setProfile, PROFILE_KEYS } from "./invoice.mjs";
 import { reminders } from "./collections.mjs";
 import { planBills } from "./billpay.mjs";
+import { taxPack } from "./taxpack.mjs";
 import { renderStatement, customers } from "./statement.mjs";
 
 const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that learn from your corrections.
@@ -61,6 +63,7 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
   lock DATE|off          lock a closed period: nothing dated on or before DATE can be imported, re-filed, booked or written off
   close YEAR [--draws] [--month M]   year-end close (a fiscal year ending in month M, named for the year it ends in): that year's income and expense go to retained earnings (3900) in one dated entry, and the books lock through Dec 31; --draws also closes owner draws and contributions. "close reopen YEAR" undoes the latest; "close report YEAR" shows it
   contractors [--year Y] [--threshold DOLLARS] [--csv|--filing|--json]  contract labor paid by payee against the 1099-NEC line, with W-9 status
+  taxpack YEAR [--out DIR]  one folder for your preparer: trial balance, P&L, balance sheet, journal, Schedule C, SE, 1099, payroll, sales tax, depreciation, mileage, checks, INDEX.txt
   merge-payee FROM INTO [--off]  count two spellings of one payee as one on the contractors worksheet
   w9 PAYEE [--off]       record that a W-9 is on file for a payee (a flag; no tax IDs are stored)
   trip add MILES --date D --purpose TEXT [--from A --to B] | trip list [--year Y] | trip remove ID   the business mileage log (goes to Schedule C line 9 with --year)
@@ -595,6 +598,15 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
   for (const p of r.payees) console.log(`  ${p.name.slice(0, 34).padEnd(34)} ${fmt(p.cents).padStart(12)}  ${p.over ? "REPORT" : "under "}  ${p.w9 ? "W-9 on file" : "no W-9"}${p.cardCents ? `  (+${fmt(p.cardCents)} by card)` : ""}`);
   for (const w of r.warnings) console.log(`  ! ${w}`);
   console.log("  A worksheet, not a filing. Whether someone is a contractor, and any exemption, is for you or your preparer to decide.");
+} else if (cmd === "taxpack") {
+  const out = flag("--out");
+  if (!/^\d{4}$/.test(rest[0] ?? "")) { console.error("taxpack needs a four-digit year"); process.exit(2); }
+  const pack = taxPack(books, rest[0]);
+  const dir = out ?? `taxpack-${rest[0]}`;
+  mkdirSync(dir, { recursive: true });
+  for (const [n, t] of Object.entries(pack.files)) writeFileSync(join(dir, n), t);
+  console.log(`${Object.keys(pack.files).length} files in ${dir}/ (start with INDEX.txt)`);
+  for (const n of pack.notes) console.log(`  ! ${n}`);
 } else if (cmd === "merge-payee") {
   if (!rest[0] || !rest[1]) { console.error("merge-payee needs two payee names as they appear on the bank lines"); process.exit(2); }
   try { books = mergePayees(books, rest[0], rest[1], !has("--off")); save(); console.log(has("--off") ? "Merge undone." : `"${rest[0]}" is now counted with "${rest[1]}".`); } catch (e) { console.error(e.message); process.exit(1); }
