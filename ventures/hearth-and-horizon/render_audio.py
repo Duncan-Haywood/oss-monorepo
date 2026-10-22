@@ -2,12 +2,14 @@
 """Render a story to MP3 with Piper, offline and at $0, then record it in
 audio/manifest.json so the pages and podcast feeds pick it up.
 
-    pip install piper-tts                                   # once
+    python3 -m pip install piper-tts                        # once (bare `pip` may belong to another Python)
     python3 -m piper.download_voices en_US-ljspeech-high    # once; public-domain voice
     python3 render_audio.py the-slowest-bell-on-the-moon --voice path/to/en_US-ljspeech-high.onnx
     node generate.mjs
 
-Needs ffmpeg. Output is mono 48 kbps MP3 at -16 LUFS, the usual podcast loudness. The LJSpeech voice is trained on a public-domain dataset, so the
+Needs ffmpeg and a network that reaches huggingface.co (the voice download; a sandbox that blocks it
+cannot render, and `pip download` writes wheels into the current directory).
+Output is mono 48 kbps MP3 at -16 LUFS, the usual podcast loudness. The LJSpeech voice is trained on a public-domain dataset, so the
 audio can carry the same CC BY-SA licence as the text.
 """
 import argparse
