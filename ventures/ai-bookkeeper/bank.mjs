@@ -123,6 +123,8 @@ export function sniffBank(rows) {
     if (/^status\|date\|description\|debit\|credit/.test(h)) return "citi";
     if (/^date\|transaction\|name\|memo\|amount/.test(h)) return "us-bank";
     if (/^date\|time\|amount\|type\|description/.test(h)) return "ally";
+    if (/^transaction date\|clearing date\|description\|merchant\|category\|type\|amount \(usd\)/.test(h)) return "apple-card";
+    if (/^transaction date\|transaction type\|sort code\|account number\|transaction description\|debit amount\|credit amount/.test(h)) return "lloyds";
     if (/^date\|description\|(card member\|account #\|)?amount/.test(h)) return "amex";
   }
   return null;
@@ -132,7 +134,7 @@ export function sniffBank(rows) {
 // positive, Chase as negative). The payment rows settle it: a payment lowers
 // what is owed, so charges carry the opposite sign.
 function chargesArePositive(rows) {
-  const pay = rows.filter((r) => /payment.*thank you|autopay|automatic payment|online payment|directpay/i.test(r.desc));
+  const pay = rows.filter((r) => /payment.*thank you|autopay|automatic payment|online payment|directpay|ach deposit internet transfer/i.test(r.desc));
   if (pay.length === 0) return null;
   const neg = pay.filter((r) => r.cents < 0).length;
   return neg > pay.length / 2;
@@ -271,7 +273,7 @@ export function readStatement(text, { dayFirst = false, decimalComma = false, in
   const out = [];
   // Wise writes DD-MM-YYYY. Revolut lists pending, declined and reverted rows
   // beside completed ones and keeps the fee in its own column.
-  if (bank === "wise" || bank === "monzo" || bank === "starling") dayFirst = true;
+  if (bank === "lloyds" || bank === "wise" || bank === "monzo" || bank === "starling") dayFirst = true;
   const hdr = headerAt === -1 ? [] : rows[headerAt].map(norm);
   if (bank === "monzo") columns.desc = hdr.indexOf("name");
   // Mercury lists Pending, Failed and Cancelled rows beside Sent ones.
