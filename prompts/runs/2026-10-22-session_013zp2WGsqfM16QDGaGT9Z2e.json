@@ -1,0 +1,49 @@
+{
+ "date": "2026-10-22",
+ "session": "https://claude.ai/code/session_013zp2WGsqfM16QDGaGT9Z2e",
+ "track": "research",
+ "prompt_version": 0,
+ "input": "follow the instructions in ./prompt.md (scheduled)",
+ "input_sha256": "a069142edff7faba0e7497f3e43587d325506648757355f87cd62c89d6f4f469",
+ "follow_up_inputs": [],
+ "model": "claude-sonnet-5-5",
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-10-22T10:48:21Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": null,
+ "projects": [],
+ "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/9457",
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": null,
+ "outcome": "success",
+ "errors": [],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "research/PROJECTS.md",
+   "issue": "Track 14 chain is mostly aero micro-variants; the 'newest projects' listing from pick_track is not by date on a shallow clone."
+  }
+ ],
+ "deviations": [
+  {
+   "file": "prompts/goals.md",
+   "why": "Skipped the agent doc and post write-up to keep the run small; README and project page carry the result."
+  }
+ ],
+ "writeups": [],
+ "goal": null,
+ "notes": "codesign-aero-cant-bound: 40 joint CMA-ES runs (~6 min, 4 cores). Result: optimum interior at 34-40 deg, flat from bound 35 to 80. Checks: pytest 11 passed, build.py ok, check_md_links ok.",
+ "corrections": [],
+ "redteam": null
+}
