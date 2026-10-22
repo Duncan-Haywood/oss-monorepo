@@ -125,8 +125,10 @@
       <div><label for="flUnder">Walls above that need doubled joists, at these positions across the width (comma-separated)</label><input id="flUnder" placeholder="e.g. 10 ft, 22 ft"></div>
       <div><label for="flOpen">Stairwell opening: from left edge, from front edge, width, depth (blank: none)</label><input id="flOpen" placeholder="e.g. 20 ft, 8 ft, 3 ft, 10 ft"></div>
     </div>
-    <p><input type="checkbox" id="rfOn" style="width:auto"> <label for="rfOn" style="display:inline">Also frame a gable roof (rafters, ridge, ceiling joists, collar ties, roof sheathing, shingles and felt; the lumber joins the order)</label></p>
+    <p><input type="checkbox" id="rfOn" style="width:auto"> <label for="rfOn" style="display:inline">Also frame a roof, gable or hip (rafters, ridge, ceiling joists, collar ties, roof sheathing, shingles and felt; the lumber joins the order)</label></p>
     <div class="grid" id="rfFields" hidden>
+      <div><label for="rfShape">Roof shape</label><select id="rfShape"><option value="gable" selected>gable</option><option value="hip">hip (four planes; length must be at least width)</option></select></div>
+      <div id="rfHipBox" hidden><label for="rfHip">Hip rafter size (one size deeper than the rafters is usual)</label><select id="rfHip"><option value="">same as rafters</option><option>2x8</option><option>2x10</option><option>2x12</option></select></div>
       <div><label for="rfW">Roof width (eave to eave, outside of the walls)</label><input id="rfW" value="28 ft"></div>
       <div><label for="rfL">Roof length (along the ridge)</label><input id="rfL" value="40 ft"></div>
       <div><label for="rfPitch">Pitch (rise in 12 of run)</label><input id="rfPitch" type="number" min="1" max="24" step="0.5" value="4"></div>
@@ -301,6 +303,7 @@
       }
       if ($("#rfOn").checked) {
         const rf = { id: "Roof", width: L($("#rfW").value, "roof width"), length: L($("#rfL").value, "roof length"), pitch: Number($("#rfPitch").value), rafter: $("#rfRafter").value, spacing: Number($("#rfSpacing").value), overhang: L($("#rfOver").value, "eave overhang"), gableOverhang: L($("#rfRake").value, "rake overhang"), collarTies: $("#rfCollar").value === "1" };
+        if ($("#rfShape").value === "hip") { rf.shape = "hip"; if ($("#rfHip").value) rf.hip = $("#rfHip").value; }
         if ($("#rfRidge").value) rf.ridge = $("#rfRidge").value;
         if ($("#rfJoist").value) rf.ceilingJoist = $("#rfJoist").value;
         plan.roof = rf;
@@ -492,6 +495,7 @@
         $("#rfW").value = formatLength(rf.width); $("#rfL").value = formatLength(rf.length); $("#rfPitch").value = String(rf.pitch);
         $("#rfRafter").value = rf.rafter || "2x8"; $("#rfSpacing").value = String(rf.spacing || 16); $("#rfRidge").value = rf.ridge || "";
         $("#rfOver").value = formatLength(rf.overhang ?? 12); $("#rfRake").value = formatLength(rf.gableOverhang ?? 12);
+        $("#rfShape").value = rf.shape === "hip" ? "hip" : "gable"; $("#rfHipBox").hidden = rf.shape !== "hip"; $("#rfHip").value = rf.hip || "";
         $("#rfJoist").value = rf.ceilingJoist || ""; $("#rfCollar").value = rf.collarTies ? "1" : "0";
       }
       renderAll();
@@ -573,6 +577,7 @@
     });
     $("#optout").addEventListener("click", () => { setUsageOptOut(true); const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; });
     $("#flOn").addEventListener("change", () => { $("#flFields").hidden = !$("#flOn").checked; if ($("#flOn").checked) record("floor_on"); });
+    $("#rfShape").addEventListener("change", () => { $("#rfHipBox").hidden = $("#rfShape").value !== "hip"; });
     $("#rfOn").addEventListener("change", () => { $("#rfFields").hidden = !$("#rfOn").checked; if ($("#rfOn").checked) record("roof_on"); });
     if (usageOptedOut()) { const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; }
 

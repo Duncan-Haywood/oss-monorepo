@@ -121,3 +121,11 @@ test("the page frames a floor through floor.mjs and pools its lumber with the wa
   assert.match(html, /takeoff\(plan, floorExtra\)/);
   assert.match(html, /takeoff\(plan, \[\.\.\.extra, \.\.\.floorExtra\]\)/);
 });
+
+test("the page offers hip roofs and passes shape and hip size to roof.mjs", () => {
+  const html = page("index.html");
+  for (const id of ["rfShape", "rfHip", "rfHipBox"]) assert.match(html, new RegExp(`id="${id}"`), id);
+  assert.match(html, /rf\.shape = "hip"/);
+  assert.match(html, /rf\.hip = \$\("#rfHip"\)\.value/);
+  assert.match(html, /\$\("#rfShape"\)\.value = rf\.shape === "hip"/);
+});
