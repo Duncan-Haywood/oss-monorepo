@@ -545,3 +545,17 @@ Measured with `node eval/slope-change-interval.mjs` (100 seeded white-noise seri
 | 0.3 | 100/100 | 95/100 (95%) | 14 |
 
 It is a likelihood range under the fitted model, checked on synthetic series only; no real series with a documented slope break has been tried.
+
+### A range on a change of growth rate, for counts (2026-10-22)
+
+`--model poisson --trend bend` (or `bends`) now also returns `trend.growthChangeRange95`, the same idea as the slope-change range: each knot is slid over its allowed span with the other knots held fixed, the growth rates are refitted at every position, each position is weighted by `exp(-(cost - min cost) / 2 / scale)` (the Poisson cost is -2 log-likelihood; `scale` is the overdispersion factor, so a noisier series gets a wider range), and the most likely positions holding 95% of the weight give the first and last. Under `--overdispersion nb` a series of 80 or more points is scored with the Poisson cost, as in the knot search. The scan uses a stride of about n / 80. The CLI prints it ("Likely range for each change of growth rate").
+
+Measured with `node eval/growth-change-interval.mjs` (100 seeded Poisson series of 200 points per row, log rate 2 + 0.004 t plus `bump` per point after a random point from 70 to 129; counted only if the fitted knot landed within 20 points; output in `eval/growth-change-interval.out.txt`):
+
+| bump in log growth (per point) | found | range holds planted bend | median width (points) |
+|---|---|---|---|
+| 0.015 | 90/100 | 79/90 (88%) | 37 |
+| 0.025 | 97/100 | 85/97 (88%) | 25 |
+| 0.04 | 81/100 | 68/81 (84%) | 16 |
+
+**It under-covers: about 86% at a nominal 95%** (the slope-change range for Gaussian series holds 95 to 97%). The knots show no bias (mean offset +0.2 points over 59 series); the misses are tails, a range that stops a few points short of the planted point. Treat it as a "likely" range, not a 95% guarantee, until the cause is found. Next: widen it by calibration (a profile-likelihood cut at a higher level, or a scale from the measured coverage) and check against a count series with a documented growth break. Simulated data only.

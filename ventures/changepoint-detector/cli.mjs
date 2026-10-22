@@ -92,6 +92,10 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
     if (r.rangeWarning) lines.push(`  (${r.rangeWarning})`);
     for (const x of ch) lines.push(`  ${x.label}: ${x.range95.from === x.range95.to ? 'that point only' : `${x.range95.from} – ${x.range95.to}`}`);
   }
+  if (r.trend && r.trend.growthChangeRange95) {
+    lines.push('', 'Likely range for each change of growth rate (95%, other bends held fixed):');
+    for (const x of r.trend.growthChangeRange95) lines.push(`  ${x.at}: ${x.from === x.to ? 'that point only' : `${x.from} – ${x.to}`}`);
+  }
   if (r.trend && r.trend.slopeChangeRange95) {
     lines.push('', 'Likely range for each slope change (95%, other bends held fixed):');
     for (const x of r.trend.slopeChangeRange95) lines.push(`  ${x.at}: ${x.from === x.to ? 'that point only' : `${x.from} – ${x.to}`}`);
