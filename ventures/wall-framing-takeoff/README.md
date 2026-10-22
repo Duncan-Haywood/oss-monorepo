@@ -20,6 +20,8 @@ construction in the US and bring its cost down: [ROADMAP.md](ROADMAP.md).
 
 ## What it does
 
+- **Floor framing** (CLI `--floor`, plan key `floor: {width, depth, joist, spacing, beam, blockingRows}`). Joists on layout between rim boards, split over an optional beam so a 28 ft floor buys 16 ft boards; rim splices over joists; blocking; subfloor sheets across the joists with every end joint on a joist and courses staggered. Floor lumber is pooled with the walls in one cutting-stock order. Tested on the example 40 x 28 ft floor only; stairwells and cantilevers are not modelled.
+
 - **Layout.** An end stud at each end; a stud centred on every multiple of the
   spacing from the start end (the second stud's edge at 15-1/4" for 16 o.c.).
   Openings replace the layout studs they cover with kings, jacks, a built-up
