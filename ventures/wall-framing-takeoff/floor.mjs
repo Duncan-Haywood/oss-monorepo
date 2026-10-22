@@ -15,7 +15,7 @@ import { THICK, EPS, DEPTH, optimizeStock, formatLength, formatInches } from "./
 
 export const SHEET = { width: 48, length: 96 };
 
-/** @typedef {{ id?: string, width: number, depth: number, joist?: string, spacing?: number, rim?: boolean, beam?: number, blockingRows?: number, sheet?: { length?: number, width?: number, price?: number, kerf?: number } }} Floor */
+/** @typedef {{ id?: string, width: number, depth: number, joist?: string, spacing?: number, rim?: boolean, beam?: number, blockingRows?: number, doubleUnder?: number[], sheet?: { length?: number, width?: number, price?: number, kerf?: number } }} Floor */
 
 export function sampleFloor() {
   return { id: "Main floor", width: 480, depth: 336, joist: "2x10", spacing: 16, rim: true, beam: 168, blockingRows: 0 };
@@ -28,6 +28,7 @@ export function validateFloor(f, plan) {
   if (!(f.depth >= 24 && f.depth <= 1200)) errors.push("Floor depth (the joist direction) must be between 2 ft and 100 ft.");
   if (!(f.joist in DEPTH)) errors.push(`Unknown joist size ${f.joist}.`);
   if (!(f.spacing > 0 && f.spacing <= 48)) errors.push("Joist spacing must be between 0 and 48 inches.");
+  for (const x of f.doubleUnder || []) if (!(x > 0 && x < f.width)) errors.push(`A wall at ${x} in for doubled joists must sit inside the floor's ${f.width} in width.`);
   if (f.beam != null && !(f.beam > 12 && f.beam < f.depth - 12)) errors.push("The beam must sit between 1 ft and 1 ft short of the far edge.");
   const longest = Math.max(0, ...plan.stock.filter((s) => s.size === f.joist).map((s) => s.length));
   if (!longest) errors.push(`No ${f.joist} boards listed in the stock.`);
@@ -81,6 +82,16 @@ export function layoutFloor(f, plan) {
   for (const [i, c] of centres.entries()) {
     for (const [y0, y1] of spans) joists.push({ x: c - THICK / 2, y: y0, length: y1 - y0, size: f.joist, edge: i === 0 || i === centres.length - 1 });
   }
+  // A wall running along the joists (`doubleUnder`: its x from the left edge) sits on a doubled joist:
+  // a companion joist is nailed beside the one nearest the wall, on the wall's side, or inward at an edge.
+  const doubled = [];
+  for (const x of f.doubleUnder || []) {
+    const i = centres.reduce((b, c, k) => (Math.abs(c - x) < Math.abs(centres[b] - x) ? k : b), 0);
+    const side = i === centres.length - 1 ? -1 : i === 0 ? 1 : x >= centres[i] ? 1 : -1;
+    const cx = centres[i] + side * THICK;
+    for (const [y0, y1] of spans) joists.push({ x: cx - THICK / 2, y: y0, length: y1 - y0, size: f.joist, edge: false, doubled: true });
+    doubled.push({ wall: x, joist: i, x: cx });
+  }
   for (const j of joists) if (j.length > longest + EPS) {
     return { ok: false, errors: [`A ${formatLength(j.length)} joist run is longer than the longest ${f.joist} listed (${formatLength(longest)}). Add a beam (floor.beam) or list longer boards.`] };
   }
@@ -133,9 +144,10 @@ export function layoutFloor(f, plan) {
   const sheetArea = (sheet.width * sheet.length) / 144;
   if (rest > EPS) notes.push(`The last subfloor course is ${formatInches(rest)} wide, ripped from ${rip} sheet${rip === 1 ? "" : "s"}; its long edge runs across the joists, so block or use tongue-and-groove sheets.`);
   if (f.beam != null) notes.push(`Joists butt over the beam at ${formatLength(f.beam)}; whether they butt, lap or hang from it is the framer's and engineer's call.`);
+  if (doubled.length) notes.push(`${doubled.length} doubled joist line${doubled.length === 1 ? "" : "s"} under walls that run along the joists; a wall across the joists, or over a bay, needs blocking or a beam, which this does not size.`);
   notes.push("Joist size and spacing are your inputs and are not checked against a span table or code; bearing, hangers and fasteners are not in the takeoff.");
   return {
-    ok: true, id, width: f.width, depth: f.depth, joistSize: f.joist, spacing: f.spacing, centres, joists, rims, blocks, courses,
+    ok: true, id, width: f.width, depth: f.depth, joistSize: f.joist, spacing: f.spacing, centres, joists, doubled, rims, blocks, courses,
     sheets: { count: sheets, rows: sheetRows, area, waste: sheets ? 1 - area / (sheets * sheetArea) : 0 },
     notes,
   };
@@ -152,7 +164,7 @@ export function floorCuts(l) {
     row.qty++;
     map.set(key, row);
   };
-  for (const j of l.joists) add(j.size, j.length, "floor joist");
+  for (const j of l.joists) add(j.size, j.length, j.doubled ? "doubled floor joist" : "floor joist");
   for (const r of l.rims) add(r.size, r.length, "rim board");
   for (const b of l.blocks) add(b.size, b.length, "floor blocking");
   return [...map.values()];
@@ -161,7 +173,7 @@ export function floorCuts(l) {
 export function floorText(l) {
   if (!l.ok) return l.errors.map((e) => `  - ${e}`);
   const out = [`${l.id}: ${formatLength(l.width)} x ${formatLength(l.depth)}, ${l.joistSize} joists at ${l.spacing} o.c.`];
-  out.push(`  ${l.centres.length} joist lines (${l.joists.length} pieces), ${l.rims.length} rim board${l.rims.length === 1 ? "" : "s"}, ${l.blocks.length} blocks`);
+  out.push(`  ${l.centres.length} joist lines (${l.joists.length} pieces), ${l.rims.length} rim board${l.rims.length === 1 ? "" : "s"}, ${l.blocks.length} blocks${l.doubled.length ? `, ${l.doubled.length} doubled under walls` : ""}`);
   out.push(`  Joist centres: ${l.centres.map((c) => formatInches(c)).join(", ")}`);
   out.push(`  Subfloor: ${l.sheets.count} sheets of ${SHEET.width} x ${SHEET.length} in for ${l.sheets.area.toFixed(0)} sq ft (${(100 * l.sheets.waste).toFixed(1)}% offcut)`);
   for (const c of l.courses) out.push(`    course at ${formatLength(c.y)} (${formatInches(c.width)} wide): ${c.pieces.map((p) => formatInches(p.length)).join(" + ")}`);

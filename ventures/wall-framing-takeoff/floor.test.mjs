@@ -73,3 +73,16 @@ test("blocking rows put a piece in every bay", () => {
   assert.equal(l.blocks.length, 2 * (l.centres.length - 1));
   assert.ok(floorText(l).length > 5);
 });
+
+test("a wall along the joists gets a companion joist on its side, in the cut list as its own kind", () => {
+  const l = layoutFloor({ ...sampleFloor(), doubleUnder: [100, 2] }, plan());
+  assert.ok(l.ok);
+  assert.equal(l.doubled.length, 2);
+  assert.equal(l.joists.filter((j) => j.doubled).length, 4); // two runs each (beam)
+  const near = l.doubled[0]; // wall at 100 in: nearest joist centre 96, companion on the + side
+  assert.equal(near.x, l.centres[near.joist] + 1.5);
+  assert.ok(l.doubled[1].x > l.centres[0]); // edge joist doubles inward
+  const rows = floorCuts(l).filter((r) => r.kind === "doubled floor joist");
+  assert.equal(rows.reduce((s, r) => s + r.qty, 0), 4);
+  assert.equal(layoutFloor({ ...sampleFloor(), doubleUnder: [900] }, plan()).ok, false);
+});
