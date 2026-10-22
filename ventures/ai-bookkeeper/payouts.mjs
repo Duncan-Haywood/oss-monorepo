@@ -51,7 +51,7 @@ const CATEGORY = {
   refund: "refunds", payment_refund: "refunds", refund_failure: "sales",
   fee: "fees", stripe_fee: "fees", network_cost: "fees", tax: "fees",
   dispute: "disputes", dispute_reversal: "disputes", chargeback: "disputes", payment_failure_refund: "refunds",
-  adjustment: "other", reserve: "skip", chargeback_won: "disputes", chargeback_reversal: "disputes",
+  adjustment: "other", reserve: "reserve", risk_reserved_funds: "reserve", reserved_funds: "reserve", chargeback_won: "disputes", chargeback_reversal: "disputes",
   card: "sales", square_card: "sales", online_checkout: "sales", processing_fee: "fees",
   stripe_fx_fee: "fees", tax_fee: "fees", contribution: "fees", partial_capture_reversal: "refunds",
   payout: "skip", payout_cancel: "skip", payout_failure: "skip", transfer: "skip",
@@ -306,11 +306,11 @@ function partsOf(payout, roles) {
 }
 
 // Match each payout to a bank line. Roles are account codes; override any.
-export function planPayouts(books, report, { sales = "4000", refunds = "4000", fees = "6010", disputes = "6010", other = "4100", tax = "2100", ads = "6000", window = [-2, 7] } = {}) {
-  const roles = { sales, refunds, fees, disputes, other, tax, ads };
+export function planPayouts(books, report, { sales = "4000", refunds = "4000", fees = "6010", disputes = "6010", other = "4100", tax = "2100", ads = "6000", reserve = "1200", window = [-2, 7] } = {}) {
+  const roles = { sales, refunds, fees, disputes, other, tax, ads, reserve };
   const codes = new Set(books.accounts.map((a) => a.code));
   const used = new Set(report.payouts.flatMap((p) => p.rows.map((x) => x.kind)));
-  for (const [r, c] of Object.entries(roles)) if (!codes.has(c) && (r !== "tax" && r !== "ads" || used.has(r))) throw new Error(`No account ${c} in the chart of accounts (for ${r}).`);
+  for (const [r, c] of Object.entries(roles)) if (!codes.has(c) && (r !== "tax" && r !== "ads" && r !== "reserve" || used.has(r))) throw new Error(`No account ${c} in the chart of accounts (for ${r}).`);
   const taken = new Set();
   const matched = [], unmatched = [], done = [];
   for (const p of report.payouts) {

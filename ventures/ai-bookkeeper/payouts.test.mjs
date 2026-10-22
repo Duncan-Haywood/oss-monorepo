@@ -217,3 +217,11 @@ test("a Square entry whose net fits neither fee sign is refused", () => {
   assert.equal(r.payouts.length, 0);
   assert.equal(r.problems.length, 1);
 });
+
+test("Stripe reserved funds go to the clearing asset, not other income, and a release comes back", () => {
+  const r = readPayoutReport(`${HEAD}\npo_8,2026-03-05,t1,2026-03-01,charge,500.00,15.00,485.00,Order\npo_8,2026-03-05,t2,2026-03-02,risk_reserved_funds,-100.00,0.00,-100.00,Hold\npo_9,2026-03-12,t3,2026-03-10,risk_reserved_funds,100.00,0.00,100.00,Release\n`);
+  assert.deepEqual(r.rows.map((x) => x.kind), ["sales", "reserve", "reserve"]);
+  const plan = planPayouts(books([["2026-03-05", "STRIPE", "385.00"], ["2026-03-12", "STRIPE", "100.00"]]), r);
+  assert.deepEqual(plan.matched[0].parts, [{ account: "4000", cents: 50000 }, { account: "6010", cents: -1500 }, { account: "1200", cents: -10000 }]);
+  assert.deepEqual(plan.matched[1].parts, [{ account: "1200", cents: 10000 }]);
+});
