@@ -89,8 +89,10 @@ Ticked items are on `main`.
       boards spliced over joists, blocking rows, subfloor sheets with joints on
       joists and staggered courses; lumber pooled into the wall order. Not yet:
       the page, openings (stairs, chases), cantilevers, doubled joists under walls.
-- [ ] Roof: rafter or truss count from a footprint and pitch (trusses as a
-      purchased line), roof sheathing, underlayment and shingle squares.
+- [x] Roof (2026-10-22, `roof.mjs`, CLI `--roof`): gable roofs; rafter or truss count
+      from a footprint and pitch (trusses as a purchased line), ridge, ceiling
+      joists, collar ties, roof sheathing, underlayment and shingle squares.
+      Not yet: hips, valleys, the page.
 - [ ] Foundation quantities: footing and slab concrete, rebar, forms.
 - [ ] Interior: drywall sheet layout per wall and ceiling, insulation by
       cavity, trim.
