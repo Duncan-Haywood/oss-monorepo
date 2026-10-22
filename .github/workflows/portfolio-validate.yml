@@ -471,6 +471,15 @@ jobs:
         working-directory: platform/ci
         run: python3 -m unittest test_check_main_landmark
 
+      # Broken JSON-LD is silently dropped by search engines; Review and
+      # AggregateRating markup without real reviews breaks goals.md "Honest marketing".
+      - name: Check JSON-LD parses and carries no review markup
+        run: python3 platform/ci/check_jsonld.py
+
+      - name: JSON-LD checker unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_check_jsonld
+
       # getElementById returns the first match, so two elements sharing an id
       # silently send a script's writes to the wrong one.
       - name: Check no served page repeats an id
