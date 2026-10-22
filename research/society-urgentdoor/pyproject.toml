@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "society-urgentdoor"
+version = "0.1.0"
+description = "Robots that read urgency at a door: yielding only to people in a hurry versus yielding to everyone"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
