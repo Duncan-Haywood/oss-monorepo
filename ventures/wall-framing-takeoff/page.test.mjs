@@ -51,7 +51,7 @@ test("every static control has a label, and generated rows label their inputs", 
 
 test("the module script imports only local files, its names exist, and it parses", async () => {
   const html = page("index.html");
-  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./drawings.mjs", "./engine.mjs", "./panels.mjs", "./sheathing.mjs", "./usage.mjs"]);
+  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./drawings.mjs", "./engine.mjs", "./floor.mjs", "./panels.mjs", "./sheathing.mjs", "./usage.mjs"]);
   const names = html.match(/import \{([^}]+)\} from "\.\/engine\.mjs"/)[1].split(",").map((s) => s.trim());
   const engine = await import("./engine.mjs");
   for (const name of names) assert.ok(name in engine, name);
@@ -112,4 +112,12 @@ test("the page downloads the shop-panel lumber order and pull lists through pane
   assert.match(html, /id="panelOrderBtn"/);
   assert.match(html, /panelOrder\(last\.result, last\.plan, panelMax, last\.nailers\)/);
   assert.match(html, /panelPullText\(po\)/);
+});
+
+test("the page frames a floor through floor.mjs and pools its lumber with the walls", () => {
+  const html = page("index.html");
+  for (const id of ["flOn", "flW", "flD", "flJoist", "flSpacing", "flBeam", "flBlock", "flUnder", "flOpen", "floorOut"]) assert.match(html, new RegExp(`id="${id}"`), id);
+  assert.match(html, /layoutFloor\(plan\.floor, plan\)/);
+  assert.match(html, /takeoff\(plan, floorExtra\)/);
+  assert.match(html, /takeoff\(plan, \[\.\.\.extra, \.\.\.floorExtra\]\)/);
 });
