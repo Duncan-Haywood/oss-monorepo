@@ -8,7 +8,7 @@
 //     or ?profile=france for the French SIREN and payment-mention rules (FR-nnn)
 //     add ?schematron=1 to also run the official EN 16931 Schematron (BR-xx) when
 //     build-schematron.mjs has been run; the report says "unavailable" otherwise.
-//   POST /v1/repair          JSON invoice -> arithmetic fixed, change log, findings left
+//   POST /v1/repair          JSON invoice or UBL XML -> arithmetic fixed, change log, findings left
 //   POST /v1/validate/batch  {"documents":[{"name","content","encoding"?}]}
 //                            encoding "base64" is for PDFs; default is text.
 //   POST /v1/generate        {"draft":{...},"format":"ubl"|"cii","profile":"xrechnung"|
@@ -21,6 +21,7 @@
 // nothing is forwarded; request bodies live in memory for the length of the
 // request. Configuration is by environment variable only (see README).
 import { repairInvoice } from "./repair.mjs";
+import { repairUbl } from "./repair-ubl.mjs";
 import { createServer } from "node:http";
 import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
@@ -216,11 +217,22 @@ export function createApp(config = loadConfig()) {
 
     if (path === "/v1/repair") {
       const body = await readBody(req, config.maxBytes);
+      const bodyText = body.toString("utf8");
+      if (bodyText.trimStart().startsWith("<")) {
+        let x;
+        try {
+          x = repairUbl(bodyText);
+        } catch (e) {
+          throw new HttpError(400, `Body must be a UBL invoice or credit note: ${e.message}`);
+        }
+        send(res, 200, { repaired: x.repaired, changes: x.changes, skipped: x.skipped, remaining: x.remaining, xml: x.xml, disclaimer: DISCLAIMER });
+        return;
+      }
       let invoice;
       try {
-        invoice = JSON.parse(body.toString("utf8"));
+        invoice = JSON.parse(bodyText);
       } catch {
-        throw new HttpError(400, "Body must be a JSON invoice.");
+        throw new HttpError(400, "Body must be a JSON invoice or a UBL XML file.");
       }
       const r = repairInvoice(invoice);
       send(res, 200, { repaired: r.repaired, changes: r.changes, remaining: r.remaining, invoice: r.invoice, disclaimer: DISCLAIMER });
