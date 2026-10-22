@@ -108,8 +108,10 @@ flagships:
       (eval/scale-bench.mjs): proof breaks at larger sizes (6/8 proven at 6
       people x 14 shifts, 4/8 at 8x18, 2/8 at 8x22, 0/8 at 10 people), and
       every unproven week at 8-12 people failed at coverage, none at cost
-      (README "Where the exact proof breaks"). Next: a tighter bound on the
-      open-hours floor at 8+ people, then multi-week rostering that carries
+      (README "Where the exact proof breaks"). Ejection chains landed 2026-10-22
+      (open hours 413 to 395 on 8 x 22; fixed an exact-search pay bound that
+      overstated). Next: a tighter bound on the
+      open-hours floor at 8+ people (about 45 h gap left on 8 x 22), then multi-week rostering that carries
       fairness and time off across weeks (CLI --weeks landed).
 
   - venture: photo-editing
