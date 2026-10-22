@@ -111,6 +111,13 @@
     "script_sha256": "7aa64710d727d79620ba98ad447d59b94354707b56343059038a2b5289d6cc01",
     "voice": "en_US-ljspeech-high"
   },
+  "2026-10-21-thirteen-publishers-zero-posts": {
+    "bytes": 1504577,
+    "seconds": 300.83,
+    "sha256": "7da5c59110ad44a8e421c07635ba3234e32f9ee4ce4c16defe42ef46b1a82eb6",
+    "script_sha256": "8ed2e06fa202063a3656d096b9ba920e7df6c697229e1680dbb870db4cd3b8dd",
+    "voice": "en_US-ljspeech-high"
+  },
   "2026-10-21-typeof-localstorage-throws": {
     "bytes": 699883,
     "seconds": 139.89,
