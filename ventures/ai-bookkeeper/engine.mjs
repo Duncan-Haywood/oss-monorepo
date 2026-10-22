@@ -18,6 +18,7 @@ import { suggest, trainClassifier, buildMemory, parseRules, historyRecord, payee
 import { addDocuments, writeOff, settle, aging, documentEntries, AR, AP } from "./accruals.mjs";
 import { taxDepreciation, s179IncomeLimit } from "./taxdepr.mjs";
 import { fxEntries, fxRegister as fxReg, convertRow, fxCurrency, foreignBalance, addFxAccount, setRates, parseRates, rateOn } from "./fx.mjs";
+import { inventoryEntries, inventoryRegister, addInventoryMove, setInventoryMethod, INVENTORY_ACCOUNT } from "./inventory.mjs";
 import { prepaidEntries, prepaidRegister, addPrepaid, PREPAID_ACCOUNT } from "./prepaid.mjs";
 import { assetEntries, register, addAsset, disposeAsset, addAssetsCsv, ASSET_ACCOUNT } from "./assets.mjs";
 import { closingEntries } from "./yearend.mjs";
@@ -28,7 +29,7 @@ export { setOpeningBalances, clearOpeningBalances };
 export { closeYear, reopenYear, yearEndReport } from "./yearend.mjs";
 export { addFxAccount, setRates, parseRates, rateOn };
 export const fxRegister = (books, asOf = null) => fxReg(books, journal(books), asOf);
-export { DEFAULT_ACCOUNTS, fmt, dollars, payeeKey, addDocuments, writeOff, aging, addAsset, disposeAsset, addAssetsCsv, register, addPrepaid, prepaidRegister };
+export { DEFAULT_ACCOUNTS, fmt, dollars, payeeKey, addDocuments, writeOff, aging, addAsset, disposeAsset, addAssetsCsv, register, addPrepaid, prepaidRegister, addInventoryMove, setInventoryMethod, inventoryRegister };
 
 export const VERSION = 1;
 const CAPEX_LIKELY = /suppl|office|repair|equipment|tool|computer|furniture|material|uncategori/i;
@@ -282,7 +283,7 @@ export function journal(books, { withClosing = false } = {}) {
     const deb = cents > 0;
     entries.push({ id: `OPEN-${code}`, date, memo: `Opening balance, ${map.get(code).name}`, source: "opening", lines: [{ account: code, debit: deb ? cents : 0, credit: deb ? 0 : -cents }, { account: "3000", debit: deb ? 0 : -cents, credit: deb ? cents : 0 }] });
   }
-  entries.push(...documentEntries(books), ...assetEntries(books), ...prepaidEntries(books), ...fxEntries(books));
+  entries.push(...documentEntries(books), ...assetEntries(books), ...prepaidEntries(books), ...inventoryEntries(books), ...fxEntries(books));
   const seen = new Set();
   for (const t of books.transactions) {
     if (!t.posted || t.status === "review" || t.status === "new" || seen.has(t.id)) continue;
@@ -335,6 +336,12 @@ export function closeChecks(books, opts = {}) {
   if (books.prepaids?.length) {
     const ahead = prepaidRegister(books).remaining, ledger = b.get(PREPAID_ACCOUNT) ?? 0;
     if (ledger !== ahead) out.push({ severity: "low", check: "prepaid", message: `${map.get(PREPAID_ACCOUNT)?.name ?? PREPAID_ACCOUNT} is ${fmt(ledger)} in the ledger but the prepaid register has ${fmt(ahead)} still paid ahead. ${ledger > ahead ? "A payment filed there has no register row, so it is not being spread over its months." : "A register row has no payment filed to the account."}`, ids: [] });
+  }
+
+  // Inventory: account 1450 should equal the stock register's value.
+  if (books.inventory?.moves?.length) {
+    const reg = inventoryRegister(books).value, ledger = b.get(INVENTORY_ACCOUNT) ?? 0;
+    if (ledger !== reg) out.push({ severity: "low", check: "inventory", message: `${map.get(INVENTORY_ACCOUNT)?.name ?? INVENTORY_ACCOUNT} is ${fmt(ledger)} in the ledger but the stock register values what is on hand at ${fmt(reg)}. ${ledger > reg ? "A purchase filed there has no register row (add it with inventory buy)." : "A register purchase has no payment filed to the account."}`, ids: [] });
   }
 
   // Duplicates: same account, date, amount and payee, in different imports.

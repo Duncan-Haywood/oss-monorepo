@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-22",
+  "session": "https://claude.ai/code/session_01VvnXr8FjK3jqUb5nesT9HG",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-22T10:00:28Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship 1: ai-bookkeeper inventory",
+  "projects": [
+    "ai-bookkeeper"
+  ],
+  "pr": 9445,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/process/prompt-1.md",
+      "why": "The scheduled task asked for product work, so I followed the ventures track instead of the routed process track."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Routed to process track, but the scheduled prompt asked for revenue product work, so did flagship 1 (ventures track). Added inventory.mjs (FIFO/avg COGS), CLI, close check; 301 node tests pass locally; no page card; hand-written data only.",
+  "corrections": [],
+  "redteam": null
+}

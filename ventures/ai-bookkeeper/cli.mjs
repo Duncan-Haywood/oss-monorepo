@@ -16,7 +16,7 @@
 //   node cli.mjs --example report
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
 import { addLoan, addLoanExtra, applyLoanPayments, loanRegister, loanSchedule } from "./loans.mjs";
-import { newBooks, importStatement, importOfxAccounts, lockPeriod, closeYear, reopenYear, yearEndReport, categorize, suggestRules, addRules, addDocuments, addAsset, disposeAsset, addAssetsCsv, register, addPrepaid, prepaidRegister, writeOff, aging, salesTax, vatReturn, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, addFxAccount, setRates, parseRates, fxRegister, exportLines, status, analyze, fmt, taxableBusinessIncome, s179Carryforward } from "./engine.mjs";
+import { newBooks, importStatement, importOfxAccounts, lockPeriod, closeYear, reopenYear, yearEndReport, categorize, suggestRules, addRules, addDocuments, addAsset, disposeAsset, addAssetsCsv, register, addPrepaid, prepaidRegister, addInventoryMove, setInventoryMethod, inventoryRegister, writeOff, aging, salesTax, vatReturn, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, addFxAccount, setRates, parseRates, fxRegister, exportLines, status, analyze, fmt, taxableBusinessIncome, s179Carryforward } from "./engine.mjs";
 import { parseCents } from "./bank.mjs";
 import { accountMap } from "./ledger.mjs";
 import { seSetAside, selfEmployment, scheduleC, scheduleCCsv, contractors1099, contractors1099Csv, nec1099FilingCsv, markW9, mergePayees } from "./taxforms.mjs";
@@ -78,6 +78,11 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
   fx account CODE CUR   mark a bank account as held in a foreign currency (e.g. 1020 EUR); lines convert at the rate on their date
   fx rate CUR DATE RATE | fx rates FILE   rates are base currency per 1 foreign unit; a file is "date,CUR,rate" lines
   fx [--as-of D]        each foreign account: balance, rate, carried in the books, exchange gain or loss booked (month-end remeasurement to 6190)
+  inventory buy SKU --qty N --amount TOTAL --date D [--name TEXT]  record stock bought (file the payment to 1450)
+  inventory sell SKU --qty N --date D   move that stock's cost to cost of goods sold (FIFO or average)
+  inventory adjust SKU --qty N --date D write off lost or damaged stock at cost
+  inventory method fifo|avg             costing method (default fifo)
+  inventory             stock on hand by SKU, valued; the total should equal account 1450
   prepaid [--as-of D]     list prepaid items: amount, expensed so far, still paid ahead
   assets FILE|[--as-of D] load a CSV (name,date,cost,life_months[,salvage,method]), or list the register: cost, accumulated depreciation, net book value
   profile [KEY VALUE]     your details for invoices (name, address, email, taxId, payTo, terms); no arguments lists them
@@ -292,6 +297,21 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
       console.log(`FOREIGN CURRENCY ACCOUNTS as of ${g.asOf ?? "-"}`);
       for (const a of g.rows) console.log(`  ${a.code} ${a.currency}  balance ${fmt(a.foreign).padStart(11)}  rate ${String(a.rate ?? "none").padStart(8)}  at rate ${a.atRate === null ? "-" : fmt(a.atRate).padStart(11)}  carried ${fmt(a.carried).padStart(11)}  exchange gain/loss ${fmt(a.gain).padStart(9)}`);
       console.log(`  Total exchange gain (loss) booked: ${fmt(g.gain)}`);
+    }
+  } catch (e) { console.error(e.message); process.exit(1); }
+} else if (cmd === "inventory") {
+  try {
+    if (["buy", "sell", "adjust"].includes(rest[0])) {
+      const r = addInventoryMove(books, { kind: rest[0], sku: rest[1], date: flag("--date"), qty: flag("--qty"), amount: flag("--amount") ?? undefined, name: flag("--name") ?? undefined });
+      books = r.books; save(); console.log(`${r.move.id} ${rest[0]} ${r.move.qty / 1000} x ${r.move.sku}${rest[0] === "buy" ? `, ${fmt(r.move.cents)}. File the payment to 1450.` : ". Cost moved to 5000."}`);
+    } else if (rest[0] === "method") {
+      books = setInventoryMethod(books, rest[1]); save(); console.log(`Costing method: ${rest[1]}.`);
+    } else {
+      const g = inventoryRegister(books);
+      if (json) { console.log(JSON.stringify(g, null, 2)); process.exit(0); }
+      console.log(`INVENTORY (${g.method})`);
+      for (const a of g.rows) console.log(`  ${a.sku.slice(0, 20).padEnd(20)} on hand ${String(a.onHand).padStart(9)}  unit ${fmt(a.unitCost).padStart(9)}  value ${fmt(a.value).padStart(11)}  sold ${String(a.sold).padStart(8)}  COGS ${fmt(a.cogs).padStart(11)}`);
+      console.log(`  Total on hand ${fmt(g.value)}, cost of goods sold ${fmt(g.cogs)}`);
     }
   } catch (e) { console.error(e.message); process.exit(1); }
 } else if (cmd === "prepaid") {
