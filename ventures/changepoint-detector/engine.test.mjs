@@ -1199,3 +1199,15 @@ test('ar1mean cost of a perfectly constant segment is only the stationary-start 
   const cost = makeCost(Array(10).fill(5), 'ar1mean', 1, rho);
   assert.ok(Math.abs(cost(0, 10) - -Math.log(1 - rho * rho)) < 1e-9);
 });
+
+test('--burst-runs cuts a 3-day plateau that single-day bursts miss, and leaves a step alone', () => {
+  const base = Array.from({ length: 80 }, (_, i) => 30 + ((i * 7) % 5));
+  const run = base.slice(); for (const i of [40, 41, 42]) run[i] = 75;
+  const one = analyze({ values: run, model: 'poisson', bursts: true });
+  const many = analyze({ values: run, model: 'poisson', bursts: true, burstRuns: 5 });
+  assert.equal(one.bursts.length, 0);
+  assert.deepEqual(many.bursts.map((b) => b.index), [40, 41, 42]);
+  assert.ok(many.pelt.changepoints.length < one.pelt.changepoints.length);
+  const step = base.map((v, i) => (i >= 40 ? Math.round(v * 2.5) : v));
+  assert.equal(analyze({ values: step, model: 'poisson', bursts: true, burstRuns: 5 }).bursts.length, 0);
+});
