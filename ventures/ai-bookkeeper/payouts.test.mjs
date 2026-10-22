@@ -226,6 +226,26 @@ test("Stripe reserved funds go to the clearing asset, not other income, and a re
   assert.deepEqual(plan.matched[1].parts, [{ account: "1200", cents: 10000 }]);
 });
 
+test("a full-width Shopify payout transactions export: dispute fees are fees, the payout row is skipped, unpaid rows are pending", () => {
+  const shop = `Transaction Date,Type,Order ID,Card Brand,Card Source,Payout Status,Payout Date,Payout ID,Available On,Amount,Fee,Net,Checkout,Payment Method Name,Presentment Amount,Presentment Currency,Currency,Vat,Business Entity Name
+2026-03-01 10:00:00 -0500,charge,1001,visa,online,paid,2026-03-04,555,2026-03-04,100.00,3.20,96.80,c1,visa,100.00,USD,USD,,Acme
+2026-03-02 10:00:00 -0500,refund,1001,visa,online,paid,2026-03-04,555,2026-03-04,-20.00,0.00,-20.00,c1,visa,-20.00,USD,USD,,Acme
+2026-03-02 11:00:00 -0500,chargeback_fee,1002,visa,online,paid,2026-03-04,555,2026-03-04,-15.00,0.00,-15.00,c2,visa,,USD,USD,,Acme
+2026-03-03 11:00:00 -0500,chargeback,1002,visa,online,paid,2026-03-04,555,2026-03-04,-50.00,0.00,-50.00,c2,visa,,USD,USD,,Acme
+2026-03-04 11:00:00 -0500,payout,,,,paid,2026-03-04,555,2026-03-04,-11.80,0.00,-11.80,,,,USD,USD,,Acme
+2026-03-05 11:00:00 -0500,charge,1003,visa,online,pending,,,2026-03-08,10.00,0.59,9.41,c3,visa,10.00,USD,USD,,Acme
+`;
+  const r = readPayoutReport(shop);
+  assert.deepEqual(r.problems, []);
+  assert.equal(r.payouts.length, 1);
+  assert.equal(r.payouts[0].net, 1180);
+  assert.equal(r.pending.length, 1);
+  const plan = planPayouts(books([["2026-03-05", "SHOPIFY", "11.80"]]), r, {});
+  assert.equal(plan.matched.length, 1);
+  assert.ok(!plan.matched[0].parts.some((x) => x.account === "4100"), "dispute fees are not other income");
+  assert.equal(plan.matched[0].parts.reduce((a, x) => a + x.cents, 0), 1180);
+});
+
 test("an Etsy payment-account ledger is grouped under each deposit, newest first", () => {
   const e = `Date,Type,Title,Info,Currency,Amount,Fees & Taxes,Net,Tax Details
 "March 5, 2026",Deposit,Deposit to bank,,USD,--,--,-$99.30,
