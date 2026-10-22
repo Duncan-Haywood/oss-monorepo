@@ -119,3 +119,19 @@ test("openings that leave the floor, are tiny or sit over the beam are refused",
   assert.equal(bad({ x: 100, y: 120, width: 36, depth: 100 }).ok, false); // over the beam at 168
   assert.equal(bad({ x: 100, y: 2, width: 36, depth: 60 }).ok, false);
 });
+
+test("the subfloor is cut around a stairwell: pieces inside are dropped, crossed ones shortened, bitten ones notched, and the area is exact", () => {
+  const base = layoutFloor(sampleFloor(), plan());
+  const l = layoutFloor({ ...sampleFloor(), openings: [{ x: 100, y: 40, width: 36, depth: 100 }] }, plan());
+  assert.ok(l.ok, JSON.stringify(l.errors));
+  const hole = (144 - 0.75 - (96 + 0.75)) * 100;
+  assert.ok(Math.abs(l.sheets.area - (base.sheets.area - hole / 144)) < 1e-9);
+  // piece area in the courses = floor area minus the opening, plus the notched rectangles' bitten corners (slivers aside)
+  let covered = 0;
+  for (const c of l.courses) for (const p of c.pieces) covered += p.length * c.width - (p.notches || []).reduce((s, n) => s + n.width * n.depth, 0);
+  const gap = 480 * 336 - hole - covered; // slivers under 3 in beside the trimmers are offcut, at most one each side per course
+  assert.ok(gap >= -1e-6 && gap <= 2 * 3 * 48 * l.courses.length, String(gap));
+  assert.ok(l.sheets.count <= base.sheets.count);
+  assert.ok(l.courses.some((c) => c.pieces.some((p) => p.notches)) || l.courses.some((c, i) => c.pieces.length !== base.courses[i].pieces.length));
+  assert.ok(floorText(l).join("\n").includes("cut around the clear opening"));
+});
