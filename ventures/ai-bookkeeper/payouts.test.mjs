@@ -136,3 +136,8 @@ d1,2026-03-05,p2,2026-03-04,Refund,-20.00,0.00,-20.00
   const plan = planPayouts(books([["2026-03-06", "SQUARE INC", "76.80"]]), r);
   assert.deepEqual(plan.matched[0].parts, [{ account: "4000", cents: 8000 }, { account: "6010", cents: -320 }]);
 });
+
+test("Stripe's FX, tax and Climate categories are costs, not other income", () => {
+  const r = readPayoutReport(`${HEAD}\npo_7,2026-03-05,t1,2026-03-01,stripe_fx_fee,-2.00,0.00,-2.00,FX\npo_7,2026-03-05,t2,2026-03-01,tax_fee,-1.00,0.00,-1.00,Tax\npo_7,2026-03-05,t3,2026-03-01,contribution,-1.00,0.00,-1.00,Climate\npo_7,2026-03-05,t4,2026-03-01,partial_capture_reversal,-5.00,0.00,-5.00,x\n`);
+  assert.deepEqual(r.rows.map((x) => x.kind), ["fees", "fees", "fees", "refunds"]);
+});
