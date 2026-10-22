@@ -26,6 +26,14 @@ class CalTests(unittest.TestCase):
         ideal = (1.05 * 9.81) ** 1.5 / math.sqrt(2 * 1.225 * a)
         self.assertAlmostEqual(M.hover_power(1.05, 0.22), ideal / (0.70 * 0.85 * 0.95), places=6)
 
+    def test_sourced_diameter_is_9_4_inch(self):
+        self.assertAlmostEqual(SOURCED_DIAM["DJI Mavic 3E"], 0.23876, places=5)
+
+    def test_sourced_diameter_endurance_between_swept_neighbours(self):
+        e = endurance_min(1.05, 77.0, SOURCED_DIAM["DJI Mavic 3E"], None, 0.9)[0]
+        self.assertGreater(e, endurance_min(1.05, 77.0, 0.22, None, 0.9)[0])
+        self.assertLess(e, endurance_min(1.05, 77.0, 0.25, None, 0.9)[0])
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -29,3 +29,13 @@ for name, m, wh, t, v in AIRCRAFT:
         for u in USABLE))
 open(os.path.join(os.path.dirname(__file__), "results.txt"), "a").write("\n".join(more) + "\n")
 print("\n".join(more))
+
+sd = ["", "# at the sourced rotor diameter (DJI Mavic 3 propellers, 9.4 in = %.3f m)" % SOURCED_DIAM["DJI Mavic 3E"]]
+name, m, wh, t, v = AIRCRAFT[0]
+d = SOURCED_DIAM[name]
+for u in USABLE:
+    e, vv = endurance_min(m, wh, d, v, u)
+    sd.append("%s usable %.2f: model %.1f min at %.1f m/s = %.2f x published; hover power %.1f W" % (
+        name, u, e, vv, e / t, M.hover_power(m, d)))
+open(os.path.join(os.path.dirname(__file__), "results.txt"), "a").write("\n".join(sd) + "\n")
+print("\n".join(sd))

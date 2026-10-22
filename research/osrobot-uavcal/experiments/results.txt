@@ -18,3 +18,8 @@ at d=0.22 usable=0.90: model speed 6.0 m/s, endurance 32.3 min, hover power 155.
 # rotor diameter (m) at which the model reproduces the published endurance
 DJI Mavic 3E  usable 0.80: 0.197  usable 0.90: 0.181  usable 1.00: 0.168
 Parrot Anafi UKR  usable 0.80: 0.269  usable 0.90: 0.248  usable 1.00: 0.230
+
+# at the sourced rotor diameter (DJI Mavic 3 propellers, 9.4 in = 0.239 m)
+DJI Mavic 3E usable 0.80: model 58.5 min at 14.5 m/s = 1.30 x published; hover power 88.3 W
+DJI Mavic 3E usable 0.90: model 65.8 min at 14.5 m/s = 1.46 x published; hover power 88.3 W
+DJI Mavic 3E usable 1.00: model 73.2 min at 14.5 m/s = 1.63 x published; hover power 88.3 W
