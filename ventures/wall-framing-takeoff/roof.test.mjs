@@ -193,3 +193,16 @@ test("cross wing: cut rows pool the valleys and jacks; bad wings are refused", (
   const t = takeoff(samplePlan(), rows);
   assert.ok(t.ok, JSON.stringify(t.errors));
 });
+
+test("cross wing: ceiling joists span the wing on its wall stations", () => {
+  const none = layoutRoof(wingRoof(), plan());
+  assert.equal(none.wingCeilingJoists.length, 0);
+  const l = layoutRoof({ ...wingRoof(), ceilingJoist: "2x6" }, plan());
+  assert.ok(l.ok, JSON.stringify(l.errors));
+  // stations u = 0.75 and 16..128 (9, all short of the 144 in wall end), each one 16 ft joist
+  assert.equal(l.wingCeilingJoists.length, 9);
+  assert.ok(l.wingCeilingJoists.every((x) => x.length === 192));
+  const rows = roofCuts(l).filter((r) => r.kind === "ceiling joist");
+  assert.equal(rows.reduce((s, r) => s + r.qty, 0), l.ceilingJoists.length + 9);
+  assert.ok(takeoff(samplePlan(), roofCuts(l)).ok);
+});
