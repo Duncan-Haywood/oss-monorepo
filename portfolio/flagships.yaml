@@ -62,7 +62,7 @@ flagships:
     next: >-
       Open items only; landed work is in ventures/wall-framing-takeoff/README.md
       and ROADMAP.md. Next: floor subfloor cut-out, a floor drawing, several
-      stairwells on the page; sheathing the triangle on gable walls;
+      stairwells on the page; gable sheathing on the page, in the horizontal layout and reusing the offcut triangle (vertical-sheet order landed 2026-10-22);
       right-sized headers from a user table; a 2D reuse of opening cut-outs;
       click through the panel sheathing-weight field and the panel order and
       pull-list download in a real browser (markup and page tests only so far).
