@@ -97,3 +97,32 @@ test("a Shopify payout transactions CSV reads and splits", () => {
   assert.equal(plan.matched.length, 1);
   assert.deepEqual(plan.matched[0].parts, [{ account: "4000", cents: 8000 }, { account: "6010", cents: -320 }, { account: "4100", cents: -500 }]);
 });
+
+test("a PayPal activity CSV is grouped under each withdrawal, fees read as negatives", () => {
+  const pp = `Date,Time,Name,Type,Status,Currency,Gross,Fee,Net,Transaction ID
+03/01/2026,10:00:00,Ann,Website Payment,Completed,USD,100.00,-3.20,96.80,T1
+03/02/2026,11:00:00,Bob,Express Checkout Payment,Completed,USD,50.00,-1.75,48.25,T2
+03/02/2026,12:00:00,Bob,Payment Refund,Completed,USD,-10.00,0.00,-10.00,T3
+03/03/2026,09:00:00,Cy,Website Payment,Pending,USD,70.00,-2.00,68.00,T4
+03/04/2026,09:00:00,Bank,General Withdrawal,Completed,USD,-135.05,0.00,-135.05,W1
+03/05/2026,09:00:00,Dee,Website Payment,Completed,USD,20.00,-0.88,19.12,T5
+`;
+  const r = readPayoutReport(pp);
+  assert.deepEqual(r.problems, []);
+  assert.equal(r.payouts.length, 1);
+  assert.equal(r.payouts[0].net, 13505);
+  assert.equal(r.pending.length, 1);
+  const plan = planPayouts(books([["2026-03-05", "PAYPAL TRANSFER", "135.05"]]), r);
+  assert.equal(plan.matched.length, 1);
+  assert.deepEqual(plan.matched[0].parts, [{ account: "4000", cents: 14000 }, { account: "6010", cents: -495 }]);
+});
+
+test("a PayPal withdrawal that includes a carried-over balance is not split", () => {
+  const pp = `Date,Time,Type,Status,Gross,Fee,Net,Transaction ID
+03/01/2026,10:00:00,Website Payment,Completed,100.00,-3.00,97.00,T1
+03/04/2026,09:00:00,General Withdrawal,Completed,-150.00,0.00,-150.00,W1
+`;
+  const r = readPayoutReport(pp);
+  assert.equal(r.payouts.length, 0);
+  assert.match(r.problems[0], /carried over/);
+});
