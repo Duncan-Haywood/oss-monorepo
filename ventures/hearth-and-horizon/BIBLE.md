@@ -216,6 +216,7 @@ the sources, and mark legend as legend)
 - *(Done: Kevin and the Blackbird, 3 June; legend.)* Saint Kevin and the blackbird.
 - *(Done: Isidore and the Angels Who Ploughed, text only; voice host unreachable, 15 May; legend.)* Saint Isidore the Farmer and the angels who ploughed.
 - *(Done: Nicholas and the Three Bags of Gold, 6 December; legend, text only, voice host unreachable.)* Saint Nicholas and the three bags of gold.
+- *(Done: Martin of Tours and Half a Cloak, 11 November; early source, Sulpicius Severus; text only, voice host unreachable.)* Saint Martin and the beggar at Amiens.
 - *(Done: Thérèse and the Small Way, 1 October; history and her own writings; text only, voice host unreachable.)* Saint Thérèse and the small way.
 
 ## What not to do
