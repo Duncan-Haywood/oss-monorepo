@@ -223,3 +223,12 @@ test("form 941 splits the liability by month and finds balance due or overpaymen
   assert.equal(over.overpayment, 700);
   assert.equal(form941(books, 2026, 1, { depositedCents: f.totalTaxes }).balanceDue, undefined);
 });
+
+test("form 941 Schedule B lists the liability by pay day within each month", () => {
+  const f = form941(addPayroll(newBooks(), REG).books, 2026, 1);
+  assert.equal(f.scheduleB.length, 3);
+  assert.deepEqual(f.scheduleB[2].days, [{ day: 13, cents: 66900 }, { day: 27, cents: 45600 }]);
+  assert.equal(f.scheduleB[2].total, 112500);
+  assert.equal(f.scheduleB[0].days.length, 0);
+  assert.equal(f.scheduleB.reduce((a, m) => a + m.days.reduce((b, d) => b + d.cents, 0), 0), f.totalTaxes);
+});
