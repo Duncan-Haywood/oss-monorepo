@@ -49,3 +49,12 @@ test("bad input is refused", () => {
   assert.throws(() => addPrepaid(b, { name: "x", date: "2026-01-01", amount: "10", months: 1 }));
   assert.throws(() => addPrepaid(b, { name: "x", date: "2026-01-01", amount: "10", months: 12, expenseAccount: "1000" }));
 });
+
+test("months are bounded at both ends, 2 to 60", () => {
+  const add = (months) => addPrepaid(newBooks(), { name: "X", date: "2026-01-10", amount: "600", months });
+  assert.equal(add(2).prepaid.months, 2);
+  assert.equal(add(60).prepaid.months, 60);
+  assert.throws(() => add(1), /2 to 60/);
+  assert.throws(() => add(61), /2 to 60/);
+  assert.throws(() => add(12.5), /2 to 60/);
+});
