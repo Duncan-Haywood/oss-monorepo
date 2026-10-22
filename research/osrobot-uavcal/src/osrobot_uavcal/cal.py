@@ -17,6 +17,10 @@ AIRCRAFT = [
     ("DJI Mavic 3E", 1.050, 5000e-3 * 15.4, 45.0, None),
     ("Parrot Anafi UKR", 1.450, 6.8 * 11.55, 38.0, 21.6 / 3.6),
 ]
+# Sourced rotor diameter: DJI Mavic 3 low-noise propellers, "Diameter x Thread Pitch 9.4x5.3 in (23.9x13.5 cm)"
+# (DJI store listing, found by web search 2026-10-22; the page itself was not fetchable from the sandbox, so
+# the figure is the search snippet's). Applies to the Mavic 3 family. No Anafi UKR diameter was found.
+SOURCED_DIAM = {"DJI Mavic 3E": 9.4 * 0.0254}
 DIAMS = [0.15, 0.18, 0.20, 0.22, 0.25, 0.28, 0.30]  # m, per rotor (swept; not in the sourced tables)
 USABLE = [0.80, 0.90, 1.00]                          # share of pack energy actually flown
 
