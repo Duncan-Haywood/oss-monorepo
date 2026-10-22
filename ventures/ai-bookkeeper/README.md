@@ -426,6 +426,10 @@ layouts, so check them against a real download.
 
 `bank.mjs` labels a `Date, Status, Type, CheckNumber, Description, Withdrawal, Deposit, RunningBalance` export as Schwab and reads the `RunningBalance` column for the balance chain. The fixture `schwab-checking.csv` has made-up rows and a header from memory of Schwab's layout; no real download was tried, so check it against one.
 
+### Australian and Canadian CSVs with no header row (2026-10-22)
+
+`bank.mjs` reads two more header-less shapes by their layout: Commonwealth Bank style (`date, signed amount, description, balance`, day-first dates; three columns without a balance, ANZ style) and TD style (`date, description, withdrawal, deposit, balance`, month-first dates). `headerless.test.mjs` checks both on `fixtures/cba-no-header.csv` and `fixtures/td-no-header.csv`, hand-written with made-up rows from memory of those layouts; no real download was tried. Headed exports from these banks (RBC, Westpac, NAB) are not yet labelled.
+
 ### Statement text pasted from a PDF
 
 Many banks give a small business a PDF and nothing else. Open the PDF, select

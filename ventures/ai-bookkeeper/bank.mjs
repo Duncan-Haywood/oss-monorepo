@@ -107,10 +107,27 @@ function headerlessShape(rows) {
   return sample.length > 0 && sample.every((r) => r.length === 5 && parseDate(r[0]) && /^[-+]?\$?[\d,]*\.?\d+$/.test(r[1].trim()) && r[2].trim() === "*");
 }
 
+const AMT = /^[-+]?\$?\(?[\d,]*\.?\d+\)?$/;
+// Australian (CBA, ANZ style) and Canadian (TD style) CSVs also come with no
+// header row. CBA: date, signed amount, description, balance (balance may be
+// missing, as ANZ does). TD: date, description, withdrawal, deposit, balance.
+// -> { bank, columns, dayFirst } or null. Layouts are from memory.
+function headerlessLayout(rows) {
+  const sample = rows.slice(0, 5);
+  if (!sample.length) return null;
+  if (headerlessShape(sample)) return { bank: "wells-fargo", columns: { date: 0, amount: 1, desc: 4, balance: -1, debit: -1, credit: -1 }, dayFirst: false };
+  const dated = (r) => /^\d{1,2}\/\d{1,2}\/\d{4}$/.test(r[0].trim()) && parseDate(r[0], true);
+  if (sample.every((r) => (r.length === 3 || r.length === 4) && dated(r) && AMT.test(r[1].trim()) && r[2].trim() && !AMT.test(r[2].trim()) && (r.length === 3 || AMT.test(r[3].trim()))))
+    return { bank: sample[0].length === 4 ? "cba" : "anz", columns: { date: 0, amount: 1, desc: 2, balance: sample[0].length === 4 ? 3 : -1, debit: -1, credit: -1 }, dayFirst: true };
+  if (sample.every((r) => r.length === 5 && /^\d{1,2}\/\d{1,2}\/\d{4}$/.test(r[0].trim()) && parseDate(r[0]) && r[1].trim() && !AMT.test(r[1].trim()) && ((r[2].trim() === "") !== (r[3].trim() === "")) && AMT.test((r[2].trim() || r[3].trim())) && AMT.test(r[4].trim())))
+    return { bank: "td", columns: { date: 0, desc: 1, debit: 2, credit: 3, balance: 4, amount: -1 }, dayFirst: false };
+  return null;
+}
+
 // Which export this is, from its header or shape alone. Informational; the
 // column matching does the work. null when it is none of the five shapes.
 export function sniffBank(rows) {
-  if (headerlessShape(rows)) return "wells-fargo";
+  { const h = headerlessLayout(rows); if (h) return h.bank; }
   for (const r of rows.slice(0, 12)) {
     const h = r.map(norm).join("|");
     if (/^details\|posting date\|description\|amount\|type\|balance/.test(h)) return "chase-checking";
@@ -264,16 +281,17 @@ export function readStatement(text, { dayFirst = false, decimalComma = false, in
   if (format === "qif") return readQif(text, { dayFirst });
   const rows = parseCsv(text);
   const problems = [];
-  if (!rows.some((r) => { if (r.length < 2) return false; const c = detectColumns(r); return c.date !== -1 && (c.amount !== -1 || c.debit !== -1 || c.credit !== -1); }) && sniffBank(rows) !== "wells-fargo") {
+  if (!rows.some((r) => { if (r.length < 2) return false; const c = detectColumns(r); return c.date !== -1 && (c.amount !== -1 || c.debit !== -1 || c.credit !== -1); }) && !headerlessLayout(rows)) {
     const t = readStatementText(text, { dayFirst, decimalComma, year });
     if (t.rows.length) { if (invert === true) for (const x of t.rows) x.cents = -x.cents; return t; }
     if (t.problems.length) return t;
   }
-  if (rows.length < 2 && !(rows.length === 1 && headerlessShape(rows))) return { rows: [], problems: ["The file has no data rows."], columns: null };
+  if (rows.length < 2 && !(rows.length === 1 && headerlessLayout(rows))) return { rows: [], problems: ["The file has no data rows."], columns: null };
   const bank = sniffBank(rows);
   let headerAt = rows.findIndex((r) => { const c = detectColumns(r); return c.date !== -1 && (c.amount !== -1 || c.debit !== -1 || c.credit !== -1); });
   let columns, first;
-  if (headerAt === -1 && bank === "wells-fargo") { columns = { date: 0, amount: 1, desc: 4, balance: -1, debit: -1, credit: -1 }; first = 0; }
+  const hl = headerAt === -1 ? headerlessLayout(rows) : null;
+  if (hl) { columns = hl.columns; first = 0; if (hl.dayFirst) dayFirst = true; }
   else if (headerAt === -1) return { rows: [], problems: ["No date and amount columns were found. Name them Date and Amount (or Debit and Credit)."], columns: null };
   else { columns = detectColumns(rows[headerAt]); first = headerAt + 1; }
   const out = [];
