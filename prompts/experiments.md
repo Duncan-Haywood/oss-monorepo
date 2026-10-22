@@ -1062,3 +1062,16 @@ or `ventures`) until its success rate passes 80% over 20 runs?
   2 unchanged (overlap / too few runs). No audit or drift report (reduced
   pass; four reviews already ran today).
 - Result: (next review)
+
+## E65: review 2026-10-22 (reduced pass)
+
+- Change: `prompt.md` trimmed from 103 to 102 lines, budget 100 (the explore/creative
+  paragraph no longer restates percentages that live in `routing.json`).
+  `derived/` regenerated (`fetch` ran, 25 of 43 PRs before its time cap).
+- Metric: Instruction lines for `prompt.md` (baseline 103, budget 100) and
+  friction reports against it, over the next 40 runs (baseline: 54 total).
+- Decisions: research candidate 1 kept (retire verdict still fires only on the
+  one disclosed caveat; E55 proposal stands). ventures 2, process 2 and review
+  2 unchanged (overlap / too few runs). No audit or drift report (reduced
+  pass; the 2026-10-21 report stands).
+- Result: (next review)

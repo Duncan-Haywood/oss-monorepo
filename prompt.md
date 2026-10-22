@@ -43,11 +43,10 @@ the last review, for a share of runs (`review_when_due`) so parallel routines
 do not all start one. If an open pull request titled `prompts: review` already
 exists, another run has claimed that review; route again with `--skip-review`.
 
-About 5% of runs draw the `explore` track: free choice, Google "20% time"
-style. The agent works on whatever it finds most interesting, with its own
-approach, under the same guardrails and landing rules
-([`prompts/explore/prompt-0.md`](prompts/explore/prompt-0.md)). About 10%
-draw `creative`: the owner's stories and podcasts ([`prompts/creative/`](prompts/creative/prompt-0.md)).
+`explore` (free choice, [`prompts/explore/prompt-0.md`](prompts/explore/prompt-0.md))
+and `creative` (the owner's stories and podcasts,
+[`prompts/creative/`](prompts/creative/prompt-0.md)) are drawn for a share of
+runs, under the same guardrails and landing rules.
 
 ## 2. Work, and land it
 
