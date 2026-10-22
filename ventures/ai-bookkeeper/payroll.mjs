@@ -25,6 +25,9 @@
 import { parseCsv, parseCents, parseDate } from "./bank.mjs";
 import { confirm } from "./engine.mjs";
 
+// Annual social security wage base (SSA announcements); a year not listed is
+// checked at a flat 6.2% as before.
+export const SS_WAGE_BASE = { 2023: 16020000, 2024: 16860000, 2025: 17610000, 2026: 18450000 };
 export const WAGES = "6150", PAYROLL_TAX = "6155", LIABILITY = "2300";
 
 const key = (h) => String(h).trim().toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "");
@@ -74,6 +77,7 @@ export function readPayrollRegister(text) {
     if (row.gross < 0) { problems.push(`${label}: negative gross pay; file a reversal by hand.`); return; }
     const run = byDate.get(row.date) ?? { id: `PR-${row.date}`, date: row.date, employees: 0, gross: 0, net: 0, fed: 0, ss: 0, med: 0, state: 0, other: 0, erSs: 0, erMed: 0, futa: 0, suta: 0, erOther: 0 };
     run.employees += 1;
+    if (row.employee) (run.people ??= []).push({ employee: row.employee, gross: row.gross, ss: row.ss, erSs: row.erSs });
     for (const f of ["gross", "net", "fed", "ss", "med", "state", "other", "erSs", "erMed", "futa", "suta", "erOther"]) run[f] += row[f];
     byDate.set(row.date, run);
   });
@@ -201,11 +205,35 @@ export function form941(books, year, quarter) {
   out.warnings = [];
   // 6.2% social security and 1.45% medicare, each side. Off by more than a
   // cent per run means a wage over the base, a pre-tax benefit or a typo.
-  for (const r of rs) {
-    const ss = Math.round(r.gross * 0.062), med = Math.round(r.gross * 0.0145);
+  // Rows by employee are checked against the year's social security wage
+  // base: tax stops once an employee's year-to-date wages pass it.
+  const base = SS_WAGE_BASE[year];
+  const ytd = new Map();
+  let ssWages = 0, allPeople = rs.length > 0;
+  for (const r of (books.payroll ?? []).filter((x) => x.date >= `${year}-01-01` && x.date <= to)) {
+    const inQ = r.date >= from;
+    const money = (c) => (c / 100).toFixed(2);
+    let ssExpected = null;
+    if (r.people && base) {
+      ssExpected = 0;
+      for (const p of r.people) {
+        const before = ytd.get(p.employee) ?? 0;
+        const taxable = Math.max(0, Math.min(p.gross, base - before));
+        ytd.set(p.employee, before + p.gross);
+        const want = Math.round(taxable * 0.062);
+        ssExpected += want;
+        if (inQ) {
+          ssWages += taxable;
+          if (Math.abs(p.ss - want) > 1 || Math.abs(p.erSs - want) > 1) out.warnings.push(`${r.id}, ${p.employee}: social security ${money(p.ss)} withheld and ${money(p.erSs)} employer, 6.2% of ${money(taxable)} taxable wages (${year} base ${money(base)}, ${money(before)} paid earlier in the year) is ${money(want)}. A pre-tax benefit can explain it; otherwise check the provider.`);
+        }
+      }
+    } else if (inQ) allPeople = false;
+    if (!inQ) continue;
+    const ss = ssExpected ?? Math.round(r.gross * 0.062), med = Math.round(r.gross * 0.0145);
     const tol = r.employees + 1;
-    if (Math.abs(r.ss - ss) > tol || Math.abs(r.erSs - ss) > tol) out.warnings.push(`${r.id}: social security ${(r.ss / 100).toFixed(2)} withheld and ${(r.erSs / 100).toFixed(2)} employer, 6.2% of ${(r.gross / 100).toFixed(2)} is ${(ss / 100).toFixed(2)}. Wages over the annual base or pre-tax benefits can explain it; otherwise check the provider.`);
-    if (Math.abs(r.med - med) > tol || Math.abs(r.erMed - med) > tol) out.warnings.push(`${r.id}: medicare ${(r.med / 100).toFixed(2)} withheld and ${(r.erMed / 100).toFixed(2)} employer, 1.45% of ${(r.gross / 100).toFixed(2)} is ${(med / 100).toFixed(2)}. Pre-tax benefits or the additional Medicare tax can explain it; otherwise check the provider.`);
+    if (ssExpected === null && (Math.abs(r.ss - ss) > tol || Math.abs(r.erSs - ss) > tol)) out.warnings.push(`${r.id}: social security ${money(r.ss)} withheld and ${money(r.erSs)} employer, 6.2% of ${money(r.gross)} is ${money(ss)}. Wages over the annual base or pre-tax benefits can explain it; otherwise check the provider.`);
+    if (Math.abs(r.med - med) > tol || Math.abs(r.erMed - med) > tol) out.warnings.push(`${r.id}: medicare ${money(r.med)} withheld and ${money(r.erMed)} employer, 1.45% of ${money(r.gross)} is ${money(med)}. Pre-tax benefits or the additional Medicare tax can explain it; otherwise check the provider.`);
   }
+  out.socialSecurityWages = allPeople && base ? ssWages : null;
   return out;
 }
