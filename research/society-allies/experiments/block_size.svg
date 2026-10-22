@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of the mean final share of people on the robots' side against the number of robots in each block, for four robot shares, on a ring where partners sit within 2 sites">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">People on the robots' side by size of robot blocks (ring, k = 2)</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="273.4" y2="273.4" stroke="#ddd"/><text x="58" y="277.4" text-anchor="end" font-family="sans-serif" font-size="11">0.2</text>
+<line x1="64" x2="624" y1="222.9" y2="222.9" stroke="#ddd"/><text x="58" y="226.9" text-anchor="end" font-family="sans-serif" font-size="11">0.4</text>
+<line x1="64" x2="624" y1="172.3" y2="172.3" stroke="#ddd"/><text x="58" y="176.3" text-anchor="end" font-family="sans-serif" font-size="11">0.6</text>
+<line x1="64" x2="624" y1="121.7" y2="121.7" stroke="#ddd"/><text x="58" y="125.7" text-anchor="end" font-family="sans-serif" font-size="11">0.8</text>
+<line x1="64" x2="624" y1="71.2" y2="71.2" stroke="#ddd"/><text x="58" y="75.2" text-anchor="end" font-family="sans-serif" font-size="11">1</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1</text>
+<text x="88.3" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">2</text>
+<text x="112.7" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">3</text>
+<text x="137.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">4</text>
+<text x="185.7" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">6</text>
+<text x="234.4" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">8</text>
+<text x="331.8" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">12</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">24</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">robots per block</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">share of people on L</text>
+<polyline points="64.0,165.2 88.3,202.4 112.7,239.8 137.0,261.3 185.7,280.5 234.4,292.4 331.8,294.4 624.0,308.3" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="165.2" r="3" fill="#c0392b"/>
+<circle cx="88.3" cy="202.4" r="3" fill="#c0392b"/>
+<circle cx="112.7" cy="239.8" r="3" fill="#c0392b"/>
+<circle cx="137.0" cy="261.3" r="3" fill="#c0392b"/>
+<circle cx="185.7" cy="280.5" r="3" fill="#c0392b"/>
+<circle cx="234.4" cy="292.4" r="3" fill="#c0392b"/>
+<circle cx="331.8" cy="294.4" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="308.3" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">robot share 0.08</text>
+<polyline points="64.0,73.2 88.3,108.6 112.7,184.7 137.0,227.2 185.7,261.6 234.4,276.2 331.8,291.6 624.0,307.6" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="73.2" r="3" fill="#1f6fb2"/>
+<circle cx="88.3" cy="108.6" r="3" fill="#1f6fb2"/>
+<circle cx="112.7" cy="184.7" r="3" fill="#1f6fb2"/>
+<circle cx="137.0" cy="227.2" r="3" fill="#1f6fb2"/>
+<circle cx="185.7" cy="261.6" r="3" fill="#1f6fb2"/>
+<circle cx="234.4" cy="276.2" r="3" fill="#1f6fb2"/>
+<circle cx="331.8" cy="291.6" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="307.6" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">robot share 0.12</text>
+<polyline points="64.0,71.2 88.3,71.2 112.7,89.9 137.0,135.1 185.7,193.3 234.4,232.2 331.8,255.7 624.0,294.2" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="71.2" r="3" fill="#2e8b57"/>
+<circle cx="88.3" cy="71.2" r="3" fill="#2e8b57"/>
+<circle cx="112.7" cy="89.9" r="3" fill="#2e8b57"/>
+<circle cx="137.0" cy="135.1" r="3" fill="#2e8b57"/>
+<circle cx="185.7" cy="193.3" r="3" fill="#2e8b57"/>
+<circle cx="234.4" cy="232.2" r="3" fill="#2e8b57"/>
+<circle cx="331.8" cy="255.7" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="294.2" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">robot share 0.2</text>
+<polyline points="64.0,71.2 88.3,71.2 112.7,71.2 137.0,71.7 185.7,114.7 234.4,144.5 331.8,229.2 624.0,267.9" fill="none" stroke="#8e44ad" stroke-width="2"/>
+<circle cx="64.0" cy="71.2" r="3" fill="#8e44ad"/>
+<circle cx="88.3" cy="71.2" r="3" fill="#8e44ad"/>
+<circle cx="112.7" cy="71.2" r="3" fill="#8e44ad"/>
+<circle cx="137.0" cy="71.7" r="3" fill="#8e44ad"/>
+<circle cx="185.7" cy="114.7" r="3" fill="#8e44ad"/>
+<circle cx="234.4" cy="144.5" r="3" fill="#8e44ad"/>
+<circle cx="331.8" cy="229.2" r="3" fill="#8e44ad"/>
+<circle cx="624.0" cy="267.9" r="3" fill="#8e44ad"/>
+<rect x="574" y="32" width="14" height="10" fill="#8e44ad"/><text x="594" y="41" font-family="sans-serif" font-size="11">robot share 0.3</text>
+</svg>
