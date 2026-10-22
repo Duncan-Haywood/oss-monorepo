@@ -1,7 +1,10 @@
 // Clicks the page through in a real browser: the multi-account OFX flow
 // (file picker -> one select per account -> Import) and the example load.
 // Needs Playwright and a Chromium: `node eval/browser-click.mjs` (skips with
-// exit 0 and a message when neither is installed).
+// exit 0 and a message when neither is installed). If `playwright` is not
+// importable (cloud containers keep it in /opt/node-tools), set PLAYWRIGHT_PATH
+// to the package's entry FILE, not its directory:
+// `PLAYWRIGHT_PATH=/opt/node-tools/node_modules/playwright/index.mjs node eval/browser-click.mjs`.
 import { createServer } from "node:http";
 import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
