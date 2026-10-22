@@ -276,6 +276,8 @@ function solveSym(H, b) {
  * on g with each segment's rate profiled out, until g moves less than 1e-5.
  * Returns { g, exposure, passes }.
  */
+// Widening of the growth-change range: at 1 it held the planted bend on ~86% of seeded Poisson series; 1.15 gives ~95% (README, 2026-10-22).
+const RANGE_TEMPER = 1.15;
 export function poissonTrend(x, { base = null, penalty = 'bic', minSegment = 2, passes = 12, bend = false, knotMargin = 0.1, scale = 1, nbSize = 0, diag = null } = {}) {
   const n = x.length;
   const nb = nbSize > 0 && Number.isFinite(nbSize);
@@ -406,7 +408,7 @@ export function poissonTrend(x, { base = null, penalty = 'bic', minSegment = 2, 
     }
     if (!ks.includes(k)) { ks.push(k); cs.push(fit([u, ...phis], cur.g, poissonRank).cost); }
     const m = Math.min(...cs);
-    const w = cs.map((v) => Math.exp(-(v - m) / 2 / Math.max(1, scale)));
+    const w = cs.map((v) => Math.exp(-(v - m) / 2 / (Math.max(1, scale) * RANGE_TEMPER)));
     const tot = w.reduce((a, v) => a + v, 0);
     let acc = 0, from = Infinity, to = -Infinity;
     for (const i of w.map((_, i) => i).sort((a, b) => w[b] - w[a])) { acc += w[i] / tot; from = Math.min(from, ks[i]); to = Math.max(to, ks[i]); if (acc >= 0.95) break; }
