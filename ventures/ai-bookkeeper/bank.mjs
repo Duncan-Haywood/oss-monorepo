@@ -8,7 +8,7 @@ import { isMt940, isCamt, readMt940, readCamt } from "./sepa.mjs";
 import { readStatementText } from "./statementtext.mjs";
 
 const ALIASES = {
-  date: ["date", "transaction date", "posted date", "post date", "posting date", "trans date", "booking date", "effective date", "value date"],
+  date: ["date", "transaction date", "posted date", "post date", "posting date", "trans date", "booking date", "effective date", "value date", "completed date", "started date", "date (utc)"],
   desc: ["description", "transaction description", "payee", "merchant", "name", "details", "original description", "memo", "narrative", "reference"],
   amount: ["amount", "transaction amount", "amt", "value", "amount (usd)"],
   debit: ["debit", "debits", "withdrawal", "withdrawals", "money out", "paid out", "amount debit", "debit amount"],
@@ -113,6 +113,8 @@ export function sniffBank(rows) {
     if (/^details\|posting date\|description\|amount\|type\|balance/.test(h)) return "chase-checking";
     if (/^transaction date\|post date\|description\|category\|type\|amount/.test(h)) return "chase-card";
     if (/^date\|description\|amount\|running bal/.test(h)) return "bank-of-america";
+    if (/^type\|product\|started date\|completed date\|description\|amount\|fee\|currency\|state\|balance/.test(h)) return "revolut";
+    if (/^transferwise id\|date\|amount\|currency\|description/.test(h)) return "wise";
     if (/^transaction date\|posted date\|card no\.\|description\|category\|debit\|credit/.test(h)) return "capital-one";
     if (/^date\|description\|(card member\|account #\|)?amount/.test(h)) return "amex";
   }
@@ -260,18 +262,30 @@ export function readStatement(text, { dayFirst = false, decimalComma = false, in
   else if (headerAt === -1) return { rows: [], problems: ["No date and amount columns were found. Name them Date and Amount (or Debit and Credit)."], columns: null };
   else { columns = detectColumns(rows[headerAt]); first = headerAt + 1; }
   const out = [];
+  // Wise writes DD-MM-YYYY. Revolut lists pending, declined and reverted rows
+  // beside completed ones and keeps the fee in its own column.
+  if (bank === "wise") dayFirst = true;
+  const hdr = headerAt === -1 ? [] : rows[headerAt].map(norm);
+  const stateCol = bank === "revolut" ? hdr.indexOf("state") : -1;
+  const feeCol = bank === "revolut" ? hdr.indexOf("fee") : -1;
+  const curCol = bank === "revolut" ? hdr.indexOf("currency") : -1;
+  const currencies = new Set();
   for (let i = first; i < rows.length; i++) {
     const r = rows[i];
+    if (stateCol !== -1 && String(r[stateCol] ?? "").trim().toUpperCase() !== "COMPLETED") { problems.push(`Line ${i + 1}: state ${String(r[stateCol] ?? "").trim() || "blank"}, not a completed transaction, skipped.`); continue; }
+    if (curCol !== -1 && String(r[curCol] ?? "").trim()) currencies.add(r[curCol].trim().toUpperCase());
     const date = parseDate(r[columns.date], dayFirst);
     if (!date) { problems.push(`Line ${i + 1}: unreadable date "${r[columns.date] ?? ""}", skipped.`); continue; }
     let cents;
     if (columns.amount !== -1 && String(r[columns.amount] ?? "").trim() !== "") cents = parseCents(r[columns.amount], decimalComma);
     else cents = (columns.credit !== -1 ? Math.abs(parseCents(r[columns.credit], decimalComma) || 0) : 0) - (columns.debit !== -1 ? Math.abs(parseCents(r[columns.debit], decimalComma) || 0) : 0);
     if (!Number.isFinite(cents)) { problems.push(`Line ${i + 1}: unreadable amount, skipped.`); continue; }
+    if (feeCol !== -1) { const fee = parseCents(r[feeCol], decimalComma); if (Number.isFinite(fee)) cents -= Math.abs(fee); }
     if (cents === 0) continue;
     const balance = columns.balance !== -1 && String(r[columns.balance] ?? "").trim() !== "" ? parseCents(r[columns.balance], decimalComma) : null;
     out.push({ line: i + 1, date, desc: String(r[columns.desc] ?? "").trim().replace(/\s+/g, " "), cents, balance: Number.isFinite(balance) ? balance : null });
   }
+  if (currencies.size > 1) problems.push(`The file mixes currencies (${[...currencies].join(", ")}). Revolut writes one file per currency account: import each on its own account.`);
   let inferred = null;
   let flip = !!invert;
   if (invert === undefined && out.every((r) => r.balance === null) && columns.amount !== -1) {
