@@ -80,7 +80,11 @@ near-identical shots by perceptual hash, so a burst or repeated take
 contributes one frame to the reel, the best-scoring one. `framing` finds
 where the detail sits (detail-energy centroid against the rule-of-thirds points,
 and how concentrated the detail is) and feeds 15% of `story_score`; it locates
-detail, it does not recognise a subject. It cannot see faces or closed eyes, and
+detail, it does not recognise a subject. `tilt_degrees` reads how far the
+strong near-horizontal and near-vertical edges lean off the axes (positive: right
+side lower); a crooked frame loses up to 8% of `story_score`, scaled by
+`tilt_confidence`, so a frame of diagonals or plain sky is never penalised. Tested
+on synthetic soft-edged horizons only, not yet on real photos. It cannot see faces or closed eyes, and
 `story_score` is only a blend of the measured scores, so
 *which* shot wins is technical, not taste-based. The scene and look stages are
 still deterministic stand-ins. The grade is your LUT, or no color change if you have
