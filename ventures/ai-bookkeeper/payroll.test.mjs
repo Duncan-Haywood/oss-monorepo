@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { newBooks, importStatement, journal, confirm } from "./engine.mjs";
 import { balances } from "./ledger.mjs";
-import { readPayrollRegister, addPayroll, planPayroll, applyPayroll, payrollSummary, form941, form940 } from "./payroll.mjs";
+import { readPayrollRegister, addPayroll, planPayroll, applyPayroll, payrollSummary, form941, form940, w2Summary } from "./payroll.mjs";
 
 const HEAD = "Pay Date,Employee,Gross Pay,Federal Income Tax,Social Security,Medicare,State Income Tax,Other Deductions,Net Pay,Employer Social Security,Employer Medicare,FUTA,SUTA";
 // 2,000.00 gross: SS 124.00, Medicare 29.00 each side.
@@ -181,4 +181,21 @@ test("form 941 flags additional Medicare tax missing, or charged to the employer
   // Under 200,000.00 there is nothing extra.
   const small = form941(addPayroll(newBooks(), `${HEAD}\n${row("2026-01-15", 2175, 2175)}\n`).books, 2026, 1);
   assert.equal(small.additionalMedicareTax, undefined);
+});
+
+test("w-2 summary adds up each employee's year and caps box 3 at the wage base", () => {
+  const { books } = addPayroll(newBooks(), REG);
+  const w = w2Summary(books, 2026);
+  const ana = w.employees.find((e) => e.employee === "Ana"), ben = w.employees.find((e) => e.employee === "Ben");
+  assert.deepEqual([ana.box1, ana.box2, ana.box3, ana.box4, ana.box5, ana.box6, ana.state], [400000, 30000, 400000, 24800, 400000, 5800, 12000]);
+  assert.equal(ben.box1, 100000);
+  assert.match(w.warnings.join("\n"), /Ben.*50\.00 of other deductions/);
+  const row = (d, ss) => `${d},Ana,100000.00,0.00,${ss},1450.00,0.00,0.00,${(100000 - ss - 1450).toFixed(2)},${ss},1450.00,0.00,0.00`;
+  const big = addPayroll(newBooks(), `${HEAD}\n${row("2026-01-15", "6200.00")}\n${row("2026-02-15", "5239.00")}\n${row("2026-03-15", "0.00")}\n`).books;
+  const a = w2Summary(big, 2026).employees[0];
+  assert.equal(a.box1, 30000000);
+  assert.equal(a.box3, 18450000);
+  assert.equal(a.box4, 1143900);
+  assert.deepEqual(w2Summary(big, 2026).warnings, []);
+  assert.equal(w2Summary(big, 2025).employees.length, 0);
 });

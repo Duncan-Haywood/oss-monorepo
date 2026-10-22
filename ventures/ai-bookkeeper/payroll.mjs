@@ -81,7 +81,7 @@ export function readPayrollRegister(text) {
     if (row.gross < 0) { problems.push(`${label}: negative gross pay; file a reversal by hand.`); return; }
     const run = byDate.get(row.date) ?? { id: `PR-${row.date}`, date: row.date, employees: 0, gross: 0, net: 0, fed: 0, ss: 0, med: 0, state: 0, other: 0, erSs: 0, erMed: 0, futa: 0, suta: 0, erOther: 0 };
     run.employees += 1;
-    if (row.employee) (run.people ??= []).push({ employee: row.employee, gross: row.gross, ss: row.ss, erSs: row.erSs, med: row.med, erMed: row.erMed, futa: row.futa });
+    if (row.employee) (run.people ??= []).push({ employee: row.employee, gross: row.gross, fed: row.fed, ss: row.ss, med: row.med, erMed: row.erMed, state: row.state, other: row.other, erSs: row.erSs, futa: row.futa });
     for (const f of ["gross", "net", "fed", "ss", "med", "state", "other", "erSs", "erMed", "futa", "suta", "erOther"]) run[f] += row[f];
     byDate.set(row.date, run);
   });
@@ -290,4 +290,34 @@ export function form940(books, year) {
   out.deposits = out.quarters.map((q) => { carry += q; if (carry > 50000) { const d = carry; carry = 0; return d; } return 0; });
   out.dueWithReturn = carry;
   return out;
+}
+
+// W-2 box figures per employee for a year, from a register with one row per
+// employee. Box 1 is shown as gross wages: the register does not say which
+// "other deductions" are pre-tax (401(k), health premiums reduce box 1), so
+// that is flagged, not guessed. Boxes 3 and 4 stop at the year's Social
+// Security wage base. Registers written before 2026-10-22 lack the per-person
+// withholding and must be re-imported (delete the runs first); runs without
+// names are listed. Hand-made registers only; not payroll or tax advice.
+export function w2Summary(books, year) {
+  const rs = (books.payroll ?? []).filter((r) => r.date >= `${year}-01-01` && r.date <= `${year}-12-31`);
+  const base = SS_WAGE_BASE[year], money = (c) => (c / 100).toFixed(2);
+  const by = new Map(), warnings = [];
+  const unnamed = rs.filter((r) => !r.people).length;
+  if (unnamed) warnings.push(`${unnamed} run${unnamed === 1 ? "" : "s"} in ${year} have no employee names (company totals); their wages are not in any W-2 row.`);
+  for (const r of rs) for (const p of r.people ?? []) {
+    if (p.fed === undefined) { warnings.push(`${r.id}, ${p.employee}: stored before withholding was kept per employee; re-import the register.`); continue; }
+    const e = by.get(p.employee) ?? { employee: p.employee, box1: 0, box2: 0, box3: 0, box4: 0, box5: 0, box6: 0, state: 0, otherDeductions: 0, runs: 0 };
+    const before = e.box1;
+    e.box1 += p.gross; e.box5 += p.gross; e.box2 += p.fed; e.box4 += p.ss; e.box6 += p.med; e.state += p.state; e.otherDeductions += p.other; e.runs += 1;
+    e.box3 += base ? Math.max(0, Math.min(p.gross, base - before)) : p.gross;
+    by.set(p.employee, e);
+  }
+  const employees = [...by.values()].sort((a, b) => a.employee.localeCompare(b.employee));
+  for (const e of employees) {
+    if (e.otherDeductions) warnings.push(`${e.employee}: ${money(e.otherDeductions)} of other deductions. If any are pre-tax (401(k), health premiums), box 1 is lower than the ${money(e.box1)} shown.`);
+    if (base && e.box3 < e.box1 && Math.abs(e.box4 - Math.round(e.box3 * 0.062)) > e.runs) warnings.push(`${e.employee}: box 4 ${money(e.box4)} is not 6.2% of box 3 ${money(e.box3)}; check the provider.`);
+  }
+  if (!base) warnings.push(`No Social Security wage base for ${year}; box 3 is shown as all wages.`);
+  return { year: +year, employees, warnings };
 }

@@ -32,7 +32,7 @@ import { compareProfit } from "./compare.mjs";
 import { addTrip, removeTrip, setHomeOffice, mileageDeduction } from "./deductions.mjs";
 import { setBudget, budgetVsActual } from "./budget.mjs";
 import { reconcile } from "./reconcile.mjs";
-import { addPayroll, planPayroll, applyPayroll, payrollSummary, form941, form940, employerCost } from "./payroll.mjs";
+import { addPayroll, planPayroll, applyPayroll, payrollSummary, form941, form940, w2Summary, employerCost } from "./payroll.mjs";
 import { readPayoutReport, planPayouts, applyPayouts } from "./payouts.mjs";
 import { setTaxTreatment, taxDepreciation } from "./taxdepr.mjs";
 import { renderInvoice, setProfile, PROFILE_KEYS } from "./invoice.mjs";
@@ -102,7 +102,7 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
  receipts [FILE (.txt, text-layer .pdf via pdftotext, or a photo via tesseract / RECEIPT_OCR_CMD)|attach RID LINEID|detach RID|remove RID|split RID [--other CODE] [--fix WORD=CODE]... [--apply]] [--min DOLLARS] [--tax] [--json]  receipt text (blocks split by ---) matched to bank lines; lists unmatched receipts and spending over --min (default 75) with no receipt
   compare [--from D --to D --vs-from D --vs-to D] [--json]  profit and loss against an earlier period (default: latest month vs the month before): what moved, what is new or gone
   payroll FILE.csv [--apply]  book a payroll provider's pay-run report (wages, employer taxes, 2300) and find the bank lines that paid it; --apply files them to 2300
-  payroll [941 YEAR QUARTER | 940 YEAR]  runs, what is still owed, or a Form 941 / 940 worksheet from the register
+  payroll [941 YEAR QUARTER | 940 YEAR | w2 YEAR]  runs, what is still owed, or a Form 941 / 940 worksheet from the register
   payouts FILE.csv [--apply] [--sales C --refunds C --fees C --disputes C] [--json]  split each processor payout (Stripe payout reconciliation CSV) in the bank into gross sales, refunds and fees; without --apply, shows the plan
   reconcile CODE --date D --balance AMT [--json]  tie an account to the closing balance on a paper statement; if it is off, name the lines that likely explain the gap
   budget [CODE AMOUNT] [--from D --to D] [--json]  set a monthly budget for an account (AMOUNT 0 removes it), or show budget against actual for the period (default: latest month)
@@ -466,6 +466,14 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
       for (const [l, v] of [["Total payments to employees (line 3)", f.wages], ...(f.futaWages == null ? [] : [["Taxable FUTA wages (line 7)", f.futaWages]]), ["FUTA in the register", f.futa], ...(f.computed == null ? [] : [["FUTA at 0.6% of taxable wages", f.computed]]), ["Q1", f.quarters[0]], ["Q2", f.quarters[1]], ["Q3", f.quarters[2]], ["Q4", f.quarters[3]], ["Not yet deposited (carried)", f.dueWithReturn]]) console.log(`  ${l.padEnd(46)} ${fmt(v).padStart(12)}`);
       for (const w of f.warnings) console.log(`  CHECK ${w}`);
       console.log("  Worksheet only: state credit reduction, exempt payments and multi-state filers are not modelled.");
+    } else if (rest[0] === "w2") {
+      const w = w2Summary(books, rest[1]);
+      if (json) { console.log(JSON.stringify(w, null, 2)); process.exit(0); }
+      console.log(`W-2 BOX FIGURES ${w.year}, ${w.employees.length} employee${w.employees.length === 1 ? "" : "s"}`);
+      console.log(`  ${"Employee".padEnd(20)} ${["1 wages", "2 fed tax", "3 SS wages", "4 SS tax", "5 Medicare", "6 Med tax", "16 state"].map((h) => h.padStart(11)).join(" ")}`);
+      for (const e of w.employees) console.log(`  ${e.employee.slice(0, 20).padEnd(20)} ${[e.box1, e.box2, e.box3, e.box4, e.box5, e.box6, e.state].map((v) => fmt(v).padStart(11)).join(" ")}`);
+      for (const x of w.warnings) console.log(`  CHECK ${x}`);
+      console.log("  Worksheet only: no SSN, address, box 12 codes or state wages; file with a W-2 service.");
     } else if (rest[0] && existsSync(rest[0])) {
       const r = addPayroll(books, readFileSync(rest[0], "utf8"));
       books = r.books;
