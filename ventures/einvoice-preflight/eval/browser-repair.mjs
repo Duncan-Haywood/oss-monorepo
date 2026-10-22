@@ -38,5 +38,15 @@ await page.waitForFunction(() => document.getElementById("overall").textContent.
 const overall = await page.textContent("#overall");
 console.log({ rows, currency: fixed.currency, totals: fixed.totals, overall: overall.trim(), errors });
 const ok = rows >= 4 && fixed.currency === "EUR" && fixed.totals.gross === 238 && errors.length === 0;
+
+// UBL: break the gross total in the example file, repair it in the page.
+const ubl = readFileSync(join(root, "examples/ubl-invoice.xml"), "utf8").replace(/(<cbc:TaxInclusiveAmount currencyID="EUR">)[^<]*/, "$1999.99");
+await page.fill("#paste", ubl);
+await page.click("#repair");
+await page.waitForSelector("#repairLog table");
+const uRows = await page.locator("#repairLog tbody tr").count();
+const uXml = await page.inputValue("#paste");
+console.log({ uRows, startsXml: uXml.trimStart().startsWith("<"), gross: /TaxInclusiveAmount[^>]*>([^<]*)/.exec(uXml)?.[1], errors });
+const uOk = uRows >= 1 && uXml.includes("398.50") && !uXml.includes("999.99") && errors.length === 0;
 await browser.close(); server.close();
-process.exit(ok ? 0 : 1);
+process.exit(ok && uOk ? 0 : 1);
