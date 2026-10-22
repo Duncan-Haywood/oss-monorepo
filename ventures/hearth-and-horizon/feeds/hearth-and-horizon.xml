@@ -16,6 +16,16 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>The Control Vial</title>
+      <link>https://example.invalid/hearth-and-horizon/the-control-vial.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-control-vial.html</guid>
+      <pubDate>Thu, 22 Oct 2026 12:00:00 GMT</pubDate>
+      <description>A solar vaccine fridge fails in the night and freezes the top shelf, and twenty-three mothers have walked in for their babies' injections. The clinic's cold-chain AI says no dose can be given from that shelf until a shake test has been done, and the test needs a control vial that must freeze for ten hours. The nurse has to ask the mothers to stay the night. Setting: Cheparaa Health Centre, an invented clinic in West Pokot County, Kenya, March 2041. Read the full text at https://example.invalid/hearth-and-horizon/the-control-vial.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A solar vaccine fridge fails in the night and freezes the top shelf, and twenty-three mothers have walked in for their babies' injections. The clinic's cold-chain AI says no dose can be given from that shelf until a shake test has been done, and the test needs a control vial that must freeze for ten hours. The nurse has to ask the mothers to stay the night.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>The Ice Road</title>
       <link>https://example.invalid/hearth-and-horizon/the-ice-road.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-ice-road.html</guid>
