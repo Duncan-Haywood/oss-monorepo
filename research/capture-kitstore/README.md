@@ -26,6 +26,7 @@ Follow-up to `capture-realkit` and `capture-storage` (track 13, autonomous multi
 pip install pytest
 cd research/capture-kitstore
 python -m pytest -q tests                       # 11 tests
+PYTHONPATH=src python experiments/ssdmass.py   # ssdmass.txt (a minute or two)
 PYTHONPATH=src python experiments/run.py        # a few seconds; writes experiments/results.txt
 PYTHONPATH=src python experiments/sweep.py        # sweep.txt
 python experiments/figure.py                    # experiments/kit_vs_joint.svg
@@ -64,8 +65,29 @@ Recording hours per day (which is also the kit's recording floor) against trip l
 
 Lightest total carried weight (g) reaching all 18 shots. The storage share of that kit runs from 140 g (2 h, 3 d) to 1,326 g (8 h, 28 d). Within a 4 kg budget the best kit reaches 18 shots only at 2 h a day; at 4 h it reaches 15 at every trip length, and at 8 h or 28 d with 6 h it falls to 12. Doubling the filming day costs more than quadrupling the trip at the low end (2 h to 4 h adds about 560 g at 7 days; 7 to 28 days adds 190 g at 2 h). The 4 h, 7 d cell is 4,116 g here against 4,125 g in the 25 g-step table above, as expected. Same unsourced inputs as above (SSD and reader masses, three bitrates).
 
+## Sourced SSD and reader masses (`experiments/ssdmass.py`, `experiments/ssdmass.txt`)
+The SSD and reader masses were the main unsourced inputs. Listings read 2026-10-22 (retailer pages, manufacturer pages were not reachable from this environment, so each figure is a listing, not a datasheet unless noted):
+
+| part | mass | source |
+|---|---|---|
+| Samsung Portable SSD T7 (500 GB to 2 TB) | 58 g | Samsung spec sheet as quoted by a distributor datasheet (farnell.com/datasheets/3048830.pdf) and a Swiss retailer for the 2 TB model; another retailer lists the 1 TB at 51 g |
+| Crucial X9 4 TB | 32 g (one listing 35 g) | Galaxus and SHI listings |
+| SanDisk Extreme Portable V2 4 TB | 120 g in one listing, 52 g in another; unresolved | Dateks, SHI listings |
+| SanDisk Extreme PRO UHS-II USB-C SD reader | 28 g (Currys), 85 g (Evernimble, probably with packaging); unresolved | retailer listings |
+
+So 4 TB drives of 32 to 58 g exist; the earlier 75 g for 4 TB was too heavy. Rerunning the exact search over all 11,520 kits with the range (same 4 h, 7 d, two copies, 1 h offload):
+
+| scenario | lightest 18-shot total (g) | storage share (g) | most shots within 4,000 g |
+|---|---|---|---|
+| earlier assumption (45/55/75 g SSDs, 25 g reader) | 4,116 | 226 | 15 |
+| 32 g SSDs, 28 g reader | 4,040 | 148 | 15 |
+| 58 g SSDs, 28 g reader | 4,092 | 200 | 15 |
+| 58 g SSDs, 85 g reader | 4,262 | 372 | 15 |
+
+The headline survives: across the listed range the full-coverage kit weighs 4,040 to 4,262 g (the earlier figure sits inside it) and a 4 kg budget still reaches 15 of 18 shots. The 85 g reader row is a pessimistic bound (listing weight likely includes packaging). The reader count (3) and SSD count (2) do not change. The SanDisk SSD listings disagree by more than 2x and are not used in a scenario; weighing the actual parts is still an owner step.
+
 ## Limitations
-- The 360 camera, phone and mirrorless bitrates, SSD masses and reader mass are assumed. The bitrate sweep covers the first; the second group is small next to a kit (45 to 75 g per SSD) but unswept.
+- The 360 camera, phone and mirrorless bitrates are assumed (swept). SSD and reader masses are now listing figures, swept over the range above; the model's built-in defaults are still the earlier 45/55/75 g and 25 g.
 - The main tables use 4 h a day and 7 days; the sweep above covers 2 to 8 h and 3 to 28 days, with one recording-hours figure for every camera.
 - A phone has no card slot; its footage is treated as one more stream through the same readers. A laptop or hub able to take 3 to 4 readers at once, its charger and its power are not counted, though a trip with a mirrorless body probably carries a laptop anyway.
 - The bus speeds are ceilings; real card and reader pairs are slower, so reader counts are lower bounds.
@@ -73,7 +95,7 @@ Lightest total carried weight (g) reaching all 18 shots. The storage share of th
 
 ## Next steps
 - Count the laptop or hub the offload needs, and compare with offloading to a phone and cloud over hotel Wi-Fi.
-- Weigh real mounts and SSDs with a scale (see `capture-realkit`'s next steps); the SSD and reader grams are the main unsourced inputs here.
+- Weigh real mounts, SSDs and readers with a scale (see `capture-realkit`'s next steps); listing weights conflict for two of the four parts.
 
 ## Owner steps
 Time a real card-to-SSD copy with the intended readers before relying on any reader count here.
