@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { readStatement, checkRunningBalance } from "./bank.mjs";
+import { readStatement, checkRunningBalance, readQif, splitOfx } from "./bank.mjs";
 
 const read = (f) => readStatement(readFileSync(new URL(`./fixtures/${f}`, import.meta.url), "utf8"));
 
@@ -124,4 +124,35 @@ test("European headers: German, French and Spanish exports with decimal commas",
   assert.deepEqual(fr.rows.map((x) => x.cents), [-100000, 5000]);
   const es = readStatement("Fecha;Concepto;Importe;Saldo\n02/01/2026;CAFE;-4,50;95,50\n", opt);
   assert.deepEqual(es.rows.map((x) => x.cents), [-450]);
+});
+
+test("Wells Fargo: the headerless export takes the description from the fifth column", () => {
+  const r = read("wells-fargo-checking.csv");
+  assert.equal(r.bank, "wells-fargo");
+  assert.equal(r.rows[0].desc, "DEPOSIT NORTHWIND LLC INV 1041");
+  assert.ok(r.rows.every((x) => x.desc !== ""));
+});
+
+test("QIF: a slash date reads month first unless day first is asked for", () => {
+  const q = "!Type:Bank\nD03/04/2026\nT-5.00\nPCafe\n^\n";
+  assert.equal(readQif(q).rows[0].date, "2026-03-04");
+  assert.equal(readQif(q, { dayFirst: true }).rows[0].date, "2026-04-03");
+});
+
+test("OFX: a card account is flagged as a card, a bank account is not", () => {
+  const t = readFileSync(new URL("./fixtures/two-accounts.ofx", import.meta.url), "utf8");
+  const parts = splitOfx(t);
+  assert.equal(parts.length, 2);
+  assert.deepEqual(parts.map((p) => p.card), [false, true]);
+  assert.equal(splitOfx("<OFX><CCSTMTRS><CCACCTFROM><ACCTID>9</CCACCTFROM></CCSTMTRS></OFX>")[0].card, true);
+  assert.equal(splitOfx("<OFX><CCSTMTRS><ACCTID>9</CCSTMTRS></OFX>")[0].card, true, "a card block without an account-from element");
+  assert.equal(splitOfx("<OFX><CCACCTFROM><ACCTID>9</CCACCTFROM></OFX>")[0].card, true, "an account-from element without a block");
+  assert.equal(splitOfx("<OFX><STMTRS><BANKACCTFROM><ACCTID>9<ACCTTYPE>CHECKING</BANKACCTFROM></STMTRS></OFX>")[0].card, false);
+});
+
+test("OFX: a single-account file reads its id from the statement block, not from earlier text", () => {
+  const t = "<OFX><INVSTMTRS><INVACCTFROM><ACCTID>INV-1</INVACCTFROM></INVSTMTRS>\n<STMTRS><BANKACCTFROM><ACCTID>CHK-2<ACCTTYPE>CHECKING</BANKACCTFROM></STMTRS></OFX>";
+  const parts = splitOfx(t);
+  assert.equal(parts.length, 1);
+  assert.equal(parts[0].id, "CHK-2");
 });
