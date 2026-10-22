@@ -83,11 +83,6 @@ from pathlib import Path
 # (`applyInputs(fromLink)`, `applyVisitInputs(fromLink)`).
 BARE_APPLY = re.compile(r"\b(?:write|apply)[A-Za-z]*\(\s*fromLink\s*\)")
 
-# The decoded link wrapped in something before it reaches the writer, e.g.
-# `writeInputs(formValues(fromLink))`. The wrapper's name is not pinned: what
-# matters is that a call stands between the decode and the form.
-WRAPPED_APPLY = re.compile(r"\b(?:write|apply)[A-Za-z]*\(\s*[A-Za-z_$][\w$]*\(\s*fromLink\s*\)\s*\)")
-
 # The decoded link merged into an object literal alongside another variable --
 # typically the saved draft -- e.g. `{ ...saved, ...fromLink }` or
 # `{ ...DEFAULTS, ...saved, ...fromLink }`. This is the same defect in a
@@ -148,7 +143,7 @@ def check_page(markup: str) -> str | None:
     if not (DRAFT.search(markup) and DECODE.search(markup)):
         return None  # not both a draft and a link: out of scope, see docstring
 
-    # Checked ahead of WRAPPED_APPLY's early-accept: a page can carry both a
+    # Checked first: a page can carry both a
     # correct `write...(formValues(fromLink))` call *and* a leftover buggy
     # spread elsewhere (e.g. a second restore path), and the spread is
     # unambiguous evidence of the defect either way.
@@ -164,9 +159,8 @@ def check_page(markup: str) -> str | None:
             "value for every field the form owns."
         )
 
-    if WRAPPED_APPLY.search(markup):
-        return None
-
+    # A wrapped call (`write...(formValues(fromLink))`) never matches BARE_APPLY,
+    # and must not hide a second, bare one elsewhere on the page.
     for bare in BARE_APPLY.finditer(markup):
         if _is_guarded(markup, bare):
             continue  # the safe if/(bare apply)/else shape -- see GUARDED_BARE_APPLY
