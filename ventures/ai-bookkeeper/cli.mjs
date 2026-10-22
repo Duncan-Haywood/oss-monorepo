@@ -58,7 +58,7 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
   switch chart FILE      adding the accounts of a QuickBooks Account List or Xero Chart of Accounts CSV to the chart (matches by name, keeps Xero codes)
   switch balances FILE [--date D]  opening balances from that system's Trial Balance CSV, which names accounts; the date comes from "As of ..." in the file unless given
   lock DATE|off          lock a closed period: nothing dated on or before DATE can be imported, re-filed, booked or written off
-  close YEAR [--draws]   year-end close: that year's income and expense go to retained earnings (3900) in one dated entry, and the books lock through Dec 31; --draws also closes owner draws and contributions. "close reopen YEAR" undoes the latest; "close report YEAR" shows it
+  close YEAR [--draws] [--month M]   year-end close (a fiscal year ending in month M, named for the year it ends in): that year's income and expense go to retained earnings (3900) in one dated entry, and the books lock through Dec 31; --draws also closes owner draws and contributions. "close reopen YEAR" undoes the latest; "close report YEAR" shows it
   contractors [--year Y] [--threshold DOLLARS] [--csv|--filing|--json]  contract labor paid by payee against the 1099-NEC line, with W-9 status
   merge-payee FROM INTO [--off]  count two spellings of one payee as one on the contractors worksheet
   w9 PAYEE [--off]       record that a W-9 is on file for a payee (a flag; no tax IDs are stored)
@@ -213,7 +213,7 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
       }
     } else {
       if (!rest[0]) { console.error("close needs a year (YYYY), 'report YEAR' or 'reopen YEAR'"); process.exit(2); }
-      books = closeYear(books, rest[0], { draws: rest.includes("--draws") }); save();
+      books = closeYear(books, rest[0], { draws: rest.includes("--draws"), month: flag("--month") ?? 12 }); save();
       const r = yearEndReport(books, rest[0]);
       console.log(`Closed ${r.year}: ${r.netToRetained >= 0 ? "profit" : "loss"} of ${fmt(Math.abs(r.netToRetained))} moved to ${name("3900")}. Locked through ${books.lockedThrough}.`);
     }
