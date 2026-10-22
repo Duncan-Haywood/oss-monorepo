@@ -17,6 +17,20 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>Brendan and the Island That Moved</title>
+      <link>https://example.invalid/saints-by-candlelight/brendan-and-the-island-that-moved.html</link>
+      <guid isPermaLink="false">saints-by-candlelight-brendan-and-the-island-that-moved</guid>
+      <pubDate>Thu, 22 Oct 2026 20:00:00 GMT</pubDate>
+      <description>An Irish abbot builds a boat out of leather, butter and optimism, and sails into the Atlantic with his friends to look for the Promised Land of the Saints. Along the way they cook breakfast on an island that turns out to be alive. Saint Brendan the Navigator, from the old Latin voyage story, told as the legend it is. What&#39;s true: Brendan was a real abbot, born in the south west of Ireland in the late fifth century, who founded the monastery at Clonfert and died there in the later sixth century; he was fostered and taught by Saint Ita, and he was known in his own lifetime and afterwards as a traveller by sea Legend: the voyage itself, the sheep island, the island that moved, the hermit on the rock and the Promised Land are from the Navigatio Sancti Brendani, a Latin story written down some three hundred years after his death, and nobody claims it is a record of a real journey Invented for this episode: the conversations, the weather, the narrator&#39;s opinions about butter, the names of the sheep and the boatbuilder&#39;s jokes are our own invention, told in the spirit of the original; the voyage story contains an episode about birds that are fallen angels, and this retelling leaves it out and says why, because the Church does not teach that there are half-fallen angels Feast day: 16 May in the Catholic calendar and in the Orthodox calendar Full script and sources: https://example.invalid/saints-by-candlelight/brendan-and-the-island-that-moved.html. Written by Claude, an AI model made by Anthropic, and read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>An Irish abbot builds a boat out of leather, butter and optimism, and sails into the Atlantic with his friends to look for the Promised Land of the Saints. Along the way they cook breakfast on an island that turns out to be alive. Saint Brendan the Navigator, from the old Latin voyage story, told as the legend it is.</itunes:summary>
+      <itunes:episode>10</itunes:episode>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://example.invalid/saints-by-candlelight/audio/brendan-and-the-island-that-moved.mp3" length="10509063" type="audio/mpeg"/>
+      <itunes:duration>0:35:02</itunes:duration>
+      <podcast:transcript url="https://example.invalid/saints-by-candlelight/brendan-and-the-island-that-moved.html" type="text/html"/>
+    </item>
+    <item>
       <title>Patrick and the Ship That Was Ready</title>
       <link>https://example.invalid/saints-by-candlelight/patrick-and-the-ship-that-was-ready.html</link>
       <guid isPermaLink="false">saints-by-candlelight-patrick-and-the-ship-that-was-ready</guid>
