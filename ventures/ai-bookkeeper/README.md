@@ -564,6 +564,23 @@ part-month period is compared against a full month's budget. The page has a card
 (pick an account, type a monthly amount, read the table for the From and To
 dates; clicked through in headless Chromium with `eval/browser-click.mjs`).
 
+### Reconcile to a paper statement (2026-10-22)
+
+`node cli.mjs --books books.json reconcile 1000 --date 2026-03-31 --balance 691.50`
+ties an account to the closing balance printed on a statement (a card statement's
+owed amount is typed as printed, positive). Exit 0 when the books agree, 1 when not.
+When they differ it names the likeliest cause, strongest first: lines still waiting
+for an account that make up the whole gap; one booked line equal to the gap (not on
+the statement, or entered twice); one line equal to half the gap (booked with the
+wrong sign); a pair of lines that sum to it; a gap divisible by 9 (two digits swapped
+when typing an amount); lines dated within 5 days after the statement date. It only
+points at lines; it never edits the books. Engine: `reconcile` in `reconcile.mjs`
+(`--json` gives the data). Checked by node tests on hand-written ledgers only; the
+hints are a search over lines, not a proof, and no real statement was tried. It
+complements the automatic check in `checks`, which needs a closing balance in the
+imported file.
+
+
 ## This period against the last
 
 `node cli.mjs --books books.json compare` (engine: `compareProfit`, `compare.mjs`)

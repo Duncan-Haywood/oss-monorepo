@@ -28,6 +28,7 @@ import { addReceipts, attachReceipt, removeReceipt, receiptReport, taxOnReceipts
 import { compareProfit } from "./compare.mjs";
 import { addTrip, removeTrip, setHomeOffice, mileageDeduction } from "./deductions.mjs";
 import { setBudget, budgetVsActual } from "./budget.mjs";
+import { reconcile } from "./reconcile.mjs";
 import { setTaxTreatment, taxDepreciation } from "./taxdepr.mjs";
 import { renderInvoice, setProfile, PROFILE_KEYS } from "./invoice.mjs";
 import { reminders } from "./collections.mjs";
@@ -76,6 +77,7 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
   anomalies [--json]     lines worth a second look: double charges, amounts far above a payee's usual, large first-time payees (candidates with a reason, not an audit)
  receipts [FILE (.txt, text-layer .pdf via pdftotext, or a photo via tesseract / RECEIPT_OCR_CMD)|attach RID LINEID|detach RID|remove RID|split RID [--other CODE] [--fix WORD=CODE]... [--apply]] [--min DOLLARS] [--tax] [--json]  receipt text (blocks split by ---) matched to bank lines; lists unmatched receipts and spending over --min (default 75) with no receipt
   compare [--from D --to D --vs-from D --vs-to D] [--json]  profit and loss against an earlier period (default: latest month vs the month before): what moved, what is new or gone
+  reconcile CODE --date D --balance AMT [--json]  tie an account to the closing balance on a paper statement; if it is off, name the lines that likely explain the gap
   budget [CODE AMOUNT] [--from D --to D] [--json]  set a monthly budget for an account (AMOUNT 0 removes it), or show budget against actual for the period (default: latest month)
   aging [--as-of D]      what customers owe you and what you owe, by days past due
   rules [--apply]        payees you filed the same way 3+ times, as rules; --apply adds them
@@ -334,6 +336,17 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
   for (const x of c.accounts) console.log(`  ${x.code} ${x.name.slice(0, 26).padEnd(26)} ${fmt(x.now).padStart(11)} ${fmt(x.then).padStart(11)} ${fmt(x.change).padStart(11)}  ${x.pct === null ? x.status : `${(x.pct * 100).toFixed(0)}%${x.status === "gone" ? " gone" : ""}`}${x.hurtsProfit ? "  lowers profit" : ""}`);
   if (c.empty) console.log(`Note: ${c.empty}.`);
   if (c.partial) console.log(`Note: ${c.partial}.`);
+} else if (cmd === "reconcile") {
+  const cents = parseCents(String(flag("--balance") ?? "")), rdate = flag("--date");
+  const code = argv[1];
+  if (argv.length !== 2 || !rdate || cents === null || cents === undefined || Number.isNaN(cents)) { console.error("reconcile CODE --date YYYY-MM-DD --balance AMOUNT, e.g. reconcile 1000 --date 2026-03-31 --balance 691.50"); process.exit(2); }
+  let r;
+  try { r = reconcile(books, { account: code, date: rdate, balance: cents }); } catch (e) { console.error(e.message); process.exit(2); }
+  if (json) { console.log(JSON.stringify(r, null, 2)); process.exit(r.agrees ? 0 : 1); }
+  console.log(`${name(r.account)} on ${r.date}: books ${fmt(r.book)}, statement ${fmt(r.statement)}${r.agrees ? "  AGREES" : `, difference ${fmt(r.difference)}`}`);
+  for (const h of r.hints) console.log(`  [${h.kind}] ${h.message}${h.ids.length ? `  (${h.ids.slice(0, 5).join(", ")}${h.ids.length > 5 ? `, +${h.ids.length - 5} more` : ""})` : ""}`);
+  if (!r.agrees && !r.hints.length) console.log("  No single line, pair or still-unfiled line explains it. Compare the statement to the list line by line, and check the opening balance.");
+  process.exit(r.agrees ? 0 : 1);
 } else if (cmd === "budget") {
   if (rest.length) {
     const cents = parseCents(rest[1] ?? "");
