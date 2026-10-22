@@ -13,6 +13,7 @@ milestones in PROJECTS.md are all done. Fetch origin/main first: a stale
 checkout hides projects other runs landed.
 """
 import math
+import re
 import random
 import subprocess
 import sys
@@ -44,6 +45,21 @@ def projects(prefix, limit=5):
     return len(dirs), sorted(dirs, key=stamp, reverse=True)[:limit]
 
 
+def milestones(prefix):
+    """(listed, free) milestone slugs from the track's section in PROJECTS.md.
+
+    A slug counts as listed when it starts a numbered milestone line; free
+    when no research/<slug> directory exists. Empty `listed` means the section
+    has no parsable milestone list (say so rather than guess).
+    """
+    text = (RESEARCH / "PROJECTS.md").read_text()
+    m = re.search(r"^## \d+\. [^\n]*\(`%s`\)\n(.*?)(?=^## )" % re.escape(prefix), text, re.M | re.S)
+    if not m:
+        return [], []
+    listed = re.findall(r"^\d+\. `(%s-[\w-]+)`" % re.escape(prefix), m.group(1), re.M)
+    return listed, [x for x in listed if not (RESEARCH / x).is_dir()]
+
+
 if __name__ == "__main__":
     r = float(sys.argv[1]) if len(sys.argv) > 1 else random.random()
     t = pick(r)
@@ -56,6 +72,13 @@ if __name__ == "__main__":
     if t != "free":
         n, newest = projects(PREFIX[t - 1])
         print(f"{n} `{PREFIX[t - 1]}-*` projects on this checkout; newest: {', '.join(newest) or 'none'}")
+        listed, free = milestones(PREFIX[t - 1])
+        if not listed:
+            print("milestones: no list found in PROJECTS.md; take a 'Next steps' item or ask a new question")
+        elif free:
+            print(f"milestones: {len(listed) - len(free)}/{len(listed)} on this checkout; next free: {free[0]}")
+        else:
+            print(f"milestones: all {len(listed)} listed are on this checkout; take a 'Next steps' item or ask a new question")
         if newest:
             shallow = subprocess.run(["git", "rev-parse", "--is-shallow-repository"],
                                      cwd=RESEARCH, capture_output=True, text=True).stdout.strip() == "true"
