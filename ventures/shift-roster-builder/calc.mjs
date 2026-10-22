@@ -357,7 +357,7 @@ const DEFAULTS = {
   splitPremium: 0, splitGap: 1, // split-shift premium: dollars owed on each day a person's shifts have a gap over splitGap hours (0 = off)
   diffWhen: "", diffPerHour: 0, diffPct: 0, // pay differential: extra $/hour and/or % of wage for hours inside the diffWhen windows ("Sat-Sun; 10pm-6am"; none = off)
   burdenPct: 0, otAfter: 40, otMult: 1.5, dailyOtAfter: 0, dailyDtAfter: 0, dtMult: 2, minRestHours: 10, maxConsecDays: 6, maxDailyHours: 0,
-  exact: "auto", exactNodes: 400000, exactMs: 8000, balance: 25, toughBalance: 0, shortfallValue: 8, avoidValue: 0.5, preferValue: 0.25, seed: 1, restarts: 4, iterations: 0,
+  exact: "auto", exactNodes: 400000, exactMs: 8000, exactTolerance: 0.5, balance: 25, toughBalance: 0, shortfallValue: 8, avoidValue: 0.5, preferValue: 0.25, seed: 1, restarts: 4, iterations: 0,
 };
 
 function qualified(person, slot) {
@@ -647,7 +647,7 @@ function search(ctx, restarts, iterations, first = 0) {
 // had the quick search beaten in 38 (each by covering more hours) before this was on by default.
 const EXACT_AUTO_SLOTS = 14;
 const TANGENTS = 8; // tangent lines under each person's hours curve inside the coverage flow
-function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000 } = {}) {
+function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000, tolerance = 0 } = {}) {
   const { P, S, slots, staff, o, elig } = ctx;
   const mono = o.otMult >= 1 && o.dtMult >= 1;
   const mFloor = Math.min(1, o.otMult, o.dtMult);
@@ -877,7 +877,7 @@ function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000 } 
   const rec = (k, unfilledH) => {
     if (aborted) return;
     if (++nodes > nodeLimit || ((nodes & 1023) === 0 && Date.now() - t0 > timeLimitMs)) { aborted = true; return; }
-    if (lowerBound(k, unfilledH, best - 1e-9) >= best - 1e-9) return;
+    if (lowerBound(k, unfilledH, best - tolerance - 1e-9) >= best - tolerance - 1e-9) return;
     if (k === S) {
       const total = scoreOwner(ctx, owner).total;
       if (total < best - 1e-9) { best = total; bestOwner = owner.slice(); }
@@ -987,8 +987,8 @@ function whyUnfilled(ctx, owner, i) {
 // One plain sentence for the result of the optional exact check (buildRoster with exact: true).
 export function optimalityText(opt) {
   if (!opt) return "";
-  if (opt.status === "optimal") return "Checked against an exact search: no roster under your rules scores better than this one.";
-  if (opt.status === "improved") return `Checked against an exact search: the quick search was ${num(opt.gapPct)}% off the best possible, so this roster is the better one the exact search found (proven best).`;
+  if (opt.status === "optimal") return `Checked against an exact search: no roster under your rules scores better than this one${opt.tolerance > 0 ? ` by more than ${money2(opt.tolerance)} of score` : ""}.`;
+  if (opt.status === "improved") return `Checked against an exact search: the quick search was ${num(opt.gapPct)}% off the best possible, so this roster is the better one the exact search found (proven best${opt.tolerance > 0 ? `, to within ${money2(opt.tolerance)} of score` : ""}).`;
   if (opt.gap < BIG && opt.coverageProven) {
     const h = opt.forcedOpenHours;
     return `Exact search ran out of time before it could prove the cheapest roster, but it did prove the coverage: ${h > 0 ? `${num(h)} hour${h === 1 ? "" : "s"} of shifts cannot be covered under your rules, however the week is arranged` : "every shift can be covered"}, and this roster covers all the rest. The cheapest way to do that could still save at most ${money(opt.gap)} in the score (pay plus penalties).`;
@@ -1012,7 +1012,7 @@ export function buildRoster(staff, slots, options = {}) {
   // Optional proof: for small problems search exhaustively (with pruning) and say how far the annealed roster is from the best possible.
   let optimality = null;
   if (o.exact === true || (o.exact === "auto" && ctx.S <= EXACT_AUTO_SLOTS)) {
-    const ex = exactSearch(ctx, best.score, { nodeLimit: o.exactNodes, timeLimitMs: o.exactMs });
+    const ex = exactSearch(ctx, best.score, { nodeLimit: o.exactNodes, timeLimitMs: o.exactMs, tolerance: o.exactTolerance });
     const annealScore = best.score;
     if (ex.owner && ex.score < best.score - 1e-9) best = { owner: ex.owner, score: ex.score };
     const gap = ex.proven ? annealScore - best.score : best.score - Math.min(ex.rootBound, best.score);
@@ -1021,7 +1021,7 @@ export function buildRoster(staff, slots, options = {}) {
       annealScore, bestScore: best.score, lowerBound: ex.proven ? best.score : ex.rootBound,
       forcedOpenHours: Math.floor((ex.proven ? best.score : ex.rootBound) / BIG + 1e-9),
       coverageProven: ex.proven || Math.abs(Math.floor(ex.rootBound / BIG + 1e-9) - Math.floor(best.score / BIG + 1e-9)) === 0,
-      gap: Math.max(0, gap), gapPct: annealScore > 0 ? (Math.max(0, gap) / annealScore) * 100 : 0, nodes: ex.nodes,
+      tolerance: o.exactTolerance, gap: Math.max(0, gap), gapPct: annealScore > 0 ? (Math.max(0, gap) / annealScore) * 100 : 0, nodes: ex.nodes,
     };
   }
   const res = summarise(ctx, best.owner);
