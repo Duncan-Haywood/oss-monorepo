@@ -143,3 +143,57 @@ test("hip lumber joins the pooled order with hips and jacks as their own kinds",
   assert.ok(r.ok, JSON.stringify(r.errors));
   assert.match(roofText(l).join("\n"), /Hip roof: 32 common rafters/);
 });
+
+// L-shaped roof: 24 x 40 ft main at 6:12, 16 ft wide wing projecting 12 ft, centred at 20 ft
+const lroof = (over = {}) => ({ id: "L", shape: "lshape", width: 288, length: 480, pitch: 6, overhang: 12, gableOverhang: 12, rafter: "2x8", valley: "2x10", spacing: 16, ridge: "2x10", wing: { width: 192, projection: 144, at: 240 }, ...over });
+
+test("L-shaped roof: valley length, wing commons and surface area match closed forms", () => {
+  const l = layoutRoof(lroof(), plan());
+  assert.ok(l.ok, JSON.stringify(l.errors));
+  const k = slopeFactor(6), hz = 96 + 12;
+  assert.ok(Math.abs(l.valleyLength - hz * Math.sqrt(2 + 0.25)) < 1 / 16);
+  assert.equal(l.valleys.length, 2);
+  assert.ok(Math.abs(l.wingRafterLength - (96 - 0.75 + 12) * k) < 1 / 16);
+  // plan area = main rectangle + the wing beyond the eave line; surface = plan x slope factor
+  const plan_ = 504 * 312 + (144 - 12 + 12) * 216;
+  assert.ok(Math.abs(l.sheets.area - plan_ * k / 144) < 1e-6);
+  assert.ok(l.sheets.count * 32 >= l.sheets.area);
+});
+
+test("L-shaped roof: valley jacks follow the horizontal run to the valley", () => {
+  const l = layoutRoof(lroof(), plan());
+  const k = slopeFactor(6), vOff = 0.75 * Math.SQRT2;
+  // wing jacks: ridge-side run d - 0.75 - vOff for d = P + Ww/2 - centre
+  const wj = l.jacks.filter((j) => j.plane === "wing" && j.side === "left");
+  assert.ok(wj.length >= 5);
+  for (const j of wj) assert.ok(Math.abs(j.length - (j.offset - 0.75 - vOff) * k) < 1 / 16);
+  // main jacks: run (W - Ww)/2 + z - ridge/2 - vOff, one per rafter line inside the wing's zone
+  const mj = l.jacks.filter((j) => j.plane === "main");
+  assert.ok(mj.length >= 12);
+  for (const j of mj) assert.ok(Math.abs(j.length - ((288 - 192) / 2 + j.offset - 0.75 - vOff) * k) < 1 / 16);
+  // a jack never exceeds the full common it replaces
+  const common = l.rafterLength;
+  for (const j of mj) assert.ok(j.length <= common + 1e-6);
+  // rafters + jacks cover the same lines as the plain gable plus the wing
+  const gable = layoutRoof({ ...lroof(), shape: "gable", wing: undefined }, plan());
+  assert.equal(l.rafters.filter((x) => !x.wing).length + mj.length, gable.rafters.length);
+});
+
+test("L-shaped roof: wing ridge, roofing and the cut list", () => {
+  const l = layoutRoof(lroof(), plan());
+  assert.equal(l.ridges.filter((x) => x.wing).reduce((s, x) => s + x.length, 0), 144 + 96 + 12);
+  assert.ok(l.roofing.valleyFeet > 0);
+  const cuts = roofCuts(l);
+  assert.ok(cuts.some((c) => c.kind === "valley rafter" && c.qty === 2));
+  assert.ok(cuts.some((c) => c.kind === "valley jack"));
+  const t = takeoff(samplePlan(), cuts);
+  assert.ok(t.ok, JSON.stringify(t.errors));
+  assert.match(roofText(l).join("\n"), /L-shaped roof/);
+});
+
+test("L-shaped roof: refuses a wing wider than the main roof, one that does not fit, and trusses", () => {
+  assert.equal(layoutRoof(lroof({ wing: { width: 300, projection: 144 } }), plan()).ok, false);
+  assert.match(layoutRoof(lroof({ wing: { width: 192, projection: 144, at: 60 } }), plan()).errors[0], /does not fit/);
+  assert.equal(layoutRoof(lroof({ trusses: {} }), plan()).ok, false);
+  assert.equal(layoutRoof(lroof({ wing: undefined }), plan()).ok, false);
+});

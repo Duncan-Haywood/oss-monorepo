@@ -26,7 +26,7 @@ Usage:
   node cli.mjs plan.json --panel-max=12ft --panel-order  lumber order for the shop panels (plates cut at panel breaks) against the whole-wall order
   node cli.mjs plan.json --panel-max=12ft --sheathing-psf=1.5  also weigh the sheathing on each panel (lb per sq ft)
   node cli.mjs plan.json --floor     add the plan's floor (joists, rim, blocking, subfloor sheets); its lumber joins the order
-  node cli.mjs plan.json --roof      add the plan's gable roof, or hip roof with shape "hip" (rafters, ridge, sheathing, shingle and felt quantities); its lumber joins the order
+  node cli.mjs plan.json --roof      add the plan's gable roof, or hip roof with shape "hip", or L-shaped (shape "lshape" with wing {width, projection, at}) (rafters, ridge, sheathing, shingle and felt quantities); its lumber joins the order
   node cli.mjs plan.json --drawings   printable HTML shop drawings, one sheet per wall (marked members, dimensions, parts table)
   node cli.mjs plan.json --headers  size headers from the plan's own headerTable ({upTo, header, plies?} rows from your span table; an opening with "header": "auto" takes the first row that covers it) and list hand-picked ones the table says are too light
   node cli.mjs --example            print the example plan (an invented 40 x 28 ft ranch) to start from
@@ -91,6 +91,7 @@ export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "u
   if (flags.has("--roof") || plan.roof) {
     if (!plan.roof) return { code: 2, out: "The plan has no `roof` object (width, length, pitch, rafter, spacing)." };
     for (const k of ["width", "length", "overhang", "gableOverhang", "ceilingBearing", "collarDrop"]) if (typeof plan.roof[k] === "string") plan.roof[k] = parseLength(plan.roof[k]);
+    if (plan.roof.wing) for (const k of ["width", "projection", "at"]) if (typeof plan.roof.wing[k] === "string") plan.roof.wing[k] = parseLength(plan.roof.wing[k]);
     roof = layoutRoof(plan.roof, plan);
     if (!roof.ok) return { code: 1, out: `The roof has problems:\n${roof.errors.map((e) => `  - ${e}`).join("\n")}` };
   }

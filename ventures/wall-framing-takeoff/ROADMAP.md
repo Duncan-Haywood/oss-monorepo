@@ -92,7 +92,7 @@ Ticked items are on `main`.
 - [x] Roof (2026-10-22, `roof.mjs`, CLI `--roof`): gable roofs; rafter or truss count
       from a footprint and pitch (trusses as a purchased line), ridge, ceiling
       joists, collar ties, roof sheathing, underlayment and shingle squares.
-      Hip roofs landed 2026-10-22 (`shape: "hip"`: commons, hips, jacks, trapezoid and triangle sheathing). Not yet: valleys, the page.
+      Hip roofs landed 2026-10-22 (`shape: "hip"`: commons, hips, jacks, trapezoid and triangle sheathing). L-shaped roofs with valleys landed 2026-10-22 (`shape: "lshape"`, CLI and engine). Not yet: the page, a wing on both sides.
 - [ ] Foundation quantities: footing and slab concrete, rebar, forms.
 - [ ] Interior: drywall sheet layout per wall and ceiling, insulation by
       cavity, trim.
