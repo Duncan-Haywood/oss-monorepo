@@ -81,6 +81,7 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
   inventory buy SKU --qty N --amount TOTAL --date D [--name TEXT]  record stock bought (file the payment to 1450)
   inventory sell SKU --qty N --date D   move that stock's cost to cost of goods sold (FIFO or average)
   inventory adjust SKU --qty N --date D write off lost or damaged stock at cost
+  inventory return SKU --qty N --date D stock sent back to the supplier, at the newest layer cost (file the refund to 1450)
   inventory method fifo|avg             costing method (default fifo)
   inventory             stock on hand by SKU, valued; the total should equal account 1450
   prepaid [--as-of D]     list prepaid items: amount, expensed so far, still paid ahead
@@ -301,9 +302,9 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
   } catch (e) { console.error(e.message); process.exit(1); }
 } else if (cmd === "inventory") {
   try {
-    if (["buy", "sell", "adjust"].includes(rest[0])) {
+    if (["buy", "sell", "adjust", "return"].includes(rest[0])) {
       const r = addInventoryMove(books, { kind: rest[0], sku: rest[1], date: flag("--date"), qty: flag("--qty"), amount: flag("--amount") ?? undefined, name: flag("--name") ?? undefined });
-      books = r.books; save(); console.log(`${r.move.id} ${rest[0]} ${r.move.qty / 1000} x ${r.move.sku}${rest[0] === "buy" ? `, ${fmt(r.move.cents)}. File the payment to 1450.` : ". Cost moved to 5000."}`);
+      books = r.books; save(); console.log(`${r.move.id} ${rest[0]} ${r.move.qty / 1000} x ${r.move.sku}${rest[0] === "buy" ? `, ${fmt(r.move.cents)}. File the payment to 1450.` : rest[0] === "return" ? ". File the supplier's refund to 1450." : ". Cost moved to 5000."}`);
     } else if (rest[0] === "method") {
       books = setInventoryMethod(books, rest[1]); save(); console.log(`Costing method: ${rest[1]}.`);
     } else {

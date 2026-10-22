@@ -25,7 +25,7 @@ export function replay(inv) {
   const stock = new Map(), costs = new Map();
   let error = null;
   for (const m of order) {
-    const s = stock.get(m.sku) ?? { sku: m.sku, name: m.name ?? m.sku, layers: [], qty: 0, value: 0, bought: 0, sold: 0, cogs: 0 };
+    const s = stock.get(m.sku) ?? { sku: m.sku, name: m.name ?? m.sku, layers: [], qty: 0, value: 0, bought: 0, returned: 0, sold: 0, cogs: 0 };
     stock.set(m.sku, s);
     if (m.name) s.name = m.name;
     if (m.kind === "buy") {
@@ -33,23 +33,26 @@ export function replay(inv) {
       s.qty += m.qty; s.value += m.cents; s.bought += m.qty;
       continue;
     }
-    if (m.qty > s.qty) { error ??= `${m.sku}: ${m.kind === "sell" ? "sold" : "written off"} ${m.qty / 1000} on ${m.date} with only ${s.qty / 1000} on hand.`; costs.set(m.id, 0); continue; }
+    if (m.qty > s.qty) { error ??= `${m.sku}: ${m.kind === "sell" ? "sold" : m.kind === "return" ? "returned to the supplier" : "written off"} ${m.qty / 1000} on ${m.date} with only ${s.qty / 1000} on hand.`; costs.set(m.id, 0); continue; }
     let cost = 0;
     if (method === "avg") {
       cost = m.qty === s.qty ? s.value : prorate(s.value, m.qty, s.qty);
     } else {
+      // A sale or write-off takes the oldest layer first; a return goes back to the supplier from the newest.
+      const back = m.kind === "return";
       let left = m.qty;
       while (left > 0) {
-        const l = s.layers[0], take = Math.min(l.qty, left);
+        const l = back ? s.layers.at(-1) : s.layers[0], take = Math.min(l.qty, left);
         const c = take === l.qty ? l.cents : prorate(l.cents, take, l.qty);
         cost += c; l.cents -= c; l.qty -= take; left -= take;
-        if (l.qty === 0) s.layers.shift();
+        if (l.qty === 0) back ? s.layers.pop() : s.layers.shift();
       }
     }
-    s.qty -= m.qty; s.value -= cost; s.sold += m.qty; s.cogs += cost;
+    s.qty -= m.qty; s.value -= cost;
+    if (m.kind === "return") s.returned += m.qty; else { s.sold += m.qty; s.cogs += cost; }
     costs.set(m.id, cost);
   }
-  const rows = [...stock.values()].map((s) => ({ sku: s.sku, name: s.name, onHand: s.qty / 1000, value: s.value, unitCost: s.qty ? Math.round(s.value / (s.qty / 1000)) : 0, bought: s.bought / 1000, sold: s.sold / 1000, cogs: s.cogs })).sort((a, b) => a.sku.localeCompare(b.sku));
+  const rows = [...stock.values()].map((s) => ({ sku: s.sku, name: s.name, onHand: s.qty / 1000, value: s.value, unitCost: s.qty ? Math.round(s.value / (s.qty / 1000)) : 0, bought: s.bought / 1000, returned: s.returned / 1000, sold: s.sold / 1000, cogs: s.cogs })).sort((a, b) => a.sku.localeCompare(b.sku));
   return { method, rows, costs, error, value: rows.reduce((t, r) => t + r.value, 0), cogs: rows.reduce((t, r) => t + r.cogs, 0) };
 }
 
@@ -60,7 +63,7 @@ export function inventoryEntries(books) {
   const out = [];
   for (const m of inv.moves) {
     const cents = costs.get(m.id);
-    if (m.kind === "buy" || !cents) continue;
+    if (m.kind === "buy" || m.kind === "return" || !cents) continue; // a return books no cost: the supplier's refund, filed to 1450, credits Inventory
     out.push({ id: m.id, date: m.date, memo: `${m.kind === "sell" ? "Cost of goods sold" : "Stock written off"}, ${m.sku}`, source: "inventory", lines: [{ account: COGS_ACCOUNT, debit: cents, credit: 0 }, { account: INVENTORY_ACCOUNT, debit: 0, credit: cents }] });
   }
   return out;
@@ -70,7 +73,7 @@ export function inventoryEntries(books) {
 // A buy needs `amount` (total paid for the whole quantity); sell and adjust must not have one.
 export function addInventoryMove(booksIn, { kind = "buy", sku, date, qty, amount, name } = {}) {
   const books = clone(booksIn);
-  if (!["buy", "sell", "adjust"].includes(kind)) throw new Error(`Kind ${kind} is not buy, sell or adjust.`);
+  if (!["buy", "sell", "adjust", "return"].includes(kind)) throw new Error(`Kind ${kind} is not buy, sell, adjust or return.`);
   sku = String(sku ?? "").trim();
   if (!sku) throw new Error("An inventory move needs a SKU or item name.");
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date ?? "") || !parseDate(date)) throw new Error(`Date ${date} is not a YYYY-MM-DD date.`);

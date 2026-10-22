@@ -87,3 +87,23 @@ test("CLI: buy, sell, list, method", () => {
   assert.match(out, /cost of goods sold \$?40\.00/);
   assert.match(run("inventory", "method", "avg"), /avg/);
 });
+
+test("a purchase return leaves the newest layer, books no cost, and the refund ties 1450 to the register", () => {
+  const csv = "Date,Description,Amount\n2026-01-05,WHOLESALE MUGS CO,-100.00\n2026-01-20,WHOLESALE MUGS CO,-200.00\n2026-02-03,WHOLESALE MUGS CO REFUND,60.00\n";
+  let b = importStatement(newBooks(), csv, "1000").books;
+  b = confirm(b, Object.fromEntries(b.transactions.map((t) => [t.id, "1450"])));
+  b = mv(b, "buy", "MUG", "2026-01-05", 10, "100"); // 10.00 each
+  b = mv(b, "buy", "MUG", "2026-01-20", 10, "200"); // 20.00 each
+  b = mv(b, "return", "MUG", "2026-02-03", 3);       // from the 20.00 layer: 60.00
+  let r = inventoryRegister(b);
+  assert.equal(r.rows[0].onHand, 17);
+  assert.equal(r.rows[0].returned, 3);
+  assert.equal(r.value, 24000);
+  assert.equal(r.cogs, 0);
+  assert.ok(!closeChecks(b).some((c) => c.check === "inventory"));
+  b = mv(b, "sell", "MUG", "2026-02-10", 10); // oldest layer first: the whole 10.00 layer
+  r = inventoryRegister(b);
+  assert.equal(r.cogs, 10000);
+  assert.equal(r.value, 14000);
+  assert.throws(() => mv(b, "return", "MUG", "2026-02-11", 8), /returned to the supplier/);
+});
