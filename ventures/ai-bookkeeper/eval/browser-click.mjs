@@ -55,6 +55,16 @@ await page.setInputFiles("#file", join(root, "fixtures/checking.ofx"));
 await page.waitForTimeout(300);
 check(await page.locator("#ofx-map").isHidden(), "single-account OFX shows no pickers");
 
+// A statement PDF (Chromium-printed fixture) is read in the tab and imported.
+await page.setInputFiles("#file", join(root, "fixtures/statement-table.pdf"));
+await page.click("#import");
+await page.waitForFunction(() => /added to/.test(document.querySelector("#import-status").textContent), null, { timeout: 8000 }).catch(() => {});
+{
+  const st = await page.locator("#import-status").textContent();
+  console.log("     status:", st);
+  check(/7 lines added/.test(st) && /agrees with the statement's running balance/.test(st), "a statement PDF imports 7 lines and agrees with its running balance");
+}
+
 await page.click("#example");
 await page.waitForFunction(() => /synthetic months/.test(document.querySelector("#import-status").textContent), null, { timeout: 5000 }).catch(() => {});
 check(/synthetic months/.test(await page.locator("#import-status").textContent()), "example books load by click");
