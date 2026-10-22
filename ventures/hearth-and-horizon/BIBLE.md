@@ -191,6 +191,7 @@ numbers worked out before drafting.
 - *(Done: Thirty-Nine Minutes, 2139.)* *The Mars sisters:* a contemplative community on a long-duration
   station keeping the Hours on a day 24 hours 39.6 minutes long; the problem is
   calendar and liturgy, not drama in a spacesuit.
+- *(Done: The Control Vial, Cheparaa Health Centre, Kenya, 2041; text only, voice host unreachable.)* A solar vaccine fridge freezes its top shelf; the cold-chain AI will not certify the doses without a shake test, and the test takes a night.
 - *Quarry Nine:* a short sequel, a few years on, in which the new system is
   asked why the old bell is rung (use sparingly; the first story is complete).
 - *(Done: The Dark Week, Fjellbu Vault, 3026.)* *A seed vault at 1,000 years:* a keeper, a ledger and a handover that must work
