@@ -63,6 +63,10 @@
     {
       "date": "2026-10-22",
       "note": "Part 7 already holds: all 13 ventures/*/byok.mjs copies are byte-identical (md5sum), and `node --test` passes in ats-resume-checker (66) and persona-conversation-simulator (21). Remaining: part 1 remainder (hetzner-gitops-ci.yml gitops jobs) and part 6 (owner yes needed)."
+    },
+    {
+      "date": "2026-10-22",
+      "note": "Part 1 slice: removed the tofu fmt/validate job from hetzner-gitops-ci.yml (validated only the retired cluster's infra/*.tf; no test pinned it; 140 infra/gitops/ci tests pass). Still in part 1: the gitops pytest/kustomize/kubeconform job (entangled with ~20 files). Part 6 needs an owner yes."
     }
   ]
 }
