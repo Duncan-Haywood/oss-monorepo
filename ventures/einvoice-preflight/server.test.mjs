@@ -150,6 +150,14 @@ test("POST /v1/repair fixes totals and lists what is left", async () => {
   assert.equal(cii.status, 200);
   assert.deepEqual(cj.changes.map((c) => c.path), ["/tax_breakdown/0/tax"]);
   assert.match(cj.xml, /<ram:CalculatedAmount>190\.00</);
+  const { buildPdfWithAttachment } = await import("./facturx.mjs");
+  const fxXml = (await ex("xrechnung-cii-invoice.xml")).toString().replace("<ram:GrandTotalAmount>1190.00", "<ram:GrandTotalAmount>1100.00");
+  const fx = await fetch(`${s.base}/v1/repair`, { method: "POST", body: buildPdfWithAttachment(new TextEncoder().encode(fxXml)) });
+  const fj = await fx.json();
+  assert.equal(fx.status, 200);
+  assert.equal(fj.pdf_rewritten, true);
+  assert.deepEqual(fj.changes.map((c) => c.path), ["/totals/gross"]);
+  assert.ok(Buffer.from(fj.pdf_base64, "base64").subarray(0, 5).toString() === "%PDF-");
   const bad = await fetch(`${s.base}/v1/repair`, { method: "POST", body: "nope" });
   assert.equal(bad.status, 400);
   await s.close();

@@ -8,7 +8,7 @@
 //     or ?profile=france for the French SIREN and payment-mention rules (FR-nnn)
 //     add ?schematron=1 to also run the official EN 16931 Schematron (BR-xx) when
 //     build-schematron.mjs has been run; the report says "unavailable" otherwise.
-//   POST /v1/repair          JSON invoice, UBL or CII XML -> arithmetic fixed, change log, findings left
+//   POST /v1/repair          JSON invoice, UBL or CII XML, Factur-X PDF -> arithmetic fixed, change log, findings left
 //   POST /v1/validate/batch  {"documents":[{"name","content","encoding"?}]}
 //                            encoding "base64" is for PDFs; default is text.
 //   POST /v1/generate        {"draft":{...},"format":"ubl"|"cii","profile":"xrechnung"|
@@ -23,6 +23,7 @@
 import { repairInvoice } from "./repair.mjs";
 import { repairUbl } from "./repair-ubl.mjs";
 import { repairCii } from "./repair-cii.mjs";
+import { repairFacturX } from "./repair-facturx.mjs";
 import { looksLikeCii } from "./cii.mjs";
 import { createServer } from "node:http";
 import { readFile } from "node:fs/promises";
@@ -219,6 +220,16 @@ export function createApp(config = loadConfig()) {
 
     if (path === "/v1/repair") {
       const body = await readBody(req, config.maxBytes);
+      if (body.subarray(0, 8).toString("latin1").includes("%PDF-")) {
+        let x;
+        try {
+          x = await repairFacturX(new Uint8Array(body));
+        } catch (e) {
+          throw new HttpError(400, `Body must be a Factur-X / ZUGFeRD (CII) PDF: ${e.message}`);
+        }
+        send(res, 200, { repaired: x.repaired, pdf_rewritten: x.pdfRewritten, changes: x.changes, skipped: x.skipped, remaining: x.remaining, xml: x.xml, pdf_base64: Buffer.from(x.pdf).toString("base64"), disclaimer: DISCLAIMER });
+        return;
+      }
       const bodyText = body.toString("utf8");
       if (bodyText.trimStart().startsWith("<")) {
         let x;

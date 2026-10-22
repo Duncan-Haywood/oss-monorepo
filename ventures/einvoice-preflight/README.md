@@ -662,6 +662,15 @@ IBAN) stay for a person. Tested on the repo's hand-written UBL examples only
 
 The same command and endpoint take a `CrossIndustryInvoice` file
 (`repair-cii.mjs`; the CLI and `POST /v1/repair` pick CII or UBL by content).
+**Factur-X PDFs** (CII inside) are repaired too (`repair-facturx.mjs`; CLI
+`node repair-cli.mjs in.pdf -o out.pdf`; `POST /v1/repair` with the PDF returns
+`pdf_base64`): the embedded XML goes through the CII repair and the PDF is
+extended by an incremental update (all original bytes kept, a newer copy of the
+attachment appended). The printed pages are not re-rendered, so if they show
+wrong amounts, re-issue the PDF from the source system. PDFs with compressed
+cross-reference streams or encryption are refused or returned with only the
+corrected XML. Tested on PDFs built by this repo's own writer (plain and
+Flate streams); no real ERP or Factur-X export tried.
 Same contract as UBL: only amounts are edited, in place: each line's
 `LineTotalAmount` (quantity x net price / basis quantity), each header
 `ApplicableTradeTax` block's `BasisAmount` and `CalculatedAmount`, and the
