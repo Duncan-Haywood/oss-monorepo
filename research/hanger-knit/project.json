@@ -1,0 +1,6 @@
+{
+ "theme": "hanger",
+ "title": "Does the hanger a sim loop designs change for stretchy, heavy knits, and what does a tee-designed hanger cost them?",
+ "lede": "does the hanger that `hanger-fit`'s CMA-ES designs change for stretchy, heavy knits? The best arm width moves from +0.9 cm past the half shoulder (tee) to +1.5\u20131.8 cm (EA 40 N/m), but slope, bow and end radius are not pinned down at 150 scores; a tee hanger scores 1.06 cm on a soft double-weight knit against 0.52 cm for one designed for it. Fabric constants swept, not measured.",
+ "summary": "Runs hanger-fit's CMA-ES and random-search design loop (150 scores, 3 seeds) on five size M cases taken from hanger-sweep's corners: base tee, stiff (EA 800), soft (EA 40), soft and double weight, and soft, double weight on a 10 cm strip. The best arm half-width is 0.9 cm past the half shoulder for the tee and 1.5&ndash;1.8 cm for the stretchy cases, but slope, bow and end radius scatter between seeds at similar error, so only the width is identified. A tee-designed hanger scores 0.22 cm RMS on the tee and 1.06 cm on the soft heavy knit; one designed for the knit scores 0.52 and 0.76 cm. CMA-ES beats random search in all five cases. The narrow-strip case is poor for every hanger (best 0.99 cm). Fabric constants are swept corners, not measurements; 2D model, one size, shape error only."
+}
