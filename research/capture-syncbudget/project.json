@@ -1,0 +1,6 @@
+{
+ "theme": "capture",
+ "title": "How often must free-running cameras be re-synced by audio, and does rejecting wild estimates help?",
+ "summary": "Schedule study for audio sync of two free-running cameras on synthetic speech-like audio (capture-audiosync's GCC-PHAT estimator). With a 40 ms tolerance (EBU R37 lead limit, a stand-in for a cut threshold) an offset-only sync lasts 1000 s at 40 ppm, so even perfect estimates every 1800 s leave 44% of a 6 h shoot out of tolerance. A drift gate that refuses estimates a real clock (&le;100 ppm) could not produce cuts that share from 35% to 22% at &minus;12 dB SNR and from 11% to 3% at &minus;10 dB when re-syncing every 300 s, and removes all wrongly applied syncs at &minus;12 dB; at 900 s or longer it does nothing, since one skipped window already exceeds the tolerance. A wrong first sync is not fixable by a gate. Not real recordings: audio is synthetic, drift is a straight line at an assumed 40 ppm, and the tolerance was set for lip-sync, not for cuts between cameras.",
+ "lede": "how often must free-running cameras be re-synced by audio? At 40 ppm a sync lasts 1000 s for a 40 ms tolerance; a drift gate on fresh estimates helps only if you re-sync every 300 s. Synthetic audio."
+}
