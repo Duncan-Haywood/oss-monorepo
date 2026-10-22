@@ -133,3 +133,33 @@ test("a EUR bill paid for less in USD is a gain; no rate means the document is r
   const dr = fx.lines.reduce((a, l) => a + l.debit, 0), cr = fx.lines.reduce((a, l) => a + l.credit, 0);
   assert.equal(dr, 500); assert.equal(cr, 500);
 });
+
+test("an open EUR invoice is revalued at each month end; the payment realizes only the rest", () => {
+  const net = (j, c) => j.flatMap((x) => x.lines).filter((l) => l.account === c).reduce((n, l) => n + l.debit - l.credit, 0);
+  let b = setRates(newBooks(), parseRates("2026-01-01,EUR,1.10\n2026-01-31,EUR,1.12\n2026-02-28,EUR,1.05").rates);
+  b = fxDocs(b, "type,number,date,party,amount,account,currency\ninvoice,E1,2026-01-05,Client GmbH,1000.00,4000,EUR\n").books;
+  b = importStatement(b, "Date,Description,Amount\n2026-03-02,COFFEE SHOP,-5.00\n", "1000").books; // books run to March
+  let j = journal(b);
+  assert.equal(net(j, "1100"), 105000); // carried at 1.05 after the February month end: 1,050.00
+  assert.equal(net(j, "6190"), 5000); // +20.00 in January, -70.00 in February: 50.00 loss against the booked 1,100.00
+  assert.ok(trialBalance(j, b.accounts).balanced);
+  // paid 1,080.00 on 3 March against 1,050.00 carried: 30.00 realized gain
+  b = importStatement(b, "Date,Description,Amount\n2026-03-03,WIRE CLIENT GMBH E1,1080.00\n", "1000").books;
+  j = journal(b);
+  assert.equal(net(j, "1100"), 0);
+  assert.equal(net(j, "6190"), 2000); // in all 1,100.00 booked less 1,080.00 received
+  assert.ok(trialBalance(j, b.accounts).balanced);
+});
+
+test("a EUR bill revalued up is a loss, paid after one month end", () => {
+  const net = (j, c) => j.flatMap((x) => x.lines).filter((l) => l.account === c).reduce((n, l) => n + l.debit - l.credit, 0);
+  let b = setRates(newBooks(), parseRates("2026-01-01,EUR,1.10\n2026-01-31,EUR,1.13").rates);
+  b = fxDocs(b, "type,number,date,party,amount,account,currency\nbill,B1,2026-01-05,Host AG,200.00,6100,EUR\n").books;
+  assert.equal(net(journal(b), "2050"), -22600);
+  assert.equal(net(journal(b), "6190"), 600);
+  b = importStatement(b, "Date,Description,Amount\n2026-02-03,HOST AG B1,-225.00\n", "1000").books;
+  const j = journal(b);
+  assert.equal(net(j, "2050"), 0);
+  assert.equal(net(j, "6190"), 500); // booked 220.00, paid 225.00
+  assert.ok(trialBalance(j, b.accounts).balanced);
+});

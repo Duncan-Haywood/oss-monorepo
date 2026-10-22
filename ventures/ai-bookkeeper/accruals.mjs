@@ -11,7 +11,7 @@
 
 import { parseCsv, parseCents, parseDate } from "./bank.mjs";
 import { payeeTokens } from "./categorize.mjs";
-import { convertCents, rateOn, FX_ACCOUNT } from "./fx.mjs";
+import { convertCents, rateOn, FX_ACCOUNT, docRevals } from "./fx.mjs";
 
 export const AR = "1100", AP = "2050";
 const MATCH_DAYS = 180; // a payment this long after the document date still matches
@@ -150,11 +150,15 @@ export function writeOff(booksIn, id, { date, account } = {}) {
 // A foreign invoice or bill settled by a base-currency bank line: what the line
 // paid differs from what was booked, and the difference is a realized exchange
 // gain or loss (6190; a gain shows as a negative expense).
-const fxSettleEntries = (books) => (books.documents ?? []).filter((d) => d.fxDiff).map((d) => {
+const fxSettleEntries = (books) => (books.documents ?? []).map((d) => {
+  // Month-end revaluation has already moved the carrying amount by its last cum.
+  const diff = (d.fxDiff ?? 0) + (docRevals(books, d).at(-1)?.cum ?? 0);
+  return diff && d.settledBy ? { d, diff } : null;
+}).filter(Boolean).map(({ d, diff }) => {
   const t = books.transactions.find((x) => x.id === d.settledBy);
-  const bill = d.kind !== "invoice", n = Math.abs(d.fxDiff);
-  const toControl = bill ? d.fxDiff > 0 : d.fxDiff < 0; // control account debited
-  return { id: `FX-${d.id}`, date: t?.date ?? d.date, memo: `Realized exchange ${(d.fxDiff > 0) === !bill ? "loss" : "gain"} on ${bill ? "bill" : "invoice"} ${d.number}, ${d.party} (${d.currency})`, source: "fx", lines: [
+  const bill = d.kind !== "invoice", n = Math.abs(diff);
+  const toControl = bill ? diff > 0 : diff < 0; // control account debited
+  return { id: `FX-${d.id}`, date: t?.date ?? d.date, memo: `Realized exchange ${(diff > 0) === !bill ? "loss" : "gain"} on ${bill ? "bill" : "invoice"} ${d.number}, ${d.party} (${d.currency})`, source: "fx", lines: [
     { account: bill ? AP : AR, debit: toControl ? n : 0, credit: toControl ? 0 : n },
     { account: FX_ACCOUNT, debit: toControl ? 0 : n, credit: toControl ? n : 0 }] };
 });
