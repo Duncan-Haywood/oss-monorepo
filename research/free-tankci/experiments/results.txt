@@ -1,0 +1,21 @@
+n = 974 test samples (4 s each); gap = RMSE(other) - RMSE(twin overflow), volts
+error integrated autocorrelation time (samples): twin (overflow) 41.1, linear ARX 4/4 37.0, twin (no overflow) 37.1
+other model          block     gap  95% lo  95% hi P(gap<=0)
+linear ARX 4/4           1   0.126   0.104   0.150     0.000
+linear ARX 4/4          10   0.126   0.069   0.191     0.000
+linear ARX 4/4          25   0.126   0.060   0.200     0.000
+linear ARX 4/4          50   0.126   0.061   0.194     0.000
+linear ARX 4/4         100   0.126   0.076   0.178     0.000
+linear ARX 4/4         200   0.126   0.093   0.163     0.000
+twin (no overflow)       1   0.130   0.108   0.154     0.000
+twin (no overflow)      10   0.130   0.073   0.198     0.000
+twin (no overflow)      25   0.130   0.067   0.203     0.000
+twin (no overflow)      50   0.130   0.069   0.196     0.000
+twin (no overflow)     100   0.130   0.075   0.193     0.000
+twin (no overflow)     200   0.130   0.081   0.188     0.000
+linear ARX 2/2           1   0.187   0.165   0.210     0.000
+linear ARX 2/2          10   0.187   0.120   0.250     0.000
+linear ARX 2/2          25   0.187   0.109   0.265     0.000
+linear ARX 2/2          50   0.187   0.097   0.265     0.000
+linear ARX 2/2         100   0.187   0.103   0.260     0.000
+linear ARX 2/2         200   0.187   0.117   0.244     0.000
