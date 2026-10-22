@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "codesign-aero-skip"
+version = "0.1.0"
+description = "Does a small neural roll controller trained by CMA-ES beat the three-gain PID of codesign-aero on a randomised quadrotor plant, and does it change which airframe is best?"
+requires-python = ">=3.9"
+dependencies = ["numpy", "cma", "matplotlib"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
