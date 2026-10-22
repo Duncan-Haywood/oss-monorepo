@@ -17,6 +17,7 @@ export const DEFAULT_ACCOUNTS = [
   { code: "1200", name: "Payment processor clearing", type: "asset" },
   { code: "1300", name: "VAT / input tax recoverable", type: "asset" },
   { code: "1400", name: "Prepaid expenses", type: "asset" },
+  { code: "1450", name: "Inventory", type: "asset" },
   { code: "1500", name: "Equipment", type: "asset" },
   { code: "2000", name: "Credit card", type: "liability", bank: true },
   { code: "2100", name: "Sales tax payable", type: "liability" },
