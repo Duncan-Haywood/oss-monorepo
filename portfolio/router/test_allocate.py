@@ -696,3 +696,6 @@ class FlagshipTests(unittest.TestCase):
         for name, (_, milestone) in listed.items():
             self.assertIn(name, names, f"flagship {name} has no routable VENTURE.yaml")
             self.assertTrue(milestone, f"flagship {name} has no `next:` milestone")
+            # flagships.yaml says "keep this under 2,000 characters": history
+            # belongs in the venture's README, not in the routed task text.
+            self.assertLessEqual(len(milestone), 2000, f"flagship {name}: `next:` is over 2,000 characters")
