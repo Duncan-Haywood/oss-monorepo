@@ -199,3 +199,14 @@ test("w-2 summary adds up each employee's year and caps box 3 at the wage base",
   assert.deepEqual(w2Summary(big, 2026).warnings, []);
   assert.equal(w2Summary(big, 2025).employees.length, 0);
 });
+
+test("form 940 adds the state credit reduction on taxable FUTA wages", () => {
+  const row = (d) => `${d},Ana,5000.00,0.00,0.00,0.00,0.00,0.00,5000.00,0.00,0.00,42.00,0.00`;
+  const { books } = addPayroll(newBooks(), `${HEAD}\n${row("2025-01-15")}\n${row("2025-04-15")}\n`);
+  const ca = form940(books, 2025, { state: "ca" });
+  assert.equal(ca.creditReductionPct, 1.2);
+  assert.equal(ca.creditReduction, 8400); // 1.2% of 7,000.00
+  assert.equal(form940(books, 2025, { creditReduction: 0.3 }).creditReduction, 2100);
+  assert.equal(form940(books, 2025).creditReduction, undefined);
+  assert.match(form940(books, 2025, { state: "NY" }).warnings.join("\n"), /No built-in credit reduction for NY/);
+});
