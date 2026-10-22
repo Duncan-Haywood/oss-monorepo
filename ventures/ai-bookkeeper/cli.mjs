@@ -34,6 +34,7 @@ import { compareProfit } from "./compare.mjs";
 import { addTrip, removeTrip, setHomeOffice, mileageDeduction } from "./deductions.mjs";
 import { setBudget, budgetVsActual } from "./budget.mjs";
 import { reconcile } from "./reconcile.mjs";
+import { depositSchedule } from "./deposits.mjs";
 import { addPayroll, planPayroll, applyPayroll, payrollSummary, form941, form940, w2Summary, employerCost } from "./payroll.mjs";
 import { readPayoutReport, planPayouts, applyPayouts } from "./payouts.mjs";
 import { setTaxTreatment, taxDepreciation } from "./taxdepr.mjs";
@@ -106,6 +107,7 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
  receipts [FILE (.txt, text-layer .pdf via pdftotext, or a photo via tesseract / RECEIPT_OCR_CMD)|attach RID LINEID|detach RID|remove RID|split RID [--other CODE] [--fix WORD=CODE]... [--apply]] [--min DOLLARS] [--tax] [--json]  receipt text (blocks split by ---) matched to bank lines; lists unmatched receipts and spending over --min (default 75) with no receipt
   compare [--from D --to D --vs-from D --vs-to D] [--json]  profit and loss against an earlier period (default: latest month vs the month before): what moved, what is new or gone
   payroll FILE.csv [--apply]  book a payroll provider's pay-run report (wages, employer taxes, 2300) and find the bank lines that paid it; --apply files them to 2300
+  payroll deposits YEAR [--schedule monthly|semiweekly]  federal deposit due dates (lookback, $100,000 next-day rule, holidays) and whether the bank shows each paid on time
   payroll [941 YEAR QUARTER | 940 YEAR [--state CA | --credit-reduction PCT] | w2 YEAR]  runs, what is still owed, or a Form 941 / 940 worksheet from the register
   payouts FILE.csv [--apply] [--sales C --refunds C --fees C --disputes C] [--json]  split each processor payout (Stripe payout reconciliation CSV) in the bank into gross sales, refunds and fees; without --apply, shows the plan
   reconcile CODE --date D --balance AMT [--json]  tie an account to the closing balance on a paper statement; if it is off, name the lines that likely explain the gap
@@ -463,6 +465,14 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
       for (const [l, v] of [["Wages (line 2)", f.wages], ["Federal income tax withheld (line 3)", f.federalWithheld], ...(f.socialSecurityWages == null ? [] : [["Taxable social security wages (line 5a col 1)", f.socialSecurityWages]]), ["Social security tax, both shares (line 5a)", f.socialSecurityTax], ["Medicare tax, both shares (line 5c)", f.medicareTax], ...(f.additionalMedicareWages ? [["Wages over $200,000 (line 5d col 1)", f.additionalMedicareWages], ["Additional Medicare Tax at 0.9% (line 5d)", f.additionalMedicareTax]] : []), ["Total taxes before adjustments", f.totalTaxes], ["Federal deposits due from the register", f.deposited], ["FUTA (Form 940)", f.futa]]) console.log(`  ${l.padEnd(46)} ${fmt(v).padStart(12)}`);
       for (const w of f.warnings) console.log(`  CHECK ${w}`);
       console.log("  Worksheet only: tips, adjustments and credits are not modelled.");
+    } else if (rest[0] === "deposits") {
+      const i = argv.indexOf("--schedule");
+      const d = depositSchedule(books, rest[1] ?? new Date().getFullYear(), { schedule: i >= 0 ? argv[i + 1] : null });
+      if (json) { console.log(JSON.stringify(d, null, 2)); process.exit(0); }
+      console.log(`FEDERAL DEPOSITS ${d.year}: ${d.schedule} depositor (${d.basis})${d.nextDay ? ", $100,000 next-day rule hit" : ""}`);
+      for (const x of d.deposits) console.log(`  due ${x.due}  ${fmt(x.amount).padStart(11)}  pay dates ${x.from}${x.to !== x.from ? " to " + x.to : ""}  ${x.rule}  ${x.status}${x.paid ? " (" + x.paid + ")" : ""}${x.penalty ? `  late ${x.daysLate}d, about ${x.penaltyPct}% = ${fmt(x.penalty)}` : ""}`);
+      for (const w of d.warnings) console.log(`  CHECK ${w}`);
+      console.log("  Worksheet only: penalty tier is an estimate; interest, abatement and EFTPS timing are not modelled.");
     } else if (rest[0] === "940") {
       const argOf = (n) => { const i = argv.indexOf(n); return i >= 0 ? argv[i + 1] : undefined; };
       const cr = argOf("--credit-reduction");
