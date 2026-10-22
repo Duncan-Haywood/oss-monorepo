@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { newBooks, importStatement, journal, confirm } from "./engine.mjs";
 import { balances } from "./ledger.mjs";
-import { readPayrollRegister, addPayroll, planPayroll, applyPayroll, payrollSummary, form941 } from "./payroll.mjs";
+import { readPayrollRegister, addPayroll, planPayroll, applyPayroll, payrollSummary, form941, form940 } from "./payroll.mjs";
 
 const HEAD = "Pay Date,Employee,Gross Pay,Federal Income Tax,Social Security,Medicare,State Income Tax,Other Deductions,Net Pay,Employer Social Security,Employer Medicare,FUTA,SUTA";
 // 2,000.00 gross: SS 124.00, Medicare 29.00 each side.
@@ -116,4 +116,31 @@ test("form 941 stops social security at the wage base, per employee", () => {
   assert.match(form941(bad, 2026, 1).warnings.join("\n"), /Ana.*taxable wages/);
   // Wages from an earlier quarter count toward the base.
   assert.equal(form941(books, 2026, 2).runs, 0);
+});
+
+test("form 940 caps FUTA wages at 7,000 per employee and flags a rate that ignores the cap", () => {
+  const row = (d, futa) => `${d},Ana,5000.00,0.00,0.00,0.00,0.00,0.00,5000.00,0.00,0.00,${futa},0.00`;
+  const reg = `${HEAD}\n${row("2026-01-15", "30.00")}\n${row("2026-04-15", "12.00")}\n${row("2026-07-15", "0.00")}\n`;
+  const { books } = addPayroll(newBooks(), reg);
+  const f = form940(books, 2026);
+  assert.deepEqual(f.warnings, []);
+  assert.equal(f.wages, 1500000);
+  assert.equal(f.futaWages, 700000);
+  assert.equal(f.futa, 4200);
+  assert.equal(f.computed, 4200);
+  assert.deepEqual(f.quarters, [3000, 1200, 0, 0]);
+  assert.equal(f.dueWithReturn, 4200);
+  const bad = addPayroll(newBooks(), `${HEAD}\n${row("2026-01-15", "30.00")}\n${row("2026-04-15", "30.00")}\n`).books;
+  assert.match(form940(bad, 2026).warnings.join("\n"), /Ana.*taxable wages/);
+  assert.equal(form940(books, 2025).runs, 0);
+});
+
+test("form 940 asks for a deposit once the running FUTA passes 500", () => {
+  // 15 people each over the base: 42.00 FUTA each, 630.00 in Q1.
+  const rows = Array.from({ length: 15 }, (_, i) => `2026-02-01,P${i},100000.00,0.00,0.00,0.00,0.00,0.00,100000.00,0.00,0.00,42.00,0.00`);
+  const f = form940(addPayroll(newBooks(), `${HEAD}\n${rows.join("\n")}\n`).books, 2026);
+  assert.deepEqual(f.warnings, []);
+  assert.equal(f.futa, 63000);
+  assert.deepEqual(f.deposits, [63000, 0, 0, 0]);
+  assert.equal(f.dueWithReturn, 0);
 });

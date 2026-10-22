@@ -31,7 +31,7 @@ import { compareProfit } from "./compare.mjs";
 import { addTrip, removeTrip, setHomeOffice, mileageDeduction } from "./deductions.mjs";
 import { setBudget, budgetVsActual } from "./budget.mjs";
 import { reconcile } from "./reconcile.mjs";
-import { addPayroll, planPayroll, applyPayroll, payrollSummary, form941, employerCost } from "./payroll.mjs";
+import { addPayroll, planPayroll, applyPayroll, payrollSummary, form941, form940, employerCost } from "./payroll.mjs";
 import { readPayoutReport, planPayouts, applyPayouts } from "./payouts.mjs";
 import { setTaxTreatment, taxDepreciation } from "./taxdepr.mjs";
 import { renderInvoice, setProfile, PROFILE_KEYS } from "./invoice.mjs";
@@ -99,7 +99,7 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
  receipts [FILE (.txt, text-layer .pdf via pdftotext, or a photo via tesseract / RECEIPT_OCR_CMD)|attach RID LINEID|detach RID|remove RID|split RID [--other CODE] [--fix WORD=CODE]... [--apply]] [--min DOLLARS] [--tax] [--json]  receipt text (blocks split by ---) matched to bank lines; lists unmatched receipts and spending over --min (default 75) with no receipt
   compare [--from D --to D --vs-from D --vs-to D] [--json]  profit and loss against an earlier period (default: latest month vs the month before): what moved, what is new or gone
   payroll FILE.csv [--apply]  book a payroll provider's pay-run report (wages, employer taxes, 2300) and find the bank lines that paid it; --apply files them to 2300
-  payroll [941 YEAR QUARTER]  runs, what is still owed, or a Form 941 worksheet from the register
+  payroll [941 YEAR QUARTER | 940 YEAR]  runs, what is still owed, or a Form 941 / 940 worksheet from the register
   payouts FILE.csv [--apply] [--sales C --refunds C --fees C --disputes C] [--json]  split each processor payout (Stripe payout reconciliation CSV) in the bank into gross sales, refunds and fees; without --apply, shows the plan
   reconcile CODE --date D --balance AMT [--json]  tie an account to the closing balance on a paper statement; if it is off, name the lines that likely explain the gap
   budget [CODE AMOUNT] [--from D --to D] [--json]  set a monthly budget for an account (AMOUNT 0 removes it), or show budget against actual for the period (default: latest month)
@@ -456,6 +456,13 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
       for (const [l, v] of [["Wages (line 2)", f.wages], ["Federal income tax withheld (line 3)", f.federalWithheld], ...(f.socialSecurityWages == null ? [] : [["Taxable social security wages (line 5a col 1)", f.socialSecurityWages]]), ["Social security tax, both shares (line 5a)", f.socialSecurityTax], ["Medicare tax, both shares (line 5c)", f.medicareTax], ["Total taxes before adjustments", f.totalTaxes], ["Federal deposits due from the register", f.deposited], ["FUTA (Form 940)", f.futa]]) console.log(`  ${l.padEnd(46)} ${fmt(v).padStart(12)}`);
       for (const w of f.warnings) console.log(`  CHECK ${w}`);
       console.log("  Worksheet only: tips, adjustments and credits are not modelled.");
+    } else if (rest[0] === "940") {
+      const f = form940(books, rest[1]);
+      if (json) { console.log(JSON.stringify(f, null, 2)); process.exit(0); }
+      console.log(`FORM 940 WORKSHEET ${f.year}, ${f.runs} run${f.runs === 1 ? "" : "s"}`);
+      for (const [l, v] of [["Total payments to employees (line 3)", f.wages], ...(f.futaWages == null ? [] : [["Taxable FUTA wages (line 7)", f.futaWages]]), ["FUTA in the register", f.futa], ...(f.computed == null ? [] : [["FUTA at 0.6% of taxable wages", f.computed]]), ["Q1", f.quarters[0]], ["Q2", f.quarters[1]], ["Q3", f.quarters[2]], ["Q4", f.quarters[3]], ["Not yet deposited (carried)", f.dueWithReturn]]) console.log(`  ${l.padEnd(46)} ${fmt(v).padStart(12)}`);
+      for (const w of f.warnings) console.log(`  CHECK ${w}`);
+      console.log("  Worksheet only: state credit reduction, exempt payments and multi-state filers are not modelled.");
     } else if (rest[0] && existsSync(rest[0])) {
       const r = addPayroll(books, readFileSync(rest[0], "utf8"));
       books = r.books;

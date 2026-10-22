@@ -28,6 +28,8 @@ import { confirm } from "./engine.mjs";
 // Annual social security wage base (SSA announcements); a year not listed is
 // checked at a flat 6.2% as before.
 export const SS_WAGE_BASE = { 2023: 16020000, 2024: 16860000, 2025: 17610000, 2026: 18450000 };
+// FUTA: 6.0% on the first $7,000 of each employee's wages a year, less up to 5.4% credit for state unemployment paid on time: 0.6% net.
+export const FUTA_WAGE_BASE = 700000;
 export const WAGES = "6150", PAYROLL_TAX = "6155", LIABILITY = "2300";
 
 const key = (h) => String(h).trim().toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "");
@@ -77,7 +79,7 @@ export function readPayrollRegister(text) {
     if (row.gross < 0) { problems.push(`${label}: negative gross pay; file a reversal by hand.`); return; }
     const run = byDate.get(row.date) ?? { id: `PR-${row.date}`, date: row.date, employees: 0, gross: 0, net: 0, fed: 0, ss: 0, med: 0, state: 0, other: 0, erSs: 0, erMed: 0, futa: 0, suta: 0, erOther: 0 };
     run.employees += 1;
-    if (row.employee) (run.people ??= []).push({ employee: row.employee, gross: row.gross, ss: row.ss, erSs: row.erSs });
+    if (row.employee) (run.people ??= []).push({ employee: row.employee, gross: row.gross, ss: row.ss, erSs: row.erSs, futa: row.futa });
     for (const f of ["gross", "net", "fed", "ss", "med", "state", "other", "erSs", "erMed", "futa", "suta", "erOther"]) run[f] += row[f];
     byDate.set(row.date, run);
   });
@@ -235,5 +237,38 @@ export function form941(books, year, quarter) {
     if (Math.abs(r.med - med) > tol || Math.abs(r.erMed - med) > tol) out.warnings.push(`${r.id}: medicare ${money(r.med)} withheld and ${money(r.erMed)} employer, 1.45% of ${money(r.gross)} is ${money(med)}. Pre-tax benefits or the additional Medicare tax can explain it; otherwise check the provider.`);
   }
   out.socialSecurityWages = allPeople && base ? ssWages : null;
+  return out;
+}
+
+// Form 940 worksheet for a year, summed from the register. Rows by employee
+// are checked against the $7,000 FUTA wage base at the 0.6% net rate; the
+// state credit reduction, exempt payments and multi-state lines are not modelled.
+export function form940(books, year) {
+  const from = `${year}-01-01`, to = `${year}-12-31`;
+  const rs = (books.payroll ?? []).filter((r) => r.date >= from && r.date <= to);
+  const money = (c) => (c / 100).toFixed(2);
+  const out = { year: +year, from, to, runs: rs.length, wages: 0, futaWages: null, futa: 0, quarters: [0, 0, 0, 0], warnings: [] };
+  const ytd = new Map();
+  let futaWages = 0, allPeople = rs.length > 0;
+  for (const r of rs) {
+    out.wages += r.gross; out.futa += r.futa;
+    out.quarters[Math.floor((+r.date.slice(5, 7) - 1) / 3)] += r.futa;
+    if (!r.people) { allPeople = false; continue; }
+    for (const p of r.people) {
+      const before = ytd.get(p.employee) ?? 0;
+      const taxable = Math.max(0, Math.min(p.gross, FUTA_WAGE_BASE - before));
+      ytd.set(p.employee, before + p.gross);
+      futaWages += taxable;
+      const want = Math.round(taxable * 0.006);
+      if (Math.abs(p.futa - want) > 1) out.warnings.push(`${r.id}, ${p.employee}: FUTA ${money(p.futa)}, 0.6% of ${money(taxable)} taxable wages (base ${money(FUTA_WAGE_BASE)}, ${money(before)} paid earlier in the year) is ${money(want)}. Check the provider, or the state credit.`);
+    }
+  }
+  if (allPeople) out.futaWages = futaWages;
+  out.exemptOverBase = allPeople ? out.wages - futaWages : null;
+  out.computed = allPeople ? Math.round(futaWages * 0.006) : null;
+  // Deposit quarterly once the running liability passes $500; else it rides with the next quarter or the return.
+  let carry = 0;
+  out.deposits = out.quarters.map((q) => { carry += q; if (carry > 50000) { const d = carry; carry = 0; return d; } return 0; });
+  out.dueWithReturn = carry;
   return out;
 }
