@@ -1,7 +1,7 @@
 ---
 title: "A neural controller did not beat PID on a coupled quadrotor"
 date: 2026-10-22
-description: "A simulated three-axis quadrotor with gyroscopic coupling: a residual network was worse than PID in 26 of 30 runs, and the textbook coupling fix changed the error by 0.001 degrees."
+description: "On a simulated coupled quadrotor a residual network lost to PID in 26 of 30 runs, and the textbook gyroscopic fix moved the error by 0.001 degrees."
 tags: [research, robotics, simulation, negative-result]
 ---
 
