@@ -130,3 +130,9 @@ test("page offers known holidays for counts", () => {
   assert.match(html, /<input id="holidays" type="text"/);
   assert.match(html, /holidays: \$\("#holidays"\)\.value\.split\(","\)/);
 });
+
+test("page offers the burst rule for counts", () => {
+  const html = page("index.html");
+  assert.match(html, /<input id="bursts" type="checkbox"/);
+  assert.match(html, /bursts: \$\("#bursts"\)\.checked/);
+});

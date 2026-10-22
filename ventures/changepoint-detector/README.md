@@ -481,3 +481,5 @@ it flags 0.4 but finds 90/160. 2.5 is a compromise, not an optimum. On the real
 none are cut. The bursts there are mostly runs and wide, so this rule is a
 partial answer on that series (2023-24, one series). Synthetic bursts are
 planted with the rule's own shape in mind, so the recall figures flatter it.
+
+On the web page the same rule is the checkbox "Cut back isolated spikes before fitting" (counts model). It lists the days it cut back under the summary. Clicked through in headless Chromium on a hand-made 60-day series with one spike: two false changes without it, none with it (2026-10-22).
