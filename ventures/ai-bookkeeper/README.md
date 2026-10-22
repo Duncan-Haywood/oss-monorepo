@@ -783,3 +783,7 @@ one per customer, part-payments, the `--min` cut); on the page (2026-10-22): und
 ### N26 and Venmo CSVs (2026-10-22)
 
 `bank.mjs` recognises the N26 account export (Booking Date, Partner Name, Amount (EUR); the partner becomes the description) and the Venmo statement (preamble lines and the dateless balance rows are skipped, Pending and Cancelled payments are reported rather than imported, and the description names the other party and the note). Both are written from memory of the layouts, tested on hand-made fixtures (`fixtures/n26-account.csv`, `fixtures/venmo-statement.csv`, `neobank.test.mjs`), not on a real download. Venmo's beginning and ending balance are not chained yet.
+
+### Cash App and SoFi CSVs (2026-10-22)
+
+`bank.mjs` recognises the Cash App activity report (the Net Amount column is used so the fee is already taken off, non-COMPLETE rows such as canceled payments are reported rather than imported, and the description names the other party and the note) and the SoFi checking export (Pending rows skipped, running balance chained). Both are written from memory of the layouts and tested on hand-made fixtures (`fixtures/cashapp-report.csv`, `fixtures/sofi-checking.csv`, `neobank.test.mjs`), not on a real download.
