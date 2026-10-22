@@ -39,10 +39,15 @@
       "issue": "A foreground python heredoc plus unittest exceeded the 120s tool timeout and was auto-backgrounded."
     }
   ],
-  "deviations": [],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Duplicate-PR search was not rerun before pushing; a parallel run landed the same fix. Merged main and kept the non-overlapping HISTORY.md."
+    }
+  ],
   "writeups": [],
   "goal": null,
-  "notes": "Critique mode (no agent-owned open backlog item except in_progress P035). Fixed top doc_friction file. Checks: yaml parse, session_gate, portfolio/router tests, promptctl validate.",
+  "notes": "Critique mode (no agent-owned open backlog item except in_progress P035). Fixed top doc_friction file. Checks: yaml parse, session_gate, portfolio/router tests, promptctl validate. Another run shortened the same next: on main first (duplicate work, found only at merge); kept only HISTORY.md, took main's flagships.yaml.",
   "corrections": [],
   "redteam": null
 }
