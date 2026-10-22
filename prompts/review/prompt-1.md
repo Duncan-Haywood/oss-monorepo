@@ -23,7 +23,8 @@ the skip as friction (37 reports said a full pass was too large).
 python3 prompts/promptctl.py measure
 ```
 
-Read the tables. Then make the numbers true before you trust them:
+Read the tables (full output is 50KB+: `--section candidates`, `--section friction`
+print one part). Then make the numbers true before you trust them:
 
 - **Measure what runs could not know.** Run first:
   `python3 prompts/derive.py fetch && python3 prompts/derive.py build`. It
