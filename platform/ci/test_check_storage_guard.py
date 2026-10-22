@@ -18,6 +18,11 @@ class UnguardedReads(unittest.TestCase):
         src = 'try {\n  a();\n} catch {}\nlocalStorage.getItem("k");\n'
         self.assertEqual(unguarded_reads(src), [4])
 
+    def test_identifier_starting_with_try_is_not_a_try_block(self):
+        for name in ("tryIt", "try2", "_try", "try_", "try$", "$try"):
+            src = f"function {name}() {{\n  localStorage.getItem('k');\n}}\n"
+            self.assertEqual(unguarded_reads(src), [2], name)
+
     def test_comments_and_strings_are_ignored(self):
         src = '// localStorage throws\nconst k = "localStorage";\n'
         self.assertEqual(unguarded_reads(src), [])

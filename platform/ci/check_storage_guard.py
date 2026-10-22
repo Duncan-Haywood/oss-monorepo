@@ -20,6 +20,7 @@ import sys
 from pathlib import Path
 
 READ = re.compile(r"\blocalStorage\b")
+_IDENT = re.compile(r"[\w$]")
 
 
 def _strip(src):
@@ -45,7 +46,7 @@ def unguarded_reads(src):
         elif ch == "}":
             if stack:
                 stack.pop()
-        elif code.startswith("try", i) and not (code[i - 1].isalnum() or code[i + 3:i + 4].isalnum()):
+        elif code.startswith("try", i) and not (_IDENT.match(code[i - 1:i]) or _IDENT.match(code[i + 3:i + 4])):
             pending_try = True
         elif code.startswith("localStorage", i) and READ.match(code, i):
             if not any(stack):
