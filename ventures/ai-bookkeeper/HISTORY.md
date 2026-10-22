@@ -50,3 +50,4 @@ Moved out of `portfolio/flagships.yaml` (its `next:` had grown to ~18 KB with re
 - Perpetual inventory (inventory.mjs, CLI `inventory buy|sell|adjust|method`: FIFO or moving-average cost of goods sold journaled to 5000/1450, a register per SKU, a ledger-vs-register close check; node tests and a CLI run on hand-written moves only, not on the page) landed 2026-10-22.
 - The page has a stock card (record bought/sold/lost moves, choose FIFO or moving average, register with value on hand and cost of goods sold; clicked through in headless Chromium; 2026-10-22).
 - Foreign-currency invoices and bills (currency/rate columns, realized gain or loss to 6190 on settlement; hand-written tests, no real export) landed 2026-10-22.
+- Discover, Citi, US Bank and Ally statement CSV readers (bank.mjs sniffing; Discover charges are positive and its DIRECTPAY row now settles the sign; hand-written fixtures in layouts recalled from memory, not real exports; 2026-10-22).

@@ -119,6 +119,10 @@ export function sniffBank(rows) {
     if (/^date \(utc\)\|description\|amount\|status\|source account/.test(h)) return "mercury";
     if (/^transferwise id\|date\|amount\|currency\|description/.test(h)) return "wise";
     if (/^transaction date\|posted date\|card no\.\|description\|category\|debit\|credit/.test(h)) return "capital-one";
+    if (/^trans\. date\|post date\|description\|amount\|category/.test(h)) return "discover";
+    if (/^status\|date\|description\|debit\|credit/.test(h)) return "citi";
+    if (/^date\|transaction\|name\|memo\|amount/.test(h)) return "us-bank";
+    if (/^date\|time\|amount\|type\|description/.test(h)) return "ally";
     if (/^date\|description\|(card member\|account #\|)?amount/.test(h)) return "amex";
   }
   return null;
@@ -128,7 +132,7 @@ export function sniffBank(rows) {
 // positive, Chase as negative). The payment rows settle it: a payment lowers
 // what is owed, so charges carry the opposite sign.
 function chargesArePositive(rows) {
-  const pay = rows.filter((r) => /payment.*thank you|autopay|automatic payment|online payment/i.test(r.desc));
+  const pay = rows.filter((r) => /payment.*thank you|autopay|automatic payment|online payment|directpay/i.test(r.desc));
   if (pay.length === 0) return null;
   const neg = pay.filter((r) => r.cents < 0).length;
   return neg > pay.length / 2;
