@@ -20,6 +20,7 @@
     p, li { line-height: 1.55; }
     .note, footer { font-size: .86rem; color: #555044; }
     .card { background: #fff; border: 1px solid #dcd7cb; border-radius: 12px; padding: 18px; margin: 16px 0; overflow-x: auto; }
+    [hidden] { display: none !important; }
     .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px 14px; }
     label { display: block; font-weight: 600; margin: 8px 0 4px; font-size: .92rem; }
     input, select { box-sizing: border-box; padding: 7px 8px; border: 1px solid #7d796a; border-radius: 6px; font: 15px system-ui, sans-serif; background: #fff; width: 100%; }
@@ -112,6 +113,17 @@
       <input type="checkbox" id="sheathH" style="width:auto;margin-left:1rem"> <label for="sheathH" style="display:inline">sheets long side along the wall</label>
       <input type="checkbox" id="sheathO" style="width:auto;margin-left:1rem"> <label for="sheathO" style="display:inline">run sheathing past corners</label>
       <label for="sheathR" style="display:inline;margin-left:1rem">rim lap (in)</label> <input type="number" id="sheathR" min="0" step="0.25" value="0" style="width:5rem"></p>
+    <p><input type="checkbox" id="flOn" style="width:auto"> <label for="flOn" style="display:inline">Also frame a floor under the walls (joists, rim boards, blocking and subfloor sheets; the lumber joins the order)</label></p>
+    <div class="grid" id="flFields" hidden>
+      <div><label for="flW">Floor width (along the rim)</label><input id="flW" value="40 ft"></div>
+      <div><label for="flD">Floor depth (the joist direction)</label><input id="flD" value="28 ft"></div>
+      <div><label for="flJoist">Joist size</label><select id="flJoist"><option>2x8</option><option selected>2x10</option><option>2x12</option></select></div>
+      <div><label for="flSpacing">Joist spacing on center</label><select id="flSpacing"><option value="16" selected>16 in</option><option value="24">24 in</option><option value="12">12 in</option></select></div>
+      <div><label for="flBeam">Beam from the front edge (blank: none)</label><input id="flBeam" value="14 ft"></div>
+      <div><label for="flBlock">Rows of joist blocking</label><input id="flBlock" type="number" min="0" max="6" step="1" value="0"></div>
+      <div><label for="flUnder">Walls above that need doubled joists, at these positions across the width (comma-separated)</label><input id="flUnder" placeholder="e.g. 10 ft, 22 ft"></div>
+      <div><label for="flOpen">Stairwell opening: from left edge, from front edge, width, depth (blank: none)</label><input id="flOpen" placeholder="e.g. 20 ft, 8 ft, 3 ft, 10 ft"></div>
+    </div>
     <p id="status" class="note" role="status"></p>
     <div id="errors" class="err" role="alert"></div>
     <div id="summary" aria-live="polite"></div>
@@ -121,6 +133,11 @@
     <h2 id="h-order">Lumber order</h2>
     <div id="order"></div>
     <div id="notes"></div>
+  </section>
+
+  <section class="card" aria-labelledby="h-floor" id="floorCard" hidden>
+    <h2 id="h-floor">Floor framing</h2>
+    <div id="floorOut"></div>
   </section>
 
   <section class="card" aria-labelledby="h-sheath" id="sheathCard" hidden>
@@ -166,7 +183,7 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering, construction, building-code, legal or financial advice, and it does not replace a qualified professional, your plans or your building department. Header sizes, jack counts and stud spacing are your inputs and are not checked against any span table or code. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including every length before you cut. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Independent.</strong> Not affiliated with any lumberyard, builder, code body or software company. No lumber price is stated or implied; prices are what you type.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record: save your plan file. Your last entries stay in this browser's local storage only.</p>
-    <p>Everything runs in your browser. Your plan is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>takeoff_run</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>drawings_downloaded</code>, <code>panel_order_downloaded</code>, <code>plan_saved</code>, <code>plan_opened</code>) are counted only in local storage on your device, never with anything you typed.</p>
+    <p>Everything runs in your browser. Your plan is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>takeoff_run</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>drawings_downloaded</code>, <code>panel_order_downloaded</code>, <code>floor_on</code>, <code>plan_saved</code>, <code>plan_opened</code>) are counted only in local storage on your device, never with anything you typed.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Related tools: the <a href="../cut-list-optimizer/">cut list optimizer</a> for sheet goods and shop stock, and the <a href="../tile-layout-planner/">tile layout planner</a>. Command line and source: <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/wall-framing-takeoff" rel="noopener">wall-framing-takeoff on GitHub</a>.</p>
     <p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
@@ -177,6 +194,7 @@
     import { drawingSetHtml } from "./drawings.mjs";
     import { panelOrder, panelOrderText, panelPullText } from "./panels.mjs";
     import { sheathe, defaultSheathing, nailerCuts } from "./sheathing.mjs";
+    import { layoutFloor, floorCuts, floorText } from "./floor.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -249,6 +267,18 @@
           openings: [],
         })),
       };
+      if ($("#flOn").checked) {
+        const fl = { id: "Floor", width: L($("#flW").value, "floor width"), depth: L($("#flD").value, "floor depth"), joist: $("#flJoist").value, spacing: Number($("#flSpacing").value), rim: true, blockingRows: Math.max(0, Math.min(6, Math.round(Number($("#flBlock").value) || 0))) };
+        if ($("#flBeam").value.trim()) fl.beam = L($("#flBeam").value, "floor beam");
+        const under = $("#flUnder").value.split(",").map((t) => t.trim()).filter(Boolean).map((t) => L(t, "doubled joist position"));
+        if (under.length) fl.doubleUnder = under;
+        if ($("#flOpen").value.trim()) {
+          const q = $("#flOpen").value.split(",").map((t) => t.trim());
+          if (q.length !== 4) bad.push("Stairwell opening: write four lengths, from the left edge, from the front edge, width, depth.");
+          else { const [x, y, width, depth] = q.map((t) => L(t, "stairwell opening")); fl.openings = [{ x, y, width, depth }]; }
+        }
+        plan.floor = fl;
+      }
       for (const o of ui.openings) {
         const wall = plan.walls.find((w) => w.id === String(o.wall).trim());
         if (!wall) { bad.push(`The ${o.label || o.kind} is on a wall named "${o.wall}", which is not in the wall list.`); continue; }
@@ -337,6 +367,12 @@
         <table><thead><tr><th class="n">Left edge from start</th><th>Member</th><th class="n">Length</th></tr></thead><tbody>${marks.map((m) => `<tr><td class="n">${formatInches(m.x)}</td><td>${esc(m.label)}</td><td class="n">${formatInches(m.length)}</td></tr>`).join("")}</tbody></table>`;
     }
 
+    function renderFloor(floor) {
+      $("#floorCard").hidden = !floor;
+      if (!floor) return;
+      $("#floorOut").innerHTML = `<pre style="white-space:pre-wrap;overflow-x:auto">${esc(floorText(floor).join("\n"))}</pre><p class="note">The floor's joists, rim boards and blocking are in the lumber order and cut list above, pooled with the walls so they use each other's offcuts. Subfloor sheets (4 x 8) are bought separately. Check spans and sizes against your tables or engineer.</p>`;
+    }
+
     function renderSheathing(plan, result) {
       const card = $("#sheathCard");
       card.hidden = !$("#sheath").checked;
@@ -354,13 +390,18 @@
       const { plan, bad } = toPlan();
       $("#errors").innerHTML = "";
       if (bad.length) { $("#errors").innerHTML = `<ul>${bad.map((e) => `<li>${esc(e)}</li>`).join("")}</ul>`; return false; }
-      let result, nailers = [];
+      let result, nailers = [], floor = null, floorExtra = [];
       try {
-        result = takeoff(plan);
+        if (plan.floor) {
+          floor = layoutFloor(plan.floor, plan);
+          if (!floor.ok) { $("#errors").innerHTML = `<ul>${floor.errors.map((e) => `<li>${esc(e)}</li>`).join("")}</ul>`; last = null; $("#floorCard").hidden = true; return false; }
+          floorExtra = floorCuts(floor);
+        }
+        result = takeoff(plan, floorExtra);
         if (result.ok && $("#sheath").checked) {
           const extra = nailerCuts(sheathe({ ...plan, sheathing: { ...defaultSheathing(), ...($("#sheathH").checked ? { orientation: "horizontal" } : {}), ...($("#sheathO").checked ? { overhang: true } : {}), ...(Number($("#sheathR").value) > 0 ? { rimLap: Number($("#sheathR").value) } : {}) } }, result));
           nailers = extra;
-          if (extra.length) result = takeoff(plan, extra);
+          if (extra.length) result = takeoff(plan, [...extra, ...floorExtra]);
         }
       } catch (e) { result = { ok: false, errors: [e instanceof Error ? e.message : String(e)] }; }
       if (!result.ok) {
@@ -384,6 +425,7 @@
       $("#notes").innerHTML = result.notes.length ? `<h3>Notes</h3><ul>${result.notes.map((n) => `<li>${esc(n)}</li>`).join("")}</ul>` : "";
       $("#cuts").innerHTML = `<table><thead><tr><th class="n">Qty</th><th>Size</th><th class="n">Length</th><th>Piece</th><th>Walls</th></tr></thead><tbody>${result.cuts.map((c) => `<tr><td class="n">${c.qty}</td><td>${esc(c.size)}</td><td class="n">${formatInches(c.length)}</td><td>${esc(c.kind)}</td><td>${esc(c.walls.join(", "))}</td></tr>`).join("")}</tbody></table>`;
       $("#boards").innerHTML = result.orders.map((o) => `<h3>${esc(o.size)}</h3><ol>${o.bars.map((b) => `<li>${formatLength(b.length)}${b.label ? ` ${esc(b.label)}` : ""}: ${b.cuts.map((c) => `${formatInches(c.length)} ${esc(c.ref)}`).join(" + ")}${b.offcut >= 0.5 ? `; offcut ${formatInches(b.offcut)}` : ""}</li>`).join("")}</ol>`).join("");
+      renderFloor(floor);
       renderSheathing(plan, result);
       const prev = $("#wallPick").value;
       $("#wallPick").innerHTML = result.walls.map((w) => `<option>${esc(w.id)}</option>`).join("");
@@ -399,6 +441,14 @@
     function load(plan) {
       ui = fromPlan(plan);
       setSettings(ui.settings);
+      const fl = plan.floor;
+      $("#flOn").checked = Boolean(fl); $("#flFields").hidden = !fl;
+      if (fl) {
+        $("#flW").value = formatLength(fl.width); $("#flD").value = formatLength(fl.depth); $("#flJoist").value = fl.joist; $("#flSpacing").value = String(fl.spacing);
+        $("#flBeam").value = fl.beam != null ? formatLength(fl.beam) : ""; $("#flBlock").value = String(fl.blockingRows || 0);
+        $("#flUnder").value = (fl.doubleUnder || []).map(formatLength).join(", ");
+        const o = (fl.openings || [])[0]; $("#flOpen").value = o ? [o.x, o.y, o.width, o.depth].map(formatLength).join(", ") : "";
+      }
       renderAll();
       return run();
     }
@@ -477,6 +527,7 @@
       }
     });
     $("#optout").addEventListener("click", () => { setUsageOptOut(true); const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; });
+    $("#flOn").addEventListener("change", () => { $("#flFields").hidden = !$("#flOn").checked; if ($("#flOn").checked) record("floor_on"); });
     if (usageOptedOut()) { const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; }
 
     let restored = false;
