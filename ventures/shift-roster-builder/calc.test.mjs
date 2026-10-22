@@ -1428,3 +1428,13 @@ test("the 7-person sample week is proven inside the default limits, to within th
   const strict = buildRoster(staff, slots, { exact: true, exactTolerance: 0, exactNodes: 20000 });
   assert.equal(strict.optimality.status, "bounded");
 });
+
+test("coverage-first pass proves how few hours must stay open, and the cost search is told", () => {
+  // seeded random week (eval/bound-bench.mjs, case 10): 5 people, 14 shifts, 22 hours cannot all be covered
+  const staff = staffOf("P0,20,30,0,Tue-Fri 8-22\nP1,16,18,0,Mon-Fri 7-21\nP2,11,18,0,Tue-Fri 6-20\nP3,18,30,0,Mon-Fri 6-20\nP4,10,18,0,Tue-Fri 9-18");
+  const slots = slotsOf("Thu,7,13,1\nWed,14,18,2\nFri,8,17,1\nMon,14,23,2\nFri,9,14,1\nTue,11,18,2\nThu,12,20,1\nThu,13,19,1\nWed,6,15,2\nFri,11,17,1\nFri,11,16,2\nTue,11,17,1\nThu,11,17,1\nTue,12,18,1");
+  const r = buildRoster(staff, slots, { exact: true, balance: 60, exactNodes: 100000, exactMs: 20000, restarts: 2, iterations: 2000 });
+  assert.equal(r.optimality.coverOpen, 22);
+  assert.notEqual(r.optimality.status, "bounded");
+  assert.equal(r.unfilledHours, 22);
+});
