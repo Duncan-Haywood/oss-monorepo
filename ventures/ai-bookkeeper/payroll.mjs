@@ -193,7 +193,7 @@ export function payrollSummary(books) {
 }
 
 // Form 941 worksheet for a quarter, summed from the register.
-export function form941(books, year, quarter) {
+export function form941(books, year, quarter, opts = {}) {
   if (![1, 2, 3, 4].includes(+quarter)) throw new Error("Quarter is 1 to 4.");
   const from = `${year}-${String((quarter - 1) * 3 + 1).padStart(2, "0")}-01`, to = monthEnd(`${year}-${String(quarter * 3).padStart(2, "0")}-01`);
   const rs = (books.payroll ?? []).filter((r) => r.date >= from && r.date <= to);
@@ -206,6 +206,19 @@ export function form941(books, year, quarter) {
   };
   out.totalTaxes = out.federalWithheld + out.socialSecurityTax + out.medicareTax;
   out.deposited = rs.reduce((a, r) => a + federalDeposit(r), 0);
+  // Line 16: the liability by pay date, one figure per month of the quarter.
+  // Monthly depositors fill these in; semiweekly ones use Schedule B instead.
+  out.monthlyLiability = [0, 1, 2].map((i) => {
+    const m = `${year}-${String((quarter - 1) * 3 + i + 1).padStart(2, "0")}`;
+    return rs.filter((r) => r.date.startsWith(m)).reduce((a, r) => a + federalDeposit(r), 0);
+  });
+  // Line 13 against the total: pass the amount deposited (cents) to get the
+  // balance due (line 14) or overpayment (line 15).
+  if (opts.depositedCents != null) {
+    out.depositsMade = opts.depositedCents;
+    const diff = out.totalTaxes - opts.depositedCents;
+    if (diff > 0) out.balanceDue = diff; else if (diff < 0) out.overpayment = -diff;
+  }
   out.warnings = [];
   // 6.2% social security and 1.45% medicare, each side. Off by more than a
   // cent per run means a wage over the base, a pre-tax benefit or a typo.

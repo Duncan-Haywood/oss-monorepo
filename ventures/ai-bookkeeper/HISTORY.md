@@ -52,3 +52,5 @@ Moved out of `portfolio/flagships.yaml` (its `next:` had grown to ~18 KB with re
 - Foreign-currency invoices and bills (currency/rate columns, realized gain or loss to 6190 on settlement; hand-written tests, no real export) landed 2026-10-22.
 - Discover, Citi, US Bank and Ally statement CSV readers (bank.mjs sniffing; Discover charges are positive and its DIRECTPAY row now settles the sign; hand-written fixtures in layouts recalled from memory, not real exports; 2026-10-22).
 - Apple Card and Lloyds current-account statement CSV readers (bank.mjs sniffing; Apple charges positive, settled by its ACH deposit row; Lloyds day-first; hand-written fixtures from remembered layouts, not real exports; 2026-10-22).
+
+- 2026-10-22: `payroll 941` prints line 16 (tax liability by month) and, with `--deposited DOLLARS`, total deposits, balance due (line 14) or overpayment (line 15). Hand-arithmetic test only.
