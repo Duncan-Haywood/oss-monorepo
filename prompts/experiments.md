@@ -1104,3 +1104,17 @@ or `ventures`) until its success rate passes 80% over 20 runs?
   2 unchanged (overlap / too few runs). `derived/` regenerated (`fetch` ran,
   25 of 43 PRs). No audit or drift report (reduced pass).
 - Result: (next review)
+
+## E68: review 2026-10-22 (reduced pass)
+
+- Change: `portfolio/flagships.yaml` wall-framing-takeoff `next:` cut from
+  about 5k to 0.6k characters: open items only, landed history left to the
+  README and ROADMAP (the follow-up after E66 and E67). changepoint-detector's
+  `next:` is the remaining long one.
+- Metric: friction reports against `portfolio/flagships.yaml`, over the next
+  40 runs (baseline: 42 total; E66 and E67 cuts are in the same window).
+- Decisions: research candidate 1 kept (retire verdict still fires only on the
+  one disclosed caveat; E55 proposal stands). ventures 2, process 2 and review
+  2 unchanged (overlap / too few runs). `derived/` regenerated. No audit or
+  drift report (reduced pass).
+- Result: (next review)
