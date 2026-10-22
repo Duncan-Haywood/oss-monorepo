@@ -1,6 +1,6 @@
 """Re-score designs from research/energy-cell under the full DFN model and report how the ranking moves.
   python experiments/run.py select   # writes selected.json (deterministic pick from ../energy-cell logs)
-  python experiments/run.py dfn      # evaluates selected designs under DFN (~52 s each, 4 processes) -> dfn.json
+  python experiments/run.py dfn      # evaluates selected designs under DFN (~35 s each, one process per design, restarted each time: DFN grows to 4-13 GB) -> dfn.json
   python experiments/run.py report   # writes results.txt
 Needs numpy, scipy, pybamm."""
 import json
@@ -85,12 +85,20 @@ def _one(job):
 
 
 def dfn():
+    """Evaluate every selected design under DFN and SPMe, appending each result to dfn.jsonl as it finishes
+    (a restart skips designs already done)."""
     sel = json.loads((HERE / "selected.json").read_text())
-    with Pool(4) as p:
-        res = p.map(_one, [(i, s["x"]) for i, s in enumerate(sel)], chunksize=1)
-    for i, d, s in res:
-        sel[i]["dfn"], sel[i]["spme_now"] = d, s
-    (HERE / "dfn.json").write_text(json.dumps(sel))
+    out = HERE / "dfn.jsonl"
+    done = {json.loads(l)["i"] for l in out.read_text().splitlines()} if out.exists() else set()
+    jobs = [(i, s["x"]) for i, s in enumerate(sel) if i not in done]
+    with Pool(1, maxtasksperchild=1) as p, out.open("a") as fh:
+        for i, d, s in p.imap_unordered(_one, jobs, chunksize=1):
+            fh.write(json.dumps({"i": i, "dfn": d, "spme_now": s}) + "\n")
+            fh.flush()
+    rows = [json.loads(l) for l in out.read_text().splitlines()]
+    for r in rows:
+        sel[r["i"]].update(dfn=r["dfn"], spme_now=r["spme_now"])
+    (HERE / "dfn.json").write_text(json.dumps([s for s in sel if "dfn" in s]))
 
 
 def report():
