@@ -1,0 +1,41 @@
+# items 4784 target share 0.149 mean detector recall on targets 0.693
+# A. belt speed (density 3/m, pick 1.0 s, fifo)
+speed 0.10 m/s               purity 0.795 +-0.015  recovery 0.658 +-0.015  picks/min   2.2
+speed 0.20 m/s               purity 0.808 +-0.011  recovery 0.664 +-0.011  picks/min   4.3
+speed 0.30 m/s               purity 0.804 +-0.008  recovery 0.666 +-0.008  picks/min   6.6
+speed 0.50 m/s               purity 0.801 +-0.008  recovery 0.649 +-0.009  picks/min  10.7
+speed 0.75 m/s               purity 0.803 +-0.006  recovery 0.550 +-0.006  picks/min  13.6
+speed 1.00 m/s               purity 0.801 +-0.005  recovery 0.475 +-0.005  picks/min  15.9
+speed 1.50 m/s               purity nan +-nan  recovery 0.000 +-0.000  picks/min   0.0
+speed 2.00 m/s               purity nan +-nan  recovery 0.000 +-0.000  picks/min   0.0
+# B. pick cycle time at 0.5 m/s
+pick 0.50 s                  purity 0.801 +-0.007  recovery 0.660 +-0.008  picks/min  10.9
+pick 0.75 s                  purity 0.802 +-0.007  recovery 0.659 +-0.008  picks/min  10.9
+pick 1.00 s                  purity 0.801 +-0.008  recovery 0.649 +-0.009  picks/min  10.7
+pick 1.50 s                  purity 0.801 +-0.008  recovery 0.553 +-0.008  picks/min   9.1
+pick 2.00 s                  purity 0.802 +-0.007  recovery 0.481 +-0.007  picks/min   7.9
+# C. dispatch policy at 0.75 m/s
+fifo                         purity 0.803 +-0.006  recovery 0.550 +-0.006  picks/min  13.6
+lifo                         purity 0.804 +-0.006  recovery 0.550 +-0.006  picks/min  13.6
+largest                      purity 0.804 +-0.006  recovery 0.550 +-0.006  picks/min  13.6
+# D. detector size threshold s50 (m) at 0.3 m/s
+s50 0.02                     purity 0.830 +-0.008  recovery 0.792 +-0.008  picks/min   7.6
+s50 0.04                     purity 0.804 +-0.008  recovery 0.666 +-0.008  picks/min   6.6
+s50 0.06                     purity 0.760 +-0.010  recovery 0.519 +-0.009  picks/min   5.4
+s50 0.08                     purity 0.705 +-0.011  recovery 0.387 +-0.009  picks/min   4.4
+# E. photo width assumption (m) at 0.3 m/s
+scene 0.4 m                  purity 0.763 +-0.010  recovery 0.525 +-0.009  picks/min   5.5
+scene 0.6 m                  purity 0.804 +-0.008  recovery 0.666 +-0.008  picks/min   6.6
+scene 1.0 m                  purity 0.832 +-0.007  recovery 0.800 +-0.008  picks/min   7.7
+# F. false-call rate at 0.5 m/s
+false call 0.00              purity 1.000 +-0.000  recovery 0.653 +-0.009  picks/min   8.6
+false call 0.03              purity 0.801 +-0.008  recovery 0.649 +-0.009  picks/min  10.7
+false call 0.10              purity 0.545 +-0.007  recovery 0.638 +-0.009  picks/min  15.5
+false call 0.20              purity 0.375 +-0.006  recovery 0.616 +-0.009  picks/min  21.7
+# G. largest belt speed with recovery >= 80% of the slow-belt (0.1 m/s) recovery, by pick time
+ref pick 0.5 @0.1            purity 0.795 +-0.015  recovery 0.658 +-0.015  picks/min   2.2
+  pick 0.5 s -> max speed 1.6 m/s
+ref pick 1.0 @0.1            purity 0.795 +-0.015  recovery 0.658 +-0.015  picks/min   2.2
+  pick 1.0 s -> max speed 0.8 m/s
+ref pick 2.0 @0.1            purity 0.795 +-0.015  recovery 0.658 +-0.015  picks/min   2.2
+  pick 2.0 s -> max speed 0.4 m/s
