@@ -1208,6 +1208,6 @@ test('--burst-runs cuts a 3-day plateau that single-day bursts miss, and leaves 
   assert.equal(one.bursts.length, 0);
   assert.deepEqual(many.bursts.map((b) => b.index), [40, 41, 42]);
   assert.ok(many.pelt.changepoints.length < one.pelt.changepoints.length);
-  const step = base.map((v, i) => (i >= 40 ? v * 2.5 : v));
+  const step = base.map((v, i) => (i >= 40 ? Math.round(v * 2.5) : v));
   assert.equal(analyze({ values: step, model: 'poisson', bursts: true, burstRuns: 5 }).bursts.length, 0);
 });
