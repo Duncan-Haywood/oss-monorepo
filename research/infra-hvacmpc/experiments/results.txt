@@ -1,0 +1,67 @@
+== 0. Checks
+greensboro-nc: mean T 14.4 C, min -16.7, heating degree-days base 18 C 2179 (3923 degF-days), annual GHI 1566 kWh/m2
+sand-point-ak: mean T 4.4 C, min -10.6, heating degree-days base 18 C 4957 (8922 degF-days), annual GHI 829 kWh/m2
+heating COP at -10, 0, 7 C: 2.64 3.35 3.92; cooling COP at 25, 35 C: 4.96 3.46
+
+== A. Full year, comfort band 20-24 C, cost ($), electricity (kWh), discomfort (K h outside the band)
+site tariff controller | cost kWh disc
+greensboro-nc  TOU  thermostat 21/24                 |      954     3431     6162
+greensboro-nc  TOU  thermostat 20/24                 |      877     3155     7621
+greensboro-nc  TOU  MPC exact model, perfect fc      |      791     3096        0
+greensboro-nc  TOU  MPC wrong model, persistence fc  |      783     3082     2383
+greensboro-nc  TOU  MPC wrong model, perfect fc      |      767     3027     2563
+greensboro-nc  flat thermostat 21/24                 |     1029     3431     6162
+greensboro-nc  flat thermostat 20/24                 |      946     3155     7621
+greensboro-nc  flat MPC exact model, perfect fc      |      911     3035        1
+greensboro-nc  flat MPC wrong model, persistence fc  |      901     3002     2282
+greensboro-nc  flat MPC wrong model, perfect fc      |      886     2952     2421
+sand-point-ak  TOU  thermostat 21/24                 |      897     3720     1457
+sand-point-ak  TOU  thermostat 20/24                 |      823     3426     3548
+sand-point-ak  TOU  MPC exact model, perfect fc      |      803     3479        0
+sand-point-ak  TOU  MPC wrong model, persistence fc  |      789     3481     2187
+sand-point-ak  TOU  MPC wrong model, perfect fc      |      782     3461     2239
+sand-point-ak  flat thermostat 21/24                 |     1116     3720     1457
+sand-point-ak  flat thermostat 20/24                 |     1028     3426     3548
+sand-point-ak  flat MPC exact model, perfect fc      |     1019     3398        0
+sand-point-ak  flat MPC wrong model, persistence fc  |     1003     3343     1777
+sand-point-ak  flat MPC wrong model, perfect fc      |     1000     3334     1802
+
+== B. Peak/off-peak price ratio (mean price kept), Greensboro, thermostat 20/24 vs MPC wrong model, persistence forecast
+ratio | thermostat_cost MPC_cost saving_pct MPC_disc th_disc
+    1 |      824      784      4.9     2282     7621
+    2 |      858      789      8.0     2386     7621
+    3 |      877      783     10.8     2383     7621
+    4 |      890      778     12.6     2372     7621
+    6 |      905      772     14.7     2364     7621
+
+== C. Thermal mass x scale (Ci, Ce), Greensboro, exact model, perfect forecast, TOU
+scale | thermostat_cost MPC_cost saving_pct
+  0.5 |      653      611      6.5
+  1.0 |      646      563     12.9
+  2.0 |      632      497     21.3
+  4.0 |      542      406     25.0
+
+== D. Weather-forecast error (sd of To, K; gains error 0.3x that, relative), Greensboro, wrong model, TOU
+sd_K | MPC_cost saving_pct_vs_thermostat_20/24 disc
+ 0.0 |      767     12.6     2563
+ 1.0 |      769     12.4     2525
+ 2.0 |      778     11.3     2458
+ 4.0 |      804      8.3     2435
+ 8.0 |      878     -0.1     2928
+
+== E. True heat-loss coefficient x scale, controller keeps the nominal one, Greensboro, persistence forecast, TOU
+scale | thermostat_cost MPC_cost saving_pct MPC_disc th_disc
+ 0.70 |      559      485     13.1      545     6047
+ 0.85 |      599      530     11.5      223     6005
+ 1.00 |      646      579     10.3        0     5988
+ 1.15 |      697      630      9.6      757     5996
+ 1.30 |      751      682      9.2     1602     6028
+ 1.60 |      868      785      9.5     3379     6127
+
+== F. Thermostat set-points (heat/cool), Greensboro, TOU, wrong plant: where the discomfort of section A comes from
+heat cool | cost kwh disc_Kh
+20.0 24.0 |      877     3155     7621
+20.5 23.5 |      956     3422     5794
+21.0 23.0 |     1078     3884     4456
+21.0 24.0 |      954     3431     6162
+21.5 22.5 |     1300     4816     2839

@@ -1,0 +1,52 @@
+{
+  "date": "2026-10-22",
+  "session": "https://claude.ai/code/session_01HfvTiPb2Z29C5bWm5cZCK9",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-22T10:13:05Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/9451",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [
+    "WebFetch of manufacturer pages returned no spec text; used Wikipedia tables instead",
+    "first push rejected (stale info) as the remote branch did not exist; plain push worked"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/PROJECTS.md",
+      "issue": "track 9 milestones all done and chain is micro-variants; picking a new question needed reading ~30 READMEs"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "no agent doc/post written; small calibration check with only two aircraft and no fixed-wing data, so scope kept narrow"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Multirotor-only check of osrobot-uav against Mavic 3E and Anafi UKR; 5 tests, build.py ok, check_md_links ok. Fixed-wing branch untested.",
+  "corrections": [],
+  "redteam": null
+}

@@ -6,6 +6,7 @@
 // the defect it guards is created by a *merge*, not by anyone editing a page,
 // so no per-venture test would ever be the one to run.
 import { test } from 'node:test';
+import { spawnSync } from 'node:child_process';
 import assert from 'node:assert/strict';
 
 import { duplicates, normalize, sectionHeadings } from './faq-duplicate.mjs';
@@ -86,4 +87,34 @@ test('a longer variant of the same stem is not a duplicate', () => {
 
 test('every published page is free of duplicated FAQ sections and questions', async () => {
   assert.equal(await main([]), 0);
+});
+
+test('sectionHeadings reads an h1 label closed by its own tag', () => {
+  assert.deepEqual(sectionHeadings('<h1>Common questions</h1><p>x</p>'), ['common questions']);
+});
+
+test('sectionHeadings does not close an h3 with an h4', () => {
+  assert.deepEqual(sectionHeadings('<h3>Common questions</h4><p>x</p>'), []);
+});
+
+test('a two-letter repeated question is still a duplicate', () => {
+  const twice = '<h3>Ok?</h3><p>a</p><h3>Ok?</h3><p>b</p>';
+  assert.deepEqual(duplicates(twice), [{ kind: 'question', detail: 'ok', count: 2 }]);
+});
+
+test('a mistyped venture slug exits non-zero instead of reporting a clean sweep', async () => {
+  const lines = [];
+  const original = console.error;
+  console.error = (line) => lines.push(line);
+  try {
+    assert.equal(await main(['no-such-venture-xyz']), 1);
+  } finally {
+    console.error = original;
+  }
+  assert.match(lines.join('\n'), /no such venture/);
+});
+
+test('the command line passes its first argument as the slug', () => {
+  const run = spawnSync(process.execPath, [new URL('./faq-duplicate.mjs', import.meta.url).pathname, 'no-such-venture-xyz']);
+  assert.equal(run.status, 1);
 });
