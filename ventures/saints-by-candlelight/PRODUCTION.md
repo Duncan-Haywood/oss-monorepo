@@ -176,7 +176,7 @@ writing it; skip any already in `episodes/`):
 - Saint George and the dragon (legend; the historical martyr told gently)
 - Saint Brendan the Navigator and the island that moved (*Navigatio*; skip the birds-as-angels episode)
 - Saint Kevin of Glendalough and the blackbird
-- Saint Patrick, from slave to bishop (his own *Confessio*)
+- *(Done: episode 9, Patrick and the Ship That Was Ready.)* Saint Patrick, from slave to bishop (his own *Confessio*)
 - Saint Francis and the wolf of Gubbio (Catholic; *Fioretti*)
 - Saint Mary of Egypt (Orthodox and Catholic; told gently for bedtime)
 - Abraham and the three visitors at Mamre (Genesis 18)
@@ -188,7 +188,7 @@ writing it; skip any already in `episodes/`):
 
 ## Audio status
 
-Episodes 1 to 8 all have audio (episode 8 was rendered on 2026-10-22, about 33 minutes). If Hugging Face is blocked in a cloud session, the Kokoro model files are also on GitHub: `https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/` (`kokoro-v1.0.onnx`, `voices-v1.0.bin`) into `~/.cache/kokoro`. Use `/usr/bin/python3` if `python3` lacks numpy. A render takes about 15 minutes.
+Episodes 1 to 9 have audio (episode 8 was rendered on 2026-10-22, about 33 minutes). If Hugging Face is blocked in a cloud session, the Kokoro model files are also on GitHub: `https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/` (`kokoro-v1.0.onnx`, `voices-v1.0.bin`) into `~/.cache/kokoro`. Use `/usr/bin/python3` if `python3` lacks numpy. A render takes about 15 minutes.
 
 ## Publishing
 
