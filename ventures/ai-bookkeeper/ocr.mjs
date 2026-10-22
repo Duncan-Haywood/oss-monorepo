@@ -14,7 +14,12 @@ const IMAGE = new Set([".png", ".jpg", ".jpeg", ".tif", ".tiff", ".bmp", ".webp"
 // money/date shape) are touched.
 const LOOK = { O: "0", o: "0", D: "0", l: "1", I: "1", "|": "1", S: "5", s: "5", B: "8", Z: "2", z: "2" };
 export function cleanOcr(text) {
-  return text.split(/\r?\n/).map((line) => line.replace(/[\w$€£|.,\/-]+/g, (tok) => {
+  return text.split(/\r?\n/).map((line) => line
+    .replace(/(^|\s)S(?=\d+[.,]\d{2}(?!\d))/g, "$1$$") // "S10.62" -> "$10.62"
+    .replace(/(\d)\s+([.,])(\d{2})(?!\d)/g, "$1$2$3") // "5 .50" -> "5.50"
+    .replace(/(\d[.,])\s+(\d{2})(?!\d)/g, "$1$2")
+    .replace(/(^|[\s$€£])([OoIl|])(?=[.,]\d{2}(?!\d))/g, (m, p, c) => p + LOOK[c]) // "O.87" -> "0.87"
+    .replace(/[\w$€£|.,\/-]+/g, (tok) => {
     const digits = (tok.match(/\d/g) || []).length;
     const letters = (tok.match(/[A-Za-z|]/g) || []).length;
     if (digits < 2 || letters === 0 || letters > digits) return tok; // a word, or no anchor
