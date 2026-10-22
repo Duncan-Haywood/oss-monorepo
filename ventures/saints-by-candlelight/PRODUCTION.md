@@ -182,13 +182,13 @@ writing it; skip any already in `episodes/`):
 - Abraham and the three visitors at Mamre (Genesis 18)
 - *(Done: episode 11, Herman and the Garden on Spruce Island.)* Saint Herman of Alaska (Orthodox)
 - Saint Nicholas, part two: the storm at sea and the grain ships
-- Elijah, the ravens and the still small voice (1 Kings 17-19)
+- *(Done: episode 12, Elijah and the Still Small Voice.)* Elijah, the ravens and the still small voice (1 Kings 17-19)
 - Saint Spyridon and the snake that became gold (legend; told with care)
 - An invented episode: a novice and an old abbess on a winter night, with the saints she tells him about (clearly labelled fiction)
 
 ## Audio status
 
-Episodes 1 to 11 have audio (episode 8 was rendered on 2026-10-22, about 33 minutes). If Hugging Face is blocked in a cloud session, the Kokoro model files are also on GitHub: `https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/` (`kokoro-v1.0.onnx`, `voices-v1.0.bin`) into `~/.cache/kokoro`. Use `/usr/bin/python3` if `python3` lacks numpy. A render takes about 15 minutes.
+Episodes 1 to 12 have audio (episode 8 was rendered on 2026-10-22, about 33 minutes). If Hugging Face is blocked in a cloud session, the Kokoro model files are also on GitHub: `https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/` (`kokoro-v1.0.onnx`, `voices-v1.0.bin`) into `~/.cache/kokoro`. Use `/usr/bin/python3` if `python3` lacks numpy. A render takes about 15 minutes.
 
 ## Publishing
 

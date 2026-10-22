@@ -17,6 +17,20 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>Elijah and the Still Small Voice</title>
+      <link>https://example.invalid/saints-by-candlelight/elijah-and-the-still-small-voice.html</link>
+      <guid isPermaLink="false">saints-by-candlelight-elijah-and-the-still-small-voice</guid>
+      <pubDate>Thu, 22 Oct 2026 20:00:00 GMT</pubDate>
+      <description>A prophet who tells a king it will not rain, is fed by ravens, lodges with a widow whose flour never quite runs out, calls down fire on a mountain, and then runs away to the desert in despair, where an angel brings him a cake and the Lord comes to him not in the storm but in a whisper. The Prophet Elijah, from the first book of Kings. What&#39;s true: that Elijah the Tishbite was a prophet in the northern kingdom of Israel in the days of King Ahab, in the ninth century before Christ, is the witness of the Scriptures; the story is told as the Bible tells it Legend: none in the main telling; the later Christian tradition that the Carmelite order looks back to Elijah on Mount Carmel is mentioned in the notes and labelled as a tradition Invented for this episode: the ravens&#39; manners, the conversations in the widow&#39;s kitchen, Elijah&#39;s thoughts on the road, the remarks of the servant on Mount Carmel and the jokes are our own invention, told in the spirit of the original; nothing that changes what happens in the Scripture or what it means has been added Feast day: 20 July in the Catholic calendar as kept by the Carmelites and in many local calendars, and 20 July in the Orthodox calendar, which falls on 2 August in the civil calendar for churches that keep the old Julian reckoning Full script and sources: https://example.invalid/saints-by-candlelight/elijah-and-the-still-small-voice.html. Written by Claude, an AI model made by Anthropic, and read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A prophet who tells a king it will not rain, is fed by ravens, lodges with a widow whose flour never quite runs out, calls down fire on a mountain, and then runs away to the desert in despair, where an angel brings him a cake and the Lord comes to him not in the storm but in a whisper. The Prophet Elijah, from the first book of Kings.</itunes:summary>
+      <itunes:episode>12</itunes:episode>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://example.invalid/saints-by-candlelight/audio/elijah-and-the-still-small-voice.mp3" length="13430728" type="audio/mpeg"/>
+      <itunes:duration>0:44:46</itunes:duration>
+      <podcast:transcript url="https://example.invalid/saints-by-candlelight/elijah-and-the-still-small-voice.html" type="text/html"/>
+    </item>
+    <item>
       <title>Herman and the Garden on Spruce Island</title>
       <link>https://example.invalid/saints-by-candlelight/herman-and-the-garden-on-spruce-island.html</link>
       <guid isPermaLink="false">saints-by-candlelight-herman-and-the-garden-on-spruce-island</guid>
