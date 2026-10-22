@@ -502,8 +502,11 @@ always equals what the year posted. `journal(books)` leaves it out on purpose, s
 profit and loss, cash flow, budget and Schedule C keep showing the closed year;
 `journal(books, { withClosing: true })` adds it, and the balance sheet and the
 QuickBooks, Xero, IIF and CSV exports use that (the exported books close the same
-way yours do). Tests: `yearend.test.mjs` (9; hand-written ledgers). Calendar years
-only: a fiscal year ending in another month is not modelled. The page has a "year-end close" card (year, draws tick box, Close year, Reopen latest, table of closed years; clicked through in headless Chromium with `eval/browser-click.mjs`, 2026-10-21; a year with unfiled lines is refused).
+way yours do). Tests: `yearend.test.mjs` (9; hand-written ledgers). A fiscal year
+is named for the year it ends in: `close 2026 --month 6` closes 2025-07-01 to 2026-06-30, dated
+2026-06-30 (`fiscalSpan`; the month is kept on the closed-year row, must be the same for every close,
+and the page has a "Year ends in" picker; 2026-10-22, 4 new tests on hand-written ledgers, leap-day
+February covered; the tax worksheets (Schedule C, SE tax) stay calendar-year, as US sole proprietors file). The page has a "year-end close" card (year, draws tick box, Close year, Reopen latest, table of closed years; clicked through in headless Chromium with `eval/browser-click.mjs`, 2026-10-21; a year with unfiled lines is refused).
 
 ## Loans
 

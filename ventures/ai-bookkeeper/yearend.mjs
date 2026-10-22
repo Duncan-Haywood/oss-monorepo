@@ -8,7 +8,10 @@
 // the balance sheet, the QuickBooks/Xero/IIF exports and `yearEndReport` use that.
 // Option `draws`: also close owner draws (3100) and contributions (3010) into
 // retained earnings, as a sole proprietor's books are often closed. Calendar
-// years only; a fiscal year ending in another month is not modelled.
+// years by default. A fiscal year is named for the calendar year it ends in and
+// closes with option `month` (1-12, the month it ends in): month 6 and year 2026
+// is 2025-07-01 to 2026-06-30, dated 2026-06-30. The month is kept on the
+// books.yearEnd row, so every later read agrees with the close.
 // Integer cents. Not tax or accounting advice.
 
 import { journal, lockPeriod } from "./engine.mjs";
@@ -17,13 +20,24 @@ import { accountMap, balances, natural, validateEntry } from "./ledger.mjs";
 export const RETAINED = "3900";
 const DRAW_CODES = ["3100", "3010"];
 
+const pad = (n) => String(n).padStart(2, "0");
+// -> { from, to } for a year ending in month `month` (default December).
+export function fiscalSpan(year, month = 12) {
+  year = Number(year); month = Number(month);
+  const last = new Date(Date.UTC(year, month, 0)).getUTCDate();
+  const to = `${year}-${pad(month)}-${pad(last)}`;
+  const from = month === 12 ? `${year}-01-01` : `${year - 1}-${pad(month + 1)}-01`;
+  return { from, to };
+}
+const rowSpan = (y) => fiscalSpan(y.year, y.month ?? 12);
+
 // -> closing entries for the years in books.yearEnd, from entries that do not
 // include any closing entry.
 export function closingEntries(books, entries) {
   const map = accountMap(books.accounts);
   const out = [];
   for (const y of books.yearEnd ?? []) {
-    const from = `${y.year}-01-01`, to = `${y.year}-12-31`;
+    const { from, to } = rowSpan(y);
     const b = balances(entries, { from, to });
     const lines = [];
     let net = 0; // credit-positive: profit
@@ -42,16 +56,19 @@ export function closingEntries(books, entries) {
   return out;
 }
 
-export function closeYear(booksIn, year, { draws = false } = {}) {
-  year = Number(year);
+export function closeYear(booksIn, year, { draws = false, month = 12 } = {}) {
+  year = Number(year); month = Number(month);
+  if (!Number.isInteger(month) || month < 1 || month > 12) throw new Error(`Year-end month ${month} must be 1 to 12.`);
   if (!Number.isInteger(year) || year < 1900 || year > 2200) throw new Error(`Year ${year} is not a four-digit year.`);
   if (!accountMap(booksIn.accounts).has(RETAINED)) throw new Error(`No retained earnings account (${RETAINED}) in the chart of accounts.`);
   const done = booksIn.yearEnd ?? [];
   if (done.some((y) => y.year === year)) throw new Error(`${year} is already closed.`);
   if (done.some((y) => y.year > year)) throw new Error(`A later year is already closed; reopen it first.`);
-  const date = `${year}-12-31`;
+  const date = fiscalSpan(year, month).to;
+  const prev = done.at(-1);
+  if (prev && (prev.month ?? 12) !== month) throw new Error(`${prev.year} was closed with a year ending in month ${prev.month ?? 12}; keep the same year-end month.`);
   const locked = lockPeriod(booksIn, date); // refuses while lines dated in the year still need an account
-  const books = { ...locked, yearEnd: [...done, { year, draws: !!draws, priorLock: booksIn.lockedThrough ?? null }] };
+  const books = { ...locked, yearEnd: [...done, { year, draws: !!draws, ...(month === 12 ? {} : { month }), priorLock: booksIn.lockedThrough ?? null }] };
   const entry = closingEntries(books, journal(books)).find((e) => e.id === `CLOSE-${year}`);
   if (entry) { const p = validateEntry(entry, books.accounts); if (p.length) throw new Error(`Closing entry does not balance: ${p.join("; ")}`); }
   return books;
@@ -77,8 +94,11 @@ export function yearEndReport(books, year) {
   const withClosing = journal(books, { withClosing: true });
   const closing = withClosing.find((e) => e.id === `CLOSE-${year}`) ?? null;
   const re = (entries, to) => natural(map.get(RETAINED) ?? { type: "equity" }, balances(entries, { to }).get(RETAINED) ?? 0) + 0 || 0;
-  const before = re(all, `${year - 1}-12-31`);
+  const row = (books.yearEnd ?? []).find((y) => y.year === year);
+  const span = fiscalSpan(year, row?.month ?? 12), start = new Date(span.from + "T00:00:00Z");
+  start.setUTCDate(start.getUTCDate() - 1);
+  const before = re(all, start.toISOString().slice(0, 10));
   const toRetained = closing ? closing.lines.find((l) => l.account === RETAINED) : null;
   const moved = toRetained ? toRetained.credit - toRetained.debit : 0;
-  return { year, closed: !!(books.yearEnd ?? []).some((y) => y.year === year), entry: closing, netToRetained: moved, retainedBefore: before, retainedAfter: closing ? re(withClosing, `${year}-12-31`) : before };
+  return { year, closed: !!(books.yearEnd ?? []).some((y) => y.year === year), entry: closing, netToRetained: moved, retainedBefore: before, retainedAfter: closing ? re(withClosing, span.to) : before };
 }
