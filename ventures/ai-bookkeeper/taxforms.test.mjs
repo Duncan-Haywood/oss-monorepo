@@ -108,10 +108,13 @@ test("1099-NEC: the W-9 flag is stored without any tax ID and clears the missing
   const before = contractors1099(books, { year: 2026 });
   assert.equal(before.missingW9.length, 1);
   assert.ok(before.warnings.some((w) => /no W-9/.test(w)));
+  assert.equal(before.backupWithholdingCents, Math.round(before.missingW9[0].cents * 0.24), "24% backup withholding exposure on payees with no W-9");
+  assert.ok(before.warnings.some((w) => /backup withholding of 24%/.test(w)));
   const marked = markW9(books, "UPWORK PAYMENT ANNA LOPEZ");
   assert.deepEqual(Object.values(marked.vendors), [{ w9: true }]);
   const after = contractors1099(marked, { year: 2026 });
   assert.equal(after.missingW9.length, 0);
+  assert.equal(after.backupWithholdingCents, 0);
   assert.equal(after.payees[0].w9, true);
   assert.equal(contractors1099(markW9(marked, "UPWORK PAYMENT ANNA LOPEZ", false), { year: 2026 }).missingW9.length, 1);
   assert.throws(() => markW9(books, "NOBODY AT ALL"), /No bank line/);

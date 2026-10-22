@@ -123,6 +123,7 @@ function fmt(c) { const v = Math.abs(c); return `${c < 0 ? "-" : ""}${Math.floor
 // 2026-10-21); check the current instructions, or pass `threshold` in cents.
 // From 2027 the $2,000 is indexed to inflation, so for later years this is a
 // floor and the worksheet says so.
+export const BACKUP_WITHHOLDING_RATE = 0.24;
 export const NEC_THRESHOLD = (year) => (year >= 2026 ? 200000 : 60000);
 
 // The due date for 1099-NEC copies and the IRS filing: January 31 of the next
@@ -171,10 +172,14 @@ export function contractors1099(books, { year, threshold, codes = CONTRACT_CODES
   if (payees.some((p) => p.cardCents)) warnings.push("Some contract labor was paid by card; the card processor reports those on a 1099-K, so they are left out of the totals (shown as card).");
   const pending = (books.transactions ?? []).filter((t) => t.date?.startsWith(String(year)) && (t.status === "review" || t.status === "new")).length;
   if (pending) warnings.push(`${pending} bank line${pending === 1 ? " is" : "s are"} from ${year} and still waiting for an account; one may be a contractor payment.`);
-  if (missingW9.length) warnings.push(`${missingW9.length} payee${missingW9.length === 1 ? "" : "s"} over the line ${missingW9.length === 1 ? "has" : "have"} no W-9 on file. Ask before you file, ahead of ${necDeadline(year)}.`);
+  // Backup withholding: a payer that has no TIN for a payee must withhold 24% of
+  // reportable payments (IRC 3406; reported on Form 945). Shown as an exposure
+  // estimate on payments already made, not as an amount that was withheld.
+  const backupWithholdingCents = missingW9.reduce((a, p) => a + Math.round(p.cents * BACKUP_WITHHOLDING_RATE), 0);
+  if (missingW9.length) warnings.push(`${missingW9.length} payee${missingW9.length === 1 ? "" : "s"} over the line ${missingW9.length === 1 ? "has" : "have"} no W-9 on file. Ask before you file, ahead of ${necDeadline(year)}. Without a TIN, backup withholding of 24% (${(backupWithholdingCents / 100).toFixed(2)} on what was paid so far) applies to further payments.`);
   if (year >= 2027 && threshold === NEC_THRESHOLD(year)) warnings.push(`From 2027 the $2,000 line is indexed to inflation; ${year}'s may be higher. Check the IRS instructions or pass a threshold.`);
   if (!payees.length) warnings.push(`No contract labor paid by bank in ${year}.`);
-  return { year, threshold, payees, reportable, missingW9, warnings };
+  return { year, threshold, payees, reportable, missingW9, backupWithholdingCents, warnings };
 }
 
 // Record that a W-9 is (or is no longer) on file for a payee. Only a flag is kept.
