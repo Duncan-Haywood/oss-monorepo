@@ -97,3 +97,32 @@ test("a Shopify payout transactions CSV reads and splits", () => {
   assert.equal(plan.matched.length, 1);
   assert.deepEqual(plan.matched[0].parts, [{ account: "4000", cents: 8000 }, { account: "6010", cents: -320 }, { account: "4100", cents: -500 }]);
 });
+
+test("a Square transfer report reads with no category column", () => {
+  const r = readPayoutReport("Transfer ID,Deposit Date,Date,Total Collected,Fees,Net Total\nsq_1,2026-03-05,2026-03-03,200.00,5.80,194.20\nsq_1,2026-03-05,2026-03-04,-20.00,0.00,-20.00\n");
+  assert.equal(r.payouts.length, 1);
+  assert.equal(r.payouts[0].net, 17420);
+  assert.deepEqual(planPayouts(books([["2026-03-06", "SQUARE INC", "174.20"]]), r).matched[0].parts, [{ account: "4000", cents: 18000 }, { account: "6010", cents: -580 }]);
+});
+
+const PP = "Date,Time,TimeZone,Name,Type,Status,Currency,Gross,Fee,Net,Transaction ID";
+test("a PayPal activity CSV splits each withdrawal over the payments before it, newest-first too", () => {
+  const rows = ["03/02/2026,10:00:00,PST,Ann,Website Payment,Completed,USD,100.00,-3.20,96.80,T1", "03/03/2026,11:00:00,PST,Bob,Website Payment,Completed,USD,50.00,-1.75,48.25,T2", "03/04/2026,09:00:00,PST,Ann,Payment Refund,Completed,USD,-20.00,0.00,-20.00,T3", "03/05/2026,12:00:00,PST,Bank,General Withdrawal,Completed,USD,-125.05,0.00,-125.05,W1", "03/06/2026,12:00:00,PST,Cy,Website Payment,Completed,USD,10.00,-0.59,9.41,T4", "03/07/2026,12:00:00,PST,Dee,Website Payment,Pending,USD,10.00,-0.59,9.41,T5"];
+  for (const order of [rows, [...rows].reverse()]) {
+    const r = readPayoutReport([PP, ...order].join("\n") + "\n");
+    assert.equal(r.payouts.length, 1);
+    assert.equal(r.payouts[0].id, "W1");
+    assert.equal(r.payouts[0].net, 12505);
+    assert.equal(r.payouts[0].fees, 495);
+    assert.equal(r.pending.length, 1);
+    assert.deepEqual(r.problems, []);
+    const plan = planPayouts(books([["2026-03-06", "PAYPAL TRANSFER", "125.05"]]), r);
+    assert.deepEqual(plan.matched[0].parts, [{ account: "4000", cents: 13000 }, { account: "6010", cents: -495 }]);
+  }
+});
+
+test("a PayPal withdrawal that does not equal the payments is reported, not split", () => {
+  const r = readPayoutReport([PP, "03/02/2026,10:00:00,PST,Ann,Website Payment,Completed,USD,100.00,-3.20,96.80,T1", "03/05/2026,12:00:00,PST,Bank,General Withdrawal,Completed,USD,-50.00,0.00,-50.00,W1"].join("\n") + "\n");
+  assert.equal(r.payouts.length, 0);
+  assert.match(r.problems[0], /carried over/);
+});
