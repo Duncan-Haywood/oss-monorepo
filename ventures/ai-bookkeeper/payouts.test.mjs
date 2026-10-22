@@ -196,3 +196,24 @@ test("an Amazon date-range row whose columns do not add up to its total is refus
   assert.equal(r.payouts.length, 0);
   assert.match(r.problems[0], /add up to 85\.00|85\.00/);
 });
+
+test("Square Payouts API entries split a payout; fees may be signed either way", async () => {
+  const { readFileSync } = await import("node:fs");
+  const r = readPayoutReport(readFileSync(new URL("./fixtures/square-payout-entries.json", import.meta.url), "utf8"));
+  assert.deepEqual(r.problems, []);
+  assert.equal(r.payouts.length, 1);
+  assert.equal(r.payouts[0].id, "po_sq1");
+  assert.equal(r.payouts[0].date, "2026-03-06");
+  assert.equal(r.payouts[0].net, 14535 - 5000 - 2900);
+  assert.equal(r.pending.length, 1); // e4 not in a payout yet
+  const plan = planPayouts(books([["2026-03-06", "SQUARE INC TRANSFER", "66.35"]]), r);
+  assert.equal(plan.matched.length, 1);
+  const by = Object.fromEntries(plan.matched[0].parts.map((x) => [x.account, x.cents]));
+  assert.deepEqual(by, { 4000: 10000, 6010: -3365 });
+});
+
+test("a Square entry whose net fits neither fee sign is refused", () => {
+  const r = readPayoutReport(JSON.stringify({ payout_entries: [{ payout_id: "p", type: "CHARGE", gross_amount_money: { amount: 1000 }, fee_amount_money: { amount: 30 }, net_amount_money: { amount: 900 } }] }));
+  assert.equal(r.payouts.length, 0);
+  assert.equal(r.problems.length, 1);
+});

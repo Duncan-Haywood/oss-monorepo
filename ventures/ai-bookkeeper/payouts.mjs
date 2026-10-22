@@ -59,6 +59,7 @@ const CATEGORY = {
 
 // Read the report. -> { rows, payouts: [{ id, date, net, parts, rows }], pending, problems }
 export function readPayoutReport(text) {
+  if (/^\s*[\[{]/.test(text)) return readSquareJson(text);
   let table = parseCsv(text).filter((r) => r.some((c) => String(c).trim() !== ""));
   if (table.length < 2) throw new Error("The report has no rows.");
   // Seller Central's date-range CSV opens with a few note lines before the header.
@@ -96,6 +97,47 @@ export function readPayoutReport(text) {
     const dates = rs.map((x) => x.payoutDate).filter(Boolean).sort();
     const sum = (f) => rs.reduce((a, x) => a + f(x), 0);
     return { id, date: dates.at(-1) ?? rs.map((x) => x.created).filter(Boolean).sort().at(-1) ?? null, net: sum((x) => x.net), gross: sum((x) => x.gross), fees: sum((x) => x.fee), rows: rs };
+  }).sort((a, b) => String(a.date).localeCompare(String(b.date)));
+  return { rows, payouts, pending, problems };
+}
+
+// Square Payouts API: ListPayoutEntries JSON ({ payout_entries: [...] }), or
+// { payouts: [...], payout_entries: [...] } / an array of those entries. Each
+// entry has payout_id, type, effective_at and gross/fee/net_amount_money.amount
+// in minor units. Fees may come signed either way (net = gross - fee or
+// gross + fee); an entry that fits neither is refused. CHARGE is a sale, REFUND
+// a refund, types naming a fee a fee, dispute/chargeback types disputes, payout
+// and transfer types skipped; any other type is "other income", never guessed.
+// Written from Square's published entry shape and a hand-made fixture only.
+function readSquareJson(text) {
+  let doc;
+  try { doc = JSON.parse(text); } catch { throw new Error("The JSON file could not be read."); }
+  const entries = Array.isArray(doc) ? doc : doc.payout_entries ?? doc.entries;
+  if (!Array.isArray(entries)) throw new Error('No "payout_entries" list: export ListPayoutEntries from the Square Payouts API.');
+  const dateOf = new Map((doc.payouts ?? (doc.payout ? [doc.payout] : [])).map((p) => [p.id, parseDate(String(p.arrival_date ?? p.created_at ?? "").slice(0, 10))]));
+  const money = (m) => (m && Number.isInteger(m.amount) ? m.amount : m === undefined || m === null ? 0 : NaN);
+  const problems = [], rows = [];
+  entries.forEach((e, n) => {
+    const gross = money(e.gross_amount_money), net = money(e.net_amount_money);
+    let fee = money(e.fee_amount_money);
+    if ([gross, net, fee].some(Number.isNaN)) { problems.push(`Entry ${n + 1}: cannot read the amounts.`); return; }
+    if (net !== gross - fee && net === gross + fee) fee = -fee;
+    if (net !== gross - fee) { problems.push(`Entry ${n + 1}: net ${fmt(net)} is not gross ${fmt(gross)} less fee ${fmt(fee)}.`); return; }
+    const category = key(e.type ?? "");
+    const kind = /payout|transfer/.test(category) ? "skip" : category === "charge" ? "sales" : /refund/.test(category) ? "refunds" : /dispute|chargeback/.test(category) ? "disputes" : /fee/.test(category) ? "fees" : "other";
+    const created = parseDate(String(e.effective_at ?? "").slice(0, 10));
+    rows.push({ row: n + 1, id: e.id ?? `entry${n + 1}`, payout: e.payout_id ?? "", payoutDate: dateOf.get(e.payout_id) ?? null, created, category, kind, gross, fee, net, desc: "" });
+  });
+  const by = new Map(), pending = [];
+  for (const x of rows) {
+    if (x.kind === "skip") continue;
+    if (!x.payout) { pending.push(x); continue; }
+    if (!by.has(x.payout)) by.set(x.payout, []);
+    by.get(x.payout).push(x);
+  }
+  const payouts = [...by].map(([id, rs]) => {
+    const sum = (f) => rs.reduce((a, x) => a + f(x), 0);
+    return { id, date: rs[0].payoutDate ?? rs.map((x) => x.created).filter(Boolean).sort().at(-1) ?? null, net: sum((x) => x.net), gross: sum((x) => x.gross), fees: sum((x) => x.fee), rows: rs };
   }).sort((a, b) => String(a.date).localeCompare(String(b.date)));
   return { rows, payouts, pending, problems };
 }
