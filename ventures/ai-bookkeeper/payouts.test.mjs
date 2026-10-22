@@ -126,3 +126,13 @@ test("a PayPal withdrawal that includes a carried-over balance is not split", ()
   assert.equal(r.payouts.length, 0);
   assert.match(r.problems[0], /carried over/);
 });
+
+test("a Square layout (negative fees, net total) splits into sales, refunds and fees", () => {
+  const r = readPayoutReport(`Payout ID,Payout Date,Payment ID,Payment Date,Type,Gross Sales,Fees,Net Total
+d1,2026-03-05,p1,2026-03-03,Card,100.00,-3.20,96.80
+d1,2026-03-05,p2,2026-03-04,Refund,-20.00,0.00,-20.00
+`);
+  assert.equal(r.payouts[0].net, 7680);
+  const plan = planPayouts(books([["2026-03-06", "SQUARE INC", "76.80"]]), r);
+  assert.deepEqual(plan.matched[0].parts, [{ account: "4000", cents: 8000 }, { account: "6010", cents: -320 }]);
+});

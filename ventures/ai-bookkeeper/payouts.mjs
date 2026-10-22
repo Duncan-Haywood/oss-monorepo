@@ -36,11 +36,11 @@ const ALIASES = {
   payout: ["automatic_payout_id", "payout_id", "payout", "transfer_id"],
   payoutDate: ["automatic_payout_effective_at", "automatic_payout_effective_at_utc", "payout_date", "payout_effective_at", "arrival_date", "transfer_date"],
   category: ["reporting_category", "category", "type", "transaction_type"],
-  gross: ["gross", "amount", "gross_amount"],
-  fee: ["fee", "fees", "fee_amount"],
-  net: ["net", "net_amount"],
-  id: ["balance_transaction_id", "id", "transaction_id"],
-  created: ["created", "created_utc", "created_at", "transaction_date", "date"],
+  gross: ["gross", "amount", "gross_amount", "gross_sales", "total_collected"],
+  fee: ["fee", "fees", "fee_amount", "processing_fees"],
+  net: ["net", "net_amount", "net_total"],
+  id: ["balance_transaction_id", "id", "transaction_id", "payment_id"],
+  created: ["created", "created_utc", "created_at", "transaction_date", "payment_date", "date"],
   desc: ["description", "memo"],
 };
 
@@ -51,6 +51,7 @@ const CATEGORY = {
   fee: "fees", stripe_fee: "fees", network_cost: "fees", tax: "fees",
   dispute: "disputes", dispute_reversal: "disputes", chargeback: "disputes", payment_failure_refund: "refunds",
   adjustment: "other", reserve: "skip", chargeback_won: "disputes", chargeback_reversal: "disputes",
+  card: "sales", square_card: "sales", online_checkout: "sales", processing_fee: "fees",
   payout: "skip", payout_cancel: "skip", payout_failure: "skip", transfer: "skip",
 };
 
@@ -65,10 +66,13 @@ export function readPayoutReport(text) {
   if (col.payout === -1) throw new Error('No payout id column (Stripe: "automatic_payout_id"). Export the payout reconciliation report, not the plain payments list.');
   const problems = [];
   const rows = [];
+  // Square writes fees as negatives (net = gross + fee), Stripe as positives.
+  const negFees = table.slice(1).some((r) => { const g = parseCents(String(r[col.gross] ?? "")), f = col.fee === -1 ? 0 : parseCents(String(r[col.fee] ?? "")), nt = parseCents(String(r[col.net] ?? "")); return f < 0 && nt === g + f; });
   table.slice(1).forEach((r, n) => {
     const at = (k) => (col[k] === -1 ? "" : String(r[col[k]] ?? "").trim());
     const gross = parseCents(at("gross")), net = parseCents(at("net"));
-    const fee = col.fee === -1 ? 0 : parseCents(at("fee"));
+    let fee = col.fee === -1 ? 0 : parseCents(at("fee"));
+    if (negFees && fee) fee = -fee;
     if ([gross, net, fee].some((v) => v === null || Number.isNaN(v))) { problems.push(`Row ${n + 2}: cannot read the amounts.`); return; }
     if (net !== gross - fee) { problems.push(`Row ${n + 2}: net ${fmt(net)} is not gross ${fmt(gross)} less fee ${fmt(fee)}.`); return; }
     const category = key(at("category"));
