@@ -121,9 +121,11 @@ flagships:
       detail concentration; `framing`, `subject_x/y`, 15% of story_score; synthetic
       patches only, not yet checked against human picks). Next: face and
       closed-eye scores for the story score (a small
-      on-device model, opt-in, behind the same analysis/NNNNN.json contract),
-      and RAW stills via a RAW developer so they stop falling back to the
-      sha256 stand-in.
+      on-device model, opt-in, behind the same analysis/NNNNN.json contract).
+      RAW stills are scored from their embedded JPEG preview (raw_preview.py,
+      2026-10-22; synthetic containers only, so try real CR2/CR3/NEF/ARW/DNG
+      files); developing RAW into proxies and masters (a RAW developer) is
+      still open.
   - venture: quick-pick-survey
     why: >-
       Next.js + Postgres app with Glicko-2 ranking, adaptive pairing and a
