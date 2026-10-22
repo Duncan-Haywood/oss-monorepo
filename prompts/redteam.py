@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Red team: seed faults into the repository and measure how many its guards catch.
 
-    python3 prompts/redteam.py targets [--limit N] [--seed S] [--under DIR]
+    python3 prompts/redteam.py targets [--limit N] [--seed S] [--under DIR] [--probe SECONDS]
     python3 prompts/redteam.py campaign [--target FILE | --under DIR] [--mutants 8] [--seed S] [--record RUN.json]
     python3 prompts/redteam.py rerun RUN.json          # blue team: re-run escaped mutants
     python3 prompts/redteam.py tally [RUN.json ...]    # catch rate from run records
@@ -416,6 +416,9 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--limit", type=int, default=20)
     p.add_argument("--seed", type=int)
     p.add_argument("--under", help="only files below this directory, e.g. platform")
+    p.add_argument("--probe", type=int, metavar="SECONDS",
+                   help="time each listed target's suite (cached per suite), giving up after "
+                   "SECONDS, so a campaign is not started on a suite too slow to run")
     p = sub.add_parser("campaign", help="seed mutants into one file and run its suite")
     p.add_argument("--target", help="file to mutate; default a random guarded file")
     p.add_argument("--under", help="draw the random file from below this directory, "
@@ -435,8 +438,18 @@ def main(argv: list[str] | None = None) -> int:
     if args.cmd == "targets":
         targets = list_targets(under=args.under)
         rng = random.Random(args.seed)
+        seen: dict[tuple[str, str], str] = {}
         for path in rng.sample(targets, min(args.limit, len(targets))):
-            print(path.relative_to(REPO).as_posix())
+            rel = path.relative_to(REPO).as_posix()
+            if args.probe:
+                cmd, cwd = suite_for(path)
+                key = (" ".join(cmd), str(cwd))
+                if key not in seen:
+                    ok, secs = run_suite(cmd, cwd, args.probe)
+                    seen[key] = (f">{args.probe}s (too slow)" if secs >= args.probe
+                                 else f"{secs}s" + ("" if ok else " (red)"))
+                rel = f"{rel}\t{seen[key]}"
+            print(rel)
         print(f"({len(targets)} guarded files)", file=sys.stderr)
         return 0
     if args.cmd == "campaign":
