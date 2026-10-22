@@ -1,7 +1,7 @@
 // How often does the 95% range on a change of growth rate (counts, --trend bend) hold the planted bend?
-// Seeded Poisson series: log rate 2 + 0.004 t, growing by `bump` per point after a planted point; usage: node eval/growth-change-interval.mjs [runs]
+// Seeded Poisson series: log rate 2 + 0.004 t, growing by `bump` per point after a planted point; usage: node eval/growth-change-interval.mjs [runs] [seed]
 import { analyze } from '../engine.mjs';
-let seed = 2026;
+let seed = Number(process.argv[3]) || 2026;
 const rnd = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return (seed + 0.5) / 4294967296; };
 const pois = (l) => { const L = Math.exp(-l); let k = 0, p = 1; do { k++; p *= rnd(); } while (p > L); return k - 1; };
 const N = 200, RUNS = Number(process.argv[2]) || 100;

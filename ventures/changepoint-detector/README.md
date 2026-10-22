@@ -554,8 +554,8 @@ Measured with `node eval/growth-change-interval.mjs` (100 seeded Poisson series 
 
 | bump in log growth (per point) | found | range holds planted bend | median width (points) |
 |---|---|---|---|
-| 0.015 | 90/100 | 79/90 (88%) | 37 |
-| 0.025 | 97/100 | 85/97 (88%) | 25 |
-| 0.04 | 81/100 | 68/81 (84%) | 16 |
+| 0.015 | 90/100 | 85/90 (94%) | 46 |
+| 0.025 | 97/100 | 93/97 (96%) | 34 |
+| 0.04 | 81/100 | 77/81 (95%) | 22 |
 
-**It under-covers: about 86% at a nominal 95%** (the slope-change range for Gaussian series holds 95 to 97%). The knots show no bias (mean offset +0.2 points over 59 series); the misses are tails, a range that stops a few points short of the planted point. Treat it as a "likely" range, not a 95% guarantee, until the cause is found. Next: widen it by calibration (a profile-likelihood cut at a higher level, or a scale from the measured coverage) and check against a count series with a documented growth break. Simulated data only.
+**Calibrated 2026-10-22.** The first version weighted positions by `exp(-(cost - min cost) / 2 / scale)` and held only about 86% (88, 88, 84%) at a nominal 95%; the knots had no bias, the misses were tails. The weights are now tempered by 1.15 (`RANGE_TEMPER` in `engine.mjs`). Sweep on seed 2026, pooled over the three bumps (268 found series): 1.0 gave 86%, 1.1 gave 91%, 1.2 gave 97%, 1.3 gave 99%, 1.5 gave 100% (median width 64 against 37 at bump 0.015). The table is 1.15. Checked on two other seeds (`node eval/growth-change-interval.mjs 100 7`, `... 99`): 246/257 (96%) and 256/269 (95%), widths 22 to 52. 1.15 was picked from the seed 2026 sweep, so that seed is in-sample; the two other seeds are not. Output in `eval/growth-change-interval.out.txt`. Still open: a count series with a documented growth break. Simulated data only, Poisson counts (not clumpy ones).
