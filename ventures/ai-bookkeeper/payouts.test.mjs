@@ -225,3 +225,21 @@ test("Stripe reserved funds go to the clearing asset, not other income, and a re
   assert.deepEqual(plan.matched[0].parts, [{ account: "4000", cents: 50000 }, { account: "6010", cents: -1500 }, { account: "1200", cents: -10000 }]);
   assert.deepEqual(plan.matched[1].parts, [{ account: "1200", cents: 10000 }]);
 });
+
+test("an Etsy payment-account ledger is grouped under each deposit, newest first", () => {
+  const e = `Date,Type,Title,Info,Currency,Amount,Fees & Taxes,Net,Tax Details
+"March 5, 2026",Deposit,Deposit to bank,,USD,--,--,-$99.30,
+"March 4, 2026",Fee,Listing fee,,USD,--,--,-$0.20,
+"March 3, 2026",Refund,Refund to buyer,Order #3,USD,-$10.00,--,-$10.00,
+"March 2, 2026",Sale,Payment for Order #2,,USD,$50.00,-$2.50,$47.50,
+"March 1, 2026",Sale,Payment for Order #1,,USD,$65.00,-$3.00,$62.00,
+"March 6, 2026",Sale,Payment for Order #4,,USD,$20.00,-$1.00,$19.00,
+`;
+  const r = readPayoutReport(e);
+  assert.deepEqual(r.problems, []);
+  assert.equal(r.payouts.length, 1);
+  assert.equal(r.payouts[0].net, 9930);
+  assert.equal(r.payouts[0].gross, 10500);
+  assert.equal(r.payouts[0].fees, 570);
+  assert.equal(r.pending.length, 1);
+});
