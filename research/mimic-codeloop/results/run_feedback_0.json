@@ -1,0 +1,208 @@
+{
+ "condition": "feedback",
+ "seed": 0,
+ "model": "Qwen/Qwen2.5-Coder-1.5B-Instruct",
+ "rounds": [
+  {
+   "round": 0,
+   "reference": 1.0
+  },
+  {
+   "round": 1,
+   "detector_cv": 1.0,
+   "loop_test": 1.0,
+   "reference": 1.0,
+   "groups": [
+    "straight",
+    "rate",
+    "dt"
+   ],
+   "candidates": [
+    {
+     "valid": false,
+     "score": 1000005.2675588769,
+     "fail_rate": 1.0
+    },
+    {
+     "valid": false,
+     "error": "banned token"
+    },
+    {
+     "valid": false,
+     "score": 1000005.2675588769,
+     "fail_rate": 1.0
+    },
+    {
+     "valid": false,
+     "error": "banned token"
+    }
+   ],
+   "src": "def generate(start, end, rng):\n    # straight line at constant speed, 400 ms, one event every 16 ms\n    t = np.append(np.arange(0, 400, 16.0), 400.0)\n    u = t / 400.0\n    pts = start + np.outer(u, end - start)\n    return np.column_stack([t, pts])\n",
+   "seconds": 286.3591959476471
+  },
+  {
+   "round": 2,
+   "detector_cv": 1.0,
+   "loop_test": 0.9979140625,
+   "reference": 1.0,
+   "groups": [
+    "straight",
+    "rate",
+    "dt"
+   ],
+   "candidates": [
+    {
+     "valid": false,
+     "score": 1000005.2284507665,
+     "fail_rate": 1.0
+    },
+    {
+     "valid": false,
+     "error": "does not load: SyntaxError"
+    },
+    {
+     "valid": true,
+     "score": 3.185079863535344,
+     "fail_rate": 0.0
+    },
+    {
+     "valid": false,
+     "score": 1000005.2284507665,
+     "fail_rate": 1.0
+    }
+   ],
+   "src": "import numpy as np\n\ndef generate(start, end, rng):\n    # Calculate the Euclidean distance between start and end points\n    dist = np.linalg.norm(end - start)\n    \n    # Calculate the midpoint between start and end points\n    mid = (start + end) / 2\n    \n    # Define the angle around the midpoint\n    theta = np.arctan2(end[1] - mid[1], end[0] - mid[0]) % (2 * np.pi)\n    \n    # Generate the number of steps based on the distance and theta\n    steps = int(dist / 20) + 1\n    \n    # Generate random angles between 0 and 2*pi\n    angles = rng.uniform(0, 2 * np.pi, size=steps)\n    \n    # Generate the x, y coordinates using the midpoint and angles\n    x = mid[0] + dist * np.cos(theta + angles)\n    y = mid[1] + dist * np.sin(theta + angles)\n    \n    # Append the time vector\n    times = np.arange(0, steps * 16, 16.0)\n    \n    # Combine all the vectors into a single array\n    data = np.column_stack([times, x, y])\n    \n    return data",
+   "seconds": 292.6939949989319
+  },
+  {
+   "round": 3,
+   "detector_cv": 1.0,
+   "loop_test": 1.0,
+   "reference": 1.0,
+   "groups": [
+    "straight",
+    "rate",
+    "dt"
+   ],
+   "candidates": [
+    {
+     "valid": false,
+     "error": "banned token"
+    },
+    {
+     "valid": false,
+     "error": "banned token"
+    },
+    {
+     "valid": false,
+     "error": "banned token"
+    },
+    {
+     "valid": true,
+     "score": 6.390831843319188,
+     "fail_rate": 0.0
+    }
+   ],
+   "src": "import numpy as np\n\ndef generate(start, end, rng):\n    # Calculate the Euclidean distance between start and end points\n    dist = np.linalg.norm(end - start)\n    \n    # Calculate the midpoint between start and end points\n    mid = (start + end) / 2\n    \n    # Define the angle around the midpoint\n    theta = np.arctan2(end[1] - mid[1], end[0] - mid[0]) % (2 * np.pi)\n    \n    # Generate the number of steps based on the distance and theta\n    steps = int(dist / 20) + 1\n    \n    # Generate random angles between 0 and 2*pi\n    angles = rng.uniform(0, 2 * np.pi, size=steps)\n    \n    # Generate the x, y coordinates using the midpoint and angles\n    x = mid[0] + dist * np.cos(theta + angles)\n    y = mid[1] + dist * np.sin(theta + angles)\n    \n    # Append the time vector\n    times = np.arange(0, steps * 16, 16.0)\n    \n    # Combine all the vectors into a single array\n    data = np.column_stack([times, x, y])\n    \n    return data",
+   "seconds": 308.48352122306824
+  },
+  {
+   "round": 4,
+   "detector_cv": 1.0,
+   "loop_test": 1.0,
+   "reference": 1.0,
+   "groups": [
+    "straight",
+    "rate",
+    "dt"
+   ],
+   "candidates": [
+    {
+     "valid": false,
+     "error": "banned token"
+    },
+    {
+     "valid": false,
+     "error": "banned token"
+    },
+    {
+     "valid": true,
+     "score": 4.820672697936515,
+     "fail_rate": 0.0
+    },
+    {
+     "valid": false,
+     "error": "does not load: SyntaxError"
+    }
+   ],
+   "src": "import numpy as np\nfrom math import cos, sin, pi\n\ndef generate(start, end, rng, speed_factor=1.0):\n    # Calculate the Euclidean distance between start and end points\n    dist = np.linalg.norm(end - start)\n    \n    # Calculate the midpoint between start and end points\n    mid = (start + end) / 2\n    \n    # Define the angle around the midpoint\n    theta = np.arctan2(end[1] - mid[1], end[0] - mid[0]) % (2 * np.pi)\n    \n    # Generate the number of steps based on the distance and theta\n    steps = int(dist / 20) + 1\n    \n    # Generate random angles between 0 and 2*pi with increased randomness\n    angles = rng.uniform(0, 2 * np.pi, size=steps)\n    \n    # Modulate the speed of movement\n    speeds = speed_factor * np.linspace(0, 1, steps)\n    \n    # Generate the x, y coordinates using the midpoint and angles\n    x = mid[0] + speeds * dist * np.cos(theta + angles)\n    y = mid[1] + speeds * dist * np.sin(theta + angles)\n    \n    # Append the time vector\n    times = np.arange(0, steps * 16, 16.0)\n    \n    # Combine all the vectors into a single array\n    data = np.column_stack([times, x, y])\n    \n    return data",
+   "seconds": 368.295250415802
+  },
+  {
+   "round": 5,
+   "detector_cv": 1.0,
+   "loop_test": 1.0,
+   "reference": 1.0,
+   "groups": [
+    "straight",
+    "rate",
+    "dt"
+   ],
+   "candidates": [
+    {
+     "valid": false,
+     "error": "does not load: SyntaxError"
+    },
+    {
+     "valid": true,
+     "score": 5.45914072288489,
+     "fail_rate": 0.0
+    },
+    {
+     "valid": false,
+     "error": "does not load: NameError"
+    },
+    {
+     "valid": true,
+     "score": 5.469377130080947,
+     "fail_rate": 0.0
+    }
+   ],
+   "src": "import numpy as np\nfrom math import cos, sin, pi\n\ndef generate(start, end, rng, speed_factor=1.0):\n    # Calculate the Euclidean distance between start and end points\n    dist = np.linalg.norm(end - start)\n    \n    # Calculate the midpoint between start and end points\n    mid = (start + end) / 2\n    \n    # Define the angle around the midpoint\n    theta = np.arctan2(end[1] - mid[1], end[0] - mid[0]) % (2 * np.pi)\n    \n    # Generate the number of steps based on the distance and theta\n    steps = int(dist / 20) + 1\n    \n    # Generate random angles between 0 and 2*pi with increased randomness\n    angles = rng.uniform(0, 2 * np.pi, size=steps)\n    \n    # Modulate the speed of movement\n    speeds = speed_factor * np.linspace(0, 1, steps)\n    \n    # Generate the x, y coordinates using the midpoint and angles\n    x = mid[0] + speeds * dist * np.cos(theta + angles)\n    y = mid[1] + speeds * dist * np.sin(theta + angles)\n    \n    # Append the time vector\n    times = np.arange(0, steps * 16, 16.0)\n    \n    # Combine all the vectors into a single array\n    data = np.column_stack([times, x, y])\n    \n    return data",
+   "seconds": 327.19422221183777
+  },
+  {
+   "round": 6,
+   "detector_cv": 1.0,
+   "loop_test": 1.0,
+   "reference": 1.0,
+   "groups": [
+    "straight",
+    "rate",
+    "dt"
+   ],
+   "candidates": [
+    {
+     "valid": false,
+     "error": "does not load: SyntaxError"
+    },
+    {
+     "valid": false,
+     "error": "does not load: SyntaxError"
+    },
+    {
+     "valid": true,
+     "score": 5.558669944150781,
+     "fail_rate": 0.0
+    },
+    {
+     "valid": false,
+     "error": "does not load: SyntaxError"
+    }
+   ],
+   "src": "import numpy as np\nfrom math import cos, sin, pi\n\ndef generate(start, end, rng, speed_factor=1.0):\n    # Calculate the Euclidean distance between start and end points\n    dist = np.linalg.norm(end - start)\n    \n    # Calculate the midpoint between start and end points\n    mid = (start + end) / 2\n    \n    # Define the angle around the midpoint\n    theta = np.arctan2(end[1] - mid[1], end[0] - mid[0]) % (2 * np.pi)\n    \n    # Generate the number of steps based on the distance and theta\n    steps = int(dist / 20) + 1\n    \n    # Generate random angles between 0 and 2*pi with increased randomness\n    angles = rng.uniform(0, 2 * np.pi, size=steps)\n    \n    # Modulate the speed of movement\n    speeds = speed_factor * np.linspace(0, 1, steps)\n    \n    # Generate the x, y coordinates using the midpoint and angles\n    x = mid[0] + speeds * dist * np.cos(theta + angles)\n    y = mid[1] + speeds * dist * np.sin(theta + angles)\n    \n    # Append the time vector\n    times = np.arange(0, steps * 16, 16.0)\n    \n    # Combine all the vectors into a single array\n    data = np.column_stack([times, x, y])\n    \n    return data",
+   "seconds": 356.2288122177124
+  }
+ ],
+ "note": "Generated cursor strokes are simulated; nothing was sent to any site."
+}
