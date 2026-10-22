@@ -90,7 +90,8 @@ flagships:
       Landed history (official Schematron, in-browser path, 20+ country mandate
       pages, credit-note links, JSON/UBL/CII/Factur-X arithmetic repair, FatturaPA
       IT-001..IT-018) lives in the README and git. Open: a repair tried on a real
-      ERP or Factur-X export, xref-stream PDFs, a page button for PDFs; verify the
+      ERP or Factur-X export (xref-stream PDF repair landed 2026-10-22 on a hand-built
+      fixture; open the result in veraPDF/a viewer), a page button for PDFs; verify the
       FatturaPA code lists, tolerances and IT-018 sequences against the current
       specification and add a full FatturaPA XSD check; refresh the Bulgaria page
       when its draft passes or changes; the NLCIUS and RO_CIUS rules themselves
