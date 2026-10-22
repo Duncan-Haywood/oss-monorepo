@@ -16,7 +16,8 @@
 // decimals and the product by BigInt, so a conversion is exact.
 // A transfer between a foreign and a base account pairs when the sides are within 3%
 // (engine.pairTransfers); the difference is realized gain or loss in 6190.
-// Not modelled: foreign invoices and bills, a per-lot realized gain, tax
+// Open foreign invoices and bills are revalued at month ends too (docRevals).
+// Not modelled: a per-lot realized gain, tax
 // rules on foreign gains. Not accounting advice.
 
 import { parseDate } from "./bank.mjs";
@@ -132,6 +133,50 @@ export function fxEntries(books) {
         prev = cum;
       }
       if (++m > 12) { m = 1; y++; }
+    }
+  }
+  return out;
+}
+
+// Month-end revaluation of foreign invoices and bills. A document with a currency
+// and no credit, write-off or part-payment is carried at its booked base amount until
+// paid; each month end its foreign total is converted at that month's rate and the
+// change is booked to 6190 against receivable (an invoice) or payable (a bill). A
+// settled document is revalued only at month ends before its payment date, and the
+// realized difference at payment (accruals.fxSettleEntries) is taken from the
+// revalued carrying amount, so gain and loss are never counted twice.
+// Returns [{ date, rate, cum }] for the document: cum is the carrying amount less the
+// booked total, in base cents.
+export function docRevals(books, d, through = null) {
+  if (!d.currency || d.credit || d.credited || d.writtenOff || (d.payments ?? []).length > 1 || d.foreignTotal == null) return [];
+  const paidOn = d.settledBy ? books.transactions.find((t) => t.id === d.settledBy)?.date : null;
+  const last = through ?? [...books.transactions.map((t) => t.date), ...(books.documents ?? []).map((x) => x.date)].sort().at(-1);
+  if (!last) return [];
+  const out = [];
+  let y = +d.date.slice(0, 4), m = +d.date.slice(5, 7);
+  for (;;) {
+    const end = monthEnd(y, m);
+    if (end.slice(0, 7) > last.slice(0, 7) || (paidOn && end >= paidOn)) break;
+    const rate = rateOn(books, d.currency, end);
+    if (rate !== null && end >= d.date) out.push({ date: end, rate, cum: convertCents(d.foreignTotal, rate) - d.total });
+    if (++m > 12) { m = 1; y++; }
+  }
+  return out;
+}
+
+export function docRevalEntries(books) {
+  const out = [];
+  for (const d of books.documents ?? []) {
+    let prev = 0;
+    const bill = d.kind !== "invoice";
+    for (const r of docRevals(books, d)) {
+      const delta = r.cum - prev;
+      prev = r.cum;
+      if (!delta) continue;
+      const n = Math.abs(delta), up = delta > 0; // carrying amount rose
+      out.push({ id: `FXR-${d.id}-${r.date.slice(0, 7)}`, date: r.date, memo: `${d.currency} ${bill ? "bill" : "invoice"} ${d.number}, ${d.party}, revalued at ${r.rate}`, source: "fx", lines: [
+        { account: bill ? "2050" : "1100", debit: bill ? (up ? 0 : n) : (up ? n : 0), credit: bill ? (up ? n : 0) : (up ? 0 : n) },
+        { account: FX_ACCOUNT, debit: bill ? (up ? n : 0) : (up ? 0 : n), credit: bill ? (up ? 0 : n) : (up ? n : 0) }] });
     }
   }
   return out;
