@@ -17,7 +17,7 @@
   "tool_calls": null,
   "task": null,
   "projects": [],
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/9502",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -25,15 +25,20 @@
   "merged": null,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": null,
-  "outcome": null,
+  "tests_added": 1,
+  "outcome": "partial",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [],
-  "deviations": [],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Landed only a small test, not a deep flagship slice; did not write report/post."
+    }
+  ],
   "writeups": [],
   "goal": null,
-  "notes": "",
+  "notes": "Small slice: regression test for overlapping exports with identical same-day lines (ai-bookkeeper). No new reader (would be from memory). Ran engine.test.mjs locally, 55/55. No write-up, no flagships.yaml change.",
   "corrections": [],
   "redteam": null
 }
