@@ -143,3 +143,53 @@ test("hip lumber joins the pooled order with hips and jacks as their own kinds",
   assert.ok(r.ok, JSON.stringify(r.errors));
   assert.match(roofText(l).join("\n"), /Hip roof: 32 common rafters/);
 });
+
+// L-shaped roof: 28 x 40 ft 4:12 main, 16 ft wide wing 12 ft out, centred 20 ft along, right side
+const wingRoof = (wing = {}) => ({ ...sampleRoof(), ceilingJoist: undefined, collarTies: false, wing: { width: 192, projection: 144, at: 240, side: "right", valley: "2x8", ...wing } });
+
+test("cross wing: valley length, wing ridge and station counts match hand arithmetic", () => {
+  const l = layoutRoof(wingRoof(), plan());
+  assert.ok(l.ok, JSON.stringify(l.errors));
+  const k = Math.sqrt(10) / 3;
+  // valley: (96 + 12) in of plan leg each way -> 108 x sqrt(2 + 1/9)
+  assert.equal(l.valleys.length, 2);
+  assert.ok(Math.abs(l.valleyLength - 108 * Math.sqrt(2 + 1 / 9)) < 1 / 16);
+  // wing ridge: 144 out + 96 to the main roof + 12 rake
+  assert.equal(l.wingRidges.reduce((s, x) => s + x.length, 0), 252);
+  // commons at u = 0.75 and 16..128 (clear of the main eave line at 132), both sides
+  assert.equal(l.wingRafters.length, 18);
+  assert.ok(l.wingRafters.every((x) => Math.abs(x.length - 107.25 * k) < 1 / 16));
+  // valley jacks at u = 144..224 (six stations), both sides; first has run 240 - 144 - 0.75
+  assert.equal(l.wingJacks.length, 12);
+  const first = l.wingJacks.find((j) => j.u === 144);
+  assert.ok(Math.abs(first.length - (96 - 0.75 - 0.75 * Math.SQRT2) * k) < 1 / 16);
+  // main rafters on the right within 108 in of the wing axis (stations 144..336) end at the valley
+  assert.equal(l.rafters.filter((x) => x.kind).length, 13);
+  const mid = l.rafters.find((x) => x.kind && Math.abs(x.x + 0.75 - 240) < 1e-9);
+  assert.ok(Math.abs(mid.length - (168 - 0.75 - 96 - 0.75 * Math.SQRT2) * k) < 1 / 16);
+});
+
+test("cross wing: area is the main roof plus two wing planes less the triangle they cover", () => {
+  const base = layoutRoof({ ...wingRoof(), wing: undefined }, plan());
+  const l = layoutRoof(wingRoof(), plan());
+  const k = Math.sqrt(10) / 3;
+  const reach = 108;
+  const added = (2 * ((132 + 12) + (240 + 12)) / 2 * reach - reach * reach) * k / 144;
+  assert.ok(Math.abs(l.sheets.area - base.sheets.area - added) < 1e-6);
+  assert.ok(l.sheets.count > base.sheets.count);
+  assert.ok(Math.abs(l.roofing.valleyFeet - 2 * l.valleyLength / 12) < 1e-9);
+  assert.ok(l.roofing.shingleBundles > base.roofing.shingleBundles);
+});
+
+test("cross wing: cut rows pool the valleys and jacks; bad wings are refused", () => {
+  const l = layoutRoof(wingRoof(), plan());
+  const rows = roofCuts(l);
+  assert.equal(rows.filter((r) => r.kind === "valley rafter").reduce((s, r) => s + r.qty, 0), 2);
+  assert.equal(rows.filter((r) => r.kind === "valley jack rafter").reduce((s, r) => s + r.qty, 0), 12 + 13);
+  assert.match(roofText(l).join("\n"), /Cross wing/);
+  assert.equal(layoutRoof(wingRoof({ width: 336 }), plan()).ok, false);
+  assert.equal(layoutRoof(wingRoof({ at: 40 }), plan()).ok, false);
+  assert.equal(layoutRoof({ ...wingRoof(), trusses: { spacing: 24 } }, plan()).ok, false);
+  const t = takeoff(samplePlan(), rows);
+  assert.ok(t.ok, JSON.stringify(t.errors));
+});

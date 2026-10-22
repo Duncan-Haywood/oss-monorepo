@@ -17,7 +17,7 @@ import { THICK, EPS, DEPTH, optimizeStock, formatLength, formatInches } from "./
 
 export const SHEET = { width: 48, length: 96 };
 
-/** @typedef {{ id?: string, shape?: "gable" | "hip", hip?: string, width: number, length: number, pitch: number, overhang?: number, gableOverhang?: number, rafter?: string, spacing?: number, ridge?: string | null, ceilingJoist?: string, ceilingBearing?: number, collarTies?: boolean, collarDrop?: number, trusses?: { spacing?: number, price?: number }, sheet?: { length?: number, width?: number, price?: number, kerf?: number }, roofing?: { waste?: number, bundlesPerSquare?: number, underlaymentRoll?: number, ridgeBundleFeet?: number, starterBundleFeet?: number, dripEdgePiece?: number } }} Roof */
+/** @typedef {{ id?: string, shape?: "gable" | "hip", hip?: string, wing?: { width: number, projection: number, at?: number, side?: "left" | "right", valley?: string }, width: number, length: number, pitch: number, overhang?: number, gableOverhang?: number, rafter?: string, spacing?: number, ridge?: string | null, ceilingJoist?: string, ceilingBearing?: number, collarTies?: boolean, collarDrop?: number, trusses?: { spacing?: number, price?: number }, sheet?: { length?: number, width?: number, price?: number, kerf?: number }, roofing?: { waste?: number, bundlesPerSquare?: number, underlaymentRoll?: number, ridgeBundleFeet?: number, starterBundleFeet?: number, dripEdgePiece?: number } }} Roof */
 
 export function sampleRoof() {
   return { id: "Main roof", width: 336, length: 480, pitch: 4, overhang: 12, gableOverhang: 12, rafter: "2x8", spacing: 16, ridge: "2x10", ceilingJoist: "2x6", collarTies: true };
@@ -35,6 +35,17 @@ export function validateRoof(r, plan) {
   if (!(((r.overhang ?? 12) >= 0) && ((r.overhang ?? 12) <= 48))) errors.push("Eave overhang must be between 0 and 48 inches.");
   if (!(((r.gableOverhang ?? 12) >= 0) && ((r.gableOverhang ?? 12) <= 48))) errors.push("Gable (rake) overhang must be between 0 and 48 inches.");
   if (!(((r.spacing ?? 16) > 0) && ((r.spacing ?? 16) <= 48))) errors.push("Rafter spacing must be between 0 and 48 inches.");
+  if (r.wing) {
+    const w = r.wing;
+    if (r.shape === "hip") errors.push("A cross wing is framed on a gable main roof; set shape to gable.");
+    if (r.trusses) errors.push("A cross wing is framed with rafters; the truss maker draws the girder and valley set, so leave `trusses` off.");
+    if (!(w.width >= 96 && w.width <= r.width - 24)) errors.push("Wing width must be at least 8 ft and at least 2 ft less than the main roof's width, so its ridge sits below the main ridge.");
+    if (!(w.projection >= 24 && w.projection <= 1200)) errors.push("Wing projection (main wall to the wing's gable wall) must be between 2 ft and 100 ft.");
+    const at = w.at ?? r.length / 2;
+    if (!(at - w.width / 2 >= 0 && at + w.width / 2 <= r.length)) errors.push("The wing must sit inside the main roof's length: `at` (its centre, from the first gable wall) +- half its width.");
+    if (w.valley && !(w.valley in DEPTH)) errors.push(`Unknown valley size ${w.valley}.`);
+    else if (w.valley && !plan.stock.some((s) => s.size === w.valley)) errors.push(`No ${w.valley} boards listed in the stock.`);
+  }
   if (!r.trusses) {
     const sizes = [["rafter", r.rafter ?? "2x8"], ...(r.ridge ? [["ridge", r.ridge]] : []), ...(r.ceilingJoist ? [["ceiling joist", r.ceilingJoist]] : [])];
     for (const [what, size] of sizes) {
@@ -301,12 +312,108 @@ export function layoutRoof(r, plan) {
   if (truss) notes.push(`${trusses.count} trusses of ${formatLength(r.width)} span at ${sp} o.c. are a purchased line from the truss maker's drawings; the rake overhang, the truss design and the bracing are theirs and the engineer's.`);
   else notes.push("Rafter size, spacing, the ridge, collar ties and ceiling joists are your inputs and are not checked against a span table or code; hurricane ties, birdsmouth depth and bracing are not in the takeoff.");
   notes.push("Shingle, felt, drip edge and ridge quantities use the coverage in `roofing` and ignore valleys, hips, vents, flashing and nails.");
-  return {
+  const out = {
     ok: true, id, width: r.width, length: r.length, pitch: r.pitch, overhang, gableOverhang: rake, spacing: sp, rafterSize: truss ? null : r.rafter ?? "2x8",
     rafterLength: truss ? null : rafterLength, slope, rise, centres, rafters, ridges, ceilingJoists, collarTies, trusses, courses,
     sheets: { count: sheets, rows: sheetRows, area, waste: sheets ? 1 - area / (sheets * sheetArea) : 0 },
     roofing, notes,
   };
+  return r.wing ? addWing(out, r, plan) : out;
+}
+
+/**
+ * Add a cross wing (an L- or T-shaped plan) to a laid-out gable roof: same pitch, narrower than the main roof.
+ * Plan coordinates: u runs along the wing's axis from its gable end (u = 0) to the main wall (u = projection);
+ * the wing's ridge meets the main roof where its rise equals the main roof's, half a wing-width inside the main
+ * wall. Each valley runs from where the two eave lines cross to that point, 45 degrees in plan, so its length is
+ * (wing half-width + overhang) x sqrt(2 + (pitch/12)^2). Wing commons stand on the spacing from the gable end
+ * while the wing's eave is clear of the main eave line; past it each station is a valley jack to the valley on
+ * both sides; main-roof rafters that meet the wing run from the main ridge to the valley instead of the eave.
+ */
+function addWing(base, r, plan) {
+  const w = r.wing, overhang = base.overhang, rake = base.gableOverhang, sp = base.spacing, k = slopeFactor(r.pitch);
+  const size = base.rafterSize;
+  const side = w.side ?? "right", at = w.at ?? r.length / 2;
+  const hw = w.width / 2, P = w.projection;
+  const ridgeT = r.ridge ? THICK : 0;
+  const valleySize = w.valley ?? size;
+  const longestOf = (sz) => Math.max(...plan.stock.filter((s) => s.size === sz).map((s) => s.length));
+  const reach = hw + overhang; // plan leg of a valley, and the run from wing ridge to wing eave
+  const commonLen = Math.round((hw - ridgeT / 2 + overhang) * k * 16) / 16;
+  const valleyLen = Math.round(reach * Math.sqrt(2 + (r.pitch / 12) ** 2) * 16) / 16;
+  if (commonLen > longestOf(size) + EPS) return { ok: false, errors: [`A ${formatLength(commonLen)} wing rafter is longer than the longest ${size} listed (${formatLength(longestOf(size))}).`] };
+  if (valleyLen > longestOf(valleySize) + EPS) return { ok: false, errors: [`A ${formatLength(valleyLen)} valley rafter is longer than the longest ${valleySize} listed (${formatLength(longestOf(valleySize))}). List longer boards or narrow the wing.`] };
+  const jackLen = (run) => Math.round((run - THICK / 2 * Math.SQRT2) * k * 16) / 16;
+  // wing stations from the gable end: commons while clear of the valleys, valley jacks after
+  const eaveU = P - overhang, ridgeEnd = P + hw;
+  const uCentres = [THICK / 2];
+  for (let u = sp; u < ridgeEnd - THICK - 3; u += sp) uCentres.push(Math.round(u * 16) / 16);
+  const wingRafters = [], wingJacks = [];
+  for (const u of uCentres) {
+    if (u <= eaveU + EPS) { for (const sd of ["left", "right"]) wingRafters.push({ u, side: sd, length: commonLen, size, kind: "wing rafter" }); continue; }
+    const run = ridgeEnd - u - ridgeT / 2;
+    for (const sd of ["left", "right"]) wingJacks.push({ u, side: sd, length: jackLen(run), size, kind: "valley jack rafter" });
+  }
+  const valleys = [0, 1].map((i) => ({ side: i ? "right" : "left", length: valleyLen, size: valleySize, kind: "valley rafter" }));
+  const wingRidges = [];
+  if (r.ridge) {
+    const rl = longestOf(r.ridge);
+    for (const len of splitOnCentres(P + hw + rake, rl, uCentres.map((c) => c + rake))) wingRidges.push({ length: len, size: r.ridge });
+  }
+  // main rafters that meet the wing end at the valley instead of the eave
+  let interrupted = 0;
+  const rafters = base.rafters.map((x) => {
+    const dv = Math.abs(x.x + THICK / 2 - at);
+    if (x.side !== side || dv >= reach - EPS) return x;
+    interrupted++;
+    const run = r.width / 2 - ridgeT / 2 - (hw - dv);
+    return { ...x, length: jackLen(run), kind: "valley jack rafter" };
+  });
+  // sheathing: the wing's two planes by course, each piece counted at its longer (top) edge: an upper bound
+  const sheet = { ...SHEET, price: 1, kerf: plan.kerf ?? 0.125, ...(r.sheet || {}) };
+  const wslope = reach * k;
+  const nFull = Math.floor((wslope + EPS) / sheet.width), rest = wslope - nFull * sheet.width;
+  const wingCourses = [];
+  for (let c = 0; c < nFull + (rest > EPS ? 1 : 0); c++) {
+    const y = c * sheet.width, width = c < nFull ? sheet.width : rest;
+    const len = eaveU + rake + (y + width) / k; // the valley is 45 degrees in plan: run gained = slope height / k
+    const pieces = [];
+    for (let left = len; left > EPS; left -= sheet.length) pieces.push({ length: Math.min(left, sheet.length) });
+    wingCourses.push({ plane: "wing", count: 2, y, width, pieces });
+  }
+  let sheets = base.sheets.count;
+  const sheetRows = [...base.sheets.rows];
+  for (const wd of [...new Set(wingCourses.map((c) => c.width))]) {
+    const ps = wingCourses.filter((c) => Math.abs(c.width - wd) < EPS).flatMap((c) => Array.from({ length: c.count }, () => c.pieces).flat());
+    const perSheet = Math.max(1, Math.floor((sheet.width + sheet.kerf) / (wd + sheet.kerf)));
+    const res = optimizeStock(ps.map((p) => ({ length: p.length, qty: 1 })), [{ length: sheet.length, price: 1 }], sheet.kerf);
+    const need = Math.ceil(res.bars.length / perSheet);
+    sheets += need;
+    sheetRows.push({ width: wd, count: need, pieces: ps.length, wing: true });
+  }
+  // area: two wing trapezoids (eave P - oh + rake, ridge P + hw + rake, run hw + oh) less the main-plane triangle the wing covers
+  const plan2 = 2 * ((eaveU + rake) + (P + hw + rake)) / 2 * reach - reach * reach;
+  const area = base.sheets.area + plan2 * k / 144;
+  const sheetArea = (sheet.width * sheet.length) / 144;
+  const g = base.roofing.assumptions;
+  const squares = area / 100;
+  const eaveFeet = base.roofing.eaveFeet + (2 * (eaveU + rake) - (w.width + 2 * overhang)) / 12;
+  const rakeFeet = base.roofing.rakeFeet + 2 * wslope / 12;
+  const valleyFeet = 2 * valleyLen / 12;
+  const ridgeFeet = base.roofing.ridgeFeet + (P + hw + rake) / 12;
+  const roofing = {
+    squares, shingleBundles: Math.ceil(squares * g.waste * g.bundlesPerSquare - 1e-9),
+    underlaymentRolls: Math.ceil(area * g.waste / g.underlaymentRoll - 1e-9),
+    dripEdgePieces: Math.ceil((eaveFeet + rakeFeet) * 12 / g.dripEdgePiece - 1e-9),
+    ridgeBundles: Math.ceil(ridgeFeet / g.ridgeBundleFeet - 1e-9),
+    starterBundles: Math.ceil(eaveFeet / g.starterBundleFeet - 1e-9),
+    eaveFeet, rakeFeet, ridgeFeet, valleyFeet, assumptions: g,
+  };
+  const notes = base.notes.filter((n) => !/ignore valleys, hips/.test(n));
+  notes.push(`Cross wing ${formatLength(w.width)} wide, ${formatLength(P)} out from the main wall, centred ${formatLength(at)} along the ridge on the ${side} side: ${wingRafters.length} wing rafters, ${wingJacks.length + interrupted} valley jacks (${interrupted} of them main-roof rafters cut short at the valley), 2 ${valleySize} valleys of ${formatInches(valleyLen)}, a ${formatLength(P + hw + rake)} wing ridge. Equal pitch is assumed, so the wing ridge meets the main roof ${formatLength(hw)} inside the main wall.`);
+  if (!w.valley) notes.push(`Valleys are ${valleySize}, as the rafters; a valley is normally one size deeper so the jacks bear on its face (set \`wing.valley\`).`);
+  notes.push("Wing sheathing counts each course at its longer edge, and the main plane is not reduced where the wing covers it, so the sheet count is an upper bound. Ceiling joists and collar ties are not framed in the wing, nor valley backing, saddles, the main wall's extra header or the wing's own plates; valley flashing length is `roofing.valleyFeet`.");
+  return { ...base, rafters, wing: { width: w.width, projection: P, at, side, valleySize }, wingRafters, wingJacks, valleys, wingRidges, wingCentres: uCentres, valleyLength: valleyLen, courses: [...base.courses, ...wingCourses], sheets: { count: sheets, rows: sheetRows, area, waste: sheets ? 1 - area / (sheets * sheetArea) : 0 }, roofing, notes };
 }
 
 /** Cut rows in the engine's shape, so `takeoff(plan, roofCuts(layout))` buys roof lumber with the walls'. */
@@ -320,7 +427,9 @@ export function roofCuts(l) {
     row.qty++;
     map.set(key, row);
   };
-  for (const x of l.rafters) add(x.size, x.length, "rafter");
+  for (const x of l.rafters) add(x.size, x.length, x.kind || "rafter");
+  for (const x of [...(l.wingRafters || []), ...(l.wingJacks || []), ...(l.valleys || [])]) add(x.size, x.length, x.kind);
+  for (const x of l.wingRidges || []) add(x.size, x.length, "ridge board");
   for (const x of l.hips || []) add(x.size, x.length, "hip rafter");
   for (const x of l.jacks || []) add(x.size, x.length, "jack rafter");
   for (const x of l.ridges) add(x.size, x.length, "ridge board");
@@ -336,6 +445,7 @@ export function roofText(l) {
   if (l.shape === "hip") out.push(`  Hip roof: ${l.rafters.length} common rafters of ${formatInches(l.rafterLength)}, ${l.hips.length} ${l.hipSize} hips of ${formatInches(l.hipLength)}, ${l.jacks.length} jack rafters (${l.jacks.length ? `${formatInches(Math.min(...l.jacks.map((j) => j.length)))} to ${formatInches(Math.max(...l.jacks.map((j) => j.length)))}` : "none"}), ${l.ridges.length} ridge board${l.ridges.length === 1 ? "" : "s"}${l.ceilingJoists.length ? `, ${l.ceilingJoists.length} ceiling joists` : ""}${l.collarTies.length ? `, ${l.collarTies.length} collar ties` : ""}`);
   else if (l.trusses) out.push(`  ${l.trusses.count} trusses, ${formatLength(l.trusses.span)} span, at ${l.spacing} o.c. (purchased)`);
   else out.push(`  ${l.rafters.length} ${l.rafterSize} rafters of ${formatInches(l.rafterLength)} at ${l.spacing} o.c., ${l.ridges.length} ridge board${l.ridges.length === 1 ? "" : "s"}${l.ceilingJoists.length ? `, ${l.ceilingJoists.length} ceiling joists` : ""}${l.collarTies.length ? `, ${l.collarTies.length} collar ties` : ""}`);
+  if (l.wing) out.push(`  Cross wing ${formatLength(l.wing.width)} x ${formatLength(l.wing.projection)}: ${l.wingRafters.length} wing rafters, ${l.wingJacks.length} valley jacks, ${l.valleys.length} ${l.wing.valleySize} valleys of ${formatInches(l.valleyLength)}, ${l.wingRidges.length} wing ridge board${l.wingRidges.length === 1 ? "" : "s"}; ${l.rafters.filter((x) => x.kind).length} main rafters end at a valley`);
   out.push(`  Roof sheathing: ${l.sheets.count} sheets of ${SHEET.width} x ${SHEET.length} in for ${l.sheets.area.toFixed(0)} sq ft (${(100 * l.sheets.waste).toFixed(1)}% offcut)`);
   for (const c of l.courses) out.push(`    ${c.plane ? `${c.plane} planes, ` : ""}course at ${formatLength(c.y)} up the slope (${formatInches(c.width)} wide): ${c.pieces.map((p) => formatInches(p.length)).join(" + ")}`);
   const g = l.roofing;
