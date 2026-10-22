@@ -671,3 +671,25 @@ test("advanced framing: a single top plate drops the cap plate, lowers the wall 
   assert.equal(lenOf(a, "cap plate"), 240);
   assert.ok(takeoff(one).ok);
 });
+
+test("gable wall sheathing: panels on full-height studs, long point sets the sheet, area matches the triangle", () => {
+  const plan = { ...base(), walls: [{ id: "G", length: 240, gable: { pitch: 6 }, openings: [{ kind: "window", label: "W", offset: 100, width: 36, height: 36, header: "2x6" }] }] };
+  const { r, s } = sheathed(plan);
+  assert.ok(s.ok, JSON.stringify(s.errors));
+  const g = s.gables;
+  assert.ok(g, "a gable order exists");
+  const gw = g.walls[0];
+  assert.deepEqual(gw.check, []);
+  assert.ok(Math.abs(gw.panels.reduce((t, p) => t + p.width, 0) - 240) < 1e-9, "panels span the wall");
+  assert.ok(gw.panels.every((p) => p.width <= 48 + 1e-9));
+  // the tallest panel is the one at the peak and needs two courses (157 in > the longest 144 in sheet)
+  const tallest = gw.panels.reduce((a, b) => (b.height > a.height ? b : a));
+  assert.ok(tallest.height > 144 && tallest.sheets.length === 2);
+  // exact area under the roof line: eave height * run + triangle (peak rise 60 over 240) with plate thickness along the slope
+  const sec = Math.sqrt(1.25);
+  const eave = 1.5 + plan.studLength + 3 * sec;
+  const expected = (eave * 240 + 0.5 * 240 * 60) / 144 - 36 * 36 / 144;
+  assert.ok(Math.abs(g.summary.areaCovered - expected) < 1e-6, `${g.summary.areaCovered} vs ${expected}`);
+  assert.ok(g.summary.areaBought >= g.summary.areaCovered);
+  assert.ok(g.summary.sheets >= Math.ceil(g.summary.areaCovered / 32));
+});
