@@ -470,7 +470,7 @@ printed ones as remembered, the 7-year rows are typed as printed (the generator 
 some years; test added), 10, 15 and 20-year rows may differ from the printed row by a
 few hundredths of a point in a year, and none is checked against Pub 946
 because the hosts were unreachable). Disposal in a mid-quarter year takes
-12.5, 37.5, 62.5 or 87.5% of the year's amount by the quarter of disposal (half in a half-year year). Section 179 dollar limit and investment phase-out are checked (`s179Check`, 2024 to 2026, figures typed from memory and unchecked; excess is warned, not removed). It warns and does not compute: the 179
+12.5, 37.5, 62.5 or 87.5% of the year's amount by the quarter of disposal (half in a half-year year). Section 179 dollar limit and investment phase-out are checked (`s179Check`, 2024 to 2026, 2025 and 2026 figures cross-checked 2026-10-22 against several secondary sources, not the Rev. Proc. itself; excess is warned, not removed). It warns and does not compute: the 179
 taxable-income limit and carryforward, the bonus rate in force, business-use share
 and listed property. The tables were typed from memory of Table A-1, then checked (2026-10-21) by
 deriving each class from its rule (200% or 150% declining balance, half-year,
