@@ -1,0 +1,6 @@
+{
+ "theme": "eda",
+ "title": "Does ABC's pre-layout delay and area view of 40 MAC engines survive placement and timing repair on SKY130?",
+ "summary": "In progress.",
+ "lede": "in progress: the 40 MAC-engine designs placed with OpenROAD (pip wheel) to test whether ABC's pre-layout delay and area ranking survive placement."
+}
