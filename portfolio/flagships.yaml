@@ -42,7 +42,7 @@ flagships:
       readers (Chase, Bank of America, Wells Fargo, Amex, Capital One CSV;
       OFX/QFX/QIF; statement PDFs with multi-column layouts and CID fonts with no ToUnicode map;
       LZW/ASCII85/predictor streams now decode) on real exports; (3) a real Stripe, Square,
-      PayPal or Amazon settlement (Amazon V2, date-range and Square Payouts API JSON readers landed 2026-10-22, all on hand-written fixtures; Monzo, Starling and Mercury CSV readers too; Etsy ledger reader; Discover, Citi, US Bank, Ally, Apple Card, Lloyds and Barclays CSV readers 2026-10-22, from memory of their layouts) export for the payment-processor import; (4) a real supplier's
+      PayPal or Amazon settlement (Amazon V2, date-range and Square Payouts API JSON readers landed 2026-10-22, all on hand-written fixtures; Monzo, Starling and Mercury CSV readers too; Etsy ledger reader; Discover, Citi, US Bank, Ally, Apple Card, Lloyds and Barclays, PNC CSV readers 2026-10-22, from memory of their layouts) export for the payment-processor import; (4) a real supplier's
       terms letter checked against the fee and discount rules, and one named
       lender's own schedule against the loan register; (5) try receipts and
       the reconcile-to-statement command on real paper, and read receipt
