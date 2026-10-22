@@ -125,6 +125,19 @@
       <div><label for="flUnder">Walls above that need doubled joists, at these positions across the width (comma-separated)</label><input id="flUnder" placeholder="e.g. 10 ft, 22 ft"></div>
       <div><label for="flOpen">Stairwell opening: from left edge, from front edge, width, depth (blank: none)</label><input id="flOpen" placeholder="e.g. 20 ft, 8 ft, 3 ft, 10 ft"></div>
     </div>
+    <p><input type="checkbox" id="rfOn" style="width:auto"> <label for="rfOn" style="display:inline">Also frame a gable roof (rafters, ridge, ceiling joists, collar ties, roof sheathing, shingles and felt; the lumber joins the order)</label></p>
+    <div class="grid" id="rfFields" hidden>
+      <div><label for="rfW">Roof width (eave to eave, outside of the walls)</label><input id="rfW" value="28 ft"></div>
+      <div><label for="rfL">Roof length (along the ridge)</label><input id="rfL" value="40 ft"></div>
+      <div><label for="rfPitch">Pitch (rise in 12 of run)</label><input id="rfPitch" type="number" min="1" max="24" step="0.5" value="4"></div>
+      <div><label for="rfRafter">Rafter size</label><select id="rfRafter"><option>2x6</option><option selected>2x8</option><option>2x10</option><option>2x12</option></select></div>
+      <div><label for="rfSpacing">Rafter spacing on center</label><select id="rfSpacing"><option value="16" selected>16 in</option><option value="24">24 in</option><option value="12">12 in</option></select></div>
+      <div><label for="rfRidge">Ridge board (blank: none)</label><select id="rfRidge"><option value="">none</option><option>2x8</option><option selected>2x10</option><option>2x12</option></select></div>
+      <div><label for="rfOver">Eave overhang</label><input id="rfOver" value="12 in"></div>
+      <div><label for="rfRake">Rake (gable) overhang</label><input id="rfRake" value="12 in"></div>
+      <div><label for="rfJoist">Ceiling joist size (blank: none)</label><select id="rfJoist"><option value="">none</option><option selected>2x6</option><option>2x8</option></select></div>
+      <div><label for="rfCollar">Collar ties on every other pair</label><select id="rfCollar"><option value="1" selected>yes</option><option value="0">no</option></select></div>
+    </div>
     <p id="status" class="note" role="status"></p>
     <div id="errors" class="err" role="alert"></div>
     <div id="summary" aria-live="polite"></div>
@@ -139,6 +152,11 @@
   <section class="card" aria-labelledby="h-floor" id="floorCard" hidden>
     <h2 id="h-floor">Floor framing</h2>
     <div id="floorOut"></div>
+  </section>
+
+  <section class="card" aria-labelledby="h-roof" id="roofCard" hidden>
+    <h2 id="h-roof">Roof framing</h2>
+    <div id="roofOut"></div>
   </section>
 
   <section class="card" aria-labelledby="h-sheath" id="sheathCard" hidden>
@@ -184,7 +202,7 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering, construction, building-code, legal or financial advice, and it does not replace a qualified professional, your plans or your building department. Header sizes, jack counts and stud spacing are your inputs and are not checked against any span table or code. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including every length before you cut. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Independent.</strong> Not affiliated with any lumberyard, builder, code body or software company. No lumber price is stated or implied; prices are what you type.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record: save your plan file. Your last entries stay in this browser's local storage only.</p>
-    <p>Everything runs in your browser. Your plan is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>takeoff_run</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>drawings_downloaded</code>, <code>panel_order_downloaded</code>, <code>floor_on</code>, <code>plan_saved</code>, <code>plan_opened</code>) are counted only in local storage on your device, never with anything you typed.</p>
+    <p>Everything runs in your browser. Your plan is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>takeoff_run</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>drawings_downloaded</code>, <code>panel_order_downloaded</code>, <code>floor_on</code>, <code>roof_on</code>, <code>plan_saved</code>, <code>plan_opened</code>) are counted only in local storage on your device, never with anything you typed.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Related tools: the <a href="../cut-list-optimizer/">cut list optimizer</a> for sheet goods and shop stock, and the <a href="../tile-layout-planner/">tile layout planner</a>. Command line and source: <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/wall-framing-takeoff" rel="noopener">wall-framing-takeoff on GitHub</a>.</p>
     <p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
@@ -196,6 +214,7 @@
     import { panelOrder, panelOrderText, panelPullText } from "./panels.mjs";
     import { sheathe, defaultSheathing, nailerCuts } from "./sheathing.mjs";
     import { layoutFloor, floorCuts, floorText } from "./floor.mjs";
+    import { layoutRoof, roofCuts, roofText } from "./roof.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -279,6 +298,12 @@
           else { const [x, y, width, depth] = q.map((t) => L(t, "stairwell opening")); fl.openings = [{ x, y, width, depth }]; }
         }
         plan.floor = fl;
+      }
+      if ($("#rfOn").checked) {
+        const rf = { id: "Roof", width: L($("#rfW").value, "roof width"), length: L($("#rfL").value, "roof length"), pitch: Number($("#rfPitch").value), rafter: $("#rfRafter").value, spacing: Number($("#rfSpacing").value), overhang: L($("#rfOver").value, "eave overhang"), gableOverhang: L($("#rfRake").value, "rake overhang"), collarTies: $("#rfCollar").value === "1" };
+        if ($("#rfRidge").value) rf.ridge = $("#rfRidge").value;
+        if ($("#rfJoist").value) rf.ceilingJoist = $("#rfJoist").value;
+        plan.roof = rf;
       }
       for (const o of ui.openings) {
         const wall = plan.walls.find((w) => w.id === String(o.wall).trim());
@@ -387,16 +412,26 @@
         ${sh.notes.length ? `<ul>${sh.notes.map((n) => `<li>${esc(n)}</li>`).join("")}</ul>` : ""}`;
     }
 
+    function renderRoof(roof) {
+      $("#roofCard").hidden = !roof;
+      if (!roof) return;
+      $("#roofOut").innerHTML = `<pre style="white-space:pre-wrap;overflow-x:auto">${esc(roofText(roof).join("\n"))}</pre><p class="note">The roof's rafters, ridge, ceiling joists and collar ties are in the lumber order and cut list above, pooled with the walls so they use each other's offcuts. Roof sheets, felt, drip edge and shingles are bought separately. Check rafter size, spacing and bracing against your span tables or engineer.</p>`;
+    }
     function run() {
       const { plan, bad } = toPlan();
       $("#errors").innerHTML = "";
       if (bad.length) { $("#errors").innerHTML = `<ul>${bad.map((e) => `<li>${esc(e)}</li>`).join("")}</ul>`; return false; }
-      let result, nailers = [], floor = null, floorExtra = [];
+      let result, nailers = [], floor = null, floorExtra = [], roof = null;
       try {
         if (plan.floor) {
           floor = layoutFloor(plan.floor, plan);
           if (!floor.ok) { $("#errors").innerHTML = `<ul>${floor.errors.map((e) => `<li>${esc(e)}</li>`).join("")}</ul>`; last = null; $("#floorCard").hidden = true; return false; }
           floorExtra = floorCuts(floor);
+        }
+        if (plan.roof) {
+          roof = layoutRoof(plan.roof, plan);
+          if (!roof.ok) { $("#errors").innerHTML = `<ul>${roof.errors.map((e) => `<li>${esc(e)}</li>`).join("")}</ul>`; last = null; $("#roofCard").hidden = true; return false; }
+          floorExtra = [...floorExtra, ...roofCuts(roof)];
         }
         result = takeoff(plan, floorExtra);
         if (result.ok && $("#sheath").checked) {
@@ -427,6 +462,7 @@
       $("#cuts").innerHTML = `<table><thead><tr><th class="n">Qty</th><th>Size</th><th class="n">Length</th><th>Piece</th><th>Walls</th></tr></thead><tbody>${result.cuts.map((c) => `<tr><td class="n">${c.qty}</td><td>${esc(c.size)}</td><td class="n">${formatInches(c.length)}</td><td>${esc(c.kind)}</td><td>${esc(c.walls.join(", "))}</td></tr>`).join("")}</tbody></table>`;
       $("#boards").innerHTML = result.orders.map((o) => `<h3>${esc(o.size)}</h3><ol>${o.bars.map((b) => `<li>${formatLength(b.length)}${b.label ? ` ${esc(b.label)}` : ""}: ${b.cuts.map((c) => `${formatInches(c.length)} ${esc(c.ref)}`).join(" + ")}${b.offcut >= 0.5 ? `; offcut ${formatInches(b.offcut)}` : ""}</li>`).join("")}</ol>`).join("");
       renderFloor(floor);
+      renderRoof(roof);
       renderSheathing(plan, result);
       const prev = $("#wallPick").value;
       $("#wallPick").innerHTML = result.walls.map((w) => `<option>${esc(w.id)}</option>`).join("");
@@ -449,6 +485,14 @@
         $("#flBeam").value = fl.beam != null ? formatLength(fl.beam) : ""; $("#flBlock").value = String(fl.blockingRows || 0);
         $("#flUnder").value = (fl.doubleUnder || []).map(formatLength).join(", ");
         const o = (fl.openings || [])[0]; $("#flOpen").value = o ? [o.x, o.y, o.width, o.depth].map(formatLength).join(", ") : "";
+      }
+      const rf = plan.roof;
+      $("#rfOn").checked = Boolean(rf); $("#rfFields").hidden = !rf;
+      if (rf) {
+        $("#rfW").value = formatLength(rf.width); $("#rfL").value = formatLength(rf.length); $("#rfPitch").value = String(rf.pitch);
+        $("#rfRafter").value = rf.rafter || "2x8"; $("#rfSpacing").value = String(rf.spacing || 16); $("#rfRidge").value = rf.ridge || "";
+        $("#rfOver").value = formatLength(rf.overhang ?? 12); $("#rfRake").value = formatLength(rf.gableOverhang ?? 12);
+        $("#rfJoist").value = rf.ceilingJoist || ""; $("#rfCollar").value = rf.collarTies ? "1" : "0";
       }
       renderAll();
       return run();
@@ -529,6 +573,7 @@
     });
     $("#optout").addEventListener("click", () => { setUsageOptOut(true); const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; });
     $("#flOn").addEventListener("change", () => { $("#flFields").hidden = !$("#flOn").checked; if ($("#flOn").checked) record("floor_on"); });
+    $("#rfOn").addEventListener("change", () => { $("#rfFields").hidden = !$("#rfOn").checked; if ($("#rfOn").checked) record("roof_on"); });
     if (usageOptedOut()) { const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; }
 
     let restored = false;
