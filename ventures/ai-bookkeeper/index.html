@@ -143,6 +143,21 @@
     <div class="scroll" id="tx-sheet"></div>
   </section>
 
+  <section class="card" aria-labelledby="h-prepaid">
+    <h2 id="h-prepaid">Optional: prepaid expenses</h2>
+    <p class="note">A year of insurance, software or rent paid up front belongs to the months it covers. File the bank line to 1400 Prepaid expenses, then register it here; each month's share moves to the expense account, so profit is not lumpy and the balance sheet shows what is still paid ahead. Whether a prepayment may be deducted at once for tax (such as the 12-month rule) is for you or your preparer.</p>
+    <div class="grid">
+      <div><label for="pp-name">Item</label><input id="pp-name" autocomplete="off" placeholder="e.g. Liability policy"></div>
+      <div><label for="pp-date">First month covered</label><input id="pp-date" type="date"></div>
+      <div><label for="pp-amount">Amount paid</label><input id="pp-amount" inputmode="decimal" autocomplete="off" placeholder="2400.00"></div>
+      <div><label for="pp-months">Months covered</label><input id="pp-months" inputmode="numeric" value="12"></div>
+      <div><label for="pp-account">Expense account</label><select id="pp-account"></select></div>
+    </div>
+    <button type="button" id="pp-add">Add to the register</button>
+    <p id="pp-status" class="note" role="status" aria-live="polite"></p>
+    <div class="scroll" id="pp-register"></div>
+  </section>
+
   <section class="card" aria-labelledby="h-docs">
     <h2 id="h-docs">Optional: invoices and bills (accruals)</h2>
     <p class="note">Bank lines alone give cash-basis books. Load a list of invoices you sent and bills you owe and each is booked on its own date; a bank line with the exact amount and the invoice number or the party's name then clears it instead of counting as income twice. Header: <code>type,number,date,due,party,amount,account</code>, type <code>invoice</code> or <code>bill</code>; rows sharing a number are one document.</p>
@@ -326,7 +341,7 @@
   <script type="module">
     import { sniffFormat, splitOfx } from "./bank.mjs";
     import { scheduleC, scheduleCCsv, contractors1099, contractors1099Csv, nec1099FilingCsv, markW9, mergePayees } from "./taxforms.mjs";
-    import { newBooks, importStatement, importOfxAccounts, categorize, suggestRules, addRules, addDocuments, writeOff, aging, addAsset, disposeAsset, register, salesTax, vatReturn, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, exportLines, status, analyze, fmt, DEFAULT_ACCOUNTS, taxableBusinessIncome } from "./engine.mjs";
+    import { newBooks, importStatement, importOfxAccounts, categorize, suggestRules, addRules, addDocuments, writeOff, aging, addAsset, disposeAsset, register, addPrepaid, prepaidRegister, salesTax, vatReturn, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, exportLines, status, analyze, fmt, DEFAULT_ACCOUNTS, taxableBusinessIncome } from "./engine.mjs";
     import { parseCents } from "./bank.mjs";
     import { pdfToText } from "./pdftext.mjs";
     import { setTaxTreatment, taxDepreciation, taxDepreciationCsv } from "./taxdepr.mjs";
@@ -548,6 +563,22 @@
       return el("div", {}, el("p", { class: "note", text: "Paid invoices and credit notes (latest 25). Print a copy or a paid receipt:" }), el("table", {}, el("thead", {}, el("tr", {}, ...["Document", "Customer", "Status", "Total", ""].map((h) => el("th", { scope: "col", text: h })))), el("tbody", {}, ...rows)));
     }
 
+    function renderPrepaid() {
+      const sel = $("#pp-account"), keep = sel.value;
+      sel.replaceChildren(...books.accounts.filter((a) => a.type === "expense").map((a) => el("option", { value: a.code, text: `${a.code} ${a.name}` })));
+      sel.value = keep || (books.accounts.some((a) => a.code === "6030") ? "6030" : sel.value);
+      const r = prepaidRegister(books);
+      if (!r.rows.length) { $("#pp-register").replaceChildren(); return; }
+      const rows = r.rows.map((p) => el("tr", {}, el("td", { text: `${p.id} ${p.name}` }), el("td", { class: "n", text: `${p.date} for ${p.months} months` }), el("td", { class: "n", text: fmt(p.cents) }), el("td", { class: "n", text: fmt(p.expensed) }), el("td", { class: "n", text: fmt(p.remaining) })));
+      $("#pp-register").replaceChildren(el("table", {}, el("thead", {}, el("tr", {}, ...["Item", "Covers", "Paid", "Expensed", "Still paid ahead"].map((h) => el("th", { scope: "col", text: h })))), el("tbody", {}, ...rows, el("tr", { class: "total" }, el("th", { scope: "row", text: `Total as of ${r.asOf}` }), el("td"), el("td", { class: "n", text: fmt(r.cents) }), el("td", { class: "n", text: fmt(r.cents - r.remaining) }), el("td", { class: "n", text: fmt(r.remaining) })))));
+    }
+    $("#pp-add").addEventListener("click", () => {
+      try {
+        const r = addPrepaid(books, { name: $("#pp-name").value, date: $("#pp-date").value, amount: $("#pp-amount").value, months: $("#pp-months").value, expenseAccount: $("#pp-account").value });
+        books = categorize(r.books, opts()); record("prepaid_added"); render(); $("#pp-status").textContent = `${r.prepaid.id} ${r.prepaid.name} added: ${fmt(r.prepaid.cents)} over ${r.prepaid.months} months. File the payment to 1400 if you have not.`;
+      } catch (e) { $("#pp-status").textContent = e.message; }
+    });
+
     function renderAssets() {
       const r = register(books);
       if (!r.rows.length) { $("#fa-register").replaceChildren(); return; }
@@ -663,7 +694,7 @@
 
     $("#nec-filing-csv").addEventListener("click", () => { record("contractors_filing_downloaded"); download(nec1099FilingCsv(contractors1099(books, { year: necYear() })), "contractors-1099-nec-filing-prep.csv", "text/csv"); });
 
-    function render() { fillSetup(); renderScheduleC(); renderDeduct(); renderNec(); renderStatus(); renderQueue(); renderReports(); renderRuleSuggestions(); renderAging(); renderRecurring(); renderBudget(); renderReconcile(); renderYearEnd(); renderReceipts(); renderVat(); renderAssets(); renderTaxDepr(); renderSalesTax(); renderOpening(); persist(); }
+    function render() { fillSetup(); renderScheduleC(); renderDeduct(); renderNec(); renderStatus(); renderQueue(); renderReports(); renderRuleSuggestions(); renderAging(); renderRecurring(); renderBudget(); renderReconcile(); renderYearEnd(); renderReceipts(); renderVat(); renderAssets(); renderPrepaid(); renderTaxDepr(); renderSalesTax(); renderOpening(); persist(); }
 
     function renderOpening() {
       const tb = books.openingTB;

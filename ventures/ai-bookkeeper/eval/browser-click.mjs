@@ -135,6 +135,18 @@ await page.click("text=Remove 2026-03-14");
 check(/0 business miles/.test(await page.locator("#deduct").textContent()), "a trip is removed");
 await page.fill("#ho-sqft", "0");
 await page.click("#ho-set");
+// Prepaid expenses: register a 12-month policy on the example books and read the register.
+await page.fill("#pp-name", "Liability policy");
+await page.fill("#pp-date", "2026-01-01");
+await page.fill("#pp-amount", "2400.00");
+await page.fill("#pp-months", "12");
+await page.click("#pp-add");
+check(/PP-1 Liability policy added/.test(await page.locator("#pp-status").textContent()), "a prepaid item is registered");
+const pptext = await page.locator("#pp-register").textContent();
+check(/2,?400\.00/.test(pptext) && /Still paid ahead/.test(pptext), "the prepaid register shows the amount and what is still ahead");
+await page.fill("#pp-months", "1");
+await page.click("#pp-add");
+check(/Months must be/.test(await page.locator("#pp-status").textContent()), "a one-month prepaid is refused");
 // Budget against actual: set a monthly budget on the example books and read the table.
 await page.selectOption("#budget-account", { index: 0 });
 await page.fill("#budget-amount", "50.00");

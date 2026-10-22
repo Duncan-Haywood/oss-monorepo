@@ -130,6 +130,20 @@ compute only (throwaway script, not committed):
 | 1000 | 252 ms | 58 ms |
 | 3000 | 1983 ms | 36 ms |
 
-Not measured: rank accuracy with the cap on lists over 400 items (the
-simulation tests use up to 220), so the cap is a latency guard, not a proven
-accuracy-neutral change.
+### Rank accuracy with the cap (measured 2026-10-22)
+
+`src/lib/poolCap.simulation.test.ts`: the same respondent and Glicko-2 loop,
+3 seeded respondents per cell (medians; small, so read it as "no sign of a
+loss", not a tight interval), 600 answers. Set `MEASURE_OUT=file` to keep the
+numbers.
+
+| items | items rd<150 shipped / capped / uncapped | rank accuracy |
+|---|---|---|
+| 600 | 74 / 130 / 130 | 0.233 / 0.272 / 0.272 |
+| 1000 | 72 / 130 / 130 | 0.126 / 0.156 / 0.156 |
+
+Capped and uncapped are identical to three decimals: with answers this few
+the scorer only ever picks from the most uncertain items, which is the set the
+cap keeps. So the cap is a latency guard that costs nothing in these cells.
+Not measured: 3000+ items (uncapped is minutes per run), budgets well past the
+list length, where the cap could start to hide items.
