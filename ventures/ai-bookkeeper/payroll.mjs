@@ -212,6 +212,14 @@ export function form941(books, year, quarter, opts = {}) {
     const m = `${year}-${String((quarter - 1) * 3 + i + 1).padStart(2, "0")}`;
     return rs.filter((r) => r.date.startsWith(m)).reduce((a, r) => a + federalDeposit(r), 0);
   });
+  // Schedule B (semiweekly depositors): the same liability by day of the
+  // month the wages were paid, one figure per pay date, with each month's total.
+  out.scheduleB = [0, 1, 2].map((i) => {
+    const m = `${year}-${String((quarter - 1) * 3 + i + 1).padStart(2, "0")}`;
+    const days = new Map();
+    for (const r of rs.filter((x) => x.date.startsWith(m))) days.set(+r.date.slice(8, 10), (days.get(+r.date.slice(8, 10)) ?? 0) + federalDeposit(r));
+    return { month: m, days: [...days].sort((a, b) => a[0] - b[0]).map(([day, cents]) => ({ day, cents })), total: out.monthlyLiability[i] };
+  });
   // Line 13 against the total: pass the amount deposited (cents) to get the
   // balance due (line 14) or overpayment (line 15).
   if (opts.depositedCents != null) {

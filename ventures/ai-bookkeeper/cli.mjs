@@ -108,7 +108,7 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
   compare [--from D --to D --vs-from D --vs-to D] [--json]  profit and loss against an earlier period (default: latest month vs the month before): what moved, what is new or gone
   payroll FILE.csv [--apply]  book a payroll provider's pay-run report (wages, employer taxes, 2300) and find the bank lines that paid it; --apply files them to 2300
   payroll deposits YEAR [--schedule monthly|semiweekly]  federal deposit due dates (lookback, $100,000 next-day rule, holidays) and whether the bank shows each paid on time
-  payroll [941 YEAR QUARTER [--deposited DOLLARS] | 940 YEAR [--state CA | --credit-reduction PCT] | w2 YEAR]  runs, what is still owed, or a Form 941 / 940 worksheet from the register
+  payroll [941 YEAR QUARTER [--deposited DOLLARS] [--schedule-b] | 940 YEAR [--state CA | --credit-reduction PCT] | w2 YEAR]  runs, what is still owed, or a Form 941 / 940 worksheet from the register
   payouts FILE.csv [--apply] [--sales C --refunds C --fees C --disputes C] [--json]  split each processor payout (Stripe payout reconciliation CSV) in the bank into gross sales, refunds and fees; without --apply, shows the plan
   reconcile CODE --date D --balance AMT [--json]  tie an account to the closing balance on a paper statement; if it is off, name the lines that likely explain the gap
   budget [CODE AMOUNT] [--from D --to D] [--json]  set a monthly budget for an account (AMOUNT 0 removes it), or show budget against actual for the period (default: latest month)
@@ -464,6 +464,11 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
       if (json) { console.log(JSON.stringify(f, null, 2)); process.exit(0); }
       console.log(`FORM 941 WORKSHEET ${f.year} Q${f.quarter} (${f.from} to ${f.to}), ${f.runs} run${f.runs === 1 ? "" : "s"}`);
       for (const [l, v] of [["Wages (line 2)", f.wages], ["Federal income tax withheld (line 3)", f.federalWithheld], ...(f.socialSecurityWages == null ? [] : [["Taxable social security wages (line 5a col 1)", f.socialSecurityWages]]), ["Social security tax, both shares (line 5a)", f.socialSecurityTax], ["Medicare tax, both shares (line 5c)", f.medicareTax], ...(f.additionalMedicareWages ? [["Wages over $200,000 (line 5d col 1)", f.additionalMedicareWages], ["Additional Medicare Tax at 0.9% (line 5d)", f.additionalMedicareTax]] : []), ["Total taxes before adjustments", f.totalTaxes], ["Federal deposits due from the register", f.deposited], ...f.monthlyLiability.map((v, i) => [`Tax liability, month ${i + 1} (line 16)`, v]), ...(f.depositsMade == null ? [] : [["Total deposits (line 13)", f.depositsMade], ...(f.balanceDue ? [["Balance due (line 14)", f.balanceDue]] : []), ...(f.overpayment ? [["Overpayment (line 15)", f.overpayment]] : [])]), ["FUTA (Form 940)", f.futa]]) console.log(`  ${l.padEnd(46)} ${fmt(v).padStart(12)}`);
+      if (has("--schedule-b")) {
+        console.log("  SCHEDULE B (semiweekly depositors): liability by day the wages were paid");
+        for (const m of f.scheduleB) console.log(`    ${m.month}  ${m.days.length ? m.days.map((d) => `day ${d.day} ${fmt(d.cents)}`).join(", ") : "no pay dates"}  = ${fmt(m.total)}`);
+        console.log(`    Total for the quarter (line 16 / Schedule B)  ${fmt(f.scheduleB.reduce((a, m) => a + m.total, 0))}`);
+      }
       for (const w of f.warnings) console.log(`  CHECK ${w}`);
       console.log("  Worksheet only: tips, adjustments and credits are not modelled.");
     } else if (rest[0] === "deposits") {
