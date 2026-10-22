@@ -628,6 +628,8 @@ and never claims funds can be received or allocated there.
 
 ## Repair a JSON invoice's arithmetic
 
+UBL files (Invoice, CreditNote) are repaired too, in place: see "Repair a UBL file" below.
+
 `node repair-cli.mjs invoice.json -o fixed.json` (or `POST /v1/repair`)
 recomputes line nets, the net, tax, gross and amount-due totals from the
 invoice's own quantities, unit prices, tax percents and header adjustments,
@@ -637,3 +639,22 @@ left. It never chooses a tax rate, date, identifier, bank detail or party:
 those findings stay for a person (exit 1 while any remain). If a line's
 quantity, price or tax percent is invalid, no totals are touched. Tests in
 `repair.test.mjs` and `server.test.mjs`. The web page has a "Repair the arithmetic (JSON)" button (paste JSON, click, read the change table; clicked through with `eval/browser-repair.mjs`).
+
+## Repair a UBL file
+
+`node repair-cli.mjs invoice.xml -o fixed.xml` (or `POST /v1/repair` with the
+XML as the body) edits only the amount elements of a UBL Invoice or
+CreditNote and leaves every other byte alone (comments, namespaces, order).
+It recomputes each line's net (quantity x price / base quantity), the taxable
+amount and VAT of each `TaxSubtotal` (taxable x rate, rounded half up, the
+EN 16931 way), the document `TaxAmount`, the line-extension, tax-exclusive,
+tax-inclusive and payable totals. It skips, and says so in `skipped`, any
+line with its own allowance, charge or sub-line, any document with header
+allowances or charges, more than one `TaxTotal`, and any tax group that does
+not match the subtotals one to one: it never adds a subtotal or picks a rate
+or category. The result is re-parsed and re-checked. On
+`examples/ubl-invoice-with-defects.xml` it fixes 3 amounts and clears
+INV-017, INV-018, INV-029 and INV-038; INV-021 (due date) and INV-045 (no
+IBAN) stay for a person. Tested on the repo's hand-written UBL examples only
+(`repair-ubl.test.mjs`, `server.test.mjs`); not tried on a real ERP export,
+not on the web page yet, and CII is not covered.
