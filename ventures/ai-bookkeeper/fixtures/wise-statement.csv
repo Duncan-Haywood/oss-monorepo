@@ -1,0 +1,3 @@
+"TransferWise ID","Date","Amount","Currency","Description","Payment Reference","Running Balance","Exchange From","Exchange To","Exchange Rate","Payer Name","Payee Name","Payee Account Number","Merchant","Card Last Four Digits","Card Holder Full Name","Attachment","Note","Total fees","Exchange To Amount"
+"CARD-1001","13-03-2026","-24.99","GBP","Card transaction of 24.99 GBP issued by Notion","","975.01","","","","","","","Notion","1234","A Person","","","0.00",""
+"TRANSFER-2002","12-03-2026","1000.00","GBP","Received money from Client Ltd with reference INV-7","INV-7","1000.00","","","","Client Ltd","","","","","","","","0.00",""

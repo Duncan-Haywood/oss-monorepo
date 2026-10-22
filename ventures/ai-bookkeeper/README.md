@@ -400,6 +400,20 @@ header row at all), Amex (charges positive) and Capital One (Debit and Credit
 columns). The sign of a card file is inferred from its payment rows unless you
 pass `--invert`. See `fixtures/` and the last test in `engine.test.mjs`.
 
+### Revolut and Wise CSV (2026-10-22)
+
+`bank.mjs` also recognises a Revolut account statement (`Type, Product, Started
+Date, Completed Date, ...`) and a Wise statement (`TransferWise ID, Date, ...`).
+Revolut: only `COMPLETED` rows are imported (pending, declined and reverted rows
+are listed in the import's problems), the date is the completed date, the `Fee`
+column is taken off the amount so the running balance chains, and a file that
+mixes currencies is flagged (import one currency account at a time). Wise dates
+are read day first. `node --test neobank.test.mjs` checks both on
+`fixtures/revolut-current.csv` and `fixtures/wise-statement.csv`, which are
+hand-written from the column headings those services publish, with made-up rows.
+No real export has been tried; the column lists are from memory of the public
+layouts, so check them against a real download.
+
 ### Statement text pasted from a PDF
 
 Many banks give a small business a PDF and nothing else. Open the PDF, select
