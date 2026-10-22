@@ -112,8 +112,9 @@ flagships:
       (README "Where the exact proof breaks"). Ejection chains landed 2026-10-22
       (open hours 413 to 395 on 8 x 22; fixed an exact-search pay bound that
       overstated). Next: a tighter bound on the
-      open-hours floor at 8+ people (about 45 h gap left on 8 x 22), then multi-week rostering that carries
-      fairness and time off across weeks (CLI --weeks landed).
+      open-hours floor at 8+ people (about 45 h gap left on 8 x 22), then a joint (not week-by-week) multi-week solve.
+      Multi-week fairness measured 2026-10-22 (eval/fairness-bench.mjs: tough-shift spread
+      13.2 -> 3.2 over 8 weeks for +0.4% payroll, equal-availability synthetic crews).
 
   - venture: photo-editing
     why: >-
