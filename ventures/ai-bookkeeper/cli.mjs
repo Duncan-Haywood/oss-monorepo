@@ -16,7 +16,7 @@
 //   node cli.mjs --example report
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
 import { addLoan, applyLoanPayments, loanRegister, loanSchedule } from "./loans.mjs";
-import { newBooks, importStatement, importOfxAccounts, lockPeriod, closeYear, reopenYear, yearEndReport, categorize, suggestRules, addRules, addDocuments, addAsset, disposeAsset, addAssetsCsv, register, addPrepaid, prepaidRegister, writeOff, aging, salesTax, vatReturn, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, exportLines, status, analyze, fmt, taxableBusinessIncome, s179Carryforward } from "./engine.mjs";
+import { newBooks, importStatement, importOfxAccounts, lockPeriod, closeYear, reopenYear, yearEndReport, categorize, suggestRules, addRules, addDocuments, addAsset, disposeAsset, addAssetsCsv, register, addPrepaid, prepaidRegister, writeOff, aging, salesTax, vatReturn, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, addFxAccount, setRates, parseRates, fxRegister, exportLines, status, analyze, fmt, taxableBusinessIncome, s179Carryforward } from "./engine.mjs";
 import { parseCents } from "./bank.mjs";
 import { accountMap } from "./ledger.mjs";
 import { seSetAside, selfEmployment, scheduleC, scheduleCCsv, contractors1099, contractors1099Csv, nec1099FilingCsv, markW9, mergePayees } from "./taxforms.mjs";
@@ -71,6 +71,9 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
   loan add NAME --amount 20000 --rate 6.5 --months 36 --first 2026-02-01 [--payment 612.34]  a fixed-rate loan and its schedule
   loan apply ID           split the unfiled bank lines that are its scheduled payments into interest (6040) and principal (2200)
   loan [ID]               list loans (balance, next payment), or one loan's schedule
+  fx account CODE CUR   mark a bank account as held in a foreign currency (e.g. 1020 EUR); lines convert at the rate on their date
+  fx rate CUR DATE RATE | fx rates FILE   rates are base currency per 1 foreign unit; a file is "date,CUR,rate" lines
+  fx [--as-of D]        each foreign account: balance, rate, carried in the books, exchange gain or loss booked (month-end remeasurement to 6190)
   prepaid [--as-of D]     list prepaid items: amount, expensed so far, still paid ahead
   assets FILE|[--as-of D] load a CSV (name,date,cost,life_months[,salvage,method]), or list the register: cost, accumulated depreciation, net book value
   profile [KEY VALUE]     your details for invoices (name, address, email, taxId, payTo, terms); no arguments lists them
@@ -246,6 +249,22 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
       if (json) { console.log(JSON.stringify(g, null, 2)); process.exit(0); }
       for (const l of g.rows) console.log(`  ${l.id.padEnd(5)} ${l.name.slice(0, 24).padEnd(24)} ${fmt(l.cents).padStart(11)} at ${l.rate}%  ${l.paid}/${l.months} paid  balance ${fmt(l.balance).padStart(11)}  next ${l.next ? `${l.next.date} ${fmt(l.next.payment)}` : "none"}`);
       console.log(`  Total owing by schedule: ${fmt(g.balance)}`);
+    }
+  } catch (e) { console.error(e.message); process.exit(1); }
+} else if (cmd === "fx") {
+  try {
+    if (rest[0] === "account") { books = addFxAccount(books, { code: rest[1], currency: rest[2] }); save(); console.log(`${rest[1]} is held in ${rest[2].toUpperCase()}. Add rates, then import its statements.`); }
+    else if (rest[0] === "rate") { books = setRates(books, [{ date: rest[2], currency: String(rest[1]).toUpperCase(), rate: Number(rest[3]) }]); save(); console.log("Rate saved."); }
+    else if (rest[0] === "rates") {
+      const r = parseRates(readFileSync(rest[1], "utf8"));
+      for (const p of r.problems) console.error(p);
+      books = setRates(books, r.rates); save(); console.log(`${r.rates.length} rates saved.`);
+    } else {
+      const g = fxRegister(books, asOf);
+      if (json) { console.log(JSON.stringify(g, null, 2)); process.exit(0); }
+      console.log(`FOREIGN CURRENCY ACCOUNTS as of ${g.asOf ?? "-"}`);
+      for (const a of g.rows) console.log(`  ${a.code} ${a.currency}  balance ${fmt(a.foreign).padStart(11)}  rate ${String(a.rate ?? "none").padStart(8)}  at rate ${a.atRate === null ? "-" : fmt(a.atRate).padStart(11)}  carried ${fmt(a.carried).padStart(11)}  exchange gain/loss ${fmt(a.gain).padStart(9)}`);
+      console.log(`  Total exchange gain (loss) booked: ${fmt(g.gain)}`);
     }
   } catch (e) { console.error(e.message); process.exit(1); }
 } else if (cmd === "prepaid") {
