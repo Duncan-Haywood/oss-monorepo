@@ -228,15 +228,6 @@
     <div class="scroll" id="budget"></div>
   </section>
 
-  <section class="card" aria-labelledby="h-mileage">
-    <h2 id="h-mileage">Optional: mileage log and home office (US)</h2>
-    <p class="note">Log business trips and, if you work from a dedicated space at home, its square feet. For the year you pick, the totals use the IRS standard mileage rate and the simplified home office method ($5 a square foot, 300 at most). They join the Schedule C worksheet (lines 9 and 30) when the From and To dates above fall in one calendar year. Rates are not checked against irs.gov; confirm them. A worksheet, not tax advice.</p>
-    <p><label>Date <input id="trip-date" placeholder="2026-03-14" size="10"></label> <label>Miles <input id="trip-miles" inputmode="decimal" size="6"></label> <label>Purpose <input id="trip-purpose" placeholder="Client site visit" size="22"></label> <label>From <input id="trip-from" size="10"></label> <label>To <input id="trip-to" size="10"></label> <button type="button" id="trip-add" class="secondary">Add trip</button> <span id="trip-status" class="note" role="status"></span></p>
-    <p><label>Home office sq ft <input id="ho-sqft" inputmode="numeric" size="6"></label> <label>Used from <input id="ho-from" placeholder="optional" size="10"></label> <label>to <input id="ho-to" placeholder="optional" size="10"></label> <button type="button" id="ho-set" class="secondary">Set home office</button> <span id="ho-status" class="note" role="status"></span></p>
-    <p><label>Year <input id="ded-year" inputmode="numeric" size="5"></label></p>
-    <div class="scroll" id="mileage"></div>
-  </section>
-
   <section class="card" aria-labelledby="h-yearend">
     <h2 id="h-yearend">Optional: year-end close</h2>
     <p class="note">Closing a calendar year moves its income and expense into retained earnings (3900) with one dated entry and locks the books through December 31. The profit and loss and tax worksheets still show the year; the balance sheet and journal exports include the entry. Only the latest closed year can be reopened. Calendar years only.</p>
@@ -401,7 +392,7 @@
     }
 
     function table(head, rows, totalRows = []) {
-      return el("table", {}, el("thead", {}, el("tr", {}, ...head.map((h, i) => el("th", { scope: "col", class: i ? "n" : "", text: h })))), el("tbody", {}, ...rows.map((r) => el("tr", {}, ...r.map((c, i) => c instanceof Node ? el("td", {}, c) : el(i ? "td" : "th", i ? { class: "n", text: c } : { scope: "row", text: c })))), ...totalRows.map((r) => el("tr", { class: "total" }, ...r.map((c, i) => el(i ? "td" : "th", i ? { class: "n", text: c } : { scope: "row", text: c }))))));
+      return el("table", {}, el("thead", {}, el("tr", {}, ...head.map((h, i) => el("th", { scope: "col", class: i ? "n" : "", text: h })))), el("tbody", {}, ...rows.map((r) => el("tr", {}, ...r.map((c, i) => el(i ? "td" : "th", i ? { class: "n", text: c } : { scope: "row", text: c })))), ...totalRows.map((r) => el("tr", { class: "total" }, ...r.map((c, i) => el(i ? "td" : "th", i ? { class: "n", text: c } : { scope: "row", text: c }))))));
     }
 
     function renderReports() {
@@ -457,18 +448,6 @@
       $("#budget").replaceChildren(
         el("p", { class: "note", text: `${b.from} to ${b.to}, ${b.months} month${b.months === 1 ? "" : "s"}.${b.empty ? ` ${b.empty.replace("use `budget CODE AMOUNT`", "pick an account above")}.` : ""}${b.partial ? ` ${b.partial}.` : ""}` }),
         table(["Account", "Budget", "Actual", "Variance", "Status"], rows, [["Net profit", fmt(b.net.budget), fmt(b.net.actual), fmt(b.net.variance), ""]]));
-    }
-
-    function dedYear() { const y = $("#ded-year").value.trim(); return /^\d{4}$/.test(y) ? y : String(new Date().getFullYear()); }
-    function renderMileage() {
-      if (!$("#ded-year").value) $("#ded-year").value = ($("#from").value || "").slice(0, 4) || String(new Date().getFullYear());
-      const y = dedYear(), d = deductionExtras(books, y);
-      const trips = (books.mileage ?? []).filter((t) => t.date.startsWith(`${y}-`));
-      const rows = trips.map((t) => { const b = el("button", { type: "button", class: "secondary trip-remove", text: "Remove" }); b.addEventListener("click", () => { books = removeTrip(books, t.id); render(); }); return [t.date, String(t.miles), t.purpose + (t.from || t.to ? ` (${t.from ?? ""} to ${t.to ?? ""})` : ""), b]; });
-      const sum = [d.mileage.rate ? `${y}: ${d.mileage.miles} miles at ${d.mileage.rate / 10} cents = ${fmt(d.mileage.cents)} (Schedule C line 9).` : `${y}: ${d.mileage.miles} miles logged, no rate on file.`,
-        books.homeOffice ? `Home office ${d.home.sqft} sq ft for ${d.home.months} month${d.home.months === 1 ? "" : "s"} = ${fmt(d.home.cents)} (line 30, limited to profit on the worksheet).` : "No home office set."];
-      $("#mileage").replaceChildren(trips.length ? table(["Date", "Miles", "Purpose", ""], rows) : el("p", { class: "note", text: `No trips logged for ${y}.` }), ...sum.map((t) => el("p", { class: "note", text: t })), ...d.warnings.map((w) => el("p", { class: "note", text: w })));
-      if (books.homeOffice && !$("#ho-sqft").value) $("#ho-sqft").value = books.homeOffice.sqft;
     }
 
     function renderYearEnd() {
@@ -823,15 +802,6 @@
       try { const y = (books.yearEnd ?? []).at(-1)?.year; books = reopenYear(books, y); render(); $("#ye-status").textContent = `${y} reopened.`; }
       catch (e) { $("#ye-status").textContent = e.message; }
     });
-    $("#trip-add").addEventListener("click", () => {
-      try { const r = addTrip(books, { date: $("#trip-date").value, miles: $("#trip-miles").value, purpose: $("#trip-purpose").value, from: $("#trip-from").value.trim(), to: $("#trip-to").value.trim() }); books = r.books; record("trip_added"); $("#ded-year").value = r.trip.date.slice(0, 4); render(); $("#trip-status").textContent = `Logged ${r.trip.miles} miles on ${r.trip.date}.`; for (const i of ["date", "miles", "purpose", "from", "to"]) $(`#trip-${i}`).value = ""; }
-      catch (e) { $("#trip-status").textContent = e.message; }
-    });
-    $("#ho-set").addEventListener("click", () => {
-      try { books = setHomeOffice(books, { sqft: $("#ho-sqft").value || 0, from: $("#ho-from").value.trim() || null, to: $("#ho-to").value.trim() || null }); record("home_office_set"); if (!books.homeOffice) $("#ho-sqft").value = ""; render(); $("#ho-status").textContent = books.homeOffice ? `Home office set: ${books.homeOffice.sqft} sq ft.` : "Home office removed."; }
-      catch (e) { $("#ho-status").textContent = e.message; }
-    });
-    $("#ded-year").addEventListener("change", renderMileage);
     $("#budget-set").addEventListener("click", () => {
       try { const cents = parseCents($("#budget-amount").value || "0"); if (cents === null || Number.isNaN(cents)) throw new Error("Enter an amount such as 200.00."); books = setBudget(books, $("#budget-account").value, cents); record("budget_set"); render(); $("#budget-status").textContent = cents ? `Budget set: ${fmt(cents)} a month.` : "Budget removed."; }
       catch (e) { $("#budget-status").textContent = e.message; }
