@@ -135,7 +135,7 @@
       <div><label for="tx-179">Section 179 amount</label><input id="tx-179" inputmode="decimal" value="0"></div>
       <div><label for="tx-bonus">Bonus percent</label><input id="tx-bonus" inputmode="numeric" value="0"></div>
       <div><label for="tx-year">Tax year</label><input id="tx-year" inputmode="numeric"></div>
-      <div><label for="tx-carry">179 carried in</label><input id="tx-carry" inputmode="decimal" value="0"></div>
+      <div><label for="tx-carry">179 carried in (blank: from earlier years)</label><input id="tx-carry" inputmode="decimal" value="" placeholder="automatic"></div>
     </div>
     <button type="button" id="tx-set" class="secondary">Set tax treatment</button>
     <button type="button" id="tx-csv" class="secondary">Download tax depreciation worksheet (CSV)</button>
@@ -380,7 +380,7 @@
   <script type="module">
     import { sniffFormat, splitOfx } from "./bank.mjs";
     import { scheduleC, scheduleCCsv, contractors1099, contractors1099Csv, nec1099FilingCsv, markW9, mergePayees } from "./taxforms.mjs";
-    import { newBooks, importStatement, importOfxAccounts, categorize, suggestRules, addRules, addDocuments, writeOff, aging, addAsset, disposeAsset, register, addPrepaid, prepaidRegister, salesTax, vatReturn, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, exportLines, status, analyze, fmt, DEFAULT_ACCOUNTS, taxableBusinessIncome } from "./engine.mjs";
+    import { newBooks, importStatement, importOfxAccounts, categorize, suggestRules, addRules, addDocuments, writeOff, aging, addAsset, disposeAsset, register, addPrepaid, prepaidRegister, salesTax, vatReturn, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, exportLines, status, analyze, fmt, DEFAULT_ACCOUNTS, taxableBusinessIncome, s179Carryforward } from "./engine.mjs";
     import { parseCents } from "./bank.mjs";
     import { pdfToText } from "./pdftext.mjs";
     import { setTaxTreatment, taxDepreciation, taxDepreciationCsv } from "./taxdepr.mjs";
@@ -737,7 +737,8 @@
     const taxYear = () => { const y = parseInt($("#tx-year").value, 10); return y >= 1990 && y <= 2100 ? y : Math.max(0, ...books.transactions.map((t) => +t.date.slice(0, 4)).filter(Boolean)) || new Date().getFullYear(); };
     const taxDepr = () => {
       const y = taxYear(), elected = (books.assets ?? []).some((a) => a.tax?.s179);
-      let carryIn = 0; try { carryIn = parseCents($("#tx-carry").value || "0"); } catch {}
+      let carryIn = 0, typed = $("#tx-carry").value.trim() !== "";
+      try { carryIn = typed ? parseCents($("#tx-carry").value) : elected ? s179Carryforward(books, y).carryIn : 0; } catch {}
       return taxDepreciation(books, y, { businessIncome: elected || carryIn ? taxableBusinessIncome(books, y) : null, carryIn });
     };
     function renderTaxDepr() {

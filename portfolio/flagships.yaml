@@ -40,15 +40,14 @@ flagships:
       eval/ai-eval.mjs on a machine with a local model and publish the AI
       layer's hit rate against the deterministic layers; (2) try the bank
       readers (Chase, Bank of America, Wells Fargo, Amex, Capital One CSV;
-      OFX/QFX/QIF; statement PDFs with multi-column layouts, compressed object
-      streams and CID fonts) on real exports; (3) a real Stripe, Square or
+      OFX/QFX/QIF; statement PDFs with multi-column layouts and CID fonts with no ToUnicode map;
+      LZW/ASCII85/predictor streams now decode) on real exports; (3) a real Stripe, Square or
       PayPal export for the payment-processor import; (4) a real supplier's
       terms letter checked against the fee and discount rules, and one named
       lender's own schedule against the loan register; (5) try receipts and
       the reconcile-to-statement command on real paper, and read receipt
       photos in the page; (6) one named filing service's import layout, read
-      from that service's own published spec, then the Section 179
-      taxable-income limit and carryforward. A run that lands a slice replaces
+      from that service's own published spec. A run that lands a slice replaces
       its item here; keep this under 2,000 characters.
 
   # Added 2026-10-21 second, on the owner's direction that day: "I want to make

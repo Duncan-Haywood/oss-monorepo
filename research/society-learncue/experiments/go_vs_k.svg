@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of the learned go probability of door robots against the collision cost k from 1.5 to 6; against partners who send the urgency cue it stays near 0, against others it falls from 0.68 to 0.03">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Self-interested door robots: learned go probability against the collision cost</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="249.1" y2="249.1" stroke="#ddd"/><text x="58" y="253.1" text-anchor="end" font-family="sans-serif" font-size="11">0.2</text>
+<line x1="64" x2="624" y1="174.2" y2="174.2" stroke="#ddd"/><text x="58" y="178.2" text-anchor="end" font-family="sans-serif" font-size="11">0.4</text>
+<line x1="64" x2="624" y1="99.3" y2="99.3" stroke="#ddd"/><text x="58" y="103.3" text-anchor="end" font-family="sans-serif" font-size="11">0.6</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1.5</text>
+<text x="126.2" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">2</text>
+<text x="250.7" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">3</text>
+<text x="375.1" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">4</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">6</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">collision cost k</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">learned go probability</text>
+<polyline points="64.0,310.5 126.2,323.6 250.7,324.0 375.1,324.0 624.0,324.0" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="310.5" r="3" fill="#c0392b"/>
+<circle cx="126.2" cy="323.6" r="3" fill="#c0392b"/>
+<circle cx="250.7" cy="324.0" r="3" fill="#c0392b"/>
+<circle cx="375.1" cy="324.0" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="324.0" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">go against cue senders (gS)</text>
+<polyline points="64.0,71.2 126.2,115.0 250.7,183.5 375.1,257.7 624.0,313.1" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="71.2" r="3" fill="#1f6fb2"/>
+<circle cx="126.2" cy="115.0" r="3" fill="#1f6fb2"/>
+<circle cx="250.7" cy="183.5" r="3" fill="#1f6fb2"/>
+<circle cx="375.1" cy="257.7" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="313.1" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">go against others (gQ)</text>
+</svg>
