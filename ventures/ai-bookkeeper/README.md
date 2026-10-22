@@ -511,8 +511,11 @@ only: a fiscal year ending in another month is not modelled. The page has a "yea
 
 ## Not modelled
 
-The 179 taxable-income limit, inventory,
-payroll and sales tax filings, multiple currencies (the VAT worksheet is UK-layout, invoice basis), a scanned (image-only) bank-statement PDF. A statement PDF with a text layer is read by `import FILE.pdf` through pdftotext, and on the page by `pdftext.mjs`. Receipts can be a PDF or a photo (see below).
+Inventory, payroll and sales tax filings, foreign-currency invoices and bills (foreign bank accounts are modelled, see below; the VAT worksheet is UK-layout, invoice basis), a scanned (image-only) bank-statement PDF. A statement PDF with a text layer is read by `import FILE.pdf` through pdftotext, and on the page by `pdftext.mjs`. Receipts can be a PDF or a photo (see below).
+
+## Foreign-currency bank accounts
+
+`fx.mjs` (2026-10-22): a EUR, GBP or other account in books kept in one currency. `fx account 1020 EUR` marks a bank account; `fx rate EUR 2026-03-01 1.0850` or `fx rates FILE` (lines `date,CUR,rate`, base units per one foreign unit) supply rates by hand, with no feed and no network. `import` then keeps each line's own amount (`foreign`) and books it at the latest rate on or before its date; a line with no rate is left out and named, never guessed. Each month end the account is remeasured from its foreign balance at that month's rate and the difference goes to Foreign exchange gain or loss (6190, added on first use; a gain shows as a negative expense), so the books balance and the entries cannot drift. The statement's closing balance is reconciled in the account's own currency. `fx` lists balance, rate, amount carried and gain or loss booked. Conversion is exact (BigInt, rate to six decimals, half away from zero). Tested with hand-written statements and rates (`fx.test.mjs`, 6 pass) and clicked through the CLI; no real multi-currency bank file or central-bank rate table tried. Not modelled: transfers between a foreign and a base account are not paired (file each side), foreign invoices and bills, realized gain by lot, the tax treatment of foreign gains. The page does not have this card yet.
 
 ## Receipts matched to bank lines
 

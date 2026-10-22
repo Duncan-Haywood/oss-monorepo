@@ -17,6 +17,7 @@ import { DEFAULT_ACCOUNTS, accountMap, validateEntry, trialBalance, profitAndLos
 import { suggest, trainClassifier, buildMemory, parseRules, historyRecord, payeeKey } from "./categorize.mjs";
 import { addDocuments, writeOff, settle, aging, documentEntries, AR, AP } from "./accruals.mjs";
 import { taxDepreciation, s179IncomeLimit } from "./taxdepr.mjs";
+import { fxEntries, fxRegister as fxReg, convertRow, fxCurrency, foreignBalance, addFxAccount, setRates, parseRates, rateOn } from "./fx.mjs";
 import { prepaidEntries, prepaidRegister, addPrepaid, PREPAID_ACCOUNT } from "./prepaid.mjs";
 import { assetEntries, register, addAsset, disposeAsset, addAssetsCsv, ASSET_ACCOUNT } from "./assets.mjs";
 import { closingEntries } from "./yearend.mjs";
@@ -25,6 +26,8 @@ import { SAMPLE_CHECKING, SAMPLE_CARD } from "./example-data.mjs";
 
 export { setOpeningBalances, clearOpeningBalances };
 export { closeYear, reopenYear, yearEndReport } from "./yearend.mjs";
+export { addFxAccount, setRates, parseRates, rateOn };
+export const fxRegister = (books, asOf = null) => fxReg(books, journal(books), asOf);
 export { DEFAULT_ACCOUNTS, fmt, dollars, payeeKey, addDocuments, writeOff, aging, addAsset, disposeAsset, addAssetsCsv, register, addPrepaid, prepaidRegister };
 
 export const VERSION = 1;
@@ -72,23 +75,31 @@ export function importStatement(booksIn, csv, account, opts = {}) {
   const ids = rowIds(rows, account);
   const have = new Set(books.transactions.map((t) => t.id));
   let added = 0, skipped = 0;
-  let locked = 0;
+  let locked = 0, noRate = 0;
   rows.forEach((r, i) => {
     if (have.has(ids[i])) { skipped++; return; }
     if (books.lockedThrough && r.date <= books.lockedThrough) { locked++; return; }
-    books.transactions.push({ id: ids[i], account, date: r.date, desc: r.desc, cents: r.cents, balance: r.balance, status: "new" });
+    const conv = convertRow(books, account, r);
+    if (!conv) { noRate++; return; }
+    books.transactions.push({ id: ids[i], account, date: r.date, desc: r.desc, cents: conv.cents, ...(conv.foreign ? { foreign: conv.foreign } : {}), balance: r.balance, status: "new" });
     added++;
   });
   // Balances are kept debit-positive (what you own is positive, what you owe
   // negative). A card statement prints what you owe as positive, so try both
   // signs and keep whichever the rows agree with.
+  if (noRate) problems.push(`${noRate} line${noRate === 1 ? "" : "s"} left out: no ${fxCurrency(books, account)} exchange rate on or before ${noRate === 1 ? "its date" : "their dates"}. Add rates (fx rate ${fxCurrency(books, account)} DATE RATE) and import again.`);
   if (locked) problems.push(`${locked} line${locked === 1 ? "" : "s"} dated on or before ${books.lockedThrough} left out: that period is locked.`);
   const asIs = checkRunningBalance(rows);
   const flipped = checkRunningBalance(rows.map((r) => ({ ...r, balance: r.balance === null ? null : -r.balance })));
   const balanceCheck = !asIs.checked ? asIs : flipped.breaks.length < asIs.breaks.length || (flipped.breaks.length === asIs.breaks.length && acct.type === "liability") ? flipped : asIs;
   if (balanceCheck.checked) {
     books.statements = { ...(books.statements ?? {}), [account]: { closing: balanceCheck.closing, closingDate: balanceCheck.closingDate } };
-    if (books.opening[account] === undefined && !booksIn.transactions.some((t) => t.account === account) && balanceCheck.opening) books.opening[account] = balanceCheck.opening;
+    if (books.opening[account] === undefined && !booksIn.transactions.some((t) => t.account === account) && balanceCheck.opening) {
+      const cur = fxCurrency(books, account), first = rows.map((r) => r.date).sort()[0];
+      const c = cur ? convertRow(books, account, { date: first, cents: balanceCheck.opening }) : { cents: balanceCheck.opening };
+      if (c) { books.opening[account] = c.cents; if (cur) books.fx.opening[account] = balanceCheck.opening; }
+      else problems.push(`The opening balance of ${fmt(balanceCheck.opening)} ${cur} could not be converted: no rate on or before ${first}.`);
+    }
   }
   // OFX, MT940 and CAMT files print no running balance per line, only the closing one: keep it for the reconcile check.
   if (!balanceCheck.checked && statement) books.statements = { ...(books.statements ?? {}), [account]: { closing: statement.cents, closingDate: statement.date } };
@@ -271,7 +282,7 @@ export function journal(books, { withClosing = false } = {}) {
     const deb = cents > 0;
     entries.push({ id: `OPEN-${code}`, date, memo: `Opening balance, ${map.get(code).name}`, source: "opening", lines: [{ account: code, debit: deb ? cents : 0, credit: deb ? 0 : -cents }, { account: "3000", debit: deb ? 0 : -cents, credit: deb ? cents : 0 }] });
   }
-  entries.push(...documentEntries(books), ...assetEntries(books), ...prepaidEntries(books));
+  entries.push(...documentEntries(books), ...assetEntries(books), ...prepaidEntries(books), ...fxEntries(books));
   const seen = new Set();
   for (const t of books.transactions) {
     if (!t.posted || t.status === "review" || t.status === "new" || seen.has(t.id)) continue;
@@ -350,7 +361,8 @@ export function closeChecks(books, opts = {}) {
   for (const [code, s] of Object.entries(books.statements ?? {})) {
     const a = map.get(code);
     if (!a) continue;
-    const ledger = natural(a, balances(entries, { to: s.closingDate }).get(code) ?? 0);
+    const fxc = fxCurrency(books, code); // a foreign account's statement is in its own currency
+    const ledger = natural(a, fxc ? foreignBalance(books, code, s.closingDate) : balances(entries, { to: s.closingDate }).get(code) ?? 0);
     const bank = natural(a, s.closing);
     if (ledger !== bank) out.push({ severity: "high", check: "reconcile", message: `${a.name}: the books say ${fmt(ledger)} on ${s.closingDate}, the statement says ${fmt(bank)}, a difference of ${fmt(ledger - bank)}. Usually a line still in review, or a missing opening balance.`, ids: [] });
     else out.push({ severity: "ok", check: "reconcile", message: `${a.name} agrees with the statement's closing balance of ${fmt(bank)} on ${s.closingDate}.`, ids: [] });
