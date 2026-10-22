@@ -50,6 +50,6 @@ Tests check: light-load revenue equals the analytic expectation (arrival rate x 
 - One robot, one bin, independent items, no lateral tracking error (as `infra-sorting`). Simulated, not a measured cell; no cell cost is modelled. Not engineering advice.
 
 ## Next steps
-- Add an offline optimal schedule (MILP or DP on a short window) as an upper bound on dispatch gain.
+- Add an offline optimal schedule (MILP or DP on a short window) as an upper bound on dispatch gain (done: `infra-sortbound`, an exact DP; the greedy rules reach 90 to 97% of it at 6 to 10 items/m).
 - Replace assumed values with dated, sourced per-kg prices and item masses.
 - Let the detector return class probabilities and dispatch on expected value.

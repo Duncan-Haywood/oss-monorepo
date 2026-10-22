@@ -1,0 +1,13 @@
+[project]
+name = "infra-sortbound"
+version = "0.1.0"
+description = "How far below a clairvoyant schedule is online dispatch in a robotic waste-sorting cell? An exact bound by dynamic programming."
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
