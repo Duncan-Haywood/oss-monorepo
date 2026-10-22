@@ -20,8 +20,8 @@ const iso = (n) => new Date(n * 86400000).toISOString().slice(0, 10);
 // terms (optional): { "supplier name": { discountPct, discountDays, lateFeePct } }, matched on the
 // party name ignoring case. A discount is taken when the bill can be paid within discountDays of
 // its date without breaking the reserve; a late fee (a flat percent, charged once) is added to a
-// bill paid after its due date. Rows then carry `saved` and `fee` in cents. Fees are reported, not
-// fed back into the reserve test. Neither is modelled without terms.
+// bill paid after its due date. Rows then carry `saved` and `fee` in cents. The fee counts toward the reserve test, so
+// a bill that only fits without it is held longer. Neither is modelled without terms.
 export function planBills(books, { asOf = null, days = 90, reserve = 0, terms = {} } = {}) {
   const tm = new Map(Object.entries(terms).map(([k, v]) => [k.trim().toLowerCase(), v]));
   const f = forecastCash(books, { asOf, days });
@@ -64,8 +64,17 @@ export function planBills(books, { asOf = null, days = 90, reserve = 0, terms = 
       if (dd >= today + 1 && dd <= end && dd < n && lowestFrom(dd, b.cents - disc) >= reserve) { n = dd; fit = true; saved = disc; }
       else if (fit && n <= dd) saved = disc;
     }
-    if (!saved && t.lateFeePct > 0 && n > day(b.due)) fee = Math.round(b.cents * t.lateFeePct / 100);
-    placed.push({ n, cents: b.cents - saved });
+    if (!saved && t.lateFeePct > 0 && n > day(b.due)) {
+      fee = Math.round(b.cents * t.lateFeePct / 100);
+      // the fee is cash out too: the day must hold the bill plus the fee, so search on from here
+      if (fit && lowestFrom(n, b.cents + fee) < reserve) {
+        fit = false;
+        for (const c of cand) if (c > n && lowestFrom(c, b.cents + fee) >= reserve) { n = c; fit = true; break; }
+        if (!fit) n = b.target;
+      }
+      if (n <= day(b.due)) fee = 0;
+    }
+    placed.push({ n, cents: b.cents - saved + fee });
     const delay = Math.max(0, n - b.target);
     const status = !fit ? "cannot fit" : delay > 0 ? "deferred" : b.daysLate > 0 ? "late now" : "on time";
     const note = !fit ? `would take the balance ${fmt(reserve - lowestFrom(n, b.cents))} below the reserve even on the last day; needs cash in first`
