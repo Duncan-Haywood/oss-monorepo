@@ -103,3 +103,18 @@ test("the page shows the UK VAT return worksheet from the engine", () => {
   assert.match(page("index.html"), /id="vat"/);
   assert.match(script(), /vatReturn\(books/);
 });
+
+test("every module the page loads, transitively, is free of node: imports", () => {
+  const seen = new Set(), bad = [];
+  const walk = (src, name) => {
+    for (const m of src.matchAll(/(?:import|export)\s[^;]*?from\s+"([^"]+)"/g)) {
+      const spec = m[1];
+      if (spec.startsWith("node:")) { bad.push(`${name} -> ${spec}`); continue; }
+      if (!spec.startsWith("./") || seen.has(spec)) continue;
+      seen.add(spec); walk(page(spec.slice(2)), spec.slice(2));
+    }
+  };
+  walk(script(), "index.html");
+  assert.ok(seen.size > 5, "walked the page's modules");
+  assert.deepEqual(bad, [], "a browser cannot load node: modules, so the whole page script would die");
+});
