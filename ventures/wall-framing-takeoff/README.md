@@ -225,7 +225,7 @@ yourself.
 
 **Privacy.** Everything runs in your browser. Your plan is never uploaded, and
 there are no accounts, tracking cookies, or analytics vendor. The page counts
-anonymous events (`takeoff_run`, `example_loaded`, `csv_downloaded`, `drawings_downloaded`,
+anonymous events (`takeoff_run`, `example_loaded`, `csv_downloaded`, `drawings_downloaded`, `panel_order_downloaded`,
 `plan_saved`, `plan_opened`) in your browser's local storage only, and keeps
 your last plan there so it is back when you return; the footer has a switch to
 turn counting off.
