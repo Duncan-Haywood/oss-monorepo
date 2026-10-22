@@ -74,6 +74,11 @@
     "seconds": 1168.7,
     "voice": "en_US-ljspeech-high"
   },
+  "the-return-gate": {
+    "bytes": 8578882,
+    "seconds": 1429.7,
+    "voice": "en_US-ljspeech-high"
+  },
   "the-slowest-bell-on-the-moon": {
     "bytes": 8949259,
     "seconds": 1491.4,
