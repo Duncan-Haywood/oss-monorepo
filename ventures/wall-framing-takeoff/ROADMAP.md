@@ -84,8 +84,11 @@ Ticked items are on `main`.
 
 ### 3. The rest of the shell
 
-- [ ] Floor framing: joist layout on a user-chosen spacing and size, rim,
-      blocking, subfloor sheet layout.
+- [x] Floor framing (2026-10-22, `floor.mjs`, CLI `--floor`): joist layout on a
+      user-chosen spacing and size, optional beam that splits the runs, rim
+      boards spliced over joists, blocking rows, subfloor sheets with joints on
+      joists and staggered courses; lumber pooled into the wall order. Not yet:
+      the page, openings (stairs, chases), cantilevers, doubled joists under walls.
 - [ ] Roof: rafter or truss count from a footprint and pitch (trusses as a
       purchased line), roof sheathing, underlayment and shingle squares.
 - [ ] Foundation quantities: footing and slab concrete, rebar, forms.
