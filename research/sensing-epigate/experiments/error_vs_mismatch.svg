@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of mean surface error against the fraction of random-pixel mismatches, with and without the epipolar gate">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">An epipolar gate against random-pixel mismatches</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="258.7" y2="258.7" stroke="#ddd"/><text x="58" y="262.7" text-anchor="end" font-family="sans-serif" font-size="11">0.2</text>
+<line x1="64" x2="624" y1="193.4" y2="193.4" stroke="#ddd"/><text x="58" y="197.4" text-anchor="end" font-family="sans-serif" font-size="11">0.4</text>
+<line x1="64" x2="624" y1="128.1" y2="128.1" stroke="#ddd"/><text x="58" y="132.1" text-anchor="end" font-family="sans-serif" font-size="11">0.6</text>
+<line x1="64" x2="624" y1="62.8" y2="62.8" stroke="#ddd"/><text x="58" y="66.8" text-anchor="end" font-family="sans-serif" font-size="11">0.8</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0</text>
+<text x="204.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.05</text>
+<text x="344.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.1</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.2</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">mismatched observations (fraction)</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">mean surface error (radii)</text>
+<polyline points="64.0,323.5 204.0,269.1 344.0,218.9 624.0,188.2" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="323.5" r="3" fill="#c0392b"/>
+<circle cx="204.0" cy="269.1" r="3" fill="#c0392b"/>
+<circle cx="344.0" cy="218.9" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="188.2" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">Cauchy BA, all-view start</text>
+<polyline points="64.0,323.5 204.0,320.1 344.0,309.4 624.0,280.6" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="323.5" r="3" fill="#1f6fb2"/>
+<circle cx="204.0" cy="320.1" r="3" fill="#1f6fb2"/>
+<circle cx="344.0" cy="309.4" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="280.6" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">Cauchy BA, RANSAC start</text>
+<polyline points="64.0,323.5 204.0,319.8 344.0,309.3 624.0,71.2" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="323.5" r="3" fill="#2e8b57"/>
+<circle cx="204.0" cy="319.8" r="3" fill="#2e8b57"/>
+<circle cx="344.0" cy="309.3" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">gate + plain BA</text>
+<polyline points="64.0,323.5 204.0,322.0 344.0,298.3 624.0,190.7" fill="none" stroke="#8e44ad" stroke-width="2"/>
+<circle cx="64.0" cy="323.5" r="3" fill="#8e44ad"/>
+<circle cx="204.0" cy="322.0" r="3" fill="#8e44ad"/>
+<circle cx="344.0" cy="298.3" r="3" fill="#8e44ad"/>
+<circle cx="624.0" cy="190.7" r="3" fill="#8e44ad"/>
+<rect x="574" y="32" width="14" height="10" fill="#8e44ad"/><text x="594" y="41" font-family="sans-serif" font-size="11">gate + Cauchy BA</text>
+</svg>
