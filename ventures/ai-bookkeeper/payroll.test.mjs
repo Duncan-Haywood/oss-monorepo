@@ -210,3 +210,16 @@ test("form 940 adds the state credit reduction on taxable FUTA wages", () => {
   assert.equal(form940(books, 2025).creditReduction, undefined);
   assert.match(form940(books, 2025, { state: "NY" }).warnings.join("\n"), /No built-in credit reduction for NY/);
 });
+
+test("form 941 splits the liability by month and finds balance due or overpayment", () => {
+  const { books } = addPayroll(newBooks(), REG);
+  const f = form941(books, 2026, 1);
+  assert.equal(f.monthlyLiability.length, 3);
+  assert.equal(f.monthlyLiability.reduce((a, b) => a + b, 0), f.deposited);
+  assert.equal(f.balanceDue, undefined);
+  const short = form941(books, 2026, 1, { depositedCents: f.totalTaxes - 500 });
+  assert.equal(short.balanceDue, 500);
+  const over = form941(books, 2026, 1, { depositedCents: f.totalTaxes + 700 });
+  assert.equal(over.overpayment, 700);
+  assert.equal(form941(books, 2026, 1, { depositedCents: f.totalTaxes }).balanceDue, undefined);
+});
