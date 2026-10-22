@@ -47,7 +47,7 @@ export const PRECUT = { "8ft": 92.625, "9ft": 104.625, "10ft": 116.625 };
  *   cornerExtraStuds: number, teeExtraStuds: number, defaultHeaderHeight: number,
  *   blocking?: { rows?: number, fire?: boolean }, plateLaps?: boolean, advanced?: { twoStudCorners?: boolean, ladderTees?: boolean, singleTopPlate?: boolean }, stock: Stock[], walls: Wall[] }} Plan
  * @typedef {{ kind: string, x: number, y: number, w: number, h: number, size: string,
- *   length: number, orient: "v"|"h", label: string }} Member
+ *   length: number, orient: "v"|"h", label: string, sloped?: boolean }} Member
  */
 
 /** A small invented house (a 40 x 28 ft ranch), for the page's example. Not a real plan. */
@@ -649,7 +649,7 @@ function layoutGable(plan, wall) {
   }
   const vtL = THICK * secL; // vertical thickness of a plate lying on the slope
   const vtR = THICK * secR;
-  for (const [label, offL, offR, joints] of [["top plate", 0, 0, topJoints], ["cap plate", vtL, vtR, capJoints]]) {
+  for (const [label, offL, offR, joints] of /** @type {[string, number, number, number[]][]} */ ([["top plate", 0, 0, topJoints], ["cap plate", vtL, vtR, capJoints]])) {
     for (const [a, b, sec, vt, off] of [[0, mid, secL, vtL, offL], [mid, L, secR, vtR, offR]]) {
       const js = joints.filter((x) => x > a + EPS && x < b - EPS).sort((x, y) => x - y);
       let q = a;
@@ -772,7 +772,7 @@ function splitPlate(a, b, centres, stock, forbidden) {
  * @param {ReturnType<typeof layoutWall>} w
  * @param {Wall} wall
  */
-export function verifyWall(w, wall) {
+export function verifyWall(/** @type {any} */ w, wall) {
   const problems = [];
   const ms = w.members;
   for (const m of ms) {

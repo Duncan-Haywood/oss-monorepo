@@ -75,6 +75,7 @@ export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "u
     floor = layoutFloor(plan.floor, plan);
     if (!floor.ok) return { code: 1, out: `The floor has problems:\n${floor.errors.map((e) => `  - ${e}`).join("\n")}` };
   }
+  /** @type {any} */
   let r = takeoff(plan, floor ? floorCuts(floor) : []);
   if (floor && r.ok) r.floor = floor;
   if (!r.ok) return { code: 1, out: `The plan has problems:\n${r.errors.map((e) => `  - ${e}`).join("\n")}` };
