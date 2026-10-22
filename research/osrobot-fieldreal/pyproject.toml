@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "osrobot-fieldreal"
+version = "0.1.0"
+description = "Sourced-constant rerun of the osrobot-field weeding model: laser-weeder treatment time, speed and width from the literature, weed density swept"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
