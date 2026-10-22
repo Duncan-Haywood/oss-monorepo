@@ -16,6 +16,16 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>The Patches</title>
+      <link>https://example.invalid/hearth-and-horizon/the-patches.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-patches.html</guid>
+      <pubDate>Thu, 22 Oct 2026 12:00:00 GMT</pubDate>
+      <description>A cargo airship carrying the only insulin shipment for a remote island cannot moor in the gusty lee of the island's mountain, and the captain wants to try anyway. A sixty-three-year-old mooring master says no, and then has to find a way to say yes to the thing that matters, which costs her island everything else in the hold. Setting: Saint Aidan's, an invented island in the South Atlantic, 2047. Read the full text at https://example.invalid/hearth-and-horizon/the-patches.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A cargo airship carrying the only insulin shipment for a remote island cannot moor in the gusty lee of the island's mountain, and the captain wants to try anyway. A sixty-three-year-old mooring master says no, and then has to find a way to say yes to the thing that matters, which costs her island everything else in the hold.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>The Bell at Half Past Three</title>
       <link>https://example.invalid/hearth-and-horizon/the-bell-at-half-past-three.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-bell-at-half-past-three.html</guid>

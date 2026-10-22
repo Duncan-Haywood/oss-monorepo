@@ -34,18 +34,23 @@ flagships:
       IIF journals; page, CLI and agent engine. Learning curve measured on
       synthetic data (README Verification).
     next: >-
-      What has landed, with how each piece was tested, is in
-      ventures/ai-bookkeeper/HISTORY.md; add new entries there, not here.
-      Open items, all of the form "try it on something real" (everything so far
-      ran on hand-written fixtures): run the AI-layer harness
-      (eval/ai-eval.mjs) on a machine with a local model; one named lender's own
-      loan schedule; a real supplier's terms letter against the bill-pay fee and
-      discount rules; real receipts and receipt photos on the page; real paper
-      statements through reconcile; real bank statement PDFs (multi-column
-      layouts, compressed object streams, CID fonts); a real Stripe, Square or
-      PayPal export; one named service's import layout from its own published
-      spec; check the Section 179 and bonus-depreciation figures (2024-2026,
-      from memory) and the mid-quarter tables against IRS Pub 946.
+      Everything built so far is tested on hand-written fixtures; the next
+      slices are about real inputs (the landed log is in the README and git
+      history, not here). Open items, most valuable first: (1) run
+      eval/ai-eval.mjs on a machine with a local model and publish the AI
+      layer's hit rate against the deterministic layers; (2) try the bank
+      readers (Chase, Bank of America, Wells Fargo, Amex, Capital One CSV;
+      OFX/QFX/QIF; statement PDFs with multi-column layouts, compressed object
+      streams and CID fonts) on real exports; (3) a real Stripe, Square or
+      PayPal export for the payment-processor import; (4) a real supplier's
+      terms letter checked against the fee and discount rules, and one named
+      lender's own schedule against the loan register; (5) try receipts and
+      the reconcile-to-statement command on real paper, and read receipt
+      photos in the page; (6) one named filing service's import layout, read
+      from that service's own published spec, then the Section 179
+      taxable-income limit and carryforward. A run that lands a slice replaces
+      its item here; keep this under 2,000 characters.
+
   # Added 2026-10-21 second, on the owner's direction that day: "I want to make
   # tools that can automate part of the new home construction process in the
   # us. to drop prices and increase efficiency this is a long standing project

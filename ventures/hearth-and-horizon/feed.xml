@@ -40,6 +40,16 @@
       <itunes:duration>0:09:57</itunes:duration>
     </item>
     <item>
+      <title>The Patches</title>
+      <link>https://example.invalid/hearth-and-horizon/the-patches.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-patches.html</guid>
+      <pubDate>Thu, 22 Oct 2026 12:00:00 GMT</pubDate>
+      <description>A cargo airship carrying the only insulin shipment for a remote island cannot moor in the gusty lee of the island's mountain, and the captain wants to try anyway. A sixty-three-year-old mooring master says no, and then has to find a way to say yes to the thing that matters, which costs her island everything else in the hold. Setting: Saint Aidan's, an invented island in the South Atlantic, 2047. Read the full text at https://example.invalid/hearth-and-horizon/the-patches.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A cargo airship carrying the only insulin shipment for a remote island cannot moor in the gusty lee of the island's mountain, and the captain wants to try anyway. A sixty-three-year-old mooring master says no, and then has to find a way to say yes to the thing that matters, which costs her island everything else in the hold.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>Francis and the Wolf of Gubbio</title>
       <link>https://example.invalid/hearth-and-horizon/francis-and-the-wolf-of-gubbio.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/francis-and-the-wolf-of-gubbio.html</guid>
