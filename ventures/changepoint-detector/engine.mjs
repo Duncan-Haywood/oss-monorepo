@@ -1390,7 +1390,7 @@ export function analyze(input = {}) {
   const rawCounts = values;
   if (o.bursts) {
     if (model !== 'poisson') throw new Error('The burst rule is for counts: use model "poisson".');
-    const b = findBursts(values, { period, ratio: typeof o.bursts === 'number' ? o.bursts : 2.5 });
+    const b = findBursts(values, { period, ratio: typeof o.bursts === "number" ? o.bursts : 2.5, runs: o.burstRuns || 0, ...(o.burstRunRatio ? { runRatio: o.burstRunRatio } : {}) });
     burstInfo = b.indexes.map((i) => ({ index: i, label: labels[i], value: values[i], keptAs: b.counts[i] }));
     values = b.counts;
   }
@@ -1553,7 +1553,7 @@ export function analyze(input = {}) {
  * and clears a Poisson-sized excess. A step is high against one side only, so it is never flagged.
  * Returns the flagged indexes and a copy of the counts with each burst cut back to its reference.
  */
-export function findBursts(x, { period = 0, ratio = 2.5, side = period ? 3 : 5, skip = null } = {}) {
+export function findBursts(x, { period = 0, ratio = 2.5, side = period ? 3 : 5, skip = null, runs = 0, runRatio = 2 } = {}) {
   const n = x.length, lag = period || 1;
   const med = (a) => { if (!a.length) return null; const s = [...a].sort((p, q) => p - q); const m = s.length >> 1; return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; };
   const out = [], cut = x.slice();
@@ -1568,6 +1568,46 @@ export function findBursts(x, { period = 0, ratio = 2.5, side = period ? 3 : 5, 
     if (mb === null && ma === null) continue;
     const ref = Math.max(mb ?? 0, ma ?? 0);
     if (x[t] >= ratio * Math.max(ref, 1) && x[t] - ref > 4 * Math.sqrt(ref + 1)) { out.push(t); cut[t] = Math.round(ref); }
+  }
+  if (runs) {
+    // Short runs (2 to `runs` points): the whole block sits above the reference of the same-phase points outside it
+    // (on both sides), at `runRatio` times the reference on average, and its summed excess clears a Poisson-sized bar.
+    const flagged = new Set(out), side2 = period ? 3 : 8;
+    const ref = (t) => {
+      const before = [], after = [];
+      for (let k = 1; k <= side2; k++) {
+        if (t - k * lag >= 0) before.push(x[t - k * lag]);
+        if (t + k * lag < n) after.push(x[t + k * lag]);
+      }
+      return [med(before), med(after)];
+    };
+    for (let L = runs; L >= 2; L--) {
+      for (let s = 0; s + L <= n; s++) {
+        let ok = true;
+        for (let i = s; i < s + L; i++) if (flagged.has(i) || (skip && skip.has(i))) { ok = false; break; }
+        if (!ok) continue;
+        const refs = [];
+        if (period) {
+          for (let i = s; i < s + L && ok; i++) {
+            const [mb, ma] = ref(i);
+            if (mb === null || ma === null) ok = false; else refs.push(Math.max(mb, ma));
+          }
+        } else {
+          // no period: the points just outside the run, on both sides
+          const before = [], after = [];
+          for (let k = 1; k <= side2; k++) { if (s - k >= 0) before.push(x[s - k]); if (s + L - 1 + k < n) after.push(x[s + L - 1 + k]); }
+          if (!before.length || !after.length) ok = false;
+          else for (let i = 0; i < L; i++) refs.push(Math.max(med(before), med(after)));
+        }
+        if (!ok) continue;
+        let sum = 0, rsum = 0, allHigh = true;
+        for (let i = 0; i < L; i++) { sum += x[s + i]; rsum += refs[i]; if (x[s + i] < runRatio * Math.max(refs[i], 1) * 0.8) allHigh = false; }
+        if (allHigh && sum >= runRatio * Math.max(rsum, L) && sum - rsum > 4 * Math.sqrt(rsum + L)) {
+          for (let i = 0; i < L; i++) { out.push(s + i); flagged.add(s + i); cut[s + i] = Math.round(refs[i]); }
+        }
+      }
+    }
+    out.sort((a, b) => a - b);
   }
   return { indexes: out, counts: cut };
 }
