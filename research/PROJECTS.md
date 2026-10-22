@@ -1451,7 +1451,7 @@ al. (1993), the revised NIOSH lifting equation, for the human side of a shared l
    person's lead under impedance control while the person fastens. Score interaction forces
    against ISO/TS 15066 body-region limits, sheet placement error and the person's lifted load
    against the NIOSH limit.
-6. `buildbot-skills` (sim-to-sim check of the cohold follow skill done 2026-10-22; the carry and fasten skills and a loadable library are still open): a skill library. Train the skills of milestones 3 to 5 with domain
+6. `buildbot-skills` (sim-to-sim check of the cohold follow skill done 2026-10-22; loadable skill files, a loader and a re-scorer done 2026-10-22 as `buildbot-skillpack`; the carry and fasten skills as controllers are still open): a skill library. Train the skills of milestones 3 to 5 with domain
    randomisation, check them across a second simulator or contact model (sim-to-sim as the
    proxy for sim-to-real, `codesign-transfer`), and publish policies, scenes and success rates
    in a form a robot owner could load.

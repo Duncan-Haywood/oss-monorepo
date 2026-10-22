@@ -1,0 +1,122 @@
+{
+ "seeds": [
+  {
+   "seed": 1,
+   "K": 213.15956194783382,
+   "B": 20.08171065061341,
+   "Ki": 110.06196268604053,
+   "train_min": 0.65,
+   "val": {
+    "A": 0.6175,
+    "B": 0.635
+   }
+  },
+  {
+   "seed": 2,
+   "K": 329.5082357307852,
+   "B": 28.368028720022206,
+   "Ki": 214.692111244791,
+   "train_min": 0.6583333333333333,
+   "val": {
+    "A": 0.6825,
+    "B": 0.65
+   }
+  },
+  {
+   "seed": 3,
+   "K": 386.0186959229268,
+   "B": 33.70463986532705,
+   "Ki": 80.05538640507804,
+   "train_min": 0.5833333333333334,
+   "val": {
+    "A": 0.685,
+    "B": 0.68
+   }
+  },
+  {
+   "seed": 4,
+   "K": 304.65408227545197,
+   "B": 22.92644545191183,
+   "Ki": 50.12309939402846,
+   "train_min": 0.65,
+   "val": {
+    "A": 0.6325,
+    "B": 0.615
+   }
+  }
+ ],
+ "picked_seed": 3,
+ "files": {
+  "cohold-follow-mixed": "skills/cohold-follow-mixed.json",
+  "cohold-follow-nominal": "skills/cohold-follow-nominal.json",
+  "cohold-follow-A": "skills/cohold-follow-A.json",
+  "cohold-follow-B": "skills/cohold-follow-B.json",
+  "sheathing-nail": "skills/sheathing-nail.json"
+ },
+ "rescored": {
+  "cohold-follow-A": {
+   "A": {
+    "n": 1000,
+    "success": 0.823
+   },
+   "B": {
+    "n": 1000,
+    "success": 0.0
+   },
+   "C": {
+    "n": 200,
+    "success": 0.0
+   },
+   "claimed_matches": true
+  },
+  "cohold-follow-B": {
+   "A": {
+    "n": 1000,
+    "success": 0.716
+   },
+   "B": {
+    "n": 1000,
+    "success": 0.689
+   },
+   "C": {
+    "n": 200,
+    "success": 0.71
+   },
+   "claimed_matches": true
+  },
+  "cohold-follow-mixed": {
+   "A": {
+    "n": 1000,
+    "success": 0.675
+   },
+   "B": {
+    "n": 1000,
+    "success": 0.653
+   },
+   "C": {
+    "n": 200,
+    "success": 0.695
+   },
+   "claimed_matches": true
+  },
+  "cohold-follow-nominal": {
+   "A": {
+    "n": 1000,
+    "success": 0.612
+   },
+   "B": {
+    "n": 1000,
+    "success": 0.275
+   },
+   "C": {
+    "n": 200,
+    "success": 0.28
+   },
+   "claimed_matches": true
+  },
+  "sheathing-nail": {
+   "sheet_success": 0.9513474372996926,
+   "claimed_matches": true
+  }
+ }
+}
