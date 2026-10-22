@@ -175,10 +175,13 @@ def play(cond, seed, rounds, writer, env):
                 code = Code(src)
                 sc, _ = evaluate(code)
                 rec.update(valid=sc < 1e5, score=sc, fail_rate=code.fails / max(code.total, 1))
+                if not rec["valid"]:
+                    print(f"   candidate invalid: fail rate {rec['fail_rate']:.2f}", flush=True)
                 if sc < best[0]:
                     best = (sc, code)
             except ValueError as e:
                 rec["error"] = str(e)
+                print("   candidate rejected:", e, flush=True)
             cands.append(rec)
         pl.genome = best[1]
         ref_a, fi_te = R.reference_auroc(pl.genome, ref, tst, fref, ftst)

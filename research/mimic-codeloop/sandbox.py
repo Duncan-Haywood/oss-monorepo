@@ -13,7 +13,7 @@ import numpy as np
 SAFE_BUILTINS = {n: __builtins__[n] if isinstance(__builtins__, dict) else getattr(__builtins__, n)
                  for n in ("abs", "min", "max", "range", "len", "float", "int", "round", "sum",
                            "zip", "enumerate", "list", "tuple", "pow", "sorted", "bool")}
-BANNED = re.compile(r"\b(import|open|exec|eval|compile|__\w+__|globals|locals|getattr|setattr|input|os|sys)\b")
+BANNED = re.compile(r"\b(import|open|exec|eval|compile|__\w+__|globals|locals|getattr|setattr)\b")
 
 
 class Timeout(Exception):
@@ -32,7 +32,16 @@ def extract(text):
 
 def compile_generator(src):
     """Return gen(start, end, rng) -> array (n,3) of (t_ms, x, y), or raise ValueError."""
-    if BANNED.search(src):
+    # models habitually start with `import numpy as np`; np and math are already
+    # provided, so drop plain numpy/math imports and reject any other import
+    src = re.sub(r"^\s*import (numpy(?: as np)?|math)\s*$", "", src, flags=re.M)
+    src = re.sub(r"^\s*from (numpy|math) import .*$", "", src, flags=re.M)
+    # a demo block under `if __name__ == ...` is not part of the generator
+    src = re.split(r"^if __name__", src, maxsplit=1, flags=re.M)[0]
+    # words in comments and docstrings are not code
+    code = re.sub(r'"""[\s\S]*?"""|\'\'\'[\s\S]*?\'\'\'', "", src)
+    code = re.sub(r"#.*", "", code)
+    if BANNED.search(code):
         raise ValueError("banned token")
     ns = {"__builtins__": SAFE_BUILTINS, "np": np, "math": math}
     try:
@@ -40,6 +49,9 @@ def compile_generator(src):
     except Exception as e:  # noqa: BLE001
         raise ValueError(f"does not load: {type(e).__name__}") from e
     fn = ns.get("generate")
+    if not callable(fn):  # the model renamed the one function it defined
+        defs = [v for k, v in ns.items() if hasattr(v, "__code__") and k not in ("np", "math")]
+        fn = defs[-1] if defs else None
     if not callable(fn):
         raise ValueError("no generate()")
     return fn
