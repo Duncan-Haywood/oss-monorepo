@@ -160,7 +160,7 @@
 
   <section class="card" aria-labelledby="h-payouts">
     <h2 id="h-payouts">Optional: card-processor payouts</h2>
-    <p class="note">A Stripe or Shopify deposit reaches the bank as one lump: sales less fees. Load the processor's payout report and each deposit already in your books is split into gross sales, refunds and fees, so profit shows what you really sold and what taking cards cost. Stripe: the payout reconciliation report. Shopify: payout transactions. Square: the transfer report. PayPal: the activity CSV (each withdrawal is split over the payments before it; one that does not add up is listed, not guessed). Nothing is posted until you press Post.</p>
+    <p class="note">A Stripe or Shopify deposit reaches the bank as one lump: sales less fees. Load the processor's payout report and each deposit already in your books is split into gross sales, refunds and fees, so profit shows what you really sold and what taking cards cost. Stripe: the payout reconciliation report. Shopify: payout transactions. Square: the transfer report. PayPal: the activity CSV. Nothing is posted until you press Post.</p>
     <label for="po-file">Payout report CSV file</label><input id="po-file" type="file" accept=".csv,text/csv,text/plain">
     <label for="po-paste">Or paste the CSV</label>
     <textarea id="po-paste" placeholder="automatic_payout_id,automatic_payout_effective_at,reporting_category,gross,fee,net"></textarea>

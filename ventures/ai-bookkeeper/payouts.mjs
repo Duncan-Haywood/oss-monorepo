@@ -8,6 +8,12 @@
 // Shopify Payments "payout transactions" CSVs (Transaction Date, Type, Amount,
 // Fee, Net, Payout Date, Payout ID) read through the same aliases, from the
 // documented layout only.
+// PayPal activity CSVs (Date, Time, Name, Type, Status, Gross, Fee, Net,
+// Transaction ID ...) have no payout id. A withdrawal row (type containing
+// "withdrawal") is the payout; the completed rows since the previous
+// withdrawal are what it paid out. It is split only when those rows net to
+// exactly the withdrawal; a balance carried over from before the report is
+// listed in `problems`, never guessed at. PayPal shows fees as negatives.
 // Report columns (Stripe "payout reconciliation" or balance-transactions CSV,
 // matched by name, any order): payout id, payout date, category, gross, fee,
 // net, and optionally an id and a created date. A row's net must equal gross
@@ -18,10 +24,8 @@
 // Bank match: a positive, not-yet-split line in the books equal to the
 // payout's net, dated from 2 days before to 7 days after the payout date; the
 // nearest date wins, and a line is used once. Nothing is posted by `plan`.
-// Square (transfer reports: Transfer ID, Deposit Date, Total Collected, Fees,
-// Net Total; no category, the sign of the amount says sale or refund) and PayPal
-// (activity CSV, withdrawals mark the payouts) layouts are written from the
-// documented column names, unchecked against a real export.
+// Square transfer reports (Transfer ID, Deposit Date, Total Collected, Fees, Net Total;
+// no category column, the sign says sale or refund): documented names only, unchecked.
 // Integer cents. Hand-written fixtures in the documented layout only; no real
 // export has been tried. Not accounting advice.
 
@@ -57,9 +61,9 @@ export function readPayoutReport(text) {
   const table = parseCsv(text).filter((r) => r.some((c) => String(c).trim() !== ""));
   if (table.length < 2) throw new Error("The report has no rows.");
   const head = table[0].map(key);
-  if (head.includes("type") && head.includes("transaction_id") && head.includes("fee") && !ALIASES.payout.some((n) => head.includes(n))) return readPaypal(table, head);
   const col = Object.fromEntries(Object.entries(ALIASES).map(([k, names]) => [k, names.map((n) => head.indexOf(n)).find((i) => i !== -1) ?? -1]));
   for (const need of ["gross", "net"]) if (col[need] === -1) throw new Error(`No "${need}" column: the report needs payout id, payout date, category, gross, fee and net columns.`);
+  if (col.payout === -1 && head.includes("transaction_id") && head.includes("status") && head.includes("type")) return readPaypal(table, head);
   if (col.payout === -1) throw new Error('No payout id column (Stripe: "automatic_payout_id"). Export the payout reconciliation report, not the plain payments list.');
   const problems = [];
   const rows = [];
@@ -73,10 +77,6 @@ export function readPayoutReport(text) {
     const category = col.category === -1 ? (gross < 0 ? "refund" : "charge") : key(at("category"));
     rows.push({ row: n + 2, id: at("id") || `row${n + 2}`, payout: at("payout"), payoutDate: parseDate(at("payoutDate")), created: parseDate(at("created")), category, kind: CATEGORY[category] ?? "other", gross, fee, net, desc: at("desc") });
   });
-  return group(rows, problems);
-}
-
-function group(rows, problems) {
   const by = new Map();
   const pending = [];
   for (const x of rows) {
@@ -93,44 +93,38 @@ function group(rows, problems) {
   return { rows, payouts, pending, problems };
 }
 
-// PayPal activity CSV: no payout id. Each withdrawal row is a payout, and the
-// completed rows since the previous withdrawal are what it paid out. Fee is
-// signed negative in PayPal's file. A withdrawal that does not equal those rows
-// (balance carried over, or history starts mid-balance) is listed as a problem,
-// never split on a guess.
+// PayPal's activity export. Rows are grouped under the withdrawal that paid them out.
 function readPaypal(table, head) {
-  const c = (n) => head.indexOf(n);
-  const [iDate, iTime, iType, iStatus, iGross, iFee, iNet, iId, iName] = ["date", "time", "type", "status", "gross", "fee", "net", "transaction_id", "name"].map(c);
-  for (const [n, i] of [["date", iDate], ["gross", iGross], ["net", iNet]]) if (i === -1) throw new Error(`No "${n}" column in the PayPal activity report.`);
+  const ix = (...names) => names.map((n) => head.indexOf(n)).find((i) => i !== -1) ?? -1;
+  const c = { date: ix("date"), time: ix("time"), type: ix("type"), status: ix("status"), gross: ix("gross"), fee: ix("fee"), net: ix("net"), id: ix("transaction_id"), desc: ix("name", "description") };
+  for (const need of ["date", "gross", "net"]) if (c[need] === -1) throw new Error(`The PayPal report has no "${need}" column.`);
   const problems = [];
-  let list = [];
+  const all = [];
   table.slice(1).forEach((r, n) => {
-    const at = (i) => (i === -1 ? "" : String(r[i] ?? "").trim());
-    const status = at(iStatus).toLowerCase();
-    if (status && !["completed", "cleared", "removed"].includes(status)) return;
-    const gross = parseCents(at(iGross)), net = parseCents(at(iNet));
-    const fee = iFee === -1 ? 0 : -parseCents(at(iFee) || "0");
+    const at = (k) => (c[k] === -1 ? "" : String(r[c[k]] ?? "").trim());
+    if (c.status !== -1 && key(at("status")) !== "completed") return;
+    const gross = parseCents(at("gross")), net = parseCents(at("net"));
+    const fee = c.fee === -1 ? 0 : -(parseCents(at("fee")) ?? NaN);
     if ([gross, net, fee].some((v) => v === null || Number.isNaN(v))) { problems.push(`Row ${n + 2}: cannot read the amounts.`); return; }
     if (net !== gross - fee) { problems.push(`Row ${n + 2}: net ${fmt(net)} is not gross ${fmt(gross)} less fee ${fmt(fee)}.`); return; }
-    list.push({ row: n + 2, id: at(iId) || `row${n + 2}`, date: parseDate(at(iDate)), time: at(iTime), type: at(iType).toLowerCase(), gross, fee, net, desc: at(iName) });
+    const category = key(at("type"));
+    const kind = category.includes("withdrawal") ? "withdrawal" : /refund/.test(category) ? "refunds" : /reversal|dispute|chargeback|hold|reserve/.test(category) ? "disputes" : /conversion|bank_deposit|transfer|add_funds/.test(category) ? "skip" : /payment|sale|checkout|invoice|subscription/.test(category) ? "sales" : "other";
+    all.push({ row: n + 2, id: at("id") || `row${n + 2}`, created: parseDate(at("date")), t: `${parseDate(at("date"))} ${at("time")}`, category, kind, gross, fee, net, desc: at("desc") });
   });
-  if (list.length > 1 && String(list[0].date) > String(list.at(-1).date)) list.reverse();
-  list = list.map((x, i) => ({ ...x, i })).sort((a, b) => String(a.date).localeCompare(String(b.date)) || a.time.localeCompare(b.time) || a.i - b.i);
-  const kindOf = (t) => (/refund/.test(t) ? "refunds" : /chargeback|reversal|dispute|hold|release/.test(t) ? "disputes" : /conversion/.test(t) ? "skip" : "sales");
-  const rows = [];
-  let open = [];
-  for (const x of list) {
-    if (/withdrawal|transfer to bank/.test(x.type)) {
-      const paid = -x.net;
-      const sum = open.reduce((a, y) => a + y.net, 0);
-      if (!open.length) problems.push(`Withdrawal ${x.id} (${x.date}): no payments before it in the file.`);
-      else if (sum !== paid) problems.push(`Withdrawal ${x.id} (${x.date}) paid out ${fmt(paid)} but the payments since the last withdrawal net ${fmt(sum)}; the balance was carried over or the history starts mid-balance, so it is not split.`);
-      else for (const y of open) rows.push({ ...y, payout: x.id, payoutDate: x.date });
-      open = [];
-    } else open.push({ row: x.row, id: x.id, payout: "", payoutDate: null, created: x.date, category: x.type, kind: kindOf(x.type), gross: x.gross, fee: x.fee, net: x.net, desc: x.desc });
+  all.sort((a, b) => a.t.localeCompare(b.t) || a.row - b.row);
+  const payouts = [];
+  let group = [];
+  for (const x of all) {
+    if (x.kind === "skip") continue;
+    if (x.kind !== "withdrawal") { group.push(x); continue; }
+    const paid = -x.net;
+    const sum = group.reduce((a, y) => a + y.net, 0);
+    if (paid > 0 && sum === paid) payouts.push({ id: x.id, date: x.created, net: paid, gross: group.reduce((a, y) => a + y.gross, 0), fees: group.reduce((a, y) => a + y.fee, 0), rows: group.map((y) => ({ ...y, payout: x.id, payoutDate: x.created })) });
+    else problems.push(`PayPal withdrawal ${x.id} (${x.created}, ${fmt(paid)}): the completed activity since the previous withdrawal nets ${fmt(sum)}, so a balance was carried over from before the report. Not split.`);
+    group = [];
   }
-  for (const y of open) rows.push(y);
-  return group(rows, problems);
+  const pending = group.map((y) => ({ ...y, payout: "" }));
+  return { rows: all, payouts, pending, problems };
 }
 
 const addDays = (d, n) => new Date(Date.parse(`${d}T00:00:00Z`) + n * 864e5).toISOString().slice(0, 10);
