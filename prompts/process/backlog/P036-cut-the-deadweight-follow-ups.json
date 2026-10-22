@@ -59,6 +59,10 @@
     {
       "date": "2026-10-21",
       "note": "Part 5 done: verify-and-merge.md now opens with run_workflow_locally.py --for-changes as the one command and calls the block a reference. Part 1 remainder (hetzner-gitops-ci.yml gitops jobs, entangled with ~20 files) and 6 remain."
+    },
+    {
+      "date": "2026-10-22",
+      "note": "Part 7 already holds: all 13 ventures/*/byok.mjs copies are byte-identical (md5sum), and `node --test` passes in ats-resume-checker (66) and persona-conversation-simulator (21). Remaining: part 1 remainder (hetzner-gitops-ci.yml gitops jobs) and part 6 (owner yes needed)."
     }
   ]
 }

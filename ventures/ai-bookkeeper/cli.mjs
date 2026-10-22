@@ -15,7 +15,7 @@
 //   node cli.mjs --books books.json export qbo|xero|iif|csv|lines > journal.csv
 //   node cli.mjs --example report
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
-import { newBooks, importStatement, importOfxAccounts, lockPeriod, closeYear, reopenYear, yearEndReport, categorize, suggestRules, addRules, addDocuments, addAsset, disposeAsset, addAssetsCsv, register, writeOff, aging, salesTax, vatReturn, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, exportLines, status, analyze, fmt, taxableBusinessIncome } from "./engine.mjs";
+import { newBooks, importStatement, importOfxAccounts, lockPeriod, closeYear, reopenYear, yearEndReport, categorize, suggestRules, addRules, addDocuments, addAsset, disposeAsset, addAssetsCsv, register, addPrepaid, prepaidRegister, writeOff, aging, salesTax, vatReturn, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, exportLines, status, analyze, fmt, taxableBusinessIncome } from "./engine.mjs";
 import { parseCents } from "./bank.mjs";
 import { accountMap } from "./ledger.mjs";
 import { seSetAside, selfEmployment, scheduleC, scheduleCCsv, contractors1099, contractors1099Csv, nec1099FilingCsv, markW9, mergePayees } from "./taxforms.mjs";
@@ -23,6 +23,7 @@ import { setOpeningBalances, clearOpeningBalances } from "./opening.mjs";
 import { sniffFormat, splitOfx } from "./bank.mjs";
 import { detectRecurring, forecastCash } from "./recurring.mjs";
 import { findAnomalies } from "./anomalies.mjs";
+import { receiptTextFromFile, statementTextFromFile } from "./ocr.mjs";
 import { addReceipts, attachReceipt, removeReceipt, receiptReport, taxOnReceipts, planReceiptSplit, splitFromReceipt } from "./receipts.mjs";
 import { compareProfit } from "./compare.mjs";
 import { addTrip, removeTrip, setHomeOffice, mileageDeduction } from "./deductions.mjs";
@@ -37,7 +38,7 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
   --books FILE           the books (JSON); created on first import
   --example              start from the synthetic three-month example instead
   import FILE --account CODE [--invert] [--day-first] [--decimal-comma] [--auto 0.85]
-  import FILE.txt                             statement text copied from a PDF (date, description, amount per line)
+  import FILE.txt|FILE.pdf                    statement text copied from a PDF, or the PDF itself via pdftotext (date, description, amount per line)
   import FILE.ofx --map OFXID=CODE,OFXID=CODE   a multi-account OFX file, one chart code per account
   review                 list lines waiting for an account
   confirm ID=CODE ...    file lines (and learn from them)
@@ -62,6 +63,8 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
   asset dispose ID --date D [--proceeds 0] [--into 1000]  sell or scrap it; books the gain or loss
   asset tax ID --class 5 [--s179 N] [--bonus PCT]  set the asset's US tax treatment (MACRS class 3/5/7/10/15/20 years, half-year)
   taxdepr YEAR [--income books|N] [--carry-in N] [--json]  tax depreciation worksheet beside the book depreciation, with what it cannot check
+  prepaid add NAME --amount 2400 --date D [--months 12] [--into 6030]  spread an up-front payment (filed to 1400) over the months it covers
+  prepaid [--as-of D]     list prepaid items: amount, expensed so far, still paid ahead
   assets FILE|[--as-of D] load a CSV (name,date,cost,life_months[,salvage,method]), or list the register: cost, accumulated depreciation, net book value
   profile [KEY VALUE]     your details for invoices (name, address, email, taxId, payTo, terms); no arguments lists them
   invoice ID [--out FILE] [--as-of D]  a printable invoice or credit note (HTML; print to PDF) with payments, balance due and overdue days
@@ -71,7 +74,7 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
   recurring [--as-of D] [--json]  payees that repeat on a steady interval: cost per year, next date, and which went overdue, lapsed or changed amount
   forecast [--as-of D] [--days N] [--json]  expected cash day by day from the bank balance, recurring items and open invoices and bills; the lowest point
   anomalies [--json]     lines worth a second look: double charges, amounts far above a payee's usual, large first-time payees (candidates with a reason, not an audit)
- receipts [FILE|attach RID LINEID|detach RID|remove RID|split RID [--other CODE] [--fix WORD=CODE]... [--apply]] [--min DOLLARS] [--tax] [--json]  receipt text (blocks split by ---) matched to bank lines; lists unmatched receipts and spending over --min (default 75) with no receipt
+ receipts [FILE (.txt, text-layer .pdf via pdftotext, or a photo via tesseract / RECEIPT_OCR_CMD)|attach RID LINEID|detach RID|remove RID|split RID [--other CODE] [--fix WORD=CODE]... [--apply]] [--min DOLLARS] [--tax] [--json]  receipt text (blocks split by ---) matched to bank lines; lists unmatched receipts and spending over --min (default 75) with no receipt
   compare [--from D --to D --vs-from D --vs-to D] [--json]  profit and loss against an earlier period (default: latest month vs the month before): what moved, what is new or gone
   budget [CODE AMOUNT] [--from D --to D] [--json]  set a monthly budget for an account (AMOUNT 0 removes it), or show budget against actual for the period (default: latest month)
   aging [--as-of D]      what customers owe you and what you owe, by days past due
@@ -103,7 +106,7 @@ const name = (c) => (c ? `${c} ${map.get(c)?.name ?? ""}` : "-");
 
 if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
   // an OFX file with several accounts: --map OFXID=CODE,OFXID=CODE
-  const text = readFileSync(rest[0], "utf8");
+  const text = statementTextFromFile(rest[0]);
   const parts = sniffFormat(text) === "ofx" ? splitOfx(text) : [];
   const map = Object.fromEntries((acctMap ?? "").split(",").filter(Boolean).map((p) => p.split("=")));
   if (parts.length < 2 || !Object.keys(map).length) {
@@ -118,7 +121,7 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
   console.log(`${r.accounts.filter((a) => a.code).length} of ${r.accounts.length} accounts imported: ${r.added} lines added, ${r.skipped} already in the books.`);
 } else if (cmd === "import") {
   if (!rest[0] || !account) { console.error("import needs a CSV file and --account CODE"); process.exit(2); }
-  const r = importStatement(books, readFileSync(rest[0], "utf8"), account, opts);
+  const r = importStatement(books, statementTextFromFile(rest[0]), account, opts);
   books = r.books;
   save();
   for (const p of r.problems) console.error(p);
@@ -208,6 +211,20 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
   if (w.s179Income) console.log(`  Section 179 income limit: elected ${fmt(w.s179Income.elected)}, after dollar limit ${fmt(w.s179Income.dollarLimited)}${w.s179Income.carryIn ? ` + carried in ${fmt(w.s179Income.carryIn)}` : ""}, business income ${fmt(w.s179Income.income ?? 0)}, deductible ${fmt(w.s179Income.deductible)}, carried to ${year + 1} ${fmt(w.s179Income.carryOut)}`);
   console.log(`  Total: tax ${fmt(w.totals.total)}, book ${fmt(w.totals.book)}, difference ${fmt(w.totals.difference)}`);
   for (const x of w.warnings) console.log(`  Note: ${x}`);
+} else if (cmd === "prepaid") {
+  try {
+    if (rest[0] === "add") {
+      const date = flag("--date"), amount = flag("--amount"), months = flag("--months") ?? 12, into = flag("--into") ?? undefined;
+      const r = addPrepaid(books, { name: argv.slice(2).join(" "), date, amount, months, expenseAccount: into });
+      books = r.books; save(); console.log(`${r.prepaid.id} ${r.prepaid.name}: ${fmt(r.prepaid.cents)} over ${r.prepaid.months} months to ${r.prepaid.expenseAccount}. File the payment to 1400.`);
+    } else {
+      const g = prepaidRegister(books, asOf);
+      if (json) { console.log(JSON.stringify(g, null, 2)); process.exit(0); }
+      console.log(`PREPAID EXPENSES as of ${g.asOf ?? "-"}`);
+      for (const a of g.rows) console.log(`  ${a.id.padEnd(6)} ${a.name.slice(0, 28).padEnd(28)} ${a.date}  ${String(a.months).padStart(2)} mo  paid ${fmt(a.cents).padStart(11)}  expensed ${fmt(a.expensed).padStart(11)}  ahead ${fmt(a.remaining).padStart(11)}`);
+      console.log(`  Total: paid ${fmt(g.cents)}, still paid ahead ${fmt(g.remaining)}`);
+    }
+  } catch (e) { console.error(e.message); process.exit(1); }
 } else if (cmd === "assets") {
   if (rest[0]) {
     const r = addAssetsCsv(books, readFileSync(rest[0], "utf8"), opts);
@@ -282,7 +299,9 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
   }
   if (rest[0] && !rest[0].startsWith("--")) {
     if (!existsSync(rest[0])) { console.error(`no file ${rest[0]}`); process.exit(2); }
-    const r = addReceipts(books, readFileSync(rest[0], "utf8"));
+    let text;
+    try { text = receiptTextFromFile(rest[0]); } catch (e) { console.error(e.message); process.exit(2); }
+    const r = addReceipts(books, text);
     books = r.books; save();
     console.log(`Read ${r.added.length} receipt${r.added.length === 1 ? "" : "s"}; ${r.duplicates.length} already on file; ${r.skipped.length} could not be read.`);
     for (const s of r.skipped) console.log(`  skipped "${s.text.slice(0, 40)}": ${s.notes.join(", ")}`);

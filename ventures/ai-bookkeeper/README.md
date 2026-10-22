@@ -300,7 +300,7 @@ Verification: `node --test deductions.test.mjs` (rate times miles in integer cen
 part-year proration; the profit limit; line 9, line 30 and net profit on a small ledger) and a CLI
 run on a three-line statement. **Not checked:** the 2024 and 2025 rates (67.0 and 70.0 cents) are from
 memory of the IRS notices and the 2026 rate (72.5) is flagged on the worksheet as unchecked; irs.gov
-was not read. No real mileage log was tried, and the page does not have a card for this yet. Whether
+was not read. No real mileage log was tried; the page card (trip log, home office, Schedule C lines 9 and 30) was clicked through in headless Chromium with `node eval/browser-click.mjs`. Whether
 a space qualifies for the home office deduction, and whether to use actual expenses instead, is for you
 or your preparer.
 
@@ -421,6 +421,10 @@ against the author's own rendering, not against a bank's real layouts; PDF text
 from a two-column statement, or one where the extractor reorders columns, is not
 covered. Scanned (image) PDFs have no text to copy.
 
+## Prepaid expenses
+
+`prepaid.mjs` spreads an up-front payment (a year of insurance, software or rent) over the months it covers. File the bank line to Prepaid expenses (1400, now in the default chart), then register it: `cli.mjs prepaid add "State Farm policy" --amount 2400 --date 2026-03-01 --months 12 [--into 6030]`. The ledger then books one entry a month through the latest month in the books: debit the expense account (Insurance 6030 by default), credit 1400. Integer cents, the last month closes the amount exactly. `cli.mjs prepaid [--as-of D]` lists paid, expensed and still paid ahead. A close check ("prepaid") flags 1400 when the ledger and the register disagree. Test: `prepaid.test.mjs` (hand-written ledgers only; cash-basis tax treatment of prepaids, such as the 12-month rule, is for you or your preparer and is not modelled).
+
 ## Fixed assets and depreciation
 
 `assets.mjs` is a register for equipment. You file the purchase to Equipment
@@ -494,9 +498,11 @@ only: a fiscal year ending in another month is not modelled. The page has a "yea
 ## Not modelled
 
 The 179 taxable-income limit, inventory,
-payroll and sales tax filings, multiple currencies (the VAT worksheet is UK-layout, invoice basis), reading a PDF file itself (paste its text instead), and reading a receipt image (paste the text; any OCR tool will give you that).
+payroll and sales tax filings, multiple currencies (the VAT worksheet is UK-layout, invoice basis), a scanned (image-only) bank-statement PDF. A statement PDF with a text layer is read by `import FILE.pdf` through pdftotext, and on the page by `pdftext.mjs`. Receipts can be a PDF or a photo (see below).
 
 ## Receipts matched to bank lines
+
+`receipts FILE` also takes a PDF with a text layer (through `pdftotext -layout`) or a photo (through `tesseract`, or any command in `RECEIPT_OCR_CMD` such as `myocr --lang en {file}`); digit look-alikes OCR leaves in amounts and dates (`l2.5O`) are repaired before parsing (`ocr.mjs`). Node tests use stubbed tools and hand-written damaged text; no real scan or photo was run (neither tool is installed in the build container).
 
 `node cli.mjs --books books.json receipts receipts.txt` reads receipt text
 (blocks split by a `---` line) into merchant, date, total and tax, and pairs
@@ -585,6 +591,8 @@ is often fine.
 
 ## Next
 
+- Bank statement PDF files read by the CLI (`import FILE.pdf --account CODE`, 2026-10-22: `pdftotext -layout`, then the pasted-text reader; node test builds a one-page PDF by hand and reads it with the real pdftotext; no real bank PDF tried, scans refused). Try real statements.
+- The page's file picker takes a statement PDF too (2026-10-22, `pdftext.mjs`): the text layer is read in the tab with no library and no upload (Flate streams, ToUnicode maps, text matrix and y-flip, widths for spacing). Verified on two PDFs printed by headless Chromium (a text statement and a table with a running balance over two pages): output equals `pdftotext -layout` after whitespace folding, 7 of 7 rows imported and reconciled, clicked through in headless Chromium. Not read: scans, encrypted files, non-Flate filters, two-byte fonts with no ToUnicode map; PDFs with compressed object streams are handled in code but no such file was tried. No real bank PDF has been tried.
 - Opening balances from a trial balance (`opening.mjs`, CLI `opening`, agent input `opening`; 2026-10-21; node tests on hand-written trial balances, `node --test ventures/ai-bookkeeper/opening.test.mjs`, 8 pass; a page card (date, file or paste, set and remove; clicked through in headless Chromium with `node eval/browser-click.mjs`, 2026-10-21); a typed list replaces the opening inferred from a statement's running balance for the same account, and imported lines dated on or before the opening date raise a high `opening-overlap` close check).
 - MT940 and CAMT.053 reading landed 2026-10-21 (`sepa.mjs`, hand-written fixtures); OFX, MT940 and CAMT closing balances now feed the reconcile check. Try real exports from a German, Dutch or UK bank.
 - OFX/QFX and QIF reading landed 2026-10-21 against hand-written fixtures (`fixtures/checking.ofx`, `checking.qif`); try real downloads, and try a real multi-account OFX file. Those split per account (2026-10-21, `splitOfx`, `importOfxAccounts`, `fixtures/two-accounts.ofx`; CLI `import FILE --map OFXID=CODE,...`); the page's file picker shows one account picker per account (2026-10-21; clicked through in headless Chromium 2026-10-21 by `eval/browser-click.mjs`, which serves the folder, loads `two-accounts.ofx`, picks accounts, imports and loads the example; it skips when Playwright is absent).

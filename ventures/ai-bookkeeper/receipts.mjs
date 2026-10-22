@@ -13,6 +13,7 @@
 import { parseCents, parseDate } from "./bank.mjs";
 import { payeeTokens, suggest, historyRecord } from "./categorize.mjs";
 import { accountMap } from "./ledger.mjs";
+import { cleanOcr } from "./cleanocr.mjs";
 import { modelFor, confirm } from "./engine.mjs";
 
 const day = (d) => Math.floor(Date.parse(`${d}T00:00:00Z`) / 86400000);
@@ -84,7 +85,7 @@ export function parseItems(lines, comma = false) {
 }
 
 export function parseReceipt(block) {
-  const lines = String(block).split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+  const lines = cleanOcr(String(block)).split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
   const notes = [];
   const comma = commaStyle(lines.join("\n"));
   let date = null;

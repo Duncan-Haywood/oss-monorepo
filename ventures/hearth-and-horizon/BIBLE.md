@@ -207,7 +207,7 @@ numbers worked out before drafting.
 the sources, and mark legend as legend)
 
 - *(Done: Francis and the Wolf of Gubbio.)* Saint Francis and the wolf of Gubbio (4 October; legend from the *Fioretti*).
-- Saint Brigid and her cloak (1 February; tradition, late sources).
+- *(Done: Brigid and the Cloak, text only; no audio yet, the voice host was unreachable.)* Saint Brigid and her cloak (1 February; tradition, late sources).
 - Saint Kevin and the blackbird (3 June; legend).
 - Saint Isidore the Farmer and the angels who ploughed (15 May; tradition).
 - Saint Thérèse and the small way (1 October; history, and her own writings).

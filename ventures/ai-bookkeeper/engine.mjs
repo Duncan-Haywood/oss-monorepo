@@ -17,6 +17,7 @@ import { DEFAULT_ACCOUNTS, accountMap, validateEntry, trialBalance, profitAndLos
 import { suggest, trainClassifier, buildMemory, parseRules, historyRecord, payeeKey } from "./categorize.mjs";
 import { addDocuments, writeOff, settle, aging, documentEntries, AR, AP } from "./accruals.mjs";
 import { taxDepreciation } from "./taxdepr.mjs";
+import { prepaidEntries, prepaidRegister, addPrepaid, PREPAID_ACCOUNT } from "./prepaid.mjs";
 import { assetEntries, register, addAsset, disposeAsset, addAssetsCsv, ASSET_ACCOUNT } from "./assets.mjs";
 import { closingEntries } from "./yearend.mjs";
 import { openingEntry, setOpeningBalances, clearOpeningBalances } from "./opening.mjs";
@@ -24,7 +25,7 @@ import { SAMPLE_CHECKING, SAMPLE_CARD } from "./example-data.mjs";
 
 export { setOpeningBalances, clearOpeningBalances };
 export { closeYear, reopenYear, yearEndReport } from "./yearend.mjs";
-export { DEFAULT_ACCOUNTS, fmt, dollars, payeeKey, addDocuments, writeOff, aging, addAsset, disposeAsset, addAssetsCsv, register };
+export { DEFAULT_ACCOUNTS, fmt, dollars, payeeKey, addDocuments, writeOff, aging, addAsset, disposeAsset, addAssetsCsv, register, addPrepaid, prepaidRegister };
 
 export const VERSION = 1;
 const CAPEX_LIKELY = /suppl|office|repair|equipment|tool|computer|furniture|material|uncategori/i;
@@ -270,7 +271,7 @@ export function journal(books, { withClosing = false } = {}) {
     const deb = cents > 0;
     entries.push({ id: `OPEN-${code}`, date, memo: `Opening balance, ${map.get(code).name}`, source: "opening", lines: [{ account: code, debit: deb ? cents : 0, credit: deb ? 0 : -cents }, { account: "3000", debit: deb ? 0 : -cents, credit: deb ? cents : 0 }] });
   }
-  entries.push(...documentEntries(books), ...assetEntries(books));
+  entries.push(...documentEntries(books), ...assetEntries(books), ...prepaidEntries(books));
   const seen = new Set();
   for (const t of books.transactions) {
     if (!t.posted || t.status === "review" || t.status === "new" || seen.has(t.id)) continue;
@@ -317,6 +318,12 @@ export function closeChecks(books, opts = {}) {
     const cost = register(books).cost;
     const ledger = b.get(ASSET_ACCOUNT) ?? 0;
     if (ledger !== cost) out.push({ severity: "low", check: "assets", message: `${map.get(ASSET_ACCOUNT)?.name ?? ASSET_ACCOUNT} is ${fmt(ledger)} in the ledger but the asset register adds up to ${fmt(cost)}. ${ledger > cost ? "A purchase filed there has no register row, so it is not being depreciated." : "A register row has no purchase filed to the account."}`, ids: [] });
+  }
+
+  // Prepaid expenses: account 1400 should equal what the register says is still paid ahead.
+  if (books.prepaids?.length) {
+    const ahead = prepaidRegister(books).remaining, ledger = b.get(PREPAID_ACCOUNT) ?? 0;
+    if (ledger !== ahead) out.push({ severity: "low", check: "prepaid", message: `${map.get(PREPAID_ACCOUNT)?.name ?? PREPAID_ACCOUNT} is ${fmt(ledger)} in the ledger but the prepaid register has ${fmt(ahead)} still paid ahead. ${ledger > ahead ? "A payment filed there has no register row, so it is not being spread over its months." : "A register row has no payment filed to the account."}`, ids: [] });
   }
 
   // Duplicates: same account, date, amount and payee, in different imports.

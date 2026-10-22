@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { newBooks, importStatement } from "./engine.mjs";
-import { parseReceipt, splitReceipts, addReceipts, matchReceipts, attachReceipt, removeReceipt, receiptReport, taxOnReceipts, planReceiptSplit } from "./receipts.mjs";
+import { parseReceipt, parseItems, splitReceipts, addReceipts, matchReceipts, attachReceipt, removeReceipt, receiptReport, taxOnReceipts, planReceiptSplit } from "./receipts.mjs";
 
 const books = (rows) => importStatement(newBooks(), "Date,Description,Amount\n" + rows.map(([d, n, a]) => `${d},${n},${a}`).join("\n") + "\n", "1000").books;
 
@@ -280,4 +280,28 @@ test("a decimal-comma receipt's items split like any other", async () => {
   const b = addReceipts(books([["2026-05-04", "CORNER MARKET", "-16.00"]]), text).books;
   assert.deepEqual(b.receipts[0].items.map((i) => i.cents), [600, 1000]);
   assert.equal(planReceiptSplit(b, "r1").parts.length, 2);
+});
+
+test("OCR slips in pasted receipt text are repaired by the parser", () => {
+  const r = parseReceipt("Blue Bottle Coffee\n03/14/2026\nLatte 5 .50\nCroissant 4.25\nSales Tax O.87\nTOTAL S10.62");
+  assert.equal(r.cents, 1062);
+  assert.equal(r.taxCents, 87);
+  assert.equal(parseReceipt("Route 66 Diner\n2026-03-01\nTotal 12.50").cents, 1250);
+});
+
+test("a phone-number first line is not the merchant, and a day/100 date is not a date", () => {
+  const r = parseReceipt("Tel 555-123-4567\nCorner Cafe\n2026-03-10\nTotal 5.00");
+  assert.equal(r.merchant, "Corner Cafe");
+  assert.equal(parseReceipt("Shop\n10/100/2026\nTotal 5.00").date, null);
+});
+
+test("without a given rate, a card line five times or more the receipt is not a match", () => {
+  const b0 = books([["2026-03-11", "CAFE DE FLORE PARIS", "-60.00"]]);
+  const { books: b } = addReceipts(b0, PARIS("2026-03-10", "11.00", "1.00"));
+  assert.equal(b.receipts[0].matched, null);
+});
+
+test("item descriptions collapse a double space but keep a single one", () => {
+  const items = parseItems(["Green  tea bags   3.50"]);
+  assert.equal(items[0].desc, "Green tea bags");
 });
