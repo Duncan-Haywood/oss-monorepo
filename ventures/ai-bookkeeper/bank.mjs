@@ -236,7 +236,7 @@ export function readQif(text, { dayFirst = false } = {}) {
 // `invert` flips signs for card exports that list charges as positive. Leave it
 // undefined and a file with no running balance that has payment rows is
 // flipped when its payments are negative (`inferred` says so).
-export function readStatement(text, { dayFirst = false, decimalComma = false, invert } = {}) {
+export function readStatement(text, { dayFirst = false, decimalComma = false, invert, year } = {}) {
   const format = sniffFormat(text);
   if (format === "camt053" || format === "mt940") {
     const r = format === "camt053" ? readCamt(text) : readMt940(text);
@@ -248,8 +248,9 @@ export function readStatement(text, { dayFirst = false, decimalComma = false, in
   const rows = parseCsv(text);
   const problems = [];
   if (!rows.some((r) => { if (r.length < 2) return false; const c = detectColumns(r); return c.date !== -1 && (c.amount !== -1 || c.debit !== -1 || c.credit !== -1); }) && sniffBank(rows) !== "wells-fargo") {
-    const t = readStatementText(text, { dayFirst, decimalComma });
+    const t = readStatementText(text, { dayFirst, decimalComma, year });
     if (t.rows.length) { if (invert === true) for (const x of t.rows) x.cents = -x.cents; return t; }
+    if (t.problems.length) return t;
   }
   if (rows.length < 2 && !(rows.length === 1 && headerlessShape(rows))) return { rows: [], problems: ["The file has no data rows."], columns: null };
   const bank = sniffBank(rows);

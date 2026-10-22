@@ -98,7 +98,7 @@ export function readStatementText(text, { dayFirst = false, decimalComma = false
     if (!amts.length) { pending = { head: line, n: 0 }; last = null; continue; }
     pending = null;
     const iso = withYear(dm[1], win, dayFirst);
-    if (!iso) { problems.push(`Line ${i + 1}: no year for "${dm[1]}"; put the statement period above the rows or pass a year.`); continue; }
+    if (!iso) { problems.push(`Line ${i + 1}: no year for "${dm[1]}"; put the statement period above the rows (like "March 2026") or pass a year (CLI: --year 2026).`); continue; }
     const amtTok = amts[0], balTok = amts.length === 2 ? amts[1] : null;
     if (BALANCE_LINE.test(rest) || /^(beginning|opening|previous|ending|closing) balance/i.test(rest)) {
       if (/^(beginning|opening|previous|starting)/i.test(rest) && opening === null) opening = parseCents(amts[amts.length - 1], decimalComma);
@@ -124,6 +124,7 @@ export function readStatementText(text, { dayFirst = false, decimalComma = false
     if (row.cents === 0) { last = null; continue; }
     rows.push(row); last = row;
   }
+  if (!rows.length && problems.length) return { rows: [], problems: [...new Set(problems.map((x) => x.replace(/^Line \d+: /, "").replace(/"[^"]*"/, "the dates")))].slice(0, 3).concat(problems.length > 1 ? [`${problems.length} lines were skipped for the same reason.`] : []), columns: null };
   if (!rows.length) return { rows: [], problems: ["No transaction lines were found. A line should start with a date and end with an amount, like \"03/09 CAFE LUNA 12.50\"."], columns: null };
   for (const r of rows) r.desc = r.desc.replace(/\s+/g, " ").trim();
   const inferred = undirected ? `${undirected} of ${rows.length} rows had no sign, no running balance and no section heading, so they were read as money out. Check them.` : null;
