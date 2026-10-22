@@ -1,5 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { newBooks, importStatement, journal } from "./engine.mjs";
 import { balances } from "./ledger.mjs";
 import { readPayoutReport, planPayouts, applyPayouts } from "./payouts.mjs";
@@ -262,4 +263,14 @@ test("an Etsy payment-account ledger is grouped under each deposit, newest first
   assert.equal(r.payouts[0].gross, 10500);
   assert.equal(r.payouts[0].fees, 570);
   assert.equal(r.pending.length, 1);
+});
+
+test("the Etsy fixture behind etsy-bookkeeping.html splits one deposit as the page says", () => {
+  const r = readPayoutReport(readFileSync(new URL("./fixtures/etsy-ledger.csv", import.meta.url), "utf8"));
+  assert.deepEqual(r.problems, []);
+  assert.equal(r.payouts.length, 1);
+  const p = r.payouts[0];
+  assert.equal(p.net, 31509);
+  assert.equal(p.gross, 36150);
+  assert.equal(p.fees, 4641);
 });
