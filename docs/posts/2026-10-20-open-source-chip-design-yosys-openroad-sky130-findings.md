@@ -139,6 +139,21 @@ The READMEs report negative results plainly:
   times the optimum. They did not find the optimum. The landscape is a needle:
   only 0.1% of 800 points lie within 1% of the best.
 
+## Update, 2026-10-22: a generic-gate screen finds the best mapped design in a few tries
+
+Two follow-ups on the cell library question, both on the same 40 MAC-engine
+designs (1 to 8 lanes, 4 to 8 bits). [`eda-sky130rung`](../../research/eda-sky130rung)
+mapped them to the SKY130 HD library: generic cell count ranks mapped area
+almost perfectly (Spearman 0.995) but logic depth ranks the mapped critical-path
+delay at only 0.611. [`eda-latencyhalve`](../../research/eda-latencyhalve) then
+asked whether that matters for a search loop, which only needs the best design
+near the top of the cheap list. It does not, on this family: generic cells times
+cycles ranks the best design (4 lanes, 4 bits) first for area times latency, and
+over 5,000 random pools of 20 designs, mapping the top 3 finds the pool's best
+97% of the time (random choice: 15%). Caveats: one design family, a synthesis
+model rather than place and route as the truth, and intervals that cover only
+the random draws.
+
 ## Caveats
 
 - **Tiny designs, one tool version.** Results can move between Yosys releases.
