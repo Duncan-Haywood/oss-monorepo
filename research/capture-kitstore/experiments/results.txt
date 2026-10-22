@@ -1,0 +1,50 @@
+kits: 11520; recording floor 4.0 h/day, 7 days, 2 SSD copies, offload within 1 h, UHS-I ceiling 104 MB/s
+A. kit-only (realkit) vs joint kit+storage, by total carried weight
+budget_g  kitonly_var kitonly_g storage_for_it_g kitonly_total_g fits  joint_var joint_total_g storage_g readers ssds
+1000      8           571       115              686             True  8         686           115       1       2
+1500      8           1201      115              1316            True  8         1316          115       1       2
+2000      12          1771      115              1886            True  12        1886          115       1       2
+3000      12          2941      115              3056            False 12        2966          115       1       2
+4000      18          3981      226              4206            False 15        3962          226       3       2
+5000      18          4958      400              5358            False 18        4836          226       3       2
+7000      18          4958      400              5358            True  18        5358          400       4       4
+B. kits chosen
+1000 g joint: iPhone 15 Pro Max, selfie pole, mini tripod | 1 cards, 2 SSDs, 1 readers, 108 GB/day, copy 0.58 h
+1000 g kit-only: iPhone 15 Pro Max, selfie pole, mini tripod
+1500 g joint: iPhone 15 Pro Max, selfie pole, mini tripod, Anker 737 24K (88.8 Wh) | 1 cards, 2 SSDs, 1 readers, 108 GB/day, copy 0.58 h
+1500 g kit-only: iPhone 15 Pro Max, selfie pole, mini tripod, Anker 737 24K (88.8 Wh)
+2000 g joint: iPhone 15 Pro Max, selfie pole, mini tripod, telescoping mast | 1 cards, 2 SSDs, 1 readers, 108 GB/day, copy 0.58 h
+2000 g kit-only: iPhone 15 Pro Max, selfie pole, mini tripod, telescoping mast
+3000 g joint: iPhone 15 Pro Max, selfie pole, mini tripod, telescoping mast, Anker Prime 20K (72 Wh), Anker Prime 20K (72 Wh) | 1 cards, 2 SSDs, 1 readers, 108 GB/day, copy 0.58 h
+3000 g kit-only: iPhone 15 Pro Max, selfie pole, mini tripod, telescoping mast, Anker Prime 20K (72 Wh), Anker 737 24K (88.8 Wh)
+4000 g joint: iPhone 15 Pro Max, Sony a7C II body, Sony FE 85 f/1.8, selfie pole, mini tripod, telescoping mast, Anker Prime 20K (72 Wh), Anker Prime 20K (72 Wh) | 2 cards, 2 SSDs, 3 readers, 468 GB/day, copy 0.83 h
+4000 g kit-only: iPhone 15 Pro Max, Sony a7C II body, Sony FE 24-70 f/2.8 GM II, Sony FE 85 f/1.8, selfie pole, mini tripod, telescoping mast, Anker 737 24K (88.8 Wh)
+5000 g joint: iPhone 15 Pro Max, Sony a7C II body, Sony FE 24-70 f/2.8 GM II, Sony FE 85 f/1.8, selfie pole, mini tripod, telescoping mast, Anker 737 24K (88.8 Wh), Anker 737 24K (88.8 Wh) | 2 cards, 2 SSDs, 3 readers, 468 GB/day, copy 0.83 h
+5000 g kit-only: DJI Osmo Action 4, Sony a7C II body, Sony FE 24-70 f/2.8 GM II, Sony FE 70-200 f/4 G II, selfie pole, mini tripod, telescoping mast, Anker 737 24K (88.8 Wh), Anker 737 24K (88.8 Wh)
+7000 g joint: DJI Osmo Action 4, Sony a7C II body, Sony FE 24-70 f/2.8 GM II, Sony FE 70-200 f/4 G II, selfie pole, mini tripod, telescoping mast, Anker 737 24K (88.8 Wh), Anker 737 24K (88.8 Wh) | 2 cards, 4 SSDs, 4 readers, 576 GB/day, copy 0.77 h
+7000 g kit-only: DJI Osmo Action 4, Sony a7C II body, Sony FE 24-70 f/2.8 GM II, Sony FE 70-200 f/4 G II, selfie pole, mini tripod, telescoping mast, Anker 737 24K (88.8 Wh), Anker 737 24K (88.8 Wh)
+C. joint variety at each budget as the bitrate scale moves (1.0 = figures above), reader ceiling 104 MB/s
+budget_g  x0.25  x0.5  x1.0  x1.5
+1000      8     8     8     8   
+1500      8     8     8     8   
+2000      12    12    12    12  
+3000      12    12    12    12  
+4000      15    15    15    15  
+5000      18    18    18    18  
+7000      18    18    18    18  
+D. joint variety by reader speed (MB/s): 90 assumed, 104 UHS-I ceiling, 312 UHS-II ceiling
+budget_g  90  104  312
+1000      8     8     8   
+1500      8     8     8   
+2000      12    12    12  
+3000      12    12    12  
+4000      15    15    15  
+5000      18    18    18  
+7000      18    18    18  
+F. lightest total carried weight (g, 25 g steps) that reaches all 18 shots, kit-only vs with storage counted
+bitrate_scale  kit_only_g  joint_g
+0.25           3900        4025
+0.5            3900        4075
+1.0            3900        4125
+1.5            3900        4300
+E. bitrates (Mbit/s): Insta360 120 (assumed (page 403)); DJI 120 (sourced, dji.com spec 120 Mbps); iPhone 60 (assumed); Sony 200 (assumed)

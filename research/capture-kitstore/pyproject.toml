@@ -1,0 +1,13 @@
+[project]
+name = "capture-kitstore"
+version = "0.1.0"
+description = "Choose the capture kit and its footage storage together under one weight budget: does adding offload storage change the best kit?"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
