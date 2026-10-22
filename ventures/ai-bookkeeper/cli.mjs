@@ -104,7 +104,7 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
  receipts [FILE (.txt, text-layer .pdf via pdftotext, or a photo via tesseract / RECEIPT_OCR_CMD)|attach RID LINEID|detach RID|remove RID|split RID [--other CODE] [--fix WORD=CODE]... [--apply]] [--min DOLLARS] [--tax] [--json]  receipt text (blocks split by ---) matched to bank lines; lists unmatched receipts and spending over --min (default 75) with no receipt
   compare [--from D --to D --vs-from D --vs-to D] [--json]  profit and loss against an earlier period (default: latest month vs the month before): what moved, what is new or gone
   payroll FILE.csv [--apply]  book a payroll provider's pay-run report (wages, employer taxes, 2300) and find the bank lines that paid it; --apply files them to 2300
-  payroll [941 YEAR QUARTER | 940 YEAR | w2 YEAR]  runs, what is still owed, or a Form 941 / 940 worksheet from the register
+  payroll [941 YEAR QUARTER | 940 YEAR [--state CA | --credit-reduction PCT] | w2 YEAR]  runs, what is still owed, or a Form 941 / 940 worksheet from the register
   payouts FILE.csv [--apply] [--sales C --refunds C --fees C --disputes C] [--json]  split each processor payout (Stripe payout reconciliation CSV) in the bank into gross sales, refunds and fees; without --apply, shows the plan
   reconcile CODE --date D --balance AMT [--json]  tie an account to the closing balance on a paper statement; if it is off, name the lines that likely explain the gap
   budget [CODE AMOUNT] [--from D --to D] [--json]  set a monthly budget for an account (AMOUNT 0 removes it), or show budget against actual for the period (default: latest month)
@@ -462,12 +462,14 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
       for (const w of f.warnings) console.log(`  CHECK ${w}`);
       console.log("  Worksheet only: tips, adjustments and credits are not modelled.");
     } else if (rest[0] === "940") {
-      const f = form940(books, rest[1]);
+      const argOf = (n) => { const i = argv.indexOf(n); return i >= 0 ? argv[i + 1] : undefined; };
+      const cr = argOf("--credit-reduction");
+      const f = form940(books, rest[1], { state: argOf("--state"), creditReduction: cr == null ? undefined : Number(cr) });
       if (json) { console.log(JSON.stringify(f, null, 2)); process.exit(0); }
       console.log(`FORM 940 WORKSHEET ${f.year}, ${f.runs} run${f.runs === 1 ? "" : "s"}`);
-      for (const [l, v] of [["Total payments to employees (line 3)", f.wages], ...(f.futaWages == null ? [] : [["Taxable FUTA wages (line 7)", f.futaWages]]), ["FUTA in the register", f.futa], ...(f.computed == null ? [] : [["FUTA at 0.6% of taxable wages", f.computed]]), ["Q1", f.quarters[0]], ["Q2", f.quarters[1]], ["Q3", f.quarters[2]], ["Q4", f.quarters[3]], ["Not yet deposited (carried)", f.dueWithReturn]]) console.log(`  ${l.padEnd(46)} ${fmt(v).padStart(12)}`);
+      for (const [l, v] of [["Total payments to employees (line 3)", f.wages], ...(f.futaWages == null ? [] : [["Taxable FUTA wages (line 7)", f.futaWages]]), ["FUTA in the register", f.futa], ...(f.computed == null ? [] : [["FUTA at 0.6% of taxable wages", f.computed]]), ["Q1", f.quarters[0]], ["Q2", f.quarters[1]], ["Q3", f.quarters[2]], ["Q4", f.quarters[3]], ["Not yet deposited (carried)", f.dueWithReturn], ...(f.creditReduction == null ? [] : [[`Credit reduction ${f.creditReductionPct}% (Schedule A)`, f.creditReduction]])]) console.log(`  ${l.padEnd(46)} ${fmt(v).padStart(12)}`);
       for (const w of f.warnings) console.log(`  CHECK ${w}`);
-      console.log("  Worksheet only: state credit reduction, exempt payments and multi-state filers are not modelled.");
+      console.log("  Worksheet only: exempt payments and multi-state filers are not modelled.");
     } else if (rest[0] === "w2") {
       const w = w2Summary(books, rest[1]);
       if (json) { console.log(JSON.stringify(w, null, 2)); process.exit(0); }

@@ -262,7 +262,14 @@ export function form941(books, year, quarter) {
 // Form 940 worksheet for a year, summed from the register. Rows by employee
 // are checked against the $7,000 FUTA wage base at the 0.6% net rate; the
 // state credit reduction, exempt payments and multi-state lines are not modelled.
-export function form940(books, year) {
+// FUTA credit reduction: a state with an unpaid federal unemployment loan loses
+// part of the 5.4% credit, so its employers owe extra on the same $7,000 wages.
+// Only rates checked against published notices are built in (California 2025,
+// 1.2%, per the DOL announcement of November 2025); for any other state or
+// year pass the rate from the DOL list as `creditReduction` (percent).
+export const CREDIT_REDUCTION = { CA: { 2025: 1.2 } };
+
+export function form940(books, year, opts = {}) {
   const from = `${year}-01-01`, to = `${year}-12-31`;
   const rs = (books.payroll ?? []).filter((r) => r.date >= from && r.date <= to);
   const money = (c) => (c / 100).toFixed(2);
@@ -289,6 +296,17 @@ export function form940(books, year) {
   let carry = 0;
   out.deposits = out.quarters.map((q) => { carry += q; if (carry > 50000) { const d = carry; carry = 0; return d; } return 0; });
   out.dueWithReturn = carry;
+  let pct = opts.creditReduction;
+  if (pct == null && opts.state) {
+    pct = CREDIT_REDUCTION[String(opts.state).toUpperCase()]?.[year];
+    if (pct == null) out.warnings.push(`No built-in credit reduction for ${opts.state} in ${year}; pass the rate from the DOL list (--credit-reduction PCT).`);
+  }
+  if (pct != null) {
+    out.creditReductionPct = +pct;
+    if (allPeople) out.creditReduction = Math.round(futaWages * pct / 100);
+    else { out.creditReduction = null; out.warnings.push("Credit reduction needs one row per employee (taxable FUTA wages); not computed."); }
+    if (out.creditReduction != null) out.balanceDue = out.creditReduction;
+  }
   return out;
 }
 
