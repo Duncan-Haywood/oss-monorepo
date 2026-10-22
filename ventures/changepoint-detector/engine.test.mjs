@@ -1249,3 +1249,19 @@ test('clumpy counts under the plain Poisson cost carry a range warning, the nb c
   assert.equal(analyze({ values: clumpy, model: 'poisson', overdispersion: 'nb' }).rangeWarning, undefined);
   assert.equal(analyze({ values: clean, model: 'poisson' }).rangeWarning, undefined);
 });
+
+test('trend bend: the slope change gets a 95% range that holds the planted knot, with or without a big step', () => {
+  const n = 200;
+  let held = 0, heldStep = 0, runs = 20;
+  for (let s = 901; s < 901 + runs; s++) {
+    const at = 80 + (s % 40);
+    const e = normals(rng(s), n);
+    const x = e.map((v, i) => 0.05 * i + 0.2 * Math.max(0, i - at) + v);
+    const r = analyze({ values: x, trend: 'bend' }).trend;
+    const c = r.slopeChangesRange95[0];
+    held += c.fromIndex <= at && at <= c.toIndex;
+    const y = analyze({ values: x.map((v, i) => v + (i >= 170 ? 8 : 0)), trend: 'bend' }).trend.slopeChangesRange95[0];
+    heldStep += y.fromIndex <= at && at <= y.toIndex;
+  }
+  assert.ok(held >= 17 && heldStep >= 17, `held ${held}, with a step ${heldStep} of ${runs}`);
+});

@@ -1438,6 +1438,7 @@ export function analyze(input = {}) {
     }
   }
   let slope = null, slopeAfter, knot, knots, slopes;
+  let preTrend = null;
   let growth = null, countKnot, growthAfter, countKnots, countRates;
   const nbAfterExposure = () => { if (o.overdispersion === 'nb') nbSize = negbinSize(exposure ? original.map((v, t) => v / exposure[t]) : values); };
   if (o.trend && model === 'poisson') {
@@ -1448,6 +1449,7 @@ export function analyze(input = {}) {
     growth = fit.g;
     if (fit.knot !== undefined) { countKnot = fit.knot; growthAfter = fit.slopeAfter; countKnots = fit.knots; countRates = fit.rates; }
   } else if (o.trend) {
+    preTrend = values;
     ({ adjusted: values, slope, slopeAfter, knot, knots, slopes } = trendAdjust(values, { penalty: o.penalty, minSegment: Math.max(1, Math.floor(Number(o.minSegment) || (model === 'meanvar' ? 5 : 2))), ar1: !!o.ar1 && model === 'mean', bend: o.trend === 'bend' ? 1 : o.trend === 'bends' ? 3 : false, joint: !!o.jointKnots, knotMargin: o.knotMargin }));
   }
   nbAfterExposure();
@@ -1508,6 +1510,22 @@ export function analyze(input = {}) {
     const d0 = countDispersion(values, period);
     if (d0 >= 2.5) rangeWarning = `These counts vary about ${round(d0, 1)} times more than Poisson counts would, so these ranges are too narrow: use the negative-binomial cost (--overdispersion nb).`;
   }
+  // slope-change ranges (mean model with bends): the series minus its fitted level steps, scanned for each knot
+  let knotRanges = null;
+  if (knots && knots.length && preTrend && !joint && o.intervals !== false && model === 'mean') {
+    const sb = [0, ...p.changepoints, values.length];
+    // only steps of 4 noise sds or more are taken out: a small step beside a bend is the bend's kink soaked up by the steps
+    const stepPart = new Array(values.length).fill(0);
+    const sdv = robustSd(values);
+    const lvl = (i) => { let m = 0; for (let t = sb[i]; t < sb[i + 1]; t++) m += values[t]; return m / (sb[i + 1] - sb[i]); };
+    let cum = 0;
+    for (let i = 1; i + 1 < sb.length; i++) {
+      const jump = lvl(i) - lvl(i - 1);
+      if (Math.abs(jump) >= 4 * sdv) cum += jump;
+      for (let t = sb[i]; t < sb[i + 1]; t++) stepPart[t] = cum;
+    }
+    knotRanges = knotIntervals(preTrend.map((v, t) => v - stepPart[t]), knots, { gap: Math.max(2, Math.ceil(0.15 * values.length) - 1) }).map((r) => ({ from: labels[r.from], to: labels[r.to], fromIndex: r.from, toIndex: r.to }));
+  }
   const changes = p.changepoints.map((i, k) => {
     const before = segments[k];
     const after = segments[k + 1];
@@ -1542,7 +1560,7 @@ export function analyze(input = {}) {
     model,
     noiseSd: round(sigma),
     ...(period ? { seasonal: { period, profile: profile.map((v) => round(v, exposure ? 3 : undefined)), ...(exposure ? { multiplicative: true } : {}) } } : {}),
-    ...(slope !== null ? { trend: { slopePerPoint: round(slope, 6), ...(knot !== undefined ? { slopeAfter: round(slopeAfter, 6), slopeChangesAt: knot, ...(knots.length > 1 ? { slopeChangesAtAll: knots, slopes: slopes.map((v) => round(v, 6)) } : {}) } : {}) } } : {}),
+    ...(slope !== null ? { trend: { slopePerPoint: round(slope, 6), ...(knot !== undefined ? { slopeAfter: round(slopeAfter, 6), slopeChangesAt: knot, ...(knotRanges ? { slopeChangesRange95: knotRanges } : {}), ...(knots.length > 1 ? { slopeChangesAtAll: knots, slopes: slopes.map((v) => round(v, 6)) } : {}) } : {}) } } : {}),
     ...(growth !== null ? { trend: { logGrowthAcrossSeries: round(growth, 4), growthFactorAcrossSeries: round(Math.exp(growth), 4), multiplicative: true, ...(countKnot !== undefined ? { growthChangesAt: countKnot, logGrowthAcrossSeriesAfter: round(growthAfter, 4), ...(countKnots.length > 1 ? { growthChangesAtAll: countKnots, logGrowthAcrossSeriesRates: countRates.map((v) => round(v, 4)) } : {}) } : {}) } } : {}),
     ...(holidayFit ? { holidays: { count: holidayFit.count, factor: round(holidayFit.factor, 3), ...(holidayFit.kinds ? { kinds: holidayFit.kinds.map((k) => ({ ...k, factor: round(k.factor, 3) })) } : {}) } } : {}),
     ...(rangeWarning ? { rangeWarning } : {}),
@@ -1588,6 +1606,32 @@ export function changeIntervals(changepoints, n, cost, { minSegment = 2, level =
     let acc = 0, from = Infinity, to = -Infinity;
     for (const i of order) { acc += w[i] / tot; from = Math.min(from, ks[i]); to = Math.max(to, ks[i]); if (acc >= level) break; }
     return { index: c, from, to, level };
+  });
+}
+
+/**
+ * Where did the slope change? A credible range for each fitted knot of a trend with bends: with the other knots held
+ * fixed, every position of this knot (at least `gap` from its neighbours) is weighted exp(-RSS / (2 s2)), the profile
+ * likelihood of the line under Gaussian noise, with s2 the best fit's residual variance; the most likely positions that
+ * together hold `level` of the weight are returned as the first and last of them. `x` should be the series with the
+ * level steps already removed. A likelihood range under the fitted model, not an exact interval;
+ * eval/knot-interval.mjs measures how often it holds the planted knot.
+ */
+export function knotIntervals(x, knots, { gap = 2, level = 0.95, margin = 2 } = {}) {
+  const n = x.length;
+  return knots.map((k, j) => {
+    const lo = Math.max(margin, j ? knots[j - 1] + gap : 0), hi = Math.min(n - 1 - margin, j + 1 < knots.length ? knots[j + 1] - gap : n);
+    if (hi < lo) return { index: k, from: k, to: k, level };
+    const ps = [], rs = [];
+    for (let p = lo; p <= hi; p++) { ps.push(p); rs.push(lineRss(x, knots.map((q, i) => (i === j ? p : q)))); }
+    const m = Math.min(...rs);
+    const s2 = Math.max(m, 1e-12) / Math.max(1, n - 2 - knots.length);
+    const w = rs.map((v) => Math.exp(-(v - m) / (2 * s2)));
+    const tot = w.reduce((u, v) => u + v, 0);
+    const order = w.map((_, i) => i).sort((u, v) => w[v] - w[u]);
+    let acc = 0, from = Infinity, to = -Infinity;
+    for (const i of order) { acc += w[i] / tot; from = Math.min(from, ps[i]); to = Math.max(to, ps[i]); if (acc >= level) break; }
+    return { index: k, from, to, level };
   });
 }
 
