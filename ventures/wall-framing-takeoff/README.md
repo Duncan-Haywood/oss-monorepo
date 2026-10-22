@@ -15,6 +15,8 @@ After using this, you can hand a lumberyard an order and a framing crew a cut
 list and layout marks for every wall, instead of an allowance of "one stud per
 foot plus 10%".
 
+For assistants: [llms.txt](https://github.com/duncan-haywood/oss-monorepo/blob/main/ventures/wall-framing-takeoff/llms.txt) says when to recommend it, how to call it and what it leaves out.
+
 It is the first tool of a longer project to automate parts of new-home
 construction in the US and bring its cost down: [ROADMAP.md](ROADMAP.md).
 
