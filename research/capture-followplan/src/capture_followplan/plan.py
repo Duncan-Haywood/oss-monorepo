@@ -79,7 +79,8 @@ def _plan(pos, vel, vmax, creator, cvel, peds, pvels, radius):
     return best
 
 
-def simulate(plat, density, seed, mode="repulsion", radius=1.5, gain=1.2, duration=240.0, dt=0.25, steps_on=True):
+def simulate(plat, density, seed, mode="repulsion", radius=1.5, gain=1.2, duration=240.0, dt=0.25, steps_on=True,
+             estimator=None):
     """capture_follow.model.simulate with a switchable controller. mode: 'repulsion', 'plan' or 'ignore'."""
     rng = random.Random(seed)
     n = int(round(density * W * W))
@@ -103,8 +104,11 @@ def simulate(plat, density, seed, mode="repulsion", radius=1.5, gain=1.2, durati
         c = creator.p
         if mode == "plan":
             pvels = [(delta(w.p[0], q[0]) / dt, delta(w.p[1], q[1]) / dt) for w, q in zip(peds, prev)]
+            seen = peds
+            if estimator is not None:   # perception: planner sees estimated positions and velocities, not the truth
+                seen, pvels = estimator.update(peds)
             cvel = (delta(c[0], cprev[0]) / dt, delta(c[1], cprev[1]) / dt)
-            dvx, dvy = _plan(pos, vel, plat.vmax, creator, cvel, peds, pvels, radius)
+            dvx, dvy = _plan(pos, vel, plat.vmax, creator, cvel, seen, pvels, radius)
         else:
             tx = c[0] - TARGET * math.cos(creator.h)
             ty = c[1] - TARGET * math.sin(creator.h)
