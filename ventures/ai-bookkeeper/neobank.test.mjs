@@ -75,3 +75,17 @@ test("US Bank and Ally checking are recognised and signed as written", () => {
   assert.equal(a.bank, "ally");
   assert.deepEqual(a.rows.map((x) => x.cents), [-4500, 250000, -1299]);
 });
+
+test("Apple Card: charges positive, the ACH deposit row settles the sign", () => {
+  const r = read("apple-card.csv");
+  assert.equal(r.bank, "apple-card");
+  assert.deepEqual(r.rows.map((x) => x.cents), [-4217, -5999, 10216]);
+});
+
+test("Lloyds: day-first dates, debit and credit columns, balance chain holds", () => {
+  const r = read("lloyds-current.csv");
+  assert.equal(r.bank, "lloyds");
+  assert.deepEqual(r.rows.map((x) => x.cents), [-2450, 120000, -4500]);
+  assert.deepEqual(r.rows.map((x) => x.date), ["2026-03-02", "2026-03-04", "2026-03-05"]);
+  assert.equal(checkRunningBalance(r.rows).checked, true);
+});

@@ -1,0 +1,4 @@
+Transaction Date,Transaction Type,Sort Code,Account Number,Transaction Description,Debit Amount,Credit Amount,Balance
+02/03/2026,DEB,'30-00-00,12345678,TESCO STORES 2231,24.50,,975.50
+04/03/2026,FPI,'30-00-00,12345678,CLIENT LTD INV 1001,,1200.00,2175.50
+05/03/2026,DD,'30-00-00,12345678,BT GROUP,45.00,,2130.50
