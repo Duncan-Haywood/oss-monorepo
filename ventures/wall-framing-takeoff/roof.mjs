@@ -72,17 +72,17 @@ function splitOnCentres(total, max, centres) {
 }
 
 /** Ceiling joists on `centres`: one board when it spans, else two lapped over a bearing wall. */
-function ceilingJoistRows(r, plan, centres, notes) {
+function ceilingJoistRows(r, plan, centres, notes, width = r.width, label = "") {
   const rows = [];
   const cl = Math.max(...plan.stock.filter((s) => s.size === r.ceilingJoist).map((s) => s.length));
-  if (r.width <= cl + EPS) for (const c of centres) rows.push({ x: c - THICK / 2, length: r.width, size: r.ceilingJoist });
+  if (width <= cl + EPS) for (const c of centres) rows.push({ x: c - THICK / 2, length: width, size: r.ceilingJoist });
   else {
     // too long for one board: two pieces lapped 6 in over an interior bearing wall `ceilingBearing` from the left eave (default mid-span)
-    const mid = r.ceilingBearing ?? r.width / 2;
-    const pieces = [mid + 3, r.width - mid + 3];
+    const mid = label ? width / 2 : r.ceilingBearing ?? width / 2;
+    const pieces = [mid + 3, width - mid + 3];
     if (pieces.some((p) => p > cl + EPS)) return { error: `A ${formatLength(Math.max(...pieces))} ceiling joist piece is longer than the longest ${r.ceilingJoist} listed (${formatLength(cl)}); list longer boards or move the bearing wall.` };
     for (const c of centres) for (const p of pieces) rows.push({ x: c - THICK / 2, length: p, size: r.ceilingJoist });
-    notes.push(`Ceiling joists are two pieces lapped 6 in over an interior bearing wall ${formatLength(mid)} from the left eave; the wall, the lap nailing and the load path are yours and the engineer's.`);
+    notes.push(`Ceiling joists are ${label}two pieces lapped 6 in over an interior bearing wall ${formatLength(mid)} from the left eave; the wall, the lap nailing and the load path are yours and the engineer's.`);
   }
   return { rows };
 }
@@ -348,11 +348,18 @@ function addWing(base, r, plan) {
   const eaveU = P - overhang, ridgeEnd = P + hw;
   const uCentres = [THICK / 2];
   for (let u = sp; u < ridgeEnd - THICK - 3; u += sp) uCentres.push(Math.round(u * 16) / 16);
-  const wingRafters = [], wingJacks = [];
+  const wingRafters = [], wingJacks = [], wingNotes = [];
   for (const u of uCentres) {
     if (u <= eaveU + EPS) { for (const sd of ["left", "right"]) wingRafters.push({ u, side: sd, length: commonLen, size, kind: "wing rafter" }); continue; }
     const run = ridgeEnd - u - ridgeT / 2;
     for (const sd of ["left", "right"]) wingJacks.push({ u, side: sd, length: jackLen(run), size, kind: "valley jack rafter" });
+  }
+  // wing ceiling joists span the wing's width on the wing stations that fall on its walls (u short of the main wall)
+  const wingCeilingJoists = [];
+  if (r.ceilingJoist) {
+    const res = ceilingJoistRows(r, plan, uCentres.filter((u) => u < P - THICK), wingNotes, w.width, "Wing ceiling joists are ");
+    if (res.error) return { ok: false, errors: [res.error] };
+    wingCeilingJoists.push(...res.rows);
   }
   const valleys = [0, 1].map((i) => ({ side: i ? "right" : "left", length: valleyLen, size: valleySize, kind: "valley rafter" }));
   const wingRidges = [];
@@ -410,10 +417,11 @@ function addWing(base, r, plan) {
     eaveFeet, rakeFeet, ridgeFeet, valleyFeet, assumptions: g,
   };
   const notes = base.notes.filter((n) => !/ignore valleys, hips/.test(n));
+  notes.push(...wingNotes);
   notes.push(`Cross wing ${formatLength(w.width)} wide, ${formatLength(P)} out from the main wall, centred ${formatLength(at)} along the ridge on the ${side} side: ${wingRafters.length} wing rafters, ${wingJacks.length + interrupted} valley jacks (${interrupted} of them main-roof rafters cut short at the valley), 2 ${valleySize} valleys of ${formatInches(valleyLen)}, a ${formatLength(P + hw + rake)} wing ridge. Equal pitch is assumed, so the wing ridge meets the main roof ${formatLength(hw)} inside the main wall.`);
   if (!w.valley) notes.push(`Valleys are ${valleySize}, as the rafters; a valley is normally one size deeper so the jacks bear on its face (set \`wing.valley\`).`);
-  notes.push("Wing sheathing counts each course at its longer edge, and the main plane is not reduced where the wing covers it, so the sheet count is an upper bound. Ceiling joists and collar ties are not framed in the wing, nor valley backing, saddles, the main wall's extra header or the wing's own plates; valley flashing length is `roofing.valleyFeet`.");
-  return { ...base, rafters, wing: { width: w.width, projection: P, at, side, valleySize }, wingRafters, wingJacks, valleys, wingRidges, wingCentres: uCentres, valleyLength: valleyLen, courses: [...base.courses, ...wingCourses], sheets: { count: sheets, rows: sheetRows, area, waste: sheets ? 1 - area / (sheets * sheetArea) : 0 }, roofing, notes };
+  notes.push("Wing sheathing counts each course at its longer edge, and the main plane is not reduced where the wing covers it, so the sheet count is an upper bound. Wing collar ties are not framed, nor valley backing, saddles, the main wall's extra header or the wing's own plates; valley flashing length is `roofing.valleyFeet`.");
+  return { ...base, rafters, wing: { width: w.width, projection: P, at, side, valleySize }, wingRafters, wingJacks, wingCeilingJoists, valleys, wingRidges, wingCentres: uCentres, valleyLength: valleyLen, courses: [...base.courses, ...wingCourses], sheets: { count: sheets, rows: sheetRows, area, waste: sheets ? 1 - area / (sheets * sheetArea) : 0 }, roofing, notes };
 }
 
 /** Cut rows in the engine's shape, so `takeoff(plan, roofCuts(layout))` buys roof lumber with the walls'. */
@@ -433,7 +441,7 @@ export function roofCuts(l) {
   for (const x of l.hips || []) add(x.size, x.length, "hip rafter");
   for (const x of l.jacks || []) add(x.size, x.length, "jack rafter");
   for (const x of l.ridges) add(x.size, x.length, "ridge board");
-  for (const x of l.ceilingJoists) add(x.size, x.length, "ceiling joist");
+  for (const x of [...l.ceilingJoists, ...(l.wingCeilingJoists || [])]) add(x.size, x.length, "ceiling joist");
   for (const x of l.collarTies) add(x.size, x.length, "collar tie");
   return [...map.values()];
 }
