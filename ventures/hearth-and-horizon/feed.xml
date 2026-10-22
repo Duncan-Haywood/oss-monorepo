@@ -52,6 +52,16 @@
       <itunes:duration>0:09:57</itunes:duration>
     </item>
     <item>
+      <title>The Ice Road</title>
+      <link>https://example.invalid/hearth-and-horizon/the-ice-road.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-ice-road.html</guid>
+      <pubDate>Thu, 22 Oct 2026 12:00:00 GMT</pubDate>
+      <description>A warm March is thinning the winter road that brings a northern town its last fuel before the summer barge. A thirty-year tanker driver is told by the road's monitoring AI that her truck is too heavy for the crossing, and the fuel has to come in on small sleds, a few at a time, before the ice closes. The town pays for it by switching things off. Setting: Marten Portage, an invented community in the Northwest Territories, March 2058. Read the full text at https://example.invalid/hearth-and-horizon/the-ice-road.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A warm March is thinning the winter road that brings a northern town its last fuel before the summer barge. A thirty-year tanker driver is told by the road's monitoring AI that her truck is too heavy for the crossing, and the fuel has to come in on small sleds, a few at a time, before the ice closes. The town pays for it by switching things off.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>The Patches</title>
       <link>https://example.invalid/hearth-and-horizon/the-patches.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-patches.html</guid>
