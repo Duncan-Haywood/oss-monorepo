@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sensing-matchreal"
+version = "0.1.0"
+description = "What do a real feature matcher's mismatches look like: random pixels, near misses or along the epipolar line?"
+requires-python = ">=3.9"
+dependencies = ["numpy", "opencv-python-headless", "scikit-image"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
