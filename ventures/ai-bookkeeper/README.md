@@ -766,3 +766,7 @@ Pair it with `statement` for the customer's account. Amounts come from the same 
 part-payments and credit notes are already netted. Nothing is sent from here.
 Tested in `collections.test.mjs` on hand-written invoices only (tone steps,
 one per customer, part-payments, the `--min` cut); on the page (2026-10-22): under the aging table, one row per overdue customer with its tone and a "Copy draft" button (clipboard, or a .txt download if the clipboard is blocked); clicked through in headless Chromium with `eval/browser-click.mjs`. No real customer has received one.
+
+### European column names (2026-10-22)
+
+`bank.mjs` also matches German, French, Spanish, Italian and Dutch headers (`Buchungstag`, `Verwendungszweck`, `Betrag`, `Soll`/`Haben`, `Libellé`, `Débit`/`Crédit`, `Fecha`, `Concepto`, `Importe`, `Saldo`, and similar). Pass day-first dates and decimal commas as for any European file. The names are from general knowledge of these languages, not from a specific bank's download; text month names in dates are still English only.

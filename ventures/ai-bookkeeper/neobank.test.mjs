@@ -114,3 +114,14 @@ test("Schwab: Withdrawal and Deposit columns with dollar signs, balance chain ho
   assert.deepEqual(r.rows.map((x) => x.cents), [-4520, 200000, -30000]);
   assert.equal(checkRunningBalance(r.rows).checked, true);
 });
+
+test("European headers: German, French and Spanish exports with decimal commas", () => {
+  const opt = { dayFirst: true, decimalComma: true };
+  const de = readStatement("Buchungstag;Verwendungszweck;Betrag;Saldo\n02.01.2026;Kaffee;-4,50;95,50\n03.01.2026;Gehalt;100,00;195,50\n", opt);
+  assert.deepEqual(de.rows.map((x) => x.cents), [-450, 10000]);
+  assert.equal(checkRunningBalance(de.rows).breaks.length, 0);
+  const fr = readStatement("Date;Libellé;Débit;Crédit\n02/01/2026;LOYER;1 000,00;\n03/01/2026;VENTE;;50,00\n", opt);
+  assert.deepEqual(fr.rows.map((x) => x.cents), [-100000, 5000]);
+  const es = readStatement("Fecha;Concepto;Importe;Saldo\n02/01/2026;CAFE;-4,50;95,50\n", opt);
+  assert.deepEqual(es.rows.map((x) => x.cents), [-450]);
+});
