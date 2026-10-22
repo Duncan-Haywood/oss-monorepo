@@ -64,7 +64,7 @@
     <h2 id="h-import">1. Import a statement</h2>
     <div class="grid">
       <div><label for="bank">Which account is this statement for?</label><select id="bank"></select></div>
-      <div><label for="file">Bank or card file (CSV, OFX, QFX, QIF, MT940, CAMT.053 or statement text pasted from a PDF into a .txt file)</label><input id="file" type="file" accept=".csv,.txt,.ofx,.qfx,.qbo,.qif,.sta,.mt940,.xml,text/csv,text/plain,text/xml"></div>
+      <div><label for="file">Bank or card file (CSV, OFX, QFX, QIF, MT940, CAMT.053 or a statement PDF with a text layer, or statement text pasted into a .txt file)</label><input id="file" type="file" accept=".pdf,application/pdf,.csv,.txt,.ofx,.qfx,.qbo,.qif,.sta,.mt940,.xml,text/csv,text/plain,text/xml"></div>
       <div><label for="auto">Post by itself at confidence</label><input id="auto" type="number" min="0.5" max="1" step="0.01" value="0.85"></div>
     </div>
     <div id="ofx-map" hidden>
@@ -321,6 +321,7 @@
     import { scheduleC, scheduleCCsv, contractors1099, contractors1099Csv, nec1099FilingCsv, markW9, mergePayees } from "./taxforms.mjs";
     import { newBooks, importStatement, importOfxAccounts, categorize, suggestRules, addRules, addDocuments, writeOff, aging, addAsset, disposeAsset, register, salesTax, vatReturn, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, exportLines, status, analyze, fmt, DEFAULT_ACCOUNTS, taxableBusinessIncome } from "./engine.mjs";
     import { parseCents } from "./bank.mjs";
+    import { pdfText } from "./pdftext.mjs";
     import { setTaxTreatment, taxDepreciation, taxDepreciationCsv } from "./taxdepr.mjs";
     import { parseAccounts } from "./ledger.mjs";
     import { setOpeningBalances, clearOpeningBalances } from "./opening.mjs";
@@ -690,9 +691,16 @@
       render();
     });
 
+    // A PDF is read in the browser (its text layer; scans are not OCR'd).
+    async function fileText(f) {
+      if (!/\.pdf$/i.test(f.name) && f.type !== "application/pdf") return f.text();
+      const text = await pdfText(await f.arrayBuffer());
+      if (!text) throw new Error(`${f.name} has no text layer (a scan). Download the bank's CSV or OFX instead.`);
+      return text;
+    }
     async function readInput() {
       const f = $("#file").files[0];
-      return f ? await f.text() : $("#paste").value;
+      return f ? await fileText(f) : $("#paste").value;
     }
 
     // A multi-account OFX file: one select per account in the file, so each
@@ -701,7 +709,7 @@
     async function showOfxMap() {
       const f = $("#file").files[0];
       ofxParts = [];
-      if (f) { const text = await f.text(); if (sniffFormat(text) === "ofx") { const p = splitOfx(text); if (p.length > 1) ofxParts = p; } }
+      if (f) { const text = await fileText(f).catch(() => ""); if (sniffFormat(text) === "ofx") { const p = splitOfx(text); if (p.length > 1) ofxParts = p; } }
       $("#ofx-map").hidden = !ofxParts.length;
       if (!ofxParts.length) return;
       $("#ofx-map-note").textContent = `This file holds ${ofxParts.length} accounts. Choose the chart account each one goes to.`;
@@ -715,7 +723,8 @@
     $("#file").addEventListener("change", showOfxMap);
 
     $("#import").addEventListener("click", async () => {
-      const text = await readInput();
+      let text;
+      try { text = await readInput(); } catch (e) { $("#import-status").textContent = e.message; return; }
       if (!text.trim()) { $("#import-status").textContent = "Choose a CSV file or paste one first."; return; }
       if (ofxParts.length && $("#file").files[0]) {
         const map = {};

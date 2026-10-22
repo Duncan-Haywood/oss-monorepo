@@ -55,6 +55,15 @@ await page.setInputFiles("#file", join(root, "fixtures/checking.ofx"));
 await page.waitForTimeout(300);
 check(await page.locator("#ofx-map").isHidden(), "single-account OFX shows no pickers");
 
+// A statement PDF straight from the file picker: read in the page, no tool, no upload.
+await page.setInputFiles("#file", join(root, "fixtures/statement-chromium.pdf"));
+await page.evaluate(() => { document.querySelector("#import-status").textContent = ""; });
+await page.click("#import");
+await page.waitForFunction(() => /\d/.test(document.querySelector("#import-status").textContent), null, { timeout: 5000 }).catch(() => {});
+const pst = await page.locator("#import-status").textContent();
+console.log("     status:", pst);
+check(/^4 lines added\b(?! across)/.test(pst), "a statement PDF imports four lines from the file picker");
+
 await page.click("#example");
 await page.waitForFunction(() => /synthetic months/.test(document.querySelector("#import-status").textContent), null, { timeout: 5000 }).catch(() => {});
 check(/synthetic months/.test(await page.locator("#import-status").textContent()), "example books load by click");

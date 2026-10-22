@@ -442,6 +442,19 @@ depreciated); the Schedule C worksheet carries 6950 to line 13. This is book
 depreciation. Tax depreciation is a separate worksheet (below); `assets.test.mjs` covers the arithmetic, the journal, disposal, the check,
 line 13 and the locked period. The page has an "equipment and depreciation" card: add an asset, see cost, depreciated and net book value, sell or scrap it (clicked through in headless Chromium by `eval/browser-click.mjs`). The same card has a US tax depreciation (MACRS) section (2026-10-21): pick an asset, set class, Section 179 and bonus percent, read the year's worksheet (tax against book, with the engine's warnings) and download it as CSV (`taxDepreciationCsv`); clicked through in headless Chromium (a $10,000 5-year asset with $1,000 of 179 shows $2,800.00 in year one).
 
+
+### Statement PDF in the page (2026-10-22)
+
+The page's file picker takes a statement PDF with a text layer: `pdftext.mjs`
+reads it in the browser (Flate and object streams, page-tree order, ToUnicode
+maps for two-byte fonts, glyph widths for spacing, rows rebuilt by position),
+then the pasted-text reader above does the rest. No tool is installed and
+nothing is uploaded. Checked on a PDF printed by Chromium (per-glyph
+positioning, Type0 fonts, flipped CTM): 4 of 4 rows, and the page click-through
+in headless Chromium imports them. Not tried: a real bank's PDF, encrypted
+files, fonts with no ToUnicode map and a non-Latin-1 encoding, rotated pages.
+The CLI still uses `pdftotext` (its path is synchronous); scans stay unread.
+
 ### Tax depreciation worksheet (US, MACRS)
 
 `taxdepr.mjs` (2026-10-21) computes the schedule a US return uses, beside the
