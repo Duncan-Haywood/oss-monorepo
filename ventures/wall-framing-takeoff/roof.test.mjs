@@ -206,3 +206,17 @@ test("cross wing: ceiling joists span the wing on its wall stations", () => {
   assert.equal(rows.reduce((s, r) => s + r.qty, 0), l.ceilingJoists.length + 9);
   assert.ok(takeoff(samplePlan(), roofCuts(l)).ok);
 });
+
+test("cross wing: collar ties on every other pair of wing commons, 24 in below the ridge", () => {
+  assert.equal(layoutRoof(wingRoof(), plan()).wingCollarTies.length, 0);
+  const l = layoutRoof({ ...wingRoof(), collarTies: true }, plan());
+  assert.ok(l.ok, JSON.stringify(l.errors));
+  // 9 common stations (0.75, 16..128): ties on the 1st, 3rd .. 9th = 5, each 1.5 + 2 x 24 x 12 / 4 = 145.5 in
+  assert.equal(l.wingCollarTies.length, 5);
+  assert.ok(l.wingCollarTies.every((x) => x.length === 145.5 && x.size === "2x4"));
+  const rows = roofCuts(l).filter((r) => r.kind === "collar tie");
+  assert.equal(rows.reduce((s, r) => s + r.qty, 0), l.collarTies.length + 5);
+  assert.match(roofText(l).join("\n"), /5 wing collar ties/);
+  const wide = layoutRoof({ ...wingRoof({ width: 96 }), collarTies: true }, plan());
+  assert.equal(wide.wingCollarTies.length, 0);
+});
