@@ -212,6 +212,15 @@ test("exact mode proves the optimum against brute force, including the options t
   }
 });
 
+test("the coverage floor never lets a pay bound overstate: a good starting roster still reaches the exact optimum", () => {
+  // Found 2026-10-22: once the heuristic covered everything coverable, the exact search was seeded with 11 open hours, the coverage pass
+  // proved that floor, and the cost bound still charged the pay of the most hours the flow could cover, which are more than 11 open
+  // hours leave. The search cut the optimum (1100260.75) and called 1100267.75 optimal.
+  const staff = staffOf("P0,14,12,0,Mon-Wed 6-20\nP1,14,12,0,Mon-Wed 6-21"), slots = slotsOf("Mon,6,13,1\nMon,6,9,1\nMon,6,11,1\nMon,6,11,1\nWed,6,11,1\nMon,6,9,1");
+  const r = buildRoster(staff, slots, { exact: true });
+  assert.equal(r.score, bruteForceBest(staff, slots, {}));
+});
+
 test("exact mode on a deliberately weak anneal finds the improvement and reports the gap", () => {
   const staff = staffOf("A,10,40,0,any\nB,11,40,0,any\nC,12,40,0,any\nD,13,40,0,any"), slots = slotsOf("Mon,8,16,2\nTue,8,16,2\nWed,8,16,2\nThu,8,16,1\nFri,8,16,1");
   const weak = buildRoster(staff, slots, { restarts: 1, iterations: 1 });

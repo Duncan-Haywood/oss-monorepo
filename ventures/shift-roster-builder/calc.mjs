@@ -627,6 +627,50 @@ function anneal(ctx, seed, iterations, jitter) {
   return { owner: bestOwner, score: bestScore };
 }
 
+// Ejection chains, as a pass over a finished roster. Annealing moves one shift at a time, so an open shift that cannot simply be
+// added (overlap, rest gap, weekly limit) stays open unless two moves happen back to back. Here an open shift goes to someone who
+// gives up one of theirs for it, and that shift moves on to a third person, or stays open if it is the shorter of the two. Moves that
+// cost more than they gain are taken at a falling temperature. Measured on seeded 8-person, 22-shift weeks, the open hours the search
+// left fell from 63/11/105/38 to 57/4/98/35 (eval/ejection-bench.mjs). Only run while shifts are open, and only kept if the total falls.
+function ejectPass(ctx, owner0, seed, iterations) {
+  const { P, S, slots, elig } = ctx;
+  const rng = mulberry32(seed);
+  const owner = owner0.slice();
+  const lists = Array.from({ length: P }, () => []);
+  owner.forEach((p, i) => { if (p >= 0) lists[p] = insertSorted(ctx, lists[p], i); });
+  const pScore = lists.map((l, p) => personScore(ctx, p, l));
+  const hrs = (i) => (slots[i].end - slots[i].start) / 60;
+  const removeFrom = (list, i) => list.filter((x) => x !== i);
+  let score = pScore.reduce((a, b) => a + b, 0) + BIG * owner.reduce((t, p, i) => t + (p < 0 ? hrs(i) : 0), 0);
+  let bestScore = score, bestOwner = owner.slice();
+  const T0 = Math.max(0.5, ctx.avgWage * (ctx.totalHours / Math.max(1, S)) * 0.4), T1 = 0.01;
+  for (let it = 0; it < iterations; it++) {
+    const open = [];
+    owner.forEach((p, i) => { if (p < 0) open.push(i); });
+    if (!open.length) break;
+    const T = T0 * (T1 / T0) ** (it / iterations);
+    const i = open[Math.floor(rng() * open.length)];
+    const q = Math.floor(rng() * P);
+    if (!elig[q][i] || !lists[q].length) continue;
+    const j = lists[q][Math.floor(rng() * lists[q].length)];
+    const nq = insertSorted(ctx, removeFrom(lists[q], j), i);
+    if (!validList(ctx, q, nq)) continue;
+    const r = Math.floor(rng() * P);
+    let nr = null;
+    if (r !== q && elig[r][j]) { nr = insertSorted(ctx, lists[r], j); if (!validList(ctx, r, nr)) nr = null; }
+    const sq = personScore(ctx, q, nq);
+    let delta = sq - pScore[q] - BIG * hrs(i), sr = 0;
+    if (nr) { sr = personScore(ctx, r, nr); delta += sr - pScore[r]; } else delta += BIG * hrs(j);
+    if (delta < 0 || rng() < Math.exp(-delta / T)) {
+      lists[q] = nq; pScore[q] = sq; owner[i] = q;
+      if (nr) { lists[r] = nr; pScore[r] = sr; owner[j] = r; } else owner[j] = -1;
+      score += delta;
+      if (score < bestScore - 1e-9) { bestScore = score; bestOwner = owner.slice(); }
+    }
+  }
+  return bestOwner;
+}
+
 function search(ctx, restarts, iterations, first = 0) {
   let best = null;
   for (let r = first; r < first + restarts; r++) {
@@ -723,14 +767,18 @@ function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000, t
     const openCap = Math.max(0, demand - capacity);
     if (lb + BIG * openCap + Math.max(0, sufCheap[k] - openCap * maxRate) >= cutoff) return Infinity;
     const cov = coverableHours(k, hoursLeft);
-    const open = Math.max(0, demand - capacity, demand - cov.flow, minOpenH - unfilledH);
+    const flowOpen = Math.max(0, demand - capacity, demand - cov.flow);
+    const open = Math.max(flowOpen, minOpenH - unfilledH);
+    // cov.cost and cov.joint price covering the most hours the flow can; when the coverage pass forces more hours open than that,
+    // fewer hours get covered and those prices can overstate, so they are used only when the open hours are the flow's own.
+    const flowPriced = open <= flowOpen + 1e-9;
     // The shifts that have to stay open are not paid for, so take back at most the dearest rate per hour for each forced open hour.
     // gSum lets every person sit at their own best hours. The covered hours are fixed in total, so they cannot all do that.
     const coupled = coupledHours(demand - open, gSum);
-    const apart = lb + coupled - gSum + BIG * open + Math.max(0, sufCheap[k] - open * maxRate, cov.cost);
+    const apart = lb + coupled - gSum + BIG * open + Math.max(0, sufCheap[k] - open * maxRate, flowPriced ? cov.cost : 0);
     // With the hours terms inside the flow, who can work when and how far each person's hours sit from their target are priced
     // together: the cheapest way to cover the most hours, pay and the convex terms both, is the bound.
-    return cov.joint === undefined ? apart : Math.max(apart, lb - gSum + cov.joint + BIG * open);
+    return cov.joint === undefined || !flowPriced ? apart : Math.max(apart, lb - gSum + cov.joint + BIG * open);
   };
   // Least hours that must stay open (BIG each) given the decided shifts: total capacity first, the flow only if that does not cut.
   const coverBound = (k, unfilledH, cutoff) => {
@@ -1038,6 +1086,14 @@ export function buildRoster(staff, slots, options = {}) {
   if (scoreOwner(ctx, best.owner).unfilled > 0) {
     const more = search(ctx, o.restarts * 6, iterations, o.restarts);
     if (more.score < best.score - 1e-9) best = more;
+  }
+  if (scoreOwner(ctx, best.owner).unfilled > 0) {
+    // A few seeds, each from the best so far: one chain of moves rarely finds the best way to free the hours.
+    for (let k = 0; k < 4; k++) {
+      const eo = ejectPass(ctx, best.owner, o.seed + 104729 * (k + 1), Math.max(20000, ctx.S * 1500));
+      const es = scoreOwner(ctx, eo).total;
+      if (es < best.score - 1e-9) best = { owner: eo, score: es };
+    }
   }
   // Optional proof: for small problems search exhaustively (with pruning) and say how far the annealed roster is from the best possible.
   let optimality = null;
