@@ -46,3 +46,13 @@ export function receiptTextFromFile(path, { run = spawnSync, env = process.env }
   }
   return readFileSync(path, "utf8");
 }
+
+// A bank statement that is a PDF file: the same pdftotext route as a receipt, and
+// the text goes to the pasted-statement reader. Other files are read as they are.
+export function statementTextFromFile(path, { run = spawnSync } = {}) {
+  if (extname(path).toLowerCase() !== ".pdf") return readFileSync(path, "utf8");
+  const r = run("pdftotext", ["-layout", path, "-"], { encoding: "utf8" });
+  if (r.error || r.status !== 0) throw new Error(`could not read ${path} as a PDF: pdftotext (poppler-utils) is needed${r.stderr ? `: ${String(r.stderr).trim().slice(0, 120)}` : ""}`);
+  if (!r.stdout.trim()) throw new Error(`${path} has no text layer (a scan); statements are not OCR'd, download the bank's CSV or OFX instead`);
+  return r.stdout;
+}
