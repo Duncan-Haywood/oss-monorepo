@@ -14,8 +14,9 @@
 // opening: { "1020": foreignCents } }`. A rate is base units per one foreign unit
 // (1.0850 USD per EUR). Amounts are integer cents; the rate is rounded to six
 // decimals and the product by BigInt, so a conversion is exact.
-// Not modelled: transfers between a foreign and a base account are not paired
-// (file each side), foreign invoices and bills, a per-lot realized gain, tax
+// A transfer between a foreign and a base account pairs when the sides are within 3%
+// (engine.pairTransfers); the difference is realized gain or loss in 6190.
+// Not modelled: foreign invoices and bills, a per-lot realized gain, tax
 // rules on foreign gains. Not accounting advice.
 
 import { parseDate } from "./bank.mjs";
