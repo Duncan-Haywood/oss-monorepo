@@ -644,6 +644,7 @@ is often fine.
 
 - Bank statement PDF files read by the CLI (`import FILE.pdf --account CODE`, 2026-10-22: `pdftotext -layout`, then the pasted-text reader; node test builds a one-page PDF by hand and reads it with the real pdftotext; no real bank PDF tried, scans refused). Try real statements.
 - A second generator, 2026-10-22: a 6-row table printed by LibreOffice 24.2 (`fixtures/statement-libreoffice.pdf`) reads identically to pdftotext, and a 140-row, 7-page Word-exported statement (generated here, not committed) imported 140 of 140 rows with every sign and the running balance right. It found one fault: a statement whose header names no year ("03/01" rows only) returned 0 rows and the unrelated message "No transaction lines were found". The reader now says there is no year, and `import FILE --year 2026` (and `readStatement(text, {year})`) supplies one. LibreOffice does compress object streams, so that path is exercised by this fixture. Still no real bank PDF.
+- The in-tab PDF reader now decodes LZW, ASCII85, ASCIIHex and RunLength streams and PNG/TIFF predictors, alone or chained with Flate (2026-10-22; `pdftext.test.mjs` builds one-page PDFs with each filter and, where installed, poppler reads the same text; LZW code-width changes past 512/1024 entries and EarlyChange 0 covered; hand-built files, no real bank PDF; fonts with no ToUnicode map and a two-byte encoding are still unreadable)
 - The page's file picker takes a statement PDF too (2026-10-22, `pdftext.mjs`): the text layer is read in the tab with no library and no upload (Flate streams, ToUnicode maps, text matrix and y-flip, widths for spacing). Verified on two PDFs printed by headless Chromium (a text statement and a table with a running balance over two pages): output equals `pdftotext -layout` after whitespace folding, 7 of 7 rows imported and reconciled, clicked through in headless Chromium. Not read: scans, encrypted files, non-Flate filters, two-byte fonts with no ToUnicode map; PDFs with compressed object streams are handled in code but no such file was tried. No real bank PDF has been tried.
 - Opening balances from a trial balance (`opening.mjs`, CLI `opening`, agent input `opening`; 2026-10-21; node tests on hand-written trial balances, `node --test ventures/ai-bookkeeper/opening.test.mjs`, 8 pass; a page card (date, file or paste, set and remove; clicked through in headless Chromium with `node eval/browser-click.mjs`, 2026-10-21); a typed list replaces the opening inferred from a statement's running balance for the same account, and imported lines dated on or before the opening date raise a high `opening-overlap` close check).
 - MT940 and CAMT.053 reading landed 2026-10-21 (`sepa.mjs`, hand-written fixtures); OFX, MT940 and CAMT closing balances now feed the reconcile check. Try real exports from a German, Dutch or UK bank.
@@ -673,8 +674,7 @@ MIT licence (`LICENSE`).
 `taxDepreciation(books, year, { businessIncome, carryIn })` and
 `s179IncomeLimit` apply Form 4562 lines 9-13: the year's election (capped by the
 dollar limit) plus any carry-in is deductible up to the year's taxable business
-income before 179; the rest carries forward. Tested in `taxdepr.test.mjs`. Not
-yet in the CLI or page, and the income is supplied, not read from the P&L.
+income before 179; the rest carries forward. Tested in `taxdepr.test.mjs`. The CLI (`--income`, `--carry-in`) and the page's "179 carried in" box use it, and the income can be read from the books.
 
 ## Invoices to send
 
