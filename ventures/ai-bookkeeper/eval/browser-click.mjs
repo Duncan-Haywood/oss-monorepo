@@ -195,6 +195,27 @@ const vtext = await page.locator("#vat").textContent();
 console.log("     docs:", await page.locator("#docs-status").textContent());
 check(/Net VAT to pay/.test(vtext) && /140\.00/.test(vtext), "the VAT table shows net VAT to pay of 140.00 (200.00 due less 60.00 reclaimed)");
 check(/VAT due on sales/.test(vtext) && /1000/.test(vtext) && /300/.test(vtext), "boxes 6 and 7 show sales and purchases ex VAT in whole pounds");
+
+// Mileage log and home office card (2026-10-21).
+await page.fill("#trip-date", "2026-05-02");
+await page.fill("#trip-miles", "100");
+await page.fill("#trip-purpose", "Client site visit");
+await page.click("#trip-add");
+await page.fill("#trip-date", "2026-05-09");
+await page.fill("#trip-miles", "50");
+await page.fill("#trip-purpose", "");
+await page.click("#trip-add");
+check(/business purpose/.test(await page.locator("#trip-status").textContent()), "a trip with no purpose is refused with a reason");
+await page.fill("#trip-purpose", "Supplier pickup");
+await page.click("#trip-add");
+await page.fill("#ho-sqft", "200");
+await page.click("#ho-set");
+const mtext = await page.locator("#mileage").textContent();
+console.log("     mileage:", mtext.slice(0, 160));
+check(/150/.test(mtext) && /108\.75/.test(mtext), "150 miles at the 2026 rate of 72.5 cents gives 108.75");
+check(/Home office 2026: 200 sq ft counted, 12 months/.test(mtext), "home office shows 200 sq ft for the 12 months");
+await page.click("text=Remove MI-1");
+check(/50/.test(await page.locator("#mileage").textContent()) && !/MI-1/.test(await page.locator("#mileage").textContent()), "removing a trip updates the table");
 check(errors.length === 0, `no page errors ${errors.join("; ")}`);
 await browser.close();
 server.close();
