@@ -69,9 +69,12 @@ How it stays fast and safe:
   file, a timeout) is marked retryable and listed in `needs_review_ids`; the
   command exits `2`. After a look, rerun with `--retry-retryable`.
 
-Current limits, stated plainly: RAW stills (`.CR3`, `.ARW`, `.NEF`, …) and
-camera-raw video are not decoded, so convert them to JPEG/TIFF first or they
-are listed for review. The analysis stage now measures each photo and clip
+Current limits, stated plainly: RAW stills (`.CR3`, `.CR2`, `.ARW`, `.NEF`,
+`.DNG`, …) are *scored* from the full-size JPEG preview the camera embedded
+(`raw_preview.py`, no RAW developer needed), but they are not developed: proxies
+and graded masters still need a JPEG/TIFF, and a RAW with no embedded preview
+keeps the sha256 stand-in scores. Camera-raw video is not decoded. The preview
+reader is tested on synthetic containers, not yet on real camera files. The analysis stage now measures each photo and clip
 from decoded frames (sharpness, exposure, contrast, motion, framing) and groups
 near-identical shots by perceptual hash, so a burst or repeated take
 contributes one frame to the reel, the best-scoring one. `framing` finds

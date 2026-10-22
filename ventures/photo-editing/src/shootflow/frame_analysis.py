@@ -25,9 +25,11 @@ import math
 import re
 import subprocess
 from dataclasses import dataclass
+import tempfile
 from pathlib import Path
 
 from shootflow.ffmpeg_media import FfmpegMediaError, FfmpegTools
+from shootflow.raw_preview import extract_preview, is_raw_path
 
 FRAME_WIDTH = 320
 FRAME_HEIGHT = 180
@@ -72,11 +74,28 @@ class FrameMetrics:
 def analyze_media(tools: FfmpegTools, source: Path, *, media_type: str) -> FrameMetrics:
     """Measure one photo or video; raise ``FfmpegMediaError`` if it cannot be decoded."""
 
+    if media_type == "photo" and is_raw_path(source):
+        return _analyze_raw_preview(tools, source)
     duration = _probe_duration(tools, source) if media_type == "video" else None
     frames = _decode_frames(tools, source, media_type=media_type, duration=duration)
     if not frames:
         raise FfmpegMediaError(f"ffmpeg decoded no frames from {source.name}")
     return metrics_from_frames(frames, duration_seconds=duration)
+
+
+def _analyze_raw_preview(tools: FfmpegTools, source: Path) -> FrameMetrics:
+    """Score a RAW still from the JPEG preview the camera embedded in it."""
+
+    preview = extract_preview(source)
+    if preview is None:
+        raise FfmpegMediaError(f"no embedded JPEG preview in {source.name}; develop it first")
+    with tempfile.TemporaryDirectory(prefix="shootflow-raw-") as scratch:
+        jpeg = Path(scratch) / "preview.jpg"
+        jpeg.write_bytes(preview)
+        frames = _decode_frames(tools, jpeg, media_type="photo", duration=None)
+    if not frames:
+        raise FfmpegMediaError(f"ffmpeg decoded no frames from the preview in {source.name}")
+    return metrics_from_frames(frames)
 
 
 def metrics_from_frames(
