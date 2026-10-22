@@ -39,7 +39,7 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
 
   --books FILE           the books (JSON); created on first import
   --example              start from the synthetic three-month example instead
-  import FILE --account CODE [--invert] [--day-first] [--decimal-comma] [--auto 0.85]
+  import FILE --account CODE [--invert] [--day-first] [--decimal-comma] [--year Y] [--auto 0.85]
   import FILE.txt|FILE.pdf                    statement text copied from a PDF, or the PDF itself via pdftotext (date, description, amount per line)
   import FILE.ofx --map OFXID=CODE,OFXID=CODE   a multi-account OFX file, one chart code per account
   review                 list lines waiting for an account
@@ -103,7 +103,7 @@ const asOf = flag("--as-of");
 const acctMap = flag("--map"), account = flag("--account"), from = flag("--from"), to = flag("--to"), auto = flag("--auto");
 let books = example ? analyze({ example: true }).books : file && existsSync(file) ? JSON.parse(readFileSync(file, "utf8")) : newBooks();
 const save = () => { if (file) writeFileSync(file, JSON.stringify(books, null, 1)); };
-const opts = { invert, dayFirst, decimalComma, ...(auto ? { autoPost: +auto } : {}) };
+const opts = { invert, dayFirst, decimalComma, ...(argv[0] === "import" && argv.includes("--year") ? { year: +flag("--year") } : {}), ...(auto ? { autoPost: +auto } : {}) };
 const [cmd, ...rest] = argv;
 const map = accountMap(books.accounts);
 const name = (c) => (c ? `${c} ${map.get(c)?.name ?? ""}` : "-");

@@ -49,3 +49,20 @@ test("a statement PDF printed by Chromium reads to the table's rows", async () =
   assert.match(text, /^2026-09-12 +Adobe Creative Cloud +54\.99$/m);
   assert.ok(text.indexOf("Deposits") < text.indexOf("Withdrawals"));
 });
+
+// Printed by LibreOffice 24.2 (Writer/Web export of an HTML table). A second generator beside Chromium; still not a real bank's file.
+test("a LibreOffice-printed statement reads like poppler, and says what is missing without a year", async (t) => {
+  const bytes = fx("statement-libreoffice.pdf");
+  const text = await pdfToText(bytes);
+  const r = spawnSync("pdftotext", ["-layout", new URL("./fixtures/statement-libreoffice.pdf", import.meta.url).pathname, "-"], { encoding: "utf8" });
+  if (!r.error) assert.equal(squash(text).replace(/\f/g, ""), squash(r.stdout).replace(/\f/g, ""));
+  assert.equal(readStatement(text).rows.length, 5);          // the header names March 2026
+  const bare = readStatement(text.replace("March 2026", "March"));
+  assert.equal(bare.rows.length, 0);
+  assert.match(bare.problems[0], /no year/);
+  const ok = readStatement(text.replace('March 2026', 'March'), { year: 2026 });
+  assert.deepEqual(ok.rows.map((x) => x.cents), [-575, 240000, -85000, -4219, 31]);
+  assert.equal(ok.rows[0].date, "2026-03-02");
+  assert.ok(checkRunningBalance(ok.rows).checked);
+  assert.equal(checkRunningBalance(ok.rows).breaks.length, 0);
+});
