@@ -757,3 +757,20 @@ test("s179Carryforward rolls a disallowed 179 forward and deducts it when income
   assert.equal(w.s179Income.deductible, 150000);
   assert.equal(w.s179Income.carryOut, 250000);
 });
+
+test("overlapping exports with identical same-day lines add only the new one, in either row order", () => {
+  const head = "Date,Description,Amount\n";
+  const first = head + "2026-03-14,Blue Bottle,-4.50\n2026-03-15,Blue Bottle,-4.50\n";
+  const second = head + "2026-03-15,Blue Bottle,-4.50\n2026-03-15,Blue Bottle,-4.50\n2026-03-16,Staples,-20.00\n";
+  const secondNewestFirst = head + "2026-03-16,Staples,-20.00\n2026-03-15,Blue Bottle,-4.50\n2026-03-15,Blue Bottle,-4.50\n";
+  for (const next of [second, secondNewestFirst]) {
+    const a = importStatement(newBooks(), first, "1000");
+    assert.equal(a.added, 2);
+    const b = importStatement(a.books, next, "1000");
+    assert.equal(b.added, 2, "the second coffee that day and the Staples line");
+    assert.equal(b.skipped, 1, "one 15th coffee was already held");
+    assert.equal(b.books.transactions.length, 4);
+    const c = importStatement(b.books, next, "1000");
+    assert.equal(c.added, 0, "re-importing the same file adds nothing");
+  }
+});
