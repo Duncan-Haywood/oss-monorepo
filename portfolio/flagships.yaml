@@ -61,7 +61,7 @@ flagships:
       CLI and agent engine. First tool of the new-home construction program.
     next: >-
       Open items only; landed work is in ventures/wall-framing-takeoff/README.md
-      and ROADMAP.md. Roof framing (gable: rafters, ridge, sheathing, shingle/felt quantities; CLI --roof) landed 2026-10-22, hip roofs (commons, hips, jacks, sheathing; hand-arithmetic tests only) too. Next: roof on the page, valleys and L-shaped roofs, floor subfloor cut-out, a floor drawing, several
+      and ROADMAP.md. Roof framing (gable: rafters, ridge, sheathing, shingle/felt quantities; CLI --roof) landed 2026-10-22, hip roofs too (CLI/engine, hand-arithmetic tests only). Roof on the page landed 2026-10-22 (checkbox, pooled order, browser click check). Next: hips on the page, valleys and L-shaped roofs, a floor drawing, several
       stairwells on the page; gable sheathing on the page, in the horizontal layout and reusing the offcut triangle (vertical-sheet order landed 2026-10-22);
       right-sized headers from a user table; a 2D reuse of opening cut-outs;
       click through the panel sheathing-weight field and the panel order and
@@ -90,7 +90,8 @@ flagships:
       Landed history (official Schematron, in-browser path, 20+ country mandate
       pages, credit-note links, JSON/UBL/CII/Factur-X arithmetic repair, FatturaPA
       IT-001..IT-018) lives in the README and git. Open: a repair tried on a real
-      ERP or Factur-X export, xref-stream PDFs, a page button for PDFs; verify the
+      ERP or Factur-X export (xref-stream PDF repair landed 2026-10-22 on a hand-built
+      fixture; open the result in veraPDF/a viewer), a page button for PDFs; verify the
       FatturaPA code lists, tolerances and IT-018 sequences against the current
       specification and add a full FatturaPA XSD check; refresh the Bulgaria page
       when its draft passes or changes; the NLCIUS and RO_CIUS rules themselves

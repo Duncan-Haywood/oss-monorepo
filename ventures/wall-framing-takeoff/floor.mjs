@@ -144,6 +144,7 @@ export function layoutFloor(f, plan) {
   const rest = f.depth - nFull * sheet.width;
   for (let k = 0; k < nFull + (rest > EPS ? 1 : 0); k++) courses.push({ y: k * sheet.width, width: k < nFull ? sheet.width : rest });
   const sheetPieces = [];
+  const holes = openings.map((o) => ({ x0: o.left + THICK / 2, x1: o.right - THICK / 2, y0: o.y, y1: o.y + o.depth }));
   courses.forEach((c, k) => {
     // alternate courses start on the joist centre nearest half a sheet in, so joints stagger
     const lead = k % 2 ? centres.filter((x) => x <= sheet.length / 2 + EPS).pop() : 0;
@@ -159,6 +160,18 @@ export function layoutFloor(f, plan) {
     }
     let prev = 0;
     for (const x of [...cuts, f.width]) { c.pieces.push({ x: prev, length: x - prev }); prev = x; }
+    // The stairwell is open between the trimmers and the headers: a piece wholly inside it is dropped, one that the
+    // opening crosses over the course's full width is shortened (ending on a trimmer), and one it only bites into
+    // keeps its full rectangle with a notch to cut out.
+    for (const h of holes) {
+      if (h.y1 <= c.y + EPS || h.y0 >= c.y + c.width - EPS) continue;
+      const through = h.y0 <= c.y + EPS && h.y1 >= c.y + c.width - EPS;
+      c.pieces = c.pieces.flatMap((p) => {
+        if (h.x1 <= p.x + EPS || h.x0 >= p.x + p.length - EPS) return [p];
+        if (!through) return [{ ...p, notches: [...(p.notches || []), { x: Math.max(h.x0, p.x), y: Math.max(h.y0, c.y), width: Math.min(h.x1, p.x + p.length) - Math.max(h.x0, p.x), depth: Math.min(h.y1, c.y + c.width) - Math.max(h.y0, c.y) }] }];
+        return [[p.x, Math.min(h.x0, p.x + p.length)], [Math.max(h.x1, p.x), p.x + p.length]].filter(([a, b]) => b - a > 3).map(([a, b]) => ({ ...p, x: a, length: b - a })); // a sliver under 3 in is the offcut, not a piece
+      });
+    }
     for (const p of c.pieces) sheetPieces.push({ length: p.length, width: c.width, course: k });
   });
   const stripWidths = [...new Set(courses.map((c) => c.width))];
@@ -174,11 +187,12 @@ export function layoutFloor(f, plan) {
     if (w < sheet.width - EPS) rip += need;
     sheetRows.push({ width: w, count: need, pieces: ps.length });
   }
-  const area = (f.width * f.depth) / 144;
+  const area = (f.width * f.depth - holes.reduce((a, h) => a + (h.x1 - h.x0) * (h.y1 - h.y0), 0)) / 144;
+  const notched = courses.reduce((n, c) => n + (c.pieces || []).filter((p) => p.notches).length, 0);
   const sheetArea = (sheet.width * sheet.length) / 144;
   if (rest > EPS) notes.push(`The last subfloor course is ${formatInches(rest)} wide, ripped from ${rip} sheet${rip === 1 ? "" : "s"}; its long edge runs across the joists, so block or use tongue-and-groove sheets.`);
   if (f.beam != null) notes.push(`Joists butt over the beam at ${formatLength(f.beam)}; whether they butt, lap or hang from it is the framer's and engineer's call.`);
-  if (openings.length) notes.push(`${openings.length} opening${openings.length === 1 ? "" : "s"}: doubled headers at both ends and doubled trimmer joists; the subfloor is bought for the whole floor and the cut-out is not deducted. Header size, hangers and the trimmers' load are the engineer's call.`);
+  if (openings.length) notes.push(`${openings.length} opening${openings.length === 1 ? "" : "s"}: doubled headers at both ends and doubled trimmer joists; the subfloor is cut around the clear opening${notched ? ` (${notched} sheet${notched === 1 ? "" : "s"} notched, the rest shortened or left out)` : ""}. Header size, hangers and the trimmers' load are the engineer's call.`);
   if (doubled.length) notes.push(`${doubled.length} doubled joist line${doubled.length === 1 ? "" : "s"} under walls that run along the joists; a wall across the joists, or over a bay, needs blocking or a beam, which this does not size.`);
   notes.push("Joist size and spacing are your inputs and are not checked against a span table or code; bearing, hangers and fasteners are not in the takeoff.");
   return {
@@ -211,7 +225,7 @@ export function floorText(l) {
   out.push(`  ${l.centres.length} joist lines (${l.joists.length} pieces), ${l.rims.length} rim board${l.rims.length === 1 ? "" : "s"}, ${l.blocks.length} blocks${l.doubled.length ? `, ${l.doubled.length} doubled under walls` : ""}${l.openings.length ? `, ${l.openings.length} opening${l.openings.length === 1 ? "" : "s"} (${l.openings.map((o) => formatInches(o.clearWidth) + " clear").join(", ")})` : ""}`);
   out.push(`  Joist centres: ${l.centres.map((c) => formatInches(c)).join(", ")}`);
   out.push(`  Subfloor: ${l.sheets.count} sheets of ${SHEET.width} x ${SHEET.length} in for ${l.sheets.area.toFixed(0)} sq ft (${(100 * l.sheets.waste).toFixed(1)}% offcut)`);
-  for (const c of l.courses) out.push(`    course at ${formatLength(c.y)} (${formatInches(c.width)} wide): ${c.pieces.map((p) => formatInches(p.length)).join(" + ")}`);
+  for (const c of l.courses) out.push(`    course at ${formatLength(c.y)} (${formatInches(c.width)} wide): ${c.pieces.map((p) => formatInches(p.length) + (p.notches ? ` (notch ${p.notches.map((n) => `${formatInches(n.width)} x ${formatInches(n.depth)}`).join(", ")})` : "")).join(" + ")}`);
   for (const n of l.notes) out.push(`  - ${n}`);
   return out;
 }

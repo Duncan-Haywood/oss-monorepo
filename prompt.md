@@ -94,9 +94,9 @@ add it to `prompts/process/backlog/` in the same PR.
 
 The process track (about 10% of runs) critiques how work gets done and ships
 fixes from [`prompts/process/backlog/`](prompts/process/backlog/README.md)
-(`promptctl.py backlog`). The review track does the rest of the improving. It measures the records
-(`promptctl.py measure`) and decides whether a candidate prompt wins. It
-writes the next candidate and fixes the documentation that the friction
-reports single out. Then it checks whether the last review's changes helped.
+(`promptctl.py backlog`). The review track does the rest: it measures the
+records (`promptctl.py measure`), decides whether a candidate prompt wins,
+writes the next candidate, fixes the documentation the friction reports
+single out, and checks whether the last review's changes helped.
 The goals in `prompts/goals.md` belong to the owner: a review proposes
 changes to them and never makes them.

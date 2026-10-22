@@ -1132,6 +1132,18 @@ or `ventures`) until its success rate passes 80% over 20 runs?
   drift report (reduced pass).
 - Result: (next review)
 
+## E71: review 2026-10-22
+
+- Change: `prompts/steering.md` cut from 161 to 136 lines (budget 120): the
+  rule/guideline example table, the "habits" list, the JSON deviation example
+  and the Measuring paragraph folded into the prose that already says the same.
+  `prompt.md` closing paragraph rewrapped.
+- Metric: `measure` "Instruction lines" for steering.md and friction reports
+  naming it, over the next 40 runs (baseline: 0 friction reports on it; the
+  cut is for read cost, not for a known failure).
+- Decisions: research candidate 1 kept (retire verdict fires on one disclosed
+  integrity caveat; E55 proposal stands). ventures 2, process 2, review 2
+  unchanged (overlap / too few runs). `derived/` regenerated (fetch ran, 50 PRs).
 ## E70: review 2026-10-22 (reduced pass)
 
 - Change: `prompts/review/prompt-1.md` step 1 now names `measure --section`

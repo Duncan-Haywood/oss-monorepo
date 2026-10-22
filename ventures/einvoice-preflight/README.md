@@ -671,10 +671,14 @@ The same command and endpoint take a `CrossIndustryInvoice` file
 `pdf_base64`): the embedded XML goes through the CII repair and the PDF is
 extended by an incremental update (all original bytes kept, a newer copy of the
 attachment appended). The printed pages are not re-rendered, so if they show
-wrong amounts, re-issue the PDF from the source system. PDFs with compressed
-cross-reference streams or encryption are refused or returned with only the
-corrected XML. Tested on PDFs built by this repo's own writer (plain and
-Flate streams); no real ERP or Factur-X export tried.
+wrong amounts, re-issue the PDF from the source system. A PDF 1.5 file whose
+newest cross-reference is a stream (most modern generators) gets an appended
+uncompressed xref stream (`/W [1 4 2]`, `/Prev` chained) instead of a table
+(2026-10-22). Encrypted PDFs, or ones whose xref dictionary cannot be read, come
+back with only the corrected XML. Tested on PDFs built by this repo's own writer
+(plain and Flate streams, classic table and a hand-built xref-stream file); no
+real ERP or Factur-X export tried, so a PDF viewer or veraPDF opening the
+result is the open check.
 Same contract as UBL: only amounts are edited, in place: each line's
 `LineTotalAmount` (quantity x net price / basis quantity), each header
 `ApplicableTradeTax` block's `BasisAmount` and `CalculatedAmount`, and the
