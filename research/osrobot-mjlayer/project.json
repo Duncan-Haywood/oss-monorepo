@@ -1,0 +1,6 @@
+{
+ "theme": "osrobot",
+ "title": "How much force can a feeding-arm tip apply to a lip before the tissue bottoms out on bone?",
+ "lede": "with tissue as a 5 to 20 mm layer bonded to bone at 4 to 45 kPa, the force that indents it 30 % is 0.05 to 9 N, 1.3 to 1000 times below the simulated 12.6 to 53 N trial forces, so the arm needs a newton-scale force cap, not 65 N (published bottom-effect corrections, no FE run)",
+ "summary": "<code>osrobot-mjmodulus</code> showed the half-space Hertz model is out of range at published 4 to 45&nbsp;kPa face moduli. Here the tissue is a layer of 5 to 20&nbsp;mm bonded to rigid bone, using two published bottom-effect polynomials (Dimitriadis and Garcia, as tabulated by Dal Fabbro et al., &nu;&nbsp;=&nbsp;0.5). The force that indents the layer by 30&nbsp;% of its thickness is 0.05 to 9.4&nbsp;N across tip radii 4 to 15&nbsp;mm; for a 15&nbsp;mm lip and the 4&nbsp;mm tip it is 0.2 to 2.2&nbsp;N. The simulated trial forces (12.6 to 53.3&nbsp;N) exceed it by 1.3 to 1000 times, and at them the model's depth is usually beyond the layer thickness. The two corrections agree within about 40&nbsp;%. Limits: homogeneous linear bonded layer, polynomial fits extrapolated from micro-scale indentation, the 30&nbsp;% limit is my choice, thicknesses are lip values from one summary, no finite-element check. Not a safety case."
+}
