@@ -1491,6 +1491,12 @@ export function analyze(input = {}) {
   }
   const b = bocpd(bvals, { ...(rho ? { rho, prior: { ...defaultPrior(prewhiten(values, rho)), mu: median(values) } } : {}), hazardLambda: Number(o.hazardLambda) || 100, lag: Math.max(1, Math.floor(Number(o.lag) || 5)), model: model === 'trend' ? 'mean' : model, exposure, dispersion: phi ?? 1, nbSize: isFinite(nbSize) && nbSize > 0 ? nbSize : 0 });
   const det = peaks(b.changeProb, Number(o.threshold) || 0.5);
+  // joint AR(1) fits use their own likelihood, so no range is offered for them
+  let ranges = null;
+  if (!joint && o.intervals !== false) {
+    const nbOn = isFinite(nbSize) && nbSize > 0;
+    ranges = changeIntervals(p.changepoints, values.length, nbOn ? makeCost(values, 'negbin', sigma, 0, exposure, nbSize) : makeCost(values, model, sigma, 0, exposure), { minSegment, level: 0.95 });
+  }
   const changes = p.changepoints.map((i, k) => {
     const before = segments[k];
     const after = segments[k + 1];
@@ -1514,6 +1520,7 @@ export function analyze(input = {}) {
       sdBefore: before.sd,
       sdAfter: after.sd,
       bocpdProbWithin3: round(near, 3),
+      ...(ranges ? { range95: { from: labels[ranges[k].from], to: labels[ranges[k].to], fromIndex: ranges[k].from, toIndex: ranges[k].to } } : {}),
     };
   });
   const summary = summarize({ n: values.length, column, model, changes, det, labels, prob: b.changeProb, skipped });
@@ -1544,6 +1551,32 @@ export function analyze(input = {}) {
     ...(period || o.trend || holidayFit ? { adjusted: values.map((v, t) => round(exposure ? v / exposure[t] : v)) } : {}),
     summary,
   };
+}
+
+/**
+ * Where exactly did a change happen? A credible range for each PELT change date: with the neighbouring changes held
+ * fixed, every start k of the later segment is weighted exp(-(cost(k) - min cost) / 2) (the profile likelihood, since
+ * the cost is -2 log-likelihood), and the most likely starts that together hold `level` of the weight are returned as
+ * the first and last of them. It is a likelihood range under the fitted model, not an exact frequentist interval;
+ * eval/change-interval.mjs measures how often it holds the planted date.
+ */
+export function changeIntervals(changepoints, n, cost, { minSegment = 2, level = 0.95 } = {}) {
+  const ms = Math.max(1, Math.floor(minSegment));
+  return changepoints.map((c, j) => {
+    const a = j ? changepoints[j - 1] : 0;
+    const b = j + 1 < changepoints.length ? changepoints[j + 1] : n;
+    const lo = a + ms, hi = b - ms;
+    if (hi < lo) return { index: c, from: c, to: c, level };
+    const ks = [], cs = [];
+    for (let k = lo; k <= hi; k++) { ks.push(k); cs.push(cost(a, k) + cost(k, b)); }
+    const m = Math.min(...cs);
+    const w = cs.map((v) => Math.exp(-(v - m) / 2));
+    const tot = w.reduce((u, v) => u + v, 0);
+    const order = w.map((_, i) => i).sort((u, v) => w[v] - w[u]);
+    let acc = 0, from = Infinity, to = -Infinity;
+    for (const i of order) { acc += w[i] / tot; from = Math.min(from, ks[i]); to = Math.max(to, ks[i]); if (acc >= level) break; }
+    return { index: c, from, to, level };
+  });
 }
 
 /**
