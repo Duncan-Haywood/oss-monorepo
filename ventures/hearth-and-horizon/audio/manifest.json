@@ -14,6 +14,11 @@
     "seconds": 677.1,
     "voice": "en_US-ljspeech-high"
   },
+  "isidore-and-the-angels-who-ploughed": {
+    "bytes": 2663107,
+    "seconds": 443.8,
+    "voice": "en_US-ljspeech-high"
+  },
   "kevin-and-the-blackbird": {
     "bytes": 3579993,
     "seconds": 596.6,
@@ -49,9 +54,19 @@
     "seconds": 1260.2,
     "voice": "en_US-ljspeech-high"
   },
+  "the-patches": {
+    "bytes": 7012471,
+    "seconds": 1168.7,
+    "voice": "en_US-ljspeech-high"
+  },
   "the-slowest-bell-on-the-moon": {
     "bytes": 8949259,
     "seconds": 1491.4,
+    "voice": "en_US-ljspeech-high"
+  },
+  "therese-and-the-small-way": {
+    "bytes": 3212453,
+    "seconds": 535.3,
     "voice": "en_US-ljspeech-high"
   },
   "thirty-nine-minutes": {

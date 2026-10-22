@@ -36,6 +36,8 @@
       <itunes:summary>A bedtime story about Saint Isidore the Farmer, who stopped his ploughing each morning to pray, and about the old legend that angels finished his furrows while he did. Told as the old story tells it, with a note for grown-ups on what is history and what is legend. For ages 3 to 8, about ten minutes read aloud. His feast day is the 15th of May.</itunes:summary>
       <itunes:episodeType>full</itunes:episodeType>
       <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://example.invalid/hearth-and-horizon/audio/isidore-and-the-angels-who-ploughed.mp3" length="2663107" type="audio/mpeg"/>
+      <itunes:duration>0:07:24</itunes:duration>
     </item>
     <item>
       <title>Kevin and the Blackbird</title>
@@ -58,6 +60,8 @@
       <itunes:summary>A cargo airship carrying the only insulin shipment for a remote island cannot moor in the gusty lee of the island's mountain, and the captain wants to try anyway. A sixty-three-year-old mooring master says no, and then has to find a way to say yes to the thing that matters, which costs her island everything else in the hold.</itunes:summary>
       <itunes:episodeType>full</itunes:episodeType>
       <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://example.invalid/hearth-and-horizon/audio/the-patches.mp3" length="7012471" type="audio/mpeg"/>
+      <itunes:duration>0:19:29</itunes:duration>
     </item>
     <item>
       <title>Thérèse and the Small Way</title>
@@ -68,6 +72,8 @@
       <itunes:summary>A bedtime story about Saint Thérèse of Lisieux, who as a little girl chose the whole basket of dolls' clothes, and who as a grown-up found that she was too small to climb to heaven and decided to be carried instead. Told from her own writing, with a note for grown-ups on what is history. For ages 3 to 8, about ten minutes read aloud. Her feast day is the 1st of October.</itunes:summary>
       <itunes:episodeType>full</itunes:episodeType>
       <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://example.invalid/hearth-and-horizon/audio/therese-and-the-small-way.mp3" length="3212453" type="audio/mpeg"/>
+      <itunes:duration>0:08:55</itunes:duration>
     </item>
     <item>
       <title>Francis and the Wolf of Gubbio</title>
