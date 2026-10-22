@@ -676,6 +676,18 @@ yet in the CLI or page, and the income is supplied, not read from the P&L.
 
 `node cli.mjs profile name "Studio Co"` (also `address`, `email`, `taxId`, `payTo`, `terms`) stores your details in the books; `node cli.mjs invoice 7 --out inv-7.html [--as-of DATE]` writes one invoice or credit note as a single self-contained HTML page that prints to PDF. Lines use the document CSV's optional `description` column (else the account name; account 2100 shows as sales tax); it then shows credits applied, payments received, the balance due, a Paid stamp or the days overdue, and "How to pay" only while a balance is open. Everything is HTML-escaped. A bill is refused. Test: `invoice.test.mjs` (hand-written documents only; the layout was not checked on paper). On the page: "Your details for printed invoices" under the invoices card saves the same fields, and each open invoice in the write-off list has a Print button that opens the invoice in a new tab (a download if pop-ups are blocked) for the browser's Save as PDF; clicked through in headless Chromium with `eval/browser-click.mjs`. Paid invoices and credit notes have no button yet.
 
+## Paying bills
+
+`node cli.mjs paybills [--as-of DATE] [--days N] [--reserve AMOUNT] [--json]`
+plans when to pay each open bill. It takes the cash forecast (bank balance,
+recurring items, invoices expected in), removes the bills, and puts each bill on
+its due date, or tomorrow if it is already late. A bill that would push the
+balance under the reserve slides to the first day from which it fits, and one
+that never fits is listed with the shortfall. Late and older bills get the cash
+first. Verification: node tests on hand-written ledgers (`billpay.test.mjs`),
+not tried on real books; it assumes no early-payment discounts or late fees. It
+is a plan to read; nothing is paid from here, and it is not on the page yet.
+
 ## Payment reminders
 
 `node cli.mjs reminders [--as-of DATE] [--min AMOUNT] [--out DIR]` lists each
