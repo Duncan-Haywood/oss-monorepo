@@ -17,6 +17,7 @@ from xml.sax.saxutils import escape, quoteattr
 import fcntl
 
 from .checks import check_invoice
+from .creditlink import credit_link_findings
 from .facturx import (
     EmbeddedInvoiceError,
     envelope_note,
@@ -793,6 +794,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.invoice.is_dir():
         _add_batch_duplicate_findings(reports, invoices)
+        links = credit_link_findings(invoices)
+        for path, errors in reports:
+            errors.extend(links.get(path, []))
 
     errors = [error for _, invoice_errors in reports for error in invoice_errors]
     has_read_errors = bool(read_errors)
