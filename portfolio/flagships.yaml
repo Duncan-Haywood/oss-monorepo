@@ -61,7 +61,7 @@ flagships:
       CLI and agent engine. First tool of the new-home construction program.
     next: >-
       Open items only; landed work is in ventures/wall-framing-takeoff/README.md
-      and ROADMAP.md. Roof framing (gable: rafters, ridge, sheathing, shingle/felt quantities; CLI --roof) landed 2026-10-22. Next: roof on the page, hips and valleys, floor subfloor cut-out, a floor drawing, several
+      and ROADMAP.md. Roof framing (gable: rafters, ridge, sheathing, shingle/felt quantities; CLI --roof) landed 2026-10-22, hip roofs (commons, hips, jacks, sheathing; hand-arithmetic tests only) too. Next: roof on the page, valleys and L-shaped roofs, floor subfloor cut-out, a floor drawing, several
       stairwells on the page; gable sheathing on the page, in the horizontal layout and reusing the offcut triangle (vertical-sheet order landed 2026-10-22);
       right-sized headers from a user table; a 2D reuse of opening cut-outs;
       click through the panel sheathing-weight field and the panel order and
