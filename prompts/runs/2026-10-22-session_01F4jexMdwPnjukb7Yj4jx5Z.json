@@ -17,7 +17,7 @@
   "tool_calls": null,
   "task": null,
   "projects": [],
-  "pr": null,
+  "pr": 9602,
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -38,7 +38,7 @@
   ],
   "writeups": [],
   "goal": null,
-  "notes": " redteam on shift-roster-builder/calc.mjs: 8 seeded, 4 caught (50%); 2 equivalent, 2 gaps closed with new tests (meal cut threshold, break nearest middle); rerun catch_rate_after_fix 1.0 (6/6 non-equivalent... see tally). No real defects found. Scheduled prompt asked for revenue products; routed track was redteam so followed the router.",
+  "notes": " redteam on shift-roster-builder/calc.mjs: 8 seeded, 4 caught (50%); 2 equivalent, 2 gaps closed with new tests (meal cut threshold, break nearest middle); rerun catch_rate_after_fix 1.0 (2 of 2 gaps now caught). No real defects found. Scheduled prompt asked for revenue products; routed track was redteam so followed the router.",
   "corrections": [],
   "redteam": {
     "campaigns": [
