@@ -86,3 +86,23 @@ test("a wall along the joists gets a companion joist on its side, in the cut lis
   assert.equal(rows.reduce((s, r) => s + r.qty, 0), 4);
   assert.equal(layoutFloor({ ...sampleFloor(), doubleUnder: [900] }, plan()).ok, false);
 });
+
+test("a stairwell cuts joists to tails, doubles trimmers and headers, and removes subfloor", () => {
+  const base = layoutFloor({ ...sampleFloor(), beam: undefined, depth: 240, joist: "2x10" }, { ...plan(), stock: [{ size: "2x10", length: 240, price: 1 }] });
+  const l = layoutFloor({ ...sampleFloor(), beam: undefined, depth: 240, stair: { x: 100, y: 60, width: 36, length: 120 } }, { ...plan(), stock: [{ size: "2x10", length: 240, price: 1 }] });
+  assert.ok(l.ok, JSON.stringify(l.errors));
+  const s = l.stairwell;
+  assert.ok(s.width >= 36 && s.x <= 100 + 1e-6 && s.length === 120);
+  assert.equal(s.headers.length, 4);
+  assert.ok(s.tails >= 2 && s.tails % 2 === 0);
+  // every cut joist's two tails stay clear of the opening and its headers
+  for (const j of l.joists.filter((j) => j.tail)) assert.ok(j.y + j.length <= 60 - 3 + 1e-6 || j.y >= 60 + 120 + 3 - 1e-6);
+  assert.ok(l.joists.filter((j) => j.trimmer).length === 2);
+  assert.ok(l.sheets.area < base.sheets.area);
+  assert.ok(floorCuts(l).some((c) => c.kind === "stairwell header" && c.qty === 4 || c.kind === "stairwell header"));
+});
+
+test("a stairwell that crosses the beam or hugs the edge is rejected", () => {
+  assert.equal(layoutFloor({ ...sampleFloor(), stair: { x: 100, y: 150, width: 36, length: 40 } }, plan()).ok, false);
+  assert.equal(layoutFloor({ ...sampleFloor(), stair: { x: 100, y: 2, width: 36, length: 40 } }, plan()).ok, false);
+});

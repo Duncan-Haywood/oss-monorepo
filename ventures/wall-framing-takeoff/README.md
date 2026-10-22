@@ -254,3 +254,14 @@ Set `"gable": {"pitch": 6}` on a wall (rise per 12 in of run) to frame a symmetr
 ## Shop panels
 
 `node cli.mjs plan.json --panel-max=12ft` (or the "Longest shop panel" box on the page, then the drawings button) splits each wall on the drawings into panels no longer than the limit. `panels.mjs` picks the fewest panels, then the most even widths, and cuts only where no stud, king, jack, cripple, header, sill or block crosses the line, so each panel is built from whole members; plates are cut to panel length and the end studs of neighbouring panels are nailed together on site. A wide opening can leave no clear cut line inside the limit; that panel is flagged "over limit", not hidden. Tested on the sample house (`panels.test.mjs`, `drawings.test.mjs`, `cli.test.mjs`) and clicked through in headless Chromium (`eval-browser-click.mjs`). Add `--sheathing-psf=1.5` (lb per sq ft; 1.5 is typical of 7/16 in OSB or 1/2 in plywood, check the data sheet) and each panel also shows its sheathing weight (panel width times wall height, less the rough sizes of the openings inside it; none on gable walls) and a total (`panelParts` `sheathLb`, `totalLb`; node-tested against a hand count; engine, CLI and the "Sheathing weight on shop panels" page box, which feeds the drawings download; not yet clicked through in a browser). `--panel-order` (with `--panel-max`) prints the lumber order for the shop panels: every panel's pieces, plates trimmed to panel length, pooled and cut from stock (`panelOrder` in `panels.mjs`), beside the whole-wall order. On the sample house at 12 ft: 250 boards at 2385.88 against 253 boards at 2384.16 for whole walls (each plate break costs a kerf and shifts the packing; nailers are pooled in with `--sheathing`). `--pull-lists` adds a pull list per panel: which boards (size, length, number) it is built from and the cuts on each, with a note when a board also feeds another panel (`assignBoards`, greedy: keep a board's cuts together in one panel where the demand allows; every panel piece placed exactly once, node-tested). CLI and engine only, no page control. A layout aid, not engineering: lifting, bracing and shipping are the builder's call.
+
+## Floor stairwell openings (2026-10-22)
+
+`floor.stair: {x, y, width, length}` (inches; x from the left edge, y from the
+front edge, within one joist span) cuts a stairwell. The width snaps out to the
+joist lines either side, which get a doubled trimmer; joists across it become
+tails running to a doubled header at each end of the length. Headers, trimmers
+and tails join the lumber order. Subfloor pieces inside the opening are
+dropped on courses it fully spans; partly covered courses still count whole
+sheets. Header size, hangers and the stair framing are not sized. Engine and
+CLI plan files only, node-tested (`node --test floor.test.mjs`), not the page.
