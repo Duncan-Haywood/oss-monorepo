@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of mean rollouts against cap as a multiple of the fixed test size: the re-tuned test costs most at a cap equal to the fixed size and falls toward the plain Wald figure as the cap grows; the fixed test is a flat line at 181">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Mean rollouts against the cap, p1 = 1% against p0 = 5%</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="254.2" y2="254.2" stroke="#ddd"/><text x="58" y="258.2" text-anchor="end" font-family="sans-serif" font-size="11">50</text>
+<line x1="64" x2="624" y1="184.3" y2="184.3" stroke="#ddd"/><text x="58" y="188.3" text-anchor="end" font-family="sans-serif" font-size="11">100</text>
+<line x1="64" x2="624" y1="114.5" y2="114.5" stroke="#ddd"/><text x="58" y="118.5" text-anchor="end" font-family="sans-serif" font-size="11">150</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1</text>
+<text x="120.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1.1</text>
+<text x="176.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1.2</text>
+<text x="232.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1.3</text>
+<text x="288.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1.4</text>
+<text x="344.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1.5</text>
+<text x="484.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1.75</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">2</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">cap as a multiple of the fixed size</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">mean rollouts</text>
+<polyline points="64.0,174.1 120.0,180.4 176.0,186.1 232.0,185.9 288.0,191.2 344.0,192.3 484.0,197.9 624.0,197.4" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="174.1" r="3" fill="#c0392b"/>
+<circle cx="120.0" cy="180.4" r="3" fill="#c0392b"/>
+<circle cx="176.0" cy="186.1" r="3" fill="#c0392b"/>
+<circle cx="232.0" cy="185.9" r="3" fill="#c0392b"/>
+<circle cx="288.0" cy="191.2" r="3" fill="#c0392b"/>
+<circle cx="344.0" cy="192.3" r="3" fill="#c0392b"/>
+<circle cx="484.0" cy="197.9" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="197.4" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">re-tuned (both errors <= 0.05)</text>
+<polyline points="64.0,198.7 120.0,196.6 176.0,195.1 232.0,193.8 288.0,193.1 344.0,192.3 484.0,191.3 624.0,190.9" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="198.7" r="3" fill="#1f6fb2"/>
+<circle cx="120.0" cy="196.6" r="3" fill="#1f6fb2"/>
+<circle cx="176.0" cy="195.1" r="3" fill="#1f6fb2"/>
+<circle cx="232.0" cy="193.8" r="3" fill="#1f6fb2"/>
+<circle cx="288.0" cy="193.1" r="3" fill="#1f6fb2"/>
+<circle cx="344.0" cy="192.3" r="3" fill="#1f6fb2"/>
+<circle cx="484.0" cy="191.3" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="190.9" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">Wald boundaries + sign rule (error above 0.05 for caps up to 1.5)</text>
+<polyline points="64.0,71.2 120.0,71.2 176.0,71.2 232.0,71.2 288.0,71.2 344.0,71.2 484.0,71.2 624.0,71.2" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="71.2" r="3" fill="#2e8b57"/>
+<circle cx="120.0" cy="71.2" r="3" fill="#2e8b57"/>
+<circle cx="176.0" cy="71.2" r="3" fill="#2e8b57"/>
+<circle cx="232.0" cy="71.2" r="3" fill="#2e8b57"/>
+<circle cx="288.0" cy="71.2" r="3" fill="#2e8b57"/>
+<circle cx="344.0" cy="71.2" r="3" fill="#2e8b57"/>
+<circle cx="484.0" cy="71.2" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">fixed-size test</text>
+</svg>
