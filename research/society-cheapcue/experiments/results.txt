@@ -1,0 +1,50 @@
+== A. yield-all baseline (r=0.3, u=0.2, wu=3, k=3, d=1; nobody signals)
+# urgent normal robots crowd
+1.130 1.051 1.000 1.047
+
+== B. reader fleet, cN=0.6, urgent cost cU=rho*cN, e=0
+# rho urgent_signals normal_fake precision urgent normal robots crowd
+1.00 0.916 0.025 0.902 1.311 1.103 1.335 1.201
+0.75 0.973 0.025 0.907 1.147 1.103 1.318 1.174
+0.50 0.992 0.025 0.909 0.990 1.103 1.313 1.150
+0.35 0.996 0.025 0.909 0.898 1.103 1.312 1.137
+0.25 0.998 0.025 0.909 0.837 1.103 1.312 1.128
+0.10 0.999 0.025 0.910 0.746 1.103 1.311 1.115
+0.00 0.999 0.025 0.910 0.686 1.103 1.311 1.107
+
+== C. urgent people's gain over yield-all (positive = urgent better off), by rho and cN, e=0
+# rho cN=0.2 cN=0.4 cN=0.6 cN=0.8 cN=1.2
+1.00 -0.045 -0.007 -0.181 -0.381 -0.476
+0.75 +0.005 +0.098 -0.018 -0.173 -0.450
+0.50 +0.056 +0.200 +0.140 +0.043 -0.172
+0.35 +0.086 +0.261 +0.232 +0.168 +0.024
+0.25 +0.106 +0.301 +0.293 +0.250 +0.149
+0.10 +0.137 +0.362 +0.384 +0.371 +0.333
+0.00 +0.157 +0.402 +0.444 +0.452 +0.453
+
+== D. crowd cost minus yield-all (negative = crowd better off), by rho and cN, e=0
+# rho cN=0.2 cN=0.4 cN=0.6 cN=0.8 cN=1.2
+1.00 +0.280 +0.169 +0.155 +0.192 +0.251
+0.75 +0.273 +0.153 +0.127 +0.143 +0.214
+0.50 +0.266 +0.138 +0.104 +0.107 +0.140
+0.35 +0.261 +0.130 +0.090 +0.089 +0.107
+0.25 +0.259 +0.124 +0.082 +0.077 +0.088
+0.10 +0.254 +0.116 +0.069 +0.060 +0.062
+0.00 +0.251 +0.110 +0.060 +0.049 +0.045
+
+== E. largest rho (cN best of the grid 0.1..1.5) at which urgent people still gain over yield-all, by reading error e
+# e rho_max best_cN gain_at_rho_max
+0.0 1.000 0.3 +0.018
+0.1 0.750 0.3 +0.007
+0.2 0.400 0.3 +0.008
+
+== F. perfect reading (urgentdoor reader) cost to normal people versus yield-all: the transfer the signal cannot avoid
+# urgent_gain normal_loss robots_gain crowd_change
++0.453 +0.036 -0.294 +0.045
+
+== G. robot share, rho=0.25, cN=0.6: urgent gain / crowd change vs yield-all at the same share
+# robots urgent_gain normal_change crowd_change
+0.1 -0.014 +0.021 +0.029
+0.3 +0.293 +0.052 +0.082
+0.5 +0.436 +0.087 +0.331
+0.7 +0.376 +0.230 +0.850
