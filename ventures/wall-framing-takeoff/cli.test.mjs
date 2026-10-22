@@ -108,3 +108,22 @@ test("--floor reads a stairwell opening with feet-and-inches lengths", async () 
   assert.equal(code, 0, out);
   assert.match(out, /1 opening \(.* clear\)/);
 });
+
+test("--roof lays a gable roof and orders rafters with the walls and floor", async () => {
+  const { sampleRoof } = await import("./roof.mjs");
+  const plan = { ...samplePlan(), roof: { ...sampleRoof(), width: "28ft", length: "40ft" } };
+  const { code, out } = main(["p.json", "--roof"], () => JSON.stringify(plan));
+  assert.equal(code, 0);
+  assert.match(out, /ROOF/);
+  assert.match(out, /62 2x8 rafters/);
+  assert.match(out, /rafter$/m);
+  assert.match(out, /Roofing: .* squares -> \d+ bundles/);
+});
+
+test("--roof without a roof object exits 2 and a too-long rafter exits 1", async () => {
+  const { sampleRoof } = await import("./roof.mjs");
+  assert.equal(main(["p.json", "--roof"], () => JSON.stringify(samplePlan())).code, 2);
+  const r = main(["p.json"], () => JSON.stringify({ ...samplePlan(), roof: { ...sampleRoof(), pitch: 9 } }));
+  assert.equal(r.code, 1);
+  assert.match(r.out, /roof has problems/);
+});
