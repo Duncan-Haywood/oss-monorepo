@@ -576,7 +576,7 @@ wrong sign); a pair of lines that sum to it; a gap divisible by 9 (two digits sw
 when typing an amount); lines dated within 5 days after the statement date. It only
 points at lines; it never edits the books. Engine: `reconcile` in `reconcile.mjs`
 (`--json` gives the data). Checked by node tests on hand-written ledgers only; the
-hints are a search over lines, not a proof, and no real statement was tried. It
+hints are a search over lines, not a proof, and no real statement was tried. The page has a card for it (account, statement date, closing balance; the difference and the hints in a list; clicked through in headless Chromium with `eval/browser-click.mjs`, 2026-10-22). It
 complements the automatic check in `checks`, which needs a closing balance in the
 imported file.
 
