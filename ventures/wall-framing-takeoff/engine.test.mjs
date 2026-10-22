@@ -654,3 +654,20 @@ test("advanced framing: a tee next to an opening falls back to standard backing 
   assert.ok(w.notes.some((n) => n.includes("Ladder blocking")));
   assert.deepEqual(verifyWall(w, wall), []);
 });
+
+test("advanced framing: a single top plate drops the cap plate, lowers the wall 1-1/2 in and counts the ties", () => {
+  const wall = { id: "A", length: 240, stud: "2x4", corner: true, tees: [120] };
+  const std = { ...base(), walls: [wall] };
+  const one = { ...std, advanced: { singleTopPlate: true } };
+  const a = layoutWall(std, wall);
+  const b = layoutWall(one, wall);
+  assert.equal(b.members.filter((m) => m.label === "cap plate").length, 0);
+  assert.equal(a.height - b.height, 1.5);
+  assert.deepEqual(verifyWall(b, wall), []);
+  assert.deepEqual(b.joints.cap, []);
+  assert.equal(b.plateTies, b.joints.top.length + 2);
+  assert.ok(b.notes.some((n) => n.includes("single top plate")));
+  const lenOf = (w, label) => w.members.filter((m) => m.label === label).reduce((t, m) => t + m.length, 0);
+  assert.equal(lenOf(a, "cap plate"), 240);
+  assert.ok(takeoff(one).ok);
+});
