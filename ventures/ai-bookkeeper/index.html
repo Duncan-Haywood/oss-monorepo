@@ -158,6 +158,22 @@
     <div class="scroll" id="pp-register"></div>
   </section>
 
+  <section class="card" aria-labelledby="h-inv">
+    <h2 id="h-inv">Optional: stock you resell</h2>
+    <p class="note">If you buy goods and sell them later, the cost of what you sold is an expense in the month of the sale, not the month of the purchase. File the supplier payment to 1450 Inventory, record the purchase here, then record each sale (or lost or damaged stock) by quantity: the cost moves to 5000 Cost of goods sold, first-in first-out or at the moving average. Whether to count your stock this way for tax is for you or your preparer.</p>
+    <div class="grid">
+      <div><label for="iv-kind">Move</label><select id="iv-kind"><option value="buy">Bought</option><option value="sell">Sold</option><option value="adjust">Lost or damaged</option></select></div>
+      <div><label for="iv-sku">Item (SKU)</label><input id="iv-sku" autocomplete="off" placeholder="e.g. MUG-BLUE"></div>
+      <div><label for="iv-date">Date</label><input id="iv-date" type="date"></div>
+      <div><label for="iv-qty">Quantity</label><input id="iv-qty" inputmode="decimal" autocomplete="off" placeholder="100"></div>
+      <div><label for="iv-amount">Total paid (purchases only)</label><input id="iv-amount" inputmode="decimal" autocomplete="off" placeholder="450.00"></div>
+      <div><label for="iv-method">Costing</label><select id="iv-method"><option value="fifo">First in, first out</option><option value="avg">Moving average</option></select></div>
+    </div>
+    <button type="button" id="iv-add">Record the move</button>
+    <p id="iv-status" class="note" role="status" aria-live="polite"></p>
+    <div class="scroll" id="iv-register"></div>
+  </section>
+
   <section class="card" aria-labelledby="h-loans">
     <h2 id="h-loans">Optional: loans</h2>
     <p class="note">A fixed-rate loan with equal monthly payments. Enter the terms and the schedule is worked out in cents; then a bank payment of exactly the scheduled amount, within five days of its due date, is split into interest (6040) and principal (2200) for you. File the money you received to 2200 yourself. Variable rates, balloons and interest-only periods are not modelled, and a lender's own figures win where they differ.</p>
@@ -380,7 +396,7 @@
   <script type="module">
     import { sniffFormat, splitOfx } from "./bank.mjs";
     import { scheduleC, scheduleCCsv, contractors1099, contractors1099Csv, nec1099FilingCsv, markW9, mergePayees } from "./taxforms.mjs";
-    import { newBooks, importStatement, importOfxAccounts, categorize, suggestRules, addRules, addDocuments, writeOff, aging, addAsset, disposeAsset, register, addPrepaid, prepaidRegister, salesTax, vatReturn, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, exportLines, status, analyze, fmt, DEFAULT_ACCOUNTS, taxableBusinessIncome, s179Carryforward } from "./engine.mjs";
+    import { newBooks, importStatement, importOfxAccounts, categorize, suggestRules, addRules, addDocuments, writeOff, aging, addAsset, disposeAsset, register, addPrepaid, prepaidRegister, addInventoryMove, setInventoryMethod, inventoryRegister, salesTax, vatReturn, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, exportLines, status, analyze, fmt, DEFAULT_ACCOUNTS, taxableBusinessIncome, s179Carryforward } from "./engine.mjs";
     import { parseCents } from "./bank.mjs";
     import { pdfToText } from "./pdftext.mjs";
     import { setTaxTreatment, taxDepreciation, taxDepreciationCsv } from "./taxdepr.mjs";
@@ -639,6 +655,26 @@
       } catch (e) { $("#pp-status").textContent = e.message; }
     });
 
+    function renderInventory() {
+      const g = inventoryRegister(books);
+      $("#iv-method").value = g.method;
+      if (!g.rows.length) { $("#iv-register").replaceChildren(); return; }
+      const rows = g.rows.map((a) => el("tr", {}, el("td", { text: a.sku }), el("td", { class: "n", text: String(a.onHand) }), el("td", { class: "n", text: fmt(a.unitCost) }), el("td", { class: "n", text: fmt(a.value) }), el("td", { class: "n", text: String(a.sold) }), el("td", { class: "n", text: fmt(a.cogs) })));
+      $("#iv-register").replaceChildren(el("table", {}, el("thead", {}, el("tr", {}, ...["Item", "On hand", "Unit cost", "Value on hand", "Sold", "Cost of goods sold"].map((h) => el("th", { scope: "col", text: h })))), el("tbody", {}, ...rows, el("tr", { class: "total" }, el("th", { scope: "row", text: "Total (should equal account 1450)" }), el("td"), el("td"), el("td", { class: "n", text: fmt(g.value) }), el("td"), el("td", { class: "n", text: fmt(g.cogs) })))));
+    }
+    $("#iv-method").addEventListener("change", () => {
+      try { books = categorize(setInventoryMethod(books, $("#iv-method").value), opts()); record("inventory_method"); render(); $("#iv-status").textContent = "Costing method changed."; }
+      catch (e) { $("#iv-status").textContent = e.message; render(); }
+    });
+    $("#iv-add").addEventListener("click", () => {
+      try {
+        const kind = $("#iv-kind").value;
+        const r = addInventoryMove(books, { kind, sku: $("#iv-sku").value, date: $("#iv-date").value, qty: $("#iv-qty").value, amount: kind === "buy" ? $("#iv-amount").value : undefined });
+        books = categorize(r.books, opts()); record("inventory_move"); render();
+        $("#iv-status").textContent = kind === "buy" ? `${r.move.id} recorded: ${fmt(r.move.cents)}. File the payment to 1450 if you have not.` : `${r.move.id} recorded: the cost moved to 5000.`;
+      } catch (e) { $("#iv-status").textContent = e.message; }
+    });
+
     function renderLoans() {
       const g = loanRegister(books);
       if (!g.rows.length) { $("#ln-register").replaceChildren(); return; }
@@ -829,7 +865,7 @@
 
     $("#nec-filing-csv").addEventListener("click", () => { record("contractors_filing_downloaded"); download(nec1099FilingCsv(contractors1099(books, { year: necYear() })), "contractors-1099-nec-filing-prep.csv", "text/csv"); });
 
-    function render() { fillSetup(); renderScheduleC(); renderDeduct(); renderNec(); renderStatus(); renderQueue(); renderReports(); renderRuleSuggestions(); renderAging(); renderRecurring(); renderBudget(); renderReconcile(); renderYearEnd(); renderReceipts(); renderVat(); renderAssets(); renderPrepaid(); renderLoans(); renderTaxDepr(); renderSalesTax(); renderOpening(); persist(); }
+    function render() { fillSetup(); renderScheduleC(); renderDeduct(); renderNec(); renderStatus(); renderQueue(); renderReports(); renderRuleSuggestions(); renderAging(); renderRecurring(); renderBudget(); renderReconcile(); renderYearEnd(); renderReceipts(); renderVat(); renderAssets(); renderPrepaid(); renderInventory(); renderLoans(); renderTaxDepr(); renderSalesTax(); renderOpening(); persist(); }
 
     function renderOpening() {
       const tb = books.openingTB;

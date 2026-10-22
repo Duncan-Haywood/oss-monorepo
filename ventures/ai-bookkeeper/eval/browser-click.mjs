@@ -157,6 +157,23 @@ check(/2,?400\.00/.test(pptext) && /Still paid ahead/.test(pptext), "the prepaid
 await page.fill("#pp-months", "1");
 await page.click("#pp-add");
 check(/Months must be/.test(await page.locator("#pp-status").textContent()), "a one-month prepaid is refused");
+// Stock: buy 100 for 450, sell 40, then selling more than is on hand is refused.
+await page.selectOption("#iv-kind", "buy");
+await page.fill("#iv-sku", "MUG-BLUE");
+await page.fill("#iv-date", "2026-01-05");
+await page.fill("#iv-qty", "100");
+await page.fill("#iv-amount", "450.00");
+await page.click("#iv-add");
+check(/INV-1 recorded/.test(await page.locator("#iv-status").textContent()), "a stock purchase is recorded");
+await page.selectOption("#iv-kind", "sell");
+await page.fill("#iv-date", "2026-01-20");
+await page.fill("#iv-qty", "40");
+await page.click("#iv-add");
+const ivtext = await page.locator("#iv-register").textContent();
+check(/MUG-BLUE/.test(ivtext) && /270\.00/.test(ivtext) && /180\.00/.test(ivtext), "the stock register shows 60 left worth 270.00 and 180.00 cost of goods sold");
+await page.fill("#iv-qty", "500");
+await page.click("#iv-add");
+check(/only 60 on hand/.test(await page.locator("#iv-status").textContent()), "selling more than is on hand is refused");
 // Loans: add a 36-month loan on the example books, read the register, split nothing (no matching bank line), refuse a bad rate.
 await page.fill("#ln-name", "Van loan");
 await page.fill("#ln-amount", "12000.00");
