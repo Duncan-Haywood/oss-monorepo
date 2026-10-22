@@ -35,7 +35,7 @@ import { addTrip, removeTrip, setHomeOffice, mileageDeduction } from "./deductio
 import { setBudget, budgetVsActual } from "./budget.mjs";
 import { reconcile } from "./reconcile.mjs";
 import { depositSchedule } from "./deposits.mjs";
-import { addPayroll, planPayroll, applyPayroll, payrollSummary, form941, form940, w2Summary, employerCost } from "./payroll.mjs";
+import { addPayroll, planPayroll, applyPayroll, payrollSummary, form941, form940, w2Summary, reconcile941W2, employerCost } from "./payroll.mjs";
 import { readPayoutReport, planPayouts, applyPayouts } from "./payouts.mjs";
 import { setTaxTreatment, taxDepreciation } from "./taxdepr.mjs";
 import { renderInvoice, setProfile, PROFILE_KEYS } from "./invoice.mjs";
@@ -108,7 +108,7 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
   compare [--from D --to D --vs-from D --vs-to D] [--json]  profit and loss against an earlier period (default: latest month vs the month before): what moved, what is new or gone
   payroll FILE.csv [--apply]  book a payroll provider's pay-run report (wages, employer taxes, 2300) and find the bank lines that paid it; --apply files them to 2300
   payroll deposits YEAR [--schedule monthly|semiweekly]  federal deposit due dates (lookback, $100,000 next-day rule, holidays) and whether the bank shows each paid on time
-  payroll [941 YEAR QUARTER [--deposited DOLLARS] [--schedule-b] | 940 YEAR [--state CA | --credit-reduction PCT] | w2 YEAR]  runs, what is still owed, or a Form 941 / 940 worksheet from the register
+  payroll [941 YEAR QUARTER [--deposited DOLLARS] [--schedule-b] | 940 YEAR [--state CA | --credit-reduction PCT] | w2 YEAR | reconcile YEAR]  runs, what is still owed, or a Form 941 / 940 worksheet from the register
   payouts FILE.csv [--apply] [--sales C --refunds C --fees C --disputes C] [--json]  split each processor payout (Stripe payout reconciliation CSV) in the bank into gross sales, refunds and fees; without --apply, shows the plan
   reconcile CODE --date D --balance AMT [--json]  tie an account to the closing balance on a paper statement; if it is off, name the lines that likely explain the gap
   budget [CODE AMOUNT] [--from D --to D] [--json]  set a monthly budget for an account (AMOUNT 0 removes it), or show budget against actual for the period (default: latest month)
@@ -488,6 +488,13 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
       for (const [l, v] of [["Total payments to employees (line 3)", f.wages], ...(f.futaWages == null ? [] : [["Taxable FUTA wages (line 7)", f.futaWages]]), ["FUTA in the register", f.futa], ...(f.computed == null ? [] : [["FUTA at 0.6% of taxable wages", f.computed]]), ["Q1", f.quarters[0]], ["Q2", f.quarters[1]], ["Q3", f.quarters[2]], ["Q4", f.quarters[3]], ["Not yet deposited (carried)", f.dueWithReturn], ...(f.creditReduction == null ? [] : [[`Credit reduction ${f.creditReductionPct}% (Schedule A)`, f.creditReduction]])]) console.log(`  ${l.padEnd(46)} ${fmt(v).padStart(12)}`);
       for (const w of f.warnings) console.log(`  CHECK ${w}`);
       console.log("  Worksheet only: exempt payments and multi-state filers are not modelled.");
+    } else if (rest[0] === "reconcile") {
+      const t = reconcile941W2(books, rest[1]);
+      if (json) { console.log(JSON.stringify(t, null, 2)); process.exit(0); }
+      console.log(`FORM 941 AGAINST W-2 TOTALS ${t.year}, ${t.employees} employee${t.employees === 1 ? "" : "s"}`);
+      for (const r of t.rows) console.log(`  ${r.ok ? "ok  " : "DIFF"} ${r.label.slice(0, 60).padEnd(60)} ${fmt(r.f941).padStart(12)} ${fmt(r.w2).padStart(12)}`);
+      for (const x of t.warnings) console.log(`  CHECK ${x}`);
+      console.log("  Worksheet only: tips, adjustments and sick pay are not modelled.");
     } else if (rest[0] === "w2") {
       const w = w2Summary(books, rest[1]);
       if (json) { console.log(JSON.stringify(w, null, 2)); process.exit(0); }
