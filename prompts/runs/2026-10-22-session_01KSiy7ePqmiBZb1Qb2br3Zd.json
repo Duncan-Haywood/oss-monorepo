@@ -1,0 +1,49 @@
+{
+ "date": "2026-10-22",
+ "session": "https://claude.ai/code/session_01KSiy7ePqmiBZb1Qb2br3Zd",
+ "track": "research",
+ "prompt_version": 0,
+ "input": "follow the instructions in ./prompt.md (scheduled)",
+ "input_sha256": "a069142edff7faba0e7497f3e43587d325506648757355f87cd62c89d6f4f469",
+ "follow_up_inputs": [],
+ "model": "claude-sonnet-5-5",
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-10-22T04:42:58Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": null,
+ "projects": [],
+ "pr": 9378,
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": null,
+ "outcome": "success",
+ "errors": [],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "research/PROJECTS.md",
+   "issue": "track 17 milestones all landed; had to pick from a next-steps list of stylised door-game variants"
+  }
+ ],
+ "deviations": [
+  {
+   "file": "prompts/goals.md",
+   "why": "skipped the agent doc and post write-up this run to keep scope small; README carries the results"
+  }
+ ],
+ "writeups": [],
+ "goal": null,
+ "notes": "Mean field first conditioned on this round's signal and disagreed with simulation by 0.04; fixed by averaging memory over own signalling history, now within 0.012. 7 tests, build ok, link check ok.",
+ "corrections": [],
+ "redteam": null
+}
