@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { placeBreaks, laborPercent, budgetCheck, dailyLabor, salesPerLaborHour, fairnessReport, hoursThresholds, tipPool, trimOptions, scheduleFlags, unsupervisedStretches, loneStretches, shortShifts,
   parseTime, parseDaySpec, parseAvailability, parseStaff, parseShifts, buildRoster, coverOptions, absencePlan, swapOptions, checkTrade, rosterCsv, hoursCsv, rosterIcs, rosterMessages, openShiftPost,
-  sampleStaff, sampleShifts, fmtClock, money, money2, _internals,
+  sampleStaff, optimalityText, sampleShifts, fmtClock, money, money2, _internals,
 } from "./calc.mjs";
 
 const staffOf = (t) => { const r = parseStaff(t); assert.deepEqual(r.errors, []); return r.staff; };
@@ -1415,4 +1415,16 @@ test("exact search treats people who differ only by name as interchangeable: sam
   // six interchangeable people, ten shifts: used to hit the 8 s limit, now finishes
   const big = buildRoster(staffOf(twins(6)), slotsOf(week(10)), { exact: true });
   assert.ok(["optimal", "improved"].includes(big.optimality.status), big.optimality.status);
+});
+
+test("the 7-person sample week is proven inside the default limits, to within the stated tolerance", () => {
+  const staff = staffOf(sampleStaff()), slots = slotsOf(sampleShifts());
+  const r = buildRoster(staff, slots, { exact: true });
+  assert.ok(["optimal", "improved"].includes(r.optimality.status), r.optimality.status);
+  assert.equal(r.optimality.tolerance, 0.5);
+  assert.equal(r.optimality.forcedOpenHours, 15);
+  assert.match(optimalityText(r.optimality), /within \$0\.50|more than \$0\.50/);
+  // with no tolerance the same search stays unproven in the default 8 s / 400,000 nodes
+  const strict = buildRoster(staff, slots, { exact: true, exactTolerance: 0, exactNodes: 20000 });
+  assert.equal(strict.optimality.status, "bounded");
 });
