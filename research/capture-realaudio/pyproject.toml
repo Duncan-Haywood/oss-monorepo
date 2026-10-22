@@ -1,0 +1,13 @@
+[project]
+name = "capture-realaudio"
+version = "0.1.0"
+description = "Does the synthetic-audio sync threshold of capture-audiosync hold on real recorded sound?"
+requires-python = ">=3.9"
+dependencies = ["numpy"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "../capture-audiosync/src"]

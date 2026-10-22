@@ -54,6 +54,7 @@ const CATEGORY = {
   adjustment: "other", reserve: "reserve", risk_reserved_funds: "reserve", reserved_funds: "reserve", chargeback_won: "disputes", chargeback_reversal: "disputes",
   card: "sales", square_card: "sales", online_checkout: "sales", processing_fee: "fees",
   stripe_fx_fee: "fees", tax_fee: "fees", contribution: "fees", partial_capture_reversal: "refunds",
+  chargeback_fee: "fees", dispute_fee: "fees", chargeback_hold: "disputes", chargeback_hold_reversal: "disputes", dispute_withdrawal: "disputes", dispute_reversal_fee: "fees",
   payout: "skip", payout_cancel: "skip", payout_failure: "skip", transfer: "skip",
 };
 
@@ -67,6 +68,7 @@ export function readPayoutReport(text) {
   if (at0 !== -1) return readAmazonRange(table.slice(at0));
   const head = table[0].map(key);
   if (head.includes("settlement_id") && head.includes("amount_type") && head.includes("amount_description")) return readAmazon(table, head);
+  if (head.includes("fees_taxes") && head.includes("title") && head.includes("type") && head.includes("net")) return readEtsy(table, head);
   const col = Object.fromEntries(Object.entries(ALIASES).map(([k, names]) => [k, names.map((n) => head.indexOf(n)).find((i) => i !== -1) ?? -1]));
   for (const need of ["gross", "net", "category"]) if (col[need] === -1) throw new Error(`No "${need}" column: the report needs payout id, payout date, category, gross, fee and net columns.`);
   if (col.payout === -1 && head.includes("transaction_id") && head.includes("status") && head.includes("type")) return readPaypal(table, head);
@@ -174,6 +176,44 @@ function readPaypal(table, head) {
   }
   const pending = group.map((y) => ({ ...y, payout: "" }));
   return { rows: all, payouts, pending, problems };
+}
+
+// Etsy's payment account ledger CSV (Date, Type, Title, Info, Currency, Amount,
+// Fees & Taxes, Net, ...). Amount and Fees & Taxes show "--" when empty; a
+// Fee, Marketing or Shipping row has no amount, only a negative net. A Deposit
+// row (net negative) is the payout: the rows since the previous deposit are what
+// it paid out, split only when they net to it exactly, like PayPal. Layout from
+// memory of Etsy's help pages; no real export tried.
+function readEtsy(table, head) {
+  const ix = (n) => head.indexOf(n);
+  const c = { date: ix("date"), type: ix("type"), title: ix("title"), amount: ix("amount"), fee: ix("fees_taxes"), net: ix("net"), id: ix("order_id") };
+  if (c.date === -1) throw new Error('The Etsy ledger has no "Date" column.');
+  const cents = (v) => { const t = String(v ?? "").trim(); return t === "" || t === "--" ? 0 : parseCents(t.replace(/^\$?-\$/, "-")); };
+  const problems = [], all = [];
+  table.slice(1).forEach((r, n) => {
+    const at = (k) => (c[k] === -1 ? "" : String(r[c[k]] ?? "").trim());
+    const net = cents(at("net")), amount = cents(at("amount")), taxes = cents(at("fee"));
+    if ([net, amount, taxes].some((v) => v === null || Number.isNaN(v))) { problems.push(`Row ${n + 2}: cannot read the amounts.`); return; }
+    const category = key(at("type"));
+    const isSale = category === "sale" || category === "payment";
+    const gross = isSale || category === "refund" ? amount : 0;
+    const fee = gross - net;
+    const kind = category === "deposit" ? "withdrawal" : category === "refund" ? "refunds" : isSale ? "sales" : /fee|marketing|shipping|listing|offsite|ads|tax|vat/.test(category) ? "fees" : /dispute|chargeback/.test(category) ? "disputes" : "other";
+    const date = parseDate(at("date"));
+    all.push({ row: n + 2, id: at("id") || `row${n + 2}`, created: date, t: date ?? "", category, kind, gross: kind === "fees" || kind === "other" ? 0 : gross, fee: kind === "fees" || kind === "other" ? -net : fee, net, desc: at("title") });
+  });
+  const payouts = [];
+  let group = [];
+  // Etsy lists newest first; group oldest first so a deposit follows what it paid.
+  const ordered = all.map((x, i) => ({ x, i })).sort((a, b) => a.x.t.localeCompare(b.x.t) || b.i - a.i).map((o) => o.x);
+  for (const x of ordered) {
+    if (x.kind !== "withdrawal") { group.push(x); continue; }
+    const paid = -x.net, sum = group.reduce((a, y) => a + y.net, 0);
+    if (paid > 0 && sum === paid) payouts.push({ id: `etsy-${x.created}-${x.row}`, date: x.created, net: paid, gross: group.reduce((a, y) => a + y.gross, 0), fees: group.reduce((a, y) => a + y.fee, 0), rows: group.map((y) => ({ ...y, payout: `etsy-${x.created}-${x.row}`, payoutDate: x.created })) });
+    else problems.push(`Etsy deposit ${x.created} (${fmt(paid)}): the activity since the previous deposit nets ${fmt(sum)}, so a balance was carried over from before the report. Not split.`);
+    group = [];
+  }
+  return { rows: all, payouts, pending: group.map((y) => ({ ...y, payout: "" })), problems };
 }
 
 // Amazon's settlement report (flat file V2, tab-delimited). The first row of a

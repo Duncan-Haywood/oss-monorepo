@@ -4,6 +4,7 @@
 // list and per-wall layout marks out.
 import { readFileSync } from "node:fs";
 import { sheathe, defaultSheathing, sheathingText, nailerCuts } from "./sheathing.mjs";
+import { layoutFloor, floorCuts, floorText } from "./floor.mjs";
 import { drawingSetHtml } from "./drawings.mjs";
 import { panelOrder, panelOrderText, panelPullText } from "./panels.mjs";
 import { takeoff, samplePlan, toCsv, formatLength, formatInches, parseLength } from "./engine.mjs";
@@ -22,6 +23,7 @@ Usage:
   node cli.mjs plan.json --panel-max=12ft --panel-order --pull-lists  boards and cuts each panel is built from (add to --panel-order)
   node cli.mjs plan.json --panel-max=12ft --panel-order  lumber order for the shop panels (plates cut at panel breaks) against the whole-wall order
   node cli.mjs plan.json --panel-max=12ft --sheathing-psf=1.5  also weigh the sheathing on each panel (lb per sq ft)
+  node cli.mjs plan.json --floor     add the plan's floor (joists, rim, blocking, subfloor sheets); its lumber joins the order
   node cli.mjs plan.json --drawings   printable HTML shop drawings, one sheet per wall (marked members, dimensions, parts table)
   node cli.mjs --example            print the example plan (an invented 40 x 28 ft ranch) to start from
   cat plan.json | node cli.mjs -    read the plan from stdin
@@ -65,12 +67,21 @@ export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "u
   } catch (e) {
     return { code: 2, out: `Could not read the plan: ${e instanceof Error ? e.message : e}` };
   }
-  let r = takeoff(plan);
+  let floor = null;
+  if (flags.has("--floor") || plan.floor) {
+    if (!plan.floor) return { code: 2, out: "The plan has no `floor` object (width, depth, joist, spacing, beam)." };
+    for (const k of ["width", "depth", "beam"]) if (typeof plan.floor[k] === "string") plan.floor[k] = parseLength(plan.floor[k]);
+    for (const o of plan.floor.openings || []) for (const k of ["x", "y", "width", "depth"]) if (typeof o[k] === "string") o[k] = parseLength(o[k]);
+    floor = layoutFloor(plan.floor, plan);
+    if (!floor.ok) return { code: 1, out: `The floor has problems:\n${floor.errors.map((e) => `  - ${e}`).join("\n")}` };
+  }
+  let r = takeoff(plan, floor ? floorCuts(floor) : []);
+  if (floor && r.ok) r.floor = floor;
   if (!r.ok) return { code: 1, out: `The plan has problems:\n${r.errors.map((e) => `  - ${e}`).join("\n")}` };
   if (flags.has("--sheathing") || flags.has("--horizontal") || flags.has("--overhang") || rimLap > 0 || plan.sheathing) {
     const sheathing = sheathe({ ...plan, sheathing: { ...defaultSheathing(), ...(plan.sheathing || {}), ...(flags.has("--horizontal") ? { orientation: "horizontal" } : {}), ...(flags.has("--overhang") ? { overhang: true } : {}), ...(rimLap > 0 ? { rimLap } : {}) } }, r);
     const extra = nailerCuts(sheathing);
-    if (extra.length) r = takeoff(plan, extra); // nailers join the cut list and the lumber order
+    if (extra.length) { r = takeoff(plan, [...extra, ...(floor ? floorCuts(floor) : [])]); if (floor) r.floor = floor; } // nailers join the cut list and the lumber order
     r.sheathing = sheathing;
   }
   const sheathPsf = Math.max(0, parseFloat(argv.find((a) => a.startsWith("--sheathing-psf="))?.slice(16) ?? "0") || 0);
@@ -101,6 +112,7 @@ export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "u
   }
   lines.push("  K = king, C = corner backing, T = tee backing; jacks sit inside the kings.");
   if (r.sheathing) lines.push("", `SHEATHING (panels run ${r.sheathing.orientation === "horizontal" ? "horizontally, course by course from the floor" : "vertically from the wall start"}; lengths left to right)`, ...sheathingText(r.sheathing));
+  if (r.floor) lines.push("", "FLOOR", ...floorText(r.floor));
   if (r.notes.length) lines.push("", "NOTES", ...r.notes.map((n) => `  - ${n}`));
   lines.push("", "Header sizes and jack counts are your inputs and are not checked against a span table or code.");
   return { code: 0, out: lines.join("\n") };

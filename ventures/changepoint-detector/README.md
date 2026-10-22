@@ -482,4 +482,48 @@ none are cut. The bursts there are mostly runs and wide, so this rule is a
 partial answer on that series (2023-24, one series). Synthetic bursts are
 planted with the rule's own shape in mind, so the recall figures flatter it.
 
+### Short runs (`--burst-runs n`)
+
+A plateau of 2 to `n` days is not a single-day burst: each of its days may be
+under 2.5x the level. `--bursts --burst-runs 5` also cuts a block of 2 to 5
+consecutive days when each day is high against the same-phase points outside
+it on both sides, the block averages at least 2x that level, and its summed
+excess clears a Poisson-sized bar. Off by default; engine and CLI only.
+
+`eval/burst-runs.mjs` (40 seeded series per row, runs of 2 to 5 days at 1.8 to
+3x, same generator as above), `--burst-runs 5` against `--bursts` alone:
+
+| series | changes per series | step at 100 found | run days cut | other days flagged |
+|---|---|---|---|---|
+| no step, 4 runs | 1.27 -> 0.55 | | 192 -> 249 of 567 | 1.00 -> 1.57 per series |
+| 1.8x step, 4 runs | 2.15 -> 1.80 | 35 -> 36 of 40 | 182 -> 229 of 526 | 1.05 -> 1.52 per series |
+| 1.8x step, no runs | 1.18 -> 1.15 | 40 -> 40 of 40 | | 1.38 -> 1.63 per series |
+| no step, no runs | 0.07 -> 0.07 | | | 1.43 -> 1.57 per series |
+
+A gain, but a small one: under a quarter of planted run days are caught. At a
+1.6x bar it caught 344 of 567 but flagged 4.8 ordinary days per series and
+lifted false changes on clean series from 0.07 to 0.23, so 2x is the default;
+at 2.4x it does nothing. On the real Payroll pageviews 2x cuts nothing (47
+changes stay 47); at 1.6x it cut two 3-day runs and took 47 to 41. That
+series' short rises are mostly 1.3 to 1.8x, below any bar that is safe on
+clean data, so they are probably not separable from level changes by size
+alone.
+
 On the web page the same rule is the checkbox "Cut back isolated spikes before fitting" (counts model). It lists the days it cut back under the summary. Clicked through in headless Chromium on a hand-made 60-day series with one spike: two false changes without it, none with it (2026-10-22).
+
+## A range on each change date (2026-10-22)
+
+Every PELT change now carries `range95`: with the neighbouring changes held fixed, each possible start of the later segment is weighted by `exp(-(cost - min cost) / 2)` (the cost is -2 log-likelihood, so this is the profile likelihood), and the most likely starts holding 95% of the weight are returned as the first and last. The CLI prints it ("Likely range for each change"); `intervals: false` turns it off. It is not offered for `--ar1 joint`, which has its own likelihood. On the Nile series the 1899 change comes back as 1897 to 1899.
+
+Measured with `node eval/change-interval.mjs` (200 seeded white-noise series of 200 points, one planted shift at a random date from 60 to 139, a change counted only if PELT put one within 15 points):
+
+| shift (noise sd) | found | range holds planted date | median width (points) |
+|---|---|---|---|
+| 1 | 197/200 | 193/197 (98%) | 16 |
+| 1.5 | 200/200 | 189/200 (95%) | 7 |
+| 2 | 200/200 | 189/200 (95%) | 4 |
+| 3 | 200/200 | 191/200 (96%) | 2 |
+
+Coverage is about the nominal 95% on independent Gaussian noise; the shift-1 row is conservative. Sticky noise (2026-10-22, `node eval/change-interval-sticky.mjs`, output in `eval/change-interval-sticky.out.txt`; marginal sd 1, one shift of 2 or 3 sd, 200 series each): without `--ar1` the range is far too narrow, holding the planted date in 57% to 60% of series at rho 0.5 and 30% to 31% at rho 0.7 (median width 2 to 3 points). With `--ar1` it holds it in 97% to 99%, conservatively wide (5 to 22 points), though PELT finds the change less often at rho 0.7 (149 to 177 of 200 within 15 points). So the result now carries a `rangeWarning` (CLI: a note above the ranges) when the mean model runs without `--ar1` on a series whose lag-1 autocorrelation estimate is 0.3 or more; it fired on 99 to 100 of 100 series at rho 0.5 and 0.7 and 0 of 100 on white noise.
+
+Not measured: counts, and the trend and seasonal models (the range is computed from their cost, but its coverage is untested).

@@ -8,12 +8,15 @@ import { isMt940, isCamt, readMt940, readCamt } from "./sepa.mjs";
 import { readStatementText } from "./statementtext.mjs";
 
 const ALIASES = {
-  date: ["date", "transaction date", "posted date", "post date", "posting date", "trans date", "booking date", "effective date", "value date", "completed date", "started date", "date (utc)"],
-  desc: ["description", "transaction description", "payee", "merchant", "name", "details", "original description", "memo", "narrative", "counter party", "counterparty", "reference"],
-  amount: ["amount", "transaction amount", "amt", "value", "amount (usd)", "amount (gbp)", "amount (eur)"],
-  debit: ["debit", "debits", "withdrawal", "withdrawals", "money out", "paid out", "amount debit", "debit amount"],
-  credit: ["credit", "credits", "deposit", "deposits", "money in", "paid in", "amount credit", "credit amount"],
-  balance: ["balance", "running balance", "running bal.", "ledger balance", "balance (gbp)", "balance (eur)", "balance (usd)"],
+  date: ["date", "transaction date", "posted date", "post date", "posting date", "trans date", "booking date", "effective date", "value date", "completed date", "started date", "date (utc)",
+    // German, French, Spanish, Italian, Dutch headers
+    "datum", "buchungstag", "buchungsdatum", "valuta", "wertstellung", "date de l'opération", "date opération", "date operation", "fecha", "fecha operación", "fecha valor", "data", "data operazione", "data contabile", "data valuta", "boekdatum", "transactiedatum"],
+  desc: ["description", "transaction description", "payee", "merchant", "name", "details", "original description", "memo", "narrative", "counter party", "counterparty", "reference",
+    "beschreibung", "verwendungszweck", "buchungstext", "beguenstigter/zahlungspflichtiger", "begünstigter/zahlungspflichtiger", "libellé", "libelle", "descripción", "descripcion", "concepto", "descrizione", "causale", "omschrijving", "naam / omschrijving"],
+  amount: ["amount", "transaction amount", "amt", "value", "amount (usd)", "amount (gbp)", "amount (eur)", "betrag", "betrag (eur)", "montant", "importe", "importo", "bedrag"],
+  debit: ["debit", "debits", "withdrawal", "withdrawals", "money out", "paid out", "amount debit", "debit amount", "soll", "débit", "debit (eur)", "cargo", "dare", "uscite"],
+  credit: ["credit", "credits", "deposit", "deposits", "money in", "paid in", "amount credit", "credit amount", "haben", "crédit", "credito", "crédito", "abono", "avere", "entrate"],
+  balance: ["balance", "running balance", "runningbalance", "running bal.", "ledger balance", "balance (gbp)", "balance (eur)", "balance (usd)", "saldo", "kontostand", "solde", "saldo (eur)"],
 };
 
 // RFC 4180 CSV: quoted fields, doubled quotes, CRLF, a BOM, and a ; or tab
@@ -119,6 +122,15 @@ export function sniffBank(rows) {
     if (/^date \(utc\)\|description\|amount\|status\|source account/.test(h)) return "mercury";
     if (/^transferwise id\|date\|amount\|currency\|description/.test(h)) return "wise";
     if (/^transaction date\|posted date\|card no\.\|description\|category\|debit\|credit/.test(h)) return "capital-one";
+    if (/^trans\. date\|post date\|description\|amount\|category/.test(h)) return "discover";
+    if (/^status\|date\|description\|debit\|credit/.test(h)) return "citi";
+    if (/^date\|transaction\|name\|memo\|amount/.test(h)) return "us-bank";
+    if (/^date\|time\|amount\|type\|description/.test(h)) return "ally";
+    if (/^transaction date\|clearing date\|description\|merchant\|category\|type\|amount \(usd\)/.test(h)) return "apple-card";
+    if (/^transaction date\|transaction type\|sort code\|account number\|transaction description\|debit amount\|credit amount/.test(h)) return "lloyds";
+    if (/^number\|date\|account\|amount\|subcategory\|memo/.test(h)) return "barclays";
+    if (/^date\|description\|withdrawals\|deposits\|balance/.test(h)) return "pnc";
+    if (/^date\|status\|type\|checknumber\|description\|withdrawal\|deposit\|runningbalance/.test(h)) return "schwab";
     if (/^date\|description\|(card member\|account #\|)?amount/.test(h)) return "amex";
   }
   return null;
@@ -128,7 +140,7 @@ export function sniffBank(rows) {
 // positive, Chase as negative). The payment rows settle it: a payment lowers
 // what is owed, so charges carry the opposite sign.
 function chargesArePositive(rows) {
-  const pay = rows.filter((r) => /payment.*thank you|autopay|automatic payment|online payment/i.test(r.desc));
+  const pay = rows.filter((r) => /payment.*thank you|autopay|automatic payment|online payment|directpay|ach deposit internet transfer/i.test(r.desc));
   if (pay.length === 0) return null;
   const neg = pay.filter((r) => r.cents < 0).length;
   return neg > pay.length / 2;
@@ -267,7 +279,7 @@ export function readStatement(text, { dayFirst = false, decimalComma = false, in
   const out = [];
   // Wise writes DD-MM-YYYY. Revolut lists pending, declined and reverted rows
   // beside completed ones and keeps the fee in its own column.
-  if (bank === "wise" || bank === "monzo" || bank === "starling") dayFirst = true;
+  if (bank === "lloyds" || bank === "barclays" || bank === "wise" || bank === "monzo" || bank === "starling") dayFirst = true;
   const hdr = headerAt === -1 ? [] : rows[headerAt].map(norm);
   if (bank === "monzo") columns.desc = hdr.indexOf("name");
   // Mercury lists Pending, Failed and Cancelled rows beside Sent ones.

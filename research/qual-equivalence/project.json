@@ -1,0 +1,6 @@
+{
+ "theme": "qual",
+ "title": "How big must a hand-coded audit be before you can trust a coder's counts?",
+ "summary": "On 3,188 real GoEmotions comments, an equivalence (TOST) audit gate either never passed the coder (tolerance 0.02 or tighter, so it equalled always applying the prediction-powered correction, coverage 0.94&ndash;1.00) or passed it too often (tolerance 0.05, worst coverage 0.95 at 100 hand-coded items falling to 0.35 at 1,600). Showing a bias under 0.01, the naive interval's scale, needs about 7,700 audited items, more than the corpus. The earlier difference-test gate was at 0.39 worst case with 1,600 items, and splitting the sample did not help. The coders are a naive-Bayes classifier with a moved cut-off and a word list, not LLMs; one corpus, one seed.",
+ "lede": "how big must a hand-coded audit be before you can trust a coder's counts? On 3,188 GoEmotions comments, a tight equivalence test never passed the coder and a loose one passed it too often (coverage 0.35 at 1,600 audited items). Not an LLM; one corpus."
+}

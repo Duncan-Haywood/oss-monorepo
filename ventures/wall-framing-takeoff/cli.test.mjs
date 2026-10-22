@@ -88,3 +88,23 @@ test("--panel-max with --panel-order prints the pooled panel order against the w
   assert.equal(r.code, 0);
   assert.match(r.out, /^\d+ shop panels: \d+ boards, cost [\d.]+ \(whole walls: \d+ boards/);
 });
+
+test("--floor lays the plan's floor and orders its lumber with the walls", async () => {
+  const { main } = await import("./cli.mjs");
+  const { samplePlan } = await import("./engine.mjs");
+  const { sampleFloor } = await import("./floor.mjs");
+  const plan = { ...samplePlan(), floor: sampleFloor() };
+  const { code, out } = main(["p.json", "--floor"], () => JSON.stringify(plan));
+  assert.equal(code, 0);
+  assert.match(out, /FLOOR/);
+  assert.match(out, /Subfloor: \d+ sheets/);
+  assert.match(out, /2x10/);
+});
+
+test("--floor reads a stairwell opening with feet-and-inches lengths", async () => {
+  const { sampleFloor } = await import("./floor.mjs");
+  const plan = { ...samplePlan(), floor: { ...sampleFloor(), openings: [{ x: "8ft 4in", y: "3ft 4in", width: "3ft", depth: "8ft 4in" }] } };
+  const { code, out } = main(["p.json", "--floor"], () => JSON.stringify(plan));
+  assert.equal(code, 0, out);
+  assert.match(out, /1 opening \(.* clear\)/);
+});

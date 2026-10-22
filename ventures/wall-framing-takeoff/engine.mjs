@@ -45,7 +45,7 @@ export const PRECUT = { "8ft": 92.625, "9ft": 104.625, "10ft": 116.625 };
  * @typedef {{ size: string, length: number, price: number, label?: string }} Stock
  * @typedef {{ studSpacing: number, studLength: number, kerf: number, topPlateLap: number,
  *   cornerExtraStuds: number, teeExtraStuds: number, defaultHeaderHeight: number,
- *   blocking?: { rows?: number, fire?: boolean }, plateLaps?: boolean, advanced?: { twoStudCorners?: boolean, ladderTees?: boolean }, stock: Stock[], walls: Wall[] }} Plan
+ *   blocking?: { rows?: number, fire?: boolean }, plateLaps?: boolean, advanced?: { twoStudCorners?: boolean, ladderTees?: boolean, singleTopPlate?: boolean }, stock: Stock[], walls: Wall[] }} Plan
  * @typedef {{ kind: string, x: number, y: number, w: number, h: number, size: string,
  *   length: number, orient: "v"|"h", label: string }} Member
  */
@@ -298,7 +298,8 @@ export function layoutWall(plan, wall) {
   const stud = wall.stud || "2x4";
   const s = plan.studSpacing;
   const top = THICK + plan.studLength;
-  const height = top + 2 * THICK;
+  const single = Boolean(plan.advanced?.singleTopPlate);
+  const height = top + (single ? 1 : 2) * THICK;
   /** @type {Member[]} */
   const members = [];
   const notes = [];
@@ -460,7 +461,10 @@ export function layoutWall(plan, wall) {
   const topPieces = pieces(topA, topB, topJoints || []);
   const capPieces = capJoints ? capSegs.flatMap(([a, b], k) => pieces(a, b, capRuns[k])) : capSegs.map(([a, b]) => [a, b]);
   /** @type {[string, number, number[][]][]} */
-  const plateRuns = [["top plate", top, topPieces], ["cap plate", top + THICK, capPieces]];
+  const plateRuns = single ? [["top plate", top, topPieces]] : [["top plate", top, topPieces], ["cap plate", top + THICK, capPieces]];
+  // A single top plate has nothing lapping its joints, so each joint, corner and tee takes a steel tie instead (IRC R602.3.2 exception).
+  const ties = single ? (topJoints || []).length + (wall.corner ? 1 : 0) + (wall.tees || []).length : 0;
+  if (single) notes.push(`single top plate: roof or floor framing must sit within 1 in of the stud centres, and ${ties} steel plate tie${ties === 1 ? "" : "s"} (not in the takeoff) go at ${[...(topJoints || []).map(formatLength), ...(wall.corner ? ["the corner"] : []), ...(wall.tees || []).map((t) => `the tee at ${formatLength(t)}`)].join(", ") || "no joints"}. Whether this is allowed here is the code and engineer's call.`);
   for (const [label, y, list] of plateRuns) {
     for (const [a, b] of list) add("plate", a, y, b - a, THICK, stud, "h", label);
   }
@@ -492,7 +496,7 @@ export function layoutWall(plan, wall) {
   if (shortCripples.length) notes.push(`short top cripples over ${shortCripples.join(", ")}. Header sizes are yours to check.`);
   if (shimGaps.length) notes.push(`a gap too small for cripples between header and top plate over ${shimGaps.join(", ")}: shim or fill it.`);
   if (spacers.length) notes.push(`header spacers not in the takeoff: ${spacers.join(", ")}.`);
-  return { id: wall.id, length: L, height, stud, members, notes, layout, lapped: !!plan.plateLaps, joints: { bottom: bottomJoints, top: topJoints || [], cap: capJoints || [] } };
+  return { id: wall.id, length: L, height, stud, members, notes, layout, lapped: !!plan.plateLaps, ...(single ? { singleTopPlate: true, plateTies: ties } : {}), joints: { bottom: bottomJoints, top: topJoints || [], cap: single ? [] : capJoints || [] } };
 }
 
 
@@ -804,7 +808,7 @@ export function verifyWall(w, wall) {
     }
     if (top.x > x0 + EPS || top.x + top.w < x1 - EPS) problems.push(`the ${name} header does not span its opening`);
   }
-  const full = ms.filter((m) => m.orient === "v" && Math.abs(m.y - THICK) < EPS && (w.gable ? m.h >= wall_studMin(w) - EPS : Math.abs(m.y + m.h - (w.height - 2 * THICK)) < EPS));
+  const full = ms.filter((m) => m.orient === "v" && Math.abs(m.y - THICK) < EPS && (w.gable ? m.h >= wall_studMin(w) - EPS : Math.abs(m.y + m.h - (w.height - (w.singleTopPlate ? 1 : 2) * THICK)) < EPS));
   if (!full.some((m) => m.x < EPS)) problems.push("no stud at the wall start");
   if (!full.some((m) => m.x + m.w > w.length - EPS)) problems.push("no stud at the wall end");
   const centres = full.map((m) => m.x + THICK / 2);

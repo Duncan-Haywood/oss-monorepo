@@ -1,0 +1,51 @@
+{
+  "date": "2026-10-22",
+  "session": "https://claude.ai/code/session_016vPKHL9JTRmWfqYiJ1Dt87",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md (scheduled)",
+  "input_sha256": "a069142edff7faba0e7497f3e43587d325506648757355f87cd62c89d6f4f469",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-22T14:41:19Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship 1 (ai-bookkeeper): non-English statement headers",
+  "projects": [
+    "ai-bookkeeper"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/9508",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "issue": "Says venture-preflight is needed for a new or changed venture; for a header-alias change in an existing venture I judged it unnecessary and ran the venture's node tests instead."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Skipped venture-preflight (5+ min) for an alias-only change to bank.mjs; ran all 333 ai-bookkeeper node tests instead."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Probed readStatement with edge cases (preamble, totals row, BOM/semicolon, debit/credit); only non-English headers failed. Aliases from general language knowledge, not real bank downloads. No agent doc/post written this run.",
+  "corrections": [],
+  "redteam": null
+}

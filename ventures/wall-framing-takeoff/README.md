@@ -20,6 +20,8 @@ construction in the US and bring its cost down: [ROADMAP.md](ROADMAP.md).
 
 ## What it does
 
+- **Floor framing** (CLI `--floor`, plan key `floor: {width, depth, joist, spacing, beam, blockingRows, doubleUnder}`). Joists on layout between rim boards, split over an optional beam so a 28 ft floor buys 16 ft boards; rim splices over joists; blocking; subfloor sheets across the joists with every end joint on a joist and courses staggered. Floor lumber is pooled with the walls in one cutting-stock order. Tested on the example 40 x 28 ft floor only; `doubleUnder: [x, ...]` adds a companion joist beside the one nearest each wall that runs along the joists (2026-10-22; inward at an edge; cut list kind "doubled floor joist"; no page field yet). `openings: [{x, y, width, depth}]` frames a stairwell (2026-10-22): the joists at or beside each side become trimmers (doubled outward), joists between them stop as tail joists at a doubled header at each end, clear width reported, kinds "floor header", "trimmer joist", "tail joist" in the cut list; rejected over the beam or too near an edge; the subfloor is not reduced by the cut-out; node-tested on hand-computed counts, no page field. Cantilevers are not modelled.
+
 - **Layout.** An end stud at each end; a stud centred on every multiple of the
   spacing from the start end (the second stud's edge at 15-1/4" for 16 o.c.).
   Openings replace the layout studs they cover with kings, jacks, a built-up
@@ -141,7 +143,7 @@ column is the extreme case: 22% more board).
 
 ## Advanced framing (2026-10-22)
 
-Plan `"advanced": { "twoStudCorners": true, "ladderTees": true }` (or the
+Plan `"advanced": { "twoStudCorners": true, "ladderTees": true, "singleTopPlate": true }` (or the
 "Advanced framing" menu on the page):
 
 - `twoStudCorners` puts one backing stud in a `corner: true` wall instead of
@@ -151,6 +153,13 @@ Plan `"advanced": { "twoStudCorners": true, "ladderTees": true }` (or the
   nail to. Where those studs are more than one stud spacing apart, or an
   opening is between them, that tee keeps standard backing and a note says so.
   The blocks come out of offcuts in the order.
+- `singleTopPlate` (2026-10-22) leaves out the cap plate, so the wall is 1-1/2 in
+  shorter. With nothing lapping the top plate's joints, each joint, corner and
+  tee takes a steel plate tie; the count is `plateTies` on the wall and a note
+  lists where (ties are not in the takeoff). It needs roof or floor framing
+  within 1 in of the stud centres (the IRC R602.3.2 exception; check your
+  edition), which this tool cannot see. On the example house it takes 345 pieces
+  / 253 boards / $2,384.16 down to 329 / 238 / $2,173.88 (-8.8%, 20 ties).
 
 Measured on the built-in example house (`samplePlan`, 8 walls, priced stock;
 `takeoff().summary`):
@@ -225,7 +234,7 @@ yourself.
 
 **Privacy.** Everything runs in your browser. Your plan is never uploaded, and
 there are no accounts, tracking cookies, or analytics vendor. The page counts
-anonymous events (`takeoff_run`, `example_loaded`, `csv_downloaded`, `drawings_downloaded`,
+anonymous events (`takeoff_run`, `example_loaded`, `csv_downloaded`, `drawings_downloaded`, `panel_order_downloaded`,
 `plan_saved`, `plan_opened`) in your browser's local storage only, and keeps
 your last plan there so it is back when you return; the footer has a switch to
 turn counting off.

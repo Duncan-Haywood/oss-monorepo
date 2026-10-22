@@ -1199,3 +1199,41 @@ test('ar1mean cost of a perfectly constant segment is only the stationary-start 
   const cost = makeCost(Array(10).fill(5), 'ar1mean', 1, rho);
   assert.ok(Math.abs(cost(0, 10) - -Math.log(1 - rho * rho)) < 1e-9);
 });
+
+test('--burst-runs cuts a 3-day plateau that single-day bursts miss, and leaves a step alone', () => {
+  const base = Array.from({ length: 80 }, (_, i) => 30 + ((i * 7) % 5));
+  const run = base.slice(); for (const i of [40, 41, 42]) run[i] = 75;
+  const one = analyze({ values: run, model: 'poisson', bursts: true });
+  const many = analyze({ values: run, model: 'poisson', bursts: true, burstRuns: 5 });
+  assert.equal(one.bursts.length, 0);
+  assert.deepEqual(many.bursts.map((b) => b.index), [40, 41, 42]);
+  assert.ok(many.pelt.changepoints.length < one.pelt.changepoints.length);
+  const step = base.map((v, i) => (i >= 40 ? Math.round(v * 2.5) : v));
+  assert.equal(analyze({ values: step, model: 'poisson', bursts: true, burstRuns: 5 }).bursts.length, 0);
+});
+
+test('each change carries a 95% range that holds the planted date and narrows with a bigger shift', () => {
+  let seed = 7;
+  const rnd = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return (seed + 0.5) / 4294967296; };
+  const gauss = () => Math.sqrt(-2 * Math.log(rnd())) * Math.cos(2 * Math.PI * rnd());
+  const width = (shift) => {
+    const x = Array.from({ length: 160 }, (_, t) => gauss() + (t >= 80 ? shift : 0));
+    const r = analyze({ values: x }).pelt.changepoints[0].range95;
+    assert.ok(r.fromIndex <= 80 && 80 <= r.toIndex, `range ${r.fromIndex}-${r.toIndex} should hold 80`);
+    return r.toIndex - r.fromIndex;
+  };
+  assert.ok(width(4) <= width(1.5));
+  const nile = analyze({ csv: readFileSync(new URL('./data/nile.csv', import.meta.url), 'utf8') }).pelt.changepoints[0];
+  assert.ok(nile.range95.fromIndex <= nile.index && nile.index <= nile.range95.toIndex);
+  assert.equal(analyze({ csv: readFileSync(new URL('./data/nile.csv', import.meta.url), 'utf8'), intervals: false }).pelt.changepoints[0].range95, undefined);
+});
+
+test('sticky series without --ar1 carry a range warning, white noise and --ar1 do not', () => {
+  let seed = 11;
+  const rnd = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return (seed + 0.5) / 4294967296; };
+  const gauss = () => Math.sqrt(-2 * Math.log(rnd())) * Math.cos(2 * Math.PI * rnd());
+  const make = (rho) => { let e = gauss(); return Array.from({ length: 200 }, (_, t) => { e = rho * e + Math.sqrt(1 - rho * rho) * gauss(); return e + (t >= 100 ? 2 : 0); }); };
+  assert.ok(analyze({ values: make(0.7) }).rangeWarning);
+  assert.equal(analyze({ values: make(0) }).rangeWarning, undefined);
+  assert.equal(analyze({ values: make(0.7), ar1: true }).rangeWarning, undefined);
+});

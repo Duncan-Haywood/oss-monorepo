@@ -1390,7 +1390,7 @@ export function analyze(input = {}) {
   const rawCounts = values;
   if (o.bursts) {
     if (model !== 'poisson') throw new Error('The burst rule is for counts: use model "poisson".');
-    const b = findBursts(values, { period, ratio: typeof o.bursts === 'number' ? o.bursts : 2.5 });
+    const b = findBursts(values, { period, ratio: typeof o.bursts === "number" ? o.bursts : 2.5, runs: o.burstRuns || 0, ...(o.burstRunRatio ? { runRatio: o.burstRunRatio } : {}) });
     burstInfo = b.indexes.map((i) => ({ index: i, label: labels[i], value: values[i], keptAs: b.counts[i] }));
     values = b.counts;
   }
@@ -1491,6 +1491,18 @@ export function analyze(input = {}) {
   }
   const b = bocpd(bvals, { ...(rho ? { rho, prior: { ...defaultPrior(prewhiten(values, rho)), mu: median(values) } } : {}), hazardLambda: Number(o.hazardLambda) || 100, lag: Math.max(1, Math.floor(Number(o.lag) || 5)), model: model === 'trend' ? 'mean' : model, exposure, dispersion: phi ?? 1, nbSize: isFinite(nbSize) && nbSize > 0 ? nbSize : 0 });
   const det = peaks(b.changeProb, Number(o.threshold) || 0.5);
+  // joint AR(1) fits use their own likelihood, so no range is offered for them
+  let ranges = null;
+  if (!joint && o.intervals !== false) {
+    const nbOn = isFinite(nbSize) && nbSize > 0;
+    ranges = changeIntervals(p.changepoints, values.length, nbOn ? makeCost(values, 'negbin', sigma, 0, exposure, nbSize) : makeCost(values, model, sigma, 0, exposure), { minSegment, level: 0.95 });
+  }
+  // the range assumes independent noise: on sticky series without --ar1 it is far too narrow (57% and 30% coverage, README)
+  let rangeWarning = null;
+  if (ranges && model === 'mean' && !o.ar1 && values.length >= 20) {
+    const r0 = ar1Rho(values);
+    if (r0 >= 0.3) rangeWarning = `The series looks autocorrelated (rho about ${round(r0, 2)}), so these ranges are too narrow: use --ar1 (page: allow for autocorrelation).`;
+  }
   const changes = p.changepoints.map((i, k) => {
     const before = segments[k];
     const after = segments[k + 1];
@@ -1514,6 +1526,7 @@ export function analyze(input = {}) {
       sdBefore: before.sd,
       sdAfter: after.sd,
       bocpdProbWithin3: round(near, 3),
+      ...(ranges ? { range95: { from: labels[ranges[k].from], to: labels[ranges[k].to], fromIndex: ranges[k].from, toIndex: ranges[k].to } } : {}),
     };
   });
   const summary = summarize({ n: values.length, column, model, changes, det, labels, prob: b.changeProb, skipped });
@@ -1527,6 +1540,7 @@ export function analyze(input = {}) {
     ...(slope !== null ? { trend: { slopePerPoint: round(slope, 6), ...(knot !== undefined ? { slopeAfter: round(slopeAfter, 6), slopeChangesAt: knot, ...(knots.length > 1 ? { slopeChangesAtAll: knots, slopes: slopes.map((v) => round(v, 6)) } : {}) } : {}) } } : {}),
     ...(growth !== null ? { trend: { logGrowthAcrossSeries: round(growth, 4), growthFactorAcrossSeries: round(Math.exp(growth), 4), multiplicative: true, ...(countKnot !== undefined ? { growthChangesAt: countKnot, logGrowthAcrossSeriesAfter: round(growthAfter, 4), ...(countKnots.length > 1 ? { growthChangesAtAll: countKnots, logGrowthAcrossSeriesRates: countRates.map((v) => round(v, 4)) } : {}) } : {}) } } : {}),
     ...(holidayFit ? { holidays: { count: holidayFit.count, factor: round(holidayFit.factor, 3), ...(holidayFit.kinds ? { kinds: holidayFit.kinds.map((k) => ({ ...k, factor: round(k.factor, 3) })) } : {}) } } : {}),
+    ...(rangeWarning ? { rangeWarning } : {}),
     ...(rho !== null ? { ar1: { rho: round(rho, 3) } } : {}),
     ...(phi !== null ? { dispersion: round(phi, 3) } : {}),
     ...(burstInfo ? { bursts: burstInfo } : {}),
@@ -1547,13 +1561,39 @@ export function analyze(input = {}) {
 }
 
 /**
+ * Where exactly did a change happen? A credible range for each PELT change date: with the neighbouring changes held
+ * fixed, every start k of the later segment is weighted exp(-(cost(k) - min cost) / 2) (the profile likelihood, since
+ * the cost is -2 log-likelihood), and the most likely starts that together hold `level` of the weight are returned as
+ * the first and last of them. It is a likelihood range under the fitted model, not an exact frequentist interval;
+ * eval/change-interval.mjs measures how often it holds the planted date.
+ */
+export function changeIntervals(changepoints, n, cost, { minSegment = 2, level = 0.95 } = {}) {
+  const ms = Math.max(1, Math.floor(minSegment));
+  return changepoints.map((c, j) => {
+    const a = j ? changepoints[j - 1] : 0;
+    const b = j + 1 < changepoints.length ? changepoints[j + 1] : n;
+    const lo = a + ms, hi = b - ms;
+    if (hi < lo) return { index: c, from: c, to: c, level };
+    const ks = [], cs = [];
+    for (let k = lo; k <= hi; k++) { ks.push(k); cs.push(cost(a, k) + cost(k, b)); }
+    const m = Math.min(...cs);
+    const w = cs.map((v) => Math.exp(-(v - m) / 2));
+    const tot = w.reduce((u, v) => u + v, 0);
+    const order = w.map((_, i) => i).sort((u, v) => w[v] - w[u]);
+    let acc = 0, from = Infinity, to = -Infinity;
+    for (const i of order) { acc += w[i] / tot; from = Math.min(from, ks[i]); to = Math.max(to, ks[i]); if (acc >= level) break; }
+    return { index: c, from, to, level };
+  });
+}
+
+/**
  * Isolated bursts in a count series: single days (or short runs) far above BOTH sides, e.g. a link going viral.
  * The reference is the median of up to `side` same-phase neighbours before and after (lag `period`, or the
  * adjacent points without a period); a point is a burst when it is at least `ratio` times the larger of the two
  * and clears a Poisson-sized excess. A step is high against one side only, so it is never flagged.
  * Returns the flagged indexes and a copy of the counts with each burst cut back to its reference.
  */
-export function findBursts(x, { period = 0, ratio = 2.5, side = period ? 3 : 5, skip = null } = {}) {
+export function findBursts(x, { period = 0, ratio = 2.5, side = period ? 3 : 5, skip = null, runs = 0, runRatio = 2 } = {}) {
   const n = x.length, lag = period || 1;
   const med = (a) => { if (!a.length) return null; const s = [...a].sort((p, q) => p - q); const m = s.length >> 1; return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; };
   const out = [], cut = x.slice();
@@ -1568,6 +1608,46 @@ export function findBursts(x, { period = 0, ratio = 2.5, side = period ? 3 : 5, 
     if (mb === null && ma === null) continue;
     const ref = Math.max(mb ?? 0, ma ?? 0);
     if (x[t] >= ratio * Math.max(ref, 1) && x[t] - ref > 4 * Math.sqrt(ref + 1)) { out.push(t); cut[t] = Math.round(ref); }
+  }
+  if (runs) {
+    // Short runs (2 to `runs` points): the whole block sits above the reference of the same-phase points outside it
+    // (on both sides), at `runRatio` times the reference on average, and its summed excess clears a Poisson-sized bar.
+    const flagged = new Set(out), side2 = period ? 3 : 8;
+    const ref = (t) => {
+      const before = [], after = [];
+      for (let k = 1; k <= side2; k++) {
+        if (t - k * lag >= 0) before.push(x[t - k * lag]);
+        if (t + k * lag < n) after.push(x[t + k * lag]);
+      }
+      return [med(before), med(after)];
+    };
+    for (let L = runs; L >= 2; L--) {
+      for (let s = 0; s + L <= n; s++) {
+        let ok = true;
+        for (let i = s; i < s + L; i++) if (flagged.has(i) || (skip && skip.has(i))) { ok = false; break; }
+        if (!ok) continue;
+        const refs = [];
+        if (period) {
+          for (let i = s; i < s + L && ok; i++) {
+            const [mb, ma] = ref(i);
+            if (mb === null || ma === null) ok = false; else refs.push(Math.max(mb, ma));
+          }
+        } else {
+          // no period: the points just outside the run, on both sides
+          const before = [], after = [];
+          for (let k = 1; k <= side2; k++) { if (s - k >= 0) before.push(x[s - k]); if (s + L - 1 + k < n) after.push(x[s + L - 1 + k]); }
+          if (!before.length || !after.length) ok = false;
+          else for (let i = 0; i < L; i++) refs.push(Math.max(med(before), med(after)));
+        }
+        if (!ok) continue;
+        let sum = 0, rsum = 0, allHigh = true;
+        for (let i = 0; i < L; i++) { sum += x[s + i]; rsum += refs[i]; if (x[s + i] < runRatio * Math.max(refs[i], 1) * 0.8) allHigh = false; }
+        if (allHigh && sum >= runRatio * Math.max(rsum, L) && sum - rsum > 4 * Math.sqrt(rsum + L)) {
+          for (let i = 0; i < L; i++) { out.push(s + i); flagged.add(s + i); cut[s + i] = Math.round(refs[i]); }
+        }
+      }
+    }
+    out.sort((a, b) => a - b);
   }
   return { indexes: out, counts: cut };
 }

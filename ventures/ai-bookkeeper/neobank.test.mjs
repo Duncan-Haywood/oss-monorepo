@@ -53,3 +53,75 @@ test("Mercury: pending rows are reported, not imported", () => {
   assert.deepEqual(r.rows.map((x) => x.cents), [-12050, 500000]);
   assert.equal(r.problems.length, 1);
 });
+
+test("Discover card: charges positive, DIRECTPAY row settles the sign", () => {
+  const r = read("discover-card.csv");
+  assert.equal(r.bank, "discover");
+  assert.deepEqual(r.rows.map((x) => x.cents), [-4217, -5999, 10216]);
+  assert.ok(r.inferred);
+});
+
+test("Citi card: debit and credit columns, Status column ignored", () => {
+  const r = read("citi-card.csv");
+  assert.equal(r.bank, "citi");
+  assert.deepEqual(r.rows.map((x) => x.cents), [-3850, 3850, -1725]);
+});
+
+test("US Bank and Ally checking are recognised and signed as written", () => {
+  const u = read("us-bank-checking.csv");
+  assert.equal(u.bank, "us-bank");
+  assert.deepEqual(u.rows.map((x) => x.cents), [-125000, 480000, -9640]);
+  const a = read("ally-checking.csv");
+  assert.equal(a.bank, "ally");
+  assert.deepEqual(a.rows.map((x) => x.cents), [-4500, 250000, -1299]);
+});
+
+test("Apple Card: charges positive, the ACH deposit row settles the sign", () => {
+  const r = read("apple-card.csv");
+  assert.equal(r.bank, "apple-card");
+  assert.deepEqual(r.rows.map((x) => x.cents), [-4217, -5999, 10216]);
+});
+
+test("Lloyds: day-first dates, debit and credit columns, balance chain holds", () => {
+  const r = read("lloyds-current.csv");
+  assert.equal(r.bank, "lloyds");
+  assert.deepEqual(r.rows.map((x) => x.cents), [-2450, 120000, -4500]);
+  assert.deepEqual(r.rows.map((x) => x.date), ["2026-03-02", "2026-03-04", "2026-03-05"]);
+  assert.equal(checkRunningBalance(r.rows).checked, true);
+});
+
+test("Barclays: day-first dates, Memo as description, no dates dropped", () => {
+  const r = read("barclays-current.csv");
+  assert.equal(r.bank, "barclays");
+  assert.deepEqual(r.problems, []);
+  assert.deepEqual(r.rows.map((x) => x.date), ["2026-03-05", "2026-03-13", "2026-03-14"]);
+  assert.deepEqual(r.rows.map((x) => x.cents), [-2499, 150000, -850]);
+  assert.equal(r.rows[1].desc, "CLIENT LTD INV 114");
+});
+
+test("PNC: withdrawals and deposits columns, quoted thousands, balance chain holds", () => {
+  const r = read("pnc-checking.csv");
+  assert.equal(r.bank, "pnc");
+  assert.deepEqual(r.problems, []);
+  assert.deepEqual(r.rows.map((x) => x.cents), [-4520, 200000, -30000]);
+  assert.equal(checkRunningBalance(r.rows).checked, true);
+});
+
+test("Schwab: Withdrawal and Deposit columns with dollar signs, balance chain holds", () => {
+  const r = read("schwab-checking.csv");
+  assert.equal(r.bank, "schwab");
+  assert.deepEqual(r.problems, []);
+  assert.deepEqual(r.rows.map((x) => x.cents), [-4520, 200000, -30000]);
+  assert.equal(checkRunningBalance(r.rows).checked, true);
+});
+
+test("European headers: German, French and Spanish exports with decimal commas", () => {
+  const opt = { dayFirst: true, decimalComma: true };
+  const de = readStatement("Buchungstag;Verwendungszweck;Betrag;Saldo\n02.01.2026;Kaffee;-4,50;95,50\n03.01.2026;Gehalt;100,00;195,50\n", opt);
+  assert.deepEqual(de.rows.map((x) => x.cents), [-450, 10000]);
+  assert.equal(checkRunningBalance(de.rows).breaks.length, 0);
+  const fr = readStatement("Date;Libellé;Débit;Crédit\n02/01/2026;LOYER;1 000,00;\n03/01/2026;VENTE;;50,00\n", opt);
+  assert.deepEqual(fr.rows.map((x) => x.cents), [-100000, 5000]);
+  const es = readStatement("Fecha;Concepto;Importe;Saldo\n02/01/2026;CAFE;-4,50;95,50\n", opt);
+  assert.deepEqual(es.rows.map((x) => x.cents), [-450]);
+});

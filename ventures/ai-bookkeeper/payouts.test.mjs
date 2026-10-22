@@ -225,3 +225,41 @@ test("Stripe reserved funds go to the clearing asset, not other income, and a re
   assert.deepEqual(plan.matched[0].parts, [{ account: "4000", cents: 50000 }, { account: "6010", cents: -1500 }, { account: "1200", cents: -10000 }]);
   assert.deepEqual(plan.matched[1].parts, [{ account: "1200", cents: 10000 }]);
 });
+
+test("a full-width Shopify payout transactions export: dispute fees are fees, the payout row is skipped, unpaid rows are pending", () => {
+  const shop = `Transaction Date,Type,Order ID,Card Brand,Card Source,Payout Status,Payout Date,Payout ID,Available On,Amount,Fee,Net,Checkout,Payment Method Name,Presentment Amount,Presentment Currency,Currency,Vat,Business Entity Name
+2026-03-01 10:00:00 -0500,charge,1001,visa,online,paid,2026-03-04,555,2026-03-04,100.00,3.20,96.80,c1,visa,100.00,USD,USD,,Acme
+2026-03-02 10:00:00 -0500,refund,1001,visa,online,paid,2026-03-04,555,2026-03-04,-20.00,0.00,-20.00,c1,visa,-20.00,USD,USD,,Acme
+2026-03-02 11:00:00 -0500,chargeback_fee,1002,visa,online,paid,2026-03-04,555,2026-03-04,-15.00,0.00,-15.00,c2,visa,,USD,USD,,Acme
+2026-03-03 11:00:00 -0500,chargeback,1002,visa,online,paid,2026-03-04,555,2026-03-04,-50.00,0.00,-50.00,c2,visa,,USD,USD,,Acme
+2026-03-04 11:00:00 -0500,payout,,,,paid,2026-03-04,555,2026-03-04,-11.80,0.00,-11.80,,,,USD,USD,,Acme
+2026-03-05 11:00:00 -0500,charge,1003,visa,online,pending,,,2026-03-08,10.00,0.59,9.41,c3,visa,10.00,USD,USD,,Acme
+`;
+  const r = readPayoutReport(shop);
+  assert.deepEqual(r.problems, []);
+  assert.equal(r.payouts.length, 1);
+  assert.equal(r.payouts[0].net, 1180);
+  assert.equal(r.pending.length, 1);
+  const plan = planPayouts(books([["2026-03-05", "SHOPIFY", "11.80"]]), r, {});
+  assert.equal(plan.matched.length, 1);
+  assert.ok(!plan.matched[0].parts.some((x) => x.account === "4100"), "dispute fees are not other income");
+  assert.equal(plan.matched[0].parts.reduce((a, x) => a + x.cents, 0), 1180);
+});
+
+test("an Etsy payment-account ledger is grouped under each deposit, newest first", () => {
+  const e = `Date,Type,Title,Info,Currency,Amount,Fees & Taxes,Net,Tax Details
+"March 5, 2026",Deposit,Deposit to bank,,USD,--,--,-$99.30,
+"March 4, 2026",Fee,Listing fee,,USD,--,--,-$0.20,
+"March 3, 2026",Refund,Refund to buyer,Order #3,USD,-$10.00,--,-$10.00,
+"March 2, 2026",Sale,Payment for Order #2,,USD,$50.00,-$2.50,$47.50,
+"March 1, 2026",Sale,Payment for Order #1,,USD,$65.00,-$3.00,$62.00,
+"March 6, 2026",Sale,Payment for Order #4,,USD,$20.00,-$1.00,$19.00,
+`;
+  const r = readPayoutReport(e);
+  assert.deepEqual(r.problems, []);
+  assert.equal(r.payouts.length, 1);
+  assert.equal(r.payouts[0].net, 9930);
+  assert.equal(r.payouts[0].gross, 10500);
+  assert.equal(r.payouts[0].fees, 570);
+  assert.equal(r.pending.length, 1);
+});

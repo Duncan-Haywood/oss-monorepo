@@ -1,3 +1,4 @@
+import math
 import shutil
 import subprocess
 import tempfile
@@ -14,6 +15,7 @@ from shootflow.frame_analysis import (
     framing_from_frame,
     hamming_distance,
     metrics_from_frames,
+    tilt_from_frame,
 )
 from shootflow.story import AssetAnalysis
 
@@ -41,6 +43,44 @@ def _patch(cx: int, cy: int, half: int = 20) -> bytes:
         for y in range(FRAME_HEIGHT)
         for x in range(FRAME_WIDTH)
     )
+
+
+def _horizon(degrees: float) -> bytes:
+    """Dark ground under a bright sky; the boundary leans ``degrees`` (right side lower)."""
+
+    slope = math.tan(math.radians(degrees))
+    # A soft edge (a 10 px ramp), as a lens renders it; a hard staircase has no angle to read.
+    norm = math.sqrt(1.0 + slope * slope)
+    return bytes(
+        round(125 - 75 * max(-1.0, min(1.0, (y - FRAME_HEIGHT / 2 - (x - FRAME_WIDTH / 2) * slope) / norm / 5.0)))
+        for y in range(FRAME_HEIGHT)
+        for x in range(FRAME_WIDTH)
+    )
+
+
+class TiltTests(unittest.TestCase):
+    def test_level_horizon_has_no_tilt(self) -> None:
+        tilt, confidence = tilt_from_frame(_horizon(0))
+        self.assertAlmostEqual(tilt, 0.0, delta=0.3)
+        self.assertGreater(confidence, 0.8)
+
+    def test_leaning_horizon_is_measured_with_its_sign(self) -> None:
+        for degrees in (-4.0, 3.0, 6.0):
+            tilt, _ = tilt_from_frame(_horizon(degrees))
+            self.assertAlmostEqual(tilt, degrees, delta=1.0, msg=f"{degrees}")
+
+    def test_flat_frame_and_diagonals_are_not_penalised(self) -> None:
+        self.assertEqual(tilt_from_frame(bytes([120]) * SIZE), (0.0, 0.0))
+        diagonal = bytes(200 if (x + y) % 40 < 20 else 50 for y in range(FRAME_HEIGHT) for x in range(FRAME_WIDTH))
+        _, confidence = tilt_from_frame(diagonal)
+        self.assertLess(confidence, 0.1)
+
+    def test_crooked_horizon_loses_story_score(self) -> None:
+        level = metrics_from_frames([_horizon(0)])
+        crooked = metrics_from_frames([_horizon(5)])
+        self.assertEqual(level.level, 1.0)
+        self.assertLess(crooked.level, 0.2)
+        self.assertLess(crooked.story_score, level.story_score)
 
 
 class FramingTests(unittest.TestCase):
