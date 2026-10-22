@@ -24,6 +24,8 @@
       <itunes:summary>A solar vaccine fridge fails in the night and freezes the top shelf, and twenty-three mothers have walked in for their babies' injections. The clinic's cold-chain AI says no dose can be given from that shelf until a shake test has been done, and the test needs a control vial that must freeze for ten hours. The nurse has to ask the mothers to stay the night.</itunes:summary>
       <itunes:episodeType>full</itunes:episodeType>
       <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://example.invalid/hearth-and-horizon/audio/the-control-vial.mp3" length="7766527" type="audio/mpeg"/>
+      <itunes:duration>0:21:34</itunes:duration>
     </item>
     <item>
       <title>The Ice Road</title>
