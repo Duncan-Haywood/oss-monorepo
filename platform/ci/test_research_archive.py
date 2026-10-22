@@ -8,6 +8,7 @@ import subprocess
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 import research_archive as archive
 
@@ -134,6 +135,36 @@ class Branches(unittest.TestCase):
         self.assertEqual(self.archive(do_push=False), {"archive/research/moving": tip})
         self.archive()
         self.assertEqual(archive.archived_refs(self.here, "origin")["archive/research/moving"], tip)
+
+    def test_ready_only_reads_origin_and_names_branches_that_would_be_lost(self):
+        sh(self.work, "checkout", "-qb", "claude/x")
+        tip = self.commit("x")
+        self.push_up("claude/x", "refs/heads/claude/x")
+        checks = archive.ready(self.here, str(self.upstream), "origin", None, None)
+        self.assertEqual(archive.archived_refs(self.here, "origin"), {}, "ready never pushes")
+        branches = next(c for c in checks if c["name"] == "branches")
+        self.assertFalse(branches["ok"])
+        self.assertIn("archive/research/claude/x", branches["detail"])
+        meta = self.here.parent / "meta"
+        archive.write_bundle(self.here, meta, self.wanted())
+        checks = archive.ready(self.here, str(self.upstream), "origin", None, meta)
+        self.assertTrue(next(c for c in checks if c["name"] == "branches")["ok"])
+        self.assertEqual(archive.bundled(self.here, meta)["archive/research/claude/x"], tip)
+
+    def test_ready_exit_code_follows_the_checks(self):
+        cwd = os.getcwd()
+        self.addCleanup(os.chdir, cwd)
+        os.chdir(self.here)
+        with mock.patch.object(archive, "token_query", return_value=None), mock.patch("sys.stdout"):
+            self.assertEqual(archive.main(["--upstream", str(self.upstream), "ready"]), 1)
+            with mock.patch.object(archive, "ready", return_value=[{"name": "a", "ok": True, "detail": "d"}]):
+                self.assertEqual(archive.main(["--upstream", str(self.upstream), "ready"]), 0)
+
+    def test_dump_keeps_non_ascii_readable(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "sub" / "x.json"
+            archive.dump(path, {"body": "café ✓"})
+            self.assertIn("café ✓", path.read_text())
 
 
 def conn(nodes, more=False, cursor=None):
