@@ -147,7 +147,7 @@ function embeddedFiles(data) {
     if (objAt !== -1) {
       const windowStart = Math.max(0, objAt - 512);
       const name = attachmentName(text.slice(windowStart, match.index + 800));
-      const stream = readStreamAfter(data, text, match.index);
+      const stream = readStreamAfter(data, text, match.index, objAt);
       const head = text.slice(Math.max(0, objAt - 24), objAt + 3).match(/(\d+)\s+(\d+)\s+obj$/);
       if (stream) pushLatest(attachments, { name, objNum: head ? Number(head[1]) : null, gen: head ? Number(head[2]) : 0, ...stream });
     }
@@ -174,18 +174,19 @@ function attachmentName(window) {
     .trim();
 }
 
-function readStreamAfter(data, text, typeAt) {
+// The whole object dictionary is the header: generators put /Filter and
+// /Length before or after /Type, and /Length is often an indirect "N 0 R".
+function readStreamAfter(data, text, typeAt, objAt) {
   const streamAt = text.indexOf("stream", typeAt);
-  if (streamAt === -1 || streamAt - typeAt > 1024) return null;
-  const header = text.slice(typeAt, streamAt);
+  if (streamAt === -1 || streamAt - objAt > 1024) return null;
+  const header = text.slice(objAt, streamAt);
   const flate = /\/Filter\s*(?:\/FlateDecode|\[\s*\/FlateDecode\s*\])/.test(header);
   let after = streamAt + "stream".length;
   if (text.slice(after, after + 2) === "\r\n") after += 2;
   else if (text[after] === "\n" || text[after] === "\r") after += 1;
-  const lengthMatch = header.match(/\/Length\s+(\d+)/);
-  let payload;
-  if (lengthMatch) {
-    const length = Number(lengthMatch[1]);
+  const length = declaredLength(text, header);
+  let payload = null;
+  if (length != null && /^\s*endstream/.test(text.slice(after + length, after + length + 16))) {
     payload = data.subarray(after, after + length);
   } else {
     const end = text.indexOf("endstream", after);
@@ -198,6 +199,14 @@ function readStreamAfter(data, text, typeAt) {
     }
   }
   return { flate, payload };
+}
+
+function declaredLength(text, header) {
+  const match = header.match(/\/Length\s+(\d+)(?:\s+(\d+)\s+R\b)?/);
+  if (!match) return null;
+  if (match[2] === undefined) return Number(match[1]);
+  const target = text.match(new RegExp(`(?:^|[\\s>])${match[1]}\\s+${match[2]}\\s+obj\\s*(\\d+)\\s*endobj`));
+  return target ? Number(target[1]) : null;
 }
 
 async function inflateZlib(payload) {

@@ -16,7 +16,11 @@ searching for an e-invoice preflight check. CII is the XML an ERP actually
 emits when it is not UBL; a Factur-X PDF is only the envelope around that XML.
 When a PDF unwraps, the result names the standard attachment
 (`factur-x.xml`, `zugferd-invoice.xml`, or `xrechnung.xml`) and the syntax
-(CII or UBL). Custom attachment names are not echoed.
+(CII or UBL). Custom attachment names are not echoed. The attachment stream is
+found whatever order the generator wrote its dictionary in (`/Filter` or `/Length`
+before `/Type`) and with an indirect `/Length 5 0 R`; before 2026-10-22 those
+PDFs were refused as having no invoice XML (found by building such files; tested
+on hand-made PDFs, not yet on a real Mustang, Ghostscript or Acrobat export).
 
 **XRechnung profile (Germany).** Tick "Also apply the German XRechnung rules"
 on the page, or call the API with `POST /v1/validate?profile=xrechnung`, to add
