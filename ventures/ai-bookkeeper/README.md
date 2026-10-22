@@ -173,6 +173,10 @@ about the script, not a model, and are not a result. On one seed the review
 queue is 157 lines and the deterministic top suggestion is right on 63.7%,
 with 22.3% having none: that is the bar a model has to beat.
 
+### Round-trip property test (2026-10-22)
+
+`node --test eval/roundtrip-fuzz.test.mjs` renders 40 seeded random statements (5-34 rows) with the quirks real exports have and checks `readStatement` returns exactly the rows rendered: BOM, CRLF, `;` delimiter, quoted commas and quotes, parenthesised negatives, thousands separators, European decimals, split debit/credit columns, and ISO, M/D/Y, D/M/Y and "12 Mar 2026" dates. 40 of 40 pass. Generated, not real bank data; a row that reads "PAYMENT - THANK YOU" is left out on purpose, because the card sign heuristic flips signs for it.
+
 ### Checked by hand
 
 - The page runs in headless Chromium. It loads the example, accepts
