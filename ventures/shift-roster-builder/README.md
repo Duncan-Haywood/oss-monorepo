@@ -100,6 +100,20 @@ Guide pages, each with figures a test re-derives from the engine: [how to make a
 - **Subscription schedulers** (7shifts, When I Work, Homebase, Deputy and similar): staff apps, shift swaps, time clocks and payroll hand-off. They want accounts for you and your staff, and most price per user or per location. This tool does none of that. It solves one week at a time with no signup and no upload.
 - **What this adds:** a solver that fills as many shifts as the rules allow, prices overtime and split shifts, names the shifts it cannot fill and why, and shows who the week depends on. Your staff list stays in your browser. If you need staff-facing apps, a time clock or multi-week publishing, a subscription product is the better fit.
 
+## Where the exact proof breaks (measured 2026-10-22)
+
+`node eval/scale-bench.mjs [cases] [exactNodes]` grows seeded random weeks (all-different people, 1-2 heads per shift, 100,000-node limit, 20 s) and counts how many are proven. 8 cases per size:
+
+| people x shifts | proven | nodes visited |
+|---|---|---|
+| 6 x 14 | 6 of 8 | 432,354 |
+| 8 x 18 | 4 of 8 | 727,906 |
+| 8 x 22 | 2 of 8 | 915,149 |
+| 10 x 22 | 0 of 8 | 1,211,132 |
+| 10 x 28 | 0 of 8 | 1,193,955 |
+
+(The 12 x 30 row did not finish inside the 10-minute run.) So the proof is reliable to about 5 people and 14 shifts and gone by 10 people; beyond that the annealed roster is the answer and the report says it is not proven. The weeks here are drawn in one simple style and the node limit is the default one: a higher limit proves more (the 3M-node note above), so read the table as where the default stops, not where proof is impossible. Next: see whether the unproven gap is open hours (the coverage pass) or cost.
+
 ## Limits
 
 Not modelled: predictive-scheduling and fair-workweek rules as built-in law (the changes report prices a rule you enter), paid rest breaks (unpaid meal breaks are deducted from paid time; a suggested meal-break time is shown but not enforced by the search), minor-labor limits other than the federal 14-15 rules in `age:` (state rules, work permits), union rules, seniority, time-off across weeks. A
