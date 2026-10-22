@@ -129,9 +129,11 @@ export function usesMidQuarter(books, year) {
 }
 
 // Section 179 dollar limit and investment threshold (cents) by year placed in
-// service. Typed from memory, NOT checked against the IRS pages (hosts were
-// unreachable); 2025 on reflects the 2025 law that doubled the 2024 figures
-// and indexes them yearly. Check before filing; pass `limits` to override.
+// service. 2026 ($2,560,000 / $4,090,000, Rev. Proc. 2025-32) and 2025
+// ($2,500,000 / $4,000,000, the 2025 law) agree across several published
+// secondary sources (checked 2026-10-22); the IRS host was unreachable from
+// the build container, so the Rev. Proc. text itself is still unread. 2024 is
+// Rev. Proc. 2023-34. Check before filing; pass `limits` to override.
 export const S179_LIMITS = {
   2024: { limit: 122000000, threshold: 305000000 },
   2025: { limit: 250000000, threshold: 400000000 },
@@ -195,7 +197,7 @@ export function taxDepreciation(books, year, { limits = S179_LIMITS, businessInc
   }
   const s179Income = s179IncomeLimit(books, year, { limits, businessIncome, carryIn });
   if (s179Income && s179Income.carryOut) warnings.push(`Section 179 is limited to taxable business income: ${money(s179Income.deductible)} is deductible this year and ${money(s179Income.carryOut)} carries to ${year + 1} (Form 4562 lines 9-13). The worksheet rows still show what you elected.`);
-  if (rows.some((r) => r.s179)) warnings.push(`Section 179 limits are typed from memory and unchecked against the IRS; ${businessIncome === null && !carryIn ? "pass the year's taxable business income to apply the taxable-income limit and carryforward" : "the taxable-income limit uses the income you supplied, before the 179 deduction"}.`);
+  if (rows.some((r) => r.s179)) warnings.push(`Section 179 limits agree with published secondary sources but are unchecked against the IRS text; ${businessIncome === null && !carryIn ? "pass the year's taxable business income to apply the taxable-income limit and carryforward" : "the taxable-income limit uses the income you supplied, before the 179 deduction"}.`);
   for (const r of rows) {
     const bp = (books.assets ?? []).find((a) => a.id === r.id)?.tax?.bonusPct ?? 0;
     const py = +r.placed.slice(0, 4);

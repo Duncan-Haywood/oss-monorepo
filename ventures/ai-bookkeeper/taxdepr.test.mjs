@@ -71,7 +71,7 @@ test("worksheet compares with book depreciation and flags what it cannot check",
   assert.equal(w.rows[0].total, 100000 + 180000);
   assert.ok(w.rows[0].book > 0);
   assert.equal(w.rows[0].difference, w.rows[0].total - w.rows[0].book);
-  assert.ok(w.warnings.some((x) => /Section 179 limits are typed from memory/.test(x)));
+  assert.ok(w.warnings.some((x) => /Section 179 limits agree with published secondary sources/.test(x)));
 });
 
 test("mid-quarter test warning when over 40% lands in Q4; untreated assets are listed", () => {
