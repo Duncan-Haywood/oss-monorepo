@@ -11,6 +11,9 @@ Python, so nothing beyond ffmpeg is needed:
 - ``motion``: mean absolute difference between sampled frames (video only).
 - ``framing``: where the detail sits in the frame (detail-energy centroid against
   the rule-of-thirds points, and how much of the detail one region holds).
+- ``tilt_degrees`` / ``level``: how far the dominant near-horizontal or
+  near-vertical edges lean off the axes (positive: right side lower), and a
+  0..1 score that is 1.0 when level; a crooked horizon costs a little story score.
 - ``dhash``: 64-bit difference hash of the middle frame, for near-duplicate
   grouping by Hamming distance.
 
@@ -38,6 +41,11 @@ _FRAME_BYTES = FRAME_WIDTH * FRAME_HEIGHT
 _DURATION_PATTERN = re.compile(r"Duration:\s*(\d+):(\d+):(\d+(?:\.\d+)?)")
 _SHARPNESS_HALF_POINT = 60.0
 _DECODE_TIMEOUT_SECONDS = 300.0
+_TILT_FREE_DEGREES = 0.5
+_TILT_FULL_PENALTY_DEGREES = 5.0
+_TILT_STORY_WEIGHT = 0.08
+_TILT_SEARCH_DEGREES = 15
+_TILT_MIN_EDGES = 200
 
 
 @dataclass(frozen=True)
@@ -53,8 +61,16 @@ class FrameMetrics:
     clipped_shadows: float
     clipped_highlights: float
     dhash: str
+    tilt_degrees: float
+    tilt_confidence: float
     frames_sampled: int
     duration_seconds: float | None
+
+    @property
+    def level(self) -> float:
+        # Under half a degree is not noticed; 5 degrees or more is plainly crooked.
+        excess = max(0.0, abs(self.tilt_degrees) - _TILT_FREE_DEGREES)
+        return _clamp(1.0 - excess / (_TILT_FULL_PENALTY_DEGREES - _TILT_FREE_DEGREES))
 
     @property
     def technical_score(self) -> float:
@@ -68,7 +84,8 @@ class FrameMetrics:
     def story_score(self) -> float:
         # No semantic model: a documented blend of the measured scores.
         base = 0.6 * self.aesthetic_score + 0.4 * self.technical_score
-        return _clamp(0.85 * base + 0.15 * self.framing)
+        crooked = (1.0 - self.level) * self.tilt_confidence
+        return _clamp(0.85 * base + 0.15 * self.framing - _TILT_STORY_WEIGHT * crooked)
 
 
 def analyze_media(tools: FfmpegTools, source: Path, *, media_type: str) -> FrameMetrics:
@@ -121,6 +138,7 @@ def metrics_from_frames(
         motion = _clamp(sum(diffs) / len(diffs) / 32.0)
     variance = sorted(sharpness_values)[len(sharpness_values) // 2]
     framing, subject_x, subject_y = framing_from_frame(frames[best], width, height)
+    tilt, tilt_confidence = tilt_from_frame(frames[best], width, height)
     return FrameMetrics(
         sharpness=round(variance / (variance + _SHARPNESS_HALF_POINT), 6),
         exposure=round(_clamp(exposure), 6),
@@ -133,6 +151,8 @@ def metrics_from_frames(
         clipped_shadows=round(shadows, 6),
         clipped_highlights=round(highlights, 6),
         dhash=dhash_hex(middle, width, height),
+        tilt_degrees=round(tilt, 3),
+        tilt_confidence=round(tilt_confidence, 6),
         frames_sampled=len(frames),
         duration_seconds=duration_seconds,
     )
@@ -171,6 +191,47 @@ def framing_from_frame(frame: bytes, width: int = FRAME_WIDTH, height: int = FRA
     top_quarter = sum(sorted(cells, reverse=True)[: len(cells) // 4]) / total
     isolation = _clamp((top_quarter - 0.25) / 0.65)
     return _clamp(0.6 * placement + 0.4 * isolation), cx, cy
+
+
+def tilt_from_frame(frame: bytes, width: int = FRAME_WIDTH, height: int = FRAME_HEIGHT) -> tuple[float, float]:
+    """Estimate how far the frame leans off level: ``(tilt_degrees, confidence)``.
+
+    Strong edges vote with their gradient magnitude for the angle they sit off
+    the nearest axis (horizon, doorframe, wall: the world is mostly axis
+    aligned). The estimate is the weighted mean angle of the votes within
+    15 degrees of an axis, around the busiest degree. Confidence is the share
+    of strong-edge weight inside that window, 0 when there are too few strong
+    edges (a plain sky, a texture) to say. Positive tilt means the right side is
+    lower. A frame of tilted subjects (a diagonal staircase, a dancer) has
+    confidence near 0 and is not penalised.
+    """
+
+    votes: list[tuple[float, float]] = []
+    for y in range(1, height - 1):
+        row, below, above = y * width, (y + 1) * width, (y - 1) * width
+        for x in range(1, width - 1):
+            gx = frame[row + x + 1] - frame[row + x - 1]
+            gy = frame[below + x] - frame[above + x]
+            magnitude = math.hypot(gx, gy)
+            if magnitude < 20.0:
+                continue
+            angle = math.degrees(math.atan2(gy, gx)) % 90.0
+            votes.append((angle - 90.0 if angle > 45.0 else angle, magnitude))
+    if len(votes) < _TILT_MIN_EDGES:
+        return 0.0, 0.0
+    # Votes near +-45 degrees are diagonals, not horizons; the window ignores them.
+    bins = [0.0] * (2 * _TILT_SEARCH_DEGREES + 1)
+    for deviation, weight in votes:
+        if abs(deviation) <= _TILT_SEARCH_DEGREES:
+            bins[round(deviation) + _TILT_SEARCH_DEGREES] += weight
+    peak = max(range(len(bins)), key=lambda index: bins[index]) - _TILT_SEARCH_DEGREES
+    window = [(d, w) for d, w in votes if abs(d - peak) <= 1.5]
+    window_weight = sum(w for _, w in window)
+    if window_weight <= 0.0:
+        return 0.0, 0.0
+    mean = sum(d * w for d, w in window) / window_weight
+    confidence = window_weight / sum(w for _, w in votes)
+    return mean, _clamp(confidence)
 
 
 def dhash_hex(frame: bytes, width: int = FRAME_WIDTH, height: int = FRAME_HEIGHT) -> str:

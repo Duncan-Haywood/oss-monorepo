@@ -2260,6 +2260,8 @@ def _analysis_output_bytes(
                     "exposure": metrics.exposure,
                     "contrast": metrics.contrast,
                     "framing": metrics.framing,
+                    "tilt_degrees": metrics.tilt_degrees,
+                    "tilt_confidence": metrics.tilt_confidence,
                     "subject_x": metrics.subject_x,
                     "subject_y": metrics.subject_y,
                     "mean_luma": metrics.mean_luma,
