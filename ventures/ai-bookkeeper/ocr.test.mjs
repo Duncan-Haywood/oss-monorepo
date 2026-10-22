@@ -64,3 +64,24 @@ test("a real statement PDF reads to the same rows as its pasted text", { skip: s
   const r = readStatement(statementTextFromFile(f));
   assert.deepEqual(r.rows.map((x) => [x.date, x.cents]), [["2026-09-03", 120000], ["2026-09-05", -4520], ["2026-09-12", -1999]]);
 });
+
+test("cleanOcr leaves short mixed tokens and three-letter words next to digits alone", () => {
+  assert.equal(cleanOcr("Size S1"), "Size S1");
+  assert.equal(cleanOcr("Ref ATE1B234"), "Ref ATE1B234");
+  assert.equal(cleanOcr("Qty 5 .500"), "Qty 5 .500");
+  assert.equal(cleanOcr("Total 5 .50"), "Total 5.50");
+});
+
+test("a failed pdftotext is an error whatever way it fails, and its stderr is cut at 120", () => {
+  const ok = { status: 0, stdout: "Total 5.00\n" };
+  for (const read of [receiptTextFromFile, statementTextFromFile]) {
+    assert.equal(read("a.pdf", { run: () => ok }), ok.stdout);
+    assert.throws(() => read("a.pdf", { run: () => ({ status: 1, stdout: "x" }) }), /pdftotext/);
+    assert.throws(() => read("a.pdf", { run: () => ({ status: 2, stdout: "x" }) }), /pdftotext/);
+    assert.throws(() => read("a.pdf", { run: () => ({ status: 0, error: new Error("ENOENT"), stdout: "x" }) }), /pdftotext/);
+    assert.throws(() => read("a.pdf", { run: () => ({ status: 0, stdout: "  \n" }) }), /no text layer/);
+    const err = "e".repeat(300);
+    const msg = (() => { try { read("a.pdf", { run: () => ({ status: 1, stderr: err }) }); } catch (e) { return e.message; } })();
+    assert.ok(msg.includes("e".repeat(120)) && !msg.includes("e".repeat(121)));
+  }
+});
