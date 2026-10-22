@@ -1,0 +1,14 @@
+data        fit      base->step  found  covered  median width
+poisson     poisson  10->15               199/200  194/199 (97%)  7
+poisson     poisson  10->20               200/200  196/200 (98%)  2
+poisson     poisson  30->45               200/200  194/200 (97%)  2
+nb          poisson  10->15               188/200  65/188 (35%)  4
+nb          poisson  10->20               200/200  84/200 (42%)  2
+nb          poisson  30->45               200/200  11/200 (6%)  1
+nb          nb       10->15               179/200  165/179 (92%)  24
+nb          nb       10->20               200/200  186/200 (93%)  6
+nb          nb       30->45               189/200  173/189 (92%)  15
+
+rangeWarning fires (plain Poisson fit, 10 -> 20 step):
+poisson: 27/200
+nb: 165/200
