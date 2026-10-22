@@ -98,38 +98,41 @@ test("a Shopify payout transactions CSV reads and splits", () => {
   assert.deepEqual(plan.matched[0].parts, [{ account: "4000", cents: 8000 }, { account: "6010", cents: -320 }, { account: "4100", cents: -500 }]);
 });
 
-const SQUARE = `Payout ID,Payout Date,Payment ID,Payment Date,Type,Gross Sales,Fees,Net Total
-d1,2026-03-05,p1,2026-03-03,Card,100.00,-3.20,96.80
-d1,2026-03-05,p2,2026-03-04,Refund,-20.00,0.00,-20.00
+test("a PayPal activity CSV is grouped under each withdrawal, fees read as negatives", () => {
+  const pp = `Date,Time,Name,Type,Status,Currency,Gross,Fee,Net,Transaction ID
+03/01/2026,10:00:00,Ann,Website Payment,Completed,USD,100.00,-3.20,96.80,T1
+03/02/2026,11:00:00,Bob,Express Checkout Payment,Completed,USD,50.00,-1.75,48.25,T2
+03/02/2026,12:00:00,Bob,Payment Refund,Completed,USD,-10.00,0.00,-10.00,T3
+03/03/2026,09:00:00,Cy,Website Payment,Pending,USD,70.00,-2.00,68.00,T4
+03/04/2026,09:00:00,Bank,General Withdrawal,Completed,USD,-135.05,0.00,-135.05,W1
+03/05/2026,09:00:00,Dee,Website Payment,Completed,USD,20.00,-0.88,19.12,T5
 `;
-
-test("a Square layout (negative fees, net total) splits into sales, refunds and fees", () => {
-  const r = readPayoutReport(SQUARE);
-  assert.equal(r.payouts[0].net, 7680);
-  assert.equal(r.payouts[0].fees, 320);
-  const plan = planPayouts(books([["2026-03-06", "SQUARE INC", "76.80"]]), r);
-  assert.deepEqual(plan.matched[0].parts, [{ account: "4000", cents: 8000 }, { account: "6010", cents: -320 }]);
-});
-
-const PAYPAL = `"Date","Time","TimeZone","Name","Type","Status","Currency","Gross","Fee","Net","Transaction ID"
-"03/02/2026","10:00:00","PST","A","Website Payment","Completed","USD","50.00","-1.75","48.25","T1"
-"03/03/2026","10:00:00","PST","B","Payment Refund","Completed","USD","-10.00","0.00","-10.00","T2"
-"03/04/2026","10:00:00","PST","C","Website Payment","Pending","USD","99.00","-3.00","96.00","T3"
-"03/05/2026","10:00:00","PST","Bank","General Withdrawal","Completed","USD","-38.25","0.00","-38.25","W1"
-`;
-
-test("a PayPal activity CSV: a withdrawal is a payout of the completed rows before it; pending rows are left out", () => {
-  const r = readPayoutReport(PAYPAL);
+  const r = readPayoutReport(pp);
   assert.deepEqual(r.problems, []);
   assert.equal(r.payouts.length, 1);
-  assert.equal(r.payouts[0].id, "W1");
-  assert.equal(r.payouts[0].net, 3825);
-  const plan = planPayouts(books([["2026-03-06", "PAYPAL TRANSFER", "38.25"]]), r);
-  assert.deepEqual(plan.matched[0].parts, [{ account: "4000", cents: 4000 }, { account: "6010", cents: -175 }]);
+  assert.equal(r.payouts[0].net, 13505);
+  assert.equal(r.pending.length, 1);
+  const plan = planPayouts(books([["2026-03-05", "PAYPAL TRANSFER", "135.05"]]), r);
+  assert.equal(plan.matched.length, 1);
+  assert.deepEqual(plan.matched[0].parts, [{ account: "4000", cents: 14000 }, { account: "6010", cents: -495 }]);
 });
 
-test("a PayPal withdrawal that does not equal the rows before it is reported, not matched", () => {
-  const r = readPayoutReport(PAYPAL.replace('"-38.25","0.00","-38.25"', '"-30.00","0.00","-30.00"'));
+test("a PayPal withdrawal that includes a carried-over balance is not split", () => {
+  const pp = `Date,Time,Type,Status,Gross,Fee,Net,Transaction ID
+03/01/2026,10:00:00,Website Payment,Completed,100.00,-3.00,97.00,T1
+03/04/2026,09:00:00,General Withdrawal,Completed,-150.00,0.00,-150.00,W1
+`;
+  const r = readPayoutReport(pp);
   assert.equal(r.payouts.length, 0);
-  assert.match(r.problems[0], /withdrawal/);
+  assert.match(r.problems[0], /carried over/);
+});
+
+test("a Square layout (negative fees, net total) splits into sales, refunds and fees", () => {
+  const r = readPayoutReport(`Payout ID,Payout Date,Payment ID,Payment Date,Type,Gross Sales,Fees,Net Total
+d1,2026-03-05,p1,2026-03-03,Card,100.00,-3.20,96.80
+d1,2026-03-05,p2,2026-03-04,Refund,-20.00,0.00,-20.00
+`);
+  assert.equal(r.payouts[0].net, 7680);
+  const plan = planPayouts(books([["2026-03-06", "SQUARE INC", "76.80"]]), r);
+  assert.deepEqual(plan.matched[0].parts, [{ account: "4000", cents: 8000 }, { account: "6010", cents: -320 }]);
 });

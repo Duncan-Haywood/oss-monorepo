@@ -584,11 +584,15 @@ file in the documented layout (`fixtures/stripe-payouts.csv`): no real Stripe
 export has been tried. Shopify Payments' payout-transactions column names
 (Transaction Date, Type, Amount, Fee, Net, Payout Date, Payout ID) read through
 the same aliases, from the documented layout and a hand-written fixture only.
-Square and PayPal need their own handling (PayPal's report has no payout id).
+A PayPal activity CSV (Date, Time, Type, Status, Gross, Fee, Net, Transaction ID)
+has no payout id, so completed rows since the previous "withdrawal" row are
+grouped under it (fees read as negatives; pending rows listed as pending). A
+withdrawal is split only when those rows net exactly to it; otherwise a balance
+was carried over from before the report and it is listed under problems, not
+guessed. Hand-written fixture only, no real PayPal export tried. Square still
+needs its own handling.
 The page has a card for it (paste or pick the CSV, match, post), clicked through
 in headless Chromium.
-
-Square and PayPal (2026-10-22): the same command reads a Square payout/transactions CSV (`Payout ID`, `Payout Date`, `Type`, `Gross Sales`, `Fees`, `Net Total`) and a PayPal activity CSV. Both write fees as negatives; the sign is detected per report. PayPal has no payout id, so each `General Withdrawal` row is a payout made of the completed rows before it, and is kept only when they add up to the withdrawal exactly (otherwise listed under problems). Pending rows are ignored. Hand-written fixtures from the layouts as remembered; no real export has been tried.
 
 ### Reconcile to a paper statement (2026-10-22)
 
