@@ -54,6 +54,7 @@ const CATEGORY = {
   adjustment: "other", reserve: "reserve", risk_reserved_funds: "reserve", reserved_funds: "reserve", chargeback_won: "disputes", chargeback_reversal: "disputes",
   card: "sales", square_card: "sales", online_checkout: "sales", processing_fee: "fees",
   stripe_fx_fee: "fees", tax_fee: "fees", contribution: "fees", partial_capture_reversal: "refunds",
+  chargeback_fee: "fees", dispute_fee: "fees", chargeback_hold: "disputes", chargeback_hold_reversal: "disputes", dispute_withdrawal: "disputes", dispute_reversal_fee: "fees",
   payout: "skip", payout_cancel: "skip", payout_failure: "skip", transfer: "skip",
 };
 
