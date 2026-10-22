@@ -26,6 +26,7 @@ podcast, and share or adapt under **CC BY-SA 4.0**. There are three collections:
 - [Brigid and the Cloak](stories/brigid-and-the-cloak.md) (Little Lamps). Saint Brigid asks a king for as much land as her cloak will cover, as the old Lives of Brigid tell it (tradition, not history). Her feast day is 1 February. Text only so far: the Piper voice host was unreachable from the session that wrote it.
 - [Kevin and the Blackbird](stories/kevin-and-the-blackbird.md) (Little Lamps). Saint Kevin of Glendalough holds his hand still in a window until a blackbird's egg hatches, as the medieval Lives tell it (legend, not history). His feast day is 3 June. Audio: about 10 minutes.
 - [Francis and the Wolf of Gubbio](stories/francis-and-the-wolf-of-gubbio.md) (Little Lamps). The old tale from the *Fioretti* of the hungry wolf, the frightened town and the saint who asks what each needs, told as legend with a note for grown-ups. His feast day is 4 October. Audio: about 11 minutes.
+- [Thérèse and the Small Way](stories/therese-and-the-small-way.md) (Little Lamps). Saint Thérèse of Lisieux chooses the whole basket of dolls' clothes as a child, and as a Carmelite finds she is too small to climb to heaven and decides to be carried, from her own *Story of a Soul* (feast day 1 October). Text only so far: the Piper voice host was unreachable from the session that wrote it.
 
 ## Why read this instead of...
 
