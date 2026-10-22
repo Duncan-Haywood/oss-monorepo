@@ -17,7 +17,7 @@ import { DEFAULT_ACCOUNTS, accountMap, validateEntry, trialBalance, profitAndLos
 import { suggest, trainClassifier, buildMemory, parseRules, historyRecord, payeeKey } from "./categorize.mjs";
 import { addDocuments, writeOff, settle, aging, documentEntries, AR, AP } from "./accruals.mjs";
 import { taxDepreciation, s179IncomeLimit } from "./taxdepr.mjs";
-import { fxEntries, fxRegister as fxReg, convertRow, fxCurrency, foreignBalance, addFxAccount, setRates, parseRates, rateOn } from "./fx.mjs";
+import { FX_ACCOUNT, fxEntries, fxRegister as fxReg, convertRow, fxCurrency, foreignBalance, addFxAccount, setRates, parseRates, rateOn } from "./fx.mjs";
 import { inventoryEntries, inventoryRegister, addInventoryMove, setInventoryMethod, INVENTORY_ACCOUNT } from "./inventory.mjs";
 import { prepaidEntries, prepaidRegister, addPrepaid, PREPAID_ACCOUNT } from "./prepaid.mjs";
 import { assetEntries, register, addAsset, disposeAsset, addAssetsCsv, ASSET_ACCOUNT } from "./assets.mjs";
@@ -33,6 +33,7 @@ export { DEFAULT_ACCOUNTS, fmt, dollars, payeeKey, addDocuments, writeOff, aging
 
 export const VERSION = 1;
 const CAPEX_LIKELY = /suppl|office|repair|equipment|tool|computer|furniture|material|uncategori/i;
+const FX_TRANSFER_TOLERANCE = 0.03; // bank rate vs typed rate, across a foreign and a base account
 export const DEFAULTS = {
   autoPost: 0.85, // memory or your rule at or above this posts without review
   transferDays: 5, // a transfer's two sides may post this many days apart
@@ -171,14 +172,24 @@ export function pairTransfers(books, days = DEFAULTS.transferDays) {
   const used = new Set();
   const pairs = [];
   for (const a of ins) for (const b of outs) {
-    if (a.account === b.account || a.cents !== -b.cents) continue;
+    if (a.account === b.account) continue;
+    // Between a foreign-currency account and a base-currency one the two sides
+    // differ by the bank's own rate against the typed one: pair them when they
+    // are within FX_TRANSFER_TOLERANCE of each other (the difference is booked as
+    // realized exchange gain or loss, see journal()).
+    const diff = Math.abs(a.cents + b.cents);
+    if (diff !== 0) {
+      if (!!a.foreign === !!b.foreign) continue;
+      if (diff > Math.max(a.cents, -b.cents) * FX_TRANSFER_TOLERANCE) continue;
+    }
     const gap = Math.abs(dayNum(a.date) - dayNum(b.date));
-    if (gap <= days) pairs.push([gap, a, b]);
+    if (gap <= days) pairs.push([gap, diff, a, b]);
   }
-  pairs.sort((x, y) => x[0] - y[0]);
-  for (const [, a, b] of pairs) {
+  pairs.sort((x, y) => x[0] - y[0] || x[1] - y[1]);
+  for (const [, , a, b] of pairs) {
     if (used.has(a.id) || used.has(b.id)) continue;
     used.add(a.id); used.add(b.id);
+    if (a.cents + b.cents !== 0 && !books.accounts.some((x) => x.code === FX_ACCOUNT)) books.accounts.push({ code: FX_ACCOUNT, name: "Foreign exchange gain or loss", type: "expense" });
     a.status = b.status = "transfer";
     a.pair = b.id; b.pair = a.id;
     a.posted = b.account; b.posted = a.account;
@@ -292,6 +303,15 @@ export function journal(books, { withClosing = false } = {}) {
     if (t.status === "split") {
       const bank = { account: t.account, debit: Math.max(t.cents, 0), credit: Math.max(-t.cents, 0) };
       entries.push({ id: t.id, date: t.date, memo: t.desc, source: "split", lines: [bank, ...t.split.map((p) => ({ account: p.account, debit: Math.max(-p.cents, 0), credit: Math.max(p.cents, 0) }))] });
+      continue;
+    }
+    const other = t.status === "transfer" ? books.transactions.find((x) => x.id === t.pair) : null;
+    if (other && t.cents + other.cents !== 0) {
+      // A transfer across currencies: each account carries its own side, the
+      // difference is realized exchange gain (received more than was carried out) or loss.
+      const [inn, out] = t.cents > 0 ? [t, other] : [other, t];
+      const diff = inn.cents + out.cents;
+      entries.push({ id: t.id, date: t.date, memo: t.desc, source: "transfer", lines: [{ account: inn.account, debit: inn.cents, credit: 0 }, { account: out.account, debit: 0, credit: -out.cents }, { account: FX_ACCOUNT, debit: Math.max(-diff, 0), credit: Math.max(diff, 0) }] });
       continue;
     }
     const amt = Math.abs(t.cents);

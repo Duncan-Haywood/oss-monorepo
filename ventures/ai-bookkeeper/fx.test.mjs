@@ -70,3 +70,27 @@ test("bad rate lines are reported, base currency and non-bank accounts refused",
   assert.throws(() => addFxAccount(newBooks(), { code: "1000", currency: "USD" }), /own currency/);
   assert.throws(() => addFxAccount(newBooks(), { code: "4000", currency: "EUR" }), /not a bank account/);
 });
+
+test("a transfer between a EUR and a USD account is paired, the rate difference is realized gain", () => {
+  let b = books();
+  b.accounts.push({ code: "1010", name: "USD savings", type: "asset", bank: true });
+  const eur = "Date,Description,Amount,Balance\n2026-01-20,TRANSFER TO USD,-1000.00,1000.00\n";
+  const usd = "Date,Description,Amount,Balance\n2026-01-21,TRANSFER FROM EUR,1120.00,1120.00\n";
+  b = importStatement(b, eur, "1020").books;
+  b = importStatement(b, usd, "1010").books;
+  const [e, u] = b.transactions;
+  assert.equal(e.cents, -110000); // 1,000.00 EUR at the typed 1.10
+  assert.equal(e.status, "transfer"); assert.equal(u.status, "transfer"); assert.equal(e.pair, u.id);
+  const tb = trialBalance(journal(b), b.accounts);
+  assert.ok(tb.balanced);
+  assert.equal(tb.rows.find((x) => x.code === "6190").credit, 2000); // bank gave 1,120.00 for 1,100.00 carried: 20.00 gain
+  assert.equal(closeChecks(b).filter((c) => c.severity === "high").length, 0);
+});
+
+test("a USD line far from the EUR line's value is not paired", () => {
+  let b = books();
+  b.accounts.push({ code: "1010", name: "USD savings", type: "asset", bank: true });
+  b = importStatement(b, "Date,Description,Amount,Balance\n2026-01-20,X,-1000.00,1000.00\n", "1020").books;
+  b = importStatement(b, "Date,Description,Amount,Balance\n2026-01-21,Y,1300.00,1300.00\n", "1010").books;
+  assert.notEqual(b.transactions[0].status, "transfer");
+});
