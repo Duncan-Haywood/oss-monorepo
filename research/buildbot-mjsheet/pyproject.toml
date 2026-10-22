@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "buildbot-mjsheet"
+version = "0.1.0"
+description = "Does buildbot-skills' hand-written flexing-sheet plant agree with MuJoCo, and do its transfer results hold there?"
+requires-python = ">=3.9"
+dependencies = ["numpy", "mujoco"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
