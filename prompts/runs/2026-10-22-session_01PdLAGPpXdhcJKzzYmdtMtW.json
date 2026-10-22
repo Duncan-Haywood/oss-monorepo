@@ -36,7 +36,7 @@
   }
  ],
  "deviations": [],
- "writeups": null,
+ "writeups": [],
  "goal": null,
  "notes": "Loan register slice, node tests 258 pass. No agent doc/post written. CI not awaited.",
  "corrections": [],
