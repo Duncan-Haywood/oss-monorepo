@@ -29,6 +29,7 @@ import { compareProfit } from "./compare.mjs";
 import { addTrip, removeTrip, setHomeOffice, mileageDeduction } from "./deductions.mjs";
 import { setBudget, budgetVsActual } from "./budget.mjs";
 import { reconcile } from "./reconcile.mjs";
+import { readPayoutReport, planPayouts, applyPayouts } from "./payouts.mjs";
 import { setTaxTreatment, taxDepreciation } from "./taxdepr.mjs";
 import { renderInvoice, setProfile, PROFILE_KEYS } from "./invoice.mjs";
 import { reminders } from "./collections.mjs";
@@ -77,6 +78,7 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
   anomalies [--json]     lines worth a second look: double charges, amounts far above a payee's usual, large first-time payees (candidates with a reason, not an audit)
  receipts [FILE (.txt, text-layer .pdf via pdftotext, or a photo via tesseract / RECEIPT_OCR_CMD)|attach RID LINEID|detach RID|remove RID|split RID [--other CODE] [--fix WORD=CODE]... [--apply]] [--min DOLLARS] [--tax] [--json]  receipt text (blocks split by ---) matched to bank lines; lists unmatched receipts and spending over --min (default 75) with no receipt
   compare [--from D --to D --vs-from D --vs-to D] [--json]  profit and loss against an earlier period (default: latest month vs the month before): what moved, what is new or gone
+  payouts FILE.csv [--apply] [--sales C --refunds C --fees C --disputes C] [--json]  split each processor payout (Stripe payout reconciliation CSV) in the bank into gross sales, refunds and fees; without --apply, shows the plan
   reconcile CODE --date D --balance AMT [--json]  tie an account to the closing balance on a paper statement; if it is off, name the lines that likely explain the gap
   budget [CODE AMOUNT] [--from D --to D] [--json]  set a monthly budget for an account (AMOUNT 0 removes it), or show budget against actual for the period (default: latest month)
   aging [--as-of D]      what customers owe you and what you owe, by days past due
@@ -336,6 +338,22 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
   for (const x of c.accounts) console.log(`  ${x.code} ${x.name.slice(0, 26).padEnd(26)} ${fmt(x.now).padStart(11)} ${fmt(x.then).padStart(11)} ${fmt(x.change).padStart(11)}  ${x.pct === null ? x.status : `${(x.pct * 100).toFixed(0)}%${x.status === "gone" ? " gone" : ""}`}${x.hurtsProfit ? "  lowers profit" : ""}`);
   if (c.empty) console.log(`Note: ${c.empty}.`);
   if (c.partial) console.log(`Note: ${c.partial}.`);
+} else if (cmd === "payouts") {
+  if (!rest[0] || !existsSync(rest[0])) { console.error("payouts needs the processor's payout reconciliation CSV, e.g. payouts stripe-payouts.csv [--apply]"); process.exit(2); }
+  const roles = {};
+  for (const k of ["sales", "refunds", "fees", "disputes", "other"]) { const v = flag(`--${k}`); if (v) roles[k] = v; }
+  const doApply = has("--apply");
+  let plan;
+  try { plan = planPayouts(books, readPayoutReport(readFileSync(rest[0], "utf8")), roles); } catch (e) { console.error(e.message); process.exit(2); }
+  let result = null;
+  if (doApply) { try { result = applyPayouts(books, plan); } catch (e) { console.error(e.message); process.exit(1); } books = result.books; save(); }
+  if (json) { console.log(JSON.stringify({ ...plan, applied: result?.posted ?? 0 }, null, 2)); process.exit(0); }
+  for (const p of plan.problems) console.error(p);
+  for (const m of plan.matched) console.log(`${m.id.padEnd(14)} ${m.date}  net ${fmt(m.net).padStart(11)} = gross ${fmt(m.gross)} less fees ${fmt(m.fees)}  -> line ${m.line} ${m.lineDate}${m.ambiguous ? "  AMBIGUOUS (another line fits as well; pass --apply after checking, it is skipped)" : ""}`);
+  for (const m of plan.done) console.log(`${m.id.padEnd(14)} ${m.date}  already split on line ${m.line}`);
+  for (const m of plan.unmatched) console.log(`${m.id.padEnd(14)} ${m.date}  net ${fmt(m.net).padStart(11)}  NOT MATCHED: ${m.why}`);
+  if (plan.pending.length) console.log(`${plan.pending.length} row${plan.pending.length > 1 ? "s" : ""} not paid out yet (${fmt(plan.pending.reduce((a, x) => a + x.net, 0))}); they match once the payout lands.`);
+  console.log(doApply ? `${result.posted} payout${result.posted === 1 ? "" : "s"} split in the books${result.skipped.length ? `, ${result.skipped.length} skipped as ambiguous` : ""}.` : plan.matched.length ? "Add --apply to post these splits." : "Nothing to post.");
 } else if (cmd === "reconcile") {
   const cents = parseCents(String(flag("--balance") ?? "")), rdate = flag("--date");
   const code = argv[1];
