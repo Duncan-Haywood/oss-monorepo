@@ -41,7 +41,7 @@
       "why": "Did not run the full changepoint-detector test suite (over 120s; only docs and an eval script changed); no CI result checked before merge."
     }
   ],
-  "writeups": "README section extended; no separate post",
+  "writeups": ["ventures/changepoint-detector/README.md"],
   "goal": null,
   "notes": "Measured range95 coverage under --period, --trend and --model trend on seeded simulated series (92-99%). Took flagship 3 instead of the top row (ai-bookkeeper) because its remaining items are from-memory readers.",
   "corrections": [],
