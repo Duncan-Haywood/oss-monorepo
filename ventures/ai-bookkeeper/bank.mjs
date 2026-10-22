@@ -9,8 +9,8 @@ import { readStatementText } from "./statementtext.mjs";
 
 const ALIASES = {
   date: ["date", "transaction date", "posted date", "post date", "posting date", "trans date", "booking date", "effective date", "value date", "completed date", "started date", "date (utc)"],
-  desc: ["description", "transaction description", "payee", "merchant", "name", "details", "original description", "memo", "narrative", "reference"],
-  amount: ["amount", "transaction amount", "amt", "value", "amount (usd)"],
+  desc: ["description", "transaction description", "payee", "merchant", "name", "details", "original description", "memo", "narrative", "counter party", "reference"],
+  amount: ["amount", "transaction amount", "amt", "value", "amount (usd)", "amount (gbp)", "amount (eur)"],
   debit: ["debit", "debits", "withdrawal", "withdrawals", "money out", "paid out", "amount debit", "debit amount"],
   credit: ["credit", "credits", "deposit", "deposits", "money in", "paid in", "amount credit", "credit amount"],
   balance: ["balance", "running balance", "running bal.", "ledger balance"],
@@ -105,7 +105,7 @@ function headerlessShape(rows) {
 }
 
 // Which export this is, from its header or shape alone. Informational; the
-// column matching does the work. null when it is none of the five shapes.
+// column matching does the work. null when it is none of the known shapes.
 export function sniffBank(rows) {
   if (headerlessShape(rows)) return "wells-fargo";
   for (const r of rows.slice(0, 12)) {
@@ -114,6 +114,8 @@ export function sniffBank(rows) {
     if (/^transaction date\|post date\|description\|category\|type\|amount/.test(h)) return "chase-card";
     if (/^date\|description\|amount\|running bal/.test(h)) return "bank-of-america";
     if (/^type\|product\|started date\|completed date\|description\|amount\|fee\|currency\|state\|balance/.test(h)) return "revolut";
+    if (/^transaction id\|date\|time\|type\|name\|emoji\|category\|amount\|currency/.test(h)) return "monzo";
+    if (/^date\|counter party\|reference\|type\|amount \([a-z]{3}\)\|balance/.test(h)) return "starling";
     if (/^transferwise id\|date\|amount\|currency\|description/.test(h)) return "wise";
     if (/^transaction date\|posted date\|card no\.\|description\|category\|debit\|credit/.test(h)) return "capital-one";
     if (/^date\|description\|(card member\|account #\|)?amount/.test(h)) return "amex";
@@ -261,10 +263,12 @@ export function readStatement(text, { dayFirst = false, decimalComma = false, in
   if (headerAt === -1 && bank === "wells-fargo") { columns = { date: 0, amount: 1, desc: 4, balance: -1, debit: -1, credit: -1 }; first = 0; }
   else if (headerAt === -1) return { rows: [], problems: ["No date and amount columns were found. Name them Date and Amount (or Debit and Credit)."], columns: null };
   else { columns = detectColumns(rows[headerAt]); first = headerAt + 1; }
+  // Monzo's "Description" is the raw bank string; "Name" is the merchant.
+  if (bank === "monzo") { const n = rows[headerAt].map(norm).indexOf("name"); if (n !== -1) columns.desc = n; }
   const out = [];
   // Wise writes DD-MM-YYYY. Revolut lists pending, declined and reverted rows
   // beside completed ones and keeps the fee in its own column.
-  if (bank === "wise") dayFirst = true;
+  if (bank === "wise" || bank === "monzo" || bank === "starling") dayFirst = true;
   const hdr = headerAt === -1 ? [] : rows[headerAt].map(norm);
   const stateCol = bank === "revolut" ? hdr.indexOf("state") : -1;
   const feeCol = bank === "revolut" ? hdr.indexOf("fee") : -1;

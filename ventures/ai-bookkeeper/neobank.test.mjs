@@ -29,3 +29,19 @@ test("Wise: DD-MM-YYYY dates read day first, running balance chains", () => {
   assert.deepEqual(r.rows.map((x) => x.cents), [-2499, 100000]);
   assert.deepEqual(checkRunningBalance(r.rows).breaks, []);
 });
+
+test("Monzo: day-first dates, merchant name, signed amounts", () => {
+  const r = read("monzo.csv");
+  assert.equal(r.bank, "monzo");
+  assert.deepEqual(r.rows.map((x) => x.date), ["2026-03-14", "2026-03-13"]);
+  assert.deepEqual(r.rows.map((x) => x.cents), [-800, 150000]);
+  assert.equal(r.rows[0].desc, "Notion");
+});
+
+test("Starling: counter party as description, balance chain holds", () => {
+  const r = read("starling.csv");
+  assert.equal(r.bank, "starling");
+  assert.deepEqual(r.rows.map((x) => x.cents), [-1250, 100000]);
+  assert.equal(r.rows[0].desc, "Figma");
+  assert.deepEqual(checkRunningBalance(r.rows).breaks, []);
+});
