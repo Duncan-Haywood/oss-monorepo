@@ -190,6 +190,23 @@
     <div class="scroll" id="ln-register"></div>
   </section>
 
+  <section class="card" aria-labelledby="h-payroll">
+    <h2 id="h-payroll">Optional: payroll runs (US)</h2>
+    <p class="note">A payroll provider (Gusto, ADP, Paychex, Square Payroll and similar) debits net pay and then the tax deposits, and the bank lines say nothing about wages, withholding or the employer's share. Load the provider's pay-run report (company totals, or one row per employee; columns are matched by name: pay date, gross pay, net pay, federal income tax, social security and medicare withheld, state tax, other deductions, employer social security and medicare, FUTA, SUTA). Each run books wages and the employer's share against payroll liabilities (2300); the bank lines that paid it are found and, when you press File, moved to 2300 so it shows what is still owed. A row whose net pay is not gross less its deductions is refused and named. Tested on hand-written reports only. Not payroll or tax advice: the Social Security wage base, tips, FUTA credit reduction and state rules are not modelled.</p>
+    <label for="pr-file">Pay-run report CSV file</label><input id="pr-file" type="file" accept=".csv,text/csv,text/plain">
+    <label for="pr-paste">Or paste the CSV</label>
+    <textarea id="pr-paste" placeholder="pay date,gross pay,net pay,federal income tax,social security,medicare,state income tax"></textarea>
+    <button type="button" id="pr-add">Book the pay runs</button>
+    <button type="button" id="pr-apply" class="secondary">File the matched bank lines to 2300</button>
+    <div class="grid">
+      <div><label for="pr-year">Form 941 year</label><input id="pr-year" inputmode="numeric" autocomplete="off" placeholder="2026"></div>
+      <div><label for="pr-quarter">Quarter</label><select id="pr-quarter"><option>1</option><option>2</option><option>3</option><option>4</option></select></div>
+    </div>
+    <button type="button" id="pr-941" class="secondary">Show the Form 941 worksheet</button>
+    <p id="pr-status" class="note" role="status" aria-live="polite"></p>
+    <div class="scroll" id="pr-result"></div>
+  </section>
+
   <section class="card" aria-labelledby="h-billpay">
     <h2 id="h-billpay">Optional: when to pay your bills</h2>
     <p class="note">Takes the open bills you loaded below, the bank balance and the cash forecast, and suggests a pay date for each so the balance stays above a reserve you choose: on the due date, held back until cash arrives, or flagged when it cannot fit. Overdue bills go first. It is a plan to read; nothing is paid from here. Supplier terms are optional: one line per supplier, <code>name, discount %, days, late fee %</code> (for example <code>Acme Supply, 2, 10, 5</code> for 2% off if paid within 10 days of the bill date and a 5% late fee). A discount is taken when the cash holds; a late fee is reported, not counted against the reserve.</p>
@@ -407,6 +424,7 @@
     import { detectRecurring, forecastCash } from "./recurring.mjs";
     import { addLoan, applyLoanPayments, loanRegister } from "./loans.mjs";
     import { planBills } from "./billpay.mjs";
+    import { addPayroll, planPayroll, applyPayroll, payrollSummary, form941 } from "./payroll.mjs";
     import { setBudget, budgetVsActual } from "./budget.mjs";
     import { reconcile } from "./reconcile.mjs";
     import { readPayoutReport, planPayouts, applyPayouts } from "./payouts.mjs";
@@ -749,6 +767,53 @@
         if (r.posted) { books = categorize(r.books, opts()); record("payouts_posted"); render(); }
         showPayouts(planPayouts(books, readPayoutReport(($("#po-file").files[0] ? await $("#po-file").files[0].text() : $("#po-paste").value))), r.posted);
       } catch (e) { $("#po-status").textContent = e.message; }
+    });
+
+    async function payrollText() {
+      const f = $("#pr-file").files[0];
+      const text = f ? await f.text() : $("#pr-paste").value;
+      if (!text.trim()) throw new Error("Choose the pay-run report file or paste its CSV.");
+      return text;
+    }
+    function showPayroll(plan) {
+      const kids = [];
+      const rows = [
+        ...plan.matched.map((m) => [m.run, m.kind, fmt(m.amount), `line ${m.line} on ${m.lineDate}${m.ambiguous ? " (ambiguous, skipped)" : ""}`]),
+        ...plan.unmatched.map((m) => [m.run, m.kind, fmt(m.amount), `not matched: ${m.why}`]),
+      ];
+      if (rows.length) kids.push(table(["Run", "Payment", "Amount", "Bank line"], rows));
+      const s = payrollSummary(books);
+      kids.push(el("p", { class: "note", text: `Accrued ${fmt(s.accrued)} (gross wages plus the employer's share), paid from the bank ${fmt(s.paid)}, still owed ${fmt(s.owed)}.` }));
+      $("#pr-result").replaceChildren(...kids);
+    }
+    $("#pr-add").addEventListener("click", async () => {
+      try {
+        const r = addPayroll(books, await payrollText());
+        books = categorize(r.books, opts());
+        if (r.added.length) record("payroll_booked");
+        render();
+        showPayroll(planPayroll(books));
+        $("#pr-status").textContent = `${r.added.length} pay run${r.added.length === 1 ? "" : "s"} booked${r.skipped.length ? `, ${r.skipped.length} already in the books` : ""}.${r.problems.length ? " " + r.problems.join(" ") : ""}`;
+      } catch (e) { $("#pr-status").textContent = e.message; }
+    });
+    $("#pr-apply").addEventListener("click", () => {
+      try {
+        if (!(books.payroll ?? []).length) throw new Error("Book a pay-run report first.");
+        const r = applyPayroll(books, planPayroll(books));
+        if (r.posted) { books = categorize(r.books, opts()); record("payroll_filed"); render(); }
+        showPayroll(planPayroll(books));
+        $("#pr-status").textContent = `${r.posted} bank line${r.posted === 1 ? "" : "s"} filed to 2300.${r.skipped.length ? ` ${r.skipped.length} ambiguous line${r.skipped.length === 1 ? "" : "s"} left for you.` : ""}`;
+      } catch (e) { $("#pr-status").textContent = e.message; }
+    });
+    $("#pr-941").addEventListener("click", () => {
+      try {
+        const year = $("#pr-year").value.trim();
+        if (!/^\d{4}$/.test(year)) throw new Error("Enter the year as four digits.");
+        const f = form941(books, year, $("#pr-quarter").value);
+        const rows = [["Wages (line 2)", f.wages], ["Federal income tax withheld (line 3)", f.federalWithheld], ["Social security tax, both shares (line 5a)", f.socialSecurityTax], ["Medicare tax, both shares (line 5c)", f.medicareTax], ["Total taxes before adjustments", f.totalTaxes], ["Federal deposits due from the register", f.deposited], ["FUTA (Form 940)", f.futa]].map(([l, v]) => [l, fmt(v)]);
+        $("#pr-result").replaceChildren(table(["Form 941 worksheet", `${f.from} to ${f.to}`], rows), ...f.warnings.map((w) => el("p", { class: "note", text: `Check: ${w}` })), el("p", { class: "note", text: "Worksheet only: tips, adjustments, the social security wage base and credits are not modelled." }));
+        $("#pr-status").textContent = `${f.runs} run${f.runs === 1 ? "" : "s"} in the quarter.`;
+      } catch (e) { $("#pr-status").textContent = e.message; }
     });
 
     function renderAssets() {
