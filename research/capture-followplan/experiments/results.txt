@@ -1,0 +1,69 @@
+capture-followplan: 8 seeds x 240 s walks, capture-follow plaza, 2.5 m target
+
+A. drone, density 0.02 people/m2
+controller | framed % | contacts/h | close s/h | Wh/h
+ignore | 99.9 | 112 | 225 | 66.8
+repulsion | 93.4 | 22 | 154 | 66.8
+plan | 91.3 | 2 | 55 | 66.3
+
+A. wheeled (flat plaza), density 0.02 people/m2
+controller | framed % | contacts/h | close s/h | Wh/h
+ignore | 99.2 | 124 | 225 | 67.8
+repulsion | 82.2 | 49 | 201 | 68.2
+plan | 85.9 | 4 | 72 | 64.9
+
+A. wheel-legs, density 0.02 people/m2
+controller | framed % | contacts/h | close s/h | Wh/h
+ignore | 86.4 | 124 | 227 | 106.0
+repulsion | 70.0 | 47 | 204 | 106.5
+plan | 85.8 | 0 | 61 | 101.7
+
+A. drone, density 0.1 people/m2
+controller | framed % | contacts/h | close s/h | Wh/h
+ignore | 99.8 | 523 | 967 | 66.7
+repulsion | 67.8 | 161 | 739 | 67.1
+plan | 58.0 | 36 | 236 | 66.6
+
+A. wheeled (flat plaza), density 0.1 people/m2
+controller | framed % | contacts/h | close s/h | Wh/h
+ignore | 98.0 | 514 | 968 | 67.8
+repulsion | 40.1 | 326 | 878 | 68.8
+plan | 40.0 | 21 | 214 | 65.6
+
+A. wheel-legs, density 0.1 people/m2
+controller | framed % | contacts/h | close s/h | Wh/h
+ignore | 85.8 | 518 | 986 | 105.8
+repulsion | 32.1 | 308 | 870 | 107.3
+plan | 26.7 | 21 | 196 | 103.2
+
+A. drone, density 0.3 people/m2
+controller | framed % | contacts/h | close s/h | Wh/h
+ignore | 99.9 | 1266 | 2241 | 66.7
+repulsion | 39.0 | 696 | 1869 | 67.6
+plan | 32.9 | 439 | 894 | 68.3
+
+A. wheeled (flat plaza), density 0.3 people/m2
+controller | framed % | contacts/h | close s/h | Wh/h
+ignore | 98.9 | 1268 | 2245 | 67.7
+repulsion | 6.2 | 1058 | 2138 | 69.5
+plan | 3.1 | 133 | 635 | 57.8
+
+A. wheel-legs, density 0.3 people/m2
+controller | framed % | contacts/h | close s/h | Wh/h
+ignore | 86.5 | 1260 | 2239 | 105.7
+repulsion | 5.0 | 1061 | 2100 | 108.0
+plan | 3.6 | 111 | 607 | 88.6
+
+== B. drone, density 0.1: framed % against contacts/h (each row one setting)
+setting | framed % | contacts/h
+repulsion gain 0.15 | 96.2 | 471
+repulsion gain 0.3 | 90.1 | 420
+repulsion gain 0.6 | 79.3 | 322
+repulsion gain 1.2 | 67.8 | 161
+repulsion gain 2.4 | 58.5 | 92
+repulsion gain 4.8 | 48.8 | 69
+planner radius 0.75 | 97.0 | 390
+planner radius 1.0 | 89.2 | 281
+planner radius 1.5 | 58.0 | 36
+planner radius 2.0 | 32.9 | 28
+planner radius 3.0 | 8.7 | 96
