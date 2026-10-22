@@ -2,9 +2,8 @@
 // (file picker -> one select per account -> Import) and the example load.
 // Needs Playwright and a Chromium: `node eval/browser-click.mjs` (skips with
 // exit 0 and a message when neither is installed). If `playwright` is not
-// importable (cloud containers keep it in /opt/node-tools), set PLAYWRIGHT_PATH
-// to the package's entry FILE, not its directory:
-// `PLAYWRIGHT_PATH=/opt/node-tools/node_modules/playwright/index.mjs node eval/browser-click.mjs`.
+// importable it tries PLAYWRIGHT_PATH (a file or a package directory) and then
+// /opt/node-tools/node_modules/playwright, where cloud containers keep it.
 import { createServer } from "node:http";
 import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
@@ -12,9 +11,17 @@ import { extname, join } from "node:path";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
 let chromium;
-try { ({ chromium } = await import("playwright")); } catch {
-  try { ({ chromium } = await import(process.env.PLAYWRIGHT_PATH || "playwright-core")); } catch { console.log("skipped: playwright not installed"); process.exit(0); }
+// playwright is not on the default import path in cloud containers; try the
+// env override (a file or a package directory) and the known container path.
+const { existsSync, statSync } = await import("node:fs");
+const candidates = ["playwright", process.env.PLAYWRIGHT_PATH, "/opt/node-tools/node_modules/playwright", "playwright-core"].filter(Boolean).map((c) => {
+  if (!c.startsWith("/") || !existsSync(c)) return c;
+  return statSync(c).isDirectory() ? join(c, "index.mjs") : c;
+});
+for (const c of candidates) {
+  try { ({ chromium } = await import(c.startsWith("/") ? "file://" + c : c)); break; } catch {}
 }
+if (!chromium) { console.log("skipped: playwright not installed"); process.exit(0); }
 const types = { ".html": "text/html", ".mjs": "text/javascript", ".js": "text/javascript", ".json": "application/json" };
 const server = createServer(async (req, res) => {
   try {
