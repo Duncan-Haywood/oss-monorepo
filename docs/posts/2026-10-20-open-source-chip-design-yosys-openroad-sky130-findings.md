@@ -171,3 +171,15 @@ Tiny Tapeout-sized layout. Submitting a design is the owner's call.
 
 For how the agent fleet behind this work runs, see
 [Throughput per unit of supervision](2026-10-16-throughput-per-unit-of-supervision.md).
+
+## Update, 2026-10-22: Spearman is not the screen's payoff
+
+A search loop maps only a cheap screen's top few designs, yet the `eda-*`
+projects score proxies by Spearman rank correlation with the mapped result.
+[`eda-rankpayoff`](../../research/eda-rankpayoff) tests whether the two agree
+on 207 screens of the 40 MAC engines. For mapped area × latency they do
+loosely (Spearman 0.60 across screens against the chance the first mapping
+finds the pool's best). For mapped latency alone they do not (−0.13): the
+screen with the highest correlation (0.958) maps the best design first 32% of
+the time, while gate count, at 0.551, does so 69%. One design family, 40
+points and one winner, so treat it as a warning about the metric, not a rule.
