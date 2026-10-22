@@ -588,6 +588,8 @@ Square and PayPal need their own handling (PayPal's report has no payout id).
 The page has a card for it (paste or pick the CSV, match, post), clicked through
 in headless Chromium.
 
+Square and PayPal (2026-10-22): the same command reads a Square payout/transactions CSV (`Payout ID`, `Payout Date`, `Type`, `Gross Sales`, `Fees`, `Net Total`) and a PayPal activity CSV. Both write fees as negatives; the sign is detected per report. PayPal has no payout id, so each `General Withdrawal` row is a payout made of the completed rows before it, and is kept only when they add up to the withdrawal exactly (otherwise listed under problems). Pending rows are ignored. Hand-written fixtures from the layouts as remembered; no real export has been tried.
+
 ### Reconcile to a paper statement (2026-10-22)
 
 `node cli.mjs --books books.json reconcile 1000 --date 2026-03-31 --balance 691.50`
