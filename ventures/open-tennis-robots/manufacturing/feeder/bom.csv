@@ -13,7 +13,7 @@ pole_elbow,print,2,PETG,"Joins a vertical pole to the top pole; sockets 40 mm de
 camera_clamp,print,2,PETG,Clips the top pole and holds the 2020 stereo bar; add an M4 clamp screw each. 6 walls.
 feed_floor,print,1,PETG,Floor of the ball path between the head plates; the shuttle slides on it. M4 heat-set inserts take screws through both head plates.
 feed_roof_column,print,1,PETG,"Roof over the shuttle, a column 70 mm bore up past the head plates, and a hose socket (82.5 mm) on top. Print upright, 6 walls."
-feed_shuttle,print,1,PETG,"Pocket for one ball (70 mm hole, open to the front); the solid rear shuts the column while it moves 95 mm forward. Drawn retracted (pocket under the column). 6 walls."
+feed_shuttle,print,1,PETG,Pocket for one ball (70 mm hole); the front is narrowed to 58 mm between two 1.6 mm flexure arms that hold the ball at negative elevation and let the wheels pull it out; the solid rear shuts the column while it moves 95 mm forward. Drawn retracted (pocket under the column). 6 walls.
 hopper_shelf,laser,1,aluminium 5052 5 mm,"Tub shelf, falls 12 deg toward the net so balls roll to the outlet. Posts bolt up through it (M5, end-tapped), the outlet spigot under the outlet hole."
 hopper_spigot,print,1,PETG,"Hose socket under the shelf's outlet hole: M4 heat-set inserts, flange against the shelf. 6 walls."
 feed_hose,stock,1,"72 mm ID smooth-bore flexible hose (82 mm OD), cut 600 mm","Hopper outlet to the column socket. Longest chord 570 mm; bows to 171 mm radius at the closest pose; needs 150. Hose clips at both sockets (hose clamps, 80-90 mm)."

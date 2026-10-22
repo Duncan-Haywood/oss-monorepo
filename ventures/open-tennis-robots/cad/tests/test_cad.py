@@ -155,6 +155,9 @@ class FeederParamsTest(unittest.TestCase):
 
     def test_feed_rules_catch_bad_changes(self):
         self.assertTrue(any("meter" in r for r in Feeder(shuttle_h=140.0).check()))
+        self.assertTrue(any("retainer" in r for r in Feeder(retain_t=3.0).check()))  # arms too stiff for the wheels
+        self.assertTrue(any("retainer" in r for r in Feeder(retain_t=0.4).check()))   # too weak to hold
+        self.assertEqual(Feeder().check(), [])
         self.assertTrue(any("top wheel" in r for r in Feeder(feed_col_x=-100.0).check()))
         self.assertTrue(any("stroke" in r for r in Feeder(feed_stroke=40.0).check()))
         self.assertTrue(any("holds about" in r for r in Feeder(tub_h=150.0).check()))
@@ -272,6 +275,20 @@ class FeederGeometryTest(unittest.TestCase):
                 self.assertTrue(any(math.hypot(x - hx, z - hz) < 0.01 for hx, hz in holes), (name, x, z))
                 checked += 1
         self.assertEqual(checked, 8)
+
+    def test_retainer_blocks_a_free_ball_but_leaves_the_pocket_clear(self):
+        from build123d import Location, Sphere
+        p = self.p
+        sh = next(x for x in self.parts if x.name == "feed_shuttle").shape
+        zc = p.shuttle_z0 + p.shuttle_h / 2
+
+        def hit(x):
+            return (Sphere(p.ball_d / 2).moved(Location((x, 0, zc))) & sh).volume
+
+        self.assertLess(hit(p.feed_col_x), 1.0)                      # a ball sits in the pocket untouched
+        x_front = p.feed_col_x + 60.0
+        self.assertGreater(max(hit(x_front - p.retain_len + d) for d in range(0, 40, 4)), 500.0)  # arms are in its way
+        self.assertLess(hit(x_front + 80.0), 1.0)                    # clear again beyond the front
 
     def test_shuttle_meters_one_ball_and_stays_clear_when_advanced(self):
         from build123d import Cylinder, Location
