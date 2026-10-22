@@ -36,7 +36,7 @@
       "why": "Skipped the agent doc/post write-up and llms.txt update for this small slice; the README and flagship next: carry the record."
     }
   ],
-  "writeups": [],
+  "writeups": ["research/osrobot-weedpass/README.md"],
   "goal": null,
   "notes": "Prepaid expenses slice for ai-bookkeeper; 217 ai-bookkeeper node tests pass locally; venture-preflight and full CI not run here.",
   "corrections": [],

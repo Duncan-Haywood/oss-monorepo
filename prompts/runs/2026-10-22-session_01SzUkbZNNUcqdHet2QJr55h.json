@@ -31,7 +31,7 @@
   "integrity_issues": [],
   "doc_friction": [],
   "deviations": [],
-  "writeups": [],
+  "writeups": ["research/osrobot-weedpass/README.md"],
   "goal": null,
   "notes": "Backlog ids P035, P036. Both agent-owned items were in_progress with remaining parts already done or owner-gated; recorded measured findings only. Weak run: no tool or check shipped.",
   "corrections": [],

@@ -43,7 +43,7 @@
       "why": "No separate docs/reports agent doc or docs/posts post: the project README carries the write-up for this small follow-up."
     }
   ],
-  "writeups": [],
+  "writeups": ["research/osrobot-weedpass/README.md"],
   "goal": null,
   "notes": "Track 18 draw. 5 unit tests pass; build.py ok; check_md_links ok; experiment run twice (deterministic). CMA-ES not converged at 150 scores (stated in README). Local checks only; CI not awaited.",
   "corrections": [],

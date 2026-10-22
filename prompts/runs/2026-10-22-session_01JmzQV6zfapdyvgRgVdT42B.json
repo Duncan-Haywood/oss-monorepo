@@ -36,7 +36,7 @@
     }
   ],
   "deviations": [],
-  "writeups": [],
+  "writeups": ["research/osrobot-weedpass/README.md"],
   "goal": null,
   "notes": "Explore idea: ai-bookkeeper page card for reconcile-to-paper-statement (flagship next step). 239 node tests pass; headless Chromium click-through no FAIL. No agent doc/post written (small slice).",
   "corrections": [],

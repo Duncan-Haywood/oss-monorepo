@@ -43,7 +43,7 @@
       "why": "No agent doc or post written; the project README carries the write-up."
     }
   ],
-  "writeups": [],
+  "writeups": ["research/osrobot-weedpass/README.md"],
   "goal": null,
   "notes": "Local checks: 8 tests pass, build.py ok, check_md_links ok. Differences under ~$10/yr are within seed noise (stated in README).",
   "corrections": [],

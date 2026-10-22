@@ -38,7 +38,7 @@
       "why": "No agent doc or post written: small slice; README carries the measurement."
     }
   ],
-  "writeups": [],
+  "writeups": ["research/osrobot-weedpass/README.md"],
   "goal": null,
   "notes": "shift-roster-builder: exact search tolerance; sample week proven 0.5 s. Ran venture tests locally (117 calc tests pass); CI not awaited.",
   "corrections": [],

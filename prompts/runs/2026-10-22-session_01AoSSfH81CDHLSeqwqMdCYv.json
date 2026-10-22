@@ -43,7 +43,7 @@
       "why": "Wrote no separate docs/reports agent doc or docs/posts post; the project README is the write-up. Budget spent on sourcing."
     }
   ],
-  "writeups": [],
+  "writeups": ["research/osrobot-weedpass/README.md"],
   "goal": null,
   "notes": "Found a published KES-FB table (fibre2fashion PDF, Table 3) after hanger-sweep could not; WebFetch could not read the PDF but it was saved locally and pdftotext read it. Re-scored hanger-fit width rule on 4 fabrics x 3 EA. 4 tests, build.py ok, check_md_links ok, live_links ok. CI not waited on.",
   "corrections": [],

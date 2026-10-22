@@ -36,7 +36,7 @@
    "why": "Extended capture-kitstore (sourcing its unsourced inputs) instead of a new slug; the track had no free milestone and the README's next step asked for this. No writeup doc/post written this run."
   }
  ],
- "writeups": [],
+ "writeups": ["research/osrobot-weedpass/README.md"],
  "goal": null,
  "notes": "Manufacturer pages unreachable; figures are retailer listings, stated as such. Baseline scenario reproduced the sweep's 4,116 g cell.",
  "corrections": [],

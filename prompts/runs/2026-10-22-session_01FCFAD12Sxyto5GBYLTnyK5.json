@@ -31,7 +31,7 @@
   "integrity_issues": [],
   "doc_friction": [],
   "deviations": [],
-  "writeups": [],
+  "writeups": ["research/osrobot-weedpass/README.md"],
   "goal": null,
   "notes": "Idea: batch-level credit-note to original-invoice link checks (INV-056/057/058) in einvoice-preflight, JS and Python. FatturaPA XSD unreachable (proxy 403), so spec-based work was skipped. Tests on hand-written invoices only; local venture tests pass.",
   "corrections": [],

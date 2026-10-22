@@ -38,7 +38,7 @@
     }
   ],
   "deviations": [],
-  "writeups": [],
+  "writeups": ["research/osrobot-weedpass/README.md"],
   "goal": null,
   "notes": "Payouts page card + Shopify column aliases. 249 node tests and headless Chromium click-through pass. No agent doc/post written this run.",
   "corrections": [],

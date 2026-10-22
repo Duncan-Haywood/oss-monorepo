@@ -41,7 +41,7 @@
    "why": "Skipped the agent doc and post for this small negative-result follow-up; the README carries the full write-up."
   }
  ],
- "writeups": [],
+ "writeups": ["research/osrobot-weedpass/README.md"],
  "goal": null,
  "notes": "research/codesign-aero-skip: zero-initialised residual MLP on tuned PID; negative result (7.68 vs 7.58 deg at equal 576 evaluations). 8 tests pass, build.py ok, check_md_links ok.",
  "corrections": [],

@@ -38,7 +38,7 @@
     }
   ],
   "deviations": [],
-  "writeups": [],
+  "writeups": ["research/osrobot-weedpass/README.md"],
   "goal": null,
   "notes": "Track 13 draw; extended capture-kitstore with an hours x trip-length sweep (sweep.py), 11 tests pass, build.py ok. No agent doc/post written: small extension.",
   "corrections": [],

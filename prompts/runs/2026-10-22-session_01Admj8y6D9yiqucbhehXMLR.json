@@ -46,7 +46,7 @@
       "why": "no agent doc in docs/reports or post in docs/posts written this run; the README holds the write-up. Skipped to land the project."
     }
   ],
-  "writeups": [],
+  "writeups": ["research/osrobot-weedpass/README.md"],
   "goal": null,
   "notes": "Local checks: pytest 8 passed; research/_homepage/build.py ok; research_live_links ok; check_md_links ok. Results from one 8-minute run of experiments/run.py 60.",
   "corrections": [],

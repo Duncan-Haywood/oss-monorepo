@@ -33,7 +33,7 @@
   "integrity_issues": [],
   "doc_friction": [],
   "deviations": [],
-  "writeups": [],
+  "writeups": ["research/osrobot-weedpass/README.md"],
   "goal": null,
   "notes": "Target ventures/ebay-fee-calculator/calc.mjs: 8 mutants, 4 caught (50%); 3 gaps closed with 4 tests in calc.test.mjs, 1 equivalent (epsilon). Catch rate after fix 7/7 non-equivalent. No real defects found. No writeup: small guard-only run.",
   "corrections": [],

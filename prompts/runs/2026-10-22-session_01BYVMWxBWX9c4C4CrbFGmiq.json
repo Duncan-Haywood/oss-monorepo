@@ -39,10 +39,7 @@
   ],
   "deviations": [],
   "writeups": [
-    {
-      "doc": "research/osrobot-weedpass/README.md",
-      "note": "project README only; no docs/reports or post extension"
-    }
+    "research/osrobot-weedpass/README.md"
   ],
   "goal": null,
   "notes": "",
