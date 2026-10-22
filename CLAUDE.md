@@ -86,7 +86,8 @@ nobody opens a PR for is invisible to every check and every later session.
 In cloud sessions `gh` is usually unauthenticated: use the GitHub MCP tools
 (`create_pull_request`, `merge_pull_request`, loaded with `ToolSearch`). The
 container's other quirks are in
-[`.github/prompts/cloud-session.md`](.github/prompts/cloud-session.md).
+[`.github/prompts/cloud-session.md`](.github/prompts/cloud-session.md)
+(a bare `python3` often lacks `pytest`/`numpy`: `PY=$(python3 platform/ci/pyenv.py pytest numpy)` finds or installs one).
 Details, including other sessions' stalled PRs:
 [`.github/prompts/land-your-work.md`](.github/prompts/land-your-work.md).
 
