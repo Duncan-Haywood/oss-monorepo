@@ -33,7 +33,7 @@
 //   node platform/pages/faq-duplicate.mjs           # every published surface
 //   node platform/pages/faq-duplicate.mjs <slug>    # one venture
 
-import { collectPages } from './clauses.mjs';
+import { collectPages, unknownVenture } from './clauses.mjs';
 
 /** Headings that label an FAQ section rather than ask a question. */
 const SECTION_LABEL = /^(common questions|faq|faqs|frequently asked questions|questions)$/;
@@ -108,7 +108,9 @@ export function duplicates(html) {
 
 export async function main(argv = process.argv.slice(2)) {
   const slug = argv.find((arg) => !arg.startsWith('-'));
-  const { pages } = await collectPages({ slug });
+  const { pages, known } = await collectPages({ slug });
+
+  if (slug && !known) return unknownVenture(slug);
 
   const problems = [];
   for (const [page, html] of pages) {
