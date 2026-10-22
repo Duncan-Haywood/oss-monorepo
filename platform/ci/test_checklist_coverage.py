@@ -255,6 +255,10 @@ class LiteralPrefix(unittest.TestCase):
             cc.literal_prefix("platform/privacy/*.test.mjs"), "platform/privacy"
         )
 
+    def test_a_lone_angle_bracket_also_ends_the_prefix(self):
+        self.assertEqual(cc.literal_prefix("platform/<slug"), "platform")
+        self.assertEqual(cc.literal_prefix("platform/slug>/x"), "platform")
+
     def test_keeps_a_plain_directory_and_drops_a_filename(self):
         self.assertEqual(cc.literal_prefix("gitops/tests"), "gitops/tests")
         self.assertEqual(cc.literal_prefix("portfolio/ledger/README.md"), "portfolio/ledger")
@@ -270,6 +274,14 @@ class PythonGaps(unittest.TestCase):
     def test_a_named_python_directory_is_covered(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = make_py_repo(Path(tmp), ["portfolio/ledger", "portfolio/scoring"])
+            gaps, _, _ = cc.find_py_gaps(PY_CHECKLIST, root)
+            self.assertEqual(gaps, [])
+
+    def test_hidden_and_vendored_directories_are_not_scanned(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = make_py_repo(
+                Path(tmp), ["portfolio/ledger", ".hidden/tests", "portfolio/node_modules/x"]
+            )
             gaps, _, _ = cc.find_py_gaps(PY_CHECKLIST, root)
             self.assertEqual(gaps, [])
 

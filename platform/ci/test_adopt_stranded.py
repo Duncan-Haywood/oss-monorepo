@@ -161,6 +161,43 @@ class TestPullRequest(PlanFixture):
         cand.commits = [commit] * 25
         self.assertIn("- ... and 5 more", cand.body().splitlines())
 
+    def test_body_names_eight_files_then_counts_the_rest(self):
+        cand = self.candidate()
+        cand.files = [f"f{i}.txt" for i in range(9)]
+        body = cand.body()
+        self.assertIn("`f7.txt` and 1 more", body)
+        self.assertNotIn("`f8.txt`", body)
+        cand.files = cand.files[:8]
+        self.assertNotIn("more", "".join(l for l in cand.body().splitlines() if "file(s)" in l))
+        cand.files = [f"f{i}.txt" for i in range(12)]
+        self.assertIn("and 4 more", cand.body())
+
+    def test_http_error_detail_is_cut_to_300_characters(self):
+        cand = self.candidate()
+
+        def boom(req, timeout):
+            raise ad.urllib.error.HTTPError(
+                req.full_url, 422, "bad", {}, io.BytesIO(b"e" * 500))
+
+        with mock.patch.object(ad.urllib.request, "urlopen", boom):
+            number, msg = ad.open_draft("o/r", "tok", cand, "main")
+        self.assertIsNone(number)
+        self.assertEqual(msg, "HTTP 422: " + "e" * 300)
+
+    def test_blobs_walks_every_chunk_of_paths(self):
+        paths = [f"p{i}" for i in range(ad.PATH_CHUNK + 5)]
+        seen = []
+
+        def fake_git(args, probe):
+            chunk = args[args.index("--") + 1:]
+            seen.append(chunk)
+            return "".join(f"100644 blob id_{p}\t{p}\n" for p in chunk)
+
+        with mock.patch.object(ad.uw, "git", fake_git):
+            found = ad.blobs(self.probe, "main", paths)
+        self.assertEqual([len(c) for c in seen], [ad.PATH_CHUNK, 5])
+        self.assertEqual(set(found), set(paths))
+
     def test_open_draft_posts_a_draft_pr(self):
         cand = self.candidate()
         sent = {}
