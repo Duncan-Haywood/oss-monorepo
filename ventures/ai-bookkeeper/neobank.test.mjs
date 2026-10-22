@@ -156,3 +156,21 @@ test("OFX: a single-account file reads its id from the statement block, not from
   assert.equal(parts.length, 1);
   assert.equal(parts[0].id, "CHK-2");
 });
+
+test("N26: ISO dates, partner name as the description, signed euro amounts", () => {
+  const r = read("n26-account.csv");
+  assert.equal(r.bank, "n26");
+  assert.deepEqual(r.rows.map((x) => x.cents), [-2490, 150000, -1367]);
+  assert.equal(r.rows[0].desc, "Hetzner Online GmbH");
+  assert.deepEqual(r.problems, []);
+});
+
+test("Venmo: preamble and balance rows skipped, pending rows reported, the other party named", () => {
+  const r = read("venmo-statement.csv");
+  assert.equal(r.bank, "venmo");
+  assert.deepEqual(r.rows.map((x) => x.cents), [25000, -4000, -20000]);
+  assert.equal(r.rows[0].desc, "Pat Customer - Logo design deposit");
+  assert.equal(r.rows[1].desc, "Photo Depot - Stock photos");
+  assert.equal(r.rows[2].desc, "Standard Transfer");
+  assert.equal(r.problems.length, 1, "the pending lunch payment is reported, not imported");
+});
