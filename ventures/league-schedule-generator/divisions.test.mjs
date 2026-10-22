@@ -479,3 +479,7 @@ test("readDivisionsSpec reports missing courts and weekdays instead of leaving b
   assert.ok(readDivisionsSpec({ ...f, weekdays: "", courts: "C1" }).errors.includes("Pick at least one weekday to play on."));
   assert.deepEqual(readDivisionsSpec({ ...f, weekdays: "Tue", courts: "C1" }).errors, []);
 });
+
+test("a share fragment holding a JSON scalar or null is refused, not decoded into blank fields", () => {
+  for (const json of ["5", '"x"', "true", "null"]) assert.equal(decodeDivisionFields("#d=" + btoa(json)), null, json);
+});
