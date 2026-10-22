@@ -564,6 +564,26 @@ part-month period is compared against a full month's budget. The page has a card
 (pick an account, type a monthly amount, read the table for the From and To
 dates; clicked through in headless Chromium with `eval/browser-click.mjs`).
 
+### Processor payouts split into sales and fees (2026-10-22)
+
+A Stripe deposit lands in the bank as one lump (970.00 for 1,000.00 of sales less
+30.00 of fees), so books built from the bank alone understate sales and hide the
+cost of taking cards. `node cli.mjs --books books.json payouts stripe-payouts.csv`
+reads the processor's payout reconciliation CSV (columns matched by name:
+`automatic_payout_id`, `automatic_payout_effective_at`, `reporting_category`,
+`gross`, `fee`, `net`), finds the bank line each payout became (a positive,
+unsplit line equal to the payout's net, from 2 days before to 7 days after the
+payout date, nearest first, each line used once) and, with `--apply`, splits it:
+charges to 4000, refunds to 4000 (negative), disputes and fees to 6010 (override
+with `--sales`, `--refunds`, `--fees`, `--disputes`). Rows not yet paid out are
+listed as pending; a row whose net is not gross less fee is refused as damaged;
+a payout already split is reported as done, so a re-run posts nothing twice;
+two lines that fit equally well are skipped, not guessed. Engine: `payouts.mjs`
+(`--json` gives the plan). Checked by node tests and one CLI run on a hand-written
+file in the documented layout (`fixtures/stripe-payouts.csv`): no real Stripe
+export has been tried, other processors (Square, Shopify, PayPal) need their own
+column names, and it is not on the page yet.
+
 ### Reconcile to a paper statement (2026-10-22)
 
 `node cli.mjs --books books.json reconcile 1000 --date 2026-03-31 --balance 691.50`
