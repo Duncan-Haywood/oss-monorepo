@@ -40,3 +40,12 @@ test("things that are not readable PDFs fail plainly", async () => {
   assert.equal(await pdfToText(new TextEncoder().encode("%PDF-1.4\n1 0 obj\n<< /Type /Catalog >>\nendobj\ntrailer\n<< /Root 1 0 R >>\n%%EOF")), "");
   await assert.rejects(() => pdfToText(new TextEncoder().encode("%PDF-1.4\n1 0 obj\n<< /Type /Catalog >>\nendobj\ntrailer\n<< /Root 1 0 R /Encrypt 2 0 R >>\n%%EOF")), /password/);
 });
+
+// Made by Chromium's print-to-PDF from an HTML table (Flate streams, Type0 fonts,
+// one glyph per Td under a flipped CTM): the shape most "print to PDF" statements have.
+test("a statement PDF printed by Chromium reads to the table's rows", async () => {
+  const text = await pdfToText(readFileSync(new URL("./fixtures/statement-chromium.pdf", import.meta.url)));
+  assert.match(text, /^2026-09-03 +Client payment ACME +1,200\.00$/m);
+  assert.match(text, /^2026-09-12 +Adobe Creative Cloud +54\.99$/m);
+  assert.ok(text.indexOf("Deposits") < text.indexOf("Withdrawals"));
+});
