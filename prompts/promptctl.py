@@ -767,6 +767,8 @@ def measure(root: Path = ROOT) -> dict[str, Any]:
                 item = {"file": "(unattributed)", "issue": str(item)}
             if _NO_FRICTION.match(str(item.get("issue") or "")):
                 continue  # "none significant" says there was no friction; counting it buries real reports
+            if _SELF_FIXED.search(str(item.get("issue") or "")):
+                continue  # the reporting run fixed it in its own PR; listing it sends the next run to re-check
             # the run's end time (minutes) when known, so a same-day report can be told from a stale one
             friction[item["file"]].append(f"{(rec.get('ended') or rec['date'])[:16]}: {item['issue']}")
         for item in rec.get("deviations") or []:
@@ -1014,6 +1016,7 @@ def _named_files_changed(report: str) -> str:
     return latest
 
 
+_SELF_FIXED = re.compile(r"(?<!not )(?<!un)\bfixed (here|in this PR)\W*$|\((now )?fixed\)\W*$", re.I)
 _NO_FRICTION = re.compile(r"\s*(none|no friction|nothing)\b[^.;:]{0,20}([.;:]|$)", re.I)
 
 
