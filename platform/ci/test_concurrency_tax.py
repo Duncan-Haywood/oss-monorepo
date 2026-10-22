@@ -89,6 +89,27 @@ class TestPrRounds(unittest.TestCase):
             make_repo(tmp)  # refs/pull/<n>/head only: the probe layout finds nothing
             self.assertEqual(ct.pr_rounds(tmp, 5, 6), [])
 
+    def test_own_commit_cap_is_inclusive(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            git(tmp, "init", "-q", "-b", "main")
+            base = commit(tmp, "base", "a.txt")
+            git(tmp, "checkout", "-q", "-b", "pr8", base)
+            for i in range(ct.MAX_OWN_COMMITS):
+                commit(tmp, f"work {i}")
+            git(tmp, "update-ref", "refs/pull/8/head", "pr8")
+            git(tmp, "update-ref", "refs/remotes/origin/main", "main")
+            rows = ct.pr_rounds(tmp, 8, 8, local=True)
+        self.assertEqual(rows, [(8, ct.MAX_OWN_COMMITS, 0, 0)])
+
+    def test_pr_with_no_common_history_is_skipped(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            make_repo(tmp)
+            git(tmp, "checkout", "-q", "--orphan", "pr9")
+            commit(tmp, "unrelated", "z.txt")
+            git(tmp, "update-ref", "refs/pull/9/head", "pr9")
+            git(tmp, "checkout", "-q", "main")
+            self.assertEqual([r[0] for r in ct.pr_rounds(tmp, 9, 9, local=True)], [])
+
     def test_housekeeping_pattern(self):
         for subject in ("regenerate pages", "sync tree counts", "resolve conflict",
                         "fix after merge", "update count", "mirror research"):
@@ -155,6 +176,14 @@ class TestMain(unittest.TestCase):
             make_repo(tmp)
             _, out, _ = self.run_main(tmp)
         self.assertIn("PRs #1-#7:", out)  # clamped: no PR numbers below 1
+
+    def test_default_window_starts_exactly_400_back(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            make_repo(tmp)
+            for n in (99, 100):
+                git(tmp, "update-ref", f"refs/pull/{n}/head", "pr6")
+            _, out, _ = self.run_main(tmp, "--last-pr", "500")
+        self.assertIn("PRs #100-#500: 1 sampled", out)
 
     def test_default_since_is_14_days_back(self):
         seen = []
