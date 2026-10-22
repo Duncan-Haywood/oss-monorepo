@@ -27,6 +27,22 @@ function cell(items: number, budget: number, n: number) {
   };
 }
 
+describe("pool cap at 3000 items (no uncapped run: minutes each)", () => {
+  it("3000 items, 600 answers: capped beats the shipped selector", () => {
+    const seeds = [1000, 1007];
+    const run = (p: typeof selectNextPair) => {
+      const rs = seeds.map((s) => simulate(p, 3000, 600, s));
+      return {
+        under150: median(rs.map((r) => r.under(150))),
+        rank: Number(median(rs.map((r) => r.rankAccuracy)).toFixed(3)),
+      };
+    };
+    const r = { shipped: run(selectNextPair), capped: run((i) => selectNextPairByInformation(i)) };
+    appendFileSync(process.env.MEASURE_OUT ?? "/dev/null", `MEASURE 3000 items 600 answers ${JSON.stringify(r)}\n`);
+    expect(r.capped.rank).toBeGreaterThan(r.shipped.rank);
+  }, 3_600_000);
+});
+
 describe("pool cap on long lists", () => {
   for (const [items, budget] of [[600, 600], [1000, 600]] as const) {
     it(`${items} items, ${budget} answers`, () => {
