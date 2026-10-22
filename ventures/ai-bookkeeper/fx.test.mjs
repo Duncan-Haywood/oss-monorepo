@@ -94,3 +94,42 @@ test("a USD line far from the EUR line's value is not paired", () => {
   b = importStatement(b, "Date,Description,Amount,Balance\n2026-01-21,Y,1300.00,1300.00\n", "1010").books;
   assert.notEqual(b.transactions[0].status, "transfer");
 });
+
+// Foreign-currency invoices and bills.
+import { addDocuments, aging } from "./engine.mjs";
+
+const fxDocs = (b, csv) => addDocuments(b, csv);
+
+test("a EUR invoice is booked at its date's rate and settled by a USD deposit with a realized loss", () => {
+  let b = setRates(newBooks(), parseRates("2026-01-01,EUR,1.10").rates);
+  const r = fxDocs(b, "type,number,date,due,party,amount,account,currency\ninvoice,E1,2026-01-05,,Client GmbH,1000.00,4000,EUR\n");
+  assert.deepEqual(r.problems, []);
+  const d = r.books.documents[0];
+  assert.equal(d.total, 110000); // 1000 EUR x 1.10
+  assert.equal(d.foreignTotal, 100000);
+  // deposit arrived at 1.08: 1080.00
+  let b2 = importStatement(r.books, "Date,Description,Amount\n2026-02-03,WIRE CLIENT GMBH E1,1080.00\n", "1000").books;
+  b2 = addDocuments(b2, "").books;
+  const j = journal(b2);
+  const fx = j.find((e) => e.source === "fx");
+  assert.ok(fx, "a realized exchange entry");
+  assert.match(fx.memo, /loss/);
+  const net = (c) => j.flatMap((x) => x.lines).filter((l) => l.account === c).reduce((n, l) => n + l.debit - l.credit, 0);
+  assert.equal(net("1100"), 0); // receivable cleared exactly
+  assert.equal(net("6190"), 2000); // 20.00 lost: booked 1100.00, received 1080.00
+  assert.equal(aging(b2).receivable?.cents ?? 0, 0);
+});
+
+test("a EUR bill paid for less in USD is a gain; no rate means the document is refused", () => {
+  let b = setRates(newBooks(), parseRates("2026-01-01,EUR,1.10").rates);
+  const no = fxDocs(newBooks(), "type,number,date,party,amount,account,currency\nbill,B1,2026-01-05,Host AG,200.00,6100,EUR\n");
+  assert.equal(no.added, 0);
+  assert.match(no.problems[0], /no EUR rate/);
+  const r = fxDocs(b, "type,number,date,party,amount,account,currency,rate\nbill,B1,2026-01-05,Host AG,200.00,6100,EUR,\n");
+  assert.equal(r.books.documents[0].total, 22000);
+  const b2 = importStatement(r.books, "Date,Description,Amount\n2026-02-03,HOST AG B1,-215.00\n", "1000").books;
+  const fx = journal(b2).find((e) => e.source === "fx");
+  assert.match(fx.memo, /gain/);
+  const dr = fx.lines.reduce((a, l) => a + l.debit, 0), cr = fx.lines.reduce((a, l) => a + l.credit, 0);
+  assert.equal(dr, 500); assert.equal(cr, 500);
+});
