@@ -17,7 +17,7 @@ import { THICK, EPS, DEPTH, optimizeStock, formatLength, formatInches } from "./
 
 export const SHEET = { width: 48, length: 96 };
 
-/** @typedef {{ id?: string, width: number, length: number, pitch: number, overhang?: number, gableOverhang?: number, rafter?: string, spacing?: number, ridge?: string | null, ceilingJoist?: string, ceilingBearing?: number, collarTies?: boolean, collarDrop?: number, trusses?: { spacing?: number, price?: number }, sheet?: { length?: number, width?: number, price?: number, kerf?: number }, roofing?: { waste?: number, bundlesPerSquare?: number, underlaymentRoll?: number, ridgeBundleFeet?: number, starterBundleFeet?: number, dripEdgePiece?: number } }} Roof */
+/** @typedef {{ id?: string, shape?: "gable" | "hip", hip?: string, width: number, length: number, pitch: number, overhang?: number, gableOverhang?: number, rafter?: string, spacing?: number, ridge?: string | null, ceilingJoist?: string, ceilingBearing?: number, collarTies?: boolean, collarDrop?: number, trusses?: { spacing?: number, price?: number }, sheet?: { length?: number, width?: number, price?: number, kerf?: number }, roofing?: { waste?: number, bundlesPerSquare?: number, underlaymentRoll?: number, ridgeBundleFeet?: number, starterBundleFeet?: number, dripEdgePiece?: number } }} Roof */
 
 export function sampleRoof() {
   return { id: "Main roof", width: 336, length: 480, pitch: 4, overhang: 12, gableOverhang: 12, rafter: "2x8", spacing: 16, ridge: "2x10", ceilingJoist: "2x6", collarTies: true };
@@ -60,6 +60,143 @@ function splitOnCentres(total, max, centres) {
   return out;
 }
 
+/** Ceiling joists on `centres`: one board when it spans, else two lapped over a bearing wall. */
+function ceilingJoistRows(r, plan, centres, notes) {
+  const rows = [];
+  const cl = Math.max(...plan.stock.filter((s) => s.size === r.ceilingJoist).map((s) => s.length));
+  if (r.width <= cl + EPS) for (const c of centres) rows.push({ x: c - THICK / 2, length: r.width, size: r.ceilingJoist });
+  else {
+    // too long for one board: two pieces lapped 6 in over an interior bearing wall `ceilingBearing` from the left eave (default mid-span)
+    const mid = r.ceilingBearing ?? r.width / 2;
+    const pieces = [mid + 3, r.width - mid + 3];
+    if (pieces.some((p) => p > cl + EPS)) return { error: `A ${formatLength(Math.max(...pieces))} ceiling joist piece is longer than the longest ${r.ceilingJoist} listed (${formatLength(cl)}); list longer boards or move the bearing wall.` };
+    for (const c of centres) for (const p of pieces) rows.push({ x: c - THICK / 2, length: p, size: r.ceilingJoist });
+    notes.push(`Ceiling joists are two pieces lapped 6 in over an interior bearing wall ${formatLength(mid)} from the left eave; the wall, the lap nailing and the load path are yours and the engineer's.`);
+  }
+  return { rows };
+}
+
+/**
+ * Lay out one hip roof on a rectangle (`shape: "hip"`): four planes at one pitch, hips at 45 degrees in plan.
+ * Common rafters stand between the hip ends on the spacing; jack rafters fill each corner, their run
+ * to the hip (d + overhang, less the hip's half thickness measured square to the jack) growing by the
+ * spacing from the corner; a common at the middle of each end plane runs to the ridge end.
+ * @param {Roof & { hip?: string }} r
+ */
+function layoutHip(r, plan) {
+  const id = r.id || "Roof";
+  const overhang = r.overhang ?? 12, spacing = r.spacing ?? 16;
+  const W = r.width, L = r.length;
+  if (r.trusses) return { ok: false, errors: ["A hip roof needs girder and jack trusses from the truss maker; leave `trusses` off and use rafters, or order the hip set from them."] };
+  if (L < W - EPS) return { ok: false, errors: ["For a hip roof `length` is the long side and must be at least `width`; swap them."] };
+  const k = slopeFactor(r.pitch);
+  const notes = [];
+  const size = r.rafter ?? "2x8", hipSize = r.hip ?? size;
+  if (!(hipSize in DEPTH)) return { ok: false, errors: [`Unknown hip size ${hipSize}.`] };
+  if (!plan.stock.some((s) => s.size === hipSize)) return { ok: false, errors: [`No ${hipSize} boards listed in the stock.`] };
+  const longestOf = (sz) => Math.max(...plan.stock.filter((s) => s.size === sz).map((s) => s.length));
+  const ridgeT = r.ridge ? THICK : 0;
+  const half = W / 2;
+  const commonLen = Math.round((half - ridgeT / 2 + overhang) * k * 16) / 16;
+  // hip: plan run (half + overhang) x sqrt 2, rise per unit run pitch/12 -> length sqrt(2 + (pitch/12)^2) per unit of side run
+  const hipLen = Math.round((half + overhang) * Math.sqrt(2 + (r.pitch / 12) ** 2) * 16) / 16;
+  const slope = (half + overhang) * k, rise = half * r.pitch / 12;
+  if (commonLen > longestOf(size) + EPS) return { ok: false, errors: [`A ${formatLength(commonLen)} common rafter is longer than the longest ${size} listed (${formatLength(longestOf(size))}). List longer boards, shorten the overhang, or lower the pitch.`] };
+  if (hipLen > longestOf(hipSize) + EPS) return { ok: false, errors: [`A ${formatLength(hipLen)} hip rafter is longer than the longest ${hipSize} listed (${formatLength(longestOf(hipSize))}). List longer boards or shorten the overhang.`] };
+
+  // commons: from the ridge-end rafter at `half` (from the end wall) to the other, on multiples of the spacing from the wall
+  const centres = [half];
+  for (let c = Math.ceil((half + 1) / spacing) * spacing; c < L - half - 9; c += spacing) if (c > half + 9) centres.push(c); // a grid point within 9 in of an end rafter is dropped
+  if (L - half > half + EPS) centres.push(L - half);
+  const rafters = [];
+  for (const c of centres) for (const side of ["left", "right"]) rafters.push({ x: c - THICK / 2, side, length: commonLen, size });
+  for (const end of ["start", "end"]) rafters.push({ end, side: "end", length: commonLen, size });
+  // jacks: distance d from the corner along the eave, while the jack still has run left before the common
+  const jackLen = (d) => Math.round((d + overhang - THICK / 2 * Math.SQRT2) * k * 16) / 16;
+  const jackDs = [];
+  for (let d = spacing; d < half - THICK; d += spacing) jackDs.push(d);
+  const jacks = [];
+  for (let corner = 0; corner < 4; corner++) for (const plane of ["long", "end"]) for (const d of jackDs) jacks.push({ corner, plane, d, length: jackLen(d), size });
+  if (jackDs.length && jackLen(jackDs[0]) < 6) notes.push("The shortest jack is under 6 in; it is cut but may be better as a block.");
+  const hips = [0, 1, 2, 3].map((corner) => ({ corner, length: hipLen, size: hipSize }));
+  const ridges = [];
+  const ridgeRun = L - W;
+  if (r.ridge && ridgeRun > EPS) {
+    const rl = longestOf(r.ridge);
+    for (const len of splitOnCentres(ridgeRun, rl, centres.map((c) => c - half))) ridges.push({ length: len, size: r.ridge });
+  }
+  if (r.hip == null && DEPTH[size] != null) notes.push(`Hips are ${hipSize}, as the rafters; a hip is normally one size deeper than the rafters so the cuts bear (set \`hip\`).`);
+  const ceilingJoists = [];
+  const jc = [THICK / 2];
+  for (let c = spacing; c < L - THICK / 2 - THICK - 3; c += spacing) jc.push(c);
+  jc.push(L - THICK / 2);
+  if (r.ceilingJoist) { const res = ceilingJoistRows(r, plan, jc, notes); if (res.error) return { ok: false, errors: [res.error] }; ceilingJoists.push(...res.rows); }
+  const collarTies = [];
+  if (r.collarTies) {
+    const drop = r.collarDrop ?? 24;
+    const len = Math.round((ridgeT + 2 * drop * 12 / r.pitch) * 16) / 16;
+    if (len < W - 1) for (let i = 0; i < centres.length; i += 2) collarTies.push({ x: centres[i] - THICK / 2, length: len, size: "2x4" });
+    else notes.push("The collar tie would be as long as the building is wide; lower the drop or skip them.");
+  }
+
+  // Planes: 2 long trapezoids (eave L + 2 oh, ridge L - W) and 2 end triangles/trapezoids (eave W + 2 oh, ridge 0 at a hip end).
+  const planes = [
+    { name: "long", count: 2, eave: L + 2 * overhang },
+    { name: "end", count: 2, eave: W + 2 * overhang },
+  ];
+  const sheet = { ...SHEET, price: 1, kerf: plan.kerf ?? 0.125, ...(r.sheet || {}) };
+  const courses = [];
+  const nFull = Math.floor((slope + EPS) / sheet.width), rest = slope - nFull * sheet.width;
+  for (const p of planes) {
+    for (let c = 0; c < nFull + (rest > EPS ? 1 : 0); c++) {
+      const y = c * sheet.width, width = c < nFull ? sheet.width : rest;
+      const bottom = p.eave - 2 * (y / k); // the diagonal hip cuts shorten both ends by the run gained
+      const pieces = [];
+      let left = bottom;
+      while (left > EPS) { const len = Math.min(left, sheet.length); pieces.push({ length: len }); left -= len; }
+      courses.push({ plane: p.name, count: p.count, y, width, pieces });
+    }
+  }
+  let sheets = 0, ripped = 0;
+  const sheetRows = [];
+  for (const w of [...new Set(courses.map((c) => c.width))]) {
+    const ps = courses.filter((c) => Math.abs(c.width - w) < EPS).flatMap((c) => Array.from({ length: c.count }, () => c.pieces).flat());
+    const perSheet = Math.max(1, Math.floor((sheet.width + sheet.kerf) / (w + sheet.kerf)));
+    const res = optimizeStock(ps.map((p) => ({ length: p.length, qty: 1 })), [{ length: sheet.length, price: 1 }], sheet.kerf);
+    const need = Math.ceil(res.bars.length / perSheet);
+    sheets += need;
+    if (w < sheet.width - EPS) ripped += need;
+    sheetRows.push({ width: w, count: need, pieces: ps.length });
+  }
+  const trapezoid = (eave, ridge) => (eave + ridge) / 2 * slope;
+  const area = (2 * trapezoid(L + 2 * overhang, L - W) + 2 * trapezoid(W + 2 * overhang, 0)) / 144; // sq ft; each plane's ridge edge is the span L-W (long) or a point (end)
+  const sheetArea = (sheet.width * sheet.length) / 144;
+  const g = { waste: 1.15, bundlesPerSquare: 3, underlaymentRoll: 400, ridgeBundleFeet: 33, starterBundleFeet: 100, dripEdgePiece: 120, ...(r.roofing || {}) };
+  const squares = area / 100;
+  const eaveFeet = (2 * L + 2 * W + 8 * overhang) / 12;
+  const hipFeet = 4 * hipLen / 12;
+  const ridgeFeet = ridgeRun / 12 + hipFeet;
+  const roofing = {
+    squares, shingleBundles: Math.ceil(squares * g.waste * g.bundlesPerSquare - 1e-9),
+    underlaymentRolls: Math.ceil(area * g.waste / g.underlaymentRoll - 1e-9),
+    dripEdgePieces: Math.ceil(eaveFeet * 12 / g.dripEdgePiece - 1e-9),
+    ridgeBundles: Math.ceil(ridgeFeet / g.ridgeBundleFeet - 1e-9),
+    starterBundles: Math.ceil(eaveFeet / g.starterBundleFeet - 1e-9),
+    eaveFeet, rakeFeet: 0, ridgeFeet, hipFeet, assumptions: g,
+  };
+  if (rest > EPS) notes.push(`The top course of each plane is ${formatInches(rest)} wide, ripped from ${ripped} sheet${ripped === 1 ? "" : "s"}.`);
+  notes.push("Hip sheathing counts each course by its bottom length (the longest piece, cut diagonally at both ends) and does not reuse the triangular offcuts, so the sheet count is an upper bound; end joints are not placed over rafters.");
+  if (r.pitch < 4) notes.push("Under 4:12 most shingle makers need a low-slope underlayment and special installation; check the product's rules.");
+  notes.push("Common, jack and hip sizes, spacing, the ridge, collar ties and ceiling joists are your inputs and are not checked against a span table or code; the hip's backing and side bevels, birdsmouth depth, hurricane ties and bracing are not in the takeoff. Jacks are measured to the hip's face (half its thickness off the run).");
+  notes.push("Shingle, felt, ridge and hip-cap quantities use the coverage in `roofing` (15% waste for a hip roof) and ignore vents, flashing and nails.");
+  return {
+    ok: true, shape: "hip", id, width: W, length: L, pitch: r.pitch, overhang, gableOverhang: 0, spacing, rafterSize: size, hipSize,
+    rafterLength: commonLen, hipLength: hipLen, slope, rise, centres, rafters, hips, jacks, ridges, ceilingJoists, collarTies, trusses: null, courses,
+    sheets: { count: sheets, rows: sheetRows, area, waste: sheets ? 1 - area / (sheets * sheetArea) : 0 },
+    roofing, notes,
+  };
+}
+
 /**
  * Lay out one gable roof.
  * @param {Roof} r
@@ -68,6 +205,7 @@ function splitOnCentres(total, max, centres) {
 export function layoutRoof(r, plan) {
   const errors = validateRoof(r, plan);
   if (errors.length) return { ok: false, errors };
+  if (r.shape === "hip") return layoutHip(r, plan);
   const id = r.id || "Roof";
   const overhang = r.overhang ?? 12, rake = r.gableOverhang ?? 12, spacing = r.spacing ?? 16;
   const k = slopeFactor(r.pitch);
@@ -99,18 +237,7 @@ export function layoutRoof(r, plan) {
       for (const len of splitOnCentres(planeLength, rl, planeCentres)) ridges.push({ length: len, size: r.ridge });
       if (!(DEPTH[r.ridge] >= DEPTH[size])) notes.push(`The ${r.ridge} ridge is shallower than the ${size} rafters, so the plumb cut will not bear on it; use a ridge at least as deep.`);
     }
-    if (r.ceilingJoist) {
-      const cl = Math.max(...plan.stock.filter((s) => s.size === r.ceilingJoist).map((s) => s.length));
-      if (r.width <= cl + EPS) for (const c of centres) ceilingJoists.push({ x: c - THICK / 2, length: r.width, size: r.ceilingJoist });
-      else {
-        // too long for one board: two pieces lapped 6 in over an interior bearing wall `ceilingBearing` from the left eave (default mid-span)
-        const mid = r.ceilingBearing ?? r.width / 2;
-        const pieces = [mid + 3, r.width - mid + 3];
-        if (pieces.some((p) => p > cl + EPS)) return { ok: false, errors: [`A ${formatLength(Math.max(...pieces))} ceiling joist piece is longer than the longest ${r.ceilingJoist} listed (${formatLength(cl)}); list longer boards or move the bearing wall.`] };
-        for (const c of centres) for (const p of pieces) ceilingJoists.push({ x: c - THICK / 2, length: p, size: r.ceilingJoist });
-        notes.push(`Ceiling joists are two pieces lapped 6 in over an interior bearing wall ${formatLength(mid)} from the left eave; the wall, the lap nailing and the load path are yours and the engineer's.`);
-      }
-    }
+    if (r.ceilingJoist) { const res = ceilingJoistRows(r, plan, centres, notes); if (res.error) return { ok: false, errors: [res.error] }; ceilingJoists.push(...res.rows); }
     if (r.collarTies) {
       const drop = r.collarDrop ?? 24; // vertical, from the ridge's top down to the tie
       const len = Math.round((ridgeT + 2 * drop * 12 / r.pitch) * 16) / 16;
@@ -194,6 +321,8 @@ export function roofCuts(l) {
     map.set(key, row);
   };
   for (const x of l.rafters) add(x.size, x.length, "rafter");
+  for (const x of l.hips || []) add(x.size, x.length, "hip rafter");
+  for (const x of l.jacks || []) add(x.size, x.length, "jack rafter");
   for (const x of l.ridges) add(x.size, x.length, "ridge board");
   for (const x of l.ceilingJoists) add(x.size, x.length, "ceiling joist");
   for (const x of l.collarTies) add(x.size, x.length, "collar tie");
@@ -202,12 +331,13 @@ export function roofCuts(l) {
 
 export function roofText(l) {
   if (!l.ok) return l.errors.map((e) => `  - ${e}`);
-  const out = [`${l.id}: ${formatLength(l.width)} x ${formatLength(l.length)}, ${l.pitch}:12 pitch, ${formatInches(l.overhang)} eave and ${formatInches(l.gableOverhang)} rake overhang`];
+  const out = [`${l.id}: ${formatLength(l.width)} x ${formatLength(l.length)}, ${l.pitch}:12 pitch, ${formatInches(l.overhang)} eave${l.shape === "hip" ? "" : ` and ${formatInches(l.gableOverhang)} rake`} overhang${l.shape === "hip" ? " (hip)" : ""}`];
   out.push(`  Roof rises ${formatInches(l.rise)} over the plates; each plane is ${formatInches(l.slope)} up the slope.`);
-  if (l.trusses) out.push(`  ${l.trusses.count} trusses, ${formatLength(l.trusses.span)} span, at ${l.spacing} o.c. (purchased)`);
+  if (l.shape === "hip") out.push(`  Hip roof: ${l.rafters.length} common rafters of ${formatInches(l.rafterLength)}, ${l.hips.length} ${l.hipSize} hips of ${formatInches(l.hipLength)}, ${l.jacks.length} jack rafters (${l.jacks.length ? `${formatInches(Math.min(...l.jacks.map((j) => j.length)))} to ${formatInches(Math.max(...l.jacks.map((j) => j.length)))}` : "none"}), ${l.ridges.length} ridge board${l.ridges.length === 1 ? "" : "s"}${l.ceilingJoists.length ? `, ${l.ceilingJoists.length} ceiling joists` : ""}${l.collarTies.length ? `, ${l.collarTies.length} collar ties` : ""}`);
+  else if (l.trusses) out.push(`  ${l.trusses.count} trusses, ${formatLength(l.trusses.span)} span, at ${l.spacing} o.c. (purchased)`);
   else out.push(`  ${l.rafters.length} ${l.rafterSize} rafters of ${formatInches(l.rafterLength)} at ${l.spacing} o.c., ${l.ridges.length} ridge board${l.ridges.length === 1 ? "" : "s"}${l.ceilingJoists.length ? `, ${l.ceilingJoists.length} ceiling joists` : ""}${l.collarTies.length ? `, ${l.collarTies.length} collar ties` : ""}`);
   out.push(`  Roof sheathing: ${l.sheets.count} sheets of ${SHEET.width} x ${SHEET.length} in for ${l.sheets.area.toFixed(0)} sq ft (${(100 * l.sheets.waste).toFixed(1)}% offcut)`);
-  for (const c of l.courses) out.push(`    course at ${formatLength(c.y)} up the slope (${formatInches(c.width)} wide): ${c.pieces.map((p) => formatInches(p.length)).join(" + ")}`);
+  for (const c of l.courses) out.push(`    ${c.plane ? `${c.plane} planes, ` : ""}course at ${formatLength(c.y)} up the slope (${formatInches(c.width)} wide): ${c.pieces.map((p) => formatInches(p.length)).join(" + ")}`);
   const g = l.roofing;
   out.push(`  Roofing: ${g.squares.toFixed(1)} squares -> ${g.shingleBundles} bundles of shingles, ${g.underlaymentRolls} rolls of underlayment, ${g.dripEdgePieces} drip edge pieces, ${g.ridgeBundles} ridge cap and ${g.starterBundles} starter bundles`);
   for (const n of l.notes) out.push(`  - ${n}`);
