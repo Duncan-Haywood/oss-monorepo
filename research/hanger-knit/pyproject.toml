@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hanger-knit"
+version = "0.1.0"
+description = "Does the hanger shape that hanger-fit's CMA-ES loop designs change for stretchy, heavy knits, and what does a tee-designed hanger cost them?"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+dependencies = ["numpy", "hanger-fit", "hanger-sweep"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
