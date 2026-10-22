@@ -1,0 +1,16 @@
+[project]
+name = "infra-routing"
+version = "0.1.0"
+description = "Electric delivery fleet on Solomon RC208: battery-blind routing plus station insertion against a charge-aware local search"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[project.optional-dependencies]
+baseline = ["pyvrp"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
