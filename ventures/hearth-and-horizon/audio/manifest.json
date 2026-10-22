@@ -1,4 +1,9 @@
 {
+  "brigid-and-the-cloak": {
+    "bytes": 3866815,
+    "seconds": 644.4,
+    "voice": "en_US-ljspeech-high"
+  },
   "brother-martin-and-the-mice": {
     "bytes": 3381571,
     "seconds": 563.5,
