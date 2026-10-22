@@ -13,7 +13,7 @@
 import { parseCents, parseDate } from "./bank.mjs";
 import { payeeTokens, suggest, historyRecord } from "./categorize.mjs";
 import { accountMap } from "./ledger.mjs";
-import { cleanOcr } from "./ocr.mjs";
+import { cleanOcr } from "./cleanocr.mjs";
 import { modelFor, confirm } from "./engine.mjs";
 
 const day = (d) => Math.floor(Date.parse(`${d}T00:00:00Z`) / 86400000);

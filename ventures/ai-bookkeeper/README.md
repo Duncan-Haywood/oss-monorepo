@@ -498,7 +498,7 @@ only: a fiscal year ending in another month is not modelled. The page has a "yea
 ## Not modelled
 
 The 179 taxable-income limit, inventory,
-payroll and sales tax filings, multiple currencies (the VAT worksheet is UK-layout, invoice basis), reading a bank-statement PDF file itself (paste its text instead). Receipts can be a PDF or a photo (see below).
+payroll and sales tax filings, multiple currencies (the VAT worksheet is UK-layout, invoice basis), a scanned (image-only) bank-statement PDF. A statement PDF with a text layer is read by `import FILE.pdf` through pdftotext. Receipts can be a PDF or a photo (see below).
 
 ## Receipts matched to bank lines
 
@@ -591,6 +591,7 @@ is often fine.
 
 ## Next
 
+- Bank statement PDF files read by the CLI (`import FILE.pdf --account CODE`, 2026-10-22: `pdftotext -layout`, then the pasted-text reader; node test builds a one-page PDF by hand and reads it with the real pdftotext; no real bank PDF tried, scans refused). Try real statements; the page still takes pasted text.
 - Opening balances from a trial balance (`opening.mjs`, CLI `opening`, agent input `opening`; 2026-10-21; node tests on hand-written trial balances, `node --test ventures/ai-bookkeeper/opening.test.mjs`, 8 pass; a page card (date, file or paste, set and remove; clicked through in headless Chromium with `node eval/browser-click.mjs`, 2026-10-21); a typed list replaces the opening inferred from a statement's running balance for the same account, and imported lines dated on or before the opening date raise a high `opening-overlap` close check).
 - MT940 and CAMT.053 reading landed 2026-10-21 (`sepa.mjs`, hand-written fixtures); OFX, MT940 and CAMT closing balances now feed the reconcile check. Try real exports from a German, Dutch or UK bank.
 - OFX/QFX and QIF reading landed 2026-10-21 against hand-written fixtures (`fixtures/checking.ofx`, `checking.qif`); try real downloads, and try a real multi-account OFX file. Those split per account (2026-10-21, `splitOfx`, `importOfxAccounts`, `fixtures/two-accounts.ofx`; CLI `import FILE --map OFXID=CODE,...`); the page's file picker shows one account picker per account (2026-10-21; clicked through in headless Chromium 2026-10-21 by `eval/browser-click.mjs`, which serves the folder, loads `two-accounts.ofx`, picks accounts, imports and loads the example; it skips when Playwright is absent).

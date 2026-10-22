@@ -6,27 +6,11 @@
 import { readFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { extname } from "node:path";
+import { cleanOcr } from "./cleanocr.mjs";
+
+export { cleanOcr };
 
 const IMAGE = new Set([".png", ".jpg", ".jpeg", ".tif", ".tiff", ".bmp", ".webp", ".gif"]);
-
-// Inside a token that is mostly digits, O/o -> 0, l/I/| -> 1, S -> 5, B -> 8, Z -> 2.
-// Words are left alone: only tokens that already hold two or more digits (or a
-// money/date shape) are touched.
-const LOOK = { O: "0", o: "0", D: "0", l: "1", I: "1", "|": "1", S: "5", s: "5", B: "8", Z: "2", z: "2" };
-export function cleanOcr(text) {
-  return text.split(/\r?\n/).map((line) => line
-    .replace(/(^|\s)S(?=\d+[.,]\d{2}(?!\d))/g, "$1$$") // "S10.62" -> "$10.62"
-    .replace(/(\d)\s+([.,])(\d{2})(?!\d)/g, "$1$2$3") // "5 .50" -> "5.50"
-    .replace(/(\d[.,])\s+(\d{2})(?!\d)/g, "$1$2")
-    .replace(/(^|[\s$€£])([OoIl|])(?=[.,]\d{2}(?!\d))/g, (m, p, c) => p + LOOK[c]) // "O.87" -> "0.87"
-    .replace(/[\w$€£|.,\/-]+/g, (tok) => {
-    const digits = (tok.match(/\d/g) || []).length;
-    const letters = (tok.match(/[A-Za-z|]/g) || []).length;
-    if (digits < 2 || letters === 0 || letters > digits) return tok; // a word, or no anchor
-    if (/[a-z]{3,}/i.test(tok.replace(/[OolIDSsBZz|]/g, ""))) return tok; // real letters left over: a word
-    return tok.replace(/[OoDlI|SsBZz]/g, (c) => LOOK[c]);
-  })).join("\n");
-}
 
 export function receiptTextFromFile(path, { run = spawnSync, env = process.env } = {}) {
   const ext = extname(path).toLowerCase();
@@ -45,4 +29,14 @@ export function receiptTextFromFile(path, { run = spawnSync, env = process.env }
     return cleanOcr(r.stdout);
   }
   return readFileSync(path, "utf8");
+}
+
+// A bank statement that is a PDF file: the same pdftotext route as a receipt, and
+// the text goes to the pasted-statement reader. Other files are read as they are.
+export function statementTextFromFile(path, { run = spawnSync } = {}) {
+  if (extname(path).toLowerCase() !== ".pdf") return readFileSync(path, "utf8");
+  const r = run("pdftotext", ["-layout", path, "-"], { encoding: "utf8" });
+  if (r.error || r.status !== 0) throw new Error(`could not read ${path} as a PDF: pdftotext (poppler-utils) is needed${r.stderr ? `: ${String(r.stderr).trim().slice(0, 120)}` : ""}`);
+  if (!r.stdout.trim()) throw new Error(`${path} has no text layer (a scan); statements are not OCR'd, download the bank's CSV or OFX instead`);
+  return r.stdout;
 }

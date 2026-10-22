@@ -23,7 +23,7 @@ import { setOpeningBalances, clearOpeningBalances } from "./opening.mjs";
 import { sniffFormat, splitOfx } from "./bank.mjs";
 import { detectRecurring, forecastCash } from "./recurring.mjs";
 import { findAnomalies } from "./anomalies.mjs";
-import { receiptTextFromFile } from "./ocr.mjs";
+import { receiptTextFromFile, statementTextFromFile } from "./ocr.mjs";
 import { addReceipts, attachReceipt, removeReceipt, receiptReport, taxOnReceipts, planReceiptSplit, splitFromReceipt } from "./receipts.mjs";
 import { compareProfit } from "./compare.mjs";
 import { addTrip, removeTrip, setHomeOffice, mileageDeduction } from "./deductions.mjs";
@@ -38,7 +38,7 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
   --books FILE           the books (JSON); created on first import
   --example              start from the synthetic three-month example instead
   import FILE --account CODE [--invert] [--day-first] [--decimal-comma] [--auto 0.85]
-  import FILE.txt                             statement text copied from a PDF (date, description, amount per line)
+  import FILE.txt|FILE.pdf                    statement text copied from a PDF, or the PDF itself via pdftotext (date, description, amount per line)
   import FILE.ofx --map OFXID=CODE,OFXID=CODE   a multi-account OFX file, one chart code per account
   review                 list lines waiting for an account
   confirm ID=CODE ...    file lines (and learn from them)
@@ -106,7 +106,7 @@ const name = (c) => (c ? `${c} ${map.get(c)?.name ?? ""}` : "-");
 
 if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
   // an OFX file with several accounts: --map OFXID=CODE,OFXID=CODE
-  const text = readFileSync(rest[0], "utf8");
+  const text = statementTextFromFile(rest[0]);
   const parts = sniffFormat(text) === "ofx" ? splitOfx(text) : [];
   const map = Object.fromEntries((acctMap ?? "").split(",").filter(Boolean).map((p) => p.split("=")));
   if (parts.length < 2 || !Object.keys(map).length) {
@@ -121,7 +121,7 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
   console.log(`${r.accounts.filter((a) => a.code).length} of ${r.accounts.length} accounts imported: ${r.added} lines added, ${r.skipped} already in the books.`);
 } else if (cmd === "import") {
   if (!rest[0] || !account) { console.error("import needs a CSV file and --account CODE"); process.exit(2); }
-  const r = importStatement(books, readFileSync(rest[0], "utf8"), account, opts);
+  const r = importStatement(books, statementTextFromFile(rest[0]), account, opts);
   books = r.books;
   save();
   for (const p of r.problems) console.error(p);
