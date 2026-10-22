@@ -1554,7 +1554,7 @@ Annals*). Payments: gridlock resolution and liquidity-saving mechanisms (Bech an
 11. `infra-netting`: liquidity in payment systems. A simulated RTGS day with a published
     payment-size distribution: how much liquidity bilateral and multilateral offsetting saves,
     and how much delay it costs, against the Bech-Soram&auml;ki algorithm.
-12. `infra-hvacmpc`: heating and cooling control. A grey-box RC building model fitted to an
+12. `infra-hvacmpc` (done 2026-10-22; envelope from recalled ASHRAE 140 values, no measured dataset reachable so nothing fitted): heating and cooling control. A grey-box RC building model fitted to an
     open dataset, MPC against a thermostat rule on a time-of-use tariff and a forecast that
     is not perfect (the lesson of `energy-tou-lp-forecast`).
 

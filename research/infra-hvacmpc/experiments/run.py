@@ -110,5 +110,19 @@ def main():
             print(f"{lk:5.2f} | {t['cost']:8.0f} {m['cost']:8.0f} {100 * (1 - m['cost'] / t['cost']):8.1f} {m['disc']:8.0f} {t['disc']:8.0f}")
 
 
+def section_f():
+    """Thermostat set-points inside the band (cheap: no LP). Appended to results.txt by `python experiments/run.py F`."""
+    to, g = load_weather(SITES[0])
+    print("\n== F. Thermostat set-points (heat/cool), Greensboro, TOU, wrong plant: where the discomfort of section A comes from")
+    print("heat cool | cost kwh disc_Kh")
+    for sh, sc in ((20.0, 24.0), (20.5, 23.5), (21.0, 23.0), (21.0, 24.0), (21.5, 22.5)):
+        r = thermostat_year(PLANT, to, g, TOU_PRICES, sp_heat=sh, sp_cool=sc, kp=500.0, ki=150.0)
+        print(f"{sh:4.1f} {sc:4.1f} | {fmt(r)}")
+
+
 if __name__ == "__main__":
-    main()
+    if sys.argv[1:] == ["F"]:
+        section_f()
+    else:
+        main()
+        section_f()
