@@ -199,6 +199,7 @@ corners, the cap total changes (by the through wall's depth minus the partition'
 
 ## Limits
 
+- **Headers from your own span table** (2026-10-22, `headers.mjs`, CLI `--headers`). Put `"headerTable": [{"upTo": 36, "header": "2x6", "plies": 2}, ...]` in the plan, rows copied from the span table your code or engineer gives for your load, building width and stud size. An opening with `"header": "auto"` (or none) takes the first row whose `upTo` covers its rough width and the row's plies; a header you picked yourself is kept and listed as UNDER when it is shallower or has fewer plies than the table asks for. A span past the last row, a row with an unknown size and a table that gets lighter for longer spans are errors. No code values ship with the tool, so it checks your table, not the code. Node-tested on a made-up table (`headers.test.mjs`); not on the page yet.
 - **No structural checks.** Header size, plies, jack count, stud size and
   spacing are inputs. Nothing checks them against a span table, a load or a
   building code.

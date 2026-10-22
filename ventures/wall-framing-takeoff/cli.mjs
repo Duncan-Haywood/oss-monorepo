@@ -6,6 +6,7 @@ import { readFileSync } from "node:fs";
 import { sheathe, defaultSheathing, sheathingText, nailerCuts } from "./sheathing.mjs";
 import { layoutFloor, floorCuts, floorText } from "./floor.mjs";
 import { layoutRoof, roofCuts, roofText } from "./roof.mjs";
+import { resolveHeaders, headerText } from "./headers.mjs";
 import { drawingSetHtml } from "./drawings.mjs";
 import { panelOrder, panelOrderText, panelPullText } from "./panels.mjs";
 import { takeoff, samplePlan, toCsv, formatLength, formatInches, parseLength } from "./engine.mjs";
@@ -27,6 +28,7 @@ Usage:
   node cli.mjs plan.json --floor     add the plan's floor (joists, rim, blocking, subfloor sheets); its lumber joins the order
   node cli.mjs plan.json --roof      add the plan's gable roof, or hip roof with shape "hip" (rafters, ridge, sheathing, shingle and felt quantities); its lumber joins the order
   node cli.mjs plan.json --drawings   printable HTML shop drawings, one sheet per wall (marked members, dimensions, parts table)
+  node cli.mjs plan.json --headers  size headers from the plan's own headerTable ({upTo, header, plies?} rows from your span table; an opening with "header": "auto" takes the first row that covers it) and list hand-picked ones the table says are too light
   node cli.mjs --example            print the example plan (an invented 40 x 28 ft ranch) to start from
   cat plan.json | node cli.mjs -    read the plan from stdin
 
@@ -44,6 +46,7 @@ for any loss or damage arising from its use.`;
 function normalise(plan) {
   const L = (v) => (typeof v === "string" ? parseLength(v) : v);
   for (const k of ["studSpacing", "studLength", "kerf", "topPlateLap", "defaultHeaderHeight"]) if (k in plan) plan[k] = L(plan[k]);
+  for (const r of Array.isArray(plan.headerTable) ? plan.headerTable : []) if (r && "upTo" in r) r.upTo = L(r.upTo);
   for (const s of plan.stock || []) s.length = L(s.length);
   for (const w of plan.walls || []) {
     w.length = L(w.length);
@@ -69,6 +72,13 @@ export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "u
   } catch (e) {
     return { code: 2, out: `Could not read the plan: ${e instanceof Error ? e.message : e}` };
   }
+  /** @type {ReturnType<typeof resolveHeaders> | null} */
+  let headers = null;
+  if (plan.headerTable) {
+    headers = resolveHeaders(plan);
+    if (!headers.ok) return { code: 1, out: `The header table has problems:\n${headers.errors.map((e) => `  - ${e}`).join("\n")}` };
+    plan = headers.plan;
+  } else if (flags.has("--headers")) return { code: 2, out: "The plan has no `headerTable` (rows of {upTo, header, plies?} from your span table)." };
   let floor = null;
   if (flags.has("--floor") || plan.floor) {
     if (!plan.floor) return { code: 2, out: "The plan has no `floor` object (width, depth, joist, spacing, beam)." };
@@ -126,6 +136,7 @@ export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "u
   if (r.sheathing) lines.push("", `SHEATHING (panels run ${r.sheathing.orientation === "horizontal" ? "horizontally, course by course from the floor" : "vertically from the wall start"}; lengths left to right)`, ...sheathingText(r.sheathing));
   if (r.floor) lines.push("", "FLOOR", ...floorText(r.floor));
   if (r.roof) lines.push("", "ROOF", ...roofText(r.roof));
+  if (headers && (flags.has("--headers") || headers.notes.length)) lines.push("", "HEADERS", ...headerText(headers));
   if (r.notes.length) lines.push("", "NOTES", ...r.notes.map((n) => `  - ${n}`));
   lines.push("", "Header sizes and jack counts are your inputs and are not checked against a span table or code.");
   return { code: 0, out: lines.join("\n") };
