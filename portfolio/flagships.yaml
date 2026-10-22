@@ -152,8 +152,9 @@ flagships:
       `pairSelector`; an INFO_POOL_CAP of 400 (3000 items 1983 -> 36 ms;
       capped equals uncapped on 600 and 1000 items at 600 answers,
       poolCap.simulation.test.ts); and a live-Postgres ranking integration
-      test (ranking.integration.test.ts, 2026-10-22). Next: the pool-cap
-      accuracy check at 3000+ items through the route.
+      test (ranking.integration.test.ts, 2026-10-22). Pool-cap accuracy at 3000 items measured 2026-10-22 (selector loop,
+      2 respondents). Next: the same check through the route with Postgres,
+      and budgets well past the list length.
 
   - venture: league-schedule-generator
     why: >-

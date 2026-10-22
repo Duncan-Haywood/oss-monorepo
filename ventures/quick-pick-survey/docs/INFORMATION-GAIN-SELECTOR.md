@@ -145,5 +145,9 @@ numbers.
 Capped and uncapped are identical to three decimals: with answers this few
 the scorer only ever picks from the most uncertain items, which is the set the
 cap keeps. So the cap is a latency guard that costs nothing in these cells.
-Not measured: 3000+ items (uncapped is minutes per run), budgets well past the
+At 3000 items (2026-10-22, 2 seeded respondents, 600 answers, selector loop
+only, no uncapped arm because it is minutes per run): items rd<150 73 shipped /
+131 capped, rank accuracy 0.051 / 0.057. The cap still beats the shipped
+selector; the margin is small and the sample is two respondents. Not measured:
+the same check through the HTTP route with Postgres, and budgets well past the
 list length, where the cap could start to hide items.
