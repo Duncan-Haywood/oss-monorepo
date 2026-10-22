@@ -125,6 +125,7 @@ introduces a dated fact.
 | 2064 | Invented water users' cooperative in Kerala: six villages, six chlorinating stations; Station 4's flow meter replaced 14 March, reports 14 L/s (50.4 m³/h) to a controller expecting m³/h, so it doses about 0.28 mg/L against a 1.0 mg/L target (ratio 3.6); engineer Parvathy Menon, operator K. T. Mathew | *The Last Message in the Window* |
 | 2047 | Saint Aidan's (invented), South Atlantic, 197 people, 2,500 km from Walvis Bay; cargo airship *Pelican* (140 m, eight electric motors, about 80 km/h, 31 h 15 min to the island; mooring limits 8 m/s mean wind and 10 m/s gust; 6 t of water ballast) and her AI Halyard; mooring master Maura Plunkett; the Patches, a mooring field in the lee of the Peak, crew of 14, church bell rung at the double to muster them; insulin for three people, 9 days left against a 19-day wait; 14 kg case lowered from a 30 m hover | *The Patches* |
 | 2058 | Marten Portage (invented), NWT, 410 people, 187 km of winter road from Fort Meridian (invented); Whale Narrows thins from 130 cm (1 Feb) to 62 cm closing load limit (3.5 x thickness squared kg, margin 1.5); sleds of 8,000 L, 100 m apart, 12 km/h; drivers say the Angelus on the open radio at noon | *The Ice Road* |
+| 2052 | Eilean Dhubhaig (invented), Southern Hebrides, 410 people: two 600 kW turbines, 6 MWh battery (about 4.8 usable cold), diesel set at 0.27 L/kWh, 8,000 L; wind lull 9 to 17 Dec (200 h) leaves a 5.6 MWh gap plus 3 MWh margin, so 43 kW (one watt in five) must come off a 210 kW average; St Brendan's hall pellet boiler, 80 people; grid AI Cothrom; engineer Seonaid MacNeil, nurse Catriona Morrison, Fr Tomasz | *The Cold Meter* |
 | 3026 | Fjellbu Vault (invented), northern Norway, the fourth vault after a first one whose entrance flooded in its ninth year (real: Svalbard, 2017); about 2.5 million samples at minus 18 C; a Dark Week every 25 years (all electronics off, 8 days, paper Ledger in pencil); keeper Ines Adeyemi-Solberg, apprentice Davi Quispe, AI called Tally; accession 4417 (bere barley, invented collector M. Flett, 2921) tests 61 of 100 against a database figure of 96 (Ledger: 86 in 2985) | *The Dark Week* |
 
 Little Lamps is set in history (Lima, about 1610 for *Brother Martin*) and is
@@ -194,6 +195,7 @@ numbers worked out before drafting.
 - *(Done: The Control Vial, Cheparaa Health Centre, Kenya, 2041; text only, voice host unreachable.)* A solar vaccine fridge freezes its top shelf; the cold-chain AI will not certify the doses without a shake test, and the test takes a night.
 - *Quarry Nine:* a short sequel, a few years on, in which the new system is
   asked why the old bell is rung (use sparingly; the first story is complete).
+- *(Done: The Cold Meter, Eilean Dhubhaig, 2052; text only, voice host unreachable.)* A wind lull on an island grid; the hall as the cheapest heater.
 - *(Done: The Dark Week, Fjellbu Vault, 3026.)* *A seed vault at 1,000 years:* a keeper, a ledger and a handover that must work
   without electronics.
 

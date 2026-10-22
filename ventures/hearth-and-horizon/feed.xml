@@ -64,6 +64,16 @@
       <itunes:duration>0:08:22</itunes:duration>
     </item>
     <item>
+      <title>The Cold Meter</title>
+      <link>https://example.invalid/hearth-and-horizon/the-cold-meter.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-cold-meter.html</guid>
+      <pubDate>Thu, 22 Oct 2026 12:00:00 GMT</pubDate>
+      <description>A wind lull is forecast for nine days, the fuel tanker will not come until the seventeenth, and the island's grid AI works out that the island must use a fifth less power. The easy cut is rolling blackouts. The better one is to move eighty people into the parish hall, but the people who most need to come are the ones whose meters show the least use, and the AI is not allowed to read those meters that way unless the island says it may. Setting: Eilean Dhubhaig, an invented island in the Southern Hebrides, December 2052. Read the full text at https://example.invalid/hearth-and-horizon/the-cold-meter.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A wind lull is forecast for nine days, the fuel tanker will not come until the seventeenth, and the island's grid AI works out that the island must use a fifth less power. The easy cut is rolling blackouts. The better one is to move eighty people into the parish hall, but the people who most need to come are the ones whose meters show the least use, and the AI is not allowed to read those meters that way unless the island says it may.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>The Control Vial</title>
       <link>https://example.invalid/hearth-and-horizon/the-control-vial.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-control-vial.html</guid>
