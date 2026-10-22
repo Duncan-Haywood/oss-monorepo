@@ -1,0 +1,6 @@
+{
+ "theme": "capture",
+ "title": "In a reverberant room, does PHAT win after all, and can the whitening exponent be chosen per window?",
+ "summary": "Adds simulated reverberation (exponentially decaying Gaussian tails, RT60 0&ndash;1.0 s, direct-to-reverberant ratio +5 to &minus;5 dB, Schroeder's statistical model) to capture-realaudio's 10 real clips and tests GCC delay estimators for camera audio sync. Across 20 cells (10 rooms, SNR &minus;5 and +5 dB, 200 windows each), PHAT is the worst fixed weighting in 19 of 20 cells: at RT60 0.6 s, DRR 0 dB, SNR +5 dB it puts 0.26 of 2 s windows more than one 30 fps frame off, against 0.09 for partial whitening with &gamma; = 0.5 and 0.20 for plain correlation. Choosing &gamma; per window by peak-to-sidelobe ratio beats PHAT but not the best fixed &gamma;; an oracle selector would roughly halve the failures again. Limits: statistical rooms rather than measured impulse responses, white noise, sound-effect clips, simulated delay.",
+ "lede": "in a reverberant room, does PHAT win after all? No: across 10 simulated rooms PHAT is the worst fixed weighting; gamma 0.5 cuts failures from 0.26 to 0.09, and choosing gamma per window by peak-to-sidelobe ratio helps less than just fixing it."
+}
