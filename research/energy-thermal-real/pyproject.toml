@@ -1,0 +1,13 @@
+[project]
+name = "energy-thermal-real"
+version = "0.1.0"
+description = "Sand heat store against a heat pump on real German day-ahead prices 2015-2019, checked against a modelled merit-order price"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "../energy-thermal-hourly/src", "../energy-thermal-cost/src", "../energy-thermal/src"]

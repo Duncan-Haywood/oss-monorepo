@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot: levelised cost of heat from a house-sized sand store minus an air-source heat pump, in EUR per kWh, for each year 2015 to 2019, for daily and weekly cycling, with the store buying the cheapest quarter of hours">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Sand store minus heat pump: cost of heat on real German day-ahead prices, 2015-2019</text>
+<line x1="64" x2="624" y1="277.4" y2="277.4" stroke="#ddd"/><text x="58" y="281.4" text-anchor="end" font-family="sans-serif" font-size="11">-0.02</text>
+<line x1="64" x2="624" y1="210.9" y2="210.9" stroke="#ddd"/><text x="58" y="214.9" text-anchor="end" font-family="sans-serif" font-size="11">-0.01</text>
+<line x1="64" x2="624" y1="144.4" y2="144.4" stroke="#ddd"/><text x="58" y="148.4" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="77.8" y2="77.8" stroke="#ddd"/><text x="58" y="81.8" text-anchor="end" font-family="sans-serif" font-size="11">0.01</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">2015</text>
+<text x="204.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">2016</text>
+<text x="344.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">2017</text>
+<text x="484.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">2018</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">2019</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">year</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">store minus heat pump (EUR/kWh); below 0 the store wins</text>
+<polyline points="64.0,310.7 204.0,324.0 344.0,310.7 484.0,224.2 624.0,277.4" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="310.7" r="3" fill="#c0392b"/>
+<circle cx="204.0" cy="324.0" r="3" fill="#c0392b"/>
+<circle cx="344.0" cy="310.7" r="3" fill="#c0392b"/>
+<circle cx="484.0" cy="224.2" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="277.4" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">house, daily cycle</text>
+<polyline points="64.0,171.0 204.0,177.6 344.0,177.6 484.0,71.2 624.0,144.4" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="171.0" r="3" fill="#1f6fb2"/>
+<circle cx="204.0" cy="177.6" r="3" fill="#1f6fb2"/>
+<circle cx="344.0" cy="177.6" r="3" fill="#1f6fb2"/>
+<circle cx="484.0" cy="71.2" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="144.4" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">house, weekly cycle</text>
+</svg>
