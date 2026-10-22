@@ -67,7 +67,7 @@ export const SHEATH_PSF = 1.5;
 /**
  * Per-panel parts: every framing member whole, every plate trimmed to the
  * panel's span, and the panel's lumber weight.
- * @param {{id: string, length: number, members: any[]}} w laid-out wall from takeoff()
+ * @param {{id: string, length: number, height?: number, gable?: any, members: any[]}} w laid-out wall from takeoff()
  * @param {ReturnType<typeof panelizeWall>} pan
  * With opts.sheathPsf (lb per sq ft of sheathing) each panel also carries the
  * sheathing on its span: width times wall height less the openings' rough

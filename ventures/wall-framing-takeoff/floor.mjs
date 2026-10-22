@@ -138,6 +138,7 @@ export function layoutFloor(f, plan) {
   for (let r = 0; r < rows; r++) for (const b of bays) blocks.push({ row: r, length: Math.round(b * 16) / 16, size: f.joist });
   // Subfloor: courses of 4 ft across the joists; joints on joist centres.
   const sheet = { ...SHEET, price: 1, kerf: plan.kerf ?? 0.125, ...(f.sheet || {}) };
+  /** @type {{y: number, width: number, pieces?: any[]}[]} */
   const courses = [];
   const nFull = Math.floor((f.depth + EPS) / sheet.width);
   const rest = f.depth - nFull * sheet.width;
