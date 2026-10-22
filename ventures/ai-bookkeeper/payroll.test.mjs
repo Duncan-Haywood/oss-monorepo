@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { newBooks, importStatement, journal, confirm } from "./engine.mjs";
 import { balances } from "./ledger.mjs";
-import { readPayrollRegister, addPayroll, planPayroll, applyPayroll, payrollSummary, form941, form940, w2Summary } from "./payroll.mjs";
+import { readPayrollRegister, addPayroll, planPayroll, applyPayroll, payrollSummary, form941, form940, w2Summary, reconcile941W2 } from "./payroll.mjs";
 
 const HEAD = "Pay Date,Employee,Gross Pay,Federal Income Tax,Social Security,Medicare,State Income Tax,Other Deductions,Net Pay,Employer Social Security,Employer Medicare,FUTA,SUTA";
 // 2,000.00 gross: SS 124.00, Medicare 29.00 each side.
@@ -231,4 +231,16 @@ test("form 941 Schedule B lists the liability by pay day within each month", () 
   assert.equal(f.scheduleB[2].total, 112500);
   assert.equal(f.scheduleB[0].days.length, 0);
   assert.equal(f.scheduleB.reduce((a, m) => a + m.days.reduce((b, d) => b + d.cents, 0), 0), f.totalTaxes);
+});
+
+test("941 totals tie to W-2 totals, and a missing run in one is found", () => {
+  const { books } = addPayroll(newBooks(), REG);
+  const t = reconcile941W2(books, 2026);
+  assert.deepEqual(t.warnings, []);
+  assert.equal(t.rows[1].f941, 150 * 2 * 100 + 6000);
+  assert.equal(t.rows[1].w2, t.rows[1].f941);
+  const broken = structuredClone(books);
+  broken.payroll[0].fed += 5000; // 941 side only
+  const bad = reconcile941W2(broken, 2026);
+  assert.match(bad.warnings.join("\n"), /Income tax withheld.*difference 50.00/);
 });

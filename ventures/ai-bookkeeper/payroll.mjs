@@ -360,3 +360,34 @@ export function w2Summary(books, year) {
   if (!base) warnings.push(`No Social Security wage base for ${year}; box 3 is shown as all wages.`);
   return { year: +year, employees, warnings };
 }
+
+// Year-end tie-out: the four quarters' Form 941 figures against the W-2 totals
+// (what Form W-3 carries). The IRS compares the two and sends a notice when
+// they differ, so a wage, withholding or tax figure that disagrees is worth
+// finding before filing. Needs one row per employee; rounding of a cent per
+// person-run is tolerated. Hand-made registers only; not payroll or tax advice.
+export function reconcile941W2(books, year) {
+  const qs = [1, 2, 3, 4].map((q) => form941(books, year, q));
+  const w2 = w2Summary(books, year);
+  const rs = (books.payroll ?? []).filter((r) => r.date >= `${year}-01-01` && r.date <= `${year}-12-31`);
+  const warnings = [...w2.warnings.filter((x) => /no employee names/.test(x))];
+  const tol = rs.reduce((a, r) => a + (r.people?.length ?? r.employees ?? 1), 0) + 1;
+  const sumQ = (f) => qs.reduce((a, q) => a + (q[f] ?? 0), 0);
+  const sumW = (f) => w2.employees.reduce((a, e) => a + e[f], 0);
+  const ssWages = qs.every((q) => q.socialSecurityWages != null) ? sumQ("socialSecurityWages") : null;
+  const rows = [
+    { label: "Wages: 941 line 2 against W-2 box 1", f941: sumQ("wages"), w2: sumW("box1"), note: "box 1 is lower by any pre-tax 401(k) or health deductions" },
+    { label: "Income tax withheld: 941 line 3 against box 2", f941: sumQ("federalWithheld"), w2: sumW("box2") },
+    ...(ssWages == null ? [] : [{ label: "Social security wages: 941 line 5a against box 3", f941: ssWages, w2: sumW("box3") }]),
+    { label: "Social security tax: 941 line 5a against 2 x box 4", f941: sumQ("socialSecurityTax"), w2: 2 * sumW("box4") },
+    { label: "Medicare wages: 941 line 5c against box 5", f941: sumQ("wages"), w2: sumW("box5") },
+    { label: "Medicare tax: 941 lines 5c and 5d against 2 x box 6 (less the employer's missing additional tax)", f941: sumQ("medicareTax") + sumQ("additionalMedicareTax"), w2: 2 * sumW("box6") - sumQ("additionalMedicareTax") },
+  ];
+  for (const r of rows) {
+    r.diff = r.f941 - r.w2;
+    const strict = !r.note;
+    r.ok = strict ? Math.abs(r.diff) <= tol : r.diff >= -tol;
+    if (!r.ok) warnings.push(`${r.label}: 941 total ${(r.f941 / 100).toFixed(2)}, W-2 total ${(r.w2 / 100).toFixed(2)}, difference ${(r.diff / 100).toFixed(2)}.`);
+  }
+  return { year: +year, employees: w2.employees.length, rows, warnings };
+}
