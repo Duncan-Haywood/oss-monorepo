@@ -1,0 +1,13 @@
+[project]
+name = "capture-audiosync"
+version = "0.1.0"
+description = "How well does audio cross-correlation sync two cameras whose clocks drift, versus SNR, window length and reverb?"
+requires-python = ">=3.9"
+dependencies = ["numpy"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
