@@ -186,11 +186,9 @@ writing it; skip any already in `episodes/`):
 - Saint Spyridon and the snake that became gold (legend; told with care)
 - An invented episode: a novice and an old abbess on a winter night, with the saints she tells him about (clearly labelled fiction)
 
-## Waiting for audio
+## Audio status
 
-Episode 8, `hilda-of-whitby-and-the-cowherd-who-could-not-sing` (text and page landed 2026-10-22; Hugging Face was blocked in that cloud session, so the Kokoro models could not be fetched). Render it with `python3 render_audio.py hilda-of-whitby-and-the-cowherd-who-could-not-sing`, then `node generate.mjs`.
-
-Episodes 1 to 7 have audio (episode 7 was rendered on 2026-10-21, 34 minutes).
+Episodes 1 to 8 all have audio (episode 8 was rendered on 2026-10-22, about 33 minutes). If Hugging Face is blocked in a cloud session, the Kokoro model files are also on GitHub: `https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/` (`kokoro-v1.0.onnx`, `voices-v1.0.bin`) into `~/.cache/kokoro`. Use `/usr/bin/python3` if `python3` lacks numpy. A render takes about 15 minutes.
 
 ## Publishing
 

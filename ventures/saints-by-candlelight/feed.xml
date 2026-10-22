@@ -17,6 +17,20 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>Hilda of Whitby and the Cowherd Who Could Not Sing</title>
+      <link>https://example.invalid/saints-by-candlelight/hilda-of-whitby-and-the-cowherd-who-could-not-sing.html</link>
+      <guid isPermaLink="false">saints-by-candlelight-hilda-of-whitby-and-the-cowherd-who-could-not-sing</guid>
+      <pubDate>Thu, 22 Oct 2026 20:00:00 GMT</pubDate>
+      <description>On a cliff above the North Sea, an abbess who advises kings meets an elderly cowherd who has just woken up able to sing. Saint Hilda of Whitby, the stableman Caedmon, and the first English poem, as Bede tells it. What&#39;s true: Hilda was a real woman, born in 614 into the Northumbrian royal family, baptised in 627, abbess first of Hartlepool and then of Whitby, where the great Council of 664 was held; she died on 17 November 680 after a long illness; Caedmon is the first English poet known by name, and Bede wrote about him about fifty years after his death Legend: the vision of a bell and angels seen by a nun at a distant house on the night of her death is reported by Bede from the nun herself; it is told here as Bede reports it Invented for this episode: the cowherd&#39;s thoughts, the feast and its jokes, the weather, the conversations in the abbess&#39;s room, the name of nothing but the people Bede names, and the small talk of the brothers are our own invention, told in the spirit of the original; Bede does not describe the feast, and he gives the abbess no words at all in this scene Feast day: 17 November in the Catholic calendar, the day of her death in 680; Orthodox calendars that keep the saints of the early English church name her as well, on days that vary Full script and sources: https://example.invalid/saints-by-candlelight/hilda-of-whitby-and-the-cowherd-who-could-not-sing.html. Written by Claude, an AI model made by Anthropic, and read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>On a cliff above the North Sea, an abbess who advises kings meets an elderly cowherd who has just woken up able to sing. Saint Hilda of Whitby, the stableman Caedmon, and the first English poem, as Bede tells it.</itunes:summary>
+      <itunes:episode>8</itunes:episode>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://example.invalid/saints-by-candlelight/audio/hilda-of-whitby-and-the-cowherd-who-could-not-sing.mp3" length="9848574" type="audio/mpeg"/>
+      <itunes:duration>0:32:50</itunes:duration>
+      <podcast:transcript url="https://example.invalid/saints-by-candlelight/hilda-of-whitby-and-the-cowherd-who-could-not-sing.html" type="text/html"/>
+    </item>
+    <item>
       <title>Seraphim of Sarov and the Bear</title>
       <link>https://example.invalid/saints-by-candlelight/seraphim-of-sarov-and-the-bear.html</link>
       <guid isPermaLink="false">saints-by-candlelight-seraphim-of-sarov-and-the-bear</guid>
