@@ -15,6 +15,7 @@
 //   node cli.mjs --books books.json export qbo|xero|iif|csv|lines > journal.csv
 //   node cli.mjs --example report
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
+import { addLoan, applyLoanPayments, loanRegister, loanSchedule } from "./loans.mjs";
 import { newBooks, importStatement, importOfxAccounts, lockPeriod, closeYear, reopenYear, yearEndReport, categorize, suggestRules, addRules, addDocuments, addAsset, disposeAsset, addAssetsCsv, register, addPrepaid, prepaidRegister, writeOff, aging, salesTax, vatReturn, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, exportLines, status, analyze, fmt, taxableBusinessIncome } from "./engine.mjs";
 import { parseCents } from "./bank.mjs";
 import { accountMap } from "./ledger.mjs";
@@ -66,6 +67,9 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
   asset tax ID --class 5 [--s179 N] [--bonus PCT]  set the asset's US tax treatment (MACRS class 3/5/7/10/15/20 years, half-year)
   taxdepr YEAR [--income books|N] [--carry-in N] [--json]  tax depreciation worksheet beside the book depreciation, with what it cannot check
   prepaid add NAME --amount 2400 --date D [--months 12] [--into 6030]  spread an up-front payment (filed to 1400) over the months it covers
+  loan add NAME --amount 20000 --rate 6.5 --months 36 --first 2026-02-01 [--payment 612.34]  a fixed-rate loan and its schedule
+  loan apply ID           split the unfiled bank lines that are its scheduled payments into interest (6040) and principal (2200)
+  loan [ID]               list loans (balance, next payment), or one loan's schedule
   prepaid [--as-of D]     list prepaid items: amount, expensed so far, still paid ahead
   assets FILE|[--as-of D] load a CSV (name,date,cost,life_months[,salvage,method]), or list the register: cost, accumulated depreciation, net book value
   profile [KEY VALUE]     your details for invoices (name, address, email, taxId, payTo, terms); no arguments lists them
@@ -215,6 +219,30 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
   if (w.s179Income) console.log(`  Section 179 income limit: elected ${fmt(w.s179Income.elected)}, after dollar limit ${fmt(w.s179Income.dollarLimited)}${w.s179Income.carryIn ? ` + carried in ${fmt(w.s179Income.carryIn)}` : ""}, business income ${fmt(w.s179Income.income ?? 0)}, deductible ${fmt(w.s179Income.deductible)}, carried to ${year + 1} ${fmt(w.s179Income.carryOut)}`);
   console.log(`  Total: tax ${fmt(w.totals.total)}, book ${fmt(w.totals.book)}, difference ${fmt(w.totals.difference)}`);
   for (const x of w.warnings) console.log(`  Note: ${x}`);
+} else if (cmd === "loan") {
+  try {
+    if (rest[0] === "add") {
+      const amount = flag("--amount"), rate = flag("--rate"), months = flag("--months"), first = flag("--first"), payment = flag("--payment");
+      const r = addLoan(books, { name: argv.slice(2).join(" "), amount, rate, months, first, payment });
+      books = r.books; save(); console.log(`${r.loan.id} ${r.loan.name}: ${fmt(r.loan.cents)} at ${r.loan.rateBp / 100}% over ${r.loan.months} months, payment ${fmt(r.loan.payment)}. Enter the proceeds as a deposit filed to 2200 (or use opening balances), then \`loan apply ${r.loan.id}\`.`);
+    } else if (rest[0] === "apply") {
+      const r = applyLoanPayments(books, rest[1]);
+      books = r.books; save();
+      for (const m of r.matched) console.log(`  ${m.id} ${m.date} payment ${m.n}: interest ${fmt(m.interest)}, principal ${fmt(m.principal)}`);
+      console.log(`${r.matched.length} payment${r.matched.length === 1 ? "" : "s"} split.`);
+    } else if (rest[0]) {
+      const loan = (books.loans ?? []).find((l) => l.id === rest[0]);
+      if (!loan) throw new Error(`No loan ${rest[0]}.`);
+      const s = loanSchedule(loan);
+      if (json) { console.log(JSON.stringify(s, null, 2)); process.exit(0); }
+      for (const r of s) console.log(`  ${String(r.n).padStart(3)} ${r.date} payment ${fmt(r.payment).padStart(10)}  interest ${fmt(r.interest).padStart(9)}  principal ${fmt(r.principal).padStart(10)}  balance ${fmt(r.balance).padStart(11)}`);
+    } else {
+      const g = loanRegister(books);
+      if (json) { console.log(JSON.stringify(g, null, 2)); process.exit(0); }
+      for (const l of g.rows) console.log(`  ${l.id.padEnd(5)} ${l.name.slice(0, 24).padEnd(24)} ${fmt(l.cents).padStart(11)} at ${l.rate}%  ${l.paid}/${l.months} paid  balance ${fmt(l.balance).padStart(11)}  next ${l.next ? `${l.next.date} ${fmt(l.next.payment)}` : "none"}`);
+      console.log(`  Total owing by schedule: ${fmt(g.balance)}`);
+    }
+  } catch (e) { console.error(e.message); process.exit(1); }
 } else if (cmd === "prepaid") {
   try {
     if (rest[0] === "add") {
