@@ -18,6 +18,7 @@ import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { addLoan, addLoanExtra, applyLoanPayments, loanRegister, loanSchedule } from "./loans.mjs";
 import { salesTaxReturn } from "./salestaxreturn.mjs";
+import { gstReturn } from "./gstreturn.mjs";
 import { newBooks, importStatement, importOfxAccounts, lockPeriod, closeYear, reopenYear, yearEndReport, categorize, suggestRules, addRules, addDocuments, addAsset, disposeAsset, addAssetsCsv, register, addPrepaid, prepaidRegister, addInventoryMove, setInventoryMethod, inventoryRegister, writeOff, aging, salesTax, vatReturn, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, addFxAccount, setRates, parseRates, fxRegister, exportLines, status, analyze, fmt, taxableBusinessIncome, s179Carryforward } from "./engine.mjs";
 import { parseCents } from "./bank.mjs";
 import { accountMap } from "./ledger.mjs";
@@ -57,6 +58,7 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
   documents FILE         load an invoice and bill list (CSV: type,number,date,due,party,amount,account[,against]; type may be invoice, bill, credit note, vendor credit);
                          bank lines that pay them clear receivable/payable
   vat [--from D --to D]  UK-layout VAT return worksheet (boxes 1-9) from account 2100 and an input account 1300
+  gst --region ca|au [--from D --to D]  Canada GST/HST return (lines 101-109) or Australia BAS (G1, 1A, G11, 1B) worksheet, same accounts as vat
   salestax [--from D --to D]  sales tax collected, credited and paid over by month, and what is still owed
   salestax return [--freq monthly|quarterly|annual] [--due-day N] [--rate "CA state=7.25"]  return worksheet by jurisdiction (named in the tax line's description)
   opening FILE --date D  set opening balances from a trial balance CSV (code,amount or code,debit,credit); "opening" alone shows them, "opening clear" removes them
@@ -654,6 +656,17 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
   console.log(`  VAT already paid over by bank lines in the period: ${fmt(v.paid)}`);
   for (const w of v.warnings) console.log(`  ! ${w}`);
   console.log("  A worksheet to check a return against, not a filing. Scheme, rates and partial exemption are yours to decide.");
+} else if (cmd === "gst") {
+  const region = (flag("--region") ?? "ca").toLowerCase();
+  const g = gstReturn(books, { region, from, to });
+  if (json) { console.log(JSON.stringify(g, null, 2)); process.exit(0); }
+  const label = region === "ca"
+    ? { 101: "Sales before GST/HST", 103: "GST/HST collected", 105: "Total GST/HST to remit", 106: "Input tax credits", 108: "Total credits", 109: g.payable === "pay" ? "Net tax to pay" : "Net tax refund" }
+    : { G1: "Total sales (with GST)", "1A": "GST on sales", G11: "Purchases (with GST)", "1B": "GST on purchases", net: g.payable === "pay" ? "Net GST to pay" : "Net GST refund" };
+  console.log(`${region === "ca" ? "GST/HST RETURN" : "BAS GST"} WORKSHEET${g.from || g.to ? ` (${g.from ?? "start"} to ${g.to ?? "end"})` : ""}`);
+  for (const [k, v] of Object.entries(g.lines)) console.log(`  ${k.padEnd(4)} ${label[k].padEnd(26)} ${(region === "ca" ? fmt(Math.abs(v)) : String(Math.abs(v))).padStart(12)}`);
+  for (const w of g.warnings) console.log(`  ! ${w}`);
+  console.log("  A worksheet to check a return against, not a filing.");
 } else if (cmd === "rules") {
   const sug = suggestRules(books);
   for (const r of sug) console.log(`${r.rule.padEnd(40)} ${r.count} times, ${Math.round(r.share * 100)}% to ${name(r.account)}`);
