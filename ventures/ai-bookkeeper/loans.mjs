@@ -28,15 +28,24 @@ export function levelPayment(cents, rateBp, months) {
   return Math.round((cents * r) / (1 - Math.pow(1 + r, -months)));
 }
 
-// [{ n, date, payment, interest, principal, balance }] for every payment.
+// [{ n, date, payment, interest, principal, balance, extra }] for every payment.
+// `loan.extras` ([{ date, cents }], extra principal paid on top of the schedule) is taken
+// off the balance after the last instalment dated on or before it, so the same payment
+// then clears the loan early: the schedule ends in fewer than `months` rows.
 export function loanSchedule(loan) {
-  const out = [];
+  const out = [], extras = [...(loan.extras ?? [])].sort((a, b) => a.date.localeCompare(b.date));
   let bal = loan.cents;
-  for (let n = 1; n <= loan.months; n++) {
+  for (const e of extras) if (e.date < loan.first) bal = Math.max(0, bal - e.cents);
+  for (let n = 1; n <= loan.months && bal > 0; n++) {
+    const date = addMonths(loan.first, n - 1);
+    let extra = 0;
     const interest = Math.round((bal * loan.rateBp) / 120000);
     const principal = n === loan.months ? bal : Math.min(bal, loan.payment - interest);
     bal -= principal;
-    out.push({ n, date: addMonths(loan.first, n - 1), payment: principal + interest, interest, principal, balance: bal });
+    // extras dated from this instalment up to (not including) the next one reduce what is left
+    const next = addMonths(loan.first, n);
+    for (const e of extras) if (e.date >= date && e.date < next && bal > 0) { const x = Math.min(bal, e.cents); extra += x; bal -= x; }
+    out.push({ n, date, payment: principal + interest, interest, principal, balance: bal, extra });
   }
   return out;
 }
@@ -68,6 +77,18 @@ export function addLoan(booksIn, { name, amount, rate, months, first, payment } 
   return { books, loan };
 }
 
+// addLoanExtra(books, loanId, { amount, date }) -> { books, loan }: record extra principal paid
+// on top of the schedule. The schedule shortens; `loan apply` then files the matching bank line.
+export function addLoanExtra(booksIn, loanId, { amount, date } = {}) {
+  const books = clone(booksIn), loan = (books.loans ?? []).find((l) => l.id === loanId);
+  if (!loan) throw new Error(`No loan ${loanId}.`);
+  const cents = typeof amount === "number" ? Math.round(amount * 100) : parseCents(String(amount ?? ""));
+  if (!Number.isFinite(cents) || cents <= 0) throw new Error("Extra payment must be a positive amount.");
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date ?? "") || !parseDate(date)) throw new Error(`Date ${date} is not a YYYY-MM-DD date.`);
+  loan.extras = [...(loan.extras ?? []), { date, cents }];
+  return { books, loan };
+}
+
 // Split the bank lines that are this loan's scheduled payments: an outflow in the
 // account(s) the books hold, exactly the scheduled amount, within `window` days of the
 // due date, not yet filed. Each pays the next unmatched instalment. Returns
@@ -76,7 +97,7 @@ export function applyLoanPayments(booksIn, loanId, { window = 5 } = {}) {
   const loan = (booksIn.loans ?? []).find((l) => l.id === loanId);
   if (!loan) throw new Error(`No loan ${loanId}.`);
   const sched = loanSchedule(loan);
-  const used = new Set(booksIn.transactions.filter((t) => t.loan?.id === loanId).map((t) => t.loan.n));
+  const used = new Set(booksIn.transactions.filter((t) => t.loan?.id === loanId && t.loan.n).map((t) => t.loan.n));
   const choices = {}, matched = [];
   const open = booksIn.transactions.filter((t) => t.cents < 0 && ["new", "review", "auto"].includes(t.status)).sort((a, b) => a.date.localeCompare(b.date));
   for (const t of open) {
@@ -86,10 +107,19 @@ export function applyLoanPayments(booksIn, loanId, { window = 5 } = {}) {
     choices[t.id] = [{ account: INTEREST_ACCOUNT, cents: -row.interest }, { account: LOAN_ACCOUNT, cents: -row.principal }].filter((p) => p.cents !== 0);
     matched.push({ id: t.id, n: row.n, date: t.date, interest: row.interest, principal: row.principal });
   }
+  // Recorded extra principal payments: an unfiled outflow of that amount near its date goes to 2200.
+  const usedExtra = new Set(booksIn.transactions.filter((t) => t.loan?.id === loanId && t.loan.extra !== undefined).map((t) => t.loan.extra));
+  (loan.extras ?? []).forEach((e, i) => {
+    if (usedExtra.has(i)) return;
+    const t = open.find((x) => !choices[x.id] && x.cents === -e.cents && dayGap(e.date, x.date) <= window);
+    if (!t) return;
+    choices[t.id] = LOAN_ACCOUNT;
+    matched.push({ id: t.id, extra: i, date: t.date, interest: 0, principal: e.cents });
+  });
   // A payment with no interest part (a 0% loan) is filed plainly to the loan account.
   for (const k of Object.keys(choices)) if (choices[k].length === 1) choices[k] = LOAN_ACCOUNT;
   const books = matched.length ? confirm(booksIn, choices) : clone(booksIn);
-  for (const m of matched) books.transactions.find((t) => t.id === m.id).loan = { id: loanId, n: m.n };
+  for (const m of matched) books.transactions.find((t) => t.id === m.id).loan = m.extra === undefined ? { id: loanId, n: m.n } : { id: loanId, extra: m.extra };
   return { books, matched };
 }
 
@@ -97,13 +127,14 @@ export function applyLoanPayments(booksIn, loanId, { window = 5 } = {}) {
 export function loanRegister(books) {
   const rows = (books.loans ?? []).map((loan) => {
     const sched = loanSchedule(loan);
-    const paid = new Set(books.transactions.filter((t) => t.loan?.id === loan.id).map((t) => t.loan.n));
+    const paid = new Set(books.transactions.filter((t) => t.loan?.id === loan.id && t.loan.n).map((t) => t.loan.n));
+    const extraPaid = books.transactions.filter((t) => t.loan?.id === loan.id && t.loan.extra !== undefined).reduce((s, t) => s - t.cents, 0);
     const done = sched.filter((r) => paid.has(r.n));
     const next = sched.find((r) => !paid.has(r.n)) ?? null;
     return {
-      id: loan.id, name: loan.name, cents: loan.cents, rate: loan.rateBp / 100, months: loan.months, payment: loan.payment,
+      id: loan.id, name: loan.name, cents: loan.cents, rate: loan.rateBp / 100, months: sched.length, payment: loan.payment,
       paid: done.length, interestPaid: done.reduce((s, r) => s + r.interest, 0), principalPaid: done.reduce((s, r) => s + r.principal, 0),
-      balance: loan.cents - done.reduce((s, r) => s + r.principal, 0), next: next && { n: next.n, date: next.date, payment: next.payment, interest: next.interest },
+      extraPaid, balance: loan.cents - extraPaid - done.reduce((s, r) => s + r.principal, 0), next: next && { n: next.n, date: next.date, payment: next.payment, interest: next.interest },
       totalInterest: sched.reduce((s, r) => s + r.interest, 0),
     };
   });
