@@ -1,0 +1,83 @@
+basis,revision,cost_year,technology,parameter,value,unit,currency_year,primary_source
+v092_2030,v0.9.2,2030,Sand-charger,FOM,1.075,%/year,2020.0,Viswanathan_2022
+v092_2030,v0.9.2,2030,Sand-charger,efficiency,0.99,per unit,2020.0,Viswanathan_2022
+v092_2030,v0.9.2,2030,Sand-charger,investment,144192.2682,EUR/MW,2020.0,Georgiou_2018
+v092_2030,v0.9.2,2030,Sand-charger,lifetime,35.0,years,2020.0,Viswanathan_2022
+v092_2030,v0.9.2,2030,Sand-store,FOM,0.3308,%/year,2020.0,Viswanathan_2022
+v092_2030,v0.9.2,2030,Sand-store,investment,6700.8517,EUR/MWh,2020.0,Viswanathan_2022
+v092_2030,v0.9.2,2030,Sand-store,lifetime,35.0,years,2020.0,Viswanathan_2022
+v092_2030,v0.9.2,2030,central air-sourced heat pump,FOM,0.2336,%/year,2015.0,Danish Energy Agency
+v092_2030,v0.9.2,2030,central air-sourced heat pump,efficiency,3.2,per unit,2015.0,Danish Energy Agency
+v092_2030,v0.9.2,2030,central air-sourced heat pump,investment,906.0988,EUR/kW_th,2015.0,Danish Energy Agency
+v092_2030,v0.9.2,2030,central air-sourced heat pump,lifetime,25.0,years,2015.0,Danish Energy Agency
+v092_2030,v0.9.2,2030,central ground-sourced heat pump,FOM,0.394,%/year,2015.0,Danish Energy Agency
+v092_2030,v0.9.2,2030,central ground-sourced heat pump,efficiency,1.73,per unit,2015.0,Danish Energy Agency
+v092_2030,v0.9.2,2030,central ground-sourced heat pump,investment,537.1533,EUR/kW_th excluding drive energy,2015.0,Danish Energy Agency
+v092_2030,v0.9.2,2030,central ground-sourced heat pump,lifetime,25.0,years,2015.0,Danish Energy Agency
+v092_2030,v0.9.2,2030,central resistive heater,FOM,1.7,%/year,2015.0,Danish Energy Agency
+v092_2030,v0.9.2,2030,central resistive heater,efficiency,0.99,per unit,2015.0,Danish Energy Agency
+v092_2030,v0.9.2,2030,central resistive heater,investment,63.4933,EUR/kW_th,2015.0,Danish Energy Agency
+v092_2030,v0.9.2,2030,central resistive heater,lifetime,20.0,years,2015.0,Danish Energy Agency
+v092_2030,v0.9.2,2030,central water tank storage,FOM,0.551,%/year,2015.0,Danish Energy Agency
+v092_2030,v0.9.2,2030,central water tank storage,investment,0.5761,EUR/kWhCapacity,2015.0,Danish Energy Agency
+v092_2030,v0.9.2,2030,central water tank storage,lifetime,25.0,years,2015.0,Danish Energy Agency
+v092_2030,v0.9.2,2030,decentral air-sourced heat pump,FOM,3.0014,%/year,2015.0,Danish Energy Agency
+v092_2030,v0.9.2,2030,decentral air-sourced heat pump,discount rate,0.04,per unit,2015.0,Palzer thesis
+v092_2030,v0.9.2,2030,decentral air-sourced heat pump,efficiency,3.6,per unit,2015.0,Danish Energy Agency
+v092_2030,v0.9.2,2030,decentral air-sourced heat pump,investment,899.4884,EUR/kW_th,2015.0,Danish Energy Agency
+v092_2030,v0.9.2,2030,decentral air-sourced heat pump,lifetime,18.0,years,2015.0,Danish Energy Agency
+v092_2030,v0.9.2,2030,decentral ground-sourced heat pump,FOM,1.8223,%/year,2015.0,Danish Energy Agency
+v092_2030,v0.9.2,2030,decentral ground-sourced heat pump,discount rate,0.04,per unit,2015.0,Palzer thesis
+v092_2030,v0.9.2,2030,decentral ground-sourced heat pump,efficiency,3.9,per unit,2015.0,Danish Energy Agency
+v092_2030,v0.9.2,2030,decentral ground-sourced heat pump,investment,1481.5103,EUR/kW_th,2015.0,Danish Energy Agency
+v092_2030,v0.9.2,2030,decentral ground-sourced heat pump,lifetime,20.0,years,2015.0,Danish Energy Agency
+v092_2030,v0.9.2,2030,decentral resistive heater,FOM,2.0,%/year,2015.0,Schaber thesis
+v092_2030,v0.9.2,2030,decentral resistive heater,discount rate,0.04,per unit,2015.0,Palzer thesis
+v092_2030,v0.9.2,2030,decentral resistive heater,efficiency,0.9,per unit,2015.0,Schaber thesis
+v092_2030,v0.9.2,2030,decentral resistive heater,investment,105.8222,EUR/kWhth,2015.0,Schaber thesis
+v092_2030,v0.9.2,2030,decentral resistive heater,lifetime,20.0,years,2015.0,Schaber thesis
+v092_2030,v0.9.2,2030,decentral water tank storage,FOM,1.0,%/year,2015.0,HP
+v092_2030,v0.9.2,2030,decentral water tank storage,discount rate,0.04,per unit,2015.0,Palzer thesis
+v092_2030,v0.9.2,2030,decentral water tank storage,investment,19.446,EUR/kWh,2015.0,IWES Interaktion
+v092_2030,v0.9.2,2030,decentral water tank storage,lifetime,20.0,years,2015.0,HP
+head_2030,65244b4c560112ec4ec73f14baf5f220e15d3ef8,2030,Sand-charger,FOM,1.075,%/year,2020.0,Viswanathan_2022
+head_2030,65244b4c560112ec4ec73f14baf5f220e15d3ef8,2030,Sand-charger,efficiency,0.99,per unit,2020.0,Viswanathan_2022
+head_2030,65244b4c560112ec4ec73f14baf5f220e15d3ef8,2030,Sand-charger,investment,181297.9281,EUR/MW,2025.0,Georgiou_2018
+head_2030,65244b4c560112ec4ec73f14baf5f220e15d3ef8,2030,Sand-charger,lifetime,35.0,years,2020.0,Viswanathan_2022
+head_2030,65244b4c560112ec4ec73f14baf5f220e15d3ef8,2030,Sand-store,FOM,0.3308,%/year,2020.0,Viswanathan_2022
+head_2030,65244b4c560112ec4ec73f14baf5f220e15d3ef8,2030,Sand-store,investment,8425.2126,EUR/MWh,2025.0,Viswanathan_2022
+head_2030,65244b4c560112ec4ec73f14baf5f220e15d3ef8,2030,Sand-store,lifetime,35.0,years,2020.0,Viswanathan_2022
+head_2030,65244b4c560112ec4ec73f14baf5f220e15d3ef8,2030,central air-sourced heat pump,FOM,0.2336,%/year,2015.0,Danish Energy Agency
+head_2030,65244b4c560112ec4ec73f14baf5f220e15d3ef8,2030,central air-sourced heat pump,efficiency,3.2,per unit,2015.0,Danish Energy Agency
+head_2030,65244b4c560112ec4ec73f14baf5f220e15d3ef8,2030,central air-sourced heat pump,investment,1143.7771,EUR/kW_th,2025.0,Danish Energy Agency
+head_2030,65244b4c560112ec4ec73f14baf5f220e15d3ef8,2030,central air-sourced heat pump,lifetime,25.0,years,2015.0,Danish Energy Agency
+head_2030,65244b4c560112ec4ec73f14baf5f220e15d3ef8,2030,central ground-sourced heat pump,FOM,0.394,%/year,2015.0,Danish Energy Agency
+head_2030,65244b4c560112ec4ec73f14baf5f220e15d3ef8,2030,central ground-sourced heat pump,efficiency,1.73,per unit,2015.0,Danish Energy Agency
+head_2030,65244b4c560112ec4ec73f14baf5f220e15d3ef8,2030,central ground-sourced heat pump,investment,678.0537,EUR/kW_th excluding drive energy,2025.0,Danish Energy Agency
+head_2030,65244b4c560112ec4ec73f14baf5f220e15d3ef8,2030,central ground-sourced heat pump,lifetime,25.0,years,2015.0,Danish Energy Agency
+head_2030,65244b4c560112ec4ec73f14baf5f220e15d3ef8,2030,central resistive heater,FOM,1.7,%/year,2015.0,Danish Energy Agency
+head_2030,65244b4c560112ec4ec73f14baf5f220e15d3ef8,2030,central resistive heater,efficiency,0.99,per unit,2015.0,Danish Energy Agency
+head_2030,65244b4c560112ec4ec73f14baf5f220e15d3ef8,2030,central resistive heater,investment,80.1482,EUR/kW_th,2025.0,Danish Energy Agency
+head_2030,65244b4c560112ec4ec73f14baf5f220e15d3ef8,2030,central resistive heater,lifetime,20.0,years,2015.0,Danish Energy Agency
+head_2030,65244b4c560112ec4ec73f14baf5f220e15d3ef8,2030,central water tank storage,FOM,1.0,%/year,2015.0,HP
+head_2030,65244b4c560112ec4ec73f14baf5f220e15d3ef8,2030,central water tank storage,investment,3.8174,EUR/kWhCapacity,2025.0,Danish Energy Agency
+head_2030,65244b4c560112ec4ec73f14baf5f220e15d3ef8,2030,central water tank storage,lifetime,40.0,years,2020.0,Danish Energy Agency
+head_2030,65244b4c560112ec4ec73f14baf5f220e15d3ef8,2030,decentral air-sourced heat pump,FOM,3.0014,%/year,2015.0,Danish Energy Agency
+head_2030,65244b4c560112ec4ec73f14baf5f220e15d3ef8,2030,decentral air-sourced heat pump,discount rate,0.04,per unit,2015.0,Palzer thesis
+head_2030,65244b4c560112ec4ec73f14baf5f220e15d3ef8,2030,decentral air-sourced heat pump,efficiency,3.6,per unit,2015.0,Danish Energy Agency
+head_2030,65244b4c560112ec4ec73f14baf5f220e15d3ef8,2030,decentral air-sourced heat pump,investment,1135.4326,EUR/kW_th,2025.0,Danish Energy Agency
+head_2030,65244b4c560112ec4ec73f14baf5f220e15d3ef8,2030,decentral air-sourced heat pump,lifetime,18.0,years,2015.0,Danish Energy Agency
+head_2030,65244b4c560112ec4ec73f14baf5f220e15d3ef8,2030,decentral ground-sourced heat pump,FOM,1.8223,%/year,2015.0,Danish Energy Agency
+head_2030,65244b4c560112ec4ec73f14baf5f220e15d3ef8,2030,decentral ground-sourced heat pump,discount rate,0.04,per unit,2015.0,Palzer thesis
+head_2030,65244b4c560112ec4ec73f14baf5f220e15d3ef8,2030,decentral ground-sourced heat pump,efficiency,3.9,per unit,2015.0,Danish Energy Agency
+head_2030,65244b4c560112ec4ec73f14baf5f220e15d3ef8,2030,decentral ground-sourced heat pump,investment,1870.1244,EUR/kW_th,2025.0,Danish Energy Agency
+head_2030,65244b4c560112ec4ec73f14baf5f220e15d3ef8,2030,decentral ground-sourced heat pump,lifetime,20.0,years,2015.0,Danish Energy Agency
+head_2030,65244b4c560112ec4ec73f14baf5f220e15d3ef8,2030,decentral resistive heater,FOM,2.0,%/year,2015.0,Schaber thesis
+head_2030,65244b4c560112ec4ec73f14baf5f220e15d3ef8,2030,decentral resistive heater,discount rate,0.04,per unit,2015.0,Palzer thesis
+head_2030,65244b4c560112ec4ec73f14baf5f220e15d3ef8,2030,decentral resistive heater,efficiency,0.9,per unit,2015.0,Schaber thesis
+head_2030,65244b4c560112ec4ec73f14baf5f220e15d3ef8,2030,decentral resistive heater,investment,133.5803,EUR/kWhth,2025.0,Schaber thesis
+head_2030,65244b4c560112ec4ec73f14baf5f220e15d3ef8,2030,decentral resistive heater,lifetime,20.0,years,2015.0,Schaber thesis
+head_2030,65244b4c560112ec4ec73f14baf5f220e15d3ef8,2030,decentral water tank storage,FOM,1.0,%/year,2015.0,HP
+head_2030,65244b4c560112ec4ec73f14baf5f220e15d3ef8,2030,decentral water tank storage,discount rate,0.04,per unit,2015.0,Palzer thesis
+head_2030,65244b4c560112ec4ec73f14baf5f220e15d3ef8,2030,decentral water tank storage,investment,527.9073,EUR/kWh,2025.0,Danish Energy Agency
+head_2030,65244b4c560112ec4ec73f14baf5f220e15d3ef8,2030,decentral water tank storage,lifetime,30.0,years,2020.0,Danish Energy Agency
