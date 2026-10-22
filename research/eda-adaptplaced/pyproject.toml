@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "eda-adaptplaced"
+version = "0.1.0"
+description = "Few-shot adaptation of an area surrogate to a new design family when the target is placed area"
+requires-python = ">=3.9"
+dependencies = ["numpy", "scikit-learn"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
