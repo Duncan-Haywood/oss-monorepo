@@ -87,7 +87,7 @@ In cloud sessions `gh` is usually unauthenticated: use the GitHub MCP tools
 (`create_pull_request`, `merge_pull_request`, loaded with `ToolSearch`). The
 container's other quirks are in
 [`.github/prompts/cloud-session.md`](.github/prompts/cloud-session.md)
-(a bare `python3` often lacks `pytest`/`numpy`: `PY=$(python3 platform/ci/pyenv.py pytest numpy)` finds or installs one).
+(a bare `python3` often lacks `pytest`/`numpy`: `PY=$(python3 platform/ci/pyenv.py pytest numpy)` finds or installs one; venture test suites and `node --test` outlast the 120 s tool timeout, so start them with `run_in_background`, see "Long commands").
 Details, including other sessions' stalled PRs:
 [`.github/prompts/land-your-work.md`](.github/prompts/land-your-work.md).
 
