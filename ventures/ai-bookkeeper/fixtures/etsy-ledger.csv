@@ -1,0 +1,11 @@
+Date,Type,Title,Info,Currency,Amount,Fees & Taxes,Net,Tax Details
+"April 30, 2026",Deposit,Deposit to bank,,USD,--,--,-$315.09,
+"April 29, 2026",Marketing,Etsy Ads,,USD,--,--,-$6.40,
+"April 28, 2026",Fee,Listing fee,,USD,--,--,-$1.00,
+"April 27, 2026",Refund,Refund to buyer,Order #1006,USD,-$28.00,--,-$28.00,
+"April 24, 2026",Sale,Payment for Order #1005,,USD,$64.00,-$5.12,$58.88,
+"April 20, 2026",Sale,Payment for Order #1004,,USD,$42.50,-$3.40,$39.10,
+"April 15, 2026",Shipping,Shipping label,Order #1003,USD,--,--,-$7.85,
+"April 14, 2026",Sale,Payment for Order #1003,,USD,$85.00,-$6.80,$78.20,
+"April 9, 2026",Sale,Payment for Order #1002,,USD,$120.00,-$9.60,$110.40,
+"April 3, 2026",Sale,Payment for Order #1001,,USD,$78.00,-$6.24,$71.76,
