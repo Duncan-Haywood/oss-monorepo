@@ -82,3 +82,11 @@ test("--panel-max prints shop drawings with panels", () => {
   assert.equal(r.code, 0);
   assert.match(r.out, /Shop panels/);
 });
+
+test("--panel-psf adds sheathing and total weight columns to the panel table", () => {
+  const plain = main(["plan.json", "--panel-max=12ft"], () => JSON.stringify(samplePlan()));
+  const r = main(["plan.json", "--panel-max=12ft", "--panel-psf=1.6"], () => JSON.stringify(samplePlan()));
+  assert.equal(r.code, 0);
+  assert.match(r.out, /<th class="n">Sheathing<\/th><th class="n">Total<\/th>/);
+  assert.doesNotMatch(plain.out, /<th class="n">Sheathing<\/th>/);
+});

@@ -60,17 +60,21 @@ export function panelsText(set) {
 // runs heavier). Override with opts.pcf / opts.ptPcf.
 export const SPF_PCF = 28;
 export const PT_PCF = 40;
+export const OSB_PSF = 1.6;
 
 /**
  * Per-panel parts: every framing member whole, every plate trimmed to the
  * panel's span, and the panel's lumber weight.
  * @param {{id: string, length: number, members: any[]}} w laid-out wall from takeoff()
  * @param {ReturnType<typeof panelizeWall>} pan
- * @param {{pcf?: number, ptPcf?: number}} [opts]
- * @returns {{name: string, width: number, pieces: {size: string, length: number, kind: string, label: string, qty: number}[], pieceCount: number, lb: number}[]}
+ * @param {{pcf?: number, ptPcf?: number, psf?: number, wall?: any, headerHeight?: number}} [opts]
+ *   psf: sheathing weight per ft2 of one face (OSB 7/16 is about 1.6); with
+ *   opts.wall (the plan's wall, for its openings) the rough openings are taken
+ *   out of each panel's face. `sheathLb` and `totalLb` come back when psf > 0.
+ * @returns {{name: string, width: number, pieces: {size: string, length: number, kind: string, label: string, qty: number}[], pieceCount: number, lb: number, sheathLb?: number, totalLb?: number}[]}
  */
 export function panelParts(w, pan, opts = {}) {
-  const pcf = opts.pcf ?? SPF_PCF, ptPcf = opts.ptPcf ?? PT_PCF;
+  const pcf = opts.pcf ?? SPF_PCF, ptPcf = opts.ptPcf ?? PT_PCF, psf = opts.psf ?? 0;
   const weigh = (size, len) => {
     const base = size.split(" ")[0];
     const depth = DEPTH[base] ?? 3.5;
@@ -94,6 +98,16 @@ export function panelParts(w, pan, opts = {}) {
       if (b - a > EPS) add(m, b - a);
     }
     const pieces = [...rows.values()].sort((a, b) => a.kind.localeCompare(b.kind) || b.length - a.length);
-    return { name: p.name, width: p.width, pieces, pieceCount: pieces.reduce((t, x) => t + x.qty, 0), lb: Math.round(lb * 10) / 10 };
+    const out = { name: p.name, width: p.width, pieces, pieceCount: pieces.reduce((t, x) => t + x.qty, 0), lb: Math.round(lb * 10) / 10 };
+    if (psf > 0) {
+      let area = p.width * w.height;
+      for (const o of opts.wall?.openings || []) {
+        const ow = Math.min(o.offset + o.width, p.x1) - Math.max(o.offset, p.x0);
+        if (ow > EPS) area -= ow * o.height;
+      }
+      out.sheathLb = Math.round(Math.max(0, area) / 144 * psf * 10) / 10;
+      out.totalLb = Math.round((lb + out.sheathLb) * 10) / 10;
+    }
+    return out;
   });
 }

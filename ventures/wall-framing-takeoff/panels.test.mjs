@@ -53,3 +53,14 @@ test("a panel's weight matches a hand count: one 2x4 stud of 92.625 in is 1.5*3.
   const [q] = panelParts(w, panelizeWall(w, 144), { pcf: 0 });
   assert.equal(q.lb, 0);
 });
+
+test("sheathing weight: a 48 in panel of an 8 ft wall at 1.6 lb/ft2 is 32*1.6 = 51.2 lb, less a rough opening", () => {
+  const w = { id: "t", length: 48, height: 96, members: [{ kind: "stud", x: 0, w: 1.5, size: "2x4", length: 92.625, label: "end stud" }] };
+  const pan = panelizeWall(w, 144);
+  const [a] = panelParts(w, pan, { psf: 1.6 });
+  assert.equal(a.sheathLb, 51.2);
+  assert.equal(a.totalLb, Math.round((a.lb + 51.2) * 10) / 10);
+  const [b] = panelParts(w, pan, { psf: 1.6, wall: { openings: [{ offset: 12, width: 24, height: 36 }] } });
+  assert.equal(b.sheathLb, 51.2 - 24 * 36 / 144 * 1.6); // 38.4 lb
+  assert.equal(panelParts(w, pan)[0].sheathLb, undefined);
+});
