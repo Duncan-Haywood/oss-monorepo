@@ -8,12 +8,12 @@ import { isMt940, isCamt, readMt940, readCamt } from "./sepa.mjs";
 import { readStatementText } from "./statementtext.mjs";
 
 const ALIASES = {
-  date: ["date", "transaction date", "posted date", "post date", "posting date", "trans date", "booking date", "effective date", "value date", "completed date", "started date", "date (utc)",
+  date: ["date", "transaction date", "posted date", "post date", "posting date", "trans date", "booking date", "effective date", "value date", "completed date", "started date", "date (utc)", "datetime",
     // German, French, Spanish, Italian, Dutch headers
     "datum", "buchungstag", "buchungsdatum", "valuta", "wertstellung", "date de l'opération", "date opération", "date operation", "fecha", "fecha operación", "fecha valor", "data", "data operazione", "data contabile", "data valuta", "boekdatum", "transactiedatum"],
-  desc: ["description", "transaction description", "payee", "merchant", "name", "details", "original description", "memo", "narrative", "counter party", "counterparty", "reference",
+  desc: ["description", "transaction description", "payee", "merchant", "name", "details", "original description", "memo", "narrative", "counter party", "counterparty", "reference", "partner name", "note",
     "beschreibung", "verwendungszweck", "buchungstext", "beguenstigter/zahlungspflichtiger", "begünstigter/zahlungspflichtiger", "libellé", "libelle", "descripción", "descripcion", "concepto", "descrizione", "causale", "omschrijving", "naam / omschrijving"],
-  amount: ["amount", "transaction amount", "amt", "value", "amount (usd)", "amount (gbp)", "amount (eur)", "betrag", "betrag (eur)", "montant", "importe", "importo", "bedrag"],
+  amount: ["amount", "amount (total)", "transaction amount", "amt", "value", "amount (usd)", "amount (gbp)", "amount (eur)", "betrag", "betrag (eur)", "montant", "importe", "importo", "bedrag"],
   debit: ["debit", "debits", "withdrawal", "withdrawals", "money out", "paid out", "amount debit", "debit amount", "soll", "débit", "debit (eur)", "cargo", "dare", "uscite"],
   credit: ["credit", "credits", "deposit", "deposits", "money in", "paid in", "amount credit", "credit amount", "haben", "crédit", "credito", "crédito", "abono", "avere", "entrate"],
   balance: ["balance", "running balance", "runningbalance", "running bal.", "ledger balance", "balance (gbp)", "balance (eur)", "balance (usd)", "saldo", "kontostand", "solde", "saldo (eur)"],
@@ -137,6 +137,8 @@ export function sniffBank(rows) {
     if (/^transaction id\|date\|time\|type\|name\|emoji\|category\|amount\|currency/.test(h)) return "monzo";
     if (/^date\|counter party\|reference\|type\|amount \((gbp|eur|usd)\)\|balance/.test(h)) return "starling";
     if (/^date \(utc\)\|description\|amount\|status\|source account/.test(h)) return "mercury";
+    if (/^booking date\|value date\|partner name\|partner iban\|type\|payment reference/.test(h)) return "n26";
+    if (/^id\|datetime\|type\|status\|note\|from\|to\|amount \(total\)/.test(h.replace(/^\|/, ""))) return "venmo";
     if (/^transferwise id\|date\|amount\|currency\|description/.test(h)) return "wise";
     if (/^transaction date\|posted date\|card no\.\|description\|category\|debit\|credit/.test(h)) return "capital-one";
     if (/^trans\. date\|post date\|description\|amount\|category/.test(h)) return "discover";
@@ -301,13 +303,15 @@ export function readStatement(text, { dayFirst = false, decimalComma = false, in
   const hdr = headerAt === -1 ? [] : rows[headerAt].map(norm);
   if (bank === "monzo") columns.desc = hdr.indexOf("name");
   // Mercury lists Pending, Failed and Cancelled rows beside Sent ones.
-  const stateCol = bank === "revolut" ? hdr.indexOf("state") : bank === "mercury" ? hdr.indexOf("status") : -1;
-  const okState = bank === "mercury" ? /^(sent|completed)$/i : /^completed$/i;
+  // Venmo lists Pending and Cancelled payments, and its balance rows have no date.
+  const stateCol = bank === "revolut" ? hdr.indexOf("state") : bank === "mercury" || bank === "venmo" ? hdr.indexOf("status") : -1;
+  const okState = bank === "mercury" ? /^(sent|completed)$/i : bank === "venmo" ? /^(complete|issued)$/i : /^completed$/i;
   const feeCol = bank === "revolut" ? hdr.indexOf("fee") : -1;
   const curCol = bank === "revolut" ? hdr.indexOf("currency") : -1;
   const currencies = new Set();
   for (let i = first; i < rows.length; i++) {
     const r = rows[i];
+    if (bank === "venmo" && !String(r[columns.date] ?? "").trim()) continue;
     if (stateCol !== -1 && !okState.test(String(r[stateCol] ?? "").trim())) { problems.push(`Line ${i + 1}: state ${String(r[stateCol] ?? "").trim() || "blank"}, not a completed transaction, skipped.`); continue; }
     if (curCol !== -1 && String(r[curCol] ?? "").trim()) currencies.add(r[curCol].trim().toUpperCase());
     const date = parseDate(r[columns.date], dayFirst);
@@ -319,7 +323,13 @@ export function readStatement(text, { dayFirst = false, decimalComma = false, in
     if (feeCol !== -1) { const fee = parseCents(r[feeCol], decimalComma); if (Number.isFinite(fee)) cents -= Math.abs(fee); }
     if (cents === 0) continue;
     const balance = columns.balance !== -1 && String(r[columns.balance] ?? "").trim() !== "" ? parseCents(r[columns.balance], decimalComma) : null;
-    out.push({ line: i + 1, date, desc: String(r[columns.desc] ?? "").trim().replace(/\s+/g, " "), cents, balance: Number.isFinite(balance) ? balance : null });
+    let desc = String(r[columns.desc] ?? "").trim().replace(/\s+/g, " ");
+    if (bank === "venmo") {
+      // The note is free text; name the other party, and fall back to the type for transfers.
+      const who = String(r[hdr.indexOf(cents < 0 ? "to" : "from")] ?? "").trim();
+      desc = [who, desc || String(r[hdr.indexOf("type")] ?? "").trim()].filter(Boolean).join(" - ");
+    }
+    out.push({ line: i + 1, date, desc, cents, balance: Number.isFinite(balance) ? balance : null });
   }
   if (currencies.size > 1) problems.push(`The file mixes currencies (${[...currencies].join(", ")}). Revolut writes one file per currency account: import each on its own account.`);
   let inferred = null;
