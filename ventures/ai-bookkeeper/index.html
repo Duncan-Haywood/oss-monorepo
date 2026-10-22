@@ -368,6 +368,7 @@
     import { addReceipts, receiptReport, taxOnReceipts, planReceiptSplit, splitFromReceipt } from "./receipts.mjs";
     import { renderInvoice, setProfile, PROFILE_KEYS } from "./invoice.mjs";
     import { renderStatement } from "./statement.mjs";
+    import { reminders } from "./collections.mjs";
     import { aiSuggest } from "./ai.mjs";
     import { detectLocal, isLocal } from "./byok.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
@@ -528,7 +529,24 @@
       if (!docs.length) { $("#aging").replaceChildren(); return; }
       const a = aging(books);
       const row = (label, side) => [label, ...side.byBucket.map((v) => fmt(v)), fmt(side.total)];
-      $("#aging").replaceChildren(el("p", { class: "note", text: `${docs.filter((d) => d.settledBy).length} of ${docs.length} documents are paid by a bank line. Open items as of ${a.asOf}, by days past due:` }), table(["", ...a.buckets, "Total"], [row("Owed to you", a.receivable), row("You owe", a.payable)]), writeOffList(a));
+      $("#aging").replaceChildren(el("p", { class: "note", text: `${docs.filter((d) => d.settledBy).length} of ${docs.length} documents are paid by a bank line. Open items as of ${a.asOf}, by days past due:` }), table(["", ...a.buckets, "Total"], [row("Owed to you", a.receivable), row("You owe", a.payable)]), writeOffList(a), reminderList());
+    }
+
+    // One reminder draft per customer with an overdue invoice. Copied or downloaded, never sent from here.
+    function reminderList() {
+      const rs = reminders(books);
+      if (!rs.length) return el("span");
+      const rows = rs.map((r) => {
+        const b = el("button", { type: "button", class: "secondary", "aria-label": `Copy reminder for ${r.party}`, text: "Copy draft" });
+        b.addEventListener("click", async () => {
+          const text = `Subject: ${r.subject}\n\n${r.text}`;
+          try { await navigator.clipboard.writeText(text); $("#docs-status").textContent = `Reminder for ${r.party} copied.`; }
+          catch { const u = URL.createObjectURL(new Blob([text], { type: "text/plain" })), a = el("a", { href: u, download: `reminder-${r.party}.txt` }); document.body.append(a); a.click(); a.remove(); $("#docs-status").textContent = `Reminder for ${r.party} downloaded.`; }
+          record("reminder_drafted");
+        });
+        return el("tr", {}, el("td", { text: r.party }), el("td", { text: r.tone }), el("td", { class: "n", text: `${r.daysLate} days` }), el("td", { class: "n", text: fmt(r.overdue) }), el("td", {}, b));
+      });
+      return el("div", {}, el("p", { class: "note", text: "Payment reminders: a draft per customer with overdue invoices, friendlier or firmer by how late. Edit before you send; nothing is sent from here." }), el("table", {}, el("thead", {}, el("tr", {}, ...["Customer", "Tone", "Oldest", "Overdue", ""].map((h) => el("th", { scope: "col", text: h })))), el("tbody", {}, ...rows)));
     }
 
     // Open invoices with a write-off button: for a customer who will not pay. Books the balance to bad debts (6900).
