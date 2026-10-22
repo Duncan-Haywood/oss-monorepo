@@ -60,7 +60,7 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
   vat [--from D --to D]  UK-layout VAT return worksheet (boxes 1-9) from account 2100 and an input account 1300
   gst --region ca|au [--from D --to D]  Canada GST/HST return (lines 101-109) or Australia BAS (G1, 1A, G11, 1B) worksheet, same accounts as vat
   salestax [--from D --to D]  sales tax collected, credited and paid over by month, and what is still owed
-  salestax return [--freq monthly|quarterly|annual] [--due-day N] [--rate "CA state=7.25"]  return worksheet by jurisdiction (named in the tax line's description)
+  salestax return [--freq monthly|quarterly|annual] [--due-day N] [--rate "CA state=7.25"] [--discount "CA state=0.5,100"] [--no-rollover]  return worksheet by jurisdiction (named in the tax line's description)
   opening FILE --date D  set opening balances from a trial balance CSV (code,amount or code,debit,credit); "opening" alone shows them, "opening clear" removes them
   switch chart FILE      adding the accounts of a QuickBooks Account List or Xero Chart of Accounts CSV to the chart (matches by name, keeps Xero codes)
   switch balances FILE [--date D]  opening balances from that system's Trial Balance CSV, which names accounts; the date comes from "As of ..." in the file unless given
@@ -632,12 +632,15 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
   const rates = {};
   for (let v = flag("--rate"); v; v = flag("--rate")) { const [k, n] = v.split("="); rates[k.trim()] = Number(n) / 100; }
   let t;
-  try { t = salesTaxReturn(books, { frequency: flag("--freq") ?? "quarterly", dueDay: Number(flag("--due-day") ?? 20), from, to, rates }); } catch (e) { console.error(e.message); process.exit(2); }
+  const discounts = {};
+  for (let v = flag("--discount"); v; v = flag("--discount")) { const [k, spec] = v.split("="); const [pct, cap] = spec.split(","); discounts[k.trim()] = { rate: Number(pct) / 100, cap: cap == null ? undefined : Math.round(Number(cap) * 100) }; }
+  try { t = salesTaxReturn(books, { frequency: flag("--freq") ?? "quarterly", dueDay: Number(flag("--due-day") ?? 20), from, to, rates, discounts, rollover: !has("--no-rollover"), asOf: new Date().toISOString().slice(0, 10) }); } catch (e) { console.error(e.message); process.exit(2); }
   if (json) { console.log(JSON.stringify(t, null, 2)); process.exit(0); }
   console.log(`SALES TAX RETURN WORKSHEET (${t.frequency})`);
   for (const p of t.periods) {
     console.log(`  ${p.period}   non-taxable sales ${fmt(p.nonTaxableSales)}`);
-    for (const r of p.rows) console.log(`    ${r.jurisdiction.padEnd(18)} taxable ${fmt(r.taxableSales).padStart(12)}  tax ${fmt(r.tax).padStart(10)}  rate ${r.rate == null ? "-" : (r.rate * 100).toFixed(2) + "%"}  due ${r.due}`);
+    for (const r of p.rows) console.log(`    ${r.jurisdiction.padEnd(18)} taxable ${fmt(r.taxableSales).padStart(12)}  tax ${fmt(r.tax).padStart(10)}  rate ${r.rate == null ? "-" : (r.rate * 100).toFixed(2) + "%"}  due ${r.due}${r.discount ? `  discount ${fmt(r.discount)}` : ""}`);
+    console.log(`    payable ${fmt(p.payable)}  paid over ${fmt(p.paid)}  still owed ${fmt(p.owed)}`);
   }
   for (const w of t.warnings) console.log(`  ! ${w}`);
   console.log("  A worksheet to check a return against, not a filing. Rates, exemptions, vendor discounts and due dates are your state's to say.");
