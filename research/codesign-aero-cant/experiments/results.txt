@@ -1,0 +1,28 @@
+GRID: combined RMS attitude error (deg), held-out 64 wide-plant episodes, PID tuned 192 evaluations; mean over 6 airframes x 5 seeds (feasible cells only; n = feasible cells of 30)
+  cant   rms    roll/pitch  yaw    yaw-torque limit (N m)  mass (kg)  cost ($)   n
+    0    17.77    7.37     28.94    0.0667      0.849      71.8   30
+    5    17.47    7.33     28.42    0.1190      0.856      72.3   30
+   10    16.95    7.38     27.42    0.1755      0.877      74.1   30
+   15    16.33    7.43     26.25    0.2434      0.937      79.0   30
+   20    16.42    7.85     26.17    0.3214      0.892      76.3   25
+   25    15.90    7.75     25.27    0.4572      1.044      88.9   25
+   30    15.82    8.10     24.89    0.4564      0.864      75.8   20
+   35    15.38    8.11     24.04    0.5811      0.935      82.6   20
+
+Paired change against cant 0 on the same airframe and seed (deg, negative = cant helps); airframes feasible at both only:
+  cant  5: mean -0.298, cant better in 21 of 30 pairs, SD 0.613
+  cant 10: mean -0.825, cant better in 26 of 30 pairs, SD 0.760
+  cant 15: mean -1.443, cant better in 28 of 30 pairs, SD 0.866
+  cant 20: mean -1.669, cant better in 25 of 25 pairs, SD 0.826
+  cant 25: mean -2.183, cant better in 24 of 25 pairs, SD 1.130
+  cant 30: mean -2.414, cant better in 19 of 20 pairs, SD 0.971
+  cant 35: mean -2.849, cant better in 20 of 20 pairs, SD 1.021
+
+KAPPA SWEEP (3 airframes x 3 seeds): mean combined RMS error (deg) by cant, for the assumed reaction-torque ratio x0.5 and x3 (x1 is the GRID rows for the same airframes: see results.json)
+  kappa x0.5: 0:18.19  5:17.74  10:17.63  15:17.25  20:17.74  25:17.61  30:17.15  35:16.50
+  kappa x3.0: 0:15.80  5:14.66  10:13.71  15:13.20  20:13.62  25:13.32  30:12.99  35:12.66
+
+JOINT co-design of (L, D, cant, gains), 1920 evaluations, held-out 64 episodes, 5 seeds
+  cant fixed at 0        rms  15.22 (per seed 15.08, 15.21, 15.50, 15.13, 15.16); yaw RMS 25.09; chosen cant 0, 0, 0, 0, 0 deg; mass 3.25 kg, cost 267
+  cant free (0..35 deg)  rms  12.32 (per seed 12.36, 12.29, 12.26, 12.30, 12.39); yaw RMS 19.40; chosen cant 34, 35, 35, 34, 35 deg; mass 3.18 kg, cost 276
+  fixed-0 minus free-cant, per seed: +2.71, +2.93, +3.24, +2.83, +2.78 (positive = free cant better); mean +2.898
