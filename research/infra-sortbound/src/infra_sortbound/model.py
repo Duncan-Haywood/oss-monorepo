@@ -98,6 +98,57 @@ def online(jobs, policy):
         total += a["val"]
 
 
+def _first_pick(cands, free, eps):
+    """Best arrival-order schedule over `cands` starting no earlier than `free`; returns its first job
+    (None if nothing is feasible). Finish times on an eps grid, rounded up (a schedule that can run)."""
+    states = {0: (0.0, None)}  # finish (grid units) -> (value, first job), Pareto-pruned below
+    for j in cands:
+        if j["val"] <= 0:
+            continue
+        rk = int(math.ceil(max(j["in"], free) / eps))
+        dk = int(math.floor(j["out"] / eps + 1e-9))
+        dg = int(math.ceil(j["dur"] / eps - 1e-9))
+        merged = dict(states)
+        for f, (v, first) in states.items():
+            nf = max(f, rk) + dg
+            if nf <= dk and v + j["val"] > merged.get(nf, (-1.0, None))[0]:
+                merged[nf] = (v + j["val"], first or j)
+        states, best = {}, -1.0
+        for f in sorted(merged):
+            if merged[f][0] > best + 1e-12:
+                states[f] = merged[f]; best = merged[f][0]
+    v, first = max(states.values(), key=lambda x: x[0])
+    return first
+
+
+def rolling(jobs, lookahead, eps=0.02):
+    """Rolling-horizon dispatch: whenever the arm is free, re-solve the exact schedule over the items
+    now in view plus, if `lookahead` > 0, those that will arrive within `lookahead` seconds (class and
+    arrival time known), and do the first pick of that plan. If the plan starts with an item that has
+    not arrived yet, the arm waits for it. lookahead = 0 sees only the queue. Returns attempted value."""
+    free, i, queue, total = 0.0, 0, [], 0.0
+    while True:
+        while i < len(jobs) and jobs[i]["in"] <= free:
+            queue.append(jobs[i]); i += 1
+        queue = [a for a in queue if a["out"] >= free + a["dur"]]
+        if not queue and i >= len(jobs):
+            return total
+        ahead = [j for j in jobs[i:] if j["in"] <= free + lookahead]
+        a = _first_pick(queue + ahead, free, eps) if (queue or ahead) else None
+        if a is None:   # only zero-value (false-call) items in view, or nothing reachable
+            queue = []
+            if i >= len(jobs):
+                return total
+            free = max(free, jobs[i]["in"])
+            continue
+        if a["in"] > free:
+            free = a["in"]
+            continue
+        queue.remove(a)
+        free += a["dur"]
+        total += a["val"]
+
+
 def _dp(jobs, eps, rnd):
     """Best total value of a subsequence picked in arrival order; finish times on an eps grid."""
     states = [(0, 0.0)]  # (finish time in grid units, value), Pareto-pruned

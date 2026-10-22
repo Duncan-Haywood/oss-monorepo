@@ -60,3 +60,23 @@ def test_deterministic():
     a = arrivals(Config(horizon=200), ITEMS, random.Random(1))
     b = arrivals(Config(horizon=200), ITEMS, random.Random(1))
     assert a == b and optimum(a) == optimum(b)
+
+
+def test_rolling_sits_between_queue_only_and_optimum():
+    c = Config()
+    from infra_sortbound import run_many, rolling
+    for s in run_many(c, ITEMS, 4, seed=7):
+        lo, hi = optimum(s, 0.005)
+        full = rolling(s, 5.0)
+        assert rolling(s, 0.0) <= hi + 1e-9
+        assert full <= hi + 1e-9
+        assert full >= 0.97 * lo
+        assert full >= rolling(s, 0.0) - 1e-9
+
+
+def test_rolling_with_full_view_matches_optimum_on_tiny_instances():
+    from infra_sortbound import rolling
+    rng = random.Random(5)
+    for _ in range(25):
+        jobs = tiny(rng, rng.randint(3, 7))
+        assert abs(rolling(jobs, 1e9, eps=0.001) - brute_force(jobs)) < 0.5

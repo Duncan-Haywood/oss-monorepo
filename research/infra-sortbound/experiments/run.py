@@ -3,7 +3,7 @@ Every policy and the clairvoyant bound see the same 40 arrival streams (paired).
 import os, sys
 from dataclasses import replace
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
-from infra_sortbound import Config, load_items, run_many, online, optimum, summarise
+from infra_sortbound import Config, load_items, run_many, online, rolling, optimum, summarise
 
 items = load_items()
 out = []
@@ -50,5 +50,27 @@ for eps in (0.2, 0.1, 0.05, 0.02, 0.01, 0.005):
     r = [optimum(s, eps) for s in streams]
     lo, _ = summarise([x[0] for x in r]); hi, _ = summarise([x[1] for x in r])
     P("eps %.3f s  lower %.2f  upper %.2f  width %.3f" % (eps, lo, hi, hi - lo))
+
+LOOK = (0.0, 0.25, 0.5, 1.0, 2.0, 5.0)
+
+
+def look_line(label, c, eps=0.005):
+    streams = run_many(c, items, RUNS)
+    lo = [sum(optimum(s, eps)) / 2 for s in streams]
+    base = [online(s, "value") / b for s, b in zip(streams, lo)]
+    parts = ["value-first %.1f%%" % (100 * summarise(base)[0])]
+    for L in LOOK:
+        sh = [rolling(s, L) / b for s, b in zip(streams, lo)]
+        m, ci = summarise(sh)
+        parts.append("L=%.2fs %.1f%% +-%.1f" % (L, 100 * m, 100 * ci))
+    P("%-18s share of opt: %s" % (label, "  ".join(parts)))
+
+
+P("# F. rolling horizon: re-solve the exact schedule at every free-arm moment over the queue plus items arriving")
+P("# within L seconds (L=0: queue only). Share of the clairvoyant optimum, paired, 95% interval")
+for d in (3.0, 6.0, 10.0):
+    look_line("density %.0f/m" % d, replace(base, density=d))
+look_line("speed 0.75 m/s", replace(base, speed=0.75))
+look_line("arm 0.4 m/s", replace(base, arm_speed=0.4))
 open(os.path.join(os.path.dirname(__file__), "results.txt"), "w").write("\n".join(out) + "\n")
 print("\n".join(out))
