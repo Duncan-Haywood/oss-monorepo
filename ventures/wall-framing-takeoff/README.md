@@ -139,6 +139,34 @@ LP bound, so there is almost nothing left for a better integer method to find
 there; the gap that matters is against planning by hand (the "each piece alone"
 column is the extreme case: 22% more board).
 
+## Advanced framing (2026-10-22)
+
+Plan `"advanced": { "twoStudCorners": true, "ladderTees": true }` (or the
+"Advanced framing" menu on the page):
+
+- `twoStudCorners` puts one backing stud in a `corner: true` wall instead of
+  `cornerExtraStuds` (the end stud plus one), for drywall clips.
+- `ladderTees` replaces the tee backing studs with flat 2x blocks every 24 in
+  between the full-height studs either side of the tee, for the partition to
+  nail to. Where those studs are more than one stud spacing apart, or an
+  opening is between them, that tee keeps standard backing and a note says so.
+  The blocks come out of offcuts in the order.
+
+Measured on the built-in example house (`samplePlan`, 8 walls, priced stock;
+`takeoff().summary`):
+
+| option | pieces | boards | full-height members | order cost |
+|---|---|---|---|---|
+| standard | 345 | 253 | 179 | $2,384.16 |
+| two-stud corners | 341 | 249 | 175 | $2,353.28 |
+| ladder tees | 352 | 250 | 165 | $2,307.52 |
+| both | 348 | 246 | 161 | $2,276.64 |
+
+Both: $107.52 (4.5%) less lumber on that house (one tee fell back to standard
+backing). This counts lumber only. Whether a given wall may use either detail
+is a code and engineer's call (clip stiffness, nailing for the partition), not
+something this tool checks; the options are off by default.
+
 ## Corner plate laps
 
 Set `"plateLaps": true` in the plan (or pick it on the page). A wall with

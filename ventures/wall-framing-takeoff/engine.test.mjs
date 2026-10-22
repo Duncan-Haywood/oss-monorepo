@@ -626,3 +626,31 @@ test("a gable opening that rises into the triangle: cripples only where the roof
   const flat = { ...base(), walls: [{ id: "F", length: 240, openings: [{ kind: "window", offset: 100, width: 36, height: 36, header: "2x10", headerHeight: 110 }] }] };
   assert.ok(validatePlan(flat).some((e) => /under the top plates/.test(e)));
 });
+
+test("advanced framing: two-stud corners drop one backing stud, ladder tees swap backing studs for blocks, both self-check", () => {
+  const wall = { id: "A", length: 240, stud: "2x4", corner: true, tees: [120] };
+  const std = { ...base(), walls: [wall] };
+  const adv = { ...std, advanced: { twoStudCorners: true, ladderTees: true } };
+  const count = (p, kind) => layoutWall(p, wall).members.filter((m) => m.kind === kind).length;
+  assert.equal(count(std, "corner"), 2);
+  assert.equal(count(adv, "corner"), 1);
+  assert.equal(count(std, "tee"), 2);
+  assert.equal(count(adv, "tee"), 0);
+  const w = layoutWall(adv, wall);
+  assert.deepEqual(verifyWall(w, wall), []);
+  const ladder = w.members.filter((m) => m.kind === "blocking" && m.label.startsWith("ladder blocking"));
+  assert.ok(ladder.length >= 3);
+  // blocks sit between the studs either side of the tee, 24 in apart, and never touch a stud
+  const studs = w.members.filter((m) => m.orient === "v");
+  assert.ok(ladder.every((b) => !studs.some((s) => b.x < s.x + s.w - 1e-6 && b.x + b.w > s.x + 1e-6)));
+  assert.ok(ladder.every((b) => b.x < 120 && b.x + b.w > 120));
+  assert.ok(takeoff(adv).ok);
+});
+
+test("advanced framing: a tee next to an opening falls back to standard backing with a note", () => {
+  const wall = { id: "A", length: 240, stud: "2x4", tees: [120], openings: [{ kind: "window", offset: 110, width: 36, height: 48, header: "2x6", headerHeight: 80 }] };
+  const plan = { ...base(), walls: [wall], advanced: { ladderTees: true } };
+  const w = layoutWall(plan, wall);
+  assert.ok(w.notes.some((n) => n.includes("Ladder blocking")));
+  assert.deepEqual(verifyWall(w, wall), []);
+});

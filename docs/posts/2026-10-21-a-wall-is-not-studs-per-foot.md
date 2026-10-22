@@ -62,6 +62,16 @@ the order it ships was the cheapest on every one of those cases.
 The numbers use a price of 1 per foot, so they measure length bought, not
 money; type your lumberyard's prices and the same search minimises cost.
 
+## Update, 2026-10-22: advanced framing
+
+Two options that builders call "advanced framing" are now switches in the
+plan: two-stud corners (one backing stud instead of two) and ladder blocking
+at tees (flat blocks every 24 in instead of two backing studs). On the
+built-in eight-wall example house the lumber order drops from $2,384 to $2,277
+with both on, 4.5%, with the layout self-check passing in every case. That is
+lumber only; whether a wall may use either detail is for the engineer and the
+code. The tool leaves both off by default.
+
 ## What it does not do
 
 It does not size headers or check any code: sizes, jacks and spacing are
