@@ -3,7 +3,7 @@ import os
 import numpy as np
 from capture_audiosync import trial, resync_interval_s
 
-SEEDS = range(20)
+SEEDS = range(10)
 OUT = os.path.join(os.path.dirname(__file__), "results.txt")
 lines = []
 
@@ -20,7 +20,7 @@ def emit(s=""):
     lines.append(s)
 
 
-emit("# 1 h span, 12 windows, true clock error 40 ppm, start offset 0.8 s, 20 seeds, one frame = 33.3 ms (30 fps)")
+emit("# 1 h span, 12 windows, true clock error 40 ppm, start offset 0.8 s, 10 seeds, one frame = 33.3 ms (30 fps)")
 emit("# bad = share of single windows off by more than one frame; fit = Theil-Sen line over the 12 windows")
 emit("\n## SNR x window length (no reverb)")
 emit("snr_db | win_s | bad_window_share | fit_max_ms_median | fit_max_ms_p95 | offset_only_max_ms_median | slope_err_ppm")

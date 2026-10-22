@@ -38,6 +38,11 @@ def gcc_phat(a, b, fs=FS, max_lag_s=2.0, band=(100.0, 4000.0)):
     return (k - m + off) / fs
 
 
+def _fftconv(x, h):
+    m = 1 << (len(x) + len(h) - 2).bit_length()
+    return np.fft.irfft(np.fft.rfft(x, m) * np.fft.rfft(h, m), m)[:len(x)]
+
+
 def _impulse(rng, rt60, ddr_db, fs=FS):
     """Direct path plus an exponentially decaying noise tail; ddr_db = direct-to-reverberant."""
     n = int(rt60 * fs)
@@ -62,8 +67,8 @@ def make_pair(rng, tau_s, win_s, snr_db, ddr_db=None, rt60=0.4, fs=FS):
     src *= 0.6 + 0.4 * np.sin(2 * np.pi * 3.0 * t + rng.uniform(0, 6.28)) ** 2
     a, b = src, fractional_delay(src, tau_s, fs)
     if ddr_db is not None:
-        a = np.convolve(a, _impulse(rng, rt60, ddr_db, fs))[:n]
-        b = np.convolve(b, _impulse(rng, rt60, ddr_db, fs))[:n]
+        a = _fftconv(a, _impulse(rng, rt60, ddr_db, fs))
+        b = _fftconv(b, _impulse(rng, rt60, ddr_db, fs))
     p = np.mean(a ** 2)
     sig = np.sqrt(p / 10 ** (snr_db / 10))
     a = a + sig * rng.standard_normal(n)
