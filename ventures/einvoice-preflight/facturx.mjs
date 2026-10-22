@@ -27,6 +27,12 @@ export function envelopeNote(label, syntax) {
   return `Unwrapped ${label} (${String(syntax).toUpperCase()}) from the PDF.`;
 }
 
+// Raw attachment list with each stream's object number, for rewriting one.
+export function listEmbeddedFiles(source) {
+  const data = toBytes(source);
+  return embeddedFiles(data);
+}
+
 export async function extractEmbeddedInvoice(source) {
   const data = toBytes(source);
   if (!looksLikePdf("", data)) {
@@ -142,11 +148,20 @@ function embeddedFiles(data) {
       const windowStart = Math.max(0, objAt - 512);
       const name = attachmentName(text.slice(windowStart, match.index + 800));
       const stream = readStreamAfter(data, text, match.index);
-      if (stream) attachments.push({ name, ...stream });
+      const head = text.slice(Math.max(0, objAt - 24), objAt + 3).match(/(\d+)\s+(\d+)\s+obj$/);
+      if (stream) pushLatest(attachments, { name, objNum: head ? Number(head[1]) : null, gen: head ? Number(head[2]) : 0, ...stream });
     }
     match = typeRe.exec(text);
   }
   return attachments;
+}
+
+// An incremental update appends a newer copy of an object; the later one wins
+// and keeps the earlier copy's name when its own window has none.
+function pushLatest(list, item) {
+  const at = item.objNum == null ? -1 : list.findIndex((a) => a.objNum === item.objNum);
+  if (at === -1) list.push(item);
+  else list[at] = { ...item, name: item.name || list[at].name };
 }
 
 function attachmentName(window) {
