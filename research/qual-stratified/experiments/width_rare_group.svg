@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot: a random audit gives intervals 1.2 to 1.7 times as wide as an audit with equal numbers per group; the optimal split is indistinguishable from equal">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Interval width for the gap to a rare group (11% of comments), by audit size and design</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="273.4" y2="273.4" stroke="#ddd"/><text x="58" y="277.4" text-anchor="end" font-family="sans-serif" font-size="11">0.2</text>
+<line x1="64" x2="624" y1="222.9" y2="222.9" stroke="#ddd"/><text x="58" y="226.9" text-anchor="end" font-family="sans-serif" font-size="11">0.4</text>
+<line x1="64" x2="624" y1="172.3" y2="172.3" stroke="#ddd"/><text x="58" y="176.3" text-anchor="end" font-family="sans-serif" font-size="11">0.6</text>
+<line x1="64" x2="624" y1="121.7" y2="121.7" stroke="#ddd"/><text x="58" y="125.7" text-anchor="end" font-family="sans-serif" font-size="11">0.8</text>
+<line x1="64" x2="624" y1="71.2" y2="71.2" stroke="#ddd"/><text x="58" y="75.2" text-anchor="end" font-family="sans-serif" font-size="11">1</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">100</text>
+<text x="204.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">200</text>
+<text x="344.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">400</text>
+<text x="484.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">800</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1600</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">hand-coded items in the audit</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">mean width of the 95% interval</text>
+<polyline points="64.0,135.0 204.0,189.0 344.0,226.9 484.0,253.1 624.0,270.7 64.0,93.9 204.0,82.5 344.0,83.8 484.0,76.7 624.0,72.4" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="135.0" r="3" fill="#c0392b"/>
+<circle cx="204.0" cy="189.0" r="3" fill="#c0392b"/>
+<circle cx="344.0" cy="226.9" r="3" fill="#c0392b"/>
+<circle cx="484.0" cy="253.1" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="270.7" r="3" fill="#c0392b"/>
+<circle cx="64.0" cy="93.9" r="3" fill="#c0392b"/>
+<circle cx="204.0" cy="82.5" r="3" fill="#c0392b"/>
+<circle cx="344.0" cy="83.8" r="3" fill="#c0392b"/>
+<circle cx="484.0" cy="76.7" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="72.4" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">random sample of the corpus</text>
+<polyline points="64.0,211.7 204.0,242.5 344.0,263.6 484.0,276.9 624.0,280.8 64.0,82.5 204.0,80.0 344.0,72.9 484.0,71.2 624.0,71.2" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="211.7" r="3" fill="#1f6fb2"/>
+<circle cx="204.0" cy="242.5" r="3" fill="#1f6fb2"/>
+<circle cx="344.0" cy="263.6" r="3" fill="#1f6fb2"/>
+<circle cx="484.0" cy="276.9" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="280.8" r="3" fill="#1f6fb2"/>
+<circle cx="64.0" cy="82.5" r="3" fill="#1f6fb2"/>
+<circle cx="204.0" cy="80.0" r="3" fill="#1f6fb2"/>
+<circle cx="344.0" cy="72.9" r="3" fill="#1f6fb2"/>
+<circle cx="484.0" cy="71.2" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">equal numbers per group</text>
+<polyline points="64.0,212.2 204.0,242.9 344.0,263.8 484.0,276.9 624.0,280.8 64.0,80.0 204.0,79.3 344.0,74.2 484.0,71.2 624.0,71.2" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="212.2" r="3" fill="#2e8b57"/>
+<circle cx="204.0" cy="242.9" r="3" fill="#2e8b57"/>
+<circle cx="344.0" cy="263.8" r="3" fill="#2e8b57"/>
+<circle cx="484.0" cy="276.9" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="280.8" r="3" fill="#2e8b57"/>
+<circle cx="64.0" cy="80.0" r="3" fill="#2e8b57"/>
+<circle cx="204.0" cy="79.3" r="3" fill="#2e8b57"/>
+<circle cx="344.0" cy="74.2" r="3" fill="#2e8b57"/>
+<circle cx="484.0" cy="71.2" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">optimal share (oracle)</text>
+</svg>

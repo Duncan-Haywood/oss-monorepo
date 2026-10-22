@@ -126,6 +126,16 @@ always favours a bigger codebook; compare against a shuffled baseline. These are
 not an LLM's codebook, so this sets the bar an LLM-proposed codebook has to clear rather than
 saying anything about LLMs.
 
+## Update: auditing a group gap
+
+Later projects ran the same idea on 3,188 real GoEmotions comments (still with classical coders, not
+LLMs). A hand-coded audit that passes an "overall count is fine" test did not protect a short-versus-long
+gap: a coder with zero overall bias still distorted the gap by 0.20
+([`qual-gapaudit`](/research/qual-gapaudit/README.md)). And when one group is rare, how the audit is
+drawn matters: for the longest 11% of comments, a random audit of 100 items gave intervals 1.7 times as
+wide as an audit split evenly between the groups, while for a 36% group the design made no difference
+([`qual-stratified`](/research/qual-stratified/README.md)).
+
 ## What comes next
 
 Track 19 lists the next steps. The first is to run the same pipeline on a public, hand-coded
