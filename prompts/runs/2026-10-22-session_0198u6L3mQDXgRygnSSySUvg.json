@@ -1,0 +1,49 @@
+{
+  "date": "2026-10-22",
+  "session": "https://claude.ai/code/session_0198u6L3mQDXgRygnSSySUvg",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled: follow prompt.md",
+  "input_sha256": "3e54a4671d69cc91f71654788cc0aa9420c6093cc023245b58cf4de88920f85c",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-22T08:42:59Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 9431,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "Flagship 1 (ai-bookkeeper) next: items all need real exports, a local model or network; none doable in a cloud session, so I took flagship 2."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "Skipped the top flagship (blocked on real data/model) and landed a small page-field slice on flagship 2; page not clicked through (no Playwright)."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "",
+  "corrections": [],
+  "redteam": null
+}
