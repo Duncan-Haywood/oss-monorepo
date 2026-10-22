@@ -1,0 +1,53 @@
+{
+  "date": "2026-10-22",
+  "session": "https://claude.ai/code/session_01YTayYYEEEvKCnHZPLnz4fe",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-22T15:21:55Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "track 19 next step: group-gap estimates under audit gates",
+  "projects": [
+    "research/qual-gapaudit"
+  ],
+  "pr": 9516,
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [
+    "Background wait loops that matched their own command line, or watched a log that stays empty until the script ends, finished early or hung; several wait cycles wasted"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "says to background long run.py scripts but not that stdout is buffered until the end, so a log stays empty and cannot show progress"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/goals.md",
+      "why": "Did not write a separate docs/reports agent doc or docs/posts post; the project README carries the write-up for this small follow-up."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Experiment (500 draws x 8 coders x 5 sizes) ran about 10 min on CPU. Checks run locally: unittest (6 pass), research _homepage build.py ok, check_md_links ok, research_live_links ok. README claims were re-checked against results.txt and five wording errors fixed.",
+  "corrections": [],
+  "redteam": null
+}
