@@ -1211,3 +1211,14 @@ test('--burst-runs cuts a 3-day plateau that single-day bursts miss, and leaves 
   const step = base.map((v, i) => (i >= 40 ? Math.round(v * 2.5) : v));
   assert.equal(analyze({ values: step, model: 'poisson', bursts: true, burstRuns: 5 }).bursts.length, 0);
 });
+
+import { changeIntervals as __ci } from './engine.mjs';
+test('change interval brackets the fitted date and widens for a small shift', () => {
+  const mk = (d) => Array.from({ length: 60 }, (_, i) => Math.sin(i * 12.9898) * 0.5 + (i >= 30 ? d : 0));
+  const big = analyze({ values: mk(5) }).pelt.changepoints[0];
+  const small = analyze({ values: mk(1) }).pelt.changepoints[0];
+  assert.ok(big.interval.fromIndex <= big.index && big.index <= big.interval.toIndex);
+  assert.ok(small.interval.toIndex - small.interval.fromIndex >= big.interval.toIndex - big.interval.fromIndex);
+  assert.equal(analyze({ values: mk(5), interval: false }).pelt.changepoints[0].interval, undefined);
+  assert.deepEqual(__ci(() => 0, 10, []), []);
+});

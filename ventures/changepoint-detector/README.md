@@ -510,3 +510,23 @@ clean data, so they are probably not separable from level changes by size
 alone.
 
 On the web page the same rule is the checkbox "Cut back isolated spikes before fitting" (counts model). It lists the days it cut back under the summary. Clicked through in headless Chromium on a hand-made 60-day series with one spike: two false changes without it, none with it (2026-10-22).
+
+### Change-date intervals
+
+Each PELT change now carries `interval` (`from`, `to`, `fromIndex`, `toIndex`): the points where the change could have
+begun. For a change between its neighbours, every other position is scored by the cost of moving it there; positions
+within 6.63 of the best (a 99% chi-square(1) cut-off on the -2 log-likelihood costs) are in. The usual 3.84 under-covers
+because the date is not a smooth parameter. `eval/change-interval.mjs` (200 seeded series per row, one step at point 100 of
+200, runs with exactly one change found nearby):
+
+| series | covered at 3.84 | covered at 6.63 | mean width at 6.63 (points) | point estimate exact |
+|---|---|---|---|---|
+| mean, shift 1 sd | 79% | 91% | 12.0 | 33% |
+| mean, shift 2 sd | 89% | 96% | 3.9 | 67% |
+| mean, shift 4 sd | 99% | 99% | 1.2 | 96% |
+| counts 20 -> 30 | 86% | 94% | 3.4 | 63% |
+| counts 20 -> 40 | 99% | 99% | 1.3 | 93% |
+
+So the interval is a calibrated "about 95%" only for clear shifts and a little short for a shift of one noise sd.
+Neighbouring changes bound it; it is skipped for `--ar1 joint`. Shown in the CLI and in `--json`; seasonal and trend
+adjustments are included because the interval uses the same adjusted series and exposures. Not yet on the web page.

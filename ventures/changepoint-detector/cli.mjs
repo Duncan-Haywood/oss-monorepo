@@ -86,6 +86,11 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
   const lines = [r.summary, ''];
   lines.push('Segments (PELT):');
   for (const s of r.pelt.segments) lines.push(`  ${s.from} – ${s.to}  n=${s.n}  mean=${s.mean}  ${s.slope !== undefined ? `slope=${s.slope}  ` : ''}sd=${s.sd}`);
+  const iv = r.pelt.changepoints.filter((c) => c.interval);
+  if (iv.length) {
+    lines.push('', 'Change dates (likelihood-ratio interval for where the change began, covers the true date 91-99% in seeded tests):');
+    for (const c of iv) lines.push(`  ${c.label}  (${c.interval.fromIndex === c.interval.toIndex ? 'pinned to this point' : `${c.interval.from} – ${c.interval.to}`})`);
+  }
   if (r.bocpd.detections.length) {
     lines.push('', `Bayesian changes (probability >= ${r.bocpd.threshold}):`);
     for (const d of r.bocpd.detections) lines.push(`  ${d.label}  ${(d.probability * 100).toFixed(0)}%`);

@@ -1367,6 +1367,26 @@ const fmt = (v) => (Math.abs(v) >= 100 ? v.toFixed(0) : Math.abs(v) >= 1 ? v.toF
  * Run both methods on a series. Input: DEFAULTS overlaid with the caller's
  * fields; `values` (array of numbers) may replace `csv`.
  */
+/**
+ * Where could each change have been? For change k between its neighbours lo and hi the cost of putting it at j instead,
+ * cost(lo, j) + cost(j, hi), minus the best, is a likelihood-ratio drop on the -2 log-likelihood scale (the costs are
+ * written that way). The interval is the run of j around the fitted index with a drop of at most `level` (6.63, the
+ * 99% chi-square(1) cut-off, because the 95% cut-off 3.84 covered the true date only 79% of the time on a 1 sd shift: the
+ * location is not a smooth parameter, so eval/change-interval.mjs measures the coverage instead of assuming it). `scale` divides the drop (the counts' dispersion).
+ */
+export function changeIntervals(cost, n, cps, { minSegment = 2, level = 3.84, scale = 1 } = {}) {
+  const bounds = [0, ...cps, n];
+  return cps.map((c, k) => {
+    const lo = bounds[k], hi = bounds[k + 2];
+    const a = lo + minSegment, b = hi - minSegment;
+    const D = (j) => (cost(lo, j) + cost(j, hi) - cost(lo, c) - cost(c, hi)) / scale;
+    let from = c, to = c;
+    while (from - 1 >= a && D(from - 1) <= level) from--;
+    while (to + 1 <= b && D(to + 1) <= level) to++;
+    return { from, to };
+  });
+}
+
 export function analyze(input = {}) {
   const o = { ...DEFAULTS, ...input };
   let labels, values, column, skipped = 0;
@@ -1491,6 +1511,12 @@ export function analyze(input = {}) {
   }
   const b = bocpd(bvals, { ...(rho ? { rho, prior: { ...defaultPrior(prewhiten(values, rho)), mu: median(values) } } : {}), hazardLambda: Number(o.hazardLambda) || 100, lag: Math.max(1, Math.floor(Number(o.lag) || 5)), model: model === 'trend' ? 'mean' : model, exposure, dispersion: phi ?? 1, nbSize: isFinite(nbSize) && nbSize > 0 ? nbSize : 0 });
   const det = peaks(b.changeProb, Number(o.threshold) || 0.5);
+  let intervals = null;
+  if (!joint && o.interval !== false) {
+    const useNb = isFinite(nbSize) && nbSize > 0;
+    const costFn = makeCost(values, useNb ? 'negbin' : model, sigma, 0, exposure, useNb ? nbSize : 0);
+    intervals = changeIntervals(costFn, values.length, p.changepoints, { minSegment, level: Number(o.intervalLevel) || 6.63, scale: phi ?? 1 });
+  }
   const changes = p.changepoints.map((i, k) => {
     const before = segments[k];
     const after = segments[k + 1];
@@ -1514,6 +1540,7 @@ export function analyze(input = {}) {
       sdBefore: before.sd,
       sdAfter: after.sd,
       bocpdProbWithin3: round(near, 3),
+      ...(intervals ? { interval: { from: labels[intervals[k].from], to: labels[intervals[k].to], fromIndex: intervals[k].from, toIndex: intervals[k].to } } : {}),
     };
   });
   const summary = summarize({ n: values.length, column, model, changes, det, labels, prob: b.changeProb, skipped });
