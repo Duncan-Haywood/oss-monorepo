@@ -18,7 +18,8 @@ test("mileage: rate times miles in integer cents, per calendar year", () => {
   assert.equal(m.miles, 133.3);
   assert.equal(m.cents, Math.round(133.3 * 70)); // 70 cents a mile
   assert.equal(m.cents, 9331);
-  assert.ok(mileageDeduction(b, 2026).warnings.length, "2026 rate is flagged as unchecked");
+  assert.deepEqual(mileageDeduction(b, 2026).warnings, [], "one trip before July uses 72.5 and needs no warning");
+  assert.equal(mileageDeduction(b, 2026).cents, 3625);
   b = addTrip(b, { date: "2031-01-02", miles: 5, purpose: "far future" }).books;
   assert.match(mileageDeduction(b, 2031).warnings[0], /No standard mileage rate/);
 });
@@ -63,4 +64,20 @@ test("Schedule C: mileage on line 9, home office on line 30, net profit after bo
   assert.equal(sc.homeOffice, 50000);
   assert.equal(sc.netProfit, 780000);
   assert.equal(sc.lines.find((l) => l.line === "30").cents, 50000);
+});
+
+test("mileage 2026: 72.5 cents to June 30, 76 cents from July 1, each trip at its own date's rate", () => {
+  let b = newBooks();
+  b = addTrip(b, { date: "2026-06-30", miles: 100, purpose: "a" }).books;
+  b = addTrip(b, { date: "2026-07-01", miles: 100, purpose: "b" }).books;
+  const m = mileageDeduction(b, 2026);
+  assert.equal(m.cents, 7250 + 7600);
+  assert.deepEqual(m.segments.map((x) => x.rate), [725, 760]);
+  assert.equal(m.label, "100 at 72.5 cents, 100 at 76 cents");
+  assert.match(m.warnings[0], /two IRS rates/);
+  // only second-half trips: a single 76-cent segment
+  const h2 = mileageDeduction(addTrip(newBooks(), { date: "2026-12-31", miles: 10, purpose: "c" }).books, 2026);
+  assert.equal(h2.cents, 760); assert.equal(h2.rate, 760);
+  // an explicit rate is one flat rate for the year
+  assert.equal(mileageDeduction(b, 2026, { rate: 700 }).cents, 14000);
 });

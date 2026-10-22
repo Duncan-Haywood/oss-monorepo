@@ -299,8 +299,9 @@ office to line 30, and net profit is line 29 less line 30. Without `--year` the 
 Verification: `node --test deductions.test.mjs` (rate times miles in integer cents; the 300 sq ft cap;
 part-year proration; the profit limit; line 9, line 30 and net profit on a small ledger) and a CLI
 run on a three-line statement. **Not checked:** the 2024 and 2025 rates (67.0 and 70.0 cents) are from
-memory of the IRS notices and the 2026 rate (72.5) is flagged on the worksheet as unchecked; irs.gov
-was not read. No real mileage log was tried; the page card (trip log, home office, Schedule C lines 9 and 30) was clicked through in headless Chromium with `node eval/browser-click.mjs`. Whether
+memory of the IRS notices. 2026 is priced by trip date: 72.5 cents to June 30 and 76 cents from July 1
+(Announcement 2026-11, 2026-10-22; read from several tax-press reports, irs.gov was unreachable from the
+build sandbox). The earlier flat 72.5 would have under-deducted every second-half trip. No real mileage log was tried; the page card (trip log, home office, Schedule C lines 9 and 30) was clicked through in headless Chromium with `node eval/browser-click.mjs`. Whether
 a space qualifies for the home office deduction, and whether to use actual expenses instead, is for you
 or your preparer.
 
@@ -420,6 +421,12 @@ amounts and a running balance (the hardest case) and reads them back: 5 seeds,
 against the author's own rendering, not against a bank's real layouts; PDF text
 from a two-column statement, or one where the extractor reorders columns, is not
 covered. Scanned (image) PDFs have no text to copy.
+
+## Switching from QuickBooks or Xero
+
+`migrate.mjs` starts these books from the files the old system exports, with nothing retyped. `cli.mjs switch chart ACCOUNT-LIST.csv` reads a QuickBooks Account List (Account, Type, Detail Type ...; the title rows above the header are skipped) or a Xero Chart of Accounts (*Code, *Name, *Type ...): an account whose name is already in the chart is matched, receivable and payable keep the codes invoices and bills post to (1100, 2050), Xero's own codes are kept when free, and the rest are added with a type and a bank flag for Bank and Credit Card accounts. A type the reader does not know is reported and the account left out. Then `switch balances TRIAL-BALANCE.csv [--date D]` maps the trial balance's account *names* to those codes and sets opening balances (`opening.mjs`); the date comes from "As of December 31, 2025" in the title rows unless given. A name not in the chart stops the import and is listed; an imbalance goes to 3000, as with `opening`.
+
+Verification: `migrate.test.mjs` (7 tests) on hand-written files laid out from the column names those products print. No real QuickBooks or Xero export has been tried, so a layout difference (a renamed column, a localised type name) is not covered; try a real export before relying on it.
 
 ## Prepaid expenses
 

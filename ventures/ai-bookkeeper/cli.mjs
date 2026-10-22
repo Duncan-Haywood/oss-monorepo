@@ -21,6 +21,7 @@ import { parseCents } from "./bank.mjs";
 import { accountMap } from "./ledger.mjs";
 import { seSetAside, selfEmployment, scheduleC, scheduleCCsv, contractors1099, contractors1099Csv, nec1099FilingCsv, markW9, mergePayees } from "./taxforms.mjs";
 import { setOpeningBalances, clearOpeningBalances } from "./opening.mjs";
+import { importChart, importTrialBalance } from "./migrate.mjs";
 import { sniffFormat, splitOfx } from "./bank.mjs";
 import { detectRecurring, forecastCash } from "./recurring.mjs";
 import { findAnomalies } from "./anomalies.mjs";
@@ -54,6 +55,8 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
   vat [--from D --to D]  UK-layout VAT return worksheet (boxes 1-9) from account 2100 and an input account 1300
   salestax [--from D --to D]  sales tax collected, credited and paid over by month, and what is still owed
   opening FILE --date D  set opening balances from a trial balance CSV (code,amount or code,debit,credit); "opening" alone shows them, "opening clear" removes them
+  switch chart FILE      adding the accounts of a QuickBooks Account List or Xero Chart of Accounts CSV to the chart (matches by name, keeps Xero codes)
+  switch balances FILE [--date D]  opening balances from that system's Trial Balance CSV, which names accounts; the date comes from "As of ..." in the file unless given
   lock DATE|off          lock a closed period: nothing dated on or before DATE can be imported, re-filed, booked or written off
   close YEAR [--draws]   year-end close: that year's income and expense go to retained earnings (3900) in one dated entry, and the books lock through Dec 31; --draws also closes owner draws and contributions. "close reopen YEAR" undoes the latest; "close report YEAR" shows it
   contractors [--year Y] [--threshold DOLLARS] [--csv|--filing|--json]  contract labor paid by payee against the 1099-NEC line, with W-9 status
@@ -176,6 +179,24 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
       console.log(`${r.lines.length} opening balances set as of ${date}.${r.plug ? ` ${fmt(Math.abs(r.plug))} did not balance and went to ${name("3000")}.` : " They balance."}`);
     } catch (e) { console.error(e.message); process.exit(1); }
   }
+} else if (cmd === "switch") {
+  if (!["chart", "balances"].includes(rest[0]) || !rest[1]) { console.error("usage: switch chart FILE.csv | switch balances FILE.csv [--date YYYY-MM-DD]"); process.exit(2); }
+  const text = readFileSync(rest[1], "utf8");
+  try {
+    if (rest[0] === "chart") {
+      const r = importChart(books, text);
+      for (const p of r.problems) console.error(p);
+      if (!r.added.length && !r.matched.length) process.exit(1);
+      books = r.books; save();
+      console.log(`${r.matched.length} accounts matched the chart already; ${r.added.length} added${r.added.length ? `: ${r.added.map((a) => `${a.code} ${a.name}`).join(", ")}` : ""}.`);
+    } else {
+      const r = importTrialBalance(books, text, { date: flag("--date") ?? undefined, decimalComma });
+      for (const p of r.problems) console.error(p);
+      if (!r.lines.length) process.exit(1);
+      books = r.books; save();
+      console.log(`${r.lines.length} opening balances set as of ${r.date}.${r.plug ? ` ${fmt(Math.abs(r.plug))} did not balance and went to ${name("3000")}.` : " They balance."}`);
+    }
+  } catch (e) { console.error(e.message); process.exit(1); }
 } else if (cmd === "lock") {
   if (!rest[0]) { console.error("lock needs a date (YYYY-MM-DD) or off"); process.exit(2); }
   try { books = lockPeriod(books, rest[0] === "off" ? null : rest[0]); save(); console.log(books.lockedThrough ? `Locked through ${books.lockedThrough}.` : "Unlocked."); } catch (e) { console.error(e.message); process.exit(1); }
@@ -468,7 +489,7 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
       const y = flag("--year"), trips = (books.mileage ?? []).filter((t) => !y || t.date.startsWith(`${y}-`));
       if (json) { console.log(JSON.stringify(trips, null, 2)); process.exit(0); }
       for (const t of trips) console.log(`  ${t.id.padEnd(6)} ${t.date} ${String(t.miles).padStart(7)} mi  ${t.purpose}${t.from || t.to ? ` (${t.from ?? ""} to ${t.to ?? ""})` : ""}`);
-      if (y) { const m = mileageDeduction(books, +y); console.log(`  ${y}: ${m.miles} miles${m.rate ? ` at ${m.rate / 10} cents = ${fmt(m.cents)}` : ""}`); for (const w of m.warnings) console.log(`  ! ${w}`); }
+      if (y) { const m = mileageDeduction(books, +y); console.log(`  ${y}: ${m.miles} miles${m.rate ? ` (${m.label}) = ${fmt(m.cents)}` : ""}`); for (const w of m.warnings) console.log(`  ! ${w}`); }
       if (!trips.length) console.log("  no trips logged");
     } else { console.error("trip add MILES --date D --purpose TEXT, trip list [--year Y], or trip remove ID"); process.exit(2); }
   } catch (e) { console.error(e.message); process.exit(1); }

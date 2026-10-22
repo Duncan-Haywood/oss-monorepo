@@ -7,8 +7,10 @@
 // return new books.
 //
 // Standard mileage rates in tenths of a cent per mile: 2024 67.0, 2025 70.0 (IRS notices),
-// 2026 72.5 (read from memory of the December 2025 notice, NOT checked against irs.gov);
-// pass `rate` to override. Home office is the simplified method: $5 a square foot, up to 300
+// 2026 72.5 (Notice 2026-10), raised to 76.0 for travel on or after 2026-07-01 (Announcement
+// 2026-11, 2026-29 I.R.B.; confirmed from several secondary sources, irs.gov itself was not
+// reachable from the build sandbox). A year with dated steps is priced trip by trip.
+// Pass `rate` to override (one flat rate for the whole year). Home office is the simplified method: $5 a square foot, up to 300
 // square feet ($1,500 a year), prorated by the months used, and never more than the
 // business profit before it (no loss, no carryover). Whether a space qualifies (regular and
 // exclusive business use) is for you or your preparer.
@@ -16,6 +18,9 @@
 import { parseDate } from "./bank.mjs";
 
 export const MILEAGE_RATES = { 2024: 670, 2025: 700, 2026: 725 };
+// Mid-year changes: trips dated on or after `from` use `rate` instead of the year's opening rate.
+export const MILEAGE_STEPS = { 2026: [{ from: "2026-07-01", rate: 760 }] };
+const rateOn = (year, date) => (MILEAGE_STEPS[year] ?? []).filter((x) => date >= x.from).at(-1)?.rate ?? MILEAGE_RATES[year];
 export const HOME_RATE_CENTS = 500, HOME_MAX_SQFT = 300;
 
 export function addTrip(books, { date, miles, purpose, from = "", to = "" }) {
@@ -49,8 +54,20 @@ export function mileageDeduction(books, year, { rate } = {}) {
   const warnings = [];
   if (!trips.length) return { year, trips, miles: 0, rate: r ?? null, cents: 0, warnings };
   if (r === undefined) { warnings.push(`No standard mileage rate on file for ${year}; pass one (tenths of a cent per mile).`); return { year, trips, miles, rate: null, cents: 0, warnings }; }
-  if (!MILEAGE_RATES[year] || year === 2026) warnings.push(`The ${year} rate is not checked against irs.gov. Confirm it before you rely on this.`);
-  return { year, trips, miles, rate: r, cents: Math.round((miles * r) / 10), warnings };
+  if (!MILEAGE_RATES[year]) warnings.push(`The ${year} rate is not checked against irs.gov. Confirm it before you rely on this.`);
+  if (rate === undefined && MILEAGE_STEPS[year]) {
+    const by = new Map();
+    for (const t of trips) { const x = rateOn(year, t.date); by.set(x, (by.get(x) ?? 0) + t.miles); }
+    const segments = [...by].sort((a, b) => a[0] - b[0]).map(([rt, mi]) => ({ rate: rt, miles: Math.round(mi * 10) / 10, cents: Math.round((mi * rt) / 10) }));
+    const cents = segments.reduce((a, x) => a + x.cents, 0);
+    if (segments.length > 1) {
+      warnings.push(`${year} has two IRS rates; each trip is priced at the rate for its date (${segments.map((x) => `${x.miles} miles at ${x.rate / 10} cents`).join(", ")}).`);
+      return { year, trips, miles, rate: Math.round((cents * 10) / miles), cents, segments, label: segments.map((x) => `${x.miles} at ${x.rate / 10} cents`).join(", "), warnings };
+    }
+    const only = segments[0].rate;
+    return { year, trips, miles, rate: only, cents, segments, label: `${miles} at ${only / 10} cents`, warnings };
+  }
+  return { year, trips, miles, rate: r, cents: Math.round((miles * r) / 10), label: `${miles} at ${r / 10} cents`, warnings };
 }
 
 const monthsUsed = (ho, year) => {

@@ -1,0 +1,6 @@
+{
+ "theme": "eda",
+ "title": "Does the systolic-array versus MAC-lane verdict survive a shared SKY130 clock target?",
+ "summary": "<em>chip-systolic</em> ranked 4&times;C systolic arrays against P-lane MAC engines by generic-gate cells &times; cycles. Here all 24 designs (word length 4, 6, 8; batch of 4) are mapped to SKY130 HD at six shared targets (3&ndash;10 ns, <code>map -D T; upsize; dnsize</code>, Yosys 0.33) plus the unconstrained baseline, 168 mappings. A MAC-lane engine (P=4, 4-bit) has the best area &times; latency at every feasible target; the best array is 1.61&times; worse unconstrained and 1.66&times; worse at 5&ndash;10 ns. The shared clock removes many arrays (systolic / lane designs meeting the target of 12 each: 0/3 at 4 ns, 2/7 at 5, 8/12 at 10), and the (area, cycles) front changes with T. Limits: ABC combinational delay only, no wires or place and route, one model, one batch size, one recipe.",
+ "lede": "the 24 systolic-array and MAC-lane designs of chip-systolic mapped to SKY130 at six shared clocks: the MAC-lane engine keeps the best area x latency at every feasible target (arrays 1.61 to 1.66x worse), though the clock removes many arrays and changes the Pareto front."
+}

@@ -1,0 +1,37 @@
+# Yosys 0.33 (git sha1 2584903a060); SKY130 HD tt_025C_1v80 at ORFS commit e5cc6e799f; batch of 4 vectors; ABC: strash; dc2; map -D T; topo; upsize -D T; dnsize -D T; stime
+# 24 designs: systolic 4xC and MAC-lane P=C for C in 1,2,4,8 at WB 4,6,8. period None = unconstrained `map`
+
+period  met(sys/lane)  best by area x cycles x T         best systolic             best lane                 sys/lane ratio
+  None   12/12         lane4w4 (1.5e+06)                 sys4x4w4 (2.41e+06)       lane4w4 (1.5e+06)         1.61
+  3000    0/0          none                              none                      none                      n/a
+  4000    0/3          lane4w4 (1.42e+06)                none                      lane4w4 (1.42e+06)        n/a
+  5000    2/7          lane4w4 (1.4e+06)                 sys4x4w4 (2.33e+06)       lane4w4 (1.4e+06)         1.66
+  6000    3/9          lane4w4 (1.39e+06)                sys4x4w4 (2.32e+06)       lane4w4 (1.39e+06)        1.66
+  8000    8/12         lane4w4 (1.39e+06)                sys4x4w4 (2.31e+06)       lane4w4 (1.39e+06)        1.66
+ 10000    8/12         lane4w4 (1.39e+06)                sys4x4w4 (2.31e+06)       lane4w4 (1.39e+06)        1.66
+
+per word length, family with the best area x cycles among designs meeting each target (S = systolic, L = lane, - = none meets)
+wb     None    3000    4000    5000    6000    8000   10000
+4         L       -       L       L       L       L       L
+6         L       -       -       L       L       L       L
+8         L       -       -       L       L       L       L
+
+delay reached (ps) / area relative to unconstrained, WB=4
+design              None          3000          4000          5000          6000          8000         10000
+lan1  w4        4598/1.00     3194/1.03     3982/0.95     4937/0.94     5496/0.93     5496/0.93     5496/0.93
+lan2  w4        5406/1.00     3142/1.01     3970/0.96     4911/0.95     5981/0.94     5981/0.94     5981/0.94
+lan4  w4        5000/1.00     3253/0.99     3979/0.95     4962/0.94     5904/0.93     6970/0.93     6970/0.93
+lan8  w4        7828/1.00     3451/0.97     4518/0.92     4987/0.92     5936/0.91     7194/0.91     8902/0.91
+sys1  w4       14334/1.00     4305/1.01     4109/0.99     5085/0.97     5974/0.97     7935/0.96     8801/0.96
+sys2  w4       12816/1.00     4035/0.99     4204/0.97     4970/0.96     5878/0.96     7186/0.95     9764/0.95
+sys4  w4       15631/1.00     3480/0.99     4131/0.98     4982/0.97     5857/0.96     7544/0.96     9683/0.96
+sys8  w4       32939/1.00     4409/0.98     4836/0.97     6017/0.96     6017/0.96     7784/0.95     8794/0.95
+
+feasible (area, cycles) Pareto front over all 24 designs:
+    None: sys4x8w4, sys4x4w4, lane8w4, lane4w4, lane2w4, lane1w4
+    3000: none
+    4000: lane4w4, lane2w4, lane1w4
+    5000: sys4x4w4, lane8w4, lane4w4, lane2w4, lane1w4
+    6000: sys4x4w4, lane8w4, lane4w4, lane2w4, lane1w4
+    8000: sys4x8w4, sys4x4w4, lane8w4, lane4w4, lane2w4, lane1w4
+   10000: sys4x8w4, sys4x4w4, lane8w4, lane4w4, lane2w4, lane1w4

@@ -70,7 +70,7 @@ export function scheduleC(books, { from = null, to = null, mealsPct = 50, map = 
   if (year) {
     mileage = mileageDeduction(books, year, { rate: mileageRate });
     warnings.push(...mileage.warnings);
-    if (mileage.cents) put("9", "miles", mileage.cents), byLine.get("9").at(-1).name = `Business miles (${mileage.miles} at ${mileage.rate / 10} cents)`;
+    if (mileage.cents) put("9", "miles", mileage.cents), byLine.get("9").at(-1).name = `Business miles (${mileage.label})`;
   }
   const sum = (line) => (byLine.get(line) ?? []).reduce((a, r) => a + r.cents, 0);
   const row = (line) => ({ line, label: LINES[line] ?? line, cents: sum(line), accounts: byLine.get(line) ?? [] });
