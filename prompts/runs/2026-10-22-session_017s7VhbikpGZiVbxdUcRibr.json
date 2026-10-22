@@ -1,0 +1,49 @@
+{
+  "date": "2026-10-22",
+  "session": "https://claude.ai/code/session_017s7VhbikpGZiVbxdUcRibr",
+  "track": "review",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-22T07:12:14Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 9409,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/review/prompt-1.md",
+      "issue": "Reduced pass fit a scheduled run; nothing stale. measure output is 50KB+ with no section flag."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/review/prompt-1.md",
+      "why": "Reduced pass: skipped audit (step 2) and drift report (step 6); shipped one fix (flagships.yaml ai-bookkeeper next trimmed) and E66."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Retire verdict on research/1 still fires on one disclosed caveat (E55). Local pytest unavailable; ran promptctl validate and prompts unittests (98 OK).",
+  "corrections": [],
+  "redteam": null
+}
