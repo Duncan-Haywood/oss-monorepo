@@ -21,7 +21,9 @@ Standard library only, so it runs in any session without an install step.
 from __future__ import annotations
 
 import argparse
+import contextlib
 import hashlib
+import io
 import json
 import math
 import random
@@ -830,6 +832,29 @@ def writeup_share(runs: list[dict[str, Any]]) -> dict[str, Any]:
             "post": sum(has(r, "docs/posts/") for r in recent)}
 
 
+def filter_sections(text: str, section: str | None) -> str:
+    """Keep only the `## ` sections whose title contains `section` (case-insensitive)."""
+    if not section:
+        return text
+    out: list[str] = []
+    keep = False
+    for line in text.splitlines():
+        if line.startswith("## "):
+            keep = section.lower() in line.lower()
+        if keep:
+            out.append(line)
+    if not out:
+        raise SystemExit(f"no '## ' section title contains {section!r}")
+    return "\n".join(out)
+
+
+def print_measure_section(m: dict[str, Any], section: str | None) -> None:
+    buf = io.StringIO()
+    with contextlib.redirect_stdout(buf):
+        print_measure(m)
+    print(filter_sections(buf.getvalue(), section))
+
+
 def budget_for(rel: str) -> int | None:
     if rel in INSTRUCTION_BUDGET:
         return INSTRUCTION_BUDGET[rel]
@@ -1069,6 +1094,8 @@ def main(argv: list[str] | None = None) -> int:
                    "(e.g. the upstream research repo), so a review can look the PR up")
     p = sub.add_parser("measure", help="score prompt versions from the run records")
     p.add_argument("--json", action="store_true")
+    p.add_argument("--section", help="print only the '## ' sections whose title contains this "
+                   "text (case-insensitive), e.g. 'friction' or 'candidates'; the full output is 50KB+")
     sub.add_parser("backlog", help="list open process improvements, best first")
     p = sub.add_parser("backfill-pr", help="fill empty `pr` in run records from the merge commit subject")
     p.add_argument("--dry-run", action="store_true")
@@ -1094,7 +1121,10 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.cmd == "measure":
         m = measure(ROOT)
-        print(json.dumps(m, indent=2)) if args.json else print_measure(m)
+        if args.json:
+            print(json.dumps(m, indent=2))
+        else:
+            print_measure_section(m, args.section)
         return 0
     if args.cmd == "backfill-pr":
         found = backfill_prs(ROOT, not args.dry_run)

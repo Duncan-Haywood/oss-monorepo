@@ -267,6 +267,13 @@ class MeasureTest(PromptTestCase):
         self.assertAlmostEqual(low, 0.4902, places=3)
         self.assertAlmostEqual(high, 0.9433, places=3)
 
+    def test_filter_sections_keeps_only_matching_titles(self):
+        text = "# Title\n\n## One\na\n\n## Two friction\nb\n"
+        self.assertEqual(promptctl.filter_sections(text, "FRICTION"), "## Two friction\nb\n".rstrip("\n"))
+        self.assertEqual(promptctl.filter_sections(text, None), text)
+        with self.assertRaises(SystemExit):
+            promptctl.filter_sections(text, "missing")
+
     def test_measure_groups_by_version_model_and_friction(self):
         friction = [{"file": "CLAUDE.md", "issue": "stale command"}]
         self.fx.run("2026-10-12-a.json", _record(day="2026-10-01", model="m1", merged=True,

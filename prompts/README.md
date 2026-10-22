@@ -137,7 +137,7 @@ team", so no rate is ever typed by hand.
 ```
 python3 prompts/promptctl.py route [--track T] [--skip-review] [--json]
 python3 prompts/promptctl.py record --track T --version N --session URL [--model M] [--input TEXT]
-python3 prompts/promptctl.py measure [--json]
+python3 prompts/promptctl.py measure [--json | --section <title text>]
 python3 prompts/promptctl.py backlog
 python3 prompts/promptctl.py map [--track T]
 python3 prompts/promptctl.py validate
