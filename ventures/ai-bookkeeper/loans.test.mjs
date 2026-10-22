@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { newBooks, importStatement, journal } from "./engine.mjs";
 import { trialBalance } from "./ledger.mjs";
-import { addLoan, loanSchedule, loanRegister, applyLoanPayments, levelPayment } from "./loans.mjs";
+import { addLoan, addLoanExtra, loanSchedule, loanRegister, applyLoanPayments, levelPayment } from "./loans.mjs";
 
 test("level payment matches the textbook figure and the schedule clears to zero", () => {
   // 20,000 at 6% over 36 months: 608.44 a month (standard annuity table)
@@ -97,4 +97,29 @@ test("the register counts matched payments, and has no next payment once all are
   books = applyLoanPayments(books, loan.id).books;
   r = loanRegister(books).rows[0];
   assert.equal(r.paid, 2); assert.equal(r.balance, 0); assert.equal(r.next, null);
+});
+
+test("extra principal shortens the schedule and saves interest; the bank line is filed to 2200", () => {
+  let { books, loan } = addLoan(newBooks(), { name: "Van", amount: "20000", rate: "6", months: 36, first: "2026-02-01" });
+  const base = loanSchedule(loan);
+  books = addLoanExtra(books, loan.id, { amount: "2000", date: "2026-06-10" }).books;
+  loan = books.loans[0];
+  const s = loanSchedule(loan);
+  assert.ok(s.length < 36 && s.at(-1).balance === 0);
+  assert.equal(s.reduce((a, r) => a + r.principal + r.extra, 0), 2000000);
+  assert.equal(s[4].extra, 200000); // after the 2026-06-01 instalment (n=5)
+  assert.ok(s.reduce((a, r) => a + r.interest, 0) < base.reduce((a, r) => a + r.interest, 0));
+  books = importStatement(books, "Date,Description,Amount\n2026-06-10,EXTRA PRINCIPAL VAN,-2000.00\n", "1000").books;
+  const r = applyLoanPayments(books, loan.id);
+  assert.equal(r.matched.length, 1); assert.equal(r.matched[0].extra, 0);
+  assert.equal(loanRegister(r.books).rows[0].extraPaid, 200000);
+  assert.equal(loanRegister(r.books).rows[0].balance, 1800000);
+  assert.equal(applyLoanPayments(r.books, loan.id).matched.length, 0);
+});
+
+test("a bad extra payment is refused", () => {
+  const { books, loan } = addLoan(newBooks(), { name: "V", amount: "1000", rate: 5, months: 12, first: "2026-01-01" });
+  assert.throws(() => addLoanExtra(books, loan.id, { amount: "0", date: "2026-02-01" }), /positive/);
+  assert.throws(() => addLoanExtra(books, loan.id, { amount: "5", date: "soon" }), /date/);
+  assert.throws(() => addLoanExtra(books, "LN-9", { amount: "5", date: "2026-02-01" }), /No loan/);
 });
