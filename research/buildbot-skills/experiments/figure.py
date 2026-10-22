@@ -28,7 +28,7 @@ def main():
     a.set_title("Success on 1000 fresh episodes per plant (bars: mean over seeds, dots: seeds)", fontsize=9)
     a.legend(fontsize=8, loc="upper left")
     a.grid(axis="y", alpha=0.3)
-    for label, col in (("feedback delay s", "tab:purple"), ("flex stiffness N m/rad", "tab:green"), ("sheet kg", "tab:orange")):
+    for label, col in (("feedback delay s", "tab:purple"), ("flex stiffness N m/rad", "tab:green"), ("sheet kg", "tab:orange"), ("lag s", "tab:red")):
         rows = res["diagnostics"]["B_random"]["bins"][label]
         b.plot(range(len(rows)), [r["success"] for r in rows], "o-", color=col, label=label)
     b.set_xticks(range(3))
