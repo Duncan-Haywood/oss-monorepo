@@ -53,3 +53,15 @@ test("a panel's weight matches a hand count: one 2x4 stud of 92.625 in is 1.5*3.
   const [q] = panelParts(w, panelizeWall(w, 144), { pcf: 0 });
   assert.equal(q.lb, 0);
 });
+
+test("sheathing weight: width x height less openings in the span, at the typed lb per sq ft; off by default and none on a gable", () => {
+  const w = { id: "t", length: 96, height: 96, members: [{ kind: "stud", x: 0, w: 1.5, size: "2x4", length: 92.625, label: "end stud" }] };
+  const pan = panelizeWall(w, 144);
+  assert.equal(panelParts(w, pan)[0].sheathLb, 0);
+  const [a] = panelParts(w, pan, { sheathPsf: 1.5 });
+  assert.equal(a.sheathLb, 96); // 96x96 in = 64 sq ft x 1.5
+  assert.equal(a.totalLb, Math.round((a.lb + a.sheathLb) * 10) / 10);
+  const [b] = panelParts(w, pan, { sheathPsf: 1.5, openings: [{ offset: 24, width: 36, height: 48 }, { offset: 90, width: 36, height: 48 }] });
+  assert.equal(b.sheathLb, (64 - (36 * 48 + 6 * 48) / 144) * 1.5); // second opening only 6 in inside the wall
+  assert.equal(panelParts({ ...w, gable: { pitch: 6 } }, pan, { sheathPsf: 1.5 })[0].sheathLb, 0);
+});

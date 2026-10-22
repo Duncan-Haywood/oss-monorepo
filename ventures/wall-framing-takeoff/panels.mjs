@@ -60,14 +60,22 @@ export function panelsText(set) {
 // runs heavier). Override with opts.pcf / opts.ptPcf.
 export const SPF_PCF = 28;
 export const PT_PCF = 40;
+// Structural panels (7/16 in OSB, 1/2 in plywood) run about 1.4 to 1.6 lb per
+// square foot; 1.5 is the figure to type when you have no data sheet.
+export const SHEATH_PSF = 1.5;
 
 /**
  * Per-panel parts: every framing member whole, every plate trimmed to the
  * panel's span, and the panel's lumber weight.
  * @param {{id: string, length: number, members: any[]}} w laid-out wall from takeoff()
  * @param {ReturnType<typeof panelizeWall>} pan
- * @param {{pcf?: number, ptPcf?: number}} [opts]
- * @returns {{name: string, width: number, pieces: {size: string, length: number, kind: string, label: string, qty: number}[], pieceCount: number, lb: number}[]}
+ * With opts.sheathPsf (lb per sq ft of sheathing) each panel also carries the
+ * sheathing on its span: width times wall height less the openings' rough
+ * sizes inside the span (door and window height as typed; none on a gable
+ * wall, whose triangle is not in the sheet order). opts.openings is the
+ * wall's `openings` list from the plan.
+ * @param {{pcf?: number, ptPcf?: number, sheathPsf?: number, openings?: {offset: number, width: number, height: number}[]}} [opts]
+ * @returns {{name: string, width: number, pieces: {size: string, length: number, kind: string, label: string, qty: number}[], pieceCount: number, lb: number, sheathLb: number, totalLb: number}[]}
  */
 export function panelParts(w, pan, opts = {}) {
   const pcf = opts.pcf ?? SPF_PCF, ptPcf = opts.ptPcf ?? PT_PCF;
@@ -94,6 +102,16 @@ export function panelParts(w, pan, opts = {}) {
       if (b - a > EPS) add(m, b - a);
     }
     const pieces = [...rows.values()].sort((a, b) => a.kind.localeCompare(b.kind) || b.length - a.length);
-    return { name: p.name, width: p.width, pieces, pieceCount: pieces.reduce((t, x) => t + x.qty, 0), lb: Math.round(lb * 10) / 10 };
+    let sheathLb = 0;
+    if (opts.sheathPsf > 0 && !w.gable && w.height > 0) {
+      let area = p.width * w.height;
+      for (const o of opts.openings || []) {
+        const ov = Math.min(o.offset + o.width, p.x1) - Math.max(o.offset, p.x0);
+        if (ov > EPS) area -= ov * Math.min(o.height, w.height);
+      }
+      sheathLb = Math.max(0, area) / 144 * opts.sheathPsf;
+    }
+    const r1 = (v) => Math.round(v * 10) / 10;
+    return { name: p.name, width: p.width, pieces, pieceCount: pieces.reduce((t, x) => t + x.qty, 0), lb: r1(lb), sheathLb: r1(sheathLb), totalLb: r1(lb + sheathLb) };
   });
 }

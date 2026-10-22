@@ -90,3 +90,12 @@ test("panelMax adds purple panel joints, a panel table and keeps the layout chec
   assert.doesNotMatch(html, /NaN|undefined/);
   assert.doesNotMatch(drawingSetHtml(r, plan), /Shop panels/);
 });
+
+test("sheathing weight adds Sheathing and Total columns to the panel table only when asked", async () => {
+  const { takeoff, samplePlan } = await import("./engine.mjs");
+  const plan = samplePlan(), r = takeoff(plan);
+  const plain = drawingSetHtml(r, plan, { panelMax: 144 });
+  const heavy = drawingSetHtml(r, plan, { panelMax: 144, sheathPsf: 1.5 });
+  assert.ok(!plain.includes("<th class=\"n\">Sheathing</th>"));
+  assert.ok(heavy.includes("<th class=\"n\">Sheathing</th>") && heavy.includes("1.5 lb per sq ft"));
+});
