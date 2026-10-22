@@ -172,6 +172,13 @@ await page.fill("#po-paste", "Transaction Date,Type,Amount,Fee,Net,Payout Date,P
 await page.click("#po-plan");
 const potext = await page.locator("#po-result").textContent();
 check(/111/.test(potext) && /not matched/.test(potext), "a payout report is read and shown with its unmatched payout");
+// PayPal and Square layouts: each is read from a paste and shown in the card.
+await page.fill("#po-paste", "Date,Time,Type,Status,Gross,Fee,Net,Transaction ID\n03/01/2026,10:00:00,Website Payment,Completed,100.00,-3.00,97.00,T1\n03/04/2026,09:00:00,General Withdrawal,Completed,-97.00,0.00,-97.00,W1\n");
+await page.click("#po-plan");
+check(/W1/.test(await page.locator("#po-result").textContent()), "a PayPal activity paste is grouped under its withdrawal");
+await page.fill("#po-paste", "Payout ID,Payout Date,Payment ID,Payment Date,Type,Gross Sales,Fees,Net Total\nsq9,2026-03-05,p1,2026-03-03,Card,100.00,-3.20,96.80\n");
+await page.click("#po-plan");
+check(/sq9/.test(await page.locator("#po-result").textContent()), "a Square payout paste is read and shown");
 await page.fill("#po-paste", "nonsense\n1\n");
 await page.click("#po-plan");
 check(/column|payout id/i.test(await page.locator("#po-status").textContent()), "a report with no payout columns is refused");
