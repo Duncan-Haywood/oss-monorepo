@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "swe-costdrift"
+version = "0.1.0"
+description = "Does an agent run get more expensive over the days of the ledger? Theil-Sen trend with bootstrap intervals, by track"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
