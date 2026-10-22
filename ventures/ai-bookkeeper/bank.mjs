@@ -125,6 +125,7 @@ export function sniffBank(rows) {
     if (/^date\|time\|amount\|type\|description/.test(h)) return "ally";
     if (/^transaction date\|clearing date\|description\|merchant\|category\|type\|amount \(usd\)/.test(h)) return "apple-card";
     if (/^transaction date\|transaction type\|sort code\|account number\|transaction description\|debit amount\|credit amount/.test(h)) return "lloyds";
+    if (/^number\|date\|account\|amount\|subcategory\|memo/.test(h)) return "barclays";
     if (/^date\|description\|(card member\|account #\|)?amount/.test(h)) return "amex";
   }
   return null;
@@ -273,7 +274,7 @@ export function readStatement(text, { dayFirst = false, decimalComma = false, in
   const out = [];
   // Wise writes DD-MM-YYYY. Revolut lists pending, declined and reverted rows
   // beside completed ones and keeps the fee in its own column.
-  if (bank === "lloyds" || bank === "wise" || bank === "monzo" || bank === "starling") dayFirst = true;
+  if (bank === "lloyds" || bank === "barclays" || bank === "wise" || bank === "monzo" || bank === "starling") dayFirst = true;
   const hdr = headerAt === -1 ? [] : rows[headerAt].map(norm);
   if (bank === "monzo") columns.desc = hdr.indexOf("name");
   // Mercury lists Pending, Failed and Cancelled rows beside Sent ones.
