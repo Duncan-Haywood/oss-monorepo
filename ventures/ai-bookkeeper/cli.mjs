@@ -34,6 +34,7 @@ import { readPayoutReport, planPayouts, applyPayouts } from "./payouts.mjs";
 import { setTaxTreatment, taxDepreciation } from "./taxdepr.mjs";
 import { renderInvoice, setProfile, PROFILE_KEYS } from "./invoice.mjs";
 import { reminders } from "./collections.mjs";
+import { planBills } from "./billpay.mjs";
 import { renderStatement, customers } from "./statement.mjs";
 
 const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that learn from your corrections.
@@ -75,6 +76,7 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
   profile [KEY VALUE]     your details for invoices (name, address, email, taxId, payTo, terms); no arguments lists them
   invoice ID [--out FILE] [--as-of D]  a printable invoice or credit note (HTML; print to PDF) with payments, balance due and overdue days
   reminders [--as-of D] [--min AMOUNT] [--out DIR]  a payment reminder draft per customer with overdue invoices (friendly, firm or final by days late)
+  paybills [--as-of D] [--days N] [--reserve AMOUNT] [--json]  when to pay each open bill so the bank balance stays above a reserve: due date, held back for cash, or cannot fit
   statement [CUSTOMER] [--from D] [--out FILE]  a printable statement of account (HTML) with running balance and what is past due; no customer lists who owes what
   writeoff ID [--date D]  write off an invoice's unpaid balance to bad debts (6900), or record a bill the supplier forgave as other income (4100)
   recurring [--as-of D] [--json]  payees that repeat on a steady interval: cost per year, next date, and which went overdue, lapsed or changed amount
@@ -292,6 +294,12 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
     console.log(`${x.party.slice(0, 28).padEnd(28)} ${x.tone.padEnd(8)} ${String(x.daysLate).padStart(4)} days  ${fmt(x.overdue).padStart(12)}  ${x.invoices.length} invoice${x.invoices.length > 1 ? "s" : ""}`);
   });
   console.log(r.length ? `${r.length} reminder${r.length > 1 ? "s" : ""}${dir ? ` written to ${dir}` : " (add --out DIR to write the drafts)"}.` : "Nothing overdue.");
+} else if (cmd === "paybills") {
+  const p = planBills(books, { asOf: asOf ?? null, days: +(flag("--days") ?? 90), reserve: Math.round(Number(flag("--reserve") ?? 0) * 100) });
+  if (json) { console.log(JSON.stringify(p, null, 2)); process.exit(0); }
+  console.log(`BILL PLAN ${p.asOf} to ${p.to}: cash ${fmt(p.start)}, reserve ${fmt(p.reserve)}, lowest after paying ${fmt(p.lowest.cents)} on ${p.lowest.date}.`);
+  for (const r of p.rows) console.log(`  ${r.payOn}  ${fmt(r.cents).padStart(11)}  ${r.id.padEnd(12)} ${r.party.slice(0, 24).padEnd(24)} due ${r.due}  ${r.status}${r.note ? ` - ${r.note}` : ""}`);
+  console.log(p.rows.length ? (p.shortfall ? `${fmt(p.shortfall)} of bills cannot be covered inside the window.` : "Every bill fits.") : "No open bills.");
 } else if (cmd === "statement") {
   try {
     if (!rest[0]) { for (const c of customers(books)) console.log(`${c.party.slice(0, 30).padEnd(30)} ${fmt(c.owed).padStart(12)}`); process.exit(0); }
