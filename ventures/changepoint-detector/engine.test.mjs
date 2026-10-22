@@ -1237,3 +1237,15 @@ test('sticky series without --ar1 carry a range warning, white noise and --ar1 d
   assert.equal(analyze({ values: make(0) }).rangeWarning, undefined);
   assert.equal(analyze({ values: make(0.7), ar1: true }).rangeWarning, undefined);
 });
+
+test('clumpy counts under the plain Poisson cost carry a range warning, the nb cost and clean Poisson counts do not', () => {
+  let seed = 5;
+  const rnd = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return (seed + 0.5) / 4294967296; };
+  // a clumpy count: a Poisson draw whose mean is multiplied by a random factor of mean 1 (variance 0.3)
+  const pois = (m) => { const L = Math.exp(-m); let k = 0, p = 1; do { k++; p *= rnd(); } while (p > L); return k - 1; };
+  const clumpy = Array.from({ length: 200 }, (_, t) => pois((t >= 100 ? 20 : 10) * (0.05 + 1.9 * rnd())));
+  const clean = Array.from({ length: 200 }, (_, t) => pois(t >= 100 ? 20 : 10));
+  assert.match(analyze({ values: clumpy, model: 'poisson' }).rangeWarning, /negative-binomial/);
+  assert.equal(analyze({ values: clumpy, model: 'poisson', overdispersion: 'nb' }).rangeWarning, undefined);
+  assert.equal(analyze({ values: clean, model: 'poisson' }).rangeWarning, undefined);
+});
