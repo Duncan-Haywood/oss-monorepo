@@ -1551,7 +1551,7 @@ Annals*). Payments: gridlock resolution and liquidity-saving mechanisms (Bech an
 10. `infra-sorting` (done 2026-10-22; TACO annotations only, detector assumed not trained): robotic waste sorting. A detector trained on ZeroWaste or TACO, and a
     simulated conveyor pick cell (with track 4's twin) scored on purity, recovery and picks per
     minute against belt speed.
-11. `infra-netting`: liquidity in payment systems. A simulated RTGS day with a published
+11. `infra-netting` (done 2026-10-22; synthetic payments fitted to the paper's published bounds, Finnish delay reduction unexplained): liquidity in payment systems. A simulated RTGS day with a published
     payment-size distribution: how much liquidity bilateral and multilateral offsetting saves,
     and how much delay it costs, against the Bech-Soram&auml;ki algorithm.
 12. `infra-hvacmpc` (done 2026-10-22; envelope from recalled ASHRAE 140 values, no measured dataset reachable so nothing fitted): heating and cooling control. A grey-box RC building model fitted to an
