@@ -24,6 +24,11 @@
     "seconds": 596.6,
     "voice": "en_US-ljspeech-high"
   },
+  "nicholas-and-the-three-bags-of-gold": {
+    "bytes": 3014350,
+    "seconds": 502.3,
+    "voice": "en_US-ljspeech-high"
+  },
   "notes-dot-md": {
     "bytes": 7372335,
     "seconds": 1228.6,
@@ -42,6 +47,11 @@
   "the-grader": {
     "bytes": 5381959,
     "seconds": 896.9,
+    "voice": "en_US-ljspeech-high"
+  },
+  "the-ice-road": {
+    "bytes": 8090964,
+    "seconds": 1348.4,
     "voice": "en_US-ljspeech-high"
   },
   "the-last-message-in-the-window": {

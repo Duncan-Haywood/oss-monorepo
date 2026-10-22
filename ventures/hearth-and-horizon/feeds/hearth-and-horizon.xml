@@ -24,6 +24,8 @@
       <itunes:summary>A warm March is thinning the winter road that brings a northern town its last fuel before the summer barge. A thirty-year tanker driver is told by the road's monitoring AI that her truck is too heavy for the crossing, and the fuel has to come in on small sleds, a few at a time, before the ice closes. The town pays for it by switching things off.</itunes:summary>
       <itunes:episodeType>full</itunes:episodeType>
       <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://example.invalid/hearth-and-horizon/audio/the-ice-road.mp3" length="8090964" type="audio/mpeg"/>
+      <itunes:duration>0:22:28</itunes:duration>
     </item>
     <item>
       <title>The Patches</title>

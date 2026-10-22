@@ -60,6 +60,8 @@
       <itunes:summary>A bedtime story about Saint Nicholas of Myra and the old tale of the poor father with three daughters, and the gold that appeared on three dark nights. Told as the old story tells it, with a note for grown-ups on what is history and what is legend. For ages 3 to 8, about ten minutes read aloud. His feast day is the 6th of December.</itunes:summary>
       <itunes:episodeType>full</itunes:episodeType>
       <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://example.invalid/hearth-and-horizon/audio/nicholas-and-the-three-bags-of-gold.mp3" length="3014350" type="audio/mpeg"/>
+      <itunes:duration>0:08:22</itunes:duration>
     </item>
     <item>
       <title>Thérèse and the Small Way</title>
