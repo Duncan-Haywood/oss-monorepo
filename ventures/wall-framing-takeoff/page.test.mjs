@@ -51,7 +51,7 @@ test("every static control has a label, and generated rows label their inputs", 
 
 test("the module script imports only local files, its names exist, and it parses", async () => {
   const html = page("index.html");
-  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./drawings.mjs", "./engine.mjs", "./sheathing.mjs", "./usage.mjs"]);
+  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./drawings.mjs", "./engine.mjs", "./panels.mjs", "./sheathing.mjs", "./usage.mjs"]);
   const names = html.match(/import \{([^}]+)\} from "\.\/engine\.mjs"/)[1].split(",").map((s) => s.trim());
   const engine = await import("./engine.mjs");
   for (const name of names) assert.ok(name in engine, name);
@@ -105,4 +105,11 @@ test("the walls table has a tee-lap field that round-trips through the plan", ()
   assert.match(html, /Butts into \(tee lap\)/);
   assert.match(html, /function teeField\(w, L, bad\)/);
   assert.match(html, /tee: w\.tee \?/);
+});
+
+test("the page downloads the shop-panel lumber order and pull lists through panels.mjs", () => {
+  const html = page("index.html");
+  assert.match(html, /id="panelOrderBtn"/);
+  assert.match(html, /panelOrder\(last\.result, last\.plan, panelMax, last\.nailers\)/);
+  assert.match(html, /panelPullText\(po\)/);
 });
