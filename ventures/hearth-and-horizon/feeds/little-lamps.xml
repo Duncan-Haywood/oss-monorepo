@@ -16,6 +16,16 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>Brigid and the Cloak</title>
+      <link>https://example.invalid/hearth-and-horizon/brigid-and-the-cloak.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/brigid-and-the-cloak.html</guid>
+      <pubDate>Thu, 22 Oct 2026 12:00:00 GMT</pubDate>
+      <description>A bedtime story about Saint Brigid of Kildare, who asked a king for only as much land as her cloak could cover, and the cloak that went on spreading. Told as the old tradition tells it, with a note for grown-ups on what is history and what is legend. For ages 3 to 8, about ten minutes read aloud. Her feast day is the 1st of February. Setting: Ireland, in the time of the old kings, about fifteen hundred years ago. Read the full text at https://example.invalid/hearth-and-horizon/brigid-and-the-cloak.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A bedtime story about Saint Brigid of Kildare, who asked a king for only as much land as her cloak could cover, and the cloak that went on spreading. Told as the old tradition tells it, with a note for grown-ups on what is history and what is legend. For ages 3 to 8, about ten minutes read aloud. Her feast day is the 1st of February.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>Francis and the Wolf of Gubbio</title>
       <link>https://example.invalid/hearth-and-horizon/francis-and-the-wolf-of-gubbio.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/francis-and-the-wolf-of-gubbio.html</guid>
