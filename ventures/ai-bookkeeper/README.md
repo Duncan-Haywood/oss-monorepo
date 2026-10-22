@@ -292,6 +292,8 @@ health insurance or self-employment tax, and the meals rule has exceptions. The 
 map is from the form's layout as the author knows it, not checked against this year's
 instructions; confirm each line with your preparer. Test: `taxforms.test.mjs`.
 
+**Preparer pack (2026-10-22).** `cli.mjs taxpack YEAR [--out DIR]` (`taxPack(books, year)` in `taxpack.mjs`) writes one folder for a bookkeeper or tax preparer: trial balance, profit and loss, balance sheet, full journal, Schedule C lines, self-employment tax, the 1099-NEC list and filing sheet, Form 941/940 worksheets, sales tax by month, tax depreciation, the mileage log and the close checks, plus `INDEX.txt` listing the files, the ones left out because nothing is behind them, and what to look at first (a contractor over the line with no W-9, an unmapped account, a failing close check). It only gathers what the other modules compute; hand-made fixtures only, so try it on a real year. Test: `taxpack.test.mjs`.
+
 ## Mileage and home office (US)
 
 Two deductions a bank feed never shows. `trip add MILES --date D --purpose TEXT [--from A --to B]`
