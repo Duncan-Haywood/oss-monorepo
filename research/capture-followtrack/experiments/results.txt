@@ -1,0 +1,24 @@
+capture-followtrack: drone, 0.1 people/m2, 8 seeds x 240 s, planner radius 1.5 m; mean +- 95% CI (t~1.96)
+
+setting | framed % | contacts/h
+ignore | 99.8 +- 0.2 | 523 +- 53
+repulsion gain 1.2 | 67.8 +- 3.8 | 161 +- 44
+planner, exact | 58.0 +- 5.0 | 36 +- 15
+
+== sigma (m) x latency (s): planner + tracker
+sigma 0.1 latency 0.0 | 57.3 +- 3.1 | 45 +- 15
+sigma 0.1 latency 0.25 | 57.8 +- 3.5 | 58 +- 16
+sigma 0.1 latency 0.5 | 57.8 +- 5.2 | 94 +- 23
+sigma 0.1 latency 1.0 | 58.3 +- 3.3 | 158 +- 28
+sigma 0.3 latency 0.0 | 56.9 +- 3.6 | 107 +- 20
+sigma 0.3 latency 0.25 | 57.1 +- 4.2 | 120 +- 30
+sigma 0.3 latency 0.5 | 57.7 +- 3.3 | 135 +- 39
+sigma 0.3 latency 1.0 | 58.3 +- 4.5 | 223 +- 58
+sigma 0.6 latency 0.0 | 56.9 +- 4.0 | 199 +- 39
+sigma 0.6 latency 0.25 | 59.0 +- 4.3 | 231 +- 31
+sigma 0.6 latency 0.5 | 58.6 +- 4.1 | 249 +- 53
+sigma 0.6 latency 1.0 | 59.7 +- 3.0 | 257 +- 20
+sigma 1.0 latency 0.0 | 58.2 +- 3.0 | 292 +- 42
+sigma 1.0 latency 0.25 | 58.7 +- 3.3 | 311 +- 61
+sigma 1.0 latency 0.5 | 58.2 +- 2.8 | 341 +- 37
+sigma 1.0 latency 1.0 | 60.6 +- 3.0 | 373 +- 54
