@@ -174,3 +174,21 @@ test("Venmo: preamble and balance rows skipped, pending rows reported, the other
   assert.equal(r.rows[2].desc, "Standard Transfer");
   assert.equal(r.problems.length, 1, "the pending lunch payment is reported, not imported");
 });
+
+test("Cash App: net amount after the fee, canceled payments reported, payee named", () => {
+  const r = read("cashapp-report.csv");
+  assert.equal(r.bank, "cash-app");
+  assert.deepEqual(r.rows.map((x) => x.cents), [11652, -4500, -10000]);
+  assert.deepEqual(r.rows.map((x) => x.date), ["2026-03-02", "2026-03-03", "2026-03-05"]);
+  assert.equal(r.rows[0].desc, "Pat Customer - Fence repair deposit");
+  assert.equal(r.rows[2].desc, "Cash out");
+  assert.equal(r.problems.length, 1);
+});
+
+test("SoFi: pending rows skipped, balance chain holds", () => {
+  const r = read("sofi-checking.csv");
+  assert.equal(r.bank, "sofi");
+  assert.deepEqual(r.rows.map((x) => x.cents), [125, -1199, 30000]);
+  assert.equal(r.problems.length, 1);
+  assert.deepEqual(checkRunningBalance(r.rows).breaks, []);
+});
