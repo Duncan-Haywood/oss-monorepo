@@ -100,3 +100,11 @@ test("--floor lays the plan's floor and orders its lumber with the walls", async
   assert.match(out, /Subfloor: \d+ sheets/);
   assert.match(out, /2x10/);
 });
+
+test("--floor reads a stairwell opening with feet-and-inches lengths", async () => {
+  const { sampleFloor } = await import("./floor.mjs");
+  const plan = { ...samplePlan(), floor: { ...sampleFloor(), openings: [{ x: "8ft 4in", y: "3ft 4in", width: "3ft", depth: "8ft 4in" }] } };
+  const { code, out } = main(["p.json", "--floor"], () => JSON.stringify(plan));
+  assert.equal(code, 0, out);
+  assert.match(out, /1 opening \(.* clear\)/);
+});

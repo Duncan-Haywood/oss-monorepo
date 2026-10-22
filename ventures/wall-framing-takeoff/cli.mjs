@@ -71,6 +71,7 @@ export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "u
   if (flags.has("--floor") || plan.floor) {
     if (!plan.floor) return { code: 2, out: "The plan has no `floor` object (width, depth, joist, spacing, beam)." };
     for (const k of ["width", "depth", "beam"]) if (typeof plan.floor[k] === "string") plan.floor[k] = parseLength(plan.floor[k]);
+    for (const o of plan.floor.openings || []) for (const k of ["x", "y", "width", "depth"]) if (typeof o[k] === "string") o[k] = parseLength(o[k]);
     floor = layoutFloor(plan.floor, plan);
     if (!floor.ok) return { code: 1, out: `The floor has problems:\n${floor.errors.map((e) => `  - ${e}`).join("\n")}` };
   }
