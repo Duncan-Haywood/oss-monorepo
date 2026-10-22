@@ -1,0 +1,6 @@
+{
+ "theme": "codesign",
+ "title": "Does a small neural roll controller beat the three-gain PID on a randomised quadrotor, and does it change which airframe is best?",
+ "lede": "does a 31-parameter neural roll controller beat the three-gain PID on a randomised quadrotor? Not at equal evaluations (7.7° PID against 9.0°); with 10× the evaluations it only matches it (7.6°), and the airframe ranking is unchanged (Spearman 1.00).",
+ "summary": "Follow-up to <code>codesign-aero-robust</code>: a 6-unit tanh network (31 parameters) trained by CMA-ES replaces the three-gain PID roll law on six airframes spanning the wide-plant ranking, three seeds each, scored on 64 held-out wide-plant episodes. At the same 96 evaluations the network is worse on 5 of 6 airframes (mean 8.96&deg; against 7.72&deg;); at 960 evaluations it matches the PID (7.59&deg;, gains of 0.00 to 0.09&deg; on five airframes and 0.53&deg; on one). The best airframe and the ranking (Spearman 1.00) do not change, so the three-gain law did not distort the earlier sizing result. Limits: evolution strategies rather than PPO, no skip path, six airframes, roll only; the plant and randomisation ranges are assumed round numbers carried over from <code>codesign-aero</code>, not measurements."
+}
