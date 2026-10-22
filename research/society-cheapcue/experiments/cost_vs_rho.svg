@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of urgent, normal and overall cost per door encounter against rho, the cost of the urgency cue to urgent people as a share of its cost to normal people, 30 percent robots; urgent cost falls from 1.31 to 0.69 as rho goes from 1 to 0 while normal cost stays near 1.10">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Signal-reading robots: cost per encounter against the urgent people's relative signal cost</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="285.4" y2="285.4" stroke="#ddd"/><text x="58" y="289.4" text-anchor="end" font-family="sans-serif" font-size="11">0.2</text>
+<line x1="64" x2="624" y1="246.9" y2="246.9" stroke="#ddd"/><text x="58" y="250.9" text-anchor="end" font-family="sans-serif" font-size="11">0.4</text>
+<line x1="64" x2="624" y1="208.3" y2="208.3" stroke="#ddd"/><text x="58" y="212.3" text-anchor="end" font-family="sans-serif" font-size="11">0.6</text>
+<line x1="64" x2="624" y1="169.7" y2="169.7" stroke="#ddd"/><text x="58" y="173.7" text-anchor="end" font-family="sans-serif" font-size="11">0.8</text>
+<line x1="64" x2="624" y1="131.1" y2="131.1" stroke="#ddd"/><text x="58" y="135.1" text-anchor="end" font-family="sans-serif" font-size="11">1</text>
+<line x1="64" x2="624" y1="92.6" y2="92.6" stroke="#ddd"/><text x="58" y="96.6" text-anchor="end" font-family="sans-serif" font-size="11">1.2</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0</text>
+<text x="120.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.1</text>
+<text x="204.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.25</text>
+<text x="260.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.35</text>
+<text x="344.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.5</text>
+<text x="484.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.75</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">rho = urgent cue cost / normal cue cost</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">cost per encounter</text>
+<polyline points="624.0,71.2 484.0,102.8 344.0,133.1 260.0,150.8 204.0,162.6 120.0,180.1 64.0,191.7" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#c0392b"/>
+<circle cx="484.0" cy="102.8" r="3" fill="#c0392b"/>
+<circle cx="344.0" cy="133.1" r="3" fill="#c0392b"/>
+<circle cx="260.0" cy="150.8" r="3" fill="#c0392b"/>
+<circle cx="204.0" cy="162.6" r="3" fill="#c0392b"/>
+<circle cx="120.0" cy="180.1" r="3" fill="#c0392b"/>
+<circle cx="64.0" cy="191.7" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">urgent</text>
+<polyline points="624.0,111.3 484.0,111.3 344.0,111.3 260.0,111.3 204.0,111.3 120.0,111.3 64.0,111.3" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="624.0" cy="111.3" r="3" fill="#1f6fb2"/>
+<circle cx="484.0" cy="111.3" r="3" fill="#1f6fb2"/>
+<circle cx="344.0" cy="111.3" r="3" fill="#1f6fb2"/>
+<circle cx="260.0" cy="111.3" r="3" fill="#1f6fb2"/>
+<circle cx="204.0" cy="111.3" r="3" fill="#1f6fb2"/>
+<circle cx="120.0" cy="111.3" r="3" fill="#1f6fb2"/>
+<circle cx="64.0" cy="111.3" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">normal</text>
+<polyline points="624.0,92.4 484.0,97.6 344.0,102.2 260.0,104.7 204.0,106.5 120.0,109.0 64.0,110.5" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="624.0" cy="92.4" r="3" fill="#2e8b57"/>
+<circle cx="484.0" cy="97.6" r="3" fill="#2e8b57"/>
+<circle cx="344.0" cy="102.2" r="3" fill="#2e8b57"/>
+<circle cx="260.0" cy="104.7" r="3" fill="#2e8b57"/>
+<circle cx="204.0" cy="106.5" r="3" fill="#2e8b57"/>
+<circle cx="120.0" cy="109.0" r="3" fill="#2e8b57"/>
+<circle cx="64.0" cy="110.5" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">everyone</text>
+</svg>
