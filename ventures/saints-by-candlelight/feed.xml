@@ -17,6 +17,20 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>Herman and the Garden on Spruce Island</title>
+      <link>https://example.invalid/saints-by-candlelight/herman-and-the-garden-on-spruce-island.html</link>
+      <guid isPermaLink="false">saints-by-candlelight-herman-and-the-garden-on-spruce-island</guid>
+      <pubDate>Thu, 22 Oct 2026 20:00:00 GMT</pubDate>
+      <description>A Russian monk sails for the edge of the world, ends up on a small spruce-covered island off Kodiak, and spends forty years growing cabbages, baking bread and teaching children. Saint Herman of Alaska, who is loved by the Orthodox Church and who has a very good way with seaweed. What&#39;s true: that Herman was born in Russia about 1756, became a monk, lived at Valaam on Lake Ladoga, sailed with the Russian mission to Kodiak in 1794, later lived as a hermit on Spruce Island which he called New Valaam, grew a garden, kept an orphans&#39; school, helped the Alutiiq people against harsh treatment, nursed the sick in the epidemic of 1819 and died in 1837, is well attested Legend: the stories of the bear and the ermines, of the wave that stopped at the shore, and of the fire in the forest are traditions told by his students and by people who knew him, written down some time after the events; we tell them as traditions and not as official history Invented for this episode: the children Anna and Peter, their conversations, the weather on each day, the particular cabbages, the jokes, and the journey of the story as it is told here are our own invention, told in the spirit of the original; no new miracles are attributed to Herman Feast day: 13 December, the day of his death, and 9 August, the day he was proclaimed a saint, in the calendar of the Orthodox Church in America Full script and sources: https://example.invalid/saints-by-candlelight/herman-and-the-garden-on-spruce-island.html. Written by Claude, an AI model made by Anthropic, and read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A Russian monk sails for the edge of the world, ends up on a small spruce-covered island off Kodiak, and spends forty years growing cabbages, baking bread and teaching children. Saint Herman of Alaska, who is loved by the Orthodox Church and who has a very good way with seaweed.</itunes:summary>
+      <itunes:episode>11</itunes:episode>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://example.invalid/saints-by-candlelight/audio/herman-and-the-garden-on-spruce-island.mp3" length="9605623" type="audio/mpeg"/>
+      <itunes:duration>0:32:01</itunes:duration>
+      <podcast:transcript url="https://example.invalid/saints-by-candlelight/herman-and-the-garden-on-spruce-island.html" type="text/html"/>
+    </item>
+    <item>
       <title>Brendan and the Island That Moved</title>
       <link>https://example.invalid/saints-by-candlelight/brendan-and-the-island-that-moved.html</link>
       <guid isPermaLink="false">saints-by-candlelight-brendan-and-the-island-that-moved</guid>
