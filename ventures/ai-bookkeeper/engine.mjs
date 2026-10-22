@@ -21,6 +21,7 @@ import { FX_ACCOUNT, fxEntries, fxRegister as fxReg, convertRow, fxCurrency, for
 import { inventoryEntries, inventoryRegister, addInventoryMove, setInventoryMethod, INVENTORY_ACCOUNT } from "./inventory.mjs";
 import { prepaidEntries, prepaidRegister, addPrepaid, PREPAID_ACCOUNT } from "./prepaid.mjs";
 import { assetEntries, register, addAsset, disposeAsset, addAssetsCsv, ASSET_ACCOUNT } from "./assets.mjs";
+import { payrollEntries } from "./payroll.mjs";
 import { closingEntries } from "./yearend.mjs";
 import { openingEntry, setOpeningBalances, clearOpeningBalances } from "./opening.mjs";
 import { SAMPLE_CHECKING, SAMPLE_CARD } from "./example-data.mjs";
@@ -294,7 +295,7 @@ export function journal(books, { withClosing = false } = {}) {
     const deb = cents > 0;
     entries.push({ id: `OPEN-${code}`, date, memo: `Opening balance, ${map.get(code).name}`, source: "opening", lines: [{ account: code, debit: deb ? cents : 0, credit: deb ? 0 : -cents }, { account: "3000", debit: deb ? 0 : -cents, credit: deb ? cents : 0 }] });
   }
-  entries.push(...documentEntries(books), ...assetEntries(books), ...prepaidEntries(books), ...inventoryEntries(books), ...fxEntries(books));
+  entries.push(...documentEntries(books), ...assetEntries(books), ...prepaidEntries(books), ...inventoryEntries(books), ...fxEntries(books), ...payrollEntries(books));
   const seen = new Set();
   for (const t of books.transactions) {
     if (!t.posted || t.status === "review" || t.status === "new" || seen.has(t.id)) continue;

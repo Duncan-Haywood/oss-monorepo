@@ -31,6 +31,7 @@ import { compareProfit } from "./compare.mjs";
 import { addTrip, removeTrip, setHomeOffice, mileageDeduction } from "./deductions.mjs";
 import { setBudget, budgetVsActual } from "./budget.mjs";
 import { reconcile } from "./reconcile.mjs";
+import { addPayroll, planPayroll, applyPayroll, payrollSummary, form941, employerCost } from "./payroll.mjs";
 import { readPayoutReport, planPayouts, applyPayouts } from "./payouts.mjs";
 import { setTaxTreatment, taxDepreciation } from "./taxdepr.mjs";
 import { renderInvoice, setProfile, PROFILE_KEYS } from "./invoice.mjs";
@@ -97,6 +98,8 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
   anomalies [--json]     lines worth a second look: double charges, amounts far above a payee's usual, large first-time payees (candidates with a reason, not an audit)
  receipts [FILE (.txt, text-layer .pdf via pdftotext, or a photo via tesseract / RECEIPT_OCR_CMD)|attach RID LINEID|detach RID|remove RID|split RID [--other CODE] [--fix WORD=CODE]... [--apply]] [--min DOLLARS] [--tax] [--json]  receipt text (blocks split by ---) matched to bank lines; lists unmatched receipts and spending over --min (default 75) with no receipt
   compare [--from D --to D --vs-from D --vs-to D] [--json]  profit and loss against an earlier period (default: latest month vs the month before): what moved, what is new or gone
+  payroll FILE.csv [--apply]  book a payroll provider's pay-run report (wages, employer taxes, 2300) and find the bank lines that paid it; --apply files them to 2300
+  payroll [941 YEAR QUARTER]  runs, what is still owed, or a Form 941 worksheet from the register
   payouts FILE.csv [--apply] [--sales C --refunds C --fees C --disputes C] [--json]  split each processor payout (Stripe payout reconciliation CSV) in the bank into gross sales, refunds and fees; without --apply, shows the plan
   reconcile CODE --date D --balance AMT [--json]  tie an account to the closing balance on a paper statement; if it is off, name the lines that likely explain the gap
   budget [CODE AMOUNT] [--from D --to D] [--json]  set a monthly budget for an account (AMOUNT 0 removes it), or show budget against actual for the period (default: latest month)
@@ -444,6 +447,36 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
   for (const x of c.accounts) console.log(`  ${x.code} ${x.name.slice(0, 26).padEnd(26)} ${fmt(x.now).padStart(11)} ${fmt(x.then).padStart(11)} ${fmt(x.change).padStart(11)}  ${x.pct === null ? x.status : `${(x.pct * 100).toFixed(0)}%${x.status === "gone" ? " gone" : ""}`}${x.hurtsProfit ? "  lowers profit" : ""}`);
   if (c.empty) console.log(`Note: ${c.empty}.`);
   if (c.partial) console.log(`Note: ${c.partial}.`);
+} else if (cmd === "payroll") {
+  try {
+    if (rest[0] === "941") {
+      const f = form941(books, rest[1], rest[2]);
+      if (json) { console.log(JSON.stringify(f, null, 2)); process.exit(0); }
+      console.log(`FORM 941 WORKSHEET ${f.year} Q${f.quarter} (${f.from} to ${f.to}), ${f.runs} run${f.runs === 1 ? "" : "s"}`);
+      for (const [l, v] of [["Wages (line 2)", f.wages], ["Federal income tax withheld (line 3)", f.federalWithheld], ["Social security tax, both shares (line 5a)", f.socialSecurityTax], ["Medicare tax, both shares (line 5c)", f.medicareTax], ["Total taxes before adjustments", f.totalTaxes], ["Federal deposits due from the register", f.deposited], ["FUTA (Form 940)", f.futa]]) console.log(`  ${l.padEnd(46)} ${fmt(v).padStart(12)}`);
+      for (const w of f.warnings) console.log(`  CHECK ${w}`);
+      console.log("  Worksheet only: tips, adjustments, the social security wage base and credits are not modelled.");
+    } else if (rest[0] && existsSync(rest[0])) {
+      const r = addPayroll(books, readFileSync(rest[0], "utf8"));
+      books = r.books;
+      for (const p of r.problems) console.error(p);
+      const plan = planPayroll(books);
+      let result = null;
+      if (has("--apply")) result = applyPayroll(books, plan);
+      if (result) books = result.books;
+      save();
+      if (json) { console.log(JSON.stringify({ added: r.added, skipped: r.skipped, problems: r.problems, ...plan, applied: result?.posted ?? 0 }, null, 2)); process.exit(0); }
+      console.log(`${r.added.length} pay run${r.added.length === 1 ? "" : "s"} booked${r.skipped.length ? `, ${r.skipped.length} already in the books` : ""}.`);
+      for (const m of plan.matched) console.log(`  ${m.run.padEnd(24)} ${m.kind.padEnd(24)} ${fmt(m.amount).padStart(11)} -> line ${m.line} ${m.lineDate}${m.ambiguous ? "  AMBIGUOUS (skipped by --apply)" : ""}`);
+      for (const m of plan.unmatched) console.log(`  ${m.run.padEnd(24)} ${m.kind.padEnd(24)} ${fmt(m.amount).padStart(11)}  NOT MATCHED: ${m.why}`);
+      console.log(result ? `${result.posted} bank line${result.posted === 1 ? "" : "s"} filed to 2300.` : plan.matched.length ? "Add --apply to file these lines to 2300." : "Nothing to file.");
+    } else {
+      const s = payrollSummary(books);
+      if (json) { console.log(JSON.stringify({ ...s, register: books.payroll ?? [] }, null, 2)); process.exit(0); }
+      for (const r of books.payroll ?? []) console.log(`  ${r.date}  ${String(r.employees).padStart(3)} emp  gross ${fmt(r.gross).padStart(11)}  net ${fmt(r.net).padStart(11)}  employer ${fmt(employerCost(r)).padStart(10)}`);
+      console.log(`Accrued ${fmt(s.accrued)}, paid from the bank ${fmt(s.paid)}, still owed ${fmt(s.owed)}`);
+    }
+  } catch (e) { console.error(e.message); process.exit(1); }
 } else if (cmd === "payouts") {
   if (!rest[0] || !existsSync(rest[0])) { console.error("payouts needs the processor's payout reconciliation CSV, e.g. payouts stripe-payouts.csv [--apply]"); process.exit(2); }
   const roles = {};
