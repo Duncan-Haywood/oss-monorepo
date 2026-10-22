@@ -191,6 +191,11 @@ class BuildInputs(unittest.TestCase):
         api = fake_api(compare=[f"ventures/v{i}/index.html" for i in range(300)])
         self.assertIsNone(ps.read_changed_paths(api, "a" * 40, "b" * 40))
 
+    def test_a_missing_base_or_head_alone_is_none(self):
+        api = fake_api(compare=["ventures/v1/index.html"])
+        self.assertIsNone(ps.read_changed_paths(api, "", "b" * 40))
+        self.assertIsNone(ps.read_changed_paths(api, "a" * 40, ""))
+
     def test_an_unreadable_comparison_is_none(self):
         api = fake_api(compare_fail=True)
         self.assertIsNone(ps.read_changed_paths(api, "a" * 40, "b" * 40))
