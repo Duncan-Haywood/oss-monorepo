@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of mismatch rate and the along-epipolar, near and far shares of the mismatches against the ratio-test threshold, on a real stereo pair">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">What a real matcher's mismatches look like as the ratio test tightens</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="263.7" y2="263.7" stroke="#ddd"/><text x="58" y="267.7" text-anchor="end" font-family="sans-serif" font-size="11">0.2</text>
+<line x1="64" x2="624" y1="203.3" y2="203.3" stroke="#ddd"/><text x="58" y="207.3" text-anchor="end" font-family="sans-serif" font-size="11">0.4</text>
+<line x1="64" x2="624" y1="143.0" y2="143.0" stroke="#ddd"/><text x="58" y="147.0" text-anchor="end" font-family="sans-serif" font-size="11">0.6</text>
+<line x1="64" x2="624" y1="82.6" y2="82.6" stroke="#ddd"/><text x="58" y="86.6" text-anchor="end" font-family="sans-serif" font-size="11">0.8</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.6</text>
+<text x="204.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.7</text>
+<text x="344.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.8</text>
+<text x="484.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.9</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">ratio-test threshold (1.0 = no test)</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">fraction</text>
+<polyline points="624.0,154.1 484.0,253.7 344.0,293.2 204.0,305.6 64.0,309.8" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="624.0" cy="154.1" r="3" fill="#c0392b"/>
+<circle cx="484.0" cy="253.7" r="3" fill="#c0392b"/>
+<circle cx="344.0" cy="293.2" r="3" fill="#c0392b"/>
+<circle cx="204.0" cy="305.6" r="3" fill="#c0392b"/>
+<circle cx="64.0" cy="309.8" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">mismatch rate</text>
+<polyline points="624.0,304.7 484.0,267.6 344.0,207.5 204.0,136.0 64.0,99.8" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="624.0" cy="304.7" r="3" fill="#1f6fb2"/>
+<circle cx="484.0" cy="267.6" r="3" fill="#1f6fb2"/>
+<circle cx="344.0" cy="207.5" r="3" fill="#1f6fb2"/>
+<circle cx="204.0" cy="136.0" r="3" fill="#1f6fb2"/>
+<circle cx="64.0" cy="99.8" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">share along epipolar line</text>
+<polyline points="624.0,294.4 484.0,260.3 344.0,237.4 204.0,244.3 64.0,254.9" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="624.0" cy="294.4" r="3" fill="#2e8b57"/>
+<circle cx="484.0" cy="260.3" r="3" fill="#2e8b57"/>
+<circle cx="344.0" cy="237.4" r="3" fill="#2e8b57"/>
+<circle cx="204.0" cy="244.3" r="3" fill="#2e8b57"/>
+<circle cx="64.0" cy="254.9" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">share near (10-40 px)</text>
+<polyline points="624.0,71.2 484.0,142.4 344.0,225.3 204.0,289.9 64.0,315.3" fill="none" stroke="#8e44ad" stroke-width="2"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#8e44ad"/>
+<circle cx="484.0" cy="142.4" r="3" fill="#8e44ad"/>
+<circle cx="344.0" cy="225.3" r="3" fill="#8e44ad"/>
+<circle cx="204.0" cy="289.9" r="3" fill="#8e44ad"/>
+<circle cx="64.0" cy="315.3" r="3" fill="#8e44ad"/>
+<rect x="574" y="32" width="14" height="10" fill="#8e44ad"/><text x="594" y="41" font-family="sans-serif" font-size="11">share far</text>
+</svg>
