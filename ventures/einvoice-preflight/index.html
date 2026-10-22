@@ -127,7 +127,7 @@
         <button id="adjustmentSample" class="secondary" type="button">Load a header discount that does not match its percent</button>
         <button id="termsSample" class="secondary" type="button">Load terms days that do not match the due date</button>
         <button id="validSample" class="secondary" type="button">Load a passing example</button>
-        <button id="repair" class="secondary" type="button">Repair the arithmetic (JSON or UBL)</button>
+        <button id="repair" class="secondary" type="button">Repair the arithmetic (JSON, UBL or CII)</button>
       </div>
       <p id="inputError" class="error" role="alert"></p>
       <div id="repairLog" aria-live="polite"></div>
@@ -226,6 +226,8 @@
     import { addOfficialFindings, officialNote } from "./official.mjs";
     import { repairInvoice } from "./repair.mjs";
     import { repairUbl } from "./repair-ubl.mjs";
+    import { repairCii } from "./repair-cii.mjs";
+    import { looksLikeCii } from "./cii.mjs";
     import { recordUsage, readOptOut, writeOptOut } from "./usage.mjs";
 
     const VALID_EXAMPLE = {
@@ -459,30 +461,21 @@
       const log = document.getElementById("repairLog");
       log.innerHTML = "";
       inputError.textContent = "";
-      if (paste.value.trimStart().startsWith("<")) {
-        let x;
-        try { x = repairUbl(paste.value); } catch (e) { inputError.textContent = "Repair reads UBL Invoice or CreditNote XML; this one could not be read: " + e.message; return; }
-        const skippedNote = x.skipped.length ? ` Left alone: ${x.skipped.map((t) => escapeHtml(String(t))).join("; ")}.` : "";
-        if (!x.repaired) {
-          log.innerHTML = `<p class="note">Nothing to repair in this UBL file: the line nets, tax amounts and totals already follow from the lines.${skippedNote}</p>`;
-          return;
-        }
-        paste.value = x.xml;
-        filesInput.value = "";
-        dropped = [];
-        const xrows = x.changes.map((c) => `<tr><td><code>${escapeHtml(c.path)}</code></td><td>${escapeHtml(String(c.from))}</td><td>${escapeHtml(String(c.to))}</td><td>${escapeHtml(c.reason)}</td></tr>`).join("");
-        log.innerHTML = `<p class="note">Repaired ${x.changes.length} value(s) in the XML above; every other byte is unchanged. Rates, dates, identifiers and parties are never touched; ${x.remaining.length} finding(s) still need a person.${skippedNote}</p><table><thead><tr><th>Path</th><th>Was</th><th>Now</th><th>Why</th></tr></thead><tbody>${xrows}</tbody></table>`;
-        document.getElementById("check").click();
+      const text = paste.value;
+      const isXml = text.trimStart().startsWith("<");
+      let out;
+      try {
+        out = isXml ? (looksLikeCii(text) ? repairCii(text) : repairUbl(text)) : repairInvoice(JSON.parse(text));
+      } catch (e) {
+        inputError.textContent = isXml ? `Repair could not read this XML as a UBL or CII invoice: ${e.message}` : "Repair works on a pasted JSON invoice or one UBL or CII XML file. Paste one first.";
         return;
       }
-      let invoice;
-      try { invoice = JSON.parse(paste.value); } catch { inputError.textContent = "Repair works on a pasted JSON invoice or UBL XML. Paste one first."; return; }
-      const out = repairInvoice(invoice);
       if (!out.repaired) {
-        log.innerHTML = '<p class="note">Nothing to repair: line nets, totals and amount due already follow from the lines (or the lines are not complete enough to recompute).</p>';
+        const why = (out.skipped || []).length ? " " + out.skipped.map(escapeHtml).join(" ") : "";
+        log.innerHTML = '<p class="note">Nothing to repair: line nets, totals and amount due already follow from the lines (or the lines are not complete enough to recompute).' + why + '</p>';
         return;
       }
-      paste.value = JSON.stringify(out.invoice, null, 2);
+      paste.value = isXml ? out.xml : JSON.stringify(out.invoice, null, 2);
       filesInput.value = "";
       dropped = [];
       const rows = out.changes.map((c) => `<tr><td><code>${escapeHtml(c.path)}</code></td><td>${escapeHtml(String(c.from))}</td><td>${escapeHtml(String(c.to))}</td><td>${escapeHtml(c.reason)}</td></tr>`).join("");

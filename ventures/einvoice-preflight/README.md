@@ -638,7 +638,7 @@ value, new value, reason), re-runs the checks on the result and lists what is
 left. It never chooses a tax rate, date, identifier, bank detail or party:
 those findings stay for a person (exit 1 while any remain). If a line's
 quantity, price or tax percent is invalid, no totals are touched. Tests in
-`repair.test.mjs` and `server.test.mjs`. The web page has a "Repair the arithmetic (JSON)" button (paste JSON, click, read the change table; clicked through with `eval/browser-repair.mjs`).
+`repair.test.mjs` and `server.test.mjs`. The web page has a "Repair the arithmetic (JSON, UBL or CII)" button (paste JSON, click, read the change table; clicked through with `eval/browser-repair.mjs`).
 
 ## Repair a UBL file
 
@@ -656,7 +656,23 @@ or category. The result is re-parsed and re-checked. On
 `examples/ubl-invoice-with-defects.xml` it fixes 3 amounts and clears
 INV-017, INV-018, INV-029 and INV-038; INV-021 (due date) and INV-045 (no
 IBAN) stay for a person. Tested on the repo's hand-written UBL examples only
-(`repair-ubl.test.mjs`, `server.test.mjs`); not tried on a real ERP export,
-and CII is not covered. The web page's repair button takes UBL as well as JSON
-(clicked through in headless Chromium with `eval/browser-repair.mjs`, which breaks
-the example's gross total and checks it comes back to 398.50).
+(`repair-ubl.test.mjs`, `server.test.mjs`); not tried on a real ERP export.
+
+## Repair a CII file (XRechnung CII, ZUGFeRD, Factur-X XML)
+
+The same command and endpoint take a `CrossIndustryInvoice` file
+(`repair-cii.mjs`; the CLI and `POST /v1/repair` pick CII or UBL by content).
+Same contract as UBL: only amounts are edited, in place: each line's
+`LineTotalAmount` (quantity x net price / basis quantity), each header
+`ApplicableTradeTax` block's `BasisAmount` and `CalculatedAmount`, and the
+header monetary summation (line total, tax basis, tax, grand total, amount due
+= grand - prepaid + rounding). Skipped, and said so: lines with their own
+allowance, charge or sub-line, header allowances or charges, more than one
+`TaxTotalAmount`, and tax groups that do not match the header blocks one to
+one. On `examples/xrechnung-cii-credit-note-with-defects.xml` it fixes the
+wrong VAT amount (150.00 to 190.00) and leaves the type code and missing
+fields for a person. Hand-written examples only (`repair-cii.test.mjs`,
+`server.test.mjs`), no real ERP or Factur-X export tried. The web page's
+repair button takes pasted JSON, UBL or CII (clicked through in headless
+Chromium with `eval/browser-repair.mjs`, which pastes the defective CII
+credit note).
