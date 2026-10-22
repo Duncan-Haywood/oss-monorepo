@@ -78,7 +78,7 @@ flagships:
       Landed history (Poisson, seasonal, --ar1 and joint AR(1), trend, holidays,
       bursts, change-date range95 incl. counts, seasonal and trend, each measured
       on seeded series; slope-change range 2026-10-22) lives in the README and git.
-      Open: slope-change range for counts (growth bends), or range95 on a real
+      Slope-change range for counts landed 2026-10-22 (growthChangeRange95; coverage 28/30 on one seeded design only). Open: measure it with --period / nb / two bends, or range95 on a real
       series with a true holiday closure or documented slope break.
   - venture: einvoice-preflight
     why: >-

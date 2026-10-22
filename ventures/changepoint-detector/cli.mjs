@@ -96,6 +96,10 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
     lines.push('', 'Likely range for each slope change (95%, other bends held fixed):');
     for (const x of r.trend.slopeChangeRange95) lines.push(`  ${x.at}: ${x.from === x.to ? 'that point only' : `${x.from} – ${x.to}`}`);
   }
+  if (r.trend && r.trend.growthChangeRange95) {
+    lines.push('', 'Likely range for each growth-rate change (95%, other bends held fixed):');
+    for (const x of r.trend.growthChangeRange95) lines.push(`  ${x.at}: ${x.from === x.to ? 'that point only' : `${x.from} – ${x.to}`}`);
+  }
   if (r.bocpd.detections.length) {
     lines.push('', `Bayesian changes (probability >= ${r.bocpd.threshold}):`);
     for (const d of r.bocpd.detections) lines.push(`  ${d.label}  ${(d.probability * 100).toFixed(0)}%`);

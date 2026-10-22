@@ -1264,3 +1264,17 @@ test('a slope change carries a 95% range that holds the planted bend', () => {
   assert.ok(c.toIndex - c.fromIndex < 60);
   assert.equal(analyze({ values: x.map((_, t) => 0.1 * t + gauss()), trend: 'bend' }).trend.slopeChangeRange95, undefined);
 });
+
+test('a growth-rate change in counts carries a 95% range that holds the planted bend', () => {
+  let seed = 11;
+  const rnd = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return (seed + 0.5) / 4294967296; };
+  const pois = (l) => { const L = Math.exp(-l); let k = 0, p = 1; do { k++; p *= rnd(); } while (p > L); return k - 1; };
+  const at = 100;
+  const x = Array.from({ length: 200 }, (_, t) => pois(10 * Math.exp(0.004 * t + 0.02 * Math.max(0, t - at))));
+  const r = analyze({ values: x, model: 'poisson', trend: 'bend' }).trend;
+  assert.equal(r.growthChangeRange95.length, 1);
+  const c = r.growthChangeRange95[0];
+  assert.ok(c.fromIndex <= r.growthChangesAt && r.growthChangesAt <= c.toIndex);
+  assert.ok(c.fromIndex <= at && at <= c.toIndex, `range ${c.fromIndex}-${c.toIndex}`);
+  assert.ok(c.toIndex - c.fromIndex < 70);
+});
