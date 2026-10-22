@@ -144,3 +144,23 @@ test("form 940 asks for a deposit once the running FUTA passes 500", () => {
   assert.deepEqual(f.deposits, [63000, 0, 0, 0]);
   assert.equal(f.dueWithReturn, 0);
 });
+
+test("the bank line nearest the pay date wins when two have the same amount", () => {
+  const bank = importStatement(newBooks(), "Date,Description,Amount\n2026-03-11,GUSTO NET PAY,-2420.50\n2026-03-14,GUSTO NET PAY,-2420.50\n", "1000").books;
+  const { books } = addPayroll(bank, REG);
+  const m = planPayroll(books).matched.find((x) => x.kind === "net pay" && x.amount === 242050);
+  assert.equal(m.lineDate, "2026-03-14");
+  assert.equal(m.ambiguous, false);
+});
+
+test("form 941 takes quarters 1 to 4 only", () => {
+  const { books } = addPayroll(newBooks(), REG);
+  for (const q of [1, 2, 3, 4]) assert.doesNotThrow(() => form941(books, 2026, q));
+  for (const q of [0, 5]) assert.throws(() => form941(books, 2026, q), /Quarter is 1 to 4/);
+});
+
+test("form 940 reports the wages over the FUTA base as exempt", () => {
+  const row = (d, futa) => `${d},Ana,5000.00,0.00,0.00,0.00,0.00,0.00,5000.00,0.00,0.00,${futa},0.00`;
+  const { books } = addPayroll(newBooks(), `${HEAD}\n${row("2026-01-15", "30.00")}\n${row("2026-04-15", "12.00")}\n${row("2026-07-15", "0.00")}\n`);
+  assert.equal(form940(books, 2026).exemptOverBase, 800000);
+});
