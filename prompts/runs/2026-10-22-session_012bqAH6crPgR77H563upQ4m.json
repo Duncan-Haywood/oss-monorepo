@@ -47,7 +47,7 @@
   ],
   "writeups": [
     "prompts/drift/2026-10-22.md",
-    "prompts/experiments.md E70"
+    "prompts/experiments.md E71"
   ],
   "goal": null,
   "notes": "steering.md 161->136 lines; validate and prompts unittests pass.",
