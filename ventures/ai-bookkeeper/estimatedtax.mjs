@@ -53,7 +53,7 @@ const toCents = (v) => Math.round(+v * 100);
 // opts: year, monthsElapsed, filing (single|mfj|hoh), otherIncome, wages (W-2 wages,
 // cents), withholding (cents), priorYearTax and priorAgi (cents, from last year's
 // 1040), paid (cents of estimates already sent), asOf (YYYY-MM-DD), qbi (false to
-// skip the 20% deduction), brackets, standardDeduction, wageBase.
+// skip the 20% deduction), qbiMinimum ({ floor, threshold } cents, years after 2026), brackets, standardDeduction, wageBase.
 export function estimatedTax(books, o = {}) {
   const year = o.year ?? new Date().getFullYear();
   const filing = o.filing ?? "single";
@@ -72,17 +72,18 @@ export function estimatedTax(books, o = {}) {
   const beforeQbi = Math.max(0, agi - std);
   const qbiIncome = Math.max(0, profit - se.deduction);
   let qbiDeduction = o.qbi === false || profit <= 0 ? 0 : Math.min(Math.round(0.2 * qbiIncome), Math.round(0.2 * beforeQbi));
-  // IRC 199A(i), read at law.cornell.edu 2026-10-23: for an "applicable taxpayer" (aggregate QBI of at
-  // least $1,000 from trades or businesses they materially participate in, section 469(h)) the deduction is
-  // the greater of the usual one or $400. Both amounts are indexed for years beginning after 2026
-  // (paragraph (3)), which is not modelled. The statute does not say the floor is capped by taxable
-  // income; the cap here is a conservative assumption. Only bites for QBI of $1,000 to $2,000.
-  const floorApplies = o.qbi !== false && year >= 2026 && qbiIncome >= D(1000);
-  if (floorApplies && D(400) > qbiDeduction) {
-    qbiDeduction = Math.min(D(400), beforeQbi);
-    warnings.push("The $400 minimum QBI deduction (IRC 199A(i)) applies only if you materially participate in the business; if not, the deduction may be smaller.");
+  // IRC 199A(i), read at law.cornell.edu 2026-10-23: for tax years after 2025 the deduction is the
+  // greater of the usual figure and $400, for a taxpayer whose QBI from businesses they materially
+  // participate in is "at least" $1,000 (so exactly $1,000 qualifies). Both amounts are indexed for
+  // years after 2026 (subsection (i)(3), rounded to $5): pass qbiMinimum { floor, threshold } in cents
+  // for those years. Capped here by taxable income before the deduction. Only bites for QBI of $1,000
+  // to $2,000. Materially participating is the user's call; the page does not ask.
+  const qmin = { floor: D(400), threshold: D(1000), ...(o.qbiMinimum ?? {}) };
+  if (o.qbi !== false && year >= 2026 && qbiIncome >= qmin.threshold && qmin.floor > qbiDeduction) {
+    qbiDeduction = Math.min(qmin.floor, beforeQbi);
+    warnings.push("The minimum QBI deduction (IRC 199A(i)) applies only if you materially participate in the business; if not, the deduction may be smaller.");
   }
-  if (floorApplies && year >= 2027) warnings.push(`IRC 199A(i)(3) indexes the $400 and $1,000 amounts for ${year}; this uses the unindexed figures, so confirm the IRS amounts.`);
+  if (o.qbi !== false && year >= 2027 && !o.qbiMinimum) warnings.push(`The $400 minimum QBI deduction and its $1,000 threshold are indexed for ${year} (IRC 199A(i)(3)); pass qbiMinimum { floor, threshold } in cents from the IRS revenue procedure, or treat a small-QBI result as approximate.`);
   if (qbiDeduction && beforeQbi > ((QBI_LIMIT[year] ?? QBI_LIMIT[2026])[filing] ?? Infinity)) warnings.push("Taxable income is above the QBI threshold, where the 20% deduction may be limited or lost; treat the figure as a ceiling on the deduction.");
   const taxable = Math.max(0, beforeQbi - qbiDeduction);
   const incomeTax = bracketTax(taxable, table.b);

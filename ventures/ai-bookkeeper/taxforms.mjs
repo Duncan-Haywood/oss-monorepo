@@ -137,7 +137,7 @@ export function necDeadline(year) {
 
 // Dates for a CP2100 / CP2100A notice (IRS "Backup withholding B program" and
 // "Understanding your CP2100 or CP2100A Notice" pages, then read against Pub.
-// 1281 itself, Rev. 12-2025 text, 2026-10-24: First B Notice pp. 14-15,
+// 1281 itself, Rev. 12-2023 text (the current irs.gov PDF), 2026-10-23: First B Notice pp. 14-15,
 // Second B Notice p. 15, Q&A 15-19). The payer mails the
 // First B Notice (with a blank W-9) within 15 business days of the notice date
 // or the day it arrived, whichever is later; the Second B Notice (a second
