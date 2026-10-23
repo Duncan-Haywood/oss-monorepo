@@ -72,6 +72,28 @@ class Scan(unittest.TestCase):
         self.write("infra/test_keys.py", f"K = '{REAL_AWS}'\n")
         self.assertEqual(self.found("secret"), ["infra/notes.md"])
 
+    def test_canonical_link_at_start_of_page_is_not_third_party(self):
+        # The tag opens at offset 0; a search window that skips it loses the rel.
+        self.write("ventures/demo/index.html", '<link rel="canonical" href="https://example.com/demo/">')
+        self.assertEqual(self.found("third-party-request"), [])
+
+    def test_null_byte_just_past_the_sniff_window_is_still_text(self):
+        # Binary detection looks at the first 8192 bytes only: byte 8192 is outside it.
+        text = scan.text_of(self._file("a.txt", b"x" * 8192 + b"\0y"))
+        self.assertIsNotNone(text)
+        self.assertIsNone(scan.text_of(self._file("b.txt", b"x" * 8191 + b"\0y")))
+
+    def _file(self, name: str, data: bytes) -> Path:
+        path = self.root / name
+        path.write_bytes(data)
+        return path
+
+    def test_tracking_cookie_detail_is_cut_at_eighty_characters(self):
+        line = 'document.cookie = "ref=" + v + ";max-age=5184000"; // ' + "z" * 60
+        self.write("ventures/ref/pages.mjs", line + "\n")
+        rows = scan.scan(self.root)["tracking-cookie"]
+        self.assertEqual(rows[0]["detail"], line[:80])
+
     def test_strict_fails_only_when_something_is_found(self):
         root = str(self.root)
         self.assertEqual(scan.main(["--root", root, "--strict", "--json"]), 0)
