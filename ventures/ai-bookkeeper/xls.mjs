@@ -4,7 +4,8 @@
 // string table (with its CONTINUE splits), number formats and cell formats (to
 // tell dates from numbers), and the cell records, and writes the busiest sheet
 // as CSV in the same shape as xlsx.mjs. Nothing is uploaded and there is no
-// dependency. BIFF5 (Excel 5/95) workbooks and password-protected ones are refused.
+// dependency. BIFF5 (Excel 5/95/97 "Book" streams) are read too: byte strings in the
+// workbook's code page, no shared string table. Password-protected ones are refused.
 const u16 = (b, o) => b[o] | (b[o + 1] << 8);
 const i32 = (b, o) => b[o] | (b[o + 1] << 8) | (b[o + 2] << 16) | (b[o + 3] << 24);
 const u32 = (b, o) => i32(b, o) >>> 0;
@@ -121,8 +122,15 @@ function serialToIso(v, epoch1904) {
 }
 const csvCell = (s) => (/[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s);
 
+// BIFF5 strings are bytes in the workbook's ANSI code page (CODEPAGE record), not UTF-16.
+const decodeBytes = (d, p, n, page) => {
+  try { return new TextDecoder(page === 1252 || !page ? "windows-1252" : `windows-${page}`).decode(d.subarray(p, p + n)); }
+  catch { return new TextDecoder("windows-1252").decode(d.subarray(p, p + n)); }
+};
+
 export function xlsToCsv(bytes) {
   const w = oleStream(bytes);
+  let biff5 = false, codepage = 1252;
   let sstChunks = null, epoch1904 = false;
   const formats = new Map(), xfFmt = [], sheets = [];
   let sheet = null, depth = 0;
@@ -133,10 +141,11 @@ export function xlsToCsv(bytes) {
   // pass 1: globals (formats, xfs, date mode, string table)
   for (let i = 0; i < recs.length; i++) {
     const { id, data } = recs[i];
-    if (id === 0x0809) { depth++; if (depth === 1 && data.length >= 4 && u16(data, 0) !== 0x600) throw new Error("only Excel 97-2003 (BIFF8) workbooks are read; save this one as .xlsx or CSV"); }
+    if (id === 0x0809) { depth++; if (depth === 1) { const v = data.length >= 4 ? u16(data, 0) : 0; if (v === 0x500) biff5 = true; else if (v !== 0x600) throw new Error("only Excel 5.0 to 2003 (BIFF5 and BIFF8) workbooks are read; save this one as .xlsx or CSV"); } }
+    if (id === 0x0042) codepage = u16(data, 0);
     if (id === 0x002f) throw new Error("this workbook is password-protected");
     if (id === 0x0022) epoch1904 = u16(data, 0) === 1;
-    if (id === 0x041e) formats.set(u16(data, 0), xlString(data, 2).s);
+    if (id === 0x041e) formats.set(u16(data, 0), biff5 ? decodeBytes(data, 3, data[2], codepage) : xlString(data, 2).s);
     if (id === 0x00e0) xfFmt.push(u16(data, 2));
     if (id === 0x00fc) { const chunks = [data]; while (recs[i + 1]?.id === 0x003c) chunks.push(recs[++i].data); sstChunks = chunks; }
     if (id === 0x000a) { if (depth) depth--; if (!depth) break; }
@@ -165,12 +174,12 @@ export function xlsToCsv(bytes) {
       }
       case 0x0203: put(u16(data, 0), u16(data, 2), num(u16(data, 4), f64(data, 6))); break;
       case 0x00fd: put(u16(data, 0), u16(data, 2), strings[u32(data, 6)] ?? ""); break;
-      case 0x0204: put(u16(data, 0), u16(data, 2), xlString(data, 6).s); break;
+      case 0x0204: put(u16(data, 0), u16(data, 2), biff5 ? decodeBytes(data, 8, u16(data, 6), codepage) : xlString(data, 6).s); break;
       case 0x0205: put(u16(data, 0), u16(data, 2), data[7] === 0 ? (data[6] ? "TRUE" : "FALSE") : ""); break;
       case 0x0006: { // FORMULA: the cached result; a string result follows in a STRING record
         const r = u16(data, 0), c = u16(data, 2);
         if (data[12] === 0xff && data[13] === 0xff) {
-          if (data[6] === 0 && recs[i + 1]?.id === 0x0207) put(r, c, xlString(recs[++i].data, 0).s);
+          if (data[6] === 0 && recs[i + 1]?.id === 0x0207) { const sd = recs[++i].data; put(r, c, biff5 ? decodeBytes(sd, 2, u16(sd, 0), codepage) : xlString(sd, 0).s); }
           else if (data[6] === 1) put(r, c, data[8] ? "TRUE" : "FALSE");
         } else put(r, c, num(u16(data, 4), f64(data, 6)));
         break;
