@@ -76,18 +76,30 @@ export function parseCents(v, decimalComma = false) {
 
 // ISO, M/D/Y or D/M/Y (dayFirst), with 2- or 4-digit years, or "12 Mar 2026".
 const MONTHS = { jan: 1, feb: 2, mar: 3, apr: 4, may: 5, jun: 6, jul: 7, aug: 8, sep: 9, oct: 10, nov: 11, dec: 12 };
+// German, French, Spanish, Italian, Dutch and Portuguese month words (accents
+// stripped, lower case) by their first three letters; the ones that differ from
+// English are listed here. "juin" and "juil" share a prefix, so a word
+// starting "juil" is July and "juin" June.
+const MONTH_WORDS = { gen: 1, aou: 8, ene: 1, fev: 2, mrz: 3, mrt: 3, abr: 4, avr: 4, mai: 5, mei: 5, mag: 5, giu: 6, lug: 7, ago: 8, set: 9, okt: 10, ott: 10, out: 10, dez: 12, dic: 12 };
+const monthOf = (word) => {
+  const w = word.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase();
+  if (/^juil/.test(w)) return 7;
+  if (/^juin/.test(w)) return 6;
+  const k = w.slice(0, 3);
+  return MONTHS[k] || MONTH_WORDS[k] || undefined;
+};
 export function parseDate(v, dayFirst = false) {
-  const s = String(v ?? "").trim().replace(/^(?:mon|tue|wed|thu|fri|sat|sun)[a-z]*\.?,?\s+/i, "").replace(/^(\d{1,2})(?:st|nd|rd|th)\b/i, "$1").replace(/^(\d{1,2})([A-Za-z]{3})(\d{2,4})\b/, "$1 $2 $3");
+  const s = String(v ?? "").trim().replace(/^(?:mon|tue|wed|thu|fri|sat|sun)[a-z]*\.?,?\s+/i, "").replace(/^(\d{1,2})(?:st|nd|rd|th)\b/i, "$1").replace(/^(\d{1,2})([A-Za-z]{3})(\d{2,4})\b/, "$1 $2 $3").replace(/^(\d{1,2})\.\s*(?=\p{L})/u, "$1 ").replace(/^(\d{1,2}) de (\p{L}+) de (\d)/u, "$1 $2 $3");
   let y, m, d, x;
   if ((x = s.match(/^(\d{4})(\d{2})(\d{2})(?!\d)/))) [y, m, d] = [+x[1], +x[2], +x[3]];
   else if ((x = s.match(/^(\d{4})[-/.:](\d{1,2})[-/.:](\d{1,2})/))) [y, m, d] = [+x[1], +x[2], +x[3]];
   else if ((x = s.match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{2,4})/))) {
     [m, d] = dayFirst ? [+x[2], +x[1]] : [+x[1], +x[2]];
     y = +x[3] < 100 ? 2000 + +x[3] : +x[3];
-  } else if ((x = s.match(/^(\d{1,2})[ -]([A-Za-z]{3})[A-Za-z]*[ ,-]+(\d{2,4})/))) {
-    [d, m, y] = [+x[1], MONTHS[x[2].toLowerCase()], +x[3] < 100 ? 2000 + +x[3] : +x[3]];
-  } else if ((x = s.match(/^([A-Za-z]{3})[A-Za-z]* (\d{1,2}),? (\d{4})/))) {
-    [m, d, y] = [MONTHS[x[1].toLowerCase()], +x[2], +x[3]];
+  } else if ((x = s.match(/^(\d{1,2})[ -](\p{L}{3}\p{L}*)\.?[ ,-]+(\d{2,4})/u))) {
+    [d, m, y] = [+x[1], monthOf(x[2]), +x[3] < 100 ? 2000 + +x[3] : +x[3]];
+  } else if ((x = s.match(/^(\p{L}{3}\p{L}*)\.? (\d{1,2}),? (\d{4})/u))) {
+    [m, d, y] = [monthOf(x[1]), +x[2], +x[3]];
   }
   if (!y || !m || !d || m > 12 || d > 31) return null;
   const dt = new Date(Date.UTC(y, m - 1, d));
