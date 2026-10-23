@@ -24,7 +24,8 @@ python3 prompts/promptctl.py record --track redteam --version 0 --session <url> 
 python3 prompts/redteam.py campaign --mutants 8 --record prompts/runs/<your record>.json
 ```
 
-With no `--target`, the tool picks a random file that some test suite guards
+With no `--target`, the tool picks a random file that some test suite guards,
+redrawing past suites slower than 20 s (`--probe N` changes that, 0 turns it off)
 (`redteam.py targets` lists them; about 95% are under `ventures/`, so
 `--under platform` aims the draw at the CI and tooling code; add `--probe 20` to print each listed file's suite time, or ">20s (too slow)", before you commit to one). Pass `--target` to aim at a file that just
 changed on `main` (`git log --since=3.days --name-only origin/main`) or that

@@ -50,6 +50,7 @@ REPO = Path(__file__).resolve().parent.parent
 EXCLUDED_PREFIXES = ("research/", "node_modules/", "gitops/prod/", ".git/")
 
 TIMEOUT_SECONDS = 300
+PROBE_SECONDS = 20  # a random draw skips suites slower than this
 
 
 # --------------------------------------------------------------------------
@@ -242,6 +243,24 @@ def run_suite(cmd: list[str], cwd: Path, timeout: int = TIMEOUT_SECONDS) -> tupl
     return passed, round(time.monotonic() - start, 1)
 
 
+def draw_fast_target(pool: list[Path], seed: int, probe: int = PROBE_SECONDS,
+                     tries: int = 6) -> Path:
+    """The seeded random draw, redrawn (up to `tries`) past suites slower than `probe`
+    seconds: a campaign runs the suite once per mutant, so a slow suite wastes the run."""
+    rng = random.Random(seed)
+    for _ in range(tries):
+        target = rng.choice(pool)
+        suite = suite_for(target) if probe else None
+        if suite is None:
+            return target
+        _, secs = run_suite(*suite, probe)
+        if secs < probe:
+            return target
+        print(f"skipping {target.relative_to(REPO)}: suite slower than {probe}s",
+              file=sys.stderr)
+    return target
+
+
 def _commit(repo: Path) -> str | None:
     proc = subprocess.run(["git", "rev-parse", "--short", "HEAD"], cwd=repo,
                           capture_output=True, text=True)
@@ -426,6 +445,9 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--mutants", type=int, default=8)
     p.add_argument("--seed", type=int, help="default: random, printed in the result")
     p.add_argument("--timeout", type=int, default=TIMEOUT_SECONDS)
+    p.add_argument("--probe", type=int, default=PROBE_SECONDS, metavar="SECONDS",
+                   help="a random draw skips targets whose suite takes longer than this "
+                   "(0 keeps the first draw); ignored with --target")
     p.add_argument("--record", type=Path, help="add the campaign to this run record")
     p = sub.add_parser("rerun", help="re-run escaped mutants after the blue team's fix")
     p.add_argument("record", type=Path)
@@ -460,7 +482,7 @@ def main(argv: list[str] | None = None) -> int:
             pool = list_targets(under=args.under)
             if not pool:
                 raise SystemExit(f"no guarded files under {args.under}")
-            target = random.Random(seed).choice(pool)
+            target = draw_fast_target(pool, seed, args.probe)
         print(f"red team: {target.relative_to(REPO)} seed {seed}", file=sys.stderr)
         camp = campaign(target, args.mutants, seed, timeout=args.timeout)
         if args.record:
