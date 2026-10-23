@@ -28,12 +28,13 @@ def label(m):
         return "off"
     if len(on) == 24:
         return "24h"
-    runs, start = [], None
+    runs = []
     for h in range(24):
         if m[h] and not m[h - 1]:
-            start = h
-        if m[h] and not m[(h + 1) % 24]:
-            runs.append(f"{start:02d}-{(h + 1) % 24:02d}")
+            e = h
+            while m[(e + 1) % 24]:
+                e += 1
+            runs.append(f"{h:02d}-{(e + 1) % 24:02d}")
     return "+".join(runs)
 
 
@@ -69,7 +70,7 @@ def main():
             cands.append(("full-bill opt (1 run)", np.where(sel1)[0][np.argmin(full[sel1])]))
             for name, i in cands:
                 pk = kw[i][per == "P"].max()
-                print(f"{season} | {name} | {label(masks[i])} | {bills[i, 0]:,.0f} | {bills[i, 1]:,.0f} | {full[i]:,.0f} | {kw[i].max():.0f} | {pk:.0f} | {100 * (1 - full[i] / full[shipped]):.1f}")
+                print(f"{season} | {name} | {label(masks[i])} | {bills[i, 0]:,.0f} | {bills[i, 1]:,.0f} | {full[i]:,.0f} | {kw[i].max():.0f} | {abs(pk):.0f} | {100 * (1 - full[i] / full[shipped]):.1f}")
                 tot[name] += full[i] * s["months"]
         print("annual (12 months, each season's own schedule): " + "; ".join(f"{k} ${v:,.0f}" for k, v in tot.items()))
         print("annual saving vs shipped %: " + "; ".join(f"{k} {100 * (1 - v / tot['shipped']):.1f}" for k, v in tot.items() if k != "shipped"))
@@ -83,6 +84,21 @@ def main():
         i_en = np.where(ok[tol])[0][np.argmin(en[ok[tol]])]
         i_fu = np.where(ok[tol])[0][np.argmin(full[ok[tol]])]
         print(f"{season} | {full[i_en] - full[i_fu]:,.0f} ({100 * (full[i_en] / full[i_fu] - 1):.1f} %) | {100 * bills[shipped, 1] / full[shipped]:.0f}")
+
+    print("\n== E. Does the choice survive other demand-charge sizes? (summer, drift 0.1 %; demand rates x a multiplier)")
+    print("multiplier | full-bill optimum | its peak kW | energy-only optimum billed in full: extra % | saving of full-bill optimum vs shipped %")
+    tol = 0.001
+    base = dict(SEASONS["summer"]["demand"])
+    for mult in (0, 0.5, 1, 2, 5, 20):
+        for k in base:
+            SEASONS["summer"]["demand"][k] = base[k] * mult
+        bills = np.array([month_bill(k, "summer") for k in kw])
+        full, en = bills.sum(axis=1), bills[:, 0]
+        i_fu = np.where(ok[tol])[0][np.argmin(full[ok[tol]])]
+        i_en = np.where(ok[tol])[0][np.argmin(en[ok[tol]])]
+        print(f"x{mult:g} | {label(masks[i_fu])} | {kw[i_fu].max():.0f} | {100 * (full[i_en] / full[i_fu] - 1):.2f} | {100 * (1 - full[i_fu] / full[shipped]):.1f}")
+    for k in base:
+        SEASONS["summer"]["demand"][k] = base[k]
 
     print("\n== D. Peak-demand floor: lowest feasible peak kW over all masks (drift 0.1 %) and the energy it costs")
     i = np.where(ok[0.001])[0][np.argmin(kw[ok[0.001]].max(axis=1))]
