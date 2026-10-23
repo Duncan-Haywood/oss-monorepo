@@ -127,6 +127,7 @@ introduces a dated fact.
 | 2058 | Marten Portage (invented), NWT, 410 people, 187 km of winter road from Fort Meridian (invented); Whale Narrows thins from 130 cm (1 Feb) to 62 cm closing load limit (3.5 x thickness squared kg, margin 1.5); sleds of 8,000 L, 100 m apart, 12 km/h; drivers say the Angelus on the open radio at noon | *The Ice Road* |
 | 2052 | Eilean Dhubhaig (invented), Southern Hebrides, 410 people: two 600 kW turbines, 6 MWh battery (about 4.8 usable cold), diesel set at 0.27 L/kWh, 8,000 L; wind lull 9 to 17 Dec (200 h) leaves a 5.6 MWh gap plus 3 MWh margin, so 43 kW (one watt in five) must come off a 210 kW average; St Brendan's hall pellet boiler, 80 people; grid AI Cothrom; engineer Seonaid MacNeil, nurse Catriona Morrison, Fr Tomasz | *The Cold Meter* |
 | 2057 | Huallapampa and Cochapampa (invented), Cordillera Blanca, Peru: 9 km earthen canal, intake 72 L/s in August (118 L/s in the 2000s-2020s), 150 ha, 140 families; efficiency 70% conveyance x 55% field = 38.5%; need 3 mm/day = 52 L/s net; Cochapampa spring 11 L/s, about 9 fed by canal seepage; plan B lines 1.2 km, floor 7 L/s, return gate on the old ditch; juez de aguas Eufemia Quispe, granddaughter Nayra, gauge AI Yaku, Fr Anselmo | *The Return Gate* |
+| 2056 | Kilnagross (invented), County Mayo: Saint Brendan's, nave about 5,000 m³ of air, stone walls; heat pump since 2051 and building AI Warden; flue pipes rise about 3 cents per °C against fixed reeds (8 to 16 °C is about 25 cents); 260 people give off about 18 kW; air held at 12 °C with 40 W pew mats instead of heating the stone (about 515 kWh electric at COP 3.5 vs about 85 euro); tuner Dermot Hanrahan, organist Nuala Walsh, her grandson Cian, Fr Colm Gallagher | *The Warm Pew* |
 | 3026 | Fjellbu Vault (invented), northern Norway, the fourth vault after a first one whose entrance flooded in its ninth year (real: Svalbard, 2017); about 2.5 million samples at minus 18 C; a Dark Week every 25 years (all electronics off, 8 days, paper Ledger in pencil); keeper Ines Adeyemi-Solberg, apprentice Davi Quispe, AI called Tally; accession 4417 (bere barley, invented collector M. Flett, 2921) tests 61 of 100 against a database figure of 96 (Ledger: 86 in 2985) | *The Dark Week* |
 
 Little Lamps is set in history (Lima, about 1610 for *Brother Martin*) and is
@@ -201,6 +202,8 @@ numbers worked out before drafting.
   without electronics.
 
 - *(Done: The Return Gate, Cordillera Blanca, 2057.)* Glacier peak water, canal lining and a downstream spring.
+
+- *(Done: The Warm Pew, Kilnagross, 2056; text only, voice host unreachable.)* An organ that goes sharp as a church warms; heating the people, not the stone.
 
 **For Other Minds**
 
