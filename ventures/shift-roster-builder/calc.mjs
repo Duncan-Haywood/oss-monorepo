@@ -357,7 +357,7 @@ const DEFAULTS = {
   splitPremium: 0, splitGap: 1, // split-shift premium: dollars owed on each day a person's shifts have a gap over splitGap hours (0 = off)
   diffWhen: "", diffPerHour: 0, diffPct: 0, // pay differential: extra $/hour and/or % of wage for hours inside the diffWhen windows ("Sat-Sun; 10pm-6am"; none = off)
   burdenPct: 0, otAfter: 40, otMult: 1.5, dailyOtAfter: 0, dailyDtAfter: 0, dtMult: 2, minRestHours: 10, maxConsecDays: 6, maxDailyHours: 0,
-  exact: "auto", exactNodes: 400000, exactMs: 8000, exactTolerance: 0.5, balance: 25, toughBalance: 0, shortfallValue: 8, avoidValue: 0.5, preferValue: 0.25, seed: 1, restarts: 4, iterations: 0,
+  exact: "auto", exactNodes: 400000, exactMs: 8000, exactTolerance: 0.5, balance: 25, toughBalance: 0, shortfallValue: 8, avoidValue: 0.5, preferValue: 0.25, seed: 1, restarts: 4, iterations: 0, longPass: true,
 };
 
 function qualified(person, slot) {
@@ -1252,6 +1252,12 @@ export function buildRoster(staff, slots, options = {}) {
   if (scoreOwner(ctx, best.owner).unfilled > 0) {
     const more = search(ctx, o.restarts * 6, iterations, o.restarts);
     if (more.score < best.score - 1e-9) best = more;
+  }
+  // Still open: the annealer's short runs stop too soon on weeks of about twenty shifts or more (eval/effort-bench.mjs), so give
+  // a few restarts five times the iterations before the ejection passes.
+  if (o.longPass !== false && scoreOwner(ctx, best.owner).unfilled > 0) {
+    const long = search(ctx, o.restarts, iterations * 5, o.restarts * 7);
+    if (long.score < best.score - 1e-9) best = long;
   }
   if (scoreOwner(ctx, best.owner).unfilled > 0) {
     // A few seeds, each from the best so far: one chain of moves rarely finds the best way to free the hours.
