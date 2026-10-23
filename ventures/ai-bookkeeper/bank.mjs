@@ -279,6 +279,7 @@ export function sniffFormat(text) {
   const head = text.slice(0, 2000);
   if (/<OFX>|OFXHEADER:|<STMTTRN>/i.test(head) || /<STMTTRN>/i.test(text)) return "ofx";
   if (/^\s*!(Type|Account|Option)/im.test(head)) return "qif";
+  if (/^000\t\d{8}\t/.test(head)) return "esis";
   return "csv";
 }
 
@@ -357,6 +358,30 @@ export function readOfx(text) {
 // each account, followed by its `!Type:` section of transactions. -> [{ id,
 // type, text }], `id` the account name and each `text` a one-account QIF file,
 // or [] when the file names fewer than two accounts.
+// Lithuania's LITAS-ESIS statement (.acc, tab-separated, cp1257, no header): a
+// "000" line for the account, "010" lines for transactions (date YYYYMMDD in
+// column 3, amount in cents in 5, a D/K flag in 7, document no. in 11, purpose in
+// 14, counterparty in 18) and "020" opening/closing balance lines. Layout from
+// the ofxstatement-lithuanian plugin's parser (read from its sdist).
+export function readEsis(text) {
+  const problems = [], out = [];
+  text.split(/\r?\n/).forEach((l, i) => {
+    const f = l.split("\t");
+    if (f[0] !== "010") return;
+    const date = ofxDate(f[2]);
+    const cents = /^\d+$/.test((f[4] ?? "").trim()) ? Number(f[4]) : NaN;
+    const flag = (f[6] ?? "").trim().toUpperCase();
+    if (!date) return problems.push(`Line ${i + 1}: unreadable date "${f[2] ?? ""}", skipped.`);
+    if (!Number.isFinite(cents)) return problems.push(`Line ${i + 1}: unreadable amount, skipped.`);
+    if (flag !== "D" && flag !== "K" && flag !== "C") return problems.push(`Line ${i + 1}: no debit/credit flag (D or K), skipped.`);
+    if (cents === 0) return;
+    const desc = [f[17], f[13]].map((x) => (x ?? "").trim()).filter(Boolean).filter((x, j, a) => a.indexOf(x) === j).join(" ").replace(/\s+/g, " ");
+    out.push({ line: i + 1, date, desc, cents: flag === "D" ? -cents : cents, balance: null });
+  });
+  if (!out.length) problems.push("No transactions (010 lines) were found in the LITAS-ESIS file.");
+  return { rows: out, problems, columns: null, bank: "litas-esis", inferred: null };
+}
+
 export function splitQif(text) {
   const parts = [];
   let head = "", cur = null, inAcct = false;
@@ -427,6 +452,7 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
     return r;
   }
   if (format === "ofx") return readOfx(text);
+  if (format === "esis") return readEsis(text);
   if (format === "qif") return readQif(text, { dayFirst });
   const rows = parseCsv(text);
   const problems = [];
