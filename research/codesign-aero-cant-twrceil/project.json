@@ -1,0 +1,6 @@
+{
+ "theme": "codesign",
+ "title": "Was the thrust-to-weight ceiling of 4 what made rotor cant look good?",
+ "lede": "does raising the TWR ceiling from 4 to 6 and 8 erase the cant advantage? No: cant to 35° still beats no cant in 5 of 5 seeds at three measured propeller c values, by 1.5–3.0° at ceiling 8 (1.6–3.4° at 4); the optimiser stops near TWR 5 without cant.",
+ "summary": "Follow-up to <code>codesign-aero-cant-twr</code>, whose no-cant design sat on its assumed TWR ceiling of 4. Same joint CMA-ES co-design (1920 evaluations, 5 seeds, 64 held-out episodes, $300 cap, c at the 10th, 50th and 90th percentile of measured UIUC propeller data) with the ceiling at 4, 6 and 8. Raising it from 4 to 6 improves the no-cant design by 0.2&ndash;0.35&deg; and the optimiser then picks TWR 4.9&ndash;5.1; from 6 to 8 nothing changes (within &plusmn;0.1&deg;). Cant to 35&deg; still beats no cant in 5 of 5 seeds at every c and ceiling, by 1.5&ndash;3.0&deg; at ceiling 8, so the earlier gap was overstated by 0.1&ndash;0.4&deg;. Limits: the interior optimum comes from inherited, assumed motor mass and cost fits (not a catalogue), attitude steps only, no position hold, no hardware."
+}
