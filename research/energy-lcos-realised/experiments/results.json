@@ -1,0 +1,314 @@
+[
+ [
+  "cavern_cap1.0",
+  {
+   "h2": "cavern",
+   "co2_frac": 1.0
+  },
+  {
+   "system": {
+    "mean_price": 74.59757333680741,
+    "zero_price_hours": 0,
+    "cost_per_mwh": 74.59757333680757
+   },
+   "batt": {
+    "e_nom_gwh": 4.687532377488416,
+    "p_out_gw": 2.353109921036441,
+    "duration_h": 1.9920583970950938,
+    "cycles_per_year": 5.219154994073189,
+    "discharge_hours": 10.39686153168429,
+    "charge_price": 396.1001369125637,
+    "delivered_gwh": 23.486359697134496
+   },
+   "h2": null
+  }
+ ],
+ [
+  "cavern_cap0.5",
+  {
+   "h2": "cavern",
+   "co2_frac": 0.5
+  },
+  {
+   "system": {
+    "mean_price": 82.57717563427153,
+    "zero_price_hours": 56,
+    "cost_per_mwh": 76.10824744834265
+   },
+   "batt": {
+    "e_nom_gwh": 18.613157917443772,
+    "p_out_gw": 5.03484232827428,
+    "duration_h": 3.696870071365976,
+    "cycles_per_year": 74.48618999475654,
+    "discharge_hours": 275.36576652169526,
+    "charge_price": 19.475086296631442,
+    "delivered_gwh": 1330.9662883594788
+   },
+   "h2": null
+  }
+ ],
+ [
+  "cavern_cap0.2",
+  {
+   "h2": "cavern",
+   "co2_frac": 0.2
+  },
+  {
+   "system": {
+    "mean_price": 107.71920623134174,
+    "zero_price_hours": 318,
+    "cost_per_mwh": 89.5101341840098
+   },
+   "batt": {
+    "e_nom_gwh": 193.84462899012664,
+    "p_out_gw": 18.672493811015485,
+    "duration_h": 10.381292983788361,
+    "cycles_per_year": 179.66315710595865,
+    "discharge_hours": 1865.1358723093545,
+    "charge_price": 30.650587646262316,
+    "delivered_gwh": 33433.66851110342
+   },
+   "h2": null
+  }
+ ],
+ [
+  "cavern_cap0.1",
+  {
+   "h2": "cavern",
+   "co2_frac": 0.1
+  },
+  {
+   "system": {
+    "mean_price": 122.7262363765184,
+    "zero_price_hours": 474,
+    "cost_per_mwh": 102.74763601032488
+   },
+   "batt": {
+    "e_nom_gwh": 393.9860045638294,
+    "p_out_gw": 38.036755137636106,
+    "duration_h": 10.358034042025665,
+    "cycles_per_year": 171.27192493936914,
+    "discharge_hours": 1774.04042896525,
+    "charge_price": 38.31169717233181,
+    "delivered_gwh": 64779.5917447854
+   },
+   "h2": null
+  }
+ ],
+ [
+  "cavern_cap0.05",
+  {
+   "h2": "cavern",
+   "co2_frac": 0.05
+  },
+  {
+   "system": {
+    "mean_price": 132.1356893990823,
+    "zero_price_hours": 317,
+    "cost_per_mwh": 115.83549055337821
+   },
+   "batt": {
+    "e_nom_gwh": 407.32903132736567,
+    "p_out_gw": 41.70749025009054,
+    "duration_h": 9.766328035681347,
+    "cycles_per_year": 164.34660183440306,
+    "discharge_hours": 1605.0628250642903,
+    "charge_price": 39.74459911160364,
+    "delivered_gwh": 64265.41644206559
+   },
+   "h2": {
+    "e_nom_gwh": 5095.041335341259,
+    "p_out_gw": 11.171925629473463,
+    "duration_h": 456.0575772093991,
+    "cycles_per_year": 4.569572019137332,
+    "discharge_hours": 2083.9879439316333,
+    "charge_price": 7.867936669881604,
+    "delivered_gwh": 11641.079161161762
+   }
+  }
+ ],
+ [
+  "cavern_cap0.0",
+  {
+   "h2": "cavern",
+   "co2_frac": 0.0
+  },
+  {
+   "system": {
+    "mean_price": 144.4123676506893,
+    "zero_price_hours": 56,
+    "cost_per_mwh": 144.41236765069036
+   },
+   "batt": {
+    "e_nom_gwh": 501.1779338578011,
+    "p_out_gw": 35.66139706565355,
+    "duration_h": 14.05379416109581,
+    "cycles_per_year": 122.19575714148819,
+    "discharge_hours": 1717.3140182257284,
+    "charge_price": 31.923967929829182,
+    "delivered_gwh": 58792.144406746265
+   },
+   "h2": {
+    "e_nom_gwh": 24921.343728234486,
+    "p_out_gw": 89.11640009126958,
+    "duration_h": 279.6493541335939,
+    "cycles_per_year": 2.572036501257016,
+    "discharge_hours": 719.2683463845532,
+    "charge_price": 18.366549702486175,
+    "delivered_gwh": 32049.302864695856
+   }
+  }
+ ],
+ [
+  "tank_cap1.0",
+  {
+   "h2": "tank",
+   "co2_frac": 1.0
+  },
+  {
+   "system": {
+    "mean_price": 74.59757333680741,
+    "zero_price_hours": 0,
+    "cost_per_mwh": 74.59757333680757
+   },
+   "batt": {
+    "e_nom_gwh": 4.687532377488416,
+    "p_out_gw": 2.353109921036441,
+    "duration_h": 1.9920583970950938,
+    "cycles_per_year": 5.219154994073189,
+    "discharge_hours": 10.39686153168429,
+    "charge_price": 396.1001369125637,
+    "delivered_gwh": 23.486359697134496
+   },
+   "h2": null
+  }
+ ],
+ [
+  "tank_cap0.5",
+  {
+   "h2": "tank",
+   "co2_frac": 0.5
+  },
+  {
+   "system": {
+    "mean_price": 82.57717563427153,
+    "zero_price_hours": 56,
+    "cost_per_mwh": 76.10824744834265
+   },
+   "batt": {
+    "e_nom_gwh": 18.613157917443772,
+    "p_out_gw": 5.03484232827428,
+    "duration_h": 3.696870071365976,
+    "cycles_per_year": 74.48618999475654,
+    "discharge_hours": 275.36576652169526,
+    "charge_price": 19.475086296631442,
+    "delivered_gwh": 1330.9662883594785
+   },
+   "h2": null
+  }
+ ],
+ [
+  "tank_cap0.2",
+  {
+   "h2": "tank",
+   "co2_frac": 0.2
+  },
+  {
+   "system": {
+    "mean_price": 107.71920623134159,
+    "zero_price_hours": 318,
+    "cost_per_mwh": 89.51013418400974
+   },
+   "batt": {
+    "e_nom_gwh": 193.8446289901263,
+    "p_out_gw": 18.672493811015485,
+    "duration_h": 10.381292983788343,
+    "cycles_per_year": 179.6631571059597,
+    "discharge_hours": 1865.1358723093624,
+    "charge_price": 30.650587646262665,
+    "delivered_gwh": 33433.668511103555
+   },
+   "h2": null
+  }
+ ],
+ [
+  "tank_cap0.1",
+  {
+   "h2": "tank",
+   "co2_frac": 0.1
+  },
+  {
+   "system": {
+    "mean_price": 122.72623637651853,
+    "zero_price_hours": 474,
+    "cost_per_mwh": 102.74763601032484
+   },
+   "batt": {
+    "e_nom_gwh": 393.98600456382866,
+    "p_out_gw": 38.03675513763669,
+    "duration_h": 10.358034042025485,
+    "cycles_per_year": 171.27192493936943,
+    "discharge_hours": 1774.0404289652224,
+    "charge_price": 38.311697172331876,
+    "delivered_gwh": 64779.59174478541
+   },
+   "h2": null
+  }
+ ],
+ [
+  "tank_cap0.05",
+  {
+   "h2": "tank",
+   "co2_frac": 0.05
+  },
+  {
+   "system": {
+    "mean_price": 144.51218781089977,
+    "zero_price_hours": 652,
+    "cost_per_mwh": 118.23962756028848
+   },
+   "batt": {
+    "e_nom_gwh": 548.7319368526423,
+    "p_out_gw": 47.791618422239964,
+    "duration_h": 11.481760923109656,
+    "cycles_per_year": 155.48061567678866,
+    "discharge_hours": 1785.1912573787824,
+    "charge_price": 36.244364276461994,
+    "delivered_gwh": 81904.4922080309
+   },
+   "h2": null
+  }
+ ],
+ [
+  "tank_cap0.0",
+  {
+   "h2": "tank",
+   "co2_frac": 0.0
+  },
+  {
+   "system": {
+    "mean_price": 222.49048515802033,
+    "zero_price_hours": 83,
+    "cost_per_mwh": 222.49048515801977
+   },
+   "batt": {
+    "e_nom_gwh": 1439.9895839868109,
+    "p_out_gw": 56.743611767940195,
+    "duration_h": 25.377122448176564,
+    "cycles_per_year": 30.77461407385625,
+    "discharge_hours": 780.9711496476278,
+    "charge_price": 170.47949785623675,
+    "delivered_gwh": 42542.51876886424
+   },
+   "h2": {
+    "e_nom_gwh": 1308.3420677025067,
+    "p_out_gw": 23.251985745816388,
+    "duration_h": 56.26797134683046,
+    "cycles_per_year": 1.8317139006957153,
+    "discharge_hours": 103.06682527993756,
+    "charge_price": 2.6354284017817338,
+    "delivered_gwh": 1198.254176137828
+   }
+  }
+ ]
+]

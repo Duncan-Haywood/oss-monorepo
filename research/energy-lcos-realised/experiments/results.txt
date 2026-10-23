@@ -1,0 +1,33 @@
+A. Realised use of each store in the least-cost 2030 system (sourced costs, Germany 2019, one node)
+A cavern_cap0.2 batt: duration=10.4h cycles=179.7/yr discharge_hours=1865 charge_price=EUR30.7/MWh (system mean EUR107.7)
+A cavern_cap0.1 batt: duration=10.4h cycles=171.3/yr discharge_hours=1774 charge_price=EUR38.3/MWh (system mean EUR122.7)
+A cavern_cap0.0 batt: duration=14.1h cycles=122.2/yr discharge_hours=1717 charge_price=EUR31.9/MWh (system mean EUR144.4)
+A cavern_cap0.0 h2: duration=279.6h cycles=2.6/yr discharge_hours=719 charge_price=EUR18.4/MWh (system mean EUR144.4)
+A tank_cap0.0 batt: duration=25.4h cycles=30.8/yr discharge_hours=781 charge_price=EUR170.5/MWh (system mean EUR222.5)
+A tank_cap0.0 h2: duration=56.3h cycles=1.8/yr discharge_hours=103 charge_price=EUR2.6/MWh (system mean EUR222.5)
+
+B. Own-technology LCOS, $/MWh: assumed use (2000 h, $30) against realised use (hours, charging price x 1.12998)
+B cavern_cap0.2 batt li-ion (LFP) at 10.4h: assumed=158 realised=172 ratio=1.09
+B cavern_cap0.1 batt li-ion (LFP) at 10.4h: assumed=158 realised=188 ratio=1.19
+B cavern_cap0.0 batt li-ion (LFP) at 14.1h: assumed=197 realised=231 ratio=1.17
+B cavern_cap0.0 h2 hydrogen (cavern) at 279.6h: assumed=383 realised=864 ratio=2.25
+
+C. Cheapest technology at each store's duration, assumed use against realised use of that store
+C cavern_cap0.2 batt 10.4h assumed: compressed=115 pumped=150 li-ion=158 vanadium=311 hydrogen=364
+C cavern_cap0.2 batt 10.4h realised: compressed=128 pumped=164 li-ion=172 vanadium=337 hydrogen=398
+C cavern_cap0.1 batt 10.4h assumed: compressed=115 pumped=150 li-ion=158 vanadium=310 hydrogen=364
+C cavern_cap0.1 batt 10.4h realised: compressed=148 pumped=181 li-ion=188 vanadium=364 hydrogen=440
+C cavern_cap0.0 batt 14.1h assumed: compressed=116 pumped=161 li-ion=197 hydrogen=363 vanadium=400
+C cavern_cap0.0 batt 14.1h realised: compressed=137 pumped=189 li-ion=231 hydrogen=426 vanadium=467
+C cavern_cap0.0 h2 279.6h assumed: compressed=194 hydrogen=383 pumped=974 li-ion=3030 vanadium=6811
+C cavern_cap0.0 h2 279.6h realised: compressed=418 hydrogen=864 pumped=2631 li-ion=8358 vanadium=18842
+
+== D. Hydrogen vs cavern-air LCOS ($/MWh) against discharge hours a year, 280 h duration, EUR18.4 charge (columns: hours hydrogen cavern-air)
+300 1977 946
+500 1213 583
+720 863 417
+1000 640 312
+1500 449 221
+2000 353 176
+3000 258 130
+4000 210 108

@@ -1,0 +1,8 @@
+[project]
+name = "energy-lcos-realised"
+version = "0.1.0"
+requires-python = ">=3.10"
+dependencies = ["pypsa>=1.0", "highspy", "pandas", "numpy"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "../energy-mix-sourced/src", "../energy-lcos/src", "../energy-lcos-sourced/src"]

@@ -1,0 +1,6 @@
+{
+ "theme": "energy",
+ "title": "How hard does a least-cost zero-emission German grid cycle its storage, and does the levelised-cost map survive that use?",
+ "summary": "Reads the actual dispatch of the sourced one-node PyPSA German system (<em>energy-mix-sourced</em>, 2030 costs, 2019 weather) and re-prices storage at that use instead of the assumed 2,000 discharge hours and $10&ndash;100/MWh charging. Li-ion is used close to the assumption (10&ndash;14 h long, 122&ndash;180 cycles, 1,717&ndash;1,865 h a year, EUR 31&ndash;38/MWh charging), so its LCOS rises only 9&ndash;19% ($197 to $231/MWh at 14 h). The cavern hydrogen store runs 719 h a year (2.6 cycles, 280 h long), so its LCOS is $864/MWh against $383 at 2,000 h; LCOS falls about tenfold between 300 and 4,000 h a year. The ranking of technologies at each store's duration is unchanged. Limitations: one weather year, one node, planner shadow prices rather than market prices, cycle life and fade still the assumed <em>energy-lcos</em> values.",
+ "lede": "how hard does a least-cost zero-emission German grid cycle its storage? Batteries about 1,700&ndash;1,900 h a year (near the assumed 2,000), cavern hydrogen only 719 h, which more than doubles its LCOS to $864/MWh."
+}
