@@ -19,10 +19,11 @@ F_SAFE = 2.0          # N, assumed comfort limit for lip contact (ASSUMED, not a
 class Design:
     """sense: 'none' (aims at the mouth's rest position), 'camera' (tracks the sensed position).
     v_app: approach speed in m/s. f_cap: forward force cap in N (None = actuator limit).
-    delay: sensing latency in s. sigma: sensing noise in m. rate: sensing rate in Hz."""
-    def __init__(self, sense="camera", v_app=0.05, f_cap=None, delay=0.10, sigma=0.003, rate=15.0):
+    k_lip: lip stiffness in N/m. delay: sensing latency in s. sigma: sensing noise in m. rate: sensing rate in Hz."""
+    def __init__(self, sense="camera", v_app=0.05, f_cap=None, delay=0.10, sigma=0.003, rate=15.0, k_lip=None):
         self.sense, self.v_app, self.f_cap = sense, v_app, f_cap
         self.delay, self.sigma, self.rate = delay, sigma, rate
+        self.k_lip = K_LIP if k_lip is None else k_lip   # N/m, lip-wall stiffness; sourced values in experiments/run.py sweep 5
 
 
 def sway(amp, rng):
@@ -67,7 +68,7 @@ def run_trial(design, amp, seed):
         # lip wall: only when the tip is at or past the plane and outside the opening
         fc = 0.0
         if x > 0.0 and not inside:
-            fc = max(0.0, K_LIP * x * (1.0 + C_LIP * max(vx, 0.0)))
+            fc = max(0.0, design.k_lip * x * (1.0 + C_LIP * max(vx, 0.0)))
             fx -= fc
             peak = max(peak, fc)
             contact_s += DT

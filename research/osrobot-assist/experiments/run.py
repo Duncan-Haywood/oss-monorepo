@@ -31,5 +31,17 @@ out.append("")
 out += [f"# Sweep 4: sensing noise, camera design at 0.10 m/s, sway amplitude 30 mm", hdr]
 for sg in (0.0, 0.003, 0.006, 0.012):
     row(f"camera, noise {sg*1000:.0f} mm", Design("camera", 0.10, sigma=sg), 0.03)
+# IFA Report 2/2022 (Behrens & Zimmermann, DGUV), Table 2: measured two-slope tissue stiffness c1 (soft, first contact) and c2 (stiff, deeper), N/mm.
+# No lip row exists; the nearest head sites are used. 0.8 N/mm is the old assumed value.
+import osrobot_assist.model as _m
+_m.DT = 0.0005   # stiff walls need a finer step: at 2 ms the 90 N/mm peak is ~15% low (checked against 0.2 ms)
+SOURCED = [("assumed (old default)", 800.0), ("masseter c1", 4300.0), ("temple c1", 10600.0), ("masseter c2", 16000.0), ("temple c2", 35600.0), ("forehead c1", 90100.0)]
+out += [f"# Sweep 5: lip stiffness, camera design at 0.10 m/s, sway 30 mm (stiffness values: IFA Report 2/2022 Table 2; no lip row exists)", hdr]
+for name, k in SOURCED:
+    row(f"camera 0.10, k={k/1000:.1f} N/mm {name[:9]}", Design("camera", 0.10, k_lip=k), 0.03)
+out.append("")
+out += [f"# Sweep 6: same, camera design at 0.20 m/s, 1 N force cap", hdr]
+for name, k in SOURCED:
+    row(f"cap1 0.20, k={k/1000:.1f} N/mm {name[:9]}", Design("camera", 0.20, f_cap=1.0, k_lip=k), 0.03)
 open(os.path.join(os.path.dirname(__file__), "results.txt"), "w").write("\n".join(out) + "\n")
 print("\n".join(out))
