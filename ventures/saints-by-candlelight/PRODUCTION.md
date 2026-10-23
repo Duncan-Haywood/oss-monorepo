@@ -184,11 +184,11 @@ writing it; skip any already in `episodes/`):
 - *(Done: episode 15, Nicholas and the Grain Ships.)* Saint Nicholas, part two: the storm at sea and the grain ships
 - *(Done: episode 12, Elijah and the Still Small Voice.)* Elijah, the ravens and the still small voice (1 Kings 17-19)
 - *(Done: episode 16, Spyridon and the Snake That Became Gold.)* Saint Spyridon and the snake that became gold (legend; told with care)
-- An invented episode: a novice and an old abbess on a winter night, with the saints she tells him about (clearly labelled fiction)
+- *(Done: episode 19, A Winter Night at the Hill Convent.)* An invented episode: a novice and an old abbess on a winter night, with the saints she tells her about (clearly labelled fiction)
 
 ## Audio status
 
-Episodes 1 to 18 have audio (episode 18 rendered 2026-10-23, about 32 minutes) (episode 17 rendered 2026-10-23, about 36 minutes) (episode 8 was rendered on 2026-10-22, about 33 minutes). If Hugging Face is blocked in a cloud session, the Kokoro model files are also on GitHub: `https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/` (`kokoro-v1.0.onnx`, `voices-v1.0.bin`) into `~/.cache/kokoro`. Use `/usr/bin/python3` if `python3` lacks numpy. A render takes about 15 minutes.
+Episodes 1 to 19 have audio (episode 19 rendered 2026-10-23, about 27 minutes) (episode 18 rendered 2026-10-23, about 32 minutes) (episode 17 rendered 2026-10-23, about 36 minutes) (episode 8 was rendered on 2026-10-22, about 33 minutes). If Hugging Face is blocked in a cloud session, the Kokoro model files are also on GitHub: `https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/` (`kokoro-v1.0.onnx`, `voices-v1.0.bin`) into `~/.cache/kokoro`. Use `/usr/bin/python3` if `python3` lacks numpy. A render takes about 15 minutes.
 
 ## Publishing
 
