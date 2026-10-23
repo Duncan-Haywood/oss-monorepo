@@ -48,7 +48,7 @@ bare `--unshallow` skips a ref you fetched by name. Then check that
 
 A bare `python3` often lacks `pytest` and can shadow pip packages with apt
 ones. Use `PY=$(python3 platform/ci/pyenv.py pytest)`, then
-`"$PY" -m pytest`. Some `gitops/tests` failures depend on the image. Before
+`"$PY" -m pytest`. A first install can exceed 120 s and prints the path only at the end: run it with `run_in_background`. Some `gitops/tests` failures depend on the image. Before
 blaming your change, run the failing test on `origin/main`.
 `pip` may belong to python3.13 while `python3` is 3.11: install with
 `"$PY" -m pip`, and never run two pip installs at once (one corrupted an install).

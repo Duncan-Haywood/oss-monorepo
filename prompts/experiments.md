@@ -1238,3 +1238,14 @@ or `ventures`) until its success rate passes 80% over 20 runs?
 - Decisions: all four candidates keep collecting (intervals overlap / too few
   runs). `derived/` rebuilt (2524 rows). No audit or drift report (reduced pass).
 - Result: (next review)
+
+## E77: review 2026-10-23 (reduced pass, sixth run)
+
+- Change: `.github/prompts/cloud-session.md` says a first `pyenv.py` install can
+  exceed 120 s and should run with `run_in_background` (friction on
+  `research/CLAUDE.md`: foreground run timed out).
+- Metric: friction reports about `pyenv.py` foreground timeouts, over the next
+  40 runs (baseline: 1 recent).
+- Decisions: all four candidates keep collecting (intervals overlap / too few
+  runs). No audit or drift report (reduced pass).
+- Result: (next review)
