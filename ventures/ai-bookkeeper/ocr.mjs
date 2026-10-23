@@ -9,6 +9,7 @@ import { extname } from "node:path";
 import { cleanOcr } from "./cleanocr.mjs";
 import { decodeBytes } from "./textcodec.mjs";
 import { xlsxToCsvSync, looksLikeXlsx } from "./xlsx.mjs";
+import { xlsToCsv, looksLikeXls } from "./xls.mjs";
 
 export { cleanOcr };
 
@@ -39,7 +40,7 @@ export function statementTextFromFile(path, { run = spawnSync } = {}) {
   if (extname(path).toLowerCase() !== ".pdf") {
     const bytes = readFileSync(path);
     // an Excel export (.xlsx) is read to CSV in-process
-    return looksLikeXlsx(bytes) ? xlsxToCsvSync(bytes) : decodeBytes(bytes);
+    return looksLikeXlsx(bytes) ? xlsxToCsvSync(bytes) : looksLikeXls(bytes) ? xlsToCsv(bytes) : decodeBytes(bytes);
   }
   const r = run("pdftotext", ["-layout", path, "-"], { encoding: "utf8" });
   if (r.error || r.status !== 0) throw new Error(`could not read ${path} as a PDF: pdftotext (poppler-utils) is needed${r.stderr ? `: ${String(r.stderr).trim().slice(0, 120)}` : ""}`);

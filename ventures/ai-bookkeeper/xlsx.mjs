@@ -65,8 +65,8 @@ const unesc = (s) => s.replace(/&(#x[0-9a-f]+|#\d+|amp|lt|gt|quot|apos);/gi, (m,
 const textOf = (xml) => [...xml.matchAll(/<t(?:\s[^>]*)?>([\s\S]*?)<\/t>/g)].map((m) => unesc(m[1])).join("");
 const colIndex = (ref) => { let n = 0; for (const c of ref.match(/^[A-Z]+/)[0]) n = n * 26 + c.charCodeAt(0) - 64; return n - 1; };
 
-const BUILTIN_DATE = new Set([14, 15, 16, 17, 18, 19, 20, 21, 22, 45, 46, 47]);
-const isDateCode = (code) => /[dmyhs]/i.test(code.replace(/"[^"]*"|\[[^\]]*\]|\\.|_.|\*./g, ""));
+export const BUILTIN_DATE = new Set([14, 15, 16, 17, 18, 19, 20, 21, 22, 45, 46, 47]);
+export const isDateCode = (code) => /[dmyhs]/i.test(code.replace(/"[^"]*"|\[[^\]]*\]|\\.|_.|\*./g, ""));
 
 function dateStyles(styles) {
   const codes = new Map([...styles.matchAll(/<numFmt\s[^>]*?numFmtId="(\d+)"[^>]*?formatCode="([^"]*)"/g)].map((m) => [+m[1], unesc(m[2])]));
@@ -74,13 +74,13 @@ function dateStyles(styles) {
   return [...xfs.matchAll(/<xf\s[^>]*?numFmtId="(\d+)"/g)].map((m) => { const id = +m[1]; return BUILTIN_DATE.has(id) || (codes.has(id) && isDateCode(codes.get(id))); });
 }
 
-function serialToIso(v, epoch1904) {
+export function serialToIso(v, epoch1904) {
   const days = Math.floor(v);
   const d = new Date(Date.UTC(1899, 11, 30) + (days + (epoch1904 ? 1462 : 0)) * 86400000);
   return d.toISOString().slice(0, 10);
 }
 
-const csvCell = (s) => (/[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s);
+export const csvCell = (s) => (/[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s);
 
 function partsToCsv(parts, z) {
   if (!isXlsx(z)) throw new Error("this zip is not an Excel workbook");
@@ -117,6 +117,13 @@ function partsToCsv(parts, z) {
     }
     if (!best || cells > best.cells) best = { cells, rows };
   }
+  return sheetsToCsv(best ? [best] : []);
+}
+
+// The busiest of several sheets ({ cells, rows }) as CSV, shared with the .xls reader.
+export function sheetsToCsv(sheets) {
+  let best = null;
+  for (const s of sheets) if (!best || s.cells > best.cells) best = s;
   if (!best || !best.cells) throw new Error("this workbook has no cells with data");
   const width = Math.max(...best.rows.filter(Boolean).map((r) => r.length));
   const lines = [];
