@@ -75,3 +75,11 @@ test("timely-filing discount is capped, and payments are matched to the period t
   assert.ok(r.warnings.some((w) => /2026-Q2.*\$0\.90 still unpaid after the 2026-07-20/.test(w)));
   assert.ok(!salesTaxReturn(b).warnings.some((w) => /still unpaid/.test(w)));
 });
+
+test("state presets: California is due at month end, Washington on the 25th", async () => {
+  const { STATE_DUE_DAYS } = await import("./salestaxreturn.mjs");
+  assert.equal(dueDate("2026-Q1", STATE_DUE_DAYS.CA), "2026-04-30");
+  assert.equal(dueDate("2026-01", STATE_DUE_DAYS.CA), "2026-02-28");
+  assert.equal(dueDate("2027-Q4", STATE_DUE_DAYS.CA), "2028-01-31");
+  assert.equal(dueDate("2026-Q1", STATE_DUE_DAYS.WA), "2026-04-25");
+});
