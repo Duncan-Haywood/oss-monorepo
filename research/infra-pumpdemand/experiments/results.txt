@@ -1,0 +1,65 @@
+== A. Set: 21806 masks (<= 2 on-runs a day), 900 s step, last of 3 days scored
+shipped (01-15): 2,573 kWh/day, peak 373 kW, min pressure 27.2 m, drift 12 m3
+feasible at |drift| <= 1 % of demand: 21023 of 21806; shipped feasible: True
+feasible at |drift| <= 0.1 % of demand: 17536 of 21806; shipped feasible: True
+least energy, tol 1 %: 00-01+02-22, 1,306 kWh/day (49.2 % less), peak 63 kW
+least energy, tol 0.1 %: 00-23, 1,428 kWh/day (44.5 % less), peak 63 kW
+
+== B. Monthly pumping bill ($, B-19 secondary, energy + demand charges), drift tolerance 1 %
+season | schedule | label | energy $ | demand $ | total $ | peak kW | peak-period kW | saving vs shipped %
+summer | shipped | 01-15 | 9,793 | 17,185 | 26,978 | 373 | 0 | 0.0
+summer | flat-energy opt | 00-01+02-22 | 5,561 | 5,862 | 11,422 | 63 | 62 | 57.7
+summer | TOU-energy opt | 18-20+21-16 | 5,248 | 5,871 | 11,119 | 63 | 62 | 58.8
+summer | full-bill opt | 18-20+21-16 | 5,248 | 5,871 | 11,119 | 63 | 62 | 58.8
+summer | full-bill opt (1 run) | 21-18 | 5,249 | 5,873 | 11,122 | 63 | 62 | 58.8
+winter | shipped | 01-15 | 9,411 | 13,933 | 23,343 | 373 | 0 | 0.0
+winter | flat-energy opt | 00-01+02-22 | 5,170 | 2,487 | 7,657 | 63 | 62 | 67.2
+winter | TOU-energy opt | 18-20+21-16 | 4,944 | 2,496 | 7,440 | 63 | 62 | 68.1
+winter | full-bill opt | 18-20+21-16 | 4,944 | 2,496 | 7,440 | 63 | 62 | 68.1
+winter | full-bill opt (1 run) | 21-18 | 4,945 | 2,496 | 7,441 | 63 | 62 | 68.1
+spring | shipped | 01-15 | 8,883 | 13,933 | 22,816 | 373 | 0 | 0.0
+spring | flat-energy opt | 00-01+02-22 | 4,641 | 2,487 | 7,128 | 63 | 62 | 68.8
+spring | TOU-energy opt | 18-20+21-16 | 4,415 | 2,496 | 6,911 | 63 | 62 | 69.7
+spring | full-bill opt | 18-20+21-16 | 4,415 | 2,496 | 6,911 | 63 | 62 | 69.7
+spring | full-bill opt (1 run) | 21-18 | 4,416 | 2,496 | 6,912 | 63 | 62 | 69.7
+annual (12 months, each season's own schedule): shipped $293,076; flat-energy opt $105,356; TOU-energy opt $102,404; full-bill opt $102,404; full-bill opt (1 run) $102,429
+annual saving vs shipped %: flat-energy opt 64.1; TOU-energy opt 65.1; full-bill opt 65.1; full-bill opt (1 run) 65.1
+
+== B. Monthly pumping bill ($, B-19 secondary, energy + demand charges), drift tolerance 0.1 %
+season | schedule | label | energy $ | demand $ | total $ | peak kW | peak-period kW | saving vs shipped %
+summer | shipped | 01-15 | 9,793 | 17,185 | 26,978 | 373 | 0 | 0.0
+summer | flat-energy opt | 00-23 | 6,054 | 5,858 | 11,912 | 63 | 62 | 55.8
+summer | TOU-energy opt | 21-20 | 5,933 | 5,858 | 11,791 | 63 | 62 | 56.3
+summer | full-bill opt | 21-20 | 5,933 | 5,858 | 11,791 | 63 | 62 | 56.3
+summer | full-bill opt (1 run) | 21-20 | 5,933 | 5,858 | 11,791 | 63 | 62 | 56.3
+winter | shipped | 01-15 | 9,411 | 13,933 | 23,343 | 373 | 0 | 0.0
+winter | flat-energy opt | 00-23 | 5,613 | 2,490 | 8,103 | 63 | 62 | 65.3
+winter | TOU-energy opt | 21-20 | 5,538 | 2,490 | 8,028 | 63 | 62 | 65.6
+winter | full-bill opt | 21-20 | 5,538 | 2,490 | 8,028 | 63 | 62 | 65.6
+winter | full-bill opt (1 run) | 21-20 | 5,538 | 2,490 | 8,028 | 63 | 62 | 65.6
+spring | shipped | 01-15 | 8,883 | 13,933 | 22,816 | 373 | 0 | 0.0
+spring | flat-energy opt | 00-23 | 5,085 | 2,490 | 7,575 | 63 | 62 | 66.8
+spring | TOU-energy opt | 21-20 | 5,010 | 2,490 | 7,500 | 63 | 62 | 67.1
+spring | full-bill opt | 21-20 | 5,010 | 2,490 | 7,500 | 63 | 62 | 67.1
+spring | full-bill opt (1 run) | 21-20 | 5,010 | 2,490 | 7,500 | 63 | 62 | 67.1
+annual (12 months, each season's own schedule): shipped $293,076; flat-energy opt $110,889; TOU-energy opt $109,802; full-bill opt $109,802; full-bill opt (1 run) $109,802
+annual saving vs shipped %: flat-energy opt 62.2; TOU-energy opt 62.5; full-bill opt 62.5; full-bill opt (1 run) 62.5
+
+== C. What the demand charge changes (drift tolerance 0.1 %)
+season | energy-only optimum billed in full vs full-bill optimum: extra $/month | demand share of the shipped bill %
+summer | 0 (0.0 %) | 64
+winter | 0 (0.0 %) | 60
+spring | 0 (0.0 %) | 61
+
+== E. Does the choice survive other demand-charge sizes? (summer, drift 0.1 %; demand rates x a multiplier)
+multiplier | full-bill optimum | its peak kW | energy-only optimum billed in full: extra % | saving of full-bill optimum vs shipped %
+x0 | 21-20 | 63 | 0.00 | 39.4
+x0.5 | 21-20 | 63 | 0.00 | 51.8
+x1 | 21-20 | 63 | 0.00 | 56.3
+x2 | 21-20 | 63 | 0.00 | 60.0
+x5 | 21-20 | 63 | 0.00 | 63.2
+x20 | 21-20 | 63 | 0.00 | 65.2
+
+== D. Peak-demand floor: lowest feasible peak kW over all masks (drift 0.1 %) and the energy it costs
+lowest peak 63 kW at 05-04: 1,429 kWh/day; shipped peak 373 kW
+DAYS_PER_MONTH 30.417
