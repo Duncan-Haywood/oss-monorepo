@@ -162,3 +162,40 @@ test('a page written with no og: tags gets title, description, url and type from
   assert.equal(pageCardPlan(html, 'deploy/index.html', { baseUrl: BASE }).options.headline, 'Deploy your own copy');
   assert.equal(completeShareTags(out, { card: `${BASE}deploy/share-card.png`, url: `${BASE}deploy/`, toRoot: '../' }), out);
 });
+
+test('crumbsOf reads at most 4000 characters from the trail when no </nav> closes it', () => {
+  // A link whose </a> ends at character 4000 is read; one ending at 4001 is cut.
+  const head = '<nav class="crumbs">';
+  const link = (endAt, label) => {
+    const open = '<a href="/x">';
+    const pad = 'y'.repeat(endAt - head.length - open.length - '</a>'.length - label.length);
+    return `${head}${open}${label}${pad}</a>`;
+  };
+  assert.deepEqual(crumbsOf(link(4000, 'Edge')).length, 1);
+  assert.deepEqual(crumbsOf(link(4001, 'Edge')), []);
+});
+
+test('the CLI reads --base= and --only= values whole', async () => {
+  const { execFile } = await import('node:child_process');
+  const { mkdtemp, mkdir, readFile, writeFile, rm } = await import('node:fs/promises');
+  const { tmpdir } = await import('node:os');
+  const { join } = await import('node:path');
+  const dir = await mkdtemp(join(tmpdir(), 'share-cli-'));
+  try {
+    await mkdir(join(dir, 'a'));
+    await mkdir(join(dir, 'b'));
+    const page = '<!doctype html><html><head><title>T</title></head><body></body></html>';
+    await writeFile(join(dir, 'a', 'index.html'), page);
+    await writeFile(join(dir, 'b', 'index.html'), page);
+    const script = new URL('./share.mjs', import.meta.url).pathname;
+    const stdout = await new Promise((resolve, reject) => execFile(
+      process.execPath, [script, dir, '--base=https://example.test/site', '--only=a'],
+      (err, out, errOut) => (err ? reject(new Error(errOut)) : resolve(out)),
+    ));
+    assert.match(stdout, /Drew 1 share card\(s\)/);
+    assert.match(await readFile(join(dir, 'a', 'index.html'), 'utf8'), /content="https:\/\/example\.test\/site\/a\/"/);
+    assert.equal(await readFile(join(dir, 'b', 'index.html'), 'utf8'), page);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
