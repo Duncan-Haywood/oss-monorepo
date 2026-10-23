@@ -33,3 +33,12 @@ test("a UTF-16 file on disk imports through the CLI's file reader", () => {
   writeFileSync(f, utf16le(csv.replace(/\n/g, "\r\n")));
   assert.deepEqual(rows(statementTextFromFile(f)), rows(csv));
 });
+
+test("Windows-1257 and Windows-1250 statements are told from Windows-1252 by their letters", () => {
+  const enc = (map, s) => Buffer.from([...s].map((c) => map[c] ?? c.charCodeAt(0)));
+  const lt = { "ą": 0xe0, "č": 0xe8, "ė": 0xeb, "š": 0xf0, "ž": 0xfe, "ų": 0xf8, "ū": 0xfb, "Š": 0xd0, "į": 0xe1 };
+  const cz = { "ě": 0xec, "š": 0x9a, "č": 0xe8, "ř": 0xf8, "ž": 0x9e, "ů": 0xf9, "ý": 0xfd, "á": 0xe1 };
+  for (const s of ["Mokėjimas už šviežią žuvį", "Pavedimas: Šiaulių gatvė 5, Vilnius, čekis"]) assert.equal(decodeBytes(enc(lt, s)), s);
+  for (const s of ["Platba za čerstvé zboží, Řeřicha", "Poplatek ěščřžýáí"]) assert.equal(decodeBytes(enc({ ...cz, "Ř": 0xd8, "é": 0xe9, "í": 0xed }, s)), s);
+  assert.equal(decodeBytes(Buffer.from([0x43, 0x61, 0x66, 0xe9, 0x20, 0x4d, 0xfc, 0x6c, 0x6c, 0x65, 0x72])), "Café Müller");
+});
