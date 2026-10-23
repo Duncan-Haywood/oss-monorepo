@@ -1,0 +1,56 @@
+# COP curve (Staffell et al. 2012 fit)
+source_C sink35 sink45 sink55
+     -10   2.64   2.06   1.61
+      -5   2.98   2.33   1.82
+       0   3.35   2.64   2.06
+       5   3.75   2.98   2.33
+      10   4.18   3.35   2.64
+      15   4.64   3.75   2.98
+
+# Weather and seasonal COP (heat-weighted, base 15 C)
+year  mean_T_NovMar  heating_degree_hours  SCOP@35  SCOP@45  SCOP@55
+2015           4.77                 50525     3.67     2.91     2.28
+2016           3.16                 54438     3.58     2.84     2.22
+2017           3.41                 53677     3.56     2.82     2.21
+2018           3.04                 51106     3.52     2.79     2.18
+2019           4.43                 49011     3.66     2.90     2.27
+
+# House, weekly: store minus pump, EUR/kWh (negative: store wins)
+year  table(3.6)  hdd@35  hdd@45  hdd@55  flat@45
+2015    -0.0044    -0.0045    -0.0068    -0.0099    -0.0065
+2016    -0.0053    -0.0055    -0.0077    -0.0108    -0.0077
+2017    -0.0054    -0.0058    -0.0088    -0.0128    -0.0085
+2018    +0.0111    +0.0109    +0.0078    +0.0036    +0.0079
+2019    -0.0005    -0.0010    -0.0040    -0.0079    -0.0032
+
+# House, weekly: store-capex multiplier at which the verdict flips (>1: store wins with room to spare)
+year  table(3.6)  hdd@35  hdd@45  hdd@55
+2015       1.16       1.17       1.25       1.37
+2016       1.20       1.20       1.29       1.40
+2017       1.20       1.22       1.33       1.48
+2018       0.59       0.59       0.71       0.86
+2019       1.02       1.04       1.15       1.30
+
+# House, daily: store minus pump, EUR/kWh (negative: store wins)
+year  table(3.6)  hdd@35  hdd@45  hdd@55  flat@45
+2015    -0.0255    -0.0255    -0.0278    -0.0309    -0.0275
+2016    -0.0265    -0.0267    -0.0290    -0.0320    -0.0289
+2017    -0.0251    -0.0256    -0.0285    -0.0325    -0.0282
+2018    -0.0115    -0.0117    -0.0148    -0.0190    -0.0147
+2019    -0.0197    -0.0202    -0.0231    -0.0271    -0.0224
+
+# House, daily: store-capex multiplier at which the verdict flips (>1: store wins with room to spare)
+year  table(3.6)  hdd@35  hdd@45  hdd@55
+2015       3.41       3.42       3.64       3.93
+2016       3.52       3.53       3.75       4.04
+2017       3.38       3.42       3.70       4.08
+2018       2.09       2.11       2.40       2.80
+2019       2.87       2.91       3.19       3.57
+
+# Weekly house, hdd weights @45C: sweep the heating base temperature (flip multiplier)
+year  base12  base15  base18
+2015    1.27    1.25    1.24
+2016    1.30    1.29    1.28
+2017    1.36    1.33    1.30
+2018    0.72    0.71    0.70
+2019    1.17    1.15    1.13
