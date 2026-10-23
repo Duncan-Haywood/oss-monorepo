@@ -351,3 +351,12 @@ test("Nationwide-style export: the balance chain holds read newest first", () =>
   assert.equal(c.checked, true);
   assert.deepEqual(c.breaks, []);
 });
+
+test("Dutch banks: ING Af/Bij and Knab CreditDebet markers set the sign", () => {
+  // Layouts from the ofxstatement-dutch plugin's tests (rows made up).
+  const ing = read("ing-nl.csv");
+  assert.deepEqual(ing.rows.map((x) => x.cents), [-1234, 125000]);
+  assert.deepEqual(ing.rows.map((x) => x.date), ["2020-02-13", "2020-02-14"]);
+  const knab = read("knab-nl.csv");
+  assert.deepEqual(knab.rows.map((x) => x.cents), [-702, 500, -123450]);
+});
