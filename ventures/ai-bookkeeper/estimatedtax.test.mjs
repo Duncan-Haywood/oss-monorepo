@@ -72,3 +72,18 @@ test("unknown year needs brackets, and unchecked tables carry a warning", () => 
   assert.ok(r.incomeTax >= 0);
   assert.ok(estimatedTax(books("1000.00"), { year: 2026 }).warnings.some((w) => /from memory/.test(w)));
 });
+
+test("Additional Medicare Tax: 0.9% of earnings over $200,000, wages counting first", () => {
+  // profit 300,000: net earnings 277,050; over 200,000 by 77,050 -> 693.45
+  const a = estimatedTax(books("300000.00"), { year: 2026, wageBase: 18450000 });
+  assert.equal(a.addlMedicare, Math.round(0.009 * 7705000));
+  assert.equal(a.totalTax, a.incomeTax + a.se.tax + a.addlMedicare);
+  // 150,000 of wages lowers the SE threshold to 50,000: 0.9% of (277,050 - 50,000) = 2,043.45
+  const w = estimatedTax(books("300000.00"), { year: 2026, wageBase: 18450000, wages: 15000000 });
+  assert.equal(w.addlMedicare, Math.round(0.009 * (27705000 - 5000000)));
+  // married filing jointly has a $250,000 threshold
+  const m = estimatedTax(books("300000.00"), { year: 2026, filing: "mfj", wageBase: 18450000 });
+  assert.equal(m.addlMedicare, Math.round(0.009 * (27705000 - 25000000)));
+  // under the threshold there is none
+  assert.equal(estimatedTax(books("100000.00"), { year: 2026, wageBase: 18450000 }).addlMedicare, 0);
+});
