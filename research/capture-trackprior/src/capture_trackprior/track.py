@@ -49,6 +49,9 @@ def track_camera(windows, times, gamma, boot, cap_s=None, full_half=1.5):
             c = h = float("nan")
         else:
             c, h = predict(times[:k], est, times[k], cap_s=cap_s)
-            d = gcc_search(a, b, gamma, c, h)
+            try:
+                d = gcc_search(a, b, gamma, c, h)
+            except ValueError:                 # prediction left the lags the window can hold: re-acquire without a prior
+                d = gcc_search(a, b, gamma, 0.0, full_half)
         est.append(d); cen.append(c); hal.append(h)
     return np.array(est), np.array(cen), np.array(hal)
