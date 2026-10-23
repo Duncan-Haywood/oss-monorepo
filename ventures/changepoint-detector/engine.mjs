@@ -396,6 +396,8 @@ export function poissonTrend(x, { base = null, penalty = 'bic', minSegment = 2, 
   // Under the negative binomial a long series is scored with the Poisson cost, as in the knot search. Stride about n / 80.
   const rangeGap = Math.max(minSegment, 2 * step), rstride = Math.max(1, Math.round(n / 80));
   const poissonRank = nb && n >= 80;
+  // Scored with the Poisson cost, clumpy counts look more certain than they are: widen by the NB variance-to-mean ratio 1 + mean / size.
+  const rangeScale = Math.max(1, scale, poissonRank ? 1 + (x.reduce((a, v) => a + v, 0) / n) / nbSize : 1);
   const phis = knotsFound.map((k) => hinge(k));
   const ranges = knotsFound.map((k, j) => {
     const others = knotsFound.filter((_, i) => i !== j);
@@ -408,7 +410,7 @@ export function poissonTrend(x, { base = null, penalty = 'bic', minSegment = 2, 
     }
     if (!ks.includes(k)) { ks.push(k); cs.push(fit([u, ...phis], cur.g, poissonRank).cost); }
     const m = Math.min(...cs);
-    const w = cs.map((v) => Math.exp(-(v - m) / 2 / (Math.max(1, scale) * RANGE_TEMPER)));
+    const w = cs.map((v) => Math.exp(-(v - m) / 2 / (rangeScale * RANGE_TEMPER)));
     const tot = w.reduce((a, v) => a + v, 0);
     let acc = 0, from = Infinity, to = -Infinity;
     for (const i of w.map((_, i) => i).sort((a, b) => w[b] - w[a])) { acc += w[i] / tot; from = Math.min(from, ks[i]); to = Math.max(to, ks[i]); if (acc >= 0.95) break; }
