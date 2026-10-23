@@ -257,6 +257,14 @@ data:
         add_header Referrer-Policy strict-origin-when-cross-origin always;
         add_header Cache-Control "public, max-age=300, must-revalidate" always;
       }
+      location ~ \.tsv$ {
+        types { }
+        default_type text/tab-separated-values;
+        add_header X-Content-Type-Options nosniff always;
+        add_header X-Frame-Options DENY always;
+        add_header Referrer-Policy strict-origin-when-cross-origin always;
+        add_header Cache-Control "public, max-age=300, must-revalidate" always;
+      }
 
       # Fourth of the same class: nginx's mime.types has no `py` entry either
       # (verified against 1.27.0). 18 ventures publish a standalone CLI
