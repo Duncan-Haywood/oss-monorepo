@@ -39,7 +39,7 @@ The comparison is a difference of means with a 4,000-resample bootstrap interval
 
 ## Limitations
 
-- One garment (M tee), one arm depth (3 cm), 64 drapes per 3D loop against 150 for 2D, so the budgets differ; the 3D loop wins with less compute, and a longer search would likely widen the gap.
+- One garment (M tee), one arm depth (3 cm), 64 drapes per 3D loop against 150 for 2D, so the budgets differ; the 3D loop wins with less compute, and a longer search could change the gap (untested).
 - The 2D loop has no access to the wide bounds, so the 3d-wide against 2d-design contrast mixes loop and bound. The like-for-like contrast is 3d-orig against 2d-design (−0.26 cm).
 - Fabric constants, shear fraction and contact stiffness are assumed (`hanger-3d`); the 20 cm strip has no collar or seam; no friction. Nothing is measured on a real garment. A bound-limited optimum (radius) shows the design space, not a manufacturable hanger.
 - Citations: none beyond those in `hanger-3d` and `hanger-fit`.
