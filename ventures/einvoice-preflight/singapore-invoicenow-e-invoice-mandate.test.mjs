@@ -16,7 +16,7 @@ test("states the dates and says what is unconfirmed", () => {
   assert.match(html, /1 Nov 2025/);
   assert.match(html, /1 Apr 2026/);
   assert.match(html, /1 Apr 2031/);
-  assert.match(html, /does not apply the Singapore PINT rules/);
+  assert.match(html, /runs OpenPeppol's Singapore PINT rules/);
   assert.match(html, /not found|could not confirm|unconfirmed/i);
 });
 

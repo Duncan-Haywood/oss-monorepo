@@ -84,7 +84,8 @@ function xqueryFunction(fn) {
   const body = (nodes) => {
     const [first, ...rest] = nodes;
     if (!first) throw new Error(`function ${name}: body ends without a value`);
-    if (is(first, XSL, "sequence")) return `(${first.getAttribute("select")})`;
+    // value-of in a function typed xs:boolean/xs:string: the select's own value
+    if (is(first, XSL, "sequence") || is(first, XSL, "value-of")) return `(${first.getAttribute("select")})`;
     if (is(first, XSL, "variable")) {
       const select = first.getAttribute("select")
         ?? (elements(first).length ? valueOf(first) : JSON.stringify(first.textContent.trim()));
@@ -99,7 +100,7 @@ function xqueryFunction(fn) {
     throw new Error(`function ${name}: unsupported <${first.localName}>`);
   };
   const valueOf = (variable) => {
-    const seq = elements(variable).find((e) => is(e, XSL, "sequence"));
+    const seq = elements(variable).find((e) => is(e, XSL, "sequence") || is(e, XSL, "value-of"));
     if (!seq || elements(variable).length !== 1) throw new Error(`function ${name}: unsupported variable body`);
     return seq.getAttribute("select");
   };
