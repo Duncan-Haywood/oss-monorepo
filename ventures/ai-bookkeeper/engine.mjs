@@ -160,6 +160,25 @@ export function importOfxAccounts(booksIn, text, map, opts = {}) {
   return { books, added, skipped, problems, accounts };
 }
 
+// A CSV whose rows name their account (Mint, Monarch, Tiller, YNAB exports):
+// `map` sends each name in the file's Account column to a chart code. Names
+// left out of the map are not imported and are listed in `problems`.
+// -> importStatement's result, summed, plus `accounts` ({ name, code }).
+export function importCsvAccounts(booksIn, csv, map, opts = {}) {
+  const names = readStatement(csv, opts).accountNames ?? [];
+  const accounts = names.map((name) => ({ name, code: map?.[name] ?? null }));
+  let books = booksIn, added = 0, skipped = 0;
+  const problems = [];
+  if (!names.length) problems.push("No Account column naming more than one account in this file.");
+  for (const a of accounts) {
+    if (!a.code) { problems.push(`Account "${a.name}" has no chart code in the map, left out.`); continue; }
+    const r = importStatement(books, csv, a.code, { ...opts, onlyAccount: a.name });
+    books = r.books; added += r.added; skipped += r.skipped;
+    problems.push(...r.problems.map((x) => `Account "${a.name}": ${x}`));
+  }
+  return { books, added, skipped, problems, accounts };
+}
+
 // Suggest an account for every open line, pair transfers, and auto-post what
 // is sure. Lines you already confirmed are never touched.
 export function categorize(booksIn, opts = {}) {

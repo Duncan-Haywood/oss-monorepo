@@ -19,14 +19,14 @@ import { join } from "node:path";
 import { addLoan, addLoanExtra, applyLoanPayments, checkLenderSchedule, loanRegister, loanSchedule } from "./loans.mjs";
 import { salesTaxReturn, STATE_DUE_DAYS } from "./salestaxreturn.mjs";
 import { gstReturn } from "./gstreturn.mjs";
-import { newBooks, importStatement, importOfxAccounts, lockPeriod, closeYear, reopenYear, yearEndReport, categorize, suggestRules, addRules, addDocuments, addAsset, disposeAsset, addAssetsCsv, register, addPrepaid, prepaidRegister, addInventoryMove, setInventoryMethod, inventoryRegister, writeOff, aging, salesTax, vatReturn, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, addFxAccount, setRates, parseRates, fxRegister, exportLines, status, analyze, fmt, taxableBusinessIncome, s179Carryforward } from "./engine.mjs";
+import { newBooks, importStatement, importOfxAccounts, importCsvAccounts, lockPeriod, closeYear, reopenYear, yearEndReport, categorize, suggestRules, addRules, addDocuments, addAsset, disposeAsset, addAssetsCsv, register, addPrepaid, prepaidRegister, addInventoryMove, setInventoryMethod, inventoryRegister, writeOff, aging, salesTax, vatReturn, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, addFxAccount, setRates, parseRates, fxRegister, exportLines, status, analyze, fmt, taxableBusinessIncome, s179Carryforward } from "./engine.mjs";
 import { parseCents } from "./bank.mjs";
 import { accountMap } from "./ledger.mjs";
 import { estimatedTax } from "./estimatedtax.mjs";
 import { seSetAside, selfEmployment, scheduleC, scheduleCCsv, contractors1099, contractors1099Csv, nec1099FilingCsv, markW9, mergePayees } from "./taxforms.mjs";
 import { setOpeningBalances, clearOpeningBalances } from "./opening.mjs";
 import { importChart, importTrialBalance } from "./migrate.mjs";
-import { sniffFormat, splitOfx } from "./bank.mjs";
+import { sniffFormat, splitOfx, readStatement } from "./bank.mjs";
 import { detectRecurring, forecastCash } from "./recurring.mjs";
 import { findAnomalies } from "./anomalies.mjs";
 import { receiptTextFromFile, statementTextFromFile } from "./ocr.mjs";
@@ -148,7 +148,22 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
   // an OFX file with several accounts: --map OFXID=CODE,OFXID=CODE
   const text = statementTextFromFile(rest[0]);
   const parts = sniffFormat(text) === "ofx" ? splitOfx(text) : [];
-  const map = Object.fromEntries((acctMap ?? "").split(",").filter(Boolean).map((p) => p.split("=")));
+  const map = Object.fromEntries((acctMap ?? "").split(",").filter(Boolean).map((p) => [p.slice(0, p.lastIndexOf("=")), p.slice(p.lastIndexOf("=") + 1)]));
+  // a CSV that names the account on each row (Mint, Monarch, Tiller, YNAB): --map "Account Name"=CODE,...
+  const names = parts.length ? [] : readStatement(text, opts).accountNames ?? [];
+  if (names.length > 1) {
+    if (!Object.keys(map).length) {
+      for (const n of names) console.error(`Account "${n}": pass --map "${n}"=CODE`);
+      console.error("this file holds several accounts; map each name to a chart code with --map");
+      process.exit(2);
+    }
+    const r = importCsvAccounts(books, text, map, opts);
+    books = r.books;
+    save();
+    for (const p of r.problems) console.error(p);
+    console.log(`${r.accounts.filter((a) => a.code).length} of ${r.accounts.length} accounts imported: ${r.added} lines added, ${r.skipped} already in the books.`);
+    process.exit(0);
+  }
   if (parts.length < 2 || !Object.keys(map).length) {
     if (parts.length > 1) for (const p of parts) console.error(`OFX account ${p.id} (${p.card ? "card" : p.type || "bank"}): pass --map ${p.id}=CODE`);
     console.error("import needs a CSV file and --account CODE (or, for an OFX file with several accounts, --map OFXID=CODE,...)");

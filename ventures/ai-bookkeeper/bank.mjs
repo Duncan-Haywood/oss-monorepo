@@ -300,7 +300,7 @@ export function readQif(text, { dayFirst = false } = {}) {
 // flipped when its payments are negative (`inferred` says so).
 // Without dayFirst or decimalComma the CSV branch infers them from the cells
 // (inferLocale); passing either one, true or false, is never overridden.
-export function readStatement(text, { dayFirst, decimalComma, invert, year } = {}) {
+export function readStatement(text, { dayFirst, decimalComma, invert, year, onlyAccount } = {}) {
   text = String(text ?? "");
   const dfGiven = dayFirst !== undefined, dcGiven = decimalComma !== undefined;
   dayFirst = !!dayFirst; decimalComma = !!decimalComma;
@@ -375,8 +375,14 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year } = {
   const feeCol = bank === "revolut" ? hdr.indexOf("fee") : -1;
   const curCol = bank === "revolut" ? hdr.indexOf("currency") : -1;
   const currencies = new Set();
+  // Mint, Monarch, Tiller and YNAB write every account into one file and name the account on each row.
+  const acctCol = hdr.findIndex((x) => /^(account name|account|account nickname)$/.test(x));
+  const accountNames = new Set();
   for (let i = first; i < rows.length; i++) {
     const r = rows[i];
+    const acctName = acctCol === -1 ? "" : String(r[acctCol] ?? "").trim();
+    if (acctName && String(r[columns.date] ?? "").trim()) accountNames.add(acctName);
+    if (onlyAccount !== undefined && acctName !== onlyAccount) continue;
     if (bank === "venmo" && !String(r[columns.date] ?? "").trim()) continue;
     if (stateCol !== -1 && !okState.test(String(r[stateCol] ?? "").trim())) { problems.push(`Line ${i + 1}: state ${String(r[stateCol] ?? "").trim() || "blank"}, not a completed transaction, skipped.`); continue; }
     if (anyState !== -1 && NOT_BOOKED.test(String(r[anyState] ?? "").trim())) { problems.push(`Line ${i + 1}: status ${String(r[anyState]).trim()}, not a booked transaction, skipped.`); continue; }
@@ -423,7 +429,7 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year } = {
   }
   if (flip) for (const r of out) r.cents = -r.cents;
   if (localeNote) inferred = [inferred, localeNote + " (inferred from the file; pass dayFirst / decimalComma to override)."].filter(Boolean).join(" ");
-  return { rows: out, problems, columns, bank, inferred };
+  return { rows: out, problems, columns, bank, inferred, ...(accountNames.size > 1 ? { accountNames: [...accountNames] } : {}) };
 }
 
 // Guess day-first dates and decimal commas from the data rows. Day first when a
