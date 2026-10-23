@@ -156,3 +156,11 @@ test("the page offers a second cross wing, only after the first, and round-trips
   assert.match(html, /rf\.wing2 = \{ width: L\(\$\("#rfWing2W"\)\.value/);
   assert.match(html, /\$\("#rfWing2"\)\.value = w2 \? "1" : "0"/);
 });
+
+test("the page takes a gable pitch and peak per wall, passes them to the engine and restores them", () => {
+  const html = page("index.html");
+  assert.match(html, /function gableField/);
+  assert.match(html, /\.\.\.gableField\(w, L, bad\)/);
+  assert.match(html, /data-k="gable"|"gable", w\.gable/);
+  assert.match(html, /gable: w\.gable \? String\(w\.gable\.pitch\)/);
+});
