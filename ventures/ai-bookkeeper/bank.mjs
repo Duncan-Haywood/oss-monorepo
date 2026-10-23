@@ -491,7 +491,8 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
   const anyState = stateCol === -1 && columns.amount !== -1 ? hdr.findIndex((x) => x === "status" || x === "state" || x === "transaction status") : -1;
   const NOT_BOOKED = /^(pending|declined|failed|cancell?ed|reversed|reverted|voided|rejected|authori[sz]ed|authori[sz]ation|processing|in progress|on hold|returned)$/i;
   const feeCol = bank === "revolut" ? hdr.indexOf("fee") : -1;
-  const curCol = bank === "revolut" ? hdr.indexOf("currency") : -1;
+  // Any file with a currency column (Revolut, Swedbank's Valiuta, Wise and the like) is checked for a mix.
+  const curCol = hdr.findIndex((x) => /^(currency|valiuta|valuta|waluta|währung|wahrung|devise|moneda|divisa|moeda)( code)?$/.test(x));
   const currencies = new Set();
   // Mint, Monarch, Tiller and YNAB write every account into one file and name the account on each row.
   const acctCol = hdr.findIndex((x) => /^(account name|account|account nickname)$/.test(x));
@@ -538,7 +539,7 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
     }
     out.push({ line: i + 1, date, desc, cents, balance: Number.isFinite(balance) ? balance : null });
   }
-  if (currencies.size > 1) problems.push(`The file mixes currencies (${[...currencies].join(", ")}). Revolut writes one file per currency account: import each on its own account.`);
+  if (currencies.size > 1) problems.push(`The file mixes currencies (${[...currencies].join(", ")}). Amounts are booked as written, with no conversion: import each currency on its own account.`);
   let inferred = null;
   let flip = !!invert;
   if (invert === undefined && out.every((r) => r.balance === null) && columns.amount !== -1) {

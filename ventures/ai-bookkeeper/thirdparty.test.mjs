@@ -93,3 +93,17 @@ test("Swedbank LT layout: Lithuanian headers, D/K flag, balance rows skipped; co
   assert.equal(s.rows.length, 1);
   assert.ok(s.problems.some((p) => /fewer than the header/.test(p)));
 });
+
+test("a currency column with more than one currency is named, in any bank's file", () => {
+  const f = [
+    "Data,Suma,Valiuta,Paaiškinimai",
+    "2026-03-01,-10.00,EUR,Cafe",
+    "2026-03-02,-20.00,USD,Hotel",
+    "2026-03-03,-5.00,EUR,Bus",
+  ].join("\n");
+  const r = readStatement(f);
+  assert.equal(r.rows.length, 3);
+  assert.ok(r.problems.some((p) => /mixes currencies \(EUR, USD\)/.test(p)));
+  const one = readStatement(f.replace("USD", "EUR"));
+  assert.ok(!one.problems.some((p) => /mixes currencies/.test(p)));
+});
