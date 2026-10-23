@@ -23,6 +23,7 @@ import { newBooks, importStatement, importOfxAccounts, importCsvAccounts, import
 import { parseCents } from "./bank.mjs";
 import { accountMap } from "./ledger.mjs";
 import { estimatedTax } from "./estimatedtax.mjs";
+import { addRentalAccounts, addProperty, tagProperty, scheduleE, scheduleECsv } from "./rental.mjs";
 import { seSetAside, selfEmployment, scheduleC, scheduleCCsv, contractors1099, contractors1099Csv, nec1099FilingCsv, markW9, mergePayees } from "./taxforms.mjs";
 import { setOpeningBalances, clearOpeningBalances } from "./opening.mjs";
 import { importChart, importTrialBalance } from "./migrate.mjs";
@@ -75,6 +76,8 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
   w9 PAYEE [--off]       record that a W-9 is on file for a payee (a flag; no tax IDs are stored)
   trip add MILES --date D --purpose TEXT [--from A --to B] | trip list [--year Y] | trip remove ID   the business mileage log (goes to Schedule C line 9 with --year)
   homeoffice SQFT [--from D --to D]     simplified home office ($5 a sq ft, 300 max; 0 removes it); line 30 with schedulec --year
+  rental accounts | add ID [NAME...] | tag ID (--match TEXT|--account CODE|--ids A,B) | untag (same) | list   rental properties; tag bank lines to a property
+  schedulee [--from D --to D] [--csv|--json]  the books on US Schedule E Part I lines, one column per property (a worksheet, not a filing)
   schedulec [--year Y] [--from D --to D] [--meals PCT] [--csv|--json]  the profit and loss on US Schedule C lines (a worksheet, not a filing)
   estimate [--year Y] [--months N] [--filing single|mfj|hoh] [--wages $] [--other $] [--withholding $] [--paid $] [--prior-tax $ --prior-agi $] [--as-of D] [--no-qbi] [--json]  federal income tax plus SE tax and a safe-harbour 1040-ES payment plan (worksheet)
   se [--year Y] [--months N] [--wages $] [--json]  self-employment tax on the year's Schedule C profit, annualised, split into the four estimated-payment dates (worksheet; income tax not estimated)
@@ -663,6 +666,33 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
     books = setHomeOffice(books, { sqft: rest[0], from, to }); save();
     console.log(books.homeOffice ? `Home office: ${books.homeOffice.sqft} sq ft (${Math.min(books.homeOffice.sqft, 300)} count).` : "Home office removed.");
   } catch (e) { console.error(e.message); process.exit(1); }
+} else if (cmd === "rental") {
+  try {
+    const sub = rest[0];
+    if (sub === "accounts") { books = addRentalAccounts(books); save(); console.log("Rental accounts added (4300 rental income, 6200 to 6230, 2400 deposits held)."); }
+    else if (sub === "add") { books = addProperty(books, { id: rest[1], name: rest.slice(2).join(" ") }); save(); console.log(`Property ${rest[1]} saved.`); }
+    else if (sub === "tag" || sub === "untag") {
+      const ids = flag("--ids"), match = flag("--match"), account = flag("--account");
+      const r = tagProperty(books, sub === "tag" ? rest[1] : null, { ids: ids ? ids.split(",") : null, match, account });
+      books = r.books; save(); console.log(`${r.tagged} line${r.tagged === 1 ? "" : "s"} ${sub === "tag" ? `tagged ${rest[1]}` : "untagged"}.`);
+    } else if (sub === "list" || !sub) {
+      for (const p of books.properties ?? []) console.log(`  ${p.id.padEnd(14)} ${p.name}  (${books.transactions.filter((t) => t.property === p.id).length} tagged lines)`);
+      if (!(books.properties ?? []).length) console.log("  No properties. rental add oak 12 Oak St");
+    } else throw new Error("rental accounts | add ID [NAME] | tag ID --match TEXT | untag --match TEXT | list");
+  } catch (e) { console.error(e.message); process.exit(1); }
+} else if (cmd === "schedulee") {
+  const se = scheduleE(books, { from, to });
+  if (json) { console.log(JSON.stringify(se, null, 2)); process.exit(0); }
+  if (has("--csv")) { process.stdout.write(scheduleECsv(se)); process.exit(0); }
+  console.log(`SCHEDULE E PART I WORKSHEET${from || to ? ` ${from ?? ""}..${to ?? ""}` : ""}`);
+  for (const p of se.properties) {
+    console.log(`\n  ${p.name}${p.address ? ` (${p.address})` : ""}`);
+    for (const l of p.lines) console.log(`    ${l.line.padEnd(3)} ${l.label.padEnd(34)} ${fmt(l.cents).padStart(12)}`);
+    console.log(`    20  ${"Total expenses".padEnd(34)} ${fmt(p.totalExpenses).padStart(12)}\n    21  ${"Income or (loss)".padEnd(34)} ${fmt(p.net).padStart(12)}`);
+  }
+  console.log(`\n  All properties: rents ${fmt(se.total.rents)}, expenses ${fmt(se.total.totalExpenses)}, net ${fmt(se.total.net)}`);
+  for (const w of se.warnings) console.log(`  ! ${w}`);
+  console.log("  A worksheet for you or your preparer. Not tax advice; it leaves out passive-loss limits, personal-use days and the depreciation schedule.");
 } else if (cmd === "schedulec") {
   const yr = flag("--year");
   const sc = scheduleC(books, { from, to, mealsPct: flag("--meals") !== null ? +flag("--meals") : 50, year: yr ? +yr : null });

@@ -9,6 +9,7 @@
 
 import { journal, closeChecks, exportJournal, salesTax } from "./engine.mjs";
 import { trialBalance, profitAndLoss, balanceSheet } from "./ledger.mjs";
+import { scheduleE, scheduleECsv } from "./rental.mjs";
 import { scheduleC, scheduleCCsv, selfEmployment, contractors1099, contractors1099Csv, nec1099FilingCsv } from "./taxforms.mjs";
 import { form941, form940 } from "./payroll.mjs";
 import { taxDepreciation, taxDepreciationCsv } from "./taxdepr.mjs";
@@ -47,6 +48,11 @@ export function taxPack(books, year) {
 
   const sc = scheduleC(books, { from, to, year });
   add("schedule_c.csv", scheduleCCsv(sc));
+  if ((books.properties ?? []).length) {
+    const sched = scheduleE(books, { from, to });
+    add("schedule_e.csv", scheduleECsv(sched));
+    for (const w of sched.warnings.slice(0, 3)) notes.push(`Schedule E: ${w}`);
+  }
   const se = selfEmployment(Math.max(0, sc.netProfit), { year });
   add("self_employment.csv", csv([["Measure", "Amount"], ...Object.entries(se).filter(([, v]) => typeof v === "number").map(([k, v]) => [k, Number.isInteger(v) && Math.abs(v) > 1000 ? d(v) : v])]));
   for (const u of sc.unmapped ?? []) notes.push(`Account ${u.code} ${u.name} (${d(u.cents)}) has no Schedule C line and went to 27a.`);
