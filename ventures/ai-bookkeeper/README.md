@@ -886,7 +886,7 @@ one per customer, part-payments, the `--min` cut); on the page (2026-10-22): und
 
 ### European column names (2026-10-22)
 
-`bank.mjs` also matches German, French, Spanish, Italian and Dutch headers (`Buchungstag`, `Verwendungszweck`, `Betrag`, `Soll`/`Haben`, `Libellé`, `Débit`/`Crédit`, `Fecha`, `Concepto`, `Importe`, `Saldo`, and similar). Pass day-first dates and decimal commas as for any European file. The names are from general knowledge of these languages, not from a specific bank's download; text month names in dates are still English only.
+`bank.mjs` also matches German, French, Spanish, Italian and Dutch headers (`Buchungstag`, `Verwendungszweck`, `Betrag`, `Soll`/`Haben`, `Libellé`, `Débit`/`Crédit`, `Fecha`, `Concepto`, `Importe`, `Saldo`, and similar). Pass day-first dates and decimal commas as for any European file. The names are from general knowledge of these languages, not from a specific bank's download; text month names in dates (`1. März 2026`, `3 déc. 2025`, `12 de marzo de 2026`, `31 gen 2026`, `5 mrt 2026`, `6 out 2026`) read in German, French, Spanish, Italian, Dutch and Portuguese as well as English (2026-10-23, `monthnames.test.mjs`; word lists from general knowledge, no real bank export tried).
 
 ### N26 and Venmo CSVs (2026-10-22)
 
