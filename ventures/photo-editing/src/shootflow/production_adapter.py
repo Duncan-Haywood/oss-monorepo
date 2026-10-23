@@ -2262,6 +2262,8 @@ def _analysis_output_bytes(
                     "framing": metrics.framing,
                     "tilt_degrees": metrics.tilt_degrees,
                     "tilt_confidence": metrics.tilt_confidence,
+                    "noise_sigma": metrics.noise_sigma,
+                    "noise": metrics.noise,
                     "subject_x": metrics.subject_x,
                     "subject_y": metrics.subject_y,
                     "mean_luma": metrics.mean_luma,
