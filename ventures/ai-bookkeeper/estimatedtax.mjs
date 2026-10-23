@@ -8,7 +8,7 @@
 //
 // The bracket tables below are typed from memory of IRS Rev. Proc. 2024-40 (2025) and
 // 2025-32 (2026). The 2026 table was checked 2026-10-23 against the IRS text of Rev. Proc. 2025-32
-// (irs.gov/pub/irs-drop/rp-25-32.pdf: tables 1-3, standard deductions, QBI thresholds); the 2025 table is unchecked; every result warns;
+// (irs.gov/pub/irs-drop/rp-25-32.pdf: tables 1-3, standard deductions, QBI thresholds); the 2025 single table and the SS wage bases were cross-checked 2026-10-23 against secondary sites and ssa.gov (Rev. Proc. 2024-40 not read); every result warns;
 // pass `brackets` and `standardDeduction` to override. Dollar amounts are cents.
 import { scheduleC, selfEmployment, estimatedDueDates } from "./taxforms.mjs";
 
