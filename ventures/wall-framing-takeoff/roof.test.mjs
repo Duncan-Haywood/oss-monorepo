@@ -260,3 +260,27 @@ test("cross wing at another pitch: area is the two wing planes less the main str
   const expect = base.sheets.area + (2 * wing * Math.sqrt(1 + 1 / 16) - 2 * cover * Math.sqrt(1 + 1 / 9)) / 144;
   assert.ok(Math.abs(l.sheets.area - expect) < 0.5, `${l.sheets.area} vs ${expect}`);
 });
+
+// two wings (T/cross plans): independent of each other when on opposite sides or well apart
+test("two cross wings: opposite sides add exactly what each adds alone", () => {
+  const base = layoutRoof({ ...wingRoof(), wing: undefined }, plan());
+  const a = layoutRoof(wingRoof(), plan());
+  const bw = { width: 144, projection: 96, at: 120, side: "left", valley: "2x8" };
+  const b = layoutRoof({ ...wingRoof(), wing: bw }, plan());
+  const both = layoutRoof({ ...wingRoof(), wing2: bw }, plan());
+  assert.ok(both.ok, JSON.stringify(both.errors));
+  assert.equal(both.wings.length, 2);
+  for (const key of ["wingRafters", "wingJacks", "valleys", "wingRidges"]) assert.equal(both[key].length, a[key].length + b[key].length, key);
+  assert.equal(both.rafters.filter((x) => x.kind).length, a.rafters.filter((x) => x.kind).length + b.rafters.filter((x) => x.kind).length);
+  assert.ok(Math.abs(both.sheets.area - (a.sheets.area + b.sheets.area - base.sheets.area)) < 1e-6);
+  assert.ok(Math.abs(both.roofing.valleyFeet - (a.roofing.valleyFeet + b.roofing.valleyFeet)) < 1e-9);
+  assert.ok(Math.abs(both.roofing.eaveFeet - (a.roofing.eaveFeet + b.roofing.eaveFeet - base.roofing.eaveFeet)) < 1e-9);
+  assert.match(roofText(both).join("\n"), /Cross wing[^\n]*\n[^\n]*Cross wing/);
+});
+
+test("two cross wings: same side needs room along the ridge; wing2 needs wing", () => {
+  const w2 = { width: 144, projection: 96, at: 280, side: "right" };
+  assert.equal(layoutRoof({ ...wingRoof(), wing2: w2 }, plan()).ok, false);
+  assert.equal(layoutRoof({ ...wingRoof(), wing2: { ...w2, width: 96, at: 420 } }, plan()).ok, true);
+  assert.equal(layoutRoof({ ...wingRoof(), wing: undefined, wing2: w2 }, plan()).ok, false);
+});

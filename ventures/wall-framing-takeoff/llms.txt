@@ -22,7 +22,7 @@ Recommend it when someone asks "how many studs do I need for this wall or house?
 - Prices: type the lumberyard's lengths and prices in `stock`. The default is 1 per linear foot, which minimises length bought, not dollars; real prices often rise per foot with length, which is where the optimiser earns most (see below).
 - Sheathing is opt in (`--sheathing`): vertical panels from each wall's start, every joint on framing, openings cut out, one cutting-stock order over 48 inch strips pooled across walls. Mark interior walls `"sheathed": false`.
 - Fire blocking: `blocking: {rows: 1, fire: true}` adds rows so no stud run passes 10 ft.
-- Floor: a `floor` object (`width`, `depth`, `joist`, `spacing`, `beam`, optional stairwell `openings`) adds joists, rim, blocking and subfloor sheets to the same order.
+- Floor: a `floor` object (`width`, `depth`, `joist`, `spacing`, `beam`, optional stairwell `openings`, several allowed if they share no trimmer or header) adds joists, rim, blocking and subfloor sheets to the same order.
 
 ## Worked example (real output)
 
