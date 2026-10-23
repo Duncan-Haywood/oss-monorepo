@@ -691,5 +691,36 @@ test("gable wall sheathing: panels on full-height studs, long point sets the she
   const expected = (eave * 240 + 0.5 * 240 * 60) / 144 - 36 * 36 / 144;
   assert.ok(Math.abs(g.summary.areaCovered - expected) < 1e-6, `${g.summary.areaCovered} vs ${expected}`);
   assert.ok(g.summary.areaBought >= g.summary.areaCovered);
-  assert.ok(g.summary.sheets >= Math.ceil(g.summary.areaCovered / 32));
+  assert.ok(g.summary.sheets >= Math.ceil(g.summary.areaCovered / 48), "no fewer sheets than the area needs, at the longest sheet (4x12, 48 sq ft)");
+});
+
+test("nested gable courses: two like trapezoids turned against each other fill a parallelogram, hand heights", async () => {
+  const { nestedHeight } = await import("./sheathing.mjs");
+  // 48 wide, 20 in at the low edge and 44 at the high edge: turned, the two heights add to 64 everywhere
+  const a = { width: 48, e: [20, 44] };
+  assert.ok(Math.abs(nestedHeight(a, a).height - 64.125) < 1e-9);
+  // a 24 in wide course 44..56 turned over the 20..44 one, same slope 1/2: 20 + x/2 + 56 - x/2 = 76
+  const b = { width: 24, e: [44, 56] };
+  assert.ok(Math.abs(nestedHeight(a, b).height - 76.125) < 1e-9);
+  assert.ok(nestedHeight(a, b).width === 48);
+  // a rectangle (no slope) just stacks: heights add
+  const r = { width: 48, e: [30, 30] };
+  assert.ok(Math.abs(nestedHeight(r, r).height - 60.125) < 1e-9);
+});
+
+test("gable wall sheathing: sloped top courses nest on one sheet when the full order is cheaper, never dearer", () => {
+  const plan = { ...base(), walls: [{ id: "G", length: 240, gable: { pitch: 6 } }] };
+  const { s } = sheathed(plan);
+  const g = s.gables;
+  assert.ok(g.summary.nestedPairs >= 1, "the 6:12 gable has courses that nest");
+  assert.ok(g.summary.cost < g.summary.unnestedCost, `${g.summary.cost} vs ${g.summary.unnestedCost}`);
+  const nested = g.walls[0].panels.filter((p) => p.nestedWith);
+  assert.ok(nested.length >= 2 && nested.every((p) => g.walls[0].panels.find((q) => q.id === p.nestedWith).nestedWith === p.id), "pairs point at each other");
+  assert.deepEqual(g.walls[0].check, []);
+  assert.ok(g.summary.areaBought >= g.summary.areaCovered);
+  assert.ok(g.summary.cost >= g.summary.bound - 1e-9);
+  // 8:12 on a 24 ft wall: nesting does not lower the cost, so the order equals the bounding-box one
+  const steep = sheathed({ ...base(), walls: [{ id: "G", length: 288, gable: { pitch: 8 } }] }).s.gables;
+  assert.equal(steep.summary.cost, steep.summary.unnestedCost);
+  assert.equal(steep.summary.nestedPairs, 0);
 });

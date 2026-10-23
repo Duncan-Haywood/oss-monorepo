@@ -33,6 +33,7 @@ export function cornerOverhang(plan, wall) {
 }
 
 export const SHEET_WIDTH = 48;
+const KERF = 0.125; // saw kerf between gable pieces, in
 
 /**
  * Sheets listed until the user types their own. Price is 1 per square foot,
@@ -481,7 +482,7 @@ function sheatheHorizontal(plan, result, cfg, sheets, cover) {
  */
 function sheatheGables(plan, result, cfg, sheets, notes) {
   const area = (w, h) => (w * h) / 144;
-  const pool = new Map();
+  const units = [];
   const walls = [];
   let covered = 0, cutOut = 0;
   for (const w of result.walls) {
@@ -519,9 +520,10 @@ function sheatheGables(plan, result, cfg, sheets, notes) {
       cutOut += area(open, 1);
       panels.push({ id: `${w.id}-${i + 1}`, x0: a, x1: b, width: b - a, height, bandHeights: courses.map((c) => c.y1 - c.y0), cutouts: ops.filter((op) => Math.min(b, op.offset + op.width) - Math.max(a, op.offset) > EPS).map((op) => op.label || op.kind), sheets: courses.map((c) => c.sheet.label || `${formatInches(c.sheet.width)} x ${formatInches(c.sheet.length)}`) });
       courses.forEach((c, ci) => {
-        const key = `${c.sheet.label}|${ci}|${c.perSheet}`;
-        if (!pool.has(key)) pool.set(key, { sheet: c.sheet, per: c.perSheet, height: c.y1 - c.y0, pieces: [] });
-        pool.get(key).pieces.push({ length: b - a, qty: 1, ref: `${w.id}-${i + 1}${ci ? "U" : ""}` });
+        // The top course is a trapezoid; two of them can nest when neither straddles the peak and the roof line stays above the course's bottom.
+        const e1 = topAt(a) - c.y0, e2 = topAt(b) - c.y0;
+        const nestable = ci === courses.length - 1 && !(mid > a && mid < b) && Math.min(e1, e2) > EPS;
+        units.push({ panel: panels[panels.length - 1], ci, sheet: c.sheet, per: c.perSheet, height: c.y1 - c.y0, width: b - a, ref: `${w.id}-${i + 1}${ci ? "U" : ""}`, ...(nestable ? { e: [Math.min(e1, e2), Math.max(e1, e2)] } : {}) });
       });
     });
     if (bad) { notes.push(`${w.id}: a gable panel is taller than the listed sheets can cover; sheathe it by hand or list a longer sheet.`); continue; }
@@ -536,17 +538,93 @@ function sheatheGables(plan, result, cfg, sheets, notes) {
     walls.push({ id: w.id, peak: mid, panels, check });
   }
   if (!walls.length) return null;
+  const plain = priceGableUnits(units, []);
+  const pairs = nestPairs(units, sheets);
+  const nested = pairs.length ? priceGableUnits(units, pairs) : null;
+  // Keep the nested cut plan only when the full optimiser agrees it is cheaper than the bounding-box order.
+  const use = nested && nested.cost < plain.cost - 1e-9 ? nested : plain;
+  if (use === nested) for (const [x, y] of pairs) { x.panel.nestedWith = y.panel.id; y.panel.nestedWith = x.panel.id; }
+  const { orders, count, cost, bound, proven, bought } = use;
+  const names = walls.map((w) => w.id).join(", ");
+  notes.push(use === nested
+    ? `Gable walls (${names}) are sheathed with vertical sheets; ${pairs.length} pair${pairs.length > 1 ? "s" : ""} of sloped top courses nest on one sheet (one turned end for end), which costs ${(plain.cost - nested.cost).toFixed(2)} less than buying each as its bounding box. Nailers over openings are not added on gable walls.`
+    : `Gable walls (${names}) are sheathed with vertical sheets; each panel is bought as its bounding box${pairs.length ? " (nesting the offcut triangles did not lower the cost)" : ""}, so the order is an upper bound. Nailers over openings are not added on gable walls.`);
+  return { walls, orders, summary: { panels: walls.reduce((t, w) => t + w.panels.length, 0), sheets: count, cost, bound, proven, areaCovered: covered, areaCutOut: cutOut, areaBought: bought, waste: bought > 0 ? (bought - covered) / bought : 0, nestedPairs: use === nested ? pairs.length : 0, unnestedCost: plain.cost } };
+}
+
+/**
+ * Height of the sheet piece that holds two sloped courses nested. Each course is
+ * `{width, e: [low end height, high end height]}`: a flat bottom, two vertical ends and a straight top.
+ * One is turned end for end so its slope runs against the other's; the pair is as tall as the two
+ * heights added at the same distance from the edge, and that is a straight line in the distance, so the
+ * two ends of the overlap decide. Tries each course as the turned one, the turned one mirrored or not,
+ * and lining the two up at the left or the right edge (a sheet's face is the same both ways).
+ * Returns `{height, width}`, the saw kerf included.
+ */
+export function nestedHeight(p, q, kerf = 0.125) {
+  const at = (u, x, mirror) => u.e[0] + ((u.e[1] - u.e[0]) * (mirror ? u.width - x : x)) / u.width;
+  let best = Infinity;
+  for (const [fixed, turned] of [[p, q], [q, p]]) {
+    for (const mirror of [false, true]) {
+      for (const d of [0, fixed.width - turned.width]) { // the turned course's left edge, from the fixed one's
+        const lo = Math.max(0, d), hi = Math.min(fixed.width, d + turned.width);
+        let need = Math.max(p.e[1], q.e[1]);
+        if (hi > lo) for (const x of [lo, hi]) need = Math.max(need, at(fixed, x, false) + at(turned, d + turned.width - x, mirror));
+        best = Math.min(best, need);
+      }
+    }
+  }
+  return { height: best + kerf, width: Math.max(p.width, q.width) };
+}
+
+/** Pairs of units whose sloped courses nest on one sheet, greedily by the area saved; each carries `.nest`. */
+function nestPairs(units, sheets) {
+  const cand = units.filter((u) => u.e);
+  const longest = Math.max(...sheets.map((s) => s.length));
+  const perOf = (sheet, h) => Math.max(1, Math.floor((sheet.length + KERF) / (h + KERF)));
+  const share = (u) => (u.width / SHEET_WIDTH) * (u.sheet.price / u.per);
+  const edges = [];
+  for (let i = 0; i < cand.length; i++) for (let j = i + 1; j < cand.length; j++) {
+    const n = nestedHeight(cand[i], cand[j], KERF);
+    if (n.height > longest + EPS) continue;
+    const fit = sheets.filter((s) => s.length + EPS >= n.height).reduce((a, b) => (b.price / perOf(b, n.height) < a.price / perOf(a, n.height) ? b : a));
+    const per = perOf(fit, n.height);
+    const save = share(cand[i]) + share(cand[j]) - (n.width / SHEET_WIDTH) * (fit.price / per);
+    if (save > EPS) edges.push({ i, j, save, n, fit, per });
+  }
+  edges.sort((a, b) => b.save - a.save);
+  const used = new Set();
+  const pairs = [];
+  for (const e of edges) {
+    if (used.has(e.i) || used.has(e.j)) continue;
+    used.add(e.i); used.add(e.j);
+    const pair = [cand[e.i], cand[e.j]];
+    pair.nest = e;
+    pairs.push(pair);
+  }
+  return pairs;
+}
+
+/** The gable order: each unit is a strip of its sheet group; a nested pair is one strip of the piece it shares. */
+function priceGableUnits(units, pairs) {
+  const pool = new Map();
+  const add = (sheet, per, height, key, length, ref) => {
+    if (!pool.has(key)) pool.set(key, { sheet, per, height, pieces: [] });
+    pool.get(key).pieces.push({ length, qty: 1, ref });
+  };
+  const paired = new Set(pairs.flat());
+  for (const u of units) if (!paired.has(u)) add(u.sheet, u.per, u.height, `${u.sheet.label}|${u.ci}|${u.per}`, u.width, u.ref);
+  for (const pr of pairs) add(pr.nest.fit, pr.nest.per, pr.nest.n.height, `${pr.nest.fit.label}|nest|${pr.nest.per}`, pr.nest.n.width, `${pr[0].ref}+${pr[1].ref}`);
   const orders = [];
   let bought = 0, cost = 0, bound = 0, proven = true, count = 0;
   for (const g of pool.values()) {
-    const res = optimizeStock(g.pieces, [{ length: SHEET_WIDTH, price: g.sheet.price / g.per }], 0.125);
+    const res = optimizeStock(g.pieces, [{ length: SHEET_WIDTH, price: g.sheet.price / g.per }], KERF);
     const qty = Math.ceil(res.bars.length / g.per - 1e-9);
     orders.push({ label: g.sheet.label || `${formatInches(g.sheet.width)} x ${formatInches(g.sheet.length)}`, qty, price: g.sheet.price, cost: qty * g.sheet.price, bands: res.bars.length, perSheet: g.per, height: g.height });
     count += qty; cost += qty * g.sheet.price; bound += res.bound ?? 0; proven = proven && res.proven;
-    bought += qty * area(g.sheet.width, g.sheet.length);
+    bought += qty * ((g.sheet.width * g.sheet.length) / 144);
   }
-  notes.push(`Gable walls (${walls.map((w) => w.id).join(", ")}) are sheathed with vertical sheets; each panel is bought as its bounding box, and the offcut triangle above the slope is not reused, so the order is an upper bound. Nailers over openings are not added on gable walls.`);
-  return { walls, orders, summary: { panels: walls.reduce((t, w) => t + w.panels.length, 0), sheets: count, cost, bound, proven, areaCovered: covered, areaCutOut: cutOut, areaBought: bought, waste: bought > 0 ? (bought - covered) / bought : 0 } };
+  return { orders, count, cost, bound, proven, bought };
 }
 
 /** Sheathing nailers as cut-list rows, for `takeoff(plan, nailerCuts(s))`. Pieces with no length (no header found) are left out. */
