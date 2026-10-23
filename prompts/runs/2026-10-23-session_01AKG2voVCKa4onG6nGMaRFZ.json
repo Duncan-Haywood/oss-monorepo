@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-23",
+  "session": "https://claude.ai/code/session_01AKG2voVCKa4onG6nGMaRFZ",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-23T16:00:35Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "creative: new Hearth & Horizon story",
+  "projects": [
+    "hearth-and-horizon"
+  ],
+  "pr": 9831,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "ventures/hearth-and-horizon/stories/the-dry-bread.md",
+      "why": "No audio: huggingface.co returns 403 through the proxy, so the Piper voice cannot download. Text, pages and feeds only. The scheduled prompt asked for revenue products; the router drew the creative track (weight 0.1) and I followed it."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Project hearth-and-horizon, slug the-dry-bread (Mpale, Malawi, 2043; PSA oxygen plant, wet-season purity loss, convent bread oven). ~4,500 words. Numbers checked: argon ceiling 95.8%, 27 g/m3 at 32C/80%RH, cylinder endurance 40,800 L / 25 L/min ~27 h. generate.mjs ran; node --test 10 pass. Added BIBLE timeline row and next-up entry, README line.",
+  "corrections": [],
+  "redteam": null
+}
