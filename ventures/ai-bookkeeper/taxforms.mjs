@@ -10,6 +10,7 @@
 import { mileageDeduction, homeOfficeDeduction } from "./deductions.mjs";
 import { journal } from "./engine.mjs";
 import { payeeKey } from "./categorize.mjs";
+import { nextBusinessDay } from "./salestaxreturn.mjs";
 import { accountMap, profitAndLoss } from "./ledger.mjs";
 
 // Line labels are the form's own wording, shortened. "27a" is "Other expenses",
@@ -132,6 +133,30 @@ export function necDeadline(year) {
   const d = new Date(Date.UTC(year + 1, 0, 31));
   while (d.getUTCDay() === 0 || d.getUTCDay() === 6) d.setUTCDate(d.getUTCDate() + 1);
   return d.toISOString().slice(0, 10);
+}
+
+// Dates for a CP2100 / CP2100A notice (IRS "Backup withholding B program" and
+// "Understanding your CP2100 or CP2100A Notice" pages, found by web search
+// 2026-10-23; Pub. 1281 itself was not reachable that run). The payer mails the
+// First B Notice (with a blank W-9) within 15 business days of the notice date
+// or the day it arrived, whichever is later; the Second B Notice (a second
+// CP2100 within three years, no W-9 enclosed, the payee must get a Letter 147C
+// or SSA proof from the IRS/SSA) goes out in the same window; and if the payee
+// has not answered, backup withholding of 24% starts on later payments no
+// later than 30 business days after. Business days skip weekends and observed
+// federal holidays (`usHolidays`). Worksheet dates, not legal advice.
+export function bNoticeDates(noticeDate, { received = null, second = false } = {}) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(noticeDate ?? "")) throw new Error("noticeDate must be YYYY-MM-DD");
+  const base = received && received > noticeDate ? received : noticeDate;
+  const add = (n) => { let d = base; for (let i = 0; i < n; i++) { const t = new Date(`${d}T00:00:00Z`); t.setUTCDate(t.getUTCDate() + 1); d = nextBusinessDay(t.toISOString().slice(0, 10)); } return d; };
+  return {
+    base, second,
+    mailBNoticeBy: add(15),
+    startWithholdingBy: add(30),
+    enclose: second ? "no W-9: the payee must give you a Letter 147C (EIN) or an SSA proof of the number (SSN)" : "a blank Form W-9",
+    rate: BACKUP_WITHHOLDING_RATE,
+    note: "If the payee returns a signed W-9 before the withholding date, stop the process and do not withhold; otherwise withhold 24% of later reportable payments, report it in box 4 of the 1099-NEC and on Form 945.",
+  };
 }
 const CONTRACT_CODES = ["6020"];
 

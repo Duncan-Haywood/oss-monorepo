@@ -51,7 +51,7 @@ flagships:
       ADP report and check the deposit rules against a real IRS notice; (7) one
       named filing service's import layout, from its own spec; (8) `salestax
       return`: check it against one state's real return layout and holiday
-      calendar; (9) 1099-NEC backup withholding: IRC 3406, the 24% rate and IRS Pub. 1281 (no awaiting-TIN grace for NEC; 30-business-day CP2100 rule) read at the source 2026-10-23; the CP2100/B-notice flow is not modelled; (10) `estimate` (1040-ES
+      calendar; (9) 1099-NEC backup withholding: IRC 3406, the 24% rate and IRS Pub. 1281 (no awaiting-TIN grace for NEC; 30-business-day CP2100 rule) read at the source 2026-10-23; the CP2100/B-notice dates are modelled (`b-notice`, 2026-10-23, from IRS pages seen via search, Pub. 1281 not re-read); (10) `estimate` (1040-ES
       plan; 2025 and 2026 brackets and QBI thresholds match the IRS Rev. Procs. 2024-40 and 2025-32 (2026-10-23); the $400 minimum QBI deduction matches secondary summaries only (IRC 199A(i) unreachable 2026-10-23); page card landed 2026-10-23). A run
       that lands a slice replaces its item here; keep this under 2,000 characters.
 

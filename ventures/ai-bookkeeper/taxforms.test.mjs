@@ -207,3 +207,13 @@ test("seSetAside annualises the profit to date and splits the tax into four paym
   assert.equal(r.payments.length, 4);
   assert.equal(r.payments.reduce((a, p) => a + p.cents, 0), r.se.tax);
 });
+
+import { bNoticeDates } from "./taxforms.mjs";
+test("B notice dates count business days past weekends and holidays", () => {
+  const r = bNoticeDates("2026-10-05"); // Monday
+  assert.equal(r.mailBNoticeBy, "2026-10-27"); // 15 business days, Oct 12 (Columbus Day) skipped
+  assert.equal(r.startWithholdingBy, "2026-11-18"); // 30 business days, Nov 11 (Veterans Day) skipped
+  assert.equal(bNoticeDates("2026-10-05", { received: "2026-10-09" }).mailBNoticeBy, "2026-11-02");
+  assert.match(bNoticeDates("2026-10-05", { second: true }).enclose, /147C/);
+  assert.throws(() => bNoticeDates("10/05/2026"));
+});
