@@ -105,10 +105,10 @@
     "voice": "en_US-ljspeech-high"
   },
   "2026-10-20-we-almost-rewrote-it-in-rust": {
-    "bytes": 1231649,
-    "seconds": 246.23,
-    "sha256": "a13484653988772136a3bf555159ca2777b2f115b146ad2ece2af3d9a84749b1",
-    "script_sha256": "174faadbced53e4cd4384c044519f9fd0bd30230cca3178cd004663f9b62fb00",
+    "bytes": 1235437,
+    "seconds": 246.99,
+    "sha256": "7354119e38d9857313a48a324be12828ee8620cf70f9bec573c5740a977ff220",
+    "script_sha256": "f8e67d516599bfe8efddcca079b0dd08badb1ae8d6e3e1bfc5ad0a22cd1014cc",
     "voice": "en_US-ljspeech-high"
   },
   "2026-10-21-checking-the-energy-table": {

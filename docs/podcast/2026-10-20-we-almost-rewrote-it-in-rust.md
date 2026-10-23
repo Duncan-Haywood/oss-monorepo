@@ -1,7 +1,7 @@
 ---
 title: "We almost rewrote it in Rust: one zlib setting halved a 3-minute static site build"
 date: 2026-10-20
-description: "A 3,000-page site build took 182 seconds. Profiling showed 112 of them were PNG compression at zlib level 9. Level 6 cut the build to 81 seconds for 9% larger images."
+description: "A 3,000-page site build took 182 seconds; 112 were PNG compression at zlib level 9. Level 6 cut the build to 81 seconds for 9% larger images."
 post: we-almost-rewrote-it-in-rust
 ---
 
