@@ -233,6 +233,7 @@ the sources, and mark legend as legend)
 - *(Done: Isidore and the Angels Who Ploughed, 15 May; legend.)* Saint Isidore the Farmer and the angels who ploughed.
 - *(Done: Nicholas and the Three Bags of Gold, 6 December; legend.)* Saint Nicholas and the three bags of gold.
 - *(Done: Martin of Tours and Half a Cloak, 11 November; early source, Sulpicius Severus.)* Saint Martin and the beggar at Amiens.
+- *(Done: Columba and the White Horse, 9 June; Adomnán's Life, III.23; text only.)* Saint Columba and the old white horse.
 - *(Done: Thérèse and the Small Way, 1 October; history and her own writings.)* Saint Thérèse and the small way.
 
 ## What not to do

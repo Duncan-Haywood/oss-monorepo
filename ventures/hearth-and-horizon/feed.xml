@@ -16,6 +16,16 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>Columba and the White Horse</title>
+      <link>https://example.invalid/hearth-and-horizon/columba-and-the-white-horse.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/columba-and-the-white-horse.html</guid>
+      <pubDate>Fri, 23 Oct 2026 12:00:00 GMT</pubDate>
+      <description>A bedtime story about Saint Columba of Iona in his last days, and the old white horse who carried the milk every day and who came to say goodbye. Told from the Life of Columba written by Abbot Adomnán about a hundred years later, with a note for grown-ups on what is history and what is told in the Life. For ages 3 to 8, about ten minutes read aloud. His feast day is the 9th of June. Setting: The island of Iona, off the west coast of Scotland, in the first week of June, about fourteen hundred years ago. Read the full text at https://example.invalid/hearth-and-horizon/columba-and-the-white-horse.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A bedtime story about Saint Columba of Iona in his last days, and the old white horse who carried the milk every day and who came to say goodbye. Told from the Life of Columba written by Abbot Adomnán about a hundred years later, with a note for grown-ups on what is history and what is told in the Life. For ages 3 to 8, about ten minutes read aloud. His feast day is the 9th of June.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>Forty to One</title>
       <link>https://example.invalid/hearth-and-horizon/forty-to-one.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/forty-to-one.html</guid>
