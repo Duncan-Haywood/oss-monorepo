@@ -796,3 +796,15 @@ test("ledger export keeps a description that starts with a status mark or a code
   assert.match(txt, /^2026-03-06 - ! bang$/m);
   assert.match(txt, /^2026-03-07 - \(paren\) shop$/m);
 });
+
+test("ledger export declares its commodity and accounts so ledger-cli --strict is quiet", () => {
+  let b = newBooks({ currency: "€" });
+  b = importStatement(b, "Date,Description,Amount\n2026-03-05,Shop,-12.50\n", "1000").books;
+  b = confirm(b, Object.fromEntries(b.transactions.map((t) => [t.id, "6060"])));
+  const txt = exportJournal(b, "ledger");
+  assert.match(txt, /^commodity €$/m);
+  const declared = [...txt.matchAll(/^account (\S+)$/gm)].map((m) => m[1]);
+  assert.ok(declared.length >= 2);
+  for (const p of txt.matchAll(/^ {2}(\S+)\s+-?[\d.]+ €$/gm)) assert.ok(declared.includes(p[1]), `${p[1]} declared`);
+  assert.ok(!/^commodity/m.test(exportJournal(b, "beancount")));
+});

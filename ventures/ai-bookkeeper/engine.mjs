@@ -519,6 +519,11 @@ function plainText(books, entries, map, bean) {
     for (const c of used) out.push(`${entries[0].date} open ${path(c)} ${cur}`);
     out.push("");
   }
+  else {
+    // ledger-cli's --strict and --pedantic warn on any account or commodity not declared first.
+    const used = [...new Set(entries.flatMap((e) => e.lines.map((l) => l.account)))];
+    out.push(`commodity ${cur}`, ...used.map((c) => `account ${path(c)}`), "");
+  }
   for (const e of entries) {
     // ledger-cli and hledger read a leading `*` or `!` as a status mark and `(...)` as a code, so
     // a description that starts that way gets a "- " in front to keep its text (hledger 1.43.2).
