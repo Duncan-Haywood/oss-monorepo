@@ -24,6 +24,7 @@
 // Bank match: a positive, not-yet-split line in the books equal to the
 // payout's net, dated from 2 days before to 7 days after the payout date; the
 // nearest date wins, and a line is used once. Nothing is posted by `plan`.
+// Creator-platform exports (Gumroad, Paddle, Lemon Squeezy style: payout_reference, sale_price, platform_fee, payout_amount; purchase and subscription_payment categories) read through aliases from memory of their help pages; no real export tried.
 // Amazon settlement reports (flat file V2) and the date-range CSV are read too; see readAmazon, readAmazonRange.
 // Integer cents. Hand-written fixtures in the documented layout only; no real
 // export has been tried. Not accounting advice.
@@ -34,12 +35,12 @@ import { fmt } from "./ledger.mjs";
 
 const key = (h) => String(h).trim().toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "");
 const ALIASES = {
-  payout: ["automatic_payout_id", "payout_id", "payout", "transfer_id"],
+  payout: ["automatic_payout_id", "payout_id", "payout", "transfer_id", "payout_reference", "payout_reference_id"],
   payoutDate: ["automatic_payout_effective_at", "automatic_payout_effective_at_utc", "payout_date", "payout_effective_at", "arrival_date", "transfer_date"],
   category: ["reporting_category", "category", "type", "transaction_type"],
-  gross: ["gross", "amount", "gross_amount", "gross_sales", "total_collected"],
-  fee: ["fee", "fees", "fee_amount", "processing_fees"],
-  net: ["net", "net_amount", "net_total"],
+  gross: ["gross", "amount", "gross_amount", "gross_sales", "total_collected", "sale_price", "total", "customer_total"],
+  fee: ["fee", "fees", "fee_amount", "processing_fees", "total_fee", "platform_fee", "gumroad_fee", "paddle_fee"],
+  net: ["net", "net_amount", "net_total", "payout_amount", "earnings"],
   id: ["balance_transaction_id", "id", "transaction_id", "payment_id"],
   created: ["created", "created_utc", "created_at", "transaction_date", "payment_date", "date"],
   desc: ["description", "memo"],
@@ -55,6 +56,7 @@ const CATEGORY = {
   card: "sales", square_card: "sales", online_checkout: "sales", processing_fee: "fees",
   stripe_fx_fee: "fees", tax_fee: "fees", contribution: "fees", partial_capture_reversal: "refunds",
   chargeback_fee: "fees", dispute_fee: "fees", chargeback_hold: "disputes", chargeback_hold_reversal: "disputes", dispute_withdrawal: "disputes", dispute_reversal_fee: "fees",
+  subscription_payment: "sales", subscription: "sales", purchase: "sales", one_time_payment: "sales", renewal: "sales", tax_remittance: "fees", chargeback_reversed: "disputes",
   payout: "skip", payout_cancel: "skip", payout_failure: "skip", transfer: "skip",
 };
 
