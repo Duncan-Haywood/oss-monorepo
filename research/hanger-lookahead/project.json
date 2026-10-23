@@ -1,0 +1,6 @@
+{
+ "theme": "hanger",
+ "title": "Should a laundry-hanging arm also steer clear of the other arm's next pick? A paired test on 1000 loads",
+ "summary": "hanger-avoidpaired's first next step: besides skipping garments near the other arm's pick in progress, also skip garments near its predicted next target. Paired on 1000 seeded loads (two arms, load 25), lookahead is measurably worse than avoiding the current pick in 14 of 18 settings and indistinguishable in the other 4, down to &minus;11.3 garments an hour (aiming, 0.15 m, unlimited window) and about &minus;1 with a 15 s window; the best case is pinching at 0.30 m, +0.40 (&minus;0.03 to 0.84). A negative result. Stylised: clearance, station times and the pile are earlier placeholders; one predictor only.",
+ "lede": "should a laundry-hanging arm also steer clear of the other arm's next pick? No: paired on 1000 loads, lookahead loses to avoiding the current pick in 14 of 18 settings and ties in 4, by up to 11 an hour. Stylised: inputs are placeholders."
+}
