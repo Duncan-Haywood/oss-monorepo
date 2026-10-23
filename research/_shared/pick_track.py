@@ -51,6 +51,13 @@ def is_shallow():
     return out == "true"
 
 
+def commits_behind():
+    """Commits on the local origin/main ref that HEAD lacks (None if unknown)."""
+    out = subprocess.run(["git", "rev-list", "--count", "HEAD..origin/main"],
+                         cwd=RESEARCH, capture_output=True, text=True)
+    return int(out.stdout) if out.returncode == 0 and out.stdout.strip().isdigit() else None
+
+
 def milestones(prefix):
     """(listed, free) milestone slugs from the track's section in PROJECTS.md.
 
@@ -85,6 +92,10 @@ if __name__ == "__main__":
         if open_tracks:
             old, t = t, random.Random(r).choice(open_tracks)
             print(f"track {old} has {SATURATED}+ projects; redrawn -> track {t}")
+    behind = commits_behind()
+    if behind:
+        print(f"WARNING: this checkout is {behind} commit(s) behind origin/main, so the lists below may "
+              "name projects that already landed. `git fetch --depth=40 origin main && git merge origin/main` first.")
     if t != "free":
         n, newest = projects(PREFIX[t - 1])
         shallow = is_shallow()

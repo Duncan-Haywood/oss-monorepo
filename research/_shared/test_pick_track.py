@@ -23,5 +23,11 @@ class NextStepsTest(unittest.TestCase):
         self.assertEqual(pick_track.next_steps("nosuch-project"), "")
 
 
+class BehindTest(unittest.TestCase):
+    def test_returns_count_or_none(self):
+        n = pick_track.commits_behind()
+        self.assertTrue(n is None or n >= 0)
+
+
 if __name__ == "__main__":
     unittest.main()
