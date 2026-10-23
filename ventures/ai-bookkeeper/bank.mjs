@@ -129,7 +129,87 @@ function headerlessLayout(rows) {
     return { bank: sample[0].length === 4 ? "cba" : "anz", columns: { date: 0, amount: 1, desc: 2, balance: sample[0].length === 4 ? 3 : -1, debit: -1, credit: -1 }, dayFirst: true };
   if (sample.every((r) => r.length === 5 && /^\d{1,2}\/\d{1,2}\/\d{4}$/.test(r[0].trim()) && parseDate(r[0]) && r[1].trim() && !AMT.test(r[1].trim()) && ((r[2].trim() === "") !== (r[3].trim() === "")) && AMT.test((r[2].trim() || r[3].trim())) && AMT.test(r[4].trim())))
     return { bank: "td", columns: { date: 0, desc: 1, debit: 2, credit: 3, balance: 4, amount: -1 }, dayFirst: false };
-  return null;
+  return inferHeaderless(rows);
+}
+
+// Any other file with no header row: find the columns from the cells. The date
+// column parses as dates in every row, the amount is a numeric column (or a
+// money-out / money-in pair with one cell filled per row), a balance is the
+// numeric column that chains with the amounts, a D/C or Af/Bij flag signs an
+// unsigned amount, and the description is the longest text column. The first
+// row must be data, so a file with a header is never read this way.
+// Layouts: the 17 header-less ones in bank2ynab's config (eval/bank2ynab-probe.mjs).
+const NUMCELL = /^[-+]?[$€£]?\(?[\d.,' ]*\d\)?-?$/;
+const FLAG = /^(d|c|dr|cr|debit|credit|debet|af|bij)$/i;
+function inferHeaderless(rows) {
+  const body = rows.filter((r) => r.some((c) => String(c ?? "").trim())).slice(0, 30);
+  if (body.length < 2 || body[0].length < 3) return null;
+  const width = Math.max(...body.map((r) => r.length));
+  const cell = (r, i) => String(r[i] ?? "").trim();
+  const col = (i) => body.map((r) => cell(r, i));
+  const isDate = (v) => { if (/^\d{8}$/.test(v)) { const d = parseDate(v); return !!d && +d.slice(0, 4) > 1990 && +d.slice(0, 4) < 2100; } return /^\d{1,4}[-/. ]|^\d{1,2}[ -][A-Za-z]{3}/.test(v) && (!!parseDate(v, true) || !!parseDate(v, false)); };
+  const dateCol = Array.from({ length: width }, (_, i) => i).find((i) => { const c = col(i); return isDate(c[0]) && c.filter(isDate).length >= 0.9 * c.length; });
+  if (dateCol === undefined) return null;
+  const money = (v) => NUMCELL.test(v) && /[.,]\d{2}\)?-?$/.test(v);
+  const fill = (c) => c.filter(Boolean).length / c.length;
+  const numeric = []; const flags = []; const texts = [];
+  for (let i = 0; i < width; i++) {
+    if (i === dateCol) continue;
+    const c = col(i), ne = c.filter(Boolean);
+    if (!ne.length) continue;
+    if (ne.every(money)) numeric.push(i);
+    else if (fill(c) >= 0.9 && ne.every((v) => FLAG.test(v))) flags.push(i);
+    else if (fill(c) >= 0.5 && !ne.every((v) => NUMCELL.test(v))) texts.push(i);
+  }
+  if (!texts.length) return null;
+  const all = numeric.flatMap((i) => col(i));
+  const comma = all.some((v) => /,\d{1,2}\)?-?$/.test(v)) && !all.some((v) => /\.\d{1,2}\)?-?$/.test(v));
+  const cents = (v) => { const x = parseCents(v, comma); return Number.isFinite(x) ? x : 0; };
+  const full = numeric.filter((i) => fill(col(i)) >= 0.9), sparse = numeric.filter((i) => fill(col(i)) < 0.9);
+  // Does the balance column move by the amounts, whichever way the file is sorted?
+  const chains = (amt, bal) => { if (amt.length < 2) return false; const up = amt.every((a, i) => i === 0 || bal[i] - bal[i - 1] === a), down = amt.every((a, i) => i === 0 || bal[i - 1] - bal[i] === a); return up || down; };
+  const columns = { date: dateCol, amount: -1, debit: -1, credit: -1, balance: -1, desc: -1 };
+  let note = null;
+  const bodyCents = (i) => col(i).map(cents);
+  if (sparse.length >= 2 && sparse.length + full.length <= 3) {
+    const [a, b] = sparse.slice(0, 2), ca = col(a), cb = col(b);
+    if (ca.every((v, k) => Boolean(v) !== Boolean(cb[k]))) {
+      const bal = full.length === 1 ? bodyCents(full[0]) : null;
+      const aOut = ca.map((v) => (v ? -Math.abs(cents(v)) : 0)), bIn = cb.map((v) => (v ? Math.abs(cents(v)) : 0));
+      const aIn = ca.map((v) => (v ? Math.abs(cents(v)) : 0)), bOut = cb.map((v) => (v ? -Math.abs(cents(v)) : 0));
+      const firstOut = aOut.map((x, k) => x + bIn[k]), firstIn = aIn.map((x, k) => x + bOut[k]);
+      const signed = ca.concat(cb).some((v) => /^\(|^-|-$/.test(v));
+      let outFirst = true;
+      if (bal && chains(firstOut, bal)) outFirst = true;
+      else if (bal && chains(firstIn, bal)) outFirst = false;
+      else if (!signed) note = "Money-out and money-in columns are not labelled; the first was read as money out. Check the signs against the statement.";
+      if (signed) { columns.debit = b; columns.credit = a; }
+      else { columns.debit = outFirst ? a : b; columns.credit = outFirst ? b : a; }
+      if (bal) columns.balance = full[0];
+    }
+  }
+  if (columns.debit === -1) {
+    if (!full.length) return null;
+    if (full.length === 1) columns.amount = full[0];
+    else {
+      let found = false;
+      for (const a of full) for (const b of full) if (!found && a !== b && chains(bodyCents(a), bodyCents(b))) { columns.amount = a; columns.balance = b; found = true; }
+      if (!found) columns.amount = full[0];
+    }
+  }
+  const amountCol = columns.amount;
+  const drcr = amountCol !== -1 && flags.length === 1 && !col(amountCol).some((v) => /^\(|^-|-$/.test(v)) ? flags[0] : -1;
+  columns.desc = texts.reduce((best, i) => (col(i).reduce((n, v) => n + v.length, 0) > col(best).reduce((n, v) => n + v.length, 0) ? i : best), texts[0]);
+  // Day or month first, from any date with a part above 12; a dot separator reads as European.
+  let dayFirst = false, decided = false;
+  for (const v of col(dateCol)) {
+    const m = v.match(/^(\d{1,2})[-/.](\d{1,2})[-/.]\d{2,4}/);
+    if (!m) { if (/^\d{1,2}[ -][A-Za-z]/.test(v)) { dayFirst = true; decided = true; } continue; }
+    if (+m[1] > 12) { dayFirst = true; decided = true; break; }
+    if (+m[2] > 12) { dayFirst = false; decided = true; break; }
+  }
+  if (!decided && col(dateCol).some((v) => /^\d{1,2}\.\d{1,2}\.\d/.test(v))) dayFirst = true;
+  return { bank: null, columns, dayFirst, drcr, note };
 }
 
 // Which export this is, from its header or shape alone. Informational; the
@@ -373,6 +453,8 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
   // A DR/CR (or Debit/Credit) marker column beside one unsigned amount column.
   const hdr0 = headerAt === -1 ? [] : rows[headerAt].map(norm);
   let drcrCol = columns.amount !== -1 ? hdr0.findIndex((x) => /^(dr ?\/ ?cr|cr ?\/ ?dr|debit ?\/ ?credit|credit ?\/ ?debit|dr or cr|cr or dr|(?:credit ?\/? ?debit|debit ?\/? ?credit|cr ?\/? ?dr|dr ?\/? ?cr) indicator|(?:credit|debit) or (?:debit|credit) indicator)$/.test(x)) : -1;
+  if (hl?.drcr > -1) drcrCol = hl.drcr;
+  if (hl?.note) problems.push(hl.note);
   // Or a plain Type column holding DEBIT/CREDIT (Deposit/Withdrawal) words beside an
   // unsigned amount. Only when every value is in that vocabulary and no amount is
   // negative, so a card export's Sale/Return/Payment column is left alone.
