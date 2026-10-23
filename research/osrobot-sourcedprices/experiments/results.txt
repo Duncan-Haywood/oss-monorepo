@@ -1,0 +1,90 @@
+# osrobot-sourcedprices results: 16 equal fields, 2% yield loss per leaf stage late (Knezevic et al. 2003), 8 h day, 4-day stage
+# Prices: list prices of a Holybro X500 V2 kit and an AgileX Scout Mini (README). Add-ons, tools and loaded endurance are NOT sourced: swept.
+
+
+# Sweep 1: 16 fields of 0.18 ha, revenue 1000 USD/ha. Total USD/ha = fleet + late loss, window 8 h and 24 h
+  window_h  priceset                              pipe: s,k  total   inline: n  total   pipe/inl
+       8  assumed (deadlineloss)                 1,1    27.12          2  18.18       1.49
+       8  sourced platforms                      1,1    26.13          2  16.93       1.54
+       8  sourced + 400 USD scout add-ons        1,1    26.58          2  16.93       1.57
+       8  sourced + 1500 USD inline tool         1,1    26.13          2  20.68       1.26
+       8  sourced, 12 min loaded flight          1,1    26.13          2  16.93       1.54
+      24  assumed (deadlineloss)                 1,1    27.12          1  18.18       1.49
+      24  sourced platforms                      1,1    26.13          1  16.93       1.54
+      24  sourced + 400 USD scout add-ons        1,1    26.58          1  16.93       1.57
+      24  sourced + 1500 USD inline tool         1,1    26.13          1  20.68       1.26
+      24  sourced, 12 min loaded flight          1,1    26.13          1  16.93       1.54
+
+# Sweep 1: 16 fields of 0.72 ha, revenue 1000 USD/ha. Total USD/ha = fleet + late loss, window 8 h and 24 h
+  window_h  priceset                              pipe: s,k  total   inline: n  total   pipe/inl
+       8  assumed (deadlineloss)                 2,2    14.43          8  13.19       1.09
+       8  sourced platforms                      2,2    13.50          8  12.03       1.12
+       8  sourced + 400 USD scout add-ons        2,2    13.92          8  12.03       1.16
+       8  sourced + 1500 USD inline tool         2,2    13.50          8  15.52       0.87
+       8  sourced, 12 min loaded flight          2,2    14.92          8  12.03       1.24
+      24  assumed (deadlineloss)                 1,1    13.92          2  13.19       1.06
+      24  sourced platforms                      1,1    13.03          2  12.03       1.08
+      24  sourced + 400 USD scout add-ons        1,1    13.43          2  12.03       1.12
+      24  sourced + 1500 USD inline tool         1,1    13.03          2  15.52       0.84
+      24  sourced, 12 min loaded flight          1,1    14.44          2  12.03       1.20
+
+# Sweep 1: 16 fields of 1.62 ha, revenue 1000 USD/ha. Total USD/ha = fleet + late loss, window 8 h and 24 h
+  window_h  priceset                              pipe: s,k  total   inline: n  total   pipe/inl
+       8  assumed (deadlineloss)                 4,4    12.25         16  12.27       1.00
+       8  sourced platforms                      4,4    11.93         16  11.12       1.07
+       8  sourced + 400 USD scout add-ons        4,4    12.37         16  11.12       1.11
+       8  sourced + 1500 USD inline tool         4,4    11.93         16  14.57       0.82
+       8  sourced, 12 min loaded flight          4,4    13.24         16  11.12       1.19
+      24  assumed (deadlineloss)                 2,2    10.91          8  12.27       0.89
+      24  sourced platforms                      2,2    10.64          8  11.12       0.96
+      24  sourced + 400 USD scout add-ons        2,2    11.04          8  11.12       0.99
+      24  sourced + 1500 USD inline tool         2,2    10.64          8  14.57       0.73
+      24  sourced, 12 min loaded flight          2,2    11.89          8  11.12       1.07
+
+# Sweep 1: 16 fields of 0.18 ha, revenue 2000 USD/ha. Total USD/ha = fleet + late loss, window 8 h and 24 h
+  window_h  priceset                              pipe: s,k  total   inline: n  total   pipe/inl
+       8  assumed (deadlineloss)                 1,1    27.12          2  18.18       1.49
+       8  sourced platforms                      1,1    26.13          2  16.93       1.54
+       8  sourced + 400 USD scout add-ons        1,1    26.58          2  16.93       1.57
+       8  sourced + 1500 USD inline tool         1,1    26.13          2  20.68       1.26
+       8  sourced, 12 min loaded flight          1,1    26.13          2  16.93       1.54
+      24  assumed (deadlineloss)                 1,1    27.12          1  18.18       1.49
+      24  sourced platforms                      1,1    26.13          1  16.93       1.54
+      24  sourced + 400 USD scout add-ons        1,1    26.58          1  16.93       1.57
+      24  sourced + 1500 USD inline tool         1,1    26.13          1  20.68       1.26
+      24  sourced, 12 min loaded flight          1,1    26.13          1  16.93       1.54
+
+# Sweep 1: 16 fields of 0.72 ha, revenue 2000 USD/ha. Total USD/ha = fleet + late loss, window 8 h and 24 h
+  window_h  priceset                              pipe: s,k  total   inline: n  total   pipe/inl
+       8  assumed (deadlineloss)                 2,2    14.65          8  13.19       1.11
+       8  sourced platforms                      2,2    13.72          8  12.03       1.14
+       8  sourced + 400 USD scout add-ons        2,2    14.14          8  12.03       1.18
+       8  sourced + 1500 USD inline tool         2,2    13.72          8  15.52       0.88
+       8  sourced, 12 min loaded flight          2,2    15.15          8  12.03       1.26
+      24  assumed (deadlineloss)                 1,1    13.92          2  13.19       1.06
+      24  sourced platforms                      1,1    13.03          2  12.03       1.08
+      24  sourced + 400 USD scout add-ons        1,1    13.43          2  12.03       1.12
+      24  sourced + 1500 USD inline tool         1,1    13.03          2  15.52       0.84
+      24  sourced, 12 min loaded flight          1,1    14.44          2  12.03       1.20
+
+# Sweep 1: 16 fields of 1.62 ha, revenue 2000 USD/ha. Total USD/ha = fleet + late loss, window 8 h and 24 h
+  window_h  priceset                              pipe: s,k  total   inline: n  total   pipe/inl
+       8  assumed (deadlineloss)                 4,4    13.07         16  12.27       1.07
+       8  sourced platforms                      4,4    12.76         16  11.12       1.15
+       8  sourced + 400 USD scout add-ons        4,4    13.21         16  11.12       1.19
+       8  sourced + 1500 USD inline tool         4,4    12.76         16  14.57       0.88
+       8  sourced, 12 min loaded flight          4,4    14.11         16  11.12       1.27
+      24  assumed (deadlineloss)                 2,2    10.91          8  12.27       0.89
+      24  sourced platforms                      2,2    10.64          8  11.12       0.96
+      24  sourced + 400 USD scout add-ons        2,2    11.04          8  11.12       0.99
+      24  sourced + 1500 USD inline tool         2,2    10.64          8  14.57       0.73
+      24  sourced, 12 min loaded flight          2,2    11.89          8  11.12       1.07
+
+# Sweep 2: break-even ground price. Sourced scout (609 USD, 18 min), inline robot = ground platform price; 1.62 ha, window 12 h, revenue 2000, stage 4 d
+  ground_usd  pipe_total  inline_total  pipe/inl
+       1500        7.78          4.22      1.85
+       2500        8.88          6.52      1.36
+       3500        9.99          8.82      1.13
+       4500       11.09         11.12      1.00
+       6000       12.75         14.57      0.88
+       9000       16.06         21.47      0.75

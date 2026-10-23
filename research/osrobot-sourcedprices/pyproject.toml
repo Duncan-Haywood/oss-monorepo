@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "osrobot-sourcedprices"
+version = "0.1.0"
+description = "Does the scout-and-treater weeding fleet still lose to inline robots when priced from published list prices?"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
