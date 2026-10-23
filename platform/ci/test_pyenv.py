@@ -119,6 +119,17 @@ class T(unittest.TestCase):
         pyenv.find(["nope"], ["/p/python3"], Run(), seen.append)
         self.assertTrue(any("no matching distribution" in m for m in seen), seen)
 
+    def test_distro_owned_package_stops_retrying_pip_flags(self):
+        class Run(FakeRun):
+            def __call__(self, cmd, **kw):
+                r = super().__call__(cmd, **kw)
+                if cmd[1:3] == ["-m", "pip"]:
+                    r.stderr = b"ERROR: Cannot uninstall packaging 24.0, RECORD file not found. Hint: The package was installed by debian."
+                return r
+        run = Run()
+        pyenv.pip_install("/p/python3", ["numpy"], run, quiet)
+        self.assertEqual(len([c for c in run.calls if c[1:3] == ["-m", "pip"]]), 1)
+
     def test_candidates_dedupes_and_skips_config(self):
         with tempfile.TemporaryDirectory() as d:
             for name in ("python3", "python3.11", "python3.11-config", "python3-foo"):
