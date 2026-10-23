@@ -160,6 +160,101 @@ class ExitCodeTest(unittest.TestCase):
         )
 
 
+class RunSuiteTest(unittest.TestCase):
+    """`_run_suite` is the only place pytest output becomes skips."""
+
+    def test_a_suite_absent_from_the_checkout_is_fatal_not_green(self):
+        skips, fatal = guard_state._run_suite("no/such/suite_dir")
+        self.assertEqual(skips, [])
+        self.assertIn("not present in this checkout", fatal)
+
+    def _proc(self, stdout="", stderr=""):
+        return mock.Mock(stdout=stdout, stderr=stderr)
+
+    def test_skips_are_read_from_stdout_and_stderr_together(self):
+        out = "SKIPPED [2] a/test_x.py:7: nginx is not installed\n"
+        err = "SKIPPED [1] a/test_y.py:9: requires root\n"
+        with mock.patch.object(
+            guard_state.subprocess, "run", return_value=self._proc(out, err)
+        ):
+            skips, fatal = guard_state._run_suite("platform/ci")
+        self.assertIsNone(fatal)
+        self.assertEqual(
+            [(s["file"], s["line"], s["count"], s["bucket"]) for s in skips],
+            [("a/test_x.py", 7, 2, "fixable"), ("a/test_y.py", 9, 1, "environmental")],
+        )
+
+    def test_a_missing_pytest_is_fatal(self):
+        with mock.patch.object(
+            guard_state.subprocess,
+            "run",
+            return_value=self._proc(stderr="No module named pytest"),
+        ):
+            skips, fatal = guard_state._run_suite("platform/ci")
+        self.assertEqual(skips, [])
+        self.assertIn("pytest itself is missing", fatal)
+
+
+class ReportTest(unittest.TestCase):
+    """The report must file each skip under its own bucket and exit honestly."""
+
+    def _main(self, skips, argv):
+        import contextlib
+        import io
+
+        buf = io.StringIO()
+        with mock.patch.object(
+            guard_state, "_run_suite", return_value=(skips, None)
+        ), mock.patch.object(
+            guard_state.sys, "argv", ["guard_state.py", "--suite", "s"] + argv
+        ), contextlib.redirect_stdout(buf):
+            code = guard_state.main()
+        return code, buf.getvalue()
+
+    @staticmethod
+    def _skip(bucket, line):
+        return {
+            "suite": "s", "file": "f.py", "line": line, "count": 1,
+            "reason": "r", "bucket": bucket, "missing": None, "command": None,
+        }
+
+    def test_json_files_each_skip_under_its_own_bucket(self):
+        import json
+
+        skips = [self._skip("fixable", 1), self._skip("unclassified", 2),
+                 self._skip("environmental", 3)]
+        code, out = self._main(skips, ["--json"])
+        data = json.loads(out)
+        self.assertEqual([s["line"] for s in data["fixable"]], [1])
+        self.assertEqual([s["line"] for s in data["unclassified"]], [2])
+        self.assertEqual([s["line"] for s in data["environmental"]], [3])
+        self.assertIn('\n  "suites"', out)  # two-space indent
+        self.assertEqual(code, 0)  # bare invocation never gates
+
+    def test_unrecognised_and_environmental_skips_do_not_gate(self):
+        for argv in ([], ["--require-runnable"]):
+            code, out = self._main(
+                [self._skip("unclassified", 2), self._skip("environmental", 3)], argv
+            )
+            self.assertEqual(code, 0)
+            self.assertIn("UNCLASSIFIED — 1", out)
+            self.assertIn("ENVIRONMENTAL — 1", out)
+
+    def test_fixable_report_counts_skips_per_file(self):
+        a = dict(self._skip("fixable", 1), file="a.py", count=3,
+                 missing="nginx", command="apt-get install nginx-light")
+        b = dict(self._skip("fixable", 2), file="b.py", count=1,
+                 missing="nginx", command="apt-get install nginx-light")
+        _, out = self._main([a, b], [])
+        self.assertIn("a.py  (3 skipped)", out)
+        self.assertIn("b.py  (1 skipped)", out)
+
+    def test_no_skips_at_all_exits_zero(self):
+        code, out = self._main([], ["--require-runnable"])
+        self.assertEqual(code, 0)
+        self.assertIn("No skips at all", out)
+
+
 class SuiteListTest(unittest.TestCase):
     def test_the_checklist_suites_are_named_literally(self):
         # Named rather than globbed, for the reason CLAUDE.md gives about its

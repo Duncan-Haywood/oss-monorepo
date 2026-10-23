@@ -213,6 +213,19 @@ test("RBC: CAD$ column, MM/DD dates, both description columns joined", () => {
   assert.equal(r.rows[1].desc, "E-TRANSFER CLIENT LTD INV 88");
 });
 
+test("RBC: a USD$ row is read, and the file says it mixes currencies", () => {
+  const csv = "Account Type,Account Number,Transaction Date,Cheque Number,Description 1,Description 2,CAD$,USD$\n" +
+    "Chequing,1,3/2/2026,,STAPLES #412,PURCHASE,-45.20,\n" +
+    "Chequing,1,3/3/2026,,US SUPPLIER,WIRE,,-120.00\n";
+  const r = readStatement(csv);
+  assert.equal(r.bank, "rbc");
+  assert.deepEqual(r.rows.map((x) => x.cents), [-4520, -12000]);
+  assert.equal(r.problems.length, 1);
+  assert.match(r.problems[0], /mixes currencies \(CAD, USD\)/);
+  const cad = readStatement(csv.split("\n").filter((l, i) => i !== 2).join("\n"));
+  assert.deepEqual(cad.problems, []);
+});
+
 test("Westpac: day-first dates, debit and credit columns, balance chain holds", () => {
   const r = read("westpac-business.csv");
   assert.equal(r.bank, "westpac");
@@ -315,4 +328,12 @@ test("Card export whose payment row is just 'Payment' and whose charges are posi
 test("A checking export with an outgoing 'Payment' row is not flipped", () => {
   const r = readStatement(["Date,Description,Amount", "2026-03-02,Payment,-50.00", "2026-03-03,Deposit,400.00", "2026-03-04,Rent,-300.00"].join("\n"));
   assert.deepEqual(r.rows.map((x) => x.cents), [-5000, 40000, -30000]);
+});
+
+test("PostFinance: tab-separated, YYYYMMDD dates, 'Value' is the value date not the amount", () => {
+  const r = read("postfinance-account.tsv");
+  assert.deepEqual(r.rows.map((x) => x.cents), [-4560, 300000]);
+  assert.deepEqual(r.rows.map((x) => x.date), ["2026-03-02", "2026-03-03"]);
+  assert.match(r.rows[0].desc, /Migros/);
+  assert.deepEqual(checkRunningBalance(r.rows).breaks, []);
 });

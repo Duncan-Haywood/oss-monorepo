@@ -136,6 +136,16 @@ drawn matters: for the longest 11% of comments, a random audit of 100 items gave
 wide as an audit split evenly between the groups, while for a 36% group the design made no difference
 ([`qual-stratified`](/research/qual-stratified/README.md)).
 
+## Update (2026-10-23): a table of six groups is not a 95% table
+
+A report rarely shows one group. [`qual-manygroups`](/research/qual-manygroups/README.md) audits
+six comment-length groups of 3,188 real GoEmotions comments at once (the smallest is 1.5% of the
+corpus). Each row has a 95% prediction-powered interval, but only 71 to 77% of 120 to 240-item
+audits with equal numbers per group covered all six true prevalences together (three groups:
+85 to 88%). A Bonferroni widening, about a third wider, lifted that to 89 to 94%. A random audit
+of 120 items left under five items in the rare group in 291 of 300 draws, so it could not fill
+the table at all. The coders are still naive-Bayes models and a word list, not LLMs.
+
 ## What comes next
 
 Track 19 lists the next steps. The first is to run the same pipeline on a public, hand-coded

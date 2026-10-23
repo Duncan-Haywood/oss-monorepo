@@ -64,7 +64,7 @@
     <h2 id="h-import">1. Import a statement</h2>
     <div class="grid">
       <div><label for="bank">Which account is this statement for?</label><select id="bank"></select></div>
-      <div><label for="file">Bank or card file (CSV, OFX, QFX, QIF, MT940, CAMT.053 or a statement PDF with a text layer, or statement text pasted into a .txt file)</label><input id="file" type="file" accept=".csv,.pdf,.txt,application/pdf,.ofx,.qfx,.qbo,.qif,.sta,.mt940,.xml,text/csv,text/plain,text/xml"></div>
+      <div><label for="file">Bank or card file (CSV, Excel .xlsx or .xls, OFX, QFX, QIF, MT940, BAI2, CAMT.053 or a statement PDF with a text layer, or statement text pasted into a .txt file)</label><input id="file" type="file" accept=".csv,.xlsx,.xls,.pdf,.txt,application/pdf,.ofx,.qfx,.qbo,.qif,.sta,.mt940,.xml,text/csv,text/plain,text/xml"></div>
       <div><label for="auto">Post by itself at confidence</label><input id="auto" type="number" min="0.5" max="1" step="0.01" value="0.85"></div>
     </div>
     <div id="ofx-map" hidden>
@@ -426,6 +426,8 @@
     import { parseCents } from "./bank.mjs";
     import { decodeBytes } from "./textcodec.mjs";
     import { pdfToText } from "./pdftext.mjs";
+    import { xlsxToCsv, looksLikeXlsx } from "./xlsx.mjs";
+    import { xlsToCsv, looksLikeXls } from "./xls.mjs";
     import { setTaxTreatment, taxDepreciation, taxDepreciationCsv } from "./taxdepr.mjs";
     import { parseAccounts } from "./ledger.mjs";
     import { setOpeningBalances, clearOpeningBalances } from "./opening.mjs";
@@ -995,7 +997,12 @@
         if (!text.trim()) throw new Error("This PDF has no text layer (a scan). Statements are not OCR'd; download the bank's CSV or OFX instead.");
         return text;
       }
-      return f ? decodeBytes(await f.arrayBuffer()) : $("#paste").value;
+      if (f) {
+        const bytes = new Uint8Array(await f.arrayBuffer());
+        // An Excel export is unzipped and read in this tab as well.
+        return looksLikeXlsx(bytes) ? await xlsxToCsv(bytes) : looksLikeXls(bytes) ? xlsToCsv(bytes) : decodeBytes(bytes);
+      }
+      return $("#paste").value;
     }
 
     // A multi-account OFX file: one select per account in the file, so each
@@ -1004,7 +1011,7 @@
     async function showOfxMap() {
       const f = $("#file").files[0];
       ofxParts = [];
-      if (f && !/\.pdf$/i.test(f.name)) { const text = decodeBytes(await f.arrayBuffer()); const fmtName = sniffFormat(text); if (fmtName === "ofx") { const p = splitOfx(text); if (p.length > 1) ofxParts = p; } else if (fmtName === "qif") { ofxParts = splitQif(text).map((q) => ({ id: q.id, type: q.type, qif: true })); } else { const n = readStatement(text, opts()).accountNames; if (n) ofxParts = n.map((id) => ({ id, csv: true })); } }
+      if (f && !/\.pdf$/i.test(f.name)) { const text = await readInput(); const fmtName = sniffFormat(text); if (fmtName === "ofx") { const p = splitOfx(text); if (p.length > 1) ofxParts = p; } else if (fmtName === "qif") { ofxParts = splitQif(text).map((q) => ({ id: q.id, type: q.type, qif: true })); } else { const n = readStatement(text, opts()).accountNames; if (n) ofxParts = n.map((id) => ({ id, csv: true })); } }
       $("#ofx-map").hidden = !ofxParts.length;
       if (!ofxParts.length) return;
       $("#ofx-map-note").textContent = `This file holds ${ofxParts.length} accounts. Choose the chart account each one goes to.`;

@@ -88,6 +88,12 @@
     <p class="note">"From wall start" is the left edge of the rough opening. Height is the rough opening height; a window's sill is that far below the header. Leave header height blank to use the default. Plies blank: 2 in a 2x4 wall, 3 in a 2x6 wall.</p>
     <table class="edit"><thead><tr><th>Wall</th><th>Kind</th><th>Label</th><th>From wall start</th><th>Width</th><th>Height</th><th>Header height</th><th>Header</th><th>Plies</th><th>Jacks each side</th><th></th></tr></thead><tbody id="openings"></tbody></table>
     <button type="button" class="secondary" id="addOpening">Add a door or window</button>
+    <details style="margin-top:.75rem"><summary>Size headers from your own span table (optional)</summary>
+      <p class="note">One row per line: <code>longest span, header size, plies</code> (plies optional), for example <code>3 ft, 2x6</code>. Copy the rows from the span table your inspector accepts for your load and species; nothing here carries code values. Set an opening's header to <b>auto</b> and it takes the first row that covers its width; a hand-picked header lighter than the table asks for is listed below.</p>
+      <label for="hdrTable">Header table</label>
+      <textarea id="hdrTable" rows="4" placeholder="3 ft, 2x6&#10;5 ft, 2x8, 2&#10;7 ft, 2x10"></textarea>
+      <div id="hdrNotes" class="note" aria-live="polite"></div>
+    </details>
   </section>
 
   <section class="card" aria-labelledby="h-stock">
@@ -232,6 +238,7 @@
     import { sheathe, defaultSheathing, nailerCuts } from "./sheathing.mjs";
     import { layoutFloor, floorCuts, floorText } from "./floor.mjs";
     import { layoutRoof, roofCuts, roofText } from "./roof.mjs";
+    import { resolveHeaders } from "./headers.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -358,7 +365,27 @@
         if (o.sillPlies) op.sillPlies = o.sillPlies;
         wall.openings.push(op);
       }
-      return { plan, bad };
+      const source = plan;
+      const tableText = $("#hdrTable").value.trim();
+      let resolved = plan, hdrRows = [];
+      if (tableText) {
+        const rows = [];
+        tableText.split(/\n+/).forEach((line, n) => {
+          const t = line.split(",").map((x) => x.trim());
+          const upTo = parseLength(t[0]);
+          if (t.length < 2 || !Number.isFinite(upTo) || !t[1]) { bad.push(`Header table line ${n + 1}: write it as  3 ft, 2x6  (longest span, header size, plies optional).`); return; }
+          const row = { upTo, header: t[1] };
+          if (t[2]) row.plies = Math.max(1, Math.round(Number(t[2]) || 1));
+          rows.push(row);
+        });
+        if (!bad.length) {
+          plan.headerTable = rows;
+          const r = resolveHeaders(plan);
+          if (!r.ok) bad.push(...r.errors); else { resolved = r.plan; hdrRows = r.rows; }
+        }
+      } else if (plan.walls.some((w) => w.openings.some((o) => o.header === "auto"))) bad.push("An opening's header is set to auto, but the header table is empty.");
+      $("#hdrNotes").innerHTML = hdrRows.length ? `<ul>${hdrRows.map((x) => `<li>${esc(x.opening)}, ${formatLength(x.span)}: table asks ${esc(x.required)}; ${x.status === "set" ? "set from the table" : x.status === "under" ? `<b>you chose ${esc(x.chosen)}, lighter than the table asks</b>` : `you chose ${esc(x.chosen)}, fine`}</li>`).join("")}</ul>` : "";
+      return { plan: resolved, bad, source };
     }
 
     const f = (t, i, k, v, label, attrs = "") => `<input data-t="${t}" data-i="${i}" data-k="${k}" value="${esc(v)}" aria-label="${esc(label)}" ${attrs}>`;
@@ -389,7 +416,7 @@
         <td>${f("openings", i, "width", o.width, `Opening ${i + 1} rough opening width`)}</td>
         <td>${f("openings", i, "height", o.height, `Opening ${i + 1} rough opening height`)}</td>
         <td>${f("openings", i, "headerHeight", o.headerHeight, `Opening ${i + 1} header height`, 'placeholder="default"')}</td>
-        <td>${sel("openings", i, "header", o.header, HEADER_SIZES, `Opening ${i + 1} header size`)}</td>
+        <td>${sel("openings", i, "header", o.header, ["auto", ...HEADER_SIZES], `Opening ${i + 1} header size`)}</td>
         <td>${f("openings", i, "plies", o.plies, `Opening ${i + 1} header plies`, 'placeholder="auto"')}</td>
         <td>${f("openings", i, "jacks", o.jacks, `Opening ${i + 1} jack studs each side`)}</td>
         <td>${del("openings", i, `Remove opening ${i + 1}`)}</td></tr>`).join("");
@@ -464,7 +491,7 @@
       $("#roofOut").innerHTML = `<pre style="white-space:pre-wrap;overflow-x:auto">${esc(roofText(roof).join("\n"))}</pre><p class="note">The roof's rafters, ridge, ceiling joists and collar ties are in the lumber order and cut list above, pooled with the walls so they use each other's offcuts. Roof sheets, felt, drip edge and shingles are bought separately. Check rafter size, spacing and bracing against your span tables or engineer.</p>`;
     }
     function run() {
-      const { plan, bad } = toPlan();
+      const { plan, bad, source } = toPlan();
       $("#errors").innerHTML = "";
       if (bad.length) { $("#errors").innerHTML = `<ul>${bad.map((e) => `<li>${esc(e)}</li>`).join("")}</ul>`; return false; }
       let result, nailers = [], floor = null, floorExtra = [], roof = null;
@@ -514,7 +541,7 @@
       $("#wallPick").innerHTML = result.walls.map((w) => `<option>${esc(w.id)}</option>`).join("");
       if (result.walls.some((w) => w.id === prev)) $("#wallPick").value = prev;
       showWall();
-      try { localStorage.setItem(KEY, JSON.stringify(plan)); } catch (e) { /* storage is optional */ }
+      try { localStorage.setItem(KEY, JSON.stringify(source)); } catch (e) { /* storage is optional */ }
       return true;
     }
 
@@ -524,6 +551,7 @@
     function load(plan) {
       ui = fromPlan(plan);
       setSettings(ui.settings);
+      $("#hdrTable").value = (plan.headerTable || []).map((r) => [formatLength(r.upTo), r.header, r.plies].filter((x) => x != null).join(", ")).join("\n");
       const fl = plan.floor;
       $("#flOn").checked = Boolean(fl); $("#flFields").hidden = !fl;
       if (fl) {
@@ -610,7 +638,7 @@
       download("shop-panel-lumber-order.txt", "text/plain", [...panelOrderText(po), "", ...panelPullText(po)].join("\n") + "\n");
       record("panel_order_downloaded");
     });
-    $("#savePlan").addEventListener("click", () => { const { plan, bad } = toPlan(); if (bad.length) { run(); return; } download("framing-plan.json", "application/json", JSON.stringify(plan, null, 2)); record("plan_saved"); });
+    $("#savePlan").addEventListener("click", () => { const { source, bad } = toPlan(); if (bad.length) { run(); return; } download("framing-plan.json", "application/json", JSON.stringify(source, null, 2)); record("plan_saved"); });
     $("#openPlan").addEventListener("change", async (e) => {
       const input = /** @type {HTMLInputElement} */ (e.target);
       const file = input.files && input.files[0];

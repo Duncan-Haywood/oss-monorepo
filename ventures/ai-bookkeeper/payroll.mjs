@@ -27,7 +27,7 @@ import { confirm } from "./engine.mjs";
 
 // Annual social security wage base (SSA announcements); a year not listed is
 // checked at a flat 6.2% as before.
-export const SS_WAGE_BASE = { 2023: 16020000, 2024: 16860000, 2025: 17610000, 2026: 18450000 };
+export const SS_WAGE_BASE = { 2023: 16020000, 2024: 16860000, 2025: 17610000, 2026: 18450000, 2027: 19230000 };
 // FUTA: 6.0% on the first $7,000 of each employee's wages a year, less up to 5.4% credit for state unemployment paid on time: 0.6% net.
 export const FUTA_WAGE_BASE = 700000;
 // Additional Medicare Tax: employees only, 0.9% of wages above $200,000 in the calendar year; withholding starts in the pay period that crosses it.

@@ -192,6 +192,9 @@ test("Schedule SE: social security stops at the wage base, wages use it up, tiny
   assert.equal(selfEmployment(40000, { year: 2025 }).tax, 0);
   assert.equal(selfEmployment(-500000, { year: 2025 }).tax, 0);
   assert.ok(selfEmployment(1000000, { year: 2031 }).warnings.some((w) => /No wage base/.test(w)));
+  const y27 = selfEmployment(30000000, { year: 2027 });
+  assert.equal(y27.socialSecurity, Math.round(19230000 * 0.124)); // $192,300, SSA Oct 2026
+  assert.ok(y27.warnings.some((w) => /192,300/.test(w)));
 });
 
 test("estimated payment dates roll off weekends", () => {
@@ -216,4 +219,12 @@ test("B notice dates count business days past weekends and holidays", () => {
   assert.equal(bNoticeDates("2026-10-05", { received: "2026-10-09" }).mailBNoticeBy, "2026-11-02");
   assert.match(bNoticeDates("2026-10-05", { second: true }).enclose, /147C/);
   assert.throws(() => bNoticeDates("10/05/2026"));
+});
+
+test("Second B Notice runs 30 business days from the B notice date; same-year second CP2100 may be disregarded (Pub. 1281)", () => {
+  const r = bNoticeDates("2026-10-05", { second: true, bNoticeSent: "2026-10-20", firstNotice: "2026-03-02" });
+  assert.equal(r.startWithholdingBy, "2026-12-03"); // 30 business days after Oct 20, skipping Nov 11 and Thanksgiving
+  assert.equal(r.disregard, true);
+  assert.equal(bNoticeDates("2026-10-05", { second: true, firstNotice: "2025-03-02" }).disregard, false);
+  assert.equal(r.stopWithholdingWithinDays, 30);
 });

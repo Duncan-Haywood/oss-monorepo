@@ -130,6 +130,8 @@ introduces a dated fact.
 | 2056 | Kilnagross (invented), County Mayo: Saint Brendan's, nave about 5,000 m³ of air, stone walls; heat pump since 2051 and building AI Warden; flue pipes rise about 3 cents per °C against fixed reeds (8 to 16 °C is about 25 cents); 260 people give off about 18 kW; air held at 12 °C with 40 W pew mats instead of heating the stone (about 515 kWh electric at COP 3.5 vs about 85 euro); tuner Dermot Hanrahan, organist Nuala Walsh, her grandson Cian, Fr Colm Gallagher | *The Warm Pew* |
 | 2049 | Tobar Gobnait (invented priory of the Sisters of Saint Gobnait), West Cork: six hives, four on scales; Hive Four (a heavy cedar box, 20.1 kg empty against an assumed 17) reads 21.2 kg on 24 Jan and loses 120 g/day, so about 1.1 kg of honey (not 4.2) and about 8 days; fondant fed 27 Jan at 9 °C; Hive Six, unweighed, found dead beside 3 kg of honey; Candlemas candles for about 40 parishes; Sr Bernadette Kiely, Sr Fidelma, Mother Úna, hive monitor Skep | *The Weight of a Hive* |
 | 3026 | Fjellbu Vault (invented), northern Norway, the fourth vault after a first one whose entrance flooded in its ninth year (real: Svalbard, 2017); about 2.5 million samples at minus 18 C; a Dark Week every 25 years (all electronics off, 8 days, paper Ledger in pencil); keeper Ines Adeyemi-Solberg, apprentice Davi Quispe, AI called Tally; accession 4417 (bere barley, invented collector M. Flett, 2921) tests 61 of 100 against a database figure of 96 (Ledger: 86 in 2985) | *The Dark Week* |
+| 2054 | Tebwaiaki (invented), southern Gilbert Islands, Kiribati: ~900 people, 2 km x 400 m, lens ~10 m thick; Well One pump intake 6 m below sea level; Ghyben-Herzberg 40:1; logger reads 2.1 cm high vs Nei Teraaka's tape, so safe pumping is 1.0 not 1.3 m3/h (cone 0.8 m per m3/h, one-third-of-gap rule); 6 skim wells at 0.28 m3/h feed a 3-day bishop's feast (Rosary, Wed 7 Oct); Nei Teraaka, Meeri, Fr Ioane Baiteke, Tekaei Rimon, Biita, water AI Lens | *Forty to One* |
+| 2043 | St Gabriel's Mission Hospital, Mpale (invented), Lower Shire valley, Malawi: PSA oxygen plant since 2032 (controller Mpweya), spec 93% plus or minus 3, ceiling 20.95/(20.95+0.93) = 95.8% (argon), hospital floor 82%; wet-season purity 93 to 86.4% (24 Feb to 10 Mar), -15 C dryer dew point against -40; plant 40 L/min, ward peak 27; 6 cylinders of 6,800 L; 18 kg silica gel baked at 120 C in the convent bread oven, 3 batches; Chikondi Phiri, Dr Yamikani Mwale, technician Alinafe Chirwa, Sr Perpetua Banda | *The Dry Bread* |
 
 Little Lamps is set in history (Lima, about 1610 for *Brother Martin*) and is
 not on this timeline.
@@ -206,6 +208,8 @@ numbers worked out before drafting.
 
 - *(Done: The Warm Pew, Kilnagross, 2056.)* An organ that goes sharp as a church warms; heating the people, not the stone.
 
+- *(Done: Forty to One, Tebwaiaki, Kiribati, 2054.)* A drought lens, a feast, and a sensor two centimetres out (forty to one).
+- *(Done: The Dry Bread, Mpale, Malawi, 2043.)* A hospital oxygen plant loses purity in the wet season; the fix is in the convent bread oven.
 - *(Done: The Weight of a Hive, Tobar Gobnait, 2049.)* Two instruments disagree about a winter hive; a rate is trustworthy when a total is not.
 
 **For Other Minds**

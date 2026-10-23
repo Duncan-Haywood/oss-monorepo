@@ -1,0 +1,25 @@
+quantisation floor (0.2 V / sqrt 12): 0.058 V
+
+fit on first 10 ms, test on next 10 ms
+  constant (train mean): 1.320 V
+  twin linear      delay  1: train 0.434  test 0.719 V
+  twin hammerstein delay  0: train 0.349  test 0.616 V
+  ARX 1/1    ( 3 par): train 0.467  test 0.617 V
+  ARX 2/2    ( 5 par): train 0.542  test 0.582 V
+  ARX 3/3    ( 7 par): train 0.577  test 0.593 V
+  ARX 4/4    ( 9 par): train 0.578  test 0.592 V
+  ARX 6/6    (13 par): train 0.537  test 0.577 V
+  ARX 10/10  (21 par): train 0.405  test 0.549 V
+  free-run RMSE ARX 2/2 minus twin, block-bootstrap 2.5/50/97.5%: hammerstein -0.284 -0.039 +0.261; linear -0.359 -0.109 +0.199
+
+fit on next 10 ms, test on first 10 ms
+  constant (train mean): 1.319 V
+  twin linear      delay 10: train 0.538  test 0.673 V
+  twin hammerstein delay  0: train 0.431  test 0.500 V
+  ARX 1/1    ( 3 par): train 0.518  test 0.693 V
+  ARX 2/2    ( 5 par): train 0.548  test 0.819 V
+  ARX 3/3    ( 7 par): train 0.571  test 0.878 V
+  ARX 4/4    ( 9 par): train 0.573  test 0.885 V
+  ARX 6/6    (13 par): train 0.576  test 0.889 V
+  ARX 10/10  (21 par): train 0.501  test 0.712 V
+  free-run RMSE ARX 2/2 minus twin, block-bootstrap 2.5/50/97.5%: hammerstein +0.219 +0.356 +0.494; linear +0.091 +0.148 +0.204

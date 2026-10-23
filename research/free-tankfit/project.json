@@ -1,0 +1,6 @@
+{
+ "theme": "twins",
+ "title": "Does the overflow twin's lead over ARX survive refitting on a real two-tank rig? A 0.13 V gap in 100% of refits with 87.5% of the training data, but 0.07 V and 84 to 90% of refits with 50 to 75%",
+ "summary": "Adds fit variance to free-tankci. Refits the 8-parameter overflow twin and linear ARX 4/4 on 100 random contiguous windows of the real Cascaded Tanks training trace (Schoukens et al. 2016) at three window lengths and scores each on the fixed test trace as in free-tanktwin. With 896 of 1024 samples the twin's test RMSE is 0.518 V (sd 0.012) against 0.651 V (sd 0.004) for ARX, a gap of 0.133 V in all 100 refits. With 768 samples the gap is 0.066 V (2.5 to 97.5%: &minus;0.004 to 0.169) and the twin wins 90%; with 512 it is 0.070 V and 84%. The twin's advantage therefore depends on the training trace covering the operating range. Windows overlap and shrinking them confounds fit variance with less information, so only the longest window approximates the same data refitted; the optimiser start is fixed. All data are measured; no input is invented.",
+ "lede": "does the overflow twin's lead over ARX survive refitting on a real two-tank rig? A 0.13 V gap in 100% of refits with 87.5% of the training data, but 0.07 V and 84 to 90% of refits with 50 to 75%. Overlapping windows, fixed optimiser start."
+}

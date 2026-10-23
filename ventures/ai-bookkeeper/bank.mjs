@@ -5,13 +5,14 @@
 // no DOM, no network.
 
 import { isMt940, isCamt, readMt940, readCamt } from "./sepa.mjs";
+import { isBai2, readBai2 } from "./bai2.mjs";
 import { readStatementText } from "./statementtext.mjs";
 
 const ALIASES = {
   date: ["date", "transaction date", "posted date", "post date", "posting date", "trans date", "booking date", "effective date", "value date", "completed date", "started date", "date (utc)", "datetime", "run date", "activity date", "txn date", "tran date",
     // German, French, Spanish, Italian, Dutch headers
     "datum", "buchungstag", "buchungsdatum", "valuta", "wertstellung", "date de l'opération", "date opération", "date operation", "fecha", "fecha operación", "fecha valor", "data", "data operazione", "data contabile", "data valuta", "boekdatum", "transactiedatum"],
-  desc: ["description", "transaction description", "payee", "merchant", "name", "details", "original description", "memo", "narrative", "counter party", "counterparty", "narration", "reference", "partner name", "note",
+  desc: ["description", "transaction description", "payee", "merchant", "name", "details", "original description", "memo", "posting details", "narrative", "counter party", "counterparty", "narration", "reference", "partner name", "note",
     "beschreibung", "verwendungszweck", "buchungstext", "beguenstigter/zahlungspflichtiger", "begünstigter/zahlungspflichtiger", "libellé", "libelle", "descripción", "descripcion", "concepto", "descrizione", "causale", "omschrijving", "naam / omschrijving", "paaiškinimai"],
   amount: ["amount", "amount (total)", "transaction amount", "amt", "value", "amount (usd)", "amount ($)", "amount (gbp)", "amount (eur)", "cad$", "betrag", "betrag (eur)", "montant", "importe", "importo", "bedrag", "net", "suma"],
   debit: ["debit", "debits", "withdrawal", "withdrawals", "withdrawal amt.", "withdrawal amt", "withdrawal amount", "withdrawal (-)", "withdrawals (-)", "debit (-)", "money out", "paid out", "amount debit", "debit amount", "debit amount (positive)", "outflow", "soll", "débit", "debit (eur)", "cargo", "dare", "uscite"],
@@ -101,6 +102,9 @@ export function detectColumns(header) {
     return -1;
   };
   const cols = Object.fromEntries(Object.keys(ALIASES).map((k) => [k, find(k)]));
+  // "Value" is the value date in PostFinance (Date, Posting details, Credit,
+  // Debit, Value, Balance): beside money-in/out columns it is not the amount.
+  if (cols.amount !== -1 && h[cols.amount] === "value" && (cols.debit !== -1 || cols.credit !== -1)) cols.amount = -1;
   if (cols.desc === -1) {
     // Some banks split payee and memo; take the first text-looking column left.
     cols.desc = h.findIndex((x, i) => !Object.values(cols).includes(i) && /desc|payee|name|memo|detail/.test(x));
@@ -276,9 +280,13 @@ export function sniffFormat(text) {
   text = String(text ?? "");
   if (isCamt(text)) return "camt053";
   if (isMt940(text)) return "mt940";
+  if (isBai2(text)) return "bai2";
   const head = text.slice(0, 2000);
   if (/<OFX>|OFXHEADER:|<STMTTRN>/i.test(head) || /<STMTTRN>/i.test(text)) return "ofx";
   if (/^\s*!(Type|Account|Option)/im.test(head)) return "qif";
+  if (/^000\t\d{8}\t/.test(head)) return "esis";
+  if (/^07[45]\d{16}/m.test(head) && /^075\d{16}/m.test(head)) return "gpc";
+  if (/^\uFEFF?Pohyby na .{1,4}tu/i.test(head) && /^datum za.{1,4}tov.{1,3}n.{1,3}:/im.test(head)) return "cz-text";
   return "csv";
 }
 
@@ -357,6 +365,113 @@ export function readOfx(text) {
 // each account, followed by its `!Type:` section of transactions. -> [{ id,
 // type, text }], `id` the account name and each `text` a one-account QIF file,
 // or [] when the file names fewer than two accounts.
+// Lithuania's LITAS-ESIS statement (.acc, tab-separated, cp1257, no header): a
+// "000" line for the account, "010" lines for transactions (date YYYYMMDD in
+// column 3, amount in cents in 5, a D/K flag in 7, document no. in 11, purpose in
+// 14, counterparty in 18) and "020" opening/closing balance lines. Layout from
+// the ofxstatement-lithuanian plugin's parser (read from its sdist).
+export function readEsis(text) {
+  const problems = [], out = [];
+  text.split(/\r?\n/).forEach((l, i) => {
+    const f = l.split("\t");
+    if (f[0] !== "010") return;
+    const date = ofxDate(f[2]);
+    const cents = /^\d+$/.test((f[4] ?? "").trim()) ? Number(f[4]) : NaN;
+    const flag = (f[6] ?? "").trim().toUpperCase();
+    if (!date) return problems.push(`Line ${i + 1}: unreadable date "${f[2] ?? ""}", skipped.`);
+    if (!Number.isFinite(cents)) return problems.push(`Line ${i + 1}: unreadable amount, skipped.`);
+    if (flag !== "D" && flag !== "K" && flag !== "C") return problems.push(`Line ${i + 1}: no debit/credit flag (D or K), skipped.`);
+    if (cents === 0) return;
+    const desc = [f[17], f[13]].map((x) => (x ?? "").trim()).filter(Boolean).filter((x, j, a) => a.indexOf(x) === j).join(" ").replace(/\s+/g, " ");
+    out.push({ line: i + 1, date, desc, cents: flag === "D" ? -cents : cents, balance: null });
+  });
+  if (!out.length) problems.push("No transactions (010 lines) were found in the LITAS-ESIS file.");
+  return { rows: out, problems, columns: null, bank: "litas-esis", inferred: null };
+}
+
+// The Czech GPC statement (Fio, Ceska sporitelna, KB and others offer it): fixed-
+// width lines of 128 characters. "074" opens a statement (account, previous and
+// new balance in hellers with a +/- sign, statement date DDMMYY); "075" is a
+// transaction (counter-account 20-35, document no. 36-48, amount in hellers
+// 49-60, code 61: 1 debit, 2 credit, 4 debit storno, 5 credit storno, variable
+// symbol 62-71, bank code + constant symbol 72-81, specific symbol 82-91,
+// client name 98-117, due date DDMMYY 123-128). Layout as published in the
+// ofxstatement-czech plugin's docstring (read from its sdist); code is mine.
+// Decode the file as Windows-1250 first.
+export function readGpc(text) {
+  const problems = [], out = [];
+  let statement = null;
+  const date6 = (v) => { const m = /^(\d\d)(\d\d)(\d\d)$/.exec(v); return m ? `${Number(m[3]) < 70 ? 20 : 19}${m[3]}-${m[2]}-${m[1]}` : null; };
+  text.split(/\r?\n/).forEach((l, i) => {
+    const kind = l.slice(0, 3);
+    if (kind === "074") {
+      const n = l.slice(60, 74), sign = l[74], d = date6(l.slice(108, 114));
+      if (/^\d{14}$/.test(n) && (sign === "+" || sign === "-") && d) statement = { cents: (sign === "-" ? -1 : 1) * Number(n), date: d };
+      return;
+    }
+    if (kind !== "075") return;
+    const n = l.slice(48, 60), code = l[60], date = date6(l.slice(122, 128));
+    if (!/^\d{12}$/.test(n)) return problems.push(`Line ${i + 1}: unreadable amount, skipped.`);
+    if (!date) return problems.push(`Line ${i + 1}: unreadable date, skipped.`);
+    if (!"1245".includes(code ?? "x")) return problems.push(`Line ${i + 1}: unknown accounting code "${code ?? ""}", skipped.`);
+    const cents = Number(n) * (code === "1" || code === "5" ? -1 : 1);
+    if (cents === 0) return;
+    const strip = (v) => v.replace(/^0+/, "");
+    const vs = strip(l.slice(61, 71)), acct = strip(l.slice(19, 35)), bank = /^0+$/.test(l.slice(71, 75)) ? "" : l.slice(71, 75);
+    const desc = [l.slice(97, 117).trim(), acct && `acc ${acct}${bank ? "/" + bank : ""}`, vs && `VS ${vs}`].filter(Boolean).join(" ").replace(/\s+/g, " ");
+    out.push({ line: i + 1, date, desc, cents, balance: null });
+  });
+  if (!out.length) problems.push("No transactions (075 lines) were found in the GPC file.");
+  return { rows: out, problems, columns: null, bank: "gpc", inferred: null, statement };
+}
+
+// The Czech "Pohyby na uctu" text export (Raiffeisenbank's online banking and
+// others): one block per movement, "key:   value" lines (booking date D.M.YYYY,
+// amount with a dot, currency, balance after the movement, symbols, operation
+// type, counter-account name and number, note). Values start at column 20. The
+// note is wrapped at a fixed width, so its continuation lines are joined raw
+// (the padding keeps words apart, a number split mid-way is rejoined). Newest
+// block first. Layout read from the two samples in the ofxstatement-czech sdist
+// (GPLv3, layout only, nothing copied); code is mine.
+export function readCzBlocks(text) {
+  const problems = [], out = [];
+  const lines = String(text ?? "").replace(/^\uFEFF/, "").split(/\r?\n/);
+  const account = /Pohyby na .{1,4}tu.{0,6}:\s*(\d+)/i.exec(lines[0] ?? "")?.[1] ?? null;
+  const keys = [["date", /^datum/i], ["amount", /^.{1,3}stka$/i], ["ccy", /^m.{1,3}na$/i], ["balance", /^z.{1,3}statek$/i], ["vs", /^variabiln/i], ["type", /^ozna.{1,3}en/i], ["name", /^n.{1,3}zev prot/i], ["acct", /^prot.{1,3}.{1,3}et$/i], ["note", /^pozn.{1,3}mka$/i]];
+  const money = (v) => {
+    const m = /^([-+])?(\d+)(?:[.,](\d{1,2}))?$/.exec(String(v ?? "").replace(/\s/g, ""));
+    return m ? (m[1] === "-" ? -1 : 1) * (Number(m[2]) * 100 + Number((m[3] ?? "").padEnd(2, "0") || 0)) : null;
+  };
+  let cur = null, last = null;
+  const flush = () => {
+    if (!cur) return;
+    const b = cur; cur = null; last = null;
+    const dm = /^(\d{1,2})\.(\d{1,2})\.(\d{4})$/.exec(b.date ?? "");
+    const cents = money(b.amount);
+    if (!dm || cents === null) return problems.push(`Line ${b.line}: unreadable date or amount, skipped.`);
+    const vs = (b.vs ?? "").replace(/^0+(?=\d)/, "");
+    const desc = [b.type, b.name, b.acct && `acc ${b.acct}`, vs && `VS ${vs}`, (b.note ?? "").replace(/\s+/g, " ")].map((v) => (v ?? "").trim()).filter(Boolean).join(" ");
+    out.push({ line: b.line, date: `${dm[3]}-${dm[2].padStart(2, "0")}-${dm[1].padStart(2, "0")}`, desc, cents, balance: money(b.balance), ccy: b.ccy ?? "" });
+  };
+  lines.forEach((l, i) => {
+    if (!l.trim()) { flush(); return; }
+    const m = /^(\S[^:]*?):/.exec(l);
+    const k = m && keys.find(([, re]) => re.test(m[1].trim()))?.[0];
+    if (k) {
+      if (k === "date") { flush(); cur = { line: i + 1 }; }
+      if (!cur) return;
+      cur[k] = k === "note" ? l.slice(19) : l.slice(m[0].length).trim();
+      last = k;
+    } else if (cur && last === "note" && /^\s/.test(l)) cur.note += l.slice(19);
+  });
+  flush();
+  const ccys = new Set(out.map((r) => r.ccy).filter(Boolean));
+  if (ccys.size > 1) problems.push(`The file mixes currencies (${[...ccys].join(", ")}); amounts are read as one currency. Split it per currency.`);
+  if (!out.length) problems.push("No movements (datum/castka blocks) were found in the Czech text statement.");
+  for (const r of out) delete r.ccy;
+  return { rows: out, problems, columns: null, bank: "cz-text", inferred: null, account };
+}
+
 export function splitQif(text) {
   const parts = [];
   let head = "", cur = null, inAcct = false;
@@ -426,7 +541,11 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
     if (invert === true) for (const x of r.rows) x.cents = -x.cents;
     return r;
   }
+  if (format === "bai2") { const r = readBai2(text); if (invert === true) for (const x of r.rows) x.cents = -x.cents; return r; }
   if (format === "ofx") return readOfx(text);
+  if (format === "esis") return readEsis(text);
+  if (format === "gpc") return readGpc(text);
+  if (format === "cz-text") return readCzBlocks(text);
   if (format === "qif") return readQif(text, { dayFirst });
   const rows = parseCsv(text);
   const problems = [];
@@ -479,6 +598,8 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
   const hdr = headerAt === -1 ? [] : rows[headerAt].map(norm);
   if (bank === "nab") columns.desc = hdr.indexOf("transaction details");
   const rbc2 = bank === "rbc" ? hdr.indexOf("description 2") : -1;
+  // RBC puts a US-dollar movement in its own USD$ column and leaves CAD$ blank.
+  const rbcUsd = bank === "rbc" ? hdr.indexOf("usd$") : -1;
   if (bank === "monzo") columns.desc = hdr.indexOf("name");
   // Cash App: the fee sits in its own column, so the net amount is what moved.
   // The payee column beats the free-text note.
@@ -520,7 +641,8 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
     const date = parseDate(r[columns.date], dayFirst);
     if (!date) { problems.push(`Line ${i + 1}: unreadable date "${r[columns.date] ?? ""}", skipped.`); continue; }
     let cents;
-    if (columns.amount !== -1 && String(r[columns.amount] ?? "").trim() !== "") cents = parseCents(r[columns.amount], decimalComma);
+    if (columns.amount !== -1 && String(r[columns.amount] ?? "").trim() !== "") { cents = parseCents(r[columns.amount], decimalComma); if (rbcUsd !== -1) currencies.add("CAD"); }
+    else if (rbcUsd !== -1 && String(r[rbcUsd] ?? "").trim() !== "") { cents = parseCents(r[rbcUsd], decimalComma); currencies.add("USD"); }
     else cents = (columns.credit !== -1 ? Math.abs(parseCents(r[columns.credit], decimalComma) || 0) : 0) - (columns.debit !== -1 ? Math.abs(parseCents(r[columns.debit], decimalComma) || 0) : 0);
     if (!Number.isFinite(cents)) { problems.push(`Line ${i + 1}: unreadable amount, skipped.`); continue; }
     if (drcrCol !== -1) {
@@ -531,7 +653,7 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
     if (feeCol !== -1) { const fee = parseCents(r[feeCol], decimalComma); if (Number.isFinite(fee)) cents -= Math.abs(fee); }
     if (cents === 0) {
       // A zero is harmless, but a row with a description and every amount cell blank may be a lost transaction.
-      const blank = [columns.amount, columns.debit, columns.credit].filter((k) => k !== -1).every((k) => String(r[k] ?? "").trim() === "");
+      const blank = [columns.amount, columns.debit, columns.credit, rbcUsd].filter((k) => k !== -1).every((k) => String(r[k] ?? "").trim() === "");
       if (blank && String(r[columns.desc] ?? "").trim() && !/balance|saldo/i.test(String(r[columns.desc])) && !(columns.balance !== -1 && String(r[columns.balance] ?? "").trim())) problems.push(`Line ${i + 1}: no amount, skipped.`);
       continue;
     }

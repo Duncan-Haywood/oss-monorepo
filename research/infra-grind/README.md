@@ -29,8 +29,9 @@ Milestone 7 of track 21, applied R&D for the industries modern life runs on (`PR
 ```bash
 pip install pytest
 cd research/infra-grind
-python -m pytest -q tests                       # 12 tests
+python -m pytest -q tests                       # 13 tests
 PYTHONPATH=src python experiments/run.py        # about 4 minutes; writes experiments/results.txt
+PYTHONPATH=src python experiments/throughput.py  # section G, about a minute; writes experiments/throughput.txt
 python experiments/figure.py                    # experiments/circuit.svg from results.txt
 ```
 Standard library only.
@@ -41,9 +42,10 @@ Standard library only.
 - **C. Sensitivity of the saving** (best feasible closed vs open). Tanks 1, 2, 3, 4, 6, 10: 73, 59, 53, 50, 47, 44%. Classifier sharpness 2 to 8: 47 to 54%. Bypass 0 to 0.3: 53 to 48%. &alpha; 0.6 to 1.2: 50 to 53%. &beta;, &gamma;, &phi;: 48 to 55%. Mixing is the one input that moves it much: a fully mixed mill overgrinds heavily.
 - **E. Open/closed energy ratio** over tanks &times; sharpness: 1.8 to 3.7, never near 1.2.
 - **F. Fines slowing (negative result).** Cause (1) below was tested: S<sub>i</sub> divided by 1+(x<sub>fine</sub>/x<sub>i</sub>)<sup>k</sup>, with x<sub>fine</sub> 10 to 200 &micro;m and k 1, 2, 4. The open/closed ratio does **not** fall toward 1.20: it stays 2.10 to 2.12 for x<sub>fine</sub> up to 100 &micro;m and rises to 2.29 to 2.30 at 200 &micro;m (the open-circuit energy grows 1.2 to 3.7&times;, the closed one grows with it). Slowing the fines raises the cost of both circuits about equally, so it cannot explain the gap. The form is an assumed one (not fitted to cushioning data).
+- **G. Mill-flow limit (cause 2 tested; `experiments/throughput.txt`).** One mill of fixed power, whose total flow (fresh plus return) may not exceed *m* times the open circuit's fresh feed. The closed circuit's fresh-feed capacity relative to open is min(E<sub>open</sub>/E<sub>closed</sub>, m/(1+load)), with the cut chosen per *m*. Unlimited, the capacity ratio is the energy ratio, 2.12 at cut = P80. At m = 1.5 it falls to **1.16** (cut 2.5&times;P80, load 25%), at m = 2 to **1.37** (cut 1.75&times;, load 45%), at m = 3 to 1.52, and at m &ge; 4 it is back to 1.77 to 2.12. So a flow limit of about 1.5 to 2 times the open circuit's throughput brings the model's advantage into the range of Bond's EF2 = 1.20; the limit is **not sourced**: I know of no published hold-up figure that I read, so this shows what limit would be needed, not that real mills have it. It is a capacity comparison at fixed power, so it is not the energy ratio of E above.
 
 ## Discrepancy with the published figures
-The model's open/closed ratio is 1.8 to 3.7, against Bond's EF2 of 1.20 and about 1.1 from the vendor ranges. Possible causes: (1) real fines grind more slowly than a power-law S predicts (cushioning, slurry effects), which shrinks the overgrinding that open circuit pays for (**tested in F: it does not close the gap**; the rest are untested); (2) the model has no throughput limit, so the closed circuit's high load is free; (3) auxiliary power of separators and elevators (a trade article puts it near 22% of mill power) is excluded; (4) EF2 is defined against a closing screen size, not a P80 match, and cement is specified by Blaine surface rather than P80; (5) the shape parameters are typical values, not fitted to any mill. The honest reading is that the structure is right (closed beats open, finer cut and sharper classifier help) but the magnitude needs fitting to a real mill's size distributions before it is used.
+The model's open/closed ratio is 1.8 to 3.7, against Bond's EF2 of 1.20 and about 1.1 from the vendor ranges. Possible causes: (1) real fines grind more slowly than a power-law S predicts (cushioning, slurry effects), which shrinks the overgrinding that open circuit pays for (**tested in F: it does not close the gap**; the rest are untested); (2) the model has no throughput limit, so the closed circuit's high load is free (**tested in G: a flow limit of 1.5 to 2 times the open circuit's feed brings the capacity advantage to 1.2 to 1.4, but the limit is an unsourced assumption**); (3) auxiliary power of separators and elevators (a trade article puts it near 22% of mill power) is excluded; (4) EF2 is defined against a closing screen size, not a P80 match, and cement is specified by Blaine surface rather than P80; (5) the shape parameters are typical values, not fitted to any mill. The honest reading is that the structure is right (closed beats open, finer cut and sharper classifier help) but the magnitude needs fitting to a real mill's size distributions before it is used.
 
 ## Limitations
 - **No real mill data.** Nothing here is fitted to a measured feed and product size distribution; a public one (e.g. a grindability test with sieve data) would replace the assumed parameters.
@@ -53,7 +55,7 @@ The model's open/closed ratio is 1.8 to 3.7, against Bond's EF2 of 1.20 and abou
 - Not engineering advice.
 
 ## Next steps
-- Fit S, B to a public batch-grinding dataset and test whether the discrepancy closes; add a throughput limit (fines slowing alone was tried and did not close it).
+- Fit S, B to a public batch-grinding dataset and test whether the discrepancy closes; source a real mill hold-up or flow limit for section G's *m* (a throughput limit was tried in G; fines slowing alone did not close it).
 - Add the cost axis with `energy-tou` (time-of-use tariff) and the separator's own power.
 - Pair with `infra-cement`: grinding energy per blend is currently a flat 100 kWh/t there.
 

@@ -230,3 +230,32 @@ test('a flat per-foot quote on this backyard is the losing bid the tool exists t
   assert.ok(bid.price > 140 * 35);
   assert.equal(naive.proposed.belowBreakEven, true);
 });
+
+test('preset line post and drive gate costs are pinned', () => {
+  assert.equal(presetById('wood-picket-4').linePostCost, 16);
+  const pricedDrive = MATERIAL_PRESETS.filter(p => p.driveGateCost === 900);
+  assert.equal(pricedDrive.length, 1);
+});
+
+test('a run with no post spacing is rejected', () => {
+  const input = backyard();
+  delete input.runs[0].postSpacingFt;
+  assert.throws(() => calculateBid(input), /post spacing/);
+});
+
+test('missing gate cost counts as zero, not one dollar', () => {
+  const free = backyard();
+  free.runs[0].walkGateCost = 0;
+  const missing = backyard();
+  delete missing.runs[0].walkGateCost;
+  assert.equal(calculateBid(missing).materialCost, calculateBid(free).materialCost);
+});
+
+test('shares are zero when a bid has no material cost', () => {
+  const input = backyard();
+  for (const k of ['materialPerLf', 'linePostCost', 'terminalPostCost', 'walkGateCost', 'driveGateCost', 'concretePerPost']) input.runs[0][k] = 0;
+  input.tearOutFeet = 0;
+  const bid = calculateBid(input);
+  assert.equal(bid.materialCost, 0);
+  assert.equal(bid.postsAndGatesShare, 0);
+});

@@ -524,6 +524,7 @@ export const SERVED_EXTENSIONS = new Map([
   ['.mt940', 'conf'],
   ['.py', 'conf'],
   ['.gz', 'conf'],
+  ['.whl', 'conf'],
 ]);
 
 // Where the served config lives, relative to the repo root. The build pod

@@ -1,0 +1,269 @@
+---
+number: 16
+slug: spyridon-and-the-snake-that-became-gold
+title: Spyridon and the Snake That Became Gold
+published: 2026-10-23
+summary: A shepherd who became a bishop and never quite stopped being a shepherd. A snake in a poor man's debt, a clay brick at a great council, a night of thieves who were let go with a ram, and a good long look at what it means to keep a door open.
+figures: Saint Spyridon of Trimythous, his daughter Irene, the shepherds and farmers of Cyprus, the bishops at Nicaea
+tradition: Catholic and Orthodox
+feast: 12 December in the Orthodox Churches; the Roman Martyrology also remembers him in December; he is especially loved on the island of Corfu, where his relics rest
+history: Spyridon was a real bishop of Trimythous in Cyprus in the fourth century, said by early church historians to have been a married shepherd before he was a bishop, and later tradition places him at the Council of Nicaea in the year three hundred and twenty-five
+legend: the snake that turned to gold, the brick at Nicaea that gave fire, water and clay, and the thieves held fast in the night come from his later lives, chiefly the seventh-century life by Theodore of Paphos, and are told here as the old story says
+fiction: the farmer Demetrios, the shepherd boy Kallias, the old sheepdog Argos, the innkeeper's wife Maria, and nearly all the small conversations are our own invention, told in the spirit of the old lives
+sources:
+  - Sozomen, Ecclesiastical History, book one, chapter eleven, fifth century, on Spyridon the shepherd bishop
+  - Socrates Scholasticus, Ecclesiastical History, book one, chapter twelve, fifth century, on Spyridon and the Lenten traveller
+  - The Life of Saint Spyridon by Theodore of Paphos, seventh century, Greek
+  - The Gospel according to Matthew, chapter twenty-five, verses thirty-four to forty, the sheep, the goats and the stranger
+  - Psalm 23, the Lord is my shepherd, referred to but not quoted at length
+---
+
+A man is standing in the doorway of a small stone house, holding a lantern, and looking at a snake.
+
+It is a big snake, as thick as his wrist, the colour of old rope, and it is lying on the floor of the sheepfold in a patch of lamplight as if it had been invited. The man with the lantern is old, but not very old. He is broad in the shoulder. His hands are rough, and his coat smells faintly of sheep, as everything in this house does, as every single thing in this house always has.
+
+And the snake, quite slowly, is beginning to shine.
+
+First the tail. Then the long back. A dull, warm, buttery yellow, like candlelight on a church lamp, spreading along it, inch by inch, until the whole creature is a solid bar of gold lying on the straw. It does not move. It is very beautiful, and also, a person would have to admit, a little alarming.
+
+The old man looks at it for a long moment. He says, mildly, "Well. That's more than I asked for."
+
+But we are getting ahead of ourselves.
+
+[pause]
+
+Hello, and welcome to Saints by Candlelight, stories of saints, angels and patriarchs from the Catholic and Orthodox traditions, told for bedtime. These episodes are written by an AI and read by a synthetic voice, and they try very hard to be faithful. Tonight's story is about Saint Spyridon of Cyprus, taken from the old lives of the saint and from two early church historians who knew a little of him, and the farmers, the shepherd boy and the dog are our own invention, as are most of the small conversations, told in the spirit of the original. So get comfortable. Dim the lights. And let's begin.
+
+[pause]
+
+Let us start with the island.
+
+Cyprus sits at the bottom of the eastern Mediterranean like a large, dry, sunny thumbprint. To the north, if the day is clear, you can almost see the mountains of what is now Turkey. To the east, Syria. To the south, a long way off over blue water, Egypt. It is a place that everybody has wanted, for about as long as there have been people to want things. The Egyptians took it, and the Greeks lived on it, and the Persians borrowed it, and the Romans, eventually, kept it. By the time our story begins, in the fourth century after Christ, Cyprus belongs to the Roman Empire, as nearly everything around the Mediterranean does, and it is a peaceful, ordinary, prosperous sort of province, famous for three things. Copper. Wine. And, in the hills, sheep.
+
+The very word copper comes from the island. That is not a story, by the way. It is simply true. The Romans called the metal after the place it was dug up, and the place has been giving its name to kitchen pans ever since. If you have a copper pan in your kitchen, the island of Cyprus is in your cupboard, and you may feel a small quiet pride on its behalf.
+
+Now, in the middle of the island there is a range of hills, dry and golden in summer and green after the winter rains, and it is dotted with villages, and each village has a church, and the church, in the fourth century, was a rather new thing. Christianity had been illegal for a good deal of the century before. Then, quite suddenly, it was not. The Emperor Constantine, about a dozen years before our story, had made it lawful, and the Church was still blinking in the sunlight like someone who has come up from a cellar. Its bishops had been, in many cases, men who had spent years hiding, and some of them still carried the marks of the prisons. Others were plain village people, chosen because the neighbours trusted them, and who had never been to a school in their lives.
+
+Which brings us, at last, to a shepherd.
+
+The early church historians do not tell us very much about Spyridon, and I think we should be honest about that from the start. Two of them, Socrates and Sozomen, writing a hundred years or so after his death, set down a few paragraphs. They tell us that he came from Cyprus, that he was a shepherd, that he had a wife and a daughter, and that he was so full of goodness and so plain-spoken that when the people of a town called Trimythous needed a bishop, they chose him. Trimythous, by the way, was a real town, inland from the coast, in the hills. It is very hard to pronounce, and the ancient Greeks themselves could hardly have found it easy. We shall mostly say that he was a bishop in Cyprus, and let it go at that.
+
+What the historians say most firmly is this: that even after he became a bishop, he did not stop being a shepherd. He kept the sheep. He kept the fields. He lived the way he had always lived, and when the work needed doing, he did it, with his sleeves rolled up and his bishop's cloak hung on a nail in the barn. Imagine that. A man in charge of a whole diocese, with a cross on a chain, and a smell of lanolin about him.
+
+I think it is the best thing about him. Remember it, because it is the key to everything that follows.
+
+[pause]
+
+Now. The later lives. These come from the seventh century, three hundred years or more after Spyridon died, written by a bishop called Theodore, from Paphos, on the same island. Theodore collected what the people of Cyprus remembered, and wrote it out in a graceful, rather formal Greek, and he is the source for most of the tales. They are the sort of stories that grow on a saint like moss on a wall. Some of them, very likely, are true in their bones. Some are the things that people said about a shepherd bishop because they loved him. We will tell them tonight as the old story says, and when I say "the old story says", you will know what I mean.
+
+We shall begin with the snake.
+
+* * *
+
+In the old story, there is a dry year.
+
+Dry years happen on Cyprus. The winter rains come late, or thin, or not at all, and the fields, which in a good year are green and rippling, turn the colour of a biscuit. The wells sink. The wheat does not come up. And a family that has only a small field, and no savings, finds that the autumn is a long way off and the larder is a very short distance away.
+
+There is a farmer in the village. We shall call him Demetrios, because the old story does not give his name, and a man ought to have one. He is a decent, anxious, hard-working man with four children, and a donkey that has opinions, and a field that has given him nothing at all this year. His neighbours are in the same state, so it is no use asking them. The rich landowner on the next hill is not a bad man, exactly, but he has a way of looking at a borrower as if he were a small, difficult sum.
+
+So Demetrios, who is a proud man, and does not like it, goes to the bishop.
+
+He goes at the end of the day. He walks up the track past the olive trees, and over the dry streambed, and up to the low stone house at the end of the village, where the bishop lives with his sheepfold behind it. He has his hat in his hands, which he is twisting into a rope. He has rehearsed what to say. It is a good speech. It has a beginning and a middle and a sort of dignified plea at the end. And when the bishop comes to the door, wiping his hands on his coat, with a smear of something on his cheek, the whole speech goes straight out of Demetrios's head, and what he says is, "Father, I've got nothing."
+
+The bishop says, "Come in."
+
+That is all. He does not ask who it is, or what the trouble is, or whether the man has tried the landowner. He just says, "Come in," and holds the door.
+
+Inside, there is a table, and a bench, and a loaf, and some cheese, and a jug. There is a fire, though it is a small one. There is a quiet young woman at the back, shelling beans into a bowl, who looks up, and nods, and goes back to her beans. That is the bishop's daughter. We shall come to her. Not yet.
+
+Demetrios sits. He is given bread, and a cup of wine mixed with water, and he eats, because he is hungry, and he is ashamed of how hungry he is. And when he has eaten, he says what he came to say. Not the speech. Just the plain thing. His field has failed. His children are hungry. He needs to buy seed, and grain to last until the harvest, and he has no money, and nobody will lend it, and he would be grateful, more grateful than he can say, for a loan. He will pay it back, he says. Next year, after the harvest. Every coin. He swears it.
+
+The bishop listens to all this with his head a little on one side, the way he might listen to a sheep that was coughing. And then he says, "How much?"
+
+Demetrios names a sum. It is not a small sum. It is more, perhaps, than a family like his would see in years.
+
+And the bishop says, "I haven't got it."
+
+It is a very simple thing to say, and it lands in the room like a stone in a pond. Because, of course, it is true. The bishop is a poor man. His wealth is sheep. His house has a dirt floor in the back. There is no chest of coin under the bed. The reason he lives so plainly is that there is nothing to live more richly on.
+
+Demetrios looks at the table. He nods. He starts to stand up. "Of course, Father," he says. "I'm sorry. I shouldn't have asked."
+
+"Sit down," says the bishop. "I didn't say no. I said I haven't got it."
+
+[pause]
+
+Now here is the part where the old story becomes a story.
+
+The bishop goes out. He walks across the yard to the sheepfold behind the house, and he stands at the gate, and he looks at the ground, and in the lamplight he sees a snake. A plain, ordinary, common snake, such as lives in the stones of every dry wall in Cyprus. The sort that sleeps in the sun and wants nothing to do with you.
+
+And the old story says that the bishop prays. He does not wave a hand. He does not say a magic word. Saints are not wizards, and I would like that said clearly, and the old life says it too. He prays, the way he prays every evening, simply, in the voice of a man talking to someone he knows very well, and asks. And what he asks is for help for the man at his table. And it is God, not Spyridon, who does what happens next, and what happens next is that the snake turns to gold.
+
+Not a rumour of gold. Not a gleam. A solid, heavy, plain bar of it, lying in the straw.
+
+And the bishop, after that little remark about it being more than he asked for, picks the thing up, and finds it surprisingly heavy, and carries it back across the yard, and puts it on the table in front of Demetrios, between the cheese and the jug.
+
+"There," he says. "Take it to the goldsmith in the town. He'll give you a fair price. Buy your seed. Feed your children. And when the harvest comes, and you can, bring me back what it was worth."
+
+Demetrios, as you can imagine, cannot speak.
+
+He takes it. He takes it home inside his coat, the way a man might carry a baby, and in the morning he walks to the town, and the goldsmith, who has seen a good many things, turns it over for rather a long time, and then pays what it is worth. And with the money Demetrios buys seed, and flour, and a little oil, and shoes for the youngest. And that autumn the rain comes at last, and the winter after is a good one, and the next year the field is thick with wheat.
+
+And Demetrios, true to his word, comes back at the end of the harvest. He knocks at the low door. He has the gold in his hands. Or rather, he has the gold in a bag, because he has not been able to bring himself to spend it. He has found a way to get the money some other way, in the end, selling the first wheat. And the old story says that he gives back the lump to the bishop, who thanks him, and carries it out to the sheepfold, and puts it down at the exact spot where he found it, and says a short word.
+
+And the gold, in the straw, becomes a snake again, and slides away between the stones, and goes about its business.
+
+[pause]
+
+I like that one very much. I like it for the end more than the middle. The snake does not stay gold. Nobody gets to keep it. The money is lent in the old, true sense of the word, which is to say, borrowed against a promise, and given back with thanks, and the thing itself was never ours, from first to last. The only wealth in the story that really stays is the trust between two men at a table.
+
+Now, whether it happened exactly so, I could not tell you. The old story says it did. It is a legend, in the proper sense, a thing to be read for what it means. What it means is something Spyridon himself might have put more briefly. If someone comes to you with empty hands, you say, "Come in," and you worry about the arithmetic afterwards.
+
+* * *
+
+I promised I would come back to the daughter.
+
+Her name was Irene. It is a lovely name. It is Greek for peace. And the old historians tell us that she was a good young woman, devout, quiet, and that she died young, before she was married. Sozomen tells a short story about her, which is one of the oddest in the whole business.
+
+A man had left a sum of money with Spyridon for safekeeping, as people did in those days, when there were no banks to speak of. And then the man was away for a long time. When he came back, and asked for his money, Spyridon could not find it. Nor could he remember where it had been put. Irene, who had been the keeper of the household, was dead by then. And so the bishop, as the old story says, went and stood by her grave, and spoke to her, in a gentle voice, and asked her where the money was. And the story says that she answered him, from the other side, with the name of the place where she had hidden it. The money was found, and given back, and the man went home, no doubt with his head in a spin.
+
+Now I am going to be careful here, because this sort of tale can be told so as to give people the wrong idea. The Church has never taught that you may summon the dead for information, and nor does this story suggest it. It is a story about a grieving father, and a daughter who loved him, and God's mercy being greater than we can see. The old historians did not seem to think it needed more than a paragraph. I think we can leave it at that, with respect.
+
+[pause]
+
+Let us go on, and make the bishop a little lighter on his feet. There is a story from the historians Socrates and Sozomen that is, I think, as much fun as anything in the early Church, and it concerns a traveller, and a very hungry evening.
+
+It is Lent. This is the long season of fasting before Easter, when people ate simply, and abstained from meat, and a good deal else. A man comes walking up to the bishop's door, late, tired, dusty, and clearly unwell with hunger. He has been on the road for days. He asks for a place to sleep and something to eat.
+
+Spyridon says, "Of course." And then he turns to his daughter, and says, "Irene. Our guest is tired. Wash his feet, and give him something to eat."
+
+And Irene says, with perfect truth, "Father, there's no bread. I baked yesterday, and there's none left. And we don't have any flour. And we're keeping the fast, so there's no meat in the house, except that old salted pork in the back that we haven't touched."
+
+There is a short silence in the kitchen.
+
+I imagine Spyridon looking at the ceiling, as a person does who is thinking hard about a rule. And then he says, quite calmly, "Well, then. Cook the pork."
+
+And that is what they do. The traveller is sat down, and fed, and the bishop sits down with him, and eats a little himself, to keep him company, and says, "Eat, my friend. Eat and be glad. The Lord said that nothing that goes into a man defiles him. And more than that, the Lord said that he came for the hungry. Are you going to refuse good food, when a hungry man is offering you the very best he has?" And he says it so warmly that the guest, who had very much wanted to refuse, finds himself at the table, with a plate, and an appetite, and no way out.
+
+Now the story goes on. In the version in the old historians, the traveller was a person who was keeping the fast strictly, and who was embarrassed to eat the meat, and the bishop's answer was a kind of gentle teaching: that the commandments of the Church exist to help us love, and that when love and a strict reading collide, hospitality wins. I should say plainly that this is a story about the fourth century, and the Church's rules about fasting have been written and rewritten many times since. Please do not take it as a licence to eat bacon in Lent. It is a story about a man who would sooner bend a rule than turn away a stranger. The Church itself has always said that hospitality is among the dearest of its duties. The Lord, in the Gospel of Matthew, says it in the plainest possible words: I was a stranger, and you took me in.
+
+* * *
+
+Now we come to the thieves.
+
+In the old story, there is a night when four men creep up on the bishop's sheepfold. They are not clever men, or they would have chosen a better occupation. They have heard that the bishop has a fine flock and keeps only one old dog, and no guard, and they have brought a sack, and a rope, and a certain confidence. They come over the wall in the black of the night, quiet as cats, and they open the gate of the fold. And they put their hands on the sheep.
+
+And they find that they cannot move.
+
+Not that anything is holding them. There is no rope. There is no chain. It is just that when they try to leave, to climb back over the wall, their feet won't do it. Their hands, once on the sheep, will not let go. They stand there in the dark, in the stink of the fold, with the sheep calmly chewing around them, and the old dog, whom we shall call Argos, because every old dog in the Greek world is called Argos, looking at them with a patient, worldly expression, as if to say, "I did try to tell you."
+
+They stand like that all night. It must have been, I think, an extremely long night.
+
+At dawn, the bishop comes out to do the morning milking, with a bucket on his arm, and finds four men standing in his sheepfold, as still as fence posts, grey with cold and shame. He looks at them. They look at him. One of them begins to say something, and finds he cannot even manage that.
+
+And the bishop, who is a kind man, and who knows that the thing which has happened is God's doing and not his own, puts down the bucket, and says a prayer for them. A short one. And they are loosed. They sag. They fall on their knees in the straw.
+
+Now this is the part of the story that has endured for sixteen hundred years. What does the bishop do?
+
+He does not call the magistrate. He does not give them a lecture, or not much of one. He says to them, gently, "You came all this way in the dark for a sheep. You could have asked in the daylight. Here." And he goes to the fold and picks out the best ram in the flock, and he gives it to them, and he says, "Go home. Don't steal. It's too much work for what you get. Next time, knock."
+
+The old life adds, rather dryly, that the thieves went away astonished, and that they took the ram, and that they were never thieves again. I find this the most believable part of the whole tale. If somebody gave me the best ram in the flock for stealing it, I should also be reformed.
+
+[pause]
+
+You might ask whether this is a true story. It is in the later lives, not the early histories, so we have to say it is a story as the old people told it. But I will tell you what I think. I think the people of Cyprus remembered that Spyridon was a man who could not look at a wrongdoer without wanting to make him a friend. And a memory like that, over three hundred years, will gather a story about itself, the way a stone gathers moss. The story is a way of saying what the people knew. This was a man who gave away the ram.
+
+* * *
+
+Now we must go to a great council, and I will warn you that it is the point at which the shepherd bishop is going to look rather out of place.
+
+In the year three hundred and twenty-five, the Emperor Constantine called all the bishops of the Christian world to a meeting at Nicaea, a city in what is now north-western Turkey. It was the first time in history that Christian bishops from all over the Roman Empire had been gathered in one room. Some of them came from beyond it. There were bishops from Egypt, and Syria, and Greece, and Gaul, and Persia, and, from Cyprus, according to later lists of those who took part, there were a few. The old tradition counts Spyridon among them.
+
+Think of the journey. Over the sea, by boat, to the coast, and then by road, for days, up through the hills. The imperial post provided horses, and carriages, and a place to stay. A great many bishops arrived in good order, in clean robes, with secretaries, and clerks, and a case of books. And then, among them, a plain man from Cyprus with a staff, a rough cloak, and the look of someone who has never in his life been indoors for more than a few hours at a stretch.
+
+I imagine he was very polite, and a little lost, and extremely interested in everything.
+
+Now, the council had one great business, which was a quarrel. It had begun in Alexandria, with a priest called Arius, who taught that the Son of God was a creature, the greatest of all creatures, but made, and that there had been a time when he was not. The bishops of the Church said no. The Son, they said, is not made. He is God from God, light from light, of one being with the Father. It was a very deep matter, and a very fierce one, and the whole Church had been shaken by it. The council's answer was the beginning of the Creed that Catholics and Orthodox still say together on Sundays, the one that goes, "We believe in one God."
+
+And somewhere in the debate, according to the later lives, there was a philosopher.
+
+He was a clever pagan, or a clever Christian with a pagan's education, the story is not quite sure, and he was a very good debater. He had been talking circles around the bishops. He would stand up and take an argument and turn it over and make it sound foolish, and all the learned men in the hall, who had read their Origen and their Plato, found they could not catch him. It was embarrassing. The bishops, who had suffered for the faith, were not used to being laughed at by a lecturer.
+
+And then, the old story says, Spyridon stood up.
+
+You can hear the room go quiet. Here is a man in a farmer's coat, who cannot read Greek philosophy, and who has been sitting at the back eating a bun. Some of the grand bishops are looking at the ceiling. A secretary is whispering. Someone says, "Should we let him?" And someone else, kindly, says, "Let him."
+
+He says to the philosopher: "In the name of Jesus Christ, listen to me. I am going to tell you what I know."
+
+And he speaks, in his plain voice, about what it means that God is one and is three. The philosopher, who is used to being met with clever words, listens to a simple one. And the old story says that at the end of it, the philosopher, who had won so many arguments, bowed his head, and said that he believed.
+
+Now, the story that is told about it, in the later lives, is that Spyridon took up a brick, a plain clay brick, in his hand, and held it up in front of the hall. And as he held it, and said the name of the Father, and the Son, and the Holy Spirit, the brick began to come apart in his hands. Fire went up from it. Water ran down from it. And in his palm, the plain clay remained. Three things, from one brick. And all the bishops, and the philosopher, looked at it, and fell silent.
+
+[pause]
+
+I should say two things about this story, and I would like to say them carefully.
+
+The first is that it is a legend. The earliest histories of the council do not tell it, and there is no mention of it in the records we have. It comes in the later lives, hundreds of years afterwards. If you ask whether Spyridon was at Nicaea, the old tradition says yes, and later lists of bishops name him. If you ask whether he made a brick give fire and water, the honest answer is that nobody knows, and that very likely it is the people's way of saying what his reputation was.
+
+The second is something the Church has always said about every picture of the Trinity, the brick included. No picture is enough. God is not made of three parts, like a brick. God is not a clay with a fire and a water in it. The Church has been very firm about this for sixteen hundred years. A picture can help us, the way a map helps us find a town, but the town is not the map. If you take the brick too literally, you end up saying something the Fathers of Nicaea would not have liked. So take it, as the old people took it, as a story about a simple man who knew that the deepest things are best said plainly, and who was not afraid to say them in front of philosophers.
+
+And then, I think, take the other thing in it, which is the most Spyridon of all. He did not argue. He did not out-clever the clever man. He held up the nearest thing to hand, a bit of the ordinary world, and he said, look. The simplest person in the hall was the one who could show the others what they were saying.
+
+* * *
+
+[pause]
+
+The council ended. The bishops went home. Spyridon, as the old story says, went back to Cyprus, back up the hill, back to the low stone house, and the fold, and the dog. The sheep had been looked after by a neighbour boy, we shall call him Kallias, who had been terrified for the entire month that he would lose one. He had not lost a single one. He was very proud of this. He told the bishop all about it, at great length, with arm movements, as the bishop sat on the bench with his boots off and his feet in a bucket of warm water, and nodded, and nodded, and said, "Well done," at all the right places.
+
+And I like to think that if you had asked the bishop that night what the most important event of his month had been, he might have looked at you, with those mild eyes, and said, "Kallias did not lose a sheep."
+
+Not because the council was not important. He knew exactly how important it was. But because he was a shepherd, and a shepherd measures the day by the flock.
+
+[pause]
+
+Let us slow down now.
+
+The old lives say that Spyridon lived on for some years, tending the diocese as he had always done, teaching, and giving, and mending things. He gave away what he had. He fed the poor. He opened his door to strangers, and sat them at the table, and did not ask them questions until after they had eaten. People came to him for advice, and went away with a loaf and a blessing and a rather good idea of what they ought to do next.
+
+He grew old. The sheep, I think, grew old with him. The dog, a succession of dogs, each one a little lazier than the last, lay in the sun in front of the house.
+
+And one day, we do not know which, the old story says that he knew his time had come. He was praying, as he always did, standing up in the little church at the end of the village, and he was found there, in the quiet, having gone home to God. The people carried him to his rest. They buried him in Trimythous. They wept for him, and then, because he would have wanted them to, they went back to their fields.
+
+[pause]
+
+And now, the quiet part. The part where you may close your eyes.
+
+The people did not forget him. That is the strange thing. A bishop in a small town in the hills, who left no books and no building, and whose name would have been lost in a hundred years, if it were left to the usual accidents. But the people remembered. They told his stories at the well. They told them in the olive press. They told them at the weddings, and at the funerals, and on the long evenings when the lamp burned low. The Greek-speaking world took him up, and he became one of the best-loved saints in the whole of the East.
+
+In time his body was carried from Cyprus to Constantinople, to a great church there, and when Constantinople fell, in the fourteen hundreds, his relics were carried, after a long journey, to the island of Corfu, in the Ionian Sea. And there they have stayed for some five hundred years. There is a church there, with a slender bell tower you can see from the sea, and the saint rests in a silver casket, in a side chapel, where people come to pray all day, and kiss the casket, and leave their little paper notes. And four times in the year, on certain feast days, the casket is carried out of the church in a great procession, and the whole island follows it, with the brass bands playing, and the schoolchildren in their best clothes, and the flags.
+
+There is an old saying on Corfu that the saint walks in the night. They say that his slippers wear out, and every year or two the church has to replace them, and the old ones are cut into small pieces and given to the faithful. I do not know what to make of that. I think of it as a love story. A people so fond of a shepherd bishop that they cannot bear to think of him sitting still.
+
+There are a great many boys on Corfu named Spiros. It is, I am told, one of the commonest boys' names on the island. If you walk into a market there, and call out "Spiro!", about half the men turn round.
+
+I find that very comforting. It is a long way from the great council and the bishops and the creeds. It is a name given to a baby, because somebody's grandmother asked for it, and because a man who gave away a ram has been loved for sixteen hundred years.
+
+[pause]
+
+The sea at Corfu is calm tonight. The lamps are lit in the little church. The bell has been rung for the evening, and the last of the candles is burning low in front of a silver casket, where someone has put down a note in a child's handwriting. It says, as I understand such notes often do, something very simple.
+
+It says: thank you for the door.
+
+[pause]
+
+Some notes for the curious.
+
+Saint Spyridon was a real bishop of Trimythous in Cyprus in the fourth century. Two early church historians, Socrates and Sozomen, writing in the fifth century, say that he was a shepherd, married, with a daughter, and that he remained a plain countryman after he was made a bishop. They tell, between them, the stories of the Lenten traveller, the money that was found, and the thieves in the fold. The later life by Theodore of Paphos, in the seventh century, adds more, including the snake that became gold. The brick at Nicaea belongs to the later lives, too, and is a legend. The council itself is entirely historical, and Spyridon's name is attached to it by old tradition and later lists, though we have no detailed account of what he said, if anything.
+
+The doctrinal point matters, so I will make it once more. The brick is not a picture of the Trinity that the Church would endorse. It is a story the people told about a plain man who spoke plainly to a philosopher. Miracles, in the old story and in this telling, are God's work, answering a prayer, and never a saint's trick.
+
+What we invented tonight: the farmer Demetrios and his donkey, the shepherd boy Kallias, the old dog Argos, and nearly every small conversation, including the moment at the sheepfold gate. We also added the remark about the snake being more than he asked for, which is our own joke. The detail that the Corfiotes name their sons Spiros is true, and so is the slipper tradition, though it is better known to the islanders than to us. If you would like to read more, the fifth-century histories of Socrates and Sozomen are available in English, and they are short, and surprisingly funny.
+
+[pause]
+
+That's the story of Saint Spyridon for tonight. His feast is the twelfth of December in the Orthodox Churches, and Catholics remember him in the same month, and he is loved in both. Thank you for listening to Saints by Candlelight. If you enjoyed it, share it with someone who could use a gentle story at the end of a long day.
+
+Here is a short prayer for tonight, our own, in the spirit of the old prayers for shepherds and for the hungry.
+
+Lord, you are the shepherd of us all. Give us open doors, and open hands, and the sense to tell the difference between a rule and the reason for it. Be with everyone tonight who is cold, or hungry, or far from home. Bless the farmers, and the shepherds, and the people who feed us. And through the prayers of your servant Spyridon, let us rest in peace, and wake in peace. Amen.
+
+Goodnight, and God bless.

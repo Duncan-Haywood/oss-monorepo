@@ -35,9 +35,9 @@ import { fmt } from "./ledger.mjs";
 
 const key = (h) => String(h).trim().toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "");
 const ALIASES = {
-  payout: ["automatic_payout_id", "payout_id", "payout", "transfer_id", "payout_reference", "payout_reference_id"],
-  payoutDate: ["automatic_payout_effective_at", "automatic_payout_effective_at_utc", "payout_date", "payout_effective_at", "arrival_date", "transfer_date"],
-  category: ["reporting_category", "category", "type", "transaction_type"],
+  payout: ["automatic_payout_id", "payout_id", "payout", "transfer_id", "payout_reference", "payout_reference_id", "deposit_id"],
+  payoutDate: ["automatic_payout_effective_at", "automatic_payout_effective_at_utc", "payout_date", "payout_effective_at", "arrival_date", "transfer_date", "deposit_date"],
+  category: ["reporting_category", "event_type", "category", "type", "transaction_type"],
   gross: ["gross", "amount", "gross_amount", "gross_sales", "total_collected", "sale_price", "total", "customer_total"],
   fee: ["fee", "fees", "fee_amount", "processing_fees", "total_fee", "platform_fee", "gumroad_fee", "paddle_fee"],
   net: ["net", "net_amount", "net_total", "payout_amount", "earnings"],
@@ -79,6 +79,8 @@ export function readPayoutReport(text) {
   if (head.includes("fees_taxes") && head.includes("title") && head.includes("type") && head.includes("net")) return readEtsy(table, head);
   if (head.includes("confirmation_code") && head.includes("gross_earnings") && head.includes("host_fee") && head.includes("type")) return readAirbnb(table, head);
   const col = Object.fromEntries(Object.entries(ALIASES).map(([k, names]) => [k, names.map((n) => head.indexOf(n)).find((i) => i !== -1) ?? -1]));
+  // Square's dashboard export has Gross Sales (before tax and tip) and Total Collected; Fees and Net Total are on the latter.
+  if (head.includes("total_collected") && head.includes("net_total")) col.gross = head.indexOf("total_collected");
   for (const need of ["gross", "net", "category"]) if (col[need] === -1) throw new Error(`No "${need}" column: the report needs payout id, payout date, category, gross, fee and net columns.`);
   if (col.payout === -1 && head.includes("transaction_id") && head.includes("status") && head.includes("type")) return readPaypal(table, head);
   if (col.payout === -1) throw new Error('No payout id column (Stripe: "automatic_payout_id"). Export the payout reconciliation report, not the plain payments list.');

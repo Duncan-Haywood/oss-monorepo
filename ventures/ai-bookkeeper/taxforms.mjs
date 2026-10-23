@@ -136,8 +136,9 @@ export function necDeadline(year) {
 }
 
 // Dates for a CP2100 / CP2100A notice (IRS "Backup withholding B program" and
-// "Understanding your CP2100 or CP2100A Notice" pages, found by web search
-// 2026-10-23; Pub. 1281 itself was not reachable that run). The payer mails the
+// "Understanding your CP2100 or CP2100A Notice" pages, then read against Pub.
+// 1281 itself, Rev. 12-2023 text (the current irs.gov PDF), 2026-10-23: First B Notice pp. 14-15,
+// Second B Notice p. 15, Q&A 15-19). The payer mails the
 // First B Notice (with a blank W-9) within 15 business days of the notice date
 // or the day it arrived, whichever is later; the Second B Notice (a second
 // CP2100 within three years, no W-9 enclosed, the payee must get a Letter 147C
@@ -145,14 +146,20 @@ export function necDeadline(year) {
 // has not answered, backup withholding of 24% starts on later payments no
 // later than 30 business days after. Business days skip weekends and observed
 // federal holidays (`usHolidays`). Worksheet dates, not legal advice.
-export function bNoticeDates(noticeDate, { received = null, second = false } = {}) {
+// Pub. 1281 adds: a second CP2100 received in the same calendar year as the
+// first may be disregarded (Q17; pass `firstNotice`), the Second B Notice's
+// 30 business days run from the date of that B notice (pass `bNoticeSent`), and
+// withholding stops within 30 calendar days of a signed W-9 / validation.
+export function bNoticeDates(noticeDate, { received = null, second = false, firstNotice = null, bNoticeSent = null } = {}) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(noticeDate ?? "")) throw new Error("noticeDate must be YYYY-MM-DD");
   const base = received && received > noticeDate ? received : noticeDate;
-  const add = (n) => { let d = base; for (let i = 0; i < n; i++) { const t = new Date(`${d}T00:00:00Z`); t.setUTCDate(t.getUTCDate() + 1); d = nextBusinessDay(t.toISOString().slice(0, 10)); } return d; };
+  const add = (n, from = base) => { let d = from; for (let i = 0; i < n; i++) { const t = new Date(`${d}T00:00:00Z`); t.setUTCDate(t.getUTCDate() + 1); d = nextBusinessDay(t.toISOString().slice(0, 10)); } return d; };
   return {
     base, second,
     mailBNoticeBy: add(15),
-    startWithholdingBy: add(30),
+    startWithholdingBy: second && bNoticeSent ? add(30, bNoticeSent) : add(30),
+    disregard: second && firstNotice ? firstNotice.slice(0, 4) === base.slice(0, 4) : false,
+    stopWithholdingWithinDays: 30,
     enclose: second ? "no W-9: the payee must give you a Letter 147C (EIN) or an SSA proof of the number (SSN)" : "a blank Form W-9",
     rate: BACKUP_WITHHOLDING_RATE,
     note: "If the payee returns a signed W-9 before the withholding date, stop the process and do not withhold; otherwise withhold 24% of later reportable payments, report it in box 4 of the 1099-NEC and on Form 945.",
@@ -265,14 +272,14 @@ export function nec1099FilingCsv(r) {
 // 2.9% on all of them. Nothing is owed under $400 of net earnings. Half the tax is
 // an income-tax deduction (Schedule 1, line 15). Left out: the 0.9% additional
 // Medicare tax (Form 8959), farm income, church income and more than one business.
-// Wage bases are from memory (2024 168,600; 2025 176,100; 2026 184,500) and
+// Wage bases are from memory (2024 168,600; 2025 176,100; 2026 184,500; 2027 192,300, announced Oct 2026 and seen in trade-press reports only) and
 // unchecked against the SSA page, so the result carries a warning; pass `wageBase`
 // in cents to override. A worksheet, not a filing.
-export const SS_WAGE_BASE = { 2024: 16860000, 2025: 17610000, 2026: 18450000 };
+export const SS_WAGE_BASE = { 2024: 16860000, 2025: 17610000, 2026: 18450000, 2027: 19230000 };
 export function selfEmployment(profitCents, { year = new Date().getFullYear(), wageBase, wages = 0 } = {}) {
   const warnings = [];
   const base = wageBase ?? SS_WAGE_BASE[year];
-  if (wageBase === undefined) warnings.push(base === undefined ? `No wage base on file for ${year}; pass wageBase.` : (year === 2025 || year === 2026) ? `The ${year} social security wage base ($${(base / 100).toLocaleString("en-US")}) matches published reports of the SSA announcement (compared 2026-10-23), not the SSA page itself; unchecked there, so confirm it on ssa.gov or pass wageBase.` : `The ${year} social security wage base is from memory and unchecked; confirm it on ssa.gov or pass wageBase.`);
+  if (wageBase === undefined) warnings.push(base === undefined ? `No wage base on file for ${year}; pass wageBase.` : (year >= 2025 && year <= 2027) ? `The ${year} social security wage base ($${(base / 100).toLocaleString("en-US")}) matches published reports of the SSA announcement (compared 2026-10-23), not the SSA page itself; unchecked there, so confirm it on ssa.gov or pass wageBase.` : `The ${year} social security wage base is from memory and unchecked; confirm it on ssa.gov or pass wageBase.`);
   const limit = base ?? Infinity;
   if (profitCents <= 0) return { year, profit: profitCents, netEarnings: 0, socialSecurity: 0, medicare: 0, tax: 0, deduction: 0, warnings: [...warnings, "No profit, so no self-employment tax."] };
   const netEarnings = Math.round(profitCents * 0.9235);

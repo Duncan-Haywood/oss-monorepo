@@ -75,3 +75,10 @@ def test_fines_slowing_off_is_default_and_raises_energy_when_on():
 def test_fines_slowing_never_speeds_a_class():
     a = selection({**DEFAULTS}); b = selection({**DEFAULTS, "xfine": 60.0})
     assert all(y <= x + 1e-12 for x, y in zip(a, b))
+
+
+def test_capacity_ratio_is_power_limited_when_flow_is_ample_and_flow_limited_when_tight():
+    closed = {"energy": 20.0, "circ_load": 2.0}
+    assert capacity_ratio(40.0, closed, 100.0) == 2.0   # E_open / E_closed
+    assert abs(capacity_ratio(40.0, closed, 1.5) - 0.5) < 1e-12  # m / (1 + load)
+    assert capacity_ratio(40.0, closed, 3.0) == 1.0     # both equal at m = 3

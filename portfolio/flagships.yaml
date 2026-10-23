@@ -34,26 +34,24 @@ flagships:
       IIF journals; page, CLI and agent engine. Learning curve measured on
       synthetic data (README Verification).
     next: >-
-      Everything built so far is tested on hand-written fixtures; the next
-      slices are about real inputs (the landed log is in the README and git
-      history, not here). Open items, most valuable first: (1) the AI layer in
-      fill-only mode (2026-10-23: 7B rescued 7 of 9 uncovered lines, broke 0;
-      3B 2 of 9; synthetic, one seed): try real bank descriptions, more seeds,
-      a bigger model (README Next); (2) try the bank readers (CSV, OFX/QFX/QIF, statement
-      PDFs; header-less CSV shapes inferred from cells and probed on bank2ynab's 16 layouts 2026-10-23; Swedbank/Danske LT samples 2026-10-23, Czech text statements unread) on real exports from Chase, Bank of America, Wells Fargo, Amex,
-      Capital One and others; (3) a real Stripe, Square, PayPal or Amazon
-      settlement export for the payment-processor import (`form1099k`: try a
-      real 1099-K); (4) a real supplier's terms letter checked against the fee
-      and discount rules, and one named lender's own schedule against the loan
-      register (`loan check`); (5) try receipts and the reconcile-to-statement
-      command on real paper, and read receipt photos in the page; (6) payroll
-      (941, Schedule B, 940, deposits, `payroll reconcile`): try a real Gusto or
-      ADP report and check the deposit rules against a real IRS notice; (7) one
-      named filing service's import layout, from its own spec; (8) `salestax
-      return`: check it against one state's real return layout and holiday
-      calendar; (9) 1099-NEC backup withholding: IRC 3406, the 24% rate and IRS Pub. 1281 (no awaiting-TIN grace for NEC; 30-business-day CP2100 rule) read at the source 2026-10-23; the CP2100/B-notice dates are modelled (`b-notice`, 2026-10-23, from IRS pages seen via search, Pub. 1281 not re-read); (10) `estimate` (1040-ES
-      plan; 2025 and 2026 brackets and QBI thresholds match the IRS Rev. Procs. 2024-40 and 2025-32 (2026-10-23); the $400 minimum QBI deduction matches secondary summaries only (IRC 199A(i) unreachable 2026-10-23); page card landed 2026-10-23). A run
-      that lands a slice replaces its item here; keep this under 2,000 characters.
+      Everything built so far is tested on hand-written fixtures; the next slices
+      are about real inputs (the landed log is in the README and git history, not
+      here). Open items, most valuable first: (1) the AI layer in fill-only mode
+      on real bank descriptions, more seeds, a bigger model (synthetic so far: 7B
+      rescued 7 of 9 uncovered lines, broke 0; README Next); (2) the bank readers (Excel .xlsx and legacy .xls landed 2026-10-23; BIFF5 not read)
+      (CSV, OFX/QFX/QIF, statement PDFs, regional code pages and layouts) on real
+      exports from Chase, Bank of America, Wells Fargo, Amex, Capital One and
+      others; (3) a real Stripe, Square, PayPal or Amazon settlement export for
+      the payment-processor import (`form1099k`: try a real 1099-K); (4) a real
+      supplier's terms letter checked against the fee and discount rules, and one
+      named lender's own schedule against the loan register (`loan check`); (5)
+      receipts and the reconcile-to-statement command on real paper, and reading
+      receipt photos in the page; (6) payroll (941, Schedule B, 940, deposits,
+      `payroll reconcile`): a real Gusto or ADP report, and the deposit rules
+      against a real IRS notice; (7) one named filing service's import layout,
+      from its own spec; (8) `salestax return`: check it against one state's real
+      return layout and holiday calendar; (9) 2027 `estimate`: the indexed QBI minimum (199A(i)(3), warns today) and 2027 brackets once the IRS publishes the revenue procedure (not out 2026-10-23; the 2027 SS wage base $192,300 is in). A run that lands a slice replaces
+      its item here; keep this under 2,000 characters.
 
   # Added 2026-10-21 second, on the owner's direction that day: "I want to make
   # tools that can automate part of the new home construction process in the
@@ -68,8 +66,8 @@ flagships:
     next: >-
       Open items only; landed work is in ventures/wall-framing-takeoff/README.md
       and ROADMAP.md. Roof framing (gable: rafters, ridge, sheathing, shingle/felt quantities; CLI --roof) landed 2026-10-22, hip roofs too (CLI/engine, hand-arithmetic tests only). Roof on the page landed 2026-10-22 (checkbox, pooled order, browser click check). Hips on the page landed 2026-10-22 (shape and hip-size fields, browser click check). Cross wings with valleys (L/T roofs, equal pitch) landed 2026-10-22 (CLI/engine, hand-arithmetic tests only). Wing ceiling joists landed 2026-10-22 (engine/CLI, hand count). Wing collar ties landed 2026-10-22 (engine/CLI, hand count). The wing on the page landed 2026-10-23 (width, projection, position, side, valley size; browser click check). A wing at its own pitch landed 2026-10-24 (engine, CLI plan key and page; hand arithmetic and numeric area integral, click check). Two wings (`roof.wing2`) landed 2026-10-24 (engine/CLI; additive, tested against each wing alone). Wing2 on the page landed 2026-10-24 (fields, plan round-trip, click check). Valley backing landed 2026-10-23 (`roof.valleyBacking`, engine/CLI; count test). Valley backing on the page landed 2026-10-23 (select, plan round-trip, click check). Next: a floor drawing (several stairwells on the page landed 2026-10-23, semicolon-separated, overlap refused, click check); gable walls on the page landed 2026-10-24 (pitch and peak columns, click check); gable sheathing in the horizontal layout and reusing the offcut triangle (vertical-sheet order landed 2026-10-22);
-      right-sized headers from a user table (CLI landed 2026-10-22; page field and a table of one real
-      code edition, typed by a person who has the book, are open); a 2D reuse of opening cut-outs;
+      right-sized headers from a user table (CLI landed 2026-10-22; page field landed 2026-10-24, click check; a table of one real
+      code edition, typed by a person who has the book, is open); a 2D reuse of opening cut-outs;
       click through the panel sheathing-weight field and the panel order and
       pull-list download in a real browser (markup and page tests only so far).
   # Added 2026-10-20 first, on the owner's direction that day for research
@@ -99,7 +97,7 @@ flagships:
       ERP or Factur-X export (xref-stream PDF repair landed 2026-10-22 on a hand-built
       fixture; open the result in veraPDF/a viewer), a page button for PDFs; verify the
       FatturaPA code lists, tolerances and IT-018 sequences against the current
-      specification and add a full FatturaPA XSD check; Singapore InvoiceNow page landed 2026-10-23 (2028-31 dates from secondary guides, not read on iras.gov.sg); PINT SG and A-NZ rules run in the browser 2026-10-23 (build-pint-rules.mjs, from Maven Central's phive-rules-peppol; not yet on the Saxon/server route; no real PINT file tried; add an Australia mandate page); refresh the Bulgaria page
+      specification and add a full FatturaPA XSD check; Singapore InvoiceNow page landed 2026-10-23 (2028-31 dates from secondary guides, not read on iras.gov.sg); PINT SG and A-NZ rules run in the browser 2026-10-23 (build-pint-rules.mjs, from Maven Central's phive-rules-peppol; not yet on the Saxon/server route; no real PINT file tried; Australia mandate page landed 2026-10-24 (dates from commentators, not read on ato.gov.au)); refresh the Bulgaria page
       when its draft passes or changes; RO_CIUS (EN16931-CIUS_RO-UBL-validation.xslt, in
       phive-rules-cius-ro) and NLCIUS: the same plain-from-xslt.mjs can compile them.
   - venture: shift-roster-builder

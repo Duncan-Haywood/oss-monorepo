@@ -65,6 +65,13 @@ class ReadChecklistBlock(unittest.TestCase):
     def test_returns_none_when_marker_absent(self):
         self.assertIsNone(cc.read_checklist_block("nothing relevant here"))
 
+    def test_finds_a_block_whose_fence_opens_the_text(self):
+        text = "```\nnode platform/marketing/regen.mjs\n```\n"
+        self.assertEqual(cc.read_checklist_block(text), "```\nnode platform/marketing/regen.mjs\n")
+
+    def test_returns_none_when_the_marker_sits_outside_any_fence(self):
+        self.assertIsNone(cc.read_checklist_block("node platform/marketing/regen.mjs\n```\n"))
+
 
 class ChecklistDirectories(unittest.TestCase):
     def test_extracts_every_named_directory(self):

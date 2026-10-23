@@ -59,6 +59,11 @@
     "seconds": 1450.1,
     "voice": "en_US-ljspeech-high"
   },
+  "the-dry-bread": {
+    "bytes": 9125257,
+    "seconds": 1520.8,
+    "voice": "en_US-ljspeech-high"
+  },
   "the-grader": {
     "bytes": 5381959,
     "seconds": 896.9,

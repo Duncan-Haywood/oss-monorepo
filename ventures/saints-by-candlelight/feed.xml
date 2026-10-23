@@ -17,6 +17,34 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>Kevin and the Blackbird</title>
+      <link>https://example.invalid/saints-by-candlelight/kevin-and-the-blackbird.html</link>
+      <guid isPermaLink="false">saints-by-candlelight-kevin-and-the-blackbird</guid>
+      <pubDate>Fri, 23 Oct 2026 20:00:00 GMT</pubDate>
+      <description>A young hermit in a Wicklow valley kneels at a window with his arm held out in prayer, and a blackbird builds a nest in his open hand. A bedtime telling of Saint Kevin of Glendalough, the valley of the two lakes, and the lesson of a very long, very still afternoon, with a young monk who is bad at waiting. What&#39;s true: Kevin, in Irish Cóemgen, was a real abbot who founded the monastery at Glendalough in County Wicklow, and the Irish annals record his death in the early seventh century, around the year six hundred and eighteen; the valley of the two lakes became one of Ireland&#39;s great monastic sites and pilgrimages Legend: the blackbird and the egg in his hand, and the other animal tales, come from the medieval Latin and Irish Lives written long after his death, and are told here as the old story says; the very great age the Lives give him is skipped Invented for this episode: the young monk Fintan of the Ford, the cook Brother Mochua, the farmer&#39;s wife Gobnait, the thrush, and nearly all the conversations are our own invention, told in the spirit of the old Lives Feast day: 3 June in the Catholic calendar and the Irish martyrologies Full script and sources: https://example.invalid/saints-by-candlelight/kevin-and-the-blackbird.html. Written by Claude, an AI model made by Anthropic, and read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A young hermit in a Wicklow valley kneels at a window with his arm held out in prayer, and a blackbird builds a nest in his open hand. A bedtime telling of Saint Kevin of Glendalough, the valley of the two lakes, and the lesson of a very long, very still afternoon, with a young monk who is bad at waiting.</itunes:summary>
+      <itunes:episode>17</itunes:episode>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://example.invalid/saints-by-candlelight/audio/kevin-and-the-blackbird.mp3" length="10690082" type="audio/mpeg"/>
+      <itunes:duration>0:35:38</itunes:duration>
+      <podcast:transcript url="https://example.invalid/saints-by-candlelight/kevin-and-the-blackbird.html" type="text/html"/>
+    </item>
+    <item>
+      <title>Spyridon and the Snake That Became Gold</title>
+      <link>https://example.invalid/saints-by-candlelight/spyridon-and-the-snake-that-became-gold.html</link>
+      <guid isPermaLink="false">saints-by-candlelight-spyridon-and-the-snake-that-became-gold</guid>
+      <pubDate>Fri, 23 Oct 2026 20:00:00 GMT</pubDate>
+      <description>A shepherd who became a bishop and never quite stopped being a shepherd. A snake in a poor man&#39;s debt, a clay brick at a great council, a night of thieves who were let go with a ram, and a good long look at what it means to keep a door open. What&#39;s true: Spyridon was a real bishop of Trimythous in Cyprus in the fourth century, said by early church historians to have been a married shepherd before he was a bishop, and later tradition places him at the Council of Nicaea in the year three hundred and twenty-five Legend: the snake that turned to gold, the brick at Nicaea that gave fire, water and clay, and the thieves held fast in the night come from his later lives, chiefly the seventh-century life by Theodore of Paphos, and are told here as the old story says Invented for this episode: the farmer Demetrios, the shepherd boy Kallias, the old sheepdog Argos, the innkeeper&#39;s wife Maria, and nearly all the small conversations are our own invention, told in the spirit of the old lives Feast day: 12 December in the Orthodox Churches; the Roman Martyrology also remembers him in December; he is especially loved on the island of Corfu, where his relics rest Full script and sources: https://example.invalid/saints-by-candlelight/spyridon-and-the-snake-that-became-gold.html. Written by Claude, an AI model made by Anthropic, and read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A shepherd who became a bishop and never quite stopped being a shepherd. A snake in a poor man&#39;s debt, a clay brick at a great council, a night of thieves who were let go with a ram, and a good long look at what it means to keep a door open.</itunes:summary>
+      <itunes:episode>16</itunes:episode>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://example.invalid/saints-by-candlelight/audio/spyridon-and-the-snake-that-became-gold.mp3" length="10686310" type="audio/mpeg"/>
+      <itunes:duration>0:35:37</itunes:duration>
+      <podcast:transcript url="https://example.invalid/saints-by-candlelight/spyridon-and-the-snake-that-became-gold.html" type="text/html"/>
+    </item>
+    <item>
       <title>Nicholas and the Grain Ships</title>
       <link>https://example.invalid/saints-by-candlelight/nicholas-and-the-grain-ships.html</link>
       <guid isPermaLink="false">saints-by-candlelight-nicholas-and-the-grain-ships</guid>

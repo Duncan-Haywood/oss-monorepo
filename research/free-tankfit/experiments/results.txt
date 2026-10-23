@@ -1,0 +1,7 @@
+100 random contiguous training windows per length (of 1024 samples); test RMSE in V
+full-trace fit: twin 0.528, ARX 4/4 0.655
+
+window   twin mean (sd)    ARX mean (sd)  gap mean    gap 2.5-97.5% twin wins
+   512     0.671 (0.083)     0.741 (0.090)     0.070  -0.023 to 0.309      0.84
+   768     0.616 (0.071)     0.681 (0.048)     0.066  -0.004 to 0.169      0.90
+   896     0.518 (0.012)     0.651 (0.004)     0.133   0.108 to 0.152      1.00

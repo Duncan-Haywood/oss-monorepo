@@ -119,3 +119,52 @@ test("a header wider than every row falls back to finding columns from the cells
   assert.deepEqual(r.rows.map((x) => [x.date, x.cents]), [["2012-03-01", -780], ["2012-03-01", 88981], ["2012-03-06", -46]]);
   assert.ok(r.problems.some((p) => /more columns than the rows have/.test(p)));
 });
+
+test("a Lithuanian LITAS-ESIS .acc file is read: D debits, K/C credits, balance lines skipped", () => {
+  // Layout of the ofxstatement-lithuanian sample (tab-separated, no header); rows are made up.
+  const row = (date, cents, flag, memo, payee) => ["010", "1", date, "", cents, cents, flag, "", "", "1", "id" + date, "", "", memo, "", "", "", payee].join("\t");
+  const text = [
+    ["000", "20120304", "", "AGBLLT2XXXX", "Bank"].join("\t"),
+    ["020", "LikutisPR", "20120101", "", "25175", "25175"].join("\t"),
+    row("20120127", "100", "D", "Mokestis už sąskaitos aptarnavimą", "AB DNB BANKAS"),
+    row("20120217", "30000", "C", "Hello World", "LINUS TORVALDS"),
+    row("20120218", "5000", "K", "Grąžinimas", "UAB Test"),
+    ["020", "LikutisPB", "20120304", "", "55075", "55075"].join("\t"),
+  ].join("\r\n");
+  const r = readStatement(text);
+  assert.equal(r.bank, "litas-esis");
+  assert.deepEqual(r.rows.map((x) => [x.date, x.cents]), [["2012-01-27", -100], ["2012-02-17", 30000], ["2012-02-18", 5000]]);
+  assert.match(r.rows[0].desc, /AB DNB BANKAS Mokestis/);
+  assert.deepEqual(r.problems, []);
+});
+
+test("a Czech GPC statement (Fio layout) is read: codes 1/5 debit, 2/4 credit, closing balance kept", () => {
+  // Fixed-width lines built to the published layout; names, accounts and amounts are made up.
+  const z = (v, n) => String(v).padStart(n, "0");
+  const head = "074" + z("123456789", 16) + "NOVAK, JAN".padEnd(20) + "010514" + z(100000, 14) + "+" + z(70500, 14) + "+" + z(40000, 14) + "0" + z(10500, 14) + "0" + "003" + "310514" + " ".repeat(14);
+  const tr = (cents, code, vs, name, due) => "075" + z("123456789", 16) + z("987654", 16) + z(1, 13).slice(0, 13) + z(cents, 12) + code + z(vs, 10) + "0800000000" + z(0, 10) + "000000" + name.padEnd(20) + "0" + "0203" + due;
+  const text = [head, tr(40000, "1", 1234, "ACME S.R.O.", "030514"), tr(10500, "2", 0, "Klient Test", "050514"), tr(2500, "5", 0, "Storno", "060514"), tr(1000, "4", 0, "Storno", "070514"), tr(0, "1", 0, "Nula", "080514")].join("\r\n");
+  const r = readStatement(text);
+  assert.equal(r.bank, "gpc");
+  assert.deepEqual(r.rows.map((x) => [x.date, x.cents]), [["2014-05-03", -40000], ["2014-05-05", 10500], ["2014-05-06", -2500], ["2014-05-07", 1000]]);
+  assert.match(r.rows[0].desc, /ACME S\.R\.O\. acc 987654\/0800 VS 1234/);
+  assert.deepEqual(r.statement, { cents: 70500, date: "2014-05-31" });
+  assert.deepEqual(r.problems, []);
+});
+
+test("a Czech 'Pohyby na uctu' text statement is read: blocks, wrapped notes rejoined, balance kept", () => {
+  // Blocks built to the layout of the ofxstatement-czech samples (values start at column 20); names and numbers are made up.
+  const kv = (k, v) => (k + ":").padEnd(19) + v;
+  const block = (date, amt, bal, type, name, acct, note) => [kv("datum zaúčtování", date), kv("částka", amt), kv("měna", "CZK"), kv("zůstatek", bal), kv("konstantní symbol", ""), kv("variabilní symbol", "0000000009"), kv("specifický symbol", ""), kv("označení operace", type), kv("název protiúčtu", name), kv("protiúčet", acct), kv("poznámka", note), "", ""].join("\r\n");
+  const text = "﻿Pohyby na účtu č.: 123456789, ze dne 18.03.2012 16:08\r\n\r\n" + [
+    block("14.3.2012", "1743.00", "2000.50", "Došlá platba", "ACME S.R.O.", "1000453303/3500", "SALARY PRAHA 5".padEnd(30)),
+    block("12.3.2012", "-250.50", "257.50", "Odchozí platba", "TELCO", "500114004/2700", "INVOICE 36202" + "\r\n" + " ".repeat(19) + "45785"),
+  ].join("\r\n");
+  const r = readStatement(text);
+  assert.equal(r.bank, "cz-text");
+  assert.equal(r.account, "123456789");
+  assert.deepEqual(r.rows.map((x) => [x.date, x.cents, x.balance]), [["2012-03-14", 174300, 200050], ["2012-03-12", -25050, 25750]]);
+  assert.equal(r.rows[0].desc, "Došlá platba ACME S.R.O. acc 1000453303/3500 VS 9 SALARY PRAHA 5");
+  assert.match(r.rows[1].desc, /INVOICE 3620245785$/);
+  assert.deepEqual(r.problems, []);
+});

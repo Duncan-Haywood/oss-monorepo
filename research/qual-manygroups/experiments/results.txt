@@ -1,0 +1,123 @@
+GoEmotions (first file): 5313 examples; 2125 train naive-Bayes, 3188 evaluated. 300 audit draws per cell, seed 20261023.
+designs: random = one sample of the corpus; equal = n/K per group (a group smaller than its share gives the rest to the others). Every group's interval is prediction-powered from its own audited items. Draws with under 5 audited items in any group are dropped and counted. 'each' = mean over groups of coverage of that group's truth; 'all' = share of draws in which all K intervals cover at once; 'width' = mean 95% (or Bonferroni) interval width over groups.
+
+=== K=3: word-count bins with upper edges [7, 17] + the rest
+sizes 755 1531 902  (smallest 0.237 of the corpus)
+human prevalence 0.205 0.235 0.302
+
+K3.none.each mean per-group coverage, none adjustment; mean over the four coders, worst coder in the last two columns
+n_gold random equal worst_random worst_equal
+120 0.949 0.946 0.943 0.934
+240 0.963 0.957 0.956 0.947
+480 0.967 0.976 0.961 0.971
+960 0.986 0.989 0.983 0.983
+1920 1.000 0.999 1.000 0.998
+
+K3.none.all coverage of all K intervals at once, none adjustment; mean over the four coders, worst coder in the last two columns
+n_gold random equal worst_random worst_equal
+120 0.855 0.845 0.833 0.813
+240 0.897 0.880 0.877 0.853
+480 0.904 0.930 0.883 0.913
+960 0.960 0.968 0.953 0.950
+1920 1.000 0.998 1.000 0.993
+
+K3.none.width mean interval width, none adjustment; mean over the four coders
+n_gold random equal
+120 0.316 0.307
+240 0.226 0.219
+480 0.163 0.159
+960 0.120 0.117
+1920 0.091 0.089
+
+K3.bonferroni.each mean per-group coverage, bonferroni adjustment; mean over the four coders, worst coder in the last two columns
+n_gold random equal worst_random worst_equal
+120 0.981 0.980 0.976 0.973
+240 0.986 0.986 0.983 0.982
+480 0.992 0.993 0.987 0.989
+960 0.997 0.998 0.996 0.994
+1920 1.000 1.000 1.000 1.000
+
+K3.bonferroni.all coverage of all K intervals at once, bonferroni adjustment; mean over the four coders, worst coder in the last two columns
+n_gold random equal worst_random worst_equal
+120 0.944 0.940 0.930 0.920
+240 0.958 0.960 0.950 0.953
+480 0.977 0.980 0.960 0.967
+960 0.990 0.994 0.987 0.983
+1920 1.000 1.000 1.000 1.000
+
+K3.bonferroni.width mean interval width, bonferroni adjustment; mean over the four coders
+n_gold random equal
+120 0.386 0.375
+240 0.276 0.268
+480 0.199 0.194
+960 0.147 0.143
+1920 0.111 0.109
+
+K3.dropped draws (under 5 audited items in a group), out of 300, mean over coders
+n_gold random equal
+120 0 0
+240 0 0
+480 0 0
+960 0 0
+1920 0 0
+
+=== K=6: word-count bins with upper edges [4, 7, 11, 17, 26] + the rest
+sizes 306 449 613 918 855 47  (smallest 0.015 of the corpus)
+human prevalence 0.186 0.218 0.228 0.240 0.303 0.277
+
+K6.none.each mean per-group coverage, none adjustment; mean over the four coders, worst coder in the last two columns
+n_gold random equal worst_random worst_equal
+120 0.936 0.945 0.909 0.933
+240 0.941 0.958 0.927 0.955
+480 0.960 0.977 0.947 0.971
+960 0.984 0.989 0.980 0.987
+1920 0.999 0.999 0.998 0.998
+
+K6.none.all coverage of all K intervals at once, none adjustment; mean over the four coders, worst coder in the last two columns
+n_gold random equal worst_random worst_equal
+120 0.640 0.706 0.545 0.650
+240 0.686 0.771 0.628 0.757
+480 0.792 0.873 0.722 0.843
+960 0.912 0.934 0.893 0.920
+1920 0.996 0.993 0.990 0.990
+
+K6.none.width mean interval width, none adjustment; mean over the four coders
+n_gold random equal
+120 0.502 0.444
+240 0.411 0.326
+480 0.325 0.246
+960 0.244 0.197
+1920 0.184 0.166
+
+K6.bonferroni.each mean per-group coverage, bonferroni adjustment; mean over the four coders, worst coder in the last two columns
+n_gold random equal worst_random worst_equal
+120 0.965 0.981 0.939 0.976
+240 0.981 0.990 0.976 0.987
+480 0.991 0.997 0.986 0.996
+960 0.998 0.999 0.997 0.998
+1920 1.000 1.000 1.000 1.000
+
+K6.bonferroni.all coverage of all K intervals at once, bonferroni adjustment; mean over the four coders, worst coder in the last two columns
+n_gold random equal worst_random worst_equal
+120 0.792 0.889 0.636 0.857
+240 0.886 0.941 0.859 0.927
+480 0.945 0.983 0.916 0.973
+960 0.987 0.994 0.980 0.990
+1920 1.000 1.000 1.000 1.000
+
+K6.bonferroni.width mean interval width, bonferroni adjustment; mean over the four coders
+n_gold random equal
+120 0.676 0.598
+240 0.553 0.438
+480 0.438 0.332
+960 0.328 0.266
+1920 0.247 0.224
+
+K6.dropped draws (under 5 audited items in a group), out of 300, mean over coders
+n_gold random equal
+120 291 0
+240 221 0
+480 37 0
+960 0 0
+1920 0 0
+

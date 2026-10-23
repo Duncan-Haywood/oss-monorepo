@@ -16,6 +16,28 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>Forty to One</title>
+      <link>https://example.invalid/hearth-and-horizon/forty-to-one.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/forty-to-one.html</guid>
+      <pubDate>Fri, 23 Oct 2026 12:00:00 GMT</pubDate>
+      <description>Nine hundred people drink from a thin lens of fresh water floating on the sea under their island, and the drought has thinned it. The island's water AI can show that a bishop's feast needs more water than the main well can give without pulling up the sea, and a retired teacher's tape measure shows that its own sensor is two centimetres wrong. Two centimetres of water table is eighty centimetres of salt. Setting: Tebwaiaki, an invented islet in the southern Gilbert Islands, Kiribati, September and October 2054. Read the full text at https://example.invalid/hearth-and-horizon/forty-to-one.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>Nine hundred people drink from a thin lens of fresh water floating on the sea under their island, and the drought has thinned it. The island's water AI can show that a bishop's feast needs more water than the main well can give without pulling up the sea, and a retired teacher's tape measure shows that its own sensor is two centimetres wrong. Two centimetres of water table is eighty centimetres of salt.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
+      <title>The Dry Bread</title>
+      <link>https://example.invalid/hearth-and-horizon/the-dry-bread.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-dry-bread.html</guid>
+      <pubDate>Fri, 23 Oct 2026 12:00:00 GMT</pubDate>
+      <description>The hospital makes its own oxygen from air, and in the wet season the purity has slid from 93 percent to 84 and is still sliding. The plant's controller can show that the fault is water in the dryer, not the sieve, and that the part is nine days away over a flooded road. The fix is in the convent bakery, and it costs the Sisters their Thursday bread. Setting: St Gabriel's Mission Hospital, Mpale, an invented town in the Lower Shire valley, southern Malawi, March 2043. Read the full text at https://example.invalid/hearth-and-horizon/the-dry-bread.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>The hospital makes its own oxygen from air, and in the wet season the purity has slid from 93 percent to 84 and is still sliding. The plant's controller can show that the fault is water in the dryer, not the sieve, and that the part is nine days away over a flooded road. The fix is in the convent bakery, and it costs the Sisters their Thursday bread.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://example.invalid/hearth-and-horizon/audio/the-dry-bread.mp3" length="9125257" type="audio/mpeg"/>
+      <itunes:duration>0:25:21</itunes:duration>
+    </item>
+    <item>
       <title>The Warm Pew</title>
       <link>https://example.invalid/hearth-and-horizon/the-warm-pew.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-warm-pew.html</guid>

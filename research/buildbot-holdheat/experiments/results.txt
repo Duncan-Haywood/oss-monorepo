@@ -1,0 +1,29 @@
+buildbot-holdheat: G1 hold poses of buildbot-payload, joint torque as a fraction u of peak
+Menagerie cda5236f9838; hold time in units of the thermal time constant, inf = sustainable at that continuous/peak ratio
+
+A. Tasks (palm grip), loaded at the top of the mass range
+   carry an 8 ft 2x4 stud: 3.8 kg z 0.6 x 0.3: u_max 0.91 (waist_pitch_joint); unloaded 0.54; loss x3.68; hold/tau by rho 0.25:0.08  0.33:0.14  0.4:0.22  0.5:0.36  0.6:0.58
+   carry an 8 ft 2x6: 5.9 kg z 0.6 x 0.3: u_max 1.15 (waist_pitch_joint); unloaded 0.54; loss x6.77; hold/tau by rho 0.25:0.05  0.33:0.09  0.4:0.13  0.5:0.21  0.6:0.32
+   hold a framing nailer at stud height: 3.4 kg z 1.0 x 0.4: u_max 0.76 (waist_pitch_joint); unloaded 0.23; loss x8.26; hold/tau by rho 0.25:0.11  0.33:0.21  0.4:0.32  0.5:0.57  0.6:0.97
+   carry a 4x8 OSB sheet alone: 23.2 kg z 0.6 x 0.3: u_max 4.00 (waist_pitch_joint); unloaded 0.54; loss x113.77; hold/tau by rho 0.25:0.00  0.33:0.01  0.4:0.01  0.5:0.02  0.6:0.02
+   carry one end of a 4x8 OSB sheet with a person: 11.6 kg z 0.6 x 0.3: u_max 1.89 (waist_pitch_joint); unloaded 0.54; loss x22.86; hold/tau by rho 0.25:0.02  0.33:0.03  0.4:0.05  0.5:0.07  0.6:0.11
+   set a lightweight concrete block on the 3rd course: 11.8 kg z 0.6 x 0.4: u_max 2.48 (waist_pitch_joint); unloaded 0.66; loss x24.71; hold/tau by rho 0.25:0.01  0.33:0.02  0.4:0.03  0.5:0.04  0.6:0.06
+   set a normal-weight concrete block on the 3rd course: 16.8 kg at z 0.6, x 0.4: pose unreachable
+   lift a 60 lb bag of concrete mix: 27.2 kg at z 0.4, x 0.3: pose unreachable
+   hold one end of a 1/2 in drywall sheet at wall mid-height with a person: 11.6 kg z 1.2 x 0.3: u_max 1.49 (waist_pitch_joint); unloaded 0.25; loss x58.11; hold/tau by rho 0.25:0.03  0.33:0.05  0.4:0.08  0.5:0.12  0.6:0.18
+   hold a drywall sheet up to an 8 ft ceiling with a person: 11.6 kg at z 2.3, x 0.2: pose unreachable
+
+B. Load sweep at the stud carry pose (z 0.6, x 0.3): kg, u_max, binding joint, hold/tau at each rho
+      0 kg  u_max 0.54 (waist_pitch_joint)  0.25:0.24  0.33:0.46  0.4:0.78  0.5:1.87  0.6:inf
+      1 kg  u_max 0.63 (waist_pitch_joint)  0.25:0.17  0.33:0.32  0.4:0.51  0.5:0.98  0.6:2.30
+      2 kg  u_max 0.73 (waist_pitch_joint)  0.25:0.13  0.33:0.23  0.4:0.36  0.5:0.64  0.6:1.14
+      3 kg  u_max 0.83 (waist_pitch_joint)  0.25:0.10  0.33:0.17  0.4:0.27  0.5:0.46  0.6:0.75
+    3.8 kg  u_max 0.91 (waist_pitch_joint)  0.25:0.08  0.33:0.14  0.4:0.21  0.5:0.36  0.6:0.57
+    4.5 kg  u_max 0.98 (waist_pitch_joint)  0.25:0.07  0.33:0.12  0.4:0.18  0.5:0.30  0.6:0.46
+
+C. Sustainable load at the stud carry pose (u_max = rho), bisected; kg
+   rho 0.25: none (the unloaded pose is already above it)
+   rho 0.33: none (the unloaded pose is already above it)
+   rho 0.4: none (the unloaded pose is already above it)
+   rho 0.5: none (the unloaded pose is already above it)
+   rho 0.6: 0.62 kg

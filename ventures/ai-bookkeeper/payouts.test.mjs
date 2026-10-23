@@ -345,3 +345,16 @@ po_9,2026-04-05,txn_4,2026-04-03,anticipation_repayment,-30.00,0.00,-30.00,Advan
   assert.equal(plan.matched.length, 1);
   assert.deepEqual(plan.matched[0].parts, [{ account: "4000", cents: 9000 }, { account: "1200", cents: 17000 }]);
 });
+
+test("Square dashboard transactions CSV: deposit id groups payments and refunds, fees are negatives", () => {
+  const r = readPayoutReport(readFileSync(new URL("./fixtures/square-transactions.csv", import.meta.url), "utf8"));
+  assert.deepEqual(r.problems, []);
+  assert.equal(r.payouts.length, 1);
+  const p = r.payouts[0];
+  assert.equal(p.id, "dep_1");
+  assert.equal(p.date, "2026-03-04");
+  assert.equal(p.net, 1003 + 1217 - 1284);
+  assert.equal(p.fees, 60 + 67);
+  assert.deepEqual(p.rows.map((x) => x.kind), ["sales", "sales", "refunds"]);
+  assert.equal(r.pending.length, 1);
+});
