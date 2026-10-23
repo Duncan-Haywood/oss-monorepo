@@ -208,8 +208,8 @@ function ofxDate(v) {
 }
 
 function ofxTag(block, tag) {
-  const m = new RegExp(`<${tag}>([^<\\r\\n]*)`, "i").exec(block);
-  return m ? m[1].trim().replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&apos;|&#0?39;/g, "'").replace(/&#0?38;/g, "&").replace(/&amp;/g, "&") : "";
+  const m = new RegExp(`<${tag}>(?:\\s*<!\\[CDATA\\[([\\s\\S]*?)\\]\\]>|([^<\\r\\n]*))`, "i").exec(block);
+  return m ? (m[1] ?? m[2]).trim().replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&apos;|&#0?39;/g, "'").replace(/&#0?38;/g, "&").replace(/&amp;/g, "&") : "";
 }
 
 // A file from a bank with several accounts (or a card beside a checking
@@ -245,7 +245,10 @@ export function readOfx(text) {
     if (!date) { problems.push(`Transaction ${i + 1}: unreadable date, skipped.`); return; }
     if (!Number.isFinite(cents) || !/\d/.test(ofxTag(b, "TRNAMT"))) { problems.push(`Transaction ${i + 1}: unreadable amount, skipped.`); return; }
     if (cents === 0) return;
-    const desc = [ofxTag(b, "NAME") || ofxTag(b, "PAYEE"), ofxTag(b, "MEMO")].filter(Boolean).filter((x, j, a) => a.indexOf(x) === j).join(" ").replace(/\s+/g, " ");
+    // A memo that starts with the name (many banks repeat it, then add detail) is the fuller text on its own.
+    const name = (ofxTag(b, "NAME") || ofxTag(b, "PAYEE")).replace(/\s+/g, " ");
+    const memo = ofxTag(b, "MEMO").replace(/\s+/g, " ");
+    const desc = (memo.toLowerCase().startsWith(name.toLowerCase()) ? memo : [name, memo].filter(Boolean).filter((x, j, a) => a.indexOf(x) === j).join(" "));
     out.push({ line: i + 1, date, desc, cents, balance: null });
   });
   const lb = /<LEDGERBAL>[\s\S]*?<BALAMT>\s*([-+]?[\d.,]+)/i.exec(text);
