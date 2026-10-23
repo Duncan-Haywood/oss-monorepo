@@ -310,3 +310,24 @@ test("creator-platform column and category names (Gumroad, Paddle, Lemon Squeezy
   assert.equal(r.payouts[0].fees, 315 + 490);
   assert.deepEqual(r.rows.map((x) => x.kind), ["sales", "sales", "refunds"]);
 });
+
+test("the Airbnb fixture behind airbnb-bookkeeping.html splits one payout as the page says", () => {
+  const r = readPayoutReport(readFileSync(new URL("./fixtures/airbnb-transactions.csv", import.meta.url), "utf8"));
+  assert.deepEqual(r.problems, []);
+  assert.equal(r.payouts.length, 1);
+  const p = r.payouts[0];
+  assert.equal(p.net, 195150);
+  assert.equal(p.gross, 195000);
+  assert.equal(p.rows.filter((x) => x.kind === "sales").length, 3);
+  assert.equal(p.rows.filter((x) => x.kind === "sales").reduce((a, x) => a + x.fee, 0), 5850);
+  assert.equal(p.rows.find((x) => x.kind === "other").net, 6000);
+});
+
+test("an Airbnb payout that does not match the rows before it is reported, not split", () => {
+  const r = readPayoutReport(`Date,Type,Confirmation code,Listing,Amount,Paid out,Host fee,Gross earnings
+06/04/2026,Reservation,HM1,Cabin,$97.00,,$3.00,$100.00
+06/10/2026,Payout,,,,$150.00,,
+`);
+  assert.equal(r.payouts.length, 0);
+  assert.match(r.problems[0], /Not split/);
+});

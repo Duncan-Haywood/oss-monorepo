@@ -71,6 +71,7 @@ export function readPayoutReport(text) {
   const head = table[0].map(key);
   if (head.includes("settlement_id") && head.includes("amount_type") && head.includes("amount_description")) return readAmazon(table, head);
   if (head.includes("fees_taxes") && head.includes("title") && head.includes("type") && head.includes("net")) return readEtsy(table, head);
+  if (head.includes("confirmation_code") && head.includes("gross_earnings") && head.includes("host_fee") && head.includes("type")) return readAirbnb(table, head);
   const col = Object.fromEntries(Object.entries(ALIASES).map(([k, names]) => [k, names.map((n) => head.indexOf(n)).find((i) => i !== -1) ?? -1]));
   for (const need of ["gross", "net", "category"]) if (col[need] === -1) throw new Error(`No "${need}" column: the report needs payout id, payout date, category, gross, fee and net columns.`);
   if (col.payout === -1 && head.includes("transaction_id") && head.includes("status") && head.includes("type")) return readPaypal(table, head);
@@ -213,6 +214,46 @@ function readEtsy(table, head) {
     const paid = -x.net, sum = group.reduce((a, y) => a + y.net, 0);
     if (paid > 0 && sum === paid) payouts.push({ id: `etsy-${x.created}-${x.row}`, date: x.created, net: paid, gross: group.reduce((a, y) => a + y.gross, 0), fees: group.reduce((a, y) => a + y.fee, 0), rows: group.map((y) => ({ ...y, payout: `etsy-${x.created}-${x.row}`, payoutDate: x.created })) });
     else problems.push(`Etsy deposit ${x.created} (${fmt(paid)}): the activity since the previous deposit nets ${fmt(sum)}, so a balance was carried over from before the report. Not split.`);
+    group = [];
+  }
+  return { rows: all, payouts, pending: group.map((y) => ({ ...y, payout: "" })), problems };
+}
+
+// Airbnb's host transaction history CSV (Date, Type, Confirmation code, Listing,
+// Amount, Paid out, Host fee, Gross earnings, Occupancy taxes ...). A Reservation
+// row's gross earnings less the host fee is its Amount; Adjustment and
+// Resolution rows are other income or charges; a Payout row (Paid out) is the
+// deposit, and the rows since the previous payout are what it paid, split only
+// when they net to it exactly. Occupancy taxes collected and remitted by Airbnb
+// are never income. Layout from memory of Airbnb's help pages and one
+// hand-written fixture; no real export tried.
+function readAirbnb(table, head) {
+  const ix = (n) => head.indexOf(n);
+  const c = { date: ix("date"), type: ix("type"), code: ix("confirmation_code"), listing: ix("listing"), amount: ix("amount"), paid: ix("paid_out"), host: ix("host_fee"), gross: ix("gross_earnings") };
+  if (c.date === -1) throw new Error('The Airbnb history has no "Date" column.');
+  const cents = (v) => { const t = String(v ?? "").trim(); return t === "" || t === "--" ? 0 : parseCents(t.replace(/^\$?-\$/, "-")); };
+  const problems = [], all = [];
+  table.slice(1).forEach((r, n) => {
+    const at = (k) => (c[k] === -1 ? "" : String(r[c[k]] ?? "").trim());
+    const amount = cents(at("amount")), paid = cents(at("paid")), host = cents(at("host")), grossEarn = cents(at("gross"));
+    if ([amount, paid, host, grossEarn].some((v) => v === null || Number.isNaN(v))) { problems.push(`Row ${n + 2}: cannot read the amounts.`); return; }
+    const category = key(at("type"));
+    const date = parseDate(at("date"));
+    const id = at("code") || `row${n + 2}`;
+    if (category === "payout" || category === "co_host_payout") { all.push({ row: n + 2, id, created: date, t: date ?? "", category, kind: "withdrawal", gross: 0, fee: 0, net: -(paid || Math.abs(amount)), desc: at("listing") }); return; }
+    const isRes = category === "reservation";
+    const net = isRes && amount === 0 ? grossEarn - Math.abs(host) : amount;
+    const gross = isRes ? grossEarn : 0;
+    all.push({ row: n + 2, id, created: date, t: date ?? "", category, kind: isRes ? "sales" : "other", gross, fee: gross - net, net, desc: at("listing") });
+  });
+  const payouts = [];
+  let group = [];
+  const ordered = all.map((x, i) => ({ x, i })).sort((a, b) => a.x.t.localeCompare(b.x.t) || a.i - b.i).map((o) => o.x);
+  for (const x of ordered) {
+    if (x.kind !== "withdrawal") { group.push(x); continue; }
+    const paid = -x.net, sum = group.reduce((a, y) => a + y.net, 0);
+    if (paid > 0 && sum === paid) payouts.push({ id: `airbnb-${x.created}-${x.row}`, date: x.created, net: paid, gross: group.reduce((a, y) => a + y.gross, 0), fees: group.reduce((a, y) => a + y.fee, 0), rows: group.map((y) => ({ ...y, payout: `airbnb-${x.created}-${x.row}`, payoutDate: x.created })) });
+    else problems.push(`Airbnb payout ${x.created} (${fmt(paid)}): the activity since the previous payout nets ${fmt(sum)}, so a balance was carried over from before the report. Not split.`);
     group = [];
   }
   return { rows: all, payouts, pending: group.map((y) => ({ ...y, payout: "" })), problems };
