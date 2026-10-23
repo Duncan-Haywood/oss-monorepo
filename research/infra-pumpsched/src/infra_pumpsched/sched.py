@@ -20,30 +20,7 @@ PUMPS = ("10", "335")
 
 def build(start, hours, days=DAYS):
     """Net3 with pump 10 open for `hours` from hour `start` each day (start may be 0..23; the window may cross midnight)."""
-    wn = wntr.network.WaterNetworkModel(NET3)
-    wn.options.time.duration = days * 24 * 3600
-    for name in [n for n, c in wn.controls() if "PUMP 10 " in str(c)]:
-        wn.remove_control(name)
-    pump = wn.get_link("10")
-    pump.initial_status = "Closed"
-    if hours >= 24:
-        pump.initial_status = "Open"
-        return wn
-    if hours <= 0:
-        return wn
-    for d in range(days + 1):
-        t_on = (d * 24 + start) * 3600
-        t_off = t_on + hours * 3600
-        if t_on <= days * 24 * 3600:
-            wn.add_control(f"on{d}", wntr.network.controls.Control(
-                wntr.network.controls.SimTimeCondition(wn, "=", t_on), wntr.network.controls.ControlAction(pump, "status", 1)))
-        if t_off <= days * 24 * 3600 + 3600:
-            wn.add_control(f"off{d}", wntr.network.controls.Control(
-                wntr.network.controls.SimTimeCondition(wn, "=", t_off), wntr.network.controls.ControlAction(pump, "status", 0)))
-    # a window that wrapped past midnight on the previous day is already open at t=0; one starting at 0 opens at t=0
-    if start + hours > 24 or start == 0:
-        pump.initial_status = "Open"
-    return wn
+    return build_mask([((h - start) % 24) < hours for h in range(24)] if hours < 24 else [True] * 24, days)
 
 
 def build_mask(mask, days=DAYS):

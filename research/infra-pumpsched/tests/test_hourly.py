@@ -29,7 +29,7 @@ def test_mask_enumeration_counts():
 
 def test_feasibility_and_violation_agree():
     ev = Evaluator()
-    ok, bad = ev(window_mask(1, 14)), ev(tuple([False] * 24))
+    ok, bad = ev(window_mask(1, 14)), ev(tuple(h == 12 for h in range(24)))  # one pumped hour: tanks drift 3 % of demand
     assert feasible(ok) and violation(ok) == 0
     assert not feasible(bad) and violation(bad) > 0
 
