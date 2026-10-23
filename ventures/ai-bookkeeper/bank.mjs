@@ -147,10 +147,10 @@ function inferHeaderless(rows) {
   const width = Math.max(...body.map((r) => r.length));
   const cell = (r, i) => String(r[i] ?? "").trim();
   const col = (i) => body.map((r) => cell(r, i));
-  const isDate = (v) => { if (/^\d{8}$/.test(v)) { const d = parseDate(v); return !!d && +d.slice(0, 4) > 1990 && +d.slice(0, 4) < 2100; } return /^\d{1,4}[-/. ]|^\d{1,2}[ -][A-Za-z]{3}/.test(v) && (!!parseDate(v, true) || !!parseDate(v, false)); };
+  const isDate = (v) => { if (/^\d{8}$/.test(v)) { const d = parseDate(v); return !!d && +d.slice(0, 4) > 1990 && +d.slice(0, 4) < 2100; } return /^\d{1,4}[-/. :]\d|^\d{1,2}[ -][A-Za-z]{3}/.test(v) && (!!parseDate(v, true) || !!parseDate(v, false)); };
   const dateCol = Array.from({ length: width }, (_, i) => i).find((i) => { const c = col(i); return isDate(c[0]) && c.filter(isDate).length >= 0.9 * c.length; });
   if (dateCol === undefined) return null;
-  const money = (v) => NUMCELL.test(v) && /[.,]\d{2}\)?-?$/.test(v);
+  const money = (v) => NUMCELL.test(v) && /[.,]\d{1,2}\)?-?$/.test(v);
   const fill = (c) => c.filter(Boolean).length / c.length;
   const numeric = []; const flags = []; const texts = [];
   for (let i = 0; i < width; i++) {
@@ -439,7 +439,16 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
   const bank = sniffBank(rows);
   let headerAt = rows.findIndex((r) => { const c = detectColumns(r); return c.date !== -1 && (c.amount !== -1 || c.debit !== -1 || c.credit !== -1); });
   let columns, first;
+  // A header wider than every data row (Danske's Lithuanian export names 12 columns and writes 10):
+  // the header's positions are wrong, so drop it and find the columns from the cells.
+  let shortHeader = false;
+  if (headerAt !== -1) {
+    const hc = detectColumns(rows[headerAt]);
+    const body = rows.slice(headerAt + 1).filter((r) => String(r[hc.date] ?? "").trim());
+    if (body.length >= 2 && body.every((r) => r.length < rows[headerAt].length) && inferHeaderless(rows.slice(headerAt + 1))) { rows.splice(0, headerAt + 1); headerAt = -1; shortHeader = true; }
+  }
   const hl = headerAt === -1 ? headerlessLayout(rows) : null;
+  if (shortHeader) problems.push("The header names more columns than the rows have, so the columns were found from the cells instead. Check the signs and descriptions.");
   if (hl) { columns = hl.columns; first = 0; if (hl.dayFirst) dayFirst = true; }
   else if (headerAt === -1) return { rows: [], problems: ["No date and amount columns were found. Name them Date and Amount (or Debit and Credit)."], columns: null };
   else { columns = detectColumns(rows[headerAt]); first = headerAt + 1; }
