@@ -407,10 +407,14 @@ function inferLocale(dataRows, columns) {
 // A stable id per row so importing the same statement twice adds nothing: the
 // account, date, amount and description, plus how many identical rows came
 // before it in this file (two real $4.50 coffees on one day stay two rows).
-export function rowIds(rows, account) {
+// `loose` folds runs of spaces, case and punctuation in the description, so the
+// same line read from a CSV and from an OFX or PDF of the same period (which
+// spell it with different spacing) gets one id. Without it, the exact text.
+export function rowIds(rows, account, { loose = false } = {}) {
   const seen = new Map();
   return rows.map((r) => {
-    const base = `${account}|${r.date}|${r.cents}|${r.desc.toLowerCase()}`;
+    const d = loose ? r.desc.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, " ").trim() : r.desc.toLowerCase();
+    const base = `${account}|${r.date}|${r.cents}|${d}`;
     const n = (seen.get(base) ?? 0) + 1;
     seen.set(base, n);
     return `${hash(base)}-${n}`;

@@ -75,12 +75,12 @@ export function importStatement(booksIn, csv, account, opts = {}) {
   if (!acct) return { books, added: 0, skipped: 0, problems: [`No account ${account} in the chart of accounts.`], balanceCheck: null };
   const { rows, problems, inferred, statement } = readStatement(csv, opts);
   if (inferred) problems.push(inferred);
-  const ids = rowIds(rows, account);
+  const ids = rowIds(rows, account, { loose: true }), oldIds = rowIds(rows, account);
   const have = new Set(books.transactions.map((t) => t.id));
   let added = 0, skipped = 0;
   let locked = 0, noRate = 0;
   rows.forEach((r, i) => {
-    if (have.has(ids[i])) { skipped++; return; }
+    if (have.has(ids[i]) || have.has(oldIds[i])) { skipped++; return; }
     if (books.lockedThrough && r.date <= books.lockedThrough) { locked++; return; }
     const conv = convertRow(books, account, r);
     if (!conv) { noRate++; return; }
