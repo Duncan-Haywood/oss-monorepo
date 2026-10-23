@@ -100,6 +100,7 @@ test("ai-eval harness: fill mode sends only lines with no suggestion and breaks 
   const t = await runSeed(1, { config: { provider: "anthropic", apiKey: "stub" }, stub: 0.5, from: 11 });
   assert.equal(t.broken, 0);
   assert.equal(t.aiAnswered, t.detNone);
+});
 
 test("parseReply keeps a bare array as is, and the prompt caps past examples at 40", () => {
   // A bare array of non-objects or id-less objects only survives the whole-array parse, not the loose-object scan.
