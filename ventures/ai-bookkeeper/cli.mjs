@@ -16,7 +16,7 @@
 //   node cli.mjs --example report
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
-import { addLoan, addLoanExtra, applyLoanPayments, loanRegister, loanSchedule } from "./loans.mjs";
+import { addLoan, addLoanExtra, applyLoanPayments, checkLenderSchedule, loanRegister, loanSchedule } from "./loans.mjs";
 import { salesTaxReturn } from "./salestaxreturn.mjs";
 import { gstReturn } from "./gstreturn.mjs";
 import { newBooks, importStatement, importOfxAccounts, lockPeriod, closeYear, reopenYear, yearEndReport, categorize, suggestRules, addRules, addDocuments, addAsset, disposeAsset, addAssetsCsv, register, addPrepaid, prepaidRegister, addInventoryMove, setInventoryMethod, inventoryRegister, writeOff, aging, salesTax, vatReturn, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, addFxAccount, setRates, parseRates, fxRegister, exportLines, status, analyze, fmt, taxableBusinessIncome, s179Carryforward } from "./engine.mjs";
@@ -84,6 +84,7 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
   prepaid add NAME --amount 2400 --date D [--months 12] [--into 6030]  spread an up-front payment (filed to 1400) over the months it covers
   loan add NAME --amount 20000 --rate 6.5 --months 36 --first 2026-02-01 [--payment 612.34]  a fixed-rate loan and its schedule
   loan extra ID --amount 2000 --date 2026-06-10   extra principal on top of the schedule (it ends sooner)
+  loan check ID FILE.csv  compare a lender's own schedule (date, payment, interest, principal, balance) with this loan's
   loan apply ID           split the unfiled bank lines that are its scheduled payments into interest (6040) and principal (2200)
   loan [ID]               list loans (balance, next payment), or one loan's schedule
   fx account CODE CUR   mark a bank account as held in a foreign currency (e.g. 1020 EUR); lines convert at the rate on their date
@@ -280,6 +281,14 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
       books = r.books; save();
       const last = loanSchedule(r.loan).at(-1);
       console.log(`${r.loan.id}: extra principal recorded; the schedule now ends ${last.date} after ${last.n} of ${r.loan.months} payments. \`loan apply ${r.loan.id}\` files the bank line.`);
+    } else if (rest[0] === "check") {
+      const loan = (books.loans ?? []).find((l) => l.id === rest[1]);
+      if (!loan) throw new Error(`No loan ${rest[1]}.`);
+      if (!rest[2]) throw new Error("Usage: loan check ID LENDER_SCHEDULE.csv");
+      const r = checkLenderSchedule(loan, readFileSync(rest[2], "utf8"));
+      if (json) { console.log(JSON.stringify(r, null, 2)); process.exit(0); }
+      for (const x of r.rows.filter((y) => y.extra || Object.values(y.diff).some((d) => Math.abs(d) > r.tolerance)).slice(0, 12)) console.log(x.extra ? `  ${x.n}: only in the lender's schedule` : `  ${String(x.n).padStart(3)} ${x.date}  ` + Object.entries(x.diff).filter(([, d]) => d).map(([f, d]) => `${f} ${d > 0 ? "+" : "-"}${fmt(Math.abs(d))}`).join("  "));
+      for (const n of r.notes) console.log(n);
     } else if (rest[0] === "apply") {
       const r = applyLoanPayments(books, rest[1]);
       books = r.books; save();

@@ -140,3 +140,52 @@ export function loanRegister(books) {
   });
   return { rows, balance: rows.reduce((s, r) => s + r.balance, 0) };
 }
+
+// checkLenderSchedule(loan, csvText) compares a lender's own amortization table (CSV or pasted
+// text with a header row: date, payment, interest, principal, balance; any subset, matched by
+// name) with this loan's computed schedule, row by row. Returns { rows, first, summary, notes }:
+// `rows` holds each differing field in cents (lender minus ours), `first` the first row that
+// differs by more than `tolerance` cents (default 2), and `notes` a plain-words guess at why
+// (payment size, day-count interest, rounding, early payoff). It never edits the loan.
+export function checkLenderSchedule(loan, text, { tolerance = 2 } = {}) {
+  const lines = String(text ?? "").replace(/^﻿/, "").split(/\r?\n/).filter((l) => l.trim());
+  if (lines.length < 2) throw new Error("Paste the lender's schedule with a header row and at least one payment.");
+  const delim = [",", ";", "\t"].map((d) => [d, lines[0].split(d).length]).sort((a, b) => b[1] - a[1])[0][0];
+  const cells = (l) => l.split(delim).map((c) => c.trim().replace(/^"|"$/g, ""));
+  const head = cells(lines[0]).map((h) => h.toLowerCase());
+  const col = (re) => head.findIndex((h) => re.test(h));
+  const ix = { date: col(/date|due/), payment: col(/payment|pmt|total|instal/), interest: col(/interest/), principal: col(/principal/), balance: col(/balance|remaining|outstanding/) };
+  if (ix.payment === ix.interest) ix.payment = head.findIndex((h, i) => i !== ix.interest && /payment|pmt|total|instal/.test(h));
+  if (ix.interest < 0 && ix.principal < 0 && ix.balance < 0) throw new Error("No interest, principal or balance column found in the header row.");
+  const theirs = lines.slice(1).map(cells);
+  const ours = loanSchedule(loan);
+  const rows = [];
+  theirs.forEach((c, i) => {
+    const us = ours[i];
+    const row = { n: i + 1, date: us?.date ?? null, diff: {} };
+    if (!us) { row.extra = true; rows.push(row); return; }
+    for (const f of ["payment", "interest", "principal", "balance"]) {
+      if (ix[f] < 0) continue;
+      const v = parseCents(c[ix[f]]);
+      if (!Number.isFinite(v)) continue;
+      row.diff[f] = v - us[f];
+    }
+    if (ix.date >= 0) { const d = parseDate(c[ix.date]); if (d && d !== us.date) row.dateDiff = d; }
+    rows.push(row);
+  });
+  const bad = (r) => r.extra || Object.values(r.diff).some((d) => Math.abs(d) > tolerance);
+  const first = rows.find(bad) ?? null;
+  const notes = [];
+  const compared = rows.filter((r) => !r.extra);
+  const sum = (f) => compared.reduce((s, r) => s + (r.diff[f] ?? 0), 0);
+  if (!first && ours.length === theirs.length) notes.push(`The lender's schedule matches within ${tolerance} cents on every row.`);
+  if (theirs.length !== ours.length) notes.push(`The lender lists ${theirs.length} payments and this loan has ${ours.length}: ${theirs.length < ours.length ? "only the first rows were pasted, or it pays off sooner (extra principal, or a larger payment)" : "extra rows, or a longer term"}.`);
+  const p0 = compared[0]?.diff.payment;
+  if (p0 !== undefined && Math.abs(p0) > tolerance && compared.length > 2 && compared.slice(0, -1).every((r) => r.diff.payment === p0)) notes.push(`Every payment is ${fmtC(p0)} different: re-add the loan with --payment ${fmtC(loan.payment + p0).replace(/^\$/, "")} to match the lender's payment.`);
+  else if (first && first.diff.interest !== undefined && Math.abs(first.diff.interest) > tolerance && first.n === 1) notes.push(`Interest differs from the first row (${fmtC(first.diff.interest)}): the lender may charge by actual days over a 360 or 365-day year, or the rate or first-payment date typed here differs.`);
+  else if (first && first.n > 1) notes.push(`Rows agree through payment ${first.n - 1}, then differ at ${first.date}: look for a fee, a skipped payment, a rate change or an extra payment the lender applied.`);
+  const maxAbs = Math.max(0, ...compared.flatMap((r) => Object.values(r.diff).map(Math.abs)));
+  if (!first && maxAbs > 0 && compared.length === ours.length) notes.push(`Largest difference is ${maxAbs} cent${maxAbs === 1 ? "" : "s"}: rounding.`);
+  return { rows, first, tolerance, notes, summary: { theirs: theirs.length, ours: ours.length, interestDiff: sum("interest"), maxAbsCents: maxAbs } };
+}
+const fmtC = (c) => `${c < 0 ? "-" : ""}$${(Math.abs(c) / 100).toFixed(2)}`;
