@@ -3,7 +3,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
-from society_milgramfit import independent_two, min_enforcers, p_star, per_viewer  # noqa: E402
+from society_milgramfit import contagion_any, hazard_exponent, independent_two, min_enforcers, p_star, per_viewer  # noqa: E402
 
 out = ["society-milgramfit results. Model of society-enforcers (M=9, k=1, eps=0.02; enforcers L=10, q=0.5 unless stated).",
        "Milgram et al. 1986 inputs are from a secondary summary (spring.org.uk, 2008): ~0.5 any reaction to one intruder,",
@@ -25,5 +25,12 @@ out.append("== D. independence check: one intruder objected to 0.5 -> two intrud
 out.append(f"independent={independent_two(0.5):.3f} reported=0.91")
 out.append("per-viewer reaction r for 'any reaction'=0.5 by people in view L: " +
            ", ".join(f"L={v}:{per_viewer(0.5, v):.3f}" for v in (2, 5, 10, 20)))
+out.append("")
+out.append("== E. can viewer influence explain 0.91? (step 2 of Next steps)")
+out.append("P(any of 10 viewers reacts), per-viewer r0=0.067, by contagion boost c per earlier reaction: " +
+           ", ".join(f"c={c}:{contagion_any(0.067, 10, c):.3f}" for c in (0.0, 0.1, 0.5, 1.0)))
+a = hazard_exponent(0.5, 0.91)
+out.append(f"so contagion cannot lift the any-reaction rate. Hazard growing as n**a with a={a:.2f} reproduces 0.5 -> 0.91 "
+           f"(a=1 is independence, 0.75). One free parameter fit to one reported number: description, not test.")
 Path(__file__).with_name("results.txt").write_text("\n".join(out) + "\n")
 print("\n".join(out))

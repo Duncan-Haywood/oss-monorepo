@@ -4,6 +4,7 @@ Reuses the society-enforcers model unchanged (imported from its src). New here: 
 least lone-cut stopping chance p0 at which a crowd of people alone (no cutter robots, no
 enforcers) keeps a queueing norm, and the independence check on the two-intruder rate.
 """
+import math
 import sys
 from pathlib import Path
 
@@ -33,3 +34,23 @@ def per_viewer(any_react, view):
 def independent_two(p):
     """P(at least one of two intruders is objected to) if each is objected to independently."""
     return 1.0 - (1.0 - p) ** 2
+
+
+def contagion_any(r0, n_viewers, c):
+    """P(at least one of n_viewers reacts) when each viewer reacts with min(1, r0 + c*k), k = reactions so far.
+    Exactly (1-r0)**n for every c >= 0: influence acts only after a first reaction, so it cannot move this rate."""
+    none = 1.0
+    state = {0: 1.0}  # reactions so far -> probability, tracked to show the identity numerically
+    for _ in range(n_viewers):
+        nxt = {}
+        for k, pr in state.items():
+            p = min(1.0, r0 + c * k)
+            nxt[k + 1] = nxt.get(k + 1, 0.0) + pr * p
+            nxt[k] = nxt.get(k, 0.0) + pr * (1 - p)
+        state = nxt
+    return 1.0 - state.get(0, 0.0)
+
+
+def hazard_exponent(p_one, p_two):
+    """a with 1-(1-p_one)**(2**a) = p_two: how fast the reaction hazard grows with the number of intruders (n**a)."""
+    return math.log(math.log(1 - p_two) / math.log(1 - p_one), 2)

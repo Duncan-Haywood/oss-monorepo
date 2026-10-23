@@ -26,3 +26,7 @@ M=15 e_min=0.075
 == D. independence check: one intruder objected to 0.5 -> two intruders if independent vs reported 0.91
 independent=0.750 reported=0.91
 per-viewer reaction r for 'any reaction'=0.5 by people in view L: L=2:0.293, L=5:0.129, L=10:0.067, L=20:0.034
+
+== E. can viewer influence explain 0.91? (step 2 of Next steps)
+P(any of 10 viewers reacts), per-viewer r0=0.067, by contagion boost c per earlier reaction: c=0.0:0.500, c=0.1:0.500, c=0.5:0.500, c=1.0:0.500
+so contagion cannot lift the any-reaction rate. Hazard growing as n**a with a=1.80 reproduces 0.5 -> 0.91 (a=1 is independence, 0.75). One free parameter fit to one reported number: description, not test.
