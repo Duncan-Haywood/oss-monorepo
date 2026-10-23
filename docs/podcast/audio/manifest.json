@@ -48,6 +48,13 @@
     "script_sha256": "cb1e22fa44d0c805ce94505c92973b39c62f418a345b252a51b1cd45c3994af2",
     "voice": "en_US-ljspeech-high"
   },
+  "2026-10-20-github-pages-deploy-on-every-merge": {
+    "bytes": 805694,
+    "seconds": 161.04,
+    "sha256": "fd153bcded74226e692cecf61a4ed4fb5e452d231b727ec4664c7c4a840358b2",
+    "script_sha256": "cc89fc039c93a1d7c1811f4d96d583c82366f188fd99b50d65a44a1540d01cdc",
+    "voice": "en_US-ljspeech-high"
+  },
   "2026-10-20-mcp-server-free-calculators-for-ai-agents-no-browser": {
     "bytes": 1757475,
     "seconds": 351.4,
