@@ -110,6 +110,8 @@ test("1099-NEC: the W-9 flag is stored without any tax ID and clears the missing
   assert.ok(before.warnings.some((w) => /no W-9/.test(w)));
   assert.equal(before.backupWithholdingCents, Math.round(before.missingW9[0].cents * 0.24), "24% backup withholding exposure on payees with no W-9");
   assert.ok(before.warnings.some((w) => /backup withholding of 24%/.test(w)));
+  assert.ok(before.warnings.some((w) => /Form 945, line 2/.test(w) && /box 4/.test(w)));
+  assert.ok(before.warnings.some((w) => /Pub\. 1281/.test(w) && /applied for/.test(w)), "no awaiting-TIN grace for contractor pay");
   const marked = markW9(books, "UPWORK PAYMENT ANNA LOPEZ");
   assert.deepEqual(Object.values(marked.vendors), [{ w9: true }]);
   const after = contractors1099(marked, { year: 2026 });
@@ -204,4 +206,14 @@ test("seSetAside annualises the profit to date and splits the tax into four paym
   assert.equal(r.annualisedProfit, r.profitToDate * 4);
   assert.equal(r.payments.length, 4);
   assert.equal(r.payments.reduce((a, p) => a + p.cents, 0), r.se.tax);
+});
+
+import { bNoticeDates } from "./taxforms.mjs";
+test("B notice dates count business days past weekends and holidays", () => {
+  const r = bNoticeDates("2026-10-05"); // Monday
+  assert.equal(r.mailBNoticeBy, "2026-10-27"); // 15 business days, Oct 12 (Columbus Day) skipped
+  assert.equal(r.startWithholdingBy, "2026-11-18"); // 30 business days, Nov 11 (Veterans Day) skipped
+  assert.equal(bNoticeDates("2026-10-05", { received: "2026-10-09" }).mailBNoticeBy, "2026-11-02");
+  assert.match(bNoticeDates("2026-10-05", { second: true }).enclose, /147C/);
+  assert.throws(() => bNoticeDates("10/05/2026"));
 });

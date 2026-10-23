@@ -27,7 +27,7 @@
   "opened": "2026-10-20",
   "source": "owner, in session 2026-10-20",
   "pr": "see history",
-  "result": null,
+  "result": "No change yet: portfolio/usage/site-visits.json still does not exist (checked 2026-10-23); the rules, validator, counter code and copy are at the legal line, but no reading can exist until the owner deploys platform/counter (P046). Not a failure of the change; the metric waits on P046.",
   "history": [
     {
       "date": "2026-10-22",

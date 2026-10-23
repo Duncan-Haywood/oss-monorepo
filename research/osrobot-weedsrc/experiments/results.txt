@@ -1,0 +1,52 @@
+# osrobot-weedsrc results: 60 x 30 m field, 20 seeds per row, 1 weed/m2, on the move
+# detector A (osrobot-weedpass, ASSUMED): p_max 0.70, v_blur 2.0 m/s
+# detector B (fitted to published rates ((0.2, 0.8894), (0.425, 0.862))): p_max 0.914, v_blur 7.19 m/s
+# detector rate at each speed (m/s): 1km/h A 0.609 B 0.880, 2km/h A 0.530 B 0.846, 4km/h A 0.402 B 0.784
+
+# Sweep 1: passes x speed (km/h) under each detector
+                                         kill     min      Wh  treats
+A 1 pass 1.0 km/h                       0.607    68.4     396    1044
+A 1 pass 2.0 km/h                       0.530    34.7     341     915
+A 1 pass 4.0 km/h                       0.398    17.9     265     692
+A 2 pass 1.0 km/h                       0.846   141.7     612    1465
+A 2 pass 2.0 km/h                       0.778    71.8     542    1351
+A 2 pass 4.0 km/h                       0.638    36.9     455    1117
+A 3 pass 1.0 km/h                       0.938   214.9     753    1641
+A 3 pass 2.0 km/h                       0.894   109.0     678    1566
+A 3 pass 4.0 km/h                       0.780    56.0     595    1379
+B 1 pass 1.0 km/h                       0.875    68.4     532    1498
+B 1 pass 2.0 km/h                       0.842    34.7     499    1441
+B 1 pass 4.0 km/h                       0.781    20.8     461    1341
+B 2 pass 1.0 km/h                       0.984   141.7     682    1701
+B 2 pass 2.0 km/h                       0.976    71.9     643    1687
+B 2 pass 4.0 km/h                       0.952    39.8     615    1646
+B 3 pass 1.0 km/h                       0.999   214.9     784    1742
+B 3 pass 2.0 km/h                       0.996   109.0     730    1739
+B 3 pass 4.0 km/h                       0.989    58.9     702    1729
+
+# Sweep 2: detector B, share of weeds never seen (hidden), 2 km/h
+                                         kill     min      Wh  treats
+B hidden=0.0 1 pass                     0.842    34.7     499    1441
+B hidden=0.0 2 pass                     0.976    71.9     643    1687
+B hidden=0.0 3 pass                     0.996   109.0     730    1739
+B hidden=0.05 1 pass                    0.801    34.7     478    1374
+B hidden=0.05 2 pass                    0.927    71.8     619    1605
+B hidden=0.05 3 pass                    0.946   109.0     705    1656
+B hidden=0.1 1 pass                     0.758    34.7     456    1301
+B hidden=0.1 2 pass                     0.878    71.8     594    1524
+B hidden=0.1 3 pass                     0.897   109.0     681    1575
+B hidden=0.2 1 pass                     0.675    34.7     414    1160
+B hidden=0.2 2 pass                     0.782    71.8     545    1359
+B hidden=0.2 3 pass                     0.799   109.0     630    1406
+B hidden=0.3 1 pass                     0.594    34.7     373    1023
+B hidden=0.3 2 pass                     0.687    71.8     497    1198
+B hidden=0.3 3 pass                     0.700   109.0     580    1239
+
+# Sweep 3: detector B, how much a second pass gains vs density, 2 km/h
+                                         kill     min      Wh  treats
+B d=0.3 1 pass                          0.841    34.1     198     443
+B d=0.3 2 pass                          0.975    70.6     292     528
+B d=1.0 1 pass                          0.842    34.7     499    1441
+B d=1.0 2 pass                          0.976    71.9     643    1687
+B d=3.0 1 pass                          0.840    61.4    1366    4290
+B d=3.0 2 pass                          0.974    98.3    1646    4987

@@ -6,8 +6,9 @@
 // (110% when last year's AGI was over $150,000), less withholding and what is already
 // paid, spread over the due dates still ahead. A worksheet, not a filing.
 //
-// The bracket tables below are typed from memory of IRS Rev. Proc. 2024-40 (2025) and
-// 2025-32 (2026) and are unchecked against irs.gov, so every result carries a warning;
+// The bracket tables below were typed from memory of IRS Rev. Proc. 2024-40 (2025) and
+// 2025-32 (2026); both were checked against the IRS text on 2026-10-23. The 2026 table was checked 2026-10-23 against the IRS text of Rev. Proc. 2025-32
+// (irs.gov/pub/irs-drop/rp-25-32.pdf: tables 1-3, standard deductions, QBI thresholds); the 2025 tables and QBI thresholds match the IRS text of Rev. Proc. 2024-40 (pdftotext, 2026-10-23); the 2025 standard deductions are the One Big Beautiful Bill figures from the IRS 2026 inflation release and the Form 1040 instructions ($15,750 / $31,500 / $23,625), not the Rev. Proc.'s $15,000 / $30,000 / $22,500; the SS wage bases match ssa.gov; every result warns;
 // pass `brackets` and `standardDeduction` to override. Dollar amounts are cents.
 import { scheduleC, selfEmployment, estimatedDueDates } from "./taxforms.mjs";
 
@@ -30,7 +31,12 @@ export const BRACKETS = {
 // Additional Medicare Tax (Form 8959): 0.9% of wages plus self-employment earnings above
 // a threshold fixed by statute (not indexed) by filing status; mfs is not modelled.
 export const ADDL_MEDICARE_THRESHOLD = { single: D(200000), hoh: D(200000), mfj: D(250000) };
-const QBI_LIMIT = { single: D(197300), hoh: D(197300), mfj: D(394600) };
+// Section 199A threshold amounts: 2025 Rev. Proc. 2024-40 section 3.27 (read 2026-10-23), 2026 Rev. Proc. 2025-32
+// section 3.26 (read on irs.gov 2026-10-23).
+const QBI_LIMIT = {
+  2025: { single: D(197300), hoh: D(197300), mfj: D(394600) },
+  2026: { single: D(201750), hoh: D(201750), mfj: D(403500) },
+};
 
 export function bracketTax(taxable, brackets) {
   let tax = 0, lo = 0;
@@ -59,12 +65,20 @@ export function estimatedTax(books, o = {}) {
   const se = selfEmployment(profit, { year, wages, wageBase: o.wageBase });
   const table = o.brackets ? { std: o.standardDeduction ?? 0, b: o.brackets } : BRACKETS[year]?.[filing];
   if (!table) throw new Error(`No ${filing} brackets on file for ${year}; pass brackets (and standardDeduction).`);
-  if (!o.brackets) warnings.push(`The ${year} brackets and standard deduction are from memory and unchecked; confirm them on irs.gov or pass brackets.`);
+  if (!o.brackets) warnings.push(year === 2026 ? `The 2026 brackets and standard deductions match the IRS text of Rev. Proc. 2025-32 (checked 2026-10-23); confirm they are still current or pass brackets.` : year === 2025 ? `The 2025 brackets match the IRS text of Rev. Proc. 2024-40 and the standard deductions the Form 1040 instructions as amended by the 2025 law (checked 2026-10-23); confirm they are still current or pass brackets.` : `The ${year} brackets and standard deduction are from memory and unchecked; confirm them on irs.gov or pass brackets.`);
   const std = o.standardDeduction ?? table.std;
   const agi = profit - se.deduction + wages + other;
   const beforeQbi = Math.max(0, agi - std);
-  const qbiDeduction = o.qbi === false || profit <= 0 ? 0 : Math.min(Math.round(0.2 * Math.max(0, profit - se.deduction)), Math.round(0.2 * beforeQbi));
-  if (qbiDeduction && beforeQbi > (QBI_LIMIT[filing] ?? Infinity)) warnings.push("Taxable income is above the QBI threshold, where the 20% deduction may be limited or lost; treat the figure as a ceiling on the deduction.");
+  const qbiIncome = Math.max(0, profit - se.deduction);
+  let qbiDeduction = o.qbi === false || profit <= 0 ? 0 : Math.min(Math.round(0.2 * qbiIncome), Math.round(0.2 * beforeQbi));
+  // One Big Beautiful Bill Act, tax years after 2025: at least $400 for a taxpayer with $1,000+ of
+  // QBI from a business they work in (amount and $1,000 threshold agree across several tax-firm summaries
+  // read 2026-10-23, which also say both are inflation-indexed after 2026 and that the taxpayer must
+  // materially participate; IRC 199A(i) itself was unreachable through the proxy, so "at least" vs
+  // "over" $1,000 is unverified; taken here as capped by taxable income before the deduction).
+  // Only bites for QBI of $1,000 to $2,000.
+  if (o.qbi !== false && year >= 2026 && qbiIncome >= D(1000)) qbiDeduction = Math.max(qbiDeduction, Math.min(D(400), beforeQbi));
+  if (qbiDeduction && beforeQbi > ((QBI_LIMIT[year] ?? QBI_LIMIT[2026])[filing] ?? Infinity)) warnings.push("Taxable income is above the QBI threshold, where the 20% deduction may be limited or lost; treat the figure as a ceiling on the deduction.");
   const taxable = Math.max(0, beforeQbi - qbiDeduction);
   const incomeTax = bracketTax(taxable, table.b);
   // Part II of Form 8959: the SE threshold is lowered by wages, which count first.

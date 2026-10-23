@@ -132,7 +132,17 @@ test("exports: QuickBooks Online, Xero and IIF lines sum to zero per entry", () 
   const byNarr = new Map();
   for (const l of xero) { const cells = l.split(","); const amt = Math.round(+cells.at(-1) * 100); byNarr.set(cells[1] + cells[0], (byNarr.get(cells[1] + cells[0]) ?? 0) + amt); }
   for (const v of byNarr.values()) assert.equal(v, 0);
-  assert.match(exportJournal(b, "iif"), /^!TRNS/);
+  const iif = exportJournal(b, "iif").trim().split("\r\n");
+  assert.match(iif[0], /^!ACCNT\tNAME\tACCNTTYPE/);
+  // every account a TRNS/SPL line names is declared with a QuickBooks type; each entry sums to zero
+  const declared = new Map(iif.filter((l) => l.startsWith("ACCNT\t")).map((l) => l.split("\t").slice(1)));
+  assert.ok(declared.size > 3);
+  for (const t of declared.values()) assert.match(t, /^(BANK|AR|AP|OCASSET|FIXASSET|OCLIAB|LTLIAB|EQUITY|INC|EXP|COGS)$/);
+  let run = 0;
+  for (const l of iif) {
+    if (/^(TRNS|SPL)\t/.test(l)) { const c = l.split("\t"); assert.ok(declared.has(c[4]), c[4]); run += Math.round(+c[5] * 100); }
+    if (l === "ENDTRNS") { assert.equal(run, 0); run = 0; }
+  }
   for (const fmt of ["ledger", "beancount"]) {
     const txt = exportJournal(b, fmt);
     const blocks = txt.split("\n\n").filter((x) => /^\d{4}-\d\d-\d\d [^o]/.test(x));
@@ -144,6 +154,18 @@ test("exports: QuickBooks Online, Xero and IIF lines sum to zero per entry", () 
   }
   assert.match(exportJournal(b, "beancount"), /^option "title"[\s\S]*\d{4}-\d\d-\d\d open Assets:/m);
   assert.match(exportLines(b), /^date,bank_account,description,amount,status/);
+});
+
+test("beancount export survives backslashes in a description and symbol or lower-case currencies", () => {
+  let b = newBooks({ currency: "usd" });
+  b = importStatement(b, 'Date,Description,Amount\n2026-03-05,"Back\\slash end\\",-12.50\n', "1000").books;
+  b = confirm(b, Object.fromEntries(b.transactions.map((t) => [t.id, "6060"])));
+  const txt = exportJournal(b, "beancount");
+  assert.ok(!txt.includes("\\"), "no backslash reaches a Beancount string");
+  assert.match(txt, /^2026-03-05 \* "Back\/slash end\/"$/m);
+  assert.match(txt, /-12\.50 USD$/m);
+  assert.match(exportJournal({ ...b, currency: "$" }, "beancount"), /open Assets:Checking USD/);
+  assert.match(exportJournal(b, "ledger"), /Back\\slash end\\/);
 });
 
 test("the agent entry point runs the example and every entry balances", () => {
@@ -773,4 +795,26 @@ test("overlapping exports with identical same-day lines add only the new one, in
     const c = importStatement(b.books, next, "1000");
     assert.equal(c.added, 0, "re-importing the same file adds nothing");
   }
+});
+
+test("ledger export keeps a description that starts with a status mark or a code", () => {
+  let b = newBooks();
+  b = importStatement(b, 'Date,Description,Amount\n2026-03-05,* starred,-1.00\n2026-03-06,! bang,-2.00\n2026-03-07,(paren) shop,-3.00\n', "1000").books;
+  b = confirm(b, Object.fromEntries(b.transactions.map((t) => [t.id, "6060"])));
+  const txt = exportJournal(b, "ledger");
+  assert.match(txt, /^2026-03-05 - \* starred$/m);
+  assert.match(txt, /^2026-03-06 - ! bang$/m);
+  assert.match(txt, /^2026-03-07 - \(paren\) shop$/m);
+});
+
+test("ledger export declares its accounts and commodity so strict checkers accept it", () => {
+  let b = newBooks({ currency: "Fr." });
+  b = importStatement(b, "Date,Description,Amount\n2026-03-05,Shop,-12.50\n", "1000").books;
+  b = confirm(b, Object.fromEntries(b.transactions.map((t) => [t.id, "6060"])));
+  const txt = exportJournal(b, "ledger");
+  assert.match(txt, /^commodity Fr$/m);
+  assert.match(txt, /^account Assets:Checking$/m);
+  assert.match(txt, /^account Expenses:Software-and-subscriptions$/m);
+  assert.match(txt, /-12\.50 Fr$/m);
+  assert.ok(!/^account /m.test(exportJournal(b, "beancount")));
 });

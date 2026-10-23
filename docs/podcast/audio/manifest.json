@@ -27,6 +27,13 @@
     "script_sha256": "36ac0b2219dc5efe86c21230ac131fb2c13c894c0b8bfe1de898a721d6520196",
     "voice": "en_US-ljspeech-high"
   },
+  "2026-10-20-does-an-agent-fleet-need-a-manager-agent": {
+    "bytes": 1638501,
+    "seconds": 327.6,
+    "sha256": "0535a4e93072418e5643da9948f215fd6b43e9108e61facecc32f03f77f3502e",
+    "script_sha256": "dc2431cd6c668f159eecaa1f287d1f96de0246c0e9efb913a37ddc7c115e1a7e",
+    "voice": "en_US-ljspeech-high"
+  },
   "2026-10-20-engineered-clothing-cost-fit-comfort-open-models": {
     "bytes": 1853581,
     "seconds": 370.63,
@@ -39,6 +46,13 @@
     "seconds": 364.85,
     "sha256": "07e59c7bb8980b9cce75e1be250f03326e3d599cb94b827777823b00120f96ef",
     "script_sha256": "cb1e22fa44d0c805ce94505c92973b39c62f418a345b252a51b1cd45c3994af2",
+    "voice": "en_US-ljspeech-high"
+  },
+  "2026-10-20-github-pages-deploy-on-every-merge": {
+    "bytes": 805694,
+    "seconds": 161.04,
+    "sha256": "fd153bcded74226e692cecf61a4ed4fb5e452d231b727ec4664c7c4a840358b2",
+    "script_sha256": "cc89fc039c93a1d7c1811f4d96d583c82366f188fd99b50d65a44a1540d01cdc",
     "voice": "en_US-ljspeech-high"
   },
   "2026-10-20-mcp-server-free-calculators-for-ai-agents-no-browser": {
@@ -102,6 +116,13 @@
     "seconds": 322.12,
     "sha256": "cfb5c2d909d3e21133cdd9d4f1ffe578488c576cf019f37f1537ad4a195ad5dc",
     "script_sha256": "31685f4ba5c52e6c992eb8bc470dddac825426370b3357c3151ec2bba0cf2040",
+    "voice": "en_US-ljspeech-high"
+  },
+  "2026-10-20-we-almost-rewrote-it-in-rust": {
+    "bytes": 1235437,
+    "seconds": 246.99,
+    "sha256": "7354119e38d9857313a48a324be12828ee8620cf70f9bec573c5740a977ff220",
+    "script_sha256": "f8e67d516599bfe8efddcca079b0dd08badb1ae8d6e3e1bfc5ad0a22cd1014cc",
     "voice": "en_US-ljspeech-high"
   },
   "2026-10-21-checking-the-energy-table": {

@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of kill share against total minutes for one to three passes at 1, 2 and 4 km/h under an assumed detector and one fitted to two published detection rates; the fitted detector kills far more at every time">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Weeding robot: kill share against time, assumed against published-rate detector</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="273.4" y2="273.4" stroke="#ddd"/><text x="58" y="277.4" text-anchor="end" font-family="sans-serif" font-size="11">0.2</text>
+<line x1="64" x2="624" y1="222.8" y2="222.8" stroke="#ddd"/><text x="58" y="226.8" text-anchor="end" font-family="sans-serif" font-size="11">0.4</text>
+<line x1="64" x2="624" y1="172.2" y2="172.2" stroke="#ddd"/><text x="58" y="176.2" text-anchor="end" font-family="sans-serif" font-size="11">0.6</text>
+<line x1="64" x2="624" y1="121.5" y2="121.5" stroke="#ddd"/><text x="58" y="125.5" text-anchor="end" font-family="sans-serif" font-size="11">0.8</text>
+<line x1="64" x2="624" y1="70.9" y2="70.9" stroke="#ddd"/><text x="58" y="74.9" text-anchor="end" font-family="sans-serif" font-size="11">1</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">17.9</text>
+<text x="111.8" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">34.7</text>
+<text x="126.3" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">39.8</text>
+<text x="180.5" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">58.9</text>
+<text x="217.2" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">71.8</text>
+<text x="323.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">109</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">214.9</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">total time (min)</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">kill share</text>
+<polyline points="207.6,170.4 415.9,109.9 624.0,86.6" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="207.6" cy="170.4" r="3" fill="#c0392b"/>
+<circle cx="415.9" cy="109.9" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="86.6" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">assumed detector, 1 km/h</text>
+<polyline points="111.8,189.9 217.2,127.1 323.0,97.7" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="111.8" cy="189.9" r="3" fill="#1f6fb2"/>
+<circle cx="217.2" cy="127.1" r="3" fill="#1f6fb2"/>
+<circle cx="323.0" cy="97.7" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">assumed detector, 2 km/h</text>
+<polyline points="64.0,223.3 118.0,162.5 172.3,126.6" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="223.3" r="3" fill="#2e8b57"/>
+<circle cx="118.0" cy="162.5" r="3" fill="#2e8b57"/>
+<circle cx="172.3" cy="126.6" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">assumed detector, 4 km/h</text>
+<polyline points="207.6,102.6 415.9,75.0 624.0,71.2" fill="none" stroke="#8e44ad" stroke-width="2"/>
+<circle cx="207.6" cy="102.6" r="3" fill="#8e44ad"/>
+<circle cx="415.9" cy="75.0" r="3" fill="#8e44ad"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#8e44ad"/>
+<rect x="574" y="32" width="14" height="10" fill="#8e44ad"/><text x="594" y="41" font-family="sans-serif" font-size="11">fitted detector, 1 km/h</text>
+<polyline points="111.8,110.9 217.5,77.0 323.0,71.9" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="111.8" cy="110.9" r="3" fill="#c0392b"/>
+<circle cx="217.5" cy="77.0" r="3" fill="#c0392b"/>
+<circle cx="323.0" cy="71.9" r="3" fill="#c0392b"/>
+<rect x="744" y="32" width="14" height="10" fill="#c0392b"/><text x="764" y="41" font-family="sans-serif" font-size="11">fitted detector, 2 km/h</text>
+<polyline points="72.2,126.3 126.3,83.1 180.5,73.7" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="72.2" cy="126.3" r="3" fill="#1f6fb2"/>
+<circle cx="126.3" cy="83.1" r="3" fill="#1f6fb2"/>
+<circle cx="180.5" cy="73.7" r="3" fill="#1f6fb2"/>
+<rect x="914" y="32" width="14" height="10" fill="#1f6fb2"/><text x="934" y="41" font-family="sans-serif" font-size="11">fitted detector, 4 km/h</text>
+</svg>

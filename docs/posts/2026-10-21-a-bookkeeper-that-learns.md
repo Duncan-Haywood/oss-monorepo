@@ -103,6 +103,18 @@ customer whose tone steps up with the oldest invoice's lateness: friendly under
 invoices only; the 15- and 45-day steps are common practice, not a measured
 optimum.
 
+## Checking the tax tables against the source
+
+The estimated-tax plan used 2025 brackets typed from memory. This week I read
+the IRS's own Rev. Proc. 2024-40 and compared every bracket and the 20% pass-through
+(QBI) thresholds: all agree. One thing looked wrong and was not: the Rev. Proc.
+lists 2025 standard deductions of $15,000 (single) and $30,000 (joint), but the
+2025 law raised them to $15,750 and $31,500, and the Form 1040 instructions say
+so. The code already used the newer numbers, and a test now pins them. The 24%
+backup-withholding rate for payees with no TIN also traces to the statute
+(IRC 3406: the fourth-lowest rate, 24%). The $400 minimum QBI deduction is still
+unverified. Estimates only, not tax advice.
+
 ## What is next
 
 Real bank exports as test fixtures,

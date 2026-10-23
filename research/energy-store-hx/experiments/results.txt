@@ -1,0 +1,42 @@
+# Sand-discharger power block (upper anchor, converts heat to electricity): 725 EUR/kW
+# Annualised exchanger cost per kWh at 100 EUR/kW, 2000 h: 0.00322 EUR/kWh
+
+# House, weekly: break-even exchanger price, EUR per kW of peak discharge (negative: store loses even at 0)
+year  table(3.6)  hdd@35  hdd@45  hdd@55
+2015         137         139         211         307
+2016         165         170         241         335
+2017         168         182         274         397
+2018        -344        -340        -242        -113
+2019          15          31         123         246
+
+# House, daily: break-even exchanger price, EUR per kW of peak discharge (negative: store loses even at 0)
+year  table(3.6)  hdd@35  hdd@45  hdd@55
+2015         792         793         865         962
+2016         825         830         901         995
+2017         781         795         887        1010
+2018         358         363         460         590
+2019         612         627         720         843
+
+# Weekly house, 45 C sink: break-even exchanger price at 1000 and 500 full-load hours (peak 10 and 20 kW)
+year  flh2000  flh1000  flh500
+2015      211      105       53
+2016      241      120       60
+2017      274      137       68
+2018     -242     -121      -61
+2019      123       62       31
+
+# Weekly house, 45 C sink: store-capex multiplier at which the verdict flips, by exchanger price (EUR/kW)
+year  hx0  hx25  hx50  hx100  hx200
+2015   1.25   1.22   1.19   1.13   1.01
+2016   1.29   1.26   1.23   1.17   1.05
+2017   1.33   1.30   1.27   1.21   1.09
+2018   0.71   0.68   0.65   0.59   0.47
+2019   1.15   1.12   1.09   1.03   0.91
+
+# Daily house, 45 C sink: same
+year  hx0  hx25  hx50  hx100  hx200
+2015   3.64   3.56   3.49   3.33   3.03
+2016   3.75   3.67   3.59   3.44   3.14
+2017   3.70   3.63   3.55   3.40   3.09
+2018   2.40   2.33   2.25   2.10   1.79
+2019   3.19   3.12   3.04   2.89   2.58

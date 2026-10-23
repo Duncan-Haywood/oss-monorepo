@@ -160,6 +160,27 @@ class Branches(unittest.TestCase):
             with mock.patch.object(archive, "ready", return_value=[{"name": "a", "ok": True, "detail": "d"}]):
                 self.assertEqual(archive.main(["--upstream", str(self.upstream), "ready"]), 0)
 
+    def test_git_failure_raises_unless_check_is_off(self):
+        with self.assertRaises(archive.ArchiveError):
+            archive.git(self.here, "rev-parse", "--verify", "no-such-ref")
+        self.assertEqual(archive.git(self.here, "rev-parse", "--verify", "no-such-ref", check=False), "")
+
+    def test_branches_command_says_when_the_bundle_keeps_the_rest(self):
+        cwd = os.getcwd()
+        self.addCleanup(os.chdir, cwd)
+        os.chdir(self.here)
+        with mock.patch.object(archive, "archive_branches",
+                               return_value=({"a": "1" * 40, "b": "2" * 40}, {"b": "2" * 40})), \
+                mock.patch("builtins.print") as out:
+            self.assertEqual(archive.main(["--upstream", str(self.upstream), "branches"]), 0)
+        self.assertIn("1 of 2 archive refs are branches here; `bundle` keeps the rest", out.call_args.args[0])
+
+    def test_ready_without_a_token_fails_the_pull_request_check(self):
+        checks = archive.ready(self.here, str(self.upstream), "origin", None, None)
+        prs = next(c for c in checks if c["name"] == "pull requests and issues")
+        self.assertFalse(prs["ok"])
+        self.assertIn("not checked", prs["detail"])
+
     def test_dump_keeps_non_ascii_readable(self):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "sub" / "x.json"
@@ -205,6 +226,17 @@ class Export(unittest.TestCase):
         self.assertEqual([c["body"] for c in pulls[0]["comments"]], ["one", "two"])
         self.assertEqual([c["body"] for c in pulls[0]["reviewThreads"][0]["comments"]], ["c1", "c2"])
         self.assertNotIn("id", pulls[0], "GraphQL node ids are dropped from the export")
+
+    def test_issues_use_the_issue_fields(self):
+        issue = {"id": "I1", "number": 7, "stateReason": "COMPLETED", "comments": conn([])}
+        api = FakeAPI({"issues": {None: conn([issue])}})
+        self.assertEqual([i["number"] for i in archive.fetch_all(api, "issues")], [7])
+        query = api.calls[0][0]
+        self.assertIn("stateReason", query)
+        self.assertNotIn("reviewThreads", query)
+        archive.fetch_all(api2 := FakeAPI({"pullRequests": {None: conn([])}}), "pullRequests")
+        self.assertIn("reviewThreads", api2.calls[0][0])
+        self.assertNotIn("stateReason", api2.calls[0][0])
 
     def test_write_export_and_index(self):
         with tempfile.TemporaryDirectory() as tmp:

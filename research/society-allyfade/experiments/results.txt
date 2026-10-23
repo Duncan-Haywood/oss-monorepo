@@ -1,0 +1,39 @@
+society-allyfade results. N=200, 4000 rounds, 12 seeds per cell, eps=0.02, M=9. Cells show how many of the seeds end tipped (a majority of humans on L) after the allies have faded.
+
+== sl=0.2 allies fade at rate c per round; sr=0.0
+mean-field rho_c with allies kept: 0.0234; with no allies (sl=0, sr=0.0 kept): 0.2165
+c       rho=0.0   rho=0.02  rho=0.05  rho=0.1   rho=0.15  rho=0.2    stubborn left (rho=0.05)
+0.0      0/12     12/12     12/12     12/12     12/12     12/12       38.0
+0.001    0/12      0/12     10/12     12/12     12/12     12/12       0.7
+0.003    0/12      0/12      5/12     12/12     12/12     12/12       0.0
+0.01     0/12      0/12      0/12     10/12     12/12     12/12       0.0
+0.03     0/12      0/12      0/12      0/12     10/12     12/12       0.0
+0.1      0/12      0/12      0/12      0/12      0/12      7/12       0.0
+
+== sl=0.2 allies fade at rate c per round; sr=0.1 (holdouts never fade)
+mean-field rho_c with allies kept: 0.0403; with no allies (sl=0, sr=0.1 kept): 0.2270
+c       rho=0.0   rho=0.02  rho=0.05  rho=0.1   rho=0.15  rho=0.2    stubborn left (rho=0.05)
+0.0      0/12      0/12     12/12     12/12     12/12     12/12       57.0
+0.001    0/12      0/12      3/12     12/12     12/12     12/12       19.3
+0.003    0/12      0/12      0/12     12/12     12/12     12/12       19.0
+0.01     0/12      0/12      0/12      7/12     12/12     12/12       19.0
+0.03     0/12      0/12      0/12      0/12      7/12     12/12       19.0
+0.1      0/12      0/12      0/12      0/12      0/12      2/12       19.0
+
+== sl=0.2 allies fade at rate c per round; sr=0.1 (holdouts fade at the same rate)
+mean-field rho_c with allies kept: 0.0403; with no allies (sl=0, sr=0.1 kept): 0.2270
+c       rho=0.0   rho=0.02  rho=0.05  rho=0.1   rho=0.15  rho=0.2    stubborn left (rho=0.05)
+0.0      0/12      0/12     12/12     12/12     12/12     12/12       57.0
+0.001    0/12      0/12      5/12     12/12     12/12     12/12       0.9
+0.003    0/12      0/12      0/12     12/12     12/12     12/12       0.0
+0.01     0/12      0/12      0/12      7/12     12/12     12/12       0.0
+0.03     0/12      0/12      0/12      0/12     10/12     12/12       0.0
+0.1      0/12      0/12      0/12      0/12      0/12      8/12       0.0
+
+== When does the tip happen? Median round of first majority among tipped seeds (sl=0.2, sr=0, rho=0.05)
+c=0.0    first majority round (median of 12): 54; tipped at end 12/12
+c=0.001  first majority round (median of 10): 53; tipped at end 10/12
+c=0.003  first majority round (median of 5): 41; tipped at end 5/12
+c=0.01   first majority round (median of 0): -; tipped at end 0/12
+c=0.03   first majority round (median of 0): -; tipped at end 0/12
+c=0.1    first majority round (median of 0): -; tipped at end 0/12

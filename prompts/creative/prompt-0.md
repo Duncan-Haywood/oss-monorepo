@@ -68,6 +68,12 @@ Any of these counts as the run's deliverable:
   the ones the guides name (public-domain or permissively licensed data).
 - **No per-listener cost.** Audio is rendered offline in the session; no
   paid API.
+- **Voicing.** Setup for a podcast episode is in the docstring of
+  `platform/pages/podcast_tts.py`, for a story in `render_audio.py`. Keep a
+  podcast `description` to 160 characters (`podcast.mjs` rejects more only
+  after the voicing). Cloud sessions often cannot reach huggingface.co, so
+  the voice cannot download; then land the text and pages without audio
+  and say so in `deviations`.
 
 ## Audio size: check before you commit an MP3
 

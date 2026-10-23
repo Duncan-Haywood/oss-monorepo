@@ -1,5 +1,6 @@
 // Clicks the page through in a real browser: sheathing on, then "long side along the wall".
 // `node eval-browser-click.mjs`; skips with exit 0 when Playwright or a Chromium is missing.
+// Finds playwright on the import path, PLAYWRIGHT_PATH (file or package dir), or /opt/node-tools.
 import { createServer } from "node:http";
 import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
@@ -7,9 +8,17 @@ import { extname, join } from "node:path";
 
 const root = fileURLToPath(new URL(".", import.meta.url));
 let chromium;
-try { ({ chromium } = await import("playwright")); } catch {
-  try { const m = await import(process.env.PLAYWRIGHT_PATH || "playwright-core"); chromium = (m.default ?? m).chromium; } catch { console.log("skipped: playwright not installed"); process.exit(0); }
+const { existsSync, statSync } = await import("node:fs");
+// playwright is not on the default import path in cloud containers; try the
+// env override (a file or a package directory) and the known container path.
+const candidates = ["playwright", process.env.PLAYWRIGHT_PATH, "/opt/node-tools/node_modules/playwright", "playwright-core"].filter(Boolean).map((c) => {
+  if (!c.startsWith("/") || !existsSync(c)) return c;
+  return statSync(c).isDirectory() ? join(c, "index.mjs") : c;
+});
+for (const c of candidates) {
+  try { const m = await import(c.startsWith("/") ? "file://" + c : c); chromium = (m.default ?? m).chromium; if (chromium) break; } catch {}
 }
+if (!chromium) { console.log("skipped: playwright not installed"); process.exit(0); }
 const types = { ".html": "text/html", ".mjs": "text/javascript" };
 const server = createServer(async (req, res) => {
   try {
@@ -71,9 +80,12 @@ console.log("ok: wing at 3:12 on a 4:12 roof");
 await page.selectOption("#rfWing2", "1");
 await page.fill("#rfWing2W", "14 ft"); await page.fill("#rfWing2P", "10 ft");
 await page.waitForFunction(() => /Cross wing/i.test(document.querySelector("#roofOut")?.textContent || "") && !document.querySelector("#errors")?.textContent);
+let backingOk = true;
 const wing2Txt = await page.textContent("#roofOut");
 const wing2Ok = !/NaN|undefined/.test(wing2Txt) && (await page.isHidden("#rfWing2W") === false);
 console.log(wing2Ok ? "ok: second wing on the left" : "FAIL: second wing card: " + wing2Txt.slice(0, 300));
+await page.selectOption("#rfValleyBacking", "1");
+await page.waitForFunction(() => /valley backing/i.test(document.querySelector("#roofOut")?.textContent || ""), null, { timeout: 5000 }).then(() => console.log("ok: valley backing listed"), () => { backingOk = false; console.log("FAIL: valley backing not in the roof card"); });
 await page.selectOption("#rfShape", "hip");
 const wingHidden = await page.isHidden("#rfWingW") && await page.isHidden("#rfWing2W");
 console.log(wingHidden ? "ok: wing fields hidden on a hip roof" : "FAIL: wing fields shown on a hip roof");
@@ -89,6 +101,21 @@ await page.fill("#flOpen", "100 in, 40 in, 36 in, 100 in; 100 in, 100 in, 36 in,
 await page.click("#run");
 await page.waitForFunction(() => /too close/.test(document.body.textContent));
 console.log("ok: overlapping stairwells refused on the page");
+await page.uncheck("#flOn");
+await page.uncheck("#sheathH");
+await page.uncheck("#sheath");
+await page.fill("#panelMax", "");
+await page.fill('[aria-label="Wall 1 gable pitch"]', "6");
+await page.fill('[aria-label="Wall 1 gable peak position"]', "6 ft");
+await page.click("#run");
+await page.waitForFunction(() => /gable/i.test(document.body.textContent) && !document.querySelector("#errors")?.textContent, null, { timeout: 90000 });
+const gableOk = !/NaN|undefined/.test(await page.textContent("#results").catch(() => ""));
+console.log(gableOk ? "ok: gable wall (6:12, peak 6 ft) frames from the page" : "FAIL: gable wall");
+await page.fill('[aria-label="Wall 1 gable pitch"]', "40");
+await page.click("#run");
+await page.waitForFunction(() => /gable pitch/.test(document.body.textContent), null, { timeout: 90000 });
+console.log("ok: bad gable pitch refused on the page");
+await page.fill('[aria-label="Wall 1 gable pitch"]', "");
 console.log("page errors:", errors.length);
 await browser.close(); server.close();
-process.exit(errors.length || !panelsOk || !roofOk || !hipOk || !wingOk || !wing2Ok || !wingHidden || !floorOk || horizontal.includes("CHECK FAILED") ? 1 : 0);
+process.exit(errors.length || !panelsOk || !roofOk || !hipOk || !wingOk || !wing2Ok || !backingOk || !wingHidden || !floorOk || !gableOk || horizontal.includes("CHECK FAILED") ? 1 : 0);

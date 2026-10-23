@@ -10,6 +10,7 @@
 import { mileageDeduction, homeOfficeDeduction } from "./deductions.mjs";
 import { journal } from "./engine.mjs";
 import { payeeKey } from "./categorize.mjs";
+import { nextBusinessDay } from "./salestaxreturn.mjs";
 import { accountMap, profitAndLoss } from "./ledger.mjs";
 
 // Line labels are the form's own wording, shortened. "27a" is "Other expenses",
@@ -133,6 +134,30 @@ export function necDeadline(year) {
   while (d.getUTCDay() === 0 || d.getUTCDay() === 6) d.setUTCDate(d.getUTCDate() + 1);
   return d.toISOString().slice(0, 10);
 }
+
+// Dates for a CP2100 / CP2100A notice (IRS "Backup withholding B program" and
+// "Understanding your CP2100 or CP2100A Notice" pages, found by web search
+// 2026-10-23; Pub. 1281 itself was not reachable that run). The payer mails the
+// First B Notice (with a blank W-9) within 15 business days of the notice date
+// or the day it arrived, whichever is later; the Second B Notice (a second
+// CP2100 within three years, no W-9 enclosed, the payee must get a Letter 147C
+// or SSA proof from the IRS/SSA) goes out in the same window; and if the payee
+// has not answered, backup withholding of 24% starts on later payments no
+// later than 30 business days after. Business days skip weekends and observed
+// federal holidays (`usHolidays`). Worksheet dates, not legal advice.
+export function bNoticeDates(noticeDate, { received = null, second = false } = {}) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(noticeDate ?? "")) throw new Error("noticeDate must be YYYY-MM-DD");
+  const base = received && received > noticeDate ? received : noticeDate;
+  const add = (n) => { let d = base; for (let i = 0; i < n; i++) { const t = new Date(`${d}T00:00:00Z`); t.setUTCDate(t.getUTCDate() + 1); d = nextBusinessDay(t.toISOString().slice(0, 10)); } return d; };
+  return {
+    base, second,
+    mailBNoticeBy: add(15),
+    startWithholdingBy: add(30),
+    enclose: second ? "no W-9: the payee must give you a Letter 147C (EIN) or an SSA proof of the number (SSN)" : "a blank Form W-9",
+    rate: BACKUP_WITHHOLDING_RATE,
+    note: "If the payee returns a signed W-9 before the withholding date, stop the process and do not withhold; otherwise withhold 24% of later reportable payments, report it in box 4 of the 1099-NEC and on Form 945.",
+  };
+}
 const CONTRACT_CODES = ["6020"];
 
 // contractors1099(books, { year, threshold, codes }) ->
@@ -172,11 +197,11 @@ export function contractors1099(books, { year, threshold, codes = CONTRACT_CODES
   if (payees.some((p) => p.cardCents)) warnings.push("Some contract labor was paid by card; the card processor reports those on a 1099-K, so they are left out of the totals (shown as card).");
   const pending = (books.transactions ?? []).filter((t) => t.date?.startsWith(String(year)) && (t.status === "review" || t.status === "new")).length;
   if (pending) warnings.push(`${pending} bank line${pending === 1 ? " is" : "s are"} from ${year} and still waiting for an account; one may be a contractor payment.`);
-  // Backup withholding: a payer that has no TIN for a payee must withhold 24% of
+  // Backup withholding (IRC 3406(a)(1), read 2026-10-23: the fourth lowest section 1(c) rate = 24%): a payer that has no TIN for a payee must withhold 24% of
   // reportable payments (IRC 3406; reported on Form 945). Shown as an exposure
   // estimate on payments already made, not as an amount that was withheld.
   const backupWithholdingCents = missingW9.reduce((a, p) => a + Math.round(p.cents * BACKUP_WITHHOLDING_RATE), 0);
-  if (missingW9.length) warnings.push(`${missingW9.length} payee${missingW9.length === 1 ? "" : "s"} over the line ${missingW9.length === 1 ? "has" : "have"} no W-9 on file. Ask before you file, ahead of ${necDeadline(year)}. Without a TIN, backup withholding of 24% (${(backupWithholdingCents / 100).toFixed(2)} on what was paid so far) applies to further payments.`);
+  if (missingW9.length) warnings.push(`${missingW9.length} payee${missingW9.length === 1 ? "" : "s"} over the line ${missingW9.length === 1 ? "has" : "have"} no W-9 on file. Ask before you file, ahead of ${necDeadline(year)}. Without a TIN, backup withholding of 24% (${(backupWithholdingCents / 100).toFixed(2)} on what was paid so far) applies to further payments, starting at once: IRS Pub. 1281 says non-employee compensation is subject to it even if the payee says a TIN is applied for (the 60-day grace is for interest and dividends only); whatever you do withhold goes in box 4 of the 1099-NEC (which is then required whatever the amount) and on Form 945, line 2, deposited by EFT.`);
   if (year >= 2027 && threshold === NEC_THRESHOLD(year)) warnings.push(`From 2027 the $2,000 line is indexed to inflation; ${year}'s may be higher. Check the IRS instructions or pass a threshold.`);
   if (!payees.length) warnings.push(`No contract labor paid by bank in ${year}.`);
   return { year, threshold, payees, reportable, missingW9, backupWithholdingCents, warnings };
@@ -247,7 +272,7 @@ export const SS_WAGE_BASE = { 2024: 16860000, 2025: 17610000, 2026: 18450000 };
 export function selfEmployment(profitCents, { year = new Date().getFullYear(), wageBase, wages = 0 } = {}) {
   const warnings = [];
   const base = wageBase ?? SS_WAGE_BASE[year];
-  if (wageBase === undefined) warnings.push(base === undefined ? `No wage base on file for ${year}; pass wageBase.` : `The ${year} social security wage base is from memory and unchecked; confirm it on ssa.gov or pass wageBase.`);
+  if (wageBase === undefined) warnings.push(base === undefined ? `No wage base on file for ${year}; pass wageBase.` : (year === 2025 || year === 2026) ? `The ${year} social security wage base ($${(base / 100).toLocaleString("en-US")}) matches published reports of the SSA announcement (compared 2026-10-23), not the SSA page itself; unchecked there, so confirm it on ssa.gov or pass wageBase.` : `The ${year} social security wage base is from memory and unchecked; confirm it on ssa.gov or pass wageBase.`);
   const limit = base ?? Infinity;
   if (profitCents <= 0) return { year, profit: profitCents, netEarnings: 0, socialSecurity: 0, medicare: 0, tax: 0, deduction: 0, warnings: [...warnings, "No profit, so no self-employment tax."] };
   const netEarnings = Math.round(profitCents * 0.9235);

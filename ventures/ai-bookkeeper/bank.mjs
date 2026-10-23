@@ -12,8 +12,8 @@ const ALIASES = {
     // German, French, Spanish, Italian, Dutch headers
     "datum", "buchungstag", "buchungsdatum", "valuta", "wertstellung", "date de l'opération", "date opération", "date operation", "fecha", "fecha operación", "fecha valor", "data", "data operazione", "data contabile", "data valuta", "boekdatum", "transactiedatum"],
   desc: ["description", "transaction description", "payee", "merchant", "name", "details", "original description", "memo", "narrative", "counter party", "counterparty", "narration", "reference", "partner name", "note",
-    "beschreibung", "verwendungszweck", "buchungstext", "beguenstigter/zahlungspflichtiger", "begünstigter/zahlungspflichtiger", "libellé", "libelle", "descripción", "descripcion", "concepto", "descrizione", "causale", "omschrijving", "naam / omschrijving"],
-  amount: ["amount", "amount (total)", "transaction amount", "amt", "value", "amount (usd)", "amount ($)", "amount (gbp)", "amount (eur)", "cad$", "betrag", "betrag (eur)", "montant", "importe", "importo", "bedrag", "net"],
+    "beschreibung", "verwendungszweck", "buchungstext", "beguenstigter/zahlungspflichtiger", "begünstigter/zahlungspflichtiger", "libellé", "libelle", "descripción", "descripcion", "concepto", "descrizione", "causale", "omschrijving", "naam / omschrijving", "paaiškinimai"],
+  amount: ["amount", "amount (total)", "transaction amount", "amt", "value", "amount (usd)", "amount ($)", "amount (gbp)", "amount (eur)", "cad$", "betrag", "betrag (eur)", "montant", "importe", "importo", "bedrag", "net", "suma"],
   debit: ["debit", "debits", "withdrawal", "withdrawals", "withdrawal amt.", "withdrawal amt", "withdrawal amount", "withdrawal (-)", "withdrawals (-)", "debit (-)", "money out", "paid out", "amount debit", "debit amount", "debit amount (positive)", "outflow", "soll", "débit", "debit (eur)", "cargo", "dare", "uscite"],
   credit: ["credit", "credits", "deposit", "deposits", "deposit amt.", "deposit amt", "deposit amount", "deposit (+)", "deposits (+)", "credit (+)", "money in", "paid in", "amount credit", "credit amount", "credit amount (positive)", "inflow", "haben", "crédit", "credito", "crédito", "abono", "avere", "entrate"],
   balance: ["balance", "running balance", "runningbalance", "running bal.", "ledger balance", "closing balance", "balance (gbp)", "balance (eur)", "balance (usd)", "saldo", "kontostand", "solde", "saldo (eur)"],
@@ -77,7 +77,7 @@ export function parseDate(v, dayFirst = false) {
   const s = String(v ?? "").trim().replace(/^(?:mon|tue|wed|thu|fri|sat|sun)[a-z]*\.?,?\s+/i, "").replace(/^(\d{1,2})(?:st|nd|rd|th)\b/i, "$1").replace(/^(\d{1,2})([A-Za-z]{3})(\d{2,4})\b/, "$1 $2 $3");
   let y, m, d, x;
   if ((x = s.match(/^(\d{4})(\d{2})(\d{2})(?!\d)/))) [y, m, d] = [+x[1], +x[2], +x[3]];
-  else if ((x = s.match(/^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})/))) [y, m, d] = [+x[1], +x[2], +x[3]];
+  else if ((x = s.match(/^(\d{4})[-/.:](\d{1,2})[-/.:](\d{1,2})/))) [y, m, d] = [+x[1], +x[2], +x[3]];
   else if ((x = s.match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{2,4})/))) {
     [m, d] = dayFirst ? [+x[2], +x[1]] : [+x[1], +x[2]];
     y = +x[3] < 100 ? 2000 + +x[3] : +x[3];
@@ -129,7 +129,87 @@ function headerlessLayout(rows) {
     return { bank: sample[0].length === 4 ? "cba" : "anz", columns: { date: 0, amount: 1, desc: 2, balance: sample[0].length === 4 ? 3 : -1, debit: -1, credit: -1 }, dayFirst: true };
   if (sample.every((r) => r.length === 5 && /^\d{1,2}\/\d{1,2}\/\d{4}$/.test(r[0].trim()) && parseDate(r[0]) && r[1].trim() && !AMT.test(r[1].trim()) && ((r[2].trim() === "") !== (r[3].trim() === "")) && AMT.test((r[2].trim() || r[3].trim())) && AMT.test(r[4].trim())))
     return { bank: "td", columns: { date: 0, desc: 1, debit: 2, credit: 3, balance: 4, amount: -1 }, dayFirst: false };
-  return null;
+  return inferHeaderless(rows);
+}
+
+// Any other file with no header row: find the columns from the cells. The date
+// column parses as dates in every row, the amount is a numeric column (or a
+// money-out / money-in pair with one cell filled per row), a balance is the
+// numeric column that chains with the amounts, a D/C or Af/Bij flag signs an
+// unsigned amount, and the description is the longest text column. The first
+// row must be data, so a file with a header is never read this way.
+// Layouts: the 17 header-less ones in bank2ynab's config (eval/bank2ynab-probe.mjs).
+const NUMCELL = /^[-+]?[$€£]?\(?[\d.,' ]*\d\)?-?$/;
+const FLAG = /^(d|c|dr|cr|debit|credit|debet|af|bij)$/i;
+function inferHeaderless(rows) {
+  const body = rows.filter((r) => r.some((c) => String(c ?? "").trim())).slice(0, 30);
+  if (body.length < 2 || body[0].length < 3) return null;
+  const width = Math.max(...body.map((r) => r.length));
+  const cell = (r, i) => String(r[i] ?? "").trim();
+  const col = (i) => body.map((r) => cell(r, i));
+  const isDate = (v) => { if (/^\d{8}$/.test(v)) { const d = parseDate(v); return !!d && +d.slice(0, 4) > 1990 && +d.slice(0, 4) < 2100; } return /^\d{1,4}[-/. :]\d|^\d{1,2}[ -][A-Za-z]{3}/.test(v) && (!!parseDate(v, true) || !!parseDate(v, false)); };
+  const dateCol = Array.from({ length: width }, (_, i) => i).find((i) => { const c = col(i); return isDate(c[0]) && c.filter(isDate).length >= 0.9 * c.length; });
+  if (dateCol === undefined) return null;
+  const money = (v) => NUMCELL.test(v) && /[.,]\d{1,2}\)?-?$/.test(v);
+  const fill = (c) => c.filter(Boolean).length / c.length;
+  const numeric = []; const flags = []; const texts = [];
+  for (let i = 0; i < width; i++) {
+    if (i === dateCol) continue;
+    const c = col(i), ne = c.filter(Boolean);
+    if (!ne.length) continue;
+    if (ne.every(money)) numeric.push(i);
+    else if (fill(c) >= 0.9 && ne.every((v) => FLAG.test(v))) flags.push(i);
+    else if (fill(c) >= 0.5 && !ne.every((v) => NUMCELL.test(v))) texts.push(i);
+  }
+  if (!texts.length) return null;
+  const all = numeric.flatMap((i) => col(i));
+  const comma = all.some((v) => /,\d{1,2}\)?-?$/.test(v)) && !all.some((v) => /\.\d{1,2}\)?-?$/.test(v));
+  const cents = (v) => { const x = parseCents(v, comma); return Number.isFinite(x) ? x : 0; };
+  const full = numeric.filter((i) => fill(col(i)) >= 0.9), sparse = numeric.filter((i) => fill(col(i)) < 0.9);
+  // Does the balance column move by the amounts, whichever way the file is sorted?
+  const chains = (amt, bal) => { if (amt.length < 2) return false; const up = amt.every((a, i) => i === 0 || bal[i] - bal[i - 1] === a), down = amt.every((a, i) => i === 0 || bal[i - 1] - bal[i] === a); return up || down; };
+  const columns = { date: dateCol, amount: -1, debit: -1, credit: -1, balance: -1, desc: -1 };
+  let note = null;
+  const bodyCents = (i) => col(i).map(cents);
+  if (sparse.length >= 2 && sparse.length + full.length <= 3) {
+    const [a, b] = sparse.slice(0, 2), ca = col(a), cb = col(b);
+    if (ca.every((v, k) => Boolean(v) !== Boolean(cb[k]))) {
+      const bal = full.length === 1 ? bodyCents(full[0]) : null;
+      const aOut = ca.map((v) => (v ? -Math.abs(cents(v)) : 0)), bIn = cb.map((v) => (v ? Math.abs(cents(v)) : 0));
+      const aIn = ca.map((v) => (v ? Math.abs(cents(v)) : 0)), bOut = cb.map((v) => (v ? -Math.abs(cents(v)) : 0));
+      const firstOut = aOut.map((x, k) => x + bIn[k]), firstIn = aIn.map((x, k) => x + bOut[k]);
+      const signed = ca.concat(cb).some((v) => /^\(|^-|-$/.test(v));
+      let outFirst = true;
+      if (bal && chains(firstOut, bal)) outFirst = true;
+      else if (bal && chains(firstIn, bal)) outFirst = false;
+      else if (!signed) note = "Money-out and money-in columns are not labelled; the first was read as money out. Check the signs against the statement.";
+      if (signed) { columns.debit = b; columns.credit = a; }
+      else { columns.debit = outFirst ? a : b; columns.credit = outFirst ? b : a; }
+      if (bal) columns.balance = full[0];
+    }
+  }
+  if (columns.debit === -1) {
+    if (!full.length) return null;
+    if (full.length === 1) columns.amount = full[0];
+    else {
+      let found = false;
+      for (const a of full) for (const b of full) if (!found && a !== b && chains(bodyCents(a), bodyCents(b))) { columns.amount = a; columns.balance = b; found = true; }
+      if (!found) columns.amount = full[0];
+    }
+  }
+  const amountCol = columns.amount;
+  const drcr = amountCol !== -1 && flags.length === 1 && !col(amountCol).some((v) => /^\(|^-|-$/.test(v)) ? flags[0] : -1;
+  columns.desc = texts.reduce((best, i) => (col(i).reduce((n, v) => n + v.length, 0) > col(best).reduce((n, v) => n + v.length, 0) ? i : best), texts[0]);
+  // Day or month first, from any date with a part above 12; a dot separator reads as European.
+  let dayFirst = false, decided = false;
+  for (const v of col(dateCol)) {
+    const m = v.match(/^(\d{1,2})[-/.](\d{1,2})[-/.]\d{2,4}/);
+    if (!m) { if (/^\d{1,2}[ -][A-Za-z]/.test(v)) { dayFirst = true; decided = true; } continue; }
+    if (+m[1] > 12) { dayFirst = true; decided = true; break; }
+    if (+m[2] > 12) { dayFirst = false; decided = true; break; }
+  }
+  if (!decided && col(dateCol).some((v) => /^\d{1,2}\.\d{1,2}\.\d/.test(v))) dayFirst = true;
+  return { bank: null, columns, dayFirst, drcr, note };
 }
 
 // Which export this is, from its header or shape alone. Informational; the
@@ -208,8 +288,8 @@ function ofxDate(v) {
 }
 
 function ofxTag(block, tag) {
-  const m = new RegExp(`<${tag}>([^<\\r\\n]*)`, "i").exec(block);
-  return m ? m[1].trim().replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&apos;|&#0?39;/g, "'").replace(/&#0?38;/g, "&").replace(/&amp;/g, "&") : "";
+  const m = new RegExp(`<${tag}>(?:\\s*<!\\[CDATA\\[([\\s\\S]*?)\\]\\]>|([^<\\r\\n]*))`, "i").exec(block);
+  return m ? (m[1] ?? m[2]).trim().replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&apos;|&#0?39;/g, "'").replace(/&#0?38;/g, "&").replace(/&amp;/g, "&") : "";
 }
 
 // A file from a bank with several accounts (or a card beside a checking
@@ -245,7 +325,10 @@ export function readOfx(text) {
     if (!date) { problems.push(`Transaction ${i + 1}: unreadable date, skipped.`); return; }
     if (!Number.isFinite(cents) || !/\d/.test(ofxTag(b, "TRNAMT"))) { problems.push(`Transaction ${i + 1}: unreadable amount, skipped.`); return; }
     if (cents === 0) return;
-    const desc = [ofxTag(b, "NAME") || ofxTag(b, "PAYEE"), ofxTag(b, "MEMO")].filter(Boolean).filter((x, j, a) => a.indexOf(x) === j).join(" ").replace(/\s+/g, " ");
+    // A memo that starts with the name (many banks repeat it, then add detail) is the fuller text on its own.
+    const name = (ofxTag(b, "NAME") || ofxTag(b, "PAYEE")).replace(/\s+/g, " ");
+    const memo = ofxTag(b, "MEMO").replace(/\s+/g, " ");
+    const desc = (memo.toLowerCase().startsWith(name.toLowerCase()) ? memo : [name, memo].filter(Boolean).filter((x, j, a) => a.indexOf(x) === j).join(" "));
     out.push({ line: i + 1, date, desc, cents, balance: null });
   });
   const lb = /<LEDGERBAL>[\s\S]*?<BALAMT>\s*([-+]?[\d.,]+)/i.exec(text);
@@ -254,7 +337,13 @@ export function readOfx(text) {
     const bal = parseCents(lb[1]);
     if (Number.isFinite(bal)) last.balance = bal;
   }
-  if (!blocks.length) problems.push("No transactions (STMTTRN) were found in the OFX file.");
+  if (!blocks.length) {
+    // A failed download saves an error reply as a .ofx file; an investment-only file holds positions, not cash lines.
+    const status = /<STATUS>\s*<CODE>\s*(\d+)\s*<SEVERITY>\s*ERROR\s*(?:<MESSAGE>([^<]*))?/i.exec(text);
+    if (status && status[1] !== "0") problems.push(`The OFX file is an error reply from the bank (code ${status[1]}${status[2] ? `: ${status[2].trim()}` : ""}), not a statement. Download it again.`);
+    else if (/<(INVPOSLIST|INVTRANLIST|INVSTMTRS)>/i.test(text)) problems.push("This OFX file is an investment statement (positions and trades) with no cash transactions; investment lines are not booked.");
+    else problems.push("No transactions (STMTTRN) were found in the OFX file.");
+  }
   let statement = null;
   if (lb) {
     const d = /<LEDGERBAL>[\s\S]*?<DTASOF>\s*(\d{4})(\d{2})(\d{2})/i.exec(text);
@@ -264,13 +353,38 @@ export function readOfx(text) {
   return { rows: out, problems, columns: null, bank: "ofx", inferred: null, statement };
 }
 
+// Quicken's multi-account export: an `!Account` block (N name, T type) opens
+// each account, followed by its `!Type:` section of transactions. -> [{ id,
+// type, text }], `id` the account name and each `text` a one-account QIF file,
+// or [] when the file names fewer than two accounts.
+export function splitQif(text) {
+  const parts = [];
+  let head = "", cur = null, inAcct = false;
+  for (const l of String(text ?? "").split(/\r?\n/)) {
+    if (/^!account\b/i.test(l.trim())) { cur = { id: "", type: "", body: [] }; parts.push(cur); inAcct = true; continue; }
+    if (l[0] === "!") inAcct = false;
+    if (inAcct && cur) {
+      if (l[0] === "N") cur.id = l.slice(1).trim();
+      else if (l[0] === "T") cur.type = l.slice(1).trim();
+      continue;
+    }
+    (cur ? cur.body : head ? [] : []).push(l);
+    if (!cur) head += l + "\n";
+  }
+  const named = parts.filter((p) => p.id);
+  if (named.length < 2) return [];
+  return named.map((p) => ({ id: p.id, type: p.type, text: head + p.body.join("\n") + "\n" }));
+}
+
 export function readQif(text, { dayFirst = false } = {}) {
   const problems = [];
   const out = [];
   let cur = {};
   let n = 0;
+  let inAccount = false; // an !Account block lists account names (N) and types (T), not transactions
+  let accounts = 0;
   const flush = (line) => {
-    if (cur.D === undefined && cur.T === undefined) { cur = {}; return; }
+    if (inAccount || (cur.D === undefined && cur.T === undefined)) { cur = {}; return; }
     n++;
     const date = parseDate(String(cur.D ?? "").replace(/'/g, "/").replace(/\s+/g, ""), dayFirst);
     const cents = parseCents(String(cur.T ?? cur.U ?? ""));
@@ -282,12 +396,17 @@ export function readQif(text, { dayFirst = false } = {}) {
   text.split(/\r?\n/).forEach((l, i) => {
     if (!l) return;
     const c = l[0];
-    if (c === "!") return;
+    if (c === "!") {
+      inAccount = /^!account\b/i.test(l.trim());
+      if (/^!type:/i.test(l.trim())) accounts++;
+      return;
+    }
     if (c === "^") return flush(i + 1);
     cur[c] = l.slice(1).trim();
   });
   if (Object.keys(cur).length) flush(text.split(/\r?\n/).length);
   if (!n) problems.push("No transactions were found in the QIF file.");
+  if (accounts > 1 && n) problems.push(`The QIF file has ${accounts} account sections; all rows were read into one account. Split the file per account to keep transfers apart.`);
   return { rows: out, problems, columns: null, bank: "qif", inferred: null };
 }
 
@@ -297,7 +416,7 @@ export function readQif(text, { dayFirst = false } = {}) {
 // flipped when its payments are negative (`inferred` says so).
 // Without dayFirst or decimalComma the CSV branch infers them from the cells
 // (inferLocale); passing either one, true or false, is never overridden.
-export function readStatement(text, { dayFirst, decimalComma, invert, year } = {}) {
+export function readStatement(text, { dayFirst, decimalComma, invert, year, onlyAccount } = {}) {
   text = String(text ?? "");
   const dfGiven = dayFirst !== undefined, dcGiven = decimalComma !== undefined;
   dayFirst = !!dayFirst; decimalComma = !!decimalComma;
@@ -320,7 +439,16 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year } = {
   const bank = sniffBank(rows);
   let headerAt = rows.findIndex((r) => { const c = detectColumns(r); return c.date !== -1 && (c.amount !== -1 || c.debit !== -1 || c.credit !== -1); });
   let columns, first;
+  // A header wider than every data row (Danske's Lithuanian export names 12 columns and writes 10):
+  // the header's positions are wrong, so drop it and find the columns from the cells.
+  let shortHeader = false;
+  if (headerAt !== -1) {
+    const hc = detectColumns(rows[headerAt]);
+    const body = rows.slice(headerAt + 1).filter((r) => String(r[hc.date] ?? "").trim());
+    if (body.length >= 2 && body.every((r) => r.length < rows[headerAt].length) && inferHeaderless(rows.slice(headerAt + 1))) { rows.splice(0, headerAt + 1); headerAt = -1; shortHeader = true; }
+  }
   const hl = headerAt === -1 ? headerlessLayout(rows) : null;
+  if (shortHeader) problems.push("The header names more columns than the rows have, so the columns were found from the cells instead. Check the signs and descriptions.");
   if (hl) { columns = hl.columns; first = 0; if (hl.dayFirst) dayFirst = true; }
   else if (headerAt === -1) return { rows: [], problems: ["No date and amount columns were found. Name them Date and Amount (or Debit and Credit)."], columns: null };
   else { columns = detectColumns(rows[headerAt]); first = headerAt + 1; }
@@ -333,7 +461,9 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year } = {
   }
   // A DR/CR (or Debit/Credit) marker column beside one unsigned amount column.
   const hdr0 = headerAt === -1 ? [] : rows[headerAt].map(norm);
-  let drcrCol = columns.amount !== -1 ? hdr0.findIndex((x) => /^(dr ?\/ ?cr|cr ?\/ ?dr|debit ?\/ ?credit|credit ?\/ ?debit|dr or cr|cr or dr|(?:credit ?\/? ?debit|debit ?\/? ?credit|cr ?\/? ?dr|dr ?\/? ?cr) indicator|(?:credit|debit) or (?:debit|credit) indicator)$/.test(x)) : -1;
+  let drcrCol = columns.amount !== -1 ? hdr0.findIndex((x) => /^(d ?\/ ?k|dr ?\/ ?cr|cr ?\/ ?dr|debit ?\/ ?credit|credit ?\/ ?debit|dr or cr|cr or dr|(?:credit ?\/? ?debit|debit ?\/? ?credit|cr ?\/? ?dr|dr ?\/? ?cr) indicator|(?:credit|debit) or (?:debit|credit) indicator)$/.test(x)) : -1;
+  if (hl?.drcr > -1) drcrCol = hl.drcr;
+  if (hl?.note) problems.push(hl.note);
   // Or a plain Type column holding DEBIT/CREDIT (Deposit/Withdrawal) words beside an
   // unsigned amount. Only when every value is in that vocabulary and no amount is
   // negative, so a card export's Sale/Return/Payment column is left alone.
@@ -370,14 +500,23 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year } = {
   const anyState = stateCol === -1 && columns.amount !== -1 ? hdr.findIndex((x) => x === "status" || x === "state" || x === "transaction status") : -1;
   const NOT_BOOKED = /^(pending|declined|failed|cancell?ed|reversed|reverted|voided|rejected|authori[sz]ed|authori[sz]ation|processing|in progress|on hold|returned)$/i;
   const feeCol = bank === "revolut" ? hdr.indexOf("fee") : -1;
-  const curCol = bank === "revolut" ? hdr.indexOf("currency") : -1;
+  // Any file with a currency column (Revolut, Swedbank's Valiuta, Wise and the like) is checked for a mix.
+  const curCol = hdr.findIndex((x) => /^(currency|valiuta|valuta|waluta|währung|wahrung|devise|moneda|divisa|moeda)( code)?$/.test(x));
   const currencies = new Set();
+  // Mint, Monarch, Tiller and YNAB write every account into one file and name the account on each row.
+  const acctCol = hdr.findIndex((x) => /^(account name|account|account nickname)$/.test(x));
+  const accountNames = new Set();
   for (let i = first; i < rows.length; i++) {
     const r = rows[i];
+    const acctName = acctCol === -1 ? "" : String(r[acctCol] ?? "").trim();
+    if (acctName && String(r[columns.date] ?? "").trim()) accountNames.add(acctName);
+    if (onlyAccount !== undefined && acctName !== onlyAccount) continue;
     if (bank === "venmo" && !String(r[columns.date] ?? "").trim()) continue;
     if (stateCol !== -1 && !okState.test(String(r[stateCol] ?? "").trim())) { problems.push(`Line ${i + 1}: state ${String(r[stateCol] ?? "").trim() || "blank"}, not a completed transaction, skipped.`); continue; }
     if (anyState !== -1 && NOT_BOOKED.test(String(r[anyState] ?? "").trim())) { problems.push(`Line ${i + 1}: status ${String(r[anyState]).trim()}, not a booked transaction, skipped.`); continue; }
     if (curCol !== -1 && String(r[curCol] ?? "").trim()) currencies.add(r[curCol].trim().toUpperCase());
+    if (/^(likutis (pradžiai|pabaigai)|opening balance|closing balance)$/i.test(String(r[columns.desc] ?? "").trim())) { problems.push(`Line ${i + 1}: a balance row, not a transaction, skipped.`); continue; }
+    if (headerAt !== -1 && r.length <= Math.max(columns.amount, columns.debit, columns.credit) && String(r[columns.date] ?? "").trim()) { problems.push(`Line ${i + 1}: the row has ${r.length} columns, fewer than the header, so the amount column is missing; skipped. Check the quoting in the file.`); continue; }
     const date = parseDate(r[columns.date], dayFirst);
     if (!date) { problems.push(`Line ${i + 1}: unreadable date "${r[columns.date] ?? ""}", skipped.`); continue; }
     let cents;
@@ -387,10 +526,15 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year } = {
     if (drcrCol !== -1) {
       const m = String(r[drcrCol] ?? "").trim().toLowerCase();
       if (/^(dr|d|debit|withdrawal)$/.test(m)) cents = -Math.abs(cents);
-      else if (/^(cr|c|credit|deposit)$/.test(m)) cents = Math.abs(cents);
+      else if (/^(cr|c|k|credit|deposit)$/.test(m)) cents = Math.abs(cents);
     }
     if (feeCol !== -1) { const fee = parseCents(r[feeCol], decimalComma); if (Number.isFinite(fee)) cents -= Math.abs(fee); }
-    if (cents === 0) continue;
+    if (cents === 0) {
+      // A zero is harmless, but a row with a description and every amount cell blank may be a lost transaction.
+      const blank = [columns.amount, columns.debit, columns.credit].filter((k) => k !== -1).every((k) => String(r[k] ?? "").trim() === "");
+      if (blank && String(r[columns.desc] ?? "").trim() && !/balance|saldo/i.test(String(r[columns.desc])) && !(columns.balance !== -1 && String(r[columns.balance] ?? "").trim())) problems.push(`Line ${i + 1}: no amount, skipped.`);
+      continue;
+    }
     const balance = columns.balance !== -1 && String(r[columns.balance] ?? "").trim() !== "" ? parseCents(r[columns.balance], decimalComma) : null;
     let desc = String(r[columns.desc] ?? "").trim().replace(/\s+/g, " ");
     if (bank === "cash-app") {
@@ -409,7 +553,7 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year } = {
     }
     out.push({ line: i + 1, date, desc, cents, balance: Number.isFinite(balance) ? balance : null });
   }
-  if (currencies.size > 1) problems.push(`The file mixes currencies (${[...currencies].join(", ")}). Revolut writes one file per currency account: import each on its own account.`);
+  if (currencies.size > 1) problems.push(`The file mixes currencies (${[...currencies].join(", ")}). Amounts are booked as written, with no conversion: import each currency on its own account.`);
   let inferred = null;
   let flip = !!invert;
   if (invert === undefined && out.every((r) => r.balance === null) && columns.amount !== -1) {
@@ -420,7 +564,7 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year } = {
   }
   if (flip) for (const r of out) r.cents = -r.cents;
   if (localeNote) inferred = [inferred, localeNote + " (inferred from the file; pass dayFirst / decimalComma to override)."].filter(Boolean).join(" ");
-  return { rows: out, problems, columns, bank, inferred };
+  return { rows: out, problems, columns, bank, inferred, ...(accountNames.size > 1 ? { accountNames: [...accountNames] } : {}) };
 }
 
 // Guess day-first dates and decimal commas from the data rows. Day first when a

@@ -58,6 +58,12 @@ const CATEGORY = {
   chargeback_fee: "fees", dispute_fee: "fees", chargeback_hold: "disputes", chargeback_hold_reversal: "disputes", dispute_withdrawal: "disputes", dispute_reversal_fee: "fees",
   subscription_payment: "sales", subscription: "sales", purchase: "sales", one_time_payment: "sales", renewal: "sales", tax_remittance: "fees", chargeback_reversed: "disputes",
   payout: "skip", payout_cancel: "skip", payout_failure: "skip", transfer: "skip",
+  // Stripe Connect, top-ups and financing (reporting categories in Stripe's balance report docs). A platform's
+  // cut is sales, its refunded cut a refund; balance movements that are not income (a top-up from the bank,
+  // a payout or transfer reversed, a cash advance and its repayment) go to the clearing account, never other income.
+  platform_earning: "sales", application_fee: "sales", platform_earning_refund: "refunds", application_fee_refund: "refunds",
+  topup: "reserve", topup_reversal: "reserve", payout_reversal: "reserve", transfer_reversal: "reserve",
+  advance: "reserve", advance_funding: "reserve", anticipation_repayment: "reserve", connect_collection_transfer: "reserve", connect_reserved_funds: "reserve",
 };
 
 // Read the report. -> { rows, payouts: [{ id, date, net, parts, rows }], pending, problems }

@@ -12,7 +12,7 @@
 // same input gives the same output in the page, the CLI and
 // platform/agents/tools.mjs.
 
-import { readStatement, splitOfx, sniffFormat, rowIds, checkRunningBalance, parseCents } from "./bank.mjs";
+import { readStatement, splitOfx, splitQif, sniffFormat, rowIds, checkRunningBalance, parseCents } from "./bank.mjs";
 import { DEFAULT_ACCOUNTS, accountMap, validateEntry, trialBalance, profitAndLoss, balanceSheet, cashFlow, balances, natural, fmt, dollars } from "./ledger.mjs";
 import { suggest, trainClassifier, buildMemory, parseRules, historyRecord, payeeKey } from "./categorize.mjs";
 import { addDocuments, writeOff, settle, aging, documentEntries, AR, AP } from "./accruals.mjs";
@@ -103,6 +103,13 @@ export function importStatement(booksIn, csv, account, opts = {}) {
   if (!acct) return { books, added: 0, skipped: 0, problems: [`No account ${account} in the chart of accounts.`], balanceCheck: null };
   const { rows, problems, inferred, statement } = readStatement(csv, opts);
   if (inferred) problems.push(inferred);
+  // A card file of purchases only (no payment row to read the sign from) lists every
+  // charge as a positive amount; a card statement with nothing but credits is rare.
+  if (opts.invert === undefined && !inferred && acct.type === "liability" && rows.length >= 2 && !statement &&
+      rows.every((r) => r.cents > 0 && r.balance === null)) {
+    for (const r of rows) r.cents = -r.cents;
+    problems.push("Every line was positive on a card account, so they were read as charges and the signs flipped (pass invert: false if they are refunds).");
+  }
   const ids = rowIds(rows, account, { loose: true }), oldIds = rowIds(rows, account);
   const have = new Set(books.transactions.map((t) => t.id));
   let added = 0, skipped = 0;
@@ -157,6 +164,43 @@ export function importOfxAccounts(booksIn, text, map, opts = {}) {
     books = r.books; added += r.added; skipped += r.skipped;
     problems.push(...r.problems.map((x) => (parts.length > 1 ? `Account ${p.id}: ${x}` : x)));
   });
+  return { books, added, skipped, problems, accounts };
+}
+
+// A QIF file with several `!Account` sections (Quicken): `map` sends each
+// account name to a chart code, as importOfxAccounts does for OFX ids.
+export function importQifAccounts(booksIn, text, map, opts = {}) {
+  const parts = sniffFormat(text) === "qif" ? splitQif(text) : [];
+  const accounts = parts.map((p) => ({ name: p.id, type: p.type, code: map?.[p.id] ?? null }));
+  let books = booksIn, added = 0, skipped = 0;
+  const problems = [];
+  if (!parts.length) problems.push("No QIF file with more than one named !Account section.");
+  parts.forEach((p, i) => {
+    const code = accounts[i].code;
+    if (!code) { problems.push(`Account "${p.id}" has no chart code in the map, left out.`); return; }
+    const r = importStatement(books, p.text, code, opts);
+    books = r.books; added += r.added; skipped += r.skipped;
+    problems.push(...r.problems.map((x) => `Account "${p.id}": ${x}`));
+  });
+  return { books, added, skipped, problems, accounts };
+}
+
+// A CSV whose rows name their account (Mint, Monarch, Tiller, YNAB exports):
+// `map` sends each name in the file's Account column to a chart code. Names
+// left out of the map are not imported and are listed in `problems`.
+// -> importStatement's result, summed, plus `accounts` ({ name, code }).
+export function importCsvAccounts(booksIn, csv, map, opts = {}) {
+  const names = readStatement(csv, opts).accountNames ?? [];
+  const accounts = names.map((name) => ({ name, code: map?.[name] ?? null }));
+  let books = booksIn, added = 0, skipped = 0;
+  const problems = [];
+  if (!names.length) problems.push("No Account column naming more than one account in this file.");
+  for (const a of accounts) {
+    if (!a.code) { problems.push(`Account "${a.name}" has no chart code in the map, left out.`); continue; }
+    const r = importStatement(books, csv, a.code, { ...opts, onlyAccount: a.name });
+    books = r.books; added += r.added; skipped += r.skipped;
+    problems.push(...r.problems.map((x) => `Account "${a.name}": ${x}`));
+  }
   return { books, added, skipped, problems, accounts };
 }
 
@@ -482,12 +526,24 @@ export function exportJournal(books, format = "csv") {
     return rows.join("\n") + "\n";
   }
   if (format === "iif") {
-    const out = ["!TRNS\tTRNSID\tTRNSTYPE\tDATE\tACCNT\tAMOUNT\tMEMO", "!SPL\tSPLID\tTRNSTYPE\tDATE\tACCNT\tAMOUNT\tMEMO", "!ENDTRNS"];
+    // QuickBooks Desktop reads ":" in an account name as a sub-account and a tab as a column break.
+    const iifName = (c) => String(name(c)).replace(/[:\t\r\n]+/g, "-");
+    // IIF import fails on an account QuickBooks does not have, so the accounts used are listed first.
+    const accntType = (c) => {
+      const a = map.get(c), n = String(a?.name ?? "").toLowerCase();
+      if (a?.type === "asset") return a.bank ? "BANK" : /receivable/.test(n) ? "AR" : /equipment|vehicle|furniture|depreciation|building|software|fixed/.test(n) ? "FIXASSET" : "OCASSET";
+      if (a?.type === "liability") return /payable/.test(n) && !/payroll|tax/.test(n) ? "AP" : /loan|note|mortgage/.test(n) ? "LTLIAB" : "OCLIAB";
+      if (a?.type === "income") return "INC";
+      if (a?.type === "expense") return /cost of (goods|sales)|cogs/.test(n) ? "COGS" : "EXP";
+      return "EQUITY";
+    };
+    const usedCodes = [...new Set(entries.flatMap((e) => e.lines.map((l) => l.account)))];
+    const out = ["!ACCNT\tNAME\tACCNTTYPE", ...usedCodes.map((c) => `ACCNT\t${iifName(c)}\t${accntType(c)}`), "!TRNS\tTRNSID\tTRNSTYPE\tDATE\tACCNT\tAMOUNT\tMEMO", "!SPL\tSPLID\tTRNSTYPE\tDATE\tACCNT\tAMOUNT\tMEMO", "!ENDTRNS"];
     for (const e of entries) {
       const [first, ...rest] = e.lines;
       const memo = String(e.memo).replace(/[\t\r\n]/g, " ");
-      out.push(`TRNS\t\tGENERAL JOURNAL\t${usDate(e.date)}\t${name(first.account)}\t${dollars(first.debit - first.credit)}\t${memo}`);
-      for (const l of rest) out.push(`SPL\t\tGENERAL JOURNAL\t${usDate(e.date)}\t${name(l.account)}\t${dollars(l.debit - l.credit)}\t${memo}`);
+      out.push(`TRNS\t\tGENERAL JOURNAL\t${usDate(e.date)}\t${iifName(first.account)}\t${dollars(first.debit - first.credit)}\t${memo}`);
+      for (const l of rest) out.push(`SPL\t\tGENERAL JOURNAL\t${usDate(e.date)}\t${iifName(l.account)}\t${dollars(l.debit - l.credit)}\t${memo}`);
       out.push("ENDTRNS");
     }
     return out.join("\r\n") + "\r\n";
@@ -509,17 +565,28 @@ function plainText(books, entries, map, bean) {
     const parts = (words.length ? words : [`A${code}`]).map((w) => (bean ? w[0].toUpperCase() + w.slice(1) : w));
     return `${root[a?.type] ?? "Equity"}:${parts.join("-")}`;
   };
-  const cur = books.currency || "USD";
-  const text = (t) => String(t ?? "").replace(/[\r\n]+/g, " ").replace(bean ? /"/g : /;/g, bean ? "'" : ",").trim();
+  // Beancount commodities are upper-case codes; a symbol or lower-case code would not parse.
+  const cur = bean ? ({ "$": "USD", "€": "EUR", "£": "GBP" }[books.currency] ?? String(books.currency || "USD").toUpperCase()) : String(books.currency || "USD").replace(/[.\s]+$/, "");
+  const text = (t) => String(t ?? "").replace(/[\r\n]+/g, " ").replace(bean ? /"/g : /;/g, bean ? "'" : ",").replace(bean ? /\\/g : /$^/g, "/").trim();
   const out = [];
   if (bean) {
     const used = [...new Set(entries.flatMap((e) => e.lines.map((l) => l.account)))];
     out.push(`option "title" "${text(books.name ?? "Books")}"`, `option "operating_currency" "${cur}"`, "");
     for (const c of used) out.push(`${entries[0].date} open ${path(c)} ${cur}`);
     out.push("");
+  } else {
+    // Declared up front so `ledger --strict --pedantic` (which flags unknown accounts and
+    // commodities, catching typos) and `hledger check accounts commodities` accept the file.
+    const used = [...new Set(entries.flatMap((e) => e.lines.map((l) => path(l.account))))];
+    out.push(`commodity ${cur}`, "");
+    for (const a of used) out.push(`account ${a}`);
+    out.push("");
   }
   for (const e of entries) {
-    out.push(bean ? `${e.date} * "${text(e.memo || e.id)}"` : `${e.date} ${text(e.memo || e.id)}`);
+    // ledger-cli and hledger read a leading `*` or `!` as a status mark and `(...)` as a code, so
+    // a description that starts that way gets a "- " in front to keep its text (hledger 1.43.2).
+    const desc = text(e.memo || e.id);
+    out.push(bean ? `${e.date} * "${desc}"` : `${e.date} ${/^[*!(]/.test(desc) ? "- " : ""}${desc}`);
     const w = Math.max(...e.lines.map((l) => path(l.account).length));
     for (const l of e.lines) {
       const n = l.debit - l.credit;

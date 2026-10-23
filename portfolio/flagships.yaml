@@ -36,17 +36,24 @@ flagships:
     next: >-
       Everything built so far is tested on hand-written fixtures; the next
       slices are about real inputs (the landed log is in the README and git
-      history, not here). Open items, most valuable first: (1) the AI layer
-      measured 2026-10-23 with a 3B local model: worse than the rules (rescued 4, broke 24 of 44); try a larger model and a fill-only-when-no-suggestion mode (README Next); (2) try the bank
-      readers (Chase, Bank of America, Wells Fargo, Amex, Capital One CSV;
-      OFX/QFX/QIF; statement PDFs with multi-column layouts and CID fonts with no ToUnicode map;
-      LZW/ASCII85/predictor streams now decode) on real exports; (3) a real Stripe, Square,
-      PayPal or Amazon settlement (Amazon V2, date-range and Square Payouts API JSON readers landed 2026-10-22, all on hand-written fixtures; Monzo, Starling and Mercury CSV readers too; Etsy ledger reader; Airbnb host history reader and host page 2026-10-23; PayPal activity CSV as a bank file 2026-10-23; Robinhood (Activity Date) and Narration/Withdrawal Amt./Deposit Amt./Closing Balance headers 2026-10-23; YNAB and Wave exports 2026-10-23; 14 more US/UK bank and app CSV readers and five languages' column names 2026-10-22, from memory) export for the payment-processor import (`form1099k` 2026-10-23: try a real 1099-K); (4) a real supplier's
-      terms letter checked against the fee and discount rules, and one named
-      lender's own schedule against the loan register (`loan check` landed 2026-10-23 on derived tables: try a real lender's PDF-to-CSV table); (5) try receipts and
-      the reconcile-to-statement command on real paper, and read receipt
-      photos in the page; (6) payroll (941, Schedule B, 940, deposits, `payroll reconcile`; hand-made fixtures, 2026-10-22/23; header spellings probed 2026-10-23): try a real Gusto or ADP report and check the deposit rules against a real IRS notice; (7) one named filing service's import layout, from its own spec; (10) `estimate` (1040-ES plan, 2026-10-22; check brackets on irs.gov; page card open); (9) 1099-NEC backup-withholding exposure (24% on payees with no W-9) landed 2026-10-22: check Form 945 treatment with a preparer; (8) `salestax return` (2026-10-22, hand-made fixtures): check it against one state's real return layout and holiday calendar. A run that lands a slice replaces
-      its item here; keep this under 2,000 characters.
+      history, not here). Open items, most valuable first: (1) the AI layer in
+      fill-only mode (2026-10-23: 7B rescued 7 of 9 uncovered lines, broke 0;
+      3B 2 of 9; synthetic, one seed): try real bank descriptions, more seeds,
+      a bigger model (README Next); (2) try the bank readers (CSV, OFX/QFX/QIF, statement
+      PDFs; header-less CSV shapes inferred from cells and probed on bank2ynab's 16 layouts 2026-10-23; Swedbank/Danske LT samples 2026-10-23, Czech text statements unread) on real exports from Chase, Bank of America, Wells Fargo, Amex,
+      Capital One and others; (3) a real Stripe, Square, PayPal or Amazon
+      settlement export for the payment-processor import (`form1099k`: try a
+      real 1099-K); (4) a real supplier's terms letter checked against the fee
+      and discount rules, and one named lender's own schedule against the loan
+      register (`loan check`); (5) try receipts and the reconcile-to-statement
+      command on real paper, and read receipt photos in the page; (6) payroll
+      (941, Schedule B, 940, deposits, `payroll reconcile`): try a real Gusto or
+      ADP report and check the deposit rules against a real IRS notice; (7) one
+      named filing service's import layout, from its own spec; (8) `salestax
+      return`: check it against one state's real return layout and holiday
+      calendar; (9) 1099-NEC backup withholding: IRC 3406, the 24% rate and IRS Pub. 1281 (no awaiting-TIN grace for NEC; 30-business-day CP2100 rule) read at the source 2026-10-23; the CP2100/B-notice dates are modelled (`b-notice`, 2026-10-23, from IRS pages seen via search, Pub. 1281 not re-read); (10) `estimate` (1040-ES
+      plan; 2025 and 2026 brackets and QBI thresholds match the IRS Rev. Procs. 2024-40 and 2025-32 (2026-10-23); the $400 minimum QBI deduction matches secondary summaries only (IRC 199A(i) unreachable 2026-10-23); page card landed 2026-10-23). A run
+      that lands a slice replaces its item here; keep this under 2,000 characters.
 
   # Added 2026-10-21 second, on the owner's direction that day: "I want to make
   # tools that can automate part of the new home construction process in the
@@ -60,7 +67,7 @@ flagships:
       CLI and agent engine. First tool of the new-home construction program.
     next: >-
       Open items only; landed work is in ventures/wall-framing-takeoff/README.md
-      and ROADMAP.md. Roof framing (gable: rafters, ridge, sheathing, shingle/felt quantities; CLI --roof) landed 2026-10-22, hip roofs too (CLI/engine, hand-arithmetic tests only). Roof on the page landed 2026-10-22 (checkbox, pooled order, browser click check). Hips on the page landed 2026-10-22 (shape and hip-size fields, browser click check). Cross wings with valleys (L/T roofs, equal pitch) landed 2026-10-22 (CLI/engine, hand-arithmetic tests only). Wing ceiling joists landed 2026-10-22 (engine/CLI, hand count). Wing collar ties landed 2026-10-22 (engine/CLI, hand count). The wing on the page landed 2026-10-23 (width, projection, position, side, valley size; browser click check). A wing at its own pitch landed 2026-10-24 (engine, CLI plan key and page; hand arithmetic and numeric area integral, click check). Two wings (`roof.wing2`) landed 2026-10-24 (engine/CLI; additive, tested against each wing alone). Wing2 on the page landed 2026-10-24 (fields, plan round-trip, click check). Valley backing landed 2026-10-23 (`roof.valleyBacking`, engine/CLI; count test). Next: valley backing on the page, a floor drawing (several stairwells on the page landed 2026-10-23, semicolon-separated, overlap refused, click check); gable sheathing on the page, in the horizontal layout and reusing the offcut triangle (vertical-sheet order landed 2026-10-22);
+      and ROADMAP.md. Roof framing (gable: rafters, ridge, sheathing, shingle/felt quantities; CLI --roof) landed 2026-10-22, hip roofs too (CLI/engine, hand-arithmetic tests only). Roof on the page landed 2026-10-22 (checkbox, pooled order, browser click check). Hips on the page landed 2026-10-22 (shape and hip-size fields, browser click check). Cross wings with valleys (L/T roofs, equal pitch) landed 2026-10-22 (CLI/engine, hand-arithmetic tests only). Wing ceiling joists landed 2026-10-22 (engine/CLI, hand count). Wing collar ties landed 2026-10-22 (engine/CLI, hand count). The wing on the page landed 2026-10-23 (width, projection, position, side, valley size; browser click check). A wing at its own pitch landed 2026-10-24 (engine, CLI plan key and page; hand arithmetic and numeric area integral, click check). Two wings (`roof.wing2`) landed 2026-10-24 (engine/CLI; additive, tested against each wing alone). Wing2 on the page landed 2026-10-24 (fields, plan round-trip, click check). Valley backing landed 2026-10-23 (`roof.valleyBacking`, engine/CLI; count test). Valley backing on the page landed 2026-10-23 (select, plan round-trip, click check). Next: a floor drawing (several stairwells on the page landed 2026-10-23, semicolon-separated, overlap refused, click check); gable walls on the page landed 2026-10-24 (pitch and peak columns, click check); gable sheathing in the horizontal layout and reusing the offcut triangle (vertical-sheet order landed 2026-10-22);
       right-sized headers from a user table (CLI landed 2026-10-22; page field and a table of one real
       code edition, typed by a person who has the book, are open); a 2D reuse of opening cut-outs;
       click through the panel sheathing-weight field and the panel order and
@@ -92,30 +99,30 @@ flagships:
       ERP or Factur-X export (xref-stream PDF repair landed 2026-10-22 on a hand-built
       fixture; open the result in veraPDF/a viewer), a page button for PDFs; verify the
       FatturaPA code lists, tolerances and IT-018 sequences against the current
-      specification and add a full FatturaPA XSD check; refresh the Bulgaria page
-      when its draft passes or changes; the NLCIUS and RO_CIUS rules themselves
-      (needs their official Schematron).
+      specification and add a full FatturaPA XSD check; Singapore InvoiceNow page landed 2026-10-23 (2028-31 dates from secondary guides, not read on iras.gov.sg); PINT SG and A-NZ rules run in the browser 2026-10-23 (build-pint-rules.mjs, from Maven Central's phive-rules-peppol; not yet on the Saxon/server route; no real PINT file tried; add an Australia mandate page); refresh the Bulgaria page
+      when its draft passes or changes; RO_CIUS (EN16931-CIUS_RO-UBL-validation.xslt, in
+      phive-rules-cius-ro) and NLCIUS: the same plain-from-xslt.mjs can compile them.
   - venture: shift-roster-builder
     why: >-
       Simulated-annealing scheduler over a dollar cost (availability, rest,
       youth labour rules, state overtime presets, roles) with a self-host
       server, .ics feeds and availability intake.
     next: >-
-      Done so far (history in the README and eval/*-bench.mjs): exact check
-      with a min-cost-flow coverage bound, symmetry cuts, tangent-line
-      balance terms, a stated $0.50 tolerance (`exactTolerance`) that proves
-      the 32-shift sample week in 0.5 s, a coverage-first pass (30 of 30
-      seeded random weeks proven at 100,000 nodes), and `node cli.mjs
-      --weeks 4 --week-start <Monday>` for a month. Measured 2026-10-22
-      (eval/scale-bench.mjs): proof breaks at larger sizes (6/8 proven at 6
-      people x 14 shifts, 4/8 at 8x18, 2/8 at 8x22, 0/8 at 10 people), and
-      every unproven week at 8-12 people failed at coverage, none at cost
-      (README "Where the exact proof breaks"). Ejection chains landed 2026-10-22
-      (open hours 413 to 395 on 8 x 22; fixed an exact-search pay bound that
-      overstated). The coverage pass now always runs and keeps a better roster it finds
-      (gap on 8 x 22: 45 h -> 27 h). Cross-day rest on the flow's day edges tried 2026-10-23: no change (387 h open, floor 360 h; README). Pricing contested shifts (Lagrangian, `openFloorByPricing`) landed 2026-10-23: floor 360 -> 383 h vs 387 h open on 8 x 22. Whole-score shift pricing (`priceScoreBound`, 2026-10-23) cut the root gap on 8 x 22 (eval/dual-bench.mjs: 301k -> 66k on one week, 400k -> 362k on another; no more weeks proven). Reduced-cost fixing landed 2026-10-23 (`reducedCostFixing`; 6 x 14 nodes -37%, no change at 8 x 22 where the prices are too loose). More subgradient rounds tried 2026-10-23: bound moves <0.1% (README), so the root gap is a relaxation gap, not convergence. Next: a stronger relaxation (column generation on person sets, or pair cuts on contested shifts); then: the cost side now stops the 8 x 22 proof, so a tighter pay bound once coverage is proven (or branching on the most contested shift; branch order by length or eligibility per hour tried 2026-10-23, no gain), the 10 x 28 and 12 x 30 sizes where the floor still leaves 14 h, then a joint (not week-by-week) multi-week solve.
-      Multi-week fairness measured 2026-10-22 (eval/fairness-bench.mjs: tough-shift spread
-      13.2 -> 3.2 over 8 weeks for +0.4% payroll, equal-availability synthetic crews).
+      Landed work is in the README and eval/*-bench.mjs, not here. State:
+      exact check with a min-cost-flow coverage bound, symmetry cuts, a stated
+      $0.50 tolerance, coverage-first pass, ejection chains, contested-shift
+      pricing, whole-score pricing and reduced-cost fixing. Measured
+      (eval/scale-bench.mjs): proof breaks at larger sizes (6/8 weeks proven at
+      6 people x 14 shifts, 4/8 at 8x18, 2/8 at 8x22, 0/8 at 10 people); every
+      unproven week at 8-12 people failed at coverage. On 8 x 22 the floor is
+      383 h against 387 h open; more subgradient rounds move the bound <0.1%,
+      so the root gap is a relaxation gap, not convergence. Next: a stronger
+      relaxation (column generation on person sets, or pair cuts on contested
+      shifts); then a tighter pay bound once coverage is proven (or branching
+      on the most contested shift; branch order tried, no gain), the 10 x 28
+      and 12 x 30 sizes, then a joint multi-week solve. Multi-week fairness
+      measured (eval/fairness-bench.mjs: tough-shift spread 13.2 -> 3.2 over 8
+      weeks for +0.4% payroll, synthetic crews).
 
   - venture: photo-editing
     why: >-

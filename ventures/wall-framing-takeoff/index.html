@@ -79,7 +79,7 @@
   <section class="card" aria-labelledby="h-walls">
     <h2 id="h-walls">2. Walls</h2>
     <p class="note">"Corner at start" adds corner backing at the start end. "Walls meet at" lists where other walls tee into this one (comma-separated positions), which adds backing there. "Butts into" is optional and used with the corner-lap setting: <code>Front @ 14'</code> means this wall's start ends against wall Front 14' along it (add <code>end</code> for its far end); its cap plate then runs over that wall and that wall's cap is cut for it.</p>
-    <table class="edit"><thead><tr><th>Name</th><th>Length</th><th>Studs</th><th>Treated bottom plate</th><th>Corner at start</th><th>Walls meet at</th><th>Butts into (tee lap)</th><th></th></tr></thead><tbody id="walls"></tbody></table>
+    <table class="edit"><thead><tr><th>Name</th><th>Length</th><th>Studs</th><th>Treated bottom plate</th><th>Corner at start</th><th>Walls meet at</th><th>Butts into (tee lap)</th><th>Gable pitch (rise per 12 in)</th><th>Gable peak at</th><th></th></tr></thead><tbody id="walls"></tbody></table>
     <button type="button" class="secondary" id="addWall">Add a wall</button>
   </section>
 
@@ -145,6 +145,7 @@
       <div class="wing" hidden><label for="rfWingPitch">Wing pitch (rise in 12; blank: as the main roof)</label><input id="rfWingPitch" placeholder="e.g. 6"></div>
       <div class="wing" hidden><label for="rfWingAt">Wing centre from the first gable wall (blank: middle)</label><input id="rfWingAt" placeholder="e.g. 14 ft"></div>
       <div class="wing" hidden><label for="rfWingSide">Wing side</label><select id="rfWingSide"><option value="right" selected>right</option><option value="left">left</option></select></div>
+      <div class="wing" hidden><label for="rfValleyBacking">Valley backing (one board per valley, at the valley's length and size)</label><select id="rfValleyBacking"><option value="0" selected>no</option><option value="1">yes</option></select></div>
       <div class="wing" hidden><label for="rfWingValley">Valley rafter size (blank: as rafters; one size deeper is usual)</label><select id="rfWingValley"><option value="">same as rafters</option><option>2x8</option><option>2x10</option><option>2x12</option></select></div>
       <div id="rfWing2On" class="wing2" hidden><label for="rfWing2">Second cross wing (needs the first; 2 ft clear of it on the same side)</label><select id="rfWing2"><option value="0" selected>none</option><option value="1">add a wing</option></select></div>
       <div class="wing2" hidden><label for="rfWing2W">Second wing width (eave to eave; at least 2 ft under the roof width)</label><input id="rfWing2W" value="14 ft"></div>
@@ -210,7 +211,7 @@
     <p>It solves a cutting-stock problem for each lumber size over the lengths and prices you list: column generation gives a lower bound on the cost and a near-cheapest order, first-fit-decreasing is kept as a fallback, and small groups are solved exactly. The page shows the order's cost next to the bound, so you can see how close it is to the cheapest possible.</p>
     <h3>Does it size headers or check the building code?</h3>
     <p>No. Header size, plies and jack count are inputs. Nothing here checks them against a span table, a load or a code, and nothing here replaces your plans, your engineer or your building department.</p>
-    <p class="note">Not modelled yet: bracing, rough sills doubled under wide windows unless you set it in a plan file, header spacers, hardware and nails, gable walls on this page (the engine and plan files take a `gable` pitch), and walls with steps in height. The example house is invented.</p>
+    <p class="note">Not modelled yet: bracing, rough sills doubled under wide windows unless you set it in a plan file, header spacers, hardware and nails, walls with a window inside the gable triangle, and walls with steps in height. The example house is invented.</p>
   </section>
 
   </main>
@@ -251,9 +252,18 @@
       return { tee: { wall: m[1].trim(), at: L(m[2], `wall ${w.id}, butts into`), end: (m[3] || "start").toLowerCase() } };
     }
 
+    // pitch "6" (rise per 12 in), optional peak "10 ft" from the wall start; blank pitch -> a level wall
+    function gableField(w, L, bad) {
+      const t = String(w.gable ?? "").trim();
+      if (!t) return {};
+      const pitch = Number(t);
+      if (!(pitch > 0 && pitch <= 24)) { bad.push(`Wall ${w.id}, gable pitch: write the rise per 12 in of run, more than 0 and at most 24 (6 means 6:12).`); return {}; }
+      return { gable: { pitch, ...(String(w.peak || "").trim() ? { peak: L(w.peak, `wall ${w.id}, gable peak`) } : {}) } };
+    }
+
     function fromPlan(plan) {
       return {
-        walls: plan.walls.map((w) => ({ id: w.id, length: len(w.length), stud: w.stud || "2x4", treatedPlate: Boolean(w.treatedPlate), corner: Boolean(w.corner), tees: (w.tees || []).map(len).join(", "), tee: w.tee ? `${w.tee.wall} @ ${len(w.tee.at)}${w.tee.end === "end" ? " end" : ""}` : "" })),
+        walls: plan.walls.map((w) => ({ id: w.id, length: len(w.length), stud: w.stud || "2x4", treatedPlate: Boolean(w.treatedPlate), corner: Boolean(w.corner), tees: (w.tees || []).map(len).join(", "), tee: w.tee ? `${w.tee.wall} @ ${len(w.tee.at)}${w.tee.end === "end" ? " end" : ""}` : "", gable: w.gable ? String(w.gable.pitch) : "", peak: w.gable?.peak !== undefined ? len(w.gable.peak) : "" })),
         openings: plan.walls.flatMap((w) => (w.openings || []).map((o) => ({ wall: w.id, kind: o.kind, label: o.label || "", offset: len(o.offset), width: len(o.width), height: len(o.height), headerHeight: o.headerHeight ? len(o.headerHeight) : "", header: o.header || "2x10", plies: o.headerPlies ?? "", jacks: o.jacks ?? 1, sillPlies: o.sillPlies }))),
         stock: plan.stock.map((s) => ({ size: s.size, length: len(s.length), price: s.price, label: s.label || "" })),
         settings: { studLength: plan.studLength, spacing: plan.studSpacing, headerHeight: plan.defaultHeaderHeight, lap: plan.topPlateLap, kerf: plan.kerf, cornerStuds: plan.cornerExtraStuds, teeStuds: plan.teeExtraStuds, blockRows: plan.blocking?.rows || 0, fire: Boolean(plan.blocking?.fire), plateLaps: Boolean(plan.plateLaps), advFrame: plan.advanced ? (plan.advanced.singleTopPlate ? "single" : plan.advanced.twoStudCorners && plan.advanced.ladderTees ? "both" : plan.advanced.twoStudCorners ? "corners" : plan.advanced.ladderTees ? "tees" : "") : "" },
@@ -300,6 +310,7 @@
           id: w.id.trim(), length: L(w.length, `wall ${w.id}`), stud: w.stud, treatedPlate: w.treatedPlate, corner: w.corner,
           tees: String(w.tees || "").split(",").map((t) => t.trim()).filter(Boolean).map((t) => L(t, `wall ${w.id}, walls meet at`)),
           ...teeField(w, L, bad),
+          ...gableField(w, L, bad),
           openings: [],
         })),
       };
@@ -327,6 +338,7 @@
           if ($("#rfWingAt").value.trim()) rf.wing.at = L($("#rfWingAt").value, "wing position");
           if ($("#rfWingValley").value) rf.wing.valley = $("#rfWingValley").value;
         }
+        if (rf.wing && $("#rfValleyBacking").value === "1") rf.valleyBacking = true;
         if (rf.wing && $("#rfWing2").value === "1") {
           rf.wing2 = { width: L($("#rfWing2W").value, "second wing width"), projection: L($("#rfWing2P").value, "second wing projection"), side: $("#rfWing2Side").value };
           if ($("#rfWing2Pitch").value.trim()) rf.wing2.pitch = parseFloat($("#rfWing2Pitch").value);
@@ -363,6 +375,8 @@
         <td>${chk("walls", i, "corner", w.corner, `Wall ${i + 1} corner at start`)}</td>
         <td>${f("walls", i, "tees", w.tees, `Wall ${i + 1} positions where other walls meet it`)}</td>
         <td>${f("walls", i, "tee", w.tee, `Wall ${i + 1} wall it butts into, position and end`)}</td>
+        <td>${f("walls", i, "gable", w.gable, `Wall ${i + 1} gable pitch`, 'placeholder="level"')}</td>
+        <td>${f("walls", i, "peak", w.peak, `Wall ${i + 1} gable peak position`, 'placeholder="middle"')}</td>
         <td>${del("walls", i, `Remove wall ${i + 1}`)}</td></tr>`).join("");
     }
     function renderOpenings() {
@@ -527,6 +541,7 @@
         $("#rfShape").value = rf.shape === "hip" ? "hip" : "gable"; $("#rfHipBox").hidden = rf.shape !== "hip"; $("#rfHip").value = rf.hip || "";
         $("#rfJoist").value = rf.ceilingJoist || ""; $("#rfCollar").value = rf.collarTies ? "1" : "0";
         const wg = rf.wing;
+        $("#rfValleyBacking").value = wg && rf.valleyBacking ? "1" : "0";
         $("#rfWing").value = wg ? "1" : "0";
         if (wg) { $("#rfWingW").value = formatLength(wg.width); $("#rfWingP").value = formatLength(wg.projection); $("#rfWingAt").value = wg.at != null ? formatLength(wg.at) : ""; $("#rfWingSide").value = wg.side || "right"; $("#rfWingValley").value = wg.valley || ""; $("#rfWingPitch").value = wg.pitch != null ? String(wg.pitch) : ""; }
         const w2 = rf.wing2;
@@ -566,7 +581,7 @@
         later(run, 0);
       }
     });
-    $("#addWall").addEventListener("click", () => { ui.walls.push({ id: `Wall ${ui.walls.length + 1}`, length: "12'", stud: "2x4", treatedPlate: false, corner: false, tees: "", tee: "" }); renderAll(); later(run, 0); });
+    $("#addWall").addEventListener("click", () => { ui.walls.push({ id: `Wall ${ui.walls.length + 1}`, length: "12'", stud: "2x4", treatedPlate: false, corner: false, tees: "", tee: "", gable: "", peak: "" }); renderAll(); later(run, 0); });
     $("#addOpening").addEventListener("click", () => { ui.openings.push({ wall: ui.walls[0]?.id || "", kind: "window", label: "", offset: "24", width: "36", height: "48", headerHeight: "", header: "2x10", plies: "", jacks: 1 }); renderOpenings(); later(run, 0); });
     $("#addStock").addEventListener("click", () => { ui.stock.push({ size: "2x4", length: "8'", price: 8, label: "" }); renderStock(); });
     $("#resetStock").addEventListener("click", () => { ui.stock = defaultStock(parseLength($("#studLength").value) || PRECUT["8ft"]).map((s) => ({ size: s.size, length: formatLength(s.length), price: s.price, label: s.label || "" })); renderStock(); later(run, 0); });
@@ -576,7 +591,7 @@
     $("#sheathR").addEventListener("change", () => run());
     $("#run").addEventListener("click", () => { if (run()) record("takeoff_run"); });
     $("#example").addEventListener("click", () => { if (load(samplePlan())) { record("example_loaded"); $("#status").textContent = "Example: an invented 40 x 28 ft ranch, not a real plan."; } });
-    $("#clear").addEventListener("click", () => { ui.walls = [{ id: "Wall 1", length: "12'", stud: "2x4", treatedPlate: false, corner: false, tees: "", tee: "" }]; ui.openings = []; renderAll(); run(); $("#status").textContent = "Started an empty plan with one wall."; });
+    $("#clear").addEventListener("click", () => { ui.walls = [{ id: "Wall 1", length: "12'", stud: "2x4", treatedPlate: false, corner: false, tees: "", tee: "", gable: "", peak: "" }]; ui.openings = []; renderAll(); run(); $("#status").textContent = "Started an empty plan with one wall."; });
     $("#wallPick").addEventListener("change", showWall);
     const download = (name, type, text) => {
       const a = document.createElement("a");

@@ -70,7 +70,8 @@ test("unknown year needs brackets, and unchecked tables carry a warning", () => 
   assert.throws(() => estimatedTax(books("1000.00"), { year: 2031 }), /No single brackets/);
   const r = estimatedTax(books("1000.00"), { year: 2031, brackets: [[Infinity, 0.1]], standardDeduction: 0 });
   assert.ok(r.incomeTax >= 0);
-  assert.ok(estimatedTax(books("1000.00"), { year: 2026 }).warnings.some((w) => /from memory/.test(w)));
+  assert.ok(estimatedTax(books("1000.00"), { year: 2025 }).warnings.some((w) => /match the IRS text of Rev. Proc. 2024-40/.test(w)));
+  assert.ok(estimatedTax(books("1000.00"), { year: 2026 }).warnings.some((w) => /match the IRS text of Rev. Proc. 2025-32/.test(w)));
 });
 
 test("Additional Medicare Tax: 0.9% of earnings over $200,000, wages counting first", () => {
@@ -107,9 +108,32 @@ test("the QBI-threshold warning needs a QBI deduction and income above the limit
   assert.ok(estimatedTax(books("50000.00"), { year: 2026 }).warnings.every((w) => !re.test(w)));
 });
 
+test("the 2026 QBI threshold is Rev. Proc. 2025-32's $201,750 (single) and $403,500 (joint), not 2025's", () => {
+  const re = /above the QBI threshold/, warns = (o) => estimatedTax(books("1.00"), { year: 2026, ...o }).warnings.some((w) => re.test(w));
+  // taxable before QBI = other income - standard deduction (profit is ~$1)
+  assert.equal(warns({ otherIncome: 21600000 }), false); // ~$199,900 taxable, over 2025's $197,300 line only
+  assert.equal(warns({ otherIncome: 21800000 }), true); // ~$201,900
+  assert.equal(warns({ filing: "mfj", otherIncome: 43000000 }), false); // ~$397,800, over 2025's $394,600
+  assert.equal(warns({ filing: "mfj", otherIncome: 44000000 }), true);
+});
+
 test("what the plan does not cover is left as the balance due with the return", () => {
   const r = estimatedTax(books("100000.00"), { year: 2026, withholding: 100000, paid: 0 });
   const planned = r.payments.reduce((s, p) => s + p.cents, 0);
   assert.ok(r.balanceWithReturn > 0);
   assert.equal(r.balanceWithReturn, r.totalTax - 100000 - planned);
+});
+
+test("2026 minimum QBI deduction: $400 once QBI reaches $1,000, only where 20% is smaller", () => {
+  const q = (profit, o = {}) => estimatedTax(books(profit), { year: 2026, otherIncome: 5000000, ...o }).qbiDeduction;
+  assert.equal(q("1100.00"), 40000); // QBI about $1,000.7 -> 20% is $200, floor $400
+  assert.ok(q("900.00") < 40000);
+  assert.equal(q("1100.00", { qbi: false }), 0);
+  assert.equal(estimatedTax(books("1100.00"), { year: 2025, otherIncome: 5000000 }).qbiDeduction < 40000, true);
+  assert.equal(q("10000.00") > 40000, true); // above the floor, 20% rules
+});
+
+test("2025 standard deductions are the post-2025-law figures and the QBI thresholds Rev. Proc. 2024-40's", () => {
+  // Rev. Proc. 2024-40 .15 said 15,000 / 30,000 / 22,500; the 2025 law raised them (IRS 2026 inflation release, Form 1040 instructions).
+  assert.deepEqual([BRACKETS[2025].single.std, BRACKETS[2025].mfj.std, BRACKETS[2025].hoh.std], [1575000, 3150000, 2362500]);
 });

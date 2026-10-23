@@ -19,14 +19,15 @@ import { join } from "node:path";
 import { addLoan, addLoanExtra, applyLoanPayments, checkLenderSchedule, loanRegister, loanSchedule } from "./loans.mjs";
 import { salesTaxReturn, STATE_DUE_DAYS } from "./salestaxreturn.mjs";
 import { gstReturn } from "./gstreturn.mjs";
-import { newBooks, importStatement, importOfxAccounts, lockPeriod, closeYear, reopenYear, yearEndReport, categorize, suggestRules, addRules, addDocuments, addAsset, disposeAsset, addAssetsCsv, register, addPrepaid, prepaidRegister, addInventoryMove, setInventoryMethod, inventoryRegister, writeOff, aging, salesTax, vatReturn, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, addFxAccount, setRates, parseRates, fxRegister, exportLines, status, analyze, fmt, taxableBusinessIncome, s179Carryforward } from "./engine.mjs";
+import { newBooks, importStatement, importOfxAccounts, importCsvAccounts, importQifAccounts, lockPeriod, closeYear, reopenYear, yearEndReport, categorize, suggestRules, addRules, addDocuments, addAsset, disposeAsset, addAssetsCsv, register, addPrepaid, prepaidRegister, addInventoryMove, setInventoryMethod, inventoryRegister, writeOff, aging, salesTax, vatReturn, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, addFxAccount, setRates, parseRates, fxRegister, exportLines, status, analyze, fmt, taxableBusinessIncome, s179Carryforward } from "./engine.mjs";
 import { parseCents } from "./bank.mjs";
 import { accountMap } from "./ledger.mjs";
 import { estimatedTax } from "./estimatedtax.mjs";
-import { seSetAside, selfEmployment, scheduleC, scheduleCCsv, contractors1099, contractors1099Csv, nec1099FilingCsv, markW9, mergePayees } from "./taxforms.mjs";
+import { addRentalAccounts, addProperty, tagProperty, scheduleE, scheduleECsv } from "./rental.mjs";
+import { bNoticeDates, seSetAside, selfEmployment, scheduleC, scheduleCCsv, contractors1099, contractors1099Csv, nec1099FilingCsv, markW9, mergePayees } from "./taxforms.mjs";
 import { setOpeningBalances, clearOpeningBalances } from "./opening.mjs";
 import { importChart, importTrialBalance } from "./migrate.mjs";
-import { sniffFormat, splitOfx } from "./bank.mjs";
+import { sniffFormat, splitOfx, splitQif, readStatement } from "./bank.mjs";
 import { detectRecurring, forecastCash } from "./recurring.mjs";
 import { findAnomalies } from "./anomalies.mjs";
 import { receiptTextFromFile, statementTextFromFile } from "./ocr.mjs";
@@ -71,10 +72,13 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
   close YEAR [--draws] [--month M]   year-end close (a fiscal year ending in month M, named for the year it ends in): that year's income and expense go to retained earnings (3900) in one dated entry, and the books lock through Dec 31; --draws also closes owner draws and contributions. "close reopen YEAR" undoes the latest; "close report YEAR" shows it
   contractors [--year Y] [--threshold DOLLARS] [--csv|--filing|--json]  contract labor paid by payee against the 1099-NEC line, with W-9 status
   taxpack YEAR [--out DIR]  one folder for your preparer: trial balance, P&L, balance sheet, journal, Schedule C, SE, 1099, payroll, sales tax, depreciation, mileage, checks, INDEX.txt
+  b-notice NOTICE_DATE [--received DATE] [--second]  dates for a CP2100 notice: mail the B notice, start 24% backup withholding
   merge-payee FROM INTO [--off]  count two spellings of one payee as one on the contractors worksheet
   w9 PAYEE [--off]       record that a W-9 is on file for a payee (a flag; no tax IDs are stored)
   trip add MILES --date D --purpose TEXT [--from A --to B] | trip list [--year Y] | trip remove ID   the business mileage log (goes to Schedule C line 9 with --year)
   homeoffice SQFT [--from D --to D]     simplified home office ($5 a sq ft, 300 max; 0 removes it); line 30 with schedulec --year
+  rental accounts | add ID [NAME...] | tag ID (--match TEXT|--account CODE|--ids A,B) | untag (same) | list   rental properties; tag bank lines to a property
+  schedulee [--from D --to D] [--csv|--json]  the books on US Schedule E Part I lines, one column per property (a worksheet, not a filing)
   schedulec [--year Y] [--from D --to D] [--meals PCT] [--csv|--json]  the profit and loss on US Schedule C lines (a worksheet, not a filing)
   estimate [--year Y] [--months N] [--filing single|mfj|hoh] [--wages $] [--other $] [--withholding $] [--paid $] [--prior-tax $ --prior-agi $] [--as-of D] [--no-qbi] [--json]  federal income tax plus SE tax and a safe-harbour 1040-ES payment plan (worksheet)
   se [--year Y] [--months N] [--wages $] [--json]  self-employment tax on the year's Schedule C profit, annualised, split into the four estimated-payment dates (worksheet; income tax not estimated)
@@ -148,7 +152,36 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
   // an OFX file with several accounts: --map OFXID=CODE,OFXID=CODE
   const text = statementTextFromFile(rest[0]);
   const parts = sniffFormat(text) === "ofx" ? splitOfx(text) : [];
-  const map = Object.fromEntries((acctMap ?? "").split(",").filter(Boolean).map((p) => p.split("=")));
+  const map = Object.fromEntries((acctMap ?? "").split(",").filter(Boolean).map((p) => [p.slice(0, p.lastIndexOf("=")), p.slice(p.lastIndexOf("=") + 1)]));
+  // a CSV that names the account on each row (Mint, Monarch, Tiller, YNAB): --map "Account Name"=CODE,...
+  const qparts = sniffFormat(text) === "qif" ? splitQif(text) : [];
+  if (qparts.length) {
+    if (!Object.keys(map).length) {
+      for (const p of qparts) console.error(`QIF account "${p.id}": pass --map "${p.id}"=CODE`);
+      console.error("this QIF file holds several accounts; map each name to a chart code with --map");
+      process.exit(2);
+    }
+    const r = importQifAccounts(books, text, map, opts);
+    books = r.books;
+    save();
+    for (const p of r.problems) console.error(p);
+    console.log(`${r.accounts.filter((a) => a.code).length} of ${r.accounts.length} accounts imported: ${r.added} lines added, ${r.skipped} already in the books.`);
+    process.exit(0);
+  }
+  const names = parts.length ? [] : readStatement(text, opts).accountNames ?? [];
+  if (names.length > 1) {
+    if (!Object.keys(map).length) {
+      for (const n of names) console.error(`Account "${n}": pass --map "${n}"=CODE`);
+      console.error("this file holds several accounts; map each name to a chart code with --map");
+      process.exit(2);
+    }
+    const r = importCsvAccounts(books, text, map, opts);
+    books = r.books;
+    save();
+    for (const p of r.problems) console.error(p);
+    console.log(`${r.accounts.filter((a) => a.code).length} of ${r.accounts.length} accounts imported: ${r.added} lines added, ${r.skipped} already in the books.`);
+    process.exit(0);
+  }
   if (parts.length < 2 || !Object.keys(map).length) {
     if (parts.length > 1) for (const p of parts) console.error(`OFX account ${p.id} (${p.card ? "card" : p.type || "bank"}): pass --map ${p.id}=CODE`);
     console.error("import needs a CSV file and --account CODE (or, for an OFX file with several accounts, --map OFXID=CODE,...)");
@@ -634,6 +667,33 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
     books = setHomeOffice(books, { sqft: rest[0], from, to }); save();
     console.log(books.homeOffice ? `Home office: ${books.homeOffice.sqft} sq ft (${Math.min(books.homeOffice.sqft, 300)} count).` : "Home office removed.");
   } catch (e) { console.error(e.message); process.exit(1); }
+} else if (cmd === "rental") {
+  try {
+    const sub = rest[0];
+    if (sub === "accounts") { books = addRentalAccounts(books); save(); console.log("Rental accounts added (4300 rental income, 6200 to 6230, 2400 deposits held)."); }
+    else if (sub === "add") { books = addProperty(books, { id: rest[1], name: rest.slice(2).join(" ") }); save(); console.log(`Property ${rest[1]} saved.`); }
+    else if (sub === "tag" || sub === "untag") {
+      const ids = flag("--ids"), match = flag("--match"), account = flag("--account");
+      const r = tagProperty(books, sub === "tag" ? rest[1] : null, { ids: ids ? ids.split(",") : null, match, account });
+      books = r.books; save(); console.log(`${r.tagged} line${r.tagged === 1 ? "" : "s"} ${sub === "tag" ? `tagged ${rest[1]}` : "untagged"}.`);
+    } else if (sub === "list" || !sub) {
+      for (const p of books.properties ?? []) console.log(`  ${p.id.padEnd(14)} ${p.name}  (${books.transactions.filter((t) => t.property === p.id).length} tagged lines)`);
+      if (!(books.properties ?? []).length) console.log("  No properties. rental add oak 12 Oak St");
+    } else throw new Error("rental accounts | add ID [NAME] | tag ID --match TEXT | untag --match TEXT | list");
+  } catch (e) { console.error(e.message); process.exit(1); }
+} else if (cmd === "schedulee") {
+  const se = scheduleE(books, { from, to });
+  if (json) { console.log(JSON.stringify(se, null, 2)); process.exit(0); }
+  if (has("--csv")) { process.stdout.write(scheduleECsv(se)); process.exit(0); }
+  console.log(`SCHEDULE E PART I WORKSHEET${from || to ? ` ${from ?? ""}..${to ?? ""}` : ""}`);
+  for (const p of se.properties) {
+    console.log(`\n  ${p.name}${p.address ? ` (${p.address})` : ""}`);
+    for (const l of p.lines) console.log(`    ${l.line.padEnd(3)} ${l.label.padEnd(34)} ${fmt(l.cents).padStart(12)}`);
+    console.log(`    20  ${"Total expenses".padEnd(34)} ${fmt(p.totalExpenses).padStart(12)}\n    21  ${"Income or (loss)".padEnd(34)} ${fmt(p.net).padStart(12)}`);
+  }
+  console.log(`\n  All properties: rents ${fmt(se.total.rents)}, expenses ${fmt(se.total.totalExpenses)}, net ${fmt(se.total.net)}`);
+  for (const w of se.warnings) console.log(`  ! ${w}`);
+  console.log("  A worksheet for you or your preparer. Not tax advice; it leaves out passive-loss limits, personal-use days and the depreciation schedule.");
 } else if (cmd === "schedulec") {
   const yr = flag("--year");
   const sc = scheduleC(books, { from, to, mealsPct: flag("--meals") !== null ? +flag("--meals") : 50, year: yr ? +yr : null });
@@ -666,6 +726,12 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
     for (const w of r.warnings) console.log(`  ! ${w}`);
     console.log("  A worksheet. Not tax advice; it leaves out state tax, credits and itemised deductions.");
   } catch (e) { console.error(e.message); process.exit(1); }
+} else if (cmd === "b-notice") {
+  try {
+    const r = bNoticeDates(rest[0], { received: flag("--received") ?? null, second: has("--second") });
+    if (json) { console.log(JSON.stringify(r, null, 2)); process.exit(0); }
+    console.log(`CP2100 ${r.second ? "(second notice) " : ""}counted from ${r.base}\n  mail the ${r.second ? "Second" : "First"} B Notice by ${r.mailBNoticeBy}, enclosing ${r.enclose}\n  start ${r.rate * 100}% backup withholding by ${r.startWithholdingBy} unless a signed W-9 arrives first\n  ${r.note}\n  Worksheet dates from the IRS B-program pages, not tax advice.`);
+  } catch (e) { console.error(e.message); process.exit(2); }
 } else if (cmd === "contractors") {
   const yr = flag("--year"), th = flag("--threshold");
   const r = contractors1099(books, { year: yr ? +yr : undefined, threshold: th !== null ? Math.round(+th * 100) : undefined });
