@@ -53,7 +53,7 @@ def findings_in(root: Path):
     for path in root.rglob("*"):
         if not path.is_file() or path.name in SKIP_NAMES:
             continue
-        if any(part in SKIP_DIRS for part in path.parts):
+        if any(part in SKIP_DIRS for part in path.relative_to(root).parts):
             continue
         if path.suffix.lower() in BINARY_SUFFIXES:
             continue
