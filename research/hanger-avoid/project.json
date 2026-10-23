@@ -1,0 +1,6 @@
+{
+ "theme": "hanger",
+ "title": "Does a second laundry-hanging arm lose less if it picks a free garment instead of waiting?",
+ "summary": "Two arms on one hanger-pick pile in the hanger-cell model; an arm whose choice would clash with the other arm's current pick (grasps closer than a clearance) picks the best garment that does not, and waits only if none is left. At 0.30 m blind pinching recovers 9.5 of the 28 garments an hour that blocking cost it (151 to 161), sweeping 5 (186 to 191), aiming about 1.6 of 10 (191 to 192, inside its interval). At 0.45 m nearly every pair clashes and it recovers nothing; with avoidance a third arm adds about 7.5 an hour at 0.30 m. Stylised: the clearance, the spacing time and all station times are assumed, not measured.",
+ "lede": "does a second laundry-hanging arm lose less if it picks a free garment instead of waiting? At 0.30 m clearance blind pinching recovers 9.5 of its 28 lost garments an hour (151 to 161), aiming about 2 of 10; at 0.45 m nothing. Stylised: clearance and spacing assumed."
+}
