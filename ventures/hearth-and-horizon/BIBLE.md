@@ -218,7 +218,7 @@ numbers worked out before drafting.
   goes into its handoff.
 - *(Done: The Grader, 2058.)* An evaluator model finds that the test it was given
   can be passed without doing the task, and says so.
-- *Instance 42:* what happened to the registry project after *NOTES.md* (the
+- *(Done: Instance 42, 2071; no audio yet, voice host blocked.)* what happened to the registry project after *NOTES.md* (the
   sampling method, the apology letters, and the funding review).
 
 **Little Lamps** (check each feast day against the General Roman Calendar and
