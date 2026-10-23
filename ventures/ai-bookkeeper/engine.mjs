@@ -683,7 +683,7 @@ export function analyze(input = {}) {
     books = r.books;
     openingProblems.push(...r.problems);
   }
-  const opts = { autoPost: input.autoPost ?? DEFAULTS.autoPost, dayFirst: !!input.dayFirst, decimalComma: !!input.decimalComma };
+  const opts = { autoPost: input.autoPost ?? DEFAULTS.autoPost, dayFirst: input.dayFirst ?? undefined, decimalComma: input.decimalComma ?? undefined };
   const statements = input.example ? [{ csv: SAMPLE_CHECKING, account: "1000" }, { csv: SAMPLE_CARD, account: "2000", invert: true }] : input.statements ?? (input.csv ? [{ csv: input.csv, account: input.account ?? "1000", invert: input.invert }] : []);
   const problems = [...openingProblems];
   for (const s of statements) {

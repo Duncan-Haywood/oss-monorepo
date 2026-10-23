@@ -1,0 +1,49 @@
+{
+  "date": "2026-10-23",
+  "session": "https://claude.ai/code/session_018M6q8e5SwQDLTC5NbQ56Km",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md (scheduled)",
+  "input_sha256": "a069142edff7faba0e7497f3e43587d325506648757355f87cd62c89d6f4f469",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-23T01:41:49Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 9651,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "Step 3 says to commit the record after the PR is open; fine, but the run writeup requirement (agent doc and post) is vague for a small slice; none written."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Skipped the agent doc/post write-up and venture-preflight: the change is a small parser fix with tests, no new venture or page."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Probed bank.mjs with hand-written CSV variants; fixed dd-Mon-yyyy dates, locale inference, DR/CR column. node --test in ventures/ai-bookkeeper: 444 pass.",
+  "corrections": [],
+  "redteam": null
+}
