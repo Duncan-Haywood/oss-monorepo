@@ -26,6 +26,7 @@ python experiments/run.py                  # writes experiments/results.txt (abo
 - **Larger `k1`, same picture (B).** From `k1 = −0.05` to −0.4 `fixed` rises 0.0015 to 0.0042 and `none` 0.0015 to 0.0049, while `k1` and `k1k2` stay at 0.0015 to 0.0016.
 - **Noise removes the gain (C).** At 0.1 px: `fixed` 0.0020, `k1k2` 0.0003; 1 px: 0.0035 against 0.0030; 2 px: 0.0061 for `fixed`, `none`, `k1` and `k1k2`. The `k2` estimate is −0.44 against a true +0.1 at 2 px.
 - **Views (D).** At 6 views `k1` 0.0024 and `k1k2` 0.0026 (focal 4.2% off); 8 views 0.0017; 24 views 0.0010, focal 0.2% off.
+- **Why `k2` is invisible (`experiments/k2_pixels.py`, output in `k2_pixels.txt`).** Over the visible points of the rig the normalised radius reaches 0.337 (95th percentile 0.266). A `k2 = 0.2` moves a point by at most 0.69 px (95th percentile 0.21 px), against 6.10 px (3.01 px) for `k1 = 0.2`: `k2` is at or under the 0.5 px noise, which is why it cannot be separated from `k1` and why a one-term fit is enough on this narrow field of view. A wide-angle rig would change that.
 
 ## Tests
 `k2 = 0` equals the `sensing-bafocal` projection; `k2` displaces edge points more than central ones; with the matched model `k1` is recovered to 0.05; `k1k2` beats ignoring distortion; runs are deterministic.
