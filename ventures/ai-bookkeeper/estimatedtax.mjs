@@ -72,13 +72,17 @@ export function estimatedTax(books, o = {}) {
   const beforeQbi = Math.max(0, agi - std);
   const qbiIncome = Math.max(0, profit - se.deduction);
   let qbiDeduction = o.qbi === false || profit <= 0 ? 0 : Math.min(Math.round(0.2 * qbiIncome), Math.round(0.2 * beforeQbi));
-  // One Big Beautiful Bill Act, tax years after 2025: at least $400 for a taxpayer with $1,000+ of
-  // QBI from a business they work in (amount and $1,000 threshold agree across several tax-firm summaries
-  // read 2026-10-23, which also say both are inflation-indexed after 2026 and that the taxpayer must
-  // materially participate; IRC 199A(i) itself was unreachable through the proxy, so "at least" vs
-  // "over" $1,000 is unverified; taken here as capped by taxable income before the deduction).
-  // Only bites for QBI of $1,000 to $2,000.
-  if (o.qbi !== false && year >= 2026 && qbiIncome >= D(1000)) qbiDeduction = Math.max(qbiDeduction, Math.min(D(400), beforeQbi));
+  // IRC 199A(i), read at law.cornell.edu 2026-10-23: for an "applicable taxpayer" (aggregate QBI of at
+  // least $1,000 from trades or businesses they materially participate in, section 469(h)) the deduction is
+  // the greater of the usual one or $400. Both amounts are indexed for years beginning after 2026
+  // (paragraph (3)), which is not modelled. The statute does not say the floor is capped by taxable
+  // income; the cap here is a conservative assumption. Only bites for QBI of $1,000 to $2,000.
+  const floorApplies = o.qbi !== false && year >= 2026 && qbiIncome >= D(1000);
+  if (floorApplies && D(400) > qbiDeduction) {
+    qbiDeduction = Math.min(D(400), beforeQbi);
+    warnings.push("The $400 minimum QBI deduction (IRC 199A(i)) applies only if you materially participate in the business; if not, the deduction may be smaller.");
+  }
+  if (floorApplies && year >= 2027) warnings.push(`IRC 199A(i)(3) indexes the $400 and $1,000 amounts for ${year}; this uses the unindexed figures, so confirm the IRS amounts.`);
   if (qbiDeduction && beforeQbi > ((QBI_LIMIT[year] ?? QBI_LIMIT[2026])[filing] ?? Infinity)) warnings.push("Taxable income is above the QBI threshold, where the 20% deduction may be limited or lost; treat the figure as a ceiling on the deduction.");
   const taxable = Math.max(0, beforeQbi - qbiDeduction);
   const incomeTax = bracketTax(taxable, table.b);
