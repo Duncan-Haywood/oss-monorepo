@@ -509,8 +509,9 @@ function plainText(books, entries, map, bean) {
     const parts = (words.length ? words : [`A${code}`]).map((w) => (bean ? w[0].toUpperCase() + w.slice(1) : w));
     return `${root[a?.type] ?? "Equity"}:${parts.join("-")}`;
   };
-  const cur = books.currency || "USD";
-  const text = (t) => String(t ?? "").replace(/[\r\n]+/g, " ").replace(bean ? /"/g : /;/g, bean ? "'" : ",").trim();
+  // Beancount commodities are upper-case codes; a symbol or lower-case code would not parse.
+  const cur = bean ? ({ "$": "USD", "€": "EUR", "£": "GBP" }[books.currency] ?? String(books.currency || "USD").toUpperCase()) : books.currency || "USD";
+  const text = (t) => String(t ?? "").replace(/[\r\n]+/g, " ").replace(bean ? /"/g : /;/g, bean ? "'" : ",").replace(bean ? /\\/g : /$^/g, "/").trim();
   const out = [];
   if (bean) {
     const used = [...new Set(entries.flatMap((e) => e.lines.map((l) => l.account)))];

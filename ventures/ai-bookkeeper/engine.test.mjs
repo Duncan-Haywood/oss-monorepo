@@ -146,6 +146,18 @@ test("exports: QuickBooks Online, Xero and IIF lines sum to zero per entry", () 
   assert.match(exportLines(b), /^date,bank_account,description,amount,status/);
 });
 
+test("beancount export survives backslashes in a description and symbol or lower-case currencies", () => {
+  let b = newBooks({ currency: "usd" });
+  b = importStatement(b, 'Date,Description,Amount\n2026-03-05,"Back\\slash end\\",-12.50\n', "1000").books;
+  b = confirm(b, Object.fromEntries(b.transactions.map((t) => [t.id, "6060"])));
+  const txt = exportJournal(b, "beancount");
+  assert.ok(!txt.includes("\\"), "no backslash reaches a Beancount string");
+  assert.match(txt, /^2026-03-05 \* "Back\/slash end\/"$/m);
+  assert.match(txt, /-12\.50 USD$/m);
+  assert.match(exportJournal({ ...b, currency: "$" }, "beancount"), /open Assets:Checking USD/);
+  assert.match(exportJournal(b, "ledger"), /Back\\slash end\\/);
+});
+
 test("the agent entry point runs the example and every entry balances", () => {
   const r = analyze({ example: true });
   assert.ok(r.status.lines > 100);
