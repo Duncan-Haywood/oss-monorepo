@@ -1,0 +1,80 @@
+A. Chronological: fit 2015-2018, test 2019 (EUR/MWh)
+A: train 2015-2018 (4 y), test 2019; actual mean 37.7, cheapest-quarter mean 19.5 EUR/MWh, 211 negative hours
+model       mean    RMSE    corr  cheap25 cheap25err  neg_h
+const       35.1    15.7     n/a     35.1       15.5      0
+merit       54.6    23.0     n/a     54.6       35.1      0
+hour        35.1    14.5   0.396     26.4        6.9      0
+resid       31.7     9.6   0.873     14.5       -5.1    245
+resid+      37.7     7.6   0.873     20.4        0.9    152
+
+B. Leave one year out (fit on the other four)
+B2015: train 2016-2019 (4 y), test 2015; actual mean 31.9, cheapest-quarter mean 17.4 EUR/MWh, 71 negative hours
+model       mean    RMSE    corr  cheap25 cheap25err  neg_h
+const       36.5    12.9     n/a     36.5       19.1      0
+merit       54.6    25.7     n/a     54.6       37.2      0
+hour        36.5    11.3   0.520     28.0       10.6      0
+resid       37.5     8.3   0.858     24.3        6.9     44
+resid+      31.9     6.2   0.858     18.7        1.3     83
+
+B2016: train 2015-2019 (4 y), test 2016; actual mean 29.2, cheapest-quarter mean 16.2 EUR/MWh, 66 negative hours
+model       mean    RMSE    corr  cheap25 cheap25err  neg_h
+const       37.2    14.1     n/a     37.2       21.0      0
+merit       54.6    27.9     n/a     54.6       38.4      0
+hour        37.2    13.2   0.444     28.3       12.0      0
+resid       39.7    12.4   0.844     25.4        9.2     57
+resid+      29.2     6.7   0.844     14.9       -1.3    141
+
+B2017: train 2015-2019 (4 y), test 2017; actual mean 34.7, cheapest-quarter mean 16.8 EUR/MWh, 141 negative hours
+model       mean    RMSE    corr  cheap25 cheap25err  neg_h
+const       35.8    16.7     n/a     35.8       19.0      0
+merit       54.6    25.9     n/a     54.6       37.8      0
+hour        35.8    15.3   0.408     27.5       10.7      0
+resid       36.2     8.2   0.898     22.1        5.3     66
+resid+      34.7     8.0   0.898     20.6        3.8     75
+
+B2018: train 2015-2019 (4 y), test 2018; actual mean 44.4, cheapest-quarter mean 22.4 EUR/MWh, 125 negative hours
+model       mean    RMSE    corr  cheap25 cheap25err  neg_h
+const       33.4    20.8     n/a     33.4       11.0      0
+merit       54.6    20.3     n/a     54.6       32.2      0
+hour        33.4    19.6   0.399     25.1        2.7      0
+resid       32.8    16.2   0.780     18.7       -3.7    126
+resid+      44.4    11.2   0.780     30.4        8.0     43
+
+B2019: train 2015-2018 (4 y), test 2019; actual mean 37.7, cheapest-quarter mean 19.5 EUR/MWh, 211 negative hours
+model       mean    RMSE    corr  cheap25 cheap25err  neg_h
+const       35.1    15.7     n/a     35.1       15.5      0
+merit       54.6    23.0     n/a     54.6       35.1      0
+hour        35.1    14.5   0.396     26.4        6.9      0
+resid       31.7     9.6   0.873     14.5       -5.1    245
+resid+      37.7     7.6   0.873     20.4        0.9    152
+
+C. Leave-one-year-out summary: RMSE | corr | cheapest-quarter error (EUR/MWh)
+year                       const                     merit                      hour                     resid                    resid+
+2015       12.9   n/a   +19.1        25.7   n/a   +37.2        11.3  0.52   +10.6         8.3  0.86    +6.9         6.2  0.86    +1.3   
+2016       14.1   n/a   +21.0        27.9   n/a   +38.4        13.2  0.44   +12.0        12.4  0.84    +9.2         6.7  0.84    -1.3   
+2017       16.7   n/a   +19.0        25.9   n/a   +37.8        15.3  0.41   +10.7         8.2  0.90    +5.3         8.0  0.90    +3.8   
+2018       20.8   n/a   +11.0        20.3   n/a   +32.2        19.6  0.40    +2.7        16.2  0.78    -3.7        11.2  0.78    +8.0   
+2019       15.7   n/a   +15.5        23.0   n/a   +35.1        14.5  0.40    +6.9         9.6  0.87    -5.1         7.6  0.87    +0.9   
+
+D. In-sample ceiling (fit and test on the same year, resid): RMSE, corr
+2015     5.8   0.88
+2016     6.0   0.86
+2017     6.7   0.92
+2018    10.7   0.80
+2019     7.2   0.89
+
+E. Residual load and price by year
+year   res_mean_GW res_min_GW price_mean corr(res,price)
+2015          42.9       10.5       31.9           0.871
+2016          44.1        7.7       29.2           0.829
+2017          42.4        6.1       34.7           0.869
+2018          42.0        3.8       44.4           0.773
+2019          39.8        6.1       37.7           0.841
+
+F. Leave-one-year-out RMSE by year (EUR/MWh)
+year     const   merit    hour   resid  resid+
+2015      12.9    25.7    11.3     8.3     6.2
+2016      14.1    27.9    13.2    12.4     6.7
+2017      16.7    25.9    15.3     8.2     8.0
+2018      20.8    20.3    19.6    16.2    11.2
+2019      15.7    23.0    14.5     9.6     7.6
