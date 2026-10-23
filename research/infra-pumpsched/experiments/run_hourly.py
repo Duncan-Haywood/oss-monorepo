@@ -4,6 +4,8 @@ Stage 1 simulates every one- and two-run mask once (cached, tariff independent) 
 stage 3 gives a local search and a GA a fixed budget of fresh EPANET runs per tariff and seed.
 """
 import json
+import os
+import tempfile
 import sys
 from multiprocessing import Pool
 from pathlib import Path
@@ -14,9 +16,14 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 from infra_pumpsched.hourly import Evaluator, feasible, genetic, local_search, runs_masks  # noqa: E402
 from infra_pumpsched.sched import cost, simulate, tariff, total_kwh  # noqa: E402
 
-CACHE = Path(__file__).with_name("masks_cache.json")
+CACHE = Path(__file__).resolve().with_name("masks_cache.json")
 BUDGET = 600  # fresh EPANET runs per search per tariff
 SEEDS = (0, 1, 2)
+
+
+def _init():
+    """EPANET writes temp.inp/.rpt/.bin in the working directory: give each worker its own so runs cannot overwrite each other."""
+    os.chdir(tempfile.mkdtemp(prefix="pumpsched-"))
 
 
 def _sim(m):
@@ -30,7 +37,7 @@ def load():
         raw = json.loads(CACHE.read_text())
         return {tuple(map(bool, k)): {**v, "kwh": {p: np.array(a) for p, a in v["kwh"].items()}} for k, v in raw}
     masks = runs_masks()
-    with Pool() as pool:
+    with Pool(initializer=_init) as pool:
         out = pool.map(_sim, masks, chunksize=20)
     CACHE.write_text(json.dumps([[list(m), r] for m, r in out]))
     return load()
