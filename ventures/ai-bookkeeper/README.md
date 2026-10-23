@@ -780,8 +780,7 @@ is often fine.
   One), written by hand from the layouts those banks document, with made-up
   rows. They are not real statements, so a bank changing its layout, or a quirk
   that only real data shows, is not covered until a real export is tried.
-- Run `eval/ai-eval.mjs` against a local model (it needs one the build
-  environment lacked) and put the table in Verification.
+- First real-model reading of `eval/ai-eval.mjs`, 2026-10-23: Qwen2.5 3B (Ollama 0.5.7, CPU only, 4 cores, `num_ctx 8192`, temperature 0; about 4 minutes per 40-line call), one synthetic seed, months 10-12, 44 lines in review. Deterministic top suggestion right on 65.9% (20.5% had none). The model answered 93.2% of lines and was right on 15.9%: it rescued 4 lines and broke 24, so the combined result with the model's answer first is 20.5%. At this size the model is far worse than the deterministic layers and, as `aiSuggest` stands (it replaces the suggestion), makes the queue worse; n=44 on synthetic data, one seed, one model. Not tried: larger models, filling only lines with no deterministic suggestion. Two faults found on the way: the reader did not accept a bare JSON array, which this model returns, so every call fell back (fixed in `parseReply`, `ai.test.mjs`); and the default Ollama context (2048) truncates a 40-line prompt, so local runs need `num_ctx` of 8192 or a smaller `--batch`.
 
 
 - PayPal activity CSV as a bank statement, 2026-10-23 (`bank.mjs`, bank `paypal`): the Net column (gross less fee) is the amount, only Completed rows are booked (pending ones reported), the description is "Name - Type", and the Balance column, when present, feeds the running-balance check. Before this the importer did not read that file at all (it has no Amount column); `payouts.mjs` still splits settlements into sales and fees. Hand-written fixture (`fixtures/paypal-activity.csv`), not a real export, so try one.
