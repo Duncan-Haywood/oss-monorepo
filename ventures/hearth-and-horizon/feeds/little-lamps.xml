@@ -60,6 +60,8 @@
       <itunes:summary>A bedtime story about Saint Martin of Tours, the young soldier who met a freezing beggar at a town gate and cut his own cloak in two, as his friend Sulpicius Severus tells it. With a note for grown-ups on what is history and what is legend. For ages 3 to 8, about ten minutes read aloud. His feast day is the 11th of November.</itunes:summary>
       <itunes:episodeType>full</itunes:episodeType>
       <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://example.invalid/hearth-and-horizon/audio/martin-of-tours-and-the-half-a-cloak.mp3" length="3274687" type="audio/mpeg"/>
+      <itunes:duration>0:09:06</itunes:duration>
     </item>
     <item>
       <title>Nicholas and the Three Bags of Gold</title>
