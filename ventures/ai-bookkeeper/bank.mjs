@@ -280,6 +280,7 @@ export function sniffFormat(text) {
   if (/<OFX>|OFXHEADER:|<STMTTRN>/i.test(head) || /<STMTTRN>/i.test(text)) return "ofx";
   if (/^\s*!(Type|Account|Option)/im.test(head)) return "qif";
   if (/^000\t\d{8}\t/.test(head)) return "esis";
+  if (/^07[45]\d{16}/m.test(head) && /^075\d{16}/m.test(head)) return "gpc";
   return "csv";
 }
 
@@ -382,6 +383,42 @@ export function readEsis(text) {
   return { rows: out, problems, columns: null, bank: "litas-esis", inferred: null };
 }
 
+// The Czech GPC statement (Fio, Ceska sporitelna, KB and others offer it): fixed-
+// width lines of 128 characters. "074" opens a statement (account, previous and
+// new balance in hellers with a +/- sign, statement date DDMMYY); "075" is a
+// transaction (counter-account 20-35, document no. 36-48, amount in hellers
+// 49-60, code 61: 1 debit, 2 credit, 4 debit storno, 5 credit storno, variable
+// symbol 62-71, bank code + constant symbol 72-81, specific symbol 82-91,
+// client name 98-117, due date DDMMYY 123-128). Layout as published in the
+// ofxstatement-czech plugin's docstring (read from its sdist); code is mine.
+// Decode the file as Windows-1250 first.
+export function readGpc(text) {
+  const problems = [], out = [];
+  let statement = null;
+  const date6 = (v) => { const m = /^(\d\d)(\d\d)(\d\d)$/.exec(v); return m ? `${Number(m[3]) < 70 ? 20 : 19}${m[3]}-${m[2]}-${m[1]}` : null; };
+  text.split(/\r?\n/).forEach((l, i) => {
+    const kind = l.slice(0, 3);
+    if (kind === "074") {
+      const n = l.slice(60, 74), sign = l[74], d = date6(l.slice(108, 114));
+      if (/^\d{14}$/.test(n) && (sign === "+" || sign === "-") && d) statement = { cents: (sign === "-" ? -1 : 1) * Number(n), date: d };
+      return;
+    }
+    if (kind !== "075") return;
+    const n = l.slice(48, 60), code = l[60], date = date6(l.slice(122, 128));
+    if (!/^\d{12}$/.test(n)) return problems.push(`Line ${i + 1}: unreadable amount, skipped.`);
+    if (!date) return problems.push(`Line ${i + 1}: unreadable date, skipped.`);
+    if (!"1245".includes(code ?? "x")) return problems.push(`Line ${i + 1}: unknown accounting code "${code ?? ""}", skipped.`);
+    const cents = Number(n) * (code === "1" || code === "5" ? -1 : 1);
+    if (cents === 0) return;
+    const strip = (v) => v.replace(/^0+/, "");
+    const vs = strip(l.slice(61, 71)), acct = strip(l.slice(19, 35)), bank = /^0+$/.test(l.slice(71, 75)) ? "" : l.slice(71, 75);
+    const desc = [l.slice(97, 117).trim(), acct && `acc ${acct}${bank ? "/" + bank : ""}`, vs && `VS ${vs}`].filter(Boolean).join(" ").replace(/\s+/g, " ");
+    out.push({ line: i + 1, date, desc, cents, balance: null });
+  });
+  if (!out.length) problems.push("No transactions (075 lines) were found in the GPC file.");
+  return { rows: out, problems, columns: null, bank: "gpc", inferred: null, statement };
+}
+
 export function splitQif(text) {
   const parts = [];
   let head = "", cur = null, inAcct = false;
@@ -453,6 +490,7 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
   }
   if (format === "ofx") return readOfx(text);
   if (format === "esis") return readEsis(text);
+  if (format === "gpc") return readGpc(text);
   if (format === "qif") return readQif(text, { dayFirst });
   const rows = parseCsv(text);
   const problems = [];
