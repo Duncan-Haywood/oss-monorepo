@@ -7,8 +7,9 @@
 Each identifier is looked up (Crossref for DOIs, the arXiv API for arXiv ids)
 and printed with the title and year the registry holds, so you can compare it
 with what the README claims the source says. A lookup that fails exits 1:
-the id is mistyped, invented, or the host is unreachable (say which in the
-README). Citations without a DOI or arXiv id (datasheets, standards, URLs)
+the id is mistyped or invented. A host that refuses the lookup (403, 429, 5xx,
+as the cloud proxy sometimes does) prints SKIP and does not fail the run;
+open the source by hand and say in the README that it was not machine-checked. Citations without a DOI or arXiv id (datasheets, standards, URLs)
 are not checked here: open them.
 """
 import json
@@ -57,7 +58,7 @@ def main(argv):
     if not paths:
         print(__doc__)
         return 2
-    bad = 0
+    bad = blocked = 0
     for path in paths:
         dois, arxivs = extract(open(path, encoding="utf-8").read())
         print(f"{path}: {len(dois)} DOI(s), {len(arxivs)} arXiv id(s)")
@@ -68,9 +69,18 @@ def main(argv):
                     continue
                 try:
                     print(f"  ok   {kind}:{i}  {fn(i)}")
+                except urllib.error.HTTPError as e:
+                    if e.code == 404:  # the registry answered: no such id
+                        bad += 1
+                        print(f"  FAIL {kind}:{i}  not found (404)")
+                    else:  # proxy block, rate limit or outage: says nothing about the id
+                        blocked += 1
+                        print(f"  SKIP {kind}:{i}  host unreachable (HTTP {e.code}); open the source and say so in the README")
                 except (urllib.error.URLError, ValueError, KeyError, OSError) as e:
                     bad += 1
                     print(f"  FAIL {kind}:{i}  {e}")
+    if blocked:
+        print(f"{blocked} id(s) could not be checked because the host refused the lookup (not a verdict on the id).")
     return 1 if bad else 0
 
 
