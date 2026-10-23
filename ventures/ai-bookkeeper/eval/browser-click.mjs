@@ -60,6 +60,23 @@ console.log("     status:", status);
 check(/added across 2 accounts/.test(status), "import reports lines added across 2 accounts");
 check(await page.locator("#ofx-map").isHidden(), "pickers hidden again after import");
 
+// A Quicken QIF with two !Account sections splits per account too.
+await page.setInputFiles("#file", join(root, "fixtures/two-accounts.qif"));
+await page.locator("#ofx-map").waitFor({ state: "visible", timeout: 5000 }).catch(() => {});
+{
+  const n = await page.locator("#ofx-map-rows select").count();
+  check(n === 2, `two-accounts.qif shows one picker per account (got ${n})`);
+  for (let i = 0; i < n; i++) {
+    const opts = await page.locator(`#ofx-acct-${i} option`).evaluateAll((o) => o.map((x) => x.value));
+    if (opts.length >= 2) await page.selectOption(`#ofx-acct-${i}`, opts[Math.min(i + 1, opts.length - 1)]);
+  }
+  await page.click("#import");
+  await page.waitForFunction(() => /3 lines added across 2 accounts/.test(document.querySelector("#import-status").textContent), null, { timeout: 5000 }).catch(() => {});
+  const st = await page.locator("#import-status").textContent();
+  console.log("     status:", st);
+  check(/3 lines added across 2 accounts/.test(st), "QIF import reports 3 lines across 2 accounts");
+}
+
 // A single-account OFX must not show pickers.
 await page.setInputFiles("#file", join(root, "fixtures/checking.ofx"));
 await page.waitForTimeout(300);
