@@ -32,10 +32,7 @@
   "doc_friction": [],
   "deviations": [],
   "writeups": [
-    {
-      "doc": "ventures/ai-bookkeeper/README.md",
-      "note": "QIF page picker line extended"
-    }
+    "ventures/ai-bookkeeper/README.md"
   ],
   "goal": null,
   "notes": "Explore: page file picker splits multi-account QIF (fixture two-accounts.qif, browser-click.mjs check). browser-click, page.test and multiaccount.test pass locally. No agent doc or post written.",
