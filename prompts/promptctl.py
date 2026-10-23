@@ -32,7 +32,7 @@ import statistics
 import subprocess
 import sys
 from collections import defaultdict
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
@@ -822,6 +822,7 @@ def measure(root: Path = ROOT) -> dict[str, Any]:
 
 
 WRITEUPS_FROM = "2026-10-21"  # the owner asked for an agent doc and a post from most runs
+FRICTION_FRESH_DAYS = 3  # "measure" lists friction reports from this many days before the newest
 
 
 def writeup_share(runs: list[dict[str, Any]]) -> dict[str, Any]:
@@ -901,12 +902,16 @@ def print_measure(m: dict[str, Any]) -> None:
     if m["doc_friction"] and _is_shallow():
         print("(Shallow clone: a file's \"last changed\" date is only as old as the fetched history, so "
               "[file changed since] tags may be wrong. `git fetch --unshallow origin main` first.)\n")
+    stamps = [t for f in m["doc_friction"].values() for r in f["recent"] if (t := _when(r))]
+    cutoff = max(stamps) - timedelta(days=FRICTION_FRESH_DAYS) if stamps else None
     for path, f in m["doc_friction"].items():
         note, changed = _changed_note(path)
-        tagged = [_flag_stale(r, _latest(changed, _named_files_changed(r))) for r in f["recent"]]
+        # Older reports are mostly fixed by now and each costs a run several calls to check.
+        fresh = [r for r in f["recent"] if not (t := _when(r)) or t >= cutoff] or f["recent"][-1:]
+        tagged = [_flag_stale(r, _latest(changed, _named_files_changed(r))) for r in fresh]
         live = [r for r in tagged if not r.startswith("[file changed since]")]
         shown = (live or tagged)[-3:]
-        hidden = len(tagged) - len(shown)
+        hidden = f["reports"] - len(shown)
         tail = f" (+{hidden} older or since-changed, not shown)" if hidden > 0 else ""
         print(f"- `{path}`{note}: {f['reports']} report(s); latest: " + " | ".join(shown) + tail)
     if m["doc_friction"]:

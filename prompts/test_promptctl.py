@@ -308,6 +308,18 @@ class MeasureTest(PromptTestCase):
         m = promptctl.measure(self.fx.root)
         self.assertEqual(m["doc_friction"]["CLAUDE.md"]["reports"], 2)
 
+    def test_friction_listing_drops_reports_older_than_the_fresh_window(self):
+        import contextlib, io
+        self.fx.run("2026-10-01-a.json", _record(day="2026-10-01", doc_friction=[{"file": "CLAUDE.md", "issue": "ancient"}]))
+        self.fx.run("2026-10-20-a.json", _record(day="2026-10-20", doc_friction=[{"file": "CLAUDE.md", "issue": "recent"}]))
+        m = promptctl.measure(self.fx.root)
+        self.assertEqual(m["doc_friction"]["CLAUDE.md"]["reports"], 2)
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            promptctl.print_measure(m)
+        self.assertNotIn("ancient", out.getvalue())
+        self.assertIn("recent", out.getvalue())
+
     def test_verdict_rules(self):
         champ = {"runs": 20, "success_rate": 0.5, "integrity_issues": 0,
                  "success_ci95": [0.3, 0.7]}
