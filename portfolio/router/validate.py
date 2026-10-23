@@ -15,6 +15,8 @@ except ImportError:
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 VENTURES_DIR = REPO_ROOT / "ventures"
+FLAGSHIPS_PATH = REPO_ROOT / "portfolio" / "flagships.yaml"
+FLAGSHIP_NEXT_MAX = 2000
 
 VALID_STAGES = {"idea", "prototype", "launched", "revenue", "scaling", "winding-down"}
 LEAN_STAGES = {"idea", "prototype"}
@@ -121,8 +123,30 @@ def check(venture_dir, data, errors):
         err("missing `links` mapping (values may be null)")
 
 
+def check_flagships(errors, path=FLAGSHIPS_PATH):
+    """Fail fast on a `next:` over the cap; test_allocate only catches it after ~100 s."""
+    if not path.is_file():
+        return
+    try:
+        data = yaml.safe_load(path.read_text()) or {}
+    except yaml.YAMLError as e:
+        errors.append(f"flagships.yaml: not valid YAML: {e}")
+        return
+    for entry in data.get("flagships") or []:
+        if not isinstance(entry, dict):
+            continue
+        n = len(str(entry.get("next") or "").strip())
+        if n > FLAGSHIP_NEXT_MAX:
+            errors.append(
+                f"flagships.yaml: {entry.get('venture')} `next:` is {n} characters (cap "
+                f"{FLAGSHIP_NEXT_MAX}). Replace the item your slice landed instead of "
+                f"appending; history belongs in the venture's README."
+            )
+
+
 def main():
     errors = []
+    check_flagships(errors)
     venture_dirs = sorted(d for d in VENTURES_DIR.iterdir() if d.is_dir())
     checked_count = 0
 
