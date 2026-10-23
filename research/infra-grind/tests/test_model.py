@@ -64,3 +64,14 @@ def test_bond_formula_known_value():
 def test_energy_scales_inversely_with_S1():
     a = energy_open(100, {"S1": 0.35}); b = energy_open(100, {"S1": 0.70})
     assert abs(a / b - 2) < 1e-6
+
+
+def test_fines_slowing_off_is_default_and_raises_energy_when_on():
+    base = energy_open(100)
+    assert abs(base - energy_open(100, {"xfine": 0.0})) < 1e-9
+    assert energy_open(100, {"xfine": 60.0, "kfine": 1.0}) > base
+
+
+def test_fines_slowing_never_speeds_a_class():
+    a = selection({**DEFAULTS}); b = selection({**DEFAULTS, "xfine": 60.0})
+    assert all(y <= x + 1e-12 for x, y in zip(a, b))
