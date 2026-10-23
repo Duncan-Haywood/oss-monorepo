@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { newBooks, importStatement } from "./engine.mjs";
 import { readPayoutReport, planPayouts, applyPayouts } from "./payouts.mjs";
-import { reconcile1099K } from "./form1099k.mjs";
+import { reconcile1099K, reportable1099K } from "./form1099k.mjs";
 
 const HEAD = "automatic_payout_id,automatic_payout_effective_at,balance_transaction_id,created,reporting_category,gross,fee,net,description";
 const REPORT = `${HEAD}
@@ -69,4 +69,15 @@ test("the numbers on form-1099-k-reconciliation.html come from the stripe-payout
   assert.equal(rep.payouts.reduce((a, p) => a + p.net, 0), 70800); // deposited
   const page = readFileSync(new URL("./form-1099-k-reconciliation.html", import.meta.url), "utf8");
   for (const n of ["$940.00", "$850.00", "$708.00", "$27.00", "$115.00"]) assert.ok(page.includes(n), n);
+});
+
+test("card processors report at any size; marketplaces only above $20,000 and 200 payments", () => {
+  assert.equal(reportable1099K(rep(), 2026).reportable, true);
+  const m = reportable1099K(rep(), 2026, { processor: "marketplace" });
+  assert.equal(m.reportable, false);
+  assert.match(m.why, /not above both/);
+  const rows = Array.from({ length: 201 }, (_, i) => `po_9,2026-06-01,x${i},2026-05-${String(1 + (i % 28)).padStart(2, "0")},charge,100.00,3.00,97.00,s`).join("\n");
+  const big = readPayoutReport(`${HEAD}\n${rows}\n`);
+  assert.equal(reportable1099K(big, 2026, { processor: "marketplace" }).reportable, true);
+  assert.throws(() => reportable1099K(big, 2026, { processor: "x" }));
 });
