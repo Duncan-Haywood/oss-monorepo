@@ -579,8 +579,15 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
   if (format === "gpc") return readGpc(text);
   if (format === "cz-text") return readCzBlocks(text);
   if (format === "qif") return readQif(text, { dayFirst });
-  const rows = parseCsv(text);
+  let rows = parseCsv(text);
   const problems = [];
+  // A header-less file with a few lines of prose or a title above the data: skip them.
+  const isHeader = (r) => { const c = detectColumns(r); return c.date !== -1 && (c.amount !== -1 || c.debit !== -1 || c.credit !== -1); };
+  if (!rows.some((r) => r.length >= 2 && isHeader(r)) && !headerlessLayout(rows)) {
+    for (let k = 1; k <= 8 && k < rows.length - 1; k++) {
+      if (headerlessLayout(rows.slice(k))) { rows = rows.slice(k); problems.push(`Skipped ${k} line${k === 1 ? "" : "s"} above the first transaction; the columns were found from the cells.`); break; }
+    }
+  }
   if (!rows.some((r) => { if (r.length < 2) return false; const c = detectColumns(r); return c.date !== -1 && (c.amount !== -1 || c.debit !== -1 || c.credit !== -1); }) && !headerlessLayout(rows)) {
     const t = readStatementText(text, { dayFirst, decimalComma, year });
     if (t.rows.length) { if (invert === true) for (const x of t.rows) x.cents = -x.cents; return t; }
