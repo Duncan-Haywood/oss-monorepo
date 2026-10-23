@@ -10,6 +10,7 @@
 //   node ventures/ai-bookkeeper/eval/ai-eval.mjs [--seeds 2] [--from 4] [--json]
 //     real model: set LLM_PROVIDER/LLM_BASE_URL/LLM_MODEL (e.g. ollama or
 //     llamacpp on this machine) or a provider key, as for the page
+//     --mode replace   the model overwrites the rules' suggestion (default: fill, only lines with none)
 //     --stub 0.8   no model: a scripted reply that is right on 80% of lines and
 //     a random wrong account on the rest. It tests this harness and the
 //     guard rails, and says NOTHING about any real model.
@@ -39,7 +40,7 @@ function stubFetch(truth, accuracy, seed) {
   };
 }
 
-export async function runSeed(seed, { config, stub = null, from = 4, batch = 40 } = {}) {
+export async function runSeed(seed, { config, stub = null, from = 4, batch = 40, mode = "fill" } = {}) {
   const lines = generateYear({ seed });
   let books = newBooks();
   const t = { review: 0, detRight: 0, detNone: 0, aiAnswered: 0, aiRight: 0, rescued: 0, broken: 0, combinedRight: 0, calls: 0, failedCalls: 0 };
@@ -56,10 +57,11 @@ export async function runSeed(seed, { config, stub = null, from = 4, batch = 40 
     const det = new Map(queue.map((x) => [x.id, x.suggestion?.account ?? null]));
     let withAi = books;
     if (m >= from && queue.length) {
-      for (let off = 0; off < queue.length; off += batch) {
+      const sent = mode === "replace" ? queue.length : queue.filter((x) => !det.get(x.id)).length;
+      for (let off = 0; off < sent; off += batch) {
         // Earlier months are confirmed, so the review queue is this month's.
         t.calls++;
-        const r = await aiSuggest(config, withAi, { max: batch, offset: off, fetch: stub ? stubFetch(truth, stub, seed) : undefined });
+        const r = await aiSuggest(config, withAi, { max: batch, offset: off, mode, fetch: stub ? stubFetch(truth, stub, seed) : undefined });
         if (r.source === "model") withAi = r.books; else t.failedCalls++;
       }
       for (const x of queue) {
@@ -84,14 +86,15 @@ export async function runSeed(seed, { config, stub = null, from = 4, batch = 40 
 
 if (import.meta.url === `file://${process.argv[1]}`) {
   const SEEDS = +arg("--seeds", 2), FROM = +arg("--from", 4);
+  const mode = arg("--mode", "fill");
   const stub = arg("--stub", null) === null ? null : +arg("--stub", 0.8);
   const config = stub !== null ? { provider: "anthropic", apiKey: "stub" } : configFromEnv(process.env);
   if (!config) { console.error("No model configured. Set LLM_PROVIDER (+ LLM_BASE_URL/LLM_MODEL) or a provider key, or pass --stub 0.8 to test the harness."); process.exit(2); }
   const sum = {};
-  for (let s = 1; s <= SEEDS; s++) for (const [k, v] of Object.entries(await runSeed(s, { config, stub, from: FROM }))) sum[k] = (sum[k] ?? 0) + v;
+  for (let s = 1; s <= SEEDS; s++) for (const [k, v] of Object.entries(await runSeed(s, { config, stub, from: FROM, mode }))) sum[k] = (sum[k] ?? 0) + v;
   if (process.argv.includes("--json")) { console.log(JSON.stringify({ seeds: SEEDS, stub, ...sum }, null, 2)); process.exit(0); }
   const pct = (a, b) => (b ? `${((100 * a) / b).toFixed(1)}%` : "-");
-  console.log(`${stub !== null ? `STUB at ${stub} (tests the harness, not a model)` : `model ${config.model ?? config.provider}`}; ${SEEDS} seeds, months ${FROM}-12, ${sum.review} lines left in review, ${sum.calls} calls (${sum.failedCalls} fell back).`);
+  console.log(`${stub !== null ? `STUB at ${stub} (tests the harness, not a model)` : `model ${config.model ?? config.provider}`}; mode ${mode}; ${SEEDS} seeds, months ${FROM}-12, ${sum.review} lines left in review, ${sum.calls} calls (${sum.failedCalls} fell back).`);
   console.log(`deterministic top suggestion right: ${pct(sum.detRight, sum.review)} (${pct(sum.detNone, sum.review)} had none)`);
   console.log(`model answered ${pct(sum.aiAnswered, sum.review)}, right on ${pct(sum.aiRight, sum.review)} of all lines`);
   console.log(`model rescued ${sum.rescued}, broke ${sum.broken}; right with the model's answer first: ${pct(sum.combinedRight, sum.review)}`);

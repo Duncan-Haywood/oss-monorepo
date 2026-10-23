@@ -64,7 +64,7 @@ test("aiSuggest batches with an offset", async () => {
 });
 
 test("ai-eval harness: a perfect scripted model is right on every review line", async () => {
-  const t = await runSeed(1, { config: { provider: "anthropic", apiKey: "stub" }, stub: 1, from: 11 });
+  const t = await runSeed(1, { config: { provider: "anthropic", apiKey: "stub" }, stub: 1, from: 11, mode: "replace" });
   assert.ok(t.review > 20);
   assert.equal(t.aiRight, t.review);
   assert.equal(t.broken, 0);
@@ -78,6 +78,28 @@ test("parseReply reads the shapes small local models actually return", () => {
   assert.deepEqual(parseReply('{"lines":[{"id":"c"}]}').map((x) => x.id), ["c"]);
   assert.deepEqual(parseReply('{"id":"d","account":"1"}\n{"id":"e","account":"2"} thanks {done}').map((x) => x.id), ["d", "e"]); // loose objects
   assert.throws(() => parseReply('{"foo":1}'), /lines/);
+});
+
+test("fill mode (default) sends only lines with no deterministic suggestion; replace mode sends all", async () => {
+  const b = books();
+  b.transactions[0].suggestion = { account: "6080", confidence: 0.6, source: "keyword", reason: "k", alternatives: [] };
+  let sent = "";
+  const spy = async (_u, init) => { sent = init.body; return reply('{"lines":[]}')(); };
+  await aiSuggest({ provider: "anthropic", apiKey: "k" }, b, { fetch: spy });
+  assert.ok(!sent.includes(b.transactions[0].id), "a line with a suggestion stays home");
+  assert.ok(sent.includes(b.transactions[1].id));
+  await aiSuggest({ provider: "anthropic", apiKey: "k" }, b, { fetch: spy, mode: "replace" });
+  assert.ok(sent.includes(b.transactions[0].id));
+  const all = books(); for (const t of all.transactions) t.suggestion = { account: "6080", confidence: 0.6, source: "keyword", alternatives: [] };
+  const r = await aiSuggest({ provider: "anthropic", apiKey: "k" }, all, { fetch: spy });
+  assert.equal(r.source, "fallback");
+  assert.match(r.error, /already has a suggestion/);
+});
+
+test("ai-eval harness: fill mode sends only lines with no suggestion and breaks none", async () => {
+  const t = await runSeed(1, { config: { provider: "anthropic", apiKey: "stub" }, stub: 0.5, from: 11 });
+  assert.equal(t.broken, 0);
+  assert.equal(t.aiAnswered, t.detNone);
 });
 
 test("parseReply keeps a bare array as is, and the prompt caps past examples at 40", () => {
