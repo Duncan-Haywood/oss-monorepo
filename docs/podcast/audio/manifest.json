@@ -125,6 +125,13 @@
     "script_sha256": "f8e67d516599bfe8efddcca079b0dd08badb1ae8d6e3e1bfc5ad0a22cd1014cc",
     "voice": "en_US-ljspeech-high"
   },
+  "2026-10-21-a-wall-is-not-studs-per-foot": {
+    "bytes": 1295464,
+    "seconds": 259.0,
+    "sha256": "00405f60db73408cf315cfafe218a93ba962a6e38eb55ce15afa1e7b23e2ec96",
+    "script_sha256": "008617bb49e37918df717354d1dcc832ef540ce63dde556fca631284779b2d5c",
+    "voice": "m"
+  },
   "2026-10-21-checking-the-energy-table": {
     "bytes": 632121,
     "seconds": 126.33,
