@@ -123,7 +123,7 @@
       <div><label for="flBeam">Beam from the front edge (blank: none)</label><input id="flBeam" value="14 ft"></div>
       <div><label for="flBlock">Rows of joist blocking</label><input id="flBlock" type="number" min="0" max="6" step="1" value="0"></div>
       <div><label for="flUnder">Walls above that need doubled joists, at these positions across the width (comma-separated)</label><input id="flUnder" placeholder="e.g. 10 ft, 22 ft"></div>
-      <div><label for="flOpen">Stairwell opening: from left edge, from front edge, width, depth (blank: none)</label><input id="flOpen" placeholder="e.g. 20 ft, 8 ft, 3 ft, 10 ft"></div>
+      <div><label for="flOpen">Stairwell openings: from left edge, from front edge, width, depth; separate several with a semicolon (blank: none)</label><input id="flOpen" placeholder="e.g. 20 ft, 8 ft, 3 ft, 10 ft; 30 ft, 20 ft, 3 ft, 8 ft"></div>
     </div>
     <p><input type="checkbox" id="rfOn" style="width:auto"> <label for="rfOn" style="display:inline">Also frame a roof, gable or hip (rafters, ridge, ceiling joists, collar ties, roof sheathing, shingles and felt; the lumber joins the order)</label></p>
     <div class="grid" id="rfFields" hidden>
@@ -302,9 +302,12 @@
         const under = $("#flUnder").value.split(",").map((t) => t.trim()).filter(Boolean).map((t) => L(t, "doubled joist position"));
         if (under.length) fl.doubleUnder = under;
         if ($("#flOpen").value.trim()) {
-          const q = $("#flOpen").value.split(",").map((t) => t.trim());
-          if (q.length !== 4) bad.push("Stairwell opening: write four lengths, from the left edge, from the front edge, width, depth.");
-          else { const [x, y, width, depth] = q.map((t) => L(t, "stairwell opening")); fl.openings = [{ x, y, width, depth }]; }
+          fl.openings = [];
+          for (const part of $("#flOpen").value.split(";").map((t) => t.trim()).filter(Boolean)) {
+            const q = part.split(",").map((t) => t.trim());
+            if (q.length !== 4) bad.push(`Stairwell opening "${part}": write four lengths, from the left edge, from the front edge, width, depth.`);
+            else { const [x, y, width, depth] = q.map((t) => L(t, "stairwell opening")); fl.openings.push({ x, y, width, depth }); }
+          }
         }
         plan.floor = fl;
       }
@@ -500,7 +503,7 @@
         $("#flW").value = formatLength(fl.width); $("#flD").value = formatLength(fl.depth); $("#flJoist").value = fl.joist; $("#flSpacing").value = String(fl.spacing);
         $("#flBeam").value = fl.beam != null ? formatLength(fl.beam) : ""; $("#flBlock").value = String(fl.blockingRows || 0);
         $("#flUnder").value = (fl.doubleUnder || []).map(formatLength).join(", ");
-        const o = (fl.openings || [])[0]; $("#flOpen").value = o ? [o.x, o.y, o.width, o.depth].map(formatLength).join(", ") : "";
+        $("#flOpen").value = (fl.openings || []).map((o) => [o.x, o.y, o.width, o.depth].map(formatLength).join(", ")).join("; ");
       }
       const rf = plan.roof;
       $("#rfOn").checked = Boolean(rf); $("#rfFields").hidden = !rf;

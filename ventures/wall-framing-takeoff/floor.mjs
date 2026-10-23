@@ -36,6 +36,20 @@ export function validateFloor(f, plan) {
     else if (!(o.x > 0 && o.x + o.width < f.width && o.y >= 12 + DOUBLE && o.y + o.depth <= f.depth - 12 - DOUBLE)) errors.push(`${n} must sit inside the floor, at least 1 ft and a header from each edge.`);
     else if (f.beam != null && f.beam > o.y - 6 && f.beam < o.y + o.depth + 6) errors.push(`${n} runs over the beam at ${f.beam} in; move one of them.`);
   }
+  // Two openings must not share a trimmer, a header zone or the joist bays between: each one's footprint is its
+  // bounding joists (with the doubled trimmer outside them) by its depth plus a header at each end.
+  if (!errors.length && (f.openings || []).length > 1) {
+    const cs = joistCentres(f.width, f.spacing);
+    const box = (/** @type {{x:number,y:number,width:number,depth:number}} */ o) => ({
+      x0: (cs.filter((c) => c <= o.x + EPS).pop() ?? 0) - DOUBLE, x1: (cs.find((c) => c >= o.x + o.width - EPS) ?? f.width) + DOUBLE,
+      y0: o.y - DOUBLE, y1: o.y + o.depth + DOUBLE,
+    });
+    const boxes = (f.openings || []).map(box);
+    for (let i = 0; i < boxes.length; i++) for (let j = i + 1; j < boxes.length; j++) {
+      const a = boxes[i], b = boxes[j];
+      if (a.x0 < b.x1 - EPS && b.x0 < a.x1 - EPS && a.y0 < b.y1 - EPS && b.y0 < a.y1 - EPS) errors.push(`Opening ${i + 1} and opening ${j + 1} are too close: they would share a trimmer joist or a header. Leave a joist bay or a header's width between them.`);
+    }
+  }
   if (f.beam != null && !(f.beam > 12 && f.beam < f.depth - 12)) errors.push("The beam must sit between 1 ft and 1 ft short of the far edge.");
   const longest = Math.max(0, ...plan.stock.filter((s) => s.size === f.joist).map((s) => s.length));
   if (!longest) errors.push(`No ${f.joist} boards listed in the stock.`);

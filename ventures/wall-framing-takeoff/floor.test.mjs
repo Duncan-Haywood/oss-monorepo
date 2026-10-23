@@ -135,3 +135,29 @@ test("the subfloor is cut around a stairwell: pieces inside are dropped, crossed
   assert.ok(l.courses.some((c) => c.pieces.some((p) => p.notches)) || l.courses.some((c, i) => c.pieces.length !== base.courses[i].pieces.length));
   assert.ok(floorText(l).join("\n").includes("cut around the clear opening"));
 });
+
+test("two stairwells each get their own trimmers and headers, joists between them are cut by both, and overlapping ones are refused", () => {
+  const one = (o) => layoutFloor({ ...sampleFloor(), openings: [o] }, plan());
+  const a = { x: 100, y: 40, width: 36, depth: 100 }, b = { x: 300, y: 190, width: 36, depth: 100 };
+  const l = layoutFloor({ ...sampleFloor(), openings: [a, b] }, plan());
+  assert.ok(l.ok, JSON.stringify(l.errors));
+  assert.equal(l.openings.length, 2);
+  assert.equal(l.joists.filter((j) => j.header).length, 8);
+  assert.equal(l.trimmers.length, 4);
+  // headers and trimmers are exactly those of the two single-opening floors together
+  const count = (r, k) => r.joists.filter((j) => j[k]).length;
+  assert.equal(count(l, "header"), count(one(a), "header") + count(one(b), "header"));
+  assert.equal(count(l, "trimmer"), count(one(a), "trimmer") + count(one(b), "trimmer"));
+  // subfloor area is the floor minus both clear openings
+  const base = layoutFloor(sampleFloor(), plan());
+  const hole = (o) => (o.right - 0.75 - (o.left + 0.75)) * o.depth;
+  const removed = l.openings.reduce((s, o) => s + hole(o), 0);
+  assert.ok(Math.abs(l.sheets.area - (base.sheets.area - removed / 144)) < 1e-9);
+  assert.ok(l.joists.every((j) => j.length > 0));
+  // overlapping in plan, or sharing a trimmer bay, is refused; same joist bays but far apart in depth is fine
+  const clash = layoutFloor({ ...sampleFloor(), openings: [a, { ...a, y: 100, depth: 40 }] }, plan());
+  assert.equal(clash.ok, false);
+  assert.match(clash.errors.join(" "), /too close/);
+  assert.equal(layoutFloor({ ...sampleFloor(), openings: [a, { x: 120, y: 190, width: 24, depth: 60 }] }, plan()).ok, true);
+  assert.equal(layoutFloor({ ...sampleFloor(), openings: [a, { x: 150, y: 40, width: 24, depth: 100 }] }, plan()).ok, false); // trimmers collide
+});

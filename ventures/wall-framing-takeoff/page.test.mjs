@@ -122,6 +122,13 @@ test("the page frames a floor through floor.mjs and pools its lumber with the wa
   assert.match(html, /takeoff\(plan, \[\.\.\.extra, \.\.\.floorExtra\]\)/);
 });
 
+test("the page takes several stairwell openings separated by semicolons and restores them all", () => {
+  const html = page("index.html");
+  assert.match(html, /\$\("#flOpen"\)\.value\.split\(";"\)/);
+  assert.match(html, /fl\.openings\.push\(\{ x, y, width, depth \}\)/);
+  assert.match(html, /\(fl\.openings \|\| \[\]\)\.map\(\(o\) => \[o\.x[^\n]*\.join\("; "\)/);
+});
+
 test("the page offers hip roofs and passes shape and hip size to roof.mjs", () => {
   const html = page("index.html");
   for (const id of ["rfShape", "rfHip", "rfHipBox"]) assert.match(html, new RegExp(`id="${id}"`), id);
