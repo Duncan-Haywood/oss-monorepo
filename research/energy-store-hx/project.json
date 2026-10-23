@@ -1,0 +1,6 @@
+{
+ "theme": "energy",
+ "title": "How much can the sand store's heat exchanger cost before a heat pump wins again?",
+ "summary": "The sand-store versus heat-pump comparisons leave out the equipment that takes heat out of the sand. No sourced sand-to-water exchanger price is in the cost table, so the price (EUR per kW of peak discharge) is solved for rather than assumed: the break-even at which the store stops beating the air-source pump on German prices and ERA5 weather 2015&ndash;2019, house scale, 45&nbsp;&deg;C sink. Weekly cycling survives an exchanger of 211, 241 and 274&nbsp;EUR/kW in 2015&ndash;2017 and 123 in 2019; 2018 loses even with a free exchanger. Daily cycling survives 460&ndash;901&nbsp;EUR/kW. At 100&nbsp;EUR/kW the exchanger adds 0.0032&nbsp;EUR/kWh. The break-even halves if the house is sized for 1,000 full-load hours. Not from a source: the exchanger price (swept), the 2000-hour peak rule, and the exchanger's lifetime and O&amp;M, borrowed from the sand charger row; the sand-side discharge limit is not modelled.",
+ "lede": "how much can the sand store's heat exchanger cost? Weekly cycling survives about 120 to 270 EUR per kW in four of five price years; daily cycling survives 460 to 900; 2018 never wins."
+}
