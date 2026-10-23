@@ -42,7 +42,7 @@
   "deviations": [],
   "writeups": [],
   "goal": null,
-  "notes": "Reduced pass (steps 1,3,7,8 + one fix). Candidates keep collecting. No audit/drift (doc-only recent outputs). runcost skipped.",
+  "notes": "Reduced pass (steps 1,3,7,8). My pyenv doc fix duplicated a parallel review run and was dropped at merge; net: derived/ refresh only. Candidates keep collecting. No audit/drift (doc-only recent outputs). runcost skipped.",
   "corrections": [],
   "redteam": null
 }
