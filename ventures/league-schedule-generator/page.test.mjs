@@ -805,3 +805,9 @@ test("the multi-division page offers venue fairness and prints next season's his
   for (const id of ['id="venueFairness"', 'id="venueHistory"', 'id="next-history"']) assert.ok(html.includes(id), id);
   assert.match(html, /carryVenueHistory\(s\)/);
 });
+
+test("the multi-division page has the four make-up checkboxes and passes them to the rainout pass", () => {
+  const html = page("multi-division-league-schedule.html");
+  for (const id of ["balance", "flip", "relocate", "swapNights"]) assert.ok(html.includes(`id="${id}"`), id);
+  assert.match(html, /applyDivisionRainouts\(s, f\.rainouts, rainoutOptions\(f\)\)/);
+});

@@ -4,7 +4,7 @@ import { readFileSync, writeFileSync, mkdtempSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { parseDivisions, parseDivisionLinks, buildDivisions, applyDivisionRainouts, validateDivisions, linkConflicts, divisionsCsv, divisionsText, readDivisionsSpec, parseTravel, divisionStats, carryVenueHistory, venueImbalance, encodeDivisionFields, decodeDivisionFields } from "./divisions.mjs";
+import { parseDivisions, parseDivisionLinks, buildDivisions, applyDivisionRainouts, rainoutOptions, validateDivisions, linkConflicts, divisionsCsv, divisionsText, readDivisionsSpec, parseTravel, divisionStats, carryVenueHistory, venueImbalance, encodeDivisionFields, decodeDivisionFields } from "./divisions.mjs";
 import { parseDate, dayIso } from "./calc.mjs";
 
 const example = JSON.parse(readFileSync(new URL("./example-divisions.json", import.meta.url), "utf8"));
@@ -508,4 +508,14 @@ test("a schedule built without skip days or links records them as empty lists, n
   const { skipDays, links } = JSON.parse(JSON.stringify(build({ skipDays: undefined, links: undefined }))).config;
   assert.deepEqual(skipDays, []);
   assert.deepEqual(links, []);
+});
+
+test("rainoutOptions reads the page's make-up checkboxes and they ride in the share link", () => {
+  assert.deepEqual(rainoutOptions({}), { balance: false, flip: false, relocate: false, swapNights: false });
+  assert.deepEqual(rainoutOptions({ balance: "1", swapNights: "yes", relocate: true, flip: "0" }), { balance: true, flip: false, relocate: true, swapNights: true });
+  const f = { divisions: "A: x, y", courts: "C1", times: "18:00", start: "2026-10-06", weekdays: "Tue", relocate: "1", swapNights: "1", seed: "1" };
+  const back = decodeDivisionFields("#d=" + encodeDivisionFields(f));
+  assert.equal(back.relocate, "1");
+  assert.equal(back.swapNights, "1");
+  assert.equal(back.balance, "");
 });

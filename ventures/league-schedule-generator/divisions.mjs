@@ -664,6 +664,12 @@ export function readDivisionsSpec(f) {
   return { errors, spec: { venueFairness, venueHistory, ...(fw !== "" && Number.isFinite(Number(fw)) ? { fairnessWeight: Number(fw) } : {}), divisions: d.divisions, courts: names, venues, times: t.times, start, weekdays: w.weekdays, skipDays: skip.days, courtClosures: cc.closures, links: l.groups, travel: tr.travel, seed: Number.isFinite(Number(f.seed)) ? Math.trunc(Number(f.seed)) : 1, splitRounds: f.split === true || /^(1|true|yes|on)$/i.test(String(f.split || "")) } };
 }
 
+/** Form fields -> the options `applyDivisionRainouts` takes (the page's four make-up checkboxes; the CLI's spec JSON uses the same keys). */
+export function rainoutOptions(f) {
+  const on = (v) => v === true || /^(1|true|yes|on)$/i.test(String(v || ""));
+  return { balance: on(f.balance), flip: on(f.flip), relocate: on(f.relocate), swapNights: on(f.swapNights) };
+}
+
 // node divisions.mjs spec.json  ->  text read-out (add --csv for the CSV, or --history for next season's venueHistory). spec.json holds the form fields.
 if (typeof process !== "undefined" && process.argv && import.meta.url === `file://${process.argv[1]}`) {
   const { readFileSync } = await import("node:fs");
@@ -672,9 +678,10 @@ if (typeof process !== "undefined" && process.argv && import.meta.url === `file:
   const { spec, errors } = readDivisionsSpec(JSON.parse(readFileSync(file, "utf8")));
   if (errors.length) { console.error(errors.join("\n")); process.exit(1); }
   let s = buildDivisions(spec);
-  const rainouts = JSON.parse(readFileSync(file, "utf8")).rainouts;
+  const raw = JSON.parse(readFileSync(file, "utf8"));
+  const rainouts = raw.rainouts;
   if (rainouts) {
-    const r = applyDivisionRainouts(s, rainouts);
+    const r = applyDivisionRainouts(s, rainouts, rainoutOptions(raw));
     for (const e of r.errors) console.error(`Rainout: ${e}`);
     s = r.schedule;
   }
@@ -686,7 +693,7 @@ if (typeof process !== "undefined" && process.argv && import.meta.url === `file:
 
 // ---------------------------------------------------------------- share link
 
-const SHARE_FIELDS = ["divisions", "courts", "times", "start", "weekdays", "skip", "courtClosures", "travel", "links", "rainouts", "split", "venueFairness", "venueHistory", "fairnessWeight", "seed"];
+const SHARE_FIELDS = ["divisions", "courts", "times", "start", "weekdays", "skip", "courtClosures", "travel", "links", "rainouts", "split", "venueFairness", "venueHistory", "fairnessWeight", "balance", "flip", "relocate", "swapNights", "seed"];
 
 /** Form fields -> URL-safe text for the `#` part of a link (`#d=...`). The fragment is never sent to a server. */
 export function encodeDivisionFields(f) {
