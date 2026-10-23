@@ -283,3 +283,20 @@ test("a reversal row with negative amounts is named as a reversal, not as a net-
   assert.equal(runs.length, 0);
   assert.match(problems[0], /negative gross pay/);
 });
+
+test("an Additional Medicare column adds to Medicare withheld", () => {
+  const csv = "Pay Date,Employee,Gross Pay,Federal Income Tax,Social Security,Medicare,Additional Medicare,Net Pay\n2026-12-11,Cy,50000.00,12000.00,0.00,725.00,225.00,37050.00\n";
+  const { runs, problems } = readPayrollRegister(csv);
+  assert.deepEqual(problems, []);
+  assert.equal(runs[0].med, 95000);
+});
+
+test("a single Total Employee Taxes column is split by statutory rates and noted", () => {
+  const csv = "Pay Date,Employee,Gross Pay,Total Employee Taxes,Net Pay\n2026-03-13,Ana,2000.00,400.00,1600.00\n";
+  const { runs, problems, notes } = readPayrollRegister(csv);
+  assert.deepEqual(problems, []);
+  assert.equal(runs[0].ss, 12400);
+  assert.equal(runs[0].med, 2900);
+  assert.equal(runs[0].fed, 40000 - 12400 - 2900);
+  assert.equal(notes.length, 1);
+});

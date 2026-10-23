@@ -41,7 +41,8 @@ const ALIASES = {
   net: ["net_pay", "net", "net_wages", "take_home"],
   fed: ["federal_income_tax", "federal_withholding", "fed_income_tax", "federal_tax", "fit", "federal_income_tax_withheld", "federal_w_h", "fed_income_tax_withheld", "federal_withholding_tax", "federal_income_tax_ee", "federal_tax_withheld", "fed_w_h", "fed_withholding", "federal_income_tax_employee"],
   ss: ["social_security", "social_security_employee", "employee_social_security", "ss_employee", "oasdi", "ee_social_security", "social_security_tax", "fica_ss", "social_security_ee", "social_security_tax_ee", "social_security_employee_tax", "employee_social_security_tax", "oasdi_ee", "fica_social_security", "social_security_withheld"],
-  med: ["medicare", "medicare_employee", "employee_medicare", "medicare_ee", "ee_medicare", "medicare_tax", "fica_medicare", "medicare_tax_ee", "medicare_ee_tax", "employee_medicare_tax", "medicare_withheld", "medicare_employee_tax"],
+  med: ["medicare", "medicare_employee", "employee_medicare", "medicare_ee", "ee_medicare", "medicare_tax", "fica_medicare", "medicare_tax_ee", "medicare_ee_tax", "employee_medicare_tax", "medicare_withheld", "medicare_employee_tax", "additional_medicare", "additional_medicare_tax", "addl_medicare", "addl_medicare_tax", "additional_medicare_ee", "medicare_additional"],
+  taxTotal: ["total_employee_taxes", "total_taxes", "employee_taxes", "total_employee_tax", "total_tax_withheld", "total_withholdings", "total_taxes_withheld", "employee_taxes_withheld"],
   state: ["state_income_tax", "state_withholding", "state_tax", "state_income_tax_withheld", "state_w_h", "state_withholding_tax", "state_tax_withheld", "state_income_tax_ee", "state_withholding_ee", "state_income_tax_employee"],
   other: ["other_deductions", "deductions", "benefits_deductions", "employee_deductions", "retirement_401k", "garnishments", "total_deductions", "401_k", "401k", "401_k_employee", "roth_401_k", "retirement", "health_insurance", "medical", "dental", "vision", "hsa", "fsa", "garnishment", "child_support", "other_deductions_pre_tax", "pre_tax_deductions", "post_tax_deductions"],
   erSs: ["employer_social_security", "social_security_employer", "er_social_security", "ss_employer", "employer_oasdi", "social_security_er", "social_security_tax_er", "employer_social_security_tax", "social_security_employer_tax", "oasdi_er", "er_social_security_tax"],
@@ -72,7 +73,9 @@ export function readPayrollRegister(text) {
   const cols = table[0].map(fieldOf);
   const hasEarn = cols.includes("earn");
   for (const need of ["date", "gross", "net"]) if (!cols.includes(need) && !(need === "gross" && hasEarn)) throw new Error(`The payroll register needs a ${need === "date" ? "pay date" : need === "gross" ? "gross pay" : "net pay"} column. Found: ${table[0].join(", ")}.`);
-  const problems = [], byDate = new Map();
+  const problems = [], notes = [], byDate = new Map();
+  const taxOnly = cols.includes("taxTotal") && !cols.some((f) => ["fed", "ss", "med", "state"].includes(f));
+  if (taxOnly) notes.push("The register has one total for employee taxes. Social Security (6.2%) and Medicare (1.45%) are taken from gross pay and the rest is booked as federal income tax; split columns would be exact, so the Form 941 worksheet is only as good as that guess.");
   // Provider exports end with a "Total" row (which would count every run twice) and often print the pay date only on a group's first row.
   const nameCol = cols.indexOf("employee"), dateCol = cols.indexOf("date");
   let lastDate = "";
@@ -90,6 +93,11 @@ export function readPayrollRegister(text) {
     });
     if (row.last || row.first) row.employee = row.employee || [row.first, row.last].filter(Boolean).join(" ");
     if (!cols.includes("gross")) row.gross = row.earn;
+    if (taxOnly && Number.isFinite(row.taxTotal) && Number.isFinite(row.gross)) {
+      row.ss = Math.min(Math.round(row.gross * 0.062), row.taxTotal);
+      row.med = Math.min(Math.round(row.gross * 0.0145), row.taxTotal - row.ss);
+      row.fed = row.taxTotal - row.ss - row.med;
+    }
     const label = `Row ${i + 2}`;
     if (!row.date) { problems.push(`${label}: no readable pay date.`); return; }
     for (const f of ["gross", "net", "fed", "ss", "med", "state", "other", "erSs", "erMed", "futa", "suta", "erOther"]) {
@@ -108,7 +116,7 @@ export function readPayrollRegister(text) {
     byDate.set(row.date, run);
   });
   const runs = [...byDate.values()].sort((a, b) => a.date.localeCompare(b.date));
-  return { runs, problems };
+  return { runs, problems, notes };
 }
 
 export const employerCost = (r) => r.erSs + r.erMed + r.futa + r.suta + r.erOther;
