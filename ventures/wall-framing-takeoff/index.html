@@ -146,6 +146,13 @@
       <div class="wing" hidden><label for="rfWingAt">Wing centre from the first gable wall (blank: middle)</label><input id="rfWingAt" placeholder="e.g. 14 ft"></div>
       <div class="wing" hidden><label for="rfWingSide">Wing side</label><select id="rfWingSide"><option value="right" selected>right</option><option value="left">left</option></select></div>
       <div class="wing" hidden><label for="rfWingValley">Valley rafter size (blank: as rafters; one size deeper is usual)</label><select id="rfWingValley"><option value="">same as rafters</option><option>2x8</option><option>2x10</option><option>2x12</option></select></div>
+      <div id="rfWing2On" class="wing2" hidden><label for="rfWing2">Second cross wing (needs the first; 2 ft clear of it on the same side)</label><select id="rfWing2"><option value="0" selected>none</option><option value="1">add a wing</option></select></div>
+      <div class="wing2" hidden><label for="rfWing2W">Second wing width (eave to eave; at least 2 ft under the roof width)</label><input id="rfWing2W" value="14 ft"></div>
+      <div class="wing2" hidden><label for="rfWing2P">Second wing projection (main wall to the wing's gable wall)</label><input id="rfWing2P" value="12 ft"></div>
+      <div class="wing2" hidden><label for="rfWing2Pitch">Second wing pitch (rise in 12; blank: as the main roof)</label><input id="rfWing2Pitch" placeholder="e.g. 6"></div>
+      <div class="wing2" hidden><label for="rfWing2At">Second wing centre from the first gable wall (blank: middle)</label><input id="rfWing2At" placeholder="e.g. 14 ft"></div>
+      <div class="wing2" hidden><label for="rfWing2Side">Second wing side</label><select id="rfWing2Side"><option value="right">right</option><option value="left" selected>left</option></select></div>
+      <div class="wing2" hidden><label for="rfWing2Valley">Valley rafter size (blank: as rafters; one size deeper is usual)</label><select id="rfWing2Valley"><option value="">same as rafters</option><option>2x8</option><option>2x10</option><option>2x12</option></select></div>
     </div>
     <p id="status" class="note" role="status"></p>
     <div id="errors" class="err" role="alert"></div>
@@ -319,6 +326,12 @@
           if ($("#rfWingPitch").value.trim()) rf.wing.pitch = parseFloat($("#rfWingPitch").value);
           if ($("#rfWingAt").value.trim()) rf.wing.at = L($("#rfWingAt").value, "wing position");
           if ($("#rfWingValley").value) rf.wing.valley = $("#rfWingValley").value;
+        }
+        if (rf.wing && $("#rfWing2").value === "1") {
+          rf.wing2 = { width: L($("#rfWing2W").value, "second wing width"), projection: L($("#rfWing2P").value, "second wing projection"), side: $("#rfWing2Side").value };
+          if ($("#rfWing2Pitch").value.trim()) rf.wing2.pitch = parseFloat($("#rfWing2Pitch").value);
+          if ($("#rfWing2At").value.trim()) rf.wing2.at = L($("#rfWing2At").value, "second wing position");
+          if ($("#rfWing2Valley").value) rf.wing2.valley = $("#rfWing2Valley").value;
         }
         if ($("#rfRidge").value) rf.ridge = $("#rfRidge").value;
         if ($("#rfJoist").value) rf.ceilingJoist = $("#rfJoist").value;
@@ -516,6 +529,9 @@
         const wg = rf.wing;
         $("#rfWing").value = wg ? "1" : "0";
         if (wg) { $("#rfWingW").value = formatLength(wg.width); $("#rfWingP").value = formatLength(wg.projection); $("#rfWingAt").value = wg.at != null ? formatLength(wg.at) : ""; $("#rfWingSide").value = wg.side || "right"; $("#rfWingValley").value = wg.valley || ""; $("#rfWingPitch").value = wg.pitch != null ? String(wg.pitch) : ""; }
+        const w2 = rf.wing2;
+        $("#rfWing2").value = w2 ? "1" : "0";
+        if (w2) { $("#rfWing2W").value = formatLength(w2.width); $("#rfWing2P").value = formatLength(w2.projection); $("#rfWing2At").value = w2.at != null ? formatLength(w2.at) : ""; $("#rfWing2Side").value = w2.side || "right"; $("#rfWing2Valley").value = w2.valley || ""; $("#rfWing2Pitch").value = w2.pitch != null ? String(w2.pitch) : ""; }
         syncWing();
       }
       renderAll();
@@ -597,9 +613,10 @@
     });
     $("#optout").addEventListener("click", () => { setUsageOptOut(true); const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; });
     $("#flOn").addEventListener("change", () => { $("#flFields").hidden = !$("#flOn").checked; if ($("#flOn").checked) record("floor_on"); });
-    function syncWing() { const gable = $("#rfShape").value !== "hip"; $("#rfWingOn").hidden = !gable; for (const el of document.querySelectorAll(".wing")) el.hidden = !gable || $("#rfWing").value !== "1"; }
+    function syncWing() { const gable = $("#rfShape").value !== "hip", one = gable && $("#rfWing").value === "1"; $("#rfWingOn").hidden = !gable; for (const el of document.querySelectorAll(".wing")) el.hidden = !one; for (const el of document.querySelectorAll(".wing2")) el.hidden = !one || el.id !== "rfWing2On" && $("#rfWing2").value !== "1"; }
     $("#rfShape").addEventListener("change", () => { $("#rfHipBox").hidden = $("#rfShape").value !== "hip"; syncWing(); });
     $("#rfWing").addEventListener("change", syncWing);
+    $("#rfWing2").addEventListener("change", syncWing);
     $("#rfOn").addEventListener("change", () => { $("#rfFields").hidden = !$("#rfOn").checked; if ($("#rfOn").checked) record("roof_on"); });
     if (usageOptedOut()) { const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; }
 
