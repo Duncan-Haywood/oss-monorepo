@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import { importsOf, closure, descriptionOf, packageName, buildPackage, writePackage, discover, plan, run, MAX_PER_RUN } from './npm.mjs';
 
 async function fixture(files) {
@@ -46,6 +46,27 @@ test('descriptionOf keeps the first sentence', () => {
 test('packageName applies an optional scope', () => {
   assert.equal(packageName('a-b'), 'a-b');
   assert.equal(packageName('a-b', '@me'), '@me/a-b');
+});
+
+test('buildPackage accepts a 214-character name and refuses 215', async () => {
+  const ok = await buildPackage({ slug: 'a'.repeat(214), dir: '/nonexistent' });
+  assert.equal(ok.skip, 'no cli.mjs');
+  const bad = await buildPackage({ slug: 'a'.repeat(215), dir: '/nonexistent' });
+  assert.match(bad.skip, /^invalid package name/);
+});
+
+test('buildPackage accepts digits 0-9 in scope and package names', async () => {
+  for (const [slug, scope] of [['a0123456789-z', '@x0123456789'], ['9tool', '@9org']]) {
+    const r = await buildPackage({ slug, dir: '/nonexistent', scope });
+    assert.equal(r.skip, 'no cli.mjs', `${scope}/${slug}`);
+  }
+});
+
+test('--pack applies NPM_SCOPE from the environment', () => {
+  const script = path.join(path.dirname(new URL(import.meta.url).pathname), 'npm.mjs');
+  const r = spawnSync('node', [script, '--pack', 'nope-slug-xyz', os.tmpdir()], { env: { ...process.env, NPM_SCOPE: 'BAD' }, encoding: 'utf8' });
+  assert.equal(r.status, 1);
+  assert.match(r.stderr, /invalid package name BAD\/nope-slug-xyz/);
 });
 
 test('buildPackage refuses a CLI without shebang or MIT license', async () => {

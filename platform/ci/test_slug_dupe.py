@@ -40,7 +40,12 @@ class T(unittest.TestCase):
         on_main, commits, _ = slug_dupe.check("foo-calc")
         self.assertTrue(on_main)
         self.assertEqual(len(commits), 1)
-        self.assertEqual(slug_dupe.main(["foo-calc"]), 1)
+        import contextlib, io
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            self.assertEqual(slug_dupe.main(["foo-calc"]), 1)
+        self.assertIn("already on origin/main", out.getvalue())
+        self.assertNotIn("no duplicate found", out.getvalue())
 
     def test_recent_commit_without_directory_is_duplicate(self):
         (self.clone / "other.txt").write_text("y")
@@ -51,7 +56,12 @@ class T(unittest.TestCase):
         on_main, commits, _ = slug_dupe.check("baz-gadget")
         self.assertFalse(on_main)
         self.assertEqual(len(commits), 1)
-        self.assertEqual(slug_dupe.main(["baz-gadget"]), 1)
+        import contextlib, io
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            self.assertEqual(slug_dupe.main(["baz-gadget"]), 1)
+        self.assertIn("landed recently", out.getvalue())
+        self.assertNotIn("no duplicate found", out.getvalue())
 
     def test_directory_older_than_window_is_still_duplicate(self):
         (self.clone / "ventures/old-tool").mkdir(parents=True)
