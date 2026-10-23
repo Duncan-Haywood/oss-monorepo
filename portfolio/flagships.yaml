@@ -40,7 +40,7 @@ flagships:
       fill-only mode (2026-10-23: 7B rescued 7 of 9 uncovered lines, broke 0;
       3B 2 of 9; synthetic, one seed): try real bank descriptions, more seeds,
       a bigger model (README Next); (2) try the bank readers (CSV, OFX/QFX/QIF, statement
-      PDFs; header-less CSV shapes inferred from cells and probed on bank2ynab's 16 layouts 2026-10-23; Swedbank/Danske LT samples 2026-10-23, Czech text statements unread) on real exports from Chase, Bank of America, Wells Fargo, Amex,
+      PDFs; header-less CSV shapes inferred from cells and probed on bank2ynab's 16 layouts 2026-10-23; Swedbank/Danske LT samples 2026-10-23, LITAS-ESIS .acc 2026-10-24; the page may not decode cp1257 yet; Czech text statements unread) on real exports from Chase, Bank of America, Wells Fargo, Amex,
       Capital One and others; (3) a real Stripe, Square, PayPal or Amazon
       settlement export for the payment-processor import (`form1099k`: try a
       real 1099-K); (4) a real supplier's terms letter checked against the fee

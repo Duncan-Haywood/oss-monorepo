@@ -119,3 +119,21 @@ test("a header wider than every row falls back to finding columns from the cells
   assert.deepEqual(r.rows.map((x) => [x.date, x.cents]), [["2012-03-01", -780], ["2012-03-01", 88981], ["2012-03-06", -46]]);
   assert.ok(r.problems.some((p) => /more columns than the rows have/.test(p)));
 });
+
+test("a Lithuanian LITAS-ESIS .acc file is read: D debits, K/C credits, balance lines skipped", () => {
+  // Layout of the ofxstatement-lithuanian sample (tab-separated, no header); rows are made up.
+  const row = (date, cents, flag, memo, payee) => ["010", "1", date, "", cents, cents, flag, "", "", "1", "id" + date, "", "", memo, "", "", "", payee].join("\t");
+  const text = [
+    ["000", "20120304", "", "AGBLLT2XXXX", "Bank"].join("\t"),
+    ["020", "LikutisPR", "20120101", "", "25175", "25175"].join("\t"),
+    row("20120127", "100", "D", "Mokestis už sąskaitos aptarnavimą", "AB DNB BANKAS"),
+    row("20120217", "30000", "C", "Hello World", "LINUS TORVALDS"),
+    row("20120218", "5000", "K", "Grąžinimas", "UAB Test"),
+    ["020", "LikutisPB", "20120304", "", "55075", "55075"].join("\t"),
+  ].join("\r\n");
+  const r = readStatement(text);
+  assert.equal(r.bank, "litas-esis");
+  assert.deepEqual(r.rows.map((x) => [x.date, x.cents]), [["2012-01-27", -100], ["2012-02-17", 30000], ["2012-02-18", 5000]]);
+  assert.match(r.rows[0].desc, /AB DNB BANKAS Mokestis/);
+  assert.deepEqual(r.problems, []);
+});
