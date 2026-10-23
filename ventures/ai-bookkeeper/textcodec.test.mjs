@@ -51,3 +51,24 @@ test("Windows-1251 Cyrillic is told from Windows-1252; an explicit encoding wins
   // Western text with an accent stays 1252
   assert.equal(decodeBytes(Buffer.from([0x43, 0x61, 0x66, 0xe9, 0x20, 0x62, 0x61, 0x72])), "Café bar");
 });
+// Legacy code pages other than 1252 (bytes built by hand from the code-page
+// tables; made-up rows, no real bank file).
+const enc = (map, text) => Uint8Array.from([...text].map((ch) => map[ch] ?? ch.charCodeAt(0)));
+test("windows-1257 Lithuanian header and purpose text", () => {
+  const m = { "š": 0xf0, "ž": 0xfe, "ė": 0xeb, "č": 0xe8, "ų": 0xf8 };
+  const text = "Data;Suma;Paaiškinimai\n2026.03.01;-12,50;Mokėjimas už prekes čekis ų ž\n";
+  assert.equal(decodeBytes(enc(m, text)), text);
+});
+test("windows-1250 Polish and Czech text", () => {
+  const pl = { "ą": 0xb9, "ł": 0xb3, "ż": 0xbf, "ś": 0x9c, "ć": 0xe6 };
+  const t1 = "Opis;Kwota\nZakup w sklepie łąka;-10,00\n";
+  assert.equal(decodeBytes(enc(pl, t1)), t1);
+  const cz = { "Č": 0xc8, "ě": 0xec, "ř": 0xf8, "č": 0xe8, "š": 0x9a };
+  const t2 = "Popis;Částka\nPřevod věřiteli;-100,00\n";
+  assert.equal(decodeBytes(enc(cz, t2)), t2);
+});
+test("1252 stays the default: Danish, Italian, Icelandic, French", () => {
+  const w = { "æ": 0xe6, "ø": 0xf8, "å": 0xe5, "è": 0xe8, "ì": 0xec, "ù": 0xf9, "ð": 0xf0, "þ": 0xfe, "á": 0xe1, "í": 0xed, "é": 0xe9, "ç": 0xe7 };
+  for (const t of ["Købmand ærø åben\n", "così è più\n", "Þórður Ásgeirsson á leið í bæinn með ð\n", "Café français ç\n"])
+    assert.equal(decodeBytes(enc(w, t)), t);
+});

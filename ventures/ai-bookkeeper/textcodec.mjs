@@ -27,14 +27,23 @@ export function decodeBytes(bytes, encoding) {
 //    in plain ASCII and is Windows-1257 (ą č ę ė į š ų ū ž);
 //  - Cyrillic in Windows-1251 reads, as 1252, as words made only of accented
 //    Latin letters (ïðèâåò); several such words in a row are not Western text.
-// Czech/Polish Windows-1250 shares most accented letters with 1252 and is not
-// guessed; pass the encoding explicitly.
+//  - otherwise single bytes that are almost never text in 1252: 0xF0/0xFE/0xD0/
+//    0xDE (Baltic s/z with caron; eth and thorn in 1252, which Icelandic also
+//    uses, so any acute a/i/u/y keeps 1252) pick 1257; 0xB9/0xB3/0xBF (Polish
+//    a-ogonek, l-stroke, z-dot) or i-grave with o-slash (Czech e/r-caron; no
+//    Italian or Danish text has both) pick 1250.
+// A text with none of these letters is read as 1252; pass the encoding then.
 function legacy(b) {
   const latin = win1252(b);
   if (/^000\t\d{8}\t/.test(latin)) return new TextDecoder("windows-1257").decode(b);
   const highWords = latin.match(/[\u00c0-\u00ff]{4,}/g) || [];
   const mixedWords = latin.match(/[A-Za-z]+[\u00c0-\u00ff]+[A-Za-z]*/g) || [];
   if (highWords.length >= 3 && highWords.length > mixedWords.length) return new TextDecoder("windows-1251").decode(b);
+  const c = new Map();
+  for (let i = 0; i < b.length; i++) if (b[i] >= 0x80) c.set(b[i], (c.get(b[i]) || 0) + 1);
+  const has = (...xs) => xs.reduce((n, x) => n + (c.get(x) || 0), 0);
+  if (has(0xf0, 0xfe, 0xd0, 0xde) > 0 && has(0xe1, 0xed, 0xfa, 0xfd) === 0) return new TextDecoder("windows-1257").decode(b);
+  if (has(0xb9, 0xb3, 0xbf) > 0 || (has(0xec) > 0 && has(0xf8) > 0)) return new TextDecoder("windows-1250").decode(b);
   return latin;
 }
 
