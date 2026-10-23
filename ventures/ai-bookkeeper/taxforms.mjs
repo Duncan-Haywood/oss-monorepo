@@ -172,7 +172,7 @@ export function contractors1099(books, { year, threshold, codes = CONTRACT_CODES
   if (payees.some((p) => p.cardCents)) warnings.push("Some contract labor was paid by card; the card processor reports those on a 1099-K, so they are left out of the totals (shown as card).");
   const pending = (books.transactions ?? []).filter((t) => t.date?.startsWith(String(year)) && (t.status === "review" || t.status === "new")).length;
   if (pending) warnings.push(`${pending} bank line${pending === 1 ? " is" : "s are"} from ${year} and still waiting for an account; one may be a contractor payment.`);
-  // Backup withholding: a payer that has no TIN for a payee must withhold 24% of
+  // Backup withholding (IRC 3406(a)(1), read 2026-10-23: the fourth lowest section 1(c) rate = 24%): a payer that has no TIN for a payee must withhold 24% of
   // reportable payments (IRC 3406; reported on Form 945). Shown as an exposure
   // estimate on payments already made, not as an amount that was withheld.
   const backupWithholdingCents = missingW9.reduce((a, p) => a + Math.round(p.cents * BACKUP_WITHHOLDING_RATE), 0);

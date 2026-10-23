@@ -70,7 +70,7 @@ test("unknown year needs brackets, and unchecked tables carry a warning", () => 
   assert.throws(() => estimatedTax(books("1000.00"), { year: 2031 }), /No single brackets/);
   const r = estimatedTax(books("1000.00"), { year: 2031, brackets: [[Infinity, 0.1]], standardDeduction: 0 });
   assert.ok(r.incomeTax >= 0);
-  assert.ok(estimatedTax(books("1000.00"), { year: 2025 }).warnings.some((w) => /from memory/.test(w)));
+  assert.ok(estimatedTax(books("1000.00"), { year: 2025 }).warnings.some((w) => /match the IRS text of Rev. Proc. 2024-40/.test(w)));
   assert.ok(estimatedTax(books("1000.00"), { year: 2026 }).warnings.some((w) => /match the IRS text of Rev. Proc. 2025-32/.test(w)));
 });
 
@@ -131,4 +131,9 @@ test("2026 minimum QBI deduction: $400 once QBI reaches $1,000, only where 20% i
   assert.equal(q("1100.00", { qbi: false }), 0);
   assert.equal(estimatedTax(books("1100.00"), { year: 2025, otherIncome: 5000000 }).qbiDeduction < 40000, true);
   assert.equal(q("10000.00") > 40000, true); // above the floor, 20% rules
+});
+
+test("2025 standard deductions are the post-2025-law figures and the QBI thresholds Rev. Proc. 2024-40's", () => {
+  // Rev. Proc. 2024-40 .15 said 15,000 / 30,000 / 22,500; the 2025 law raised them (IRS 2026 inflation release, Form 1040 instructions).
+  assert.deepEqual([BRACKETS[2025].single.std, BRACKETS[2025].mfj.std, BRACKETS[2025].hoh.std], [1575000, 3150000, 2362500]);
 });
