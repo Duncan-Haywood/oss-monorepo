@@ -4,8 +4,8 @@ import { newBooks, importStatement, confirm } from "./engine.mjs";
 import { bracketTax, estimatedTax, toCents, BRACKETS } from "./estimatedtax.mjs";
 
 const B26 = BRACKETS[2026].single.b;
-function books(income) {
-  const { books: b } = importStatement(newBooks(), `Date,Description,Amount\n2026-03-01,CLIENT PAYMENT ACME,${income}\n`, "1000");
+function books(income, yr = 2026) {
+  const { books: b } = importStatement(newBooks(), `Date,Description,Amount\n${yr}-03-01,CLIENT PAYMENT ACME,${income}\n`, "1000");
   return confirm(b, { [b.transactions[0].id]: "4000" });
 }
 
@@ -131,6 +131,14 @@ test("2026 minimum QBI deduction: $400 once QBI reaches $1,000, only where 20% i
   assert.equal(q("1100.00", { qbi: false }), 0);
   assert.equal(estimatedTax(books("1100.00"), { year: 2025, otherIncome: 5000000 }).qbiDeduction < 40000, true);
   assert.equal(q("10000.00") > 40000, true); // above the floor, 20% rules
+});
+
+test("the minimum QBI deduction warns about material participation, and about indexing from 2027", () => {
+  const w = (profit, year) => estimatedTax(books(profit, year), { year, otherIncome: 5000000, brackets: BRACKETS[2026].single.b, standardDeduction: 0 }).warnings;
+  assert.ok(w("1100.00", 2026).some((x) => /materially participate/.test(x)));
+  assert.ok(w("10000.00", 2026).every((x) => !/materially participate/.test(x)));
+  assert.ok(!w("1100.00", 2026).some((x) => /indexed/.test(x)));
+  assert.ok(w("1100.00", 2027).some((x) => /indexed/.test(x)));
 });
 
 test("2025 standard deductions are the post-2025-law figures and the QBI thresholds Rev. Proc. 2024-40's", () => {

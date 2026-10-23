@@ -79,7 +79,10 @@ export function estimatedTax(books, o = {}) {
   // for those years. Capped here by taxable income before the deduction. Only bites for QBI of $1,000
   // to $2,000. Materially participating is the user's call; the page does not ask.
   const qmin = { floor: D(400), threshold: D(1000), ...(o.qbiMinimum ?? {}) };
-  if (o.qbi !== false && year >= 2026 && qbiIncome >= qmin.threshold) qbiDeduction = Math.max(qbiDeduction, Math.min(qmin.floor, beforeQbi));
+  if (o.qbi !== false && year >= 2026 && qbiIncome >= qmin.threshold && qmin.floor > qbiDeduction) {
+    qbiDeduction = Math.min(qmin.floor, beforeQbi);
+    warnings.push("The minimum QBI deduction (IRC 199A(i)) applies only if you materially participate in the business; if not, the deduction may be smaller.");
+  }
   if (o.qbi !== false && year >= 2027 && !o.qbiMinimum) warnings.push(`The $400 minimum QBI deduction and its $1,000 threshold are indexed for ${year} (IRC 199A(i)(3)); pass qbiMinimum { floor, threshold } in cents from the IRS revenue procedure, or treat a small-QBI result as approximate.`);
   if (qbiDeduction && beforeQbi > ((QBI_LIMIT[year] ?? QBI_LIMIT[2026])[filing] ?? Infinity)) warnings.push("Taxable income is above the QBI threshold, where the 20% deduction may be limited or lost; treat the figure as a ceiling on the deduction.");
   const taxable = Math.max(0, beforeQbi - qbiDeduction);
