@@ -139,7 +139,7 @@ test("the page offers hip roofs and passes shape and hip size to roof.mjs", () =
 
 test("the page offers a cross wing and passes it to roof.mjs, only on gable roofs", () => {
   const html = page("index.html");
-  for (const id of ["rfWing", "rfWingW", "rfWingP", "rfWingAt", "rfWingSide", "rfWingValley"]) assert.match(html, new RegExp(`id="${id}"`), id);
+  for (const id of ["rfWing", "rfWingW", "rfWingP", "rfWingAt", "rfWingSide", "rfWingValley", "rfWingPitch"]) assert.match(html, new RegExp(`id="${id}"`), id);
   assert.match(html, /rf\.wing = \{ width: L\(\$\("#rfWingW"\)\.value/);
   assert.match(html, /\$\("#rfWing"\)\.value === "1" && rf\.shape !== "hip"/);
   assert.match(html, /\$\("#rfWing"\)\.value = wg \? "1" : "0"/);

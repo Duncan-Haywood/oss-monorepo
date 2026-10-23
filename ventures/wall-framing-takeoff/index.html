@@ -142,6 +142,7 @@
       <div id="rfWingOn" class="wingbox"><label for="rfWing">Cross wing (L or T plan, gable roof only)</label><select id="rfWing"><option value="0" selected>none</option><option value="1">add a wing</option></select></div>
       <div class="wing" hidden><label for="rfWingW">Wing width (eave to eave; at least 2 ft under the roof width)</label><input id="rfWingW" value="16 ft"></div>
       <div class="wing" hidden><label for="rfWingP">Wing projection (main wall to the wing's gable wall)</label><input id="rfWingP" value="12 ft"></div>
+      <div class="wing" hidden><label for="rfWingPitch">Wing pitch (rise in 12; blank: as the main roof)</label><input id="rfWingPitch" placeholder="e.g. 6"></div>
       <div class="wing" hidden><label for="rfWingAt">Wing centre from the first gable wall (blank: middle)</label><input id="rfWingAt" placeholder="e.g. 14 ft"></div>
       <div class="wing" hidden><label for="rfWingSide">Wing side</label><select id="rfWingSide"><option value="right" selected>right</option><option value="left">left</option></select></div>
       <div class="wing" hidden><label for="rfWingValley">Valley rafter size (blank: as rafters; one size deeper is usual)</label><select id="rfWingValley"><option value="">same as rafters</option><option>2x8</option><option>2x10</option><option>2x12</option></select></div>
@@ -315,6 +316,7 @@
         if ($("#rfShape").value === "hip") { rf.shape = "hip"; if ($("#rfHip").value) rf.hip = $("#rfHip").value; }
         if ($("#rfWing").value === "1" && rf.shape !== "hip") {
           rf.wing = { width: L($("#rfWingW").value, "wing width"), projection: L($("#rfWingP").value, "wing projection"), side: $("#rfWingSide").value };
+          if ($("#rfWingPitch").value.trim()) rf.wing.pitch = parseFloat($("#rfWingPitch").value);
           if ($("#rfWingAt").value.trim()) rf.wing.at = L($("#rfWingAt").value, "wing position");
           if ($("#rfWingValley").value) rf.wing.valley = $("#rfWingValley").value;
         }
@@ -513,7 +515,7 @@
         $("#rfJoist").value = rf.ceilingJoist || ""; $("#rfCollar").value = rf.collarTies ? "1" : "0";
         const wg = rf.wing;
         $("#rfWing").value = wg ? "1" : "0";
-        if (wg) { $("#rfWingW").value = formatLength(wg.width); $("#rfWingP").value = formatLength(wg.projection); $("#rfWingAt").value = wg.at != null ? formatLength(wg.at) : ""; $("#rfWingSide").value = wg.side || "right"; $("#rfWingValley").value = wg.valley || ""; }
+        if (wg) { $("#rfWingW").value = formatLength(wg.width); $("#rfWingP").value = formatLength(wg.projection); $("#rfWingAt").value = wg.at != null ? formatLength(wg.at) : ""; $("#rfWingSide").value = wg.side || "right"; $("#rfWingValley").value = wg.valley || ""; $("#rfWingPitch").value = wg.pitch != null ? String(wg.pitch) : ""; }
         syncWing();
       }
       renderAll();
