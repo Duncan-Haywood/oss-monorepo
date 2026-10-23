@@ -960,19 +960,22 @@ function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000, t
   // Pricing shifts gives a floor on open hours that sees who can hold which whole sets (the flow splits a shift between people).
   // Open hours are sums of shift lengths, so when those share a grid (hours, halves, quarters) the floor rounds up to it.
   const incHours = Math.floor(incumbent / BIG + 1e-9);
+  let scoreDual = -Infinity; // whole-score floor from pricing shifts (see priceScoreBound)
   if (incHours > 0 && o.pricingFloor !== false) {
-    const pf = priceOpenFloor(ctx, { incumbentOpen: incHours });
+    const pf = priceOpenFloor(ctx, { incumbentOpen: incHours, incumbentScore: o.scoreDual === false ? null : incumbent });
     if (pf) {
+      if (pf.scoreBound != null) scoreDual = pf.scoreBound;
       const unit = [1, 0.5, 0.25].find((u) => len.every((h) => Math.abs(h / u - Math.round(h / u)) < 1e-9)); // open hours come in whole shifts
       minOpenH = unit ? Math.ceil(pf.floor / unit - 1e-6) * unit : Math.max(0, pf.floor - 1e-6);
     }
   }
-  const rootBound = lowerBound(0, 0);
+  const rootBound = Math.max(lowerBound(0, 0), scoreDual);
   let best = incumbent, bestOwner = null, nodes = 0, aborted = false;
   const t0 = Date.now();
   const rec = (k, unfilledH) => {
     if (aborted) return;
     if (++nodes > (covMode ? 2 * nodeLimit : nodeLimit) || ((nodes & 1023) === 0 && Date.now() - t0 > (covMode ? timeLimitMs / 2 : timeLimitMs))) { aborted = true; return; }
+    if (!covMode && scoreDual >= best - tolerance - 1e-9) return; // the priced bound already shows no roster beats the incumbent
     if (lowerBound(k, unfilledH, best - tolerance - 1e-9) >= best - tolerance - 1e-9) return;
     if (k === S) {
       const total = covMode ? BIG * unfilledH : scoreOwner(ctx, owner).total;
@@ -1030,7 +1033,7 @@ function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000, t
 export function openFloorByPricing(staff, slots, options = {}, cfg = {}) {
   return priceOpenFloor(buildContext(staff, slots, options), cfg);
 }
-function priceOpenFloor(ctx, { maxSets = 60000, rounds = 200, incumbentOpen = null } = {}) {
+function priceOpenFloor(ctx, { maxSets = 60000, rounds = 200, incumbentOpen = null, incumbentScore = null, scoreRounds = 300 } = {}) {
   const { P, S, elig, slots } = ctx;
   const len = slots.map((s) => (s.end - s.start) / 60);
   const demand = len.reduce((a, b) => a + b, 0);
@@ -1056,6 +1059,7 @@ function priceOpenFloor(ctx, { maxSets = 60000, rounds = 200, incumbentOpen = nu
   }
   const lam = new Float64Array(S);
   let bestBound = demand;
+  let bestLam = new Float64Array(S);
   const target = incumbentOpen == null ? 0 : demand - incumbentOpen;
   let theta = 1;
   for (let r = 0; r < rounds; r++) {
@@ -1072,7 +1076,7 @@ function priceOpenFloor(ctx, { maxSets = 60000, rounds = 200, incumbentOpen = nu
       L += bestV;
       for (const i of bestSet) cnt[i]++;
     }
-    if (L < bestBound) bestBound = L; else if (r % 10 === 9) theta *= 0.7;
+    if (L < bestBound) { bestBound = L; bestLam = lam.slice(); } else if (r % 10 === 9) theta *= 0.7;
     let norm = 0;
     const gr = new Float64Array(S);
     for (let i = 0; i < S; i++) { gr[i] = 1 - cnt[i]; norm += gr[i] * gr[i]; }
@@ -1080,7 +1084,47 @@ function priceOpenFloor(ctx, { maxSets = 60000, rounds = 200, incumbentOpen = nu
     const step = (theta * Math.max(L - target, 0.5)) / norm;
     for (let i = 0; i < S; i++) lam[i] = Math.max(0, lam[i] - step * gr[i]);
   }
-  return { floor: Math.max(0, demand - bestBound), coverable: bestBound, demand, sets: total };
+  const out = { floor: Math.max(0, demand - bestBound), coverable: bestBound, demand, sets: total };
+  if (incumbentScore != null) out.scoreBound = priceScoreBound(ctx, sets, len, bestLam, incumbentScore, scoreRounds);
+  return out;
+}
+// Lagrangian lower bound on the whole score (pay, penalties and BIG per open hour), not only the open hours. Each shift is held by
+// one person or stays open at BIG x its hours; pricing shift i at lam[i] splits that into independent pieces: each person's best set
+// (its personScore minus the prices of its shifts) plus min(0, BIG x hours - lam[i]) per shift. Valid for any lam; started from the
+// open-hours prices scaled by BIG, then tightened by subgradient steps toward the incumbent.
+function priceScoreBound(ctx, sets, len, lam0, incumbent, rounds) {
+  const { P, S } = ctx;
+  const vals = sets.map((fs, p) => Float64Array.from(fs, (f) => personScore(ctx, p, f)));
+  const cap = len.map((h) => BIG * h);
+  const lam = Float64Array.from(lam0, (x, i) => Math.min(cap[i], x * BIG));
+  let best = -Infinity, theta = 1, stale = 0;
+  for (let r = 0; r < rounds; r++) {
+    let L = 0;
+    const gr = new Float64Array(S);
+    for (let i = 0; i < S; i++) {
+      L += lam[i];
+      gr[i] = 1;
+      if (lam[i] >= cap[i] - 1e-9) { L += cap[i] - lam[i]; gr[i] = 0; } // priced at its open cost: staying open is the cheaper side
+    }
+    for (let p = 0; p < P; p++) {
+      let bestV = Infinity, bestK = 0;
+      const fs = sets[p], vp = vals[p];
+      for (let k = 0; k < fs.length; k++) {
+        let v = vp[k];
+        for (const i of fs[k]) v -= lam[i];
+        if (v < bestV) { bestV = v; bestK = k; }
+      }
+      L += bestV;
+      for (const i of fs[bestK]) gr[i]--;
+    }
+    if (L > best + 1e-9) { best = L; stale = 0; } else if (++stale >= 8) { theta *= 0.6; stale = 0; }
+    let norm = 0;
+    for (let i = 0; i < S; i++) norm += gr[i] * gr[i];
+    if (norm === 0) break;
+    const step = (theta * Math.max(incumbent - L, 1)) / norm;
+    for (let i = 0; i < S; i++) lam[i] = Math.min(cap[i], lam[i] + step * gr[i]);
+  }
+  return best;
 }
 
 // What a manager gets filling shifts in time order with the first valid person in the list.

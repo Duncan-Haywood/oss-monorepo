@@ -1508,3 +1508,21 @@ test("the shift-pricing floor never exceeds the fewest open hours brute force fi
   }
   assert.ok(tight > 0);
 });
+
+test("the whole-score shift-pricing bound never exceeds the brute-force optimum, with balance and overtime terms on", () => {
+  let seed = 23;
+  const rnd = (n) => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return (seed >> 8) % n; };
+  const days = ["Mon", "Tue", "Wed"];
+  const opts = { balance: 60, burdenPct: 10 };
+  let checked = 0, gapShare = 0;
+  for (let c = 0; c < 40; c++) {
+    const stf = staffOf(Array.from({ length: 2 + rnd(2) }, (_, p) => `P${p},${10 + rnd(10)},${8 + rnd(3) * 4},0,${days[rnd(3)]}-Wed ${6 + rnd(3)}-${18 + rnd(5)}`).join("\n"));
+    const sl = slotsOf(Array.from({ length: 5 + rnd(3) }, () => { const a = 6 + rnd(8); return `${days[rnd(3)]},${a},${a + 3 + rnd(6)},${1 + rnd(2)}`; }).join("\n"));
+    if (sl.length > 9) continue;
+    const brute = bruteForceBest(stf, sl, opts);
+    const f = openFloorByPricing(stf, sl, opts, { incumbentOpen: 0, incumbentScore: brute + 1 });
+    assert.ok(f.scoreBound <= brute + 1e-6, `case ${c}: bound ${f.scoreBound} above true ${brute}`);
+    checked++; gapShare += (brute - f.scoreBound) / Math.max(brute, 1);
+  }
+  assert.ok(checked > 10 && gapShare / checked < 0.5, `mean relative gap ${gapShare / checked}`);
+});
