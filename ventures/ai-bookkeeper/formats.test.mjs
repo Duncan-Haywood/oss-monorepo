@@ -84,3 +84,10 @@ test("brokerage and Indian-style headers: Activity Date, Narration, Withdrawal A
   const ind = readStatement("Date,Narration,Withdrawal Amt.,Deposit Amt.,Closing Balance\n10/01/2026,GROCERY,45.10,,100.00\n10/02/2026,SALARY,,2000.00,2100.00\n");
   assert.deepEqual(ind.rows.map((x) => x.cents), [-4510, 200000]);
 });
+
+test("Credit Debit Indicator column signs an unsigned amount (Navy Federal style)", async () => {
+  const { readStatement } = await import("./bank.mjs");
+  const r = readStatement("Transaction Date,Description,Amount,Credit Debit Indicator,Category\n10/01/2026,COFFEE,4.50,Debit,Dining\n10/02/2026,PAY,1000.00,Credit,Income\n");
+  assert.deepEqual(r.problems, []);
+  assert.deepEqual(r.rows.map((x) => x.cents), [-450, 100000]);
+});
