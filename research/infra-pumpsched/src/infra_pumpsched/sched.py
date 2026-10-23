@@ -19,38 +19,26 @@ PUMPS = ("10", "335")
 
 
 def build(start, hours, days=DAYS, step=3600):
-    """Net3 with pump 10 open for `hours` from hour `start` each day (start may be 0..23; the window may cross midnight)."""
+    """Net3 with pump 10 open for `hours` from hour `start` each day (start 0..23; the window may cross midnight).
+
+    A window is an hourly schedule (`build_hourly`), so a window that wraps past midnight is closed on the first day too."""
+    bits = [1 if (h - start) % 24 < hours else 0 for h in range(24)]
+    return build_hourly(bits, days, step)
+
+
+def _base(days, step):
     wn = wntr.network.WaterNetworkModel(NET3)
     wn.options.time.duration = days * 24 * 3600
     wn.options.time.hydraulic_timestep = step
     wn.options.time.report_timestep = step
     for name in [n for n, c in wn.controls() if "PUMP 10 " in str(c)]:
         wn.remove_control(name)
-    pump = wn.get_link("10")
-    pump.initial_status = "Closed"
-    if hours >= 24:
-        pump.initial_status = "Open"
-        return wn
-    if hours <= 0:
-        return wn
-    for d in range(days + 1):
-        t_on = (d * 24 + start) * 3600
-        t_off = t_on + hours * 3600
-        if t_on <= days * 24 * 3600:
-            wn.add_control(f"on{d}", wntr.network.controls.Control(
-                wntr.network.controls.SimTimeCondition(wn, "=", t_on), wntr.network.controls.ControlAction(pump, "status", 1)))
-        if t_off <= days * 24 * 3600 + 3600:
-            wn.add_control(f"off{d}", wntr.network.controls.Control(
-                wntr.network.controls.SimTimeCondition(wn, "=", t_off), wntr.network.controls.ControlAction(pump, "status", 0)))
-    # a window that wrapped past midnight on the previous day is already open at t=0; one starting at 0 opens at t=0
-    if start + hours > 24 or start == 0:
-        pump.initial_status = "Open"
     return wn
 
 
 def build_hourly(bits, days=DAYS, step=3600):
     """Net3 with pump 10 on in hour h of every day when bits[h] is 1 (24 bits): an hourly on/off schedule, not one window."""
-    wn = build(0, 0, days, step)
+    wn = _base(days, step)
     pump = wn.get_link("10")
     bits = [int(b) for b in bits]
     pump.initial_status = "Open" if bits[0] else "Closed"

@@ -3,34 +3,34 @@ energy 2,573 kWh (pump 10 869, pump 335 1,703); pump 10 delivers 10,479 m3 of 59
 windows simulated 409 at a 900 s step; mass balance over the scored day: river + lake outflow 59,712 m3 vs junction demand 59,676 m3 + tank change 12 m3
 
 == B. Feasible windows by minimum service pressure (tank margin >= 0.5 m, drift <= 1 % of demand)
-min pressure 14.06 m | 346 of 409 windows feasible
-min pressure 20.00 m | 346 of 409 windows feasible
-min pressure 25.00 m | 346 of 409 windows feasible
+min pressure 14.06 m | 382 of 409 windows feasible
+min pressure 20.00 m | 382 of 409 windows feasible
+min pressure 25.00 m | 382 of 409 windows feasible
 
 == C. Flat tariff: energy only (which window uses least kWh), min pressure 14.06 m
 best window start 01:00 for 21 h: 1,307 kWh vs 2,573 shipped (49.2 % less); worst feasible 3,701 kWh
 
 == D. Cost saved against the shipped window, best feasible window per tariff, min pressure 14.06 m
 tariff | peak/off-peak | best start | hours | cost saved % | of which kWh saved % | cost saved % at 25 m
-evening | 1.5 | 21:00 | 22 | 43.2 | 46.8 | 43.2
-evening | 2 | 21:00 | 22 | 39.6 | 46.8 | 39.6
-evening | 3 | 21:00 | 22 | 32.4 | 46.8 | 32.4
-evening | 5 | 21:00 | 22 | 18.0 | 46.8 | 18.0
-evening | 10 | 23:00 | 17 | 16.7 | 16.7 | 16.7
-daytime | 1.5 | 14:00 | 22 | 39.9 | 46.9 | 39.9
-daytime | 2 | 14:00 | 22 | 33.9 | 46.9 | 33.9
-daytime | 3 | 14:00 | 22 | 24.2 | 46.9 | 24.2
-daytime | 5 | 21:00 | 19 | 13.7 | 32.9 | 13.7
+evening | 1.5 | 21:00 | 21 | 46.7 | 49.1 | 46.7
+evening | 2 | 21:00 | 21 | 44.3 | 49.1 | 44.3
+evening | 3 | 21:00 | 21 | 39.5 | 49.1 | 39.5
+evening | 5 | 21:00 | 21 | 29.8 | 49.1 | 29.8
+evening | 10 | 22:00 | 18 | 26.3 | 26.3 | 26.3
+daytime | 1.5 | 17:00 | 21 | 43.1 | 49.1 | 43.1
+daytime | 2 | 17:00 | 21 | 37.9 | 49.1 | 37.9
+daytime | 3 | 17:00 | 21 | 29.5 | 49.1 | 29.5
+daytime | 5 | 17:00 | 21 | 17.7 | 49.1 | 17.7
 daytime | 10 | 00:00 | 14 | 8.6 | -0.0 | 8.6
-midday-cheap | 1.5 | 01:00 | 21 | 48.6 | 49.2 | 48.6
-midday-cheap | 2 | 01:00 | 21 | 47.6 | 49.2 | 47.6
-midday-cheap | 3 | 21:00 | 22 | 46.7 | 46.8 | 46.7
-midday-cheap | 5 | 21:00 | 22 | 45.3 | 46.8 | 45.3
-midday-cheap | 10 | 21:00 | 22 | 41.6 | 46.8 | 41.6
+midday-cheap | 1.5 | 21:00 | 21 | 50.1 | 49.1 | 50.1
+midday-cheap | 2 | 21:00 | 21 | 50.6 | 49.1 | 50.6
+midday-cheap | 3 | 21:00 | 21 | 51.0 | 49.1 | 51.0
+midday-cheap | 5 | 21:00 | 21 | 50.9 | 49.1 | 50.9
+midday-cheap | 10 | 21:00 | 21 | 49.7 | 49.1 | 49.7
 
 == E. Where the saving comes from: pump 10 hours inside the cheap hours (evening tariff, ratio 3), min pressure 14.06 m
 shipped  01:00 14 h | pump 10 869 kWh, share in 16-21: 0 % | pump 335 1,703 kWh, share in 16-21: 0 % | cost 2,573
-best     21:00 22 h | pump 10 1,367 kWh, share in 16-21: 14 % | pump 335 0 kWh, share in 16-21: nan % | cost 1,738
+best     21:00 21 h | pump 10 1,309 kWh, share in 16-21: 9 % | pump 335 0 kWh, share in 16-21: nan % | cost 1,557
 
 == F. Cost at evening tariff ratio 3 by start hour, shortest feasible duration at each start (14.06 m)
 start | hours | cost / shipped cost
@@ -40,36 +40,36 @@ start | hours | cost / shipped cost
 3 | 22 | 0.772
 4 | 22 | 0.772
 5 | 22 | 0.772
-6 | 22 | 0.772
-7 | 22 | 0.772
-8 | 22 | 0.772
-9 | 22 | 0.772
-10 | 22 | 0.772
-11 | 22 | 0.772
-12 | 22 | 0.772
-13 | 22 | 0.772
-14 | 22 | 0.772
-15 | 22 | 0.772
-16 | 22 | 0.772
-17 | 22 | 0.724
-18 | 22 | 0.676
-19 | 22 | 0.676
-20 | 22 | 0.676
-21 | 22 | 0.676
-22 | 22 | 0.723
-23 | 19 | 0.737
+6 | 22 | 0.773
+7 | 22 | 0.773
+8 | 22 | 0.773
+9 | 21 | 0.750
+10 | 22 | 0.773
+11 | 22 | 0.773
+12 | 22 | 0.773
+13 | 22 | 0.773
+14 | 22 | 0.773
+15 | 22 | 0.773
+16 | 22 | 0.773
+17 | 21 | 0.702
+18 | 21 | 0.653
+19 | 21 | 0.605
+20 | 21 | 0.605
+21 | 21 | 0.605
+22 | 21 | 0.653
+23 | 21 | 0.701
 
 == G. What the tariff adds beyond the flat-tariff best window (min pressure 14.06 m)
 tariff | peak/off-peak | flat-best window cost / shipped | tariff-best window cost / shipped | extra saving from the tariff, % of shipped cost
-evening | 1.5 | 0.568 | 0.568 | 0.1
-evening | 3 | 0.749 | 0.676 | 7.3
-evening | 10 | 1.591 | 0.833 | 75.8
-daytime | 1.5 | 0.602 | 0.601 | 0.1
-daytime | 3 | 0.813 | 0.758 | 5.5
+evening | 1.5 | 0.568 | 0.533 | 3.5
+evening | 3 | 0.749 | 0.605 | 14.4
+evening | 10 | 1.591 | 0.737 | 85.4
+daytime | 1.5 | 0.602 | 0.569 | 3.3
+daytime | 3 | 0.813 | 0.705 | 10.8
 daytime | 10 | 1.237 | 0.914 | 32.3
-midday-cheap | 1.5 | 0.514 | 0.514 | 0.0
-midday-cheap | 3 | 0.545 | 0.533 | 1.2
-midday-cheap | 10 | 0.672 | 0.584 | 8.8
+midday-cheap | 1.5 | 0.514 | 0.499 | 1.6
+midday-cheap | 3 | 0.545 | 0.490 | 5.5
+midday-cheap | 10 | 0.672 | 0.503 | 16.9
 
 == H. Share of pump energy in the peak hours, shipped window and flat-best window
 shipped   01:00 14 h | in 16-21: 0 % | in 08-20: 17 %
@@ -83,6 +83,6 @@ shipped 01:00 14 h | 300 | 2,573 | 1,703 | 38 | 11
 flat-best 01:00 21 h | 3600 | 1,307 | 0 | -534 | -534
 flat-best 01:00 21 h | 900 | 1,307 | 0 | -540 | -540
 flat-best 01:00 21 h | 300 | 1,307 | 0 | -541 | -541
-evening x3 best 21:00 22 h | 3600 | 1,368 | 0 | -560 | -560
-evening x3 best 21:00 22 h | 900 | 1,367 | 0 | -565 | -565
-evening x3 best 21:00 22 h | 300 | 1,367 | 0 | -566 | -566
+evening x3 best 21:00 21 h | 3600 | 1,309 | 0 | -453 | -453
+evening x3 best 21:00 21 h | 900 | 1,309 | 0 | -461 | -461
+evening x3 best 21:00 21 h | 300 | 1,309 | 0 | -463 | -463

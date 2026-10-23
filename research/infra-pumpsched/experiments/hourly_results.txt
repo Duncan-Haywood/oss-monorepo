@@ -1,0 +1,6 @@
+step 900 s; evaluation budget 1200 per run, population 30, seeds [0, 1, 2]; shipped 2,573 kWh
+tariff | ratio | shipped cost | best window (409 evals) | GA mean (min-max) | random search mean (min-max) | GA best kWh | GA best hours on
+evening | 3 | 2,573 | 60.5 | 61.3 (60.5-63.0) | 79.1 (74.9-83.9) | 1,309 | 111111111111111100110111
+evening | 10 | 2,573 | 73.7 | 72.3 (71.3-74.2) | 95.0 (83.9-102.6) | 1,835 | 111010111111111100000111
+daytime | 3 | 3,442 | 70.5 | 68.2 (65.3-70.5) | 79.8 (74.1-84.0) | 1,249 | 111111110101111101101111
+(costs as % of the shipped schedule's cost; lower is better)
