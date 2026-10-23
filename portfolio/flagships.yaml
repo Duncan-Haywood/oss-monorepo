@@ -114,7 +114,7 @@ flagships:
       (README "Where the exact proof breaks"). Ejection chains landed 2026-10-22
       (open hours 413 to 395 on 8 x 22; fixed an exact-search pay bound that
       overstated). The coverage pass now always runs and keeps a better roster it finds
-      (gap on 8 x 22: 45 h -> 27 h). Cross-day rest on the flow's day edges tried 2026-10-23: no change (387 h open, floor 360 h; README). Pricing contested shifts (Lagrangian, `openFloorByPricing`) landed 2026-10-23: floor 360 -> 383 h vs 387 h open on 8 x 22. Next: the cost side now stops the 8 x 22 proof, so a tighter pay bound once coverage is proven (or branching on the most contested shift), the 10 x 28 and 12 x 30 sizes where the floor still leaves 14 h, then a joint (not week-by-week) multi-week solve.
+      (gap on 8 x 22: 45 h -> 27 h). Cross-day rest on the flow's day edges tried 2026-10-23: no change (387 h open, floor 360 h; README). Pricing contested shifts (Lagrangian, `openFloorByPricing`) landed 2026-10-23: floor 360 -> 383 h vs 387 h open on 8 x 22. Next: the cost side now stops the 8 x 22 proof, so a tighter pay bound once coverage is proven (or branching on the most contested shift; branch order by length or eligibility per hour tried 2026-10-23, no gain), the 10 x 28 and 12 x 30 sizes where the floor still leaves 14 h, then a joint (not week-by-week) multi-week solve.
       Multi-week fairness measured 2026-10-22 (eval/fairness-bench.mjs: tough-shift spread
       13.2 -> 3.2 over 8 weeks for +0.4% payroll, equal-availability synthetic crews).
 
