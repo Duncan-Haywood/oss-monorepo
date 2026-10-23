@@ -33,3 +33,17 @@ test("QIF !Account blocks are not transactions, and several account sections are
   assert.ok(r.problems.some((p) => /2 account sections/.test(p)));
   assert.deepEqual(readQif("!Type:Bank\nD01/05/2026\nT-5.00\nPA\n^\n").problems, []);
 });
+
+// csv2ofx (MIT) test file pcmastercard.csv, rewritten in its shape: a card export
+// of purchases only, every amount positive, no payment row to read the sign from.
+test("a purchases-only card file with positive amounts books as charges", async () => {
+  const { newBooks, importStatement } = await import("./engine.mjs");
+  const csv = `"Merchant Name","Card Used For Transaction","Date","Time","Amount"\n"Mobil","**** 1234","01/10/2019","06:50 PM","36.33"\n"APL*ITUNES.COM/BILL","**** 4567","12/15/2018","05:08 PM","13.98"\n`;
+  const r = importStatement(newBooks(), csv, "2000");
+  assert.deepEqual(r.books.transactions.map((t) => t.cents), [-3633, -1398]);
+  assert.ok(r.problems.some((p) => /read as charges/.test(p)));
+  const k = importStatement(newBooks(), csv, "2000", { invert: false });
+  assert.deepEqual(k.books.transactions.map((t) => t.cents), [3633, 1398]);
+  const chk = importStatement(newBooks(), csv, "1000");
+  assert.deepEqual(chk.books.transactions.map((t) => t.cents), [3633, 1398]);
+});
