@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 300" font-family="sans-serif" font-size="12">
+<rect width="520" height="300" fill="white"/>
+<text x="10" y="18" font-size="13">Whole-sheet error per seed, M tee, 3 cm half-depth arm</text>
+<line x1="70" x2="510" y1="270.0" y2="270.0" stroke="#ddd"/><text x="62" y="274.0" text-anchor="end">0</text>
+<line x1="70" x2="510" y1="220.0" y2="220.0" stroke="#ddd"/><text x="62" y="224.0" text-anchor="end">0.5</text>
+<line x1="70" x2="510" y1="170.0" y2="170.0" stroke="#ddd"/><text x="62" y="174.0" text-anchor="end">1</text>
+<line x1="70" x2="510" y1="120.0" y2="120.0" stroke="#ddd"/><text x="62" y="124.0" text-anchor="end">1.5</text>
+<line x1="70" x2="510" y1="70.0" y2="70.0" stroke="#ddd"/><text x="62" y="74.0" text-anchor="end">2</text>
+<text x="14" y="150" transform="rotate(-90 14,150)" text-anchor="middle">err_all (cm)</text>
+<circle cx="115.5" cy="106.80000000000001" r="3.5" fill="#c0504d" fill-opacity="0.8"/>
+<circle cx="122.5" cy="86.4" r="3.5" fill="#c0504d" fill-opacity="0.8"/>
+<circle cx="129.5" cy="102.5" r="3.5" fill="#c0504d" fill-opacity="0.8"/>
+<circle cx="136.5" cy="88.19999999999999" r="3.5" fill="#c0504d" fill-opacity="0.8"/>
+<circle cx="143.5" cy="103.69999999999999" r="3.5" fill="#c0504d" fill-opacity="0.8"/>
+<circle cx="150.5" cy="75.5" r="3.5" fill="#c0504d" fill-opacity="0.8"/>
+<circle cx="157.5" cy="83.9" r="3.5" fill="#c0504d" fill-opacity="0.8"/>
+<circle cx="164.5" cy="73.69999999999999" r="3.5" fill="#c0504d" fill-opacity="0.8"/>
+<line x1="108" x2="172" y1="90.08749999999998" y2="90.08749999999998" stroke="black" stroke-width="2"/>
+<text x="140" y="288" text-anchor="middle">2D-designed</text>
+<circle cx="265.5" cy="141.2" r="3.5" fill="#4f81bd" fill-opacity="0.8"/>
+<circle cx="272.5" cy="102.6" r="3.5" fill="#4f81bd" fill-opacity="0.8"/>
+<circle cx="279.5" cy="99.1" r="3.5" fill="#4f81bd" fill-opacity="0.8"/>
+<circle cx="286.5" cy="123.4" r="3.5" fill="#4f81bd" fill-opacity="0.8"/>
+<circle cx="293.5" cy="59.099999999999994" r="3.5" fill="#4f81bd" fill-opacity="0.8"/>
+<circle cx="300.5" cy="126.80000000000001" r="3.5" fill="#4f81bd" fill-opacity="0.8"/>
+<circle cx="307.5" cy="139.4" r="3.5" fill="#4f81bd" fill-opacity="0.8"/>
+<circle cx="314.5" cy="136.2" r="3.5" fill="#4f81bd" fill-opacity="0.8"/>
+<line x1="258" x2="322" y1="115.97500000000002" y2="115.97500000000002" stroke="black" stroke-width="2"/>
+<text x="290" y="288" text-anchor="middle">3D, original bounds</text>
+<circle cx="415.5" cy="159.3" r="3.5" fill="#2e8b57" fill-opacity="0.8"/>
+<circle cx="422.5" cy="151.89999999999998" r="3.5" fill="#2e8b57" fill-opacity="0.8"/>
+<circle cx="429.5" cy="151.4" r="3.5" fill="#2e8b57" fill-opacity="0.8"/>
+<circle cx="436.5" cy="187.2" r="3.5" fill="#2e8b57" fill-opacity="0.8"/>
+<circle cx="443.5" cy="142.5" r="3.5" fill="#2e8b57" fill-opacity="0.8"/>
+<circle cx="450.5" cy="176.7" r="3.5" fill="#2e8b57" fill-opacity="0.8"/>
+<circle cx="457.5" cy="181.4" r="3.5" fill="#2e8b57" fill-opacity="0.8"/>
+<circle cx="464.5" cy="110.39999999999998" r="3.5" fill="#2e8b57" fill-opacity="0.8"/>
+<line x1="408" x2="472" y1="157.6" y2="157.6" stroke="black" stroke-width="2"/>
+<text x="440" y="288" text-anchor="middle">3D, wide bounds</text>
+</svg>
