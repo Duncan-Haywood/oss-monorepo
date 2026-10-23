@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  A UBL 2.1 Invoice for Peppol PINT Singapore (InvoiceNow): BT-24 names the SG
+  billing profile, so the SG rules run instead of the EU base. Made-up parties.
+  Line 1   10 x 50.00 = 500.00   SR 9% GST
+  GST 9%                45.00
+  Total                545.00
+-->
+<Invoice xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2"
+         xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
+         xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2">
+  <cbc:CustomizationID>urn:cen.eu:en16931:2017#conformant#urn:fdc:peppol.eu:2017:poacc:billing:international:sg:3.0</cbc:CustomizationID>
+  <cbc:ProfileID>urn:fdc:peppol.eu:2017:poacc:billing:01:1.0</cbc:ProfileID>
+  <cbc:ID>INV-SG-0001</cbc:ID>
+  <cbc:UUID>6f1c2a3e-9b4d-4e1a-8c7f-2d5e6a7b8c90</cbc:UUID>
+  <cbc:IssueDate>2026-09-05</cbc:IssueDate>
+  <cbc:DueDate>2026-10-05</cbc:DueDate>
+  <cbc:InvoiceTypeCode>380</cbc:InvoiceTypeCode>
+  <cbc:DocumentCurrencyCode>SGD</cbc:DocumentCurrencyCode>
+  <cbc:BuyerReference>PO-7781</cbc:BuyerReference>
+  <cac:AccountingSupplierParty>
+    <cac:Party>
+      <cbc:EndpointID schemeID="0195">SGUEN201234567A</cbc:EndpointID>
+      <cac:PartyName><cbc:Name>Lion City Supplies Pte Ltd</cbc:Name></cac:PartyName>
+      <cac:PostalAddress>
+        <cbc:StreetName>1 Example Road</cbc:StreetName>
+        <cbc:CityName>Singapore</cbc:CityName>
+        <cbc:PostalZone>018956</cbc:PostalZone>
+        <cac:Country><cbc:IdentificationCode>SG</cbc:IdentificationCode></cac:Country>
+      </cac:PostalAddress>
+      <cac:PartyTaxScheme>
+        <cbc:CompanyID>M90376251A</cbc:CompanyID>
+        <cac:TaxScheme><cbc:ID>GST</cbc:ID></cac:TaxScheme>
+      </cac:PartyTaxScheme>
+      <cac:PartyLegalEntity><cbc:RegistrationName>Lion City Supplies Pte Ltd</cbc:RegistrationName><cbc:CompanyID schemeID="0195">SGUEN201234567A</cbc:CompanyID></cac:PartyLegalEntity>
+    </cac:Party>
+  </cac:AccountingSupplierParty>
+  <cac:AccountingCustomerParty>
+    <cac:Party>
+      <cbc:EndpointID schemeID="0195">SGUEN200987654B</cbc:EndpointID>
+      <cac:PartyName><cbc:Name>Merlion Retail Pte Ltd</cbc:Name></cac:PartyName>
+      <cac:PostalAddress>
+        <cbc:StreetName>9 Sample Street</cbc:StreetName>
+        <cbc:CityName>Singapore</cbc:CityName>
+        <cbc:PostalZone>049145</cbc:PostalZone>
+        <cac:Country><cbc:IdentificationCode>SG</cbc:IdentificationCode></cac:Country>
+      </cac:PostalAddress>
+      <cac:PartyLegalEntity><cbc:RegistrationName>Merlion Retail Pte Ltd</cbc:RegistrationName></cac:PartyLegalEntity>
+    </cac:Party>
+  </cac:AccountingCustomerParty>
+  <cac:PaymentMeans>
+    <cbc:PaymentMeansCode>30</cbc:PaymentMeansCode>
+    <cac:PayeeFinancialAccount><cbc:ID>0011234567</cbc:ID></cac:PayeeFinancialAccount>
+  </cac:PaymentMeans>
+  <cac:TaxTotal>
+    <cbc:TaxAmount currencyID="SGD">45.00</cbc:TaxAmount>
+    <cac:TaxSubtotal>
+      <cbc:TaxableAmount currencyID="SGD">500.00</cbc:TaxableAmount>
+      <cbc:TaxAmount currencyID="SGD">45.00</cbc:TaxAmount>
+      <cac:TaxCategory>
+        <cbc:ID>SR</cbc:ID>
+        <cbc:Percent>9</cbc:Percent>
+        <cac:TaxScheme><cbc:ID>GST</cbc:ID></cac:TaxScheme>
+      </cac:TaxCategory>
+    </cac:TaxSubtotal>
+  </cac:TaxTotal>
+  <cac:LegalMonetaryTotal>
+    <cbc:LineExtensionAmount currencyID="SGD">500.00</cbc:LineExtensionAmount>
+    <cbc:TaxExclusiveAmount currencyID="SGD">500.00</cbc:TaxExclusiveAmount>
+    <cbc:TaxInclusiveAmount currencyID="SGD">545.00</cbc:TaxInclusiveAmount>
+    <cbc:PayableAmount currencyID="SGD">545.00</cbc:PayableAmount>
+  </cac:LegalMonetaryTotal>
+  <cac:InvoiceLine>
+    <cbc:ID>1</cbc:ID>
+    <cbc:InvoicedQuantity unitCode="C62">10</cbc:InvoicedQuantity>
+    <cbc:LineExtensionAmount currencyID="SGD">500.00</cbc:LineExtensionAmount>
+    <cac:Item>
+      <cbc:Name>Packing carton, 40 cm</cbc:Name>
+      <cac:ClassifiedTaxCategory>
+        <cbc:ID>SR</cbc:ID>
+        <cbc:Percent>9</cbc:Percent>
+        <cac:TaxScheme><cbc:ID>GST</cbc:ID></cac:TaxScheme>
+      </cac:ClassifiedTaxCategory>
+    </cac:Item>
+    <cac:Price><cbc:PriceAmount currencyID="SGD">50.00</cbc:PriceAmount></cac:Price>
+  </cac:InvoiceLine>
+</Invoice>
