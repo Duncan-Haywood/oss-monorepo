@@ -220,3 +220,43 @@ test("cross wing: collar ties on every other pair of wing commons, 24 in below t
   const wide = layoutRoof({ ...wingRoof({ width: 96 }), collarTies: true }, plan());
   assert.equal(wide.wingCollarTies.length, 0);
 });
+
+// Wing pitch differs from the main roof: 16 ft wing at 3:12 on the 28 x 40 ft 4:12 main roof, 12 in eave overhang.
+// Hand arithmetic: s = 3/4 = 0.75; the wing ridge meets the main plane e = 96 x 0.75 = 72 in inside the main wall;
+// reach = 108, the valley reaches the wing eave first (s < 1) at yEnd = 108 in off the axis.
+test("cross wing at another pitch: valley, ridge and wing rafters from the plane intersection", () => {
+  const l = layoutRoof(wingRoof({ pitch: 3 }), plan());
+  assert.equal(l.ok, true, JSON.stringify(l.errors));
+  const kw = Math.sqrt(1 + 0.0625);
+  // wing common: (96 - 0 + 12) x kw with a 1.5 in ridge board
+  assert.ok(l.wingRafters.every((x) => Math.abs(x.length - (96 - 0.75 + 12) * kw) < 1 / 16));
+  // valley: 108 x sqrt(1 + 0.75^2 + 0.25^2)
+  assert.ok(Math.abs(l.valleyLength - 108 * Math.sqrt(1 + 0.5625 + 0.0625)) < 1 / 16);
+  // wing ridge: 144 out + 72 inside the main wall + 12 rake
+  assert.equal(l.wingRidges.reduce((a, x) => a + x.length, 0), 228);
+  // the first valley jack stands past the eave line at 144 - 12 x 0.75 = 135: u = 144 is a jack with run (216 - 144) / 0.75 - 0.75
+  const j = l.wingJacks.find((x) => x.u === 144);
+  const cut = Math.sqrt(1 + 1 / 0.5625);
+  assert.ok(Math.abs(j.length - (96 - 0.75 - 0.75 * cut) * kw) < 1 / 16);
+  assert.match(l.notes.join(" "), /3:12 against the main roof's 4:12/);
+});
+
+test("cross wing at another pitch: the same pitch given explicitly changes nothing; a steep wing is refused", () => {
+  const a = layoutRoof(wingRoof(), plan()), b = layoutRoof(wingRoof({ pitch: 4 }), plan());
+  assert.equal(b.valleyLength, a.valleyLength);
+  assert.equal(b.sheets.area, a.sheets.area);
+  assert.equal(b.wingJacks.length, a.wingJacks.length);
+  assert.equal(layoutRoof(wingRoof({ pitch: 30 }), plan()).ok, false);
+  assert.equal(layoutRoof(wingRoof({ pitch: 0 }), plan()).ok, false);
+});
+
+test("cross wing at another pitch: area is the two wing planes less the main strip they cover", () => {
+  const base = layoutRoof({ ...wingRoof(), wing: undefined }, plan());
+  const l = layoutRoof(wingRoof({ pitch: 3 }), plan());
+  // wing plan: 2 x integral over y = 0..108 of (12 + 144 + max(-12, (96 - y) x 0.75)); the valley meets the wing eave at y = 108
+  const f = (y) => 12 + 144 + Math.max(-12, (96 - y) * 0.75);
+  let wing = 0; const n = 108000; for (let i = 0; i < n; i++) wing += f((i + 0.5) * 108 / n) * 108 / n;
+  let cover = 0; const m = 108000; for (let i = 0; i < m; i++) { const y = (i + 0.5) * 108 / m; cover += ((96 - y) * 0.75 + 12) * 108 / m; }
+  const expect = base.sheets.area + (2 * wing * Math.sqrt(1 + 1 / 16) - 2 * cover * Math.sqrt(1 + 1 / 9)) / 144;
+  assert.ok(Math.abs(l.sheets.area - expect) < 0.5, `${l.sheets.area} vs ${expect}`);
+});
