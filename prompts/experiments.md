@@ -1215,3 +1215,14 @@ or `ventures`) until its success rate passes 80% over 20 runs?
   unchanged: intervals overlap, or fewer than 10 runs. `derived/` regenerated.
   No audit or drift report (reduced pass).
 - Result: (next review)
+
+## E75: review 2026-10-23 (reduced pass, fourth run)
+
+- Change: `.github/prompts/cloud-session.md` note on the process-kill hook
+  trap now says the `pgrep` form is refused too (friction on
+  `research/CLAUDE.md` reported two retries on the rejection).
+- Metric: friction reports about that hook rejection, over the next 40 runs
+  (baseline: 1 recent).
+- Decisions: all four candidates keep collecting (intervals overlap / too
+  few runs). `derived/` rebuilt. No audit or drift report (reduced pass).
+- Result: (next review)
