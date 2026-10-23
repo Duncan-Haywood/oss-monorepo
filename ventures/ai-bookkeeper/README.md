@@ -313,6 +313,10 @@ instructions; confirm each line with your preparer. Test: `taxforms.test.mjs`.
 
 **Preparer pack (2026-10-22).** `cli.mjs taxpack YEAR [--out DIR]` (`taxPack(books, year)` in `taxpack.mjs`) writes one folder for a bookkeeper or tax preparer: trial balance, profit and loss, balance sheet, full journal, Schedule C lines, self-employment tax, the 1099-NEC list and filing sheet, Form 941/940 worksheets, sales tax by month, tax depreciation, the mileage log and the close checks, plus `INDEX.txt` listing the files, the ones left out because nothing is behind them, and what to look at first (a contractor over the line with no W-9, an unmapped account, a failing close check). It only gathers what the other modules compute; hand-made fixtures only, so try it on a real year. Test: `taxpack.test.mjs`.
 
+## Rental properties and Schedule E (US landlords)
+
+`rental.mjs` (CLI `rental accounts|add ID [NAME]|tag ID --match TEXT|--account CODE|--ids A,B|untag|list`, then `schedulee [--from D --to D] [--csv|--json]`; marketing page `rental-property-bookkeeping.html`, 2026-10-23). `rental accounts` adds rental income (4300), management fees (6200), mortgage interest (6210), property taxes (6220), cleaning and maintenance (6230) and deposits held (2400). Bank lines carry a `property` tag (a split part can carry its own); `scheduleE` regroups income and expense onto Schedule E Part I lines 3 to 19, totals 20 and 21, one column per property, with untagged amounts shown as Unassigned (or given to the only property). It warns on untagged amounts, unmapped accounts, lines in review, no depreciation booked and no deposits account, and `taxpack` writes `schedule_e.csv` when properties exist. A worksheet: no passive-loss limits, personal-use days, vacation-home rules or depreciation schedule. The line map is from the form's layout as the author knows it, not checked against the current instructions; tested only on hand-written books (`rental.test.mjs`, 5 tests), no real landlord's year.
+
 ## Mileage and home office (US)
 
 Two deductions a bank feed never shows. `trip add MILES --date D --purpose TEXT [--from A --to B]`
