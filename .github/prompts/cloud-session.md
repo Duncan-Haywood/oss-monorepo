@@ -59,7 +59,7 @@ in the background (it can exceed 120 s).
 ## Long commands
 
 A foreground command times out (2 min by default, 10 min at most), and
-foreground `sleep` is blocked.
+foreground `sleep` is blocked. Never chain a long command with `git commit`/`push` in one call (it gets auto-backgrounded and delays the commit), and the safety check rejects `rm -rf` on relative globs after a `cd`: use absolute paths.
 Start these with `run_in_background` and wait with `Monitor`:
 
 - `node platform/marketing/regen.mjs --verify` and the pages test suites
