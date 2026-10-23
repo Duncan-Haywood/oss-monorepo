@@ -792,7 +792,7 @@ function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000, t
     const base = BIG * unfilledH;
     const openCap = Math.max(0, demand - capacity);
     if (base + BIG * openCap >= cutoff) return Infinity;
-    return base + BIG * Math.max(openCap, demand - coverableHours(k, hoursLeft, true).flow);
+    return base + BIG * Math.max(openCap, minOpenH - unfilledH, demand - coverableHours(k, hoursLeft, true).flow);
   };
   // Lagrangian bound on the convex hours terms when the undecided shifts add at most `x` hours in all: for any price lam,
   // sum_p min_h [g_p(h) - lam (h - h0_p)] + lam x is a lower bound on the least total (weak duality), and an open hour costs
@@ -957,6 +957,16 @@ function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000, t
       cost += f * dist[snk];
     }
   };
+  // Pricing shifts gives a floor on open hours that sees who can hold which whole sets (the flow splits a shift between people).
+  // Open hours are sums of shift lengths, so when those share a grid (hours, halves, quarters) the floor rounds up to it.
+  const incHours = Math.floor(incumbent / BIG + 1e-9);
+  if (incHours > 0 && o.pricingFloor !== false) {
+    const pf = priceOpenFloor(ctx, { incumbentOpen: incHours });
+    if (pf) {
+      const unit = [1, 0.5, 0.25].find((u) => len.every((h) => Math.abs(h / u - Math.round(h / u)) < 1e-9)); // open hours come in whole shifts
+      minOpenH = unit ? Math.ceil(pf.floor / unit - 1e-6) * unit : Math.max(0, pf.floor - 1e-6);
+    }
+  }
   const rootBound = lowerBound(0, 0);
   let best = incumbent, bestOwner = null, nodes = 0, aborted = false;
   const t0 = Date.now();
@@ -993,7 +1003,7 @@ function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000, t
   // Coverage first: how few hours can stay open at all, ignoring pay? Cost bounds are weak against whole open hours (BIG each),
   // so the cost search below is told the answer. It gets the node limit again and half the time limit; an unfinished pass proves nothing and is dropped.
     const incOpen = Math.floor(incumbent / BIG + 1e-9);
-  if (incOpen > 0 && incOpen > Math.floor(rootBound / BIG + 1e-9)) {
+  if (incOpen > 0 && incOpen > Math.floor(rootBound / BIG + 1e-9) && incOpen > minOpenH + 1e-9) {
     covMode = true;
     const savedBest = best;
     best = BIG * incOpen;
@@ -1010,6 +1020,67 @@ function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000, t
   }
   rec(0, 0);
   return { proven: !aborted, nodes: nodes + coverNodes, coverNodes, coverOpen: minOpenH, rootBound, owner: bestOwner, score: bestOwner ? best : null };
+}
+
+// Fewest hours that must stay open, by pricing shifts (Lagrangian dual of "each shift is covered by at most one person").
+// Each person independently takes their best feasible set of shifts, where a shift costs `lam` hours of value; for any lam >= 0
+// sum(lam) + sum_p max_set sum(len - lam) bounds the coverable hours from above (weak duality), and subgradient steps tighten lam.
+// The flow bound lets a shift be split between people; this one cannot, but it enumerates each person's real feasible sets, so it
+// returns null when a person has more than `maxSets` of them. Returns { floor, coverable, demand, sets } with floor in hours.
+export function openFloorByPricing(staff, slots, options = {}, cfg = {}) {
+  return priceOpenFloor(buildContext(staff, slots, options), cfg);
+}
+function priceOpenFloor(ctx, { maxSets = 60000, rounds = 200, incumbentOpen = null } = {}) {
+  const { P, S, elig, slots } = ctx;
+  const len = slots.map((s) => (s.end - s.start) / 60);
+  const demand = len.reduce((a, b) => a + b, 0);
+  const sets = [];
+  let total = 0;
+  for (let p = 0; p < P; p++) {
+    const items = [...Array(S).keys()].filter((i) => elig[p][i] && validList(ctx, p, [i])).sort((a, b) => slots[a].start - slots[b].start || a - b);
+    const found = [];
+    let blown = false;
+    const go = (x, list) => {
+      if (blown) return;
+      found.push(list);
+      if (found.length > maxSets) { blown = true; return; }
+      for (; x < items.length; x++) {
+        const nl = insertSorted(ctx, list, items[x]);
+        if (validList(ctx, p, nl)) go(x + 1, nl);
+      }
+    };
+    go(0, []);
+    if (blown) return null;
+    sets.push(found);
+    total += found.length;
+  }
+  const lam = new Float64Array(S);
+  let bestBound = demand;
+  const target = incumbentOpen == null ? 0 : demand - incumbentOpen;
+  let theta = 1;
+  for (let r = 0; r < rounds; r++) {
+    let L = 0;
+    for (let i = 0; i < S; i++) L += lam[i];
+    const cnt = new Float64Array(S);
+    for (let p = 0; p < P; p++) {
+      let bestV = -Infinity, bestSet = null;
+      for (const f of sets[p]) {
+        let v = 0;
+        for (const i of f) v += len[i] - lam[i];
+        if (v > bestV) { bestV = v; bestSet = f; }
+      }
+      L += bestV;
+      for (const i of bestSet) cnt[i]++;
+    }
+    if (L < bestBound) bestBound = L; else if (r % 10 === 9) theta *= 0.7;
+    let norm = 0;
+    const gr = new Float64Array(S);
+    for (let i = 0; i < S; i++) { gr[i] = 1 - cnt[i]; norm += gr[i] * gr[i]; }
+    if (norm === 0) break;
+    const step = (theta * Math.max(L - target, 0.5)) / norm;
+    for (let i = 0; i < S; i++) lam[i] = Math.max(0, lam[i] - step * gr[i]);
+  }
+  return { floor: Math.max(0, demand - bestBound), coverable: bestBound, demand, sets: total };
 }
 
 // What a manager gets filling shifts in time order with the first valid person in the list.
