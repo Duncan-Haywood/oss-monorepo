@@ -37,10 +37,7 @@
   ],
   "deviations": [],
   "writeups": [
-    {
-      "file": "ventures/changepoint-detector/README.md",
-      "note": "extended growth-change range section with clumpy-count measurement; no separate post"
-    }
+    "ventures/changepoint-detector/README.md"
   ],
   "goal": null,
   "notes": "Engine change in poissonTrend range scale; 113 engine/cli/page tests pass; eval output in eval/growth-change-interval-nb.out.txt. Coverage 77% -> ~88%, not claimed calibrated.",
