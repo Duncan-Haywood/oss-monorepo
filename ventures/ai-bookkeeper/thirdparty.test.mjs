@@ -3,7 +3,7 @@
 // are rewritten here in their shape; they are not a bank's real downloads.
 import test from "node:test";
 import assert from "node:assert/strict";
-import { readOfx, readQif } from "./bank.mjs";
+import { readOfx, readQif, readStatement, parseDate } from "./bank.mjs";
 
 const wrap = (trn) => `<OFX><BANKMSGSRSV1><STMTTRNRS><STMTRS><BANKTRANLIST>${trn}</BANKTRANLIST></STMTRS></STMTTRNRS></BANKMSGSRSV1></OFX>`;
 
@@ -73,4 +73,23 @@ test("camt.052 reports and camt.054 notifications are recognised; several report
   assert.equal(n.rows.length, 2);
   const two = readStatement(doc("BkToCstmrAcctRpt", rpt("Rpt") + rpt("Rpt")));
   assert.ok(two.problems.some((p) => /2 statements or reports/.test(p)));
+});
+
+// Lithuanian bank samples from ofxstatement-lithuanian (layouts rewritten with made-up rows).
+test("Swedbank LT layout: Lithuanian headers, D/K flag, balance rows skipped; colon dates; short rows named", () => {
+  const sw = [
+    '"Sąskaitos Nr.","","Data","Gavėjas","Paaiškinimai","Suma","Valiuta","D/K"',
+    '"LT00","10","2012-01-01","","Likutis pradžiai","100.00","EUR","K"',
+    '"LT00","20","2012-01-02","Cafe","PIRKINYS Cafe Vilnius","14.34","EUR","D"',
+    '"LT00","20","2012-01-03","Acme","Pavedimas Acme","50.00","EUR","K"',
+    '"LT00","86","2012-01-31","","Likutis pabaigai","135.66","EUR","K"',
+  ].join("\n");
+  const r = readStatement(sw);
+  assert.deepEqual(r.rows.map((x) => x.cents), [-1434, 5000]);
+  assert.ok(r.problems.some((p) => /balance row/.test(p)));
+  assert.equal(parseDate("2012:03:01"), "2012-03-01");
+  const short = "Date,Name,Amount\n2012:03:01,A,\"1.00\"\n2012:03:02,B\n";
+  const s = readStatement(short);
+  assert.equal(s.rows.length, 1);
+  assert.ok(s.problems.some((p) => /fewer than the header/.test(p)));
 });
