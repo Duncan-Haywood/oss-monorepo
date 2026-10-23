@@ -51,7 +51,7 @@ flagships:
       ADP report and check the deposit rules against a real IRS notice; (7) one
       named filing service's import layout, from its own spec; (8) `salestax
       return`: check it against one state's real return layout and holiday
-      calendar; (9) 1099-NEC backup withholding: Form 945/box 4 treatment read in the IRS instructions (2026-10-23); the 24% rate (Pub. 1099 part N) and a preparer's view remain; (10) `estimate` (1040-ES
+      calendar; (9) 1099-NEC backup withholding: Form 945/box 4 treatment read in the IRS instructions (2026-10-23); 24% rate confirmed against Pub. 1281 and Pub. 15 (2026-10-23, search snippets); a preparer's view remains; (10) `estimate` (1040-ES
       plan; 2026 tables match the IRS text of Rev. Proc. 2025-32 (2026-10-23), the
       SS wage base matches ssa.gov, 2025 table cross-checked only against secondary sites; page card landed 2026-10-23). A run
       that lands a slice replaces its item here; keep this under 2,000 characters.
