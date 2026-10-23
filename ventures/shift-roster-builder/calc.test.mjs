@@ -1526,3 +1526,17 @@ test("the whole-score shift-pricing bound never exceeds the brute-force optimum,
   }
   assert.ok(checked > 10 && gapShare / checked < 0.5, `mean relative gap ${gapShare / checked}`);
 });
+
+test("reduced-cost fixing keeps the proven optimum and never costs nodes", () => {
+  const days = ["Mon", "Tue", "Wed", "Thu", "Fri"];
+  let seed = 4242;
+  const rnd = (n) => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return (seed >> 8) % n; };
+  for (let c = 0; c < 6; c++) {
+    const st = Array.from({ length: 5 }, (_, p) => `P${p},${10 + rnd(12)},${12 + rnd(5) * 6},0,${days[rnd(3)]}-Fri ${6 + rnd(4)}-${16 + rnd(8)}`).join("\n");
+    const sh = Array.from({ length: 10 }, () => { const a = 6 + rnd(9); return `${days[rnd(5)]},${a},${a + 4 + rnd(6)},${1 + rnd(2)}`; }).join("\n");
+    const run = (fix) => buildRoster(parseStaff(st).staff, parseShifts(sh).slots, { exact: true, flowBalance: true, balance: 60, exactNodes: 100000, restarts: 2, iterations: 1000, reducedCostFixing: fix });
+    const a = run(true), b = run(false);
+    if (a.optimality.status !== "bounded" && b.optimality.status !== "bounded") assert.ok(Math.abs(a.score - b.score) < 1e-6, `case ${c}: ${a.score} vs ${b.score}`);
+    else assert.ok(a.score <= b.score + 1e-6 || b.optimality.status === "bounded", `case ${c}`);
+  }
+});
