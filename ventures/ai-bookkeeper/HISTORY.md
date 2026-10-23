@@ -64,3 +64,5 @@ Moved out of `portfolio/flagships.yaml` (its `next:` had grown to ~18 KB with re
 - 2026-10-23: payroll register reader probed with ten provider-style headers; five faults fixed (title block above header, kinds-of-pay gross, EE/ER/Tax header spellings, summed multi-column deductions, Last/First names). Hand-written layouts, no real export.
 
 - 2026-10-23: mutating every fixture (CRLF, BOM, blank lines, a prose preamble, a footer) found two silent zero-row reads: a line of prose above a `;` or tab header made the comma the delimiter (Knab, PostFinance), and a BOM before MT940 hid `:20:`. The delimiter is now the one that splits most of the first 20 lines into equal field counts (quotes ignored); `preamble.test.mjs` pins both. Not fixed: headerless files (Wells Fargo, TD, CBA) with a preamble line.
+
+- 2026-10-23: header-less CBA/ANZ/TD-style files with summary lines above the data (`Account Summary`, period lines) read zero rows; `readStatement` now drops up to 10 leading rows until the rest has a layout and says so in `problems` (`preamble.test.mjs`, hand-made preambles on the two fixtures, no real file).
