@@ -51,6 +51,18 @@ const [dl] = await Promise.all([page.waitForEvent("download"), page.click("#draw
 const drawn = await (await import("node:fs/promises")).readFile(await dl.path(), "utf8");
 const panelsOk = drawn.includes("Shop panels (up to 12") && drawn.includes("Panel A") && /lb/.test(drawn) && !/NaN|undefined/.test(drawn);
 console.log(panelsOk ? "ok: drawings download with shop panels" : "FAIL: shop panels missing");
+// Shop-panel lumber order: with a panel length set the button downloads the order and pull list; without one it says what is missing.
+const [po] = await Promise.all([page.waitForEvent("download"), page.click("#panelOrderBtn")]);
+const orderTxt = await (await import("node:fs/promises")).readFile(await po.path(), "utf8");
+const orderOk = po.suggestedFilename() === "shop-panel-lumber-order.txt" && orderTxt.trim().split("\n").length > 3 && !/NaN|undefined/.test(orderTxt);
+console.log(orderOk ? "ok: shop-panel lumber order downloads (" + orderTxt.trim().split("\n").length + " lines)" : "FAIL: shop-panel order download\n" + orderTxt.slice(0, 400));
+const heavier = await (async () => { await page.fill("#sheathPsf", "0"); const [d0] = await Promise.all([page.waitForEvent("download"), page.click("#drawings")]); const t0 = await (await import("node:fs/promises")).readFile(await d0.path(), "utf8"); await page.fill("#sheathPsf", "1.5"); return t0.length < drawn.length; })();
+console.log(heavier ? "ok: a sheathing weight adds panel weights to the drawings" : "FAIL: sheathing weight changed nothing in the drawings");
+await page.fill("#panelMax", "");
+await page.click("#panelOrderBtn");
+const noLen = (await page.textContent("#status")).includes("Enter the longest shop panel");
+console.log(noLen ? "ok: panel order without a length asks for one" : "FAIL: no message without a panel length");
+await page.fill("#panelMax", "12 ft");
 await page.check("#rfOn");
 await page.waitForFunction(() => document.querySelector("#roofOut")?.textContent.includes("rafters"));
 const roofTxt = await page.textContent("#roofOut");
@@ -131,4 +143,4 @@ await page.waitForFunction(() => /header table is empty/.test(document.body.text
 console.log("ok: auto header with no table refused on the page");
 console.log("page errors:", errors.length);
 await browser.close(); server.close();
-process.exit(errors.length || !panelsOk || !roofOk || !hipOk || !wingOk || !wing2Ok || !backingOk || !wingHidden || !floorOk || !gableOk || !hdrOk || horizontal.includes("CHECK FAILED") ? 1 : 0);
+process.exit(errors.length || !panelsOk || !orderOk || !heavier || !noLen || !roofOk || !hipOk || !wingOk || !wing2Ok || !backingOk || !wingHidden || !floorOk || !gableOk || !hdrOk || horizontal.includes("CHECK FAILED") ? 1 : 0);
