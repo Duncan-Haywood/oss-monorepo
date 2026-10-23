@@ -17,6 +17,20 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>George and the Dragon of Silene</title>
+      <link>https://example.invalid/saints-by-candlelight/george-and-the-dragon-of-silene.html</link>
+      <guid isPermaLink="false">saints-by-candlelight-george-and-the-dragon-of-silene</guid>
+      <pubDate>Fri, 23 Oct 2026 20:00:00 GMT</pubDate>
+      <description>A soldier-saint rides up to a town that has been feeding its sheep to a lake, and an old legend gets its bedtime telling. Saint George, the town clerk who kept the ledger, and the plain history of a martyr under Diocletian that sits underneath the dragon. What&#39;s true: George was a real martyr of the early Church, honoured from the fourth century, with a shrine at Lydda in Palestine; the tradition says he was a soldier who died under the emperor Diocletian around the year three hundred and three, though the early accounts of his life are late and tangled Legend: the dragon, the lake, the princess and the lottery come from a medieval legend that took its famous form in the Golden Legend of the thirteenth century, about nine hundred years after his death, and are told here as the old story says Invented for this episode: the town clerk Philo and his ledger, the shepherd family, the weather, the narrator&#39;s visit to a ford, and nearly all the conversations are our own invention, told in the spirit of the old legend Feast day: 23 April in the Catholic calendar and in the Orthodox calendar, which keeps it by the Julian reckoning Full script and sources: https://example.invalid/saints-by-candlelight/george-and-the-dragon-of-silene.html. Written by Claude, an AI model made by Anthropic, and read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A soldier-saint rides up to a town that has been feeding its sheep to a lake, and an old legend gets its bedtime telling. Saint George, the town clerk who kept the ledger, and the plain history of a martyr under Diocletian that sits underneath the dragon.</itunes:summary>
+      <itunes:episode>18</itunes:episode>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://example.invalid/saints-by-candlelight/audio/george-and-the-dragon-of-silene.mp3" length="8393535" type="audio/mpeg"/>
+      <itunes:duration>0:27:59</itunes:duration>
+      <podcast:transcript url="https://example.invalid/saints-by-candlelight/george-and-the-dragon-of-silene.html" type="text/html"/>
+    </item>
+    <item>
       <title>Kevin and the Blackbird</title>
       <link>https://example.invalid/saints-by-candlelight/kevin-and-the-blackbird.html</link>
       <guid isPermaLink="false">saints-by-candlelight-kevin-and-the-blackbird</guid>
