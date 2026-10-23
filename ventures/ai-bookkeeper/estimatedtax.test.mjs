@@ -123,3 +123,12 @@ test("what the plan does not cover is left as the balance due with the return", 
   assert.ok(r.balanceWithReturn > 0);
   assert.equal(r.balanceWithReturn, r.totalTax - 100000 - planned);
 });
+
+test("2026 minimum QBI deduction: $400 once QBI reaches $1,000, only where 20% is smaller", () => {
+  const q = (profit, o = {}) => estimatedTax(books(profit), { year: 2026, otherIncome: 5000000, ...o }).qbiDeduction;
+  assert.equal(q("1100.00"), 40000); // QBI about $1,000.7 -> 20% is $200, floor $400
+  assert.ok(q("900.00") < 40000);
+  assert.equal(q("1100.00", { qbi: false }), 0);
+  assert.equal(estimatedTax(books("1100.00"), { year: 2025, otherIncome: 5000000 }).qbiDeduction < 40000, true);
+  assert.equal(q("10000.00") > 40000, true); // above the floor, 20% rules
+});

@@ -69,7 +69,12 @@ export function estimatedTax(books, o = {}) {
   const std = o.standardDeduction ?? table.std;
   const agi = profit - se.deduction + wages + other;
   const beforeQbi = Math.max(0, agi - std);
-  const qbiDeduction = o.qbi === false || profit <= 0 ? 0 : Math.min(Math.round(0.2 * Math.max(0, profit - se.deduction)), Math.round(0.2 * beforeQbi));
+  const qbiIncome = Math.max(0, profit - se.deduction);
+  let qbiDeduction = o.qbi === false || profit <= 0 ? 0 : Math.min(Math.round(0.2 * qbiIncome), Math.round(0.2 * beforeQbi));
+  // One Big Beautiful Bill Act, tax years after 2025: at least $400 for a taxpayer with $1,000+ of
+  // QBI from a business they work in (from memory of the statute, not read; taken here as still
+  // capped by taxable income before the deduction). Only bites for QBI of $1,000 to $2,000.
+  if (o.qbi !== false && year >= 2026 && qbiIncome >= D(1000)) qbiDeduction = Math.max(qbiDeduction, Math.min(D(400), beforeQbi));
   if (qbiDeduction && beforeQbi > ((QBI_LIMIT[year] ?? QBI_LIMIT[2026])[filing] ?? Infinity)) warnings.push("Taxable income is above the QBI threshold, where the 20% deduction may be limited or lost; treat the figure as a ceiling on the deduction.");
   const taxable = Math.max(0, beforeQbi - qbiDeduction);
   const incomeTax = bracketTax(taxable, table.b);

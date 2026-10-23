@@ -804,6 +804,8 @@ is often fine.
 
 - PayPal activity CSV as a bank statement, 2026-10-23 (`bank.mjs`, bank `paypal`): the Net column (gross less fee) is the amount, only Completed rows are booked (pending ones reported), the description is "Name - Type", and the Balance column, when present, feeds the running-balance check. Before this the importer did not read that file at all (it has no Amount column); `payouts.mjs` still splits settlements into sales and fees. Hand-written fixture (`fixtures/paypal-activity.csv`), not a real export, so try one.
 
+- Minimum QBI deduction, 2026-10-23 (`estimatedtax.mjs`): for 2026 on, QBI of $1,000 or more gets at least a $400 deduction (the 2025 law's minimum; from memory of the statute, not read, since irs.gov and law sites refuse the shell here). It only changes results for QBI of $1,000 to $2,000. One test in `estimatedtax.test.mjs`.
+
 ## Disclaimer
 
 **No warranty.** This tool is provided free and as-is, without warranty of any
