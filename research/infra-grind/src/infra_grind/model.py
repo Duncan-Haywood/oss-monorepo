@@ -174,3 +174,10 @@ def energy_closed(target_p80, cut_ratio, p=None):
 def bond_energy(wi, p80, f80):
     """Bond's third theory, kWh/t: W = 10 Wi (1/sqrt(P80) - 1/sqrt(F80)), sizes in um."""
     return 10 * wi * (1 / math.sqrt(p80) - 1 / math.sqrt(f80))
+
+
+def capacity_ratio(E_open, closed, m):
+    """Fresh-feed capacity of a closed circuit relative to open, in one mill of fixed power and a
+    mill-flow limit of m times the open circuit's fresh feed (open circuit passes only fresh feed).
+    Power limit: E_open / E_fresh_closed. Flow limit: m / (1 + circulating load). The smaller binds."""
+    return min(E_open / closed["energy"], m / (1 + closed["circ_load"]))
