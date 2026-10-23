@@ -1,0 +1,52 @@
+SIFT (OpenCV 5.0.0), 10 scikit-image images x 3 warps; ratio <= 0.8, mutual, inliers within 3 px of truth
+
+== A. control: integer translation (no interpolation, no resampling)
+| condition | inliers | inlier share of kept | RMS err (px) | median (px) | 90th pct (px) |
+|---|---|---|---|---|---|
+| integer shift | 23041 | 0.999 | 0.111 | 0.000 | 0.000 |
+
+== B. warped (bilinear resampling), noise sigma on both images
+| noise (grey levels) | inliers | inlier share of kept | RMS err (px) | median (px) | 90th pct (px) |
+|---|---|---|---|---|---|
+| 0 | 14560 | 0.984 | 0.253 | 0.106 | 0.328 |
+| 2 | 14285 | 0.978 | 0.301 | 0.131 | 0.414 |
+| 5 | 12706 | 0.962 | 0.453 | 0.200 | 0.658 |
+| 10 | 10088 | 0.933 | 0.641 | 0.312 | 0.996 |
+| 20 | 5916 | 0.879 | 0.859 | 0.494 | 1.401 |
+| 40 | 2208 | 0.770 | 1.179 | 0.806 | 2.007 |
+
+== C. warped, Gaussian blur sigma (px) on both images
+| blur sigma (px) | inliers | inlier share of kept | RMS err (px) | median (px) | 90th pct (px) |
+|---|---|---|---|---|---|
+| 0 | 14560 | 0.984 | 0.253 | 0.106 | 0.328 |
+| 1 | 14397 | 0.987 | 0.238 | 0.087 | 0.282 |
+| 2 | 10395 | 0.991 | 0.279 | 0.101 | 0.360 |
+| 3 | 5064 | 0.987 | 0.373 | 0.136 | 0.479 |
+
+== F. per-keypoint localisation sigma implied by section B (RMS per axis / sqrt 2) and the surface error it gives at 0.0028 radii per px (sensing-recon)
+| noise (grey levels) | per-keypoint sigma per axis (px) | surface error (radii) |
+|---|---|---|
+| 0 | 0.127 | 0.00035 |
+| 2 | 0.150 | 0.00042 |
+| 5 | 0.227 | 0.00063 |
+| 10 | 0.320 | 0.00090 |
+| 20 | 0.430 | 0.00120 |
+| 40 | 0.589 | 0.00165 |
+
+== D. warped, clean, by keypoint size (SIFT diameter, px)
+| size bin | inliers | inlier share of kept | RMS err (px) | median (px) | 90th pct (px) |
+|---|---|---|---|---|---|
+| 0-3 | 7188 | 1.000 | 0.193 | 0.108 | 0.299 |
+| 3-5 | 4309 | 1.000 | 0.210 | 0.092 | 0.273 |
+| 5-8 | 1935 | 1.000 | 0.208 | 0.097 | 0.295 |
+| 8-16 | 797 | 1.000 | 0.421 | 0.183 | 0.557 |
+| 16-inf | 331 | 1.000 | 0.870 | 0.438 | 1.501 |
+
+== E. warped, noise sigma 10: by keypoint size
+| size bin | inliers | inlier share of kept | RMS err (px) | median (px) | 90th pct (px) |
+|---|---|---|---|---|---|
+| 0-3 | 4209 | 1.000 | 0.596 | 0.284 | 0.871 |
+| 3-5 | 3250 | 1.000 | 0.635 | 0.309 | 0.998 |
+| 5-8 | 1633 | 1.000 | 0.636 | 0.343 | 1.029 |
+| 8-16 | 722 | 1.000 | 0.759 | 0.428 | 1.280 |
+| 16-inf | 274 | 1.000 | 0.978 | 0.596 | 1.643 |
