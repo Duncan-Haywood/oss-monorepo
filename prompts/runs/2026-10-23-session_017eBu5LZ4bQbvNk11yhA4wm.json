@@ -1,0 +1,247 @@
+{
+  "date": "2026-10-23",
+  "session": "https://claude.ai/code/session_017eBu5LZ4bQbvNk11yhA4wm",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-23T13:18:28Z",
+  "ended": "2026-10-23T13:19:31Z",
+  "wall_minutes": 2.99,
+  "tokens_in": 1107726,
+  "tokens_out": 4840,
+  "cost_usd": 0.4602,
+  "tool_calls": 18,
+  "task": null,
+  "projects": [],
+  "pr": 9800,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 2 (hunt real bugs) was brief: read research_archive.py's ready/fetch paths, found no reproducible defect; none recorded."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Target platform/ci/research_archive.py; 4 of 8 mutants escaped, 3 new tests + 1 added, all caught after fix. Suite: python3 -m unittest test_research_archive (18 OK).",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "platform/ci/research_archive.py",
+        "test": "/usr/local/bin/python3 -m pytest -q -x -p no:cacheprovider test_research_archive.py  (in platform/ci)",
+        "seed": 819192477,
+        "commit": "f8497a9c",
+        "sites": 97,
+        "baseline_seconds": 4.9,
+        "mutants": [
+          {
+            "file": "platform/ci/research_archive.py",
+            "line": 74,
+            "col": 46,
+            "operator": "true-to-false",
+            "before": "def git(root: Path, *args: str, check: bool = True) -> str:",
+            "after": "def git(root: Path, *args: str, check: bool = False) -> str:",
+            "line_text": "def git(root: Path, *args: str, check: bool = True) -> str:",
+            "caught": false,
+            "seconds": 4.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "new test in platform/ci/test_research_archive.py"
+          },
+          {
+            "file": "platform/ci/research_archive.py",
+            "line": 77,
+            "col": 36,
+            "operator": "const-plus-one",
+            "before": "if check and proc.returncode != 0:",
+            "after": "if check and proc.returncode != 1:",
+            "line_text": "    if check and proc.returncode != 0:",
+            "caught": true,
+            "seconds": 0.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/research_archive.py",
+            "line": 191,
+            "col": 56,
+            "operator": "div-to-times",
+            "before": "git(root, \"bundle\", \"create\", \"-q\", str(out / BUNDLE),",
+            "after": "git(root, \"bundle\", \"create\", \"-q\", str(out * BUNDLE),",
+            "line_text": "            git(root, \"bundle\", \"create\", \"-q\", str(out / BUNDLE),",
+            "caught": true,
+            "seconds": 2.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/research_archive.py",
+            "line": 203,
+            "col": 33,
+            "operator": "div-to-times",
+            "before": "if meta is None or not (meta / BUNDLE_INDEX).is_file():",
+            "after": "if meta is None or not (meta * BUNDLE_INDEX).is_file():",
+            "line_text": "    if meta is None or not (meta / BUNDLE_INDEX).is_file():",
+            "caught": true,
+            "seconds": 2.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/research_archive.py",
+            "line": 205,
+            "col": 29,
+            "operator": "div-to-times",
+            "before": "index = json.loads((meta / BUNDLE_INDEX).read_text())",
+            "after": "index = json.loads((meta * BUNDLE_INDEX).read_text())",
+            "line_text": "    index = json.loads((meta / BUNDLE_INDEX).read_text())",
+            "caught": true,
+            "seconds": 2.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/research_archive.py",
+            "line": 303,
+            "col": 32,
+            "operator": "eq-flip",
+            "before": "fields = (PR_FIELDS if kind == \"pullRequests\" else ISSUE_FIELDS) % NODE_FIELDS",
+            "after": "fields = (PR_FIELDS if kind != \"pullRequests\" else ISSUE_FIELDS) % NODE_FIELDS",
+            "line_text": "    fields = (PR_FIELDS if kind == \"pullRequests\" else ISSUE_FIELDS) % NODE_FIELDS",
+            "caught": false,
+            "seconds": 4.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "new test in platform/ci/test_research_archive.py"
+          },
+          {
+            "file": "platform/ci/research_archive.py",
+            "line": 452,
+            "col": 65,
+            "operator": "false-to-true",
+            "before": "checks.append({\"name\": \"pull requests and issues\", \"ok\": False,",
+            "after": "checks.append({\"name\": \"pull requests and issues\", \"ok\": True,",
+            "line_text": "        checks.append({\"name\": \"pull requests and issues\", \"ok\": False,",
+            "caught": false,
+            "seconds": 4.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "new test in platform/ci/test_research_archive.py"
+          },
+          {
+            "file": "platform/ci/research_archive.py",
+            "line": 518,
+            "col": 18,
+            "operator": "plus-to-minus",
+            "before": "+ (\"; `bundle` keeps the rest\" if todo else \"\"))",
+            "after": "- (\"; `bundle` keeps the rest\" if todo else \"\"))",
+            "line_text": "                  + (\"; `bundle` keeps the rest\" if todo else \"\"))",
+            "caught": false,
+            "seconds": 4.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "new test in platform/ci/test_research_archive.py"
+          }
+        ]
+      }
+    ],
+    "real_defects": []
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "a99d7975-d28f-5955-9774-f02ec9717020",
+    "transcripts": 1,
+    "first": "2026-10-23T13:18:28Z",
+    "last": "2026-10-23T13:21:27Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 16,
+        "input": 32,
+        "output": 4840,
+        "thinking": 313,
+        "cache_read": 1057640,
+        "cache_write_5m": 0,
+        "cache_write_1h": 50054,
+        "api_equivalent_usd": 0.4602,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 16,
+      "input": 32,
+      "output": 4840,
+      "thinking": 313,
+      "cache_read": 1057640,
+      "cache_write_5m": 0,
+      "cache_write_1h": 50054,
+      "api_equivalent_usd": 0.4602,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.955,
+    "tool_calls": 18,
+    "tools": {
+      "Bash": 14,
+      "Read": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 2.99,
+      "active_minutes": 2.99,
+      "model_minutes": 0.93,
+      "tool_minutes": 2.06,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 2.0,
+      "basis": "read target, write 4 tests, rerun",
+      "rate_usd_per_hour": 100.0,
+      "usd": 200.0
+    },
+    "leverage": 434.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
