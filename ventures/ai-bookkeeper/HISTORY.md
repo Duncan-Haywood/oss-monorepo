@@ -62,3 +62,5 @@ Moved out of `portfolio/flagships.yaml` (its `next:` had grown to ~18 KB with re
 - 2026-10-23: `estimate` adds the 0.9% Additional Medicare Tax (Form 8959; thresholds $200,000 single/head of household, $250,000 joint, wages counted before self-employment earnings; `addlMedicare` in the result). Hand-arithmetic test only; married-filing-separately not modelled.
 
 - 2026-10-23: payroll register reader probed with ten provider-style headers; five faults fixed (title block above header, kinds-of-pay gross, EE/ER/Tax header spellings, summed multi-column deductions, Last/First names). Hand-written layouts, no real export.
+
+- 2026-10-23: mutating every fixture (CRLF, BOM, blank lines, a prose preamble, a footer) found two silent zero-row reads: a line of prose above a `;` or tab header made the comma the delimiter (Knab, PostFinance), and a BOM before MT940 hid `:20:`. The delimiter is now the one that splits most of the first 20 lines into equal field counts (quotes ignored); `preamble.test.mjs` pins both. Not fixed: headerless files (Wells Fargo, TD, CBA) with a preamble line.

@@ -22,13 +22,27 @@ const ALIASES = {
   balance: ["balance", "running balance", "runningbalance", "running bal.", "ledger balance", "closing balance", "balance (gbp)", "balance (eur)", "balance (usd)", "saldo", "kontostand", "solde", "saldo (eur)"],
 };
 
+// The delimiter is the one that splits most of the first lines into the same
+// number of fields, so a one-line preamble ("Account summary") or a prose line
+// with a comma above the header does not decide it. The comma wins ties.
+function pickDelimiter(s) {
+  const lines = s.split(/\r\n|\r|\n/).filter((l) => l.trim() !== "").slice(0, 20);
+  let best = ",", bestScore = -1;
+  for (const d of [",", ";", "\t"]) {
+    const freq = new Map();
+    for (const l of lines) { const n = l.replace(/"[^"]*"/g, "").split(d).length; if (n > 1) freq.set(n, (freq.get(n) ?? 0) + 1); }
+    let score = 0;
+    for (const [n, f] of freq) score = Math.max(score, f * 1000 + n);
+    if (score > bestScore) { best = d; bestScore = score; }
+  }
+  return best;
+}
+
 // RFC 4180 CSV: quoted fields, doubled quotes, CRLF, a BOM, and a ; or tab
 // delimiter when the header has more of those than commas.
 export function parseCsv(text) {
   const s = String(text ?? "").replace(/^﻿/, "");
-  const head = s.slice(0, s.indexOf("\n") === -1 ? s.length : s.indexOf("\n"));
-  const counts = [",", ";", "\t"].map((d) => [d, head.split(d).length]);
-  const delim = counts.sort((a, b) => b[1] - a[1])[0][0];
+  const delim = pickDelimiter(s);
   const rows = [];
   let row = [], field = "", quoted = false;
   for (let i = 0; i < s.length; i++) {

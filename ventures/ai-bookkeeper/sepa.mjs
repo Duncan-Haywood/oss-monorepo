@@ -14,7 +14,7 @@ const cents = (s) => {
 };
 
 export function isMt940(text) {
-  return /^:20:/m.test(text) && /^:61:/m.test(text);
+  return /^\uFEFF?:20:/m.test(text) && /^:61:/m.test(text);
 }
 export function isCamt(text) {
   return /<(\w+:)?(BkToCstmrStmt|BkToCstmrAcctRpt|BkToCstmrDbtCdtNtfctn)[\s>]/.test(text) || /<(\w+:)?Ntry[\s>]/.test(text) && /camt\.0(53|52|54)/.test(text);
