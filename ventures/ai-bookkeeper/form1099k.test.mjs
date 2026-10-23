@@ -55,3 +55,18 @@ test("bad input is refused", () => {
   assert.throws(() => reconcile1099K(rep(), {}, 2026), /box 1a/);
   assert.throws(() => reconcile1099K(rep(), { gross: 1, months: [1] }, 2026), /twelve/);
 });
+
+test("the numbers on form-1099-k-reconciliation.html come from the stripe-payouts fixture", async () => {
+  const { readFileSync } = await import("node:fs");
+  const rep = readPayoutReport(readFileSync(new URL("./fixtures/stripe-payouts.csv", import.meta.url), "utf8"));
+  let b = importStatement(newBooks(), "Date,Description,Amount\n2026-03-05,STRIPE TRANSFER,611.20\n2026-03-12,STRIPE TRANSFER,96.80\n", "1000").books;
+  b = applyPayouts(b, planPayouts(b, rep)).books;
+  const r = reconcile1099K(rep, { gross: 94000 }, 2026, b);
+  assert.equal(r.bridge[2].cents, 0);
+  assert.equal(r.report.refunds, 5000);
+  assert.equal(r.ledger.books, 85000);       // sales after splitting
+  assert.equal(r.ledger.expected, 89000);    // gross less refunds; the 40.00 unpaid-out charge is the difference
+  assert.equal(rep.payouts.reduce((a, p) => a + p.net, 0), 70800); // deposited
+  const page = readFileSync(new URL("./form-1099-k-reconciliation.html", import.meta.url), "utf8");
+  for (const n of ["$940.00", "$850.00", "$708.00", "$27.00", "$115.00"]) assert.ok(page.includes(n), n);
+});
