@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-23",
+  "session": "https://claude.ai/code/session_01PRgKJgNMGGxkbR19CBvJVu",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-23T00:11:38Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/9632",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [
+    "huggingface.co returned 403 via the proxy, so no Piper voice; episode audio not rendered"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/pages/podcast_tts.py",
+      "issue": "Setup names only huggingface.co for the voice; no GitHub-reachable fallback like the Kokoro one in saints PRODUCTION.md"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/podcast/2026-10-22-phat-vs-reverb.md"
+  ],
+  "goal": null,
+  "notes": "Project: writing podcast; piece slug 2026-10-22-phat-vs-reverb (script only, audio pending).",
+  "corrections": [],
+  "redteam": null
+}
