@@ -1,0 +1,110 @@
+0 dB white noise, 2 s windows, gamma 0.25, 0.8 s offset, +-40 ppm drift, 252 scored windows per clip and cell
+(12 seeds x 3 cameras x windows 5..11 of 12, 327 s apart); wrong = |error| > 2 ms.
+none = +-1.5 s search every window. oracle10 = +-10 ms about the TRUE delay (a ceiling). track = prior from the camera's own earlier estimates.
+boot = windows searched without a prior first; cap = half-width cap as a share of the clip's autocorrelation period (clean clip, disclosed).
+
+A. clip period_ms cell ok alias gross
+applause 2.2 none 1.000 0.000 0.000
+applause 2.2 oracle10 1.000 0.000 0.000
+applause 2.2 track_boot=1_cap=none 1.000 0.000 0.000
+applause 2.2 track_boot=1_cap=0.45*period 0.111 0.044 0.845
+applause 2.2 track_boot=3_cap=none 1.000 0.000 0.000
+applause 2.2 track_boot=3_cap=0.45*period 1.000 0.000 0.000
+applause 2.2 track_boot=5_cap=none 1.000 0.000 0.000
+applause 2.2 track_boot=5_cap=0.45*period 1.000 0.000 0.000
+drama 17.4 none 1.000 0.000 0.000
+drama 17.4 oracle10 1.000 0.000 0.000
+drama 17.4 track_boot=1_cap=none 1.000 0.000 0.000
+drama 17.4 track_boot=1_cap=0.45*period 0.528 0.012 0.460
+drama 17.4 track_boot=3_cap=none 1.000 0.000 0.000
+drama 17.4 track_boot=3_cap=0.45*period 1.000 0.000 0.000
+drama 17.4 track_boot=5_cap=none 1.000 0.000 0.000
+drama 17.4 track_boot=5_cap=0.45*period 1.000 0.000 0.000
+falling 19.5 none 1.000 0.000 0.000
+falling 19.5 oracle10 1.000 0.000 0.000
+falling 19.5 track_boot=1_cap=none 1.000 0.000 0.000
+falling 19.5 track_boot=1_cap=0.45*period 0.611 0.071 0.317
+falling 19.5 track_boot=3_cap=none 1.000 0.000 0.000
+falling 19.5 track_boot=3_cap=0.45*period 1.000 0.000 0.000
+falling 19.5 track_boot=5_cap=none 1.000 0.000 0.000
+falling 19.5 track_boot=5_cap=0.45*period 1.000 0.000 0.000
+gong 52.7 none 1.000 0.000 0.000
+gong 52.7 oracle10 1.000 0.000 0.000
+gong 52.7 track_boot=1_cap=none 1.000 0.000 0.000
+gong 52.7 track_boot=1_cap=0.45*period 1.000 0.000 0.000
+gong 52.7 track_boot=3_cap=none 1.000 0.000 0.000
+gong 52.7 track_boot=3_cap=0.45*period 1.000 0.000 0.000
+gong 52.7 track_boot=5_cap=none 1.000 0.000 0.000
+gong 52.7 track_boot=5_cap=0.45*period 1.000 0.000 0.000
+roll 47.7 none 1.000 0.000 0.000
+roll 47.7 oracle10 1.000 0.000 0.000
+roll 47.7 track_boot=1_cap=none 1.000 0.000 0.000
+roll 47.7 track_boot=1_cap=0.45*period 1.000 0.000 0.000
+roll 47.7 track_boot=3_cap=none 1.000 0.000 0.000
+roll 47.7 track_boot=3_cap=0.45*period 1.000 0.000 0.000
+roll 47.7 track_boot=5_cap=none 1.000 0.000 0.000
+roll 47.7 track_boot=5_cap=0.45*period 1.000 0.000 0.000
+romans 21.7 none 1.000 0.000 0.000
+romans 21.7 oracle10 1.000 0.000 0.000
+romans 21.7 track_boot=1_cap=none 1.000 0.000 0.000
+romans 21.7 track_boot=1_cap=0.45*period 0.722 0.048 0.230
+romans 21.7 track_boot=3_cap=none 1.000 0.000 0.000
+romans 21.7 track_boot=3_cap=0.45*period 1.000 0.000 0.000
+romans 21.7 track_boot=5_cap=none 1.000 0.000 0.000
+romans 21.7 track_boot=5_cap=0.45*period 1.000 0.000 0.000
+soft 48.7 none 0.734 0.000 0.266
+soft 48.7 oracle10 1.000 0.000 0.000
+soft 48.7 track_boot=1_cap=none 0.806 0.000 0.194
+soft 48.7 track_boot=1_cap=0.45*period 0.806 0.000 0.194
+soft 48.7 track_boot=3_cap=none 0.913 0.000 0.087
+soft 48.7 track_boot=3_cap=0.45*period 0.770 0.012 0.218
+soft 48.7 track_boot=5_cap=none 0.861 0.000 0.139
+soft 48.7 track_boot=5_cap=0.45*period 0.766 0.000 0.234
+space2 12.1 none 0.341 0.659 0.000
+space2 12.1 oracle10 1.000 0.000 0.000
+space2 12.1 track_boot=1_cap=none 0.115 0.512 0.373
+space2 12.1 track_boot=1_cap=0.45*period 0.194 0.540 0.266
+space2 12.1 track_boot=3_cap=none 0.155 0.464 0.381
+space2 12.1 track_boot=3_cap=0.45*period 0.147 0.464 0.389
+space2 12.1 track_boot=5_cap=none 0.452 0.536 0.012
+space2 12.1 track_boot=5_cap=0.45*period 0.258 0.698 0.044
+untie 20.4 none 0.690 0.000 0.310
+untie 20.4 oracle10 1.000 0.000 0.000
+untie 20.4 track_boot=1_cap=none 0.806 0.000 0.194
+untie 20.4 track_boot=1_cap=0.45*period 0.528 0.032 0.440
+untie 20.4 track_boot=3_cap=none 0.778 0.000 0.222
+untie 20.4 track_boot=3_cap=0.45*period 0.710 0.008 0.282
+untie 20.4 track_boot=5_cap=none 0.810 0.000 0.190
+untie 20.4 track_boot=5_cap=0.45*period 0.710 0.000 0.290
+wallewal 28.7 none 0.734 0.095 0.171
+wallewal 28.7 oracle10 1.000 0.000 0.000
+wallewal 28.7 track_boot=1_cap=none 0.778 0.056 0.167
+wallewal 28.7 track_boot=1_cap=0.45*period 0.778 0.056 0.167
+wallewal 28.7 track_boot=3_cap=none 0.778 0.044 0.179
+wallewal 28.7 track_boot=3_cap=0.45*period 0.706 0.052 0.242
+wallewal 28.7 track_boot=5_cap=none 0.976 0.016 0.008
+wallewal 28.7 track_boot=5_cap=0.45*period 0.802 0.075 0.123
+
+B. mean wrong share over the 10 clips, over the 4 failing clips (soft space2 untie wallewal), and over the 6 others;
+   and the share of cameras whose scored windows are ALL wrong (a lost lock)
+cell wrong_all wrong_4 wrong_6 lost_all lost_4
+none 0.150 0.375 0.000 0.003 0.007
+oracle10 0.000 0.000 0.000 0.000 0.000
+track_boot=1_cap=none 0.150 0.374 0.000 0.147 0.368
+track_boot=1_cap=0.45*period 0.372 0.424 0.338 0.372 0.424
+track_boot=3_cap=none 0.138 0.344 0.000 0.097 0.243
+track_boot=3_cap=0.45*period 0.167 0.417 0.000 0.100 0.250
+track_boot=5_cap=none 0.090 0.225 0.000 0.056 0.139
+track_boot=5_cap=0.45*period 0.146 0.366 0.000 0.131 0.326
+
+C. wrong share per clip: none oracle10 track_boot=1_cap=none track_boot=1_cap=0.45*period track_boot=3_cap=none track_boot=3_cap=0.45*period track_boot=5_cap=none track_boot=5_cap=0.45*period
+applause 0.000 0.000 0.000 0.889 0.000 0.000 0.000 0.000
+drama 0.000 0.000 0.000 0.472 0.000 0.000 0.000 0.000
+falling 0.000 0.000 0.000 0.389 0.000 0.000 0.000 0.000
+gong 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+roll 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+romans 0.000 0.000 0.000 0.278 0.000 0.000 0.000 0.000
+soft 0.266 0.000 0.194 0.194 0.087 0.230 0.139 0.234
+space2 0.659 0.000 0.885 0.806 0.845 0.853 0.548 0.742
+untie 0.310 0.000 0.194 0.472 0.222 0.290 0.190 0.290
+wallewal 0.266 0.000 0.222 0.222 0.222 0.294 0.024 0.198
