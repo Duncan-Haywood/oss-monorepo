@@ -376,7 +376,9 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year } = {
   let inferred = null;
   let flip = !!invert;
   if (invert === undefined && out.every((r) => r.balance === null) && columns.amount !== -1) {
-    const pos = chargesArePositive(out);
+    // Discover's header is distinctive and its export always lists charges as positive, so a
+    // file with no recognisable payment row (a month of purchases only) still flips.
+    const pos = chargesArePositive(out) ?? (bank === "discover" ? true : null);
     if (pos) { flip = true; inferred = "Charges were positive (the payment rows are negative), so signs were flipped."; }
   }
   if (flip) for (const r of out) r.cents = -r.cents;

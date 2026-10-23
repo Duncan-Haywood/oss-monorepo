@@ -61,6 +61,17 @@ test("Discover card: charges positive, DIRECTPAY row settles the sign", () => {
   assert.ok(r.inferred);
 });
 
+test("Discover card: charges still flip when no payment row names itself", () => {
+  const t = "Trans. Date,Post Date,Description,Amount,Category\n03/01/2026,03/02/2026,COFFEE,4.50,Restaurants\n03/05/2026,03/05/2026,PAYMENT,-100.00,Payments and Credits\n";
+  const r = readStatement(t);
+  assert.equal(r.bank, "discover");
+  assert.deepEqual(r.rows.map((x) => x.cents), [-450, 10000]);
+  const only = readStatement("Trans. Date,Post Date,Description,Amount,Category\n03/01/2026,03/02/2026,COFFEE,4.50,Restaurants\n");
+  assert.deepEqual(only.rows.map((x) => x.cents), [-450], "a month of purchases only");
+  const kept = readStatement(t, { invert: false });
+  assert.deepEqual(kept.rows.map((x) => x.cents), [450, -10000], "an explicit flag still wins");
+});
+
 test("Citi card: debit and credit columns, Status column ignored", () => {
   const r = read("citi-card.csv");
   assert.equal(r.bank, "citi");
