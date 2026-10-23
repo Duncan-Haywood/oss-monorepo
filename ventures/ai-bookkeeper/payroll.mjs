@@ -65,7 +65,13 @@ export function readPayrollRegister(text) {
   const cols = table[0].map(fieldOf);
   for (const need of ["date", "gross", "net"]) if (!cols.includes(need)) throw new Error(`The payroll register needs a ${need === "date" ? "pay date" : need === "gross" ? "gross pay" : "net pay"} column. Found: ${table[0].join(", ")}.`);
   const problems = [], byDate = new Map();
+  // Provider exports end with a "Total" row (which would count every run twice) and often print the pay date only on a group's first row.
+  const nameCol = cols.indexOf("employee"), dateCol = cols.indexOf("date");
+  let lastDate = "";
   table.slice(1).forEach((r, i) => {
+    if (/^(grand\s+)?totals?\b/i.test(String(r[nameCol >= 0 ? nameCol : dateCol] ?? "").trim())) return;
+    if (nameCol >= 0 && String(r[dateCol] ?? "").trim() === "" && String(r[nameCol] ?? "").trim() !== "" && lastDate) r = r.map((c, j) => (j === dateCol ? lastDate : c));
+    else lastDate = String(r[dateCol] ?? "").trim() || lastDate;
     const row = { employee: null };
     cols.forEach((f, j) => { if (f) row[f] = f === "date" ? parseDate(r[j]) : f === "employee" ? String(r[j]).trim() : (String(r[j] ?? "").trim() === "" ? 0 : parseCents(r[j])); });
     const label = `Row ${i + 2}`;
