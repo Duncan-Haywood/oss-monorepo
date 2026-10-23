@@ -38,7 +38,7 @@ flagships:
       are about real inputs (the landed log is in the README and git history, not
       here). Open items, most valuable first: (1) the AI layer in fill-only mode
       on real bank descriptions, more seeds, a bigger model (synthetic so far: 7B
-      rescued 7 of 9 uncovered lines, broke 0; README Next); (2) the bank readers (Excel .xlsx and legacy .xls, BAI2, Spanish Norma 43 and French CFONB120 landed 2026-10-23; BIFF5 read 2026-10-23 from a hand-built workbook only; CAMT.054 untested on a real file; fixture mutation probe 2026-10-23 fixed a prose line above the header and a BOM on MT940, headerless files with a preamble read 2026-10-23, hand-made preambles only; German Sparkasse/DKB/Deutsche Bank payee columns and a Valuta date column fixed 2026-10-24, made-up rows; Hungarian OTP workbook headers added 2026-10-23, guessed wording)
+      rescued 7 of 9 uncovered lines, broke 0; README Next); (2) the bank readers (Excel .xlsx and legacy .xls, BAI2, Spanish Norma 43 and French CFONB120 landed 2026-10-23; BIFF5 read 2026-10-23 from a hand-built workbook only; CAMT.054 untested on a real file; fixture mutation probe 2026-10-23 fixed a prose line above the header and a BOM on MT940, headerless files with a preamble read 2026-10-23, hand-made preambles only; German Sparkasse/DKB/Deutsche Bank payee columns and a Valuta date column fixed 2026-10-24, made-up rows; Hungarian OTP workbook headers added 2026-10-23, guessed wording; Swedish, Danish and Norwegian CSV headers added 2026-10-23, made-up rows)
       (CSV, OFX/QFX/QIF, statement PDFs, regional code pages and layouts) on real
       exports from Chase, Bank of America, Wells Fargo, Amex, Capital One and
       others; (3) a real Stripe, Square, PayPal or Amazon settlement export for
