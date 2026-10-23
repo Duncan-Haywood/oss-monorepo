@@ -72,3 +72,15 @@ test("1252 stays the default: Danish, Italian, Icelandic, French", () => {
   for (const t of ["Købmand ærø åben\n", "così è più\n", "Þórður Ásgeirsson á leið í bæinn með ð\n", "Café français ç\n"])
     assert.equal(decodeBytes(enc(w, t)), t);
 });
+
+test("windows-1250 is chosen on s/z with caron, which Western bank text lacks", () => {
+  const m = { "č": 0xe8, "š": 0x9a, "ž": 0x9e, "Š": 0x8a, "ť": 0x9d, "ý": 0xfd };
+  const text = "Datum;Částka;Popis\n2026.03.01;-120,00;Platba kartou Šmíd žaluzie Praha\n";
+  const c = { ...m, "Č": 0xc8, "á": 0xe1, "í": 0xed };
+  assert.equal(decodeBytes(enc(c, text)), text);
+});
+test("French and Italian accents stay windows-1252", () => {
+  const m = { "è": 0xe8, "é": 0xe9, "ù": 0xf9 };
+  const text = "Date;Libellé;Montant\n2026.03.01;Café où l'été è;-4,50\n";
+  assert.equal(decodeBytes(enc(m, text)), text);
+});

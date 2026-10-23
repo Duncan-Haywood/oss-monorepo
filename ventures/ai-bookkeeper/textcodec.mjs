@@ -31,7 +31,9 @@ export function decodeBytes(bytes, encoding) {
 //    0xDE (Baltic s/z with caron; eth and thorn in 1252, which Icelandic also
 //    uses, so any acute a/i/u/y keeps 1252) pick 1257; 0xB9/0xB3/0xBF (Polish
 //    a-ogonek, l-stroke, z-dot) or i-grave with o-slash (Czech e/r-caron; no
-//    Italian or Danish text has both) pick 1250.
+//    Italian or Danish text has both) pick 1250; so do s/z with caron and t/z
+//    with acute (0x8a 0x8e 0x9a 0x9e 0x8d 0x8f 0x9d: Czech, Slovak, Slovene,
+//    Croatian names; Western bank text does not use them).
 // A text with none of these letters is read as 1252; pass the encoding then.
 function legacy(b) {
   const latin = win1252(b);
@@ -43,7 +45,7 @@ function legacy(b) {
   for (let i = 0; i < b.length; i++) if (b[i] >= 0x80) c.set(b[i], (c.get(b[i]) || 0) + 1);
   const has = (...xs) => xs.reduce((n, x) => n + (c.get(x) || 0), 0);
   if (has(0xf0, 0xfe, 0xd0, 0xde) > 0 && has(0xe1, 0xed, 0xfa, 0xfd) === 0) return new TextDecoder("windows-1257").decode(b);
-  if (has(0xb9, 0xb3, 0xbf) > 0 || (has(0xec) > 0 && has(0xf8) > 0)) return new TextDecoder("windows-1250").decode(b);
+  if (has(0x8a, 0x8d, 0x8e, 0x8f, 0x9a, 0x9d, 0x9e) > 0 || has(0xb9, 0xb3, 0xbf) > 0 || (has(0xec) > 0 && has(0xf8) > 0)) return new TextDecoder("windows-1250").decode(b);
   return latin;
 }
 
