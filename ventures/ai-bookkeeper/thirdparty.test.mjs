@@ -137,3 +137,17 @@ test("a Lithuanian LITAS-ESIS .acc file is read: D debits, K/C credits, balance 
   assert.match(r.rows[0].desc, /AB DNB BANKAS Mokestis/);
   assert.deepEqual(r.problems, []);
 });
+
+test("a Czech GPC statement (Fio layout) is read: codes 1/5 debit, 2/4 credit, closing balance kept", () => {
+  // Fixed-width lines built to the published layout; names, accounts and amounts are made up.
+  const z = (v, n) => String(v).padStart(n, "0");
+  const head = "074" + z("123456789", 16) + "NOVAK, JAN".padEnd(20) + "010514" + z(100000, 14) + "+" + z(70500, 14) + "+" + z(40000, 14) + "0" + z(10500, 14) + "0" + "003" + "310514" + " ".repeat(14);
+  const tr = (cents, code, vs, name, due) => "075" + z("123456789", 16) + z("987654", 16) + z(1, 13).slice(0, 13) + z(cents, 12) + code + z(vs, 10) + "0800000000" + z(0, 10) + "000000" + name.padEnd(20) + "0" + "0203" + due;
+  const text = [head, tr(40000, "1", 1234, "ACME S.R.O.", "030514"), tr(10500, "2", 0, "Klient Test", "050514"), tr(2500, "5", 0, "Storno", "060514"), tr(1000, "4", 0, "Storno", "070514"), tr(0, "1", 0, "Nula", "080514")].join("\r\n");
+  const r = readStatement(text);
+  assert.equal(r.bank, "gpc");
+  assert.deepEqual(r.rows.map((x) => [x.date, x.cents]), [["2014-05-03", -40000], ["2014-05-05", 10500], ["2014-05-06", -2500], ["2014-05-07", 1000]]);
+  assert.match(r.rows[0].desc, /ACME S\.R\.O\. acc 987654\/0800 VS 1234/);
+  assert.deepEqual(r.statement, { cents: 70500, date: "2014-05-31" });
+  assert.deepEqual(r.problems, []);
+});
