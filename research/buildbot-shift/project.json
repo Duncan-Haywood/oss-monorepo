@@ -1,0 +1,6 @@
+{
+ "theme": "buildbot",
+ "title": "How many hours of an 8-hour shift can a battery-powered Unitree G1 actually work, and does it change whether it pays?",
+ "summary": "Event model of battery swaps for a Unitree G1: 421.2 Wh packs (9000 mAh at 46.8 V), a 270 W charger and the vendor's &ldquo;about 2 hours&rdquo; runtime, which implies about 211 W. One pack gives 4.7 h of work in an 8 h shift; two packs and one charger give 7.7 h, and a third pack adds nothing. Above about 300 W the charger is the bottleneck (3 packs for 7 h at 300 W, 4 at 400 W). Fed into <code>buildbot-cost</code>, pack wear and extra packs move the G1 break-even slowdown only from 2.42 to 2.27&ndash;2.46, so battery logistics are a scheduling detail rather than the deciding cost, and put the robot at 1,200&ndash;1,900 h/yr. <strong>The draw is back-calculated from a vendor claim and swept 150&ndash;400 W, not measured; swap time, usable fraction, charger efficiency and pack cycle life are assumed.</strong>",
+ "lede": "how many hours of an 8-hour shift can a battery-powered Unitree G1 work? One 421 Wh pack gives 4.7 h; two packs and one charger give 7.7 h; above about 300 W the charger is the limit, and pack logistics move the cost break-even only from 2.42 to 2.27 to 2.46 (draw swept, not measured)."
+}
