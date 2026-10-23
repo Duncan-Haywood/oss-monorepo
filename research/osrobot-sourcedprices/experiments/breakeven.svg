@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of total cost per hectare for the best scout-and-treater fleet and the best inline fleet as the price of the ground platform rises from 1,500 to 9,000 US dollars; the lines cross near 4,500 dollars">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Total cost per hectare by ground-platform price, 1.62 ha fields, sourced 609 USD drone</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="265.1" y2="265.1" stroke="#ddd"/><text x="58" y="269.1" text-anchor="end" font-family="sans-serif" font-size="11">5</text>
+<line x1="64" x2="624" y1="206.2" y2="206.2" stroke="#ddd"/><text x="58" y="210.2" text-anchor="end" font-family="sans-serif" font-size="11">10</text>
+<line x1="64" x2="624" y1="147.4" y2="147.4" stroke="#ddd"/><text x="58" y="151.4" text-anchor="end" font-family="sans-serif" font-size="11">15</text>
+<line x1="64" x2="624" y1="88.5" y2="88.5" stroke="#ddd"/><text x="58" y="92.5" text-anchor="end" font-family="sans-serif" font-size="11">20</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1500</text>
+<text x="138.7" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">2500</text>
+<text x="213.3" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">3500</text>
+<text x="288.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">4500</text>
+<text x="400.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">6000</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">9000</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">ground platform price, USD</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">USD per hectare</text>
+<polyline points="64.0,232.4 138.7,219.4 213.3,206.4 288.0,193.4 400.0,173.9 624.0,134.9" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="232.4" r="3" fill="#c0392b"/>
+<circle cx="138.7" cy="219.4" r="3" fill="#c0392b"/>
+<circle cx="213.3" cy="206.4" r="3" fill="#c0392b"/>
+<circle cx="288.0" cy="193.4" r="3" fill="#c0392b"/>
+<circle cx="400.0" cy="173.9" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="134.9" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">scout + treaters</text>
+<polyline points="64.0,274.3 138.7,247.2 213.3,220.1 288.0,193.1 400.0,152.4 624.0,71.2" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="274.3" r="3" fill="#1f6fb2"/>
+<circle cx="138.7" cy="247.2" r="3" fill="#1f6fb2"/>
+<circle cx="213.3" cy="220.1" r="3" fill="#1f6fb2"/>
+<circle cx="288.0" cy="193.1" r="3" fill="#1f6fb2"/>
+<circle cx="400.0" cy="152.4" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">inline robots</text>
+</svg>
