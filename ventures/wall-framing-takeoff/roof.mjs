@@ -18,7 +18,7 @@ import { THICK, EPS, DEPTH, optimizeStock, formatLength, formatInches } from "./
 export const SHEET = { width: 48, length: 96 };
 
 /** @typedef {{ width: number, projection: number, pitch?: number, at?: number, side?: "left" | "right", valley?: string }} Wing */
-/** @typedef {{ id?: string, shape?: "gable" | "hip", hip?: string, wing?: Wing, wing2?: Wing, width: number, length: number, pitch: number, overhang?: number, gableOverhang?: number, rafter?: string, spacing?: number, ridge?: string | null, ceilingJoist?: string, ceilingBearing?: number, collarTies?: boolean, collarDrop?: number, trusses?: { spacing?: number, price?: number }, sheet?: { length?: number, width?: number, price?: number, kerf?: number }, roofing?: { waste?: number, bundlesPerSquare?: number, underlaymentRoll?: number, ridgeBundleFeet?: number, starterBundleFeet?: number, dripEdgePiece?: number } }} Roof */
+/** @typedef {{ id?: string, shape?: "gable" | "hip", hip?: string, wing?: Wing, wing2?: Wing, width: number, length: number, pitch: number, overhang?: number, gableOverhang?: number, rafter?: string, spacing?: number, ridge?: string | null, ceilingJoist?: string, ceilingBearing?: number, collarTies?: boolean, valleyBacking?: boolean, collarDrop?: number, trusses?: { spacing?: number, price?: number }, sheet?: { length?: number, width?: number, price?: number, kerf?: number }, roofing?: { waste?: number, bundlesPerSquare?: number, underlaymentRoll?: number, ridgeBundleFeet?: number, starterBundleFeet?: number, dripEdgePiece?: number } }} Roof */
 
 export function sampleRoof() {
   return { id: "Main roof", width: 336, length: 480, pitch: 4, overhang: 12, gableOverhang: 12, rafter: "2x8", spacing: 16, ridge: "2x10", ceilingJoist: "2x6", collarTies: true };
@@ -387,6 +387,8 @@ function addWing(base, r, plan, w) {
     else wingNotes.push("The wing collar tie would be as long as the wing is wide; lower the drop or skip them.");
   }
   const valleys = [0, 1].map((i) => ({ side: i ? "right" : "left", length: valleyLen, size: valleySize, kind: "valley rafter" }));
+  // valley backing: a board the valley's length and size laid on each valley so the jacks have a face to nail to
+  const valleyBacking = r.valleyBacking ? valleys.map((v) => ({ ...v, kind: "valley backing" })) : [];
   const wingRidges = [];
   if (r.ridge) {
     const rl = longestOf(r.ridge);
@@ -448,10 +450,10 @@ function addWing(base, r, plan, w) {
   notes.push(...wingNotes);
   notes.push(`${base.wing ? "Second cross wing" : "Cross wing"} ${formatLength(w.width)} wide, ${formatLength(P)} out from the main wall, centred ${formatLength(at)} along the ridge on the ${side} side: ${wingRafters.length} wing rafters, ${wingJacks.length + interrupted} valley jacks (${interrupted} of them main-roof rafters cut short at the valley), 2 ${valleySize} valleys of ${formatInches(valleyLen)}, a ${formatLength(P + e + rake)} wing ridge. The wing is ${wp}:12 against the main roof's ${r.pitch}:12, so its ridge meets the main roof ${formatLength(e)} inside the main wall.`);
   if (!w.valley) notes.push(`Valleys are ${valleySize}, as the rafters; a valley is normally one size deeper so the jacks bear on its face (set \`wing.valley\`).`);
-  notes.push("Wing sheathing counts each course at its longer edge, and the main plane is not reduced where the wing covers it, so the sheet count is an upper bound. Wing collar ties follow the main roof's rule (every other pair of wing commons); valley backing is not framed, nor, saddles, the main wall's extra header or the wing's own plates; valley flashing length is `roofing.valleyFeet`.");
+  notes.push("Wing sheathing counts each course at its longer edge, and the main plane is not reduced where the wing covers it, so the sheet count is an upper bound. Wing collar ties follow the main roof's rule (every other pair of wing commons); valley backing is framed only when `valleyBacking` is set (one board per valley, valley length and size, no bevel rip or lap), nor saddles, the main wall's extra header or the wing's own plates; valley flashing length is `roofing.valleyFeet`.");
   const info = { width: w.width, projection: P, at, side, valleySize, valleyLength: valleyLen, rafters: wingRafters.length, jacks: wingJacks.length, valleys: valleys.length, ridges: wingRidges.length, collarTies: wingCollarTies.length };
   const cat = (a, b) => [...(a || []), ...b];
-  return { ...base, rafters, wing: base.wing ?? info, wings: [...(base.wings || []), info], wingRafters: cat(base.wingRafters, wingRafters), wingJacks: cat(base.wingJacks, wingJacks), wingCeilingJoists: cat(base.wingCeilingJoists, wingCeilingJoists), wingCollarTies: cat(base.wingCollarTies, wingCollarTies), valleys: cat(base.valleys, valleys), wingRidges: cat(base.wingRidges, wingRidges), wingCentres: base.wingCentres ?? uCentres, valleyLength: base.valleyLength ?? valleyLen, courses: [...base.courses, ...wingCourses], sheets: { count: sheets, rows: sheetRows, area, waste: sheets ? 1 - area / (sheets * sheetArea) : 0 }, roofing, notes };
+  return { ...base, rafters, wing: base.wing ?? info, wings: [...(base.wings || []), info], wingRafters: cat(base.wingRafters, wingRafters), wingJacks: cat(base.wingJacks, wingJacks), wingCeilingJoists: cat(base.wingCeilingJoists, wingCeilingJoists), wingCollarTies: cat(base.wingCollarTies, wingCollarTies), valleys: cat(base.valleys, valleys), valleyBacking: cat(base.valleyBacking, valleyBacking), wingRidges: cat(base.wingRidges, wingRidges), wingCentres: base.wingCentres ?? uCentres, valleyLength: base.valleyLength ?? valleyLen, courses: [...base.courses, ...wingCourses], sheets: { count: sheets, rows: sheetRows, area, waste: sheets ? 1 - area / (sheets * sheetArea) : 0 }, roofing, notes };
 }
 
 /** Cut rows in the engine's shape, so `takeoff(plan, roofCuts(layout))` buys roof lumber with the walls'. */
@@ -466,7 +468,7 @@ export function roofCuts(l) {
     map.set(key, row);
   };
   for (const x of l.rafters) add(x.size, x.length, x.kind || "rafter");
-  for (const x of [...(l.wingRafters || []), ...(l.wingJacks || []), ...(l.valleys || [])]) add(x.size, x.length, x.kind);
+  for (const x of [...(l.wingRafters || []), ...(l.wingJacks || []), ...(l.valleys || []), ...(l.valleyBacking || [])]) add(x.size, x.length, x.kind);
   for (const x of l.wingRidges || []) add(x.size, x.length, "ridge board");
   for (const x of l.hips || []) add(x.size, x.length, "hip rafter");
   for (const x of l.jacks || []) add(x.size, x.length, "jack rafter");
