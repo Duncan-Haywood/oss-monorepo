@@ -24,6 +24,11 @@
     "seconds": 596.6,
     "voice": "en_US-ljspeech-high"
   },
+  "martin-of-tours-and-the-half-a-cloak": {
+    "bytes": 3274687,
+    "seconds": 545.7,
+    "voice": "en_US-ljspeech-high"
+  },
   "nicholas-and-the-three-bags-of-gold": {
     "bytes": 3014350,
     "seconds": 502.3,
@@ -37,6 +42,11 @@
   "the-bell-at-half-past-three": {
     "bytes": 8055870,
     "seconds": 1342.6,
+    "voice": "en_US-ljspeech-high"
+  },
+  "the-cold-meter": {
+    "bytes": 10979116,
+    "seconds": 1829.7,
     "voice": "en_US-ljspeech-high"
   },
   "the-control-vial": {
@@ -87,6 +97,11 @@
   "the-warm-pew": {
     "bytes": 6602611,
     "seconds": 1100.3,
+    "voice": "en_US-ljspeech-high"
+  },
+  "the-weight-of-a-hive": {
+    "bytes": 9368673,
+    "seconds": 1561.4,
     "voice": "en_US-ljspeech-high"
   },
   "therese-and-the-small-way": {

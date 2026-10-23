@@ -195,18 +195,18 @@ numbers worked out before drafting.
 - *(Done: Thirty-Nine Minutes, 2139.)* *The Mars sisters:* a contemplative community on a long-duration
   station keeping the Hours on a day 24 hours 39.6 minutes long; the problem is
   calendar and liturgy, not drama in a spacesuit.
-- *(Done: The Control Vial, Cheparaa Health Centre, Kenya, 2041; text only, voice host unreachable.)* A solar vaccine fridge freezes its top shelf; the cold-chain AI will not certify the doses without a shake test, and the test takes a night.
+- *(Done: The Control Vial, Cheparaa Health Centre, Kenya, 2041.)* A solar vaccine fridge freezes its top shelf; the cold-chain AI will not certify the doses without a shake test, and the test takes a night.
 - *Quarry Nine:* a short sequel, a few years on, in which the new system is
   asked why the old bell is rung (use sparingly; the first story is complete).
-- *(Done: The Cold Meter, Eilean Dhubhaig, 2052; text only, voice host unreachable.)* A wind lull on an island grid; the hall as the cheapest heater.
+- *(Done: The Cold Meter, Eilean Dhubhaig, 2052.)* A wind lull on an island grid; the hall as the cheapest heater.
 - *(Done: The Dark Week, Fjellbu Vault, 3026.)* *A seed vault at 1,000 years:* a keeper, a ledger and a handover that must work
   without electronics.
 
 - *(Done: The Return Gate, Cordillera Blanca, 2057.)* Glacier peak water, canal lining and a downstream spring.
 
-- *(Done: The Warm Pew, Kilnagross, 2056; text only, voice host unreachable.)* An organ that goes sharp as a church warms; heating the people, not the stone.
+- *(Done: The Warm Pew, Kilnagross, 2056.)* An organ that goes sharp as a church warms; heating the people, not the stone.
 
-- *(Done: The Weight of a Hive, Tobar Gobnait, 2049; text only, voice host unreachable.)* Two instruments disagree about a winter hive; a rate is trustworthy when a total is not.
+- *(Done: The Weight of a Hive, Tobar Gobnait, 2049.)* Two instruments disagree about a winter hive; a rate is trustworthy when a total is not.
 
 **For Other Minds**
 
@@ -221,12 +221,12 @@ numbers worked out before drafting.
 the sources, and mark legend as legend)
 
 - *(Done: Francis and the Wolf of Gubbio.)* Saint Francis and the wolf of Gubbio (4 October; legend from the *Fioretti*).
-- *(Done: Brigid and the Cloak, text only; no audio yet, the voice host was unreachable.)* Saint Brigid and her cloak (1 February; tradition, late sources).
+- *(Done: Brigid and the Cloak.)* Saint Brigid and her cloak (1 February; tradition, late sources).
 - *(Done: Kevin and the Blackbird, 3 June; legend.)* Saint Kevin and the blackbird.
-- *(Done: Isidore and the Angels Who Ploughed, text only; voice host unreachable, 15 May; legend.)* Saint Isidore the Farmer and the angels who ploughed.
-- *(Done: Nicholas and the Three Bags of Gold, 6 December; legend, text only, voice host unreachable.)* Saint Nicholas and the three bags of gold.
-- *(Done: Martin of Tours and Half a Cloak, 11 November; early source, Sulpicius Severus; text only, voice host unreachable.)* Saint Martin and the beggar at Amiens.
-- *(Done: Thérèse and the Small Way, 1 October; history and her own writings; text only, voice host unreachable.)* Saint Thérèse and the small way.
+- *(Done: Isidore and the Angels Who Ploughed, 15 May; legend.)* Saint Isidore the Farmer and the angels who ploughed.
+- *(Done: Nicholas and the Three Bags of Gold, 6 December; legend.)* Saint Nicholas and the three bags of gold.
+- *(Done: Martin of Tours and Half a Cloak, 11 November; early source, Sulpicius Severus.)* Saint Martin and the beggar at Amiens.
+- *(Done: Thérèse and the Small Way, 1 October; history and her own writings.)* Saint Thérèse and the small way.
 
 ## What not to do
 
