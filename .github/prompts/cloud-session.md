@@ -52,6 +52,9 @@ ones. Use `PY=$(python3 platform/ci/pyenv.py pytest)`, then
 blaming your change, run the failing test on `origin/main`.
 `pip` may belong to python3.13 while `python3` is 3.11: install with
 `"$PY" -m pip`, and never run two pip installs at once (one corrupted an install).
+If `pyenv.py` fails (PEP 668, or a package whose import name differs from its
+pip name, e.g. OpenDSSDirect.py), skip it: `python3 -m venv /tmp/v && /tmp/v/bin/pip install <pkgs>`,
+in the background (it can exceed 120 s).
 
 ## Long commands
 
