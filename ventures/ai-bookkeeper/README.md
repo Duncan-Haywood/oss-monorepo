@@ -783,6 +783,8 @@ is often fine.
   environment lacked) and put the table in Verification.
 
 
+- PayPal activity CSV as a bank statement, 2026-10-23 (`bank.mjs`, bank `paypal`): the Net column (gross less fee) is the amount, only Completed rows are booked (pending ones reported), the description is "Name - Type", and the Balance column, when present, feeds the running-balance check. Before this the importer did not read that file at all (it has no Amount column); `payouts.mjs` still splits settlements into sales and fees. Hand-written fixture (`fixtures/paypal-activity.csv`), not a real export, so try one.
+
 ## Disclaimer
 
 **No warranty.** This tool is provided free and as-is, without warranty of any
