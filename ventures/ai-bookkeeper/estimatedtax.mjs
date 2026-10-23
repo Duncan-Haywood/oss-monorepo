@@ -7,7 +7,8 @@
 // paid, spread over the due dates still ahead. A worksheet, not a filing.
 //
 // The bracket tables below are typed from memory of IRS Rev. Proc. 2024-40 (2025) and
-// 2025-32 (2026) and are unchecked against irs.gov, so every result carries a warning;
+// 2025-32 (2026). The 2026 table was compared 2026-10-23 with published reports of the Rev. Proc.
+// (not the IRS text; irs.gov is unreachable from the build sandbox), the 2025 table is unchecked; every result warns;
 // pass `brackets` and `standardDeduction` to override. Dollar amounts are cents.
 import { scheduleC, selfEmployment, estimatedDueDates } from "./taxforms.mjs";
 
@@ -59,7 +60,7 @@ export function estimatedTax(books, o = {}) {
   const se = selfEmployment(profit, { year, wages, wageBase: o.wageBase });
   const table = o.brackets ? { std: o.standardDeduction ?? 0, b: o.brackets } : BRACKETS[year]?.[filing];
   if (!table) throw new Error(`No ${filing} brackets on file for ${year}; pass brackets (and standardDeduction).`);
-  if (!o.brackets) warnings.push(`The ${year} brackets and standard deduction are from memory and unchecked; confirm them on irs.gov or pass brackets.`);
+  if (!o.brackets) warnings.push(year === 2026 ? `The 2026 brackets and standard deductions match several published reports of Rev. Proc. 2025-32 (compared 2026-10-23), not the IRS text itself; confirm them on irs.gov or pass brackets.` : `The ${year} brackets and standard deduction are from memory and unchecked; confirm them on irs.gov or pass brackets.`);
   const std = o.standardDeduction ?? table.std;
   const agi = profit - se.deduction + wages + other;
   const beforeQbi = Math.max(0, agi - std);

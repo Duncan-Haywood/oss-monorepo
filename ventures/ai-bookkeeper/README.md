@@ -273,7 +273,7 @@ far, annualise it to the months covered, work out Schedule SE (92.35% net earnin
 12.4% social security up to the wage base, 2.9% Medicare, half deductible) and split
 it across the four federal payment dates (weekend dates move to Monday). Income tax is
 not estimated, and the 0.9% additional Medicare tax, farm and church income are left
-out. The wage bases (2024-2026) are from memory and unchecked against the SSA page, so
+out. The 2025 and 2026 wage bases ($176,100, $184,500) matched published reports of the SSA announcement on 2026-10-23 (not the SSA page, unreachable here); 2024 is from memory. So
 every result warns; pass `wageBase`. Node tests only; not on the page yet.
 
 ## Federal income tax estimate and safe-harbour payments (US)
@@ -290,8 +290,8 @@ year's AGI was over $150,000), less withholding and what you have already paid,
 spread over the due dates still ahead (`--as-of`). Under $1,000 owed after
 withholding means no estimates. Without last year's tax the plan uses 90% and says
 the prior-year route is often smaller. Tested against hand arithmetic
-(`estimatedtax.test.mjs`, 7 pass); the 2025 and 2026 brackets and standard
-deductions are typed from memory of the Revenue Procedures and unchecked against
+(`estimatedtax.test.mjs`, 7 pass); the 2026 brackets and standard
+deductions (all three filing statuses) matched several published reports of Rev. Proc. 2025-32 on 2026-10-23, the 2025 ones are typed from memory, and neither is checked against
 irs.gov (every result warns; pass `brackets`). Leaves out state tax, credits,
 itemising, the QBI wage/property limits and service-business phase-out (it warns
 above the threshold), and the 0.9% Additional Medicare Tax. Not tax advice; not on

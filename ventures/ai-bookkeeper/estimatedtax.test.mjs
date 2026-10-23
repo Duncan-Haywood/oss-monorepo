@@ -70,7 +70,8 @@ test("unknown year needs brackets, and unchecked tables carry a warning", () => 
   assert.throws(() => estimatedTax(books("1000.00"), { year: 2031 }), /No single brackets/);
   const r = estimatedTax(books("1000.00"), { year: 2031, brackets: [[Infinity, 0.1]], standardDeduction: 0 });
   assert.ok(r.incomeTax >= 0);
-  assert.ok(estimatedTax(books("1000.00"), { year: 2026 }).warnings.some((w) => /from memory/.test(w)));
+  assert.ok(estimatedTax(books("1000.00"), { year: 2025 }).warnings.some((w) => /from memory/.test(w)));
+  assert.ok(estimatedTax(books("1000.00"), { year: 2026 }).warnings.some((w) => /not the IRS text/.test(w)));
 });
 
 test("Additional Medicare Tax: 0.9% of earnings over $200,000, wages counting first", () => {
