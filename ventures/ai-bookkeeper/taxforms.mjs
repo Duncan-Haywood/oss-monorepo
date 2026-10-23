@@ -176,7 +176,7 @@ export function contractors1099(books, { year, threshold, codes = CONTRACT_CODES
   // reportable payments (IRC 3406; reported on Form 945). Shown as an exposure
   // estimate on payments already made, not as an amount that was withheld.
   const backupWithholdingCents = missingW9.reduce((a, p) => a + Math.round(p.cents * BACKUP_WITHHOLDING_RATE), 0);
-  if (missingW9.length) warnings.push(`${missingW9.length} payee${missingW9.length === 1 ? "" : "s"} over the line ${missingW9.length === 1 ? "has" : "have"} no W-9 on file. Ask before you file, ahead of ${necDeadline(year)}. Without a TIN, backup withholding of 24% (${(backupWithholdingCents / 100).toFixed(2)} on what was paid so far) applies to further payments.`);
+  if (missingW9.length) warnings.push(`${missingW9.length} payee${missingW9.length === 1 ? "" : "s"} over the line ${missingW9.length === 1 ? "has" : "have"} no W-9 on file. Ask before you file, ahead of ${necDeadline(year)}. Without a TIN, backup withholding of 24% (${(backupWithholdingCents / 100).toFixed(2)} on what was paid so far) applies to further payments; whatever you do withhold goes in box 4 of the 1099-NEC (which is then required whatever the amount) and on Form 945, line 2, deposited by EFT.`);
   if (year >= 2027 && threshold === NEC_THRESHOLD(year)) warnings.push(`From 2027 the $2,000 line is indexed to inflation; ${year}'s may be higher. Check the IRS instructions or pass a threshold.`);
   if (!payees.length) warnings.push(`No contract labor paid by bank in ${year}.`);
   return { year, threshold, payees, reportable, missingW9, backupWithholdingCents, warnings };
