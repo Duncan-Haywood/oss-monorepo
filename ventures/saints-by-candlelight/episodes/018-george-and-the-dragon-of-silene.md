@@ -1,0 +1,285 @@
+---
+number: 18
+slug: george-and-the-dragon-of-silene
+title: George and the Dragon of Silene
+published: 2026-10-23
+summary: A bedtime telling of Saint George, the soldier who gave away everything he owned, and of the old story of the town by the lake, the dragon that frightened it, and the knight who would take no reward. With honest notes on which parts are history and which are a thousand-year-old story.
+figures: Saint George the Great-martyr, the people of Silene, a shepherd named Masin, a dragon
+tradition: Catholic and Orthodox
+feast: 23 April in both the Catholic and the Orthodox calendars; the Orthodox call him the Great-martyr and Trophy-bearer
+history: George was a Christian soldier who was put to death for his faith in the persecution under the emperor Diocletian, around the year three hundred and three; his tomb has been honoured at Lydda in Palestine since early times, and devotion to him spread across the whole Church
+legend: the dragon, the lake and the town of Silene are a medieval story, first told in this form in the Golden Legend of the thirteenth century and older Georgian and Latin tales, and are told here as the old story says; the long and wonderful details of his trials in the old Acts are left out
+fiction: the shepherd Masin, his grandmother, the old fisherman Hanno, the town crier and nearly all the conversations are our own invention, told in the spirit of the old story
+sources:
+  - The Greek Acts of Saint George (Passio Georgii), in its early forms, which scholars treat as a pious and largely legendary account of a real martyr
+  - Jacobus de Voragine, The Golden Legend (Legenda Aurea), thirteenth century, the chapter on Saint George, where the dragon of Silene is told
+  - Eusebius of Caesarea, Church History, book eight, on the persecution under Diocletian
+  - David Hugh Farmer, The Oxford Dictionary of Saints, entry on George
+  - Samantha Riches, Saint George: Hero, Martyr and Myth, 2000
+---
+
+A town is waiting beside a lake, and nobody in it is speaking.
+
+It is evening, and warm, and very still. Out on the flat water a few reeds are moving, though there is no wind to move them. On the shore sit a hundred people, or two hundred, in their best clothes, which is odd, because nobody has been invited to a party. Near the front there is a small girl in a white dress who is holding her father's hand a bit too tightly. Nobody has told her to be brave. They have only told her to be on time.
+
+And then, from far down the road behind them, comes a sound. It is a horse. It is a single horse, walking, not galloping, and on its back there is a man in plain armour who looks as if he has been riding since morning and is not in any hurry about it.
+
+The whole town turns around. And the soldier says, in the mildest voice you ever heard, "Good evening. Is this a bad time?"
+
+But we're getting ahead of ourselves.
+
+[pause]
+
+Hello, and welcome to Saints by Candlelight, stories of saints, angels and patriarchs from the Catholic and Orthodox traditions, told for bedtime. These episodes are written by an AI and read by a synthetic voice, and they try very hard to be faithful. Tonight's story is of Saint George, a real soldier and martyr of the early Church, and of the old tale of the dragon, which is a medieval legend and which we will tell as a legend, and a few of the small conversations are our own invention, told in the spirit of the original. So get comfortable. Dim the lights. And let's begin.
+
+[pause]
+
+Let's begin with the plain facts, because there are fewer of them than you might think, and they are worth having before the dragon arrives.
+
+Saint George was a Christian who lived in the Roman Empire, in the years around the end of the third century. He was a soldier. And he was put to death for being a Christian, in a time of terrible trouble for the Church, which is called the persecution of Diocletian. That is almost everything we can say for certain. The Church has remembered him for seventeen hundred years, in the East and in the West, which is a very long time to remember a man whose biography has so many gaps in it.
+
+Now, you may be thinking, surely there are books. And there are. There is a long old text called the Acts of Saint George, which was written in Greek, and then copied and translated and changed and improved in a dozen languages. It tells of a great many trials and wonders, so many that the scholars who study it say, kindly, that it is a pious story built around a real martyr, and not a record that anyone could check. So when we tell the old tales of George, we are telling something that the Church has loved, and not something that a court clerk wrote down. Keep that in your pocket. We will take it out again at the end.
+
+Here is the world he lived in. The Roman Empire at that time was enormous. It stretched from the rainy north of Britain to the hot sands of Egypt. It had roads, and ships, and taxes, and a very large army, and the army was how a young man of good family could get on. If you were brave, and could read, and could stand in a straight line for six hours without fainting, you could rise. The tradition says that George's father was a soldier too, and that his family came from Cappadocia, which is in the middle of what is now Turkey, a high dry land of strange rock chimneys and long summers. The tradition says that his mother was from Palestine, from the town of Lydda, and that when she became a widow she took her son there, to land that the family owned.
+
+So George grew up with one foot in the mountains and one foot in the Holy Land. He was tall, the old stories say, and strong, and he was good at the soldier's trade, and he rose quickly. By the time he was a young man he was an officer, in the guard of the emperor Diocletian himself. That was a very good job. It was the sort of job you put on the front of a letter home.
+
+Now, the emperor Diocletian was, by most accounts, a clever man. He had put the empire back together after a century in which emperors had come and gone like buses. He had reformed the money, and reorganised the provinces, and made the army work. But he had one idea that did not work at all, which was that the empire could only be strong if everybody worshipped the old gods in the old way. And the Christians, who would not burn incense to the emperor's gods, did not fit.
+
+So in the year three hundred and three, he began what the history books call the Great Persecution. Churches were pulled down. The holy books were burned. Christians who held office were told to give it up, or worse. It was the last and the hardest of the persecutions, and it went on, in one part of the empire or another, for ten years.
+
+And somewhere at the start of that, a young officer of the guard stood up in front of his comrades, and said that he was a Christian, and could not stay.
+
+That is the heart of it. We will come back to it. But before we do, I want to tell you the other story, the one that everybody knows, because it is the one that was told to children for a thousand years, and because it is a lovely story, and because the Church has never needed it to be literally true in order to learn from it.
+
+So let's go to a town by a lake.
+
+[pause]
+
+* * *
+
+The old story says that the town was called Silene. The Golden Legend, which is a great collection of saints' lives written in the thirteenth century, says that it was in the land of Libya, which in those days was a name for a broad stretch of North Africa. Some later tellers moved it. Some said Cappadocia. Some did not say. And the truth is that nobody has ever found Silene, and nobody can, because the story was never about a map. It was about a town, any town, with a problem too big for it.
+
+So let's put it where the old book put it, in a dry bright country, beside a wide round lake that was the only good water for a day's walk in any direction.
+
+Now, a shepherd boy lived near that lake. His name was Masin. He is not in the old story, I'm sorry to say. The old story has no room for shepherd boys, or for grandmothers, or for anybody who is not the king, the princess, the dragon or the knight. But I thought somebody ought to be there to see it, and Masin was the sort of boy who would be, so we will say that he is our own invention and be done with it.
+
+Masin was eleven. He had a flock of nineteen sheep that he could count perfectly well when he was asked to, and not at all when he was tired. He had a grandmother who made bread so flat that you could read through it. And he had a dog called Sand, who was the colour of sand, and who had a way of lying down in a spot so exactly the colour of the ground that you sometimes stepped on him.
+
+The trouble with the lake, Masin would tell you, if you were foolish enough to ask, was not the lake. It was what was in the lake.
+
+Here is what the old story says. Some time before, a dragon had come to live there. Where it came from nobody knew. It might have been a thing that crawled out of the mud. It might have been a thing that came down out of the hills. The old tellers are not curious about this, and I think they are right to skip it, because a dragon with a family history is a much less frightening thing than a dragon who is simply there.
+
+And what the dragon did was this. It lay in the water. And when the townspeople came to draw their water, it rose up and breathed on them, and the breath was foul, and made them sick. The old book says it poisoned the very air. So the town could no longer go near the lake, and the lake was their only water.
+
+I want to say here that this is a gentle dragon, as dragons go, in the way we will tell it. We will not describe it in any frightening detail. It was large, and it was green, or grey, or whatever you like. It smelled dreadful. And it was, for the people of the town, a trouble that went on and on, like a leaking roof, or a bad neighbour, or a debt.
+
+Now, what did the people do?
+
+Well, they did what people do. They tried to get rid of it. They went out together with spears and swords and pitchforks and a man who had once been to a war and was very sure of himself. And the old story says that they were driven back. So they did the next thing. They made it a bargain.
+
+They said to the dragon, in effect: if we bring you something to eat, every day, will you let us have the water?
+
+And the dragon, who was no fool, agreed.
+
+[pause]
+
+So every day the people brought two sheep down to the shore, and left them. And every day, the dragon ate them, and the people drew water, carefully, quickly, in the hour after, with their eyes on the lake. It was an awful arrangement. But it worked. For a while.
+
+And Masin's flock was one of those that paid. He did not choose it. The town did. You drew a lot, and if it was your lot, you brought your sheep. And one afternoon he stood at the edge of the water with two of his nineteen, a ewe and her yearling, and held their ropes, and said, because he could not think of anything else to say, "Sorry about this."
+
+Which is, I suppose, the most honest thing anybody had said to a sheep for some time.
+
+His grandmother was waiting for him when he came back up the hill. She did not say much. She gave him a piece of bread and put her hand on the top of his head for a little while. And then she said a thing that he would remember. She said, "Nothing stays the same. Not even this. Eat."
+
+It is a very grandmotherly thing to say. It did not seem to help at the time.
+
+[pause]
+
+* * *
+
+But the sheep, as you will guess, ran out.
+
+The old story says that there came a day when the town had given up so many that there were hardly any left. And the dragon was still hungry. And the people, who by now were frightened and tired and ashamed of what they were about to do, held a meeting.
+
+I want you to imagine this meeting. It is in the town square. It is hot. Every voice is low. And someone stands up and says, what the old story says in one dreadful line, that the dragon will have to be given a person.
+
+Now, the Golden Legend is very clear about how this was done. It was done by lot. Every day, the name of one of the children of the town was drawn, and that child was taken down to the water. And nobody was excused. The old book makes a point of this. It says that the king himself was told that his own children were not exempt.
+
+I know. It is not a cheerful bit. Let's not stay in it any longer than we have to. We are going to say only that it was dreadful, that the people knew it was dreadful, and that they had run out of ideas.
+
+And one day, the lot fell on the king's daughter.
+
+The old book says that she was his only child. It says that the king offered the town all the gold and silver he had if they would let her go. And the town said no, because the town had given up its own children, and the king had said that was only right. So he asked for eight days. And they gave him eight days. And on the eighth day, the king dressed his daughter in royal clothes, and kissed her, and said, "Would that I had died before you." And she walked down to the lake.
+
+That is the bit. We will not say any more about it. I will tell you only that the old story is built to be told to children, and that it has a good ending, and that by the time the story gets to the lake, the person who is about to arrive is already on the road.
+
+[pause]
+
+* * *
+
+Now, the old story says that George was riding by.
+
+I want to be careful here, because that is exactly the kind of sentence that the real George would have found amusing. Here was a man who, in the other story, the true one, was dragged from prison to prison and put to death for a faith he would not give up. And in this story, he is just a man on a horse who happens to be going past. The story did not want him to be on a quest. It wanted him to be the sort of person who is in the right place because he is always on his way to somewhere good.
+
+And Masin, who had been sitting on the hill with Sand, watching the lake, as he did every evening now, because he could not bear to look away, saw a rider come along the road.
+
+He saw that the rider stopped. He saw him look down at the lake, and the crowd, and the girl in white. He saw him say something to the girl. And then the girl, who had been standing very straight, put her hand over her mouth, and the soldier got down from his horse.
+
+Masin did what any reasonable boy would do. He ran. He ran down the hill with Sand at his heels and came out of the thorn bushes at the edge of the crowd, and he got close enough to hear.
+
+The princess was saying, "You must go. Please. Whatever you do, do not stay. It will only kill you too."
+
+And the soldier said, "What is your name?"
+
+She told him. The old book does not give it, and so neither will we. It is enough that she said it.
+
+"I am George," he said. "I'm only passing through. But I would very much like to know what is going on, and I think you had better tell me from the beginning, because I am not good at guessing."
+
+So she told him. And he listened, the way a man listens when he has been in the army long enough to know that the most useful thing in the world is a plain account. He asked how long. He asked how many. He asked about the sheep, and she said, "Two a day," and he said, "Two a day," in a quiet voice, and then he asked about the other thing, and she told him, and he was silent for a little.
+
+And then he said, "I think this is a bad arrangement."
+
+Which, I admit, is the understatement of the whole story.
+
+[pause]
+
+* * *
+
+Now here is the bit where the old tellers are all agreed, and where I think the story shows what it is really about.
+
+George did not charge. He did not draw his sword and roar. He did not say that he would defeat the beast by his own great strength. He knelt down on the shore of the lake, and, the old book says, he made the sign of the cross, and he prayed.
+
+I want you to notice that. In the old story, the saint does not do the thing. God does the thing. The saint prays, and rides, and is brave, but at the moment when the dragon rises out of the water, the sign that George makes is the sign of the cross, and everything after is the Lord's doing. That is how the Church has always told it. A saint is never a wizard. A saint is a person who trusts God so completely that he can stand on a lake shore in the evening and be calm.
+
+And then the water moved.
+
+The old book says the dragon came up out of the lake, and came towards them. And the people, who were watching from the hill, heard a noise like a great bellows, and saw the soldier get on his horse and ride towards it, and make the sign of the cross again, and strike the beast with his lance.
+
+Now, the old tellers have a lot of fun with the fight. In some versions it takes a whole page. In some there are three sword blows and a roar. I am not going to describe it, because it is bedtime, and because I don't think it is the important part. What the Golden Legend says is that George wounded the dragon, and threw it down, and then he said a thing to the princess that surprised her.
+
+He said, "Do not be afraid. Take off your girdle, your belt, and put it round the neck of the beast."
+
+And she did. And the dragon, which was a moment ago the terror of the whole country, followed her up the road like a little dog.
+
+I like that more than I can tell you. I like that the dragon is not dead in the old story. It is tamed. It is led home on a belt. And the people, who by then had come down from the hill in a crowd, took one look at what was coming up the road toward them, and began to run.
+
+"Stop," said George, in the mild voice. "There is nothing to fear. The Lord has sent me to free you from your troubles. All you have to do is believe in Christ and be baptised."
+
+And Masin, standing at the edge of it all with a dog pressed against his legs, thought that this was a very strange way to end a fight.
+
+[pause]
+
+* * *
+
+The old story says that George killed the dragon then, in front of everyone, with his sword. He took it out of the town in carts. And the people of Silene, in great joy, were baptised, the king first, and then the whole of the city, in a number so large that the old book can only call it many thousands.
+
+I want to say a word about that. It will sound to a modern ear like a quick and oddly tidy ending, as if the whole town changed its religion because a knight had a good afternoon. I don't think we have to read it that way. I think the old tellers are saying something simpler. They are saying that a town that has been living for years in fear and bargaining will, if the fear is lifted, be in the mood to hear what the one who lifted it has to say. And they are saying that the thing George wanted from the town was not gold or glory. It was that they should know who had really helped them.
+
+And that is the bit that Masin's grandmother liked best, when he told her that night.
+
+The king, the old book says, was so overjoyed that he offered George a very great reward. He offered him a mountain of gold. He offered him half the kingdom. He offered him whatever he liked.
+
+And George would take none of it.
+
+"I have not done this for money," he said. "Give it to the poor. Build a church. Take care of the people who are in need. And I ask only one thing of you: honour God's churches, look after His priests, and don't forget the poor."
+
+Then he kissed the king's hand, the old book says, and he went away.
+
+That is one of my favourite lines in the whole of the Golden Legend. There is a dragon, and a princess, and a town saved from ruin, and a kingdom on offer, and the hero kisses the king's hand, politely, and goes. It is the opposite of every story you've ever heard about a hero who is owed something. George is a man who is not owed anything. He does what is right, and then he leaves, quickly, before anyone can thank him too much.
+
+Masin followed him as far as the road. He didn't mean to. He had a feeling that he ought to say something, and not the slightest idea what, so he stood there with his hands in his sleeves, and the soldier got up on his horse and looked down.
+
+"Is that your dog?"
+
+"Yes," said Masin.
+
+"He is a good dog."
+
+"He's the colour of the ground," said Masin, which was all he could think of.
+
+George laughed. It was the only time in the whole day that anyone had laughed, and the sound of it carried a long way over the water. "So he is," he said. "You look after your sheep, and he'll look after you." And then he turned the horse and rode east, into the last of the light, and in a little while there was only the road, and a few birds, and a boy and a dog standing in the dust.
+
+Masin went home and told his grandmother everything. She listened to it all with her hands in the flour. And at the end, she said, "Eat," and he did. And she said, "Nothing stays the same, you see," and that, apparently, was the end of it.
+
+[pause]
+
+* * *
+
+Now, the old story adds one more thing. It says that the king built a great church on that spot, in honour of Our Lady and of Saint George. And from the altar of that church there flowed a spring of water, and anyone who drank of it was cured of every illness.
+
+I should say, as the narrator, that I find that a rather beautiful detail. In a town that had been poisoned at the water, the place where the story ends is a place where water runs clean. It is the kind of ending that only an old story can have, one that goes all the way round to where it started and puts it right.
+
+And a good deal of the old tradition says that the spring is the Lord's gift, and that the church is the church of the people who had been saved. It is not about George. It is about what people do when they have been helped: they build somewhere for the next person who needs help to come.
+
+So that, as the old tale tells it, is the dragon of Silene. And I think you will see why it was loved. It is a story about fear that has become a habit. It is about a whole town that had come to treat something terrible as simply the way things are, and had gone on paying, and paying, and giving up more and more, because they could not imagine any other arrangement. And it is about one person who comes along, and looks at the arrangement, and says in a mild voice, "I think this is a bad arrangement."
+
+That is a sentence, I would like to suggest, that has been needed in a great many places and a great many centuries, and not always in the presence of a dragon.
+
+[pause]
+
+* * *
+
+But let us go back, now, to the other George, the real one.
+
+Because while the dragon story was being told in the Middle Ages, the Church was still remembering a soldier, in a very different place, and the true story is quieter, and just as brave.
+
+Here is what the old Acts say, with all their wonders and all their trials left out. George was an officer in the army of Diocletian. When the persecution began, and the order went out that Christians must give up their faith or lose their places, George, the tradition says, did not wait to be asked. He gave away his goods to the poor. He went before the emperor, and the council, and said plainly that he was a Christian, and that he could not honour the old gods.
+
+The accounts say that Diocletian, who liked him, tried to talk him round. They say he offered him honours and money and promotion. And George, who had refused the king of Silene's gold in the other story, refused it again in this one. It is a nice echo, though the two stories come from different times and different tellers, and I would not want to say they are about the same man in any way a historian could prove.
+
+And then, the old Acts say, he was put to death for his faith. We will say it in the way the show always says it, in one quiet sentence. He did not give in, and so he went home to God.
+
+The tradition places this at Nicomedia, which is a city in what is now north-western Turkey, and which was one of the emperor's capitals, on the twenty-third of April in the year three hundred and three. His body, the tradition says, was brought home to Lydda, in Palestine, to the land his mother had owned, and buried there. And a church was built over his tomb. It was still there in the days of the early pilgrims, and it is still, in a later building, a place of prayer today.
+
+That is all. That is the whole of it. A young officer, a decision, and a quiet end.
+
+And I think that this is a good place to stop and notice something, because it is why the two stories fit together so well. In the one, a man rides up to a town that is paying a terrible price, and says, "This is a bad arrangement." In the other, a man stands up in a hall of the empire, in front of the people who might promote him, and says, "I'm afraid I can't do this." And in both of them, the man is polite. He is calm. He is not interested in being a hero. He is only interested in being faithful.
+
+That, I think, is what the Church has loved in George for seventeen centuries.
+
+[pause]
+
+* * *
+
+Let's slow down now.
+
+The tradition says that after his death George was honoured almost at once. Churches were named for him within a few generations, in Egypt and Syria and Palestine and Greece, and then across the sea, in Italy and Gaul and Britain. Pilgrims came to his tomb at Lydda. The emperor Justinian, they say, built a church for him in Constantinople. And in the East, where he is called the Great-martyr and the Trophy-bearer, a word that means one who carries the prize of victory, he has been among the most beloved of all the saints.
+
+The dragon came later. It seems to have grown out of the stories told in the East, and it was carried west in the time of the Crusades, when soldiers from Europe came to the Holy Land and heard of the saint whose tomb was at Lydda. They brought the story home, and it grew, and then in the thirteenth century a friar called Jacobus de Voragine wrote it down in the Golden Legend, and from that book it went out over the whole of Europe, on walls and in windows and on the backs of coins.
+
+George became the patron saint of a great many places. England kept him, and the king, Edward the Third, founded an order of knights under his name. Georgia, in the Caucasus, is said to take its name from him, though the scholars will tell you that is an old confusion and the name may be older than the saint, and I'm happy to leave that to them. Soldiers kept him. Scouts kept him. Shepherds, I would like to think, kept him a little too.
+
+And in every country where he went, the story turned a little, as old stories do. In some he rides a white horse. In some the princess has a name and a long speech. In some the dragon is a fearful thing, and in some it is almost sad. But in all of them, there is a person who looks at what everyone else has accepted, and will not accept it. And that is not a bad thing to pass on to a child.
+
+[pause]
+
+Masin, they say, grew up, and kept sheep all his life. He had a long white beard at the end, and a dog that was not Sand, but looked very like him, and he told the story of the day at the lake to anyone who would listen. And he always ended it in the same way. He would say that he had been standing very close, and that what he remembered best was not the fight at all. It was the moment before it, when the soldier knelt down in the evening light and shut his eyes, and the whole world seemed to go quiet.
+
+"Like a man," he would say, "who knew he was not alone."
+
+And that was the thing that he took home, and that he thought about, in the long afternoons on the hill. That a person who is not alone is not so easily frightened.
+
+[pause]
+
+* * *
+
+Now here are the notes for the curious, so you know what is history and what is not.
+
+Saint George was a real person. He was a Christian soldier, put to death in the persecution of Diocletian, probably in the early fourth century, and honoured as a martyr from very early times. Beyond that, the details of his life are uncertain. The old Greek Acts that tell of his trials are a pious tale, and scholars do not rely on them. Where we told the story of his life, we told only the plain outline that the tradition holds.
+
+The story of the dragon is a legend. It first appears in anything like its full form in the Golden Legend, in the thirteenth century, nearly a thousand years after George died, and it seems to have grown from older tales that were told in Georgia and the Christian East. The Church does not teach it as history. It teaches us to honour George as a martyr, and it has loved the dragon story as a picture of what courage and faith can do. When we say the dragon was tamed and then killed, we are telling the old story as it was told.
+
+The shepherd boy Masin, his grandmother and his dog Sand, and nearly all the conversations, are our own invention, made up in the spirit of the old tale. They are not from any source.
+
+If you would like to read more, the best short introductions are the entry on George in the Oxford Dictionary of Saints, and the book by Samantha Riches, called Saint George: Hero, Martyr and Myth.
+
+[pause]
+
+* * *
+
+That's the story of Saint George for tonight. His feast is the twenty-third of April, in the Catholic and the Orthodox calendars alike, which is one of the happy days when the two traditions keep the same saint on the same date. Thank you for listening to Saints by Candlelight. If you enjoyed it, share it with someone who could use a gentle story at the end of a long day.
+
+And here is a prayer, from the old tradition, for anyone who is afraid of something tonight. May the Lord, who gave courage to His martyr George, give you courage too. May He take the fear that has become a habit, and put it down gently, and give you a good night's rest. And may the one who looks after the sheep, and the soldier, and the dog the colour of the ground, look after you.
+
+Goodnight, and God bless.
