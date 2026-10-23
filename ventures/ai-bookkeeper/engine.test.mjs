@@ -132,7 +132,17 @@ test("exports: QuickBooks Online, Xero and IIF lines sum to zero per entry", () 
   const byNarr = new Map();
   for (const l of xero) { const cells = l.split(","); const amt = Math.round(+cells.at(-1) * 100); byNarr.set(cells[1] + cells[0], (byNarr.get(cells[1] + cells[0]) ?? 0) + amt); }
   for (const v of byNarr.values()) assert.equal(v, 0);
-  assert.match(exportJournal(b, "iif"), /^!TRNS/);
+  const iif = exportJournal(b, "iif").trim().split("\r\n");
+  assert.match(iif[0], /^!ACCNT\tNAME\tACCNTTYPE/);
+  // every account a TRNS/SPL line names is declared with a QuickBooks type; each entry sums to zero
+  const declared = new Map(iif.filter((l) => l.startsWith("ACCNT\t")).map((l) => l.split("\t").slice(1)));
+  assert.ok(declared.size > 3);
+  for (const t of declared.values()) assert.match(t, /^(BANK|AR|AP|OCASSET|FIXASSET|OCLIAB|LTLIAB|EQUITY|INC|EXP|COGS)$/);
+  let run = 0;
+  for (const l of iif) {
+    if (/^(TRNS|SPL)\t/.test(l)) { const c = l.split("\t"); assert.ok(declared.has(c[4]), c[4]); run += Math.round(+c[5] * 100); }
+    if (l === "ENDTRNS") { assert.equal(run, 0); run = 0; }
+  }
   for (const fmt of ["ledger", "beancount"]) {
     const txt = exportJournal(b, fmt);
     const blocks = txt.split("\n\n").filter((x) => /^\d{4}-\d\d-\d\d [^o]/.test(x));
