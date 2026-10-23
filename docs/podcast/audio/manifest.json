@@ -104,6 +104,13 @@
     "script_sha256": "31685f4ba5c52e6c992eb8bc470dddac825426370b3357c3151ec2bba0cf2040",
     "voice": "en_US-ljspeech-high"
   },
+  "2026-10-20-we-almost-rewrote-it-in-rust": {
+    "bytes": 1235437,
+    "seconds": 246.99,
+    "sha256": "7354119e38d9857313a48a324be12828ee8620cf70f9bec573c5740a977ff220",
+    "script_sha256": "f8e67d516599bfe8efddcca079b0dd08badb1ae8d6e3e1bfc5ad0a22cd1014cc",
+    "voice": "en_US-ljspeech-high"
+  },
   "2026-10-21-checking-the-energy-table": {
     "bytes": 632121,
     "seconds": 126.33,
