@@ -139,6 +139,12 @@
       <div><label for="rfRake">Rake (gable) overhang</label><input id="rfRake" value="12 in"></div>
       <div><label for="rfJoist">Ceiling joist size (blank: none)</label><select id="rfJoist"><option value="">none</option><option selected>2x6</option><option>2x8</option></select></div>
       <div><label for="rfCollar">Collar ties on every other pair</label><select id="rfCollar"><option value="1" selected>yes</option><option value="0">no</option></select></div>
+      <div id="rfWingOn" class="wingbox"><label for="rfWing">Cross wing (L or T plan, gable roof only)</label><select id="rfWing"><option value="0" selected>none</option><option value="1">add a wing</option></select></div>
+      <div class="wing" hidden><label for="rfWingW">Wing width (eave to eave; at least 2 ft under the roof width)</label><input id="rfWingW" value="16 ft"></div>
+      <div class="wing" hidden><label for="rfWingP">Wing projection (main wall to the wing's gable wall)</label><input id="rfWingP" value="12 ft"></div>
+      <div class="wing" hidden><label for="rfWingAt">Wing centre from the first gable wall (blank: middle)</label><input id="rfWingAt" placeholder="e.g. 14 ft"></div>
+      <div class="wing" hidden><label for="rfWingSide">Wing side</label><select id="rfWingSide"><option value="right" selected>right</option><option value="left">left</option></select></div>
+      <div class="wing" hidden><label for="rfWingValley">Valley rafter size (blank: as rafters; one size deeper is usual)</label><select id="rfWingValley"><option value="">same as rafters</option><option>2x8</option><option>2x10</option><option>2x12</option></select></div>
     </div>
     <p id="status" class="note" role="status"></p>
     <div id="errors" class="err" role="alert"></div>
@@ -304,6 +310,11 @@
       if ($("#rfOn").checked) {
         const rf = { id: "Roof", width: L($("#rfW").value, "roof width"), length: L($("#rfL").value, "roof length"), pitch: Number($("#rfPitch").value), rafter: $("#rfRafter").value, spacing: Number($("#rfSpacing").value), overhang: L($("#rfOver").value, "eave overhang"), gableOverhang: L($("#rfRake").value, "rake overhang"), collarTies: $("#rfCollar").value === "1" };
         if ($("#rfShape").value === "hip") { rf.shape = "hip"; if ($("#rfHip").value) rf.hip = $("#rfHip").value; }
+        if ($("#rfWing").value === "1" && rf.shape !== "hip") {
+          rf.wing = { width: L($("#rfWingW").value, "wing width"), projection: L($("#rfWingP").value, "wing projection"), side: $("#rfWingSide").value };
+          if ($("#rfWingAt").value.trim()) rf.wing.at = L($("#rfWingAt").value, "wing position");
+          if ($("#rfWingValley").value) rf.wing.valley = $("#rfWingValley").value;
+        }
         if ($("#rfRidge").value) rf.ridge = $("#rfRidge").value;
         if ($("#rfJoist").value) rf.ceilingJoist = $("#rfJoist").value;
         plan.roof = rf;
@@ -497,6 +508,10 @@
         $("#rfOver").value = formatLength(rf.overhang ?? 12); $("#rfRake").value = formatLength(rf.gableOverhang ?? 12);
         $("#rfShape").value = rf.shape === "hip" ? "hip" : "gable"; $("#rfHipBox").hidden = rf.shape !== "hip"; $("#rfHip").value = rf.hip || "";
         $("#rfJoist").value = rf.ceilingJoist || ""; $("#rfCollar").value = rf.collarTies ? "1" : "0";
+        const wg = rf.wing;
+        $("#rfWing").value = wg ? "1" : "0";
+        if (wg) { $("#rfWingW").value = formatLength(wg.width); $("#rfWingP").value = formatLength(wg.projection); $("#rfWingAt").value = wg.at != null ? formatLength(wg.at) : ""; $("#rfWingSide").value = wg.side || "right"; $("#rfWingValley").value = wg.valley || ""; }
+        syncWing();
       }
       renderAll();
       return run();
@@ -577,7 +592,9 @@
     });
     $("#optout").addEventListener("click", () => { setUsageOptOut(true); const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; });
     $("#flOn").addEventListener("change", () => { $("#flFields").hidden = !$("#flOn").checked; if ($("#flOn").checked) record("floor_on"); });
-    $("#rfShape").addEventListener("change", () => { $("#rfHipBox").hidden = $("#rfShape").value !== "hip"; });
+    function syncWing() { const gable = $("#rfShape").value !== "hip"; $("#rfWingOn").hidden = !gable; for (const el of document.querySelectorAll(".wing")) el.hidden = !gable || $("#rfWing").value !== "1"; }
+    $("#rfShape").addEventListener("change", () => { $("#rfHipBox").hidden = $("#rfShape").value !== "hip"; syncWing(); });
+    $("#rfWing").addEventListener("change", syncWing);
     $("#rfOn").addEventListener("change", () => { $("#rfFields").hidden = !$("#rfOn").checked; if ($("#rfOn").checked) record("roof_on"); });
     if (usageOptedOut()) { const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; }
 
