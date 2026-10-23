@@ -45,7 +45,7 @@ Share of the shoot out of tolerance, offset / slope / slope_reset:
 Synthetic audio, an assumed base drift and wobble, a stand-in tolerance, one gate margin, one fit length (8) and one reset rule; no robust fit (Theil-Sen or RANSAC) or Kalman filter was tried and either might remove the wobble weakness. A wrong estimate accepted by a reset is trusted. The correction applies in steps at each re-sync, which a viewer may see; this scores the error only.
 
 ## Next steps
-- Try a robust fit and a model with a rate state (Kalman) against a sourced temperature-drift trace of a real camera oscillator.
+- Try a robust fit and a model with a rate state (Kalman) against a sourced temperature-drift trace of a real camera oscillator. *Done in `capture-syncfilter`: the sourced AT-cut curve moves the rate far less than the 10 to 30 ppm wobble assumed here, and Theil-Sen and Kalman tie with least squares except on the assumed wobble.*
 - Run on a real two-camera pair with a clap at both ends (see `capture-audiosync`); the measured ppm and its wobble replace the assumed ones.
 - Re-run `capture-syncbudget`'s gated results with the residual search and amend that project.
 

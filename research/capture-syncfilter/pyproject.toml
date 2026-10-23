@@ -1,0 +1,13 @@
+[project]
+name = "capture-syncfilter"
+version = "0.1.0"
+description = "Robust-fit and Kalman holds of a camera clock model between audio re-syncs, on a sourced AT-cut crystal temperature curve."
+requires-python = ">=3.9"
+dependencies = ["numpy"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
