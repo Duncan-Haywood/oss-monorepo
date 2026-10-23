@@ -76,3 +76,11 @@ test("Apple Card: charges flip even when the file holds no payment row", async (
   assert.equal(r.bank, "apple-card");
   assert.equal(r.rows[0].cents, -999);
 });
+
+test("brokerage and Indian-style headers: Activity Date, Narration, Withdrawal Amt./Deposit Amt., Closing Balance", async () => {
+  const { readStatement } = await import("./bank.mjs");
+  const rh = readStatement("Activity Date,Process Date,Settle Date,Instrument,Description,Trans Code,Quantity,Price,Amount\n10/01/2026,10/01/2026,10/02/2026,,ACH Deposit,ACH,,,\"$500.00\"\n");
+  assert.deepEqual(rh.rows.map((x) => [x.date, x.cents]), [["2026-10-01", 50000]]);
+  const ind = readStatement("Date,Narration,Withdrawal Amt.,Deposit Amt.,Closing Balance\n10/01/2026,GROCERY,45.10,,100.00\n10/02/2026,SALARY,,2000.00,2100.00\n");
+  assert.deepEqual(ind.rows.map((x) => x.cents), [-4510, 200000]);
+});
