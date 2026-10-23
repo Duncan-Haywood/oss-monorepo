@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "buildbot-carryramp"
+version = "0.1.0"
+description = "Does a heel-to-toe sweep of the planned centre of pressure raise a stock humanoid's carrying speed?"
+requires-python = ">=3.9"
+dependencies = ["mujoco>=3.1", "numpy"]
+license = { text = "MIT" }
+
+[project.optional-dependencies]
+figure = ["matplotlib"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "../buildbot-carryphase/src", "../buildbot-carrycop/src", "../buildbot-payload/src"]
