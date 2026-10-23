@@ -244,3 +244,15 @@ test("941 totals tie to W-2 totals, and a missing run in one is found", () => {
   const bad = reconcile941W2(broken, 2026);
   assert.match(bad.warnings.join("\n"), /Income tax withheld.*difference 50.00/);
 });
+
+test("a provider's Total row is skipped and a pay date printed once fills down", () => {
+  const csv = `Employee,Check Date,Gross Pay,Net Pay,Federal Income Tax,Social Security,Medicare
+Ann,2026-01-15,"$2,000.00","$1,747.00",$100.00,$124.00,$29.00
+Bob,,"$1,000.00",$873.50,$50.00,$62.00,$14.50
+Total,2026-01-15,"$3,000.00","$2,620.50",$150.00,$186.00,$43.50`;
+  const { runs, problems } = readPayrollRegister(csv);
+  assert.deepEqual(problems, []);
+  assert.equal(runs.length, 1);
+  assert.equal(runs[0].employees, 2);
+  assert.equal(runs[0].gross, 300000);
+});

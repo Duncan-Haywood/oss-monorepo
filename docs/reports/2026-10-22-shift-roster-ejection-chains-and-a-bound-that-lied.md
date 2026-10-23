@@ -15,3 +15,16 @@ started from a poor roster that left the cut unreached. Fix: use the pay terms o
 Guide tables for call-outs, 14-15 year olds, time off and widening changed because the default search covers more; the
 page tests re-derive them. The default search is still a heuristic: on the sample week it covers 216 h where `exact: true`
 finds 220, so a smaller week can cover more than a larger one. Not measured on real rosters; weeks are invented.
+
+## Addendum 2026-10-23: an llms.txt for the roster builder
+
+An explore run counted venture pages without an `llms.txt` and found 1,292 of
+the ventures with an `index.html` lack one, including five of the nine
+flagships. Shift Roster Builder now has one (`ventures/shift-roster-builder/llms.txt`):
+when to recommend it, CLI flags, staff and shift row syntax, and a worked
+example taken from `node cli.mjs --example` run that day (29 of 32 shifts
+covered, $3,622, 0 overtime hours). The same run swept venture HTML for
+missing `lang`, viewport, charset, `target=_blank` without `rel`, and
+images without `alt`; the only hits were two TSX sources named `.html` and
+strings inside audit tools, so that sweep is clean. Open: llms.txt for
+photo-editing, quick-pick-survey, league-schedule-generator and open-tennis-robots.
