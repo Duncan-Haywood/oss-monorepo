@@ -13,7 +13,6 @@ HOURS = list(range(6, 23)) + [24]
 DRIFT_MAX = 0.01      # share of the day's demand that the tanks may gain or lose over the scored day
 TANK_MARGIN = 0.5     # m above each tank's minimum level, all of days 2-3
 BASE = (1, 14)        # Net3 as shipped: 01:00 to 15:00
-STEP = 900            # hydraulic and report step, s; 3600 s mis-samples the booster pump 335 (section I)
 
 
 def fmt(x, n=0):
@@ -25,7 +24,7 @@ def main():
     for s, h in itertools.product(STARTS, HOURS):
         if h == 24 and s > 0:
             continue
-        res[(s, h)] = simulate(s, h, step=STEP)
+        res[(s, h)] = simulate(s, h)
     base = res[BASE]
 
     def ok(r, pmin):
@@ -36,7 +35,7 @@ def main():
     print(f"energy {fmt(total_kwh(base))} kWh (pump 10 {fmt(base['kwh']['10'].sum())}, pump 335 {fmt(base['kwh']['335'].sum())}); "
           f"pump 10 delivers {fmt(base['pump10_m3'])} m3 of {fmt(base['demand_m3'])} m3 demand; "
           f"min service pressure {base['min_pressure']:.1f} m; tank margin {base['tank_min_margin']:.2f} m; drift {base['drift_m3']:.0f} m3")
-    print(f"windows simulated {len(res)} at a {STEP} s step; mass balance over the scored day: river + lake outflow {fmt(base['supply_m3'])} m3 vs junction demand {fmt(base['demand_m3'])} m3 + tank change {base['drift_m3']:.0f} m3")
+    print(f"windows simulated {len(res)}")
 
     feas = {pm: [k for k, r in res.items() if ok(r, pm)] for pm in (14.06, 20.0, 25.0)}
     print("\n== B. Feasible windows by minimum service pressure (tank margin >= 0.5 m, drift <= 1 % of demand)")
@@ -99,16 +98,6 @@ def main():
     for lab, k in (("shipped", BASE), ("flat-best", kflat)):
         e = res[k]["kwh"]["10"] + res[k]["kwh"]["335"]
         print(f"{lab:9s} {k[0]:02d}:00 {k[1]} h | in 16-21: {100 * e[16:21].sum() / e.sum():.0f} % | in 08-20: {100 * e[8:20].sum() / e.sum():.0f} %")
-
-    print("\n== I. Time-step check: the same windows at 3600, 900 and 300 s (min pressure 14.06 m feasibility as in B)")
-    print("window | step s | kWh | pump 335 kWh | supply - demand m3 | tank drift m3")
-    pr = tariff("evening", 3)
-    kflat = min(feas[14.06], key=lambda k: total_kwh(res[k]))
-    kev = min(feas[14.06], key=lambda k: cost(res[k], pr))
-    for lab, k in (("shipped", BASE), ("flat-best", kflat), ("evening x3 best", kev)):
-        for st in (3600, 900, 300):
-            r = simulate(*k, step=st)
-            print(f"{lab} {k[0]:02d}:00 {k[1]} h | {st} | {fmt(total_kwh(r))} | {fmt(r['kwh']['335'].sum())} | {r['supply_m3'] - r['demand_m3']:.0f} | {r['drift_m3']:.0f}")
 
 
 if __name__ == "__main__":

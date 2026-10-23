@@ -1,6 +1,6 @@
 ; Filename: /usr/local/lib/python3.13/dist-packages/wntr/library/networks/Net3.inp
 ; WNTR: 1.5.0
-; Created: 2026-10-23 05:10:41
+; Created: 2026-10-23 02:14:24
 [TITLE]
 EPANET Example Network 3
 Example showing how the percent of Lake water in a dual-source
@@ -250,6 +250,7 @@ UPDATE: Added coordinates for Junction 177
 
 [STATUS]
 ;ID        Setting   
+10         Closed    
 
 [PATTERNS]
 ;ID        Multipliers
@@ -297,11 +298,12 @@ Pump 335 Open IF Tank 1 below 17.1
 Pump 335 Closed IF Tank 1 above 19.1
 Pipe 330 Closed IF Tank 1 below 17.1
 Pipe 330 Open IF Tank 1 above 19.1
-Pump 10 Open AT TIME 21
-Pump 10 Closed AT TIME 43
-Pump 10 Open AT TIME 45
-Pump 10 Closed AT TIME 67
-Pump 10 Open AT TIME 69
+Pump 10 Open AT TIME 1
+Pump 10 Closed AT TIME 15
+Pump 10 Open AT TIME 25
+Pump 10 Closed AT TIME 39
+Pump 10 Open AT TIME 49
+Pump 10 Closed AT TIME 63
 
 [RULES]
 
@@ -334,11 +336,11 @@ DEMAND CHARGE          0.0000
 
 [TIMES]
 DURATION             72:00:00
-HYDRAULIC TIMESTEP   00:05:00
+HYDRAULIC TIMESTEP   01:00:00
 QUALITY TIMESTEP     00:05:00
 PATTERN TIMESTEP     01:00:00
 PATTERN START        00:00:00
-REPORT TIMESTEP      00:05:00
+REPORT TIMESTEP      01:00:00
 REPORT START         00:00:00
 START CLOCKTIME      00:00:00 AM
 RULE TIMESTEP        00:06:00
