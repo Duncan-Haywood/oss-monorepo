@@ -42,6 +42,23 @@ function totals(report, year) {
   return out;
 }
 
+// Will a 1099-K arrive at all? Payment-card processors (Stripe, Square) report
+// every payment with no minimum. Third-party settlement organizations
+// (marketplaces, PayPal, Venmo, Etsy) report only above $20,000 AND more than
+// 200 transactions: P.L. 119-21 (2025) restored those figures as if the
+// $5,000/$2,500/$600 phase-down had never happened (read from memory of the Act
+// and IRS announcements, not re-fetched; check the year's instructions). Backup
+// withholding can force a form regardless.
+export const TPSO_1099K = { gross: 2000000, count: 200 };
+export function reportable1099K(report, year, { processor = "card" } = {}) {
+  const rows = report.rows.filter((x) => x.created && x.created.startsWith(`${year}-`) && x.kind === "sales" && x.gross > 0);
+  const gross = rows.reduce((a, x) => a + x.gross, 0), count = rows.length;
+  if (processor === "card") return { processor, gross, count, reportable: gross > 0, why: "A payment-card processor reports every card payment with no minimum." };
+  if (processor !== "marketplace") throw new Error('processor must be "card" or "marketplace".');
+  const over = gross > TPSO_1099K.gross && count > TPSO_1099K.count;
+  return { processor, gross, count, reportable: over, why: over ? `${fmt(gross)} over ${count} payments is above $20,000 and 200, so a 1099-K is due.` : `${fmt(gross)} over ${count} payments is not above both $20,000 and 200 payments, so no 1099-K is required (the income is still taxable; backup withholding can still trigger a form).` };
+}
+
 // form: { gross (box 1a, cents), months?: [12 cents] (boxes 5a-5l) }
 export function reconcile1099K(report, form, year, books = null, { sales = "4000" } = {}) {
   if (!Number.isInteger(year)) throw new Error("A year is needed, e.g. 2026.");
