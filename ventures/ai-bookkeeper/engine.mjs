@@ -501,12 +501,24 @@ export function exportJournal(books, format = "csv") {
     return rows.join("\n") + "\n";
   }
   if (format === "iif") {
-    const out = ["!TRNS\tTRNSID\tTRNSTYPE\tDATE\tACCNT\tAMOUNT\tMEMO", "!SPL\tSPLID\tTRNSTYPE\tDATE\tACCNT\tAMOUNT\tMEMO", "!ENDTRNS"];
+    // QuickBooks Desktop reads ":" in an account name as a sub-account and a tab as a column break.
+    const iifName = (c) => String(name(c)).replace(/[:\t\r\n]+/g, "-");
+    // IIF import fails on an account QuickBooks does not have, so the accounts used are listed first.
+    const accntType = (c) => {
+      const a = map.get(c), n = String(a?.name ?? "").toLowerCase();
+      if (a?.type === "asset") return a.bank ? "BANK" : /receivable/.test(n) ? "AR" : /equipment|vehicle|furniture|depreciation|building|software|fixed/.test(n) ? "FIXASSET" : "OCASSET";
+      if (a?.type === "liability") return /payable/.test(n) && !/payroll|tax/.test(n) ? "AP" : /loan|note|mortgage/.test(n) ? "LTLIAB" : "OCLIAB";
+      if (a?.type === "income") return "INC";
+      if (a?.type === "expense") return /cost of (goods|sales)|cogs/.test(n) ? "COGS" : "EXP";
+      return "EQUITY";
+    };
+    const usedCodes = [...new Set(entries.flatMap((e) => e.lines.map((l) => l.account)))];
+    const out = ["!ACCNT\tNAME\tACCNTTYPE", ...usedCodes.map((c) => `ACCNT\t${iifName(c)}\t${accntType(c)}`), "!TRNS\tTRNSID\tTRNSTYPE\tDATE\tACCNT\tAMOUNT\tMEMO", "!SPL\tSPLID\tTRNSTYPE\tDATE\tACCNT\tAMOUNT\tMEMO", "!ENDTRNS"];
     for (const e of entries) {
       const [first, ...rest] = e.lines;
       const memo = String(e.memo).replace(/[\t\r\n]/g, " ");
-      out.push(`TRNS\t\tGENERAL JOURNAL\t${usDate(e.date)}\t${name(first.account)}\t${dollars(first.debit - first.credit)}\t${memo}`);
-      for (const l of rest) out.push(`SPL\t\tGENERAL JOURNAL\t${usDate(e.date)}\t${name(l.account)}\t${dollars(l.debit - l.credit)}\t${memo}`);
+      out.push(`TRNS\t\tGENERAL JOURNAL\t${usDate(e.date)}\t${iifName(first.account)}\t${dollars(first.debit - first.credit)}\t${memo}`);
+      for (const l of rest) out.push(`SPL\t\tGENERAL JOURNAL\t${usDate(e.date)}\t${iifName(l.account)}\t${dollars(l.debit - l.credit)}\t${memo}`);
       out.push("ENDTRNS");
     }
     return out.join("\r\n") + "\r\n";
