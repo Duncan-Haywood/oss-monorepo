@@ -42,3 +42,13 @@ test("amounts: a DR suffix is money out, CR is money in", () => {
   assert.equal(parseCents("3.50 CR"), 350);
   assert.equal(parseCents("3.50 Credit"), 350);
 });
+
+test("OFX: thousands separators in amounts and ledger balance, XML entities", async () => {
+  const { readOfx } = await import("./bank.mjs");
+  const o = "<OFX><STMTRS><BANKTRANLIST><STMTTRN><DTPOSTED>20260105<TRNAMT>-1,234.56<NAME>A &amp; B &apos;x&apos; &#38; C<MEMO>m</STMTTRN></BANKTRANLIST><LEDGERBAL><BALAMT>1,234.56<DTASOF>20260131</LEDGERBAL></STMTRS></OFX>";
+  const r = readOfx(o);
+  assert.deepEqual(r.problems, []);
+  assert.equal(r.rows[0].cents, -123456);
+  assert.equal(r.rows[0].desc, "A & B 'x' & C m");
+  assert.equal(r.statement.cents, 123456);
+});
