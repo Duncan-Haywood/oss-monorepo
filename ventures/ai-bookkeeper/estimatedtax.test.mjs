@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { newBooks, importStatement, confirm } from "./engine.mjs";
-import { bracketTax, estimatedTax, BRACKETS } from "./estimatedtax.mjs";
+import { bracketTax, estimatedTax, toCents, BRACKETS } from "./estimatedtax.mjs";
 
 const B26 = BRACKETS[2026].single.b;
 function books(income) {
@@ -136,4 +136,25 @@ test("2026 minimum QBI deduction: $400 once QBI reaches $1,000, only where 20% i
 test("2025 standard deductions are the post-2025-law figures and the QBI thresholds Rev. Proc. 2024-40's", () => {
   // Rev. Proc. 2024-40 .15 said 15,000 / 30,000 / 22,500; the 2025 law raised them (IRS 2026 inflation release, Form 1040 instructions).
   assert.deepEqual([BRACKETS[2025].single.std, BRACKETS[2025].mfj.std, BRACKETS[2025].hoh.std], [1575000, 3150000, 2362500]);
+});
+
+test("toCents turns dollar strings into whole cents", () => {
+  assert.equal(toCents("12.34"), 1234);
+  assert.equal(toCents(0), 0);
+  assert.equal(toCents("1000"), 100000);
+});
+
+test("effective rate is a share of income and is 0 with no income", () => {
+  const r = estimatedTax(books("100000.00"), { year: 2026, wageBase: 18450000 });
+  assert.equal(r.effectiveRate, r.totalTax / 10000000);
+  const none = estimatedTax(newBooks(), { year: 2026, wageBase: 18450000 });
+  assert.equal(none.effectiveRate, 0);
+});
+
+test("a blank (NaN) wages, withholding or paid field counts as zero, not NaN payments", () => {
+  const r = estimatedTax(books("100000.00"), { year: 2026, wageBase: 18450000, wages: NaN, otherIncome: NaN, withholding: NaN, paid: NaN });
+  const base = estimatedTax(books("100000.00"), { year: 2026, wageBase: 18450000 });
+  assert.equal(r.totalTax, base.totalTax);
+  assert.deepEqual(r.payments.map((p) => p.cents), base.payments.map((p) => p.cents));
+  assert.ok(Number.isFinite(r.balanceWithReturn));
 });

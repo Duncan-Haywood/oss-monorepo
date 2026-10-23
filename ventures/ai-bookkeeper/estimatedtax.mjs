@@ -61,7 +61,8 @@ export function estimatedTax(books, o = {}) {
   const months = Math.min(12, Math.max(1, o.monthsElapsed ?? 12));
   const sc = scheduleC(books, { from: `${year}-01-01`, to: `${year}-12-31` });
   const profit = Math.round((sc.netProfit * 12) / months);
-  const wages = o.wages ?? 0, other = o.otherIncome ?? 0, withholding = o.withholding ?? 0, paid = o.paid ?? 0;
+  const num = (v) => (Number.isFinite(v) ? v : 0); // a blank form field arrives as NaN
+  const wages = num(o.wages), other = num(o.otherIncome), withholding = num(o.withholding), paid = num(o.paid);
   const se = selfEmployment(profit, { year, wages, wageBase: o.wageBase });
   const table = o.brackets ? { std: o.standardDeduction ?? 0, b: o.brackets } : BRACKETS[year]?.[filing];
   if (!table) throw new Error(`No ${filing} brackets on file for ${year}; pass brackets (and standardDeduction).`);
