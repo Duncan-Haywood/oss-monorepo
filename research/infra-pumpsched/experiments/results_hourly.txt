@@ -1,0 +1,28 @@
+== A. masks with at most two runs of on-hours simulated: 21806; feasible 21064
+   of which one run (the earlier window grid, plus off): 554; feasible 527
+
+== B. Best feasible schedule: one window vs two windows (exhaustive), cost as % of shipped cost
+tariff | ratio | one-window cost % | best one window | two-window cost % | best two-run schedule | extra saving, % of shipped | pump-10 hours
+flat | 1 | 47.9 | 01-22 | 47.9 | 00-01 02-22 | 0.02 | 21
+evening | 1.5 | 50.3 | 00-18 21-24 | 50.2 | 00-16 18-20 21-24 | 0.01 | 21
+evening | 3 | 54.8 | 00-16 21-24 | 54.8 | 00-16 21-24 | 0.00 | 19
+evening | 10 | 54.8 | 00-16 21-24 | 54.8 | 00-16 21-24 | 0.00 | 19
+daytime | 1.5 | 53.9 | 00-15 18-24 | 53.9 | 00-11 13-15 16-24 | 0.02 | 21
+daytime | 3 | 65.7 | 00-15 20-24 | 65.7 | 00-15 20-24 | 0.00 | 19
+daytime | 10 | 81.6 | 00-15 20-24 | 72.1 | 01-08 12-16 | 9.48 | 11
+midday-cheap | 1.5 | 47.0 | 00-18 21-24 | 47.0 | 00-17 18-19 21-24 | 0.00 | 21
+midday-cheap | 3 | 46.1 | 00-18 21-24 | 46.1 | 00-17 18-19 21-24 | 0.00 | 21
+midday-cheap | 10 | 47.2 | 00-18 21-24 | 46.0 | 00-07 12-17 21-24 | 1.23 | 15
+
+== C. Free-form search over all 2^24 masks, 600 fresh EPANET runs each, 3 seeds; cost as % of shipped cost
+tariff | ratio | two-run optimum % | local search from best window: best/median/worst % | GA from random: best/median/worst % | GA beats two-run optimum in
+flat | 1 | 47.9 | 47.9 / 47.9 / 47.9 | 47.9 / 47.9 / 47.9 | 0 of 3
+evening | 1.5 | 50.2 | 49.2 / 50.3 / 50.3 | 49.2 / 49.2 / 49.2 | 3 of 3
+evening | 3 | 54.8 | 54.8 / 54.8 / 54.8 | 54.8 / 54.8 / 57.1 | 0 of 3
+evening | 10 | 54.8 | 54.8 / 54.8 / 54.8 | 54.8 / 54.8 / 54.8 | 0 of 3
+daytime | 1.5 | 53.9 | 53.9 / 53.9 / 53.9 | 51.9 / 53.0 / 53.9 | 2 of 3
+daytime | 3 | 65.7 | 62.5 / 65.7 / 65.7 | 65.8 / 67.5 / 67.5 | 0 of 3
+daytime | 10 | 72.1 | 74.0 / 78.8 / 79.5 | 73.0 / 76.7 / 76.7 | 0 of 3
+midday-cheap | 1.5 | 47.0 | 45.2 / 47.0 / 47.0 | 45.2 / 45.2 / 45.7 | 3 of 3
+midday-cheap | 3 | 46.1 | 46.1 / 46.1 / 46.1 | 45.5 / 46.1 / 46.1 | 1 of 3
+midday-cheap | 10 | 46.0 | 42.1 / 44.6 / 47.2 | 42.1 / 44.6 / 47.2 | 2 of 3

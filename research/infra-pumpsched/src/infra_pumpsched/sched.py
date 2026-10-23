@@ -20,35 +20,38 @@ PUMPS = ("10", "335")
 
 def build(start, hours, days=DAYS):
     """Net3 with pump 10 open for `hours` from hour `start` each day (start may be 0..23; the window may cross midnight)."""
+    return build_mask([((h - start) % 24) < hours for h in range(24)] if hours < 24 else [True] * 24, days)
+
+
+def build_mask(mask, days=DAYS):
+    """Net3 with pump 10 open in the hours where `mask[h]` is true, the same 24-hour pattern every day."""
     wn = wntr.network.WaterNetworkModel(NET3)
     wn.options.time.duration = days * 24 * 3600
     for name in [n for n, c in wn.controls() if "PUMP 10 " in str(c)]:
         wn.remove_control(name)
     pump = wn.get_link("10")
-    pump.initial_status = "Closed"
-    if hours >= 24:
-        pump.initial_status = "Open"
-        return wn
-    if hours <= 0:
-        return wn
-    for d in range(days + 1):
-        t_on = (d * 24 + start) * 3600
-        t_off = t_on + hours * 3600
-        if t_on <= days * 24 * 3600:
-            wn.add_control(f"on{d}", wntr.network.controls.Control(
-                wntr.network.controls.SimTimeCondition(wn, "=", t_on), wntr.network.controls.ControlAction(pump, "status", 1)))
-        if t_off <= days * 24 * 3600 + 3600:
-            wn.add_control(f"off{d}", wntr.network.controls.Control(
-                wntr.network.controls.SimTimeCondition(wn, "=", t_off), wntr.network.controls.ControlAction(pump, "status", 0)))
-    # a window that wrapped past midnight on the previous day is already open at t=0; one starting at 0 opens at t=0
-    if start + hours > 24 or start == 0:
-        pump.initial_status = "Open"
+    pump.initial_status = "Open" if mask[0] else "Closed"
+    prev = bool(mask[0])
+    for t in range(1, days * 24 + 1):
+        cur = bool(mask[t % 24])
+        if cur != prev:
+            wn.add_control(f"c{t}", wntr.network.controls.Control(
+                wntr.network.controls.SimTimeCondition(wn, "=", t * 3600), wntr.network.controls.ControlAction(pump, "status", int(cur))))
+        prev = cur
     return wn
+
+
+def simulate_mask(mask):
+    """`simulate` for an hourly on/off pattern of pump 10 (24 booleans)."""
+    return _score(build_mask(mask))
 
 
 def simulate(start, hours):
     """Hourly results of the last day: dict of energy kWh per hour for each pump, tank levels, min pressure, tank drift."""
-    wn = build(start, hours)
+    return _score(build(start, hours))
+
+
+def _score(wn):
     r = wntr.sim.EpanetSimulator(wn).run_sim()
     flow, head = r.link["flowrate"], r.node["head"]
     e = wntr.metrics.economic.pump_energy(flow[list(PUMPS)], head, wn).astype(float) / J_PER_KWH
