@@ -146,6 +146,19 @@ audits with equal numbers per group covered all six true prevalences together (t
 of 120 items left under five items in the rare group in 291 of 300 draws, so it could not fill
 the table at all. The coders are still naive-Bayes models and a word list, not LLMs.
 
+## Update (2026-10-23): a language model as the coder, for the first time
+
+Every coder above was a naive-Bayes model or a word list. [`qual-agent`](/research/qual-agent/README.md)
+puts a language model in the seat: the Claude session agent that wrote the project coded 300 real
+GoEmotions comments in one pass, never seeing the human labels (not an API-called model, and
+labelled that way). It over-coded, flagging 132 comments as negative-emotion where the raters
+marked 70, so the naive prevalence was 0.44 against a true 0.23, the opposite error from the
+classical coders, which undercounted. Its accuracy (0.71) was no better than naive Bayes
+(exact McNemar p = 0.4) and worse than a 38-word list (0.84). Its sensitivity differed by comment
+length (0.95 short, 0.76 long), and prediction-powered inference stayed valid but was 29% wider
+than hand-coding alone at 60 hand-coded items. A language model is not automatically a better
+measuring instrument; it is a different one, and you only find that out against a hand-coded sample.
+
 ## What comes next
 
 Track 19 lists the next steps. The first is to run the same pipeline on a public, hand-coded
