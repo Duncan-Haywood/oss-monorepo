@@ -53,6 +53,7 @@ export function resolveHeaders(plan) {
   const errors = validateHeaderTable(plan.headerTable);
   if (errors.length) return { ok: false, plan: out, errors, rows: [], notes: [] };
   const table = [...plan.headerTable].sort((a, b) => a.upTo - b.upTo);
+  /** @type {{ wall: string, opening: string, span: number, required: string, chosen: string, status: "set"|"ok"|"under" }[]} */
   const rows = [];
   for (const wall of out.walls || []) {
     for (const op of wall.openings || []) {
