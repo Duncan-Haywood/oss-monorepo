@@ -55,3 +55,22 @@ test("an OFX error reply or an investment-only file says what it is, not 'no tra
   assert.match(inv.problems[0], /investment statement/);
   assert.match(readOfx("<OFX></OFX>").problems[0], /No transactions/);
 });
+
+// A camt.052 account report in the shape of the one in the fints project's tests
+// (MIT; ISO-8859-1, camt.052.001.08, one <Rpt>, a credit and a debit), rewritten
+// here. Real banks send 052 and 054 as well as 053; the reader keyed on 053 only.
+test("camt.052 reports and camt.054 notifications are recognised; several reports are flagged", async () => {
+  const { readStatement } = await import("./bank.mjs");
+  const ntry = (ind, amt, d, ref) => `<Ntry><Amt Ccy="EUR">${amt}</Amt><CdtDbtInd>${ind}</CdtDbtInd><Sts><Cd>BOOK</Cd></Sts><BookgDt><Dt>${d}</Dt></BookgDt><ValDt><Dt>${d}</Dt></ValDt><NtryDtls><TxDtls><RmtInf><Ustrd>${ref}</Ustrd></RmtInf></TxDtls></NtryDtls></Ntry>`;
+  const doc = (root, inner) => `<?xml version="1.0" encoding="ISO-8859-1" ?><Document xmlns="urn:iso:std:iso:20022:tech:xsd:camt.0${root === "BkToCstmrDbtCdtNtfctn" ? "54.001.08" : "52.001.08"}"><${root}>${inner}</${root}></Document>`;
+  const rpt = (tag) => `<${tag}><Id>1</Id>${ntry("CRDT", "35.00", "2025-10-28", "Reference")}${ntry("DBIT", "29.63", "2025-11-07", "Supplier Foobar")}</${tag}>`;
+  const a = readStatement(doc("BkToCstmrAcctRpt", rpt("Rpt")));
+  assert.equal(a.bank, "camt053");
+  assert.deepEqual(a.rows.map((r) => r.cents), [3500, -2963]);
+  assert.deepEqual(a.problems, []);
+  const n = readStatement(doc("BkToCstmrDbtCdtNtfctn", rpt("Ntfctn")));
+  assert.equal(n.bank, "camt053");
+  assert.equal(n.rows.length, 2);
+  const two = readStatement(doc("BkToCstmrAcctRpt", rpt("Rpt") + rpt("Rpt")));
+  assert.ok(two.problems.some((p) => /2 statements or reports/.test(p)));
+});
