@@ -1,0 +1,49 @@
+{
+  "date": "2026-10-23",
+  "session": "https://claude.ai/code/session_01YNTURcAN9ZFAZgPRLcjefp",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-23T21:29:45Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 9901,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/saints-by-candlelight/PRODUCTION.md",
+      "issue": "Publishing section URL still says monorepo-projects, not oss-monorepo; Making-an-episode steps omit that generate.mjs must run after audio render for the manifest."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "Wrote no separate agent doc/post; the run was a single episode and the series docs (PRODUCTION.md) were updated instead."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "creative track; project saints-by-candlelight, piece george-and-the-dragon-of-silene (episode 18). Audio rendered with Kokoro model files fetched from GitHub releases (huggingface not needed). Audio total was 378 MB before this episode (under the 400 MB line). Unverified detail left in the script, hedged with 'they say': Justinian building a church for George in Constantinople.",
+  "corrections": [],
+  "redteam": null
+}
