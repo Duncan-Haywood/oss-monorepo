@@ -522,6 +522,10 @@ export const SERVED_EXTENSIONS = new Map([
   ['.ofx', 'conf'],
   ['.qif', 'conf'],
   ['.mt940', 'conf'],
+  // ai-bookkeeper's spreadsheet fixtures; mime.types lists xls and xlsx (1.27.0) but not tsv.
+  ['.xls', 'stock'],
+  ['.xlsx', 'stock'],
+  ['.tsv', 'conf'],
   ['.py', 'conf'],
   ['.gz', 'conf'],
   ['.whl', 'conf'],
