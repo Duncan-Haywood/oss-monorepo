@@ -1,0 +1,123 @@
+{
+  "date": "2026-10-23",
+  "session": "https://claude.ai/code/session_01DyzN8bbtpP7VXNqKtFdctX",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-23T15:18:41Z",
+  "ended": "2026-10-23T15:22:44Z",
+  "wall_minutes": 4.33,
+  "tokens_in": 2835185,
+  "tokens_out": 14033,
+  "cost_usd": 1.0173,
+  "tool_calls": 35,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/9826",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "ai-bookkeeper next: is a long list of items needing real files, ollama models or irs.gov, all blocked by the proxy; cost time finding a slice that could be verified offline"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Wrote no agent doc/post: slice was small; README Next entry carries the result"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Tests: node --test ventures/ai-bookkeeper/*.test.mjs, 506 pass. Not run: venture-preflight, CI-equivalent workflows; Ollama registry blocked so AI-layer item untouched.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "fcf79986-b429-5982-8bd0-6b6e82aaccf7",
+    "transcripts": 1,
+    "first": "2026-10-23T15:18:41Z",
+    "last": "2026-10-23T15:23:00Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 32,
+        "input": 64,
+        "output": 14033,
+        "thinking": 1852,
+        "cache_read": 2753601,
+        "cache_write_5m": 0,
+        "cache_write_1h": 81520,
+        "api_equivalent_usd": 1.0173,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 32,
+      "input": 64,
+      "output": 14033,
+      "thinking": 1852,
+      "cache_read": 2753601,
+      "cache_write_5m": 0,
+      "cache_write_1h": 81520,
+      "api_equivalent_usd": 1.0173,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.971,
+    "tool_calls": 35,
+    "tools": {
+      "Bash": 29,
+      "Read": 2,
+      "bash": 1,
+      "Monitor": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 4.33,
+      "active_minutes": 4.33,
+      "model_minutes": 2.88,
+      "tool_minutes": 1.45,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
