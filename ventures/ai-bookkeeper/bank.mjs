@@ -165,7 +165,14 @@ export function sniffBank(rows) {
 // positive, Chase as negative). The payment rows settle it: a payment lowers
 // what is owed, so charges carry the opposite sign.
 function chargesArePositive(rows) {
-  const pay = rows.filter((r) => /payment.*thank you|autopay|automatic payment|online payment|directpay|ach deposit internet transfer/i.test(r.desc));
+  // "Payment thank you" style rows only appear on card statements. "Autopay"
+  // and "online payment" also name a checking account's outgoing bill
+  // payments, so they count only when most rows are positive, as a card
+  // export with positive charges would be.
+  const strong = rows.filter((r) => /payment.*thank you|payment received|directpay|ach deposit internet transfer/i.test(r.desc));
+  const weak = rows.filter((r) => /autopay|automatic payment|online payment/i.test(r.desc));
+  let pay = strong;
+  if (pay.length === 0 && weak.length > 0 && rows.filter((r) => r.cents > 0).length >= rows.length * 0.7) pay = weak;
   if (pay.length === 0) return null;
   const neg = pay.filter((r) => r.cents < 0).length;
   return neg > pay.length / 2;
