@@ -1,0 +1,31 @@
+JOINT co-design, 1920 evaluations, held-out 64 wide-plant episodes, 5 seeds; kappa = c D, c from UIUC static propeller data; arms: cant bound x TWR fixed (2.0) or free (1.5-4.0)
+  c      cant TWR   rms (mean, per seed)                         yaw RMS  twr (mean)  chosen cant (deg)   mass kg  cost $   D m   feasible
+  0.065    0  fix    17.22 (17.65, 17.12, 17.57, 16.98, 16.80)   28.64    2.00   0, 0, 0, 0, 0         1.94     160  0.101  5/5
+  0.065    0  free   14.69 (14.65, 14.90, 14.85, 14.58, 14.49)   24.41    4.00   0, 0, 0, 0, 0         2.58     268  0.113  5/5
+  0.065   35  fix    12.57 (12.61, 12.54, 12.58, 12.56, 12.55)   19.88    2.00   35, 35, 35, 34, 35    3.14     272  0.130  5/5
+  0.065   35  free   11.34 (11.50, 11.21, 11.37, 11.40, 11.21)   17.80    3.70   28, 29, 26, 28, 27    2.53     269  0.142  5/5
+  0.081    0  fix    17.06 (17.32, 16.94, 17.68, 16.78, 16.60)   28.39    2.00   0, 0, 0, 0, 0         2.50     207  0.096  5/5
+  0.081    0  free   14.00 (14.08, 14.04, 14.11, 13.91, 13.83)   23.09    4.00   0, 0, 0, 0, 0         2.62     273  0.113  5/5
+  0.081   35  fix    12.45 (12.47, 12.38, 12.45, 12.49, 12.44)   19.65    2.00   35, 35, 35, 35, 35    3.30     287  0.129  5/5
+  0.081   35  free   11.24 (11.22, 11.23, 11.29, 11.27, 11.20)   17.63    3.71   27, 26, 26, 26, 28    2.61     276  0.139  5/5
+  0.130    0  fix    16.12 (16.00, 16.20, 16.51, 15.96, 15.94)   26.62    2.00   0, 0, 0, 0, 0         1.49     122  0.103  5/5
+  0.130    0  free   12.64 (12.72, 12.68, 12.73, 12.53, 12.55)   20.59    3.99   0, 0, 0, 0, 0         2.48     258  0.113  5/5
+  0.130   35  fix    12.30 (12.32, 12.33, 12.30, 12.27, 12.27)   19.34    2.00   35, 35, 35, 35, 35    3.14     272  0.129  5/5
+  0.130   35  free   11.03 (10.93, 11.18, 10.96, 10.95, 11.13)   17.28    3.82   24, 24, 25, 23, 27    2.57     274  0.136  5/5
+
+TWR free vs fixed, no cant (deg; negative = headroom helps)
+  c=0.065: mean -2.53, better in 5 of 5
+  c=0.081: mean -3.07, better in 5 of 5
+  c=0.13: mean -3.48, better in 5 of 5
+Cant 35 vs no cant, TWR fixed (the parent's comparison)
+  c=0.065: mean -4.66, better in 5 of 5
+  c=0.081: mean -4.62, better in 5 of 5
+  c=0.13: mean -3.82, better in 5 of 5
+Cant 35 vs no cant, both with TWR free (does cant still help once headroom is bought?)
+  c=0.065: mean -3.36, better in 5 of 5
+  c=0.081: mean -2.75, better in 5 of 5
+  c=0.13: mean -1.61, better in 5 of 5
+Cant 35 with TWR fixed vs no cant with TWR free (which single lever is worth more?)
+  c=0.065: mean -2.13, better in 5 of 5
+  c=0.081: mean -1.55, better in 5 of 5
+  c=0.13: mean -0.34, better in 5 of 5
