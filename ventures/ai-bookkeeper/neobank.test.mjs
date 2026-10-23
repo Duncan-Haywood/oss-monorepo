@@ -279,3 +279,12 @@ test("a DR/CR marker column signs an unsigned amount; dd-Mon-yyyy dates read", (
   const r = readStatement("Date,Description,Amount,DR/CR\n1-Mar-2026,Coffee,4.50,DR\n2-Mar-2026,Pay,100.00,CR\n");
   assert.deepEqual(r.rows.map((x) => [x.date, x.cents]), [["2026-03-01", -450], ["2026-03-02", 10000]]);
 });
+
+test("PayPal activity CSV: Net moves the balance, pending rows skipped, balance chains", () => {
+  const r = read("paypal-activity.csv");
+  assert.equal(r.bank, "paypal");
+  assert.deepEqual(r.rows.map((x) => x.cents), [9680, 4825, -14505]);
+  assert.equal(r.rows[0].desc, "Ann Lee - Website Payment");
+  assert.equal(r.problems.length, 1, "the pending row is reported, not imported");
+  assert.deepEqual(checkRunningBalance(r.rows).breaks, []);
+});

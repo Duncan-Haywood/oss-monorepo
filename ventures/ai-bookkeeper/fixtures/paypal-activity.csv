@@ -1,0 +1,5 @@
+"Date","Time","TimeZone","Name","Type","Status","Currency","Gross","Fee","Net","Transaction ID","Balance"
+"03/01/2026","10:00:00","PST","Ann Lee","Website Payment","Completed","USD","100.00","-3.20","96.80","T1","96.80"
+"03/02/2026","11:00:00","PST","Bob Ng","Express Checkout Payment","Completed","USD","50.00","-1.75","48.25","T2","145.05"
+"03/03/2026","09:00:00","PST","Cy Roe","Website Payment","Pending","USD","70.00","-2.00","68.00","T3","145.05"
+"03/04/2026","09:00:00","PST","Bank of Example","General Withdrawal","Completed","USD","-145.05","0.00","-145.05","W1","0.00"
