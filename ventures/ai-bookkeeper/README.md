@@ -470,6 +470,10 @@ layouts, so check them against a real download.
 
 `bank.mjs` also recognises Monzo (`Transaction ID, Date, Time, Type, Name, ...`; day-first dates, the `Name` column is the payee), Starling (`Counter Party`, `Amount (GBP)`, `Balance (GBP)`; day-first, balance chain checked) and Mercury (`Date (UTC)`, `Status`; only `Sent` rows are imported, pending, failed and cancelled are listed in problems). Fixtures `monzo-business.csv`, `starling-business.csv`, `mercury-checking.csv` are hand-written from the published column headings with made-up rows; no real export has been tried, so check them against a real download.
 
+### Relay, Brex, Chime and Bluevine CSV (2026-10-23)
+
+These already read through the generic column matcher; this slice names them in `sniffBank` (Relay's `Date, Description, Amount, Balance, Account Name` was mislabelled Amex) and pins them with `fixtures/relay-checking.csv`, `brex-card.csv`, `chime-checking.csv`, `bluevine-checking.csv` and tests in `neobank.test.mjs` (Brex pending rows skipped, balance chains on Relay and Bluevine). Layouts are hand-written from remembered headings with made-up rows; no real export tried.
+
 ### PNC CSV (2026-10-22)
 
 `bank.mjs` labels a `Date, Description, Withdrawals, Deposits, Balance` export as PNC. The columns already read through the generic Debit/Credit matching; the fixture `pnc-checking.csv` (made-up rows, header from memory of PNC's layout, no real download tried) is tested in `neobank.test.mjs` with the running-balance chain.
@@ -774,6 +778,7 @@ is often fine.
 
 ## Next
 
+- $100,000 rule switches a monthly depositor to semiweekly, 2026-10-23 (`depositSchedule` in `deposits.mjs`, `deposits.test.mjs`, 2 new tests): the rule was flagged but the rest of the year stayed scheduled as monthly. Now the first day a month's liability reaches $100,000 sets `switchedOn` (next day); later runs are scheduled semiweekly, and the following year is semiweekly even when its lookback is small. From memory of Publication 15 section 7 (irs.gov refuses the shell here), hand-made registers only; check against your IRS notice.
 - Payout report quirk probe, 2026-10-24 (`payouts.mjs`, `payouts.test.mjs`): 16 hand-made variants of a Stripe payout CSV (BOM, CRLF, timestamps, thousands separators, `$`, parenthesised negatives, `;` and decimal comma, title-case headers, blank lines): 14 read correctly. Two gaps, fixed: amount headers with the currency in them (`Gross (USD)`, `Net (EUR)`) threw "No gross column"; and a report with a `currency` column listing several currencies was summed without a word, so it now says so in `problems`. Variants are mine, not real exports (docs.stripe.com is blocked from the shell).
 - Dutch bank CSVs, 2026-10-24 (`bank.mjs`, `neobank.test.mjs`, `fixtures/ing-nl.csv`, `knab-nl.csv`): layouts from the ofxstatement-dutch plugin's tests (rows made up). ING NL (`Af Bij` marker, `Bedrag (EUR)`) imported nothing, and Knab's `CreditDebet` column was ignored so every debit came in as money in. Both now read; markers `af/bij`, `debet/credit` and `soll/haben` set the sign. No real ING or Knab download tried.
 - Will a 1099-K arrive? 2026-10-23 (`reportable1099K` in `form1099k.mjs`, `form1099k --processor card|marketplace`): card processors (Stripe, Square) report every payment; marketplaces and wallets (PayPal, Venmo, Etsy) only above $20,000 and 200 payments, the figures P.L. 119-21 restored. Written from memory of the Act, not re-fetched (irs.gov blocked here); counts the report's positive sales rows, which may differ from the processor's own transaction count. Hand-made reports only (`form1099k.test.mjs`).

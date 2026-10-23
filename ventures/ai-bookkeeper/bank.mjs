@@ -278,6 +278,10 @@ export function sniffBank(rows) {
     if (/^date\|status\|type\|checknumber\|description\|withdrawal\|deposit\|runningbalance/.test(h)) return "schwab";
     if (/^run date\|account\|account number\|action\|symbol\|description/.test(h)) return "fidelity";
     if (/^date\|time\|/.test(h) && /\|gross\|/.test(h) && /\|status\|/.test(h) && /\|net(\||$)/.test(h)) return "paypal";
+    if (/^date\|description\|amount\|balance\|account name/.test(h)) return "relay";
+    if (/^transaction date\|posted date\|description\|amount\|status\|memo\|card last four/.test(h)) return "brex";
+    if (/^transaction date\|description\|type\|amount\|net amount\|settled date/.test(h)) return "chime";
+    if (/^date\|description\|debit\|credit\|balance\|type/.test(h)) return "bluevine";
     if (/^date\|description\|(card member\|account #\|)?amount/.test(h)) return "amex";
   }
   return null;
