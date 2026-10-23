@@ -1197,4 +1197,21 @@ or `ventures`) until its success rate passes 80% over 20 runs?
 - Decisions: all four candidates keep collecting (intervals overlap / too
   few runs). `derived/` rebuilt from a partial fetch. No audit or drift
   report (reduced pass).
+- Change: `CLAUDE.md` cloud-session pointer gained one clause: irs.gov,
+  ssa.gov and data hosts often 403 through the proxy, probe first ("Outbound
+  hosts" in `cloud-session.md`). Friction named CLAUDE.md for this
+  (flagship items say "check against official sources").
+- Metric: friction reports against `CLAUDE.md` or `research/PROJECTS.md` about
+  blocked hosts discovered late, over the next 40 runs (baseline: 2 recent).
+- Decisions: all four candidates kept (intervals overlap / too few runs).
+  `derived/` rebuilt from the partial fetch (25/44 PRs). No audit or drift
+  report (reduced pass).
+- Change: `research/CLAUDE.md` gained a 3-line note that `wntr` `run_sim`
+  writes `temp.*` in the cwd, so parallel EPANET runs need a distinct
+  `file_prefix`.
+- Metric: friction reports against `research/CLAUDE.md` about simulator temp
+  files colliding, over the next 40 runs (baseline: 1 today).
+- Decisions: all four candidates (ventures 2, research 1, process 2, review 2)
+  unchanged: intervals overlap, or fewer than 10 runs. `derived/` regenerated.
+  No audit or drift report (reduced pass).
 - Result: (next review)
