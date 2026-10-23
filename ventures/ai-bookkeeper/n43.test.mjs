@@ -55,3 +55,9 @@ test("invert flips signs, a bad movement is skipped with a note, CSV is not mist
   assert.match(bad.problems[0], /Line 2/);
   assert.equal(isN43("date,amount,desc\n2026-01-01,5,x\n"), false);
 });
+
+test("a 22 record whose debe/haber digit is neither 1 nor 2 does not make a file Norma 43", () => {
+  const odd = [h11(0), m22("02", 100, "A").replace(/^(.{27})2/, "$13")].join("\n");
+  assert.equal(isN43(odd), false);
+  assert.equal(isN43([h11(0), m22("02", 100, "A")].join("\n")), true);
+});
