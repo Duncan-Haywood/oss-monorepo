@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "osrobot-deadlineloss"
+version = "0.1.0"
+description = "When late fields lose yield instead of failing a hard deadline, how big should the weeding fleet be?"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
