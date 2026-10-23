@@ -665,8 +665,14 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
   const NOT_BOOKED = /^(pending|declined|failed|cancell?ed|reversed|reverted|voided|rejected|authori[sz]ed|authori[sz]ation|processing|in progress|on hold|returned)$/i;
   const feeCol = bank === "revolut" ? hdr.indexOf("fee") : -1;
   // Any file with a currency column (Revolut, Swedbank's Valiuta, Wise and the like) is checked for a mix.
-  const curCol = hdr.findIndex((x) => /^(currency|valiuta|valuta|waluta|währung|wahrung|devise|moneda|divisa|moeda)( code)?$/.test(x));
+  const curRe = /^(currency|valiuta|valuta|waluta|währung|wahrung|waehrung|devise|moneda|divisa|moeda)( code)?$/;
+  // "Valuta" can be the value date, so any other currency header wins over it.
+  const curCol = hdr.findIndex((x) => curRe.test(x) && x !== "valuta") !== -1 ? hdr.findIndex((x) => curRe.test(x) && x !== "valuta") : hdr.findIndex((x) => x === "valuta");
   const currencies = new Set();
+  // German exports keep the other party in its own column, apart from the purpose text.
+  const payeeCol = columns.desc === -1 ? -1 : hdr.findIndex((x, ix) => ix !== columns.desc && /^(beguenstigter\/zahlungspflichtiger|begünstigter\/zahlungspflichtiger|auftraggeber ?\/ ?begünstigter|auftraggeber ?\/ ?beguenstigter|name zahlungsbeteiligter|zahlungsempfänger|zahlungsempfaenger|empfänger|empfaenger)$/.test(x));
+  // Deutsche Bank style: one column for each side; the other party is the payee on money out, the payer on money in.
+  const payeeOut = hdr.findIndex((x) => /^beg(ue|ü)nstigter$/.test(x)), payerIn = hdr.findIndex((x) => /^zahlungspflichtiger$/.test(x));
   // Mint, Monarch, Tiller and YNAB write every account into one file and name the account on each row.
   const acctCol = hdr.findIndex((x) => /^(account name|account|account nickname)$/.test(x));
   const accountNames = new Set();
@@ -678,7 +684,8 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
     if (bank === "venmo" && !String(r[columns.date] ?? "").trim()) continue;
     if (stateCol !== -1 && !okState.test(String(r[stateCol] ?? "").trim())) { problems.push(`Line ${i + 1}: state ${String(r[stateCol] ?? "").trim() || "blank"}, not a completed transaction, skipped.`); continue; }
     if (anyState !== -1 && NOT_BOOKED.test(String(r[anyState] ?? "").trim())) { problems.push(`Line ${i + 1}: status ${String(r[anyState]).trim()}, not a booked transaction, skipped.`); continue; }
-    if (curCol !== -1 && String(r[curCol] ?? "").trim()) currencies.add(r[curCol].trim().toUpperCase());
+    // German and Italian "Valuta" is often the value date; only a three-letter code counts as a currency.
+    if (curCol !== -1 && /^[a-z]{3}$/i.test(String(r[curCol] ?? "").trim())) currencies.add(r[curCol].trim().toUpperCase());
     if (/^(likutis (pradžiai|pabaigai)|opening balance|closing balance)$/i.test(String(r[columns.desc] ?? "").trim())) { problems.push(`Line ${i + 1}: a balance row, not a transaction, skipped.`); continue; }
     if (headerAt !== -1 && r.length <= Math.max(columns.amount, columns.debit, columns.credit) && String(r[columns.date] ?? "").trim()) { problems.push(`Line ${i + 1}: the row has ${r.length} columns, fewer than the header, so the amount column is missing; skipped. Check the quoting in the file.`); continue; }
     const date = parseDate(r[columns.date], dayFirst);
@@ -705,6 +712,11 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
     if (bank === "cash-app") {
       const who = String(r[hdr.indexOf("name of sender/receiver")] ?? "").trim();
       desc = [who, desc || String(r[hdr.indexOf("transaction type")] ?? "").trim()].filter(Boolean).join(" - ");
+    }
+    const sideCol = payeeCol !== -1 ? payeeCol : payeeOut !== -1 && payerIn !== -1 ? (cents < 0 ? payeeOut : payerIn) : -1;
+    if (sideCol !== -1) {
+      const who = String(r[sideCol] ?? "").trim().replace(/\s+/g, " ");
+      if (who && !desc.toLowerCase().includes(who.toLowerCase())) desc = [who, desc].filter(Boolean).join(" - ");
     }
     if (rbc2 !== -1) desc = [desc, String(r[rbc2] ?? "").trim()].filter(Boolean).join(" ").replace(/\s+/g, " ");
     if (bank === "paypal") {

@@ -1,0 +1,3 @@
+"Auftragskonto";"Buchungstag";"Valutadatum";"Buchungstext";"Verwendungszweck";"Glaeubiger ID";"Mandatsreferenz";"Kundenreferenz (End-to-End)";"Sammlerreferenz";"Lastschrift Ursprungsbetrag";"Auslagenersatz Ruecklastschrift";"Beguenstigter/Zahlungspflichtiger";"Kontonummer/IBAN";"BIC (SWIFT-Code)";"Betrag";"Waehrung";"Info"
+"DE89370400440532013000";"02.03.26";"02.03.26";"LASTSCHRIFT";"Miete Maerz";"";"";"";"";"";"";"Hausverwaltung GmbH";"DE02120300000000202051";"BYLADEM1001";"-1.250,00";"EUR";"Umsatz gebucht"
+"DE89370400440532013000";"05.03.26";"05.03.26";"GUTSCHRIFT";"Rechnung 1042";"";"";"";"";"";"";"Kunde AG";"DE75512108001245126199";"SOGEDEFFXXX";"3.400,50";"EUR";"Umsatz gebucht"
