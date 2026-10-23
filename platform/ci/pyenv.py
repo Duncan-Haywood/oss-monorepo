@@ -94,6 +94,11 @@ def pip_install(py, modules, run=subprocess.run, log=lambda m: print(m, file=sys
             return True
         tail = (getattr(done, "stderr", None) or b"").decode(errors="replace").strip().splitlines()[-1:]
         log(f"pyenv: {py} -m pip install {' '.join(pkgs)} failed: {tail[0] if tail else 'no output'}")
+        if b"Cannot uninstall" in (getattr(done, "stderr", None) or b""):
+            # A distro-owned package (e.g. packaging) blocks the upgrade; the
+            # other flag variants fail identically and each costs a full
+            # resolve, so go on to the next interpreter or the venv.
+            return False
     return False
 
 
