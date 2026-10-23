@@ -256,3 +256,47 @@ Total,2026-01-15,"$3,000.00","$2,620.50",$150.00,$186.00,$43.50`;
   assert.equal(runs[0].employees, 2);
   assert.equal(runs[0].gross, 300000);
 });
+
+// Header probes, 2026-10-23: layouts recalled from provider exports, hand-written rows (no real export).
+test("a title block above the header, kinds of pay without a gross column, and split names are read", () => {
+  const csv = `Payroll Register\nAcme LLC\nPeriod 3/1/2026-3/31/2026\n\nCheck Date,Last Name,First Name,Regular Pay,Overtime,Bonus,Federal Income Tax,Social Security,Medicare,Net Pay\n3/13/2026,Lee,Ana,"$1,800.00",150,50,150,124,29,1697\n`;
+  const { runs, problems } = readPayrollRegister(csv);
+  assert.deepEqual(problems, []);
+  assert.equal(runs[0].gross, 200000);
+  assert.equal(runs[0].net, 169700);
+  assert.equal(runs[0].people[0].employee, "Ana Lee");
+});
+
+test("several columns feed one field: a 401(k) and a health plan both count as other deductions", () => {
+  const csv = "Pay Date,Employee,Gross Pay,401(k),Health Insurance,Federal Income Tax,Social Security (EE),Medicare (EE),Net Pay,Social Security (ER),Medicare (ER)\n2026-03-13,Ana,2000,100,50,150,124,29,1547,124,29\n";
+  const { runs, problems } = readPayrollRegister(csv);
+  assert.deepEqual(problems, []);
+  assert.equal(runs[0].other, 15000);
+  assert.equal(runs[0].ss, 12400);
+  assert.equal(runs[0].erSs, 12400);
+  assert.equal(runs[0].erMed, 2900);
+});
+
+test("a reversal row with negative amounts is named as a reversal, not as a net-pay mismatch", () => {
+  const csv = "Pay Date,Employee,Gross Pay,Federal Income Tax,Social Security,Medicare,Net Pay\n2026-03-20,Ana,-2000,-150,-124,-29,-1697\n";
+  const { runs, problems } = readPayrollRegister(csv);
+  assert.equal(runs.length, 0);
+  assert.match(problems[0], /negative gross pay/);
+});
+
+test("an Additional Medicare column adds to Medicare withheld", () => {
+  const csv = "Pay Date,Employee,Gross Pay,Federal Income Tax,Social Security,Medicare,Additional Medicare,Net Pay\n2026-12-11,Cy,50000.00,12000.00,0.00,725.00,225.00,37050.00\n";
+  const { runs, problems } = readPayrollRegister(csv);
+  assert.deepEqual(problems, []);
+  assert.equal(runs[0].med, 95000);
+});
+
+test("a single Total Employee Taxes column is split by statutory rates and noted", () => {
+  const csv = "Pay Date,Employee,Gross Pay,Total Employee Taxes,Net Pay\n2026-03-13,Ana,2000.00,400.00,1600.00\n";
+  const { runs, problems, notes } = readPayrollRegister(csv);
+  assert.deepEqual(problems, []);
+  assert.equal(runs[0].ss, 12400);
+  assert.equal(runs[0].med, 2900);
+  assert.equal(runs[0].fed, 40000 - 12400 - 2900);
+  assert.equal(notes.length, 1);
+});

@@ -104,6 +104,13 @@
     "script_sha256": "31685f4ba5c52e6c992eb8bc470dddac825426370b3357c3151ec2bba0cf2040",
     "voice": "en_US-ljspeech-high"
   },
+  "2026-10-21-checking-the-energy-table": {
+    "bytes": 632121,
+    "seconds": 126.33,
+    "sha256": "57fb4479ecae3cc5598706b5101de3fb23ee3a7b63c78efe8eae3ff84e3d2cf1",
+    "script_sha256": "de99a76f8f64065c77ea2885fc1f56b07ab95a40c41407ce71e7c40826e2d719",
+    "voice": "en_US-ljspeech-high"
+  },
   "2026-10-21-the-id-that-ate-the-table": {
     "bytes": 811804,
     "seconds": 162.27,
@@ -159,5 +166,12 @@
     "sha256": "9b45d77adf64cc09502e6c48006c30c456f2b6a6569ec57bfcb2b046e7dc14bc",
     "script_sha256": "9baa8e60866daad66d43a13cbeefe9a133d1dcedfc1d60f32dc838c15cca27a9",
     "voice": "m"
+  },
+  "2026-10-22-phat-vs-reverb": {
+    "bytes": 715854,
+    "seconds": 143.07,
+    "sha256": "c6a77c527c35e5f6ca8a9d3db39d719016b3cf7f3d0af97f2cad77bdc2de0cfc",
+    "script_sha256": "e17006c6e6b5627152625498e560cc6a9f76ece20a6ef1e8d2f3ca0c81a043b2",
+    "voice": "en_US-ljspeech-high"
   }
 }

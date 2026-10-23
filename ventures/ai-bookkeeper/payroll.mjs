@@ -39,17 +39,22 @@ const ALIASES = {
   date: ["pay_date", "check_date", "payment_date", "date", "pay_day", "payday"],
   gross: ["gross_pay", "gross", "gross_wages", "total_gross", "gross_earnings"],
   net: ["net_pay", "net", "net_wages", "take_home"],
-  fed: ["federal_income_tax", "federal_withholding", "fed_income_tax", "federal_tax", "fit", "federal_income_tax_withheld", "federal_w_h"],
-  ss: ["social_security", "social_security_employee", "employee_social_security", "ss_employee", "oasdi", "ee_social_security", "social_security_tax", "fica_ss"],
-  med: ["medicare", "medicare_employee", "employee_medicare", "medicare_ee", "ee_medicare", "medicare_tax", "fica_medicare"],
-  state: ["state_income_tax", "state_withholding", "state_tax", "state_income_tax_withheld", "state_w_h"],
-  other: ["other_deductions", "deductions", "benefits_deductions", "employee_deductions", "retirement_401k", "garnishments", "total_deductions"],
-  erSs: ["employer_social_security", "social_security_employer", "er_social_security", "ss_employer", "employer_oasdi"],
-  erMed: ["employer_medicare", "medicare_employer", "er_medicare", "medicare_er"],
-  futa: ["futa", "federal_unemployment", "employer_futa", "federal_unemployment_tax"],
-  suta: ["suta", "state_unemployment", "employer_suta", "state_unemployment_tax", "sui"],
-  erOther: ["employer_other", "employer_benefits", "other_employer_cost", "employer_contributions", "employer_401k"],
-  employee: ["employee", "employee_name", "name"],
+  fed: ["federal_income_tax", "federal_withholding", "fed_income_tax", "federal_tax", "fit", "federal_income_tax_withheld", "federal_w_h", "fed_income_tax_withheld", "federal_withholding_tax", "federal_income_tax_ee", "federal_tax_withheld", "fed_w_h", "fed_withholding", "federal_income_tax_employee"],
+  ss: ["social_security", "social_security_employee", "employee_social_security", "ss_employee", "oasdi", "ee_social_security", "social_security_tax", "fica_ss", "social_security_ee", "social_security_tax_ee", "social_security_employee_tax", "employee_social_security_tax", "oasdi_ee", "fica_social_security", "social_security_withheld"],
+  med: ["medicare", "medicare_employee", "employee_medicare", "medicare_ee", "ee_medicare", "medicare_tax", "fica_medicare", "medicare_tax_ee", "medicare_ee_tax", "employee_medicare_tax", "medicare_withheld", "medicare_employee_tax", "additional_medicare", "additional_medicare_tax", "addl_medicare", "addl_medicare_tax", "additional_medicare_ee", "medicare_additional"],
+  taxTotal: ["total_employee_taxes", "total_taxes", "employee_taxes", "total_employee_tax", "total_tax_withheld", "total_withholdings", "total_taxes_withheld", "employee_taxes_withheld"],
+  state: ["state_income_tax", "state_withholding", "state_tax", "state_income_tax_withheld", "state_w_h", "state_withholding_tax", "state_tax_withheld", "state_income_tax_ee", "state_withholding_ee", "state_income_tax_employee"],
+  other: ["other_deductions", "deductions", "benefits_deductions", "employee_deductions", "retirement_401k", "garnishments", "total_deductions", "401_k", "401k", "401_k_employee", "roth_401_k", "retirement", "health_insurance", "medical", "dental", "vision", "hsa", "fsa", "garnishment", "child_support", "other_deductions_pre_tax", "pre_tax_deductions", "post_tax_deductions"],
+  erSs: ["employer_social_security", "social_security_employer", "er_social_security", "ss_employer", "employer_oasdi", "social_security_er", "social_security_tax_er", "employer_social_security_tax", "social_security_employer_tax", "oasdi_er", "er_social_security_tax"],
+  erMed: ["employer_medicare", "medicare_employer", "er_medicare", "medicare_er", "medicare_tax_er", "employer_medicare_tax", "medicare_employer_tax", "er_medicare_tax"],
+  futa: ["futa", "federal_unemployment", "employer_futa", "federal_unemployment_tax", "employer_futa_tax", "futa_er", "futa_tax", "er_futa"],
+  suta: ["suta", "state_unemployment", "employer_suta", "state_unemployment_tax", "sui", "employer_suta_tax", "employer_sui", "suta_er", "suta_tax", "er_suta", "state_unemployment_insurance"],
+  erOther: ["employer_other", "employer_benefits", "other_employer_cost", "employer_contributions", "employer_401k", "employer_401_k", "employer_health_insurance", "employer_benefit_contributions", "er_401k"],
+  employee: ["employee", "employee_name", "name", "full_name", "employee_full_name"],
+  last: ["last_name", "surname", "family_name"],
+  first: ["first_name", "given_name", "forename"],
+  // Earnings columns, summed into gross pay when the report has no gross column (Gusto, ADP and Paychex exports often list only the kinds of pay).
+  earn: ["regular_pay", "regular_wages", "regular_earnings", "regular", "salary", "hourly", "overtime", "overtime_pay", "double_time", "double_overtime", "bonus", "commission", "commissions", "holiday", "holiday_pay", "pto", "pto_pay", "vacation", "vacation_pay", "sick", "sick_pay", "paid_time_off", "severance", "retro_pay"],
 };
 
 const fieldOf = (header) => {
@@ -60,11 +65,17 @@ const fieldOf = (header) => {
 
 // -> { runs: [{ id, date, employees, gross, net, fed, ss, med, state, other, erSs, erMed, futa, suta, erOther }], problems }
 export function readPayrollRegister(text) {
-  const table = parseCsv(text).filter((r) => r.some((c) => String(c).trim() !== ""));
+  let table = parseCsv(text).filter((r) => r.some((c) => String(c).trim() !== ""));
   if (table.length < 2) throw new Error("The payroll register has no rows.");
+  // Exports often start with a title, the company and the period before the header: the header is the first row that names a pay date and a net pay column.
+  const at = table.findIndex((r) => { const f = r.map(fieldOf); return f.includes("date") && f.includes("net"); });
+  if (at > 0) table = table.slice(at);
   const cols = table[0].map(fieldOf);
-  for (const need of ["date", "gross", "net"]) if (!cols.includes(need)) throw new Error(`The payroll register needs a ${need === "date" ? "pay date" : need === "gross" ? "gross pay" : "net pay"} column. Found: ${table[0].join(", ")}.`);
-  const problems = [], byDate = new Map();
+  const hasEarn = cols.includes("earn");
+  for (const need of ["date", "gross", "net"]) if (!cols.includes(need) && !(need === "gross" && hasEarn)) throw new Error(`The payroll register needs a ${need === "date" ? "pay date" : need === "gross" ? "gross pay" : "net pay"} column. Found: ${table[0].join(", ")}.`);
+  const problems = [], notes = [], byDate = new Map();
+  const taxOnly = cols.includes("taxTotal") && !cols.some((f) => ["fed", "ss", "med", "state"].includes(f));
+  if (taxOnly) notes.push("The register has one total for employee taxes. Social Security (6.2%) and Medicare (1.45%) are taken from gross pay and the rest is booked as federal income tax; split columns would be exact, so the Form 941 worksheet is only as good as that guess.");
   // Provider exports end with a "Total" row (which would count every run twice) and often print the pay date only on a group's first row.
   const nameCol = cols.indexOf("employee"), dateCol = cols.indexOf("date");
   let lastDate = "";
@@ -73,7 +84,20 @@ export function readPayrollRegister(text) {
     if (nameCol >= 0 && String(r[dateCol] ?? "").trim() === "" && String(r[nameCol] ?? "").trim() !== "" && lastDate) r = r.map((c, j) => (j === dateCol ? lastDate : c));
     else lastDate = String(r[dateCol] ?? "").trim() || lastDate;
     const row = { employee: null };
-    cols.forEach((f, j) => { if (f) row[f] = f === "date" ? parseDate(r[j]) : f === "employee" ? String(r[j]).trim() : (String(r[j] ?? "").trim() === "" ? 0 : parseCents(r[j])); });
+    // Several columns can feed one field (a 401(k) and a health plan are both "other"; kinds of pay add up to gross), so money adds.
+    cols.forEach((f, j) => {
+      if (!f) return;
+      if (f === "date") row.date = parseDate(r[j]);
+      else if (f === "employee" || f === "last" || f === "first") row[f] = String(r[j] ?? "").trim();
+      else { const v = String(r[j] ?? "").trim() === "" ? 0 : parseCents(r[j]); row[f] = row[f] === undefined ? v : row[f] + v; }
+    });
+    if (row.last || row.first) row.employee = row.employee || [row.first, row.last].filter(Boolean).join(" ");
+    if (!cols.includes("gross")) row.gross = row.earn;
+    if (taxOnly && Number.isFinite(row.taxTotal) && Number.isFinite(row.gross)) {
+      row.ss = Math.min(Math.round(row.gross * 0.062), row.taxTotal);
+      row.med = Math.min(Math.round(row.gross * 0.0145), row.taxTotal - row.ss);
+      row.fed = row.taxTotal - row.ss - row.med;
+    }
     const label = `Row ${i + 2}`;
     if (!row.date) { problems.push(`${label}: no readable pay date.`); return; }
     for (const f of ["gross", "net", "fed", "ss", "med", "state", "other", "erSs", "erMed", "futa", "suta", "erOther"]) {
@@ -82,9 +106,9 @@ export function readPayrollRegister(text) {
     }
     // Employee deductions are shown as positives; a negative one is the provider's sign convention.
     for (const f of ["fed", "ss", "med", "state", "other", "erSs", "erMed", "futa", "suta", "erOther"]) row[f] = Math.abs(row[f]);
+    if (row.gross < 0) { problems.push(`${label}: negative gross pay; file a reversal by hand.`); return; }
     const deducted = row.fed + row.ss + row.med + row.state + row.other;
     if (row.net !== row.gross - deducted) { problems.push(`${label} (${row.date}${row.employee ? ", " + row.employee : ""}): net pay ${(row.net / 100).toFixed(2)} is not gross ${(row.gross / 100).toFixed(2)} less deductions ${(deducted / 100).toFixed(2)}; row left out.`); return; }
-    if (row.gross < 0) { problems.push(`${label}: negative gross pay; file a reversal by hand.`); return; }
     const run = byDate.get(row.date) ?? { id: `PR-${row.date}`, date: row.date, employees: 0, gross: 0, net: 0, fed: 0, ss: 0, med: 0, state: 0, other: 0, erSs: 0, erMed: 0, futa: 0, suta: 0, erOther: 0 };
     run.employees += 1;
     if (row.employee) (run.people ??= []).push({ employee: row.employee, gross: row.gross, fed: row.fed, ss: row.ss, med: row.med, erMed: row.erMed, state: row.state, other: row.other, erSs: row.erSs, futa: row.futa });
@@ -92,7 +116,7 @@ export function readPayrollRegister(text) {
     byDate.set(row.date, run);
   });
   const runs = [...byDate.values()].sort((a, b) => a.date.localeCompare(b.date));
-  return { runs, problems };
+  return { runs, problems, notes };
 }
 
 export const employerCost = (r) => r.erSs + r.erMed + r.futa + r.suta + r.erOther;

@@ -24,6 +24,8 @@
       <itunes:summary>A church organ goes sharp against its own reed stops when the building warms, and last Christmas it went a quarter of a semitone sharp against the choir. The parish's building AI can fix the pitch by heating the stone for two days, which the parish cannot afford, or by heating only the people, which means a cold church and a hard word with the priest. The old tuner has one more Christmas in his knees, and a boy to teach.</itunes:summary>
       <itunes:episodeType>full</itunes:episodeType>
       <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://example.invalid/hearth-and-horizon/audio/the-warm-pew.mp3" length="6602611" type="audio/mpeg"/>
+      <itunes:duration>0:18:20</itunes:duration>
     </item>
     <item>
       <title>The Cold Meter</title>

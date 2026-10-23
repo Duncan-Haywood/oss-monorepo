@@ -46,7 +46,7 @@ flagships:
       terms letter checked against the fee and discount rules, and one named
       lender's own schedule against the loan register (`loan check` landed 2026-10-23 on derived tables: try a real lender's PDF-to-CSV table); (5) try receipts and
       the reconcile-to-statement command on real paper, and read receipt
-      photos in the page; (6) payroll (941, Schedule B, 940, deposits, `payroll reconcile`; hand-made fixtures, 2026-10-22/23): try a real Gusto or ADP report and check the deposit rules against a real IRS notice; (7) one named filing service's import layout, from its own spec; (10) `estimate` (1040-ES plan, 2026-10-22; check brackets on irs.gov; page card open); (9) 1099-NEC backup-withholding exposure (24% on payees with no W-9) landed 2026-10-22: check Form 945 treatment with a preparer; (8) `salestax return` (2026-10-22, hand-made fixtures): check it against one state's real return layout and holiday calendar. A run that lands a slice replaces
+      photos in the page; (6) payroll (941, Schedule B, 940, deposits, `payroll reconcile`; hand-made fixtures, 2026-10-22/23; header spellings probed 2026-10-23): try a real Gusto or ADP report and check the deposit rules against a real IRS notice; (7) one named filing service's import layout, from its own spec; (10) `estimate` (1040-ES plan, 2026-10-22; check brackets on irs.gov; page card open); (9) 1099-NEC backup-withholding exposure (24% on payees with no W-9) landed 2026-10-22: check Form 945 treatment with a preparer; (8) `salestax return` (2026-10-22, hand-made fixtures): check it against one state's real return layout and holiday calendar. A run that lands a slice replaces
       its item here; keep this under 2,000 characters.
 
   # Added 2026-10-21 second, on the owner's direction that day: "I want to make
@@ -114,7 +114,7 @@ flagships:
       (README "Where the exact proof breaks"). Ejection chains landed 2026-10-22
       (open hours 413 to 395 on 8 x 22; fixed an exact-search pay bound that
       overstated). The coverage pass now always runs and keeps a better roster it finds
-      (gap on 8 x 22: 45 h -> 27 h). Cross-day rest on the flow's day edges tried 2026-10-23: no change (387 h open, floor 360 h; README). Pricing contested shifts (Lagrangian, `openFloorByPricing`) landed 2026-10-23: floor 360 -> 383 h vs 387 h open on 8 x 22. Next: the cost side now stops the 8 x 22 proof, so a tighter pay bound once coverage is proven (or branching on the most contested shift), the 10 x 28 and 12 x 30 sizes where the floor still leaves 14 h, then a joint (not week-by-week) multi-week solve.
+      (gap on 8 x 22: 45 h -> 27 h). Cross-day rest on the flow's day edges tried 2026-10-23: no change (387 h open, floor 360 h; README). Pricing contested shifts (Lagrangian, `openFloorByPricing`) landed 2026-10-23: floor 360 -> 383 h vs 387 h open on 8 x 22. Next: the cost side now stops the 8 x 22 proof, so a tighter pay bound once coverage is proven (or branching on the most contested shift; branch order by length or eligibility per hour tried 2026-10-23, no gain), the 10 x 28 and 12 x 30 sizes where the floor still leaves 14 h, then a joint (not week-by-week) multi-week solve.
       Multi-week fairness measured 2026-10-22 (eval/fairness-bench.mjs: tough-shift spread
       13.2 -> 3.2 over 8 weeks for +0.4% payroll, equal-availability synthetic crews).
 

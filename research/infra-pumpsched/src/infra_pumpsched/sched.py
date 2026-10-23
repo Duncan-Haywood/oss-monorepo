@@ -19,52 +19,48 @@ PUMPS = ("10", "335")
 
 
 def build(start, hours, days=DAYS, step=3600):
-    """Net3 with pump 10 open for `hours` from hour `start` each day (start 0..23; the window may cross midnight).
-
-    A window is an hourly schedule (`build_hourly`), so a window that wraps past midnight is closed on the first day too."""
-    bits = [1 if (h - start) % 24 < hours else 0 for h in range(24)]
-    return build_hourly(bits, days, step)
+    """Net3 with pump 10 open for `hours` from hour `start` each day (start may be 0..23; the window may cross midnight)."""
+    return build_mask([((h - start) % 24) < hours for h in range(24)] if hours < 24 else [True] * 24, days, step)
 
 
-def _base(days, step):
+def build_mask(mask, days=DAYS, step=3600):
+    """Net3 with pump 10 open in the hours where `mask[h]` is true, the same 24-hour pattern every day."""
     wn = wntr.network.WaterNetworkModel(NET3)
     wn.options.time.duration = days * 24 * 3600
     wn.options.time.hydraulic_timestep = step
     wn.options.time.report_timestep = step
     for name in [n for n, c in wn.controls() if "PUMP 10 " in str(c)]:
         wn.remove_control(name)
-    return wn
-
-
-def build_hourly(bits, days=DAYS, step=3600):
-    """Net3 with pump 10 on in hour h of every day when bits[h] is 1 (24 bits): an hourly on/off schedule, not one window."""
-    wn = _base(days, step)
     pump = wn.get_link("10")
-    bits = [int(b) for b in bits]
-    pump.initial_status = "Open" if bits[0] else "Closed"
-    for d in range(days):
-        for h in range(24):
-            if d == 0 and h == 0:
-                continue
-            if bits[h] != bits[(h - 1) % 24]:
-                t = (d * 24 + h) * 3600
-                wn.add_control(f"sw{d}_{h}", wntr.network.controls.Control(
-                    wntr.network.controls.SimTimeCondition(wn, "=", t),
-                    wntr.network.controls.ControlAction(pump, "status", bits[h])))
+    pump.initial_status = "Open" if mask[0] else "Closed"
+    prev = bool(mask[0])
+    for t in range(1, days * 24 + 1):
+        cur = bool(mask[t % 24])
+        if cur != prev:
+            wn.add_control(f"c{t}", wntr.network.controls.Control(
+                wntr.network.controls.SimTimeCondition(wn, "=", t * 3600), wntr.network.controls.ControlAction(pump, "status", int(cur))))
+        prev = cur
     return wn
 
 
-def simulate(start, hours, step=3600, wn=None):
-    """Hourly results of the last day: dict of energy kWh per hour for each pump, tank levels, min pressure, tank drift.
+def simulate_mask(mask):
+    """`simulate` for an hourly on/off pattern of pump 10 (24 booleans)."""
+    return _score(build_mask(mask), 3600)
 
-    `step` is the hydraulic and report time step in seconds (it must divide 3600): Net3's booster pump 335 and pipe 330
-    switch on tank levels inside the hour, so a 3600 s step samples them once an hour (see README, "Mass balance")."""
+
+def simulate(start, hours, step=3600):
+    """Hourly results of the last day: dict of energy kWh per hour for each pump, tank levels, min pressure, tank drift."""
+    return _score(build(start, hours, step=step), step)
+
+
+def _score(wn, step=3600):
+    """`step` (s, divides 3600) is the hydraulic and report step; booster pump 335 switches on tank levels inside the hour, so the
+    default 3600 s samples it once an hour (see README, "Mass balance")."""
     k = 3600 // step
-    wn = wn if wn is not None else build(start, hours, step=step)
     r = wntr.sim.EpanetSimulator(wn).run_sim()
     flow, head = r.link["flowrate"], r.node["head"]
-    # pump_energy is the power at each report row times the report step (a left rectangle); the k rows of an hour are summed
     e = wntr.metrics.economic.pump_energy(flow[list(PUMPS)], head, wn).astype(float) / J_PER_KWH
+    # pump_energy is power at each report row times the report step; the k rows of an hour are summed
     day = slice(48 * k, 72 * k)
     junc = [n for n in wn.junction_name_list if wn.get_node(n).demand_timeseries_list[0].base_value > 0]
     pres = r.node["pressure"][junc]

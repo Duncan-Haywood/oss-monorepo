@@ -9,6 +9,10 @@
 //      inline-script parse, [hidden] CSS, links, disclaimers, feed dates.
 //   3. `platform/marketing/regen.mjs --verify`: is the committed mirror stale?
 //      (run right after step 1, so a stale mirror fails in seconds, not minutes)
+//   4. The hand-written counts a new venture or workflow moves
+//      (`sync_tree_counts.py`, `publish_surface.py`, `sync_readme_counts.py`,
+//      each with `--check`, about 25 s together). Three CI rounds on one
+//      venture came from these (publish-kit NEXT.md, 2026-10-21).
 //
 //   node platform/pages/venture-preflight.mjs <slug> [--skip-build]
 //
@@ -51,6 +55,18 @@ export function mirrorProblem(status, output = '') {
   return `regen.mjs --verify could not answer (exit ${status})${tail ? `:\n${tail}` : ''}`;
 }
 
+/** The cheap `--check` scripts, each with the command that fixes its drift. */
+export const COUNT_CHECKS = [
+  { script: 'platform/ci/sync_tree_counts.py', fix: 'python3 platform/ci/sync_tree_counts.py' },
+  { script: 'platform/ci/publish_surface.py', fix: 'python3 platform/ci/publish_surface.py --write' },
+  { script: 'gitops/ci/sync_readme_counts.py', fix: 'python3 gitops/ci/sync_readme_counts.py' },
+];
+
+export function countProblem({ script, fix }, status) {
+  if (status === 0) return null;
+  return `${script} --check exited ${status}: run \`${fix}\` and commit the result`;
+}
+
 export function buildProblem(built) {
   if (built.status === 0) return null;
   return `build.mjs failed:\n${(built.stderr || built.stdout).slice(-2000)}`;
@@ -91,6 +107,12 @@ async function main(argv) {
   const verify = run(['platform/marketing/regen.mjs', '--verify']);
   const mirror = mirrorProblem(verify.status, (verify.stderr || '') + (verify.stdout || ''));
   if (mirror) failures.push(mirror);
+  console.log('1c/3 hand-written counts (--check)');
+  for (const check of COUNT_CHECKS) {
+    const r = spawnSync('python3', [check.script, '--check'], { cwd: ROOT, encoding: 'utf8' });
+    const problem = countProblem(check, r.status);
+    if (problem) failures.push(problem);
+  }
   if (failures.length) {
     console.log(`\nPREFLIGHT FAILED for ${slug} (stopped before the build; fix, then rerun):`);
     for (const f of failures) console.log(`  - ${f}`);
