@@ -79,3 +79,15 @@ test("parseReply reads the shapes small local models actually return", () => {
   assert.deepEqual(parseReply('{"id":"d","account":"1"}\n{"id":"e","account":"2"} thanks {done}').map((x) => x.id), ["d", "e"]); // loose objects
   assert.throws(() => parseReply('{"foo":1}'), /lines/);
 });
+
+test("parseReply keeps a bare array as is, and the prompt caps past examples at 40", () => {
+  // A bare array of non-objects or id-less objects only survives the whole-array parse, not the loose-object scan.
+  assert.deepEqual(parseReply('["a","b"]'), ["a", "b"]);
+  assert.deepEqual(parseReply('ok [{"x":1}] done'), [{ x: 1 }]);
+  const b = books();
+  const past = Array.from({ length: 45 }, (_, i) => ({ id: "p" + i, date: "2026-01-01", cents: -100, desc: "PAST" + i, account: "1000", posted: "6060", status: "confirmed" }));
+  const p = aiPrompt({ ...b, transactions: [...past, ...b.transactions] }, b.transactions.slice(0, 1));
+  assert.equal((p.match(/PAST\d+/g) || []).length, 40);
+  assert.doesNotMatch(p, /PAST4\b/);
+  assert.match(p, /PAST44/);
+});
