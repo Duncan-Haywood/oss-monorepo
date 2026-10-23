@@ -34,3 +34,11 @@ test("dates: compact, weekday-led, ordinal and run-together spellings", () => {
   assert.equal(parseDate("20260230"), null);
   assert.equal(parseDate("Oct 5, 2026"), "2026-10-05");
 });
+
+test("amounts: a DR suffix is money out, CR is money in", () => {
+  assert.equal(parseCents("12.50 DR"), -1250);
+  assert.equal(parseCents("1,200.00DR"), -120000);
+  assert.equal(parseCents("12.50 Debit"), -1250);
+  assert.equal(parseCents("3.50 CR"), 350);
+  assert.equal(parseCents("3.50 Credit"), 350);
+});

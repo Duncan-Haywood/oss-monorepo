@@ -48,12 +48,12 @@ export function parseCsv(text) {
   return rows;
 }
 
-// "1,234.56", "(12.00)", "-$5", "12.00-", "1.234,56" (decimalComma) -> cents.
+// "1,234.56", "(12.00)", "-$5", "12.00-", "12.50 DR" (debit, negative), "1.234,56" (decimalComma) -> cents.
 export function parseCents(v, decimalComma = false) {
   let s = String(v ?? "").trim();
   if (s === "" || /^[-–—\s]+$/.test(s)) return 0;
   if (/\d\s*e\s*[-+]?\d/i.test(s)) return NaN; // "1e3" is not 13.00
-  const neg = /\(\s*[^()]*\d[^()]*\)/.test(s) || /^[^0-9]*[-−]/.test(s) || /-\s*$/.test(s);
+  const neg = /\(\s*[^()]*\d[^()]*\)/.test(s) || /^[^0-9]*[-−]/.test(s) || /-\s*$/.test(s) || /\d\s*(?:dr|db|debit)\.?\s*$/i.test(s);
   s = s.replace(/[^0-9.,]/g, "");
   // Both separators: the last one is the decimal point, whatever the flag says.
   // One separator with 1-2 digits after it is a decimal point too; only a
