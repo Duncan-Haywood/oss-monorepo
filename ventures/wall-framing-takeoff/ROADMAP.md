@@ -53,8 +53,10 @@ Ticked items are on `main`.
       the sheet length chosen from the wall height, and the sheet order as a
       cutting-stock problem over 48 in strips pooled across walls, with its LP
       bound. Two courses (blocked horizontal joint) for walls taller
-      than the longest sheet landed 2026-10-21. Horizontal panel orientation landed 2026-10-21 (courses, staggered end joints, blocked course joints). Corner overhang (`sheathing.overhang`, CLI `--overhang`, page tick box; the earlier wall's sheets run past its end by the next wall's depth; vertical sheets) landed 2026-10-21. Rim lap (`sheathing.rimLap`, CLI `--rim-lap=`, page field; vertical sheets) landed 2026-10-21. Not yet: a 2D reuse of
-      opening cut-outs.
+      than the longest sheet landed 2026-10-21. Horizontal panel orientation landed 2026-10-21 (courses, staggered end joints, blocked course joints). Corner overhang (`sheathing.overhang`, CLI `--overhang`, page tick box; the earlier wall's sheets run past its end by the next wall's depth; vertical sheets) landed 2026-10-21. Rim lap (`sheathing.rimLap`, CLI `--rim-lap=`, page field; vertical sheets) landed 2026-10-21. Cut-out reuse measured 2026-10-23
+      (`cutout-reuse-bench.mjs`): on the sample house no panel fits a free-standing
+      hole (vertical 0 of 38, 4 holes; horizontal 0 of 42, no interior holes), so
+      there is nothing to build there; recheck on a real plan with large glazing.
 - [x] **Blocking and fire blocking** (2026-10-21, `blockingRows` in `engine.mjs`):
       plan `blocking: {rows, fire}` adds evenly spaced flat-2x rows between
       neighbouring full-height studs, skips openings, and `fire` adds enough
