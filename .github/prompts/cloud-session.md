@@ -80,8 +80,9 @@ Start these with `run_in_background` and wait with `Monitor`:
   `CHROMIUM_PATH` for scripts that read them (`ai-bookkeeper/eval/browser-click.mjs`),
   or they print "skipped: playwright not installed".
 - `pkill -f <name>` kills the Bash tool's own shell, because its command
-  line contains the pattern. `.claude/hooks/block_pkill_f.py` now refuses it
-  (also inside heredocs that merely mention it); use `'[n]ame'` or `kill <pid>`.
+  line contains the pattern (the `pgrep` form matches itself the same way).
+  `.claude/hooks/block_pkill_f.py` refuses both, also inside heredocs that
+  merely mention them; use `'[n]ame'` or `kill <pid>`.
 
 ## Outbound hosts
 
