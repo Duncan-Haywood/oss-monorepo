@@ -1,0 +1,15 @@
+3D loop, original bounds, M tee, 3 cm half-depth, 64 drapes on err_all
+loop seed err err_all crease sag design
+3d-orig 0 0.967 1.288 19.4 4.31 w=22.0 slope=0.0 bow=3.00 r=3.00
+3d-orig 1 0.825 1.674 21.7 4.35 w=22.3 slope=21.7 bow=-2.00 r=2.68
+3d-orig 2 0.694 1.709 25.9 4.76 w=23.4 slope=11.1 bow=2.92 r=2.25
+3d-orig 3 1.223 1.466 22.7 4.57 w=21.6 slope=1.2 bow=2.01 r=2.57
+3d-orig 4 1.716 2.109 19.4 4.21 w=24.9 slope=12.8 bow=1.89 r=3.00
+3d-orig 5 0.958 1.432 21.4 4.39 w=21.9 slope=9.1 bow=0.46 r=2.73
+3d-orig 6 0.624 1.306 19.5 4.28 w=22.4 slope=6.8 bow=2.48 r=2.99
+3d-orig 7 0.685 1.338 20.2 4.37 w=22.3 slope=4.7 bow=3.00 r=2.88
+
+err_all, 3D original bounds minus 2D-designed:
+n=8 vs 8  mean3d=1.540 sd=0.279  mean2d=1.799 sd=0.128  diff=-0.259  95% bootstrap CI [-0.438, -0.033]  permutation p=0.033
+err_all, 3D wide bounds minus 3D original bounds:
+n=8 vs 8  mean3d=1.124 sd=0.249  mean2d=1.540 sd=0.279  diff=-0.416  95% bootstrap CI [-0.667, -0.179]  permutation p=0.006
