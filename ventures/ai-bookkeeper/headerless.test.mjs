@@ -27,3 +27,15 @@ test("a three-column file (ANZ style, no balance) is read", () => {
   assert.equal(r.bank, "anz");
   assert.equal(r.rows[1].date, "2026-03-04");
 });
+
+test("a Type column of DEBIT/CREDIT or Withdrawal/Deposit words signs an unsigned amount", () => {
+  for (const [hdr, a, b] of [["Date,Description,Type,Amount", "DEBIT", "CREDIT"], ["Posting Date,Payee,Transaction Type,Amount", "Withdrawal", "Deposit"]]) {
+    const r = readStatement(`${hdr}\n01/05/2026,Fee,${a},12.50\n01/06/2026,Dep,${b},1200.00\n`);
+    assert.deepEqual(r.rows.map((x) => x.cents), [-1250, 120000]);
+  }
+});
+
+test("a card export's Sale/Return Type column is not read as debit/credit", () => {
+  const r = readStatement("Date,Description,Type,Amount\n01/05/2026,Shop,Sale,-12.50\n01/06/2026,Shop,Return,5.00\n");
+  assert.deepEqual(r.rows.map((x) => x.cents), [-1250, 500]);
+});

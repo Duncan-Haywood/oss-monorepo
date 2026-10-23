@@ -322,7 +322,16 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year } = {
   }
   // A DR/CR (or Debit/Credit) marker column beside one unsigned amount column.
   const hdr0 = headerAt === -1 ? [] : rows[headerAt].map(norm);
-  const drcrCol = columns.amount !== -1 ? hdr0.findIndex((x) => /^(dr ?\/ ?cr|cr ?\/ ?dr|debit ?\/ ?credit|credit ?\/ ?debit|dr or cr|cr or dr)$/.test(x)) : -1;
+  let drcrCol = columns.amount !== -1 ? hdr0.findIndex((x) => /^(dr ?\/ ?cr|cr ?\/ ?dr|debit ?\/ ?credit|credit ?\/ ?debit|dr or cr|cr or dr)$/.test(x)) : -1;
+  // Or a plain Type column holding DEBIT/CREDIT (Deposit/Withdrawal) words beside an
+  // unsigned amount. Only when every value is in that vocabulary and no amount is
+  // negative, so a card export's Sale/Return/Payment column is left alone.
+  if (drcrCol === -1 && columns.amount !== -1 && headerAt !== -1) {
+    const DRCR = /^(debit|credit|withdrawal|deposit)$/i;
+    const body = rows.slice(first).filter((r) => String(r[columns.date] ?? "").trim());
+    const t = hdr0.findIndex((x) => /^(transaction type|trans type|type|debit or credit|credit or debit|dr or cr)$/.test(x));
+    if (t !== -1 && body.length && body.every((r) => DRCR.test(String(r[t] ?? "").trim()) && !/^\s*[-(]|-\s*$/.test(String(r[columns.amount] ?? "")))) drcrCol = t;
+  }
   // Wise writes DD-MM-YYYY. Revolut lists pending, declined and reverted rows
   // beside completed ones and keeps the fee in its own column.
   if (bank === "lloyds" || bank === "barclays" || bank === "wise" || bank === "monzo" || bank === "starling" || bank === "westpac" || bank === "nab") dayFirst = true;
@@ -353,8 +362,8 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year } = {
     if (!Number.isFinite(cents)) { problems.push(`Line ${i + 1}: unreadable amount, skipped.`); continue; }
     if (drcrCol !== -1) {
       const m = String(r[drcrCol] ?? "").trim().toLowerCase();
-      if (/^(dr|d|debit)$/.test(m)) cents = -Math.abs(cents);
-      else if (/^(cr|c|credit)$/.test(m)) cents = Math.abs(cents);
+      if (/^(dr|d|debit|withdrawal)$/.test(m)) cents = -Math.abs(cents);
+      else if (/^(cr|c|credit|deposit)$/.test(m)) cents = Math.abs(cents);
     }
     if (feeCol !== -1) { const fee = parseCents(r[feeCol], decimalComma); if (Number.isFinite(fee)) cents -= Math.abs(fee); }
     if (cents === 0) continue;
