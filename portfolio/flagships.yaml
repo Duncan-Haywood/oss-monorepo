@@ -50,10 +50,7 @@ flagships:
       `payroll reconcile`): a real Gusto or ADP report, and the deposit rules
       against a real IRS notice; (7) one named filing service's import layout,
       from its own spec; (8) `salestax return`: check it against one state's real
-      return layout and holiday calendar; (9) 1099-NEC backup withholding (IRC
-      3406, Pub. 1281): re-read the CP2100/B-notice dates at the source; (10)
-      `estimate` (1040-ES plan): the $400 minimum QBI deduction matches secondary
-      summaries only (IRC 199A(i) unreachable). A run that lands a slice replaces
+      return layout and holiday calendar; (9) 2027 `estimate`: the indexed QBI minimum (199A(i)(3), warns today) and 2027 brackets once the IRS publishes the revenue procedure. A run that lands a slice replaces
       its item here; keep this under 2,000 characters.
 
   # Added 2026-10-21 second, on the owner's direction that day: "I want to make
