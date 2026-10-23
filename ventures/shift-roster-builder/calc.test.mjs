@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { placeBreaks, laborPercent, budgetCheck, dailyLabor, salesPerLaborHour, fairnessReport, hoursThresholds, tipPool, trimOptions, scheduleFlags, unsupervisedStretches, loneStretches, shortShifts,
   parseTime, parseDaySpec, parseAvailability, parseStaff, parseShifts, buildRoster, coverOptions, absencePlan, swapOptions, checkTrade, rosterCsv, hoursCsv, rosterIcs, rosterMessages, openShiftPost,
-  sampleStaff, optimalityText, sampleShifts, fmtClock, money, money2, _internals,
+  sampleStaff, openFloorByPricing, optimalityText, sampleShifts, fmtClock, money, money2, _internals,
 } from "./calc.mjs";
 
 const staffOf = (t) => { const r = parseStaff(t); assert.deepEqual(r.errors, []); return r.staff; };
@@ -1483,4 +1483,28 @@ test("redteam: the unpaid meal cut applies from just over mealAfter hours, not a
   const plain = buildRoster(staff, slots, {});
   const meal = buildRoster(staff, slots, { mealAfter: 6, mealMin: 30 });
   assert.ok(Math.abs(plain.cost - meal.cost - 10) < 1e-6);
+});
+
+test("the shift-pricing floor never exceeds the fewest open hours brute force finds, and equals it somewhere", () => {
+  let seed = 11;
+  const rnd = (n) => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return (seed >> 8) % n; };
+  const days = ["Mon", "Tue", "Wed"];
+  let tight = 0;
+  for (let c = 0; c < 40; c++) {
+    const stf = staffOf(Array.from({ length: 2 + rnd(2) }, (_, p) => `P${p},${10 + rnd(10)},${8 + rnd(3) * 4},0,${days[rnd(3)]}-Wed ${6 + rnd(3)}-${18 + rnd(5)}`).join("\n"));
+    const sl = slotsOf(Array.from({ length: 5 + rnd(3) }, () => { const a = 6 + rnd(8); return `${days[rnd(3)]},${a},${a + 3 + rnd(6)},${1 + rnd(2)}`; }).join("\n"));
+    if (sl.length > 9) continue;
+    const ctx = _internals.buildContext(stf, sl, {});
+    let least = Infinity;
+    const owner = new Array(sl.length).fill(-1);
+    (function rec(i) {
+      if (i === sl.length) { if (_internals.ownerValid(ctx, owner)) least = Math.min(least, sl.reduce((t, s, j) => t + (owner[j] < 0 ? (s.end - s.start) / 60 : 0), 0)); return; }
+      for (let p = -1; p < stf.length; p++) { owner[i] = p; if (p < 0 || ctx.elig[p][i]) rec(i + 1); }
+      owner[i] = -1;
+    })(0);
+    const f = openFloorByPricing(stf, sl);
+    assert.ok(f.floor <= least + 1e-6, `case ${c}: floor ${f.floor} above true ${least}`);
+    if (f.floor > least - 1e-6) tight++;
+  }
+  assert.ok(tight > 0);
 });
