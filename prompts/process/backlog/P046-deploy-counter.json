@@ -1,5 +1,5 @@
 {
-  "id": "P045",
+  "id": "P046",
   "title": "Deploy platform/counter on an always-on HTTPS host so site visit counts exist",
   "status": "open",
   "owner": "owner",
@@ -19,5 +19,6 @@
   "source": "split from P035",
   "pr": null,
   "result": null,
-  "history": []
+  "history": [],
+  "change": "Owner provides or approves one always-on HTTPS host, then deploy platform/counter and put its URL in platform/counter/site.json."
 }

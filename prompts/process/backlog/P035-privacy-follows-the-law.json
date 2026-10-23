@@ -11,7 +11,7 @@
     "platform/counter/counter.mjs before 2026-10-20: 'no referrer' stored, so no reading could say which kind of site sends visitors.",
     "portfolio/usage/validate_usage.py FORBIDDEN_SIGNAL_TOKENS included 'cookie', so even a count named like cookie_banner_dismissed failed validation."
   ],
-  "change": "Done in the first PR: owner direction recorded in prompts/goals.md; usage README rules, PRODUCT_PLAYBOOK privacy and usage sections, AGENTS.md and DIRECTION.md rewritten to 'follow the law, no stricter'; 'cookie' dropped from the validator's forbidden tokens; the counter records the referring-site class (src:<class>, closed list, reduced in the browser, so no host is sent) with tests and matching site copy. Remainder split out: counter deployment needs an owner-provided always-on HTTPS host (P045); the shared consent helper waits for a product that needs an identifier (build it with that product).",
+  "change": "Done in the first PR: owner direction recorded in prompts/goals.md; usage README rules, PRODUCT_PLAYBOOK privacy and usage sections, AGENTS.md and DIRECTION.md rewritten to 'follow the law, no stricter'; 'cookie' dropped from the validator's forbidden tokens; the counter records the referring-site class (src:<class>, closed list, reduced in the browser, so no host is sent) with tests and matching site copy. Remainder split out: counter deployment needs an owner-provided always-on HTTPS host (P046); the shared consent helper waits for a product that needs an identifier (build it with that product).",
   "touches": [
     "prompts/goals.md",
     "portfolio/usage/README.md",
@@ -35,7 +35,7 @@
     },
     {
       "date": "2026-10-23",
-      "note": "Closed: rules, validator, counter code and copy are at the legal line. The only open piece (deploy) is owner-gated and is now P045, so the agent queue is not shown as in progress."
+      "note": "Closed: rules, validator, counter code and copy are at the legal line. The only open piece (deploy) is owner-gated and is now P046, so the agent queue is not shown as in progress."
     }
   ]
 }
