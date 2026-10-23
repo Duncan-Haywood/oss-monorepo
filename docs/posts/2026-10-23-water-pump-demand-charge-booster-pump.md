@@ -30,6 +30,20 @@ not change the answer.
 **Caveats.** Net3 is a teaching network with an unusual gravity river
 source; B-19 is mandatory above 499 kW so this is what the tariff would
 charge, not a tariff a utility this small is on; list prices only; one
-repeated day. Not operating advice.
+repeated day (see the follow-up below). Not operating advice.
 
 Code, numbers and limits: [`research/infra-pumpdemand`](../../research/infra-pumpdemand/README.md).
+
+## Follow-up: one hot day
+
+The caveat "one repeated day" matters, because a demand charge is set by the
+highest 15-minute kW of the month. We re-simulated all 21,806 schedules with
+every Net3 demand scaled by 0.8 to 1.6 and billed 30-day months with one,
+three or ten high days. With demand just 1.5 % above Net3's shipped level the
+lowest feasible peak among one-run schedules jumps from 63 kW to 310 kW (the
+booster), and at +20 % it is 372 kW, level with the shipped schedule. A month
+with three days at +20 % saves 43.5 % in summer and about 19 % in winter and
+spring, against 56, 66 and 67 % with identical days. Each day is simulated
+as periodic, which overstates how soon the booster is needed; carrying tank
+levels between days is the next step. Numbers and limits:
+[`research/infra-pumpdays`](../../research/infra-pumpdays/README.md).
