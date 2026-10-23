@@ -53,9 +53,16 @@ export function parseCents(v, decimalComma = false) {
   let s = String(v ?? "").trim();
   if (s === "" || /^[-–—\s]+$/.test(s)) return 0;
   if (/\d\s*e\s*[-+]?\d/i.test(s)) return NaN; // "1e3" is not 13.00
-  const neg = /^\(.*\)$/.test(s) || /^[^0-9]*[-−]/.test(s) || /-\s*$/.test(s);
+  const neg = /\(\s*[^()]*\d[^()]*\)/.test(s) || /^[^0-9]*[-−]/.test(s) || /-\s*$/.test(s);
   s = s.replace(/[^0-9.,]/g, "");
-  s = decimalComma ? s.replace(/\./g, "").replace(",", ".") : s.replace(/,/g, "");
+  // Both separators: the last one is the decimal point, whatever the flag says.
+  // One separator with 1-2 digits after it is a decimal point too; only a
+  // lone separator before exactly three digits ("1,234") needs the flag.
+  const lastDot = s.lastIndexOf("."), lastComma = s.lastIndexOf(",");
+  let comma = decimalComma;
+  if (lastDot >= 0 && lastComma >= 0) comma = lastComma > lastDot;
+  else if (/^\d*[.,]\d{1,2}$/.test(s) && !/[.,].*[.,]/.test(s)) comma = lastComma >= 0;
+  s = comma ? s.replace(/\./g, "").replace(",", ".") : s.replace(/,/g, "");
   if (!s) return NaN;
   const n = Number(s);
   if (!Number.isFinite(n)) return NaN;
@@ -67,9 +74,10 @@ export function parseCents(v, decimalComma = false) {
 // ISO, M/D/Y or D/M/Y (dayFirst), with 2- or 4-digit years, or "12 Mar 2026".
 const MONTHS = { jan: 1, feb: 2, mar: 3, apr: 4, may: 5, jun: 6, jul: 7, aug: 8, sep: 9, oct: 10, nov: 11, dec: 12 };
 export function parseDate(v, dayFirst = false) {
-  const s = String(v ?? "").trim();
+  const s = String(v ?? "").trim().replace(/^(?:mon|tue|wed|thu|fri|sat|sun)[a-z]*\.?,?\s+/i, "").replace(/^(\d{1,2})(?:st|nd|rd|th)\b/i, "$1").replace(/^(\d{1,2})([A-Za-z]{3})(\d{2,4})\b/, "$1 $2 $3");
   let y, m, d, x;
-  if ((x = s.match(/^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})/))) [y, m, d] = [+x[1], +x[2], +x[3]];
+  if ((x = s.match(/^(\d{4})(\d{2})(\d{2})(?!\d)/))) [y, m, d] = [+x[1], +x[2], +x[3]];
+  else if ((x = s.match(/^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})/))) [y, m, d] = [+x[1], +x[2], +x[3]];
   else if ((x = s.match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{2,4})/))) {
     [m, d] = dayFirst ? [+x[2], +x[1]] : [+x[1], +x[2]];
     y = +x[3] < 100 ? 2000 + +x[3] : +x[3];
