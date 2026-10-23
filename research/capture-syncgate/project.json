@@ -1,0 +1,6 @@
+{
+ "theme": "capture",
+ "title": "Does dropping doubtful sync windows, with settings chosen on other clips, keep a multi-camera edit in sync on real audio?",
+ "summary": "Follow-up to <code>capture-realedit</code>. Adds a peak-to-sidelobe (PSR) gate that drops GCC windows whose peak is not distinct before the Theil-Sen fit, and picks gamma and the gate threshold leave-one-clip-out over 10 real LibreOffice gallery clips (4 cameras, 12 windows, &plusmn;40 ppm, 12 seeds per clip). At 0 dB SNR, gamma 0.25 with a chosen threshold leaves 1.9% of cuts jumping over a frame on held-out clips (PHAT: 34.2%); at &minus;10 dB 39.1% (PHAT 63.7%, ungated gamma 0.25 47.6%). Choosing gamma on other clips alone fails (9.9%) because the one clip where gamma 0.5 collapses cannot be seen from the other nine. Limits: ten clips from one gallery, synthetic delay and white noise, PSR thresholds from a probe on the same clips, and the one-frame criterion is assumed.",
+ "lede": "does a peak-sharpness gate plus settings chosen on other clips keep the edit in sync? At 0 dB yes (1.9% of cuts over a frame held-out vs 34% for PHAT); at -10 dB only partly (39% vs 64%)."
+}

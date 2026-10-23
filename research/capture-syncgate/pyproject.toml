@@ -1,0 +1,13 @@
+[project]
+name = "capture-syncgate"
+version = "0.1.0"
+description = "Does a peak-to-sidelobe gate, with gamma and threshold chosen on other clips, keep sync errors under a frame on real audio?"
+requires-python = ">=3.9"
+dependencies = ["numpy"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "../capture-realedit/src", "../capture-syncedit/src", "../capture-realaudio/src", "../capture-audiosync/src", "../capture-edit/src"]
