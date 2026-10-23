@@ -1,54 +1,50 @@
-# Is rotor cant just a cheap way to buy yaw authority that bigger motors would buy as well?
+# Was the thrust-to-weight ceiling of 4 what made rotor cant look good?
 
-Follow-up to `codesign-aero-cant-propdata` (track 14, `codesign`), taking its next step "compare at equal cost with a larger propeller or a yaw-only motor upgrade". Here motor headroom (thrust-to-weight, TWR) is a design variable, so a no-cant quadcopter can buy yaw authority with bigger motors. Produced with AI assistance (Claude). **Simulated; c is sourced from measured data (UIUC Propeller Data Site, via the parent); the TWR range, cost, mass, motor and plant models are inherited or assumed.**
+Follow-up to `codesign-aero-cant-twr` (track 14, `codesign`), taking its first next step: "raise the TWR ceiling to 6". That project found that without cant the optimiser sat on its assumed TWR ceiling of 4.0, so its cant advantage might be overstated. Here the ceiling is 4, 6 and 8. Produced with AI assistance (Claude). **Simulated; c is sourced from measured data (UIUC Propeller Data Site, via the grandparent); the TWR range, motor mass and cost fits, plant and gust models are inherited or assumed.**
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/codesign-aero-cant-twr/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/codesign-aero-cant-twrceil/
 
-![Held-out error of the four arms at three measured c values, per seed](experiments/twr.png)
+![Held-out error against the TWR ceiling, with and without cant](experiments/twr_ceiling.png)
 
 **Headline (all numbers from `experiments/results.txt`).** Held-out RMS attitude error, degrees, mean of 5 seeds:
 
-| c | no cant, TWR 2 | no cant, TWR free | cant ≤35°, TWR 2 | cant ≤35°, TWR free |
-|---|---|---|---|---|
-| 0.065 (10th pct) | 17.22 | 14.69 | 12.57 | 11.34 |
-| 0.081 (median) | 17.06 | 14.00 | 12.45 | 11.24 |
-| 0.13 (90th pct) | 16.12 | 12.64 | 12.30 | 11.03 |
+| c | no cant, ceiling 4 | no cant, 6 | no cant, 8 | cant ≤35°, 4 | cant, 6 | cant, 8 |
+|---|---|---|---|---|---|---|
+| 0.065 (10th pct) | 14.69 | 14.39 | 14.31 | 11.34 | 11.27 | 11.32 |
+| 0.081 (median) | 14.00 | 13.65 | 13.70 | 11.24 | 11.22 | 11.30 |
+| 0.13 (90th pct) | 12.64 | 12.44 | 12.46 | 11.03 | 10.95 | 10.95 |
 
-- **Headroom alone buys most, but not all, of the cant benefit.** Free TWR improves the no-cant design by 2.5, 3.1 and 3.5° (5 of 5 seeds each). Cant at fixed TWR 2 improved it by 4.7, 4.6 and 3.8°.
-- **Cant still helps once headroom is bought:** with TWR free, cant to 35° improves the error by 3.4, 2.8 and 1.6° (5 of 5 seeds at every c). The benefit shrinks as c grows, since a larger reaction torque per newton already gives yaw authority.
-- **The two levers overlap.** With both available the optimiser picks less cant (23–29° against the 35° cap) and TWR 3.7–3.8; with cant it needs less of the TWR range.
-- **At the largest c the levers are nearly equal:** cant with TWR 2 beats no cant with free TWR by only 0.3° (5 of 5 seeds), against 1.6 and 2.1° at the other two.
+- **The ceiling was binding, but only slightly.** Raising it from 4 to 6 improves the no-cant design by 0.30, 0.35 and 0.20° (5, 5 and 4 of 5 seeds). The optimiser then picks TWR 4.9–5.1, not the new ceiling.
+- **There is an interior optimum near TWR 5.** Going from 6 to 8 changes nothing (−0.08 to +0.06°, within seed spread); the chosen TWR stays at 4.9–5.0. More headroom costs mass and money under the inherited fits.
+- **Cant's advantage survives.** At ceiling 8, cant to 35° still beats no cant by 3.0, 2.4 and 1.5° (5 of 5 seeds at every c), against 3.4, 2.8 and 1.6° at ceiling 4, so the earlier figure was overstated by 0.1 to 0.4°.
+- **Cant barely uses extra headroom:** its error moves by at most 0.08° with the ceiling, and it picks TWR 3.7–4.1 and 20–31° of cant.
 
 ## Method
-Same model, optimiser and held-out protocol as the parent (`src/codesign_aero_cant_twr/aero.py` differs only in taking `twr` as a size argument and mapping an optional fourth design column to TWR ∈ [1.5, 4.0] when `twr_free=True`). Joint CMA-ES over arm length, propeller diameter, cant, (TWR) and six PID gains; 1920 evaluations; 5 seeds; 16 training and 64 held-out wide-plant episodes; $300 cost cap and 1.05 clearance rule unchanged. κ = c·D with c the 10th, 50th and 90th percentile of the 77 in-range propellers in `data/propdata_c.csv` (copied from the parent). Headroom costs money and mass through the inherited motor fits: motor mass 0.045·(Tmax/9 N)^1.2 kg, motor cost 12·(Tmax/9 N)^1.1 $ each. No LLM is used.
+`src/codesign_aero_cant_twrceil/aero.py` is the parent's model with one added argument, `twr_max`, which sets the top of the TWR range [1.5, `twr_max`]. Joint CMA-ES over arm length, propeller diameter, cant, TWR and six PID gains; 1920 evaluations; 5 seeds; 16 training and 64 held-out wide-plant episodes; $300 cost cap unchanged. κ = c·D with c the 10th, 50th and 90th percentile of the 77 in-range propellers in `data/propdata_c.csv`. Motor mass 0.045·(Tmax/9 N)^1.2 kg and cost 12·(Tmax/9 N)^1.1 $ each are inherited. No LLM is used.
 
 ## Reproduce
 ```bash
-cd research/codesign-aero-cant-twr
+cd research/codesign-aero-cant-twrceil
 PY=$(python3 ../../platform/ci/pyenv.py pytest numpy cma matplotlib)
-"$PY" -m pytest -q tests          # 23 tests
-"$PY" experiments/run.py          # about 10 minutes on 4 cores; results.txt, results.json
-"$PY" experiments/figure.py       # experiments/twr.png
+"$PY" -m pytest -q tests          # 24 tests
+"$PY" experiments/run.py          # about 20 minutes on 4 cores; results.txt, results.json
+"$PY" experiments/figure.py       # experiments/twr_ceiling.png
 ```
 
 ## Limitations
-- **The TWR ceiling binds.** Without cant the optimiser chooses TWR 3.99–4.00 in every seed, so the no-cant arm is limited by the range I set (1.5–4.0, assumed), not by cost; it could do better with more headroom. The gain from headroom is therefore a lower bound, and the cant advantage with free TWR may be overstated. Raising the ceiling (and checking the motor-cost fit beyond the range it was fitted on) is the first next step.
-- A single yaw-only motor upgrade, which would add yaw authority without roll and pitch authority, is not modelled; TWR raises all axes together.
-- Motor cost and mass, plant ranges and the gust model are inherited assumed fits; attitude steps only; no position hold; static propeller coefficients only; no hardware.
+- The location of the optimum near TWR 5 is set by the inherited motor mass and cost power-law fits, which were fitted for a range that stops well below TWR 8 and are assumed here, not taken from a catalogue. A different cost exponent would move it. Taking mass and cost from a motor catalogue is the next step.
+- Single yaw-only motor upgrades are not modelled; TWR raises all axes together.
+- Attitude steps only, no position hold, static propeller coefficients, no hardware. The mass iteration clamps at 20 kg, which no result approaches (masses 2.3–2.7 kg).
+- Differences below about 0.1° are inside seed spread.
 
 ## Next steps
-Raise the TWR ceiling to 6 and see where no-cant saturates; add position hold so lateral thrust components are tested; take motor mass and cost from a motor catalogue instead of the inherited fit.
+Replace the motor fits with catalogue mass, thrust and price; add position hold so lateral thrust components are tested.
 
 ## Owner steps
 Measure yaw step response on a real quad with 3D-printed canted mounts at 0° and about 30°, with two motor sizes. Not done here.
 
+## Outside dependencies
+None beyond pip packages (numpy, cma, matplotlib); propeller data are the UIUC Propeller Data Site, copied from earlier projects.
+
 ## Builds on
-`codesign-aero-cant-propdata` (model, data, experiment), `codesign-aero-cant-kappa`. Data: Brandt and Selig (2011), AIAA 2011-1255; Deters et al. (2018), AIAA 2018-4122; UIUC Propeller Data Site. CMA-ES: Hansen and Ostermeier (2001), *Evolutionary Computation* 9(2).
-
-## Lab tags
-RECUV and the Autonomous Systems IRT (UAV simulation, safe autonomy), as direction only; nothing is affiliated with or endorsed by them.
-
-## Outside dependencies (vitamins)
-numpy, cma, matplotlib. No model API is called.
-
-MIT.
+`codesign-aero-cant-twr` (the experiment and the ceiling-4 result), `codesign-aero-cant-propdata`. Data: Brandt and Selig (2011), AIAA 2011-1255; Deters et al. (2018), AIAA 2018-4122. CMA-ES: Hansen and Ostermeier (2001), *Evolutionary Computation* 9(2).
