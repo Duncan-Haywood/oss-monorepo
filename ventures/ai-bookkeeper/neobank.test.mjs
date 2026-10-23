@@ -316,3 +316,11 @@ test("A checking export with an outgoing 'Payment' row is not flipped", () => {
   const r = readStatement(["Date,Description,Amount", "2026-03-02,Payment,-50.00", "2026-03-03,Deposit,400.00", "2026-03-04,Rent,-300.00"].join("\n"));
   assert.deepEqual(r.rows.map((x) => x.cents), [-5000, 40000, -30000]);
 });
+
+test("PostFinance: tab-separated, YYYYMMDD dates, 'Value' is the value date not the amount", () => {
+  const r = read("postfinance-account.tsv");
+  assert.deepEqual(r.rows.map((x) => x.cents), [-4560, 300000]);
+  assert.deepEqual(r.rows.map((x) => x.date), ["2026-03-02", "2026-03-03"]);
+  assert.match(r.rows[0].desc, /Migros/);
+  assert.deepEqual(checkRunningBalance(r.rows).breaks, []);
+});
