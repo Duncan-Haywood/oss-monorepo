@@ -1,0 +1,123 @@
+{
+  "date": "2026-10-23",
+  "session": "https://claude.ai/code/session_01NXJU9fAseUDiGLuQbphqKn",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-23T21:07:32Z",
+  "ended": "2026-10-23T21:17:32Z",
+  "wall_minutes": 10.12,
+  "tokens_in": 3234283,
+  "tokens_out": 18095,
+  "cost_usd": 1.159,
+  "tool_calls": 35,
+  "task": null,
+  "projects": [],
+  "pr": 9899,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "issue": "The Landing work section says the research site is on the old per-repo Pages setup in places; live-page URL form had to be inferred from existing READMEs (research_live_links.py handled it)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/goals.md",
+      "why": "Skipped the agent doc and blog post write-up (Write about the work) to land the project in one run; the project README carries the full account."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "New project research/infra-leakpdd (Net3 DD vs PDD). 5 tests pass, homepage build ok, md links ok. Result is largely negative/null at base demand; both models fail at >=2x.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "9cbc9e25-e764-5be7-906e-dde13daf2c07",
+    "transcripts": 1,
+    "first": "2026-10-23T21:07:32Z",
+    "last": "2026-10-23T21:17:39Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 34,
+        "input": 68,
+        "output": 18095,
+        "thinking": 3012,
+        "cache_read": 3147100,
+        "cache_write_5m": 0,
+        "cache_write_1h": 87115,
+        "api_equivalent_usd": 1.159,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 34,
+      "input": 68,
+      "output": 18095,
+      "thinking": 3012,
+      "cache_read": 3147100,
+      "cache_write_5m": 0,
+      "cache_write_1h": 87115,
+      "api_equivalent_usd": 1.159,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.973,
+    "tool_calls": 35,
+    "tools": {
+      "Bash": 30,
+      "Read": 1,
+      "mcp__github__search_pull_requests": 1,
+      "ReadNotifications": 1,
+      "Monitor": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.12,
+      "active_minutes": 10.12,
+      "model_minutes": 2.75,
+      "tool_minutes": 7.38,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
