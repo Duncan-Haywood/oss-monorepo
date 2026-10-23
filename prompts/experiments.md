@@ -1186,3 +1186,15 @@ or `ventures`) until its success rate passes 80% over 20 runs?
   (overlap / too few runs). `derived/` regenerated. No audit or drift report
   (reduced pass).
 - Result: (next review)
+
+## E74: review 2026-10-23 (reduced pass, third run)
+
+- Change: `research/CLAUDE.md` gained a 3-line note that `wntr` `run_sim`
+  writes `temp.*` in the cwd, so parallel EPANET runs need a distinct
+  `file_prefix`.
+- Metric: friction reports against `research/CLAUDE.md` about simulator temp
+  files colliding, over the next 40 runs (baseline: 1 today).
+- Decisions: all four candidates (ventures 2, research 1, process 2, review 2)
+  unchanged: intervals overlap, or fewer than 10 runs. `derived/` regenerated.
+  No audit or drift report (reduced pass).
+- Result: (next review)
