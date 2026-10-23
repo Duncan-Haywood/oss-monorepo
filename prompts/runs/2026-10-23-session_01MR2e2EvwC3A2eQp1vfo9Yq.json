@@ -1,0 +1,51 @@
+{
+  "date": "2026-10-23",
+  "session": "https://claude.ai/code/session_01MR2e2EvwC3A2eQp1vfo9Yq",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-23T01:09:31Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 9643,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/explore/prompt-0.md",
+      "issue": "No tool lists which ventures lack llms.txt; found by a hand-rolled loop (1,292 missing)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/goals.md",
+      "why": "Wrote the llms.txt but no new marketing page or separate post: the product already has ten guides; the write-up is an addendum to an existing report."
+    }
+  ],
+  "writeups": [
+    "docs/reports/2026-10-22-shift-roster-ejection-chains-and-a-bound-that-lied.md (addendum)"
+  ],
+  "goal": null,
+  "notes": "Explore idea: audit venture pages for basic HTML hygiene (clean) and missing llms.txt (1,292 ventures); shipped one for shift-roster-builder. Next: the other four flagships lacking one. Tests not run beyond running the CLI example; the change is documentation only.",
+  "corrections": [],
+  "redteam": null
+}
