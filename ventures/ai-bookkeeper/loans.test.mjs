@@ -123,3 +123,26 @@ test("a bad extra payment is refused", () => {
   assert.throws(() => addLoanExtra(books, loan.id, { amount: "5", date: "soon" }), /date/);
   assert.throws(() => addLoanExtra(books, "LN-9", { amount: "5", date: "2026-02-01" }), /No loan/);
 });
+
+test("lender schedule check: identical, rounding, different payment, day-count interest", async () => {
+  const { checkLenderSchedule } = await import("./loans.mjs");
+  const { loan } = addLoan(newBooks(), { name: "Van", amount: "20000", rate: "6", months: 12, first: "2026-02-01" });
+  const s = loanSchedule(loan);
+  const csv = (f) => "Date,Payment,Interest,Principal,Balance\n" + s.map((r, i) => { const o = f(r, i); return `${o.date},${(o.payment / 100).toFixed(2)},${(o.interest / 100).toFixed(2)},${(o.principal / 100).toFixed(2)},${(o.balance / 100).toFixed(2)}`; }).join("\n");
+  const same = checkLenderSchedule(loan, csv((r) => r));
+  assert.equal(same.first, null);
+  assert.match(same.notes[0], /matches/);
+  const cents = checkLenderSchedule(loan, csv((r, i) => (i === 4 ? { ...r, interest: r.interest + 1, principal: r.principal - 1 } : r)));
+  assert.equal(cents.first, null);
+  assert.match(cents.notes.join(" "), /rounding/);
+  const pay = checkLenderSchedule(loan, csv((r, i) => ({ ...r, payment: r.payment + 500 })));
+  assert.match(pay.notes.join(" "), /--payment/);
+  // actual/365 style interest: January-length months differ from 1/12 of the year, so the first row is off
+  const dc = checkLenderSchedule(loan, csv((r, i) => (i === 0 ? { ...r, interest: r.interest + 150 } : r)));
+  assert.equal(dc.first.n, 1);
+  assert.match(dc.notes.join(" "), /actual days/);
+  const mid = checkLenderSchedule(loan, csv((r, i) => (i === 6 ? { ...r, interest: r.interest + 900 } : r)));
+  assert.equal(mid.first.n, 7);
+  assert.match(mid.notes.join(" "), /through payment 6/);
+  assert.throws(() => checkLenderSchedule(loan, "Date,Memo\n2026-02-01,x"), /No interest/);
+});
