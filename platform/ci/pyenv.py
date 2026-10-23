@@ -134,7 +134,9 @@ def find(modules, cands, run=subprocess.run, log=lambda m: print(m, file=sys.std
     for py in cands:
         if imports(py, modules, run):
             return py
-    log(f"pyenv: none of {cands} imports {', '.join(modules)}; installing")
+    log(f"pyenv: none of {cands} imports {', '.join(modules)}; installing "
+        "(can take over 120 s: if your shell tool times out, rerun with run_in_background "
+        "and read the path from its output)")
     for py in cands:
         if pip_install(py, modules, run, log) and imports(py, modules, run):
             log(f"pyenv: installed with {py} -m pip")

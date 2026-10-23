@@ -53,6 +53,11 @@ class T(unittest.TestCase):
         pip = [c for c in run.calls if c[1:3] == ["-m", "pip"]]
         self.assertEqual(pip[0][0], py)
 
+    def test_install_notice_mentions_background(self):
+        logs = []
+        pyenv.find(["pytest"], ["/usr/bin/python3"], FakeRun(pip_ok={"/usr/bin/python3"}), logs.append)
+        self.assertTrue(any("run_in_background" in m for m in logs))
+
     def test_apt_result_found_on_another_interpreter(self):
         # the 2026-10-16 case: pip fails everywhere, apt installs for /usr/bin/python3 only
         run = FakeRun(apt_gives={"/usr/bin/python3"})
