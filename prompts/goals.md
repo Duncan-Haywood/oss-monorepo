@@ -380,6 +380,8 @@ existing page or file already covers the change (extend that instead):
   and drops the venture as a dead link). A PR that changes
   what a product does updates its file. Example:
   [`ventures/changepoint-detector/llms.txt`](../ventures/changepoint-detector/llms.txt).
+  `python3 platform/ci/missing_llms_txt.py` lists the ventures without one,
+  flagships first.
 - **A marketing page for every product**, aimed at the people who would use
   it: who it is for, the problem in their words, why the obvious approach
   falls short, a worked example, what it does not do and when to use
