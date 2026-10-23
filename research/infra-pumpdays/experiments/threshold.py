@@ -28,9 +28,9 @@ def main():
             f = [(pk, e) for ok, pk, e in rows if ok]
             if f:
                 pk, e = min(f)
-                print(f"{m:.2f} | {len(f)} | {pk:.0f} | {e:,.0f}", flush=True)
+                print(f"{m:.3f} | {len(f)} | {pk:.0f} | {e:,.0f}", flush=True)
             else:
-                print(f"{m:.2f} | 0 | none | none", flush=True)
+                print(f"{m:.3f} | 0 | none | none", flush=True)
 
 
 if __name__ == "__main__":
