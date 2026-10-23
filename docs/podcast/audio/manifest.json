@@ -111,6 +111,13 @@
     "script_sha256": "de99a76f8f64065c77ea2885fc1f56b07ab95a40c41407ce71e7c40826e2d719",
     "voice": "en_US-ljspeech-high"
   },
+  "2026-10-21-guidelines-not-rules-for-ai-agents": {
+    "bytes": 1261942,
+    "seconds": 252.29,
+    "sha256": "d6b7c862fc7614ef03dcd0ee6ae9bab994dd2bcbf316db2d435b56dfb4343abb",
+    "script_sha256": "f6a6b2b65c2474a5cb29a8e449a56d6c2421c9a75389e8c6f65f85b7a0019b3b",
+    "voice": "en_US-ljspeech-high"
+  },
   "2026-10-21-the-id-that-ate-the-table": {
     "bytes": 811804,
     "seconds": 162.27,
