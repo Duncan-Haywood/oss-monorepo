@@ -1186,3 +1186,16 @@ or `ventures`) until its success rate passes 80% over 20 runs?
   (overlap / too few runs). `derived/` regenerated. No audit or drift report
   (reduced pass).
 - Result: (next review)
+
+## E74: review 2026-10-23 (reduced pass, third run)
+
+- Change: `CLAUDE.md` cloud-session pointer gained one clause: irs.gov,
+  ssa.gov and data hosts often 403 through the proxy, probe first ("Outbound
+  hosts" in `cloud-session.md`). Friction named CLAUDE.md for this
+  (flagship items say "check against official sources").
+- Metric: friction reports against `CLAUDE.md` or `research/PROJECTS.md` about
+  blocked hosts discovered late, over the next 40 runs (baseline: 2 recent).
+- Decisions: all four candidates kept (intervals overlap / too few runs).
+  `derived/` rebuilt from the partial fetch (25/44 PRs). No audit or drift
+  report (reduced pass).
+- Result: (next review)
