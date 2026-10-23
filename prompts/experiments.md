@@ -1226,3 +1226,15 @@ or `ventures`) until its success rate passes 80% over 20 runs?
 - Decisions: all four candidates keep collecting (intervals overlap / too
   few runs). `derived/` rebuilt. No audit or drift report (reduced pass).
 - Result: (next review)
+
+## E76: review 2026-10-23 (reduced pass, fifth run)
+
+- Change: `CLAUDE.md` cloud-session pointer names the working
+  `node --test '*.test.mjs'` form (friction on `CLAUDE.md`: `node --test .`
+  fails; the fix lived only in `cloud-session.md`).
+- Metric: friction reports about `node --test .` failing, over the next 40
+  runs (baseline: 1 recent). Checked `session_gate.py` publish-branch friction:
+  already fixed, so no change.
+- Decisions: all four candidates keep collecting (intervals overlap / too few
+  runs). `derived/` rebuilt (2524 rows). No audit or drift report (reduced pass).
+- Result: (next review)
