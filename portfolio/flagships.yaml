@@ -36,7 +36,7 @@ flagships:
     next: >-
       Everything built so far is tested on hand-written fixtures; the next
       slices are about real inputs (the landed log is in the README and git
-      history, not here). Open items, most valuable first (`export beancount` passes bean-check 2026-10-23; try hledger/ledger on `export ledger`): (1) the AI layer
+      history, not here). Open items, most valuable first (`export beancount` passes bean-check and `export ledger` passes hledger check 2026-10-23; try ledger-cli itself): (1) the AI layer
       measured 2026-10-23 with a 3B local model: worse than the rules (rescued 4, broke 24 of 44); try a larger model and a fill-only-when-no-suggestion mode (README Next); (2) try the bank
       readers (third-party OFX files tried 2026-10-23, two faults fixed; Chase, Bank of America, Wells Fargo, Amex, Capital One CSV;
       OFX/QFX/QIF; statement PDFs with multi-column layouts and CID fonts with no ToUnicode map;

@@ -786,3 +786,13 @@ test("overlapping exports with identical same-day lines add only the new one, in
     assert.equal(c.added, 0, "re-importing the same file adds nothing");
   }
 });
+
+test("ledger export keeps a description that starts with a status mark or a code", () => {
+  let b = newBooks();
+  b = importStatement(b, 'Date,Description,Amount\n2026-03-05,* starred,-1.00\n2026-03-06,! bang,-2.00\n2026-03-07,(paren) shop,-3.00\n', "1000").books;
+  b = confirm(b, Object.fromEntries(b.transactions.map((t) => [t.id, "6060"])));
+  const txt = exportJournal(b, "ledger");
+  assert.match(txt, /^2026-03-05 - \* starred$/m);
+  assert.match(txt, /^2026-03-06 - ! bang$/m);
+  assert.match(txt, /^2026-03-07 - \(paren\) shop$/m);
+});

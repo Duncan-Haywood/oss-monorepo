@@ -520,7 +520,10 @@ function plainText(books, entries, map, bean) {
     out.push("");
   }
   for (const e of entries) {
-    out.push(bean ? `${e.date} * "${text(e.memo || e.id)}"` : `${e.date} ${text(e.memo || e.id)}`);
+    // ledger-cli and hledger read a leading `*` or `!` as a status mark and `(...)` as a code, so
+    // a description that starts that way gets a "- " in front to keep its text (hledger 1.43.2).
+    const desc = text(e.memo || e.id);
+    out.push(bean ? `${e.date} * "${desc}"` : `${e.date} ${/^[*!(]/.test(desc) ? "- " : ""}${desc}`);
     const w = Math.max(...e.lines.map((l) => path(l.account).length));
     for (const l of e.lines) {
       const n = l.debit - l.credit;
