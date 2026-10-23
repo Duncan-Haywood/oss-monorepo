@@ -1,0 +1,23 @@
+G. Mill-flow limit. One mill of fixed power; its total flow (fresh + return) may not exceed m x the open circuit's fresh feed.
+capacity ratio = closed fresh-feed capacity / open = min(E_open/E_closed, m/(1+load)); best cut chosen per m. Default shape parameters, P80 100 um.
+cut/P80  load   E_open/E_closed
+0.90      468%    2.28
+1.00      278%    2.12
+1.10      183%    1.97
+1.25      113%    1.77
+1.50       65%    1.52
+1.75       45%    1.37
+2.00       35%    1.28
+2.50       25%    1.16
+3.00       21%    1.10
+
+m     best_cut  load   capacity_ratio  binding
+1.00  3.00       21%     0.83          flow
+1.25  3.00       21%     1.04          flow
+1.50  2.50       25%     1.16          power
+2.00  1.75       45%     1.37          power
+2.50  1.50       65%     1.51          flow
+3.00  1.50       65%     1.52          power
+4.00  1.25      113%     1.77          power
+5.00  1.25      113%     1.77          power
+8.00  1.00      278%     2.12          flow
