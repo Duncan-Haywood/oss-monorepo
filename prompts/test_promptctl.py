@@ -320,6 +320,16 @@ class MeasureTest(PromptTestCase):
         self.assertNotIn("ancient", out.getvalue())
         self.assertIn("recent", out.getvalue())
 
+    def test_friction_listing_truncates_long_reports(self):
+        import contextlib, io
+        long = "x" * 500
+        self.fx.run("2026-10-20-a.json", _record(day="2026-10-20", doc_friction=[{"file": "CLAUDE.md", "issue": long}]))
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            promptctl.print_measure(promptctl.measure(self.fx.root))
+        self.assertNotIn("x" * 300, out.getvalue())
+        self.assertIn("x" * 150, out.getvalue())
+
     def test_verdict_rules(self):
         champ = {"runs": 20, "success_rate": 0.5, "integrity_issues": 0,
                  "success_ci95": [0.3, 0.7]}

@@ -822,6 +822,8 @@ def measure(root: Path = ROOT) -> dict[str, Any]:
 
 
 WRITEUPS_FROM = "2026-10-21"  # the owner asked for an agent doc and a post from most runs
+FRICTION_MAX_FILES = 25  # files listed in "Doc friction by file"; the rest are counted
+FRICTION_MAX_CHARS = 200  # per report; the full text is in the run record
 FRICTION_FRESH_DAYS = 3  # "measure" lists friction reports from this many days before the newest
 
 
@@ -904,16 +906,19 @@ def print_measure(m: dict[str, Any]) -> None:
               "[file changed since] tags may be wrong. `git fetch --unshallow origin main` first.)\n")
     stamps = [t for f in m["doc_friction"].values() for r in f["recent"] if (t := _when(r))]
     cutoff = max(stamps) - timedelta(days=FRICTION_FRESH_DAYS) if stamps else None
-    for path, f in m["doc_friction"].items():
+    for path, f in list(m["doc_friction"].items())[:FRICTION_MAX_FILES]:
         note, changed = _changed_note(path)
         # Older reports are mostly fixed by now and each costs a run several calls to check.
         fresh = [r for r in f["recent"] if not (t := _when(r)) or t >= cutoff] or f["recent"][-1:]
         tagged = [_flag_stale(r, _latest(changed, _named_files_changed(r))) for r in fresh]
         live = [r for r in tagged if not r.startswith("[file changed since]")]
-        shown = (live or tagged)[-3:]
+        shown = [r if len(r) <= FRICTION_MAX_CHARS else r[:FRICTION_MAX_CHARS - 1] + "…"
+                 for r in (live or tagged)[-3:]]
         hidden = f["reports"] - len(shown)
         tail = f" (+{hidden} older or since-changed, not shown)" if hidden > 0 else ""
         print(f"- `{path}`{note}: {f['reports']} report(s); latest: " + " | ".join(shown) + tail)
+    if len(m["doc_friction"]) > FRICTION_MAX_FILES:
+        print(f"\n(+{len(m['doc_friction']) - FRICTION_MAX_FILES} more files with fewer reports, not shown)")
     if m["doc_friction"]:
         print("\nA report can predate its fix without the file changing (a new tool, a doc elsewhere). "
               "Before building on one, grep `git log origin/main --since=<report time> -i --grep=<keyword>` "
