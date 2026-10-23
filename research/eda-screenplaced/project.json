@@ -1,0 +1,7 @@
+{
+ "theme": "eda",
+ "title": "Can a cost model trained on other chip-design families screen a new family's placed area-period Pareto front, even though period is hard to predict?",
+ "summary": "Using the 133 SKY130 designs placed with OpenROAD in <code>eda-adaptplaced</code> (four generator families), each held-out family is screened for its (repaired area, placed period) Pareto front with area and period cost models trained on the other three families; each placement reveals both objectives and costs one budget unit, 60 random 75% subsets per family. With 3 placements the screen reaches 0.989 of the true front&rsquo;s hypervolume (pooled over families), 1.000 from 5 to 6, against 0.578 and 0.710 for random search; a screen with no models (a constant guess, random tie-break) is no better than random. A ridge period model is poor on <code>fir</code> (Spearman 0.26) and the screen still works, and giving it no period model at all changes nothing from 2 placements on. <strong>The test is easy:</strong> area and period both grow with design size, so the true fronts hold only 1.0 to 1.6 designs on average; the screen mostly finds the smallest, fastest design. Preliminary: one ABC target, placement only (no routing), one run per design, no second objective that trades off against area, such as cycles."
+,
+ "lede": "a screen with cost models trained on other families finds the placed (OpenROAD, SKY130) area-period front in 3 to 6 placements where random reaches 0.92 only at 16, but the true fronts hold only 1 to 2 designs, so the test is easy."
+}

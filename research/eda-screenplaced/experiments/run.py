@@ -35,7 +35,7 @@ METHODS = ["random"] + list(SCREENS) + ["front-first oracle"]
 def run_space(held, seed):
     idx = np.where(FAM == held)[0]
     rs = np.random.RandomState(1000 + seed)
-    idx = np.sort(rs.choice(idx, size=int(round(FRAC * len(idx))), replace=False))
+    idx = rs.permutation(rs.choice(idx, size=int(round(FRAC * len(idx))), replace=False))  # shuffled: index order must not track size
     other = np.where(FAM != held)[0]
     O = screen.normalise(AREA[idx], PERIOD[idx])
     true_hv = screen.hv2(O)

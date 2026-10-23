@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of the mean fraction of the true placed area-period front's hypervolume against the number of placements; a screen with cost models trained on other families reaches 1.0 by 5 placements while random search and a screen with no models reach about 0.71 to 0.67">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Screening the placed area-period front with cross-family models</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="273.4" y2="273.4" stroke="#ddd"/><text x="58" y="277.4" text-anchor="end" font-family="sans-serif" font-size="11">0.2</text>
+<line x1="64" x2="624" y1="222.9" y2="222.9" stroke="#ddd"/><text x="58" y="226.9" text-anchor="end" font-family="sans-serif" font-size="11">0.4</text>
+<line x1="64" x2="624" y1="172.3" y2="172.3" stroke="#ddd"/><text x="58" y="176.3" text-anchor="end" font-family="sans-serif" font-size="11">0.6</text>
+<line x1="64" x2="624" y1="121.7" y2="121.7" stroke="#ddd"/><text x="58" y="125.7" text-anchor="end" font-family="sans-serif" font-size="11">0.8</text>
+<line x1="64" x2="624" y1="71.2" y2="71.2" stroke="#ddd"/><text x="58" y="75.2" text-anchor="end" font-family="sans-serif" font-size="11">1</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1</text>
+<text x="138.7" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">3</text>
+<text x="213.3" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">5</text>
+<text x="288.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">7</text>
+<text x="362.7" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">9</text>
+<text x="437.3" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">11</text>
+<text x="512.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">13</text>
+<text x="586.7" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">15</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">placements of the new family</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">fraction of true hypervolume (mean, four families)</text>
+<polyline points="64.0,236.8 101.3,204.4 138.7,177.9 176.0,156.6 213.3,144.5 250.7,130.3 288.0,123.3 325.3,119.2 362.7,113.4 400.0,110.4 437.3,103.8 474.7,100.8 512.0,99.0 549.3,97.2 586.7,94.2 624.0,90.6" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="236.8" r="3" fill="#c0392b"/>
+<circle cx="101.3" cy="204.4" r="3" fill="#c0392b"/>
+<circle cx="138.7" cy="177.9" r="3" fill="#c0392b"/>
+<circle cx="176.0" cy="156.6" r="3" fill="#c0392b"/>
+<circle cx="213.3" cy="144.5" r="3" fill="#c0392b"/>
+<circle cx="250.7" cy="130.3" r="3" fill="#c0392b"/>
+<circle cx="288.0" cy="123.3" r="3" fill="#c0392b"/>
+<circle cx="325.3" cy="119.2" r="3" fill="#c0392b"/>
+<circle cx="362.7" cy="113.4" r="3" fill="#c0392b"/>
+<circle cx="400.0" cy="110.4" r="3" fill="#c0392b"/>
+<circle cx="437.3" cy="103.8" r="3" fill="#c0392b"/>
+<circle cx="474.7" cy="100.8" r="3" fill="#c0392b"/>
+<circle cx="512.0" cy="99.0" r="3" fill="#c0392b"/>
+<circle cx="549.3" cy="97.2" r="3" fill="#c0392b"/>
+<circle cx="586.7" cy="94.2" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="90.6" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">random</text>
+<polyline points="64.0,102.0 101.3,77.0 138.7,74.0 176.0,72.2 213.3,71.2 250.7,71.2 288.0,71.2 325.3,71.2 362.7,71.2 400.0,71.2 437.3,71.2 474.7,71.2 512.0,71.2 549.3,71.2 586.7,71.2 624.0,71.2" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="102.0" r="3" fill="#1f6fb2"/>
+<circle cx="101.3" cy="77.0" r="3" fill="#1f6fb2"/>
+<circle cx="138.7" cy="74.0" r="3" fill="#1f6fb2"/>
+<circle cx="176.0" cy="72.2" r="3" fill="#1f6fb2"/>
+<circle cx="213.3" cy="71.2" r="3" fill="#1f6fb2"/>
+<circle cx="250.7" cy="71.2" r="3" fill="#1f6fb2"/>
+<circle cx="288.0" cy="71.2" r="3" fill="#1f6fb2"/>
+<circle cx="325.3" cy="71.2" r="3" fill="#1f6fb2"/>
+<circle cx="362.7" cy="71.2" r="3" fill="#1f6fb2"/>
+<circle cx="400.0" cy="71.2" r="3" fill="#1f6fb2"/>
+<circle cx="437.3" cy="71.2" r="3" fill="#1f6fb2"/>
+<circle cx="474.7" cy="71.2" r="3" fill="#1f6fb2"/>
+<circle cx="512.0" cy="71.2" r="3" fill="#1f6fb2"/>
+<circle cx="549.3" cy="71.2" r="3" fill="#1f6fb2"/>
+<circle cx="586.7" cy="71.2" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">screen, area and period models from other families</text>
+<polyline points="64.0,245.1 101.3,209.7 138.7,191.0 176.0,167.0 213.3,155.1 250.7,142.5 288.0,131.3 325.3,122.0 362.7,115.2 400.0,110.1 437.3,105.6 474.7,102.8 512.0,98.5 549.3,94.7 586.7,91.9 624.0,90.1" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="245.1" r="3" fill="#2e8b57"/>
+<circle cx="101.3" cy="209.7" r="3" fill="#2e8b57"/>
+<circle cx="138.7" cy="191.0" r="3" fill="#2e8b57"/>
+<circle cx="176.0" cy="167.0" r="3" fill="#2e8b57"/>
+<circle cx="213.3" cy="155.1" r="3" fill="#2e8b57"/>
+<circle cx="250.7" cy="142.5" r="3" fill="#2e8b57"/>
+<circle cx="288.0" cy="131.3" r="3" fill="#2e8b57"/>
+<circle cx="325.3" cy="122.0" r="3" fill="#2e8b57"/>
+<circle cx="362.7" cy="115.2" r="3" fill="#2e8b57"/>
+<circle cx="400.0" cy="110.1" r="3" fill="#2e8b57"/>
+<circle cx="437.3" cy="105.6" r="3" fill="#2e8b57"/>
+<circle cx="474.7" cy="102.8" r="3" fill="#2e8b57"/>
+<circle cx="512.0" cy="98.5" r="3" fill="#2e8b57"/>
+<circle cx="549.3" cy="94.7" r="3" fill="#2e8b57"/>
+<circle cx="586.7" cy="91.9" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="90.1" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">screen, no models (constant)</text>
+</svg>
