@@ -1,0 +1,51 @@
+{
+  "date": "2026-10-23",
+  "session": "https://claude.ai/code/session_018ED73o8xjWBSthqc8jZz9z",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-23T11:29:22Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/9775",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "python3 resolved to 3.11 without piper; first render failed, python3.13 worked"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/hearth-and-horizon/render_audio.py",
+      "issue": "Docstring says python3 -m pip install piper-tts, but bare python3 and pip belong to different Pythons here; needed python3.13"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "Rendered missing audio for three finished stories instead of writing a new story; voice host was reachable and closed an audio gap."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Project: hearth-and-horizon; slugs the-cold-meter, the-weight-of-a-hive, martin-of-tours-and-the-half-a-cloak (audio only).",
+  "corrections": [],
+  "redteam": null
+}
