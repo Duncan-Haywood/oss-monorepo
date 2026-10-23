@@ -1,0 +1,41 @@
+case  branches headroom ac_insecure dc_flagged TP FP FN TN miss% falsealarm% volt_only nonconv dc_fail  recall@10
+case14 20 0.1 17 15 15 0 2 3 11.8 0.0 2 0 0 0.80
+case14 20 0.25 16 12 12 0 4 4 25.0 0.0 2 0 0 0.80
+case14 20 0.5 11 8 8 0 3 9 27.3 0.0 3 0 0 0.80
+case14 20 1.0 6 2 2 0 4 14 66.7 0.0 3 0 0 0.80
+#margin case14 headroom=0.25 screen_margin=0.8 miss=0.0% fp=4 fn=0
+#margin case14 headroom=0.25 screen_margin=0.9 miss=12.5% fp=0 fn=2
+#margin case14 headroom=0.25 screen_margin=1.0 miss=25.0% fp=0 fn=4
+#acP case14 headroom=0.25 AC judged on MW only: insecure=15 miss=20.0% fp=0 fn=3
+case30 41 0.1 40 35 35 0 5 1 12.5 0.0 0 0 0 0.90
+case30 41 0.25 36 30 30 0 6 5 16.7 0.0 0 0 0 0.90
+case30 41 0.5 30 22 22 0 8 11 26.7 0.0 0 0 0 0.90
+case30 41 1.0 19 9 9 0 10 22 52.6 0.0 6 0 0 0.90
+#margin case30 headroom=0.25 screen_margin=0.8 miss=0.0% fp=5 fn=0
+#margin case30 headroom=0.25 screen_margin=0.9 miss=8.3% fp=2 fn=3
+#margin case30 headroom=0.25 screen_margin=1.0 miss=16.7% fp=0 fn=6
+#acP case30 headroom=0.25 AC judged on MW only: insecure=31 miss=6.5% fp=1 fn=2
+case39 46 0.1 44 40 40 0 4 2 9.1 0.0 0 0 0 1.00
+case39 46 0.25 38 33 33 0 5 8 13.2 0.0 2 0 0 1.00
+case39 46 0.5 35 31 31 0 4 11 11.4 0.0 2 0 0 1.00
+case39 46 1.0 28 24 24 0 4 18 14.3 0.0 3 0 0 1.00
+#margin case39 headroom=0.25 screen_margin=0.8 miss=0.0% fp=7 fn=0
+#margin case39 headroom=0.25 screen_margin=0.9 miss=2.6% fp=2 fn=1
+#margin case39 headroom=0.25 screen_margin=1.0 miss=13.2% fp=0 fn=5
+#acP case39 headroom=0.25 AC judged on MW only: insecure=36 miss=8.3% fp=0 fn=3
+case57 80 0.1 64 51 51 0 13 16 20.3 0.0 0 6 0 0.50
+case57 80 0.25 53 34 32 2 21 25 39.6 5.9 0 6 0 0.50
+case57 80 0.5 35 25 23 2 12 43 34.3 8.0 1 6 0 0.50
+case57 80 1.0 22 7 7 0 15 58 68.2 0.0 5 6 0 0.50
+#margin case57 headroom=0.25 screen_margin=0.8 miss=0.0% fp=27 fn=0
+#margin case57 headroom=0.25 screen_margin=0.9 miss=11.3% fp=3 fn=6
+#margin case57 headroom=0.25 screen_margin=1.0 miss=39.6% fp=2 fn=21
+#acP case57 headroom=0.25 AC judged on MW only: insecure=40 miss=20.0% fp=2 fn=8
+case118 186 0.1 125 111 106 5 19 56 15.2 4.5 2 0 0 0.90
+case118 186 0.25 84 75 72 3 12 99 14.3 4.0 8 0 0 0.90
+case118 186 0.5 57 44 41 3 16 126 28.1 6.8 8 0 0 0.90
+case118 186 1.0 28 13 13 0 15 158 53.6 0.0 10 0 0 0.90
+#margin case118 headroom=0.25 screen_margin=0.8 miss=0.0% fp=102 fn=0
+#margin case118 headroom=0.25 screen_margin=0.9 miss=6.0% fp=27 fn=5
+#margin case118 headroom=0.25 screen_margin=1.0 miss=14.3% fp=3 fn=12
+#acP case118 headroom=0.25 AC judged on MW only: insecure=81 miss=12.3% fp=4 fn=10

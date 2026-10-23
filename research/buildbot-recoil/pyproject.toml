@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "buildbot-recoil"
+version = "0.1.0"
+description = "Does a framing nailer's recoil knock a stock Unitree G1 arm off the stud window? Closed-loop MuJoCo transient."
+requires-python = ">=3.9"
+dependencies = ["mujoco>=3.1", "numpy"]
+license = { text = "MIT" }
+
+[project.optional-dependencies]
+figure = ["matplotlib"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "../buildbot-payload/src", "../buildbot-fasten/src"]
