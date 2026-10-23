@@ -1,0 +1,46 @@
+{
+ "date": "2026-10-23",
+ "session": "https://claude.ai/code/session_01U5TLn3xVmKrktqcqV1XS8B",
+ "track": "research",
+ "prompt_version": 1,
+ "input": "follow the instructions in ./prompt.md",
+ "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+ "follow_up_inputs": [],
+ "model": "claude-sonnet-5-5",
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-10-23T06:11:29Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": null,
+ "projects": [],
+ "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/9702",
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": null,
+ "outcome": "success",
+ "errors": [],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "research/CLAUDE.md",
+   "issue": "says plain python3 may lack deps; pyenv.py returned /usr/bin/python3.13 which worked, but the build.py first run reported a missing README bullet that research_live_links.py --write then generated: order of steps 3 and 4 is circular for projects with a lede."
+  }
+ ],
+ "deviations": [],
+ "writeups": [
+  "docs/reports/2026-10-23-buildbot-carrycop-negative.md"
+ ],
+ "goal": null,
+ "notes": "Negative result: constant CoP offset does not raise the carry speed ceiling. Tests 6 pass; build.py ok; check_md_links ok. Full 1944-case sweep run locally (~40 min).",
+ "corrections": [],
+ "redteam": null
+}
