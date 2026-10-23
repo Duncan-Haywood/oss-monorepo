@@ -14,8 +14,8 @@ const ALIASES = {
   desc: ["description", "transaction description", "payee", "merchant", "name", "details", "original description", "memo", "narrative", "counter party", "counterparty", "narration", "reference", "partner name", "note",
     "beschreibung", "verwendungszweck", "buchungstext", "beguenstigter/zahlungspflichtiger", "begünstigter/zahlungspflichtiger", "libellé", "libelle", "descripción", "descripcion", "concepto", "descrizione", "causale", "omschrijving", "naam / omschrijving"],
   amount: ["amount", "amount (total)", "transaction amount", "amt", "value", "amount (usd)", "amount ($)", "amount (gbp)", "amount (eur)", "cad$", "betrag", "betrag (eur)", "montant", "importe", "importo", "bedrag", "net"],
-  debit: ["debit", "debits", "withdrawal", "withdrawals", "withdrawal amt.", "withdrawal amt", "withdrawal amount", "money out", "paid out", "amount debit", "debit amount", "soll", "débit", "debit (eur)", "cargo", "dare", "uscite"],
-  credit: ["credit", "credits", "deposit", "deposits", "deposit amt.", "deposit amt", "deposit amount", "money in", "paid in", "amount credit", "credit amount", "haben", "crédit", "credito", "crédito", "abono", "avere", "entrate"],
+  debit: ["debit", "debits", "withdrawal", "withdrawals", "withdrawal amt.", "withdrawal amt", "withdrawal amount", "withdrawal (-)", "withdrawals (-)", "debit (-)", "money out", "paid out", "amount debit", "debit amount", "soll", "débit", "debit (eur)", "cargo", "dare", "uscite"],
+  credit: ["credit", "credits", "deposit", "deposits", "deposit amt.", "deposit amt", "deposit amount", "deposit (+)", "deposits (+)", "credit (+)", "money in", "paid in", "amount credit", "credit amount", "haben", "crédit", "credito", "crédito", "abono", "avere", "entrate"],
   balance: ["balance", "running balance", "runningbalance", "running bal.", "ledger balance", "closing balance", "balance (gbp)", "balance (eur)", "balance (usd)", "saldo", "kontostand", "solde", "saldo (eur)"],
 };
 
@@ -413,7 +413,7 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year } = {
   if (invert === undefined && out.every((r) => r.balance === null) && columns.amount !== -1) {
     // Discover's header is distinctive and its export always lists charges as positive, so a
     // file with no recognisable payment row (a month of purchases only) still flips.
-    const pos = chargesArePositive(out) ?? (bank === "discover" ? true : null);
+    const pos = chargesArePositive(out) ?? (bank === "discover" || bank === "apple-card" ? true : null);
     if (pos) { flip = true; inferred = "Charges were positive (the payment rows are negative), so signs were flipped."; }
   }
   if (flip) for (const r of out) r.cents = -r.cents;

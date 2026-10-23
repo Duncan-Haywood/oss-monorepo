@@ -2,7 +2,7 @@
 // once misread silently (found by probing, 2026-10-23).
 import test from "node:test";
 import assert from "node:assert/strict";
-import { parseCents, parseDate, readStatement } from "./bank.mjs";
+import { parseCents, parseDate } from "./bank.mjs";
 
 test("amounts: the last separator is the decimal point whatever the flag says", () => {
   for (const flag of [false, true]) {
@@ -62,7 +62,23 @@ test("Fidelity brokerage export: Run Date and Amount ($) headers are read", asyn
   assert.equal(r.rows[0].date, "2026-10-01");
 });
 
-test("brokerage and Indian-style headers: Activity Date, Narration, Withdrawal Amt./Deposit Amt., Closing Balance", () => {
+test("Schwab Bank older export: Withdrawal (-) and Deposit (+) columns are read", async () => {
+  const { readStatement } = await import("./bank.mjs");
+  const r = readStatement('"Date","Type","Check #","Description","Withdrawal (-)","Deposit (+)","RunningBalance"\n"10/21/2026","ATM","","ATM WITHDRAWAL","$40.00","","$1,200.50"\n"10/20/2026","INTADJUST","","Bank Interest","","$0.12","$1,240.50"\n');
+  assert.deepEqual(r.problems, []);
+  assert.deepEqual(r.rows.map((x) => x.cents), [-4000, 12]);
+  assert.equal(r.rows[0].balance, 120050);
+});
+
+test("Apple Card: charges flip even when the file holds no payment row", async () => {
+  const { readStatement } = await import("./bank.mjs");
+  const r = readStatement("Transaction Date,Clearing Date,Description,Merchant,Category,Type,Amount (USD),Purchased By\n10/21/2026,10/22/2026,APPLE.COM/BILL,Apple,Services,Purchase,9.99,Me\n");
+  assert.equal(r.bank, "apple-card");
+  assert.equal(r.rows[0].cents, -999);
+});
+
+test("brokerage and Indian-style headers: Activity Date, Narration, Withdrawal Amt./Deposit Amt., Closing Balance", async () => {
+  const { readStatement } = await import("./bank.mjs");
   const rh = readStatement("Activity Date,Process Date,Settle Date,Instrument,Description,Trans Code,Quantity,Price,Amount\n10/01/2026,10/01/2026,10/02/2026,,ACH Deposit,ACH,,,\"$500.00\"\n");
   assert.deepEqual(rh.rows.map((x) => [x.date, x.cents]), [["2026-10-01", 50000]]);
   const ind = readStatement("Date,Narration,Withdrawal Amt.,Deposit Amt.,Closing Balance\n10/01/2026,GROCERY,45.10,,100.00\n10/02/2026,SALARY,,2000.00,2100.00\n");
