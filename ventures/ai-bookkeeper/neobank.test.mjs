@@ -360,3 +360,28 @@ test("Dutch banks: ING Af/Bij and Knab CreditDebet markers set the sign", () => 
   const knab = read("knab-nl.csv");
   assert.deepEqual(knab.rows.map((x) => x.cents), [-702, 500, -123450]);
 });
+
+// Small-business neobanks (Relay, Brex, Chime, Bluevine): hand-written from remembered column headings, made-up rows; no real export tried.
+test("Relay: Date/Description/Amount/Balance/Account Name is Relay, not Amex; balance chains", () => {
+  const r = read("relay-checking.csv");
+  assert.equal(r.bank, "relay");
+  assert.deepEqual(r.rows.map((x) => x.cents), [482015, -5999, -320000]);
+  assert.deepEqual(checkRunningBalance(r.rows).breaks, []);
+});
+
+test("Brex: pending rows are reported, settled rows import", () => {
+  const r = read("brex-card.csv");
+  assert.equal(r.bank, "brex");
+  assert.deepEqual(r.rows.map((x) => x.cents), [-2100, 500000]);
+  assert.equal(r.problems.length, 1);
+});
+
+test("Chime and Bluevine: read by amount or debit/credit columns", () => {
+  const c = read("chime-checking.csv");
+  assert.equal(c.bank, "chime");
+  assert.deepEqual(c.rows.map((x) => x.cents), [150000, -4512]);
+  const b = read("bluevine-checking.csv");
+  assert.equal(b.bank, "bluevine");
+  assert.deepEqual(b.rows.map((x) => x.cents), [250000, -8950]);
+  assert.deepEqual(checkRunningBalance(b.rows).breaks, []);
+});
