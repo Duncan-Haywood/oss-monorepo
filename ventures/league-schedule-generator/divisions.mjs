@@ -661,7 +661,7 @@ export function readDivisionsSpec(f) {
   const venueFairness = f.venueFairness === true || /^(1|true|yes|on)$/i.test(String(f.venueFairness || ""));
   const fw = String(f.fairnessWeight ?? "").trim();
   if (fw !== "" && !(Number.isFinite(Number(fw)) && Number(fw) >= 0 && Number(fw) <= 100)) errors.push("The fairness weight is a number from 0 to 100 (default 3).");
-  return { errors, spec: { venueFairness, venueHistory, ...(fw !== "" && Number.isFinite(Number(fw)) ? { fairnessWeight: Number(fw) } : {}), divisions: d.divisions, courts: names, venues, times: t.times, start, weekdays: w.weekdays, skipDays: skip.days, courtClosures: cc.closures, links: l.groups, travel: tr.travel, seed: Number.isFinite(Number(f.seed)) ? Math.trunc(Number(f.seed)) : 1, splitRounds: f.split === true || /^(1|true|yes|on)$/i.test(String(f.split || "")) } };
+  return { errors, spec: { venueFairness, venueHistory, ...(fw !== "" && Number.isFinite(Number(fw)) ? { fairnessWeight: Number(fw) } : {}), divisions: d.divisions, courts: names, venues, times: t.times, start, weekdays: w.weekdays, skipDays: skip.days, courtClosures: cc.closures, links: l.groups, travel: tr.travel, seed: String(f.seed ?? "").trim() !== "" && Number.isFinite(Number(f.seed)) ? Math.trunc(Number(f.seed)) : 1, splitRounds: f.split === true || /^(1|true|yes|on)$/i.test(String(f.split || "")) } };
 }
 
 /** Form fields -> the options `applyDivisionRainouts` takes (the page's four make-up checkboxes; the CLI's spec JSON uses the same keys). */
@@ -698,7 +698,7 @@ const SHARE_FIELDS = ["divisions", "courts", "times", "start", "weekdays", "skip
 /** Form fields -> URL-safe text for the `#` part of a link (`#d=...`). The fragment is never sent to a server. */
 export function encodeDivisionFields(f) {
   const o = {};
-  for (const k of SHARE_FIELDS) if (typeof f[k] === "string" ? f[k].trim() !== "" : f[k] !== undefined && f[k] !== null && f[k] !== "") o[k] = String(f[k]);
+  for (const k of SHARE_FIELDS) if (typeof f[k] === "string" ? f[k].trim() !== "" : f[k] !== undefined && f[k] !== null && f[k] !== "") o[k] = typeof f[k] === "object" ? JSON.stringify(f[k]) : String(f[k]);
   const bytes = new TextEncoder().encode(JSON.stringify(o));
   let bin = "";
   for (const b of bytes) bin += String.fromCharCode(b);
