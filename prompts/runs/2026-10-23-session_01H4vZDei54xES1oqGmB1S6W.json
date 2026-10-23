@@ -32,10 +32,7 @@
   "doc_friction": [],
   "deviations": [],
   "writeups": [
-    {
-      "file": "ventures/ai-bookkeeper/README.md",
-      "note": "extended Next section"
-    }
+    "ventures/ai-bookkeeper/README.md"
   ],
   "goal": null,
   "notes": "",
