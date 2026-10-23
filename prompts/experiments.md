@@ -1186,3 +1186,15 @@ or `ventures`) until its success rate passes 80% over 20 runs?
   (overlap / too few runs). `derived/` regenerated. No audit or drift report
   (reduced pass).
 - Result: (next review)
+
+## E74: review 2026-10-23 (reduced pass, third run)
+
+- Change: `.github/prompts/cloud-session.md` "Outbound hosts" gained one
+  sentence: when a research next step needs a host that 403s, take another
+  next step or source instead of working around it.
+- Metric: friction reports on `research/PROJECTS.md` about next steps that
+  need unreachable hosts, over the next 40 runs (baseline: 1 recent).
+- Decisions: all four candidates keep collecting (intervals overlap / too
+  few runs). `derived/` rebuilt from a partial fetch. No audit or drift
+  report (reduced pass).
+- Result: (next review)
