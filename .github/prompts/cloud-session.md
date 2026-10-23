@@ -60,7 +60,11 @@ in the background (it can exceed 120 s).
 
 A foreground command times out (2 min by default, 10 min at most), and
 foreground `sleep` is blocked. Never chain a long command with `git commit`/`push` in one call (it gets auto-backgrounded and delays the commit), and the safety check rejects `rm -rf` on relative globs after a `cd`: use absolute paths.
-Start these with `run_in_background` and wait with `Monitor`:
+Start these with `run_in_background` and wait with `Monitor`. Don't also put
+`&` or a subshell inside the command: the harness then sees the wrapper exit
+at once and reports completion while the job still runs (two friction reports,
+2026-10-23). Run the command itself in the background call, with output to a
+file you can `tail`.
 
 - `node platform/marketing/regen.mjs --verify` and the pages test suites
   (over 10 min in a shallow clone)
