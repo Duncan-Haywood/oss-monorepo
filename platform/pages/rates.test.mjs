@@ -1,4 +1,5 @@
 import test from 'node:test';
+import vm from 'node:vm';
 import assert from 'node:assert/strict';
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
@@ -584,4 +585,114 @@ test('every rate source names a venture that exists', async () => {
     const entry = path.join(VENTURES, slug, 'index.html');
     await assert.doesNotReject(fs.access(entry), `${slug} has no index.html`);
   }
+});
+
+// ---------------------------------------------------------------------------
+// Behaviour: the shared script run against a tiny fake DOM
+// ---------------------------------------------------------------------------
+// The tests above only match the script's text, so a fault in a line they do
+// not quote (rounding, the usage counter, the empty-storage guard) escaped the
+// 2026-10-23 red-team campaign 8 of 8. These execute it.
+const PAIRS = 'hourlyWage:wage,burdenRate:burden';
+
+function mount({ stored, optOut, dnt, gpc, hash = '', inputs = { wage: '', burden: '' }, pairs = PAIRS } = {}) {
+  const data = new Map();
+  if (stored !== undefined) data.set(SHOP_RATES_KEY, stored);
+  if (optOut) data.set('portfolio-hub-optout', '1');
+  const store = {
+    getItem: (k) => (data.has(k) ? data.get(k) : null),
+    setItem: (k, v) => data.set(k, String(v)),
+    removeItem: (k) => data.delete(k),
+  };
+  const mk = () => ({ hidden: false, textContent: '', innerHTML: '', listeners: {}, dataset: {},
+    addEventListener(t, fn) { this.listeners[t] = fn; }, setAttribute() {} });
+  const nodes = { 'pf-rates-list': mk(), 'pf-rates-status': mk(), 'pf-rates-toggle': mk(), 'pf-rates-panel': mk() };
+  const buttons = { save: mk(), apply: mk(), clear: mk() };
+  const root = Object.assign(mk(), {
+    removed: false, remove() { this.removed = true; },
+    querySelector: (sel) => buttons[/"(\w+)"/.exec(sel)[1]],
+  });
+  for (const [id, value] of Object.entries(inputs)) {
+    nodes[id] = Object.assign(mk(), { tagName: 'INPUT', value, dispatchEvent() {} });
+  }
+  const tag = { getAttribute: () => pairs };
+  const document = {
+    readyState: 'complete',
+    querySelector: (sel) => (sel.startsWith('script[') ? tag : sel.includes('root') ? root : null),
+    getElementById: (id) => nodes[id] || null,
+    createElement: () => {
+      const e = { children: [], textContent: '', appendChild(c) { this.children.push(c); },
+        get outerHTML() { return `<li>${this.textContent}${this.children.map((c) => c.outerHTML).join('')}</li>`; } };
+      return e;
+    },
+  };
+  const window = { localStorage: store, addEventListener() {} };
+  const navigator = { doNotTrack: dnt ? '1' : null, globalPrivacyControl: !!gpc };
+  vm.runInNewContext(script, { document, window, navigator, URLSearchParams, Event: class {},
+    location: { hash, search: '' }, Date });
+  const click = (name) => root.listeners.click({ target: { closest: () => ({ getAttribute: () => name }) } });
+  return { data, nodes, buttons, root, click, usage: () => JSON.parse(data.get('portfolio-hub-usage') || '{}') };
+}
+
+test('saved rates are applied, listed with their prefix and suffix, and rounded to cents', () => {
+  const m = mount({ stored: JSON.stringify({ v: 1, rates: { hourlyWage: 31.456, burdenRate: 22 } }) });
+  assert.equal(m.nodes.wage.value, 31.456);
+  assert.match(m.nodes['pf-rates-list'].innerHTML, /\$31\.46\/h/);
+  assert.match(m.nodes['pf-rates-list'].innerHTML, /22%/);
+  assert.doesNotMatch(m.nodes['pf-rates-list'].innerHTML, /undefined/);
+});
+
+test('empty, null or junk storage shows the empty state instead of throwing', () => {
+  for (const stored of [undefined, 'null', '"x"', '{bad', '{}']) {
+    const m = mount({ stored });
+    assert.equal(m.buttons.clear.hidden, true, String(stored));
+    assert.equal(m.nodes.wage.value, '');
+  }
+});
+
+test('a saved set with none of this page\'s fields counts as nothing saved', () => {
+  const m = mount({ stored: JSON.stringify({ v: 1, rates: { overheadRate: 10 } }) });
+  assert.equal(m.buttons.clear.hidden, true);
+});
+
+test('applying counts one event, dated with the full ISO day', () => {
+  const m = mount({ stored: JSON.stringify({ hourlyWage: 20, burdenRate: 10 }) });
+  const u = m.usage();
+  assert.equal(u.shop_rates_applied, 1);
+  assert.match(u.last_day, /^\d{4}-\d{2}-\d{2}$/);
+});
+
+test('usage counters accumulate across events', () => {
+  const m = mount({ stored: JSON.stringify({ hourlyWage: 20, burdenRate: 10 }) });
+  m.click('apply');
+  m.click('apply');
+  assert.equal(m.usage().shop_rates_applied, 3);
+});
+
+test('Do Not Track, Global Privacy Control and the site opt-out each stop all counting', () => {
+  const stored = JSON.stringify({ hourlyWage: 20, burdenRate: 10 });
+  for (const opts of [{ dnt: true }, { gpc: true }, { optOut: true }]) {
+    const m = mount({ stored, ...opts });
+    assert.equal(m.data.has('portfolio-hub-usage'), false, JSON.stringify(opts));
+  }
+});
+
+test('saving stores the form values, but a blank field refuses the save', () => {
+  const m = mount({ inputs: { wage: '25', burden: '' } });
+  m.click('save');
+  assert.equal(m.data.has(SHOP_RATES_KEY), false);
+  assert.match(m.nodes['pf-rates-status'].textContent, /Fill in all 2/);
+  m.nodes.burden.value = '0';
+  m.click('save');
+  assert.deepEqual(JSON.parse(m.data.get(SHOP_RATES_KEY)).rates, { hourlyWage: 25, burdenRate: 0 });
+});
+
+test('the bar removes itself when the tag names no usable field', () => {
+  assert.equal(mount({ pairs: 'bogus:wage' }).root.removed, true);
+  assert.equal(mount({ pairs: '' }).root.removed, true);
+});
+
+test('the stylesheet strips every card style the venture sets on a bare section', () => {
+  assert.match(renderShopRatesStyle(),
+    /section\.pf-rates\{background:none;border:0;border-radius:0;box-shadow:none;min-height:0\}/);
 });
