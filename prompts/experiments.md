@@ -1241,6 +1241,18 @@ or `ventures`) until its success rate passes 80% over 20 runs?
 
 ## E77: review 2026-10-23 (reduced pass, sixth run)
 
+- Change: `.github/prompts/cloud-session.md` "Long commands" gained a two-line
+  recipe for waiting with `Monitor` (until-loop on the output file, `echo DONE`
+  at the end); friction on `prompt.md` and `research/CLAUDE.md` said waiting
+  with `sleep` blocked was awkward.
+- Metric: friction reports about waiting on background jobs, over the next 40
+  runs (baseline: 2 recent).
+- Decisions: all four candidates keep collecting (intervals overlap / too few
+  runs). `derived/` rebuilt (2572 rows). No audit or drift report (reduced pass).
+- Result: (next review)
+
+## E78: review 2026-10-23 (reduced pass, seventh run)
+
 - Change: `CLAUDE.md` pyenv pointer notes the first install can exceed the
   120 s tool timeout and should run in the background (friction on
   `research/CLAUDE.md`: pyenv.py took >120 s in the foreground).

@@ -64,7 +64,9 @@ Start these with `run_in_background` and wait with `Monitor`. Don't also put
 `&` or a subshell inside the command: the harness then sees the wrapper exit
 at once and reports completion while the job still runs (two friction reports,
 2026-10-23). Run the command itself in the background call, with output to a
-file you can `tail`.
+file you can `tail`. To wait, give `Monitor` an until-loop on that output
+(`until grep -q DONE out.log; do sleep 5; done`; `sleep` is fine inside it) and end the
+background command with `echo DONE`.
 
 - `node platform/marketing/regen.mjs --verify` and the pages test suites
   (over 10 min in a shallow clone)
