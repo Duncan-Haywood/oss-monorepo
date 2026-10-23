@@ -1,0 +1,12 @@
+Transaction Date,Type,Order ID,Card Brand,Card Source,Payout Status,Payout Date,Payout ID,Available On,Amount,Fee,Net,Checkout,Payment Method Name,Presentment Amount,Presentment Currency,Currency,Vat,Business Entity Name
+2026-05-02 09:14:00 -0400,charge,1001,visa,online,paid,2026-05-06,7001,2026-05-06,120.00,3.78,116.22,c1,visa,120.00,USD,USD,,Example Goods LLC
+2026-05-03 13:40:00 -0400,charge,1002,mastercard,online,paid,2026-05-06,7001,2026-05-06,86.50,2.81,83.69,c2,master,86.50,USD,USD,,Example Goods LLC
+2026-05-04 16:02:00 -0400,refund,1001,visa,online,paid,2026-05-06,7001,2026-05-06,-30.00,0.00,-30.00,c1,visa,-30.00,USD,USD,,Example Goods LLC
+2026-05-05 10:20:00 -0400,charge,1003,amex,online,paid,2026-05-06,7001,2026-05-06,45.00,1.80,43.20,c3,american_express,45.00,USD,USD,,Example Goods LLC
+2026-05-06 06:00:00 -0400,payout,,,,paid,2026-05-06,7001,2026-05-06,-213.11,0.00,-213.11,,,,USD,USD,,Example Goods LLC
+2026-05-07 11:05:00 -0400,charge,1004,visa,online,paid,2026-05-13,7002,2026-05-13,210.00,6.40,203.60,c4,visa,210.00,USD,USD,,Example Goods LLC
+2026-05-09 15:30:00 -0400,charge,1005,visa,online,paid,2026-05-13,7002,2026-05-13,64.00,2.16,61.84,c5,visa,64.00,USD,USD,,Example Goods LLC
+2026-05-10 08:45:00 -0400,chargeback_fee,1003,amex,online,paid,2026-05-13,7002,2026-05-13,-15.00,0.00,-15.00,c3,american_express,,USD,USD,,Example Goods LLC
+2026-05-10 08:45:00 -0400,chargeback,1003,amex,online,paid,2026-05-13,7002,2026-05-13,-45.00,0.00,-45.00,c3,american_express,,USD,USD,,Example Goods LLC
+2026-05-13 06:00:00 -0400,payout,,,,paid,2026-05-13,7002,2026-05-13,-205.44,0.00,-205.44,,,,USD,USD,,Example Goods LLC
+2026-05-14 12:10:00 -0400,charge,1006,visa,online,pending,,,2026-05-18,75.00,2.48,72.52,c6,visa,75.00,USD,USD,,Example Goods LLC

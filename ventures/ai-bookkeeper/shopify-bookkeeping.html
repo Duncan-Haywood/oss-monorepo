@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shopify Bookkeeping: Book Sales, Fees and Chargebacks, Not Just Payouts (Worked Example)</title>
+<meta name="description" content="Shopify Payments pays you sales less fees, refunds and chargebacks. A worked example turns $418.55 of bank deposits into $495.50 of sales and $76.95 of fees and dispute losses, with the numbers read by the tool from a payout transactions export.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="./shopify-bookkeeping.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Shopify bookkeeping: book sales, fees and chargebacks, not just payouts">
+<meta property="og:description" content="A worked example: $418.55 of Shopify Payments deposits are $495.50 of sales and $76.95 of fees and dispute losses, and the profit is the same.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I book Shopify payouts or Shopify sales as income?","acceptedAnswer":{"@type":"Answer","text":"Book the gross orders as sales, refunds as negative sales, and Shopify Payments fees, chargebacks and chargeback fees as expenses. The payout is only the cash that arrived, so booking it alone understates income and expenses by the same amount."}},{"@type":"Question","name":"Which Shopify report do I need?","acceptedAnswer":{"@type":"Answer","text":"The payout transactions export: in the Shopify admin, open Finances, then Payouts, choose a payout or all payouts and export the transactions as CSV. It lists each charge, refund and chargeback with its amount, fee and net."}},{"@type":"Question","name":"Why does my Shopify payout not match my orders?","acceptedAnswer":{"@type":"Answer","text":"A payout is the sum of the transactions since the last one, less processing fees, refunds and chargebacks. Orders paid by PayPal or manual methods are not in Shopify Payments payouts at all."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#1c2430;background:#f3f5f2}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#23613f}.eyebrow{font-weight:700;letter-spacing:.04em;color:#23613f;font-size:.85rem}h1{font-size:clamp(1.7rem,5vw,2.5rem);line-height:1.08;margin:.3rem 0;color:#183d2a}.lede{font-size:1.05rem;max-width:66ch;color:#4a5560}section{background:#fff;border:1px solid #d5ddd6;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #183d2a10;margin:1rem 0}h2{margin-top:0;color:#183d2a}p,li{line-height:1.55}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:.95rem}caption{caption-side:bottom;color:#4a5560;font-size:.85rem;text-align:left;padding-top:.6rem}th,td{border-bottom:1px solid #e1e7e2;padding:.5rem .45rem;text-align:right}th:first-child,td:first-child{text-align:left}tr.total td,tr.total th{font-weight:700}.fine,footer{font-size:.86rem;color:#4a5560}@media (max-width:600px){body{padding:1rem}}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; AI Bookkeeper</a></p>
+<header>
+<h1>Shopify bookkeeping: book the sales, the fees and the chargebacks, not just the payouts</h1>
+<p class="lede">A Shopify Payments payout lands in your bank as one lump: sales less processing fees, refunds and chargebacks. Book the lump and your books understate both what you sold and what taking cards cost you. The payout transactions export has the detail.</p>
+</header>
+<section>
+<h2>Worked example: two payouts, one refund, one chargeback</h2>
+<p>The tool ships a <strong>synthetic</strong> Shopify payout transactions export for May 2026 (<code>fixtures/shopify-payout-transactions.csv</code>): five paid orders, a $30.00 refund, a $45.00 chargeback with its $15.00 fee, and one order not yet paid out. Two deposits ($213.11 and $205.44) are in the bank. The first payout reads as $221.50 of sales (after the refund) less $8.39 of processing fees; the second as $274.00 of sales less $8.56 of fees and $60.00 of chargeback loss and fee.</p>
+<div class="table-wrap">
+<table>
+<caption>Figures from running the payout reader and planner on the fixture and a two-line bank statement. Synthetic data, not a real shop.</caption>
+<thead><tr><th scope="col">May 2026</th><th scope="col">Booked from deposits</th><th scope="col">Booked from the payout export</th></tr></thead>
+<tbody>
+<tr><th scope="row">Sales (orders less the $30.00 refund)</th><td>$418.55</td><td>$495.50</td></tr>
+<tr><th scope="row">Processing fees, chargeback and chargeback fee</th><td>$0.00</td><td>&minus;$76.95</td></tr>
+<tr class="total"><th scope="row">Net profit</th><td>$418.55</td><td>$418.55</td></tr>
+</tbody>
+</table>
+</div>
+<p>The profit is the same; the difference is that one set of books shows what you sold, what taking cards cost, and a $45.00 chargeback with a $15.00 fee as something you can see and contest. That matters for the fees you deduct on Schedule C, for comparing with the gross figure on a 1099-K, and for spotting a processing rate that creeps up. The $75.00 order paid after the second payout stays pending until its deposit lands.</p>
+</section>
+
+<section>
+<h2>How to book it</h2>
+<ol>
+<li><strong>Export the payout transactions</strong> from the Shopify admin (Finances, Payouts) as a CSV, and download your bank statement.</li>
+<li><strong>Import the bank statement</strong> in <a href="./">AI Bookkeeper</a>, then run <code>payouts shopify-payout-transactions.csv</code>. Each payout is matched to the bank line of equal amount within a few days and shown as a plan; add <code>--apply</code> to post the splits.</li>
+<li><strong>Read the leftovers.</strong> A row whose net is not amount less fee is refused as damaged; two bank lines that fit equally well are skipped rather than guessed; rows not yet paid out are listed as pending. The export's own payout rows are skipped, not double counted.</li>
+<li><strong>Run it again next month.</strong> A payout already split is reported as done and nothing posts twice.</li>
+</ol>
+<p>Orders paid by PayPal, gift card or a manual method do not appear in a Shopify Payments export; book those from their own report (PayPal's activity CSV reads through the same command). The column names are from Shopify's documented layout, written from memory, and no real export has been tried; check the totals against your own statement. For a 1099-K that does not match, see <a href="./form-1099-k-reconciliation.html">the reconciliation page</a>.</p>
+</section>
+
+<section>
+<h2>Questions</h2>
+<h3>Should I book Shopify payouts or Shopify sales as income?</h3>
+<p>Book the gross orders as sales, refunds as negative sales, and Shopify Payments fees, chargebacks and chargeback fees as expenses. The payout is only the cash that arrived, so booking it alone understates income and expenses by the same amount.</p>
+<h3>Which Shopify report do I need?</h3>
+<p>The payout transactions export: in the Shopify admin, open Finances, then Payouts, choose a payout or all payouts and export the transactions as CSV. It lists each charge, refund and chargeback with its amount, fee and net.</p>
+<h3>Why does my Shopify payout not match my orders?</h3>
+<p>A payout is the sum of the transactions since the last one, less processing fees, refunds and chargebacks. Orders paid by PayPal or manual methods are not in Shopify Payments payouts at all.</p>
+<h3>Is it free?</h3>
+<p>Yes. It is open source (MIT), runs in your browser or as a command line tool, and nothing is uploaded.</p>
+</section>
+
+<p><a href="./">Open AI Bookkeeper</a> and import your bank statement and payout export.</p>
+</main>
+<footer>
+<p><strong>No warranty.</strong> This page and the tool are provided free and as-is, without warranty of any kind. They are not legal, tax, or financial advice and do not replace a qualified professional. You are responsible for reviewing and verifying any output before relying on it. The example is synthetic data, not a real business. Shopify, Stripe and PayPal are trademarks of their owners, named only to describe a payee or a report; this project is not affiliated with them.</p>
+</footer>
+</body>
+</html>
