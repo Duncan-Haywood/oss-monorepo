@@ -581,6 +581,13 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
   if (format === "qif") return readQif(text, { dayFirst });
   const rows = parseCsv(text);
   const problems = [];
+  // A header-less file with a few lines of account summary above the data: drop leading rows until the rest has a layout.
+  const hasHeader = (r) => { if (r.length < 2) return false; const c = detectColumns(r); return c.date !== -1 && (c.amount !== -1 || c.debit !== -1 || c.credit !== -1); };
+  if (!rows.some(hasHeader) && !headerlessLayout(rows)) {
+    for (let k = 1; k <= Math.min(10, rows.length - 2); k++) {
+      if (headerlessLayout(rows.slice(k))) { rows.splice(0, k); problems.push(`${k} line${k === 1 ? "" : "s"} above the first transaction ${k === 1 ? "was" : "were"} skipped as a preamble.`); break; }
+    }
+  }
   if (!rows.some((r) => { if (r.length < 2) return false; const c = detectColumns(r); return c.date !== -1 && (c.amount !== -1 || c.debit !== -1 || c.credit !== -1); }) && !headerlessLayout(rows)) {
     const t = readStatementText(text, { dayFirst, decimalComma, year });
     if (t.rows.length) { if (invert === true) for (const x of t.rows) x.cents = -x.cents; return t; }
