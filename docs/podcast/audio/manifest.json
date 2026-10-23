@@ -139,6 +139,13 @@
     "script_sha256": "de99a76f8f64065c77ea2885fc1f56b07ab95a40c41407ce71e7c40826e2d719",
     "voice": "en_US-ljspeech-high"
   },
+  "2026-10-21-fooling-an-ai-detector-by-being-short": {
+    "bytes": 786911,
+    "seconds": 157.28,
+    "sha256": "cb619b88aa6a0be14eae0e8187a6c88a6e4b1e08e2c483349a39f24eb13bc956",
+    "script_sha256": "5fef2d88c9c0a1fc13b247d9ec49a450bf786793f7325951389e6a4d28c5f18e",
+    "voice": "en_US-ljspeech-high"
+  },
   "2026-10-21-guidelines-not-rules-for-ai-agents": {
     "bytes": 1261942,
     "seconds": 252.29,
@@ -207,6 +214,13 @@
     "seconds": 143.07,
     "sha256": "c6a77c527c35e5f6ca8a9d3db39d719016b3cf7f3d0af97f2cad77bdc2de0cfc",
     "script_sha256": "e17006c6e6b5627152625498e560cc6a9f76ece20a6ef1e8d2f3ca0c81a043b2",
+    "voice": "en_US-ljspeech-high"
+  },
+  "2026-10-23-sync-window-longer-than-offset": {
+    "bytes": 768102,
+    "seconds": 153.52,
+    "sha256": "feae7e78b819f07fed0013b8c26e1e5167cebb2ee7f451952b940ab5cf7897d2",
+    "script_sha256": "8159d961f064d910694b87e79b908dbcb3adbb0cadebb7abd1dcd6df43e49a22",
     "voice": "en_US-ljspeech-high"
   },
   "2026-10-23-water-pump-demand-charge-booster-pump": {
