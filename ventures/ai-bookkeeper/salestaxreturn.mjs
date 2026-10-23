@@ -26,10 +26,15 @@ const periodEnd = (p) => {
   if (/Q/.test(p)) return [Number(p.slice(0, 4)), Number(p.slice(6)) * 3];
   return [Number(p.slice(0, 4)), Number(p.slice(5))];
 };
+// Due day of the month after the period, by state, from the states' published
+// monthly/quarterly schedules as the author recalls them: check yours
+// (a state's own calendar can differ by filing frequency). "last" = month end.
+export const STATE_DUE_DAYS = { CA: "last", TX: 20, FL: 20, NY: 20, WA: 25, IL: 20, PA: 20 };
 export function dueDate(period, dueDay = 20) {
   let [y, m] = periodEnd(period);
   m += 1; if (m > 12) { m = 1; y += 1; }
-  return `${y}-${String(m).padStart(2, "0")}-${String(dueDay).padStart(2, "0")}`;
+  const day = dueDay === "last" ? new Date(Date.UTC(y, m, 0)).getUTCDate() : dueDay;
+  return `${y}-${String(m).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
 }
 
 const pad = (n) => String(n).padStart(2, "0");
