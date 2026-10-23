@@ -573,7 +573,7 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
 } else if (cmd === "payouts") {
   if (!rest[0] || !existsSync(rest[0])) { console.error("payouts needs the processor's payout reconciliation CSV, e.g. payouts stripe-payouts.csv [--apply]"); process.exit(2); }
   const roles = {};
-  for (const k of ["sales", "refunds", "fees", "disputes", "other", "tax", "ads", "reserve"]) { const v = flag(`--${k}`); if (v) roles[k] = v; }
+  for (const k of ["sales", "refunds", "fees", "disputes", "other", "tax", "ads", "reserve", "tips"]) { const v = flag(`--${k}`); if (v) roles[k] = v; }
   const doApply = has("--apply");
   let plan;
   try { plan = planPayouts(books, readPayoutReport(readFileSync(rest[0], "utf8")), roles); } catch (e) { console.error(e.message); process.exit(2); }
