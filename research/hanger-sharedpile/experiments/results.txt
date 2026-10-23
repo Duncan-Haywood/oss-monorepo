@@ -1,0 +1,32 @@
+== A. Two arms, one pile: clearance between grasps sep (m) vs done/h (load 25, mean of 200 loads)
+policy  sep    done/h   lo     hi   dryers  blocked/load  waited_s/load  bottleneck  u_arms
+pinch   0.00    179.1 177.0  181.5    5.37           0.0            0.0  arms          0.84
+pinch   0.15    167.1 164.9  169.5    5.01           6.3           94.1  arms          0.88
+pinch   0.30    151.1 148.9  153.5    4.53          15.8          227.3  arms          0.91
+pinch   0.45    148.4 146.1  150.7    4.45          17.9          253.7  arms          0.92
+pinch   0.60    148.3 146.0  150.7    4.45          17.9          254.0  arms          0.92
+see     0.00    200.8 197.6  204.2    6.02           0.0            0.0  fold          0.65
+see     0.15    196.0 192.9  198.9    5.88           5.4           68.2  fold          0.71
+see     0.30    190.7 187.7  193.6    5.72          10.1          124.1  fold          0.75
+see     0.45    190.4 187.3  193.4    5.71          10.7          131.4  fold          0.75
+see     0.60    190.4 187.3  193.4    5.71          10.7          131.4  fold          0.75
+sweep   0.00    195.7 192.9  198.6    5.87           0.0            0.0  fold          0.77
+sweep   0.15    193.1 190.3  196.0    5.79           2.8           34.8  fold          0.79
+sweep   0.30    185.6 183.0  188.1    5.57           7.4           93.5  fold          0.82
+sweep   0.45    180.5 178.0  183.1    5.41          11.1          148.0  arms          0.85
+sweep   0.60    175.5 172.9  178.2    5.27          13.0          180.5  arms          0.86
+
+== B. Three arms, see policy: does a third arm pay once they block (done/h)
+sep   arms=1  arms=2  arms=3
+0.00   146.8   200.8   204.8
+0.15   146.8   196.0   203.8
+0.30   146.8   190.7   195.2
+0.45   146.8   190.4   193.6
+0.60   146.8   190.4   193.8
+
+== C. Two arms, see, sep 0.30: sensitivity to the downstream time that spaces the arms (s)
+downstream  done/h  blocked/load
+         5   184.7          15.8
+        14   190.7          10.1
+        30   195.2           6.7
+        60   195.9           4.3
