@@ -88,7 +88,9 @@ jobs:
           for example in examples/*; do
             # FatturaPA (Italy) is read by the browser engine only (fatturapa.mjs,
             # covered by its node tests); the Python CLI reads EN 16931 formats.
-            case "$example" in *-with-defects.*|*/draft-*|*/fatturapa-*) continue;; esac
+            # PINT (Singapore, Australia/New Zealand) samples pay by local bank account,
+            # not IBAN; their rules run in the browser engine (pint.test.mjs).
+            case "$example" in *-with-defects.*|*/draft-*|*/fatturapa-*|*/pint-*) continue;; esac
             echo "--- $example"
             python3 -m einvoice_preflight "$example"
             found=$((found + 1))
