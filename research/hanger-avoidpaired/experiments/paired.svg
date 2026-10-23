@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of the mean paired gain in garments hung or folded per hour from avoiding against the clearance in metres, for pinching, sweeping and aiming: pinching gains about 10 per hour at 0.15 and 0.30 m, sweeping about 4 at 0.30 and 0.45 m, aiming 0.2 to 2">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">What does picking a free garment gain, paired on the same loads?</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="276.1" y2="276.1" stroke="#ddd"/><text x="58" y="280.1" text-anchor="end" font-family="sans-serif" font-size="11">2</text>
+<line x1="64" x2="624" y1="228.1" y2="228.1" stroke="#ddd"/><text x="58" y="232.1" text-anchor="end" font-family="sans-serif" font-size="11">4</text>
+<line x1="64" x2="624" y1="180.2" y2="180.2" stroke="#ddd"/><text x="58" y="184.2" text-anchor="end" font-family="sans-serif" font-size="11">6</text>
+<line x1="64" x2="624" y1="132.3" y2="132.3" stroke="#ddd"/><text x="58" y="136.3" text-anchor="end" font-family="sans-serif" font-size="11">8</text>
+<line x1="64" x2="624" y1="84.4" y2="84.4" stroke="#ddd"/><text x="58" y="88.4" text-anchor="end" font-family="sans-serif" font-size="11">10</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.15</text>
+<text x="344.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.3</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.45</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">clearance needed between two grasps (m, assumed)</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">paired gain, avoid minus wait (garments per hour)</text>
+<polyline points="64.0,71.2 344.0,84.8 624.0,313.9" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="71.2" r="3" fill="#c0392b"/>
+<circle cx="344.0" cy="84.8" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="313.9" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">pinch, gain</text>
+<polyline points="64.0,293.1 344.0,219.0 624.0,219.3" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="293.1" r="3" fill="#1f6fb2"/>
+<circle cx="344.0" cy="219.0" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="219.3" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">sweep, gain</text>
+<polyline points="64.0,272.5 344.0,294.0 624.0,320.4" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="272.5" r="3" fill="#2e8b57"/>
+<circle cx="344.0" cy="294.0" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="320.4" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">see, gain</text>
+</svg>
