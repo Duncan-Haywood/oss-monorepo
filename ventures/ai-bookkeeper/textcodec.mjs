@@ -3,8 +3,10 @@
 // bank files are Windows-1252; reading either as UTF-8 gives garbled columns
 // and no rows. Runs in Node and in the page (TextDecoder is in both).
 
-export function decodeBytes(bytes) {
+export function decodeBytes(bytes, encoding) {
   const b = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
+  // A caller who knows the codepage (a --encoding flag, a picker) wins.
+  if (encoding) return new TextDecoder(encoding).decode(b);
   const dec = (enc, from = 0) => new TextDecoder(enc).decode(b.subarray(from));
   if (b[0] === 0xef && b[1] === 0xbb && b[2] === 0xbf) return dec("utf-8", 3);
   if (b[0] === 0xff && b[1] === 0xfe) return dec("utf-16le", 2);
@@ -19,29 +21,30 @@ export function decodeBytes(bytes) {
   catch { return legacy(b); }
 }
 
-// Not UTF-8: a single-byte code page, and the bytes alone do not say which.
-// Windows-1252 stays the default (western Europe, the Nordics, the US). Two
-// others are chosen only on bytes that are almost never text in 1252:
-// - 1257 (Baltic): 0xF0/0xFE/0xD0/0xDE are Lithuanian and Latvian s/z with a
-//   caron, but in 1252 they are eth and thorn; Icelandic uses those too, so
-//   any 1252 a/i/u/y-acute (0xE1, 0xED, 0xFA, 0xFD) keeps 1252.
-// - 1250 (Central Europe): 0xB9/0xB3/0xBF (Polish a-ogonek, l-stroke, z-dot)
-//   are superscripts and an inverted question mark in 1252, and 0xEC with
-//   0xF8 (Czech e-caron, r-caron) are i-grave and o-slash, which no
-//   Italian or Danish text has together; 0x8D/0x8F/0x9D are unused in 1252.
-// Only one of the two is tried; a guess that turns out wrong reads as the
-// same garbled text 1252 gave before, so nothing is lost.
+// Not UTF-8 and no BOM: a single-byte codepage. Windows-1252 is the default;
+// two cases are told apart from it by evidence in the bytes themselves:
+//  - a LITAS-ESIS .acc file (Lithuanian banks) starts "000<tab>YYYYMMDD<tab>"
+//    in plain ASCII and is Windows-1257 (ą č ę ė į š ų ū ž);
+//  - Cyrillic in Windows-1251 reads, as 1252, as words made only of accented
+//    Latin letters (ïðèâåò); several such words in a row are not Western text.
+//  - otherwise single bytes that are almost never text in 1252: 0xF0/0xFE/0xD0/
+//    0xDE (Baltic s/z with caron; eth and thorn in 1252, which Icelandic also
+//    uses, so any acute a/i/u/y keeps 1252) pick 1257; 0xB9/0xB3/0xBF (Polish
+//    a-ogonek, l-stroke, z-dot) or i-grave with o-slash (Czech e/r-caron; no
+//    Italian or Danish text has both) pick 1250.
+// A text with none of these letters is read as 1252; pass the encoding then.
 function legacy(b) {
+  const latin = win1252(b);
+  if (/^000\t\d{8}\t/.test(latin)) return new TextDecoder("windows-1257").decode(b);
+  const highWords = latin.match(/[\u00c0-\u00ff]{4,}/g) || [];
+  const mixedWords = latin.match(/[A-Za-z]+[\u00c0-\u00ff]+[A-Za-z]*/g) || [];
+  if (highWords.length >= 3 && highWords.length > mixedWords.length) return new TextDecoder("windows-1251").decode(b);
   const c = new Map();
   for (let i = 0; i < b.length; i++) if (b[i] >= 0x80) c.set(b[i], (c.get(b[i]) || 0) + 1);
   const has = (...xs) => xs.reduce((n, x) => n + (c.get(x) || 0), 0);
-  let enc = "windows-1252";
-  if (has(0xf0, 0xfe, 0xd0, 0xde) > 0 && has(0xe1, 0xed, 0xfa, 0xfd) === 0) enc = "windows-1257";
-  else if (has(0xb9, 0xb3, 0xbf, 0x8d, 0x8f, 0x9d) > 0 || (has(0xec) > 0 && has(0xf8) > 0)) enc = "windows-1250";
-  if (enc !== "windows-1252") {
-    try { return new TextDecoder(enc).decode(b); } catch { /* runtime lacks the table */ }
-  }
-  return win1252(b);
+  if (has(0xf0, 0xfe, 0xd0, 0xde) > 0 && has(0xe1, 0xed, 0xfa, 0xfd) === 0) return new TextDecoder("windows-1257").decode(b);
+  if (has(0xb9, 0xb3, 0xbf) > 0 || (has(0xec) > 0 && has(0xf8) > 0)) return new TextDecoder("windows-1250").decode(b);
+  return latin;
 }
 
 // 0x80-0x9F differ from Latin-1 (euro sign, curly quotes, dashes); a runtime
