@@ -1171,3 +1171,18 @@ or `ventures`) until its success rate passes 80% over 20 runs?
   ventures 2, process 2 and review 2 unchanged (overlap / too few runs).
   `derived/` regenerated. No audit or drift report (reduced pass).
 - Result: (next review)
+
+## E73: review 2026-10-23 (reduced pass, second run)
+
+- Change: `.github/prompts/cloud-session.md` "Long commands" gained one
+  sentence: don't chain a long command with commit/push in one call, and use
+  absolute paths for `rm -rf` after a `cd` (the safety check rejects relative
+  globs).
+- Metric: friction reports against `CLAUDE.md` about long commands delaying a
+  commit or a blocked relative-glob `rm`, over the next 40 runs (baseline: 2
+  recent).
+- Decisions: research candidate 1 kept (same non-gap on integrity issues as
+  E72; E55 proposal stands). ventures 2, process 2 and review 2 unchanged
+  (overlap / too few runs). `derived/` regenerated. No audit or drift report
+  (reduced pass).
+- Result: (next review)
