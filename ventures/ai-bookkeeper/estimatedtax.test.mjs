@@ -158,3 +158,15 @@ test("a blank (NaN) wages, withholding or paid field counts as zero, not NaN pay
   assert.deepEqual(r.payments.map((p) => p.cents), base.payments.map((p) => p.cents));
   assert.ok(Number.isFinite(r.balanceWithReturn));
 });
+
+test("minimum QBI deduction: exactly $1,000 qualifies (\"at least\", 199A(i)(2)); later years take indexed amounts and warn", () => {
+  const { books: b0 } = importStatement(newBooks(), "Date,Description,Amount\n2027-03-01,CLIENT PAYMENT ACME,1100.00\n", "1000");
+  const b = confirm(b0, { [b0.transactions[0].id]: "4000" });
+  const base = { year: 2027, brackets: BRACKETS[2026].single.b, standardDeduction: 1610000, otherIncome: 5000000 };
+  const r = estimatedTax(b, base);
+  assert.ok(r.warnings.some((w) => /indexed for 2027/.test(w)));
+  const i = estimatedTax(b, { ...base, qbiMinimum: { floor: 41000, threshold: 100000 } });
+  assert.equal(i.qbiDeduction, 41000);
+  assert.ok(i.warnings.every((w) => !/indexed for 2027/.test(w)));
+  assert.ok(estimatedTax(b, { ...base, qbiMinimum: { floor: 41000, threshold: 120000 } }).qbiDeduction < 41000);
+});
