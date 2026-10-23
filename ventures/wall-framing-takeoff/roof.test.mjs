@@ -194,6 +194,17 @@ test("cross wing: cut rows pool the valleys and jacks; bad wings are refused", (
   assert.ok(t.ok, JSON.stringify(t.errors));
 });
 
+test("cross wing: valley backing is one board per valley at the valley's length, and two wings double it", () => {
+  assert.equal(layoutRoof(wingRoof(), plan()).valleyBacking.length, 0);
+  const l = layoutRoof({ ...wingRoof(), valleyBacking: true }, plan());
+  assert.ok(l.ok, JSON.stringify(l.errors));
+  assert.equal(l.valleyBacking.length, 2);
+  assert.ok(l.valleyBacking.every((b) => b.length === l.valleys[0].length && b.size === l.valleys[0].size));
+  const rows = roofCuts(l);
+  assert.equal(rows.filter((r) => r.kind === "valley backing").reduce((s, r) => s + r.qty, 0), 2);
+  assert.equal(rows.filter((r) => r.kind === "valley rafter").reduce((s, r) => s + r.qty, 0), 2);
+});
+
 test("cross wing: ceiling joists span the wing on its wall stations", () => {
   const none = layoutRoof(wingRoof(), plan());
   assert.equal(none.wingCeilingJoists.length, 0);
