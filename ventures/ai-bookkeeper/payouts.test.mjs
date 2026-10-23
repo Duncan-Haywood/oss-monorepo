@@ -285,3 +285,19 @@ test("Stripe's balance-transactions export (Type, Amount, Created (UTC), Automat
   assert.equal(p.fees, 320);
   assert.deepEqual(r.rows.filter((x) => x.kind === "skip").length, 1);
 });
+
+test("the Shopify fixture behind shopify-bookkeeping.html splits two payouts as the page says", () => {
+  const r = readPayoutReport(readFileSync(new URL("./fixtures/shopify-payout-transactions.csv", import.meta.url), "utf8"));
+  assert.deepEqual(r.problems, []);
+  assert.equal(r.payouts.length, 2);
+  assert.equal(r.pending.length, 1);
+  const plan = planPayouts(books([["2026-05-07", "SHOPIFY PAYOUT", "213.11"], ["2026-05-14", "SHOPIFY PAYOUT", "205.44"]]), r, {});
+  assert.equal(plan.matched.length, 2);
+  assert.deepEqual(plan.matched[0].parts, [{ account: "4000", cents: 22150 }, { account: "6010", cents: -839 }]);
+  assert.deepEqual(plan.matched[1].parts, [{ account: "4000", cents: 27400 }, { account: "6010", cents: -6856 }]);
+  const sales = plan.matched.reduce((a, m) => a + m.parts[0].cents, 0);
+  const costs = plan.matched.reduce((a, m) => a - m.parts[1].cents, 0);
+  assert.equal(sales, 49550);
+  assert.equal(costs, 7695);
+  assert.equal(sales - costs, 41855);
+});
