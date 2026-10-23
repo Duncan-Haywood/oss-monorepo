@@ -53,7 +53,12 @@ export function depositSchedule(books, year, { schedule = null, asOf = null } = 
   const warnings = [];
   const lb = lookbackTotal(books, year);
   let sched = schedule ?? (lb.total > LOOKBACK_LIMIT ? "semiweekly" : "monthly");
-  const basis = schedule ? "given" : lb.runs === 0 ? "no payroll in the lookback period" : `lookback ${lb.total / 100} vs 50,000`;
+  let basis = schedule ? "given" : lb.runs === 0 ? "no payroll in the lookback period" : `lookback ${lb.total / 100} vs 50,000`;
+  // A monthly depositor who hit the $100,000 rule last year is semiweekly this year too.
+  if (!schedule && sched === "monthly" && (books.payroll ?? []).some((r) => r.date < `${year}-01-01`)) {
+    const prev = depositSchedule(books, year - 1);
+    if (prev.switchedOn) { sched = "semiweekly"; basis = `$100,000 next-day rule hit on ${prev.switchedOn} (semiweekly that year and the next)`; }
+  }
   if (!schedule && !lb.covered && (books.payroll ?? []).length) warnings.push(`The register starts after ${lb.from}, so the lookback total (${(lb.total / 100).toFixed(2)}) may be short; pass --schedule if you know your schedule from the IRS notice.`);
   const runs = (books.payroll ?? []).filter((r) => r.date >= `${year}-01-01` && r.date <= `${year}-12-31`);
   const plan = planPayroll(books);
@@ -64,12 +69,20 @@ export function depositSchedule(books, year, { schedule = null, asOf = null } = 
   // $100,000 rule: walk days, accumulating undeposited liability per period.
   const dues = [];   // { runs: [ids], amount, liabilityDates, due, rule }
   const mk = (rs, due, rule) => dues.push({ runs: rs.map((r) => r.id), from: rs[0].date, to: rs[rs.length - 1].date, amount: rs.reduce((a, r) => a + federalDeposit(r), 0), due, rule });
-  let nextDay = false;
+  let nextDay = false, switchedOn = null;
   const groups = new Map();
+  if (sched === "monthly") {      // the first day a month's liability reaches $100,000 turns a monthly depositor semiweekly
+    const acc = new Map();
+    for (const r of runs) {
+      const m = r.date.slice(0, 7);
+      acc.set(m, (acc.get(m) ?? 0) + federalDeposit(r));
+      if (acc.get(m) >= NEXT_DAY_LIMIT) { switchedOn = addDays(r.date, 1); break; }
+    }
+  }
   for (const r of runs) {
     const amt = federalDeposit(r);
     if (!amt) continue;
-    const key = sched === "monthly" ? r.date.slice(0, 7) : periodEnd(r.date);
+    const key = sched === "monthly" && (!switchedOn || r.date < switchedOn) ? r.date.slice(0, 7) : periodEnd(r.date);
     groups.set(key, [...(groups.get(key) ?? []), r]);
   }
   for (const [key, rs] of groups) {
@@ -80,11 +93,11 @@ export function depositSchedule(books, year, { schedule = null, asOf = null } = 
       if (acc >= NEXT_DAY_LIMIT) { flush("next-day ($100,000)", nextBusinessDay(addDays(r.date, 1))); nextDay = true; }
     }
     if (batch.length) {
-      if (sched === "monthly") flush("monthly", nextBusinessDay(`${addDays(`${key}-01`, 31).slice(0, 7)}-15`));
+      if (/^\d{4}-\d\d$/.test(key)) flush("monthly", nextBusinessDay(`${addDays(`${key}-01`, 31).slice(0, 7)}-15`));
       else flush("semiweekly", businessDaysAfter(key, 3));
     }
   }
-  if (nextDay && sched === "monthly") warnings.push("A $100,000 liability makes you a semiweekly depositor from that day for the rest of the year and the next; the months after it here are still shown as monthly.");
+  if (switchedOn) warnings.push(`A $100,000 liability makes a monthly depositor semiweekly from the next day (${switchedOn}) for the rest of the year and the next; liability after it is scheduled as semiweekly.`);
   dues.sort((a, b) => a.due.localeCompare(b.due));
 
   // De minimis: a quarter under $2,500 is paid with Form 941, no deposit due.
@@ -105,5 +118,5 @@ export function depositSchedule(books, year, { schedule = null, asOf = null } = 
     }
     if (d.status !== "on time" && asOf && d.due > asOf && !d.paid) d.status = "not due yet";
   }
-  return { year, schedule: sched, basis, lookback: lb, nextDay, deposits: dues, warnings };
+  return { year, schedule: sched, basis, lookback: lb, nextDay, switchedOn, deposits: dues, warnings };
 }
