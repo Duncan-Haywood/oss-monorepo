@@ -878,3 +878,5 @@ one per customer, part-payments, the `--min` cut); on the page (2026-10-22): und
 ### USAA CSV (2026-10-22)
 
 `bank.mjs` recognises the USAA checking export (`Date, Description, Original Description, Category, Amount, Status`): the cleaned Description is used, Pending rows are reported rather than imported. Written from memory of the layout and tested on a hand-made fixture (`fixtures/usaa-checking.csv`, `neobank.test.mjs`), not on a real download.
+
+- Legacy codepages, 2026-10-23 (`decodeBytes` in `textcodec.mjs`, `textcodec.test.mjs`): a file that is not UTF-8 and has no BOM used to be read as Windows-1252 always, so the page garbled a LITAS-ESIS `.acc` (cp1257) and Cyrillic exports (cp1251). It now recognises the ESIS header (`000<tab>YYYYMMDD<tab>`) as 1257 and a run of accent-only words as 1251, and takes an explicit `encoding` argument. Windows-1250 (Czech, Polish) shares too many letters with 1252 to guess and still needs the argument. Tested on byte arrays I encoded by hand, not on a real bank download.
