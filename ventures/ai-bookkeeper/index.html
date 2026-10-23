@@ -415,6 +415,7 @@
     import { scheduleC, scheduleCCsv, contractors1099, contractors1099Csv, nec1099FilingCsv, markW9, mergePayees } from "./taxforms.mjs";
     import { newBooks, importStatement, importOfxAccounts, categorize, suggestRules, addRules, addDocuments, writeOff, aging, addAsset, disposeAsset, register, addPrepaid, prepaidRegister, addInventoryMove, setInventoryMethod, inventoryRegister, salesTax, vatReturn, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, exportLines, status, analyze, fmt, DEFAULT_ACCOUNTS, taxableBusinessIncome, s179Carryforward } from "./engine.mjs";
     import { parseCents } from "./bank.mjs";
+    import { decodeBytes } from "./textcodec.mjs";
     import { pdfToText } from "./pdftext.mjs";
     import { setTaxTreatment, taxDepreciation, taxDepreciationCsv } from "./taxdepr.mjs";
     import { parseAccounts } from "./ledger.mjs";
@@ -973,7 +974,7 @@
         if (!text.trim()) throw new Error("This PDF has no text layer (a scan). Statements are not OCR'd; download the bank's CSV or OFX instead.");
         return text;
       }
-      return f ? await f.text() : $("#paste").value;
+      return f ? decodeBytes(await f.arrayBuffer()) : $("#paste").value;
     }
 
     // A multi-account OFX file: one select per account in the file, so each
@@ -982,7 +983,7 @@
     async function showOfxMap() {
       const f = $("#file").files[0];
       ofxParts = [];
-      if (f && !/\.pdf$/i.test(f.name)) { const text = await f.text(); if (sniffFormat(text) === "ofx") { const p = splitOfx(text); if (p.length > 1) ofxParts = p; } }
+      if (f && !/\.pdf$/i.test(f.name)) { const text = decodeBytes(await f.arrayBuffer()); if (sniffFormat(text) === "ofx") { const p = splitOfx(text); if (p.length > 1) ofxParts = p; } }
       $("#ofx-map").hidden = !ofxParts.length;
       if (!ofxParts.length) return;
       $("#ofx-map-note").textContent = `This file holds ${ofxParts.length} accounts. Choose the chart account each one goes to.`;
