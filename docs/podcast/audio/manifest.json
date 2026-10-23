@@ -27,6 +27,13 @@
     "script_sha256": "36ac0b2219dc5efe86c21230ac131fb2c13c894c0b8bfe1de898a721d6520196",
     "voice": "en_US-ljspeech-high"
   },
+  "2026-10-20-does-an-agent-fleet-need-a-manager-agent": {
+    "bytes": 1638501,
+    "seconds": 327.6,
+    "sha256": "0535a4e93072418e5643da9948f215fd6b43e9108e61facecc32f03f77f3502e",
+    "script_sha256": "dc2431cd6c668f159eecaa1f287d1f96de0246c0e9efb913a37ddc7c115e1a7e",
+    "voice": "en_US-ljspeech-high"
+  },
   "2026-10-20-engineered-clothing-cost-fit-comfort-open-models": {
     "bytes": 1853581,
     "seconds": 370.63,
