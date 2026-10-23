@@ -23,6 +23,14 @@ class UnguardedReads(unittest.TestCase):
             src = f"function {name}() {{\n  localStorage.getItem('k');\n}}\n"
             self.assertEqual(unguarded_reads(src), [2], name)
 
+    def test_try_preceded_by_identifier_chars_further_back_still_guards(self):
+        # Only the char directly before `try` decides; ones further back must not.
+        src = "ab;try { localStorage.getItem('k'); } catch {}\n"
+        self.assertEqual(unguarded_reads(src), [])
+
+    def test_line_number_when_source_starts_with_newline(self):
+        self.assertEqual(unguarded_reads("\nlocalStorage.getItem('k');\n"), [2])
+
     def test_comments_and_strings_are_ignored(self):
         src = '// localStorage throws\nconst k = "localStorage";\n'
         self.assertEqual(unguarded_reads(src), [])
