@@ -257,7 +257,13 @@ export function readOfx(text) {
     const bal = parseCents(lb[1]);
     if (Number.isFinite(bal)) last.balance = bal;
   }
-  if (!blocks.length) problems.push("No transactions (STMTTRN) were found in the OFX file.");
+  if (!blocks.length) {
+    // A failed download saves an error reply as a .ofx file; an investment-only file holds positions, not cash lines.
+    const status = /<STATUS>\s*<CODE>\s*(\d+)\s*<SEVERITY>\s*ERROR\s*(?:<MESSAGE>([^<]*))?/i.exec(text);
+    if (status && status[1] !== "0") problems.push(`The OFX file is an error reply from the bank (code ${status[1]}${status[2] ? `: ${status[2].trim()}` : ""}), not a statement. Download it again.`);
+    else if (/<(INVPOSLIST|INVTRANLIST|INVSTMTRS)>/i.test(text)) problems.push("This OFX file is an investment statement (positions and trades) with no cash transactions; investment lines are not booked.");
+    else problems.push("No transactions (STMTTRN) were found in the OFX file.");
+  }
   let statement = null;
   if (lb) {
     const d = /<LEDGERBAL>[\s\S]*?<DTASOF>\s*(\d{4})(\d{2})(\d{2})/i.exec(text);

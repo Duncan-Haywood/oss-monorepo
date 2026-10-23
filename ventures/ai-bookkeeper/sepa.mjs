@@ -17,7 +17,7 @@ export function isMt940(text) {
   return /^:20:/m.test(text) && /^:61:/m.test(text);
 }
 export function isCamt(text) {
-  return /<(\w+:)?BkToCstmrStmt[\s>]/.test(text) || /<(\w+:)?Ntry[\s>]/.test(text) && /camt\.0(53|52)/.test(text);
+  return /<(\w+:)?(BkToCstmrStmt|BkToCstmrAcctRpt|BkToCstmrDbtCdtNtfctn)[\s>]/.test(text) || /<(\w+:)?Ntry[\s>]/.test(text) && /camt\.0(53|52|54)/.test(text);
 }
 
 // Two-digit years: 70-99 are 19xx, the rest 20xx, which no live statement crosses.
@@ -78,8 +78,8 @@ export function readCamt(xml) {
   const s = strip(String(xml));
   const problems = [];
   const out = [];
-  const stmts = (s.match(/<Stmt[\s>]/g) ?? []).length;
-  if (stmts > 1) problems.push(`The file holds ${stmts} statements; all their lines were read into this one. Export one account at a time to keep them apart.`);
+  const stmts = (s.match(/<(Stmt|Rpt|Ntfctn)[\s>]/g) ?? []).length;
+  if (stmts > 1) problems.push(`The file holds ${stmts} statements or reports; all their lines were read into this one. Export one account at a time to keep them apart.`);
   const entries = [...s.matchAll(/<Ntry>([\s\S]*?)<\/Ntry>/g)].map((m) => m[1]);
   entries.forEach((e, i) => {
     const head = e.split(/<NtryDtls>/)[0];
@@ -98,7 +98,7 @@ export function readCamt(xml) {
     const desc = [party, remit || text(head, "AddtlNtryInf") || text(dtls, "AddtlTxInf")].filter(Boolean).filter((x, j, a) => a.indexOf(x) === j).join(" ");
     out.push({ line: i + 1, date, desc, cents: credit ? amt : -amt, balance: null });
   });
-  if (!entries.length) problems.push("No <Ntry> entries were found in the CAMT.053 file.");
+  if (!entries.length) problems.push("No <Ntry> entries were found in the CAMT file.");
   let statement = null;
   for (const m of s.matchAll(/<Bal>([\s\S]*?)<\/Bal>/g)) {
     if (!/<Cd>(CLBD|CLAV)<\/Cd>/.test(m[1]) || /<Cd>CLAV<\/Cd>/.test(m[1]) && statement) continue;
