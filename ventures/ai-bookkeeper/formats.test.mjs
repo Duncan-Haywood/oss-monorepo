@@ -2,7 +2,7 @@
 // once misread silently (found by probing, 2026-10-23).
 import test from "node:test";
 import assert from "node:assert/strict";
-import { parseCents, parseDate } from "./bank.mjs";
+import { parseCents, parseDate, readStatement } from "./bank.mjs";
 
 test("amounts: the last separator is the decimal point whatever the flag says", () => {
   for (const flag of [false, true]) {
@@ -60,4 +60,11 @@ test("Fidelity brokerage export: Run Date and Amount ($) headers are read", asyn
   assert.equal(r.bank, "fidelity");
   assert.equal(r.rows[0].cents, 1234);
   assert.equal(r.rows[0].date, "2026-10-01");
+});
+
+test("brokerage and Indian-style headers: Activity Date, Narration, Withdrawal Amt./Deposit Amt., Closing Balance", () => {
+  const rh = readStatement("Activity Date,Process Date,Settle Date,Instrument,Description,Trans Code,Quantity,Price,Amount\n10/01/2026,10/01/2026,10/02/2026,,ACH Deposit,ACH,,,\"$500.00\"\n");
+  assert.deepEqual(rh.rows.map((x) => [x.date, x.cents]), [["2026-10-01", 50000]]);
+  const ind = readStatement("Date,Narration,Withdrawal Amt.,Deposit Amt.,Closing Balance\n10/01/2026,GROCERY,45.10,,100.00\n10/02/2026,SALARY,,2000.00,2100.00\n");
+  assert.deepEqual(ind.rows.map((x) => x.cents), [-4510, 200000]);
 });
