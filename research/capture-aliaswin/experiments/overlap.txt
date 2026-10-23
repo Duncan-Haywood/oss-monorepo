@@ -1,0 +1,10 @@
+window 2 s, gamma 0.25, 0 dB nominal SNR (segment power / noise power); wrong = |error| > 2 ms
+shared = the clip audio both cameras hold in the window = clip[start+0.5 s, start+W-0.3 s] for a 0.8 s delay
+shared_snr_db = 10 log10(power of shared audio / noise power), median over right and over wrong windows
+clip n_right n_wrong median_shared_snr_right median_shared_snr_wrong wrong_below_-6dB wrong_above_-6dB
+soft 325 107 1.0 -3.6 nan 0.248
+untie 286 146 1.0 -0.9 nan 0.338
+space2 149 283 -0.1 -0.1 nan 0.655
+wallewal 319 113 0.5 0.2 nan 0.262
+applause 432 0 1.2 nan nan 0.000
+gong 432 0 0.2 nan nan 0.000

@@ -6,6 +6,8 @@
 
 import { isMt940, isCamt, readMt940, readCamt } from "./sepa.mjs";
 import { isBai2, readBai2 } from "./bai2.mjs";
+import { isN43, readN43 } from "./n43.mjs";
+import { isCfonb, readCfonb } from "./cfonb.mjs";
 import { readStatementText } from "./statementtext.mjs";
 
 const ALIASES = {
@@ -14,19 +16,33 @@ const ALIASES = {
     "datum", "buchungstag", "buchungsdatum", "valuta", "wertstellung", "date de l'opération", "date opération", "date operation", "fecha", "fecha operación", "fecha valor", "data", "data operazione", "data contabile", "data valuta", "boekdatum", "transactiedatum"],
   desc: ["description", "transaction description", "payee", "merchant", "name", "details", "original description", "memo", "posting details", "narrative", "counter party", "counterparty", "narration", "reference", "partner name", "note",
     "beschreibung", "verwendungszweck", "buchungstext", "beguenstigter/zahlungspflichtiger", "begünstigter/zahlungspflichtiger", "libellé", "libelle", "descripción", "descripcion", "concepto", "descrizione", "causale", "omschrijving", "naam / omschrijving", "paaiškinimai"],
-  amount: ["amount", "amount (total)", "transaction amount", "amt", "value", "amount (usd)", "amount ($)", "amount (gbp)", "amount (eur)", "cad$", "betrag", "betrag (eur)", "montant", "importe", "importo", "bedrag", "net", "suma"],
+  amount: ["amount", "amount (total)", "transaction amount", "amt", "value", "amount (usd)", "amount ($)", "amount (gbp)", "amount (eur)", "bedrag (eur)", "cad$", "betrag", "betrag (eur)", "montant", "importe", "importo", "bedrag", "net", "suma"],
   debit: ["debit", "debits", "withdrawal", "withdrawals", "withdrawal amt.", "withdrawal amt", "withdrawal amount", "withdrawal (-)", "withdrawals (-)", "debit (-)", "money out", "paid out", "amount debit", "debit amount", "debit amount (positive)", "outflow", "soll", "débit", "debit (eur)", "cargo", "dare", "uscite"],
   credit: ["credit", "credits", "deposit", "deposits", "deposit amt.", "deposit amt", "deposit amount", "deposit (+)", "deposits (+)", "credit (+)", "money in", "paid in", "amount credit", "credit amount", "credit amount (positive)", "inflow", "haben", "crédit", "credito", "crédito", "abono", "avere", "entrate"],
   balance: ["balance", "running balance", "runningbalance", "running bal.", "ledger balance", "closing balance", "balance (gbp)", "balance (eur)", "balance (usd)", "saldo", "kontostand", "solde", "saldo (eur)"],
 };
 
+// The delimiter is the one that splits most of the first lines into the same
+// number of fields, so a one-line preamble ("Account summary") or a prose line
+// with a comma above the header does not decide it. The comma wins ties.
+function pickDelimiter(s) {
+  const lines = s.split(/\r\n|\r|\n/).filter((l) => l.trim() !== "").slice(0, 20);
+  let best = ",", bestScore = -1;
+  for (const d of [",", ";", "\t"]) {
+    const freq = new Map();
+    for (const l of lines) { const n = l.replace(/"[^"]*"/g, "").split(d).length; if (n > 1) freq.set(n, (freq.get(n) ?? 0) + 1); }
+    let score = 0;
+    for (const [n, f] of freq) score = Math.max(score, f * 1000 + n);
+    if (score > bestScore) { best = d; bestScore = score; }
+  }
+  return best;
+}
+
 // RFC 4180 CSV: quoted fields, doubled quotes, CRLF, a BOM, and a ; or tab
 // delimiter when the header has more of those than commas.
 export function parseCsv(text) {
   const s = String(text ?? "").replace(/^﻿/, "");
-  const head = s.slice(0, s.indexOf("\n") === -1 ? s.length : s.indexOf("\n"));
-  const counts = [",", ";", "\t"].map((d) => [d, head.split(d).length]);
-  const delim = counts.sort((a, b) => b[1] - a[1])[0][0];
+  const delim = pickDelimiter(s);
   const rows = [];
   let row = [], field = "", quoted = false;
   for (let i = 0; i < s.length; i++) {
@@ -74,18 +90,30 @@ export function parseCents(v, decimalComma = false) {
 
 // ISO, M/D/Y or D/M/Y (dayFirst), with 2- or 4-digit years, or "12 Mar 2026".
 const MONTHS = { jan: 1, feb: 2, mar: 3, apr: 4, may: 5, jun: 6, jul: 7, aug: 8, sep: 9, oct: 10, nov: 11, dec: 12 };
+// German, French, Spanish, Italian, Dutch and Portuguese month words (accents
+// stripped, lower case) by their first three letters; the ones that differ from
+// English are listed here. "juin" and "juil" share a prefix, so a word
+// starting "juil" is July and "juin" June.
+const MONTH_WORDS = { gen: 1, aou: 8, ene: 1, fev: 2, mrz: 3, mrt: 3, abr: 4, avr: 4, mai: 5, mei: 5, mag: 5, giu: 6, lug: 7, ago: 8, set: 9, okt: 10, ott: 10, out: 10, dez: 12, dic: 12 };
+const monthOf = (word) => {
+  const w = word.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase();
+  if (/^juil/.test(w)) return 7;
+  if (/^juin/.test(w)) return 6;
+  const k = w.slice(0, 3);
+  return MONTHS[k] || MONTH_WORDS[k] || undefined;
+};
 export function parseDate(v, dayFirst = false) {
-  const s = String(v ?? "").trim().replace(/^(?:mon|tue|wed|thu|fri|sat|sun)[a-z]*\.?,?\s+/i, "").replace(/^(\d{1,2})(?:st|nd|rd|th)\b/i, "$1").replace(/^(\d{1,2})([A-Za-z]{3})(\d{2,4})\b/, "$1 $2 $3");
+  const s = String(v ?? "").trim().replace(/^(?:mon|tue|wed|thu|fri|sat|sun)[a-z]*\.?,?\s+/i, "").replace(/^(\d{1,2})(?:st|nd|rd|th)\b/i, "$1").replace(/^(\d{1,2})([A-Za-z]{3})(\d{2,4})\b/, "$1 $2 $3").replace(/^(\d{1,2})\.\s*(?=\p{L})/u, "$1 ").replace(/^(\d{1,2}) de (\p{L}+) de (\d)/u, "$1 $2 $3");
   let y, m, d, x;
   if ((x = s.match(/^(\d{4})(\d{2})(\d{2})(?!\d)/))) [y, m, d] = [+x[1], +x[2], +x[3]];
   else if ((x = s.match(/^(\d{4})[-/.:](\d{1,2})[-/.:](\d{1,2})/))) [y, m, d] = [+x[1], +x[2], +x[3]];
   else if ((x = s.match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{2,4})/))) {
     [m, d] = dayFirst ? [+x[2], +x[1]] : [+x[1], +x[2]];
     y = +x[3] < 100 ? 2000 + +x[3] : +x[3];
-  } else if ((x = s.match(/^(\d{1,2})[ -]([A-Za-z]{3})[A-Za-z]*[ ,-]+(\d{2,4})/))) {
-    [d, m, y] = [+x[1], MONTHS[x[2].toLowerCase()], +x[3] < 100 ? 2000 + +x[3] : +x[3]];
-  } else if ((x = s.match(/^([A-Za-z]{3})[A-Za-z]* (\d{1,2}),? (\d{4})/))) {
-    [m, d, y] = [MONTHS[x[1].toLowerCase()], +x[2], +x[3]];
+  } else if ((x = s.match(/^(\d{1,2})[ -](\p{L}{3}\p{L}*)\.?[ ,-]+(\d{2,4})/u))) {
+    [d, m, y] = [+x[1], monthOf(x[2]), +x[3] < 100 ? 2000 + +x[3] : +x[3]];
+  } else if ((x = s.match(/^(\p{L}{3}\p{L}*)\.? (\d{1,2}),? (\d{4})/u))) {
+    [m, d, y] = [monthOf(x[1]), +x[2], +x[3]];
   }
   if (!y || !m || !d || m > 12 || d > 31) return null;
   const dt = new Date(Date.UTC(y, m - 1, d));
@@ -281,6 +309,8 @@ export function sniffFormat(text) {
   if (isCamt(text)) return "camt053";
   if (isMt940(text)) return "mt940";
   if (isBai2(text)) return "bai2";
+  if (isN43(text)) return "n43";
+  if (isCfonb(text)) return "cfonb";
   const head = text.slice(0, 2000);
   if (/<OFX>|OFXHEADER:|<STMTTRN>/i.test(head) || /<STMTTRN>/i.test(text)) return "ofx";
   if (/^\s*!(Type|Account|Option)/im.test(head)) return "qif";
@@ -542,6 +572,8 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
     return r;
   }
   if (format === "bai2") { const r = readBai2(text); if (invert === true) for (const x of r.rows) x.cents = -x.cents; return r; }
+  if (format === "n43") { const r = readN43(text); if (invert === true) for (const x of r.rows) x.cents = -x.cents; return r; }
+  if (format === "cfonb") { const r = readCfonb(text); if (invert === true) for (const x of r.rows) x.cents = -x.cents; return r; }
   if (format === "ofx") return readOfx(text);
   if (format === "esis") return readEsis(text);
   if (format === "gpc") return readGpc(text);
@@ -580,7 +612,7 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
   }
   // A DR/CR (or Debit/Credit) marker column beside one unsigned amount column.
   const hdr0 = headerAt === -1 ? [] : rows[headerAt].map(norm);
-  let drcrCol = columns.amount !== -1 ? hdr0.findIndex((x) => /^(d ?\/ ?k|dr ?\/ ?cr|cr ?\/ ?dr|debit ?\/ ?credit|credit ?\/ ?debit|dr or cr|cr or dr|(?:credit ?\/? ?debit|debit ?\/? ?credit|cr ?\/? ?dr|dr ?\/? ?cr) indicator|(?:credit|debit) or (?:debit|credit) indicator)$/.test(x)) : -1;
+  let drcrCol = columns.amount !== -1 ? hdr0.findIndex((x) => /^(d ?\/ ?k|af ?\/? ?bij|credit ?\/? ?debet|debet ?\/? ?credit|soll ?\/? ?haben|dr ?\/ ?cr|cr ?\/ ?dr|debit ?\/ ?credit|credit ?\/ ?debit|dr or cr|cr or dr|(?:credit ?\/? ?debit|debit ?\/? ?credit|cr ?\/? ?dr|dr ?\/? ?cr) indicator|(?:credit|debit) or (?:debit|credit) indicator)$/.test(x)) : -1;
   if (hl?.drcr > -1) drcrCol = hl.drcr;
   if (hl?.note) problems.push(hl.note);
   // Or a plain Type column holding DEBIT/CREDIT (Deposit/Withdrawal) words beside an
@@ -647,8 +679,8 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
     if (!Number.isFinite(cents)) { problems.push(`Line ${i + 1}: unreadable amount, skipped.`); continue; }
     if (drcrCol !== -1) {
       const m = String(r[drcrCol] ?? "").trim().toLowerCase();
-      if (/^(dr|d|debit|withdrawal)$/.test(m)) cents = -Math.abs(cents);
-      else if (/^(cr|c|k|credit|deposit)$/.test(m)) cents = Math.abs(cents);
+      if (/^(dr|d|debit|debet|af|soll|s|withdrawal)$/.test(m)) cents = -Math.abs(cents);
+      else if (/^(cr|c|k|credit|bij|haben|h|deposit)$/.test(m)) cents = Math.abs(cents);
     }
     if (feeCol !== -1) { const fee = parseCents(r[feeCol], decimalComma); if (Number.isFinite(fee)) cents -= Math.abs(fee); }
     if (cents === 0) {

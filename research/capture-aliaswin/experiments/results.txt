@@ -1,0 +1,213 @@
+0 dB white noise, 432 windows per clip and cell (12 seeds x 3 cameras x 12 windows); wrong = |error| > 2 ms;
+alias = wrong and within 0.5 ms of k x the clip's autocorrelation period (k 1..8); gross = other wrong.
+prior 'none' = delay searched over +-1.5 s; a number = +-that many ms around the TRUE delay (oracle prior, a ceiling).
+
+A. clip window_s gamma prior_ms ok alias gross
+applause 1 0 none 0.995 0.000 0.005
+applause 1 0.25 none 0.995 0.000 0.005
+applause 1 0.5 none 0.995 0.000 0.005
+applause 1 1 none 0.981 0.000 0.019
+applause 2 0 none 1.000 0.000 0.000
+applause 2 0.25 none 1.000 0.000 0.000
+applause 2 0.5 none 1.000 0.000 0.000
+applause 2 1 none 1.000 0.000 0.000
+applause 3 0 none 1.000 0.000 0.000
+applause 3 0.25 none 1.000 0.000 0.000
+applause 3 0.5 none 1.000 0.000 0.000
+applause 3 1 none 1.000 0.000 0.000
+applause 1 0.25 50 1.000 0.000 0.000
+applause 1 0.25 10 1.000 0.000 0.000
+applause 2 0.25 50 1.000 0.000 0.000
+applause 2 0.25 10 1.000 0.000 0.000
+applause 3 0.25 50 1.000 0.000 0.000
+applause 3 0.25 10 1.000 0.000 0.000
+drama 1 0 none 0.220 0.000 0.780
+drama 1 0.25 none 0.322 0.000 0.678
+drama 1 0.5 none 0.292 0.000 0.708
+drama 1 1 none 0.116 0.000 0.884
+drama 2 0 none 1.000 0.000 0.000
+drama 2 0.25 none 1.000 0.000 0.000
+drama 2 0.5 none 1.000 0.000 0.000
+drama 2 1 none 0.938 0.000 0.062
+drama 3 0 none 1.000 0.000 0.000
+drama 3 0.25 none 1.000 0.000 0.000
+drama 3 0.5 none 1.000 0.000 0.000
+drama 3 1 none 1.000 0.000 0.000
+drama 1 0.25 50 0.822 0.005 0.174
+drama 1 0.25 10 0.958 0.000 0.042
+drama 2 0.25 50 1.000 0.000 0.000
+drama 2 0.25 10 1.000 0.000 0.000
+drama 3 0.25 50 1.000 0.000 0.000
+drama 3 0.25 10 1.000 0.000 0.000
+falling 1 0 none 0.000 0.049 0.951
+falling 1 0.25 none 0.005 0.030 0.965
+falling 1 0.5 none 0.000 0.002 0.998
+falling 1 1 none 0.000 0.000 1.000
+falling 2 0 none 1.000 0.000 0.000
+falling 2 0.25 none 1.000 0.000 0.000
+falling 2 0.5 none 1.000 0.000 0.000
+falling 2 1 none 0.477 0.002 0.521
+falling 1 0.25 50 0.324 0.150 0.525
+falling 1 0.25 10 0.873 0.000 0.127
+falling 2 0.25 50 1.000 0.000 0.000
+falling 2 0.25 10 1.000 0.000 0.000
+gong 1 0 none 0.525 0.000 0.475
+gong 1 0.25 none 0.644 0.000 0.356
+gong 1 0.5 none 0.620 0.000 0.380
+gong 1 1 none 0.227 0.000 0.773
+gong 2 0 none 1.000 0.000 0.000
+gong 2 0.25 none 1.000 0.000 0.000
+gong 2 0.5 none 1.000 0.000 0.000
+gong 2 1 none 1.000 0.000 0.000
+gong 3 0 none 1.000 0.000 0.000
+gong 3 0.25 none 1.000 0.000 0.000
+gong 3 0.5 none 1.000 0.000 0.000
+gong 3 1 none 1.000 0.000 0.000
+gong 1 0.25 50 0.995 0.000 0.005
+gong 1 0.25 10 0.998 0.000 0.002
+gong 2 0.25 50 1.000 0.000 0.000
+gong 2 0.25 10 1.000 0.000 0.000
+gong 3 0.25 50 1.000 0.000 0.000
+gong 3 0.25 10 1.000 0.000 0.000
+roll 1 0 none 0.859 0.000 0.141
+roll 1 0.25 none 0.824 0.000 0.176
+roll 1 0.5 none 0.713 0.000 0.287
+roll 1 1 none 0.373 0.000 0.627
+roll 2 0 none 1.000 0.000 0.000
+roll 2 0.25 none 1.000 0.000 0.000
+roll 2 0.5 none 1.000 0.000 0.000
+roll 2 1 none 1.000 0.000 0.000
+roll 3 0 none 1.000 0.000 0.000
+roll 3 0.25 none 1.000 0.000 0.000
+roll 3 0.5 none 1.000 0.000 0.000
+roll 3 1 none 1.000 0.000 0.000
+roll 1 0.25 50 1.000 0.000 0.000
+roll 1 0.25 10 1.000 0.000 0.000
+roll 2 0.25 50 1.000 0.000 0.000
+roll 2 0.25 10 1.000 0.000 0.000
+roll 3 0.25 50 1.000 0.000 0.000
+roll 3 0.25 10 1.000 0.000 0.000
+romans 1 0 none 0.819 0.000 0.181
+romans 1 0.25 none 0.870 0.000 0.130
+romans 1 0.5 none 0.898 0.000 0.102
+romans 1 1 none 0.519 0.000 0.481
+romans 2 0 none 1.000 0.000 0.000
+romans 2 0.25 none 1.000 0.000 0.000
+romans 2 0.5 none 1.000 0.000 0.000
+romans 2 1 none 1.000 0.000 0.000
+romans 3 0 none 1.000 0.000 0.000
+romans 3 0.25 none 1.000 0.000 0.000
+romans 3 0.5 none 1.000 0.000 0.000
+romans 3 1 none 1.000 0.000 0.000
+romans 1 0.25 50 0.938 0.005 0.058
+romans 1 0.25 10 0.963 0.000 0.037
+romans 2 0.25 50 1.000 0.000 0.000
+romans 2 0.25 10 1.000 0.000 0.000
+romans 3 0.25 50 1.000 0.000 0.000
+romans 3 0.25 10 1.000 0.000 0.000
+soft 1 0 none 0.002 0.000 0.998
+soft 1 0.25 none 0.093 0.000 0.907
+soft 1 0.5 none 0.331 0.000 0.669
+soft 1 1 none 0.301 0.000 0.699
+soft 2 0 none 0.593 0.000 0.407
+soft 2 0.25 none 0.752 0.000 0.248
+soft 2 0.5 none 0.891 0.000 0.109
+soft 2 1 none 0.819 0.000 0.181
+soft 3 0 none 1.000 0.000 0.000
+soft 3 0.25 none 1.000 0.000 0.000
+soft 3 0.5 none 1.000 0.000 0.000
+soft 3 1 none 1.000 0.000 0.000
+soft 1 0.25 50 0.632 0.192 0.176
+soft 1 0.25 10 0.942 0.000 0.058
+soft 2 0.25 50 1.000 0.000 0.000
+soft 2 0.25 10 1.000 0.000 0.000
+soft 3 0.25 50 1.000 0.000 0.000
+soft 3 0.25 10 1.000 0.000 0.000
+space2 1 0 none 0.000 0.000 1.000
+space2 1 0.25 none 0.000 0.002 0.998
+space2 1 0.5 none 0.000 0.000 1.000
+space2 1 1 none 0.000 0.000 1.000
+space2 2 0 none 0.370 0.630 0.000
+space2 2 0.25 none 0.345 0.655 0.000
+space2 2 0.5 none 0.289 0.694 0.016
+space2 2 1 none 0.002 0.009 0.988
+space2 3 0 none 0.484 0.516 0.000
+space2 3 0.25 none 0.380 0.620 0.000
+space2 3 0.5 none 0.303 0.697 0.000
+space2 3 1 none 0.056 0.141 0.803
+space2 1 0.25 50 0.083 0.831 0.086
+space2 1 0.25 10 0.859 0.000 0.141
+space2 2 0.25 50 0.345 0.655 0.000
+space2 2 0.25 10 1.000 0.000 0.000
+space2 3 0.25 50 0.380 0.620 0.000
+space2 3 0.25 10 1.000 0.000 0.000
+untie 1 0 none 0.019 0.035 0.947
+untie 1 0.25 none 0.019 0.021 0.961
+untie 1 0.5 none 0.014 0.007 0.979
+untie 1 1 none 0.000 0.000 1.000
+untie 2 0 none 0.382 0.000 0.618
+untie 2 0.25 none 0.662 0.000 0.338
+untie 2 0.5 none 0.764 0.002 0.234
+untie 2 1 none 0.118 0.000 0.882
+untie 3 0 none 1.000 0.000 0.000
+untie 3 0.25 none 1.000 0.000 0.000
+untie 3 0.5 none 1.000 0.000 0.000
+untie 3 1 none 0.778 0.002 0.220
+untie 1 0.25 50 0.435 0.266 0.299
+untie 1 0.25 10 0.773 0.000 0.227
+untie 2 0.25 50 1.000 0.000 0.000
+untie 2 0.25 10 1.000 0.000 0.000
+untie 3 0.25 50 1.000 0.000 0.000
+untie 3 0.25 10 1.000 0.000 0.000
+wallewal 1 0 none 0.000 0.000 1.000
+wallewal 1 0.25 none 0.000 0.000 1.000
+wallewal 1 0.5 none 0.000 0.000 1.000
+wallewal 1 1 none 0.000 0.000 1.000
+wallewal 2 0 none 0.824 0.095 0.081
+wallewal 2 0.25 none 0.738 0.118 0.144
+wallewal 2 0.5 none 0.398 0.069 0.532
+wallewal 2 1 none 0.016 0.000 0.984
+wallewal 3 0 none 0.984 0.016 0.000
+wallewal 3 0.25 none 0.970 0.030 0.000
+wallewal 3 0.5 none 0.949 0.044 0.007
+wallewal 3 1 none 0.296 0.028 0.676
+wallewal 1 0.25 50 0.354 0.213 0.433
+wallewal 1 0.25 10 0.713 0.000 0.287
+wallewal 2 0.25 50 0.852 0.139 0.009
+wallewal 2 0.25 10 0.995 0.000 0.005
+wallewal 3 0.25 50 0.970 0.030 0.000
+wallewal 3 0.25 10 1.000 0.000 0.000
+
+B. mean wrong share over all 10 clips and over the 4 failing clips (soft space2 untie wallewal)
+window_s gamma prior_ms wrong_all wrong_4   (3 s windows: 9 clips, `falling` is 3.94 s and too short)
+1 0 none 0.656 0.995
+1 0.25 none 0.623 0.972
+1 0.5 none 0.614 0.914
+1 1 none 0.748 0.925
+2 0 none 0.183 0.458
+2 0.25 none 0.150 0.376
+2 0.5 none 0.166 0.414
+2 1 none 0.363 0.761
+3 0 none 0.059 0.133
+3 0.25 none 0.072 0.163
+3 0.5 none 0.083 0.187
+3 1 none 0.208 0.468
+1 0.25 50 0.342 0.624
+1 0.25 10 0.092 0.178
+2 0.25 50 0.080 0.201
+2 0.25 10 0.000 0.001
+3 0.25 50 0.072 0.163
+3 0.25 10 0.000 0.000
+
+C. wrong share by window start (s): first half second / 0.5 to 1 s / later; window 2 s, gamma 0.25, no prior
+clip n_first n_mid n_late wrong_first wrong_mid wrong_late
+applause 193 200 39 0.000 0.000 0.000
+drama 46 50 336 0.000 0.000 0.000
+falling 229 203 0 0.000 0.000 nan
+gong 39 40 353 0.000 0.000 0.000
+roll 89 84 259 0.000 0.000 0.000
+romans 193 200 39 0.000 0.000 0.000
+soft 180 176 76 0.594 0.000 0.000
+space2 165 154 113 0.661 0.714 0.566
+untie 167 161 104 0.772 0.106 0.000
+wallewal 128 123 181 0.172 0.195 0.370

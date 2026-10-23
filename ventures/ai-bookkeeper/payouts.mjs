@@ -81,6 +81,7 @@ export function readPayoutReport(text) {
   const col = Object.fromEntries(Object.entries(ALIASES).map(([k, names]) => [k, names.map((n) => head.indexOf(n)).find((i) => i !== -1) ?? -1]));
   // Square's dashboard export has Gross Sales (before tax and tip) and Total Collected; Fees and Net Total are on the latter.
   if (head.includes("total_collected") && head.includes("net_total")) col.gross = head.indexOf("total_collected");
+  const squareSplit = head.includes("total_collected") && head.includes("net_total") && (head.includes("tax") || head.includes("tip"));
   for (const need of ["gross", "net", "category"]) if (col[need] === -1) throw new Error(`No "${need}" column: the report needs payout id, payout date, category, gross, fee and net columns.`);
   if (col.payout === -1 && head.includes("transaction_id") && head.includes("status") && head.includes("type")) return readPaypal(table, head);
   if (col.payout === -1) throw new Error('No payout id column (Stripe: "automatic_payout_id"). Export the payout reconciliation report, not the plain payments list.');
@@ -96,7 +97,15 @@ export function readPayoutReport(text) {
     if ([gross, net, fee].some((v) => v === null || Number.isNaN(v))) { problems.push(`Row ${n + 2}: cannot read the amounts.`); return; }
     if (net !== gross - fee) { problems.push(`Row ${n + 2}: net ${fmt(net)} is not gross ${fmt(gross)} less fee ${fmt(fee)}.`); return; }
     const category = key(at("category"));
-    rows.push({ row: n + 2, id: at("id") || `row${n + 2}`, payout: at("payout"), payoutDate: parseDate(at("payoutDate")), created: parseDate(at("created")), category, kind: CATEGORY[category] ?? "other", gross, fee, net, desc: at("desc") });
+    const base = { row: n + 2, id: at("id") || `row${n + 2}`, payout: at("payout"), payoutDate: parseDate(at("payoutDate")), created: parseDate(at("created")), category, kind: CATEGORY[category] ?? "other", gross, fee, net, desc: at("desc") };
+    // Square's Total Collected is net sales + tax + tip: tax is owed to the state and a tip to staff, neither is sales.
+    const part = (name) => { const i = head.indexOf(name); return squareSplit && i !== -1 ? parseCents(String(r[i] ?? "")) || 0 : 0; };
+    const tax = part("tax"), tip = part("tip");
+    if ((base.kind === "sales" || base.kind === "refunds") && (tax || tip)) {
+      rows.push({ ...base, gross: gross - tax - tip, net: gross - tax - tip - fee });
+      if (tax) rows.push({ ...base, id: `${base.id}:tax`, kind: "tax", gross: tax, fee: 0, net: tax });
+      if (tip) rows.push({ ...base, id: `${base.id}:tip`, kind: "tips", gross: tip, fee: 0, net: tip });
+    } else rows.push(base);
   });
   const by = new Map();
   const pending = [];
@@ -397,8 +406,8 @@ function partsOf(payout, roles) {
 }
 
 // Match each payout to a bank line. Roles are account codes; override any.
-export function planPayouts(books, report, { sales = "4000", refunds = "4000", fees = "6010", disputes = "6010", other = "4100", tax = "2100", ads = "6000", reserve = "1200", window = [-2, 7] } = {}) {
-  const roles = { sales, refunds, fees, disputes, other, tax, ads, reserve };
+export function planPayouts(books, report, { sales = "4000", refunds = "4000", fees = "6010", disputes = "6010", other = "4100", tax = "2100", ads = "6000", reserve = "1200", tips = sales, window = [-2, 7] } = {}) {
+  const roles = { sales, refunds, fees, disputes, other, tax, ads, reserve, tips };
   const codes = new Set(books.accounts.map((a) => a.code));
   const used = new Set(report.payouts.flatMap((p) => p.rows.map((x) => x.kind)));
   for (const [r, c] of Object.entries(roles)) if (!codes.has(c) && (r !== "tax" && r !== "ads" && r !== "reserve" || used.has(r))) throw new Error(`No account ${c} in the chart of accounts (for ${r}).`);
