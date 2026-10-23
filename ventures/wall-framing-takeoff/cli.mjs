@@ -91,7 +91,7 @@ export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "u
   if (flags.has("--roof") || plan.roof) {
     if (!plan.roof) return { code: 2, out: "The plan has no `roof` object (width, length, pitch, rafter, spacing)." };
     for (const k of ["width", "length", "overhang", "gableOverhang", "ceilingBearing", "collarDrop"]) if (typeof plan.roof[k] === "string") plan.roof[k] = parseLength(plan.roof[k]);
-    if (plan.roof.wing) for (const k of ["width", "projection", "at"]) if (typeof plan.roof.wing[k] === "string") plan.roof.wing[k] = parseLength(plan.roof.wing[k]);
+    for (const wg of [plan.roof.wing, plan.roof.wing2]) if (wg) for (const k of ["width", "projection", "at"]) if (typeof wg[k] === "string") wg[k] = parseLength(wg[k]);
     roof = layoutRoof(plan.roof, plan);
     if (!roof.ok) return { code: 1, out: `The roof has problems:\n${roof.errors.map((e) => `  - ${e}`).join("\n")}` };
   }
