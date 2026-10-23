@@ -47,3 +47,11 @@ test("a purchases-only card file with positive amounts books as charges", async 
   const chk = importStatement(newBooks(), csv, "1000");
   assert.deepEqual(chk.books.transactions.map((t) => t.cents), [3633, 1398]);
 });
+
+test("an OFX error reply or an investment-only file says what it is, not 'no transactions'", () => {
+  const err = readOfx("<OFX><SIGNONMSGSRSV1><SONRS><STATUS><CODE>15500<SEVERITY>ERROR<MESSAGE>Your password was incorrect</STATUS><DTSERVER>20130325</SONRS></SIGNONMSGSRSV1></OFX>");
+  assert.match(err.problems[0], /error reply.*15500.*password was incorrect/);
+  const inv = readOfx("<OFX><INVSTMTMSGSRSV1><INVSTMTTRNRS><INVSTMTRS><INVPOSLIST></INVPOSLIST></INVSTMTRS></INVSTMTTRNRS></INVSTMTMSGSRSV1></OFX>");
+  assert.match(inv.problems[0], /investment statement/);
+  assert.match(readOfx("<OFX></OFX>").problems[0], /No transactions/);
+});
