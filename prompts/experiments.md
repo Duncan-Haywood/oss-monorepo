@@ -1157,3 +1157,17 @@ or `ventures`) until its success rate passes 80% over 20 runs?
   too few runs). `derived/` regenerated (50 PRs). No audit or drift report
   (reduced pass).
 - Result: (next review)
+
+## E72: review 2026-10-23 (reduced pass)
+
+- Change: `.github/prompts/cloud-session.md` "Python and tests" gained a
+  3-line fallback for when `pyenv.py` fails (PEP 668, import name differing
+  from the pip name): a plain venv, in the background.
+- Metric: friction reports against `platform/ci/pyenv.py` or
+  `research/CLAUDE.md` about pyenv/PEP 668 failures, over the next 40 runs
+  (baseline: 5 recent on pyenv.py, 3 on research/CLAUDE.md today).
+- Decisions: research candidate 1 kept (retire verdict fires on 1/158 vs 5/799
+  integrity issues, 0.0063 vs 0.0063, not a real gap; E55 proposal stands).
+  ventures 2, process 2 and review 2 unchanged (overlap / too few runs).
+  `derived/` regenerated. No audit or drift report (reduced pass).
+- Result: (next review)
