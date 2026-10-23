@@ -7,8 +7,8 @@
 // paid, spread over the due dates still ahead. A worksheet, not a filing.
 //
 // The bracket tables below are typed from memory of IRS Rev. Proc. 2024-40 (2025) and
-// 2025-32 (2026). The 2026 table was compared 2026-10-23 with published reports of the Rev. Proc.
-// (not the IRS text; irs.gov is unreachable from the build sandbox), the 2025 table is unchecked; every result warns;
+// 2025-32 (2026). The 2026 table was checked 2026-10-23 against the IRS text of Rev. Proc. 2025-32
+// (irs.gov/pub/irs-drop/rp-25-32.pdf: tables 1-3, standard deductions, QBI thresholds); the 2025 table is unchecked; every result warns;
 // pass `brackets` and `standardDeduction` to override. Dollar amounts are cents.
 import { scheduleC, selfEmployment, estimatedDueDates } from "./taxforms.mjs";
 
@@ -31,7 +31,12 @@ export const BRACKETS = {
 // Additional Medicare Tax (Form 8959): 0.9% of wages plus self-employment earnings above
 // a threshold fixed by statute (not indexed) by filing status; mfs is not modelled.
 export const ADDL_MEDICARE_THRESHOLD = { single: D(200000), hoh: D(200000), mfj: D(250000) };
-const QBI_LIMIT = { single: D(197300), hoh: D(197300), mfj: D(394600) };
+// Section 199A threshold amounts: 2025 Rev. Proc. 2024-40 (from memory), 2026 Rev. Proc. 2025-32
+// section 3.26 (read on irs.gov 2026-10-23).
+const QBI_LIMIT = {
+  2025: { single: D(197300), hoh: D(197300), mfj: D(394600) },
+  2026: { single: D(201750), hoh: D(201750), mfj: D(403500) },
+};
 
 export function bracketTax(taxable, brackets) {
   let tax = 0, lo = 0;
@@ -60,12 +65,12 @@ export function estimatedTax(books, o = {}) {
   const se = selfEmployment(profit, { year, wages, wageBase: o.wageBase });
   const table = o.brackets ? { std: o.standardDeduction ?? 0, b: o.brackets } : BRACKETS[year]?.[filing];
   if (!table) throw new Error(`No ${filing} brackets on file for ${year}; pass brackets (and standardDeduction).`);
-  if (!o.brackets) warnings.push(year === 2026 ? `The 2026 brackets and standard deductions match several published reports of Rev. Proc. 2025-32 (compared 2026-10-23), not the IRS text itself; confirm them on irs.gov or pass brackets.` : `The ${year} brackets and standard deduction are from memory and unchecked; confirm them on irs.gov or pass brackets.`);
+  if (!o.brackets) warnings.push(year === 2026 ? `The 2026 brackets and standard deductions match the IRS text of Rev. Proc. 2025-32 (checked 2026-10-23); confirm they are still current or pass brackets.` : `The ${year} brackets and standard deduction are from memory and unchecked; confirm them on irs.gov or pass brackets.`);
   const std = o.standardDeduction ?? table.std;
   const agi = profit - se.deduction + wages + other;
   const beforeQbi = Math.max(0, agi - std);
   const qbiDeduction = o.qbi === false || profit <= 0 ? 0 : Math.min(Math.round(0.2 * Math.max(0, profit - se.deduction)), Math.round(0.2 * beforeQbi));
-  if (qbiDeduction && beforeQbi > (QBI_LIMIT[filing] ?? Infinity)) warnings.push("Taxable income is above the QBI threshold, where the 20% deduction may be limited or lost; treat the figure as a ceiling on the deduction.");
+  if (qbiDeduction && beforeQbi > ((QBI_LIMIT[year] ?? QBI_LIMIT[2026])[filing] ?? Infinity)) warnings.push("Taxable income is above the QBI threshold, where the 20% deduction may be limited or lost; treat the figure as a ceiling on the deduction.");
   const taxable = Math.max(0, beforeQbi - qbiDeduction);
   const incomeTax = bracketTax(taxable, table.b);
   // Part II of Form 8959: the SE threshold is lowered by wages, which count first.

@@ -71,7 +71,7 @@ test("unknown year needs brackets, and unchecked tables carry a warning", () => 
   const r = estimatedTax(books("1000.00"), { year: 2031, brackets: [[Infinity, 0.1]], standardDeduction: 0 });
   assert.ok(r.incomeTax >= 0);
   assert.ok(estimatedTax(books("1000.00"), { year: 2025 }).warnings.some((w) => /from memory/.test(w)));
-  assert.ok(estimatedTax(books("1000.00"), { year: 2026 }).warnings.some((w) => /not the IRS text/.test(w)));
+  assert.ok(estimatedTax(books("1000.00"), { year: 2026 }).warnings.some((w) => /match the IRS text of Rev. Proc. 2025-32/.test(w)));
 });
 
 test("Additional Medicare Tax: 0.9% of earnings over $200,000, wages counting first", () => {
@@ -106,6 +106,15 @@ test("the QBI-threshold warning needs a QBI deduction and income above the limit
   assert.ok(hi.warnings.some((w) => re.test(w)));
   assert.ok(estimatedTax(books("400000.00"), { year: 2026, qbi: false }).warnings.every((w) => !re.test(w)));
   assert.ok(estimatedTax(books("50000.00"), { year: 2026 }).warnings.every((w) => !re.test(w)));
+});
+
+test("the 2026 QBI threshold is Rev. Proc. 2025-32's $201,750 (single) and $403,500 (joint), not 2025's", () => {
+  const re = /above the QBI threshold/, warns = (o) => estimatedTax(books("1.00"), { year: 2026, ...o }).warnings.some((w) => re.test(w));
+  // taxable before QBI = other income - standard deduction (profit is ~$1)
+  assert.equal(warns({ otherIncome: 21600000 }), false); // ~$199,900 taxable, over 2025's $197,300 line only
+  assert.equal(warns({ otherIncome: 21800000 }), true); // ~$201,900
+  assert.equal(warns({ filing: "mfj", otherIncome: 43000000 }), false); // ~$397,800, over 2025's $394,600
+  assert.equal(warns({ filing: "mfj", otherIncome: 44000000 }), true);
 });
 
 test("what the plan does not cover is left as the balance due with the return", () => {
