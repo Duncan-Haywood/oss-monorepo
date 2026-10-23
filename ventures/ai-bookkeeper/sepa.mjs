@@ -23,9 +23,34 @@ export function isCamt(text) {
 // Two-digit years: 70-99 are 19xx, the rest 20xx, which no live statement crosses.
 const yy = (v) => (+v >= 70 ? 1900 + +v : 2000 + +v);
 
+// Dutch, Belgian and French banks (ING, ABN AMRO, Rabobank, KBC...) write :86: as "/KEY/value/KEY/value"
+// pairs: /TRTP/SEPA OVERBOEKING/IBAN/NL91.../BIC/ABNANL2A/NAME/Jan de Vries/REMI/Factuur 14/EREF/NOTPROVIDED.
+// The payee (NAME, else the counterparty's name in /CNTP/) and the remittance text are the description;
+// IBAN, BIC and reference ids only add noise to payee memory and the categorizer, so they are dropped.
+// Structured remittance (/REMI/STRD/CUR/ref) keeps the reference; /USTD/ is the unstructured marker.
+const SLASH_KEYS = new Set(["TRTP", "CNTP", "IBAN", "BIC", "NAME", "REMI", "EREF", "MARF", "CSID", "ISDT", "ORDP", "BENM", "ADDR", "CREF", "PREF", "ID", "SVCL", "OCMT", "CHGS", "EXCH", "ORDR", "BENF", "PURP", "RTRN", "ULTD", "ULTC"]);
+function slashTags(t) {
+  const parts = t.split("/");
+  const kv = {};
+  let key = null;
+  for (let i = 1; i < parts.length; i++) {
+    if (SLASH_KEYS.has(parts[i])) { key = parts[i]; kv[key] ??= []; }
+    else if (key) kv[key].push(parts[i]);
+  }
+  if (!kv.NAME && !kv.REMI && !kv.CNTP && !kv.BENM && !kv.ORDP) return "";
+  const first = (k) => (kv[k] ?? []).join("/").trim();
+  // /CNTP/<account>/<bic>/<name>/<city>/ : the name is the third value.
+  const name = first("NAME") || (kv.CNTP ?? [])[2]?.trim() || first("ORDP") || first("BENM");
+  let remi = (kv.REMI ?? []).slice();
+  if (remi[0] === "USTD") remi = remi.slice(remi[1] === "" ? 2 : 1);
+  else if (remi[0] === "STRD") remi = remi.slice(2); // STRD / scheme code (CUR, ISO) / reference
+  return unesc([name, remi.join("/")].filter(Boolean).join(" "));
+}
+
 // :86: free text, or German-style structured "?20..?29" purpose lines and "?32?33" name.
 function field86(t) {
   t = t.replace(/\r?\n/g, "");
+  if (/^\/[A-Z]{3,4}\//.test(t)) { const d = slashTags(t); if (d) return d; }
   if (!/\?\d\d/.test(t)) return unesc(t);
   const sub = {};
   for (const m of t.matchAll(/\?(\d\d)([^?]*)/g)) sub[m[1]] = (sub[m[1]] ?? "") + m[2];
