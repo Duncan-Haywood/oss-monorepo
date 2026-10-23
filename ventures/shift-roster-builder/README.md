@@ -100,6 +100,10 @@ Guide pages, each with figures a test re-derives from the engine: [how to make a
 - **Subscription schedulers** (7shifts, When I Work, Homebase, Deputy and similar): staff apps, shift swaps, time clocks and payroll hand-off. They want accounts for you and your staff, and most price per user or per location. This tool does none of that. It solves one week at a time with no signup and no upload.
 - **What this adds:** a solver that fills as many shifts as the rules allow, prices overtime and split shifts, names the shifts it cannot fill and why, and shows who the week depends on. Your staff list stays in your browser. If you need staff-facing apps, a time clock or multi-week publishing, a subscription product is the better fit.
 
+## Reduced-cost fixing (2026-10-23)
+
+At the best shift prices, a roster that makes person p hold shift i scores at least `bound - (p's best priced set) + (p's best priced set holding i)`. When that reaches the incumbent cutoff, the pair (p, i) is banned from the cost search (`reducedCostFixing: false` turns it off; benches take `NOFIX=1`). Measured with `node eval/scale-bench.mjs 3 30000`, three seeded weeks per size: 6 x 14 still 3/3 proven, nodes 34,809 -> 21,790 (-37%), 6 s -> 4 s. 8 x 18 and 8 x 22 unchanged in proofs (40,541 nodes both; 119,853 -> 116,781), because there the gap is cost-side and the prices are too loose to fix much. `eval/dual-bench.mjs` on 8 x 22: still 0/4 proven. A modest gain on small weeks, none yet where the proof breaks; tighter prices are the next lever.
+
 ## Where the exact proof breaks (measured 2026-10-22)
 
 `node eval/scale-bench.mjs [cases] [exactNodes]` grows seeded random weeks (all-different people, 1-2 heads per shift, 100,000-node limit, 20 s) and counts how many are proven. 8 cases per size:

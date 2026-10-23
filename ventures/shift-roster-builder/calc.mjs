@@ -960,11 +960,13 @@ function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000, t
   // Pricing shifts gives a floor on open hours that sees who can hold which whole sets (the flow splits a shift between people).
   // Open hours are sums of shift lengths, so when those share a grid (hours, halves, quarters) the floor rounds up to it.
   const incHours = Math.floor(incumbent / BIG + 1e-9);
+  let banned = null, bannedCount = 0; // (person, shift) pairs ruled out by reduced-cost fixing
   let scoreDual = -Infinity; // whole-score floor from pricing shifts (see priceScoreBound)
   if (incHours > 0 && o.pricingFloor !== false) {
-    const pf = priceOpenFloor(ctx, { incumbentOpen: incHours, incumbentScore: o.scoreDual === false ? null : incumbent });
+    const pf = priceOpenFloor(ctx, { incumbentOpen: incHours, incumbentScore: o.scoreDual === false ? null : incumbent, cutoff: o.reducedCostFixing === false ? null : incumbent - tolerance - 1e-9 });
     if (pf) {
       if (pf.scoreBound != null) scoreDual = pf.scoreBound;
+      if (pf.banned) { banned = pf.banned; bannedCount = pf.banCount; }
       const unit = [1, 0.5, 0.25].find((u) => len.every((h) => Math.abs(h / u - Math.round(h / u)) < 1e-9)); // open hours come in whole shifts
       minOpenH = unit ? Math.ceil(pf.floor / unit - 1e-6) * unit : Math.max(0, pf.floor - 1e-6);
     }
@@ -985,7 +987,7 @@ function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000, t
     const i = order[k];
     const opts = [], seen = new Set();
     for (let p = 0; p < P; p++) {
-      if (!elig[p][i]) continue;
+      if (!elig[p][i] || (banned && !covMode && banned[p][i])) continue;
       const twin = cls[p] + "|" + lists[p].join(",");
       if (seen.has(twin)) continue;
       seen.add(twin);
@@ -1022,7 +1024,7 @@ function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000, t
     }
   }
   rec(0, 0);
-  return { proven: !aborted, nodes: nodes + coverNodes, coverNodes, coverOpen: minOpenH, rootBound, owner: bestOwner, score: bestOwner ? best : null };
+  return { proven: !aborted, banned: bannedCount, nodes: nodes + coverNodes, coverNodes, coverOpen: minOpenH, rootBound, owner: bestOwner, score: bestOwner ? best : null };
 }
 
 // Fewest hours that must stay open, by pricing shifts (Lagrangian dual of "each shift is covered by at most one person").
@@ -1033,7 +1035,7 @@ function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000, t
 export function openFloorByPricing(staff, slots, options = {}, cfg = {}) {
   return priceOpenFloor(buildContext(staff, slots, options), cfg);
 }
-function priceOpenFloor(ctx, { maxSets = 60000, rounds = 200, incumbentOpen = null, incumbentScore = null, scoreRounds = 300 } = {}) {
+function priceOpenFloor(ctx, { maxSets = 60000, rounds = 200, incumbentOpen = null, incumbentScore = null, scoreRounds = 300, cutoff = null } = {}) {
   const { P, S, elig, slots } = ctx;
   const len = slots.map((s) => (s.end - s.start) / 60);
   const demand = len.reduce((a, b) => a + b, 0);
@@ -1085,19 +1087,23 @@ function priceOpenFloor(ctx, { maxSets = 60000, rounds = 200, incumbentOpen = nu
     for (let i = 0; i < S; i++) lam[i] = Math.max(0, lam[i] - step * gr[i]);
   }
   const out = { floor: Math.max(0, demand - bestBound), coverable: bestBound, demand, sets: total };
-  if (incumbentScore != null) out.scoreBound = priceScoreBound(ctx, sets, len, bestLam, incumbentScore, scoreRounds);
+  if (incumbentScore != null) {
+    const sb = priceScoreBound(ctx, sets, len, bestLam, incumbentScore, scoreRounds, cutoff);
+    if (cutoff == null) out.scoreBound = sb;
+    else { out.scoreBound = sb.bound; out.banned = sb.banned; out.banCount = sb.count; }
+  }
   return out;
 }
 // Lagrangian lower bound on the whole score (pay, penalties and BIG per open hour), not only the open hours. Each shift is held by
 // one person or stays open at BIG x its hours; pricing shift i at lam[i] splits that into independent pieces: each person's best set
 // (its personScore minus the prices of its shifts) plus min(0, BIG x hours - lam[i]) per shift. Valid for any lam; started from the
 // open-hours prices scaled by BIG, then tightened by subgradient steps toward the incumbent.
-function priceScoreBound(ctx, sets, len, lam0, incumbent, rounds) {
+function priceScoreBound(ctx, sets, len, lam0, incumbent, rounds, cutoff = null) {
   const { P, S } = ctx;
   const vals = sets.map((fs, p) => Float64Array.from(fs, (f) => personScore(ctx, p, f)));
   const cap = len.map((h) => BIG * h);
   const lam = Float64Array.from(lam0, (x, i) => Math.min(cap[i], x * BIG));
-  let best = -Infinity, theta = 1, stale = 0;
+  let best = -Infinity, theta = 1, stale = 0, bestLam = lam.slice();
   for (let r = 0; r < rounds; r++) {
     let L = 0;
     const gr = new Float64Array(S);
@@ -1117,14 +1123,33 @@ function priceScoreBound(ctx, sets, len, lam0, incumbent, rounds) {
       L += bestV;
       for (const i of fs[bestK]) gr[i]--;
     }
-    if (L > best + 1e-9) { best = L; stale = 0; } else if (++stale >= 8) { theta *= 0.6; stale = 0; }
+    if (L > best + 1e-9) { best = L; stale = 0; bestLam = lam.slice(); } else if (++stale >= 8) { theta *= 0.6; stale = 0; }
     let norm = 0;
     for (let i = 0; i < S; i++) norm += gr[i] * gr[i];
     if (norm === 0) break;
     const step = (theta * Math.max(incumbent - L, 1)) / norm;
     for (let i = 0; i < S; i++) lam[i] = Math.min(cap[i], lam[i] + step * gr[i]);
   }
-  return best;
+  if (cutoff == null) return best;
+  // Reduced-cost fixing: at the best prices, a roster that makes person p hold shift i scores at least best - bestV_p + (p's best set
+  // holding i). When that already reaches the cutoff, nobody can beat the incumbent that way, so (p, i) is banned from the search.
+  const banned = Array.from({ length: P }, () => new Uint8Array(S));
+  let count = 0;
+  for (let p = 0; p < P; p++) {
+    const fs = sets[p], vp = vals[p];
+    const w = new Float64Array(fs.length);
+    let bestV = Infinity;
+    for (let k = 0; k < fs.length; k++) {
+      let v = vp[k];
+      for (const i of fs[k]) v -= bestLam[i];
+      w[k] = v;
+      if (v < bestV) bestV = v;
+    }
+    const inV = new Float64Array(S).fill(Infinity);
+    for (let k = 0; k < fs.length; k++) for (const i of fs[k]) if (w[k] < inV[i]) inV[i] = w[k];
+    for (let i = 0; i < S; i++) if (best - bestV + inV[i] >= cutoff) { banned[p][i] = 1; count++; }
+  }
+  return { bound: best, banned, count };
 }
 
 // What a manager gets filling shifts in time order with the first valid person in the list.
