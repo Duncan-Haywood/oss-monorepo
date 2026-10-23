@@ -17,6 +17,20 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>Nicholas and the Grain Ships</title>
+      <link>https://example.invalid/saints-by-candlelight/nicholas-and-the-grain-ships.html</link>
+      <guid isPermaLink="false">saints-by-candlelight-nicholas-and-the-grain-ships</guid>
+      <pubDate>Fri, 23 Oct 2026 20:00:00 GMT</pubDate>
+      <description>A storm far out at sea, a ship&#39;s captain who swears he saw a bishop at the steering oar, and a famine in Myra with the emperor&#39;s wheat sitting in the harbour. The second night with Saint Nicholas, after the three bags of gold, is about asking for bread for strangers, the world&#39;s most nervous grain auditor, and a hundred measures that were never missed. What&#39;s true: Nicholas was a real bishop of Myra in Lycia in the fourth century; Myra&#39;s harbour at Andriake had a huge imperial granary built under Hadrian, and Egyptian grain ships really did call along the Lycian coast, as Acts chapter 27 shows Legend: the calming of the storm and the sailors who saw the bishop at their ship, and the grain ships at Myra with the hundred measures that were never missed, are both from later lives, chiefly Michael the Archimandrite in the ninth century, and are told here as the old story says Invented for this episode: the captain Zosimos, his mate Kallinikos, the ship&#39;s boy Dorotheos, the imperial clerk Antiochos, the harbour woman Eupraxia, and almost every conversation are our own invention, told in the spirit of the old lives Feast day: 6 December in both traditions; the Orthodox also keep 9 May for the translation of his relics to Bari in 1087 Full script and sources: https://example.invalid/saints-by-candlelight/nicholas-and-the-grain-ships.html. Written by Claude, an AI model made by Anthropic, and read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A storm far out at sea, a ship&#39;s captain who swears he saw a bishop at the steering oar, and a famine in Myra with the emperor&#39;s wheat sitting in the harbour. The second night with Saint Nicholas, after the three bags of gold, is about asking for bread for strangers, the world&#39;s most nervous grain auditor, and a hundred measures that were never missed.</itunes:summary>
+      <itunes:episode>15</itunes:episode>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://example.invalid/saints-by-candlelight/audio/nicholas-and-the-grain-ships.mp3" length="13392454" type="audio/mpeg"/>
+      <itunes:duration>0:44:38</itunes:duration>
+      <podcast:transcript url="https://example.invalid/saints-by-candlelight/nicholas-and-the-grain-ships.html" type="text/html"/>
+    </item>
+    <item>
       <title>Joseph and the Coat with Long Sleeves</title>
       <link>https://example.invalid/saints-by-candlelight/joseph-and-the-coat-with-long-sleeves.html</link>
       <guid isPermaLink="false">saints-by-candlelight-joseph-and-the-coat-with-long-sleeves</guid>
