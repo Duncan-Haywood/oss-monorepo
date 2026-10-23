@@ -217,3 +217,11 @@ test("B notice dates count business days past weekends and holidays", () => {
   assert.match(bNoticeDates("2026-10-05", { second: true }).enclose, /147C/);
   assert.throws(() => bNoticeDates("10/05/2026"));
 });
+
+test("Second B Notice runs 30 business days from the B notice date; same-year second CP2100 may be disregarded (Pub. 1281)", () => {
+  const r = bNoticeDates("2026-10-05", { second: true, bNoticeSent: "2026-10-20", firstNotice: "2026-03-02" });
+  assert.equal(r.startWithholdingBy, "2026-12-03"); // 30 business days after Oct 20, skipping Nov 11 and Thanksgiving
+  assert.equal(r.disregard, true);
+  assert.equal(bNoticeDates("2026-10-05", { second: true, firstNotice: "2025-03-02" }).disregard, false);
+  assert.equal(r.stopWithholdingWithinDays, 30);
+});

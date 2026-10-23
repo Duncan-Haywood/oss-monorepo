@@ -136,8 +136,9 @@ export function necDeadline(year) {
 }
 
 // Dates for a CP2100 / CP2100A notice (IRS "Backup withholding B program" and
-// "Understanding your CP2100 or CP2100A Notice" pages, found by web search
-// 2026-10-23; Pub. 1281 itself was not reachable that run). The payer mails the
+// "Understanding your CP2100 or CP2100A Notice" pages, then read against Pub.
+// 1281 itself, Rev. 12-2025 text, 2026-10-24: First B Notice pp. 14-15,
+// Second B Notice p. 15, Q&A 15-19). The payer mails the
 // First B Notice (with a blank W-9) within 15 business days of the notice date
 // or the day it arrived, whichever is later; the Second B Notice (a second
 // CP2100 within three years, no W-9 enclosed, the payee must get a Letter 147C
@@ -145,14 +146,20 @@ export function necDeadline(year) {
 // has not answered, backup withholding of 24% starts on later payments no
 // later than 30 business days after. Business days skip weekends and observed
 // federal holidays (`usHolidays`). Worksheet dates, not legal advice.
-export function bNoticeDates(noticeDate, { received = null, second = false } = {}) {
+// Pub. 1281 adds: a second CP2100 received in the same calendar year as the
+// first may be disregarded (Q17; pass `firstNotice`), the Second B Notice's
+// 30 business days run from the date of that B notice (pass `bNoticeSent`), and
+// withholding stops within 30 calendar days of a signed W-9 / validation.
+export function bNoticeDates(noticeDate, { received = null, second = false, firstNotice = null, bNoticeSent = null } = {}) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(noticeDate ?? "")) throw new Error("noticeDate must be YYYY-MM-DD");
   const base = received && received > noticeDate ? received : noticeDate;
-  const add = (n) => { let d = base; for (let i = 0; i < n; i++) { const t = new Date(`${d}T00:00:00Z`); t.setUTCDate(t.getUTCDate() + 1); d = nextBusinessDay(t.toISOString().slice(0, 10)); } return d; };
+  const add = (n, from = base) => { let d = from; for (let i = 0; i < n; i++) { const t = new Date(`${d}T00:00:00Z`); t.setUTCDate(t.getUTCDate() + 1); d = nextBusinessDay(t.toISOString().slice(0, 10)); } return d; };
   return {
     base, second,
     mailBNoticeBy: add(15),
-    startWithholdingBy: add(30),
+    startWithholdingBy: second && bNoticeSent ? add(30, bNoticeSent) : add(30),
+    disregard: second && firstNotice ? firstNotice.slice(0, 4) === base.slice(0, 4) : false,
+    stopWithholdingWithinDays: 30,
     enclose: second ? "no W-9: the payee must give you a Letter 147C (EIN) or an SSA proof of the number (SSN)" : "a blank Form W-9",
     rate: BACKUP_WITHHOLDING_RATE,
     note: "If the payee returns a signed W-9 before the withholding date, stop the process and do not withhold; otherwise withhold 24% of later reportable payments, report it in box 4 of the 1099-NEC and on Form 945.",
