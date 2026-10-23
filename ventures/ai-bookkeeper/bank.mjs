@@ -267,6 +267,29 @@ export function readOfx(text) {
   return { rows: out, problems, columns: null, bank: "ofx", inferred: null, statement };
 }
 
+// Quicken's multi-account export: an `!Account` block (N name, T type) opens
+// each account, followed by its `!Type:` section of transactions. -> [{ id,
+// type, text }], `id` the account name and each `text` a one-account QIF file,
+// or [] when the file names fewer than two accounts.
+export function splitQif(text) {
+  const parts = [];
+  let head = "", cur = null, inAcct = false;
+  for (const l of String(text ?? "").split(/\r?\n/)) {
+    if (/^!account\b/i.test(l.trim())) { cur = { id: "", type: "", body: [] }; parts.push(cur); inAcct = true; continue; }
+    if (l[0] === "!") inAcct = false;
+    if (inAcct && cur) {
+      if (l[0] === "N") cur.id = l.slice(1).trim();
+      else if (l[0] === "T") cur.type = l.slice(1).trim();
+      continue;
+    }
+    (cur ? cur.body : head ? [] : []).push(l);
+    if (!cur) head += l + "\n";
+  }
+  const named = parts.filter((p) => p.id);
+  if (named.length < 2) return [];
+  return named.map((p) => ({ id: p.id, type: p.type, text: head + p.body.join("\n") + "\n" }));
+}
+
 export function readQif(text, { dayFirst = false } = {}) {
   const problems = [];
   const out = [];

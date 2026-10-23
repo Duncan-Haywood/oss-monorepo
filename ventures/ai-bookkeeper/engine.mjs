@@ -12,7 +12,7 @@
 // same input gives the same output in the page, the CLI and
 // platform/agents/tools.mjs.
 
-import { readStatement, splitOfx, sniffFormat, rowIds, checkRunningBalance, parseCents } from "./bank.mjs";
+import { readStatement, splitOfx, splitQif, sniffFormat, rowIds, checkRunningBalance, parseCents } from "./bank.mjs";
 import { DEFAULT_ACCOUNTS, accountMap, validateEntry, trialBalance, profitAndLoss, balanceSheet, cashFlow, balances, natural, fmt, dollars } from "./ledger.mjs";
 import { suggest, trainClassifier, buildMemory, parseRules, historyRecord, payeeKey } from "./categorize.mjs";
 import { addDocuments, writeOff, settle, aging, documentEntries, AR, AP } from "./accruals.mjs";
@@ -156,6 +156,24 @@ export function importOfxAccounts(booksIn, text, map, opts = {}) {
     const r = importStatement(books, p.text, code, opts);
     books = r.books; added += r.added; skipped += r.skipped;
     problems.push(...r.problems.map((x) => (parts.length > 1 ? `Account ${p.id}: ${x}` : x)));
+  });
+  return { books, added, skipped, problems, accounts };
+}
+
+// A QIF file with several `!Account` sections (Quicken): `map` sends each
+// account name to a chart code, as importOfxAccounts does for OFX ids.
+export function importQifAccounts(booksIn, text, map, opts = {}) {
+  const parts = sniffFormat(text) === "qif" ? splitQif(text) : [];
+  const accounts = parts.map((p) => ({ name: p.id, type: p.type, code: map?.[p.id] ?? null }));
+  let books = booksIn, added = 0, skipped = 0;
+  const problems = [];
+  if (!parts.length) problems.push("No QIF file with more than one named !Account section.");
+  parts.forEach((p, i) => {
+    const code = accounts[i].code;
+    if (!code) { problems.push(`Account "${p.id}" has no chart code in the map, left out.`); return; }
+    const r = importStatement(books, p.text, code, opts);
+    books = r.books; added += r.added; skipped += r.skipped;
+    problems.push(...r.problems.map((x) => `Account "${p.id}": ${x}`));
   });
   return { books, added, skipped, problems, accounts };
 }
