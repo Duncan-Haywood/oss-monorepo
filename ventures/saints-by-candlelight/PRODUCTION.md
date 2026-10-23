@@ -172,7 +172,7 @@ if missing. Narrator voice: `bm_george` at speed 0.9.
 Done episodes are in `episodes/`. Next up, roughly in order (claim one by
 writing it; skip any already in `episodes/`):
 
-- Joseph the dreamer and his brothers (Genesis 37-50)
+- *(Done: episode 14, Joseph and the Coat with Long Sleeves.)* Joseph the dreamer and his brothers (Genesis 37-50)
 - Saint George and the dragon (legend; the historical martyr told gently)
 - *(Done: episode 10, Brendan and the Island That Moved.)* Saint Brendan the Navigator (*Navigatio*; the birds-as-angels episode skipped)
 - Saint Kevin of Glendalough and the blackbird
@@ -188,7 +188,7 @@ writing it; skip any already in `episodes/`):
 
 ## Audio status
 
-Episodes 1 to 13 have audio (episode 8 was rendered on 2026-10-22, about 33 minutes). If Hugging Face is blocked in a cloud session, the Kokoro model files are also on GitHub: `https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/` (`kokoro-v1.0.onnx`, `voices-v1.0.bin`) into `~/.cache/kokoro`. Use `/usr/bin/python3` if `python3` lacks numpy. A render takes about 15 minutes.
+Episodes 1 to 14 have audio (episode 8 was rendered on 2026-10-22, about 33 minutes). If Hugging Face is blocked in a cloud session, the Kokoro model files are also on GitHub: `https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/` (`kokoro-v1.0.onnx`, `voices-v1.0.bin`) into `~/.cache/kokoro`. Use `/usr/bin/python3` if `python3` lacks numpy. A render takes about 15 minutes.
 
 ## Publishing
 
