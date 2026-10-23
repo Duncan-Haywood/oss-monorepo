@@ -281,6 +281,7 @@ export function sniffFormat(text) {
   if (/^\s*!(Type|Account|Option)/im.test(head)) return "qif";
   if (/^000\t\d{8}\t/.test(head)) return "esis";
   if (/^07[45]\d{16}/m.test(head) && /^075\d{16}/m.test(head)) return "gpc";
+  if (/^\uFEFF?Pohyby na .{1,4}tu/i.test(head) && /^datum za.{1,4}tov.{1,3}n.{1,3}:/im.test(head)) return "cz-text";
   return "csv";
 }
 
@@ -419,6 +420,53 @@ export function readGpc(text) {
   return { rows: out, problems, columns: null, bank: "gpc", inferred: null, statement };
 }
 
+// The Czech "Pohyby na uctu" text export (Raiffeisenbank's online banking and
+// others): one block per movement, "key:   value" lines (booking date D.M.YYYY,
+// amount with a dot, currency, balance after the movement, symbols, operation
+// type, counter-account name and number, note). Values start at column 20. The
+// note is wrapped at a fixed width, so its continuation lines are joined raw
+// (the padding keeps words apart, a number split mid-way is rejoined). Newest
+// block first. Layout read from the two samples in the ofxstatement-czech sdist
+// (GPLv3, layout only, nothing copied); code is mine.
+export function readCzBlocks(text) {
+  const problems = [], out = [];
+  const lines = String(text ?? "").replace(/^\uFEFF/, "").split(/\r?\n/);
+  const account = /Pohyby na .{1,4}tu.{0,6}:\s*(\d+)/i.exec(lines[0] ?? "")?.[1] ?? null;
+  const keys = [["date", /^datum/i], ["amount", /^.{1,3}stka$/i], ["ccy", /^m.{1,3}na$/i], ["balance", /^z.{1,3}statek$/i], ["vs", /^variabiln/i], ["type", /^ozna.{1,3}en/i], ["name", /^n.{1,3}zev prot/i], ["acct", /^prot.{1,3}.{1,3}et$/i], ["note", /^pozn.{1,3}mka$/i]];
+  const money = (v) => {
+    const m = /^([-+])?(\d+)(?:[.,](\d{1,2}))?$/.exec(String(v ?? "").replace(/\s/g, ""));
+    return m ? (m[1] === "-" ? -1 : 1) * (Number(m[2]) * 100 + Number((m[3] ?? "").padEnd(2, "0") || 0)) : null;
+  };
+  let cur = null, last = null;
+  const flush = () => {
+    if (!cur) return;
+    const b = cur; cur = null; last = null;
+    const dm = /^(\d{1,2})\.(\d{1,2})\.(\d{4})$/.exec(b.date ?? "");
+    const cents = money(b.amount);
+    if (!dm || cents === null) return problems.push(`Line ${b.line}: unreadable date or amount, skipped.`);
+    const vs = (b.vs ?? "").replace(/^0+(?=\d)/, "");
+    const desc = [b.type, b.name, b.acct && `acc ${b.acct}`, vs && `VS ${vs}`, (b.note ?? "").replace(/\s+/g, " ")].map((v) => (v ?? "").trim()).filter(Boolean).join(" ");
+    out.push({ line: b.line, date: `${dm[3]}-${dm[2].padStart(2, "0")}-${dm[1].padStart(2, "0")}`, desc, cents, balance: money(b.balance), ccy: b.ccy ?? "" });
+  };
+  lines.forEach((l, i) => {
+    if (!l.trim()) { flush(); return; }
+    const m = /^(\S[^:]*?):/.exec(l);
+    const k = m && keys.find(([, re]) => re.test(m[1].trim()))?.[0];
+    if (k) {
+      if (k === "date") { flush(); cur = { line: i + 1 }; }
+      if (!cur) return;
+      cur[k] = k === "note" ? l.slice(19) : l.slice(m[0].length).trim();
+      last = k;
+    } else if (cur && last === "note" && /^\s/.test(l)) cur.note += l.slice(19);
+  });
+  flush();
+  const ccys = new Set(out.map((r) => r.ccy).filter(Boolean));
+  if (ccys.size > 1) problems.push(`The file mixes currencies (${[...ccys].join(", ")}); amounts are read as one currency. Split it per currency.`);
+  if (!out.length) problems.push("No movements (datum/castka blocks) were found in the Czech text statement.");
+  for (const r of out) delete r.ccy;
+  return { rows: out, problems, columns: null, bank: "cz-text", inferred: null, account };
+}
+
 export function splitQif(text) {
   const parts = [];
   let head = "", cur = null, inAcct = false;
@@ -491,6 +539,7 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
   if (format === "ofx") return readOfx(text);
   if (format === "esis") return readEsis(text);
   if (format === "gpc") return readGpc(text);
+  if (format === "cz-text") return readCzBlocks(text);
   if (format === "qif") return readQif(text, { dayFirst });
   const rows = parseCsv(text);
   const problems = [];

@@ -151,3 +151,20 @@ test("a Czech GPC statement (Fio layout) is read: codes 1/5 debit, 2/4 credit, c
   assert.deepEqual(r.statement, { cents: 70500, date: "2014-05-31" });
   assert.deepEqual(r.problems, []);
 });
+
+test("a Czech 'Pohyby na uctu' text statement is read: blocks, wrapped notes rejoined, balance kept", () => {
+  // Blocks built to the layout of the ofxstatement-czech samples (values start at column 20); names and numbers are made up.
+  const kv = (k, v) => (k + ":").padEnd(19) + v;
+  const block = (date, amt, bal, type, name, acct, note) => [kv("datum zaúčtování", date), kv("částka", amt), kv("měna", "CZK"), kv("zůstatek", bal), kv("konstantní symbol", ""), kv("variabilní symbol", "0000000009"), kv("specifický symbol", ""), kv("označení operace", type), kv("název protiúčtu", name), kv("protiúčet", acct), kv("poznámka", note), "", ""].join("\r\n");
+  const text = "﻿Pohyby na účtu č.: 123456789, ze dne 18.03.2012 16:08\r\n\r\n" + [
+    block("14.3.2012", "1743.00", "2000.50", "Došlá platba", "ACME S.R.O.", "1000453303/3500", "SALARY PRAHA 5".padEnd(30)),
+    block("12.3.2012", "-250.50", "257.50", "Odchozí platba", "TELCO", "500114004/2700", "INVOICE 36202" + "\r\n" + " ".repeat(19) + "45785"),
+  ].join("\r\n");
+  const r = readStatement(text);
+  assert.equal(r.bank, "cz-text");
+  assert.equal(r.account, "123456789");
+  assert.deepEqual(r.rows.map((x) => [x.date, x.cents, x.balance]), [["2012-03-14", 174300, 200050], ["2012-03-12", -25050, 25750]]);
+  assert.equal(r.rows[0].desc, "Došlá platba ACME S.R.O. acc 1000453303/3500 VS 9 SALARY PRAHA 5");
+  assert.match(r.rows[1].desc, /INVOICE 3620245785$/);
+  assert.deepEqual(r.problems, []);
+});
