@@ -61,8 +61,7 @@ flagships:
       CLI and agent engine. First tool of the new-home construction program.
     next: >-
       Open items only; landed work is in ventures/wall-framing-takeoff/README.md
-      and ROADMAP.md. Roof framing (gable: rafters, ridge, sheathing, shingle/felt quantities; CLI --roof) landed 2026-10-22, hip roofs too (CLI/engine, hand-arithmetic tests only). Roof on the page landed 2026-10-22 (checkbox, pooled order, browser click check). Hips on the page landed 2026-10-22 (shape and hip-size fields, browser click check). Cross wings with valleys (L/T roofs, equal pitch) landed 2026-10-22 (CLI/engine, hand-arithmetic tests only). Wing ceiling joists landed 2026-10-22 (engine/CLI, hand count). Wing collar ties landed 2026-10-22 (engine/CLI, hand count). The wing on the page landed 2026-10-23 (width, projection, position, side, valley size; browser click check). A wing at its own pitch landed 2026-10-24 (engine, CLI plan key and page; hand arithmetic and numeric area integral, click check). Next: two wings, valley backing, a floor drawing, several
-      stairwells on the page; gable sheathing on the page, in the horizontal layout and reusing the offcut triangle (vertical-sheet order landed 2026-10-22);
+      and ROADMAP.md. Roof framing (gable: rafters, ridge, sheathing, shingle/felt quantities; CLI --roof) landed 2026-10-22, hip roofs too (CLI/engine, hand-arithmetic tests only). Roof on the page landed 2026-10-22 (checkbox, pooled order, browser click check). Hips on the page landed 2026-10-22 (shape and hip-size fields, browser click check). Cross wings with valleys (L/T roofs, equal pitch) landed 2026-10-22 (CLI/engine, hand-arithmetic tests only). Wing ceiling joists landed 2026-10-22 (engine/CLI, hand count). Wing collar ties landed 2026-10-22 (engine/CLI, hand count). The wing on the page landed 2026-10-23 (width, projection, position, side, valley size; browser click check). A wing at its own pitch landed 2026-10-24 (engine, CLI plan key and page; hand arithmetic and numeric area integral, click check). Two wings (`roof.wing2`) landed 2026-10-24 (engine/CLI; additive, tested against each wing alone). Next: wing2 on the page, valley backing, a floor drawing (several stairwells on the page landed 2026-10-23, semicolon-separated, overlap refused, click check); gable sheathing on the page, in the horizontal layout and reusing the offcut triangle (vertical-sheet order landed 2026-10-22);
       right-sized headers from a user table (CLI landed 2026-10-22; page field and a table of one real
       code edition, typed by a person who has the book, are open); a 2D reuse of opening cut-outs;
       click through the panel sheathing-weight field and the panel order and
@@ -81,7 +80,7 @@ flagships:
       on seeded series; slope-change range and growth-change range for counts
       2026-10-22, the latter calibrated to ~95% on three seeded sets) lives in the README
       and git. Open: range95 on a real series with a true holiday closure or
-      documented slope break; the growth-change range on clumpy (NB) counts is ~88% not 95% (widened 2026-10-23; try a different variance fix).
+      documented slope break; the growth-change range on clumpy (NB) counts is ~90% not 95% (scored with the NB cost itself 2026-10-23, narrower than the ratio widening; the miss is at large bumps, where a bump-0.04 cell on one seed covers 10 of 15).
   - venture: einvoice-preflight
     why: >-
       Real EN 16931 validator (JSON, UBL, CII, Factur-X PDF; 54+ rules,
