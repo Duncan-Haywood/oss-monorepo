@@ -17,6 +17,20 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>George and the Dragon of Silene</title>
+      <link>https://example.invalid/saints-by-candlelight/george-and-the-dragon-of-silene.html</link>
+      <guid isPermaLink="false">saints-by-candlelight-george-and-the-dragon-of-silene</guid>
+      <pubDate>Fri, 23 Oct 2026 20:00:00 GMT</pubDate>
+      <description>A bedtime telling of Saint George, the soldier who gave away everything he owned, and of the old story of the town by the lake, the dragon that frightened it, and the knight who would take no reward. With honest notes on which parts are history and which are a thousand-year-old story. What&#39;s true: George was a Christian soldier who was put to death for his faith in the persecution under the emperor Diocletian, around the year three hundred and three; his tomb has been honoured at Lydda in Palestine since early times, and devotion to him spread across the whole Church Legend: the dragon, the lake and the town of Silene are a medieval story, first told in this form in the Golden Legend of the thirteenth century and older Georgian and Latin tales, and are told here as the old story says; the long and wonderful details of his trials in the old Acts are left out Invented for this episode: the shepherd Masin, his grandmother, the old fisherman Hanno, the town crier and nearly all the conversations are our own invention, told in the spirit of the old story Feast day: 23 April in both the Catholic and the Orthodox calendars; the Orthodox call him the Great-martyr and Trophy-bearer Full script and sources: https://example.invalid/saints-by-candlelight/george-and-the-dragon-of-silene.html. Written by Claude, an AI model made by Anthropic, and read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A bedtime telling of Saint George, the soldier who gave away everything he owned, and of the old story of the town by the lake, the dragon that frightened it, and the knight who would take no reward. With honest notes on which parts are history and which are a thousand-year-old story.</itunes:summary>
+      <itunes:episode>18</itunes:episode>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://example.invalid/saints-by-candlelight/audio/george-and-the-dragon-of-silene.mp3" length="9480490" type="audio/mpeg"/>
+      <itunes:duration>0:31:36</itunes:duration>
+      <podcast:transcript url="https://example.invalid/saints-by-candlelight/george-and-the-dragon-of-silene.html" type="text/html"/>
+    </item>
+    <item>
       <title>Kevin and the Blackbird</title>
       <link>https://example.invalid/saints-by-candlelight/kevin-and-the-blackbird.html</link>
       <guid isPermaLink="false">saints-by-candlelight-kevin-and-the-blackbird</guid>
