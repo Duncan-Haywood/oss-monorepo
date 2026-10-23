@@ -68,10 +68,16 @@ export function parseReply(text) {
 }
 
 // -> { books, source: "model" | "fallback", error?, suggested, dropped }
-export async function aiSuggest(config, books, { max = 40, offset = 0, fetch, maxTokens = 3000 } = {}) {
-  const queue = books.transactions.filter((t) => t.status === "review").slice(offset, offset + max);
+// mode "fill" (default): only lines the four deterministic layers could not
+// suggest an account for go to the model, and a line that has a suggestion is
+// never overwritten. mode "replace": every review line goes and the model's
+// answer takes over the suggestion. A 3B local model measured worse than the
+// rules in "replace" (eval/ai-eval.mjs, README Next), so "fill" is the default.
+export async function aiSuggest(config, books, { max = 40, offset = 0, fetch, maxTokens = 3000, mode = "fill" } = {}) {
+  const hasOwn = (t) => t.suggestion?.account && t.suggestion.source !== "ai";
+  const queue = books.transactions.filter((t) => t.status === "review" && (mode === "replace" || !hasOwn(t))).slice(offset, offset + max);
   const unchanged = () => ({ books, suggested: 0, dropped: 0 });
-  if (!queue.length) return { ...unchanged(), source: "fallback", error: "nothing is waiting for review" };
+  if (!queue.length) return { ...unchanged(), source: "fallback", error: mode === "replace" ? "nothing is waiting for review" : "every review line already has a suggestion from the rules, memory or classifier" };
   const r = await withFallback(config, unchanged, async (c) => {
     const out = await complete(c, { system: SYSTEM, prompt: aiPrompt(books, queue), maxTokens, fetch });
     const answers = parseReply(out.text);
