@@ -660,11 +660,11 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
     const r = estimatedTax(books, { year: yr ? +yr : new Date().getFullYear(), monthsElapsed: mo ? +mo : 12, filing: flag("--filing") ?? "single", wages: c("--wages"), otherIncome: c("--other"), withholding: c("--withholding"), paid: c("--paid"), priorYearTax: c("--prior-tax"), priorAgi: c("--prior-agi"), asOf: asOf ?? undefined, qbi: has("--no-qbi") ? false : undefined });
     if (json) { console.log(JSON.stringify(r, null, 2)); process.exit(0); }
     console.log(`FEDERAL ESTIMATE ${r.year} (${r.filing}), profit annualised ${fmt(r.profit)}`);
-    console.log(`  Adjusted gross income    ${fmt(r.agi).padStart(12)}\n  Standard deduction       ${fmt(r.standardDeduction).padStart(12)}\n  QBI deduction            ${fmt(r.qbiDeduction).padStart(12)}\n  Taxable income           ${fmt(r.taxable).padStart(12)}\n  Income tax (${Math.round(r.marginalRate * 100)}% top)    ${fmt(r.incomeTax).padStart(12)}\n  Self-employment tax      ${fmt(r.se.tax).padStart(12)}\n  Total                    ${fmt(r.totalTax).padStart(12)}  (${(r.effectiveRate * 100).toFixed(1)}% of income)`);
+    console.log(`  Adjusted gross income    ${fmt(r.agi).padStart(12)}\n  Standard deduction       ${fmt(r.standardDeduction).padStart(12)}\n  QBI deduction            ${fmt(r.qbiDeduction).padStart(12)}\n  Taxable income           ${fmt(r.taxable).padStart(12)}\n  Income tax (${Math.round(r.marginalRate * 100)}% top)    ${fmt(r.incomeTax).padStart(12)}\n  Self-employment tax      ${fmt(r.se.tax).padStart(12)}\n  Additional Medicare tax  ${fmt(r.addlMedicare).padStart(12)}\n  Total                    ${fmt(r.totalTax).padStart(12)}  (${(r.effectiveRate * 100).toFixed(1)}% of income)`);
     console.log(`  Safe harbour: 90% of this year ${fmt(r.safeHarbor.current90)}${r.safeHarbor.prior != null ? `, prior year ${fmt(r.safeHarbor.prior)}` : ""}; pay ${fmt(r.safeHarbor.required)} in estimates`);
     for (const p of r.payments) console.log(`  ${p.due}  ${p.status === "past" ? "(past)".padStart(12) : fmt(p.cents).padStart(12)}`);
     for (const w of r.warnings) console.log(`  ! ${w}`);
-    console.log("  A worksheet. Not tax advice; it leaves out state tax, credits, itemised deductions and the 0.9% additional Medicare tax.");
+    console.log("  A worksheet. Not tax advice; it leaves out state tax, credits and itemised deductions.");
   } catch (e) { console.error(e.message); process.exit(1); }
 } else if (cmd === "contractors") {
   const yr = flag("--year"), th = flag("--threshold");

@@ -57,3 +57,5 @@ Moved out of `portfolio/flagships.yaml` (its `next:` had grown to ~18 KB with re
 - 2026-10-22: `payroll 941` prints line 16 (tax liability by month) and, with `--deposited DOLLARS`, total deposits, balance due (line 14) or overpayment (line 15). Hand-arithmetic test only.
 
 - 2026-10-22: `contractors` now reports `backupWithholdingCents`: 24% of payments to reportable payees with no W-9 on file (IRC 3406, Form 945), as an exposure estimate. Hand-made fixture test.
+
+- 2026-10-23: `estimate` adds the 0.9% Additional Medicare Tax (Form 8959; thresholds $200,000 single/head of household, $250,000 joint, wages counted before self-employment earnings; `addlMedicare` in the result). Hand-arithmetic test only; married-filing-separately not modelled.

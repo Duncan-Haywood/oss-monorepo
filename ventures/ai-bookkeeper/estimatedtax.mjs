@@ -27,6 +27,9 @@ export const BRACKETS = {
 };
 // Taxable income above which the QBI deduction is limited by wages/property or
 // phased out for service businesses; this module does not model that, so it warns.
+// Additional Medicare Tax (Form 8959): 0.9% of wages plus self-employment earnings above
+// a threshold fixed by statute (not indexed) by filing status; mfs is not modelled.
+export const ADDL_MEDICARE_THRESHOLD = { single: D(200000), hoh: D(200000), mfj: D(250000) };
 const QBI_LIMIT = { single: D(197300), hoh: D(197300), mfj: D(394600) };
 
 export function bracketTax(taxable, brackets) {
@@ -64,7 +67,11 @@ export function estimatedTax(books, o = {}) {
   if (qbiDeduction && beforeQbi > (QBI_LIMIT[filing] ?? Infinity)) warnings.push("Taxable income is above the QBI threshold, where the 20% deduction may be limited or lost; treat the figure as a ceiling on the deduction.");
   const taxable = Math.max(0, beforeQbi - qbiDeduction);
   const incomeTax = bracketTax(taxable, table.b);
-  const total = incomeTax + se.tax;
+  // Part II of Form 8959: the SE threshold is lowered by wages, which count first.
+  const T = ADDL_MEDICARE_THRESHOLD[filing] ?? D(200000);
+  const addlMedicare = Math.round(0.009 * (Math.max(0, wages - T) + Math.max(0, se.netEarnings - Math.max(0, T - wages))));
+  if (addlMedicare) warnings.push("Includes the 0.9% Additional Medicare Tax (Form 8959) on earnings above " + T / 100 + "; an employer withholds it on wages over $200,000 only, so check the wage part against your W-2.");
+  const total = incomeTax + se.tax + addlMedicare;
   const marginal = (table.b.find(([hi]) => taxable <= hi) ?? [0, 0])[1];
 
   // Safe harbour: smaller of 90% of this year and 100%/110% of last year.
@@ -91,7 +98,7 @@ export function estimatedTax(books, o = {}) {
   // The rest is paid with the return: the balance, not a penalty.
   const balanceWithReturn = Math.max(0, total - withholding - Math.max(paid, 0) - payments.reduce((s, p) => s + p.cents, 0));
   warnings.push(...sc.warnings, ...se.warnings);
-  return { year, filing, monthsElapsed: months, profit, se, agi, standardDeduction: std, qbiDeduction, taxable, incomeTax, marginalRate: marginal, totalTax: total, effectiveRate: profit + wages + other > 0 ? total / (profit + wages + other) : 0, safeHarbor: { current90, prior, required, exempt }, withholding, paid, payments, balanceWithReturn, warnings };
+  return { year, filing, monthsElapsed: months, profit, se, agi, standardDeduction: std, qbiDeduction, taxable, incomeTax, addlMedicare, marginalRate: marginal, totalTax: total, effectiveRate: profit + wages + other > 0 ? total / (profit + wages + other) : 0, safeHarbor: { current90, prior, required, exempt }, withholding, paid, payments, balanceWithReturn, warnings };
 }
 
 export { toCents };
