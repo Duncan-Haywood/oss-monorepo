@@ -7,7 +7,7 @@ from pathlib import Path
 import numpy as np
 
 root = Path(__file__).resolve().parents[2]
-for p in ("capture-aliaswin", "capture-residgate", "capture-realaudio", "capture-audiosync"):
+for p in ("capture-aliaswin", "capture-residgate", "capture-syncgate", "capture-realedit", "capture-syncedit", "capture-realaudio", "capture-audiosync", "capture-edit"):
     sys.path.insert(0, str(root / p / "src"))
 from capture_realaudio import available_clips  # noqa: E402
 from capture_residgate.alias import dominant_period  # noqa: E402
@@ -24,6 +24,8 @@ def job(name):
     clip = available_clips()[name]
     out = {}
     for (w, g, h) in CELLS:
+        if len(clip) < (w + 1.0) * 16000:      # window plus 2 x 0.5 s guard does not fit (falling, 3.94 s, at 3 s)
+            continue
         err, bins = [], []
         for s in range(SEEDS):
             rng = np.random.default_rng(s)
@@ -54,12 +56,12 @@ def main():
             ok, al, gr = shares(e, p, TOL)
             L.append("%s %g %g %s %.3f %.3f %.3f" % (n, w, g, "none" if h is None else "%g" % (h * 1e3), ok, al, gr))
     L += ["", "B. mean wrong share over all 10 clips and over the 4 failing clips (soft space2 untie wallewal)",
-          "window_s gamma prior_ms wrong_all wrong_4"]
+          "window_s gamma prior_ms wrong_all wrong_4   (3 s windows: 9 clips, `falling` is 3.94 s and too short)"]
     bad = {"soft", "space2", "untie", "wallewal"}
     for cell in CELLS:
         w, g, h = cell
-        wa = [float((np.abs(o[cell][0]) > TOL).mean()) for _, _, _, o in rows]
-        w4 = [float((np.abs(o[cell][0]) > TOL).mean()) for n, _, _, o in rows if n in bad]
+        wa = [float((np.abs(o[cell][0]) > TOL).mean()) for _, _, _, o in rows if cell in o]
+        w4 = [float((np.abs(o[cell][0]) > TOL).mean()) for n, _, _, o in rows if n in bad and cell in o]
         L.append("%g %g %s %.3f %.3f" % (w, g, "none" if h is None else "%g" % (h * 1e3), np.mean(wa), np.mean(w4)))
     L += ["", "C. wrong share by window start (s): first half second / 0.5 to 1 s / later; window 2 s, gamma 0.25, no prior",
           "clip n_first n_mid n_late wrong_first wrong_mid wrong_late"]

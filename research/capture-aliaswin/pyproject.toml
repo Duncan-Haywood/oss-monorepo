@@ -10,4 +10,4 @@ license = { text = "MIT" }
 where = ["src"]
 
 [tool.pytest.ini_options]
-pythonpath = ["../capture-residgate/src", "src", "../capture-syncgate/src", "../capture-realedit/src", "../capture-syncedit/src", "../capture-realaudio/src", "../capture-audiosync/src", "../capture-edit/src"]
+pythonpath = ["../capture-syncgate/src", "../capture-realedit/src", "../capture-syncedit/src", "../capture-edit/src", "../capture-residgate/src", "src", "../capture-syncgate/src", "../capture-realedit/src", "../capture-syncedit/src", "../capture-realaudio/src", "../capture-audiosync/src", "../capture-edit/src"]
