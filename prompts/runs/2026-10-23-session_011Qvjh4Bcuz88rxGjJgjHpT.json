@@ -1,0 +1,51 @@
+{
+  "date": "2026-10-23",
+  "session": "https://claude.ai/code/session_011Qvjh4Bcuz88rxGjJgjHpT",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-23T13:50:27Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "sensing next step from sensing-matchreal",
+  "projects": [
+    "research/sensing-matchmix"
+  ],
+  "pr": 9804,
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "Cloud routine had no explicit note that `sleep` is blocked and background `&` returns at once; waited via Monitor until-loop instead."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/goals.md",
+      "why": "Skipped the docs/reports and docs/posts write-up to keep the run small; the project README carries the results."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Ran experiments/run.py (6 seeds, 4 procs, several minutes) and the 3 tests locally; research _homepage build.py ok, check_md_links ok. No separate agent doc or post written.",
+  "corrections": [],
+  "redteam": null
+}
