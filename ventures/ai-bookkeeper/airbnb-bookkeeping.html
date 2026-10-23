@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Airbnb Host Bookkeeping: Book Bookings and Host Fees, Not Payouts (Worked Example)</title>
+<meta name="description" content="Airbnb pays you bookings less its host fee, so a payout never equals what guests paid for your place. A worked month: $1,950.00 of bookings, $58.50 of host fees and a $1,951.50 payout, booked for Schedule E.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="./airbnb-bookkeeping.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Airbnb host bookkeeping: book bookings and fees, not payouts">
+<meta property="og:description" content="A worked month: $1,950.00 of bookings, $58.50 host fees, a $1,951.50 payout. How to book it.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why doesn't my Airbnb payout match my bookings?","acceptedAnswer":{"@type":"Answer","text":"Airbnb pays out the booking total less its host fee, adds or subtracts adjustments, and pays in batches. In the worked example, $1,950.00 of bookings less $58.50 of host fees plus a $60.00 reimbursement became a $1,951.50 payout."}},{"@type":"Question","name":"Should I book Airbnb payouts or bookings as rental income?","acceptedAnswer":{"@type":"Answer","text":"Book the gross booking amount as rental income and the host fee as an expense, so income matches what guests paid you. Booking only payouts understates both income and expenses."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#1c2430;background:#f3f5f2}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#23613f}.eyebrow{font-weight:700;letter-spacing:.04em;color:#23613f;font-size:.85rem}h1{font-size:clamp(1.7rem,5vw,2.5rem);line-height:1.08;margin:.3rem 0;color:#183d2a}.lede{font-size:1.05rem;max-width:66ch;color:#4a5560}section{background:#fff;border:1px solid #d5ddd6;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #183d2a10;margin:1rem 0}h2{margin-top:0;color:#183d2a}p,li{line-height:1.55}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:.95rem}caption{caption-side:bottom;color:#4a5560;font-size:.85rem;text-align:left;padding-top:.6rem}th,td{border-bottom:1px solid #e1e7e2;padding:.5rem .45rem;text-align:right}th:first-child,td:first-child{text-align:left}tr.total td,tr.total th{font-weight:700}.fine,footer{font-size:.86rem;color:#4a5560}@media (max-width:600px){body{padding:1rem}}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; AI Bookkeeper</a></p>
+<header>
+<h1>Airbnb host bookkeeping: book bookings and fees, not payouts</h1>
+<p class="lede">Airbnb pays you what is left after its host fee, plus or minus adjustments, in batches. If you book the payouts as rental income, your books show less than your guests paid, and the fee you can deduct never appears.</p>
+</header>
+
+<section>
+<h2>Worked example: one month, three stays</h2>
+<p>The tool ships a <strong>synthetic</strong> Airbnb transaction history for June 2026: three reservations, one damage reimbursement and one payout to the bank. Read by the tool's payout reader, it splits like this:</p>
+<div class="table-wrap">
+<table>
+<caption>Figures from fixtures/airbnb-transactions.csv, read by payouts.mjs. Synthetic data, not a real listing.</caption>
+<thead><tr><th scope="col">June 2026</th><th scope="col">Amount</th></tr></thead>
+<tbody>
+<tr><th scope="row">Bookings, three stays (cleaning fees included)</th><td>$1,950.00</td></tr>
+<tr><th scope="row">Host fees (3%)</th><td>&minus;$58.50</td></tr>
+<tr><th scope="row">Damage reimbursement</th><td>$60.00</td></tr>
+<tr class="total"><th scope="row">Payout to the bank</th><td>$1,951.50</td></tr>
+</tbody>
+</table>
+</div>
+<p>Booked from the bank line alone, the listing shows $1,951.50 of income and no expenses. Booked from the history, it shows $1,950.00 of rental income, $60.00 of other income and $58.50 of fees: the same cash, but income and expenses that match what guests paid and what Airbnb kept. Rental income and deductible fees go on Schedule E for most US hosts, or Schedule C if you provide substantial services.</p>
+</section>
+
+<section>
+<h2>How to book it</h2>
+<ol>
+<li><strong>Download your transaction history</strong> from Airbnb (Account, Transaction history, CSV) and your bank statement.</li>
+<li><strong>Import the bank statement</strong> in <a href="./">AI Bookkeeper</a>, then run the payout import on the Airbnb CSV. Each payout is matched to its bank line and split into bookings, fees and adjustments.</li>
+<li><strong>Check that the payout equals the activity.</strong> If the rows since the previous payout do not net to it, a balance carried over from before the report; the tool says so and does not split it. Download an earlier start date.</li>
+<li><strong>Keep occupancy taxes out of income.</strong> Where Airbnb collects and remits them, they are not yours.</li>
+</ol>
+<p>The Airbnb layout is read from memory of Airbnb's help pages and one hand-written fixture. No real export has been tried, so check the totals against your own statement.</p>
+</section>
+
+<section>
+<h2>Questions</h2>
+<h3>Why doesn't my Airbnb payout match my bookings?</h3>
+<p>Airbnb pays out the booking total less its host fee, adds or subtracts adjustments, and pays in batches. In the worked example, $1,950.00 of bookings less $58.50 of host fees plus a $60.00 reimbursement became a $1,951.50 payout.</p>
+<h3>Should I book Airbnb payouts or bookings as rental income?</h3>
+<p>Book the gross booking amount as rental income and the host fee as an expense, so income matches what guests paid you. Booking only payouts understates both income and expenses.</p>
+<h3>Is it free?</h3>
+<p>Yes. It is open source (MIT), runs in your browser and nothing is uploaded.</p>
+</section>
+
+<p><a href="./">Open AI Bookkeeper</a> and import your Airbnb history and bank statement.</p>
+</main>
+<footer>
+<p><strong>No warranty.</strong> This page and the tool are provided free and as-is, without warranty of any kind. They are not legal, tax, or financial advice and do not replace a qualified professional. You are responsible for reviewing and verifying any output before relying on it. The example is synthetic data, not a real business. Airbnb is a trademark of its owner, named only to describe a payee and independent of it.</p>
+</footer>
+</body>
+</html>
