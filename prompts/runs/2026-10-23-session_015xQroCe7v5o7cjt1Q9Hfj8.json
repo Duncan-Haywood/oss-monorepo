@@ -1,0 +1,46 @@
+{
+ "date": "2026-10-23",
+ "session": "https://claude.ai/code/session_015xQroCe7v5o7cjt1Q9Hfj8",
+ "track": "research",
+ "prompt_version": 0,
+ "input": "follow the instructions in ./prompt.md (scheduled)",
+ "input_sha256": "a069142edff7faba0e7497f3e43587d325506648757355f87cd62c89d6f4f469",
+ "follow_up_inputs": [],
+ "model": "claude-sonnet-5-5",
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-10-23T02:42:06Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": null,
+ "projects": [
+  "buildbot-screwline"
+ ],
+ "pr": 9663,
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": 6,
+ "outcome": "success",
+ "errors": [],
+ "integrity_issues": [],
+ "doc_friction": [],
+ "deviations": [
+  {
+   "file": "prompts/goals.md",
+   "why": "Skipped the agent doc and post write-up: a small follow-up to buildbot-studfind whose README carries the result."
+  }
+ ],
+ "writeups": [],
+ "goal": null,
+ "notes": "Pitch from USG FAQ 1595; edge distance from a gypsum-fibre guide and #6 diameter nominal, both flagged unconfirmed in README. Checks run locally: pytest 6 passed, research/_homepage/build.py ok, check_md_links ok.",
+ "corrections": [],
+ "redteam": null
+}
