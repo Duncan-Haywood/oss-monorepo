@@ -1,7 +1,7 @@
 """Simulate the shipped schedule and every <=2-run mask at a 900 s step; cache to experiments/cache.npz (not committed, ~40 MB).
    PYTHONPATH=src python experiments/simulate_all.py   (about 12 minutes on 4 cores)"""
 import sys
-from multiprocessing import Pool
+import multiprocessing as mp
 from pathlib import Path
 
 import numpy as np
@@ -19,10 +19,12 @@ def one(mask):
 
 def main():
     masks = runs_masks()
-    shipped = window(1, 14)
-    assert shipped in set(masks)
-    with Pool(4) as p:
-        rows = p.map(one, masks, chunksize=64)
+    if len(sys.argv) > 1:
+        masks = masks[: int(sys.argv[1])]
+    else:
+        assert window(1, 14) in set(masks)
+    with mp.get_context("spawn").Pool(4) as p:
+        rows = p.map(one, masks, chunksize=32)
     np.savez_compressed(HERE / "cache.npz", masks=np.array(masks, bool), rows=np.array(rows))
     print(len(masks), "masks simulated")
 

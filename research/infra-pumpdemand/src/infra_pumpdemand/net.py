@@ -5,6 +5,7 @@ pipe 330 follow tank 1's level), but the hydraulic step is 900 s so that (a) the
 resolved (`infra-pumpsched`, "Time step") and (b) pump power is read per 15 minutes, the interval a demand charge is billed on.
 """
 import os
+import tempfile
 import warnings
 
 import numpy as np
@@ -48,7 +49,7 @@ def window(start, hours):
 def simulate(mask):
     """Scored (last) day: kW per quarter-hour for each pump (arrays of 96), tank drift and margin, minimum pressure, demand."""
     wn = build(mask)
-    r = wntr.sim.EpanetSimulator(wn).run_sim()
+    r = wntr.sim.EpanetSimulator(wn).run_sim(file_prefix=os.path.join(tempfile.gettempdir(), f"pumpdemand_{os.getpid()}"))
     flow, head = r.link["flowrate"], r.node["head"]
     # pump_energy is power x report step in J; dividing by the step gives mean W over the quarter-hour
     p_w = wntr.metrics.economic.pump_energy(flow[list(PUMPS)], head, wn).astype(float) / STEP
