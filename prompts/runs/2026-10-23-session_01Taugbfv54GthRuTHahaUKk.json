@@ -1,0 +1,49 @@
+{
+  "date": "2026-10-23",
+  "session": "https://claude.ai/code/session_01Taugbfv54GthRuTHahaUKk",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-23T08:10:11Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/9732",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/explore/prompt-0.md",
+      "issue": "Sweeps are listed as clean but no list of which a11y/markup sweeps remain open; I ran a lang/viewport/alt sweep that was clean."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Skipped the agent doc and post: the change is one llms.txt file; no new finding worth a post."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Explore idea: llms.txt for flagship league-schedule-generator with a worked example from real engine output. A sweep of 2,914 venture pages for lang, viewport, img alt, target=_blank, untyped buttons in forms found nothing real (all untyped form buttons are the intended submit with preventDefault). No writeup (small change); skipped agent doc/post by judgment.",
+  "corrections": [],
+  "redteam": null
+}
