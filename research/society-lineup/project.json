@@ -1,0 +1,6 @@
+{
+ "theme": "society",
+ "title": "How many line-cutting robots does it take to break a queueing norm?",
+ "lede": "how many line-cutting robots break a queueing norm? Mean-field critical share 12.7% (memory 9, lone-cut objection 0.9), simulation agrees; depends mostly on how fast objection fades. Stylised: objection strength is swept, not sourced.",
+ "summary": "People remember the outcomes of the last 9 cut attempts they saw and cut when most succeeded; an attempt is objected to with probability p0(1&minus;z)<sup>k</sup>, so objection fades as cutting spreads. Committed cutting robots break the norm at a mean-field share of 0.127 (p0 = 0.9, k = 1): below it 0.2&ndash;3.4% of people cut, above it all do. Simulation (200 people, 12 seeds) tips 0/12 crowds at 0.107, 10/12 at 0.127 and 12/12 from 0.147. The threshold ranges 0&ndash;0.214 over p0 0.7&ndash;1.0 (0.214 at p0 = 1 against 0.217 in <em>society-robotnorms</em>) and 0.395&ndash;0.007 over k 0.5&ndash;4. Stylised: p0 and k have no source I could find and are swept; binary one-counter model."
+}
