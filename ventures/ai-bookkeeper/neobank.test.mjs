@@ -229,3 +229,22 @@ test("USAA: original description column ignored, pending rows skipped", () => {
   assert.equal(r.rows[0].desc, "Shell");
   assert.equal(r.problems.length, 1);
 });
+
+test("balance-less checking export: outgoing 'online payment' rows do not flip the signs", () => {
+  const t = "Date,Description,Amount\n2026-03-02,ONLINE PAYMENT VERIZON,-85.00\n2026-03-03,STRIPE PAYOUT,1200.00\n2026-03-04,AUTOPAY GEICO,-140.00\n2026-03-05,ADOBE,-54.99\n";
+  const r = readStatement(t);
+  assert.deepEqual(r.rows.map((x) => x.cents), [-8500, 120000, -14000, -5499]);
+  assert.equal(r.inferred, null);
+});
+
+test("card export with positive charges and 'payment thank you' rows still flips", () => {
+  const t = "Date,Description,Amount\n2026-03-02,PAYMENT THANK YOU,-500.00\n2026-03-03,AMAZON,60.00\n2026-03-04,UBER,22.50\n";
+  const r = readStatement(t);
+  assert.deepEqual(r.rows.map((x) => x.cents), [50000, -6000, -2250]);
+  assert.match(r.inferred, /flipped/);
+});
+
+test("autopay-only card export (mostly positive charges) still flips", () => {
+  const t = "Date,Description,Amount\n2026-03-02,AUTOPAY PAYMENT,-300.00\n2026-03-03,AMAZON,60.00\n2026-03-04,UBER,22.50\n2026-03-05,SHELL,40.00\n";
+  assert.deepEqual(readStatement(t).rows.map((x) => x.cents), [30000, -6000, -2250, -4000]);
+});
