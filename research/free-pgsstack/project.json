@@ -1,0 +1,6 @@
+{
+ "theme": "twins",
+ "title": "How many solver iterations does a physics twin need to hold a stack of boxes still?",
+ "summary": "A from-scratch projected Gauss-Seidel (sequential-impulse) contact solver at 60 Hz on a 1-D stack of n unit boxes starting at rest, checked against the exact static contact impulses. The iterations per step needed to hold the stack (speed under 1 mm/s, total overlap under 0.1 mm, and for every larger count tried) grow faster than n: 1 at n = 2, 8 to 16 at n = 4, 64 to 128 at n = 6, 128 to 512 at n = 12, and over 2048 for n = 16 (bottom-up warm start) or n = 32 (every variant). Sixteen iterations hold at most 4 boxes. More iterations do not reliably help: at n = 16, 1024 holds and 2048 does not. Cold start needs more at small n and is mixed at large n; sweep order has no clean rule. One-dimensional, normal force only, one step size and Baumgarte factor, no real engine run; the cause of the non-monotone behaviour is not isolated.",
+ "lede": "how many solver iterations does a physics twin need to hold a stack of boxes still? A projected Gauss-Seidel solver at 60 Hz needs 16 for 4 boxes, about 128 for 6 and over 2048 for 16 or more, and extra iterations do not reliably help."
+}
