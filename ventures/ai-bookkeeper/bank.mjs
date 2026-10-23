@@ -7,6 +7,7 @@
 import { isMt940, isCamt, readMt940, readCamt } from "./sepa.mjs";
 import { isBai2, readBai2 } from "./bai2.mjs";
 import { isN43, readN43 } from "./n43.mjs";
+import { isCfonb, readCfonb } from "./cfonb.mjs";
 import { readStatementText } from "./statementtext.mjs";
 
 const ALIASES = {
@@ -283,6 +284,7 @@ export function sniffFormat(text) {
   if (isMt940(text)) return "mt940";
   if (isBai2(text)) return "bai2";
   if (isN43(text)) return "n43";
+  if (isCfonb(text)) return "cfonb";
   const head = text.slice(0, 2000);
   if (/<OFX>|OFXHEADER:|<STMTTRN>/i.test(head) || /<STMTTRN>/i.test(text)) return "ofx";
   if (/^\s*!(Type|Account|Option)/im.test(head)) return "qif";
@@ -545,6 +547,7 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
   }
   if (format === "bai2") { const r = readBai2(text); if (invert === true) for (const x of r.rows) x.cents = -x.cents; return r; }
   if (format === "n43") { const r = readN43(text); if (invert === true) for (const x of r.rows) x.cents = -x.cents; return r; }
+  if (format === "cfonb") { const r = readCfonb(text); if (invert === true) for (const x of r.rows) x.cents = -x.cents; return r; }
   if (format === "ofx") return readOfx(text);
   if (format === "esis") return readEsis(text);
   if (format === "gpc") return readGpc(text);
