@@ -1,0 +1,127 @@
+{
+  "date": "2026-10-23",
+  "session": "https://claude.ai/code/session_01GcgH5Qe4fnRRQ91rbmykm4",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-23T23:17:54Z",
+  "ended": "2026-10-23T23:30:56Z",
+  "wall_minutes": 13.19,
+  "tokens_in": 5216435,
+  "tokens_out": 39835,
+  "cost_usd": 1.8914,
+  "tool_calls": 52,
+  "task": "buildbot-recoil",
+  "projects": [
+    "research/buildbot-recoil"
+  ],
+  "pr": 9927,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    "MuJoCo built-in actuators and frictionloss silently distorted the first hold; a diagonal-inertia PD went unstable under delay (coupled modes). Both found and fixed before results."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/goals.md",
+      "why": "No docs/reports or docs/posts write-up: the project README carries the full account; kept the run small."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Track 20, new question (nailer recoil vs. G1 arm hold) instead of another carry micro-variant. Recoil impulse unsourced: searched twice, swept, and said so. Checks: pytest 5 pass, build.py ok, check_md_links ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "0b2335d5-f265-5681-8680-e747429f09a0",
+    "transcripts": 1,
+    "first": "2026-10-23T23:17:54Z",
+    "last": "2026-10-23T23:31:06Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 48,
+        "input": 96,
+        "output": 39835,
+        "thinking": 16031,
+        "cache_read": 5098017,
+        "cache_write_5m": 0,
+        "cache_write_1h": 118322,
+        "api_equivalent_usd": 1.8914,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 48,
+      "input": 96,
+      "output": 39835,
+      "thinking": 16031,
+      "cache_read": 5098017,
+      "cache_write_5m": 0,
+      "cache_write_1h": 118322,
+      "api_equivalent_usd": 1.8914,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 52,
+    "tools": {
+      "Bash": 44,
+      "Read": 3,
+      "WebSearch": 2,
+      "mcp__github__search_pull_requests": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.19,
+      "active_minutes": 13.19,
+      "model_minutes": 5.31,
+      "tool_minutes": 7.88,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "model, controller debugging, sweeps, write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 634.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
