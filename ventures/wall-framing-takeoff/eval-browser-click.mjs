@@ -65,6 +65,9 @@ await page.waitForFunction(() => /valley/i.test(document.querySelector("#roofOut
 const wingTxt = await page.textContent("#roofOut");
 const wingOk = /2x10/.test(wingTxt) && !/NaN|undefined/.test(wingTxt) && (await page.isHidden("#rfWingW") === false);
 console.log(wingOk ? "ok: cross wing with 2x10 valleys" : "FAIL: wing card: " + wingTxt.slice(0, 300));
+await page.fill("#rfWingPitch", "3");
+await page.waitForFunction(() => /3:12 against the main roof/.test(document.querySelector("#roofOut")?.textContent || ""));
+console.log("ok: wing at 3:12 on a 4:12 roof");
 await page.selectOption("#rfShape", "hip");
 const wingHidden = await page.isHidden("#rfWingW");
 console.log(wingHidden ? "ok: wing fields hidden on a hip roof" : "FAIL: wing fields shown on a hip roof");
