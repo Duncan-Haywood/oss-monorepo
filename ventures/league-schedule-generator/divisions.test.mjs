@@ -519,3 +519,17 @@ test("rainoutOptions reads the page's make-up checkboxes and they ride in the sh
   assert.equal(back.swapNights, "1");
   assert.equal(back.balance, "");
 });
+
+test("a blank seed means the default seed 1, so a share link (which reloads blank as 1) rebuilds the same schedule", () => {
+  const base = { divisions: "A: a1, a2, a3, a4", courts: "C1", times: "18:00", start: "2026-10-06", weekdays: "Tue" };
+  assert.equal(readDivisionsSpec({ ...base, seed: "" }).spec.seed, 1);
+  assert.equal(readDivisionsSpec({ ...base, seed: "  " }).spec.seed, 1);
+  assert.equal(readDivisionsSpec({ ...base, seed: "0" }).spec.seed, 0);
+  assert.equal(decodeDivisionFields("#d=" + encodeDivisionFields({ ...base, seed: "" })).seed, "1");
+});
+
+test("a venueHistory object survives a share link as JSON, not [object Object]", () => {
+  const venueHistory = { "A/a1": { Park: 2 } };
+  const back = decodeDivisionFields("#d=" + encodeDivisionFields({ divisions: "A: a1, a2", venueHistory }));
+  assert.deepEqual(JSON.parse(back.venueHistory), venueHistory);
+});
