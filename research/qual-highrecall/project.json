@@ -1,0 +1,6 @@
+{
+ "theme": "qual",
+ "title": "Does a low audit rate for coder-negatives pay when the coder has high recall?",
+ "summary": "On 3,188 real GoEmotions comments, three automated coders (naive-Bayes cut-offs coding 2, 3 and 4 times the human positive share; recall 0.72, 0.90, 1.00; not LLMs) and a hand-coded audit of 100 to 400 items. The best share of the audit among coder-negatives falls as recall rises (about 50%, 20%, 2% or lower), following the oracle Neyman share (0.43, 0.18, 0). But the narrowest 95% interval at 200 items (0.115 to 0.119) is no better than a plain random audit of 200 items with no coder (0.1195), because precision is only 0.25&ndash;0.36. Coverage still fails at low shares unless the negative stratum is almost clean (worst coder 0.48 at 2%, 0.77 at 5%, 0.91 at 10%). Bias is removed in every cell by weighting. Recall is bought with low precision by moving a weak classifier's cut-off; an LLM with both high is untested. One code, one corpus, one split; Wald intervals; no finite-population correction.",
+ "lede": "does a low audit rate for coder-negatives pay when the coder has high recall? On 3,188 GoEmotions comments the best share falls with recall (50%, 20%, 2%), but the narrowest interval (0.115&ndash;0.119 at 200 items) only matches a random audit with no coder (0.1195). Not an LLM."
+}
