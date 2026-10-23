@@ -281,6 +281,7 @@ export function sniffFormat(text) {
   if (/^\s*!(Type|Account|Option)/im.test(head)) return "qif";
   if (/^000\t\d{8}\t/.test(head)) return "esis";
   if (/^07[45]\d{16}/m.test(head) && /^075\d{16}/m.test(head)) return "gpc";
+  if (/^\s*datum zauctovani:/m.test(czKey(head)) && /^\s*castka:/m.test(czKey(head))) return "cz-blocks";
   return "csv";
 }
 
@@ -392,6 +393,49 @@ export function readEsis(text) {
 // client name 98-117, due date DDMMYY 123-128). Layout as published in the
 // ofxstatement-czech plugin's docstring (read from its sdist); code is mine.
 // Decode the file as Windows-1250 first.
+// Lower-case, accent-free text, so "částka:" and "castka:" match alike.
+function czKey(v) { return String(v).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase(); }
+
+// A Czech "Pohyby na účtu" text statement (key: value blocks, one blank-line-
+// separated block per movement: datum zaúčtování d.m.yyyy, částka, měna,
+// zůstatek (balance after the movement), variabilní symbol, označení operace,
+// název protiúčtu, protiúčet, poznámka with indented continuation lines). Seen
+// in the ofxstatement-czech plugin's test samples (maxibps.txt, erasvet01.txt,
+// read from its sdist); the reader is mine. Newest movement first, so the
+// statement balance is taken from the first block.
+export function readCzBlocks(text) {
+  const problems = [], out = [];
+  const blocks = [];
+  let cur = null, lastKey = null;
+  String(text).replace(/^\uFEFF/, "").split(/\r?\n/).forEach((l, i) => {
+    const m = /^([^:]{2,40}):\s?(.*)$/.exec(l);
+    const key = m && !/^\s/.test(l) ? czKey(m[1]).trim() : null;
+    if (key === "datum zauctovani") { cur = { line: i + 1, f: {} }; blocks.push(cur); }
+    if (!cur) return;
+    if (key) { cur.f[key] = m[2].trim(); lastKey = key; }
+    else if (/\S/.test(l) && lastKey) cur.f[lastKey] = (cur.f[lastKey] + " " + l.trim()).trim();
+    else if (!/\S/.test(l)) lastKey = null;
+  });
+  let statement = null;
+  const iso = (d) => `${d[3]}-${d[2].padStart(2, "0")}-${d[1].padStart(2, "0")}`;
+  for (const b of blocks) {
+    const d = /^(\d{1,2})\.\s*(\d{1,2})\.\s*(\d{4})$/.exec(b.f["datum zauctovani"] ?? "");
+    const cents = parseCents(String(b.f["castka"] ?? "").replace(/\s/g, ""));
+    if (!d) { problems.push(`Line ${b.line}: unreadable date "${b.f["datum zauctovani"] ?? ""}", skipped.`); continue; }
+    if (!Number.isFinite(cents)) { problems.push(`Line ${b.line}: unreadable amount, skipped.`); continue; }
+    if (!out.length && !statement) { const bal = parseCents(String(b.f["zustatek"] ?? "").replace(/\s/g, "")); if (Number.isFinite(bal)) statement = { cents: bal, date: iso(d) }; }
+    if (cents === 0) continue;
+    const vs = (b.f["variabilni symbol"] ?? "").replace(/^0+/, "");
+    const desc = [b.f["nazev protiuctu"], b.f["oznaceni operace"], b.f["poznamka"], vs && `VS ${vs}`].filter(Boolean).join(" ").replace(/\s+/g, " ").trim();
+    out.push({ line: b.line, date: iso(d), desc, cents, balance: Number.isFinite(parseCents(String(b.f["zustatek"] ?? "").replace(/\s/g, ""))) ? parseCents(String(b.f["zustatek"] ?? "").replace(/\s/g, "")) : null, currency: (b.f["mena"] ?? "").trim() });
+  }
+  const cs = new Set(out.map((x) => x.currency).filter(Boolean));
+  if (cs.size > 1) problems.push(`The file mixes currencies (${[...cs].join(", ")}); amounts are booked as written with no conversion.`);
+  for (const x of out) delete x.currency;
+  if (!out.length) problems.push("No movements (blocks starting \"datum zaúčtování:\") were found in the Czech statement.");
+  return { rows: out, problems, columns: null, bank: "cz-blocks", inferred: null, statement };
+}
+
 export function readGpc(text) {
   const problems = [], out = [];
   let statement = null;
@@ -491,6 +535,7 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
   if (format === "ofx") return readOfx(text);
   if (format === "esis") return readEsis(text);
   if (format === "gpc") return readGpc(text);
+  if (format === "cz-blocks") return readCzBlocks(text);
   if (format === "qif") return readQif(text, { dayFirst });
   const rows = parseCsv(text);
   const problems = [];
