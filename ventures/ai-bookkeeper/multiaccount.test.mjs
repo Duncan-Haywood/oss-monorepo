@@ -40,3 +40,24 @@ test("a name left out of the map is not imported and is reported", () => {
   assert.ok(r.problems.some((p) => p.includes("Visa Card")));
   assert.ok(importStatement(newBooks(), mint, "1000", { onlyAccount: "Savings" }).added === 1);
 });
+
+test("a Quicken QIF with several !Account sections splits per account and pairs transfers", async () => {
+  const { splitQif } = await import("./bank.mjs");
+  const { importQifAccounts, newBooks } = await import("./engine.mjs");
+  const qif = [
+    "!Option:AutoSwitch", "!Account", "NChecking", "TBank", "^",
+    "!Type:Bank", "D03/01/2026", "T-200.00", "PTransfer to Visa", "^", "D03/02/2026", "T-12.50", "PCoffee Shop", "^",
+    "!Account", "NVisa Card", "TCCard", "^",
+    "!Type:CCard", "D03/01/2026", "T200.00", "PPayment thank you", "^", "",
+  ].join("\r\n");
+  const parts = splitQif(qif);
+  assert.deepEqual(parts.map((p) => p.id), ["Checking", "Visa Card"]);
+  assert.equal(parts[0].type, "Bank");
+  const r = importQifAccounts(newBooks({}), qif, { Checking: "1000", "Visa Card": "2000" });
+  assert.equal(r.added, 3);
+  assert.equal(r.books.transactions.filter((t) => t.account === "2000").length, 1);
+  const part = importQifAccounts(newBooks({}), qif, { Checking: "1000" });
+  assert.equal(part.added, 2);
+  assert.ok(part.problems.some((p) => /Visa Card/.test(p)));
+  assert.deepEqual(splitQif("!Type:Bank\nD03/01/2026\nT-1\n^\n"), []);
+});
