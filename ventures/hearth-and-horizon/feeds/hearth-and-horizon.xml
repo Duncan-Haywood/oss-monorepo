@@ -16,6 +16,16 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>Forty to One</title>
+      <link>https://example.invalid/hearth-and-horizon/forty-to-one.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/forty-to-one.html</guid>
+      <pubDate>Fri, 23 Oct 2026 12:00:00 GMT</pubDate>
+      <description>Nine hundred people drink from a thin lens of fresh water floating on the sea under their island, and the drought has thinned it. The island's water AI can show that a bishop's feast needs more water than the main well can give without pulling up the sea, and a retired teacher's tape measure shows that its own sensor is two centimetres wrong. Two centimetres of water table is eighty centimetres of salt. Setting: Tebwaiaki, an invented islet in the southern Gilbert Islands, Kiribati, September and October 2054. Read the full text at https://example.invalid/hearth-and-horizon/forty-to-one.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>Nine hundred people drink from a thin lens of fresh water floating on the sea under their island, and the drought has thinned it. The island's water AI can show that a bishop's feast needs more water than the main well can give without pulling up the sea, and a retired teacher's tape measure shows that its own sensor is two centimetres wrong. Two centimetres of water table is eighty centimetres of salt.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>The Dry Bread</title>
       <link>https://example.invalid/hearth-and-horizon/the-dry-bread.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-dry-bread.html</guid>
