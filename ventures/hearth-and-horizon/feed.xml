@@ -24,6 +24,8 @@
       <itunes:summary>The hospital makes its own oxygen from air, and in the wet season the purity has slid from 93 percent to 84 and is still sliding. The plant's controller can show that the fault is water in the dryer, not the sieve, and that the part is nine days away over a flooded road. The fix is in the convent bakery, and it costs the Sisters their Thursday bread.</itunes:summary>
       <itunes:episodeType>full</itunes:episodeType>
       <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://example.invalid/hearth-and-horizon/audio/the-dry-bread.mp3" length="9125257" type="audio/mpeg"/>
+      <itunes:duration>0:25:21</itunes:duration>
     </item>
     <item>
       <title>The Warm Pew</title>
