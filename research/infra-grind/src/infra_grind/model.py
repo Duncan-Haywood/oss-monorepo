@@ -12,6 +12,7 @@ DEFAULTS = {
     "phi": 0.4, "gamma": 0.8, "beta": 3.5,   # Austin primary-breakage function
     "tanks": 3,                    # perfectly mixed tanks in series (plug-flow-ness)
     "feed_d80": 1500.0, "feed_m": 1.0,       # Rosin-Rammler feed
+    "xfine": 0.0, "kfine": 2.0,    # fines slowing: S_i divided by 1+(xfine/x_i)^kfine (0 = off)
     "sharp": 4.0, "bypass": 0.1,   # classifier (Whiten) sharpness, fines bypass to coarse
 }
 
@@ -42,6 +43,9 @@ def feed(p):
 def selection(p):
     x = sizes(p)
     S = [p["S1"] * (mean_size(x, i, p["n"]) / 1000.0) ** p["alpha"] for i in range(p["n"])]
+    if p.get("xfine", 0.0) > 0:  # cushioning / slurry effects slow fine particles
+        xs = sizes(p)
+        S = [S[i] / (1 + (p["xfine"] / mean_size(xs, i, p["n"])) ** p["kfine"]) for i in range(p["n"])]
     S[-1] = 0.0  # the finest class is a sink: there is no finer class to receive its progeny
     return S
 
@@ -68,7 +72,7 @@ def mill_pass(f, E, p, _cache={}):
     """Steady-state product of `tanks` perfectly mixed tanks sharing specific energy E (kWh/t).
     Each tank solves p = f - e S p + e B S p, lower-triangular because breakage only makes finer
     classes, so it is forward substitution."""
-    key = tuple(sorted((k, v) for k, v in p.items() if k in ("n", "top", "S1", "alpha", "phi", "gamma", "beta")))
+    key = tuple(sorted((k, v) for k, v in p.items() if k in ("n", "top", "S1", "alpha", "phi", "gamma", "beta", "xfine", "kfine")))
     if key not in _cache:
         _cache[key] = (selection(p), breakage(p))
     S, b = _cache[key]

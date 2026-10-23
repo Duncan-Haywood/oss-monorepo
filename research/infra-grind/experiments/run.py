@@ -72,4 +72,16 @@ for t in (1, 3, 6, 10):
         row.append(f"{energy_open(P80, p)/b['energy']:4.2f}" if b else " n/a")
     w(f"{t:5d}        " + "  ".join(row))
 
+w("")
+w("F. Fines slowing: S_i / (1 + (xfine/x_i)^kfine), swept. Does the open/closed ratio fall toward Bond's EF2 = 1.20? (P80 100 um)")
+w("xfine  kfine  open_E  best_closed_E  cut  load  open/closed")
+for xf in (0.0, 10.0, 30.0, 60.0, 100.0, 200.0):
+    for kf in ((2.0,) if xf == 0 else (1.0, 2.0, 4.0)):
+        p = {"xfine": xf, "kfine": kf}
+        b, _ = best_closed(p)
+        e_o = energy_open(P80, p)
+        if b is None:
+            w(f"{xf:5.0f}  {kf:4.1f}  {e_o:7.2f}  none within load limit"); continue
+        w(f"{xf:5.0f}  {kf:4.1f}  {e_o:7.2f}  {b['energy']:7.2f}   {b['cut_ratio']:.2f} {b['circ_load']*100:4.0f}%  {e_o/b['energy']:5.2f}")
+
 open(os.path.join(os.path.dirname(__file__), "results.txt"), "w").write("\n".join(OUT) + "\n")

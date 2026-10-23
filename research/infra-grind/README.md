@@ -29,8 +29,8 @@ Milestone 7 of track 21, applied R&D for the industries modern life runs on (`PR
 ```bash
 pip install pytest
 cd research/infra-grind
-python -m pytest -q tests                       # 10 tests
-PYTHONPATH=src python experiments/run.py        # about 2 minutes; writes experiments/results.txt
+python -m pytest -q tests                       # 12 tests
+PYTHONPATH=src python experiments/run.py        # about 4 minutes; writes experiments/results.txt
 python experiments/figure.py                    # experiments/circuit.svg from results.txt
 ```
 Standard library only.
@@ -40,9 +40,10 @@ Standard library only.
 - **B. Bond's exponent.** Local exponent m in E &prop; P80<sup>&minus;m</sup> between 50 and 200 &micro;m: 0.60, 0.75, 0.92, 1.00, 1.09, 1.27 at &alpha; = 0.4, 0.6, 0.8, 0.9, 1.0, 1.2. Bond's formula gives 0.68 over the same sizes and F80. The model reproduces it near &alpha; = 0.5, a value inside the 0.5 to 1.5 range I recall for ball-mill selection exponents, so Bond's law is consistent with the model, but a default &alpha; of 0.9 is not.
 - **C. Sensitivity of the saving** (best feasible closed vs open). Tanks 1, 2, 3, 4, 6, 10: 73, 59, 53, 50, 47, 44%. Classifier sharpness 2 to 8: 47 to 54%. Bypass 0 to 0.3: 53 to 48%. &alpha; 0.6 to 1.2: 50 to 53%. &beta;, &gamma;, &phi;: 48 to 55%. Mixing is the one input that moves it much: a fully mixed mill overgrinds heavily.
 - **E. Open/closed energy ratio** over tanks &times; sharpness: 1.8 to 3.7, never near 1.2.
+- **F. Fines slowing (negative result).** Cause (1) below was tested: S<sub>i</sub> divided by 1+(x<sub>fine</sub>/x<sub>i</sub>)<sup>k</sup>, with x<sub>fine</sub> 10 to 200 &micro;m and k 1, 2, 4. The open/closed ratio does **not** fall toward 1.20: it stays 2.10 to 2.12 for x<sub>fine</sub> up to 100 &micro;m and rises to 2.29 to 2.30 at 200 &micro;m (the open-circuit energy grows 1.2 to 3.7&times;, the closed one grows with it). Slowing the fines raises the cost of both circuits about equally, so it cannot explain the gap. The form is an assumed one (not fitted to cushioning data).
 
 ## Discrepancy with the published figures
-The model's open/closed ratio is 1.8 to 3.7, against Bond's EF2 of 1.20 and about 1.1 from the vendor ranges. Possible causes, none tested here: (1) real fines grind more slowly than a power-law S predicts (cushioning, slurry effects), which shrinks the overgrinding that open circuit pays for; (2) the model has no throughput limit, so the closed circuit's high load is free; (3) auxiliary power of separators and elevators (a trade article puts it near 22% of mill power) is excluded; (4) EF2 is defined against a closing screen size, not a P80 match, and cement is specified by Blaine surface rather than P80; (5) the shape parameters are typical values, not fitted to any mill. The honest reading is that the structure is right (closed beats open, finer cut and sharper classifier help) but the magnitude needs fitting to a real mill's size distributions before it is used.
+The model's open/closed ratio is 1.8 to 3.7, against Bond's EF2 of 1.20 and about 1.1 from the vendor ranges. Possible causes: (1) real fines grind more slowly than a power-law S predicts (cushioning, slurry effects), which shrinks the overgrinding that open circuit pays for (**tested in F: it does not close the gap**; the rest are untested); (2) the model has no throughput limit, so the closed circuit's high load is free; (3) auxiliary power of separators and elevators (a trade article puts it near 22% of mill power) is excluded; (4) EF2 is defined against a closing screen size, not a P80 match, and cement is specified by Blaine surface rather than P80; (5) the shape parameters are typical values, not fitted to any mill. The honest reading is that the structure is right (closed beats open, finer cut and sharper classifier help) but the magnitude needs fitting to a real mill's size distributions before it is used.
 
 ## Limitations
 - **No real mill data.** Nothing here is fitted to a measured feed and product size distribution; a public one (e.g. a grindability test with sieve data) would replace the assumed parameters.
@@ -52,7 +53,7 @@ The model's open/closed ratio is 1.8 to 3.7, against Bond's EF2 of 1.20 and abou
 - Not engineering advice.
 
 ## Next steps
-- Fit S, B to a public batch-grinding dataset and test whether the discrepancy closes; add slowing of fines and a throughput limit.
+- Fit S, B to a public batch-grinding dataset and test whether the discrepancy closes; add a throughput limit (fines slowing alone was tried and did not close it).
 - Add the cost axis with `energy-tou` (time-of-use tariff) and the separator's own power.
 - Pair with `infra-cement`: grinding energy per blend is currently a flat 100 kWh/t there.
 
