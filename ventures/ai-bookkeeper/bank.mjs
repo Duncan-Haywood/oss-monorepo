@@ -529,7 +529,12 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
       else if (/^(cr|c|k|credit|deposit)$/.test(m)) cents = Math.abs(cents);
     }
     if (feeCol !== -1) { const fee = parseCents(r[feeCol], decimalComma); if (Number.isFinite(fee)) cents -= Math.abs(fee); }
-    if (cents === 0) continue;
+    if (cents === 0) {
+      // A zero is harmless, but a row with a description and every amount cell blank may be a lost transaction.
+      const blank = [columns.amount, columns.debit, columns.credit].filter((k) => k !== -1).every((k) => String(r[k] ?? "").trim() === "");
+      if (blank && String(r[columns.desc] ?? "").trim() && !/balance|saldo/i.test(String(r[columns.desc])) && !(columns.balance !== -1 && String(r[columns.balance] ?? "").trim())) problems.push(`Line ${i + 1}: no amount, skipped.`);
+      continue;
+    }
     const balance = columns.balance !== -1 && String(r[columns.balance] ?? "").trim() !== "" ? parseCents(r[columns.balance], decimalComma) : null;
     let desc = String(r[columns.desc] ?? "").trim().replace(/\s+/g, " ");
     if (bank === "cash-app") {
