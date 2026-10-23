@@ -510,13 +510,20 @@ function plainText(books, entries, map, bean) {
     return `${root[a?.type] ?? "Equity"}:${parts.join("-")}`;
   };
   // Beancount commodities are upper-case codes; a symbol or lower-case code would not parse.
-  const cur = bean ? ({ "$": "USD", "€": "EUR", "£": "GBP" }[books.currency] ?? String(books.currency || "USD").toUpperCase()) : books.currency || "USD";
+  const cur = bean ? ({ "$": "USD", "€": "EUR", "£": "GBP" }[books.currency] ?? String(books.currency || "USD").toUpperCase()) : String(books.currency || "USD").replace(/[.\s]+$/, "");
   const text = (t) => String(t ?? "").replace(/[\r\n]+/g, " ").replace(bean ? /"/g : /;/g, bean ? "'" : ",").replace(bean ? /\\/g : /$^/g, "/").trim();
   const out = [];
   if (bean) {
     const used = [...new Set(entries.flatMap((e) => e.lines.map((l) => l.account)))];
     out.push(`option "title" "${text(books.name ?? "Books")}"`, `option "operating_currency" "${cur}"`, "");
     for (const c of used) out.push(`${entries[0].date} open ${path(c)} ${cur}`);
+    out.push("");
+  } else {
+    // Declared up front so `ledger --strict --pedantic` (which flags unknown accounts and
+    // commodities, catching typos) and `hledger check accounts commodities` accept the file.
+    const used = [...new Set(entries.flatMap((e) => e.lines.map((l) => path(l.account))))];
+    out.push(`commodity ${cur}`, "");
+    for (const a of used) out.push(`account ${a}`);
     out.push("");
   }
   for (const e of entries) {
