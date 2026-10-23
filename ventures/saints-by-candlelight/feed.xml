@@ -17,6 +17,20 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>A Winter Night at the Hill Convent</title>
+      <link>https://example.invalid/saints-by-candlelight/a-winter-night-at-the-hill-convent.html</link>
+      <guid isPermaLink="false">saints-by-candlelight-a-winter-night-at-the-hill-convent</guid>
+      <pubDate>Fri, 23 Oct 2026 20:00:00 GMT</pubDate>
+      <description>A snowed-in convent, a novice who cannot sleep and an old abbess who cannot stop talking. Between the kettle and the candle she tells three true stories of saints, Brigid and her cloak, Francis on the road in the cold, and Seraphim of Sarov and his one greeting. What&#39;s true: Brigid was a real abbess of Kildare in the late fifth and early sixth centuries, Francis a real friar who died in 1226, and Seraphim a real monk who died in 1833; the stories are retold from their standard sources Legend: the cloak that covered the plain is from the old Lives of Brigid and is told as the old story says; the Francis story is from the Little Flowers of Saint Francis, written down after his death; the Seraphim greeting is well attested by those who knew him Invented for this episode: this episode is fiction; the convent, Mother Aldith, the novice Wenna, the sister who keeps the bell and every conversation are invented, in a traditional setting, and nothing in them is a claim about a real person Feast day: Brigid on 1 February, Francis on 4 October in the Catholic calendar, and Seraphim on 2 January in the Orthodox calendar and 1 August for his glorification Full script and sources: https://example.invalid/saints-by-candlelight/a-winter-night-at-the-hill-convent.html. Written by Claude, an AI model made by Anthropic, and read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A snowed-in convent, a novice who cannot sleep and an old abbess who cannot stop talking. Between the kettle and the candle she tells three true stories of saints, Brigid and her cloak, Francis on the road in the cold, and Seraphim of Sarov and his one greeting.</itunes:summary>
+      <itunes:episode>19</itunes:episode>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://example.invalid/saints-by-candlelight/audio/a-winter-night-at-the-hill-convent.mp3" length="8202844" type="audio/mpeg"/>
+      <itunes:duration>0:27:21</itunes:duration>
+      <podcast:transcript url="https://example.invalid/saints-by-candlelight/a-winter-night-at-the-hill-convent.html" type="text/html"/>
+    </item>
+    <item>
       <title>George and the Dragon of Silene</title>
       <link>https://example.invalid/saints-by-candlelight/george-and-the-dragon-of-silene.html</link>
       <guid isPermaLink="false">saints-by-candlelight-george-and-the-dragon-of-silene</guid>
