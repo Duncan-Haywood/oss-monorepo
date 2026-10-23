@@ -1,0 +1,6 @@
+{
+ "theme": "society",
+ "title": "If the people on the robots' side fade away, does the crowd stay tipped to the robots' walking side?",
+ "lede": "how fast can a bloc on the robots' side dissolve? With 20% allies converting at rate c per round, the least grid robot share that tips half of 12 crowds rises from 0.02 (no fading) to 0.05, 0.10, 0.10, 0.15 and 0.20 at c = 0.001 to 0.1; tips form in about 50 rounds and persist once allies are gone. Stylised",
+ "summary": "The <code>society-blocs</code> model with 20% of people who always walk the robots' side, each turning into an ordinary memory-rule walker with probability <em>c</em> per round (memory&nbsp;9, 200 people, 12 seeds, 4000 rounds). The least robot share on a 0.02 to 0.20 grid at which at least half the crowds tip is 0.02 at <em>c</em>&nbsp;=&nbsp;0 and 0.05, 0.10, 0.10, 0.15, 0.20 at <em>c</em>&nbsp;=&nbsp;0.001, 0.003, 0.01, 0.03, 0.1, against 0.2165 with no allies. Tips form in a median 41 to 54 rounds and persist after the allies are gone, so fading hurts only when it is faster than that. Holdouts on the status-quo side who never convert make marginal cells worse (3 of 12 crowds tip instead of 10 at <em>c</em>&nbsp;=&nbsp;0.001, robots 0.05); holdouts that fade too change little. Stylised: conversion rates are swept, not measured; simulated walkers only."
+}
