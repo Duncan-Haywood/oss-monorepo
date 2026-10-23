@@ -331,3 +331,17 @@ test("an Airbnb payout that does not match the rows before it is reported, not s
   assert.equal(r.payouts.length, 0);
   assert.match(r.problems[0], /Not split/);
 });
+
+test("Connect platform earnings are sales and a top-up or reversed payout is clearing, not other income", () => {
+  const rep = `${HEAD}
+po_9,2026-04-05,txn_1,2026-04-01,platform_earning,100.00,0.00,100.00,Platform cut
+po_9,2026-04-05,txn_2,2026-04-02,platform_earning_refund,-10.00,0.00,-10.00,Cut refunded
+po_9,2026-04-05,txn_3,2026-04-03,topup,200.00,0.00,200.00,Top-up from bank
+po_9,2026-04-05,txn_4,2026-04-03,anticipation_repayment,-30.00,0.00,-30.00,Advance repaid
+`;
+  const r = readPayoutReport(rep);
+  assert.deepEqual(r.rows.map((x) => x.kind), ["sales", "refunds", "reserve", "reserve"]);
+  const plan = planPayouts(books([["2026-04-06", "STRIPE PAYOUT", "260.00"]]), r);
+  assert.equal(plan.matched.length, 1);
+  assert.deepEqual(plan.matched[0].parts, [{ account: "4000", cents: 9000 }, { account: "1200", cents: 17000 }]);
+});

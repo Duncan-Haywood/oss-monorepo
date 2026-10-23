@@ -40,7 +40,7 @@ flagships:
       measured 2026-10-23 with a 3B local model: worse than the rules (rescued 4, broke 24 of 44); try a larger model and a fill-only-when-no-suggestion mode (README Next); (2) try the bank
       readers (third-party OFX files tried 2026-10-23, two faults fixed; Chase, Bank of America, Wells Fargo, Amex, Capital One CSV;
       OFX/QFX/QIF; statement PDFs with multi-column layouts and CID fonts with no ToUnicode map;
-      LZW/ASCII85/predictor streams now decode) on real exports; (3) a real Stripe, Square,
+      LZW/ASCII85/predictor streams now decode) on real exports; (3) a real Stripe (Connect categories mapped 2026-10-23, unverified), Square,
       PayPal or Amazon settlement (Amazon V2, date-range and Square Payouts API JSON readers landed 2026-10-22, all on hand-written fixtures; Monzo, Starling and Mercury CSV readers too; Etsy ledger reader; Airbnb host history reader and host page 2026-10-23; PayPal activity CSV as a bank file 2026-10-23; Robinhood (Activity Date) and Narration/Withdrawal Amt./Deposit Amt./Closing Balance headers 2026-10-23; YNAB and Wave exports 2026-10-23; 14 more US/UK bank and app CSV readers and five languages' column names 2026-10-22, from memory) export for the payment-processor import (`form1099k` 2026-10-23: try a real 1099-K); (4) a real supplier's
       terms letter checked against the fee and discount rules, and one named
       lender's own schedule against the loan register (`loan check` landed 2026-10-23 on derived tables: try a real lender's PDF-to-CSV table); (5) try receipts and
