@@ -14,8 +14,8 @@ const ALIASES = {
   desc: ["description", "transaction description", "payee", "merchant", "name", "details", "original description", "memo", "narrative", "counter party", "counterparty", "narration", "reference", "partner name", "note",
     "beschreibung", "verwendungszweck", "buchungstext", "beguenstigter/zahlungspflichtiger", "begünstigter/zahlungspflichtiger", "libellé", "libelle", "descripción", "descripcion", "concepto", "descrizione", "causale", "omschrijving", "naam / omschrijving"],
   amount: ["amount", "amount (total)", "transaction amount", "amt", "value", "amount (usd)", "amount ($)", "amount (gbp)", "amount (eur)", "cad$", "betrag", "betrag (eur)", "montant", "importe", "importo", "bedrag", "net"],
-  debit: ["debit", "debits", "withdrawal", "withdrawals", "withdrawal amt.", "withdrawal amt", "withdrawal amount", "withdrawal (-)", "withdrawals (-)", "debit (-)", "money out", "paid out", "amount debit", "debit amount", "soll", "débit", "debit (eur)", "cargo", "dare", "uscite"],
-  credit: ["credit", "credits", "deposit", "deposits", "deposit amt.", "deposit amt", "deposit amount", "deposit (+)", "deposits (+)", "credit (+)", "money in", "paid in", "amount credit", "credit amount", "haben", "crédit", "credito", "crédito", "abono", "avere", "entrate"],
+  debit: ["debit", "debits", "withdrawal", "withdrawals", "withdrawal amt.", "withdrawal amt", "withdrawal amount", "withdrawal (-)", "withdrawals (-)", "debit (-)", "money out", "paid out", "amount debit", "debit amount", "debit amount (positive)", "outflow", "soll", "débit", "debit (eur)", "cargo", "dare", "uscite"],
+  credit: ["credit", "credits", "deposit", "deposits", "deposit amt.", "deposit amt", "deposit amount", "deposit (+)", "deposits (+)", "credit (+)", "money in", "paid in", "amount credit", "credit amount", "credit amount (positive)", "inflow", "haben", "crédit", "credito", "crédito", "abono", "avere", "entrate"],
   balance: ["balance", "running balance", "runningbalance", "running bal.", "ledger balance", "closing balance", "balance (gbp)", "balance (eur)", "balance (usd)", "saldo", "kontostand", "solde", "saldo (eur)"],
 };
 
