@@ -87,3 +87,29 @@ test("Additional Medicare Tax: 0.9% of earnings over $200,000, wages counting fi
   // under the threshold there is none
   assert.equal(estimatedTax(books("100000.00"), { year: 2026, wageBase: 18450000 }).addlMedicare, 0);
 });
+
+test("bracket tables are pinned to the published thresholds, and MFJ doubles single where the law says so", () => {
+  const edges = (y, f) => BRACKETS[y][f].b.slice(0, -1).map(([hi]) => hi / 100);
+  assert.deepEqual(edges(2025, "single"), [11925, 48475, 103350, 197300, 250525, 626350]);
+  assert.deepEqual(edges(2025, "mfj"), [23850, 96950, 206700, 394600, 501050, 751600]);
+  assert.deepEqual(edges(2025, "hoh"), [17000, 64850, 103350, 197300, 250500, 626350]);
+  assert.deepEqual(edges(2026, "single"), [12400, 50400, 105700, 201775, 256225, 640600]);
+  assert.deepEqual(edges(2026, "mfj"), [24800, 100800, 211400, 403550, 512450, 768700]);
+  assert.deepEqual(edges(2026, "hoh"), [17700, 67450, 105700, 201750, 256200, 640600]);
+  for (const y of [2025, 2026]) for (let i = 0; i < 4; i++) assert.equal(edges(y, "mfj")[i], 2 * edges(y, "single")[i]);
+});
+
+test("the QBI-threshold warning needs a QBI deduction and income above the limit", () => {
+  const re = /above the QBI threshold/;
+  const hi = estimatedTax(books("400000.00"), { year: 2026 });
+  assert.ok(hi.warnings.some((w) => re.test(w)));
+  assert.ok(estimatedTax(books("400000.00"), { year: 2026, qbi: false }).warnings.every((w) => !re.test(w)));
+  assert.ok(estimatedTax(books("50000.00"), { year: 2026 }).warnings.every((w) => !re.test(w)));
+});
+
+test("what the plan does not cover is left as the balance due with the return", () => {
+  const r = estimatedTax(books("100000.00"), { year: 2026, withholding: 100000, paid: 0 });
+  const planned = r.payments.reduce((s, p) => s + p.cents, 0);
+  assert.ok(r.balanceWithReturn > 0);
+  assert.equal(r.balanceWithReturn, r.totalTax - 100000 - planned);
+});
