@@ -83,3 +83,9 @@ test("a file with a header row is never read as header-less, and pasted statemen
   const t = readStatement("03/13 COFFEE SHOP 4.50\n03/14 PAYROLL ACME 1200.00\n", { year: 2026 });
   assert.deepEqual(t.rows.map((x) => x.desc), ["COFFEE SHOP", "PAYROLL ACME"]);
 });
+
+test("a row with a description and no amount is named, not dropped silently", () => {
+  const r = readStatement("Date,Description,Amount\n2026-01-02,Shop,\n2026-01-03,Coffee,-3.00\n");
+  assert.equal(r.rows.length, 1);
+  assert.deepEqual(r.problems, ["Line 2: no amount, skipped."]);
+});
