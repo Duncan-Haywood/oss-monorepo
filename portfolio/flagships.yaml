@@ -101,7 +101,7 @@ flagships:
       ERP or Factur-X export (xref-stream PDF repair landed 2026-10-22 on a hand-built
       fixture; open the result in veraPDF/a viewer), a page button for PDFs; verify the
       FatturaPA code lists, tolerances and IT-018 sequences against the current
-      specification and add a full FatturaPA XSD check; refresh the Bulgaria page
+      specification and add a full FatturaPA XSD check; Singapore InvoiceNow page landed 2026-10-23 (2028-31 dates from secondary guides, not read on iras.gov.sg; no PINT checks); refresh the Bulgaria page
       when its draft passes or changes; the NLCIUS and RO_CIUS rules themselves
       (needs their official Schematron).
   - venture: shift-roster-builder
