@@ -36,7 +36,7 @@
   }
  ],
  "deviations": [],
- "writeups": null,
+ "writeups": [],
  "goal": null,
  "notes": "New project research/energy-store-modelprice; 6 tests, build.py ok. Caught and fixed a verdict() argument bug before writing the README.",
  "corrections": [],
