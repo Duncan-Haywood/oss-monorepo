@@ -1557,6 +1557,7 @@ Annals*). Payments: gridlock resolution and liquidity-saving mechanisms (Bech an
 12. `infra-hvacmpc` (done 2026-10-22; envelope from recalled ASHRAE 140 values, no measured dataset reachable so nothing fitted): heating and cooling control. A grey-box RC building model fitted to an
     open dataset, MPC against a thermostat rule on a time-of-use tariff and a forecast that
     is not perfect (the lesson of `energy-tou-lp-forecast`).
+13. `infra-pumpsched` (done 2026-10-23; Net3 only, tariff shapes assumed and swept): pump scheduling. A daily lake-pump window on Net3 against time-of-use tariffs, separating the energy saved by changing the source mix from what the tariff adds.
 
 **Method transfers worth trying.** The point of the track is the transfer, so say in each README
 where the method came from. Changepoint detection and conformal prediction for sensor and meter
