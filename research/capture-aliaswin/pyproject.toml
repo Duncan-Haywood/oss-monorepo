@@ -1,0 +1,13 @@
+[project]
+name = "capture-aliaswin"
+version = "0.1.0"
+description = "Does a longer window, a lower gamma or a delay prior remove the period aliasing and early-start failures of GCC sync on real clips?"
+requires-python = ">=3.9"
+dependencies = ["numpy"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["../capture-syncgate/src", "../capture-realedit/src", "../capture-syncedit/src", "../capture-edit/src", "../capture-residgate/src", "src", "../capture-syncgate/src", "../capture-realedit/src", "../capture-syncedit/src", "../capture-realaudio/src", "../capture-audiosync/src", "../capture-edit/src"]
