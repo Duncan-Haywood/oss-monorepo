@@ -13,11 +13,11 @@ import { readStatementText } from "./statementtext.mjs";
 const ALIASES = {
   date: ["date", "transaction date", "posted date", "post date", "posting date", "trans date", "booking date", "effective date", "value date", "completed date", "started date", "date (utc)", "datetime", "run date", "activity date", "txn date", "tran date",
     // German, French, Spanish, Italian, Dutch headers
-    "datum", "buchungstag", "buchungsdatum", "valuta", "wertstellung", "date de l'opération", "date opération", "date operation", "fecha", "fecha operación", "fecha valor", "data", "data operazione", "data contabile", "data valuta", "boekdatum", "transactiedatum"],
+    "datum", "buchungstag", "buchungsdatum", "valuta", "wertstellung", "date de l'opération", "date opération", "date operation", "fecha", "fecha operación", "fecha valor", "data", "data operazione", "data contabile", "data valuta", "boekdatum", "boekingsdatum", "transactiedatum"],
   desc: ["description", "transaction description", "payee", "merchant", "name", "details", "original description", "memo", "posting details", "narrative", "counter party", "counterparty", "narration", "reference", "partner name", "note",
-    "beschreibung", "verwendungszweck", "buchungstext", "beguenstigter/zahlungspflichtiger", "begünstigter/zahlungspflichtiger", "libellé", "libelle", "descripción", "descripcion", "concepto", "descrizione", "causale", "omschrijving", "naam / omschrijving", "paaiškinimai"],
+    "beschreibung", "verwendungszweck", "buchungstext", "beguenstigter/zahlungspflichtiger", "begünstigter/zahlungspflichtiger", "libellé", "libelle", "descripción", "descripcion", "concepto", "descrizione", "causale", "omschrijving", "naam / omschrijving", "naam tegenpartij", "naam tegenpartij bevat", "tegenpartij", "mededeling", "mededelingen", "vrije mededeling", "paaiškinimai"],
   amount: ["amount", "amount (total)", "transaction amount", "amt", "value", "amount (usd)", "amount ($)", "amount (gbp)", "amount (eur)", "bedrag (eur)", "cad$", "betrag", "betrag (eur)", "montant", "importe", "importo", "bedrag", "net", "suma"],
-  debit: ["debit", "debits", "withdrawal", "withdrawals", "withdrawal amt.", "withdrawal amt", "withdrawal amount", "withdrawal (-)", "withdrawals (-)", "debit (-)", "money out", "paid out", "amount debit", "debit amount", "debit amount (positive)", "outflow", "soll", "débit", "debit (eur)", "cargo", "dare", "uscite"],
+  debit: ["debit", "debits", "withdrawal", "withdrawals", "withdrawal amt.", "withdrawal amt", "withdrawal amount", "withdrawal (-)", "withdrawals (-)", "debit (-)", "money out", "paid out", "amount debit", "debit amount", "debit amount (positive)", "outflow", "debet", "soll", "débit", "debit (eur)", "cargo", "dare", "uscite"],
   credit: ["credit", "credits", "deposit", "deposits", "deposit amt.", "deposit amt", "deposit amount", "deposit (+)", "deposits (+)", "credit (+)", "money in", "paid in", "amount credit", "credit amount", "credit amount (positive)", "inflow", "haben", "crédit", "credito", "crédito", "abono", "avere", "entrate"],
   balance: ["balance", "running balance", "runningbalance", "running bal.", "ledger balance", "closing balance", "balance (gbp)", "balance (eur)", "balance (usd)", "saldo", "kontostand", "solde", "saldo (eur)"],
 };
@@ -667,6 +667,8 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
   // Any file with a currency column (Revolut, Swedbank's Valiuta, Wise and the like) is checked for a mix.
   const curCol = hdr.findIndex((x) => /^(currency|valiuta|valuta|waluta|währung|wahrung|devise|moneda|divisa|moeda)( code)?$/.test(x));
   const currencies = new Set();
+  // Belgian and Dutch exports keep the free-text message apart from the counterparty's name.
+  const msgCol = hdr.findIndex((x) => /^(vrije )?mededeling(en)?$/.test(x));
   // Mint, Monarch, Tiller and YNAB write every account into one file and name the account on each row.
   const acctCol = hdr.findIndex((x) => /^(account name|account|account nickname)$/.test(x));
   const accountNames = new Set();
@@ -678,7 +680,8 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
     if (bank === "venmo" && !String(r[columns.date] ?? "").trim()) continue;
     if (stateCol !== -1 && !okState.test(String(r[stateCol] ?? "").trim())) { problems.push(`Line ${i + 1}: state ${String(r[stateCol] ?? "").trim() || "blank"}, not a completed transaction, skipped.`); continue; }
     if (anyState !== -1 && NOT_BOOKED.test(String(r[anyState] ?? "").trim())) { problems.push(`Line ${i + 1}: status ${String(r[anyState]).trim()}, not a booked transaction, skipped.`); continue; }
-    if (curCol !== -1 && String(r[curCol] ?? "").trim()) currencies.add(r[curCol].trim().toUpperCase());
+    // Dutch "Valuta" is the value date (KBC), so only a code such as EUR counts.
+    if (curCol !== -1 && /^[A-Za-z]{3}$/.test(String(r[curCol] ?? "").trim())) currencies.add(r[curCol].trim().toUpperCase());
     if (/^(likutis (pradžiai|pabaigai)|opening balance|closing balance)$/i.test(String(r[columns.desc] ?? "").trim())) { problems.push(`Line ${i + 1}: a balance row, not a transaction, skipped.`); continue; }
     if (headerAt !== -1 && r.length <= Math.max(columns.amount, columns.debit, columns.credit) && String(r[columns.date] ?? "").trim()) { problems.push(`Line ${i + 1}: the row has ${r.length} columns, fewer than the header, so the amount column is missing; skipped. Check the quoting in the file.`); continue; }
     const date = parseDate(r[columns.date], dayFirst);
@@ -706,6 +709,7 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
       const who = String(r[hdr.indexOf("name of sender/receiver")] ?? "").trim();
       desc = [who, desc || String(r[hdr.indexOf("transaction type")] ?? "").trim()].filter(Boolean).join(" - ");
     }
+    if (msgCol !== -1 && msgCol !== columns.desc) desc = [desc, String(r[msgCol] ?? "").trim()].filter((x, j, a) => x && a.indexOf(x) === j).join(" ").replace(/\s+/g, " ");
     if (rbc2 !== -1) desc = [desc, String(r[rbc2] ?? "").trim()].filter(Boolean).join(" ").replace(/\s+/g, " ");
     if (bank === "paypal") {
       const nameI = hdr.indexOf("name");
