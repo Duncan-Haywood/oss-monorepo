@@ -1,0 +1,13 @@
+[project]
+name = "capture-syncedit"
+version = "0.1.0"
+description = "Does a residual audio-sync error show at the cuts of an automatic multi-camera edit?"
+requires-python = ">=3.9"
+dependencies = ["numpy"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "../capture-audiosync/src", "../capture-edit/src"]
