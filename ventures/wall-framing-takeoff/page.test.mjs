@@ -51,7 +51,7 @@ test("every static control has a label, and generated rows label their inputs", 
 
 test("the module script imports only local files, its names exist, and it parses", async () => {
   const html = page("index.html");
-  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./drawings.mjs", "./engine.mjs", "./floor.mjs", "./panels.mjs", "./roof.mjs", "./sheathing.mjs", "./usage.mjs"]);
+  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./drawings.mjs", "./engine.mjs", "./floor.mjs", "./headers.mjs", "./panels.mjs", "./roof.mjs", "./sheathing.mjs", "./usage.mjs"]);
   const names = html.match(/import \{([^}]+)\} from "\.\/engine\.mjs"/)[1].split(",").map((s) => s.trim());
   const engine = await import("./engine.mjs");
   for (const name of names) assert.ok(name in engine, name);
@@ -163,4 +163,12 @@ test("the page takes a gable pitch and peak per wall, passes them to the engine 
   assert.match(html, /\.\.\.gableField\(w, L, bad\)/);
   assert.match(html, /data-k="gable"|"gable", w\.gable/);
   assert.match(html, /gable: w\.gable \? String\(w\.gable\.pitch\)/);
+});
+
+test("the page offers a header table and the engine's auto header option", () => {
+  const html = page("index.html");
+  assert.match(html, /id="hdrTable"/);
+  assert.match(html, /import \{ resolveHeaders \} from "\.\/headers\.mjs"/);
+  assert.match(html, /\["auto", \.\.\.HEADER_SIZES\]/);
+  assert.match(html, /nothing here carries code values/);
 });
