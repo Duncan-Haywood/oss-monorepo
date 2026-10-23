@@ -67,6 +67,14 @@ Enforcers needed (share of crowd), by `p0` and cutter-robot share ρ:
   with 5 in view); the two-intruder rate 0.91 against the independent 0.75 says viewers influence each other.
 - The needed enforcer share at ρ = 0 is the same for M = 3, 5, 9, 15 at `p0 = 0.5` (0.075).
 
+- **Viewer influence (added 2026-10-23, step 2).** In a model where each viewer's reaction chance rises after
+  earlier reactions, the chance that *anyone* reacts is exactly `1-(1-r0)^L` whatever the boost, because
+  influence only acts after a first reaction (checked numerically, results section E). So word-of-mouth between
+  viewers cannot explain 0.5 to 0.91. A reaction hazard that grows as (intruders)^a with a = 1.80 does (a = 1 is
+  independence, 0.75); this is one parameter fit to one secondary-source number, a description not a test. The
+  0.05 buffer rate is not refitted. Step 1 (reading the 1986 paper) is still open: the paper was not reachable
+  from this environment (publisher pages return 403), so the inputs remain secondary.
+
 ## Limitations
 
 Secondary-source inputs; a reaction is not a stopped cut, hence a sweep, not a point estimate; Milgram's
@@ -76,7 +84,7 @@ cost or adaptation; a binary memory-majority model. Not about real queues or rob
 ## Next steps
 
 1. Read the 1986 paper and replace the table's secondary figures; fit `p0` to its stop rate directly.
-2. Add viewer influence (objection rises when others object) and refit the 0.05, 0.5 and 0.91 rates together.
+2. Refit the 0.05 buffer rate too, with a model where influence also changes who is in view (done for 0.5 and 0.91 only).
 3. Place enforcers on a line (`society-enforcers` step 1).
 
 ## Reproduce
