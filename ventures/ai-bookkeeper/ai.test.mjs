@@ -70,3 +70,12 @@ test("ai-eval harness: a perfect scripted model is right on every review line", 
   assert.equal(t.broken, 0);
   assert.equal(t.failedCalls, 0);
 });
+
+test("parseReply reads the shapes small local models actually return", () => {
+  const raw = '[\n {"id":"a","account":"1000 Checking (asset)","reason":"has } and \\" inside"},\n {"id":"b","account":"6000 X"}\n]';
+  assert.deepEqual(parseReply(raw).map((x) => x.id), ["a", "b"]); // bare array (qwen2.5:3b)
+  assert.deepEqual(parseReply("Sure:\n```json\n" + raw + "\n```").map((x) => x.id), ["a", "b"]);
+  assert.deepEqual(parseReply('{"lines":[{"id":"c"}]}').map((x) => x.id), ["c"]);
+  assert.deepEqual(parseReply('{"id":"d","account":"1"}\n{"id":"e","account":"2"} thanks {done}').map((x) => x.id), ["d", "e"]); // loose objects
+  assert.throws(() => parseReply('{"foo":1}'), /lines/);
+});
