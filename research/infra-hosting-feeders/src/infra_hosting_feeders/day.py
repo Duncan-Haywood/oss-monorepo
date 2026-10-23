@@ -63,6 +63,9 @@ def day_stats(f: Feeder, m: Measure, load_mult: np.ndarray, pv_irr: np.ndarray, 
         except dss.DSSException:
             bad += 1
         v = np.array(dss.Circuit.AllBusMagPu())
+        if len(v) != len(keep):     # a PV terminal opened a node that the first solve had not yet created
+            node_bus = [n.split(".")[0].lower() for n in dss.Circuit.AllNodeNames()]
+            keep = np.array([b not in skip for b in node_bus])
         vs = v[keep & (v > 0.1)]
         vmax = max(vmax, vs.max())
         vmin = min(vmin, vs.min())
