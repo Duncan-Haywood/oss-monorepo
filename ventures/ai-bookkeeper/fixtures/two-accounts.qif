@@ -1,0 +1,23 @@
+!Option:AutoSwitch
+!Account
+NChecking
+TBank
+^
+!Type:Bank
+D03/01/2026
+T-200.00
+PTransfer to Visa
+^
+D03/02/2026
+T-12.50
+PCoffee Shop
+^
+!Account
+NVisa Card
+TCCard
+^
+!Type:CCard
+D03/01/2026
+T200.00
+PPayment thank you
+^

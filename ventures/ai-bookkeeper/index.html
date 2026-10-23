@@ -411,9 +411,9 @@
     <p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> or <a href="https://buymeacoffee.com/duncanhaywood" rel="noopener">buy me a coffee</a> is entirely optional and never changes what the tool does.</p>
   </footer>
   <script type="module">
-    import { sniffFormat, splitOfx, readStatement } from "./bank.mjs";
+    import { sniffFormat, splitOfx, splitQif, readStatement } from "./bank.mjs";
     import { scheduleC, scheduleCCsv, contractors1099, contractors1099Csv, nec1099FilingCsv, markW9, mergePayees } from "./taxforms.mjs";
-    import { newBooks, importStatement, importOfxAccounts, importCsvAccounts, categorize, suggestRules, addRules, addDocuments, writeOff, aging, addAsset, disposeAsset, register, addPrepaid, prepaidRegister, addInventoryMove, setInventoryMethod, inventoryRegister, salesTax, vatReturn, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, exportLines, status, analyze, fmt, DEFAULT_ACCOUNTS, taxableBusinessIncome, s179Carryforward } from "./engine.mjs";
+    import { newBooks, importStatement, importOfxAccounts, importCsvAccounts, importQifAccounts, categorize, suggestRules, addRules, addDocuments, writeOff, aging, addAsset, disposeAsset, register, addPrepaid, prepaidRegister, addInventoryMove, setInventoryMethod, inventoryRegister, salesTax, vatReturn, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, exportLines, status, analyze, fmt, DEFAULT_ACCOUNTS, taxableBusinessIncome, s179Carryforward } from "./engine.mjs";
     import { parseCents } from "./bank.mjs";
     import { decodeBytes } from "./textcodec.mjs";
     import { pdfToText } from "./pdftext.mjs";
@@ -983,14 +983,14 @@
     async function showOfxMap() {
       const f = $("#file").files[0];
       ofxParts = [];
-      if (f && !/\.pdf$/i.test(f.name)) { const text = decodeBytes(await f.arrayBuffer()); if (sniffFormat(text) === "ofx") { const p = splitOfx(text); if (p.length > 1) ofxParts = p; } else { const n = readStatement(text, opts()).accountNames; if (n) ofxParts = n.map((id) => ({ id, csv: true })); } }
+      if (f && !/\.pdf$/i.test(f.name)) { const text = decodeBytes(await f.arrayBuffer()); if (sniffFormat(text) === "ofx") { const p = splitOfx(text); if (p.length > 1) ofxParts = p; } else if (sniffFormat(text) === "qif") { const p = splitQif(text); if (p.length > 1) ofxParts = p.map((q) => ({ ...q, qif: true })); } else { const n = readStatement(text, opts()).accountNames; if (n) ofxParts = n.map((id) => ({ id, csv: true })); } }
       $("#ofx-map").hidden = !ofxParts.length;
       if (!ofxParts.length) return;
       $("#ofx-map-note").textContent = `This file holds ${ofxParts.length} accounts. Choose the chart account each one goes to.`;
       const banks = books.accounts.filter((a) => a.bank);
       $("#ofx-map-rows").replaceChildren(...ofxParts.map((p, i) => {
         const sel = el("select", { id: `ofx-acct-${i}` }, el("option", { value: "", text: "Leave out" }), ...banks.map((a) => el("option", { value: a.code, text: `${a.code} ${a.name}` })));
-        const label = el("label", { for: `ofx-acct-${i}`, text: p.csv ? `Account "${p.id}"` : `Account ${p.id || "(no id)"} (${p.card ? "card" : p.type || "bank"})` });
+        const label = el("label", { for: `ofx-acct-${i}`, text: p.qif ? `Account "${p.id}" (${p.type || "QIF"})` : p.csv ? `Account "${p.id}"` : `Account ${p.id || "(no id)"} (${p.card ? "card" : p.type || "bank"})` });
         return el("div", {}, label, sel);
       }));
     }
@@ -1003,7 +1003,7 @@
       if (ofxParts.length && $("#file").files[0]) {
         const map = {};
         ofxParts.forEach((p, i) => { const v = $(`#ofx-acct-${i}`).value; if (v) map[p.id] = v; });
-        const r = ofxParts[0].csv ? importCsvAccounts(books, text, map, opts()) : importOfxAccounts(books, text, map, opts());
+        const r = ofxParts[0].qif ? importQifAccounts(books, text, map, opts()) : ofxParts[0].csv ? importCsvAccounts(books, text, map, opts()) : importOfxAccounts(books, text, map, opts());
         books = r.books;
         $("#import-status").textContent = [`${r.added} line${r.added === 1 ? "" : "s"} added across ${Object.keys(map).length} account${Object.keys(map).length === 1 ? "" : "s"}${r.skipped ? `, ${r.skipped} already in the books` : ""}.`, ...r.problems.slice(0, 3)].join(" ");
         $("#file").value = ""; $("#paste").value = ""; ofxParts = []; $("#ofx-map").hidden = true;
