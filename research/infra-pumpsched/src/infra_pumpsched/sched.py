@@ -18,15 +18,17 @@ J_PER_KWH = 3.6e6
 PUMPS = ("10", "335")
 
 
-def build(start, hours, days=DAYS):
+def build(start, hours, days=DAYS, step=3600):
     """Net3 with pump 10 open for `hours` from hour `start` each day (start may be 0..23; the window may cross midnight)."""
-    return build_mask([((h - start) % 24) < hours for h in range(24)] if hours < 24 else [True] * 24, days)
+    return build_mask([((h - start) % 24) < hours for h in range(24)] if hours < 24 else [True] * 24, days, step)
 
 
-def build_mask(mask, days=DAYS):
+def build_mask(mask, days=DAYS, step=3600):
     """Net3 with pump 10 open in the hours where `mask[h]` is true, the same 24-hour pattern every day."""
     wn = wntr.network.WaterNetworkModel(NET3)
     wn.options.time.duration = days * 24 * 3600
+    wn.options.time.hydraulic_timestep = step
+    wn.options.time.report_timestep = step
     for name in [n for n, c in wn.controls() if "PUMP 10 " in str(c)]:
         wn.remove_control(name)
     pump = wn.get_link("10")
@@ -43,32 +45,36 @@ def build_mask(mask, days=DAYS):
 
 def simulate_mask(mask):
     """`simulate` for an hourly on/off pattern of pump 10 (24 booleans)."""
-    return _score(build_mask(mask))
+    return _score(build_mask(mask), 3600)
 
 
-def simulate(start, hours):
+def simulate(start, hours, step=3600):
     """Hourly results of the last day: dict of energy kWh per hour for each pump, tank levels, min pressure, tank drift."""
-    return _score(build(start, hours))
+    return _score(build(start, hours, step=step), step)
 
 
-def _score(wn):
+def _score(wn, step=3600):
+    """`step` (s, divides 3600) is the hydraulic and report step; booster pump 335 switches on tank levels inside the hour, so the
+    default 3600 s samples it once an hour (see README, "Mass balance")."""
+    k = 3600 // step
     r = wntr.sim.EpanetSimulator(wn).run_sim()
     flow, head = r.link["flowrate"], r.node["head"]
     e = wntr.metrics.economic.pump_energy(flow[list(PUMPS)], head, wn).astype(float) / J_PER_KWH
-    # pump_energy gives energy of each hourly step ending at that time's row: rows 48..71 are day 3
-    day = slice(48, 72)
+    # pump_energy is power at each report row times the report step; the k rows of an hour are summed
+    day = slice(48 * k, 72 * k)
     junc = [n for n in wn.junction_name_list if wn.get_node(n).demand_timeseries_list[0].base_value > 0]
     pres = r.node["pressure"][junc]
     lvl = r.node["pressure"][["1", "2", "3"]]
     area = {t: np.pi * wn.get_node(t).diameter ** 2 / 4 for t in ("1", "2", "3")}
-    drift = sum((lvl[t].iloc[72] - lvl[t].iloc[48]) * area[t] for t in area)  # m3
+    drift = sum((lvl[t].iloc[72 * k] - lvl[t].iloc[48 * k]) * area[t] for t in area)  # m3
     return {
-        "kwh": {p: e[p].iloc[day].to_numpy() for p in PUMPS},
-        "min_pressure": float(pres.iloc[24:73].min().min()),
-        "tank_min_margin": float(min((lvl[t].iloc[24:73].min() - wn.get_node(t).min_level) for t in area)),
+        "kwh": {p: e[p].iloc[day].to_numpy().reshape(24, k).sum(axis=1) for p in PUMPS},
+        "min_pressure": float(pres.iloc[24 * k:72 * k + 1].min().min()),
+        "tank_min_margin": float(min((lvl[t].iloc[24 * k:72 * k + 1].min() - wn.get_node(t).min_level) for t in area)),
         "drift_m3": float(drift),
-        "pump10_m3": float(flow["10"].iloc[48:72].sum() * 3600),
-        "demand_m3": float(r.node["demand"][junc].iloc[48:72].sum().sum() * 3600),
+        "pump10_m3": float(flow["10"].iloc[day].sum() * step),
+        "demand_m3": float(r.node["demand"][junc].iloc[day].sum().sum() * step),
+        "supply_m3": float(-r.node["demand"][["River", "Lake"]].iloc[day].sum().sum() * step),
     }
 
 

@@ -8,6 +8,8 @@ Track 21 (`infra`), a new milestone beyond the twelve listed in [`PROJECTS.md`](
 
 **Hourly schedules (new, `run_hourly.py`).** Letting pump 10 switch on and off in any hours of the day, not one window, adds almost nothing. Over every schedule with at most two runs of on-hours (one or two windows a day; exhaustive, 21,806 EPANET runs), a second window saves **0.0 to 0.02 % of shipped cost for 8 of the 10 tariffs**, and 9.5 % for the daytime peak at ratio 10 and 1.2 % for midday-cheap at ratio 10, where the optimum drops the long daytime run. A genetic algorithm and a local search over all 2<sup>24</sup> hourly masks (600 EPANET runs each) beat that two-window optimum by 0 to 4 points of shipped cost, but **the tank-drift tolerance is where most of that comes from**: all but one of the winners end the scored day with the tanks 0.6 to 1 % of daily demand lower, which is pumping owed tomorrow. Pricing that drawdown at pump 10's own 83 Wh/m<sup>3</sup>, the gain over the two-window optimum falls to roughly 0 to 1.3 points, except for midday-cheap at ratio 10 (43.7 to 44.4 against 46.1, in 2 of 3 seeds; the third is worse at 49.0). In other words: on Net3 nearly all of the saving is the choice of *how long* to run the lake pump, and a one-window search finds it.
 
+**Step size matters for windows that use the booster (new, `step_check.py`).** Every number below was computed at EPANET's 1-hour step. Pump 335 and pipe 330 switch on tank 1's level inside the hour, and one sample an hour mis-integrates them. At a 900 s step the shipped schedule uses **2,573 kWh, not 2,728 (pump 335 1,703 kWh, not 1,859), so the flat-tariff saving of the 21-hour window is 49 %, not 52 %.** The 1,307 kWh of the booster-free long windows does not change. Windows that still run the booster move by up to 15 % between 3600 and 900 s and by 3 % more between 900 and 300 s (`results_step.txt`), so the cost of those windows, and with them the tariff-dependent comparisons, are step-sensitive; they have not been re-run at 900 s.
+
 **Correction to the first version of this project.** The window builder did not close a window that crosses midnight on day one, so any such window was simulated with its first day running long and tanks that had not settled by the scored day. The shipped-window numbers and the 52 % are unchanged; the tariff-dependent results above were re-run (they had said 0.1 %, 8.6 %, 33.9 % and 0, 1.1 %, 13.8 %, and 346 of 409 windows feasible rather than 384).
 
 ![Cost saved by the best pump-10 window against the shipped window, by price ratio and tariff shape](experiments/saving.svg)
@@ -57,10 +59,13 @@ PYTHONPATH=src python experiments/drift_check.py > experiments/results_drift.txt
 - **The scored day is periodic only to 1 %**, and the unexplained 1 % mass-balance gap above applies.
 - **Safety-critical designs are research.** Pump operation affects drinking-water pressure and supply; nothing here is operating advice, and no real utility system was touched.
 
+## Mass balance (the 1 % gap, traced)
+At the 3600 s step the scored day's river plus lake outflow is 60,273 m<sup>3</sup> against 59,676 m<sup>3</sup> of junction demand and 16 m<sup>3</sup> of tank change: a 598 m<sup>3</sup> gap, exactly the sum of the three tanks' sampled flows. The tank levels barely move, so those flows are a sampling artefact, not water: hourly samples of a flow that switches inside the hour. At 900 s the gap is 37 m<sup>3</sup> (12 m<sup>3</sup> of drift) and at 300 s 38 m<sup>3</sup> (11 m<sup>3</sup>). A test pins this (`test_sub_hourly_step_closes_mass_balance`). Run: `PYTHONPATH=src python experiments/step_check.py > experiments/results_step.txt` (about 10 s).
+
 ## Next steps
 1. A sourced tariff and a demand charge (a demand charge penalises the long windows found here, and the hourly masks may then beat one window).
 2. Make the schedule truly periodic (a terminal tank-level constraint in place of the 1 % drift tolerance), so the search cannot borrow from tomorrow; the drift check shows that is where the free-form gain sits.
-3. Trace the 1 % mass-balance gap.
+3. Re-run the window grid and the hourly search at a 900 s step (`simulate(..., step=900)`), which the step check shows is needed for any schedule that runs the booster.
 4. Variable-speed pumps and a second network.
 
 ## Outside dependencies

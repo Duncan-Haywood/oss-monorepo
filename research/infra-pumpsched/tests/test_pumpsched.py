@@ -46,3 +46,12 @@ def test_tariff_shapes():
 
 def test_flat_cost_is_energy(shipped):
     assert cost(shipped, np.ones(24)) == pytest.approx(total_kwh(shipped))
+
+
+def test_sub_hourly_step_closes_mass_balance():
+    # at the 3600 s step the booster pump's mid-hour switching is sampled once an hour and supply exceeds demand by ~1 %;
+    # at 900 s the gap is about the tank change (<0.2 % of demand), and the shipped energy is lower
+    coarse, fine = simulate(1, 14), simulate(1, 14, step=900)
+    assert abs(coarse["supply_m3"] - coarse["demand_m3"] - coarse["drift_m3"]) > 0.005 * coarse["demand_m3"]
+    assert abs(fine["supply_m3"] - fine["demand_m3"] - fine["drift_m3"]) < 0.002 * fine["demand_m3"]
+    assert total_kwh(fine) < 0.97 * total_kwh(coarse)
