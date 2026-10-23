@@ -145,3 +145,11 @@ test("the page offers a cross wing and passes it to roof.mjs, only on gable roof
   assert.match(html, /\$\("#rfWing"\)\.value = wg \? "1" : "0"/);
   assert.match(html, /function syncWing/);
 });
+
+test("the page offers a second cross wing, only after the first, and round-trips it", () => {
+  const html = page("index.html");
+  for (const id of ["rfWing2", "rfWing2W", "rfWing2P", "rfWing2At", "rfWing2Side", "rfWing2Valley", "rfWing2Pitch"]) assert.match(html, new RegExp(`id="${id}"`), id);
+  assert.match(html, /rf\.wing && \$\("#rfWing2"\)\.value === "1"/);
+  assert.match(html, /rf\.wing2 = \{ width: L\(\$\("#rfWing2W"\)\.value/);
+  assert.match(html, /\$\("#rfWing2"\)\.value = w2 \? "1" : "0"/);
+});
