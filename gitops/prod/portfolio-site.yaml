@@ -289,6 +289,18 @@ data:
         add_header Cache-Control "public, max-age=300, must-revalidate" always;
       }
 
+      # The ai-bookkeeper wheel (ventures/ai-bookkeeper/ledger-*.whl) people
+      # pip install from. mime.types has no `whl` entry, so it would be
+      # octet-stream; typed as application/zip (a wheel is a zip archive).
+      location ~ \.whl$ {
+        types { }
+        default_type application/zip;
+        add_header X-Content-Type-Options nosniff always;
+        add_header X-Frame-Options DENY always;
+        add_header Referrer-Policy strict-origin-when-cross-origin always;
+        add_header Cache-Control "public, max-age=300, must-revalidate" always;
+      }
+
       # Not the same class as the typed blocks above: nginx's mime.types *does* have
       # an `xml` entry, so the feed already serves as text/xml and every reader
       # accepts it. This is the narrower correctness fix — `application/

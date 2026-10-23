@@ -8,6 +8,8 @@ Track 20, robots on the residential building site (`PROJECTS.md`; the "Limitatio
 
 ![Hold time against load](experiments/figure.png)
 
+**Pose search (added 2026-10-23).** The 0.54 and 0.91 above are for one chosen posture, not the best one. A 150-pose grid over hand reach (0.15 to 0.35 m), hand height (0.4 to 0.9 m) and balanced-CoM offset (−0.02 to +0.06 m) holding the 3.8 kg stud finds **0.33 of peak at hands 0.15 m ahead and 0.7 m high** (binding joint: wrist pitch, not the waist), against 0.91 at the original pose; at ρ = 0.4, 0.5 and 0.6 that pose is sustainable (hold time infinite) where the original reaches the limit in 0.21, 0.36 and 0.57 time constants. The verdict "a stud is a short-hold task" depends on posture: carried close in, with the arms nearly hanging, it is not, at the cost of the stud riding in front of the thighs (not checked). `experiments/posesearch.py`, output in `experiments/posesearch.txt`.
+
 **Not a rated runtime or payload.** ρ and the thermal time constant are not known for this robot; only dimensionless hold times are reported, and they are model outputs. Carrying lumber near people needs a risk assessment (ISO 10218, ISO/TS 15066).
 
 ## Method
@@ -29,6 +31,7 @@ cd research/buildbot-holdheat
 python -m pytest -q tests          # 5 tests, no network
 python experiments/run.py > experiments/results.txt   # about 1 min, needs the Menagerie clone of buildbot-payload
 python experiments/figure.py
+python experiments/posesearch.py > experiments/posesearch.txt   # about 1 min
 ```
 
 ## Results (from `experiments/results.txt`)
@@ -37,12 +40,13 @@ python experiments/figure.py
 - **A. Tasks.** Stud 0.91 (loss 3.7x the unloaded pose), 2x6 1.15, nailer 0.76, OSB end 1.89, lightweight block 2.48, drywall end 1.49, whole OSB sheet 4.0. The normal block, the 60 lb bag and the ceiling drywall do not have a reachable pose.
 
 ## Limitations
+- **Pose-search caveats (2026-10-23).** A coarse grid with a local IK solver: u_max is not monotonic in hand height (0.60 at 0.5 m, 0.44 at 0.6 m, 0.33 at 0.7 m), so the grid minimum is an upper bound on the true minimum, not the optimum. Self-collision was checked on the robot's own collision geoms only (0 of 150 poses flagged; a control with hands 0.06 m apart flags 8 body pairs); the stud itself is not modelled, so it may hit the thighs at 0.15 m reach, and a 2.4 m stud held at the sides of the body is a different grip from "both palms under it". Wrist pitch becomes the binding joint, a small motor whose continuous rating is as unknown as the waist's. Still static.
 - The pose is `buildbot-payload`'s balanced, not torque-optimal, posture: leaning back against a forward load costs the waist even when empty. A pose search (arms close in, knees bent, or elbow-on-hip) could move the unloaded 0.54, and that is the first thing to try. The carry is not static either; walking adds dynamic torque.
 - Waist pitch binds in every row, so the result is about one motor; a robot with a waist brace or a belt-supported load is a different robot.
 - ρ is swept because no continuous rating was found. A datasheet figure for the G1's 50 N·m waist actuator, or a measured current while holding, replaces the sweep.
 
 ## Next steps
-Search the pose for the lowest waist fraction at the stud load; add dynamic torque from the `buildbot-carry` gait; replace the ρ sweep with a datasheet or metered value (owner step: a G1 with current logging on a mock-up wall); feed hold time into `buildbot-shift`'s draw.
+Model the stud's own geometry and the thigh clearance in the pose search, and refine the grid with a local optimiser; add dynamic torque from the `buildbot-carry` gait; replace the ρ sweep with a datasheet or metered value (owner step: a G1 with current logging on a mock-up wall); feed hold time into `buildbot-shift`'s draw.
 
 ## Owner steps
 None needed. A real value needs a G1 with motor temperature or current logging, a mock-up wall and a risk assessment (ISO 10218, ISO/TS 15066).
