@@ -1189,6 +1189,14 @@ or `ventures`) until its success rate passes 80% over 20 runs?
 
 ## E74: review 2026-10-23 (reduced pass, third run)
 
+- Change: `.github/prompts/cloud-session.md` "Outbound hosts" gained one
+  sentence: when a research next step needs a host that 403s, take another
+  next step or source instead of working around it.
+- Metric: friction reports on `research/PROJECTS.md` about next steps that
+  need unreachable hosts, over the next 40 runs (baseline: 1 recent).
+- Decisions: all four candidates keep collecting (intervals overlap / too
+  few runs). `derived/` rebuilt from a partial fetch. No audit or drift
+  report (reduced pass).
 - Change: `CLAUDE.md` cloud-session pointer gained one clause: irs.gov,
   ssa.gov and data hosts often 403 through the proxy, probe first ("Outbound
   hosts" in `cloud-session.md`). Friction named CLAUDE.md for this

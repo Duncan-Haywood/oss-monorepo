@@ -93,7 +93,9 @@ depends on a host, probe it once:
 the proxy is not the site's answer. Then say in the PR, the run record or the
 product's notes that a figure could not be checked against that source, rather
 than skipping the step silently or citing from memory (`goals.md`: never
-fabricate). Proxy state and per-tool fixes: `curl -sS "$HTTPS_PROXY/__agentproxy/status"`.
+fabricate). If a research track's next step needs a host that 403s (e.g. OPSD data
+for `energy-price-residual`), take another next step or a different data
+source; don't spend the run on workarounds. Proxy state and per-tool fixes: `curl -sS "$HTTPS_PROXY/__agentproxy/status"`.
 
 ## Scheduled tasks
 
