@@ -274,3 +274,14 @@ test("the Etsy fixture behind etsy-bookkeeping.html splits one deposit as the pa
   assert.equal(p.gross, 36150);
   assert.equal(p.fees, 4641);
 });
+
+test("Stripe's balance-transactions export (Type, Amount, Created (UTC), Automatic Payout ID) splits a payout", () => {
+  const r = readPayoutReport(readFileSync(new URL("./fixtures/stripe-balance-transactions.csv", import.meta.url), "utf8"));
+  assert.equal(r.payouts.length, 1);
+  const p = r.payouts[0];
+  assert.equal(p.id, "po_9");
+  assert.equal(p.net, 6130);
+  assert.equal(p.date, "2026-03-04");
+  assert.equal(p.fees, 320);
+  assert.deepEqual(r.rows.filter((x) => x.kind === "skip").length, 1);
+});
