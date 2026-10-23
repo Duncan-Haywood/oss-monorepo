@@ -355,6 +355,18 @@ test("Square dashboard transactions CSV: deposit id groups payments and refunds,
   assert.equal(p.date, "2026-03-04");
   assert.equal(p.net, 1003 + 1217 - 1284);
   assert.equal(p.fees, 60 + 67);
-  assert.deepEqual(p.rows.map((x) => x.kind), ["sales", "sales", "refunds"]);
-  assert.equal(r.pending.length, 1);
+  assert.deepEqual(p.rows.map((x) => x.kind), ["sales", "tax", "tips", "sales", "tax", "refunds", "tax"]);
+  assert.equal(r.pending.length, 2);
+  // Tax and tip come out of Total Collected: $9.00 of coffee, not $10.63.
+  const plan = planPayouts(books([["2026-03-05", "SQUARE INC", "9.36"]]), r, {});
+  assert.deepEqual([...plan.matched[0].parts].sort((a, b) => a.account.localeCompare(b.account)), [{ account: "2100", cents: 63 }, { account: "4000", cents: 1000 }, { account: "6010", cents: -127 }]);
+});
+
+test("Square tips follow --tips when given; tax goes to sales tax payable", () => {
+  const r = readPayoutReport(readFileSync(new URL("./fixtures/square-transactions.csv", import.meta.url), "utf8"));
+  const b = books([["2026-03-05", "SQUARE INC", "9.36"]]);
+  b.accounts.push({ code: "2300", name: "Payroll liabilities", type: "liability" });
+  const plan = planPayouts(b, r, { tips: "2300" });
+  assert.deepEqual(plan.matched[0].parts.find((x) => x.account === "2300"), { account: "2300", cents: 100 });
+  assert.equal(plan.matched[0].parts.find((x) => x.account === "4000").cents, 900);
 });
