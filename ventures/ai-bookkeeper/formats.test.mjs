@@ -92,3 +92,10 @@ test("bookkeeping-app exports: YNAB Outflow/Inflow and Wave Debit/Credit Amount 
   const wave = readStatement("Transaction ID,Transaction Date,Account Name,Transaction Description,Debit Amount (Positive),Credit Amount (Positive)\n1,2026-10-01,Checking,Starbucks,4.50,\n2,2026-10-02,Checking,ACME,,2000.00\n");
   assert.deepEqual(wave.rows.map((x) => x.cents), [-450, 200000]);
 });
+
+test("Credit Debit Indicator column signs an unsigned amount (Navy Federal style)", async () => {
+  const { readStatement } = await import("./bank.mjs");
+  const r = readStatement("Transaction Date,Description,Amount,Credit Debit Indicator,Category\n10/01/2026,COFFEE,4.50,Debit,Dining\n10/02/2026,PAY,1000.00,Credit,Income\n");
+  assert.deepEqual(r.problems, []);
+  assert.deepEqual(r.rows.map((x) => x.cents), [-450, 100000]);
+});
