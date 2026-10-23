@@ -1,0 +1,6 @@
+{
+ "theme": "twins",
+ "title": "How many fixed steps per orbit does a twin need before an eccentric orbit stops drifting?",
+ "summary": "Explicit Euler, semi-implicit Euler, velocity Verlet and RK4 against the exact Kepler solution (Newton on Kepler's equation), eccentricity 0 to 0.9. Explicit Euler never works. The symplectic pair has bounded but large energy excursions at 100 steps per orbit (semi-implicit 12% of |E<sub>0</sub>| at e = 0.5, 71% at 0.7) and a periapsis direction that wanders (&minus;0.62 rad after 50 orbits at e = 0.5), while RK4 creeps 0.004 rad. For position error under 0.01 a over 10 orbits RK4 needs 64, 128, 512, 4096 steps per orbit at e = 0, 0.3, 0.7, 0.9 against 512, 1024, 8192, &gt;8192 for the symplectic pair, so RK4 is cheaper even at four force evaluations per step. At e = 0.9 every fixed step fails at 100 per orbit. Unit-scale two-body problem, ten-orbit horizon, textbook schemes, not MuJoCo or PyBullet. Every input is exact or swept; nothing is assumed.",
+ "lede": "how many fixed steps per orbit does a twin need before an eccentric orbit stops drifting? Against the exact Kepler solution RK4 needs 64 to 4096 steps per orbit (e = 0 to 0.9), the symplectic pair 8 to 16 times more, and at e = 0.9 every fixed step fails."
+}
