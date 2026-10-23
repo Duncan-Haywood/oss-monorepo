@@ -1,0 +1,6 @@
+{
+ "theme": "qual",
+ "title": "Can you estimate a group gap from an audit that hand-codes only a few of the coder's negatives?",
+ "summary": "Re-running the small-k coder-negative audit of qual-negint for a short-minus-long gap in negative-emotion prevalence (3,188 real GoEmotions comments, four automated coders that are not LLMs, 200 audited items, 500 draws). With 5 coder-negative items a Wald interval covers the true gap (&minus;0.059) in 58% of draws at worst; Jeffreys and plus-two intervals cover 94&ndash;99% but are 0.9&ndash;1.0 wide. A plain random 200-item audit is 0.23 wide at 95% coverage, narrower than any coder-label design up to 50 negatives (0.35). An interval that pools both groups' negatives is narrow and covered 3% of draws for the word-list coder, whose miss rate differs by group (0.155 vs 0.200). No LLM; one corpus and one grouping.",
+ "lede": "can you estimate a group gap from an audit that hand-codes only a few of the coder's negatives? Not usefully: 0.9-wide intervals at 5 items, and a plain random audit (0.23 wide) beats the design. Pooling the groups' negatives covers 3%. 3,188 GoEmotions comments, not an LLM."
+}
