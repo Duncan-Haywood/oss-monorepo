@@ -370,3 +370,12 @@ test("Square tips follow --tips when given; tax goes to sales tax payable", () =
   assert.deepEqual(plan.matched[0].parts.find((x) => x.account === "2300"), { account: "2300", cents: 100 });
   assert.equal(plan.matched[0].parts.find((x) => x.account === "4000").cents, 900);
 });
+
+test("quirk probe: currency in the amount headers is read, a mixed-currency report is flagged", () => {
+  const rows = "po_1,2026-03-05,txn_a,2026-03-02,charge,500.00,14.80,485.20,USD\npo_1,2026-03-05,txn_b,2026-03-03,charge,10.00,1.00,9.00,EUR";
+  const r = readPayoutReport(`automatic_payout_id,automatic_payout_effective_at,balance_transaction_id,created,reporting_category,Gross (USD),Fee (USD),Net (USD),currency\n${rows}`);
+  assert.equal(r.payouts[0].net, 49420);
+  assert.match(r.problems[0], /mixes currencies \(EUR, USD\)/);
+  const one = readPayoutReport(`automatic_payout_id,automatic_payout_effective_at,balance_transaction_id,created,reporting_category,gross,fee,net,currency\n${rows.split("\n")[0]}`);
+  assert.deepEqual(one.problems, []);
+});

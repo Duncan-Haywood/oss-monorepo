@@ -74,7 +74,8 @@ export function readPayoutReport(text) {
   // Seller Central's date-range CSV opens with a few note lines before the header.
   const at0 = table.findIndex((r) => { const h = r.map(key); return h.includes("settlement_id") && h.includes("selling_fees") && h.includes("product_sales"); });
   if (at0 !== -1) return readAmazonRange(table.slice(at0));
-  const head = table[0].map(key);
+  // Some dashboards put the currency in the amount headers ("Gross (USD)", "Net (EUR)").
+  const head = table[0].map((h) => { const k = key(h); const m = /^(gross|fee|fees|net|amount)_[a-z]{3}$/.exec(k); return m ? m[1] : k; });
   if (head.includes("settlement_id") && head.includes("amount_type") && head.includes("amount_description")) return readAmazon(table, head);
   if (head.includes("fees_taxes") && head.includes("title") && head.includes("type") && head.includes("net")) return readEtsy(table, head);
   if (head.includes("confirmation_code") && head.includes("gross_earnings") && head.includes("host_fee") && head.includes("type")) return readAirbnb(table, head);
@@ -87,6 +88,12 @@ export function readPayoutReport(text) {
   if (col.payout === -1) throw new Error('No payout id column (Stripe: "automatic_payout_id"). Export the payout reconciliation report, not the plain payments list.');
   const problems = [];
   const rows = [];
+  // Amounts are booked as written, with no conversion: say so when the report mixes currencies.
+  const ci = head.indexOf("currency");
+  if (ci !== -1) {
+    const cur = new Set(table.slice(1).map((r) => String(r[ci] ?? "").trim().toUpperCase()).filter(Boolean));
+    if (cur.size > 1) problems.push(`The report mixes currencies (${[...cur].sort().join(", ")}); amounts are read as written with no conversion, so export one currency at a time.`);
+  }
   // Square writes fees as negatives (net = gross + fee), Stripe as positives.
   const negFees = table.slice(1).some((r) => { const g = parseCents(String(r[col.gross] ?? "")), f = col.fee === -1 ? 0 : parseCents(String(r[col.fee] ?? "")), nt = parseCents(String(r[col.net] ?? "")); return f < 0 && nt === g + f; });
   table.slice(1).forEach((r, n) => {
