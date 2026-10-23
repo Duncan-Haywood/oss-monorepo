@@ -181,6 +181,10 @@ class T(unittest.TestCase):
         self.assertEqual(pyenv.import_name("scikit-fem"), "skfem")
         self.assertEqual(pyenv.import_name("numpy"), "numpy")
         self.assertEqual(pyenv.import_name("my-mod"), "my_mod")
+        self.assertEqual(pyenv.import_name("OpenDSSDirect.py"), "opendssdirect")
+        self.assertEqual(pyenv.PIP_NAMES["opendssdirect"], "OpenDSSDirect.py")
+        self.assertEqual(pyenv.import_name("some-pkg:somemod"), "somemod")
+        self.assertEqual(pyenv.PIP_NAMES["somemod"], "some-pkg")
 
 
 if __name__ == "__main__":
