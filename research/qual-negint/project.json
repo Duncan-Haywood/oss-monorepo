@@ -1,0 +1,6 @@
+{
+ "theme": "qual",
+ "title": "Which confidence interval is right when only 5 to 20 of the coder's negatives are hand-coded?",
+ "summary": "Re-running qual-negaudit's audit (3,188 real GoEmotions comments, four automated coders that are not LLMs, 200 audited items, 1,000 draws) with four 95% intervals computed from the same draws. With 5 coder-negative items the Wald interval covers the truth in 63% of draws at worst; Wilson, Jeffreys and add-one (plus-two) intervals cover 93&ndash;95%, so most of the earlier 'about 50 negatives' requirement was the interval. At 10 items: Wald 0.85, others 0.94&ndash;0.97. The cost is width: 0.43 at 5 items (Wilson), 0.17 at 50. One code, one corpus, no LLM; the Wilson interval is a per-stratum combination, not an exact stratified Wilson; worst-of-four coverage is biased low by selection.",
+ "lede": "which confidence interval is right when you hand-code only 5 to 20 of the coder's negatives? Not Wald: 0.63 coverage at 5 items against 0.94 for Wilson or Jeffreys on 3,188 GoEmotions comments. Not an LLM; one corpus."
+}
