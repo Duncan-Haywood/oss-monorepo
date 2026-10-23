@@ -105,3 +105,29 @@ def compare(net, k, f=1.0):
     if dc is not None:
         out["dc_in_ac"] = ac_check_of_dispatch(n, dc)
     return out
+
+
+def loss_adjusted_dc(net, iters=6, tol_mw=0.05):
+    """DC OPF with the losses fed back: after each DC solve the dispatch is run
+    through an AC power flow, the measured losses are spread over the loads in
+    proportion to their active power (a uniform load-scaling factor), and the DC
+    OPF is solved again. Returns (last DC solution, history of losses in MW)."""
+    base = net.load.p_mw.copy()
+    total = float(base.sum())
+    loss, hist, sol = 0.0, [], None
+    for _ in range(iters):
+        n = copy.deepcopy(net)
+        n.load["p_mw"] = base * (1.0 + loss / total)
+        sol = solve_dc(n)
+        if sol is None:
+            return None, hist
+        chk = ac_check_of_dispatch(net, sol)
+        if not chk.get("converged"):
+            return sol, hist
+        new = chk["losses_mw"]
+        hist.append(new)
+        if abs(new - loss) < tol_mw:
+            break
+        loss = new
+    return sol, hist
+

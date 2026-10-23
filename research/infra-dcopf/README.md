@@ -12,14 +12,22 @@ Track 21 (`infra`), grid first. Grid dispatch is routinely planned and priced wi
 
 ![IEEE 118-bus: DC OPF cost error and AC cost of the DC dispatch](experiments/gap_vs_load.svg)
 
+## Does feeding the losses back fix it? (loss-adjusted DC, `experiments/results_lossadj.txt`)
+`loss_adjusted_dc` solves the DC OPF, runs its dispatch through an AC power flow, spreads the measured losses over all loads in proportion to their power, and re-solves, until the losses move by under 0.05 MW (2 to 4 passes). Everything else is as above. Losses are placed uniformly, not where they occur, which is the simplest scheme; nodal loss factors are the next step.
+- **The cost estimate is largely repaired.** On the 118-bus case the adjusted DC cost is within **0.6 to 1.2 %** of the AC optimum, against 1.9 to 2.9 % below it for plain DC. On case30 and case39 it is within 0.4 % (plain DC: 1.0 to 2.3 % below).
+- **The dispatch is barely repaired.** The AC cost of the adjusted 118-bus dispatch is 0.58 to 1.18 % above the AC optimum, against 0.73 to 1.68 % for plain DC: it recovers only **13 to 32 %** of the excess (0.6, 0.8, 1.0, 1.1 of load: 13, 23, 20, 32 %). The surviving excess is generators ordered by a loss-blind marginal cost, which a uniform loss share does not change.
+- **No effect on voltages.** Case39 still has 15, 5 and 1 buses out of band at 0.6, 0.8 and 1.0 of load, exactly as plain DC; the losses are not what breaks them (reactive power is, step 3 below).
+- On case30 and case39 the dispatch differences are within 0.1 % of cost and change sign, so the "recovered" percentage there is not meaningful. The load 1.1 rows of case30 and case39 returned no solution from the AC OPF.
+- **Reading:** loss feedback is the right fix for the *price level* and the wrong one for the *merit order*. Fixing the order needs losses charged at the margin where they occur (penalty factors).
+
 ## Method (`src/infra_dcopf/dcopf.py`)
 - **Cases.** `case30`, `case39` and `case118` from `pandapower.networks` (MATPOWER cases), with their quadratic generator costs (`poly_cost`).
 - **Two OPFs per condition.** `runopp` (AC, PIPS interior point, voltage and branch loading limits) and `rundcopp` (DC), on the same network with load scaled by 0.6, 0.8, 1.0 and 1.1 (P and Q together).
 - **DC dispatch under AC.** The DC generator set-points are fixed in an AC power flow with the external grid as slack; we count buses outside their voltage limits, branches above their loading limit, and the cost of the resulting dispatch (slack included) with the same cost function (`gen_cost`, checked to match pandapower's `res_cost` to 1e-6).
 - **Tightened limits.** A second sweep scales every line's `max_i_ka` and transformer `sn_mva` by 0.7 and 0.5 to force congestion. Many of those runs have no solution (below).
 
-## Checks (`tests/`, 6)
-A two-bus network with a closed-form answer (DC cost 10x50 + 0.01x50^2 = 525; the AC slack supplies load plus line loss); `gen_cost` equals pandapower's cost on case39; the 118-bus DC dispatch is feasible and costs no less than the AC optimum; the DC cost error lies in 1 to 5 %; case39's DC dispatch breaks voltage limits at light load.
+## Checks (`tests/`, 8)
+A two-bus network with a closed-form answer (DC cost 10x50 + 0.01x50^2 = 525; the AC slack supplies load plus line loss); `gen_cost` equals pandapower's cost on case39; the 118-bus DC dispatch is feasible and costs no less than the AC optimum; the DC cost error lies in 1 to 5 %; case39's DC dispatch breaks voltage limits at light load; the loss-adjusted model's cost on case118 is under half of plain DC's error and the losses it feeds back exceed 50 MW; on the two-bus case its fed-back loss equals the AC loss of its dispatch.
 
 ## Limitations
 - **"No solution" is not "infeasible".** A row marked `no solution` means pandapower's solver returned an error; for the tightened-limit sweeps on case30 and case39 this happens often, and I did not separate true infeasibility from non-convergence. Those rows prove nothing about the cases. At limits x0.7 case30 solves only at 0.6 of load.
@@ -30,15 +38,16 @@ A two-bus network with a closed-form answer (DC cost 10x50 + 0.01x50^2 = 525; th
 
 ## Next steps
 1. Locational marginal prices from both models and the congestion rent they disagree on, on a case whose limits bind (the MATPOWER `case300` or a ratings-corrected `case118`).
-2. Replace DC by a loss-adjusted DC (iterating loss factors) and see how much of the 1 to 3 % it recovers.
+2. Nodal loss penalty factors (from the AC solution's loss sensitivities) instead of a uniform load share, to see whether the merit order, not just the price level, is repaired.
 3. Reactive-aware fix: add voltage-band constraints to the LP and see whether case39's violations go away.
 
 ## Reproduce
 ```bash
 pip install pytest numpy pandapower
 cd research/infra-dcopf
-python -m pytest -q tests                     # 6 tests, about 15 s
+python -m pytest -q tests                     # 8 tests, about 15 s
 PYTHONPATH=src python experiments/run.py      # about 1 min; writes experiments/results.txt
+PYTHONPATH=src python experiments/run_lossadj.py  # loss-adjusted DC, about 1 min; writes results_lossadj.txt
 python experiments/figure.py                  # experiments/gap_vs_load.svg
 ```
 
