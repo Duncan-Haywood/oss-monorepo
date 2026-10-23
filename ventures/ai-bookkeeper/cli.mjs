@@ -38,6 +38,7 @@ import { reconcile } from "./reconcile.mjs";
 import { depositSchedule } from "./deposits.mjs";
 import { addPayroll, planPayroll, applyPayroll, payrollSummary, form941, form940, w2Summary, reconcile941W2, employerCost } from "./payroll.mjs";
 import { readPayoutReport, planPayouts, applyPayouts } from "./payouts.mjs";
+import { reconcile1099K } from "./form1099k.mjs";
 import { setTaxTreatment, taxDepreciation } from "./taxdepr.mjs";
 import { renderInvoice, setProfile, PROFILE_KEYS } from "./invoice.mjs";
 import { reminders } from "./collections.mjs";
@@ -113,6 +114,7 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
   payroll deposits YEAR [--schedule monthly|semiweekly]  federal deposit due dates (lookback, $100,000 next-day rule, holidays) and whether the bank shows each paid on time
   payroll [941 YEAR QUARTER [--deposited DOLLARS] [--schedule-b] | 940 YEAR [--state CA | --credit-reduction PCT] | w2 YEAR | reconcile YEAR]  runs, what is still owed, or a Form 941 / 940 worksheet from the register
   payouts FILE.csv [--apply] [--sales C --refunds C --fees C --disputes C] [--json]  split each processor payout (Stripe payout reconciliation CSV) in the bank into gross sales, refunds and fees; without --apply, shows the plan
+  form1099k FILE.csv --year Y --gross AMT [--months J,F,...,D] [--sales CODE] [--json]  tie a processor's Form 1099-K (box 1a, optional boxes 5a-5l) to its payout report and to the books' sales
   reconcile CODE --date D --balance AMT [--json]  tie an account to the closing balance on a paper statement; if it is off, name the lines that likely explain the gap
   budget [CODE AMOUNT] [--from D --to D] [--json]  set a monthly budget for an account (AMOUNT 0 removes it), or show budget against actual for the period (default: latest month)
   aging [--as-of D]      what customers owe you and what you owe, by days past due
@@ -551,6 +553,22 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
   for (const m of plan.unmatched) console.log(`${m.id.padEnd(14)} ${m.date}  net ${fmt(m.net).padStart(11)}  NOT MATCHED: ${m.why}`);
   if (plan.pending.length) console.log(`${plan.pending.length} row${plan.pending.length > 1 ? "s" : ""} not paid out yet (${fmt(plan.pending.reduce((a, x) => a + x.net, 0))}); they match once the payout lands.`);
   console.log(doApply ? `${result.posted} payout${result.posted === 1 ? "" : "s"} split in the books${result.skipped.length ? `, ${result.skipped.length} skipped as ambiguous` : ""}.` : plan.matched.length ? "Add --apply to post these splits." : "Nothing to post.");
+} else if (cmd === "form1099k") {
+  const year = Number(flag("--year")), gross = parseCents(String(flag("--gross") ?? ""));
+  if (!rest[0] || !existsSync(rest[0]) || !Number.isInteger(year) || gross === null || Number.isNaN(gross)) { console.error("form1099k needs the processor's report CSV, --year and --gross (box 1a), e.g. form1099k stripe-payouts.csv --year 2026 --gross 94000.00 [--months 0,0,800,...]"); process.exit(2); }
+  let res;
+  try {
+    const mflag = flag("--months");
+    const months = mflag ? String(mflag).split(",").map((v) => parseCents(v)) : null;
+    res = reconcile1099K(readPayoutReport(readFileSync(rest[0], "utf8")), { gross, months }, year, books, { sales: flag("--sales") ?? "4000" });
+  } catch (e) { console.error(e.message); process.exit(2); }
+  if (json) { console.log(JSON.stringify(res, null, 2)); process.exit(0); }
+  for (const b of res.bridge) console.log(`${b.label.padEnd(46)} ${fmt(b.cents).padStart(13)}`);
+  console.log(`${"Refunds in the report (not netted on the form)".padEnd(46)} ${fmt(res.report.refunds).padStart(13)}`);
+  console.log(`${"Fees in the report (not netted on the form)".padEnd(46)} ${fmt(res.report.fees).padStart(13)}`);
+  if (res.ledger) console.log(`${`Books: account ${res.ledger.account} (expected ${fmt(res.ledger.expected)})`.padEnd(46)} ${fmt(res.ledger.books).padStart(13)}`);
+  if (res.monthly) for (const m of res.monthly) console.log(`  ${m.month}  form ${fmt(m.form).padStart(12)}  report ${fmt(m.report).padStart(12)}${m.diff ? `  differs by ${fmt(m.diff)}` : ""}`);
+  for (const n of res.notes) console.log(`- ${n}`);
 } else if (cmd === "reconcile") {
   const cents = parseCents(String(flag("--balance") ?? "")), rdate = flag("--date");
   const code = argv[1];
