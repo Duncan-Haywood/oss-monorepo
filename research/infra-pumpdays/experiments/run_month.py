@@ -20,7 +20,7 @@ sys.path.insert(0, str(HERE.parent / "src"))
 from infra_pumpdays.net import MIN_PRESSURE_M, TANK_MARGIN_M, window  # noqa: E402
 from infra_pumpdays.tariff import DAYS_PER_MONTH, SEASONS, hourly_price  # noqa: E402
 
-MULTS = (0.8, 1.0, 1.2, 1.4, 1.6)
+MULTS = tuple(sorted(float(a) for a in sys.argv[1:])) or (0.8, 1.0, 1.2, 1.4, 1.6)
 TOL = 0.001
 
 
@@ -110,7 +110,7 @@ def main():
     print("\n== B. A 30-day month: the rest at m = 1, k hot days at m_hot. Monthly pumping bill ($, B-19 energy + demand on the month's maxima)")
     print("season | m_hot | k | policy | schedule(s) | bill $ | peak kW | vs shipped %")
     for season in SEASONS:
-        for mh in MULTS[2:]:
+        for mh in [m for m in MULTS if m > 1.0]:
             for k_hot in (1, 3, 10):
                 rows = []
                 sh = bill(kw[1.0][ship], kw[mh][ship], k_hot, season)
