@@ -89,6 +89,18 @@ class CampaignTest(unittest.TestCase):
         self.assertEqual(sorted(out.getvalue().split("\n")[:2]),
                          ["a.py\t1.5s", "b.py\t1.5s"])
 
+    def test_random_draw_skips_a_slow_suite(self):
+        import contextlib, io
+        pool = [Path("/r/slow.py"), Path("/r/fast.py")]
+        secs = {"slow.py": 99.0, "fast.py": 1.0}
+        with mock.patch.object(redteam, "REPO", Path("/r")), \
+                mock.patch.object(redteam, "suite_for", side_effect=lambda p: ([p.name], Path("."))), \
+                mock.patch.object(redteam, "run_suite", side_effect=lambda c, w, t: (True, secs[c[0]])), \
+                contextlib.redirect_stderr(io.StringIO()):
+            for seed in range(8):
+                self.assertEqual(redteam.draw_fast_target(pool, seed, 20).name, "fast.py")
+            self.assertIn(redteam.draw_fast_target(pool, 0, 0).name, {"slow.py", "fast.py"})
+
     def test_targets_under_a_directory(self):
         self.assertEqual(redteam.list_targets(self.repo, under="ventures/"), [self.target])
         self.assertEqual(redteam.list_targets(self.repo, under="platform"), [])
