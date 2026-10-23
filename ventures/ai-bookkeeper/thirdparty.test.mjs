@@ -107,3 +107,15 @@ test("a currency column with more than one currency is named, in any bank's file
   const one = readStatement(f.replace("USD", "EUR"));
   assert.ok(!one.problems.some((p) => /mixes currencies/.test(p)));
 });
+
+// ofxstatement-lithuanian (GPL-3 project, shape only, rewritten here) sample danske.csv: the header
+// names 12 columns, every row has 10 or 11, so the amount is not where the header says.
+test("a header wider than every row falls back to finding columns from the cells", () => {
+  const csv = 'Date,Bank,Branch,Address,City,Country,Name,Memo,MemoConv,MemoDet,Amount,\r\n' +
+    '2012:03:01,,"",",Vilnius,LT","Fee A","Fee for transfer",,"Operation 1",-7.8,\r\n' +
+    '2012:03:01,BANK X,"",",Vilnius,LT","ACME LLC","Payment order from ACME",,,889.81,\r\n' +
+    '2012:03:06,,"",",,","","Fee for 2012.03.06",,"Operation 7",-.46,\r\n';
+  const r = readStatement(csv);
+  assert.deepEqual(r.rows.map((x) => [x.date, x.cents]), [["2012-03-01", -780], ["2012-03-01", 88981], ["2012-03-06", -46]]);
+  assert.ok(r.problems.some((p) => /more columns than the rows have/.test(p)));
+});
