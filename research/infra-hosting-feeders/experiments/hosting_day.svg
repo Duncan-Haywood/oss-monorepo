@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 340" font-family="sans-serif" font-size="12">
+<rect width="760" height="340" fill="#fff"/>
+<text x="190" y="18" font-weight="bold">IEEE 123-node, 2,000 kW of PV, peak-load day: median per day (40 placements)</text>
+<rect x="190" y="26" width="10" height="10" fill="#d95f02"/><text x="204" y="35">minutes above 1.05 pu</text>
+<rect x="380" y="26" width="10" height="10" fill="#1b9e77"/><text x="394" y="35">minutes below 0.95 pu</text>
+<rect x="570" y="26" width="10" height="10" fill="#7570b3"/><text x="584" y="35">regulator tap operations</text>
+<text x="182" y="72" text-anchor="end">baseline</text>
+<rect x="190" y="52" width="312.5" height="11" fill="#d95f02"/><text x="506.5" y="62" font-size="10">247</text>
+<rect x="190" y="65" width="13.9" height="11" fill="#1b9e77"/><text x="207.9" y="75" font-size="10">11</text>
+<rect x="190" y="77" width="507.4" height="11" fill="#7570b3"/><text x="701.4" y="87" font-size="10">401</text>
+<text x="182" y="112" text-anchor="end">fixed pf 0.95</text>
+<rect x="190" y="92" width="183.5" height="11" fill="#d95f02"/><text x="377.5" y="102" font-size="10">145</text>
+<rect x="190" y="105" width="0.0" height="11" fill="#1b9e77"/><text x="194.0" y="115" font-size="10">0</text>
+<rect x="190" y="117" width="369.5" height="11" fill="#7570b3"/><text x="563.5" y="127" font-size="10">292</text>
+<text x="182" y="152" text-anchor="end">volt-var</text>
+<rect x="190" y="132" width="169.5" height="11" fill="#d95f02"/><text x="363.5" y="142" font-size="10">134</text>
+<rect x="190" y="145" width="0.0" height="11" fill="#1b9e77"/><text x="194.0" y="155" font-size="10">0</text>
+<rect x="190" y="157" width="354.3" height="11" fill="#7570b3"/><text x="548.3" y="167" font-size="10">280</text>
+<text x="182" y="192" text-anchor="end">regulator -2 V</text>
+<rect x="190" y="172" width="0.0" height="11" fill="#d95f02"/><text x="194.0" y="182" font-size="10">0</text>
+<rect x="190" y="185" width="244.2" height="11" fill="#1b9e77"/><text x="438.2" y="195" font-size="10">193</text>
+<rect x="190" y="197" width="521.3" height="11" fill="#7570b3"/><text x="715.3" y="207" font-size="10">412</text>
+<text x="182" y="232" text-anchor="end">volt-var + reg -2 V</text>
+<rect x="190" y="212" width="0.0" height="11" fill="#d95f02"/><text x="194.0" y="222" font-size="10">0</text>
+<rect x="190" y="225" width="231.5" height="11" fill="#1b9e77"/><text x="425.5" y="235" font-size="10">183</text>
+<rect x="190" y="237" width="383.4" height="11" fill="#7570b3"/><text x="577.4" y="247" font-size="10">303</text>
+<text x="182" y="272" text-anchor="end">regulator -1 V</text>
+<rect x="190" y="252" width="10.1" height="11" fill="#d95f02"/><text x="204.1" y="262" font-size="10">8</text>
+<rect x="190" y="265" width="139.2" height="11" fill="#1b9e77"/><text x="333.2" y="275" font-size="10">110</text>
+<rect x="190" y="277" width="513.7" height="11" fill="#7570b3"/><text x="707.7" y="287" font-size="10">406</text>
+<text x="182" y="312" text-anchor="end">regulator -3 V</text>
+<rect x="190" y="292" width="0.0" height="11" fill="#d95f02"/><text x="194.0" y="302" font-size="10">0</text>
+<rect x="190" y="305" width="458.0" height="11" fill="#1b9e77"/><text x="652.0" y="315" font-size="10">362</text>
+<rect x="190" y="317" width="523.8" height="11" fill="#7570b3"/><text x="717.8" y="327" font-size="10">414</text>
+</svg>
