@@ -70,6 +70,39 @@ class Audit(unittest.TestCase):
                 (root / "ventures" / v / "x.html").write_text(page("T" * 70, "short"))
             self.assertEqual(s.audit(root)["worst_ventures"], [("a", 1), ("a-b", 1), ("c", 1)])
 
+    def test_default_description_limit_is_160(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            (root / "ventures/a").mkdir(parents=True)
+            (root / "ventures/a/x.html").write_text(page("short", "D" * 161))
+            self.assertEqual(s.audit(root)["long_descriptions"], 1)
+
+    def test_worst_ventures_most_over_first(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            for v, desc in (("a", "short"), ("z", "D" * 200)):
+                (root / "ventures" / v).mkdir(parents=True)
+                (root / "ventures" / v / "x.html").write_text(page("T" * 70, desc))
+            self.assertEqual(s.audit(root)["worst_ventures"], [("z", 2), ("a", 1)])
+
+    def test_cli_defaults_match_audit_defaults(self):
+        import contextlib, io, json
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            for i in range(12):
+                (root / "ventures" / f"v{i:02d}").mkdir(parents=True)
+                (root / "ventures" / f"v{i:02d}" / "x.html").write_text(page("T" * 61, "D" * 161))
+            (root / "ventures/ok").mkdir()
+            (root / "ventures/ok/x.html").write_text(page("T" * 60, "D" * 160))
+            buf = io.StringIO()
+            with contextlib.redirect_stdout(buf):
+                s.main(["--root", d])
+            out = buf.getvalue()
+            self.assertIn("title > 60: 12", out)
+            self.assertIn("description > 160: 12", out)
+            self.assertEqual(sum(1 for ln in out.splitlines() if ln.startswith("     ")), 10)
+            self.assertNotIn("v10", out)
+
     def test_empty_tree_does_not_divide_by_zero(self):
         with tempfile.TemporaryDirectory() as d:
             self.assertEqual(s.main(["--root", d]), 0)

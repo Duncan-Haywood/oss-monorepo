@@ -4,12 +4,16 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from check_main_landmark import fixable, has_main, main, wrap
+from check_main_landmark import ROOT, fixable, has_main, main, wrap
 
 PAGE = "<html><body>\n<header><h1>T</h1></header>\n<section>x</section>\n<footer>f</footer></body></html>"
 
 
 class MainLandmark(unittest.TestCase):
+    def test_default_root_is_repo_root(self):
+        self.assertTrue((ROOT / "ventures").is_dir())
+        self.assertTrue((ROOT / "platform" / "ci").is_dir())
+
     def test_wraps_between_header_and_footer(self):
         out = wrap(PAGE)
         self.assertTrue(has_main(out))
