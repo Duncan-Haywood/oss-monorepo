@@ -1,0 +1,4 @@
+Transaction Date,Posted Date,Description,Amount,Status,Memo,Card Last Four,User,Category
+2026-03-02,2026-03-03,"GITHUB INC",-21.00,Settled,,4242,Jo Doe,Software
+2026-03-04,,"DELTA AIR 0062",-412.30,Pending,,4242,Jo Doe,Travel
+2026-03-05,2026-03-06,"PAYMENT - THANK YOU",5000.00,Settled,,,,

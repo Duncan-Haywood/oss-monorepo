@@ -470,6 +470,10 @@ layouts, so check them against a real download.
 
 `bank.mjs` also recognises Monzo (`Transaction ID, Date, Time, Type, Name, ...`; day-first dates, the `Name` column is the payee), Starling (`Counter Party`, `Amount (GBP)`, `Balance (GBP)`; day-first, balance chain checked) and Mercury (`Date (UTC)`, `Status`; only `Sent` rows are imported, pending, failed and cancelled are listed in problems). Fixtures `monzo-business.csv`, `starling-business.csv`, `mercury-checking.csv` are hand-written from the published column headings with made-up rows; no real export has been tried, so check them against a real download.
 
+### Relay, Brex, Chime and Bluevine CSV (2026-10-23)
+
+These already read through the generic column matcher; this slice names them in `sniffBank` (Relay's `Date, Description, Amount, Balance, Account Name` was mislabelled Amex) and pins them with `fixtures/relay-checking.csv`, `brex-card.csv`, `chime-checking.csv`, `bluevine-checking.csv` and tests in `neobank.test.mjs` (Brex pending rows skipped, balance chains on Relay and Bluevine). Layouts are hand-written from remembered headings with made-up rows; no real export tried.
+
 ### PNC CSV (2026-10-22)
 
 `bank.mjs` labels a `Date, Description, Withdrawals, Deposits, Balance` export as PNC. The columns already read through the generic Debit/Credit matching; the fixture `pnc-checking.csv` (made-up rows, header from memory of PNC's layout, no real download tried) is tested in `neobank.test.mjs` with the running-balance chain.
