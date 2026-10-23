@@ -598,6 +598,8 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
   const hdr = headerAt === -1 ? [] : rows[headerAt].map(norm);
   if (bank === "nab") columns.desc = hdr.indexOf("transaction details");
   const rbc2 = bank === "rbc" ? hdr.indexOf("description 2") : -1;
+  // RBC puts a US-dollar movement in its own USD$ column and leaves CAD$ blank.
+  const rbcUsd = bank === "rbc" ? hdr.indexOf("usd$") : -1;
   if (bank === "monzo") columns.desc = hdr.indexOf("name");
   // Cash App: the fee sits in its own column, so the net amount is what moved.
   // The payee column beats the free-text note.
@@ -639,7 +641,8 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
     const date = parseDate(r[columns.date], dayFirst);
     if (!date) { problems.push(`Line ${i + 1}: unreadable date "${r[columns.date] ?? ""}", skipped.`); continue; }
     let cents;
-    if (columns.amount !== -1 && String(r[columns.amount] ?? "").trim() !== "") cents = parseCents(r[columns.amount], decimalComma);
+    if (columns.amount !== -1 && String(r[columns.amount] ?? "").trim() !== "") { cents = parseCents(r[columns.amount], decimalComma); if (rbcUsd !== -1) currencies.add("CAD"); }
+    else if (rbcUsd !== -1 && String(r[rbcUsd] ?? "").trim() !== "") { cents = parseCents(r[rbcUsd], decimalComma); currencies.add("USD"); }
     else cents = (columns.credit !== -1 ? Math.abs(parseCents(r[columns.credit], decimalComma) || 0) : 0) - (columns.debit !== -1 ? Math.abs(parseCents(r[columns.debit], decimalComma) || 0) : 0);
     if (!Number.isFinite(cents)) { problems.push(`Line ${i + 1}: unreadable amount, skipped.`); continue; }
     if (drcrCol !== -1) {
@@ -650,7 +653,7 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
     if (feeCol !== -1) { const fee = parseCents(r[feeCol], decimalComma); if (Number.isFinite(fee)) cents -= Math.abs(fee); }
     if (cents === 0) {
       // A zero is harmless, but a row with a description and every amount cell blank may be a lost transaction.
-      const blank = [columns.amount, columns.debit, columns.credit].filter((k) => k !== -1).every((k) => String(r[k] ?? "").trim() === "");
+      const blank = [columns.amount, columns.debit, columns.credit, rbcUsd].filter((k) => k !== -1).every((k) => String(r[k] ?? "").trim() === "");
       if (blank && String(r[columns.desc] ?? "").trim() && !/balance|saldo/i.test(String(r[columns.desc])) && !(columns.balance !== -1 && String(r[columns.balance] ?? "").trim())) problems.push(`Line ${i + 1}: no amount, skipped.`);
       continue;
     }
