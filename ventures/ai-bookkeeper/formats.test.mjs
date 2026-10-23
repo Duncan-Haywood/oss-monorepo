@@ -52,3 +52,12 @@ test("OFX: thousands separators in amounts and ledger balance, XML entities", as
   assert.equal(r.rows[0].desc, "A & B 'x' & C m");
   assert.equal(r.statement.cents, 123456);
 });
+
+test("Fidelity brokerage export: Run Date and Amount ($) headers are read", async () => {
+  const { readStatement } = await import("./bank.mjs");
+  const r = readStatement("Run Date,Account,Account Number,Action,Symbol,Description,Type,Quantity,Price ($),Commission ($),Fees ($),Accrued Interest ($),Amount ($),Settlement Date\n10/01/2026,Cash,X1,DIVIDEND RECEIVED,VTI,VANGUARD,Cash,0,,,,,12.34,\n");
+  assert.deepEqual(r.problems, []);
+  assert.equal(r.bank, "fidelity");
+  assert.equal(r.rows[0].cents, 1234);
+  assert.equal(r.rows[0].date, "2026-10-01");
+});
