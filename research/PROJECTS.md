@@ -1559,6 +1559,7 @@ Annals*). Payments: gridlock resolution and liquidity-saving mechanisms (Bech an
     is not perfect (the lesson of `energy-tou-lp-forecast`).
 13. `infra-pumpsched` (done 2026-10-23; Net3 only, tariff shapes assumed and swept): pump scheduling. A daily lake-pump window on Net3 against time-of-use tariffs, separating the energy saved by changing the source mix from what the tariff adds.
 
+14. `infra-dcopf` (done 2026-10-23; three MATPOWER cases, branch limits never bind on case118, tightened-limit solves often fail): how wrong is the DC approximation of optimal power flow, in cost and in the AC feasibility of its dispatch.
 **Method transfers worth trying.** The point of the track is the transfer, so say in each README
 where the method came from. Changepoint detection and conformal prediction for sensor and meter
 data; Bayesian optimisation and LLM proposers for process settings; LP and MILP (HiGHS) for
