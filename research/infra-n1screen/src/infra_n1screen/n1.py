@@ -46,15 +46,14 @@ def _flows(n):
 
 
 def ac_flows(net):
-    """AC power flow: (P, S, vmin, vmax), or None when it does not converge."""
+    """AC power flow: (P, S, vm per bus; NaN if de-energised), or None when it does not converge."""
     n = pp.copy.deepcopy(net)
     try:
         pp.runpp(n, numba=False, max_iteration=30)
     except Exception:
         return None
     P, S = _flows(n)
-    vm = n.res_bus.vm_pu.dropna()
-    return P, S, float(vm.min()), float(vm.max())
+    return P, S, n.res_bus.vm_pu.reindex(net.bus.index).values
 
 
 def dc_flows(net):
@@ -84,7 +83,7 @@ def run_case(name, headrooms=(0.1, 0.25, 0.5, 1.0), vband=None):
     """Solve every N-1 outage. Returns a list of dict rows (one per outage) with the raw flows kept."""
     net = load_case(name)
     base = ac_flows(net)
-    bP, bS, _, _ = base
+    bP, bS, bvm = base
     brs = branches(net)
     vlo, vhi = vband or (float(net.bus.min_vm_pu.iloc[0]), float(net.bus.max_vm_pu.iloc[0]))
     rows = []
@@ -93,7 +92,7 @@ def run_case(name, headrooms=(0.1, 0.25, 0.5, 1.0), vband=None):
         ac = ac_flows(n)
         dc = dc_flows(n)
         rows.append({"k": k, "br": br, "ac": ac, "dc": dc})
-    return {"name": name, "net": net, "base_S": bS, "base_P": bP, "rows": rows, "vband": (vlo, vhi),
+    return {"name": name, "net": net, "base_S": bS, "base_P": bP, "base_vm": bvm, "rows": rows, "vband": (vlo, vhi),
             "headrooms": list(headrooms)}
 
 
@@ -109,7 +108,7 @@ def screen_table(res, headroom, screen_margin=1.0, ac_basis="S"):
 
     A contingency is *flagged* by the screen if the DC MW flow on any other branch exceeds
     ``screen_margin`` x rating; it is *truly insecure* if the AC flow (MVA, or MW when ac_basis == "P")
-    exceeds the rating, or the AC voltages leave the band, or the AC power flow diverges.
+    exceeds the rating, or a bus newly leaves the voltage band (one that was inside it in the base case), or the AC power flow diverges.
     Returns dict of counts and the list of per-outage (dc_ratio, ac_ratio).
     """
     rate = ratings(res["base_S"], headroom)
@@ -132,9 +131,12 @@ def screen_table(res, headroom, screen_margin=1.0, ac_basis="S"):
             n_nonconv += 1
             insecure, acr, volt = True, np.inf, False
         else:
-            P, S, vmin, vmax = ac
+            P, S, vm = ac
             acr = _viol(S if ac_basis == "S" else P, rate, k)
-            volt = vmin < vlo or vmax > vhi
+            # only a *new* violation counts: some cases (14, 57) already sit outside the band at base
+            out_now = (vm < vlo) | (vm > vhi)
+            out_base = (res["base_vm"] < vlo) | (res["base_vm"] > vhi)
+            volt = bool(np.any(out_now & ~out_base))
             insecure = acr > 1.0 or volt
             if volt and acr <= 1.0:
                 n_volt_only += 1

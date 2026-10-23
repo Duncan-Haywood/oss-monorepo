@@ -64,3 +64,10 @@ def test_recall_at_k_bounds():
     assert recall_at_k(pairs, 1) == 1.0
     assert recall_at_k(pairs, 2) == 0.5
     assert recall_at_k(pairs, 4) == 1.0
+
+
+def test_base_case_voltage_violations_are_not_counted_as_contingency_failures():
+    # case57 already has buses outside the band at base; with generous ratings most outages must still be secure.
+    res = run_case("case57")
+    t = screen_table(res, 2.0)
+    assert t["tp"] + t["fn"] < t["n"] // 2
