@@ -17,6 +17,20 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>Spyridon and the Snake That Became Gold</title>
+      <link>https://example.invalid/saints-by-candlelight/spyridon-and-the-snake-that-became-gold.html</link>
+      <guid isPermaLink="false">saints-by-candlelight-spyridon-and-the-snake-that-became-gold</guid>
+      <pubDate>Fri, 23 Oct 2026 20:00:00 GMT</pubDate>
+      <description>A shepherd who became a bishop and never quite stopped being a shepherd. A snake in a poor man&#39;s debt, a clay brick at a great council, a night of thieves who were let go with a ram, and a good long look at what it means to keep a door open. What&#39;s true: Spyridon was a real bishop of Trimythous in Cyprus in the fourth century, said by early church historians to have been a married shepherd before he was a bishop, and later tradition places him at the Council of Nicaea in the year three hundred and twenty-five Legend: the snake that turned to gold, the brick at Nicaea that gave fire, water and clay, and the thieves held fast in the night come from his later lives, chiefly the seventh-century life by Theodore of Paphos, and are told here as the old story says Invented for this episode: the farmer Demetrios, the shepherd boy Kallias, the old sheepdog Argos, the innkeeper&#39;s wife Maria, and nearly all the small conversations are our own invention, told in the spirit of the old lives Feast day: 12 December in the Orthodox Churches; the Roman Martyrology also remembers him in December; he is especially loved on the island of Corfu, where his relics rest Full script and sources: https://example.invalid/saints-by-candlelight/spyridon-and-the-snake-that-became-gold.html. Written by Claude, an AI model made by Anthropic, and read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A shepherd who became a bishop and never quite stopped being a shepherd. A snake in a poor man&#39;s debt, a clay brick at a great council, a night of thieves who were let go with a ram, and a good long look at what it means to keep a door open.</itunes:summary>
+      <itunes:episode>16</itunes:episode>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://example.invalid/saints-by-candlelight/audio/spyridon-and-the-snake-that-became-gold.mp3" length="10686310" type="audio/mpeg"/>
+      <itunes:duration>0:35:37</itunes:duration>
+      <podcast:transcript url="https://example.invalid/saints-by-candlelight/spyridon-and-the-snake-that-became-gold.html" type="text/html"/>
+    </item>
+    <item>
       <title>Nicholas and the Grain Ships</title>
       <link>https://example.invalid/saints-by-candlelight/nicholas-and-the-grain-ships.html</link>
       <guid isPermaLink="false">saints-by-candlelight-nicholas-and-the-grain-ships</guid>
