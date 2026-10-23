@@ -1,0 +1,13 @@
+[project]
+name = "infra-pumpsched"
+version = "0.1.0"
+description = "When to run the lake pump on EPANET's Net3: window search against time-of-use tariffs with tank and pressure limits, in WNTR"
+requires-python = ">=3.9"
+dependencies = ["numpy", "wntr"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
