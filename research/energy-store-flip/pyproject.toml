@@ -1,0 +1,13 @@
+[project]
+name = "energy-store-flip"
+version = "0.1.0"
+description = "How far must technology-data capital costs move to flip the sand-store vs heat-pump verdict, against how far the price year moves it?"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "../energy-thermal-real/src", "../energy-thermal-hourly/src", "../energy-thermal-cost/src", "../energy-thermal/src"]
