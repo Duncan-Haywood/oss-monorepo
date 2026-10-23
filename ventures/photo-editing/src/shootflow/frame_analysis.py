@@ -4,7 +4,12 @@ Replaces the sha256-derived stand-in scores with numbers read from the pixels.
 ffmpeg decodes a few grayscale frames to a pipe and the metrics are plain
 Python, so nothing beyond ffmpeg is needed:
 
-- ``sharpness``: variance of the Laplacian (blur lowers it), squashed to 0..1.
+- ``sharpness``: variance of the Laplacian (blur lowers it) with the grain's
+  share taken out, squashed to 0..1. Grain alone raises a raw Laplacian
+  variance, so a noisy high-ISO frame would otherwise read as sharp.
+- ``noise_sigma`` / ``noise``: sensor grain as a standard deviation in 8-bit
+  levels (Immerkaer's 3x3 mask, read with a median so edges do not count), and
+  a 0..1 level of it; heavy grain costs up to 15% of ``technical_score``.
 - ``exposure``: closeness of mean luma to mid-grey, minus clipped shadows and
   highlights.
 - ``contrast``: luma standard deviation.
@@ -46,6 +51,11 @@ _TILT_FULL_PENALTY_DEGREES = 5.0
 _TILT_STORY_WEIGHT = 0.08
 _TILT_SEARCH_DEGREES = 15
 _TILT_MIN_EDGES = 200
+_NOISE_FREE_SIGMA = 2.0
+_NOISE_FULL_PENALTY_SIGMA = 12.0
+_NOISE_TECHNICAL_WEIGHT = 0.15
+# Variance the 4-neighbour Laplacian (1, 1, 1, 1, -4) adds to white noise of sigma 1.
+_LAPLACIAN_NOISE_GAIN = 20.0
 
 
 @dataclass(frozen=True)
@@ -63,6 +73,7 @@ class FrameMetrics:
     dhash: str
     tilt_degrees: float
     tilt_confidence: float
+    noise_sigma: float
     frames_sampled: int
     duration_seconds: float | None
 
@@ -73,8 +84,13 @@ class FrameMetrics:
         return _clamp(1.0 - excess / (_TILT_FULL_PENALTY_DEGREES - _TILT_FREE_DEGREES))
 
     @property
+    def noise(self) -> float:
+        # Under 2 levels of grain is clean; 12 or more is plainly noisy.
+        return _clamp((self.noise_sigma - _NOISE_FREE_SIGMA) / (_NOISE_FULL_PENALTY_SIGMA - _NOISE_FREE_SIGMA))
+
+    @property
     def technical_score(self) -> float:
-        return _clamp(0.6 * self.sharpness + 0.4 * self.exposure)
+        return _clamp(0.6 * self.sharpness + 0.4 * self.exposure - _NOISE_TECHNICAL_WEIGHT * self.noise)
 
     @property
     def aesthetic_score(self) -> float:
@@ -126,7 +142,11 @@ def metrics_from_frames(
 
     if not frames:
         raise ValueError("at least one frame is required")
-    sharpness_values = [_laplacian_variance(frame, width, height) for frame in frames]
+    noise_sigmas = [noise_sigma_from_frame(frame, width, height) for frame in frames]
+    sharpness_values = [
+        max(0.0, _laplacian_variance(frame, width, height) - _LAPLACIAN_NOISE_GAIN * sigma * sigma)
+        for frame, sigma in zip(frames, noise_sigmas)
+    ]
     # The sharpest frame is the representative one for a clip's exposure and hash.
     best = max(range(len(frames)), key=lambda index: sharpness_values[index])
     middle = frames[len(frames) // 2]
@@ -139,6 +159,7 @@ def metrics_from_frames(
     variance = sorted(sharpness_values)[len(sharpness_values) // 2]
     framing, subject_x, subject_y = framing_from_frame(frames[best], width, height)
     tilt, tilt_confidence = tilt_from_frame(frames[best], width, height)
+    noise_sigma = noise_sigmas[best]
     return FrameMetrics(
         sharpness=round(variance / (variance + _SHARPNESS_HALF_POINT), 6),
         exposure=round(_clamp(exposure), 6),
@@ -153,6 +174,7 @@ def metrics_from_frames(
         dhash=dhash_hex(middle, width, height),
         tilt_degrees=round(tilt, 3),
         tilt_confidence=round(tilt_confidence, 6),
+        noise_sigma=round(noise_sigma, 3),
         frames_sampled=len(frames),
         duration_seconds=duration_seconds,
     )
@@ -232,6 +254,35 @@ def tilt_from_frame(frame: bytes, width: int = FRAME_WIDTH, height: int = FRAME_
     mean = sum(d * w for d, w in window) / window_weight
     confidence = window_weight / sum(w for _, w in votes)
     return mean, _clamp(confidence)
+
+
+def noise_sigma_from_frame(frame: bytes, width: int = FRAME_WIDTH, height: int = FRAME_HEIGHT) -> float:
+    """Estimate sensor grain as a standard deviation in 8-bit levels.
+
+    Immerkaer's mask (1 -2 1 / -2 4 -2 / 1 -2 1) cancels smooth gradients and
+    straight edges, and its response to white noise of sigma has standard
+    deviation 6 * sigma. Reading the median absolute response (0.6745 of the
+    standard deviation for a Gaussian) instead of the mean keeps edges and
+    texture, which are a minority of pixels, from being counted as grain. Frames
+    are downscaled before this runs, so it reads grain that survives at that
+    size; a frame with more than half its pixels in texture overstates it.
+    """
+
+    responses: list[int] = []
+    for y in range(1, height - 1):
+        above, row, below = (y - 1) * width, y * width, (y + 1) * width
+        for x in range(1, width - 1):
+            responses.append(
+                abs(
+                    frame[above + x - 1] + frame[above + x + 1] + frame[below + x - 1] + frame[below + x + 1]
+                    - 2 * (frame[above + x] + frame[below + x] + frame[row + x - 1] + frame[row + x + 1])
+                    + 4 * frame[row + x]
+                )
+            )
+    if not responses:
+        return 0.0
+    responses.sort()
+    return responses[len(responses) // 2] / (0.6745 * 6.0)
 
 
 def dhash_hex(frame: bytes, width: int = FRAME_WIDTH, height: int = FRAME_HEIGHT) -> str:

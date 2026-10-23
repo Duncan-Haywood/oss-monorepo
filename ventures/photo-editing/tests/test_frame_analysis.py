@@ -1,4 +1,5 @@
 import math
+import random
 import shutil
 import subprocess
 import tempfile
@@ -15,6 +16,7 @@ from shootflow.frame_analysis import (
     framing_from_frame,
     hamming_distance,
     metrics_from_frames,
+    noise_sigma_from_frame,
     tilt_from_frame,
 )
 from shootflow.story import AssetAnalysis
@@ -81,6 +83,37 @@ class TiltTests(unittest.TestCase):
         self.assertEqual(level.level, 1.0)
         self.assertLess(crooked.level, 0.2)
         self.assertLess(crooked.story_score, level.story_score)
+
+
+def _noisy(base: bytes, sigma: float, seed: int = 7) -> bytes:
+    rng = random.Random(seed)
+    return bytes(max(0, min(255, round(v + rng.gauss(0.0, sigma)))) for v in base)
+
+
+class NoiseTests(unittest.TestCase):
+    def test_clean_frames_read_zero_and_gradients_are_not_grain(self) -> None:
+        self.assertEqual(noise_sigma_from_frame(bytes([120]) * SIZE), 0.0)
+        self.assertLess(noise_sigma_from_frame(_gradient()), 0.5)
+        self.assertLess(noise_sigma_from_frame(_checker(40, 200)), 0.5)
+
+    def test_added_grain_is_recovered_within_a_fifth(self) -> None:
+        for sigma in (4.0, 8.0, 12.0):
+            measured = noise_sigma_from_frame(_noisy(bytes([128]) * SIZE, sigma))
+            self.assertAlmostEqual(measured, sigma, delta=0.2 * sigma, msg=f"{sigma}")
+
+    def test_grain_does_not_pass_for_sharpness(self) -> None:
+        flat = metrics_from_frames([bytes([128]) * SIZE])
+        grainy = metrics_from_frames([_noisy(bytes([128]) * SIZE, 10.0)])
+        self.assertLess(grainy.sharpness, 0.5)  # raw Laplacian variance would score about 0.97
+        self.assertGreater(grainy.noise, 0.5)
+        self.assertLess(flat.noise, 0.01)
+
+    def test_grain_on_a_sharp_frame_costs_technical_score(self) -> None:
+        clean = metrics_from_frames([_checker(40, 200)])
+        grainy = metrics_from_frames([_noisy(_checker(40, 200), 12.0)])
+        self.assertEqual(clean.noise, 0.0)
+        self.assertGreater(grainy.noise, 0.8)
+        self.assertLess(grainy.technical_score, clean.technical_score)
 
 
 class FramingTests(unittest.TestCase):
