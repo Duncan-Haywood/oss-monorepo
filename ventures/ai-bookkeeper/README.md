@@ -476,6 +476,10 @@ layouts, so check them against a real download.
 
 `bank.mjs` labels a `Date, Status, Type, CheckNumber, Description, Withdrawal, Deposit, RunningBalance` export as Schwab and reads the `RunningBalance` column for the balance chain. The fixture `schwab-checking.csv` has made-up rows and a header from memory of Schwab's layout; no real download was tried, so check it against one.
 
+### Nationwide-style UK export (2026-10-23)
+
+A UK building-society CSV with an account summary block above the header, `Paid out` / `Paid in` columns, quoted `£1,200.50` amounts and newest-first rows already reads through the generic path; `fixtures/nationwide-current.csv` (made-up rows, layout from memory, no real export tried) pins it in `neobank.test.mjs`, balance chain included.
+
 ### Australian and Canadian CSVs with no header row (2026-10-22)
 
 `bank.mjs` reads two more header-less shapes by their layout: Commonwealth Bank style (`date, signed amount, description, balance`, day-first dates; three columns without a balance, ANZ style) and TD style (`date, description, withdrawal, deposit, balance`, month-first dates). `headerless.test.mjs` checks both on `fixtures/cba-no-header.csv` and `fixtures/td-no-header.csv`, hand-written with made-up rows from memory of those layouts; no real download was tried. Headed exports from RBC (CAD$ column, MM/DD dates, both description columns joined), Westpac (day-first, debit/credit, balance) and NAB (`DD Mon YY`, signed amount, transaction details) are read and labelled too (2026-10-22, `neobank.test.mjs`, hand-written fixtures from memory of those layouts, no real download tried; a USD$ row is read as written and the file is flagged as mixing currencies, 2026-10-23, `neobank.test.mjs`).
