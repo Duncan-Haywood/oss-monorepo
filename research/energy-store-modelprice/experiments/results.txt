@@ -1,0 +1,119 @@
+A. Price the store pays (cheapest quarter of each cycle window) and the heat pump pays (Nov-Mar mean), EUR/kWh, by price source.
+   real = OPSD/ENTSO-E; resid = isotonic residual-load fit on the other 4 years; resid+ = resid with the held-out mean added back (oracle); merit = flat 0.0546.
+year  source     q_daily  q_weekly      hp_p      mean
+2015  real        0.0216    0.0188    0.0319    0.0319
+2015  resid       0.0290    0.0257    0.0389    0.0375
+2015  resid+      0.0234    0.0201    0.0333    0.0319
+2015  merit       0.0546    0.0546    0.0546    0.0546
+2016  real        0.0207    0.0183    0.0307    0.0292
+2016  resid       0.0306    0.0270    0.0423    0.0397
+2016  resid+      0.0201    0.0164    0.0318    0.0292
+2016  merit       0.0546    0.0546    0.0546    0.0546
+2017  real        0.0230    0.0193    0.0388    0.0347
+2017  resid       0.0276    0.0240    0.0393    0.0362
+2017  resid+      0.0261    0.0225    0.0379    0.0347
+2017  merit       0.0546    0.0546    0.0546    0.0546
+2018  real        0.0321    0.0276    0.0423    0.0444
+2018  resid       0.0238    0.0198    0.0348    0.0328
+2018  resid+      0.0354    0.0315    0.0465    0.0444
+2018  merit       0.0546    0.0546    0.0546    0.0546
+2019  real        0.0265    0.0217    0.0391    0.0377
+2019  resid       0.0218    0.0165    0.0333    0.0317
+2019  resid+      0.0278    0.0225    0.0393    0.0377
+2019  merit       0.0546    0.0546    0.0546    0.0546
+
+B. diff = store - heat pump cost of heat (EUR/kWh; negative: the store wins), house scale, by price source. verdict: S store, P pump, T tie (|diff| <= 0.002).
+case      year       real  v     resid  v    resid+  v     merit  v
+daily     2015     -0.025  S    -0.016  S    -0.023  S    +0.021  P
+daily     2016     -0.027  S    -0.014  S    -0.028  S    +0.021  P
+daily     2017     -0.025  S    -0.018  S    -0.020  S    +0.021  P
+daily     2018     -0.012  S    -0.023  S    -0.007  S    +0.021  P
+daily     2019     -0.020  S    -0.026  S    -0.018  S    +0.021  P
+weekly    2015     -0.004  S    +0.008  P    -0.002  S    +0.064  P
+weekly    2016     -0.005  S    +0.010  P    -0.009  S    +0.064  P
+weekly    2017     -0.005  S    +0.004  P    +0.002  T    +0.064  P
+weekly    2018     +0.011  P    -0.003  S    +0.018  P    +0.064  P
+weekly    2019     -0.000  T    -0.010  S    +0.001  T    +0.064  P
+monthly   2015     +0.106  P    +0.126  P    +0.110  P    +0.217  P
+monthly   2016     +0.105  P    +0.128  P    +0.097  P    +0.217  P
+monthly   2017     +0.104  P    +0.119  P    +0.115  P    +0.217  P
+monthly   2018     +0.130  P    +0.109  P    +0.143  P    +0.217  P
+monthly   2019     +0.113  P    +0.097  P    +0.114  P    +0.217  P
+seasonal  2015     +1.531  P    +1.556  P    +1.536  P    +1.670  P
+seasonal  2016     +1.527  P    +1.559  P    +1.521  P    +1.670  P
+seasonal  2017     +1.527  P    +1.547  P    +1.542  P    +1.670  P
+seasonal  2018     +1.547  P    +1.535  P    +1.577  P    +1.670  P
+seasonal  2019     +1.537  P    +1.519  P    +1.541  P    +1.670  P
+
+C. Verdict agreement with the real-price verdict (tie band 0.002 EUR/kWh), all cases x years, house and district scale (40 cells).
+resid     32/40
+resid+    37/40
+merit     21/40
+
+D. Executed charging: the store picks its charge hours by the modelled series and pays the real price in them (house scale).
+   exec_p = real price actually paid; best_p = real cheapest-quarter mean (perfect foresight); gap = exec_p - best_p; diff* = store - pump with exec_p and the real heat-pump price.
+plan     case      year    exec_p   best_p      gap    diff* diff_real
+resid    daily     2015    0.0222   0.0216  +0.0006   -0.024   -0.025
+resid    daily     2016    0.0211   0.0207  +0.0004   -0.026   -0.027
+resid    daily     2017    0.0237   0.0230  +0.0007   -0.024   -0.025
+resid    daily     2018    0.0332   0.0321  +0.0011   -0.010   -0.012
+resid    daily     2019    0.0273   0.0265  +0.0009   -0.018   -0.020
+resid    weekly    2015    0.0198   0.0188  +0.0009   -0.002   -0.004
+resid    weekly    2016    0.0188   0.0183  +0.0006   -0.004   -0.005
+resid    weekly    2017    0.0202   0.0193  +0.0009   -0.003   -0.005
+resid    weekly    2018    0.0286   0.0276  +0.0010   +0.013   +0.011
+resid    weekly    2019    0.0226   0.0217  +0.0009   +0.001   -0.000
+resid+   daily     2015    0.0222   0.0216  +0.0006   -0.024   -0.025
+resid+   daily     2016    0.0211   0.0207  +0.0004   -0.026   -0.027
+resid+   daily     2017    0.0237   0.0230  +0.0007   -0.024   -0.025
+resid+   daily     2018    0.0332   0.0321  +0.0011   -0.010   -0.012
+resid+   daily     2019    0.0273   0.0265  +0.0009   -0.018   -0.020
+resid+   weekly    2015    0.0198   0.0188  +0.0009   -0.002   -0.004
+resid+   weekly    2016    0.0188   0.0183  +0.0006   -0.004   -0.005
+resid+   weekly    2017    0.0202   0.0193  +0.0009   -0.003   -0.005
+resid+   weekly    2018    0.0286   0.0276  +0.0010   +0.013   +0.011
+resid+   weekly    2019    0.0226   0.0217  +0.0009   +0.001   -0.000
+merit    daily     2015    0.0251   0.0216  +0.0035   -0.020   -0.025
+merit    daily     2016    0.0234   0.0207  +0.0027   -0.022   -0.027
+merit    daily     2017    0.0273   0.0230  +0.0042   -0.018   -0.025
+merit    daily     2018    0.0371   0.0321  +0.0051   -0.003   -0.012
+merit    daily     2019    0.0314   0.0265  +0.0050   -0.012   -0.020
+merit    weekly    2015    0.0353   0.0188  +0.0165   +0.030   -0.004
+merit    weekly    2016    0.0239   0.0183  +0.0057   +0.007   -0.005
+merit    weekly    2017    0.0300   0.0193  +0.0107   +0.017   -0.005
+merit    weekly    2018    0.0466   0.0276  +0.0190   +0.051   +0.011
+merit    weekly    2019    0.0412   0.0217  +0.0196   +0.041   -0.000
+
+E. Mean gap exec_p - best_p over the five years (EUR/kWh).
+resid    daily      +0.0007
+resid    weekly     +0.0009
+resid+   daily      +0.0007
+resid+   weekly     +0.0009
+merit    daily      +0.0041
+merit    weekly     +0.0143
+
+F. Break-even electricity price for the store (EUR/kWh) from the real, residual and flat series' heat-pump price, house daily.
+year  bepr_real bepr_resid    q_real   q_resid
+2015     0.0375    0.0387    0.0216    0.0290
+2016     0.0372    0.0393    0.0207    0.0306
+2017     0.0386    0.0387    0.0230    0.0276
+2018     0.0392    0.0380    0.0321    0.0238
+2019     0.0387    0.0377    0.0265    0.0218
+
+G. Verdict agreement with real by scale and case (resid / resid+ / merit, cells out of 5 years), and the weekly house diff series for the figure.
+house     daily     5/5 5/5 0/5
+house     weekly    0/5 4/5 1/5
+house     monthly   5/5 5/5 5/5
+house     seasonal  5/5 5/5 5/5
+district  daily     5/5 4/5 0/5
+district  weekly    2/5 4/5 0/5
+district  monthly   5/5 5/5 5/5
+district  seasonal  5/5 5/5 5/5
+
+H. House weekly diff = store - heat pump (EUR/kWh) by year, by price source.
+year       real     resid    resid+
+2015    -0.0044   +0.0080   -0.0021
+2016    -0.0053   +0.0098   -0.0094
+2017    -0.0054   +0.0044   +0.0017
+2018    +0.0111   -0.0032   +0.0181
+2019    -0.0005   -0.0097   +0.0012
