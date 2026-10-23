@@ -1,0 +1,57 @@
+Delay margin of x'' = -kp x(t-tau) - kd v(t-tau), kp = 4, kd = 2 zeta wn
+== 1. analytic margin
+zeta tau_star_s crossover_w_rad_s
+0.30 0.2655 2.1873
+0.50 0.3556 2.5440
+0.70 0.3686 3.0855
+1.00 0.3237 4.1163
+2.00 0.1882 8.0155
+== 2. simulator margin n*dt (s) and relative error vs analytic, zeta = 0.7
+dt euler_err_pct semi_err_pct zoh_err_pct steps_zoh
+0.1 -18.60 -18.60 -18.60 3
+0.05 -18.60 -18.60 -18.60 6
+0.02 -7.75 -7.75 -7.75 17
+0.01 -2.32 -2.32 -2.32 36
+0.005 -0.96 -0.96 -0.96 73
+== 3. relative error (pct) of the zoh simulator margin at dt = 0.02, by zeta
+zeta euler semi zoh
+0.30 -9.60 -2.07 -9.60
+0.50 -4.38 -4.38 -4.38
+0.70 -7.75 -7.75 -7.75
+1.00 -7.32 -7.32 -7.32
+2.00 -14.98 -14.98 -14.98
+== 4. the delay a controller at dt = 0.1 can hide: margin in steps
+zeta analytic_steps_at_dt0.1 euler semi zoh
+0.30 2.65 1 2 2
+0.50 3.56 2 3 3
+0.70 3.69 3 3 3
+1.00 3.24 2 2 2
+2.00 1.88 1 1 1
+== 5. rule check: zoh margin n equals the largest n with (n + 1/2) dt < tau_star
+zeta dt n_simulated n_rule match
+0.30 0.1 2 2 yes
+0.30 0.05 4 4 yes
+0.30 0.02 12 12 yes
+0.30 0.01 26 26 yes
+0.30 0.005 52 52 yes
+0.50 0.1 3 3 yes
+0.50 0.05 6 6 yes
+0.50 0.02 17 17 yes
+0.50 0.01 35 35 yes
+0.50 0.005 70 70 yes
+0.70 0.1 3 3 yes
+0.70 0.05 6 6 yes
+0.70 0.02 17 17 yes
+0.70 0.01 36 36 yes
+0.70 0.005 73 73 yes
+1.00 0.1 2 2 yes
+1.00 0.05 5 5 yes
+1.00 0.02 15 15 yes
+1.00 0.01 31 31 yes
+1.00 0.005 64 64 yes
+2.00 0.1 1 1 yes
+2.00 0.05 3 3 yes
+2.00 0.02 8 8 yes
+2.00 0.01 18 18 yes
+2.00 0.005 37 37 yes
+mismatches 0 of 25
