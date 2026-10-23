@@ -193,6 +193,7 @@ function chargesArePositive(rows) {
 // already negative), so no sign inference is done. Returns the same shape as
 // the CSV path. The balance is only known for the last row (LEDGERBAL).
 export function sniffFormat(text) {
+  text = String(text ?? "");
   if (isCamt(text)) return "camt053";
   if (isMt940(text)) return "mt940";
   const head = text.slice(0, 2000);
@@ -297,6 +298,7 @@ export function readQif(text, { dayFirst = false } = {}) {
 // Without dayFirst or decimalComma the CSV branch infers them from the cells
 // (inferLocale); passing either one, true or false, is never overridden.
 export function readStatement(text, { dayFirst, decimalComma, invert, year } = {}) {
+  text = String(text ?? "");
   const dfGiven = dayFirst !== undefined, dcGiven = decimalComma !== undefined;
   dayFirst = !!dayFirst; decimalComma = !!decimalComma;
   const format = sniffFormat(text);
