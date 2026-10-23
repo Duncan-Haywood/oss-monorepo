@@ -208,5 +208,12 @@
     "sha256": "c6a77c527c35e5f6ca8a9d3db39d719016b3cf7f3d0af97f2cad77bdc2de0cfc",
     "script_sha256": "e17006c6e6b5627152625498e560cc6a9f76ece20a6ef1e8d2f3ca0c81a043b2",
     "voice": "en_US-ljspeech-high"
+  },
+  "2026-10-23-water-pump-demand-charge-booster-pump": {
+    "bytes": 1024875,
+    "seconds": 204.88,
+    "sha256": "cb914dc08f2eaa835e69bd8364f7d4b33bc1bb5d073f7885a611aacdf90221c1",
+    "script_sha256": "80020c423ac8c779ac8b9b6981d4c704184892a3f93d43b881d9f61bbfa07c63",
+    "voice": "v"
   }
 }
