@@ -103,6 +103,13 @@ export function importStatement(booksIn, csv, account, opts = {}) {
   if (!acct) return { books, added: 0, skipped: 0, problems: [`No account ${account} in the chart of accounts.`], balanceCheck: null };
   const { rows, problems, inferred, statement } = readStatement(csv, opts);
   if (inferred) problems.push(inferred);
+  // A card file of purchases only (no payment row to read the sign from) lists every
+  // charge as a positive amount; a card statement with nothing but credits is rare.
+  if (opts.invert === undefined && !inferred && acct.type === "liability" && rows.length >= 2 && !statement &&
+      rows.every((r) => r.cents > 0 && r.balance === null)) {
+    for (const r of rows) r.cents = -r.cents;
+    problems.push("Every line was positive on a card account, so they were read as charges and the signs flipped (pass invert: false if they are refunds).");
+  }
   const ids = rowIds(rows, account, { loose: true }), oldIds = rowIds(rows, account);
   const have = new Set(books.transactions.map((t) => t.id));
   let added = 0, skipped = 0;
