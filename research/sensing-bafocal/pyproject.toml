@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sensing-bafocal"
+version = "0.1.0"
+description = "Does bundle adjustment that also solves for the focal length (and one radial distortion term) survive a wrong assumed intrinsic, on a synthetic multi-view rig?"
+requires-python = ">=3.9"
+dependencies = ["numpy", "scipy"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -1,0 +1,124 @@
+{
+  "date": "2026-10-23",
+  "session": "https://claude.ai/code/session_01XbYG3o7cuKdQG38LkUEcy5",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-23T00:18:23Z",
+  "ended": "2026-10-23T00:21:11Z",
+  "wall_minutes": 2.89,
+  "tokens_in": 1737487,
+  "tokens_out": 15595,
+  "cost_usd": 0.759,
+  "tool_calls": 25,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/9635",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/PROJECTS.md",
+      "issue": "pick_track.py draw landed on track 17 whose next-steps chain is micro-variants; had to read the track and invent a new convention (queueing) by hand."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/CLAUDE.md",
+      "why": "No agent doc/post written; run budget went to the project. p0 and k have no findable source (Milgram 1986 numbers not retrievable), so swept and disclosed."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Tests 7 pass; build.py ok; check_md_links ok; task: new-convention project society-lineup.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "4eb131f4-201d-5301-88da-2d4e3b658c89",
+    "transcripts": 1,
+    "first": "2026-10-23T00:18:23Z",
+    "last": "2026-10-23T00:21:17Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 22,
+        "input": 44,
+        "output": 15595,
+        "thinking": 3096,
+        "cache_read": 1670207,
+        "cache_write_5m": 0,
+        "cache_write_1h": 67236,
+        "api_equivalent_usd": 0.759,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 22,
+      "input": 44,
+      "output": 15595,
+      "thinking": 3096,
+      "cache_read": 1670207,
+      "cache_write_5m": 0,
+      "cache_write_1h": 67236,
+      "api_equivalent_usd": 0.759,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.961,
+    "tool_calls": 25,
+    "tools": {
+      "Bash": 17,
+      "Read": 3,
+      "ToolSearch": 1,
+      "mcp__github__search_pull_requests": 1,
+      "WebSearch": 1,
+      "bash": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 2.89,
+      "active_minutes": 2.89,
+      "model_minutes": 2.26,
+      "tool_minutes": 0.63,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -272,7 +272,7 @@ const BALANCE_WINDOW = 6; // nights a make-up may be weighed over when keeping h
  * "->") when that lowers the total breaks, so it never adds delay and can shorten it; the move's `to` and a
  * `relocated` flag show it. It runs before `flip`.
  */
-export function applyDivisionRainouts(schedule, text, { balance = false, flip = false, relocate = false } = {}) {
+export function applyDivisionRainouts(schedule, text, { balance = false, flip = false, relocate = false, swapNights = false } = {}) {
   const s = JSON.parse(JSON.stringify(schedule));
   const cfg = s.config;
   const weekdays = new Set(cfg.weekdays || []), skip = new Set(cfg.skipDays || []);
@@ -365,7 +365,7 @@ export function applyDivisionRainouts(schedule, text, { balance = false, flip = 
   for (const dv of s.divisions) { dv.rounds = dv.rounds.filter((r) => r.matches.length); dv.rounds.sort((a, b) => a.day - b.day); }
   s.nights = s.nights.filter((n) => n.matches.length).sort((a, b) => a.day - b.day);
   for (const n of s.nights) n.matches.sort((a, b) => cfg.times.indexOf(a.time) - cfg.times.indexOf(b.time) || cfg.courts.indexOf(a.court) - cfg.courts.indexOf(b.court));
-  if (relocate) relocateMoved(s, moves, linked);
+  if (relocate || swapNights) relocateMoved(s, moves, linked, { move: relocate, swap: swapNights });
   if (flip) flipMoved(s, moves);
   for (const m of moves) { delete m._rec; delete m._rd; delete m._fixed; }
   s.conflicts = linkConflicts(s);
@@ -378,7 +378,7 @@ export function applyDivisionRainouts(schedule, text, { balance = false, flip = 
  * with both teams free, an open court and no new linked-team clash) and keeps the move that most lowers the
  * schedule's home/away breaks, repeating until none helps. A make-up with a date you agreed stays put.
  */
-function relocateMoved(s, moves, linked) {
+function relocateMoved(s, moves, linked, { move = true, swap = false } = {}) {
   const cfg = s.config;
   const nightOf = (day) => s.nights.find((n) => n.day === day);
   const roundOf = (dv, day) => dv.rounds.find((r) => r.day === day);
@@ -396,7 +396,7 @@ function relocateMoved(s, moves, linked) {
     rd.matches.push(mv._rd);
     return cur;
   };
-  for (let improved = true, guard = 0; improved && guard < 20; guard++) {
+  for (let improved = move, guard = 0; improved && guard < 20; guard++) {
     improved = false;
     for (const mv of moves) {
       const rec = mv._rec;
@@ -421,6 +421,34 @@ function relocateMoved(s, moves, linked) {
         put(mv, best.night, best.court, best.time, cfg.venues[best.court] || best.court);
         Object.assign(mv, { to: best.night.day, court: best.court, time: best.time, relocated: true });
         improved = true;
+      }
+    }
+  }
+  if (swap) {
+    // two make-ups trade nights (and slots) when each is free on the other's night, neither lands before its own rainout, no linked team clashes, and the total breaks fall
+    const free = (rec, night, other) => night.matches.every((x) => x === other || (!(x.div === rec.div && [x.home, x.away].some((t) => t === rec.home || t === rec.away))
+      && !(x.time === other.time && [x.home, x.away].some((t) => [rec.home, rec.away].some((u) => linked(rec.div, u, x.div, t))))));
+    const nightHolding = (rec) => s.nights.find((n) => n.matches.includes(rec));
+    for (let improved = true, guard = 0; improved && guard < 20; guard++) {
+      improved = false;
+      for (let i = 0; i < moves.length; i++) for (let j = i + 1; j < moves.length; j++) {
+        const a = moves[i], b = moves[j];
+        if (a._fixed || b._fixed) continue;
+        const na = nightHolding(a._rec), nb = nightHolding(b._rec);
+        if (!na || !nb || na === nb || nb.day <= a.from || na.day <= b.from) continue;
+        if (!free(a._rec, nb, b._rec) || !free(b._rec, na, a._rec)) continue;
+        const before = divisionStats(s).homeAwayBreaks;
+        const sa = { court: a._rec.court, time: a._rec.time, venue: a._rec.venue }, sb = { court: b._rec.court, time: b._rec.time, venue: b._rec.venue };
+        put(a, nb, sb.court, sb.time, sb.venue);
+        put(b, na, sa.court, sa.time, sa.venue);
+        if (divisionStats(s).homeAwayBreaks < before) {
+          Object.assign(a, { to: nb.day, court: sb.court, time: sb.time, relocated: true });
+          Object.assign(b, { to: na.day, court: sa.court, time: sa.time, relocated: true });
+          improved = true;
+        } else {
+          put(a, na, sa.court, sa.time, sa.venue);
+          put(b, nb, sb.court, sb.time, sb.venue);
+        }
       }
     }
   }

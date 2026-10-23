@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of mean surface error against the relative error of the told focal length: with the focal fixed the error grows, with the focal solved for it stays at the true-intrinsics floor">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Solving for the focal length removes the cost of a wrong EXIF value</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="272.4" y2="272.4" stroke="#ddd"/><text x="58" y="276.4" text-anchor="end" font-family="sans-serif" font-size="11">0.001</text>
+<line x1="64" x2="624" y1="220.8" y2="220.8" stroke="#ddd"/><text x="58" y="224.8" text-anchor="end" font-family="sans-serif" font-size="11">0.002</text>
+<line x1="64" x2="624" y1="169.2" y2="169.2" stroke="#ddd"/><text x="58" y="173.2" text-anchor="end" font-family="sans-serif" font-size="11">0.003</text>
+<line x1="64" x2="624" y1="117.6" y2="117.6" stroke="#ddd"/><text x="58" y="121.6" text-anchor="end" font-family="sans-serif" font-size="11">0.004</text>
+<line x1="64" x2="624" y1="66.0" y2="66.0" stroke="#ddd"/><text x="58" y="70.0" text-anchor="end" font-family="sans-serif" font-size="11">0.005</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">-0.2</text>
+<text x="274.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">-0.05</text>
+<text x="344.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0</text>
+<text x="414.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.05</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.2</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">told focal length error (relative)</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">mean surface error (radii)</text>
+<polyline points="64.0,71.2 204.0,184.7 274.0,231.1 316.0,246.6 344.0,251.8 372.0,246.6 414.0,231.1 484.0,195.0 624.0,122.8" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="71.2" r="3" fill="#c0392b"/>
+<circle cx="204.0" cy="184.7" r="3" fill="#c0392b"/>
+<circle cx="274.0" cy="231.1" r="3" fill="#c0392b"/>
+<circle cx="316.0" cy="246.6" r="3" fill="#c0392b"/>
+<circle cx="344.0" cy="251.8" r="3" fill="#c0392b"/>
+<circle cx="372.0" cy="246.6" r="3" fill="#c0392b"/>
+<circle cx="414.0" cy="231.1" r="3" fill="#c0392b"/>
+<circle cx="484.0" cy="195.0" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="122.8" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">focal held at told value</text>
+<polyline points="64.0,251.8 204.0,251.8 274.0,251.8 316.0,251.8 344.0,251.8 372.0,251.8 414.0,251.8 484.0,251.8 624.0,251.8" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="251.8" r="3" fill="#1f6fb2"/>
+<circle cx="204.0" cy="251.8" r="3" fill="#1f6fb2"/>
+<circle cx="274.0" cy="251.8" r="3" fill="#1f6fb2"/>
+<circle cx="316.0" cy="251.8" r="3" fill="#1f6fb2"/>
+<circle cx="344.0" cy="251.8" r="3" fill="#1f6fb2"/>
+<circle cx="372.0" cy="251.8" r="3" fill="#1f6fb2"/>
+<circle cx="414.0" cy="251.8" r="3" fill="#1f6fb2"/>
+<circle cx="484.0" cy="251.8" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="251.8" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">focal solved for</text>
+<polyline points="64.0,251.8 204.0,251.8 274.0,251.8 316.0,251.8 344.0,251.8 372.0,251.8 414.0,251.8 484.0,251.8 624.0,251.8" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="251.8" r="3" fill="#2e8b57"/>
+<circle cx="204.0" cy="251.8" r="3" fill="#2e8b57"/>
+<circle cx="274.0" cy="251.8" r="3" fill="#2e8b57"/>
+<circle cx="316.0" cy="251.8" r="3" fill="#2e8b57"/>
+<circle cx="344.0" cy="251.8" r="3" fill="#2e8b57"/>
+<circle cx="372.0" cy="251.8" r="3" fill="#2e8b57"/>
+<circle cx="414.0" cy="251.8" r="3" fill="#2e8b57"/>
+<circle cx="484.0" cy="251.8" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="251.8" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">true focal held</text>
+</svg>

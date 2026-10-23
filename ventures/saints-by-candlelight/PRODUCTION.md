@@ -179,7 +179,7 @@ writing it; skip any already in `episodes/`):
 - *(Done: episode 9, Patrick and the Ship That Was Ready.)* Saint Patrick, from slave to bishop (his own *Confessio*)
 - Saint Francis and the wolf of Gubbio (Catholic; *Fioretti*)
 - Saint Mary of Egypt (Orthodox and Catholic; told gently for bedtime)
-- Abraham and the three visitors at Mamre (Genesis 18)
+- *(Done: episode 13, Abraham and the Three Visitors at Mamre.)* Abraham and the three visitors at Mamre (Genesis 18)
 - *(Done: episode 11, Herman and the Garden on Spruce Island.)* Saint Herman of Alaska (Orthodox)
 - Saint Nicholas, part two: the storm at sea and the grain ships
 - *(Done: episode 12, Elijah and the Still Small Voice.)* Elijah, the ravens and the still small voice (1 Kings 17-19)
@@ -188,7 +188,7 @@ writing it; skip any already in `episodes/`):
 
 ## Audio status
 
-Episodes 1 to 12 have audio (episode 8 was rendered on 2026-10-22, about 33 minutes). If Hugging Face is blocked in a cloud session, the Kokoro model files are also on GitHub: `https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/` (`kokoro-v1.0.onnx`, `voices-v1.0.bin`) into `~/.cache/kokoro`. Use `/usr/bin/python3` if `python3` lacks numpy. A render takes about 15 minutes.
+Episodes 1 to 13 have audio (episode 8 was rendered on 2026-10-22, about 33 minutes). If Hugging Face is blocked in a cloud session, the Kokoro model files are also on GitHub: `https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/` (`kokoro-v1.0.onnx`, `voices-v1.0.bin`) into `~/.cache/kokoro`. Use `/usr/bin/python3` if `python3` lacks numpy. A render takes about 15 minutes.
 
 ## Publishing
 
