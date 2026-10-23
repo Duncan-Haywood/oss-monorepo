@@ -46,9 +46,35 @@ def build(start, hours, days=DAYS):
     return wn
 
 
+def build_mask(mask, days=DAYS):
+    """Net3 with pump 10 open in the hours where `mask[h]` is true, the same 24-hour pattern every day."""
+    wn = wntr.network.WaterNetworkModel(NET3)
+    wn.options.time.duration = days * 24 * 3600
+    for name in [n for n, c in wn.controls() if "PUMP 10 " in str(c)]:
+        wn.remove_control(name)
+    pump = wn.get_link("10")
+    pump.initial_status = "Open" if mask[0] else "Closed"
+    prev = bool(mask[0])
+    for t in range(1, days * 24 + 1):
+        cur = bool(mask[t % 24])
+        if cur != prev:
+            wn.add_control(f"c{t}", wntr.network.controls.Control(
+                wntr.network.controls.SimTimeCondition(wn, "=", t * 3600), wntr.network.controls.ControlAction(pump, "status", int(cur))))
+        prev = cur
+    return wn
+
+
+def simulate_mask(mask):
+    """`simulate` for an hourly on/off pattern of pump 10 (24 booleans)."""
+    return _score(build_mask(mask))
+
+
 def simulate(start, hours):
     """Hourly results of the last day: dict of energy kWh per hour for each pump, tank levels, min pressure, tank drift."""
-    wn = build(start, hours)
+    return _score(build(start, hours))
+
+
+def _score(wn):
     r = wntr.sim.EpanetSimulator(wn).run_sim()
     flow, head = r.link["flowrate"], r.node["head"]
     e = wntr.metrics.economic.pump_energy(flow[list(PUMPS)], head, wn).astype(float) / J_PER_KWH
