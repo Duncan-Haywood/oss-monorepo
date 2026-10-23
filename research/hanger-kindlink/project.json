@@ -1,0 +1,6 @@
+{
+ "theme": "hanger",
+ "title": "Does it matter that the garment a robot picks is also the garment it decides to hang or fold?",
+ "summary": "Linking the hanger-pick pile's garment kinds to the hanger-cell archetypes moves a one-arm laundry cell from 147 to 141 garments hung or folded per hour (look-then-aim), but the effect on two arms depends on an assumed map from pile kinds to archetypes: 141 to 250 per hour across five maps. The correlation the link adds is small beside that: raising a knit's chance of hiding its opening from 0.2 to 1.0 costs 144 to 132 per hour on one arm and sets 0.23 knits per load aside. Stylised: station times, pile probabilities and the kind-to-archetype map are assumed placeholders.",
+ "lede": "does it matter that the garment a robot picks is also the garment it decides to hang or fold? Linking them moves a one-arm cell from 147 to 141 garments an hour, but two arms swing from 141 to 250 with an assumed kind-to-archetype map. Stylised."
+}
