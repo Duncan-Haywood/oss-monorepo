@@ -99,3 +99,29 @@ test("Credit Debit Indicator column signs an unsigned amount (Navy Federal style
   assert.deepEqual(r.problems, []);
   assert.deepEqual(r.rows.map((x) => x.cents), [-450, 100000]);
 });
+
+// Red-team guards (2026-10-23): mutants of bank.mjs the suite did not catch.
+import { parseCsv, readStatement } from "./bank.mjs";
+import { readFileSync } from "node:fs";
+
+test("parseCsv: a leading delimiter on the header line still counts toward the delimiter vote", () => {
+  const rows = parseCsv(";a;b,c\n;1;2,3\n");
+  assert.deepEqual(rows[0], ["", "a", "b,c"]);
+});
+
+test("readStatement: invert flips the signs of an MT940 statement", () => {
+  const text = readFileSync(new URL("./fixtures/checking.mt940", import.meta.url), "utf8");
+  const plain = readStatement(text), flipped = readStatement(text, { invert: true }), kept = readStatement(text, { invert: false });
+  assert.ok(plain.rows.length > 0);
+  assert.deepEqual(flipped.rows.map((r) => r.cents), plain.rows.map((r) => -r.cents));
+  assert.deepEqual(kept.rows.map((r) => r.cents), plain.rows.map((r) => r.cents));
+});
+
+test("readStatement: two-digit-year dates still reveal a day-first file", () => {
+  const r = readStatement("Date,Description,Amount\n13/01/24,Coffee,-4.50\n14/01/24,Tea,-3.00\n");
+  assert.equal(r.rows[0].date, "2024-01-13");
+});
+
+test("readStatement: a missing file body reads as an empty statement, not a crash", () => {
+  for (const v of [null, undefined, ""]) assert.deepEqual(readStatement(v).rows, []);
+});
