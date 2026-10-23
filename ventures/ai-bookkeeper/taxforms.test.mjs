@@ -192,6 +192,9 @@ test("Schedule SE: social security stops at the wage base, wages use it up, tiny
   assert.equal(selfEmployment(40000, { year: 2025 }).tax, 0);
   assert.equal(selfEmployment(-500000, { year: 2025 }).tax, 0);
   assert.ok(selfEmployment(1000000, { year: 2031 }).warnings.some((w) => /No wage base/.test(w)));
+  const y27 = selfEmployment(30000000, { year: 2027 });
+  assert.equal(y27.socialSecurity, Math.round(19230000 * 0.124)); // $192,300, SSA Oct 2026
+  assert.ok(y27.warnings.some((w) => /192,300/.test(w)));
 });
 
 test("estimated payment dates roll off weekends", () => {
