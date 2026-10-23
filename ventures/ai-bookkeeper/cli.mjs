@@ -72,7 +72,7 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
   close YEAR [--draws] [--month M]   year-end close (a fiscal year ending in month M, named for the year it ends in): that year's income and expense go to retained earnings (3900) in one dated entry, and the books lock through Dec 31; --draws also closes owner draws and contributions. "close reopen YEAR" undoes the latest; "close report YEAR" shows it
   contractors [--year Y] [--threshold DOLLARS] [--csv|--filing|--json]  contract labor paid by payee against the 1099-NEC line, with W-9 status
   taxpack YEAR [--out DIR]  one folder for your preparer: trial balance, P&L, balance sheet, journal, Schedule C, SE, 1099, payroll, sales tax, depreciation, mileage, checks, INDEX.txt
-  b-notice NOTICE_DATE [--received DATE] [--second]  dates for a CP2100 notice: mail the B notice, start 24% backup withholding
+  b-notice NOTICE_DATE [--received DATE] [--second [--first-notice DATE] [--b-notice-sent DATE]]  dates for a CP2100 notice: mail the B notice, start 24% backup withholding
   merge-payee FROM INTO [--off]  count two spellings of one payee as one on the contractors worksheet
   w9 PAYEE [--off]       record that a W-9 is on file for a payee (a flag; no tax IDs are stored)
   trip add MILES --date D --purpose TEXT [--from A --to B] | trip list [--year Y] | trip remove ID   the business mileage log (goes to Schedule C line 9 with --year)
@@ -728,9 +728,9 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
   } catch (e) { console.error(e.message); process.exit(1); }
 } else if (cmd === "b-notice") {
   try {
-    const r = bNoticeDates(rest[0], { received: flag("--received") ?? null, second: has("--second") });
+    const r = bNoticeDates(rest[0], { received: flag("--received") ?? null, second: has("--second"), firstNotice: flag("--first-notice") ?? null, bNoticeSent: flag("--b-notice-sent") ?? null });
     if (json) { console.log(JSON.stringify(r, null, 2)); process.exit(0); }
-    console.log(`CP2100 ${r.second ? "(second notice) " : ""}counted from ${r.base}\n  mail the ${r.second ? "Second" : "First"} B Notice by ${r.mailBNoticeBy}, enclosing ${r.enclose}\n  start ${r.rate * 100}% backup withholding by ${r.startWithholdingBy} unless a signed W-9 arrives first\n  ${r.note}\n  Worksheet dates from the IRS B-program pages, not tax advice.`);
+    console.log(`CP2100 ${r.second ? "(second notice) " : ""}counted from ${r.base}\n  mail the ${r.second ? "Second" : "First"} B Notice by ${r.mailBNoticeBy}, enclosing ${r.enclose}\n  start ${r.rate * 100}% backup withholding by ${r.startWithholdingBy} unless a signed W-9 arrives first (stop within ${r.stopWithholdingWithinDays} calendar days of receiving it)${r.disregard ? "\n  Pub. 1281 Q17: this second CP2100 is in the same calendar year as the first, so you may disregard it" : ""}\n  ${r.note}\n  Worksheet dates from the IRS B-program pages, not tax advice.`);
   } catch (e) { console.error(e.message); process.exit(2); }
 } else if (cmd === "contractors") {
   const yr = flag("--year"), th = flag("--threshold");
