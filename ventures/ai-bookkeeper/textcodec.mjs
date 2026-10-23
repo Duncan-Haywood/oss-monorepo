@@ -3,8 +3,10 @@
 // bank files are Windows-1252; reading either as UTF-8 gives garbled columns
 // and no rows. Runs in Node and in the page (TextDecoder is in both).
 
-export function decodeBytes(bytes) {
+export function decodeBytes(bytes, encoding) {
   const b = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
+  // A caller who knows the codepage (a --encoding flag, a picker) wins.
+  if (encoding) return new TextDecoder(encoding).decode(b);
   const dec = (enc, from = 0) => new TextDecoder(enc).decode(b.subarray(from));
   if (b[0] === 0xef && b[1] === 0xbb && b[2] === 0xbf) return dec("utf-8", 3);
   if (b[0] === 0xff && b[1] === 0xfe) return dec("utf-16le", 2);
@@ -16,7 +18,24 @@ export function decodeBytes(bytes) {
   if (n >= 8 && odd > n * 0.3 && even === 0) return dec("utf-16le");
   if (n >= 8 && even > n * 0.3 && odd === 0) return dec("utf-16be");
   try { return new TextDecoder("utf-8", { fatal: true }).decode(b); }
-  catch { return win1252(b); }
+  catch { return legacy(b); }
+}
+
+// Not UTF-8 and no BOM: a single-byte codepage. Windows-1252 is the default;
+// two cases are told apart from it by evidence in the bytes themselves:
+//  - a LITAS-ESIS .acc file (Lithuanian banks) starts "000<tab>YYYYMMDD<tab>"
+//    in plain ASCII and is Windows-1257 (ą č ę ė į š ų ū ž);
+//  - Cyrillic in Windows-1251 reads, as 1252, as words made only of accented
+//    Latin letters (ïðèâåò); several such words in a row are not Western text.
+// Czech/Polish Windows-1250 shares most accented letters with 1252 and is not
+// guessed; pass the encoding explicitly.
+function legacy(b) {
+  const latin = win1252(b);
+  if (/^000\t\d{8}\t/.test(latin)) return new TextDecoder("windows-1257").decode(b);
+  const highWords = latin.match(/[\u00c0-\u00ff]{4,}/g) || [];
+  const mixedWords = latin.match(/[A-Za-z]+[\u00c0-\u00ff]+[A-Za-z]*/g) || [];
+  if (highWords.length >= 3 && highWords.length > mixedWords.length) return new TextDecoder("windows-1251").decode(b);
+  return latin;
 }
 
 // 0x80-0x9F differ from Latin-1 (euro sign, curly quotes, dashes); a runtime

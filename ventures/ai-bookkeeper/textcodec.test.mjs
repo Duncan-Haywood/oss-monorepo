@@ -33,3 +33,21 @@ test("a UTF-16 file on disk imports through the CLI's file reader", () => {
   writeFileSync(f, utf16le(csv.replace(/\n/g, "\r\n")));
   assert.deepEqual(rows(statementTextFromFile(f)), rows(csv));
 });
+
+test("a LITAS-ESIS .acc file in Windows-1257 is recognised without a flag", () => {
+  const line = "000\t20240102\t1\n010\t20240102\t12.50\tD\tUAB Šiaulių žuvis\tPirkinys\n";
+  const bytes = new Uint8Array(line.length);
+  const map = { "Š": 0xd0, "ž": 0xfe, "ų": 0xf8, "ė": 0xeb };
+  [...line].forEach((c, i) => { bytes[i] = map[c] ?? c.charCodeAt(0); });
+  const text = decodeBytes(bytes);
+  assert.match(text, /Šiaulių žuvis/);
+});
+
+test("Windows-1251 Cyrillic is told from Windows-1252; an explicit encoding wins", () => {
+  // 1251: capitals from 0xc0, lower case from 0xe0
+  const enc = (s) => Uint8Array.from([...s].map((c) => (c === " " ? 0x20 : c >= "а" ? c.charCodeAt(0) - 0x430 + 0xe0 : c.charCodeAt(0) - 0x410 + 0xc0)));
+  assert.equal(decodeBytes(enc("Привет мир платеж оплата")), "Привет мир платеж оплата");
+  assert.equal(decodeBytes(enc("Привет"), "windows-1251"), "Привет");
+  // Western text with an accent stays 1252
+  assert.equal(decodeBytes(Buffer.from([0x43, 0x61, 0x66, 0xe9, 0x20, 0x62, 0x61, 0x72])), "Café bar");
+});
