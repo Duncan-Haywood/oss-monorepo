@@ -24,7 +24,7 @@ import { parseCents } from "./bank.mjs";
 import { accountMap } from "./ledger.mjs";
 import { estimatedTax } from "./estimatedtax.mjs";
 import { addRentalAccounts, addProperty, tagProperty, scheduleE, scheduleECsv } from "./rental.mjs";
-import { seSetAside, selfEmployment, scheduleC, scheduleCCsv, contractors1099, contractors1099Csv, nec1099FilingCsv, markW9, mergePayees } from "./taxforms.mjs";
+import { bNoticeDates, seSetAside, selfEmployment, scheduleC, scheduleCCsv, contractors1099, contractors1099Csv, nec1099FilingCsv, markW9, mergePayees } from "./taxforms.mjs";
 import { setOpeningBalances, clearOpeningBalances } from "./opening.mjs";
 import { importChart, importTrialBalance } from "./migrate.mjs";
 import { sniffFormat, splitOfx, splitQif, readStatement } from "./bank.mjs";
@@ -72,6 +72,7 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
   close YEAR [--draws] [--month M]   year-end close (a fiscal year ending in month M, named for the year it ends in): that year's income and expense go to retained earnings (3900) in one dated entry, and the books lock through Dec 31; --draws also closes owner draws and contributions. "close reopen YEAR" undoes the latest; "close report YEAR" shows it
   contractors [--year Y] [--threshold DOLLARS] [--csv|--filing|--json]  contract labor paid by payee against the 1099-NEC line, with W-9 status
   taxpack YEAR [--out DIR]  one folder for your preparer: trial balance, P&L, balance sheet, journal, Schedule C, SE, 1099, payroll, sales tax, depreciation, mileage, checks, INDEX.txt
+  b-notice NOTICE_DATE [--received DATE] [--second]  dates for a CP2100 notice: mail the B notice, start 24% backup withholding
   merge-payee FROM INTO [--off]  count two spellings of one payee as one on the contractors worksheet
   w9 PAYEE [--off]       record that a W-9 is on file for a payee (a flag; no tax IDs are stored)
   trip add MILES --date D --purpose TEXT [--from A --to B] | trip list [--year Y] | trip remove ID   the business mileage log (goes to Schedule C line 9 with --year)
@@ -725,6 +726,12 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
     for (const w of r.warnings) console.log(`  ! ${w}`);
     console.log("  A worksheet. Not tax advice; it leaves out state tax, credits and itemised deductions.");
   } catch (e) { console.error(e.message); process.exit(1); }
+} else if (cmd === "b-notice") {
+  try {
+    const r = bNoticeDates(rest[0], { received: flag("--received") ?? null, second: has("--second") });
+    if (json) { console.log(JSON.stringify(r, null, 2)); process.exit(0); }
+    console.log(`CP2100 ${r.second ? "(second notice) " : ""}counted from ${r.base}\n  mail the ${r.second ? "Second" : "First"} B Notice by ${r.mailBNoticeBy}, enclosing ${r.enclose}\n  start ${r.rate * 100}% backup withholding by ${r.startWithholdingBy} unless a signed W-9 arrives first\n  ${r.note}\n  Worksheet dates from the IRS B-program pages, not tax advice.`);
+  } catch (e) { console.error(e.message); process.exit(2); }
 } else if (cmd === "contractors") {
   const yr = flag("--year"), th = flag("--threshold");
   const r = contractors1099(books, { year: yr ? +yr : undefined, threshold: th !== null ? Math.round(+th * 100) : undefined });
