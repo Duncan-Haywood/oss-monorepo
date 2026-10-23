@@ -337,3 +337,17 @@ test("PostFinance: tab-separated, YYYYMMDD dates, 'Value' is the value date not 
   assert.match(r.rows[0].desc, /Migros/);
   assert.deepEqual(checkRunningBalance(r.rows).breaks, []);
 });
+
+test("Nationwide-style export: summary block, quoted £ amounts with thousands commas, newest first", () => {
+  const r = read("nationwide-current.csv");
+  assert.deepEqual(r.rows.map((x) => x.cents), [-8500, 150000, -2275]);
+  assert.deepEqual(r.rows.map((x) => x.date), ["2026-10-04", "2026-10-03", "2026-10-02"]);
+  assert.equal(r.rows[0].balance, 120050);
+  assert.equal(r.rows[2].balance, -21450);
+});
+
+test("Nationwide-style export: the balance chain holds read newest first", () => {
+  const c = checkRunningBalance(read("nationwide-current.csv").rows);
+  assert.equal(c.checked, true);
+  assert.deepEqual(c.breaks, []);
+});
