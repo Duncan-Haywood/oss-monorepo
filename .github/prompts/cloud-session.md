@@ -81,6 +81,18 @@ Start these with `run_in_background` and wait with `Monitor`:
   line contains the pattern. `.claude/hooks/block_pkill_f.py` now refuses it
   (also inside heredocs that merely mention it); use `'[n]ame'` or `kill <pid>`.
 
+## Outbound hosts
+
+Egress goes through a proxy with a per-environment allow-list, so a host that
+works in one session can 403 in the next (run records name irs.gov, ssa.gov,
+the OPSD/ENTSO-E hosts and, on some days, huggingface.co). Before a plan
+depends on a host, probe it once:
+`curl -sS -o /dev/null -m 15 -w '%{http_code}\n' https://<host>/`. A 403 from
+the proxy is not the site's answer. Then say in the PR, the run record or the
+product's notes that a figure could not be checked against that source, rather
+than skipping the step silently or citing from memory (`goals.md`: never
+fabricate). Proxy state and per-tool fixes: `curl -sS "$HTTPS_PROXY/__agentproxy/status"`.
+
 ## Scheduled tasks
 
 A scheduled task created from a cloud session (`create_trigger`) may store
