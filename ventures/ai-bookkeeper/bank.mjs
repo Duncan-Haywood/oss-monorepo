@@ -73,7 +73,7 @@ export function parseDate(v, dayFirst = false) {
   else if ((x = s.match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{2,4})/))) {
     [m, d] = dayFirst ? [+x[2], +x[1]] : [+x[1], +x[2]];
     y = +x[3] < 100 ? 2000 + +x[3] : +x[3];
-  } else if ((x = s.match(/^(\d{1,2})[ -]([A-Za-z]{3})[A-Za-z]*[ -,]+(\d{2,4})/))) {
+  } else if ((x = s.match(/^(\d{1,2})[ -]([A-Za-z]{3})[A-Za-z]*[ ,-]+(\d{2,4})/))) {
     [d, m, y] = [+x[1], MONTHS[x[2].toLowerCase()], +x[3] < 100 ? 2000 + +x[3] : +x[3]];
   } else if ((x = s.match(/^([A-Za-z]{3})[A-Za-z]* (\d{1,2}),? (\d{4})/))) {
     [m, d, y] = [MONTHS[x[1].toLowerCase()], +x[2], +x[3]];
@@ -285,7 +285,11 @@ export function readQif(text, { dayFirst = false } = {}) {
 // `invert` flips signs for card exports that list charges as positive. Leave it
 // undefined and a file with no running balance that has payment rows is
 // flipped when its payments are negative (`inferred` says so).
-export function readStatement(text, { dayFirst = false, decimalComma = false, invert, year } = {}) {
+// Without dayFirst or decimalComma the CSV branch infers them from the cells
+// (inferLocale); passing either one, true or false, is never overridden.
+export function readStatement(text, { dayFirst, decimalComma, invert, year } = {}) {
+  const dfGiven = dayFirst !== undefined, dcGiven = decimalComma !== undefined;
+  dayFirst = !!dayFirst; decimalComma = !!decimalComma;
   const format = sniffFormat(text);
   if (format === "camt053" || format === "mt940") {
     const r = format === "camt053" ? readCamt(text) : readMt940(text);
@@ -310,6 +314,15 @@ export function readStatement(text, { dayFirst = false, decimalComma = false, in
   else if (headerAt === -1) return { rows: [], problems: ["No date and amount columns were found. Name them Date and Amount (or Debit and Credit)."], columns: null };
   else { columns = detectColumns(rows[headerAt]); first = headerAt + 1; }
   const out = [];
+  let localeNote = null;
+  if (!dfGiven || !dcGiven) {
+    const loc = inferLocale(rows.slice(first), columns);
+    if (!dfGiven && !hl && loc.dayFirst) { dayFirst = true; localeNote = "Dates read day first"; }
+    if (!dcGiven && loc.decimalComma) { decimalComma = true; localeNote = (localeNote ? localeNote + " and " : "Amounts read") + (localeNote ? "amounts with decimal commas" : " with decimal commas"); }
+  }
+  // A DR/CR (or Debit/Credit) marker column beside one unsigned amount column.
+  const hdr0 = headerAt === -1 ? [] : rows[headerAt].map(norm);
+  const drcrCol = columns.amount !== -1 ? hdr0.findIndex((x) => /^(dr ?\/ ?cr|cr ?\/ ?dr|debit ?\/ ?credit|credit ?\/ ?debit|dr or cr|cr or dr)$/.test(x)) : -1;
   // Wise writes DD-MM-YYYY. Revolut lists pending, declined and reverted rows
   // beside completed ones and keeps the fee in its own column.
   if (bank === "lloyds" || bank === "barclays" || bank === "wise" || bank === "monzo" || bank === "starling" || bank === "westpac" || bank === "nab") dayFirst = true;
@@ -338,6 +351,11 @@ export function readStatement(text, { dayFirst = false, decimalComma = false, in
     if (columns.amount !== -1 && String(r[columns.amount] ?? "").trim() !== "") cents = parseCents(r[columns.amount], decimalComma);
     else cents = (columns.credit !== -1 ? Math.abs(parseCents(r[columns.credit], decimalComma) || 0) : 0) - (columns.debit !== -1 ? Math.abs(parseCents(r[columns.debit], decimalComma) || 0) : 0);
     if (!Number.isFinite(cents)) { problems.push(`Line ${i + 1}: unreadable amount, skipped.`); continue; }
+    if (drcrCol !== -1) {
+      const m = String(r[drcrCol] ?? "").trim().toLowerCase();
+      if (/^(dr|d|debit)$/.test(m)) cents = -Math.abs(cents);
+      else if (/^(cr|c|credit)$/.test(m)) cents = Math.abs(cents);
+    }
     if (feeCol !== -1) { const fee = parseCents(r[feeCol], decimalComma); if (Number.isFinite(fee)) cents -= Math.abs(fee); }
     if (cents === 0) continue;
     const balance = columns.balance !== -1 && String(r[columns.balance] ?? "").trim() !== "" ? parseCents(r[columns.balance], decimalComma) : null;
@@ -362,7 +380,26 @@ export function readStatement(text, { dayFirst = false, decimalComma = false, in
     if (pos) { flip = true; inferred = "Charges were positive (the payment rows are negative), so signs were flipped."; }
   }
   if (flip) for (const r of out) r.cents = -r.cents;
+  if (localeNote) inferred = [inferred, localeNote + " (inferred from the file; pass dayFirst / decimalComma to override)."].filter(Boolean).join(" ");
   return { rows: out, problems, columns, bank, inferred };
+}
+
+// Guess day-first dates and decimal commas from the data rows. Day first when a
+// date has a first number over 12 (and none a second), or the separator is a dot
+// (dd.mm.yyyy); decimal comma when amounts end ",dd" and none ends ".dd".
+function inferLocale(dataRows, columns) {
+  let dayHi = 0, monHi = 0, dots = 0, comma = 0, point = 0;
+  for (const r of dataRows) {
+    const d = columns.date === -1 ? null : String(r[columns.date] ?? "").trim().match(/^(\d{1,2})([-/.])(\d{1,2})\2\d{2,4}/);
+    if (d) { if (+d[1] > 12) dayHi++; if (+d[3] > 12) monHi++; if (d[2] === ".") dots++; }
+    for (const k of ["amount", "debit", "credit", "balance"]) {
+      if (columns[k] === -1) continue;
+      const a = String(r[columns[k]] ?? "").trim().replace(/[^0-9.,]/g, "");
+      if (/\d,\d{1,2}$/.test(a)) comma++;
+      else if (/\d\.\d{1,2}$/.test(a)) point++;
+    }
+  }
+  return { dayFirst: (dayHi > 0 && monHi === 0) || (dayHi === 0 && monHi === 0 && dots > 0), decimalComma: comma > 0 && point === 0 };
 }
 
 // A stable id per row so importing the same statement twice adds nothing: the

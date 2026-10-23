@@ -132,7 +132,7 @@ const has = (k) => { const i = argv.indexOf(k); if (i === -1) return false; argv
 if (has("--help") || has("-h") || !argv.length) { console.log(HELP); process.exit(0); }
 
 const file = flag("--books");
-const json = has("--json"), example = has("--example"), invert = has("--invert") ? true : undefined, dayFirst = has("--day-first"), decimalComma = has("--decimal-comma");
+const json = has("--json"), example = has("--example"), invert = has("--invert") ? true : undefined, dayFirst = has("--day-first") || undefined, decimalComma = has("--decimal-comma") || undefined;
 const asOf = flag("--as-of");
 const acctMap = flag("--map"), account = flag("--account"), from = flag("--from"), to = flag("--to"), auto = flag("--auto");
 let books = example ? analyze({ example: true }).books : file && existsSync(file) ? JSON.parse(readFileSync(file, "utf8")) : newBooks();
@@ -194,7 +194,7 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
     const date = flag("--date");
     if (!date) { console.error("opening needs --date YYYY-MM-DD (the day the balances are as of)"); process.exit(2); }
     try {
-      const r = setOpeningBalances(books, readFileSync(rest[0], "utf8"), { date, decimalComma });
+      const r = setOpeningBalances(books, readFileSync(rest[0], "utf8"), { date, decimalComma: !!decimalComma });
       for (const p of r.problems) console.error(p);
       if (!r.lines.length) process.exit(1);
       books = r.books; save();
@@ -212,7 +212,7 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
       books = r.books; save();
       console.log(`${r.matched.length} accounts matched the chart already; ${r.added.length} added${r.added.length ? `: ${r.added.map((a) => `${a.code} ${a.name}`).join(", ")}` : ""}.`);
     } else {
-      const r = importTrialBalance(books, text, { date: flag("--date") ?? undefined, decimalComma });
+      const r = importTrialBalance(books, text, { date: flag("--date") ?? undefined, decimalComma: !!decimalComma });
       for (const p of r.problems) console.error(p);
       if (!r.lines.length) process.exit(1);
       books = r.books; save();

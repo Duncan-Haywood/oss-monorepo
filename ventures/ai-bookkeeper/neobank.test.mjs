@@ -248,3 +248,23 @@ test("autopay-only card export (mostly positive charges) still flips", () => {
   const t = "Date,Description,Amount\n2026-03-02,AUTOPAY PAYMENT,-300.00\n2026-03-03,AMAZON,60.00\n2026-03-04,UBER,22.50\n2026-03-05,SHELL,40.00\n";
   assert.deepEqual(readStatement(t).rows.map((x) => x.cents), [30000, -6000, -2250, -4000]);
 });
+
+test("European semicolon export: day-first dates and decimal commas are inferred", () => {
+  const r = readStatement("sep=;\nDatum;Beschreibung;Betrag\n01.03.2026;Miete;-1.200,50\n02.03.2026;Gehalt;3.000,00\n");
+  assert.deepEqual(r.rows.map((x) => [x.date, x.cents]), [["2026-03-01", -120050], ["2026-03-02", 300000]]);
+  assert.match(r.inferred, /day first/);
+});
+
+test("locale inference never overrides an explicit choice, and US files are untouched", () => {
+  const us = readStatement("Date,Description,Amount\n03/01/2026,Coffee,-4.50\n03/02/2026,Pay,\"1,100.00\"\n");
+  assert.deepEqual(us.rows.map((x) => [x.date, x.cents]), [["2026-03-01", -450], ["2026-03-02", 110000]]);
+  const forced = readStatement("Date,Description,Amount\n03/01/2026,Coffee,-4.50\n", { dayFirst: false });
+  assert.equal(forced.rows[0].date, "2026-03-01");
+  const dmy = readStatement("Date,Description,Amount\n13/01/2026,Coffee,-4.50\n02/02/2026,Pay,10.00\n");
+  assert.deepEqual(dmy.rows.map((x) => x.date), ["2026-01-13", "2026-02-02"]);
+});
+
+test("a DR/CR marker column signs an unsigned amount; dd-Mon-yyyy dates read", () => {
+  const r = readStatement("Date,Description,Amount,DR/CR\n1-Mar-2026,Coffee,4.50,DR\n2-Mar-2026,Pay,100.00,CR\n");
+  assert.deepEqual(r.rows.map((x) => [x.date, x.cents]), [["2026-03-01", -450], ["2026-03-02", 10000]]);
+});
