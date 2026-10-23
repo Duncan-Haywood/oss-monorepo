@@ -1,0 +1,6 @@
+{
+ "theme": "buildbot",
+ "title": "Does planning the centre of pressure off the middle of the sole let a stock humanoid carry faster?",
+ "summary": "A one-parameter test of the idea that the pessimistic carry speeds of buildbot-carryphase come from planning the centre of pressure (CoP) at the foot's middle. The CoP is held at offsets from &minus;6 to +9&nbsp;cm along the sole and the Menagerie G1 and H1 are re-scored over 1,944 cases (payload, step length, step time) by inverse dynamics against joint torque limits. Offset 0 reproduces the earlier speeds; the best offset moves one result by one grid cell (G1 at 4&nbsp;kg, 0.10 to 0.13&nbsp;m/s) and nothing else. Torque limits, not the sole, bind: 125&ndash;150 of the G1's 180 cases per offset exceed a torque limit. A negative result for a constant offset; it does not test a time-varying CoP, trunk or arm motion, or a learned policy. Prescribed gait, no falls or energy scored, not a safety case.",
+ "lede": "does moving the planned centre of pressure along the sole raise a humanoid's carry speed? Not by a constant offset: the G1's 4 kg result moves one grid cell (0.10 to 0.13 m/s) and joint torques, not the sole, set the limit."
+}
