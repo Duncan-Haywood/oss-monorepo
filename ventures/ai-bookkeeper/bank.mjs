@@ -179,7 +179,7 @@ function chargesArePositive(rows) {
   // payments, so they count only when most rows are positive, as a card
   // export with positive charges would be.
   const strong = rows.filter((r) => /payment.*thank you|payment received|directpay|ach deposit internet transfer/i.test(r.desc));
-  const weak = rows.filter((r) => /autopay|automatic payment|online payment/i.test(r.desc));
+  const weak = rows.filter((r) => /autopay|automatic payment|online payment|^(card |statement )?payment$/i.test(r.desc));
   let pay = strong;
   if (pay.length === 0 && weak.length > 0 && rows.filter((r) => r.cents > 0).length >= rows.length * 0.7) pay = weak;
   if (pay.length === 0) return null;
@@ -361,6 +361,11 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year } = {
   // Venmo lists Pending and Cancelled payments, and its balance rows have no date.
   const stateCol = bank === "revolut" ? hdr.indexOf("state") : bank === "mercury" || bank === "paypal" || bank === "venmo" || bank === "cash-app" || bank === "sofi" || bank === "usaa" ? hdr.indexOf("status") : -1;
   const okState = bank === "mercury" ? /^(sent|completed)$/i : bank === "cash-app" ? /^complete$/i : bank === "sofi" || bank === "usaa" ? /^posted$/i : bank === "venmo" ? /^(complete|issued)$/i : bank === "paypal" ? /^completed$/i : /^completed$/i;
+  // Any other export with a Status or State column (Chime, Brex, Bluevine and the like): skip
+  // rows whose status is plainly not a booked transaction. Only that vocabulary is skipped, so
+  // an unknown label such as "Settled" or "Cleared" keeps the row.
+  const anyState = stateCol === -1 && columns.amount !== -1 ? hdr.findIndex((x) => x === "status" || x === "state" || x === "transaction status") : -1;
+  const NOT_BOOKED = /^(pending|declined|failed|cancell?ed|reversed|reverted|voided|rejected|authori[sz]ed|authori[sz]ation|processing|in progress|on hold|returned)$/i;
   const feeCol = bank === "revolut" ? hdr.indexOf("fee") : -1;
   const curCol = bank === "revolut" ? hdr.indexOf("currency") : -1;
   const currencies = new Set();
@@ -368,6 +373,7 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year } = {
     const r = rows[i];
     if (bank === "venmo" && !String(r[columns.date] ?? "").trim()) continue;
     if (stateCol !== -1 && !okState.test(String(r[stateCol] ?? "").trim())) { problems.push(`Line ${i + 1}: state ${String(r[stateCol] ?? "").trim() || "blank"}, not a completed transaction, skipped.`); continue; }
+    if (anyState !== -1 && NOT_BOOKED.test(String(r[anyState] ?? "").trim())) { problems.push(`Line ${i + 1}: status ${String(r[anyState]).trim()}, not a booked transaction, skipped.`); continue; }
     if (curCol !== -1 && String(r[curCol] ?? "").trim()) currencies.add(r[curCol].trim().toUpperCase());
     const date = parseDate(r[columns.date], dayFirst);
     if (!date) { problems.push(`Line ${i + 1}: unreadable date "${r[columns.date] ?? ""}", skipped.`); continue; }

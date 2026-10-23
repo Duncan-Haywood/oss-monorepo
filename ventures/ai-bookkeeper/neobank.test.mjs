@@ -288,3 +288,31 @@ test("PayPal activity CSV: Net moves the balance, pending rows skipped, balance 
   assert.equal(r.problems.length, 1, "the pending row is reported, not imported");
   assert.deepEqual(checkRunningBalance(r.rows).breaks, []);
 });
+
+test("Any export with a Status column: pending and declined rows are reported, settled ones kept", () => {
+  const r = readStatement([
+    "Transaction Date,Transaction Type,Description,Amount,Net Amount,Settlement Date,Status",
+    "03/02/2026,Card Purchase,Shell Oil,-45.20,-45.20,03/03/2026,Settled",
+    "03/05/2026,Direct Deposit,ACME PAYROLL,2000.00,2000.00,03/05/2026,Settled",
+    "03/06/2026,Card Purchase,Pending Cafe,-4.00,-4.00,,Pending",
+    "03/07/2026,Card Purchase,Gas Co,-9.00,-9.00,,Declined",
+  ].join("\n"));
+  assert.deepEqual(r.rows.map((x) => x.cents), [-4520, 200000]);
+  assert.equal(r.problems.length, 2);
+});
+
+test("Card export whose payment row is just 'Payment' and whose charges are positive", () => {
+  const r = readStatement([
+    "Transaction Date,Posted Date,Description,Merchant,Card Last Four,Amount,Category,Memo",
+    "2026-03-02,2026-03-03,AWS,Amazon Web Services,1234,120.50,Software,",
+    "2026-03-04,2026-03-05,GitHub,GitHub,1234,40.00,Software,",
+    "2026-03-04,2026-03-05,Notion,Notion,1234,16.00,Software,",
+    "2026-03-05,2026-03-06,Payment,Brex,,-5000.00,Payment,",
+  ].join("\n"));
+  assert.deepEqual(r.rows.map((x) => x.cents), [-12050, -4000, -1600, 500000]);
+});
+
+test("A checking export with an outgoing 'Payment' row is not flipped", () => {
+  const r = readStatement(["Date,Description,Amount", "2026-03-02,Payment,-50.00", "2026-03-03,Deposit,400.00", "2026-03-04,Rent,-300.00"].join("\n"));
+  assert.deepEqual(r.rows.map((x) => x.cents), [-5000, 40000, -30000]);
+});
