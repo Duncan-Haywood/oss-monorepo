@@ -207,7 +207,7 @@ function ofxDate(v) {
 
 function ofxTag(block, tag) {
   const m = new RegExp(`<${tag}>([^<\\r\\n]*)`, "i").exec(block);
-  return m ? m[1].trim().replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">") : "";
+  return m ? m[1].trim().replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&apos;|&#0?39;/g, "'").replace(/&#0?38;/g, "&").replace(/&amp;/g, "&") : "";
 }
 
 // A file from a bank with several accounts (or a card beside a checking
@@ -239,10 +239,9 @@ export function readOfx(text) {
   blocks.forEach((raw, i) => {
     const b = raw.split(/<\/STMTTRN>/i)[0];
     const date = ofxDate(ofxTag(b, "DTPOSTED"));
-    const amt = ofxTag(b, "TRNAMT").replace(",", ".");
+    const cents = parseCents(ofxTag(b, "TRNAMT"));
     if (!date) { problems.push(`Transaction ${i + 1}: unreadable date, skipped.`); return; }
-    if (!/^[-+]?\d*\.?\d+$/.test(amt)) { problems.push(`Transaction ${i + 1}: unreadable amount, skipped.`); return; }
-    const cents = Math.round(parseFloat(amt) * 100);
+    if (!Number.isFinite(cents) || !/\d/.test(ofxTag(b, "TRNAMT"))) { problems.push(`Transaction ${i + 1}: unreadable amount, skipped.`); return; }
     if (cents === 0) return;
     const desc = [ofxTag(b, "NAME") || ofxTag(b, "PAYEE"), ofxTag(b, "MEMO")].filter(Boolean).filter((x, j, a) => a.indexOf(x) === j).join(" ").replace(/\s+/g, " ");
     out.push({ line: i + 1, date, desc, cents, balance: null });
@@ -250,14 +249,14 @@ export function readOfx(text) {
   const lb = /<LEDGERBAL>[\s\S]*?<BALAMT>\s*([-+]?[\d.,]+)/i.exec(text);
   if (lb && out.length) {
     const last = out.reduce((a, r) => (r.date >= a.date ? r : a), out[0]);
-    const bal = Math.round(parseFloat(lb[1].replace(",", ".")) * 100);
+    const bal = parseCents(lb[1]);
     if (Number.isFinite(bal)) last.balance = bal;
   }
   if (!blocks.length) problems.push("No transactions (STMTTRN) were found in the OFX file.");
   let statement = null;
   if (lb) {
     const d = /<LEDGERBAL>[\s\S]*?<DTASOF>\s*(\d{4})(\d{2})(\d{2})/i.exec(text);
-    const bal = Math.round(parseFloat(lb[1].replace(",", ".")) * 100);
+    const bal = parseCents(lb[1]);
     if (d && Number.isFinite(bal)) statement = { cents: bal, date: `${d[1]}-${d[2]}-${d[3]}` };
   }
   return { rows: out, problems, columns: null, bank: "ofx", inferred: null, statement };
