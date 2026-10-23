@@ -66,6 +66,34 @@ export function modelFor(books, skip = null) {
   return { rules, ruleProblems: problems, memory: buildMemory(books.history), classifier: trainClassifier(books.history), codes: new Set(books.accounts.map((a) => a.code)), ...(skip ? { skip: new Set(skip) } : {}) };
 }
 
+// A bank shows a card purchase as pending ("SQ *BLUE BOTTLE") and later posts it
+// worded differently and a day or two later ("BLUE BOTTLE COFFEE SF"). When a
+// re-import covers (give or take 4 days) the dates of lines already booked, a new row with no id match
+// that equals an unmatched booked line in this account (same cents, date within
+// 4 days, descriptions that differ yet share a word of 4+ letters) is that line again. Booked
+// lines the file does re-supply by id are never candidates, so a daily $4.50
+// coffee is not mistaken for yesterday's. One booked line absorbs one row.
+// -> Map(row index -> text for the note)
+function rewordedLines(books, account, rows, ids, oldIds, have) {
+  const out = new Map();
+  if (!rows.length) return out;
+  const supplied = new Set([...ids, ...oldIds]);
+  const dates = rows.map((r) => r.date).sort();
+  const [lo, hi] = [dates[0], dates[dates.length - 1]];
+  const words = (s) => new Set(s.toLowerCase().split(/[^\p{L}\p{N}]+/u).filter((w) => w.length >= 4 && !/^\d+$/.test(w)));
+  const norm = (s) => s.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, " ").trim();
+  const day = (d) => Date.parse(d + "T00:00:00Z") / 864e5;
+  const pool = books.transactions.filter((t) => t.account === account && day(t.date) >= day(lo) - 4 && day(t.date) <= day(hi) + 4 && !supplied.has(t.id));
+  const taken = new Set();
+  rows.forEach((r, i) => {
+    if (have.has(ids[i]) || have.has(oldIds[i])) return;
+    const w = words(r.desc);
+    const hit = pool.find((t) => !taken.has(t.id) && t.cents === r.cents && norm(t.desc) !== norm(r.desc) && Math.abs(day(t.date) - day(r.date)) <= 4 && [...words(t.desc)].some((x) => w.has(x)));
+    if (hit) { taken.add(hit.id); out.set(i, `"${r.desc}" ${r.date} ~ "${hit.desc}" ${hit.date}`); }
+  });
+  return out;
+}
+
 // Import one statement into one bank account. Lines already in the books (same
 // id) are skipped, so re-importing an overlapping month adds only what is new.
 // -> { books, added, skipped, problems, balanceCheck }
@@ -79,8 +107,11 @@ export function importStatement(booksIn, csv, account, opts = {}) {
   const have = new Set(books.transactions.map((t) => t.id));
   let added = 0, skipped = 0;
   let locked = 0, noRate = 0;
+  const reworded = rewordedLines(books, account, rows, ids, oldIds, have);
+  if (reworded.size) problems.push(`${reworded.size} line${reworded.size === 1 ? "" : "s"} skipped as already booked under different wording or a date a few days apart (a pending line later posted): ${[...reworded.values()].slice(0, 3).join("; ")}${reworded.size > 3 ? "; ..." : ""}.`);
   rows.forEach((r, i) => {
     if (have.has(ids[i]) || have.has(oldIds[i])) { skipped++; return; }
+    if (reworded.has(i)) { skipped++; return; }
     if (books.lockedThrough && r.date <= books.lockedThrough) { locked++; return; }
     const conv = convertRow(books, account, r);
     if (!conv) { noRate++; return; }
