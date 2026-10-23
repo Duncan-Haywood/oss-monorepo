@@ -35,15 +35,36 @@ export function aiPrompt(books, lines, { examples = 40 } = {}) {
   ].filter(Boolean).join("\n");
 }
 
-// Pull the first JSON object out of a reply, tolerating a code fence or a
-// sentence before it, since small local models often add one.
+// Pull the answer out of a reply, tolerating a code fence or a sentence around
+// it, since small local models often add one. Accepts {"lines":[...]}, a bare
+// array (qwen2.5:3b answers that way), or a run of loose objects with an id.
 export function parseReply(text) {
   const s = String(text ?? "");
-  const start = s.indexOf("{"), end = s.lastIndexOf("}");
-  if (start === -1 || end <= start) throw new Error("the model did not answer with JSON");
-  const obj = JSON.parse(s.slice(start, end + 1));
-  if (!Array.isArray(obj.lines)) throw new Error('the model\'s JSON has no "lines" list');
-  return obj.lines;
+  const tries = [];
+  const o = [s.indexOf("{"), s.lastIndexOf("}")], a = [s.indexOf("["), s.lastIndexOf("]")];
+  if (o[0] !== -1 && o[1] > o[0]) tries.push(s.slice(o[0], o[1] + 1));
+  if (a[0] !== -1 && a[1] > a[0]) tries.push(s.slice(a[0], a[1] + 1));
+  for (const t of a[0] !== -1 && (o[0] === -1 || a[0] < o[0]) ? tries.reverse() : tries) {
+    try {
+      const v = JSON.parse(t);
+      if (Array.isArray(v)) return v;
+      if (Array.isArray(v?.lines)) return v.lines;
+    } catch { /* try the next shape */ }
+  }
+  // Loose objects: scan balanced braces outside strings, keep those with an id.
+  const out = [];
+  for (let i = 0, depth = 0, start = -1, str = false; i < s.length; i++) {
+    const c = s[i];
+    if (str) { if (c === "\\") i++; else if (c === '"') str = false; continue; }
+    if (c === '"') str = true;
+    else if (c === "{") { if (depth++ === 0) start = i; }
+    else if (c === "}" && depth > 0 && --depth === 0) {
+      try { const v = JSON.parse(s.slice(start, i + 1)); if (v && typeof v === "object" && "id" in v) out.push(v); } catch { /* skip */ }
+    }
+  }
+  if (out.length) return out;
+  if (o[0] === -1 && a[0] === -1) throw new Error("the model did not answer with JSON");
+  throw new Error('the model\'s JSON has no "lines" list');
 }
 
 // -> { books, source: "model" | "fallback", error?, suggested, dropped }
