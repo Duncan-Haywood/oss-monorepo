@@ -25,3 +25,16 @@ test("MT940 with a byte-order mark reads the same rows", () => {
   assert.equal(readStatement("﻿" + t).rows.length, readStatement(t).rows.length);
   assert.ok(readStatement(t).rows.length > 0);
 });
+
+for (const f of ["cba-no-header.csv", "td-no-header.csv"]) {
+  test(`${f}: header-less file with summary lines above the data`, () => {
+    const base = readStatement(fx(f));
+    assert.equal(base.rows.length, 3);
+    for (const pre of ["Account Summary\n", "Account Summary\nGenerated Oct 1, 2026\n\n", "Account: 1234, Savings\nPeriod: 01/01/2026 to 31/03/2026\n"]) {
+      const r = readStatement(pre + fx(f));
+      assert.equal(r.rows.length, 3);
+      assert.equal(sum(r), sum(base));
+      assert.ok(r.problems.some((p) => /preamble/.test(p)));
+    }
+  });
+}

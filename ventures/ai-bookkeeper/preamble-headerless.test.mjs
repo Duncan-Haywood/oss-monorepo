@@ -16,7 +16,7 @@ for (const f of ["cba-no-header.csv", "td-no-header.csv"]) {
       const r = readStatement(pre + fx(f));
       assert.equal(r.rows.length, base.rows.length);
       assert.equal(sum(r), sum(base));
-      assert.ok(r.problems.some((p) => /Skipped \d+ line/.test(p)));
+      assert.ok(r.problems.some((p) => /skipped as a preamble/.test(p)));
     }
   });
 }
