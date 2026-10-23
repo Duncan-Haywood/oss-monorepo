@@ -359,7 +359,7 @@ test("Square dashboard transactions CSV: deposit id groups payments and refunds,
   assert.equal(r.pending.length, 2);
   // Tax and tip come out of Total Collected: $9.00 of coffee, not $10.63.
   const plan = planPayouts(books([["2026-03-05", "SQUARE INC", "9.36"]]), r, {});
-  assert.deepEqual(plan.matched[0].parts, [{ account: "2100", cents: 63 }, { account: "4000", cents: 1000 }, { account: "6010", cents: -127 }]);
+  assert.deepEqual([...plan.matched[0].parts].sort((a, b) => a.account.localeCompare(b.account)), [{ account: "2100", cents: 63 }, { account: "4000", cents: 1000 }, { account: "6010", cents: -127 }]);
 });
 
 test("Square tips follow --tips when given; tax goes to sales tax payable", () => {
