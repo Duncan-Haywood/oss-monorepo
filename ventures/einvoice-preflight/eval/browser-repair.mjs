@@ -1,5 +1,5 @@
 // Click-through of the "Repair the arithmetic" button in headless Chromium.
-// Run: PLAYWRIGHT_PATH=<path to playwright> node eval/browser-repair.mjs
+// Run: node eval/browser-repair.mjs
 // Skips (exit 0) when playwright is not installed.
 import { createServer } from "node:http";
 import { readFileSync, existsSync } from "node:fs";
@@ -7,9 +7,17 @@ import { extname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 let chromium;
-try { ({ chromium } = await import("playwright")); } catch {
-  try { ({ chromium } = await import(process.env.PLAYWRIGHT_PATH || "playwright-core")); } catch { console.log("skipped: playwright not installed"); process.exit(0); }
+const { statSync } = await import("node:fs");
+// playwright is not on the default import path in cloud containers; try the
+// env override (a file or a package directory) and the known container path.
+const candidates = ["playwright", process.env.PLAYWRIGHT_PATH, "/opt/node-tools/node_modules/playwright", "playwright-core"].filter(Boolean).map((c) => {
+  if (!c.startsWith("/") || !existsSync(c)) return c;
+  return statSync(c).isDirectory() ? join(c, "index.mjs") : c;
+});
+for (const c of candidates) {
+  try { const m = await import(c.startsWith("/") ? "file://" + c : c); chromium = (m.default ?? m).chromium; if (chromium) break; } catch {}
 }
+if (!chromium) { console.log("skipped: playwright not installed"); process.exit(0); }
 const root = fileURLToPath(new URL("..", import.meta.url));
 const types = { ".html": "text/html", ".mjs": "text/javascript", ".js": "text/javascript", ".json": "application/json" };
 const server = createServer((req, res) => {

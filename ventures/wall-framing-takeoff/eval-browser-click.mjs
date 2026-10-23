@@ -1,5 +1,6 @@
 // Clicks the page through in a real browser: sheathing on, then "long side along the wall".
 // `node eval-browser-click.mjs`; skips with exit 0 when Playwright or a Chromium is missing.
+// Finds playwright on the import path, PLAYWRIGHT_PATH (file or package dir), or /opt/node-tools.
 import { createServer } from "node:http";
 import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
@@ -7,9 +8,17 @@ import { extname, join } from "node:path";
 
 const root = fileURLToPath(new URL(".", import.meta.url));
 let chromium;
-try { ({ chromium } = await import("playwright")); } catch {
-  try { const m = await import(process.env.PLAYWRIGHT_PATH || "playwright-core"); chromium = (m.default ?? m).chromium; } catch { console.log("skipped: playwright not installed"); process.exit(0); }
+const { existsSync, statSync } = await import("node:fs");
+// playwright is not on the default import path in cloud containers; try the
+// env override (a file or a package directory) and the known container path.
+const candidates = ["playwright", process.env.PLAYWRIGHT_PATH, "/opt/node-tools/node_modules/playwright", "playwright-core"].filter(Boolean).map((c) => {
+  if (!c.startsWith("/") || !existsSync(c)) return c;
+  return statSync(c).isDirectory() ? join(c, "index.mjs") : c;
+});
+for (const c of candidates) {
+  try { const m = await import(c.startsWith("/") ? "file://" + c : c); chromium = (m.default ?? m).chromium; if (chromium) break; } catch {}
 }
+if (!chromium) { console.log("skipped: playwright not installed"); process.exit(0); }
 const types = { ".html": "text/html", ".mjs": "text/javascript" };
 const server = createServer(async (req, res) => {
   try {
