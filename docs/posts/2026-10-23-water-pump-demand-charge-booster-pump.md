@@ -1,7 +1,7 @@
 ---
 title: "Do demand charges change when a water utility should run its pumps? A Net3 simulation on PG&E's B-19 tariff"
 date: 2026-10-23
-description: "Billing 21,806 pump schedules on a published demand tariff: the biggest line on the bill is the booster pump's peak, and pricing it changes the size of the saving, not which schedule wins."
+description: "Billing 21,806 pump schedules on a real demand tariff: the booster pump's peak is the bill, and demand charges change the size of the saving, not the best schedule."
 tags: [water-utilities, energy, demand-charges, simulation, wntr]
 ---
 
