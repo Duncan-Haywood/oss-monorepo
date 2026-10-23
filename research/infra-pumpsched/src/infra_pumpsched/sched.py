@@ -18,10 +18,12 @@ J_PER_KWH = 3.6e6
 PUMPS = ("10", "335")
 
 
-def build(start, hours, days=DAYS):
+def build(start, hours, days=DAYS, step=3600):
     """Net3 with pump 10 open for `hours` from hour `start` each day (start may be 0..23; the window may cross midnight)."""
     wn = wntr.network.WaterNetworkModel(NET3)
     wn.options.time.duration = days * 24 * 3600
+    wn.options.time.hydraulic_timestep = step
+    wn.options.time.report_timestep = step
     for name in [n for n, c in wn.controls() if "PUMP 10 " in str(c)]:
         wn.remove_control(name)
     pump = wn.get_link("10")
@@ -46,26 +48,49 @@ def build(start, hours, days=DAYS):
     return wn
 
 
-def simulate(start, hours):
-    """Hourly results of the last day: dict of energy kWh per hour for each pump, tank levels, min pressure, tank drift."""
-    wn = build(start, hours)
+def build_hourly(bits, days=DAYS, step=3600):
+    """Net3 with pump 10 on in hour h of every day when bits[h] is 1 (24 bits): an hourly on/off schedule, not one window."""
+    wn = build(0, 0, days, step)
+    pump = wn.get_link("10")
+    bits = [int(b) for b in bits]
+    pump.initial_status = "Open" if bits[0] else "Closed"
+    for d in range(days):
+        for h in range(24):
+            if d == 0 and h == 0:
+                continue
+            if bits[h] != bits[(h - 1) % 24]:
+                t = (d * 24 + h) * 3600
+                wn.add_control(f"sw{d}_{h}", wntr.network.controls.Control(
+                    wntr.network.controls.SimTimeCondition(wn, "=", t),
+                    wntr.network.controls.ControlAction(pump, "status", bits[h])))
+    return wn
+
+
+def simulate(start, hours, step=3600, wn=None):
+    """Hourly results of the last day: dict of energy kWh per hour for each pump, tank levels, min pressure, tank drift.
+
+    `step` is the hydraulic and report time step in seconds (it must divide 3600): Net3's booster pump 335 and pipe 330
+    switch on tank levels inside the hour, so a 3600 s step samples them once an hour (see README, "Mass balance")."""
+    k = 3600 // step
+    wn = wn if wn is not None else build(start, hours, step=step)
     r = wntr.sim.EpanetSimulator(wn).run_sim()
     flow, head = r.link["flowrate"], r.node["head"]
+    # pump_energy is the power at each report row times the report step (a left rectangle); the k rows of an hour are summed
     e = wntr.metrics.economic.pump_energy(flow[list(PUMPS)], head, wn).astype(float) / J_PER_KWH
-    # pump_energy gives energy of each hourly step ending at that time's row: rows 48..71 are day 3
-    day = slice(48, 72)
+    day = slice(48 * k, 72 * k)
     junc = [n for n in wn.junction_name_list if wn.get_node(n).demand_timeseries_list[0].base_value > 0]
     pres = r.node["pressure"][junc]
     lvl = r.node["pressure"][["1", "2", "3"]]
     area = {t: np.pi * wn.get_node(t).diameter ** 2 / 4 for t in ("1", "2", "3")}
-    drift = sum((lvl[t].iloc[72] - lvl[t].iloc[48]) * area[t] for t in area)  # m3
+    drift = sum((lvl[t].iloc[72 * k] - lvl[t].iloc[48 * k]) * area[t] for t in area)  # m3
     return {
-        "kwh": {p: e[p].iloc[day].to_numpy() for p in PUMPS},
-        "min_pressure": float(pres.iloc[24:73].min().min()),
-        "tank_min_margin": float(min((lvl[t].iloc[24:73].min() - wn.get_node(t).min_level) for t in area)),
+        "kwh": {p: e[p].iloc[day].to_numpy().reshape(24, k).sum(axis=1) for p in PUMPS},
+        "min_pressure": float(pres.iloc[24 * k:72 * k + 1].min().min()),
+        "tank_min_margin": float(min((lvl[t].iloc[24 * k:72 * k + 1].min() - wn.get_node(t).min_level) for t in area)),
         "drift_m3": float(drift),
-        "pump10_m3": float(flow["10"].iloc[48:72].sum() * 3600),
-        "demand_m3": float(r.node["demand"][junc].iloc[48:72].sum().sum() * 3600),
+        "pump10_m3": float(flow["10"].iloc[day].sum() * step),
+        "demand_m3": float(r.node["demand"][junc].iloc[day].sum().sum() * step),
+        "supply_m3": float(-r.node["demand"][["River", "Lake"]].iloc[day].sum().sum() * step),
     }
 
 
