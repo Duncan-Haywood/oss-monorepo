@@ -1,0 +1,37 @@
+== A. Linked vs unlinked kinds (adjustable hanger, 1 arm, load 25, mean of 200 loads)
+policy  linking   done/h  hung  folded  aside
+pinch   unlinked   104.3   7.4    15.8   1.80
+pinch   linked     100.1  11.3    11.9   1.80
+see     unlinked   146.8   7.6    16.7   0.70
+see     linked     141.2  12.0    12.3   0.70
+sweep   unlinked   126.1   7.6    16.6   0.72
+sweep   linked     119.8  11.9    12.3   0.72
+
+== B. Knits hide their opening more often (see policy, 1 arm; other kinds 0.4)
+p_hidden_knit  done/h  hung  folded  aside  aside_knit
+          0.2   143.9  12.0    12.3   0.68        0.04
+          0.4   141.2  12.0    12.3   0.70        0.05
+          0.6   138.4  12.0    12.3   0.74        0.11
+          0.8   135.1  12.0    12.2   0.79        0.16
+          1.0   132.3  12.0    12.2   0.86        0.23
+
+== C. Same, two arms (unlinked, hanger-cellpick: 200.8 done/h)
+p_hidden_knit  done/h  aside
+          0.2   238.8   0.68
+          0.4   236.5   0.70
+          0.6   234.1   0.74
+          0.8   232.2   0.79
+          1.0   229.7   0.86
+
+== D. The mapping from pile kinds to cell archetypes is a guess: see policy, 1 and 2 arms
+mapping                          arms  done/h  hung  folded
+default (trousers=linen, dress=shirt)     1    141.2  12.0    12.3
+default (trousers=linen, dress=shirt)     2    236.5  11.9    12.4
+fold-leaning (trousers, dress, kids -> tee)  1    148.7   4.6    19.7
+fold-leaning (trousers, dress, kids -> tee)  2    172.8   4.6    19.7
+hang-leaning (kids -> shirt)              1    135.1  15.4     8.8
+hang-leaning (kids -> shirt)              2    249.5  15.6     8.7
+all knit-like (all -> sweater)            1    138.4   0.0    24.3
+all knit-like (all -> sweater)            2    141.4   0.0    24.3
+all shirt-like (all -> shirt)             1    123.0  22.5     1.8
+all shirt-like (all -> shirt)             2    240.9  22.4     1.9

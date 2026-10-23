@@ -88,7 +88,9 @@ def run_once(p, seed, table=None, share=None, picks=None):
         yield Request(arms)
         ok = False
         if picks is not None:
-            t_p, ok = picks.pop(0)
+            t_p, ok, *rest = picks.pop(0)
+            if rest:                            # a pick may name the cell archetype it took (hanger-kindlink)
+                kind = rest[0]
             yield Timeout(d(t_p))
             if not ok:
                 s["pick_fail"] += 1
