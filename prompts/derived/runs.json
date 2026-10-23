@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-23T23:08:55Z",
+ "generated": "2026-10-23T23:09:20Z",
  "rows": [
   {
    "date": "2026-10-01",
@@ -56472,6 +56472,17 @@
    "prompt_version": 1,
    "record": "2026-10-23-session_01SeDQ4UEW4gqMRJrtXdNK23.json",
    "track": "research"
+  },
+  {
+   "date": "2026-10-23",
+   "measured": {
+    "why": "not fetched yet: run derive.py fetch"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": "Duncan-Haywood/oss-monorepo#9924",
+   "prompt_version": 1,
+   "record": "2026-10-23-session_01SsKMHXpR5jJin5CnSzEJT6.json",
+   "track": "review"
   },
   {
    "date": "2026-10-23",
