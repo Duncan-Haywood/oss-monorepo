@@ -37,10 +37,7 @@
  ],
  "deviations": [],
  "writeups": [
-  {
-   "file": "research/sensing-bapp/README.md",
-   "note": "project README is the write-up; no separate post"
-  }
+  "research/sensing-bapp/README.md"
  ],
  "goal": null,
  "notes": "",
