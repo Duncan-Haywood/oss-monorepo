@@ -1,0 +1,100 @@
+== A. One schedule on days of different demand (drift 0.1 %, 21806 masks)
+m | demand m3/day | shipped: kWh, peak kW, feasible | feasible masks | least-energy feasible: label, kWh, peak kW | lowest feasible peak kW
+0.8 | 47,741 | 840, 62, True | 14270 | 00-02+16-20, 371, 63 | 61
+1 | 59,676 | 2,573, 373, True | 17536 | 00-23, 1,428, 63 | 63
+1.2 | 71,611 | 5,753, 373, True | 18230 | 24h, 4,286, 373 | 372
+1.4 | 83,546 | 8,299, 373, False | 713 | 00-23, 7,636, 373 | 373
+1.6 | 95,481 | 8,241, 371, False | 0 | none | none
+
+== B. A 30-day month: the rest at m = 1, k hot days at m_hot. Monthly pumping bill ($, B-19 energy + demand on the month's maxima)
+season | m_hot | k | policy | schedule(s) | bill $ | peak kW | vs shipped %
+summer | 1.2 | 1 | shipped every day | 01-15 | 42,455 | 373 | +0.0
+summer | 1.2 | 1 | one schedule feasible on every day | 11-06 | 25,555 | 373 | -39.8
+summer | 1.2 | 1 | cheapest average-day schedule every day | 21-20 | 27,067 | 373 | -36.2
+summer | 1.2 | 1 | a schedule per day type | 21-20 / 08-09+10-07 | 23,782 | 373 | -44.0
+summer | 1.2 | 3 | shipped every day | 01-15 | 43,450 | 373 | +0.0
+summer | 1.2 | 3 | one schedule feasible on every day | 11-06 | 26,313 | 373 | -39.4
+summer | 1.2 | 3 | cheapest average-day schedule every day | 21-20 | 27,851 | 373 | -35.9
+summer | 1.2 | 3 | a schedule per day type | 21-20 / 08-09+10-07 | 24,533 | 373 | -43.5
+summer | 1.2 | 10 | shipped every day | 01-15 | 46,932 | 373 | +0.0
+summer | 1.2 | 10 | one schedule feasible on every day | 11-06 | 28,966 | 373 | -38.3
+summer | 1.2 | 10 | cheapest average-day schedule every day | 21-20 | 30,594 | 373 | -34.8
+summer | 1.2 | 10 | a schedule per day type | 21-20 / 08-09+10-07 | 27,163 | 373 | -42.1
+summer | 1.4 | 1 | shipped every day | 01-15 | 42,736 | 373 | +0.0
+summer | 1.4 | 1 | one schedule feasible on every day | 17-16 | 41,843 | 373 | -2.1
+summer | 1.4 | 1 | cheapest average-day schedule every day | 21-20 | 41,855 | 373 | -2.1
+summer | 1.4 | 1 | a schedule per day type | 21-20 / 16-22+23-14 | 41,254 | 373 | -3.5
+summer | 1.4 | 3 | shipped every day | 01-15 | 44,388 | 373 | +0.0
+summer | 1.4 | 3 | one schedule feasible on every day | 17-16 | 43,548 | 373 | -1.9
+summer | 1.4 | 3 | cheapest average-day schedule every day | 21-20 | 43,572 | 373 | -1.8
+summer | 1.4 | 3 | a schedule per day type | 21-20 / 16-22+23-14 | 43,086 | 373 | -2.9
+summer | 1.4 | 10 | shipped every day | 01-15 | 50,170 | 373 | +0.0
+summer | 1.4 | 10 | one schedule feasible on every day | 20-19 | 49,504 | 373 | -1.3
+summer | 1.4 | 10 | cheapest average-day schedule every day | 21-20 | 49,584 | 373 | -1.2
+summer | 1.4 | 10 | a schedule per day type | 21-20 / 23-22 | 49,462 | 373 | -1.4
+summer | 1.6 | 1 | shipped every day | 01-15 | 42,574 | 373 | +0.0
+summer | 1.6 | 1 | cheapest average-day schedule every day (INFEASIBLE on hot days) | 21-20 | 41,894 | 372 | -1.6
+summer | 1.6 | 3 | shipped every day | 01-15 | 44,210 | 373 | +0.0
+summer | 1.6 | 3 | cheapest average-day schedule every day (INFEASIBLE on hot days) | 21-20 | 43,980 | 372 | -0.5
+summer | 1.6 | 10 | shipped every day | 01-15 | 49,933 | 373 | +0.0
+summer | 1.6 | 10 | cheapest average-day schedule every day (INFEASIBLE on hot days) | 21-20 | 51,279 | 372 | +2.7
+winter | 1.2 | 1 | shipped every day | 01-15 | 24,533 | 373 | +0.0
+winter | 1.2 | 1 | one schedule feasible on every day | 18-17 | 19,989 | 373 | -18.5
+winter | 1.2 | 1 | cheapest average-day schedule every day | 21-20 | 20,014 | 373 | -18.4
+winter | 1.2 | 1 | a schedule per day type | 21-20 / 24h | 19,968 | 373 | -18.6
+winter | 1.2 | 3 | shipped every day | 01-15 | 25,432 | 373 | +0.0
+winter | 1.2 | 3 | one schedule feasible on every day | 18-17 | 20,727 | 373 | -18.5
+winter | 1.2 | 3 | cheapest average-day schedule every day | 21-20 | 20,771 | 373 | -18.3
+winter | 1.2 | 3 | a schedule per day type | 21-20 / 24h | 20,671 | 373 | -18.7
+winter | 1.2 | 10 | shipped every day | 01-15 | 28,581 | 373 | +0.0
+winter | 1.2 | 10 | one schedule feasible on every day | 12-11 | 23,292 | 373 | -18.5
+winter | 1.2 | 10 | cheapest average-day schedule every day | 21-20 | 23,421 | 373 | -18.1
+winter | 1.2 | 10 | a schedule per day type | 21-20 / 24h | 23,129 | 373 | -19.1
+winter | 1.4 | 1 | shipped every day | 01-15 | 24,821 | 373 | +0.0
+winter | 1.4 | 1 | one schedule feasible on every day | 17-16 | 21,138 | 373 | -14.8
+winter | 1.4 | 1 | cheapest average-day schedule every day | 21-20 | 21,148 | 373 | -14.8
+winter | 1.4 | 1 | a schedule per day type | 21-20 / 17-16 | 21,137 | 373 | -14.8
+winter | 1.4 | 3 | shipped every day | 01-15 | 26,348 | 373 | +0.0
+winter | 1.4 | 3 | one schedule feasible on every day | 17-16 | 22,731 | 373 | -13.7
+winter | 1.4 | 3 | cheapest average-day schedule every day | 21-20 | 22,753 | 373 | -13.6
+winter | 1.4 | 3 | a schedule per day type | 21-20 / 00-23 | 22,723 | 373 | -13.8
+winter | 1.4 | 10 | shipped every day | 01-15 | 31,692 | 373 | +0.0
+winter | 1.4 | 10 | one schedule feasible on every day | 20-19 | 28,288 | 373 | -10.7
+winter | 1.4 | 10 | cheapest average-day schedule every day | 21-20 | 28,370 | 373 | -10.5
+winter | 1.4 | 10 | a schedule per day type | 21-20 / 00-23 | 28,269 | 373 | -10.8
+winter | 1.6 | 1 | shipped every day | 01-15 | 24,807 | 373 | +0.0
+winter | 1.6 | 1 | cheapest average-day schedule every day (INFEASIBLE on hot days) | 21-20 | 21,263 | 372 | -14.3
+winter | 1.6 | 3 | shipped every day | 01-15 | 26,318 | 373 | +0.0
+winter | 1.6 | 3 | cheapest average-day schedule every day (INFEASIBLE on hot days) | 21-20 | 23,202 | 372 | -11.8
+winter | 1.6 | 10 | shipped every day | 01-15 | 31,608 | 373 | +0.0
+winter | 1.6 | 10 | cheapest average-day schedule every day (INFEASIBLE on hot days) | 21-20 | 29,987 | 372 | -5.1
+spring | 1.2 | 1 | shipped every day | 01-15 | 23,948 | 373 | +0.0
+spring | 1.2 | 1 | one schedule feasible on every day | 18-17 | 19,404 | 373 | -19.0
+spring | 1.2 | 1 | cheapest average-day schedule every day | 21-20 | 19,429 | 373 | -18.9
+spring | 1.2 | 1 | a schedule per day type | 21-20 / 07-12+13-06 | 19,388 | 373 | -19.0
+spring | 1.2 | 3 | shipped every day | 01-15 | 24,733 | 373 | +0.0
+spring | 1.2 | 3 | one schedule feasible on every day | 18-17 | 20,028 | 373 | -19.0
+spring | 1.2 | 3 | cheapest average-day schedule every day | 21-20 | 20,072 | 373 | -18.8
+spring | 1.2 | 3 | a schedule per day type | 21-20 / 07-12+13-06 | 19,984 | 373 | -19.2
+spring | 1.2 | 10 | shipped every day | 01-15 | 27,483 | 373 | +0.0
+spring | 1.2 | 10 | one schedule feasible on every day | 06-05 | 22,153 | 373 | -19.4
+spring | 1.2 | 10 | cheapest average-day schedule every day | 21-20 | 22,322 | 373 | -18.8
+spring | 1.2 | 10 | a schedule per day type | 21-20 / 08-09+10-07 | 22,072 | 373 | -19.7
+spring | 1.4 | 1 | shipped every day | 01-15 | 24,206 | 373 | +0.0
+spring | 1.4 | 1 | one schedule feasible on every day | 17-16 | 20,522 | 373 | -15.2
+spring | 1.4 | 1 | cheapest average-day schedule every day | 21-20 | 20,532 | 373 | -15.2
+spring | 1.4 | 1 | a schedule per day type | 21-20 / 17-16 | 20,522 | 373 | -15.2
+spring | 1.4 | 3 | shipped every day | 01-15 | 25,557 | 373 | +0.0
+spring | 1.4 | 3 | one schedule feasible on every day | 17-16 | 21,940 | 373 | -14.2
+spring | 1.4 | 3 | cheapest average-day schedule every day | 21-20 | 21,961 | 373 | -14.1
+spring | 1.4 | 3 | a schedule per day type | 21-20 / 17-16 | 21,939 | 373 | -14.2
+spring | 1.4 | 10 | shipped every day | 01-15 | 30,287 | 373 | +0.0
+spring | 1.4 | 10 | one schedule feasible on every day | 20-19 | 26,882 | 373 | -11.2
+spring | 1.4 | 10 | cheapest average-day schedule every day | 21-20 | 26,964 | 373 | -11.0
+spring | 1.4 | 10 | a schedule per day type | 21-20 / 09-08 | 26,873 | 373 | -11.3
+spring | 1.6 | 1 | shipped every day | 01-15 | 24,192 | 373 | +0.0
+spring | 1.6 | 1 | cheapest average-day schedule every day (INFEASIBLE on hot days) | 21-20 | 20,648 | 372 | -14.7
+spring | 1.6 | 3 | shipped every day | 01-15 | 25,529 | 373 | +0.0
+spring | 1.6 | 3 | cheapest average-day schedule every day (INFEASIBLE on hot days) | 21-20 | 22,412 | 372 | -12.2
+spring | 1.6 | 10 | shipped every day | 01-15 | 30,209 | 373 | +0.0
+spring | 1.6 | 10 | cheapest average-day schedule every day (INFEASIBLE on hot days) | 21-20 | 28,585 | 372 | -5.4

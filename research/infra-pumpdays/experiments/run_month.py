@@ -20,7 +20,7 @@ sys.path.insert(0, str(HERE.parent / "src"))
 from infra_pumpdays.net import MIN_PRESSURE_M, TANK_MARGIN_M, window  # noqa: E402
 from infra_pumpdays.tariff import DAYS_PER_MONTH, SEASONS, hourly_price  # noqa: E402
 
-MULTS = tuple(sorted(float(a) for a in sys.argv[1:])) or (0.8, 1.0, 1.2, 1.4, 1.6)
+MULTS = (0.8, 1.0, 1.2, 1.4, 1.6)  # `python run_month.py 1.0 1.2` runs a subset
 TOL = 0.001
 
 
@@ -87,6 +87,9 @@ def best_pair(kwA, kwB, okA, okB, k_hot, season, top=300):
 
 
 def main():
+    global MULTS
+    if sys.argv[1:]:
+        MULTS = tuple(sorted(float(a) for a in sys.argv[1:]))
     data = {m: load(m) for m in MULTS}
     masks = data[1.0][0]
     for m in MULTS:
