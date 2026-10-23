@@ -65,3 +65,24 @@ test("an explicit schedule overrides the lookback and a short register warns", (
   assert.throws(() => depositSchedule(reg([["2026-02-13", 2000]]), 2026, { schedule: "weekly" }), /monthly or semiweekly/);
   assert.match(depositSchedule(reg([["2026-02-13", 2000]]), 2026).warnings.join(" "), /lookback/);
 });
+
+test("a monthly depositor who reaches $100,000 turns semiweekly from the next day, and stays so next year", () => {
+  // 2026-04-10: 101,200 liability -> next-day. Later runs that year are semiweekly (Wed Apr 15 -> due Wed Apr 22).
+  const books = reg([["2026-04-10", 400000], ["2026-04-15", 1000], ["2026-05-06", 1000], ["2027-03-03", 1000]]);
+  const r = depositSchedule(books, 2026);
+  assert.equal(r.schedule, "monthly");
+  assert.equal(r.switchedOn, "2026-04-11");
+  assert.deepEqual(r.deposits.map((d) => d.due), ["2026-04-13", "2026-04-22", "2026-05-13"]);
+  assert.match(r.deposits[1].rule, /semiweekly/);
+  // 2027: the lookback ($101,200+ in the 2025-07..2026-06 window is over $50,000) already says semiweekly.
+  const n = depositSchedule(books, 2027);
+  assert.equal(n.schedule, "semiweekly");
+});
+
+test("the semiweekly carry-over covers the next year even when the lookback is small", () => {
+  // Hit in Dec 2026 (lookback for 2027 = Jul 2025..Jun 2026: only 1,000 -> monthly by lookback).
+  const books = reg([["2026-12-10", 400000], ["2027-03-03", 1000], ["2029-03-01", 1000]]);
+  assert.equal(depositSchedule(books, 2027).schedule, "semiweekly");
+  assert.match(depositSchedule(books, 2027).basis, /next-day rule hit on 2026-12-11/);
+  assert.equal(depositSchedule(books, 2029).schedule, "monthly");
+});
