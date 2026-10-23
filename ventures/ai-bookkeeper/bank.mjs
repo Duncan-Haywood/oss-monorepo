@@ -272,8 +272,10 @@ export function readQif(text, { dayFirst = false } = {}) {
   const out = [];
   let cur = {};
   let n = 0;
+  let inAccount = false; // an !Account block lists account names (N) and types (T), not transactions
+  let accounts = 0;
   const flush = (line) => {
-    if (cur.D === undefined && cur.T === undefined) { cur = {}; return; }
+    if (inAccount || (cur.D === undefined && cur.T === undefined)) { cur = {}; return; }
     n++;
     const date = parseDate(String(cur.D ?? "").replace(/'/g, "/").replace(/\s+/g, ""), dayFirst);
     const cents = parseCents(String(cur.T ?? cur.U ?? ""));
@@ -285,12 +287,17 @@ export function readQif(text, { dayFirst = false } = {}) {
   text.split(/\r?\n/).forEach((l, i) => {
     if (!l) return;
     const c = l[0];
-    if (c === "!") return;
+    if (c === "!") {
+      inAccount = /^!account\b/i.test(l.trim());
+      if (/^!type:/i.test(l.trim())) accounts++;
+      return;
+    }
     if (c === "^") return flush(i + 1);
     cur[c] = l.slice(1).trim();
   });
   if (Object.keys(cur).length) flush(text.split(/\r?\n/).length);
   if (!n) problems.push("No transactions were found in the QIF file.");
+  if (accounts > 1 && n) problems.push(`The QIF file has ${accounts} account sections; all rows were read into one account. Split the file per account to keep transfers apart.`);
   return { rows: out, problems, columns: null, bank: "qif", inferred: null };
 }
 

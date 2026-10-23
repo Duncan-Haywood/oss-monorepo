@@ -3,7 +3,7 @@
 // are rewritten here in their shape; they are not a bank's real downloads.
 import test from "node:test";
 import assert from "node:assert/strict";
-import { readOfx } from "./bank.mjs";
+import { readOfx, readQif } from "./bank.mjs";
 
 const wrap = (trn) => `<OFX><BANKMSGSRSV1><STMTTRNRS><STMTRS><BANKTRANLIST>${trn}</BANKTRANLIST></STMTRS></STMTTRNRS></BANKMSGSRSV1></OFX>`;
 
@@ -23,4 +23,13 @@ test("a MEMO that starts with the NAME is not repeated", () => {
 test("a different NAME and MEMO are both kept", () => {
   const r = readOfx(wrap(`<STMTTRN><TRNTYPE>POS<DTPOSTED>20090401<TRNAMT>-6.60<FITID>9<NAME>MCDONALD'S #112<MEMO>POS MERCHANDISE</STMTTRN>`));
   assert.equal(r.rows[0].desc, "MCDONALD'S #112 POS MERCHANDISE");
+});
+
+test("QIF !Account blocks are not transactions, and several account sections are flagged", () => {
+  const q = "!Option:AutoSwitch\n!Account\nNChecking\nTBank\n^\n!Type:Bank\nD01/05/2026\nT-5.00\nPA\n^\n!Account\nNVisa\nTCCard\n^\n!Type:CCard\nD01/06/2026\nT-7.00\nPB\n^\n!Clear:AutoSwitch\n";
+  const r = readQif(q);
+  assert.equal(r.rows.length, 2);
+  assert.ok(!r.problems.some((p) => /unreadable/.test(p)));
+  assert.ok(r.problems.some((p) => /2 account sections/.test(p)));
+  assert.deepEqual(readQif("!Type:Bank\nD01/05/2026\nT-5.00\nPA\n^\n").problems, []);
 });
