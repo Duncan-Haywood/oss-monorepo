@@ -300,4 +300,11 @@ test("the Shopify fixture behind shopify-bookkeeping.html splits two payouts as 
   assert.equal(sales, 49550);
   assert.equal(costs, 7695);
   assert.equal(sales - costs, 41855);
+test("creator-platform column and category names (Gumroad, Paddle, Lemon Squeezy style) read through the aliases", () => {
+  const r = readPayoutReport("payout_reference,payout_date,transaction_id,date,type,sale_price,platform_fee,payout_amount\nPR-7,2026-04-01,t1,2026-03-28,purchase,29.00,3.15,25.85\nPR-7,2026-04-01,t2,2026-03-29,subscription_payment,49.00,4.90,44.10\nPR-7,2026-04-01,t3,2026-03-30,refund,-29.00,0.00,-29.00\n");
+  assert.deepEqual(r.problems, []);
+  assert.equal(r.payouts.length, 1);
+  assert.equal(r.payouts[0].net, 2585 + 4410 - 2900);
+  assert.equal(r.payouts[0].fees, 315 + 490);
+  assert.deepEqual(r.rows.map((x) => x.kind), ["sales", "sales", "refunds"]);
 });
