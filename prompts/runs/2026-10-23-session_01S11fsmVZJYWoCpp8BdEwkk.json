@@ -1,0 +1,49 @@
+{
+  "date": "2026-10-23",
+  "session": "https://claude.ai/code/session_01S11fsmVZJYWoCpp8BdEwkk",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-23T13:17:48Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 9798,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "ai-bookkeeper next list is dense and mostly needs real external files/irs.gov, which the shell proxy blocks (403); small slice only."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No write-up (report/post) written: a small slice, budget kept low."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Added 2026 minimum $400 QBI deduction (from memory of statute, flagged). 13 estimatedtax tests pass; full CI not run locally.",
+  "corrections": [],
+  "redteam": null
+}
