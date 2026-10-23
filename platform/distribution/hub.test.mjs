@@ -7,7 +7,7 @@ import { PLATFORMS, MODES, HUB_REFS, byId } from './hub/platforms.mjs';
 import { TEMPLATES, templateOf, toolItem, postItem, variant, digest, glen, pickTemplate } from './hub/compose.mjs';
 import { ADAPTERS } from './hub/adapters.mjs';
 import { READERS, reading, scoreboard, arrivals, collect, MIN_POSTS } from './hub/metrics.mjs';
-import { parseArgs, gatherItems, planAll, publish, writePack, toCsv, EMAIL } from './hub.mjs';
+import { main, parseArgs, gatherItems, planAll, publish, writePack, toCsv, EMAIL } from './hub.mjs';
 import { REFS } from '../counter/counter.mjs';
 
 const LONG = 'A very long description that keeps going. '.repeat(40);
@@ -211,4 +211,44 @@ test('parseArgs rejects unknown options and platforms', () => {
 
 test('every reader declares what it needs', () => {
   for (const [id, r] of Object.entries(READERS)) assert.equal(typeof r.needs({}), 'string', id);
+});
+
+test('gatherItems: a page with metadata yields its title and description, not the raw html', async () => {
+  const [item] = await gatherItems({
+    today: '2026-10-20', days: 3, postDays: 7, launched: { a: '2026-10-20' }, posts: [],
+    readPage: async () => '<title>A — x</title><meta name="description" content="Desc.">',
+  });
+  assert.equal(item.title, 'A — x');
+  assert.equal(item.description, 'Desc.');
+});
+
+test('planAll: recent posts reach social platforms and the email digest starts at the newest item', () => {
+  const t = toolItem('newest', '2026-10-20', { title: 'Newest', description: 'N.' });
+  const plan = planAll([t, post], { today: '2026-10-20', days: 3 });
+  const get = (id) => plan.find((e) => e.platform.id === id);
+  assert.ok(get('x').variants.some((v) => v.item === 'post:fleet-findings'));
+  assert.deepEqual(get('email').variants[0].items, ['tool:newest', 'post:fleet-findings']);
+});
+
+test('toCsv: the email digest row lists its items', () => {
+  const plan = planAll([tool, post], { only: ['email'], today: '2026-10-20' });
+  const csv = toCsv(plan);
+  assert.ok(csv.includes('\n"email","api","tool:mileage-log post:fleet-findings"'), csv);
+});
+
+test('main: plan prints the post text and score --json is indented by two spaces', async () => {
+  const out = [];
+  const log = (s) => out.push(s);
+  await main(['plan', '--only', 'tiktok', '--today', '2026-10-20'], { log });
+  const items = await gatherItems({ today: '2026-10-20', days: 3, postDays: 7 });
+  if (items.length) {
+    const v = planAll(items, { only: ['tiktok'], today: '2026-10-20', days: 3 })[0].variants[0];
+    assert.ok(out.join('\n').includes(v.text), 'prints the text, not only the script');
+  }
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'hub-score-'));
+  const file = path.join(dir, 'readings.json');
+  await fs.writeFile(file, '[]');
+  const json = [];
+  await main(['score', '--readings', file, '--json'], { log: (s) => json.push(s) });
+  assert.match(json[0], /^\{\n {2}"status"/);
 });
