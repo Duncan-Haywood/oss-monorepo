@@ -1,0 +1,19 @@
+# after the 1 + mean/size widening; node eval/growth-change-interval-nb.mjs 100 <seed> 0.35 nb
+## seed 2026
+clumpy counts, lognormal sd 0.35, overdispersion nb
+growth bump (per point)  found  covered  median width
+0.015  19/100  19/19 (100%)  139
+0.025  19/100  15/19 (79%)  100
+0.04  11/100  11/11 (100%)  61
+## seed 7
+clumpy counts, lognormal sd 0.35, overdispersion nb
+growth bump (per point)  found  covered  median width
+0.015  24/100  23/24 (96%)  142
+0.025  12/100  11/12 (92%)  91
+0.04  15/100  10/15 (67%)  79
+## seed 99
+clumpy counts, lognormal sd 0.35, overdispersion nb
+growth bump (per point)  found  covered  median width
+0.015  19/100  19/19 (100%)  139
+0.025  24/100  20/24 (83%)  97
+0.04  18/100  14/18 (78%)  67
