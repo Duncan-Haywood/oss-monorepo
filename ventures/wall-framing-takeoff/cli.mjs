@@ -6,6 +6,7 @@ import { readFileSync } from "node:fs";
 import { sheathe, defaultSheathing, sheathingText, nailerCuts } from "./sheathing.mjs";
 import { layoutFloor, floorCuts, floorText } from "./floor.mjs";
 import { layoutFoundation, foundationText } from "./foundation.mjs";
+import { layoutDrywall, drywallText } from "./drywall.mjs";
 import { layoutRoof, roofCuts, roofText } from "./roof.mjs";
 import { resolveHeaders, headerText } from "./headers.mjs";
 import { drawingSetHtml } from "./drawings.mjs";
@@ -29,6 +30,7 @@ Usage:
   node cli.mjs plan.json --panel-max=12ft --sheathing-psf=1.5  also weigh the sheathing on each panel (lb per sq ft)
   node cli.mjs plan.json --floor     add the plan's floor (joists, rim, blocking, subfloor sheets); its lumber joins the order
   node cli.mjs plan.json --roof      add the plan's gable roof, or hip roof with shape "hip" (rafters, ridge, sheathing, shingle and felt quantities); its lumber joins the order
+  node cli.mjs plan.json --drywall     add interior drywall (inside faces, partitions both sides, optional ceilings; plan drywall: sheetLength, ceiling, price)
   node cli.mjs plan.json --foundation  add the plan's foundation (footing, stem wall and slab concrete, trucks, rebar, forms, gravel, vapor barrier)
   node cli.mjs plan.json --budget    price the quantities with the plan's own "prices" (sheets, bundles, concrete, rebar...); lumber uses the stock prices; anything without a price is listed, not guessed
   node cli.mjs plan.json --drawings   printable HTML shop drawings, one sheet per wall (marked members, dimensions, parts table)
@@ -106,17 +108,26 @@ export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "u
     foundation = layoutFoundation(plan.foundation);
     if (!foundation.ok) return { code: 1, out: `The foundation has problems:\n${foundation.errors.map((e) => `  - ${e}`).join("\n")}` };
   }
+  let drywall = null;
+  if (flags.has("--drywall") || plan.drywall) {
+    plan.drywall = plan.drywall || {};
+    for (const k of ["height"]) if (typeof plan.drywall[k] === "string") plan.drywall[k] = parseLength(plan.drywall[k]);
+    for (const c of plan.drywall.ceiling || []) for (const k of ["width", "depth"]) if (typeof c[k] === "string") c[k] = parseLength(c[k]);
+    drywall = layoutDrywall(plan.drywall, plan);
+    if (!drywall.ok) return { code: 1, out: `The drywall has problems:\n${drywall.errors.map((e) => `  - ${e}`).join("\n")}` };
+  }
   const shell = () => [...(floor ? floorCuts(floor) : []), ...(roof ? roofCuts(roof) : [])];
   /** @type {any} */
   let r = takeoff(plan, shell());
   if (floor && r.ok) r.floor = floor;
   if (roof && r.ok) r.roof = roof;
   if (foundation && r.ok) r.foundation = foundation;
+  if (drywall && r.ok) r.drywall = drywall;
   if (!r.ok) return { code: 1, out: `The plan has problems:\n${r.errors.map((e) => `  - ${e}`).join("\n")}` };
   if (flags.has("--sheathing") || flags.has("--horizontal") || flags.has("--overhang") || rimLap > 0 || plan.sheathing) {
     const sheathing = sheathe({ ...plan, sheathing: { ...defaultSheathing(), ...(plan.sheathing || {}), ...(flags.has("--horizontal") ? { orientation: "horizontal" } : {}), ...(flags.has("--overhang") ? { overhang: true } : {}), ...(rimLap > 0 ? { rimLap } : {}) } }, r);
     const extra = nailerCuts(sheathing);
-    if (extra.length) { r = takeoff(plan, [...extra, ...shell()]); if (floor) r.floor = floor; if (roof) r.roof = roof; if (foundation) r.foundation = foundation; } // nailers join the cut list and the lumber order
+    if (extra.length) { r = takeoff(plan, [...extra, ...shell()]); if (floor) r.floor = floor; if (roof) r.roof = roof; if (foundation) r.foundation = foundation; if (drywall) r.drywall = drywall; } // nailers join the cut list and the lumber order
     r.sheathing = sheathing;
   }
   const sheathPsf = Math.max(0, parseFloat(argv.find((a) => a.startsWith("--sheathing-psf="))?.slice(16) ?? "0") || 0);
@@ -150,6 +161,7 @@ export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "u
   if (r.sheathing) lines.push("", `SHEATHING (panels run ${r.sheathing.orientation === "horizontal" ? "horizontally, course by course from the floor" : "vertically from the wall start"}; lengths left to right)`, ...sheathingText(r.sheathing));
   if (r.floor) lines.push("", "FLOOR", ...floorText(r.floor));
   if (r.foundation) lines.push("", "FOUNDATION", ...foundationText(r.foundation));
+  if (r.drywall) lines.push("", "DRYWALL", ...drywallText(r.drywall));
   if (r.roof) lines.push("", "ROOF", ...roofText(r.roof));
   if (flags.has("--budget")) lines.push("", "BUDGET", ...budgetText(budget(r, plan.prices || {})));
   if (headers && (flags.has("--headers") || headers.notes.length)) lines.push("", "HEADERS", ...headerText(headers));

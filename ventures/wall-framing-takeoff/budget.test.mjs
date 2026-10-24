@@ -81,3 +81,15 @@ test("budgetCsv has a header, one row per line, and quotes commas", () => {
   assert.match(csv.at(-1), /^,Total,,,,/);
   assert.match(budgetCsv({ lines: [{ section: "A", item: "x, y", qty: 1, unit: "u", unitPrice: null, amount: null, source: 's"q' }], materials: 0, taxRate: 0, tax: 0, contingencyRate: 0, contingency: 0, labor: 0, total: 0 }), /"x, y"/);
 });
+
+test("foundation labor rates price the slab area and the net concrete, outside tax", () => {
+  const b0 = bud(full({ laborWallFoot: 1 }));
+  const b = bud(full({ laborWallFoot: 1, laborFoundationSqFt: 3, laborConcreteYd: 40 }));
+  const a = b.lines.find((l) => l.item === "Foundation forming, rebar and finishing");
+  const c = b.lines.find((l) => l.item === "Concrete placing");
+  assert.ok(a.qty > 0 && c.qty > 0);
+  assert.equal(a.amount, +(a.qty * 3).toFixed(2));
+  assert.ok(Math.abs(c.amount - c.qty * 40) <= 0.005 * 40); // qty is shown rounded to 2 places
+  assert.equal(+(b.labor - b0.labor).toFixed(2), +(a.amount + c.amount).toFixed(2));
+  assert.ok(bud(full({ laborWallFoot: 1 })).unpriced.some((u) => u.startsWith("Concrete placing")));
+});
