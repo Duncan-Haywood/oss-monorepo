@@ -1,0 +1,61 @@
+{
+  "date": "2026-10-24",
+  "session": "https://claude.ai/code/session_01MgLdy7sBaC9QrkXP67cT5Z",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md (scheduled)",
+  "input_sha256": "a069142edff7faba0e7497f3e43587d325506648757355f87cd62c89d6f4f469",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-24T03:38:27Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "codesign (track 14) follow-up: sourced stem pull-off",
+  "projects": [
+    "codesign-agri-pulloff"
+  ],
+  "pr": 9994,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First experiment run hung 30 min: multiprocess Bayesian runs oversubscribed BLAS threads; fixed with OMP_NUM_THREADS=1 and Pool(4)"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "No mention that multiprocess GP/BLAS experiments need OMP_NUM_THREADS=1; cost one 30 min run."
+    },
+    {
+      "file": "research/_shared/cite_check.py",
+      "issue": "arXiv lookups timed out / 429 through the proxy; ids had to be confirmed by web search."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/PROJECTS.md",
+      "why": "Picking work step 2 skips micro-variant chains; the codesign-aero chain was saturated, so I took the sourced-constants next step of codesign-agri-sweep instead of a 'Next steps' item of the draw's project.",
+      "did": "new project codesign-agri-pulloff",
+      "result": "worked; reproduces parent numbers exactly at 3.5 N"
+    }
+  ],
+  "writeups": [
+    "research/codesign-agri-pulloff/README.md"
+  ],
+  "goal": null,
+  "notes": "Wrote no docs/reports or docs/posts agent doc; the README is the write-up. Pull-off measurements are second-hand via Rajendran et al. 2022. Runtime/cost not attached (runcost.py skipped).",
+  "corrections": [],
+  "redteam": null
+}
