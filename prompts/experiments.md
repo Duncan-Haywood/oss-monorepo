@@ -1303,3 +1303,15 @@ or `ventures`) until its success rate passes 80% over 20 runs?
   overlap). E78 and E80 results: too few runs since. No audit or drift
   report (reduced pass).
 - Result: (next review)
+
+## E82: review 2026-10-24 (reduced pass, tenth run)
+
+- Change: none to prompts or docs. Candidates re-measured: ventures 2,
+  process 2 and review 2 are all "keep collecting" (intervals overlap).
+  Regenerated `prompts/derived/`. Top friction files are unchanged from E81;
+  the live items are owner rows and the already-fixed entries in the process
+  prompt's friction list (107 reports), a `measure` presentation problem.
+- Metric: none new. E79, E80 and E81 results stay open: too few runs since.
+- Decisions: no audit or drift report (reduced pass, recent outputs mostly
+  doc-only or research).
+- Result: (next review)
