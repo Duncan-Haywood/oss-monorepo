@@ -12,8 +12,9 @@ This is the first of a daily progress analysis. The
 already lists every merge from templates, with no judgment. This post adds
 the judgment: what the numbers say about whether the work is going where it
 should. The window is the 72 hours from 01:20 UTC on 21 October to 01:20 UTC
-on 24 October. Every figure comes from `git log --first-parent` of `main` or
-from the 820 run records in `prompts/runs/` dated 21 to 24 October.
+on 24 October. Every figure comes from `git log --first-parent` of `main`,
+from the 820 run records in `prompts/runs/` dated 21 to 24 October, or from
+the GitHub Actions runs on `main` of the two workflows named below.
 
 ## The short version
 
@@ -22,7 +23,13 @@ said to. Three things hold it back. The top flagship is growing wider on
 test files the agents wrote themselves, and real inputs are what it needs.
 Research projects are appearing at about 72 a day, faster than anyone could
 read them. And after all of it, not one visitor to any product has been
-measured. The fleet can fix the first two. It cannot fix the third.
+measured. The fleet can fix the first two. Only the owner could fix the third,
+and the counter went live minutes after the window closed.
+
+On the standard DevOps measures, delivery is quick: half of all merges are
+live within 15 minutes. It is not stable, though. One of the two main
+validation workflows was red for a quarter of the window, and the site build
+for a third. Each red site build is a deploy that did not happen.
 
 ## Throughput
 
@@ -61,6 +68,64 @@ with 270. One product got far more than the rest:
   that zero panels fit, and retired it. That is the right way to drop an item.
 - Then `hearth-and-horizon` (38, fiction), `changepoint-detector` (33),
   `einvoice-preflight` (25), `shift-roster-builder` (20).
+
+## Delivery: the four DevOps metrics
+
+The usual yardstick is the four DORA metrics: how often you deploy, how long
+a change takes to go live, how often a change breaks something, and how fast
+you recover. Here they are taken from the Actions runs on `main` of
+`portfolio-pages.yml` ("Portfolio Pages": test, build, deploy, which puts
+the catalogue live) and `portfolio-validate.yml` ("Portfolio validate":
+schema, router and site checks).
+
+| Metric | Value, 21 to 24 October |
+|---|---|
+| Deploys (successful Pages runs on `main`) | 294: 81, 119 and 90 per day |
+| Merge to live (merge commit to the end of the first successful deploy started after it) | median 15 min, 75th percentile 31 min, 90th 124 min, worst 6.6 h; 169 of 921 merges took over an hour |
+| Pages runs that failed, of those that finished | 176 of 470 (37%); 51%, 16% and 40% by day |
+| Validate runs that failed, of those that finished | 137 of 552 (25%); 13%, 7% and 52% by day |
+| Red spells on `main` (green to red and back) | Pages 19, validate 15 |
+| Time to restore (red to the next green) | Pages median 0.6 h, 90th percentile 3.0 h; validate median 0.2 h, 90th 4.2 h |
+| Hours `main` was red | Pages 23.5 of 72 (33%); validate 18.4 of 72 (26%) |
+
+Deploy frequency and lead time are excellent by any standard. Most teams
+measure lead time in days; here it is minutes, because an agent merges
+its own PR and every merge builds the site. Stability is the weak half.
+A Pages run that fails stops at "Test the site builder", "Build the site"
+or "Check the built artifact", before the deploy job. So during the 33% of
+the window the Pages build was red, nothing new went live; the site held
+the last good build. That is why one merge in five waited over an hour
+to go live.
+
+Two things drive the red time. First, PRs merge over red checks.
+"Portfolio validate" runs on pull requests too, but it is not a required
+check. #9893, the merge that opened the four-hour red spell on 23 October
+at 21:04 UTC, went in with `validate` failing on its own head commit (the
+`VENTURE.yaml` schema check). #9958 merged with `validate` and `check`
+failing on its head. Second, with about 13 merges an hour, one breaking
+merge is soon buried under a dozen more before anyone fixes it. Recovery is
+quick in the median but has a long tail: that spell lasted until 01:16 UTC,
+and validate was red again when the window closed. The day's own fix titles
+show the pattern: "pages: type .whl files (fixes build job red on every PR
+since #9782)".
+
+**Bug rate.** Counting bugs by title is a floor, but it is what the files
+give. 29 of 921 merge titles say "fix" (3%), and one names a PR from the
+same window it repairs. The red team is a better reading: it mutated code in
+104 campaigns and found 20 real defects that the tests missed. That is a
+measure of test gaps, not of bugs users hit. Escaped defects can't be
+measured yet. No issue was opened in the window, and with no measured
+visitors, silence says nothing. From the GitHub API, the dashboard
+(`dev/stats.json`) adds that 80% of PR branches go green on the first try,
+and CI passed 86.7% of the runs that finished in the last 14 days (116,815
+runs).
+
+**Recommendation: make a red `main` stop the line.** Make "Portfolio
+validate" and the Pages build required checks in branch protection, which is
+a repository setting only the owner can change. Until then, a run should not
+merge over a red check that its own diff reaches. And the next run that sees
+a red Pages build on `main` should fix it before merging anything else. A third of the
+day without deploys costs more than any single feature adds.
 
 ## Concern 1: the bookkeeper is getting wider, on made-up inputs
 
@@ -110,6 +175,12 @@ gates measurement, the publication identity that gates distribution, and a
 custom domain flagged for domain-takeover risk 44 days ago. 922 merges into
 products whose use nobody can see is the weakest part of this picture.
 
+**Update.** At 01:36 UTC on 24 October, sixteen minutes after the window
+closed, #9963 pointed the site at the Cloudflare edge Worker that the owner
+had just deployed. The feedback form and page-view counts are now live. The
+next editions can report visitors per product instead of `null`, the first
+real reading of whether anyone uses this work.
+
 ## Smaller signals
 
 - **Duplicated work.** At least 23 runs (3%) said in their notes that they
@@ -127,10 +198,14 @@ products whose use nobody can see is the weakest part of this picture.
 
 ## What would move things most
 
-1. The owner: the egress and measurement decision, then the custom domain.
-   Nothing else on this list changes what we can learn about users.
-2. `ai-bookkeeper`: one real bank export through the whole pipeline.
-3. Research: a quality audit of the new projects before many more are added.
-4. Process: trim `research/CLAUDE.md` where runs report tripping.
+1. Measurement, now live: check that page-view counts reach
+   `portfolio/usage/` and read the first numbers. The custom domain is still
+   the owner's to decide.
+2. Delivery: make a red `main` stop the line (the owner: required checks
+   in branch protection; runs: no merging over a red check, fix a red Pages
+   build first).
+3. `ai-bookkeeper`: one real bank export through the whole pipeline.
+4. Research: a quality audit of the new projects before many more are added.
+5. Process: trim `research/CLAUDE.md` where runs report tripping.
 
 The next post will check these against the following day's merges.

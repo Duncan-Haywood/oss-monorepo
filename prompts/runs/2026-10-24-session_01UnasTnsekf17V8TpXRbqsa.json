@@ -15,7 +15,7 @@
   "tokens_out": null,
   "cost_usd": null,
   "tool_calls": null,
-  "task": "Daily progress analysis post (21-24 Oct) and a runbook to make it daily",
+  "task": "Daily progress analysis post (21-24 Oct) with DORA delivery metrics and bug rates, and a runbook to make it daily",
   "projects": [
     "docs/posts",
     "platform/daily"
@@ -26,7 +26,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
@@ -48,7 +48,7 @@
     "docs/posts/2026-10-24-progress-922-merges-zero-measured-users.md"
   ],
   "goal": null,
-  "notes": "Numbers come from git log --first-parent origin/main (window 2026-10-21T01:20Z to 2026-10-24T01:20Z, shallow-since fetch) and prompts/runs/*.json dated 2026-10-21..24. Checked: loadPosts parses the post; check_md_links clean. Set up a daily scheduled task that writes the next edition.",
+  "notes": "Numbers come from git log --first-parent origin/main (window 2026-10-21T01:20Z to 2026-10-24T01:20Z, shallow-since fetch) and prompts/runs/*.json dated 2026-10-21..24. Checked: loadPosts parses the post; check_md_links clean. Set up a daily scheduled task that writes the next edition. Follow-up on owner request: DORA metrics from Actions runs API on main (portfolio-pages.yml, portfolio-validate.yml, filtered by branch to avoid the 1,000-run cap): 294 deploys; merge-to-live p50 15 min, p90 124 min; Pages red 33% of the window, validate 26%; #9893 merged over its own red validate. First CI run failed custom-domain.test.mjs because the post linked /oss-monorepo/ while PUBLISHED_ORIGIN was monorepo-projects; #9958 then moved PUBLISHED_ORIGIN to /oss-monorepo/, so after merging main the original link is right; custom-domain.test.mjs passes locally (5/5).",
   "corrections": [],
   "redteam": null
 }

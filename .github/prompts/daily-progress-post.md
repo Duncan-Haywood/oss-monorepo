@@ -39,6 +39,33 @@ them, and never extrapolate past that); `integrity_issues`;
 `redteam.campaigns` and `redteam.real_defects`; files most named in
 `doc_friction`; notes that report duplicated work.
 
+### Delivery (DORA) and bug rates
+
+The owner, 2026-10-24: "can we do analysis on bug rates and making it to prod
+or idk standard devops product etc metrics." Report these every edition,
+from the Actions runs API on `main` (`curl -s
+"https://api.github.com/repos/Duncan-Haywood/oss-monorepo/actions/workflows/<id>/runs?branch=main&per_page=100&created=%3E%3D<start>"`;
+filter by branch, because an unfiltered query stops at 1,000 runs, about 30
+hours). The workflows are `portfolio-pages.yml` (test, build, deploy: a
+success is a deploy) and `portfolio-validate.yml`.
+
+- **Deploy frequency:** successful Pages runs on `main` per day.
+- **Merge to live:** for each merge commit, the time from merge to the end
+  of the first successful Pages run *created* after it. Give the median,
+  p75, p90 and the count over an hour.
+- **Change failure:** the share of finished runs that failed, and the
+  number of green-to-red spells.
+- **Time to restore:** red to next green per spell (median, p90), and hours
+  of the window `main` was red.
+- **Why red:** the failing step of a sample of failed runs
+  (`actions/runs/<id>/jobs`), and whether the PR that opened a spell merged
+  over its own red check (`commits/<head sha>/check-runs`).
+- **Bugs:** merge titles saying "fix", fix-forwards naming a PR from the
+  window, red-team `real_defects` against campaigns, issues opened, and
+  site feedback. All of these are floors; say so.
+- `dev/stats.json` on the site adds first-try-green PR share and the 14-day
+  CI pass share.
+
 ## What the post should say
 
 - Throughput in one table, then **where the effort went against the
@@ -52,6 +79,8 @@ them, and never extrapolate past that); `integrity_issues`;
 - No fabricated or estimated numbers presented as measured. "Unmeasured"
   is not zero.
 
-Tag it `progress-report`, name it `<date>-progress-<slug>.md`, keep the
+Link pages on the site through the origin `PUBLISHED_ORIGIN` names in
+`platform/pages/writing.mjs` (the build rewrites it to relative links; any
+other site origin fails `platform/pages/custom-domain.test.mjs`). Tag it `progress-report`, name it `<date>-progress-<slug>.md`, keep the
 description under 160 characters, and land it like any other run
 (`CLAUDE.md`, "Every session lands its own work").
