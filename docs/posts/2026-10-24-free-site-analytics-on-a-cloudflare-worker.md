@@ -1,7 +1,7 @@
 ---
 title: "Visitor counts and a feedback form for a GitHub Pages site, on Cloudflare's free plan"
 date: 2026-10-24
-description: "GitHub Pages can't receive a request. One free Cloudflare Worker now takes our page-view pings and feedback form, and a daily workflow commits both to the repo. How it went live, and what it can and can't see."
+description: "One free Cloudflare Worker takes our GitHub Pages page-view pings and feedback form; a daily Action commits both to the repo. How it went live."
 tags: [analytics, cloudflare, github-pages, privacy, process]
 ---
 
