@@ -156,7 +156,10 @@ export function checkInvoice(invoice) {
   for (const finding of inspectTaxExemption(invoice)) {
     fail(finding.rule, finding.message, finding.fix, finding.path);
   }
-  for (const finding of inspectTaxBreakdown(invoice)) {
+  // Factur-X / ZUGFeRD MINIMUM and BASIC WL carry totals and no lines, by design.
+  const linesOptional = /[:#](minimum|basicwl)$/i.test(String(invoice.specification_id || "").trim());
+  const noLines = !Array.isArray(invoice.lines) || invoice.lines.length === 0;
+  for (const finding of linesOptional && noLines ? [] : inspectTaxBreakdown(invoice)) {
     fail(finding.rule, finding.message, finding.fix, finding.path);
   }
   for (const finding of inspectInvoicePeriod(invoice)) {
@@ -170,7 +173,9 @@ export function checkInvoice(invoice) {
   }
 
   let lines = invoice.lines;
-  if (!Array.isArray(lines) || lines.length === 0) {
+  if (linesOptional && noLines) {
+    lines = [];
+  } else if (!Array.isArray(lines) || lines.length === 0) {
     fail("INV-007", "Invoice has no line items.", "Add at least one line item.", "/lines");
     lines = [];
   }
@@ -235,7 +240,7 @@ export function checkInvoice(invoice) {
 
   if (net === null || (net < 0 && !negativeInvoice)) {
     fail("INV-013", "Invoice net total is missing or invalid.", "Provide a non-negative numeric net total.", "/totals/net");
-  } else if (net !== expectedNet) {
+  } else if (net !== expectedNet && !(linesOptional && noLines)) {
     if (invoice.adjustments) {
       fail("INV-014", "Invoice net total does not match line items after header allowances and charges.", `Set net total to ${formatMoney(expectedNet)} or correct the line items and adjustments.`, "/totals/net");
     } else {
@@ -248,7 +253,7 @@ export function checkInvoice(invoice) {
     // nothing to compare
   } else if (taxTotal === null || (taxTotal < 0 && !negativeInvoice)) {
     fail("INV-015", "Invoice tax total is missing or invalid.", "Provide a non-negative numeric tax total.", "/totals/tax");
-  } else if (!perRate.unattributed && taxTotal !== expectedTax && !wholeUnitTaxAgrees(invoice.currency, taxTotal, expectedTax)) {
+  } else if (!(linesOptional && noLines) && !perRate.unattributed && taxTotal !== expectedTax && !wholeUnitTaxAgrees(invoice.currency, taxTotal, expectedTax)) {
     fail("INV-018", "Invoice tax total does not match its line tax percentages.", `Set tax total to ${formatMoney(expectedTax)} or correct the line inputs.`, "/totals/tax");
   }
   if (gross === null || (gross < 0 && !negativeInvoice)) {
@@ -286,7 +291,9 @@ export function checkInvoice(invoice) {
       const applied = prepaid !== undefined && prepaid !== null && prepaid >= 0 ? prepaid : 0;
       let expectedDue = roundHalfUpToCents(gross - applied + roundingValue);
       if (expectedDue < 0 && !creditBalance && !negativeInvoice) expectedDue = 0;
-      if (due !== expectedDue) {
+      // MINIMUM has no prepaid field (BT-113), so a lower amount due is normal there.
+      const minimumProfile = /[:#]minimum$/i.test(String(invoice.specification_id || "").trim());
+      if (due !== expectedDue && !(minimumProfile && (prepaid === undefined || prepaid === null))) {
         fail("INV-029", "Amount due does not equal gross minus prepaid.", `Set amount due to ${formatMoney(expectedDue)} or correct prepaid and gross.`, "/totals/due");
       }
     }
