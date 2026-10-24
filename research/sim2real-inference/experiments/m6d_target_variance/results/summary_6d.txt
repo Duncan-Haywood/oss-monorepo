@@ -1,0 +1,27 @@
+Var(|R-T|) vs Var(R) on 21 m3 pools
+Var(|R-T|) < Var(R): 20/21 overall; 12/12 with rho >= 0.8
+median ratio 0.303; one-sided pairs 2/21; max identity gap on one-sided pairs 0.00e+00
+EB half-width smaller for |R-T| than R at n=60: 18/21
+EB half-width smaller for |R-T| than R at n=240: 20/21
+pair  rho  var_r  var_abs  ratio
+delay-3      0.17   0.0212   0.0253   1.192
+delay-2      0.37   0.0478   0.0416   0.868
+gain-3       0.53   0.0661   0.0492   0.745
+sensor-3     0.61   0.0256   0.0161   0.628
+gain-2       0.67   0.0382   0.0225   0.590
+friction-3   0.73   0.0189   0.0090   0.475
+sensor-2     0.75   0.0145   0.0063   0.432
+delay-1      0.76   0.0172   0.0071   0.414
+gain-1       0.79   0.0177   0.0068   0.385
+mass-3       0.83   0.0267   0.0101   0.379
+friction-2   0.83   0.0119   0.0036   0.303
+sensor-1     0.83   0.0112   0.0033   0.293
+gain-0       0.84   0.0117   0.0032   0.274
+mass-2       0.85   0.0181   0.0054   0.301
+delay-0      0.85   0.0125   0.0033   0.263
+mass-1       0.86   0.0134   0.0034   0.256
+sensor-0     0.86   0.0101   0.0024   0.236
+mass-0       0.87   0.0109   0.0026   0.234
+none-0       0.87   0.0098   0.0022   0.226
+friction-1   0.88   0.0101   0.0022   0.219
+friction-0   0.88   0.0098   0.0021   0.212
