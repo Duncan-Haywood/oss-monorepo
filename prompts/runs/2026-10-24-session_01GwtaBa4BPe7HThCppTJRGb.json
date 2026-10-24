@@ -1,0 +1,152 @@
+{
+  "date": "2026-10-24",
+  "session": "https://claude.ai/code/session_01GwtaBa4BPe7HThCppTJRGb",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "lets do onboarding docs agent instructions blog etc for the general way for humans to contribute to this repo. basically replicating my process.",
+  "input_sha256": "4b1e6029c254f7412f239d1c211aafe2795a3a54ee76408c9c454b5ff0cf9429",
+  "follow_up_inputs": [
+    "how did this go? keep going on it."
+  ],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-10-22T23:25:08Z",
+  "ended": "2026-10-24T01:33:18Z",
+  "wall_minutes": 1568.58,
+  "tokens_in": 7263825,
+  "tokens_out": 37816,
+  "cost_usd": 3.2895,
+  "tool_calls": 62,
+  "task": "Contributor onboarding: CONTRIBUTING.md, the owner's steering process for people, an agent runbook for human requests, agent doc and post from run-record data",
+  "projects": [
+    "docs",
+    "prompts"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/9960",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "README.md",
+      "issue": "Site URL is /monorepo-projects/ here and in build.mjs DEFAULT_BASE_URL, but /oss-monorepo/ in CLAUDE.md and portfolio/hosting/README.md:343; portfolio-pages.yml builds /oss-monorepo/ when vars.PAGES_BASE_URL is unset. Could not tell which is live from a session."
+    },
+    {
+      "file": ".github/ISSUE_TEMPLATE/config.yml",
+      "issue": "Promised a no-account feedback form; platform/edge/site.json url is empty, so the site serves issue links only. Fixed in this PR."
+    },
+    {
+      "file": "prompts/runs/*.json",
+      "issue": "wall_minutes median is 3.4 for scheduled runs, implausibly low for runs that open and merge a PR; may cover only part of a transcript. Not used in the write-ups."
+    },
+    {
+      "file": "prompt.md",
+      "issue": "The first user message was interrupted before any work; the follow-up 'how did this go?' arrived two days later with main ~340 PRs ahead. Nothing in the docs covers resuming an interrupted session; the new human-requests.md runbook now says to check what actually landed first."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/process/prompt-1.md",
+      "instruction": "Start with promptctl.py backlog and pick a backlog item",
+      "did": "Worked the owner's direct request instead",
+      "why": "Direct owner ask routed to the closest track (prompt.md section 1)",
+      "result": "Shipped the requested docs"
+    }
+  ],
+  "writeups": [
+    "docs/reports/2026-10-24-human-requests-for-agents.md",
+    "docs/posts/2026-10-24-how-one-person-steers-an-agent-fleet.md"
+  ],
+  "goal": "Let people contribute here, and replicate the owner's process of steering agents, from written docs instead of tacit practice",
+  "notes": "",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "08fccb0a-9f58-59c6-affc-fab161313ab5",
+    "transcripts": 1,
+    "first": "2026-10-22T23:25:08Z",
+    "last": "2026-10-24T01:33:43Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 58,
+        "input": 116,
+        "output": 37816,
+        "thinking": 10208,
+        "cache_read": 7125245,
+        "cache_write_5m": 0,
+        "cache_write_1h": 138464,
+        "api_equivalent_usd": 3.2895,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 58,
+      "input": 116,
+      "output": 37816,
+      "thinking": 10208,
+      "cache_read": 7125245,
+      "cache_write_5m": 0,
+      "cache_write_1h": 138464,
+      "api_equivalent_usd": 3.2895,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 62,
+    "tools": {
+      "Bash": 52,
+      "Write": 5,
+      "ToolSearch": 1,
+      "mcp__github__search_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__claude-code-remote__subscribe_pr_activity": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 1568.58,
+      "active_minutes": 9.7,
+      "model_minutes": 7.54,
+      "tool_minutes": 2.16,
+      "waiting_on_human_minutes": 0.04,
+      "human_prompts": 3,
+      "stalls": 1,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "reading ~2,600 run records and the prompt system, then writing five docs and a counting script by hand",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 182.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
