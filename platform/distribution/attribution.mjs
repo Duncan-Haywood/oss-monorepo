@@ -30,6 +30,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { REFS, REF_KEY } from '../counter/counter.mjs';
+import { isPageKey } from '../counter/core.mjs';
 
 export { REFS, REF_KEY };
 
@@ -95,8 +96,8 @@ export function channelTotals(days = {}) {
         if (!(r in refs)) continue; // a tag since retired: not this list's to report
         refs[r] += n;
         if (n > 0) firstDay[r] ||= day;
-      } else {
-        pageLoads += n;
+      } else if (isPageKey(key)) {
+        pageLoads += n; // src:, geo:, dev:, bot: and botpage: keys are breakdowns, not page loads
       }
     }
   }

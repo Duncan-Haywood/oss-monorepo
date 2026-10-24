@@ -25,9 +25,68 @@ it never creates a charge, and no card is needed.
 |---|---|
 | `POST /feedback` | `{type, tool, message, page, website}` from the site's form. Only the site's origin may post. Emails are removed from the message. At most 3 posts a minute per sender and 50 messages a day site-wide (`FEEDBACK_DAILY_CAP`). |
 | `GET /feedback?after=<id>` | Stored messages after an id, which `pull-feedback.mjs` reads. Public, because the same text is committed to the public repository. |
-| `POST /hit` | The page-view ping. DNT, Global Privacy Control, crawlers and unknown slugs are not counted. |
+| `POST /hit` | The page-view ping. DNT, Global Privacy Control and unknown slugs are not counted. A counted load also adds one to `geo:<country>` and `dev:<mobile/tablet/desktop>`; a crawler's beacon adds to `bot:<class>` and `botpage:<slug>` instead of the page. |
 | `GET /counts?since=YYYY-MM-DD` | The daily aggregates, which `platform/counter/pull.mjs` reads. |
 | `GET /healthz` | `ok`. |
+
+## What the counts hold
+
+One integer per UTC day per key. A key without a colon is a page slug, and
+those are the only page loads. Every `prefix:` key is a breakdown, never added
+to the total (`isPageKey` in `platform/counter/core.mjs`; `pull.mjs`'s
+`summarise` splits them out):
+
+| Key | What it counts |
+|---|---|
+| `<slug>` | Page loads by browsers that sent no DNT/GPC and did not opt out. Not people. |
+| `ref:<tag>` | The same loads, arriving by one of the portfolio's own `?ref=` links. |
+| `src:<class>` | The same loads, by kind of referring site (`google`, `reddit`, `other`...). |
+| `geo:<CC>` | The same loads, by Cloudflare's `request.cf.country` (`XX` unknown, `T1` Tor). Added 2026-10-24. |
+| `dev:<class>` | The same loads, `mobile`, `tablet` or `desktop` from the browser string. iPadOS reports a Mac, so reads as desktop. Added 2026-10-24. |
+| `bot:<class>` | Beacons from self-declared crawlers and agents (`googlebot`, `bingbot`, `gptbot`, `chatgpt-user`, `claudebot`, ..., `other`; `BOT_CLASSES` in `core.mjs`). Not page loads. Added 2026-10-24. |
+| `botpage:<slug>` | The same crawler beacons, by page: which pages a crawler rendered. |
+
+The breakdowns are separate daily totals and are not linked to each other: the
+data says "3 loads from GB today" and "2 mobile loads today", never "a mobile
+load from GB of page X". Before 2026-10-24, agent fetchers such as
+`ChatGPT-User` and `facebookexternalhit` did not match the bot pattern and were
+counted as page loads; they are crawler beacons now.
+
+Each key is capped at `MAX_PER_SLUG_PER_DAY` (20,000). A counted load writes up
+to five rows (page, ref, src, geo, dev), so the free D1 plan's 100,000 row
+writes a day covers about 20,000 loads a day; past that, writes fail until the
+next UTC day and nothing is billed.
+
+## What crawler counts can and cannot see
+
+The `bot:` keys only see crawlers that **run the page's JavaScript**, because
+the ping is sent by `pf-site.js`. Googlebot and Bingbot render pages in a
+headless browser, so they can show up. Most AI crawlers (GPTBot, ClaudeBot,
+CCBot, PerplexityBot) fetch the HTML and never run it, so a zero for them means
+"not visible this way", not "never crawled". GitHub Pages gives no request logs,
+so the full crawler picture needs one of:
+
+- **Search Console / Bing Webmaster Tools crawl stats**: the owner signs in and
+  verifies the site (a meta tag or HTML file an agent can commit). Free.
+- **A custom domain behind Cloudflare**: every request, crawler or not, passes
+  Cloudflare, and its free analytics and AI Crawl Control report bots by name.
+  Needs the domain the owner's `pages-custom-domain` ask already covers
+  (`python3 portfolio/ledger/decision_queue.py`).
+
+## Checking it
+
+```sh
+U=https://monorepo-projects-edge.duncan-andrew-haywood.workers.dev
+curl $U/healthz                      # ok
+curl "$U/counts?since=2026-10-24"    # the live tallies
+curl "$U/feedback?after=0"           # stored messages
+```
+
+The repository copies (`portfolio/usage/site-visits.json`,
+`site-feedback.json`) move only when `site-usage-pull` runs: daily at 05:23 UTC,
+or by hand from *Actions → site-usage-pull → Run workflow*. Feedback message
+id 1 (2026-10-24, "this is just an automated test message") is a test sent by
+an agent session to prove the path, not a visitor.
 
 ## Turning it on (the owner, once)
 
