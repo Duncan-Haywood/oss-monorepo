@@ -38,15 +38,12 @@ clearly does not fit, do what better serves the goals and record it as a
 deviation (step 3). That is how the defaults improve
 ([`prompts/steering.md`](prompts/steering.md)).
 
-The router picks the review track by itself once enough runs have merged since
-the last review, for a share of runs (`review_when_due`) so parallel routines
-do not all start one. If an open pull request titled `prompts: review` already
+The router picks the review track itself once enough runs have merged since
+the last review (`review_when_due`). If an open pull request titled `prompts: review` already
 exists, another run has claimed that review; route again with `--skip-review`.
 
-`explore` (free choice, [`prompts/explore/prompt-0.md`](prompts/explore/prompt-0.md))
-and `creative` (the owner's stories and podcasts,
-[`prompts/creative/`](prompts/creative/prompt-0.md)) are drawn for a share of
-runs, under the same guardrails and landing rules.
+`explore` (free choice) and `creative` (the owner's stories and podcasts) are
+drawn for a share of runs, under the same guardrails and landing rules.
 
 ## 2. Work, and land it
 
