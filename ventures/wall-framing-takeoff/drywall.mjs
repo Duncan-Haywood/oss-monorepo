@@ -16,7 +16,7 @@ import { THICK, DEPTH, formatLength } from "./engine.mjs";
 const BAND = 48;
 const EPS = 1e-9;
 
-/** @typedef {{ compoundGalPerSqFt?: number, tapeRollFt?: number, sheetLength?: number, height?: number, ceiling?: { width: number, depth: number }[], faces?: "inside"|"both", screwsPerSqFt?: number, waste?: number, price?: number }} Drywall */
+/** @typedef {{ compoundGalPerSqFt?: number, tapeRollFt?: number, openingBead?: boolean, beadStickFt?: number, sheetLength?: number, height?: number, ceiling?: { width: number, depth: number }[], faces?: "inside"|"both", screwsPerSqFt?: number, waste?: number, price?: number }} Drywall */
 
 export function sampleDrywall() {
   return { sheetLength: 96, ceiling: [{ width: 480, depth: 336 }] };
@@ -30,6 +30,7 @@ export function validateDrywall(d) {
   for (const [i, c] of (d.ceiling || []).entries()) if (!(c.width >= 24 && c.depth >= 24)) e.push(`Ceiling ${i + 1} must be at least 2 ft each way.`);
   if (d.compoundGalPerSqFt != null && !(d.compoundGalPerSqFt > 0 && d.compoundGalPerSqFt <= 0.1)) e.push("Compound gallons per sq ft must be between 0 and 0.1.");
   if (d.tapeRollFt != null && !(d.tapeRollFt >= 50 && d.tapeRollFt <= 1000)) e.push("Tape roll length must be between 50 and 1000 ft.");
+  if (d.beadStickFt != null && ![8, 9, 10, 12].includes(d.beadStickFt)) e.push("Corner bead stick length must be 8, 9, 10 or 12 ft.");
   if (d.waste != null && !(d.waste >= 0 && d.waste <= 0.3)) e.push("Waste must be between 0 and 0.3.");
   if (d.screwsPerSqFt != null && !(d.screwsPerSqFt > 0 && d.screwsPerSqFt <= 4)) e.push("Screws per sq ft must be between 0 and 4.");
   return e;
@@ -81,7 +82,7 @@ export function layoutDrywall(d, plan) {
   /** @type {Map<number, number[]>} band width -> runs */
   const bands = new Map();
   const addRuns = (/** @type {number} */ w, /** @type {number[]} */ runs) => { bands.set(w, [...(bands.get(w) || []), ...runs]); };
-  let netSqIn = 0, hungSqIn = 0, seamIn = 0, cornerIn = 0;
+  let netSqIn = 0, hungSqIn = 0, seamIn = 0, cornerIn = 0, beadIn = 0;
   const walls = [];
   for (const w of plan.walls) {
     const faces = d.faces === "both" ? 2 : w.sheathed === false ? 2 : 1;
@@ -90,6 +91,8 @@ export function layoutDrywall(d, plan) {
       return { x0: o.offset, x1: o.offset + o.width, y0: Math.max(0, top - o.height), y1: Math.min(height, top) };
     });
     let sq = 0;
+    // outside corners where the board wraps a door or window opening: both jambs and the head, on each drywalled face (no sill: a stool and apron cover it)
+    for (const o of ops) beadIn += faces * (2 * (o.y1 - o.y0) + (o.x1 - o.x0));
     for (let y = 0; y < height - EPS; y += BAND) {
       const y1 = Math.min(height, y + BAND);
       const runs = bandRuns(w.length, ops, y, y1);
@@ -125,11 +128,13 @@ export function layoutDrywall(d, plan) {
   // Finishing. Tape is measured from the seams above; compound is a rate you can change.
   const tapeFt = Math.ceil((seamIn + cornerIn) / 12);
   const rollFt = d.tapeRollFt ?? 250;
+  const beadFt = d.openingBead === false ? 0 : Math.ceil(beadIn / 12);
+  const beadStick = d.beadStickFt ?? 8;
   const galRate = d.compoundGalPerSqFt ?? 0.01;
   const compoundGal = Math.ceil(netSqFt * galRate * (1 + waste) * 10) / 10;
   return {
     ok: true, errors: [], sheetLength: len,
-    finishing: { seamFt: Math.ceil(seamIn / 12), cornerFt: Math.ceil(cornerIn / 12), tapeFt, tapeRolls: Math.ceil(tapeFt / rollFt), rollFt, compoundGal, compoundGalPerSqFt: galRate }, hangHeight: height, walls, ceilings, bandSheets,
+    finishing: { seamFt: Math.ceil(seamIn / 12), cornerFt: Math.ceil(cornerIn / 12), tapeFt, tapeRolls: Math.ceil(tapeFt / rollFt), rollFt, compoundGal, compoundGalPerSqFt: galRate, beadFt, beadSticks: Math.ceil((beadFt * (1 + waste)) / beadStick - EPS), beadStickFt: beadStick }, hangHeight: height, walls, ceilings, bandSheets,
     sheets: { count: sheets, perSheetSqFt: sheetSqFt, price: d.price ?? null, cost: d.price != null ? sheets * d.price : null },
     netSqFt, boughtSqFt: sheets * sheetSqFt, screws, waste,
     assumptions: { screwsPerSqFt: d.screwsPerSqFt ?? 1, rule: "horizontal 48 in courses, end joints not placed on studs, ripped strips not reused" },
@@ -146,6 +151,7 @@ export function drywallText(d) {
   const f = d.finishing;
   l.push(`  tape: ${f.tapeFt} ft (${f.seamFt} ft of sheet seams plus ${f.cornerFt} ft of wall-to-ceiling angle) = ${f.tapeRolls} rolls of ${f.rollFt} ft`);
   l.push(`  compound: ${f.compoundGal} gal at ${f.compoundGalPerSqFt} gal per sq ft plus waste (a rule of thumb you can change, not a product label)`);
-  l.push("  Joints are not placed on studs or ceiling joists here; corner bead, inside wall-to-wall corners and trim are not counted.");
+  if (f.beadFt) l.push(`  corner bead: ${f.beadFt} ft around door and window openings (both jambs and the head, each drywalled face) = ${f.beadSticks} sticks of ${f.beadStickFt} ft with waste`);
+  l.push("  Joints are not placed on studs or ceiling joists here; bead on free wall ends and ceiling steps, inside wall-to-wall corners and trim are not counted.");
   return l;
 }
