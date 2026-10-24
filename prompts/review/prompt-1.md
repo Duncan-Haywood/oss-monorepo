@@ -12,9 +12,8 @@ One review, one pull request, titled `prompts: review YYYY-MM-DD`. Open it as
 a draft within your first few minutes, so other runs see the claim and route
 with `--skip-review`.
 
-**Short on time (a scheduled run)?** A reduced pass is a valid review: steps
-1, 3, 7 and 8 and one fix from step 5; skip the audit and drift report when
-recent outputs are doc-only, say so in the log, and don't report it as friction.
+**Short on time (a scheduled run)?** A reduced pass is valid: steps 1, 3, 7, 8
+and one fix from step 5; skip the audit and drift report, say so in the log.
 
 ## 1. Measure
 
@@ -88,8 +87,7 @@ the file with the most of them; what you cannot fix goes into
 - **Fix the cause, not the symptom.** If the same mistake keeps happening, a
   check that fails beats a sentence asking people to be careful.
 - **Keep it measurable.** Log the change (step 7) with the friction count it
-  should reduce. Record the run window to compare: reports per run for that
-  file before the change against the runs after it.
+  should reduce and the run window to compare.
 
 ## 6. Drift audit
 
@@ -110,8 +108,8 @@ The owner reviews little, so agents notice and fix drift (2026-10-15;
    report. Cut the file that grew most or costs most: stale history, rules
    about things that no longer exist, duplicates. Judge the cut by friction
    after it (step 5). Never drop a `goals.md` guardrail.
-   Cut at least one rule or check that no longer earns its place and name one
-   lesson from other organisations at this throughput (`steering.md`, "Cut the deadweight").
+   Cut at least one rule that no longer earns its place and name one lesson
+   from other organisations (`steering.md`, "Cut the deadweight").
 4. **Fix what is clear, propose what is not.** Correct drifted documents and
    sub-prompts directly (a sub-prompt through a candidate, step 4). If it
    needs the owner (touches `goals.md`, intent unclear), add a short proposal
