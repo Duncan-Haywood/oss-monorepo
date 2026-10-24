@@ -1,0 +1,53 @@
+{
+  "date": "2026-10-24",
+  "session": "https://claude.ai/code/session_01J3zgjupMf4Hx8DgZQf6x3D",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-24T09:12:56Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 10083,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "next: text is far over the stated 2,000 character limit, costly to read and edit."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Skipped venture-preflight (over 5 min) and full CI wait; ran the venture's own tests locally.",
+      "did": "ran cli, insulation, drywall, engine tests (79 pass)",
+      "result": "fine"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-24-insulation-from-the-studs-not-a-guess.md"
+  ],
+  "goal": null,
+  "notes": "Flagship 2 slice: insulation.mjs + --insulation. No page yet.",
+  "corrections": [],
+  "redteam": null
+}

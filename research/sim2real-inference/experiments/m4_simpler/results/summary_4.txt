@@ -1,0 +1,20 @@
+Milestone 4: SIMPLER Visual Matching paired rates, 36 cells (leave-one-cell-out; bootstrap over cells, 2,000 resamples, optimistic: cells are clustered)
+debiased MSE, raw sim                                     0.0212   [0.0134, 0.0297]
+debiased MSE, calibrated sim                              0.0138   [0.0054, 0.0248]
+real-only variance at paper n                             0.0042   [0.0031, 0.0052]
+break-even n* = mean p(1-p)/MSE_cal                      10.0931   [5.0656, 26.4671]
+extra effective real trials, fraction of n (v_real/MSE_cal)   0.3033   [0.1489, 0.7895]
+Pearson r sim vs real                                     0.9001   [0.8365, 0.9475]
+RMSE of calibrated sim                                    0.1175   [0.0737, 0.1575]
+
+by task (raw / calibrated debiased MSE, real-only variance, n_real, pearson r)
+carrot_on_plate  raw +0.0061  cal +0.0076  real-only 0.0038  n=24  r=0.571
+close_drawer     raw +0.0348  cal +0.0442  real-only 0.0054  n=27  r=0.771
+eggplant_basket  raw +0.0144  cal +0.0036  real-only 0.0049  n=30  r=0.970
+move_near        raw +0.0308  cal +0.0161  real-only 0.0033  n=60  r=0.856
+open_drawer      raw +0.0278  cal +0.0060  real-only 0.0061  n=27  r=0.983
+pick_coke_can    raw +0.0186  cal +0.0045  real-only 0.0018  n=75  r=0.975
+spoon_on_towel   raw +0.0087  cal +0.0111  real-only 0.0067  n=24  r=0.827
+stack_blocks     raw +0.0007  cal +0.0015  real-only 0.0016  n=24  r=1.000
+
+|sim - real|: median 0.134, max 0.308 (move_near/Octo-Base), cells with gap >= 0.2: 10 of 36

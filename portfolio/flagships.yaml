@@ -65,7 +65,7 @@ flagships:
       gables, sheathing, drywall, budget, schedule and their page controls have all landed on hand-checked fixtures).
       Open: a real foundation plan; ceiling drywall steps; a real sub's labor rates; a real builder's activity list for
       `--schedule`; gable sheathing nested on real sheets (offcut-triangle heights are hand-made); the drywall compound
-      rate checked against a product label; the code edition, typed by a person who has the book; a 2D reuse of
+      rate checked against a product label; the code edition, typed by a person who has the book; insulation on the page and in the attic (`--insulation` landed on walls); a 2D reuse of
       opening cut-outs, only worth rechecking on a real plan (sample house: 0 panels fit a hole).
   # Added 2026-10-21 third, on the owner's direction that day: "I want to make ai sales agents this is a long term
   # process" (prompts/goals.md, "AI sales agents, a long-term build"). Stages in ventures/sales-agent/ROADMAP.md.
@@ -129,7 +129,7 @@ flagships:
       so the root gap is a relaxation gap, not convergence. Branching on the
       priced bound (2026-10-24) cut one 8 x 22 week's gap from 0.66 open hours
       to $2.53; 3 of 4 still unproven. Case 3 stays 36 h open vs floor 35 h at 20x the nodes
-      (eval/case-bench.mjs), so more search will not settle it. Next: pair cuts on contested shifts; then a tighter pay bound once coverage is proven (or branching
+      (eval/case-bench.mjs), so more search will not settle it. All six sizes re-measured 2026-10-24 (README: 6x14 8/8 proven, 8x22 3/8, 10x28 and 12x30 still leave up to 26-27 h of coverage unresolved). Next: pair cuts on contested shifts, aimed at 10x28 and 12x30; then a tighter pay bound once coverage is proven (or branching
       on the most contested shift; branch order tried, no gain), the 10 x 28
       and 12 x 30 sizes, then a joint multi-week solve. Multi-week fairness
       measured (eval/fairness-bench.mjs: tough-shift spread 13.2 -> 3.2 over 8

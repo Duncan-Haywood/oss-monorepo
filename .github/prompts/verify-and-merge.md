@@ -96,6 +96,10 @@ What the lines are for, and the traps in running them:
 - **`platform/ci` suites** import by bare module name, so run them from
   inside that directory as the line does. `python3 -m pytest platform/ci`
   from the root fails collection.
+- **Write new tests as `unittest.TestCase`**: most workflows run
+  `python3 -m unittest discover -p 'test_*.py'` (a handful run pytest), which
+  collects no bare `def test_*` functions, so a pytest-style file can pass
+  locally under pytest and run zero tests in CI. Check the workflow's test step.
 - **Shallow clones**: two `platform/webcheck` tests pin historic blobs and
   skip in a shallow clone. Run `git fetch --unshallow origin main` if you
   want them to run.
