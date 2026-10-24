@@ -51,7 +51,9 @@ bare `--unshallow` skips a ref you fetched by name. Then check that
 
 A bare `python3` often lacks `pytest` and can shadow pip packages with apt
 ones. Use `PY=$(python3 platform/ci/pyenv.py pytest)`, then
-`"$PY" -m pytest`. Some `gitops/tests` failures depend on the image. Before
+`"$PY" -m pytest`. CI workflows run Python tests with
+`python3 -m unittest discover` (34 workflows; `grep -l "unittest discover" .github/workflows/*`), so write new
+tests as `unittest.TestCase` (pytest runs those too) or the CI job finds none. Some `gitops/tests` failures depend on the image. Before
 blaming your change, run the failing test on `origin/main`.
 `pip` may belong to python3.13 while `python3` is 3.11: install with
 `"$PY" -m pip`, and run one pip install at a time (two at once corrupted an install).
