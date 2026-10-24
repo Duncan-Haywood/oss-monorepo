@@ -508,6 +508,9 @@ export function closeChecks(books, opts = {}) {
 // Exports. Positive = debit in Xero's and IIF's single amount column.
 const csvCell = (v) => { const s = String(v ?? ""); return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
 const csvRow = (cells) => cells.map(csvCell).join(",");
+// Text copied from a bank file opens in Excel or Sheets as a formula if it starts with = + - @ (or a tab/CR),
+// so exported text columns get a leading apostrophe (OWASP's CSV-injection advice). Amounts and dates stay bare.
+export const safeText = (v) => { const s = String(v ?? ""); return /^[=+\-@\t\r]/.test(s) ? "'" + s : s; };
 const usDate = (iso) => `${iso.slice(5, 7)}/${iso.slice(8, 10)}/${iso.slice(0, 4)}`;
 const ukDate = (iso) => `${iso.slice(8, 10)}/${iso.slice(5, 7)}/${iso.slice(0, 4)}`;
 
@@ -517,12 +520,12 @@ export function exportJournal(books, format = "csv") {
   const name = (c) => map.get(c)?.name ?? c;
   if (format === "qbo") {
     const rows = [csvRow(["*JournalNo", "*JournalDate", "*AccountName", "Debits", "Credits", "Description"])];
-    entries.forEach((e, i) => { for (const l of e.lines) rows.push(csvRow([`AB-${String(i + 1).padStart(5, "0")}`, usDate(e.date), name(l.account), l.debit ? dollars(l.debit) : "", l.credit ? dollars(l.credit) : "", e.memo])); });
+    entries.forEach((e, i) => { for (const l of e.lines) rows.push(csvRow([`AB-${String(i + 1).padStart(5, "0")}`, usDate(e.date), safeText(name(l.account)), l.debit ? dollars(l.debit) : "", l.credit ? dollars(l.credit) : "", safeText(e.memo)])); });
     return rows.join("\n") + "\n";
   }
   if (format === "xero") {
     const rows = [csvRow(["*Narration", "*Date", "Description", "*AccountCode", "*TaxRate", "*Amount"])];
-    for (const e of entries) for (const l of e.lines) rows.push(csvRow([e.memo || e.id, ukDate(e.date), e.memo, l.account, "Tax Exempt", dollars(l.debit - l.credit)]));
+    for (const e of entries) for (const l of e.lines) rows.push(csvRow([safeText(e.memo || e.id), ukDate(e.date), safeText(e.memo), l.account, "Tax Exempt", dollars(l.debit - l.credit)]));
     return rows.join("\n") + "\n";
   }
   if (format === "iif") {
@@ -550,7 +553,7 @@ export function exportJournal(books, format = "csv") {
   }
   if (format === "ledger" || format === "beancount") return plainText(books, entries, map, format === "beancount");
   const rows = [csvRow(["entry", "date", "account_code", "account_name", "debit", "credit", "memo", "posted_by"])];
-  for (const e of entries) for (const l of e.lines) rows.push(csvRow([e.id, e.date, l.account, name(l.account), l.debit ? dollars(l.debit) : "", l.credit ? dollars(l.credit) : "", e.memo, e.source]));
+  for (const e of entries) for (const l of e.lines) rows.push(csvRow([e.id, e.date, l.account, safeText(name(l.account)), l.debit ? dollars(l.debit) : "", l.credit ? dollars(l.credit) : "", safeText(e.memo), e.source]));
   return rows.join("\n") + "\n";
 }
 
@@ -603,7 +606,7 @@ export function exportLines(books) {
   const rows = [csvRow(["date", "bank_account", "description", "amount", "status", "account_code", "account_name", "suggested", "confidence", "source", "reason"])];
   for (const t of [...books.transactions].sort((a, b) => a.date.localeCompare(b.date))) {
     const s = t.suggestion ?? {};
-    rows.push(csvRow([t.date, map.get(t.account)?.name ?? t.account, t.desc, dollars(t.cents), t.status, t.split ? "split" : t.posted ?? "", t.split ? t.split.map((p) => `${map.get(p.account)?.name ?? p.account} ${dollars(p.cents)}`).join("; ") : map.get(t.posted)?.name ?? "", s.account ?? "", s.confidence !== undefined ? s.confidence.toFixed(2) : "", s.source ?? "", s.reason ?? (t.status === "transfer" ? "paired with an equal and opposite line in another account" : "")]));
+    rows.push(csvRow([t.date, safeText(map.get(t.account)?.name ?? t.account), safeText(t.desc), dollars(t.cents), t.status, t.split ? "split" : t.posted ?? "", t.split ? t.split.map((p) => `${map.get(p.account)?.name ?? p.account} ${dollars(p.cents)}`).join("; ") : map.get(t.posted)?.name ?? "", s.account ?? "", s.confidence !== undefined ? s.confidence.toFixed(2) : "", s.source ?? "", safeText(s.reason ?? (t.status === "transfer" ? "paired with an equal and opposite line in another account" : ""))]));
   }
   return rows.join("\n") + "\n";
 }
