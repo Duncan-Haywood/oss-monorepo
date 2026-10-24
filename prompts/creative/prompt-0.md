@@ -23,6 +23,13 @@ pushed branch is not done. Steps:
 | **Saints by Candlelight** (30 to 60 minute bedtime podcast of saints, angels and patriarchs) | `ventures/saints-by-candlelight/` | `PRODUCTION.md` (the series bible) |
 | **The writing podcast** (an episode per blog post) | `docs/podcast/`, `docs/posts/` | `goals.md`, "Direction: write about the work" |
 
+The site's **Stories** page (`stories/`, in the top navigation; built by
+`platform/pages/stories.mjs`; owner, 2026-10-24: the fiction gets "its own
+page on the website") lists every shelf above from the stories' own front
+matter and audio manifests, so a merged piece appears there on the next
+build with nothing to edit. A new shelf or fiction venture needs a line in
+`loadFiction` to show up.
+
 ## Pick one piece of work
 
 Spread the runs: look at what landed on `main` most recently
