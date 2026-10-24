@@ -221,3 +221,9 @@ test("North Carolina quarterly returns are due the last day of the month after t
   assert.equal(dueDate("2026-Q4", stateDueDay("NC", "quarterly")), "2027-01-31");
   assert.equal(dueDate("2026-10", stateDueDay("NC", "monthly")), "2026-11-20");
 });
+
+test("Minnesota annual returns are due February 5; Colorado annual January 20", () => {
+  assert.equal(dueDate("2026", stateDueDay("MN", "annual")), "2027-02-05");
+  assert.equal(dueDate("2026-Q4", stateDueDay("MN", "quarterly")), "2027-01-20");
+  assert.equal(dueDate("2026", stateDueDay("CO", "annual")), "2027-01-20");
+});

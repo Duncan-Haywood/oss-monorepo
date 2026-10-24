@@ -1,0 +1,24 @@
+{
+  "id": "P054",
+  "title": "seo: open the most-searched tool pages with a short, sourced, dated direct answer",
+  "status": "open",
+  "owner": "agent",
+  "effect": 2,
+  "cost": 2,
+  "problem": "AI answer engines (Google AI Overviews, ChatGPT search, Perplexity, Copilot) quote pages that state a fact plainly near the top with its source and date. A calculator page that only shows numbers after input gives them nothing to quote, even when the page knows the answer (a threshold, a fee rate, a rule of thumb).",
+  "evidence": [
+    "Owner direction on SEO and AI discovery, prompts/goals.md ('SEO moves up a lot'); no measurement of AI citations exists yet"
+  ],
+  "change": "Pilot on 10 tool pages whose question has a single factual answer (tax thresholds, marketplace fee rates and the like): add one or two sentences under the H1 that answer it, cite the primary source and give an as-of date, taken from the venture's own calc data so they cannot drift. Make sure the FAQ schema the build derives picks it up. Do it only where the answer is a real fact the page already encodes; never invent one. Add a check that the lead's numbers match the calc module.",
+  "touches": [
+    "ventures/<slug>/index.html for the pilot pages",
+    "platform/pages/build.mjs"
+  ],
+  "metric": "pilot pages carrying a sourced lead; later, AI-referrer visits once platform/counter runs (P046)",
+  "baseline": "0 pages (2026-10-24)",
+  "opened": "2026-10-24",
+  "source": "Owner asked for SEO and AI-search action items in a Claude Code session, 2026-10-24",
+  "pr": null,
+  "result": null,
+  "history": []
+}
