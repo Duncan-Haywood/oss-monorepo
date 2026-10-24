@@ -64,6 +64,12 @@ test('build writes an index, one page per post and a feed, each with a disclaime
   assert.equal(page.match(/<h1>/g).length, 1);
   assert.match(page, new RegExp(`<link rel="canonical" href="${BASE}writing/hello/">`));
   assert.match(page, /"@type":"BlogPosting"/);
+  // The visible "Home › Blog" trail, declared for search results too.
+  const crumb = [...page.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)]
+    .map((m) => JSON.parse(m[1]))
+    .find((b) => b['@type'] === 'BreadcrumbList');
+  assert.deepEqual(crumb.itemListElement.map((i) => i.item), [BASE, `${BASE}writing/`, `${BASE}writing/hello/`]);
+  assert.equal(crumb.itemListElement.at(-1).name, 'Hello <world>');
   // Repository-relative links become GitHub links.
   assert.match(page, /href="https:\/\/github\.com\/Duncan-Haywood\/oss-monorepo\/blob\/main\/README\.md"/);
   assert.match(feed, new RegExp(`<id>${BASE}writing/hello/</id>`));

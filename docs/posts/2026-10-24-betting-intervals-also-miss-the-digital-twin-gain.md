@@ -1,7 +1,7 @@
 ---
 title: "A betting confidence interval also cannot see what a digital twin saves"
 date: 2026-10-24
-description: "We tried the variance-adaptive betting interval on twin-assisted robot evaluation. It is valid and still 2 to 3 times wider, because its bets hit a cap on 99 to 100% of steps. A negative result with a measured cause."
+description: "The variance-adaptive betting interval for twin-assisted robot evaluation is valid but still 2 to 3 times wider: its bets hit a cap on 99 to 100% of steps."
 tags: [digital-twin, sim-to-real, statistics, robotics, negative-result]
 ---
 
