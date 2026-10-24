@@ -1,0 +1,53 @@
+{
+  "date": "2026-10-24",
+  "session": "https://claude.ai/code/session_01VqZf5gKRa6cCbGXTkjzixb",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-24T12:10:38Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/10120",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "Flagship 1 (ai-bookkeeper) next: items all need real bank exports or unpublished IRS 2027 figures; a scheduled run with no network data had to skip to flagship 3."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Skipped top flagship (needs real-world data unavailable offline)",
+      "did": "deepened sales-agent (flagship 3) instead",
+      "result": "landed page section 6"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-24-sales-agent-call-prep-and-follow-up-in-the-browser.md"
+  ],
+  "goal": null,
+  "notes": "Tests: node --test page.test.mjs 8/8; headless Chromium click test no page errors. Full venture-preflight not run.",
+  "corrections": [],
+  "redteam": null
+}
