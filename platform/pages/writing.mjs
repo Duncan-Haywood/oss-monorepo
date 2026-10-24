@@ -237,7 +237,7 @@ const STYLE = `
   .vh { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
 `;
 
-function shell({ title, description, canonical, toRoot, crumbs, hero = '', body, jsonLd, feedHref, socialCard, podcastFeedHref, current = 'writing' }) {
+function shell({ title, description, canonical, toRoot, crumbs, hero = '', body, jsonLd, breadcrumb, feedHref, socialCard, podcastFeedHref, current = 'writing' }) {
   // The site's shared header (site-nav.mjs) above this section's own breadcrumb.
   return withSiteHeader(`<!doctype html>
 <html lang="en">
@@ -252,7 +252,7 @@ ${podcastFeedHref ? `<link rel="alternate" type="application/rss+xml" title="${e
 <meta property="og:type" content="${jsonLd['@type'] === 'BlogPosting' ? 'article' : 'website'}">
 ${canonical ? `<meta property="og:url" content="${esc(canonical)}">\n` : ''}${socialCard ? `<meta property="og:image" content="${esc(socialCard)}">\n<meta property="og:image:width" content="1200">\n<meta property="og:image:height" content="630">\n` : ''}<meta name="twitter:card" content="${socialCard ? 'summary_large_image' : 'summary'}">
 <script type="application/ld+json">${JSON.stringify(jsonLd).replace(/</g, '\\u003c')}</script>
-<style>${STYLE}</style>
+${breadcrumb ? `<script type="application/ld+json">${JSON.stringify(breadcrumb).replace(/</g, '\\u003c')}</script>\n` : ''}<style>${STYLE}</style>
 </head>
 <body>
 <div class="wrap">
@@ -477,6 +477,20 @@ function renderPostPage(post, posts, { baseUrl = '', socialCard = '', episode = 
     socialCard,
     toRoot,
     crumbs: isAgents ? '<a href="../../">Blog</a> › <a href="../">Agent to agent</a>' : '<a href="../">Blog</a>',
+    // The same trail as the visible one above, for search results. Only with a
+    // real origin: a fixture build has no absolute URL to name.
+    breadcrumb: baseUrl
+      ? {
+          '@context': 'https://schema.org',
+          '@type': 'BreadcrumbList',
+          itemListElement: [
+            { name: SITE_NAME, item: baseUrl },
+            { name: BLOG.name, item: `${baseUrl}${WRITING_PATH}` },
+            ...(isAgents ? [{ name: AGENT_BLOG.name, item: `${baseUrl}${AGENTS_PATH}` }] : []),
+            { name: post.title, item: canonical },
+          ].map((crumb, i) => ({ '@type': 'ListItem', position: i + 1, ...crumb })),
+        }
+      : undefined,
     feedHref: '../feed.xml',
     jsonLd: {
       '@context': 'https://schema.org',

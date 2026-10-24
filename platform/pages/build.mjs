@@ -7500,6 +7500,58 @@ const FEEDBACK_STYLE = `
 /** The slim search index the hub (and nothing else) loads. See `renderSearchIndex`. */
 export const SEARCH_INDEX_FILE = 'search-index.json';
 
+/** The `cats` key blog posts are filed under in the search index. */
+const POST_CATEGORY = 'writing';
+
+/**
+ * Every page inside a tool other than its entry page that a search engine is
+ * invited to index and that says what it is about: the guide and comparison
+ * pages, as `{ slug, url, title, description }` with `url` relative to the
+ * site root. A page marked noindex, or with no description, stays out.
+ */
+export async function collectGuidePages(outDir, surfaces) {
+  const guides = [];
+  for (const surface of surfaces) {
+    const dir = path.join(outDir, surface.slug);
+    if (!(await exists(dir))) continue;
+    for (const file of (await listFiles(dir)).filter((f) => f.endsWith('.html')).sort()) {
+      const url = path.relative(outDir, file).split(path.sep).join('/');
+      if (url === `${surface.slug}/index.html`) continue;
+      const html = await fs.readFile(file, 'utf8');
+      if (/noindex/i.test(metaContent(html, 'name', 'robots'))) continue;
+      const { title, fullDescription } = readMeta(html, surface.slug);
+      if (!title || !fullDescription) continue;
+      guides.push({ slug: surface.slug, url: url.replace(/(^|\/)index\.html$/, '$1'), title, description: fullDescription });
+    }
+  }
+  return guides;
+}
+
+/** The `cats` keys and labels the site's own collection pages are filed under. */
+const SECTION_CATEGORIES = Object.freeze({ [CATEGORY_PATH_PREFIX]: 'Collection of tools', compare: 'Comparison' });
+
+/**
+ * The site's own collection pages, as `{ url, title, description, section }`:
+ * each category and audience shelf under `c/` ("Free tools for roofers") and
+ * each competitor page under `compare/` ("Jobber alternatives"). A query that
+ * names a trade or a product someone already uses is best answered by the
+ * page built for exactly that.
+ */
+export async function collectSectionPages(outDir) {
+  const pages = [];
+  for (const section of Object.keys(SECTION_CATEGORIES)) {
+    const dir = path.join(outDir, section);
+    if (!(await exists(dir))) continue;
+    for (const entry of (await fs.readdir(dir, { withFileTypes: true })).filter((e) => e.isDirectory()).sort((a, b) => a.name.localeCompare(b.name))) {
+      const file = path.join(dir, entry.name, 'index.html');
+      if (!(await exists(file))) continue;
+      const { title, fullDescription } = readMeta(await fs.readFile(file, 'utf8'), entry.name);
+      pages.push({ url: `${section}/${entry.name}/`, title, description: fullDescription, section });
+    }
+  }
+  return pages;
+}
+
 /**
  * The search index, as the JSON the hub fetches when a visitor starts typing.
  *
@@ -7517,8 +7569,16 @@ export const SEARCH_INDEX_FILE = 'search-index.json';
  * research), `n` the name tokens, `g` the name-plus-alias tokens when they
  * differ from `n`, `x` the full index. Research projects ride in the same list
  * so one box finds a calculator and a paper alike.
+ *
+ * So do a tool's own guide and comparison pages (`k` guide, `s` the tool's
+ * slug, `u` the page) and the blog's posts (`k` post). A guide's title was
+ * already folded into its tool's `x`, so "why is my 1099-k higher" found the
+ * tool, and the visitor then had to find the one page of thirty inside it
+ * that answers the question. The site's collection and comparison pages
+ * (`k` page, `u` the page) ride along too. All of these are listed after every
+ * tool, so where a guide and its tool score alike the tool comes first.
  */
-export function renderSearchIndex(surfaces, research = []) {
+export function renderSearchIndex(surfaces, research = [], { guides = [], sections = [], posts = [], covered = new Set() } = {}) {
   const raw = surfaces.map((surface) => ({
     surface,
     name: searchTokens([surface.title, surface.slug]),
@@ -7567,6 +7627,52 @@ export function renderSearchIndex(surfaces, research = []) {
       // The abstract's opening, not all of it: 500 abstracts in full were most
       // of this file, and the words that say what a project is about come first.
       x: withoutStopwords(searchTokens([title, project.slug, decodeEntities(project.themeName), summary.slice(0, 320)]), catalogueStops),
+    });
+  }
+  for (const page of sections) {
+    const key = `site:${page.section}`;
+    cats[key] = SECTION_CATEGORIES[page.section] ?? 'Collection';
+    items.push({
+      s: page.url,
+      u: page.url,
+      t: page.title,
+      d: snippetize(page.description, 110),
+      c: key,
+      k: 'page',
+      n: withoutStopwords(searchTokens([page.title]), catalogueStops),
+      x: withoutStopwords(searchTokens([page.title, page.description.slice(0, 200)]), catalogueStops),
+    });
+  }
+  // A "vs. Jobber" page that several tools carry is, as results, one row
+  // ("This calculator vs. Jobber") repeated 43 times down the page. Its
+  // compare/<product>/ page, listed above, gathers them, so those guides
+  // (`covered`, their URLs) are left out; the tools stay findable by name.
+  for (const guide of guides.filter((g) => !covered.has(g.url))) {
+    // The title and the description's opening only, as for research: the
+    // question a guide answers is in its title, and 1,700 guides indexed in
+    // full would have grown this file by two thirds.
+    items.push({
+      s: guide.slug,
+      u: guide.url,
+      t: guide.title,
+      d: snippetize(guide.description, 110),
+      c: categoryFor(guide.slug).id,
+      k: 'guide',
+      n: withoutStopwords(searchTokens([guide.title]), catalogueStops),
+      x: withoutStopwords(searchTokens([guide.title, guide.description.slice(0, 200)]), catalogueStops),
+    });
+  }
+  if (posts.length) cats[POST_CATEGORY] = 'Blog';
+  for (const post of posts) {
+    items.push({
+      s: post.slug,
+      u: `${WRITING_PATH}${post.slug}/`,
+      t: post.title,
+      d: snippetize(post.description, 160),
+      c: POST_CATEGORY,
+      k: 'post',
+      n: withoutStopwords(searchTokens([post.title]), catalogueStops),
+      x: withoutStopwords(searchTokens([post.title, post.description, post.tags ?? []]), catalogueStops),
     });
   }
   return JSON.stringify({ v: 1, stopwords, cats, items });
@@ -8202,7 +8308,8 @@ ${disclaimerHtml('', surfaces)}
               if (!item.u) item.u = item.s + '/';
             });
             data.stop = new Set(data.stopwords);
-            TOOLS = new Map(data.items.filter((item) => item.k !== 'research').map((item) => [item.s, item]));
+            // Tools only: a guide shares its tool's slug, and a post is not a tool.
+            TOOLS = new Map(data.items.filter((item) => item.k === 'tool' || item.k === 'app' || item.k === 'cli').map((item) => [item.s, item]));
             indexReady = true;
             return data;
           });
@@ -8305,16 +8412,23 @@ ${disclaimerHtml('', surfaces)}
         const link = document.createElement('a');
         link.href = item.u;
         link.textContent = item.t;
-        if (item.k !== 'research') {
+        if (item.k === 'research') {
+          link.addEventListener('click', () => record('research_opened_from_search'));
+        } else if (item.k === 'guide' || item.k === 'post' || item.k === 'page') {
+          link.addEventListener('click', () => record(item.k + '_opened_from_search'));
+        } else {
           link.dataset.tool = item.s;
           link.addEventListener('click', () => record('tool_opened:' + item.s));
-        } else {
-          link.addEventListener('click', () => record('research_opened_from_search'));
         }
         const where = document.createElement('span');
         where.className = 'r-cat';
-        where.textContent = (data.cats[item.c] || '') +
-          (item.k === 'app' ? ' · self-hostable app' : item.k === 'cli' ? ' · command-line tool' : '');
+        // A guide's own title often leans on its tool ("This calculator vs. a
+        // flat rate"), so the line under it names the tool it belongs to.
+        const parent = item.k === 'guide' ? TOOLS.get(item.s) : null;
+        where.textContent = item.k === 'guide'
+          ? 'Guide' + (parent ? ' · ' + parent.t : '')
+          : (data.cats[item.c] || '') +
+            (item.k === 'app' ? ' · self-hostable app' : item.k === 'cli' ? ' · command-line tool' : '');
         const blurb = document.createElement('p');
         blurb.textContent = item.d;
         li.append(link, where, blurb);
@@ -9701,7 +9815,7 @@ function spliceAt(html, index, text) {
   return html.slice(0, index) + text + html.slice(index);
 }
 
-export function injectChrome(html, { slug, toRoot, total, related = [], canonical, isEntry, title, pageTitle, externalCallHosts = [], audiences = [] }) {
+export function injectChrome(html, { slug, toRoot, total, related = [], canonical, baseUrl, isEntry, title, pageTitle, externalCallHosts = [], audiences = [] }) {
   if (html.includes(CHROME_MARKER)) return html;
   const initialBody = locateBody(html);
   if (!initialBody) return html;
@@ -9718,25 +9832,37 @@ export function injectChrome(html, { slug, toRoot, total, related = [], canonica
     // sites had no origin to point a canonical at, so many carry none.
     headExtras += `\n<link rel="canonical" href="${escapeHtml(canonical)}">`;
   }
-  if (isEntry && canonical && !html.includes('"BreadcrumbList"')) {
-    // Lets a result render as "Free small-business calculators › eBay Fee
-    // Calculator" rather than a bare URL, and tells an answer engine these are
-    // one collection rather than 42 unrelated pages. Entry pages only: a deep
-    // SEO page inside a tool is not a third level of the site, and saying it is
-    // would describe a hierarchy that does not exist.
-    headExtras += `\n<script type="application/ld+json">${jsonLd({
-      '@context': 'https://schema.org',
-      '@type': 'BreadcrumbList',
-      itemListElement: [
-        {
-          '@type': 'ListItem',
-          position: 1,
-          name: SITE_NAME,
-          item: canonical.slice(0, canonical.length - `${slug}/`.length),
-        },
-        { '@type': 'ListItem', position: 2, name: title || slug, item: canonical },
-      ],
-    })}</script>`;
+  // The trail the header shows (Home › category › tool › page), built once so
+  // the visible breadcrumb and the BreadcrumbList below cannot disagree.
+  // Search engines want the markup to describe the trail on the page; until
+  // 2026-10-24 only entry pages carried any, and it skipped the category the
+  // visible trail shows, so ~1,750 guide and comparison pages inside tools
+  // showed a four-level trail and declared none.
+  const category = categoryFor(slug);
+  const categoryHref = categoryPagePath(category.id);
+  const crumbs = [{ label: category.title, href: `${toRoot}${categoryHref}` }];
+  if (isEntry) crumbs.push({ label: title || slug });
+  else crumbs.push({ label: title || slug, href: `${toRoot}${slug}/` }, { label: pageTitle || 'This page' });
+  if (canonical && !html.includes('"BreadcrumbList"') && (isEntry || pageTitle)) {
+    // Lets a result render as "Open Tools and Research › Marketplace sellers ›
+    // eBay Fee Calculator" rather than a bare URL, and tells an answer engine
+    // these are one collection rather than 1,300 unrelated pages. A page that
+    // wrote its own is left alone. A deep page with no title of its own gets
+    // none: "This page" is a fine visible label and a useless result name.
+    const base = baseUrl || (isEntry ? canonical.slice(0, canonical.length - `${slug}/`.length) : '');
+    if (base) {
+      const trail = [
+        { name: SITE_NAME, item: base },
+        { name: category.title, item: `${base}${categoryHref}` },
+        { name: title || slug, item: `${base}${slug}/` },
+      ];
+      if (!isEntry) trail.push({ name: pageTitle, item: canonical });
+      headExtras += `\n<script type="application/ld+json">${jsonLd({
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: trail.map((crumb, i) => ({ '@type': 'ListItem', position: i + 1, ...crumb })),
+      })}</script>`;
+    }
   }
   if (isEntry && !html.replace(/<!--[\s\S]*?-->/g, '').includes('FAQPage')) {
     // Only where the venture wrote none of its own: two FAQPage blocks on one
@@ -9771,10 +9897,6 @@ export function injectChrome(html, { slug, toRoot, total, related = [], canonica
   // usually one shelf over, not back through the whole catalogue. The search
   // entry is a link here, never a form, so a venture script that reads the
   // first form or every input on its page still finds its own.
-  const category = categoryFor(slug);
-  const crumbs = [{ label: category.title, href: `${toRoot}${categoryPagePath(category.id)}` }];
-  if (isEntry) crumbs.push({ label: title || slug });
-  else crumbs.push({ label: title || slug, href: `${toRoot}${slug}/` }, { label: pageTitle || 'This page' });
   const topBar = renderSiteHeader({
     toRoot,
     current: 'tools',
@@ -9949,6 +10071,7 @@ export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_U
         title: surface.title,
         pageTitle: pageMeta.title,
         canonical,
+        baseUrl,
         isEntry: url === `${surface.slug}/index.html`,
         externalCallHosts: surface.externalFetchHosts,
         audiences: audiencesFor(surface.slug, audiencePages),
@@ -10865,9 +10988,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
     path.join(outDir, 'index.html'),
     renderHub(surfaces, base, { researchCount: researchProjectCount(), research, showcase, posts: loadPosts(), flagships: flagshipSlugs() }),
   );
-  // The index the hub's search fetches, and the stylesheet every site-owned
-  // page links for the shared header (site-nav.mjs).
-  await fs.writeFile(path.join(outDir, SEARCH_INDEX_FILE), renderSearchIndex(surfaces, research.projects));
+  // The stylesheet every site-owned page links for the shared header (site-nav.mjs).
   await fs.writeFile(path.join(outDir, SITE_STYLE_FILE), renderSiteStyle());
   // The saved-bids script, once for the whole site. Every page that carries the
   // band loads it from here; it used to be written into each of them.
@@ -11070,6 +11191,17 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
   await fs.writeFile(
     path.join(guidesDir, 'index.html'),
     renderGuidesPage({ groups: guides, surfaces, categoryGroups, baseUrl: base }),
+  );
+  // The index the hub's search fetches. Written here, after the collection and
+  // comparison pages it lists, rather than beside the hub.
+  await fs.writeFile(
+    path.join(outDir, SEARCH_INDEX_FILE),
+    renderSearchIndex(surfaces, research.projects, {
+      guides: await collectGuidePages(outDir, surfaces),
+      sections: await collectSectionPages(outDir),
+      posts: loadPosts(),
+      covered: new Set(compareProducts.flatMap((group) => group.items.map((item) => `${item.slug}/${item.file}`))),
+    }),
   );
 
   await fs.writeFile(path.join(outDir, 'sitemap.xml'), renderSitemapIndex(surfaces, base));
