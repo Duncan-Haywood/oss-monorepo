@@ -221,3 +221,27 @@ class PercentScaling(unittest.TestCase):
         self.assertEqual(
             len(self._venture(module, '<input type="number" id="fee" max="100">')), 1
         )
+
+
+class AttributeQuoting(unittest.TestCase):
+    """HTML allows single-quoted and unquoted attribute values; a check that
+    only reads double quotes passes on the inputs it exists to reject."""
+
+    def _problems(self, tag: str) -> list[str]:
+        directory = Path(tempfile.mkdtemp())
+        (directory / "calc.mjs").write_text(
+            'if (pct < 0 || pct >= 100) throw new Error("x");', encoding="utf-8"
+        )
+        (directory / "index.html").write_text(tag, encoding="utf-8")
+        return check_venture(directory)
+
+    def test_single_quoted_attributes_are_checked(self):
+        self.assertEqual(len(self._problems("<input type='number' id='pct'>")), 1)
+
+    def test_unquoted_attributes_are_checked(self):
+        self.assertEqual(len(self._problems("<input type=number id=pct>")), 1)
+
+    def test_single_quoted_bounds_are_read(self):
+        self.assertEqual(
+            self._problems("<input type='number' id='pct' min='0' max='99.99'>"), []
+        )
