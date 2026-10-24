@@ -1,7 +1,7 @@
 # verified-dse: how much of a chip design search can cheap fidelity rungs save, with a guarantee?
 
 Research programme on multi-fidelity, verification-aware design-space search for
-open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestone 1 done.
+open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 and 2 done.
 The cheap rungs are measurably biased against routed area x delay; the search and
 guarantee parts (H2 to H5) are not yet run.** Produced with AI assistance (Claude Code).
 It builds on none of the CU Boulder groups and claims no affiliation.
@@ -57,3 +57,15 @@ tau-b handles but which limits the ripple adder (4 distinct routed scores). Cumu
 ## Next steps
 Milestone 2: search baselines (random, hill climbing from `chip-scriptsearch`) at equal budget on the cached table; add
 larger designs so rung costs separate; then successive halving and BO across rungs (H2, H3).
+
+## Milestone 2 result: do cheap rungs beat plain search at equal wall-clock? (baselines for H2)
+Replayed on the milestone 1 table (no flow re-run; per-rung costs measured: R1 0.15 s, R2 0.77 s, R4 1.26 s cumulative). Mean routed regret over 10 designs, tight clock, 400 paired seeds:
+
+| budget | random (R4) | hill climbing (R4) | screen all at R1, verify top | screen all at R2, verify top |
+|---|---|---|---|---|
+| 10 s | 6.3% | 7.4% | 15.0% | cannot pay |
+| 30 s | 2.1% | 1.7% | 5.3% | cannot pay |
+| 45 s | 0.94% | 0.61% | 1.08% | 1.27% |
+
+- A one-shot screen on a cheap rung does **not** beat plain random or hill-climbing search at equal wall-clock on this table: R1 screening loses to random on 10 of 10 designs at 10 s, and R2 screening wins on 6 to 8 designs at 45 s but loses by more on the rest, so its mean is worse. Hill climbing helps from 30 s even with sparse neighbourhoods.
+- Limits: a pool of about 50 sequences per design makes every strategy converge to 0 regret, so this is the small-budget end only; NSGA-II, Hyperband, BOHB and BO are not yet run. Code and log: `experiments/search_baselines/`, `LOG.md`.
