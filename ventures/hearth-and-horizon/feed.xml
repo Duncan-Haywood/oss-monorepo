@@ -16,6 +16,16 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>The Iron Bridge at Forty-Two</title>
+      <link>https://example.invalid/hearth-and-horizon/the-iron-bridge-at-forty-two.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-iron-bridge-at-forty-two.html</guid>
+      <pubDate>Sat, 24 Oct 2026 12:00:00 GMT</pubDate>
+      <description>A town's Good Friday procession has carried its Virgin over a wrought-iron footbridge every year since 1931. This year the bridge has been fitted with sensors, and its monitor finds that the iron is not the problem, the weight on it is, and the pace the bearers have always walked is the one pace that makes the deck sing. Slowing the Virgin to forty-two steps a minute fixes it, costs the bearers their shoulders and the band its march, and has to be held for two minutes with no one on the bridge able to see the numbers. Setting: Valdecea (invented), a town on the river Cea in the province of León, Spain, Holy Week 2058. Read the full text at https://example.invalid/hearth-and-horizon/the-iron-bridge-at-forty-two.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A town's Good Friday procession has carried its Virgin over a wrought-iron footbridge every year since 1931. This year the bridge has been fitted with sensors, and its monitor finds that the iron is not the problem, the weight on it is, and the pace the bearers have always walked is the one pace that makes the deck sing. Slowing the Virgin to forty-two steps a minute fixes it, costs the bearers their shoulders and the band its march, and has to be held for two minutes with no one on the bridge able to see the numbers.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>The Late Ebb</title>
       <link>https://example.invalid/hearth-and-horizon/the-late-ebb.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-late-ebb.html</guid>

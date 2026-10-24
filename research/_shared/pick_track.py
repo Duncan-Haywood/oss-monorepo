@@ -26,7 +26,7 @@ from pathlib import Path
 PREFIX = ["selfrep", "ambient", "chip", "robofab", "simdesign", "garment",
           "eda", "accel", "osrobot", "swe", "mimic", "house", "capture",
           "codesign", "sensing", "energy", "society", "hanger", "qual", "buildbot",
-          "infra", "aerolog", "marine"]
+          "infra", "aerolog", "marine", "civ", "heavy"]
 SATURATED = 40
 PROGRAMME_SHARE = 0.65
 RESEARCH = Path(__file__).resolve().parents[1]
