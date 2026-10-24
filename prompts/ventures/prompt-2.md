@@ -1,7 +1,8 @@
 # Ventures track, prompt 2
 
 Candidate. One change from prompt 1: the near-copy check below is a command,
-not a sentence.
+not a sentence. (Rebased on prompt 1 on 2026-10-24: the first draft predated
+the flagship direction and the preflight step, so it differed in three places.)
 
 The product sub-prompt. The master prompt (`prompt.md`) routes runs here. Work
 alongside [`CLAUDE.md`](../../CLAUDE.md), [`AGENTS.md`](../../AGENTS.md) and
@@ -13,6 +14,10 @@ prompt.
 yourself, every session. This is the explicit request to create that PR. A
 pushed branch is not done. Steps:
 [`.github/prompts/land-your-work.md`](../../.github/prompts/land-your-work.md).
+
+A new or changed venture also runs `node platform/pages/venture-preflight.mjs <slug>`
+before the merge: the site-wide checks its own tests cannot see. It takes over 5 min,
+longer than the 120s foreground timeout, so start it with `run_in_background`.
 
 ---
 
@@ -35,16 +40,6 @@ no venture has a single measured visitor. That is not the brief. So:
   already-built calculator work (an open PR, a stranded branch) is fine to
   merge. Higher-value products are the work (`prompts/goals.md`,
   "Direction: depth over calculators").
-- **Run the near-copy check before you pick a niche.** Count the name
-  suffixes of the 15 newest ventures; if any suffix appears 3 or more times,
-  or yours would be the fourth "<country/trade>-<same-shape>", build a
-  different shape or deepen an existing venture. On 2026-10-14 eight
-  `*-tax-set-aside-calculator` ventures landed in one day.
-
-  ```
-  git log --diff-filter=A --name-only --format= -- 'ventures/*/VENTURE.yaml' | head -15 | awk -F/ '{n=split($2,a,"-"); print a[n]}' | sort | uniq -c | sort -rn
-  ```
-
 - **A new venture should say why someone would use it.** Name the free or paid
   alternatives a user has today and what this does better, in the venture's
   README. If you can't, it is probably not worth building.
@@ -59,9 +54,24 @@ no venture has a single measured visitor. That is not the brief. So:
   go straight to the deployer's cloud or fork and never pass through anything
   the owner runs (`prompts/goals.md`, Mission). Taking an existing venture
   all the way there counts as much as anything new.
-- **Prefer deepening over starting.** Taking the most promising existing
-  venture further toward a product people would pick is better than a new
-  shallow one.
+- **Run the near-copy check before you pick a niche.** Count the name
+  suffixes of the 15 newest ventures; if any suffix appears 3 or more times,
+  or yours would be the fourth "<country/trade>-<same-shape>", build a
+  different shape or deepen an existing venture. On 2026-10-14 eight
+  `*-tax-set-aside-calculator` ventures landed in one day.
+
+  ```
+  git log --diff-filter=A --name-only --format= -- 'ventures/*/VENTURE.yaml' | head -15 | awk -F/ '{n=split($2,a,"-"); print a[n]}' | sort | uniq -c | sort -rn
+  ```
+
+- **Deepen a flagship by default** (owner, 2026-10-20, quoted in
+  `prompts/goals.md`). Unless your brief names other work, take the top
+  "Deepen (flagship N)" row of `python3 portfolio/router/allocate.py` and
+  land a working slice of its milestone: a hard business or engineering
+  problem, not polish. When you land it, rewrite that venture's `next:` in
+  [`portfolio/flagships.yaml`](../../portfolio/flagships.yaml) to the next
+  milestone. The small tools stay; fix them when they break, but they are
+  not where runs go.
 - **Payments.** A product may include payment code, off by default and
   running only on the deployer's own keys from environment variables. Never
   the owner's accounts (`prompts/goals.md`, "Payments: never the owner's").

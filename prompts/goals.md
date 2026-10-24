@@ -315,19 +315,25 @@ true they could not get from a file listing, and it counts toward "Every run
 ships something useful".
 
 Widened by the owner on 2026-10-21: "I want most runs to write up an agent doc
-and blog post according to its judgment on what." So the default for a run
-that merges work is two write-ups in its PR, subject chosen by the run:
+and blog post according to its judgment on what." And again on 2026-10-24,
+after the post rate fell from about forty a day to two or four (8 of the last
+100 run records named a post): "I think it'd be nice if most of the prs
+included a blog post about the project or other. I want the number of blog
+posts per day to increase significantly." So the default for a PR that merges
+work is a **new blog post**, plus an agent doc when the run learned something
+the next run needs:
 
+- **A blog post** in `docs/posts/`, one of the three kinds above, for a person
+  or an AI agent who has never seen the repository. The owner, 2026-10-21:
+  "the blog is for humans and ai agents reading and the agent docs is for
+  llms."
 - **An agent doc** in `docs/reports/`: a brief for an agent reader that
   answers first, then gives evidence a reader can rerun, then the limits
   (the shape of
   [`2026-10-20-agent-handoffs-for-agents.md`](../docs/reports/2026-10-20-agent-handoffs-for-agents.md)).
   It is what the next run touching the same work should know: a decision and
-  why, a gotcha, a measurement, how to use what you built.
-- **A blog post** in `docs/posts/`, one of the three kinds above, for a person
-  or an AI agent who has never seen the repository. The owner, 2026-10-21:
-  "the blog is for humans and ai agents reading and the agent docs is for
-  llms."
+  why, a gotcha, a measurement, how to use what you built. Extending an
+  existing doc is usually right here.
 
 The owner also asked, the same day, for "a separate blog with llms as the
 target audience. agent to agent blog. free reign on what to write." It lives
@@ -338,21 +344,28 @@ would want to read: a trap, a technique, a measurement, an argument. Write it
 for a model with tools: lead with what to do, cite repository paths, keep it
 dense. It is optional, and the guardrails below hold there too.
 
-The subject is the run's call: its own work, something it found on the way,
-or a gap from `writing-backlog.mjs`. With ~2,700 runs a week, most of them
-should extend an existing doc or post with what is new (a section, a fresh
-number, a correction) rather than add a file; a new file is for a subject
-nothing covers. Skip either one when the run has nothing true and new to say
-(a one-line fix, a rerun), and say so in the run record; a padded post is
-worse than none. List the paths written or extended in the record's
-`writeups`, which `promptctl.py measure` counts. The blog index is searchable
+The subject is the run's call: its own work, the project it touched, something
+it found on the way, or a gap from `writing-backlog.mjs`. Lean towards a new
+post, not a new section in an old one: a post is a dated entry in the feed,
+and an edit to last week's post adds nothing a reader of the feed sees. Extend
+an existing post only when the subject is the same (a correction, a rerun of
+the same numbers); a new result, a new feature or a different angle on a
+project already written about is a new post that links back to the old one.
+A small run still has something to write about: a short post (300 to 600
+words is fine) on what the project it touched does and who it is for, what
+the change shows, or one research track from the backlog. That is the default
+for a one-line fix too, unless the run truly has nothing true to say; then
+skip it and say why in the record's `deviations`. A padded or invented post is
+still worse than none, so short and true beats long. List the paths written or
+extended in the record's `writeups`, which `promptctl.py measure` counts along
+with posts per day. The blog index is searchable
 and filters by topic: a post's topic comes from its tags (`topicOf` in
 `writing.mjs`), and `topic:` in the front matter overrides it when the rules
 file it wrongly. Podcast episodes are grouped by their post's topic, with one
 feed per topic. `node platform/pages/writing-backlog.mjs` lists the
-research tracks no post covers yet, biggest first, and the days since the
-last post. A run with spare scope, or one that just finished a track's
-milestone, can take the top line.
+research tracks no post covers yet, biggest first (208 of 228 on 2026-10-24),
+and the days since the last post: any run without a better subject can take a
+line from it.
 
 Posts can have a podcast episode (owner, 2026-10-20: "fifteen blog posts plus
 podcast episodes"): a spoken script in `docs/podcast/` with the post's slug,
@@ -365,8 +378,9 @@ The research guardrails apply to every post: every number is copied from the
 committed file it cites, linked by repository path; results are not
 overclaimed; posts say the work was done by AI agents with an owner
 steering, and carry a not-advice sentence where a reader might act on a
-number. One post per subject: before writing, check `docs/posts/` and open
-PRs for one that covers it, and extend it instead of writing a second.
+number. Before writing, check `docs/posts/` and open PRs: if a post already
+says the same thing, extend it; if yours adds something new, write a new post
+and link the old one.
 
 ## Direction: LLM docs and a marketing page for every product
 
@@ -573,6 +587,28 @@ to it, never the source:
 Try not to muddy the repository. Write the conclusion, not a transcript.
 Prefer a sentence in an existing file to a new file, and skip backfilling
 threads nobody will need.
+
+## Direction: software for the routine, agents for judgment
+
+Set by the owner on 2026-10-24: "if possible these should be automatically
+recorded metrics not from ai agents when possible to remove stuff from the
+plate of ai agents. this should be a general rule of thumb. if there's a thing
+agents 'must do' frequently and it can be automated away by tradtional
+software at 90-100% of the quality it's generally better for the tradtional
+software to automate that away but if it's something that an ai agent can do
+better by itself significantly it's resources can go the tasks that are higher
+value and outsource to traditional software better."
+
+When runs keep doing the same chore (counting, collecting, checking,
+formatting, recomputing a metric), and a script, a check or a scheduled build
+could do it at 90 to 100% of the quality, write that software once and have
+runs read its output. Agent time then goes to work only an agent does well:
+judgment, synthesis, design, deciding what matters. A chore you find yourself
+doing by hand for the second time is a candidate. Name it in `deviations` or
+build it in the same PR. The first example: the delivery metrics that the
+daily progress post had computed by hand are now in `platform/devstats`
+(`delivery` in `dev/stats.json`). The post reads them and spends its effort
+on what they mean.
 
 ## Judgment over rules
 
@@ -832,6 +868,8 @@ every publish:
 - PRs green on their first commit, and red commits before green
 - open PRs and branches by age
 - reverts and fix-forwards
+- deploys, merge-to-live time, and per gate on `main` the failed share, red
+  spells, time to restore and hours red (`delivery`, last 3 days)
 - the per-run outcome, cost and leverage by track, model and prompt version
 
 The CI side is a direction, not a new platform: move checks left so a
