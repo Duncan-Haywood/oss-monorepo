@@ -2,7 +2,7 @@
 
 Track 11 (adversarial human imitation), side project, the first "next step" of `mimic-twinrand`: that project randomized all four twin parameters at once and found that a wide range sometimes made regret worse (worst seed 0.042 at width 2). Here only the noise sd is randomized. **No LLM is used and no text is generated.** Stylised and simulated only. **Preliminary: one toy pendulum, one task, a 48-point gain grid, 24 tuning seeds.** Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/mimic-twinnoiserand/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/mimic-twinnoiserand/
 
 Numbers come from `experiments/results.txt` and `results.json`; the figure is `experiments/regret_vs_width.svg`.
 

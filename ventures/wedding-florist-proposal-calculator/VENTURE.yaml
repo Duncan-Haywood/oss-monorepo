@@ -28,5 +28,5 @@ kill_criteria:
   - No unsolicited feedback, star, fork, or referral within 90 days of publishing.
   - Florists report that the bunch-rounding figure never changes a price they had already decided on, because their spreadsheet already encodes bunch sizes.
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/wedding-florist-proposal-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/wedding-florist-proposal-calculator/
   analytics: null

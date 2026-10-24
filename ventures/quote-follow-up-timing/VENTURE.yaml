@@ -61,5 +61,5 @@ kill_criteria:
   - A user reports that the eventual win rate or the open-quote chance disagrees with a standard Kaplan-Meier / Aalen-Johansen implementation on the same data.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/quote-follow-up-timing/
+  production: https://duncan-haywood.github.io/oss-monorepo/quote-follow-up-timing/
   analytics: null

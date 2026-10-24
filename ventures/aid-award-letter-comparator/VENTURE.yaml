@@ -57,5 +57,5 @@ kill_criteria:
   - A user reports a total that disagrees with an independent loan-payment calculation on the same inputs.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/aid-award-letter-comparator/
+  production: https://duncan-haywood.github.io/oss-monorepo/aid-award-letter-comparator/
   analytics: null

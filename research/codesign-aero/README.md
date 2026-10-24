@@ -2,7 +2,7 @@
 
 Sixth milestone of the agentic co-design track (`research/PROJECTS.md`, track 14, `codesign`; `codesign-aero`): an airframe and a learned roll-attitude controller for a 15-minute inspection quadrotor, designed jointly and compared with design-first, frozen-controller, bilevel and random-search pipelines at equal budget. Produced with AI assistance (Claude). **Every constant (masses, thrust scaling, motor lag, gust torque, noise) is an assumed round number in `src/codesign_aero/aero.py`, not a measurement of any product; roll axis only, simulation only, nothing was built or flown. The PX4 or ArduPilot software-in-the-loop run that the milestone mentions was not attempted, and the "learned" controller is a three-gain linear policy found by CMA-ES policy search, not deep RL.**
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/codesign-aero/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/codesign-aero/
 
 ![RMS roll error over the airframe grid, and the five pipelines](experiments/landscape.png)
 

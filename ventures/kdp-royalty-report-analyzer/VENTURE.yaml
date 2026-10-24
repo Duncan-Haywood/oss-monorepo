@@ -72,5 +72,5 @@ kill_criteria:
   - A user reports a materially wrong royalty total, or a real KDP report the tool cannot read, at which point the parser needs revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/kdp-royalty-report-analyzer/
+  production: https://duncan-haywood.github.io/oss-monorepo/kdp-royalty-report-analyzer/
   analytics: null

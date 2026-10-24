@@ -48,5 +48,5 @@ kill_criteria:
   - A user reports a suggested packaging that earns less on their own survey than a placement they tried by hand.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/saas-feature-packaging-optimizer/
+  production: https://duncan-haywood.github.io/oss-monorepo/saas-feature-packaging-optimizer/
   analytics: null

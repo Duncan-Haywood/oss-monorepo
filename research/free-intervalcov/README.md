@@ -2,7 +2,7 @@
 
 Pure Python, no dependencies. **Free-choice project** (`PROJECTS.md`, "Picking work", step 1; draw 0.018). Why it seemed worth doing: twin-certification projects here (`twin-certification`, `validate-twin`, `free-sprtcert`) report "failures in n rollouts, so p is below U". Which formula produces U matters at n = 30 to 1000 and rates of 0.2% to 20%, and I could not find the same-footing comparison in the repository, so I computed it exactly.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/free-intervalcov/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/free-intervalcov/
 
 ## Question
 

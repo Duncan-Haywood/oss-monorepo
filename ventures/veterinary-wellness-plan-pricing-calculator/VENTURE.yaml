@@ -42,5 +42,5 @@ kill_criteria:
   - A user reports a figure that differs from the model in README.md for the same inputs.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/veterinary-wellness-plan-pricing-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/veterinary-wellness-plan-pricing-calculator/
   analytics: null

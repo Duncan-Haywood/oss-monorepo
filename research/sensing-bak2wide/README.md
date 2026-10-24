@@ -2,7 +2,7 @@
 
 `sensing-bak2` found that on a narrow-field rig the second radial term `k2` is invisible: a one-term fit does as well and the (`k1`, `k2`) pair is not recovered. Its limitations and next steps named the cure, points near the image corners. This tests it. **Moving the camera in (distance 4 to 2) and shortening the focal length with it (800 to 400 px), so the object keeps its pixel size but the largest normalised radius goes from 0.34 to 0.85, the spread of the fitted `k2` over seeds falls from 0.33 to 0.02 and its mean sits within 0.01 of the true +0.1 from distance 2.5 on. Fitting `k2` then matters for the surface: at distance 2 a `k1`-only fit gives 0.0027 object radii against 0.0020 with `k2` (and 0.0082 to 0.0118 with no distortion model), and at `k2 = −0.2` the gap is 0.0055 against 0.0022** (numpy and scipy; 4 tests).
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/sensing-bak2wide/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/sensing-bak2wide/
 
 **Builds on.** `sensing-bak2` (solver, scoring and the `k2` law, imported unchanged), with `sensing-bafocal`, `sensing-ba` and `sensing-recon` beneath it. Brown (1966), "Decentering distortion of lenses", *Photogrammetric Engineering* 32(3), for `x_d = x (1 + k1 r² + k2 r⁴)`; Triggs, McLauchlan, Hartley and Fitzgibbon (2000), "Bundle adjustment: a modern synthesis", LNCS 1883. Track 15 (`sensing`). No lab in `prompt.md` fits.
 

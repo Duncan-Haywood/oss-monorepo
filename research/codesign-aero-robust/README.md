@@ -2,7 +2,7 @@
 
 Robustness follow-up to `codesign-aero` (track 14, `codesign`; its "Next steps" asked for this): the airframe grid of that project is re-scored with per-episode randomisation of torque authority, inertia and motor lag, with gains tuned on the nominal plant (the original pipeline), on a narrow randomised plant and on a wide one. Produced with AI assistance (Claude). **Stylised simulation: every constant, and the randomisation ranges, are assumed round numbers; roll axis only; no hardware, no PX4/ArduPilot software-in-the-loop; the policy is a three-gain linear law. The "mass" multiplier scales roll inertia only, not the thrust margin.**
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/codesign-aero-robust/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/codesign-aero-robust/
 
 ![Held-out RMS error of 50 airframes, nominal against wide randomised plant](experiments/ranking.png)
 

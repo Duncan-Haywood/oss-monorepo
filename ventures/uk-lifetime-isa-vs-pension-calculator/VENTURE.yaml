@@ -33,5 +33,5 @@ kill_criteria:
   - Fewer than three unsolicited signals (star, fork, referral or feedback) within 90 days of launch.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/uk-lifetime-isa-vs-pension-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/uk-lifetime-isa-vs-pension-calculator/
   analytics: null

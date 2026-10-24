@@ -6,7 +6,7 @@ review rejections and notes, before a reviewer -- or the automated
 [Plugin Check](https://wordpress.org/plugins/plugin-check/) tool -- finds
 them for you:
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/wordpress-plugin-review-check/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/wordpress-plugin-review-check/
 
 - **Stable tag / Version mismatch** -- `readme.txt`'s `Stable tag` line
   doesn't match the main plugin file's `Version` header. The directory serves

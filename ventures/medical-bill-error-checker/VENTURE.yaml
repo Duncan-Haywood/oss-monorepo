@@ -80,5 +80,5 @@ kill_criteria:
   - A coder or user reports a materially wrong flag, or a real bill format the tool cannot read, at which point the rule table and parser need revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/medical-bill-error-checker/
+  production: https://duncan-haywood.github.io/oss-monorepo/medical-bill-error-checker/
   analytics: null

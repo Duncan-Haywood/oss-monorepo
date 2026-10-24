@@ -2,7 +2,7 @@
 
 Follow-up to [`house-open-design`](../house-open-design), whose next steps asked for a payback on the envelope upgrade. It cannot honestly price the upgrade (no sourced prices exist in this track), so this project turns the question around: for each upgrade, climate, heating system, energy price and discount rate, the **largest extra first cost** the 30-year energy saving can cover. Anyone with a real quote can compare it with the break-even directly. It adds no new engineering: the heat loss and degree-day energy are `house-open-design`'s, which are `house-energy`'s. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/house-breakeven/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/house-breakeven/
 
 **Headline (stylised, assumed prices).** The whole tight package saves $72 (Houston) to $158 (Minneapolis) a year with a heat pump, so at a 3% real rate over 30 years it can carry **$1,409 to $3,104** of extra first cost ($892 to $1,965 at 7%, $2,157 to $4,750 at 0%). With gas heating the range is $1,267 to $2,330. Taking the upgrades one at a time, using `house-energy`'s unsourced unit prices where it has them, only the attic (R-30 to R-49, $319 extra) reaches break-even, and only in Minneapolis; air sealing from 5 to 3 ACH50 ($500) needs energy 1.3 to 2.6 times as expensive as assumed, and U-0.27 windows ($1,392) 2.7 to 5.5 times. The wall switch has the largest break-even of the five ($726 to $1,459) but its cost is not computed here. The point is the method and the thresholds, not a verdict on any real ADU.
 

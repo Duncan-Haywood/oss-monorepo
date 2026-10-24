@@ -65,5 +65,5 @@ kill_criteria:
   - A user reports a converted file that QuickBooks, Quicken or Xero refuses, or a real bank file this tool misreads, at which point the layouts need revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/camt053-to-ofx-converter/
+  production: https://duncan-haywood.github.io/oss-monorepo/camt053-to-ofx-converter/
   analytics: null

@@ -107,5 +107,5 @@ kill_criteria:
   - No external repository is found wiring cli.mjs into its own CI/deploy pipeline within 90 days.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/k8s-deprecated-api-check/
+  production: https://duncan-haywood.github.io/oss-monorepo/k8s-deprecated-api-check/
   analytics: null

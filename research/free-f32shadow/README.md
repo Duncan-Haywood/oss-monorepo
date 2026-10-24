@@ -2,7 +2,7 @@
 
 numpy (the only dependency). **Free-choice project** (`PROJECTS.md`, "Picking work", step 1; draw 0.03). Why it seemed worth doing: simulators for sim-to-real training increasingly run in float32 (or lower) on GPUs, while the "reference" twin is float64. For a chaotic system the two trajectories must separate, so a float32 twin cannot be trusted state by state for long. I wanted to know how long it can, how that compares with a deliberate initial error, and whether the quantities a policy evaluation actually averages still agree once the trajectories have parted.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/free-f32shadow/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/free-f32shadow/
 
 ## Question
 

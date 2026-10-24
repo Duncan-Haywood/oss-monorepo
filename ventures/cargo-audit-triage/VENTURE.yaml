@@ -46,5 +46,5 @@ kill_criteria:
   - No external repository is found using cargo-audit-triage.mjs or triage.mjs within 90 days.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/cargo-audit-triage/
+  production: https://duncan-haywood.github.io/oss-monorepo/cargo-audit-triage/
   analytics: null

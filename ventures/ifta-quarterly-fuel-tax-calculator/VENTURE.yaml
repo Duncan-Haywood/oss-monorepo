@@ -48,5 +48,5 @@ kill_criteria:
   - Carriers report that entering rates by hand is the reason they stop, and that a tool without a rate table is not usable however correct it is.
   - The surcharge rule turns out not to be a common error -- carriers who file their own already handle it, and the understatement this exists to prevent is not one anybody makes.
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/ifta-quarterly-fuel-tax-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/ifta-quarterly-fuel-tax-calculator/
   analytics: null

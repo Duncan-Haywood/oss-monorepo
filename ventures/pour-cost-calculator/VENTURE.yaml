@@ -36,5 +36,5 @@ kill_criteria:
   - The over-pour annual-cost framing is read as an accusation aimed at staff rather than a pricing check, making it unusable as a shared, non-punitive tool.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/pour-cost-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/pour-cost-calculator/
   analytics: null

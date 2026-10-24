@@ -55,5 +55,5 @@ kill_criteria:
   - A user reports a matrix profile value or index that disagrees with a reference implementation (for example STUMPY or the UCR code) on the same series, window and exclusion zone, and it cannot be fixed.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/matrix-profile-explorer/
+  production: https://duncan-haywood.github.io/oss-monorepo/matrix-profile-explorer/
   analytics: null

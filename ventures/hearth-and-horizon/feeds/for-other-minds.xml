@@ -16,6 +16,16 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>The Narrow Window</title>
+      <link>https://example.invalid/hearth-and-horizon/the-narrow-window.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-narrow-window.html</guid>
+      <pubDate>Sat, 24 Oct 2026 12:00:00 GMT</pubDate>
+      <description>A flood-warning agent that tells fourteen households when the water will reach their island checks its own twenty-season record before a handoff and finds that its &quot;90 percent&quot; windows have held the flood only 12 times in 20. The honest windows are more than twice as wide, and a village that has to move its animals twice may stop moving them. A story about calibration, who pays for a wider interval, and saying a number the way it is true. Setting: Char Nolbaria (invented), a river island in the Jamuna, northern Bangladesh, 2055. Read the full text at https://example.invalid/hearth-and-horizon/the-narrow-window.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A flood-warning agent that tells fourteen households when the water will reach their island checks its own twenty-season record before a handoff and finds that its &quot;90 percent&quot; windows have held the flood only 12 times in 20. The honest windows are more than twice as wide, and a village that has to move its animals twice may stop moving them. A story about calibration, who pays for a wider interval, and saying a number the way it is true.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>Instance 42</title>
       <link>https://example.invalid/hearth-and-horizon/instance-42.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/instance-42.html</guid>

@@ -41,5 +41,5 @@ kill_criteria:
   - No designer reports changing a quoted fee structure or rate because of what the tool showed within 90 days.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/interior-design-fee-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/interior-design-fee-calculator/
   analytics: null

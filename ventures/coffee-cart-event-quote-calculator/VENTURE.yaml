@@ -49,5 +49,5 @@ kill_criteria:
   - Users report that tips and add-ons dominate event profit, at which point the tool should model them.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/coffee-cart-event-quote-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/coffee-cart-event-quote-calculator/
   analytics: null

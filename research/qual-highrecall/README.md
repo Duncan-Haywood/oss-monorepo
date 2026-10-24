@@ -2,7 +2,7 @@
 
 **Only barely, and not against a plain random audit: on 3,188 real GoEmotions comments, coders with recall 0.72, 0.90 and 1.00 gave 95% intervals for prevalence of 0.115, 0.116 and 0.119 wide at 200 audited items (best share each), against 0.1195 for auditing 200 random items with no coder at all.** With recall 0.90 the best share of the audit among coder-negatives is 10–20% (width 0.116–0.119, against 0.136 at half), so the answer to `qual-lowrate`'s open question is yes, a low rate helps, but a lower rate than 10% still under-covers (worst-coder coverage 0.77 at 5%, 0.48 at 2%, 200 items). The coders are **not LLMs**: a naive-Bayes classifier whose cut-off codes 2, 3 and 4 times the human positive share. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/qual-highrecall/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/qual-highrecall/
 
 Track 19 (`qual`, [`PROJECTS.md`](../PROJECTS.md)). It takes the first "Next steps" item of [`qual-lowrate`](../qual-lowrate): whether a low negative-audit rate pays when the coder's recall is high. Same corpus, split, seed, estimator and design; only the coders change. No lab tag: this builds on none of the listed groups.
 

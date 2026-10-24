@@ -2,7 +2,7 @@
 
 Follow-up to `capture-learngate` (track 13, autonomous multi-angle capture), taking the first two of its "Next steps". **Headline:** four new features meant to say *which* warped source is wrong (signed depth order and a cross-camera check) add only 0.03 dB to the learned blend (26.78 to 26.81 dB on 40 held-out scenes). Giving the model a second output, a per-pixel mix between the two sources, adds 0.47 dB more (27.28 dB, ahead of the new-features model in 40 of 40 configs, standard error 0.03) and recovers 0.54 of the 2.71 dB between the hard gate and the best possible blend, up from 0.36. With only the old 12 features the source weight already gets 27.24 dB, so the gain is from the extra degree of freedom, not from the new signals. Outside the training ranges the gain over learngate is +0.04 dB.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/capture-whichwrong/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/capture-whichwrong/
 
 **Why this question.** `capture-learngate` left 64% of the headroom unused and guessed the cause was "knowing which source is wrong, not just that the two disagree". That guess has two readings: the model lacks the *information*, or it lacks the *freedom* (it can only blend toward one fixed source, the nearest camera). This project separates them.
 

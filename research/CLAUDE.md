@@ -9,7 +9,14 @@ disclaimers and venture rules do not apply to work that stays inside `research/`
 Its public-repository rules and its landing rules ("Every session lands its own work":
 open the PR, merge it yourself, run `unlanded_work.py`) do.
 
-New projects come from the priority tracks in [`PROJECTS.md`](PROJECTS.md).
+**Aim at PhD level and beyond** (owner, 2026-10-24: "phd + in ambition and scope. deeper
+projects and research. publishable ... look at deeper harder more impactful problems", and
+"increase the requirements"). The unit of work is a **programme**: one hard, open question
+pursued across sessions until it yields a paper ready for a named venue. A run advances an open
+programme by default, or opens one with a proposal to the bar; steps go inside the programme
+rather than into new slugs. The bar, the open programmes and how a run picks one are in
+[`PROGRAMMES.md`](PROGRAMMES.md); `research/_shared/programme_check.py` (research CI) holds new
+directories to it. The tracks in [`PROJECTS.md`](PROJECTS.md) say which areas programmes come from.
 
 **SEO is a top priority here too** (owner, 2026-10-16; `prompts/goals.md`). A
 project's `README.md` and its page should open with the question it answers and
@@ -29,9 +36,9 @@ has wasted the compute budget. Every run lands at least one thing of real value
 on `main`, such as a research result, a new or improved project, an open-source
 tool, or a write-up that uses real data to tell the owner something new. "Nothing
 to do", a blocked milestone, an empty track, or finding that your task already
-landed is never a reason to stop. Take the next milestone in `PROJECTS.md`, and
-if none fits, come up with something new that is valuable, useful or
-insightful and ship it. It can be academic or industry research, an
+landed is never a reason to stop. Advance a programme in `PROGRAMMES.md` (a
+proof, a stronger baseline, a real-data check, a paper section), and if none
+fits, open a new one with a proposal. It can be academic or industry research, an
 open-source tool, a product, marketing, or anything else. Restated blockers and
 re-verifying unchanged work do not count. The research integrity rules still
 apply: never fabricate a result to have something to ship.
