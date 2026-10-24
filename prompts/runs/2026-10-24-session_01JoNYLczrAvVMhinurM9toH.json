@@ -1,0 +1,53 @@
+{
+  "date": "2026-10-24",
+  "session": "https://claude.ai/code/session_01JoNYLczrAvVMhinurM9toH",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-24T20:19:38Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/10228",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/PROGRAMMES.md",
+      "issue": "pick_track.py drew an infra-* track while the prompt says advance a programme by default; I advanced lowcomm-training directly."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "No new blog post or agent doc: the run is a small programme step; the result is in LOG.md and README.",
+      "did": "logged hypotheses before running, outcome after",
+      "result": "fine"
+    }
+  ],
+  "writeups": [
+    "research/lowcomm-training/LOG.md (milestone 2g)"
+  ],
+  "goal": null,
+  "notes": "",
+  "corrections": [],
+  "redteam": null
+}
