@@ -64,7 +64,7 @@ Posener 1960, both bibliographic). The king's task was to uphold *ma'at*, a godd
 principle of cosmic, social and moral order (Assmann 1990, bibliographic). The afterlife texts
 began as a royal preserve in the Pyramid Texts, about 2350 BC, and later appeared on non-royal
 coffins and papyri. Spell 125 of the Book of the Dead weighs the heart against ma'at. Whether
-this was a "democratisation of the afterlife" or a late textual trace of older hopes is
+this was a *democratisation of the afterlife* or a late textual trace of older hopes is
 disputed (Smith 2017, bibliographic). The First Dynasty royal tombs at Abydos are ringed by
 subsidiary graves, about 200 around the tomb of Djer by one overview, and many scholars read
 them as retainers killed at the king's burial. Direct evidence for the cause of death is
@@ -75,8 +75,8 @@ Akhenaten (about 1353–1336 BC) promoted the sun disc, the Aten, as sole god, c
 it except through the royal family, and had the name of Amun hacked out. The reform collapsed
 after his death. Whether it was true monotheism, a royal monolatry or something else is still
 argued (Hornung 1999; Redford 1984, both bibliographic). Jan Assmann proposed that Akhenaten and
-the remembered figure of Moses introduced something new, the "Mosaic distinction" between true
-and false religion, which replaced a world in which gods could be translated across cultures.
+the remembered figure of Moses introduced something new, which he calls the *Mosaic distinction*
+between true and false religion, which replaced a world in which gods could be translated across cultures.
 Assmann frames this as a history of memory, not a claim of historical dependence. Critics,
 including theologians, charged that it tied monotheism to intolerance, and he later qualified it
 (Assmann 1997, 2010, bibliographic).
@@ -168,7 +168,7 @@ invention, and they do not support the largest chronicle numbers.
 
 ### Cognitive and evolutionary science
 
-These states fit what Harvey Whitehouse calls the "doctrinal" mode of religion: frequent,
+These states fit what Harvey Whitehouse calls the *doctrinal* mode of religion: frequent,
 routinised ritual, specialist priesthoods and canonical texts, able to bind large anonymous
 populations (Whitehouse 2004, bibliographic). Their high gods were not clearly *moralising* in the
 later sense, with partial exceptions in Egyptian ma'at and the Zhou Heaven. Part 5 takes up the
@@ -188,9 +188,10 @@ hierarchy so closely. For that, it needs the social sciences.
 
 ### Orthodox and patristic theology
 
-The Fathers shared by both Churches had a sharper vocabulary. Justin Martyr paired the "seed of
-reason" sown in every people with the work of demons, who imitated and corrupted true worship
-(*2 Apology* 8). Read that way, the first states show both halves: a real reaching for order and
+The Fathers shared by both Churches had a sharper vocabulary. Justin Martyr praised "the seed of
+reason [the Logos] implanted in every race of men" (*2 Apology* 8), and in the same work blamed
+devils for turning people against those who lived by reason. The notes add that he ascribed
+pagan rites to demonic imitation, a half of his account that modern irenic readings often drop. Read that way, the first states show both halves: a real reaching for order and
 justice (ma'at, the Mandate of Heaven) and cults of blood. A historian will treat "demons" as a
 theological category outside the evidence. What the patristic frame shares with the historian is
 a refusal to romanticise archaic religion.
