@@ -25,11 +25,16 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 3,
   "review_findings": null,
   "tests_added": 25,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    {
+      "what": "First push: VENTURE.yaml evidence 'usage' is not an allowed kind, and the new page was a sibling-link orphan.",
+      "fix": "evidence: customer-contact; back-link from agent-instructions-drift-check."
+    }
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -45,7 +50,7 @@
   ],
   "writeups": [],
   "goal": null,
-  "notes": "New venture ventures/agent-workroom. node --test engine.test.mjs page.test.mjs: 25/25 pass. Headless Chromium (Playwright) at 1280x900 and 390x800: example board loads, W/arrow keys move the camera, typed command adds a task, a mocked GitHub response of three PRs (draft/open/merged) gives three tasks on Claude/Codex/Dependabot desks with the right statuses, state survives reload, no page errors, no horizontal scroll at 390px. Voice not tested end to end (no microphone headless). launched.mjs --write, regen.mjs, sync_tree_counts.py, publish_surface.py run; venture-preflight.mjs agent-workroom result: pending at first commit.",
+  "notes": "New venture ventures/agent-workroom. node --test engine.test.mjs page.test.mjs: 25/25 pass. Headless Chromium (Playwright) at 1280x900 and 390x800: example board loads, W/arrow keys move the camera, typed command adds a task, a mocked GitHub response of three PRs (draft/open/merged) gives three tasks on Claude/Codex/Dependabot desks with the right statuses, state survives reload, no page errors, no horizontal scroll at 390px. Voice not tested end to end (no microphone headless). launched.mjs --write, regen.mjs, sync_tree_counts.py, publish_surface.py run; venture-preflight.mjs agent-workroom: 'preflight clean for agent-workroom', exit 0. Main was red on readme-live-links-ci after PR #9958 moved the Pages base to /oss-monorepo/ without touching READMEs; this PR carries the fix (pure URL swap in 2355 ventures/research READMEs, plus the two venture tests that pinned the old README URL: interview-content-studio 40/40, conformal-prediction-intervals 46/46). research_live_links.py and venture_live_links.py exit 0; their unittests and test_no_dead_pages_base pass. portfolio/router/validate.py and platform/pages/siblings.test.mjs pass after fixing two first-push CI findings (evidence kind; orphan page, now linked from agent-instructions-drift-check, whose tests pass 48/48).",
   "corrections": [],
   "redteam": null
 }
