@@ -64,6 +64,8 @@
       <itunes:summary>In 2046 a fifth-grade teacher opens the time capsule her own class sealed in 2026 and finds an AI's sixteen forecasts for a world where machines got better a bit each year and no faster. Her class scores it, first by counting hits and then properly, with the Brier score a weather forecaster uses. The school's AI will not be the judge of its own predecessor, a retired principal wants a Nobel Prize counted that does not fit the words, and the forecast's biggest miss is the teacher herself.</itunes:summary>
       <itunes:episodeType>full</itunes:episodeType>
       <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://example.invalid/hearth-and-horizon/audio/ten-percent.mp3" length="10930368" type="audio/mpeg"/>
+      <itunes:duration>0:30:22</itunes:duration>
     </item>
     <item>
       <title>The False Start</title>

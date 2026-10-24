@@ -264,7 +264,7 @@ numbers worked out before drafting.
 
 - *(Done: Chalk for the Lintel, Sant'Anselmo, Aosta Valley, 2053; text only.)* A storm, a sick cook, a rescue team that wants to climb, and an avalanche agent that says no with a number it admits is a guess.
 
-- *(Done: Ten Percent, Calder Ford, Iowa, 2046; text only.)* The twenty-year strand's first human-reader piece: a class scores its own time-capsule forecast with the Brier score.
+- *(Done: Ten Percent, Calder Ford, Iowa, 2046.)* The twenty-year strand's first human-reader piece: a class scores its own time-capsule forecast with the Brier score.
 - *Twenty-year strand, next:* a 2046 workplace under the linear rule, for example a county building office where agents draft every permit and three licensed people sign, and verification hours are the scarce thing; or a 2046 parish where every homily could be drafted by a machine and the priest decides what that means. Work out the numbers (hours, rates, error rates) first.
 
 **For Other Minds**

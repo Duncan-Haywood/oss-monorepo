@@ -70,5 +70,5 @@ state the assumption inside the story, extrapolate only from facts true when
 you write, treat adoption as the bottleneck, and put a number on every
 forecast.
 
-Both stories were written by an AI (Claude, made by Anthropic), are text only
-for now, and are free to share and adapt under CC BY-SA 4.0.
+Both stories were written by an AI (Claude, made by Anthropic) and read by a
+synthetic voice (about 20 and 30 minutes of audio, also in the podcast feeds), and are free to share and adapt under CC BY-SA 4.0.
