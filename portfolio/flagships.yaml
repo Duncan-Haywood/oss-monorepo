@@ -115,8 +115,8 @@ flagships:
       383 h against 387 h open; more subgradient rounds move the bound <0.1%,
       so the root gap is a relaxation gap, not convergence. Branching on the
       priced bound (2026-10-24) cut one 8 x 22 week's gap from 0.66 open hours
-      to $2.53; 3 of 4 still unproven. Next: why case 3 stays an hour short
-      (roster or bound?), pair cuts on contested shifts; then a tighter pay bound once coverage is proven (or branching
+      to $2.53; 3 of 4 still unproven. Case 3 stays 36 h open vs floor 35 h at 20x the nodes
+      (eval/case-bench.mjs), so more search will not settle it. Next: pair cuts on contested shifts; then a tighter pay bound once coverage is proven (or branching
       on the most contested shift; branch order tried, no gain), the 10 x 28
       and 12 x 30 sizes, then a joint multi-week solve. Multi-week fairness
       measured (eval/fairness-bench.mjs: tough-shift spread 13.2 -> 3.2 over 8
