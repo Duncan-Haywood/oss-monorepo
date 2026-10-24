@@ -869,6 +869,12 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
     const pos = chargesArePositive(out) ?? (bank === "discover" || bank === "apple-card" ? true : null);
     if (pos) { flip = true; inferred = "Charges were positive (the payment rows are negative), so signs were flipped."; }
   }
+  // A trade list (ticker, qty, price, amount; Maybe's import shape) states the value bought as
+  // positive and sold as negative: the cash moved the other way.
+  if (invert === undefined && !flip && columns.amount !== -1 && columns.debit === -1 && columns.credit === -1 && ["ticker", "symbol"].some((k) => hdr.includes(k)) && ["qty", "quantity", "shares"].some((k) => hdr.includes(k)) && hdr.includes("price")) {
+    flip = true;
+    inferred = "A trade list states the value bought as positive, so signs were flipped (a buy is cash out).";
+  }
   if (flip) for (const r of out) r.cents = -r.cents;
   // One unsigned-looking amount column, nothing says which way: a card export that lists only purchases (PC Financial's) reads as income.
   else if (invert === undefined && columns.amount !== -1 && columns.debit === -1 && columns.credit === -1 && dirCol === -1 && out.length >= 2 && out.every((r) => r.cents > 0))

@@ -301,3 +301,12 @@ test("an OFX date that is no calendar day is skipped, not booked (ofxparse's dat
   assert.deepEqual(r.rows.map((x) => x.date), ["2012-02-29"]);
   assert.equal(r.problems.length, 1);
 });
+
+test("a trade list (ticker, qty, price, amount) books a buy as cash out", () => {
+  // Shape of Maybe's trades import (AGPL, read only); rows made up here.
+  const csv = "date,ticker,qty,price,amount,account,name\n2023-01-15,AAPL,10,150.25,1502.50,Brokerage,Buy Apple Inc\n2023-06-15,AAPL,-5,170.50,-852.50,Brokerage,Sell Apple Inc\n";
+  const r = readStatement(csv);
+  assert.deepEqual(r.rows.map((x) => x.cents), [-150250, 85250]);
+  assert.match(r.inferred, /trade list/);
+  assert.equal(readStatement(csv, { invert: false }).rows[0].cents, 150250);
+});
