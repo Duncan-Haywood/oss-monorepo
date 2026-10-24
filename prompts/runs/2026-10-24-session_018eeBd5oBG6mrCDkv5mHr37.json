@@ -1,0 +1,54 @@
+{
+  "date": "2026-10-24",
+  "session": "https://claude.ai/code/session_018eeBd5oBG6mrCDkv5mHr37",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-24T20:17:57Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 10227,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "A bare nohup python3 in a backgrounded shell lacked numpy once; pyenv.py then said plain python3 had it. Cost two restarts."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/lowcomm-training/PROPOSAL.md",
+      "why": "Did not run the transformer milestone; took the log's cheaper 'finer momentum grid' next step.",
+      "did": "milestone 2g",
+      "result": "landed with pre-registered hypotheses, both refuted"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-29-small-outer-momentum-helps-diloco-only-at-large-h.md",
+    "research/lowcomm-training/LOG.md"
+  ],
+  "goal": null,
+  "notes": "Tests not rerun; only a new experiment script and log entries added.",
+  "corrections": [],
+  "redteam": null
+}
