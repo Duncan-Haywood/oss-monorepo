@@ -6,7 +6,8 @@ ROOT = pathlib.Path(__file__).resolve().parents[2]
 DEAD = "github.io/monorepo-projects"
 # Deliberate mentions: the legacy constant that rewrites old content, and tests of it.
 ALLOWED = {"platform/pages/build.mjs", "platform/ci/test_no_dead_pages_base.py",
-           "platform/ci/test_research_live_links.py"}  # asserts an old-base line is rewritten
+           "platform/ci/test_research_live_links.py",  # asserts an old-base line is rewritten
+           "platform/pages/readme-live-link.test.mjs"}  # an old-base link still counts as present
 
 
 class NoDeadPagesBase(unittest.TestCase):
