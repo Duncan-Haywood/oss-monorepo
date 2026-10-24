@@ -8,6 +8,7 @@ import { Imap, parseMessage } from "./imap.mjs";
 import { fakeImap } from "./fake-imap.mjs";
 import { createAgent } from "./agent.mjs";
 import { fakeSmtp } from "./fake-smtp.mjs";
+import { SAMPLE_CRM } from "../research.mjs";
 import { buildMessage, sendMail } from "./smtp.mjs";
 
 const mail = (from, subject, body, extra = "") => `From: ${from}\r\nSubject: ${subject}\r\nDate: Mon, 26 Oct 2026 09:00:00 +0000\r\nMessage-ID: <${(from + subject).replace(/\W/g, "")}@x>\r\n${extra}\r\n${body}`;
@@ -158,4 +159,29 @@ test("buildMessage: header injection stripped, non-ASCII subject encoded, dots s
   assert.match(Buffer.from(smtp.delivered[0].split("\r\n\r\n")[1], "base64").toString(), /^\.leading dot/);
   await smtp.close();
   assert.throws(() => buildMessage({ from: "nope", to: "c@d.co", subject: "s", body: "b" }), /email/);
+});
+
+test("research drafts enter the approval queue as outbound items; suppressed skipped; once; sent without Re:", async () => {
+  const smtp = fakeSmtp(); const port = await smtp.listen();
+  const dir = mkdtempSync(join(tmpdir(), "sa-"));
+  const a = createAgent({ ADMIN_TOKEN: "v".repeat(16), DATA_DIR: dir, IMAP_USER: "me@example.com", SMTP_HOST: "127.0.0.1", SMTP_PORT: String(port), SMTP_USER: "me@example.com", SMTP_PASS: "pw" });
+  const r = a.queueResearch({ crm: SAMPLE_CRM });
+  assert.ok(r.added > 0, JSON.stringify(r));
+  const again = a.queueResearch({ crm: SAMPLE_CRM });
+  assert.equal(again.added, 0, "idempotent");
+  const it = a.state.items[0];
+  assert.ok(it.outbound && it.decision === "pending" && it.triage.category === "first_touch");
+  assert.match((await a.send(it.id)).error, /approve the draft first/);
+  assert.equal(smtp.delivered.length, 0, "queued is not sent");
+  const body = it.draft.body.replace(/\[[^\]]+\]/g, "Sam");
+  assert.equal(a.decide(it.id, "approved", body).decision, "approved");
+  assert.ok((await a.send(it.id)).sentAt);
+  assert.ok(!/^Subject: Re:/m.test(smtp.delivered[0]));
+  assert.ok(!/^In-Reply-To:/m.test(smtp.delivered[0]));
+  const sup = createAgent({ ADMIN_TOKEN: "v".repeat(16), DATA_DIR: mkdtempSync(join(tmpdir(), "sa-")) });
+  sup.state.suppression.push({ email: it.from });
+  sup.queueResearch({ crm: SAMPLE_CRM });
+  assert.ok(!sup.state.items.some((x) => x.from === it.from), "suppressed address never queued");
+  assert.ok(readFileSync(join(dir, "audit.jsonl"), "utf8").includes("research_queued"));
+  await smtp.close();
 });
