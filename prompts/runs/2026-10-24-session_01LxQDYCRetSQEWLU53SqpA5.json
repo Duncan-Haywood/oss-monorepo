@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-24",
+  "session": "https://claude.ai/code/session_01LxQDYCRetSQEWLU53SqpA5",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-24T09:19:54Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 10084,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "No new blog post or agent doc",
+      "did": "README entry only",
+      "result": "slice too small for a post"
+    }
+  ],
+  "writeups": [
+    "ventures/ai-bookkeeper/README.md"
+  ],
+  "goal": null,
+  "notes": "Flagship 1 (ai-bookkeeper). Most open items need real bank/IRS data; irs.gov unreachable, 2027 rev. proc. not published (web search). Landed a small slice: MO and IA sales tax due days from state pages via search excerpts. salestaxreturn.test.mjs 22 pass locally; CI not waited on. No blog post: small slice.",
+  "corrections": [],
+  "redteam": null
+}
