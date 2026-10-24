@@ -39,7 +39,10 @@ const periodEnd = (p) => {
 // Due day of the month after the period, by state, from the states' published
 // monthly/quarterly schedules as the author recalls them: check yours
 // (a state's own calendar can differ by filing frequency). "last" = month end.
-export const STATE_DUE_DAYS = { CA: "last", TX: 20, FL: 20, NY: 20, WA: 25, IL: 20, PA: 20, NJ: 20, GA: 20, NC: 20, OH: 23, MA: 20 };
+export const STATE_DUE_DAYS = { CA: "last", TX: 20, FL: 20, NY: 20, WA: 25, IL: 20, PA: 20, NJ: 20, GA: 20, NC: 20, OH: 23, MA: 20, VA: 20, AZ: 20 };
+// VA (tax.virginia.gov ST-9 package, July 2023 and later: "return and payment due on 20th of month following end of period") and AZ
+// (TPT: the 20th; azdor.gov and Phoenix guidance; e-filers get until month end, not modelled) added 2026-10-24 from search excerpts.
+// Both equal the default of 20, listed so the schedule is explicit and a later change to the default cannot silently move them.
 // Added 2026-10-24 from search excerpts (NJ: nj.gov Division of Taxation, 20th after the period, quarterly or monthly;
 // GA, NC: third-party guides, monthly and quarterly 20th; OH: 23rd, monthly, quarterly and semiannual Jan-Jun/Jul-Dec).
 // MA: monthly returns the 20th; quarterly and annual returns 30 days after the period closes (the rule since 2021, from
