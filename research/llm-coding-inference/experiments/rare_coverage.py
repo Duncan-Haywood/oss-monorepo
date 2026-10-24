@@ -7,7 +7,13 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from llmci import estimators as E  # noqa: E402
-from test_llmci import corpus  # noqa: E402
+
+
+def corpus(n, p, sens, spec, rng):
+    h = [int(rng.random() < p) for _ in range(n)]
+    f = [int(rng.random() < (sens if x else 1 - spec)) for x in h]
+    return h, f
+
 
 N = 4000
 print("prevalence  coverage(mean over corpora)  min  max")
@@ -24,7 +30,8 @@ for p in (0.01, 0.02, 0.03, 0.05, 0.10, 0.20):
         hit = 0
         for _ in range(500):
             a1, a0 = rng.sample(pos, 60), rng.sample(neg, 140)
-            au = {1: [(f[i], h[i]) for i in a1], 0: [(f[i], h[i]) for i in a0]}
-            hit += E.covers(E.stratified(f, f, au), t)
+            strata = [(len(idx), [f[i] for i in idx], [h[i] for i in a], [f[i] for i in a])
+                      for idx, a in ((pos, a1), (neg, a0))]
+            hit += E.covers(E.stratified_ppi(strata), t)
         covs.append(hit / 500)
     print(f"{p:<11} {sum(covs)/len(covs):.3f} (corpora {len(covs)})  {min(covs):.3f}  {max(covs):.3f}")

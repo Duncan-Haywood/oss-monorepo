@@ -184,6 +184,9 @@ const RULES = {
     P("\\b(do not|don'?t|dont|never) (contact|email|e-mail|message|reach out to) (me|us|again)\\b"), P("\\bopt(ed)?[ -]?out\\b"), P("\\bopt (me|us) out\\b"), P("\\bremove (it|them|this|my \\w+|our \\w+) from\\b"), P("\\b(from|off) your (database|list|mailing list|system|crm)\\b"), P("^\\s*stop\\.?\\s*$"),
     P("\\b(don'?t|do not) (email|contact|write to) me\\b"), P("\\bno more (emails|messages)\\b"), P("\\bstop spamming\\b"), P("\\bthis is spam\\b"), P("\\bgdpr\\b.*\\b(delete|erase|erasure|remove)"),
     P("\\b(delete|erase) (my|our) (data|details|information)\\b"), P("\\bmark(ing)? (this|you) as spam\\b"), P("\\breport(ing)? (this|you) as spam\\b"), P("\\bnot interested,? (please )?(stop|remove)"),
+    P("\\bcease and desist\\b"), P("\\bcease (all )?(further )?(email|e-mail|communication|contact)"),
+    // Other languages (added after the third eval set; unverified beyond one example each): FR, DE, ES, IT opt-out phrasings.
+    P("\\bne (me )?contactez plus\\b"), P("\\b(retirer|supprimer) (de|mon|mes|mon adresse)\\b.*\\b(liste|diffusion|donn[ée]es)"), P("\\b(kontaktieren|anschreiben|schreiben)( sie)? mich nicht mehr\\b"), P("\\bnicht mehr (kontaktieren|anschreiben|schreiben)\\b"), P("\\bsc?hreiben sie mir nicht mehr\\b"), P("\\bno me (vuelvan a )?(escrib|contact)"), P("\\bnon (mi |ci )?contatt\\w* pi[uù]\\b"), P("\\bnon contattatemi\\b"),
   ],
   bounce: [
     P("\\bdelivery (status notification|has failed|failure)\\b"), P("\\bundeliverable\\b"), P("\\bmail delivery (subsystem|failed|system)\\b"), P("\\baddress (not found|couldn'?t be found|rejected)\\b"),

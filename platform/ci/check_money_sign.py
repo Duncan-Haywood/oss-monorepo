@@ -80,12 +80,19 @@ PATTERNS = (
 # interpolates straight after a "$" without ever reaching for `Math.abs` is
 # formatting a negative into the wrong place.
 BODY_START = re.compile(
-    r"(?:const|let)\s+" + NAME + r"\s*=\s*\(?[A-Za-z_$][\w$]*\)?\s*=>\s*"
-    r"|function\s+" + NAME + r"\s*\(\s*[A-Za-z_$][\w$]*\s*\)\s*(?=\{)"
+    r"(?:const|let)\s+" + NAME + r"\s*=\s*(?:\([^)]*\)|[A-Za-z_$][\w$]*)\s*=>\s*"
+    r"|function\s+" + NAME + r"\s*\([^)]*\)\s*(?=\{)"
 )
 
 # A `$` immediately followed by a template interpolation, i.e. `` `$${x}` ``.
 INTERPOLATES_AFTER_SYMBOL = re.compile(r"\$\$\{")
+
+# A formatter whose symbol is a parameter defaulting to "$" interpolates it as
+# `${currency}${x}` (red team 2026-10-24: `formatMoney(value, currency = '$')`
+# was invisible). Only that default-"$" form is read: a `currency` set
+# elsewhere may not be a dollar sign.
+PARAMETER_SYMBOL = re.compile(r"\$\{currency\}\$\{")
+DOLLAR_DEFAULT = re.compile(r"=\s*['\"]\$['\"]")
 
 # Taking the magnitude first is what a correct formatter does; a "−$"/"-$"
 # literal is the other correct spelling (the sign is already outside).
@@ -153,7 +160,10 @@ def findings_in(path: Path):
     # the same `seen` set so a formatter both agree on is named once.
     for match in BODY_START.finditer(text):
         body = _body_after(text, match.end())
-        if not INTERPOLATES_AFTER_SYMBOL.search(body):
+        interpolates = INTERPOLATES_AFTER_SYMBOL.search(body) or (
+            DOLLAR_DEFAULT.search(match.group(0)) and PARAMETER_SYMBOL.search(body)
+        )
+        if not interpolates:
             continue
         if TAKES_MAGNITUDE.search(body):
             continue

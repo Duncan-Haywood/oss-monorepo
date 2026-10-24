@@ -72,10 +72,10 @@ figure. A third set of 40 was written afterwards and scored once
 
 | On the 40 fresh replies | Result |
 |---|---|
-| Rules named a category | 22, right on 15 (68% precision) |
-| Handed to you as unclear | 18; the word model's guess right on 11 |
-| Unsubscribes caught by the rules | 1 of 5 (the other 4 went to you as unclear, paused) |
-| Guesses that would draft where the truth contacts less | 5 of 18 (guesses never act) |
+| Rules named a category | 23, right on 16 (70% precision) |
+| Handed to you as unclear | 17; the word model's guess right on 10 |
+| Unsubscribes caught by the rules | 2 of 5 (the other 3 went to you as unclear, paused) |
+| Guesses that would draft where the truth contacts less | 5 of 17 (guesses never act) |
 
 A second fresh set of 41 (`eval/fresh-2026-10-24.jsonl`, written later, scored
 once, also not tuned on) read 27 right (66%): the rules named a category for
@@ -84,9 +84,15 @@ from ur list" and a spam threat); no guess would draft where the truth
 contacts less; the word model guessed 4 of the 10 handed over. Same author
 type as the first set, so read both as ranges, not as accuracy on real inboxes.
 
+A third set of 41 (`eval/fresh-2026-10-24b.jsonl`) scored 34 right (83%) before
+any change, but its author had read the other sets' misses, so it flatters the
+rules. It exposed two unsubscribes the rules missed ("cease and desist", a French
+opt-out); both are now caught, along with German, Spanish and Italian phrasings
+(untested on real mail). Details: `eval/README.md`.
+
 The tuning history is the finding: the first rules scored 66/72 on their own
 set and 24/48 (50%) on the second; after a round of broader patterns, the
-fresh set still scored 15/40. Keyword rules do not generalise to the ways
+fresh set still scored 15/40 (16/40 after the later "cease" pattern). Keyword rules do not generalise to the ways
 people actually write, so this milestone treats them as a floor and hands
 everything else to a person. A word model trained on the 120 replies reads
 26/40 of the fresh set, better than the rules, but it misreads in the

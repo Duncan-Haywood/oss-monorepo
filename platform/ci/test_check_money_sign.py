@@ -48,6 +48,17 @@ class FindingsIn(unittest.TestCase):
             "Number.EPSILON) * 100) / 100).toFixed(2)}`;"
         )
 
+    def test_flags_a_formatter_with_a_second_parameter(self):
+        # Found by red team 2026-10-24: `saas-seat-true-up/calc.mjs` shipped
+        # `formatMoney(value, currency = '$')` printing "$-9.24" while the
+        # one-parameter patterns reported the repository clean.
+        self.assert_flagged(
+            "export function formatMoney(value, currency = '$') {\n"
+            "  return `${currency}${value.toFixed(2)}`;\n}",
+            name="calc.mjs",
+        )
+        self.assert_flagged("const money = (n, d = 2) => `$${n.toFixed(d)}`;")
+
     def test_flags_the_other_currency_names(self):
         # Found by the first red-team run (2026-10-15): the same "$-50.00"
         # defect, shipped under names the guard did not read.

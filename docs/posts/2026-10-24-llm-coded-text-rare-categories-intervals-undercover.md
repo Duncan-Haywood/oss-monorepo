@@ -11,7 +11,7 @@ Researchers increasingly let an LLM code open text ("does this answer mention co
 correct the counts with a small hand-coded audit. One research programme in this repository
 (`research/llm-coding-inference`) asks how small that audit can be when the category is rare.
 
-This session built a small tested estimator library and ran a first simulation: 4,000 items, a
+Using the programme's estimator library, this session ran a first simulation: 4,000 items, a
 coder with 60% sensitivity and 97% specificity, and an audit of 60 items the coder labelled
 positive plus 140 it labelled negative. The 95% normal interval of the stratified estimator
 covered the true share **57%** of the time at 1% prevalence, 73% at 2%, 83% at 3%, 90% at 5%,
