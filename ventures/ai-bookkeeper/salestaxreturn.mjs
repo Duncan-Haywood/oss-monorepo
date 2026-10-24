@@ -30,6 +30,15 @@ const periodEnd = (p) => {
 // monthly/quarterly schedules as the author recalls them: check yours
 // (a state's own calendar can differ by filing frequency). "last" = month end.
 export const STATE_DUE_DAYS = { CA: "last", TX: 20, FL: 20, NY: 20, WA: 25, IL: 20, PA: 20 };
+// Checked 2026-10-24 against the states' own pages (via search excerpts): CA quarterly
+// = last day of the month after the quarter; TX = 20th, monthly and quarterly; FL = due
+// the 1st, late after the 20th; WA monthly = 25th but quarterly = end of the next month.
+// Not checked: NY, IL, PA. WA annual returns are due April 15 (not modelled).
+export function stateDueDay(state, frequency = "quarterly") {
+  const s = String(state ?? "").toUpperCase();
+  if (s === "WA" && frequency !== "monthly") return "last";
+  return STATE_DUE_DAYS[s] ?? 20;
+}
 export function dueDate(period, dueDay = 20) {
   let [y, m] = periodEnd(period);
   m += 1; if (m > 12) { m = 1; y += 1; }
