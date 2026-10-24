@@ -160,6 +160,11 @@ await page.waitForFunction(() => /Wall framing/.test(document.querySelector("#bu
 const budTxt = await page.textContent("#budgetOut");
 const budOk = !/NaN|undefined/.test(budTxt) && /total/.test(budTxt) && /labor/.test(budTxt);
 console.log(budOk ? "ok: budget from typed prices on the page" : "FAIL: budget: " + budTxt.slice(0, 200));
+// prices travel in the saved plan file and come back on load
+const [sv] = await Promise.all([page.waitForEvent("download"), page.click("#savePlan")]);
+const saved = JSON.parse(await (await import("node:fs/promises")).readFile(await sv.path(), "utf8"));
+const priceSaved = saved.prices?.wallSheet === 20 && saved.prices?.tax === 0.1;
+console.log(priceSaved ? "ok: typed prices are saved in the plan file" : "FAIL: prices not in saved plan: " + JSON.stringify(saved.prices));
 console.log("page errors:", errors.length);
 await browser.close(); server.close();
-process.exit(errors.length || !panelsOk || !orderOk || !heavier || !noLen || !roofOk || !fnOk || !hipOk || !wingOk || !wing2Ok || !backingOk || !wingHidden || !floorOk || !gableOk || !hdrOk || !budOk || horizontal.includes("CHECK FAILED") ? 1 : 0);
+process.exit(errors.length || !panelsOk || !orderOk || !heavier || !noLen || !roofOk || !fnOk || !hipOk || !wingOk || !wing2Ok || !backingOk || !wingHidden || !floorOk || !gableOk || !hdrOk || !budOk || !priceSaved || horizontal.includes("CHECK FAILED") ? 1 : 0);
