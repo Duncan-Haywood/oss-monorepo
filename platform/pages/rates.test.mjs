@@ -685,6 +685,15 @@ test('saving stores the form values, but a blank field refuses the save', () => 
   m.nodes.burden.value = '0';
   m.click('save');
   assert.deepEqual(JSON.parse(m.data.get(SHOP_RATES_KEY)).rates, { hourlyWage: 25, burdenRate: 0 });
+  // the in-page writer must stamp the same version serializeRates does
+  assert.equal(JSON.parse(m.data.get(SHOP_RATES_KEY)).v, 1);
+});
+
+test('the saved-rates list is shown when rates exist and hidden when none do', () => {
+  const saved = mount({ stored: JSON.stringify({ hourlyWage: 20, burdenRate: 10 }) });
+  assert.equal(saved.nodes['pf-rates-list'].hidden, false);
+  const empty = mount({});
+  assert.equal(empty.nodes['pf-rates-list'].hidden, true);
 });
 
 test('the bar removes itself when the tag names no usable field', () => {
