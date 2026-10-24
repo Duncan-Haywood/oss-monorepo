@@ -25,6 +25,18 @@ approve:
 
 **Live tool:** https://duncan-haywood.github.io/oss-monorepo/sales-agent/
 
+**Milestone 3, live now: the daily run.** Paste or pass the task CSV that
+[Sales Cadence Builder](../sales-cadence-builder/) wrote and it answers "what do
+I do today?": the touches that are due (overdue ones flagged, ones older than
+five days set aside), minus anyone who unsubscribed, bounced (email only),
+replied, is paused until a later date or sits on the suppression list
+(addresses, `@domains`, phone numbers), and minus touches you mark as already
+done. It holds touches the cadence builder flagged with issues, defers email
+past a daily cap (40) and lists every touch it left out with the reason, so
+the run is also an audit trail. With replies as well, today's replies are read
+first, so someone who wrote "stop" this morning is not called this afternoon.
+It sends nothing.
+
 ## The one rule
 
 > The agent may always do less on its own. It may never do more without you.
@@ -94,6 +106,12 @@ closes the gap is the next measurement (`eval/model.mjs`, ROADMAP M2).
   or `call_tool` on the repository's MCP server.
 - **Library:** `runInbox({ replies, prospects, suppression, offer, today })`
   returns `{ items, prospects, suppression, deals, tasks, summary }`.
+  `runDaily({ tasks, prospects, suppression, done, today })` (in `daily.mjs`)
+  returns `{ queue, held, dropped, stale, summary, brief }`; `runMorning` runs
+  the inbox first, then the daily run.
+- **Daily run, CLI:** `node cli.mjs --tasks cadence-tasks.csv [--replies replies.txt]
+  [--prospects p.csv] [--suppression s.txt] [--done done.txt] --out out/` also
+  writes `todays-queue.csv`, `left-out.csv` and `brief.md`.
 
 ## Files
 
@@ -107,6 +125,8 @@ closes the gap is the next measurement (`eval/model.mjs`, ROADMAP M2).
   `eval/heldout.jsonl` (a test checks they match).
 - `ai.mjs` + `byok.mjs`: model triage and draft polish on the user's own key;
   `byok.mjs` is a synced copy of `platform/llm/byok.mjs`.
+- `daily.mjs`: the daily run (M3); `daily.test.mjs` builds its task lists with
+  the real cadence builder.
 - `eval/`: the labelled sets, `run.mjs` (rules and guesses) and `model.mjs`
   (a model, on your key).
 - `cli.mjs`, `index.html`, `usage.mjs` (local-only counters with an opt-out).

@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DNS Configuration Evidence vs. running dig by hand</title>
+<meta name="description" content="Running dig or nslookup before and after a change, and eyeballing the output, catches the record you already expect to see move. It is much harder to notice a resolver timeout that looks like 'no change', to keep three resolvers straight without a table, or to save a dated file you can hand a customer. This free browser tool captures both sides, diffs them, and states changed, unchanged, and inconclusive separately.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="vs-checking-dns-by-hand.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="DNS Configuration Evidence vs. running dig by hand">
+<meta property="og:description" content="dig before and after, eyeballed, catches the change you already expect. It is a much harder read for a resolver that timed out, for three resolvers at once, or for a dated file you can hand a customer. This tool diffs both captures and keeps timeouts out of 'unchanged'.">
+<meta property="og:url" content="vs-checking-dns-by-hand.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does running dig by hand actually catch?","acceptedAnswer":{"@type":"Answer","text":"An operator who already knows what changed catches it reliably: run dig before, run dig again after, and see that the A record now shows a different IP. That comparison works well precisely when you already expect a specific line to move, because a human eye is good at spotting one obviously different value next to an otherwise-identical block of text."}},{"@type":"Question","name":"Why is a resolver timeout easy to mistake for no change?","acceptedAnswer":{"@type":"Answer","text":"dig reports a timeout as a short error, or as an answer section with nothing in it, and next to a wall of routine, unremarkable output both read the same as \"nothing here, must be unchanged\". This tool tracks every observation's status explicitly and reports a timeout, a refusal, or a transport error as inconclusive, never as unchanged, because a resolver that did not answer is not evidence the record stayed the same."}},{"@type":"Question","name":"Why does checking from one machine hide propagation?","acceptedAnswer":{"@type":"Answer","text":"A single dig run queries whatever resolver your machine is already configured to use, so it shows one view. This tool queries Cloudflare, Google, and Quad9 separately and reports each one's own before/after result, so a change that has reached one resolver and not another shows up as changed on one row and unchanged on the next -- the actual state of a propagating change, not a single average of it that hides the disagreement."}},{"@type":"Question","name":"What is lost without a saved, dated file?","acceptedAnswer":{"@type":"Answer","text":"Two dig outputs compared by eye in a terminal scroll back leave nothing behind once the window closes -- no timestamp, no record of which resolver answered, nothing to attach to a ticket or hand a customer questioning what happened. This tool's snapshot is a JSON file with an observed_at timestamp per query and a resolver identity per answer, and the comparison report it builds is a Markdown table you can keep, attach, or send, not a memory of what a terminal once showed you."}},{"@type":"Question","name":"Does this replace reading DNS records yourself?","acceptedAnswer":{"@type":"Answer","text":"No. It is an observation record, not a DNS authority -- it has no connection to your zone file or registrar, cannot tell you why a record is wrong, and only reports what named public resolvers answered at the moments you asked. Deciding whether a difference matters, and understanding a domain's zone well enough to plan the change in the first place, is still a job for reading and knowing DNS yourself."}}]}</script>
+<style>
+  :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b2027; background: #f4f2ee; }
+  body { max-width: 900px; margin: 0 auto; padding: 32px 18px 48px; }
+  a { color: #1f6f5c; overflow-wrap: anywhere; }
+  .eyebrow { font-weight: 700; }
+  header { margin: 1rem 0; }
+  h1 { font-size: clamp(1.7rem, 5vw, 2.6rem); line-height: 1.05; margin: .3rem 0; max-width: 26ch; letter-spacing: -.03em; }
+  .lede { font-size: 1.05rem; max-width: 64ch; color: #5c6672; }
+  section { background: #fffefb; border: 1px solid #dcd7cd; border-radius: 14px; padding: 1.1rem 1.3rem; box-shadow: 0 8px 24px #2a231812; margin: 1rem 0; }
+  h2 { margin-top: 0; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #dcd7cd; vertical-align: top; }
+  th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #5c6672; }
+  .fine, .note { font-size: .88rem; color: #5c6672; }
+  footer { color: #5c6672; font-size: .86rem; }
+  footer p { margin: .6rem 0; }
+  a.cta { display: inline-block; background: #1f6f5c; color: #fff; padding: 11px 15px; border-radius: 8px; font-weight: 700; text-decoration: none; }
+</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="index.html">&larr; DNS Change Evidence</a></p>
+<header>
+<h1>This tool vs. running dig by hand</h1>
+<p class="lede">Run <code>dig</code> before, make the change, run it again, eyeball the two outputs. That catches the record you already expect to have moved. It is a much harder way to notice a resolver that timed out, to keep three resolvers straight at once, or to still have a dated copy of either run next week.</p>
+</header>
+<section>
+<h2>What running dig by hand is</h2>
+<p>
+Most DNS changes get checked this way, and there is nothing wrong with the
+habit: open a terminal, run <code>dig example.com A</code> or
+<code>nslookup example.com</code>, read the answer section, make the
+change, run the same command again, and compare the two outputs by eye.
+This page names no product and no company &mdash; it is describing a
+manual workflow nearly every operator already has, not a competing tool.
+</p>
+</section>
+<section>
+<h2>What this tool is</h2>
+<p>
+This page keeps no account and sends nothing to a server of ours. You pick
+a customer-authorized domain, the record names and types to watch, and
+which of three public resolvers (Cloudflare, Google, Quad9) to query. It
+captures what each one answers now, lets you make the change, captures
+again, and reports each name/type/resolver combination as
+<strong>changed</strong>, <strong>unchanged</strong>, or
+<strong>inconclusive</strong> &mdash; never folding a failed lookup into
+"no change" &mdash; as a Markdown or JSON record you can keep.
+</p>
+</section>
+<div class="table-wrap">
+<table>
+<thead>
+<tr><th scope="col">Situation</th><th scope="col">Running dig by hand</th><th scope="col">This tool</th></tr>
+</thead>
+<tbody>
+<tr><td>The record you expect to see move</td><td>Catches it reliably &mdash; a human eye is good at spotting one obviously different value in an otherwise-identical block</td><td>Catches it the same way, and states it as <code>changed</code> with both answers recorded</td></tr>
+<tr><td>A resolver timeout or refusal</td><td>Prints a short error or an empty answer section that reads, next to routine output, as "nothing here, must be unchanged"</td><td>Recorded with an explicit status (<code>timeout</code>, <code>refused</code>, <code>error</code>) and reported as <code>inconclusive</code>, never <code>unchanged</code></td></tr>
+<tr><td>Checking more than one resolver</td><td>Means running the same command again with <code>@1.1.1.1</code>, <code>@8.8.8.8</code>, and so on, and holding three separate outputs in your head at once</td><td>Queries Cloudflare, Google, and Quad9 in the same capture and reports each resolver's own before/after result on its own row</td></tr>
+<tr><td>A record that has propagated to one resolver but not another</td><td>Only visible if you happen to run the command against both and remember which was which</td><td>Shows as <code>changed</code> on one resolver's row and <code>unchanged</code> on another's, in the same report</td></tr>
+<tr><td>Having something to keep or hand a customer</td><td>A terminal scrollback that is gone once the window closes, with no timestamp attached</td><td>A snapshot JSON with an <code>observed_at</code> timestamp per query, and a Markdown report built from it</td></tr>
+</tbody>
+</table>
+</div>
+<p>
+The gap that matters most is not the record you already expect to change
+&mdash; a careful read catches that one fine. It is the resolver that did
+not answer at all. <code>dig</code> and a quiet terminal make a timeout
+look exactly like nothing changing; this tool's report cannot, because
+every observation carries its own status and an unanswered query is
+recorded as <code>inconclusive</code> rather than quietly rounded down to
+<code>unchanged</code>.
+</p>
+<section>
+<h2>Common questions</h2>
+<h3>What does running dig by hand actually catch?</h3>
+<p>An operator who already knows what changed catches it reliably: run dig before, run dig again after, and see that the A record now shows a different IP. That comparison works well precisely when you already expect a specific line to move, because a human eye is good at spotting one obviously different value next to an otherwise-identical block of text.</p>
+<h3>Why is a resolver timeout easy to mistake for no change?</h3>
+<p>dig reports a timeout as a short error, or as an answer section with nothing in it, and next to a wall of routine, unremarkable output both read the same as "nothing here, must be unchanged". This tool tracks every observation's status explicitly and reports a timeout, a refusal, or a transport error as inconclusive, never as unchanged, because a resolver that did not answer is not evidence the record stayed the same.</p>
+<h3>Why does checking from one machine hide propagation?</h3>
+<p>A single dig run queries whatever resolver your machine is already configured to use, so it shows one view. This tool queries Cloudflare, Google, and Quad9 separately and reports each one's own before/after result, so a change that has reached one resolver and not another shows up as changed on one row and unchanged on the next -- the actual state of a propagating change, not a single average of it that hides the disagreement.</p>
+<h3>What is lost without a saved, dated file?</h3>
+<p>Two dig outputs compared by eye in a terminal scroll back leave nothing behind once the window closes -- no timestamp, no record of which resolver answered, nothing to attach to a ticket or hand a customer questioning what happened. This tool's snapshot is a JSON file with an observed_at timestamp per query and a resolver identity per answer, and the comparison report it builds is a Markdown table you can keep, attach, or send, not a memory of what a terminal once showed you.</p>
+<h3>Does this replace reading DNS records yourself?</h3>
+<p>No. It is an observation record, not a DNS authority -- it has no connection to your zone file or registrar, cannot tell you why a record is wrong, and only reports what named public resolvers answered at the moments you asked. Deciding whether a difference matters, and understanding a domain's zone well enough to plan the change in the first place, is still a job for reading and knowing DNS yourself.</p>
+<p class="fine">Nothing here says or implies that checking DNS with dig or nslookup is a mistake &mdash; it is a fast, honest habit that works well for the case it was built for. This page describes where a plain eyeball comparison runs out, not a fault in anyone who uses one.</p>
+<p class="note">
+  <a class="cta" href="index.html">Capture a DNS change record</a>
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is free and as-is. It is an operational observation record, not a DNS, security, deliverability, or compliance authority, and it is not legal or professional advice. It does not establish global DNS truth — only what the resolvers you selected answered at the moments you ran it. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, for confirming your authorization to query a domain, and for deciding whether any difference needs action. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+<p class="support">Free and open source. If it confirmed a DNS change went where you expected, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> support is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+</body></html>

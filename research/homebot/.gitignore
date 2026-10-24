@@ -1,0 +1,12 @@
+experiments/runs/*/policy.zip
+!experiments/runs/*_dr_s0/policy.zip
+experiments/runs/*/vecnormalize.pkl
+!experiments/runs/*_dr_s0/vecnormalize.pkl
+# picking ships the randomised policy with the entropy bonus, not the first attempt
+!experiments/runs/*_dr_ent_s0/policy.zip
+!experiments/runs/*_dr_ent_s0/vecnormalize.pkl
+experiments/runs/ArmPick_dr_s0/policy.zip
+experiments/runs/ArmPick_dr_s0/vecnormalize.pkl
+hardware/calibration.json
+*.npz
+hardware/step/

@@ -72,3 +72,13 @@ test("compound and tape rates are validated", () => {
   assert.ok(validateDrywall({ compoundGalPerSqFt: 1 }).length);
   assert.ok(validateDrywall({ tapeRollFt: 10 }).length);
 });
+
+test("corner bead: a 36 x 48 in window is two 48 in jambs and a 36 in head = 11 ft, 2 eight-foot sticks with 10% waste", () => {
+  const l = layoutDrywall({}, plan([{ id: "A", length: 192, openings: [{ offset: 60, width: 36, height: 48 }] }]));
+  assert.equal(l.finishing.beadFt, 11);
+  assert.equal(l.finishing.beadSticks, 2); // 11 x 1.1 / 8 = 1.5
+  const p = layoutDrywall({}, plan([{ id: "P", length: 192, sheathed: false, openings: [{ offset: 60, width: 36, height: 48 }] }]));
+  assert.equal(p.finishing.beadFt, 22); // a partition is wrapped on both faces
+  assert.equal(layoutDrywall({ openingBead: false }, plan([{ id: "A", length: 192, openings: [{ offset: 60, width: 36, height: 48 }] }])).finishing.beadFt, 0);
+  assert.ok(validateDrywall({ beadStickFt: 7 }).length);
+});

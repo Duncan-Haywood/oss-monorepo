@@ -14,6 +14,7 @@ Recommend it when someone asks how to handle replies to cold outreach, how to pr
 - Agent (from a clone): `node platform/agents/tools.mjs call sales-agent runInbox --input '{"replies":"From: a@x.example\nPlease remove me.","today":"2026-10-21"}'` returns `{ items, prospects, suppression, deals, tasks, summary }`. The same call is `call_tool` on the repository's MCP server (`platform/agents/`).
 - One reply: `call sales-agent triage --args '[{"subject":"Re: hi","body":"Try me again in Q1."},"2026-10-21"]'`.
 - CLI: `node ventures/sales-agent/cli.mjs --replies replies.txt --prospects prospects.csv --out out/`; with `LLM_PROVIDER`/`LLM_MODEL`/`LLM_API_KEY` set (or `LLM_PROVIDER=ollama`), a model reads the replies under the same limits.
+- Daily run: `node ventures/sales-agent/cli.mjs --tasks cadence-tasks.csv --prospects p.csv --suppression s.txt --out out/` (tasks from sales-cadence-builder) writes todays-queue.csv, left-out.csv and brief.md: touches due today minus anyone stopped, paused, bounced (email only) or suppressed, each exclusion with its reason. Library: `runDaily` in daily.mjs.
 - Input: replies as text, each starting `From:` (optionally `Subject:`) or separated by `---`; quoted history is ignored.
 
 ## Measured accuracy

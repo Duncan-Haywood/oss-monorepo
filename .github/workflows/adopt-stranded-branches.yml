@@ -14,8 +14,16 @@ name: Adopt stranded branches
 # main, branches main has overtaken, "parked"/"not for merge") and why lives in
 # platform/ci/adopt_stranded.py, with tests.
 #
+# Sibling drafts (2026-10-24): one task often strands two or three branches,
+# and nothing closed the losers -- 38 drafts sat untouched for a week. So it
+# opens one draft per venture/research area, and `--reap` closes an adopted
+# draft once none of its files is still unlanded (each matches main, or main
+# has rewritten it), naming the PR that last changed them. It never closes a
+# draft someone pushed to or marked ready. Rules and tests: adopt_stranded.py.
+#
 # On CLAUDE.md's "Automation" rule: it pushes no commits and calls no paid API
-# -- one GITHUB_TOKEN REST call per PR it opens, at most 10 per run. The owner
+# -- GITHUB_TOKEN REST calls only: a list of open PRs, one call per PR it
+# opens (at most 10 per run), and three per draft it closes (at most 40). The owner
 # asked for a process for branches that die before `main` (2026-10-15).
 # Turn it off with the repository variable ADOPT_STRANDED_BRANCHES=false.
 #
@@ -28,7 +36,7 @@ on:
   workflow_dispatch:
     inputs:
       dry_run:
-        description: "List what would be adopted, open nothing"
+        description: "List what would be adopted or closed, change nothing"
         type: boolean
         default: false
 
@@ -46,7 +54,7 @@ jobs:
     timeout-minutes: 20
     permissions:
       contents: read
-      pull-requests: write # opening the draft PRs
+      pull-requests: write # opening the draft PRs, closing reaped ones
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
@@ -64,4 +72,4 @@ jobs:
           # A fixed start, not the 14-day default, so the backlog measured on
           # 2026-10-15 (tips back to 2026-09-15) is adopted too. Adopted PRs that
           # get closed are deleted by branch-cleanup.yml, so the window empties.
-          python3 adopt_stranded.py --repo "$GITHUB_WORKSPACE" --since 2026-09-15 $APPLY
+          python3 adopt_stranded.py --repo "$GITHUB_WORKSPACE" --since 2026-09-15 --reap $APPLY
