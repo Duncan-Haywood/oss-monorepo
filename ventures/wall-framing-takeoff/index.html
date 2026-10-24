@@ -131,6 +131,18 @@
       <div><label for="flUnder">Walls above that need doubled joists, at these positions across the width (comma-separated)</label><input id="flUnder" placeholder="e.g. 10 ft, 22 ft"></div>
       <div><label for="flOpen">Stairwell openings: from left edge, from front edge, width, depth; separate several with a semicolon (blank: none)</label><input id="flOpen" placeholder="e.g. 20 ft, 8 ft, 3 ft, 10 ft; 30 ft, 20 ft, 3 ft, 8 ft"></div>
     </div>
+    <p><input type="checkbox" id="fnOn" style="width:auto"> <label for="fnOn" style="display:inline">Also price the foundation (footing, stem wall and slab concrete, trucks, rebar, forms, gravel and vapor barrier; bought separately from the lumber)</label></p>
+    <div class="grid" id="fnFields" hidden>
+      <div><label for="fnType">Type</label><select id="fnType"><option value="stem" selected>footing + stem wall + slab</option><option value="monolithic">monolithic slab, thickened edge</option></select></div>
+      <div><label for="fnW">Footing outside width</label><input id="fnW" value="40 ft"></div>
+      <div><label for="fnD">Footing outside depth</label><input id="fnD" value="28 ft"></div>
+      <div><label for="fnFootW">Footing width (in)</label><input id="fnFootW" type="number" min="8" max="60" value="20"></div>
+      <div><label for="fnFootD">Footing depth (in)</label><input id="fnFootD" type="number" min="6" max="48" value="10"></div>
+      <div><label for="fnStemH">Stem wall height (in; stem type only)</label><input id="fnStemH" type="number" min="8" max="120" value="32"></div>
+      <div><label for="fnStemT">Stem wall thickness (in; stem type only)</label><input id="fnStemT" type="number" min="6" max="58" value="8"></div>
+      <div><label for="fnSlab">Slab thickness (in)</label><input id="fnSlab" type="number" min="3" max="12" value="4"></div>
+      <div><label for="fnPrice">Concrete price per cu yd (blank: none)</label><input id="fnPrice" type="number" min="0" step="1" placeholder="e.g. 165"></div>
+    </div>
     <p><input type="checkbox" id="rfOn" style="width:auto"> <label for="rfOn" style="display:inline">Also frame a roof, gable or hip (rafters, ridge, ceiling joists, collar ties, roof sheathing, shingles and felt; the lumber joins the order)</label></p>
     <div class="grid" id="rfFields" hidden>
       <div><label for="rfShape">Roof shape</label><select id="rfShape"><option value="gable" selected>gable</option><option value="hip">hip (four planes; length must be at least width)</option></select></div>
@@ -175,6 +187,11 @@
   <section class="card" aria-labelledby="h-floor" id="floorCard" hidden>
     <h2 id="h-floor">Floor framing</h2>
     <div id="floorOut"></div>
+  </section>
+
+  <section class="card" aria-labelledby="h-foundation" id="foundationCard" hidden>
+    <h2 id="h-foundation">Foundation</h2>
+    <div id="foundationOut"></div>
   </section>
 
   <section class="card" aria-labelledby="h-roof" id="roofCard" hidden>
@@ -225,7 +242,7 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering, construction, building-code, legal or financial advice, and it does not replace a qualified professional, your plans or your building department. Header sizes, jack counts and stud spacing are your inputs and are not checked against any span table or code. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including every length before you cut. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Independent.</strong> Not affiliated with any lumberyard, builder, code body or software company. No lumber price is stated or implied; prices are what you type.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record: save your plan file. Your last entries stay in this browser's local storage only.</p>
-    <p>Everything runs in your browser. Your plan is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>takeoff_run</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>drawings_downloaded</code>, <code>panel_order_downloaded</code>, <code>floor_on</code>, <code>roof_on</code>, <code>plan_saved</code>, <code>plan_opened</code>) are counted only in local storage on your device, never with anything you typed.</p>
+    <p>Everything runs in your browser. Your plan is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>takeoff_run</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>drawings_downloaded</code>, <code>panel_order_downloaded</code>, <code>floor_on</code>, <code>roof_on</code>, <code>foundation_on</code>, <code>plan_saved</code>, <code>plan_opened</code>) are counted only in local storage on your device, never with anything you typed.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Related tools: the <a href="../cut-list-optimizer/">cut list optimizer</a> for sheet goods and shop stock, and the <a href="../tile-layout-planner/">tile layout planner</a>. Command line and source: <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/wall-framing-takeoff" rel="noopener">wall-framing-takeoff on GitHub</a>.</p>
     <p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
@@ -238,6 +255,7 @@
     import { sheathe, defaultSheathing, nailerCuts } from "./sheathing.mjs";
     import { layoutFloor, floorCuts, floorText } from "./floor.mjs";
     import { layoutRoof, roofCuts, roofText } from "./roof.mjs";
+    import { layoutFoundation, foundationText } from "./foundation.mjs";
     import { resolveHeaders } from "./headers.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
@@ -355,6 +373,12 @@
         if ($("#rfRidge").value) rf.ridge = $("#rfRidge").value;
         if ($("#rfJoist").value) rf.ceilingJoist = $("#rfJoist").value;
         plan.roof = rf;
+      }
+      if ($("#fnOn").checked) {
+        const fn = { id: "Foundation", type: $("#fnType").value, width: L($("#fnW").value, "foundation width"), depth: L($("#fnD").value, "foundation depth"), footing: { width: Number($("#fnFootW").value), depth: Number($("#fnFootD").value) }, slab: { thickness: Number($("#fnSlab").value) } };
+        if (fn.type === "stem") fn.stem = { height: Number($("#fnStemH").value), thickness: Number($("#fnStemT").value) };
+        if ($("#fnPrice").value.trim()) fn.price = Number($("#fnPrice").value);
+        plan.foundation = fn;
       }
       for (const o of ui.openings) {
         const wall = plan.walls.find((w) => w.id === String(o.wall).trim());
@@ -490,12 +514,21 @@
       if (!roof) return;
       $("#roofOut").innerHTML = `<pre style="white-space:pre-wrap;overflow-x:auto">${esc(roofText(roof).join("\n"))}</pre><p class="note">The roof's rafters, ridge, ceiling joists and collar ties are in the lumber order and cut list above, pooled with the walls so they use each other's offcuts. Roof sheets, felt, drip edge and shingles are bought separately. Check rafter size, spacing and bracing against your span tables or engineer.</p>`;
     }
+    function renderFoundation(fn) {
+      $("#foundationCard").hidden = !fn;
+      if (!fn) return;
+      $("#foundationOut").innerHTML = `<pre style="white-space:pre-wrap;overflow-x:auto">${esc(foundationText(fn).join("\n"))}</pre><p class="note">Concrete, rebar, forms and gravel are not in the lumber order. Bar sizes, footing size, frost depth and soil bearing are your inputs; check them against your plans and engineer.</p>`;
+    }
     function run() {
       const { plan, bad, source } = toPlan();
       $("#errors").innerHTML = "";
       if (bad.length) { $("#errors").innerHTML = `<ul>${bad.map((e) => `<li>${esc(e)}</li>`).join("")}</ul>`; return false; }
-      let result, nailers = [], floor = null, floorExtra = [], roof = null;
+      let result, nailers = [], floor = null, floorExtra = [], roof = null, foundation = null;
       try {
+        if (plan.foundation) {
+          foundation = layoutFoundation(plan.foundation);
+          if (!foundation.ok) { $("#errors").innerHTML = `<ul>${foundation.errors.map((e) => `<li>${esc(e)}</li>`).join("")}</ul>`; last = null; $("#foundationCard").hidden = true; return false; }
+        }
         if (plan.floor) {
           floor = layoutFloor(plan.floor, plan);
           if (!floor.ok) { $("#errors").innerHTML = `<ul>${floor.errors.map((e) => `<li>${esc(e)}</li>`).join("")}</ul>`; last = null; $("#floorCard").hidden = true; return false; }
@@ -536,6 +569,7 @@
       $("#boards").innerHTML = result.orders.map((o) => `<h3>${esc(o.size)}</h3><ol>${o.bars.map((b) => `<li>${formatLength(b.length)}${b.label ? ` ${esc(b.label)}` : ""}: ${b.cuts.map((c) => `${formatInches(c.length)} ${esc(c.ref)}`).join(" + ")}${b.offcut >= 0.5 ? `; offcut ${formatInches(b.offcut)}` : ""}</li>`).join("")}</ol>`).join("");
       renderFloor(floor);
       renderRoof(roof);
+      renderFoundation(foundation);
       renderSheathing(plan, result);
       const prev = $("#wallPick").value;
       $("#wallPick").innerHTML = result.walls.map((w) => `<option>${esc(w.id)}</option>`).join("");
@@ -559,6 +593,14 @@
         $("#flBeam").value = fl.beam != null ? formatLength(fl.beam) : ""; $("#flBlock").value = String(fl.blockingRows || 0);
         $("#flUnder").value = (fl.doubleUnder || []).map(formatLength).join(", ");
         $("#flOpen").value = (fl.openings || []).map((o) => [o.x, o.y, o.width, o.depth].map(formatLength).join(", ")).join("; ");
+      }
+      const fn = plan.foundation;
+      $("#fnOn").checked = Boolean(fn); $("#fnFields").hidden = !fn;
+      if (fn) {
+        $("#fnType").value = fn.type || "stem"; $("#fnW").value = formatLength(fn.width); $("#fnD").value = formatLength(fn.depth);
+        $("#fnFootW").value = String(fn.footing?.width ?? 16); $("#fnFootD").value = String(fn.footing?.depth ?? 8);
+        $("#fnStemH").value = String(fn.stem?.height ?? 32); $("#fnStemT").value = String(fn.stem?.thickness ?? 8);
+        $("#fnSlab").value = String(fn.slab?.thickness ?? 4); $("#fnPrice").value = fn.price != null ? String(fn.price) : "";
       }
       const rf = plan.roof;
       $("#rfOn").checked = Boolean(rf); $("#rfFields").hidden = !rf;
@@ -660,6 +702,7 @@
     $("#rfShape").addEventListener("change", () => { $("#rfHipBox").hidden = $("#rfShape").value !== "hip"; syncWing(); });
     $("#rfWing").addEventListener("change", syncWing);
     $("#rfWing2").addEventListener("change", syncWing);
+    $("#fnOn").addEventListener("change", () => { $("#fnFields").hidden = !$("#fnOn").checked; if ($("#fnOn").checked) record("foundation_on"); });
     $("#rfOn").addEventListener("change", () => { $("#rfFields").hidden = !$("#rfOn").checked; if ($("#rfOn").checked) record("roof_on"); });
     if (usageOptedOut()) { const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; }
 
