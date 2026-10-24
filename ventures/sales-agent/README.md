@@ -39,6 +39,8 @@ It sends nothing.
 
 **Milestone 4a: self-host it.** [`self-host/`](self-host/README.md) runs the inbox agent on your own mailbox (IMAP, read-only), with an approval queue and an audit log, in Node, Docker or compose. It still sends nothing; approved drafts open in your mail app. Tested against a fake IMAP server, not yet a real mailbox.
 
+**Milestone 6: the research agent.** `node cli.mjs --crm export.csv --icp icp.json --offer offer.json` ([`research.mjs`](research.mjs)) reads a CRM export (HubSpot, Pipedrive and plain CSV headers are mapped), ranks one lead per company against your ideal customer profile with every point explained, and drafts a first touch for each. It drops opted-out, suppressed, customer, role-address (`info@`), duplicate and recently contacted rows, holds Canada, Germany and Austria for consent, and guesses no address and reads no website: each fact in a brief is a named field of your export. Drafts go through the same `checkDraft` as reply drafts. `research.test.mjs` runs on a hand-built HubSpot-style export, not a real one yet.
+
 ## The one rule
 
 > The agent may always do less on its own. It may never do more without you.

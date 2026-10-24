@@ -283,8 +283,8 @@ export function triage(reply, today) {
 
 // ---------- drafting and checks ----------
 
-const firstName = (p) => String(p.first_name || p.name || "").trim().split(/\s+/)[0] || "there";
-const footer = (offer) => [
+export const firstName = (p) => String(p.first_name || p.name || "").trim().split(/\s+/)[0] || "there";
+export const footer = (offer) => [
   "",
   offer.sender || "[your name]",
   offer.company ? offer.company : null,
