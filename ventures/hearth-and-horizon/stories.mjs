@@ -77,6 +77,8 @@ export function parseStory(source, slug) {
 function inline(text) {
   return escapeHtml(text)
     .replace(/`([^`]+)`/g, '<code>$1</code>')
+    // A link to a sibling story's Markdown goes to its page.
+    .replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (_, label, href) => `<a href="${/^[a-z0-9-]+\.md$/.test(href) ? href.replace(/\.md$/, '.html') : href}">${label}</a>`)
     .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
     .replace(/\*([^*]+)\*/g, '<em>$1</em>');
 }
@@ -84,7 +86,7 @@ function inline(text) {
 /**
  * The small Markdown subset the stories use: paragraphs, `##`/`###` headings,
  * `* * *` scene breaks, `>` blockquotes (lines kept as written), numbered and
- * bulleted lists, and inline code, bold and italics.
+ * bulleted lists, `|` pipe tables, and inline code, links, bold and italics.
  */
 export function markdownToHtml(markdown, { keepLines = false } = {}) {
   const out = [];
@@ -98,6 +100,10 @@ export function markdownToHtml(markdown, { keepLines = false } = {}) {
       // Quoted letters, notes and prayers keep their line breaks.
       const inner = text.split('\n').map((l) => l.replace(/^>\s?/, '')).join('\n');
       out.push(`<blockquote>\n${markdownToHtml(inner, { keepLines: true })}\n</blockquote>`);
+    } else if (text.split('\n').every((l) => l.startsWith('|'))) {
+      const rows = tableRows(text);
+      const head = rows.shift();
+      out.push(`<div class="table"><table>\n<thead><tr>${head.map((c) => `<th>${inline(c)}</th>`).join('')}</tr></thead>\n<tbody>\n${rows.map((r) => `<tr>${r.map((c) => `<td>${inline(c)}</td>`).join('')}</tr>`).join('\n')}\n</tbody>\n</table></div>`);
     } else if (/^\d+\. /.test(text)) {
       out.push(`<ol>${text.split(/\n(?=\d+\. )/).map((i) => `<li>${inline(i.replace(/^\d+\. /, ''))}</li>`).join('')}</ol>`);
     } else if (/^- /.test(text)) {
@@ -111,13 +117,23 @@ export function markdownToHtml(markdown, { keepLines = false } = {}) {
   return out.join('\n');
 }
 
+/** Cells of a pipe table, without its `|---|` separator row. */
+function tableRows(text) {
+  return text.split('\n')
+    .filter((l) => !/^\|[\s|:-]+\|$/.test(l))
+    .map((l) => l.replace(/^\|/, '').replace(/\|$/, '').split('|').map((c) => c.trim()));
+}
+
 /** Plain text for text-to-speech: no markup, pauses marked with blank lines. */
 export function markdownToSpeech(markdown) {
   return markdown
     .split(/\n{2,}/)
     .map((block) => block.trim())
     .filter(Boolean)
-    .map((block) => (block === '* * *' ? '[pause]' : block
+    .map((block) => (block === '* * *' ? '[pause]' : block.startsWith('|')
+      ? tableRows(block).map((r) => r.filter(Boolean).join(', ')).join('.\n').replace(/[*`]/g, '')
+      : block
+      .replace(/\[([^\]]+)\]\([^)\s]+\)/g, '$1')
       .split('\n').map((l) => l.replace(/^>\s?/, '').replace(/^#+\s*/, '').replace(/^- /, '').replace(/^\d+\. /, '')).join('\n')
       .replace(/[*`]/g, '')))
     .join('\n\n');
@@ -198,6 +214,7 @@ h2{font-size:1.3rem;margin:1.8em 0 .5em}h3{font-size:1.1rem;margin:1.5em 0 .4em}
 .lede{font-size:1.12rem;color:var(--muted)}
 hr.break{border:0;text-align:center;margin:2em 0}hr.break::after{content:'\\2726 \\2726 \\2726';color:var(--muted);letter-spacing:.6em}
 blockquote{margin:1.2em 0;padding:.2em 1em;border-left:3px solid var(--line);color:var(--ink)}
+.table{overflow-x:auto;margin:1.2em 0}table{border-collapse:collapse;font-size:.9em;width:100%}th,td{padding:.3em .5em;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
 code{font:15px ui-monospace,Menlo,monospace;background:var(--line);padding:1px 4px;border-radius:4px}
 .panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin:18px 0}
 audio{width:100%;margin:8px 0}

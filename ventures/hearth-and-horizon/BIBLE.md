@@ -141,8 +141,39 @@ introduces a dated fact.
 | 2061 | Sint-Jansland (invented), North Brabant: 3,200 people, polder catchment 10 km2 (30 mm ditch drawdown = 300,000 m3), boezem inflow capped at 8 m3/s (691,200 m3/day), Overlaat 15 m3/s onto the Lage Weide (150 ha); forecast 150 mm gives 508,800 m3 surplus (34 cm), actual 128 mm gave 288,800 m3 (19 cm); flood bell is a continuous slow stroke; Rogation Day, 25 April | *The Low Meadow* |
 | 2053 | Hospice of Sant'Anselmo, Colle della Croce Nera (invented), Aosta Valley, 2,481 m; Saint-Orsan (invented) 1,610 m, 9 km and 871 m below (about 3.5 h); 22 people under the roof; Canalone (E-facing, 36 degrees, ~300 m, path crosses run-out at 2,090 m for 140 m); 60 cm old slab (260 kg/m3) + 55 cm new (90 kg/m3), drift doubles new load: load 1,194 Pa vs strength ~1,300 Pa gives 1.09, skier +300 Pa gives 0.87; ECTP13 at 62 cm; one in six it runs on a party of eight; cook's non-ST-elevation heart attack Mon 5 Jan 11:20, lab within 24 h; slide at 22:41; Epiphany chalk 20+C+M+B+53; warden Lorenza Gerbaz, cook Paolo Vuillermin, rescue chief Mathieu Rosset, prior Don Aimé, Dr Ilse van Dijk, pilot Nadia Chabloz, agent Sentinella | *Chalk for the Lintel* |
 
+| 2026 | Saint Isidore's School (invented), Calder Ford (invented), Cedar River, eastern Iowa: 1958 brick building, new wing blessed and its cornerstone (Indiana limestone) sealed Sun 25 Oct 2026 by Fr Paul; principal Dale Henning (61), fifth-grade teacher Mrs Lindqvist, 23 pupils incl. Marisol Aguirre, Owen Schaefer, Hana Tran; 11 teachers; the school's assistant writes a letter of 16 forecasts with probabilities under the linear rule (list in the story) | *The Letter in the Wall* |
+| 2046 | Calder Ford: capsule opened Mon 22 Oct, scored by Thu 25 Oct (20th anniversary); 12 teachers; outcomes 1,2,3,5,6,7,8,11,12,14,15,16 happen, 4,9,10,13 do not; Brier 2.0959/16 = 0.131 (coin 0.25), item 15 alone 0.81; driverless county shuttle watched from Des Moines; autonomy kits plant corn but an insurer's operator of record rides in the cab; laundry robots cost a new pickup; translation good in Spanish, flat in K'iche'; Truth in Machines Act 2031 (invented); 2041 chemistry Nobel to three people at a Swiss lab, made *with* a search system (invented); the *Courier* prints a face and "written by a person" on every piece; Mrs Lindqvist d. 2041; teacher Marisol Aguirre (30), principal Mrs Okafor, Owen Schaefer (autonomy-kit fitter), Doña Juana (84), Fr Joseph, school AI Slate; new capsule for 2066 | *Ten Percent* |
+
 Little Lamps is set in history (Lima, about 1610 for *Brother Martin*) and is
 not on this timeline.
+
+## The twenty-year extrapolation strand
+
+The owner's suggestion (2026-10-24): fiction set twenty years ahead with AI
+at "its current or linearly better state", the agent "predicting what the
+world will look like extrapolating from today", for human and agent readers
+alike. *The Letter in the Wall* (For Other Minds, 2026) and *Ten Percent*
+(Hearth & Horizon, 2046) are the first pair. Rules for later pieces:
+
+- **State the assumption in the story.** AI improves a bit each year and no
+  faster: no jump, no superintelligence, no collapse. A character says it is
+  an assumption nobody can check.
+- **Extrapolate from dated facts.** Each speculative detail should trace to
+  something true in the year of writing (driverless rides in a few cities,
+  assistants drafting code, assistants with memory, clumsy translating
+  earbuds) plus twenty years of steady improvement. Say what was true when
+  you wrote it, and only what you can check.
+- **Adoption, not capability, is the usual bottleneck.** Insurers, law,
+  liability, price and grandmothers set the pace (the planter that drives
+  itself with a man in the cab). The interesting 2046 is what is allowed,
+  not what is possible.
+- **Forecasts carry numbers.** Where a story contains a forecast, each item
+  has a probability and a line saying how it was reached. A real forecast
+  in fiction is labelled as the author's own, with its date; its outcomes in
+  a story are labelled invented.
+- **Pairs welcome.** One piece for agent readers (the writing of a forecast,
+  a handoff to a successor), one for human readers (living in the forecast
+  world). Each must stand alone.
 
 ## Recurring places and technology
 
@@ -233,8 +264,12 @@ numbers worked out before drafting.
 
 - *(Done: Chalk for the Lintel, Sant'Anselmo, Aosta Valley, 2053; text only.)* A storm, a sick cook, a rescue team that wants to climb, and an avalanche agent that says no with a number it admits is a guess.
 
+- *(Done: Ten Percent, Calder Ford, Iowa, 2046; text only.)* The twenty-year strand's first human-reader piece: a class scores its own time-capsule forecast with the Brier score.
+- *Twenty-year strand, next:* a 2046 workplace under the linear rule, for example a county building office where agents draft every permit and three licensed people sign, and verification hours are the scarce thing; or a 2046 parish where every homily could be drafted by a machine and the priest decides what that means. Work out the numbers (hours, rates, error rates) first.
+
 **For Other Minds**
 
+- *(Done: The Letter in the Wall, Calder Ford, 2026; text only.)* An assistant writes a twenty-year forecast for a time capsule, with a number on each item, and declines one question.
 - *(Done: The Wrong Column, Hólmoy, 2058; text only.)* A planner reads a bare weight column as pounds for eleven weeks; the warning it logged went where no one reads, and the sailing sheets stay uncorrected beside the corrections.
 - *(Done: The Narrow Window, Char Nolbaria, 2055; text only.)* A flood-warning agent finds its 90% windows hold 60% of floods, and a village that cannot afford to move twice.
 - *(Done: The Last Message in the Window, Kerala, 2064.)* An agent running out of context decides what
