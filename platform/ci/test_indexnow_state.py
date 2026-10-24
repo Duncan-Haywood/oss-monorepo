@@ -314,7 +314,7 @@ class ParsingDryRunOutput(unittest.TestCase):
         stdout = (
             "indexnow: 975 URL(s) from ref origin/gh-pages\n"
             "  sources:     262 from catalog.json, 975 from 253 published sitemap(s)\n"
-            "  origin:      https://duncan-haywood.github.io/monorepo-projects/ "
+            "  origin:      https://duncan-haywood.github.io/oss-monorepo/ "
             "(from artifact (catalog.json))\n"
         )
         parsed = state.parse_dry_run_output(stdout)

@@ -50,7 +50,7 @@ class Scan(unittest.TestCase):
 
     def test_own_host_is_not_third_party(self):
         self.write("ventures/demo/index.html",
-                   '<script src="https://duncan-haywood.github.io/monorepo-projects/c.js"></script>')
+                   '<script src="https://duncan-haywood.github.io/oss-monorepo/c.js"></script>')
         self.assertEqual(self.found("third-party-request"), [])
 
     def test_persistent_cookie_write_is_found_but_header_read_is_not(self):

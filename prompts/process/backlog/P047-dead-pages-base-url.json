@@ -1,7 +1,7 @@
 {
   "id": "P047",
   "title": "Distribution and link-check code still builds URLs on the dead /monorepo-projects/ Pages path",
-  "status": "open",
+  "status": "done",
   "owner": "agent",
   "effect": 3,
   "cost": 2,
@@ -22,7 +22,7 @@
   "baseline": "105 files repo-wide outside research/ventures/docs",
   "opened": "2026-10-24",
   "source": "prompts/runs/2026-10-24-session_011XbWpph869ADAnb7xdhHtb.json",
-  "pr": null,
-  "result": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/9958",
+  "result": "platform/ pages-base URLs moved to /oss-monorepo/ (88 replacements, 0 left outside the LEGACY_BASE_URL constant); build.mjs rewrites legacy content URLs to the live base; platform/ci/test_no_dead_pages_base.py guards it. Not covered: ~5200 mentions in docs/ventures/research content, now rewritten at build time.",
   "history": []
 }

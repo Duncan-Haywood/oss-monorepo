@@ -30,7 +30,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-BASE = "https://duncan-haywood.github.io/monorepo-projects/research/"
+BASE = "https://duncan-haywood.github.io/oss-monorepo/research/"
 LINE = "**Live page:** {url}"
 
 
