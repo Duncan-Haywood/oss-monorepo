@@ -47,7 +47,7 @@ defensible answer changes how qualitative LLM studies budget their audits.
   weight so the interval is never worse than labelled-only, asymptotically.
   Settles weak coders for means; says little about rare categories at finite n.
 - Zrnic & Candès (2024), *Cross-prediction-powered inference*, *PNAS*;
-  [arXiv:2309.08574](https://arxiv.org/abs/2309.08574). Drops the need for a
+  [arXiv:2309.16598](https://arxiv.org/abs/2309.16598). Drops the need for a
   held-out predictor by cross-fitting; relevant when the coder is trained on
   the audit.
 - Egami, Hinck, Stewart & Wei (2023), *Using imperfect surrogates for
@@ -56,8 +56,8 @@ defensible answer changes how qualitative LLM studies budget their audits.
   [arXiv:2306.04746](https://arxiv.org/abs/2306.04746). Design-based
   estimators allowing non-uniform audit sampling probabilities.
 - Fisch, Maynez, Hofer, Dhingra, Globerson & Cohen (2024), *Stratified
-  prediction-powered inference for effective performance evaluation with
-  semi-supervised learning*; [arXiv:2405.20039](https://arxiv.org/abs/2405.20039).
+  prediction-powered inference for hybrid language model evaluation*;
+  [arXiv:2406.04291](https://arxiv.org/abs/2406.04291).
   Stratification of the audit; the closest method to our stratified audits.
 - Zrnic & Candès (2024), *Active statistical inference*;
   [arXiv:2403.03208](https://arxiv.org/abs/2403.03208). Choose which items to
