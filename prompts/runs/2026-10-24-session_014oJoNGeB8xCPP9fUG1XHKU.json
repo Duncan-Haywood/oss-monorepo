@@ -32,7 +32,14 @@
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [],
-  "deviations": [],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "No new post: a concurrent session landed the same replay and post (PR before #10245); I kept theirs and added only the seeded and confidence readings.",
+      "did": "merged main, dropped my duplicate post",
+      "result": "overlap found only at merge; duplicate-work search before starting would have caught it"
+    }
+  ],
   "writeups": [
     "docs/posts/2026-10-30-what-a-bookkeeper-learns-in-its-first-year.md"
   ],
