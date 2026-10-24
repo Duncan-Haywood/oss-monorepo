@@ -264,6 +264,122 @@ class TestPullRequest(PlanFixture):
             self.assertEqual(ad.github_repo_from_remote(".", "origin"), "Own/name")
 
 
+class TestSiblings(PlanFixture):
+    def sibling(self, name, path, day):
+        self.branch(name)
+        self.commit(path, "x\n", f"{name}: comparison page", day=day)
+        self.push(name)
+
+    def test_area_is_one_venture_or_research_directory(self):
+        self.assertEqual(ad.area_key(["ventures/x/a.html", "ventures/x/b.mjs"]), "ventures/x")
+        self.assertEqual(ad.area_key(["research/r/README.md"]), "research/r")
+        self.assertIsNone(ad.area_key(["ventures/x/a.html", "ventures/y/a.html"]))
+        self.assertIsNone(ad.area_key(["ventures/x/a.html", "platform/pages/clauses.mjs"]))
+        self.assertIsNone(ad.area_key(["README.md"]))
+        self.assertIsNone(ad.area_key([]))
+
+    def test_two_branches_for_one_venture_get_one_draft_the_newest(self):
+        # The 2026-10-16 shape: two sessions each wrote a comparison page for
+        # pool-plaster-bid-calculator under different filenames.
+        self.sibling("claude/old", "ventures/pool/vs-a.html", "2026-10-10")
+        self.sibling("claude/new", "ventures/pool/vs-b.html", "2026-10-12")
+        self.sibling("claude/other", "ventures/gutter/vs-c.html", "2026-10-11")
+        plan = self.plan()
+        self.assertEqual(plan["claude/new"].skip, "")
+        self.assertEqual(plan["claude/other"].skip, "")
+        self.assertIn("same area (ventures/pool) as claude/new", plan["claude/old"].skip)
+        self.assertEqual(plan["claude/new"].siblings, ["claude/old"])
+        self.assertIn("`claude/old`", plan["claude/new"].body())
+
+    def test_an_area_with_an_open_adopted_draft_gets_no_second_one(self):
+        self.sibling("claude/first", "ventures/pool/vs-a.html", "2026-10-10")
+        sha = run(self.clone, "rev-parse", "HEAD")
+        self.open_pr(7401, sha)
+        self.sibling("claude/second", "ventures/pool/vs-b.html", "2026-10-12")
+        adopted = [ad.Adopted(7401, "claude/first", time.time())]
+        plan = self.plan(adopted=adopted)
+        self.assertNotIn("claude/first", plan)  # it has a PR, so it is not stranded
+        self.assertIn("same area (ventures/pool) as #7401", plan["claude/second"].skip)
+
+
+class TestReap(PlanFixture):
+    def adopted(self, number=7, path="ventures/x/vs-y.html", text="page\n", created=None):
+        self.stranded("claude/x", path, text, "x: comparison page")
+        self.open_pr(number, run(self.clone, "rev-parse", "HEAD"))
+        self.plan()  # refreshes the probe, PR refs included
+        return ad.Adopted(number, "claude/x", created or time.time() + 60)
+
+    def test_a_draft_whose_work_is_still_unlanded_is_kept(self):
+        self.assertEqual(ad.reap_reason(self.probe, self.adopted()), "")
+
+    def test_a_draft_whose_file_landed_on_main_is_closed(self):
+        pr = self.adopted()
+        self.squash_merge("ventures/x/vs-y.html", "page\n", "x: page (#9)")
+        self.plan()
+        self.assertEqual(ad.reap_reason(self.probe, pr), "every file it changed now matches main")
+
+    def test_a_draft_whose_files_main_rewrote_is_closed_naming_them(self):
+        self.squash_merge("ventures/x/index.html", "v1\n", "x: venture")
+        pr = self.adopted(path="ventures/x/index.html", text="v1 + link\n")
+        self.squash_merge("ventures/x/index.html", "v2\n", "x: rewrite (#10)")
+        self.plan()
+        self.assertIn("rewritten every file", ad.reap_reason(self.probe, pr))
+        self.assertIn("ventures/x/index.html", ad.reap_reason(self.probe, pr))
+
+    def test_a_draft_someone_pushed_to_or_marked_ready_is_left_alone(self):
+        pr = self.adopted()
+        self.squash_merge("ventures/x/vs-y.html", "page\n", "x: page (#9)")
+        self.plan()
+        pushed_after = ad.Adopted(pr.number, pr.branch, time.time() - 3600)
+        self.assertEqual(ad.reap_reason(self.probe, pushed_after), "")
+        ready = ad.Adopted(pr.number, pr.branch, pr.created, draft=False)
+        self.assertEqual(ad.reap_reason(self.probe, ready), "")
+
+    def test_reap_with_apply_closes_what_holds_nothing(self):
+        pr = self.adopted()
+        self.squash_merge("ventures/x/vs-y.html", "page\n", "x: page (#9)")
+        closed = []
+        out = io.StringIO()
+        with mock.patch.dict(os.environ, {"GITHUB_TOKEN": "tok"}), \
+                mock.patch.object(ad, "list_adopted", lambda repo, tok: [pr]), \
+                mock.patch.object(ad, "survivor", lambda repo, tok, path: "#9"), \
+                mock.patch.object(ad, "close_adopted",
+                                  lambda repo, tok, n, why, surv: closed.append((n, why, surv)) or ""), \
+                mock.patch.object(ad.uw, "probe_path", lambda repo: self.probe), \
+                redirect_stdout(out):
+            code = ad.main(["--repo", str(self.clone), "--min-age-hours", "0", "--since", "all",
+                            "--reap", "--apply", "--github-repo", "o/r"])
+        self.assertEqual(code, 0)
+        self.assertEqual(closed, [(7, "every file it changed now matches main", "#9")])
+        self.assertIn("1 to close", out.getvalue())
+
+    def test_list_adopted_keeps_only_this_jobs_prs(self):
+        rows = [
+            {"number": 1, "title": "Adopt stranded branch claude/a: x", "draft": True,
+             "user": {"login": "github-actions[bot]"}, "head": {"ref": "claude/a"},
+             "created_at": "2026-10-16T04:57:52Z"},
+            {"number": 2, "title": "Adopt stranded branch claude/b: x", "draft": True,
+             "user": {"login": "someone"}, "head": {"ref": "claude/b"},
+             "created_at": "2026-10-16T04:57:52Z"},
+            {"number": 3, "title": "x: new venture", "draft": True,
+             "user": {"login": "github-actions[bot]"}, "head": {"ref": "claude/c"},
+             "created_at": "2026-10-16T04:57:52Z"},
+        ]
+        with mock.patch.object(ad, "_api", lambda *a, **k: rows):
+            found = ad.list_adopted("o/r", "tok")
+        self.assertEqual([p.number for p in found], [1])
+        self.assertEqual(found[0].created, 1792126672.0)
+
+    def test_close_comments_then_closes(self):
+        calls = []
+        with mock.patch.object(ad, "_api", lambda repo, tok, path, method="GET", body=None:
+                               calls.append((method, path, body))):
+            self.assertEqual(ad.close_adopted("o/r", "tok", 7, "every file matches main", "#9"), "")
+        self.assertEqual([c[:2] for c in calls], [("POST", "issues/7/comments"), ("PATCH", "pulls/7")])
+        self.assertIn("every file matches main. Last changed on main by #9.", calls[0][2]["body"])
+        self.assertEqual(calls[1][2], {"state": "closed"})
+
+
 class TestCliDefaults(PlanFixture):
     def main(self, *argv, token=True):
         out, err = io.StringIO(), io.StringIO()
