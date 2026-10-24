@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-24",
+  "session": "https://claude.ai/code/session_01UNex21FkvTXUADdRKK9Mca",
+  "track": "research",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-24T02:04:41Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship 5 shift-roster-builder: tighter exact-proof bound",
+  "projects": [
+    "shift-roster-builder"
+  ],
+  "pr": 9982,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "Scheduled prompt asked for venture work; routed to research track but built flagship 5 per CLAUDE.md default."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Branch and bound on the priced score bound. calc.test.mjs 127 pass; cli/server/usage/deploy pass; page.test.mjs 15 and 21 already fail on main (checked via stash). Bench: 8x22 case 0 gap 65,965 -> 768; 0/4 proven still. Scheduled run said to ship ventures; router drew research track, I followed the flagship instead (deviation).",
+  "corrections": [],
+  "redteam": null
+}
