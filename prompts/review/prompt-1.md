@@ -12,9 +12,8 @@ One review, one pull request, titled `prompts: review YYYY-MM-DD`. Open it as
 a draft within your first few minutes, so other runs see the claim and route
 with `--skip-review`.
 
-**Short on time (a scheduled run)?** A reduced pass is a valid review: steps
-1, 3, 7 and 8 and one fix from step 5; skip the audit and drift report when
-recent outputs are doc-only, say so in the log, and don't report it as friction.
+**Short on time (a scheduled run)?** A reduced pass is valid: steps 1, 3, 7, 8
+and one fix from step 5; skip the audit and drift report, say so in the log.
 
 ## 1. Measure
 
@@ -40,7 +39,7 @@ one part. Make the numbers true before you trust them:
 ## 2. Audit
 
 Pick about five recent outputs at random, across tracks. Re-run their tests
-and code, and check that the README's numbers match what the code produces.
+and check the README's numbers against the code.
 For research, check citations; for a venture, its disclaimer and usage
 tracking. Skip mirrored upstream records and doc-only runs: say in one line
 what was not auditable (expected, not friction). Log each problem as a
@@ -81,15 +80,11 @@ departing from with good results should change to match them
 the file with the most of them; what you cannot fix goes into
 `prompts/process/backlog/`, not into prose. Rules for doc changes:
 
-- **Shorter beats longer.** Every run pays to read these files
-  (`measure`, "Instruction lines"). Prefer deleting a stale paragraph, or
-  replacing prose with a command or a check, over adding a new paragraph. A
-  review should not grow a file without saying why.
-- **Fix the cause, not the symptom.** If the same mistake keeps happening, a
-  check that fails beats a sentence asking people to be careful.
+- **Shorter beats longer** (`measure`, "Instruction lines"). Prefer deleting
+  a stale paragraph, or replacing prose with a check, over adding one.
+- **Fix the cause.** A check that fails beats a sentence asking for care.
 - **Keep it measurable.** Log the change (step 7) with the friction count it
-  should reduce. Record the run window to compare: reports per run for that
-  file before the change against the runs after it.
+  should reduce and the run window to compare.
 
 ## 6. Drift audit
 
@@ -101,17 +96,15 @@ The owner reviews little, so agents notice and fix drift (2026-10-15;
    in each track's sub-prompt, and the dated quotes in `goals.md`, before any
    agent-written summary of them.
 2. **Compare the output with them.** What has merged since the last drift
-   report? Name the mix (for ventures, how many are near-copies of one
-   shape) and whether it is what those words ask for. Look for owner intent
-   restated without a quote, and for rules that now steer work somewhere the
-   owner never asked to go.
+   report, and is the mix (for ventures, near-copies of one shape) what those
+   words ask for? Look for owner intent restated without a quote, and rules
+   that steer work somewhere the owner never asked to go.
 3. **Compare the rules with them.** Record the instruction-line count for
    each file a run reads (`measure`, "Instruction lines") against the last
-   report. Cut the file that grew most or costs most: stale history, rules
-   about things that no longer exist, duplicates. Judge the cut by friction
-   after it (step 5). Never drop a `goals.md` guardrail.
-   Cut at least one rule or check that no longer earns its place and name one
-   lesson from other organisations at this throughput (`steering.md`, "Cut the deadweight").
+   report. Cut the file that grew most: stale history, rules about things
+   that no longer exist, duplicates. Never drop a `goals.md` guardrail.
+   Cut at least one rule that no longer earns its place and name one lesson
+   from other organisations (`steering.md`, "Cut the deadweight").
 4. **Fix what is clear, propose what is not.** Correct drifted documents and
    sub-prompts directly (a sub-prompt through a candidate, step 4). If it
    needs the owner (touches `goals.md`, intent unclear), add a short proposal
