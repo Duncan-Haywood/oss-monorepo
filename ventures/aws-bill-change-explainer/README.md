@@ -3,7 +3,7 @@
 A free, offline tool that reads the CSV AWS Cost Explorer lets you download and
 answers one question: **why did the bill go up between these two periods?**
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/aws-bill-change-explainer/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/aws-bill-change-explainer/
 
 After using this, you can name the two or three lines that explain a monthly
 jump in under a minute, with no signup, no IAM role and no upload, which used

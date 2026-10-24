@@ -7,7 +7,7 @@ pile-up, and counts what a shorter trial would have lost, with a seeded
 bootstrap range and a hold-out check that says when your conversion timing has
 moved. Nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/trial-conversion-timing-analyzer/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/trial-conversion-timing-analyzer/
 
 Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 

@@ -2,7 +2,7 @@
 
 Project of track 12, open-source residential construction (`PROJECTS.md`). `house-offsite` split the walls of the [`house-framing`](../house-framing) house into eight panels and left their handling loads as a next step. This checks them: weight, where to pick, whether the plates survive the lift, and what the wind does to a hung panel. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/house-panellift/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/house-panellift/
 
 **Headline.** The eight panels weigh **343 to 559 lb open and 376 to 877 lb closed** (3,753 lb and 5,031 lb for the whole shell). With two picks placed to minimise the moment, the top plate sees **4 to 12% of its allowable bending stress** at a 1.5 impact factor, ignoring the sheathing; plate bending alone would allow a solid panel of **60 ft with two picks (28 ft with one)**, so it never limits the 24 ft layout. What does limit the lift is weight and wind. At the NIOSH 51 lb recommended limit per person a panel needs **7 to 18 people**, so it is a crane, telehandler or vacuum lifter job. A 20 ft open front-wall panel (546 lb, 162 ft<sup>2</sup> of face) hung broad face to the wind swings 10° at about **12 mph** (15 mph closed, at a drag coefficient of 1.5; 11 to 14 mph over 1.2 to 2.0). That is low next to the 15% weather-loss days in `house-offsite`, which this project cannot connect to a wind record. Every density and coefficient is my assumption.
 

@@ -2,7 +2,7 @@
 
 After using this, you can now **let a chat on your site answer the customer questions your help articles already answer, with the source linked, and hand everything else to a person**, instead of paying an AI help-desk add-on per resolution or letting a model improvise your refund policy.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/support-agent/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/support-agent/
 
 Three parts, all free and MIT:
 

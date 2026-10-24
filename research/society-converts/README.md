@@ -11,7 +11,7 @@ value down towards, but not below, the no-stubborn value (0.217), and mostly buy
 assistance (Claude). Track 17 (`society`, `PROJECTS.md`), the first "convert slowly" step listed in `society-blocs`.
 Every result is about simulated people following a stated rule, not real crowds.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/society-converts/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/society-converts/
 
 ## Why this question
 

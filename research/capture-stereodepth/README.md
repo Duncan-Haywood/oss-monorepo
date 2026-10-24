@@ -2,7 +2,7 @@
 
 Follow-up to `capture-novelview` (track 13), whose first "Next step" was to replace its oracle and assumed depth noise with depth that is measured. It matters because `capture-novelview` found synthesis helps only if depth is within a few percent, and guessed 2 to 5% was plausible for stereo. **Headline:** with classic block-matching stereo on a rendered rectified pair, mean depth error falls from 14.9% at a 3 cm baseline to 2.7% at 50 cm, but coverage (the share of surface pixels that get a depth) peaks at 91% near 20 cm, and the synthesised in-between view at a 15 degree gap never beats cutting to the nearest camera: best 22.3 dB (20 cm baseline) against 24.8 dB, with exact depth at 27.3 dB. The assumed model (independent noise with the same mean error) is optimistic by 1 to 7 dB, because stereo errors are correlated and missing depth leaves holes. A toy scene: read the ordering, not the decibels. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/capture-stereodepth/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/capture-stereodepth/
 
 **Builds on.** `capture-novelview` (scene, warp and score, copied here so the project is self-contained; the only changes are a rectified `stereo_pair`, sensor noise and a pose-based `render_pose`) and `capture-rig` (triangulation geometry). Stereo matching after Scharstein and Szeliski (2002), "A taxonomy and evaluation of dense two-frame stereo correspondence algorithms", *International Journal of Computer Vision*; the left-right consistency check is the standard occlusion test from the same literature. It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 

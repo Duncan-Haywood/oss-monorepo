@@ -6,7 +6,7 @@ rating, which complaint themes cost the most stars, the phrases only unhappy
 reviewers use, and the low-star reviews you have not replied to.** The file is
 read in the browser; nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/app-review-insights/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/app-review-insights/
 
 After using this, you can now **find the version that broke your rating, rank
 complaints by the stars they cost, and work through an oldest-first reply

@@ -4,7 +4,7 @@ Real feature matches contain mismatches; `sensing-ba` assumed none. With wrong c
 
 This takes the first "Next step" of `sensing-ba`. It is a result about the start as much as the loss.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/sensing-baoutlier/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/sensing-baoutlier/
 
 **Builds on.** `sensing-ba` and `sensing-recon` (this repository) for the rig, pose perturbation, residuals and Umeyama scoring, imported unchanged. Fischler and Bolles (1981), "Random sample consensus", *Communications of the ACM* 24(6), for the per-point consensus start; Huber (1964), *Annals of Mathematical Statistics* 35(1), and the Cauchy (Lorentzian) loss as implemented in SciPy `least_squares` (`loss="huber"`, `"cauchy"`); Triggs et al. (2000), LNCS 1883, for bundle adjustment. Track 15 (`sensing`). No lab in `prompt.md` is built on; none fits.
 

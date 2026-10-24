@@ -2,7 +2,7 @@
 
 Track 11 (adversarial human imitation), side project: the "Next steps" of `mimic-twinregret` asked for a task where friction matters. Its stabilisation task made most wrong twins harmless, so detectability and cost could not be told apart. Here the torque limit (4) is below gravity's pull (g/L = 9.81), so the pendulum must be pumped up against friction before it can be caught. **No LLM is used and no text is generated.** Stylised and simulated only. **Preliminary: one toy system, one task, a 60-point gain grid.** Produced with AI assistance.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/mimic-twinswing/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/mimic-twinswing/
 
 Numbers come from `experiments/results.txt` and `results.json`; the figure is `experiments/auroc_vs_regret.svg`.
 
