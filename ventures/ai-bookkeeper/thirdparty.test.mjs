@@ -168,3 +168,11 @@ test("a Czech 'Pohyby na uctu' text statement is read: blocks, wrapped notes rej
   assert.match(r.rows[1].desc, /INVOICE 3620245785$/);
   assert.deepEqual(r.problems, []);
 });
+
+test("OFX line with no NAME or MEMO is described by its type and check number (ofxtools stmtrs shape)", () => {
+  const r = readOfx(`<OFX><BANKMSGSRSV1><STMTTRNRS><STMTRS><BANKTRANLIST>
+<STMTTRN><TRNTYPE>CHECK</TRNTYPE><DTPOSTED>20051004</DTPOSTED><TRNAMT>-200.00</TRNAMT><FITID>00002</FITID><CHECKNUM>1000</CHECKNUM></STMTTRN>
+<STMTTRN><TRNTYPE>ATM</TRNTYPE><DTPOSTED>20051020</DTPOSTED><TRNAMT>-300.00</TRNAMT><FITID>00003</FITID></STMTTRN>
+</BANKTRANLIST></STMTRS></STMTTRNRS></BANKMSGSRSV1></OFX>`);
+  assert.deepEqual(r.rows.map((x) => x.desc), ["Check #1000", "ATM"]);
+});
