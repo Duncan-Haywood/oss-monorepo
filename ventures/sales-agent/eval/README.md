@@ -71,3 +71,23 @@ and Italian opt-out phrasings were added (one example each, so unverified in
 those languages); the set now reads 36/41 and the unsubscribes all land. The
 patterns also moved `fresh-2026-10-21` from 15 to 16 right (a "cease" phrase),
 so its pins changed; the other three sets are unchanged.
+
+## Call notes (prep and follow-up), added 2026-10-26
+
+`calls.mjs` scores two things the reply sets do not: which of the nine discovery
+fields a note mentions (`prep.mjs`), and whether a call-note line is ours, theirs,
+the dated next step or recap (`followup.mjs`). Hand-written by the agent that wrote
+the rules; invented people and companies.
+
+| File | Items | Role |
+|---|---|---|
+| `calls-prep.jsonl` | 30 | Written first, scored before tuning: 14/30 exact, recall 48%, precision 88%. Tuned on after |
+| `calls-followup.jsonl` | 44 | Written first, scored before tuning: 32/44 (73%). Tuned on after: 44/44 |
+| `calls-prep-fresh.jsonl` | 20 | Written after tuning, scored once: 12/20 exact, precision 85%, recall 61% |
+| `calls-followup-fresh.jsonl` | 26 | Written after tuning, scored once: 24/26, then one fix ("Need to send ..." read as a name): 25/26 |
+
+Read the tuned sets as a regression floor and the fresh sets as the range. Field
+detection by keyword misses paraphrase ("two full days every month to chase
+receipts", "Booked a second call for the 22nd", "Funding is approved"); it rarely
+invents a field, which is the safe direction, since an unknown field only means one
+more question on the agenda. Run: `node eval/calls.mjs`.
