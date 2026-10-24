@@ -50,8 +50,9 @@ MCP server, desktop and mobile packages in `platform/distribution/`). An
 earlier static-first ordering, read as a recipe, produced 121 near-identical
 `<trade>-bid-calculator` ventures
 ([`docs/reports/2026-10-16-calculator-glut.md`](docs/reports/2026-10-16-calculator-glut.md)). Before adding
-a product in an existing template family, don't. Build no new calculators, and
-give existing ones fixes only (owner, 2026-10-21; `prompts/goals.md`, "Depth
+a product in an existing template family, don't. Start no new calculators and
+spend no runs deepening existing ones beyond fixes; already-built work can
+still merge (owner, 2026-10-21; `prompts/goals.md`, "Depth
 over calculators"). A browser tool's engine should be one a chatbot can't
 reproduce in one reply and a maths graduate can't follow at a glance.
 
