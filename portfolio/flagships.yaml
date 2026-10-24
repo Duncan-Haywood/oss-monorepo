@@ -66,7 +66,7 @@ flagships:
       drywall sheet counts per wall and ceiling landed 2026-10-24 (`--drywall`, hand counts; page landed 2026-10-24; joints not on studs; tape and compound landed 2026-10-24, compound rate unverified against a product label; corner bead around openings landed 2026-10-24, free wall ends and ceiling steps open);
       budget from typed unit prices landed 2026-10-24 (`--budget`; page, labor lines and CSV landed 2026-10-24; prices saved in the plan file landed 2026-10-24; foundation labor rates landed 2026-10-24 (`laborFoundationSqFt`, `laborConcreteYd`); next: a real sub's rates);
       code edition, typed by a person who has the book, is open);
-      schedule (critical path, crew levelling, slip table; `--schedule`) landed 2026-10-24 on hand-checked networks; page landed 2026-10-24 (JSON box, sample, saved in the plan; no activity form); next: a real builder's activity list; a 2D reuse of opening cut-outs (sample house: 0 panels fit a hole, `cutout-reuse-bench.mjs`, so only worth rechecking on a real plan);
+      schedule (critical path, crew levelling, slip table; `--schedule`) landed 2026-10-24 on hand-checked networks; page landed 2026-10-24 (JSON box, wiring test only); next: a real builder's activity list; a 2D reuse of opening cut-outs (sample house: 0 panels fit a hole, `cutout-reuse-bench.mjs`, so only worth rechecking on a real plan);
       the panel sheathing-weight field and the panel order and pull-list
       download were clicked through in headless Chromium 2026-10-23 (example plan, `eval-browser-click.mjs`).
 

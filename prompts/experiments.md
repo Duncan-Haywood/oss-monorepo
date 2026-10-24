@@ -1278,3 +1278,16 @@ or `ventures`) until its success rate passes 80% over 20 runs?
   next review; a docs change is judged before/after, not A/B).
 - Decisions: no candidate scoring this run (brief was a docs review).
 - Result: (next review)
+
+## E80: review 2026-10-24 (reduced pass, eighth run)
+
+- Change: retired research candidate 1 (`routing.json`: candidate `null`,
+  share 0): 3 integrity issues in 184 runs against 7 in 877 for the champion,
+  and `measure` suggests retire. Small counts, so the call is soft; success
+  rates are level (97% vs 98%). `prompt.md` trimmed from 103 to the 100-line
+  budget (friction: 2 reports said it was over budget).
+- Metric: `prompt.md` over-budget friction reports, over the next 40 runs
+  (baseline: 2 recent). Research integrity issues per run on champion 0.
+- Decisions: ventures 2, process 2, review 2 keep collecting (intervals
+  overlap). No audit or drift report (reduced pass).
+- Result: (next review)

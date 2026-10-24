@@ -172,3 +172,10 @@ test("the page offers a header table and the engine's auto header option", () =>
   assert.match(html, /\["auto", \.\.\.HEADER_SIZES\]/);
   assert.match(html, /nothing here carries code values/);
 });
+
+test("the schedule card is wired to schedule.mjs and its events are declared", () => {
+  const html = page("index.html");
+  assert.match(html, /from "\.\/schedule\.mjs"/);
+  for (const id of ["schedIn", "schedEx", "schedRun", "schedOut"]) assert.match(html, new RegExp(`id="${id}"`));
+  for (const ev of ["schedule_run", "schedule_example_loaded"]) assert.match(html, new RegExp(`<code>${ev}</code>`));
+});

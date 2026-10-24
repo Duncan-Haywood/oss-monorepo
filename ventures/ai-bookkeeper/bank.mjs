@@ -663,6 +663,7 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
   if (!dfGiven || !dcGiven) {
     const loc = inferLocale(rows.slice(first), columns);
     if (!dfGiven && !hl && loc.dayFirst) { dayFirst = true; localeNote = "Dates read day first"; }
+    if (!dfGiven && !hl && !dayFirst && loc.compactDayFirst) { dayFirst = true; localeNote = "Dates read day first (every date is ambiguous; month first would stretch the statement over months)"; }
     if (!dcGiven && loc.decimalComma) { decimalComma = true; localeNote = (localeNote ? localeNote + " and " : "Amounts read") + (localeNote ? "amounts with decimal commas" : " with decimal commas"); }
   }
   // Italian, Portuguese, Brazilian, Polish, Finnish, Turkish and Czech headers:
@@ -821,9 +822,11 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
 // (dd.mm.yyyy); decimal comma when amounts end ",dd" and none ends ".dd".
 function inferLocale(dataRows, columns) {
   let dayHi = 0, monHi = 0, dots = 0, comma = 0, point = 0;
+  const asDay = [], asMon = [];
   for (const r of dataRows) {
     const d = columns.date === -1 ? null : String(r[columns.date] ?? "").trim().match(/^(\d{1,2})([-/.])(\d{1,2})\2\d{2,4}/);
-    if (d) { if (+d[1] > 12) dayHi++; if (+d[3] > 12) monHi++; if (d[2] === ".") dots++; }
+    if (d) { if (+d[1] > 12) dayHi++; if (+d[3] > 12) monHi++; if (d[2] === ".") dots++;
+      if (+d[1] <= 12 && +d[3] <= 12) { const y = d[0].match(/(\d{2,4})$/)[1]; const yy = +y < 100 ? 2000 + +y : +y; asDay.push(Date.UTC(yy, +d[3] - 1, +d[1]) / 864e5); asMon.push(Date.UTC(yy, +d[1] - 1, +d[3]) / 864e5); } }
     for (const k of ["amount", "debit", "credit", "balance"]) {
       if (columns[k] === -1) continue;
       const a = String(r[columns[k]] ?? "").trim().replace(/[^0-9.,]/g, "");
@@ -831,7 +834,13 @@ function inferLocale(dataRows, columns) {
       else if (/\d\.\d{1,2}$/.test(a)) point++;
     }
   }
-  return { dayFirst: (dayHi > 0 && monHi === 0) || (dayHi === 0 && monHi === 0 && dots > 0), decimalComma: comma > 0 && point === 0 };
+  // Every date ambiguous: a statement covers weeks, not months, so the reading
+  // that packs the dates into a short span is the likely one (05/03..08/03 is
+  // 5-8 March day first, not May to August month first).
+  const span = (a) => (a.length > 1 ? Math.max(...a) - Math.min(...a) : 0);
+  const decided = dayHi > 0 || monHi > 0;
+  const compactDayFirst = !decided && asDay.length >= 4 && span(asDay) <= 45 && span(asMon) >= 90;
+  return { dayFirst: (dayHi > 0 && monHi === 0) || (dayHi === 0 && monHi === 0 && dots > 0), compactDayFirst, decimalComma: comma > 0 && point === 0 };
 }
 
 // A stable id per row so importing the same statement twice adds nothing: the
