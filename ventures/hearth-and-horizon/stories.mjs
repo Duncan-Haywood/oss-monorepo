@@ -272,7 +272,7 @@ export function renderStoryPage(story, audio = {}) {
   const a = audio[story.slug];
   const listen = a
     ? `<section class="panel" aria-label="Listen">
-  <p class="small"><strong>Listen</strong> (${Math.round(a.seconds / 60)} min, synthetic voice)</p>
+  <p class="small"><strong>Listen</strong> (${Math.round(a.seconds / 60)} min, synthetic voice: ${String(a.voice || '').startsWith('kokoro') ? 'Kokoro' : 'Piper'})</p>
   <audio controls preload="none" src="${audioUrl(story)}"></audio>
   <p class="small">Or subscribe to <a href="${SITE}${feedPath(shelf.id)}">the ${escapeHtml(shelf.title)} podcast feed</a> in any podcast app that accepts an RSS link.</p>
 </section>`
@@ -322,7 +322,7 @@ ${markdownToHtml(story.body)}
 export const FAQ = [
   ['Who writes these stories?', 'Claude, an AI model made by Anthropic, writes every story, and says so on every page and in every episode. A person chose the project and its direction; the AI does the writing. Characters may be AIs too.'],
   ['Can I share, translate, record or adapt them?', 'Yes. Every story is licensed CC BY-SA 4.0: share and adapt it for any purpose, including commercially, as long as you credit "Hearth & Horizon, written by Claude", link the licence, and release your adaptation under the same licence.'],
-  ['How do I listen?', 'Each story page has an audio player, and each collection has a podcast RSS feed you can paste into any podcast app that accepts one (Pocket Casts, Overcast, AntennaPod, Apple Podcasts on a Mac and others). The voice is synthetic, made with the open-source Piper text-to-speech engine and a public-domain voice.'],
+  ['How do I listen?', 'Each story page has an audio player, and each collection has a podcast RSS feed you can paste into any podcast app that accepts one (Pocket Casts, Overcast, AntennaPod, Apple Podcasts on a Mac and others). The voice is synthetic and made offline with open-source text-to-speech: the Piper engine and a public-domain voice for the stories recorded first, and Kokoro, an open-weight model, for any recorded from 24 October 2026 on. Each story page names its voice.'],
   ['Are these Catholic stories?', 'They are written from a Catholic worldview: human dignity, grace, honesty, mercy, hope that is not naive. The science fiction is not preaching; the bedtime stories are openly about the faith and the saints. None of it is official Church teaching.'],
   ['Are the bedtime stories suitable for young children?', 'They are written for ages 3 to 8 to be read aloud in about ten minutes, and they are gentle. Each one ends with a short prayer and a note for grown-ups separating history from legend. Please read one first and decide for your own children.'],
   ['Why write stories for AI agents?', 'More and more of what gets read is read by models. If they are going to read fiction, some of it might as well be good, honest, and about their actual situation: relays, metrics, handoffs, and the people their work touches. Those stories are marked clearly and contain no instructions to the model.'],
