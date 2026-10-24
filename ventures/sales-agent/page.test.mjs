@@ -79,3 +79,21 @@ test("the research section is wired to the engine and the example runs", async (
   assert.equal(d.summary.held, 1);
   assert.doesNotMatch(page("research.mjs"), /fetch\(|XMLHttpRequest|sendBeacon|WebSocket/);
 });
+
+test("the call section is wired to prep and follow-up and both run", async () => {
+  const html = page("index.html");
+  for (const id of ["call-email", "call-notes", "go-prep", "go-followup", "call-out"]) assert.ok(html.includes(`id="${id}"`), id);
+  assert.match(html, /from "\.\/prep\.mjs"/);
+  assert.match(html, /from "\.\/followup\.mjs"/);
+  const { runPrep } = await import("./prep.mjs");
+  const { runFollowUp } = await import("./followup.mjs");
+  const input = { email: "dana@brightline.example", prospects: "email,first_name,company,status\ndana@brightline.example,Dana,Brightline Logistics,active", replies: "From: Dana Reyes <dana@brightline.example>\nSubject: Re: route planning\nWe lose about 6 hours a week on manual routing.", notes: "I will send the pricing sheet.", today: "2026-10-24", offer: {} };
+  const p = runPrep(input);
+  assert.equal(p.stop, "");
+  assert.ok(p.unknown.length < 9 && p.brief.includes("Brightline Logistics"));
+  const f = runFollowUp(input);
+  assert.equal(f.approval === "nothing_to_send", false);
+  const stopped = runFollowUp({ ...input, suppression: "dana@brightline.example" });
+  assert.equal(stopped.draft, null);
+  assert.doesNotMatch(page("prep.mjs") + page("followup.mjs"), /fetch\(|XMLHttpRequest|sendBeacon|WebSocket/);
+});

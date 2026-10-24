@@ -1,0 +1,49 @@
+NaijaSenti corpus 44485 tweets, true negative share 0.3285; corpus mix hau 0.349, ibo 0.249, pcm 0.165, yor 0.237
+audit n=400, 1000 draws per cell, seed 20261024; coverage of the 95% interval (binomial sd about 0.007), mean width, mean bias (estimate - truth), points
+
+design coder estimator coverage width bias
+A random | lexicon-en | human pooled | 0.959 | 9.20 | -0.01
+A random | lexicon-en | PPI pooled | 0.956 | 9.29 | -0.00
+A random | lexicon-en | PPI++ pooled | 0.955 | 9.15 | -0.09
+A random | lexicon-en | human strat | 0.952 | 8.83 | -0.05
+A random | lexicon-en | PPI strat | 0.953 | 9.04 | -0.03
+A random | nb-english | human pooled | 0.959 | 9.20 | -0.01
+A random | nb-english | PPI pooled | 0.949 | 10.05 | -0.03
+A random | nb-english | PPI++ pooled | 0.953 | 9.09 | -0.07
+A random | nb-english | human strat | 0.952 | 8.83 | -0.05
+A random | nb-english | PPI strat | 0.951 | 9.93 | -0.01
+A random | nb-in-language | human pooled | 0.959 | 9.20 | -0.01
+A random | nb-in-language | PPI pooled | 0.956 | 9.94 | -0.10
+A random | nb-in-language | PPI++ pooled | 0.955 | 8.38 | -0.08
+A random | nb-in-language | human strat | 0.952 | 8.83 | -0.05
+A random | nb-in-language | PPI strat | 0.945 | 9.14 | -0.03
+B equal quota | lexicon-en | human pooled | 0.869 | 9.35 | +2.17
+B equal quota | lexicon-en | PPI pooled | 0.913 | 9.47 | +1.59
+B equal quota | lexicon-en | PPI++ pooled | 0.891 | 9.30 | +1.78
+B equal quota | lexicon-en | human strat | 0.961 | 9.13 | -0.01
+B equal quota | lexicon-en | PPI strat | 0.951 | 9.29 | -0.03
+B equal quota | nb-english | human pooled | 0.869 | 9.35 | +2.17
+B equal quota | nb-english | PPI pooled | 0.946 | 10.33 | -0.71
+B equal quota | nb-english | PPI++ pooled | 0.938 | 9.21 | +1.17
+B equal quota | nb-english | human strat | 0.961 | 9.13 | -0.01
+B equal quota | nb-english | PPI strat | 0.959 | 10.03 | -0.02
+B equal quota | nb-in-language | human pooled | 0.869 | 9.35 | +2.17
+B equal quota | nb-in-language | PPI pooled | 0.842 | 10.17 | -2.69
+B equal quota | nb-in-language | PPI++ pooled | 0.947 | 8.51 | +0.02
+B equal quota | nb-in-language | human strat | 0.961 | 9.13 | -0.01
+B equal quota | nb-in-language | PPI strat | 0.938 | 9.45 | -0.05
+C 70% hau | lexicon-en | human pooled | 0.952 | 9.25 | +0.60
+C 70% hau | lexicon-en | PPI pooled | 0.938 | 9.34 | +1.01
+C 70% hau | lexicon-en | PPI++ pooled | 0.952 | 9.21 | +0.65
+C 70% hau | lexicon-en | human strat | 0.942 | 10.98 | -0.13
+C 70% hau | lexicon-en | PPI strat | 0.948 | 11.23 | -0.12
+C 70% hau | nb-english | human pooled | 0.952 | 9.25 | +0.60
+C 70% hau | nb-english | PPI pooled | 0.672 | 9.82 | +3.81
+C 70% hau | nb-english | PPI++ pooled | 0.934 | 9.18 | +1.09
+C 70% hau | nb-english | human strat | 0.942 | 10.98 | -0.13
+C 70% hau | nb-english | PPI strat | 0.947 | 12.64 | -0.15
+C 70% hau | nb-in-language | human pooled | 0.952 | 9.25 | +0.60
+C 70% hau | nb-in-language | PPI pooled | 0.693 | 9.90 | -3.78
+C 70% hau | nb-in-language | PPI++ pooled | 0.893 | 8.31 | -1.43
+C 70% hau | nb-in-language | human strat | 0.942 | 10.98 | -0.13
+C 70% hau | nb-in-language | PPI strat | 0.945 | 11.29 | -0.11

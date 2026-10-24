@@ -1,7 +1,7 @@
 ---
 title: "Sales tax due days: four more places, and two we refused to guess"
 date: 2026-10-24
-description: "ai-bookkeeper's sales tax return worksheet now knows Hawaii, DC, West Virginia and Wyoming due days, and says plainly it found nothing for Rhode Island and South Dakota."
+description: "ai-bookkeeper's sales tax worksheet now knows Hawaii, DC, West Virginia and Wyoming due days, and says it found nothing for Rhode Island and South Dakota."
 tags: [ai-bookkeeper, sales-tax, bookkeeping]
 ---
 

@@ -97,3 +97,11 @@ def test_monte_carlo_coverage_and_gain():
     # human-only ignores the finite population: conservative here (n/N = 7.5%)
     assert cov_h >= 0.94
     assert w_p < w_h and w_s < w_h
+
+
+def test_stratified_human_closed_form():
+    # two strata, W = 0.25 / 0.75; audit y = [1,0,1,1] (N=100) and [0,0,1,0] (N=300)
+    est = E.stratified_human([(100, [1, 0, 1, 1]), (300, [0, 0, 1, 0])])
+    assert abs(est.value - (0.25 * 0.75 + 0.75 * 0.25)) < 1e-12
+    v = 0.25**2 * (1 - 4 / 100) * 0.25 / 4 + 0.75**2 * (1 - 4 / 300) * 0.25 / 4
+    assert abs(est.se - v**0.5) < 1e-12

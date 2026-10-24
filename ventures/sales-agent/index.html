@@ -135,6 +135,19 @@
       <button type="button" class="secondary" id="dl-research-leftout">Held and dropped, with reasons (CSV)</button>
     </div>
   </section>
+  <section class="card" id="call">
+    <h2>6. Before and after a call</h2>
+    <p class="note">Type one person's email. <b>Call prep</b> writes a one-page brief from what you paste: what is on file, what they wrote in their own words, which of nine discovery fields you still know nothing about (with the question to ask). <b>Follow-up</b> turns your notes from the call (one point per line; "I will send..." lines become promises) into a recap email that quotes only your notes. Anyone who asked to stop, bounced or is suppressed gets a warning and no draft. It sends nothing.</p>
+    <label for="call-email">Their email</label>
+    <input id="call-email" type="email" autocomplete="off" placeholder="dana@example.com">
+    <label for="call-notes">Call notes (one point per line)</label>
+    <textarea id="call-notes" rows="5" placeholder="They lose about 6 hours a week on manual routing.&#10;I will send the pricing sheet.&#10;Next call on Thursday."></textarea>
+    <p class="note">Uses the replies, prospects, CRM export, suppression list, offer and date from the sections above.</p>
+    <button type="button" id="go-prep">Prepare the call</button>
+    <button type="button" class="secondary" id="go-followup">Draft the follow-up</button>
+    <p id="call-status" role="status" class="note"></p>
+    <pre id="call-out" hidden style="white-space:pre-wrap"></pre>
+  </section>
   <section class="card">
     <details>
       <summary>Optional: let an AI model read the replies and polish the drafts, on your own key</summary>
@@ -193,6 +206,8 @@
     import { runInboxWithModel } from "./ai.mjs";
     import { runDaily, csvQueue, csvLeftOut } from "./daily.mjs";
     import { runResearch, csvAccounts, csvLeftOutResearch, SAMPLE_CRM } from "./research.mjs";
+    import { runPrep } from "./prep.mjs";
+    import { runFollowUp } from "./followup.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
     const $ = (s) => document.querySelector(s);
     const SAVE = "sales-agent:setup", AIKEY = "sales-agent:ai";
@@ -316,6 +331,25 @@
       $("#research-brief").textContent = research.brief; $("#research-brief").hidden = false; $("#research-dl").hidden = false;
       $("#research-status").textContent = s.rows + " rows read, " + s.accounts + " accounts ranked, " + s.dropped + " dropped, " + s.held + " held for consent. Nothing was sent.";
       record("research_run");
+    });
+    const callInput = () => ({
+      email: $("#call-email").value, prospects: result ? result.prospects : $("#prospects").value, replies: $("#replies").value, crm: $("#crm").value,
+      suppression: [$("#suppression").value, ...(result ? result.suppression.map((x) => x.email) : [])].join("\n"),
+      offer: offer(), today: $("#today").value || iso(Date.now()), notes: $("#call-notes").value,
+    });
+    const callOut = (text, status) => { $("#call-out").textContent = text; $("#call-out").hidden = false; $("#call-status").textContent = status + " Nothing was sent."; };
+    $("#go-prep").addEventListener("click", () => {
+      if (!$("#call-email").value.trim()) { $("#call-status").textContent = "Type their email first."; return; }
+      const p = runPrep(callInput());
+      callOut(p.brief, p.stop ? "Do not chase this person: " + p.stop + "." : p.unknown.length + " of 9 discovery fields still unknown.");
+      record("call_prep_run");
+    });
+    $("#go-followup").addEventListener("click", () => {
+      if (!$("#call-email").value.trim()) { $("#call-status").textContent = "Type their email first."; return; }
+      const f = runFollowUp(callInput());
+      const text = (f.issues.length ? f.issues.map((i) => "> " + i).join("\n") + "\n\n" : "") + (f.draft ? "Subject: " + f.draft.subject + "\n\n" + f.draft.body + "\n\n" + (f.lint.ok ? "Checks passed." : "Fix first: " + f.lint.errors.join("; ")) : "");
+      callOut(text, f.approval === "needs_approval" ? "Draft ready for you to read and approve." : f.approval === "fix_first" ? "Draft needs fixes before you use it." : "No draft.");
+      record("call_followup_run");
     });
     $("#dl-accounts").addEventListener("click", () => research && download("ranked-accounts.csv", csvAccounts(research)));
     $("#dl-research-leftout").addEventListener("click", () => research && download("research-left-out.csv", csvLeftOutResearch(research)));

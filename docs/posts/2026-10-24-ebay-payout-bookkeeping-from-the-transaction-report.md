@@ -1,7 +1,7 @@
 ---
 title: "Bookkeeping an eBay payout: what the Transaction report already knows"
 date: 2026-10-24
-description: "An eBay deposit is one lump on the bank statement. The Seller Hub transaction report lists every order, label and fee behind it. How ai-bookkeeper now splits it."
+description: "An eBay deposit is one lump on the bank statement. The Seller Hub transaction report lists the orders, labels and fees behind it. How ai-bookkeeper splits it."
 tags: [ebay, bookkeeping, ecommerce, open-source]
 ---
 

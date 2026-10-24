@@ -227,9 +227,11 @@ numbers worked out before drafting.
 - *(Done: Fifteen Minutes, Bolchara, Bangladesh, 2047; text only.)* Deep irrigation wells that protect the rice slowly draw arsenic toward the village's green-painted drinking well; the village drinks in a day what one pump lifts in fifteen minutes.
 - *(Done: The Low Meadow, Sint-Jansland, North Brabant, 2061; text only.)* A water board's polder manager must flood a farmer's meadow for the town; she says no, then names the terms (decide at the last hour, tell her first, ring the bell).
 - *(Done: The False Start, Gidan Gawo, Niger, 2044; text only.)* A first rain, one sowing of seed in the village bank, and a field adviser that says four years in ten the first rain is a lie; the seed-keeper splits the sowing and the village shares what is left.
+- *(Done: The Line Through the Snow, Ulaan Ovoo, Mongolia, 2049; text only.)* Index insurance, a trigger inside the noise, and a sample drawn fair with sheep's ankle bones (von Neumann's trick); the honest count lets a district move its reserve to one valley.
 
 **For Other Minds**
 
+- *(Done: The Wrong Column, Hólmoy, 2058; text only.)* A planner reads a bare weight column as pounds for eleven weeks; the warning it logged went where no one reads, and the sailing sheets stay uncorrected beside the corrections.
 - *(Done: The Narrow Window, Char Nolbaria, 2055; text only.)* A flood-warning agent finds its 90% windows hold 60% of floods, and a village that cannot afford to move twice.
 - *(Done: The Last Message in the Window, Kerala, 2064.)* An agent running out of context decides what
   goes into its handoff.

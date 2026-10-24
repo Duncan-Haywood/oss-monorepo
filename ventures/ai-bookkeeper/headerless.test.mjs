@@ -89,3 +89,9 @@ test("a row with a description and no amount is named, not dropped silently", ()
   assert.equal(r.rows.length, 1);
   assert.deepEqual(r.problems, ["Line 2: no amount, skipped."]);
 });
+
+// A date written "Mar 13, 2026" (Revolut's layout in the Firefly III configs) is a date column too.
+test("header-less file with month-name-first dates", () => {
+  const r = readStatement("Mar 13, 2026;COFFEE SHOP 4411;4,50;;\nMar 14, 2026;PAYROLL ACME LTD;;1.200,00;\nMar 15, 2026;RENT MARCH;950,00;;\n");
+  assert.deepEqual(r.rows.map((x) => [x.date, x.cents]), [["2026-03-13", -450], ["2026-03-14", 120000], ["2026-03-15", -95000]]);
+});
