@@ -32,11 +32,11 @@ export const INCOME = {
 
 export function parseLedger(text) {
   const rows = [];
-  let payee = null, acct = null;
-  const flush = () => { if (payee && acct) rows.push({ desc: payee, cat: acct }); payee = acct = null; };
+  let payee = null, acct = null, date = null;
+  const flush = () => { if (payee && acct) rows.push({ desc: payee, cat: acct, date }); payee = acct = null; };
   for (const line of text.split(/\r?\n/)) {
-    const h = line.match(/^\d{4}\/\d\d\/\d\d\s+(?:[*!]\s+)?(?:\([^)]*\)\s+)?(.+?)\s*$/);
-    if (h) { flush(); payee = h[1]; continue; }
+    const h = line.match(/^(\d{4}\/\d\d\/\d\d)\s+(?:[*!]\s+)?(?:\([^)]*\)\s+)?(.+?)\s*$/);
+    if (h) { flush(); date = h[1]; payee = h[2]; continue; }
     const p = line.match(/^\s+((?:Expenses|Income):[^\s$].*?)(?:\s{2,}|\t|$)/);
     if (p && !acct) acct = p[1].trim();
     if (!line.trim()) flush();
