@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { newBooks, addDocuments, importStatement, confirm } from "./engine.mjs";
-import { salesTaxReturn, dueDate, stateDueDay, stateEndMonth } from "./salestaxreturn.mjs";
+import { salesTaxReturn, dueDate, stateDueDay, stateEndMonth, STATE_DUE_DAYS } from "./salestaxreturn.mjs";
 
 const csv = [
   "type,number,date,due,party,amount,account,description",
@@ -141,6 +141,14 @@ test("NJ, GA and NC are due the 20th and OH the 23rd of the month after the peri
   for (const s of ["NJ", "GA", "NC"]) assert.equal(dueDate("2026-Q3", stateDueDay(s, "quarterly")), "2026-10-20");
   assert.equal(dueDate("2026-Q1", stateDueDay("oh", "quarterly")), "2026-04-23");
   assert.equal(dueDate("2026-H2", stateDueDay("OH", "semiannual")), "2027-01-23");
+});
+
+test("VA and AZ are due the 20th of the month after the period, and are listed explicitly", () => {
+  for (const s of ["VA", "AZ"]) {
+    assert.equal(STATE_DUE_DAYS[s], 20);
+    assert.equal(dueDate("2026-Q3", stateDueDay(s, "quarterly")), "2026-10-20");
+    assert.equal(dueDate("2026-11", stateDueDay(s, "monthly")), "2026-12-20");
+  }
 });
 
 test("Massachusetts: quarterly and annual returns are due 30 days after the period, monthly the 20th", () => {
