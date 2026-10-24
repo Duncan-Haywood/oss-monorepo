@@ -2,6 +2,24 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-25 · Milestone 3a: does the H curve of 2e survive on the 413k-parameter GPT? (planned before running)
+- Why: 2g's "Next". Everything since 2a is on a 14k-parameter numpy model; the claims (cost of local steps appears at large `H` only; tuned inner lr non-increasing in `H`) need the real transformer of Milestone 1 before they are cited.
+- Design (`experiments/gpt_h_sweep/h_sweep.py`): 2-layer, 128-wide char GPT on Tiny Shakespeare, `M = 4` workers, batch 16 per worker, 960 inner steps per worker (3,840 batches for every method), plain-averaging outer step (lr 1, no momentum), `H` in {sync, 1, 4, 16, 64, 240}; sync is one worker with batch 64. Inner lr in {1e-3, 3e-3, 1e-2} picked on tuning seeds 100, 101 (mean validation loss), then reported on seeds 0, 1, 2 (16 fixed validation batches of 32). Same selection split as 2e.
+- **H3a-i:** `H <= 16` is within 2 sd of synchronous AdamW; refuted if any of `H` = 1, 4, 16 is more than 2 sd (larger of the two seed sds) away.
+- **H3a-ii:** `H = 240` is worse than synchronous by more than 2 sd; refuted otherwise.
+- **H3a-iii:** the picked inner lr is non-increasing in `H`. Recorded as suggestive; 3-point grid, edge picks reported.
+- Limits: one model size, one corpus, 960 steps (sync is probably still improving), three report seeds so a 2-sd rule is weak, lr grid of three.
+
+### Outcome of 3a (`experiments/gpt_h_sweep/h_sweep_results.txt`; about 75 minutes on 4 cores; seeds 0 to 2, validation loss in nats)
+- Deviation from the plan: the first tuning pass (lr 1e-3, 3e-3, 1e-2) picked the grid's lower edge for four of six methods, so 3e-4 was added and the 12 new tuning runs done before any reporting. 3e-4 loses everywhere (2.07 to 2.22), so the picks are interior. Picks: sync 1e-3; `H` = 1, 4, 16, 64, 240: 3e-3, 1e-3, 3e-3, 1e-3, 1e-3. 1e-3 and 3e-3 are within 0.03 of each other for every method, so the picks are not sharp.
+- Report loss (mean, sd over 3 seeds): sync 1.798 (0.013); `H=1` 1.845 (0.041); `H=4` 1.877 (0.002); `H=16` 1.936 (0.054); `H=64` 1.938 (0.008); `H=240` 1.953 (0.008). Differences from sync: +0.047, +0.079, +0.139, +0.141, +0.155.
+- **H3a-i refuted.** `H=4` is +0.079 above sync against a 2 sd bound of 0.027 (paired sd 0.014), and `H=16` is +0.139 (bound 0.108, paired sd 0.050). Only `H=1` is inside, and only because its own sd is 0.041. This differs from 2e (numpy, 14k parameters), where `H <= 16` was within 2 sd.
+- **H3a-ii supported.** `H=240` is +0.155 (bound 0.027).
+- **H3a-iii not supported.** Picks 3e-3, 1e-3, 3e-3, 1e-3, 1e-3 are not monotone, but the 1e-3 and 3e-3 tuning losses differ by less than the seed noise for `H` = 1 to 16, so this is a statement about a flat optimum, not a reversal.
+- Reading: on the real transformer the cost of local steps shows at small `H` already and mostly accrues by `H = 16` (+0.14), then flattens (`H = 240` adds only 0.015 over `H = 64`). That shape (a steep early rise then a plateau) differs from 2e's near-linear-in-log-H rise, and the total gap, 0.15 nats, is 2.5 times the numpy gap of 0.06. Both runs share a confound: `M = 4` averaged batches of 16 are compared with one worker at batch 64, so even `H=1` differs from sync (separate AdamW moment estimates per worker; +0.047, within its noise). Training is 960 steps, so sync may still be improving and a longer budget could change the gap.
+- Limits: one size (413k parameters), one corpus, 960 steps, 3 report seeds (a 2-sd rule with n = 3 is weak: the `H=16` sd of 0.054 is mostly one seed), 4-point lr grid, 2 tuning seeds, outer step fixed to plain averaging.
+- Next: a longer budget (3,840 steps) at `H` in {sync, 4, 16, 64} to see whether the gap shrinks with training; then the outer-momentum grid of 2g on this model.
+
 ## 2026-10-25 · Milestone 2g: finer outer-momentum grid {0.1, 0.2, 0.3} (planned before running)
 - Why: 2f's "Next". It tried momentum 0.5 and 0.9 only, both worse than plain averaging except one 1-sd gain at `H = 64`; the optimum could sit between 0 and 0.5.
 - Design (`experiments/numpy_h_sweep/fine_momentum_sweep.py`; same model, data, budget and report seeds 0 to 4 on half B as 2e/2f). For `H` in {16, 64, 160}, outer lr 1.0, Nesterov momentum in {0.1, 0.2, 0.3}, inner lr fixed at 2e's pick for that `H` (0.03, 0.01, 0.01). No selection on the reported half, so all nine cells are reported unfiltered; the plain row (momentum 0) is 2e's, the runs being deterministic.
