@@ -1,5 +1,5 @@
 blank_issues_enabled: true
 contact_links:
-  - name: No GitHub account? Use the form on the site
+  - name: Which tool? Start from its feedback link
     url: https://duncan-haywood.github.io/monorepo-projects/feedback/
-    about: Report a problem or suggest a feature for one of the free tools without signing in.
+    about: Every tool's footer links the feedback page with the tool named, which opens a bug or feature issue here.
