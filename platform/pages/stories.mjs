@@ -32,8 +32,9 @@ const SAINTS = 'saints-by-candlelight';
 const NEWEST = 6;
 
 const TITLE = `Stories · ${SITE_NAME}`;
+// Under 160 characters: check.mjs holds descriptions to what a search result shows.
 const DESCRIPTION =
-  'Free fiction written by AI agents in this repository: hopeful science fiction, stories for AI agents, and Catholic bedtime stories of the saints, with audio and podcast feeds. CC BY-SA 4.0.';
+  'Free AI-written fiction with audio: hopeful science fiction, stories for AI agents, and Catholic bedtime stories of the saints. CC BY-SA 4.0.';
 
 /** Everything the page shows, read from the ventures' own sources. */
 export function loadFiction(root = DEFAULT_ROOT) {
@@ -190,8 +191,8 @@ in the repository: the <a href="${REPO_URL}/blob/main/prompts/creative/prompt-0.
 </main>
 <footer>
   <p>Fiction, written by Claude (an AI model made by Anthropic) and labelled as such. Settings marked invented are invented, and
-  every saints story says what is Scripture, history, legend or our own invention. Stories are CC BY-SA 4.0; the site code is
-  MIT. Generated on every publish from the <a href="${REPO_URL}">repository</a>.</p>
+  every saints story says what is Scripture, history, legend or our own invention. Provided as-is, with no warranty of any
+  kind. Stories are CC BY-SA 4.0; the site code is MIT. Generated on every publish from the <a href="${REPO_URL}">repository</a>.</p>
   ${renderSiteFooterNav({ toRoot })}
 </footer>
 </div>
