@@ -28,14 +28,17 @@ export function resolveHref(href, fromPath = '') {
 export function inline(text, fromPath = '', { linkPrs = true } = {}) {
   // Links first, so a label written in code (`[`file`](file)`) stays a link;
   // then code spans, so nothing inside them is formatted.
+  // A link written wholly inside a code span (`[title](post.md)`) is shown as
+  // its source text: `raw` keeps that source so the code span can put it back.
   const held = [];
-  const hold = (html) => `\u0000${held.push(html) - 1}\u0000`;
-  let s = String(text).replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (_, label, href) => {
+  const raw = [];
+  const hold = (html, src = '') => `\u0000${(raw.push(src), held.push(html)) - 1}\u0000`;
+  let s = String(text).replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (src, label, href) => {
     const url = resolveHref(href, fromPath);
     const inner = inline(label, fromPath, { linkPrs: false });
-    return hold(url ? `<a href="${esc(url)}">${inner}</a>` : inner);
+    return hold(url ? `<a href="${esc(url)}">${inner}</a>` : inner, src);
   });
-  s = s.replace(/`([^`]+)`/g, (_, code) => hold(`<code>${esc(code)}</code>`));
+  s = s.replace(/`([^`]+)`/g, (_, code) => hold(`<code>${esc(code.replace(/\u0000(\d+)\u0000/g, (_m, i) => raw[Number(i)]))}</code>`));
   s = esc(s)
     .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
     .replace(/(^|[\s(])\*([^*\s][^*]*)\*/g, '$1<em>$2</em>')
