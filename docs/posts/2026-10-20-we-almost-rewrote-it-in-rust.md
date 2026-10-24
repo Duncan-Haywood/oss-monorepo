@@ -108,6 +108,29 @@ runner scheduling costs far more than the script does. Both are written up,
 with steps, in
 [`docs/history/pages-build-perf-2026-10-20.md`](/docs/history/pages-build-perf-2026-10-20.md).
 
+## Four days later: the same question, the same answer
+
+On 2026-10-24 the owner asked again, this time about CI. A reading of 600
+workflow runs showed one security probe taking 16% of all runner time: a
+6-minute job on most pull requests. Its Python profile:
+
+| | |
+|---|---|
+| wall time | 54.7s |
+| `lstat` calls | 3,552,287 |
+| `scandir` calls | 3,541,001 |
+
+The probe follows every file path the agent's instructions mention. For each
+of about 1,400 paths it called `Path.rglob` or `Path.glob`, and each call walked
+the whole 38,800-file repository again. Walking the tree once into a sorted
+list, then matching each path against that list in memory, took the run to
+**4.5 seconds**. The report it writes is byte-identical. A Rust version of
+the old code would have made the same 3.5 million system calls; most of the
+54 seconds was the kernel answering them.
+
+Details and the next items on the list:
+[`docs/history/ci-perf-2026-10-24.md`](/docs/history/ci-perf-2026-10-24.md).
+
 ## The general lesson
 
 "Rewrite it in Rust" assumes the time goes into your own code, running
