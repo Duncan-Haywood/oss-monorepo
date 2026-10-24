@@ -232,6 +232,21 @@ the sales and marketing ventures that already exist comes before adding
 new ones. Spec, guardrails and definition of done:
 [`portfolio/sales-tools/README.md`](../portfolio/sales-tools/README.md).
 
+### AI sales agents, a long-term build
+
+Set by the owner on 2026-10-21: "I want to make ai sales agents this is a
+long term process." The home is
+[`ventures/sales-agent/`](../ventures/sales-agent/README.md), a flagship in
+`portfolio/flagships.yaml`, staged in its
+[`ROADMAP.md`](../ventures/sales-agent/ROADMAP.md): the work of a sales
+development rep done by an agent a small team runs on its own key or a local
+model, composing the existing sales ventures as its tools. The sales-tools
+guardrails hold: the agent may do less on its own (stop, pause, suppress) but
+never more without a person, so every outbound message is a draft someone
+approves. Letting a deployer switch on unattended sending for their own
+mailbox is the owner's call (ROADMAP M5). Accuracy claims come from labelled
+replies written after the code they score.
+
 ## Direction: AI accounting systems
 
 Set by the owner on 2026-10-21: "I want to make ai accounting systems".

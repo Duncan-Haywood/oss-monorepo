@@ -69,6 +69,19 @@ flagships:
       code edition, typed by a person who has the book, is open); a 2D reuse of opening cut-outs (sample house: 0 panels fit a hole, `cutout-reuse-bench.mjs`, so only worth rechecking on a real plan);
       the panel sheathing-weight field and the panel order and pull-list
       download were clicked through in headless Chromium 2026-10-23 (example plan, `eval-browser-click.mjs`).
+
+  # Added 2026-10-21 third, on the owner's direction that day: "I want to make ai sales agents this is a long term
+  # process" (prompts/goals.md, "AI sales agents, a long-term build"). Stages in ventures/sales-agent/ROADMAP.md.
+  - venture: sales-agent
+    why: >-
+      An AI sales agent built in stages with a person approving every outbound message; composes icp-lens,
+      sales-cadence-builder, sales-call-notes-desk and deal-keeper as its tools. The hard problems are reading
+      real replies reliably, keeping consent records, and earning each step of autonomy with measurements.
+    next: >-
+      M1 (inbox agent: reply triage, automatic stop/pause/suppress, approval queue, page, CLI, MCP tool) is in.
+      Its rules read 15 of 40 fresh hand-written replies right (README "How well it reads replies"). Next (M2):
+      score a hosted and a local model with eval/model.mjs on eval/fresh-2026-10-21.jsonl, and write a new fresh
+      set by a different author before any rule change; then M3, the daily run over the cadence builder's tasks.
   # Added 2026-10-20 first, on the owner's direction that day for research
   # algorithms as tools (prompts/goals.md). New tools of that kind follow
   # portfolio/research-tools/README.md; this entry deepens the first one.

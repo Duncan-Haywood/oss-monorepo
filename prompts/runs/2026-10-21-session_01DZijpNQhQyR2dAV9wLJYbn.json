@@ -1,0 +1,74 @@
+{
+  "date": "2026-10-21",
+  "session": "https://claude.ai/code/session_01DZijpNQhQyR2dAV9wLJYbn",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "I want to make ai sales agents this is a long term process.",
+  "input_sha256": "7d9d359145865dbe7d62d301fb012082f10f414ea599223b4fff15a2db7f4af0",
+  "follow_up_inputs": [
+    "continue on this (2026-10-24)"
+  ],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-21T03:05:16Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Start the owner's long-term AI sales agents direction: home venture, roadmap, flagship, and milestone 1 (inbox agent).",
+  "projects": [
+    "ventures/sales-agent"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/9043",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 25,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First held-out reply set scored 24/48 after the rules hit 72/72 on the tuning set; rules overfit",
+      "fix": "Recorded the number, broadened rules once, wrote a third fresh set scored once (15/40) and redesigned: rules act only when they fire, the rest goes to a person"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Its 50s shallow-history fetch timed out and left .git/shallow.lock behind, which blocked the next git fetch until removed by hand."
+    },
+    {
+      "file": "docs/posts/2026-10-21-what-ai-agents-depend-on-and-where-they-beat-people.md",
+      "issue": "208-character description on main breaks build.mjs, so browser_checks.py cannot run for any venture until open PR #9034 lands; verified locally with a temporary uncommitted shortening."
+    },
+    {
+      "file": "platform/marketing/front-door-tools.mjs",
+      "issue": "Retired mirror (P024) still gates every venture PR: warn ratio 85.8% and shard-mount test red on main itself; this PR made the eighth ceiling raise. Running --write (as earlier guidance said) also rewrites gitops/prod/portfolio-front.yaml."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Site moved to duncan-haywood.github.io/oss-monorepo/ while main's research/README.md, ~1,000 research READMEs and readme-live-link tests still expect the old host; research_live_links check and 5 readme-live-link tests red on main (2026-10-24)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/sales-tools/README.md",
+      "why": "'Extend existing ventures before adding new ones': added a new venture because the agent composes four existing ones (their CSVs are its interfaces) rather than copying any; none reads replies."
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "Put sales-agent first, ahead of the 2026-10-20 picks, because it is the owner's newest explicit long-term direction; the owner can reorder."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Owner input: 'I want to make ai sales agents this is a long term process.' Shipped ventures/sales-agent M1 (inbox agent: triage, automatic stop/pause/suppress with consent record, drafts queued for approval, never sends; BYOK model merge that may only lower contact), ROADMAP M1-M8, eval sets (72+48 tuned, 40 fresh scored once: rules acted 22 right 15; naive Bayes guesses right 11/18 with 5 overreaching), page/CLI/MCP/llms.txt, goals.md direction, flagship entry, report and post. Checks: node --test 25 pass; Chromium 390px smoke OK; clauses OK; sitemap coverage pass; mirrored tool count pass after sync_tree_counts; router validate and promptctl validate OK. M2 (model accuracy) unmeasured: no key or local model in the container. Follow-up 2026-10-24: merged main twice (951 + 12 commits); regenerated front door and counts; ported fixes red on main (storage guard copy of usage.mjs, mirror ceiling 32->36 MiB with generator shard mounts, security-header location count 12->14); did not port the half-landed site URL move (research README, readme-live-link tests); moved sales-agent's own URLs to the new host.",
+  "corrections": [],
+  "redteam": null
+}
