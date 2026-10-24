@@ -104,6 +104,7 @@ node generate.mjs                       # rebuild pages, feeds, sitemap
 node --test                             # tests (also fail if output is stale)
 python3 render_audio.py <slug> --voice en_US-ljspeech-high.onnx   # then node generate.mjs
 python3 make_covers.py                  # redraw the podcast covers
+python3 shelf_stats.py                  # compare the two science fiction shelves (counts behind the 2026-10-24 blog post)
 ```
 
 Writing the next story? Read [`BIBLE.md`](BIBLE.md) first: tone, worldview and
