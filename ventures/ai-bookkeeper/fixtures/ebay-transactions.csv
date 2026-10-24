@@ -1,0 +1,12 @@
+Transaction report
+Seller ID,"examplestore"
+Report period,"Apr 1, 2026 - Apr 30, 2026"
+Currency,USD
+
+Transaction creation date,Type,Order number,Legacy order ID,Buyer username,Net amount,Payout currency,Payout date,Payout ID,Payout method,Sale currency,Gross transaction amount,Final Value Fee - fixed,Final Value Fee - variable,Item subtotal,Shipping and handling,Seller collected tax,Item title
+"Apr 3, 2026",Order,12-00001-11111,,buyer_a,$86.70,USD,"Apr 8, 2026",PO-1001,Bank,USD,$100.00,-$0.30,-$13.00,$90.00,$5.00,$5.00,Vintage lens
+"Apr 5, 2026",Order,12-00002-22222,,buyer_b,$43.20,USD,"Apr 8, 2026",PO-1001,Bank,USD,$50.00,-$0.30,-$6.50,$50.00,$0.00,$0.00,Camera strap
+"Apr 6, 2026",Shipping label,12-00001-11111,,buyer_a,-$8.20,USD,"Apr 8, 2026",PO-1001,Bank,USD,--,--,--,--,--,--,Vintage lens
+"Apr 7, 2026",Refund,12-00002-22222,,buyer_b,-$10.00,USD,"Apr 8, 2026",PO-1001,Bank,USD,-$10.00,--,--,--,--,--,Camera strap
+"Apr 8, 2026",Payout,--,,,$111.70,USD,"Apr 8, 2026",PO-1001,Bank,USD,--,--,--,--,--,--,--
+"Apr 20, 2026",Order,12-00003-33333,,buyer_c,$26.10,USD,--,--,--,USD,$30.00,-$0.30,-$3.60,$30.00,$0.00,$0.00,Lens cap
