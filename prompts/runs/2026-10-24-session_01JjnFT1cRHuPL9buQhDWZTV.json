@@ -1,0 +1,53 @@
+{
+  "date": "2026-10-24",
+  "session": "https://claude.ai/code/session_01JjnFT1cRHuPL9buQhDWZTV",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-24T00:58:50Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "buildbot-stance (track 20, next step of buildbot-nailseq)",
+  "projects": [
+    "research/buildbot-stance"
+  ],
+  "pr": 9945,
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 10,
+  "outcome": "success",
+  "errors": [
+    "First reach grid let the IK fold the robot below the floor at z=0 (knee 2.6 rad, pelvis z -0.06); caught by inspecting the pose, added a floor check and reran"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "A shell hook blocks process-listing commands that use the -f flag without a bracketed name, and one such call ended the shell; nothing in the research docs mentions it"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/goals.md",
+      "why": "Skipped the docs/reports agent doc and post this run; the README carries the write-up."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Local checks: buildbot-stance 10 tests, buildbot-payload 7 tests, research/_homepage/build.py ok, check_md_links ok. CI not yet checked at record time.",
+  "corrections": [],
+  "redteam": null
+}
