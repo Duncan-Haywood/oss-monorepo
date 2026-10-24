@@ -1,0 +1,636 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Agent Workroom — A 3D Room for Your AI Agents' Tasks, by Voice or Text</title>
+  <meta name="description" content="Walk around a 3D room where each AI coding agent has a desk and every task sits on the wall. Add and move tasks by voice or text, and pull progress from a GitHub repo's pull requests. Free, runs in your browser.">
+  <meta property="og:title" content="Agent Workroom: a 3D room for your AI agents' tasks">
+  <meta property="og:description" content="Each agent gets a desk with its current task on the monitor; the task wall shows what's queued, in progress, in review and done. Speak or type tasks; pull live progress from GitHub pull requests. No account, no upload.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Agent Workroom","applicationCategory":"DeveloperApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"A walkable 3D room for keeping track of work handed to AI coding agents: one desk per agent showing its current task and progress, a task wall with to-do, in-progress, review and done columns, task entry by voice or text, and optional progress import from a public GitHub repository's pull requests. Runs entirely in the browser; tasks are stored only in local storage."}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is this real VR?","acceptedAnswer":{"@type":"Answer","text":"No headset needed and none supported yet. It is a 3D room drawn with CSS that you walk through with the keyboard or by dragging, on a laptop or a phone. It feels like a small virtual office; it is not a WebXR app."}},{"@type":"Question","name":"Where are my tasks stored?","acceptedAnswer":{"@type":"Answer","text":"Only in this browser's local storage. Nothing is sent to a server of ours. Export the board as JSON to back it up or move it to another device."}},{"@type":"Question","name":"Does voice input send my audio anywhere?","acceptedAnswer":{"@type":"Answer","text":"Voice uses your browser's built-in speech recognition. Some browsers, Chrome among them, send the audio to the browser maker's speech service to transcribe it. The page only receives the text. If you'd rather not, type instead: the commands are the same."}},{"@type":"Question","name":"How does the GitHub import work?","acceptedAnswer":{"@type":"Answer","text":"Give it a public repository. The page asks GitHub's public API for the 40 most recently updated pull requests: drafts become in-progress tasks, open ones in-review, merged ones done. Branches named claude/..., codex/... or copilot/... go to a desk for that agent; other pull requests go to their author. No token is used, so GitHub allows about 60 requests an hour from your address."}}]}</script>
+  <style>
+    :root {
+      --bg: #f5f4f0; --ink: #1d1d1f; --muted: #5b5b63; --card: #fff; --line: #dcdad3; --accent: #3b5bdb; --accent-ink: #fff;
+      --todo: #868e96; --doing: #f08c00; --review: #7048e8; --done: #2f9e44;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --bg: #16171b; --ink: #ececf1; --muted: #a2a2ad; --card: #202228; --line: #34363f; --accent: #748ffc; --accent-ink: #0b0c10; }
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; background: var(--bg); color: var(--ink); }
+    main, footer { max-width: 1100px; margin: 0 auto; padding: 0 16px; }
+    header { max-width: 1100px; margin: 0 auto; padding: 20px 16px 8px; }
+    h1 { font-size: 1.6rem; margin: 0 0 4px; }
+    h2 { font-size: 1.2rem; margin: 32px 0 8px; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p { margin: 0 0 10px; }
+    a { color: var(--accent); }
+    code, kbd { font: 0.9em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    kbd { border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 4px; padding: 0 4px; background: var(--card); }
+    .lede { color: var(--muted); max-width: 70ch; }
+    button, select, input, textarea { font: inherit; color: inherit; }
+    button { cursor: pointer; border: 1px solid var(--accent); background: var(--accent); color: var(--accent-ink); border-radius: 8px; padding: 6px 12px; }
+    button.secondary { background: transparent; color: var(--accent); }
+    button:focus-visible, input:focus-visible, select:focus-visible, #scene:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+    input[type=text], input[type=search], select { border: 1px solid var(--line); background: var(--card); border-radius: 8px; padding: 6px 10px; }
+    [hidden] { display: none !important; }
+
+    /* ---------- the room ---------- */
+    #scene {
+      position: relative; height: min(68vh, 620px); min-height: 360px; overflow: hidden; perspective: 760px;
+      background: linear-gradient(#1b1d2b, #2a2d40); border-radius: 14px; cursor: grab; touch-action: none; user-select: none;
+      max-width: 1400px; margin: 8px auto 0;
+    }
+    #scene.dragging { cursor: grabbing; }
+    #camera, #world { position: absolute; left: 50%; top: 50%; width: 0; height: 0; transform-style: preserve-3d; }
+    #world > *, .desk > * { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
+    .desk { transform-style: preserve-3d; transform-origin: 0 0; }
+    .floor { width: 1800px; height: 1800px; background:
+      repeating-linear-gradient(90deg, transparent 0 118px, rgba(0,0,0,.18) 118px 120px),
+      linear-gradient(#a8825c, #8a6744); }
+    .ceiling { width: 1800px; height: 1800px; background: radial-gradient(circle at 50% 50%, #f1efe8 0 6%, #d9d6cc 7% 100%); }
+    .wall { width: 1800px; height: 560px; background: linear-gradient(#e9e5da, #d8d2c3); }
+    .wall.side { background: linear-gradient(90deg, #ddd8ca, #e7e2d6 50%, #ddd8ca); }
+    .window { width: 520px; height: 240px; border: 14px solid #f8f6f1; background: linear-gradient(#8ec5ff, #cfe8ff 70%, #9bd17a 70% 100%); box-shadow: inset 0 0 0 4px #c9c3b4; }
+    .board { width: 1460px; height: 340px; background: #fbfaf7; border: 10px solid #6b5640; border-radius: 6px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding: 12px; color: #1d1d1f; }
+    .col { background: #f1efe9; border-radius: 6px; padding: 8px; overflow: hidden; display: flex; flex-direction: column; gap: 6px; }
+    .col h4 { margin: 0 0 2px; font-size: 18px; display: flex; justify-content: space-between; border-bottom: 4px solid var(--c); }
+    .col[data-s=todo] { --c: var(--todo); } .col[data-s=doing] { --c: var(--doing); } .col[data-s=review] { --c: var(--review); } .col[data-s=done] { --c: var(--done); }
+    .note { background: #fff7c2; border-radius: 4px; padding: 6px 8px; font-size: 14px; line-height: 1.25; box-shadow: 0 2px 3px rgba(0,0,0,.18); cursor: pointer; text-align: left; border: 0; color: #1d1d1f; width: 100%; }
+    .note.high { background: #ffd8c2; }
+    .note.sel { outline: 3px solid #3b5bdb; }
+    .note small { display: block; color: #555; margin-top: 2px; }
+    .bar { height: 6px; background: rgba(0,0,0,.12); border-radius: 3px; overflow: hidden; margin-top: 4px; }
+    .bar i { display: block; height: 100%; background: var(--c, #3b5bdb); }
+    .more { font-size: 13px; color: #666; }
+    .sign { width: 900px; height: 70px; color: #fff; font: 700 40px/70px system-ui, sans-serif; text-align: center; background: #2b2f45; border-radius: 10px; letter-spacing: .5px; }
+    .sign .bar { height: 10px; margin: -12px 40px 0; background: rgba(255,255,255,.2); }
+    .sign .bar i { background: #69db7c; }
+    .rug { width: 900px; height: 520px; border-radius: 50%; background: radial-gradient(#5c7cfa55, #364fc744 60%, transparent 61%); }
+
+    .d-top { width: 240px; height: 120px; background: linear-gradient(#b08d65, #9a7853); }
+    .d-front { width: 240px; height: 90px; background: #7d5f40; color: #fff; padding: 10px 12px; font: 600 15px/1.25 system-ui, sans-serif; }
+    .d-front small { display: block; font-weight: 400; opacity: .85; font-size: 12px; }
+    .d-side { width: 120px; height: 90px; background: #6c5136; }
+    .monitor { width: 170px; height: 108px; background: #111522; border: 6px solid #2c2f3a; border-radius: 6px; color: #d8e3ff; padding: 6px 8px; font: 12px/1.25 ui-monospace, Menlo, monospace; overflow: hidden; }
+    .monitor b { color: #fff; display: block; margin-bottom: 3px; font-size: 13px; }
+    .monitor .bar { background: rgba(255,255,255,.15); }
+    .monitor .bar i { background: #69db7c; }
+    .stand { width: 16px; height: 34px; background: #2c2f3a; }
+    .avatar { width: 80px; height: 130px; display: flex; flex-direction: column; align-items: center; pointer-events: none; }
+    .avatar .head { width: 50px; height: 50px; border-radius: 50%; background: var(--a); box-shadow: inset -6px -6px 0 rgba(0,0,0,.18); position: relative; }
+    .avatar .head::before, .avatar .head::after { content: ""; position: absolute; top: 18px; width: 7px; height: 9px; border-radius: 50%; background: #111; }
+    .avatar .head::before { left: 14px; } .avatar .head::after { right: 14px; }
+    .avatar .body { width: 76px; height: 78px; margin-top: 4px; border-radius: 30px 30px 6px 6px; background: var(--a); filter: brightness(.82); }
+    .avatar.busy .head { animation: bob 1.6s ease-in-out infinite; }
+    .avatar.idle { opacity: .75; }
+    @keyframes bob { 50% { transform: translateY(-5px) rotate(-4deg); } }
+    @media (prefers-reduced-motion: reduce) { .avatar.busy .head { animation: none; } }
+    .desk-hit { width: 240px; height: 260px; cursor: pointer; background: transparent; border: 0; padding: 0; }
+
+    .hud { position: absolute; left: 12px; top: 10px; right: 12px; display: flex; justify-content: space-between; gap: 8px; pointer-events: none; color: #e6e9ff; font-size: 13px; }
+    .hud > * { background: rgba(10,12,22,.6); border-radius: 8px; padding: 4px 10px; }
+    .hud button { pointer-events: auto; padding: 2px 8px; font-size: 13px; color: #fff; border-color: rgba(255,255,255,.5); }
+    .hud kbd { background: transparent; color: inherit; border-color: rgba(255,255,255,.45); }
+    .cmd { position: absolute; left: 12px; right: 12px; bottom: 12px; display: flex; gap: 8px; align-items: center; background: rgba(10,12,22,.72); padding: 8px; border-radius: 12px; }
+    .cmd input { flex: 1; min-width: 0; background: rgba(255,255,255,.95); color: #111; border: 0; }
+    .cmd button { white-space: nowrap; }
+    #mic { background: #e03131; border-color: #e03131; color: #fff; }
+    #mic.on { animation: pulse 1s infinite; }
+    @keyframes pulse { 50% { box-shadow: 0 0 0 6px rgba(224,49,49,.35); } }
+    #said { position: absolute; left: 12px; right: 12px; bottom: 66px; color: #fff; text-shadow: 0 1px 3px #000; font-size: 15px; pointer-events: none; }
+    #scene:fullscreen { height: 100vh; border-radius: 0; max-width: none; }
+
+    /* ---------- the flat view ---------- */
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+    .panel { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px; }
+    .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    table { width: 100%; border-collapse: collapse; font-size: 15px; }
+    th, td { text-align: left; padding: 6px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+    td.t { min-width: 180px; }
+    tr.sel td { background: color-mix(in srgb, var(--accent) 12%, transparent); }
+    td input[type=range] { width: 90px; }
+    .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; background: var(--c); }
+    .table-wrap { overflow-x: auto; }
+    #msg { min-height: 1.5em; color: var(--muted); }
+    .faq h3 { margin-top: 16px; }
+    footer { padding-top: 24px; padding-bottom: 32px; color: var(--muted); font-size: 14px; }
+    @media (max-width: 640px) { .cmd { flex-wrap: wrap; } .cmd input { flex-basis: 100%; } .hud .keys { display: none; } }
+  </style>
+</head>
+<body>
+<header>
+  <h1>Agent Workroom</h1>
+  <p class="lede">A small 3D office for the AI agents you hand work to. Each agent has a desk with its current task on the monitor; the wall holds every task as a sticky note in to&nbsp;do, in progress, in review or done. Type or say what needs doing, and pull real progress from a GitHub repository's pull requests.</p>
+</header>
+
+<div id="scene" tabindex="0" role="application" aria-label="3D workroom. Drag or use the arrow keys to look around; W, A, S and D walk. Every task is also listed in the table below the room.">
+  <div id="camera"><div id="world"></div></div>
+  <div class="hud">
+    <span id="hud-progress">0 tasks</span>
+    <span class="keys">Drag or <kbd>←</kbd><kbd>→</kbd> to look · <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> to walk · <kbd>/</kbd> to type</span>
+    <span><button type="button" id="recentre" class="secondary">Recentre</button> <button type="button" id="full" class="secondary">Full screen</button></span>
+  </div>
+  <div id="said" aria-hidden="true"></div>
+  <form class="cmd" id="cmd-form" autocomplete="off">
+    <label for="cmd" hidden>Command or new task</label>
+    <input id="cmd" type="text" placeholder="e.g. fix the login redirect for Builder · start 2 · move 3 to review" enterkeyhint="send">
+    <button type="button" id="mic" title="Speak a command" hidden>🎤 Speak</button>
+    <button type="submit">Add</button>
+  </form>
+</div>
+
+<main>
+  <p id="msg" role="status" aria-live="polite"></p>
+
+  <h2>Tasks</h2>
+  <div class="row" style="margin-bottom:8px">
+    <label for="filter">Show</label>
+    <select id="filter"><option value="">Every agent</option></select>
+    <label><input type="checkbox" id="hide-done"> Hide done</label>
+  </div>
+  <div class="table-wrap panel">
+    <table>
+      <thead><tr><th>#</th><th>Task</th><th>Agent</th><th>Status</th><th>Progress</th><th>Hand off</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+    <p id="empty" class="lede">No tasks yet. Type one in the bar inside the room, or load the example.</p>
+  </div>
+
+  <h2>Set up</h2>
+  <div class="grid">
+    <section class="panel" aria-labelledby="agents-h">
+      <h3 id="agents-h">Agents</h3>
+      <p id="agent-list" class="lede"></p>
+      <form id="agent-form" class="row">
+        <label for="agent-name" hidden>New agent name</label>
+        <input id="agent-name" type="text" placeholder="New agent's name" maxlength="24">
+        <button type="submit">Add desk</button>
+      </form>
+    </section>
+    <section class="panel" aria-labelledby="gh-h">
+      <h3 id="gh-h">Progress from GitHub</h3>
+      <p class="lede">Pull requests from a public repository become tasks: draft → in progress, open → in review, merged → done.</p>
+      <form id="gh-form" class="row">
+        <label for="repo" hidden>Repository</label>
+        <input id="repo" type="text" placeholder="owner/repo or its URL" style="flex:1;min-width:160px">
+        <button type="submit">Pull progress</button>
+      </form>
+      <p><label><input type="checkbox" id="auto"> Refresh every 5 minutes while open</label></p>
+    </section>
+    <section class="panel" aria-labelledby="data-h">
+      <h3 id="data-h">Your data</h3>
+      <p class="lede">Saved in this browser only. Export to back it up or move it.</p>
+      <div class="row">
+        <button type="button" id="export" class="secondary">Export JSON</button>
+        <label class="secondary" style="cursor:pointer"><input type="file" id="import" accept="application/json,.json" hidden><span style="color:var(--accent)">Import JSON</span></label>
+        <button type="button" id="example" class="secondary">Load example</button>
+        <button type="button" id="reset" class="secondary">Clear all</button>
+      </div>
+      <p><label><input type="checkbox" id="speak-back"> Read replies aloud</label></p>
+    </section>
+  </div>
+
+  <h2>Things you can type or say</h2>
+  <div class="panel">
+    <table>
+      <tbody>
+        <tr><td><code>fix the login redirect for Builder</code></td><td>New task on Builder's desk. Anything that isn't a command below is a new task.</td></tr>
+        <tr><td><code>add task: rotate deploy key @Scout #ops !</code></td><td>Typed shorthand: <code>@agent</code>, <code>#tag</code>, <code>!</code> for high priority (or say "urgent").</td></tr>
+        <tr><td><code>start 2</code> · <code>finish 2</code></td><td>Move task 2 to in progress, or to done.</td></tr>
+        <tr><td><code>move login to review</code> · <code>mark task three done</code></td><td>Refer to a task by number or by the start of its title.</td></tr>
+        <tr><td><code>assign 4 to Reviewer</code></td><td>Hand a task to another desk.</td></tr>
+        <tr><td><code>add agent called Atlas</code></td><td>A new desk.</td></tr>
+        <tr><td><code>delete 5</code></td><td>Remove a task.</td></tr>
+      </tbody>
+    </table>
+    <p class="lede" style="margin-top:8px">A command that could mean two tasks does nothing and says so, so a misheard word never moves the wrong card.</p>
+  </div>
+
+  <section class="faq">
+    <h2>Questions</h2>
+    <h3>Is this real VR?</h3>
+    <p>No headset needed and none supported yet. It is a 3D room drawn with CSS that you walk through with the keyboard or by dragging, on a laptop or a phone. It feels like a small virtual office; it is not a WebXR app.</p>
+    <h3>Where are my tasks stored?</h3>
+    <p>Only in this browser's local storage. Nothing is sent to a server of ours. Export the board as JSON to back it up or move it to another device.</p>
+    <h3>Does voice input send my audio anywhere?</h3>
+    <p>Voice uses your browser's built-in speech recognition. Some browsers, Chrome among them, send the audio to the browser maker's speech service to transcribe it. The page only receives the text. If you'd rather not, type instead: the commands are the same.</p>
+    <h3>How does the GitHub import work?</h3>
+    <p>Give it a public repository. The page asks GitHub's public API for the 40 most recently updated pull requests: drafts become in-progress tasks, open ones in-review, merged ones done. Branches named <code>claude/…</code>, <code>codex/…</code> or <code>copilot/…</code> go to a desk for that agent; other pull requests go to their author. No token is used, so GitHub allows about 60 requests an hour from your address.</p>
+    <h3>How do I hand a task to an agent?</h3>
+    <p>Each task row has <em>Copy brief</em>, which copies a short prompt to paste into your agent's chat, and, once a repository is set, <em>Draft issue</em>, which opens GitHub's new-issue form prefilled. You review and submit it there; this page never posts anything for you.</p>
+  </section>
+</main>
+
+<footer>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is a personal organiser, not project-management, security or engineering advice. Progress shown from GitHub reflects only pull-request state at the moment it was fetched. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> This page is free and experimental and may change or go offline without notice. Your tasks live only in your browser, so export them if they matter. Do not use this as a system of record.</p>
+  <p>Your tasks are never uploaded: there are no accounts, cookies or analytics vendors. The only network calls are the GitHub API requests you ask for, and, if you use the microphone, whatever your browser's own speech service does. Anonymous feature events (<code>task_added</code>, <code>voice_used</code>, <code>github_pulled</code>, <code>exported</code>, <code>imported</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+  <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+  <p>Also for people who run AI coding agents: <a href="../agent-instructions-drift-check/">Agent Instructions Drift Check</a> finds stale paths and scripts in AGENTS.md or CLAUDE.md, and <a href="../agent-permission-config-check/">Agent Permission Config Check</a> flags over-broad permissions in an agent's settings.</p>
+  <p class="support">Free and open source under an <a href="LICENSE" rel="noopener">MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is entirely optional and never changes what the tool does.</p>
+</footer>
+
+<script type="module">
+  import {
+    STATUSES, STATUS_LABELS, emptyState, loadState, parseCommand, applyCommand, updateTask, removeTask, addAgent,
+    normaliseRepo, pullsApiUrl, mergePulls, agentSummary, overallProgress, issueUrl, taskBrief, deskLayout,
+  } from "./engine.mjs";
+  import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+  const KEY = "agent-workroom-state";
+  const $ = (id) => document.getElementById(id);
+  const MAX_NOTES = 6;
+
+  let state = emptyState();
+  try { state = loadState(localStorage.getItem(KEY) || "null"); } catch { /* storage is optional */ }
+  let selected = null;
+
+  function save() {
+    try { localStorage.setItem(KEY, JSON.stringify(state)); } catch { /* storage is optional */ }
+  }
+
+  // Build elements node by node, never from HTML strings: titles come from GitHub and from people.
+  function h(tag, attrs = {}, ...kids) {
+    const el = document.createElement(tag);
+    for (const [k, v] of Object.entries(attrs)) {
+      if (v == null || v === false) continue;
+      if (k === "style") el.style.cssText = v;
+      else if (k.startsWith("on")) el.addEventListener(k.slice(2), v);
+      else el.setAttribute(k, v === true ? "" : v);
+    }
+    for (const kid of kids.flat()) if (kid != null && kid !== false) el.append(kid);
+    return el;
+  }
+  const bar = (pct, colour) => h("div", { class: "bar", style: colour ? `--c:${colour}` : null }, h("i", { style: `width:${pct}%` }));
+  const place = (el, x, y, z, ry = 0, rx = 0) => {
+    el.style.transform = `translate3d(${x}px,${y}px,${z}px) rotateY(${ry}deg) rotateX(${rx}deg) translate(-50%,-50%)`;
+    return el;
+  };
+
+  function colourFor(name) {
+    let n = 0;
+    for (const c of name) n = (n * 31 + c.charCodeAt(0)) >>> 0;
+    return `hsl(${n % 360} 62% 58%)`;
+  }
+
+  // ---------- camera ----------
+  const START = { x: 0, z: 760, yaw: 0, pitch: 6 };
+  const cam = { ...START };
+  const EYE = -175, HALF = 900, PAD = 80;
+  function applyCamera() {
+    cam.pitch = Math.max(-35, Math.min(35, cam.pitch));
+    cam.x = Math.max(-HALF + PAD, Math.min(HALF - PAD, cam.x));
+    cam.z = Math.max(-HALF + PAD + 60, Math.min(HALF - PAD, cam.z));
+    // A narrow screen gets a wider field of view, so a phone still sees more than one desk.
+    const lens = Math.round(Math.max(360, Math.min(760, scene.clientWidth * 0.6)));
+    scene.style.perspective = `${lens}px`;
+    $("camera").style.transform = `translateZ(${lens}px) rotateX(${cam.pitch}deg) rotateY(${cam.yaw}deg)`;
+    $("world").style.transform = `translate3d(${-cam.x}px,${-EYE}px,${-cam.z}px)`;
+  }
+  function walk(forward, strafe) {
+    const r = (cam.yaw * Math.PI) / 180;
+    cam.x += Math.sin(r) * forward + Math.cos(r) * strafe;
+    cam.z += -Math.cos(r) * forward + Math.sin(r) * strafe;
+    applyCamera();
+  }
+
+  const scene = $("scene");
+  let drag = null;
+  scene.addEventListener("pointerdown", (e) => {
+    if (e.target.closest(".cmd, .hud button, .note, .desk-hit")) return;
+    drag = { x: e.clientX, y: e.clientY, id: e.pointerId, touches: e.pointerType === "touch" };
+    scene.setPointerCapture(e.pointerId);
+    scene.classList.add("dragging");
+  });
+  scene.addEventListener("pointermove", (e) => {
+    if (!drag || e.pointerId !== drag.id) return;
+    cam.yaw += (e.clientX - drag.x) * 0.25;
+    cam.pitch -= (e.clientY - drag.y) * 0.2;
+    drag.x = e.clientX; drag.y = e.clientY;
+    applyCamera();
+  });
+  const endDrag = () => { drag = null; scene.classList.remove("dragging"); };
+  scene.addEventListener("pointerup", endDrag);
+  scene.addEventListener("pointercancel", endDrag);
+  // Only once the room has focus, so scrolling past it still scrolls the page.
+  scene.addEventListener("wheel", (e) => {
+    if (!scene.contains(document.activeElement) && document.fullscreenElement !== scene) return;
+    e.preventDefault();
+    walk(-e.deltaY * 0.6, 0);
+  }, { passive: false });
+
+  const held = new Set();
+  const MOVE_KEYS = { w: [1, 0], s: [-1, 0], a: [0, -1], d: [0, 1], ArrowUp: [1, 0], ArrowDown: [-1, 0] };
+  const TURN_KEYS = { ArrowLeft: -1, ArrowRight: 1, q: -1, e: 1 };
+  scene.addEventListener("keydown", (e) => {
+    if (e.target.closest(".cmd")) return;
+    const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+    if (k === "/") { e.preventDefault(); $("cmd").focus(); return; }
+    if (k === "r") { Object.assign(cam, START); applyCamera(); return; }
+    if (MOVE_KEYS[k] || TURN_KEYS[k]) { e.preventDefault(); held.add(k); tick(); }
+  });
+  scene.addEventListener("keyup", (e) => held.delete(e.key.length === 1 ? e.key.toLowerCase() : e.key));
+  scene.addEventListener("blur", () => held.clear(), true);
+  let ticking = false;
+  function tick() {
+    if (ticking) return;
+    ticking = true;
+    const step = () => {
+      if (!held.size) { ticking = false; return; }
+      let f = 0, s = 0;
+      for (const k of held) {
+        if (MOVE_KEYS[k]) { f += MOVE_KEYS[k][0]; s += MOVE_KEYS[k][1]; }
+        if (TURN_KEYS[k]) cam.yaw += TURN_KEYS[k] * 2.2;
+      }
+      walk(f * 9, s * 9);
+      requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
+  $("recentre").addEventListener("click", () => { Object.assign(cam, START); applyCamera(); });
+  $("full").addEventListener("click", () => {
+    if (document.fullscreenElement) document.exitFullscreen();
+    else scene.requestFullscreen?.().catch(() => {});
+  });
+
+  // ---------- drawing the room ----------
+  function drawRoom() {
+    const world = $("world");
+    const summary = agentSummary(state);
+    const total = state.tasks.length;
+    const overall = overallProgress(state);
+    const parts = [
+      place(h("div", { class: "floor" }), 0, 0, 0, 0, 90),
+      place(h("div", { class: "ceiling" }), 0, -560, 0, 0, -90),
+      place(h("div", { class: "wall" }), 0, -280, -HALF),
+      place(h("div", { class: "wall" }), 0, -280, HALF, 180),
+      place(h("div", { class: "wall side" }), -HALF, -280, 0, 90),
+      place(h("div", { class: "wall side" }), HALF, -280, 0, -90),
+      place(h("div", { class: "window" }), -HALF + 2, -320, 120, 90),
+      place(h("div", { class: "window" }), HALF - 2, -320, 120, -90),
+      place(h("div", { class: "rug" }), 0, -1, 80, 0, 90),
+      place(h("div", { class: "sign" }, total ? `${overall}% done · ${total} task${total === 1 ? "" : "s"}` : "Say or type a task", bar(overall)), 0, -510, -HALF + 4),
+      place(drawBoard(), 0, -305, -HALF + 6),
+    ];
+    const spots = deskLayout(summary.length);
+    summary.forEach((agent, i) => parts.push(drawDesk(agent, spots[i])));
+    world.replaceChildren(...parts);
+    $("hud-progress").textContent = total ? `${overall}% done · ${summary.filter((a) => a.counts.doing).length} agent(s) busy` : "No tasks yet";
+  }
+
+  function drawBoard() {
+    return h("div", { class: "board" }, STATUSES.map((s) => {
+      const items = state.tasks.filter((t) => t.status === s);
+      const shown = (s === "done" ? items.slice(-MAX_NOTES).reverse() : items.slice(0, MAX_NOTES));
+      return h("div", { class: "col", "data-s": s },
+        h("h4", {}, STATUS_LABELS[s], h("span", {}, String(items.length))),
+        shown.map((t) => h("button", {
+          type: "button", class: `note${t.priority === "high" ? " high" : ""}${t.id === selected ? " sel" : ""}`,
+          onclick: () => select(t.id, true),
+        }, `${t.num}. ${t.title}`, h("small", {}, t.agent || "unassigned"), bar(t.progress))),
+        items.length > shown.length ? h("div", { class: "more" }, `+${items.length - shown.length} more`) : null,
+      );
+    }));
+  }
+
+  function drawDesk(agent, spot) {
+    const colour = colourFor(agent.name);
+    const t = agent.current;
+    const desk = h("div", { class: "desk" },
+      place(h("div", { class: "avatar " + (agent.counts.doing ? "busy" : "idle"), style: `--a:${colour}` }, h("div", { class: "head" }), h("div", { class: "body" })), 62, -150, -55),
+      place(h("div", { class: "d-top" }), 0, -90, 0, 0, 90),
+      place(h("div", { class: "d-side" }), -120, -45, 0, 90),
+      place(h("div", { class: "d-side" }), 120, -45, 0, -90),
+      place(h("div", { class: "stand" }), -48, -107, -20, 12),
+      place(h("div", { class: "monitor" },
+        h("b", {}, agent.name),
+        t ? `#${t.num} ${t.title.length > 44 ? t.title.slice(0, 43) + "…" : t.title}` : "Waiting for work",
+        t ? bar(t.progress) : null,
+      ), -48, -175, -20, 12),
+      place(h("div", { class: "d-front" }, agent.name,
+        h("small", {}, `${agent.counts.doing} doing · ${agent.counts.review} review · ${agent.counts.todo} queued · ${agent.counts.done} done`)), 0, -45, 60),
+      place(h("button", { type: "button", class: "desk-hit", "aria-label": `Show ${agent.name}'s tasks`, onclick: () => { $("filter").value = agent.name; drawTable(); $("rows").scrollIntoView({ behavior: "smooth", block: "center" }); } }), 0, -130, 62),
+    );
+    desk.style.transform = `translate3d(${spot.x}px,0,${spot.z}px) rotateY(${spot.rotateY}deg)`;
+    return desk;
+  }
+
+  // ---------- the table ----------
+  function drawTable() {
+    const filter = $("filter").value;
+    const hideDone = $("hide-done").checked;
+    const opts = [h("option", { value: "" }, "Every agent"), ...state.agents.map((a) => h("option", { value: a }, a))];
+    $("filter").replaceChildren(...opts);
+    $("filter").value = state.agents.includes(filter) ? filter : "";
+    const rows = state.tasks
+      .filter((t) => (!$("filter").value || t.agent === $("filter").value) && (!hideDone || t.status !== "done"))
+      .map((t) => {
+        const agentSel = h("select", { "aria-label": `Agent for task ${t.num}`, onchange: (e) => change(t.id, { agent: e.target.value || null }) },
+          h("option", { value: "" }, "unassigned"), state.agents.map((a) => h("option", { value: a, selected: a === t.agent }, a)));
+        const statusSel = h("select", { "aria-label": `Status of task ${t.num}`, onchange: (e) => change(t.id, { status: e.target.value }) },
+          STATUSES.map((s) => h("option", { value: s, selected: s === t.status }, STATUS_LABELS[s])));
+        const range = h("input", { type: "range", min: 0, max: 100, step: 5, value: t.progress, "aria-label": `Progress of task ${t.num}`,
+          onchange: (e) => change(t.id, { progress: Number(e.target.value) }) });
+        return h("tr", { id: `row-${t.id}`, class: t.id === selected ? "sel" : null },
+          h("td", {}, String(t.num)),
+          h("td", { class: "t" }, h("span", { class: "dot", style: `--c:var(--${t.status})` }),
+            t.url ? h("a", { href: t.url, rel: "noopener", target: "_blank" }, t.title) : t.title,
+            t.priority === "high" ? " ⚑" : "", t.tags.length ? h("small", { style: "color:var(--muted)" }, " " + t.tags.map((x) => "#" + x).join(" ")) : null),
+          h("td", {}, agentSel),
+          h("td", {}, statusSel),
+          h("td", {}, range, ` ${t.progress}%`),
+          h("td", {}, h("div", { class: "row" },
+            h("button", { type: "button", class: "secondary", onclick: () => copyBrief(t) }, "Copy brief"),
+            state.repo && t.source !== "github" ? h("a", { href: issueUrl(state.repo, t), target: "_blank", rel: "noopener" }, "Draft issue") : null,
+            h("button", { type: "button", class: "secondary", "aria-label": `Delete task ${t.num}`, onclick: () => { state = removeTask(state, t.id); commit(`Removed task ${t.num}.`); } }, "✕"))),
+        );
+      });
+    $("rows").replaceChildren(...rows);
+    $("empty").hidden = state.tasks.length > 0;
+    $("agent-list").replaceChildren(...state.agents.map((a, i) => [i ? ", " : "", h("span", { style: `color:${colourFor(a)};font-weight:600` }, a)]).flat());
+    $("repo").value = $("repo").value || state.repo;
+  }
+
+  function change(id, changes) {
+    state = updateTask(state, id, changes);
+    commit();
+  }
+
+  function select(id, scroll) {
+    selected = id;
+    render();
+    if (scroll) $(`row-${id}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
+  function render() { drawRoom(); drawTable(); }
+
+  function say(message) {
+    $("msg").textContent = message;
+    $("said").textContent = message;
+    clearTimeout(say.timer);
+    say.timer = setTimeout(() => { $("said").textContent = ""; }, 4000);
+    if ($("speak-back").checked && "speechSynthesis" in window) {
+      speechSynthesis.cancel();
+      speechSynthesis.speak(new SpeechSynthesisUtterance(message));
+    }
+  }
+
+  function commit(message) {
+    save();
+    render();
+    if (message) say(message);
+  }
+
+  function run(line, via) {
+    const command = parseCommand(line, state.agents);
+    const before = state;
+    const r = applyCommand(state, command);
+    state = r.state;
+    if (command.kind === "add" && state !== before) {
+      record("task_added");
+      selected = state.tasks[state.tasks.length - 1].id;
+    }
+    if (via === "voice") record("voice_used");
+    commit(r.message);
+  }
+
+  $("cmd-form").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const line = $("cmd").value;
+    $("cmd").value = "";
+    run(line, "text");
+  });
+  $("cmd").addEventListener("keydown", (e) => { if (e.key === "Escape") scene.focus(); });
+
+  // ---------- voice ----------
+  const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (Recognition) {
+    const mic = $("mic");
+    mic.hidden = false;
+    let rec = null;
+    mic.addEventListener("click", () => {
+      if (rec) { rec.stop(); return; }
+      rec = new Recognition();
+      rec.lang = navigator.language || "en-US";
+      rec.interimResults = true;
+      rec.maxAlternatives = 1;
+      let finalText = "";
+      rec.onresult = (e) => {
+        let interim = "";
+        for (const res of e.results) (res.isFinal ? (finalText = res[0].transcript) : (interim += res[0].transcript));
+        $("cmd").value = finalText || interim;
+        $("said").textContent = "🎤 " + (finalText || interim);
+      };
+      rec.onerror = (e) => say(e.error === "not-allowed" ? "Microphone access was refused. You can type instead." : `Voice stopped: ${e.error}.`);
+      rec.onend = () => {
+        mic.classList.remove("on");
+        mic.textContent = "🎤 Speak";
+        rec = null;
+        if (finalText.trim()) { $("cmd").value = ""; run(finalText, "voice"); }
+      };
+      mic.classList.add("on");
+      mic.textContent = "■ Stop";
+      $("said").textContent = "🎤 Listening…";
+      rec.start();
+    });
+  }
+
+  // ---------- hand-off ----------
+  async function copyBrief(t) {
+    const text = taskBrief(t);
+    try { await navigator.clipboard.writeText(text); say(`Copied a brief for task ${t.num}.`); }
+    catch { window.prompt("Copy this brief:", text); }
+  }
+
+  // ---------- agents ----------
+  $("agent-form").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const name = $("agent-name").value;
+    $("agent-name").value = "";
+    const next = addAgent(state, name);
+    if (next === state) return say("That name is empty or already has a desk.");
+    state = next;
+    commit(`${state.agents[state.agents.length - 1]} has a desk now.`);
+  });
+  $("filter").addEventListener("change", drawTable);
+  $("hide-done").addEventListener("change", drawTable);
+
+  // ---------- GitHub ----------
+  async function pull(repoInput, quiet) {
+    const repo = normaliseRepo(repoInput);
+    if (!repo) return say("That isn't an owner/repo pair, e.g. octocat/hello-world.");
+    if (!quiet) say(`Asking GitHub about ${repo}…`);
+    try {
+      const res = await fetch(pullsApiUrl(repo), { headers: { Accept: "application/vnd.github+json" } });
+      if (res.status === 403 || res.status === 429) return say("GitHub's hourly limit for unsigned requests is used up. Try again later.");
+      if (res.status === 404) return say(`GitHub says ${repo} doesn't exist or isn't public.`);
+      if (!res.ok) return say(`GitHub answered ${res.status}.`);
+      const pulls = await res.json();
+      const r = mergePulls(state, Array.isArray(pulls) ? pulls : [], repo);
+      state = r.state;
+      record("github_pulled");
+      commit(quiet && !r.added && !r.changed ? null : `${repo}: ${r.added} new, ${r.changed} changed, from ${pulls.length} recent pull requests.`);
+    } catch {
+      say("Couldn't reach GitHub from this page.");
+    }
+  }
+  $("gh-form").addEventListener("submit", (e) => { e.preventDefault(); pull($("repo").value); });
+  let timer = null;
+  $("auto").addEventListener("change", (e) => {
+    clearInterval(timer);
+    timer = e.target.checked ? setInterval(() => { if (!document.hidden && state.repo) pull(state.repo, true); }, 5 * 60 * 1000) : null;
+  });
+
+  // ---------- data ----------
+  $("export").addEventListener("click", () => {
+    const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+    const a = h("a", { href: URL.createObjectURL(blob), download: `agent-workroom-${new Date().toISOString().slice(0, 10)}.json` });
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    record("exported");
+  });
+  $("import").addEventListener("change", async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const next = loadState(await file.text());
+    e.target.value = "";
+    if (!next.tasks.length && !confirm("That file has no tasks in it. Replace your board with an empty one?")) return;
+    state = next;
+    record("imported");
+    commit(`Imported ${state.tasks.length} task(s).`);
+  });
+  $("reset").addEventListener("click", () => {
+    if (!confirm("Delete every task and agent on this board? Export first if you want a copy.")) return;
+    state = emptyState();
+    selected = null;
+    commit("Board cleared.");
+  });
+  $("example").addEventListener("click", () => {
+    if (state.tasks.length && !confirm("Add the example tasks to your board?")) return;
+    for (const line of [
+      "Fix the login redirect loop @Builder #auth !",
+      "Write the onboarding email for Scout",
+      "Review the billing pull request @Reviewer",
+      "Add dark mode @Builder #ui",
+      "Find out why CI got slow @Scout",
+      "start 1", "start 5", "move dark mode to review", "finish 3",
+    ]) state = applyCommand(state, parseCommand(line, state.agents)).state;
+    commit("Loaded five example tasks. Walk up to a desk to see what each agent is on.");
+  });
+
+  const optout = $("optout");
+  const syncOptout = () => { optout.textContent = usageOptedOut() ? "Turn usage counting back on" : "Turn usage counting off"; };
+  optout.addEventListener("click", () => { setUsageOptOut(!usageOptedOut()); syncOptout(); });
+  syncOptout();
+
+  addEventListener("resize", applyCamera);
+  applyCamera();
+  render();
+</script>
+</body>
+</html>
