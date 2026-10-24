@@ -1,0 +1,49 @@
+tau=0.65, eps=0.2, reps=1000
+n=30: min coverage CP 95.0, informed 99.2; informed tighter on 0/21 pairs; mean gap CP 0.136, informed 0.186
+n=60: min coverage CP 93.9, informed 99.1; informed tighter on 0/21 pairs; mean gap CP 0.090, informed 0.123
+n=120: min coverage CP 94.7, informed 98.9; informed tighter on 0/21 pairs; mean gap CP 0.061, informed 0.083
+n=240: min coverage CP 95.2, informed 98.6; informed tighter on 0/21 pairs; mean gap CP 0.041, informed 0.056
+-- per pair at n=240 (rho, p, q10, gap_cp, gap_informed, cert_cp%, cert_informed%)
+friction-0  rho=0.878 p=0.102 q10=0.057 gap 0.038 vs 0.049  cert 99.8 vs 99.6
+friction-1  rho=0.875 p=0.119 q10=0.073 gap 0.039 vs 0.050  cert 96.7 vs 93.6
+none-0      rho=0.870 p=0.101 q10=0.056 gap 0.038 vs 0.049  cert 99.9 vs 100.0
+mass-0      rho=0.867 p=0.111 q10=0.065 gap 0.039 vs 0.049  cert 98.8 vs 98.3
+sensor-0    rho=0.864 p=0.105 q10=0.059 gap 0.037 vs 0.047  cert 99.4 vs 99.8
+mass-1      rho=0.860 p=0.129 q10=0.082 gap 0.040 vs 0.052  cert 91.1 vs 80.2
+delay-0     rho=0.852 p=0.130 q10=0.083 gap 0.042 vs 0.052  cert 89.5 vs 81.6
+mass-2      rho=0.848 p=0.154 q10=0.107 gap 0.044 vs 0.056  cert 55.6 vs 34.5
+gain-0      rho=0.844 p=0.123 q10=0.077 gap 0.040 vs 0.051  cert 95.0 vs 90.6
+sensor-1    rho=0.835 p=0.135 q10=0.088 gap 0.042 vs 0.052  cert 84.8 vs 72.0
+friction-2  rho=0.830 p=0.167 q10=0.120 gap 0.044 vs 0.057  cert 32.4 vs 14.7
+mass-3      rho=0.828 p=0.190 q10=0.142 gap 0.046 vs 0.059  cert 8.5 vs 2.4
+gain-1      rho=0.785 p=0.182 q10=0.136 gap 0.046 vs 0.059  cert 13.1 vs 4.6
+delay-1     rho=0.764 p=0.205 q10=0.158 gap 0.049 vs 0.063  cert 1.5 vs 0.1
+sensor-2    rho=0.752 p=0.280 q10=0.233 gap 0.051 vs 0.068  cert 0.0 vs 0.0
+friction-3  rho=0.726 p=0.341 q10=0.294 gap 0.052 vs 0.070  cert 0.0 vs 0.0
+gain-2      rho=0.667 p=0.338 q10=0.290 gap 0.053 vs 0.071  cert 0.0 vs 0.0
+sensor-3    rho=0.611 p=0.839 q10=0.791 gap 0.038 vs 0.059  cert 0.0 vs 0.0
+gain-3      rho=0.533 p=0.633 q10=0.585 gap 0.052 vs 0.072  cert 0.0 vs 0.0
+delay-2     rho=0.367 p=0.802 q10=0.755 gap 0.041 vs 0.061  cert 0.0 vs 0.0
+delay-3     rho=0.170 p=1.000 q10=0.952 gap 0.000 vs 0.032  cert 0.0 vs 0.0
+-- per pair at n=60 (rho, p, q10, gap_cp, gap_informed, cert_cp%, cert_informed%)
+friction-0  rho=0.878 p=0.102 q10=0.057 gap 0.087 vs 0.112  cert 59.0 vs 36.7
+friction-1  rho=0.875 p=0.119 q10=0.073 gap 0.092 vs 0.118  cert 41.1 vs 20.1
+none-0      rho=0.870 p=0.101 q10=0.056 gap 0.086 vs 0.113  cert 60.9 vs 37.4
+mass-0      rho=0.867 p=0.111 q10=0.065 gap 0.090 vs 0.113  cert 49.7 vs 29.5
+sensor-0    rho=0.864 p=0.105 q10=0.059 gap 0.087 vs 0.114  cert 56.2 vs 34.6
+mass-1      rho=0.860 p=0.129 q10=0.082 gap 0.095 vs 0.121  cert 30.0 vs 14.3
+delay-0     rho=0.852 p=0.130 q10=0.083 gap 0.092 vs 0.120  cert 32.1 vs 13.3
+mass-2      rho=0.848 p=0.154 q10=0.107 gap 0.094 vs 0.122  cert 16.8 vs 6.5
+gain-0      rho=0.844 p=0.123 q10=0.077 gap 0.091 vs 0.119  cert 38.8 vs 16.5
+sensor-1    rho=0.835 p=0.135 q10=0.088 gap 0.091 vs 0.119  cert 29.1 vs 12.3
+friction-2  rho=0.830 p=0.167 q10=0.120 gap 0.097 vs 0.127  cert 11.2 vs 2.9
+mass-3      rho=0.828 p=0.190 q10=0.142 gap 0.100 vs 0.133  cert 4.6 vs 1.1
+gain-1      rho=0.785 p=0.182 q10=0.136 gap 0.101 vs 0.134  cert 5.8 vs 0.9
+delay-1     rho=0.764 p=0.205 q10=0.158 gap 0.102 vs 0.135  cert 2.2 vs 0.5
+sensor-2    rho=0.752 p=0.280 q10=0.233 gap 0.108 vs 0.144  cert 0.0 vs 0.0
+friction-3  rho=0.726 p=0.341 q10=0.294 gap 0.115 vs 0.153  cert 0.0 vs 0.0
+gain-2      rho=0.667 p=0.338 q10=0.290 gap 0.111 vs 0.150  cert 0.0 vs 0.0
+sensor-3    rho=0.611 p=0.839 q10=0.791 gap 0.070 vs 0.112  cert 0.0 vs 0.0
+gain-3      rho=0.533 p=0.633 q10=0.585 gap 0.101 vs 0.142  cert 0.0 vs 0.0
+delay-2     rho=0.367 p=0.802 q10=0.755 gap 0.079 vs 0.121  cert 0.0 vs 0.0
+delay-3     rho=0.170 p=1.000 q10=0.952 gap 0.000 vs 0.056  cert 0.0 vs 0.0
