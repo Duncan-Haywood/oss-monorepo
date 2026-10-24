@@ -1,0 +1,11 @@
+{
+ "unit": "page loads per UTC day by browsers that did not send DNT/GPC or opt out; not people",
+ "source": "platform/counter (first-party, cookieless, no IPs or referring hosts stored)",
+ "days": {
+  "2026-10-24": {
+   "about": 1,
+   "ask": 1,
+   "c": 1
+  }
+ }
+}
