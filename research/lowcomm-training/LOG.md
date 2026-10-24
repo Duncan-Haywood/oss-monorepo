@@ -2,6 +2,10 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-24 · Milestone 1: harness (planned before running)
+- Built `src/lowcomm/` (nanoGPT-layout model, char data, simulated `M`-worker DiLoCo engine with per-worker AdamW state, Nesterov outer SGD) and `tests/`.
+- Pre-registered checks, run by `experiments/m1_check.py`: (a) at `M = 1, H = 1`, outer SGD lr 1, DiLoCo and the synchronous AdamW loop give the same loss curve and parameters to 1e-5; (b) on a 3-mode quadratic with gradient noise, run through the same engine with SGD inner and heavy-ball outer, the time-averaged stationary loss over 8 seeds agrees with the closed form of `noisy-local-sgd` within 5% (the 95% interval over seeds contains the closed form); (c) a first transformer run (single seed, preliminary) that DiLoCo at `M = 4, H = 16` trains at all: validation loss falls well below the unigram entropy of the corpus. Refutation of (a) or (b) means the engine is wrong and nothing downstream is trusted.
+
 ## 2026-10-24 · Programme opened
 - Wrote `PROPOSAL.md`: 16 outside references, our own ~12 quadratic-model projects as prior work, six falsifiable hypotheses (H1 to H6), seven milestones, target an optimisation/efficiency workshop then ICML or NeurIPS.
 - Citations are not machine-checked: arXiv and Crossref returned 403 through the proxy this session. Re-run `cite_check.py` first thing in a session with access.
