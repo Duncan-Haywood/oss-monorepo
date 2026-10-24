@@ -13,6 +13,8 @@ for memory 9.** Produced with AI assistance (Claude). Milestone 2 of research tr
 (`society`, `PROJECTS.md`). Every result is about simulated walkers following stated rules,
 not about real crowds.
 
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/society-plaza/
+
 **Live page:** https://duncan-haywood.github.io/oss-monorepo/research/society-plaza/ ·
 **Browser replay (a labelled simulation):** [`experiments/plaza_replay.html`](experiments/plaza_replay.html)
 (download and open; no network needed).

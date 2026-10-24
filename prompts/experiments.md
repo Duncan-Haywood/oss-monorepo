@@ -1262,3 +1262,19 @@ or `ventures`) until its success rate passes 80% over 20 runs?
 - Decisions: all four candidates keep collecting (intervals overlap / too few
   runs). No audit or drift report (reduced pass).
 - Result: (next review)
+
+## E79: review 2026-10-24 (chronicle and lessons pass)
+
+- Change: owner asked for a documentation review "from a chronicalling and
+  lesson pov". `portfolio/hosting/README.md` rewritten as current state plus
+  one-line lessons (362 → 122 lines); the old text moved verbatim to
+  `docs/history/hosting-2026-08-25-to-10-24.md`; new `docs/history/README.md`
+  indexes every history file with its lesson. Stale deploy-first advice fixed
+  in `session_gate.py`, `allocate.py`, `AGENTS.md`, `PRODUCT_PLAYBOOK.md`,
+  `DEVELOPMENT_QUALITY.md`. Report:
+  `docs/reports/2026-10-24-reference-docs-are-not-chronicles.md`.
+- Metric: friction reports naming `portfolio/hosting/README.md` or stale
+  hosting/deploy-first advice, over the next 40 runs (baseline: count at the
+  next review; a docs change is judged before/after, not A/B).
+- Decisions: no candidate scoring this run (brief was a docs review).
+- Result: (next review)

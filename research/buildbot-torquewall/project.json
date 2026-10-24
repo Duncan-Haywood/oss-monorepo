@@ -1,0 +1,6 @@
+{
+ "theme": "buildbot",
+ "title": "Which joint's torque limit sets how fast a stock humanoid can carry a load?",
+ "summary": "The Menagerie G1 and H1 humanoids are re-scored on buildbot-carryphase's prescribed single-support carry step (990 cases: payload, step length, step time) with one joint group's torque limits multiplied by 2 or 4. For the G1 the waist pitch (50&nbsp;N&middot;m in the model) is the wall: doubling it alone lifts the heaviest feasible payload from 4 to 6&nbsp;kg and the 4&nbsp;kg speed from 0.10 to 0.20&nbsp;m/s, while the arms, legs or ankles alone change nothing; all joints at 4&times; reach 10&nbsp;kg. The H1 has no single bottleneck (hip pitch, then elbow): only scaling every joint helps. Best speed stays near 0.2&nbsp;m/s because the gait is prescribed. Limits are the community Menagerie model's, scale factors are swept what-ifs (no actuator is claimed), payload steps are coarse, and no falls or energy are scored. Not a safety case.",
+ "lede": "which joint's torque limit caps a stock humanoid's carrying? For the G1 it is the waist pitch: doubling it alone takes the heaviest feasible payload from 4 to 6 kg; the H1 has no single bottleneck."
+}

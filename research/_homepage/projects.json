@@ -4175,6 +4175,12 @@
   "projects": []
  },
  {
+  "id": "civ",
+  "name": "Civilizations & group psychology",
+  "blurb": "Simulated societies at scale: how opinions, norms and cultures form, split and spread, and which interventions change the path of a large group of people, tested across the modelling assumptions nobody has measured.",
+  "projects": []
+ },
+ {
   "id": "humanities",
   "name": "History & human sciences",
   "blurb": "Cited syntheses of the historical, archaeological and social-scientific record on big human questions: what the evidence shows, what replicated, and how different scholarly and theological lenses read it.",

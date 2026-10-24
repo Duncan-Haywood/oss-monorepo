@@ -113,7 +113,7 @@ numbers in the PR are a summary, never the source.
 - Seed faults only through `redteam.py`, which restores the file. Never
   commit a mutant. `git diff` before you push should show tests, real fixes
   and the record, nothing else.
-- Never mutate `research/` (it is a mirror), generated trees, or anything
-  that deploys, publishes or spends money.
+- Never mutate anything that deploys, publishes or spends money. Leave
+  `research/` (it is a mirror) and generated trees out of a campaign too.
 - Real defects in other people's open pull requests go in a comment on that
   PR, not a fix pushed to their branch.
