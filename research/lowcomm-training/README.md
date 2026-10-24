@@ -28,3 +28,5 @@ cd research/lowcomm-training
 PYTHONPATH=src python3 -m pytest tests -q          # 6 tests, about 40 s, needs torch
 PYTHONPATH=src python3 experiments/m1_check.py     # about 4 min, writes experiments/results.txt
 ```
+
+- First loss-against-`H` smoke sweep (numpy harness, 14k parameters, 3 seeds, outer step untuned): U-shaped, `H=16` 2.32, `H=4` 2.74, `H=160` diverges on one seed; synchronous 2.44. It does not test H2. See [`experiments/numpy_h_sweep/`](experiments/numpy_h_sweep) and the LOG. Run: `cd experiments/numpy_h_sweep && PYTHONPATH=. python3 h_sweep.py` (about 8 min; tests in `tests/` need numpy only).
