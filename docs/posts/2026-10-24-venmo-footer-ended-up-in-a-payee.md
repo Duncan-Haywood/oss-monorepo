@@ -1,6 +1,8 @@
 ---
 title: A Venmo export's legal notice ended up in a payee name
 date: 2026-10-24
+description: "A Venmo export starting with a Username column wasn't recognised as Venmo, so its legal footer ran into the last payment's payee. The reader now knows it."
+tags: [ai-bookkeeper, bank-import, real-data, testing]
 ---
 
 We keep testing the AI Bookkeeper's bank readers on files other projects wrote, because our own fixtures only prove we agree with ourselves. Today's source was the test data of the open-source ledger-autosync tool: PayPal, Venmo, Mint and Amazon CSVs.

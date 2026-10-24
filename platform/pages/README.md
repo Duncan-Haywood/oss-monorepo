@@ -2069,6 +2069,41 @@ its artifact as an independent second opinion on what `ventures/` contains, and
 `publish_surface.py --check` now fails if one variable would ever arm two Pages
 deployments again.
 
+## Build speed
+
+Measured 2026-10-24 (write-up: `docs/history/pages-build-speed-2026-10-24.md`).
+A merge took about 7 minutes to reach the live site when the run passed, and
+only 6 of the last 100 runs on `main` did: 64 failed, 60 of them on one blog
+post's front matter, so the median merge took 48 minutes to go live and the
+worst 169. What changed, and why it is not a new framework:
+
+- **Bad posts no longer stop a deploy.** `PAGES_SKIP_BAD_POSTS=1` (set on
+  deploys only) leaves a malformed post out with a `::warning::`; pull requests
+  and the `test` job stay strict, so it is still flagged.
+- **Share cards are cached** (`share.mjs`, `renderCards`, `PAGES_CARD_CACHE`).
+  Drawing about 2,700 PNGs in JS was half the build. A card is keyed by its
+  options and a hash of the renderer and fonts, so a cached copy is exactly
+  what a fresh draw would produce (cold and warm builds are byte-identical).
+  The workflow keeps one entry per renderer version per day in `actions/cache`.
+- **Audio is served from jsDelivr** (`audio-cdn.mjs`, `--audio-cdn`). The MP3s
+  stay in git; the build links each to
+  `cdn.jsdelivr.net/gh/<repo>@<last commit that changed it>/<path>` and drops
+  it from the artifact (424 MB of 776). jsDelivr returns `audio/mpeg`, byte
+  ranges and open CORS. A file that is not committed, edited locally, over
+  jsDelivr's 20 MB limit, or that nothing links stays on Pages.
+- **Independent passes run concurrently** (`mapLimit`): the chrome pass, share
+  tags and the offline layer each did one page at a time.
+- **The dashboard runs under the build.** Its GitHub API calls (103 s) start
+  in the background before the build and are waited for afterwards. A
+  blob-less checkout was measured and rejected: the daily brief's `--numstat`
+  makes git fetch its window's blobs commit by commit, which is slower than
+  the full clone (history doc, "The blob-less clone").
+
+Local build, same machine: 110 s before, 96 s with no card cache, 50 s with one.
+The language was never the problem: about 7 s of the old build was JavaScript
+doing work; the rest was drawing images, waiting on the disk one file at a
+time, and moving bytes that had not changed.
+
 ## Rollback
 
 The site is rebuilt from `main` on every push and holds no state — no database,
