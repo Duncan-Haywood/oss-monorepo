@@ -1,6 +1,6 @@
 # Verifiable training mechanisms: what is the cheapest payment-and-audit protocol that makes honest ML training an equilibrium?
 
-**Status: open research programme, milestone 2 done (unified library).** No results on the hypotheses yet. This directory is where
+**Status: open research programme, milestones 2 and 3 done.** First result on H1 (below); H2 to H6 untested. This directory is where
 the work toward one publishable paper accumulates across sessions; it consolidates about 60
 small scoring, audit and verifier projects in this repository into one question (see
 [`PROPOSAL.md`](PROPOSAL.md)).
@@ -22,9 +22,15 @@ small-model training.
   H1 to H6, method, evaluation, milestones, target venue.
 - [`src/vtm/`](src/vtm): the unified library (stdlib only): a 2x2 equilibrium solver, the inspection
   game from payoff matrices, audit thresholds, bribery floors and the Brier effort-rent law.
-  `PYTHONPATH=src python3 -m unittest discover -s tests -v` runs 14 tests that reproduce the closed
+  `PYTHONPATH=src python3 -m unittest discover -s tests -v` runs 19 tests (14 reproduce the closed
   forms of `verification-game`, `audit-allocation`, `verifier-bribery` and `effort-elicitation` and
-  agree with those projects' own code.
+  agree with those projects' own code, 5 test the numpy harness `src/vtm/margin.py`).
+- [`experiments/margin/`](experiments/margin): **milestone 3, the hidden margin on real training (H1).** A 64-64-10 MLP
+  on the real scikit-learn digits data, 20 seeds. A referee that re-executes one step and accepts within L2 distance tau
+  passes a worker that skips, subsamples or lowers precision whenever that is cheap. Benign float16 drift is at most 9e-3
+  (median 3e-5); the skip cheat passes 30% of steps at tau = 1e-2 and loses less than one seed std of held-out loss, and loses
+  30 stds only at tau = 0.1, about 10x the worst benign drift. So the margin at drift-sized tolerances is saved work, not a worse model.
+  ![held-out loss given up versus tau](experiments/margin/margin.png)
 - [`LOG.md`](LOG.md): the research log. Hypotheses are written down before experiments are run.
 - How runs work on a programme: [`../PROGRAMMES.md`](../PROGRAMMES.md).
 

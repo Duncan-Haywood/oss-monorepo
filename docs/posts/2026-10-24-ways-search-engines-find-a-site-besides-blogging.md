@@ -1,7 +1,7 @@
 ---
 title: "How search engines and people find a site, besides blogging"
 date: 2026-10-24
-description: "Blogging is one of about a dozen discovery channels: sitemaps, IndexNow, structured data, llms.txt, feeds, backlinks and more. Which ones this site has working."
+description: "Blogging is one of a dozen ways to get found. The others: sitemaps, IndexNow, structured data, llms.txt, feeds, backlinks, registries, and what works here."
 tags: [seo, distribution, discovery, llms-txt, indexnow]
 ---
 
