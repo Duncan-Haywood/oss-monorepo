@@ -595,6 +595,20 @@ The KoSIT XRechnung test suite (itplr-kosit/xrechnung-testsuite, Apache-2.0, not
 
 A negative amount due is accepted only when it equals gross minus prepaid plus rounding; a negative `due` typed with no prepayment is still `INV-029`. Left, not fixed: placeholder VAT ids and IBANs (INV-022/023, 27 and 42 files), the `[BIC]` placeholder (INV-026), 6 files whose line net is not quantity times price (INV-012), 39 files with an IBAN and no remittance reference (INV-030, a style note the standard does not require), and one extension case whose amount due differs from the totals on purpose (INV-029). The same 31 CEN examples also lose 2 INV-035, 2 INV-044 and 1 INV-045.
 
+## Measured on the Peppol BIS 3.0 examples and the ZUGFeRD corpus (2026-10-27)
+
+The OpenPEPPOL `peppol-bis-invoice-3` examples (9 UBL files), the ZUGFeRD community corpus (`ZUGFeRD/corpus`; 51 XRechnung files, 13 ZUGFeRD 2 files) were read, not copied: `node eval/official-examples.mjs <checkout>` (set `PATH_FILTER` to pick a folder). Before: 0 of 9 Peppol files and 2 of 51 XRechnung files were clean. Real false positives fixed in the JS and Python rules (`negative-invoice.test.mjs`, `tests/test_checks.py`):
+
+| Rule | Cause | Fix |
+|---|---|---|
+| INV-013, 015, 016, 029, 050, 038 | the Peppol "negative invoice" example (type 380, negative net, tax, gross and a negative header charge) was refused: totals and header amounts had to be non-negative | a negative net and gross make a negative invoice; its totals, amount due and header allowances/charges keep their sign and the arithmetic is still checked |
+| INV-028 | a negative prepaid amount (KoSIT-valid German insurance invoice, prepaid -220) | accepted when the stated amount due equals gross minus prepaid |
+| INV-032 | only 9 UNCL 1001 codes known; 204, 387, 575, 877 and others in valid files | the BR-CL-01 invoice, credit and debit codes added |
+| INV-048 | Peppol's `NA` purchase-order id with a `SalesOrderID`, and an empty id with one | the sales order number is the reference |
+| INV-045 | an IBAN that is present but malformed (a placeholder) was reported as missing | INV-024 reports it; INV-045 only when none is given |
+
+After: the 9 Peppol examples draw only placeholder-data findings (fake VAT ids, IBANs, GLNs; INV-034 where the example credit note names itself "Snippet1"); XRechnung corpus 8 of 51 clean (INV-032, 048, 028 gone); the rest are placeholders (INV-023 34 files), 7 files whose line net is not quantity times price (true, e.g. 20 x 2.77 stated as 55.46) and style notes. A negative invoice is not valid in every country's rules; this tool only stops calling it arithmetic nonsense.
+
 ## Privacy and usage
 
 Everything is local. Invoice contents are never uploaded or retained by this

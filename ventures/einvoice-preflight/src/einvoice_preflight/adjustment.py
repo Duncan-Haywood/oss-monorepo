@@ -14,6 +14,7 @@ from __future__ import annotations
 from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 from typing import Any
 
+from .linenet import is_negative_invoice
 from .reference import looks_like_placeholder
 
 _MAX_REASON = 100
@@ -49,12 +50,13 @@ def normalize_kind(value: Any) -> str | None:
 def header_adjustment_net_delta(invoice: dict[str, Any]) -> Decimal:
     """Charges minus allowances for rows with a usable amount. Others are 0."""
     delta = Decimal("0.00")
+    negative = is_negative_invoice(invoice)
     for row in _rows(invoice):
         if not isinstance(row, dict):
             continue
         kind = normalize_kind(row.get("kind"))
         amount = _money(row.get("amount"))
-        if kind is None or amount is None or amount < 0:
+        if kind is None or amount is None or (amount < 0 and not negative):
             continue
         if kind == "charge":
             delta += amount
@@ -83,8 +85,9 @@ def inspect_header_adjustments(invoice: dict[str, Any]) -> list[dict[str, str]]:
             "/adjustments",
         )]
     findings: list[dict[str, str]] = []
+    negative = is_negative_invoice(invoice)
     for index, row in enumerate(raw):
-        findings.extend(_inspect_row(row, index))
+        findings.extend(_inspect_row(row, index, negative))
     return findings
 
 
@@ -93,7 +96,7 @@ def _rows(invoice: dict[str, Any]) -> list[Any]:
     return raw if isinstance(raw, list) else []
 
 
-def _inspect_row(row: Any, index: int) -> list[dict[str, str]]:
+def _inspect_row(row: Any, index: int, negative: bool = False) -> list[dict[str, str]]:
     path = f"/adjustments/{index}"
     if not isinstance(row, dict):
         return [_finding(
@@ -129,7 +132,7 @@ def _inspect_row(row: Any, index: int) -> list[dict[str, str]]:
         amount = None
     else:
         amount = _money(row.get("amount"))
-        if amount is None or amount < 0:
+        if amount is None or (amount < 0 and not negative):
             findings.append(_finding(
                 "INV-050",
                 "Header allowance or charge amount is missing or invalid.",

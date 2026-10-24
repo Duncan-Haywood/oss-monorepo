@@ -26,14 +26,24 @@ def round_cents(value: Decimal) -> Decimal:
     return value.quantize(_CENT, rounding=ROUND_HALF_UP)
 
 
-def _signed_adjustment(rows: Any) -> Decimal:
+def is_negative_invoice(invoice: Any) -> bool:
+    """A negative invoice states a negative net and gross; header allowances and
+    charges then carry the same sign (Peppol BIS 3.0 "base-negative-inv-correction")."""
+    totals = invoice.get("totals") if isinstance(invoice, dict) else None
+    if not isinstance(totals, dict):
+        return False
+    net, gross = _number(totals.get("net")), _number(totals.get("gross"))
+    return net is not None and net < 0 and gross is not None and gross < 0
+
+
+def _signed_adjustment(rows: Any, allow_negative: bool = False) -> Decimal:
     delta = Decimal("0")
     for row in rows if isinstance(rows, list) else []:
         if not isinstance(row, dict):
             continue
         kind = str(row.get("kind", "")).lower()
         amount = _number(row.get("amount"))
-        if amount is None or amount < 0 or kind not in ("charge", "allowance"):
+        if amount is None or (amount < 0 and not allow_negative) or kind not in ("charge", "allowance"):
             continue
         delta += amount if kind == "charge" else -amount
     return delta
@@ -119,7 +129,7 @@ def tax_groups(invoice: dict[str, Any]) -> tuple[dict[Any, dict[str, Decimal]], 
         add(tax_key(line, with_category), percent, net)
     adjustments = invoice.get("adjustments") if isinstance(invoice.get("adjustments"), list) else []
     for row in adjustments:
-        delta = _signed_adjustment([row])
+        delta = _signed_adjustment([row], is_negative_invoice(invoice))
         if not delta:
             continue
         key = tax_key(row, with_category) if isinstance(row, dict) else None
