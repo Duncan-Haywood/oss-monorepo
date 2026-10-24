@@ -1,10 +1,13 @@
 // Share cards and share tags: the type rasteriser, the card, and the pass.
 
 import assert from 'node:assert/strict';
+import { existsSync, mkdtempSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import { test } from 'node:test';
 
 import { fillText, fitText, font, measureText, wrapText } from './fontraster.mjs';
-import { cardTitle, completeShareTags, crumbsOf, pageCardPlan, researchTopicColour, siteAddress } from './share.mjs';
+import { cardKey, cardTitle, completeShareTags, crumbsOf, mapLimit, pageCardPlan, renderCards, researchTopicColour, siteAddress } from './share.mjs';
 import { CARD_HEIGHT, CARD_WIDTH, quantize, renderCard, renderMarkIcon, renderSiteCard } from './sharecard.mjs';
 
 const PNG = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
@@ -198,4 +201,38 @@ test('the CLI reads --base= and --only= values whole', async () => {
   } finally {
     await rm(dir, { recursive: true, force: true });
   }
+});
+
+test('the card cache copies an unchanged card and draws a changed one', async () => {
+  const dir = mkdtempSync(path.join(os.tmpdir(), 'cards-'));
+  const cacheDir = path.join(dir, 'cache');
+  const job = (name, headline) => ({ file: path.join(dir, 'out', name), options: { headline } });
+  // A drawn card is stored under its key, byte for byte.
+  await renderCards([job('a.png', 'Cache A')], { cacheDir });
+  const key = cardKey({ headline: 'Cache A' });
+  assert.deepEqual(readdirSync(cacheDir), [`${key}.png`]);
+  assert.deepEqual(readFileSync(path.join(cacheDir, `${key}.png`)), readFileSync(path.join(dir, 'out', 'a.png')));
+
+  // An entry planted for a card this process never drew proves a later build
+  // (a new CI run) copies from the directory rather than drawing.
+  const planted = cardKey({ headline: 'Cache planted' });
+  writeFileSync(path.join(cacheDir, `${planted}.png`), 'cached');
+  await renderCards([job('p.png', 'Cache planted'), job('b.png', 'Cache B')], { cacheDir });
+  assert.equal(readFileSync(path.join(dir, 'out', 'p.png'), 'utf8'), 'cached');
+  assert.deepEqual(readFileSync(path.join(dir, 'out', 'b.png')), renderCard({ headline: 'Cache B' }));
+  assert.ok(existsSync(path.join(cacheDir, `${cardKey({ headline: 'Cache B' })}.png`)));
+  assert.notEqual(cardKey({ headline: 'Cache A' }), cardKey({ headline: 'Cache B' }));
+});
+
+test('a card drawn earlier in the process is reused byte for byte, with no cache directory', async () => {
+  const dir = mkdtempSync(path.join(os.tmpdir(), 'cards-mem-'));
+  const options = { headline: 'Gutter guard bid calculator', kicker: 'Trades', address: 'example.test/gutter/' };
+  await renderCards([{ file: path.join(dir, 'a.png'), options }], { cacheDir: '' });
+  await renderCards([{ file: path.join(dir, 'b.png'), options }], { cacheDir: '' });
+  assert.deepEqual(readFileSync(path.join(dir, 'b.png')), renderCard(options));
+});
+
+test('mapLimit keeps input order', async () => {
+  const out = await mapLimit([30, 10, 20], 2, (ms, i) => new Promise((r) => setTimeout(() => r(i), ms)));
+  assert.deepEqual(out, [0, 1, 2]);
 });

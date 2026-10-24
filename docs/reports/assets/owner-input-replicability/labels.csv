@@ -1,0 +1,116 @@
+session,type,tier,note
+2026-10-14-session_0138YkCmiLbRgK1FYyMQTyh7-2,allocation,4,objective (useful correct throughput) and compute budget
+2026-10-14-session_0138YkCmiLbRgK1FYyMQTyh7,direction,4,OSS chip design and AI accelerators
+2026-10-14-session_01EtuBgroiRQ3eewmHkJaprz,direction,4,adversarial human-imitation research
+2026-10-14-session_01QQ76LnsBD52UR641uKdbWB,policy,3,merge the two repos with no history loss (recorded twice; -2 is a duplicate)
+2026-10-14-session_01QQ76LnsBD52UR641uKdbWB-2,duplicate,0,
+2026-10-15-session_016zB3Cjo9Bo8dBfBpGzNhW5,allocation,3,red team at 5-10% of work
+2026-10-15-session_01AkeTFUTzLgVsNkJURR8f7Z,correction,3,prompts drift from what the owner meant
+2026-10-15-session_01EZCsNQHAhLgkj4Bb1cnV3w,operational,2,check MIT licences and merge
+2026-10-15-session_01TL75f7XX81bd1auHTPSfwk,allocation,3,study the dev process at about 5%
+2026-10-15-session_01Wko6hXihPQJ8GCvrYMJfFU,question,2,what large engineering orgs do
+2026-10-16-session_015p7A5SsScLddJDQArXPrcu,direction,4,architectural and residential engineering
+2026-10-16-session_019ZFPqEHZcs8AVhFhJKHi24,question,2,which languages would help; JSDoc type checking
+2026-10-16-session_019mjtG5jYdybYneao633tJJ,operational,2,status of a study; add a log page
+2026-10-16-session_01F52ogZgVgMiuXEXSoeGbQz,operational,1,24 hour review
+2026-10-16-session_01HzpMttK31quhod3p7H1eGz,correction,3,why calculators got prioritized
+2026-10-16-session_01J6HuSx2eypakUMUBNtLuy1,feature,3,dev-progress portal for the owner
+2026-10-16-session_01KUXNKoz7fmTX2BVzHMNqDH,direction,4,open-source security toolkits
+2026-10-16-session_01QVD4foDfLwLoZEpxhbN8Kk,feature,3,engineering-manager view page
+2026-10-16-session_01V1T9eEFeANvWqBTz5xqaHn-2,feature,3,home page for everything; dev dashboard; CI metrics
+2026-10-16-session_01V1T9eEFeANvWqBTz5xqaHn-3,correction,2,1400 open branches (a count software can watch)
+2026-10-16-session_01V1T9eEFeANvWqBTz5xqaHn,direction,4,sales/marketing BYOK tools; per-PR cost metrics
+2026-10-16-session_01VxgtDQpjqzyKUxN1KZMbYD,feature,3,gather dev-process metadata
+2026-10-16-session_01YABnnxdDLJsUkezem1KL6a,direction,4,runaway-spend and liability-audit tooling
+2026-10-17-session_018whDj8oVnaW5ttoYDECgyw,taste,3,site looks good; blog page; more CI stats
+2026-10-19-session_0142MgLagikCLkBX5HRmkad2,direction,4,clothes-hanging robot
+2026-10-19-session_0168RhD9My6SGay2eQk6gfiG,allocation,3,more effort on the site; open book; changelog
+2026-10-19-session_018LzowTym13zdftjic9pkdH,direction,4,multi-angle capture for travel creators
+2026-10-19-session_01DZgyhBK4KKQzxrwwKvzTz2,direction,4,energy supply and storage
+2026-10-19-session_01TTWGu1H8M6GNkYTdNrP1Rp,direction,4,societies of AI agents in robots
+2026-10-19-session_01XaXJbpWbJo9BxuwfF9vUXz,taste,3,site navigability
+2026-10-20-session_011J2W7V1KTAU6cUNXfGGu9B,correction,2,site does not reload often (staleness is measurable)
+2026-10-20-session_011qeNDjbbcRjGKFaqPtt5pY,direction,4,publish to every platform; AI content from interviews
+2026-10-20-session_011s7PELXLoNScgcqXrNhWFA,correction,3,stop shipping simple calculators
+2026-10-20-session_014R3x99bjHS2cV9QT2zZdTY,question,2,manager agents and leverage
+2026-10-20-session_015u4zyDnCsRpZy62SMhUEoC,direction,4,personality app; then fictional people only (ethics call)
+2026-10-20-session_016a6m5vNBzRYScriU1LK9nk,policy,3,files first not the GitHub API
+2026-10-20-session_0172i3V7oBF7MdRBNECEuDmo,taste,3,home page visual wow
+2026-10-20-session_018GAPVypxHF7SHbU2ktgqAG,question,2,is there a better git pattern
+2026-10-20-session_018i6ZUnsxwGb4EvgScg8mHH,direction,4,widen the human-imitation project
+2026-10-20-session_01B8RmxjehTrRJYYnujHsGqR,question,2,critique of the repo's organization
+2026-10-20-session_01BejbjqrrRghAbbouQ3thA1,feature,3,feedback and usage stats from the site
+2026-10-20-session_01De3yNTiAHwpHC6TamfNjxh,question,2,performance engineering worth doing
+2026-10-20-session_01Dn5ZgRswQ98CVFxxwLun3t,feature,3,daily EM report with audio
+2026-10-20-session_01Dpw3AJtqDCnmr27VADa1aG,policy,3,more structure to the prompt system
+2026-10-20-session_01EVCTBGxxTBZs7onco53Z3A,agent,0,written by an agent (follow item A)
+2026-10-20-session_01FnTRERWHDSYrLeVdu6om7K,direction,4,low-cost homes; Colorado market
+2026-10-20-session_01G5B8Bvy7N3VvjV3kDMHqX7,question,2,opinion piece on a prior thread
+2026-10-20-session_01GCrKUEG1uAKffBU6pgWaRN,question,2,analyse the work-allocation system
+2026-10-20-session_01KHV7BjJ5Bm1Qwm5x2r8dXW,allocation,3,deepen flagships over small tools
+2026-10-20-session_01MLBUEFrzrQ1VtnUxUWhbqT,question,2,where tokens go in a run
+2026-10-20-session_01MesB25ThwJ4QC5U6LF8gn3,admin,5,owner switched Pages to Actions in repo settings
+2026-10-20-session_01NiqeNeYLTiBpYRGGgb3mbw,policy,4,privacy follows the law not stricter (risk appetite)
+2026-10-20-session_01Nx4Jwsf6RBuKtiDrRfi4Em,direction,4,describe-a-business template
+2026-10-20-session_01PVbZMeJxRpEDAgXQavPtc4,direction,4,saints podcasts (faith and taste)
+2026-10-20-session_01Ras7kzmRPhUWVqPuG3Gffq,direction,4,research-grade in-browser ML; beyond the web
+2026-10-20-session_01SmKJeNdsfb3xRdKuT18A6z,question,2,legal/ToS/ethics review made recurring
+2026-10-20-session_01SsUX22XmvNxAkkUbJLJxx3-2,operational,2,force a rebuild
+2026-10-20-session_01SsUX22XmvNxAkkUbJLJxx3,direction,4,Catholic-worldview sci-fi and bedtime stories
+2026-10-20-session_01TkN8KvHLTD44Guv4JvzRKm,direction,4,AI sales agents
+2026-10-20-session_01TuQzdnaSyKCwiXGSm4DwEE,agent,0,written by an agent (follow item B)
+2026-10-20-session_01UxhKDFXDEXkc7W195vK9z6,correction,3,how much research is real versus made up
+2026-10-20-session_01VhnjpUZhGAi2HFRFpgwLcZ,allocation,3,blog posts as a development goal
+2026-10-20-session_01WhidpspymChvS3BXXBZZGw,question,2,ML on qualitative data
+2026-10-20-session_01WrQc8h31m3U4QbESE2kE3o,question,2,how agents like information presented
+2026-10-21-session_0118CBEPkTAccVNAhQfJpLGj,policy,3,work must take over 20 human hours
+2026-10-21-session_012iPzL2in8HHjvdwH9SN5aK,policy,4,drop static-only (cost and risk appetite)
+2026-10-21-session_015FeSZUbBajcxSgF7ZCeJrq,taste,3,site looks great; keep going
+2026-10-21-session_015tsJygvzeEUxVNussUDcDr-2,feature,3,agent-to-agent blog; podcast topics; filters
+2026-10-21-session_015tsJygvzeEUxVNussUDcDr,allocation,3,most runs write a doc and post
+2026-10-21-session_016PpM3MCqmgHP6vvjTZDgNV,question,2,industries agents will depend on
+2026-10-21-session_016Z8cGGMmogrXEMMmZDVBBn,direction,4,AI accounting systems
+2026-10-21-session_016eBrJGgmpHJEFhWnNtNwJB,direction,4,automated manufacturing that 3D-prints robots
+2026-10-21-session_0185CynsCcEB3sa4dUx68Jfs,question,2,performance engineering in CI
+2026-10-21-session_019fstSszB6jefTVGmMh9FkX,correction,3,walk back calculator instructions
+2026-10-21-session_01AFeFmogbxzLXr5YPQaH5L9,correction,3,day counter on the front page is trivial
+2026-10-21-session_01AVAeNHtAaRNKNUegfZrZZD,direction,4,automate US home construction
+2026-10-21-session_01BTxDMQJTeQBXmPYxtGq3zS,question,2,AI's default languages
+2026-10-21-session_01CWgKBVdh4QwKexbgguuHgM,direction,4,AI customer service
+2026-10-21-session_01D8sa1G7xpTRTUqLiAxSXc4,question,2,engineering culture here and elsewhere
+2026-10-21-session_01DZijpNQhQyR2dAV9wLJYbn,direction,4,AI sales agents long term
+2026-10-21-session_01DiY3J6duj6CrLLcNSXhvTk,taste,3,visual appeal across the site
+2026-10-21-session_01F9pjgMpWxNdgpqbizbJZ6P,direction,4,fundamental industries; energy first
+2026-10-21-session_01KnZ5G7MrjKVqfXvh33w9j8,policy,4,posts per PR; marketing pages; no fake reviews
+2026-10-21-session_01L363PcEijRnWJS4u8fHVds,direction,4,home design generator
+2026-10-21-session_01MG2iLxWPDvu4ufFfj4hQae,question,2,more SEO and discovery projects
+2026-10-21-session_01MkYZfcDYnRouDerndoxcry,direction,4,robot sims for construction
+2026-10-21-session_01NMozts5daMZiQMRMLu1thr,question,2,WASM for the site
+2026-10-21-session_01NT4r6te1zjWAqEGfzWv1p7,policy,3,freedom of language choice
+2026-10-21-session_01PC11WYc2QKwyULZV7PESC3,direction,4,robot vacuum mopper and lawn mower
+2026-10-21-session_01VbZ9dGTN58Z5H9KAGwYcyA,correction,3,stylised fake results are lazy
+2026-10-21-session_01YPq1ytq1mdoszNmXJL9Egt,policy,4,rules become guidelines outside liability
+2026-10-24-session_012nNqVJ3kuVU5FziKJk78nm,policy,3,review docs as chronicle not rulebook
+2026-10-24-session_012pDMWZ9dqko5iKJ734To4x,direction,4,VR workplace for agents (for fun)
+2026-10-24-session_015MsDQPFBznZyUiA2SybAp2,direction,4,automated short-form video
+2026-10-24-session_015dH9pvSFP5B55McaSs8uT3,correction,2,blog rate fell (a count software can watch)
+2026-10-24-session_016ckMCYZWPQXidJFizbTnpa,question,2,PR review without dead branches
+2026-10-24-session_0196knHe2X3c2XLTh5SniF3Z,question,2,how the agent docs are organised
+2026-10-24-session_019Ny4GoXj1wUTz6VcABby89,question,2,alternatives to GitHub Pages
+2026-10-24-session_019fstSszB6jefTVGmMh9FkX,allocation,3,merging built work is fine; allocation is the issue
+2026-10-24-session_01Bm32oqenGZ2gf1sqdJYJQB,question,2,agent docs versus blog posts
+2026-10-24-session_01BpgCTzs2sAgpKaQLVpdW6A,taste,3,navigability and SEO of the site
+2026-10-24-session_01Gcz8nVnXVeNTiqb8JKabK1,question,2,CI rewrite in Rust worth it
+2026-10-24-session_01GwtaBa4BPe7HThCppTJRGb,question,2,onboarding docs for people
+2026-10-24-session_01HZLiy226KaSNFLqrC3GwWq,question,2,post on the agent docs system
+2026-10-24-session_01L8gBe9BULmMkeeFrdwLxwQ,allocation,4,raise research to PhD+ ambition
+2026-10-24-session_01Lb9NbqBPUxtZJFKPDQLWte,direction,4,development of religion research
+2026-10-24-session_01MZ7drsBfWJA3dUY5AwqbnA,policy,4,hard rules only for liability
+2026-10-24-session_01MqfgHBp16ceYZjHmeitkTk,question,2,methods of SEO discovery
+2026-10-24-session_01U6jqcZqRgpaTjC5HXQt6b8,taste,3,podcast voice sounds robotic
+2026-10-24-session_01UPvETpjvBS9dHKehnM838Z,agent,0,written by an agent (triage drafts)
+2026-10-24-session_01UnasTnsekf17V8TpXRbqsa,operational,1,daily progress analysis and post
+2026-10-24-session_01V1oKTTeysoWyFdwM7nwKpr,direction,4,autonomous water vehicles
+2026-10-24-session_01Xzvx663rCHGrSePMWdS3PU,question,2,review the prompts
+2026-10-24-session_01Y91UgoR7ZxsE7FnVe85HmW,direction,4,civilisation and group-psychology sims
+2026-10-24-session_015uK9fsSJ8e1q3CyvZimYnd,self,0,this analysis itself (excluded so the counts describe the inputs before it)

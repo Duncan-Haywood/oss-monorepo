@@ -191,6 +191,7 @@ const RULES = {
   bounce: [
     P("\\bdelivery (status notification|has failed|failure)\\b"), P("\\bundeliverable\\b"), P("\\bmail delivery (subsystem|failed|system)\\b"), P("\\baddress (not found|couldn'?t be found|rejected)\\b"),
     P("\\b55[0-4][ -]5\\.\\d\\.\\d\\b"), P("\\bmailbox (unavailable|not found|does not exist|is full)\\b"), P("\\buser unknown\\b"), P("\\bno such user\\b"), P("\\brecipient address rejected\\b"), P("\\bmessage (wasn'?t|was not|could not be) delivered\\b"),
+    P("\\breturned mail\\b"), P("\\bautomatically rejected\\b"), P("\\b(cannot|can'?t|could ?n[o']?t|unable to) be delivered\\b"), P("\\bnot (be )?delivered to (the following|one or more)\\b"), P("\\b(mail|message) (rejected|undeliverable)\\b"), P("не может быть доставлен"),
   ],
   out_of_office: [
     P("\\bout of (the )?office\\b"), P("\\booo\\b"), P("\\bautomatic reply\\b"), P("\\bauto(matic)?[- ]?reply\\b"), P("\\bon (annual |parental |maternity |paternity |medical |sick )?leave\\b"), P("\\b(i am|i'?m) (currently )?(away|travell?ing|on vacation|on holiday|out)\\b"),
@@ -249,7 +250,8 @@ export function triage(reply, today) {
   const signal = typeof reply === "string" ? "" : reply.signal || "";
   if (signal === "dsn-permanent") return res("bounce", { s: "delivery status Status 5.x.x", m: "5.x.x" }, { why: "the receiving server reported a permanent failure" });
   if (signal === "dsn-temporary") return res("out_of_office", { s: "delivery status Status 4.x.x", m: "4.x.x" }, { subtype: "delivery_delayed", why: "delivery delayed, not failed; no address change" });
-  if (signal === "auto-reply" && !find("bounce")) { const d = (() => { for (const s of all) { const f = findDate(s, today); if (f && /\b(back|return|until|till|away|leave|office)\b/i.test(s)) return f; } return null; })(); return res("out_of_office", { s: "Auto-Submitted header", m: "auto-replied" }, { date: d?.date || null, dateText: d?.text || null, why: "sent by an auto-responder (header), not a person" }); }
+  if (!signal && /\b(mail delivery warning|has been postponed|continue to try to deliver)\b/i.test(all.join("\n")) && /^(mailer-daemon|postmaster)@|delivery/i.test(from + subject)) return res("out_of_office", { s: all.find((x) => /postponed|delivery warning|continue to try/i.test(x)) || subject, m: "delivery delayed" }, { subtype: "delivery_delayed", why: "delivery delayed, not failed; no address change" });
+  if (signal === "auto-reply" && !find("bounce") && !/^(mailer-daemon|postmaster)@/i.test(from)) { const d = (() => { for (const s of all) { const f = findDate(s, today); if (f && /\b(back|return|until|till|away|leave|office)\b/i.test(s)) return f; } return null; })(); return res("out_of_office", { s: "Auto-Submitted header", m: "auto-replied" }, { date: d?.date || null, dateText: d?.text || null, why: "sent by an auto-responder (header), not a person" }); }
   if ((ev = find("bounce")) || /^(mailer-daemon|postmaster)@/i.test(from)) return res("bounce", ev || { s: from, m: from }, { why: "a delivery failure, not a person" });
   if ((ev = find("unsubscribe"))) return res("unsubscribe", ev, { why: "asked not to be contacted" });
 

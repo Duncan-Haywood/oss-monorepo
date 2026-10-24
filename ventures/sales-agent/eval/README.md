@@ -14,6 +14,10 @@ error (rules too narrow) is what these sets show reliably.
 | `fresh-2026-10-24b.jsonl` | 41 | Third set, written the same day by the session that then patched the rules. Scored once **before** any change (34/41); that author had read the earlier sets' miss list, so it is easier than the others. Its two missed unsubscribes were then patched, so it is now a tuned set |
 | `fresh-2026-10-24.jsonl` | 41 | Written by a later session that had not read the rules' output on it, scored once, **not tuned on**. A second honest measurement; same caveat: still written by an agent |
 
+`bounce-corpus/` and `bounces.mjs` are the exception to "hand-written": 117 real
+delivery-failure messages (see the NOTICE there), scored through the IMAP
+parser. Not tuned on before 2026-10-24: 102/117; after: 116/117.
+
 Each line: `{"label", "subtype"?, "subject", "body", "from"?}`. Labels are the
 categories in `engine.mjs` (`CATEGORIES`); `subtype` is set for objections.
 

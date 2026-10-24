@@ -49,7 +49,8 @@ export const STATE_DUE_DAYS = { CA: "last", TX: 20, FL: 20, NY: 20, WA: 25, IL: 
 // LA, MD: the 20th (TaxCloud and Kintsugi tables via search 2026-10-24; state sites not read).
 // TN (tn.gov/revenue due-dates page: monthly and quarterly the 20th, annual Jan 20), AL, SC (third-party guides: the 20th) and NM (aggregator calendars: the 25th; some filers differ) added 2026-10-24 from search excerpts; state sites mostly not read.
 // NV, ID: the 20th (Kintsugi/TaxJar tables via search 2026-10-24; Nevada moved from month end, effective date not confirmed). Iowa left out: sources conflict.
-// CO, MN: the 20th (third-party due-date tables, TaxCloud and TaxJar, via search 2026-10-24; state sites not read). Check your own notice.
+// CO (tax.colorado.gov DR 0100 instructions and filing pages, via search 2026-10-24: monthly and quarterly the 20th, annual Jan 20) and MN (revenue.state.mn.us
+// "Sales Tax Return Filing Due Dates", via search 2026-10-24: monthly and quarterly the 20th, annual Feb 5, modelled in stateDueDay): the 20th. A 20th on a weekend or holiday moves to the next business day. Check your own notice.
 // MI (michigan.gov Treasury: monthly and quarterly the 20th, annual return Feb 28 not modelled), CT (OS-114: last day of the month after, monthly, quarterly
 // and annual), WI (revenue.wi.gov FAQ: last day of the month after; "early monthly" filers the 20th, not modelled), UT (tax.utah.gov: last day of the
 // month after), IN (DOR filing-deadlines page and bulletin 102: the 30th, early filers the 20th, not modelled; a 30th that does not exist in February
@@ -88,13 +89,20 @@ export function stateDueDay(state, frequency = "quarterly") {
   if (s === "MA" && frequency !== "monthly") return { after: 30 };
   // NC: monthly the 20th, quarterly the last day of Jan/Apr/Jul/Oct (ncdor.gov "Filing Frequency and Due Dates", read 2026-10-24)
   if (s === "NC" && frequency !== "monthly") return "last";
+  // RI: monthly the 20th, quarterly the last day of Apr/Jul/Oct/Jan (tax.ri.gov sales tax calendars, 2022 and 2024 PDFs via search excerpts 2026-10-24; weekend dates move to the next business day)
+  if (s === "RI" && frequency !== "monthly") return "last";
+  // MN: annual filers (under $100 a month) pay and file by February 5 (revenue.state.mn.us "Sales Tax Return Filing Due Dates", via search 2026-10-24)
+  if (s === "MN" && frequency === "annual") return { months: 2, day: 5 };
   return STATE_DUE_DAYS[s] ?? 20;
 }
 export function dueDate(period, dueDay = 20) {
   let [y, m] = periodEnd(period);
   // { after: N } = N calendar days after the period's last day (Massachusetts quarterly and annual)
-  if (dueDay && typeof dueDay === "object") return iso(new Date(Date.UTC(y, m, dueDay.after)));
-  m += 1; if (m > 12) { m = 1; y += 1; }
+  if (dueDay && typeof dueDay === "object" && dueDay.after != null) return iso(new Date(Date.UTC(y, m, dueDay.after)));
+  // { months: N, day: D } = day D of the Nth month after the period's last month (Minnesota annual: February 5)
+  const ahead = dueDay && typeof dueDay === "object" ? dueDay.months : 1;
+  m += ahead; while (m > 12) { m -= 12; y += 1; }
+  if (dueDay && typeof dueDay === "object") dueDay = dueDay.day;
   const monthEnd = new Date(Date.UTC(y, m, 0)).getUTCDate();
   const day = dueDay === "last" ? monthEnd : Math.min(dueDay, monthEnd);
   return `${y}-${String(m).padStart(2, "0")}-${String(day).padStart(2, "0")}`;

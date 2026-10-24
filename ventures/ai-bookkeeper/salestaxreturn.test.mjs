@@ -206,7 +206,7 @@ test("HI, DC, WV file on the 20th and WY at month end", () => {
   assert.equal(dueDate("2026-Q1", stateDueDay("DC", "quarterly")), "2026-04-20");
   assert.equal(dueDate("2026-01", stateDueDay("WV", "monthly")), "2026-02-20");
   assert.equal(dueDate("2026-Q1", stateDueDay("WY", "quarterly")), "2026-04-30");
-  assert.equal(stateDueDay("RI"), 20);
+  assert.equal(stateDueDay("RI", "monthly"), 20);
 });
 
 test("RI and SD return due the 20th, listed explicitly", async () => {
@@ -216,8 +216,20 @@ test("RI and SD return due the 20th, listed explicitly", async () => {
   assert.equal(dueDate("2026-01", stateDueDay("sd", "monthly")), "2026-02-20");
 });
 
+test("Rhode Island quarterly returns are due the last day of the month after the quarter, monthly the 20th", () => {
+  assert.equal(dueDate("2026-Q1", stateDueDay("RI", "quarterly")), "2026-04-30");
+  assert.equal(dueDate("2026-Q4", stateDueDay("RI", "quarterly")), "2027-01-31");
+  assert.equal(dueDate("2026-10", stateDueDay("RI", "monthly")), "2026-11-20");
+});
+
 test("North Carolina quarterly returns are due the last day of the month after the quarter, monthly the 20th", () => {
   assert.equal(dueDate("2026-Q1", stateDueDay("NC", "quarterly")), "2026-04-30");
   assert.equal(dueDate("2026-Q4", stateDueDay("NC", "quarterly")), "2027-01-31");
   assert.equal(dueDate("2026-10", stateDueDay("NC", "monthly")), "2026-11-20");
+});
+
+test("Minnesota annual returns are due February 5; Colorado annual January 20", () => {
+  assert.equal(dueDate("2026", stateDueDay("MN", "annual")), "2027-02-05");
+  assert.equal(dueDate("2026-Q4", stateDueDay("MN", "quarterly")), "2027-01-20");
+  assert.equal(dueDate("2026", stateDueDay("CO", "annual")), "2027-01-20");
 });

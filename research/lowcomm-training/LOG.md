@@ -2,6 +2,23 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-24 · Milestone 2e: inner lr tuned jointly, outer step fixed to plain averaging (planned before running)
+- Why: 2b left the H curve confounded by an untuned inner lr (3e-3) and by an outer step (lr up to 3, momentum) that acts as acceleration on an under-trained model. Question: if the outer step is plain averaging (lr 1, momentum 0, so DiLoCo is local AdamW with periodic averaging) and the inner lr is tuned per `H` (and for synchronous AdamW), what does loss against `H` look like?
+- Design (`experiments/numpy_h_sweep/inner_lr_sweep.py`): same model, data, budget (M=4, 640 steps/worker). Inner lr in {1e-3, 3e-3, 1e-2, 3e-2}, `H` in {sync, 1, 4, 16, 64, 160}; pick on half A (seeds 100, 101), report on half B (seeds 0 to 4).
+- **H2e-i:** with plain averaging and a tuned inner lr, `H <= 16` is within 2 sd of synchronous AdamW (tuned the same way). Refuted if any of `H` = 1, 4, 16 is more than 2 sd away (sd = the larger of the two seed sds).
+- **H2e-ii:** `H = 160` is worse than synchronous by more than 2 sd. Refuted otherwise.
+- **H2e-iii:** the picked inner lr is non-increasing in `H` (long local runs prefer smaller steps). Recorded as suggestive; 4-point grid.
+- Limits: 14k parameters, 640 steps (still under-trained), 2 tuning seeds, a 4-point lr grid with possible edge picks (reported).
+
+### Outcome of 2e (`experiments/numpy_h_sweep/inner_lr_sweep_results.txt`; half-B held-out loss, mean ± sd over 5 seeds)
+- Synchronous AdamW (inner lr 0.01) 2.1585 ± 0.0085. Plain-averaging DiLoCo: `H=1` 2.1489 ± 0.0147 (lr 0.03), `H=4` 2.1674 ± 0.0209 (0.03), `H=16` 2.1831 ± 0.0144 (0.03), `H=64` 2.2101 ± 0.0129 (0.01), `H=160` 2.2177 ± 0.0129 (0.01).
+- **H2e-i supported, narrowly at `H=16`.** Differences from synchronous are -0.010, +0.009, +0.025 for `H` = 1, 4, 16, against 2 sd of 0.029, 0.042, 0.029. `H=16` is inside the bound by 0.004, so with five seeds this is not a strong "no difference".
+- **H2e-ii supported.** `H=160` is +0.059 above synchronous (2 sd = 0.026). The loss rises monotonically with `H` from 2.149 to 2.218 (about +0.07 over two orders of magnitude of `H`); the U-shape of the first sweep is gone.
+- **H2e-iii supported, with an edge caveat.** Picked inner lr is 0.03, 0.03, 0.03, 0.01, 0.01 for `H` = 1 to 160, so non-increasing; but 0.03 is the top of the grid, so `H <= 16` is probably under-tuned and the true drop with `H` may be larger or smaller.
+- **What this changes.** Tuning the inner lr moved every loss from about 2.3 to 2.4 (earlier steps) down to about 2.15 to 2.22, bigger than any effect of `H`. The earlier findings that `H=16` beats synchronous (2a) and that `H=1` with outer lr 3 beats it by 0.2 nats (2b) were under-training artefacts: with the inner lr tuned for each, synchronous training is no worse than `H<=16` within noise, and the cost of local steps appears at large `H` only. The dip at `H=16` and the "DiLoCo beats synchronous" readings should not be cited.
+- Limits: as planned (14k parameters, 640 steps, 4-point grid, two tuning seeds, lr picks at the grid edge for `H <= 16`); outer momentum is switched off here, so this says nothing about whether tuned outer momentum recovers the large-`H` loss.
+- Next: extend the inner-lr grid upward (0.1) to resolve the edge picks, then add outer momentum back on top of the tuned inner lr to test whether it closes the `H=160` gap.
+
 ## 2026-10-24 · Milestone 2d: bootstrap intervals for B_simple (planned before running)
 - Why: 2c's values at single checkpoints came from 64 batches and moved several-fold between neighbours, so its "tens of sequences" claim had no error bars. Question: with n = 256 batches per checkpoint and a bootstrap over batches, how wide is the 95% interval of B_simple, and does the "rises by more than 10x from init" result still hold at the interval's lower end?
 - Design (`experiments/numpy_h_sweep/noise_scale_boot.py`): same model, data, training and checkpoints as 2c (3 seeds), n = 256 gradients at b = 16 per checkpoint; 1,000 bootstrap resamples of the batches; each resample recomputes S, the unbiased |G|^2 and the ratio. Resamples with |G|^2 <= 0 are counted and excluded from the percentile interval (reported).

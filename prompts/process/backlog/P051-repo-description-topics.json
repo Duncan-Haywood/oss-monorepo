@@ -1,0 +1,23 @@
+{
+  "id": "P051",
+  "title": "seo: give the GitHub repository a real description, topics and a social preview image",
+  "status": "open",
+  "owner": "owner",
+  "effect": 2,
+  "cost": 1,
+  "problem": "The repository's GitHub description is 'lots of projects' and it carries no topics, so GitHub search, topic pages and the Google snippet for the repo page say nothing about what is in it. Shared links to the repo show no preview card. Agents cannot change repository settings from a cloud session (no settings tool, gh unauthenticated).",
+  "evidence": [
+    "GitHub API search_repositories repo:duncan-haywood/oss-monorepo on 2026-10-24: description 'lots of projects', no topics field, homepage set to the Pages URL"
+  ],
+  "change": "In the repository's About panel (gear icon): description 'Free, MIT-licensed browser calculators, self-hostable business apps and CLI checks for small businesses, trades and online sellers. No account; nothing you type leaves your browser.'; topics: calculator, small-business, free-tools, open-source, self-hosted, contractor-tools, etsy, ebay, amazon-seller, freelancer, bookkeeping, pricing-calculator, static-site, offline-first, mcp-server, llms-txt, cli, developer-tools, privacy, github-pages. Settings > General > Social preview: upload a 1280x640 image (an agent can generate one into docs/reports/assets/ on request). The README already opens with a clear summary and the site link.",
+  "touches": [
+    "GitHub repository settings (no files)"
+  ],
+  "metric": "repository description and topic count from the GitHub API",
+  "baseline": "description 'lots of projects', 0 topics (2026-10-24)",
+  "opened": "2026-10-24",
+  "source": "Owner asked for SEO and AI-search action items in a Claude Code session, 2026-10-24",
+  "pr": null,
+  "result": null,
+  "history": []
+}

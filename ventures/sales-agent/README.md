@@ -81,6 +81,19 @@ figure. Real reps' notes, with their shorthand, are still unmeasured.
 
 ## How well it reads replies
 
+**Real delivery failures (2026-10-24).** The one real-message check so far: the
+117 bounce and auto-reply messages in flufl.bounce's test data (Apache-2.0,
+copied to [`eval/bounce-corpus/`](eval/bounce-corpus/NOTICE); Sendmail, Postfix,
+Exim, Qmail, Yahoo, Exchange, Mail.ru and others, 2000 to 2016), run through the
+same path as the IMAP poller (`node eval/bounces.mjs`). Before the change 102 of
+117 were read right and three hard bounces (Sendmail "Returned mail", Dovecot
+"Automatically rejected", Mail.ru in Russian) came out as out-of-office, which
+pauses a dead address instead of stopping it. The rules were then changed
+looking at those misses, so 116 of 117 is a tuned figure, not a fresh one; the
+one left is a list-moderation hold worded "could not be delivered". Labels for
+the 10 non-bounces were set by an agent reading each message. Cold-outreach
+replies from people are still measured only on agent-written text.
+
 Measured on hand-written, labelled replies; the method and every file are in
 [`eval/`](eval/README.md). The rules were tuned on two sets until they read all
 120 replies correctly, so those sets are a regression floor, not an accuracy

@@ -20,9 +20,11 @@
 // are two thousand of them and each is a CPU-bound raster.
 
 import { availableParallelism } from 'node:os';
-import { readFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { readdirSync, readFileSync } from 'node:fs';
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { Worker } from 'node:worker_threads';
 
 import { renderCard } from './sharecard.mjs';
@@ -284,8 +286,72 @@ export function completeShareTags(html, { card = '', siteName = 'Open Tools and 
  * Render `jobs` ([{ file, options }], options as for `renderCard`) to disk on
  * a pool of worker threads. Falls back to this thread for a handful of cards,
  * where starting workers costs more than it saves.
+ *
+ * With a cache directory (`cacheDir`, default `PAGES_CARD_CACHE`), a card whose
+ * options and renderer are unchanged is copied from the last build instead of
+ * drawn again. Drawing was most of the build's time: about 2,700 cards per
+ * deploy, 55 of the build's 110 s on 2026-10-24, and nearly all identical to
+ * the previous deploy's. The key covers the options and every file a card's
+ * pixels depend on, so a renderer or font change misses every entry. Hits are
+ * touched, so the workflow can prune what no build has used lately. Cards
+ * drawn earlier in this process are also kept in memory, which is what makes
+ * the test suite's repeat builds cheap without any cache directory.
  */
-export async function renderCards(jobs, { threads = Math.max(1, Math.min(8, availableParallelism())) } = {}) {
+export async function renderCards(jobs, {
+  threads = Math.max(1, Math.min(8, availableParallelism())),
+  cacheDir = process.env.PAGES_CARD_CACHE || '',
+} = {}) {
+  if (!jobs.length) return;
+  if (cacheDir) await fs.mkdir(cacheDir, { recursive: true });
+  const now = new Date();
+  const todo = [];
+  await mapLimit(jobs, 32, async (job) => {
+    const key = cardKey(job.options);
+    await fs.mkdir(path.dirname(job.file), { recursive: true });
+    // This process drew it already: the test suite builds the site several
+    // times in one process (docs/history/pages-test-perf-2026-10-24.md).
+    const png = drawnCards.get(key);
+    if (png) return fs.writeFile(job.file, png);
+    if (cacheDir) {
+      const cached = path.join(cacheDir, `${key}.png`);
+      try {
+        await fs.copyFile(cached, job.file);
+        await fs.utimes(cached, now, now);
+        return undefined;
+      } catch {
+        // Not cached yet: drawn below.
+      }
+    }
+    todo.push({ job, key });
+    return undefined;
+  });
+  await drawCards(todo.map((t) => t.job), threads);
+  await mapLimit(todo, 32, async ({ job, key }) => {
+    const png = await fs.readFile(job.file);
+    drawnCards.set(key, png);
+    if (cacheDir) await fs.writeFile(path.join(cacheDir, `${key}.png`), png);
+  });
+}
+
+const drawnCards = new Map();
+
+let rendererHash = null;
+/** What a card's pixels depend on besides its options: the renderer and its fonts. */
+function rendererVersion() {
+  if (rendererHash) return rendererHash;
+  const hash = createHash('sha256');
+  const here = path.dirname(fileURLToPath(import.meta.url));
+  for (const file of ['sharecard.mjs', 'fontraster.mjs']) hash.update(readFileSync(path.join(here, file)));
+  const fonts = path.join(here, 'fonts');
+  for (const name of readdirSync(fonts).sort()) hash.update(name).update(readFileSync(path.join(fonts, name)));
+  rendererHash = hash.digest('hex');
+  return rendererHash;
+}
+
+export const cardKey = (options) =>
+  createHash('sha256').update(rendererVersion()).update(JSON.stringify(options ?? {})).digest('hex');
+
+async function drawCards(jobs, threads) {
   if (!jobs.length) return;
   if (jobs.length < 16 || threads === 1) {
     for (const job of jobs) {
@@ -312,6 +378,19 @@ export async function renderCards(jobs, { threads = Math.max(1, Math.min(8, avai
   })));
 }
 
+/** `fn` over `items`, at most `limit` at once; results in input order. */
+export async function mapLimit(items, limit, fn) {
+  const out = new Array(items.length);
+  let next = 0;
+  await Promise.all(Array.from({ length: Math.min(limit, items.length) }, async () => {
+    while (next < items.length) {
+      const i = next++;
+      out[i] = await fn(items[i], i);
+    }
+  }));
+  return out;
+}
+
 async function listHtml(dir, out = []) {
   for (const entry of await fs.readdir(dir, { withFileTypes: true })) {
     const full = path.join(dir, entry.name);
@@ -329,22 +408,21 @@ export async function addShareCards({ outDir, baseUrl, siteName, siteCard = 'soc
   const files = only
     ? (await Promise.all(only.map((dir) => listHtml(path.join(outDir, dir)).catch(() => [])))).flat()
     : await listHtml(outDir);
-  const jobs = [];
-  const changed = [];
-  for (const file of files) {
+  // Each page is independent, so they are read and rewritten a few dozen at a
+  // time; one at a time, the disk sat idle between them. Results keep file order.
+  const results = await mapLimit(files, 32, async (file) => {
     const relative = path.relative(outDir, file).split(path.sep).join('/');
     const html = await fs.readFile(file, 'utf8');
     const plan = pageCardPlan(html, relative, { baseUrl, siteCard });
     const depth = relative.split('/').length - 1;
     const toRoot = '../'.repeat(depth);
-    if (plan) jobs.push({ file: path.join(outDir, plan.file), options: plan.options });
     const url = baseUrl ? `${baseUrl}${relative.replace(/(^|\/)index\.html$/, '$1')}` : '';
     const next = completeShareTags(html, { card: plan ? `${baseUrl}${plan.file}` : '', siteName, toRoot, url });
-    if (next !== html) {
-      await fs.writeFile(file, next);
-      changed.push(relative);
-    }
-  }
+    if (next !== html) await fs.writeFile(file, next);
+    return { relative, plan, changed: next !== html };
+  });
+  const jobs = results.filter((r) => r.plan).map((r) => ({ file: path.join(outDir, r.plan.file), options: r.plan.options }));
+  const changed = results.filter((r) => r.changed).map((r) => r.relative);
   await renderCards(jobs);
   return { cards: jobs.map((j) => path.relative(outDir, j.file)), changed };
 }

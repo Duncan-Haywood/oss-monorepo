@@ -2,6 +2,37 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-25 · Milestone 7a: does milestone 3 replicate on a second, unstable task? (planned before running)
+- Why: the paper draft's gap 2. All of m3 to m6 use one stable tracking pendulum; a reviewer will ask whether H1/H2/H6 are properties of paired inference or of that task. New task (`experiments/m7_cartpole/pairs.py`): MuJoCo cart-pole balanced from a random start by a linear feedback law (unstable plant, a fall ends the episode), outcome = survived fraction x (1 - RMS angle / 0.25), same five omitted effects at four swept magnitudes (21 pairs incl. the no-effect pair), 4,000 contexts per pair. Baseline push noise std 1 N (3 N gave rho about 0.2 on the no-effect pair in a 200-context probe, so it was lowered to span rho; the probe is the only tuning done and used none of the pool contexts).
+- Analysis: `m3_benchmark/analyse.py` unchanged (4,000 replications, n = 30 and 60, m = 9n extra twin runs, same thresholds), run through `m7_cartpole/analyse.py`.
+- **H7a-i (H1 replicates):** coverage of `cv` and `ppi_pp` at n = 30 falls below 93.0% on at least 10 of 21 pairs (m3: 15 and 20 of 21), because the outcome is bounded and skewed. Refuted if fewer than 10.
+- **H7a-ii (H2 replicates):** paired E over unpaired E has lower 95% bound >= 2 on the pairs with rho >= 0.75 (at least 80% of them), and unpaired E stays in [0.9, 1.0] on every pair. Refuted if either fails.
+- **H7a-iii (H6 replicates):** Spearman(E, rho) > 0.95 and |Spearman(E, rho)| > |Spearman(E, KS)| with the over-pairs interval of the difference excluding 0. Refuted otherwise. Prior: the interval may include 0 here, since a fall creates a big mass at low R and makes KS informative.
+- Not tested: real-robot or per-episode real pairs (still gap 1), a task with a non-bounded outcome.
+
+### Outcome (21 cart-pole pairs, rho 0.37 to 0.86, 4,000 contexts each; `experiments/m7_cartpole/results/`)
+- **H7a-i refuted: H1 does not replicate as stated.** cv or ppi_pp fall below 93.0% at n = 30 on 3 of 21 pairs (friction-1, friction-3, gain-3; worst 91.98% ppi_pp), not the 10 I predicted, against 15 and 20 of 21 on the pendulum. Real-only covers at 93.5% or more everywhere. The m3 undercoverage was therefore partly a property of that task's skewed bounded outcome, not of paired inference in general; the failures that remain sit on the low-rho pairs (0.37 to 0.62) where the estimated lam is noisiest. At n = 60, cv's minimum is 92.72%.
+- **H7a-ii supported.** All 16 pairs with rho >= 0.75 have a paired/unpaired variance-ratio lower bound >= 2 (16/16); unpaired E is 0.958 to 0.983 on every pair, as on the pendulum. The 5 pairs below the bar are the five with rho <= 0.68 (E 1.08 to 1.60).
+- **H7a-iii refuted on the first threshold, supported on the second.** Spearman(E, rho) = 0.909 (< 0.95), Spearman(E, KS) = -0.708, with |rho| - |KS| interval [0.021, 0.494], excluding 0. So rho predicts the gain better than detectability here too, with a clearer margin than the pendulum's [0.008, 0.146], but the rank correlation is lower because ties and near-ties among high-rho pairs are noisier.
+- Limitations: both tasks are mine, model-versus-model, one outcome form (bounded score); magnitudes are swept, not sourced; the baseline push level was chosen from a 200-context probe to spread rho.
+- Reading: the pairing gain (H2) and rho as the predictor (H6) carry over to a second, unstable plant; the H1 coverage shortfall does not, and the paper should say the shortfall is task dependent. Gap 2 of the draft is closed for H1/H2/H6; gaps 1 (real per-episode pairs), 3 and 4 remain.
+- Next: per-episode real pairs; update `paper/main.tex` with the second task.
+
+## 2026-10-24 · Milestone 6d: is |R - T| a lower-variance target than R? (planned before running)
+- Why: 6c's open question. A mean-discrepancy bound L = E[T] - E|R - T| needs an estimate of E|R - T|. It is only cheaper than estimating E[R] if the per-context variance of |R - T| (or its range) is below that of R.
+- Check (`experiments/m6d_target_variance/target_var.py`, planned before running), on the 21 m3 pools (4,000 contexts each): Var(R), Var(R - T), Var(|R - T|), and the ratio Var(|R - T|) / Var(R); also the empirical-Bernstein half-width at n = 60 and 240 for each target using its own sample range (bounded-range scaling), to see whether the width saving survives the range term.
+- **H6d-i:** Var(|R - T|) < Var(R) on at least 15 of 21 pairs when rho is high (>= 0.8), and on fewer than 10 of 21 across all pairs, because low-rho pairs have a discrepancy as noisy as R itself. Refuted if the split is not like this (both thresholds must hold).
+- **H6d-ii:** on one-sided pairs |R - T| = T - R, so Var(|R - T|) = Var(R - T) and the variance ratio equals the control-variate residual ratio 1 - rho-type quantity already measured in m3; checked as an identity on the pool, tolerance 1e-9.
+- Not tested: per-episode real pairs (still the main gap), a valid interval for E|R - T| plus the twin mean (that is 3e).
+
+### Outcome (21 pools; `experiments/m6d_target_variance/results/`, 2 tests)
+- **H6d-i refuted** (the second threshold failed): Var(|R - T|) < Var(R) on 20 of 21 pairs overall (all 12 with rho >= 0.8), median ratio 0.30. Only delay-3 (rho 0.17) has the discrepancy noisier than R (ratio 1.19). I expected low-rho pairs to lose more often; they mostly do not, because |R - T| is bounded below by 0 and the twin's own variation cancels in the difference.
+- **H6d-ii supported but narrow:** only 2 of 21 pairs are strictly one-sided, and there Var(|R - T|) = Var(R - T) exactly (gap 0). 6c's "one-sided" wording should read "nearly one-sided" for the other 19.
+- Empirical-Bernstein half-width (own sample range) is smaller for |R - T| than for R on 18/21 pairs at n = 60 and 20/21 at n = 240. So a bound E[R] >= E[T] - (upper confidence bound on E|R - T|) costs fewer real runs than the real-only bound, at a price: it adds the one-sided slack E|R - T| - E[T - R] (zero only when the discrepancy is one-sided), which 3e's construction already pays. This is the same trade as the control variate with lam = 1, so no new estimator results; the variance gain is the reason 3e's twin-assisted gap can approach real-only but not beat it where the discrepancy is two-sided.
+- Limitations: one benchmark family (model pairs, not real robots); variance computed on the 4,000-context pool, not a finite-sample interval; EB constants are the Maurer-Pontil ones at delta = 0.05.
+- Next: per-episode real pairs remain the main gap for a submittable paper.
+
+
 ## 2026-10-24 · Milestone 6c: a quantile or mean discrepancy bound instead of the maximum (planned before running)
 - Why: 6b's next step. The oracle maximum |R - T| is 9 to 16 times the real-only gap, so a zero-real-run bound loses. Does an assumption on a quantile, or on the mean of |R - T|, change that?
 - **Ceiling lemma.** If P(|R - T| > D_q) <= q with D_q in [0, 1] known, and R, T in [0, 1], then E[T - R] <= E[(T - R)+] <= (1 - q) D_q + q, so L_q = E[T] - (1 - q) D_q - q is valid with no real runs. It is tight in the class (T = 1; R = 1 - D_q with probability 1 - q, R = 0 with probability q, up to the boundary case). If instead E|R - T| <= dbar is known, L = E[T] - dbar is valid (Jensen-free: E[T - R] <= E|R - T|).
