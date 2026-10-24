@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-24",
+  "session": "https://claude.ai/code/session_01MSmTrT3bdyhUzTUUkgT6Do",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-24T11:59:55Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 10116,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "audio",
+      "why": "huggingface.co returns 403 through the proxy, so no Piper voice",
+      "did": "text-only story",
+      "result": "landed without audio"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-24-the-line-through-the-snow-a-fair-draw-with-sheeps-ankle-bones.md"
+  ],
+  "goal": null,
+  "notes": "creative: hearth-and-horizon, slug the-line-through-the-snow; stories.test.mjs 8 pass; sums checked by hand",
+  "corrections": [],
+  "redteam": null
+}
