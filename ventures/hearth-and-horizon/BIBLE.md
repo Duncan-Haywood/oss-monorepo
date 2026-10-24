@@ -251,6 +251,7 @@ the sources, and mark legend as legend)
 - *(Done: Nicholas and the Three Bags of Gold, 6 December; legend.)* Saint Nicholas and the three bags of gold.
 - *(Done: Martin of Tours and Half a Cloak, 11 November; early source, Sulpicius Severus.)* Saint Martin and the beggar at Amiens.
 - *(Done: Columba and the White Horse, 9 June; Adomnán's Life, III.23; text only.)* Saint Columba and the old white horse.
+- *(Done: Ambrose and the Bees, 7 December; Paulinus's Life, told as the Life's tale; text only.)* The baby in the garden and the bees; kind words as bees.
 - *(Done: Thérèse and the Small Way, 1 October; history and her own writings.)* Saint Thérèse and the small way.
 
 ## What not to do
