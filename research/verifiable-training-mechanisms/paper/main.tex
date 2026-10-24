@@ -19,12 +19,63 @@ better single check in only 4 of 45 cells.
 \maketitle
 
 \section{Introduction}
-% TODO: motivation (Verde, proof-of-learning forgeries), contributions as the four results below.
+Training a model is expensive and its result is a vector of weights that cannot be checked without redoing the work.
+A requester who outsources training to untrusted workers therefore needs some mixture of re-execution, a held-out score,
+and agreement between redundant workers, and needs the payments that make them work.
+Verification systems settle how a dispute is resolved cheaply \cite{arun2025verde}, but they accept a step when the
+referee's recomputation lies within a tolerance $\tau$, because floating-point training is not bit-reproducible across
+hardware. Proof-of-learning forgeries show that such a tolerance can be exploited \cite{zhang2021advpol,fang2022pol}.
+We ask what the tolerance \emph{costs the requester} once checks are paired with payments and a stake.
+
+Contributions (all measured, with the negative results reported):
+(i) on real training, a tolerance sized to benign drift lets a skipping worker avoid up to 30\% of the steps at a quality cost
+below one seed standard deviation, and the cost switches on only at a task-dependent threshold of late-training update norms;
+(ii) the cheapest contract is a linear programme; we prove a one-sided resolution bound on its cost and show the
+joint audit-and-score contract beats the better single check in only 4 of 45 cells;
+(iii) against a majority coalition on one shared cheap trajectory the deterring stake $\max(0,g/p-1)$ does not fall with
+the number of workers, and agreement is worth nothing beyond the audit once cheats can copy;
+(iv) two of our own conjectures fail, and we say so.
 \section{Related work}
-% TODO: from PROPOSAL.md; Verde \cite{arun2025verde}, PoL \cite{jia2021pol,zhang2021advpol,fang2022pol},
-% peer prediction \cite{miller2005,gao2016peer}, contracts \cite{townsend1979,duetting2019simple}, scoring \cite{gneiting2007}.
+\paragraph{Verifying that training happened.}
+Verde \cite{arun2025verde} resolves a dispute by bisection over the training trace with reproducible operators, so a referee
+re-executes one step; it does not say what makes anyone dispute, or how much stake a tolerance requires.
+Proof-of-learning \cite{jia2021pol} replays logged checkpoints and accepts statistically; spoofing attacks
+\cite{zhang2021advpol,fang2022pol} forge cheaper traces that pass. These are the empirical form of our hidden margin, measured as
+a break, not priced as an incentive. Zero-knowledge proofs of training \cite{abbaszadeh2024zkpot} remove the tolerance at a
+large prover cost and mark the other end of the cost frontier; TOPLOC \cite{ong2025toploc} faces the same tolerance-versus-forgery
+trade-off for inference. Refereed delegation to several servers \cite{canetti2011} is secure if one is honest, has no payments,
+and is defeated by a unanimous wrong answer, which is the case our collusion section prices.
+
+\paragraph{Eliciting effort and truth with scores.}
+Proper scoring rules \cite{gneiting2007} elicit beliefs about a held-out outcome; whether the score of a model identifies the work
+behind it is not their question. Peer prediction \cite{miller2005,prelec2004} pays for agreement with peers and needs a common prior;
+multi-task and effort-aware variants \cite{dasgupta2013,shnayder2016,kong2019} make informed reporting beat uninformative play, but
+their report is a label and a training run has no label per task. The closest prior art is \citet{gao2016peer}: mixing a few
+ground-truth checks with peer prediction can hurt. Our agreement result is the training analogue, in a narrower form.
+
+\paragraph{Hidden action and costly verification.}
+Costly state verification \cite{townsend1979} is the skeleton of an audit-plus-stake design, with exact verification; ours has a
+tolerance. Payments for effort in estimation \cite{cai2015} concern data quality for a statistic, not compute for a trajectory.
+Linear contracts are near optimal under hidden action \cite{duetting2019simple}; we compare our frontier with the best linear
+contract on the final-model score and find it dearer by orders of magnitude where the score barely moves.
 \section{Model}
-% TODO: effort profile over T steps, detection above tau, held-out score noise, LP in payments (src/vtm/contract.py).
+A worker trains for $T$ steps at honest cost $C$. An action $a$ is a set of skipped steps, with cost $c_a=C\cdot(\text{share of steps done})$ and
+gain $g_a=C-c_a$. The requester observes a signal $s$ drawn from $P_a$: an audit that re-executes $m$ random steps and
+rejects a step whose update differs from the referee's by more than $\tau$ (so a skipped step is caught iff its honest update norm
+exceeds $\tau$), a held-out score (Gaussian, with measured mean, seed variance and per-example variance), or both. A contract pays $w(s)$
+with limited liability $w\ge -S$. The cheapest contract that makes the honest action a best response and leaves the worker no worse off
+than not working is the linear programme
+\[
+\min_{w\ge -S}\ \mathbb{E}_{h}[w]\quad\text{s.t.}\quad \mathbb{E}_{h}[w]-C\ \ge\ \mathbb{E}_{a}[w]-c_a\ \ \forall a,\qquad \mathbb{E}_{h}[w]\ge C,
+\]
+solved in \texttt{src/vtm/contract.py}. We check the solver against the closed form $\max(C,C/p-S)$ on a grid and against a
+$2{,}500\times2{,}500$ brute-force search on random two-action instances.
+\paragraph{A one-sided resolution bound.}
+Let $r=\min_{s:P_h(s)>0}P_a(s)/P_h(s)$ and $p=1-r$. \emph{Proposition.} Any contract implementing honest against $a$ with $w\ge -S$ costs
+$\mathbb{E}_h[w]\ge\max(C,\,g/p-S)$.
+\emph{Proof.} Incentive compatibility gives $\mathbb{E}_h[w]-\mathbb{E}_a[w]\ge g$. With $f=w+S\ge0$ we have $\mathbb{E}_a[f]\ge r\,\mathbb{E}_h[f]$
+(mass of $P_a$ off the support of $P_h$ only adds), so $g\le\mathbb{E}_h[f]-\mathbb{E}_a[f]\le p\,\mathbb{E}_h[f]$, i.e.\ $\mathbb{E}_h[w]\ge g/p-S$.
+Individual rationality gives $\mathbb{E}_h[w]\ge C$. $\square$ (Over several deviations take the largest bound.)
 \section{The hidden margin on real training (H1)}
 % Fig. 1 from experiments/margin. Table: tau vs fraction of steps passed vs loss given up.
 \section{Single-check and joint contracts (H2, H5)}

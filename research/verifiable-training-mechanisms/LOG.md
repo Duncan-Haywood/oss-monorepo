@@ -2,6 +2,11 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-24 · Milestone 10: paper Introduction, Related work, Model and the H5 proof
+- No experiment. Filled four stubs of `paper/main.tex`: the Introduction (four contributions, stated as measured, negative results included), Related work (the 17 works of PROPOSAL.md in three groups, one sentence each on what they do and do not settle), Model (the contract LP and its solver checks), and the H5 one-sided resolution proposition with its proof moved out of the `experiments/joint/h5.py` docstring. `refs.bib` now holds 17 entries.
+- Checks and limits: `cite_check.py` got 403 from the proxy for every id (17 of 17), so the new bib entries (authors, venues) are typed from PROPOSAL.md and my memory and are not machine-checked; compare them with the registries before submission. LaTeX is not installed, so the file is uncompiled (`\citet` needs acmart's natbib, which it loads). Three results sections (margin, frontier, collusion), the negative-results section and the tables are still stubs.
+- Next: margin section with the three setups and the split-resampled table; then frontier and collusion; a transformer step remains the largest experimental gap.
+
 ## 2026-10-24 · Milestone 9: the margin with the data split resampled (H1), planned before running
 - Why: milestone 8 left open that the breast-cancer gain from skipping (-0.0115 at tau = 1e-2) could be an artefact of one 171-sample test set, since seed pairing varied init and batch order but not the split. Here seed s also draws split s (70/30 permutation seed s), so the seed std includes split variance and the paired difference is honest-vs-skip on the same split.
 - Prediction: on breast cancer the mean degradation at tau = 1e-2 and 3e-2 stays at or below zero but its CI is wider, and may include zero; on digits-deep it stays within one (now larger) seed std at tau = 1e-2. Refutation of "skipping helps on breast cancer": the 95% CI at tau = 1e-2 or 3e-2 lies entirely above zero or contains zero with a mean above 0.
