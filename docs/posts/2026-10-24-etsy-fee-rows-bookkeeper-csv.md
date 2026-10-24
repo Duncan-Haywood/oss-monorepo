@@ -1,7 +1,7 @@
 ---
 title: "An Etsy export where the Amount column is blank on every fee"
 date: 2026-10-24
-description: "Etsy's payment-account CSV puts '--' in Amount on fee rows, so a bookkeeping importer that trusts the Amount header silently drops them. How ai-bookkeeper now reads it."
+description: "Etsy's payment-account CSV puts '--' in Amount on fee rows, so an importer that trusts the Amount header silently drops them. How ai-bookkeeper now reads it."
 tags: [bookkeeping, csv, etsy, ai-bookkeeper]
 ---
 

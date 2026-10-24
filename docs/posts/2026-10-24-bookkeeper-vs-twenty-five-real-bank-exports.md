@@ -1,7 +1,7 @@
 ---
 title: "We ran 25 CSV exports someone else wrote through our bookkeeper"
 date: 2026-10-24
-description: "csv2ofx's test files, run through the ai-bookkeeper CLI: 23 of 25 read, Amazon's order history needed a fix, and a Xero journal report is correctly not a bank statement."
+description: "csv2ofx's test files through the ai-bookkeeper CLI: 23 of 25 read, Amazon order history needed a fix, and a Xero journal is correctly not a bank statement."
 tags: [ai-bookkeeper, testing, csv]
 ---
 
