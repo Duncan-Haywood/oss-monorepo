@@ -18,7 +18,8 @@ test("states the dates, the penalty figures and the format", () => {
   assert.match(html, /1 Jan 2027/);
   assert.match(html, /100% of the VAT/);
   assert.match(html, /FA\(3\)/);
-  assert.match(html, /does not validate FA\(3\)/);
+  assert.match(html, /does not run the full FA\(3\) XSD/);
+  assert.match(html, /PL-nnn/);
 });
 
 test("makes no price claim", () => {

@@ -36,7 +36,7 @@ flagships:
     next: >-
       Everything built so far is tested on hand-written fixtures; the next slices
       are about real inputs (landed work is in the README and git history, not
-      here). Open items, most valuable first: (0) built-in keywords measured on
+      here). Open items, most valuable first: (0) built-in keywords measured on a real makerspace's bank export 2026-10-29 (9.4% to 71.9% suggested, 96% right of those; README Next; one org, tuned on itself) and on
       the MIT us-bank-transaction-categories set and Beancount's example ledger
       2026-10-24 (35.8% to 85.3% suggested, 0 wrong; README Next): still
       synthetic, try a real-merchant set; (1) the AI layer in fill-only mode
@@ -126,7 +126,8 @@ flagships:
       their false positives fixed, Singapore, Australia, Ireland, India and
       RO_CIUS pages and rules, EXTENDED logistics charges read as header
       charges) lives in the README and git. Open: the FatturaPA XSD and verifying its code lists, tolerances and IT-018 sequences
-      against the current specification; the rules and a repair on a real ERP or
+      against the current specification; Poland's FA(3) (fa3.mjs, PL-001..011, 2026-10-24) on a real KSeF test-environment file and the XSD itself in the browser;
+      the rules and a repair on a real ERP or
       Factur-X export (open the repaired PDF in veraPDF or a viewer); a page
       button for PDFs; PINT SG and A-NZ rules on the Saxon/server route and on a
       real PINT file; RO_CIUS on a real ANAF file and the Saxon route; NLCIUS
