@@ -64,3 +64,24 @@ test("text output names the pours, the trucks and the rebar weight", () => {
   assert.match(t, /truck/);
   assert.match(t, /Rebar, \d+ lb/);
 });
+
+test("anchor bolts: two per plate piece, within the end distance, at most the spacing apart", () => {
+  // stem 8 in: plate sides are 460+8=468 in and 316+8=324 in, each cut into 192 in stock pieces
+  const l = layoutFoundation({ ...sampleFoundation(), anchorBolts: {} });
+  assert.ok(l.ok);
+  // 468 -> 3 pieces of 156 in: ceil((156-24)/72)+1 = 3 bolts each (x2 sides = 18)
+  // 324 -> 2 pieces of 162 in: ceil((162-24)/72)+1 = 3 bolts each (x2 sides = 12)
+  assert.equal(l.anchors.pieces, 10);
+  assert.equal(l.anchors.bolts, 30);
+  assert.ok(foundationText(l).some((x) => /Anchor bolts: 30/.test(x)));
+});
+
+test("a short plate piece still gets two bolts; no anchorBolts key means no count", () => {
+  const l = layoutFoundation({ type: "stem", width: 144, depth: 144, anchorBolts: { spacing: 120 } });
+  assert.equal(l.anchors.bolts, 8); // 4 sides of ~136 in, ceil((136-24)/120)+1 = 2 each
+  assert.equal(layoutFoundation(sampleFoundation()).anchors, null);
+});
+
+test("anchor bolt inputs are validated", () => {
+  assert.ok(validateFoundation({ ...sampleFoundation(), anchorBolts: { spacing: 200 } }).some((x) => /spacing/.test(x)));
+});

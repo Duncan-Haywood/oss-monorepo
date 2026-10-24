@@ -100,3 +100,12 @@ test("drywall sheets are budgeted once", () => {
   assert.equal(lines.length, 1);
   assert.equal(lines[0].amount, lines[0].qty * 10);
 });
+
+test("anchor bolts are budgeted from the foundation count at the typed price", () => {
+  const plan = full({ anchorBolt: 2.5 });
+  plan.foundation = { ...plan.foundation, anchorBolts: {} };
+  const b = bud(plan);
+  const a = b.lines.find((l) => l.item === "Anchor bolts (with nut and washer)");
+  assert.equal(a.qty, 30);
+  assert.equal(a.amount, 75);
+});

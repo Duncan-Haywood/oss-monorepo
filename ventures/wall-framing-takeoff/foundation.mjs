@@ -14,7 +14,7 @@ import { formatLength } from "./engine.mjs";
 const BAR_LB_FT = { 3: 0.376, 4: 0.668, 5: 1.043, 6: 1.502 };
 const CU_IN_PER_YD = 46656;
 
-/** @typedef {{ id?: string, type?: "stem"|"monolithic", width: number, depth: number, footing?: { width?: number, depth?: number, bars?: number, bar?: number, formed?: boolean }, stem?: { height?: number, thickness?: number, bar?: number, spacing?: number }, slab?: { thickness?: number, bar?: number, spacing?: number, baseThickness?: number }, interior?: { length: number, width?: number, depth?: number }[], cover?: number, barLength?: number, waste?: number, truck?: number, price?: number }} Foundation */
+/** @typedef {{ id?: string, type?: "stem"|"monolithic", width: number, depth: number, footing?: { width?: number, depth?: number, bars?: number, bar?: number, formed?: boolean }, stem?: { height?: number, thickness?: number, bar?: number, spacing?: number }, slab?: { thickness?: number, bar?: number, spacing?: number, baseThickness?: number }, interior?: { length: number, width?: number, depth?: number }[], anchorBolts?: { spacing?: number, endDistance?: number, plateStock?: number, diameter?: number, embed?: number }, cover?: number, barLength?: number, waste?: number, truck?: number, price?: number }} Foundation */
 
 export function sampleFoundation() {
   return { id: "Foundation", type: "stem", width: 480, depth: 336, footing: { width: 20, depth: 10, bars: 2, bar: 4 }, stem: { height: 32, thickness: 8, bar: 4, spacing: 32 }, slab: { thickness: 4, bar: 3, spacing: 18, baseThickness: 4 }, interior: [{ length: 336, width: 24, depth: 12 }] };
@@ -44,6 +44,13 @@ export function validateFoundation(f) {
   for (const [i, s] of (f.interior || []).entries()) {
     if (!(s.length > 0 && s.length <= Math.max(f.width, f.depth))) e.push(`Interior footing ${i + 1} must be longer than 0 and no longer than the house.`);
     if (!((s.width ?? 24) >= 8 && (s.depth ?? ft.depth) >= 6)) e.push(`Interior footing ${i + 1} must be at least 8 in wide and 6 in deep.`);
+  }
+  if (f.anchorBolts) {
+    const a = { spacing: 72, endDistance: 12, plateStock: 192, ...f.anchorBolts };
+    if (!(a.spacing >= 12 && a.spacing <= 120)) e.push("Anchor bolt spacing must be between 12 and 120 in.");
+    if (!(a.endDistance >= 4 && a.endDistance <= 24)) e.push("Anchor bolt end distance must be between 4 and 24 in.");
+    if (!(a.plateStock >= 96 && a.plateStock <= 240)) e.push("Sill plate stock must be between 8 and 20 ft.");
+    if (a.plateStock < 4 * a.endDistance) e.push("Sill plate stock is too short for the end distance.");
   }
   if (f.waste != null && !(f.waste >= 0 && f.waste <= 0.3)) e.push("Waste must be between 0 and 0.3.");
   if (f.truck != null && !(f.truck >= 1 && f.truck <= 12)) e.push("Truck size must be between 1 and 12 cubic yards.");
@@ -135,19 +142,36 @@ export function layoutFoundation(f) {
   const base = slabArea * sl.baseThickness / 12 / 27;
   const barrier = slabArea * 1.1;
   const stakes = Math.ceil(formEdge * 12 / 48) + 4;
+  // Anchor bolts: the sill plate on each side is cut into equal pieces no longer than the stock
+  // length; every piece gets at least two bolts, one within `endDistance` of each end, and the
+  // rest at no more than `spacing`. Plate length per side = centreline length + wall thickness.
+  let anchors = null;
+  if (f.anchorBolts) {
+    const a = { spacing: 72, endDistance: 12, plateStock: 192, diameter: 0.5, embed: 7, ...f.anchorBolts };
+    const t = type === "stem" ? st.thickness : ft.width;
+    const sides = [cw + t, cw + t, cd + t, cd + t];
+    let pieces = 0, bolts = 0;
+    for (const L of sides) {
+      const n = Math.ceil(L / a.plateStock - 1e-9), p = L / n;
+      pieces += n;
+      bolts += n * Math.max(2, Math.ceil((p - 2 * a.endDistance) / a.spacing - 1e-9) + 1);
+    }
+    anchors = { bolts, pieces, diameter: a.diameter, embed: a.embed, spacing: a.spacing, endDistance: a.endDistance, plateStock: a.plateStock };
+  }
   const notes = [
     "Footing bars are one continuous loop (bent at the corners on site); corner L-bars and chairs are not counted.",
     `Rebar is lapped 40 bar diameters at each joint in ${formatLength(stock)} stock; ${waste * 100}% waste is added to concrete only.`,
     "Sizes, bar schedules, frost depth and soil bearing are your inputs; nothing here checks them against a code or an engineer's design.",
   ];
   if (lastLoad < 3 && trucks > 1) notes.push(`The last truck carries only ${lastLoad.toFixed(1)} cu yd; most plants charge a short-load fee under about 3 yd, so consider rounding the pour up or splitting it.`);
+  if (anchors) notes.push(`Anchor bolts: ${anchors.bolts} of ${anchors.diameter} in x ${anchors.embed} in embed for ${anchors.pieces} sill plate pieces (at most ${anchors.spacing} in apart, one within ${anchors.endDistance} in of each plate end, two per piece); spacing and edge distances are your inputs, check them against your code edition. Interior bearing lines are not counted.`);
   if (type === "stem" && !ft.formed) notes.push("Footings are assumed poured against the trench, so only the stem wall is formed.");
   return {
     ok: true, errors: [], id: f.id ?? "Foundation", type, width: f.width, depth: f.depth, footing: ft, stem: type === "stem" ? st : null, slab: sl,
     interior, pours: pours.map((p) => ({ ...p, cuYd: +p.cuYd.toFixed(3) })), concrete: { net: +concreteNet.toFixed(3), waste, order: +concrete.toFixed(2), trucks, truck, lastLoad: +lastLoad.toFixed(2), cost: f.price != null ? +(concrete * f.price).toFixed(2) : null },
     rebar: rebar.map((r) => ({ ...r, feet: +r.feet.toFixed(1), length: +r.length.toFixed(2) })), rebarLb: +rebarLb.toFixed(0),
     forms: { contactSqFt: +formArea.toFixed(1), plywoodSheets: Math.ceil(formArea * 1.1 / 32), edgeLinearFt: +formEdge.toFixed(1), stakes },
-    base: { cuYd: +base.toFixed(2), thickness: sl.baseThickness }, vaporBarrierSqFt: +barrier.toFixed(0), slabSqFt: +slabArea.toFixed(1), centreline: +centreline.toFixed(1), notes,
+    base: { cuYd: +base.toFixed(2), thickness: sl.baseThickness }, anchors, vaporBarrierSqFt: +barrier.toFixed(0), slabSqFt: +slabArea.toFixed(1), centreline: +centreline.toFixed(1), notes,
   };
 }
 
@@ -161,6 +185,7 @@ export function foundationText(l) {
   out.push(`  Rebar, ${l.rebarLb} lb:`);
   for (const r of l.rebar) out.push(`    ${String(r.qty).padStart(4)}  #${r.bar} x ${r.length.toFixed(1)} ft  ${r.what} (${r.feet.toFixed(0)} ft)`);
   out.push(`  Forms: ${l.forms.contactSqFt} sq ft of contact (${l.forms.plywoodSheets} sheets of 4x8 ply with 10% spare), ${l.forms.edgeLinearFt} ft of edge board, ${l.forms.stakes} stakes`);
+  if (l.anchors) out.push(`  Anchor bolts: ${l.anchors.bolts} (${l.anchors.diameter} in x ${l.anchors.embed} in embed, with nut and washer) for ${l.anchors.pieces} sill plate pieces`);
   out.push(`  Under the slab (${l.slabSqFt} sq ft): ${l.base.cuYd} cu yd of ${l.base.thickness} in gravel, ${l.vaporBarrierSqFt} sq ft of vapor barrier with laps`);
   for (const n of l.notes) out.push(`  - ${n}`);
   return out;
