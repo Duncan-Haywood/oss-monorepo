@@ -527,6 +527,47 @@ export function carryVenueHistory(schedule) {
   return out;
 }
 
+const WEIGHT_GRID = [0, 0.5, 1, 1.5, 2, 3, 5, 10];
+
+/**
+ * Picks `fairnessWeight` for this league from its own venues and travel table. It builds `seasons` seasons in a row (history
+ * carried, `seeds` seeds each) at every weight on a grid and keeps the largest weight whose travel stays within `slack` of
+ * weight 0 (the same league with fairness off). Travel is minutes when the spec has a travel table, else venue changes.
+ * When no weight fits the slack (three venues with real distances often do not) it falls back to the smallest weight that halves
+ * the imbalance and says so (`overSlack: true`, `extraTravel`), so the person sees the price instead of getting 0 silently.
+ * Returns { weight, basis, slack, overSlack, extraTravel (share over weight 0), rows[{weight, imbalance, travel}] }.
+ */
+export function suggestFairnessWeight(spec, { seasons = 3, seeds = 4, slack = 0.05, weights = WEIGHT_GRID } = {}) {
+  const base = Number(spec.seed ?? 1) || 1;
+  let basis = "venue changes";
+  const rows = weights.map((w) => {
+    let imb = 0, travel = 0;
+    for (let k = 0; k < seeds; k++) {
+      let hist = {};
+      const all = {};
+      for (let y = 0; y < seasons; y++) {
+        const s = buildDivisions({ ...spec, seed: base * 100 + k * 10 + y, venueFairness: true, venueHistory: hist, fairnessWeight: w });
+        if (s.stats.travelMinutes !== undefined) { basis = "minutes of travel"; travel += s.stats.travelMinutes; } else travel += s.stats.trips;
+        const one = carryVenueHistory({ ...s, config: { ...s.config, venueHistory: {} } });
+        for (const key of Object.keys(one)) { all[key] ||= {}; for (const v of Object.keys(one[key])) all[key][v] = (all[key][v] || 0) + one[key][v]; }
+        hist = carryVenueHistory(s);
+      }
+      imb += venueImbalance(all) / seeds;
+    }
+    return { weight: w, imbalance: Number(imb.toFixed(2)), travel };
+  });
+  const zero = rows.find((r) => r.weight === 0) || rows[0];
+  let best = rows[0].weight;
+  for (const r of rows) if (r.travel <= zero.travel * (1 + slack) && r.imbalance < zero.imbalance && r.weight >= best) best = r.weight;
+  let overSlack = false;
+  if (best === 0) {
+    const half = rows.find((r) => r.weight > 0 && r.imbalance <= zero.imbalance / 2);
+    if (half) { best = half.weight; overSlack = true; }
+  }
+  const pick = rows.find((r) => r.weight === best) || zero;
+  return { weight: best, basis, slack, overSlack, extraTravel: zero.travel ? Number((pick.travel / zero.travel - 1).toFixed(3)) : 0, rows };
+}
+
 /** Mean over teams of (most-played venue minus least-played venue), in matches: 0 is an even split. */
 export function venueImbalance(history) {
   const rows = Object.values(history);
@@ -670,13 +711,18 @@ export function rainoutOptions(f) {
   return { balance: on(f.balance), flip: on(f.flip), relocate: on(f.relocate), swapNights: on(f.swapNights) };
 }
 
-// node divisions.mjs spec.json  ->  text read-out (add --csv for the CSV, or --history for next season's venueHistory). spec.json holds the form fields.
+// node divisions.mjs spec.json  ->  text read-out (add --csv for the CSV, --history for next season's venueHistory, or --suggest-weight to pick fairnessWeight). spec.json holds the form fields.
 if (typeof process !== "undefined" && process.argv && import.meta.url === `file://${process.argv[1]}`) {
   const { readFileSync } = await import("node:fs");
   const file = process.argv[2];
   if (!file) { console.error("usage: node divisions.mjs spec.json [--csv]"); process.exit(2); }
   const { spec, errors } = readDivisionsSpec(JSON.parse(readFileSync(file, "utf8")));
   if (errors.length) { console.error(errors.join("\n")); process.exit(1); }
+  if (process.argv.includes("--suggest-weight")) {
+    const r = suggestFairnessWeight(spec);
+    process.stdout.write(`Fairness weight by ${r.basis} (3 seasons, 4 seeds; travel kept within ${r.slack * 100}% of fairness off):\n` + r.rows.map((x) => `  ${String(x.weight).padStart(4)}  imbalance ${x.imbalance.toFixed(2)}  ${x.travel} ${r.basis}`).join("\n") + `\nSuggested fairnessWeight: ${r.weight} (${r.extraTravel >= 0 ? "+" : ""}${(r.extraTravel * 100).toFixed(0)}% ${r.basis}${r.overSlack ? ", more than the slack: nothing cheaper halves the imbalance" : ""})\n`);
+    process.exit(0);
+  }
   let s = buildDivisions(spec);
   const raw = JSON.parse(readFileSync(file, "utf8"));
   const rainouts = raw.rainouts;
