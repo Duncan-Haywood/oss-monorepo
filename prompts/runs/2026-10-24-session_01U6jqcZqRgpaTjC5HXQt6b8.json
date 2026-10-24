@@ -24,7 +24,7 @@
   "commits": [],
   "lines_added": null,
   "lines_removed": null,
-  "merged": null,
+  "merged": true,
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": 0,
@@ -50,7 +50,7 @@
     "docs/reports/2026-10-20-pages-every-merge-and-podcasts.md"
   ],
   "goal": "A more human podcast voice, rendered once, distributed as a file.",
-  "notes": "podcast_tts.py now uses Kokoro-82M (Apache-2.0, voice af_heart) with paragraph pauses, acronym respellings, -16 LUFS mastering. All 34 front-matter scripts re-voiced (33 re-renders + can-you-predict-divorce, previously unvoiced; the commit message of e959a779 wrongly names typeof-localstorage-throws, which already had audio); podcast_tts.py --check exit 0; audio dir 43 MB -> 52 MB. Whisper base.en WER vs script, 33 paired episodes: Piper mean 0.100 / median 0.101, Kokoro mean 0.082 / median 0.081, Kokoro lower on 33/33. Pitch-spread proxy did not separate voices (3.28 vs 2.99 semitones), so no numeric expressiveness claim. Local checks: node --test platform/pages/podcast.test.mjs 9/9 pass; build.mjs + check.mjs: 4238 pages, no dead links, 34 feed items.",
+  "notes": "podcast_tts.py now uses Kokoro-82M (Apache-2.0, voice af_heart) with paragraph pauses, acronym respellings, -16 LUFS mastering. All 34 front-matter scripts re-voiced (33 re-renders + can-you-predict-divorce, previously unvoiced; the commit message of e959a779 wrongly names typeof-localstorage-throws, which already had audio); podcast_tts.py --check exit 0; audio dir 43 MB -> 52 MB. Whisper base.en WER vs script, 33 paired episodes: Piper mean 0.100 / median 0.101, Kokoro mean 0.082 / median 0.081, Kokoro lower on 33/33. Pitch-spread proxy did not separate voices (3.28 vs 2.99 semitones), so no numeric expressiveness claim. Local checks: node --test platform/pages/podcast.test.mjs 9/9 pass; build.mjs + check.mjs: 4238 pages, no dead links, 34 feed items. CI runners starved (all PR jobs queued 15+ min), so verified locally: node --test 'platform/pages/*.test.mjs' 1236/1241 pass, the 5 failures all in readme-live-link.test.mjs and failing identically on origin/main (pre-existing, untouched here); run_workflow_locally --for-changes: checklist-coverage, conflict-markers, doc-refs, duplicate-symbols, prompts-ci pass; portfolio-validate and portfolio-pages ran out of the tool's 300 s budget (not run, not failed); promptctl validate ok.",
   "corrections": [],
   "redteam": null
 }
