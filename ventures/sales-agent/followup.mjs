@@ -7,11 +7,13 @@ import { checkDraft, firstName, footer, findDate, iso, parseCsv } from "./engine
 import { runPrep } from "./prep.mjs";
 
 const lines = (text) => String(text || "").split(/\n+/).map((l) => l.replace(/^\s*[-*•\d.)]+\s+/, "").trim()).filter(Boolean);
-const OURS = /^((i|we)(\s+will|'ll|\s+shall|\s+to)\s+|(need|have|got|ought|should|must)\s+to\s+|(send|share|email|book|draft)\s+)(send|share|email|put together|check|get back|book|draft|follow up|introduce|the|a|an|them|her|him|over)\b/i;
-const OURS_LEAD = /^(i|we)(\s+will|'ll|\s+shall|\s+to)\s+/i;
-const THEIRS = /^(?!(?:Need|Have|Got|Ought|Should|Must|Want)\b)(?:(?:they|she|he|[A-Z][a-z]+)(?:\s+(?:said|says|told us)\s+(?:they|she|he))?)\s*(?:\s(?:will|is going to|are going to|to)|'ll)\s+(send|share|check|loop in|introduce|confirm|ask|get)\b/i;
-const dateIn = (l, today) => findDate(l, today) || findDate(l.replace(/\b(call|meeting|demo|step)\s+(?=(mon|tues|wednes|thurs|fri|satur|sun)day)/i, "$& on "), today);
-const NEXT = /\b(next (call|meeting|step)|demo|follow[- ]up (call|meeting)|call (on|again)|meet(ing)? (on|again))\b/i;
+const LEAD = String.raw`(?:(?:i|we)(?:\s+will|'ll|\s+shall|\s+to|\s+need to|\s+should|\s+must)|will|need to|promised to|action for me:?|todo:?)\s+`;
+const VERBS = String.raw`(?:send|share|email|put together|check|get back|book|draft|follow up|introduce|loop in|schedule|prepare|connect)\b`;
+const OURS = new RegExp(`^(?:${LEAD}${VERBS}|(?:send|share|email)\\s+(?:her|him|them|over|the|a|an|our|my)\\b|(?:i|we)\\s+owe\\s+(?:her|him|them)\\b)`, "i");
+const OURS_LEAD = new RegExp(`^${LEAD}`, "i");
+const THEIRS = /^(?:they|she|he|(?:[Tt]heir|[Tt]he) \w+|[Cc]ustomer|[A-Z][a-z]+)(?:\s+(?:said|says|told us)\s+(?:they|she|he))?(?:\s+(?:will|is going to|are going to|to)|'ll)\s+(send|share|check|loop in|introduce|confirm|ask|get|come back)\b|^(?:they|she|he|(?:[Tt]heir|[Tt]he) \w+|[Cc]ustomer)\s+(?:is|are) sending\b|^(?:[Tt]heir \w+|[Tt]he customer|[Cc]ustomer|[A-Z][a-z]+)\s+owes us\b/;
+const dateIn = (l, today) => findDate(l, today) || findDate(l.replace(/\b(call|meeting|demo|step)\s+(?=(mon|tues|wednes|thurs|fri|satur|sun)day)/i, "$& on "), today) || findDate(l.replace(/\b(?:next\s+|this\s+)?((?:mon|tues|wednes|thurs|fri|satur|sun)day)\b/i, "on $1"), today);
+const NEXT = /\b(next (call|meeting|step)|demo|follow[- ]up (call|meeting)|call (on|again)|meet(ing)? (on|again)|reconnect|touch base|speak again|talk again)\b/i;
 
 /** input: as runPrep, plus notes (this call, one point per line) and offer. */
 export function runFollowUp(input) {
@@ -33,7 +35,7 @@ export function runFollowUp(input) {
     const row = (Array.isArray(input.prospects) ? input.prospects : parseCsv(input.prospects)).find((x) => (x.email || "").toLowerCase() === prep.email);
     const name = firstName(row || {});
     const body = [`Hi ${name},`, "", "Thanks for the time today. What I took from it:", ...recap.map((r) => `- ${r}`)];
-    if (ours.length) body.push("", "What I will do:", ...ours.map((r) => { const t = r.replace(OURS_LEAD, ""); return `- ${t[0].toUpperCase()}${t.slice(1)}`; }));
+    if (ours.length) body.push("", "What I will do:", ...ours.map((r) => { const t = r.replace(OURS_LEAD, ""); if (t === r) return `- ${r}`; return `- ${t[0].toUpperCase()}${t.slice(1)}`; }));
     if (theirs.length) body.push("", "What I understood is on your side:", ...theirs.map((r) => `- ${r}`));
     body.push("", next ? `Next step, as we left it: ${next.line}${offer.booking_link ? ` (calendar: ${offer.booking_link})` : ""}.` : offer.booking_link ? `Could we put the next call on the calendar? ${offer.booking_link}` : "Could you send two or three times that suit you for the next call?", "", "If I have got anything wrong, reply and I will correct it.");
     draft = { subject: `Following up on today${offer.product ? `: ${offer.product}` : ""}`, body: [...body, footer(offer)].join("\n"), fakeRe: true };

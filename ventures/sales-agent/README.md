@@ -117,6 +117,15 @@ dangerous direction too (it took "we'd prefer not to receive further emails"
 for an objection), so it only suggests. Whether a model on the user's key
 closes the gap is the next measurement (`eval/model.mjs`, ROADMAP M2).
 
+### Call prep and follow-up, measured
+
+On labelled call notes (`eval/calls.mjs`): follow-up line sorting read 32 of 44
+right before tuning and 24 of 26 on a fresh set; prep field detection found
+about 61% of the fields mentioned in 20 fresh notes (precision 85%) and 48%
+(precision 88%) in the first 30 before tuning. Misses are paraphrase; false
+matches are rare. The brief says a "known" field may be a false match, so read
+the quote. Notes are agent-written, not real calls.
+
 ## Use it
 
 - **Page:** paste replies (each starting `From:`, or separated by `---`), and

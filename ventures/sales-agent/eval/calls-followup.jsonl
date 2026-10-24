@@ -1,0 +1,44 @@
+{"line": "I'll send the pricing sheet tomorrow", "role": "ours"}
+{"line": "We will share the case study from the Denver depot", "role": "ours"}
+{"line": "I need to send over the security questionnaire", "role": "ours"}
+{"line": "Send her the integration guide", "role": "ours"}
+{"line": "Promised to email the ROI model by Friday", "role": "ours"}
+{"line": "I'll loop in our solutions engineer", "role": "ours"}
+{"line": "Will get back to them on volume discounts", "role": "ours"}
+{"line": "We'll put together a pilot proposal", "role": "ours"}
+{"line": "I owe him a recording of the demo", "role": "ours"}
+{"line": "Action for me: book the technical session", "role": "ours"}
+{"line": "I'll check whether we support SFTP", "role": "ours"}
+{"line": "I will follow up with references next week", "role": "ours"}
+{"line": "She will send the current invoice export", "role": "theirs"}
+{"line": "Maria to check with her CFO on budget", "role": "theirs"}
+{"line": "He'll introduce us to the ops director", "role": "theirs"}
+{"line": "Dana is going to confirm the headcount", "role": "theirs"}
+{"line": "They will loop in procurement", "role": "theirs"}
+{"line": "Priya will get us read access to the sandbox", "role": "theirs"}
+{"line": "Tom to share the vendor onboarding form", "role": "theirs"}
+{"line": "Customer owes us the sample file", "role": "theirs"}
+{"line": "Their team is sending the sample files by Thursday", "role": "theirs"}
+{"line": "Next call Tuesday 2pm to review the pilot scope", "role": "next"}
+{"line": "Demo on Nov 12 with the whole ops team", "role": "next"}
+{"line": "Follow-up meeting next Friday", "role": "next"}
+{"line": "Meet again on 11/18", "role": "next"}
+{"line": "Next step: pilot kickoff on November 3", "role": "next"}
+{"line": "Reconnect Monday morning", "role": "next"}
+{"line": "Next call to be scheduled", "role": "recap"}
+{"line": "Currently reconciling 400 invoices a month by hand", "role": "recap"}
+{"line": "Pain is month-end close taking nine days", "role": "recap"}
+{"line": "Budget is set for Q1 but not approved", "role": "recap"}
+{"line": "They use NetSuite and are not happy with it", "role": "recap"}
+{"line": "Main worry is data residency", "role": "recap"}
+{"line": "Liked the exception queue", "role": "recap"}
+{"line": "Three people touch every invoice", "role": "recap"}
+{"line": "Not a fit for the EU entity yet", "role": "recap"}
+{"line": "Wants SOC 2 report before going further", "role": "recap"}
+{"line": "Decision expected before the board meeting", "role": "recap"}
+{"line": "I'd like to revisit pricing on the next call", "role": "recap"}
+{"line": "We talked about timelines", "role": "recap"}
+{"line": "Said they'd think about it", "role": "recap"}
+{"line": "She'll probably want a discount", "role": "recap"}
+{"line": "I can send a quote if they want one", "role": "recap"}
+{"line": "Sam will be on the next call", "role": "recap"}
