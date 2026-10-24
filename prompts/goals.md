@@ -842,9 +842,12 @@ time budgets. Each change should move one of the dashboard's CI numbers.
   one of the few ventures listed in
   [`portfolio/flagships.yaml`](../portfolio/flagships.yaml), which
   `allocate.py` ranks first.
-- **Research:** merged projects that pass the research guardrails and a
-  quality audit: the code re-runs, the README numbers match its output, and
-  every citation checks out.
+- **Research:** programmes that reach a paper ready for a named peer-reviewed
+  venue (owner, 2026-10-24: "phd + in ambition and scope ... publishable";
+  `research/PROGRAMMES.md`), and on the way merged steps that pass the research
+  guardrails and a quality audit: the code re-runs, the README numbers match
+  its output, and every citation checks out. Progress is judged by
+  programmes advanced, not projects counted.
 - **Explore:** merged work the agent chose itself, about 5% of runs. Judged
   on the same success and integrity measures; the review also notes which
   free-choice ideas graduated into a regular track.

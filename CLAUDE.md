@@ -25,7 +25,8 @@ which work.
   done). [`portfolio/DIRECTION.md`](portfolio/DIRECTION.md) is a long
   reference: `grep -n '^## '` it and read only what your task touches.
 - **Research work:** [`research/CLAUDE.md`](research/CLAUDE.md). Its brief,
-  not the product rules, governs `research/`.
+  not the product rules, governs `research/`. The bar is PhD level: multi-session
+  programmes aimed at publishable papers ([`research/PROGRAMMES.md`](research/PROGRAMMES.md)).
 - **[`prompt.md`](prompt.md) is the master prompt.** It routes a run to a
   sub-prompt with `python3 prompts/promptctl.py route` and asks for a run
   record before the merge ([`prompts/README.md`](prompts/README.md)).
