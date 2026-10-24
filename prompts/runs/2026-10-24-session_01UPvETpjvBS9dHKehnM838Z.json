@@ -1,0 +1,71 @@
+{
+ "date": "2026-10-24",
+ "session": "https://claude.ai/code/session_01UPvETpjvBS9dHKehnM838Z",
+ "track": "process",
+ "prompt_version": 1,
+ "input": "Triage ~40 adopted github-actions[bot] drafts from 2026-10-16/17 (docs/reports/2026-10-24-pr-review-without-dead-branches.md section 1): land unique work, close the rest with reasons, fix the workflow that opened sibling drafts, record it.",
+ "input_sha256": "35e41a69d1d23367465b42066d7763184a6b66c47189ac8081e99426dd1927c7",
+ "follow_up_inputs": [],
+ "model": "claude-opus-5-5",
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-10-24T04:54:54Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": "Triage the 38 adopted github-actions[bot] drafts of 2026-10-16/17; land unique work, close the rest, fix the job that opened them",
+ "projects": [
+  "research/homebot",
+  "dns-configuration-evidence",
+  "platform/ci/adopt_stranded"
+ ],
+ "pr": 10022,
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": 10,
+ "outcome": "success",
+ "errors": [
+  "git fetch --shallow-since / --deepen on the main clone failed with 'error in object: unshallow 8b6d541...'; worked around with a separate treeless probe repo for merge-bases",
+  "supersede_check.py timed out (300 s) on the treeless probe for PR 7299, so it was not run per PR"
+ ],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "docs/reports/2026-10-24-pr-review-without-dead-branches.md",
+   "issue": "Section 1 calls the 38 drafts fan-out batches from 'dispatching N workers per task'; they were opened by adopt-stranded-branches.yml, one per abandoned branch, and only two pairs were true siblings."
+  },
+  {
+   "file": "platform/pages/writing.mjs",
+   "issue": "The 160-character description cap is enforced only by the Portfolio Pages build, so two posts over it reached main and turned that check red on every PR."
+  }
+ ],
+ "deviations": [
+  {
+   "file": ".github/prompts/duplicate-work.md",
+   "why": "supersede_check.py could not run in this clone (shallow history unusable for merge-bases; on a treeless probe it timed out)",
+   "did": "Three-way classification with adopt_stranded.classify_paths in a treeless probe, then read every unlanded file against main for same-angle pages, renamed slugs and stale copy",
+   "result": "2 landed, 36 closed with named reasons; --reap's own rule agrees on the 4 mechanical cases"
+  },
+  {
+   "file": ".github/prompts/land-your-work.md",
+   "why": "7296 and 7546 were landed by copying their files onto this session's branch, not by merging main into the bot branches, since this session may push only to its designated branch",
+   "did": "Ported files, credited the source branch and PR in commit messages",
+   "result": "content on main via PR 10022"
+  }
+ ],
+ "writeups": [
+  "docs/history/2026-10-24-adopted-drafts-triage.md",
+  "docs/posts/2026-10-24-38-abandoned-drafts-two-worth-keeping.md"
+ ],
+ "goal": null,
+ "notes": "38 adopted drafts: landed research/homebot (from 7296; 69 tests pass, 2 skip without GL) and the DNS comparison page (from 7546); closed 36 with one-line reasons (per-PR table in docs/history/2026-10-24-adopted-drafts-triage.md). Source: adopt-stranded-branches.yml, not a fan-out; nothing ever closed an adopted draft. adopt_stranded.py now opens one draft per venture/research area and --reap closes adopted drafts with no unlanded file left (would close 4 of today's 38; the rest needed reading). Also trimmed two over-cap post descriptions on main that broke Portfolio Pages for every PR. Owner note: PR 7298 branch holds prompt text marked private in a now-public repo. Local checks: test_adopt_stranded 37 OK; validate_workflows 548 valid; publish_surface --check matches; research build ok, programme_check ok; check_md_links ok; clauses + 47 DNS venture tests pass; loadPosts ok.",
+ "corrections": [],
+ "redteam": null
+}
