@@ -58,5 +58,5 @@ kill_criteria:
   - A user reports that a price or hourly figure disagrees with a hand calculation from the same inputs.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/cottage-food-pricing-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/cottage-food-pricing-calculator/
   analytics: null

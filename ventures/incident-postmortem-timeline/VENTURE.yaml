@@ -45,5 +45,5 @@ kill_criteria:
   - No external repository is found using postmortem.mjs or classify.mjs within 90 days.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/incident-postmortem-timeline/
+  production: https://duncan-haywood.github.io/oss-monorepo/incident-postmortem-timeline/
   analytics: null

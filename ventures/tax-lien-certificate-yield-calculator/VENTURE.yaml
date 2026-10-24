@@ -52,5 +52,5 @@ kill_criteria:
   - A tax lien investor reports that a worked redemption amount disagrees with their county's statute for the same rule, rate and redemption date.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/tax-lien-certificate-yield-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/tax-lien-certificate-yield-calculator/
   analytics: null

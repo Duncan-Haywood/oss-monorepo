@@ -7,7 +7,7 @@ case / labels from copy-paste (cleaned when provably harmless), duplicates and b
 line number. It writes the file back cleaned, optionally in print groups of four. The file is read
 locally and never uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/iban-list-check/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/iban-list-check/
 
 ## Run it
 

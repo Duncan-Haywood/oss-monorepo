@@ -56,5 +56,5 @@ kill_criteria:
   - An operator reports that the capacity, turn-away or weather break-even arithmetic disagrees with their own worked example.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/waterfront-rental-season-planner/
+  production: https://duncan-haywood.github.io/oss-monorepo/waterfront-rental-season-planner/
   analytics: null

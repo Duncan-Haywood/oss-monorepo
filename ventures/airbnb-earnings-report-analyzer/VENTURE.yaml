@@ -76,5 +76,5 @@ kill_criteria:
   - A user reports a materially wrong earnings figure, or a real Airbnb export the tool cannot read, at which point the parser needs revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/airbnb-earnings-report-analyzer/
+  production: https://duncan-haywood.github.io/oss-monorepo/airbnb-earnings-report-analyzer/
   analytics: null

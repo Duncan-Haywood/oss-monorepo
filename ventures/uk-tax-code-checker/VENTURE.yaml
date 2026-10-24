@@ -33,5 +33,5 @@ kill_criteria:
   - A report that a code rule or band differs from GOV.UK guidance on the same inputs.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/uk-tax-code-checker/
+  production: https://duncan-haywood.github.io/oss-monorepo/uk-tax-code-checker/
   analytics: null

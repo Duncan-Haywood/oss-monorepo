@@ -8,7 +8,7 @@ business days, every call inside the prospect's own business hours, a draft for
 every touch, and a CSV task list and calendar (.ics) file. It plans and drafts;
 you send from your own mailbox, phone and post.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/sales-cadence-builder/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/sales-cadence-builder/
 · **Guide:** [B2B sales cadence template](https://duncan-haywood.github.io/monorepo-projects/sales-cadence-builder/sales-cadence-template.html)
 
 Open `index.html` (nothing is uploaded) and press **Load an example**. No build

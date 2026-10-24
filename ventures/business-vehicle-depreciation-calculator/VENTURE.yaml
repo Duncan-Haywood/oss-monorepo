@@ -37,5 +37,5 @@ kill_criteria:
   - No evidence within 90 days that a CPA, bookkeeper or buyer shared the link or reported using it.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/business-vehicle-depreciation-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/business-vehicle-depreciation-calculator/
   analytics: null

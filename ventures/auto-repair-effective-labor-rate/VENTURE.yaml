@@ -33,5 +33,5 @@ kill_criteria:
   - Shop owners report that the inputs demand a split between labor and parts sales their management system does not produce, so the form cannot be completed from the reports they already run.
   - The effective rates it produces prove so far from what shops recognise in their own numbers that the arithmetic is rejected rather than acted on.
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/auto-repair-effective-labor-rate/
+  production: https://duncan-haywood.github.io/oss-monorepo/auto-repair-effective-labor-rate/
   analytics: null

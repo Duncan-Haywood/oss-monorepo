@@ -39,5 +39,5 @@ kill_criteria:
   - A report that a date, threshold or penalty differs from the cited law on the same inputs.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/eu-einvoicing-mandate-checker/
+  production: https://duncan-haywood.github.io/oss-monorepo/eu-einvoicing-mandate-checker/
   analytics: null

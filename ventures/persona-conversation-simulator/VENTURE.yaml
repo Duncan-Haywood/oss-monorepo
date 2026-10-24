@@ -58,5 +58,5 @@ kill_criteria:
   - Fewer than three distinct users engage with the tool within 90 days of it being reachable from the published site.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/persona-conversation-simulator/
+  production: https://duncan-haywood.github.io/oss-monorepo/persona-conversation-simulator/
   analytics: null

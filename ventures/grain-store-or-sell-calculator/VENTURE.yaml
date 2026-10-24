@@ -48,5 +48,5 @@ kill_criteria:
   - A user reports a break-even price that does not reproduce the tool's own net-equal-to-selling-now result, or a shrink figure that disagrees with the moisture formula.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/grain-store-or-sell-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/grain-store-or-sell-calculator/
   analytics: null

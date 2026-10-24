@@ -8,7 +8,7 @@ field total and tons to buy, the cost of one more pound of each nutrient, the
 price at which an unused product would start to pay, and what the obvious
 one-product-per-nutrient plan costs against the optimum. Nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/fertilizer-blend-optimizer/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/fertilizer-blend-optimizer/
 
 Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 

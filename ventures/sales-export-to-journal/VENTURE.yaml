@@ -56,5 +56,5 @@ kill_criteria:
   - A user reports a real export this page misdetects or a journal Xero or QuickBooks refuses, at which point the signatures and layouts need revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/sales-export-to-journal/
+  production: https://duncan-haywood.github.io/oss-monorepo/sales-export-to-journal/
   analytics: null

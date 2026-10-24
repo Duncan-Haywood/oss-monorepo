@@ -35,5 +35,5 @@ kill_criteria:
   - A report that a cap, rate or date differs from GOV.UK guidance on the same inputs.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/uk-redundancy-pay-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/uk-redundancy-pay-calculator/
   analytics: null
