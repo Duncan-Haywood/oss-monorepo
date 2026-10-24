@@ -124,6 +124,11 @@ function tableRows(text) {
     .map((l) => l.replace(/^\|/, '').replace(/\|$/, '').split('|').map((c) => c.trim()));
 }
 
+/** A table read aloud: one line per body row, each cell after its column's header. */
+function tableSpeech([head, ...rows]) {
+  return rows.map((r) => r.map((c, i) => (!c ? '' : head[i] ? `${head[i]}: ${c}` : c)).filter(Boolean).join(', ') + '.').join('\n');
+}
+
 /** Plain text for text-to-speech: no markup, pauses marked with blank lines. */
 export function markdownToSpeech(markdown) {
   return markdown
@@ -131,7 +136,7 @@ export function markdownToSpeech(markdown) {
     .map((block) => block.trim())
     .filter(Boolean)
     .map((block) => (block === '* * *' ? '[pause]' : block.startsWith('|')
-      ? tableRows(block).map((r) => r.filter(Boolean).join(', ')).join('.\n').replace(/[*`]/g, '')
+      ? tableSpeech(tableRows(block)).replace(/[*`]/g, '')
       : block
       .replace(/\[([^\]]+)\]\([^)\s]+\)/g, '$1')
       .split('\n').map((l) => l.replace(/^>\s?/, '').replace(/^#+\s*/, '').replace(/^- /, '').replace(/^\d+\. /, '')).join('\n')

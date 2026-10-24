@@ -36,7 +36,7 @@ test('markdown subset: pipe tables and links to sibling stories', () => {
   assert.match(html, /<th>Said<\/th>/);
   assert.match(html, /<td><strong>0\.0225<\/strong><\/td>/);
   assert.doesNotMatch(html, /---/);
-  assert.equal(markdownToSpeech('See [Ten Percent](ten-percent.md).\n\n| | Said |\n|---|---|\n| 1 | 0.85 |'), 'See Ten Percent.\n\nSaid.\n1, 0.85');
+  assert.equal(markdownToSpeech('See [Ten Percent](ten-percent.md).\n\n| | Said |\n|---|---|\n| 1 | 0.85 |'), 'See Ten Percent.\n\n1, Said: 0.85.');
 });
 
 test('every podcast feed is valid enough for directories: absolute URLs, licence, AI disclosure, enclosures match audio', () => {
