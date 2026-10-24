@@ -13,7 +13,9 @@ export const BASE = 'https://duncan-haywood.github.io/oss-monorepo/';
 export function addLiveLink(readme, slug) {
   const url = `${BASE}${slug}/`;
   // Boundary after the slug: a link to `foo-bar` is not a link to `foo`.
-  if (new RegExp(`monorepo-projects/${slug}(?![\\w.-])`).test(readme)) return readme;
+  // Either path counts: READMEs written before the move to /oss-monorepo/
+  // (PR #9958) still link the old /monorepo-projects/ one.
+  if (new RegExp(`(?:oss-monorepo|monorepo-projects)/${slug}(?![\\w.-])`).test(readme)) return readme;
   const lines = readme.split('\n');
   let i = 0;
   while (i < lines.length && (lines[i].trim() === '' || lines[i].startsWith('#'))) i++;
