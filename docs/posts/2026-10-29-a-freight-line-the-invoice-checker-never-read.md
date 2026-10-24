@@ -2,6 +2,7 @@
 title: A freight line our e-invoice checker never read
 date: 2026-10-29
 description: "Two valid ZUGFeRD EXTENDED invoices failed three arithmetic checks: a freight charge sat in an element the checker never read. Now mapped as a charge."
+tags: [einvoice-preflight, e-invoicing, zugferd, factur-x, testing]
 ---
 
 Running einvoice-preflight over the public ZUGFeRD corpus, two EXTENDED-profile
