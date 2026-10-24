@@ -1,0 +1,50 @@
+{
+  "date": "2026-10-24",
+  "session": "https://claude.ai/code/session_01MqfgHBp16ceYZjHmeitkTk",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "what are some of the methods of seo discovery. I know of blogs but what else? make a blog for it?",
+  "input_sha256": "1d73e6fe132ddce4eb1c81e85edf62d11235b6456dea0f08d95be72b9d525f89",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-24T04:57:48Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Answer the owner's question on SEO discovery channels beyond blogging, as a blog post",
+  "projects": [
+    "docs"
+  ],
+  "pr": 10024,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "The owner asked a direct question with a direct deliverable (a blog post), so the routed venture brief (deepen the top flagship) was not followed.",
+      "did": "Wrote one post grounded in the repo's own SEO plumbing",
+      "result": "Post shipped; no flagship work this run"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-24-ways-search-engines-find-a-site-besides-blogging.md"
+  ],
+  "goal": null,
+  "notes": "Docs-only. Claims about site status cite portfolio-pages.yml smoke checks, platform/ci/indexnow_state.py, channels.yaml and the decision queue; no traffic numbers claimed (usage unmeasured).",
+  "corrections": [],
+  "redteam": null
+}
