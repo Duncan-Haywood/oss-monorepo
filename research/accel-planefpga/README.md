@@ -2,7 +2,7 @@
 
 Track 8 (task-specific AI accelerators) in `PROJECTS.md`, the "multi-lane engine and the UP5K's DSP blocks" step left open by `accel-fpga`. The question: put `accel-plane`'s P-lane output-stationary (OS) and reduction-tree (RT, and RTp with a registered tree) matrix-vector engines, for the keyword-spotting layer shape 64x70 with 4-bit weights, through Yosys and nextpnr-ice40 on an iCE40 UP5K. How many lanes fit, what clock do they reach, what is the latency of one product, and do the UP5K's eight hard multiplier blocks change the answer? **Headline: output-stationary at 16 lanes is the fastest design that fits (10.2 us per product, 2,942 of 5,280 logic cells, 27 MHz); reduction trees clock 1.5 to 2x slower; and asking Yosys for DSP blocks cuts logic by 13 to 41% but fails to place at more than 8 lanes, because it does not fall back to logic when the 8 blocks run out.** Produced with AI assistance (Claude). Nothing was run on a board.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/accel-planefpga/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/accel-planefpga/
 
 **Why it seemed worth doing.** `accel-plane` priced the engines in generic gates and `accel-fpga` mapped a single serial MAC. Neither says what a parallel engine costs on a real, cheap, open-toolchain part, which is where a wake-word accelerator would plausibly be prototyped.
 

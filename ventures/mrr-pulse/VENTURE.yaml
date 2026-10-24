@@ -57,5 +57,5 @@ kill_criteria:
   - A user reports an MRR figure off by more than 5% from their own books on active, normal-priced subscriptions; the normalisation and coupon paths come before any new feature.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/mrr-pulse/
+  production: https://duncan-haywood.github.io/oss-monorepo/mrr-pulse/
   analytics: null

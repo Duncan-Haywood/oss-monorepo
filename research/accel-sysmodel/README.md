@@ -4,7 +4,7 @@ Track 8 (task-specific AI accelerators) in `PROJECTS.md`. `accel-cascade` ended 
 
 **Headline.** With the front end at the modelled 46.8 nJ per 20 ms frame (584.6 nJ per keyword decision at 50 frames and 4 decisions per second), the cascades' classifier-only savings of up to 28% shrink to at most 0.42% of whole-system energy, while they lose 0.3 to 1.4 points of test accuracy. And the model that is most accurate on validation (about 0.75 test accuracy) costs 23 to 26 times the cheapest model that clears 0.5 validation accuracy (about 0.47 to 0.49), yet only 5.2 to 5.8% more system energy. At this front end, spend the energy on the accurate model; a cascade or a minimal model is not where the budget goes.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/accel-sysmodel/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/accel-sysmodel/
 
 **Builds on.** `research/accel-cascade` (`experiments/results.json`: 40 designs per seed with modelled energy and validation/test accuracy, and the selected single and cascade picks per target, 5 seeds) and `research/accel-frontend` (`experiments/results.json`: 46.77 nJ per frame). Energy constants are the `accel-kws` MAC model, checked against Horowitz (2014) within 4% by `accel-horowitzcheck`. No CU Boulder group is built on.
 

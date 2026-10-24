@@ -2,7 +2,7 @@
 
 Seventh milestone of the agentic co-design track (`research/PROJECTS.md`, track 14, `codesign`; `codesign-transfer`). It takes the contact model of `codesign-agri` unchanged and widens what that project holds fixed: per world, fruit size, camera placement error, wet-fruit share, bruise threshold and stem pull are drawn, and the *printed* gripper differs from the design (pad modulus, grip force and pad width tolerances). Sim-to-sim only. Produced with AI assistance (Claude). **Every range is an assumed round number in `src/codesign_transfer/transfer.py`, not a measurement; no gripper was printed and no fruit tested.**
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/codesign-transfer/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/codesign-transfer/
 
 ![nominal J against mean J in shifted worlds](experiments/transfer.png)
 

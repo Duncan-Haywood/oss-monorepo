@@ -158,7 +158,7 @@ kill_criteria:
   - A finding's stated category (broad-access / hardcoded-secret / unpinned-version / duplicate-tool-name) is wrong for a config a real user pastes, and cannot be fixed by tightening a pattern.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/mcp-config-risk-check/
+  production: https://duncan-haywood.github.io/oss-monorepo/mcp-config-risk-check/
   analytics: null
 
 channel_notes: >-

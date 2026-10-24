@@ -8,7 +8,7 @@ end-of-speech hangover takes 0.2 to 1.2 s, so the two can overlap. Produced with
 (one run, six synthetic utterances, one server CPU); how long people pause inside a turn is **my
 assumption**, swept over five settings, and nothing here is a claim about real speakers or a phone.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/ambient-speculate/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/ambient-speculate/
 
 ## Motivation
 

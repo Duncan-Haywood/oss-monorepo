@@ -38,5 +38,5 @@ kill_criteria:
   - Two independent reports that strong matches returned a wrong answer on a real questionnaire, with no cheap fix.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/security-questionnaire-matcher/
+  production: https://duncan-haywood.github.io/oss-monorepo/security-questionnaire-matcher/
   analytics: null

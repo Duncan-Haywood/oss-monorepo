@@ -72,5 +72,5 @@ kill_criteria:
   - A user reports that a figure contradicts their contract's own arithmetic by more than the stated assumptions explain.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/physician-wrvu-compensation-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/physician-wrvu-compensation-calculator/
   analytics: null

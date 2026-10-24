@@ -2,7 +2,7 @@
 
 Track 2 (ambient AI assistant), a new question rather than another step of the audit chain: every earlier `ambient-*` trigger study scored *per-message* policies; none asked how the **frame-level** threshold behind a wake word turns into false wakes per day. Produced with AI assistance. **Stylised**: the detector score is a Gaussian AR(1) process, not the output of any real wake-word model, and no audio was used.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/ambient-falsewake/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/ambient-falsewake/
 
 ## Question
 

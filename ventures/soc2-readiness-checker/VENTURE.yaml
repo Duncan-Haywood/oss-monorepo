@@ -53,5 +53,5 @@ kill_criteria:
   - Users report that the control list or the effort defaults do not match what their auditor asked for, at which point the list needs a source review against the AICPA trust services criteria.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/soc2-readiness-checker/
+  production: https://duncan-haywood.github.io/oss-monorepo/soc2-readiness-checker/
   analytics: null

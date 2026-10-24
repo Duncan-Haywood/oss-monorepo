@@ -58,5 +58,5 @@ kill_criteria:
   - A user reports a lineup that double-books a child or plays a child in a position they were barred from.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/youth-lineup-rotator/
+  production: https://duncan-haywood.github.io/oss-monorepo/youth-lineup-rotator/
   analytics: null

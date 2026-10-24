@@ -54,5 +54,5 @@ kill_criteria:
   - A user reports a draw in which someone drew themselves, a partner in the same group, or a pairing the rules forbid.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/secret-santa-draw/
+  production: https://duncan-haywood.github.io/oss-monorepo/secret-santa-draw/
   analytics: null

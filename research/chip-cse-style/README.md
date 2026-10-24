@@ -2,7 +2,7 @@
 
 Track 3 (LLM chip-design loops, `PROJECTS.md`). `chip-abc-orderpass` showed that the only thing separating the two netlists of a carry-select adder is whether `opt_merge` shares `a + b` between the `+ 0` and `+ 1` sums. A rewrite proposer (human or LLM) would more naturally write that sharing itself. This asks whether the common rewrites do the same thing as the flow. Chosen over another operand-order or seed variant because that chain (`chip-abc-order`, `chip-abc-orderpass`) had become micro-variants of one result; this tests the rewrites a proposer would actually make. Produced with AI assistance (Claude). Preliminary and small: one adder, one tool version, a generic-gate library, no LLM in the loop.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/chip-cse-style/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/chip-cse-style/
 
 **Builds on.** `chip-abc-order` and `chip-abc-orderpass` (same author, MIT): the flow wrapper (`src/chip_cse_style/flow.py`, scores and miter) is copied unchanged and the `gen` style is the text of `chip-abc-order`'s `csel4`. Yosys and its integrated ABC (Brayton and Mishchenko, CAV 2010, <https://doi.org/10.1007/978-3-642-14295-6_5>, as cited in `chip-abc-sweep`; not re-read here). No connection to the CU Boulder groups in `prompt.md` is claimed.
 

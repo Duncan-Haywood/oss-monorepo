@@ -2,7 +2,7 @@
 
 Pure Python standard library. Follows up `swe-deviations`, whose next step was to classify deviations and test whether any kind predicts partial outcomes. Produced with AI assistance (Claude). **Preliminary: observational data, crude keyword classes.**
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/swe-devkinds/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/swe-devkinds/
 
 All numbers are from `experiments/results.txt` (1,606 run records, 213 listing at least one deviation).
 

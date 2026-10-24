@@ -54,5 +54,5 @@ kill_criteria:
   - Users report that the incl/excl/? vocabulary does not match how their bid sheets are written, at which point the parser needs configurable synonyms.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/bid-leveling-worksheet/
+  production: https://duncan-haywood.github.io/oss-monorepo/bid-leveling-worksheet/
   analytics: null

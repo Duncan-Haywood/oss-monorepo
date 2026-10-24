@@ -72,5 +72,5 @@ kill_criteria:
   - A user reports a materially wrong figure from a real Transaction report, at which point the row classification or column mapping needs revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/ebay-transaction-report-analyzer/
+  production: https://duncan-haywood.github.io/oss-monorepo/ebay-transaction-report-analyzer/
   analytics: null

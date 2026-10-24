@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "buildbot-nailpay"
+version = "0.1.0"
+description = "Break-even human sheathing-nailing time for a Unitree G1, walking or on a drive-and-lift base, from the simulated sheet times of buildbot-mobilebase."
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[project.optional-dependencies]
+figure = ["matplotlib"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]

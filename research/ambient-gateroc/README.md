@@ -2,7 +2,7 @@
 
 Track 2 (ambient AI assistant), follow-up to `ambient-wearable`; free of the Dawid-Skene chain the last ten ambient projects extended, because that chain had gone to micro-variants. Produced with AI assistance. **Stylised, synthetic results only**: the audio is generated, the power model is `ambient-wearable`'s (vendor figures plus my assumptions), and nothing was measured on hardware or on real speech.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/ambient-gateroc/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/ambient-gateroc/
 
 ## Question
 

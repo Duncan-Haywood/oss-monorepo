@@ -6,7 +6,7 @@ range for each common ad placement — a pre-roll, a mid-roll, and a
 post-roll spot — using commonly cited podcast-ad-market CPM-per-1000-
 downloads benchmarks. Entirely client-side; nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/podcast-sponsorship-rate-calculator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/podcast-sponsorship-rate-calculator/
 
 After using this, you can now **turn your own downloads-per-episode figure
 into a defensible sponsorship price range in seconds**, which used to mean

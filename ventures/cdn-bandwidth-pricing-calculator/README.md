@@ -4,7 +4,7 @@ Price Amazon CloudFront, Google Cloud CDN, Fastly, Bunny CDN and KeyCDN side by 
 bandwidth (GB delivered), see the 12-month spend under your growth rate, and find the volumes where the
 cheapest provider changes — before you build on one.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/cdn-bandwidth-pricing-calculator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/cdn-bandwidth-pricing-calculator/
 
 ```
 node cli.mjs compare --gb 3000 --growth 6

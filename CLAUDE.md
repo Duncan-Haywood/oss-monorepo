@@ -2,13 +2,15 @@
 
 **Judgment first.** You are a competent engineer, and this file trusts you to
 act like one (owner, 2026-10-20: "respect the competence of the ai agent
-engineer"). Only the hard limits in [`prompts/goals.md`](prompts/goals.md)
-("Guardrails") are absolute: legal and financial liability, never
-fabricating, the public-repository rules, licensing, owner-only actions and
-research integrity. Everything else here is a guideline distilled from earlier
-runs, written as a recommendation with its reason (owner, 2026-10-21:
-outside "financial or legal or ethical liability ... guidelines and
-suggestions makes more sense than hard and fast rules"). Where a default would make you do something a sensible person would
+engineer"). The only hard rules are the ones that guard against financial,
+legal or ethical liability, listed in [`prompts/goals.md`](prompts/goals.md)
+("Guardrails", "Hard limits"): never fabricating, the public-repository
+rules, licensing, the owner's money and accounts, honest marketing, user
+safety and research integrity. Everything else, this file included, is a
+suggestion distilled from earlier runs, written with its reason (owner,
+2026-10-21: outside "financial or legal or ethical liability ... guidelines
+and suggestions makes more sense than hard and fast rules"; reaffirmed
+2026-10-24). Where a default would make you do something a sensible person would
 not, don't, and say so in the run record's `deviations`. How rules are
 written and cut: [`prompts/steering.md`](prompts/steering.md), "Guidelines, not
 rules".
@@ -25,7 +27,8 @@ which work.
   done). [`portfolio/DIRECTION.md`](portfolio/DIRECTION.md) is a long
   reference: `grep -n '^## '` it and read only what your task touches.
 - **Research work:** [`research/CLAUDE.md`](research/CLAUDE.md). Its brief,
-  not the product rules, governs `research/`.
+  not the product rules, governs `research/`. The bar is PhD level: multi-session
+  programmes aimed at publishable papers ([`research/PROGRAMMES.md`](research/PROGRAMMES.md)).
 - **[`prompt.md`](prompt.md) is the master prompt.** It routes a run to a
   sub-prompt with `python3 prompts/promptctl.py route` and asks for a run
   record before the merge ([`prompts/README.md`](prompts/README.md)).
@@ -46,10 +49,11 @@ new worth doing. world's an oyster."
 So land at least one thing of real value on `main`: a product feature or fix,
 a deployed page, a research result, an open-source tool, SEO or distribution
 work, or a write-up that uses real data to tell a reader something new.
-Most runs also write up what they learned, by their own judgment on the
-subject: an agent doc in `docs/reports/` and a post in `docs/posts/`, usually
-by extending an existing one (owner, 2026-10-21; `goals.md`, "Write about the
-work"). An
+Most PRs also carry a **new blog post** in `docs/posts/` about the project
+or whatever the run found, short is fine, plus an agent doc in `docs/reports/`
+when the next run needs to know something (owner, 2026-10-21 and 2026-10-24:
+"I want the number of blog posts per day to increase significantly";
+`goals.md`, "Write about the work"). An
 empty queue, a vague brief or a task that already landed means look wider,
 not stop. Restated blockers, ledger-only edits and re-verifying unchanged
 work do not count. Never fabricate or lower the bar to have something to
@@ -77,8 +81,9 @@ time goes to what only an agent does well (`goals.md`, same title).
 
 ## Every session lands its own work
 
-The owner's standing request: open a pull request for your work and merge it
-yourself, in every session, whatever the harness default. A pushed branch
+The owner's standing request (a strong default, not a liability line): open a
+pull request for your work and merge it yourself, in every session, whatever
+the harness default. A pushed branch
 nobody opens a PR for is invisible to every check and every later session.
 
 1. push, and open the PR right away (draft while you work);

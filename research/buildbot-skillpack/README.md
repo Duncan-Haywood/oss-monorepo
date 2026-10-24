@@ -2,7 +2,7 @@
 
 Seventh project of track 20, robots on the residential building site (`PROJECTS.md`, milestone 6, the part `buildbot-skills` left open: "a library of the skills in a form a robot owner could load"). [`buildbot-skills`](../buildbot-skills) and [`buildbot-mjsheet`](../buildbot-mjsheet) showed that a sheet-following skill tuned on a rigid-sheet plant fails on a flexing one, and that the failure also appears in MuJoCo. This packages the skills as versioned JSON files with a loader, a validator and a re-scorer, and asks the one new question that falls out: if the tuning scores the worse of two plants, does the skill hold on a third (MuJoCo)? Produced with AI assistance (Claude). Simulated and preliminary; builds on no group in `prompt.md`.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/buildbot-skillpack/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/buildbot-skillpack/
 
 **Headline.**
 - **Five skill files in [`skills/`](skills), each reloaded from disk and re-scored to the digit.** Four are the sheet-following skill (`cohold-follow-*`: hand-set, trained on the rigid plant A, trained on the flexing plant B, trained on A and B mixed) and one is the 95%-of-sheets nailing tolerance budget (`sheathing-nail`). Every file carries its parameters, interface, test scene and seed, pass criteria, the success it claimed when published, and caveats. The loader rejects a file without caveats that say it is not a rated capability.

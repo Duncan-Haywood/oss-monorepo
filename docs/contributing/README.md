@@ -9,6 +9,7 @@ The pages here go one level deeper.
 | [`setup.md`](setup.md) | Getting the code without downloading gigabytes, the toolchain, running one tool, its tests and the site locally |
 | [`fix-a-tool.md`](fix-a-tool.md) | How a browser calculator, a command-line checker and a self-hosted app are laid out, and a worked example of fixing a wrong number |
 | [`research.md`](research.md) | How a research project is laid out, reproducing a result, and what a useful correction or extension looks like |
+| [`steering-agents.md`](steering-agents.md) | The maintainer's process for directing agent sessions: scheduling, phrasing a request, reading results, turning remarks into directions, and copying it to another repository |
 
 ## How this repository is different
 

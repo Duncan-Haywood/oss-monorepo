@@ -41,5 +41,5 @@ kill_criteria:
   - A report that the size class, category or Article reference differs from the Directive's text on the same inputs.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/nis2-scope-checker/
+  production: https://duncan-haywood.github.io/oss-monorepo/nis2-scope-checker/
   analytics: null

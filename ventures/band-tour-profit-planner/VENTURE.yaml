@@ -52,5 +52,5 @@ kill_criteria:
   - A user reports a profit or break-even figure that does not follow from the inputs and the formulas the page states.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/band-tour-profit-planner/
+  production: https://duncan-haywood.github.io/oss-monorepo/band-tour-profit-planner/
   analytics: null

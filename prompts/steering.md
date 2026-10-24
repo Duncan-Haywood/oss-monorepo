@@ -36,10 +36,11 @@ it.
 ## Two kinds of text
 
 1. **Hard limits** live in [`goals.md`](goals.md) and nowhere else, and they
-   are absolute: they guard against legal liability, financial liability and
-   doing wrong (never fabricate, the public-repository rules, licensing,
-   owner-only actions, platform terms, research integrity). No judgment
-   call overrides them, and no sub-prompt may relax them.
+   are absolute: they guard against financial, legal and ethical liability
+   (never fabricate, the public-repository rules, licensing, the owner's
+   money and accounts, platform terms and honest marketing, user safety,
+   research integrity), and nothing else belongs there (owner, 2026-10-24).
+   No judgment call overrides them, and no sub-prompt may relax them.
 2. **Everything else is a default, the owner's own directions included.**
    The owner put it this way: aside from legal and financial liability and
    doing wrong, owner instructions come from "a collaborator", not "gospel

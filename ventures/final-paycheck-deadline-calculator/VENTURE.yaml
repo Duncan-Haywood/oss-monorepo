@@ -93,5 +93,5 @@ kill_criteria:
   - A user reports relying on the tool's deadline to actually pay or withhold a final paycheck without independently verifying which state's law governs and checking that state's current guidance, despite the disclaimer -- at that point the disclaimer wording itself needs revisiting, not just a bigger caveat.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/final-paycheck-deadline-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/final-paycheck-deadline-calculator/
   analytics: null

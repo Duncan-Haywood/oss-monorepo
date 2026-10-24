@@ -56,5 +56,5 @@ kill_criteria:
   - A user reports a monthly recognised-revenue figure off by more than 1% from their accountant's schedule on straight-line subscriptions; the day-count and discount paths come before any new feature.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/rev-rec/
+  production: https://duncan-haywood.github.io/oss-monorepo/rev-rec/
   analytics: null

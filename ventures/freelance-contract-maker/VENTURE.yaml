@@ -64,5 +64,5 @@ kill_criteria:
   - A user reports a generated clause that is materially wrong or misleading about their rights, at which point the template wording needs legal review.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/freelance-contract-maker/
+  production: https://duncan-haywood.github.io/oss-monorepo/freelance-contract-maker/
   analytics: null

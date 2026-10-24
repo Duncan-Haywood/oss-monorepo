@@ -4,7 +4,7 @@ Follow-up to `infra-sortvalue` (milestone 10's second project in track 21, appli
 
 **Added (result F).** A rolling-horizon rule with a 1 s look ahead reaches 99.7% of the clairvoyant optimum at 6 items/m and 98.0% in the two hardest cells; queue-only re-planning gets 97.5% and 91 to 93%.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/infra-sortbound/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/infra-sortbound/
 
 **Headline.** The greedy rules are closer to the best possible schedule than they are to FIFO's worst case, and the headroom is not where pick order helped most. At 6 items/m on a 0.5 m/s belt, highest-value-first reaches **96.5%** of the clairvoyant optimum (FIFO 94.7%); at 10/m, **93.9%** (FIFO 89.6%); at 1/m both reach 99.4 to 99.5%. Value per second of pick is within noise of value-first everywhere. The largest gaps are **about 10% at 0.75 m/s belt speed (FIFO 11%) and 9% for a 0.4 m/s arm**, where no rule tested gets within 9% of the optimum; they vanish for a 5 m/s arm or a 0.25 m/s belt. The bound is exact to under 0.1% of value (a bracket, not an estimate).
 

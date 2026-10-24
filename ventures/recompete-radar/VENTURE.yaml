@@ -27,5 +27,5 @@ kill_criteria:
   - Fewer than five contractors or counsellors report using a lead from it to decide on a bid within 90 days of a public URL.
   - USAspending end dates prove too unreliable (option years, extensions) for users to act on without paid data.
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/recompete-radar/
+  production: https://duncan-haywood.github.io/oss-monorepo/recompete-radar/
   analytics: null

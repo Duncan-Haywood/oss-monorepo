@@ -2,7 +2,7 @@
 
 `sensing-epigate` found that an epipolar gate was no better than a RANSAC start against its *invented* mismatches, and `sensing-matchreal` then measured what real SIFT mismatches look like. This project closes the loop the second one left open: it runs the epigate trial with each measured mix (mismatch rate and the share of along-epipolar, near and far errors at each ratio-test threshold). **Headline: on the measured mixes the gate plus a Cauchy loss is the best of three methods at ratio tests of 0.8 and tighter (0.0078 against 0.0207 for a RANSAC start at 0.8; 0.0026 against 0.0032 at 0.6), and worse than the RANSAC start only at a loose 0.9 ratio test (0.130 against 0.082), where every method is above 0.08 object radii.** It is the opposite of the ordering `sensing-epigate` reported at 10% uniform mismatches, and the all-uniform control here (table B) reproduces that earlier picture.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/sensing-mixgate/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/sensing-mixgate/
 
 Lab tag: none fits (ARPG does perception; this builds on none of its work). Builds on `sensing-epigate` (rig, gate, trial) and `sensing-matchreal` (the measured mixes).
 

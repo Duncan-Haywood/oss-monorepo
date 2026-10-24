@@ -2,7 +2,7 @@
 
 Why it seemed worth doing: `eda-detectprob` could only say that 1,280 clean vectors bound a hidden bug's per-vector detection probability below 0.0023, and listed "draw 1,000 or more vectors for the survivors" as its next step. `eda-verify` also noted that its 16 "equivalent" verdicts (Yosys induction) had no independent check. A 20,000-vector random draw is that check, and it tightens the bound about sixteen-fold. Produced with AI assistance (Claude). Stylised and preliminary: one design (the `chip-accel` MAC engine, p = 8, 4-bit), one mutant set, uniform random inputs.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/eda-deepdraw/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/eda-deepdraw/
 
 **Builds on.** `research/eda-verify` (mutants regenerated with the same sampling seed; every regenerated id is asserted equal to the committed log) and `research/eda-detectprob` (the survivors and the bound). No CU Boulder lab's work is built on and no affiliation is implied.
 

@@ -60,5 +60,5 @@ kill_criteria:
   - A licensed architect or engineer reports that a generated plan has a defect the checks claim to catch (egress, room size, a header that fails), and the cause is a bug here.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/open-house-plans/
+  production: https://duncan-haywood.github.io/oss-monorepo/open-house-plans/
   analytics: null

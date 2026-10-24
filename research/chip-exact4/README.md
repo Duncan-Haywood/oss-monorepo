@@ -2,7 +2,7 @@
 
 Why it seemed worth doing: every other `chip-*` and `eda-*` project scores a design by the gate count ABC returns, and compares ABC scripts only with each other. None of them knows how far *any* script is from the best possible circuit. For 4-input functions that optimum can be computed exactly, so this project measures the distance. Produced with AI assistance (Claude). Preliminary and small: one Yosys version (0.33), 4-input single-output functions only, a generic 2-input gate set, a sample of 884 of the 65,536 functions.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/chip-exact4/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/chip-exact4/
 
 ![Mean gates above the exact minimum, by exact cost](experiments/gap_by_cost.svg)
 

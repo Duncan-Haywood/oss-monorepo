@@ -48,5 +48,5 @@ kill_criteria:
   - No external project is found running the proxy or importing guard.mjs within 120 days.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/llm-spend-guard/
+  production: https://duncan-haywood.github.io/oss-monorepo/llm-spend-guard/
   analytics: null

@@ -8,7 +8,7 @@ keywords, Final URLs without https, blank ad groups, unknown Status values and b
 currency symbols, each with its line number, plus a safe-fixes pass that converts the delimiter and
 cleans spaces, numbers and capitalisation. The file is read locally and never uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/google-ads-editor-csv-check/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/google-ads-editor-csv-check/
 
 ## Run it
 

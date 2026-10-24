@@ -55,6 +55,8 @@
      "answers": "Compliance review of a user-facing surface."},
     {"path": ".github/prompts/portfolio-work.md", "layer": "runbook", "changed_by": "any",
      "answers": "Scheduled portfolio work from the agent queue."},
+    {"path": ".github/prompts/human-requests.md", "layer": "runbook", "changed_by": "any",
+     "answers": "A person asked for something: whose words count as what, turning an ask into a run, follow-ups, remarks meant to last."},
 
     {"path": "portfolio/DIRECTION.md", "layer": "reference", "changed_by": "review", "for": ["ventures"],
      "answers": "Portfolio direction. grep the headings and read only what your task touches."},
@@ -64,6 +66,8 @@
      "answers": "What is actually served and how it deploys."},
     {"path": "README.md", "layer": "reference", "changed_by": "any",
      "answers": "Repository layout and which guide covers which work."},
+    {"path": "CONTRIBUTING.md", "layer": "reference", "changed_by": "any",
+     "answers": "For people: what help is useful, how a fork PR lands, ground rules; docs/contributing/ goes deeper, including steering the agents."},
 
     {"path": "prompts/SYSTEM.md", "layer": "meta", "changed_by": "review",
      "answers": "This map: the layers, precedence, and where new guidance goes."},

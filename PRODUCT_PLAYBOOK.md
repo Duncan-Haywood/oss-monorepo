@@ -74,8 +74,9 @@ reproduce in one reply and a maths graduate can't follow at a glance.
 Rules that keep the cost floor at zero: no per-user paid API on our account, no
 per-user database we pay for, no per-user human step, no account system unless
 the product is useless without one (and if you need one, prefer "bring your own
-GitHub login" over storing credentials). Do not add Cloudflare or Vercel as
-the way a new product goes live — GitHub Pages hosts our web surfaces.
+GitHub login" over storing credentials). GitHub Pages hosts our web surfaces
+at $0; another host (Cloudflare, Vercel) means an account only the owner can
+open, so it needs a stated reason Pages cannot meet.
 
 ### Rule of thumb: anyone can deploy it themselves (owner, 2026-10-15)
 
@@ -555,8 +556,7 @@ Ship when every line is true:
 - [ ] A stranger can reach it without cloning this repo — a public URL or an
       install command. Merged-to-`main` is not deployed. Static products go
       to GitHub Pages; processes ship as a self-deploy the user runs
-      ([`portfolio/hosting/`](portfolio/hosting/README.md)). Do not add
-      Cloudflare or Vercel.
+      ([`portfolio/hosting/`](portfolio/hosting/README.md)).
 
 ## 8. After it ships
 

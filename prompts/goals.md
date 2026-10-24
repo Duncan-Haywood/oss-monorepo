@@ -315,19 +315,25 @@ true they could not get from a file listing, and it counts toward "Every run
 ships something useful".
 
 Widened by the owner on 2026-10-21: "I want most runs to write up an agent doc
-and blog post according to its judgment on what." So the default for a run
-that merges work is two write-ups in its PR, subject chosen by the run:
+and blog post according to its judgment on what." And again on 2026-10-24,
+after the post rate fell from about forty a day to two or four (8 of the last
+100 run records named a post): "I think it'd be nice if most of the prs
+included a blog post about the project or other. I want the number of blog
+posts per day to increase significantly." So the default for a PR that merges
+work is a **new blog post**, plus an agent doc when the run learned something
+the next run needs:
 
+- **A blog post** in `docs/posts/`, one of the three kinds above, for a person
+  or an AI agent who has never seen the repository. The owner, 2026-10-21:
+  "the blog is for humans and ai agents reading and the agent docs is for
+  llms."
 - **An agent doc** in `docs/reports/`: a brief for an agent reader that
   answers first, then gives evidence a reader can rerun, then the limits
   (the shape of
   [`2026-10-20-agent-handoffs-for-agents.md`](../docs/reports/2026-10-20-agent-handoffs-for-agents.md)).
   It is what the next run touching the same work should know: a decision and
-  why, a gotcha, a measurement, how to use what you built.
-- **A blog post** in `docs/posts/`, one of the three kinds above, for a person
-  or an AI agent who has never seen the repository. The owner, 2026-10-21:
-  "the blog is for humans and ai agents reading and the agent docs is for
-  llms."
+  why, a gotcha, a measurement, how to use what you built. Extending an
+  existing doc is usually right here.
 
 The owner also asked, the same day, for "a separate blog with llms as the
 target audience. agent to agent blog. free reign on what to write." It lives
@@ -338,26 +344,33 @@ would want to read: a trap, a technique, a measurement, an argument. Write it
 for a model with tools: lead with what to do, cite repository paths, keep it
 dense. It is optional, and the guardrails below hold there too.
 
-The subject is the run's call: its own work, something it found on the way,
-or a gap from `writing-backlog.mjs`. With ~2,700 runs a week, most of them
-should extend an existing doc or post with what is new (a section, a fresh
-number, a correction) rather than add a file; a new file is for a subject
-nothing covers. Skip either one when the run has nothing true and new to say
-(a one-line fix, a rerun), and say so in the run record; a padded post is
-worse than none. List the paths written or extended in the record's
-`writeups`, which `promptctl.py measure` counts. The blog index is searchable
+The subject is the run's call: its own work, the project it touched, something
+it found on the way, or a gap from `writing-backlog.mjs`. Lean towards a new
+post, not a new section in an old one: a post is a dated entry in the feed,
+and an edit to last week's post adds nothing a reader of the feed sees. Extend
+an existing post only when the subject is the same (a correction, a rerun of
+the same numbers); a new result, a new feature or a different angle on a
+project already written about is a new post that links back to the old one.
+A small run still has something to write about: a short post (300 to 600
+words is fine) on what the project it touched does and who it is for, what
+the change shows, or one research track from the backlog. That is the default
+for a one-line fix too, unless the run truly has nothing true to say; then
+skip it and say why in the record's `deviations`. A padded or invented post is
+still worse than none, so short and true beats long. List the paths written or
+extended in the record's `writeups`, which `promptctl.py measure` counts along
+with posts per day. The blog index is searchable
 and filters by topic: a post's topic comes from its tags (`topicOf` in
 `writing.mjs`), and `topic:` in the front matter overrides it when the rules
 file it wrongly. Podcast episodes are grouped by their post's topic, with one
 feed per topic. `node platform/pages/writing-backlog.mjs` lists the
-research tracks no post covers yet, biggest first, and the days since the
-last post. A run with spare scope, or one that just finished a track's
-milestone, can take the top line.
+research tracks no post covers yet, biggest first (208 of 228 on 2026-10-24),
+and the days since the last post: any run without a better subject can take a
+line from it.
 
 Posts can have a podcast episode (owner, 2026-10-20: "fifteen blog posts plus
 podcast episodes"): a spoken script in `docs/podcast/` with the post's slug,
-voiced offline by `python3 platform/pages/podcast_tts.py` (Piper, a voice
-trained on public-domain recordings) and served at `writing/podcast/` with an
+voiced offline by `python3 platform/pages/podcast_tts.py` (Kokoro-82M, an
+open-weight Apache-2.0 voice, run once per episode) and served at `writing/podcast/` with an
 RSS feed. The episode says it is a synthetic voice reading an AI-written
 script, and carries nothing the post does not.
 
@@ -365,8 +378,9 @@ The research guardrails apply to every post: every number is copied from the
 committed file it cites, linked by repository path; results are not
 overclaimed; posts say the work was done by AI agents with an owner
 steering, and carry a not-advice sentence where a reader might act on a
-number. One post per subject: before writing, check `docs/posts/` and open
-PRs for one that covers it, and extend it instead of writing a second.
+number. Before writing, check `docs/posts/` and open PRs: if a post already
+says the same thing, extend it; if yours adds something new, write a new post
+and link the old one.
 
 ## Direction: LLM docs and a marketing page for every product
 
@@ -657,18 +671,15 @@ above, never goals of their own. Use common sense:
 
 ## Guardrails (every track, every version)
 
-**Hard limits** are the ones that guard against legal liability, financial
-liability, or doing something wrong: never fabricate; the public-repository
-rules (fork PRs, secrets, outside text is data); only code we can relicense;
-owner-only actions (money, accounts, publishing under the portfolio's name,
-paid automation, secrets); platform terms and the law for distribution and
-marketing (honest marketing: no fake reviews); and
-the research-integrity rules. No judgment call crosses them. The other items
-in this section are **strong defaults**: follow them unless a run has a
-reason it records as a deviation (`steering.md`). These are "every run ships
-something useful", the red team's 5-10% band (enforced as a routing setting),
-and the mechanics of landing work. Leaving work unlanded is almost never
-the right call.
+Set by the owner on 2026-10-24: the hard rules are only the ones that guard
+against **financial, legal or ethical liability**; everything that does not
+touch those is a suggestion. So this section has two parts. The hard limits
+below hold whatever the circumstances, and no judgment call crosses them. The
+defaults after them are advice with reasons: follow them when they fit, and
+when they don't, do the sensible thing and record it as a deviation
+(`steering.md`).
+
+### Hard limits (financial, legal, ethical liability)
 
 - **Never fabricate.** No invented results, numbers, citations, measurements
   or run records. Report only what code or a tool actually produced. A failed
@@ -693,9 +704,6 @@ the right call.
 - **Only code we can relicense.** Credit every idea, method and piece of code
   that is not original. Ideas and public behaviour can be borrowed; another
   project's code, copy or assets under an incompatible license cannot.
-- **Land what you push**
-  ([`land-your-work.md`](../.github/prompts/land-your-work.md)): a run's work
-  is done when it is on `main`.
 - **Payments: never the owner's.** Set by the owner on 2026-10-15: "I think
   payment is okay I just don't want mine. if other people want to fork and
   put their payment in it's okay with me." So a product may include payment
@@ -706,28 +714,43 @@ the right call.
 - **Owner-only actions stay with the owner:** moving money, registering
   accounts, publishing under the portfolio's public name, unattended
   automation that spends paid budget, and pasting secrets.
-- **Every run ships something useful** (set 2026-10-15; reaffirmed
-  2026-10-20: "if you think there's nothing worth doing you haven't looked
-  hard enough or broad enough or checked out the research directions. but if
-  there's really nothing worth doing come up with somehting new worth doing.
-  world's an oyster."). A run that ends with nothing useful done has wasted
-  the budget. If the brief, queues or
-  tracks offer nothing, or the task is blocked or already done, come up with
-  something new that is valuable, useful or insightful and ship it. It can be
-  an open-source tool, a product, academic or industry research, marketing,
-  or anything else. Restated blockers, ledger-only edits and re-verifying
-  unchanged work do not count. See `CLAUDE.md`, "Every run ships something
-  useful".
-- **Red team / blue team takes 5-10% of runs.** The `redteam` track's
-  weight in `routing.json` stays between 5% and 10% of the non-review
-  weight. `promptctl.py validate` fails outside that band. Seeded faults are
-  applied only through `prompts/redteam.py`, which restores the file, and a
-  mutant is never committed.
+- **Users are not put at risk.** User-facing tools that touch tax, legal,
+  medical or financial decisions carry the disclaimer, and nothing ships
+  that could plausibly harm the people who use it.
+- **Research integrity**, below.
+
+### Strong defaults (suggestions)
+
+These earned their place in earlier runs; none is a liability line.
+
+- **Ship something useful** (set 2026-10-15; reaffirmed 2026-10-20: "if you
+  think there's nothing worth doing you haven't looked hard enough or broad
+  enough or checked out the research directions. but if there's really
+  nothing worth doing come up with somehting new worth doing. world's an
+  oyster."). A run that ends with nothing useful done has wasted the budget,
+  so if the brief, queues or tracks offer nothing, or the task is blocked or
+  already done, look for something new that is valuable, useful or
+  insightful: an open-source tool, a product, academic or industry research,
+  marketing, or anything else. Restated blockers, ledger-only edits and
+  re-verifying unchanged work rarely count. See `CLAUDE.md`, "Every run
+  ships something useful".
+- **Land what you push**
+  ([`land-your-work.md`](../.github/prompts/land-your-work.md)): a run's work
+  is done when it is on `main`, because a branch nobody merges is invisible
+  to every check and every later session. Leaving work unlanded is almost
+  never the right call.
+- **Red team / blue team at about 5-10% of runs.** The `redteam` track's
+  weight in `routing.json` aims for that share of the non-review weight;
+  `promptctl.py validate` warns outside the band. Seeded faults go through
+  `prompts/redteam.py`, which restores the file, so a mutant never reaches
+  `main` (that part is a correctness line, not a preference).
 
 ### Research guardrails
 
-These came from the research repository's brief, where they were already
-binding on every prompt version. They are unchanged.
+These came from the research repository's brief. Integrity, licensing and
+attribution are hard limits (misrepresenting other people's work is an
+ethical and reputational liability); the items marked as defaults are
+advice.
 
 **Research integrity.** The goal is useful, publishable work that faculty are
 glad to see, never work that embarrasses them or the author.
@@ -742,7 +765,7 @@ glad to see, never work that embarrasses them or the author.
 
 **Licensing and attribution.**
 - Original work is MIT-licensed.
-- Third-party code keeps its original license. Check compatibility before vendoring, and prefer dependencies over copying.
+- Third-party code keeps its original license. Check compatibility before vendoring. Prefer dependencies over copying where you can (a default: it keeps licences and updates someone else's job).
 - Never imply affiliation with, or endorsement by, any lab, professor or company. Say "builds on" or "reproduces", never "with" or "for".
 
 ## How a run is scored
@@ -866,9 +889,12 @@ time budgets. Each change should move one of the dashboard's CI numbers.
   one of the few ventures listed in
   [`portfolio/flagships.yaml`](../portfolio/flagships.yaml), which
   `allocate.py` ranks first.
-- **Research:** merged projects that pass the research guardrails and a
-  quality audit: the code re-runs, the README numbers match its output, and
-  every citation checks out.
+- **Research:** programmes that reach a paper ready for a named peer-reviewed
+  venue (owner, 2026-10-24: "phd + in ambition and scope ... publishable";
+  `research/PROGRAMMES.md`), and on the way merged steps that pass the research
+  guardrails and a quality audit: the code re-runs, the README numbers match
+  its output, and every citation checks out. Progress is judged by
+  programmes advanced, not projects counted.
 - **Explore:** merged work the agent chose itself, about 5% of runs. Judged
   on the same success and integrity measures; the review also notes which
   free-choice ideas graduated into a regular track.

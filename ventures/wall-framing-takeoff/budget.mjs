@@ -10,8 +10,8 @@
 // Plan `prices` (all optional, dollars): { wallSheet, floorSheet, roofSheet,
 // truss, shingleBundle, underlaymentRoll, dripEdgePiece, ridgeBundle,
 // starterBundle, concreteYd, rebarLb, formPlywoodSheet, gravelYd,
-// vaporBarrierSqFt, tax (fraction on materials), contingency (fraction) }.
-// Wall sheathing is priced by the sheet order's own per-sheet prices
+// vaporBarrierSqFt, laborWallFoot, laborFloorSqFt, laborRoofSquare, tax (fraction on materials), contingency (fraction) }.
+// Labor lines appear once any labor* rate is typed. Wall sheathing is priced by the sheet order's own per-sheet prices
 // (`sheathing.summary.cost`) unless `wallSheet` is typed.
 
 /** @typedef {{ section: string, item: string, qty: number, unit: string, unitPrice: number | null, amount: number | null, source: string }} BudgetLine */
@@ -63,15 +63,22 @@ export function budget(result, prices = {}) {
     add("Foundation", "Vapor barrier", f.vaporBarrierSqFt, "sq ft", P("vaporBarrierSqFt"), "slab area + 10% laps");
   }
 
+  // Labor: a typed rate times a quantity the takeoff already has. Labor is not taxed or given contingency here.
+  const laborTyped = Object.keys(prices).some((k) => k.startsWith("labor") && P(k) != null);
+  if (laborTyped && result.summary?.wallFeet > 0) add("Labor", "Wall framing", result.summary.wallFeet, "ft of wall", P("laborWallFoot"), "summary.wallFeet x typed laborWallFoot");
+  if (laborTyped && result.floor?.sheets?.area > 0) add("Labor", "Floor framing and subfloor", result.floor.sheets.area, "sq ft", P("laborFloorSqFt"), "floor.sheets.area x typed laborFloorSqFt");
+  if (laborTyped && roof?.roofing?.squares > 0) add("Labor", "Roof framing and roofing", roof.roofing.squares, "squares", P("laborRoofSquare"), "roof.roofing.squares x typed laborRoofSquare");
+
   const sections = [...new Set(lines.map((l) => l.section))].map((name) => {
     const ls = lines.filter((l) => l.section === name);
     return { name, subtotal: r2(ls.reduce((s, l) => s + (l.amount ?? 0), 0)), unpriced: ls.filter((l) => l.amount == null).length };
   });
-  const materials = r2(sections.reduce((s, x) => s + x.subtotal, 0));
+  const materials = r2(sections.filter((x) => x.name !== "Labor").reduce((s, x) => s + x.subtotal, 0));
+  const labor = r2(sections.filter((x) => x.name === "Labor").reduce((s, x) => s + x.subtotal, 0));
   const taxRate = P("tax") ?? 0, contRate = P("contingency") ?? 0;
   const tax = r2(materials * taxRate), contingency = r2((materials + tax) * contRate);
   return {
-    lines, sections, materials, taxRate, tax, contingencyRate: contRate, contingency, total: r2(materials + tax + contingency),
+    lines, sections, materials, labor, taxRate, tax, contingencyRate: contRate, contingency, total: r2(materials + tax + contingency + labor),
     unpriced: lines.filter((l) => l.amount == null).map((l) => `${l.item} (${l.qty} ${l.unit})`),
   };
 }
@@ -85,8 +92,16 @@ export function budgetText(b) {
     out.push(`    ${l.item.padEnd(34)} ${String(l.qty).padStart(8)} ${l.unit.padEnd(7)} ${l.unitPrice == null ? "no price".padStart(10) : l.unitPrice.toFixed(2).padStart(10)} ${l.amount == null ? "".padStart(11) : l.amount.toFixed(2).padStart(11)}`);
   }
   out.push("  Subtotals: " + b.sections.map((s) => `${s.name} ${s.subtotal.toFixed(2)}`).join(", "));
-  out.push(`  Materials ${b.materials.toFixed(2)}${b.taxRate ? `, tax ${b.tax.toFixed(2)} at ${(100 * b.taxRate).toFixed(2)}%` : ""}${b.contingencyRate ? `, contingency ${b.contingency.toFixed(2)} at ${(100 * b.contingencyRate).toFixed(1)}%` : ""}; total ${b.total.toFixed(2)}`);
+  out.push(`  Materials ${b.materials.toFixed(2)}${b.taxRate ? `, tax ${b.tax.toFixed(2)} at ${(100 * b.taxRate).toFixed(2)}%` : ""}${b.contingencyRate ? `, contingency ${b.contingency.toFixed(2)} at ${(100 * b.contingencyRate).toFixed(1)}%` : ""}${b.labor ? `, labor ${b.labor.toFixed(2)}` : ""}; total ${b.total.toFixed(2)}`);
   if (b.unpriced.length) out.push(`  Not in the total, no price typed: ${b.unpriced.join("; ")}. Add them under \`prices\` in the plan.`);
-  out.push("  Materials only: no labor, equipment, permits, delivery or waste beyond what the takeoff already counts.");
+  out.push("  Not included: equipment, permits, delivery, overhead or waste beyond what the takeoff already counts" + (b.lines.some((l) => l.section === "Labor") ? "; labor is only the rates you typed." : "; no labor rate typed."));
   return out;
+}
+
+/** @param {ReturnType<typeof budget>} b */
+export function budgetCsv(b) {
+  const q = (/** @type {any} */ v) => (/[",\n]/.test(String(v)) ? `"${String(v).replace(/"/g, '""')}"` : String(v));
+  const rows = [["section", "item", "qty", "unit", "unit_price", "amount", "source"], ...b.lines.map((l) => [l.section, l.item, l.qty, l.unit, l.unitPrice ?? "", l.amount ?? "", l.source])];
+  rows.push(["", "Materials", "", "", "", b.materials, ""], ["", "Tax", "", "", b.taxRate, b.tax, ""], ["", "Contingency", "", "", b.contingencyRate, b.contingency, ""], ["", "Labor", "", "", "", b.labor, ""], ["", "Total", "", "", "", b.total, ""]);
+  return rows.map((r) => r.map(q).join(",")).join("\n") + "\n";
 }

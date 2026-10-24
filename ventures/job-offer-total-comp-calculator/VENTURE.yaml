@@ -60,5 +60,5 @@ kill_criteria:
   - A user reports that the comparison ranks offers in a way that contradicts their own arithmetic on the same inputs.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/job-offer-total-comp-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/job-offer-total-comp-calculator/
   analytics: null
