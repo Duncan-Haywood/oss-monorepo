@@ -127,3 +127,12 @@ test("--roof without a roof object exits 2 and a too-long rafter exits 1", async
   assert.equal(r.code, 1);
   assert.match(r.out, /roof has problems/);
 });
+
+test("--insulation counts bags from the framing placed in the example plan", () => {
+  const ex = run(["--example"]);
+  const { code, out } = run(["plan.json", "--insulation"], ex.out);
+  assert.equal(code, 0);
+  assert.match(out, /INSULATION\n  \d+ bags at 88 sq ft/);
+  assert.match(out, /2x4 cavities: \d+ sq ft, R-15/);
+  assert.equal(run(["plan.json", "--insulation"], { ...JSON.parse(ex.out), insulation: { waste: 0.9 } }).code, 1);
+});

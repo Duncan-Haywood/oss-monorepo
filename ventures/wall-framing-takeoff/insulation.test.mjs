@@ -1,0 +1,36 @@
+import { test } from "node:test";
+import assert from "node:assert/strict";
+import { layoutInsulation, validateInsulation } from "./insulation.mjs";
+
+const wall = (members, length = 96, stud = "2x4") => ({ id: "A", length, stud, members });
+const m = (x, y, w, h) => ({ x, y, w, h });
+const plan = { defaultHeaderHeight: 82.5, walls: [{ id: "A", length: 96 }] };
+
+test("cavity is panel area less framed members, by hand", () => {
+  // panel 96 x 96 (y 0..96); two plates 96x1.5 and three studs 1.5 x 93
+  const r = { walls: [wall([m(0, 0, 96, 1.5), m(0, 94.5, 96, 1.5), m(0, 1.5, 1.5, 93), m(47, 1.5, 1.5, 93), m(94.5, 1.5, 1.5, 93)])] };
+  const l = layoutInsulation({}, plan, r);
+  const cavity = 96 * 96 - (2 * 96 * 1.5 + 3 * 1.5 * 93);
+  assert.ok(Math.abs(l.cavitySqFt - cavity / 144) < 1e-9);
+  assert.equal(l.sizes[0].rValue, 15);
+  assert.equal(l.bags, Math.ceil(((cavity / 144) * 1.05) / 88)); // 1 bag
+});
+
+test("an opening's rough area leaves the cavity", () => {
+  const r = { walls: [wall([m(0, 0, 96, 1.5), m(0, 94.5, 96, 1.5)], 96)] };
+  const p = { defaultHeaderHeight: 82.5, walls: [{ id: "A", length: 96, openings: [{ offset: 20, width: 36, height: 48 }] }] };
+  const a = layoutInsulation({}, p, r), b = layoutInsulation({}, plan, r);
+  assert.ok(Math.abs((b.cavitySqFt - a.cavitySqFt) - (36 * 48) / 144) < 1e-9);
+});
+
+test("2x6 walls default to R-21 and are grouped apart; price multiplies bags", () => {
+  const r = { walls: [wall([m(0, 0, 96, 96)], 96, "2x6"), { ...wall([m(0, 0, 10, 10)], 192), id: "B" }] };
+  const l = layoutInsulation({ price: 50 }, { defaultHeaderHeight: 82.5, walls: [] }, r);
+  assert.equal(l.sizes.find((s) => s.size === "2x6").rValue, 21);
+  assert.equal(l.cost, l.bags * 50);
+});
+
+test("bad inputs are refused", () => {
+  assert.equal(validateInsulation({ bagSqFt: 5 }).length, 1);
+  assert.equal(layoutInsulation({ waste: 0.9 }, plan, { walls: [] }).ok, false);
+});
