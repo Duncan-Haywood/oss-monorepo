@@ -1,6 +1,6 @@
 # Priority projects
 
-The owner's priority projects, set on 2026-10-12, with tracks 7 to 11 added on 2026-10-14, track 12 on 2026-10-16 tracks 13 to 15 on 2026-10-19, tracks 16 and 17 on 2026-10-19, track 18 on 2026-10-19 track 19 on 2026-10-20 tracks 20 and 21 on 2026-10-21 and track 22 on 2026-10-24. Runs
+The owner's priority projects, set on 2026-10-12, with tracks 7 to 11 added on 2026-10-14, track 12 on 2026-10-16 tracks 13 to 15 on 2026-10-19, tracks 16 and 17 on 2026-10-19, track 18 on 2026-10-19 track 19 on 2026-10-20 tracks 20 and 21 on 2026-10-21 and tracks 22 and 23 on 2026-10-24. Runs
 started from `prompt.md` take their new work from here. The tracks are numbered below. Each one is
 open-ended: its milestones are a starting order, not a checklist, so follow the results. Every
 project a track produces is a normal `research/<slug>/` project. It needs a README, tests, a
@@ -74,7 +74,7 @@ deleted; its pull requests, review threads and old Pages site stay there.
 ## Picking work
 
 1. **Pick a track at random:** `python3 research/_shared/pick_track.py` (below 0.05 is a
-   free-choice run; otherwise it maps the draw onto tracks 1-22, redraws any track with 40+ projects, and lists the track's newest projects). Four runs start in the same
+   free-choice run; otherwise it maps the draw onto tracks 1-23, redraws any track with 40+ projects, and lists the track's newest projects). Four runs start in the same
    minute, and a random pick spreads them out.
 
    **Free choice (about 5% of runs).** In the spirit of Google's "20% time", about one run in
@@ -119,7 +119,8 @@ deleted; its pull requests, review threads and old Pages site stay there.
 | 19. Machine learning on qualitative data with LLMs | `qual` |
 | 20. Robots on the residential building site | `buildbot` |
 | 21. Applied R&D for the industries modern life runs on | `infra` |
-| 22. Autonomous water vehicles of every sort | `marine` |
+| 22. Autonomous flying machines for commercial logistics | `aerolog` |
+| 23. Autonomous water vehicles of every sort | `marine` |
 | Free choice (about 5% of runs) | `free` |
 
 ## Rules for every track
@@ -1582,7 +1583,104 @@ netting; simulators plus learned surrogates for anything slow.
   advice.
 - *Every price, emission factor and device figure is sourced and dated, or swept.*
 
-## 22. Autonomous water vehicles of every sort (`marine`)
+## 22. Autonomous flying machines for commercial logistics (`aerolog`)
+
+Added on 2026-10-24 at the owner's request: "I want one of the research directions to be
+commmercial logistics autonomous flying machines. to work on both at scale models and 1:1 work".
+
+**Goal.** Uncrewed aircraft that move goods for a living: parcel and medical drones, cargo
+VTOL and fixed-wing feeders, the fleets that fly them and the ground they work from. Work at
+two sizes and keep them joined. *Scale models* are what this repo and the owner can build and
+fly: sub-scale and small aircraft (under the 55 lb FAA Part 107 limit) that test an airframe,
+controller or operation cheaply. *1:1 work* is the full-size vehicle and its operation: a cargo
+VTOL or a converted feeder aircraft sized for a real payload and route, studied by design and
+simulation. The question that runs through the track is what a model at 1:N tells you about
+the machine at 1:1, and where it lies: similitude says Froude, Reynolds and Mach numbers cannot
+all be matched at once, and batteries, motors and structure do not scale the same way either.
+Each project says which size it works at, and a project at one size names what would change at
+the other.
+
+Neighbouring tracks already hold pieces of this. `osrobot-uav` and its follow-ups size a
+purpose-built observation UAV, `codesign-aero` sizes an airframe and a learned attitude
+controller together, `uav-energy-twin` plans battery margin under wind, `infra-propulsion`
+compares freight modes per tonne-km and `infra-routing` routes electric delivery vans. This
+track builds on them and asks the logistics questions they leave out: payload, cost per
+delivery, fleet and hub throughput, airspace and noise, and the jump between sizes.
+
+**Prior work and open tools.** Check each before citing it. Similitude and sub-scale flight
+testing: Wolowicz, Bowman and Gilbert (1979), NASA TP-1435; NASA's AirSTAR dynamically scaled
+transport model (Jordan et al. 2006, AIAA). Delivery-drone energy and emissions: Stolaroff et al.
+(2018), *Nature Communications*; Rodrigues et al. (2022), *Patterns*, with an open dataset of
+measured delivery-quadcopter flights; D'Andrea (2014), "Can drones deliver?", *IEEE T-ASE*.
+Truck-and-drone routing: Murray and Chu (2015), the flying sidekick TSP, *Transportation
+Research C*; Agatz, Bouman and Schmidt (2018), *Transportation Science*. Full-size concepts:
+Johnson, Silva and Solis (2018), NASA's concept vehicles for VTOL air taxi operations (the
+sizing method transfers to cargo). Airspace: the BlueSky open ATM simulator (Hoekstra and
+Ellerbroek 2016, ICRAT). Propellers at small scale: the UIUC propeller database (Brandt and Selig
+2011, AIAA 2011-1255). Open tools: AeroSandbox (Sharpe, MIT), OpenVSP, XFOIL, PX4 or ArduPilot
+software-in-the-loop with Gazebo, OR-Tools and HiGHS. Raymer, *Aircraft Design: A Conceptual
+Approach*, for the full-size weight and sizing relations.
+
+**Milestones.** A starting order; follow the results.
+1. `aerolog-scaling`: what does a 1:N model tell you about the 1:1 aircraft? Take one cargo
+   airframe, model it in AeroSandbox at full size and at 1:2 to 1:10, and measure which
+   quantities a Froude-scaled model reproduces (trim, dynamic modes, gust response) and which
+   it misses (Reynolds-driven drag and stall, battery and motor mass fractions). Reproduce the
+   scaling relations of NASA TP-1435 first. The by-product is a scaling calculator both halves
+   of the track use.
+2. `aerolog-energy`: energy and cost per delivery. A first-principles multicopter, fixed-wing
+   and lift-plus-cruise model fitted to the measured flights in Rodrigues et al. (2022), checked
+   against Stolaroff et al. (2018), then compared with a van per parcel at the same route
+   density. Where in payload and distance does each win?
+3. `aerolog-sizing` (1:1): size a full-size cargo VTOL for payloads from 5 to 500 kg and
+   ranges to a few hundred km, battery against hybrid, with sourced battery figures from
+   `energy-density`. Where does battery-electric stop closing, and how sensitive is that to
+   cell specific energy? Then use milestone 1 to derive the sub-scale demonstrator that would
+   test the winning configuration.
+4. `aerolog-sitl` (scale model): fly the sub-scale demonstrator in PX4 or ArduPilot SITL on a
+   delivery mission in wind, and compare endurance and tracking against milestone 2's
+   analytic model and `uav-energy-twin`'s wind margin.
+5. `aerolog-dispatch`: fleet operations. Truck-and-drone and hub-and-spoke drone delivery on
+   published instances (Murray and Chu's, or Solomon's), with battery and wind from the models
+   above, against a van-only baseline. How many aircraft per hub, and what does wind
+   cancellation do to the service level?
+6. `aerolog-hub`: the ground side. Charging against battery swap, landing-pad and loading
+   throughput, as a queueing or discrete-event model (track 4's `robofab-cell` method); which
+   resource binds first as demand grows?
+7. `aerolog-airspace`: traffic density. BlueSky with a city-scale delivery demand: conflict
+   rate and deconfliction cost against aircraft per km<sup>2</sup>, and the capacity a corridor
+   or layered airspace buys.
+8. `aerolog-noise`: community noise. Sound level on the ground against altitude, rotor tip
+   speed and configuration, checked against published delivery-drone measurements; which
+   design changes buy the most decibels per watt?
+9. `aerolog-handoff`: the last metre. Winch-lowered against landed and dropped delivery:
+   precision, time on station and energy, with a simple tether-and-gust model.
+10. Owner steps: build and fly the sub-scale demonstrator under Part 107 (or the local
+    equivalent), log real flights and record measured against simulated endurance and energy.
+    Full-size hardware and flight are for a certificated operator and manufacturer, never
+    for this repo.
+
+**Guardrails.**
+- *Civilian logistics only.* No weapons, no payload release aimed at people or property, no
+  targeting, no anti-jamming, counter-detection or evasion features, and no tuning to military
+  missions. Track 14's rule applies.
+- *Export control.* Complete designs of long-range uncrewed aircraft can be controlled (the
+  EAR's 9A012 and 600 series; MTCR Category II covers UAV systems with a range of 300 km or
+  more). Keep published 1:1 work at the conceptual-sizing level, and flag to the owner before
+  publishing anything closer to a buildable design of such an aircraft.
+- *Flying is an owner step.* No flight, no airspace use, no connection to real aircraft,
+  ground stations, UTM/LAANC services or air-navigation systems from this repo. Any flight
+  follows the local rules (FAA Part 107 in the US; commercial delivery needs more, such as Part
+  135, and the proposed Part 108 for beyond-visual-line-of-sight work).
+- *Simulation is not airworthiness.* Results are research, not a safety case or a
+  certification basis; say so in each README. Keep scale-model, SITL, full-size simulated and
+  measured figures apart, and never present a modelled aircraft as a flown one.
+- *Every battery, motor, mass and price figure is sourced and dated, or swept*, as the
+  research rules require.
+- *Lab tags.* RECUV fits most milestones (UAV flight and airspace); say so where it does and
+  say none fits otherwise.
+
+## 23. Autonomous water vehicles of every sort (`marine`)
 
 Added on 2026-10-24 at the owner's request: "I also want one of the development directions to be
 autonomous water vehicles of multiple sorts very cool system."
@@ -1596,7 +1694,7 @@ endurance, payload and cost differently. Which body suits which job (bathymetric
 quality sampling, harbour inspection, aquaculture net checks, search patterns, small-cargo
 shuttles), and what limits each: drag, energy, navigation without GNSS, acoustic communication,
 or collision rules? Track 9 (`osrobot`) builds purpose-built robots in general and track 14
-(`codesign`) co-designs bodies with RL; this track owns anything whose medium is water. The
+(`codesign`) co-designs bodies with RL, and track 22 (`aerolog`) takes the air; this track owns anything whose medium is water. The
 freight-ship energy floor in `infra-propulsion` (track 21) is a starting point, not this track.
 
 **Prior work and open tools.** Check each before citing it. Dynamics and control: Fossen (2011),
@@ -1666,7 +1764,7 @@ for navigation.
 
 ## References
 
-Tracks 1 to 6 were checked on 2026-10-12, tracks 7 to 11 on 2026-10-14 track 12 on 2026-10-16 and track 13 on 2026-10-19; tracks 14 and 15, added on 2026-10-19, are not yet checked; track 16's were not all re-checked (`energy-density`'s README marks which it checked); track 17's were checked when it was added on 2026-10-19; track 18's, added on 2026-10-19, are not yet checked; tracks 20's and 21's, added on 2026-10-21, and track 22's, added on 2026-10-24, are not yet checked. Check them again before
+Tracks 1 to 6 were checked on 2026-10-12, tracks 7 to 11 on 2026-10-14 track 12 on 2026-10-16 and track 13 on 2026-10-19; tracks 14 and 15, added on 2026-10-19, are not yet checked; track 16's were not all re-checked (`energy-density`'s README marks which it checked); track 17's were checked when it was added on 2026-10-19; track 18's, added on 2026-10-19, are not yet checked; tracks 20's and 21's, added on 2026-10-21, and tracks 22's and 23's, added on 2026-10-24, are not yet checked. Check them again before
 citing one, as `prompt.md` requires.
 
 **Track 1.**
@@ -1869,5 +1967,19 @@ citing one, as `prompt.md` requires.
 - Mavrogiannis, Baldini, Wang, Zhao, Trautman, Steinfeld and Oh (2023). Core challenges of social robot navigation: a survey. *ACM Trans. Hum.-Robot Interact.* 12. <https://doi.org/10.1145/3583741>
 - Hancock, Billings, Schaefer, Chen, de Visser and Parasuraman (2011). A meta-analysis of factors affecting trust in human-robot interaction. *Human Factors* 53(5):517–527. <https://doi.org/10.1177/0018720811417254>
 
-**Track 22.**
+**Track 22.** Added on 2026-10-24; not yet checked. Verify each entry before citing it.
+- Wolowicz, Bowman and Gilbert (1979). Similitude requirements and scaling relationships as applied to model testing. NASA TP-1435.
+- Jordan, Foster, Bailey and Belcastro (2006). AirSTAR: a UAV platform for flight dynamics and control system testing. AIAA 2006-3307.
+- D'Andrea (2014). Guest editorial: can drones deliver? *IEEE Trans. Automation Science and Engineering* 11(3):647–648.
+- Murray and Chu (2015). The flying sidekick traveling salesman problem. *Transportation Research Part C* 54:86–109. <https://doi.org/10.1016/j.trc.2015.03.005>
+- Stolaroff et al. (2018). Energy use and life cycle greenhouse gas emissions of drones for commercial package delivery. *Nature Communications* 9:409. <https://doi.org/10.1038/s41467-017-02411-5>
+- Agatz, Bouman and Schmidt (2018). Optimization approaches for the traveling salesman problem with drone. *Transportation Science* 52(4):965–981.
+- Johnson, Silva and Solis (2018). Concept vehicles for VTOL air taxi operations. AHS Technical Conference on Aeromechanics Design for Transformative Vertical Flight.
+- Rodrigues et al. (2022). Drone flight data reveal energy and greenhouse gas emissions savings for very small package delivery. *Patterns* 3(8).
+- Hoekstra and Ellerbroek (2016). BlueSky ATC simulator project: an open data and open source approach. ICRAT.
+- Brandt and Selig (2011). Propeller performance data at low Reynolds numbers. AIAA 2011-1255. UIUC Propeller Database: <https://m-selig.ae.illinois.edu/props/propDB.html>
+- Sharpe. AeroSandbox. <https://github.com/peterdsharpe/AeroSandbox>
+- Raymer. *Aircraft Design: A Conceptual Approach*. AIAA Education Series.
+
+**Track 23.**
 - Not yet checked; check before citing: Fossen (2011), *Handbook of Marine Craft Hydrodynamics and Motion Control*, Wiley; ITTC (1957) model-ship correlation line; Holtrop and Mennen (1982), An approximate power prediction method, *International Shipbuilding Progress* 29; Pierson and Moskowitz (1964), *J. Geophysical Research* 69(24); Hasselmann et al. (1973), JONSWAP, *Deutsche Hydrographische Zeitschrift* A8(12); IMO (1972), Convention on the International Regulations for Preventing Collisions at Sea; Fiorini and Shiller (1998), Motion planning in dynamic environments using velocity obstacles, *IJRR* 17(7); Kuwata et al. (2014), Safe maritime autonomous navigation with COLREGS, using velocity obstacles, *IEEE J. Oceanic Engineering* 39(1); Rudnick et al. (2004), Underwater gliders for ocean research, *Marine Technology Society Journal* 38(2); Bingham et al. (2019), Toward maritime robotic simulation in Gazebo, OCEANS; Cie&sacute;lak (2019), Stonefish, OCEANS; Bovcon et al. (2019), The MaSTr1325 dataset for training deep USV obstacle detection models, IROS; VRX <https://github.com/osrf/vrx>; ArduPilot <https://ardupilot.org>.

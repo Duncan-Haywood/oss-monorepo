@@ -252,7 +252,7 @@ autonomous water vehicles of multiple sorts very cool system."
 
 Surface boats, sailing and wave-powered drones, AUVs, gliders and ROVs as one system: hull and
 energy, navigation without GNSS, collision rules (COLREGs), perception and fleets. It starts as
-research track 22 (`marine`) in
+research track 23 (`marine`) in
 [`research/PROJECTS.md`](../research/PROJECTS.md), simulation first; a product (a survey
 planner, an endurance or COLREGs checker) follows when a result earns one. No weapons or
 surveillance work, and real-water operation is an owner step.
