@@ -1,6 +1,6 @@
 # capture-syncslope: does holding a fitted clock slope between audio re-syncs let two free-running cameras go longer without a refresh?
 
-Track 13 (autonomous multi-angle capture), the first "next step" of `capture-syncbudget`. **Headline:** with a steady 40 ppm clock error, holding a straight line fitted through the accepted audio estimates, instead of the last offset, takes the share of a 6 h shoot outside a 40 ms tolerance from 44% to 3.7% at one re-sync per 1800 s and from 72% to 12% at one per 3600 s, at every SNR from -12 dB up. All of the remainder is the first interval, before a second estimate exists to fit a slope to. The advantage disappears once the clock rate wobbles: a gate that insists on the fitted line's prediction (5 ms) locks out true estimates and leaves 69 to 88% of the shoot out of tolerance when re-syncing every 300 or 900 s with a 10 to 30 ppm temperature wobble. Dropping the fit after two rejections in a row repairs that at 300 s (0 to 1% bad) but at 900 s with a 30 ppm wobble the plain offset hold (13%) beats it (27%). Also a correction to `capture-syncbudget` (below). Produced with AI assistance (Claude).
+Track 13 (autonomous multi-angle capture), the first "next step" of `capture-syncbudget`. **Headline:** with a steady 40 ppm clock error, holding a straight line fitted through the accepted audio estimates, instead of the last offset, takes the share of a 6 h shoot outside a 40 ms tolerance from 44% to 3.7% at one re-sync per 1800 s and from 72% to 12% at one per 3600 s, at every SNR from -12 dB up. All of the remainder is the first interval, before a second estimate exists to fit a slope to. The advantage disappears once the clock rate wobbles: a gate that insists on the fitted line's prediction (5 ms) locks out true estimates and leaves 69 to 88% of the shoot out of tolerance when re-syncing every 300 or 900 s with a 10 to 30 ppm temperature wobble. Restarting the fit at the second out-of-gate estimate in a row (one rejection, then a reset) repairs that at 300 s (0 to 1% bad) but at 900 s with a 30 ppm wobble the plain offset hold (13%) beats it (27%). Also a correction to `capture-syncbudget` (below). Produced with AI assistance (Claude).
 
 **Live page:** https://duncan-haywood.github.io/monorepo-projects/research/capture-syncslope/
 
@@ -16,7 +16,7 @@ Audio is synthetic (`capture-audiosync`), independent noise per camera, exact fr
 - Every `every_s` seconds a 2 s window (10 s for the first, trusted) is cut with the current correction applied, and GCC-PHAT estimates the residual.
 - **offset:** hold the last accepted estimate; accept if within 100 ppm x elapsed + 5 ms of it (`capture-syncbudget`'s gate).
 - **slope:** hold the least-squares line through the last 8 accepted estimates, extrapolated. Until three are held the offset gate is used; then an estimate is accepted only within 5 ms of the line's prediction.
-- **slope_reset:** as slope, but after two rejections in a row the next estimate is accepted (trusted, like the first) and the fit history is dropped.
+- **slope_reset:** as slope, but the second out-of-gate estimate in a row is accepted (trusted, like the first) and the fit history is dropped, so one estimate is rejected before a reset (`reset_after=2`; corrected 2026-10-24, the text said two rejections).
 - Score: share of a 6 h shoot (1 s grid) with |applied correction - true delay| > 40 ms; 8 seeds.
 
 ## Reproduce
@@ -38,7 +38,7 @@ Share of the shoot out of tolerance, offset / slope / slope_reset:
 
 - **Slope hold is a large win on a steady clock.** At 1800 s and 3600 s the 0.037 and 0.120 are exactly the first interval's (the first interval has only one estimate): (1800-1000)/1800 over one of twelve intervals, and (3600-1000)/3600 over one of six. After that the error stays under the tolerance.
 - **A tight line gate can lock itself out.** With a wobble, true estimates stray more than 5 ms from the extrapolated line, get rejected (64 of 72 at 300 s), the line goes stale and never recovers. This is a flaw in the gate as designed here, not a property of line fitting.
-- **Resetting after two rejections fixes the short intervals but not the middle ones.** At 900 s a 30 ppm wobble moves a quarter of a period between estimates, a line through them extrapolates badly, and the plain offset hold wins (0.130 vs 0.270). At 1800 s slope_reset (0.260) still beats offset (0.303) narrowly.
+- **Resetting after one rejection fixes the short intervals but not the middle ones.** At 900 s a 30 ppm wobble moves a quarter of a period between estimates, a line through them extrapolates badly, and the plain offset hold wins (0.130 vs 0.270). At 1800 s slope_reset (0.260) still beats offset (0.303) narrowly.
 - **SNR hardly matters here.** With the residual searched, from -12 dB up every window is right; at -15 dB a few false peaks appear (rejected 0.1 to 1 per shoot at 300 to 900 s) and move nothing much.
 
 ## Limitations

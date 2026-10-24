@@ -1,0 +1,9 @@
+{
+ "pr": 9665,
+ "reviewed_at": "2026-10-24T03:00Z",
+ "findings": 1,
+ "severity": "low",
+ "fix_pr": null,
+ "note": "old-id dedupe test never exercised the fallback",
+ "batch": "docs/reports/assets/pr-review-flow/findings.md"
+}

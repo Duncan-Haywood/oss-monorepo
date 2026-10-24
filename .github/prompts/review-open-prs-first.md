@@ -1,5 +1,12 @@
 # Review open PRs first (all agents)
 
+> **State on 2026-10-24:** this layer does not run. The four reviewer App
+> jobs skip (no App secrets) and start minutes after a PR has already merged,
+> and every Copilot review on the 300 newest merged PRs says its quota was spent.
+> Until the owner sets the secrets, the review that happens is the
+> post-merge one: [`post-merge-review.md`](post-merge-review.md). Evidence:
+> `docs/reports/2026-10-24-pr-review-without-dead-branches.md`.
+
 **Before claiming new work**, every agent session should review open pull requests
 that still need this agent family's approval.
 

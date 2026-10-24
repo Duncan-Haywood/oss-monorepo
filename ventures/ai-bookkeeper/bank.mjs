@@ -721,7 +721,11 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
     let cents;
     if (columns.amount !== -1 && String(r[columns.amount] ?? "").trim() !== "") { cents = parseCents(r[columns.amount], decimalComma); if (rbcUsd !== -1) currencies.add("CAD"); }
     else if (rbcUsd !== -1 && String(r[rbcUsd] ?? "").trim() !== "") { cents = parseCents(r[rbcUsd], decimalComma); currencies.add("USD"); }
-    else cents = (columns.credit !== -1 ? Math.abs(parseCents(r[columns.credit], decimalComma) || 0) : 0) - (columns.debit !== -1 ? Math.abs(parseCents(r[columns.debit], decimalComma) || 0) : 0);
+    else {
+      // A blank or placeholder cell is 0, but NaN (an exponent, or too large for exact cents) stays unreadable.
+      const side = (k) => { if (k === -1) return 0; const c = parseCents(r[k], decimalComma); return Number.isNaN(c) ? NaN : Math.abs(c || 0); };
+      cents = side(columns.credit) - side(columns.debit);
+    }
     if (!Number.isFinite(cents)) { problems.push(`Line ${i + 1}: unreadable amount, skipped.`); continue; }
     if (drcrCol !== -1) {
       const m = String(r[drcrCol] ?? "").trim().toLowerCase();

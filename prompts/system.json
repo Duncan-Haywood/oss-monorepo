@@ -49,6 +49,8 @@
      "answers": "Reading CI, the starvation checklist, and the post-merge steps."},
     {"path": ".github/prompts/review-open-prs-first.md", "layer": "runbook", "changed_by": "any",
      "answers": "The automated cross-review layer."},
+    {"path": ".github/prompts/post-merge-review.md", "layer": "runbook", "changed_by": "any",
+     "answers": "Reviewing merged PRs and fixing forward, without holding branches open."},
     {"path": ".github/prompts/compliance-review.md", "layer": "runbook", "changed_by": "any",
      "answers": "Compliance review of a user-facing surface."},
     {"path": ".github/prompts/portfolio-work.md", "layer": "runbook", "changed_by": "any",
