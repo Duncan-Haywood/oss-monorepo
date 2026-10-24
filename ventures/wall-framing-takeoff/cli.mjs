@@ -5,6 +5,7 @@
 import { readFileSync } from "node:fs";
 import { sheathe, defaultSheathing, sheathingText, nailerCuts } from "./sheathing.mjs";
 import { layoutFloor, floorCuts, floorText } from "./floor.mjs";
+import { layoutFoundation, foundationText } from "./foundation.mjs";
 import { layoutRoof, roofCuts, roofText } from "./roof.mjs";
 import { resolveHeaders, headerText } from "./headers.mjs";
 import { drawingSetHtml } from "./drawings.mjs";
@@ -27,6 +28,7 @@ Usage:
   node cli.mjs plan.json --panel-max=12ft --sheathing-psf=1.5  also weigh the sheathing on each panel (lb per sq ft)
   node cli.mjs plan.json --floor     add the plan's floor (joists, rim, blocking, subfloor sheets); its lumber joins the order
   node cli.mjs plan.json --roof      add the plan's gable roof, or hip roof with shape "hip" (rafters, ridge, sheathing, shingle and felt quantities); its lumber joins the order
+  node cli.mjs plan.json --foundation  add the plan's foundation (footing, stem wall and slab concrete, trucks, rebar, forms, gravel, vapor barrier)
   node cli.mjs plan.json --drawings   printable HTML shop drawings, one sheet per wall (marked members, dimensions, parts table)
   node cli.mjs plan.json --headers  size headers from the plan's own headerTable ({upTo, header, plies?} rows from your span table; an opening with "header": "auto" takes the first row that covers it) and list hand-picked ones the table says are too light
   node cli.mjs --example            print the example plan (an invented 40 x 28 ft ranch) to start from
@@ -95,16 +97,24 @@ export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "u
     roof = layoutRoof(plan.roof, plan);
     if (!roof.ok) return { code: 1, out: `The roof has problems:\n${roof.errors.map((e) => `  - ${e}`).join("\n")}` };
   }
+  let foundation = null;
+  if (flags.has("--foundation") || plan.foundation) {
+    if (!plan.foundation) return { code: 2, out: "The plan has no `foundation` object (type, width, depth, footing, stem, slab)." };
+    for (const k of ["width", "depth", "cover", "barLength"]) if (typeof plan.foundation[k] === "string") plan.foundation[k] = parseLength(plan.foundation[k]);
+    foundation = layoutFoundation(plan.foundation);
+    if (!foundation.ok) return { code: 1, out: `The foundation has problems:\n${foundation.errors.map((e) => `  - ${e}`).join("\n")}` };
+  }
   const shell = () => [...(floor ? floorCuts(floor) : []), ...(roof ? roofCuts(roof) : [])];
   /** @type {any} */
   let r = takeoff(plan, shell());
   if (floor && r.ok) r.floor = floor;
   if (roof && r.ok) r.roof = roof;
+  if (foundation && r.ok) r.foundation = foundation;
   if (!r.ok) return { code: 1, out: `The plan has problems:\n${r.errors.map((e) => `  - ${e}`).join("\n")}` };
   if (flags.has("--sheathing") || flags.has("--horizontal") || flags.has("--overhang") || rimLap > 0 || plan.sheathing) {
     const sheathing = sheathe({ ...plan, sheathing: { ...defaultSheathing(), ...(plan.sheathing || {}), ...(flags.has("--horizontal") ? { orientation: "horizontal" } : {}), ...(flags.has("--overhang") ? { overhang: true } : {}), ...(rimLap > 0 ? { rimLap } : {}) } }, r);
     const extra = nailerCuts(sheathing);
-    if (extra.length) { r = takeoff(plan, [...extra, ...shell()]); if (floor) r.floor = floor; if (roof) r.roof = roof; } // nailers join the cut list and the lumber order
+    if (extra.length) { r = takeoff(plan, [...extra, ...shell()]); if (floor) r.floor = floor; if (roof) r.roof = roof; if (foundation) r.foundation = foundation; } // nailers join the cut list and the lumber order
     r.sheathing = sheathing;
   }
   const sheathPsf = Math.max(0, parseFloat(argv.find((a) => a.startsWith("--sheathing-psf="))?.slice(16) ?? "0") || 0);
@@ -136,6 +146,7 @@ export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "u
   lines.push("  K = king, C = corner backing, T = tee backing; jacks sit inside the kings.");
   if (r.sheathing) lines.push("", `SHEATHING (panels run ${r.sheathing.orientation === "horizontal" ? "horizontally, course by course from the floor" : "vertically from the wall start"}; lengths left to right)`, ...sheathingText(r.sheathing));
   if (r.floor) lines.push("", "FLOOR", ...floorText(r.floor));
+  if (r.foundation) lines.push("", "FOUNDATION", ...foundationText(r.foundation));
   if (r.roof) lines.push("", "ROOF", ...roofText(r.roof));
   if (headers && (flags.has("--headers") || headers.notes.length)) lines.push("", "HEADERS", ...headerText(headers));
   if (r.notes.length) lines.push("", "NOTES", ...r.notes.map((n) => `  - ${n}`));
