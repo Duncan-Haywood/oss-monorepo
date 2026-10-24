@@ -1,0 +1,53 @@
+{
+ "date": "2026-10-24",
+ "session": "https://claude.ai/code/session_01PysetqvXfCbBD1gBRNwEaU",
+ "track": "research",
+ "prompt_version": 0,
+ "input": "read ./prompt.md and follow the instructions there",
+ "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+ "follow_up_inputs": [],
+ "model": "claude-sonnet-5-5",
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-10-24T11:13:26Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": null,
+ "projects": [],
+ "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/10108",
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": null,
+ "outcome": "success",
+ "errors": [],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "prompts/research/prompt-0.md",
+   "issue": "none significant; pyenv.py first install ran in background fine"
+  }
+ ],
+ "deviations": [
+  {
+   "file": "prompt.md",
+   "why": "no blog post or agent doc written: step was a small H6 test; result is in LOG.md",
+   "did": "log + README only",
+   "result": "ok"
+  }
+ ],
+ "writeups": [
+  "research/verifiable-training-mechanisms/LOG.md (H6 entry)"
+ ],
+ "goal": null,
+ "notes": "H6 refuted: predictors A and B within [0.5,2] in 1 of 9 taus (trivial one). Homepage build ok, link check ok.",
+ "corrections": [],
+ "redteam": null
+}

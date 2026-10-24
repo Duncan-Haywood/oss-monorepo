@@ -1,6 +1,6 @@
 # Verifiable training mechanisms: what is the cheapest payment-and-audit protocol that makes honest ML training an equilibrium?
 
-**Status: open research programme, milestones 2 to 6 done.** Results on H1 to H5 (below); H6 untested. This directory is where
+**Status: open research programme, milestones 2 to 6 and the H6 test done.** Results on H1 to H6 (below); the paper is next. This directory is where
 the work toward one publishable paper accumulates across sessions; it consolidates about 60
 small scoring, audit and verifier projects in this repository into one question (see
 [`PROPOSAL.md`](PROPOSAL.md)).
@@ -42,6 +42,7 @@ small-model training.
   for m = 1 to 7 replicated workers, one shared cheap trajectory and one audit. A coalition of floor(m/2)+1 escapes replication; the stake that deters it,
   max(0, g/p - 1), matches brute force in all 140 cells and does not fall with m, so the proposal's 1/m law is refuted for a per-job audit (it belongs to the bribery
   setting). A model check, not a discovery: pure strategies, one shared cheat, majority rule, swept parameters.
+- [`experiments/h6/`](experiments/h6): **H6, predicted against measured degradation.** Two predictors fitted on honest runs only (first-order forgone descent; honest training for fewer steps) are compared with the measured skip degradation. Both overshoot by 3x to 100x wherever the degradation is above seed noise (the ratio is in [0.5, 2] in 1 of 9 settings, a trivial one), so H6 is refuted for these models.
 - [`LOG.md`](LOG.md): the research log. Hypotheses are written down before experiments are run.
 - How runs work on a programme: [`../PROGRAMMES.md`](../PROGRAMMES.md).
 
