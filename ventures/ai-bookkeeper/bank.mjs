@@ -4,6 +4,7 @@
 // balance the bank printed. Column names are matched by alias. Pure functions,
 // no DOM, no network.
 
+import { decodeEntities } from "./xmlent.mjs";
 import { isMt940, isCamt, readMt940, readCamt } from "./sepa.mjs";
 import { isBai2, readBai2 } from "./bai2.mjs";
 import { isN43, readN43 } from "./n43.mjs";
@@ -377,7 +378,7 @@ function ofxDate(v) {
 
 function ofxTag(block, tag) {
   const m = new RegExp(`<${tag}>(?:\\s*<!\\[CDATA\\[([\\s\\S]*?)\\]\\]>|([^<\\r\\n]*))`, "i").exec(block);
-  return m ? (m[1] ?? m[2]).trim().replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&apos;|&#0?39;/g, "'").replace(/&#0?38;/g, "&").replace(/&amp;/g, "&") : "";
+  return m ? (m[1] !== undefined ? m[1].trim() : decodeEntities(m[2].trim())) : "";
 }
 
 // A file from a bank with several accounts (or a card beside a checking

@@ -3,7 +3,8 @@
 // money INTO the account positive, plus `statement` { cents, date } from the
 // closing balance. Pure functions, no DOM, no network.
 
-const unesc = (s) => s.replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&apos;/g, "'").replace(/\s+/g, " ").trim();
+import { decodeEntities } from "./xmlent.mjs";
+const unesc = (s) => decodeEntities(s).replace(/\s+/g, " ").trim();
 const iso = (y, m, d) => {
   const t = new Date(Date.UTC(y, m - 1, d));
   return t.getUTCMonth() === m - 1 ? t.toISOString().slice(0, 10) : null;
