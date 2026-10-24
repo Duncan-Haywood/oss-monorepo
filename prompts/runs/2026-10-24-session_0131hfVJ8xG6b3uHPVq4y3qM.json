@@ -17,7 +17,7 @@
   "tool_calls": null,
   "task": null,
   "projects": [],
-  "pr": null,
+  "pr": 10100,
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -26,14 +26,23 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": null,
+  "outcome": "partial",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [],
-  "deviations": [],
-  "writeups": [],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Flagship 1's next: lists real-input work I could not do offline; took a small due-day slice instead, so outcome is partial.",
+      "did": "Added HI, DC, WV, WY due days",
+      "result": "23 tests pass"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-24-sales-tax-due-days-four-more-places.md"
+  ],
   "goal": null,
-  "notes": "",
+  "notes": "Ran salestaxreturn.test.mjs locally (23 pass). Sources are search excerpts only. No agent doc written.",
   "corrections": [],
   "redteam": null
 }
