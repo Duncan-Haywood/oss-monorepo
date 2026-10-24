@@ -7,7 +7,7 @@ local [MCP](https://modelcontextprotocol.io) server for Claude Code, Claude
 Desktop, Cursor, VS Code and other MCP clients.
 
 The tools are published as web pages at
-**https://duncan-haywood.github.io/monorepo-projects/**. Many of them are more
+**https://duncan-haywood.github.io/oss-monorepo/**. Many of them are more
 useful to an agent working for a person than to the person: a contractor's
 assistant pricing three bids, a bookkeeper's agent checking a 1099 vendor CSV,
 or a coding agent estimating the CI minutes a workflow change will burn. An

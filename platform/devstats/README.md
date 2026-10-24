@@ -4,7 +4,7 @@ A live, public dashboard of how this repository is built: merges to `main`,
 lead time, pull requests and reviews, **CI runs passed, failed and cancelled
 per day**, the workflows that fail most, what is red on `main` right now, and
 what each automated agent run cost. Live page:
-<https://duncan-haywood.github.io/monorepo-projects/dev/> (machine-readable:
+<https://duncan-haywood.github.io/oss-monorepo/dev/> (machine-readable:
 `dev/stats.json`).
 
 | Section | Source |

@@ -2,7 +2,7 @@
 
 Everything here is shared by all of the products in [`ventures/`](../ventures/README.md):
 the static-site generator that publishes them to
-**[duncan-haywood.github.io/monorepo-projects](https://duncan-haywood.github.io/monorepo-projects/)**,
+**[duncan-haywood.github.io/oss-monorepo](https://duncan-haywood.github.io/oss-monorepo/)**,
 the CI guards that keep 1,000+ browser tools working, a privacy-respecting
 visitor counter, and a few open-source tools that are useful on their own.
 MIT licensed, like the rest of the repository.
@@ -28,8 +28,8 @@ MIT licensed, like the rest of the repository.
 | [`privacy/`](privacy/one-opt-out.mjs) | Guards for the local-only usage counters every product carries: they honour Do Not Track and Global Privacy Control, and each product has exactly one opt-out. |
 | [`marketing/`](marketing/README.md) | Distribution surfaces that sit outside the tools site: the front-door mirror's page, category pages, feed, sitemap and `llms.txt`, regenerated with `regen.mjs`. |
 | [`distribution/`](distribution/) | Packagers and announcers for registries and stores (npm, PyPI, Homebrew, VS Code, browser extensions, MCP, GitHub Actions, citation metadata). Each is off by default with a dry run; the rules are in [`portfolio/distribution/`](../portfolio/distribution/README.md). |
-| [`devstats/`](devstats/README.md) | Public development dashboard at [`/dev/`](https://duncan-haywood.github.io/monorepo-projects/dev/): merges, lead time, CI pass/fail, agent run cost. |
-| [`daily/`](daily/README.md) | Daily [engineering brief](https://duncan-haywood.github.io/monorepo-projects/dev/daily/) (~15 min) and [The Merge Report](https://duncan-haywood.github.io/monorepo-projects/dev/daily/show/) for the public, to read or listen to (browser speech). |
+| [`devstats/`](devstats/README.md) | Public development dashboard at [`/dev/`](https://duncan-haywood.github.io/oss-monorepo/dev/): merges, lead time, CI pass/fail, agent run cost. |
+| [`daily/`](daily/README.md) | Daily [engineering brief](https://duncan-haywood.github.io/oss-monorepo/dev/daily/) (~15 min) and [The Merge Report](https://duncan-haywood.github.io/oss-monorepo/dev/daily/show/) for the public, to read or listen to (browser speech). |
 | [`devlog/`](devlog/README.md) | Development analyses at `/dev/analyses/`: what the agents building this portfolio tried, measured and tripped on. |
 
 ## CI and repository automation
