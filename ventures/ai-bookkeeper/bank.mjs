@@ -165,6 +165,12 @@ export function detectColumns(header) {
   // "Value" is the value date in PostFinance (Date, Posting details, Credit,
   // Debit, Value, Balance): beside money-in/out columns it is not the amount.
   if (cols.amount !== -1 && h[cols.amount] === "value" && (cols.debit !== -1 || cols.credit !== -1)) cols.amount = -1;
+  // Amazon's order-history report (order id, items, to, date, total, tax,
+  // refund, payments): the order total is the amount, the items the memo.
+  if (cols.amount === -1 && cols.debit === -1 && cols.credit === -1 && h.includes("order id") && h.includes("total")) {
+    cols.amount = h.indexOf("total");
+    if (cols.desc === -1 && h.includes("items")) cols.desc = h.indexOf("items");
+  }
   if (cols.desc === -1) {
     // Some banks split payee and memo; take the first text-looking column left.
     cols.desc = h.findIndex((x, i) => !Object.values(cols).includes(i) && /desc|payee|name|memo|detail/.test(x));
