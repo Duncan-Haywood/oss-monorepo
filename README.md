@@ -59,6 +59,7 @@ rules"), not every rulebook in the tree.
 | Strategy, routing, usage, ledger | `portfolio/` | [`portfolio/DIRECTION.md`](portfolio/DIRECTION.md) |
 | How runs are steered and reviewed | `prompts/` | [`prompts/README.md`](prompts/README.md) |
 | A scheduled run | anywhere | [`prompt.md`](prompt.md), which routes it to one of the above |
+| A contribution from a person: bug report, fix, research check | anywhere | [`CONTRIBUTING.md`](CONTRIBUTING.md), then [`docs/contributing/`](docs/contributing/README.md) |
 
 One process applies to every kind of work, because it is what keeps the tree
 from filling with dead branches and redone work: open a pull request for
