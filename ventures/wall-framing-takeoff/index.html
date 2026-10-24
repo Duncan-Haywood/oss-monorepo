@@ -79,7 +79,7 @@
   <section class="card" aria-labelledby="h-walls">
     <h2 id="h-walls">2. Walls</h2>
     <p class="note">"Corner at start" adds corner backing at the start end. "Walls meet at" lists where other walls tee into this one (comma-separated positions), which adds backing there. "Butts into" is optional and used with the corner-lap setting: <code>Front @ 14'</code> means this wall's start ends against wall Front 14' along it (add <code>end</code> for its far end); its cap plate then runs over that wall and that wall's cap is cut for it.</p>
-    <table class="edit"><thead><tr><th>Name</th><th>Length</th><th>Studs</th><th>Treated bottom plate</th><th>Corner at start</th><th>Walls meet at</th><th>Butts into (tee lap)</th><th>Gable pitch (rise per 12 in)</th><th>Gable peak at</th><th></th></tr></thead><tbody id="walls"></tbody></table>
+    <table class="edit"><thead><tr><th>Name</th><th>Length</th><th>Studs</th><th>Treated bottom plate</th><th>Corner at start</th><th>Walls meet at</th><th>Butts into (tee lap)</th><th>Gable pitch (rise per 12 in)</th><th>Gable peak at</th><th>Partition (no sheathing)</th><th>Free ends (drywall bead)</th><th></th></tr></thead><tbody id="walls"></tbody></table>
     <button type="button" class="secondary" id="addWall">Add a wall</button>
   </section>
 
@@ -318,7 +318,7 @@
 
     function fromPlan(plan) {
       return {
-        walls: plan.walls.map((w) => ({ id: w.id, length: len(w.length), stud: w.stud || "2x4", treatedPlate: Boolean(w.treatedPlate), corner: Boolean(w.corner), tees: (w.tees || []).map(len).join(", "), tee: w.tee ? `${w.tee.wall} @ ${len(w.tee.at)}${w.tee.end === "end" ? " end" : ""}` : "", gable: w.gable ? String(w.gable.pitch) : "", peak: w.gable?.peak !== undefined ? len(w.gable.peak) : "" })),
+        walls: plan.walls.map((w) => ({ id: w.id, length: len(w.length), stud: w.stud || "2x4", treatedPlate: Boolean(w.treatedPlate), corner: Boolean(w.corner), tees: (w.tees || []).map(len).join(", "), tee: w.tee ? `${w.tee.wall} @ ${len(w.tee.at)}${w.tee.end === "end" ? " end" : ""}` : "", gable: w.gable ? String(w.gable.pitch) : "", peak: w.gable?.peak !== undefined ? len(w.gable.peak) : "", partition: w.sheathed === false, freeEnds: String(w.freeEnds || 0) })),
         openings: plan.walls.flatMap((w) => (w.openings || []).map((o) => ({ wall: w.id, kind: o.kind, label: o.label || "", offset: len(o.offset), width: len(o.width), height: len(o.height), headerHeight: o.headerHeight ? len(o.headerHeight) : "", header: o.header || "2x10", plies: o.headerPlies ?? "", jacks: o.jacks ?? 1, sillPlies: o.sillPlies }))),
         stock: plan.stock.map((s) => ({ size: s.size, length: len(s.length), price: s.price, label: s.label || "" })),
         settings: { studLength: plan.studLength, spacing: plan.studSpacing, headerHeight: plan.defaultHeaderHeight, lap: plan.topPlateLap, kerf: plan.kerf, cornerStuds: plan.cornerExtraStuds, teeStuds: plan.teeExtraStuds, blockRows: plan.blocking?.rows || 0, fire: Boolean(plan.blocking?.fire), plateLaps: Boolean(plan.plateLaps), advFrame: plan.advanced ? (plan.advanced.singleTopPlate ? "single" : plan.advanced.twoStudCorners && plan.advanced.ladderTees ? "both" : plan.advanced.twoStudCorners ? "corners" : plan.advanced.ladderTees ? "tees" : "") : "" },
@@ -366,6 +366,8 @@
           tees: String(w.tees || "").split(",").map((t) => t.trim()).filter(Boolean).map((t) => L(t, `wall ${w.id}, walls meet at`)),
           ...teeField(w, L, bad),
           ...gableField(w, L, bad),
+          ...(w.partition ? { sheathed: false } : {}),
+          ...(Number(w.freeEnds) > 0 ? { freeEnds: Math.min(2, Math.round(Number(w.freeEnds))) } : {}),
           openings: [],
         })),
       };
@@ -469,6 +471,8 @@
         <td>${f("walls", i, "tee", w.tee, `Wall ${i + 1} wall it butts into, position and end`)}</td>
         <td>${f("walls", i, "gable", w.gable, `Wall ${i + 1} gable pitch`, 'placeholder="level"')}</td>
         <td>${f("walls", i, "peak", w.peak, `Wall ${i + 1} gable peak position`, 'placeholder="middle"')}</td>
+        <td>${chk("walls", i, "partition", w.partition, `Wall ${i + 1} is an interior partition without sheathing`)}</td>
+        <td>${sel("walls", i, "freeEnds", String(w.freeEnds || 0), ["0", "1", "2"], `Wall ${i + 1} free ends, where the wall ends without meeting another wall`)}</td>
         <td>${del("walls", i, `Remove wall ${i + 1}`)}</td></tr>`).join("");
     }
     function renderOpenings() {
@@ -558,7 +562,7 @@
     function renderDrywall(dw) {
       $("#drywallCard").hidden = !dw;
       if (!dw) return;
-      $("#drywallOut").innerHTML = `<pre style="white-space:pre-wrap;overflow-x:auto">${esc(drywallText(dw).join("\n"))}</pre><p class="note">Sheets only, counted from the wall faces in the wall list. A wall marked unsheathed is treated as a partition with drywall on both sides. Screws and compound are rates, not schedules; tape is measured from the seams and the wall-to-ceiling angle. Corner bead is counted around openings (both jambs and the head); free wall ends count only when the plan JSON sets freeEnds on a wall; ceiling steps and trim are not counted.</p>`;
+      $("#drywallOut").innerHTML = `<pre style="white-space:pre-wrap;overflow-x:auto">${esc(drywallText(dw).join("\n"))}</pre><p class="note">Sheets only, counted from the wall faces in the wall list. A wall marked unsheathed is treated as a partition with drywall on both sides. Screws and compound are rates, not schedules; tape is measured from the seams and the wall-to-ceiling angle. Corner bead is counted around openings (both jambs and the head); free wall ends count only where you set Free ends on a wall; ceiling steps and trim are not counted.</p>`;
     }
     function renderFoundation(fn) {
       $("#foundationCard").hidden = !fn;
@@ -736,7 +740,7 @@
         later(run, 0);
       }
     });
-    $("#addWall").addEventListener("click", () => { ui.walls.push({ id: `Wall ${ui.walls.length + 1}`, length: "12'", stud: "2x4", treatedPlate: false, corner: false, tees: "", tee: "", gable: "", peak: "" }); renderAll(); later(run, 0); });
+    $("#addWall").addEventListener("click", () => { ui.walls.push({ id: `Wall ${ui.walls.length + 1}`, length: "12'", stud: "2x4", treatedPlate: false, corner: false, tees: "", tee: "", gable: "", peak: "", partition: false, freeEnds: "0" }); renderAll(); later(run, 0); });
     $("#addOpening").addEventListener("click", () => { ui.openings.push({ wall: ui.walls[0]?.id || "", kind: "window", label: "", offset: "24", width: "36", height: "48", headerHeight: "", header: "2x10", plies: "", jacks: 1 }); renderOpenings(); later(run, 0); });
     $("#addStock").addEventListener("click", () => { ui.stock.push({ size: "2x4", length: "8'", price: 8, label: "" }); renderStock(); });
     $("#resetStock").addEventListener("click", () => { ui.stock = defaultStock(parseLength($("#studLength").value) || PRECUT["8ft"]).map((s) => ({ size: s.size, length: formatLength(s.length), price: s.price, label: s.label || "" })); renderStock(); later(run, 0); });
@@ -746,7 +750,7 @@
     $("#sheathR").addEventListener("change", () => run());
     $("#run").addEventListener("click", () => { if (run()) record("takeoff_run"); });
     $("#example").addEventListener("click", () => { if (load(samplePlan())) { record("example_loaded"); $("#status").textContent = "Example: an invented 40 x 28 ft ranch, not a real plan."; } });
-    $("#clear").addEventListener("click", () => { ui.walls = [{ id: "Wall 1", length: "12'", stud: "2x4", treatedPlate: false, corner: false, tees: "", tee: "", gable: "", peak: "" }]; ui.openings = []; renderAll(); run(); $("#status").textContent = "Started an empty plan with one wall."; });
+    $("#clear").addEventListener("click", () => { ui.walls = [{ id: "Wall 1", length: "12'", stud: "2x4", treatedPlate: false, corner: false, tees: "", tee: "", gable: "", peak: "", partition: false, freeEnds: "0" }]; ui.openings = []; renderAll(); run(); $("#status").textContent = "Started an empty plan with one wall."; });
     $("#wallPick").addEventListener("change", showWall);
     const download = (name, type, text) => {
       const a = document.createElement("a");
