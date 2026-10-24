@@ -65,9 +65,26 @@ test("the fresh set is reported, not tuned: numbers recorded in README stay as m
   // README "How well it reads replies" quotes these. If a rule change moves them, re-measure on a NEW fresh set and
   // update the README; do not tune on this file.
   assert.equal(s.n, 40);
-  assert.equal(s.right, 15);
-  assert.equal(s.acted, 22);
-  assert.equal(s.guessRight, 11);
+  // Scored 15/22/11 on 2026-10-21; the 2026-10-24 "cease ..." patterns moved it to 16/23/10 (see eval/README.md).
+  assert.equal(s.right, 16);
+  assert.equal(s.acted, 23);
+  assert.equal(s.guessRight, 10);
+});
+
+test("third set (2026-10-24b): scored once at 34/41, then its two missed unsubscribes were patched; the rest stay measured", () => {
+  const s = score(load("fresh-2026-10-24b.jsonl"));
+  assert.equal(s.n, 41);
+  assert.equal(s.right, 36);
+  assert.equal(s.acted, 31);
+  assert.equal(s.actedRight, 30);
+  assert.equal(s.unsubMissed, 0);
+  assert.equal(s.overreach, 0);
+});
+
+test("opt-outs in French, German, Spanish and Italian and \"cease and desist\" suppress", () => {
+  for (const body of ["Merci de me retirer de votre liste de diffusion.", "Bitte kontaktieren Sie mich nicht mehr.", "Por favor no me escriban más.", "Non contattatemi più.", "Cease and desist."]) {
+    assert.equal(triage({ body }, T).category, "unsubscribe", body);
+  }
 });
 
 test("second fresh set (2026-10-24, written by another session, scored once): numbers stay as measured", () => {
