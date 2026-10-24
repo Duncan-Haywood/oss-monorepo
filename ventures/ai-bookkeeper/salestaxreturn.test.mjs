@@ -161,8 +161,18 @@ test("Massachusetts: quarterly and annual returns are due 30 days after the peri
   assert.equal(r.periods.find((p) => p.period === "2026-Q1").rows[0].due, "2026-04-30");
 });
 
-test("CO, MI and MN are due the 20th; WI the last day of the month after the period", () => {
-  for (const s of ["CO", "MI", "MN"]) assert.equal(dueDate("2026-Q3", stateDueDay(s, "quarterly")), "2026-10-20");
-  assert.equal(dueDate("2026-Q3", stateDueDay("WI", "quarterly")), "2026-10-31");
-  assert.equal(dueDate("2026-01", stateDueDay("wi", "monthly")), "2026-02-28");
+test("MI, CT, WI, UT, IN and KS: due day by state, with Indiana's 30th clamped in February", () => {
+  assert.equal(dueDate("2026-Q3", stateDueDay("MI", "quarterly")), "2026-10-20");
+  assert.equal(dueDate("2026-Q3", stateDueDay("CT", "quarterly")), "2026-10-31");
+  assert.equal(dueDate("2026-Q4", stateDueDay("WI", "quarterly")), "2027-01-31");
+  assert.equal(dueDate("2026-Q2", stateDueDay("UT", "quarterly")), "2026-07-31");
+  assert.equal(dueDate("2026-Q3", stateDueDay("IN", "quarterly")), "2026-10-30");
+  assert.equal(dueDate("2026-01", stateDueDay("IN", "monthly")), "2026-02-28");
+  assert.equal(dueDate("2027-01", stateDueDay("IN", "monthly")), "2027-02-28");
+  assert.equal(dueDate("2028-01", stateDueDay("IN", "monthly")), "2028-02-29");
+  assert.equal(dueDate("2026-Q1", stateDueDay("KS", "quarterly")), "2026-04-25");
+});
+
+test("CO and MN are due the 20th of the month after the period", () => {
+  for (const s of ["CO", "MN"]) assert.equal(dueDate("2026-Q3", stateDueDay(s, "quarterly")), "2026-10-20");
 });
