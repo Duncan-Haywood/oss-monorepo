@@ -176,3 +176,8 @@ test("MI, CT, WI, UT, IN and KS: due day by state, with Indiana's 30th clamped i
 test("CO and MN are due the 20th of the month after the period", () => {
   for (const s of ["CO", "MN"]) assert.equal(dueDate("2026-Q3", stateDueDay(s, "quarterly")), "2026-10-20");
 });
+
+test("NM is due the 25th, NV and ID the 20th of the month after the period", () => {
+  assert.equal(dueDate("2026-Q3", stateDueDay("NM", "quarterly")), "2026-10-25");
+  for (const s of ["NV", "ID"]) assert.equal(dueDate("2026-Q3", stateDueDay(s, "quarterly")), "2026-10-20");
+});
