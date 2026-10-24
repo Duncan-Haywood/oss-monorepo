@@ -38,7 +38,9 @@
     }
   ],
   "deviations": [],
-  "writeups": "docs/posts/2026-10-24-bench-six-a-frost-night-and-a-rule-worth-changing.md",
+  "writeups": [
+    "docs/posts/2026-10-24-bench-six-a-frost-night-and-a-rule-worth-changing.md"
+  ],
   "goal": null,
   "notes": "Creative track, Hearth & Horizon, story bench-six (text only: audio folders at 405 MB, over 400 MB line). Arithmetic in the story notes re-derived after a first-draft error in plan one; node generate.mjs and node --test pass (10/10).",
   "corrections": [],
