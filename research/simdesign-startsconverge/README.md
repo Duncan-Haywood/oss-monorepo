@@ -2,7 +2,7 @@
 
 Is the start-dependence of fixed-penalty SIMP topology optimisation just slow convergence? I chose this because it is the first "Next step" of `simdesign-starts`, which stopped at 150 iterations and could not tell slow convergence from distinct local optima. Answer on this problem: **mostly slow convergence for the typical start, not for all of them.** At 1200 iterations the median random start reaches the uniform-start design (0.0% of elements differ, median pair disagreement 0.5%, down from 15.4% at 150), but the compliance spread across 20 starts only falls from 1.43% to 0.85%, and the hole count still ranges 2 to 5, so a minority of starts stay in a different, slightly worse local optimum. Produced with AI assistance (Claude). Stylised: 2D, dimensionless compliance, one problem, one mesh; nothing was made or tested physically.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/simdesign-startsconverge/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/simdesign-startsconverge/
 
 **Builds on.** `simdesign-starts` (random-start generator, hole counter, element-disagreement measure, imported unchanged), `simdesign-topopt` (FE assembly, filter, half-MBB problem), and Sigmund (2001), "A 99 line topology optimization code written in Matlab", *Struct. Multidisc. Optim.* 21:120–127, <https://doi.org/10.1007/s001580050176>. It builds on none of the CU Boulder groups in `prompt.md`.
 

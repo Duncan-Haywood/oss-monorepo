@@ -8,7 +8,7 @@ signal-detection model (two unit-variance Gaussians `d` apart), pause durations 
 and no audio, transcript or language model was used. Only the 682 ms median reply chain is measured
 (from `ambient-pipeline`).
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/ambient-semend/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/ambient-semend/
 
 ## Question
 

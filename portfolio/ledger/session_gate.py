@@ -557,8 +557,9 @@ def verdict(
             f"Recent meta-work share {meta:.0%} is below the {META_SHARE_THRESHOLD:.0%} "
             "threshold — the fleet is spending on ventures, not on itself. Continue as briefed.",
             "Deploy-first still applies: if the venture you are on already has a built "
-            "surface with no public URL, that deploy is the work. Do not start a sibling "
-            "product. See `portfolio/DIRECTION.md` Current priority.",
+            "surface with no public URL, getting it one usually beats starting a sibling "
+            "product. Pages serves any venture with an `index.html` on merge; see "
+            "`portfolio/hosting/README.md`.",
         ]
         # PROCEED is the common case (low meta-work), and until now it never
         # looked at the pipeline at all -- "screen a fresh niche" only ever
@@ -593,9 +594,10 @@ def verdict(
         "Build product value: features, runnable apps, usage tracking, niche landing pages. "
         "Do not re-verify PRs, expand the decision queue, or write ledger entries that "
         "record looking without shipping.",
-        "Deploy-first: a product already on `main` with no public URL outranks a new "
-        "`build-now` candidate. Prepare the live URL; the owner flip is `deploy-settings` "
-        "(do not open a second ask). See `portfolio/DIRECTION.md` Current priority.",
+        "Deploy-first: a product already on `main` with no public URL usually outranks a "
+        "new `build-now` candidate. Pages serves any venture with an `index.html` on "
+        "merge, and the owner's `deploy-settings` flip is already granted, so the gap is "
+        "usually in the product. See `portfolio/hosting/README.md`.",
     ]
     targets = build_targets() if targets is None else targets
     if targets is None:

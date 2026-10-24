@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Draw a research track the way research/PROJECTS.md "Picking work" says.
+"""Draw a research programme or track the way research/PROJECTS.md "Picking work" says.
+
+First, with probability PROGRAMME_SHARE, an open programme from research/PROGRAMMES.md:
+the default since 2026-10-24, so most runs advance one hard question toward a paper.
+Otherwise a track, whose run opens a new programme in that area or advances one there.
 
 r < 0.05 is a free-choice run; otherwise track = 1 + floor((r - 0.05) / 0.95 * N), N = len(PREFIX).
 Pass a number to map a draw you already have: pick_track.py 0.11
@@ -24,6 +28,7 @@ PREFIX = ["selfrep", "ambient", "chip", "robofab", "simdesign", "garment",
           "codesign", "sensing", "energy", "society", "hanger", "qual", "buildbot",
           "infra", "aerolog", "marine"]
 SATURATED = 40
+PROGRAMME_SHARE = 0.65
 RESEARCH = Path(__file__).resolve().parents[1]
 
 
@@ -58,6 +63,16 @@ def commits_behind():
     return int(out.stdout) if out.returncode == 0 and out.stdout.strip().isdigit() else None
 
 
+def programmes():
+    """[(slug, has_proposal)] from the "Open programmes" table of PROGRAMMES.md."""
+    f = RESEARCH / "PROGRAMMES.md"
+    if not f.is_file():
+        return []
+    text = f.read_text().split("## Open programmes", 1)[-1]
+    rows = re.findall(r"^\| *\[?`([\w-]+)`", text, re.M)
+    return [(slug, (RESEARCH / slug / "PROPOSAL.md").is_file()) for slug in rows]
+
+
 def milestones(prefix):
     """(listed, free) milestone slugs from the track's section in PROJECTS.md.
 
@@ -85,6 +100,15 @@ def next_steps(name, width=400):
 
 if __name__ == "__main__":
     r = float(sys.argv[1]) if len(sys.argv) > 1 else random.random()
+    progs = programmes()
+    if progs and random.Random(r).random() < PROGRAMME_SHARE:
+        slug, has = random.Random(r + 1).choice(progs)
+        print(f"draw {r:.3f} -> programme {slug} (research/PROGRAMMES.md)")
+        if has:
+            print(f"read research/{slug}/PROPOSAL.md and the newest research/{slug}/LOG.md entries; land the next milestone")
+        else:
+            print(f"no proposal yet: write research/{slug}/PROPOSAL.md to the bar in PROGRAMMES.md")
+        sys.exit(0)
     t = pick(r)
     print(f"draw {r:.3f} -> {'free-choice' if t == 'free' else 'track ' + str(t)}")
     if t != "free" and projects(PREFIX[t - 1])[0] >= SATURATED:
@@ -97,6 +121,8 @@ if __name__ == "__main__":
         print(f"WARNING: this checkout is {behind} commit(s) behind origin/main, so the lists below may "
               "name projects that already landed. `git fetch --depth=40 origin main && git merge origin/main` first.")
     if t != "free":
+        print(f"track runs open a programme in this area or advance one (research/PROGRAMMES.md); "
+              "the listed milestones are raw material, not separate projects")
         n, newest = projects(PREFIX[t - 1])
         shallow = is_shallow()
         label = "some (shallow clone: commit dates are flattened, so this is not newest-first)" if shallow else "newest"

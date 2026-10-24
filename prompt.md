@@ -14,8 +14,8 @@ measurements to improve the sub-prompts and the documentation.
 If the message that started the session names a specific task, pass its track:
 `route --track ventures|research|process|explore|redteam|creative|review` (otherwise
 the draw can send you elsewhere).
-A direct owner request that fits no track (a compliance review, a one-off
-fix) takes the closest one by the work's nature (`process` for repo or
+A direct request ([`human-requests.md`](.github/prompts/human-requests.md))
+that fits no track takes the closest one by the work's nature (`process` for repo or
 prompt work, else `ventures` or `research`); note it in `deviations`.
 
 ```

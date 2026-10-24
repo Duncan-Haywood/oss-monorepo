@@ -2,7 +2,7 @@
 
 Sixth project of track 20, robots on the residential building site (`PROJECTS.md`; the "take the same stud-finding budget to drywall screws" step of [`buildbot-studfind`](../buildbot-studfind)). Nails into sheathing and screws into drywall differ in count, pitch and what a miss costs, so the budget is re-run with a drywall schedule. It is a **Monte Carlo error budget, not a perception system**: no camera, sensor, board or wall was simulated. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/buildbot-screwline/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/buildbot-screwline/
 
 **Headline.** A 4×8 drywall sheet on 16 in framing takes 28 screws on a wall (16 in pitch) or 36 on a ceiling (12 in pitch). With the robot adding 0.9 mm per screw, **a single read of each framing member must be good to 1.02 mm (1 sigma) on a wall and 0.98 mm on a ceiling for 95% of sheets to have every screw on its member**; that is almost the nailing figure (0.89 mm for 62 nails), because the two sheet-edge members, with a ±3.9 mm window each, set the budget and not the screw count. Tolerating misses buys little: allowing 1 missed screw per sheet raises the wall figure to 1.35 mm and 3 misses to 1.66 mm; averaging **4 reads** gives 2.05 mm and **16 reads** 4.10 mm (assuming independent reads). Re-measuring at every screw (1.00 mm) is no better than one shared read here, unlike nailing's worst case, because only 14 edge screws bind. A consumer stud finder's vendor claim "within 1/8 in" read as a 1 sigma of 3.2 mm gives 35% clean wall sheets from one read, 78% from four; read as a 95% bound (1.6 mm), 78% from one read and 98% from four.
 

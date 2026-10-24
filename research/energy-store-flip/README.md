@@ -2,7 +2,7 @@
 
 Track 16 (energy), next step 2 of [`energy-store-modelprice`](../energy-store-modelprice) ("put a confidence interval on the weekly margin by varying the technology-data capital costs, to see how much of the margin is price and how much cost"). [`energy-thermal-real`](../energy-thermal-real) found a house-sized sand heat store beats an air-source heat pump on real German day-ahead prices for daily cycling and mostly for weekly cycling. Here the capital costs are scaled instead of the price. Produced with AI assistance (Claude). No CU Boulder group's work is built on; no connection is claimed.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/energy-store-flip/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/energy-store-flip/
 
 ## Headline (German day-ahead prices 2015 to 2019, wholesale, EUR/kWh of heat)
 All numbers are in `experiments/results.txt` (deterministic, stdlib only, about 30 s).

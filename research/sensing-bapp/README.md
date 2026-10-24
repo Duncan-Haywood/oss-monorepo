@@ -2,7 +2,7 @@
 
 `sensing-bak2wide` listed a principal-point offset as the obvious next failure on the wide rig. This tests it. **On the wide rig (camera distance 2, f = 400 px) a true principal-point offset of 10 px that the solver holds at the image centre raises the surface error from 0.0019 to 0.0043 object radii and the fitted focal length ends 3.5% off (0.7% when the point is fitted); at 20 px it is 0.0079 and 10%. Fitting the principal point recovers `dx` to within 0.1 px and removes the cost (0.0019 at every offset). The narrow rig (distance 4, f = 800) is much less sensitive: 0.0019 against 0.0015 at 10 px. So a wider view makes the offset matter more, not less** (numpy and scipy; 3 tests).
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/sensing-bapp/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/sensing-bapp/
 
 **Builds on.** `sensing-bak2wide` (rig, `wide_rig`), `sensing-bak2` (scoring and the `k1`, `k2` law), `sensing-bafocal`, `sensing-ba`, `sensing-recon`. Brown (1966), "Decentering distortion of lenses", *Photogrammetric Engineering* 32(3); Triggs, McLauchlan, Hartley and Fitzgibbon (2000), "Bundle adjustment: a modern synthesis", LNCS 1883. Track 15 (`sensing`). No lab in `prompt.md` fits.
 

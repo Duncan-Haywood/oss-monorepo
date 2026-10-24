@@ -1,6 +1,6 @@
 # Did research brief v1 change how runs go? A same-days comparison of v0 and v1 on the run ledger (preliminary, observational)
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/swe-briefab/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/swe-briefab/
 
 Pure Python standard library. Track 10 (the software-engineering loop), the real-data counterpart to `swe-prompt`, which could only simulate an experiment because every ledger row was prompt 0. Produced with AI assistance (Claude). **Preliminary: v1 was assigned by the router's random draw, but the logged task labels differ between arms, so this is not a clean randomised trial.** All numbers are in `experiments/results.txt`.
 

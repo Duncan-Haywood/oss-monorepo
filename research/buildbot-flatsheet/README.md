@@ -2,7 +2,7 @@
 
 Track 20, robots on the residential building site (`PROJECTS.md`, milestone 4). [`buildbot-stance`](../buildbot-stance) found a Unitree G1 needs about 13 stances at 5 platform heights to nail a sheet standing on a wall, and listed "nail sheets flat on a table" as a next step. This asks whether laying the sheet on a panelising table helps: with its feet planted beside the table, which hand points can the G1 hold a 3.4 kg nailer at while pushing straight down, and how many stances does a sheet need? Produced with AI assistance (Claude). Simulated and preliminary. **The push needed to seat a nail, the nailer's length in the hands, the standoff from the table and the re-stance time are not measured**; each is swept.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/buildbot-flatsheet/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/buildbot-flatsheet/
 
 **Headline (a negative result).**
 - **A table does not help this model of the G1.** Pushing down at 50 N, the G1 holds only **30 of 693 grid cells** (reach 0.2 to 0.8 m, sideways 0 to 0.8 m, hand height 0.4 to 1.4 m); with no push, 94. At 100 N it holds **none**. Hand reach is mostly limited by the waist pitch motor and the wrist pitch motors, and beyond 0.5 m forward by the solver's balance rule (the centre of mass stays over the feet).
