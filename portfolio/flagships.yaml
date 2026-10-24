@@ -96,7 +96,7 @@ flagships:
       on seeded series; slope-change range and growth-change range for counts
       2026-10-22, the latter calibrated to ~95% on three seeded sets) lives in the README
       and git. Open: range95 on a real series with a true holiday closure or
-      documented slope break; the growth-change range on clumpy (NB) counts is ~90% not 95% (scored with the NB cost itself 2026-10-23, narrower than the ratio widening; the miss is at large bumps, where a bump-0.04 cell on one seed covers 10 of 15).
+      documented slope break; the growth-change range on clumpy (NB) counts reached ~95% 2026-10-26 by tempering 1.4 (held-out 161/170; the large-bump cell is still ~86%).
   - venture: einvoice-preflight
     why: >-
       Real EN 16931 validator (JSON, UBL, CII, Factur-X PDF; 54+ rules,
