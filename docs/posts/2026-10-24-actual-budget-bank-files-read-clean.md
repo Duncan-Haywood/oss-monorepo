@@ -2,6 +2,7 @@
 title: "Actual Budget's bank-file fixtures read clean: a probe with no fault"
 date: 2026-10-24
 description: "Actual Budget's MIT-licensed QIF and QFX import fixtures parse cleanly in AI Bookkeeper: a probe that found no fault, and two regression tests added."
+tags: [ai-bookkeeper, bank-import, qif, ofx, testing]
 ---
 
 Most of the bank-file faults AI Bookkeeper has fixed were found by reading

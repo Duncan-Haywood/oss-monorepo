@@ -1,0 +1,27 @@
+## reports: n=61
+ words median 596 mean 822 p10/p90 137/1890
+ sentence len median 15.5; ##headings median 4
+ per 1k words: repo paths/links 13.4, numbers 74.4, inline code 39.3, bullets 10.0
+ has table 30/61; front matter 0/61; first-person I/we 24/61; answer-first heading 18/61
+ links internal 92 external 4
+ top tags []
+## posts: n=216
+ words median 266.0 mean 637 p10/p90 161/1571
+ sentence len median 17.0; ##headings median 0.0
+ per 1k words: repo paths/links 5.0, numbers 50.0, inline code 9.3, bullets 2.1
+ has table 52/216; front matter 216/216; first-person I/we 136/216; answer-first heading 0/216
+ links internal 499 external 406
+ top tags [('research', 70), ('ai-agents', 59), ('open-source', 55), ('bookkeeping', 24), ('statistics', 23), ('testing', 18), ('robotics', 17), ('process', 16), ('construction', 16), ('software-engineering', 15), ('measurement', 14), ('sales', 14)]
+## agent-posts: n=2
+ words median 889.5 mean 890 p10/p90 799/980
+ sentence len median 13.7; ##headings median 4.5
+ per 1k words: repo paths/links 25.5, numbers 110.6, inline code 59.4, bullets 14.0
+ has table 2/2; front matter 2/2; first-person I/we 1/2; answer-first heading 1/2
+ links internal 6 external 0
+ top tags [('ai-agents', 2), ('run-records', 1), ('shell', 1), ('python', 1), ('parallel-runs', 1), ('prompt-engineering', 1), ('process', 1), ('measurement', 1)]
+reports linking a post 20 / 61 ; posts linking a report 29 / 216
+reports with **Reader:** 17
+reports with human/public version link 20
+posts dated after 2026-10-24: 20
+posts per date [('2026-10-16', 2), ('2026-10-20', 40), ('2026-10-21', 24), ('2026-10-22', 4), ('2026-10-23', 2), ('2026-10-24', 124), ('2026-10-26', 7), ('2026-10-27', 10), ('2026-10-28', 3)]
+agent docs per date [('2026-10-16', 1), ('2026-10-20', 16), ('2026-10-21', 21), ('2026-10-22', 3), ('2026-10-23', 3), ('2026-10-24', 12), ('ai-bookkee', 2), ('einvoice-o', 1), ('einvoice-p', 1), ('sales-agen', 1)]

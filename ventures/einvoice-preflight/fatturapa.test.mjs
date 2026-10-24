@@ -68,3 +68,9 @@ test("IT-018 flags elements out of schema order, once per block", () => {
   assert.match(f[0].path, /DatiGeneraliDocumento\/Divisa$/);
   assert.deepEqual(rules(clean).filter((r) => r === "IT-018"), []);
 });
+
+test("IT-018 does not rank PECDestinatario against ContattiTrasmittente (the Agenzia's own sample has them the other way)", () => {
+  const a = clean.replace(/(<CodiceDestinatario>[^<]*<\/CodiceDestinatario>)/, "$1<PECDestinatario>x@pec.it</PECDestinatario><ContattiTrasmittente/>");
+  assert.notEqual(a, clean);
+  assert.deepEqual(rules(a).filter((r) => r === "IT-018"), []);
+});
