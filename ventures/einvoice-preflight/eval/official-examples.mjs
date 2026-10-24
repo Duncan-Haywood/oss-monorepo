@@ -13,7 +13,9 @@
 //   git clone --depth 1 https://github.com/itplr-kosit/xrechnung-testsuite
 //   node eval/official-examples.mjs path/to/xrechnung-testsuite/src/test/business-cases
 // Set PATH_FILTER to a substring to limit which files are read (default: any
-// path containing "examples" or "business-cases").
+// path containing "examples" or "business-cases"). Files over 1 MB are skipped
+// unless MAX_CHARS is set (the repository ships a 3.3 MB UBL invoice with an
+// embedded attachment; MAX_CHARS=5000000 reads it).
 // The examples are EUPL-licensed and not copied into this repository.
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
@@ -36,7 +38,7 @@ const tally = {};
 let clean = 0, checked = 0, unreadable = 0, skipped = 0;
 for (const path of [...walk(root)].sort()) {
   const source = readFileSync(path, "utf8");
-  if (source.length > 1_000_000) { skipped++; continue; }
+  if (source.length > Number(process.env.MAX_CHARS || 1_000_000)) { skipped++; continue; }
   let invoice;
   try { invoice = (looksLikeCii(source) ? parseCiiInvoice : parseUblInvoice)(source); }
   catch { unreadable++; continue; }

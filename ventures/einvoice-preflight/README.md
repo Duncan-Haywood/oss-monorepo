@@ -565,7 +565,7 @@ or stdout message.
 
 ## Measured on the official examples (2026-10-24)
 
-The CEN EN 16931 test repository (ConnectingEurope/eInvoicing-EN16931, EUPL, not copied here) ships 41 example invoices in UBL, CII and other syntaxes. They pass the official Schematron, so a built-in rule that fires on one is a false positive of ours or a real inconsistency in the example's data. `node eval/official-examples.mjs <checkout>` runs the built-in rules over them (31 are readable UBL or CII; 9 are EDIFACT or other syntaxes this tool does not read; one FatturaPA file is over the 1 MB limit).
+The CEN EN 16931 test repository (ConnectingEurope/eInvoicing-EN16931, EUPL, not copied here) ships 41 example invoices in UBL, CII and other syntaxes. They pass the official Schematron, so a built-in rule that fires on one is a false positive of ours or a real inconsistency in the example's data. `node eval/official-examples.mjs <checkout>` runs the built-in rules over them (31 are readable UBL or CII; 9 are EDIFACT or other syntaxes this tool does not read; one file is over the 1 MB limit: it is not FatturaPA but a 3.3 MB UBL invoice with an embedded attachment, `FT G2G_TD01 con Allegato, Bonifico e Split Payment.xml`; `MAX_CHARS=5000000 node eval/official-examples.mjs <checkout>` reads it, and on 2026-10-24 it drew one finding, the non-blocking INV-030 note, no false positive).
 
 Before this run **none** of the 41 passed the built-in rules; 29 of the 31 readable files drew a finding, mostly arithmetic ones. The causes, all fixed in the JS and Python rules:
 
