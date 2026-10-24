@@ -1,0 +1,56 @@
+{
+  "date": "2026-10-24",
+  "session": "https://claude.ai/code/session_01U6jqcZqRgpaTjC5HXQt6b8",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "the podcast voice should be improved to a more human and expressive one right now it's very robotic. it should run once when making the podcast with a high quality model then the audio file gets distributed.",
+  "input_sha256": "497aadd08ae3dd7078007dd8cd814f98b821fe7d0ad0b2c132336b6e6fc8bbb2",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-24T02:45:56Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Replace the robotic Piper podcast voice with a natural neural voice rendered once per episode and committed.",
+  "projects": [
+    "platform/pages (podcast)"
+  ],
+  "pr": 9983,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    "kokoro's spacy dependency failed to build on Python 3.13; used a Python 3.12 venv",
+    "faster-whisper's av decoder rejected an argument (version mismatch); decoded with ffmpeg to numpy instead"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "Says cloud sessions often cannot reach huggingface.co; this session reached it (200) and downloaded Kokoro, so backlog P044 may be stale."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/promptctl.py",
+      "why": "Direct owner request, not a routed run; recorded under the creative track (which owns podcast audio) rather than the routed ventures draw."
+    }
+  ],
+  "writeups": [
+    "docs/reports/2026-10-20-pages-every-merge-and-podcasts.md"
+  ],
+  "goal": "A more human podcast voice, rendered once, distributed as a file.",
+  "notes": "podcast_tts.py now uses Kokoro-82M (Apache-2.0, voice af_heart) with paragraph pauses, acronym respellings, -16 LUFS mastering. All 34 front-matter scripts re-voiced (33 re-renders + typeof-localstorage-throws, previously unvoiced); podcast_tts.py --check exit 0; audio dir 43 MB -> 52 MB. Whisper base.en WER vs script, 33 paired episodes: Piper mean 0.100 / median 0.101, Kokoro mean 0.082 / median 0.081, Kokoro lower on 33/33. Pitch-spread proxy did not separate voices (3.28 vs 2.99 semitones), so no numeric expressiveness claim. Local checks: node --test platform/pages/podcast.test.mjs 9/9 pass; build.mjs + check.mjs: 4238 pages, no dead links, 34 feed items.",
+  "corrections": [],
+  "redteam": null
+}

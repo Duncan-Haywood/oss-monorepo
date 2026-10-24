@@ -142,3 +142,63 @@ ventures above, so the site's checker publishes the audio.
      read by `platform/devstats/` for the dashboard, so it must stay a
      trigger. `docs/history/**` is a likelier candidate.
    - Measure first with `ci_starvation.py --run <id>`.
+
+## Update, 2026-10-24: a more natural voice
+
+The owner found the Piper voice robotic and asked for a more human, expressive
+one, rendered once with a high-quality model and then distributed as a file.
+`platform/pages/podcast_tts.py` now runs **Kokoro-82M**
+(`hexgrad/Kokoro-82M`, Apache-2.0 open weights, voice `af_heart`). It still
+runs only on the machine that makes an episode. The MP3 is committed, so
+Pages, the feeds and the listener never run a model, and nothing costs money
+per listen.
+
+- **What changed in the render:** pauses between paragraphs (0.55 s, and
+  0.9 s after the intro and before the sign-off), acronyms respelled so they
+  are read letter by letter (A.I., C.I., P.R., A.P.I., …), a 70 Hz high-pass,
+  and loudness set to −16 LUFS (true peak −1.5 dB). Output is mono 48 kbps at
+  24 kHz, up from 40 kbps at 22.05 kHz.
+- **Re-voicing:** a manifest entry whose `voice` is not the current
+  `VOICE_ID` (`kokoro-82m-af_heart`) counts as stale, so changing the voice
+  re-renders everything on the next run.
+- **Cost:** 34 episodes (2 h 24 min of audio) took about 75 minutes on four
+  CPU cores, roughly 2× real time while Whisper shared the CPU. The audio
+  directory grew from 43 MB to 52 MB.
+- **Backlog P044:** huggingface.co answered 200 from this cloud session. The
+  script that had never been voiced, `2026-10-21-typeof-localstorage-throws`,
+  now has audio, and `podcast_tts.py --check` exits 0.
+
+### Measured
+
+"Sounds more human" is a listening judgment that no file here can prove. What
+can be measured is intelligibility. Each episode, old and new, was
+transcribed with Whisper `base.en` (int8, greedy), and the transcript was
+scored against the script by word error rate after lower-casing and removing
+punctuation. All 33 Piper episodes came from the same script bytes that were
+re-voiced, so the pairs are like for like.
+
+| | mean WER | median WER |
+|---|---|---|
+| Piper `en_US-ljspeech-high` (before) | 0.100 | 0.101 |
+| Kokoro-82M `af_heart` (after) | 0.082 | 0.081 |
+
+Kokoro scored lower on all 33 of 33 paired episodes. Part of the remaining
+error is scoring noise, not misreading: the scripts spell out numbers and
+Whisper writes digits ("nine hundred and ninety" against "990"), so neither
+voice can reach zero.
+
+A pitch-spread proxy (the standard deviation of f0 in semitones over the
+first 90 s) did **not** separate the voices: 3.28 for a Piper episode against
+2.99 for a Kokoro one. Piper's robotic sound is in its timbre and its
+sentence-final contours, not in its pitch range. So this file makes no
+numeric claim about expressiveness. The listening test is the real one.
+
+### Next
+
+- Kokoro's other voices (`am_michael`, `bf_emma`, …) or a second voice for the
+  two-host scripts are one constant away. Try a couple of episodes with
+  `--only` before re-voicing everything.
+- `ventures/hearth-and-horizon/render_audio.py` (stories) still uses Piper.
+  The same switch would apply there, but that venture's audio licence note
+  (CC BY-SA, based on LJ Speech being public domain) needs re-checking
+  against Kokoro's training-data statement first.
