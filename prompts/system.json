@@ -45,6 +45,8 @@
      "answers": "Git with 16 agents on one main: why each rule exists, what went wrong, alternatives weighed."},
     {"path": ".github/prompts/duplicate-work.md", "layer": "runbook", "changed_by": "any", "budget": 60,
      "answers": "Is someone already doing this? Open-PR search, supersede checks, closing safely."},
+    {"path": ".github/prompts/daily-progress-post.md", "layer": "runbook", "changed_by": "any", "budget": 70,
+     "answers": "Writing the daily progress analysis post: data sources, commands, what it should judge."},
     {"path": ".github/prompts/verify-and-merge.md", "layer": "runbook", "changed_by": "any",
      "answers": "Reading CI, the starvation checklist, and the post-merge steps."},
     {"path": ".github/prompts/review-open-prs-first.md", "layer": "runbook", "changed_by": "any",

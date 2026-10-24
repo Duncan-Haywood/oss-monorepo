@@ -1,0 +1,54 @@
+{
+  "date": "2026-10-24",
+  "session": "https://claude.ai/code/session_01UnasTnsekf17V8TpXRbqsa",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "how's progress doing. do an analysis of the progress, add a blog post, last 24-72 hours. this should be a daily thing that gets a blog post.",
+  "input_sha256": "6879ab7f19a294e380794def92bc136c92ed4d2d8aeb26d77bda5dcfc7447a16",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-24T01:26:05Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Daily progress analysis post (21-24 Oct) and a runbook to make it daily",
+  "projects": [
+    "docs/posts",
+    "platform/daily"
+  ],
+  "pr": 9955,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Says the site is duncan-haywood.github.io/oss-monorepo/ while platform/daily/README.md and recent posts link monorepo-projects/; unclear which one is canonical for links in posts."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Wrote no separate docs/reports agent doc. The post plus the .github/prompts runbook already hold the method; a third copy would duplicate them."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-24-progress-922-merges-zero-measured-users.md"
+  ],
+  "goal": null,
+  "notes": "Numbers come from git log --first-parent origin/main (window 2026-10-21T01:20Z to 2026-10-24T01:20Z, shallow-since fetch) and prompts/runs/*.json dated 2026-10-21..24. Checked: loadPosts parses the post; check_md_links clean. Set up a daily scheduled task that writes the next edition.",
+  "corrections": [],
+  "redteam": null
+}
