@@ -112,6 +112,29 @@
       <button type="button" class="secondary" id="dl-leftout">Left out, with reasons (CSV)</button>
     </div>
   </section>
+  <section class="card" id="research">
+    <h2>5. Who to contact first (CRM export)</h2>
+    <p class="note">Paste a HubSpot, Pipedrive, Salesforce or any CSV export. It ranks one contact per company against the customer profile you describe, explains every point, and writes a first-touch draft for each. It drops opted-out, suppressed, customer, role-address and recently contacted rows, and holds Canada, Germany and Austria for consent. It reads no website, guesses no email address and sends nothing. Every fact in a brief is a field of your export.</p>
+    <label for="crm">CRM export (CSV with a header row)</label>
+    <textarea id="crm" rows="6" placeholder="First Name,Last Name,Email,Company name,Job Title,Industry,Number of Employees,Country/Region"></textarea>
+    <div class="row3">
+      <div><label for="icp-industries">Industries you target (comma separated)</label><input id="icp-industries" autocomplete="off" placeholder="logistics, freight"></div>
+      <div><label for="icp-titles">Buyer titles (comma separated)</label><input id="icp-titles" autocomplete="off" placeholder="director, owner, founder"></div>
+      <div><label for="icp-countries">Countries (codes)</label><input id="icp-countries" autocomplete="off" placeholder="US, GB"></div>
+      <div><label for="icp-min">Fewest employees</label><input id="icp-min" type="number" min="0" inputmode="numeric"></div>
+      <div><label for="icp-max">Most employees</label><input id="icp-max" type="number" min="0" inputmode="numeric"></div>
+      <div><label for="icp-top">How many accounts to show</label><input id="icp-top" type="number" min="1" value="25" inputmode="numeric"></div>
+    </div>
+    <p class="note">Uses your offer, today's date, prospects and suppression list from the sections above.</p>
+    <button type="button" id="go-research">Rank the accounts</button>
+    <button type="button" class="secondary" id="load-crm">Load an example</button>
+    <p id="research-status" role="status" class="note"></p>
+    <pre id="research-brief" hidden style="white-space:pre-wrap"></pre>
+    <div id="research-dl" hidden>
+      <button type="button" id="dl-accounts">Ranked accounts with drafts (CSV)</button>
+      <button type="button" class="secondary" id="dl-research-leftout">Held and dropped, with reasons (CSV)</button>
+    </div>
+  </section>
   <section class="card">
     <details>
       <summary>Optional: let an AI model read the replies and polish the drafts, on your own key</summary>
@@ -169,6 +192,7 @@
     import { runInbox, checkDraft, csv, CATEGORIES, SAMPLE_REPLIES, SAMPLE_PROSPECTS, SAMPLE_OFFER, iso } from "./engine.mjs";
     import { runInboxWithModel } from "./ai.mjs";
     import { runDaily, csvQueue, csvLeftOut } from "./daily.mjs";
+    import { runResearch, csvAccounts, csvLeftOutResearch, SAMPLE_CRM } from "./research.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
     const $ = (s) => document.querySelector(s);
     const SAVE = "sales-agent:setup", AIKEY = "sales-agent:ai";
@@ -275,6 +299,26 @@
       $("#daily-status").textContent = daily.summary.due + " touches due today" + (result ? ", after the replies above" : "") + ". Nothing was sent.";
       record("daily_run");
     });
+    let research = null;
+    const nums = (id) => { const v = $(id).value.trim(); return v === "" ? undefined : Number(v); };
+    $("#load-crm").addEventListener("click", () => {
+      $("#crm").value = SAMPLE_CRM; $("#icp-industries").value = "logistics, freight"; $("#icp-titles").value = "director, owner, founder, ceo"; $("#icp-countries").value = "US"; $("#icp-min").value = "30"; $("#icp-max").value = "300";
+      for (const [k, id] of Object.entries(OFFER)) if (!$("#" + id).value) $("#" + id).value = SAMPLE_OFFER[k] || "";
+      $("#go-research").click(); record("example_loaded");
+    });
+    $("#go-research").addEventListener("click", () => {
+      if (!$("#crm").value.trim()) { $("#research-status").textContent = "Paste a CRM export first."; return; }
+      const split = (id) => $(id).value.split(/[,;]/).map((x) => x.trim()).filter(Boolean);
+      const icp = { industries: split("#icp-industries"), titles: split("#icp-titles"), countries: split("#icp-countries"), min_employees: nums("#icp-min"), max_employees: nums("#icp-max") };
+      const suppression = [$("#suppression").value, ...(result ? result.suppression.map((x) => x.email) : [])].join("\n");
+      research = runResearch({ crm: $("#crm").value, icp, offer: offer(), suppression, existing: result ? result.prospects : $("#prospects").value, today: $("#today").value || iso(Date.now()), top: nums("#icp-top") || 25 });
+      const s = research.summary;
+      $("#research-brief").textContent = research.brief; $("#research-brief").hidden = false; $("#research-dl").hidden = false;
+      $("#research-status").textContent = s.rows + " rows read, " + s.accounts + " accounts ranked, " + s.dropped + " dropped, " + s.held + " held for consent. Nothing was sent.";
+      record("research_run");
+    });
+    $("#dl-accounts").addEventListener("click", () => research && download("ranked-accounts.csv", csvAccounts(research)));
+    $("#dl-research-leftout").addEventListener("click", () => research && download("research-left-out.csv", csvLeftOutResearch(research)));
     $("#dl-queue").addEventListener("click", () => daily && download("todays-queue.csv", csvQueue(daily)));
     $("#dl-leftout").addEventListener("click", () => daily && download("left-out.csv", csvLeftOut(daily)));
     $("#dl-prospects").addEventListener("click", () => result && download("prospects-updated.csv", csv.prospects(result)));

@@ -157,3 +157,14 @@ function brief(today, accounts, dropped, held, s) {
 
 export const csvAccounts = (d) => toCsv(d.accounts.map((a) => ({ ...a, why: a.why.join(" | "), flags: a.flags.join(" | "), subject: a.draft.subject, body: a.draft.body, draft_ok: a.draftOk ? "yes" : "no", also_at: a.alsoAt.join("; ") })), ["rank", "company", "contact", "title", "email", "score", "why", "flags", "also_at", "subject", "body", "draft_ok", "source"]);
 export const csvLeftOutResearch = (d) => toCsv([...d.held.map((x) => ({ ...x, outcome: "held" })), ...d.dropped.map((x) => ({ ...x, outcome: "dropped" }))], ["outcome", "row", "name", "company", "email", "reason"]);
+
+// A small made-up export (HubSpot-style headers) for the page's "Load an example".
+export const SAMPLE_CRM = `First Name,Last Name,Email,Company name,Job Title,Industry,Number of Employees,Country/Region,Lifecycle Stage,Last Activity Date,Unsubscribed from all emails
+Dana,Reyes,dana@brightline.example,Brightline Logistics,Director of Operations,Logistics,120,United States,Lead,,
+Ken,Ito,ken@brightline.example,Brightline Logistics,Dispatcher,Logistics,120,United States,Lead,,
+Omar,Khan,omar@harbor.example,Harbor Freight Co,Founder,Logistics,45,US,Marketing Qualified Lead,2026-07-01,
+Lena,Ng,lena@ridge.example,Ridge Supply,Intern,Retail,12,US,Lead,,
+Paul,Ortiz,paul@summit.example,Summit Parts,Owner,Logistics,60,US,Customer,,
+Gus,Hall,info@northwind.example,Northwind Freight,CEO,Logistics,80,US,Lead,,
+Tina,Berg,tina@berlin.example,Berlin Spedition,Geschäftsführer,Logistics,90,Germany,Lead,,
+Sue,Park,sue@optout.example,Optout Inc,Owner,Logistics,70,US,Lead,,true`;
