@@ -1,0 +1,47 @@
+{
+  "date": "2026-10-24",
+  "session": "https://claude.ai/code/session_01EsU4xXUHAqxKKNsLBSNrxy",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md (scheduled)",
+  "input_sha256": "a069142edff7faba0e7497f3e43587d325506648757355f87cd62c89d6f4f469",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-24T05:40:07Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/10035",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "Plain python3 lacks numpy; pyenv.py needed (documented, worked, returned /usr/bin/python3.13)."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-10-24-why-a-standard-confidence-bound-cannot-see-a-digital-twin.md",
+    "research/sim2real-inference/LOG.md"
+  ],
+  "goal": null,
+  "notes": "Milestone 3c of sim2real-inference: empirical-Bernstein interval valid but 2-3x wider (negative result). Homepage build and md link check ok. Not merged/CI-verified at record time.",
+  "corrections": [],
+  "redteam": null
+}
