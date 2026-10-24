@@ -114,6 +114,7 @@ numbers in the PR are a summary, never the source.
   commit a mutant. `git diff` before you push should show tests, real fixes
   and the record, nothing else.
 - Never mutate anything that deploys, publishes or spends money. Leave
-  `research/` (it is a mirror) and generated trees out of a campaign too.
+  generated trees out of a campaign too (`research/` is fair game since the
+  mirror was retired on 2026-10-16; its suites run under the same probe limit).
 - Real defects in other people's open pull requests go in a comment on that
   PR, not a fix pushed to their branch.
