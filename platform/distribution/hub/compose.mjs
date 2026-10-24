@@ -19,7 +19,7 @@
 import crypto from 'node:crypto';
 import { tagUrl } from '../attribution.mjs';
 
-export const BASE_URL = 'https://duncan-haywood.github.io/monorepo-projects/';
+export const BASE_URL = 'https://duncan-haywood.github.io/oss-monorepo/';
 
 /** Short-post templates. `marker` must be the start of every post using it and unique among templates. */
 export const TEMPLATES = Object.freeze({

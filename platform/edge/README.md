@@ -1,11 +1,11 @@
 # Site feedback form and visit counter (Cloudflare Worker)
 
 This is the one small server behind the free tools site at
-https://duncan-haywood.github.io/monorepo-projects/. GitHub Pages can only
+https://duncan-haywood.github.io/oss-monorepo/. GitHub Pages can only
 serve files, so this Worker receives the two things a static site cannot:
 
 - **Feedback from people without a GitHub account.** The site's
-  [`feedback/`](https://duncan-haywood.github.io/monorepo-projects/feedback/)
+  [`feedback/`](https://duncan-haywood.github.io/oss-monorepo/feedback/)
   page posts here and the Worker stores the message in D1. A daily workflow
   copies new messages into `portfolio/usage/site-feedback.json`, where agents
   read them. The Worker holds no GitHub credential at all: the commit is made

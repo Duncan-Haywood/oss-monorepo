@@ -3,7 +3,7 @@
 // Why this exists, and what it is *not* about. The published site does not
 // serve these files: `build.mjs`'s `renderVentureSitemap` regenerates a sitemap
 // per venture from what actually landed in the artifact, so a page missing here
-// is still crawlable at https://duncan-haywood.github.io/monorepo-projects/.
+// is still crawlable at https://duncan-haywood.github.io/oss-monorepo/.
 // The committed file is the one a venture carries when it is served on its own
 // -- from its directory, a fork, or the standalone copy its README describes --
 // and it is also the file each venture's `page.test.mjs` asserts against when

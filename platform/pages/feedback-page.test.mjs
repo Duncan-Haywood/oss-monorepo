@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import { renderFeedbackPage, FEEDBACK_PATH } from './build.mjs';
 import { renderSiteFooterNav } from './site-nav.mjs';
 
-const base = 'https://duncan-haywood.github.io/monorepo-projects/';
+const base = 'https://duncan-haywood.github.io/oss-monorepo/';
 
 test('without an endpoint: GitHub issue links only, no form, no request', () => {
   const html = renderFeedbackPage({ surfaces: [], baseUrl: base, feedbackUrl: '' });
