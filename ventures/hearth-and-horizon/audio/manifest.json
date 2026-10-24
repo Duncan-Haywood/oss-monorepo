@@ -79,6 +79,11 @@
     "seconds": 1057.7,
     "voice": "en_US-ljspeech-high"
   },
+  "the-letter-in-the-wall": {
+    "bytes": 7365605,
+    "seconds": 1227.5,
+    "voice": "en_US-ljspeech-high"
+  },
   "the-long-sea": {
     "bytes": 7561827,
     "seconds": 1260.2,
