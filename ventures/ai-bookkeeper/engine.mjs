@@ -122,7 +122,7 @@ export function importStatement(booksIn, csv, account, opts = {}) {
     if (books.lockedThrough && r.date <= books.lockedThrough) { locked++; return; }
     const conv = convertRow(books, account, r);
     if (!conv) { noRate++; return; }
-    books.transactions.push({ id: ids[i], account, date: r.date, desc: r.desc, cents: conv.cents, ...(conv.foreign ? { foreign: conv.foreign } : {}), balance: r.balance, status: "new" });
+    books.transactions.push({ id: ids[i], account, date: r.date, desc: r.desc, cents: conv.cents, ...(conv.foreign ? { foreign: conv.foreign } : {}), balance: r.balance, ...(r.bankCat ? { bankCat: r.bankCat } : {}), status: "new" });
     added++;
   });
   // Balances are kept debit-positive (what you own is positive, what you owe
