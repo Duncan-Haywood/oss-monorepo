@@ -5,12 +5,13 @@
   "owner": "owner",
   "effect": 3,
   "cost": 1,
-  "problem": "The catalogue is served at https://duncan-haywood.github.io/monorepo-projects/. Crawlers read robots.txt only at the host root (https://duncan-haywood.github.io/robots.txt, the owner's user Pages site), so the Sitemap: line the build publishes is never seen and no engine can list the catalogue's pages. IndexNow announcements reach Bing and Yandex only; Google does not take part. Crawling is allowed; enumeration of 1,200+ venture pages is lost.",
+  "problem": "The catalogue is served at https://duncan-haywood.github.io/oss-monorepo/. Crawlers read robots.txt only at the host root (https://duncan-haywood.github.io/robots.txt, the owner's user Pages site), so the Sitemap: line the build publishes is never seen and no engine can list the catalogue's pages. IndexNow announcements reach Bing and Yandex only; Google does not take part. Crawling is allowed; enumeration of 1,200+ venture pages is lost.",
   "evidence": [
     "python3 platform/ci/pages_state.py on 2026-10-16: indexing = subpath-robots",
-    "python3 platform/ci/indexnow_state.py on 2026-10-16: last announcement run 38842485378 accepted; Google does not participate"
+    "python3 platform/ci/indexnow_state.py on 2026-10-16: last announcement run 38842485378 accepted; Google does not participate",
+    "2026-10-24: https://duncan-haywood.github.io/robots.txt returns 404; no google-site-verification or msvalidate tag anywhere in the tree; pages_state.py indexing = subpath-robots"
   ],
-  "change": "Cheapest first, all owner steps because they create a repository or verify a property in the owner's name: (1) create the repository Duncan-Haywood/duncan-haywood.github.io with Pages on and a robots.txt of two lines: 'User-agent: *' and 'Sitemap: https://duncan-haywood.github.io/monorepo-projects/sitemap.xml' (if the repo exists, edit its robots.txt and make sure it does not Disallow the subpath); (2) submit sitemap.xml in Google Search Console and Bing Webmaster Tools; (3) longer term, a custom domain so the site sits at an origin root (pages-custom-domain ask). Agent half: once (1) is live, make pages_state.py read the root robots.txt and report the Sitemap line as found.",
+  "change": "Cheapest first, all owner steps because they create a repository or verify a property in the owner's name: (1) create the repository Duncan-Haywood/duncan-haywood.github.io with Pages on and a robots.txt of two lines: 'User-agent: *' and 'Sitemap: https://duncan-haywood.github.io/oss-monorepo/sitemap.xml' (if the repo exists, edit its robots.txt and make sure it does not Disallow the subpath); (2) submit sitemap.xml in Google Search Console and Bing Webmaster Tools; (3) longer term, a custom domain so the site sits at an origin root (pages-custom-domain ask). Agent half: once (1) is live, make pages_state.py read the root robots.txt and report the Sitemap line as found. For (2): a URL-prefix property for https://duncan-haywood.github.io/oss-monorepo/ verifies with an HTML file or meta tag and needs no custom domain; give the token to a session and it adds it to the pages build. Bing Webmaster Tools can import the Google property, and Bing's index also feeds ChatGPT search and Copilot.",
   "touches": [
     "platform/ci/pages_state.py"
   ],
@@ -20,5 +21,10 @@
   "source": "Owner review of repo standards in a Claude Code session, 2026-10-16",
   "pr": null,
   "result": null,
-  "history": []
+  "history": [
+    {
+      "date": "2026-10-24",
+      "note": "Refreshed for the SEO/AI-search action items (P051-P056): fixed the dead /monorepo-projects/ path, added the URL-prefix verification route."
+    }
+  ]
 }
