@@ -7,9 +7,9 @@ import { checkDraft, firstName, footer, findDate, iso, parseCsv } from "./engine
 import { runPrep } from "./prep.mjs";
 
 const lines = (text) => String(text || "").split(/\n+/).map((l) => l.replace(/^\s*[-*•\d.)]+\s+/, "").trim()).filter(Boolean);
-const OURS = /^(i|we)(\s+will|'ll|\s+shall|\s+to)\s+(send|share|email|put together|check|get back|book|draft|follow up|introduce)\b/i;
+const OURS = /^((i|we)(\s+will|'ll|\s+shall|\s+to)\s+|(need|have|got|ought|should|must)\s+to\s+|(send|share|email|book|draft)\s+)(send|share|email|put together|check|get back|book|draft|follow up|introduce|the|a|an|them|her|him|over)\b/i;
 const OURS_LEAD = /^(i|we)(\s+will|'ll|\s+shall|\s+to)\s+/i;
-const THEIRS = /^(they|she|he|[A-Z][a-z]+)\s+(will|'ll|is going to|to)\s+(send|share|check|loop in|introduce|confirm|ask|get)\b/;
+const THEIRS = /^(?!(?:Need|Have|Got|Ought|Should|Must|Want)\b)(?:(?:they|she|he|[A-Z][a-z]+)(?:\s+(?:said|says|told us)\s+(?:they|she|he))?)\s*(?:\s(?:will|is going to|are going to|to)|'ll)\s+(send|share|check|loop in|introduce|confirm|ask|get)\b/i;
 const dateIn = (l, today) => findDate(l, today) || findDate(l.replace(/\b(call|meeting|demo|step)\s+(?=(mon|tues|wednes|thurs|fri|satur|sun)day)/i, "$& on "), today);
 const NEXT = /\b(next (call|meeting|step)|demo|follow[- ]up (call|meeting)|call (on|again)|meet(ing)? (on|again))\b/i;
 
