@@ -47,7 +47,7 @@ flagships:
       receipts and the reconcile-to-statement command on real paper, and reading
       receipt photos in the page; (6) payroll (941, Schedule B, 940, deposits,
       `payroll reconcile`): a real Gusto or ADP report (deposit rules checked against Pub. 15 (2026) 2026-10-24); (7) one named filing service's import layout,
-      from its own spec; (8) `salestax return`: CA, TX, FL, WA, NY, IL, PA due dates checked 2026-10-24; open: NY's non-calendar quarters and PA semiannual periods (warn only today) and a real return layout; (9) 2027 `estimate`: the indexed QBI minimum (199A(i)(3), warns today) and 2027 brackets once the IRS publishes the revenue procedure (not out 2026-10-23; the 2027 SS wage base $192,300 is in). A run that lands a slice replaces
+      from its own spec; (8) `salestax return`: CA, TX, FL, WA, NY, IL, PA due dates checked 2026-10-24; NY's Dec-Feb quarters and PA's Feb-Jul/Aug-Jan semiannual periods landed 2026-10-24 (`--state`, `--end-month`; from search excerpts, not the forms); open: a real return layout; (9) 2027 `estimate`: the indexed QBI minimum (199A(i)(3), warns today) and 2027 brackets once the IRS publishes the revenue procedure (not out 2026-10-23; the 2027 SS wage base $192,300 is in). A run that lands a slice replaces
       its item here; keep this under 2,000 characters.
 
   # Added 2026-10-21 second, on the owner's direction that day: "I want to make
