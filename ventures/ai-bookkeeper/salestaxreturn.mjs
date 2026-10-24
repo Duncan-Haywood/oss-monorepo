@@ -39,7 +39,11 @@ const periodEnd = (p) => {
 // Due day of the month after the period, by state, from the states' published
 // monthly/quarterly schedules as the author recalls them: check yours
 // (a state's own calendar can differ by filing frequency). "last" = month end.
-export const STATE_DUE_DAYS = { CA: "last", TX: 20, FL: 20, NY: 20, WA: 25, IL: 20, PA: 20, NJ: 20, GA: 20, NC: 20, OH: 23, MA: 20, VA: 20, AZ: 20 };
+export const STATE_DUE_DAYS = { CA: "last", TX: 20, FL: 20, NY: 20, WA: 25, IL: 20, PA: 20, NJ: 20, GA: 20, NC: 20, OH: 23, MA: 20, VA: 20, AZ: 20, MI: 20, CT: "last", WI: "last", UT: "last", IN: 30, KS: 25 };
+// MI (michigan.gov Treasury: monthly and quarterly the 20th, annual return Feb 28 not modelled), CT (OS-114: last day of the month after, monthly, quarterly
+// and annual), WI (revenue.wi.gov FAQ: last day of the month after; "early monthly" filers the 20th, not modelled), UT (tax.utah.gov: last day of the
+// month after), IN (DOR filing-deadlines page and bulletin 102: the 30th, early filers the 20th, not modelled; a 30th that does not exist in February
+// is clamped to month end) and KS (ST-36 form: the 25th) added 2026-10-24 from search excerpts of those pages, not the full forms.
 // VA (tax.virginia.gov ST-9 package, July 2023 and later: "return and payment due on 20th of month following end of period") and AZ
 // (TPT: the 20th; azdor.gov and Phoenix guidance; e-filers get until month end, not modelled) added 2026-10-24 from search excerpts.
 // Both equal the default of 20, listed so the schedule is explicit and a later change to the default cannot silently move them.
@@ -79,7 +83,8 @@ export function dueDate(period, dueDay = 20) {
   // { after: N } = N calendar days after the period's last day (Massachusetts quarterly and annual)
   if (dueDay && typeof dueDay === "object") return iso(new Date(Date.UTC(y, m, dueDay.after)));
   m += 1; if (m > 12) { m = 1; y += 1; }
-  const day = dueDay === "last" ? new Date(Date.UTC(y, m, 0)).getUTCDate() : dueDay;
+  const monthEnd = new Date(Date.UTC(y, m, 0)).getUTCDate();
+  const day = dueDay === "last" ? monthEnd : Math.min(dueDay, monthEnd);
   return `${y}-${String(m).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
 }
 
