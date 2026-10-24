@@ -639,6 +639,39 @@ class TestPromptPathExpansion(unittest.TestCase):
             ["ventures/alpha/VENTURE.yaml"],
         )
 
+    def test_the_file_index_gives_the_answers_the_tree_walk_gives(self):
+        # The closure resolves specs against one in-memory index rather than
+        # walking the tree per spec. It is only a speed-up if every answer is
+        # unchanged, including `**`, dot-directories and pruned trees.
+        for rel in [".hidden/AGENTS.md", "ventures/beta/nested/deep/x.md", "node_modules/a/b.md"]:
+            path = self.root / rel
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text("x")
+        index = harness._file_index(self.root)
+        self.assertNotIn("node_modules/a/b.md", index)
+        specs = [
+            ("CLAUDE.md", ""),
+            ("ventures/*/VENTURE.yaml", ""),
+            ("ventures/<name>/VENTURE.yaml", ""),
+            ("ventures/**/VENTURE.yaml", ""),
+            ("**/*.md", ""),
+            ("ventures/**", ""),
+            ("ventures/*", ""),
+            ("*.md", ""),
+            ("AGENTS.md", ""),
+            ("AGENTS.md", ".github/prompts"),
+            ("VENTURE.yaml", "ventures/alpha"),
+            ("VENTURE.yaml", "ventures/beta"),
+            ("b.md", ""),
+            ("does/not/exist.md", ""),
+        ]
+        for spec, base in specs:
+            with self.subTest(spec=spec, base=base):
+                self.assertEqual(
+                    _expand_prompt_path(spec, self.root, base, index),
+                    _expand_prompt_path(spec, self.root, base),
+                )
+
 
 class TestInstructionClosureWalk(unittest.TestCase):
     """The fixed point itself, apart from the rule that reports it.
