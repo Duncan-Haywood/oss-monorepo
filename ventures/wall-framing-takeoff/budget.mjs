@@ -9,7 +9,7 @@
 //
 // Plan `prices` (all optional, dollars): { wallSheet, floorSheet, roofSheet,
 // truss, shingleBundle, underlaymentRoll, dripEdgePiece, ridgeBundle,
-// starterBundle, concreteYd, rebarLb, formPlywoodSheet, gravelYd, drywallSheet,
+// starterBundle, concreteYd, rebarLb, formPlywoodSheet, gravelYd, anchorBolt, drywallSheet,
 // vaporBarrierSqFt, laborWallFoot, laborFloorSqFt, laborRoofSquare, laborFoundationSqFt, laborConcreteYd, tax (fraction on materials), contingency (fraction) }.
 // Labor lines appear once any labor* rate is typed. Wall sheathing is priced by the sheet order's own per-sheet prices
 // (`sheathing.summary.cost`) unless `wallSheet` is typed.
@@ -61,6 +61,7 @@ export function budget(result, prices = {}) {
     add("Foundation", "Rebar", f.rebarLb, "lb", P("rebarLb"), "bar schedule with lap splices");
     add("Foundation", "Form plywood", f.forms.plywoodSheets, "sheets", P("formPlywoodSheet"), "form contact area + 10% spare");
     add("Foundation", "Gravel base", f.base.cuYd, "cu yd", P("gravelYd"), "slab area x base thickness");
+    if (f.anchors) add("Foundation", "Anchor bolts (with nut and washer)", f.anchors.bolts, "bolts", P("anchorBolt"), `${f.anchors.pieces} sill plate pieces`);
     add("Foundation", "Vapor barrier", f.vaporBarrierSqFt, "sq ft", P("vaporBarrierSqFt"), "slab area + 10% laps");
   }
 
