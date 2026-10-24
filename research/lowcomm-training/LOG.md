@@ -15,6 +15,19 @@ Newest first. Write the hypothesis and the planned analysis before running an ex
 - Caveats as planned: raw-gradient units with AdamW preconditioning, 14k parameters, no estimator error bars beyond the seed spread.
 - Next: bootstrap intervals for B_simple (more batches per checkpoint), then use it as the noise input to a first H-versus-loss prediction.
 
+## 2026-10-24 · Milestone 2b: widen the outer-lr grid (planned before running)
+- Why: in 2a the picked outer lr sat at the grid edge (1.0) for `H = 1, 64, 160`, so those points are probably under-tuned. Question: with outer lr in {0.7, 1.0, 1.5, 2.0, 3.0} x momentum in {0, 0.5, 0.9}, does the large-`H` rise shrink, and does the `H=16` dip survive?
+- Design: `tuned_h_sweep.py --wide`, otherwise identical to 2a (same model, seeds, split, budget; 15 settings x 2 tuning seeds per `H`).
+- Hypothesis: the dip at `H=16` survives (`H=4` still above `H=16` by more than 2 sd of `H=4`'s seeds), and the picked lr at `H=64, 160` moves above 1.0 and lowers their loss. Refuted if `H=4` is within 2 sd of `H=16`, or if no large-`H` pick leaves 1.0.
+- Limits: still 14k parameters, 640 steps, two tuning seeds, inner lr untuned.
+
+### Outcome of 2b (`experiments/numpy_h_sweep/tuned_h_sweep_wide_results.txt`; half-B held-out loss, mean ± sd over 5 seeds)
+- Synchronous AdamW 2.383 ± 0.011. DiLoCo, outer step picked per `H` from the wider grid: `H=1` **2.185 ± 0.017** (lr 3.0, momentum 0.5), `H=4` 2.301 ± 0.017 (3.0, 0), `H=16` 2.274 ± 0.038 (0.7, 0.9), `H=64` 2.410 ± 0.017 (1.0, 0.5), `H=160` 2.481 ± 0.004 (1.0, 0.5). `H=16`, `H=64`, `H=160` are identical to 2a: their picks did not move.
+- **Both pre-registered hypotheses refuted.** (i) `H=4` is now 0.027 above `H=16`, inside 2 sd of `H=4` (0.033), so the "dip at `H=16`" no longer survives: the 2a gap (0.075) came from `H=4` being under-tuned at lr 1.0. (ii) No large-`H` pick left 1.0, so the large-`H` rise in 2a was not an edge artefact.
+- **New problem, not a result about `H`:** the small-`H` picks now sit at the new edge (lr 3.0) and `H=1` is best of all, 0.2 nats below synchronous AdamW. At `H=1` an outer lr of 3 with momentum is just a larger, accelerated step on an under-trained model (640 steps, loss still falling), so the curve is still confounded by the under-training and the untuned inner lr. The comparison across `H` is meaningful only at a budget where synchronous training has converged, or with inner lr tuned jointly.
+- Practical: runs need `OMP_NUM_THREADS=1`; without it four pool workers made no progress in 30 minutes, with it the whole sweep takes about 25 minutes.
+- Next: tune the inner lr jointly (or train to convergence on a longer budget) before any claim about the shape of the curve in `H`; then `B_noise`.
+
 ## 2026-10-24 · Milestone 2a: per-H outer tuning, then the H curve again (planned before running)
 - Why: the first H sweep (below) failed its weak H2 form, and the likely confound is that one outer setting (lr 0.7, Nesterov 0.9) was used for every `H`. Question: after tuning the outer optimiser separately for each `H`, is the loss-versus-`H` curve flat and then rising (H2), or still U-shaped?
 - Design (`experiments/numpy_h_sweep/tuned_h_sweep.py`, same model, data and budget as the first sweep: 14k parameters, `M=4`, 640 inner steps per worker). Held-out text is split in halves: half A is used only to pick the outer setting, half B only to report. Tuning: outer lr in {0.3, 0.7, 1.0} x momentum in {0, 0.5, 0.9} (Nesterov), 2 tuning seeds (100, 101), for `H` in {1, 4, 16, 64, 160}; the pick is the lowest mean half-A loss. Reporting: 5 fresh seeds (0 to 4) on half B, plus synchronous AdamW.
