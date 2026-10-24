@@ -1,0 +1,8 @@
+n=30: min coverage real-EB 100.0, bounded 100.0; bounded tighter on 0/21 pairs; mean gap real-EB 0.363, bounded 0.644; mean gamma 0.369
+   rho>=0.85 (7 pairs): bounded tighter on 0
+n=60: min coverage real-EB 100.0, bounded 100.0; bounded tighter on 0/21 pairs; mean gap real-EB 0.193, bounded 0.425; mean gamma 0.206
+   rho>=0.85 (7 pairs): bounded tighter on 0
+n=120: min coverage real-EB 100.0, bounded 100.0; bounded tighter on 0/21 pairs; mean gap real-EB 0.106, bounded 0.282; mean gamma 0.109
+   rho>=0.85 (7 pairs): bounded tighter on 0
+n=240: min coverage real-EB 100.0, bounded 100.0; bounded tighter on 0/21 pairs; mean gap real-EB 0.060, bounded 0.193; mean gamma 0.056
+   rho>=0.85 (7 pairs): bounded tighter on 0
