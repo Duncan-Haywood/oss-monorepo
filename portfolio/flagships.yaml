@@ -36,7 +36,9 @@ flagships:
     next: >-
       Everything built so far is tested on hand-written fixtures; the next slices
       are about real inputs (landed work is in the README and git history, not
-      here). Open items, most valuable first: (1) the AI layer in fill-only mode
+      here). Open items, most valuable first: (0) built-in keywords measured on
+      the MIT us-bank-transaction-categories set 2026-10-24 (README Next): try a
+      real-merchant set; (1) the AI layer in fill-only mode
       on real bank descriptions, more seeds, a bigger model (synthetic so far: 7B
       rescued 7 of 9 uncovered lines, broke 0; README Next); (2) the bank readers
       (CSV, OFX/QFX/QIF, Excel, BAI2, Norma 43, CFONB120, statement PDFs, regional
