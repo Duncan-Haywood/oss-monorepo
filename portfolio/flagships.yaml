@@ -36,7 +36,7 @@ flagships:
     next: >-
       Everything built so far is tested on hand-written fixtures; the next slices
       are about real inputs (landed work is in the README and git history, not
-      here). Open items, most valuable first: (0) built-in keywords measured on
+      here). Open items, most valuable first: (0) built-in keywords measured on a real makerspace's bank export 2026-10-29 (9.4% to 71.9% suggested, 96% right of those; README Next; one org, tuned on itself) and on
       the MIT us-bank-transaction-categories set and Beancount's example ledger
       2026-10-24 (35.8% to 85.3% suggested, 0 wrong; README Next): still
       synthetic, try a real-merchant set; (1) the AI layer in fill-only mode
