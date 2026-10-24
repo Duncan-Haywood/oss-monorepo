@@ -12,8 +12,10 @@ export const BASE = 'https://duncan-haywood.github.io/oss-monorepo/';
 
 export function addLiveLink(readme, slug) {
   const url = `${BASE}${slug}/`;
-  // Boundary after the slug: a link to `foo-bar` is not a link to `foo`.
-  if (new RegExp(`monorepo-projects/${slug}(?![\\w.-])`).test(readme)) return readme;
+  // Boundary after the slug: a link to `foo-bar` is not a link to `foo`. The
+  // pre-2026-10-23 path (/monorepo-projects/) still counts, so a README that
+  // carries the old link does not get a second one.
+  if (new RegExp(`(?:oss-monorepo|monorepo-projects)/${slug}(?![\\w.-])`).test(readme)) return readme;
   const lines = readme.split('\n');
   let i = 0;
   while (i < lines.length && (lines[i].trim() === '' || lines[i].startsWith('#'))) i++;
