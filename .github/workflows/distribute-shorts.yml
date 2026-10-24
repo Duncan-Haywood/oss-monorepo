@@ -1,0 +1,78 @@
+# Short-form video: renders the hub's TikTok / YouTube Shorts script for each
+# recent tool and post into a finished 1080x1920 MP4 with burned-in captions,
+# an .srt and paste-ready upload text (platform/distribution/shorts.mjs).
+# Videos go to a 14-day workflow artifact, never to the repository; uploading
+# them is the owner's (both platforms lock unaudited API uploads to private).
+# Free tools only (Playwright, ffmpeg, the offline Piper voice), no paid spend,
+# no commits pushed. Spec: portfolio/distribution/README.md, "Short-form video".
+name: distribute-shorts
+on:
+  schedule:
+    - cron: '17 16 * * *'
+  workflow_dispatch:
+    inputs:
+      slugs:
+        description: 'Tools or posts to render, comma-separated (empty: the hub window)'
+        required: false
+        default: ''
+      narrate:
+        description: 'Voice the cards with Piper (offline)'
+        type: boolean
+        default: true
+permissions:
+  contents: read
+jobs:
+  shorts:
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+      # The same pin browser-checks-ci.yml verified; installed outside the checkout.
+      - name: Install Playwright, Chromium and ffmpeg
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/shorts" && cd "$RUNNER_TEMP/shorts"
+          npm init -y >/dev/null
+          npm install --no-audit --no-fund playwright@1.56.0
+          ./node_modules/.bin/playwright install --with-deps chromium || ./node_modules/.bin/playwright install chromium
+          command -v ffmpeg >/dev/null || { sudo apt-get update -q && sudo apt-get install -y -q ffmpeg; }
+      # Optional narration: if any of this fails the videos render silent, captions carry the words.
+      - name: Install the Piper voice
+        id: voice
+        if: github.event_name == 'schedule' || inputs.narrate
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          python3 -m venv "$RUNNER_TEMP/tts"
+          "$RUNNER_TEMP/tts/bin/pip" install -q piper-tts
+          base=https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/ljspeech/high
+          for f in en_US-ljspeech-high.onnx en_US-ljspeech-high.onnx.json; do curl -fsSL -o "$RUNNER_TEMP/$f" "$base/$f"; done
+          echo "args=--piper $RUNNER_TEMP/tts/bin/piper --model $RUNNER_TEMP/en_US-ljspeech-high.onnx" >> "$GITHUB_OUTPUT"
+      - name: Render
+        env:
+          PLAYWRIGHT: ${{ runner.temp }}/shorts/node_modules/playwright
+          SLUGS: ${{ inputs.slugs }}
+          VOICE: ${{ steps.voice.outputs.args }}
+        run: |
+          set -uo pipefail
+          args=(render --out shorts)
+          [ -n "${SLUGS:-}" ] && args+=(--slug "$SLUGS")
+          # shellcheck disable=SC2206
+          [ -n "${VOICE:-}" ] && args+=($VOICE)
+          node platform/distribution/shorts.mjs "${args[@]}"
+          code=$?
+          # Exit 1 means nothing rendered; with an empty window there is nothing to upload either.
+          [ -f shorts/manifest.json ] && cat shorts/manifest.json
+          exit $code
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: distribution-shorts
+          path: shorts/
+          if-no-files-found: ignore
+          retention-days: 14
