@@ -57,3 +57,18 @@ test("--drywall shows in the CLI text output and in the budget", () => {
   assert.match(r.out, /DRYWALL/);
   assert.match(r.out, /Drywall sheets/);
 });
+
+test("tape: a 16 ft wall, 8 ft high, 8 ft sheets: 2 butt joints x 4 ft, one 16 ft flat seam, 16 ft ceiling angle", () => {
+  const l = layoutDrywall({}, plan([{ id: "A", length: 192, sheathed: true }]));
+  // per course: one butt joint of 48 in (2 courses = 96 in), one flat seam of 192 in, one angle of 192 in
+  assert.equal(l.finishing.seamFt, (96 + 192) / 12);
+  assert.equal(l.finishing.cornerFt, 16);
+  assert.equal(l.finishing.tapeFt, 40);
+  assert.equal(l.finishing.tapeRolls, 1);
+  assert.equal(l.finishing.compoundGal, 1.5); // 128 sq ft x 0.01 x 1.1 = 1.408 -> 1.5
+});
+
+test("compound and tape rates are validated", () => {
+  assert.ok(validateDrywall({ compoundGalPerSqFt: 1 }).length);
+  assert.ok(validateDrywall({ tapeRollFt: 10 }).length);
+});

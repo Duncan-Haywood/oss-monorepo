@@ -1,7 +1,7 @@
 ---
 title: "Sales tax quarters that are not calendar quarters"
 date: 2026-10-24
-description: "New York's sales tax quarters end in February, May, August and November; Pennsylvania's half-years in July and January. How ai-bookkeeper now groups by them."
+description: "New York's sales tax quarters end in Feb, May, Aug and Nov; Pennsylvania's half-years in July and January. How the ai-bookkeeper worksheet groups by them."
 tags: [sales-tax, bookkeeping, open-source]
 ---
 
