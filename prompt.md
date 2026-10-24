@@ -67,7 +67,8 @@ python3 prompts/promptctl.py record --track <track> --version <n> --session <ses
 
 Fill in the record it writes under `prompts/runs/`: at least `outcome`, `pr`,
 `errors`, `integrity_issues`, `doc_friction`, `deviations` and `writeups` (the
-agent doc and post you wrote or extended: `goals.md`, "Write about the work"),
+post and agent doc you wrote or extended; most PRs carry a new post, and a run
+without one says why in `deviations`: `goals.md`, "Write about the work"),
 plus anything else you can observe. Then measure what the run cost, from its own transcript:
 `python3 prompts/runcost.py attach <record> --human-hours <h> --human-basis "<how>"`
 (tokens, models, time and API-equivalent dollars; `prompts/README.md`;
