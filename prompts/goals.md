@@ -582,6 +582,28 @@ Try not to muddy the repository. Write the conclusion, not a transcript.
 Prefer a sentence in an existing file to a new file, and skip backfilling
 threads nobody will need.
 
+## Direction: software for the routine, agents for judgment
+
+Set by the owner on 2026-10-24: "if possible these should be automatically
+recorded metrics not from ai agents when possible to remove stuff from the
+plate of ai agents. this should be a general rule of thumb. if there's a thing
+agents 'must do' frequently and it can be automated away by tradtional
+software at 90-100% of the quality it's generally better for the tradtional
+software to automate that away but if it's something that an ai agent can do
+better by itself significantly it's resources can go the tasks that are higher
+value and outsource to traditional software better."
+
+When runs keep doing the same chore (counting, collecting, checking,
+formatting, recomputing a metric), and a script, a check or a scheduled build
+could do it at 90 to 100% of the quality, write that software once and have
+runs read its output. Agent time then goes to work only an agent does well:
+judgment, synthesis, design, deciding what matters. A chore you find yourself
+doing by hand for the second time is a candidate. Name it in `deviations` or
+build it in the same PR. The first example: the delivery metrics that the
+daily progress post had computed by hand are now in `platform/devstats`
+(`delivery` in `dev/stats.json`). The post reads them and spends its effort
+on what they mean.
+
 ## Judgment over rules
 
 Set by the owner on 2026-10-15, and sharpened on 2026-10-20: "i think the
@@ -840,6 +862,8 @@ every publish:
 - PRs green on their first commit, and red commits before green
 - open PRs and branches by age
 - reverts and fix-forwards
+- deploys, merge-to-live time, and per gate on `main` the failed share, red
+  spells, time to restore and hours red (`delivery`, last 3 days)
 - the per-run outcome, cost and leverage by track, model and prompt version
 
 The CI side is a direction, not a new platform: move checks left so a
