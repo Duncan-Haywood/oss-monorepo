@@ -22,6 +22,7 @@
 
 import { promises as fs, existsSync, readFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
+import { loadLastChanged } from './lastmod.mjs';
 import crypto from 'node:crypto';
 import os from 'node:os';
 import path from 'node:path';
@@ -31,6 +32,7 @@ import zlib from 'node:zlib';
 import { decodeEntities } from './entities.mjs';
 import { REFS as CHANNEL_REFS, SOURCE_HOSTS, SOURCE_LABELS, sourceOf } from '../counter/counter.mjs';
 import { buildEngineeringPage, ENGINEERING_PATH, REPO_URL } from './engineering.mjs';
+import { moveAudioToCdn } from './audio-cdn.mjs';
 import { AGENT_POSTS_DIR, AGENTS_PATH, buildWriting, loadPosts, WRITING_PATH } from './writing.mjs';
 import { buildStories, STORIES_PATH } from './stories.mjs';
 import { buildLab } from './lab.mjs';
@@ -44,7 +46,7 @@ import {
   orderForFeed,
 } from './launched.mjs';
 
-import { addShareCards, cardTitle, renderCards, siteAddress } from './share.mjs';
+import { addShareCards, cardTitle, mapLimit, renderCards, siteAddress } from './share.mjs';
 import {
   MARK_FROM,
   MARK_GEOMETRY,
@@ -10056,9 +10058,14 @@ export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_U
   const narrowed = [];
   const embedded = [];
 
-  for (const surface of surfaces) {
+  // Sixteen tools at a time: each tool's pages are independent of every other
+  // tool's, and one at a time the pass mostly waited on the disk. Results are
+  // gathered per tool and joined in catalogue order, so the output is the same.
+  const perSurface = await mapLimit(surfaces, 16, async (surface) => {
+    const found = { wrapped: [], rated: [], saved: [], shared: [], described: [], highlighted: [], narrowed: [], embedded: [] };
+    const { wrapped, rated, saved, shared, described, highlighted, narrowed, embedded } = found;
     const dir = path.join(outDir, surface.slug);
-    if (!(await exists(dir))) continue;
+    if (!(await exists(dir))) return found;
     const related = relatedTools(surfaces, surface.slug);
     // Read once per venture; several pages in a directory load the same script.
     const scriptCache = new Map();
@@ -10151,6 +10158,17 @@ export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_U
       await fs.writeFile(file, reflowed);
       wrapped.push(relative);
     }
+    return found;
+  });
+  for (const found of perSurface) {
+    wrapped.push(...found.wrapped);
+    rated.push(...found.rated);
+    saved.push(...found.saved);
+    shared.push(...found.shared);
+    described.push(...found.described);
+    highlighted.push(...found.highlighted);
+    narrowed.push(...found.narrowed);
+    embedded.push(...found.embedded);
   }
 
   return { wrapped, rated, saved, shared, described, highlighted, narrowed, embedded };
@@ -10355,11 +10373,13 @@ export function pageUrlPath(slug, relativePath) {
  * Generating from the output makes both impossible by construction: a page is
  * listed because it shipped, at the URL it actually shipped to.
  */
-export function renderVentureSitemap(slug, relativePages, baseUrl) {
+export function renderVentureSitemap(slug, relativePages, baseUrl, lastmods = {}) {
+  // `lastmods` maps a published page to the date its source last changed
+  // (`lastmod.mjs`). A page with no known date gets no `<lastmod>` at all.
   const urls = relativePages
-    .map((relative) => `${baseUrl}${pageUrlPath(slug, relative)}`)
-    .sort()
-    .map((url) => `  <url><loc>${url}</loc></url>`);
+    .map((relative) => [`${baseUrl}${pageUrlPath(slug, relative)}`, lastmods[relative]])
+    .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
+    .map(([url, date]) => `  <url><loc>${url}</loc>${date ? `<lastmod>${date}</lastmod>` : ''}</url>`);
 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -10755,10 +10775,13 @@ export async function addOfflineSupport({
 
   const hash = crypto.createHash('sha256');
   hash.update(codeVersion ?? (await fs.readFile(path.join(HERE, 'offline.mjs'))));
-  for (const file of (await listFiles(outDir)).sort()) {
-    hash.update(path.relative(outDir, file));
-    hash.update(await fs.readFile(file));
-  }
+  // Each file hashed on its own, many at once, then the digests in path order:
+  // the same guarantee (any byte or name changes the cache) without reading
+  // the site one file at a time.
+  const files = (await listFiles(outDir)).sort();
+  const digests = await mapLimit(files, 32, async (file) =>
+    crypto.createHash('sha256').update(await fs.readFile(file)).digest());
+  files.forEach((file, i) => hash.update(path.relative(outDir, file)).update(digests[i]));
   const cacheName = `portfolio-${hash.digest('hex').slice(0, 12)}`;
 
   await fs.writeFile(path.join(outDir, 'offline.html'), renderOfflinePage(base));
@@ -10787,15 +10810,14 @@ export async function addOfflineSupport({
       }),
   );
 
-  let injected = 0;
-  for (const file of await listFiles(outDir)) {
-    if (!file.endsWith('.html')) continue;
+  const pages = (await listFiles(outDir)).filter((file) => file.endsWith('.html'));
+  const injected = (await mapLimit(pages, 32, async (file) => {
     const depth = path.relative(outDir, file).split(path.sep).length - 1;
     const result = injectOfflineSupport(await fs.readFile(file, 'utf8'), '../'.repeat(depth));
-    if (!result.injected) continue;
+    if (!result.injected) return 0;
     await fs.writeFile(file, result.html);
-    injected += 1;
-  }
+    return 1;
+  })).reduce((a, b) => a + b, 0);
 
   // The real weight of what "Save this category for offline" fetches, over
   // the wire rather than on disk -- GitHub Pages (Fastly) and the front
@@ -10857,19 +10879,22 @@ export async function buildSite({
   counterUrl = '',
   // platform/edge's origin; '' (the default) builds the feedback page without its form.
   feedbackUrl = '',
+  // Link committed MP3s from jsDelivr instead of shipping them (audio-cdn.mjs).
+  // The deploy turns it on with --audio-cdn; local and test builds keep the files.
+  audioCdn = false,
 } = {}) {
   const base = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
   SITE_COUNTER_URL = normaliseCounterUrl(counterUrl);
   SITE_FEEDBACK_URL = normaliseCounterUrl(feedbackUrl);
   try {
-    return await buildSiteInner({ venturesDir, outDir, base, log, disableWorker });
+    return await buildSiteInner({ venturesDir, outDir, base, log, disableWorker, audioCdn });
   } finally {
     SITE_COUNTER_URL = '';
     SITE_FEEDBACK_URL = '';
   }
 }
 
-async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker }) {
+async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, audioCdn }) {
 
   await fs.rm(outDir, { recursive: true, force: true });
   await fs.mkdir(outDir, { recursive: true });
@@ -10950,6 +10975,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
   // and that order is load-bearing: a repair can rewrite a `<script src>` or a
   // stylesheet `<link href>` to a github.com URL, which is a genuine external
   // request the privacy copy has to report.
+  const sourceDates = await loadLastChanged(REPO_ROOT);
   for (const surface of discovered) {
     const html = await fs.readFile(surface.entryFile, 'utf8');
     const { title, description, fullDescription } = readMeta(html, surface.slug);
@@ -10969,7 +10995,17 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
     const pages = await publishedPages(destination);
     await fs.writeFile(
       path.join(destination, 'sitemap.xml'),
-      renderVentureSitemap(surface.slug, pages, base),
+      renderVentureSitemap(
+        surface.slug,
+        pages,
+        base,
+        Object.fromEntries(
+          pages.flatMap((page) => {
+            const date = sourceDates.get(path.relative(REPO_ROOT, path.join(surface.sourceDir, page)).split(path.sep).join('/'));
+            return date ? [[page, date]] : [];
+          }),
+        ),
+      ),
     );
 
     surfaces.push({
@@ -11318,6 +11354,12 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
   // them. Before the offline layer, which hashes the finished HTML.
   const shareCards = await addShareCards({ outDir, baseUrl: base, siteName: SITE_NAME, siteCard: SOCIAL_CARD_FILE });
 
+  // Before the offline layer, which hashes the finished site: this rewrites
+  // pages and feeds and removes the files it moved.
+  const audio = audioCdn
+    ? await moveAudioToCdn({ outDir, base, repoRoot: REPO_ROOT, log })
+    : { moved: 0, kept: 0, bytes: 0 };
+
   // After the chrome pass, not before: the offline layer hashes the finished
   // site to name its cache, and injects into pages the chrome has already
   // rewritten. Reversed, every deploy would cache a page missing its nav.
@@ -11325,7 +11367,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
 
   return {
     outDir, baseUrl: base, surfaces, repairs, wrapped, rated, saved, shared, described,
-    highlighted, narrowed, embedded, sponsored, offline, comparisons, shareCards,
+    highlighted, narrowed, embedded, sponsored, offline, comparisons, shareCards, audio,
   };
 }
 
@@ -11427,6 +11469,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
     feedbackUrl: process.argv.find((a) => a.startsWith('--feedback-url='))?.slice('--feedback-url='.length)
       ?? process.env.PAGES_FEEDBACK_URL
       ?? JSON.parse(await fs.readFile(path.join(REPO_ROOT, 'platform', 'edge', 'site.json'), 'utf8')).url,
+    audioCdn: process.argv.includes('--audio-cdn'),
     log: console.log,
   });
 

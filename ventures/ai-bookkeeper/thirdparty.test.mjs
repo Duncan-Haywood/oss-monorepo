@@ -275,3 +275,29 @@ test("Pipe-delimited export reads like the comma one", () => {
   const r = readStatement("Date|Description|Amount\n2026-03-02|CAFE, LUNA|-12.50\n2026-03-03|PAYROLL|1800.00\n");
   assert.deepEqual(r.rows.map((x) => [x.date, x.cents, x.desc]), [["2026-03-02", -1250, "CAFE, LUNA"], ["2026-03-03", 180000, "PAYROLL"]]);
 });
+
+// Layout seen in ledger-autosync's Venmo fixture (GPL-3.0, read only; every
+// value below is made up): the header's first column is "Username", row 2
+// holds only the account's own name, and the file ends with undated balance
+// rows and a long legal notice. Not seen as Venmo, the notice was glued onto
+// the last transaction's description.
+test("Venmo export with a Username column: footer rows are not part of the last description", () => {
+  const r = readStatement([
+    "Username,ID,Datetime,Type,Status,Note,From,To,Amount (total),Amount (fee),Funding Source,Destination,Beginning Balance,Ending Balance,Statement Period Venmo Fees,Year to Date Venmo Fees,Disclaimer",
+    'someone,,,,,,,,,,,,"$0",,,,',
+    ",1,2020-01-01T13:00:00,Payment,Complete,lunch,Pat,Sam,+ $50.03,,,Venmo balance,,,,,",
+    ",2,2020-01-03T20:00:00,Payment,Complete,rent,Sam,Lee,- $12.01,,Venmo balance,,,,,,",
+    ',,,,,,,,,,,,,"$38.02",,,',
+    ',,,,,,,,,,,,,,,,"In case of errors or questions,\n  call us."',
+  ].join("\n"));
+  assert.equal(r.bank, "venmo");
+  assert.deepEqual(r.rows.map((x) => [x.date, x.cents, x.desc]), [["2020-01-01", 5003, "Pat - lunch"], ["2020-01-03", -1201, "Lee - rent"]]);
+  assert.deepEqual(r.problems, []);
+});
+
+test("an OFX date that is no calendar day is skipped, not booked (ofxparse's date_missing.ofx has 20120231)", () => {
+  const r = readOfx(wrap(`<STMTTRN><TRNTYPE>OTHER<DTPOSTED>20120231<TRNAMT>200.00<FITID>1<NAME>TestFail2</STMTTRN>
+    <STMTTRN><TRNTYPE>OTHER<DTPOSTED>20120229<TRNAMT>5.00<FITID>2<NAME>Leap day</STMTTRN>`));
+  assert.deepEqual(r.rows.map((x) => x.date), ["2012-02-29"]);
+  assert.equal(r.problems.length, 1);
+});

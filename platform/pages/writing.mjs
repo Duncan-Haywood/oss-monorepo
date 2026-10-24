@@ -120,45 +120,31 @@ export function parseFrontMatter(src) {
   return { meta, body: text.slice(m[0].length) };
 }
 
-/** Every post in `docs/posts/` (or `dirName`), newest first. Throws on a malformed post so a bad file fails the build. */
-export function loadPosts(root = DEFAULT_ROOT, dirName = POSTS_DIR) {
+/**
+ * Every post in `docs/posts/` (or `dirName`), newest first. Throws on a
+ * malformed post so a bad file fails the build.
+ *
+ * `skipBad` (default: `PAGES_SKIP_BAD_POSTS=1`, which the deploy on `main`
+ * sets) leaves a malformed post out with a warning instead. One over-long
+ * description used to stop every deploy until someone fixed it: on
+ * 2026-10-24, 64 of 100 runs on `main` failed this way and the median merge
+ * took 48 minutes to go live (169 at worst). Pull requests stay strict, and
+ * the `test` job still fails on `main`, so the bad post is still flagged.
+ */
+export function loadPosts(root = DEFAULT_ROOT, dirName = POSTS_DIR, { skipBad = process.env.PAGES_SKIP_BAD_POSTS === '1' } = {}) {
   const POSTS_DIR = dirName; // shadows the module constant so every message names the directory read
   const dir = path.join(root, POSTS_DIR);
   if (!existsSync(dir)) return [];
   const posts = [];
   for (const name of readdirSync(dir).sort()) {
     if (!name.endsWith('.md')) continue;
-    const fm = FILE_RE.exec(name);
-    if (!fm) throw new Error(`${POSTS_DIR}/${name}: name must be <YYYY-MM-DD>-<slug>.md`);
-    const src = readFileSync(path.join(dir, name), 'utf8');
-    const { meta, body } = parseFrontMatter(src);
-    for (const key of ['title', 'description']) {
-      if (!meta[key]) throw new Error(`${POSTS_DIR}/${name}: front matter needs "${key}"`);
+    try {
+      posts.push(loadPost(root, POSTS_DIR, name));
+    } catch (err) {
+      if (!skipBad) throw err;
+      // A GitHub Actions annotation, so the skip shows on the run summary.
+      console.warn(`::warning file=${POSTS_DIR}/${name}::left off the site: ${err.message}`);
     }
-    // The site's checker holds every description to what a search result shows.
-    if (meta.description.length > 160) {
-      throw new Error(`${POSTS_DIR}/${name}: description is ${meta.description.length} characters; keep it to 160`);
-    }
-    const date = String(meta.date || fm[1]);
-    if (date !== fm[1]) throw new Error(`${POSTS_DIR}/${name}: date ${date} does not match the file name`);
-    if (RESERVED_SLUGS.has(fm[2])) throw new Error(`${POSTS_DIR}/${name}: the slug "${fm[2]}" is a section of the blog; pick another`);
-    if (meta.topic && !TOPIC_IDS.has(meta.topic)) {
-      throw new Error(`${POSTS_DIR}/${name}: topic "${meta.topic}" is not one of ${[...TOPIC_IDS].join(', ')}`);
-    }
-    const tags = Array.isArray(meta.tags) ? meta.tags : [];
-    const words = body.split(/\s+/).filter(Boolean).length;
-    posts.push({
-      slug: fm[2],
-      date,
-      title: meta.title,
-      description: meta.description,
-      tags,
-      topic: topicOf(tags, meta.topic),
-      source: `${POSTS_DIR}/${name}`,
-      body,
-      words,
-      minutes: Math.max(1, Math.round(words / 230)),
-    });
   }
   // Seen twice means two files would write the same URL.
   const seen = new Set();
@@ -167,6 +153,42 @@ export function loadPosts(root = DEFAULT_ROOT, dirName = POSTS_DIR) {
     seen.add(p.slug);
   }
   return posts.sort((a, b) => (a.date === b.date ? a.slug.localeCompare(b.slug) : b.date.localeCompare(a.date)));
+}
+
+/** One post, validated. Throws on a malformed one. */
+function loadPost(root, POSTS_DIR, name) {
+  const dir = path.join(root, POSTS_DIR);
+  const fm = FILE_RE.exec(name);
+  if (!fm) throw new Error(`${POSTS_DIR}/${name}: name must be <YYYY-MM-DD>-<slug>.md`);
+  const src = readFileSync(path.join(dir, name), 'utf8');
+  const { meta, body } = parseFrontMatter(src);
+  for (const key of ['title', 'description']) {
+    if (!meta[key]) throw new Error(`${POSTS_DIR}/${name}: front matter needs "${key}"`);
+  }
+  // The site's checker holds every description to what a search result shows.
+  if (meta.description.length > 160) {
+    throw new Error(`${POSTS_DIR}/${name}: description is ${meta.description.length} characters; keep it to 160`);
+  }
+  const date = String(meta.date || fm[1]);
+  if (date !== fm[1]) throw new Error(`${POSTS_DIR}/${name}: date ${date} does not match the file name`);
+  if (RESERVED_SLUGS.has(fm[2])) throw new Error(`${POSTS_DIR}/${name}: the slug "${fm[2]}" is a section of the blog; pick another`);
+  if (meta.topic && !TOPIC_IDS.has(meta.topic)) {
+    throw new Error(`${POSTS_DIR}/${name}: topic "${meta.topic}" is not one of ${[...TOPIC_IDS].join(', ')}`);
+  }
+  const tags = Array.isArray(meta.tags) ? meta.tags : [];
+  const words = body.split(/\s+/).filter(Boolean).length;
+  return {
+    slug: fm[2],
+    date,
+    title: meta.title,
+    description: meta.description,
+    tags,
+    topic: topicOf(tags, meta.topic),
+    source: `${POSTS_DIR}/${name}`,
+    body,
+    words,
+    minutes: Math.max(1, Math.round(words / 230)),
+  };
 }
 
 const longDate = (iso) =>

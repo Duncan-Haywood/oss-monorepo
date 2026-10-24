@@ -36,31 +36,32 @@ const amountBucket = (cents) => `amt:${Math.min(12, Math.floor(Math.log2(Math.ab
 export const BUILT_IN = [
   ["4000", "in", /stripe (transfer|payout)|shopify payout|square (payout|transfer)|paypal transfer|etsy (deposit|payout)/],
   ["3100", "out", /owner draw|transfer to personal|to personal|atm withdrawal|cash withdrawal/],
+  ["6010", "out", /annual fee|late (payment )?fee|foreign transaction fee|cash advance fee|returned item fee|\batm fee|wire transfer fee|balance transfer fee/],
   ["transfer", "any", /\btransfer\b|\bxfer\b|to savings|from savings|to checking|from checking|online banking transfer/],
-  ["transfer", "any", /payment thank you|autopay|card ?payment|credit card payment|amex epayment|epayment|capital one.*(pmt|payment)|chase card/],
+  ["transfer", "any", /payment thank you|^autopay|autopay payment|card ?payment|credit card payment|amex epayment|epayment|capital one.*(pmt|payment)|chase card/],
   ["3100", "out", /personal|venmo cashout/],
   ["3010", "in", /owner contribution|capital contribution|owner deposit/],
   ["6010", "out", /stripe fee|paypal fee|square fee|merchant fee|processing fee|service charge|monthly fee|monthly service fee|maintenance fee|wire fee|overdraft|nsf fee|bank fee|account fee/],
-  ["4200", "in", /interest paid|interest earned|interest credit|\binterest\b.*(savings|deposit)/],
+  ["4200", "in", /^interest payment|interest paid|interest earned|interest credit|\binterest\b.*(savings|deposit)/],
   ["2100", "out", /sales tax|dept\.? (of )?(tax|revenue|taxation)|department of revenue|comptroller/],
   ["2200", "out", /\bsba loan|loan (pmt|payment)/],
   ["6040", "out", /interest charge|finance charge|purchase interest|loan interest/],
-  ["4000", "in", /stripe|square inc|sq dep|shopify|etsy|gumroad|invoice|client payment|deposit from customer/],
+  ["4000", "in", /remote online deposit|mobile deposit|zelle payment from|stripe|square inc|sq dep|shopify|etsy|gumroad|invoice|client payment|deposit from customer/],
   ["6000", "out", /google ads|facebook|meta ads|fb ads|linkedin ads|tiktok ads|yelp|mailchimp|constant contact|vistaprint/],
   ["6020", "out", /upwork|fiverr|toptal|gusto contractor|contractor pay|subcontract/],
-  ["6030", "out", /insurance|hiscox|next insurance|thimble|state farm|geico|liberty mutual|progressive/],
+  ["6030", "out", /insurance|\bins (billing|premium)|hartford|cigna|anthem|lemonade|prudential|blue cross|united healthcare|hiscox|next insurance|thimble|state farm|geico|liberty mutual|progressive/],
   ["6050", "out", /attorney|law office|cpa\b|accountant|bookkeep|tax prep|legalzoom|registered agent/],
-  ["6060", "out", /adobe|microsoft|google ?(workspace|gsuite)|gsuite|dropbox|notion|slack|zoom\.us|zoom video|figma|github|atlassian|jetbrains|1password|openai|anthropic|chatgpt|zapier|airtable|squarespace|wix|godaddy|namecheap|cloudflare|aws|amazon web services|digitalocean|heroku|vercel|netlify|quickbooks|xero|intuit|canva|shopify plan/],
+  ["6060", "out", /adobe|microsoft|google ?(workspace|gsuite)|gsuite|dropbox|notion|slack|zoom\.us|zoom video|figma|github|atlassian|jetbrains|1password|openai|anthropic|chatgpt|zapier|airtable|squarespace|wix|godaddy|namecheap|cloudflare|aws|amazon web services|digitalocean|heroku|vercel|netlify|quickbooks|xero|intuit|canva|shopify plan|apple\.com\/bill|google cloud|bitbucket|gitlab|fastly|evernote|cursor|miro|lastpass|microsoft|azure|twilio|datadog|sentry/],
   ["6070", "out", /staples|office depot|officemax|usps|stamps\.com|post office/],
-  ["6080", "out", /wework|regus|coworking|office rent|storage unit|public storage/],
+  ["6080", "out", /wework|regus|coworking|office rent|monthly rent|rent payment|paying the rent|storage unit|public storage/],
   ["6100", "out", /home depot|lowes|ace hardware|menards|harbor freight|uline|grainger/],
   ["6110", "out", /business licen[cs]e|secretary of state|annual report|franchise tax|permit fee/],
-  ["6120", "out", /airline|delta air|united air|american air|southwest|jetblue|marriott|hilton|hyatt|expedia|booking\.com|amtrak|hertz|avis|enterprise rent|uber trip|lyft/],
-  ["6130", "out", /restaurant|cafe|coffee|starbucks|doordash|uber eats|grubhub|chipotle|panera|mcdonalds|pizza|bistro|diner|taqueria|sushi/],
-  ["6140", "out", /verizon|at&t|t-mobile|tmobile|comcast|xfinity|spectrum|cox comm|google fi|mint mobile|electric|pg&e|con ed|water bill|utility/],
+  ["6120", "out", /airline|\btram\b|subway fare|metro transit|transit authority|delta air|united air|american air|southwest|jetblue|marriott|hilton|hyatt|expedia|booking\.com|amtrak|hertz|\bavis\b|enterprise rent|uber trip|lyft|radisson|wyndham|best western|airbnb|priceline|hotwire|car rental|rent a car|\bturo\b|budget rent/],
+  ["6130", "out", /restaurant|eating out|cafe|coffee|starbucks|doordash|uber eats|grubhub|chipotle|panera|mcdonald|pizza|bistro|diner|taqueria|sushi|ihop|applebee|jack in the box|\bsonic\b|tim hortons|wingstop|tgi friday|panda express|dunkin|wendy|burger king|\bkfc\b|taco bell|popeyes|domino|chick-fil-a|\bramen\b|dim sum|bakery|\bgrill\b|steakhouse|noodle|\bbbq\b|\bdeli\b|kebab|burrito|wings/],
+  ["6140", "out", /verizon|at&t|t-mobile|tmobile|comcast|xfinity|spectrum|cox comm|google fi|mint mobile|electric|pg&e|con ?ed|water bill|utility|\bwater\b|\bpower\b|\benergy\b|ebill|edison|dominion|entergy|eversource|cricket|visible|optimum|us mobile|\bting\b/],
   ["6150", "out", /net pay|payroll(?! tax)|wages/],
-  ["6160", "out", /shell oil|chevron|exxon|mobil\b|\bbp\b|gas station|fuel|jiffy lube|car wash|autozone|parking|toll/],
-  ["6170", "out", /udemy|coursera|conference|membership dues|association dues|chamber of commerce/],
+  ["6160", "out", /shell oil|chevron|exxon|mobil\b|\bbp\b|sunoco|valero|\barco\b|phillips 66|quiktrip|speedway|casey's|firestone|safelite|gas station|fuel|jiffy lube|car wash|autozone|parking|toll/],
+  ["6170", "out", /udemy|coursera|chegg|datacamp|skillshare|linkedin learning|masterclass|pearson|mcgraw|tuition|conference|membership dues|association dues|chamber of commerce/],
   ["6180", "out", /fedex|\bups\b|dhl|pirate ship|shipstation|shippo/],
 ];
 
@@ -164,10 +165,13 @@ export function suggest(txn, model) {
     return { account: ranked[0].account, confidence: Math.min(ranked[0].p, 0.85), source: "learned", reason: `similar to lines you filed here (${Math.round(ranked[0].p * 100)}%)`, alternatives: ranked.slice(1, 3) };
   }
 
+  // Processor and bank wrappers hide the merchant behind words the keyword
+  // rules read as something else: "PAYPAL INST XFER NETFLIX" is not a transfer.
+  const bi = text.replace(/paypal\s+inst\s+xfer\s*/, "paypal ").replace(/(withdrawal from|subscription payment:|preapproved payment bill user payment:|buyer payment:)\s*/, "");
   for (const [account, rd, re] of off.has("built-in") ? [] : BUILT_IN) {
     if (rd !== "any" && rd !== d) continue;
     if (account !== "transfer" && model.codes && !model.codes.has(account)) continue;
-    if (re.test(text)) return { account, confidence: account === "transfer" ? 0.6 : 0.7, source: "built-in", reason: `built-in keyword "${(text.match(re) ?? [""])[0].trim()}"`, alternatives: ranked.slice(0, 2) };
+    if (re.test(bi)) return { account, confidence: account === "transfer" ? 0.6 : 0.7, source: "built-in", reason: `built-in keyword "${(bi.match(re) ?? [""])[0].trim()}"`, alternatives: ranked.slice(0, 2) };
   }
   return { account: null, confidence: 0, source: "none", reason: key ? `nothing known about "${key}" yet` : "the description is empty", alternatives: ranked.slice(0, 3) };
 }

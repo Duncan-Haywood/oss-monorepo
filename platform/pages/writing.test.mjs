@@ -42,6 +42,21 @@ test('a malformed post fails the build instead of shipping', () => {
   assert.throws(() => loadPosts(repoWith({ '2026-10-01-x.md': long })), /keep it to 160/);
 });
 
+test('the deploy leaves a malformed post out rather than the whole site', () => {
+  const long = post('X', '2026-10-01').replace('About X.', 'x'.repeat(161));
+  const root = repoWith({ '2026-10-01-x.md': long, '2026-10-02-good.md': post('Good', '2026-10-02') });
+  const warn = console.warn;
+  const warned = [];
+  console.warn = (msg) => warned.push(msg);
+  try {
+    assert.deepEqual(loadPosts(root, undefined, { skipBad: true }).map((p) => p.slug), ['good']);
+  } finally {
+    console.warn = warn;
+  }
+  assert.match(warned.join('\n'), /::warning file=docs\/posts\/2026-10-01-x\.md::.*keep it to 160/);
+  assert.throws(() => loadPosts(root, undefined, { skipBad: false }), /keep it to 160/);
+});
+
 test('no posts directory means no posts, not an error', () => {
   assert.deepEqual(loadPosts(mkdtempSync(path.join(os.tmpdir(), 'writing-empty-'))), []);
 });

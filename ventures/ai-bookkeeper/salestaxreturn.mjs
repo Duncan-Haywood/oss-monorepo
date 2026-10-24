@@ -89,6 +89,8 @@ export function stateDueDay(state, frequency = "quarterly") {
   if (s === "MA" && frequency !== "monthly") return { after: 30 };
   // NC: monthly the 20th, quarterly the last day of Jan/Apr/Jul/Oct (ncdor.gov "Filing Frequency and Due Dates", read 2026-10-24)
   if (s === "NC" && frequency !== "monthly") return "last";
+  // RI: monthly the 20th, quarterly the last day of Apr/Jul/Oct/Jan (tax.ri.gov sales tax calendars, 2022 and 2024 PDFs via search excerpts 2026-10-24; weekend dates move to the next business day)
+  if (s === "RI" && frequency !== "monthly") return "last";
   // MN: annual filers (under $100 a month) pay and file by February 5 (revenue.state.mn.us "Sales Tax Return Filing Due Dates", via search 2026-10-24)
   if (s === "MN" && frequency === "annual") return { months: 2, day: 5 };
   return STATE_DUE_DAYS[s] ?? 20;
