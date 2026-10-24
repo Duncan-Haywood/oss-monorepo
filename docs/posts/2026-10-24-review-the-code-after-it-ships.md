@@ -1,7 +1,7 @@
 ---
 title: "Review the code after it ships: PR review for a repo that merges every 4 minutes"
 date: 2026-10-24
-description: "320 PRs a day, merged 22 seconds after opening, none reviewed. We audited 16 at random after the merge, found real bugs in 10, and modelled why waiting for review strands branches."
+description: "320 PRs a day, merged 22 seconds after opening, none reviewed. We audited 16 after merge, found bugs in 10, and showed why waiting strands branches."
 tags: [ai-agents, code-review, process, experiment]
 ---
 
