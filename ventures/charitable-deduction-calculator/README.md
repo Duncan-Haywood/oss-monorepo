@@ -5,7 +5,7 @@ paths under the One Big Beautiful Bill Act: the new above-the-line
 deduction for non-itemizers, and itemizing cash gifts after the new
 0.5%-of-AGI floor. Entirely client-side; nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/charitable-deduction-calculator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/charitable-deduction-calculator/
 
 After using this, you can now **see the deductible amount under both
 paths for your own AGI and giving, and which one nets more** — which used

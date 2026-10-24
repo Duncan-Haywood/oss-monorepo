@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { placeBreaks, laborPercent, budgetCheck, dailyLabor, salesPerLaborHour, fairnessReport, hoursThresholds, tipPool, trimOptions, scheduleFlags, unsupervisedStretches, loneStretches, shortShifts,
   parseTime, parseDaySpec, parseAvailability, parseStaff, parseShifts, buildRoster, coverOptions, absencePlan, swapOptions, checkTrade, rosterCsv, hoursCsv, rosterIcs, rosterMessages, openShiftPost,
-  sampleStaff, openFloorByPricing, optimalityText, sampleShifts, fmtClock, money, money2, _internals,
+  sampleStaff, openFloorByPricing, branchedScoreBound, optimalityText, sampleShifts, fmtClock, money, money2, _internals,
 } from "./calc.mjs";
 
 const staffOf = (t) => { const r = parseStaff(t); assert.deepEqual(r.errors, []); return r.staff; };
@@ -1525,6 +1525,27 @@ test("the whole-score shift-pricing bound never exceeds the brute-force optimum,
     checked++; gapShare += (brute - f.scoreBound) / Math.max(brute, 1);
   }
   assert.ok(checked > 10 && gapShare / checked < 0.5, `mean relative gap ${gapShare / checked}`);
+});
+
+test("branching on contested shifts raises the priced bound without ever passing the brute-force optimum", () => {
+  let seed = 31;
+  const rnd = (n) => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return (seed >> 8) % n; };
+  const days = ["Mon", "Tue", "Wed"];
+  const opts = { balance: 60, burdenPct: 10 };
+  let checked = 0, raised = 0;
+  for (let c = 0; c < 40; c++) {
+    const stf = staffOf(Array.from({ length: 2 + rnd(2) }, (_, p) => `P${p},${10 + rnd(10)},${8 + rnd(3) * 4},0,${days[rnd(3)]}-Wed ${6 + rnd(3)}-${18 + rnd(5)}`).join("\n"));
+    const sl = slotsOf(Array.from({ length: 5 + rnd(3) }, () => { const a = 6 + rnd(8); return `${days[rnd(3)]},${a},${a + 3 + rnd(6)},${1 + rnd(2)}`; }).join("\n"));
+    if (sl.length > 9) continue;
+    const brute = bruteForceBest(stf, sl, opts);
+    const b = branchedScoreBound(stf, sl, opts, { incumbentScore: brute + 1, maxNodes: 30 });
+    if (!b) continue;
+    assert.ok(b.bound <= brute + 1e-6, `case ${c}: branched bound ${b.bound} above true ${brute}`);
+    assert.ok(b.bound >= b.root - 1e-6, `case ${c}: branching lowered the bound`);
+    checked++; if (b.bound > b.root + 1e-6) raised++;
+  }
+  assert.ok(checked > 10);
+  assert.ok(raised > 0, "branching never helped on any tight week");
 });
 
 test("reduced-cost fixing keeps the proven optimum and never costs nodes", () => {

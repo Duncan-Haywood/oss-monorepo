@@ -2,7 +2,7 @@
 
 **A regression on an LLM's codes gives a confidently wrong coefficient; a design-based correction with about 210 hand-coded items fixes it, but it narrows the interval by only about 14% for the coded variable.** In a seeded simulation, an LLM coder with sensitivity 0.70 and specificity 0.95 turns a true coefficient of 1.00 into **0.74**, and its interval covers the truth in **0 of 300 studies**. DSL (design-based supervised learning, Egami et al. 2023) with hand-coded items drawn at a known 7% rate recovers 1.01 with 94% coverage. When the coder's error depends on another covariate, the naive coefficient on *that* covariate is biased too (0.467 against 0.50, coverage 60%) although the covariate was measured perfectly; DSL removes it. For a 3-class code, naive class shares are off by up to 8 points with 0% coverage, and per-class PPI covers 95.5–97%. Produced with AI assistance (Claude). **Every result is from simulated coders with known error, not a real LLM or corpus.**
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/qual-regression/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/qual-regression/
 
 Track 19 (`qual`, [`PROJECTS.md`](../PROJECTS.md)), milestone 7. Extends [`qual-correction`](../qual-correction), which corrected a code's mean and a two-group gap.
 

@@ -11,7 +11,7 @@ for (let c = 0; c < cases; c++) {
   const st = Array.from({ length: P }, (_, p) => `P${p},${10 + rnd(12)},${12 + rnd(5) * 6},0,${days[rnd(3)]}-Fri ${6 + rnd(4)}-${16 + rnd(8)}`).join("\n");
   const sh = Array.from({ length: S }, () => { const a = 6 + rnd(9); return `${days[rnd(5)]},${a},${a + 4 + rnd(6)},${1 + rnd(2)}`; }).join("\n");
   const t = Date.now();
-  const r = buildRoster(parseStaff(st).staff, parseShifts(sh).slots, { exact: true, flowBalance: true, balance: 60, exactNodes: nodes, exactMs: 20000, restarts: 2, iterations: 2000, scoreDual: dual !== 0, reducedCostFixing: process.env.NOFIX ? false : true });
+  const r = buildRoster(parseStaff(st).staff, parseShifts(sh).slots, { exact: true, flowBalance: true, balance: 60, exactNodes: nodes, exactMs: 20000, restarts: 2, iterations: 2000, scoreDual: dual !== 0, dualBranchNodes: Number(process.env.DBN || 40), dualBranchMs: Number(process.env.DBMS || 8000), reducedCostFixing: process.env.NOFIX ? false : true });
   const o = r.optimality, dt = Date.now() - t; ms += dt;
   if (o.status !== "bounded") proven++;
   console.log(`case ${c}: ${o.status}, score ${r.score.toFixed(2)}, bound ${o.lowerBound.toFixed(2)}, gap ${o.gap.toFixed(2)}, ${o.nodes} nodes, ${dt} ms`);

@@ -5,7 +5,7 @@ shifts you need covered and your staff with availability, weekly hour limits and
 many shifts as possible, avoids overtime, respects rest gaps, and tells you which shifts it could not fill and why**.
 Nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/shift-roster-builder/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/shift-roster-builder/
 
 After using this, you can now **build a week's schedule that nobody has to be moved around in, see which shifts are
 unfillable before the week starts, and find the people the week depends on**, which used to be an hour of spreadsheet
@@ -155,6 +155,19 @@ Every unproven week failed at the coverage step: the search could not show wheth
 | 3 | 101,044 | 100,326 |
 
 Proven count stayed 0 of 4: the bound gets closer (case 0 from three open hours of slack to under one) but not to the tolerance. A test checks the bound never exceeds the brute-force optimum on 40 tight random weeks with balance and burden on. `node eval/ejection-bench.mjs 8 8 22` now reports a proven open-hours floor of 386 h against 387 h left open (was 383 h), because the root bound feeds it. Full venture suite: 188 pass, 0 fail. Not claimed: that it proves any more weeks yet; 4 cases, one generator, one run; case 1 is still dominated by a coverage gap of several hours that the sets bound does not see.
+
+## Branching on the priced bound (2026-10-24)
+
+The root price leaves a duality gap because the relaxation lets a contested shift be split between people. `branchDual` (`calc.mjs`) now runs after the root price in the exact search: it fixes the most contested shift (held by one of the people who could hold it, or left open), re-prices each piece with the same subgradient loop on the filtered feasible sets, and repeats on the lowest open bound until every piece reaches the cutoff or a limit is hit (`dualBranchNodes` 40, `dualBranchMs` 8000; `dualBranch: false` turns it off). The result is still a valid lower bound, so a proof that comes from it is a proof. `node eval/dual-bench.mjs 4 8 22 30000 1` (same four seeded weeks as above; `DBN`/`DBMS` set the limits), root-plus-branching gap left against the roster, score units where one open hour is 100,000:
+
+| case | before | 40 nodes, 8 s | 300 nodes, 40 s |
+|---|---|---|---|
+| 0 | 65,965 | 768 | 253 |
+| 1 | 362,275 | 287,592 | 227,970 |
+| 2 | 28 | 15 | 15 |
+| 3 | 100,326 | 100,117 | 100,112 |
+
+Case 0 went from two-thirds of an open hour to $2.53 of pay. Still 0 of 4 proven: cases 2 and 3 barely move (case 3's gap is about one open hour that neither the roster nor the bound resolves), and case 1 is still a coverage gap of two hours. Costs 2 to 8 s per week at the default limits. A test checks the branched bound never passes the brute-force optimum on 40 tight random weeks and rises on at least one. One generator, one run each. The `page.test.mjs` tables for the clopening and call-out guides (tests 15 and 21) already fail on `main` before this change, so they are untouched here.
 
 ## Limits
 

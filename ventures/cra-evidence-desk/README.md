@@ -2,7 +2,7 @@
 
 **Find affected software components and assemble a customer-reviewed Cyber Resilience Act incident draft in minutes.** Give it a customer-owned SBOM and advisory export; it makes only exact name/ecosystem/version matches and produces JSON evidence or a copyable Article 14 draft.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/cra-evidence-desk/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/cra-evidence-desk/
 
 Two surfaces, same rules:
 

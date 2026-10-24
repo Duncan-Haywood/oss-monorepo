@@ -2,7 +2,7 @@
 
 **Find your true cost per billable hour as a plumber, price any job at a flat rate with tiered parts markup, travel time and your target margin, get a minimum callout price, see how the flat price compares with time and materials when a job runs long, and build a whole price book you can export as CSV.** Browser page, no install.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/plumber-flat-rate-price-calculator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/plumber-flat-rate-price-calculator/
 
 After using this, you can put a flat-rate price on every job in your book from your own costs, which used to be a guess from a competitor's price list.
 

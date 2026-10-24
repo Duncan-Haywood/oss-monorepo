@@ -1,6 +1,6 @@
 # accel-ttsizes: does the real Tiny Tapeout tile-size table change which keyword-spotting model fits a tile? (yes at 70% utilisation; the rest holds)
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/accel-ttsizes/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/accel-ttsizes/
 
 Ninth step of track 8 (task-specific AI accelerators) in `PROJECTS.md`. `accel-ttfit` fitted a streaming keyword-spotting (KWS) engine into a Tiny Tapeout tile but used a tile area read from a search-result snippet (161 × 112 µm) and said it had **not** checked Tiny Tapeout's own table. This project fetches that table and re-asks the question over all 12 tile sizes, with the retrained accuracies of `accel-ttretrain` instead of the earlier assumed ones. It replaces an unsourced input with a sourced one, the kind of fix `research/CLAUDE.md` asks for, and measures how much the answer moves.
 

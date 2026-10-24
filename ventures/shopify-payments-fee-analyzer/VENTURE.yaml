@@ -78,5 +78,5 @@ kill_criteria:
   - A user reports a materially wrong figure from a real Transactions export, at which point the type classification or column mapping needs revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/shopify-payments-fee-analyzer/
+  production: https://duncan-haywood.github.io/oss-monorepo/shopify-payments-fee-analyzer/
   analytics: null

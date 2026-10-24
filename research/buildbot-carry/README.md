@@ -2,7 +2,7 @@
 
 Fourth project of track 20, robots on the residential building site (`PROJECTS.md`, milestone 3). [`buildbot-payload`](../buildbot-payload) showed what a standing humanoid can hold; this asks what it can hold while walking. It is a **model-based envelope, not a learned walking policy and not a falls-and-drops score**: the milestone's learned policy, falls, drops and energy per item are still open (see Limitations). Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/buildbot-carry/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/buildbot-carry/
 
 **Headline.** For the instant before touchdown (the hardest of a step) with a stud-carry pose (reach 0.3 m, height 0.6 m), the simulated **G1 can take a 0.70 m step unloaded, 0.50 m with one 3.8 kg 2x4, and 0.45 m at 4.6 kg** (its waist pitch motor binds under load). It **cannot carry two studs** (7.6 kg is above its static capacity). The **H1 takes 0.25 m unloaded, 0.20 m with one stud and 0.10 m with 15 kg**, and cannot step up a 7¾ in (0.197 m) riser at all. Friction matters: at mu 0.3 the G1's loaded step halves to 0.35 m. Turned into carry rates (8 ft 2x4s, 5 to 30 m trips, 20 s handling, step time 0.4 to 0.8 s): a G1 carrying one stud delivers **0.64 to 1.10 times** what a labourer carrying one stud at 1.1 m/s does and **0.16 to 0.27 times** what a labourer with a bundle of four does; an H1 carrying 3 to 4 studs gets **0.66 to 1.94 times** the one-stud labourer and **0.16 to 0.48 times** the bundle-carrier. So under these assumptions neither robot beats a labourer who takes a bundle; the H1 beats one who takes a single stud when the trip is short.
 

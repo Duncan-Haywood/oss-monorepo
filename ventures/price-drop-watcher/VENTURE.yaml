@@ -51,5 +51,5 @@ kill_criteria:
   - No external repository is found using watch.mjs within 90 days.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/price-drop-watcher/
+  production: https://duncan-haywood.github.io/oss-monorepo/price-drop-watcher/
   analytics: null

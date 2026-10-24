@@ -2,7 +2,7 @@
 
 A free-choice run, picked because `research/free-robusttails` ended with "no free lunch": median and trimmed residuals caught a wrong twin under Student-t(2) cells but not under bad runs, a per-run median did the reverse, and its first listed next step was to combine both defences. Short answer: a two-level statistic (robust summary inside each run, then robust summary across runs) is good in all three heavy-tailed settings tested, including both at once, and costs some power under Gaussian noise. **Stylised and simulated only; no real data, no LLM.**
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/free-robustcombo/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/free-robustcombo/
 
 Every number below is copied from `experiments/results.txt`.
 

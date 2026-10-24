@@ -150,7 +150,7 @@ kill_criteria:
   - A finding's stated category (missing-field / malformed-name / description-too-short / description-no-trigger-cue / description-too-generic / oversized-body / overlapping-trigger) is wrong for a real SKILL.md a user pastes, and cannot be fixed by tightening a pattern or threshold.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/skill-manifest-check/
+  production: https://duncan-haywood.github.io/oss-monorepo/skill-manifest-check/
   analytics: null
 
 channel_notes: >-

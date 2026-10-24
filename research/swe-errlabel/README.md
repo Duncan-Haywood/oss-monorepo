@@ -1,6 +1,6 @@
 # Do the swe-errors keyword rules sort run-record errors correctly? A 60-entry hand-labelled check
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/swe-errlabel/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/swe-errlabel/
 
 Pure Python standard library. Track 10 (the software-engineering loop), a new question rather than a listed milestone: `swe-errors` and `swe-orgs` both turn the free-text `errors` field of run records into categories with keyword rules, and the first limitation of each is that the rules were never checked against a human reading. This checks `swe-errors`' rules. Produced with AI assistance (Claude). **Preliminary: one labeller, 60 entries, and the labeller is the same kind of model that wrote the run records.**
 

@@ -2,7 +2,7 @@
 
 Third project of track 16 (`PROJECTS.md`, milestone 4, first version). Storage that is cheap per kWh of capacity is not cheap to deliver from: a battery's cost grows in step with its duration, while a salt cavern's barely does, but the cavern store needs expensive power equipment and loses more energy. This project computes the levelised cost of storage (LCOS, $ per MWh delivered over the system's life) for five technologies from capital cost, efficiency, life, fade and charging power cost, and asks where the cheapest option changes as duration runs from 1 hour to 500 hours. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/energy-lcos/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/energy-lcos/
 
 **Headline (modelled; every input assumed, none checked against a primary source in this run).** With round typical costs, lithium-ion is cheapest up to about **4 hours** ($116/MWh at 4 h) and cavern compressed air or pumped hydro take over from **4 to 5 hours**; cavern hydrogen is cheaper than lithium-ion above **11 hours** but only beats cavern compressed air above **308 hours** (about 13 days; $240 against $287/MWh at 500 h). At 24 hours lithium-ion costs about **3 times** a cavern store ($337 vs $109/MWh) and at a week about 13 times. Which technology is cheapest at 8 to 10 hours moves with the discount rate and the price of charging power, so only the long-duration conclusion (storage energy cost beats power cost) is robust to the assumptions swept here. For lithium-ion to win at 24 hours its installed energy cost would need to fall from $200 to **$43/kWh**.
 

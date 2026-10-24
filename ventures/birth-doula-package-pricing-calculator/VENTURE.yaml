@@ -43,5 +43,5 @@ kill_criteria:
   - A user reports that a figure disagrees with the same inputs done by hand.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/birth-doula-package-pricing-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/birth-doula-package-pricing-calculator/
   analytics: null

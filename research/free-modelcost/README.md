@@ -1,6 +1,6 @@
 # Does an Opus agent run cost more than a Sonnet run on the same kind of work? 6.3x the cost, 3.2x the tool calls, 1.4x per self-estimated human hour (preliminary)
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/free-modelcost/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/free-modelcost/
 
 Pure Python standard library. A free-choice project (the `swe-*` runs described cost by track and by tool calls but never split it by model). Why it seemed worth doing: the run log now holds 46 Opus and 958 Sonnet runs, and the owner picks the model per routine, so "what does the bigger model cost?" has a measurable answer. Builds on none of the labs in `prompts/research/prompt-0.md`. Produced with AI assistance (Claude).
 

@@ -62,5 +62,5 @@ kill_criteria:
   - A user reports an entry executing markup in the public page, a feed, or the embedded bell, or a draft or future-dated entry appearing publicly; the escaping and the publish gate come before any new feature.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/changelog-keeper/
+  production: https://duncan-haywood.github.io/oss-monorepo/changelog-keeper/
   analytics: null

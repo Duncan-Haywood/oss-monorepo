@@ -2,7 +2,7 @@
 
 Follow-up to `osrobot-dof` (track 9, open-source purpose-built robots), taking the first item of its "Next steps": **a bill of materials for the whole arm with a source and date for every part.** `osrobot-dof` priced the servos alone and reported that extra joints "triple the servo bill". This project prices everything else from the published SO-ARM101 parts list and finds that claim overstates the cost ratio. In the direction of the CAIRO Lab interest in assistive robotics; nothing here is affiliated with or endorsed by it. Produced with AI assistance (Claude). Pure Python standard library. Prices only: nothing was built or bought.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/osrobot-dofbom/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/osrobot-dofbom/
 
 ![Full bill of materials against joint count](experiments/bom.svg)
 

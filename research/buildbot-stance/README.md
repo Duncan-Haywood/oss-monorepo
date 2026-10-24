@@ -2,7 +2,7 @@
 
 Track 20, robots on the residential building site (`PROJECTS.md`, milestones 4 and 6). [`buildbot-nailseq`](../buildbot-nailseq) timed all 62 nails of a sheet with the arm fixed and left out "re-stancing (a 4x8 sheet is 1.2 x 2.4 m, beyond one arm pose)"; [`buildbot-fasten`](../buildbot-fasten) found only a band of heights works. This measures the missing piece: with the feet planted, which sideways positions and heights can a Unitree G1 hold a 3.4 kg nailer at and push it into the wall, how many nails of a sheet is that, and how many stances (and platforms) does a whole sheet need? Produced with AI assistance (Claude). Simulated and preliminary. **The time to re-stance, the push needed to seat a nail and the nailer's balance when reaching sideways are not measured**; the first two are swept, the third is a static check only.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/buildbot-stance/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/buildbot-stance/
 
 **Headline.**
 - **One G1 stance covers a sixth of a sheet at best.** With a 3.4 kg nailer held 0.4 m in front of the feet and pushed into the wall at 50 N, the G1 can hold **32 of 153 grid points: heights 0.7 to 1.5 m, at most 0.3 m sideways (0.2 m above 1.3 m)**. Placed best, that covers **6 of the 62 nails**; at 0.3 m from the feet, 10. Four stances (0.4 m) reach 14 nails and no floor stance reaches the other **48**: the whole bottom plate and everything above 1.5 m.

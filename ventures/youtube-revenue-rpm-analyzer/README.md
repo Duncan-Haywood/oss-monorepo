@@ -4,7 +4,7 @@ A free browser tool for YouTube creators: **drop in a YouTube Studio analytics e
 which videos actually pay.** The file is read in the browser; nothing is uploaded and no
 channel access is needed.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/youtube-revenue-rpm-analyzer/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/youtube-revenue-rpm-analyzer/
 
 After using this, you can now **see revenue per thousand views for every video, how
 concentrated your income is, which videos pay under half your median and how much that

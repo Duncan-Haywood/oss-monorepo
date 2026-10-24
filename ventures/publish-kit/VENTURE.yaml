@@ -65,5 +65,5 @@ kill_criteria:
   - A free tool covering feed generation, EPUB building and ACX checks with the same zero-install, agent-drivable bar becomes the obvious default.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/publish-kit/
+  production: https://duncan-haywood.github.io/oss-monorepo/publish-kit/
   analytics: null

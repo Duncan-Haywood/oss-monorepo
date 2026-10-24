@@ -2,7 +2,7 @@
 
 Track 20, robots on the residential building site (`PROJECTS.md`, milestones 4 and 6). [`buildbot-recoil`](../buildbot-recoil) followed one shot until the arm settled and left "fire the 62-nail schedule in sequence and report time per sheet including settling" and "couple this with `buildbot-studfind`" as next steps. This does both: the 62 nails of [`buildbot-custom`](../buildbot-custom) are fired in its serpentine order, each shot's recoil transient (45 MuJoCo traces of the Menagerie G1 hold model) decays while the tip moves to the next nail, and whatever error is left joins the robot's scatter and the stud-finding error of [`buildbot-studfind`](../buildbot-studfind) in one clean-sheet probability. Produced with AI assistance (Claude). Simulated and preliminary. **The recoil of a real nailer is still unmeasured** (impulse swept 0.25 to 4 N s), as are the G1's loop delay, its tip speed between nails and the wall's stiffness.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/buildbot-nailseq/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/buildbot-nailseq/
 
 **Headline.**
 - **Recoil does not set the time per sheet; the moves do.** After a shot the nosepiece must be back on the wall and the tip close to its place before the next nail. That takes **0 s at 0.25 N s, up to 57 ms at 0.5 N s, 0.03 to 0.15 s at 1 N s and up to 0.25 to 0.31 s at 4 N s**, depending on loop and hold height (3 hold heights x 3 loops). The shortest move between two nails on a sheet is 6 in (0.152 m), which takes **0.16 s even at 0.5 m/s and 2 m/s², and 0.07 s at 4 m/s and 10 m/s²**. At the slower setting the transient is over before the arm arrives for every impulse tried: **0 s added** to a sheet that takes 70 to 120 s.

@@ -4,7 +4,7 @@ A free browser calculator for the federal "Trump Account" child savings
 account, created by the One Big Beautiful Bill Act (26 U.S.C. 530A).
 Entirely client-side; nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/trump-account-calculator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/trump-account-calculator/
 
 After using this, you can now **project a Trump Account's balance to age 18
 or later, and see exactly how much of a withdrawal is tax-free versus

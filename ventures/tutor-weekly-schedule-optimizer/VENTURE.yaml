@@ -49,5 +49,5 @@ kill_criteria:
   - A user reports a timetable that breaks a time window, a gap or a daily cap they entered.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/tutor-weekly-schedule-optimizer/
+  production: https://duncan-haywood.github.io/oss-monorepo/tutor-weekly-schedule-optimizer/
   analytics: null

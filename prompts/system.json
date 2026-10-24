@@ -57,7 +57,7 @@
      "answers": "Scheduled portfolio work from the agent queue."},
 
     {"path": "portfolio/DIRECTION.md", "layer": "reference", "changed_by": "review", "for": ["ventures"],
-     "answers": "Portfolio direction (~1,000 lines). grep the headings and read only what your task touches."},
+     "answers": "Portfolio direction. grep the headings and read only what your task touches."},
     {"path": "PRODUCT_PLAYBOOK.md", "layer": "reference", "changed_by": "review", "for": ["ventures", "explore"],
      "answers": "How to build one product: niches, shapes, disclaimers, SEO, definition of done."},
     {"path": "portfolio/hosting/README.md", "layer": "reference", "changed_by": "any",

@@ -51,5 +51,5 @@ kill_criteria:
   - Officials report that state tax and per-league fee schedules are the common reason the numbers feel wrong, at which point the tool should model them.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/sports-official-game-fee-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/sports-official-game-fee-calculator/
   analytics: null

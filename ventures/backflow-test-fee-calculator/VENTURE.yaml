@@ -99,5 +99,5 @@ kill_criteria:
     obvious default, such that this tool's differentiation no longer holds.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/backflow-test-fee-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/backflow-test-fee-calculator/
   analytics: null

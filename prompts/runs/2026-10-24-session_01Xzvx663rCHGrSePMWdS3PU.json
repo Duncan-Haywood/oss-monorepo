@@ -1,0 +1,170 @@
+{
+  "date": "2026-10-24",
+  "session": "https://claude.ai/code/session_01Xzvx663rCHGrSePMWdS3PU",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "lets go over the prompts in this repo and review them / how's this going. do a blog post and agent doc on this.",
+  "input_sha256": "d18f3e67354e74218501353852d31abf57b2d1a8ff7d7cbb6f97b0ea304fd9f2",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-10-21T01:46:00Z",
+  "ended": "2026-10-24T01:38:42Z",
+  "wall_minutes": 4313.08,
+  "tokens_in": 10360248,
+  "tokens_out": 36583,
+  "cost_usd": 4.837,
+  "tool_calls": 86,
+  "task": null,
+  "projects": [],
+  "pr": 9965,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "portfolio-pages test red on the PR (5 failures in readme-live-link.test.mjs)",
+      "cause": "main changed BASE to /oss-monorepo/ but addLiveLink still matched only monorepo-projects/; red on main too, not this PR's diff",
+      "fix": "ported into this PR: the existing-link regex accepts either path (1,314 venture READMEs still carry the old one); 8/8 pass, --check output unchanged"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "issue": "Says it makes one change from prompt 1 but differs in 3 places; the champion's flagship direction and preflight step were never carried over."
+    },
+    {
+      "file": "prompts/review/prompt-2.md",
+      "issue": "Claims a single tested change; differs from prompt 1 in 8 hunks, including a dropped reduced-pass section."
+    },
+    {
+      "file": "prompt.md",
+      "issue": "Says goals.md is ~450 lines; it is 871."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Says research/ is a mirror; the mirror was retired 2026-10-16."
+    },
+    {
+      "file": ".github/prompts/review-open-prs-first.md",
+      "issue": "Built on gh pr commands that do not work in cloud sessions; also says auto-merge refuses ventures/*, removed 2026-10-20."
+    },
+    {
+      "file": ".github/prompts/land-your-work.md",
+      "issue": "Cites a mirror-PR merge-commit exception 'per prompt.md' that prompt.md does not contain."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "instruction": "route with promptctl.py route",
+      "did": "took track process without a draw",
+      "why": "direct owner request for a review and write-up; closest track by the work's nature",
+      "result": "post, agent post and script landed"
+    },
+    {
+      "file": "docs/agent-posts/2026-10-21-traps-agents-keep-hitting-here.md",
+      "instruction": "trap 1: never wait on a process by a pattern match from your own shell",
+      "did": "did it once by mistake to wait on a git fetch",
+      "why": "had not read that post before starting",
+      "result": "the waiter matched itself; killed it and refetched with --depth=1"
+    },
+    {
+      "file": "CLAUDE.md",
+      "instruction": "agent doc in docs/reports/",
+      "did": "put the agent doc in docs/agent-posts/ (the published Agent to agent blog), script and data in docs/reports/assets/",
+      "why": "docs/agent-posts/ is what the site publishes to agents, with raw Markdown and llms.txt",
+      "result": "published by the same build as the post"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Reviewed every guidance file (entry, track prompts and candidates, goals, meta, 8 runbooks). Shipped docs/posts/2026-10-24-why-agent-prompt-ab-tests-never-pick-a-winner.md, docs/agent-posts/2026-10-24-prompt-ab-tests-are-confounded-what-to-do.md and docs/reports/assets/prompt-system-review/ (analyze.py + results.txt). No prompt edits: the fixes are listed in the agent post for a later process run. Checks: check_md_links ok (3442 files); node --test platform/pages/*.test.mjs 1241 pass 0 fail. A plain git fetch of main hung for >20 min after an earlier interrupted --deepen; --depth=1 fetched in seconds.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "918fa269-98d4-5491-916b-26f93c6217db",
+    "transcripts": 2,
+    "first": "2026-10-21T01:46:00Z",
+    "last": "2026-10-24T01:39:05Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 79,
+        "input": 158,
+        "output": 36583,
+        "thinking": 6949,
+        "cache_read": 10070632,
+        "cache_write_5m": 75017,
+        "cache_write_1h": 214441,
+        "api_equivalent_usd": 4.837,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 79,
+      "input": 158,
+      "output": 36583,
+      "thinking": 6949,
+      "cache_read": 10070632,
+      "cache_write_5m": 75017,
+      "cache_write_1h": 214441,
+      "api_equivalent_usd": 4.837,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.972,
+    "tool_calls": 86,
+    "tools": {
+      "Bash": 74,
+      "Write": 4,
+      "Agent": 1,
+      "ToolSearch": 1,
+      "mcp__github__search_pull_requests": 1,
+      "mcp__claude-code-remote__get_session": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__claude-code-remote__subscribe_pr_activity": 1,
+      "Read": 1,
+      "SubagentHandback": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 4313.08,
+      "active_minutes": 21.32,
+      "model_minutes": 7.21,
+      "tool_minutes": 14.11,
+      "waiting_on_human_minutes": 4291.76,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 2.8
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

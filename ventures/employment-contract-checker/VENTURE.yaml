@@ -59,5 +59,5 @@ kill_criteria:
   - An employee or attorney reports a plain agreement the rules mis-read, at which point the rule needs revisiting before more usage is sought.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/employment-contract-checker/
+  production: https://duncan-haywood.github.io/oss-monorepo/employment-contract-checker/
   analytics: null

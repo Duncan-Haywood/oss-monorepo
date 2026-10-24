@@ -3,7 +3,7 @@
 Find the OpenAI, Anthropic and Gemini calls in your code that quietly cost
 money — before they run.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/llm-call-cost-scan/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/llm-call-cost-scan/
 
 ```
 node cli.mjs scan src
