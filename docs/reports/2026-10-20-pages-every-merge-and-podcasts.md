@@ -164,9 +164,11 @@ per listen.
 - **Cost:** 34 episodes (2 h 24 min of audio) took about 75 minutes on four
   CPU cores, roughly 2× real time while Whisper shared the CPU. The audio
   directory grew from 43 MB to 52 MB.
-- **Backlog P044:** huggingface.co answered 200 from this cloud session. The
-  script that had never been voiced, `2026-10-21-typeof-localstorage-throws`,
-  now has audio, and `podcast_tts.py --check` exits 0.
+- **Backlog P044:** huggingface.co answered 200 from this cloud session, and
+  `typeof-localstorage-throws` (the script P044 names) already had audio on
+  `main`, so P044 looks stale. The one script that had never been voiced,
+  `2026-10-20-can-you-predict-divorce`, now has audio, and
+  `podcast_tts.py --check` exits 0.
 
 ### Measured
 
