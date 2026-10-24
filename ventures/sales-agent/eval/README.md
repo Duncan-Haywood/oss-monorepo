@@ -11,6 +11,7 @@ error (rules too narrow) is what these sets show reliably.
 | `replies.jsonl` | 72 | Written first. Rules tuned on it (first pass: 66/72) |
 | `heldout.jsonl` | 48 | Written after the first tuning, scored once (24/48), then tuned on too |
 | `fresh-2026-10-21.jsonl` | 40 | Written after the second tuning, scored once, **not tuned on**. The honest numbers |
+| `fresh-2026-10-24.jsonl` | 41 | Written by a later session that had not read the rules' output on it, scored once, **not tuned on**. A second honest measurement; same caveat: still written by an agent |
 
 Each line: `{"label", "subtype"?, "subject", "body", "from"?}`. Labels are the
 categories in `engine.mjs` (`CATEGORIES`); `subtype` is set for objections.
@@ -39,6 +40,18 @@ right on 15; overreach 1; 4 of 5 unsubscribes not caught; guesses right on
 11 of 18, 5 overreaching. `engine.test.mjs` pins these so a rule change that
 moves them is noticed: re-measure on a new fresh set, then update the pin and
 the README and page together.
+
+Measured 2026-10-24 on `fresh-2026-10-24.jsonl` (41 replies, 7 unsubscribes):
+27/41 right (66%); acted on 31, right on 24 (77% precision); overreach 0;
+5 of 7 unsubscribes caught (missed: "pls remove from ur list", "If I get one
+more of these I'm reporting it as spam", both handed over as unclear); the
+word model's guess right on 4 of the 10 handed over, 1 overreaching. Misses by
+kind: four objections read as "question" or unclear (price, existing tool,
+signer, past bad experience), two "interested" read as "question" (a
+Thursday 2pm proposal; "how do we get started?"), one "left company"
+(a forwarding contact) and one "not interested" (formal phrasing) handed over.
+Both fresh sets agree on the shape: the rules are cautious but miss informal
+and formal phrasings alike, and two sets are 81 replies by one kind of author.
 
 To add a set: write it before reading the rules' output on it, name it
 `fresh-YYYY-MM-DD.jsonl`, score it once, and record the result here before

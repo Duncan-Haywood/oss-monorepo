@@ -33,6 +33,7 @@ well as on MuJoCo model pairs.
 ![E against paired correlation, and coverage](experiments/m3_benchmark/results/e_vs_rho.png)
 
   Left: effective-sample multiplier E (variance of real-only over variance of the control variate, n = 30 pairs plus 270 twin-only runs) against the paired correlation; line is the closed form. Right: coverage of 95% intervals, n = 30. Results: H1 refuted (intervals undercover, partly because the bounded outcome is skewed and real-only undercovers too, 91.2% at worst); H2 supported on 13 of 21 pairs and failing where rho is under about 0.75; H6 mixed (rho predicts value better, Spearman 0.999, but detectability predicts it too, -0.95). Full account in [`LOG.md`](LOG.md).
+- [`experiments/m3b_intervals/`](experiments/m3b_intervals): milestone 3b, finite-sample intervals. `intervals.py` (about 3 minutes on 4 cores) compares the plug-in t, percentile-bootstrap and studentised-bootstrap intervals for `cv` and `ppi_pp` on the same pools. Result: the studentised bootstrap lifts mean coverage at n = 30 from 92.0% to 93.6% (`cv`) with a worst pair at 90.8%, at 14% greater width; the percentile bootstrap is worse than t. Pre-registered H1b and H1c were both refuted; see [`LOG.md`](LOG.md) and `results/summary_3b.txt`.
 - [`LOG.md`](LOG.md): the research log. Hypotheses are written down before experiments are run.
 - How runs work on a programme: [`../PROGRAMMES.md`](../PROGRAMMES.md).
 
