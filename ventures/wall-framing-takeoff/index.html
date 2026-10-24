@@ -203,6 +203,14 @@
     <div id="budgetOut"></div>
   </section>
 
+  <section class="card" aria-labelledby="h-schedule" id="scheduleCard">
+    <h2 id="h-schedule">Schedule: critical path and crews</h2>
+    <p class="note">Paste your own activity list as JSON: <code>{"start":"2026-03-02","crews":{"framing":1},"activities":[{"id":"walls","name":"Wall framing","days":8,"after":["slab"],"crew":"framing"}],"slips":[{"id":"walls","days":3}]}</code>. <code>days</code> are working days (Mon to Fri), <code>lag</code> is waiting time after the predecessors (cure, inspection booking). No duration is supplied by this tool; the sample is an invented order of work, not a norm for any builder.</p>
+    <textarea id="schedText" rows="8" style="width:100%;font-family:monospace" aria-label="Schedule as JSON: start date, crews, activities, slips" spellcheck="false"></textarea>
+    <p><button type="button" class="secondary" id="schedSampleBtn">Load an invented sample</button></p>
+    <div id="schedOut"></div>
+  </section>
+
   <section class="card" aria-labelledby="h-drywall" id="drywallCard" hidden>
     <h2 id="h-drywall">Drywall</h2>
     <div id="drywallOut"></div>
@@ -261,7 +269,7 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering, construction, building-code, legal or financial advice, and it does not replace a qualified professional, your plans or your building department. Header sizes, jack counts and stud spacing are your inputs and are not checked against any span table or code. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including every length before you cut. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Independent.</strong> Not affiliated with any lumberyard, builder, code body or software company. No lumber price is stated or implied; prices are what you type.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record: save your plan file. Your last entries stay in this browser's local storage only.</p>
-    <p>Everything runs in your browser. Your plan is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>takeoff_run</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>budget_csv_downloaded</code>, <code>drawings_downloaded</code>, <code>panel_order_downloaded</code>, <code>floor_on</code>, <code>roof_on</code>, <code>foundation_on</code>, <code>drywall_on</code>, <code>plan_saved</code>, <code>plan_opened</code>) are counted only in local storage on your device, never with anything you typed.</p>
+    <p>Everything runs in your browser. Your plan is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>takeoff_run</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>budget_csv_downloaded</code>, <code>drawings_downloaded</code>, <code>panel_order_downloaded</code>, <code>floor_on</code>, <code>roof_on</code>, <code>foundation_on</code>, <code>drywall_on</code>, <code>schedule_sample_loaded</code>, <code>plan_saved</code>, <code>plan_opened</code>) are counted only in local storage on your device, never with anything you typed.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Related tools: the <a href="../cut-list-optimizer/">cut list optimizer</a> for sheet goods and shop stock, and the <a href="../tile-layout-planner/">tile layout planner</a>. Command line and source: <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/wall-framing-takeoff" rel="noopener">wall-framing-takeoff on GitHub</a>.</p>
     <p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
@@ -277,6 +285,7 @@
     import { layoutFoundation, foundationText } from "./foundation.mjs";
     import { layoutDrywall, drywallText } from "./drywall.mjs";
     import { budget, budgetCsv } from "./budget.mjs";
+    import { schedule, sampleSchedule } from "./schedule.mjs";
     import { resolveHeaders } from "./headers.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
@@ -422,6 +431,7 @@
       }
       const source = plan;
       { const pr = parsePrices(); if (!pr.bad.length && Object.keys(pr.prices).length) plan.prices = pr.prices; }
+      { const sp = parseSchedule(); if (sp.input) plan.schedule = sp.input; }
       const tableText = $("#hdrTable").value.trim();
       let resolved = plan, hdrRows = [];
       if (tableText) {
@@ -566,6 +576,25 @@
       });
       return { prices, bad };
     }
+    function parseSchedule() {
+      const t = ($("#schedText").value || "").trim();
+      if (!t) return { empty: true };
+      try { const o = JSON.parse(t); return o && typeof o === "object" ? { input: o } : { error: "The schedule must be a JSON object." }; } catch (e) { return { error: `Not valid JSON: ${e.message}` }; }
+    }
+    function renderSchedule() {
+      const out = $("#schedOut"), p = parseSchedule();
+      if (p.empty) { out.innerHTML = ""; return; }
+      if (p.error) { out.innerHTML = `<div class="err"><ul><li>${esc(p.error)}</li></ul></div>`; return; }
+      const s = schedule(p.input);
+      if (!s.ok) { out.innerHTML = `<div class="err"><ul>${s.errors.map((e) => `<li>${esc(e)}</li>`).join("")}</ul></div>`; return; }
+      const rows = s.rows.slice().sort((a, b) => a.leveledStart - b.leveledStart);
+      out.innerHTML = `<p><strong>${s.workingDays} working days</strong> from ${esc(s.start)}, finishing ${esc(s.finishDate)} with unlimited crews; <strong>${s.leveledDays} days (${esc(s.leveledFinishDate)})</strong> with the crews you typed.</p>
+        <p class="note">Critical path: ${esc(s.criticalPath.join(" → "))}</p>
+        <table><thead><tr><th>Activity</th><th class="n">Days</th><th>Start</th><th>Finish</th><th class="n">Slack</th><th>Crew</th></tr></thead><tbody>${rows.map((r) => `<tr><td>${r.critical ? "<strong>" : ""}${esc(r.name)}${r.critical ? "</strong>" : ""}</td><td class="n">${r.days}</td><td>${esc(r.startDate)}</td><td>${esc(r.finishDate)}</td><td class="n">${r.slack}</td><td>${esc(r.crew || "")}</td></tr>`).join("")}</tbody></table>
+        ${s.slips.length ? `<ul>${s.slips.map((sl) => `<li>${sl.error ? `Slip ${esc(sl.id)}: ${esc(sl.error)}` : `A ${sl.days}-day slip on ${esc(sl.id)} moves the finish ${sl.finishShift} day(s) (${sl.leveledFinishShift} with crews), to ${esc(sl.newFinishDate)}.`}</li>`).join("")}</ul>` : ""}
+        ${s.warnings.length ? `<p class="note">${s.warnings.map(esc).join(" ")}</p>` : ""}
+        <p class="note">Bold rows are critical (zero slack). Durations, order and crews are your inputs; weekends skipped, holidays and weather not modelled; crew levelling is a greedy heuristic, not an optimal schedule.</p>`;
+    }
     function renderBudget() {
       const card = $("#budgetCard");
       if (!last) { card.hidden = true; return; }
@@ -663,6 +692,7 @@
         $("#flOpen").value = (fl.openings || []).map((o) => [o.x, o.y, o.width, o.depth].map(formatLength).join(", ")).join("; ");
       }
       if (plan.prices && typeof plan.prices === "object") { $("#priceText").value = Object.entries(plan.prices).filter(([, v]) => Number.isFinite(v)).map(([k, v]) => `${k}, ${v}`).join("\n"); try { localStorage.setItem(KEY + ".prices", $("#priceText").value); } catch (e) { /* optional */ } }
+      if (plan.schedule && typeof plan.schedule === "object") { $("#schedText").value = JSON.stringify(plan.schedule, null, 1); renderSchedule(); }
       const dw = plan.drywall;
       $("#dwOn").checked = Boolean(dw); $("#dwFields").hidden = !dw;
       if (dw) {
@@ -757,6 +787,8 @@
       record("panel_order_downloaded");
     });
     $("#priceText").addEventListener("input", () => { renderBudget(); try { localStorage.setItem(KEY + ".prices", $("#priceText").value); } catch (e) { /* optional */ } });
+    $("#schedText").addEventListener("input", renderSchedule);
+    $("#schedSampleBtn").addEventListener("click", () => { $("#schedText").value = JSON.stringify(sampleSchedule(), null, 1); renderSchedule(); record("schedule_sample_loaded"); });
     $("#budgetCsvBtn").addEventListener("click", () => { if (run() && last?.budget) { download("framing-budget.csv", "text/csv", budgetCsv(last.budget)); record("budget_csv_downloaded"); } });
     $("#savePlan").addEventListener("click", () => { const { source, bad } = toPlan(); if (bad.length) { run(); return; } download("framing-plan.json", "application/json", JSON.stringify(source, null, 2)); record("plan_saved"); });
     $("#openPlan").addEventListener("change", async (e) => {

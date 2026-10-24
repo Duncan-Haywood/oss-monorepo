@@ -172,6 +172,20 @@ const [sv] = await Promise.all([page.waitForEvent("download"), page.click("#save
 const saved = JSON.parse(await (await import("node:fs/promises")).readFile(await sv.path(), "utf8"));
 const priceSaved = saved.prices?.wallSheet === 20 && saved.prices?.tax === 0.1;
 console.log(priceSaved ? "ok: typed prices are saved in the plan file" : "FAIL: prices not in saved plan: " + JSON.stringify(saved.prices));
+// schedule: the invented sample renders a critical path and a slip line, bad JSON is named, and the schedule travels in the saved plan
+await page.click("#schedSampleBtn");
+await page.waitForFunction(() => /Critical path/.test(document.querySelector("#schedOut")?.textContent || ""), null, { timeout: 90000 });
+const schTxt = await page.textContent("#schedOut");
+const schOk = !/NaN|undefined/.test(schTxt) && /working days/.test(schTxt) && /slip on insp/.test(schTxt);
+console.log(schOk ? "ok: schedule sample on the page" : "FAIL: schedule: " + schTxt.slice(0, 200));
+const [sv2] = await Promise.all([page.waitForEvent("download"), page.click("#savePlan")]);
+const saved2 = JSON.parse(await (await import("node:fs/promises")).readFile(await sv2.path(), "utf8"));
+const schSaved = saved2.schedule?.activities?.length === 9;
+console.log(schSaved ? "ok: schedule is saved in the plan file" : "FAIL: schedule not in saved plan");
+await page.fill("#schedText", "{ nope");
+const badTxt = await page.textContent("#schedOut");
+const schBad = /Not valid JSON/.test(badTxt);
+console.log(schBad ? "ok: bad schedule JSON is named" : "FAIL: bad JSON message: " + badTxt);
 console.log("page errors:", errors.length);
 await browser.close(); server.close();
-process.exit(errors.length || !panelsOk || !orderOk || !heavier || !noLen || !roofOk || !fnOk || !hipOk || !wingOk || !wing2Ok || !backingOk || !wingHidden || !floorOk || !gableOk || !hdrOk || !budOk || !priceSaved || horizontal.includes("CHECK FAILED") ? 1 : 0);
+process.exit(errors.length || !panelsOk || !orderOk || !heavier || !noLen || !roofOk || !fnOk || !hipOk || !wingOk || !wing2Ok || !backingOk || !wingHidden || !floorOk || !gableOk || !hdrOk || !budOk || !priceSaved || !schOk || !schSaved || !schBad || horizontal.includes("CHECK FAILED") ? 1 : 0);

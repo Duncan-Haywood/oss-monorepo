@@ -113,7 +113,7 @@ Ticked items are on `main`.
       backward pass, slack, cycle and unknown-predecessor errors), weekdays only, `lag`
       for cure time and inspection waits, serial greedy crew levelling, and what a
       slipped activity does to the finish date. No durations are shipped. Hand-checked
-      networks in `schedule.test.mjs`. Not yet: the page, holidays and weather, resource
+      networks in `schedule.test.mjs`. The page landed the same day (a JSON box, not a form). Not yet: holidays and weather, resource
       calendars, activity templates tied to the takeoff's quantities, a real builder's list.
 - [ ] Bid leveling against the model's quantities (siblings:
       `bid-leveling-worksheet`, `estimate-maker`).

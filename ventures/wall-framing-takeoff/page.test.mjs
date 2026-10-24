@@ -51,7 +51,7 @@ test("every static control has a label, and generated rows label their inputs", 
 
 test("the module script imports only local files, its names exist, and it parses", async () => {
   const html = page("index.html");
-  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./budget.mjs", "./drawings.mjs", "./drywall.mjs", "./engine.mjs", "./floor.mjs", "./foundation.mjs", "./headers.mjs", "./panels.mjs", "./roof.mjs", "./sheathing.mjs", "./usage.mjs"]);
+  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./budget.mjs", "./drawings.mjs", "./drywall.mjs", "./engine.mjs", "./floor.mjs", "./foundation.mjs", "./headers.mjs", "./panels.mjs", "./roof.mjs", "./schedule.mjs", "./sheathing.mjs", "./usage.mjs"]);
   const names = html.match(/import \{([^}]+)\} from "\.\/engine\.mjs"/)[1].split(",").map((s) => s.trim());
   const engine = await import("./engine.mjs");
   for (const name of names) assert.ok(name in engine, name);
