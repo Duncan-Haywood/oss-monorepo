@@ -60,3 +60,9 @@ test("replay learns a raw bank descriptor despite changing dates and card digits
   const o = replay(rows);
   assert.deepEqual([o.n, o.right, o.bySource.memory?.right], [2, 1, 1]);
 });
+test("open-source collective lines: sponsor contributions are income, bounties are contractor pay", () => {
+  assert.equal(acct("Monthly contribution from A Person (Bronze)", 1000), "4000");
+  assert.equal(acct("Contribution from incognito", 2500), "4000");
+  assert.equal(acct("Expense from A Person - Regression finder bounty for #1234", -5000), "6020");
+  assert.equal(acct("Owner contribution", 100000), "3010");
+});
