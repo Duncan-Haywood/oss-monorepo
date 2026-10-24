@@ -1,0 +1,3 @@
+# llm-coding-inference milestone 3 (2026-10-24)
+
+H1 ran on NaijaSenti with the `qual-dialect` split and coders: pooled PPI covers 67 to 84% under shifted audits, language-stratified PPI 93.8 to 95.9%, stratified is not narrower than stratified human-only. `experiments/group_shift.py` imports `qual-dialect/experiments/run.py` for the loader and needs its tsv cache (`~/.cache/qual-dialect`, from raw.githubusercontent.com; the host was reachable from the cloud proxy). The run takes about 6 minutes; start it with `run_in_background`. Next: milestone 4 (H2, H4), which needs small-count-safe intervals for rare categories first.

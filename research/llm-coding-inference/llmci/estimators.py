@@ -129,6 +129,21 @@ def stratified_ppi(strata):
     return Est(value, math.sqrt(var))
 
 
+def stratified_human(strata):
+    """Human-only estimate with corpus-known stratum sizes. strata: list of (N_s, y_audit_s), a simple
+    random audit without replacement inside each stratum. Variance: sum_s W_s^2 (1 - n_s/N_s) var_s(y) / n_s."""
+    total = sum(s[0] for s in strata)
+    value, var = 0.0, 0.0
+    for big_ns, y in strata:
+        n = len(y)
+        if n < 2 or n > big_ns:
+            raise ValueError("each stratum needs 2 <= n_s <= N_s audited items")
+        w = big_ns / total
+        value += w * _mean(y)
+        var += w * w * (1 - n / big_ns) * _var(y) / n
+    return Est(value, math.sqrt(var))
+
+
 def label_shift(f_all, y, f):
     """Binary confusion-matrix correction: p = (q - fpr) / (tpr - fpr), q the coder-positive rate on
     the corpus, tpr and fpr measured on the audit (random, or stratified by the *true* code). Delta-method

@@ -2,6 +2,20 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-24 · Milestone 3 outcome: H1 supported on real data
+- Ran `experiments/group_shift.py` as planned (results in `experiments/group_shift.txt`). Added `stratified_human` to the library (+1 test, 8 pass).
+- Under a random audit (A) every estimator covers 94.5 to 95.9%. Under shifted audits the pooled PPI interval undercovers for the coders that read languages unequally: 67.2% (`nb-english`) and 69.3% (`nb-in-language`) with a 70%-Hausa audit (C), 84.2% (`nb-in-language`) with an equal-quota audit (B). Pooled PPI++ is better but not safe (89.1% and 89.3%). Pooled human-only, which uses no coder, also fails under B (86.9%) because the audit over-represents Pidgin, so the failure is the audit's mix, not the coder alone.
+- Language-stratified PPI with corpus-known sizes: 93.8 to 95.9% in all nine shifted/random cells. The planned bar was at least 94%: one cell (B, `nb-in-language`) is 93.8%, 0.2 points under, inside one binomial sd (0.7); I report it as a narrow miss of the stated threshold, not as met. The refutation condition (pooled at 93% or more everywhere) did not hold, so H1 stands for these coders.
+- Against the grain of the correction's purpose: stratified PPI is not narrower than stratified human-only here (C: 11.2 to 12.6 vs 11.0 points; A: 9.1 to 9.9 vs 8.8), because these three stand-in coders are weak, as in `qual-dialect`. Coder codes buy validity under shift, not width. Whether a real LLM changes that is H3 (milestone 5).
+- Limits: one corpus, one target category (negative), three audit mixes chosen by me, a fixed corpus (only the audit is random), stand-in coders. The corpus is the test split, so intervals target the finite corpus.
+- Next: milestone 4 (H2 and H4, rare-category and audit-design benchmark); a rare category needs small-count-safe intervals first (see the simulated result in the README).
+
+## 2026-10-24 · Milestone 3: H1, group-shift benchmark on NaijaSenti (planned before running)
+- Data: NaijaSenti (hau, ibo, pcm, yor; 63,550 tweets, native-speaker labels; CC BY), the same seeded 30/70 split as `qual-dialect`; the 44,485-tweet test part is the corpus, so the true corpus prevalence of "negative" (and of each language) is known. Coders: the three stand-ins of `qual-dialect` (`lexicon-en`, `nb-english`, `nb-in-language`); no LLM yet (milestone 5).
+- Audit designs, n = 400 hand-coded: (A) random over the corpus, mix matches; (B) equal quota per language (100 each); (C) 70% Hausa, 10% each of the others. Audits are drawn without replacement inside each language.
+- Estimators of the corpus prevalence: pooled human-only, pooled PPI (lambda = 1), pooled PPI++, and language-stratified PPI and human-only with corpus-known language sizes (`stratified_ppi`; a new `stratified_human` is added). 1,000 audit draws per cell, fixed corpus, seed fixed.
+- Prediction (H1): under B and C the pooled PPI/PPI++ intervals undercover (coverage below 90% for at least one coder) because the audit's group mix differs from the corpus and error differs by language; under A they cover about 95%; stratified PPI covers at least 94% in all designs. H1 is refuted if pooled coverage is 93% or more in every shifted design with every coder. Coverage is judged with a binomial interval on 1,000 draws (+/- 1.4 points at 95%).
+
 ## 2026-10-24 · Milestone 2: estimator library `llmci/`
 - Hypothesis (planned before running): the library's PPI++ and stratified-PPI intervals cover 95% (within 3 binomial sd over 600 simulated studies, n=2000, audit 150, prevalence 25%, coder sens 0.75 / spec 0.90), and are narrower than human-only.
 - Built `llmci/estimators.py` (stdlib only): `human_only`, `naive`, `ppi` (fixed lambda), `ppi_pp` (clipped optimal lambda), `ipw_audit` (known inclusion probabilities, Poisson variance), `stratified_ppi` (finite-population correction), `label_shift` (binary BBSE, delta-method se). 7 tests in `test_llmci.py`: lambda endpoints, a perfect coder, closed forms for IPW and stratified variance, exact label-shift recovery, and the Monte Carlo coverage check above.
