@@ -97,6 +97,9 @@ function checkRows(rows, expected, withCategory, unattributed) {
       ));
     }
     const group = expected.get(key);
+    // A zero row with no line is how EN 16931 documents carry a zero-amount
+    // header allowance or charge (BR-CO-17 still holds: 0 x rate = 0).
+    if (!group && !unattributed && taxable === 0 && tax === 0) return;
     if (!group && !unattributed) {
       findings.push(finding(
         "INV-038",
