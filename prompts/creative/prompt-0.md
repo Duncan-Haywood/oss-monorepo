@@ -78,9 +78,11 @@ Any of these counts as the run's deliverable:
 - **Voicing.** Setup for a podcast episode is in the docstring of
   `platform/pages/podcast_tts.py`, for a story in `render_audio.py`. Keep a
   podcast `description` to 160 characters (`podcast.mjs` rejects more only
-  after the voicing). Cloud sessions often cannot reach huggingface.co, so
-  the voice cannot download; then land the text and pages without audio
-  and say so in `deviations`.
+  after the voicing). huggingface.co was reachable in the
+  last two sessions that tried (2026-10-23, 2026-10-24: Kokoro downloaded;
+  `PRODUCTION.md` also has a GitHub model-file route), but probe it first
+  (`curl -sI`). If the voice truly cannot download, land the text and pages
+  without audio and say so in `deviations`.
 
 ## Audio size: check before you commit an MP3
 
