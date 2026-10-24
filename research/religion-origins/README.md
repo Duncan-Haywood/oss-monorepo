@@ -5,7 +5,7 @@
 **Live page:** https://duncan-haywood.github.io/monorepo-projects/research/religion-origins/
 
 ## Contents
-- [`reports/`](reports) — the synthesis report.
+- `reports/` — the synthesis report (in progress).
 - [`research_notes/Development of religion/`](research_notes/Development%20of%20religion) — the eight strands of cited notes, one file per strand (Takeaway, Cited Findings, Inferences, Gaps). In each file, every claim is tagged either as checked against its source this session or as cited from bibliographic details.
 
 ## Strands
