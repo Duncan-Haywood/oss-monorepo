@@ -56,5 +56,5 @@ kill_criteria:
   - A user reports a figure that disagrees with their OPM estimate by more than rounding, at which point the rule that differs is fixed or removed.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/fers-retirement-planner/
+  production: https://duncan-haywood.github.io/oss-monorepo/fers-retirement-planner/
   analytics: null

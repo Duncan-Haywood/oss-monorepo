@@ -2,7 +2,7 @@
 
 Fifth milestone (`osrobot-field`) of track 9, open-source purpose-built robots, in the direction of the ARPG, RECUV and Autonomous Systems IRT interest in field-robot simulation. Produced with AI assistance (Claude). Pure Python standard library. **Every constant (blur law, treatment time, energy per metre, mud penalty, sensor hit rate) is an assumed round number in `src/osrobot_field/model.py` (marked ASSUMED), not a measurement of any robot, camera or crop, and no robot was built or driven.** All numbers below are from `experiments/results.txt` (30 simulated fields per row; fields and random draws are shared across rows). Simulation only; **a stylised, preliminary study. Perception is a probability, not an image pipeline, and terrain enters only as slower, costlier muddy squares; `terrain-twin`'s friction model is not used.**
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/osrobot-field/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/osrobot-field/
 
 ![Share of weeds killed against time for a speed sweep and an overlap sweep](experiments/kill_vs_time.svg)
 

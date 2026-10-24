@@ -2,7 +2,7 @@
 
 Free, private browser tool that runs the UK Statutory Residence Test (the rules HMRC uses to decide whether you are UK tax resident for a tax year). Enter your UK stays and a few answers about your home, work and family, and it shows which test decided (automatic overseas, automatic UK, or sufficient ties), each step's outcome, the ties against the number needed, and how many more UK days you can spend before the answer changes.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/uk-statutory-residence-test-checker/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/uk-statutory-residence-test-checker/
 
 Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 

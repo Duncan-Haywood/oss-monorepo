@@ -2,7 +2,7 @@
 
 Follow-up to `mimic-webcam` (track 11, adversarial human imitation): that project found that stitching 2.5 s segments from random training windows is caught at AUROC 0.98 while replaying whole windows gives 0.61, and left the cause open. **Preliminary, stylised: 46 people filling in one web form, one context, 8 seeds, a ceiling study that copies real frames.** Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/mimic-webcam-stitch/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/mimic-webcam-stitch/
 
 **Result.** Block length matters most, and the two suspects add up. With 50-frame (5 s) blocks, random stitching is caught at AUROC 0.887, restricting each window to one person's windows gives 0.687, choosing each next block to start near where the last one ended gives 0.796, and doing both gives 0.588, the same as replaying whole windows (0.597). At 25 frames the same four rows are 0.983, 0.852, 0.946 and 0.733; at 5 frames only `person+match` is below 0.999 (0.989). So mixing people is the larger giveaway at long blocks, join mismatch is a smaller one, and removing both only reaches the replay ceiling, which already copies whole people. Nothing here is a generator: every frame is a real person's frame.
 

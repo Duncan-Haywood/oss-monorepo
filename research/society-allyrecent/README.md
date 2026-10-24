@@ -8,7 +8,7 @@ the last few encounters. This asks whether the look-back `k` (the last 1, 3, 5 o
 Produced with AI assistance (Claude). Next step 1 of `society-allywatch`, research track 17 (`society`). Every result is
 about simulated people following a stated rule, not real crowds.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/society-allyrecent/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/society-allyrecent/
 
 ## Builds on
 

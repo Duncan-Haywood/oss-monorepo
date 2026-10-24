@@ -2,7 +2,7 @@
 
 Follow-up to `energy-mix-sourced` (track 16, milestone 5), its first "next step": that project solved one year (2019). Here the identical model and cost table are re-solved on 2015 to 2019 hourly demand, solar and onshore-wind capacity factors from Open Power System Data / ENTSO-E, to see how much one weather year can mislead. Produced with AI assistance (Claude). **Modelled, one node, no grid, each year solved on its own; the only input not from a source is the 7% discount rate.**
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/energy-mix-years/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/energy-mix-years/
 
 ![Zero-emission cost by weather year](experiments/years.svg)
 

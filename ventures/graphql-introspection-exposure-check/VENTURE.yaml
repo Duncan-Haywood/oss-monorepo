@@ -74,5 +74,5 @@ kill_criteria:
     testing a problem that no longer exists by default.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/graphql-introspection-exposure-check/
+  production: https://duncan-haywood.github.io/oss-monorepo/graphql-introspection-exposure-check/
   analytics: null

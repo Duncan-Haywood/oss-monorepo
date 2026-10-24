@@ -2,7 +2,7 @@
 
 Pure Python, no dependencies. A digital twin scores `K = 50` candidate designs; only the top `m` are tested on the real plant, which has a fixed budget of `B = 20` noisy trials split evenly. A twin that correlates `ρ` with the truth has an exact value on its own, `ρ·c_K` (`c_K` = expected maximum of `K` standard normals, 2.249 at `K=50`), and the best shortlist shrinks as the twin improves: from `m = 8` at `ρ = 0.6` to `m = 2` at `ρ = 0.95` (grid search, Monte Carlo). Real-only testing of all 50 reaches 1.20 sd; the best twin-screened pipelines reach 1.87 (`ρ=0.6`) and 2.17 (`ρ=0.95`) against an oracle 2.25.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/twin-screen/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/twin-screen/
 
 ```bash
 cd research/twin-screen

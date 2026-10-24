@@ -8,7 +8,7 @@ month balanced to an Etsy clearing account, and can prove a month against a net 
 Etsy. Rows no rule recognises are journalled to an uncategorised account rather than dropped. The
 statement is read locally and never uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/etsy-statement-to-journal/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/etsy-statement-to-journal/
 
 ## Run it
 

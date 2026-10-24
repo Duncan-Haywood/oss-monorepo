@@ -2,7 +2,7 @@
 
 Track 21 (`infra`), the second next step of [`infra-pumpdemand`](../infra-pumpdemand/). That project billed Net3 pump schedules on PG&E's B-19 tariff with every day identical and found that schedules idling the 310 kW booster cut the bill 56 to 67 %. A demand charge is billed on the highest 15-minute kW of the **month**, so this one asks what one high-demand day does to that saving. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/infra-pumpdays/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/infra-pumpdays/
 
 **Headline (simulated Net3, B-19 list prices; not a field result).** The saving is fragile to demand headroom. With every Net3 demand 1.5 % above its shipped level, the lowest feasible peak among one-run pump-10 schedules jumps from **63 kW to 310 kW** (the booster pump), and at +20 % it is 372 kW, the same as the shipped schedule's 373 kW. So one such day sets the month's demand charge: a month with **three days at +20 %** saves **43.5 % in summer and 18.7 to 19.2 % in winter and spring** against the shipped schedule on the same month, where identical days saved 56, 66 and 67 %. At +40 % the saving is 1 to 15 %, and at +60 % no schedule (the shipped one included) meets the tank test. Running a different schedule on the hot days than on ordinary days adds at most 4.2 points over one schedule that is feasible on every day.
 

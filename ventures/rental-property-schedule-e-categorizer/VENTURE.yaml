@@ -86,5 +86,5 @@ kill_criteria:
   - A user reports a materially wrong line, or a real bank export the tool cannot read, at which point the parser or the rules need revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/rental-property-schedule-e-categorizer/
+  production: https://duncan-haywood.github.io/oss-monorepo/rental-property-schedule-e-categorizer/
   analytics: null

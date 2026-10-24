@@ -78,5 +78,5 @@ kill_criteria:
   - A user reports a misread denial reason or a materially wrong deadline, at which point the rule tables need revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/insurance-denial-appeal-builder/
+  production: https://duncan-haywood.github.io/oss-monorepo/insurance-denial-appeal-builder/
   analytics: null

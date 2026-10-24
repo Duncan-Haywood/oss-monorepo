@@ -2,7 +2,7 @@
 
 Sixth milestone of track 8 (task-specific AI accelerators) in `PROJECTS.md`. It takes the serial-MAC engine `accel-kws` built and checked bit for bit (`../accel-kws/rtl/kws_engine.v`), wraps it with on-chip weight ROMs, and runs it through the open iCE40 flow (Yosys `synth_ice40`, then nextpnr-ice40 place and route) for 15 geometries on two devices, UP5K and HX8K. It reports logic cells, block RAMs and maximum clock. Produced with AI assistance (Claude). Nothing was run on a board.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/accel-fpga/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/accel-fpga/
 
 **Why it seemed worth doing.** `accel-kws` counted Yosys generic gates, which say little about a real FPGA. The track asks what the design costs in LUTs and clock, and whether always-on keyword spotting fits a cheap part.
 

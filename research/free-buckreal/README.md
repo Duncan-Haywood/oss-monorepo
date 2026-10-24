@@ -1,6 +1,6 @@
 # Does a physics-shaped twin of a real buck converter beat plain ARX? Only partly: both land at 0.5 to 0.9 V free-run error against a 0.06 V quantisation floor, and which wins depends on which half of the 20 ms record you fit
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/free-buckreal/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/free-buckreal/
 
 A free-choice project. The twin projects here mostly use the Cascaded Tanks rig (`free-tanktwin`, `free-tankci`, `free-tankfit`); `free-tankfit` listed "a second public rig" as a next step, but the Silverbox and tank hosts are blocked from this sandbox, so this uses a different real measured system that was reachable: a **buck converter** (power electronics, a standard digital-twin target) from the SysIdentPy data repository. It asks the sim-to-real question on hardware data: a model with the converter's structure (static duty-to-voltage curve into a second-order LC lag) against a structure-free ARX. Relates to the digital-twin and system-identification themes of ARPG and CAIRO; no lab code is reused. Produced with AI assistance (Claude).
 

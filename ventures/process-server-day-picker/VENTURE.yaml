@@ -42,5 +42,5 @@ kill_criteria:
   - No process server reports changing a serve they accept or a fee they quote because of what the tool showed within 90 days.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/process-server-day-picker/
+  production: https://duncan-haywood.github.io/oss-monorepo/process-server-day-picker/
   analytics: null

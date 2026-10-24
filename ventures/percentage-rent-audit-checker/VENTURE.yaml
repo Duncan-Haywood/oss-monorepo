@@ -55,5 +55,5 @@ kill_criteria:
   - A user reports relying on the tool's figure instead of their lease, landlord statement or a licensed professional, despite the disclaimer -- at that point the wording needs revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/percentage-rent-audit-checker/
+  production: https://duncan-haywood.github.io/oss-monorepo/percentage-rent-audit-checker/
   analytics: null

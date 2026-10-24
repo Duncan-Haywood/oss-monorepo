@@ -2,7 +2,7 @@
 
 Track 13 (autonomous multi-angle capture), a follow-up to `capture-edit`, whose pipeline assumed the cameras' clocks were already lined up. Two cameras that never shared a clock disagree by a start offset plus a drift of tens of parts per million; the common fix is to line them up by the sound they both heard. **Headline:** on synthetic speech-like audio, a GCC-PHAT estimate per window followed by a robust line fit synced two cameras to under 0.02 ms over a 1 h span (40 ppm drift) with 2 s windows down to -10 dB SNR, and 5 s windows down to -15 dB. Below those SNRs it fails completely (the false peak is around 1 s off), with a narrow band in between. A sync made once at the start is not enough: 40 ppm drifts one 30 fps frame (33.3 ms) in 833 s, so 144 ms after an hour. Added reverb with the direct sound 5 dB below the reverberant tail costs nothing at 0 dB SNR, but at -10 dB direct-to-reverberant it adds a 4 to 5 ms error. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/capture-audiosync/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/capture-audiosync/
 
 **Builds on.** `capture-edit` (which needs synced clips). The method is generalised cross-correlation with phase transform: Knapp and Carter (1976), "The generalized correlation method for estimation of time delay", *IEEE Trans. ASSP* 24(4). The Theil-Sen line is Sen (1968), *J. Amer. Statist. Assoc.* 63. No CU Boulder group in `prompt.md` covers this and none is claimed.
 

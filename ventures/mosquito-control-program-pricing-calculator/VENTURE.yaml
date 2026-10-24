@@ -42,5 +42,5 @@ kill_criteria:
   - A user reports that a figure disagrees with the same inputs done by hand.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/mosquito-control-program-pricing-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/mosquito-control-program-pricing-calculator/
   analytics: null

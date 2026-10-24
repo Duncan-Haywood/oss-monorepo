@@ -59,5 +59,5 @@ kill_criteria:
   - A user reports over-contributing (or under-contributing) based on this tool's output despite the disclaimers, at which point the disclosure wording itself needs revisiting, not just a bigger caveat.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/sep-ira-contribution-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/sep-ira-contribution-calculator/
   analytics: null

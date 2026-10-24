@@ -42,5 +42,5 @@ kill_criteria:
   - No exhibitor reports dropping or choosing a show because of what the tool showed within 90 days.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/trade-show-roi-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/trade-show-roi-calculator/
   analytics: null

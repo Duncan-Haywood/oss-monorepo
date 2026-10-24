@@ -43,5 +43,5 @@ kill_criteria:
   - No external repository is found using cli.mjs or types.mjs within 90 days.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/json-to-types-generator/
+  production: https://duncan-haywood.github.io/oss-monorepo/json-to-types-generator/
   analytics: null

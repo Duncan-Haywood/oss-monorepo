@@ -42,5 +42,5 @@ kill_criteria:
   - No evidence within 90 days that anyone shared the link or reported using it.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/cobra-vs-marketplace-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/cobra-vs-marketplace-calculator/
   analytics: null

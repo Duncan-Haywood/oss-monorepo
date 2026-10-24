@@ -49,5 +49,5 @@ kill_criteria:
   - A user or adviser reports that a computed rate or present value disagrees with the same inputs done by hand.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/structured-settlement-buyout-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/structured-settlement-buyout-calculator/
   analytics: null

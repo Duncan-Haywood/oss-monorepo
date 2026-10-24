@@ -9,7 +9,7 @@ a price-per-square-foot special goes out.
 **Open [`index.html`](index.html) directly in a browser**, or serve this
 directory statically. It is a self-contained, zero-dependency page: no build
 step, no network calls, no accounts. Live at
-<https://duncan-haywood.github.io/monorepo-projects/attic-insulation-bid-calculator/>.
+<https://duncan-haywood.github.io/oss-monorepo/attic-insulation-bid-calculator/>.
 
 ```bash
 # Serve it locally

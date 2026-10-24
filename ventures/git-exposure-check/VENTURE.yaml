@@ -72,5 +72,5 @@ kill_criteria:
     without expanding scope past what this tool's liability read covers.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/git-exposure-check/
+  production: https://duncan-haywood.github.io/oss-monorepo/git-exposure-check/
   analytics: null

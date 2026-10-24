@@ -35,5 +35,5 @@ kill_criteria:
   - A report that a rate, threshold or rule differs from GOV.UK or HMRC guidance on the same inputs.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/uk-salary-sacrifice-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/uk-salary-sacrifice-calculator/
   analytics: null

@@ -2,7 +2,7 @@
 
 Milestone 9 of track 21, applied R&D for the industries modern life runs on (`PROJECTS.md`). It asks what a good (working) die costs when the wafer price, the defect density and the die area are all taken from sources, how much the choice of yield model matters, and at what logic area splitting a design into chiplets becomes cheaper than one die. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/infra-yield/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/infra-yield/
 
 **Headline.** With negative-binomial yield (&alpha; = 3, assumed) a 600 mm&sup2; die costs about **$179 on a 7nm-class wafer and $359 on a 5nm-class wafer** (yield 61% and 55%). The yield model changes the 5nm figure between $328 (Seeds) and $382 (Poisson), a spread of 16%. Splitting the logic into two chiplets is cheaper from about **300 mm&sup2;** at 0.11 defects/cm&sup2; across the swept defect densities (0.05 to 0.3) and assembly costs ($10 to $120 per package) the crossing runs from **126 to 728 mm&sup2;**, so packaging cost matters more than which yield model is used.
 

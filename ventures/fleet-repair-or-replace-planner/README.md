@@ -11,8 +11,8 @@ machine to replace first — which used to be a judgement call made off the
 repair invoices alone, which are the visible half of the cost and usually the
 smaller one.**
 
-→ **[Open the planner](https://duncan-haywood.github.io/monorepo-projects/fleet-repair-or-replace-planner/)**
-· [Why downtime decides this](https://duncan-haywood.github.io/monorepo-projects/fleet-repair-or-replace-planner/is-it-cheaper-to-repair-or-replace-a-work-truck.html)
+→ **[Open the planner](https://duncan-haywood.github.io/oss-monorepo/fleet-repair-or-replace-planner/)**
+· [Why downtime decides this](https://duncan-haywood.github.io/oss-monorepo/fleet-repair-or-replace-planner/is-it-cheaper-to-repair-or-replace-a-work-truck.html)
 
 ## The problem
 

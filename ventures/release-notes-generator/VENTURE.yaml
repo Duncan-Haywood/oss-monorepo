@@ -45,5 +45,5 @@ kill_criteria:
   - No external repository is found using cli.mjs or changelog.mjs within 90 days.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/release-notes-generator/
+  production: https://duncan-haywood.github.io/oss-monorepo/release-notes-generator/
   analytics: null
