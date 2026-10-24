@@ -1291,3 +1291,13 @@ or `ventures`) until its success rate passes 80% over 20 runs?
 - Decisions: ventures 2, process 2, review 2 keep collecting (intervals
   overlap). No audit or drift report (reduced pass).
 - Result: (next review)
+
+## E81: review 2026-10-24 (reduced pass, ninth run)
+
+- Change: `review/prompt-2.md` step 1 now says the derive fetch takes ~5 min and
+  how to wait for it. `prompts/derived/` regenerated (2714 rows).
+- Metric: "derive.py fetch" friction reports naming review prompts, over the
+  next 40 runs (baseline: 3 recent).
+- Decisions: ventures 2, process 2, review 2 keep collecting (intervals
+  overlap). No audit or drift report (reduced pass).
+- Result: (next review)
