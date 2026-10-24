@@ -17,7 +17,7 @@
   "tool_calls": null,
   "task": null,
   "projects": [],
-  "pr": null,
+  "pr": 9974,
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -26,14 +26,27 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": null,
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
-  "doc_friction": [],
-  "deviations": [],
+  "doc_friction": [
+    {
+      "file": "prompts/goals.md",
+      "issue": "Guardrails mixed liability limits with process defaults (land-your-work, every-run-ships, red-team band) under one 'every track' heading; split into Hard limits and Strong defaults."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "instruction": "default to the top flagship",
+      "did": "worked on the guidance system at the owner's direct request",
+      "why": "the owner asked for this change in the session",
+      "result": "merged"
+    }
+  ],
   "writeups": [],
   "goal": null,
-  "notes": "",
+  "notes": "Owner asked to slim hard rules to financial/legal/ethical liability. Three parallel subagents reworded disjoint file sets; coordinator rewrote goals.md Guardrails, CLAUDE.md, steering.md, and made the promptctl red-team band a warning. rule_language.py default pile 184 -> 157 (rest mostly descriptive). Checks run: promptctl.py validate ok; pytest test_promptctl.py test_rule_language.py pass; check_md_links.py no dead links. CI gates that check docs-vs-data consistency (session_gate, break_even --check, checklist_coverage, readme_titles) left as they are: they are correctness tests, not policy.",
   "corrections": [],
   "redteam": null
 }
