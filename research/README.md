@@ -6,37 +6,37 @@ Moved here from the former `oss-research-monorepo` repository with its history. 
 <!-- topics:start -->
 ## Browse by topic
 
-**Read it all at [https://duncan-haywood.github.io/monorepo-projects/research/](https://duncan-haywood.github.io/monorepo-projects/research/).** Each topic page lists its projects with a summary:
+**Read it all at [https://duncan-haywood.github.io/oss-monorepo/research/](https://duncan-haywood.github.io/oss-monorepo/research/).** Each topic page lists its projects with a summary:
 
-- [Proper scoring & elicitation](https://duncan-haywood.github.io/monorepo-projects/research/topics/scoring/)
-- [Effort & peer prediction](https://duncan-haywood.github.io/monorepo-projects/research/topics/effort/)
-- [Verification games & slashing](https://duncan-haywood.github.io/monorepo-projects/research/topics/games/)
-- [Detection & tolerances](https://duncan-haywood.github.io/monorepo-projects/research/topics/detection/)
-- [Markets as routers](https://duncan-haywood.github.io/monorepo-projects/research/topics/routing/)
-- [Prediction-market design](https://duncan-haywood.github.io/monorepo-projects/research/topics/markets/)
-- [Paying contributors](https://duncan-haywood.github.io/monorepo-projects/research/topics/contributions/)
-- [Decentralised training systems](https://duncan-haywood.github.io/monorepo-projects/research/topics/systems/)
-- [Digital twins & sim-to-real](https://duncan-haywood.github.io/monorepo-projects/research/topics/twins/)
-- [LLM chip design loops](https://duncan-haywood.github.io/monorepo-projects/research/topics/chip/)
-- [Robot manufacturing loops](https://duncan-haywood.github.io/monorepo-projects/research/topics/robofab/)
-- [Ambient AI assistant](https://duncan-haywood.github.io/monorepo-projects/research/topics/ambient/)
-- [Self-replicating manufacturing](https://duncan-haywood.github.io/monorepo-projects/research/topics/selfrep/)
-- [Simulation-first design](https://duncan-haywood.github.io/monorepo-projects/research/topics/simdesign/)
-- [Engineered clothing](https://duncan-haywood.github.io/monorepo-projects/research/topics/garment/)
-- [Task-specific AI accelerators](https://duncan-haywood.github.io/monorepo-projects/research/topics/accel/)
-- [Algorithmic chip-design loops](https://duncan-haywood.github.io/monorepo-projects/research/topics/eda/)
-- [Open-source purpose-built robots](https://duncan-haywood.github.io/monorepo-projects/research/topics/osrobot/)
-- [The software-engineering loop](https://duncan-haywood.github.io/monorepo-projects/research/topics/swe/)
-- [Adversarial human imitation](https://duncan-haywood.github.io/monorepo-projects/research/topics/mimic/)
-- [Open-source residential construction](https://duncan-haywood.github.io/monorepo-projects/research/topics/house/)
-- [Autonomous multi-angle capture](https://duncan-haywood.github.io/monorepo-projects/research/topics/capture/)
-- [Sensing, imaging and 3D](https://duncan-haywood.github.io/monorepo-projects/research/topics/sensing/)
-- [Energy supply and dense energy storage](https://duncan-haywood.github.io/monorepo-projects/research/topics/energy/)
-- [Robot societies among people](https://duncan-haywood.github.io/monorepo-projects/research/topics/society/)
-- [Agentic co-design of low-cost robots](https://duncan-haywood.github.io/monorepo-projects/research/topics/codesign/)
-- [Laundry-hanging robots](https://duncan-haywood.github.io/monorepo-projects/research/topics/hanger/)
-- [Machine learning on qualitative data](https://duncan-haywood.github.io/monorepo-projects/research/topics/qual/)
-- [Robots on the building site](https://duncan-haywood.github.io/monorepo-projects/research/topics/buildbot/)
+- [Proper scoring & elicitation](https://duncan-haywood.github.io/oss-monorepo/research/topics/scoring/)
+- [Effort & peer prediction](https://duncan-haywood.github.io/oss-monorepo/research/topics/effort/)
+- [Verification games & slashing](https://duncan-haywood.github.io/oss-monorepo/research/topics/games/)
+- [Detection & tolerances](https://duncan-haywood.github.io/oss-monorepo/research/topics/detection/)
+- [Markets as routers](https://duncan-haywood.github.io/oss-monorepo/research/topics/routing/)
+- [Prediction-market design](https://duncan-haywood.github.io/oss-monorepo/research/topics/markets/)
+- [Paying contributors](https://duncan-haywood.github.io/oss-monorepo/research/topics/contributions/)
+- [Decentralised training systems](https://duncan-haywood.github.io/oss-monorepo/research/topics/systems/)
+- [Digital twins & sim-to-real](https://duncan-haywood.github.io/oss-monorepo/research/topics/twins/)
+- [LLM chip design loops](https://duncan-haywood.github.io/oss-monorepo/research/topics/chip/)
+- [Robot manufacturing loops](https://duncan-haywood.github.io/oss-monorepo/research/topics/robofab/)
+- [Ambient AI assistant](https://duncan-haywood.github.io/oss-monorepo/research/topics/ambient/)
+- [Self-replicating manufacturing](https://duncan-haywood.github.io/oss-monorepo/research/topics/selfrep/)
+- [Simulation-first design](https://duncan-haywood.github.io/oss-monorepo/research/topics/simdesign/)
+- [Engineered clothing](https://duncan-haywood.github.io/oss-monorepo/research/topics/garment/)
+- [Task-specific AI accelerators](https://duncan-haywood.github.io/oss-monorepo/research/topics/accel/)
+- [Algorithmic chip-design loops](https://duncan-haywood.github.io/oss-monorepo/research/topics/eda/)
+- [Open-source purpose-built robots](https://duncan-haywood.github.io/oss-monorepo/research/topics/osrobot/)
+- [The software-engineering loop](https://duncan-haywood.github.io/oss-monorepo/research/topics/swe/)
+- [Adversarial human imitation](https://duncan-haywood.github.io/oss-monorepo/research/topics/mimic/)
+- [Open-source residential construction](https://duncan-haywood.github.io/oss-monorepo/research/topics/house/)
+- [Autonomous multi-angle capture](https://duncan-haywood.github.io/oss-monorepo/research/topics/capture/)
+- [Sensing, imaging and 3D](https://duncan-haywood.github.io/oss-monorepo/research/topics/sensing/)
+- [Energy supply and dense energy storage](https://duncan-haywood.github.io/oss-monorepo/research/topics/energy/)
+- [Robot societies among people](https://duncan-haywood.github.io/oss-monorepo/research/topics/society/)
+- [Agentic co-design of low-cost robots](https://duncan-haywood.github.io/oss-monorepo/research/topics/codesign/)
+- [Laundry-hanging robots](https://duncan-haywood.github.io/oss-monorepo/research/topics/hanger/)
+- [Machine learning on qualitative data](https://duncan-haywood.github.io/oss-monorepo/research/topics/qual/)
+- [Robots on the building site](https://duncan-haywood.github.io/oss-monorepo/research/topics/buildbot/)
 
 <!-- Generated by platform/ci/research_live_links.py --write from _homepage/projects.json. -->
 <!-- topics:end -->
@@ -883,6 +883,7 @@ Moved here from the former `oss-research-monorepo` repository with its history. 
 - [`research/buildbot-holdpose`](buildbot-holdpose) — does a searched arm and waist posture let a G1 hold a stud longer? In MuJoCo the stud's peak joint fraction falls from 0.91 (default) to 0.76 with the centre of pressure on the sole point and to 0.49 (best of three noisy seeds) 3 cm inside the toe edge, enough to make a stud sustainable at a continuous rating of 0.5 of peak; a 2x6 goes 0.93 to 0.68 and sheets stay above peak.
 - [`research/buildbot-mjsheet`](buildbot-mjsheet) — does the hand-written flexing-sheet plant of buildbot-skills agree with MuJoCo? Pass/fail labels agree on 99.8% of 2600 episodes across 13 policies, so the sim-to-sim transfer failure (0-11% vs 81% where tuned) is not an artefact of my equations.
 - [`research/buildbot-mobilebase`](buildbot-mobilebase) — does a G1 on a drive-and-lift base nail a 4x8 sheet faster than a walking G1? Yes in 22 of 24 speed settings: 54-121 s a sheet (13 stances, 12 moves of 5-63 s) against 85-119 s walking and 372 s by hand, and it matches a 61 s gantry only with a fast tip, 0.5 m/s drive and 0.2 m/s lift (speeds swept, not a chosen machine; reach unchanged from static statics).
+- [`research/buildbot-nailpay`](buildbot-nailpay) — how slow must a person be at nailing a sheet of sheathing for a Unitree G1 nailing it to pay? A walking G1 (85 s a sheet) pays above 35 s of person time at 0.3 supervision, a base-mounted one above 26 to 76 s; about $110 a house, and the person's time per sheet is the unsourced unknown.
 - [`research/buildbot-nailseq`](buildbot-nailseq) — does a nailer's recoil slow a G1 down when it fires a whole 62-nail sheet in sequence? Not by much: the arm is settled and back on the wall within 0.31 s at 4 N s of recoil, shorter than the 0.16 s moves only for a fast tip, so a sheet loses 0 s (2.3-2.5 s at 10 m/s2 and 4 N s) and the clean-sheet probability does not move; the stud finder still sets the budget (recoil, loop, tip speed and wall are swept, not sourced).
 - [`research/buildbot-payload`](buildbot-payload) — can a stock humanoid carry building materials? MuJoCo static payload envelopes of the Unitree G1 (median 4.5 kg, waist-limited; matches Unitree's 2–3 kg rating) and H1 (median 14.2 kg, elbow-limited): the G1 can carry a 2x4 but not a 2x6, the H1 can take one end of an OSB or drywall sheet with a person and set a lightweight block, but not a whole sheet, a normal-weight block or a 60 lb bag, and neither reaches an 8 ft ceiling.
 - [`research/buildbot-recoil`](buildbot-recoil) — does a framing nailer's recoil knock a stock Unitree G1 arm off the stud window? In a closed-loop MuJoCo hold, up to 4 N s of recoil moves the tip 1-4 mm (window +-3.9 mm) but 1 N s or more lifts the nosepiece off the wall for 25-140 ms; stiff loops go unstable with 10-20 ms delay (recoil, delay and wall are swept, not sourced).

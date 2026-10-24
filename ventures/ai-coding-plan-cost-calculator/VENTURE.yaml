@@ -187,5 +187,5 @@ kill_criteria:
   - A vendor ships its own interactive plan-vs-API calculator on its pricing page, removing the gap this exists to fill.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/ai-coding-plan-cost-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/ai-coding-plan-cost-calculator/
   analytics: null

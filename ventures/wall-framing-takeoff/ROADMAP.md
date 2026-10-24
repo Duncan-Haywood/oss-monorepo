@@ -101,8 +101,12 @@ Ticked items are on `main`.
 
 ### 4. Time and money
 
-- [ ] Quantities x the builder's own unit prices -> a budget that ties every
-      line to the model.
+- [x] Quantities x the builder's own unit prices -> a budget that ties every
+      line to the model (2026-10-24, `budget.mjs`, CLI `--budget`, plan `prices`):
+      lumber lines are the cutting-stock order's cost, sheets/bundles/concrete/rebar
+      are the model's counts times typed prices, tax and contingency stack, and a
+      quantity with no price is listed as unpriced, never guessed. Materials only.
+      Not yet: the page, labor lines, a CSV.
 - [ ] A new-home schedule: critical path over the builder's own activity list
       and durations, crew levelling, and what a slipped inspection does to the
       finish date.

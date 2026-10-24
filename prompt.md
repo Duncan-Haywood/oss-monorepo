@@ -25,7 +25,7 @@ python3 prompts/promptctl.py route
 It names the sub-prompt to follow, its version, and the commit trailer. Read
 that file and follow it for the rest of the run.
 [`prompts/goals.md`](prompts/goals.md) holds the goals and guardrails, and no
-sub-prompt can relax them. It is ~450 lines: read "Guardrails" (and "Research
+sub-prompt can relax them. It is ~870 lines: read "Guardrails" (and "Research
 guardrails" for research) plus the section your task touches
 (`grep -n '^## ' prompts/goals.md`), not the whole file. `promptctl.py map
 --track <track>` lists the rest of what your track reads, by layer

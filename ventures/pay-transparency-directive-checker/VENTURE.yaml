@@ -39,5 +39,5 @@ kill_criteria:
   - A report that a reporting tier, date or the 5% rule differs from the Directive's text on the same inputs.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/pay-transparency-directive-checker/
+  production: https://duncan-haywood.github.io/oss-monorepo/pay-transparency-directive-checker/
   analytics: null

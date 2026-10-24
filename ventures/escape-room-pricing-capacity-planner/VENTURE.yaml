@@ -56,5 +56,5 @@ kill_criteria:
   - An owner reports that the slot count or break-even arithmetic disagrees with their own worked example.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/escape-room-pricing-capacity-planner/
+  production: https://duncan-haywood.github.io/oss-monorepo/escape-room-pricing-capacity-planner/
   analytics: null

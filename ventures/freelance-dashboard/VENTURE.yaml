@@ -62,5 +62,5 @@ kill_criteria:
   - A user reports a materially wrong receivable, unbilled or profit figure against the tool it came from, at which point the sibling readers need re-syncing with those tools' arithmetic.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/freelance-dashboard/
+  production: https://duncan-haywood.github.io/oss-monorepo/freelance-dashboard/
   analytics: null

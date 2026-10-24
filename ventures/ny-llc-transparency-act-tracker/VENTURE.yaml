@@ -127,5 +127,5 @@ kill_criteria:
   - A user reports relying on this tool's category classification for an actual filing decision without independently confirming it with NYDOS or an attorney, despite the disclaimer -- at that point the disclaimer wording itself needs revisiting, not just a bigger caveat.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/ny-llc-transparency-act-tracker/
+  production: https://duncan-haywood.github.io/oss-monorepo/ny-llc-transparency-act-tracker/
   analytics: null

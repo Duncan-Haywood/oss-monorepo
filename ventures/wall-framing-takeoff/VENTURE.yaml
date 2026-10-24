@@ -56,5 +56,5 @@ kill_criteria:
   - A user reports a layout with overlapping members, a member in a rough opening, or a plate joint off a stud that the self-check passed.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/wall-framing-takeoff/
+  production: https://duncan-haywood.github.io/oss-monorepo/wall-framing-takeoff/
   analytics: null

@@ -43,5 +43,5 @@ kill_criteria:
   - No route owner reports raising a price, dropping an account or changing what they charge a new stop because of what the tool showed within 90 days.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/pool-service-route-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/pool-service-route-calculator/
   analytics: null

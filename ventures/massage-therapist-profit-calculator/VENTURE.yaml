@@ -55,5 +55,5 @@ kill_criteria:
   - A user reports that a figure disagrees with a hand calculation from the same inputs.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/massage-therapist-profit-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/massage-therapist-profit-calculator/
   analytics: null

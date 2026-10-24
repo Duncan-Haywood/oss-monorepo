@@ -135,5 +135,5 @@ kill_criteria:
     feedback) within 90 days of that filing season closing.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/estate-tax-exemption-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/estate-tax-exemption-calculator/
   analytics: null

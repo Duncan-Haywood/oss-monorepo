@@ -37,5 +37,5 @@ kill_criteria:
   - No contractor reports changing which leads they answer or what they pay for them because of what the tool showed within 90 days.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/thumbtack-lead-roi-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/thumbtack-lead-roi-calculator/
   analytics: null

@@ -2,7 +2,7 @@
 
 Small ecommerce sellers often assemble a dispute response from scattered order, fulfillment, delivery, and support records. This free browser-local tool turns those records into a structured checklist and a copyable factual response draft. **After using it, you can now prepare a reviewable packet before a processor deadline, which used to take searching across several systems and rewriting the same timeline.**
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/chargeback-evidence-packet/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/chargeback-evidence-packet/
 
 **The checklist follows the dispute reason.** A merchandise-not-received response is carried by fulfillment and delivery records; a fraud response is carried by the AVS/CVV result and delivery to the verified address; a not-as-described response is carried by the listing as it stood at purchase. Picking a reason re-renders the checklist into what is *core* for that reason, what *strengthens* it, and what else you might hold — so the handful of records that actually matter are not buried in one flat list. Seven reason codes are modeled: merchandise not received, credit not processed, merchandise not as described, fraudulent transaction, duplicate transaction, subscription canceled, and incorrect amount — each with its own required and recommended evidence, because a duplicate-charge dispute and an incorrect-amount dispute turn on different records even though both mention "payment."
 

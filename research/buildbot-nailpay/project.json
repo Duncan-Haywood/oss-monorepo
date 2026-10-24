@@ -1,0 +1,6 @@
+{
+ "theme": "buildbot",
+ "title": "How slow must a person be at nailing a sheet of sheathing for a Unitree G1 nailing it to pay?",
+ "summary": "Turns the question of <code>buildbot-grounded</code> around: the robot's time per 62-nail sheet is now simulated (<code>buildbot-mobilebase</code>: 54 to 121 s on a drive-and-lift base, 85 s walking at 5 s a step), the person's is not sourced, so this solves for the person time above which a G1 saves money at a $37.86 loaded hour. A walking G1 pays above 35 s a sheet at 0.3 supervision hours per robot-hour (18 s at 0.1, 94 s at 1.0); a base needs 26 to 76 s at 0.3. The taskbook&rsquo;s assumed 372 s is far above these, but a pro who nails a sheet in about a minute would not be beaten on cost. The dollars are about $110 a house on 32 wall sheets. <strong>Not sourced:</strong> the person time (no crew-productivity figure was found), the base price, and the supervision and use ranges, which are swept. Simulated robot times are an upper-bound reach model.",
+ "lede": "how slow must a person be at nailing a sheet of sheathing for a Unitree G1 nailing it to pay? A walking G1 (85 s a sheet) pays above 35 s of person time at 0.3 supervision, a base-mounted one above 26 to 76 s; about $110 a house, and the person's time per sheet is the unsourced unknown."
+}

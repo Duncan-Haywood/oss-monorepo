@@ -33,5 +33,5 @@ kill_criteria:
   - A report that an IRD or ACC figure differs from the official source.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/nz-sole-trader-tax-set-aside-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/nz-sole-trader-tax-set-aside-calculator/
   analytics: null
