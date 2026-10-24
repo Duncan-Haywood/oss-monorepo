@@ -294,3 +294,10 @@ test("Venmo export with a Username column: footer rows are not part of the last 
   assert.deepEqual(r.rows.map((x) => [x.date, x.cents, x.desc]), [["2020-01-01", 5003, "Pat - lunch"], ["2020-01-03", -1201, "Lee - rent"]]);
   assert.deepEqual(r.problems, []);
 });
+
+test("an OFX date that is no calendar day is skipped, not booked (ofxparse's date_missing.ofx has 20120231)", () => {
+  const r = readOfx(wrap(`<STMTTRN><TRNTYPE>OTHER<DTPOSTED>20120231<TRNAMT>200.00<FITID>1<NAME>TestFail2</STMTTRN>
+    <STMTTRN><TRNTYPE>OTHER<DTPOSTED>20120229<TRNAMT>5.00<FITID>2<NAME>Leap day</STMTTRN>`));
+  assert.deepEqual(r.rows.map((x) => x.date), ["2012-02-29"]);
+  assert.equal(r.problems.length, 1);
+});

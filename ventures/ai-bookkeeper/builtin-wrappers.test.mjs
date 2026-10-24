@@ -27,3 +27,15 @@ test("withdrawal wrappers and deposits", () => {
   assert.equal(acct("Withdrawal From Dominion Energy"), "6140");
   assert.equal(acct("REMOTE ONLINE DEPOSIT # 1", 20000), "4000");
 });
+
+// Plain-English narrations seen in Beancount's example ledger (eval/beancount-example.mjs);
+// the lines here are written for this test.
+test("plain narrations name the account: rent, eating out, tram tickets", () => {
+  assert.equal(acct("Landlord Co Paying the rent"), "6080");
+  assert.equal(acct("Bistro Nine Eating out with a client"), "6130");
+  assert.equal(acct("City Transit Authority Tram tickets"), "6120");
+});
+test("the new phrases do not catch car rentals or a bare 'rent'", () => {
+  assert.equal(acct("ENTERPRISE RENT-A-CAR 4471"), "6120");
+  assert.notEqual(acct("Rent the Runway"), "6080");
+});
