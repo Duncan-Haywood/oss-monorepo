@@ -11,6 +11,7 @@ Consolidates the one-corner versions in the `qual-*` projects (../../qual-correc
 - `ppi_pp`          PPI++ with the variance-minimising lam (Angelopoulos, Duchi & Zrnic 2023).
 - `ipw_audit`       design-based estimator for an audit drawn with known inclusion
                     probabilities (Egami et al. 2023, DSL with known design).
+- `ipw_audit_wilson`, `ipw_audit_bootstrap`  small-count-safe intervals for `ipw_audit`.
 - `stratified_ppi`  PPI inside strata with corpus-known stratum sizes, so a stratified audit
                     needs no weights (Fisch et al. 2024). The target is the corpus's own mean
                     (a finite population), so the variance carries the finite-population
@@ -109,6 +110,36 @@ def ipw_audit(f_all, audited, y_by_index, pi):
         tot += r / p
         var += (1 - p) / (p * p) * r * r
     return Est(_mean(f_all) + tot / big_n, math.sqrt(var) / big_n)
+
+
+def ipw_audit_wilson(f_all, audited, y_by_index, pi, z=Z95):
+    """Small-count-safe interval for `ipw_audit` (Wilson score on a Kish-type effective size).
+
+    With the estimate p and the Poisson-design se, n_eff = p(1-p)/se^2 is the sample size of a
+    simple random sample with the same variance; the interval is the Wilson interval for p at
+    n_eff. It stays inside [0, 1] and does not collapse when p*n_eff is near 0. Returns (lo, hi).
+    """
+    e = ipw_audit(f_all, audited, y_by_index, pi)
+    p = min(1.0, max(0.0, e.value))
+    if e.se == 0 or p * (1 - p) == 0:
+        return (p, p) if e.se == 0 else (0.0, min(1.0, z * e.se))
+    n = p * (1 - p) / (e.se * e.se)
+    den = 1 + z * z / n
+    c = (p + z * z / (2 * n)) / den
+    h = z * math.sqrt(p * (1 - p) / n + z * z / (4 * n * n)) / den
+    return max(0.0, c - h), min(1.0, c + h)
+
+
+def ipw_audit_bootstrap(f_all, audited, y_by_index, pi, rng, reps=300, level=0.95):
+    """Percentile bootstrap interval for `ipw_audit`: resample the audited items with replacement
+    (the coder's mean is fixed, since f_all is known on the whole corpus). Returns (lo, hi)."""
+    big_n = len(f_all)
+    base = _mean(f_all)
+    terms = [(y_by_index[i] - f_all[i]) / pi[i] for i in audited]
+    m = len(terms)
+    draws = sorted(base + sum(terms[rng.randrange(m)] for _ in range(m)) / big_n for _ in range(reps))
+    a = (1 - level) / 2
+    return draws[int(a * reps)], draws[min(reps - 1, int((1 - a) * reps))]
 
 
 def stratified_ppi(strata):
