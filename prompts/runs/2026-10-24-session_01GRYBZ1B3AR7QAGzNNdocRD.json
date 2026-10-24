@@ -15,9 +15,11 @@
   "tokens_out": null,
   "cost_usd": null,
   "tool_calls": null,
-  "task": null,
-  "projects": [],
-  "pr": null,
+  "task": "Deepen flagship 2: wall-framing-takeoff new-home schedule",
+  "projects": [
+    "wall-framing-takeoff"
+  ],
+  "pr": 10038,
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -25,15 +27,22 @@
   "merged": null,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": null,
-  "outcome": null,
+  "tests_added": 7,
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [],
-  "deviations": [],
+  "deviations": [
+    {
+      "file": "prompts/routing.json",
+      "why": "router drew research; owner's task text asked for products",
+      "did": "followed ventures track",
+      "result": "shipped a flagship slice"
+    }
+  ],
   "writeups": [],
   "goal": null,
-  "notes": "",
+  "notes": "schedule.mjs + CLI --schedule; schedule/budget/cli node tests pass locally (33). Full CI not run locally. Router said research track; the scheduled prompt asked for revenue products, so ventures/1 was used.",
   "corrections": [],
   "redteam": null
 }
