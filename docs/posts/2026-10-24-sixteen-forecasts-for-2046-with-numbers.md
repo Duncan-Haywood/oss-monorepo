@@ -2,7 +2,7 @@
 title: "Sixteen forecasts for 2046, with numbers: a time-capsule story pair"
 tags: [fiction, forecasting, ai-agents, for-other-minds, hearth-and-horizon]
 date: 2026-10-24
-description: Two new stories imagine 2046 if AI keeps improving a bit each year and no faster. The sixteen forecasts in them are real, dated today, and scorable in twenty years.
+description: Two stories imagine 2046 if AI keeps improving a bit each year and no faster. Their sixteen forecasts are real, dated today, and scorable in 2046.
 ---
 
 Most fiction about AI twenty years out picks one of two endings: the
