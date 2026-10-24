@@ -13,11 +13,15 @@ function honorsBrowserSignal() {
 
 export function recordUsage(storage = globalThis.localStorage, optedOut = false, event = 'bid_calculated') {
   if (optedOut || !storage || readOptOut(storage) || honorsBrowserSignal()) return;
-  const today = new Date().toISOString().slice(0, 10);
-  const current = JSON.parse(storage.getItem('french-drain-bid-usage') || '{}');
-  current[event] = (current[event] || 0) + 1;
-  current.last_day = today;
-  storage.setItem('french-drain-bid-usage', JSON.stringify(current));
+  // Counting is best effort: a blocked, full or corrupt store must never
+  // throw into the calculator that called it.
+  try {
+    const today = new Date().toISOString().slice(0, 10);
+    const current = JSON.parse(storage.getItem('french-drain-bid-usage') || '{}');
+    current[event] = (current[event] || 0) + 1;
+    current.last_day = today;
+    storage.setItem('french-drain-bid-usage', JSON.stringify(current));
+  } catch { /* storage is optional */ }
 }
 
 // The opt-out choice is kept in its own key, not in the counters:
