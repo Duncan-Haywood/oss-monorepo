@@ -39,8 +39,9 @@ const periodEnd = (p) => {
 // Due day of the month after the period, by state, from the states' published
 // monthly/quarterly schedules as the author recalls them: check yours
 // (a state's own calendar can differ by filing frequency). "last" = month end.
-export const STATE_DUE_DAYS = { CA: "last", TX: 20, FL: 20, NY: 20, WA: 25, IL: 20, PA: 20, NJ: 20, GA: 20, NC: 20, OH: 23, MA: 20, VA: 20, AZ: 20, MI: 20, CT: "last", WI: "last", UT: "last", IN: 30, KS: 25, CO: 20, MN: 20, TN: 20, AL: 20, SC: 20, NM: 25, NV: 20, ID: 20, LA: 20, MD: 20, ME: 15, VT: 25, ND: "last", AR: 20, OK: 20, KY: 20, MS: 20, NE: 20 };
+export const STATE_DUE_DAYS = { CA: "last", TX: 20, FL: 20, NY: 20, WA: 25, IL: 20, PA: 20, NJ: 20, GA: 20, NC: 20, OH: 23, MA: 20, VA: 20, AZ: 20, MI: 20, CT: "last", WI: "last", UT: "last", IN: 30, KS: 25, CO: 20, MN: 20, TN: 20, AL: 20, SC: 20, NM: 25, NV: 20, ID: 20, LA: 20, MD: 20, ME: 15, VT: 25, ND: "last", AR: 20, OK: 20, KY: 20, MS: 20, NE: 20, MO: "last", IA: "last" };
 // AR, OK, KY, MS, NE: the 20th (Kintsugi and TaxJar calendars via search 2026-10-24; state sites not read). All equal the default, listed so the schedule is explicit. Missouri left out: TaxCloud lists month end, TaxJar the 20th.
+// MO (dor.mo.gov 2026 monthly due-date table and sales tax FAQ: last day of the month after; the older instructions booklet says the 20th, outdated) and IA (revenue.iowa.gov filing-frequency page: last day of the month after; Streamlined Model 1 sellers the 20th, annual filers Jan 31, not modelled) added 2026-10-24 from search excerpts.
 // ME (Rule 304, maine.gov: the 15th of the month after each reporting period), VT (tax.vermont.gov FAQ: the 25th; monthly returns for January are due the 23rd, not modelled) and
 // ND (last day of the month after; third-party guides, state site not read) added 2026-10-24 from search excerpts. Iowa still left out: sources conflict (20th prepayments vs month-end returns).
 // LA, MD: the 20th (TaxCloud and Kintsugi tables via search 2026-10-24; state sites not read).
