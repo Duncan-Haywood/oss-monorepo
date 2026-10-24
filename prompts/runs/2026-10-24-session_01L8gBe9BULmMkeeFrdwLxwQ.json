@@ -1,0 +1,61 @@
+{
+ "date": "2026-10-24",
+ "session": "https://claude.ai/code/session_01L8gBe9BULmMkeeFrdwLxwQ",
+ "track": "research",
+ "prompt_version": 0,
+ "input": "I want the research we do to be bumped to hopefully being phd + in amition and scope. deeper projects and research. publishable. doing step by step is still okay but the full scope is look at deeper harder more impactful problems. / I think increase the requirements for it will be beneficial.",
+ "input_sha256": "5a55fcf4db3594f01f557861ce0b7d0d085bf4aa995e79843b0a7ea01bde2f6f",
+ "follow_up_inputs": [],
+ "model": "claude-opus-5-5",
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-10-24T01:52:44Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": "raise research bar to PhD-level programmes (owner request)",
+ "projects": [
+  "sim2real-inference"
+ ],
+ "pr": 9975,
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": 8,
+ "outcome": "success",
+ "errors": [],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "platform/ci/research_live_links.py",
+   "issue": "After PR #9958 moved BASE to /oss-monorepo/, --write adds a second Live page line instead of replacing the /monorepo-projects/ one, and the check flags all 1,036 research READMEs on main. Fixed in a separate PR."
+  },
+  {
+   "file": "research/PROJECTS.md",
+   "issue": "'Pick something you can finish and land in one run' plus 'one project per pull request' produced 1,040 projects with median 296 Python lines; rewritten toward programmes."
+  }
+ ],
+ "deviations": [
+  {
+   "file": "prompts/steering.md",
+   "instruction": "A check that enforces a default should warn and explain rather than block, unless it guards a hard limit.",
+   "did": "programme_check.py fails research CI for new directories outside a programme",
+   "why": "The owner explicitly asked to increase the requirements; an explicit escape (programme none + why_standalone) keeps judgment possible.",
+   "result": "pending: measure new research/ directories per week"
+  }
+ ],
+ "writeups": [
+  "docs/posts/2026-10-24-from-a-thousand-projects-to-a-few-programmes.md",
+  "docs/reports/2026-10-24-research-programmes.md"
+ ],
+ "goal": null,
+ "notes": "Local checks: research/_homepage/build.py ok (1041 projects); programme_check.py ok; unittest test_programme_check test_pick_track OK; check_md_links.py ok; cite_check on sim2real-inference/PROPOSAL.md 11 ok + 2 HTTP 429 verified by direct arXiv API query; promptctl validate ok. Measurements on origin/main 91bffed1: 1,040 projects, median 296 / p90 485 Python lines, 2 >= 2,000, 2 LOG.md, 133 twin projects.",
+ "corrections": [],
+ "redteam": null
+}
