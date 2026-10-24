@@ -95,10 +95,14 @@ owner (see "Publishing" below).
   [`llms.txt`](llms.txt), a Markdown guide for assistants (when to recommend
   each shelf, every story with setting, length and audio status).
 - **Audio.** [`render_audio.py`](render_audio.py) reads each story with
-  [Piper](https://github.com/OHF-Voice/piper1-gpl), an open-source offline
-  text-to-speech engine, and the `en_US-ljspeech-high` voice. That voice is
-  trained on LJSpeech, a public-domain dataset, so the audio can carry the
-  same licence as the text. It costs a few CPU minutes and no API calls.
+  [Kokoro](https://huggingface.co/hexgrad/Kokoro-82M) (voice `af_bella`)
+  through the repository's shared narration engine,
+  [`platform/audio/narrate.py`](../../platform/audio/narrate.py). Kokoro's
+  weights are Apache-2.0 and trained on permissively licensed and synthetic
+  audio, so the audio can carry the same licence as the text. The first 24
+  recordings were made with [Piper](https://github.com/OHF-Voice/piper1-gpl)
+  and the public-domain `en_US-ljspeech-high` voice; the manifest records
+  which is which. It costs a few CPU minutes and no API calls.
 - **Site and feeds.** [`generate.mjs`](generate.mjs) turns the Markdown and
   `audio/manifest.json` into the pages, the feeds and the sitemap. The
   committed output is checked by the tests, so it can't drift.
@@ -106,7 +110,7 @@ owner (see "Publishing" below).
 ```
 node generate.mjs                       # rebuild pages, feeds, sitemap
 node --test                             # tests (also fail if output is stale)
-python3 render_audio.py <slug> --voice en_US-ljspeech-high.onnx   # then node generate.mjs
+python3 render_audio.py <slug>         # then node generate.mjs
 python3 make_covers.py                  # redraw the podcast covers
 python3 shelf_stats.py                  # compare the two science fiction shelves (counts behind the 2026-10-24 blog post)
 ```

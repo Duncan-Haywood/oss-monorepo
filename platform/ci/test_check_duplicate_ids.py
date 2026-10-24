@@ -34,6 +34,15 @@ class DuplicateIds(unittest.TestCase):
             with contextlib.redirect_stdout(io.StringIO()):
                 self.assertEqual(main(["--root", d]), 0)
 
+    def test_scan_reaches_nested_pages_but_not_node_modules(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            for sub in ("v/site", "v/node_modules/x"):
+                (root / "ventures" / sub).mkdir(parents=True)
+                (root / "ventures" / sub / "index.html").write_text('<p id="a"></p><p id="a"></p>')
+            found = scan(root)
+            self.assertEqual([str(p) for p, *_ in found], ["ventures/v/site/index.html"])
+
     def test_default_root_is_the_repo_root(self):
         self.assertTrue((ROOT / "ventures").is_dir())
 

@@ -211,3 +211,15 @@ test("headers beat words: a DSN names the failed prospect, a temporary one does 
   const bulk = parseMessage(mail("mo@acme.test", "Re: hello", "Sounds good, send me times.", "Precedence: bulk\r\n"));
   assert.ok(!/X-Signal/.test(toReplyBlock(bulk)));
 });
+
+test("a bounce naming several failed recipients stops every one of them (real DSNs from the mail gem's fixtures)", async () => {
+  const { readFileSync } = await import("node:fs");
+  const { runInbox } = await import("../engine.mjs");
+  const { toReplyBlock } = await import("./imap.mjs");
+  const m = parseMessage(readFileSync(new URL("../eval/bounce-corpus-mail/multi_address_bounce1.eml", import.meta.url), "latin1"));
+  assert.equal(m.dsn.failed.length, 5);
+  const prospects = "email,first_name\n" + m.dsn.failed.map((e) => `${e},A`).join("\n") + "\nkeep@acme.test,K\n";
+  const r = runInbox({ replies: toReplyBlock(m), prospects, today: "2026-10-26" });
+  assert.deepEqual(r.prospects.filter((p) => p.status === "bounced").map((p) => p.email).sort(), [...m.dsn.failed].sort());
+  assert.equal(r.prospects.find((p) => p.email === "keep@acme.test").status || "", "");
+});

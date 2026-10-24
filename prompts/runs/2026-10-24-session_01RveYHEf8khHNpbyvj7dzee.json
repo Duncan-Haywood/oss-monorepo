@@ -38,7 +38,7 @@
     },
     {
       "file": "portfolio/flagships.yaml",
-      "issue": "ai-bookkeeper (2,119) and einvoice-preflight (2,293) next: were already over the 2,000-character cap on main, so validate was red on main; both rewritten to open items only in this PR."
+      "issue": "ai-bookkeeper (2,119) and einvoice-preflight (2,293) next: were over the 2,000-character cap on main, so validate was red for every PR; this PR trimmed both, then main landed its own trim and this PR took main's text plus the one receipts clause."
     },
     {
       "file": "docs/posts/",
