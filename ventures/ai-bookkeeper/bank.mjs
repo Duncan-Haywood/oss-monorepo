@@ -26,6 +26,7 @@ const ALIASES = {
     // Korean, Chinese
     "거래일자", "거래일시", "거래일", "기준일자", "交易日期", "记账日期", "記帳日期", "交易时间", "交易時間",
     // value dates last: German Valuta/Wertstellung are not the booking date
+    "created (utc)", "created", "created date (utc)", "created at",
     "wertstellung", "valuta",
     // Indonesian
     "tanggal", "tgl", "التاريخ", "تاريخ العملية"],
@@ -48,7 +49,7 @@ const DAY_FIRST_HEADER = /^(дата операции|расход|приход|
 function pickDelimiter(s) {
   const lines = s.split(/\r\n|\r|\n/).filter((l) => l.trim() !== "").slice(0, 20);
   let best = ",", bestScore = -1;
-  for (const d of [",", ";", "\t"]) {
+  for (const d of [",", ";", "\t", "|"]) {
     const freq = new Map();
     for (const l of lines) { const n = l.replace(/"[^"]*"/g, "").split(d).length; if (n > 1) freq.set(n, (freq.get(n) ?? 0) + 1); }
     let score = 0;
@@ -180,6 +181,9 @@ export function detectColumns(header) {
     cols.amount = h.indexOf("net");
     if (h.includes("title")) cols.desc = h.indexOf("title");
   }
+  // Stripe's balance-transactions export (Amount, Fee, Net, Created (UTC)):
+  // Net is what moved the Stripe balance; Amount is the gross before the fee.
+  if (h.includes("fee") && h.includes("net") && h.includes("created (utc)") && cols.amount !== -1 && h[cols.amount] === "amount") cols.amount = h.indexOf("net");
   if (cols.desc === -1) {
     // Some banks split payee and memo; take the first text-looking column left.
     cols.desc = h.findIndex((x, i) => !Object.values(cols).includes(i) && /desc|payee|name|memo|detail/.test(x));

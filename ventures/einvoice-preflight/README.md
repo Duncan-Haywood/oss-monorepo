@@ -334,7 +334,8 @@ and not a determination that the institution will accept the payment. UBL
 
 `payment.remittance` is the text the buyer should quote on the transfer.
 When a complete IBAN is present and remittance is missing, that is
-`INV-030` — an unmatched SEPA credit is how paid invoices sit in
+`INV-030`, a **note** (`severity: "note"`): it is listed in every report but does not
+fail the file or change the exit code, because the standard does not require it — an unmatched SEPA credit is how paid invoices sit in
 unallocated cash. When remittance is supplied, an ISO 11649 RF creditor
 reference that fails its MOD-97 check (or that is not RF-shaped after
 starting with `RF`) is `INV-031`. Unstructured notes are accepted up to

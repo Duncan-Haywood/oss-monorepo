@@ -405,9 +405,9 @@
           return `<article><h3><code>${escapeHtml(report.file)}</code></h3>${envelope}<p class="pass">PASS — no supported defects found.</p></article>`;
         }
         const findings = report.errors.map((error) => (
-          `<div class="finding"><strong>${escapeHtml(error.rule)}</strong> at <code>${escapeHtml(error.path || "/")}</code><br>${escapeHtml(error.message)}<br><span class="fix">Fix: ${escapeHtml(error.fix)}</span></div>`
+          `<div class="finding">${error.severity === "note" ? "<em>note</em> " : ""}<strong>${escapeHtml(error.rule)}</strong> at <code>${escapeHtml(error.path || "/")}</code><br>${escapeHtml(error.message)}<br><span class="fix">Fix: ${escapeHtml(error.fix)}</span></div>`
         )).join("");
-        return `<article><h3><code>${escapeHtml(report.file)}</code></h3>${envelope}<p class="fail">FAIL</p>${findings}</article>`;
+        return `<article><h3><code>${escapeHtml(report.file)}</code></h3>${envelope}${report.errors.some((error) => error.severity !== "note") ? `<p class="fail">FAIL</p>` : `<p class="pass">PASS — notes only.</p>`}${findings}</article>`;
       });
       const read = result.readErrors.length
         ? `<article><h3>Read errors</h3>${result.readErrors.map((error) => `<p class="error"><code>${escapeHtml(error.file)}</code>: ${escapeHtml(error.error)}</p>`).join("")}</article>`

@@ -65,8 +65,8 @@ function isoDate(value) {
 
 export function checkInvoice(invoice) {
   const errors = [];
-  const fail = (rule, message, fix, path = "") => {
-    errors.push({ rule, message, fix, path });
+  const fail = (rule, message, fix, path = "", severity) => {
+    errors.push(severity ? { rule, message, fix, path, severity } : { rule, message, fix, path });
   };
 
   if (invoice === null || typeof invoice !== "object" || Array.isArray(invoice)) {
@@ -148,7 +148,7 @@ export function checkInvoice(invoice) {
     fail(finding.rule, finding.message, finding.fix, finding.path);
   }
   for (const finding of inspectPaymentRemittance(invoice)) {
-    fail(finding.rule, finding.message, finding.fix, finding.path);
+    fail(finding.rule, finding.message, finding.fix, finding.path, finding.severity);
   }
   for (const finding of inspectDocumentType(invoice)) {
     fail(finding.rule, finding.message, finding.fix, finding.path);
