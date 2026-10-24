@@ -1,7 +1,7 @@
 ---
 title: "A little outer momentum helps DiLoCo, but only at large H"
 date: 2026-10-29
-description: "On a 14k-parameter character model, outer Nesterov momentum of 0.1 to 0.3 trims 0.01 to 0.02 nats off long local runs and hurts short ones; momentum 0.5 and above still hurts."
+description: "On a 14k-parameter character model, outer momentum of 0.1 to 0.3 trims 0.01 to 0.02 nats off long local runs and hurts short ones; 0.5 and up still hurts."
 tags: [research, distributed-training, diloco, outer-momentum]
 ---
 

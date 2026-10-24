@@ -19,3 +19,7 @@ test("a truncated Secretary of State charge is a licence/filing fee", () => {
 test("a Patreon payout is income, not a guess at anything else", () => {
   assert.equal(acct("ACH CREDIT PATREON         -PATREON", 5000), "4000");
 });
+test("a business account's analysis charge is a bank fee", () => {
+  assert.equal(acct("DEBIT-ANALYSIS CHARGE", -1500), "6010");
+  assert.equal(acct("ACCOUNT ANALYSIS FEE", -1500), "6010");
+});

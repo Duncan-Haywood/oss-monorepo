@@ -1,7 +1,7 @@
 ---
 title: "A bookkeeper that ignored \"Paying the rent\": scoring on Beancount's example ledger"
 date: 2026-10-29
-description: "ai-bookkeeper's keyword layer suggested an account for 36% of lines in Beancount's example ledger. Three phrase fixes took it to 85% with no wrong suggestions."
+description: "ai-bookkeeper's keywords suggested an account for 36% of Beancount's example ledger. Three phrase fixes took it to 85%, with no wrong suggestions."
 tags: [ai-bookkeeper, evaluation, bookkeeping, beancount]
 ---
 
