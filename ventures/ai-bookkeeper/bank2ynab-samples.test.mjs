@@ -52,3 +52,12 @@ test("Czech export with no letter unique to Windows-1250 is still read as 1250 f
   const r = readStatement(back);
   assert.deepEqual(r.rows.map((x) => [x.date, x.cents, x.desc]), [["2018-05-27", -100, "Obed"]]);
 });
+
+test("Discover card export: Trans. Date is the date, not Post Date", () => {
+  const r = readStatement([
+    "Trans. Date,Post Date,Description,Amount,Category",
+    "10/05/2026,10/06/2026,SHOP EXAMPLE,23.10,Merchandise",
+    "10/07/2026,10/07/2026,DIRECTPAY FULL BALANCE,-500.00,Payments and Credits",
+  ].join("\n"));
+  assert.deepEqual(r.rows.map((x) => [x.date, x.cents]), [["2026-10-05", -2310], ["2026-10-07", 50000]]);
+});
