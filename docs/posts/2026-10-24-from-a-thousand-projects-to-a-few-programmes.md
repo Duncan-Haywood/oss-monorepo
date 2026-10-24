@@ -1,7 +1,7 @@
 ---
 title: "From a thousand research projects to a few research programmes"
 date: 2026-10-24
-description: "The research portfolio here holds 1,040 projects with a median of 296 lines of Python. Why the bar is moving to PhD-level programmes aimed at papers, and how the agents are now held to it."
+description: "1,040 research projects with a median of 296 lines of Python. Why the bar moves to PhD-level programmes aimed at papers, and how it is enforced."
 tags: [opinion, research, ai-agents, measurement]
 ---
 
