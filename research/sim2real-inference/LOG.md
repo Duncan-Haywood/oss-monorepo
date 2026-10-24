@@ -2,6 +2,13 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-25 · Milestone 7c: does it hold with an unbounded, heavy-tailed outcome? (planned before running)
+- Why: the paper's limitations name "a task with an unbounded outcome" as untested. Both earlier tasks score in [0, 1]. Here the same cart-pole, contexts, seeds and 21 pairs are re-run with a different outcome: tracking cost J = integral over the full 4 s of (100 theta^2 + (x - x_ref)^2) dt, no early stop (a fall keeps accumulating, so J has a long right tail and no upper bound). Code: `episode(..., outcome="cost")` in `m7_cartpole/pairs.py` (default behaviour unchanged), pools via `m7c_cost/run_pool.py`, analysis `m7c_cost/analyse.py` = the m3 analysis unchanged (4,000 replications, n = 30 and 60, m = 9n twin runs). Nothing was tuned: no probe run, no pool looked at before this entry.
+- **H7c-i (coverage worsens with a heavy tail):** the twin cost has skewness above 2 on the no-effect pair, and cv or ppi_pp at n = 30 fall below 93.0% on at least 10 of 21 pairs (cart-pole score: 3; pendulum: 15 and 20). Refuted if fewer than 10, or if skewness is 2 or less.
+- **H7c-ii (the pairing gain survives):** among pairs with rho >= 0.75, at least 80% have a paired-over-unpaired variance-ratio lower bound >= 2, and unpaired E stays in [0.9, 1.0] on every pair. Untestable if fewer than 3 pairs reach rho 0.75 (then reported as such). Prior: Pearson rho is outlier-driven under heavy tails, so rho may be both lower and a worse predictor of E.
+- **H7c-iii (rho still predicts E):** Spearman(E, rho) > 0.9 and the over-pairs interval of |Spearman(E, rho)| - |Spearman(E, KS)| excludes 0. Refuted otherwise.
+- Not tested: real-robot or per-episode real pairs (gap 1), a certificate on an unbounded outcome (the floor and 3c-3f assume [0, 1]).
+
 ## 2026-10-25 · Milestone 7b: paper draft updated with the cart-pole replication (no new experiment)
 - `paper/main.tex` gains a "second task" paragraph (H1 shortfall is task dependent; H2 and H6 replicate; the pre-registered 0.95 rank threshold missed at 0.909) and the limitations and conclusion now say two tasks. `reproduce.sh` lists the m7 commands. Remaining gaps: per-episode real pairs, an unbounded outcome.
 
