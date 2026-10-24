@@ -54,6 +54,9 @@ export const SITE_NAV = Object.freeze([
   // lives inside the blog's folder; its page always exists, even with no episodes.
   Object.freeze({ id: 'writing', label: 'Blog', href: 'writing/' }),
   Object.freeze({ id: 'podcast', label: 'Podcast', href: 'writing/podcast/' }),
+  // The creative track's fiction (owner, 2026-10-24: its "own page on the
+  // website"); see stories.mjs.
+  Object.freeze({ id: 'stories', label: 'Stories', href: 'stories/' }),
   Object.freeze({ id: 'updates', label: 'Updates', href: 'updates/' }),
   Object.freeze({ id: 'ask', label: 'Ask', href: 'ask/' }),
   Object.freeze({ id: 'deploy', label: 'Deploy your own', href: 'deploy/' }),
@@ -144,6 +147,7 @@ export function renderSiteFooterNav({ toRoot = '' } = {}) {
     ['research/', 'Research'],
     ['writing/', 'Blog'],
     ['writing/podcast/', 'Podcast'],
+    ['stories/', 'Stories'],
     ['updates/', 'Updates &amp; roadmap'],
     ['changelog/', 'Changelog'],
     ['guides/', 'Guides'],
