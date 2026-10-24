@@ -6,7 +6,7 @@ skip it — spray, rotor, and drip zones at their own minutes, then the backflow
 drain-and-insulate, the compressor setup, and the drive — and shows the margin
 before the price goes out.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/irrigation-winterization-bid-calculator/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/irrigation-winterization-bid-calculator/
 
 **Open [`index.html`](index.html) directly in a browser**, or serve this
 directory statically. It is a self-contained, zero-dependency page: no build

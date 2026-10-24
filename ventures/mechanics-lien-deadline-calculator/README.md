@@ -4,7 +4,7 @@ A free browser calculator for the two dates that decide whether an unpaid
 subcontractor or supplier can still file a mechanics lien: the **preliminary
 notice** and the **lien filing**. Entirely client-side; nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/mechanics-lien-deadline-calculator/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/mechanics-lien-deadline-calculator/
 
 After using this, you can now **see both deadlines, and how many days are
 left, from your own first and last day on the job** — which used to mean

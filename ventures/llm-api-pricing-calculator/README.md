@@ -10,7 +10,7 @@ usually while forgetting that cached tokens exist at all.
 **Browser tool** (no install, nothing uploaded): open
 [`index.html`](index.html) directly in a browser, or serve this directory
 statically. It is live at
-[`llm-api-pricing-calculator`](https://duncan-haywood.github.io/oss-monorepo/llm-api-pricing-calculator/)
+[`llm-api-pricing-calculator`](https://duncan-haywood.github.io/monorepo-projects/llm-api-pricing-calculator/)
 in the portfolio's GitHub Pages catalogue — see `VENTURE.yaml`'s
 `links.production`. The static surface includes crawlable `robots.txt` and
 `sitemap.xml` files and a [guide on why cached tokens usually dominate an

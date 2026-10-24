@@ -7,7 +7,7 @@ whitelisting rights** and **category exclusivity** — the two contract terms th
 most often change the real price. Everything runs in the browser; nothing is
 uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/youtube-sponsorship-rate-calculator/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/youtube-sponsorship-rate-calculator/
 
 ## Why this exists
 

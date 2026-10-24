@@ -2,7 +2,7 @@
 
 Free, private browser tool: enter a salary and a state to see employer Social Security, Medicare, FUTA, state unemployment, workers' comp, retirement match and health cost, with the wage-base caps applied, and the all-in cost of a hire.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/employer-payroll-tax-cost-calculator/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/employer-payroll-tax-cost-calculator/
 
 After using this, you know what a hire really costs on top of pay, and why part-year and low-wage hires cost proportionally more.
 

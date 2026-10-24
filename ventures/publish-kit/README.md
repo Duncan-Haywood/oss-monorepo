@@ -4,7 +4,7 @@ Self-publish a podcast, an audiobook, an ebook or a paperback without a
 hosting company's dashboard. You can use it from a web page, from a terminal,
 or by asking an AI agent such as Claude Code to run it for you.
 
-**Use it in your browser:** https://duncan-haywood.github.io/oss-monorepo/publish-kit/
+**Use it in your browser:** https://duncan-haywood.github.io/monorepo-projects/publish-kit/
 
 | You have | Publish Kit makes | Then you |
 | --- | --- | --- |

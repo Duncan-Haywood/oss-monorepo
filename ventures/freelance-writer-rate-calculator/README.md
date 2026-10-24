@@ -4,7 +4,7 @@ A free browser calculator for freelance writers, copywriters, and
 ghostwriters comparing a per-word rate against a flat project fee for the
 same job. Entirely client-side; nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/freelance-writer-rate-calculator/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/freelance-writer-rate-calculator/
 
 After using this, you can now **see which of the two prices actually pays
 more per hour** for a given job — not just which headline number looks

@@ -4,7 +4,7 @@ A free browser tool for freelancers, consultants and small agencies: **load a ti
 see what each client really pays you per hour.** The file is read in the browser; nothing is
 uploaded and no tracker login is needed.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/client-profitability-time-analyzer/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/client-profitability-time-analyzer/
 
 After using this, you can now **see each client's effective hourly rate against your target,
 the gap to it, non-billable time, flat-fee clients whose hours are creeping, and how

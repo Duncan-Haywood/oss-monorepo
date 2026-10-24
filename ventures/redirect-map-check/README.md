@@ -9,7 +9,7 @@ at all, each with its line number. It then writes the map flattened, so every ol
 straight at its final destination, as a Shopify CSV, Netlify or Cloudflare Pages _redirects, Apache
 Redirect lines or an nginx map. The file is read locally and never uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/redirect-map-check/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/redirect-map-check/
 
 ## Run it
 

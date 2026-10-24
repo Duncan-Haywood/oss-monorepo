@@ -4,7 +4,7 @@ After using this, you know who to follow up with today, which proposals have
 gone quiet, what your open pipeline is likely to be worth, and which lead
 sources actually turn into paid work.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/freelance-lead-tracker/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/freelance-lead-tracker/
 
 Free, no account, works offline. Everything runs in your browser; your leads are
 stored in `localStorage` on your device and never uploaded.

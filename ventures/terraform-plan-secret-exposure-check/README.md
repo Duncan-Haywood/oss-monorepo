@@ -5,7 +5,7 @@ and reports every attribute value that looks like a real secret — an AWS
 access key, a PEM private key, a JWT, or a URL with embedded credentials —
 which the provider schema did **not** mark `sensitive`.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/terraform-plan-secret-exposure-check/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/terraform-plan-secret-exposure-check/
 
 **What it is not:** a Terraform state scanner, a secrets-manager audit, or a
 policy engine. It answers one narrow question per attribute — does this

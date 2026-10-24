@@ -5,7 +5,7 @@ watcher into your own GitHub repository; it checks your pages every six hours on
 your own Actions minutes and pushes an alert to your phone (ntfy) or Discord.
 There is no account and no shared server, so nobody else holds your watch list.
 
-**Live tool and setup guide:** https://duncan-haywood.github.io/oss-monorepo/price-drop-watcher/
+**Live tool and setup guide:** https://duncan-haywood.github.io/monorepo-projects/price-drop-watcher/
 
 ## Why use this
 

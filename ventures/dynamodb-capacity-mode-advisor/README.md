@@ -4,7 +4,7 @@ Is your DynamoDB table on the wrong capacity mode? Paste the consumed read/write
 from CloudWatch and see the monthly cost on-demand, provisioned with autoscaling and
 provisioned at a fixed peak. Browser page or zero-dependency CLI.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/dynamodb-capacity-mode-advisor/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/dynamodb-capacity-mode-advisor/
 
 ```
 node cli.mjs analyze metrics.csv

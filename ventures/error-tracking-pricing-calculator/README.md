@@ -4,7 +4,7 @@ Price Sentry, Rollbar, Bugsnag, Honeybadger and GlitchTip side by side at your m
 event volume, see the 12-month spend under your growth rate, and find the volumes where the
 cheapest provider changes — before you build on one.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/error-tracking-pricing-calculator/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/error-tracking-pricing-calculator/
 
 ```
 node cli.mjs compare --events 120000 --growth 6

@@ -8,7 +8,7 @@ unit, the break-even sale price, the price that hits a target margin, and the
 **maximum you can pay for inventory** both before the unit loses money and
 while preserving your target margin.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/amazon-fba-calculator/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/amazon-fba-calculator/
 
 Open [`index.html`](index.html) in a browser. The calculation is local and
 works without an account, network request, or API key. It is arithmetic, not

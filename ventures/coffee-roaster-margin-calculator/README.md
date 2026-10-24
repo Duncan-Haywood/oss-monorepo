@@ -10,7 +10,7 @@ bags you expect to sell into green pounds, batches, roasting hours and sacks to 
 and a break-even gives the monthly volume that covers your fixed costs. Exports a CSV.
 Nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/coffee-roaster-margin-calculator/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/coffee-roaster-margin-calculator/
 
 Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 

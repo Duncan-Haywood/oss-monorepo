@@ -5,7 +5,7 @@ exit code alone cannot: **did last night's backup actually produce a usable
 artifact, or did it just exit cleanly?** A second question the per-run check
 cannot see: **is last night's archive quietly smaller than Tuesday's?**
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/backup-verification-evidence/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/backup-verification-evidence/
 
 Scheduled backups (`restic`, `borg`, `pg_dump`, `rsync`, `tar`, cron/systemd
 jobs of any kind) fail silently more often than they fail loudly: the disk

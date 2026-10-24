@@ -7,7 +7,7 @@ for Xero, QuickBooks Online and QuickBooks Desktop (IIF). One front door for sev
 journal tools (Ko-fi, Buy Me a Coffee and Teachable share one export layout, as do Patreon and Lemon
 Squeezy); the file is read locally and never uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/sales-export-to-journal/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/sales-export-to-journal/
 
 ## Run it
 

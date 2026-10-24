@@ -5,7 +5,7 @@ four-question price survey (too cheap, cheap, expensive, too expensive) and see 
 prices, the optimal price point, the indifference price, a chart of the four curves and a bootstrap band
 around each point.** Nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/van-westendorp-pricing-analyzer/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/van-westendorp-pricing-analyzer/
 
 After using this, you can now **see the price range your survey respondents accept and how much a small
 sample could move it, before you set a price or run a live test**.

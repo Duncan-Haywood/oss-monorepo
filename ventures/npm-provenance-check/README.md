@@ -9,7 +9,7 @@ a supported CI, no long-lived publish token to steal) or `npm publish
 mechanism the 2025–2026 Shai-Hulud worm abused to compromise maintainer
 accounts and push malicious package versions.
 
-Live: `https://duncan-haywood.github.io/oss-monorepo/npm-provenance-check/`
+Live: `https://duncan-haywood.github.io/monorepo-projects/npm-provenance-check/`
 
 ## What it does
 

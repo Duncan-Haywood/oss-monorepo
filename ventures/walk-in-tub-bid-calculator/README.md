@@ -8,7 +8,7 @@ cast versus whirlpool versus air-jet versus extra-wide, then
 door, tile, grab bars, and floor work — and shows the margin
 before the price goes out.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/walk-in-tub-bid-calculator/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/walk-in-tub-bid-calculator/
 
 **After using this, you can now** send a walk-away walk-in-tub
 price that sees the alcove, the unit, whether they already

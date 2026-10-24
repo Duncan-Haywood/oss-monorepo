@@ -4,7 +4,7 @@ A free, zero-dependency CLI that scans `.github/workflows/` for steps pinned to
 a first-party `actions/*` version that runs on a deprecated or ageing Node
 runtime:
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/actions-runtime-deprecation-check/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/actions-runtime-deprecation-check/
 
 1. **`shut-down-version`** — a major GitHub no longer serves
    (`upload-artifact`/`download-artifact` v1–v3, `cache` v1–v2). Jobs fail.

@@ -4,7 +4,7 @@ A free browser calculator for plumbers and water-heater installers. It prices
 a residential replacement from the heater type, the location, the vent, and
 the gas or electrical path — and shows the margin before the price goes out.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/water-heater-bid-calculator/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/water-heater-bid-calculator/
 
 **Open [`index.html`](index.html) directly in a browser**, or serve this
 directory statically. It is a self-contained, zero-dependency page: no build

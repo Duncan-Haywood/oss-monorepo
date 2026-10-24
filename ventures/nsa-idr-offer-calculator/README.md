@@ -8,7 +8,7 @@ chance you need to break even, which claims are worth taking to federal IDR, how
 much rides on the win-chance assumption, and the open negotiation and IDR
 initiation dates. No patient information is needed; nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/nsa-idr-offer-calculator/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/nsa-idr-offer-calculator/
 
 Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 

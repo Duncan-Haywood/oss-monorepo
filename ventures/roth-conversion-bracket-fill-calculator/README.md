@@ -6,7 +6,7 @@ fills the bracket, the federal tax it costs, what every bracket would allow,
 and how many years a traditional IRA balance takes at that pace. Entirely
 client-side; nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/roth-conversion-bracket-fill-calculator/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/roth-conversion-bracket-fill-calculator/
 
 It also models two traps most conversion calculators miss:
 

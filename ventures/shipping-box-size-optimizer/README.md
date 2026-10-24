@@ -7,7 +7,7 @@ fitting box, counting dimensional weight, the box itself and void fill, and
 shows what each extra size saves a month, which box each product goes in, and
 how far today's boxes are from the best set. Nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/shipping-box-size-optimizer/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/shipping-box-size-optimizer/
 
 Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 

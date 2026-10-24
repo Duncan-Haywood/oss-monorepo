@@ -9,7 +9,7 @@ month. Then it asks the question a fee table cannot: **how often does it
 actually sell there**, and what is one listing worth per month of shelf once
 you count that.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/where-to-sell-calculator/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/where-to-sell-calculator/
 
 **Discogs** (records and music media, added 2026-10-19, off by default; its 9% commission on item plus shipping is from Discogs' own fee page and hands the item to [`../discogs-fee-calculator`](../discogs-fee-calculator/); the 2.9% + $0.30 processing default is not a Discogs-published rate and is flagged as such on the page) joins **TCGplayer** (trading cards, added 2026-10-18, off by default; it hands the
 item to [`../tcgplayer-fee-calculator`](../tcgplayer-fee-calculator/) for order

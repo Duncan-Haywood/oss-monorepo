@@ -7,7 +7,7 @@ new $400 minimum deduction), the specified-service-business (SSTB)
 phase-out, and the W-2 wage / UBIA-of-qualified-property limitation.
 Entirely client-side; nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/qbi-deduction-calculator/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/qbi-deduction-calculator/
 
 After using this, you can now **turn taxable income, one qualified trade or
 business's QBI, W-2 wages, and UBIA into an estimated deduction and rough

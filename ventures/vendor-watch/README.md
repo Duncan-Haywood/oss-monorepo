@@ -5,7 +5,7 @@ timestamped, source-linked, word-level diff when the text changes. Fetch
 failures are labeled **inconclusive** — they never overwrite a good snapshot
 and are never reported as "no change."
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/vendor-watch/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/vendor-watch/
 
 This is an evidence feed, not legal, compliance, or contract-review advice.
 Only monitor pages you are authorized to monitor. Only public `http`/`https`

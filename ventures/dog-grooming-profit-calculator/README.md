@@ -7,7 +7,7 @@ that hits your hourly target, your week as own shop versus booth rent versus
 commission, and how many clients you can lose before a price raise costs money.
 No client or pet information is needed; nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/dog-grooming-profit-calculator/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/dog-grooming-profit-calculator/
 
 Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 

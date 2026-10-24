@@ -4,7 +4,7 @@ Free, browser-only seller net sheet. It shows the cash you receive at closing, e
 the capital gains tax on the sale, finds the list price that nets a target, and compares
 offers that differ in price and seller concessions.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/home-sale-net-proceeds-calculator/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/home-sale-net-proceeds-calculator/
 
 - cash at closing from commissions, title, transfer tax, concessions, payoff and prorations;
 - home sale exclusion (full, partial or none), depreciation recapture, long-term brackets,

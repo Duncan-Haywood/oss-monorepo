@@ -5,7 +5,7 @@ export and see what Shopify Payments really costs you, and why.** The file is
 read in the browser; nothing is uploaded. Independent of Shopify and not
 affiliated with it.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/shopify-payments-fee-analyzer/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/shopify-payments-fee-analyzer/
 
 After using this, you can now **see your effective fee rate by card brand, card
 source (domestic, international, wallets) and payment method, what refunds and

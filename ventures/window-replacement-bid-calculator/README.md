@@ -5,7 +5,7 @@ residential replacement job the way the trade actually loses money when they
 skip it — each opening by United Inches, story, and tear-out — and shows the
 margin before the price goes out.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/window-replacement-bid-calculator/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/window-replacement-bid-calculator/
 
 **Open [`index.html`](index.html) directly in a browser**, or serve this
 directory statically. It is a self-contained, zero-dependency page: no build

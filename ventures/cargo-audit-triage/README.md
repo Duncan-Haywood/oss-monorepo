@@ -5,7 +5,7 @@ vulnerabilities with unmaintained, unsound and yanked warnings, and it cannot
 say whether your code uses the crate. This tool takes `cargo audit --json`
 plus your Rust source and ranks the findings by reachability:
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/cargo-audit-triage/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/cargo-audit-triage/
 
 | bucket | meaning |
 | --- | --- |

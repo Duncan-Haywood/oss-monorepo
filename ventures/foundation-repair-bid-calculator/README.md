@@ -7,7 +7,7 @@ interior brackets versus exterior access, an engineering stamp, carbon-fiber
 straps, and plumbing under the slab — and shows the margin before the price
 goes out.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/foundation-repair-bid-calculator/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/foundation-repair-bid-calculator/
 
 **Open [`index.html`](index.html) directly in a browser**, or serve this
 directory statically. It is a self-contained, zero-dependency page: no build

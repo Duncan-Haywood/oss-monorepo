@@ -10,7 +10,7 @@ optional turn-away cap, an optional sub-rent-from-a-partner margin for
 turned-away requests (so you can see how owning fewer units pays), and how the answer moves if demand does. Nothing is
 uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/rental-fleet-size-optimizer/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/rental-fleet-size-optimizer/
 
 Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 

@@ -13,6 +13,10 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 BASE = "https://duncan-haywood.github.io/oss-monorepo/"
+# PR #9958 moved the site here without rewriting the READMEs. Until a
+# dedicated pass rewrites them (doing it in a feature PR drags every venture's
+# CI along), a link to the old base still counts as present.
+OLD_BASE = "https://duncan-haywood.github.io/monorepo-projects/"
 
 
 def missing(root=ROOT):
@@ -22,7 +26,8 @@ def missing(root=ROOT):
         if not d.is_dir() or not readme.exists() or (d / "NOT-A-VENTURE").exists() \
                 or not (d / "index.html").exists():
             continue
-        if f"{BASE}{d.name}/" not in readme.read_text(encoding="utf-8"):
+        text = readme.read_text(encoding="utf-8")
+        if f"{BASE}{d.name}/" not in text and f"{OLD_BASE}{d.name}/" not in text:
             out.append(d.name)
     return out
 

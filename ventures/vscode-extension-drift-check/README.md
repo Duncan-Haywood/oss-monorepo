@@ -7,7 +7,7 @@ dependency, or a changed entry point — since an earlier snapshot. A separate,
 CLI-only command checks a snapshot against the live VS Code Marketplace to
 flag an extension that no longer resolves there.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/vscode-extension-drift-check/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/vscode-extension-drift-check/
 
 **What it is not:** a malware scanner, a security audit, or a verdict on any
 specific extension. It answers narrow, deterministic questions from the

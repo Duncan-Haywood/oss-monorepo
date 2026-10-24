@@ -5,7 +5,7 @@ average sale and international share. The cost of filing sales tax and VAT yours
 platform is not the seller, so you can see **what you keep** and the monthly revenue where the cheapest
 option changes.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/merchant-of-record-fee-calculator/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/merchant-of-record-fee-calculator/
 
 ```
 node cli.mjs compare --revenue 5000 --price 29 --intl 60 --growth 5

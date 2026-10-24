@@ -7,7 +7,7 @@ load** earns more than a second trip costs, the **percentage the other yard must
 up**, a 10% and 20% price-drop check, and whether **stripping copper wire beats selling it
 insulated** (with the break-even recovery).
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/scrap-metal-yard-payout-calculator/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/scrap-metal-yard-payout-calculator/
 
 Open `index.html` over any static server (ES module page). No build step, no
 dependencies. `node --test *.test.mjs` runs the suite.

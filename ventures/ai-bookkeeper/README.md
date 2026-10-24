@@ -10,7 +10,7 @@ Xero, QuickBooks Desktop (IIF) or any ledger. AI is optional: a model on your
 own key, or one running on your own computer, can suggest accounts for the
 review queue. It never posts anything by itself.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/ai-bookkeeper/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/ai-bookkeeper/
 
 After using this, you can now **turn a month of bank and card statements into
 balanced books in minutes, with the boring payees posting themselves from the

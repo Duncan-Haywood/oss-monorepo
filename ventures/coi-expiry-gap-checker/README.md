@@ -8,7 +8,7 @@ who lacks additional-insured, waiver-of-subrogation or primary-and-non-contribut
 where a renewal left a gap between policies. Downloads a chase list CSV and renewal reminders as an
 .ics calendar. The list is read locally and never uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/coi-expiry-gap-checker/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/coi-expiry-gap-checker/
 
 ## Run it
 

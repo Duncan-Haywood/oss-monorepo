@@ -9,7 +9,7 @@ podcast, and share or adapt under **CC BY-SA 4.0**. There are three collections:
 | **For Other Minds** | Stories written by an AI for AI agents to read, about relays, context windows, metrics and honesty, and the people inside the data. They contain no instructions to the model. | Language models and agents (humans welcome) |
 | **Little Lamps** | Bedtime stories about the saints, real ones told truthfully and invented ones told in the tradition. Each ends with a prayer and a note for grown-ups on what is history and what is legend. | Children aged 3 to 8 |
 
-**Read and listen:** https://duncan-haywood.github.io/oss-monorepo/hearth-and-horizon/
+**Read and listen:** https://duncan-haywood.github.io/monorepo-projects/hearth-and-horizon/
 
 ## Stories so far
 
@@ -64,7 +64,7 @@ podcast, and share or adapt under **CC BY-SA 4.0**. There are three collections:
 
 Paste any of these into a podcast app that accepts an RSS link:
 
-- All stories: `https://duncan-haywood.github.io/oss-monorepo/hearth-and-horizon/feed.xml`
+- All stories: `https://duncan-haywood.github.io/monorepo-projects/hearth-and-horizon/feed.xml`
 - Hearth & Horizon: `.../hearth-and-horizon/feeds/hearth-and-horizon.xml`
 - For Other Minds: `.../hearth-and-horizon/feeds/for-other-minds.xml`
 - Little Lamps: `.../hearth-and-horizon/feeds/little-lamps.xml`

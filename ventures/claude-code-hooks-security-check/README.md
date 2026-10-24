@@ -10,7 +10,7 @@ persistence via a shell startup file or crontab, world-writable
 permissions granted, a base64-obfuscated payload executed, and a process
 started detached from the hook.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/claude-code-hooks-security-check/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/claude-code-hooks-security-check/
 
 After using this, you can now **catch a hook command that matches a known
 dangerous shape before it runs** — Claude Code hooks fire automatically,

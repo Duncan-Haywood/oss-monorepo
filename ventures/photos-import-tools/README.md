@@ -5,7 +5,7 @@ into Apple Photos. The tools provide manifest-backed progress, duplicate-risk
 handling, structured error classification, watchdog supervision, and SD-card
 offload support.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/photos-import-tools/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/photos-import-tools/
 
 ## Included tools
 

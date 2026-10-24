@@ -4,7 +4,7 @@ A free browser calculator for small merchants: **should you add a card
 surcharge, offer a cash discount, or absorb the processing fee?** Entirely
 client-side; nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/card-surcharge-vs-cash-discount-calculator/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/card-surcharge-vs-cash-discount-calculator/
 
 After using this, you can now **see monthly profit under each option and how
 many card customers you can lose before a surcharge or cash discount costs

@@ -5,7 +5,7 @@ restaurant, retail and hospitality managers. Paste the posted schedule, the time
 it was posted, and every change made afterwards with the time the worker was
 told. It reports:
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/fair-workweek-schedule-checker/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/fair-workweek-schedule-checker/
 
 - **Late postings**: shifts that start sooner than the required notice.
 - **Short-notice changes**: shifts added or moved inside the notice window, and

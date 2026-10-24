@@ -7,7 +7,7 @@ versus a drywell, catch basins, downspout ties, and a driveway
 crossing as their own hours — and shows the margin before the price
 goes out.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/french-drain-bid-calculator/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/french-drain-bid-calculator/
 
 **Open [`index.html`](index.html) directly in a browser**, or serve this
 directory statically. It is a self-contained, zero-dependency page: no build

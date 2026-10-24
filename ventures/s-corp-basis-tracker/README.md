@@ -7,7 +7,7 @@ Form 7203 uses, flags **distributions that exceed basis**, restores debt basis
 before stock basis after a loss year, and shows how much added basis would unlock a
 suspended loss. Exports a CSV and a printable worksheet. Nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/s-corp-basis-tracker/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/s-corp-basis-tracker/
 
 Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 

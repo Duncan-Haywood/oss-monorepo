@@ -18,7 +18,7 @@ An open-source robotic lawn mower you can build from laser-cut aluminium,
   until a mower is on them.
 
 **Plan your own lawn in your browser:**
-https://duncan-haywood.github.io/oss-monorepo/open-robot-mower/
+https://duncan-haywood.github.io/monorepo-projects/open-robot-mower/
 
 Everything is MIT-licensed. You can build it, change it, and sell it under
 your own brand. If you sell it, you are the manufacturer (see

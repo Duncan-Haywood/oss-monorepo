@@ -6,7 +6,7 @@ and see what splitting really nets, which lines are worth listing and which shou
 stress test at lower sell-through, and the hourly value of your time at which you should take the offer.
 Browser page or zero-dependency CLI.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/lot-split-calculator/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/lot-split-calculator/
 
 ```
 node cli.mjs split lot.csv --offer 260 --cost 150 --rate 15

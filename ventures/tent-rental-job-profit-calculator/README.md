@@ -7,7 +7,7 @@ tent's cost and expected rentals, and your yearly storage/insurance/truck overhe
 target margin**, how many rentals a tent needs to **pay for itself**, break-even jobs a year, and
 compares two jobs side by side.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/tent-rental-job-profit-calculator/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/tent-rental-job-profit-calculator/
 
 Open `index.html` over any static server (ES module page). No build step, no
 dependencies. `node --test *.test.mjs` runs the suite.

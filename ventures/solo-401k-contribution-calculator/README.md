@@ -4,7 +4,7 @@ A free browser calculator for the 2026 Solo 401(k) contribution limit for a
 sole proprietor or single-member LLC. Entirely client-side; nothing is
 uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/solo-401k-contribution-calculator/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/solo-401k-contribution-calculator/
 
 After using this, you can now **see your maximum 2026 Solo 401(k)
 contribution — employee elective deferral plus employer profit-sharing,

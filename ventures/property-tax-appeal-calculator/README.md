@@ -4,7 +4,7 @@ A free browser tool for homeowners and small landlords: **enter your assessed va
 recent comparable sales, and see whether your property tax assessment looks too high and
 whether an appeal would pay.** Nothing typed is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/property-tax-appeal-calculator/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/property-tax-appeal-calculator/
 
 After using this, you can now **see the market value your assessment implies against the
 adjusted comparable sales, an equity check on assessment per square foot, the tax saved per

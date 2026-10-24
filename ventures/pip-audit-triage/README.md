@@ -5,7 +5,7 @@ and no way to tell whether your code imports it. This tool takes
 `pip-audit -f json` plus your Python source and ranks the findings by
 reachability:
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/pip-audit-triage/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/pip-audit-triage/
 
 | bucket | meaning |
 | --- | --- |

@@ -5,7 +5,7 @@ copy a shareable link to it, or download a private Markdown handoff before the
 submission deadline. That used to mean searching email, a shared drive, and a
 spreadsheet while a bid clock was running.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/contractor-bid-readiness/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/contractor-bid-readiness/
 
 Open `index.html` in a browser. Add the solicitation's requirements, assign
 owners, mark each item ready, attention, or blocked, then check readiness and

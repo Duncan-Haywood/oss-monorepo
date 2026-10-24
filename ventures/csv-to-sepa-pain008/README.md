@@ -7,7 +7,7 @@ check, amounts are read as exact cents (`34,50` and `1,200.50` both work; an amb
 rows are grouped into the FRST / RCUR / FNAL / OOFF blocks banks require, and no file is written while any
 collection has an error. The list is read locally and never uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/csv-to-sepa-pain008/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/csv-to-sepa-pain008/
 
 ## Why use it
 

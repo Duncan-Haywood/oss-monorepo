@@ -6,7 +6,7 @@ read-only key, on a server you run**, instead of paying a percentage of your
 billing volume for Stripe's add-on or rebuilding annual plans in a spreadsheet
 every close.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/rev-rec/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/rev-rec/
 
 Two parts, both free and MIT:
 

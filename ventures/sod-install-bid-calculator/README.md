@@ -5,7 +5,7 @@ the trade actually loses money — whole pallets after waste, then soil prep,
 delivery, slope, and watering — and shows the margin before the price goes
 out.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/sod-install-bid-calculator/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/sod-install-bid-calculator/
 
 **After using this, you can now** send a walk-away sod price that sees
 pallets and dirt work, **which used to take** matching a published

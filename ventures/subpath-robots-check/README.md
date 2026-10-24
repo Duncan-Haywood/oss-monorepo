@@ -2,7 +2,7 @@
 
 **Does the site at this URL actually govern its own `robots.txt`?**
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/subpath-robots-check/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/subpath-robots-check/
 
 A crawler fetches `robots.txt` from exactly one place — the origin root
 (`scheme://host:port/robots.txt`, [RFC 9309][rfc] §2.3). A site published

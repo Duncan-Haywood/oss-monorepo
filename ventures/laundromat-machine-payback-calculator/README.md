@@ -7,7 +7,7 @@ months and monthly contribution for each line, the turns per day each line needs
 to hit your target payback, store net after overhead, and how many cycles you can
 lose before a price rise costs money. Nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/laundromat-machine-payback-calculator/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/laundromat-machine-payback-calculator/
 
 Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 

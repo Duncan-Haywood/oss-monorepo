@@ -9,7 +9,7 @@ with its line number. An 8-digit UPC-E short code that is not a valid GTIN-8 is 
 UPC-A form when the check digit proves it. A GTIN-14 case-pack code is linked to the item code it wraps when both are in the list. Zero-width characters, full-width digits, thousands separators and "UPC:"-style labels pasted in with a code are cleaned up the same way, only when the check digit proves the result. It writes the file back with every provable fix applied. The file is read
 locally and never uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/gtin-list-check/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/gtin-list-check/
 
 ## Run it
 

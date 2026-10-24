@@ -8,7 +8,7 @@ your hourly target, how your own clients, a lead marketplace and shooting for a
 studio compare, and how many clients you can lose before a price raise costs
 money. No client or event details are needed; nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/wedding-photographer-profit-calculator/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/wedding-photographer-profit-calculator/
 
 Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 

@@ -6,7 +6,7 @@ replays seven standard forecasting methods on your own history, picks the one th
 reports how it did on points it was *not* chosen on, against simply repeating last period. When nothing beats the
 naive forecast it says so. Nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/demand-forecast-backtester/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/demand-forecast-backtester/
 
 After using this, you can now **see which SKUs a forecast actually helps with, how much safety stock your service level
 needs, when to reorder, and which items deserve tight control (A-X) and which a simple min/max rule (C-Z)**, which used

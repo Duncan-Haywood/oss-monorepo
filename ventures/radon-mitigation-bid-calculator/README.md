@@ -7,7 +7,7 @@ crawl membrane, a roof stack, a high-suction fan, a new circuit,
 firestops, a permit, and a post-mitigation test as their own hours —
 and shows the margin before the price goes out.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/radon-mitigation-bid-calculator/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/radon-mitigation-bid-calculator/
 
 **Open [`index.html`](index.html) directly in a browser**, or serve this
 directory statically. It is a self-contained, zero-dependency page: no build

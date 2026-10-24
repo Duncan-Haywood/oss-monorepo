@@ -8,7 +8,7 @@ prediction and conformalized quantile regression (CQR), checks each on held-out 
 splits, and says in plain words what the numbers mean. It runs in the browser, from the command line and as an
 agent call. Nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/conformal-prediction-intervals/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/conformal-prediction-intervals/
 
 It answers: *how wide must a prediction interval be to cover 90% of new cases, with no distributional
 assumption?*

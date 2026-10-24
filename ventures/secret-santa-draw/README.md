@@ -3,7 +3,7 @@
 Free, browser-only Secret Santa generator. No sign-up, no email addresses, and
 the organizer can play without seeing who drew whom.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/secret-santa-draw/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/secret-santa-draw/
 
 - **Rules:** nobody draws themselves; groups you name (couples, siblings) do not
   draw each other; last year's pairs are not repeated; and one of three pairing

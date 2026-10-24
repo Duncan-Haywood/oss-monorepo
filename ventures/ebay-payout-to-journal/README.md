@@ -9,7 +9,7 @@ deposit, splits a payout that straddles a month end into one journal per month, 
 an eBay clearing account. Rows no rule recognises are journalled to an uncategorised account rather
 than dropped. The report is read locally and never uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/ebay-payout-to-journal/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/ebay-payout-to-journal/
 
 ## Run it
 

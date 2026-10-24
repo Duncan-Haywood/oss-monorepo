@@ -6,7 +6,7 @@ volatility changed**, with the exact best segmentation from **PELT** and a
 probability for each change from **Bayesian online changepoint detection**.
 Nothing is uploaded. Also a command-line tool and an engine AI agents can call.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/changepoint-detector/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/changepoint-detector/
 
 After using this, you can say **whether a series really shifted, from which
 date, by how much, and how sure the evidence is**, instead of eyeballing a chart.

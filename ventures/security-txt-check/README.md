@@ -8,7 +8,7 @@ A free, zero-dependency Node CLI and a browser tool that validate a
 `security.txt` against [RFC 9116](https://www.rfc-editor.org/rfc/rfc9116.html).
 
 - **Browser:**
-  <https://duncan-haywood.github.io/oss-monorepo/security-txt-check/> —
+  <https://duncan-haywood.github.io/monorepo-projects/security-txt-check/> —
   paste the file, get a report. Nothing is uploaded.
 - **CLI:** `node check.mjs example.com` — fetches the live file and adds the
   two checks a paste cannot support.

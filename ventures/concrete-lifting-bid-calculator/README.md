@@ -6,7 +6,7 @@ void cubic feet, backyard hose runs, extra holes, joint seal, and
 occupied-building containment as their own hours — and shows the
 margin before the price goes out.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/concrete-lifting-bid-calculator/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/concrete-lifting-bid-calculator/
 
 **Open [`index.html`](index.html) directly in a browser**, or serve this
 directory statically. It is a self-contained, zero-dependency page: no build

@@ -6,7 +6,7 @@ applications that have been silent for 30+ days, and shows your reply and
 interview rate by source (LinkedIn, referral, company site…) so you can see
 where your effort is paying off. No account, no sync, nothing uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/job-application-tracker/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/job-application-tracker/
 
 After using this, you can **see who to follow up with today and which job
 source actually replies**, which used to mean maintaining your own

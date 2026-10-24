@@ -7,7 +7,7 @@ profit and margin**, **months to pay back the build**, the **fill needed to brea
 **lowest ticket for your target margin and for your payback target**, what 10% and 20% fewer
 visits do, and compares a second scenario.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/trampoline-park-profit-calculator/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/trampoline-park-profit-calculator/
 
 Open `index.html` over any static server (ES module page). No build step, no
 dependencies. `node --test *.test.mjs` runs the suite.

@@ -5,7 +5,7 @@ removal stop the way the job actually costs — wood volume from the square of
 DBH, then access, targets, stump grinding, haul, travel, and the loaded crew —
 and shows the margin before the price goes out.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/tree-service-bid-calculator/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/tree-service-bid-calculator/
 
 **After using this, you can now send a stop price that already includes stump,
 haul, and the drive**, which used to take a hood-of-the-truck guess that

@@ -5,7 +5,7 @@ per recurring query group and see what each costs on-demand, what the same work 
 group dominates, which single runs are expensive enough to deserve a `--maximum_bytes_billed` cap, and which
 repeat large scans need partitioning, clustering or a materialized view. Browser page or zero-dependency CLI.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/bigquery-query-cost-advisor/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/bigquery-query-cost-advisor/
 
 ```
 node cli.mjs analyze queries.csv

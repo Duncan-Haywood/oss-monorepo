@@ -75,7 +75,7 @@ test("the guide's tables are what the engine says", () => {
 test("sitemap lists every page; README links the live page", () => {
   assert.match(sitemap, /index\.html/);
   assert.match(sitemap, /how-often-to-post-on-each-platform\.html/);
-  assert.match(readme, /https:\/\/duncan-haywood\.github\.io\/oss-monorepo\/interview-content-studio\//);
+  assert.match(readme, /https:\/\/duncan-haywood\.github\.io\/monorepo-projects\/interview-content-studio\//);
   assert.match(readme, /No warranty/);
 });
 

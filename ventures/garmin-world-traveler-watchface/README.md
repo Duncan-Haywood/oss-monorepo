@@ -8,7 +8,7 @@ tiers. Your own local time is digital, big and centered, framed by a
 sub-dial ring; a small accent marker on the outer ring ties it back to
 the world-time bezel.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/garmin-world-traveler-watchface/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/garmin-world-traveler-watchface/
 
 ![Design mockup](docs/design-mockup.png)
 

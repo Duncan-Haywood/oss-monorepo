@@ -7,7 +7,7 @@ Fee, and your customs broker's fee, all in one breakdown. Use it when you are
 pricing a SKU before you order it, or checking a shipment's numbers against
 your broker's entry summary after it lands.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/import-landed-cost-calculator/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/import-landed-cost-calculator/
 
 **Not a customs broker, freight forwarder, or licensed customs classification
 service.** It does not determine your HTS code, your duty rate, or your

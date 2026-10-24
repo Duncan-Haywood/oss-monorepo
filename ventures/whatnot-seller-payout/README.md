@@ -7,7 +7,7 @@ after the label and what the lot cost you, and whether eating the label is
 cheaper than paying processing on the postage. Nothing is uploaded; the
 arithmetic runs on the visitor's own device.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/whatnot-seller-payout/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/whatnot-seller-payout/
 
 ```
 cd ventures/whatnot-seller-payout && node --test

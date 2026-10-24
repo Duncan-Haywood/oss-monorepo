@@ -6,7 +6,7 @@ the import fails or quietly creates products with no price or no variants, then 
 cleaned copy.** The file is read in the browser; nothing is uploaded and no login or API key is
 needed.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/bigcommerce-product-csv-check/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/bigcommerce-product-csv-check/
 
 After using this, you can now **find the SKU row with no Option Set, the SKU used twice, the
 blank price, the `$24.00` the importer rejects, the Y/N flag spelled `yes`, the barcode with a

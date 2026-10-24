@@ -5,7 +5,7 @@ against the specific, documented requirements that cause an episode to be
 rejected by Apple Podcasts, dropped by a podcast app, or silently reappear
 to subscribers as "new" when it isn't:
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/podcast-feed-check/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/podcast-feed-check/
 
 - **Missing required channel elements** — title, description (or
   `itunes:summary`), language, link, cover artwork (`itunes:image`), at
