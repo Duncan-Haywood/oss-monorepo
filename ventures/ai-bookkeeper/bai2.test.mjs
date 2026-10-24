@@ -58,3 +58,26 @@ test("invert flips signs and an empty BAI2 says so", () => {
   const none = readBai2("01,1,2,260105,0900,1,80,,2/\n02,a,b,1,260104,2359,USD,2/\n03,1,USD,015,5,,/\n");
   assert.match(none.problems[0], /No 16 transaction records/);
 });
+
+test("one account repeated in daily groups is one account, closing balance from the latest group (MoJ bai2 svb_us shape)", () => {
+  const t = [
+    "01,121140399,121140399,230214,0754,1,,,2/",
+    "02,121140399,121140399,1,220201,,USD,2/",
+    "03,1234567890,USD,010,34726979,,,015,35217175,,,/",
+    "16,142,490196,,172629,/",
+    "88,SOME PAYMENT ACH OFFSET",
+    "49,138884258,7/",
+    "98,138884258,1,9/",
+    "02,121140399,121140399,1,220202,,USD,2/",
+    "03,1234567890,USD,010,35217175,,,015,36122975,,/",
+    "16,142,905800,,150675,/",
+    "88,SOME PAYMENT ACH OFFSET",
+    "49,143145938,7/",
+    "98,143145938,1,9/",
+    "99,282030196,2,20/",
+  ].join("\n");
+  const r = readBai2(t);
+  assert.equal(r.rows.length, 2);
+  assert.ok(!r.problems.some((p) => /accounts/.test(p)));
+  assert.deepEqual(r.statement, { cents: 36122975, date: "2022-02-02" });
+});
