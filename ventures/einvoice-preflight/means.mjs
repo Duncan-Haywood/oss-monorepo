@@ -61,7 +61,9 @@ export function inspectPaymentMeans(invoice) {
 
   const findings = [];
   const hasIban = looksLikeCompleteIban(payment.iban);
-  if (ACCOUNT_REQUIRED.has(compact) && !hasIban) {
+  // A value that is present but malformed is INV-024's finding, not a missing IBAN.
+  const ibanPresent = typeof payment.iban === "string" && payment.iban.trim() !== "";
+  if (ACCOUNT_REQUIRED.has(compact) && !hasIban && !ibanPresent) {
     findings.push(finding(
       "INV-045",
       "Payment means is a credit transfer or SEPA transfer without an IBAN.",

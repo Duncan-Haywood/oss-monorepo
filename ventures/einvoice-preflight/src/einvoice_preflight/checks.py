@@ -9,7 +9,7 @@ from .bic import inspect_payment_bic
 from .breakdown import inspect_tax_breakdown
 from .document import inspect_document_type
 from .endpoint import inspect_party_endpoint
-from .linenet import accepted_line_net, expected_line_net, summed_line_net, tax_groups, tax_percent_of
+from .linenet import accepted_line_net, is_negative_invoice, expected_line_net, summed_line_net, tax_groups, tax_percent_of
 from .iban import inspect_payment_iban
 from .means import inspect_payment_means
 from .period import inspect_invoice_period
@@ -137,13 +137,14 @@ def check_invoice(invoice: Any) -> list[dict[str, str]]:
     groups, unattributed, _ = tax_groups(invoice)
     expected_tax = sum((g["tax"] for g in groups.values()), Decimal("0.00"))
     expected_net = (expected_net + header_adjustment_net_delta(invoice)).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
-    if expected_net < 0:
+    negative_invoice = is_negative_invoice(invoice)
+    if expected_net < 0 and not negative_invoice:
         expected_net = Decimal("0.00")
     totals = invoice.get("totals")
     if not isinstance(totals, dict):
         totals = {}
     net, tax_total, gross = (_money(totals.get(key)) for key in ("net", "tax", "gross"))
-    if net is None or net < 0:
+    if net is None or (net < 0 and not negative_invoice):
         fail("INV-013", "Invoice net total is missing or invalid.", "Provide a non-negative numeric net total.", "/totals/net")
     elif net != expected_net:
         if invoice.get("adjustments"):
@@ -154,11 +155,11 @@ def check_invoice(invoice: Any) -> list[dict[str, str]]:
     tax_absent = totals.get("tax") in (None, "") and expected_tax == 0 and not unattributed
     if tax_absent:
         pass
-    elif tax_total is None or tax_total < 0:
+    elif tax_total is None or (tax_total < 0 and not negative_invoice):
         fail("INV-015", "Invoice tax total is missing or invalid.", "Provide a non-negative numeric tax total.", "/totals/tax")
     elif not unattributed and tax_total != expected_tax:
         fail("INV-018", "Invoice tax total does not match its line tax percentages.", f"Set tax total to {expected_tax} or correct the line inputs.", "/totals/tax")
-    if gross is None or gross < 0:
+    if gross is None or (gross < 0 and not negative_invoice):
         fail("INV-016", "Invoice gross total is missing or invalid.", "Provide a non-negative numeric gross total.", "/totals/gross")
     elif net is not None and (tax_total is not None or tax_absent) and gross != net + (tax_total or Decimal("0")):
         fail("INV-017", "Gross total does not equal net plus tax.", f"Set gross total to {net + (tax_total or Decimal('0'))} or correct the totals.", "/totals/gross")
@@ -169,23 +170,28 @@ def check_invoice(invoice: Any) -> list[dict[str, str]]:
     rounding_value = rounding if rounding is not None else Decimal("0")
     # When prepayments exceed the gross, EN 16931 allows a negative amount due
     # (a credit balance for the buyer) as long as the arithmetic is stated.
+    # A negative prepaid amount is accepted only when the stated amount due works out from it.
+    debit_balance = (
+        gross is not None and prepaid is not None and prepaid < 0 and due is not None
+        and due == (gross - prepaid + rounding_value).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+    )
     credit_balance = (
         gross is not None and gross >= 0 and prepaid is not None and prepaid > gross
         and due is not None
         and due == (gross - prepaid + rounding_value).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
     )
     if prepaid is not None:
-        if prepaid < 0:
+        if prepaid < 0 and not debit_balance:
             fail("INV-028", "Prepaid amount is missing or invalid.", "Provide a non-negative numeric prepaid amount, or omit totals.prepaid.", "/totals/prepaid")
         elif gross is not None and gross >= 0 and prepaid > gross and not credit_balance:
             fail("INV-028", "Prepaid amount is greater than the invoice gross.", f"Set prepaid to at most {gross} or correct the totals.", "/totals/prepaid")
     if due is not None:
-        if due < 0 and not credit_balance:
+        if due < 0 and not credit_balance and not negative_invoice:
             fail("INV-029", "Amount due is missing or invalid.", "Provide a non-negative numeric amount due, or omit totals.due.", "/totals/due")
-        elif gross is not None and gross >= 0 and (prepaid is None or prepaid >= 0):
+        elif gross is not None and (gross >= 0 or negative_invoice) and (prepaid is None or prepaid >= 0):
             applied = prepaid if prepaid is not None and prepaid >= 0 else Decimal("0")
             expected_due = (gross - applied + rounding_value).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
-            if expected_due < 0 and not credit_balance:
+            if expected_due < 0 and not credit_balance and not negative_invoice:
                 expected_due = Decimal("0.00")
             if due != expected_due:
                 fail("INV-029", "Amount due does not equal gross minus prepaid.", f"Set amount due to {expected_due} or correct prepaid and gross.", "/totals/due")

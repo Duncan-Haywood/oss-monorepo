@@ -17,13 +17,23 @@ export function roundCents(value) {
   return (sign * Math.round(Math.abs(value) * 100 + Number.EPSILON)) / 100;
 }
 
-function signedAdjustment(rows) {
+// A negative invoice (EN 16931 allows one; the Peppol BIS 3.0 example
+// "base-negative-inv-correction" is one) states a negative net and gross, and
+// any header allowance or charge then carries the same sign.
+export function isNegativeInvoice(invoice) {
+  const totals = invoice && typeof invoice.totals === "object" && invoice.totals ? invoice.totals : {};
+  const net = parseNumber(totals.net);
+  const gross = parseNumber(totals.gross);
+  return net !== null && net < 0 && gross !== null && gross < 0;
+}
+
+function signedAdjustment(rows, allowNegative = false) {
   let delta = 0;
   for (const row of Array.isArray(rows) ? rows : []) {
     if (!row || typeof row !== "object") continue;
     const kind = String(row.kind ?? "").toLowerCase();
     const amount = parseNumber(row.amount);
-    if (amount === null || amount < 0 || (kind !== "charge" && kind !== "allowance")) continue;
+    if (amount === null || (amount < 0 && !allowNegative) || (kind !== "charge" && kind !== "allowance")) continue;
     delta += kind === "charge" ? amount : -amount;
   }
   return delta;
@@ -112,7 +122,7 @@ export function taxGroups(invoice) {
     add(taxKey(line, withCategory), percent, net);
   }
   for (const row of Array.isArray(invoice.adjustments) ? invoice.adjustments : []) {
-    const delta = signedAdjustment([row]);
+    const delta = signedAdjustment([row], isNegativeInvoice(invoice));
     if (!delta) continue;
     const key = row && typeof row === "object" ? taxKey(row, withCategory) : null;
     if (key !== null && groups.has(key)) add(key, groups.get(key).percent, delta);

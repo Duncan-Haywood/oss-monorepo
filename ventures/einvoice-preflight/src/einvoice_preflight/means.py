@@ -157,7 +157,9 @@ def inspect_payment_means(invoice: dict[str, Any]) -> list[dict[str, str]]:
 
     findings: list[dict[str, str]] = []
     has_iban = looks_like_complete_iban(payment.get("iban"))
-    if compact in ACCOUNT_REQUIRED and not has_iban:
+    # A value that is present but malformed is INV-024's finding, not a missing IBAN.
+    iban_present = isinstance(payment.get("iban"), str) and payment.get("iban").strip() != ""
+    if compact in ACCOUNT_REQUIRED and not has_iban and not iban_present:
         findings.append(_finding(
             "INV-045",
             "Payment means is a credit transfer or SEPA transfer without an IBAN.",

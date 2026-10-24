@@ -1138,3 +1138,35 @@ class XRechnungSuiteTotalsTests(unittest.TestCase):
         self.assertEqual(self._rules(prepaid=150, due=-31), [])
         self.assertEqual(self._rules(prepaid=150, due=-20), ["INV-028", "INV-029"])
         self.assertEqual(self._rules(due=-5), ["INV-029"])
+
+
+class NegativeInvoiceTests(unittest.TestCase):
+    NEG = {
+        "invoice_number": "INV-N1", "issue_date": "2026-08-24", "currency": "EUR",
+        "supplier": {"id": "S1", "name": "Supplier"}, "customer": {"id": "C1", "name": "Customer"},
+        "lines": [{"description": "Work", "quantity": -2, "unit_price": 100, "tax_percent": 25, "net": -200}],
+        "adjustments": [{"kind": "charge", "amount": -25, "reason": "Insurance", "tax_percent": 25}],
+        "totals": {"net": -225, "tax": -56.25, "gross": -281.25, "due": -281.25},
+    }
+
+    def rules(self, invoice):
+        return {e["rule"] if isinstance(e, dict) else e.rule for e in check_invoice(invoice)}
+
+    def test_consistent_negative_invoice_passes(self):
+        self.assertEqual(self.rules(self.NEG), set())
+
+    def test_wrong_gross_still_caught(self):
+        bad = json.loads(json.dumps(self.NEG))
+        bad["totals"]["gross"] = -300
+        self.assertIn("INV-017", self.rules(bad))
+
+    def test_negative_prepaid_needs_matching_due(self):
+        base = {
+            "invoice_number": "INV-P1", "issue_date": "2026-08-24", "currency": "EUR",
+            "supplier": {"id": "S1", "name": "S"}, "customer": {"id": "C1", "name": "C"},
+            "lines": [{"description": "Work", "quantity": 1, "unit_price": 100, "tax_percent": 19, "net": 100}],
+            "totals": {"net": 100, "tax": 19, "gross": 119, "prepaid": -20, "due": 139},
+        }
+        self.assertEqual(self.rules(base), set())
+        base["totals"]["due"] = 119
+        self.assertIn("INV-028", self.rules(base))

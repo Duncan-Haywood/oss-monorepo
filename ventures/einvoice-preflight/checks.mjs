@@ -15,7 +15,7 @@ import { inspectPaymentRemittance } from "./remittance.mjs";
 import { inspectTaxExemption } from "./tax.mjs";
 import { inspectPaymentTerms } from "./terms.mjs";
 import { inspectPartyVat } from "./vat.mjs";
-import { acceptedLineNet, summedLineNet, taxGroups, taxPercentOf } from "./linenet.mjs";
+import { acceptedLineNet, isNegativeInvoice, summedLineNet, taxGroups, taxPercentOf } from "./linenet.mjs";
 
 function parseNumber(value) {
   if (value === undefined || value === null || value === "") return null;
@@ -223,7 +223,8 @@ export function checkInvoice(invoice) {
   let expectedTax = 0;
   for (const group of perRate.groups.values()) expectedTax = roundHalfUpToCents(expectedTax + group.tax);
   expectedNet = roundHalfUpToCents(expectedNet + headerAdjustmentNetDelta(invoice));
-  if (expectedNet < 0) expectedNet = 0;
+  const negativeInvoice = isNegativeInvoice(invoice);
+  if (expectedNet < 0 && !negativeInvoice) expectedNet = 0;
 
   const totals = invoice.totals && typeof invoice.totals === "object" && !Array.isArray(invoice.totals)
     ? invoice.totals
@@ -232,7 +233,7 @@ export function checkInvoice(invoice) {
   const taxTotal = money(totals.tax);
   const gross = money(totals.gross);
 
-  if (net === null || net < 0) {
+  if (net === null || (net < 0 && !negativeInvoice)) {
     fail("INV-013", "Invoice net total is missing or invalid.", "Provide a non-negative numeric net total.", "/totals/net");
   } else if (net !== expectedNet) {
     if (invoice.adjustments) {
@@ -245,12 +246,12 @@ export function checkInvoice(invoice) {
   const taxAbsent = (totals.tax === undefined || totals.tax === null || totals.tax === "") && expectedTax === 0 && !perRate.unattributed;
   if (taxAbsent) {
     // nothing to compare
-  } else if (taxTotal === null || taxTotal < 0) {
+  } else if (taxTotal === null || (taxTotal < 0 && !negativeInvoice)) {
     fail("INV-015", "Invoice tax total is missing or invalid.", "Provide a non-negative numeric tax total.", "/totals/tax");
   } else if (!perRate.unattributed && taxTotal !== expectedTax && !wholeUnitTaxAgrees(invoice.currency, taxTotal, expectedTax)) {
     fail("INV-018", "Invoice tax total does not match its line tax percentages.", `Set tax total to ${formatMoney(expectedTax)} or correct the line inputs.`, "/totals/tax");
   }
-  if (gross === null || gross < 0) {
+  if (gross === null || (gross < 0 && !negativeInvoice)) {
     fail("INV-016", "Invoice gross total is missing or invalid.", "Provide a non-negative numeric gross total.", "/totals/gross");
   } else if (net !== null && (taxTotal !== null || taxAbsent) && gross !== roundHalfUpToCents(net + (taxTotal ?? 0))) {
     fail("INV-017", "Gross total does not equal net plus tax.", `Set gross total to ${formatMoney(roundHalfUpToCents(net + (taxTotal ?? 0)))} or correct the totals.`, "/totals/gross");
@@ -263,23 +264,28 @@ export function checkInvoice(invoice) {
   const roundingValue = rounding === undefined || rounding === null ? 0 : rounding;
   // When prepayments exceed the gross, EN 16931 allows a negative amount due
   // (a credit balance for the buyer) as long as the arithmetic is stated.
+  // A negative prepaid amount (a correction that adds to what is owed) is accepted
+  // only when the stated amount due works out from it.
+  const debitBalance = gross !== null && prepaid !== undefined && prepaid !== null && prepaid < 0
+    && due !== undefined && due !== null
+    && due === roundHalfUpToCents(gross - prepaid + roundingValue);
   const creditBalance = gross !== null && gross >= 0 && prepaid !== undefined && prepaid !== null && prepaid > gross
     && due !== undefined && due !== null
     && due === roundHalfUpToCents(gross - prepaid + roundingValue);
   if (prepaid !== undefined) {
-    if (prepaid === null || prepaid < 0) {
+    if (prepaid === null || (prepaid < 0 && !debitBalance)) {
       fail("INV-028", "Prepaid amount is missing or invalid.", "Provide a non-negative numeric prepaid amount, or omit totals.prepaid.", "/totals/prepaid");
     } else if (gross !== null && gross >= 0 && prepaid > gross && !creditBalance) {
       fail("INV-028", "Prepaid amount is greater than the invoice gross.", `Set prepaid to at most ${formatMoney(gross)} or correct the totals.`, "/totals/prepaid");
     }
   }
   if (due !== undefined) {
-    if (due === null || (due < 0 && !creditBalance)) {
+    if (due === null || (due < 0 && !creditBalance && !negativeInvoice)) {
       fail("INV-029", "Amount due is missing or invalid.", "Provide a non-negative numeric amount due, or omit totals.due.", "/totals/due");
-    } else if (gross !== null && gross >= 0 && (prepaid === undefined || prepaid === null || prepaid >= 0)) {
+    } else if (gross !== null && (gross >= 0 || negativeInvoice) && (prepaid === undefined || prepaid === null || prepaid >= 0)) {
       const applied = prepaid !== undefined && prepaid !== null && prepaid >= 0 ? prepaid : 0;
       let expectedDue = roundHalfUpToCents(gross - applied + roundingValue);
-      if (expectedDue < 0 && !creditBalance) expectedDue = 0;
+      if (expectedDue < 0 && !creditBalance && !negativeInvoice) expectedDue = 0;
       if (due !== expectedDue) {
         fail("INV-029", "Amount due does not equal gross minus prepaid.", `Set amount due to ${formatMoney(expectedDue)} or correct prepaid and gross.`, "/totals/due");
       }

@@ -439,6 +439,10 @@ function commercialReferences(root) {
       extras.buyer_reference = (child.text || "").trim();
     } else if (child.name === "OrderReference") {
       extras.order_reference = textOf(child, "ID", false);
+      // Peppol BIS 3.0: "NA" stands in for the mandatory ID when only a sales order exists.
+      const sales = textOf(child, "SalesOrderID", false);
+      if (sales && String(extras.order_reference || "").trim().toUpperCase() === "NA") extras.order_reference = sales;
+      else if (sales && !String(extras.order_reference || "").trim()) extras.order_reference = sales;
     }
   }
   return extras;
