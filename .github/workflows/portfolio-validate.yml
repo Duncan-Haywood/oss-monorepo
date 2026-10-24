@@ -471,6 +471,14 @@ jobs:
         working-directory: platform/ci
         run: python3 -m unittest test_check_main_landmark
 
+      # Skipped heading levels (h1 straight to h3) break outline navigation.
+      - name: Check venture pages do not skip heading levels
+        run: python3 platform/ci/check_heading_order.py
+
+      - name: Heading-order checker unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_check_heading_order
+
       # A syntax error in a single-file tool's inline script leaves a dead page.
       - name: Check inline scripts parse
         run: python3 platform/ci/check_inline_scripts.py
