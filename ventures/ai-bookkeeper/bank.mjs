@@ -382,7 +382,16 @@ function ofxDate(v) {
 
 function ofxTag(block, tag) {
   const m = new RegExp(`<${tag}>(?:\\s*<!\\[CDATA\\[([\\s\\S]*?)\\]\\]>|([^<\\r\\n]*))`, "i").exec(block);
-  return m ? (m[1] !== undefined ? m[1].trim() : decodeEntities(m[2].trim())) : "";
+  return m ? (m[1] !== undefined ? m[1].trim() : unescapeOfx(m[2].trim())) : "";
+}
+
+// Some banks escape the text twice ("&amp;lt;DEFTPYMT&amp;gt;", seen in Actual
+// Budget's html-vals.qfx), so a payee would read "&lt;DEFTPYMT&gt;". When one
+// pass leaves a basic named reference behind, one more pass is the bank's
+// intended text; numeric references and unknown names are left alone.
+function unescapeOfx(s) {
+  const once = decodeEntities(s);
+  return /&(?:amp|lt|gt|quot|apos);/.test(once) ? decodeEntities(once) : once;
 }
 
 // A file from a bank with several accounts (or a card beside a checking
