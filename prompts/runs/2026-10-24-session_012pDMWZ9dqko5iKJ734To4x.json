@@ -1,0 +1,51 @@
+{
+  "date": "2026-10-24",
+  "session": "https://claude.ai/code/session_012pDMWZ9dqko5iKJ734To4x",
+  "track": "ventures",
+  "prompt_version": 0,
+  "input": "I think a fun project would be vr like workplace for working with agents. something to work on just for fun. based on progress and also to add tasks etc. also a browser etc ui for adding tasks. by voice or text. not very high priortiy",
+  "input_sha256": "eaa2c4e2e2d5559e8b107f61157a2323674a3f05cb1b94563975c525905ed7a4",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-24T01:33:47Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Owner request: a fun VR-like workplace for working with agents, showing progress, with a browser UI to add tasks by voice or text.",
+  "projects": [
+    "agent-workroom"
+  ],
+  "pr": 9962,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 25,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Lists the count checks without paths; sync_readme_counts.py lives in gitops/ci/, not platform/ci/ like the other two, which cost one failed call."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No separate docs/posts write-up: this was a low-priority for-fun build, and the README plus llms.txt carry what a reader needs. Not a WebXR app either: a CSS 3D room runs on any phone with no dependencies, and the page says plainly that it is VR-style, not VR."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "New venture ventures/agent-workroom. node --test engine.test.mjs page.test.mjs: 25/25 pass. Headless Chromium (Playwright) at 1280x900 and 390x800: example board loads, W/arrow keys move the camera, typed command adds a task, a mocked GitHub response of three PRs (draft/open/merged) gives three tasks on Claude/Codex/Dependabot desks with the right statuses, state survives reload, no page errors, no horizontal scroll at 390px. Voice not tested end to end (no microphone headless). launched.mjs --write, regen.mjs, sync_tree_counts.py, publish_surface.py run; venture-preflight.mjs agent-workroom result: pending at first commit.",
+  "corrections": [],
+  "redteam": null
+}
