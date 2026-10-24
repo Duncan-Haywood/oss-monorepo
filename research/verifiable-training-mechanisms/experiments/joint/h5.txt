@@ -1,0 +1,14 @@
+== A. random instances (2-4 actions, 2-5 signals): LP optimum vs bound, 2755 feasible instances
+bound violated by the LP: 0; LP equals bound: 2410; largest LP/bound: 2092.59
+two actions, binary audit: max |LP - max(C, g/p - S)| = 7.82e-14
+
+== B. measured skip actions (tau = 0 audit, m audited steps): LP vs bound, S = 1
+m      audit_LP   bound   LP/bound
+    1      1.000    1.000    1.000
+    3      1.000    1.000    1.000
+   10      1.000    1.000    1.000
+  100      1.000    1.000    1.000
+ 1500      1.000    1.000    1.000
+
+== C. same actions, Gaussian score only (n_test = 540): the bound is vacuous
+score LP 5.764, one-sided bound 1.000 (the Gaussian ratio reaches ~0 in the tail, so p ~ 1 and the bound is the IR floor)
