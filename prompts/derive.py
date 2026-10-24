@@ -114,7 +114,9 @@ def http_get(path: str) -> Any:
         except urllib.error.HTTPError as e:
             if e.code == 404:
                 return None
-            if e.code not in (403, 429, 500, 502, 503) or attempt == 3:
+            # A 403 with no token is the proxy or the unauthenticated rate limit:
+            # retrying for 14 s per call stalled whole runs, so fail at once.
+            if e.code not in (403, 429, 500, 502, 503) or attempt == 3 or (e.code == 403 and not token):
                 raise
         except urllib.error.URLError:
             if attempt == 3:
@@ -183,13 +185,19 @@ def fetch(root: Path = ROOT, refresh: bool = False, get: Callable[[str], Any] = 
         except (urllib.error.URLError, OSError) as e:  # 403 without a token, network down
             return item[0], e
 
-    failed = 0
+    failed = streak = 0
     with ThreadPoolExecutor(max_workers=8) as pool:
         results = pool.map(safe, todo)
         for i, (k, facts) in enumerate(results, 1):
             if isinstance(facts, Exception):
                 failed += 1  # leave it uncached so the next fetch retries it
+                streak += 1
+                if streak >= 8:  # the host is refusing everything: stop rather than stall
+                    log(f"  {i}/{len(todo)}: {streak} failures in a row ({facts}); stopping")
+                    pool.shutdown(wait=False, cancel_futures=True)
+                    break
                 continue
+            streak = 0
             cache[k] = facts if facts is not None else {"missing": True, "fetched_at": now_iso()}
             if i % 25 == 0:
                 log(f"  {i}/{len(todo)}")
