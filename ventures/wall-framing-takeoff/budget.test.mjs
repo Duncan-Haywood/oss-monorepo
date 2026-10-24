@@ -93,3 +93,10 @@ test("foundation labor rates price the slab area and the net concrete, outside t
   assert.equal(+(b.labor - b0.labor).toFixed(2), +(a.amount + c.amount).toFixed(2));
   assert.ok(bud(full({ laborWallFoot: 1 })).unpriced.some((u) => u.startsWith("Concrete placing")));
 });
+
+test("drywall sheets are budgeted once", () => {
+  const b = bud({ ...full({ drywallSheet: 10 }), drywall: { ceiling: [{ width: 480, depth: 336 }] } });
+  const lines = b.lines.filter((l) => l.item === "Drywall sheets");
+  assert.equal(lines.length, 1);
+  assert.equal(lines[0].amount, lines[0].qty * 10);
+});

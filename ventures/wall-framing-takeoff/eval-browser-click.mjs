@@ -112,6 +112,13 @@ await page.waitForFunction(() => /monolithic slab/.test(document.querySelector("
 const fnOk = !/NaN|undefined/.test(fnTxt + await page.textContent("#foundationOut")) && /stem wall/.test(fnTxt);
 console.log(fnOk ? "ok: foundation, stem then monolithic" : "FAIL: foundation card");
 await page.uncheck("#fnOn");
+await page.check("#dwOn");
+await page.fill("#dwCeil", "40 ft, 28 ft");
+await page.click("#run");
+await page.waitForFunction(() => /sheets of 4 x 8 ft/.test(document.querySelector("#drywallOut")?.textContent || ""));
+const dwTxt = await page.textContent("#drywallOut");
+console.log(!/NaN|undefined/.test(dwTxt) ? "ok: drywall card with a ceiling" : "FAIL: drywall card: " + dwTxt.slice(0, 300));
+await page.uncheck("#dwOn");
 await page.check("#flOn");
 await page.fill("#flOpen", "100 in, 40 in, 36 in, 100 in; 300 in, 190 in, 36 in, 100 in");
 await page.click("#run");

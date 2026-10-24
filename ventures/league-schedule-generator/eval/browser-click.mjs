@@ -75,6 +75,13 @@ const a = await page.locator("#nights tbody").innerText();
 const b = await fresh.locator("#nights tbody").innerText();
 check(a === b, "the opened link shows the same schedule");
 
+await page.click("#suggest-weight");
+await page.waitForFunction(() => /Suggested weight/.test(document.querySelector("#suggest-out").textContent), null, { timeout: 120000 });
+const sug = await page.locator("#suggest-out").textContent();
+const w = await page.locator("#fairnessWeight").inputValue();
+check(w !== "" && Number.isFinite(Number(w)), `suggest button fills the weight box (${sug.slice(0, 60)})`);
+check(await page.locator("#venueFairness").isChecked(), "suggest button turns venue fairness on");
+
 check(errors.length === 0, `no page errors${errors.length ? ": " + errors.join("; ") : ""}`);
 await browser.close();
 server.close();
