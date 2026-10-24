@@ -750,7 +750,7 @@ or `ventures`) until its success rate passes 80% over 20 runs?
 - Drift: `prompts/drift/2026-10-18f.md`.
 - Result: (next review)
 
-## E41: review 2026-10-18 (eighth)
+## E41: review 2026-10-18 (seventh)
 
 - Change: `research/CLAUDE.md` now says the first `pyenv.py` call takes ~20s and
   prints install chatter on stderr (3 friction reports). The yosys/apt-get
@@ -834,7 +834,7 @@ or `ventures`) until its success rate passes 80% over 20 runs?
   7 runs). Reduced pass: no audit or drift report (hours-old report).
 - Result: (next review)
 
-## E48: review 2026-10-19 (eighth)
+## E48: review 2026-10-19 (seventh)
 
 - Change: `research/CLAUDE.md` pyenv step now tells runs to test-import `pytest`
   along with the project's libraries before skipping the venv (friction: a plain
@@ -845,7 +845,7 @@ or `ventures`) until its success rate passes 80% over 20 runs?
   Reduced pass: no audit or drift report (hours-old report).
 - Result: (next review)
 
-## E49: review 2026-10-19 (ninth)
+## E49: review 2026-10-19 (eighth)
 
 - Change: `prompt.md` step 2 says to retry `create_pull_request` on HTTP 500
   (`prompt.md` friction: two 500s before success, no doc mentioned retrying).
@@ -1277,4 +1277,17 @@ or `ventures`) until its success rate passes 80% over 20 runs?
   hosting/deploy-first advice, over the next 40 runs (baseline: count at the
   next review; a docs change is judged before/after, not A/B).
 - Decisions: no candidate scoring this run (brief was a docs review).
+- Result: (next review)
+
+## E80: review 2026-10-24 (reduced pass, eighth run)
+
+- Change: retired research candidate 1 (`routing.json`: candidate `null`,
+  share 0): 3 integrity issues in 184 runs against 7 in 877 for the champion,
+  and `measure` suggests retire. Small counts, so the call is soft; success
+  rates are level (97% vs 98%). `prompt.md` trimmed from 103 to the 100-line
+  budget (friction: 2 reports said it was over budget).
+- Metric: `prompt.md` over-budget friction reports, over the next 40 runs
+  (baseline: 2 recent). Research integrity issues per run on champion 0.
+- Decisions: ventures 2, process 2, review 2 keep collecting (intervals
+  overlap). No audit or drift report (reduced pass).
 - Result: (next review)

@@ -172,6 +172,48 @@ The `?ref=` tags it adds (`threads`, `facebook`, `instagram`, `email`, `x`,
 `linkedin`, `substack`, `medium`, `tiktok`, `youtube`, `reddit`, `hn`) are in
 the counter's closed list and in `channels.yaml` as `hub-*` rows.
 
+## Short-form video
+
+**Owner request, 2026-10-24:** "automated short form video content".
+The hub already wrote a 30-second script per item for TikTok and YouTube
+Shorts; [`platform/distribution/shorts.mjs`](../../platform/distribution/shorts.mjs)
+now renders that script into a finished video, so the only step left by hand
+is the upload.
+
+```
+node platform/distribution/shorts.mjs plan                         # the storyboard per recent tool or post
+node platform/distribution/shorts.mjs render --out shorts          # one video per item in the hub window
+node platform/distribution/shorts.mjs render --out shorts --slug ai-bookkeeper,wall-framing-takeoff
+  [--piper <exe> --model <voice.onnx>]                             # optional offline narration (the podcast's voice)
+```
+
+Each video is 1080x1920, 30 fps, H.264 with an AAC track, about 30 seconds:
+a hook card, a card with the item's first sentence, then **the real
+published page** on a phone-sized screen, with its own worked example
+loaded, scrolled down to its answer, then a hold on that answer captioned
+with a figure read off the page ("432 of 870: Units in the first container"),
+then a closing card (free and open source, not professional advice). Next to
+it go `short.srt`, `poster.png` and `post.md` (the TikTok caption and
+YouTube title and description from the hub, links tagged `?ref=tiktok` and
+`?ref=youtube`, so arrivals land on the scoreboard).
+
+Honesty rules the renderer keeps (tested in `shorts.test.mjs`):
+
+- Every word comes from the page: the cards use the title and description
+  the hub uses, and the figure is text the page showed, read from a named
+  answer (a "Result" heading's section or an output region), never from an
+  axis tick or a numbered step.
+- Captions claim only what the capture did: "its own worked example, loaded"
+  only when an example button was pressed, "scrolled to its main result"
+  only when one was found. Otherwise the caption says less.
+- Nothing is uploaded. Both platforms lock API uploads from unaudited apps to
+  private, and posting under the portfolio's name is the owner's call.
+
+**Workflow** [`distribute-shorts.yml`](../../.github/workflows/distribute-shorts.yml):
+daily and on demand (`slugs`, `narrate`), renders the hub window with Piper
+narration when the voice installs and silent otherwise, and uploads the
+videos as a 14-day run artifact. It pushes no commits and calls no paid API.
+
 ## Drafts for the venues that forbid automation
 
 `node platform/distribution/launch-kit.mjs [--slug <slug>] [--days 7] [--max 3]`

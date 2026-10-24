@@ -1,0 +1,47 @@
+reps per cell: 1000; variance prior 0.005
+n=30: coverage min real 100.00, cv 100.00; width real mean 0.293; ratio cv/real mean 3.147, min 1.917, max 3.348
+n=60: coverage min real 99.50, cv 100.00; width real mean 0.159; ratio cv/real mean 2.895, min 2.064, max 3.137
+H3d-i (all coverages >= 95.0): supported
+H3d-ii high-rho pairs (n=60, rho>=0.85, 7 pairs) ratio<1 on all: False; low-rho pairs (1 pairs, rho<0.3) ratio>1 on all: True -> refuted
+  delay-3      n=30 rho=0.17 cov=100.0/100.0 ratio=1.917
+  delay-2      n=30 rho=0.37 cov=100.0/100.0 ratio=2.852
+  gain-3       n=30 rho=0.53 cov=100.0/100.0 ratio=3.037
+  sensor-3     n=30 rho=0.61 cov=100.0/100.0 ratio=3.247
+  gain-2       n=30 rho=0.67 cov=100.0/100.0 ratio=3.242
+  friction-3   n=30 rho=0.73 cov=100.0/100.0 ratio=3.337
+  sensor-2     n=30 rho=0.75 cov=100.0/100.0 ratio=3.258
+  delay-1      n=30 rho=0.76 cov=100.0/100.0 ratio=3.230
+  gain-1       n=30 rho=0.79 cov=100.0/100.0 ratio=3.248
+  mass-3       n=30 rho=0.83 cov=100.0/100.0 ratio=3.348
+  friction-2   n=30 rho=0.83 cov=100.0/100.0 ratio=3.261
+  sensor-1     n=30 rho=0.83 cov=100.0/100.0 ratio=3.177
+  gain-0       n=30 rho=0.84 cov=100.0/100.0 ratio=3.190
+  mass-2       n=30 rho=0.85 cov=100.0/100.0 ratio=3.323
+  delay-0      n=30 rho=0.85 cov=100.0/100.0 ratio=3.245
+  mass-1       n=30 rho=0.86 cov=100.0/100.0 ratio=3.253
+  sensor-0     n=30 rho=0.86 cov=100.0/100.0 ratio=3.166
+  mass-0       n=30 rho=0.87 cov=100.0/100.0 ratio=3.223
+  none-0       n=30 rho=0.87 cov=100.0/100.0 ratio=3.155
+  friction-1   n=30 rho=0.88 cov=100.0/100.0 ratio=3.211
+  friction-0   n=30 rho=0.88 cov=100.0/100.0 ratio=3.175
+  delay-3      n=60 rho=0.17 cov=100.0/100.0 ratio=2.064
+  delay-2      n=60 rho=0.37 cov=99.8/100.0 ratio=2.630
+  gain-3       n=60 rho=0.53 cov=99.5/100.0 ratio=2.604
+  sensor-3     n=60 rho=0.61 cov=100.0/100.0 ratio=3.137
+  gain-2       n=60 rho=0.67 cov=100.0/100.0 ratio=2.863
+  friction-3   n=60 rho=0.73 cov=100.0/100.0 ratio=3.068
+  sensor-2     n=60 rho=0.75 cov=100.0/100.0 ratio=3.006
+  delay-1      n=60 rho=0.76 cov=100.0/100.0 ratio=2.966
+  gain-1       n=60 rho=0.79 cov=100.0/100.0 ratio=2.989
+  mass-3       n=60 rho=0.83 cov=99.9/100.0 ratio=2.955
+  friction-2   n=60 rho=0.83 cov=100.0/100.0 ratio=2.999
+  sensor-1     n=60 rho=0.83 cov=100.0/100.0 ratio=2.942
+  gain-0       n=60 rho=0.84 cov=100.0/100.0 ratio=2.948
+  mass-2       n=60 rho=0.85 cov=100.0/100.0 ratio=3.009
+  delay-0      n=60 rho=0.85 cov=100.0/100.0 ratio=2.973
+  mass-1       n=60 rho=0.86 cov=100.0/100.0 ratio=2.992
+  sensor-0     n=60 rho=0.86 cov=100.0/100.0 ratio=2.911
+  mass-0       n=60 rho=0.87 cov=100.0/100.0 ratio=2.935
+  none-0       n=60 rho=0.87 cov=100.0/100.0 ratio=2.912
+  friction-1   n=60 rho=0.88 cov=100.0/100.0 ratio=2.957
+  friction-0   n=60 rho=0.88 cov=100.0/100.0 ratio=2.931

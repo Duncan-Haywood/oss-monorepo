@@ -32,6 +32,7 @@ import { decodeEntities } from './entities.mjs';
 import { REFS as CHANNEL_REFS, SOURCE_HOSTS, SOURCE_LABELS, sourceOf } from '../counter/counter.mjs';
 import { buildEngineeringPage, ENGINEERING_PATH, REPO_URL } from './engineering.mjs';
 import { AGENT_POSTS_DIR, AGENTS_PATH, buildWriting, loadPosts, WRITING_PATH } from './writing.mjs';
+import { buildStories, STORIES_PATH } from './stories.mjs';
 import { buildLab } from './lab.mjs';
 import { buildUpdates, CHANGELOG_PATH, UPDATES_PATH } from './updates.mjs';
 import { audienceGroups, audiencePageId, audiencesFor } from './audiences.mjs';
@@ -441,6 +442,9 @@ const isTestFile = (name) =>
 const NON_WEB_EXTENSIONS = new Set([
   '.py', '.toml', '.cfg', '.ini', '.lock', '.yaml', '.yml', '.sh', '.ts', '.tsx', '.md',
   '.dxf', '.step', '.stp', '.stl', '.zip',
+  // Labelled data sets (sales-agent's eval/*.jsonl): read by scripts in the repo, of no use to a visitor, and
+  // nginx has no type for them.
+  '.jsonl',
 ]);
 
 // Files whose contents get the placeholder origin swapped for the real one.
@@ -3663,6 +3667,8 @@ const CATEGORY_RULES = [
         'sales-call-notes-desk',
         // `sales-cadence-builder` joined 2026-10-20 on its first commit: the multi-channel prospecting plan (email, call, LinkedIn, letter) for a list the seller already has, the step before the call notes.
         'sales-cadence-builder',
+        // `sales-agent` joined 2026-10-21 on its first commit: the AI sales inbox agent after the cadence, sorting replies, honouring opt-outs and queueing drafts the seller approves.
+        'sales-agent',
         // `rental-ledger` joined 2026-10-07: the records-and-Schedule-E home for the landlord calculators, which each answer one typed question and hold nothing.
         'rental-ledger',
         // `expense-tracker` joined 2026-10-07: the costs beside the hours and the invoice, grouped by Schedule C line.
@@ -10296,6 +10302,8 @@ export function renderHubSitemap(baseUrl, categoryIds = [], compareProductKeys =
     // The writing index and each post, only when the build wrote them.
     .concat(writingSlugs.length ? [`  <url><loc>${baseUrl}${WRITING_PATH}</loc></url>`] : [])
     .concat(writingSlugs.map((slug) => `  <url><loc>${baseUrl}${WRITING_PATH}${slug}/</loc></url>`))
+    // The fiction section, a hub-level page this build always writes.
+    .concat([`  <url><loc>${baseUrl}${STORIES_PATH}</loc></url>`])
     // The open book: updates and the changelog. Both change with every merge,
     // which is what a crawler deciding how often to come back wants to see.
     .concat([`  <url><loc>${baseUrl}${UPDATES_PATH}</loc></url>`, `  <url><loc>${baseUrl}${CHANGELOG_PATH}</loc></url>`])
@@ -11145,6 +11153,9 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
   // each post is listed in the hub sitemap below.
   // Page slugs under writing/: each post, and `podcast`.
   const writingPages = await buildWriting(outDir, base, { socialCard: `${base}${SOCIAL_CARD_FILE}`, originAlias: [LEGACY_BASE_URL, DEFAULT_BASE_URL] });
+
+  // The fiction the creative track writes, one page linking into its ventures (see `stories.mjs`).
+  await buildStories(outDir, base, { socialCard: `${base}${SOCIAL_CARD_FILE}` });
 
   // The lab (see `lab.mjs`): contained, `noindex` experiments in what the
   // site can be. Its handoff page reads catalog.json in the browser.

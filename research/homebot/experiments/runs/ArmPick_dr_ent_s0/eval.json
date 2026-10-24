@@ -1,0 +1,143 @@
+{
+  "meta": {
+    "env": "ArmPick",
+    "dr": true,
+    "variant": "ent",
+    "ent_coef": 0.005,
+    "seed": 0,
+    "steps": 8000000,
+    "wall_minutes": 157.47113265991212,
+    "n_envs": 8,
+    "torch_threads": 1,
+    "cpu_count": 4
+  },
+  "eval": {
+    "nominal": {
+      "episodes": 100,
+      "success_rate": 0.87,
+      "success_ci95": 0.06591547314553692,
+      "final_distance_median_m": 0.01368650454419072,
+      "final_distance_mean_m": 0.017959072126475545,
+      "tipped": 0,
+      "ever_lifted_5cm": 0.9
+    },
+    "soft_servo": {
+      "episodes": 100,
+      "success_rate": 0.74,
+      "success_ci95": 0.08597231182188834,
+      "final_distance_median_m": 0.013752786481820416,
+      "final_distance_mean_m": 0.021655219089795903,
+      "tipped": 0,
+      "ever_lifted_5cm": 0.78
+    },
+    "stiff_servo": {
+      "episodes": 100,
+      "success_rate": 0.82,
+      "success_ci95": 0.07530074103221031,
+      "final_distance_median_m": 0.016952342636113733,
+      "final_distance_mean_m": 0.022010048745929357,
+      "tipped": 0,
+      "ever_lifted_5cm": 0.84
+    },
+    "sticky": {
+      "episodes": 100,
+      "success_rate": 0.86,
+      "success_ci95": 0.06800945816575808,
+      "final_distance_median_m": 0.014662326005317784,
+      "final_distance_mean_m": 0.01746706132365182,
+      "tipped": 0,
+      "ever_lifted_5cm": 0.91
+    },
+    "heavy": {
+      "episodes": 100,
+      "success_rate": 0.88,
+      "success_ci95": 0.06369246109234593,
+      "final_distance_median_m": 0.010084488523810949,
+      "final_distance_mean_m": 0.015906327681867605,
+      "tipped": 0,
+      "ever_lifted_5cm": 0.92
+    },
+    "latency_40ms": {
+      "episodes": 100,
+      "success_rate": 0.86,
+      "success_ci95": 0.06800945816575808,
+      "final_distance_median_m": 0.014706259841256463,
+      "final_distance_mean_m": 0.020535201386069835,
+      "tipped": 0,
+      "ever_lifted_5cm": 0.87
+    },
+    "latency_80ms": {
+      "episodes": 100,
+      "success_rate": 0.69,
+      "success_ci95": 0.09064867566600188,
+      "final_distance_median_m": 0.019768426251300958,
+      "final_distance_mean_m": 0.03458497739954419,
+      "tipped": 0,
+      "ever_lifted_5cm": 0.72
+    },
+    "latency_120ms": {
+      "episodes": 100,
+      "success_rate": 0.49,
+      "success_ci95": 0.09798039803960791,
+      "final_distance_median_m": 0.03055068128481043,
+      "final_distance_mean_m": 0.04984115766063221,
+      "tipped": 0,
+      "ever_lifted_5cm": 0.53
+    },
+    "noisy": {
+      "episodes": 100,
+      "success_rate": 0.82,
+      "success_ci95": 0.07530074103221031,
+      "final_distance_median_m": 0.015330915870363148,
+      "final_distance_mean_m": 0.021969848446516536,
+      "tipped": 0,
+      "ever_lifted_5cm": 0.89
+    },
+    "combined": {
+      "episodes": 100,
+      "success_rate": 0.52,
+      "success_ci95": 0.09792156861488688,
+      "final_distance_median_m": 0.029889556164381124,
+      "final_distance_mean_m": 0.04228930408881841,
+      "tipped": 0,
+      "ever_lifted_5cm": 0.58
+    },
+    "slippery_pads": {
+      "episodes": 100,
+      "success_rate": 0.86,
+      "success_ci95": 0.06800945816575808,
+      "final_distance_median_m": 0.011397513383344418,
+      "final_distance_mean_m": 0.0171826770738317,
+      "tipped": 0,
+      "ever_lifted_5cm": 0.88
+    },
+    "heavy_object": {
+      "episodes": 100,
+      "success_rate": 0.84,
+      "success_ci95": 0.07185478689690758,
+      "final_distance_median_m": 0.014183139543028954,
+      "final_distance_mean_m": 0.018866891133261496,
+      "tipped": 0,
+      "ever_lifted_5cm": 0.87
+    },
+    "pose_error_10mm": {
+      "episodes": 100,
+      "success_rate": 0.68,
+      "success_ci95": 0.0914293257111743,
+      "final_distance_median_m": 0.018890883325806514,
+      "final_distance_mean_m": 0.027325366709199737,
+      "tipped": 0,
+      "ever_lifted_5cm": 0.74
+    },
+    "camera_5hz": {
+      "episodes": 100,
+      "success_rate": 0.51,
+      "success_ci95": 0.09798039803960791,
+      "final_distance_median_m": 0.02463147874120484,
+      "final_distance_mean_m": 0.03630341209631665,
+      "tipped": 0,
+      "ever_lifted_5cm": 0.75
+    }
+  },
+  "cross_eval": {}
+}

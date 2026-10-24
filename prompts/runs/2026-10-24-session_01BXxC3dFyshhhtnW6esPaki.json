@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-24",
+  "session": "https://claude.ai/code/session_01BXxC3dFyshhhtnW6esPaki",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled: follow prompt.md",
+  "input_sha256": "3e54a4671d69cc91f71654788cc0aa9420c6093cc023245b58cf4de88920f85c",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-24T04:40:14Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 10020,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "A small verification slice rather than an ambitious one; no real payroll export reachable.",
+      "did": "tests against published IRS examples",
+      "result": "passed, no bug found"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-24-checking-payroll-deposit-rules-against-pub-15.md"
+  ],
+  "goal": null,
+  "notes": "Small slice: Pub. 15 (2026) next-day examples as tests; code already correct. Flagship next: unchanged (item 6 already notes Pub. 15 check). Did not run venture-preflight (tests only, no page change).",
+  "corrections": [],
+  "redteam": null
+}

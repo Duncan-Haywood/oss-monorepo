@@ -17,7 +17,7 @@
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { addLoan, addLoanExtra, applyLoanPayments, checkLenderSchedule, loanRegister, loanSchedule } from "./loans.mjs";
-import { salesTaxReturn, STATE_DUE_DAYS } from "./salestaxreturn.mjs";
+import { salesTaxReturn, stateDueDay, stateEndMonth, stateFilingNote } from "./salestaxreturn.mjs";
 import { gstReturn } from "./gstreturn.mjs";
 import { newBooks, importStatement, importOfxAccounts, importCsvAccounts, importQifAccounts, lockPeriod, closeYear, reopenYear, yearEndReport, categorize, suggestRules, addRules, addDocuments, addAsset, disposeAsset, addAssetsCsv, register, addPrepaid, prepaidRegister, addInventoryMove, setInventoryMethod, inventoryRegister, writeOff, aging, salesTax, vatReturn, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, addFxAccount, setRates, parseRates, fxRegister, exportLines, status, analyze, fmt, taxableBusinessIncome, s179Carryforward } from "./engine.mjs";
 import { parseCents } from "./bank.mjs";
@@ -39,7 +39,7 @@ import { reconcile } from "./reconcile.mjs";
 import { depositSchedule } from "./deposits.mjs";
 import { addPayroll, planPayroll, applyPayroll, payrollSummary, form941, form940, w2Summary, reconcile941W2, employerCost } from "./payroll.mjs";
 import { readPayoutReport, planPayouts, applyPayouts } from "./payouts.mjs";
-import { reconcile1099K, reportable1099K } from "./form1099k.mjs";
+import { reconcile1099K, reportable1099K, defaultProcessor } from "./form1099k.mjs";
 import { setTaxTreatment, taxDepreciation } from "./taxdepr.mjs";
 import { renderInvoice, setProfile, PROFILE_KEYS } from "./invoice.mjs";
 import { reminders } from "./collections.mjs";
@@ -596,7 +596,7 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
     res = reconcile1099K(readPayoutReport(readFileSync(rest[0], "utf8")), { gross, months }, year, books, { sales: flag("--sales") ?? "4000" });
   } catch (e) { console.error(e.message); process.exit(2); }
   if (json) { console.log(JSON.stringify(res, null, 2)); process.exit(0); }
-  try { console.log(`Will one be filed? ${reportable1099K(readPayoutReport(readFileSync(rest[0], "utf8")), year, { processor: flag("--processor") ?? "card" }).why}`); } catch (e) { console.error(e.message); process.exit(2); }
+  try { console.log(`Will one be filed? ${reportable1099K(readPayoutReport(readFileSync(rest[0], "utf8")), year, { processor: flag("--processor") ?? defaultProcessor(readPayoutReport(readFileSync(rest[0], "utf8"))) }).why}`); } catch (e) { console.error(e.message); process.exit(2); }
   for (const b of res.bridge) console.log(`${b.label.padEnd(46)} ${fmt(b.cents).padStart(13)}`);
   console.log(`${"Refunds in the report (not netted on the form)".padEnd(46)} ${fmt(res.report.refunds).padStart(13)}`);
   console.log(`${"Fees in the report (not netted on the form)".padEnd(46)} ${fmt(res.report.fees).padStart(13)}`);
@@ -765,7 +765,9 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
   let t;
   const discounts = {};
   for (let v = flag("--discount"); v; v = flag("--discount")) { const [k, spec] = v.split("="); const [pct, cap] = spec.split(","); discounts[k.trim()] = { rate: Number(pct) / 100, cap: cap == null ? undefined : Math.round(Number(cap) * 100) }; }
-  try { t = salesTaxReturn(books, { frequency: flag("--freq") ?? "quarterly", dueDay: flag("--due-day") ? Number(flag("--due-day")) : (STATE_DUE_DAYS[(flag("--state") ?? "").toUpperCase()] ?? 20), from, to, rates, discounts, rollover: !has("--no-rollover"), asOf: new Date().toISOString().slice(0, 10) }); } catch (e) { console.error(e.message); process.exit(2); }
+  try { t = salesTaxReturn(books, { frequency: flag("--freq") ?? "quarterly", endMonth: flag("--end-month") ? Number(flag("--end-month")) : stateEndMonth(flag("--state"), flag("--freq") ?? "quarterly"), dueDay: flag("--due-day") ? Number(flag("--due-day")) : stateDueDay(flag("--state"), flag("--freq") ?? "quarterly"), from, to, rates, discounts, rollover: !has("--no-rollover"), asOf: new Date().toISOString().slice(0, 10) }); } catch (e) { console.error(e.message); process.exit(2); }
+  const stateNote = stateFilingNote(flag("--state"), t.frequency);
+  if (stateNote) t.warnings.push(stateNote);
   if (json) { console.log(JSON.stringify(t, null, 2)); process.exit(0); }
   console.log(`SALES TAX RETURN WORKSHEET (${t.frequency})`);
   for (const p of t.periods) {

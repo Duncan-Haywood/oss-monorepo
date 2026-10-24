@@ -1,0 +1,61 @@
+{
+  "date": "2026-10-24",
+  "session": "https://claude.ai/code/session_01MhNLazNZkrvk5sPGWank2g",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-24T06:11:43Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 10043,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Says venture suites outlast 120s; a foreground 110s timeout on eval-browser-click.mjs killed it too. Same advice applies to browser evals."
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "Flagship next: still listed the page as open while #10040 was in flight; no claim mechanism"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "Took flagship 2 not 1: ai-bookkeeper's open items need real inputs or an unpublished IRS procedure",
+      "did": "Landed the schedule card for wall-framing-takeoff",
+      "result": "ok"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "Duplicate work: PR #10040 landed the same schedule card minutes before my merge",
+      "did": "Dropped my code and post, kept the run record",
+      "result": "nothing shipped; my card passed the same click checks"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Built a schedule card, tests and headless click check passed, but #10040 merged the same feature first (merge conflict). Duplicate-PR search was skipped; only the allocate output was read.",
+  "corrections": [],
+  "redteam": null
+}

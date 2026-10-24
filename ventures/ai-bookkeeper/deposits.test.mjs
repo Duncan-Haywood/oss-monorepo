@@ -96,3 +96,19 @@ test("a semiweekly period spanning two quarters is two deposits due the same day
   assert.deepEqual(d.map((x) => x.due), ["2026-10-07", "2026-10-07"]);
   assert.ok(d[0].to === "2026-09-30" && d[1].from === "2026-10-02");
 });
+
+// Pub. 15 (2026), "$100,000 Next-Day Deposit Rule" examples, read 2026-10-24.
+test("Pub. 15 Fir Co.: $110,000 Monday is due Tuesday; $30,000 Tuesday is not added to it and is due Friday", () => {
+  const r = depositSchedule(reg([["2026-06-01", 434800], ["2026-06-02", 118600]]), 2026, { schedule: "semiweekly" });
+  assert.equal(r.deposits.length, 2);
+  assert.equal(r.deposits[0].due, "2026-06-02");
+  assert.match(r.deposits[0].rule, /next-day/);
+  assert.equal(r.deposits[1].due, "2026-06-05");
+  assert.equal(r.deposits[1].rule, "semiweekly");
+});
+
+test("Pub. 15: $95,000 Tuesday and $10,000 Wednesday are different periods, so no next-day rule: Friday and the following Wednesday", () => {
+  const r = depositSchedule(reg([["2026-06-02", 375500], ["2026-06-03", 39500]]), 2026, { schedule: "semiweekly" });
+  assert.equal(r.nextDay, false);
+  assert.deepEqual(r.deposits.map((d) => d.due), ["2026-06-05", "2026-06-10"]);
+});

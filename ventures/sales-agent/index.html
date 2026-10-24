@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Sales Agent — an AI sales inbox agent that sorts replies and drafts answers you approve, free</title>
+  <meta name="description" content="Free AI sales agent for the replies to your outreach. Paste them in: it spots unsubscribes, bounces, out-of-office and not-now replies, updates your list, and drafts answers to the interested ones for you to approve. Never sends anything.">
+  <meta property="og:title" content="Sales Agent — sort sales replies, update your list, approve the drafts">
+  <meta property="og:description" content="The inbox half of an AI SDR, with you in the loop: unsubscribes honoured, pauses dated, replies drafted, nothing sent without you.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Sales Agent", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "An AI sales inbox agent: paste the replies to your outreach and it sorts them, honours unsubscribes, pauses not-now and out-of-office prospects to a date, and drafts replies you approve and send yourself. Runs in your browser."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What does an AI sales agent do with replies?", "acceptedAnswer": {"@type": "Answer", "text": "It reads each reply to your outreach and decides what it means: unsubscribe, bounce, out of office, left the company, not now, not interested, an objection, a question, or interested. Then it does the bookkeeping a sales rep does by hand: adds unsubscribes to the suppression list with their words as the record, pauses the out-of-office and not-now prospects until a date, stops the cadence for anyone who replied, and drafts an answer for the ones worth answering."}}, {"@type": "Question", "name": "Does it send emails for me?", "acceptedAnswer": {"@type": "Answer", "text": "No. It never sends, and it never will without you. The agent may always do less on its own, such as stopping or pausing outreach, but anything that would contact a person waits in a queue for you to read, edit and approve, and you send it from your own mailbox."}}, {"@type": "Question", "name": "How accurate is it at reading replies?", "acceptedAnswer": {"@type": "Answer", "text": "On 40 replies written after its rules were finished, the built-in rules named a category for 22 and were right on 15, and handed the other 18 to you with a guess that was right on 11. They caught only 1 of 5 unsubscribes worded unusually. That is why every reply it is not sure of comes to you, and why an AI model on your own key can read the reply too, under the rule that it may only ever lower how much contact follows."}}, {"@type": "Question", "name": "What happens when someone asks to unsubscribe?", "acceptedAnswer": {"@type": "Answer", "text": "Their address goes into a suppression file with the date, the reason and the sentence they wrote, every cadence to them stops, and no reply is drafted. No AI model can override that. Load the suppression file into your sending tool and the sales cadence builder so they are never contacted again."}}, {"@type": "Question", "name": "Does it use AI, and is my data sent anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "Only if you choose. With no key it runs on rules and a small word model inside your browser, and nothing is uploaded. If you add your own key for Anthropic, OpenAI, Gemini or an OpenAI-compatible endpoint, or point it at a model on your own computer, each reply and draft is sent from your browser straight to that provider. Model drafts that state a number you did not give are thrown away."}}, {"@type": "Question", "name": "Is Sales Agent free?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. No signup, no limit, no seat price. It is MIT-licensed open source, so you can run it yourself, put it inside your own product, or sell it as a service."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1d2330; background: #f4f4f8; }
+    body { max-width: 1080px; margin: auto; padding: 28px; }
+    a { color: #2b4ea8; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f2a55; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f2a55; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4a4f5e; }
+    .card { background: #fff; border: 1px solid #d6d9e4; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f2a5512; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #5b6076; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2b4ea8; color: #fff; font-weight: 700; cursor: pointer; margin: 10px 8px 0 0; }
+    button.secondary { background: #e4e7f2; color: #1f2a55; }
+    button:disabled { opacity: .55; cursor: default; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #eef0f8; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f2a55; }
+    .item { border: 1px solid #d6d9e4; border-radius: 12px; padding: 14px; margin: 14px 0; background: #fcfcfe; }
+    .item blockquote { margin: 6px 0 10px; padding-left: 12px; border-left: 3px solid #b8bfdc; color: #333a52; white-space: pre-wrap; }
+    .item textarea { min-height: 150px; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin: 0 6px 4px 0; }
+    .pill.good { background: #dcefdc; color: #1d5a24; }
+    .pill.mid { background: #fdf0d5; color: #5c4508; }
+    .pill.high { background: #f8d9d6; color: #7d1f16; }
+    .pill.info { background: #e4e7f2; color: #1f2a55; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 8px 12px; margin: 8px 0; color: #5c4508; font-size: .9rem; }
+    .err { background: #f8d9d6; border-radius: 10px; padding: 8px 12px; margin: 8px 0; color: #7d1f16; font-size: .9rem; }
+    .ok { background: #dcefdc; border-radius: 10px; padding: 8px 12px; margin: 8px 0; color: #1d5a24; font-size: .9rem; }
+    ul.applied { margin: 6px 0; padding-left: 20px; font-size: .92rem; }
+    table { border-collapse: collapse; width: 100%; font-size: .93rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #d6d9e4; vertical-align: top; }
+    footer { margin-top: 28px; border-top: 1px solid #d6d9e4; padding-top: 16px; }
+    details summary { cursor: pointer; font-weight: 700; color: #1f2a55; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 12px 0 0; }
+    .check input { width: auto; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">SALES AGENT · INBOX AGENT · RUNS IN YOUR BROWSER · SENDS NOTHING</p>
+    <h1>The AI sales agent for your replies, with you in the loop</h1>
+    <p>Paste the <strong>replies your outreach got back</strong>. The agent decides what each one means, <strong>honours every unsubscribe</strong> (with their words kept as the record), <strong>pauses</strong> out-of-office and not-now prospects until the right date, <strong>stops the cadence</strong> for anyone who answered, and <strong>drafts the replies worth sending</strong> for you to approve.</p>
+    <p class="note">One rule runs through it: <strong>the agent may always do less on its own; it may never do more without you.</strong> Stopping and pausing happen automatically. Anything that would contact a person waits for your approval, and you send it yourself. Pairs with the <a href="../sales-cadence-builder/">sales cadence builder</a> (the outreach) and <a href="../deal-keeper/">Deal Keeper</a> (the pipeline).</p>
+  </header>
+  <main>
+  <section class="card">
+    <h2>1. The replies</h2>
+    <label for="replies">Paste replies. Start each one with <code>From:</code> (and optionally <code>Subject:</code>), or separate them with a line of <code>---</code>. Quoted history below "On … wrote:" is ignored.</label>
+    <textarea id="replies" rows="12" placeholder="From: Dana Reyes &lt;dana@brightline.example&gt;&#10;Subject: Re: route planning&#10;Sounds interesting. Could you send a few times next week?&#10;---&#10;From: omar@peakdental.example&#10;Please remove me from your list."></textarea>
+    <details>
+      <summary>Optional: your prospect list and suppression list</summary>
+      <label for="prospects">Prospects CSV (needs an <code>email</code> column; <code>first_name</code> and <code>company</code> help the drafts). Its status columns come back updated.</label>
+      <textarea id="prospects" rows="6" placeholder="email,first_name,company,status&#10;dana@brightline.example,Dana,Brightline Logistics,active"></textarea>
+      <label for="suppression">Your current suppression list (one email per line), so nobody is added twice</label>
+      <textarea id="suppression" rows="3" placeholder="old@unsubscribed.example"></textarea>
+    </details>
+    <h2 style="margin-top:18px">2. You and your offer (the drafts use only this)</h2>
+    <div class="row3">
+      <div><label for="sender">Your name</label><input id="sender" autocomplete="name" placeholder="Sam Ortiz"></div>
+      <div><label for="company">Your company</label><input id="company" autocomplete="organization" placeholder="Example Routing Co."></div>
+      <div><label for="address">Postal address (required in commercial email)</label><input id="address" autocomplete="street-address" placeholder="100 Example St, Springfield, IL 62701"></div>
+      <div><label for="product">Product name</label><input id="product" autocomplete="off" placeholder="Example Routing"></div>
+      <div><label for="booking">Booking link (optional)</label><input id="booking" type="url" autocomplete="url" placeholder="https://cal.example/sam"></div>
+      <div><label for="today">Today</label><input id="today" type="date"></div>
+    </div>
+    <label for="value">What it does for them, in one line (no numbers you cannot back up)</label>
+    <input id="value" autocomplete="off" placeholder="builds next-day routes from a spreadsheet in minutes">
+    <button type="button" id="go">Run the inbox agent</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="status" role="status" class="note">Paste replies, then run the agent.</p>
+  </section>
+  <section class="card" id="out" hidden>
+    <h2>3. What the agent did, and what waits for you</h2>
+    <div class="big" id="summary"></div>
+    <div id="items"></div>
+    <h3>Take the results with you</h3>
+    <button type="button" id="dl-prospects">Updated prospects (CSV)</button>
+    <button type="button" class="secondary" id="dl-suppression">Add to suppression (CSV)</button>
+    <button type="button" class="secondary" id="dl-deals">New deals for Deal Keeper (CSV)</button>
+    <button type="button" class="secondary" id="dl-tasks">Your tasks (CSV)</button>
+    <button type="button" class="secondary" id="dl-approved">Approved drafts (text)</button>
+    <p class="note">Load the suppression file into whatever sends your email, and into the <a href="../sales-cadence-builder/">cadence builder</a>, so these people are never contacted again.</p>
+  </section>
+  <section class="card" id="daily">
+    <h2>4. Today's queue (the daily run)</h2>
+    <p class="note">Paste the task CSV from <a href="../sales-cadence-builder/">Sales Cadence Builder</a>. It lists what is due today, leaving out anyone who unsubscribed, bounced, replied, is paused or suppressed, including the replies you just ran above. It sends nothing.</p>
+    <label for="cadence-tasks">Cadence task list (CSV)</label>
+    <textarea id="cadence-tasks" rows="6" placeholder="date,call_window,channel,step,prospect,company,email,phone,subject,body,voicemail,issues"></textarea>
+    <label for="done">Touches you already did (optional, one per line: email,step)</label>
+    <textarea id="done" rows="2"></textarea>
+    <button type="button" id="go-daily">Build today's queue</button>
+    <p id="daily-status" role="status" class="note"></p>
+    <pre id="daily-brief" hidden style="white-space:pre-wrap"></pre>
+    <div id="daily-dl" hidden>
+      <button type="button" id="dl-queue">Today's queue (CSV)</button>
+      <button type="button" class="secondary" id="dl-leftout">Left out, with reasons (CSV)</button>
+    </div>
+  </section>
+  <section class="card">
+    <details>
+      <summary>Optional: let an AI model read the replies and polish the drafts, on your own key</summary>
+      <p class="note">Off by default. With a key, each reply and draft goes from this browser straight to the provider you pick, never to us. The model's reading is merged under one rule: it may lower how much contact follows (turn "unclear" into "unsubscribe"), never raise it (it cannot turn a "no" into a meeting). Its drafts are thrown away if they state a number you did not give or make a promise. The key is kept only in this browser if you tick the box.</p>
+      <p class="note">To keep everything on your own computer, run a model with Ollama, LM Studio or llama.cpp and pick it below: no key, no cost per use. The local server must allow this page: start Ollama with <code>OLLAMA_ORIGINS=https://duncan-haywood.github.io</code>, or switch on CORS in LM Studio. Your browser may ask whether this site may reach devices on your network.</p>
+      <div class="row3">
+        <div><label for="ai-provider">Provider</label><select id="ai-provider"><option value="">None (rules only)</option><option value="anthropic">Anthropic</option><option value="openai">OpenAI</option><option value="gemini">Google Gemini</option><option value="ollama">Ollama (on your computer, no key)</option><option value="lmstudio">LM Studio (on your computer, no key)</option><option value="llamacpp">llama.cpp server (on your computer, no key)</option><option value="openai-compatible">Other (OpenAI-compatible, e.g. OpenRouter)</option></select></div>
+        <div><label for="ai-model">Model (required except for Anthropic)</label><input id="ai-model" autocomplete="off" placeholder="model name"></div>
+        <div><label for="ai-base">Base URL (other providers only)</label><input id="ai-base" autocomplete="off" placeholder="http://localhost:11434/v1"></div>
+        <div><label for="ai-key">API key</label><input id="ai-key" type="password" autocomplete="off"></div>
+      </div>
+      <div class="check"><input type="checkbox" id="ai-remember"><label for="ai-remember" style="display:inline;margin:0;font-weight:400">Remember the key in this browser</label></div>
+    </details>
+  </section>
+  </main>
+  <section class="card" id="accuracy">
+    <h2>How well it reads replies (measured, not claimed)</h2>
+    <p>The rules were tuned on 120 hand-written replies until they read all of them correctly. Then 40 new replies were written and scored once, without further tuning. On those 40:</p>
+    <table>
+      <thead><tr><th>What</th><th>Result</th></tr></thead>
+      <tbody>
+        <tr><td>Replies the rules named a category for</td><td>22 of 40; right on 15 (68%)</td></tr>
+        <tr><td>Replies handed to you as "unclear"</td><td>18; the word model's guess was right on 11</td></tr>
+        <tr><td>Unsubscribes the rules caught</td><td>1 of 5 (the other 4 were worded unusually and went to you, paused)</td></tr>
+        <tr><td>Guesses that would have drafted to someone who wanted less contact</td><td>5 of 18 (guesses never act; you approve every draft)</td></tr>
+      </tbody>
+    </table>
+    <p class="note">So: the rules are a floor, not a reader. Read every "unclear" reply yourself, or add a model on your own key. All three test sets, the scoring script and these numbers are in the <a href="https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/sales-agent/eval">source</a>; the replies were written by the same author as the rules, so real inboxes will score differently.</p>
+  </section>
+  <section class="card" id="faq">
+    <h2>Questions</h2>
+    <h3>What does an AI sales agent do with replies?</h3>
+    <p>It reads each reply to your outreach and decides what it means: unsubscribe, bounce, out of office, left the company, not now, not interested, an objection, a question, or interested. Then it does the bookkeeping a sales rep does by hand: adds unsubscribes to the suppression list with their words as the record, pauses the out-of-office and not-now prospects until a date, stops the cadence for anyone who replied, and drafts an answer for the ones worth answering.</p>
+    <h3>Does it send emails for me?</h3>
+    <p>No. It never sends, and it never will without you. The agent may always do less on its own, such as stopping or pausing outreach, but anything that would contact a person waits in a queue for you to read, edit and approve, and you send it from your own mailbox.</p>
+    <h3>How accurate is it at reading replies?</h3>
+    <p>On 40 replies written after its rules were finished, the built-in rules named a category for 22 and were right on 15, and handed the other 18 to you with a guess that was right on 11. They caught only 1 of 5 unsubscribes worded unusually. That is why every reply it is not sure of comes to you, and why an AI model on your own key can read the reply too, under the rule that it may only ever lower how much contact follows.</p>
+    <h3>What happens when someone asks to unsubscribe?</h3>
+    <p>Their address goes into a suppression file with the date, the reason and the sentence they wrote, every cadence to them stops, and no reply is drafted. No AI model can override that. Load the suppression file into your sending tool and the sales cadence builder so they are never contacted again.</p>
+    <h3>Does it use AI, and is my data sent anywhere?</h3>
+    <p>Only if you choose. With no key it runs on rules and a small word model inside your browser, and nothing is uploaded. If you add your own key for Anthropic, OpenAI, Gemini or an OpenAI-compatible endpoint, or point it at a model on your own computer, each reply and draft is sent from your browser straight to that provider. Model drafts that state a number you did not give are thrown away.</p>
+    <h3>Is Sales Agent free?</h3>
+    <p>Yes. No signup, no limit, no seat price. It is MIT-licensed open source, so you can run it yourself, put it inside your own product, or sell it as a service.</p>
+  </section>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax or sales-compliance advice. Its readings of replies are rules and a small statistical model and they are often wrong (see the measured accuracy above). <strong>You are responsible for reading every reply and every draft</strong> before you act on it or send it, and for following the laws and platform rules that apply to your outreach, such as CAN-SPAM, GDPR and PECR, CASL and the TCPA. Honour every opt-out, including ones this tool misses.</p>
+    <p><strong>Independent.</strong> Not affiliated with Salesforce, HubSpot, Outreach, Salesloft, Apollo, 11x, Artisan or any sales vendor, and none is endorsed here. The example replies and companies are invented.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record: download the CSVs.</p>
+    <p>Everything runs in your browser. Replies, lists and drafts are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>inbox_run</code>, <code>example_loaded</code>, <code>draft_approved</code>, <code>csv_downloaded</code>, <code>ai_run</code>) are counted in this browser's local storage only and can be turned off.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../icp-lens/">ICP lens</a> for who to contact first, the <a href="../sales-cadence-builder/">sales cadence builder</a> for the outreach, the <a href="../sales-call-notes-desk/">sales call notes desk</a> for after the call, and <a href="../deal-keeper/">Deal Keeper</a> for the pipeline.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { runInbox, checkDraft, csv, CATEGORIES, SAMPLE_REPLIES, SAMPLE_PROSPECTS, SAMPLE_OFFER, iso } from "./engine.mjs";
+    import { runInboxWithModel } from "./ai.mjs";
+    import { runDaily, csvQueue, csvLeftOut } from "./daily.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (s) => document.querySelector(s);
+    const SAVE = "sales-agent:setup", AIKEY = "sales-agent:ai";
+    const OFFER = { sender: "sender", company: "company", address: "address", product: "product", booking_link: "booking", value: "value" };
+    const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+    const offer = () => Object.fromEntries(Object.entries(OFFER).map(([k, id]) => [k, $("#" + id).value.trim()]));
+    const facts = () => Object.values(offer()).join(" \n ");
+    let result = null;
+    const approved = new Map();
+    function aiConfig() {
+      const provider = $("#ai-provider").value;
+      return provider ? { provider, model: $("#ai-model").value.trim(), baseUrl: $("#ai-base").value.trim(), apiKey: $("#ai-key").value.trim(), browser: true } : {};
+    }
+    const PILL = { unsubscribe: "high", bounce: "high", not_interested: "mid", left_company: "mid", out_of_office: "info", not_now: "info", objection: "mid", question: "info", interested: "good", unclear: "mid" };
+    function lintBox(box, draft, body) {
+      const r = checkDraft(draft, facts() + "\n" + body);
+      box.replaceChildren();
+      for (const e of r.errors) box.append(el("div", "err", e));
+      for (const w of r.warnings) box.append(el("div", "warn", w));
+      if (r.ok) box.append(el("div", "ok", "Checks passed. Read it once more, then approve."));
+      return r.ok;
+    }
+    function render() {
+      $("#out").hidden = false;
+      const s = result.summary, big = $("#summary");
+      big.replaceChildren();
+      for (const [n, label] of [[s.replies, "replies read"], [s.suppressed, "unsubscribes honoured"], [s.paused, "paused to a date"], [s.drafts, "drafts for you"], [s.tasks, "tasks for you"]]) {
+        const d = el("div"); d.append(el("strong", "", String(n)), document.createTextNode(label)); big.append(d);
+      }
+      const box = $("#items");
+      box.replaceChildren();
+      for (const it of result.items) {
+        const card = el("div", "item"), t = it.triage;
+        card.append(el("span", "pill " + PILL[t.category], CATEGORIES[t.category].label));
+        if (t.subtype) card.append(el("span", "pill info", t.subtype));
+        if (t.source === "model") card.append(el("span", "pill info", "read by model"));
+        if (t.confidence === "weak") card.append(el("span", "pill mid", "weak signal"));
+        card.append(el("strong", "", " " + (it.name || it.from || "Unknown sender") + (it.subject ? " · " + it.subject : "")));
+        card.append(el("blockquote", "", it.body.slice(0, 600)));
+        if (t.evidence) card.append(el("div", "note", "Decided on: “" + t.evidence + "”" + (t.why ? " (" + t.why + ")" : "")));
+        if (t.guess) card.append(el("div", "warn", "The rules could not read this. Best guess: " + CATEGORIES[t.guess.category].label.toLowerCase() + ". Nothing was done on the guess except pausing."));
+        if (it.applied.length) { const ul = el("ul", "applied"); for (const a of it.applied) ul.append(el("li", "", "Done: " + a)); card.append(ul); }
+        if (it.draft) {
+          const id = "d" + it.n;
+          const sl = el("label", "", "Subject"); sl.htmlFor = id + "s";
+          const si = el("input"); si.id = id + "s"; si.value = it.draft.subject;
+          const bl = el("label", "", "Draft reply (edit freely; you send it)"); bl.htmlFor = id + "b";
+          const ta = el("textarea"); ta.id = id + "b"; ta.value = it.draft.body;
+          const lint = el("div");
+          const btn = el("button", "", "Approve"); btn.type = "button";
+          const copy = el("button", "secondary", "Copy"); copy.type = "button";
+          const check = () => { const ok = lintBox(lint, { subject: si.value, body: ta.value }, it.body); btn.disabled = !ok; if (approved.has(it.n)) { approved.delete(it.n); btn.textContent = "Approve"; } };
+          ta.addEventListener("input", check); si.addEventListener("input", check);
+          btn.addEventListener("click", () => { approved.set(it.n, { to: it.from, subject: si.value, body: ta.value }); btn.textContent = "Approved: send it yourself"; record("draft_approved"); });
+          copy.addEventListener("click", async () => { try { await navigator.clipboard.writeText("Subject: " + si.value + "\n\n" + ta.value); copy.textContent = "Copied"; } catch { copy.textContent = "Select and copy by hand"; } });
+          card.append(sl, si, bl, ta, lint, btn, copy);
+          check();
+        }
+        box.append(card);
+      }
+    }
+    async function run() {
+      const replies = $("#replies").value;
+      if (!replies.trim()) { $("#status").textContent = "Paste at least one reply first."; return; }
+      const input = { replies, prospects: $("#prospects").value, suppression: $("#suppression").value, offer: offer(), today: $("#today").value || iso(Date.now()) };
+      const cfg = aiConfig();
+      approved.clear();
+      $("#go").disabled = true;
+      try {
+        if (cfg.provider) {
+          $("#status").textContent = "Asking your model to read each reply…";
+          result = await runInboxWithModel(cfg, input);
+          $("#status").textContent = "Read " + result.items.length + " replies with your model" + (result.errors.length ? " (" + result.errors.length + " fell back to the rules: " + result.errors[0] + ")" : "") + ". Nothing was sent.";
+          record("ai_run");
+        } else {
+          result = runInbox(input);
+          $("#status").textContent = "Read " + result.items.length + " replies with the built-in rules. Nothing was sent.";
+        }
+        if (!result.items.length) { $("#status").textContent = "No replies found. Start each with From: or separate them with ---."; return; }
+        render();
+        record("inbox_run");
+        try { localStorage.setItem(SAVE, JSON.stringify(offer())); } catch { /* storage is optional */ }
+      } finally { $("#go").disabled = false; }
+    }
+    function download(name, text, type = "text/csv") {
+      const a = el("a"); a.href = URL.createObjectURL(new Blob([text], { type })); a.download = name; a.click(); URL.revokeObjectURL(a.href); record("csv_downloaded");
+    }
+    $("#go").addEventListener("click", run);
+    $("#load-example").addEventListener("click", () => {
+      $("#replies").value = SAMPLE_REPLIES; $("#prospects").value = SAMPLE_PROSPECTS;
+      for (const [k, id] of Object.entries(OFFER)) if (!$("#" + id).value) $("#" + id).value = SAMPLE_OFFER[k] || "";
+      run(); record("example_loaded");
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of ["#replies", "#prospects", "#suppression"]) $(id).value = ""; $("#out").hidden = true; result = null; approved.clear(); try { localStorage.removeItem(SAVE); } catch { /* optional */ } });
+    let daily = null;
+    $("#go-daily").addEventListener("click", () => {
+      const tasks = $("#cadence-tasks").value;
+      if (!tasks.trim()) { $("#daily-status").textContent = "Paste the task CSV from the cadence builder first."; return; }
+      // After an inbox run, use its updated prospects and new suppressions, so today's replies count.
+      const prospects = result ? result.prospects : $("#prospects").value;
+      const suppression = [$("#suppression").value, ...(result ? result.suppression.map((x) => x.email) : [])].join("\n");
+      daily = runDaily({ tasks, prospects, suppression, done: $("#done").value, today: $("#today").value || iso(Date.now()) });
+      $("#daily-brief").textContent = daily.brief; $("#daily-brief").hidden = false; $("#daily-dl").hidden = false;
+      $("#daily-status").textContent = daily.summary.due + " touches due today" + (result ? ", after the replies above" : "") + ". Nothing was sent.";
+      record("daily_run");
+    });
+    $("#dl-queue").addEventListener("click", () => daily && download("todays-queue.csv", csvQueue(daily)));
+    $("#dl-leftout").addEventListener("click", () => daily && download("left-out.csv", csvLeftOut(daily)));
+    $("#dl-prospects").addEventListener("click", () => result && download("prospects-updated.csv", csv.prospects(result)));
+    $("#dl-suppression").addEventListener("click", () => result && download("suppression-add.csv", csv.suppression(result)));
+    $("#dl-deals").addEventListener("click", () => result && download("deals-for-deal-keeper.csv", csv.deals(result)));
+    $("#dl-tasks").addEventListener("click", () => result && download("tasks.csv", csv.tasks(result)));
+    $("#dl-approved").addEventListener("click", () => download("approved-drafts.txt", [...approved.values()].map((d) => "To: " + d.to + "\nSubject: " + d.subject + "\n\n" + d.body).join("\n\n==========\n\n") || "No drafts approved yet.\n", "text/plain"));
+    try {
+      const s = JSON.parse(localStorage.getItem(SAVE) || "null");
+      if (s) for (const [k, id] of Object.entries(OFFER)) if (typeof s[k] === "string") $("#" + id).value = s[k];
+      const c = JSON.parse(localStorage.getItem(AIKEY) || "null");
+      if (c) { $("#ai-provider").value = c.provider || ""; $("#ai-model").value = c.model || ""; $("#ai-base").value = c.baseUrl || ""; $("#ai-key").value = c.apiKey || ""; $("#ai-remember").checked = !!c.apiKey; }
+    } catch { /* optional */ }
+    for (const id of ["#ai-provider", "#ai-model", "#ai-base", "#ai-key", "#ai-remember"]) {
+      $(id).addEventListener("change", () => { try { if ($("#ai-remember").checked) localStorage.setItem(AIKEY, JSON.stringify(aiConfig())); else localStorage.removeItem(AIKEY); } catch { /* optional */ } });
+    }
+    $("#optout").addEventListener("click", () => { setUsageOptOut(true); const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; });
+    if (usageOptedOut()) { const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; }
+  </script>
+</body>
+</html>

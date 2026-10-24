@@ -430,7 +430,8 @@ def is_calculator(name: str) -> bool:
 MAINTAIN_TASK = (
     "Maintain only (owner, 2026-10-21): this is a calculator. Fix it if it is broken "
     "(a failing test, a wrong result, a dead link); otherwise add no features, pages, "
-    "comparison pages or consolidation work -- take a flagship or research task instead."
+    "comparison pages or consolidation work -- take a flagship or research task instead. "
+    "Already-built work for it (an open PR, a stranded branch) can still be merged."
 )
 
 

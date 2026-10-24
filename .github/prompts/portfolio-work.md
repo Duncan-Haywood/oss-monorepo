@@ -17,6 +17,8 @@ Not admin, re-verification, or policy debate.
 5. **`.github/prompts/review-open-prs-first.md`** — review open PRs missing
    your agent family's approval before claiming new work; post it via
    `platform/ci/agent_review/review_pending.py --reviewer <gh|kilo|cursor|claude>`.
+   That layer skips today (no App secrets); with budget to spare, review
+   merged work instead: `.github/prompts/post-merge-review.md`.
 6. **Open pull requests, recent commits on `main`, and stranded branches**
    (`python3 platform/ci/unlanded_work.py --sweep`). Extend or land existing
    work instead of duplicating it.

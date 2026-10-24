@@ -37,6 +37,8 @@ function slashTags(t) {
     if (SLASH_KEYS.has(parts[i])) { key = parts[i]; kv[key] ??= []; }
     else if (key) kv[key].push(parts[i]);
   }
+  // "//" separators and a closing "/" (ING writes both) leave empty values; a value's own "/" is kept.
+  for (const k in kv) while (kv[k].length && kv[k].at(-1).trim() === "") kv[k].pop();
   if (!kv.NAME && !kv.REMI && !kv.CNTP && !kv.BENM && !kv.ORDP) return "";
   const first = (k) => (kv[k] ?? []).join("/").trim();
   // /CNTP/<account>/<bic>/<name>/<city>/ : the name is the third value.

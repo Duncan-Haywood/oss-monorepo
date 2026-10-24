@@ -73,18 +73,18 @@ export function readPayoutReport(text) {
   if (table.length < 2) throw new Error("The report has no rows.");
   // Seller Central's date-range CSV opens with a few note lines before the header.
   const at0 = table.findIndex((r) => { const h = r.map(key); return h.includes("settlement_id") && h.includes("selling_fees") && h.includes("product_sales"); });
-  if (at0 !== -1) return readAmazonRange(table.slice(at0));
+  if (at0 !== -1) return { ...readAmazonRange(table.slice(at0)), source: "amazon" };
   // Some dashboards put the currency in the amount headers ("Gross (USD)", "Net (EUR)").
   const head = table[0].map((h) => { const k = key(h); const m = /^(gross|fee|fees|net|amount)_[a-z]{3}$/.exec(k); return m ? m[1] : k; });
-  if (head.includes("settlement_id") && head.includes("amount_type") && head.includes("amount_description")) return readAmazon(table, head);
-  if (head.includes("fees_taxes") && head.includes("title") && head.includes("type") && head.includes("net")) return readEtsy(table, head);
-  if (head.includes("confirmation_code") && head.includes("gross_earnings") && head.includes("host_fee") && head.includes("type")) return readAirbnb(table, head);
+  if (head.includes("settlement_id") && head.includes("amount_type") && head.includes("amount_description")) return { ...readAmazon(table, head), source: "amazon" };
+  if (head.includes("fees_taxes") && head.includes("title") && head.includes("type") && head.includes("net")) return { ...readEtsy(table, head), source: "etsy" };
+  if (head.includes("confirmation_code") && head.includes("gross_earnings") && head.includes("host_fee") && head.includes("type")) return { ...readAirbnb(table, head), source: "airbnb" };
   const col = Object.fromEntries(Object.entries(ALIASES).map(([k, names]) => [k, names.map((n) => head.indexOf(n)).find((i) => i !== -1) ?? -1]));
   // Square's dashboard export has Gross Sales (before tax and tip) and Total Collected; Fees and Net Total are on the latter.
   if (head.includes("total_collected") && head.includes("net_total")) col.gross = head.indexOf("total_collected");
   const squareSplit = head.includes("total_collected") && head.includes("net_total") && (head.includes("tax") || head.includes("tip"));
   for (const need of ["gross", "net", "category"]) if (col[need] === -1) throw new Error(`No "${need}" column: the report needs payout id, payout date, category, gross, fee and net columns.`);
-  if (col.payout === -1 && head.includes("transaction_id") && head.includes("status") && head.includes("type")) return readPaypal(table, head);
+  if (col.payout === -1 && head.includes("transaction_id") && head.includes("status") && head.includes("type")) return { ...readPaypal(table, head), source: "paypal" };
   if (col.payout === -1) throw new Error('No payout id column (Stripe: "automatic_payout_id"). Export the payout reconciliation report, not the plain payments list.');
   const problems = [];
   const rows = [];

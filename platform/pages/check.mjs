@@ -124,6 +124,8 @@ export const CHANGELOG_DIR = 'changelog';
 export const ASK_DIR = 'ask';
 // The lab (`lab.mjs`): `noindex` experiments in what the site can be.
 export const LAB_DIR = 'lab';
+// The fiction section (`stories.mjs`): an indexed page linking the story ventures.
+export const STORIES_DIR = 'stories';
 
 // Directories the site builds for itself. They are not products, so the
 // reachability check below must not demand a `data-tool` card on the hub for
@@ -145,7 +147,7 @@ export const SHOWCASE_DIR = 'showcase';
 // the site, linked from the footer, not a tool.
 export const FEEDBACK_DIR = 'feedback';
 
-export const SITE_OWN_DIRS = new Set([CATEGORY_DIR, ABOUT_DIR, COMPARE_DIR, GUIDES_DIR, RESEARCH_DIR, ENGINEERING_DIR, WRITING_DIR, UPDATES_DIR, CHANGELOG_DIR, LAB_DIR, SHOWCASE_DIR, FEEDBACK_DIR, ASK_DIR]);
+export const SITE_OWN_DIRS = new Set([CATEGORY_DIR, ABOUT_DIR, COMPARE_DIR, GUIDES_DIR, RESEARCH_DIR, ENGINEERING_DIR, WRITING_DIR, UPDATES_DIR, CHANGELOG_DIR, LAB_DIR, SHOWCASE_DIR, FEEDBACK_DIR, ASK_DIR, STORIES_DIR]);
 
 // Every user-facing surface here carries a liability disclaimer
 // (PRODUCT_PLAYBOOK.md §5b). This is the marker phrase they share. A product
@@ -732,7 +734,7 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
     }
   }
 
-  for (const dir of [UPDATES_DIR, CHANGELOG_DIR]) {
+  for (const dir of [UPDATES_DIR, CHANGELOG_DIR, STORIES_DIR]) {
     // Optional, like the writing pages: a fixture build may write neither.
     const relative = path.join(dir, 'index.html');
     const html = await fs.readFile(path.join(site, relative), 'utf8').catch(() => null);

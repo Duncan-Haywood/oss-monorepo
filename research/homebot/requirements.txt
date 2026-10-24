@@ -1,0 +1,16 @@
+# Versions that produced the results in the README (Python 3.11, CPU only).
+numpy==2.4.6
+scipy==1.17.1
+mujoco==3.14.0
+gymnasium==1.3.0
+stable-baselines3==2.9.0
+torch==2.14.1  # CPU wheel: pip install torch --index-url https://download.pytorch.org/whl/cpu
+pyserial==3.5
+pytest
+# CAD (optional): rebuilds the printed parts and hardware/mass_properties.json
+cadquery==2.8.0
+trimesh==5.1.1
+shapely==2.1.2
+rtree==1.4.1
+# Camera (optional): homebot.perception and experiments/fiducial_pose.py
+opencv-contrib-python-headless==5.0.0.93

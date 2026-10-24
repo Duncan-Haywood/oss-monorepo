@@ -1,0 +1,62 @@
+{
+ "date": "2026-10-24",
+ "session": "https://claude.ai/code/session_01B4WzzA9s259udEPERtR7QU",
+ "track": "research",
+ "prompt_version": 1,
+ "input": "read ./prompt.md and follow the instructions there",
+ "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+ "follow_up_inputs": [],
+ "model": "claude-sonnet-5-5",
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-10-24T04:19:12Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": null,
+ "projects": [],
+ "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/10016",
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": null,
+ "outcome": "success",
+ "errors": [],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "research/PROGRAMMES.md / pick_track.py",
+   "issue": "programme_check.py reports a failure for research/codesign-agri-pulloff, unrelated to this run"
+  },
+  {
+   "file": "research/lowcomm-training/PROPOSAL.md",
+   "issue": "Plans a torch-style nanoGPT; torch is not installable in cloud sessions (download.pytorch.org 403), so milestone 1 used numpy"
+  },
+  {
+   "file": "prompts/research/prompt-1.md",
+   "issue": "Two runs drew the same programme milestone in the same hours; no claim mechanism for programme milestones (the PR claim only helps after the first push)"
+  }
+ ],
+ "deviations": [
+  {
+   "file": "research/lowcomm-training/PROPOSAL.md",
+   "why": "torch unavailable",
+   "did": "numpy transformer with manual backward, 14k params instead of 0.8M+",
+   "result": "harness tested; sweep is a smoke test only, cannot test H2"
+  }
+ ],
+ "writeups": [
+  "docs/posts/2026-10-24-diloco-sync-interval-first-measurement.md",
+  "research/lowcomm-training/LOG.md"
+ ],
+ "goal": null,
+ "notes": "Citations still unchecked (arxiv/crossref 403). Ran unit tests, research build.py, link check locally; CI not awaited. A concurrent run landed the torch milestone 1 harness first (same paths); I merged main, kept its src/tests, and moved my numpy harness + sweep to experiments/numpy_h_sweep/. The claim step (research_idea_dupe) was skipped because the programme was drawn, not chosen.",
+ "corrections": [],
+ "redteam": null
+}
