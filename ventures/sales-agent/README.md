@@ -68,6 +68,17 @@ away message into a drafted reply.
 | Outreach, Salesloft, Apollo sequences | Reply detection stops a sequence, but sorting replies, pausing to a date and keeping consent records is still manual or a top-tier feature | Sorts, dates and records automatically, from a paste or a CLI |
 | Doing it by hand in the inbox | Unsubscribes get missed in a busy week; "try me in Q1" is forgotten | Every unsubscribe the rules catch is in a file; every pause has a date |
 
+## How well it sorts call notes
+
+`node eval/followup.mjs` scores `followup.mjs` on 40 hand-written, labelled
+one-line call notes (`eval/followup-notes-2026-10-24.jsonl`, written by an agent
+who had read the regexes, so it flatters them). Before any change it got 34 of 40
+(85%): it missed "He'll", "They'll", "She said she will", "They are going to"
+(their promises read as recap) and "Send the sample file by Friday" and "Need to
+send them the pricing" (ours; the second went to theirs). The rules were then
+widened and now read all 40, so the set is a regression floor, not an accuracy
+figure. Real reps' notes, with their shorthand, are still unmeasured.
+
 ## How well it reads replies
 
 Measured on hand-written, labelled replies; the method and every file are in

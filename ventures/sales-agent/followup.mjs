@@ -9,9 +9,9 @@ import { runPrep } from "./prep.mjs";
 const lines = (text) => String(text || "").split(/\n+/).map((l) => l.replace(/^\s*[-*•\d.)]+\s+/, "").trim()).filter(Boolean);
 const LEAD = String.raw`(?:(?:i|we)(?:\s+will|'ll|\s+shall|\s+to|\s+need to|\s+should|\s+must)|will|need to|promised to|action for me:?|todo:?)\s+`;
 const VERBS = String.raw`(?:send|share|email|put together|check|get back|book|draft|follow up|introduce|loop in|schedule|prepare|connect)\b`;
-const OURS = new RegExp(`^(?:${LEAD}${VERBS}|(?:send|share|email)\\s+(?:her|him|them|over)\\b|(?:i|we)\\s+owe\\s+(?:her|him|them)\\b)`, "i");
+const OURS = new RegExp(`^(?:${LEAD}${VERBS}|(?:send|share|email)\\s+(?:her|him|them|over|the|a|an|our|my)\\b|(?:i|we)\\s+owe\\s+(?:her|him|them)\\b)`, "i");
 const OURS_LEAD = new RegExp(`^${LEAD}`, "i");
-const THEIRS = /^(?:they|she|he|(?:[Tt]heir|[Tt]he) \w+|[Cc]ustomer|[A-Z][a-z]+)(?:\s+(?:will|is going to|are going to|to)|'ll)\s+(send|share|check|loop in|introduce|confirm|ask|get|come back)\b|^(?:they|she|he|(?:[Tt]heir|[Tt]he) \w+|[Cc]ustomer)\s+(?:is|are) sending\b|^(?:[Tt]heir \w+|[Tt]he customer|[Cc]ustomer|[A-Z][a-z]+)\s+owes us\b/;
+const THEIRS = /^(?:they|she|he|(?:[Tt]heir|[Tt]he) \w+|[Cc]ustomer|[A-Z][a-z]+)(?:\s+(?:said|says|told us)\s+(?:they|she|he))?(?:\s+(?:will|is going to|are going to|to)|'ll)\s+(send|share|check|loop in|introduce|confirm|ask|get|come back)\b|^(?:they|she|he|(?:[Tt]heir|[Tt]he) \w+|[Cc]ustomer)\s+(?:is|are) sending\b|^(?:[Tt]heir \w+|[Tt]he customer|[Cc]ustomer|[A-Z][a-z]+)\s+owes us\b/;
 const dateIn = (l, today) => findDate(l, today) || findDate(l.replace(/\b(call|meeting|demo|step)\s+(?=(mon|tues|wednes|thurs|fri|satur|sun)day)/i, "$& on "), today) || findDate(l.replace(/\b(?:next\s+|this\s+)?((?:mon|tues|wednes|thurs|fri|satur|sun)day)\b/i, "on $1"), today);
 const NEXT = /\b(next (call|meeting|step)|demo|follow[- ]up (call|meeting)|call (on|again)|meet(ing)? (on|again)|reconnect|touch base|speak again|talk again)\b/i;
 

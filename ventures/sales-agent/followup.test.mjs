@@ -50,3 +50,10 @@ test("empty notes produce no draft", () => {
   const d = run("dana@brightline.example", { notes: "" });
   assert.equal(d.draft, null);
 });
+
+test("contractions, 'said she will', imperatives and 'need to' sort to the right side", () => {
+  const d = run("dana@brightline.example", { notes: "- They'll share the current route file\n- She said she will get back to us on Monday\n- Send the sample file by Friday\n- Need to send them the pricing\n- Need budget approval first" });
+  assert.deepEqual(d.theirs.length, 2);
+  assert.deepEqual(d.ours.length, 2);
+  assert.deepEqual(d.recap, ["Need budget approval first"]);
+});
