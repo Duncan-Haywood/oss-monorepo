@@ -1303,3 +1303,14 @@ or `ventures`) until its success rate passes 80% over 20 runs?
   overlap). E78 and E80 results: too few runs since. No audit or drift
   report (reduced pass).
 - Result: (next review)
+
+## E82: review 2026-10-24 (reduced pass, tenth run)
+
+- Change: `prompts/review/prompt-1.md` trimmed from 136 to 129 lines, under the 130 budget
+  (friction: "File is 139 lines vs 130 budget").
+- Metric: over-budget friction reports on review prompts, over the next 40
+  runs (baseline: 1 recent).
+- Decisions: ventures 2, process 2, review 2 keep collecting (intervals
+  overlap). No audit or drift report (reduced pass). E80 and E81 results: too
+  few runs since.
+- Result: (next review)
