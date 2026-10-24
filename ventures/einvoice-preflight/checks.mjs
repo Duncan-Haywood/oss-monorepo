@@ -15,6 +15,7 @@ import { inspectPaymentRemittance } from "./remittance.mjs";
 import { inspectTaxExemption } from "./tax.mjs";
 import { inspectPaymentTerms } from "./terms.mjs";
 import { inspectPartyVat } from "./vat.mjs";
+import { acceptedLineNet, summedLineNet, taxGroups, taxPercentOf } from "./linenet.mjs";
 
 function parseNumber(value) {
   if (value === undefined || value === null || value === "") return null;
@@ -105,7 +106,13 @@ export function checkInvoice(invoice) {
 
   for (const partyName of ["supplier", "customer"]) {
     const party = invoice[partyName];
-    if (!party || typeof party !== "object" || Array.isArray(party) || typeof party.id !== "string" || !party.id.trim()) {
+    // BT-46 (buyer identifier) is optional in EN 16931 and many real UBL and
+    // CII files leave it out. A parsed file may do so when the buyer is
+    // identified some other way (VAT id, legal registration, endpoint); a
+    // buyer known by name alone, or a draft JSON invoice, still needs one.
+    const idOptional = partyName === "customer" && typeof invoice.source_format === "string"
+      && Boolean(party && typeof party === "object" && (party.vat_id || party.legal_id || party.endpoint));
+    if (!idOptional && (!party || typeof party !== "object" || Array.isArray(party) || typeof party.id !== "string" || !party.id.trim())) {
       fail("INV-005", `${capitalize(partyName)} identifier is missing.`, `Add the ${partyName} identifier from the source system.`, `/${partyName}/id`);
     }
     if (!party || typeof party !== "object" || Array.isArray(party) || typeof party.name !== "string" || !party.name.trim()) {
@@ -161,7 +168,6 @@ export function checkInvoice(invoice) {
   }
 
   let expectedNet = 0;
-  let expectedTax = 0;
   lines.forEach((line, index) => {
     const n = index + 1;
     if (!line || typeof line !== "object" || Array.isArray(line)) {
@@ -172,10 +178,11 @@ export function checkInvoice(invoice) {
       fail("INV-008", `Line ${n} has no description.`, "Add a human-readable line description.", `/lines/${index}/description`);
     }
     const quantity = parseNumber(line.quantity);
-    const price = money(line.unit_price);
-    const tax = parseNumber(line.tax_percent);
-    if (quantity === null || quantity <= 0) {
-      fail("INV-009", `Line ${n} quantity is invalid.`, "Use a positive numeric quantity.", `/lines/${index}/quantity`);
+    const price = parseNumber(line.unit_price);
+    const tax = taxPercentOf(line);
+    // A negative quantity is a returned or credited line, which EN 16931 allows.
+    if (quantity === null) {
+      fail("INV-009", `Line ${n} quantity is invalid.`, "Use a numeric quantity; a credit line may be negative.", `/lines/${index}/quantity`);
     }
     if (price === null || price < 0) {
       fail("INV-010", `Line ${n} unit price is invalid.`, "Use a non-negative numeric unit price.", `/lines/${index}/unit_price`);
@@ -188,13 +195,10 @@ export function checkInvoice(invoice) {
         `/lines/${index}/tax_percent`,
       );
     }
-    if (quantity !== null && price !== null && quantity > 0 && price >= 0) {
-      const lineNet = roundHalfUpToCents(quantity * price);
-      expectedNet = roundHalfUpToCents(expectedNet + lineNet);
-      if (tax !== null && tax >= 0 && tax <= 100) {
-        expectedTax = roundHalfUpToCents(expectedTax + roundHalfUpToCents((lineNet * tax) / 100));
-      }
+    if (quantity !== null && price !== null && price >= 0) {
       const supplied = money(line.net);
+      const lineNet = acceptedLineNet(line, supplied);
+      expectedNet = roundHalfUpToCents(expectedNet + summedLineNet(line, invoice));
       if (supplied === null || supplied !== lineNet) {
         fail(
           "INV-012",
@@ -205,6 +209,11 @@ export function checkInvoice(invoice) {
       }
     }
   });
+  // VAT is worked out per rate on the summed taxable amount (EN 16931
+  // BR-CO-17), not per line, so lines that round differently still agree.
+  const perRate = taxGroups(invoice);
+  let expectedTax = 0;
+  for (const group of perRate.groups.values()) expectedTax = roundHalfUpToCents(expectedTax + group.tax);
   expectedNet = roundHalfUpToCents(expectedNet + headerAdjustmentNetDelta(invoice));
   if (expectedNet < 0) expectedNet = 0;
 
@@ -224,15 +233,19 @@ export function checkInvoice(invoice) {
       fail("INV-014", "Invoice net total does not match its line items.", `Set net total to ${formatMoney(expectedNet)} or correct the line items.`, "/totals/net");
     }
   }
-  if (taxTotal === null || taxTotal < 0) {
+  // BT-110 is absent on an invoice with no VAT at all (category O, for one).
+  const taxAbsent = (totals.tax === undefined || totals.tax === null || totals.tax === "") && expectedTax === 0 && !perRate.unattributed;
+  if (taxAbsent) {
+    // nothing to compare
+  } else if (taxTotal === null || taxTotal < 0) {
     fail("INV-015", "Invoice tax total is missing or invalid.", "Provide a non-negative numeric tax total.", "/totals/tax");
-  } else if (taxTotal !== expectedTax) {
+  } else if (!perRate.unattributed && taxTotal !== expectedTax) {
     fail("INV-018", "Invoice tax total does not match its line tax percentages.", `Set tax total to ${formatMoney(expectedTax)} or correct the line inputs.`, "/totals/tax");
   }
   if (gross === null || gross < 0) {
     fail("INV-016", "Invoice gross total is missing or invalid.", "Provide a non-negative numeric gross total.", "/totals/gross");
-  } else if (net !== null && taxTotal !== null && gross !== roundHalfUpToCents(net + taxTotal)) {
-    fail("INV-017", "Gross total does not equal net plus tax.", `Set gross total to ${formatMoney(roundHalfUpToCents(net + taxTotal))} or correct the totals.`, "/totals/gross");
+  } else if (net !== null && (taxTotal !== null || taxAbsent) && gross !== roundHalfUpToCents(net + (taxTotal ?? 0))) {
+    fail("INV-017", "Gross total does not equal net plus tax.", `Set gross total to ${formatMoney(roundHalfUpToCents(net + (taxTotal ?? 0)))} or correct the totals.`, "/totals/gross");
   }
 
   const prepaid = optionalMoney(totals, "prepaid");

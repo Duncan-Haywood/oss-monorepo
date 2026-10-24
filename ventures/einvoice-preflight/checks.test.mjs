@@ -63,13 +63,13 @@ test("prepaid and due are optional and must balance", () => {
   assert.ok(remainingErrors.some((error) => error.message.includes("gross minus prepaid")));
 });
 
-test("tax total rounds each line to cents", () => {
+test("tax total is worked out per rate on the summed taxable amount (BR-CO-17)", () => {
   const invoice = clone(VALID);
   invoice.lines = [
     { description: "A", quantity: 1, unit_price: 0.03, tax_percent: 19, net: 0.03 },
     { description: "B", quantity: 1, unit_price: 0.03, tax_percent: 19, net: 0.03 },
   ];
-  invoice.totals = { net: 0.06, tax: 0.02, gross: 0.08 };
+  invoice.totals = { net: 0.06, tax: 0.01, gross: 0.07 };
   assert.deepEqual(checkInvoice(invoice), []);
 });
 
@@ -155,4 +155,50 @@ test("the same invoice number from different sellers is not a duplicate", () => 
     { name: "c.json", invoice: VALID },
   ]);
   assert.deepEqual([...duplicates].sort(), ["a.json", "c.json"]);
+});
+
+test("a negative quantity is a credit line, not an error", () => {
+  const invoice = clone(VALID);
+  invoice.lines = [
+    { description: "Goods", quantity: 3, unit_price: 10, tax_percent: 19, net: 30 },
+    { description: "Returned", quantity: -1, unit_price: 10, tax_percent: 19, net: -10 },
+  ];
+  invoice.totals = { net: 20, tax: 3.8, gross: 23.8 };
+  assert.deepEqual(checkInvoice(invoice), []);
+});
+
+test("unit price keeps full precision and honours the price base quantity", () => {
+  const invoice = clone(VALID);
+  invoice.lines = [
+    { description: "kWh", quantity: 16000, unit_price: 0.0088, tax_percent: 21, net: 140.8 },
+    { description: "Box of 12", quantity: 2, unit_price: 441, price_base_quantity: 12, tax_percent: 21, net: 73.5 },
+  ];
+  invoice.totals = { net: 214.3, tax: 45.0, gross: 259.3 };
+  assert.deepEqual(checkInvoice(invoice), []);
+});
+
+test("line allowances and charges are part of the line net", () => {
+  const invoice = clone(VALID);
+  invoice.lines = [{ description: "Work", quantity: 2, unit_price: 100, tax_percent: 19, net: 190,
+    adjustments: [{ kind: "allowance", amount: 15 }, { kind: "charge", amount: 5 }] }];
+  invoice.totals = { net: 190, tax: 36.1, gross: 226.1 };
+  assert.deepEqual(checkInvoice(invoice), []);
+});
+
+test("a wrong stated line net is reported once, not again in every total", () => {
+  const invoice = clone(VALID);
+  invoice.lines = [{ description: "Work", quantity: 2, unit_price: 100, tax_percent: 19, net: 150 }];
+  invoice.totals = { net: 150, tax: 28.5, gross: 178.5 };
+  invoice.source_format = "ubl"; // a parsed file: totals are summed from the stated line nets
+  assert.deepEqual(checkInvoice(invoice).map((e) => e.rule), ["INV-012"]);
+});
+
+test("a buyer identifier is optional on a parsed UBL or CII file", () => {
+  const invoice = clone(VALID);
+  delete invoice.customer.id;
+  assert.ok(checkInvoice(invoice).some((e) => e.rule === "INV-005"));
+  invoice.source_format = "ubl";
+  assert.ok(checkInvoice(invoice).some((e) => e.rule === "INV-005"), "name alone is not an identifier");
+  invoice.customer.vat_id = "DE123456789";
+  assert.equal(checkInvoice(invoice).some((e) => e.rule === "INV-005"), false);
 });

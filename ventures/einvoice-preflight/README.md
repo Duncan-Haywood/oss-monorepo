@@ -562,6 +562,24 @@ These input errors are reported in the selected format and the command exits
 `2`, so CI and ERP adapters do not need to special-case an unstructured stderr
 or stdout message.
 
+## Measured on the official examples (2026-10-24)
+
+The CEN EN 16931 test repository (ConnectingEurope/eInvoicing-EN16931, EUPL, not copied here) ships 41 example invoices in UBL, CII and other syntaxes. They pass the official Schematron, so a built-in rule that fires on one is a false positive of ours or a real inconsistency in the example's data. `node eval/official-examples.mjs <checkout>` runs the built-in rules over them (31 are readable UBL or CII; 9 are EDIFACT or other syntaxes this tool does not read; one FatturaPA file is over the 1 MB limit).
+
+Before this run **none** of the 41 passed the built-in rules; 29 of the 31 readable files drew a finding, mostly arithmetic ones. The causes, all fixed in the JS and Python rules:
+
+| Rule | Files before | After | Cause |
+|---|---|---|---|
+| INV-014, INV-018, INV-038 | 16, 16, 19 | 0, 1, 1 | line allowances/charges ignored; tax summed per line instead of per rate (BR-CO-17); a second `TaxTotal` in the VAT accounting currency (BT-111) added to BT-110; CII net read from `LineTotalAmount` (BT-106) instead of `TaxBasisTotalAmount` (BT-109); CII header allowances not read; breakdown rows keyed by rate only, so S, Z and E at 0% collided; a negative taxable amount rejected |
+| INV-009 | 5 | 0 | a negative quantity (a credit line) rejected |
+| INV-011, INV-015 | 2, 2 | 0 | category O has no `Percent` and invoices with no VAT carry no tax total |
+| INV-012 | 13 | 12 | unit prices rounded to cents before multiplying (0.0088 EUR per kWh read as 0.01); price base quantity (BT-149) ignored. The 12 left are real: the example's stated line net is not quantity times price (for instance quantity 2, price 800, net 800) |
+| INV-005 | 6 | 6 | unchanged on purpose: a buyer known by name alone is still flagged, a buyer with a VAT id, legal id or endpoint is not |
+
+What is left on the readable files is mostly the examples' placeholder data (VAT numbers and IBANs that fail their checksums: INV-022/023/024/025), plus INV-012 above, one HUF invoice whose VAT is rounded to whole forints (INV-018/038 use cents) and INV-033 on a credit note without BT-25. One file is clean. A line whose stated net disagrees with quantity times price is reported once (INV-012); in a parsed file the totals are then summed from the stated nets, as BR-CO-10 does, so the error is not repeated in every total. Draft JSON still sums quantity times price. Where a line states a price base quantity and its net matches quantity times price without it, the net is accepted (the official CII example 8 does this).
+
+Behaviour changes that tests pin: tax is worked out per rate on the summed taxable amount; header allowances and charges move the taxable amount of their rate (or of the only rate); a UBL or CII buyer may omit BT-46 when another identifier is present; negative quantities are allowed.
+
 ## Privacy and usage
 
 Everything is local. Invoice contents are never uploaded or retained by this

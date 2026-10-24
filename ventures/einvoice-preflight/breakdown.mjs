@@ -1,3 +1,5 @@
+import { taxGroups, taxKey, taxPercentOf } from "./linenet.mjs";
+
 // Offline mixed-rate tax-breakdown observations.
 // Arithmetic / document-shape only — not a tax-law determination.
 
@@ -29,28 +31,7 @@ function rateKey(value) {
   return parsed === null ? null : String(parsed);
 }
 
-function lineGroups(lines) {
-  const groups = new Map();
-  if (!Array.isArray(lines)) return groups;
-  for (const line of lines) {
-    if (!line || typeof line !== "object" || Array.isArray(line)) continue;
-    const quantity = parseNumber(line.quantity);
-    const price = money(line.unit_price);
-    const tax = parseNumber(line.tax_percent);
-    if (quantity === null || quantity <= 0 || price === null || price < 0) continue;
-    if (tax === null || tax < 0 || tax > 100) continue;
-    const lineNet = roundHalfUpToCents(quantity * price);
-    const lineTax = roundHalfUpToCents(lineNet * tax / 100);
-    const key = rateKey(tax);
-    const bucket = groups.get(key) || { taxable: 0, tax: 0 };
-    bucket.taxable = roundHalfUpToCents(bucket.taxable + lineNet);
-    bucket.tax = roundHalfUpToCents(bucket.tax + lineTax);
-    groups.set(key, bucket);
-  }
-  return groups;
-}
-
-function checkRows(rows, expected) {
+function checkRows(rows, expected, withCategory, unattributed) {
   const findings = [];
   const seen = new Map();
   rows.forEach((row, index) => {
@@ -64,7 +45,7 @@ function checkRows(rows, expected) {
       ));
       return;
     }
-    const percent = parseNumber(row.tax_percent);
+    const percent = taxPercentOf(row);
     const taxable = money(row.taxable);
     const tax = money(row.tax);
     if (percent === null || percent < 0 || percent > 100) {
@@ -76,7 +57,7 @@ function checkRows(rows, expected) {
       ));
       return;
     }
-    const key = rateKey(percent);
+    const key = taxKey(row, withCategory) ?? rateKey(percent);
     if (seen.has(key)) {
       findings.push(finding(
         "INV-038",
@@ -87,7 +68,8 @@ function checkRows(rows, expected) {
       return;
     }
     seen.set(key, index);
-    if (taxable === null || taxable < 0) {
+    // A negative taxable amount is a credited line group, which is allowed.
+    if (taxable === null) {
       findings.push(finding(
         "INV-038",
         `Tax breakdown row ${index + 1} taxable amount is missing or invalid.`,
@@ -96,7 +78,7 @@ function checkRows(rows, expected) {
       ));
       return;
     }
-    if (tax === null || tax < 0) {
+    if (tax === null) {
       findings.push(finding(
         "INV-038",
         `Tax breakdown row ${index + 1} tax amount is missing or invalid.`,
@@ -115,7 +97,7 @@ function checkRows(rows, expected) {
       ));
     }
     const group = expected.get(key);
-    if (!group) {
+    if (!group && !unattributed) {
       findings.push(finding(
         "INV-038",
         `Tax breakdown row ${index + 1} names a tax percentage that no line uses.`,
@@ -124,7 +106,7 @@ function checkRows(rows, expected) {
       ));
       return;
     }
-    if (taxable !== group.taxable) {
+    if (group && !unattributed && taxable !== group.taxable) {
       findings.push(finding(
         "INV-038",
         `Tax breakdown row ${index + 1} taxable amount does not match the lines at that rate.`,
@@ -134,7 +116,7 @@ function checkRows(rows, expected) {
     }
   });
   for (const key of expected.keys()) {
-    if (!seen.has(key)) {
+    if (!seen.has(key) && !unattributed) {
       findings.push(finding(
         "INV-038",
         "Tax breakdown is missing a row for a tax percentage used on the lines.",
@@ -148,7 +130,7 @@ function checkRows(rows, expected) {
 
 export function inspectTaxBreakdown(invoice) {
   if (!invoice || typeof invoice !== "object" || Array.isArray(invoice)) return [];
-  const expected = lineGroups(invoice.lines);
+  const { groups: expected, unattributed, withCategory } = taxGroups(invoice);
   const supplied = invoice.tax_breakdown;
   const missing = !("tax_breakdown" in invoice) || supplied === null || supplied === undefined || supplied === "";
   if (missing || (Array.isArray(supplied) && supplied.length === 0)) {
@@ -170,5 +152,5 @@ export function inspectTaxBreakdown(invoice) {
       "/tax_breakdown",
     )];
   }
-  return checkRows(supplied, expected);
+  return checkRows(supplied, expected, withCategory, unattributed);
 }
