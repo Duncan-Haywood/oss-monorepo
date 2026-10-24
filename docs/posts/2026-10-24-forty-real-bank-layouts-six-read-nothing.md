@@ -1,7 +1,7 @@
 ---
 title: "We fed 40 real bank-export layouts to our bookkeeper. Six read nothing."
 date: 2026-10-24
-description: "ai-bookkeeper imported the sample files of the bank2ynab project: a German card export, a UK card file, a Czech codepage and a Singapore statement with two-line transactions failed. Four fixes, with tests."
+description: "ai-bookkeeper on bank2ynab's sample files: a German card export, a UK card file, a Czech codepage and a Singapore statement failed. Four fixes, with tests."
 tags: [ai-bookkeeper, bank-import, testing]
 ---
 

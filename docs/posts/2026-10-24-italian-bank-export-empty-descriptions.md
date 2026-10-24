@@ -1,7 +1,7 @@
 ---
 title: "A bookkeeping import that silently blanked every description"
 date: 2026-10-24
-description: "Testing ai-bookkeeper against the column layouts of Intesa Sanpaolo's two Italian exports found one that imported with empty descriptions. What was wrong and the fix."
+description: "Testing ai-bookkeeper on Intesa Sanpaolo's two Italian export layouts found one that imported with empty descriptions. What was wrong and the fix."
 tags: [ai-bookkeeper, bookkeeping, bank-import, testing]
 ---
 
