@@ -1715,7 +1715,7 @@ const RELATIVE_SELF = relative(
 // +1: `open-house-plans` graduated.
 // +1: `wall-framing-takeoff` graduated.
 // +1: `support-agent` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 1287;
+const SWITCHES_IN_THE_CATALOGUE = 1288;
 // +1: `open-tennis-robots` graduated.
 // +1: `uk-statutory-residence-test-checker` graduated.
 // +1: `llm-spend-guard` graduated.

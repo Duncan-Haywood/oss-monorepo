@@ -1,0 +1,66 @@
+name: sales-agent
+description: >-
+  Open-source AI sales agent, built in stages with a person approving every
+  message that contacts someone. Milestone 1 is the inbox agent: paste the
+  replies to your outreach and it sorts them (unsubscribe, bounce, out of
+  office, left, not now, not interested, objection, question, interested),
+  suppresses opt-outs with their words as the consent record, pauses
+  prospects to a date, writes Deal Keeper rows, and drafts replies for you to
+  approve. It never sends. Rules first, a word model's guess for what they
+  cannot read, and an optional model on the user's own key that may only
+  lower how much contact follows. Accuracy is measured on replies written
+  after the rules and published with the limits.
+stage: prototype
+owner: duncan
+
+# Started 2026-10-21 on the owner's direction that day: "I want to make ai sales agents this is a long term process"
+# (and on 2026-10-20: "AI sales agents and automated sales and marketing through all the traditional methods").
+# Duplicate check: open PRs searched for "sales" in the title (none open); the nearest ventures are the agent's own
+# tools (icp-lens, sales-cadence-builder, sales-call-notes-desk, deal-keeper). None reads replies. ROADMAP.md holds
+# the stages; this venture is the long-term home and composes those four rather than copying them.
+#
+# Why this niche: "AI SDR" products send in the customer's name at volume and are priced per seat or per contact;
+# small teams get burned by misread replies and missed opt-outs. Sorting replies, honouring opt-outs with a record and
+# pausing to a date is the part of an SDR's day that is most mechanical and most costly to get wrong.
+#
+# First visitor: founders and small sales teams searching "AI SDR", "AI sales agent", "sales reply handling",
+# "how to handle unsubscribe replies cold email", "out of office reply sales follow up". Volume not measured.
+#
+# Liability boundary (portfolio/sales-tools/README.md, "The user sends, the tool drafts"): it never sends, has no send
+# path (page.test.mjs), stores nothing outside the visitor's browser, and its drafts state only what the user typed.
+# Automatic actions only reduce contact. Not legal advice; the page says so and states the measured miss rate.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; ROADMAP M4 (self-hosted agent on the
+# deployer's own mailbox) is the natural paid tier for a deployer who sells it as a service.
+
+hypotheses:
+  - claim: >-
+      Founders and small sales teams will paste a batch of replies, download the suppression and prospect files, and
+      come back for the next batch.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      A model on the user's own key, merged under the less-contact rule, catches every unsubscribe in a fresh
+      labelled set and never drafts where the truth contacts less.
+    status: untested
+    checked: null
+    evidence: in-repo
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a drafted reply to someone who asked to stop that the rules had read correctly as an unsubscribe.
+
+links:
+  production: https://duncan-haywood.github.io/oss-monorepo/sales-agent/
+  analytics: null

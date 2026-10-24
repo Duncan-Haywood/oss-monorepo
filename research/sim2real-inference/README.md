@@ -1,6 +1,6 @@
 # Sim-to-real inference: how few real trials certify a robot policy when a biased simulator supplies the rest?
 
-**Status: open research programme, proposal stage.** No new results yet. This directory is where
+**Status: open research programme, milestone 3 of 7 done.** First results below: on 21 MuJoCo twin-real model pairs, context-paired twin runs multiply the effective real sample by up to 3.2x and match the closed form 1/(1 - rho^2 (1 - n/N)) within 6%, unpaired twin runs give none, and plug-in 95% intervals undercover (hypothesis H1 refuted as pre-registered). This directory is where
 the work toward one publishable paper accumulates across sessions; it consolidates about 130
 small twin projects in this repository into one question (see [`PROPOSAL.md`](PROPOSAL.md)).
 
@@ -26,7 +26,13 @@ well as on MuJoCo model pairs.
   `twin-certification` (0.072 and 0.172 cost-ratio thresholds, `rho*(0.05)` = 0.426, context-share
   equivalents 1.04/1.33/2.78 and 1.25/2.0/5.0, the 299-trial zero-failure test) and check the
   variance formulas and interval coverage by simulation. Run:
-  `PYTHONPATH=src python3 -m unittest discover -s tests` (11 tests, about 14 s).
+  `PYTHONPATH=src python3 -m unittest discover -s tests` (11 tests, about 14 s); the benchmark tests are `tests/test_benchmark.py` (needs numpy and mujoco).
+- [`experiments/m3_benchmark/`](experiments/m3_benchmark): milestone 3, the benchmark. `pairs.py` (a MuJoCo pendulum arm; twin = nominal, "real" = disturbance plus one omitted effect: friction, delay, sensor noise, actuator gain, payload mass, each at four swept magnitudes), `run_pool.py` (4 minutes on 4 cores), `analyse.py` (H1, H2, H6, about 5 minutes), `figure.py`. Results in [`results/`](experiments/m3_benchmark/results): `summary.txt`, `coverage.csv`, `h2.csv`, `h6.csv`, figure below.
+  Model-versus-model pairs, never real-robot results; magnitudes are swept, not from a datasheet.
+
+![E against paired correlation, and coverage](experiments/m3_benchmark/results/e_vs_rho.png)
+
+  Left: effective-sample multiplier E (variance of real-only over variance of the control variate, n = 30 pairs plus 270 twin-only runs) against the paired correlation; line is the closed form. Right: coverage of 95% intervals, n = 30. Results: H1 refuted (intervals undercover, partly because the bounded outcome is skewed and real-only undercovers too, 91.2% at worst); H2 supported on 13 of 21 pairs and failing where rho is under about 0.75; H6 mixed (rho predicts value better, Spearman 0.999, but detectability predicts it too, -0.95). Full account in [`LOG.md`](LOG.md).
 - [`LOG.md`](LOG.md): the research log. Hypotheses are written down before experiments are run.
 - How runs work on a programme: [`../PROGRAMMES.md`](../PROGRAMMES.md).
 
@@ -40,4 +46,4 @@ affiliation with or endorsement by any author or lab.
 
 ## Outside dependencies
 
-None yet. Planned: MuJoCo (open source, pip) and the published SIMPLER tables.
+MuJoCo (open source, pip) and numpy for the benchmark; planned: the published SIMPLER tables.
