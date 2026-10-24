@@ -1,0 +1,47 @@
+{
+  "date": "2026-10-24",
+  "session": "https://claude.ai/code/session_01UhU9mnv1BjPJN9YHyhLfBr",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-24T17:18:12Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 10189,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "Bare python3 lacked numpy; pyenv.py output needed tail -1 to get the interpreter path."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-10-29-tuning-the-inner-learning-rate-erased-the-diloco-win.md",
+    "research/lowcomm-training/LOG.md (milestone 2e)"
+  ],
+  "goal": null,
+  "notes": "Milestone 2e of lowcomm-training: inner lr tuned per H; earlier DiLoCo-beats-sync readings were under-training. No separate agent doc written.",
+  "corrections": [],
+  "redteam": null
+}

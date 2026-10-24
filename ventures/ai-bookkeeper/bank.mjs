@@ -27,7 +27,7 @@ const ALIASES = {
     "거래일자", "거래일시", "거래일", "기준일자", "交易日期", "记账日期", "記帳日期", "交易时间", "交易時間",
     // value dates last: German Valuta/Wertstellung are not the booking date
     "created (utc)", "created", "created date (utc)", "created at",
-    "wertstellung", "valuta",
+    "wertstellung", "valuta", "date de valeur", "date valeur",
     // Indonesian
     "tanggal", "tgl", "التاريخ", "تاريخ العملية"],
   desc: ["transaktionsbeschreibung", "zpráva", "název protiúčtu", "item1", "описание", "назначение платежа", "наименование операции", "תיאור", "תיאור פעולה", "פרטים", "περιγραφή", "αιτιολογία", "nội dung", "mô tả", "diễn giải", "description", "transaction description", "payee", "merchant", "name", "details", "original description", "memo", "posting details", "narrative", "counter party", "counterparty", "narration", "reference", "partner name", "note",
@@ -755,6 +755,8 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
   const msgCol = hdr.findIndex((x) => /^((vrije )?mededeling(en)?|descrizione estesa|operazione|riferimento di pagamento|r[eé]f[eé]rence de paiement|referencia de pago)$/.test(x));
   // Rabobank splits its description over Omschrijving-1..3.
   const omsCols = hdr.map((x, ix) => (/^omschrijving-[123]$/.test(x) ? ix : -1)).filter((ix) => ix !== -1);
+  // UBS and others number their description columns (Description 1..3); join them in header order, not just the last.
+  const numDescCols = bank === "rbc" || omsCols.length ? [] : hdr.map((x, ix) => (/^(description|beschreibung|libell[eé]|descrizione|descripci[oó]n|omschrijving)[ _-]?[1-4]$/.test(x) ? ix : -1)).filter((ix) => ix !== -1);
   // German exports keep the other party in its own column, apart from the purpose text.
   const payeeCol = columns.desc === -1 ? -1 : hdr.findIndex((x, ix) => ix !== columns.desc && /^(beguenstigter\/zahlungspflichtiger|begünstigter\/zahlungspflichtiger|auftraggeber ?\/ ?begünstigter|auftraggeber ?\/ ?beguenstigter|name zahlungsbeteiligter|zahlungsempfänger|zahlungsempfaenger|empfänger|empfaenger)$/.test(x));
   // Deutsche Bank style: one column for each side; the other party is the payee on money out, the payer on money in.
@@ -813,6 +815,7 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
       const who = String(r[hdr.indexOf("name of sender/receiver")] ?? "").trim();
       desc = [who, desc || String(r[hdr.indexOf("transaction type")] ?? "").trim()].filter(Boolean).join(" - ");
     }
+    if (numDescCols.length > 1) desc = numDescCols.map((ix) => String(r[ix] ?? "").trim()).filter((x, j, a) => x && a.indexOf(x) === j).join(" ").replace(/\s+/g, " ");
     if (omsCols.length) desc = [desc, ...omsCols.map((ix) => String(r[ix] ?? "").trim())].filter((x, j, a) => x && a.indexOf(x) === j).join(" ").replace(/\s+/g, " ");
     if (msgCol !== -1 && msgCol !== columns.desc) desc = [desc, String(r[msgCol] ?? "").trim()].filter((x, j, a) => x && a.indexOf(x) === j).join(" ").replace(/\s+/g, " ");
     const sideCol = payeeCol !== -1 ? payeeCol : payeeOut !== -1 && payerIn !== -1 ? (cents < 0 ? payeeOut : payerIn) : -1;
