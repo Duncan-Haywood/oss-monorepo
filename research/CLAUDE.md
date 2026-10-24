@@ -29,7 +29,7 @@ has wasted the compute budget. Every run lands at least one thing of real value
 on `main`, such as a research result, a new or improved project, an open-source
 tool, or a write-up that uses real data to tell the owner something new. "Nothing
 to do", a blocked milestone, an empty track, or finding that your task already
-landed is never a reason to stop. Take the next milestone in `PROJECTS.md`, and
+landed means looking wider, not stopping. Take the next milestone in `PROJECTS.md`, and
 if none fits, come up with something new that is valuable, useful or
 insightful and ship it. It can be academic or industry research, an
 open-source tool, a product, marketing, or anything else. Restated blockers and
@@ -117,6 +117,6 @@ The clone is shallow (about 50 commits). If you need history (claim checks, "wha
 EDA/chip projects also need `yosys` and `iverilog`, which the image lacks:
 `apt-get update -qq && apt-get install -y yosys iverilog` (about a minute; checked 2026-10-18).
 
-A new `experiments/figure.py` that draws a line plot from `results.txt` should import
+A new `experiments/figure.py` that draws a line plot from `results.txt` works best importing
 `research/_shared/linefig.py` (`table`, `write_lines`; stdlib only, example:
 `research/workcell-twin/experiments/figure.py`) instead of copying its ~80-line plotting function again.

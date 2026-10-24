@@ -17,8 +17,8 @@ docs still mention Cloudflare or Vercel as a menu, this file wins.
 > removing it is the `pages-custom-domain` row in
 > `portfolio/ledger/asks.yaml`.
 
-The portfolio used to pay for two Hetzner boxes (deleted 2026-10-01). Do not
-add a third cloud to host a calculator.
+The portfolio used to pay for two Hetzner boxes (deleted 2026-10-01). A third
+cloud to host a calculator would put a bill back on the owner, which only the owner can approve.
 
 ## Split
 
@@ -201,8 +201,8 @@ without it, and say so in the privacy line.
    self-deploy, local package), not on our servers. Include the no-SLA clause.
 3. Nothing. The Pages artifact builds itself — see below. A static product
    is picked up automatically the moment it has an `index.html`.
-4. Do not register Cloudflare, Vercel, or another host as the way a
-   product goes live.
+4. Registering Cloudflare, Vercel, or another host as the way a product goes
+   live adds an account and a second host to keep in sync; Pages already does the job.
 
 ## The Pages artifact builds itself
 

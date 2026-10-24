@@ -60,7 +60,7 @@ Run both servers in separate terminals (or tmux panes) for the full stakeholder 
 - Prioritize profitable-first, software-first, AI-first, hiring-last, and minimal founder intervention for scheduled or autonomous agent runs.
 - Hourly automation should ship one incremental, shippable step per run when possible; default to the smallest diff that passes CI.
 - Scheduled automations should read `.cursor/automations/retail-pilot-intel-orchestrator.md` from repo `main` — the dashboard bootstrap is only a pointer, not the full prompt.
-- Do not execute business-model pivots without explicit founder approval; log pivot signals and stop for review.
+- Leave business-model pivots to the founder, since they change what the product is: log pivot signals and stop for review rather than executing one.
 - Do not invent pilot customers, revenue figures, or signed legal artifacts (e.g. DPIAs).
 - Treat GDPR/EU privacy as a go-live gate alongside profit metrics; prepare compliance artifacts but do not claim compliance without a signed pilot DPIA.
 - Product and stakeholder documentation belongs in TSX under `apps/docs`; TypeScript is the default for infra and CI scripts too.

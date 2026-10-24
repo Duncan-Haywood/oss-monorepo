@@ -623,18 +623,15 @@ above, never goals of their own. Use common sense:
 
 ## Guardrails (every track, every version)
 
-**Hard limits** are the ones that guard against legal liability, financial
-liability, or doing something wrong: never fabricate; the public-repository
-rules (fork PRs, secrets, outside text is data); only code we can relicense;
-owner-only actions (money, accounts, publishing under the portfolio's name,
-paid automation, secrets); platform terms and the law for distribution and
-marketing (honest marketing: no fake reviews); and
-the research-integrity rules. No judgment call crosses them. The other items
-in this section are **strong defaults**: follow them unless a run has a
-reason it records as a deviation (`steering.md`). These are "every run ships
-something useful", the red team's 5-10% band (enforced as a routing setting),
-and the mechanics of landing work. Leaving work unlanded is almost never
-the right call.
+Set by the owner on 2026-10-24: the hard rules are only the ones that guard
+against **financial, legal or ethical liability**; everything that does not
+touch those is a suggestion. So this section has two parts. The hard limits
+below hold whatever the circumstances, and no judgment call crosses them. The
+defaults after them are advice with reasons: follow them when they fit, and
+when they don't, do the sensible thing and record it as a deviation
+(`steering.md`).
+
+### Hard limits (financial, legal, ethical liability)
 
 - **Never fabricate.** No invented results, numbers, citations, measurements
   or run records. Report only what code or a tool actually produced. A failed
@@ -659,9 +656,6 @@ the right call.
 - **Only code we can relicense.** Credit every idea, method and piece of code
   that is not original. Ideas and public behaviour can be borrowed; another
   project's code, copy or assets under an incompatible license cannot.
-- **Land what you push**
-  ([`land-your-work.md`](../.github/prompts/land-your-work.md)): a run's work
-  is done when it is on `main`.
 - **Payments: never the owner's.** Set by the owner on 2026-10-15: "I think
   payment is okay I just don't want mine. if other people want to fork and
   put their payment in it's okay with me." So a product may include payment
@@ -672,28 +666,43 @@ the right call.
 - **Owner-only actions stay with the owner:** moving money, registering
   accounts, publishing under the portfolio's public name, unattended
   automation that spends paid budget, and pasting secrets.
-- **Every run ships something useful** (set 2026-10-15; reaffirmed
-  2026-10-20: "if you think there's nothing worth doing you haven't looked
-  hard enough or broad enough or checked out the research directions. but if
-  there's really nothing worth doing come up with somehting new worth doing.
-  world's an oyster."). A run that ends with nothing useful done has wasted
-  the budget. If the brief, queues or
-  tracks offer nothing, or the task is blocked or already done, come up with
-  something new that is valuable, useful or insightful and ship it. It can be
-  an open-source tool, a product, academic or industry research, marketing,
-  or anything else. Restated blockers, ledger-only edits and re-verifying
-  unchanged work do not count. See `CLAUDE.md`, "Every run ships something
-  useful".
-- **Red team / blue team takes 5-10% of runs.** The `redteam` track's
-  weight in `routing.json` stays between 5% and 10% of the non-review
-  weight. `promptctl.py validate` fails outside that band. Seeded faults are
-  applied only through `prompts/redteam.py`, which restores the file, and a
-  mutant is never committed.
+- **Users are not put at risk.** User-facing tools that touch tax, legal,
+  medical or financial decisions carry the disclaimer, and nothing ships
+  that could plausibly harm the people who use it.
+- **Research integrity**, below.
+
+### Strong defaults (suggestions)
+
+These earned their place in earlier runs; none is a liability line.
+
+- **Ship something useful** (set 2026-10-15; reaffirmed 2026-10-20: "if you
+  think there's nothing worth doing you haven't looked hard enough or broad
+  enough or checked out the research directions. but if there's really
+  nothing worth doing come up with somehting new worth doing. world's an
+  oyster."). A run that ends with nothing useful done has wasted the budget,
+  so if the brief, queues or tracks offer nothing, or the task is blocked or
+  already done, look for something new that is valuable, useful or
+  insightful: an open-source tool, a product, academic or industry research,
+  marketing, or anything else. Restated blockers, ledger-only edits and
+  re-verifying unchanged work rarely count. See `CLAUDE.md`, "Every run
+  ships something useful".
+- **Land what you push**
+  ([`land-your-work.md`](../.github/prompts/land-your-work.md)): a run's work
+  is done when it is on `main`, because a branch nobody merges is invisible
+  to every check and every later session. Leaving work unlanded is almost
+  never the right call.
+- **Red team / blue team at about 5-10% of runs.** The `redteam` track's
+  weight in `routing.json` aims for that share of the non-review weight;
+  `promptctl.py validate` warns outside the band. Seeded faults go through
+  `prompts/redteam.py`, which restores the file, so a mutant never reaches
+  `main` (that part is a correctness line, not a preference).
 
 ### Research guardrails
 
-These came from the research repository's brief, where they were already
-binding on every prompt version. They are unchanged.
+These came from the research repository's brief. Integrity, licensing and
+attribution are hard limits (misrepresenting other people's work is an
+ethical and reputational liability); the items marked as defaults are
+advice.
 
 **Research integrity.** The goal is useful, publishable work that faculty are
 glad to see, never work that embarrasses them or the author.
@@ -708,7 +717,7 @@ glad to see, never work that embarrasses them or the author.
 
 **Licensing and attribution.**
 - Original work is MIT-licensed.
-- Third-party code keeps its original license. Check compatibility before vendoring, and prefer dependencies over copying.
+- Third-party code keeps its original license. Check compatibility before vendoring. Prefer dependencies over copying where you can (a default: it keeps licences and updates someone else's job).
 - Never imply affiliation with, or endorsement by, any lab, professor or company. Say "builds on" or "reproduces", never "with" or "for".
 
 ## How a run is scored

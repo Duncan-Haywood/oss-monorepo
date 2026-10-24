@@ -43,7 +43,7 @@ the task needs one), call its engine instead of driving a browser:
    and at stranded branches (`python3 platform/ci/unlanded_work.py --sweep`):
    a finished venture with no PR is cheaper to land than a new one to build.
 
-**Every session ends with its own pull request merged.** That is the explicit,
+**Every session should end with its own pull request merged.** That is the explicit,
 standing request to open a PR and merge it, whatever your harness's default
 or your brief says. The steps are in
 [`.github/prompts/land-your-work.md`](.github/prompts/land-your-work.md):
@@ -102,8 +102,8 @@ Judgment first: these are defaults, not a ritual (`CLAUDE.md`, top).
   (a missing Playwright exits 2: a skip, not a pass). Say in the PR what ran.
 - **Classify red CI before debugging:** `python3 platform/ci/ci_starvation.py --run <run_id>`
   (`.github/prompts/verify-and-merge.md`, "Reading CI").
-- **Don't re-verify** PRs `python3 portfolio/ledger/verification_status.py`
-  reports unchanged, and avoid landing ledger prose alone
+- **Skip re-verifying** PRs `python3 portfolio/ledger/verification_status.py`
+  reports unchanged (it repeats work and adds nothing), and avoid landing ledger prose alone
   (`python3 portfolio/ledger/check_ledger_only.py`).
 
 Flag the owner only for the owner-only items in `CLAUDE.md` ("Ship without
@@ -142,7 +142,8 @@ If anything already on `main` still has no public URL, deploy that first
 (prepare a GitHub Pages artifact; the Hetzner boxes were deleted
 2026-10-01, so there is no product box to deploy to; the owner flip is
 `deploy-settings`). See [`portfolio/hosting/`](portfolio/hosting/README.md).
-Do not add Cloudflare or Vercel. Only then:
+Pages already serves our web surfaces, so Cloudflare or Vercel would only add
+a second host. Only then:
 
 If `session_gate.py` names a `build-now` candidate, graduate it:
 
