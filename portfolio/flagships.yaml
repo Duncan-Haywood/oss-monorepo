@@ -35,20 +35,27 @@ flagships:
       synthetic data (README Verification).
     next: >-
       Everything built so far is tested on hand-written fixtures; the next slices
-      are about real inputs (the landed log is in the README and git history, not
+      are about real inputs (landed work is in the README and git history, not
       here). Open items, most valuable first: (1) the AI layer in fill-only mode
       on real bank descriptions, more seeds, a bigger model (synthetic so far: 7B
-      rescued 7 of 9 uncovered lines, broke 0; README Next); (2) the bank readers (Excel, BAI2, Norma 43, CFONB120 and many regional CSV headers, CJK code pages; all tested only on hand-built or made-up files, see README; Firefly III's 41 bank layouts probed header-less 2026-10-24, headers still unseen; bank2ynab's 40 sample files imported 2026-10-24, 4 layouts fixed; Actual Budget's 21 test files in 5 encodings 2026-10-24, one double-escape fixed) (CSV, OFX/QFX/QIF, statement PDFs, regional code pages and layouts) on real
-      exports from Chase, Bank of America, Wells Fargo, Amex, Capital One and
-      others; (3) a real Stripe, Square, PayPal, eBay (reader landed 2026-10-24 on a hand-made fixture) or Amazon settlement export for
-      the payment-processor import (`form1099k`: try a real 1099-K); (4) a real
+      rescued 7 of 9 uncovered lines, broke 0; README Next); (2) the bank readers
+      (CSV, OFX/QFX/QIF, Excel, BAI2, Norma 43, CFONB120, statement PDFs, regional
+      code pages; public sample corpora probed 2026-10-24, README) on real exports
+      from Chase, Bank of America, Wells Fargo, Amex, Capital One and others;
+      (3) a real Stripe, Square, PayPal, eBay or Amazon settlement export for the
+      payment-processor import (`form1099k`: try a real 1099-K); (4) a real
       supplier's terms letter checked against the fee and discount rules, and one
-      named lender's own schedule against the loan register (`loan check`); (5)
-      receipts and the reconcile-to-statement command on real paper, and reading
-      receipt photos in the page; (6) payroll (941, Schedule B, 940, deposits,
-      `payroll reconcile`): a real Gusto or ADP report (deposit rules checked against Pub. 15 (2026) 2026-10-24); (7) one named filing service's import layout,
-      from its own spec; (8) `salestax return`: due dates for ~35 states landed from search excerpts or memory, not the forms (README lists which); MO and IA month end (state pages, 2026-10-24); HI, DC, WV the 20th and WY month end (search excerpts, 2026-10-24); CO and MN checked against state pages via search, MN annual Feb 5 fixed (2026-10-24); RI quarterly is month end (tax.ri.gov calendars via search, 2026-10-24); open: a real return layout; (9) 2027 `estimate`: the indexed QBI minimum (199A(i)(3), warns today) and 2027 brackets once the IRS publishes the revenue procedure (not out 2026-10-23; the 2027 SS wage base $192,300 is in). A run that lands a slice replaces
-      its item here; keep this under 2,000 characters.
+      named lender's own schedule against the loan register (`loan check`);
+      (5) receipts and the reconcile-to-statement command on real paper, and
+      reading receipt photos in the page; (6) payroll (941, Schedule B, 940,
+      deposits, `payroll reconcile`): a real Gusto or ADP report; (7) one named
+      filing service's import layout, from its own spec; (8) `salestax return`:
+      due dates still from search excerpts or memory for the states the README
+      lists; open: a real return layout; (9) 2027 `estimate`: the indexed QBI
+      minimum (199A(i)(3), warns today) and 2027 brackets once the IRS publishes
+      the revenue procedure (not out 2026-10-23; the 2027 SS wage base $192,300 is
+      in). A run that lands a slice replaces its item here; keep this under 2,000
+      characters.
 
   # Added 2026-10-21 second, on the owner's direction that day: "I want to make
   # tools that can automate part of the new home construction process in the
@@ -107,17 +114,21 @@ flagships:
       deploy, ~48 test files, and a regulatory tailwind (EU e-invoicing mandates).
     next: >-
       Landed history (official Schematron, in-browser path, 20+ country mandate
-      pages, credit-note links, JSON/UBL/CII/Factur-X arithmetic repair, FatturaPA
-      IT-001..IT-018) lives in the README and git. The built-in rules ran on the 41
-      official EN 16931 examples 2026-10-24 (README, "Measured on the official
-      examples": 0 passed before, arithmetic false positives fixed; HUF whole-unit tax rounding accepted 2026-10-24; XRechnung test suite 2026-10-26: 5 more false positives fixed, README; INV-038 zero-amount header charges and INV-030 as a non-blocking note landed 2026-10-24; Peppol BIS 3.0 examples and ZUGFeRD corpus 2026-10-27: negative invoices, negative prepaid, UNCL 1001 codes, NA order ids fixed, README; the 3.3 MB official UBL invoice with an embedded attachment reads clean of false positives (2026-10-28; the "FatturaPA" file was UBL); FatturaPA official/eigor samples 2026-10-28 via the ZUGFeRD corpus (15 files, IT-018 false positive fixed, README); Factur-X PDFs from the same corpus 2026-10-29 (104 of 126 unwrap, 3 faults fixed, README; open: EXTENDED header-allowance mismatch on the Warenrechnung samples); open: the FatturaPA XSD, and the rules on real ERP files).
-      Open: a repair tried on a real
-      ERP or Factur-X export (xref-stream PDF repair landed 2026-10-22 on a hand-built
-      fixture; open the result in veraPDF/a viewer), a page button for PDFs; verify the
-      FatturaPA code lists, tolerances and IT-018 sequences against the current
-      specification and add a full FatturaPA XSD check; Singapore InvoiceNow page landed 2026-10-23 (2028-31 dates from secondary guides, not read on iras.gov.sg); PINT SG and A-NZ rules run in the browser 2026-10-23 (build-pint-rules.mjs, from Maven Central's phive-rules-peppol; not yet on the Saxon/server route; no real PINT file tried; Australia mandate page landed 2026-10-24 (dates from commentators, not read on ato.gov.au)); Ireland page landed 2026-10-23 (Nov 2028 phases from vendor guides, not revenue.ie); refresh the Bulgaria page
-      when its draft passes or changes; RO_CIUS landed 2026-10-24 (122 national rules in the browser; no
-      real ANAF file tried, not on the Saxon route); NLCIUS: plain-from-xslt.mjs can compile it; India page + GSTIN/IRN calculator landed 2026-10-26 (limits from guides, not CBIC; INV-01 schema check not built).
+      pages, arithmetic repair, FatturaPA IT-001..IT-018, runs against the
+      official EN 16931, XRechnung, Peppol BIS, ZUGFeRD and Factur-X corpora with
+      their false positives fixed, Singapore, Australia, Ireland, India and
+      RO_CIUS pages and rules) lives in the README and git. Open: the EXTENDED
+      header-allowance mismatch on the Factur-X Warenrechnung samples; the
+      FatturaPA XSD and verifying its code lists, tolerances and IT-018 sequences
+      against the current specification; the rules and a repair on a real ERP or
+      Factur-X export (open the repaired PDF in veraPDF or a viewer); a page
+      button for PDFs; PINT SG and A-NZ rules on the Saxon/server route and on a
+      real PINT file; RO_CIUS on a real ANAF file and the Saxon route; NLCIUS
+      (plain-from-xslt.mjs can compile it); India's INV-01 schema check; mandate
+      dates read from primary sources where pages cite guides (iras.gov.sg,
+      ato.gov.au, revenue.ie, CBIC); refresh the Bulgaria page when its draft
+      passes or changes. A run that lands a slice replaces its item here; keep
+      this under 2,000 characters.
   - venture: shift-roster-builder
     why: >-
       Simulated-annealing scheduler over a dollar cost (availability, rest,
