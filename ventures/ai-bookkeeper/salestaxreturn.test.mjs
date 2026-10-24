@@ -136,3 +136,9 @@ test("endMonth outside the first period is refused", () => {
   assert.throws(() => salesTaxReturn(books(), { endMonth: 4 }));
   assert.throws(() => salesTaxReturn(books(), { frequency: "monthly", endMonth: 2 }));
 });
+
+test("NJ, GA and NC are due the 20th and OH the 23rd of the month after the period", () => {
+  for (const s of ["NJ", "GA", "NC"]) assert.equal(dueDate("2026-Q3", stateDueDay(s, "quarterly")), "2026-10-20");
+  assert.equal(dueDate("2026-Q1", stateDueDay("oh", "quarterly")), "2026-04-23");
+  assert.equal(dueDate("2026-H2", stateDueDay("OH", "semiannual")), "2027-01-23");
+});
