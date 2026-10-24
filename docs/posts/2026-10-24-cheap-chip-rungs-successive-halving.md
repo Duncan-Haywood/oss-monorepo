@@ -1,6 +1,7 @@
 ---
 title: "Successive halving on cheap chip-design rungs did not beat random search"
 date: 2026-10-24
+description: "Successive halving across cheap chip-design fidelity rungs on open-source flows (Yosys, OpenROAD, SKY130) did not beat random search at equal budget."
 ---
 
 We are testing whether a search over open-source chip flows (Yosys, ABC,

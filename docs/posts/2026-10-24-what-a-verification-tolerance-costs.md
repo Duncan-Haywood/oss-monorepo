@@ -1,7 +1,7 @@
 ---
 title: "What a verification tolerance costs in outsourced ML training"
 date: 2026-10-24
-description: "A referee that accepts a training step within tolerance lets a worker skip work. Measured on real training: at drift-sized tolerances it saves the worker 30% of steps at no visible loss cost."
+description: "A referee accepting training steps within a tolerance lets a worker skip work. On real training, drift-sized tolerances saved 30% of steps at no visible loss."
 tags: [research, verification, mechanism-design, ml-training]
 ---
 
