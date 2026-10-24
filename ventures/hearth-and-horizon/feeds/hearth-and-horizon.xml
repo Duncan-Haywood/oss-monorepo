@@ -58,6 +58,16 @@
       <itunes:duration>0:30:22</itunes:duration>
     </item>
     <item>
+      <title>The Eclipse Turn</title>
+      <link>https://example.invalid/hearth-and-horizon/the-eclipse-turn.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-eclipse-turn.html</guid>
+      <pubDate>Sat, 24 Oct 2026 12:00:00 GMT</pubDate>
+      <description>A small electric co-op's twelve megawatts of solar will fade to nothing for eighty-six seconds in the total eclipse, just as the regional grid asks every co-op on the path to import less. The co-op's dispatch agent can close the gap with exactly five irrigation pumps and twenty minutes of one old man's water turn. It cannot decide for him, and the cost is a pale stripe in a hay field that will show until September. Setting: Juniper Wells, an invented farm town in central Utah, Saturday 12 August 2045. Read the full text at https://example.invalid/hearth-and-horizon/the-eclipse-turn.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A small electric co-op's twelve megawatts of solar will fade to nothing for eighty-six seconds in the total eclipse, just as the regional grid asks every co-op on the path to import less. The co-op's dispatch agent can close the gap with exactly five irrigation pumps and twenty minutes of one old man's water turn. It cannot decide for him, and the cost is a pale stripe in a hay field that will show until September.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>The False Start</title>
       <link>https://example.invalid/hearth-and-horizon/the-false-start.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-false-start.html</guid>
