@@ -7,6 +7,8 @@ import { readFileSync as rf } from "node:fs";
 import { Imap, parseMessage } from "./imap.mjs";
 import { fakeImap } from "./fake-imap.mjs";
 import { createAgent } from "./agent.mjs";
+import { fakeSmtp } from "./fake-smtp.mjs";
+import { buildMessage, sendMail } from "./smtp.mjs";
 
 const mail = (from, subject, body, extra = "") => `From: ${from}\r\nSubject: ${subject}\r\nDate: Mon, 26 Oct 2026 09:00:00 +0000\r\nMessage-ID: <${(from + subject).replace(/\W/g, "")}@x>\r\n${extra}\r\n${body}`;
 
@@ -89,6 +91,71 @@ test("unfilled placeholders block approval; HTTP needs the token", async () => {
   assert.throws(() => createAgent({ ADMIN_TOKEN: "short" }), /ADMIN_TOKEN/);
 });
 
-test("no send path: no SMTP, no sendmail, no nodemailer in self-host/", () => {
-  for (const f of ["agent.mjs", "imap.mjs"]) assert.ok(!/smtp|sendmail|nodemailer|createTransport|APPEND |UID STORE|EXPUNGE/i.test(readFileSync(new URL(f, import.meta.url), "utf8").replace(/^\/\/.*$/gm, "")), f);
+test("send code lives only in smtp.mjs and is called only from agent.mjs send(); the IMAP side stays read-only", () => {
+  assert.ok(!/smtp|sendmail|nodemailer|createTransport|APPEND |UID STORE|EXPUNGE/i.test(readFileSync(new URL("imap.mjs", import.meta.url), "utf8").replace(/^\/\/.*$/gm, "")));
+  const a = readFileSync(new URL("agent.mjs", import.meta.url), "utf8").replace(/^\/\/.*$/gm, "");
+  assert.equal((a.match(/sendMail\(/g) || []).length, 1, "one call site");
+  assert.ok(!/nodemailer|createTransport/i.test(a));
+});
+
+test("send: off without SMTP_HOST; approved only; once; suppressed and capped blocked; headers and audit", async () => {
+  const smtp = fakeSmtp(); const port = await smtp.listen();
+  const base = { ADMIN_TOKEN: "z".repeat(16), IMAP_USER: "me@example.com" };
+  const mk = (extra = {}) => createAgent({ ...base, DATA_DIR: mkdtempSync(join(tmpdir(), "sa-")), ...extra }, { now: () => Date.parse("2026-10-26T10:00:00Z") });
+  const blk = (n, who) => ({ id: `<m${n}@x>`, block: `From: ${who}\nSubject: Q\n\nDoes it integrate with QuickBooks, and how much does it cost?` });
+  const off = mk(); await off.ingest([blk(1, "Pat <pat@x.example>")]);
+  off.decide(off.state.items[0].id, "approved", "Yes it does. Thanks, Sam");
+  assert.match((await off.send(off.state.items[0].id)).error, /sending is off/);
+
+  const a = mk({ SMTP_HOST: "127.0.0.1", SMTP_PORT: String(port), SMTP_USER: "me@example.com", SMTP_PASS: "pw", SEND_MAX_PER_DAY: "2" });
+  await a.ingest([blk(1, "Pat <pat@x.example>"), blk(2, "Kim <kim@x.example>"), blk(3, "Joe <joe@x.example>")]);
+  const [p, k, j] = a.state.items;
+  assert.match((await a.send(p.id)).error, /approve the draft first/);
+  a.decide(p.id, "approved", "Yes it does. Thanks, Sam");
+  const sent = await a.send(p.id);
+  assert.ok(sent.sentAt);
+  assert.equal(smtp.delivered.length, 1);
+  const raw = smtp.delivered[0];
+  assert.match(raw, /^List-Unsubscribe: <mailto:me@example\.com\?subject=unsubscribe>$/m);
+  assert.match(raw, /^In-Reply-To: <m1@x>$/m);
+  assert.match(raw, /^To: pat@x\.example$/m);
+  assert.match(Buffer.from(raw.split("\r\n\r\n")[1], "base64").toString(), /Yes it does/);
+  assert.ok(smtp.log.includes("RCPT TO:<pat@x.example>"));
+  assert.match((await a.send(p.id)).error, /already sent/);
+  assert.equal(smtp.delivered.length, 1, "never twice");
+  a.state.suppression.push({ email: "kim@x.example" }); a.decide(k.id, "approved", "Yes. Sam");
+  assert.match((await a.send(k.id)).error, /suppression/);
+  a.decide(j.id, "approved", "Yes. Sam"); assert.ok((await a.send(j.id)).sentAt);
+  a.state.items.push({ ...structuredClone(j), id: "<m4@x>", from: "Ann <ann@x.example>", sentAt: undefined, decision: "approved" });
+  assert.match((await a.send("<m4@x>")).error, /daily cap/);
+  await smtp.close();
+});
+
+test("send: a server refusal is reported, the password never appears, and the draft can be retried", async () => {
+  const smtp = fakeSmtp({ rejectRcpt: "bad@" }); const port = await smtp.listen();
+  const dir = mkdtempSync(join(tmpdir(), "sa-"));
+  const a = createAgent({ ADMIN_TOKEN: "w".repeat(16), DATA_DIR: dir, SMTP_HOST: "127.0.0.1", SMTP_PORT: String(port), SMTP_USER: "me@example.com", SMTP_PASS: "pw", SEND_FROM: "Sam <me@example.com>" });
+  await a.ingest([{ id: "<b1@x>", block: "From: Bo <bad@x.example>\nSubject: Q\n\nDoes it integrate with QuickBooks, and how much does it cost?" }]);
+  const it = a.state.items[0]; a.decide(it.id, "approved", "Yes. Sam");
+  const r = await a.send(it.id);
+  assert.match(r.error, /RCPT TO: 550/);
+  assert.equal(it.sentAt, undefined, "retryable");
+  const wrong = createAgent({ ADMIN_TOKEN: "w".repeat(16), DATA_DIR: mkdtempSync(join(tmpdir(), "sa-")), SMTP_HOST: "127.0.0.1", SMTP_PORT: String(port), SMTP_USER: "me@example.com", SMTP_PASS: "hunter2-wrong" });
+  await wrong.ingest([{ id: "<b2@x>", block: "From: Al <al@x.example>\nSubject: Q\n\nDoes it integrate with QuickBooks, and how much does it cost?" }]);
+  wrong.decide(wrong.state.items[0].id, "approved", "Yes. Sam");
+  const e = (await wrong.send(wrong.state.items[0].id)).error;
+  assert.match(e, /AUTH: 535/); assert.ok(!e.includes("hunter2-wrong"));
+  assert.ok(!readFileSync(join(dir, "audit.jsonl"), "utf8").includes("hunter2"));
+  await smtp.close();
+});
+
+test("buildMessage: header injection stripped, non-ASCII subject encoded, dots stuffed on the wire", async () => {
+  const m = buildMessage({ from: "Sam <sam@co.example>", to: "x@y.example", subject: "Re: hi\r\nBcc: evil@z.example", body: ".leading dot\nline" });
+  assert.ok(!/^Bcc:/m.test(m.raw));
+  assert.match(buildMessage({ from: "a@b.co", to: "c@d.co", subject: "Café", body: "x" }).raw, /Subject: =\?UTF-8\?B\?/);
+  const smtp = fakeSmtp({ user: "u", pass: "p" }); const port = await smtp.listen();
+  await sendMail({ host: "127.0.0.1", port, user: "u", pass: "p" }, m);
+  assert.match(Buffer.from(smtp.delivered[0].split("\r\n\r\n")[1], "base64").toString(), /^\.leading dot/);
+  await smtp.close();
+  assert.throws(() => buildMessage({ from: "nope", to: "c@d.co", subject: "s", body: "b" }), /email/);
 });

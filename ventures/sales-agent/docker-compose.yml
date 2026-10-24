@@ -4,6 +4,6 @@ services:
     build: .
     ports: ["127.0.0.1:8787:8787"]   # put a TLS proxy in front before exposing it
     volumes: ["agent-data:/data"]
-    environment: [IMAP_HOST, IMAP_USER, IMAP_PASS, ADMIN_TOKEN, "IMAP_BOX=INBOX"]
+    environment: [IMAP_HOST, IMAP_USER, IMAP_PASS, ADMIN_TOKEN, "IMAP_BOX=INBOX", SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SEND_FROM]   # SMTP_* optional: unset means nothing can be sent
     restart: unless-stopped
 volumes: { agent-data: {} }
