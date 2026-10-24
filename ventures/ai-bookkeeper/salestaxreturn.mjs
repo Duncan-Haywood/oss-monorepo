@@ -39,8 +39,10 @@ const periodEnd = (p) => {
 // Due day of the month after the period, by state, from the states' published
 // monthly/quarterly schedules as the author recalls them: check yours
 // (a state's own calendar can differ by filing frequency). "last" = month end.
-export const STATE_DUE_DAYS = { CA: "last", TX: 20, FL: 20, NY: 20, WA: 25, IL: 20, PA: 20, NJ: 20, GA: 20, NC: 20, OH: 23, MA: 20, VA: 20, AZ: 20, MI: 20, CT: "last", WI: "last", UT: "last", IN: 30, KS: 25, CO: 20, MN: 20, AL: 20, LA: 20, MD: 20, SC: 20, TN: 20, NM: 25 };
-// AL, LA, MD, SC, TN (the 20th; SC and TN move to the next business day, not modelled) and NM (the 25th): third-party due-date tables (TaxCloud, Kintsugi) via search 2026-10-24; state sites not read. Check your own notice.
+export const STATE_DUE_DAYS = { CA: "last", TX: 20, FL: 20, NY: 20, WA: 25, IL: 20, PA: 20, NJ: 20, GA: 20, NC: 20, OH: 23, MA: 20, VA: 20, AZ: 20, MI: 20, CT: "last", WI: "last", UT: "last", IN: 30, KS: 25, CO: 20, MN: 20, TN: 20, AL: 20, SC: 20, NM: 25, NV: 20, ID: 20, LA: 20, MD: 20 };
+// LA, MD: the 20th (TaxCloud and Kintsugi tables via search 2026-10-24; state sites not read).
+// TN (tn.gov/revenue due-dates page: monthly and quarterly the 20th, annual Jan 20), AL, SC (third-party guides: the 20th) and NM (aggregator calendars: the 25th; some filers differ) added 2026-10-24 from search excerpts; state sites mostly not read.
+// NV, ID: the 20th (Kintsugi/TaxJar tables via search 2026-10-24; Nevada moved from month end, effective date not confirmed). Iowa left out: sources conflict.
 // CO, MN: the 20th (third-party due-date tables, TaxCloud and TaxJar, via search 2026-10-24; state sites not read). Check your own notice.
 // MI (michigan.gov Treasury: monthly and quarterly the 20th, annual return Feb 28 not modelled), CT (OS-114: last day of the month after, monthly, quarterly
 // and annual), WI (revenue.wi.gov FAQ: last day of the month after; "early monthly" filers the 20th, not modelled), UT (tax.utah.gov: last day of the

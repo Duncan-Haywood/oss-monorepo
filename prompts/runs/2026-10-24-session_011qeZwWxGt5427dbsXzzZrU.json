@@ -45,7 +45,7 @@
   ],
   "writeups": [],
   "goal": null,
-  "notes": "Small slice: six state sales-tax due days in ai-bookkeeper from third-party tables via search; salestaxreturn tests 18/18 pass locally. No blog post: slice too small.",
+  "notes": "Narrowed to LA and MD after merge conflict: another session landed TN, AL, SC, NM, NV, ID first. Tests 20/20 locally. No blog post: slice too small.",
   "corrections": [],
   "redteam": null
 }

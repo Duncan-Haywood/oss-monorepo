@@ -79,6 +79,8 @@ the script's own name matches itself and never ends: wait on the output file
     Node 22 rejects `node --test .` with "Could not find '.'": run
     `cd ventures/<slug> && node --test '*.test.mjs'`)
     and `node platform/pages/venture-preflight.mjs <slug>` (over 5 min)
+- browser evals such as `ventures/ai-bookkeeper/eval/browser-click.mjs`
+  (a foreground 110 s timeout killed one)
 - `python3 platform/ci/run_workflow_locally.py --for-changes` (over 5 min)
 - `python3 portfolio/router/allocate.py` (35-120 s; its shallow-clone fetch
   can time out and leave counts partial)
