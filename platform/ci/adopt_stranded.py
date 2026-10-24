@@ -51,13 +51,17 @@ Sessions that die mid-task are often re-run, so one task can strand two or
 three branches: on 2026-10-16 the four batches opened 38 drafts, among them
 two comparison pages each for `pool-plaster-bid-calculator` and
 `actions-permissions-check`, and nothing ever closed one. By 2026-10-24 all 38
-were still open, and 35 had nothing left that `main` lacked or had not
-rewritten. So the job now opens one draft per area, and `--reap` closes an
+were still open. Two held work worth landing; 4 held nothing `main` lacked
+or had not rewritten; the other 32 were superseded under other filenames or
+slugs, which took a session's reading to see. So the job now opens one draft
+per area (which would have stopped the two same-venture pairs at birth), and
+`--reap` closes an
 adopted draft once the same rule that would skip it today holds: none of its
 authored files is still unlanded (each one matches `main`, or `main` has
 rewritten it since the branch forked). It leaves alone a draft someone has
 pushed to or marked ready, and its comment names the PR that last changed
-those files on `main` when the API says.
+those files on `main` when the API says. A sibling that `main` superseded
+under another filename still needs a reader: the reap is the mechanical half.
 
 It opens draft PRs only. It pushes nothing, merges nothing, closes nothing and
 calls no paid API: one GitHub REST call per PR it opens, at most `--max-open`
