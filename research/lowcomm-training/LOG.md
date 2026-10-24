@@ -2,6 +2,12 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-24 · Milestone 2b: widen the outer-lr grid (planned before running)
+- Why: in 2a the picked outer lr sat at the grid edge (1.0) for `H = 1, 64, 160`, so those points are probably under-tuned. Question: with outer lr in {0.7, 1.0, 1.5, 2.0, 3.0} x momentum in {0, 0.5, 0.9}, does the large-`H` rise shrink, and does the `H=16` dip survive?
+- Design: `tuned_h_sweep.py --wide`, otherwise identical to 2a (same model, seeds, split, budget; 15 settings x 2 tuning seeds per `H`).
+- Hypothesis: the dip at `H=16` survives (`H=4` still above `H=16` by more than 2 sd of `H=4`'s seeds), and the picked lr at `H=64, 160` moves above 1.0 and lowers their loss. Refuted if `H=4` is within 2 sd of `H=16`, or if no large-`H` pick leaves 1.0.
+- Limits: still 14k parameters, 640 steps, two tuning seeds, inner lr untuned.
+
 ## 2026-10-24 · Milestone 2a: per-H outer tuning, then the H curve again (planned before running)
 - Why: the first H sweep (below) failed its weak H2 form, and the likely confound is that one outer setting (lr 0.7, Nesterov 0.9) was used for every `H`. Question: after tuning the outer optimiser separately for each `H`, is the loss-versus-`H` curve flat and then rising (H2), or still U-shaped?
 - Design (`experiments/numpy_h_sweep/tuned_h_sweep.py`, same model, data and budget as the first sweep: 14k parameters, `M=4`, 640 inner steps per worker). Held-out text is split in halves: half A is used only to pick the outer setting, half B only to report. Tuning: outer lr in {0.3, 0.7, 1.0} x momentum in {0, 0.5, 0.9} (Nesterov), 2 tuning seeds (100, 101), for `H` in {1, 4, 16, 64, 160}; the pick is the lowest mean half-A loss. Reporting: 5 fresh seeds (0 to 4) on half B, plus synchronous AdamW.

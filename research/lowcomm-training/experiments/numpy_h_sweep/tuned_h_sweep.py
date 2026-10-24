@@ -14,7 +14,8 @@ from lowcomm_np import model, diloco, data  # noqa: E402
 
 M, B, T, STEPS = 4, 16, 32, 640
 HS = [1, 4, 16, 64, 160]
-LRS, BETAS = [0.3, 0.7, 1.0], [0.0, 0.5, 0.9]
+WIDE = "--wide" in sys.argv  # Milestone 2b: lr grid extended beyond 1.0
+LRS, BETAS = ([0.7, 1.0, 1.5, 2.0, 3.0] if WIDE else [0.3, 0.7, 1.0]), [0.0, 0.5, 0.9]
 TUNE_SEEDS, REPORT_SEEDS = [100, 101], [0, 1, 2, 3, 4]
 corpus, chars = data.load_chars(os.path.join(here, "..", "tinyshakespeare.txt"))
 cut = int(0.9 * len(corpus))
@@ -60,4 +61,4 @@ if __name__ == "__main__":
             r = pool.map(run, [(s, H, lr, b, "B") for s in REPORT_SEEDS])
             out.append("%d %.1f %.1f %.4f %.4f %s" % (H, lr, b, np.mean(r), np.std(r, ddof=1), " ".join("%.4f" % x for x in r)))
             print(out[-1], flush=True)
-    open(os.path.join(here, "tuned_h_sweep_results.txt"), "w").write("\n".join(out) + "\n")
+    open(os.path.join(here, "tuned_h_sweep_wide_results.txt" if WIDE else "tuned_h_sweep_results.txt"), "w").write("\n".join(out) + "\n")
