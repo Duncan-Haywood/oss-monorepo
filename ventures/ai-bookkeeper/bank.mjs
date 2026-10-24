@@ -184,6 +184,9 @@ export function detectColumns(header) {
   // Stripe's balance-transactions export (Amount, Fee, Net, Created (UTC)):
   // Net is what moved the Stripe balance; Amount is the gross before the fee.
   if (h.includes("fee") && h.includes("net") && h.includes("created (utc)") && cols.amount !== -1 && h[cols.amount] === "amount") cols.amount = h.indexOf("net");
+  // Paytm's wallet statement (Date, Activity, Source/Destination, Wallet Txn ID,
+  // Comment, Debit, Credit, ..., Status): the activity is the description.
+  if (cols.desc === -1 && h.includes("activity") && h.includes("wallet txn id")) cols.desc = h.indexOf("activity");
   if (cols.desc === -1) {
     // Some banks split payee and memo; take the first text-looking column left.
     cols.desc = h.findIndex((x, i) => !Object.values(cols).includes(i) && /desc|payee|name|memo|detail/.test(x));
@@ -821,6 +824,7 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
     }
     const balance = columns.balance !== -1 && String(r[columns.balance] ?? "").trim() !== "" ? parseCents(r[columns.balance], decimalComma) : null;
     let desc = String(r[columns.desc] ?? "").trim().replace(/\s+/g, " ");
+    if (hdr.includes("wallet txn id") && columns.desc === hdr.indexOf("activity")) desc = [desc, String(r[hdr.indexOf("comment")] ?? "").trim()].filter(Boolean).join(" ").replace(/\s+/g, " ");
     if (bank === "cash-app") {
       const who = String(r[hdr.indexOf("name of sender/receiver")] ?? "").trim();
       desc = [who, desc || String(r[hdr.indexOf("transaction type")] ?? "").trim()].filter(Boolean).join(" - ");
