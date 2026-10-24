@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "buildbot-nailseq"
+version = "0.1.0"
+description = "Firing a 62-nail sheathing schedule in sequence with a G1 arm: recoil settling and stud-finding error in one budget."
+requires-python = ">=3.9"
+dependencies = ["numpy"]
+license = { text = "MIT" }
+
+[project.optional-dependencies]
+sim = ["mujoco>=3.1"]
+figure = ["matplotlib"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "../buildbot-custom/src", "../buildbot-studfind/src", "../buildbot-recoil/src", "../buildbot-payload/src", "../buildbot-fasten/src"]
