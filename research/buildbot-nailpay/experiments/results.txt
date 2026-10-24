@@ -1,0 +1,26 @@
+loaded wage $37.86/h; taskbook hand time 372 s a sheet; 32 wall sheets in the scope
+== A. robot seconds per sheet (buildbot-mobilebase)
+walking, 5 s a step         84.7
+walking, 20 s a step       264.7
+base, fastest tried         54.1
+base, median                88.0
+base, slowest tried        121.4
+== B. break-even person seconds per sheet (robot saves money above this); G1 $16000, life 6000 h, upkeep 10%, 1000 h/yr
+config                   base$  sup0.1  sup0.3  sup0.5  sup1.0   rate$/h
+walking, 5 s a step           0      18      35      52      94     4.27
+walking, 20 s a step          0      56     109     162     295     4.27
+base, fastest tried       10000      15      26      37      64     6.93
+base, fastest tried       30000      23      34      45      72    12.27
+base, median              10000      25      43      60     104     6.93
+base, median              30000      37      55      73     117    12.27
+base, slowest tried       10000      34      59      83     144     6.93
+base, slowest tried       30000      51      76     100     161    12.27
+== C. share of 4000 draws in which the robot saves money (person time 60 to 720 s uniform, supervision 0.1 to 1.0, base 0 or $5k to $40k, life 3000-10000 h, use 500-1800 h/yr)
+walking, 5 s a step       0.983
+walking, 20 s a step      0.796
+base, fastest tried       1.000
+base, median              0.980
+base, slowest tried       0.949
+== D. dollars per house on the taskbook's wall sheathing, at supervision 0.3, G1 only (walking 5 s a step) and base median $20000
+walking 5 s        hand 120 s: $     29  hand 240 s: $     69  hand 372 s: $    113  hand 600 s: $    190
+base median $20k   hand 120 s: $     24  hand 240 s: $     64  hand 372 s: $    109  hand 600 s: $    186

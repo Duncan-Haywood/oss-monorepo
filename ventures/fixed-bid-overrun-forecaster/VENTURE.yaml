@@ -51,5 +51,5 @@ kill_criteria:
   - Users report that physical percent complete is too hard to estimate, at which point a milestone-weighted input is needed.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/fixed-bid-overrun-forecaster/
+  production: https://duncan-haywood.github.io/oss-monorepo/fixed-bid-overrun-forecaster/
   analytics: null

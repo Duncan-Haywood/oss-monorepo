@@ -59,5 +59,5 @@ kill_criteria:
   - A user reports that the price recommendation contradicts their own history without the page's stated assumptions explaining it.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/ad-slot-sell-through-planner/
+  production: https://duncan-haywood.github.io/oss-monorepo/ad-slot-sell-through-planner/
   analytics: null

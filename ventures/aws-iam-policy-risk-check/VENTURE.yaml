@@ -50,5 +50,5 @@ kill_criteria:
   - A user reports a false "critical" on a policy that is demonstrably tight, at which point the escalation list needs revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/aws-iam-policy-risk-check/
+  production: https://duncan-haywood.github.io/oss-monorepo/aws-iam-policy-risk-check/
   analytics: null

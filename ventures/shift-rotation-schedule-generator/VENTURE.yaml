@@ -47,5 +47,5 @@ kill_criteria:
   - No search impression for any pattern-name query within 90 days of indexing.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/shift-rotation-schedule-generator/
+  production: https://duncan-haywood.github.io/oss-monorepo/shift-rotation-schedule-generator/
   analytics: null

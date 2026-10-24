@@ -126,7 +126,7 @@ kill_criteria:
   - A finding's category (missing-field / malformed-name / name-filename-mismatch / description-too-short / description-no-trigger-cue / description-too-generic / empty-tool-entry / duplicate-tool / unrecognized-tool-name / malformed-tool-name / unrecognized-model / empty-body / near-empty-body) is wrong for a real subagent definition a user pastes, and cannot be fixed by tightening a pattern or threshold.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/claude-code-subagent-check/
+  production: https://duncan-haywood.github.io/oss-monorepo/claude-code-subagent-check/
   analytics: null
 
 channel_notes: >-

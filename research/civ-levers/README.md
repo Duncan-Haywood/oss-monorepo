@@ -11,7 +11,7 @@ a ladder of committed voices merges the camps in 24, a moderate broadcast or com
 moderates in 19, a one-off nudge in 14, raising everyone's tolerance in 8, and bridging in 2
 (while driving more people to the extremes in 10).** The ladder only works if it is spaced for
 the *least* tolerant people: built for a tolerance of 0.3 when the real one is 0.2, it merges
-none of 10 societies. Produced with AI assistance (Claude). First project of research track 22
+none of 10 societies. Produced with AI assistance (Claude). First project of research track 24
 (`civ`, `PROJECTS.md`). Every result is about simulated people following a stated rule, not
 about real societies.
 

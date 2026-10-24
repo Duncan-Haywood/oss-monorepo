@@ -48,5 +48,5 @@ kill_criteria:
   - No external repository is found using requirements-check.mjs or classify.mjs within 90 days.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/requirements-pin-check/
+  production: https://duncan-haywood.github.io/oss-monorepo/requirements-pin-check/
   analytics: null

@@ -56,5 +56,5 @@ kill_criteria:
   - A user reports a materially wrong figure from a real Etsy Ads export, or a column layout the parser cannot read, at which point the aliases need revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/etsy-ads-roi-analyzer/
+  production: https://duncan-haywood.github.io/oss-monorepo/etsy-ads-roi-analyzer/
   analytics: null

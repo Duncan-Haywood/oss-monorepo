@@ -52,5 +52,5 @@ kill_criteria:
   - A user reports a lowest quote that does not reproduce the tool's own target margin when typed back in as the quote.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/lawn-aeration-overseeding-bid-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/lawn-aeration-overseeding-bid-calculator/
   analytics: null

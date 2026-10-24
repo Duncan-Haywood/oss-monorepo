@@ -68,5 +68,5 @@ kill_criteria:
     this portfolio does not run, changing its cost and liability profile.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/supabase-rls-check/
+  production: https://duncan-haywood.github.io/oss-monorepo/supabase-rls-check/
   analytics: null

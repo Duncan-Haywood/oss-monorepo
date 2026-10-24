@@ -136,5 +136,5 @@ kill_criteria:
   - No organic search or community-referred traffic detectable within 90 days once a free, owner-approved traffic signal exists (see portfolio/usage/README.md).
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/cnc-machining-quote-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/cnc-machining-quote-calculator/
   analytics: null

@@ -23,5 +23,5 @@ kill_criteria:
   - Fewer than three sellers use the calculator twice within 90 days.
   - Users report the break-even cube does not change which carton they buy.
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/parcel-dim-weight-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/parcel-dim-weight-calculator/
   analytics: null

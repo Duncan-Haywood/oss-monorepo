@@ -67,5 +67,5 @@ kill_criteria:
   - The overlap insight turns out not to be news -- pilots already price overlap as a named term and the per-acre quote this exists to argue against is not what the trade actually does.
   - Pilots report that a square-site model is too coarse to quote from, and that without parcel geometry or a corridor mode the airtime is not usable however correct the optics are.
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/drone-mapping-job-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/drone-mapping-job-calculator/
   analytics: null

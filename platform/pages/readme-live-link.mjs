@@ -13,7 +13,8 @@ export const BASE = 'https://duncan-haywood.github.io/oss-monorepo/';
 export function addLiveLink(readme, slug) {
   const url = `${BASE}${slug}/`;
   // Boundary after the slug: a link to `foo-bar` is not a link to `foo`.
-  if (new RegExp(`github\\.io/oss-monorepo/${slug}(?![\\w.-])`).test(readme)) return readme;
+  // The old `monorepo-projects/` path still counts: 1,300+ READMEs carry it.
+  if (new RegExp(`(?:monorepo-projects|oss-monorepo)/${slug}(?![\\w.-])`).test(readme)) return readme;
   const lines = readme.split('\n');
   let i = 0;
   while (i < lines.length && (lines[i].trim() === '' || lines[i].startsWith('#'))) i++;

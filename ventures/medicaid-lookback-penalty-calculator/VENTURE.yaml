@@ -50,5 +50,5 @@ kill_criteria:
   - An elder-law attorney reports a result that differs materially from a correct penalty computation on the same inputs.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/medicaid-lookback-penalty-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/medicaid-lookback-penalty-calculator/
   analytics: null
