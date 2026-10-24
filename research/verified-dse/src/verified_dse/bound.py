@@ -35,3 +35,29 @@ def halve(scores, y, keep, rng):
 def bound(iotas):
     """Regret bound in log units: the sum of the inversions of the cut rungs."""
     return sum(iotas)
+
+
+def pair_value(si, sj, yi, yj):
+    """Inversion of one pair: how much worse than the other the candidate that the rung ranks at or ahead is (0 if none)."""
+    v = 0.0
+    if si <= sj:
+        v = max(v, math.log(yi) - math.log(yj))
+    if sj <= si:
+        v = max(v, math.log(yj) - math.log(yi))
+    return v
+
+
+def pair_values(s, y):
+    """pair_value for every unordered pair of the pool."""
+    n = len(s)
+    return [pair_value(s[i], s[j], y[i], y[j]) for i in range(n) for j in range(i + 1, n)]
+
+
+def pilot_quantile(s, y, idx):
+    """Largest pair value over disjoint pairs of the pilot indices idx (len(idx) // 2 pairs, in the order given)."""
+    return max(pair_value(s[idx[2 * k]], s[idx[2 * k + 1]], y[idx[2 * k]], y[idx[2 * k + 1]]) for k in range(len(idx) // 2))
+
+
+def pairs_needed(alpha, delta):
+    """Smallest n with 1 - (1 - alpha)^n >= 1 - delta: disjoint pilot pairs for an alpha-exceedance bound w.p. 1 - delta."""
+    return math.ceil(math.log(delta) / math.log(1 - alpha) - 1e-12)

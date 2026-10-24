@@ -5,7 +5,7 @@ import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
-from verified_dse.bound import halve, inversion  # noqa: E402
+from verified_dse.bound import halve, inversion, pair_value, pair_values, pairs_needed, pilot_quantile  # noqa: E402
 
 
 def brute(s, y):
@@ -39,6 +39,23 @@ class T(unittest.TestCase):
             got = halve(cut, y, keep, rng)
             lhs = math.log(got) - math.log(min(y))
             self.assertLessEqual(lhs, sum(inversion(s, y) for s in cut) + 1e-9)
+
+    def test_max_pair_value_is_inversion(self):
+        rng = random.Random(3)
+        for _ in range(200):
+            n = rng.randint(2, 30)
+            y = [rng.uniform(1, 10) for _ in range(n)]
+            s = [rng.choice([1, 2, 3, 4]) for _ in range(n)]
+            self.assertAlmostEqual(max(pair_values(s, y)), inversion(s, y))
+
+    def test_pairs_needed(self):
+        self.assertEqual(pairs_needed(0.2, 0.2), 8)
+        self.assertEqual(pairs_needed(0.1, 0.1), 22)
+
+    def test_pilot_quantile_uses_disjoint_pairs(self):
+        s, y = [1, 2, 3, 4], [4.0, 3.0, 2.0, 1.0]
+        self.assertAlmostEqual(pilot_quantile(s, y, [0, 1, 2, 3]), math.log(2))
+        self.assertEqual(pair_value(1, 2, 1.0, 2.0), 0.0)
 
 
 if __name__ == "__main__":
