@@ -1,7 +1,7 @@
 ---
 title: "A receipt reader that had never seen a real receipt: 4% to 94% on CORD-v2"
 date: 2026-10-24
-description: "AI Bookkeeper's receipt reader was scored on 1,000 real, hand-labelled receipts for the first time. It read 4% of held-out totals; three rule changes took it to 94%."
+description: "AI Bookkeeper's receipt reader, first scored on 1,000 real hand-labelled receipts, read 4% of held-out totals. Three rule changes took it to 94%."
 tags: [ai-bookkeeper, receipts, datasets, evaluation, data-backed]
 ---
 

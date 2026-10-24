@@ -1,7 +1,7 @@
 ---
 title: "How much training can a cheater skip on a transformer before the loss shows it?"
 date: 2026-10-29
-description: "A verifier that tolerates floating-point drift also lets a worker skip small-update steps. On a tiny transformer the price is small until the tolerance reaches the median update size."
+description: "A verifier that tolerates floating-point drift lets a worker skip small updates. On a tiny transformer that is cheap until the tolerance nears the median step."
 tags: [research, verifiable-training, mechanism-design, negative-result]
 ---
 

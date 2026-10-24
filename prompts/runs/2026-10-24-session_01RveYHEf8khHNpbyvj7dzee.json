@@ -27,7 +27,9 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "First push: my post description was 165 characters (cap 160) and my flagships edit kept ai-bookkeeper next over 2,000; both caught by CI, fixed in the second push."
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -36,7 +38,11 @@
     },
     {
       "file": "portfolio/flagships.yaml",
-      "issue": "ai-bookkeeper next is already over its own 2,000-character limit (2,119 before this run, 2,175 after a one-clause update); it needs a trim."
+      "issue": "ai-bookkeeper (2,119) and einvoice-preflight (2,293) next: were already over the 2,000-character cap on main, so validate was red on main; both rewritten to open items only in this PR."
+    },
+    {
+      "file": "docs/posts/",
+      "issue": "Two posts on main (2026-10-24 chip-estimate, 2026-10-29 skipping-training-steps) had descriptions over 160 characters, which breaks the Pages build; shortened here."
     }
   ],
   "deviations": [],
