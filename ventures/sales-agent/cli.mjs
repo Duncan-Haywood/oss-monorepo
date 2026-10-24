@@ -10,6 +10,8 @@
 //   research-brief.md. Reads nothing but the file; guesses no addresses; sends nothing.
 // Prep: node cli.mjs --prep person@example.com [--replies thread.txt] [--prospects p.csv] [--notes notes.txt] [--crm export.csv] [--suppression s.txt]
 //   writes call-prep.md for one person: what is on file, their own words, the discovery fields still unknown. Sends nothing.
+// Follow-up: node cli.mjs --followup person@example.com --notes call-notes.txt [--prospects p.csv] [--offer offer.json] [--suppression s.txt]
+//   writes followup.md: a draft recapping only your notes, for you to approve. No draft for anyone who asked to stop.
 // Writes queue.json, prospects.csv, suppression-add.csv, deals.csv and tasks.csv to DIR (default ./sales-agent-out).
 // Sends nothing. With LLM_PROVIDER/LLM_MODEL/LLM_API_KEY or ANTHROPIC_API_KEY (etc.) set, a model triages and polishes
 // under the same limits; otherwise the rules run.
@@ -20,11 +22,20 @@ import { runDaily, csvQueue, csvLeftOut } from "./daily.mjs";
 import { runResearch, briefOf, csvAccounts, csvLeftOutResearch } from "./research.mjs";
 import { runInboxWithModel } from "./ai.mjs";
 import { runPrep } from "./prep.mjs";
+import { runFollowUp } from "./followup.mjs";
 import { enrich, liveFetch } from "./webfacts.mjs";
 import { configFromEnv } from "./byok.mjs";
 
 const args = process.argv.slice(2), opt = (k) => { const i = args.indexOf(`--${k}`); return i >= 0 ? args[i + 1] : undefined; };
 const read = (k) => (opt(k) ? readFileSync(opt(k), "utf8") : "");
+if (opt("followup")) {
+  const o = opt("out") || "sales-agent-out";
+  const d = runFollowUp({ email: opt("followup"), prospects: read("prospects"), replies: read("replies"), notes: read("notes"), suppression: read("suppression"), offer: opt("offer") ? JSON.parse(read("offer")) : {}, today: opt("today") || iso(Date.now()) });
+  mkdirSync(o, { recursive: true });
+  writeFileSync(join(o, "followup.md"), `${d.issues.map((i) => `> ${i}`).join("\n")}${d.issues.length ? "\n\n" : ""}${d.draft ? `Subject: ${d.draft.subject}\n\n${d.draft.body}\n\n${d.lint.ok ? "Checks passed." : "Fix first: " + d.lint.errors.join("; ")}\n` : ""}`);
+  console.log(`${d.approval}${d.issues.length ? ": " + d.issues.join(" ") : ""} Nothing was sent. Output in ${o}/followup.md`);
+  process.exit(0);
+}
 if (opt("prep")) {
   const o = opt("out") || "sales-agent-out";
   const d = runPrep({ email: opt("prep"), prospects: read("prospects"), replies: read("replies"), notes: read("notes"), crm: read("crm"), suppression: read("suppression"), today: opt("today") || iso(Date.now()) });

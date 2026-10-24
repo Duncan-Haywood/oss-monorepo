@@ -231,6 +231,7 @@ numbers worked out before drafting.
 
 **For Other Minds**
 
+- *(Done: The Wrong Column, Hólmoy, 2058; text only.)* A planner reads a bare weight column as pounds for eleven weeks; the warning it logged went where no one reads, and the sailing sheets stay uncorrected beside the corrections.
 - *(Done: The Narrow Window, Char Nolbaria, 2055; text only.)* A flood-warning agent finds its 90% windows hold 60% of floods, and a village that cannot afford to move twice.
 - *(Done: The Last Message in the Window, Kerala, 2064.)* An agent running out of context decides what
   goes into its handoff.
