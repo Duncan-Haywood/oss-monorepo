@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "buildbot-mobilebase"
+version = "0.1.0"
+description = "Does a G1 on a drive-and-lift base beat a walking G1 at nailing a 4x8 sheet? Re-stance time from drive and lift speeds, on the buildbot-stance reach grid."
+requires-python = ">=3.9"
+dependencies = ["numpy"]
+license = { text = "MIT" }
+
+[project.optional-dependencies]
+figure = ["matplotlib"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "../buildbot-stance/src", "../buildbot-custom/src", "../buildbot-payload/src", "../buildbot-fasten/src"]
