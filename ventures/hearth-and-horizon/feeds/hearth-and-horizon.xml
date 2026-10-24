@@ -148,6 +148,16 @@
       <itunes:explicit>false</itunes:explicit>
     </item>
     <item>
+      <title>The Third Year</title>
+      <link>https://example.invalid/hearth-and-horizon/the-third-year.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-third-year.html</guid>
+      <pubDate>Sat, 24 Oct 2026 12:00:00 GMT</pubDate>
+      <description>A priest in 2046 serves three rural parishes alone, preaches four Masses a weekend, and has an assistant that drafts a homily in forty seconds, a good one. After three weeks he finds the draft was too good in the wrong way, and the week a seventeen-year-old dies on black ice the draft is correct about the Gospel and wrong about the room. The assistant can count the hours it saves him. It cannot count what a homily is for. Setting: Kettle County, an invented county in northern Minnesota, Monday 26 February to Saturday 3 March 2046 (the Third Sunday of Lent, Year C). Read the full text at https://example.invalid/hearth-and-horizon/the-third-year.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A priest in 2046 serves three rural parishes alone, preaches four Masses a weekend, and has an assistant that drafts a homily in forty seconds, a good one. After three weeks he finds the draft was too good in the wrong way, and the week a seventeen-year-old dies on black ice the draft is correct about the Gospel and wrong about the room. The assistant can count the hours it saves him. It cannot count what a homily is for.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>Forty to One</title>
       <link>https://example.invalid/hearth-and-horizon/forty-to-one.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/forty-to-one.html</guid>
