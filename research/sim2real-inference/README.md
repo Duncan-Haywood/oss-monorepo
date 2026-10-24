@@ -52,3 +52,4 @@ affiliation with or endorsement by any author or lab.
 ## Outside dependencies
 
 MuJoCo (open source, pip) and numpy for the benchmark; planned: the published SIMPLER tables.
+- [`experiments/m3f_failure_rate/`](experiments/m3f_failure_rate): milestone 3f, failure-rate certificates. `failrate.py` (seconds) compares a twin-informed upper bound on the failure rate (twin failure rate plus the exact bound on P(real fails, twin passes)) with Clopper-Pearson on the 21 pools; `breakeven.py` gives the plug-in break-even. Result: valid (coverage at least 98.6%) but tighter on 0 of 21 pairs at every n (n = 240: gap 0.056 against 0.041), because even the best twin passes about 55% of the real failures; it would need q10/p of roughly 0.04 to 0.10. H3 refuted in this benchmark. See [`LOG.md`](LOG.md) and `results/summary_3f.txt`.
