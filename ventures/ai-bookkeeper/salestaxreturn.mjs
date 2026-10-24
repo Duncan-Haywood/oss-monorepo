@@ -33,7 +33,17 @@ export const STATE_DUE_DAYS = { CA: "last", TX: 20, FL: 20, NY: 20, WA: 25, IL: 
 // Checked 2026-10-24 against the states' own pages (via search excerpts): CA quarterly
 // = last day of the month after the quarter; TX = 20th, monthly and quarterly; FL = due
 // the 1st, late after the 20th; WA monthly = 25th but quarterly = end of the next month.
-// Not checked: NY, IL, PA. WA annual returns are due April 15 (not modelled).
+// Checked 2026-10-24 (search excerpts of tax.ny.gov ST-100 instructions, tax.illinois.gov ST-1
+// instructions, revenue.pa.gov REV-819): NY, IL and PA monthly and quarterly returns are due the
+// 20th, next business day if that is a weekend or holiday. WA annual returns are due April 15 (not modelled).
+// NY quarters are Mar-May, Jun-Aug, Sep-Nov, Dec-Feb (due the 20th after), not calendar quarters;
+// PA semiannual returns are due Aug 20 and Feb 20. Neither is modelled: stateFilingNote says so.
+export function stateFilingNote(state, frequency = "quarterly") {
+  const s = String(state ?? "").toUpperCase();
+  if (s === "NY" && frequency === "quarterly") return "New York quarters run March-May, June-August, September-November and December-February (due the 20th after each); this worksheet groups by calendar quarter, so use --freq monthly or check each due date.";
+  if (s === "PA" && frequency === "annual") return "Pennsylvania has no annual return; assigned filers file monthly, quarterly or semiannually (due Aug 20 and Feb 20), which this worksheet does not model.";
+  return null;
+}
 export function stateDueDay(state, frequency = "quarterly") {
   const s = String(state ?? "").toUpperCase();
   if (s === "WA" && frequency !== "monthly") return "last";
