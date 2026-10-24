@@ -1,0 +1,47 @@
+{
+  "date": "2026-10-24",
+  "session": "https://claude.ai/code/session_01Xxd3NxDo2gQgUaQt5d3gTF",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-24T22:32:46Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/10252",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/PROGRAMMES.md",
+      "issue": "pick_track drew sim2real-inference; no milestone list left, next step had to be inferred from the paper's open gaps in LOG.md"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-10-25-does-a-simulator-still-help-when-the-outcome-has-no-ceiling.md",
+    "research/sim2real-inference/LOG.md"
+  ],
+  "goal": null,
+  "notes": "Milestone 7c: unbounded cost outcome on the 21 cart-pole pairs; H7c-i and H7c-iii refuted, H7c-ii supported. Homepage build ok, md links ok. Run cost attach skipped.",
+  "corrections": [],
+  "redteam": null
+}
