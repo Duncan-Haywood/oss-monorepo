@@ -2,7 +2,7 @@
 
 Track 11 (adversarial human imitation), side project: milestone 8's question ("is a twin that fools the detector more useful?") asked of a physical twin. The earlier pendulum projects (`mimic-twinc2st`, `mimic-mmd`) only ask whether a test *detects* a wrong twin; this one asks whether detection *matters* for what the twin is used for. **No LLM is used and no text is generated.** Stylised and simulated only. **Preliminary: one toy system, one task, a coarse 48-point gain grid.** Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/mimic-twinregret/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/mimic-twinregret/
 
 Numbers come from `experiments/results.txt` and `results.json`; the figure is `experiments/auroc_vs_regret.svg`.
 

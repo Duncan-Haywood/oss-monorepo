@@ -2,7 +2,7 @@
 
 Track 20, robots on the residential building site (`PROJECTS.md`; the "Limitations" of [`buildbot-payload`](../buildbot-payload) and the draw question left by [`buildbot-shift`](../buildbot-shift)). `buildbot-payload` accepts a load if every joint stays under its **peak** torque. A motor can only hold a fraction of peak indefinitely, so this re-reads the same MuJoCo static torques against a continuous rating and a first-order thermal model. Produced with AI assistance (Claude). Simulated and preliminary; no robot was tested; builds on no group in `prompt.md`.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/buildbot-holdheat/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/buildbot-holdheat/
 
 **Headline.** At the stud-carry pose (hands 0.3 m ahead of the feet, 0.6 m high, centre of mass kept over the feet), the G1's **waist pitch motor is at 0.54 of its 50 N·m peak with empty hands**, 0.91 with a 3.8 kg 2x4 and 0.98 with 4.5 kg. If a motor's continuous rating is a fraction ρ of peak, **nothing is sustainable at this pose for ρ ≤ 0.5**; at ρ = 0.6 only 0.62 kg is. With copper loss ∝ torque², the 2x4 reaches the winding limit in **0.14 thermal time constants at ρ = 1/3** (0.36 at 0.5, 0.58 at 0.6). A 3.4 kg framing nailer at stud height (1.0 m, 0.4 m ahead) sits at 0.76 of peak with the same waist limit (0.97 time constants at ρ = 0.6, 0.32 at 0.4). One end of a sheet with a person, or a lightweight block, needs 1.5 to 2.5 times the peak and was already a "no" in `buildbot-payload`. So the peak-torque "yes" for a stud is a short-hold "yes": the verdicts that matter for a shift are the continuous ones.
 

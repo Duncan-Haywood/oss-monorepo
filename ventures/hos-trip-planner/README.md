@@ -4,7 +4,7 @@ A free browser tool for truckers, owner-operators and dispatchers: **enter the h
 the stops on a load, and see the schedule the rules force — drive blocks, 30-minute breaks, 10-hour resets, 34-hour
 restarts — and the real arrival time at each stop.** Nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/hos-trip-planner/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/hos-trip-planner/
 
 After using this, you can now **tell a broker whether a load makes its appointment, and where your reset will land**,
 which used to be a mental sum of 11, 14, 8 and 70.

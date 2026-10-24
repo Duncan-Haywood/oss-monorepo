@@ -1,42 +1,42 @@
 # Open research: reproducible papers with code and benchmarks
 
 Open research: white papers, reproducible code and benchmarks, one directory per project (MIT licensed, see [`LICENSE`](LICENSE)). Topics run from verification markets, scoring rules and decentralised training to LLM chip-design loops, task-specific AI accelerators, robot manufacturing, digital twins, engineered clothing and open-source housing.
-Moved here from the former `oss-research-monorepo` repository with its history. The homepage is built from [`_homepage/`](_homepage) and published at [`/research/`](https://duncan-haywood.github.io/monorepo-projects/research/) on the repository's GitHub Pages site.
+Moved here from the former `oss-research-monorepo` repository with its history. The homepage is built from [`_homepage/`](_homepage) and published at [`/research/`](https://duncan-haywood.github.io/oss-monorepo/research/) on the repository's GitHub Pages site.
 
 <!-- topics:start -->
 ## Browse by topic
 
-**Read it all at [https://duncan-haywood.github.io/monorepo-projects/research/](https://duncan-haywood.github.io/monorepo-projects/research/).** Each topic page lists its projects with a summary:
+**Read it all at [https://duncan-haywood.github.io/oss-monorepo/research/](https://duncan-haywood.github.io/oss-monorepo/research/).** Each topic page lists its projects with a summary:
 
-- [Proper scoring & elicitation](https://duncan-haywood.github.io/monorepo-projects/research/topics/scoring/)
-- [Effort & peer prediction](https://duncan-haywood.github.io/monorepo-projects/research/topics/effort/)
-- [Verification games & slashing](https://duncan-haywood.github.io/monorepo-projects/research/topics/games/)
-- [Detection & tolerances](https://duncan-haywood.github.io/monorepo-projects/research/topics/detection/)
-- [Markets as routers](https://duncan-haywood.github.io/monorepo-projects/research/topics/routing/)
-- [Prediction-market design](https://duncan-haywood.github.io/monorepo-projects/research/topics/markets/)
-- [Paying contributors](https://duncan-haywood.github.io/monorepo-projects/research/topics/contributions/)
-- [Decentralised training systems](https://duncan-haywood.github.io/monorepo-projects/research/topics/systems/)
-- [Digital twins & sim-to-real](https://duncan-haywood.github.io/monorepo-projects/research/topics/twins/)
-- [LLM chip design loops](https://duncan-haywood.github.io/monorepo-projects/research/topics/chip/)
-- [Robot manufacturing loops](https://duncan-haywood.github.io/monorepo-projects/research/topics/robofab/)
-- [Ambient AI assistant](https://duncan-haywood.github.io/monorepo-projects/research/topics/ambient/)
-- [Self-replicating manufacturing](https://duncan-haywood.github.io/monorepo-projects/research/topics/selfrep/)
-- [Simulation-first design](https://duncan-haywood.github.io/monorepo-projects/research/topics/simdesign/)
-- [Engineered clothing](https://duncan-haywood.github.io/monorepo-projects/research/topics/garment/)
-- [Task-specific AI accelerators](https://duncan-haywood.github.io/monorepo-projects/research/topics/accel/)
-- [Algorithmic chip-design loops](https://duncan-haywood.github.io/monorepo-projects/research/topics/eda/)
-- [Open-source purpose-built robots](https://duncan-haywood.github.io/monorepo-projects/research/topics/osrobot/)
-- [The software-engineering loop](https://duncan-haywood.github.io/monorepo-projects/research/topics/swe/)
-- [Adversarial human imitation](https://duncan-haywood.github.io/monorepo-projects/research/topics/mimic/)
-- [Open-source residential construction](https://duncan-haywood.github.io/monorepo-projects/research/topics/house/)
-- [Autonomous multi-angle capture](https://duncan-haywood.github.io/monorepo-projects/research/topics/capture/)
-- [Sensing, imaging and 3D](https://duncan-haywood.github.io/monorepo-projects/research/topics/sensing/)
-- [Energy supply and dense energy storage](https://duncan-haywood.github.io/monorepo-projects/research/topics/energy/)
-- [Robot societies among people](https://duncan-haywood.github.io/monorepo-projects/research/topics/society/)
-- [Agentic co-design of low-cost robots](https://duncan-haywood.github.io/monorepo-projects/research/topics/codesign/)
-- [Laundry-hanging robots](https://duncan-haywood.github.io/monorepo-projects/research/topics/hanger/)
-- [Machine learning on qualitative data](https://duncan-haywood.github.io/monorepo-projects/research/topics/qual/)
-- [Robots on the building site](https://duncan-haywood.github.io/monorepo-projects/research/topics/buildbot/)
+- [Proper scoring & elicitation](https://duncan-haywood.github.io/oss-monorepo/research/topics/scoring/)
+- [Effort & peer prediction](https://duncan-haywood.github.io/oss-monorepo/research/topics/effort/)
+- [Verification games & slashing](https://duncan-haywood.github.io/oss-monorepo/research/topics/games/)
+- [Detection & tolerances](https://duncan-haywood.github.io/oss-monorepo/research/topics/detection/)
+- [Markets as routers](https://duncan-haywood.github.io/oss-monorepo/research/topics/routing/)
+- [Prediction-market design](https://duncan-haywood.github.io/oss-monorepo/research/topics/markets/)
+- [Paying contributors](https://duncan-haywood.github.io/oss-monorepo/research/topics/contributions/)
+- [Decentralised training systems](https://duncan-haywood.github.io/oss-monorepo/research/topics/systems/)
+- [Digital twins & sim-to-real](https://duncan-haywood.github.io/oss-monorepo/research/topics/twins/)
+- [LLM chip design loops](https://duncan-haywood.github.io/oss-monorepo/research/topics/chip/)
+- [Robot manufacturing loops](https://duncan-haywood.github.io/oss-monorepo/research/topics/robofab/)
+- [Ambient AI assistant](https://duncan-haywood.github.io/oss-monorepo/research/topics/ambient/)
+- [Self-replicating manufacturing](https://duncan-haywood.github.io/oss-monorepo/research/topics/selfrep/)
+- [Simulation-first design](https://duncan-haywood.github.io/oss-monorepo/research/topics/simdesign/)
+- [Engineered clothing](https://duncan-haywood.github.io/oss-monorepo/research/topics/garment/)
+- [Task-specific AI accelerators](https://duncan-haywood.github.io/oss-monorepo/research/topics/accel/)
+- [Algorithmic chip-design loops](https://duncan-haywood.github.io/oss-monorepo/research/topics/eda/)
+- [Open-source purpose-built robots](https://duncan-haywood.github.io/oss-monorepo/research/topics/osrobot/)
+- [The software-engineering loop](https://duncan-haywood.github.io/oss-monorepo/research/topics/swe/)
+- [Adversarial human imitation](https://duncan-haywood.github.io/oss-monorepo/research/topics/mimic/)
+- [Open-source residential construction](https://duncan-haywood.github.io/oss-monorepo/research/topics/house/)
+- [Autonomous multi-angle capture](https://duncan-haywood.github.io/oss-monorepo/research/topics/capture/)
+- [Sensing, imaging and 3D](https://duncan-haywood.github.io/oss-monorepo/research/topics/sensing/)
+- [Energy supply and dense energy storage](https://duncan-haywood.github.io/oss-monorepo/research/topics/energy/)
+- [Robot societies among people](https://duncan-haywood.github.io/oss-monorepo/research/topics/society/)
+- [Agentic co-design of low-cost robots](https://duncan-haywood.github.io/oss-monorepo/research/topics/codesign/)
+- [Laundry-hanging robots](https://duncan-haywood.github.io/oss-monorepo/research/topics/hanger/)
+- [Machine learning on qualitative data](https://duncan-haywood.github.io/oss-monorepo/research/topics/qual/)
+- [Robots on the building site](https://duncan-haywood.github.io/oss-monorepo/research/topics/buildbot/)
 
 <!-- Generated by platform/ci/research_live_links.py --write from _homepage/projects.json. -->
 <!-- topics:end -->

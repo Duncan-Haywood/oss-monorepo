@@ -2,7 +2,7 @@
 
 **Weakly. On 5,313 real Reddit comments (GoEmotions), a codebook induced from half the text with no labels agreed with the 27-emotion human codebook only a little above chance, and the best single induced code per emotion reached a held-out AUC of about 0.6.** With 27 NMF topics the normalised mutual information (NMI) with the human primary emotion was 0.258 against 0.120 for a random assignment of the same sizes; with 60 topics 0.341 against 0.195. The excess over chance is 0.10 to 0.15 at every size, and chance itself climbs with the number of codes, so a raw NMI table flatters bigger codebooks. NMF topics were almost uncorrelated with each other (mean |r| 0.016 to 0.039); k-means with 5 or 10 codes was redundant (10–12% of code pairs above |r| 0.3). **The induced codebooks are topic models, not an LLM's (TopicGPT or LLooM style) codebook**: the session has no API key, so this is the no-model baseline that an LLM-induced codebook has to beat, not a statement about LLMs. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/qual-induce/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/qual-induce/
 
 Track 19 (`qual`, [`PROJECTS.md`](../PROJECTS.md)), milestone 4 (`qual-induce`), in the form the container allows: inductive coding compared with a human codebook on the same corpus, with a classical induction method standing in for the model. It reuses the corpus, the download cache and the rater-majority convention of [`qual-real`](../qual-real).
 

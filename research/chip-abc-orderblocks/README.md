@@ -2,7 +2,7 @@
 
 Track 3 (LLM chip-design loops, `PROJECTS.md`). `chip-abc-orderpass` found that `opt_merge` shares `a + b` between a block's const-0 and const-1 chains only when both are written with `a` and `b` first, but it only ran *uniform* orders (all const-0 chains alike, all const-1 chains alike), so it could not say whether blocks act independently. That was its first open next step; this project runs it. Produced with AI assistance (Claude). Preliminary and small: one adder, one tool version, a generic-gate library.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/chip-abc-orderblocks/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/chip-abc-orderblocks/
 
 **Builds on.** `chip-abc-orderpass`, `chip-abc-order`, `chip-abc-sweep` (same author, MIT): the `csel4` generator, miter equivalence check, ABC scripts and `add16` reference are copied from them. Yosys and its integrated ABC (Brayton and Mishchenko, CAV 2010, LNCS 6174:24-40, <https://doi.org/10.1007/978-3-642-14295-6_5>, as cited in `chip-abc-sweep`; not re-read here). No connection to the CU Boulder groups in `prompt.md` is claimed.
 

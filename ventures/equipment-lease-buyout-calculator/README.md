@@ -3,7 +3,7 @@
 A free, browser-only tool that compares buying out an equipment lease against
 returning the equipment and replacing it.
 
-**Live:** <https://duncan-haywood.github.io/monorepo-projects/equipment-lease-buyout-calculator/>
+**Live:** <https://duncan-haywood.github.io/oss-monorepo/equipment-lease-buyout-calculator/>
 
 ## The problem
 

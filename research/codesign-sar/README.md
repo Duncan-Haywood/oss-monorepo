@@ -2,7 +2,7 @@
 
 Third milestone of the agentic co-design track (`research/PROJECTS.md`, track 14, `codesign`; search-and-rescue domain). A rover with four printed wheels, optional front flippers, two drive motors and a battery carries a 0.6 kg sensor or radio-relay payload over 20 m of random rubble (steps, drops, gaps, patchy friction). Each design gets its own trained speed-and-flipper policy. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/codesign-sar/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/codesign-sar/
 
 ![best objective vs evaluations](experiments/curves.png)
 

@@ -2,7 +2,7 @@
 
 Follow-up to `codesign-aero-cant-twr` (track 14, `codesign`), taking its first next step: "raise the TWR ceiling to 6". That project found that without cant the optimiser sat on its assumed TWR ceiling of 4.0, so its cant advantage might be overstated. Here the ceiling is 4, 6 and 8. Produced with AI assistance (Claude). **Simulated; c is sourced from measured data (UIUC Propeller Data Site, via the grandparent); the TWR range, motor mass and cost fits, plant and gust models are inherited or assumed.**
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/codesign-aero-cant-twrceil/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/codesign-aero-cant-twrceil/
 
 ![Held-out error against the TWR ceiling, with and without cant](experiments/twr_ceiling.png)
 

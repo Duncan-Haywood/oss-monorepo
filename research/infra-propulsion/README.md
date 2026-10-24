@@ -2,7 +2,7 @@
 
 Milestone 4 of track 21, applied R&D for the industries modern life runs on (`PROJECTS.md`). It asks how much energy each freight mode needs per tonne-km when only physics sets the answer (rolling resistance, air drag, hull drag, lift-to-drag), then swaps the diesel or jet fuel for a battery pack or hydrogen at the same gross mass and range and reports how much payload is left. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/infra-propulsion/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/infra-propulsion/
 
 **Headline.** At a pack specific energy of 250 Wh/kg a long-haul truck (800 km) keeps **79%** of its diesel payload, a unit train (1,500 km) **93%**, a Panamax bulk carrier (20,000 km) **55%**, and a 747-class freighter (8,250 km) cannot fly the route at all: with every spare kilogram as battery its range is **669 km**. The pack specific energy that keeps 90% of the diesel payload is about **510 Wh/kg for the truck, 180 for the train, 990 for the ship and 5,600 for the aircraft**. Compressed hydrogen at 700 bar (5% system mass fraction, an assumed figure) keeps 95%, 98% and 90% for truck, train and ship but still cannot fly the aircraft route (3,765 km at zero payload); liquid hydrogen (25%, assumed) keeps 90% of the payload on the aircraft. The ordering by mode, aircraft far behind ship, truck and train, survives every input sweep in section E; the numbers move by a factor of two to four with design range.
 

@@ -12,7 +12,7 @@ objectors would give, so objection is not independent across viewers. Produced w
 Next step 3 of `society-enforcers`, track 17 (`society`, `PROJECTS.md`). Every result is about simulated
 agents following a stated rule, not real people or robots.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/society-milgramfit/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/society-milgramfit/
 
 ## Why this question
 

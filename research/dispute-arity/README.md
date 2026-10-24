@@ -2,7 +2,7 @@
 
 Stdlib-only Python. Optimal arity and leaf size for k-ary bisection dispute games (Verde/Arbitrum-style refereed delegation) over a hash-chained training trace. See `paper/whitepaper.md`.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/dispute-arity/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/dispute-arity/
 
 ```bash
 cd research/dispute-arity

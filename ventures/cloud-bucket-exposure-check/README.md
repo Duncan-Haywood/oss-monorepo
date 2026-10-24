@@ -11,7 +11,7 @@ behind a long list of real breaches — Verizon (14 million customer records,
 and it is exactly why AWS turns "Block Public Access" on by default for
 every new bucket today.
 
-Production: https://duncan-haywood.github.io/monorepo-projects/cloud-bucket-exposure-check/
+Production: https://duncan-haywood.github.io/oss-monorepo/cloud-bucket-exposure-check/
 
 ## Why the body, not just the status code
 

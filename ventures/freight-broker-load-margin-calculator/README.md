@@ -4,7 +4,7 @@ A free browser tool for freight brokers and small agencies: **type in your loads
 fronting the carrier, factoring, claims reserve, overhead and commission, plus the shipper rate to quote and the highest
 carrier rate to pay to hit a target margin**. Nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/freight-broker-load-margin-calculator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/freight-broker-load-margin-calculator/
 
 After using this, you can now **see which loads that look fine at 15% gross are losing money, and what rate would have
 fixed them, which used to take a spreadsheet most brokers never build**.

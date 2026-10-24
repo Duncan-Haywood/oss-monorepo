@@ -2,7 +2,7 @@
 
 Seed-repeat follow-up to `codesign-aero-robust` (track 14, `codesign`; its "Next steps" asked for this). The same 50-airframe grid, the same three-gain roll controller and the same wide randomised plant, but the whole pipeline (CMA-ES seed, training episodes, held-out episodes) is repeated six times, so the ranks get intervals. Produced with AI assistance (Claude). **Stylised simulation: every constant and randomisation range is an assumed round number; roll axis only; no hardware, no PX4/ArduPilot software-in-the-loop. Six replicates is small: the intervals are ranges, not confidence intervals.**
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/codesign-aero-seeds/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/codesign-aero-seeds/
 
 ![Mean and min-max band of wide-plant RMS error per airframe over six replicates](experiments/seeds.png)
 

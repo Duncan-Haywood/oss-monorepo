@@ -2,7 +2,7 @@
 
 Follow-up to `capture-softgate` (track 13, autonomous multi-angle capture), whose first "Next step" asked to predict the per-pixel weight instead of hand-ramping it. **Headline:** on 40 held-out scene configurations (new ground textures, same ranges), a one-hidden-layer network predicting how much of the raw nearest camera to blend in scores 26.78 dB against 26.21 dB for the best soft gate and 25.81 dB for the hard gate, ahead of the soft gate in all 40 configs (mean +0.57 dB, standard error 0.05). That recovers 0.36 of the 2.7 dB between the hard gate and the best possible per-pixel blend, up from 0.15 for the soft gate. A linear model gets 0.29 of it. Outside the training ranges the gain over the soft gate shrinks to +0.24 dB.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/capture-learngate/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/capture-learngate/
 
 **Why this question.** `capture-hybrid` and `capture-softgate` tuned one or two thresholds on a single scene and left most of the headroom unused. Tuning on one scene says nothing about generalisation, so this project draws many different scenes, fits on some and tests on others.
 

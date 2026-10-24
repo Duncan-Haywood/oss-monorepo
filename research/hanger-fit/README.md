@@ -13,7 +13,7 @@ Produced with AI assistance (Claude). First project of research track 18 (`hange
 `PROJECTS.md`, milestone 1). Every number is from a stylised simulation with assumed fabric
 constants, not a measurement of real garments.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/hanger-fit/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/hanger-fit/
 
 ## Why this question
 

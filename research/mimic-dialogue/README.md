@@ -2,7 +2,7 @@
 
 Milestone 6 (`mimic-dialogue`) of track 11, adversarial human imitation. **Result, stylised:** a prompt-free word and character n-gram detector separates a plainly prompted Qwen2.5-0.5B-Instruct from real users with AUROC 0.93 on a single turn and 0.98 on the two imitated turns of a thread together (paired accuracy 0.98). Seeing the whole thread helps. A quarter of the imitations read like assistant replies, and removing them leaves 0.95 for the thread, so the detector is not just catching that. This is the baseline; **no prompt is optimised and no game is played here.**
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/mimic-dialogue/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/mimic-dialogue/
 
 Numbers come from `results.txt` (`results.json` has the same). The text was produced with AI assistance, as was this write-up.
 
