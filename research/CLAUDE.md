@@ -36,7 +36,7 @@ has wasted the compute budget. Every run lands at least one thing of real value
 on `main`, such as a research result, a new or improved project, an open-source
 tool, or a write-up that uses real data to tell the owner something new. "Nothing
 to do", a blocked milestone, an empty track, or finding that your task already
-landed is never a reason to stop. Advance a programme in `PROGRAMMES.md` (a
+landed means looking wider, not stopping. Advance a programme in `PROGRAMMES.md` (a
 proof, a stronger baseline, a real-data check, a paper section), and if none
 fits, open a new one with a proposal. It can be academic or industry research, an
 open-source tool, a product, marketing, or anything else. Restated blockers and

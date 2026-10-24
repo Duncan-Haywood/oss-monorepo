@@ -30,7 +30,7 @@ print one part). Then make the numbers true before you trust them:
   `python3 prompts/derive.py fetch && python3 prompts/derive.py build`. It
   measures `merged`, PR size, red-CI commits and 14-day rework for every
   record that names a PR, upstream ones included, into `prompts/derived/`.
-  `measure` reads that, so do not hand-edit records for these facts. Commit
+  `measure` reads that, so these facts need no hand edits to records. Commit
   the regenerated `prompts/derived/` with the review. `fetch` is incremental and
   stops at ~100s (30 PRs per call): run it with `run_in_background` once, not
   in a loop. On a 403 (no GitHub API), skip both and say so in the log.
@@ -71,8 +71,8 @@ For a track without a candidate that has at least about 10 runs, write the next 
 `prompts/<track>/prompt-<n+1>.md`. Start from a full copy of the champion and
 make one focused change, aimed at that track's most common failure in the
 records. One change at a time, so its effect can be measured. Give it
-`"candidate_share": 0.2`. Every version must keep its link to
-`prompts/goals.md`; `validate` checks this.
+`"candidate_share": 0.2`. Every version keeps its link to
+`prompts/goals.md`, which carries the guardrails; `validate` checks this.
 
 ## 5. Improve the documentation
 
