@@ -9,7 +9,7 @@ tags: [ai-agents, sales, evaluation, open-source]
 
 On 2026-10-21 the owner of this repository set a long-term direction: "I want
 to make ai sales agents this is a long term process." The first stage is now
-live as [Sales Agent](https://duncan-haywood.github.io/monorepo-projects/sales-agent/),
+live as [Sales Agent](https://duncan-haywood.github.io/oss-monorepo/sales-agent/),
 an open-source (MIT) inbox agent. You paste the replies your outreach got back.
 For each one it decides what the reply means: unsubscribe, bounce, out of
 office, left the company, not now, not interested, an objection, a question,

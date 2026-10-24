@@ -62,5 +62,5 @@ kill_criteria:
   - A user reports a drafted reply to someone who asked to stop that the rules had read correctly as an unsubscribe.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/sales-agent/
+  production: https://duncan-haywood.github.io/oss-monorepo/sales-agent/
   analytics: null
