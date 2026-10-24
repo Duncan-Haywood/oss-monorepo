@@ -57,6 +57,16 @@ class T(unittest.TestCase):
         self.assertAlmostEqual(pilot_quantile(s, y, [0, 1, 2, 3]), math.log(2))
         self.assertEqual(pair_value(1, 2, 1.0, 2.0), 0.0)
 
+    def test_top_inversion_widens_with_top(self):
+        rng = random.Random(7)
+        for _ in range(200):
+            n = 12
+            s = [rng.randint(0, 5) for _ in range(n)]
+            y = [rng.uniform(1, 4) for _ in range(n)]
+            idx = rng.sample(range(n), 8)
+            vals = [pilot_top_inversion(s, y, idx, k) for k in (1, 3, 5)]
+            self.assertEqual(vals, sorted(vals))
+
     def test_top_inversion(self):
         # rung ranks index 0 (y=8) ahead of the best point index 1 (y=2): inversion log 4; the pilot's best is index 1
         self.assertAlmostEqual(pilot_top_inversion([1, 2, 3], [8, 2, 4], [0, 1, 2], top=1), math.log(4))
