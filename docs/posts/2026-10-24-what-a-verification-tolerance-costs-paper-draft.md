@@ -1,7 +1,7 @@
 ---
 title: "What a verification tolerance costs: the paper draft"
 date: 2026-10-24
-description: "A referee that tolerates float noise lets a training worker skip a third to two thirds of the steps. On three small tasks, that costs the requester saved work, not model quality, until the tolerance is 2 to 6 times the worst benign drift."
+description: "A float-noise tolerance lets a worker skip a third to two thirds of steps; on three tasks it costs saved work, not quality, until it reaches 2-6x benign drift."
 tags: [research, verifiable-training, mechanism-design]
 ---
 

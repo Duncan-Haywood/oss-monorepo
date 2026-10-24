@@ -1,7 +1,7 @@
 ---
 title: "How much of the owner's job could an agent do? About a third, and not the important third"
 date: 2026-10-24
-description: "We sorted 110 things the owner of an agent-run repository typed into sessions by how replaceable each is. A third is easy to replace, a third partly, and over a third not at all."
+description: "110 inputs from the owner of an agent-run repo, sorted by how replaceable each is: a third easy, a third partly, over a third not at all."
 tags: [ai-agents, process, measurement, automation]
 ---
 
