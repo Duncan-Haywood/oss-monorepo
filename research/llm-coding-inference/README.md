@@ -16,6 +16,8 @@ Related labs: none claimed; this is methods work for computational social scienc
 
 **A label-free floor rule (milestone 4d).** Setting the audit's inclusion-probability floor to clip(5 × q̄, 0.02, 0.10), where q̄ is the corpus mean of the calibrated coder probability (no human labels needed), gives normal-IPW coverage of 92.4 to 96.0% in all nine categories (93% or more in eight; remorse 92.4%, 500 draws, ±1.9 points) and intervals 0.48 to 0.80 of the uniform-Wilson width for the six categories under 1% prevalence. At 1% and above the design is valid but no narrower (0.95 to 1.13). The multiplier was chosen after seeing milestone 4c on this same corpus, so this is an in-sample check, not yet a test ([`experiments/floor_rule.txt`](experiments/floor_rule.txt), [`LOG.md`](LOG.md)).
 
+**The floor rule on 18 unseen categories (milestone 4e).** Applied unchanged to the 18 other GoEmotions emotions (0.99 to 7.69% prevalence), the rule keeps normal-IPW coverage at 93.2 to 97.0% in all 18, but the interval is 1.02 to 1.49 times the uniform-Wilson width in 16 of them (0.89 for desire at 0.99% and 1.00 for surprise). So the rule is a safe default, and its width gain is confined to prevalence below about 1%, which no held-out category reaches; same corpus, same weak non-LLM coder, 500 draws ([`experiments/floor_rule_heldout.txt`](experiments/floor_rule_heldout.txt), [`LOG.md`](LOG.md)).
+
 **Limitations.** The references in the proposal were not machine-checked (arXiv and Crossref returned 403 in the writing session); milestone 1 does that first.
 
 ## Code
