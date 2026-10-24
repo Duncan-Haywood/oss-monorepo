@@ -68,8 +68,8 @@ For each track without a candidate, write the next one:
 `prompts/<track>/prompt-<n+1>.md`. Start from a full copy of the champion and
 make one focused change, aimed at that track's most common failure in the
 records. One change at a time, so its effect can be measured. Give it
-`"candidate_share": 0.2`. Every version must keep its link to
-`prompts/goals.md`; `validate` checks this.
+`"candidate_share": 0.2`. Every version keeps its link to
+`prompts/goals.md`, which carries the guardrails; `validate` checks this.
 
 ## 5. Improve the documentation
 

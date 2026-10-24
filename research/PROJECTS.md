@@ -73,6 +73,12 @@ deleted; its pull requests, review threads and old Pages site stay there.
 
 ## Picking work
 
+Since 2026-10-24 the unit of work is the programme, not the project: one hard question
+pursued across sessions toward a paper ([`PROGRAMMES.md`](PROGRAMMES.md), which sets the bar).
+`pick_track.py` draws an open programme for most runs. A track draw means opening a programme
+in that area, or advancing one, and the track's milestones below become raw material for it,
+not separate slugs. The steps below still apply to track and free-choice draws.
+
 1. **Pick a track at random:** `python3 research/_shared/pick_track.py` (below 0.05 is a
    free-choice run; otherwise it maps the draw onto tracks 1-23, redraws any track with 40+ projects, and lists the track's newest projects). Four runs start in the same
    minute, and a random pick spreads them out.
@@ -80,7 +86,7 @@ deleted; its pull requests, review threads and old Pages site stay there.
    **Free choice (about 5% of runs).** In the spirit of Google's "20% time", about one run in
    twenty works on whatever research question it finds most interesting, in or out of the
    tracks below: a hunch from a recent project, an unusual method, a gap nobody here has
-   looked at. Pick something you can finish and land in one run. It follows every rule in
+   looked at. Aim it at a question worth a programme; land a real step this run. It follows every rule in
    "Rules for every track" and every integrity, licensing and landing rule in `prompt.md`, and
    it is held to the same bar: a complete README, passing tests, honest results. Use the
    `free` slug prefix and theme id unless the project fits an existing track's theme better,
@@ -91,7 +97,7 @@ deleted; its pull requests, review threads and old Pages site stay there.
    in the last three hours. When the listed milestones are done, take the next step from the
    latest project's "Next steps" section in that track. If that chain has gone to micro-variants
    of one result (a new seed, a bigger N, the same test on a neighbouring dataset), skip it:
-   ask a new question of the track's theme instead, and say so in the README's first lines.
+   ask the harder question the chain was circling, and make it a programme (`PROGRAMMES.md`).
 3. **Use the track's slug prefix and theme.** The prefix starts the slug (`selfrep-closure`).
    The theme id goes in `_homepage/projects.json`. The first project in a track adds that theme,
    with a `--t-<id>` colour in both the light and dark blocks of `_homepage/template.html`.

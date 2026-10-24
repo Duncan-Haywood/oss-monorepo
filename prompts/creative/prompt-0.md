@@ -50,7 +50,7 @@ Any of these counts as the run's deliverable:
   (`goals.md`, "LLM docs and a marketing page"). Directory submissions
   (Apple, Spotify, YouTube, Podcast Index) are the owner's (README,
   "Publishing"); check `python3 portfolio/ledger/decision_queue.py` and ask
-  once at most, never in every run.
+  once at most; asking again every run only duplicates the queue.
 - **A podcast episode for a blog post** that has none (compare `docs/posts/`
   with `docs/podcast/`).
 
