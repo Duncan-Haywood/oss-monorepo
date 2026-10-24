@@ -38,5 +38,5 @@ kill_criteria:
   - Operators report that their existing rate sheet or booking software already prices delivery, labor, the generator, and insurance correctly, so the gap this tool corrects does not exist for them.
   - Operators report that entering a fleet's replacement value and an insurance rate is more friction than the flat per-unit guess it replaces.
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/bounce-house-rental-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/bounce-house-rental-calculator/
   analytics: null

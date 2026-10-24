@@ -11,7 +11,7 @@ taxes the urgent, who pay it themselves. A 10% misreading rate wipes out most of
 AI assistance (Claude). Track 17 (`society`, `PROJECTS.md`). Every result is about simulated agents following
 a stated rule, not real people or robots.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/society-fakeurgency/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/society-fakeurgency/
 
 ## Builds on
 

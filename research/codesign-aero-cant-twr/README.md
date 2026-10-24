@@ -2,7 +2,7 @@
 
 Follow-up to `codesign-aero-cant-propdata` (track 14, `codesign`), taking its next step "compare at equal cost with a larger propeller or a yaw-only motor upgrade". Here motor headroom (thrust-to-weight, TWR) is a design variable, so a no-cant quadcopter can buy yaw authority with bigger motors. Produced with AI assistance (Claude). **Simulated; c is sourced from measured data (UIUC Propeller Data Site, via the parent); the TWR range, cost, mass, motor and plant models are inherited or assumed.**
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/codesign-aero-cant-twr/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/codesign-aero-cant-twr/
 
 ![Held-out error of the four arms at three measured c values, per seed](experiments/twr.png)
 

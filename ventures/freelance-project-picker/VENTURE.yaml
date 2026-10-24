@@ -43,5 +43,5 @@ kill_criteria:
   - No freelancer reports using a decline or counter-offer number the tool produced within 90 days.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/freelance-project-picker/
+  production: https://duncan-haywood.github.io/oss-monorepo/freelance-project-picker/
   analytics: null

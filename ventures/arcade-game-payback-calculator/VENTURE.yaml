@@ -47,5 +47,5 @@ kill_criteria:
   - A report that the profit, payback or break-even arithmetic differs from the stated rules on the same inputs.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/arcade-game-payback-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/arcade-game-payback-calculator/
   analytics: null

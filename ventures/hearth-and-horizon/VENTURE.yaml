@@ -45,7 +45,7 @@ kill_criteria:
   - Audio hosting on GitHub Pages hits its bandwidth or repository-size limits and no free CC-friendly host (Internet Archive) can replace it.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/hearth-and-horizon/
+  production: https://duncan-haywood.github.io/oss-monorepo/hearth-and-horizon/
   analytics: null
 
 channel_notes: >-

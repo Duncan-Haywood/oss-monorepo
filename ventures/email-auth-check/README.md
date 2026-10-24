@@ -8,7 +8,7 @@ page) that looks up your domain's **SPF**, **DKIM**, **DMARC**, and **BIMI**
 DNS records over public DNS-over-HTTPS and reports what each one actually
 says and why it matters:
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/email-auth-check/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/email-auth-check/
 
 - **SPF** -- parses the record and **recursively follows every
   `include:`/`redirect=` mechanism**, summing the total against RFC 7208's

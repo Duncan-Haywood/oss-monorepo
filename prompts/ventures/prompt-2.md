@@ -29,8 +29,8 @@ add value, iOS and Android apps, and real business potential. Measured on
 no venture has a single measured visitor. That is not the brief. So:
 
 - **No calculator work** (owner, 2026-10-21, walking back the 2026-10-16
-  "principle, not a ban"): build no new calculators, and do not add
-  features, pages or consolidation to the 650+ that exist. Fix one only when
+  "principle, not a ban"): the owner wants no new calculators and no new
+  features, pages or consolidation for the 650+ that exist. Fix one when
   it is broken. Higher-value products are the work (`prompts/goals.md`,
   "Direction: depth over calculators").
 - **Run the near-copy check before you pick a niche.** Count the name

@@ -9,13 +9,15 @@ interruptions per hour**. Produced with AI assistance. **Stylised, simulated res
 every distribution is chosen by me, nothing is fitted to real conversations, and nothing is a
 claim about a real user, device or product.
 
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/ambient-cluster/
+
 **Headline.** With strongly clustered needs, an *episode-aware boost* (lower the threshold for a
 while after the user accepts help) raises recall by 0.04 (budget 1 false/h) to 0.05 (budget 4)
 over a plain threshold; a *cooldown* (stay quiet after speaking) costs recall at every setting
 tried, up to 0.07; a *back-off* after a dismissal is within noise or slightly negative. With no
 clustering nothing helps. The boost's gain is real but partly paid for in a slightly higher false rate (below).
 
-Live page: https://duncan-haywood.github.io/monorepo-projects/research/ambient-cluster/
+Live page: https://duncan-haywood.github.io/oss-monorepo/research/ambient-cluster/
 
 ## Builds on (and does not claim affiliation with)
 

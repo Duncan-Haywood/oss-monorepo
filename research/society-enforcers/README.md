@@ -13,7 +13,7 @@ tips sharply: 4% enforcers leave 95.5% of people cutting, 6% leave 18%. Produced
 (Claude). Next step 3 of `society-lineup`, milestone of research track 17 (`society`, `PROJECTS.md`).
 Every result is about simulated agents following a stated rule, not real people or robots.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/society-enforcers/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/society-enforcers/
 
 ## Why this question
 

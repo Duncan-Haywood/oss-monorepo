@@ -2,7 +2,7 @@
 
 Track 3 (LLM chip-design loops, `PROJECTS.md`). `chip-abc-orderpass` found that `opt_merge` shares `a + b` between two chains only for some operand orders, and that in one 16-bit carry-select adder the shared netlist was *larger* under two ABC scripts. This project asks whether that sign flip is typical. It builds 11 small designs whose outputs all contain `a + b` (with constants, with inputs, and with a mux), writes each once so `opt_merge` shares the sum and once so it cannot, and scores both under five ABC scripts. Chosen over another operand-order variant of `csel4` because that chain had reached micro-variants of one adder. Produced with AI assistance (Claude). Preliminary: one tool version, a generic-gate library, no place and route.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/chip-sharesign/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/chip-sharesign/
 
 **Builds on.** `chip-abc-orderpass`, `chip-abc-order` and `chip-abc-sweep` (same author, MIT): the flow wrapper (`flow.py`: score, miter equivalence, ABC scripts) is copied from them. Yosys and its integrated ABC (Brayton and Mishchenko, CAV 2010, LNCS 6174:24-40, <https://doi.org/10.1007/978-3-642-14295-6_5>, as cited in `chip-abc-sweep`; not re-read here). No connection to the CU Boulder groups in `prompt.md` is claimed.
 

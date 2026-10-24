@@ -56,5 +56,5 @@ kill_criteria:
   - A user reports a script injection, a vote counted twice for one visitor, or an admin action accepted without the key; escaping, vote and auth paths come before any new feature.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/feedback-board/
+  production: https://duncan-haywood.github.io/oss-monorepo/feedback-board/
   analytics: null

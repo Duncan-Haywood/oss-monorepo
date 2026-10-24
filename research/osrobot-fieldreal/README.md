@@ -2,7 +2,7 @@
 
 Follow-up to `osrobot-field` and `osrobot-fieldtour` (track 9, open-source purpose-built robots), in the direction of the ARPG, RECUV and Autonomous Systems IRT interest in field robots. Produced with AI assistance (Claude). Pure Python standard library. **Why this project:** `osrobot-field` ran on round numbers the author chose. This one replaces the three that a laser weeder's literature actually gives (swath, time per weed, kill rate) and sweeps the ones nothing gives, to see whether the earlier conclusion survives. **Inputs that are still assumed and not from a source:** detector hit rate (0.7) and motion-blur law, false-positive rate, mud share, energy per metre, beam-steering speed, 4 s turns. No robot was built or driven; simulation only.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/osrobot-fieldreal/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/osrobot-fieldreal/
 
 ![Area rate and kill share against travel speed](experiments/speed_vs_rate.svg)
 

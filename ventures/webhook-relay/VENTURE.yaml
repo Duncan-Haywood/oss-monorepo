@@ -55,5 +55,5 @@ kill_criteria:
   - A report of a lost or silently altered event; durability and byte-exact forwarding come before any new feature.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/webhook-relay/
+  production: https://duncan-haywood.github.io/oss-monorepo/webhook-relay/
   analytics: null

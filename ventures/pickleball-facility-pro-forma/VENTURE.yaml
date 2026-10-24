@@ -69,5 +69,5 @@ kill_criteria:
   - A user reports that the P&L, break-even or cash curve disagrees with a hand calculation from the same inputs.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/pickleball-facility-pro-forma/
+  production: https://duncan-haywood.github.io/oss-monorepo/pickleball-facility-pro-forma/
   analytics: null

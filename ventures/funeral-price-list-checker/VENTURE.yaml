@@ -48,5 +48,5 @@ kill_criteria:
   - No search impression for any funeral-pricing query within 90 days of indexing.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/funeral-price-list-checker/
+  production: https://duncan-haywood.github.io/oss-monorepo/funeral-price-list-checker/
   analytics: null

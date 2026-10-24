@@ -16,7 +16,7 @@ node cli.mjs rules                          # every rule and why it exists
 ```
 
 Browser page (pick a folder, nothing uploaded):
-<https://duncan-haywood.github.io/monorepo-projects/liability-audit/>.
+<https://duncan-haywood.github.io/oss-monorepo/liability-audit/>.
 Node 18+, no dependencies, no network.
 
 ## What it checks

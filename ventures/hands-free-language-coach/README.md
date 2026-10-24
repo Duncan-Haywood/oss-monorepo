@@ -5,7 +5,7 @@ or commute. It works like a language game (streaks, XP, levels, spaced
 review, sharing with friends), but every step is spoken and you answer out
 loud. No tapping, no reading, no screen.
 
-**Try it in your browser:** https://duncan-haywood.github.io/monorepo-projects/hands-free-language-coach/
+**Try it in your browser:** https://duncan-haywood.github.io/oss-monorepo/hands-free-language-coach/
 
 It ships in three forms, cheapest first:
 

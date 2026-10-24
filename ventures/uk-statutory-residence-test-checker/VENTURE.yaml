@@ -46,5 +46,5 @@ kill_criteria:
   - A report that a result differs from HMRC's guidance on the same inputs.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/uk-statutory-residence-test-checker/
+  production: https://duncan-haywood.github.io/oss-monorepo/uk-statutory-residence-test-checker/
   analytics: null

@@ -2,7 +2,7 @@
 
 Eighth step of track 8 (task-specific AI accelerators) in `PROJECTS.md`, and the "resolve the per-edge versus per-cycle reading of the OpenRAM figure" next step of `accel-pdkprice`. That project read the `clk0` `internal_power` of each OpenRAM SRAM macro as energy in pJ (10.4 to 89.5 pJ per access) and concluded that packing weights into SRAM words makes register-file weight-stationary (WS) lose to output-stationary (OS). This project reads the generator's source and finds the figure is **an average power in mW over one clock cycle**, so the energy is that value times a period the `.lib` does not state. The headline: the packed verdict is not robust, the unpacked one is.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/accel-pdkperiod/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/accel-pdkperiod/
 
 **Builds on.** `research/accel-pdkprice` (its `results.json`, copied to `data/` with a test that it still equals the original). Source read: OpenRAM (VLSIDA, BSD-3-Clause) `compiler/characterizer/{lib,delay,measurements,stimuli}.py` at commit `b2b069ce119d1488cbe6883b2240bceb5c7ce29a`, fetched not vendored. No lab in `prompt.md` works on this; no lab tag is claimed.
 

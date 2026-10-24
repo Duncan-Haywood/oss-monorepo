@@ -2,7 +2,7 @@
 
 A project of track 20, robots on the residential building site (`PROJECTS.md`). It does not extend the `buildbot-carry*` chain (which had gone to micro-variants of one speed ceiling) but asks a question [`buildbot-cost`](../buildbot-cost) left as a swept number: its "use" input (500 to 2,000 h/yr) hides the battery. Produced with AI assistance (Claude). Simulated and preliminary; no robot was tested.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/buildbot-shift/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/buildbot-shift/
 
 **Headline.** At the vendor's own "about 2 hours" (421.2 Wh pack, so about 211 W average), **one pack gets a G1 only 4.7 h of work out of an 8 h shift; two packs and one 270 W charger get 7.7 h**, and a third pack or a second charger adds nothing. The charger is the bottleneck once the robot draws about 300 W or more (a pack then runs 1.3 h and takes 1.6 h to refill): 3 packs for 7 h of work at 300 W, 4 at 400 W. Pack logistics change the `buildbot-cost` G1 break-even slowdown only from 2.42 to between 2.27 and 2.46, so **the battery is a scheduling detail, not what decides whether a humanoid pays**; it does put a G1 at about 1,200 to 1,900 h/yr, inside the cost sweep's range.
 

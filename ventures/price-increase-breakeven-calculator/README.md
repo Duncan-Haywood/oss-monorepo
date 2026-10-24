@@ -5,7 +5,7 @@ set the raise, and see per item how much volume you can lose before profit falls
 (elasticity) at which the raise stops paying, and which items can take it first. Browser page or
 zero-dependency CLI.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/price-increase-breakeven-calculator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/price-increase-breakeven-calculator/
 
 ```
 node cli.mjs analyze items.csv --increase 8

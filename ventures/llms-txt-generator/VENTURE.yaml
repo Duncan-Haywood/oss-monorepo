@@ -94,5 +94,5 @@ kill_criteria:
   - The llmstxt.org convention itself is abandoned or superseded by a materially different format before either of the above can be measured.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/llms-txt-generator/
+  production: https://duncan-haywood.github.io/oss-monorepo/llms-txt-generator/
   analytics: null

@@ -437,12 +437,14 @@ class RedteamTest(PromptTestCase):
                                      "candidate_share": 0}
         self.fx.routing(data)
 
-    def test_share_must_stay_between_five_and_ten_percent(self):
+    def test_share_outside_five_to_ten_percent_warns_but_validates(self):
         self._with_redteam(0.15)  # 0.15 / 2.15 = 7.0%
         self.assertEqual(promptctl.validate(self.fx.root), [])
+        self.assertIsNone(promptctl.redteam_band_warning(self.fx.root))
         for weight in (0.05, 0.5):  # 2.4% and 20%
             self._with_redteam(weight)
-            self.assertTrue(any("redteam is" in e for e in promptctl.validate(self.fx.root)))
+            self.assertEqual(promptctl.validate(self.fx.root), [])
+            self.assertIn("redteam is", promptctl.redteam_band_warning(self.fx.root))
 
     def test_redteam_records_are_checked_and_measured(self):
         self._with_redteam(0.15)

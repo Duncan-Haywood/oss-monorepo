@@ -2,7 +2,7 @@
 
 Follow-up to `osrobot-mjmodulus` (track 9, open-source purpose-built robots), taking its "Next steps" item in part: put bone behind the tissue. That project showed the half-space Hertz model is out of range at published 4 to 45 kPa face moduli. Here the tissue is a layer of thickness h bonded to rigid bone, using published bottom-effect corrections, and the question is the **force budget**: the force at which the tip has indented 30 % of the layer. In the direction of the CAIRO Lab interest in assistive robotics; nothing here is affiliated with or endorsed by it. Produced with AI assistance (Claude). Stdlib Python only. Closed-form contact models, not a finite-element run; **not a safety case**.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/osrobot-mjlayer/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/osrobot-mjlayer/
 
 ![Force budget against layer thickness](experiments/budget.svg)
 

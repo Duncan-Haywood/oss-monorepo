@@ -2,7 +2,7 @@
 
 numpy (the only dependency). **Free-choice project** (`PROJECTS.md`, "Picking work", step 1; draw 0.043). Why it seemed worth doing: the follow-up [`free-f32shadow`](../free-f32shadow) left a stated gap, "repeat with a contact system where float32 can change event order". A contact simulator solves "which surface do I hit next", and a rounding error can change that answer, which a smooth flow never does. Sim-to-real training increasingly runs float32 twins, so I wanted to know how soon float32 changes the event order and whether the averages a policy evaluation uses survive.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/free-f32bounce/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/free-f32bounce/
 
 ## Question
 
