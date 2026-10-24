@@ -91,8 +91,14 @@ run:
 COUNTER_URL=https://count.example.org node platform/counter/pull.mjs
 ```
 
-and commit `portfolio/usage/site-visits.json` with its other work. No
-workflow commits these counts unattended (`CLAUDE.md`, "Automation").
+and commit `portfolio/usage/site-visits.json` with its other work.
+
+**Live path (2026-10-24):** the deployed counter is the Cloudflare Worker in
+[`platform/edge/`](../edge/README.md), which runs `core.mjs`'s rules against D1
+and adds country, device and crawler breakdowns. The `site-usage-pull` workflow
+copies its counts into `portfolio/usage/site-visits.json` on `main` daily (the
+owner asked for that on 2026-10-20). The Node server here is the self-hosted
+alternative and is not deployed.
 
 ## Tests
 
