@@ -25,3 +25,16 @@ test("a keyword still wins over the bank's category, and money in is never guess
   assert.equal(suggest({ desc: "STARBUCKS 123", cents: -500, bankCat: "Travel" }, model).source, "built-in");
   assert.equal(suggest({ desc: "MYSTERY CO", cents: 5000, bankCat: "Travel" }, model).account, null);
 });
+
+test("Capital One, Discover and Chase fee, interest, fuel and travel labels map; broad ones do not", () => {
+  const model = { rules: [], codes: null, classifier: { n: 0 } };
+  const acct = (c) => suggest({ desc: "NOBODY KNOWS 9", cents: -1000, bankCat: c }, model).account;
+  assert.equal(acct("Fee/Interest Charge"), "6040");
+  assert.equal(acct("Fees & Adjustments"), "6010");
+  assert.equal(acct("Gas/Automotive"), "6160");
+  assert.equal(acct("Gasoline"), "6160");
+  assert.equal(acct("Other Travel"), "6120");
+  assert.equal(acct("Phone/Cable"), "6140");
+  assert.equal(acct("Home Improvement"), "6100");
+  for (const c of ["Shopping", "Merchandise", "Services", "Home", "Personal", "Miscellaneous", "Groceries"]) assert.equal(acct(c), null, c);
+});
