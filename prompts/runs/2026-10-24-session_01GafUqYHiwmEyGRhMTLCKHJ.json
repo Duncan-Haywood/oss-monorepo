@@ -1,0 +1,49 @@
+{
+  "date": "2026-10-24",
+  "session": "https://claude.ai/code/session_01GafUqYHiwmEyGRhMTLCKHJ",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-24T16:41:58Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/10174",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/process/prompt-1.md",
+      "issue": "Only owner rows open again; the friction table is mostly already-fixed entries, so finding a live one took many calls."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "No post or agent doc for a one-line doc fix; no time budget for it."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "No backlog ids touched (only owner rows open). Critique mode: reproduced node --test hang with a leaked server, verified --test-force-exit fixes it, documented in cloud-session.md. promptctl validate ok; unittest discover not run.",
+  "corrections": [],
+  "redteam": null
+}
