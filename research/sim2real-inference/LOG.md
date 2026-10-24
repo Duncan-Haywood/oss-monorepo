@@ -9,6 +9,14 @@ Newest first. Write the hypothesis and the planned analysis before running an ex
 - **H7c-iii (rho still predicts E):** Spearman(E, rho) > 0.9 and the over-pairs interval of |Spearman(E, rho)| - |Spearman(E, KS)| excludes 0. Refuted otherwise.
 - Not tested: real-robot or per-episode real pairs (gap 1), a certificate on an unbounded outcome (the floor and 3c-3f assume [0, 1]).
 
+### Outcome (21 cost pools, rho 0.60 to 0.94, 4,000 contexts each; `experiments/m7c_cost/results/`)
+- **H7c-i refuted on its first clause, and the substance is split by estimator.** Twin cost skewness is 1.89 (no-effect pair 1.85), below the 2 I pre-registered; the cost is right-skewed with a maximum of 22.3 against a mean of 0.35 but not as skewed as I guessed. Counting cv or ppi_pp, 18 of 21 pairs fall below 93.0% at n = 30, but all 18 are **ppi_pp** (worst 90.18%); the fitted-lambda **cv never falls below 93.0%** (min 93.32%, 0 of 21 pairs) and real-only is at worst 91.57%. At n = 60: cv min 94.35%, ppi_pp 91.65%. So on an unbounded cost the shortfall belongs to the fixed lambda = 1 estimator, not to pairing, which is the opposite of the pendulum where cv also failed on 15 of 21.
+- **H7c-ii supported.** 17 pairs have rho >= 0.75; all 17 have a variance-ratio lower bound >= 2; unpaired E is 0.948 to 0.971 on every pair; paired E is 1.44 to 5.16 (the four pairs under the bar have rho 0.60 to 0.72, E 1.44 to 1.80).
+- **H7c-iii refuted on both clauses.** Spearman(E, rho) = 0.884 (< 0.9), Spearman(E, KS) = -0.809, and the |rho| - |KS| interval is [-0.070, 0.299], which includes 0. With a heavy right tail, rho is no better a predictor of the pairing gain than distributional distance; the pendulum and score cart-pole margins do not carry over. Seven of 21 pairs have rho within 0.01 of 0.94 (ties limit rank correlations).
+- Limitations: one more outcome on the same plant, same model-versus-model pairs and swept magnitudes, no certificate tested on the unbounded outcome (the 3c-3f constructions and the floor assume [0, 1]); skewness is moderate, not extreme.
+- Reading: the pairing gain (H2) now replicates on three outcome/task combinations; the interval shortfall depends on the estimator (ppi_pp) and task, and the rho-as-predictor claim (H6) is not robust to a heavier-tailed outcome. The paper's H6 sentence needs this qualifier.
+- Next: per-episode real pairs (gap 1) remain.
+
 ## 2026-10-25 · Milestone 7b: paper draft updated with the cart-pole replication (no new experiment)
 - `paper/main.tex` gains a "second task" paragraph (H1 shortfall is task dependent; H2 and H6 replicate; the pre-registered 0.95 rank threshold missed at 0.909) and the limitations and conclusion now say two tasks. `reproduce.sh` lists the m7 commands. Remaining gaps: per-episode real pairs, an unbounded outcome.
 
