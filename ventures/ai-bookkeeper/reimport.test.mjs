@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { newBooks, importStatement } from "./engine.mjs";
+import { readStatement, rowIds } from "./bank.mjs";
 
 const a = "Date,Description,Amount\n2026-03-02,STARBUCKS #1234  SEATTLE WA,-4.50\n2026-03-02,Starbucks #1234 Seattle WA,-4.50\n2026-03-03,Rent,-1000.00\n";
 const b = "Date,Description,Amount\n2026-03-02,\"Starbucks #1234 Seattle, WA\",-4.50\n2026-03-03,RENT,-1000.00\n2026-03-04,Payroll,2000.00\n";
@@ -19,7 +20,11 @@ test("two identical coffees in one file stay two lines", () => {
 });
 
 test("ids from before the change still dedupe", () => {
+  // Books written before loose ids stored the exact-text id; rebuild them that way.
   const r1 = importStatement(newBooks(), a, "1000");
+  const exact = rowIds(readStatement(a).rows, "1000");
+  r1.books.transactions.forEach((t, i) => { t.id = exact[i]; });
+  assert.notDeepEqual(exact, rowIds(readStatement(a).rows, "1000", { loose: true }));
   assert.equal(importStatement(r1.books, a, "1000").added, 0);
 });
 

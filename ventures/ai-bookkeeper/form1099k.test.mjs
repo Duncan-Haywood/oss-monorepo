@@ -2,7 +2,8 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { newBooks, importStatement } from "./engine.mjs";
 import { readPayoutReport, planPayouts, applyPayouts } from "./payouts.mjs";
-import { reconcile1099K, reportable1099K } from "./form1099k.mjs";
+import { reconcile1099K, reportable1099K, defaultProcessor } from "./form1099k.mjs";
+import { readFileSync } from "node:fs";
 
 const HEAD = "automatic_payout_id,automatic_payout_effective_at,balance_transaction_id,created,reporting_category,gross,fee,net,description";
 const REPORT = `${HEAD}
@@ -80,4 +81,13 @@ test("card processors report at any size; marketplaces only above $20,000 and 20
   const big = readPayoutReport(`${HEAD}\n${rows}\n`);
   assert.equal(reportable1099K(big, 2026, { processor: "marketplace" }).reportable, true);
   assert.throws(() => reportable1099K(big, 2026, { processor: "x" }));
+});
+
+test("a marketplace or wallet report defaults to the $20,000 and 200 rule, a card processor's to no minimum", () => {
+  const fx = (f) => readPayoutReport(readFileSync(new URL(`./fixtures/${f}`, import.meta.url), "utf8"));
+  assert.equal(defaultProcessor(fx("paypal-activity.csv")), "marketplace");
+  assert.equal(defaultProcessor(fx("etsy-ledger.csv")), "marketplace");
+  assert.equal(defaultProcessor(fx("airbnb-transactions.csv")), "marketplace");
+  assert.equal(defaultProcessor(fx("stripe-payouts.csv")), "card");
+  assert.equal(defaultProcessor(rep()), "card");
 });
