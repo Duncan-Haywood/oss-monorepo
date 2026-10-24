@@ -53,5 +53,5 @@ kill_criteria:
   - A crop insurance agent reports that a worked indemnity disagrees with the RMA rules for RP, RP-HPE or YP fed the same APH, prices and yield.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/crop-insurance-coverage-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/crop-insurance-coverage-calculator/
   analytics: null

@@ -51,5 +51,5 @@ kill_criteria:
   - Truckers report that mileage-use amended returns or credits for sold vehicles are the common need, at which point the tool should model it.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/form-2290-hvut-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/form-2290-hvut-calculator/
   analytics: null

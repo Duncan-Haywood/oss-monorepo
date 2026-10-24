@@ -32,5 +32,5 @@ kill_criteria:
   - No unsolicited feedback, star, fork, or referral within 90 days of publishing.
   - Operators report that typing a menu in by hand is more work than the classification is worth, and that they would only use this if it read their POS export directly.
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/menu-engineering-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/menu-engineering-calculator/
   analytics: null

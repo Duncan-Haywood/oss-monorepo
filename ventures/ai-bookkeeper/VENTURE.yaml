@@ -71,5 +71,5 @@ kill_criteria:
   - A user reports a real bank export the tool cannot read, or books that do not reconcile when every line is filed, at which point the parser or the engine needs revisiting before anything else.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/ai-bookkeeper/
+  production: https://duncan-haywood.github.io/oss-monorepo/ai-bookkeeper/
   analytics: null

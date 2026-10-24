@@ -53,5 +53,5 @@ kill_criteria:
   - A customs broker or forwarder reports that the arithmetic disagrees with a real invoice computed from the same tariff.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/container-demurrage-detention-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/container-demurrage-detention-calculator/
   analytics: null

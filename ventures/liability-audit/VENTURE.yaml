@@ -50,5 +50,5 @@ kill_criteria:
   - No external repository is found running the CLI in CI within 120 days.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/liability-audit/
+  production: https://duncan-haywood.github.io/oss-monorepo/liability-audit/
   analytics: null

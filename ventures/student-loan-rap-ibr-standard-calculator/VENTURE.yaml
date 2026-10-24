@@ -51,5 +51,5 @@ kill_criteria:
   - A user reports that a figure disagrees with the same inputs done by hand or with the Department of Education estimator.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/student-loan-rap-ibr-standard-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/student-loan-rap-ibr-standard-calculator/
   analytics: null

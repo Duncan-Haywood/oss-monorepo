@@ -50,5 +50,5 @@ kill_criteria:
   - A report that the profit or lease-total arithmetic differs from the stated rules on the same inputs.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/str-arbitrage-lease-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/str-arbitrage-lease-calculator/
   analytics: null

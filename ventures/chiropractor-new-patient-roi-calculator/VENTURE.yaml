@@ -50,5 +50,5 @@ kill_criteria:
   - A user reports the model omits a cost every clinic carries, at which point the model needs review.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/chiropractor-new-patient-roi-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/chiropractor-new-patient-roi-calculator/
   analytics: null

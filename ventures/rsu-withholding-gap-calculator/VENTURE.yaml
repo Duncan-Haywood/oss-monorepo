@@ -60,5 +60,5 @@ kill_criteria:
   - A user reports a real vest whose withholding or tax the tool contradicts on a point of arithmetic.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/rsu-withholding-gap-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/rsu-withholding-gap-calculator/
   analytics: null

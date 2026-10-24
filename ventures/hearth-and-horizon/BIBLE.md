@@ -135,6 +135,7 @@ introduces a dated fact.
 | 2051 | Casal da Eira (invented), Serra da Lousã, Portugal: 11 houses, 9 ha of gorse last burned 2044; prescribed burn Wed 8 Nov (Magusto Sat 11 Nov); fuel 1 kg/m2, 60% consumed, 18,000 kJ/kg; backing fire 0.3 m/min = 54 kW/m, flame 0.5 m; head fire 2 m/min = 360 kW/m (1.2 m), 8 m/min = 1,440 kW/m (2.2 m); 50 m x 600 m strip (3 ha) finished by 13:20 because the ridge easterly arrives about 13:30, earlier than the model's 14:30; goats (140) take the rest; burn boss Rosário Teles, goatherd Amélia Fonseca, fire AI Candeia, Pe. Rui | *The Black Strip* |
 | 2048 | Barangay San Roque de Dalig (invented), Nueva Ecija, Philippines: 212 ha enrolled in alternate wetting and drying (re-flood at 15 cm below surface; no drying a week either side of flowering); credit $18/t, $24/t if 80% (169.6 ha) dry on both radar passes (Thu 10 and Wed 16 Sep), about 254 t so the tier is worth about $1,524, the chapel roof; Ernesto Dizon's 1.4 ha transplanted 16 Jul (11 days late, wife Lourdes died Fri 3 Jul, Pasiyam to 12 Jul) flowers about Sun 13 Sep; dry area 168.9 ha without his field vs 170.3 with; clause 9.4 deferral drops it from both counts (210.6 ha, 80% = 168.5), payment delayed 45 days; treasurer Marites Ocampo, Rey, Fr Danilo, Gemma, reviewer Adaeze Okonkwo, water AI Pantay | *The Late Field* |
 | 2050 | Canal Quilque, Chiloé, Chile (invented Puerto Lleuque, Isla Huildad, Isla Chaullín): electric ferry *Candelaria* (38 m, second-life 150 kWh pack, 122 kWh usable at 4 C, 30 kWh reserve; 150 kW at 9 kn, 18 kW hotel; 6 nmi); Fri 15 July, table slack 17:10 but the river in spate makes it about 17:50; plan 8 kn (91 of 92 kWh) corrected at 17:15 to 6.5 kn (about 86 kWh, 17:51); front forecast 18:00 arrives about 17:40, docking limit 25 kn; pilot Elba Barría, ferry AI Marea, dispatcher Soledad Pavez, Padre Gonzalo Haro, fiscal Aníbal Cárcamo, Javiera Gallardo, Rosa and Bernabé Mansilla (Chaullín not called) | *The Late Ebb* |
+| 2055 | Char Nolbaria (invented), Jamuna river, northern Bangladesh: 14 households, island about 6 km x 1 km, raised plinth (killa) holding about 200 cattle, about 40 h of river from the gauge; flood-warning agent (name not given) sent 90% windows of 9 h either side of its best guess, which held 12 of 20 floods (P of 12 or fewer in 20 at 90% is about 0.0004); the 18th-smallest error is 21 h, so an honest window is 21 h either side; cause: a shifted channel; fix: two lines (cattle at the early edge, people by the late edge); flood warden Sajal Mondol, Sister Shefali Gomes | *The Narrow Window* |
 
 Little Lamps is set in history (Lima, about 1610 for *Brother Martin*) and is
 not on this timeline.
@@ -222,6 +223,7 @@ numbers worked out before drafting.
 
 **For Other Minds**
 
+- *(Done: The Narrow Window, Char Nolbaria, 2055; text only.)* A flood-warning agent finds its 90% windows hold 60% of floods, and a village that cannot afford to move twice.
 - *(Done: The Last Message in the Window, Kerala, 2064.)* An agent running out of context decides what
   goes into its handoff.
 - *(Done: The Grader, 2058.)* An evaluator model finds that the test it was given

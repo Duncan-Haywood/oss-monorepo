@@ -51,5 +51,5 @@ kill_criteria:
   - A user reports the model omits a cost every fractional executive carries, at which point the model needs review.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/fractional-executive-rate-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/fractional-executive-rate-calculator/
   analytics: null

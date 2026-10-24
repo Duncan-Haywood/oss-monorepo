@@ -71,5 +71,5 @@ kill_criteria:
   - A user reports a materially wrong rate or deduction, or lost trips to browser storage clearing, at which point the rate table or the backup prompting needs revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/mileage-log/
+  production: https://duncan-haywood.github.io/oss-monorepo/mileage-log/
   analytics: null

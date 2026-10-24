@@ -45,5 +45,5 @@ kill_criteria:
   - A user reports a preset fee as wrong and fee drift makes the presets more work to maintain than the page earns.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/music-distribution-fee-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/music-distribution-fee-calculator/
   analytics: null

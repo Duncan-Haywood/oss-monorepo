@@ -65,5 +65,5 @@ kill_criteria:
   - Fewer than three distinct users export drafts within 90 days of the tool being reachable from the published site.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/interview-content-studio/
+  production: https://duncan-haywood.github.io/oss-monorepo/interview-content-studio/
   analytics: null
