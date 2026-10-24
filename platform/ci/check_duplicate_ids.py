@@ -46,7 +46,10 @@ def duplicates(html):
 
 def scan(root=ROOT):
     bad = []
-    for f in sorted((root / "ventures").glob("*/*.html")):
+    # Nested pages (site/, tools/) are served too; vendored trees are not ours.
+    for f in sorted((root / "ventures").rglob("*.html")):
+        if "node_modules" in f.parts:
+            continue
         for line, i, first in duplicates(f.read_text(encoding="utf-8", errors="ignore")):
             bad.append((f.relative_to(root), line, i, first))
     return bad
