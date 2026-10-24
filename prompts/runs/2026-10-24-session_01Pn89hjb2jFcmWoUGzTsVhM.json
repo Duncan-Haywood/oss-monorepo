@@ -17,7 +17,7 @@
   "tool_calls": null,
   "task": null,
   "projects": [],
-  "pr": null,
+  "pr": 10028,
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -26,14 +26,16 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": null,
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [],
   "deviations": [],
-  "writeups": [],
+  "writeups": [
+    "docs/posts/2026-10-24-new-york-sales-tax-quarters-are-not-calendar-quarters.md"
+  ],
   "goal": null,
-  "notes": "",
+  "notes": "Flagship 1 (ai-bookkeeper) slice: NY/IL/PA due dates checked via search excerpts; warning for NY quarterly and PA annual. salestaxreturn tests 8/8. No agent doc written; the 2027 IRS revenue procedure is still unpublished. Full CI not run locally.",
   "corrections": [],
   "redteam": null
 }
