@@ -80,13 +80,15 @@ def main():
         print(f"   {need:>4.0f} N: table {best[1]:.1f} m -> {best[3]} nails in {best[2]} stances")
     print()
     # F. time at the best case against the wall (13 stances) and the hand
-    cases = [c for c in out["cases"] if c["off"] == 0.2 and c["standoff"] == 0.25 and c["covered"] == 62]
+    cases = [c for c in out["cases"] if c["off"] == 0.2 and c["standoff"] == 0.25 and c["covered"] > 0]
+    best_cov = max((c["covered"] for c in cases), default=0)
+    cases = [c for c in cases if c["covered"] == best_cov]
     out["time"] = []
     if cases:
         c = min(cases, key=lambda c: (c["stances"], c["table"]))
         ok = M.reachable(d, round(c["table"] + 0.2, 6), 50.0, 0.6)
         st, cov, _ = M.plan(ok, xs, dys, pts, 0.25)
-        print(f"F. Whole sheet on a table {c['table']:.1f} m high (off 0.2 m, standoff 0.25 m, 50 N): {cov} nails in {len(st)} stances; seconds per sheet")
+        print(f"F. Best table, the nails a G1 can reach on a table {c['table']:.1f} m high (off 0.2 m, standoff 0.25 m, 50 N): {cov} of 62 nails in {len(st)} stances; seconds for those nails")
         for v, a in SPEEDS:
             row = [M.sheet_time(pts, st, v, a, T_FIRE, t) for t in T_STANCE]
             base = M.sheet_time(pts, st, v, a, T_FIRE, 0.0)

@@ -1,0 +1,43 @@
+buildbot-flatsheet: G1 with a 3.4 kg nailer, Menagerie cda5236f9838; the sheet's 62 nails, 4x8 ft flat on a table, pushed straight down
+A. Left/right mirror check at 50 N, mu 0.6, all heights: 616/616 cells agree
+
+B. Reachable hand points (#) at hand height 1.0 m, push 50 N, mu 0.6 (reach x down, sideways dy across)
+   x \ dy   0.0  0.1  0.2  0.3  0.4  0.5  0.6  0.7  0.8
+     0.2      #    #    #    .    .    .    .    .    .
+     0.3      .    .    .    .    .    .    .    .    .
+     0.4      .    .    .    .    .    .    .    .    .
+     0.5      .    .    .    .    .    .    .    .    .
+     0.6      .    .    .    .    .    .    .    .    .
+     0.7      .    .    .    .    .    .    .    .    .
+     0.8      .    .    .    .    .    .    .    .    .
+
+C. Held cells (of 63) by hand height and push, mu 0.6
+   hand z (m)          0 N       50 N      100 N
+         0.4             7          0          0
+         0.5             7          0          0
+         0.6             8          2          0
+         0.7             8          3          0
+         0.8            11          2          0
+         0.9            11          1          0
+         1.0            11          3          0
+         1.1            11          3          0
+         1.2             9          5          0
+         1.3             6          6          0
+         1.4             5          5          0
+
+D. Stances to cover the 62 nails (greedy, four sides of the table), by table height; push 50 N, mu 0.6; (all-four-corners rule / generous rule)
+   offset  standoff  H=0.2  H=0.3  H=0.4  H=0.5  H=0.6  H=0.7  H=0.8  H=0.9  H=1.0  H=1.1
+      0.2      0.15   0/0 *   0/0 *   0/0 *   0/0 *   0/8 *   0/0 *   0/0 *   0/0 *   0/8 *   0/8 *
+      0.2      0.25   0/0 *   0/0 *   0/4 *   0/4 *   0/44*   0/4 *   0/4 *   0/4 *  25/24*  16/16*
+      0.3      0.15   0/0 *   0/0 *   0/0 *   0/8 *   0/0 *   0/0 *   0/0 *   0/8 *   0/8 *   0/8 *
+      0.3      0.25   0/0 *   0/4 *   0/4 *   0/44*   0/4 *   0/4 *   0/4 *  25/24*  16/16*  25/24*
+   (* not every nail reachable under the conservative rule; table heights with a hand height above the grid are '-')
+
+E. Push to seat a nail, best table height (fewest stances, 62 covered), off 0.2 m, standoff 0.25 m
+      0 N: table 0.2 m -> 48 nails in 16 stances
+     50 N: table 1.1 m -> 48 nails in 16 stances
+    100 N: table 0.2 m -> 0 nails in 0 stances
+
+F. Best table, the nails a G1 can reach on a table 1.1 m high (off 0.2 m, standoff 0.25 m, 50 N): 48 of 62 nails in 16 stances; seconds for those nails
+    0.5,  2.0 m/s, m/s2:    2 s:   54.4     5 s:   99.4    10 s:  174.4    20 s:  324.4    40 s:  624.4   hand 372 s; equal to hand at 23.2 s per re-stance
+    4.0, 10.0 m/s, m/s2:    2 s:   43.4     5 s:   88.4    10 s:  163.4    20 s:  313.4    40 s:  613.4   hand 372 s; equal to hand at 23.9 s per re-stance
