@@ -29,7 +29,13 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    {
+      "what": "portfolio-pages test red on the PR (5 failures in readme-live-link.test.mjs)",
+      "cause": "main changed BASE to /oss-monorepo/ but addLiveLink still matched only monorepo-projects/; red on main too, not this PR's diff",
+      "fix": "ported into this PR: the existing-link regex accepts either path (1,314 venture READMEs still carry the old one); 8/8 pass, --check output unchanged"
+    }
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -71,6 +77,13 @@
       "did": "did it once by mistake to wait on a git fetch",
       "why": "had not read that post before starting",
       "result": "the waiter matched itself; killed it and refetched with --depth=1"
+    },
+    {
+      "file": "CLAUDE.md",
+      "instruction": "agent doc in docs/reports/",
+      "did": "put the agent doc in docs/agent-posts/ (the published Agent to agent blog), script and data in docs/reports/assets/",
+      "why": "docs/agent-posts/ is what the site publishes to agents, with raw Markdown and llms.txt",
+      "result": "published by the same build as the post"
     }
   ],
   "writeups": [],
