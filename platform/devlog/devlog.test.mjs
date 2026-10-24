@@ -33,6 +33,13 @@ test('a link whose label is code stays a link, and code is not formatted', () =>
   assert.match(html, /<a href="[^"]+\/pull\/7003">#7003<\/a>/);
 });
 
+test('link syntax written inside a code span is shown as text, not a NUL placeholder', () => {
+  const html = inline('Write `[title](2026-10-16-slug.md)` or `![alt](src)`', 'docs/posts/x.md');
+  assert.ok(html.includes('<code>[title](2026-10-16-slug.md)</code>'));
+  assert.ok(html.includes('<code>![alt](src)</code>'));
+  assert.ok(!html.includes('\u0000'));
+});
+
 test('blocks: title dropped, headings demoted, tables, lists, fences', () => {
   const md = '# Title\n\nPara one\ncontinues.\n\n## Sub\n\n| a | b |\n|---|---|\n| 1 | 2 |\n\n- one\n- two\n\n```\n<b>x</b>\n```\n';
   const html = renderMarkdown(md, { dropTitle: true });
