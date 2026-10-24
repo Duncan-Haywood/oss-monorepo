@@ -137,6 +137,15 @@ dangerous direction too (it took "we'd prefer not to receive further emails"
 for an objection), so it only suggests. Whether a model on the user's key
 closes the gap is the next measurement (`eval/model.mjs`, ROADMAP M2).
 
+### Real mail clients, quote stripping (2026-10-24)
+
+On 11 real emails from GitHub's `email_reply_parser` fixtures (MIT;
+[`eval/real-threads/`](eval/real-threads/README.md)) the old quote stripper read
+5 right. It dropped replies typed under the quote (a bottom-posted "please remove
+me" would have vanished), kept a wrapped "On ... wrote:" line and an Outlook
+`*From:*` history. All 11 read right after the fix. Not sales replies and a small
+sample: a regression floor, not an accuracy figure.
+
 ### Call prep and follow-up, measured
 
 On labelled call notes (`eval/calls.mjs`): follow-up line sorting read 32 of 44
