@@ -61,7 +61,9 @@ process list for the script's own name: it matches itself and never ends.
   (over 10 min in a shallow clone)
 - `node --test` over a whole venture (changepoint-detector alone: 280-400 s;
     Node 22 rejects `node --test .` with "Could not find '.'": run
-    `cd ventures/<slug> && node --test '*.test.mjs'`)
+    `cd ventures/<slug> && node --test '*.test.mjs'`; add `--test-force-exit`:
+    a failing test that leaks a fake SMTP/HTTP server otherwise hangs until the
+    tool timeout, and with the flag it exits 1 in under a second)
     and `node platform/pages/venture-preflight.mjs <slug>` (over 5 min)
 - browser evals such as `ventures/ai-bookkeeper/eval/browser-click.mjs`
   (a foreground 110 s timeout killed one)
