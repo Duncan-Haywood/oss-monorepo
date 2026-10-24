@@ -1,7 +1,7 @@
 ---
 title: "A critical-path scheduler for a house build, running in your browser"
 date: 2026-10-24
-description: "The wall-framing takeoff now has a build schedule card: paste your activities, get the critical path, crew levelling and what a slipped inspection does to the finish date."
+description: "The wall-framing takeoff has a build schedule card: paste activities, get the critical path, crew levelling and what a slipped inspection does to the finish."
 tags: [construction, scheduling, open-source]
 ---
 
