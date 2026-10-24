@@ -614,6 +614,16 @@ The OpenPEPPOL `peppol-bis-invoice-3` examples (9 UBL files), the ZUGFeRD commun
 
 After: the 9 Peppol examples draw only placeholder-data findings (fake VAT ids, IBANs, GLNs; INV-034 where the example credit note names itself "Snippet1"); XRechnung corpus 8 of 51 clean (INV-032, 048, 028 gone); the rest are placeholders (INV-023 34 files), 7 files whose line net is not quantity times price (true, e.g. 20 x 2.77 stated as 55.46) and style notes. A negative invoice is not valid in every country's rules; this tool only stops calling it arithmetic nonsense.
 
+## Measured on the ZUGFeRD corpus PDFs (2026-10-29)
+
+`node eval/facturx-corpus.mjs <ZUGFeRD/corpus checkout>` unwraps every PDF in the corpus with `facturx.mjs` and runs the built-in rules on the embedded XML (the files are read, not copied). Before: of 126 PDFs in the corpus's `correct` folders, **only 40 unwrapped** and 5 were clean. Three faults, all ours:
+
+- The invoice sniff looked at the first 4,096 bytes of the attachment. The official ZUGFeRD samples open with a licence comment of over 5 KB, so the root element was out of range and 59 valid PDFs were refused as "no UBL or CrossIndustryInvoice". Comments are now dropped before sniffing (`facturx.test.mjs`).
+- One attachment that would not inflate (a report PDF, a mis-sliced stream) aborted the whole read, 5 files. It is now skipped; the error is raised only when no attachment is usable.
+- MINIMUM and BASIC WL carry totals and no lines by design, so INV-007, 014, 018 and 038 fired on all of them. They are skipped when `specification_id` ends in `minimum` or `basicwl` and there are no lines; MINIMUM also has no prepaid field, so INV-029 (amount due vs gross) is skipped there (`negative-invoice.test.mjs`).
+
+After: 104 of 126 unwrap, 18 are clean. The 24 ZUGFeRD 1.0 files and one unstructured PDF remain refused (1.0 uses the older `CrossIndustryDocument`; the message now says so) and one has no attachment. What is left is real or placeholder data: INV-023 (placeholder VAT ids, 72 files), INV-005 (no buyer id, a style note), INV-012 (e.g. 20 x 2.77 stated as 55.46), INV-021 (the BASIC WL sample is dated 2019 with a 2017 due date), INV-024 (11 files, placeholder IBANs). Open: the EXTENDED "Warenrechnung" samples draw INV-014/018/038 with header allowances (basis amounts -5.10 against actual 5.60); not yet traced to the sample or to our allowance handling. The corpus's `fail` folders hold files failing for PDF/A or XSD reasons we do not check, so findings there prove nothing either way.
+
 ## Privacy and usage
 
 Everything is local. Invoice contents are never uploaded or retained by this

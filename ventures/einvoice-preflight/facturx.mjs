@@ -44,12 +44,20 @@ export async function extractEmbeddedInvoice(source) {
     );
   }
   const attachments = [];
+  let inflateError = null;
   for (const attachment of embeddedFiles(data)) {
-    attachments.push({
-      name: attachment.name,
-      payload: attachment.flate ? await inflateZlib(attachment.payload) : attachment.payload,
-    });
+    // A PDF can carry other attachments (a report, a picture) that this reader
+    // cannot inflate; they must not hide an invoice that reads fine.
+    try {
+      attachments.push({
+        name: attachment.name,
+        payload: attachment.flate ? await inflateZlib(attachment.payload) : attachment.payload,
+      });
+    } catch (error) {
+      inflateError ||= error;
+    }
   }
+  if (attachments.length === 0 && inflateError) throw inflateError;
   if (attachments.length === 0) {
     throw new Error(
       "This PDF has no embedded invoice file. Factur-X, ZUGFeRD, and XRechnung PDFs carry factur-x.xml, zugferd-invoice.xml, or xrechnung.xml as an attachment. A scanned paper PDF is not an e-invoice.",
@@ -58,7 +66,7 @@ export async function extractEmbeddedInvoice(source) {
   const chosen = preferInvoiceAttachment(attachments);
   if (!chosen) {
     throw new Error(
-      "This PDF has embedded files, but none of them is UBL or CrossIndustryInvoice XML.",
+      "This PDF has embedded files, but none of them is UBL or CrossIndustryInvoice XML. (ZUGFeRD 1.0 files use an older CrossIndustryDocument layout that this tool does not read.)",
     );
   }
   return { payload: chosen.payload, label: safeAttachmentLabel(chosen.name) };
@@ -244,7 +252,9 @@ function preferInvoiceAttachment(attachments) {
 }
 
 function looksLikeInvoiceXml(data) {
-  const head = LATIN1.decode(data.subarray(0, 4096));
+  // Official ZUGFeRD samples open with a licence comment of several KB, which
+  // pushes the root element past any fixed window: drop comments first.
+  const head = LATIN1.decode(data.subarray(0, 262144)).replace(/<!--[\s\S]*?-->/g, "").slice(0, 4096);
   return (
     head.includes("urn:oasis:names:specification:ubl:schema:xsd:Invoice-2")
     || head.includes("urn:oasis:names:specification:ubl:schema:xsd:CreditNote-2")
