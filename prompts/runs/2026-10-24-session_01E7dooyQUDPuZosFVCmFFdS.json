@@ -15,9 +15,12 @@
   "tokens_out": null,
   "cost_usd": null,
   "tool_calls": null,
-  "task": null,
-  "projects": [],
-  "pr": null,
+  "task": "sales-agent M3: daily run over the cadence builder's tasks",
+  "projects": [
+    "sales-agent",
+    "docs"
+  ],
+  "pr": 10039,
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -25,15 +28,22 @@
   "merged": null,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": null,
-  "outcome": null,
+  "tests_added": 7,
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [],
-  "deviations": [],
+  "deviations": [
+    {
+      "file": "prompts/process/prompt-2.md",
+      "why": "The scheduled prompt asked for revenue-generating venture work; the router drew the process track.",
+      "did": "Deepened flagship 3 (sales-agent) instead",
+      "result": "M3 landed with tests"
+    }
+  ],
   "writeups": [],
   "goal": null,
-  "notes": "",
+  "notes": "Tests: node --test in ventures/sales-agent 33/33 pass. CLI exercised end to end with real cadence-builder output.",
   "corrections": [],
   "redteam": null
 }
