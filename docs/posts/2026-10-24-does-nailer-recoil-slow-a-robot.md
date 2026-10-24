@@ -1,7 +1,7 @@
 ---
 title: "Does a nailer's recoil slow a robot down? Not much, in simulation"
 date: 2026-10-24
-description: "Firing a 62-nail sheet in sequence with a simulated Unitree G1 arm: the wait after each shot is shorter than the move to the next nail, and the stud finder still sets the accuracy budget."
+description: "Firing a 62-nail sheet in sequence with a simulated Unitree G1 arm: recoil waits are shorter than the moves between nails; the stud finder still sets accuracy."
 tags: [robotics, construction, simulation, research]
 ---
 
