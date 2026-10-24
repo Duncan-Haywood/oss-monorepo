@@ -32,10 +32,7 @@
   "doc_friction": [],
   "deviations": [],
   "writeups": [
-    {
-      "file": "ventures/ai-bookkeeper/README.md",
-      "note": "Verification section: mutation fuzz subsection"
-    }
+    "ventures/ai-bookkeeper/README.md"
   ],
   "goal": null,
   "notes": "Explore idea: seeded mutation fuzz of readStatement over all fixtures. Two HTML/JS sweeps first (lang/viewport/alt, inline script syntax over 1295 pages) were clean. Fuzz found one fault (sepa.mjs cents() unsafe integers), fixed. No agent doc/post written; the write-up is the README subsection. Local checks only (node --test), CI not awaited.",
