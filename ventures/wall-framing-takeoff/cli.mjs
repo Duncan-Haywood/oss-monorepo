@@ -10,6 +10,7 @@ import { layoutRoof, roofCuts, roofText } from "./roof.mjs";
 import { resolveHeaders, headerText } from "./headers.mjs";
 import { drawingSetHtml } from "./drawings.mjs";
 import { panelOrder, panelOrderText, panelPullText } from "./panels.mjs";
+import { budget, budgetText } from "./budget.mjs";
 import { takeoff, samplePlan, toCsv, formatLength, formatInches, parseLength } from "./engine.mjs";
 
 const HELP = `wall-framing-takeoff: stud layout, cut list and the cheapest lumber order for a set of walls
@@ -29,6 +30,7 @@ Usage:
   node cli.mjs plan.json --floor     add the plan's floor (joists, rim, blocking, subfloor sheets); its lumber joins the order
   node cli.mjs plan.json --roof      add the plan's gable roof, or hip roof with shape "hip" (rafters, ridge, sheathing, shingle and felt quantities); its lumber joins the order
   node cli.mjs plan.json --foundation  add the plan's foundation (footing, stem wall and slab concrete, trucks, rebar, forms, gravel, vapor barrier)
+  node cli.mjs plan.json --budget    price the quantities with the plan's own "prices" (sheets, bundles, concrete, rebar...); lumber uses the stock prices; anything without a price is listed, not guessed
   node cli.mjs plan.json --drawings   printable HTML shop drawings, one sheet per wall (marked members, dimensions, parts table)
   node cli.mjs plan.json --headers  size headers from the plan's own headerTable ({upTo, header, plies?} rows from your span table; an opening with "header": "auto" takes the first row that covers it) and list hand-picked ones the table says are too light
   node cli.mjs --example            print the example plan (an invented 40 x 28 ft ranch) to start from
@@ -124,6 +126,7 @@ export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "u
     return { code: 0, out: flags.has("--json") ? JSON.stringify(po, null, 2) : [...panelOrderText(po), ...(flags.has("--pull-lists") ? ["", ...panelPullText(po)] : [])].join("\n") };
   }
   if (flags.has("--drawings") || panelMax > 0) return { code: 0, out: drawingSetHtml(r, plan, { panelMax, sheathPsf }).trimEnd() };
+  if (flags.has("--budget") && flags.has("--json")) return { code: 0, out: JSON.stringify(budget(r, plan.prices || {}), null, 2) };
   if (flags.has("--json")) return { code: 0, out: JSON.stringify(r, null, 2) };
   if (flags.has("--csv")) return { code: 0, out: toCsv(r).trimEnd() };
   const s = r.summary;
@@ -148,6 +151,7 @@ export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "u
   if (r.floor) lines.push("", "FLOOR", ...floorText(r.floor));
   if (r.foundation) lines.push("", "FOUNDATION", ...foundationText(r.foundation));
   if (r.roof) lines.push("", "ROOF", ...roofText(r.roof));
+  if (flags.has("--budget")) lines.push("", "BUDGET", ...budgetText(budget(r, plan.prices || {})));
   if (headers && (flags.has("--headers") || headers.notes.length)) lines.push("", "HEADERS", ...headerText(headers));
   if (r.notes.length) lines.push("", "NOTES", ...r.notes.map((n) => `  - ${n}`));
   lines.push("", "Header sizes and jack counts are your inputs and are not checked against a span table or code.");

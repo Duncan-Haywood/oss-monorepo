@@ -1,0 +1,92 @@
+// @ts-check
+// A budget that ties every line to the model: the quantities the takeoff
+// already computed (boards, sheets, bundles, cubic yards, pounds) times the
+// builder's own unit prices. The tool ships no prices. A quantity with no price
+// typed for it is listed as unpriced and left out of the total; it is never
+// filled with a guess. Lumber is priced from the plan's `stock` prices (the
+// same prices the cutting-stock order minimises), so a lumber line is the
+// order's cost, not a second estimate.
+//
+// Plan `prices` (all optional, dollars): { wallSheet, floorSheet, roofSheet,
+// truss, shingleBundle, underlaymentRoll, dripEdgePiece, ridgeBundle,
+// starterBundle, concreteYd, rebarLb, formPlywoodSheet, gravelYd,
+// vaporBarrierSqFt, tax (fraction on materials), contingency (fraction) }.
+// Wall sheathing is priced by the sheet order's own per-sheet prices
+// (`sheathing.summary.cost`) unless `wallSheet` is typed.
+
+/** @typedef {{ section: string, item: string, qty: number, unit: string, unitPrice: number | null, amount: number | null, source: string }} BudgetLine */
+
+const r2 = (/** @type {number} */ n) => Math.round(n * 100) / 100;
+
+/**
+ * @param {any} result takeoff result with optional sheathing, floor, roof, foundation attached
+ * @param {Record<string, number>} [prices]
+ */
+export function budget(result, prices = {}) {
+  /** @type {BudgetLine[]} */
+  const lines = [];
+  const P = (/** @type {string} */ k) => (typeof prices[k] === "number" && prices[k] >= 0 ? prices[k] : null);
+  const add = (/** @type {string} */ section, /** @type {string} */ item, /** @type {number} */ qty, /** @type {string} */ unit, /** @type {number | null} */ unitPrice, /** @type {string} */ source) => {
+    if (!(qty > 0)) return;
+    lines.push({ section, item, qty: r2(qty), unit, unitPrice, amount: unitPrice == null ? null : r2(qty * unitPrice), source });
+  };
+
+  for (const o of result.orders || []) {
+    const boards = o.lines.reduce((/** @type {number} */ s, /** @type {any} */ l) => s + l.qty, 0);
+    add("Lumber", `${o.size} boards (${o.lines.length} lengths)`, boards, "boards", boards ? o.cost / boards : null, `order: ${o.method}${o.proven ? ", proven cheapest" : ""}; plan stock prices`);
+  }
+  if (result.sheathing?.summary) {
+    const s = result.sheathing.summary, wp = P("wallSheet");
+    if (wp != null) add("Sheathing", "Wall sheathing sheets", s.sheets, "sheets", wp, "sheathing order sheet count x typed wallSheet");
+    else add("Sheathing", "Wall sheathing sheets", s.sheets, "sheets", s.sheets ? s.cost / s.sheets : null, "sheathing order's own per-sheet prices");
+  }
+  if (result.floor) add("Floor", "Subfloor sheets", result.floor.sheets?.count ?? 0, "sheets", P("floorSheet"), "floor.sheets.count");
+  const roof = result.roof;
+  if (roof) {
+    if (roof.trusses) add("Roof", "Trusses", roof.trusses.count, "each", roof.trusses.price > 0 ? roof.trusses.price : P("truss"), "roof.trusses.count");
+    add("Roof", "Roof sheathing sheets", roof.sheets?.count ?? 0, "sheets", P("roofSheet"), "roof.sheets.count");
+    const g = roof.roofing;
+    if (g) {
+      add("Roof", "Shingle bundles", g.shingleBundles, "bundles", P("shingleBundle"), `${g.squares.toFixed(1)} squares at ${g.assumptions.waste} waste`);
+      add("Roof", "Underlayment rolls", g.underlaymentRolls ?? g.underlaymentRoll, "rolls", P("underlaymentRoll"), "roof.roofing");
+      add("Roof", "Drip edge pieces", g.dripEdgePieces, "pieces", P("dripEdgePiece"), "eave + rake feet");
+      add("Roof", "Ridge cap bundles", g.ridgeBundles, "bundles", P("ridgeBundle"), "ridge feet");
+      add("Roof", "Starter bundles", g.starterBundles, "bundles", P("starterBundle"), "eave feet");
+    }
+  }
+  const f = result.foundation;
+  if (f) {
+    add("Foundation", "Concrete", f.concrete.order, "cu yd", P("concreteYd") ?? (f.concrete.cost != null ? f.concrete.cost / f.concrete.order : null), `${f.concrete.trucks} truck(s) incl. ${(100 * f.concrete.waste).toFixed(0)}% waste`);
+    add("Foundation", "Rebar", f.rebarLb, "lb", P("rebarLb"), "bar schedule with lap splices");
+    add("Foundation", "Form plywood", f.forms.plywoodSheets, "sheets", P("formPlywoodSheet"), "form contact area + 10% spare");
+    add("Foundation", "Gravel base", f.base.cuYd, "cu yd", P("gravelYd"), "slab area x base thickness");
+    add("Foundation", "Vapor barrier", f.vaporBarrierSqFt, "sq ft", P("vaporBarrierSqFt"), "slab area + 10% laps");
+  }
+
+  const sections = [...new Set(lines.map((l) => l.section))].map((name) => {
+    const ls = lines.filter((l) => l.section === name);
+    return { name, subtotal: r2(ls.reduce((s, l) => s + (l.amount ?? 0), 0)), unpriced: ls.filter((l) => l.amount == null).length };
+  });
+  const materials = r2(sections.reduce((s, x) => s + x.subtotal, 0));
+  const taxRate = P("tax") ?? 0, contRate = P("contingency") ?? 0;
+  const tax = r2(materials * taxRate), contingency = r2((materials + tax) * contRate);
+  return {
+    lines, sections, materials, taxRate, tax, contingencyRate: contRate, contingency, total: r2(materials + tax + contingency),
+    unpriced: lines.filter((l) => l.amount == null).map((l) => `${l.item} (${l.qty} ${l.unit})`),
+  };
+}
+
+/** @param {ReturnType<typeof budget>} b */
+export function budgetText(b) {
+  const out = [];
+  let sec = "";
+  for (const l of b.lines) {
+    if (l.section !== sec) { sec = l.section; out.push(`  ${sec}`); }
+    out.push(`    ${l.item.padEnd(34)} ${String(l.qty).padStart(8)} ${l.unit.padEnd(7)} ${l.unitPrice == null ? "no price".padStart(10) : l.unitPrice.toFixed(2).padStart(10)} ${l.amount == null ? "".padStart(11) : l.amount.toFixed(2).padStart(11)}`);
+  }
+  out.push("  Subtotals: " + b.sections.map((s) => `${s.name} ${s.subtotal.toFixed(2)}`).join(", "));
+  out.push(`  Materials ${b.materials.toFixed(2)}${b.taxRate ? `, tax ${b.tax.toFixed(2)} at ${(100 * b.taxRate).toFixed(2)}%` : ""}${b.contingencyRate ? `, contingency ${b.contingency.toFixed(2)} at ${(100 * b.contingencyRate).toFixed(1)}%` : ""}; total ${b.total.toFixed(2)}`);
+  if (b.unpriced.length) out.push(`  Not in the total, no price typed: ${b.unpriced.join("; ")}. Add them under \`prices\` in the plan.`);
+  out.push("  Materials only: no labor, equipment, permits, delivery or waste beyond what the takeoff already counts.");
+  return out;
+}
