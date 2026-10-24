@@ -125,6 +125,7 @@ buildbot-skills
 buildbot-stance
 buildbot-studfind
 buildbot-taskbook
+buildbot-torquewall
 calibration-hedging
 capture-aliaswin
 capture-audiosync
@@ -704,6 +705,7 @@ rank-elicitation
 ransac-twin
 ratelimit-burst
 reject-surrogates
+religion-origins
 rendezvous-twin
 replay-law
 replay-memory
