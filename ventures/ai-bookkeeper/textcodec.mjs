@@ -37,6 +37,8 @@ export function decodeBytes(bytes, encoding) {
 // A text with none of these letters is read as 1252; pass the encoding then.
 function legacy(b) {
   const latin = win1252(b);
+  const east = eastAsian(b);
+  if (east) return east;
   if (/^000\t\d{8}\t/.test(latin)) return new TextDecoder("windows-1257").decode(b);
   const highWords = latin.match(/[\u00c0-\u00ff]{4,}/g) || [];
   const mixedWords = latin.match(/[A-Za-z]+[\u00c0-\u00ff]+[A-Za-z]*/g) || [];
@@ -47,6 +49,29 @@ function legacy(b) {
   if (has(0xf0, 0xfe, 0xd0, 0xde) > 0 && has(0xe1, 0xed, 0xfa, 0xfd) === 0) return new TextDecoder("windows-1257").decode(b);
   if (has(0x8a, 0x8d, 0x8e, 0x8f, 0x9a, 0x9d, 0x9e) > 0 || has(0xb9, 0xb3, 0xbf) > 0 || (has(0xec) > 0 && has(0xf8) > 0)) return new TextDecoder("windows-1250").decode(b);
   return latin;
+}
+
+// Japanese (Shift_JIS), Simplified Chinese (GBK) and Korean (EUC-KR) bank
+// files are usually not UTF-8. Their double-byte pairs also decode as Western
+// letters ("é" before a letter is a valid Shift_JIS pair), so a codepage is
+// taken only when the bytes decode cleanly in it AND the text carries one of
+// that language's statement column names, which Western text never does.
+const EAST = [
+  ["shift_jis", /取引日|摘要|日付|残高|金額|入金|出金|お取引内容|年月日/],
+  ["gbk", /交易日期|记账日期|交易时间|摘要|余额|支出|收入|借方发生额|贷方发生额|交易金额|对方户名/],
+  ["euc-kr", /거래일자|거래일시|적요|잔액|출금|입금|거래내용|거래금액/],
+];
+function eastAsian(b) {
+  let hi = 0;
+  for (let i = 0; i < b.length && hi < 4; i++) if (b[i] >= 0x80) hi++;
+  if (hi < 4) return null;
+  for (const [enc, words] of EAST) {
+    try {
+      const t = new TextDecoder(enc, { fatal: true }).decode(b);
+      if (words.test(t)) return t;
+    } catch { /* not this codepage */ }
+  }
+  return null;
 }
 
 // 0x80-0x9F differ from Latin-1 (euro sign, curly quotes, dashes); a runtime
