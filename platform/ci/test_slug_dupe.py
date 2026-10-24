@@ -127,6 +127,20 @@ class T(unittest.TestCase):
             slug_dupe.main(["--help"])
         self.assertIn("Has someone already shipped", out.getvalue())
 
+    def test_missing_ref_is_an_error_not_no_duplicate(self):
+        import contextlib, io
+        out, err = io.StringIO(), io.StringIO()
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+            self.assertEqual(slug_dupe.main(["foo-calc", "--remote", "nosuch"]), 2)
+        self.assertNotIn("no duplicate found", out.getvalue())
+        self.assertIn("nosuch/main not found", err.getvalue())
+
+    def test_bad_slugs_are_rejected(self):
+        import contextlib, io
+        for bad in ["", "*", "a/b", "a b"]:
+            with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
+                self.assertEqual(slug_dupe.main([bad]), 2, bad)
+
     def test_unknown(self):
         self.assertEqual(slug_dupe.check("nope-zzz"), (False, [], []))
 

@@ -70,6 +70,16 @@ test("the fresh set is reported, not tuned: numbers recorded in README stay as m
   assert.equal(s.guessRight, 11);
 });
 
+test("second fresh set (2026-10-24, written by another session, scored once): numbers stay as measured", () => {
+  const s = score(load("fresh-2026-10-24.jsonl"));
+  assert.equal(s.n, 41);
+  assert.equal(s.right, 27);
+  assert.equal(s.acted, 31);
+  assert.equal(s.actedRight, 24);
+  assert.equal(s.unsubMissed, 2);
+  assert.equal(s.guessRight, 4);
+});
+
 test("word model: rebuilt from the training files exactly, and it guesses", () => {
   const rows = ["replies.jsonl", "heldout.jsonl"].flatMap(load);
   assert.deepEqual(train(rows), MODEL);

@@ -1,0 +1,41 @@
+{"label": "unsubscribe", "subject": "Re: quick question", "body": "Stop. Do not contact me again.\n\nSent from my iPhone"}
+{"label": "unsubscribe", "subject": "Re: invoices", "body": "Under GDPR article 21 I object to the processing of my data for direct marketing. Delete my details and confirm in writing."}
+{"label": "unsubscribe", "subject": "Re: invoices", "body": "pls remove from ur list"}
+{"label": "unsubscribe", "subject": "Re: Saturday", "body": "I never signed up for anything from you. Report me as unsubscribed everywhere and do not write again."}
+{"label": "unsubscribe", "subject": "Re: partnership?", "body": "Hi Jo, this is the third message from you. Enough now. Please take me off whatever list this is."}
+{"label": "unsubscribe", "subject": "Re: your note", "body": "If I get one more of these I'm reporting it as spam."}
+{"label": "unsubscribe", "subject": "Re: ledger", "body": "Kindly stop sending me emails. Regards, A. Okafor"}
+{"label": "bounce", "subject": "Delivery Status Notification (Failure)", "body": "Address not found. Your message wasn't delivered to dana@brightfield.example because the address couldn't be found, or is unable to receive mail."}
+{"label": "bounce", "subject": "Mail delivery failed: returning message to sender", "body": "This message was created automatically by mail delivery software. A message that you sent could not be delivered to one or more of its recipients. The following address(es) failed: mark@oldco.example (mailbox is full / user over quota)"}
+{"label": "out_of_office", "subject": "Auto: Re: quick question", "body": "Thanks for getting in touch. I am travelling for work and will have limited access to email until Monday 9 November. For anything urgent please contact the front desk."}
+{"label": "out_of_office", "subject": "Out of Office: ledger", "body": "I'm on parental leave from 5 October and will be back in the office on 4 January 2027. Messages are not being forwarded."}
+{"label": "out_of_office", "subject": "Automatic reply: Re: invoices", "body": "I am away from my desk until the 30th and will reply when I'm back."}
+{"label": "left_company", "subject": "Re: partnership?", "body": "Hi, I left Brightfield in August. You might try our ops lead, Priya Nair (priya@brightfield.example)."}
+{"label": "left_company", "subject": "Re: your note", "body": "I think you have the wrong person, I'm in the legal department and have nothing to do with purchasing software."}
+{"label": "left_company", "subject": "Re: ledger", "body": "This mailbox is no longer monitored as the employee has left the organisation."}
+{"label": "not_now", "subject": "Re: quick question", "body": "Interesting but we're mid-migration to a new ERP until spring. Ping me again in March?"}
+{"label": "not_now", "subject": "Re: Saturday", "body": "Budgets are frozen till next fiscal year, which starts in July. Come back to me then."}
+{"label": "not_now", "subject": "Re: invoices", "body": "Not a priority this quarter. Try me after the holidays."}
+{"label": "not_now", "subject": "Re: ledger", "body": "Timing's off for us - we just hired someone to do this by hand and I can't justify a change until the new year at least."}
+{"label": "not_interested", "subject": "Re: partnership?", "body": "No."}
+{"label": "not_interested", "subject": "Re: invoices", "body": "We already have this covered in-house and are very happy. Please don't follow up."}
+{"label": "not_interested", "subject": "Re: quick question", "body": "Thank you for reaching out, however this is not something our firm will be pursuing."}
+{"label": "not_interested", "subject": "Re: ledger", "body": "I'll pass on this one, good luck with it."}
+{"label": "objection", "subject": "Re: Saturday", "body": "Looks fine but we already pay for QuickBooks and I'm not adding a second tool for the same job."}
+{"label": "objection", "subject": "Re: partnership?", "body": "How much is it? Last vendor wanted $400 a month and that was far too steep for us."}
+{"label": "objection", "subject": "Re: invoices", "body": "I'm not the one who signs off on tools, our finance director is. Would need her buy-in."}
+{"label": "objection", "subject": "Re: quick question", "body": "We tried something like this two years ago and the data it produced was wrong half the time. Why would yours be different?"}
+{"label": "question", "subject": "Re: ledger", "body": "Can this run on our own server or is it cloud only?"}
+{"label": "question", "subject": "Re: Saturday", "body": "What does it integrate with? We use Xero and Shopify."}
+{"label": "question", "subject": "Re: your note", "body": "Do you have a case study from a company our size? We have about 12 staff."}
+{"label": "question", "subject": "Re: partnership?", "body": "Is there a free trial, and what happens to our data if we cancel?"}
+{"label": "interested", "subject": "Re: ledger", "body": "This looks relevant to a problem we have right now. Can you do Thursday at 2pm for a call?"}
+{"label": "interested", "subject": "Re: invoices", "body": "Yes please, send me more details and some times that work for a demo."}
+{"label": "interested", "subject": "Re: partnership?", "body": "Sounds good. Loop in my colleague Ben (ben@brightfield.example) and let's set up 30 minutes next week."}
+{"label": "interested", "subject": "Re: quick question", "body": "We've been looking for exactly this. How do we get started?"}
+{"label": "unclear", "subject": "Re: quick question", "body": "Ok"}
+{"label": "unclear", "subject": "Re: Saturday", "body": "Who gave you my email?"}
+{"label": "unclear", "subject": "Re: invoices", "body": "Forwarding to the team to look at."}
+{"label": "unclear", "subject": "Re: ledger", "body": "Hmm, let me think about it and maybe check with a few people. I don't really know."}
+{"label": "unclear", "subject": "Re: partnership?", "body": "Thanks!"}
+{"label": "unclear", "subject": "Re: your note", "body": "Can you resend the attachment? It didn't open."}
