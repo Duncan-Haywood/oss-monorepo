@@ -1,0 +1,53 @@
+{
+  "date": "2026-10-24",
+  "session": "https://claude.ai/code/session_01Bm32oqenGZ2gf1sqdJYJQB",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "do a difference analyzing the difference between the agent docs and the blog posts?",
+  "input_sha256": null,
+  "follow_up_inputs": [
+    "write a blog post on it and merge/post."
+  ],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": null,
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/pages/writing.mjs",
+      "issue": "loadPosts checks date == file name but not date <= today; 20 posts dated 2026-10-26..28 were committed 2026-10-24 and top the feed"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/goals.md",
+      "why": "skipped a separate agent doc: the post plus its rerunnable script in docs/reports/assets/posts-vs-agent-docs/ carry everything a brief would repeat"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-24-blog-posts-and-agent-docs-measured.md"
+  ],
+  "goal": null,
+  "notes": "User-requested comparison of docs/reports vs docs/posts. Measured with docs/reports/assets/posts-vs-agent-docs/compare.py (results.txt). node --test platform/pages/writing.test.mjs: 14 pass, 0 fail. Future-dated posts not fixed here (reported in post and doc_friction).",
+  "corrections": [],
+  "redteam": null
+}
