@@ -15,9 +15,11 @@
   "tokens_out": null,
   "cost_usd": null,
   "tool_calls": null,
-  "task": null,
-  "projects": [],
-  "pr": null,
+  "task": "Heavily cited research synthesis on the development of religion, read through many lenses, as a blog series",
+  "projects": [
+    "religion-origins"
+  ],
+  "pr": 9959,
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -25,15 +27,56 @@
   "merged": null,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": null,
-  "outcome": null,
-  "errors": [],
-  "integrity_issues": [],
-  "doc_friction": [],
-  "deviations": [],
-  "writeups": [],
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "Rewrote research/_homepage/projects.json with json.dump, reformatting the whole file (404/400 line diff)",
+      "fix": "Reverted; inserted the new theme as a minimal text edit"
+    },
+    {
+      "what": "Project README linked reports/ before the report existed; check_md_links failed",
+      "fix": "Unlinked until the report landed"
+    }
+  ],
+  "integrity_issues": [
+    "Many standard monographs are cited from bibliographic details, not re-read this session; every notes file tags each claim verified vs bibliographic, and the posts never quote or hang precise figures on unread text.",
+    "Notes caught and corrected brief errors: Seshat retake venue (Religion, Brain & Behavior 13(2)), Lightner et al. 2023 title/venue, van Elk 2022's misdescription of Maij et al. 2017, and the 2026 YouGov fraud finding that withdrew the Quiet Revival figures."
+  ],
+  "doc_friction": [
+    {
+      "file": "platform/ci/research_live_links.py",
+      "issue": "PR #9958 moved BASE to /oss-monorepo/ without rewriting READMEs, so main went red; --write then appends a second Live page line and leaves the dead one instead of replacing it."
+    },
+    {
+      "file": "platform/ci/venture_live_links.py",
+      "issue": "Same #9958 fallout: 1,327 venture READMEs still linked /monorepo-projects/. Fixed here by in-place replacement."
+    },
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "No theme fits humanities/history research; added a 'humanities' theme for one project (guidance says only when several need it)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/CLAUDE.md",
+      "why": "Added a new homepage theme for a single project: no existing theme (robot societies, scoring, ...) is where a reader would look for history of religion."
+    },
+    {
+      "file": "research/CLAUDE.md",
+      "why": "'Run the numbers': this is a literature synthesis, not a model; no numbers were invented. A reanalysis of the public Ethnographic Atlas EA034 / Pulotu / Seshat data inventoried in notes 05 is the natural next step."
+    },
+    {
+      "file": ".github/prompts/verify-and-merge.md",
+      "why": "Widened the PR with two mechanical base-URL fixes (2,364 READMEs) because main was red on both link checks and no fix PR existed."
+    }
+  ],
+  "writeups": [
+    "research/religion-origins/reports/Development of religion.md",
+    "docs/posts/2026-10-24-how-did-religion-develop-series-introduction.md"
+  ],
   "goal": null,
-  "notes": "",
+  "notes": "Eight parallel research strands (48k words of notes), a 10.5k-word synthesis report with 229 linked citations, nine blog posts. Local checks: research/_homepage/build.py ok; check_md_links ok; research_live_links and venture_live_links exit 0; writing.mjs builds 84 pages; platform/pages node tests rerun on final posts (an earlier run failed only on a draft description over 160 chars, since fixed).",
   "corrections": [],
   "redteam": null
 }
