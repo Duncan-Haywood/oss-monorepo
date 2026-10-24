@@ -92,7 +92,7 @@ export function markdownToHtml(markdown, { keepLines = false } = {}) {
     const text = block.trim();
     if (!text) continue;
     if (text === '* * *') out.push('<hr class="break" aria-label="Scene break">');
-    else if (text.startsWith('### ')) out.push(`<h3>${inline(text.slice(4))}</h3>`);
+    else if (text.startsWith('### ')) out.push(`<h2>${inline(text.slice(4))}</h2>`);
     else if (text.startsWith('## ')) out.push(`<h2>${inline(text.slice(3))}</h2>`);
     else if (text.startsWith('>')) {
       // Quoted letters, notes and prayers keep their line breaks.

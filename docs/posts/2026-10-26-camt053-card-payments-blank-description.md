@@ -1,7 +1,7 @@
 ---
 title: "A real camt.053 file showed our bookkeeper blanking card payments"
 date: 2026-10-26
-description: "Running AI Bookkeeper on Actual Budget's public bank-file samples found one bug: ISO 20022 card entries whose only text sits after the details block came through with no description."
+description: "AI Bookkeeper on Actual Budget's public bank-file samples: ISO 20022 card entries with text only after the details block came through with no description."
 tags: [ai-bookkeeper, evaluation, bank-files]
 ---
 

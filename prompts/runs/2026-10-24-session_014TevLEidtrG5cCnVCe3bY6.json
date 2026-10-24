@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-24",
+  "session": "https://claude.ai/code/session_014TevLEidtrG5cCnVCe3bY6",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-24T13:59:29Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "einvoice-preflight: India GST e-invoice page with GSTIN check and IRN calculator",
+  "projects": [
+    "einvoice-preflight"
+  ],
+  "pr": 10138,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 9,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "router drew research; the scheduled prompt asked for revenue ventures, so I did venture work",
+      "did": "deepened flagship 5",
+      "result": "page and tests landed"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "node --test on all *-mandate tests, india.test.mjs: 181 pass. Browser run via playwright: GSTIN typo flagged, IRN sample reproduced. Thresholds from secondary guides, not CBIC.",
+  "corrections": [],
+  "redteam": null
+}
