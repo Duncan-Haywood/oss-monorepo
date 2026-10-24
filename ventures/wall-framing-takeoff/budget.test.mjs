@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { budget, budgetText } from "./budget.mjs";
+import { budget, budgetText, budgetCsv } from "./budget.mjs";
 import { main } from "./cli.mjs";
 import { samplePlan } from "./engine.mjs";
 import { sampleFloor } from "./floor.mjs";
@@ -55,9 +55,29 @@ test("the CLI prints a BUDGET section and the labor disclaimer", () => {
   const out = run(full({ roofSheet: 40 }), "--budget").out;
   assert.match(out, /\nBUDGET\n/);
   assert.match(out, /Not in the total, no price typed/);
-  assert.match(out, /Materials only: no labor/);
+  assert.match(out, /no labor rate typed/);
 });
 
 test("budgetText handles an empty result", () => {
   assert.ok(budgetText(budget({ orders: [] })).length >= 2);
+});
+
+test("labor rates multiply takeoff quantities and stay out of tax and contingency", () => {
+  const b0 = bud(full({ tax: 0.1, contingency: 0.05 }));
+  const b = bud(full({ tax: 0.1, contingency: 0.05, laborWallFoot: 12, laborRoofSquare: 100 }));
+  const wf = b.lines.find((l) => l.item === "Wall framing");
+  assert.equal(wf.amount, +(wf.qty * 12).toFixed(2));
+  assert.equal(b.materials, b0.materials);
+  assert.equal(b.tax, b0.tax);
+  assert.equal(b.total, +(b.materials + b.tax + b.contingency + b.labor).toFixed(2));
+  assert.ok(b.unpriced.some((u) => u.startsWith("Floor framing")));
+});
+
+test("budgetCsv has a header, one row per line, and quotes commas", () => {
+  const b = bud(full({ laborWallFoot: 10 }));
+  const csv = budgetCsv(b).trim().split("\n");
+  assert.equal(csv[0], "section,item,qty,unit,unit_price,amount,source");
+  assert.equal(csv.length, 1 + b.lines.length + 5);
+  assert.match(csv.at(-1), /^,Total,,,,/);
+  assert.match(budgetCsv({ lines: [{ section: "A", item: "x, y", qty: 1, unit: "u", unitPrice: null, amount: null, source: 's"q' }], materials: 0, taxRate: 0, tax: 0, contingencyRate: 0, contingency: 0, labor: 0, total: 0 }), /"x, y"/);
 });
