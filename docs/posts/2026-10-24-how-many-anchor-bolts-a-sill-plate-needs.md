@@ -2,6 +2,7 @@
 title: "How many anchor bolts does a house's sill plate need?"
 date: 2026-10-24
 description: "The wall-framing takeoff now counts sill-plate anchor bolts: at most six feet apart, one within a foot of each plate end, and never fewer than two per piece."
+tags: [construction, estimating, building-codes, takeoff]
 ---
 
 The wall-framing takeoff priced concrete, rebar and forms for a foundation but
