@@ -5,7 +5,7 @@ import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
-from verified_dse.bound import halve, inversion, pair_value, pair_values, pairs_needed, pilot_quantile  # noqa: E402
+from verified_dse.bound import halve, inversion, pair_value, pair_values, pairs_needed, pilot_quantile, pilot_top_inversion  # noqa: E402
 
 
 def brute(s, y):
@@ -56,6 +56,20 @@ class T(unittest.TestCase):
         s, y = [1, 2, 3, 4], [4.0, 3.0, 2.0, 1.0]
         self.assertAlmostEqual(pilot_quantile(s, y, [0, 1, 2, 3]), math.log(2))
         self.assertEqual(pair_value(1, 2, 1.0, 2.0), 0.0)
+
+    def test_top_inversion(self):
+        # rung ranks index 0 (y=8) ahead of the best point index 1 (y=2): inversion log 4; the pilot's best is index 1
+        self.assertAlmostEqual(pilot_top_inversion([1, 2, 3], [8, 2, 4], [0, 1, 2], top=1), math.log(4))
+        # a perfect rung has none
+        self.assertEqual(pilot_top_inversion([1, 2, 3], [1, 2, 3], [0, 1, 2], top=2), 0.0)
+        # never exceeds the full-pool inversion
+        rng = random.Random(3)
+        for _ in range(200):
+            n = rng.randint(4, 12)
+            s = [rng.randint(0, 5) for _ in range(n)]
+            y = [rng.uniform(1, 20) for _ in range(n)]
+            idx = rng.sample(range(n), rng.randint(2, n))
+            self.assertLessEqual(pilot_top_inversion(s, y, idx, 3), inversion(s, y) + 1e-12)
 
 
 if __name__ == "__main__":

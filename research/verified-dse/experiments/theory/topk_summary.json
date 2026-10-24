@@ -1,0 +1,362 @@
+[
+ {
+  "cell": "tight:adder_op16:r1",
+  "cov_a": 0.6,
+  "cov_b": 0.9966666666666667,
+  "bound_a": 0.21284167446426094,
+  "bound_b": 0.5469014282037987,
+  "realised": 0.18147347295704286,
+  "max_realised": 0.18147347295704286
+ },
+ {
+  "cell": "tight:adder_op16:r2",
+  "cov_a": 0.2833333333333333,
+  "cov_b": 0.8066666666666666,
+  "bound_a": 0.06347092326429937,
+  "bound_b": 0.25674588611697935,
+  "realised": 0.13028602152059943,
+  "max_realised": 0.13028602152059943
+ },
+ {
+  "cell": "tight:adder_ripple16:r1",
+  "cov_a": 1.0,
+  "cov_b": 1.0,
+  "bound_a": 0.5608103430545395,
+  "bound_b": 0.5608103430545395,
+  "realised": 0.0,
+  "max_realised": 0.0
+ },
+ {
+  "cell": "tight:adder_ripple16:r2",
+  "cov_a": 1.0,
+  "cov_b": 1.0,
+  "bound_a": 0.0,
+  "bound_b": 0.0,
+  "realised": 0.0,
+  "max_realised": 0.0
+ },
+ {
+  "cell": "tight:mult8:r1",
+  "cov_a": 0.9733333333333334,
+  "cov_b": 1.0,
+  "bound_a": 0.2634877461716787,
+  "bound_b": 0.4950600722137395,
+  "realised": 0.054940687440357294,
+  "max_realised": 0.054940687440357294
+ },
+ {
+  "cell": "tight:mult8:r2",
+  "cov_a": 1.0,
+  "cov_b": 1.0,
+  "bound_a": 0.10898033108631822,
+  "bound_b": 0.24648629210133066,
+  "realised": 0.0,
+  "max_realised": 0.0
+ },
+ {
+  "cell": "tight:mac4:r1",
+  "cov_a": 1.0,
+  "cov_b": 1.0,
+  "bound_a": 0.300041411678873,
+  "bound_b": 0.47409216461748604,
+  "realised": 0.01950578700797667,
+  "max_realised": 0.01950578700797667
+ },
+ {
+  "cell": "tight:mac4:r2",
+  "cov_a": 1.0,
+  "cov_b": 1.0,
+  "bound_a": 0.10152047271747922,
+  "bound_b": 0.1693246241315478,
+  "realised": 0.0,
+  "max_realised": 0.0
+ },
+ {
+  "cell": "tight:alu8:r1",
+  "cov_a": 0.8666666666666667,
+  "cov_b": 0.9933333333333333,
+  "bound_a": 0.26852448932767636,
+  "bound_b": 0.436662750259738,
+  "realised": 0.15651713945684698,
+  "max_realised": 0.15651713945684698
+ },
+ {
+  "cell": "tight:alu8:r2",
+  "cov_a": 1.0,
+  "cov_b": 1.0,
+  "bound_a": 0.10546755349430992,
+  "bound_b": 0.18944095781647263,
+  "realised": 0.0,
+  "max_realised": 0.0
+ },
+ {
+  "cell": "tight:popcount16:r1",
+  "cov_a": 0.9866666666666667,
+  "cov_b": 1.0,
+  "bound_a": 0.21775845826871665,
+  "bound_b": 0.4137988530536907,
+  "realised": 0.08936865065000887,
+  "max_realised": 0.08936865065000887
+ },
+ {
+  "cell": "tight:popcount16:r2",
+  "cov_a": 0.66,
+  "cov_b": 0.9966666666666667,
+  "bound_a": 0.046732488172418485,
+  "bound_b": 0.09698567199089947,
+  "realised": 0.012253907105708173,
+  "max_realised": 0.012253907105708173
+ },
+ {
+  "cell": "tight:barrel16:r1",
+  "cov_a": 0.8758333333333334,
+  "cov_b": 0.9973333333333333,
+  "bound_a": 0.22202248779896783,
+  "bound_b": 0.3933277204769654,
+  "realised": 0.11189331858147447,
+  "max_realised": 0.1167471415238781
+ },
+ {
+  "cell": "tight:barrel16:r2",
+  "cov_a": 0.7933333333333333,
+  "cov_b": 0.9933333333333333,
+  "bound_a": 0.14396939569083322,
+  "bound_b": 0.21399325417460346,
+  "realised": 0.08218120162808695,
+  "max_realised": 0.08218120162808695
+ },
+ {
+  "cell": "tight:crc16:r1",
+  "cov_a": 0.9995,
+  "cov_b": 1.0,
+  "bound_a": 0.5661032446693799,
+  "bound_b": 0.8139705207934202,
+  "realised": 0.10608860310459667,
+  "max_realised": 0.22830047615462057
+ },
+ {
+  "cell": "tight:crc16:r2",
+  "cov_a": 1.0,
+  "cov_b": 1.0,
+  "bound_a": 0.20417719458373007,
+  "bound_b": 0.34291040924197036,
+  "realised": 0.0,
+  "max_realised": 0.0
+ },
+ {
+  "cell": "tight:cmp_sat12:r1",
+  "cov_a": 0.9333333333333333,
+  "cov_b": 0.9966666666666667,
+  "bound_a": 0.2873828167176149,
+  "bound_b": 0.3035869045562478,
+  "realised": 0.0628865505171623,
+  "max_realised": 0.0628865505171623
+ },
+ {
+  "cell": "tight:cmp_sat12:r2",
+  "cov_a": 1.0,
+  "cov_b": 1.0,
+  "bound_a": 0.15252027234690813,
+  "bound_b": 0.13564869266917157,
+  "realised": 0.0,
+  "max_realised": 0.0
+ },
+ {
+  "cell": "tight:fifo8x4:r1",
+  "cov_a": 0.9695,
+  "cov_b": 1.0,
+  "bound_a": 0.3391454307159094,
+  "bound_b": 0.5220431775938632,
+  "realised": 0.158346525667259,
+  "max_realised": 0.15988188863299868
+ },
+ {
+  "cell": "tight:fifo8x4:r2",
+  "cov_a": 0.8966666666666666,
+  "cov_b": 1.0,
+  "bound_a": 0.16413432021361984,
+  "bound_b": 0.26887265016695316,
+  "realised": 0.04818841527158568,
+  "max_realised": 0.04818841527158568
+ },
+ {
+  "cell": "relaxed:adder_op16:r1",
+  "cov_a": 0.5733333333333334,
+  "cov_b": 0.9833333333333333,
+  "bound_a": 0.17881559127412272,
+  "bound_b": 0.42912100134487474,
+  "realised": 0.16185846715475805,
+  "max_realised": 0.16185846715475805
+ },
+ {
+  "cell": "relaxed:adder_op16:r2",
+  "cov_a": 0.6033333333333334,
+  "cov_b": 0.9666666666666667,
+  "bound_a": 0.07386709809761882,
+  "bound_b": 0.24965563942462765,
+  "realised": 0.048531452450943924,
+  "max_realised": 0.048531452450943924
+ },
+ {
+  "cell": "relaxed:adder_ripple16:r1",
+  "cov_a": 1.0,
+  "cov_b": 1.0,
+  "bound_a": 0.43614840227974394,
+  "bound_b": 0.43614840227974394,
+  "realised": 0.0,
+  "max_realised": 0.0
+ },
+ {
+  "cell": "relaxed:adder_ripple16:r2",
+  "cov_a": 1.0,
+  "cov_b": 1.0,
+  "bound_a": 0.0,
+  "bound_b": 0.0,
+  "realised": 0.0,
+  "max_realised": 0.0
+ },
+ {
+  "cell": "relaxed:mult8:r1",
+  "cov_a": 0.9966666666666667,
+  "cov_b": 1.0,
+  "bound_a": 0.21771058637235718,
+  "bound_b": 0.30178434479135596,
+  "realised": 0.05360476247354917,
+  "max_realised": 0.05360476247354917
+ },
+ {
+  "cell": "relaxed:mult8:r2",
+  "cov_a": 1.0,
+  "cov_b": 1.0,
+  "bound_a": 0.05414074083367382,
+  "bound_b": 0.027292314753868396,
+  "realised": 0.0,
+  "max_realised": 0.0
+ },
+ {
+  "cell": "relaxed:mac4:r1",
+  "cov_a": 0.9766666666666667,
+  "cov_b": 0.99,
+  "bound_a": 0.2121517724232902,
+  "bound_b": 0.3844130529047307,
+  "realised": 0.059008772178045454,
+  "max_realised": 0.059008772178045454
+ },
+ {
+  "cell": "relaxed:mac4:r2",
+  "cov_a": 1.0,
+  "cov_b": 1.0,
+  "bound_a": 0.013329410413391862,
+  "bound_b": 0.04674249667466235,
+  "realised": 0.0,
+  "max_realised": 0.0
+ },
+ {
+  "cell": "relaxed:alu8:r1",
+  "cov_a": 0.8966666666666666,
+  "cov_b": 1.0,
+  "bound_a": 0.31093728621495487,
+  "bound_b": 0.5026269885219024,
+  "realised": 0.19030721587970056,
+  "max_realised": 0.19030721587970056
+ },
+ {
+  "cell": "relaxed:alu8:r2",
+  "cov_a": 1.0,
+  "cov_b": 1.0,
+  "bound_a": 0.07371167813315971,
+  "bound_b": 0.11719328827544384,
+  "realised": 0.0,
+  "max_realised": 0.0
+ },
+ {
+  "cell": "relaxed:popcount16:r1",
+  "cov_a": 0.8933333333333333,
+  "cov_b": 1.0,
+  "bound_a": 0.18022595235127703,
+  "bound_b": 0.26495066209267204,
+  "realised": 0.11541372336918787,
+  "max_realised": 0.11541372336918787
+ },
+ {
+  "cell": "relaxed:popcount16:r2",
+  "cov_a": 1.0,
+  "cov_b": 1.0,
+  "bound_a": 0.022609957835115324,
+  "bound_b": 0.07362098531308447,
+  "realised": 0.0,
+  "max_realised": 0.0
+ },
+ {
+  "cell": "relaxed:barrel16:r1",
+  "cov_a": 0.9386666666666666,
+  "cov_b": 1.0,
+  "bound_a": 0.3942448645457701,
+  "bound_b": 0.6264651083382926,
+  "realised": 0.15822299564126122,
+  "max_realised": 0.22340765794391437
+ },
+ {
+  "cell": "relaxed:barrel16:r2",
+  "cov_a": 0.83,
+  "cov_b": 0.99,
+  "bound_a": 0.25038544235434435,
+  "bound_b": 0.37841071080731314,
+  "realised": 0.11178224037772733,
+  "max_realised": 0.11178224037772733
+ },
+ {
+  "cell": "relaxed:crc16:r1",
+  "cov_a": 0.999,
+  "cov_b": 1.0,
+  "bound_a": 0.2063539612779408,
+  "bound_b": 0.27145998125197046,
+  "realised": 0.03195548552995153,
+  "max_realised": 0.06440968989744889
+ },
+ {
+  "cell": "relaxed:crc16:r2",
+  "cov_a": 1.0,
+  "cov_b": 1.0,
+  "bound_a": 0.002538639774826379,
+  "bound_b": 0.0,
+  "realised": 0.0,
+  "max_realised": 0.0
+ },
+ {
+  "cell": "relaxed:cmp_sat12:r1",
+  "cov_a": 1.0,
+  "cov_b": 1.0,
+  "bound_a": 0.29198819558243994,
+  "bound_b": 0.3254108103297013,
+  "realised": 0.0,
+  "max_realised": 0.0
+ },
+ {
+  "cell": "relaxed:cmp_sat12:r2",
+  "cov_a": 1.0,
+  "cov_b": 1.0,
+  "bound_a": 0.07246731907525605,
+  "bound_b": 0.036211994267411285,
+  "realised": 0.0,
+  "max_realised": 0.0
+ },
+ {
+  "cell": "relaxed:fifo8x4:r1",
+  "cov_a": 0.9998333333333334,
+  "cov_b": 1.0,
+  "bound_a": 0.3394696388639007,
+  "bound_b": 0.42634478272044785,
+  "realised": 0.013696199314491864,
+  "max_realised": 0.05244549714455893
+ },
+ {
+  "cell": "relaxed:fifo8x4:r2",
+  "cov_a": 1.0,
+  "cov_b": 1.0,
+  "bound_a": 0.0333572755295366,
+  "bound_b": 0.08109104195769845,
+  "realised": 0.0,
+  "max_realised": 0.0
+ }
+]

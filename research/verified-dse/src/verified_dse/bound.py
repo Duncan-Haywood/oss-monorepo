@@ -61,3 +61,15 @@ def pilot_quantile(s, y, idx):
 def pairs_needed(alpha, delta):
     """Smallest n with 1 - (1 - alpha)^n >= 1 - delta: disjoint pilot pairs for an alpha-exceedance bound w.p. 1 - delta."""
     return math.ceil(math.log(delta) / math.log(1 - alpha) - 1e-12)
+
+
+def pilot_top_inversion(s, y, idx, top=3):
+    """Largest log y[b] - log y[a] (clipped at 0) over the `top` best pilot points a (lowest y among idx) and every other
+    pilot point b the rung ranks at or ahead of a: how badly the rung lets a worse point outrank a good one, seen from the pilot."""
+    best = sorted(idx, key=lambda i: y[i])[:top]
+    v = 0.0
+    for a in best:
+        for b in idx:
+            if b != a and s[b] <= s[a]:
+                v = max(v, math.log(y[b]) - math.log(y[a]))
+    return v
