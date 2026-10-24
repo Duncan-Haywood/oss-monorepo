@@ -1,0 +1,64 @@
+{
+  "date": "2026-10-24",
+  "session": "https://claude.ai/code/session_016ckMCYZWPQXidJFizbTnpa",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "i think it would be nice potentially if we could figure out a system to get reviews on prs without destroying throughput or getting dead branch explosions. do you want to do research and maybe small scale experiements on what that would look like in this sort of deve environement and have a blog post and a agent docs on that.",
+  "input_sha256": "d04e890e3da6c93cf0b87bdfd6ba8fb605f345e6961d9681a03d111d4312d5b2",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-24T01:58:00Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Research and small experiments on PR review that keeps throughput and avoids dead branches; agent doc and post.",
+  "projects": [
+    "platform/ci",
+    "ventures/ai-bookkeeper",
+    "ventures/csv-to-sepa-pain001",
+    "ventures/wall-framing-takeoff",
+    "ventures/k8s-resource-limits-check",
+    "research/capture-syncslope",
+    "research/free-delaymargin"
+  ],
+  "pr": 9980,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": 11,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/review-open-prs-first.md",
+      "issue": "Tells every session to review open PRs first via reviewer Apps that are not configured (jobs skip) and that run after the merge; a session following it does nothing useful. Noted at the top of the file and pointed at post-merge-review.md."
+    },
+    {
+      "file": "platform/ci/post_merge_review.py",
+      "issue": "First risk-tier regex matched 'w2' inside a run-record session id and tiered it high; caught on the first live queue run, fixed with a test. Path-regex tiers need a sanity look."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Fixed findings in five products in a process PR, rather than one PR per product; the experiment's point was to show fix-forward from a post-merge audit, and splitting would have multiplied PRs for 1-10 line fixes."
+    }
+  ],
+  "writeups": [
+    "docs/reports/2026-10-24-pr-review-without-dead-branches.md",
+    "docs/posts/2026-10-24-review-the-code-after-it-ships.md"
+  ],
+  "goal": null,
+  "notes": "Data: 1,500 closed + 66 open PRs via fetch.py (REST through the agent proxy); 300 newest merged all carry a Copilot quota-failure review, 0 inline comments; cross-review jobs skip (no secrets). Audit: 16 random merged PRs (seed 20261024), 4 reviewer subagents, ~27k tokens and ~54 s wall per PR; 10/16 with a real defect still on main, 11 findings, all low by reviewer rating, 0 would have been blocked. Fixes: 10 of 11; each code fix's new test fails on the old code (checked by stashing the fix: mt940slash 3 pass/1 fail, engine.test gable 45/1, reimport fallback removed 4/1) and passes on the new. Local checks: platform/ci test_post_merge_review.py 3 passed; node --test form1099k payouts mt940slash 44 pass; run_venture_tests.py ai-bookkeeper 1 suite 0 failed; csv-to-sepa-pain001 calc.test 13 pass; wall-framing-takeoff engine.test 46 pass. Not done: second gable finding (peak plate joint over a stud) left as a note; 40 stale github-actions[bot] fan-out drafts from 2026-10-16/17 not closed (other sessions' PRs; listed in the report).",
+  "corrections": [],
+  "redteam": null
+}

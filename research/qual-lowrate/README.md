@@ -2,7 +2,7 @@
 
 **No: on 3,188 real Reddit comments (GoEmotions), auditing coder-negative items at a lower rate and weighting them back by stratum size removed the positives-only audit's bias (from −0.117…−0.160 to within ±0.01) but made the interval wider, not narrower, and below about 10% of the audit it stopped covering.** For 200 audited items the mean 95% width over four automated coders was 0.126 with half the audit among coder-negatives, 0.188 at 20%, 0.259 at 10%, 0.352 at 5%; coverage of the truth (0.247) was at best 0.85 at 5% and 0.51 at 2% (worst coder). The reason is that the coder-negative stratum is 69–85% of the corpus and holds 12–16% of it as human positives, so most of the variance sits there. **The coders are not LLMs** (no API key in the session): a naive-Bayes classifier at three cut-offs and a word list. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/qual-lowrate/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/qual-lowrate/
 
 Track 19 (`qual`, [`PROJECTS.md`](../PROJECTS.md)). It takes the last "Next steps" item of [`qual-labelaudit`](../qual-labelaudit): a design that audits coder-negatives at a lower rate and weights them back in, which recovers the recall the positives-only audit cannot see. Same corpus, split, seed and coders; estimators from [`qual-labelaudit`](../qual-labelaudit) and [`qual-correction`](../qual-correction).
 

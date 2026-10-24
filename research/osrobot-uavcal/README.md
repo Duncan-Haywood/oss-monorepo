@@ -2,7 +2,7 @@
 
 Follow-up to `osrobot-uav` (track 9, open-source purpose-built robots), taking the first item of its "Next steps": **calibrate the constants against published data.** In the direction of the RECUV and Autonomous Systems IRT interest in UAV simulation; nothing here is affiliated with or endorsed by either. Produced with AI assistance (Claude). Pure Python standard library; the `osrobot-uav` model is imported unchanged. No aircraft was built or flown. Only two aircraft had a published mass, pack energy and endurance I could fetch, so this is a small, preliminary check, not a calibration of the whole model. **The fixed-wing and VTOL models were not checked** (no published pack energy found).
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/osrobot-uavcal/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/osrobot-uavcal/
 
 - **The model is the right size, but the unpublished rotor diameter decides the verdict.** For the DJI Mavic 3E (1.050 kg, 77 Wh, 45 min) and the Parrot Anafi UKR (1.450 kg, 78.5 Wh, 38 min), the model's endurance over the published one runs from 0.68 to 2.21 (Mavic) and 0.47 to 1.47 (Anafi) as rotor diameter goes from 0.15 to 0.30 m and usable pack share from 0.8 to 1.0. Neither the 0.15 nor the 0.30 m end is excluded by anything sourced here.
 - **Diameter at which the model reproduces the published endurance:** Mavic 3E 0.181 m at 90 % usable (0.168 to 0.197 over 100 to 80 %); Anafi UKR 0.248 m (0.230 to 0.269). Both are plausible rotor sizes for 1 to 1.5 kg quadrotors, but I did not source the aircraft's actual rotor diameters, so this is a consistency check, not a pass.

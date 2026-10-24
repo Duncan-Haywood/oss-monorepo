@@ -61,5 +61,5 @@ kill_criteria:
   - A report of a customer message lost or shown to the wrong requester, a script injection in the admin or customer pages, a reply threaded onto someone else's ticket, or an admin action accepted without the key; escaping, auth and threading checks come before any new feature.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/support-desk/
+  production: https://duncan-haywood.github.io/oss-monorepo/support-desk/
   analytics: null

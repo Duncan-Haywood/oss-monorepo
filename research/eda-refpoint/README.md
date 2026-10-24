@@ -2,7 +2,7 @@
 
 Why it seemed worth doing: `eda-proposers` ranked six search methods by hypervolume at one reference point (1.1 on min-max scaled objectives), and every later track-7 project reuses that metric. Hypervolume is known to depend on the reference point, so this re-scores the *same* 100-seed runs under five reference points, fraction-of-front recall, IGD+ and the additive epsilon indicator, and a log scale for cell counts. Produced with AI assistance (Claude). **Stylised and preliminary:** one 80-design accelerator table, generic-gate cell counts, no place and route.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/eda-refpoint/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/eda-refpoint/
 
 **Builds on.** `research/eda-proposers` (table, six proposers and runner, imported unchanged; only scoring is new). IGD+: Ishibuchi, Masuda, Tanigaki and Nojima (2015), EMO. Hypervolume as an indicator: Zitzler and Thiele (1999), *IEEE TEC* 3(4). Sensitivity to the reference point: Ishibuchi et al. (2018), GECCO, "How to specify a reference point in hypervolume calculation" (cited from memory, not re-read). No CU Boulder lab's work is built on.
 

@@ -86,3 +86,13 @@ test("the semiweekly carry-over covers the next year even when the lookback is s
   assert.match(depositSchedule(books, 2027).basis, /next-day rule hit on 2026-12-11/);
   assert.equal(depositSchedule(books, 2029).schedule, "monthly");
 });
+
+test("a semiweekly period spanning two quarters is two deposits due the same day (Pub. 15 (2026) example)", () => {
+  const books = reg([["2025-01-10", 250000], ["2026-09-30", 100000], ["2026-10-02", 100000]]);
+  const r = depositSchedule(books, 2026);
+  assert.equal(r.schedule, "semiweekly");
+  const d = r.deposits.filter((x) => x.from >= "2026-09-30");
+  assert.equal(d.length, 2);
+  assert.deepEqual(d.map((x) => x.due), ["2026-10-07", "2026-10-07"]);
+  assert.ok(d[0].to === "2026-09-30" && d[1].from === "2026-10-02");
+});

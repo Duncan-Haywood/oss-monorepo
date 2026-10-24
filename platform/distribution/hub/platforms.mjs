@@ -130,14 +130,14 @@ export const PLATFORMS = Object.freeze([
     id: 'tiktok', name: 'TikTok', kind: 'video', mode: 'draft', ref: 'tiktok',
     limits: { text: 2200, linkInBody: false, media: 'video' },
     metrics: { readable: false, what: 'needs an audited app; use ?ref=tiktok arrivals from the bio link' },
-    why: 'Content Posting API restricts unaudited clients to private (SELF_ONLY) posts from private accounts, and every post needs a video. The hub writes the script and on-screen text; recording stays manual.',
+    why: 'Content Posting API restricts unaudited clients to private (SELF_ONLY) posts from private accounts, and every post needs a video. The hub writes the script and on-screen text; shorts.mjs renders it into a captioned vertical video. Uploading stays manual.',
     checked: '2026-10-20',
   },
   {
     id: 'youtube', name: 'YouTube (Shorts and videos)', kind: 'video', mode: 'draft', ref: 'youtube',
     limits: { text: 5000, linkInBody: true, media: 'video', title: 100 },
     metrics: { readable: true, what: 'views, likes, comments via the Data API once the owner uploads (read-only key is free)' },
-    why: 'Every post needs a video, and uploads from unverified API projects are locked private until Google audits the project. The hub writes title, description (with link) and a Short script.',
+    why: 'Every post needs a video, and uploads from unverified API projects are locked private until Google audits the project. The hub writes title, description (with link) and a Short script; shorts.mjs renders the Short.',
     checked: '2026-10-20',
   },
   {

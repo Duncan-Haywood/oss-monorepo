@@ -82,7 +82,8 @@ export function depositSchedule(books, year, { schedule = null, asOf = null } = 
   for (const r of runs) {
     const amt = federalDeposit(r);
     if (!amt) continue;
-    const key = sched === "monthly" && (!switchedOn || r.date < switchedOn) ? r.date.slice(0, 7) : periodEnd(r.date);
+    // Pub. 15 (2026), "Semiweekly deposit period spanning 2 quarters": pay dates in different quarters are separate deposits, both due the same day.
+    const key = sched === "monthly" && (!switchedOn || r.date < switchedOn) ? r.date.slice(0, 7) : `${periodEnd(r.date)}|Q${Math.ceil(Number(r.date.slice(5, 7)) / 3)}`;
     groups.set(key, [...(groups.get(key) ?? []), r]);
   }
   for (const [key, rs] of groups) {
@@ -94,7 +95,7 @@ export function depositSchedule(books, year, { schedule = null, asOf = null } = 
     }
     if (batch.length) {
       if (/^\d{4}-\d\d$/.test(key)) flush("monthly", nextBusinessDay(`${addDays(`${key}-01`, 31).slice(0, 7)}-15`));
-      else flush("semiweekly", businessDaysAfter(key, 3));
+      else flush("semiweekly", businessDaysAfter(key.slice(0, 10), 3));
     }
   }
   if (switchedOn) warnings.push(`A $100,000 liability makes a monthly depositor semiweekly from the next day (${switchedOn}) for the rest of the year and the next; liability after it is scheduled as semiweekly.`);

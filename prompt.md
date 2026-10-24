@@ -14,8 +14,8 @@ measurements to improve the sub-prompts and the documentation.
 If the message that started the session names a specific task, pass its track:
 `route --track ventures|research|process|explore|redteam|creative|review` (otherwise
 the draw can send you elsewhere).
-A direct owner request that fits no track (a compliance review, a one-off
-fix) takes the closest one by the work's nature (`process` for repo or
+A direct request ([`human-requests.md`](.github/prompts/human-requests.md))
+that fits no track takes the closest one by the work's nature (`process` for repo or
 prompt work, else `ventures` or `research`); note it in `deviations`.
 
 ```
@@ -25,7 +25,7 @@ python3 prompts/promptctl.py route
 It names the sub-prompt to follow, its version, and the commit trailer. Read
 that file and follow it for the rest of the run.
 [`prompts/goals.md`](prompts/goals.md) holds the goals and guardrails, and no
-sub-prompt can relax them. It is ~450 lines: read "Guardrails" (and "Research
+sub-prompt can relax them. It is ~870 lines: read "Guardrails" (and "Research
 guardrails" for research) plus the section your task touches
 (`grep -n '^## ' prompts/goals.md`), not the whole file. `promptctl.py map
 --track <track>` lists the rest of what your track reads, by layer
@@ -67,7 +67,8 @@ python3 prompts/promptctl.py record --track <track> --version <n> --session <ses
 
 Fill in the record it writes under `prompts/runs/`: at least `outcome`, `pr`,
 `errors`, `integrity_issues`, `doc_friction`, `deviations` and `writeups` (the
-agent doc and post you wrote or extended: `goals.md`, "Write about the work"),
+post and agent doc you wrote or extended; most PRs carry a new post, and a run
+without one says why in `deviations`: `goals.md`, "Write about the work"),
 plus anything else you can observe. Then measure what the run cost, from its own transcript:
 `python3 prompts/runcost.py attach <record> --human-hours <h> --human-basis "<how>"`
 (tokens, models, time and API-equivalent dollars; `prompts/README.md`;

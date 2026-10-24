@@ -23,6 +23,13 @@ pushed branch is not done. Steps:
 | **Saints by Candlelight** (30 to 60 minute bedtime podcast of saints, angels and patriarchs) | `ventures/saints-by-candlelight/` | `PRODUCTION.md` (the series bible) |
 | **The writing podcast** (an episode per blog post) | `docs/podcast/`, `docs/posts/` | `goals.md`, "Direction: write about the work" |
 
+The site's **Stories** page (`stories/`, in the top navigation; built by
+`platform/pages/stories.mjs`; owner, 2026-10-24: the fiction gets "its own
+page on the website") lists every shelf above from the stories' own front
+matter and audio manifests, so a merged piece appears there on the next
+build with nothing to edit. A new shelf or fiction venture needs a line in
+`loadFiction` to show up.
+
 ## Pick one piece of work
 
 Spread the runs: look at what landed on `main` most recently
@@ -50,7 +57,7 @@ Any of these counts as the run's deliverable:
   (`goals.md`, "LLM docs and a marketing page"). Directory submissions
   (Apple, Spotify, YouTube, Podcast Index) are the owner's (README,
   "Publishing"); check `python3 portfolio/ledger/decision_queue.py` and ask
-  once at most, never in every run.
+  once at most; asking again every run only duplicates the queue.
 - **A podcast episode for a blog post** that has none (compare `docs/posts/`
   with `docs/podcast/`).
 
@@ -71,9 +78,11 @@ Any of these counts as the run's deliverable:
 - **Voicing.** Setup for a podcast episode is in the docstring of
   `platform/pages/podcast_tts.py`, for a story in `render_audio.py`. Keep a
   podcast `description` to 160 characters (`podcast.mjs` rejects more only
-  after the voicing). Cloud sessions often cannot reach huggingface.co, so
-  the voice cannot download; then land the text and pages without audio
-  and say so in `deviations`.
+  after the voicing). huggingface.co was reachable in the
+  last two sessions that tried (2026-10-23, 2026-10-24: Kokoro downloaded;
+  `PRODUCTION.md` also has a GitHub model-file route), but probe it first
+  (`curl -sI`). If the voice truly cannot download, land the text and pages
+  without audio and say so in `deviations`.
 
 ## Audio size: check before you commit an MP3
 

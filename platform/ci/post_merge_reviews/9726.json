@@ -1,0 +1,9 @@
+{
+ "pr": 9726,
+ "reviewed_at": "2026-10-24T03:00Z",
+ "findings": 0,
+ "severity": "none",
+ "fix_pr": null,
+ "note": "shift-roster reduced-cost fixing sound; 40 random cases, 0 mismatches",
+ "batch": "docs/reports/assets/pr-review-flow/findings.md"
+}

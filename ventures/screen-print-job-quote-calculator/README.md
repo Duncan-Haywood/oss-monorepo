@@ -3,7 +3,7 @@
 A free browser tool: **enter an order and your shop's costs, and get the price per piece that hits your margin, a price-break
 ladder by quantity, and the smallest order that pays at the price you were going to quote.** Nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/screen-print-job-quote-calculator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/screen-print-job-quote-calculator/
 
 After using this, you can now **quote a screen printing job and set quantity price breaks that still hold your margin**,
 which used to be a gut-feel price per shirt and a spreadsheet.

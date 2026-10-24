@@ -2,7 +2,7 @@
 
 `sensing-ghostalign` found that aligning a moving subject works inside it but that the edge ring, where background is covered and revealed, stays about 4 dB short of a large-sensor frame whatever the merge. **This project tests the obvious fixes and they fail: estimating the subject mask from a temporal median and then using frame 0 alone, the temporal median itself, or the aligned or reject-only merge in a 1 px band around the mask all leave the ring at 21.6–27.2 dB at N = 8 against 31.6–32.0 dB for one frame of a sensor with 4× the pixel area. No explicit ring treatment beat plain aligned-plus-reject (27.0 dB at 1 px per frame) and the temporal median is the worst of them (22.3 dB) unless the subject moves 4 px per frame.** Produced with AI assistance (Claude). A follow-up in track 15 (`PROJECTS.md`, milestone 4), the "handle the ring explicitly" step from [`sensing-ghostalign`](../sensing-ghostalign/README.md). It builds on none of the CU Boulder groups in `prompt.md`. Everything here is synthetic: no raw files, no real sensor, no claim about any phone. This is a negative result, reported as such.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/sensing-ghostring/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/sensing-ghostring/
 
 **Builds on.** `sensing-ghostalign` (scene generator, sensor model, aligner and the mean, reject-only and aligned merges, copied so the project stays self-contained), Hasinoff et al. (2016), "Burst photography for high dynamic range and low-light imaging on mobile cameras", *ACM TOG* 35(6), and Foi et al. (2008), *IEEE T-IP* 17:1737–1754 for the noise model.
 

@@ -2,7 +2,7 @@
 
 **Why this was worth doing.** `free-secretarynoise` ended on a question: its best cutoff rule is only one family, so how much is left on the table? A first cheap step is a two-parameter rule that asks for a *margin*: after skipping r&minus;1 candidates, take the first whose noisy score beats the earlier maximum by at least d. When scores are noisy a barely-better record is weak evidence that it is the true best, so a margin should help. **Result (simulation, n = 50, parameters tuned on 8,000 training trials, scored on 60,000 fresh paired trials):** a small, real gain at moderate noise and none at high noise. P(pick the true best) rises from 0.2334 to 0.2444 at noise 0.5 (+0.0111, standard error 0.0014) and from 0.1429 to 0.1491 at noise 1 (+0.0062, se 0.0015); at noise 2 the gain is +0.0018 (se 0.0011), not distinguishable from zero; with no noise the tuning picks d = 0, the plain cutoff. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/free-secretarymargin/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/free-secretarymargin/
 
 **Builds on.** `research/free-secretarynoise` (same model and noise definition) and the classical cutoff rule (Lindley 1961; Ferguson 1989, *Statistical Science* 4(3); cited from memory, not re-verified: no bibliographic service was reachable from this session). No CU Boulder group's work is built on or implied; the link to the digital-twin theme is the analogy of a noisy screening score.
 

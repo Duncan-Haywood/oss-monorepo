@@ -1,6 +1,6 @@
 # Does the overflow twin's lead over ARX survive refitting? Yes when the fit sees almost all the training data (gap 0.13 V, 100% of refits); with 75% or less of it the gap shrinks to 0.07 V and the twin wins only 84 to 90% of refits
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/free-tankfit/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/free-tankfit/
 
 A free-choice follow-up to [`free-tankci`](../free-tankci), whose first next step is "refit twin and ARX on resampled training segments to add fit variance to the interval". That project bootstrapped only the test trace; the models were fitted once. Here both the 8-parameter overflow twin and linear ARX 4/4 are refitted on random contiguous windows of the real Cascaded Tanks training trace (Schoukens et al. 2016) and scored on the same test trace, with the scoring of [`free-tanktwin`](../free-tanktwin). Relates to the sim-to-real and system-identification themes of ARPG and CAIRO; no lab code is reused. Produced with AI assistance (Claude).
 

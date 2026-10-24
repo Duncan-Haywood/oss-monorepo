@@ -3,6 +3,13 @@ import unittest
 import pick_track
 
 
+class ProgrammesTest(unittest.TestCase):
+    def test_reads_table(self):
+        progs = dict(pick_track.programmes())
+        self.assertTrue(progs.get("sim2real-inference"))
+        self.assertIn("lowcomm-training", progs)
+
+
 class MilestonesTest(unittest.TestCase):
     def test_capture_lists_milestones(self):
         listed, free = pick_track.milestones("capture")

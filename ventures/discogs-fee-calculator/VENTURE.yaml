@@ -32,5 +32,5 @@ kill_criteria:
   - Discogs changes the published selling fee again, or a seller's payout statement shows the processing default is far off, and the constants no longer match a real payout.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/discogs-fee-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/discogs-fee-calculator/
   analytics: null

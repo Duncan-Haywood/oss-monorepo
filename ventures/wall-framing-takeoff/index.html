@@ -189,6 +189,14 @@
     <div id="floorOut"></div>
   </section>
 
+  <section class="card" aria-labelledby="h-budget" id="budgetCard" hidden>
+    <h2 id="h-budget">Budget from your prices</h2>
+    <p class="note">Type one price per line as <code>name, number</code> (names: wallSheet, floorSheet, roofSheet, truss, shingleBundle, underlaymentRoll, dripEdgePiece, ridgeBundle, starterBundle, concreteYd, rebarLb, formPlywoodSheet, gravelYd, vaporBarrierSqFt, laborWallFoot, laborFloorSqFt, laborRoofSquare, laborFoundationSqFt, laborConcreteYd; tax and contingency as fractions, e.g. <code>tax, 0.07</code>). Lumber uses the board prices in the stock table. A quantity with no price is listed and left out of the total. No price is supplied by this tool.</p>
+    <textarea id="priceText" rows="5" style="width:100%" aria-label="Unit prices, one per line" placeholder="wallSheet, 24&#10;laborWallFoot, 11&#10;tax, 0.07"></textarea>
+    <p><button type="button" class="secondary" id="budgetCsvBtn">Download budget CSV</button></p>
+    <div id="budgetOut"></div>
+  </section>
+
   <section class="card" aria-labelledby="h-foundation" id="foundationCard" hidden>
     <h2 id="h-foundation">Foundation</h2>
     <div id="foundationOut"></div>
@@ -242,7 +250,7 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering, construction, building-code, legal or financial advice, and it does not replace a qualified professional, your plans or your building department. Header sizes, jack counts and stud spacing are your inputs and are not checked against any span table or code. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including every length before you cut. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Independent.</strong> Not affiliated with any lumberyard, builder, code body or software company. No lumber price is stated or implied; prices are what you type.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record: save your plan file. Your last entries stay in this browser's local storage only.</p>
-    <p>Everything runs in your browser. Your plan is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>takeoff_run</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>drawings_downloaded</code>, <code>panel_order_downloaded</code>, <code>floor_on</code>, <code>roof_on</code>, <code>foundation_on</code>, <code>plan_saved</code>, <code>plan_opened</code>) are counted only in local storage on your device, never with anything you typed.</p>
+    <p>Everything runs in your browser. Your plan is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>takeoff_run</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>budget_csv_downloaded</code>, <code>drawings_downloaded</code>, <code>panel_order_downloaded</code>, <code>floor_on</code>, <code>roof_on</code>, <code>foundation_on</code>, <code>plan_saved</code>, <code>plan_opened</code>) are counted only in local storage on your device, never with anything you typed.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Related tools: the <a href="../cut-list-optimizer/">cut list optimizer</a> for sheet goods and shop stock, and the <a href="../tile-layout-planner/">tile layout planner</a>. Command line and source: <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/wall-framing-takeoff" rel="noopener">wall-framing-takeoff on GitHub</a>.</p>
     <p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
@@ -256,6 +264,7 @@
     import { layoutFloor, floorCuts, floorText } from "./floor.mjs";
     import { layoutRoof, roofCuts, roofText } from "./roof.mjs";
     import { layoutFoundation, foundationText } from "./foundation.mjs";
+    import { budget, budgetCsv } from "./budget.mjs";
     import { resolveHeaders } from "./headers.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
@@ -390,6 +399,7 @@
         wall.openings.push(op);
       }
       const source = plan;
+      { const pr = parsePrices(); if (!pr.bad.length && Object.keys(pr.prices).length) plan.prices = pr.prices; }
       const tableText = $("#hdrTable").value.trim();
       let resolved = plan, hdrRows = [];
       if (tableText) {
@@ -519,6 +529,31 @@
       if (!fn) return;
       $("#foundationOut").innerHTML = `<pre style="white-space:pre-wrap;overflow-x:auto">${esc(foundationText(fn).join("\n"))}</pre><p class="note">Concrete, rebar, forms and gravel are not in the lumber order. Bar sizes, footing size, frost depth and soil bearing are your inputs; check them against your plans and engineer.</p>`;
     }
+    function parsePrices() {
+      const prices = {}, bad = [];
+      ($("#priceText").value || "").split(/\n+/).map((x) => x.trim()).filter(Boolean).forEach((line, n) => {
+        const t = line.split(/[,=:\t]+/).map((x) => x.trim());
+        const v = Number(t[1]);
+        if (t.length < 2 || !t[0] || !Number.isFinite(v) || v < 0) bad.push(`Price line ${n + 1}: write it as  wallSheet, 24`);
+        else prices[t[0]] = v;
+      });
+      return { prices, bad };
+    }
+    function renderBudget() {
+      const card = $("#budgetCard");
+      if (!last) { card.hidden = true; return; }
+      const pr = parsePrices();
+      if (pr.bad.length) { $("#budgetOut").innerHTML = `<div class="err"><ul>${pr.bad.map((e) => `<li>${esc(e)}</li>`).join("")}</ul></div>`; card.hidden = false; return; }
+      const res = { ...last.result, floor: last.floor, roof: last.roof, foundation: last.foundation };
+      const b = budget(res, pr.prices);
+      last.budget = b;
+      const m = (v) => v.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 });
+      $("#budgetOut").innerHTML = `<table><thead><tr><th>Section</th><th>Item</th><th class="n">Qty</th><th>Unit</th><th class="n">Price</th><th class="n">Amount</th></tr></thead><tbody>${b.lines.map((l) => `<tr><td>${esc(l.section)}</td><td>${esc(l.item)}</td><td class="n">${l.qty}</td><td>${esc(l.unit)}</td><td class="n">${l.unitPrice == null ? "no price" : m(l.unitPrice)}</td><td class="n">${l.amount == null ? "" : m(l.amount)}</td></tr>`).join("")}</tbody></table>
+        <p><strong>Materials ${m(b.materials)}</strong>${b.taxRate ? `; tax ${m(b.tax)}` : ""}${b.contingencyRate ? `; contingency ${m(b.contingency)}` : ""}${b.labor ? `; labor ${m(b.labor)}` : ""}; <strong>total ${m(b.total)}</strong></p>
+        ${b.unpriced.length ? `<p class="note">Not in the total, no price typed: ${esc(b.unpriced.join("; "))}.</p>` : ""}
+        <p class="note">Excludes equipment, permits, delivery and overhead. An estimate from the prices you typed, not a quote.</p>`;
+      card.hidden = false;
+    }
     function run() {
       const { plan, bad, source } = toPlan();
       $("#errors").innerHTML = "";
@@ -552,7 +587,7 @@
         last = null; showWall();
         return false;
       }
-      last = { plan, result, nailers };
+      last = { plan, result, nailers, floor, roof, foundation };
       const s = result.summary;
       const money = (v) => v.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 });
       $("#summary").innerHTML = `<div class="big">
@@ -571,6 +606,7 @@
       renderRoof(roof);
       renderFoundation(foundation);
       renderSheathing(plan, result);
+      renderBudget();
       const prev = $("#wallPick").value;
       $("#wallPick").innerHTML = result.walls.map((w) => `<option>${esc(w.id)}</option>`).join("");
       if (result.walls.some((w) => w.id === prev)) $("#wallPick").value = prev;
@@ -594,6 +630,7 @@
         $("#flUnder").value = (fl.doubleUnder || []).map(formatLength).join(", ");
         $("#flOpen").value = (fl.openings || []).map((o) => [o.x, o.y, o.width, o.depth].map(formatLength).join(", ")).join("; ");
       }
+      if (plan.prices && typeof plan.prices === "object") { $("#priceText").value = Object.entries(plan.prices).filter(([, v]) => Number.isFinite(v)).map(([k, v]) => `${k}, ${v}`).join("\n"); try { localStorage.setItem(KEY + ".prices", $("#priceText").value); } catch (e) { /* optional */ } }
       const fn = plan.foundation;
       $("#fnOn").checked = Boolean(fn); $("#fnFields").hidden = !fn;
       if (fn) {
@@ -680,6 +717,8 @@
       download("shop-panel-lumber-order.txt", "text/plain", [...panelOrderText(po), "", ...panelPullText(po)].join("\n") + "\n");
       record("panel_order_downloaded");
     });
+    $("#priceText").addEventListener("input", () => { renderBudget(); try { localStorage.setItem(KEY + ".prices", $("#priceText").value); } catch (e) { /* optional */ } });
+    $("#budgetCsvBtn").addEventListener("click", () => { if (run() && last?.budget) { download("framing-budget.csv", "text/csv", budgetCsv(last.budget)); record("budget_csv_downloaded"); } });
     $("#savePlan").addEventListener("click", () => { const { source, bad } = toPlan(); if (bad.length) { run(); return; } download("framing-plan.json", "application/json", JSON.stringify(source, null, 2)); record("plan_saved"); });
     $("#openPlan").addEventListener("change", async (e) => {
       const input = /** @type {HTMLInputElement} */ (e.target);

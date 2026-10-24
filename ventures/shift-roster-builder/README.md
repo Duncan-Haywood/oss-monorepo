@@ -5,7 +5,7 @@ shifts you need covered and your staff with availability, weekly hour limits and
 many shifts as possible, avoids overtime, respects rest gaps, and tells you which shifts it could not fill and why**.
 Nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/shift-roster-builder/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/shift-roster-builder/
 
 After using this, you can now **build a week's schedule that nobody has to be moved around in, see which shifts are
 unfillable before the week starts, and find the people the week depends on**, which used to be an hour of spreadsheet
@@ -156,6 +156,19 @@ Every unproven week failed at the coverage step: the search could not show wheth
 
 Proven count stayed 0 of 4: the bound gets closer (case 0 from three open hours of slack to under one) but not to the tolerance. A test checks the bound never exceeds the brute-force optimum on 40 tight random weeks with balance and burden on. `node eval/ejection-bench.mjs 8 8 22` now reports a proven open-hours floor of 386 h against 387 h left open (was 383 h), because the root bound feeds it. Full venture suite: 188 pass, 0 fail. Not claimed: that it proves any more weeks yet; 4 cases, one generator, one run; case 1 is still dominated by a coverage gap of several hours that the sets bound does not see.
 
+## Branching on the priced bound (2026-10-24)
+
+The root price leaves a duality gap because the relaxation lets a contested shift be split between people. `branchDual` (`calc.mjs`) now runs after the root price in the exact search: it fixes the most contested shift (held by one of the people who could hold it, or left open), re-prices each piece with the same subgradient loop on the filtered feasible sets, and repeats on the lowest open bound until every piece reaches the cutoff or a limit is hit (`dualBranchNodes` 40, `dualBranchMs` 8000; `dualBranch: false` turns it off). The result is still a valid lower bound, so a proof that comes from it is a proof. `node eval/dual-bench.mjs 4 8 22 30000 1` (same four seeded weeks as above; `DBN`/`DBMS` set the limits), root-plus-branching gap left against the roster, score units where one open hour is 100,000:
+
+| case | before | 40 nodes, 8 s | 300 nodes, 40 s |
+|---|---|---|---|
+| 0 | 65,965 | 768 | 253 |
+| 1 | 362,275 | 287,592 | 227,970 |
+| 2 | 28 | 15 | 15 |
+| 3 | 100,326 | 100,117 | 100,112 |
+
+Case 0 went from two-thirds of an open hour to $2.53 of pay. Still 0 of 4 proven: cases 2 and 3 barely move (case 3's gap is about one open hour that neither the roster nor the bound resolves), and case 1 is still a coverage gap of two hours. Costs 2 to 8 s per week at the default limits. A test checks the branched bound never passes the brute-force optimum on 40 tight random weeks and rises on at least one. One generator, one run each. The `page.test.mjs` tables for the clopening and call-out guides (tests 15 and 21) already fail on `main` before this change, so they are untouched here.
+
 ## Limits
 
 Not modelled: predictive-scheduling and fair-workweek rules as built-in law (the changes report prices a rule you enter), paid rest breaks (unpaid meal breaks are deducted from paid time; a suggested meal-break time is shown but not enforced by the search), minor-labor limits other than the federal 14-15 rules in `age:` (state rules, work permits), union rules, seniority, time-off across weeks. A
@@ -205,3 +218,7 @@ Provided free and as-is, without warranty of any kind. Not legal, tax, or financ
 **Plan several weeks.** "Plan weeks" builds up to 8 consecutive weeks from one setup. Each week starts from the one before: the rest gap and the running `tough:` tally carry over exactly as in "Carry over last week", people with no shift last week lose a stale `prev:`, and dated `off:` entries land only in the week they fall in. The table shows open shifts, overtime and payroll per week with a CSV for each (`planWeeks` in `calc.mjs`). Each week is solved on its own, not jointly, so it is a rolling plan rather than a proof of the cheapest month.
 
 **Long pass when shifts stay open (2026-10-24).** If shifts are still open after the restarts, `buildRoster` now runs `options.longPass` (default on): four more restarts at five times the iterations, before the ejection passes. `eval/effort-bench.mjs` (seeded weeks, 5 per size, against a 60 x 40000 reference run): no change in open hours at 6x14, 8x18, 8x22 and 10x28 (the old default was already at or within 2 h of the reference on 4 of 5 sizes; 8x22 sat 2 h above it on one week, the long pass did not close that), +20 to +80 ms per week. On the earlier probe weeks (8 people x 22 shifts, seed 20261030) it cut one week from 9 to 5 open hours and left a week at 62 h that 4 restarts x 40000 iterations brought to 57 h, so the long pass is a small, not a reliable, gain; the next step is more iterations on the first pass only for weeks the flow bound says are coverable. Synthetic weeks only.
+
+## Is the unproven 8 x 22 week short on search or on the bound? (2026-10-24)
+
+`ONLY=3 node eval/case-bench.mjs N MS` reruns the four seeded 8 x 22 weeks of `scale-bench.mjs` (seed 20261022 + 8*100 + 22) with one chosen week and any budget. At the default 100,000 nodes / 20 s the four weeks are: 57 h open and coverage proven, 4 h proven, 98 h proven (the exact search improved the roster), and week 3 at 36 h open against a proven floor of 35 h. Giving week 3 twenty times the budget (2,000,000 nodes, 400 s limit, 6 m 41 s) leaves it exactly there: 36 open, floor 35, gap 100,013 score units against 100,117 before. So the extra hour is not a search-time problem: either one hour is uncoverable and the bound is loose by one hour, or a 35 h roster exists that annealing and the exact search both miss. Which one is still unknown; the six open shifts (Wed 7-14, Wed 14-21, Thu 7-11, Thu 10-14, Thu 12-20, Fri 14-20) are in `DUMP=1` output. More nodes will not settle it; a tighter bound (pair cuts on the contested Wednesday and Thursday shifts) or a different exact method will. One week, one run, synthetic crew.

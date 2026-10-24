@@ -46,5 +46,5 @@ kill_criteria:
   - A user reports a modelling error that changes which prescription type looks unprofitable on their numbers.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/independent-pharmacy-rx-margin-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/independent-pharmacy-rx-margin-calculator/
   analytics: null

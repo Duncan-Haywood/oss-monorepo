@@ -437,12 +437,14 @@ class RedteamTest(PromptTestCase):
                                      "candidate_share": 0}
         self.fx.routing(data)
 
-    def test_share_must_stay_between_five_and_ten_percent(self):
+    def test_share_outside_five_to_ten_percent_warns_but_validates(self):
         self._with_redteam(0.15)  # 0.15 / 2.15 = 7.0%
         self.assertEqual(promptctl.validate(self.fx.root), [])
+        self.assertIsNone(promptctl.redteam_band_warning(self.fx.root))
         for weight in (0.05, 0.5):  # 2.4% and 20%
             self._with_redteam(weight)
-            self.assertTrue(any("redteam is" in e for e in promptctl.validate(self.fx.root)))
+            self.assertEqual(promptctl.validate(self.fx.root), [])
+            self.assertIn("redteam is", promptctl.redteam_band_warning(self.fx.root))
 
     def test_redteam_records_are_checked_and_measured(self):
         self._with_redteam(0.15)
@@ -541,6 +543,14 @@ class WriteupTest(PromptTestCase):
                          {"runs": 2, "agent_doc": 1, "post": 2})
         self.fx.run("2026-10-21-c.json", _record(date="2026-10-21", pr="1", writeups="docs/posts/x.md"))
         self.assertTrue(any("writeups must" in e for e in promptctl.validate(self.fx.root)))
+
+    def test_posts_per_day_counts_filename_dates_up_to_the_newest(self):
+        posts = self.fx.repo / "docs" / "posts"
+        posts.mkdir(parents=True)
+        for name in ("2026-10-20-a.md", "2026-10-22-b.md", "2026-10-22-c.md", "notes.md"):
+            (posts / name).write_text("x\n")
+        self.assertEqual(promptctl.posts_per_day(self.fx.root, days=4),
+                         [("2026-10-19", 0), ("2026-10-20", 1), ("2026-10-21", 0), ("2026-10-22", 2)])
 
 
 class BackfillPrTest(unittest.TestCase):

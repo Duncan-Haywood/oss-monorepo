@@ -2,7 +2,7 @@
 
 A free browser tool for tutoring centres, test-prep, music, swim and language schools that teach in small weekly groups: **list the sessions you could run (capacity, minimum group, cost) and your students (what each pays, every slot they can attend) and get the most profitable timetable.** It says which slots to run, who sits where, who cannot be placed and why, and what flipping each slot is worth. Nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/tutoring-group-schedule-optimizer/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/tutoring-group-schedule-optimizer/
 
 After using this, you can **decide which group sessions to run from your students' real availability** instead of opening everything and hoping groups fill, or dropping a slot that one moved student would have made viable. For one-to-one lessons see [tutor-weekly-schedule-optimizer](../tutor-weekly-schedule-optimizer/).
 

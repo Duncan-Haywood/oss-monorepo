@@ -45,5 +45,5 @@ kill_criteria:
   - No external repository is found using cli.mjs or sql.mjs within 90 days.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/csv-to-sql-generator/
+  production: https://duncan-haywood.github.io/oss-monorepo/csv-to-sql-generator/
   analytics: null

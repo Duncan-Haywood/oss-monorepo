@@ -2,7 +2,7 @@
 
 **On 300 real Reddit comments with rater-majority emotion labels, an LLM coder (here, the Claude session agent itself, coding blind to the human labels) over-codes: it flags 44% of comments as negative-emotion against a human 23%, the opposite error direction from the two classical stand-ins in [`qual-real`](../qual-real), which undercount by 10 points. Its accuracy (0.71, kappa 0.37) is no better than a naive-Bayes coder's and clearly worse than a 38-word list's (0.84), and prediction-powered inference stays valid but is 29% wider than hand-coding alone at 60 hand-coded items.**
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/qual-agent/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/qual-agent/
 
 Track 19 (`qual`, [`PROJECTS.md`](../PROJECTS.md)), milestone 2's open item: "a model behind `ANTHROPIC_API_KEY` ... without a key, label any session-agent coding as such." There is no key in this session, so the coder is **the Claude session agent that wrote this project, reading each comment once and answering 0/1 from the codebook, with the human labels hidden**. It is one reader, one pass, one day; it is *not* an API-called model and the numbers are not a benchmark of any named model. This is the first project in the track where the coder is a language model at all; the question the track kept deferring ("run an LLM coder on the same items and compare") now has a first, small, labelled answer.
 

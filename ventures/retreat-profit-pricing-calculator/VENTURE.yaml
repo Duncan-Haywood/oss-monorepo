@@ -46,5 +46,5 @@ kill_criteria:
   - A user reports a modelling error that changes the break-even number on their inputs.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/retreat-profit-pricing-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/retreat-profit-pricing-calculator/
   analytics: null

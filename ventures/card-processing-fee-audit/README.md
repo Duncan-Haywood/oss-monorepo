@@ -3,7 +3,7 @@
 A free, browser-only tool that splits one month of card processing fees into
 the part the card networks set and the part the processor keeps.
 
-**Live:** <https://duncan-haywood.github.io/monorepo-projects/card-processing-fee-audit/>
+**Live:** <https://duncan-haywood.github.io/oss-monorepo/card-processing-fee-audit/>
 
 ## The problem
 

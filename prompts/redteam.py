@@ -44,10 +44,9 @@ from typing import Any
 
 REPO = Path(__file__).resolve().parent.parent
 
-# Trees a red-team run never mutates: `research/` is a mirror the next sync
-# overwrites (research/CLAUDE.md), and generated or vendored trees have no
+# Trees a red-team run never mutates: generated or vendored trees have no
 # suite of their own.
-EXCLUDED_PREFIXES = ("research/", "node_modules/", "gitops/prod/", ".git/")
+EXCLUDED_PREFIXES = ("node_modules/", "gitops/prod/", ".git/")
 
 TIMEOUT_SECONDS = 300
 PROBE_SECONDS = 20  # a random draw skips suites slower than this

@@ -4,7 +4,7 @@ Why it seemed worth doing: the `eda` track's projects (`eda-sky130rung`, `eda-de
 
 **Headline.** It depends on the truth the loop optimises. For mapped **area × latency**, rank agreement and screening payoff go together across 207 screens (Spearman 0.60 with the chance the first mapping finds the pool's best; bootstrap 0.50 to 0.68). For mapped **latency alone** they do not (−0.13, −0.26 to 0.02): the highest-Spearman screen (0.958) maps the pool's best design first only 32% of the time, gate count (Spearman 0.551) 69%, and 14 of the 175 screens that rank at ≥ 0.9 do not put the truly best design in their top 3.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/eda-rankpayoff/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/eda-rankpayoff/
 
 **Builds on.** `research/eda-latencyhalve` (its committed `mapped.json`: area, cycles, generic cell count and depth per design; the top-*k* capture protocol), `research/eda-delayproxy` (its committed `proxies.json`: fan-out, logical-effort and other delay proxies and 200 type re-weightings), `research/eda-sky130rung` (the mapped data), `research/eda-harness` and `research/chip-accel` (the 40 MAC-engine designs). The multi-fidelity screening idea is from Peherstorfer, Willcox and Gunzburger (2018), *SIAM Review* 60(3):550-591. No code is copied; no CU Boulder lab's work is built on and no affiliation is implied.
 

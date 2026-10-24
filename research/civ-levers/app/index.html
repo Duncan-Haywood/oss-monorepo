@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Depolarization Simulator: Can Contact Bring Two Camps Together?</title>
+<meta name="description" content="An opinion-dynamics simulator of a polarized society: see which interventions merge two camps and which drive them to the extremes.">
+<meta property="og:title" content="Depolarization simulator: which interventions bring two camps together?">
+<meta property="og:description" content="Opinion dynamics with backfire, in your browser: a ladder of moderate voices merges two camps in 24 of 25 settings; bridging contact can backfire.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:,">
+<style>
+:root{--bg:#fbfaf7;--panel:#fff;--ink:#1d1f24;--muted:#5b616e;--line:#dedad2;--accent:#3d5afe;
+  --a:#1f6fb2;--b:#d9480f;--warn-bg:#fff6e0;--warn-ink:#6b4a00;--radius:10px;
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14161b;--panel:#1c1f26;--ink:#e8e9ec;--muted:#a0a6b3;
+  --line:#2e323c;--accent:#8c9eff;--a:#5aa9e6;--b:#ff8a50;--warn-bg:#2b2412;--warn-ink:#f0d48a;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#14161b;--panel:#1c1f26;--ink:#e8e9ec;--muted:#a0a6b3;--line:#2e323c;--accent:#8c9eff;
+  --a:#5aa9e6;--b:#ff8a50;--warn-bg:#2b2412;--warn-ink:#f0d48a;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);line-height:1.5}
+.wrap{max-width:1040px;margin:0 auto;padding:0 16px}
+header.wrap{padding-top:24px}
+h1{font-size:clamp(1.5rem,4vw,2.1rem);line-height:1.2;margin:.2em 0 .4em}
+h2{font-size:1.15rem;margin:0 0 .6em}
+.lede{color:var(--muted);max-width:70ch}
+.note{background:var(--warn-bg);color:var(--warn-ink);border-radius:var(--radius);padding:10px 14px;font-size:.92rem;max-width:80ch}
+.grid{display:grid;grid-template-columns:300px 1fr;gap:16px;margin:20px 0}
+@media (max-width:760px){.grid{grid-template-columns:1fr}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px}
+label{display:block;font-size:.9rem;margin:12px 0 4px}
+label span.v{float:right;font-variant-numeric:tabular-nums;color:var(--muted)}
+select,input[type=range]{width:100%}
+select{padding:6px;border-radius:6px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit}
+.hint{font-size:.8rem;color:var(--muted);margin:2px 0 0}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+button{font:inherit;padding:7px 12px;border-radius:6px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.presets button{font-size:.85rem;text-align:left}
+canvas{width:100%;display:block;border-radius:6px;background:var(--bg)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
+.stat{border:1px solid var(--line);border-radius:8px;padding:8px}
+.stat b{display:block;font-size:1.3rem;font-variant-numeric:tabular-nums}
+.stat small{color:var(--muted);font-size:.75rem}
+@media (max-width:480px){.stats{grid-template-columns:repeat(2,1fr)}}
+.legend{font-size:.8rem;color:var(--muted);display:flex;gap:14px;flex-wrap:wrap;margin:6px 0 0}
+.sw{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px;vertical-align:-1px}
+table{border-collapse:collapse;width:100%;font-size:.9rem}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line)}
+td.n{text-align:right;font-variant-numeric:tabular-nums}
+.tbl{overflow-x:auto}
+footer{color:var(--muted);font-size:.85rem;padding:24px 0 40px}
+a{color:var(--accent)}
+</style>
+</head>
+<body>
+<header class="wrap">
+  <h1>Can contact bring two camps together? A depolarization simulator</h1>
+  <p class="lede">A thousand simulated people in two camps, mostly connected to their own side. Each round, everyone talks to one contact and shifts toward views that are close enough to accept, and, if you turn on backfire, <em>away</em> from views far enough to reject. Pick an intervention and watch where the society goes.</p>
+  <p class="note" role="note"><strong>Simulation, not a forecast.</strong> These are simulated people following a stated rule from the opinion-dynamics literature (Deffuant et al. 2000; Jager &amp; Amblard 2005). How far real people accept or reject views has not been measured well enough to pin the two thresholds down, so the point is to see which conclusions hold <em>across</em> settings.</p>
+</header>
+
+<main class="wrap">
+  <div class="grid">
+    <section class="panel" aria-labelledby="ctl">
+      <h2 id="ctl">Controls</h2>
+      <label for="lever">Intervention</label>
+      <select id="lever"></select>
+      <label for="dose">Dose <span class="v" id="doseV"></span></label>
+      <input id="dose" type="range" min="0" max="0.5" step="0.01" value="0.1">
+      <p class="hint" id="doseHint"></p>
+      <label for="eps">Tolerance ε (accept views closer than) <span class="v" id="epsV"></span></label>
+      <input id="eps" type="range" min="0.1" max="0.5" step="0.01" value="0.3">
+      <label for="tau">Backfire τ (reject views further than) <span class="v" id="tauV"></span></label>
+      <input id="tau" type="range" min="0.4" max="1.01" step="0.01" value="1.01">
+      <p class="hint">Far right = no backfire. Lower = people push away from more views.</p>
+      <label for="seed">Random seed <span class="v" id="seedV"></span></label>
+      <input id="seed" type="range" min="0" max="20" step="1" value="0">
+      <div class="row">
+        <button class="primary" id="go">Run</button>
+        <button id="pause">Pause</button>
+      </div>
+      <h2 style="margin-top:18px">Try these</h2>
+      <div class="row presets" id="presets"></div>
+    </section>
+
+    <section class="panel" aria-labelledby="out">
+      <h2 id="out">Opinions over time</h2>
+      <canvas id="river" width="720" height="300" role="img" aria-label="Opinion density over time for the two camps"></canvas>
+      <p class="legend"><span><i class="sw" style="background:var(--a)"></i>started in camp A</span><span><i class="sw" style="background:var(--b)"></i>started in camp B</span><span>time runs left to right, 400 rounds; opinion 0 at the bottom, 1 at the top</span></p>
+      <div class="stats" aria-live="polite">
+        <div class="stat"><small>round</small><b id="sR">0</b></div>
+        <div class="stat"><small>gap between camps</small><b id="sG">–</b></div>
+        <div class="stat"><small>at the extremes</small><b id="sE">–</b></div>
+        <div class="stat"><small>near the centre</small><b id="sC">–</b></div>
+      </div>
+      <p class="hint">Gap starts near 0.6. 0 means the camps merged; 1 means they sit at opposite extremes.</p>
+    </section>
+  </div>
+
+  <section class="panel" aria-labelledby="found">
+    <h2 id="found">What the full sweep found</h2>
+    <p>Each intervention at its largest dose, over 25 settings of tolerance (ε 0.2 to 0.4) and backfire (none, τ 0.9 to 0.6), 10 simulated societies each (from <code>experiments/results.txt</code>):</p>
+    <div class="tbl"><table>
+      <thead><tr><th>Intervention (dose)</th><th>Merged the camps</th><th>Drove more people to the extremes</th></tr></thead>
+      <tbody>
+        <tr><td>Ladder of committed voices (20% of people)</td><td class="n">24 of 25</td><td class="n">0</td></tr>
+        <tr><td>Broadcast a moderate view (heard 20% of rounds)</td><td class="n">19</td><td class="n">0</td></tr>
+        <tr><td>Committed moderates at the centre (20%)</td><td class="n">19</td><td class="n">1</td></tr>
+        <tr><td>One-off nudge to the centre (40%)</td><td class="n">14</td><td class="n">0</td></tr>
+        <tr><td>Raise everyone's tolerance (+0.2)</td><td class="n">8</td><td class="n">0</td></tr>
+        <tr><td>Bridge: rewire 50% of ties across camps</td><td class="n">2</td><td class="n">10</td></tr>
+      </tbody>
+    </table></div>
+    <p class="hint">"Merged" = at least 9 of 10 societies end with a gap under 0.1. "Drove more to the extremes" = the extreme share rose by more than 0.1 over no intervention. At τ = 0.6 the society splits to the extremes on its own, so no lever can make it worse there.</p>
+  </section>
+</main>
+
+<footer class="wrap">
+  <p>Code, tests, sweep and write-up: <a href="../">the civ-levers project page</a> · <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/research/civ-levers">source on GitHub</a> (MIT). Made with AI assistance (Claude). Nothing you do here is sent anywhere.</p>
+</footer>
+
+<script type="module">
+import { LEVERS, apply, measures, rng, step } from "./model.js";
+
+const $ = (id) => document.getElementById(id);
+const HINTS = {
+  none: "No dose.",
+  bridge: "Share of within-camp ties rewired to the other camp.",
+  broadcast: "Chance each round that a person hears the broadcast instead of a contact.",
+  moderates: "Share of people made committed moderates at 0.5 who never move.",
+  ladder: "Share of people made committed voices, spaced at most 0.8ε apart from 0.2 to 0.8.",
+  nudge: "Share of people moved once to 0.5; they can drift back.",
+  tolerance: "Amount added to everyone's tolerance ε.",
+};
+const PRESETS = [
+  ["Contact, no backfire", { lever: "bridge", dose: 0.25, eps: 0.3, tau: 1.01 }],
+  ["Same contact, backfire τ 0.7", { lever: "bridge", dose: 0.25, eps: 0.3, tau: 0.7 }],
+  ["Moderate broadcast", { lever: "broadcast", dose: 0.1, eps: 0.3, tau: 0.7 }],
+  ["Low tolerance: centre out of reach", { lever: "moderates", dose: 0.2, eps: 0.2, tau: 1.01 }],
+  ["Low tolerance: a ladder", { lever: "ladder", dose: 0.1, eps: 0.2, tau: 1.01 }],
+  ["Nudge that fades", { lever: "nudge", dose: 0.2, eps: 0.3, tau: 1.01 }],
+];
+for (const [k, v] of Object.entries(LEVERS)) $("lever").add(new Option(v, k));
+$("lever").value = "bridge";
+for (const [name, p] of PRESETS) {
+  const b = document.createElement("button");
+  b.textContent = name;
+  b.onclick = () => { for (const k in p) $(k).value = p[k]; sync(); start(); };
+  $("presets").append(b);
+}
+
+const T = 400, BINS = 100;
+const cv = $("river"), ctx = cv.getContext("2d");
+let soc, kw, r, t, timer = null, img;
+
+function sync() {
+  const tau = +$("tau").value;
+  $("doseV").textContent = $("lever").value === "none" ? "–" : (+$("dose").value).toFixed(2);
+  $("epsV").textContent = (+$("eps").value).toFixed(2);
+  $("tauV").textContent = tau > 1 ? "off" : tau.toFixed(2);
+  $("seedV").textContent = $("seed").value;
+  $("doseHint").textContent = HINTS[$("lever").value];
+}
+
+function colour(name) {
+  const c = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  const m = c.match(/^#(..)(..)(..)$/);
+  return m ? m.slice(1).map((h) => parseInt(h, 16)) : [128, 128, 128];
+}
+
+function drawColumn() {
+  const W = cv.width, H = cv.height, A = colour("--a"), B = colour("--b"), bg = colour("--bg");
+  const c0 = new Float64Array(BINS), c1 = new Float64Array(BINS);
+  for (let i = 0; i < soc.n; i++) {
+    const b = Math.min(BINS - 1, Math.floor(soc.x[i] * BINS));
+    (soc.group[i] ? c1 : c0)[b]++;
+  }
+  const x0 = Math.floor((t * W) / T), x1 = Math.max(x0 + 1, Math.floor(((t + 1) * W) / T));
+  for (let b = 0; b < BINS; b++) {
+    const tot = c0[b] + c1[b];
+    const a = Math.min(1, Math.sqrt(tot / 60));
+    const f = tot ? c1[b] / tot : 0;
+    const rgb = [0, 1, 2].map((k) => Math.round(bg[k] * (1 - a) + (A[k] * (1 - f) + B[k] * f) * a));
+    const y0 = Math.floor(H - ((b + 1) * H) / BINS), y1 = Math.floor(H - (b * H) / BINS);
+    for (let x = x0; x < x1; x++) for (let y = y0; y < y1; y++) {
+      const o = (y * W + x) * 4;
+      img.data[o] = rgb[0]; img.data[o + 1] = rgb[1]; img.data[o + 2] = rgb[2]; img.data[o + 3] = 255;
+    }
+  }
+}
+
+function stats() {
+  const m = measures(soc);
+  $("sR").textContent = t;
+  $("sG").textContent = m.gap.toFixed(2);
+  $("sE").textContent = Math.round(m.extreme * 100) + "%";
+  $("sC").textContent = Math.round(m.centre * 100) + "%";
+}
+
+function start() {
+  clearInterval(timer);
+  const lever = $("lever").value, tau = +$("tau").value;
+  ({ soc, kw } = apply(lever, +$("dose").value, +$("eps").value, +$("seed").value));
+  kw.tau = tau > 1 ? Infinity : tau;
+  r = rng(+$("seed").value + 99);
+  t = 0;
+  const bg = colour("--bg");
+  img = ctx.createImageData(cv.width, cv.height);
+  for (let o = 0; o < img.data.length; o += 4) { img.data[o] = bg[0]; img.data[o + 1] = bg[1]; img.data[o + 2] = bg[2]; img.data[o + 3] = 255; }
+  drawColumn(); stats();
+  timer = setInterval(tick, 16);
+  $("pause").textContent = "Pause";
+}
+
+function tick() {
+  for (let k = 0; k < 4 && t < T - 1; k++) { step(soc, r, kw); t++; drawColumn(); }
+  ctx.putImageData(img, 0, 0);
+  stats();
+  if (t >= T - 1) { clearInterval(timer); timer = null; }
+}
+
+$("go").onclick = start;
+$("pause").onclick = () => {
+  if (timer) { clearInterval(timer); timer = null; $("pause").textContent = "Resume"; }
+  else if (t < T - 1) { timer = setInterval(tick, 16); $("pause").textContent = "Pause"; }
+};
+for (const id of ["lever", "dose", "eps", "tau", "seed"]) $(id).addEventListener("input", sync);
+sync(); start();
+</script>
+</body>
+</html>

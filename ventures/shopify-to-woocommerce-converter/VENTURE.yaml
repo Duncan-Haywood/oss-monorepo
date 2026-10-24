@@ -68,5 +68,5 @@ kill_criteria:
   - A user reports WooCommerce rejecting or mismapping a file this tool produced, at which point the mapping needs revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/shopify-to-woocommerce-converter/
+  production: https://duncan-haywood.github.io/oss-monorepo/shopify-to-woocommerce-converter/
   analytics: null

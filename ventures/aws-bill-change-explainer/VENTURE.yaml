@@ -90,5 +90,5 @@ kill_criteria:
   - The cause checklist is reported wrong for a common service and is not corrected within 30 days -- a prompt for where to look that points the wrong way is worse than none.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/aws-bill-change-explainer/
+  production: https://duncan-haywood.github.io/oss-monorepo/aws-bill-change-explainer/
   analytics: null

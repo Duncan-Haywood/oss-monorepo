@@ -81,5 +81,5 @@ kill_criteria:
   - No external repository is found wiring cli.mjs into its own CI within 90 days.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/ai-crawler-access-check/
+  production: https://duncan-haywood.github.io/oss-monorepo/ai-crawler-access-check/
   analytics: null

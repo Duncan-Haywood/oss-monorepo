@@ -2,7 +2,7 @@
 
 When the temperature drifts, can enough cheap MEMS gyros, averaged, still match one better gyro? On a stylised single-axis model: **no, once the ramp is fast enough. The part of the temperature coefficient that the units share does not average out, so it sets an error floor `μ·r·T²/2` that no array size removes; in the illustrative case a 3× better unit can no longer be matched at any `n` above a 0.2 °C/min ramp over 100 s, and a 10× better one above 0.04 °C/min.** Compensation helps only if it is good: with both grades compensated to the same residual, the needed array size falls back to near `k²` only at about 2% residual tempco. Produced with AI assistance (Claude). Follow-up to `sensing-imuarray` (track 15, `PROJECTS.md`), which listed temperature drift as a limitation. It builds on none of the CU Boulder groups in `prompt.md`. Nothing here uses real IMU data; grades and tempcos are illustrative assumptions, not datasheets, and no prices are claimed.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/sensing-imutemp/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/sensing-imutemp/
 
 **Builds on.** [`research/sensing-imuarray`](../sensing-imuarray) (Allan-variance white + rate-walk terms, cost-matched array comparison, shared error fraction `ρ`) and [`research/fusion-twin`](../fusion-twin) (equal-weight fusion of correlated errors). There, shared drift was a free fraction `ρ` of the bias-walk variance. Here it is derived from a mechanism: a temperature coefficient `cᵢ = μ + s·eᵢ` per unit, whose mean `μ` is shared and whose spread `s` is not. No specific array paper is reproduced.
 

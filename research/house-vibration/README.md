@@ -4,7 +4,7 @@ This adds a floor-vibration check to [`house-spans`](../house-spans), whose "lea
 
 **Headline.** For SPF No. 2 floor joists (10 psf dead + 40 psf live), **any frequency limit up to 10 Hz changes nothing**: the longest 2x10 at 16 in that passes strength and deflection (15 ft 3 in) vibrates at 10.1 Hz. At 12 Hz it shortens to 13 ft 11 in; at 15 Hz the least-lumber joist for a 12 ft span moves from 2x10 at 24 in (0.83 board feet per sq ft) to 2x12 at 24 in (1.00), and for 14 ft from 2x12 at 24 in (1.00) to 2x12 at 16 in (1.50). Whether vibration "erases the saving" is therefore a question about which limit you adopt, and this project does not claim one.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/house-vibration/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/house-vibration/
 
 **Builds on.** `house-spans` (NDS checks, loads, species values, board-feet measure), imported from `../house-spans/src`. Beam vibration theory (first mode of a simply supported Euler-Bernoulli beam). It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 

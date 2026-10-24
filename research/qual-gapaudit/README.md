@@ -2,7 +2,7 @@
 
 **No. On 3,188 real Reddit comments (GoEmotions), a coder with exactly zero overall prevalence bias still distorted the short-minus-long gap in negative-emotion prevalence by 0.20 (the true gap is −0.053), and the audit gate that works for a single prevalence, trusting the coder when its overall bias test passes, gave worst-case 95% coverage of 0.04 at 100 hand-coded items and 0.004 at 1,600.** More audit made it worse: the larger the audit, the more surely the unbiased-overall coder was trusted. A z test on the gap bias itself fixed it only slowly (worst coverage 0.23 at 100 items, 0.44 at 200, 0.97 from 800). The equivalence (TOST) gates at tolerance 0.02 and 0.05 never passed any naive-Bayes coder, so they were always-correct: group-wise prediction-powered inference covered 0.94–0.99 at every size. The coders are a naive-Bayes classifier with a moved cut-off and a word list, not LLMs. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/qual-gapaudit/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/qual-gapaudit/
 
 Track 19 (`qual`, [`PROJECTS.md`](../PROJECTS.md)). It takes the "test group-gap estimates under the same gates" item in [`qual-equivalence`](../qual-equivalence)'s "Next steps". Same corpus, split, seed and coders as that project; the gap estimand follows [`qual-real`](../qual-real) and [`qual-dialect`](../qual-dialect) (short, ≤10 words, versus long comments).
 

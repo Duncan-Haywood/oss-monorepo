@@ -32,8 +32,8 @@ exposure the owner must clean up personally.
    the live snapshot matches `main`; if it is stale, refreshing it outranks new work.
 2. **Raise the bar, not the count.** There are 190+ ventures and no nonzero
    usage reading yet (`usage/usage.yaml`; unmeasured, not zero). A new venture
-   is welcome when it is a genuinely different product, never a calculator
-   (owner, 2026-10-21) and not another copy of a template family (121 near-identical `*-bid-calculator` ventures were built
+   is welcome when it is a genuinely different product rather than a newly started calculator
+   (owner, 2026-10-21: depth over calculators; already-built ones can still merge) and not another copy of a template family (121 near-identical `*-bid-calculator` ventures were built
    while none was measured: `docs/reports/2026-10-16-calculator-glut.md`).
    Name where the first real visitor would come from (a subreddit, a search
    phrase with volume, a competitor's comparison traffic) before graduating
@@ -43,7 +43,7 @@ exposure the owner must clean up personally.
    reading ranks by it (`platform/ci/usage_state.py`). A reading of zero after
    a fair run is a result worth recording.
 4. **Legal exposure is the one hard stop** (see "Legal guardrails").
-5. **Don't restate this brief.** A session told to "set direction" should check
+5. **Restating this brief rarely helps.** A session told to "set direction" should check
    `git log -5 -- portfolio/DIRECTION.md AGENTS.md` first; rewording a correct
    brief is not progress. `python3 portfolio/ledger/check_direction_only.py`
    exits 1 when a branch changes only these two files.
@@ -54,8 +54,8 @@ Build traditional software that creates a lot of value for real users in
 super-niche markets where people have money and a concrete problem, especially
 problems that help them earn more. Add AI only where it clearly improves the
 product. Start from abundant free value, measure what people come back to
-without paid acquisition, and double down on that. No calculator work:
-no new calculators, fixes only for existing ones (owner, 2026-10-21; `goals.md`,
+without paid acquisition, and double down on that. No effort on
+calculators beyond fixes; already-built ones can still merge (owner, 2026-10-21; `goals.md`,
 "Direction: depth over calculators").
 
 - Do not collect payment on, or wire payout rails to, the owner's accounts.
@@ -125,9 +125,10 @@ keep building what you were.
 ## Development flow
 
 Code that passes the venture's CI and stays in scope merges without human
-review. Required before merge: relevant tests and builds green, no payment on
-the owner's accounts, no legal exposure beyond documented disclaimers, usage
-instrumentation on new user-facing features.
+review. Before merge, expect relevant tests and builds green (a red `main`
+costs every later run) and usage instrumentation on new user-facing features;
+never payment on the owner's accounts or legal exposure beyond documented
+disclaimers.
 
 Owner-only (flag in `portfolio/ledger/asks.yaml` only when product work is
 blocked): moving money; accounts that need a card, ID, domain or bank;

@@ -1,5 +1,8 @@
 # Review track, prompt 2 (candidate)
 
+(Rebased on prompt 1 on 2026-10-24; its one change from prompt 1 is the audit
+step below. The first draft had drifted from prompt 1 in eight places.)
+
 The master prompt (`prompt.md`) routes a run here once `review_every` runs
 (see `prompts/routing.json`) have merged since the last review, or when a
 session asks for one with `--track review`. This run works on the system
@@ -10,23 +13,33 @@ that file; propose changes to it instead (step 8).
 
 One review, one pull request, titled `prompts: review YYYY-MM-DD`. Open it as
 a draft within your first few minutes, so other runs see the claim and route
-with `--skip-review`. To find an existing claim, use `search_pull_requests` (`is:open "prompts: review" in:title`, `minimal_output`); `list_pull_requests` returns ~60KB of unrelated PRs.
+with `--skip-review`.
+
+**Short on time (a scheduled run)?** A reduced pass is a valid review: do
+steps 1, 3, 7 and 8 and one fix from step 5, skip the audit and the drift
+report when recent outputs are doc-only, and say so in the log. No need to report
+the skip as friction (37 reports said a full pass was too large).
 
 ## 1. Measure
 
 ```
-python3 prompts/promptctl.py measure   # 100KB+: add --section <title text> (e.g. "version", "friction") to read one table
+python3 prompts/promptctl.py measure
 ```
 
-Read the tables. Then make the numbers true before you trust them:
+Read the tables (full output is 50KB+: `--section candidates`, `--section friction`
+print one part). Then make the numbers true before you trust them:
 
-- **Measure what runs could not know.** Run
-  `python3 prompts/derive.py fetch && python3 prompts/derive.py build` and
-  commit the regenerated `prompts/derived/`. On a 403 (no GitHub token) skip
-  `fetch`, run `build` on the cache, and log it in one line; a retry won't help.
+- **Measure what runs could not know.** Run first:
+  `python3 prompts/derive.py fetch && python3 prompts/derive.py build`. It
+  measures `merged`, PR size, red-CI commits and 14-day rework for every
+  record that names a PR, upstream ones included, into `prompts/derived/`.
+  `measure` reads that, so these facts need no hand edits to records. Commit
+  the regenerated `prompts/derived/` with the review. `fetch` is incremental and
+  stops at ~100s (30 PRs per call): run it with `run_in_background` once, not
+  in a loop. On a 403 (no GitHub API), skip both and say so in the log.
 - **Count leaked work.** Branches or pull requests a recorded run pushed that
-  were not on `main` 24 hours later. Set `merged: false` on their records,
-  then land or close each one, per `land-your-work.md`.
+  were not on `main` 24 hours later. Set `merged: false` on their records.
+  Then land or close each one, per `land-your-work.md`.
 
 ## 2. Audit
 
@@ -62,8 +75,8 @@ For a track without a candidate that has at least about 10 runs, write the next 
 `prompts/<track>/prompt-<n+1>.md`. Start from a full copy of the champion and
 make one focused change, aimed at that track's most common failure in the
 records. One change at a time, so its effect can be measured. Give it
-`"candidate_share": 0.2`. Every version must keep its link to
-`prompts/goals.md`; `validate` checks this.
+`"candidate_share": 0.2`. Every version keeps its link to
+`prompts/goals.md`, which carries the guardrails; `validate` checks this.
 
 ## 5. Improve the documentation
 
@@ -87,8 +100,7 @@ the file with the most of them; what you cannot fix goes into
 ## 6. Drift audit
 
 Added 2026-10-15 at the owner's request: the owner reviews little, so agents
-should notice and fix drift from what the owner asked. Apply "Judgment over
-rules" in `prompts/goals.md`.
+should notice and fix drift ("Judgment over rules" in `prompts/goals.md`).
 
 1. **Read the owner's own words.** These are the `input` fields of run records
    that are not a routine trigger ("By starting message"), the owner's brief
@@ -112,9 +124,8 @@ rules" in `prompts/goals.md`.
    needs the owner (touches `goals.md`, intent unclear), add a short proposal
    under "Proposals for the owner" in `experiments.md`: quote the words, ask
    a one-line question.
-5. **Write the report** `prompts/drift/YYYY-MM-DD.md`: what drifted, the
-   evidence, what you fixed, what you propose, follow-up on the last report.
-   Two minutes to read, for an owner who reads rarely.
+5. **Write the report** `prompts/drift/YYYY-MM-DD.md` (what drifted, evidence,
+   fixes, proposals, follow-up on the last report), two minutes to read.
 
 ## 7. Log and follow up
 

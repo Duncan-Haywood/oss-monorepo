@@ -2,7 +2,7 @@
 
 Re-run of `energy-lcos` and `energy-lcos-mc` (track 16) with every cost, efficiency, lifetime and fixed-O&M figure read from PyPSA technology-data (Danish Energy Agency; Viswanathan et al. 2022, PNNL-33283) and NREL's Annual Technology Baseline 2024, as the owner asked on 2026-10-21 ("run the numbers"; `research/CLAUDE.md`). The earlier two projects used round numbers I chose and ranges I made up. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/energy-lcos-sourced/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/energy-lcos-sourced/
 
 **Headline (modelled; costs sourced; cycle life, fade, charging price and discount rate not sourced, see Limitations).** With sourced 2030 costs, lithium-ion is the cheapest way to deliver stored energy for 1 to 4 hours ($121/MWh at 4 h), adiabatic compressed air in a cavern from 6 hours up, and the assumed map's hydrogen win at 500 hours disappears (cavern air $258/MWh against hydrogen $425). The point-estimate winners match the assumed map at every duration but 500 h, so the earlier map's *order* survives, but its margins do not: pumped hydro, which the assumed map priced at $30/kWh plus $1,500/kW, costs $81/kWh plus $1,985/kW here. Over the sourced cost spread (NREL ATB scenarios, pumped-hydro site classes, technology-data cost years 2020 to 2050) the 6 to 12 hour range is a three-way contest: at 8 h pumped hydro wins 52% of scenarios, lithium-ion 22% and compressed air 27%. Above 48 hours cavern air wins at least 95%. Cavern air's single sourced value is also its weak point: it loses the 8 hour slot if its cost is 1.33 times the table's, and the 24 hour slot at 2.2 times.
 

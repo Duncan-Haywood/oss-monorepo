@@ -33,5 +33,5 @@ kill_criteria:
   - A report that an entitlement differs from Fair Work guidance on the same inputs.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/au-redundancy-pay-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/au-redundancy-pay-calculator/
   analytics: null

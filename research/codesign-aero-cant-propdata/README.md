@@ -2,7 +2,7 @@
 
 Follow-up to `codesign-aero-cant-kappa` (track 14, `codesign`). That project made the yaw reaction torque per newton of thrust κ = c·D and swept c over 0.06, 0.126 and 0.25 because the UIUC propeller database was unreachable. It is reachable now, so c is taken from measured static tests of 160 propellers. Produced with AI assistance (Claude). **Simulated; c is sourced from measured data (UIUC Propeller Data Site); cost, mass, motor and plant models are inherited assumed fits.**
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/codesign-aero-cant-propdata/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/codesign-aero-cant-propdata/
 
 ![Left: held-out error against the cant bound for c at the 10th, 50th and 90th percentile and maximum of measured propellers. Right: the cant angle chosen](experiments/propdata.png)
 

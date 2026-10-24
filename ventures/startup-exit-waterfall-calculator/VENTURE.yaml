@@ -53,5 +53,5 @@ kill_criteria:
   - A user reports that a payout figure contradicts their own hand calculation on the same terms.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/startup-exit-waterfall-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/startup-exit-waterfall-calculator/
   analytics: null

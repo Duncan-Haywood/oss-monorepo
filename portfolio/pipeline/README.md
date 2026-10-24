@@ -101,10 +101,11 @@ nothing to show. A 142nd instance clearing the duplicate check and the
 liability/ethics gates is necessary but no longer strong evidence that the
 *archetype* is the right next bet, separately from whether the *niche* is.
 
-> **Superseded 2026-10-21 (owner):** do stop. No new calculators of any
-> shape, a named channel or not; existing ones get fixes only
-> (`prompts/goals.md`, "Direction: depth over calculators"). Do not write up
-> or graduate a calculator candidate. The paragraph below is history.
+> **Superseded 2026-10-21 (owner):** do stop spending runs on them. Do not
+> write up or graduate a new calculator candidate, a named channel or not;
+> existing ones get fixes only. Calculator work already built can still be
+> merged; the point is effort, not what lands (`prompts/goals.md`,
+> "Direction: depth over calculators"). The paragraph below is history.
 
 This does not mean stop building bid calculators — a specific niche with an
 unusually strong, named channel (a trade forum that already discusses this

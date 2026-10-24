@@ -54,5 +54,5 @@ kill_criteria:
   - A user reports a DSCR or payment figure that differs from their lender's on a plain level-payment case, at which point the model needs revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/small-business-acquisition-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/small-business-acquisition-calculator/
   analytics: null

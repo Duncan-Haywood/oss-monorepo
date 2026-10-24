@@ -1,0 +1,9 @@
+{
+ "pr": 8869,
+ "reviewed_at": "2026-10-24T03:00Z",
+ "findings": 0,
+ "severity": "none",
+ "fix_pr": null,
+ "note": "numbers match; dead fe_flops docstring",
+ "batch": "docs/reports/assets/pr-review-flow/findings.md"
+}

@@ -61,5 +61,5 @@ kill_criteria:
   - A user reports relying on a tax-free result that was wrong despite the disclaimers, at which point the disclosure wording itself needs revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/backdoor-roth-pro-rata-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/backdoor-roth-pro-rata-calculator/
   analytics: null

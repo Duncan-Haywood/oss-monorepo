@@ -2,7 +2,7 @@
 
 Does the 2D hanger drape of [`hanger-fit`](../hanger-fit) survive a 3D cloth model with front and back panels? **On the cases both can run, yes for the design question and partly for the numbers. A 3D mass-spring sheet picks the same best arm half-width as the 2D chain (22.8 cm for a size M tee) and its error follows the 2D error across a width sweep (correlation 0.994), though it reads 0.1 to 0.4 cm higher near the optimum. It also shows what 2D cannot: the cloth bends across the arm, 119 deg/cm over a 0.5 cm arm against 34 deg/cm over a 2 cm one. It disagrees on a heavy knit over a thin arm (17.8 cm error against 5.6 cm), and the result moves with grid spacing (1.19 cm at 1 cm spacing, 0.62 cm at 0.5 cm), so it is not grid-converged.** Produced with AI assistance (Claude). Track 18 (`hanger`, `PROJECTS.md`). Milestone 4 (the 3D drape) was landed by [`hanger-3d`](../hanger-3d) while this was being built; this is a second, independently written model, kept as a cross-check, which differs in one way: the sheet is wrapped over a round arm (so it bends across the arm) rather than hung from a line of given depth. Every number is from a stylised simulation with assumed fabric constants, not a measurement of real garments.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/hanger-wrap/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/hanger-wrap/
 
 ![Shape error against arm width, 2D chain and 3D sheet](experiments/width_sweep.svg)
 

@@ -121,5 +121,5 @@ kill_criteria:
     Expires field, which is the recurring-need premise this venture rests on.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/security-txt-check/
+  production: https://duncan-haywood.github.io/oss-monorepo/security-txt-check/
   analytics: null

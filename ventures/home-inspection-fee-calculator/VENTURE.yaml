@@ -27,5 +27,5 @@ kill_criteria:
   - No repeat usage or organic traffic within 60 days of a public URL.
   - No unsolicited feedback, star, fork, or referral within 90 days of publishing.
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/home-inspection-fee-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/home-inspection-fee-calculator/
   analytics: null

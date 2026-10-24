@@ -430,7 +430,8 @@ def is_calculator(name: str) -> bool:
 MAINTAIN_TASK = (
     "Maintain only (owner, 2026-10-21): this is a calculator. Fix it if it is broken "
     "(a failing test, a wrong result, a dead link); otherwise add no features, pages, "
-    "comparison pages or consolidation work -- take a flagship or research task instead."
+    "comparison pages or consolidation work -- take a flagship or research task instead. "
+    "Already-built work for it (an open PR, a stranded branch) can still be merged."
 )
 
 
@@ -473,7 +474,7 @@ def next_task(v: Venture) -> str:
         return "Review: monthly_cost exceeds mrr -- check against kill_criteria."
     return (
         "Continue: if this venture has no public URL, deploy the built surface "
-        "(see portfolio/DIRECTION.md Current priority); otherwise advance the "
+        "(see portfolio/hosting/README.md); otherwise advance the "
         "next documented roadmap task."
     )
 

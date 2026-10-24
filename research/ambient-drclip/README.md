@@ -2,7 +2,7 @@
 
 Track 2 (ambient AI assistant), follow-up to `ambient-dr`, whose first next step was "clipped DR pseudo-labels; test the 1/&epsilon; explanation by capping the correction". Produced with AI assistance. **Stylised, simulated results only**: every distribution is chosen by me and nothing is a claim about a real user, device or product. **Mixed result**: positive with an informed prior, negative with an uninformed one.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/ambient-drclip/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/ambient-drclip/
 
 ## Motivation
 

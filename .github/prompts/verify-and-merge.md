@@ -30,6 +30,7 @@ node --test platform/edge/*.test.mjs           # the site's feedback/counts Work
 node --test platform/uitest/*.test.mjs        # browser half skips unless PLAYWRIGHT=/opt/node-tools/node_modules/playwright/index.js
 node --test 'ventures/<slug>/**/*.test.mjs'   # quote it: 21 ventures keep suites in a subdirectory
 node --test research/marriage-divorce-evidence/app/tests/*.test.mjs
+node --test research/civ-levers/app/tests/*.test.mjs
 python3 platform/ci/run_venture_tests.py --changed   # every venture your branch touches, in parallel (no args: all ~1,300, minutes not hours)
 python3 -m pytest gitops/tests -q        # gitops/, platform/ci/, or ANY new venture
 # No pytest/numpy? PY=$(python3 platform/ci/pyenv.py pytest numpy), then "$PY" -m pytest: some images split python3 from what pip/apt install into. gitops/tests has a few failures on clean main that depend on the image (`gh` preinstalled, test_ci_runner.py): run the failing test on origin/main before blaming your change.
@@ -86,7 +87,7 @@ What the lines are for, and the traps in running them:
   `publish-branch.sh` too). Start each with `run_in_background` and read the
   result when it finishes; avoid chaining them. Foreground `sleep` is blocked in
   cloud sessions, so wait with Monitor and an `until` loop on the output file.
-  **Never `pgrep -f`/`pkill -f` in a wait or cleanup**: it matches its own
+  **`pgrep -f`/`pkill -f` in a wait or cleanup hangs**: it matches its own
   command line and never ends (18 run-record errors were this trap). When
   your change reaches only a few cases of one file (`build.test.mjs` alone
   took ~17 min), run those with `node --test --test-name-pattern='<words>'

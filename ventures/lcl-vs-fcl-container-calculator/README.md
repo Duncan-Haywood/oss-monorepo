@@ -3,7 +3,7 @@
 A free browser tool for importers, Amazon/Shopify sellers and small freight buyers: **enter your cargo's CBM and weight, your forwarder's LCL quote and
 any full-container quotes, and see which is cheaper, where the break-even volume is, and the freight cost per unit**. Nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/lcl-vs-fcl-container-calculator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/lcl-vs-fcl-container-calculator/
 
 After using this, you can now **decide between a shared container and your own with the numbers in front of you**, which used to be two
 quotes in different units (per CBM versus per box) that nobody divided out.

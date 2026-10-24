@@ -13,7 +13,7 @@ running the same comparison logic as the CLI below (see
 in tests). It also links to
 [`site/what-is-mcp-tool-poisoning.html`](site/what-is-mcp-tool-poisoning.html),
 a reference page on the attack this checker is built to catch. It is live at
-[`mcp-supply-chain-watch`](https://duncan-haywood.github.io/monorepo-projects/mcp-supply-chain-watch/)
+[`mcp-supply-chain-watch`](https://duncan-haywood.github.io/oss-monorepo/mcp-supply-chain-watch/)
 in the portfolio's GitHub Pages catalogue — see `VENTURE.yaml`'s `links.production`.
 The static surface includes crawlable `robots.txt` and `sitemap.xml` files.
 

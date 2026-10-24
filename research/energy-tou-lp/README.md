@@ -2,7 +2,7 @@
 
 Track 16 (energy), next step 2 of [`energy-tou`](../energy-tou) ("replace the fixed rule by a day-ahead optimiser (LP) to find the true value, and charge cycling wear to the battery"). `energy-tou` reported break-evens from a fixed rule and called them lower bounds. This project computes the bound: a linear program that sees the whole year (and a 36 h receding-horizon version) against that rule, with a cycle-life limit so that an optimiser that cycles hard pays for it in battery life.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/energy-tou-lp/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/energy-tou-lp/
 
 **Headline (modelled; assumed tariff, synthetic weather).** On the same assumed three-band tariff, a 10 kWh battery behind 6 kW of PV breaks even at **$867/kWh** installed under optimal dispatch with perfect foresight, against **$674** for the best fixed rule and **$444** on the flat tariff. With the battery's life limited to 4,000 full cycles (the optimiser cycles it 338 times a year, the rule 226), the optimal figure is **$742**, still **10% above the rule** and still under the assumed $800 at 10 kWh. With the same life limit the optimiser's gain is largest at 15 kWh (**$614** against the rule's **$506**) and smallest at 2.5 kWh (**$855** against **$822**). A rolling 36 h plan with a perfect forecast gets within $1 of the whole-year optimum ($866 against $867), so a day-ahead controller does not need to see the year. The size ranking does not change: small batteries (2.5 to 5 kWh) clear $800, 10 kWh and larger do not. This says how much a better controller adds on a stylised tariff, not that any home should buy a battery.
 

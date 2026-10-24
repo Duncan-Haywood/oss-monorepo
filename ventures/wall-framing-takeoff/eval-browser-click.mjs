@@ -151,6 +151,20 @@ await page.fill("#hdrTable", "");
 await page.click("#run");
 await page.waitForFunction(() => /header table is empty/.test(document.body.textContent), null, { timeout: 90000 });
 console.log("ok: auto header with no table refused on the page");
+// budget: typed prices price the sheet and labor lines; the total ties to the table
+await page.fill("#hdrTable", "");
+await page.click("#example");
+await page.fill("#priceText", "wallSheet, 20\nlaborWallFoot, 10\ntax, 0.1");
+await page.click("#run");
+await page.waitForFunction(() => /Wall framing/.test(document.querySelector("#budgetOut")?.textContent || ""), null, { timeout: 90000 });
+const budTxt = await page.textContent("#budgetOut");
+const budOk = !/NaN|undefined/.test(budTxt) && /total/.test(budTxt) && /labor/.test(budTxt);
+console.log(budOk ? "ok: budget from typed prices on the page" : "FAIL: budget: " + budTxt.slice(0, 200));
+// prices travel in the saved plan file and come back on load
+const [sv] = await Promise.all([page.waitForEvent("download"), page.click("#savePlan")]);
+const saved = JSON.parse(await (await import("node:fs/promises")).readFile(await sv.path(), "utf8"));
+const priceSaved = saved.prices?.wallSheet === 20 && saved.prices?.tax === 0.1;
+console.log(priceSaved ? "ok: typed prices are saved in the plan file" : "FAIL: prices not in saved plan: " + JSON.stringify(saved.prices));
 console.log("page errors:", errors.length);
 await browser.close(); server.close();
-process.exit(errors.length || !panelsOk || !orderOk || !heavier || !noLen || !roofOk || !fnOk || !hipOk || !wingOk || !wing2Ok || !backingOk || !wingHidden || !floorOk || !gableOk || !hdrOk || horizontal.includes("CHECK FAILED") ? 1 : 0);
+process.exit(errors.length || !panelsOk || !orderOk || !heavier || !noLen || !roofOk || !fnOk || !hipOk || !wingOk || !wing2Ok || !backingOk || !wingHidden || !floorOk || !gableOk || !hdrOk || !budOk || !priceSaved || horizontal.includes("CHECK FAILED") ? 1 : 0);

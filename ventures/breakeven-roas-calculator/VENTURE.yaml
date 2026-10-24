@@ -59,5 +59,5 @@ kill_criteria:
   - A user reports a break-even ROAS or max CPA that differs from the documented formula for the numbers they typed in.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/breakeven-roas-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/breakeven-roas-calculator/
   analytics: null

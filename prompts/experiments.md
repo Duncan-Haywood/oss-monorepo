@@ -750,7 +750,7 @@ or `ventures`) until its success rate passes 80% over 20 runs?
 - Drift: `prompts/drift/2026-10-18f.md`.
 - Result: (next review)
 
-## E41: review 2026-10-18 (eighth)
+## E41: review 2026-10-18 (seventh)
 
 - Change: `research/CLAUDE.md` now says the first `pyenv.py` call takes ~20s and
   prints install chatter on stderr (3 friction reports). The yosys/apt-get
@@ -834,7 +834,7 @@ or `ventures`) until its success rate passes 80% over 20 runs?
   7 runs). Reduced pass: no audit or drift report (hours-old report).
 - Result: (next review)
 
-## E48: review 2026-10-19 (eighth)
+## E48: review 2026-10-19 (seventh)
 
 - Change: `research/CLAUDE.md` pyenv step now tells runs to test-import `pytest`
   along with the project's libraries before skipping the venv (friction: a plain
@@ -845,7 +845,7 @@ or `ventures`) until its success rate passes 80% over 20 runs?
   Reduced pass: no audit or drift report (hours-old report).
 - Result: (next review)
 
-## E49: review 2026-10-19 (ninth)
+## E49: review 2026-10-19 (eighth)
 
 - Change: `prompt.md` step 2 says to retry `create_pull_request` on HTTP 500
   (`prompt.md` friction: two 500s before success, no doc mentioned retrying).
@@ -1261,4 +1261,20 @@ or `ventures`) until its success rate passes 80% over 20 runs?
   `cloud-session.md` "Long commands", so no change.
 - Decisions: all four candidates keep collecting (intervals overlap / too few
   runs). No audit or drift report (reduced pass).
+- Result: (next review)
+
+## E79: review 2026-10-24 (chronicle and lessons pass)
+
+- Change: owner asked for a documentation review "from a chronicalling and
+  lesson pov". `portfolio/hosting/README.md` rewritten as current state plus
+  one-line lessons (362 → 122 lines); the old text moved verbatim to
+  `docs/history/hosting-2026-08-25-to-10-24.md`; new `docs/history/README.md`
+  indexes every history file with its lesson. Stale deploy-first advice fixed
+  in `session_gate.py`, `allocate.py`, `AGENTS.md`, `PRODUCT_PLAYBOOK.md`,
+  `DEVELOPMENT_QUALITY.md`. Report:
+  `docs/reports/2026-10-24-reference-docs-are-not-chronicles.md`.
+- Metric: friction reports naming `portfolio/hosting/README.md` or stale
+  hosting/deploy-first advice, over the next 40 runs (baseline: count at the
+  next review; a docs change is judged before/after, not A/B).
+- Decisions: no candidate scoring this run (brief was a docs review).
 - Result: (next review)

@@ -6,7 +6,7 @@ project declares which Node.js it wants (`engines.node` and `volta.node` in
 `FROM node:<tag>`, and GitHub Actions `actions/setup-node`) and whether they
 agree with each other.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/node-version-drift-check/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/node-version-drift-check/
 
 **What it is not:** a version manager, an installer, or a registry lookup. It
 never runs `node`, `npm`, `nvm` or `docker` and never makes a network call. It

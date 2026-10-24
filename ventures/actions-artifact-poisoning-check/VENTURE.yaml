@@ -52,5 +52,5 @@ kill_criteria:
   - No external repository is found using check.py or classify.mjs within 90 days.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/actions-artifact-poisoning-check/
+  production: https://duncan-haywood.github.io/oss-monorepo/actions-artifact-poisoning-check/
   analytics: null

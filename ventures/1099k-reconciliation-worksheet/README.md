@@ -8,7 +8,7 @@ totals down to an estimated net taxable profit. Enter each platform's Box
 remitted on your behalf, subtract your own costs, and see a per-platform
 and combined result. Entirely client-side; nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/1099k-reconciliation-worksheet/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/1099k-reconciliation-worksheet/
 
 After using this, you can now **see what each 1099-K's gross figure
 actually reconciles to as net profit, per platform and combined**, which

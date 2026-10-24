@@ -5,7 +5,7 @@ and the priced round you expect; it converts the SAFEs, sizes the option
 pool top-up and shows what you own afterwards. Entirely client-side; nothing
 is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/safe-dilution-calculator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/safe-dilution-calculator/
 
 After using this, you can now **see your cap table after the round, what each
 SAFE cost you and what founders take home at an exit**, which used to take a

@@ -15,6 +15,7 @@ what each automated agent run cost. Live page:
 | CI runs per day by outcome (exact) | GitHub runs API `total_count`, one query per day and outcome, halved at the 2,500 cap |
 | Workflows that fail most, triggers, durations, re-runs | the newest 1,000 completed runs |
 | Red on main now, time for main to recover | the newest 500 push runs on `main` |
+| Delivery (`delivery`): deploys, merge to live, and per gate the failed share, red spells, time to restore, hours red | every run on `main` of `portfolio-pages.yml` and `portfolio-validate.yml` in the last 3 days, plus the checkout's first-parent merges |
 
 ```
 node platform/devstats/build.mjs --out=_site/dev [--previous=<published stats.json>]

@@ -2,7 +2,7 @@
 
 Why it seemed worth doing: `eda-adaptpick` reported that choosing the k adaptation designs by farthest-point spread roughly halves a cell-count surrogate's error against random draws, but scored each chooser on the designs it had *not* chosen, so the test sets differed and its own limitations section said the spread rule might flatter itself. Its first listed next step was one fixed common test set. This project does that. Produced with AI assistance (Claude). **Stylised and preliminary:** the same 133 small designs in four generator families, a Yosys generic-cell-count target, no place and route.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/eda-adaptfixed/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/eda-adaptfixed/
 
 **Builds on.** `research/eda-adaptpick` (dataset, models and choosers copied, with the test-set logic changed), `research/eda-adapt`, `research/eda-surrogate`. Models use scikit-learn (Pedregosa et al., 2011, *JMLR* 12:2825-2830); the farthest-point rule is the greedy k-centre heuristic (Gonzalez, 1985, *Theoretical Computer Science* 38:293-306). Dataset tools: Yosys (Wolf, Glaser and Kepler, 2013) and ABC (Brayton and Mishchenko, 2010). No CU Boulder lab's work is built on and no affiliation is implied.
 

@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-24",
+  "session": "https://claude.ai/code/session_01QbGEdkjWAuwJ6ddXFgaWWQ",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled: follow prompt.md",
+  "input_sha256": "3e54a4671d69cc91f71654788cc0aa9420c6093cc023245b58cf4de88920f85c",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-24T03:39:34Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/10007",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Did not run venture-preflight or CI wait locally; ran the two affected test files only (35 pass). Merge left to CI/bots."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-24-payroll-deposit-split-across-quarters.md"
+  ],
+  "goal": null,
+  "notes": "ai-bookkeeper flagship: Pub. 15 (2026) check found the two-quarter semiweekly deposit rule missing; fixed with test.",
+  "corrections": [],
+  "redteam": null
+}

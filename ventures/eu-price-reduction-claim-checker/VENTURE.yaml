@@ -39,5 +39,5 @@ kill_criteria:
   - A report that a prior price or window differs from the cited law on the same inputs.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/eu-price-reduction-claim-checker/
+  production: https://duncan-haywood.github.io/oss-monorepo/eu-price-reduction-claim-checker/
   analytics: null

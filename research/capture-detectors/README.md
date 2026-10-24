@@ -2,7 +2,7 @@
 
 Seventh project of track 13, autonomous multi-angle capture for travel creators (`PROJECTS.md`). It takes the first "next step" of `capture-bystander`, which modelled automatic face blurring with an *assumed* recall curve (a face detector 50% reliable at 20 px), and measures real detectors instead. **Headline:** OpenCV's YuNet face detector at its usual 0.6 score threshold found every face of 16 px or wider and half of those at 10 px (fitted 50% point 9.2 px, 95% range 8.2 to 10.4), not 20 px. On `capture-bystander`'s 8K 360 camera that cuts the per-frame leak among identifiable faces (at least 32 px) from the assumed 4.8% to 0.01%, and from 36% to 0.9% if people can be recognised at 16 px. The result hangs on the score threshold: at 0.9 the 50% point is 26.6 px and the leak is 7.2%. A YOLOX-s person detector found 52% of upright people 20 to 32 px tall and 94% at 96 to 128 px (50% point 23 px of height, not the assumed 40). **This is a pilot:** 22 faces and 254 labelled people from 128 photos, faces that are easy by construction, and shrunk photos instead of far-away footage, so every figure here is an optimistic bound for a real crowd. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/capture-detectors/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/capture-detectors/
 
 **Guardrail.** Same as `capture-bystander`: a design input for protecting bystanders by default, not a way to hide filming, and nothing here says blurring satisfies the GDPR or any other law where you film.
 

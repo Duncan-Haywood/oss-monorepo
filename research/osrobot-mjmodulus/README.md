@@ -2,7 +2,7 @@
 
 Follow-up to `osrobot-mjpress` (track 9, open-source purpose-built robots), taking its "Next steps" item: **find a measured lip/skin elastic modulus to pin the Hertz row.** `osrobot-mjpress` swept an unsourced face modulus of 0.05 to 5 MPa and found the verdict flipped on it. This project replaces the sweep with published in-vivo values and asks whether the Hertz model it used is still valid there. In the direction of the CAIRO Lab interest in assistive robotics; nothing here is affiliated with or endorsed by it. Produced with AI assistance (Claude). Stdlib Python only. Simulation-derived forces plus a closed-form contact model; **not a safety case**.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/osrobot-mjmodulus/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/osrobot-mjmodulus/
 
 ![Hertz indentation depth against modulus](experiments/depth.svg)
 

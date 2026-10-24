@@ -1,0 +1,95 @@
+import { test } from "node:test";
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { budget, budgetText, budgetCsv } from "./budget.mjs";
+import { main } from "./cli.mjs";
+import { samplePlan } from "./engine.mjs";
+import { sampleFloor } from "./floor.mjs";
+import { sampleRoof } from "./roof.mjs";
+import { sampleFoundation } from "./foundation.mjs";
+
+const full = (prices) => ({ ...samplePlan(), floor: sampleFloor(), roof: sampleRoof(), foundation: sampleFoundation(), ...(prices ? { prices } : {}) });
+const run = (plan, ...flags) => main([ "p.json", ...flags ], () => JSON.stringify(plan));
+const bud = (plan) => JSON.parse(run(plan, "--sheathing", "--budget", "--json").out);
+
+test("lumber lines add up to the cutting-stock order's own cost", () => {
+  const b = bud(full());
+  const order = JSON.parse(run(full(), "--sheathing", "--json").out);
+  const lumber = b.sections.find((s) => s.name === "Lumber").subtotal;
+  assert.ok(Math.abs(lumber - order.summary.cost) < 0.05, `${lumber} vs ${order.summary.cost}`);
+});
+
+test("quantities without a typed price are listed, never guessed", () => {
+  const b = bud(full());
+  assert.ok(b.unpriced.some((u) => u.startsWith("Rebar")));
+  assert.ok(b.lines.filter((l) => l.amount == null).every((l) => l.unitPrice == null));
+  const sheets = b.lines.find((l) => l.item === "Subfloor sheets");
+  assert.equal(sheets.amount, null);
+});
+
+test("typed prices multiply the model's quantities, then tax and contingency stack", () => {
+  const b = bud(full({ floorSheet: 30, rebarLb: 1, concreteYd: 150, tax: 0.1, contingency: 0.05 }));
+  const fl = b.lines.find((l) => l.item === "Subfloor sheets");
+  assert.equal(fl.amount, +(fl.qty * 30).toFixed(2));
+  const conc = b.lines.find((l) => l.item === "Concrete");
+  assert.equal(conc.amount, +(conc.qty * 150).toFixed(2));
+  const tax = +(b.materials * 0.1).toFixed(2);
+  assert.equal(b.tax, tax);
+  assert.equal(b.contingency, +((b.materials + tax) * 0.05).toFixed(2));
+  assert.equal(b.total, +(b.materials + b.tax + b.contingency).toFixed(2));
+});
+
+test("a typed wall sheet price replaces the order's own sheet prices", () => {
+  const a = bud(full()).lines.find((l) => l.item === "Wall sheathing sheets");
+  const b = bud(full({ wallSheet: 50 })).lines.find((l) => l.item === "Wall sheathing sheets");
+  assert.equal(b.unitPrice, 50);
+  assert.equal(b.qty, a.qty);
+});
+
+test("walls-only plan has lumber and no shell sections", () => {
+  const b = bud(samplePlan());
+  assert.deepEqual(b.sections.map((s) => s.name), ["Lumber", "Sheathing"]);
+});
+
+test("the CLI prints a BUDGET section and the labor disclaimer", () => {
+  const out = run(full({ roofSheet: 40 }), "--budget").out;
+  assert.match(out, /\nBUDGET\n/);
+  assert.match(out, /Not in the total, no price typed/);
+  assert.match(out, /no labor rate typed/);
+});
+
+test("budgetText handles an empty result", () => {
+  assert.ok(budgetText(budget({ orders: [] })).length >= 2);
+});
+
+test("labor rates multiply takeoff quantities and stay out of tax and contingency", () => {
+  const b0 = bud(full({ tax: 0.1, contingency: 0.05 }));
+  const b = bud(full({ tax: 0.1, contingency: 0.05, laborWallFoot: 12, laborRoofSquare: 100 }));
+  const wf = b.lines.find((l) => l.item === "Wall framing");
+  assert.equal(wf.amount, +(wf.qty * 12).toFixed(2));
+  assert.equal(b.materials, b0.materials);
+  assert.equal(b.tax, b0.tax);
+  assert.equal(b.total, +(b.materials + b.tax + b.contingency + b.labor).toFixed(2));
+  assert.ok(b.unpriced.some((u) => u.startsWith("Floor framing")));
+});
+
+test("budgetCsv has a header, one row per line, and quotes commas", () => {
+  const b = bud(full({ laborWallFoot: 10 }));
+  const csv = budgetCsv(b).trim().split("\n");
+  assert.equal(csv[0], "section,item,qty,unit,unit_price,amount,source");
+  assert.equal(csv.length, 1 + b.lines.length + 5);
+  assert.match(csv.at(-1), /^,Total,,,,/);
+  assert.match(budgetCsv({ lines: [{ section: "A", item: "x, y", qty: 1, unit: "u", unitPrice: null, amount: null, source: 's"q' }], materials: 0, taxRate: 0, tax: 0, contingencyRate: 0, contingency: 0, labor: 0, total: 0 }), /"x, y"/);
+});
+
+test("foundation labor rates price the slab area and the net concrete, outside tax", () => {
+  const b0 = bud(full({ laborWallFoot: 1 }));
+  const b = bud(full({ laborWallFoot: 1, laborFoundationSqFt: 3, laborConcreteYd: 40 }));
+  const a = b.lines.find((l) => l.item === "Foundation forming, rebar and finishing");
+  const c = b.lines.find((l) => l.item === "Concrete placing");
+  assert.ok(a.qty > 0 && c.qty > 0);
+  assert.equal(a.amount, +(a.qty * 3).toFixed(2));
+  assert.ok(Math.abs(c.amount - c.qty * 40) <= 0.005 * 40); // qty is shown rounded to 2 places
+  assert.equal(+(b.labor - b0.labor).toFixed(2), +(a.amount + c.amount).toFixed(2));
+  assert.ok(bud(full({ laborWallFoot: 1 })).unpriced.some((u) => u.startsWith("Concrete placing")));
+});

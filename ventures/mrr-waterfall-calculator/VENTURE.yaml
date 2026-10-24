@@ -23,5 +23,5 @@ kill_criteria:
   - Fewer than three SaaS operators use the calculator twice within 90 days.
   - Users cannot distinguish gross from net revenue retention after using the tool once.
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/mrr-waterfall-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/mrr-waterfall-calculator/
   analytics: null
