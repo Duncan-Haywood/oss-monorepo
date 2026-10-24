@@ -41,7 +41,7 @@
     {
       "file": "prompts/ventures/prompt-1.md",
       "why": "Did not run venture-preflight.mjs: no new venture, one engine constant changed.",
-      "did": "Ran eval on tuning and held-out seeds and engine tests instead.",
+      "did": "Ran eval on tuning and held-out seeds and engine tests instead (93/93 pass).",
       "result": "as notes"
     }
   ],
@@ -49,7 +49,7 @@
     "docs/posts/2026-10-26-growth-change-range-clumpy-counts.md"
   ],
   "goal": null,
-  "notes": "Tuned temper on seeds 2026/7/99 (145/161 -> 153/161), held-out 3/11/500: 161/170. Full engine.test.mjs exceeds 110 s; run in background, result added before merge. Did not run venture-preflight (engine-constant change only).",
+  "notes": "Tuned temper on seeds 2026/7/99 (145/161 -> 153/161), held-out 3/11/500: 161/170. Full engine.test.mjs exceeds 110 s; run in background, engine.test.mjs 93 of 93 pass. Did not run venture-preflight (engine-constant change only).",
   "corrections": [],
   "redteam": null
 }
