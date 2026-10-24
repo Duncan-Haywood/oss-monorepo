@@ -635,7 +635,8 @@ export function readQif(text, { dayFirst = false } = {}) {
 // Without dayFirst or decimalComma the CSV branch infers them from the cells
 // (inferLocale); passing either one, true or false, is never overridden.
 export function readStatement(text, { dayFirst, decimalComma, invert, year, onlyAccount } = {}) {
-  text = String(text ?? "");
+  // Classic-Mac files end lines with a bare CR; the line-based readers split on \n.
+  text = String(text ?? "").replace(/\r(?!\n)/g, "\n");
   const dfGiven = dayFirst !== undefined, dcGiven = decimalComma !== undefined;
   dayFirst = !!dayFirst; decimalComma = !!decimalComma;
   const format = sniffFormat(text);
