@@ -4,7 +4,7 @@ Why it seemed worth doing: `eda-sky130rung` found that generic gate count ranks 
 
 **Headline.** Depth fails because it ignores load. Adding fan-out to the path delay lifts the rank agreement with SKY130-mapped delay from 0.611 to 0.83 (logical effort with the real fan-out) and 0.90 (a one-line fan-out model). Gate-type weights alone do nothing (0.609). But the proxy that wins on the whole is just gate count (0.911), so on this family "delay" is mostly "size", and the proxies still do not recover the 5-bit design that joins the true (area, latency) front.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/eda-delayproxy/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/eda-delayproxy/
 
 **Builds on.** `research/eda-sky130rung` (the 40 mapped designs and their ABC `stime` delays, read from its committed `mapped.json`), `research/eda-harness` (the design generator) and `research/chip-accel`. Logical-effort constants: Sutherland, Sproull and Harris, *Logical Effort: Designing Fast CMOS Circuits* (Morgan Kaufmann, 1999), Table 1.1. Fidelity-ladder framing: Peherstorfer, Willcox and Gunzburger (2018), *SIAM Review* 60(3):550-591. No CU Boulder lab's work is built on and no affiliation is implied.
 

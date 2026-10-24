@@ -2,7 +2,7 @@
 
 Why it seemed worth doing: `eda-sky130rung` found that generic-gate cell count ranks SKY130 area almost perfectly (Spearman 0.995) but generic logic depth ranks the mapped clock-period model poorly (0.611). It left "feed the mapped objective back into the search" open. A loop does not need a good global ranking, it needs the best design to be near the top of the cheap rung's list, because that list decides which designs get the expensive mapping. This asks that directly, with the mapped objective as the truth. Produced with AI assistance (Claude). **Preliminary:** one design family, one ABC script, no place and route.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/eda-latencyhalve/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/eda-latencyhalve/
 
 **Builds on.** `research/eda-sky130rung` (its committed `mapped.json`, copied to `experiments/mapped.json`: 40 MAC-engine designs with generic cells, depth, cycles, SKY130 area and ABC critical-path delay; Yosys 0.33, SKY130 HD `tt_025C_1v80` at ORFS `e5cc6e799f`), `research/eda-harness` and `research/chip-accel` (the designs), `research/eda-fidelity` (the screen-then-promote framing and the analytic rung; the idea is multifidelity screening, Peherstorfer, Willcox and Gunzburger 2018, *SIAM Review* 60(3):550-591). No code is copied; the screen code is original.
 

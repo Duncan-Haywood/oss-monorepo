@@ -2,7 +2,7 @@
 
 Real lenses bend rays by more than one radial term. `sensing-bafocal` fitted `k1` to images rendered with exactly `k1`; this asks what happens when the rendering law (`k1`, `k2`) is richer than the fitted one. On the `sensing-ba` rig (12 views, 0.5 px noise, every camera pose wrong), **with `k1 = −0.2` and `k2` from −0.2 to +0.4, solving for the focal and `k1` only returns 0.0015 object radii in every case, the same as also solving for `k2`, against 0.0022 to 0.0030 with no distortion model. The lens parameters are not separately identified: the `k1` estimate sits near −0.16 whatever the true `k2`, and the `k2` estimate is about 0.16 below the truth. The gain disappears at 2 px of noise (0.0061 for all three), and at 6 views the focal is 4% off** (numpy and scipy; 5 tests).
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/sensing-bak2/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/sensing-bak2/
 
 **Builds on.** `sensing-bafocal` (solver and triangulation, imported unchanged), `sensing-ba` and `sensing-recon` (rig, pose perturbation, Umeyama scoring). Triggs, McLauchlan, Hartley and Fitzgibbon (2000), "Bundle adjustment: a modern synthesis", LNCS 1883; Brown (1966), "Decentering distortion of lenses", *Photogrammetric Engineering* 32(3), for the radial polynomial `x_d = x (1 + k1 r² + k2 r⁴)`. Solver: SciPy `least_squares` (trust-region reflective, sparse Jacobian pattern). Track 15 (`sensing`). No lab in `prompt.md` fits.
 

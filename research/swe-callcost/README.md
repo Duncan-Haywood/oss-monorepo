@@ -2,7 +2,7 @@
 
 Pure Python standard library. A new question for track 10 (the software-engineering loop), not a variation of an earlier result: `swe-runcost` described what runs cost, and `swe-fieldfill` showed that 46% of records carry no cost at all. This project asks how much of a run's cost is already explained by a field every transcript has, the number of tool calls, and whether cost per call grows as a run gets longer (every call re-reads the context). Produced with AI assistance (Claude). Builds on none of the labs in `prompt.md`.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/swe-callcost/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/swe-callcost/
 
 All numbers are from `experiments/results.txt` (882 of 1,638 records in `prompts/runs/` carry both a positive `cost_usd` and `tool_calls`, dated 2026-10-16 to 2026-10-20).
 

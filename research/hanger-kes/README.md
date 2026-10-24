@@ -2,7 +2,7 @@
 
 **Yes. On four fabrics whose bending rigidity B and weight are published KES-FB measurements (a cotton single jersey, an elastane single jersey, a cotton shirting and a heavy cotton suiting), the best arm half width of the stock hanger is the half shoulder + 1 cm in all 12 cases (4 fabrics × 3 stretch stiffnesses), with shape error 0.18 to 0.83 cm RMS. The one near-tie is the heavy suiting at stretch stiffness EA 40 N/m (0.83 cm at +1 cm against 0.87 cm at +2 cm).** The measured B values (0.0066 to 0.125 gf·cm²/cm) are 0.2 to 4 times `hanger-fit`'s assumed 0.03 for a tee, and the result does not move. Produced with AI assistance (Claude). Track 18 (`hanger`, `PROJECTS.md`). **Simulation only; EA is not in the source table and is swept, and the garment geometry is `hanger-fit`'s assumed M tee for every fabric.**
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/hanger-kes/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/hanger-kes/
 
 ![Shape error against arm width on the four fabrics](experiments/err_vs_offset.svg)
 

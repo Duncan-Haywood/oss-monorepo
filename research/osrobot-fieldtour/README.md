@@ -2,7 +2,7 @@
 
 Follow-up to `osrobot-field` (track 9, open-source purpose-built robots), taking the first doubt its Limitations section left open: that "scouting never wins" might be an artefact of using nearest neighbour for the second stage. In the direction of the ARPG, RECUV and Autonomous Systems IRT interest in field-robot simulation; nothing here is affiliated with or endorsed by them. Produced with AI assistance (Claude). Pure Python standard library. **Every constant is an assumed round number (marked ASSUMED in `src/osrobot_fieldtour/model.py`, copied unchanged from `osrobot-field`), not a measurement of any robot, camera or crop, and no robot was built or driven.** All numbers are from `experiments/results.txt` (30 simulated fields per row; fields and random draws are shared across rows). Simulation only; a stylised, preliminary study.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/osrobot-fieldtour/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/osrobot-fieldtour/
 
 ![Minutes to finish one field for inline treatment and four scout tours](experiments/minutes.svg)
 

@@ -2,7 +2,7 @@
 
 Track 12 project, open-source residential construction (`PROJECTS.md`, milestone 5 follow-up). [`house-energy`](../house-energy) finds the cost-optimal wall, attic, windows and air-sealing package for a house in eight US climates, but its README admits that gas ($1.30/therm) and electricity ($0.16/kWh) are "invented round numbers". This project replaces them with dated EIA state residential prices (2025 gas, January–July 2026 electricity) for the six climates that map to a state with data, and re-runs the exhaustive search. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/house-energyprices/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/house-energyprices/
 
 **Headline.** The recommendation barely moves. In 10 of 12 climate-and-heating-system cases the optimal package is identical to house-energy's, and the 30-year saving over the baseline changes by −$496 to +$549, the largest changes being where real gas is far from $1.30 (Duluth with gas −$496, Chicago with a heat pump +$549). Advanced 2x6 walls win everywhere, U 0.50 windows are still chosen, and R-49 attics (27 to 40 year paybacks) and U 0.27 windows (74 to 107 years) still do not pay. Gas is dear in the South ($1.87 to $2.46/therm in Texas, Georgia and Florida, against $1.06 in Minnesota), yet a heat pump is only a tie on running cost there ($4 to $12 a year cheaper), and in the three cold climates gas is $260 to $326 a year cheaper to run (Chicago $395 against $695; Duluth $518 against $844).
 

@@ -2,7 +2,7 @@
 
 Why it seemed worth doing: `eda-fidelity` built a ladder whose top rung was generic-gate synthesis and listed "a real cell library" as missing. Every `eda-*` result so far scores designs in *generic gates*, which have no area or delay. If that rung ranks designs differently from a real library, the Pareto fronts those projects report may be wrong about which design is best. This is the first rung with physical units. It asks a new question rather than another variant of the proposer comparisons. Produced with AI assistance (Claude). **Preliminary:** one design family, one ABC script, no place and route, so nothing here is sign-off or silicon.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/eda-sky130rung/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/eda-sky130rung/
 
 **Builds on.** `research/eda-harness` (design generator and its committed evaluation log of generic-gate cells, flip-flops and depth), `research/chip-accel` (the MAC engine), `research/chip-ppa-sky130mac` (liberty filtering of dont-use cells) and `research/eda-flowtune` (`fetch_pdk.sh`, the pinned SKY130 platform files). Tools: Yosys 0.33 and ABC (apt), the SKY130 HD `tt_025C_1v80` liberty from OpenROAD-flow-scripts commit `e5cc6e799f5d` (Apache-2.0, fetched, not vendored). The fidelity-ladder framing follows Peherstorfer, Willcox and Gunzburger (2018), *SIAM Review* 60(3):550-591. No CU Boulder lab's work is built on and no affiliation is implied.
 

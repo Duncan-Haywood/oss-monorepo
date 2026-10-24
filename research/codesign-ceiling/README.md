@@ -2,7 +2,7 @@
 
 Track 14 (agentic co-design of low-cost robots), milestone 3. `../codesign-diagnose` ended with every method, from random search to Bayesian optimisation, stuck near 0.85 held-out grasp success, and its "Next steps" asked which test scenes nothing holds. This project answers that with an oracle sweep. Produced with AI assistance (Claude). No CU Boulder group's work is built on; no connection is claimed.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/codesign-ceiling/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/codesign-ceiling/
 
 **Headline (simulation only).** Of 140 grasp scenes, **10 (7%) are held by none of 150 feasible gripper designs at any allowed force**, and all 10 are spheres whose centre sits more than about 2 mm below the simulated hand height (`dz_mm` minus radius of 1.9 mm or more). Lowering only the hand height makes every one of them holdable (10 of 10 with the hand at table level, 8 of 10 with the hand at the sphere's centre height). So the plateau is a property of the scene generator, not of friction, mass, grasp force or finger strength. Separately, the finger strength limit does cost something: ignoring it lifts the best single design (one force, chosen on the test scenes) from 0.77 to 0.89 on 100 fresh scenes.
 

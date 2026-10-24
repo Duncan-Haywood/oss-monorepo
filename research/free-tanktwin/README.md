@@ -1,6 +1,6 @@
 # Does a physics digital twin beat black-box models on a real two-tank rig? An 8-parameter twin reaches 0.53 V test RMSE; the best black box needs 9 parameters and gets 0.66 V
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/free-tanktwin/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/free-tanktwin/
 
 A free-choice project. Why it seemed worth doing: the portfolio's central theme is digital twins, but nearly every twin here is fitted to another simulator's output. This one is fitted to **measurements from a real physical rig** (the Cascaded Tanks benchmark, a lab setup of two water tanks fed by a pump) and asks the practical twin question: does encoding the physics (Torricelli outflow, an overflow path) generalise to a held-out experiment better than a black-box model with a similar number of parameters? Relates to the sim-to-real and system-identification themes of ARPG and CAIRO; no lab's code is reused. Produced with AI assistance (Claude).
 
