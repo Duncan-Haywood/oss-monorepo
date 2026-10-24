@@ -37,6 +37,8 @@ the run is also an audit trail. With replies as well, today's replies are read
 first, so someone who wrote "stop" this morning is not called this afternoon.
 It sends nothing.
 
+**Milestone 4a: self-host it.** [`self-host/`](self-host/README.md) runs the inbox agent on your own mailbox (IMAP, read-only), with an approval queue and an audit log, in Node, Docker or compose. It still sends nothing; approved drafts open in your mail app. Tested against a fake IMAP server, not yet a real mailbox.
+
 ## The one rule
 
 > The agent may always do less on its own. It may never do more without you.
