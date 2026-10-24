@@ -2,10 +2,12 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
-## 2026-10-24 · Milestone 10: paper Introduction, Related work, Model and the H5 proof
-- No experiment. Filled four stubs of `paper/main.tex`: the Introduction (four contributions, stated as measured, negative results included), Related work (the 17 works of PROPOSAL.md in three groups, one sentence each on what they do and do not settle), Model (the contract LP and its solver checks), and the H5 one-sided resolution proposition with its proof moved out of the `experiments/joint/h5.py` docstring. `refs.bib` now holds 17 entries.
-- Checks and limits: `cite_check.py` got 403 from the proxy for every id (17 of 17), so the new bib entries (authors, venues) are typed from PROPOSAL.md and my memory and are not machine-checked; compare them with the registries before submission. LaTeX is not installed, so the file is uncompiled (`\citet` needs acmart's natbib, which it loads). Three results sections (margin, frontier, collusion), the negative-results section and the tables are still stubs.
-- Next: margin section with the three setups and the split-resampled table; then frontier and collusion; a transformer step remains the largest experimental gap.
+## 2026-10-24 · Milestone 10: paper body drafted from the log (no new experiment)
+- Wrote the introduction, related work (partial), model, margin (with a table covering the three setups and the 20-split run), contracts and bound, collusion, H6 and limitations sections of `paper/main.tex`, and updated the abstract to the three-task, 20-split result. Every number is copied from `experiments/*/results.txt` or this log. The 39 tests pass, and `paper/make_figures.sh` regenerates both figures with no diff.
+- Still open for the paper: the H5 proof is not yet moved out of the `peer.py` docstring, the eight remaining proposal references are not added or checked, the draft is uncompiled (no LaTeX here), and a transformer step is not done (no `torch` in this session's interpreter).
+- Next: references and proof; a transformer margin step once an installable framework is available.
+- Addendum (same day, second run): replaced the partial Related work with all 17 proposal works in three groups, added the H5 proposition with its proof to the Model section, and 8 bib entries (`refs.bib` now 17). `cite_check.py` got 403 for all 17 ids, so those entries are not machine-checked; compare with the registries before submission.
+
 
 ## 2026-10-24 · Milestone 9: the margin with the data split resampled (H1), planned before running
 - Why: milestone 8 left open that the breast-cancer gain from skipping (-0.0115 at tau = 1e-2) could be an artefact of one 171-sample test set, since seed pairing varied init and batch order but not the split. Here seed s also draws split s (70/30 permutation seed s), so the seed std includes split variance and the paired difference is honest-vs-skip on the same split.
